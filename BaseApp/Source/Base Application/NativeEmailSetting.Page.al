@@ -1,3 +1,4 @@
+#if not CLEAN20
 page 2842 "Native - Email Setting"
 {
     Caption = 'nativeEmailSetup', Locked = true;
@@ -55,4 +56,4 @@ page 2842 "Native - Email Setting"
         EmailValidatorRegexTxt: Label '^[A-Z0-9a-z._%+-]+@(?:[A-Za-z0-9.-]+\.)+[A-Za-z]{2,64}$', Locked = true;
         EmailInvalidErr: Label 'Invalid Email Address.';
 }
-
+#endif

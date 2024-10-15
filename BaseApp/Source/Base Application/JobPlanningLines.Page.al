@@ -474,6 +474,18 @@ page 1007 "Job Planning Lines"
                     ToolTip = 'Specifies that the job is overdue. ';
                     Visible = false;
                 }
+                field("Qty. Picked"; Rec."Qty. Picked")
+                {
+                    ApplicationArea = Manufacturing;
+                    ToolTip = 'Specifies the quantity of the item you have picked for the job planning line.';
+                    Visible = false;
+                }
+                field("Qty. Picked (Base)"; Rec."Qty. Picked (Base)")
+                {
+                    ApplicationArea = Manufacturing;
+                    ToolTip = 'Specifies the base quantity of the item you have picked for the job planning line.';
+                    Visible = false;
+                }
             }
         }
         area(factboxes)
@@ -516,7 +528,7 @@ page 1007 "Job Planning Lines"
                         JobUsageLink.SetRange("Job Task No.", "Job Task No.");
                         JobUsageLink.SetRange("Line No.", "Line No.");
 
-                        if JobUsageLink.FindSet then
+                        if JobUsageLink.FindSet() then
                             repeat
                                 JobLedgerEntry.Get(JobUsageLink."Entry No.");
                                 JobLedgerEntry.Mark := true;
@@ -567,6 +579,18 @@ page 1007 "Job Planning Lines"
                     ToolTip = 'Create a calendar appointment for the resource on each job planning line.';
                     Visible = CanSendToCalendar;
                 }
+                action("Put-away/Pick Lines/Movement Lines")
+                {
+                    ApplicationArea = Warehouse;
+                    Caption = 'Put-away/Pick Lines/Movement Lines';
+                    Image = PutawayLines;
+                    RunObject = Page "Warehouse Activity Lines";
+                    RunPageLink = "Source Type" = FILTER(167),
+                                  "Source Subtype" = CONST("0"),
+                                  "Source No." = FIELD("Job No."),
+                                  "Source Line No." = field("Job Contract Entry No.");
+                    ToolTip = 'View the list of ongoing inventory put-aways, picks, or movements for the job.';
+                }
             }
         }
         area(processing)
@@ -597,7 +621,7 @@ page 1007 "Job Planning Lines"
                             CurrPage.SetSelectionFilter(JobPlanningLine);
 
                             JobPlanningLine.SetFilter(Type, '<>%1', JobPlanningLine.Type::Text);
-                            if JobPlanningLine.FindSet then
+                            if JobPlanningLine.FindSet() then
                                 repeat
                                     JobTransferLine.FromPlanningLineToJnlLine(
                                       JobPlanningLine, JobTransferJobPlanningLine.GetPostingDate, JobTransferJobPlanningLine.GetJobJournalTemplateName,
@@ -715,7 +739,7 @@ page 1007 "Job Planning Lines"
                         DemandOverview.SetCalculationParameter(true);
 
                         DemandOverview.Initialize(0D, 3, "Job No.", '', '');
-                        DemandOverview.RunModal;
+                        DemandOverview.RunModal();
                     end;
                 }
             }
@@ -793,9 +817,6 @@ page 1007 "Job Planning Lines"
 
     trigger OnInit()
     var
-        SMTPMailSetup: Record "SMTP Mail Setup";
-        MailManagement: Codeunit "Mail Management";
-        EmailFeature: Codeunit "Email Feature";
         EmailAccount: Codeunit "Email Account";
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
     begin
@@ -818,10 +839,7 @@ page 1007 "Job Planning Lines"
 
         JobTaskNoVisible := true;
 
-        if EmailFeature.IsEnabled() then
-            CanSendToCalendar := EmailAccount.IsAnyAccountRegistered()
-        else
-            CanSendToCalendar := MailManagement.IsSMTPEnabled and not SMTPMailSetup.IsEmpty;
+        CanSendToCalendar := EmailAccount.IsAnyAccountRegistered();
         ExtendedPriceEnabled := PriceCalculationMgt.IsExtendedPriceCalculationEnabled();
     end;
 

@@ -79,11 +79,11 @@ codeunit 138300 "RS Pack Content - Standard"
         GeneralPostingSetup.SetRange("Gen. Prod. Posting Group", NOTAXTok);
         Assert.RecordCount(GeneralPostingSetup, 2);
         // [THEN] first, where "Gen. Bus. Posting Group" is blank
-        GeneralPostingSetup.FindFirst;
+        GeneralPostingSetup.FindFirst();
         GeneralPostingSetup.TestField("Gen. Bus. Posting Group", '');
         // [THEN] second, where "Gen. Bus. Posting Group" is filled
-        GeneralPostingSetup.FindLast;
-        GenBusinessPostingGroup.FindFirst;
+        GeneralPostingSetup.FindLast();
+        GenBusinessPostingGroup.FindFirst();
         GeneralPostingSetup.TestField("Gen. Bus. Posting Group", GenBusinessPostingGroup.Code);
     end;
 
@@ -116,7 +116,7 @@ codeunit 138300 "RS Pack Content - Standard"
             // [WHEN] Post all Invoices
             Reset;
             SetRange("Document Type", "Document Type"::Invoice);
-            asserterror FindFirst;
+            asserterror FindFirst();
             // [THEN] Error: 'There is no Sales Header within the filter.'
             Assert.ExpectedError(NoSalesHeaderErr);
         end;
@@ -151,7 +151,7 @@ codeunit 138300 "RS Pack Content - Standard"
             // [WHEN] Post all Invoices
             Reset;
             SetRange("Document Type", "Document Type"::Invoice);
-            asserterror FindFirst;
+            asserterror FindFirst();
             // [THEN] Error: 'There is no Purchase Header within the filter.'
             Assert.ExpectedError(NoPurchHeaderErr);
         end;
@@ -169,19 +169,19 @@ codeunit 138300 "RS Pack Content - Standard"
     begin
         // [FEATURE] [Contacts]
         // [SCENARIO] There are two contacts (Company, Person) per each Customer, Vendor, Bank
-        if Customer.FindSet then
+        if Customer.FindSet() then
             repeat
                 VerifyContactCompany(CompanyNo, ContactBusinessRelation."Link to Table"::Customer, Customer."No.");
                 VerifyContactPerson(CompanyNo);
             until Customer.Next = 0;
 
-        if Vendor.FindSet then
+        if Vendor.FindSet() then
             repeat
                 VerifyContactCompany(CompanyNo, ContactBusinessRelation."Link to Table"::Vendor, Vendor."No.");
                 VerifyContactPerson(CompanyNo);
             until Vendor.Next = 0;
 
-        if BankAccount.FindSet then
+        if BankAccount.FindSet() then
             repeat
                 VerifyContactCompany(CompanyNo, ContactBusinessRelation."Link to Table"::"Bank Account", BankAccount."No.");
             until BankAccount.Next = 0;
@@ -213,7 +213,7 @@ codeunit 138300 "RS Pack Content - Standard"
         ContactBusinessRelation.SetRange("Link to Table", LinkToTable);
         ContactBusinessRelation.SetRange("No.", No);
         Assert.RecordCount(ContactBusinessRelation, 1);
-        ContactBusinessRelation.FindFirst;
+        ContactBusinessRelation.FindFirst();
         CompanyNo := ContactBusinessRelation."Contact No.";
     end;
 
@@ -405,7 +405,7 @@ codeunit 138300 "RS Pack Content - Standard"
     begin
         // [SCENARIO 207285] There should be 1 HTML template
         Assert.RecordCount(O365HTMLTemplate, 1);
-        O365HTMLTemplate.FindFirst;
+        O365HTMLTemplate.FindFirst();
         O365HTMLTemplate.TestField("Media Resources Ref");
         MediaResources.Get(O365HTMLTemplate."Media Resources Ref");
     end;

@@ -40,7 +40,7 @@ codeunit 135533 "Tax Area Entity E2E Test"
     begin
         // [SCENARIO] Create an Tax Area and verify it has Id and LastDateTimeModified
         // [GIVEN] a new Tax Area
-        Initialize;
+        Initialize();
         CreateTaxArea(TaxAreaCode, TaxAreaGUID);
         Commit();
 
@@ -60,7 +60,7 @@ codeunit 135533 "Tax Area Entity E2E Test"
     begin
         // [SCENARIO] Create Tax Areas and use a GET method to retrieve them
         // [GIVEN] 2 Tax Areas in the Tax Area Table
-        Initialize;
+        Initialize();
         CreateTaxArea(TaxAreaCode[1], TaxAreaId);
         CreateTaxArea(TaxAreaCode[2], TaxAreaId);
         Commit();
@@ -83,7 +83,7 @@ codeunit 135533 "Tax Area Entity E2E Test"
         TargetURL: Text;
     begin
         // [SCENARIO] User can retrieve the tax area record from the Tax Area API.
-        Initialize;
+        Initialize();
 
         // [GIVEN] A tax area exists in the Tax Area Table
         CreateTaxArea(TaxAreaCode, TaxAreaId);
@@ -108,7 +108,7 @@ codeunit 135533 "Tax Area Entity E2E Test"
         TaxAreaJSON: Text;
     begin
         // [SCENARIO] Create a tax area through a POST method and check if it was created
-        Initialize;
+        Initialize();
 
         // [GIVEN] The user has constructed a tax area JSON object to send to the service.
         TaxAreaBuffer.Init();
@@ -138,7 +138,7 @@ codeunit 135533 "Tax Area Entity E2E Test"
         TaxAreaJSON: Text;
     begin
         // [SCENARIO] User can modify a tax area through a PATCH request.
-        Initialize;
+        Initialize();
 
         // [GIVEN] An tax area exists.
         CreateTaxArea(TaxAreaCode, TaxAreaId);
@@ -169,7 +169,7 @@ codeunit 135533 "Tax Area Entity E2E Test"
         TargetURL: Text;
     begin
         // [SCENARIO] User can delete a tax area by making a DELETE request.
-        Initialize;
+        Initialize();
 
         // [GIVEN] A tax area exists.
         CreateTaxArea(TaxAreaCode, TaxAreaId);

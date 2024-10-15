@@ -96,7 +96,7 @@ codeunit 134162 "Payroll Import Gen. Jnl Test"
         // [GIVEN] 2nd: "Document No." = "D2", "Account No.",Amount = "A2"
         DefinePayrollImportFixedFormat(DataExchDef);
         CreateTestValues(GenJournalLineDocNo, GenJournalLineAmount);
-        AccountNo := LibraryERM.CreateGLAccountNo;
+        AccountNo := LibraryERM.CreateGLAccountNo();
         CreateTempBlob(TempBlob, GenJournalLineDocNo, GenJournalLineAmount, AccountNo, DataExchDef.Code);
 
         // [GIVEN] Gen. Journal Batch with existing line
@@ -411,7 +411,7 @@ codeunit 134162 "Payroll Import Gen. Jnl Test"
         DataExchDef: Record "Data Exch. Def";
     begin
         DataExchDef.Init();
-        DataExchDef.Code := LibraryUtility.GenerateGUID;
+        DataExchDef.Code := LibraryUtility.GenerateGUID();
         DataExchDef."Reading/Writing XMLport" := XMLPortNo;
         DataExchDef."Reading/Writing Codeunit" := CodeuninNo;
         DataExchDef.Insert();
@@ -429,9 +429,9 @@ codeunit 134162 "Payroll Import Gen. Jnl Test"
 
     local procedure CreateTestValues(var GenJournalLineDocNo: array[2] of Code[20]; var GenJournalLineAmount: array[2] of Decimal)
     begin
-        GenJournalLineDocNo[1] := LibraryUtility.GenerateGUID;
+        GenJournalLineDocNo[1] := LibraryUtility.GenerateGUID();
         GenJournalLineAmount[1] := LibraryRandom.RandInt(100);
-        GenJournalLineDocNo[2] := LibraryUtility.GenerateGUID;
+        GenJournalLineDocNo[2] := LibraryUtility.GenerateGUID();
         GenJournalLineAmount[2] := LibraryRandom.RandInt(100);
     end;
 
@@ -494,10 +494,10 @@ codeunit 134162 "Payroll Import Gen. Jnl Test"
         Assert.RecordCount(GenJournalLine, ExpCountOfGenJournalLine);
 
         GenJournalLine.SetRange("Document No.", ExpDocNo[1]);
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
         GenJournalLine.TestField(Amount, ExpAmount[1]);
         GenJournalLine.SetRange("Document No.", ExpDocNo[2]);
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
         GenJournalLine.TestField(Amount, ExpAmount[2]);
     end;
 

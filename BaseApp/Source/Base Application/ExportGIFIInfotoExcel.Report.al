@@ -139,7 +139,7 @@ report 10005 "Export GIFI Info. to Excel"
         GLAccount.SetRange("Date Filter", 0D, AsOfDate);
         GLAccount.SetRange("GIFI Code", GIFICode.Code);
 
-        if GLAccount.FindSet then
+        if GLAccount.FindSet() then
             repeat
                 GLAccount.CalcFields("Balance at Date", "Add.-Currency Balance at Date");
                 BalanceAtDate += GLAccount."Balance at Date";

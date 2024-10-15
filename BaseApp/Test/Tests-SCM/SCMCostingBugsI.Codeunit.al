@@ -48,7 +48,7 @@ codeunit 137620 "SCM Costing Bugs I"
         SalesILENo: Integer;
         SalesReturnAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Make item
         LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCode, false, true);
@@ -85,7 +85,7 @@ codeunit 137620 "SCM Costing Bugs I"
         SalesHeader.Get(SalesHeader."Document Type", SalesHeader."No.");
         LibrarySales.PostSalesDocument(SalesHeader, false, true); // Invoice
         ItemLedgerEntry.SetRange("Item No.", Item."No.");
-        ItemLedgerEntry.FindLast; // above sales ILE
+        ItemLedgerEntry.FindLast(); // above sales ILE
         SalesILENo := ItemLedgerEntry."Entry No.";
 
         // Adjust cost
@@ -107,7 +107,7 @@ codeunit 137620 "SCM Costing Bugs I"
 
         // Verify
         LibraryCosting.CheckAdjustment(Item);
-        ItemLedgerEntry.FindLast; // above sales return ILE
+        ItemLedgerEntry.FindLast(); // above sales return ILE
         ItemLedgerEntry.CalcFields("Cost Amount (Actual)");
         SalesReturnAmount := ItemLedgerEntry."Cost Amount (Actual)";
         ItemLedgerEntry.Get(SalesILENo);
@@ -134,7 +134,7 @@ codeunit 137620 "SCM Costing Bugs I"
         Day1: Date;
         Day2: Date;
     begin
-        Initialize;
+        Initialize();
 
         // Make item
         LibraryPatterns.MAKEItem(ItemA, ItemA."Costing Method"::Average, LibraryRandom.RandInt(100), 0, 0, '');
@@ -247,7 +247,7 @@ codeunit 137620 "SCM Costing Bugs I"
         SalesQty: Decimal;
         VerifyVariance: Boolean;
     begin
-        Initialize;
+        Initialize();
 
         // Make item
         LibraryPatterns.MAKEItem(Item, CostingMethod, 0, 0, 0, '');
@@ -297,7 +297,7 @@ codeunit 137620 "SCM Costing Bugs I"
         ItemLedgerEntry: Record "Item Ledger Entry";
         ValueEntry: Record "Value Entry";
     begin
-        Initialize;
+        Initialize();
 
         // Inventory setup
         LibraryInventory.SetAutomaticCostAdjmtAlways;
@@ -315,9 +315,9 @@ codeunit 137620 "SCM Costing Bugs I"
           ProductionOrder, ProductionOrder.Status::Released, ProducedItem, '', '', LibraryRandom.RandInt(10), WorkDate);
         ProdOrderLine.SetRange(Status, ProductionOrder.Status);
         ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
-        ProdOrderLine.FindFirst;
+        ProdOrderLine.FindFirst();
         LibraryPatterns.POSTOutput(ProdOrderLine, ProdOrderLine.Quantity, WorkDate, ProdOrderLine."Unit Cost");
-        ItemLedgerEntry.FindLast; // output line
+        ItemLedgerEntry.FindLast(); // output line
         LibraryPatterns.POSTConsumption(
           ProdOrderLine, ChildItem, '', '', LibraryRandom.RandInt(10), WorkDate, ChildItem."Standard Cost");
 
@@ -348,7 +348,7 @@ codeunit 137620 "SCM Costing Bugs I"
         PurchQty: Decimal;
         SalesQty: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Inventory setup
         LibraryInventory.SetAutomaticCostAdjmtAlways;
@@ -361,7 +361,7 @@ codeunit 137620 "SCM Costing Bugs I"
         PurchQty := LibraryRandom.RandInt(10);
         Purch1Cost := LibraryRandom.RandInt(10);
         LibraryPatterns.POSTPurchaseOrder(PurchaseHeader, Item, '', '', PurchQty, WorkDate, Purch1Cost, true, true);
-        ItemLedgerEntry.FindLast; // store the first purchase ILE
+        ItemLedgerEntry.FindLast(); // store the first purchase ILE
         Purch2Cost := LibraryRandom.RandIntInRange(Purch1Cost, 20); // higher than cost of 1st purchase
         LibraryPatterns.POSTPurchaseOrder(PurchaseHeader, Item, '', '', PurchQty, WorkDate, Purch2Cost, true, true);
 
@@ -391,7 +391,7 @@ codeunit 137620 "SCM Costing Bugs I"
         PurchQty: Decimal;
         SalesQty: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Make item
         LibraryPatterns.MAKEItem(Item, Item."Costing Method"::Standard, LibraryRandom.RandInt(10), 0, 0, '');
@@ -436,7 +436,7 @@ codeunit 137620 "SCM Costing Bugs I"
         SalesQty: Decimal;
         QtyPerBaseUOM: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Make item with additional UOMs
         LibraryPatterns.MAKEItem(Item, Item."Costing Method"::Average, LibraryRandom.RandInt(10), 0, 0, '');
@@ -488,7 +488,7 @@ codeunit 137620 "SCM Costing Bugs I"
         QtyOutput: Decimal;
         QtyNegItemPosting: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         LibraryInventory.SetAutomaticCostAdjmtNever;
         LibraryInventory.SetAverageCostSetup(InventorySetup."Average Cost Calc. Type"::Item, InventorySetup."Average Cost Period"::Month);
@@ -562,7 +562,7 @@ codeunit 137620 "SCM Costing Bugs I"
         Variant: Code[10];
         ii: Integer;
     begin
-        Initialize;
+        Initialize();
 
         LibraryInventory.SetAutomaticCostAdjmtNever;
         LibraryInventory.SetAverageCostSetup(InventorySetup."Average Cost Calc. Type"::Item, InventorySetup."Average Cost Period"::Day);
@@ -585,7 +585,7 @@ codeunit 137620 "SCM Costing Bugs I"
 
         ItemLedgerEntry.Init();
         ItemLedgerEntry.SetRange("Item No.", Item."No.", Item."No.");
-        ItemLedgerEntry.FindFirst;
+        ItemLedgerEntry.FindFirst();
 
         LibraryInventory.CreateItemJournalBatchByType(ItemJournalBatch, ItemJournalBatch."Template Type"::Item);
         for ii := 1 to 4 do begin
@@ -613,7 +613,7 @@ codeunit 137620 "SCM Costing Bugs I"
         RoutingHeader: Record "Routing Header";
         ItemJournalLine: Record "Item Journal Line";
     begin
-        Initialize;
+        Initialize();
 
         // Setup the item and its routing.
         LibraryPatterns.MAKEItem(Item, Item."Costing Method"::Average, LibraryRandom.RandInt(10), 0, 0, '');
@@ -641,7 +641,7 @@ codeunit 137620 "SCM Costing Bugs I"
         RoutingLine: Record "Routing Line";
         ItemJournalLine: Record "Item Journal Line";
     begin
-        Initialize;
+        Initialize();
 
         // Setup the item and its routing.
         LibraryPatterns.MAKEItem(Item, Item."Costing Method"::Average, LibraryRandom.RandInt(10), 0, 0, '');
@@ -660,12 +660,12 @@ codeunit 137620 "SCM Costing Bugs I"
         Item.Modify();
 
         // Explode routing, modify and post
-        WorkCenterGroup.FindFirst;
+        WorkCenterGroup.FindFirst();
         LibraryManufacturing.CreateWorkCenter(WorkCenter);
         WorkCenter.Validate("Unit Cost", LibraryRandom.RandDec(100, 2));
         WorkCenter.Validate("Specific Unit Cost", Specific);
         WorkCenter.Modify();
-        CapacityUnitOfMeasure.FindFirst;
+        CapacityUnitOfMeasure.FindFirst();
         WorkCenter.Validate("Unit of Measure Code", CapacityUnitOfMeasure.Code);
         WorkCenter.Modify();
 
@@ -700,7 +700,7 @@ codeunit 137620 "SCM Costing Bugs I"
         Item: Record Item;
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
-        Initialize;
+        Initialize();
 
         // Make item. Post adjustments.
         LibraryPatterns.MAKEItem(Item, Item."Costing Method"::Average, 0, 0, 0, '');
@@ -841,7 +841,7 @@ codeunit 137620 "SCM Costing Bugs I"
         // [FEATURE] [UT]
         // [SCENARIO 380539] Function GetVisitedEntries in table 339 "Item Application Entry" should collect entries within valuation period
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Update Inventory Setup: set "Average Cost Calc. Type" = "Item & Location & Variant", "Average Cost Period" = Day and disable automatic cost adjustment
         LibraryInventory.SetAutomaticCostAdjmtNever;
@@ -862,7 +862,7 @@ codeunit 137620 "SCM Costing Bugs I"
 
         ItemLedgerEntry.SetRange("Item No.", Item."No.");
         ItemLedgerEntry.SetRange("Location Code", Location[2].Code);
-        ItemLedgerEntry.FindFirst;
+        ItemLedgerEntry.FindFirst();
 
         // [WHEN] Calculate valuation chain on WORKDATE
         ItemApplicationEntry.GetVisitedEntries(ItemLedgerEntry, TempItemLedgerEntry, true);
@@ -877,18 +877,18 @@ codeunit 137620 "SCM Costing Bugs I"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Costing Bugs I");
         // Lazy Setup.
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Costing Bugs I");
 
         LibraryPatterns.SETNoSeries;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdateLocalData;
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdateLocalData();
         isInitialized := true;
         Commit();
 
@@ -920,7 +920,7 @@ codeunit 137620 "SCM Costing Bugs I"
         Clear(ProdOrderLine);
         ProdOrderLine.SetRange(Status, ProductionOrder.Status);
         ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
-        ProdOrderLine.FindFirst;
+        ProdOrderLine.FindFirst();
     end;
 
     local procedure GetFirstItemJournalLineInBatch(var ItemJournalLine: Record "Item Journal Line"; ItemJournalBatch: Record "Item Journal Batch")
@@ -928,7 +928,7 @@ codeunit 137620 "SCM Costing Bugs I"
         Clear(ItemJournalLine);
         ItemJournalLine.SetRange("Journal Template Name", ItemJournalBatch."Journal Template Name");
         ItemJournalLine.SetRange("Journal Batch Name", ItemJournalBatch.Name);
-        ItemJournalLine.FindFirst;
+        ItemJournalLine.FindFirst();
     end;
 
     [Scope('OnPrem')]
@@ -991,7 +991,7 @@ codeunit 137620 "SCM Costing Bugs I"
     local procedure ReopenPurchaseDocAndPostInvoiceWithNewCost(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; NewUnitCost: Decimal)
     begin
         LibraryPurchase.ReopenPurchaseDocument(PurchaseHeader);
-        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID);
+        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
         PurchaseHeader.Modify(true);
 
         PurchaseLine.Find;
@@ -1035,7 +1035,7 @@ codeunit 137620 "SCM Costing Bugs I"
         Assert.AreEqual(1, ValueEntry.Count, 'Too many value entries created for capacity.');
         ValueEntry.SetRange(Type, ItemJournalLine.Type);
         ValueEntry.SetRange("No.", ItemJournalLine."No.");
-        ValueEntry.FindFirst;
+        ValueEntry.FindFirst();
         Assert.AreNearlyEqual(ItemJournalLine."Run Time" + ItemJournalLine."Setup Time", ValueEntry."Valued Quantity",
           LibraryERM.GetAmountRoundingPrecision, 'Wrong valued qty.');
         Assert.AreNearlyEqual(UnitCost * ValueEntry."Valued Quantity", ValueEntry."Cost Amount (Actual)",

@@ -26,7 +26,7 @@ codeunit 144001 "UT REP Resource"
         // Purpose of the test is to validate OnAfterGetRecord Trigger of Report 10195 - Cost Breakdown.
 
         // Setup: Create Resource and Resource Ledger Entry.
-        Initialize;
+        Initialize();
         CreateResource(Resource);
         CreateResourceLedgerEntry(ResLedgerEntry, Resource."No.");
 
@@ -51,7 +51,7 @@ codeunit 144001 "UT REP Resource"
         // Purpose of the test is to validate OnAfterGetRecord - Resource Register, Trigger of Report 10198 - Resource Register.
 
         // Setup: Create Resource, Resource Ledger Entry and Resource Register.
-        Initialize;
+        Initialize();
         CreateResourceLedgerEntry(ResLedgerEntry, LibraryUTUtility.GetNewCode);
         CreateResourceRegister(ResourceRegister, ResLedgerEntry."Entry No.");
         ResourceRegister."Source Code" := LibraryUTUtility.GetNewCode10;
@@ -77,7 +77,7 @@ codeunit 144001 "UT REP Resource"
         // Purpose of the test is to validate OnAfterGetRecord - ResLedgerEntry, Trigger of Report 10198 - Resource Register.
 
         // Setup: Create Resource, Resource Ledger Entry and Resource Register.
-        Initialize;
+        Initialize();
         CreateResourceLedgerEntry(ResLedgerEntry, LibraryUTUtility.GetNewCode);
         ResLedgerEntry.Description := 'Description';
         ResLedgerEntry.Modify();
@@ -100,7 +100,7 @@ codeunit 144001 "UT REP Resource"
         // Purpose of the test is to validate OnPreReport Trigger of Report 10197 - Resource List.
 
         // Setup: Create Resource and run report - Resource List.
-        Initialize;
+        Initialize();
         RunResourceReport(REPORT::"Resource List");
     end;
 
@@ -113,7 +113,7 @@ codeunit 144001 "UT REP Resource"
         // Purpose of the test is to validate OnPreReport Trigger of Report 10199 - Resource Statistics.
 
         // Setup: Create Resource and run report - Resource Statistics.
-        Initialize;
+        Initialize();
         RunResourceReport(REPORT::"Resource Statistics");
     end;
 
@@ -126,7 +126,7 @@ codeunit 144001 "UT REP Resource"
         // Purpose of the test is to validate OnPreReport Trigger of Report 10200 - Resource Usage.
 
         // Setup: Create Resource and run report - Resource Usage.
-        Initialize;
+        Initialize();
         RunResourceReport(REPORT::"Resource Usage");
     end;
 
@@ -145,7 +145,7 @@ codeunit 144001 "UT REP Resource"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreateResource(var Resource: Record Resource)
@@ -178,7 +178,7 @@ codeunit 144001 "UT REP Resource"
     var
         ResLedgerEntry: Record "Res. Ledger Entry";
     begin
-        if ResLedgerEntry.FindLast then
+        if ResLedgerEntry.FindLast() then
             exit(ResLedgerEntry."Entry No." + 1);
         exit(1);
     end;
@@ -187,7 +187,7 @@ codeunit 144001 "UT REP Resource"
     var
         ResourceRegister: Record "Resource Register";
     begin
-        if ResourceRegister.FindLast then
+        if ResourceRegister.FindLast() then
             exit(ResourceRegister."No." + 1);
         exit(1);
     end;

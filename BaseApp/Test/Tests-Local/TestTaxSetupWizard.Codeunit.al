@@ -160,7 +160,7 @@ codeunit 142095 "Test Tax Setup Wizard"
             TaxDetail.SetRange("Tax Group Code", SalesTaxSetupWizard.GetDefaultTaxGroupCode);
             TaxDetail.SetRange("Tax Jurisdiction Code", TaxAreaLine."Tax Jurisdiction Code");
             TaxDetail.SetRange("Tax Type", TaxDetail."Tax Type"::"Sales and Use Tax");
-            TaxDetail.FindLast;
+            TaxDetail.FindLast();
             TotalSalesTaxRate += TaxDetail."Tax Below Maximum";
         until TaxAreaLine.Next = 0;
         Assert.AreEqual(SalesTaxRate, TotalSalesTaxRate, 'Wrong sales tax rate sum');

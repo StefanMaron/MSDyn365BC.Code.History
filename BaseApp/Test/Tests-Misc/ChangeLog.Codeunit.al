@@ -40,7 +40,7 @@ codeunit 139031 "Change Log"
         CVLedgerEntryBuffer: Record "CV Ledger Entry Buffer";
     begin
         ChangeLogInit;
-        NoSeriesSetup;
+        NoSeriesSetup();
 
         // Lazy Setup.
         if isInitialized then
@@ -174,7 +174,7 @@ codeunit 139031 "Change Log"
         RecRef: RecordRef;
     begin
         // Setup
-        Initialize;
+        Initialize();
         SetTableForChangeLog(GlobalTableNo, LogOption::"All Fields", LogOption::" ", LogOption::" ");
 
         // Exercise
@@ -195,7 +195,7 @@ codeunit 139031 "Change Log"
         RecRef: RecordRef;
     begin
         // Setup
-        Initialize;
+        Initialize();
         SetTableForChangeLog(GlobalTableNo, LogOption::"All Fields", LogOption::" ", LogOption::" ");
 
         // Exercise
@@ -218,7 +218,7 @@ codeunit 139031 "Change Log"
         RecRef: RecordRef;
     begin
         // Setup
-        Initialize;
+        Initialize();
         SetTableForChangeLog(GlobalTableNo, LogOption::" ", LogOption::"All Fields", LogOption::"All Fields");
 
         // Exercise
@@ -238,7 +238,7 @@ codeunit 139031 "Change Log"
         RecRef: RecordRef;
     begin
         // Setup
-        Initialize;
+        Initialize();
         SetTableForChangeLog(GlobalTableNo, LogOption::"Some Fields", LogOption::" ", LogOption::" ");
         SetFieldsForChangeLog(GlobalTableNo, GlobalFieldNo[1], true, false, false);
         SetFieldsForChangeLog(GlobalTableNo, GlobalFieldNo[2], true, false, false);
@@ -264,7 +264,7 @@ codeunit 139031 "Change Log"
         RecRef: RecordRef;
     begin
         // Setup
-        Initialize;
+        Initialize();
         SetTableForChangeLog(GlobalTableNo, LogOption::" ", LogOption::"Some Fields", LogOption::"Some Fields");
         SetFieldsForChangeLog(GlobalTableNo, GlobalFieldNo[1], true, false, false);
         SetFieldsForChangeLog(GlobalTableNo, GlobalFieldNo[2], true, false, false);
@@ -287,7 +287,7 @@ codeunit 139031 "Change Log"
         RecRef: RecordRef;
     begin
         // Setup
-        Initialize;
+        Initialize();
         SetTableForChangeLog(GlobalTableNo, LogOption::"Some Fields", LogOption::"Some Fields", LogOption::"Some Fields");
         SetFieldsForChangeLog(GlobalTableNo, GlobalFieldNo[1], false, true, true);
         SetFieldsForChangeLog(GlobalTableNo, GlobalFieldNo[2], false, true, true);
@@ -312,7 +312,7 @@ codeunit 139031 "Change Log"
         RecRef: RecordRef;
         LocalTableNo: Integer;
     begin
-        Initialize;
+        Initialize();
 
         LocalTableNo := DATABASE::"Test Table with large field";
         SetTableForChangeLog(LocalTableNo, LogOption::"All Fields", LogOption::" ", LogOption::" ");
@@ -335,7 +335,7 @@ codeunit 139031 "Change Log"
         ChangeLogEntry.SetRange("Field No.", TestTableWithLargeField.FieldNo(Description));
 
         Assert.RecordCount(ChangeLogEntry, 1);
-        ChangeLogEntry.FindFirst;
+        ChangeLogEntry.FindFirst();
         Assert.AreEqual(TestTableWithLargeField.Description,
           ChangeLogEntry."New Value",
           'ChangelogEntry should have correct value for field: New Value.');
@@ -351,7 +351,7 @@ codeunit 139031 "Change Log"
         RecRef: RecordRef;
     begin
         // Setup
-        Initialize;
+        Initialize();
         SetTableForChangeLog(GlobalTableNo, LogOption::" ", LogOption::" ", LogOption::"All Fields");
 
         // Exercise
@@ -372,7 +372,7 @@ codeunit 139031 "Change Log"
         RecRef: RecordRef;
     begin
         // Setup
-        Initialize;
+        Initialize();
         SetTableForChangeLog(DATABASE::Item, LogOption::" ", LogOption::" ", LogOption::"All Fields");
 
         // Exercise
@@ -396,7 +396,7 @@ codeunit 139031 "Change Log"
         RecRef: RecordRef;
     begin
         // Setup
-        Initialize;
+        Initialize();
         SetTableForChangeLog(GlobalTableNo, LogOption::"All Fields", LogOption::"All Fields", LogOption::" ");
 
         // Exercise
@@ -416,7 +416,7 @@ codeunit 139031 "Change Log"
         RecRef: RecordRef;
     begin
         // Setup
-        Initialize;
+        Initialize();
         SetTableForChangeLog(GlobalTableNo, LogOption::" ", LogOption::" ", LogOption::"Some Fields");
         SetFieldsForChangeLog(GlobalTableNo, GlobalFieldNo[1], false, false, true);
         SetFieldsForChangeLog(GlobalTableNo, GlobalFieldNo[2], false, false, true);
@@ -444,7 +444,7 @@ codeunit 139031 "Change Log"
         ObsoleteFieldID: Integer;
     begin
         // Setup
-        Initialize;
+        Initialize();
         SetTableForChangeLog(DATABASE::Contact, LogOption::" ", LogOption::" ", LogOption::"Some Fields");
         ObsoleteFieldID := 89; // Picture
         SetFieldsForChangeLog(DATABASE::Contact, ObsoleteFieldID, false, false, true);
@@ -468,7 +468,7 @@ codeunit 139031 "Change Log"
         RecRef: RecordRef;
     begin
         // Setup
-        Initialize;
+        Initialize();
         SetTableForChangeLog(GlobalTableNo, LogOption::"Some Fields", LogOption::"Some Fields", LogOption::" ");
         SetFieldsForChangeLog(GlobalTableNo, GlobalFieldNo[1], false, false, true);
         SetFieldsForChangeLog(GlobalTableNo, GlobalFieldNo[2], false, false, true);
@@ -491,7 +491,7 @@ codeunit 139031 "Change Log"
         RecRef: RecordRef;
     begin
         // Setup
-        Initialize;
+        Initialize();
         SetTableForChangeLog(GlobalTableNo, LogOption::"Some Fields", LogOption::"Some Fields", LogOption::"Some Fields");
         SetFieldsForChangeLog(GlobalTableNo, GlobalFieldNo[1], true, true, false);
         SetFieldsForChangeLog(GlobalTableNo, GlobalFieldNo[2], true, true, false);
@@ -515,7 +515,7 @@ codeunit 139031 "Change Log"
         xRecRef: RecordRef;
     begin
         // Setup
-        Initialize;
+        Initialize();
         SetTableForChangeLog(GlobalTableNo, LogOption::" ", LogOption::"All Fields", LogOption::" ");
 
         // Exercise - modify one field and check when option is log all fields
@@ -541,7 +541,7 @@ codeunit 139031 "Change Log"
         RecRef: RecordRef;
     begin
         // Setup
-        Initialize;
+        Initialize();
         SetTableForChangeLog(DATABASE::Item, LogOption::" ", LogOption::"All Fields", LogOption::" ");
 
         // Exercise - modify one field and check when option is log all fields
@@ -568,7 +568,7 @@ codeunit 139031 "Change Log"
         xRecRef: RecordRef;
     begin
         // Setup
-        Initialize;
+        Initialize();
         SetTableForChangeLog(GlobalTableNo, LogOption::"All Fields", LogOption::" ", LogOption::"All Fields");
 
         // Exercise - modify one field and check when option is log all fields
@@ -589,7 +589,7 @@ codeunit 139031 "Change Log"
         xRecRef: RecordRef;
     begin
         // Setup
-        Initialize;
+        Initialize();
         SetTableForChangeLog(GlobalTableNo, LogOption::" ", LogOption::"Some Fields", LogOption::" ");
         SetFieldsForChangeLog(GlobalTableNo, GlobalFieldNo[1], false, true, false);
         SetFieldsForChangeLog(GlobalTableNo, GlobalExtraFieldNo[2], false, true, false);
@@ -617,7 +617,7 @@ codeunit 139031 "Change Log"
         xRecRef: RecordRef;
     begin
         // Setup
-        Initialize;
+        Initialize();
         SetTableForChangeLog(GlobalTableNo, LogOption::" ", LogOption::"Some Fields", LogOption::" ");
         SetFieldsForChangeLog(GlobalTableNo, GlobalFieldNo[1], false, true, false);
         SetFieldsForChangeLog(GlobalTableNo, GlobalExtraFieldNo[4], false, true, false);
@@ -640,7 +640,7 @@ codeunit 139031 "Change Log"
         xRecRef: RecordRef;
     begin
         // Setup
-        Initialize;
+        Initialize();
         SetTableForChangeLog(GlobalTableNo, LogOption::"Some Fields", LogOption::" ", LogOption::"Some Fields");
         SetFieldsForChangeLog(GlobalTableNo, GlobalFieldNo[1], false, true, false);
         SetFieldsForChangeLog(GlobalTableNo, GlobalExtraFieldNo[2], false, true, false);
@@ -664,7 +664,7 @@ codeunit 139031 "Change Log"
         xRecRef: RecordRef;
     begin
         // Setup
-        Initialize;
+        Initialize();
         SetTableForChangeLog(GlobalTableNo, LogOption::"Some Fields", LogOption::"Some Fields", LogOption::"Some Fields");
         SetFieldsForChangeLog(GlobalTableNo, GlobalFieldNo[1], true, false, true);
         SetFieldsForChangeLog(GlobalTableNo, GlobalExtraFieldNo[2], true, false, true);
@@ -688,7 +688,7 @@ codeunit 139031 "Change Log"
         xRecRef: RecordRef;
     begin
         // Setup
-        Initialize;
+        Initialize();
         SetTableForChangeLog(GlobalTableNo, LogOption::" ", LogOption::"All Fields", LogOption::" ");
 
         // Exercise - modify one field and check when option is log all fields
@@ -710,7 +710,7 @@ codeunit 139031 "Change Log"
         xRecRef: RecordRef;
     begin
         // Setup
-        Initialize;
+        Initialize();
         SetTableForChangeLog(GlobalTableNo, LogOption::" ", LogOption::"Some Fields", LogOption::" ");
         SetFieldsForChangeLog(GlobalTableNo, GlobalFieldNo[1], false, true, false);
         SetFieldsForChangeLog(GlobalTableNo, GlobalExtraFieldNo[2], false, true, false);
@@ -738,7 +738,7 @@ codeunit 139031 "Change Log"
         OldNo: Code[20];
     begin
         // Setup
-        Initialize;
+        Initialize();
         SetTableForChangeLog(DATABASE::Item, LogOption::"All Fields", LogOption::" ", LogOption::" ");
 
         // Exercise
@@ -770,13 +770,13 @@ codeunit 139031 "Change Log"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 376549] Change Log Entry can be read for deleted tables
-        Initialize;
+        Initialize();
         TableNo := LibraryRandom.RandIntInRange(1000000, 2000000);
         FieldNo := LibraryRandom.RandIntInRange(1000000, 2000000);
 
         // [GIVEN] Change Log Entry for TableNo = 1000000 (not exist), FieldNo = 1, New Value = 'TEST'
         MockTableForChangeLog(TableNo);
-        NewValue := LibraryUtility.GenerateGUID;
+        NewValue := LibraryUtility.GenerateGUID();
         MockChangeLogEntry(ChangeLogEntry, TableNo, FieldNo, NewValue);
 
         // [WHEN] Read Change Log Entry: TAB 405 "Change Log Entry".GetLocalNewValue()
@@ -798,13 +798,13 @@ codeunit 139031 "Change Log"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 376549] Change Log Entry can be read for deleted table fields
-        Initialize;
+        Initialize();
         TableNo := DATABASE::Item;
         FieldNo := LibraryRandom.RandIntInRange(1000000, 2000000);
 
         // [GIVEN] Change Log Entry for TableNo = 27 ("Item"), FieldNo = 1000000 (not exist), New Value = 'TEST'
         MockTableForChangeLog(TableNo);
-        NewValue := LibraryUtility.GenerateGUID;
+        NewValue := LibraryUtility.GenerateGUID();
         MockChangeLogEntry(ChangeLogEntry, TableNo, FieldNo, NewValue);
 
         // [WHEN] Read Change Log Entry: TAB 405 "Change Log Entry".GetLocalNewValue()
@@ -860,7 +860,7 @@ codeunit 139031 "Change Log"
 
         Assert.AreEqual(1, ChangeLogEntry.Count, 'Exected one ChangeLogEntry within the filter:' + ChangeLogEntry.GetFilters);
 
-        if not ChangeLogEntry.FindFirst then
+        if not ChangeLogEntry.FindFirst() then
             exit;
 
         Assert.AreNotEqual('', ChangeLogEntry.GetFullPrimaryKeyFriendlyName, 'PrimaryKeyFriendlyName should not be blank.');
@@ -892,7 +892,7 @@ codeunit 139031 "Change Log"
         LastEntryNo: Integer;
     begin
         with CVLedgerEntryBuffer do begin
-            if FindLast then
+            if FindLast() then
                 LastEntryNo := "Entry No.";
             Init;
             "Entry No." := LastEntryNo + 1;
@@ -1548,13 +1548,13 @@ codeunit 139031 "Change Log"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 381315] Entries should not be added to Change Log when Item Tracking Comments is opened from Lot No. Information Card
-        Initialize;
+        Initialize();
 
         // [GIVEN] Insert option is activated in Change Log Setup for Lot No. Information table
         SetTableForChangeLog(DATABASE::"Lot No. Information", LogOption::"All Fields", LogOption::" ", LogOption::" ");
 
         // [GIVEN] Lot No. Information with Item = "X" and 3 entries in Change Log
-        LibraryInventory.CreateLotNoInformation(LotNoInformation, LibraryInventory.CreateItemNo, '', LibraryUtility.GenerateGUID);
+        LibraryInventory.CreateLotNoInformation(LotNoInformation, LibraryInventory.CreateItemNo, '', LibraryUtility.GenerateGUID());
         RecRef.GetTable(LotNoInformation);
         AssertNoOfEntriesForPK(RecRef, TypeOfChangeOption::Insertion, 3);
 
@@ -1582,13 +1582,13 @@ codeunit 139031 "Change Log"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 381315] Entries should not be added to Change Log when Item Tracking Comments is opened from Lot No. Information List
-        Initialize;
+        Initialize();
 
         // [GIVEN] Insert option is activated in Change Log Setup for Lot No. Information table
         SetTableForChangeLog(DATABASE::"Lot No. Information", LogOption::"All Fields", LogOption::" ", LogOption::" ");
 
         // [GIVEN] Lot No. Information with Item = "X" and 3 entries in Change Log
-        LibraryInventory.CreateLotNoInformation(LotNoInformation, LibraryInventory.CreateItemNo, '', LibraryUtility.GenerateGUID);
+        LibraryInventory.CreateLotNoInformation(LotNoInformation, LibraryInventory.CreateItemNo, '', LibraryUtility.GenerateGUID());
         RecRef.GetTable(LotNoInformation);
         AssertNoOfEntriesForPK(RecRef, TypeOfChangeOption::Insertion, 3);
 
@@ -1616,13 +1616,13 @@ codeunit 139031 "Change Log"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 381315] Entries should not be added to Change Log when Item Tracking Comments is opened from Serial No. Information Card
-        Initialize;
+        Initialize();
 
         // [GIVEN] Insert option is activated in Change Log Setup for Serial No. Information table
         SetTableForChangeLog(DATABASE::"Serial No. Information", LogOption::"All Fields", LogOption::" ", LogOption::" ");
 
         // [GIVEN] Serial No. Information with Item = "X" and 2 entries in Change Log
-        LibraryInventory.CreateSerialNoInformation(SerialNoInformation, LibraryInventory.CreateItemNo, '', LibraryUtility.GenerateGUID);
+        LibraryInventory.CreateSerialNoInformation(SerialNoInformation, LibraryInventory.CreateItemNo, '', LibraryUtility.GenerateGUID());
         RecRef.GetTable(SerialNoInformation);
         AssertNoOfEntriesForPK(RecRef, TypeOfChangeOption::Insertion, 2);
 
@@ -1650,13 +1650,13 @@ codeunit 139031 "Change Log"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 381315] Entries should not be added to Change Log when Item Tracking Comments is opened from Serial No. Information List
-        Initialize;
+        Initialize();
 
         // [GIVEN] Insert option is activated in Change Log Setup for Serial No. Information table
         SetTableForChangeLog(DATABASE::"Serial No. Information", LogOption::"All Fields", LogOption::" ", LogOption::" ");
 
         // [GIVEN] Serial No. Information with Item = "X" and 2 entries in Change Log
-        LibraryInventory.CreateSerialNoInformation(SerialNoInformation, LibraryInventory.CreateItemNo, '', LibraryUtility.GenerateGUID);
+        LibraryInventory.CreateSerialNoInformation(SerialNoInformation, LibraryInventory.CreateItemNo, '', LibraryUtility.GenerateGUID());
         RecRef.GetTable(SerialNoInformation);
         AssertNoOfEntriesForPK(RecRef, TypeOfChangeOption::Insertion, 2);
 
@@ -1676,7 +1676,7 @@ codeunit 139031 "Change Log"
     [Test]
     [HandlerFunctions('REP510RequestPageHandlerFilterSet')]
     [Scope('OnPrem')]
-    [Obsolete('The functionality has been replaced with the retention policy module in system application.','17.0')]
+    [Obsolete('The functionality has been replaced with the retention policy module in system application.', '17.0')]
     procedure DeleteLogEntriesRequestPageFilterSet()
     begin
         // [SCENARIO] User wants to delete log entries (REP510). Date filter should be preset
@@ -1694,7 +1694,7 @@ codeunit 139031 "Change Log"
     [Test]
     [HandlerFunctions('REP510RequestPageHandlerNoFilterSet,ConfirmHandlerREP510Cancel')]
     [Scope('OnPrem')]
-    [Obsolete('The functionality has been replaced with the retention policy module in system application.','17.0')]
+    [Obsolete('The functionality has been replaced with the retention policy module in system application.', '17.0')]
     procedure DeleteLogEntriesRequestPageNoFilterSet()
     begin
         // [SCENARIO] User wants to delete log entries (REP510). Warning should be shown if no date filter is shown
@@ -1712,7 +1712,7 @@ codeunit 139031 "Change Log"
     [Test]
     [HandlerFunctions('REP510RequestPageHandlerNothingToDelete,MessageHandlerNothingToDelete')]
     [Scope('OnPrem')]
-    [Obsolete('The functionality has been replaced with the retention policy module in system application.','17.0')]
+    [Obsolete('The functionality has been replaced with the retention policy module in system application.', '17.0')]
     procedure DeleteLogEntriesRequestPageNothingToDelete()
     begin
         // [SCENARIO] User wants to delete log entries (REP510). Error that no entries exist
@@ -1730,7 +1730,7 @@ codeunit 139031 "Change Log"
     [Test]
     [HandlerFunctions('REP510RequestPageHandlerRunDeletion,MessageHandlerDeleted')]
     [Scope('OnPrem')]
-    [Obsolete('The functionality has been replaced with the retention policy module in system application.','17.0')]
+    [Obsolete('The functionality has been replaced with the retention policy module in system application.', '17.0')]
     procedure DeleteLogEntriesVerifyDeletion()
     var
         ChangeLogEntry: Record "Change Log Entry";
@@ -1752,6 +1752,44 @@ codeunit 139031 "Change Log"
 
     [Test]
     [Scope('OnPrem')]
+    procedure InsertTenantPermissionSetRelsIsLogged()
+    var
+        ChangeLogSetup: Record "Change Log Setup";
+        TenantPermissionSetA: Record "Tenant Permission Set";
+        TenantPermissionSetB: Record "Tenant Permission Set";
+        TenantPermissionSetRel: Record "Tenant Permission Set Rel.";
+        ChangeLogEntry: Record "Change Log Entry";
+        ZeroGuid: Guid;
+    begin
+        // [SCENARIO] Change log entry is created when Tenant Permission Set Rel record is inserted.
+        Initialize();
+
+        // [GIVEN] Change Log is activated.
+        ChangeLogSetup.Get();
+        ChangeLogSetup.Validate("Change Log Activated", true);
+        ChangeLogSetup.Modify();
+
+        // [GIVEN] Two tenant Permission Set.
+        LibraryPermissions.CreateTenantPermissionSet(TenantPermissionSetA, LibraryUtility.GenerateGUID, ZeroGuid);
+        LibraryPermissions.CreateTenantPermissionSet(TenantPermissionSetB, LibraryUtility.GenerateGUID, ZeroGuid);
+
+        // [WHEN] A relation between the two is created
+        TenantPermissionSetRel.Init();
+        TenantPermissionSetRel."Role ID" := TenantPermissionSetA."Role ID";
+        TenantPermissionSetRel."App ID" := TenantPermissionSetA."App ID";
+        TenantPermissionSetRel."Related Role ID" := TenantPermissionSetB."Role ID";
+        TenantPermissionSetRel."Related App ID" := TenantPermissionSetB."App ID";
+        TenantPermissionSetRel."Related Scope" := TenantPermissionSetRel."Related Scope"::Tenant;
+        TenantPermissionSetRel.Insert();
+
+        // [THEN] Change Log Entry is created for Tenant Permission Set Rel.
+        ChangeLogEntry.SetRange("Table No.", DATABASE::"Tenant Permission Set Rel.");
+        ChangeLogEntry.SetRange("New Value", TenantPermissionSetRel."Role ID");
+        Assert.RecordIsNotEmpty(ChangeLogEntry);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure InsertTenantPermissionSetsIsLogged()
     var
         ChangeLogSetup: Record "Change Log Setup";
@@ -1760,7 +1798,7 @@ codeunit 139031 "Change Log"
         ZeroGuid: Guid;
     begin
         // [SCENARIO 223616] Change log entry is created when Tenant Permission Set record is inserted.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Change Log is activated.
         ChangeLogSetup.Get();
@@ -1787,7 +1825,7 @@ codeunit 139031 "Change Log"
         ZeroGuid: Guid;
     begin
         // [SCENARIO 223616] Change log entry is created when Tenant Permission record is inserted.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Change Log is activated.
         ChangeLogSetup.Get();
@@ -1928,7 +1966,7 @@ codeunit 139031 "Change Log"
 
     [RequestPageHandler]
     [Scope('OnPrem')]
-    [Obsolete('The functionality has been replaced with the retention policy module in system application.','17.0')]
+    [Obsolete('The functionality has been replaced with the retention policy module in system application.', '17.0')]
     procedure REP510RequestPageHandlerFilterSet(var ChangeLogDelete: TestRequestPage "Change Log - Delete")
     begin
         Assert.AreNotEqual('', ChangeLogDelete."Change Log Entry".GetFilter("Date and Time"), '');
@@ -1937,7 +1975,7 @@ codeunit 139031 "Change Log"
 
     [RequestPageHandler]
     [Scope('OnPrem')]
-    [Obsolete('The functionality has been replaced with the retention policy module in system application.','17.0')]
+    [Obsolete('The functionality has been replaced with the retention policy module in system application.', '17.0')]
     procedure REP510RequestPageHandlerNoFilterSet(var ChangeLogDelete: TestRequestPage "Change Log - Delete")
     begin
         ChangeLogDelete."Change Log Entry".SetFilter("Date and Time", '');
@@ -1948,7 +1986,7 @@ codeunit 139031 "Change Log"
 
     [RequestPageHandler]
     [Scope('OnPrem')]
-    [Obsolete('The functionality has been replaced with the retention policy module in system application.','17.0')]
+    [Obsolete('The functionality has been replaced with the retention policy module in system application.', '17.0')]
     procedure REP510RequestPageHandlerNothingToDelete(var ChangeLogDelete: TestRequestPage "Change Log - Delete")
     begin
         ChangeLogDelete.OK.Invoke;
@@ -1957,7 +1995,7 @@ codeunit 139031 "Change Log"
 
     [RequestPageHandler]
     [Scope('OnPrem')]
-    [Obsolete('The functionality has been replaced with the retention policy module in system application.','17.0')]
+    [Obsolete('The functionality has been replaced with the retention policy module in system application.', '17.0')]
     procedure REP510RequestPageHandlerRunDeletion(var ChangeLogDelete: TestRequestPage "Change Log - Delete")
     begin
         ChangeLogDelete.OK.Invoke;
@@ -1970,7 +2008,7 @@ codeunit 139031 "Change Log"
         TenantPermission.SetRange("Role ID", RoleID);
         TenantPermission.SetRange("Object Type", ObjectType);
         TenantPermission.SetRange("Object ID", ObjectID);
-        TenantPermission.FindFirst;
+        TenantPermission.FindFirst();
     end;
 
     local procedure GenerateRandomTenantPermissionRoleID(): Code[20]
@@ -2010,7 +2048,7 @@ codeunit 139031 "Change Log"
         LocalTableNo: Integer;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         LocalTableNo := DATABASE::"Tenant Web Service";
 
@@ -2035,7 +2073,7 @@ codeunit 139031 "Change Log"
         ChangeLogEntry.SetRange("Field No.", TenantWebService.FieldNo("Service Name"));
 
         Assert.RecordCount(ChangeLogEntry, 1);
-        ChangeLogEntry.FindFirst;
+        ChangeLogEntry.FindFirst();
 
         Assert.AreEqual(TenantWebService."Service Name",
           ChangeLogEntry."New Value",

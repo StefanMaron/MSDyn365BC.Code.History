@@ -51,7 +51,7 @@ table 8621 "Config. Selection"
                             ConfigSelection.SetRange("Line Type", "Line Type"::Table);
                             ConfigSelection.ModifyAll(Selected, Selected);
                             ConfigSelection.SetRange("Line Type", "Line Type"::Group);
-                            if ConfigSelection.FindSet then
+                            if ConfigSelection.FindSet() then
                                 repeat
                                     ConfigSelection2.SetRange("Parent Line No.", ConfigSelection."Line No.");
                                     ConfigSelection2.SetRange("Line Type", "Line Type"::Table);

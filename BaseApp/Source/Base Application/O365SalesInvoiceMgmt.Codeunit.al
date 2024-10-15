@@ -86,7 +86,7 @@ codeunit 2310 "O365 Sales Invoice Mgmt"
           '@*' + CopyStr(UserInput, 1, MaxStrLen(CountryRegion.Name)) + '*'
           );
 
-        if CountryRegion.FindFirst then
+        if CountryRegion.FindFirst() then
             exit(CountryRegion.Code);
 
         Error(CountryDoesntExistErr);
@@ -177,7 +177,7 @@ codeunit 2310 "O365 Sales Invoice Mgmt"
     begin
         if Text <> '' then begin
             Customer.SetRange(Name, Text);
-            if Customer.FindFirst then;
+            if Customer.FindFirst() then;
             Customer.SetRange(Name);
         end;
 
@@ -452,7 +452,7 @@ codeunit 2310 "O365 Sales Invoice Mgmt"
     begin
         if Text <> '' then begin
             Item.SetRange(Description, Text);
-            if Item.FindFirst then;
+            if Item.FindFirst() then;
             Item.SetRange(Description);
         end;
 
@@ -524,7 +524,7 @@ codeunit 2310 "O365 Sales Invoice Mgmt"
         O365PaymentInstructions: Record "O365 Payment Instructions";
     begin
         O365PaymentInstructions.SetRange(Default, true);
-        if O365PaymentInstructions.FindFirst then
+        if O365PaymentInstructions.FindFirst() then
             exit(O365PaymentInstructions.Id);
 
         exit(0);
@@ -744,7 +744,7 @@ codeunit 2310 "O365 Sales Invoice Mgmt"
         Item: Record Item;
     begin
         SalesLine.SetRange("No.", CreateItemNotification.GetData('ItemNo'));
-        if SalesLine.FindSet then
+        if SalesLine.FindSet() then
             repeat
                 SalesLine.Delete(true);
             until SalesLine.Next() = 0;
@@ -804,7 +804,7 @@ codeunit 2310 "O365 Sales Invoice Mgmt"
         // 104 = Reminder Terms Code
         // 28 = Fin. Charge Terms Code
         ConfigTemplateLine.SetFilter("Field ID", '88|21|80|104|28');
-        if not ConfigTemplateLine.FindSet then
+        if not ConfigTemplateLine.FindSet() then
             exit;
 
         OriginalLanguageID := GlobalLanguage;
@@ -854,7 +854,7 @@ codeunit 2310 "O365 Sales Invoice Mgmt"
                 Found := Item.Get(ReturnValue);
             if not Found then begin
                 Item.SetRange(Description, ReturnValue);
-                if Item.FindFirst then;
+                if Item.FindFirst() then;
             end;
         end;
         if (Item."No." <> '') and (Item."No." <> SalesLine."No.") then
@@ -914,7 +914,7 @@ codeunit 2310 "O365 Sales Invoice Mgmt"
     procedure TryFindUnitOfMeasure(var TempUOM: Record "Unit of Measure" temporary; Description: Text[50])
     begin
         TempUOM.SetFilter(Description, '@' + Description);
-        TempUOM.FindFirst;
+        TempUOM.FindFirst();
     end;
 
     procedure ValidateItemPrice(var SalesLine: Record "Sales Line")

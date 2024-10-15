@@ -367,7 +367,7 @@ codeunit 144011 "Prepayment Sales"
     begin
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("G/L Account No.", GLAccountNo);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
     end;
 
     local procedure GetPostedDocumentNo(NoSeries: Code[20]): Code[20]
@@ -389,7 +389,7 @@ codeunit 144011 "Prepayment Sales"
         SalesLine.SetRange("Document No.", DocumentNo);
         SalesLine.SetRange(Type, SalesLine.Type::Item);
         SalesLine.SetRange("Document Type", SalesLine."Document Type"::Order);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         SalesLine.Validate("Qty. to Ship", SalesLine."Qty. to Ship" / 2);  // Partial Qty To Ship.
         SalesLine.Modify(true);
     end;
@@ -449,7 +449,7 @@ codeunit 144011 "Prepayment Sales"
         CustLedgerEntry.SetRange("Customer No.", CustomerNo);
         CustLedgerEntry.SetRange("Document Type", DocumentType);
         CustLedgerEntry.SetRange("Document No.", DocumentNo);
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
         CustLedgerEntry.CalcFields(Amount, "Remaining Amount");
         CustLedgerEntry.TestField(Amount, Amount);
         CustLedgerEntry.TestField("Remaining Amount", RemainingAmount);

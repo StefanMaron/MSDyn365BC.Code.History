@@ -1,4 +1,4 @@
-codeunit 142083 "ERM Electronic Funds Transfer"
+﻿codeunit 142083 "ERM Electronic Funds Transfer"
 {
     EventSubscriberInstance = Manual;
     Subtype = Test;
@@ -669,7 +669,7 @@ codeunit 142083 "ERM Electronic Funds Transfer"
           AccountNo, Amount, CustomerBankAccountCode);
         GenJournalLine.Validate("Transaction Type Code", GenJournalLine."Transaction Type Code"::BUS);
         GenJournalLine.Validate("Transaction Code", CopyStr(LibraryUtility.GenerateGUID, 1, 3));
-        GenJournalLine.Validate("Company Entry Description", LibraryUtility.GenerateGUID);
+        GenJournalLine.Validate("Company Entry Description", LibraryUtility.GenerateGUID());
         GenJournalLine.Modify(true);
         Commit();
         LibraryVariableStorage.Enqueue(GenJournalLine."Account No.");  // Enqueue for ExportElectronicPaymentsRequestPageHandler.
@@ -931,8 +931,8 @@ codeunit 142083 "ERM Electronic Funds Transfer"
         CreateBankAccount(BankAccount, VendorBankAccount[1]."Transit No.", BankAccount."Export Format"::CA);
         BankAccount.Validate("Payment Export Format", 'CA EFT DEFAULT');
         BankAccount.Validate("EFT Export Code", 'CA EFT DEFAULT');
-        BankAccount.Validate("Client No.", LibraryUtility.GenerateGUID);
-        BankAccount.Validate("Client Name", LibraryUtility.GenerateGUID);
+        BankAccount.Validate("Client No.", LibraryUtility.GenerateGUID());
+        BankAccount.Validate("Client Name", LibraryUtility.GenerateGUID());
         BankAccount.Modify(true);
 
         // [GIVEN] Post an invoice for each vendor.
@@ -1007,8 +1007,8 @@ codeunit 142083 "ERM Electronic Funds Transfer"
         CreateBankAccount(BankAccount, VendorBankAccount."Transit No.", BankAccount."Export Format"::CA);
         BankAccount.Validate("Payment Export Format", BankExportImportSetup.Code);
         BankAccount.Validate("EFT Export Code", BankExportImportSetup.Code);
-        BankAccount.Validate("Client No.", LibraryUtility.GenerateGUID);
-        BankAccount.Validate("Client Name", LibraryUtility.GenerateGUID);
+        BankAccount.Validate("Client No.", LibraryUtility.GenerateGUID());
+        BankAccount.Validate("Client Name", LibraryUtility.GenerateGUID());
         BankAccount.Modify(true);
 
         // [GIVEN] Post an invoice for each vendor.
@@ -1083,8 +1083,8 @@ codeunit 142083 "ERM Electronic Funds Transfer"
         CreateBankAccount(BankAccount, VendorBankAccount[1]."Transit No.", BankAccount."Export Format"::US);
         BankAccount.Validate("Payment Export Format", BankExportImportSetup.Code);
         BankAccount.Validate("EFT Export Code", BankExportImportSetup.Code);
-        BankAccount.Validate("Client No.", LibraryUtility.GenerateGUID);
-        BankAccount.Validate("Client Name", LibraryUtility.GenerateGUID);
+        BankAccount.Validate("Client No.", LibraryUtility.GenerateGUID());
+        BankAccount.Validate("Client Name", LibraryUtility.GenerateGUID());
         BankAccount.Modify(true);
 
         CreateAndExportVendorPayments(TempEFTExportWorkset, VendorBankAccount, BankAccount."No.");
@@ -2351,8 +2351,8 @@ codeunit 142083 "ERM Electronic Funds Transfer"
         CreateBankAccount(BankAccount, VendorBankAccount."Transit No.", BankAccount."Export Format"::CA);
         BankAccount.Validate("Payment Export Format", BankExportImportSetup.Code);
         BankAccount.Validate("EFT Export Code", BankExportImportSetup.Code);
-        BankAccount.Validate("Client No.", LibraryUtility.GenerateGUID);
-        BankAccount.Validate("Client Name", LibraryUtility.GenerateGUID);
+        BankAccount.Validate("Client No.", LibraryUtility.GenerateGUID());
+        BankAccount.Validate("Client Name", LibraryUtility.GenerateGUID());
         BankAccount.Modify(true);
 
         // [GIVEN] Post an invoice for each vendor.
@@ -2395,7 +2395,7 @@ codeunit 142083 "ERM Electronic Funds Transfer"
     begin
         LibraryERMCountryData.CreateVATData();
         LibraryVariableStorage.Clear();
-        ModifyFederalIdCompanyInformation(LibraryUtility.GenerateGUID);
+        ModifyFederalIdCompanyInformation(LibraryUtility.GenerateGUID());
         EFTExport.DeleteAll();
     end;
 
@@ -2451,9 +2451,9 @@ codeunit 142083 "ERM Electronic Funds Transfer"
     begin
         CreateBankAccount(BankAccount, LibraryUtility.GenerateGUID, BankAccount."Export Format"::CA);
         CreateBankAccWithBankStatementSetup(BankAccount, 'CA EFT DEFAULT');
-        BankAccount.Validate("Client No.", LibraryUtility.GenerateGUID);
-        BankAccount.Validate("Client Name", LibraryUtility.GenerateGUID);
-        BankAccount.Validate("Input Qualifier", LibraryUtility.GenerateGUID);
+        BankAccount.Validate("Client No.", LibraryUtility.GenerateGUID());
+        BankAccount.Validate("Client Name", LibraryUtility.GenerateGUID());
+        BankAccount.Validate("Input Qualifier", LibraryUtility.GenerateGUID());
         BankAccount.Modify(true);
         exit(BankAccount."No.");
     end;
@@ -2496,10 +2496,10 @@ codeunit 142083 "ERM Electronic Funds Transfer"
         LibraryERM.CreateBankAccount(BankAccount);
         BankAccount.Validate("Export Format", ExportFormat);
         BankAccount.Validate("Bank Acc. Posting Group", BankAccountPostingGroup.Code);
-        BankAccount.Validate("Last Remittance Advice No.", LibraryUtility.GenerateGUID);
+        BankAccount.Validate("Last Remittance Advice No.", LibraryUtility.GenerateGUID());
         BankAccount.Validate("E-Pay Export File Path", TemporaryPath);
         BankAccount.Validate("E-Pay Trans. Program Path", TempPathTxt);
-        BankAccount.Validate("Last E-Pay Export File Name", LibraryUtility.GenerateGUID);
+        BankAccount.Validate("Last E-Pay Export File Name", LibraryUtility.GenerateGUID());
         BankAccount.Validate("Transit No.", TransitNo);
         BankAccount.Modify(true);
     end;
@@ -2582,7 +2582,7 @@ codeunit 142083 "ERM Electronic Funds Transfer"
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, DocumentType,
           AccountType, AccountNo, Amount);
-        GenJournalLine.Validate("Document No.", LibraryUtility.GenerateGUID);
+        GenJournalLine.Validate("Document No.", LibraryUtility.GenerateGUID());
         GenJournalLine.Validate("Applies-to Doc. Type", AppliesToDocType);
         GenJournalLine.Validate("Applies-to Doc. No.", AppliesToDocNo);
         GenJournalLine.Validate("Bal. Account Type", BalAccountType);
@@ -2619,7 +2619,7 @@ codeunit 142083 "ERM Electronic Funds Transfer"
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, DocumentType,
           AccountType, AccountNo, Amount);
-        GenJournalLine.Validate("Document No.", LibraryUtility.GenerateGUID);
+        GenJournalLine.Validate("Document No.", LibraryUtility.GenerateGUID());
         GenJournalLine.Validate("Applies-to Doc. Type", AppliesToDocType);
         GenJournalLine.Validate("Applies-to Doc. No.", AppliesToDocNo);
         GenJournalLine.Validate("Bal. Account Type", BalAccountType);
@@ -2839,7 +2839,7 @@ codeunit 142083 "ERM Electronic Funds Transfer"
 
         LibraryPurchase.CreateVendorBankAccount(VendorBankAccount, Vendor."No.");
         VendorBankAccount.Validate("Transit No.", GetTransitNo(ExportFormat));
-        VendorBankAccount.Validate("Bank Account No.", LibraryUtility.GenerateGUID);
+        VendorBankAccount.Validate("Bank Account No.", LibraryUtility.GenerateGUID());
         VendorBankAccount.Validate("Use for Electronic Payments", true);
         VendorBankAccount.Modify(true);
     end;
@@ -2848,7 +2848,7 @@ codeunit 142083 "ERM Electronic Funds Transfer"
     var
         BankExportImportSetup: Record "Bank Export/Import Setup";
     begin
-        BankExportImportSetup.Code := LibraryUtility.GenerateGUID;
+        BankExportImportSetup.Code := LibraryUtility.GenerateGUID();
         BankExportImportSetup.Validate(Direction, BankExportImportSetup.Direction::"Export-EFT");
         BankExportImportSetup.Validate("Processing Codeunit ID", Codeunit::"Exp. Launcher EFT");
         BankExportImportSetup.Validate("Data Exch. Def. Code", DataExchDefCode);
@@ -3102,8 +3102,8 @@ codeunit 142083 "ERM Electronic Funds Transfer"
         DataExchFieldMappingTarget: Record "Data Exch. Field Mapping";
     begin
         DataExchDef.Get(DataExchDefCodeSource);
-        DataExchDef.Code := LibraryUtility.GenerateGUID;
-        DataExchDef.Name := LibraryUtility.GenerateGUID;
+        DataExchDef.Code := LibraryUtility.GenerateGUID();
+        DataExchDef.Name := LibraryUtility.GenerateGUID();
         DataExchDef.Insert;
 
         DataExchLineDefSource.SetRange("Data Exch. Def Code", DataExchDefCodeSource);
@@ -3111,7 +3111,7 @@ codeunit 142083 "ERM Electronic Funds Transfer"
         repeat
             DataExchLineDefTarget := DataExchLineDefSource;
             DataExchLineDefTarget."Data Exch. Def Code" := DataExchDef.Code;
-            DataExchLineDefTarget.Code := LibraryUtility.GenerateGUID;
+            DataExchLineDefTarget.Code := LibraryUtility.GenerateGUID();
             DataExchLineDefTarget.Insert;
 
             DataExchColumnDefSource.SetRange("Data Exch. Def Code", DataExchDefCodeSource);
@@ -3151,7 +3151,7 @@ codeunit 142083 "ERM Electronic Funds Transfer"
 
         BankExportImportSetupTarget := BankExportImportSetupSource;
         BankExportImportSetupTarget.Validate("Data Exch. Def. Code", DataExchDef.Code);
-        BankExportImportSetupTarget.Code := LibraryUtility.GenerateGUID;
+        BankExportImportSetupTarget.Code := LibraryUtility.GenerateGUID();
         BankExportImportSetupTarget.Insert;
     end;
 
@@ -3716,7 +3716,7 @@ codeunit 142083 "ERM Electronic Funds Transfer"
             SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
             SetRange("Document No.", GenJournalLine."Document No.");
             SetRange("Journal Line No.", GenJournalLine."Line No.");
-            FindFirst;
+            FindFirst();
             TestField("Error Text", CopyStr(PaymentFileErrorTxt, 1, MaxStrLen("Error Text")));
         end;
     end;
@@ -3858,14 +3858,6 @@ codeunit 142083 "ERM Electronic Funds Transfer"
     begin
         TestMode := true
     end;
-
-#if not CLEAN19
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Generate EFT", 'OnIsTestMode', '', false, false)]
-    local procedure EnableTestModeOnGenerateEFT(var TestMode: Boolean)
-    begin
-        TestMode := true
-    end;
-#endif
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Export EFT (RB)", 'OnBeforeACHRBHeaderModify', '', false, false)]
     local procedure StoreTempACHRBHeaderOnBeforeACHRBHeaderModify(var ACHRBHeader: Record "ACH RB Header"; BankAccount: Record "Bank Account")

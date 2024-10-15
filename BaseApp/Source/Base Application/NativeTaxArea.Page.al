@@ -1,3 +1,4 @@
+#if not CLEAN20
 page 2850 "Native - Tax Area"
 {
     Caption = 'taxAreas', Locked = true;
@@ -74,4 +75,4 @@ page 2850 "Native - Tax Area"
     var
         NativeAPILanguageHandler: Codeunit "Native API - Language Handler";
 }
-
+#endif

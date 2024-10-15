@@ -306,7 +306,7 @@ report 5690 "Index Fixed Assets"
         GenJnlLine.Insert(true);
         if BalAccount then begin
             FAInsertGLAcc.GetBalAcc(GenJnlLine);
-            if GenJnlLine.FindLast then;
+            if GenJnlLine.FindLast() then;
             GenJnlNextLineNo := GenJnlLine."Line No.";
         end;
     end;

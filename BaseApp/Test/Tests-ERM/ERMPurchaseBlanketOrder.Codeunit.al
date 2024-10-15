@@ -47,7 +47,7 @@ codeunit 134326 "ERM Purchase Blanket Order"
         // [SCENARIO] Test that a Purchase Blanket Order Header and Lines exist after Purchase Blanket Order creation.
 
         // Setup.
-        Initialize;
+        Initialize();
 
         // Exercise: Create Purchase Blanket Order with Multiple Purchase Line.
         CreatePurchaseBlanketOrder(
@@ -71,7 +71,7 @@ codeunit 134326 "ERM Purchase Blanket Order"
         // [SCENARIO] Test VAT Amount calculated correctly on Purchase Blanket Order.
 
         // Setup: Create a Purchase Blanket Order with Multiple Purchase Line.
-        Initialize;
+        Initialize();
         CreatePurchaseBlanketOrder(PurchaseHeader, PurchaseLine,
           LibraryRandom.RandInt(5), LibraryPurchase.CreateVendorNo, LibraryInventory.CreateItemNo);
 
@@ -100,7 +100,7 @@ codeunit 134326 "ERM Purchase Blanket Order"
         // [SCENARIO] Test that a Report generated from Purchase Blanket Order and it contains some data.
 
         // Setup: Create a Purchase Blanket Order with Multiple Purchase Line.
-        Initialize;
+        Initialize();
         CreatePurchaseBlanketOrder(PurchaseHeader, PurchaseLine,
           LibraryRandom.RandInt(5), LibraryPurchase.CreateVendorNo, LibraryInventory.CreateItemNo);
 
@@ -129,7 +129,7 @@ codeunit 134326 "ERM Purchase Blanket Order"
 
         // Setup: Create Purchase Blanket Order with Quantity greater than 1. Change the Quantity to Receive and store it in a variable
         // with Multiple Purchase Line.
-        Initialize;
+        Initialize();
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Blanket Order", '');
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, '', 2 * LibraryRandom.RandInt(10));
         PurchaseLine.Validate("Qty. to Receive", PurchaseLine.Quantity - 1);
@@ -140,7 +140,7 @@ codeunit 134326 "ERM Purchase Blanket Order"
         LibraryPurchase.BlanketPurchaseOrderMakeOrder(PurchaseHeader);
         PurchaseLine2.SetRange("Blanket Order No.", PurchaseLine."Document No.");
         PurchaseLine2.SetRange("Document Type", PurchaseLine2."Document Type"::Order);
-        PurchaseLine2.FindFirst;
+        PurchaseLine2.FindFirst();
         PurchaseHeader2.Get(PurchaseLine2."Document Type", PurchaseLine2."Document No.");
         PurchaseHeader2.Validate("Vendor Invoice No.", PurchaseHeader2."No.");
         PurchaseHeader2.Modify(true);
@@ -166,19 +166,19 @@ codeunit 134326 "ERM Purchase Blanket Order"
         // [SCENARIO] Test that Correct Location updated on Purchase Header after creating Purchase Order from Purchase Blanket Order.
 
         // Setup: Create a Purchase Blanket Order. Find a Location and Update it on Purcahse Header with Multiple Purchase Line.
-        Initialize;
+        Initialize();
         CreatePurchaseBlanketOrder(PurchaseHeader, PurchaseLine,
           LibraryRandom.RandInt(5), LibraryPurchase.CreateVendorNo, LibraryInventory.CreateItemNo);
         Location.SetRange("Bin Mandatory", false);
         Location.SetRange("Use As In-Transit", false);
-        Location.FindFirst;
+        Location.FindFirst();
         UpdatePurchaseHeaderWithLocation(PurchaseHeader, Location.Code);
 
         // Exercise: Create Purchase Order From Purchase Blanket Order.
         LibraryPurchase.BlanketPurchaseOrderMakeOrder(PurchaseHeader);
         PurchaseLine2.SetRange("Blanket Order No.", PurchaseHeader."No.");
         PurchaseLine2.SetRange("Document Type", PurchaseLine2."Document Type"::Order);
-        PurchaseLine2.FindFirst;
+        PurchaseLine2.FindFirst();
 
         // Verify: Verify that correct Location has been updated on the newly created Purchase Order.
         PurchaseHeader2.Get(PurchaseLine2."Document Type", PurchaseLine2."Document No.");
@@ -198,7 +198,7 @@ codeunit 134326 "ERM Purchase Blanket Order"
         // [SCENARIO] Check Invoice Discount has been flow correctly on Purchase Order after Make Order from Purchase Blanket order.
 
         // Setup: Create a Purchase Blanket Order and Calculate Invoice Discount with 1 Fix Purchase Line.
-        Initialize;
+        Initialize();
         CreatePurchaseBlanketOrder(PurchaseHeader, PurchaseLine,
           1, CreateVendorInvDiscount(LibraryPurchase.CreateVendorNo), LibraryInventory.CreateItemNo);
         CODEUNIT.Run(CODEUNIT::"Purch.-Calc.Discount", PurchaseLine);
@@ -212,7 +212,7 @@ codeunit 134326 "ERM Purchase Blanket Order"
         GeneralLedgerSetup.Get();
         PurchaseLine.SetRange("Blanket Order No.", PurchaseHeader."No.");
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type"::Order);
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
         Assert.AreNearlyEqual(InvDiscountAmount, PurchaseLine."Inv. Discount Amount", GeneralLedgerSetup."Amount Rounding Precision",
           StrSubstNo(AmountErrorMessage, PurchaseLine.FieldCaption("Inv. Discount Amount"), InvDiscountAmount, PurchaseLine.TableCaption));
     end;
@@ -229,7 +229,7 @@ codeunit 134326 "ERM Purchase Blanket Order"
         // [SCENARIO] Check that field 'VAT Amount' is not editable on Purchase Blanket Order Statistics page.
 
         // Setup: Create Purchase Blanket Order and open Statistics page.
-        Initialize;
+        Initialize();
         CreatePurchaseBlanketOrder(PurchaseHeader, PurchaseLine, 1, LibraryPurchase.CreateVendorNo, LibraryInventory.CreateItemNo);
         PurchaseOrderStatistics.OpenEdit;
         PurchaseOrderStatistics.FILTER.SetFilter("No.", PurchaseHeader."No.");
@@ -251,7 +251,7 @@ codeunit 134326 "ERM Purchase Blanket Order"
         // [SCENARIO] Check that blank Posting Date is populating on the created Purchase Order from Blanket Order while Default Posting Date is set to No Date on the Purchase & Payables Setup.
 
         // Setup: Update Purchase & Payables Setup and create a Purchase Blanket Order.
-        Initialize;
+        Initialize();
         UpdatePurchasePayablesSetup(PurchasesPayablesSetup."Default Posting Date"::"No Date");
         CreatePurchaseBlanketOrder(PurchaseHeader, PurchaseLine,
           LibraryRandom.RandInt(5), LibraryPurchase.CreateVendorNo, LibraryInventory.CreateItemNo);  // Take Randon value for Number of lines.
@@ -262,7 +262,7 @@ codeunit 134326 "ERM Purchase Blanket Order"
         // Verify: Verify that Posting Date must be blank on the newly created Purchase Order.
         PurchaseLine.SetRange("Blanket Order No.", PurchaseHeader."No.");
         PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::Order);
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
         PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
         PurchaseHeader.TestField("Posting Date", 0D);
     end;
@@ -278,7 +278,7 @@ codeunit 134326 "ERM Purchase Blanket Order"
         // [SCENARIO] Check Blanket Order No. and Blanket Order Line No. in Purchase Order created from Purchase Blanket Order.
 
         // Setup.
-        Initialize;
+        Initialize();
         LibraryPurchase.CreateVendor(Vendor);
         CreatePurchaseBlanketOrder(PurchaseHeader, PurchaseLine, 1, Vendor."No.", LibraryInventory.CreateItemNo);  // Using 1 to create single Purchase Line.
 
@@ -301,7 +301,7 @@ codeunit 134326 "ERM Purchase Blanket Order"
         // [SCENARIO] Check that Purchase Blanket Order created using Copy Document does not contain Blanket Order No. and Blanket Order Line No.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreatePurchaseOrderFromBlanketOrder(PurchaseLine);
 
         // Exercise: Create a new Purchase Blanket Order from the Purchase Order created using Purchase Blanket Order.
@@ -325,7 +325,7 @@ codeunit 134326 "ERM Purchase Blanket Order"
         // [SCENARIO] Check that Purchase Blanket Order can be deleted successfully after Purchase Order Posting.
 
         // Setup: Post the Order created after Making Order from Blanket Purchase Order.
-        Initialize;
+        Initialize();
         CreatePurchaseOrderFromBlanketOrder(PurchaseLine);
         PurchaseHeader.Get(PurchaseHeader."Document Type"::Order, PurchaseLine."Document No.");
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -349,7 +349,7 @@ codeunit 134326 "ERM Purchase Blanket Order"
         // [SCENARIO] Verify Puchase Order created from Blanket Order with Item Charge.
 
         // Setup: Create Purchase Blanket Order with Item Charge.
-        Initialize;
+        Initialize();
         CreatePurchaseBlanketOrderWithItemCharge(PurchaseHeader);
         FindPurchaseLine(PurchaseLine, PurchaseLine."Document Type"::"Blanket Order", PurchaseHeader."Buy-from Vendor No.");
 
@@ -372,7 +372,7 @@ codeunit 134326 "ERM Purchase Blanket Order"
         // [SCENARIO] Verify Exetended Text on Blanket Purchase Order.
 
         // Setup: Create Blanket Purchase Header.
-        Initialize;
+        Initialize();
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Blanket Order", '');
 
         // Exercise: Create Item, Blanket Purchase Order Line.
@@ -396,8 +396,8 @@ codeunit 134326 "ERM Purchase Blanket Order"
         ItemNo: Code[20];
     begin
         // [SCENARIO 362692] Fields "Location Code", "Unit of Measure", "Direct Unit Cost", "Line Discount %" are copied from Blanket Order to Purchase Order when Blanket Order and Line set manually
-        Initialize;
-        ItemNo := LibraryInventory.CreateItemNo;
+        Initialize();
+        ItemNo := LibraryInventory.CreateItemNo();
         LibraryInventory.CreateItemUnitOfMeasureCode(ItemUnitOfMeasure, ItemNo, 1);
         LibraryWarehouse.CreateLocation(Location);
 
@@ -445,7 +445,7 @@ codeunit 134326 "ERM Purchase Blanket Order"
     begin
         // [FEATURE] [Copy Document]
         // [SCENARIO 375760] Blanket Order fields should be empty when create Credit Memo using Copy Document
-        Initialize;
+        Initialize();
         UpdatePurchasePayablesSetup(PurchasesPayablesSetup."Default Posting Date"::"Work Date");
 
         // [GIVEN] Purchase Order from Blanket Order
@@ -472,7 +472,7 @@ codeunit 134326 "ERM Purchase Blanket Order"
     begin
         // [FEATURE] [Copy Document]
         // [SCENARIO 375760] Blanket Order fields should be empty when create Return Order using Copy Document
-        Initialize;
+        Initialize();
         UpdatePurchasePayablesSetup(PurchasesPayablesSetup."Default Posting Date"::"Work Date");
 
         // [GIVEN] Purchase Order from Blanket Order
@@ -501,7 +501,7 @@ codeunit 134326 "ERM Purchase Blanket Order"
     begin
         // [FEATURE] [Get Document Lines To Reverse]
         // [SCENARIO 375760] Blanket Order fields should be empty when create Credit Memo using Get Document Lines To Reverse
-        Initialize;
+        Initialize();
         UpdatePurchasePayablesSetup(PurchasesPayablesSetup."Default Posting Date"::"Work Date");
 
         // [GIVEN] Posted Purchase Order from Blanket Order
@@ -534,7 +534,7 @@ codeunit 134326 "ERM Purchase Blanket Order"
     begin
         // [FEATURE] [Get Document Lines To Reverse]
         // [SCENARIO 375760] Blanket Order fields should be empty when create Return Order using Get Document Lines To Reverse
-        Initialize;
+        Initialize();
         UpdatePurchasePayablesSetup(PurchasesPayablesSetup."Default Posting Date"::"Work Date");
 
         // [GIVEN] Posted Purchase Order from Blanket Order
@@ -566,7 +566,7 @@ codeunit 134326 "ERM Purchase Blanket Order"
     begin
         // [FEATURE] [Copy Document]
         // [SCENARIO 375760] Blanket Order fields should be empty when create Purchase Invoice using Copy Document with Recalculate Lines = Yes
-        Initialize;
+        Initialize();
         UpdatePurchasePayablesSetup(PurchasesPayablesSetup."Default Posting Date"::"Work Date");
 
         // [GIVEN] Posted Purchase Order from Blanket Order
@@ -594,7 +594,7 @@ codeunit 134326 "ERM Purchase Blanket Order"
     begin
         // [FEATURE] [Copy Document]
         // [SCENARIO 375760] Blanket Order fields should be filled in and Purchase Invoice should not be posted when it is copied with Recalculate Lines = No
-        Initialize;
+        Initialize();
         UpdatePurchasePayablesSetup(PurchasesPayablesSetup."Default Posting Date"::"Work Date");
 
         // [GIVEN] Posted Purchase Order from Blanket Order
@@ -629,7 +629,7 @@ codeunit 134326 "ERM Purchase Blanket Order"
     begin
         // [FEATURE] [Copy Document]
         // [SCENARIO 375760] Posting new Invoice after correction of first Purchase Invoice from Blanket Order by Credit Memo
-        Initialize;
+        Initialize();
         UpdatePurchasePayablesSetup(PurchasesPayablesSetup."Default Posting Date"::"Work Date");
 
         // [GIVEN] Posted Purchase Order from Blanket Order with Quantity = "X"
@@ -670,7 +670,7 @@ codeunit 134326 "ERM Purchase Blanket Order"
     begin
         // [FEATURE] [Copy Document]
         // [SCENARIO 375760] Posting new Invoice after correction of Purchase Invoice from Blanket Order by Credit Memo with manually updated Blanket fields
-        Initialize;
+        Initialize();
         UpdatePurchasePayablesSetup(PurchasesPayablesSetup."Default Posting Date"::"Work Date");
 
         // [GIVEN] Posted Purchase Order from Blanket Order with Quantity = "X"
@@ -714,10 +714,10 @@ codeunit 134326 "ERM Purchase Blanket Order"
     begin
         // [FEATURE] [Item Charge]
         // [SCENARIO 202722] Direct Unit Cost could be updated on Blanket Purchase Order line with item charge after the line is invoiced.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Blanket Purchase Order line with Item Charge partially invoiced.
-        MockPurchaseHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Blanket Order", LibraryUtility.GenerateGUID);
+        MockPurchaseHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Blanket Order", LibraryUtility.GenerateGUID());
         MockPurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::"Charge (Item)");
 
         // [WHEN] Update Direct Unit Cost on the line.
@@ -737,10 +737,10 @@ codeunit 134326 "ERM Purchase Blanket Order"
     begin
         // [FEATURE] [Item Charge]
         // [SCENARIO 202722] Invoiced Blanket Purchase Order line with item charge could be deleted.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Blanket Purchase Order line with Item Charge partially invoiced.
-        MockPurchaseHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Blanket Order", LibraryUtility.GenerateGUID);
+        MockPurchaseHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Blanket Order", LibraryUtility.GenerateGUID());
         MockPurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::"Charge (Item)");
 
         // [WHEN] Delete the purchase line.
@@ -763,7 +763,7 @@ codeunit 134326 "ERM Purchase Blanket Order"
     begin
         // [FEATURE] [Blanket Purchase Order]
         // [SCENARIO 169456] "Blanket Order" action should open appropriate "Blanket Order" page
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Order "P" for Blanket Order "B"
         CreatePurchaseOrderFromBlanketOrder(PurchaseLine);
@@ -789,7 +789,7 @@ codeunit 134326 "ERM Purchase Blanket Order"
     begin
         // [FEATURE] [Blanket Purchase Order]
         // [SCENARIO 169456] "Blanket Order" action should throw error if appropriate "Blanket Order" does not exist
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase order
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
@@ -814,10 +814,10 @@ codeunit 134326 "ERM Purchase Blanket Order"
         // [FEATURE] [UI]
         // [Scenario] Contact Field on Purchase Blanket Order Page not editable if no vendor selected
         // [Given]
-        Initialize;
+        Initialize();
 
         // [WHEN] Purchase Blanket Order page is opened
-        BlanketPurchaseOrder.OpenNew;
+        BlanketPurchaseOrder.OpenNew();
 
         // [THEN] Contact Field is not editable
         Assert.IsFalse(BlanketPurchaseOrder."Buy-from Contact".Editable, ContactShouldNotBeEditableErr);
@@ -834,7 +834,7 @@ codeunit 134326 "ERM Purchase Blanket Order"
         // [FEATURE] [UI]
         // [Scenario] Contact Field on Purchase Blanket Order Page  editable if vendor selected
         // [Given]
-        Initialize;
+        Initialize();
 
         // [Given] A sample Purchase Blanket Order
         CreatePurchaseBlanketOrder(
@@ -859,7 +859,7 @@ codeunit 134326 "ERM Purchase Blanket Order"
         // [FEATURE] [UI]
         // [Scenario] Pay-to Address Fields on Purchase Blanet Order Page not editable if vendor selected equals pay-to vendor
         // [Given]
-        Initialize;
+        Initialize();
 
         // [Given] A sample Purchase Blanket Order
         CreatePurchaseBlanketOrder(
@@ -890,7 +890,7 @@ codeunit 134326 "ERM Purchase Blanket Order"
         // [FEATURE] [UI]
         // [Scenario] Pay-to Address Fields on Purchase Blanket Order Page editable if vendor selected not equals pay-to vendor
         // [Given]
-        Initialize;
+        Initialize();
 
         // [Given] A sample Purchase Blanket Order
         CreatePurchaseBlanketOrder(
@@ -919,7 +919,7 @@ codeunit 134326 "ERM Purchase Blanket Order"
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
         // [SCENARIO 218835] Create Sales Order from Blanket Order when "Default Posting Date" = "No Date" in Sales & Receivable setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] TAB312."Default Posting Date" = "No Date"
         UpdatePurchasePayablesSetup(PurchasesPayablesSetup."Default Posting Date"::"No Date");
@@ -937,7 +937,7 @@ codeunit 134326 "ERM Purchase Blanket Order"
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
         // [SCENARIO 218835] Create Sales Order from Blanket Order when "Default Posting Date" = "Work Date" in Sales & Receivable setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] TAB312."Default Posting Date" = "Work Date"
         UpdatePurchasePayablesSetup(PurchasesPayablesSetup."Default Posting Date"::"Work Date");
@@ -957,12 +957,12 @@ codeunit 134326 "ERM Purchase Blanket Order"
     begin
         // [FEATURE] [Drop Shipment] [UT]
         // [SCENARIO 253613] Link to blanket order line no. cannot be set on purchase order line for drop shipment, if location code on purchase order line does not match location code on blanket order line.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase blanket order line with location code "L".
-        MockPurchaseHeader(PurchaseHeader[1], PurchaseHeader[1]."Document Type"::"Blanket Order", LibraryUtility.GenerateGUID);
+        MockPurchaseHeader(PurchaseHeader[1], PurchaseHeader[1]."Document Type"::"Blanket Order", LibraryUtility.GenerateGUID());
         MockPurchaseLine(PurchaseLine[1], PurchaseHeader[1], PurchaseLine[1].Type::Item);
-        PurchaseLine[1]."Location Code" := LibraryUtility.GenerateGUID;
+        PurchaseLine[1]."Location Code" := LibraryUtility.GenerateGUID();
         PurchaseLine[1].Modify();
 
         // [GIVEN] Purchase order line for drop shipment with blank location code.
@@ -988,12 +988,12 @@ codeunit 134326 "ERM Purchase Blanket Order"
     begin
         // [FEATURE] [Drop Shipment] [UT]
         // [SCENARIO 253613] Link to blanket order line no. cannot be set on purchase order line for drop shipment, if variant code on purchase order line does not match variant code on blanket order line.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase blanket order line with variant code "V".
-        MockPurchaseHeader(PurchaseHeader[1], PurchaseHeader[1]."Document Type"::"Blanket Order", LibraryUtility.GenerateGUID);
+        MockPurchaseHeader(PurchaseHeader[1], PurchaseHeader[1]."Document Type"::"Blanket Order", LibraryUtility.GenerateGUID());
         MockPurchaseLine(PurchaseLine[1], PurchaseHeader[1], PurchaseLine[1].Type::Item);
-        PurchaseLine[1]."Variant Code" := LibraryUtility.GenerateGUID;
+        PurchaseLine[1]."Variant Code" := LibraryUtility.GenerateGUID();
         PurchaseLine[1].Modify();
 
         // [GIVEN] Purchase order line for drop shipment with blank variant code.
@@ -1019,12 +1019,12 @@ codeunit 134326 "ERM Purchase Blanket Order"
     begin
         // [FEATURE] [Drop Shipment] [UT]
         // [SCENARIO 253613] Link to blanket order line no. cannot be set on purchase order line for drop shipment, if unit of measure code on purchase order line does not match unit of measure code on blanket order line.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase blanket order line with unit of measure code "UOM".
-        MockPurchaseHeader(PurchaseHeader[1], PurchaseHeader[1]."Document Type"::"Blanket Order", LibraryUtility.GenerateGUID);
+        MockPurchaseHeader(PurchaseHeader[1], PurchaseHeader[1]."Document Type"::"Blanket Order", LibraryUtility.GenerateGUID());
         MockPurchaseLine(PurchaseLine[1], PurchaseHeader[1], PurchaseLine[1].Type::Item);
-        PurchaseLine[1]."Unit of Measure Code" := LibraryUtility.GenerateGUID;
+        PurchaseLine[1]."Unit of Measure Code" := LibraryUtility.GenerateGUID();
         PurchaseLine[1].Modify();
 
         // [GIVEN] Purchase order line for drop shipment with blank unit of measure code.
@@ -1064,7 +1064,7 @@ codeunit 134326 "ERM Purchase Blanket Order"
         QtytoReceive: Integer;
     begin
         // [SCENARIO 328289] When "Calculate Invoice Discount" is TRUE creating Purchase Order from Blanket Purchase Order leads to Invoice Discount Amount being recalculated.
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Calculate Invoice Discount" is set to TRUE in Purchases & Payables Setup.
         LibraryPurchase.SetCalcInvDiscount(true);
@@ -1218,17 +1218,17 @@ codeunit 134326 "ERM Purchase Blanket Order"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Purchase Blanket Order");
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Purchase Blanket Order");
 
         PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyPayToVendorAddressNotificationId);
         PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyVendorAddressNotificationId);
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.CreateGeneralPostingSetupData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.CreateGeneralPostingSetupData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
         LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
         IsInitialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Purchase Blanket Order");
@@ -1278,7 +1278,7 @@ codeunit 134326 "ERM Purchase Blanket Order"
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Blanket Order", '');
         Location.SetRange("Bin Mandatory", false);
         Location.SetRange("Use As In-Transit", false);
-        Location.FindFirst;
+        Location.FindFirst();
         UpdatePurchaseHeaderWithLocation(PurchaseHeader, Location.Code);
 
         // Create Purchase Line with Item and update Direct Unit Cost.
@@ -1344,7 +1344,7 @@ codeunit 134326 "ERM Purchase Blanket Order"
             "Document No." := PurchaseHeader."No.";
             "Line No." := LibraryUtility.GetNewRecNo(PurchaseLine, FieldNo("Line No."));
             Type := LineType;
-            "No." := LibraryUtility.GenerateGUID;
+            "No." := LibraryUtility.GenerateGUID();
             Quantity := LibraryRandom.RandIntInRange(11, 20);
             "Quantity Invoiced" := LibraryRandom.RandInt(10);
             "Direct Unit Cost" := LibraryRandom.RandDec(10, 2);
@@ -1374,7 +1374,7 @@ codeunit 134326 "ERM Purchase Blanket Order"
     begin
         PurchaseLine.SetRange("Document Type", DocumentType);
         PurchaseLine.SetRange("Buy-from Vendor No.", BuyFromVendorNo);
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
     end;
 
     local procedure UpdatePurchaseHeaderWithLocation(var PurchaseHeader: Record "Purchase Header"; LocationCode: Code[10])
@@ -1418,7 +1418,7 @@ codeunit 134326 "ERM Purchase Blanket Order"
         with PurchInvLine do begin
             SetRange("Document No.", InvoiceNo);
             SetRange(Type, Type::Item);
-            FindFirst;
+            FindFirst();
             TestField("Blanket Order No.", BlanketOrderNo);
             TestField("Blanket Order Line No.", BlanketOrderLineNo);
         end;

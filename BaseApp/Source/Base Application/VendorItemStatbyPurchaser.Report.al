@@ -208,7 +208,7 @@ report 10114 "Vendor Item Stat. by Purchaser"
                     begin
                         PurchInvHeader.SetRange("Posting Date", "Posting Date");
                         PurchInvHeader.SetRange("Vendor Invoice No.", "Document No.");
-                        if PurchInvHeader.FindFirst then
+                        if PurchInvHeader.FindFirst() then
                             if PurchInvHeader."Order Date" > 0D then begin
                                 "TotalQuantity-LT" := "TotalQuantity-LT" + "Invoiced Quantity";
                                 TotalDays := TotalDays + (("Posting Date" - PurchInvHeader."Order Date")

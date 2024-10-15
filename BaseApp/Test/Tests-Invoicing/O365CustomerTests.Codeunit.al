@@ -41,7 +41,7 @@ codeunit 138909 "O365 Customer Tests"
         O365SalesCustomerCard: TestPage "O365 Sales Customer Card";
         CustomerName: Text[30];
     begin
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [GIVEN] User has some countries
@@ -49,7 +49,7 @@ codeunit 138909 "O365 Customer Tests"
         LibraryInvoicingApp.CreateCountryRegion('NAVWAY');
 
         // [WHEN] User creates a new customer with a certain existing country
-        O365SalesCustomerCard.OpenNew;
+        O365SalesCustomerCard.OpenNew();
         CustomerName := CopyStr(LibraryUtility.GenerateRandomText(30), 1, MaxStrLen(Customer.Name));
         O365SalesCustomerCard.Name.SetValue(CustomerName);
         O365SalesCustomerCard.FullAddress.AssistEdit; // Calls trigger and sets Country/Region to NAVWAY
@@ -57,7 +57,7 @@ codeunit 138909 "O365 Customer Tests"
 
         // [THEN] The customer has been created with the correct Country/Region
         Customer.SetRange(Name, CustomerName);
-        Customer.FindFirst;
+        Customer.FindFirst();
         Customer.TestField("Country/Region Code", 'NAVWAY');
 
         // [THEN] The Country/Region exists and the shadow table O365CountryRegion is still empty
@@ -78,20 +78,20 @@ codeunit 138909 "O365 Customer Tests"
         O365CountryRegionCard: TestPage "O365 Country/Region Card";
         CustomerName: Text[30];
     begin
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [GIVEN] User has some countries
         LibraryInvoicingApp.CreateCountryRegion('MSWAY');
 
         // [WHEN] User creates a new customer and a new country during lookup
-        O365CountryRegionCard.OpenNew;
+        O365CountryRegionCard.OpenNew();
         O365CountryRegionCard.Code.SetValue('NAVWAY');
         O365CountryRegionCard.Name.SetValue(CopyStr(LibraryUtility.GenerateRandomText(30), 1, MaxStrLen(CountryRegion.Name)));
         O365CountryRegionCard.Close;
 
         // [THEN] A customer can be created with the Country/Region
-        O365SalesCustomerCard.OpenNew;
+        O365SalesCustomerCard.OpenNew();
         CustomerName := CopyStr(LibraryUtility.GenerateRandomText(30), 1, MaxStrLen(Customer.Name));
         O365SalesCustomerCard.Name.SetValue(CustomerName);
         O365SalesCustomerCard.FullAddress.AssistEdit; // Calls trigger and sets Country/Region to NAVWAY
@@ -114,7 +114,7 @@ codeunit 138909 "O365 Customer Tests"
         BCO365SalesCustomerCard: TestPage "BC O365 Sales Customer Card";
         CustomerName: Text[30];
     begin
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [GIVEN] User has some countries
@@ -122,7 +122,7 @@ codeunit 138909 "O365 Customer Tests"
         LibraryInvoicingApp.CreateCountryRegion('NAVWAY');
 
         // [WHEN] User creates a new customer with a certain existing country
-        BCO365SalesCustomerCard.OpenNew;
+        BCO365SalesCustomerCard.OpenNew();
         CustomerName := CopyStr(LibraryUtility.GenerateRandomText(30), 1, MaxStrLen(Customer.Name));
         BCO365SalesCustomerCard.Name.SetValue(CustomerName);
         BCO365SalesCustomerCard.CountryRegionCode.SetValue('NAVWAY');
@@ -130,7 +130,7 @@ codeunit 138909 "O365 Customer Tests"
 
         // [THEN] The customer has been created with the correct Country/Region
         Customer.SetRange(Name, CustomerName);
-        Customer.FindFirst;
+        Customer.FindFirst();
         Customer.TestField("Country/Region Code", 'NAVWAY');
 
         // [THEN] The Country/Region exists and the shadow table O365CountryRegion is still empty
@@ -151,7 +151,7 @@ codeunit 138909 "O365 Customer Tests"
         CustomerName: Text[30];
         PartialCountryName: Text;
     begin
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [GIVEN] User has some countries
@@ -161,7 +161,7 @@ codeunit 138909 "O365 Customer Tests"
         PartialCountryName := CopyStr(CountryRegion.Name, 1, MaxStrLen(CountryRegion.Code));
 
         // [WHEN] User creates a new customer and manually fills the country with the name
-        BCO365SalesCustomerCard.OpenNew;
+        BCO365SalesCustomerCard.OpenNew();
         CustomerName := CopyStr(LibraryUtility.GenerateRandomText(30), 1, MaxStrLen(Customer.Name));
         BCO365SalesCustomerCard.Name.SetValue(CustomerName);
         BCO365SalesCustomerCard.CountryRegionCode.SetValue(PartialCountryName); // Calls trigger and sets Country/Region to NAVWAY
@@ -169,7 +169,7 @@ codeunit 138909 "O365 Customer Tests"
 
         // [THEN] The customer has been created with the correct Country/Region
         Customer.SetRange(Name, CustomerName);
-        Customer.FindFirst;
+        Customer.FindFirst();
         Customer.TestField("Country/Region Code", 'NAVWAY');
 
         // [THEN] The shadow table O365CountryRegion is still empty
@@ -177,7 +177,7 @@ codeunit 138909 "O365 Customer Tests"
     end;
 
     [Test]
-    [HandlerFunctions('EmailDialogModalPageHandler,BCEmailSetupPageHandler')]
+    [HandlerFunctions('EmailDialogModalPageHandler')]
     [Scope('OnPrem')]
     procedure TestChangeCustomerNameAfterPostingInvoice()
     var
@@ -188,7 +188,7 @@ codeunit 138909 "O365 Customer Tests"
         EditedCustomerName: Text[100];
         ItemDescription: Text[100];
     begin
-        Initialize;
+        Initialize();
         EventSubscriberInvoicingApp.SetAppId('INV');
         BindSubscription(EventSubscriberInvoicingApp);
         LibraryLowerPermissions.SetInvoiceApp;
@@ -196,7 +196,7 @@ codeunit 138909 "O365 Customer Tests"
         // [GIVEN] An Invoicing user creates a new customer and sends an invoice to the customer
         CustomerName := LibraryInvoicingApp.CreateCustomerWithEmail;
         ItemDescription := LibraryInvoicingApp.CreateItemWithPrice;
-        BCO365SalesInvoice.OpenNew;
+        BCO365SalesInvoice.OpenNew();
         BCO365SalesInvoice."Sell-to Customer Name".SetValue(CustomerName);
         BCO365SalesInvoice.Lines.Description.SetValue(ItemDescription);
         BCO365SalesInvoice.Post.Invoke;
@@ -204,7 +204,7 @@ codeunit 138909 "O365 Customer Tests"
         // [WHEN] User tries to edit the customer name
         Customer.SetRange(Name, CustomerName);
         Assert.RecordCount(Customer, 1);
-        Customer.FindFirst;
+        Customer.FindFirst();
         BCO365SalesCustomerCard.OpenEdit;
         BCO365SalesCustomerCard.GotoRecord(Customer);
         EditedCustomerName := CopyStr(LibraryUtility.GenerateRandomText(30), 1, MaxStrLen(Customer.Name));
@@ -216,9 +216,9 @@ codeunit 138909 "O365 Customer Tests"
         Assert.RecordCount(Customer, 0);
         Customer.SetRange(Name, EditedCustomerName);
         Assert.RecordCount(Customer, 1);
-        Customer.FindFirst;
+        Customer.FindFirst();
 
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
         EventSubscriberInvoicingApp.Clear();
         UnbindSubscription(EventSubscriberInvoicingApp);
     end;
@@ -252,18 +252,6 @@ codeunit 138909 "O365 Customer Tests"
     procedure EmailDialogModalPageHandler(var O365SalesEmailDialog: TestPage "O365 Sales Email Dialog")
     begin
         O365SalesEmailDialog.OK.Invoke;
-    end;
-
-    [ModalPageHandler]
-    [Scope('OnPrem')]
-    procedure BCEmailSetupPageHandler(var BCO365EmailSetupWizard: TestPage "BC O365 Email Setup Wizard")
-    begin
-        with BCO365EmailSetupWizard.EmailSettingsWizardPage do begin
-            FromAccount.SetValue('test@microsoft.com');
-            Password.SetValue('pass');
-        end;
-
-        BCO365EmailSetupWizard.OK.Invoke;
     end;
 }
 

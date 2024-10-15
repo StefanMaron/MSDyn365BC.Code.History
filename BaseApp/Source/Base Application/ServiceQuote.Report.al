@@ -678,7 +678,7 @@ report 5902 "Service Quote"
     trigger OnPostReport()
     begin
         if LogInteraction and not IsReportInPreviewMode then
-            if "Service Header".FindSet then
+            if "Service Header".FindSet() then
                 repeat
                     if "Service Header"."Contact No." <> '' then
                         SegManagement.LogDocument(25, "Service Header"."No.", 0, 0, DATABASE::Contact, "Service Header"."Contact No.",

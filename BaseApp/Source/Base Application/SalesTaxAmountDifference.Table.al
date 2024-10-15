@@ -107,7 +107,7 @@ table 10012 "Sales Tax Amount Difference"
         TaxAmountDifference.SetRange("Document Product Area", ProductArea);
         TaxAmountDifference.SetRange("Document Type", DocType);
         TaxAmountDifference.SetRange("Document No.", DocNo);
-        if TaxAmountDifference.FindFirst then
+        if TaxAmountDifference.FindFirst() then
             TaxAmountDifference.DeleteAll();
     end;
 

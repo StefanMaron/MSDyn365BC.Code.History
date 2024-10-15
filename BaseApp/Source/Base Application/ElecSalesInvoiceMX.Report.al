@@ -975,7 +975,7 @@ report 10477 "Elec. Sales Invoice MX"
             SetRange("Document No.", SalesInvoiceLine."Document No.");
             SetRange("Document Type", "Document Type"::"Sales Invoice");
             SetRange("Document Line No.", SalesInvoiceLine."Line No.");
-            if not FindSet then
+            if not FindSet() then
                 exit;
         end;
         repeat
@@ -984,7 +984,7 @@ report 10477 "Elec. Sales Invoice MX"
                     SalesShipmentLine.Get(ItemLedgerEntry."Document No.", ItemLedgerEntry."Document Line No.");
                     if SalesShipmentLine.AsmToShipmentExists(PostedAsmHeader) then begin
                         PostedAsmLine.SetRange("Document No.", PostedAsmHeader."No.");
-                        if PostedAsmLine.FindSet then
+                        if PostedAsmLine.FindSet() then
                             repeat
                                 TreatAsmLineBuffer(PostedAsmLine);
                             until PostedAsmLine.Next() = 0;
@@ -1001,7 +1001,7 @@ report 10477 "Elec. Sales Invoice MX"
         TempPostedAsmLine.SetRange("Variant Code", PostedAsmLine."Variant Code");
         TempPostedAsmLine.SetRange(Description, PostedAsmLine.Description);
         TempPostedAsmLine.SetRange("Unit of Measure Code", PostedAsmLine."Unit of Measure Code");
-        if TempPostedAsmLine.FindFirst then begin
+        if TempPostedAsmLine.FindFirst() then begin
             TempPostedAsmLine.Quantity += PostedAsmLine.Quantity;
             TempPostedAsmLine.Modify();
         end else begin

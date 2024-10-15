@@ -249,7 +249,7 @@ table 10123 "Posted Bank Rec. Header"
         NavigateForm: Page Navigate;
     begin
         NavigateForm.SetDoc("Statement Date", "Statement No.");
-        NavigateForm.Run;
+        NavigateForm.Run();
     end;
 
     procedure ShowDocDim()

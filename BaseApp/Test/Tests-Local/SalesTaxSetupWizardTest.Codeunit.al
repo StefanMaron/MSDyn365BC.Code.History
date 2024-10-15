@@ -27,7 +27,7 @@ codeunit 140552 "Sales Tax Setup Wizard Test"
     var
         TempSalesTaxSetupWizard: Record "Sales Tax Setup Wizard" temporary;
         GLAccount: Record "G/L Account";
-        AssistedSetup: Codeunit "Assisted Setup";
+        GuidedExperience: Codeunit "Guided Experience";
         SalesTaxSetupWizard: TestPage "Sales Tax Setup Wizard";
     begin
         // [GIVEN] A G/L account exists
@@ -42,7 +42,7 @@ codeunit 140552 "Sales Tax Setup Wizard Test"
         SalesTaxSetupWizard.Close;
 
         // [THEN] Status of the setup step is still set to Not Completed
-        Assert.IsFalse(AssistedSetup.IsComplete(PAGE::"Sales Tax Setup Wizard"), 'Assisted setup status should not be completed.');
+        Assert.IsFalse(GuidedExperience.IsAssistedSetupComplete(ObjectType::Page, PAGE::"Sales Tax Setup Wizard"), 'Guided Experience status should not be completed.');
     end;
 
     [Test]
@@ -52,7 +52,7 @@ codeunit 140552 "Sales Tax Setup Wizard Test"
     procedure VerifyStatusNotCompletedWhenExitEarlyAndSayNo()
     var
         GLAccount: Record "G/L Account";
-        AssistedSetup: Codeunit "Assisted Setup";
+        GuidedExperience: Codeunit "Guided Experience";
         SalesTaxSetupWizard: TestPage "Sales Tax Setup Wizard";
     begin
         // [GIVEN] A G/L account exists
@@ -64,7 +64,7 @@ codeunit 140552 "Sales Tax Setup Wizard Test"
         SalesTaxSetupWizard.Close;
 
         // [THEN] Status of the setup step is still set to Not Completed
-        Assert.IsFalse(AssistedSetup.IsComplete(PAGE::"Sales Tax Setup Wizard"), 'Assisted setup status should not be completed.');
+        Assert.IsFalse(GuidedExperience.IsAssistedSetupComplete(ObjectType::Page, PAGE::"Sales Tax Setup Wizard"), 'Guided Experience status should not be completed.');
     end;
 
     [Test]
@@ -74,7 +74,7 @@ codeunit 140552 "Sales Tax Setup Wizard Test"
     var
         TempSalesTaxSetupWizard: Record "Sales Tax Setup Wizard" temporary;
         GLAccount: Record "G/L Account";
-        AssistedSetup: Codeunit "Assisted Setup";
+        GuidedExperience: Codeunit "Guided Experience";
         SalesTaxSetupWizard: TestPage "Sales Tax Setup Wizard";
     begin
         // [GIVEN] A G/L account exists
@@ -89,7 +89,7 @@ codeunit 140552 "Sales Tax Setup Wizard Test"
         SalesTaxSetupWizard.Finish.Invoke;
 
         // [THEN] Status of the setup step is set to Completed
-        Assert.IsTrue(AssistedSetup.IsComplete(PAGE::"Sales Tax Setup Wizard"), 'Assisted setup status should be completed.');
+        Assert.IsTrue(GuidedExperience.IsAssistedSetupComplete(ObjectType::Page, PAGE::"Sales Tax Setup Wizard"), 'Guided Experience status should be completed.');
     end;
 
     [Test]
@@ -484,7 +484,7 @@ codeunit 140552 "Sales Tax Setup Wizard Test"
         Customer.SetRange(County, 'IL');
         AssignTaxAreatoCustomer.SetTableView(Customer);
         AssignTaxAreatoCustomer.InitializeRequest(false, 'testCode');
-        AssignTaxAreatoCustomer.Run;
+        AssignTaxAreatoCustomer.Run();
 
         // [THEN] 'Tax Area Code' should be set to all cutomers with County set to 'IL'
         BaseCount := Customer.Count();
@@ -518,7 +518,7 @@ codeunit 140552 "Sales Tax Setup Wizard Test"
         Customer.SetRange(County, 'IL');
         AssignTaxAreatoCustomer.SetTableView(Customer);
         AssignTaxAreatoCustomer.InitializeRequest(true, 'testCode');
-        AssignTaxAreatoCustomer.Run;
+        AssignTaxAreatoCustomer.Run();
 
         // [THEN] 'Tax Area Code' should be set to all cutomers with County set to 'IL'
         BaseCount := Customer.Count();
@@ -552,7 +552,7 @@ codeunit 140552 "Sales Tax Setup Wizard Test"
         Vendor.SetRange(County, 'IL');
         AssignTaxAreatoVendor.SetTableView(Vendor);
         AssignTaxAreatoVendor.InitializeRequest(false, 'testCode');
-        AssignTaxAreatoVendor.Run;
+        AssignTaxAreatoVendor.Run();
 
         // [THEN] 'Tax Area Code' should be set to all vendors with County set to 'IL'
         BaseCount := Vendor.Count();
@@ -586,7 +586,7 @@ codeunit 140552 "Sales Tax Setup Wizard Test"
         Vendor.SetRange(County, 'IL');
         AssignTaxAreatoVendor.SetTableView(Vendor);
         AssignTaxAreatoVendor.InitializeRequest(true, 'testCode');
-        AssignTaxAreatoVendor.Run;
+        AssignTaxAreatoVendor.Run();
 
         // [THEN] 'Tax Liable' should be set to all vendors with County set to 'IL'
         BaseCount := Vendor.Count();
@@ -626,7 +626,7 @@ codeunit 140552 "Sales Tax Setup Wizard Test"
         Location.SetRange(Name, 'Test Warehouse');
         AssignTaxAreatoLocation.SetTableView(Location);
         AssignTaxAreatoLocation.InitializeRequest('testCode');
-        AssignTaxAreatoLocation.Run;
+        AssignTaxAreatoLocation.Run();
 
         // [THEN] 'Tax Area Code' should be set to all Locations with County set to 'IL'
         BaseCount := Location.Count();
@@ -739,7 +739,7 @@ codeunit 140552 "Sales Tax Setup Wizard Test"
         SalesTaxSetupWizard.Finish.Invoke;
 
         // [THEN] tax area code is assigned to company information
-        if CompanyInformation.FindFirst then
+        if CompanyInformation.FindFirst() then
             Assert.AreEqual(CompanyInformation."Tax Area Code", TaxCode,
               'Company Tax Area Code must be equal to the new TaxCode');
     end;
@@ -778,7 +778,7 @@ codeunit 140552 "Sales Tax Setup Wizard Test"
         SalesTaxSetupWizard.Finish.Invoke;
 
         // [THEN] tax area code is assigned to company information
-        if CompanyInformation.FindFirst then
+        if CompanyInformation.FindFirst() then
             Assert.AreEqual(CompanyInformation."Tax Area Code", TaxCode,
               'Company Tax Area Code must be equal to the new TaxCode');
     end;
@@ -792,7 +792,7 @@ codeunit 140552 "Sales Tax Setup Wizard Test"
         SalesTaxSetupWizard: Record "Sales Tax Setup Wizard";
         TaxSetup: Record "Tax Setup";
     begin
-        // [SCENARIO 286191] Run Sales Tax Assisted Setup Wizard when g/l account in defaults is removed
+        // [SCENARIO 286191] Run Sales Tax Guided Experience Wizard when g/l account in defaults is removed
         InitializeSetup;
         // [GIVEN] G/L account "ACC"
         LibraryERM.CreateGLAccount(GLAccount);
@@ -804,7 +804,7 @@ codeunit 140552 "Sales Tax Setup Wizard Test"
         // [GIVEN] Deleted "ACC"
         GLAccount.Delete(true);
         // [WHEN] Sales Tax Setup Wizard record initialized (on wizard run)
-        SalesTaxSetupWizard.Initialize;
+        SalesTaxSetupWizard.Initialize();
         // [THEN] Wizard is not failed, record is initialized, tax accounts are empty
         Assert.IsTrue(SalesTaxSetupWizard."Tax Account (Sales)" = '', TaxAccErr);
         Assert.IsTrue(SalesTaxSetupWizard."Tax Account (Purchases)" = '', TaxAccErr);
@@ -851,7 +851,7 @@ codeunit 140552 "Sales Tax Setup Wizard Test"
     begin
         AssistedSetupTestLibrary.DeleteAll();
         AssistedSetupTestLibrary.CallOnRegister();
-        if not GLAccount.FindFirst then begin
+        if not GLAccount.FindFirst() then begin
             GLAccount.Init();
             GLAccount.Insert(true);
         end;

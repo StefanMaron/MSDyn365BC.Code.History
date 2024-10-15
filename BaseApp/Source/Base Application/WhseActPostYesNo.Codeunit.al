@@ -110,7 +110,8 @@ codeunit 7323 "Whse.-Act.-Post (Yes/No)"
 
         with WhseActivLine do
             if ("Source Document" = "Source Document"::"Prod. Consumption") or
-               ("Source Document" = "Source Document"::"Outbound Transfer")
+               ("Source Document" = "Source Document"::"Outbound Transfer") or
+                ("Source Document" = "Source Document"::"Job Usage")
             then begin
                 if not Confirm(Text002, false, "Activity Type", "Source Document") then
                     exit(false);

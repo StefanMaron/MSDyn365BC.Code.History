@@ -206,7 +206,7 @@ table 10011 "Sales Tax Amount Line"
         TaxAreaCount: Integer;
         TaxPercent: Decimal;
     begin
-        if FindFirst then begin
+        if FindFirst() then begin
             TaxAmountLine2 := Rec;
             TaxAreaCount := 1;
             repeat
@@ -266,7 +266,7 @@ table 10011 "Sales Tax Amount Line"
         TaxAmount: Decimal;
         PrevJurisdiction: Code[10];
     begin
-        if FindSet then
+        if FindSet() then
             repeat
                 if PrevJurisdiction <> "Tax Jurisdiction Code" then begin
                     if "Tax Area Code for Key" = '' then     // indicates Canada

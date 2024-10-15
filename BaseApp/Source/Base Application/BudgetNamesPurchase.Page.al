@@ -82,7 +82,7 @@ page 9373 "Budget Names Purchase"
                     PurchBudgetOverview: Page "Purchase Budget Overview";
                 begin
                     PurchBudgetOverview.SetNewBudgetName(Name);
-                    PurchBudgetOverview.Run;
+                    PurchBudgetOverview.Run();
                 end;
             }
         }

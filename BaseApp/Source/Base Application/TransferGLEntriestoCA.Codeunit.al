@@ -92,18 +92,18 @@ codeunit 1105 "Transfer GL Entries to CA"
         CostRegister.LockTable();
         CostRegister.SetCurrentKey(Source);
         CostRegister.SetRange(Source, CostRegister.Source::"Transfer from G/L");
-        if CostRegister.FindLast then
+        if CostRegister.FindLast() then
             FirstGLEntryNo := CostRegister."To G/L Entry No." + 1
         else
             FirstGLEntryNo := 1;
 
-        if GLEntry.FindLast then
+        if GLEntry.FindLast() then
             LastGLEntryNo := GLEntry."Entry No.";
 
         GLEntry.SetRange("Entry No.", FirstGLEntryNo, LastGLEntryNo);
         GLEntry.SetFilter("Posting Date", '%1..', CostAccSetup."Starting Date for G/L Transfer");
 
-        if GLEntry.FindSet then
+        if GLEntry.FindSet() then
             repeat
                 if BatchRun and ((GLEntry."Entry No." mod 100) = 0) then
                     Window.Update(1, Format(GLEntry."Entry No."));
@@ -138,7 +138,7 @@ codeunit 1105 "Transfer GL Entries to CA"
                                     else
                                         TempCostJnlLine.SetRange("Cost Object Code", CostObjectCode);
                                     TempCostJnlLine.SetRange("Posting Date", PostingDate);
-                                    if TempCostJnlLine.FindFirst then
+                                    if TempCostJnlLine.FindFirst() then
                                         ModifyCostJournalLine(CombinedEntryText)
                                     else
                                         InsertCostJournalLine(CostCenterCode, CostObjectCode);
@@ -224,7 +224,7 @@ codeunit 1105 "Transfer GL Entries to CA"
         TempCostJnlLine.Reset();
         Window2.Open(Text006);
         TempCostJnlLine.SetCurrentKey("G/L Entry No.");
-        if TempCostJnlLine.FindSet then
+        if TempCostJnlLine.FindSet() then
             repeat
                 Window2.Update(1, TempCostJnlLine."Line No.");
                 CostJnlLine := TempCostJnlLine;

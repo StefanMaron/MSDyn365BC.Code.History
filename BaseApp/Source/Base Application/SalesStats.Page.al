@@ -455,7 +455,7 @@ page 10042 "Sales Stats."
         SalesLine.Reset();
         SalesLine.SetRange("Document Type", "Document Type");
         SalesLine.SetRange("Document No.", "No.");
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
 
         if TempSalesTaxLine.GetAnyLineModified then begin
             SalesTaxCalculate.StartSalesTaxCalculation;

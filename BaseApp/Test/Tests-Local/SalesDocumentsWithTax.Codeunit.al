@@ -35,7 +35,7 @@ codeunit 144013 "Sales Documents With Tax"
         // Verify General Ledger Entries Amount with Partially Posted Sales Return Order with 100 % Line Discount Percentage.
 
         // Setup: Create Sales Return Order.
-        Initialize;
+        Initialize();
         CreateSalesDocumentWithFullLineDiscount(SalesHeader, SalesHeader."Document Type"::"Return Order", SalesLine);
 
         // Excercise: Post Sales Return Order - Partially. Post Sales Return Order with remaining Quantity to Invoice.
@@ -55,7 +55,7 @@ codeunit 144013 "Sales Documents With Tax"
     begin
         // Verify General Ledger Entries, Post Sales Invoice with Type - Resource.
         // Setup.
-        Initialize;
+        Initialize();
         PostedSalesDocumentResourceWithTax(SalesHeader."Document Type"::Invoice);
     end;
 
@@ -67,7 +67,7 @@ codeunit 144013 "Sales Documents With Tax"
     begin
         // Verify General Ledger Entries, Post Sales Credit Memo with Type - Resource.
         // Setup.
-        Initialize;
+        Initialize();
         PostedSalesDocumentResourceWithTax(SalesHeader."Document Type"::"Credit Memo");
     end;
 
@@ -113,7 +113,7 @@ codeunit 144013 "Sales Documents With Tax"
     begin
         // Verify program will populates correct amount without tax on report - Cash Applied.
         // Setup.
-        Initialize;
+        Initialize();
         PaymentAppliedEntriesCashAppliedReport(0);  // 0 value for Tax Below Maximum.
     end;
 
@@ -124,7 +124,7 @@ codeunit 144013 "Sales Documents With Tax"
     begin
         // Verify program will populates correct amount without tax on report - Cash Applied.
         // Setup.
-        Initialize;
+        Initialize();
         PaymentAppliedEntriesCashAppliedReport(LibraryRandom.RandDec(10, 2));  // Random value for Tax Below Maximum.
     end;
 
@@ -170,7 +170,7 @@ codeunit 144013 "Sales Documents With Tax"
     begin
         // Verify Generated Purchase Order from Requisition Work sheet with Get Sales Order functionality, Option Combine Special Orders Default as Always Combined in Purchases Payables Setup.
         // Setup.
-        Initialize;
+        Initialize();
         SpecialOrdersCombined(PurchasesPayablesSetup."Combine Special Orders Default"::"Always Combine");
     end;
 
@@ -182,7 +182,7 @@ codeunit 144013 "Sales Documents With Tax"
     begin
         // Verify Generated Purchase Order from Requisition Work sheet with Get Sales Order functionality, Option Combine Special Orders Default as Never Combined in Purchases Payables Setup.
         // Setup.
-        Initialize;
+        Initialize();
         SpecialOrdersCombined(PurchasesPayablesSetup."Combine Special Orders Default"::"Never Combine");
     end;
 
@@ -236,7 +236,7 @@ codeunit 144013 "Sales Documents With Tax"
         TaxGroupCode: Code[20];
     begin
         // [SCENARIO 325706] Statistics for Posted Sales Invoice with positive and negative Line Amounts shows correct Tax Amount.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Tax setup with Tax Detail having "Tax Below Maximum" := 1, "Maximum Amount/Qty." = 5000.
         CreateTaxDetailSimple(TaxDetail);
@@ -273,8 +273,8 @@ codeunit 144013 "Sales Documents With Tax"
     var
         LibraryApplicationArea: Codeunit "Library - Application Area";
     begin
-        LibraryVariableStorage.Clear;
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryVariableStorage.Clear();
+        LibraryApplicationArea.EnableFoundationSetup();
     end;
 
     local procedure CreateCustomer(var Customer: Record Customer)
@@ -484,7 +484,7 @@ codeunit 144013 "Sales Documents With Tax"
         TaxJurisdiction: Record "Tax Jurisdiction";
     begin
         TaxJurisdiction.Code := LibraryUTUtility.GetNewCode10;
-        TaxJurisdiction."Tax Account (Sales)" := LibraryERM.CreateGLAccountNo;
+        TaxJurisdiction."Tax Account (Sales)" := LibraryERM.CreateGLAccountNo();
         TaxJurisdiction.Insert();
         exit(TaxJurisdiction.Code);
     end;
@@ -514,7 +514,7 @@ codeunit 144013 "Sales Documents With Tax"
     begin
         ReqWkshTemplate.SetRange(Type, ReqWkshTemplate.Type::"Req.");
         ReqWkshTemplate.SetRange(Recurring, false);
-        ReqWkshTemplate.FindFirst;
+        ReqWkshTemplate.FindFirst();
         LibraryPlanning.CreateRequisitionWkshName(RequisitionWkshName, ReqWkshTemplate.Name);
         LibraryPlanning.CreateRequisitionLine(RequisitionLine, RequisitionWkshName."Worksheet Template Name", RequisitionWkshName.Name);
     end;
@@ -557,14 +557,14 @@ codeunit 144013 "Sales Documents With Tax"
         TaxAreaLine: Record "Tax Area Line";
     begin
         TaxAreaLine.SetRange("Tax Area", TaxArea);
-        TaxAreaLine.FindFirst;
+        TaxAreaLine.FindFirst();
         TaxJurisdiction.Get(TaxAreaLine."Tax Jurisdiction Code");
     end;
 
     local procedure FindVATEntry(DocumentNo: Code[20]; var VATEntry: Record "VAT Entry")
     begin
         VATEntry.SetRange("Document No.", DocumentNo);
-        VATEntry.FindFirst;
+        VATEntry.FindFirst();
     end;
 
     local procedure GetSalesInvoiceLineAmount(DocumentNo: Code[20]): Decimal
@@ -572,7 +572,7 @@ codeunit 144013 "Sales Documents With Tax"
         SalesInvoiceLine: Record "Sales Invoice Line";
     begin
         SalesInvoiceLine.SetRange("Document No.", DocumentNo);
-        SalesInvoiceLine.FindFirst;
+        SalesInvoiceLine.FindFirst();
         exit(SalesInvoiceLine."Line Amount");
     end;
 
@@ -609,7 +609,7 @@ codeunit 144013 "Sales Documents With Tax"
         GetSalesOrders.InitializeRequest(RetrieveDimensionsFrom::"Sales Line");
         GetSalesOrders.SetReqWkshLine(RequisitionLine, 1);  // Value 1 for Special Order.
         GetSalesOrders.UseRequestPage(false);
-        GetSalesOrders.Run;
+        GetSalesOrders.Run();
     end;
 
     local procedure RunCashAppliedReport(CustomerNo: Code[20])
@@ -620,7 +620,7 @@ codeunit 144013 "Sales Documents With Tax"
         Clear(CashApplied);
         CustLedgerEntry.SetRange("Customer No.", CustomerNo);
         CashApplied.SetTableView(CustLedgerEntry);
-        CashApplied.Run;
+        CashApplied.Run();
     end;
 
     local procedure UpdateAndPostGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; Amount: Decimal)
@@ -653,7 +653,7 @@ codeunit 144013 "Sales Documents With Tax"
         SalesCrMemoLine.SetRange("Document No.", DocumentNo);
         SalesCrMemoLine.SetRange(Type, SalesCrMemoLine.Type::Item);
         SalesCrMemoLine.SetRange("No.", No);
-        SalesCrMemoLine.FindFirst;
+        SalesCrMemoLine.FindFirst();
     end;
 
     local procedure VerifyPurchaseLineCount(SpecialOrderPurchaseNo: Code[20]; SpecialOrderPurchaseNo2: Code[20]; CombineSpecialOrdersDefault: Option)
@@ -679,7 +679,7 @@ codeunit 144013 "Sales Documents With Tax"
     begin
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("G/L Account No.", GLAccountNo);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         GLEntry.TestField(Amount, Amount);
     end;
 

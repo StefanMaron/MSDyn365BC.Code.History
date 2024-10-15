@@ -39,7 +39,7 @@ codeunit 134807 "RED Test Unit for Doc With Inv"
         // [SCENARIO] Set Invoice Discount Amount for SO in LCY with multiple lines
 
         // [GIVEN] LCY Sales Order with multiple lines
-        Initialize;
+        Initialize();
         InitializeSalesMultipleLinesEqualAmountsScenario(
           SalesHeader, InvoiceDiscountAmount, '', DeferralPercent, SetDateDay(15, WorkDate));
 
@@ -65,7 +65,7 @@ codeunit 134807 "RED Test Unit for Doc With Inv"
         // [SCENARIO] Set Invoice Discount Amount for PO in LCY with multiple lines
 
         // [GIVEN] LCY Purchase Order with multiple lines
-        Initialize;
+        Initialize();
         InitializePurchaseMultipleLinesEqualAmountsScenario(
           PurchaseHeader, InvoiceDiscountAmount, '', DeferralPercent, SetDateDay(15, WorkDate));
 
@@ -91,7 +91,7 @@ codeunit 134807 "RED Test Unit for Doc With Inv"
         // [SCENARIO] Set Invoice Discount Amount for SO in FCY with multiple lines
 
         // [GIVEN] FCY Sales Order with multiple lines
-        Initialize;
+        Initialize();
         InitializeSalesMultipleLinesEqualAmountsScenario(
           SalesHeader, InvoiceDiscountAmount, CreateCurrency, DeferralPercent, SetDateDay(1, WorkDate));
 
@@ -117,7 +117,7 @@ codeunit 134807 "RED Test Unit for Doc With Inv"
         // [SCENARIO] Set Invoice Discount Amount for PO in FCY with multiple lines
 
         // [GIVEN] FCY Purchase Order with multiple
-        Initialize;
+        Initialize();
         InitializePurchaseMultipleLinesEqualAmountsScenario(
           PurchaseHeader, InvoiceDiscountAmount, CreateCurrency, DeferralPercent, SetDateDay(1, WorkDate));
 
@@ -145,7 +145,7 @@ codeunit 134807 "RED Test Unit for Doc With Inv"
         // [FEATURE] [Sales] [Post] [VAT Entry]
         // [SCENARIO 160355] Post doc with Invoice Discount Amount and VAT for SO
         // [GIVEN] LCY Sales Order with multiple lines
-        Initialize;
+        Initialize();
         InitializeSalesMultipleLinesEqualAmountsScenario(
           SalesHeader, InvoiceDiscountAmount, '', DeferralPercent, SetDateDay(1, WorkDate));
 
@@ -175,7 +175,7 @@ codeunit 134807 "RED Test Unit for Doc With Inv"
         // [FEATURE] [Purchase] [Post] [VAT Entry]
         // [SCENARIO 160355] Post doc with Invoice Discount Amount and VAT for PO
         // [GIVEN] LCY Purchase Order with multiple lines
-        Initialize;
+        Initialize();
         InitializePurchaseMultipleLinesEqualAmountsScenario(
           PurchaseHeader, InvoiceDiscountAmount, '', DeferralPercent, SetDateDay(1, WorkDate));
         AccNo := GetDeferralTemplateAccountForPurchLine(PurchaseHeader);
@@ -205,7 +205,7 @@ codeunit 134807 "RED Test Unit for Doc With Inv"
         // [FEATURE] [Sales] [Post] [VAT Entry]
         // [SCENARIO 160355] Post doc with Line Discount Amount and VAT for SO
         // [GIVEN] LCY Sales Order with line with Line Discount %
-        Initialize;
+        Initialize();
         CreateSalesDocWithLineInvoiceDisc(SalesHeader, SalesLine, SalesHeader."Document Type"::Order, DeferralPercent);
         AccNo := GetDeferralTemplateAccountForSalesLine(SalesHeader);
         PostingDate := SalesHeader."Posting Date";
@@ -231,7 +231,7 @@ codeunit 134807 "RED Test Unit for Doc With Inv"
         // [FEATURE] [Purchase] [Post] [VAT Entry]
         // [SCENARIO 160355] Post doc with Line Discount Amount and VAT for PO
         // [GIVEN] LCY Purchase Order with line with Line Discount %
-        Initialize;
+        Initialize();
         CreatePurchaseDocWithLineInvoiceDisc(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, DeferralPercent);
         AccNo := GetDeferralTemplateAccountForPurchLine(PurchaseHeader);
         PostingDate := PurchaseHeader."Posting Date";
@@ -257,7 +257,7 @@ codeunit 134807 "RED Test Unit for Doc With Inv"
         // [FEATURE] [Sales] [Post] [VAT Entry]
         // [SCENARIO 160355] Post doc with Line Discount Amount, Invoice Disc Amount and VAT for SO
         // [GIVEN] LCY Sales Order with line with Line Discount %
-        Initialize;
+        Initialize();
         CreateSalesDocWithLineInvoiceDisc(SalesHeader, SalesLine, SalesHeader."Document Type"::Order, DeferralPercent);
         AccNo := GetDeferralTemplateAccountForSalesLine(SalesHeader);
         PostingDate := SalesHeader."Posting Date";
@@ -286,7 +286,7 @@ codeunit 134807 "RED Test Unit for Doc With Inv"
         // [FEATURE] [Purchase] [Post] [VAT Entry]
         // [SCENARIO 160355] Post doc with Line Discount Amount, Invoice Disc Amount and VAT for PO
         // [GIVEN] LCY Purchase Order with line with Line Discount %
-        Initialize;
+        Initialize();
         CreatePurchaseDocWithLineInvoiceDisc(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, DeferralPercent);
         AccNo := GetDeferralTemplateAccountForPurchLine(PurchaseHeader);
         PostingDate := PurchaseHeader."Posting Date";
@@ -316,7 +316,7 @@ codeunit 134807 "RED Test Unit for Doc With Inv"
         // [FEATURE] [Sales] [Post] [VAT Entry]
         // [SCENARIO 160355] Post doc with Invoice Discount Amount and different VAT% per line for SO
         // [GIVEN] LCY Sales Order with two lines each with different VAT %
-        Initialize;
+        Initialize();
         InitializeSalesMultipleLinesMultiplelVATPercentScenario(
           SalesHeader, InvoiceDiscountAmount, '', DeferralPercent, Line1AccNo, Line2AccNo);
 
@@ -348,7 +348,7 @@ codeunit 134807 "RED Test Unit for Doc With Inv"
         // [FEATURE] [Purchase] [Post] [VAT Entry]
         // [SCENARIO 160355] Post doc with Invoice Discount Amount and different VAT% per line for PO
         // [GIVEN] LCY Purchase Order with two lines each with different VAT %
-        Initialize;
+        Initialize();
         InitializePurchaseMultipleLinesMultipleVATPercentScenario(
           PurchaseHeader, InvoiceDiscountAmount, '', DeferralPercent, Line1AccNo, Line2AccNo);
         PostingDate := PurchaseHeader."Posting Date";
@@ -379,7 +379,7 @@ codeunit 134807 "RED Test Unit for Doc With Inv"
         // [FEATURE] [Sales] [Post] [VAT Entry]
         // [SCENARIO 160355] Post doc with Line Discount Amount and Sales Tax for SO
         // [GIVEN] Sales Order with line with Line Discount % and Sales Tax
-        Initialize;
+        Initialize();
         CreateSalesDocWithSalesTax(SalesHeader, SalesLine, SalesHeader."Document Type"::Order, DeferralPercent);
         AccNo := GetDeferralTemplateAccountForSalesLine(SalesHeader);
         PostingDate := SalesHeader."Posting Date";
@@ -405,7 +405,7 @@ codeunit 134807 "RED Test Unit for Doc With Inv"
         // [FEATURE] [Purchase] [Post] [VAT Entry]
         // [SCENARIO 160355] Post doc with Line Discount Amount and Sales Tax for PO
         // [GIVEN] Purchase Order with line with Line Discount % and Sales Tax
-        Initialize;
+        Initialize();
         CreatePurchaseDocWithSalesTax(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, DeferralPercent);
         AccNo := GetDeferralTemplateAccountForPurchLine(PurchaseHeader);
         PostingDate := PurchaseHeader."Posting Date";
@@ -431,7 +431,7 @@ codeunit 134807 "RED Test Unit for Doc With Inv"
         // [FEATURE] [Sales] [Post] [Invoice Discount Amount]
         // [SCENARIO 137128] Post doc with Invoice Discount Amount for SO
         // [GIVEN] LCY Sales Order with multiple lines
-        Initialize;
+        Initialize();
         InitializeSalesMultipleLinesEqualAmountsScenario(
           SalesHeader, InvoiceDiscountAmount, '', DeferralPercent, SetDateDay(15, WorkDate));
 
@@ -461,7 +461,7 @@ codeunit 134807 "RED Test Unit for Doc With Inv"
         // [FEATURE] [Purchase] [Post] [Invoice Discount Amount]
         // [SCENARIO 137128] Post doc with Invoice Discount Amount for PO
         // [GIVEN] FCY Purchase Order with multiple lines
-        Initialize;
+        Initialize();
         InitializePurchaseMultipleLinesEqualAmountsScenario(
           PurchaseHeader, InvoiceDiscountAmount, '', DeferralPercent, SetDateDay(15, WorkDate));
         AccNo := GetDeferralTemplateAccountForPurchLine(PurchaseHeader);
@@ -482,18 +482,18 @@ codeunit 134807 "RED Test Unit for Doc With Inv"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"RED Test Unit for Doc With Inv");
-        LibraryVariableStorage.Clear;
-        LibrarySetupStorage.Restore;
+        LibraryVariableStorage.Clear();
+        LibrarySetupStorage.Restore();
 
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"RED Test Unit for Doc With Inv");
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
         LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
@@ -537,7 +537,7 @@ codeunit 134807 "RED Test Unit for Doc With Inv"
         SalesPost.GetSalesLines(SalesHeader, TempSalesLine, UpdateType);
         TempSalesLine.CalcVATAmountLines(UpdateType, SalesHeader, TempSalesLine, VATAmountLine);
         if (not VATAmountLine.Positive) and (VATAmountLine."Invoice Discount Amount" = 0) then
-            VATAmountLine.FindLast;
+            VATAmountLine.FindLast();
     end;
 
     local procedure InitializeSalesMultipleLinesEqualAmountsScenario(var SalesHeader: Record "Sales Header"; var InvoiceDiscountAmount: Decimal; CurrencyCode: Code[10]; var DeferralPercent: Decimal; PostingDate: Date)
@@ -798,7 +798,7 @@ codeunit 134807 "RED Test Unit for Doc With Inv"
         DeferralLineSetRange(DeferralLine, DeferralDocType, DocType, DocNo, LineNo);
         Clear(DeferralAmount);
         Period := 0;
-        if DeferralLine.FindSet then begin
+        if DeferralLine.FindSet() then begin
             repeat
                 if Period = 0 then
                     PostingDate := HeaderPostingDate
@@ -861,7 +861,7 @@ codeunit 134807 "RED Test Unit for Doc With Inv"
         RecCount := GLEntry.Count();
         GLEntry.CalcSums(Amount);
         AccAmt := GLEntry.Amount;
-        if GLEntry.FindFirst then begin
+        if GLEntry.FindFirst() then begin
             NonDeferralAmt := GLEntry.Amount;
             exit(GLEntry."Transaction No.");
         end;
@@ -873,7 +873,7 @@ codeunit 134807 "RED Test Unit for Doc With Inv"
     begin
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         exit(GetDeferralTemplateAccount(SalesLine."Deferral Code"));
     end;
 
@@ -883,7 +883,7 @@ codeunit 134807 "RED Test Unit for Doc With Inv"
     begin
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
         exit(GetDeferralTemplateAccount(PurchaseLine."Deferral Code"));
     end;
 
@@ -1108,7 +1108,7 @@ codeunit 134807 "RED Test Unit for Doc With Inv"
         DummyGLAccount."VAT Bus. Posting Group" := VATPostingSetup[1]."VAT Bus. Posting Group";
         DummyGLAccount."VAT Prod. Posting Group" := VATPostingSetup[1]."VAT Prod. Posting Group";
         VATPostingSetup[2].Get(VATPostingSetup[1]."VAT Bus. Posting Group", LibraryERM.CreateRelatedVATPostingSetup(DummyGLAccount));
-        VATPostingSetup[2].Validate("VAT Identifier", LibraryUtility.GenerateGUID);
+        VATPostingSetup[2].Validate("VAT Identifier", LibraryUtility.GenerateGUID());
         VATPostingSetup[2].Validate("VAT %", LibraryRandom.RandDec(100, 2));
         VATPostingSetup[2].Modify(true);
 
@@ -1263,7 +1263,7 @@ codeunit 134807 "RED Test Unit for Doc With Inv"
     begin
         TaxAreaLine.SetFilter("Tax Area", TaxArea);
         TaxAreaLine.SetCurrentKey("Tax Area", "Calculation Order");
-        TaxAreaLine.FindLast;
+        TaxAreaLine.FindLast();
         exit(TaxAreaLine."Calculation Order" + 1);
     end;
 

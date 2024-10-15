@@ -412,7 +412,7 @@ codeunit 10095 "Export EFT (RB)"
         DataExchColumnDef.SetRange("Data Exch. Def Code", DataExch."Data Exch. Def Code");
         DataExchColumnDef.SetRange("Data Exch. Line Def Code", DataExch."Data Exch. Line Def Code");
         DataExchColumnDef.SetRange(Name, FieldName);
-        if DataExchColumnDef.FindFirst then;
+        if DataExchColumnDef.FindFirst() then;
     end;
 
     procedure FindDataExchColumnDefWithMapping(var DataExchColumnDef : Record "Data Exch. Column Def"; DataExchEntryNo : Integer; TableID: Integer; FieldNo: Integer)

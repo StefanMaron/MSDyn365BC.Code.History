@@ -117,9 +117,6 @@ codeunit 398 "Sales Tax Calculate"
         IsHandled: Boolean;
     begin
         TaxAmount := 0;
-#if not CLEAN17
-        OnBeforeCalculateTax(TaxAreaCode, TaxGroupCode, TaxLiable);
-#endif
         IsHandled := false;
         OnBeforeCalculateTaxProcedure(TaxAreaCode, TaxGroupCode, TaxLiable, Date, Amount, Quantity, ExchangeRate, TaxAmount, IsHandled);
         If IsHandled then
@@ -262,7 +259,7 @@ codeunit 398 "Sales Tax Calculate"
                 SetTaxDetailFilter(TaxDetail, TaxAreaLine."Tax Jurisdiction Code", TaxGroupCode, Date);
                 TaxDetail.SetFilter("Tax Type", '%1|%2', TaxDetail."Tax Type"::"Sales and Use Tax",
                   TaxDetail."Tax Type"::"Sales Tax Only");
-                if TaxDetail.FindLast then begin
+                if TaxDetail.FindLast() then begin
                     TaxOnTaxCalculated := TaxOnTaxCalculated or TaxDetail."Calculate Tax on Tax";
                     InclinationLess := TaxDetail."Tax Below Maximum" / 100;
                     InclinationHigher := TaxDetail."Tax Above Maximum" / 100;
@@ -352,7 +349,7 @@ codeunit 398 "Sales Tax Calculate"
                     end;
                 end;
                 TaxDetail.SetRange("Tax Type", TaxDetail."Tax Type"::"Excise Tax");
-                if TaxDetail.FindLast then begin
+                if TaxDetail.FindLast() then begin
                     if (Abs(Quantity) <= TaxDetail."Maximum Amount/Qty.") or
                        (TaxDetail."Maximum Amount/Qty." = 0)
                     then
@@ -586,7 +583,7 @@ codeunit 398 "Sales Tax Calculate"
             Error(Text003);
 
         if FirstLine then begin
-            if not TMPTaxDetail.FindSet then begin
+            if not TMPTaxDetail.FindSet() then begin
                 Initialised := false;
                 exit(false);
             end;
@@ -706,7 +703,7 @@ codeunit 398 "Sales Tax Calculate"
             TaxDetail.SetRange("Tax Group Code", SalesLine."Tax Group Code");
             TaxDetail.SetFilter("Effective Date", '<=%1', SalesHeader."Posting Date");
 
-            if TaxAreaLine.FindSet then
+            if TaxAreaLine.FindSet() then
                 repeat
                     SetRange("Tax Jurisdiction Code", TaxAreaLine."Tax Jurisdiction Code");
                     "Tax Jurisdiction Code" := TaxAreaLine."Tax Jurisdiction Code";
@@ -715,13 +712,13 @@ codeunit 398 "Sales Tax Calculate"
                     Positive := SalesLinePositive;
                     TaxDetail.SetRange("Tax Jurisdiction Code", TaxAreaLine."Tax Jurisdiction Code");
                     if (TotalPositive <> SalesLinePositive) and (SalesHeader.Amount <> 0) then
-                        if TaxDetail.FindLast then
+                        if TaxDetail.FindLast() then
                             if TaxDetail."Maximum Amount/Qty." <> 0 then begin
                                 SetRange(Positive, TotalPositive);
                                 Positive := TotalPositive;
                             end;
 
-                    if not FindFirst then begin
+                    if not FindFirst() then begin
                         Init;
                         "Tax Group Code" := SalesLine."Tax Group Code";
                         "Tax Area Code" := SalesLine."Tax Area Code";
@@ -774,7 +771,7 @@ codeunit 398 "Sales Tax Calculate"
 
         SalesInvoiceLine.SetRange("Document No.", DocNo);
         SalesInvoiceLine.SetFilter("Tax Group Code", '<>%1', '');
-        if SalesInvoiceLine.FindSet then
+        if SalesInvoiceLine.FindSet() then
             repeat
                 SalesTaxAmountLineCalc.InitFromSalesInvLine(SalesInvoiceLine);
                 SalesTaxAmountLineCalc.CalcSalesOrServLineSalesTaxAmountLine(
@@ -803,7 +800,7 @@ codeunit 398 "Sales Tax Calculate"
 
         SalesCrMemoLine.SetRange("Document No.", DocNo);
         SalesCrMemoLine.SetFilter("Tax Group Code", '<>%1', '');
-        if SalesCrMemoLine.FindSet then
+        if SalesCrMemoLine.FindSet() then
             repeat
                 SalesTaxAmountLineCalc.InitFromSalesCrMemoLine(SalesCrMemoLine);
                 SalesTaxAmountLineCalc.CalcSalesOrServLineSalesTaxAmountLine(
@@ -867,11 +864,11 @@ codeunit 398 "Sales Tax Calculate"
 
             TaxAreaLine.SetCurrentKey("Tax Area", "Calculation Order");
             TaxAreaLine.SetRange("Tax Area", PurchLine."Tax Area Code");
-            if TaxAreaLine.FindSet then
+            if TaxAreaLine.FindSet() then
                 repeat
                     SetRange("Tax Jurisdiction Code", TaxAreaLine."Tax Jurisdiction Code");
                     "Tax Jurisdiction Code" := TaxAreaLine."Tax Jurisdiction Code";
-                    if not FindFirst then begin
+                    if not FindFirst() then begin
                         Init;
                         "Tax Group Code" := PurchLine."Tax Group Code";
                         "Tax Area Code" := PurchLine."Tax Area Code";
@@ -894,7 +891,7 @@ codeunit 398 "Sales Tax Calculate"
                             TaxDetail.SetFilter("Tax Type", '%1|%2', TaxDetail."Tax Type"::"Sales and Use Tax",
                               TaxDetail."Tax Type"::"Sales Tax Only");
 
-                        if TaxDetail.FindLast then
+                        if TaxDetail.FindLast() then
                             "Expense/Capitalize" := TaxDetail."Expense/Capitalize";
 
                         "Calculation Order" := TaxAreaLine."Calculation Order";
@@ -935,7 +932,7 @@ codeunit 398 "Sales Tax Calculate"
 
         PurchInvLine.SetRange("Document No.", DocNo);
         PurchInvLine.SetFilter("Tax Group Code", '<>%1', '');
-        if PurchInvLine.FindSet then
+        if PurchInvLine.FindSet() then
             repeat
                 SalesTaxAmountLineCalc.InitFromPurchInvLine(PurchInvLine);
                 SalesTaxAmountLineCalc.CalcPurchLineSalesTaxAmountLine(
@@ -965,7 +962,7 @@ codeunit 398 "Sales Tax Calculate"
 
         PurchCrMemoLine.SetRange("Document No.", DocNo);
         PurchCrMemoLine.SetFilter("Tax Group Code", '<>%1', '');
-        if PurchCrMemoLine.FindSet then
+        if PurchCrMemoLine.FindSet() then
             repeat
                 SalesTaxAmountLineCalc.InitFromPurchCrMemoLine(PurchCrMemoLine);
                 SalesTaxAmountLineCalc.CalcPurchLineSalesTaxAmountLine(
@@ -1018,11 +1015,11 @@ codeunit 398 "Sales Tax Calculate"
             SetRange("Tax Group Code", ServiceLine."Tax Group Code");
             TaxAreaLine.SetCurrentKey("Tax Area", "Calculation Order");
             TaxAreaLine.SetRange("Tax Area", ServiceLine."Tax Area Code");
-            if TaxAreaLine.FindSet then
+            if TaxAreaLine.FindSet() then
                 repeat
                     SetRange("Tax Jurisdiction Code", TaxAreaLine."Tax Jurisdiction Code");
                     "Tax Jurisdiction Code" := TaxAreaLine."Tax Jurisdiction Code";
-                    if not FindFirst then begin
+                    if not FindFirst() then begin
                         Init;
                         "Tax Group Code" := ServiceLine."Tax Group Code";
                         "Tax Area Code" := ServiceLine."Tax Area Code";
@@ -1072,7 +1069,7 @@ codeunit 398 "Sales Tax Calculate"
 
         ServInvLine.SetRange("Document No.", DocNo);
         ServInvLine.SetFilter("Tax Group Code", '<>%1', '');
-        if ServInvLine.FindSet then
+        if ServInvLine.FindSet() then
             repeat
                 SalesTaxAmountLineCalc.InitFromServInvLine(ServInvLine);
                 SalesTaxAmountLineCalc.CalcSalesOrServLineSalesTaxAmountLine(
@@ -1103,7 +1100,7 @@ codeunit 398 "Sales Tax Calculate"
 
         ServCrMemoLine.SetRange("Document No.", DocNo);
         ServCrMemoLine.SetFilter("Tax Group Code", '<>%1', '');
-        if ServCrMemoLine.FindSet then
+        if ServCrMemoLine.FindSet() then
             repeat
                 SalesTaxAmountLineCalc.InitFromServCrMemoLine(ServCrMemoLine);
                 SalesTaxAmountLineCalc.CalcSalesOrServLineSalesTaxAmountLine(
@@ -1146,7 +1143,7 @@ codeunit 398 "Sales Tax Calculate"
         with TempSalesTaxAmountLine do begin
             Reset;
             SetRange("Tax Type", "Tax Type"::"Sales and Use Tax");
-            if FindSet then
+            if FindSet() then
                 repeat
                     SetTaxDetailFilter(TaxDetail, "Tax Jurisdiction Code", "Tax Group Code", Date);
                     TaxDetail.SetRange("Tax Type", TaxDetail."Tax Type"::"Sales and Use Tax");
@@ -1157,7 +1154,7 @@ codeunit 398 "Sales Tax Calculate"
                         TaxDetail.SetFilter("Tax Type", '%1|%2', TaxDetail."Tax Type"::"Sales and Use Tax",
                           TaxDetail."Tax Type"::"Sales Tax Only");
                     TaxDetail.SetRange("Tax Type", TaxDetail."Tax Type"::"Excise Tax");
-                    if TaxDetail.FindLast then begin
+                    if TaxDetail.FindLast() then begin
                         "Tax Type" := "Tax Type"::"Excise Tax";
                         Insert;
                         "Tax Type" := "Tax Type"::"Sales and Use Tax";
@@ -1174,7 +1171,7 @@ codeunit 398 "Sales Tax Calculate"
                     TempTaxAmountDifference.SetRange("Tax Type", "Tax Type");
                     TempTaxAmountDifference.SetRange("Use Tax", "Use Tax");
                     TempTaxAmountDifference.SetRange(Positive, Positive);
-                    if TempTaxAmountDifference.FindFirst then begin
+                    if TempTaxAmountDifference.FindFirst() then begin
                         "Tax Difference" := TempTaxAmountDifference."Tax Difference";
                         OnEndSalesTaxCalculationOnBeforeTempSalesTaxLineModify(TempSalesTaxAmountLine);
                         Modify;
@@ -1182,7 +1179,7 @@ codeunit 398 "Sales Tax Calculate"
                 until Next() = 0;
             Reset;
             SetCurrentKey("Tax Area Code for Key", "Tax Group Code", "Tax Type", "Calculation Order");
-            if FindLast then begin
+            if FindLast() then begin
                 LastTaxAreaCode := "Tax Area Code for Key";
                 LastCalculationOrder := -9999;
                 LastTaxType := "Tax Type";
@@ -1220,7 +1217,7 @@ codeunit 398 "Sales Tax Calculate"
                         else
                             TaxDetail.SetFilter("Tax Type", '%1|%2', "Tax Type"::"Sales and Use Tax",
                               "Tax Type"::"Sales Tax Only");
-                    if TaxDetail.FindLast then begin
+                    if TaxDetail.FindLast() then begin
                         TaxOnTaxCalculated := TaxOnTaxCalculated or TaxDetail."Calculate Tax on Tax";
                         if TaxDetail."Calculate Tax on Tax" and ("Tax Type" = "Tax Type"::"Sales and Use Tax") then
                             TaxBaseAmt := "Tax Base Amount" + TotalTaxAmount;
@@ -1271,7 +1268,7 @@ codeunit 398 "Sales Tax Calculate"
             end;
             DeleteAll();
             SalesTaxAmountLine2.Reset();
-            if SalesTaxAmountLine2.FindSet then
+            if SalesTaxAmountLine2.FindSet() then
                 repeat
                     Copy(SalesTaxAmountLine2);
                     Insert;
@@ -1324,7 +1321,7 @@ codeunit 398 "Sales Tax Calculate"
 
         with SummarizedSalesTaxAmtLine do begin
             DeleteAll();
-            if TempSalesTaxAmountLine.FindSet then
+            if TempSalesTaxAmountLine.FindSet() then
                 repeat
                     Clear(SummarizedSalesTaxAmtLine);
                     case TaxCountry of
@@ -1361,7 +1358,7 @@ codeunit 398 "Sales Tax Calculate"
             DeleteAll();
             SetRange("Tax Amount");
 
-            if FindSet then
+            if FindSet() then
                 repeat
                     if ("Tax Jurisdiction Code" <> PrevTaxJurisdictionCode) and RoundByJurisdiction then begin
                         PrevTaxJurisdictionCode := "Tax Jurisdiction Code";
@@ -1386,7 +1383,7 @@ codeunit 398 "Sales Tax Calculate"
     procedure GetSalesTaxAmountLineTable(var TempSalesTaxAmountLine2: Record "Sales Tax Amount Line" temporary)
     begin
         TempSalesTaxAmountLine.Reset();
-        if TempSalesTaxAmountLine.FindSet then
+        if TempSalesTaxAmountLine.FindSet() then
             repeat
                 TempSalesTaxAmountLine2.Copy(TempSalesTaxAmountLine);
                 TempSalesTaxAmountLine2.Insert();
@@ -1399,7 +1396,7 @@ codeunit 398 "Sales Tax Calculate"
     begin
         TempSalesTaxAmountLine.Reset();
         TempSalesTaxAmountLine.DeleteAll();
-        if SalesTaxLine2.FindSet then
+        if SalesTaxLine2.FindSet() then
             repeat
                 TempSalesTaxAmountLine.Copy(SalesTaxLine2);
                 TempSalesTaxAmountLine.Insert();
@@ -1445,12 +1442,12 @@ codeunit 398 "Sales Tax Calculate"
 
         with TempSalesTaxAmountLine do begin
             Reset;
-            if FindSet then
+            if FindSet() then
                 repeat
                     SkipCheckTaxAmtLinePos := false;
                     SetTaxDetailFilter(TaxDetail, "Tax Jurisdiction Code", "Tax Group Code", SalesHeader."Posting Date");
                     TaxDetail.SetRange("Tax Type", "Tax Type");
-                    if TaxDetail.FindLast then
+                    if TaxDetail.FindLast() then
                         if TaxDetail."Maximum Amount/Qty." <> 0 then
                             SkipCheckTaxAmtLinePos := true;
 
@@ -1575,7 +1572,7 @@ codeunit 398 "Sales Tax Calculate"
         with TempSalesTaxAmountLine do begin
             Reset;
             // LOCKING
-            if FindSet then
+            if FindSet() then
                 repeat
                     if ("Tax Jurisdiction Code" <> TempSalesTaxLine2."Tax Jurisdiction Code") and RoundByJurisdiction then begin
                         TempSalesTaxLine2."Tax Jurisdiction Code" := "Tax Jurisdiction Code";
@@ -1721,7 +1718,7 @@ codeunit 398 "Sales Tax Calculate"
 
         with TempSalesTaxAmountLine do begin
             Reset;
-            if FindSet then
+            if FindSet() then
                 repeat
                     if ("Tax Jurisdiction Code" <> TempSalesTaxLine2."Tax Jurisdiction Code") and RoundByJurisdiction then begin
                         TempSalesTaxLine2."Tax Jurisdiction Code" := "Tax Jurisdiction Code";
@@ -1863,7 +1860,7 @@ codeunit 398 "Sales Tax Calculate"
         TaxAmountDifference.SetRange("Document Product Area", ProductArea);
         TaxAmountDifference.SetRange("Document Type", DocumentType);
         TaxAmountDifference.SetRange("Document No.", DocumentNo);
-        if TaxAmountDifference.FindSet then
+        if TaxAmountDifference.FindSet() then
             repeat
                 TempTaxAmountDifference := TaxAmountDifference;
                 TempTaxAmountDifference.Insert();
@@ -1886,7 +1883,7 @@ codeunit 398 "Sales Tax Calculate"
     procedure SaveTaxDifferences()
     begin
         TempTaxAmountDifference.Reset();
-        if not TempTaxAmountDifference.FindFirst then
+        if not TempTaxAmountDifference.FindFirst() then
             Error(Text1020001);
 
         TaxAmountDifference.Reset();
@@ -1897,7 +1894,7 @@ codeunit 398 "Sales Tax Calculate"
 
         TempSalesTaxAmountLine.Reset();
         TempSalesTaxAmountLine.SetFilter("Tax Difference", '<>0');
-        if TempSalesTaxAmountLine.FindSet then
+        if TempSalesTaxAmountLine.FindSet() then
             repeat
                 TaxAmountDifference."Document Product Area" := TempTaxAmountDifference."Document Product Area";
                 TaxAmountDifference."Document Type" := TempTaxAmountDifference."Document Type";
@@ -2053,7 +2050,7 @@ codeunit 398 "Sales Tax Calculate"
             SetRange("Tax Area Code for Key", TaxAreaCode);
             SetRange("Tax Group Code", TaxGroupCode);
             SetRange("Is Report-to Jurisdiction", true);
-            if FindFirst then begin
+            if FindFirst() then begin
                 Delete;
                 "Tax Amount" := "Tax Amount" + RoundingError;
                 "Amount Including Tax" := "Tax Amount" + "Tax Base Amount";
@@ -2168,13 +2165,6 @@ codeunit 398 "Sales Tax Calculate"
     begin
     end;
 
-#if not CLEAN17
-    [Obsolete('Replaced by OnBeforeCalculateTaxProcedure', '17.0')]
-    [IntegrationEvent(false, false)]
-    procedure OnBeforeCalculateTax(TaxAreaCode: Code[20]; TaxGroupCode: Code[20]; TaxLiable: Boolean)
-    begin
-    end;
-#endif
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalculateTaxProcedure(TaxAreaCode: Code[20]; TaxGroupCode: Code[20]; TaxLiable: Boolean; Date: Date; Amount: Decimal; Quantity: Decimal; ExchangeRate: Decimal; var TaxAmount: Decimal; var IsHandled: Boolean)
     begin

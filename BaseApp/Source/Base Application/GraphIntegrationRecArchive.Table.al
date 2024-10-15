@@ -1,8 +1,9 @@
 table 5452 "Graph Integration Rec. Archive"
 {
-    ObsoleteState = Pending;
+    ObsoleteState = Removed;
+    ReplicateData = false;
     ObsoleteReason = 'This functionality will be removed. The API that it was integrating to was discontinued.';
-    ObsoleteTag = '17.0';
+    ObsoleteTag = '20.0';
     Caption = 'Graph Integration Rec. Archive';
 
     fields

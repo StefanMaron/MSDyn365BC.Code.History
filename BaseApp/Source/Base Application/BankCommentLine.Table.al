@@ -21,12 +21,17 @@ table 10122 "Bank Comment Line"
         field(3; "No."; Code[20])
         {
             Caption = 'No.';
-            TableRelation = IF ("Table Name" = CONST("Bank Rec.")) "Bank Rec. Header"."Statement No." WHERE("Bank Account No." = FIELD("Bank Account No."))
+            TableRelation =
+#if not CLEAN20
+            IF ("Table Name" = CONST("Bank Rec.")) "Bank Rec. Header"."Statement No." WHERE("Bank Account No." = FIELD("Bank Account No."))
             ELSE
+#endif
             IF ("Table Name" = CONST("Posted Bank Rec.")) "Posted Bank Rec. Header"."Statement No." WHERE("Bank Account No." = FIELD("Bank Account No."))
             ELSE
+#if not CLEAN20
             IF ("Table Name" = CONST(Deposit)) "Deposit Header"
             ELSE
+#endif
             IF ("Table Name" = CONST("Posted Deposit")) "Posted Deposit Header";
         }
         field(4; "Line No."; Integer)
@@ -66,7 +71,7 @@ table 10122 "Bank Comment Line"
         CommentLine.SetRange("Table Name", "Table Name");
         CommentLine.SetRange("Bank Account No.", "Bank Account No.");
         CommentLine.SetRange("No.", "No.");
-        if not CommentLine.FindFirst then
+        if not CommentLine.FindFirst() then
             Date := WorkDate;
     end;
 }

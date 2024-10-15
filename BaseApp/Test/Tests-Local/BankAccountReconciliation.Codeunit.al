@@ -1,5 +1,9 @@
+#if not CLEAN20
 codeunit 144015 "Bank Account Reconciliation"
 {
+    ObsoleteReason = 'Replaced by Standardized bank deposits and reconciliations feature.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '20.0';
     // Test cases of Bank Account Reconciliations.
     // 1. Verify Bank Account Reconciliation Details on Bank Reconciliations Test Report, while executing the Adjustments on Bank Account Reconciliations.
     // 2. Verify last No used on Number series, Create and Post Bank Account Reconciliations with Adjustment Lines.
@@ -47,7 +51,7 @@ codeunit 144015 "Bank Account Reconciliation"
         // Verify Bank Account Reconciliation Details on Bank Reconciliations Test Report, while executing the Adjustments on Bank Account Reconciliations.
 
         // Setup: Create and Post Payment journal, Create Bank Reconciliation with Adjustment Lines.
-        Initialize;
+        Initialize();
         BalanceAccountNo := CreateGeneralJournalLine(GenJournalLine);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         CreateBankReconciliationWithAdjustmentLine(BankRecHeader, BankRecLine, BalanceAccountNo, CreateGLAccount);
@@ -80,7 +84,7 @@ codeunit 144015 "Bank Account Reconciliation"
         // Verify last No used on Number series, Create and Post Bank Account Reconciliations with Adjustment Lines.
 
         // Setup: Create Number Series, Create and Post Payment journal, Create Bank Reconciliation with Adjustment Lines.
-        Initialize;
+        Initialize();
         CreateNoSeries(NoSeriesLine);
         DocumentNo := NoSeriesManagement.GetNextNo(NoSeriesLine."Series Code", WorkDate, false);  // FALSE for Modify Series.
         UpdateGeneralLedgerSetup(OldNoSeriesCode, NoSeriesLine."Series Code");
@@ -113,7 +117,7 @@ codeunit 144015 "Bank Account Reconciliation"
         GLAccNo: Code[20];
         DimSetID: Integer;
     begin
-        Initialize;
+        Initialize();
         BankAccNo := CreateBankAccountWithDimension(DimensionValue);
         GLAccNo := CreateGLAccountWithDimension(DimensionValue2);
 
@@ -137,7 +141,7 @@ codeunit 144015 "Bank Account Reconciliation"
     begin
         // [FEATURE] [Reports]
         // [SCENARIO 378134] Check Bank Rec. Test Report with Collapsed Outstanding Deposit
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Bank Rec. Line with Collapse Status = Collapsed Deposit and Cleared = FALSE
         InsertBankRecLineCollapsedDeposit(BankRecHeader, false);
@@ -158,7 +162,7 @@ codeunit 144015 "Bank Account Reconciliation"
     begin
         // [FEATURE] [Reports]
         // [SCENARIO 378134] Run Bank Rec. Test Report with Collapsed Outstanding Deposit
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Bank Rec. Line with Collapse Status = Collapsed Deposit, Amount = 100, and Cleared = FALSE
         InsertBankRecLineCollapsedDeposit(BankRecHeader, false);
@@ -180,7 +184,7 @@ codeunit 144015 "Bank Account Reconciliation"
     begin
         // [FEATURE] [Reports]
         // [SCENARIO 378950] Check Bank Rec. Test Report with Collapsed Deposit Cleared
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Bank Rec. Line with Collapse Status = Collapsed Deposit and Cleared = TRUE
         InsertBankRecLineCollapsedDeposit(BankRecHeader, true);
@@ -201,7 +205,7 @@ codeunit 144015 "Bank Account Reconciliation"
     begin
         // [FEATURE] [Reports]
         // [SCENARIO 378950] Run Bank Rec. Test Report with Collapsed Deposit Cleared
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Bank Rec. Line with Collapse Status = Collapsed Deposit, Amount = 100, and Cleared = TRUE
         InsertBankRecLineCollapsedDeposit(BankRecHeader, true);
@@ -219,7 +223,7 @@ codeunit 144015 "Bank Account Reconciliation"
         Clear(LibraryReportValidation);
 
         if not IsInitialized then begin
-            LibraryApplicationArea.EnableFoundationSetup;
+            LibraryApplicationArea.EnableFoundationSetup();
             IsInitialized := true;
         end;
     end;
@@ -386,7 +390,7 @@ codeunit 144015 "Bank Account Reconciliation"
         BankRecProcessLines.SetDoMarkLines(true, BankRecHeader."Bank Account No.", BankRecHeader."Statement No.");
         BankRecProcessLines.SetTableView(BankRecHeader);
         BankRecProcessLines.UseRequestPage(false);
-        BankRecProcessLines.Run;
+        BankRecProcessLines.Run();
     end;
 
     local procedure FindBankRecLine(var BankRecLine: Record "Bank Rec. Line"; BankRecHeader: Record "Bank Rec. Header")
@@ -395,7 +399,7 @@ codeunit 144015 "Bank Account Reconciliation"
         BankRecLine.SetRange("Statement No.", BankRecHeader."Statement No.");
         BankRecLine.SetRange("Record Type", BankRecLine."Record Type"::Deposit);
         BankRecLine.SetRange("Collapse Status", BankRecLine."Collapse Status"::"Collapsed Deposit");
-        BankRecLine.FindFirst;
+        BankRecLine.FindFirst();
     end;
 
     local procedure RunBankReconciliationTestReport(BankAccountNo: Code[20]; StatementNo: Code[20])
@@ -408,7 +412,7 @@ codeunit 144015 "Bank Account Reconciliation"
         BankRecHeader.SetRange("Bank Account No.", BankAccountNo);
         BankRecHeader.SetRange("Statement No.", StatementNo);
         BankRecTestReport.SetTableView(BankRecHeader);
-        BankRecTestReport.Run;
+        BankRecTestReport.Run();
     end;
 
     local procedure GetDimensionSetID(DimensionValue: Record "Dimension Value"): Integer
@@ -484,3 +488,4 @@ codeunit 144015 "Bank Account Reconciliation"
     end;
 }
 
+#endif

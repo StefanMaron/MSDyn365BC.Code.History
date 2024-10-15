@@ -310,7 +310,7 @@ report 10412 "Check (Check/Stub/Stub)"
                                                                 EmployeeLedgerEntry.SetRange("Document No.", GenJnlLine2."Applies-to Doc. No.");
                                                                 EmployeeLedgerEntry.SetRange("Employee No.", BalancingNo);
                                                             end;
-                                                            EmployeeLedgerEntry.FindFirst;
+                                                            EmployeeLedgerEntry.FindFirst();
                                                             EmployeeUpdateAmounts(EmployeeLedgerEntry, CurrentLineAmount);
                                                             LineAmount := CurrentLineAmount;
                                                         end;
@@ -1761,7 +1761,7 @@ report 10412 "Check (Check/Stub/Stub)"
         EmployeeLedgerEntry1.SetRange("Document Type", GenJnlLine."Applies-to Doc. Type");
         EmployeeLedgerEntry1.SetRange("Document No.", GenJnlLine."Applies-to Doc. No.");
         EmployeeLedgerEntry1.SetRange("Employee No.", BalancingNo);
-        EmployeeLedgerEntry1.FindFirst;
+        EmployeeLedgerEntry1.FindFirst();
         EmployeeUpdateAmounts(EmployeeLedgerEntry1, RemainingAmount1);
     end;
 

@@ -112,7 +112,7 @@ codeunit 134999 "ERM Excel Reports"
         // [GIVEN] Two recurring General Journal Lines with Document No. = "%4 ABCD". %4 is substituted by month's name from Posting Date.
         LibraryERM.CreateRecurringTemplateName(GenJournalTemplate);
         LibraryERM.CreateRecurringBatchName(GenJournalBatch, GenJournalTemplate.Name);
-        CreateRecurringGenJnlLine(GenJournalLine, GenJournalBatch, '%4 ' + LibraryUtility.GenerateGUID);
+        CreateRecurringGenJnlLine(GenJournalLine, GenJournalBatch, '%4 ' + LibraryUtility.GenerateGUID());
         CreateRecurringGenJnlLine(GenJournalLine, GenJournalBatch, GenJournalLine."Document No.");
         ExpectedDocNo := StrSubstNo(GenJournalLine."Document No.", '', '', '', FORMAT(GenJournalLine."Posting Date", 0, '<Month Text>'));
 
@@ -131,14 +131,14 @@ codeunit 134999 "ERM Excel Reports"
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"ERM Excel Reports");
 
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         Clear(LibraryReportValidation);
         if IsInitialized then
             exit;
 
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"ERM Excel Reports");
 
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         IsInitialized := true;
         Commit();
 
@@ -220,7 +220,7 @@ codeunit 134999 "ERM Excel Reports"
     begin
         LibraryVariableStorage.Enqueue(AgingMethodOption::"Trans Date");
         LibraryVariableStorage.Enqueue(false);
-        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
         Commit();
 
         REPORT.Run(ReportId);
@@ -233,7 +233,7 @@ codeunit 134999 "ERM Excel Reports"
         GeneralJournalTest: Report "General Journal - Test";
         LibraryUtility: Codeunit "Library - Utility";
     begin
-        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
         GenJnlLine.SetRange("Journal Template Name", JournalTemplateName);
         GenJnlLine.SetRange("Journal Batch Name", JournalBatchName);
         GeneralJournalTest.SetTableView(GenJnlLine);

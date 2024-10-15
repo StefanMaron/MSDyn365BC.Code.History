@@ -37,7 +37,7 @@ codeunit 144022 "Sales Docs With Tax O365"
         // Verify General Ledger Entries Amount with Partially Posted Sales Order with 100 % Line Discount Percentage.
 
         // Setup: Create Sales Order.
-        Initialize;
+        Initialize();
         CreateSalesDocumentWithFullLineDiscount(SalesHeader, SalesHeader."Document Type"::Order, SalesLine);
 
         // Excercise: Post Sales Order - Partially. Post Sales Order with remaining Quantity to Invoice.
@@ -61,7 +61,7 @@ codeunit 144022 "Sales Docs With Tax O365"
         // Verify Shipped Not Invoiced on Sales Line, Post Sales Order as ship and Tax Area code as blank on line.
 
         // Setup: Create Sales Order with Tax Area Code as Blank.
-        Initialize;
+        Initialize();
         CreateCustomer(Customer);
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
         UpdateTaxAreaOnSalesHeader(SalesHeader);
@@ -91,7 +91,7 @@ codeunit 144022 "Sales Docs With Tax O365"
         // Verify Shipped Not Invoiced field on page Customer List Order Status after post Sales Order as Ship.
 
         // Setup: Create Sales Order.
-        Initialize;
+        Initialize();
         CreateCustomer(Customer);
         CreateSalesDocument(
           SalesHeader, SalesLine, SalesHeader."Document Type"::Order, Customer."No.", SalesLine.Type::Item,
@@ -126,7 +126,7 @@ codeunit 144022 "Sales Docs With Tax O365"
         // Verify Item Ledger Entry exist for values Cost of Sales and Profit Amount on Customer Sales Statistics report.
 
         // Setup: Create and Post Sales Order with purchase adjustment Item Journal.
-        Initialize;
+        Initialize();
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
         ItemNo := CreateAndPostItemJournalWithLocationCode(Location.Code);
         CreateSalesDocumentWithLocationCode(SalesHeader, Customer, ItemNo, Location.Code);
@@ -162,7 +162,7 @@ codeunit 144022 "Sales Docs With Tax O365"
         // Verify Cust. Ledger Entry exist for values Profit Amount on Salesperson Commissions report.
 
         // Setup: Create and Post Sales Order with purchase adjustment Item Journal.
-        Initialize;
+        Initialize();
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
         ItemNo := CreateAndPostItemJournalWithLocationCode(Location.Code);
         CreateSalesDocumentWithLocationCode(SalesHeader, Customer, ItemNo, Location.Code);
@@ -195,7 +195,7 @@ codeunit 144022 "Sales Docs With Tax O365"
         // Verify Cust. Ledger Entry exist for values Profit Amount on Salesperson Statistics by Inv. report.
 
         // Setup: Create and Post Sales Order with purchase adjustment Item Journal.
-        Initialize;
+        Initialize();
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
         ItemNo := CreateAndPostItemJournalWithLocationCode(Location.Code);
         CreateSalesDocumentWithLocationCode(SalesHeader, Customer, ItemNo, Location.Code);
@@ -236,8 +236,8 @@ codeunit 144022 "Sales Docs With Tax O365"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryVariableStorage.Clear();
+        LibraryApplicationArea.EnableFoundationSetup();
     end;
 
     local procedure InitializeCustomerAndTaxSettings(var CustomerNo: Code[20]; var PostingDate: Date; var LocationCode: Code[10]; var TaxGroupCode: Code[20]; var TaxAreaCode: Code[20]; CurrencyExchangeRate: Decimal; RelationalCurrencyExchangeRate: Decimal; Foreign: Boolean; TaxBelowMaximum: Decimal)
@@ -538,7 +538,7 @@ codeunit 144022 "Sales Docs With Tax O365"
     begin
         ItemLedgerEntry.SetRange("Document Type", ItemLedgerEntry."Document Type"::"Sales Shipment");
         ItemLedgerEntry.SetRange("Document No.", DocumentNo);
-        ItemLedgerEntry.FindFirst;
+        ItemLedgerEntry.FindFirst();
     end;
 
     local procedure GetCostAmountActualFromValueEntry(DocumentNo: Code[20]) CostAmountActual: Decimal
@@ -548,7 +548,7 @@ codeunit 144022 "Sales Docs With Tax O365"
         with ValueEntry do begin
             SetRange("Document No.", DocumentNo);
             SetRange(Adjustment, true);
-            if FindSet then
+            if FindSet() then
                 repeat
                     CostAmountActual += "Cost Amount (Actual)";
                 until Next = 0;
@@ -580,7 +580,7 @@ codeunit 144022 "Sales Docs With Tax O365"
         SalesInvoiceLine.SetRange("Document No.", DocumentNo);
         SalesInvoiceLine.SetRange(Type, SalesInvoiceLine.Type::Item);
         SalesInvoiceLine.SetRange("No.", No);
-        SalesInvoiceLine.FindFirst;
+        SalesInvoiceLine.FindFirst();
     end;
 
     [HandlerFunctions('MessageHandler')]
@@ -594,7 +594,7 @@ codeunit 144022 "Sales Docs With Tax O365"
         TaxAreaCode: Code[20];
         DocNo: Code[20];
     begin
-        Initialize;
+        Initialize();
         InitializeCustomerAndTaxSettings(
           CustomerNo, PostingDate, LocationCode, TaxGroupCode, TaxAreaCode,
           ExchangeRate, RelationalExchangeRate, Foreign, TaxBelowMaximum);
@@ -623,7 +623,7 @@ codeunit 144022 "Sales Docs With Tax O365"
         ProfitAmt: Decimal;
     begin
         CustLedgerEntry.SetRange("Document No.", DocumentNo);
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
         ProfitAmt := GetCostAmountActualFromValueEntry(DocumentNo) + CustLedgerEntry."Profit (LCY)";
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.SetRange('Cust__Ledger_Entry__Document_No__', DocumentNo);
@@ -636,7 +636,7 @@ codeunit 144022 "Sales Docs With Tax O365"
     begin
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("G/L Account No.", GLAccountNo);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         GLEntry.TestField(Amount, Amount);
     end;
 

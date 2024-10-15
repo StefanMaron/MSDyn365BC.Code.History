@@ -104,20 +104,30 @@ table 272 "Check Ledger Entry"
         field(19; "Statement No."; Code[20])
         {
             Caption = 'Statement No.';
+#if not CLEAN20
             TableRelation = IF ("Statement Status" = FILTER("Bank Acc. Entry Applied" | "Check Entry Applied")) "Bank Rec. Header"."Statement No." WHERE("Bank Account No." = FIELD("Bank Account No."))
             ELSE
             IF ("Statement Status" = CONST(Closed)) "Posted Bank Rec. Header"."Statement No." WHERE("Bank Account No." = FIELD("Bank Account No."));
+#else
+            TableRelation = "Bank Acc. Reconciliation Line"."Statement No." WHERE("Bank Account No." = FIELD("Bank Account No."));
+            ValidateTableRelation = false;
+#endif
             //This property is currently not supported
             //TestTableRelation = false;
         }
         field(20; "Statement Line No."; Integer)
         {
             Caption = 'Statement Line No.';
+#if not CLEAN20
             TableRelation = IF ("Statement Status" = FILTER("Bank Acc. Entry Applied" | "Check Entry Applied")) "Bank Rec. Line"."Line No." WHERE("Bank Account No." = FIELD("Bank Account No."),
                                                                                                                                                "Statement No." = FIELD("Statement No."))
             ELSE
             IF ("Statement Status" = CONST(Closed)) "Posted Bank Rec. Line"."Line No." WHERE("Bank Account No." = FIELD("Bank Account No."),
                                                                                                                                                                                                                                     "Statement No." = FIELD("Statement No."));
+#else
+            TableRelation = "Bank Acc. Reconciliation Line"."Statement Line No." WHERE("Bank Account No." = FIELD("Bank Account No."),
+                                                                                        "Statement No." = FIELD("Statement No."));
+#endif
             //This property is currently not supported
             //TestTableRelation = false;
         }
@@ -269,7 +279,7 @@ table 272 "Check Ledger Entry"
     var
         BankAcc: Record "Bank Account";
     begin
-        if not FindSet then
+        if not FindSet() then
             Error(NothingToExportErr);
 
         if not BankAcc.Get("Bank Account No.") then

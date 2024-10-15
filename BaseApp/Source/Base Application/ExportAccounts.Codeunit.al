@@ -35,7 +35,7 @@ codeunit 27000 "Export Accounts"
         GLAccount.SetFilter("SAT Account Code", '<>%1', '');
 
         CreateXMLHeader(TempXMLBuffer, CatalogoNodeTxt, CatalogoNamespaceTxt, Year, Month, '1.3');
-        if GLAccount.FindSet then begin
+        if GLAccount.FindSet() then begin
             repeat
                 TempErrorMessage.LogIfEmpty(GLAccount, GLAccount.FieldNo(Name), TempErrorMessage."Message Type"::Error);
 
@@ -100,7 +100,7 @@ codeunit 27000 "Export Accounts"
             TempXMLBuffer.AddAttribute('FechaModBal', Format(UpdateDate, 0, 9));
         end;
 
-        if GLAccount.FindSet then
+        if GLAccount.FindSet() then
             repeat
                 GLAccount.CalcFields("Debit Amount", "Credit Amount");
 
@@ -161,7 +161,7 @@ codeunit 27000 "Export Accounts"
         GLEntry.SetCurrentKey("Transaction No.");
         GLEntry.SetRange("Posting Date", StartDate, EndDate);
 
-        if GLEntry.FindSet then begin
+        if GLEntry.FindSet() then begin
             repeat
                 if TransactionNoCurrent <> GLEntry."Transaction No." then begin
                     if TransactionNoCurrent <> 0 then
@@ -211,11 +211,11 @@ codeunit 27000 "Export Accounts"
                 TempErrorMessage.LogSimpleMessage(TempErrorMessage."Message Type"::Error, MissingOrderNumberErr);
         end;
 
-        if GLAccount.FindSet then begin
+        if GLAccount.FindSet() then begin
             repeat
                 GLEntry.SetRange("G/L Account No.", GLAccount."No.");
                 GLEntry.SetRange("Posting Date", StartDate, EndDate);
-                if GLEntry.FindSet then begin
+                if GLEntry.FindSet() then begin
                     GLAccountBalanceIni.Get(GLAccount."No.");
                     GLAccountBalanceIni.SetFilter("Date Filter", '..%1', ClosingDate(StartDate - 1));
                     GLAccountBalanceIni.CalcFields("Balance at Date");
@@ -322,7 +322,7 @@ codeunit 27000 "Export Accounts"
     begin
         VendorLedgerEntry.SetRange("Transaction No.", GLEntry."Transaction No.");
 
-        if VendorLedgerEntry.FindSet then
+        if VendorLedgerEntry.FindSet() then
             repeat
                 VendorPostingGroup.Get(VendorLedgerEntry."Vendor Posting Group");
                 if VendorPostingGroup."Payables Account" = GLEntry."G/L Account No." then begin
@@ -330,7 +330,7 @@ codeunit 27000 "Export Accounts"
                                                              VendorLedgerEntry."Document Type"::Refund]
                     then begin
                         FindAppliedVendorReceipts(AppliedVendorLedgerEntry, VendorLedgerEntry."Entry No.");
-                        if AppliedVendorLedgerEntry.FindSet then
+                        if AppliedVendorLedgerEntry.FindSet() then
                             repeat
                                 CreateReceipt(TempXMLBuffer, AppliedVendorLedgerEntry, IsAuxiliary);
                             until AppliedVendorLedgerEntry.Next() = 0;
@@ -348,7 +348,7 @@ codeunit 27000 "Export Accounts"
     begin
         CustLedgerEntry.SetRange("Transaction No.", GLEntry."Transaction No.");
 
-        if CustLedgerEntry.FindSet then
+        if CustLedgerEntry.FindSet() then
             repeat
                 CustomerPostingGroup.Get(CustLedgerEntry."Customer Posting Group");
                 if CustomerPostingGroup."Receivables Account" = GLEntry."G/L Account No." then begin
@@ -356,7 +356,7 @@ codeunit 27000 "Export Accounts"
                                                            CustLedgerEntry."Document Type"::Refund]
                     then begin
                         FindAppliedCustomerReceipts(AppliedCustLedgerEntry, CustLedgerEntry."Entry No.");
-                        if AppliedCustLedgerEntry.FindSet then
+                        if AppliedCustLedgerEntry.FindSet() then
                             repeat
                                 CreateReceipt(TempXMLBuffer, AppliedCustLedgerEntry, IsAuxiliary);
                             until AppliedCustLedgerEntry.Next() = 0;
@@ -579,12 +579,12 @@ codeunit 27000 "Export Accounts"
 
         BankAccountLedgerEntry.SetRange("Transaction No.", GLEntry."Transaction No.");
         BankAccountLedgerEntry.SetFilter("Credit Amount", '>0');
-        if BankAccountLedgerEntry.FindSet then
+        if BankAccountLedgerEntry.FindSet() then
             repeat
                 BankAccountPostingGroup.Get(BankAccountLedgerEntry."Bank Acc. Posting Group");
                 if BankAccountPostingGroup."G/L Account No." = GLEntry."G/L Account No." then begin
                     CheckLedgerEntry.SetRange("Bank Account Ledger Entry No.", BankAccountLedgerEntry."Entry No.");
-                    if CheckLedgerEntry.FindSet then
+                    if CheckLedgerEntry.FindSet() then
                         repeat
                             PaymentHandled := CreateChequeNode(TempXMLBuffer, CheckLedgerEntry) or PaymentHandled;
                         until CheckLedgerEntry.Next() = 0
@@ -699,7 +699,7 @@ codeunit 27000 "Export Accounts"
                     CustLedgerEntry.SetCurrentKey("Transaction No.");
                     CustLedgerEntry.SetRange("Transaction No.", BankAccountLedgerEntry."Transaction No.");
                     CustLedgerEntry.SetFilter("Recipient Bank Account", '<>%1', '');
-                    if not CustLedgerEntry.FindFirst then
+                    if not CustLedgerEntry.FindFirst() then
                         exit(false);
                     Customer.Get(CustLedgerEntry."Customer No.");
                     CustomerBankAccount.Get(Customer."No.", CustLedgerEntry."Recipient Bank Account");
@@ -723,7 +723,7 @@ codeunit 27000 "Export Accounts"
                     VendorLedgerEntry.SetCurrentKey("Transaction No.");
                     VendorLedgerEntry.SetRange("Transaction No.", BankAccountLedgerEntry."Transaction No.");
                     VendorLedgerEntry.SetFilter("Recipient Bank Account", '<>%1', '');
-                    if not VendorLedgerEntry.FindFirst then
+                    if not VendorLedgerEntry.FindFirst() then
                         exit(false);
                     Vendor.Get(VendorLedgerEntry."Vendor No.");
                     VendorBankAccount.Get(Vendor."No.", VendorLedgerEntry."Recipient Bank Account");
@@ -818,7 +818,7 @@ codeunit 27000 "Export Accounts"
         TransactionNoFieldRef.SetRange(TransactionNo);
         PaymentMethodFieldRef := LedgerEntryRecordRef.Field(172);
         PaymentMethodFieldRef.SetFilter('<> %1', '');
-        if LedgerEntryRecordRef.FindSet then
+        if LedgerEntryRecordRef.FindSet() then
             repeat
                 PaymentMethod.Get(PaymentMethodFieldRef.Value);
 

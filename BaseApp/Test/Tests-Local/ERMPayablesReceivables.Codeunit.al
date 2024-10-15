@@ -43,7 +43,7 @@ codeunit 142052 "ERM Payables/Receivables"
         // Verify G/L Entry after post Deposit with Account Type GL as Payment, Vendor as Refund and Bank without Document Type.
 
         // Setup: Create GL Account, Vendor and Bank Account.
-        Initialize;
+        Initialize();
         LibraryERM.CreateGLAccount(GLAccount);
         LibraryPurchase.CreateVendor(Vendor);
         LibraryERM.CreateBankAccount(BankAccount);
@@ -73,7 +73,7 @@ codeunit 142052 "ERM Payables/Receivables"
         // Verify G/L Entry after post Deposit with Checked Force Doc. Balance.
 
         // Setup: Create GL Account and Vendor, create Deposit Document with Account Type GL, Customer.
-        Initialize;
+        Initialize();
         LibraryERM.CreateGLAccount(GLAccount);
         LibrarySales.CreateCustomer(Customer);
         CreateMultilineDepositDocument(
@@ -108,7 +108,7 @@ codeunit 142052 "ERM Payables/Receivables"
         // Verify G/L Entry after post Deposit with Unchecked Force Doc. Balance.
 
         // Setup: Create GL Account and Vendor, create Deposit Document with Account Type GL, Vendor.
-        Initialize;
+        Initialize();
         LibraryERM.CreateGLAccount(GLAccount);
         LibraryPurchase.CreateVendor(Vendor);
         CreateMultilineDepositDocument(
@@ -124,7 +124,7 @@ codeunit 142052 "ERM Payables/Receivables"
 
         // Verify: Verify G/L Entry after post Deposit with Unchecked Force Doc. Balance.
         GLEntry.SetRange("Document No.", DepositHeader."No.");
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         GLEntry.TestField("Document Type", GLEntry."Document Type"::" ");
         GLEntry.TestField(Amount, DepositHeader."Total Deposit Amount");
     end;
@@ -145,7 +145,7 @@ codeunit 142052 "ERM Payables/Receivables"
         // Verify fully applied Customer Ledger Entry after post Deposit.
 
         // Setup: Create Sales Document and post, create Deposit Document with Applies-to Doc. No. and post.
-        Initialize;
+        Initialize();
         LibraryERM.CreateTaxGroup(TaxGroup);
         LibrarySales.CreateCustomer(Customer);
         LibraryInventory.CreateItem(Item);
@@ -163,7 +163,7 @@ codeunit 142052 "ERM Payables/Receivables"
         // Verify: Verify fully applied Customer Ledger Entry after post Deposit.
         CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Invoice);
         CustLedgerEntry.SetRange("Customer No.", SalesLine."Sell-to Customer No.");
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
         CustLedgerEntry.TestField("Closed by Amount", DepositHeader."Total Deposit Amount");
     end;
 
@@ -179,7 +179,7 @@ codeunit 142052 "ERM Payables/Receivables"
         // Verify Error while posting Deposit Document with different default Dimension on Vendor.
 
         // Setup: Create Vendor, create Deposit Document with Dimension.
-        Initialize;
+        Initialize();
         LibraryPurchase.CreateVendor(Vendor);
         SetupForDepostiWithDimension(
           DepositHeader, DATABASE::Vendor, Vendor."No.", GenJournalLine."Account Type"::Vendor, 1);  // Using 1 as Sign Factor.
@@ -203,7 +203,7 @@ codeunit 142052 "ERM Payables/Receivables"
         // Verify Error while posting Deposit Document with different default Dimension on Customer.
 
         // Setup: Create Customer, create Deposit Document with Dimension.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         SetupForDepostiWithDimension(
           DepositHeader, DATABASE::Customer, Customer."No.", GenJournalLine."Account Type"::Customer, -1);  // Using 1 as Sign Factor.
@@ -229,7 +229,7 @@ codeunit 142052 "ERM Payables/Receivables"
         // Verify Difference value on Bank Acc. Reconcilation card after Suggest Lines from same.
 
         // Setup: Create Currency with Exch. Rate, update General Ledger Setup, create Bank Account, create Gen. Journal Line and post.
-        Initialize;
+        Initialize();
         CreateCurrency(Currency);
         LibraryERM.CreateRandomExchangeRate(Currency.Code);
         UpdateGenLedgerSetup(Currency.Code);
@@ -261,7 +261,7 @@ codeunit 142052 "ERM Payables/Receivables"
         // Verify Description in Check Ledger same as in Payment Journal after post Payment Entry to Vendor.
 
         // Setup: Create Bank Account and Vendor, create payment journal with manual check and post.
-        Initialize;
+        Initialize();
         LibraryERM.CreateBankAccount(BankAccount);
         LibraryPurchase.CreateVendor(Vendor);
 
@@ -273,7 +273,7 @@ codeunit 142052 "ERM Payables/Receivables"
 
         // Verify: Verify Description in Check Ledger same as in Payment Journal.
         CheckLedgerEntry.SetRange("Bank Account No.", BankAccount."No.");
-        CheckLedgerEntry.FindFirst;
+        CheckLedgerEntry.FindFirst();
         CheckLedgerEntry.TestField(Description, GenJournalLine.Description);
     end;
 
@@ -289,7 +289,7 @@ codeunit 142052 "ERM Payables/Receivables"
         // Verify Continuity of Adjustment Document No. on next Bank Rec. Worksheet.
 
         // Setup: Create Bank Account, create Bank Rec. Worksheet and post.
-        Initialize;
+        Initialize();
         CreateBankAccount(BankAccount, '');
         CreateAndPostBankRecWorksheet(BankRecLine, BankAccount."No.");
 
@@ -312,7 +312,7 @@ codeunit 142052 "ERM Payables/Receivables"
         // Verify Continuity of Adjustment Document No. on Bank Rec. Worksheet after post multiple Document.
 
         // Setup: Create Bank Account, create Bank Rec. Worksheet and post.
-        Initialize;
+        Initialize();
         CreateBankAccount(BankAccount, '');
         CreateAndPostBankRecWorksheet(BankRecLine, BankAccount."No.");
         CreateAndPostBankRecWorksheet(BankRecLine, BankAccount."No.");
@@ -338,7 +338,7 @@ codeunit 142052 "ERM Payables/Receivables"
         // Verify Continuity of Adjustment Document No. on next Bank Rec. Worksheet after post Multiline Bank Rec. Worksheet.
 
         // Setup: Create Bank Account, create Bank Rec. Worksheet and post.
-        Initialize;
+        Initialize();
         CreateBankAccount(BankAccount, '');
         CreateBankRecWorksheet(BankRecLine, BankAccount."No.");
         BankRecHeader.Get(BankRecLine."Bank Account No.", BankRecLine."Statement No.");
@@ -373,7 +373,7 @@ codeunit 142052 "ERM Payables/Receivables"
     begin
         // Verify GL Entries after post Bank Reconcilation with Checks and Deposit.
 
-        Initialize;
+        Initialize();
         CreateBankAccount(BankAccount, '');
         LibraryERM.CreateBankAccount(BankAccount2);
         LibraryPurchase.CreateVendor(Vendor);
@@ -436,7 +436,7 @@ codeunit 142052 "ERM Payables/Receivables"
         // Verify GL Entries after post Bank Reconcilation with Checks.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateBankAccount(BankAccount, '');
         LibrarySales.CreateCustomer(Customer);
 
@@ -479,7 +479,7 @@ codeunit 142052 "ERM Payables/Receivables"
         // Verify GL Entries after post Bank Reconcilation with Deposit.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateBankAccount(BankAccount, '');
         LibrarySales.CreateCustomer(Customer);
         SetupForDeposit(BankRecLine, BankAccount."No.", Customer."No.");
@@ -508,7 +508,7 @@ codeunit 142052 "ERM Payables/Receivables"
         // Verify Cleared on Bank Rec. Lines after Mark the Lines.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateBankAccount(BankAccount, '');
         LibrarySales.CreateCustomer(Customer);
 
@@ -517,7 +517,7 @@ codeunit 142052 "ERM Payables/Receivables"
 
         // Verify: Verify Cleared on Bank Rec. Lines.
         BankRecLine.SetRange("Bank Account No.", BankAccount."No.");
-        BankRecLine.FindFirst;
+        BankRecLine.FindFirst();
         BankRecLine.TestField(Cleared, true);
     end;
 
@@ -535,7 +535,7 @@ codeunit 142052 "ERM Payables/Receivables"
         // Verify GL Entries after post Bank Reconcilation with Adjustment.
 
         // Setup: Create Bank Rec. Worksheet with Adjustment.
-        Initialize;
+        Initialize();
         CreateBankAccount(BankAccount, '');
         LibrarySales.CreateCustomer(Customer);
         CreateBankRecWorksheet(BankRecLine, BankAccount."No.");
@@ -564,7 +564,7 @@ codeunit 142052 "ERM Payables/Receivables"
         // Verify Posted Deposit after post Deposit and Bank Account Ledger Entry.
 
         // Setup: Create GL Account, Vendor and Bank Account.
-        Initialize;
+        Initialize();
         LibraryERM.CreateGLAccount(GLAccount);
         LibraryPurchase.CreateVendor(Vendor);
         LibraryERM.CreateBankAccount(BankAccount);
@@ -615,7 +615,7 @@ codeunit 142052 "ERM Payables/Receivables"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Setup: Create Currency with Exch. Rate, create Bank Account, create GL Account, create Gen. Journal Line and post.
-        Initialize;
+        Initialize();
         LibraryERM.CreateGLAccount(GLAccount);
         LibraryERM.FindGLAccount(GLAccount2);
         CreateCurrency(Currency);
@@ -646,7 +646,7 @@ codeunit 142052 "ERM Payables/Receivables"
 
         // Verify: Verify GL Balance values on Bank Acc. Reconcilation card.
         BankRecHeader.SetRange("Bank Account No.", BankAccount."No.");
-        BankRecHeader.FindFirst;
+        BankRecHeader.FindFirst();
         BankRecHeader.CalcFields("G/L Balance (LCY)");
         BankRecHeader.TestField("G/L Balance (LCY)", Amount);
         BankRecHeader.TestField(
@@ -669,7 +669,7 @@ codeunit 142052 "ERM Payables/Receivables"
         // Verify Total Cleared value on Deposit fast tab of Bank Reconcilation.
 
         // Setup: Create Bank Account and post Payment and Invoice through Gen. Journal.
-        Initialize;
+        Initialize();
         CreateBankAccount(BankAccount, '');
         LibraryERM.CreateBankAccount(BankAccount2);
         CreateAndPostGenJournalLine(
@@ -717,14 +717,14 @@ codeunit 142052 "ERM Payables/Receivables"
         PaymentJournal: TestPage "Payment Journal";
     begin
         // Setup: Create Vendor, Post Purchase Invoice and Credit Memo.
-        Initialize;
+        Initialize();
         LibraryPurchase.CreateVendor(Vendor);
         LibraryERM.CreateBankAccount(BankAccount);
         PostPurchInvAndCrMemo(Vendor."No.", Vendor."VAT Bus. Posting Group", PartialFactor);
 
         // Open Payment Journal, Suggest Vendor Payment and Post.
         GenJournalBatch.SetRange("Template Type", GenJournalBatch."Template Type"::Payments);
-        GenJournalBatch.FindFirst;
+        GenJournalBatch.FindFirst();
         LibraryERM.ClearGenJournalLines(GenJournalBatch);
         LibraryVariableStorage.Enqueue(Vendor."No.");
         LibraryVariableStorage.Enqueue(BankAccount."No.");
@@ -754,7 +754,7 @@ codeunit 142052 "ERM Payables/Receivables"
         // Verify Vendor balance after post payment of remaining balance through Apply Entries.
 
         // Setup: Create Vendor, Post Purchase Invoice and Credit Memo.
-        Initialize;
+        Initialize();
         LibraryPurchase.CreateVendor(Vendor);
         LibraryERM.CreateBankAccount(BankAccount);
         PostPurchInvAndCrMemo(Vendor."No.", Vendor."VAT Bus. Posting Group", 2);  // Using 2 for partial payment.
@@ -794,7 +794,7 @@ codeunit 142052 "ERM Payables/Receivables"
         // Verify Customer balance after post payment of remaining balance through Apply Entries.
 
         // Setup: Create Customer, Bank and Item.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         LibraryERM.CreateBankAccount(BankAccount);
         LibraryInventory.CreateItem(Item);
@@ -838,7 +838,7 @@ codeunit 142052 "ERM Payables/Receivables"
         // Verify Journal Batch Name in G/L Entry after post Deposit with Account Type GL.
 
         // Setup: Create GL Account, Deposit and update Total Deposit Amount on header.
-        Initialize;
+        Initialize();
         LibraryERM.CreateGLAccount(GLAccount);
         CreateDepositDocument(DepositHeader, GLAccount."No.", GenJournalLine."Account Type"::"G/L Account", 1);
         UpdateDepositHeaderWithAmount(DepositHeader);
@@ -848,7 +848,7 @@ codeunit 142052 "ERM Payables/Receivables"
 
         // Verify: Verify Journal Batch Name in G/L Entry after post Deposit with Account Type GL.
         GLEntry.SetRange("Bal. Account No.", GLAccount."No.");
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         GLEntry.TestField("Journal Batch Name", DepositHeader."Journal Batch Name");
     end;
 
@@ -867,7 +867,7 @@ codeunit 142052 "ERM Payables/Receivables"
         // Verify Suggest Bank Reconcilation can be executed successfully when exist a payment Journal with Max length External Document No.
 
         // Setup: Create a bank account and vendor. Create and post a payment journal with max length External Document No.(Current Max Length = 35).
-        Initialize;
+        Initialize();
         CreateBankAccount(BankAccount, '');
         LibraryPurchase.CreateVendor(Vendor);
         CreatePaymentGenJournalWithMaxLengthExternalDoctNo(
@@ -964,7 +964,7 @@ codeunit 142052 "ERM Payables/Receivables"
     begin
         // [FEATURE] [Record Link]
         // [SCENARIO 378922] Deposit posting procedure copy links to posted document
-        Initialize;
+        Initialize();
 
         // [GIVEN] Deposit with random Link added
         CreateDepositDocument(DepositHeader, LibrarySales.CreateCustomerNo, GenJournalLine."Account Type"::Customer, -1);
@@ -989,7 +989,7 @@ codeunit 142052 "ERM Payables/Receivables"
         GenJournalTemplate: Record "Gen. Journal Template";
     begin
         // [SCENARIO 313506] Check for existing Deposit Headers for Gen. Journal Batch on insert new record disregards filters
-        Initialize;
+        Initialize();
 
         // [GIVEN] Gen. Journal Batch for Deposits template
         CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Type::Deposits);
@@ -1010,13 +1010,13 @@ codeunit 142052 "ERM Payables/Receivables"
     var
         InventorySetup: Record "Inventory Setup";
     begin
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
 
         if IsInitialized then
             exit;
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.CreateVATData();
         LibraryInventory.NoSeriesSetup(InventorySetup);
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
         UpdateGenLedgerSetup('');
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         IsInitialized := true;
@@ -1130,13 +1130,13 @@ codeunit 142052 "ERM Payables/Receivables"
         BankAccountPostingGroup: Record "Bank Account Posting Group";
     begin
         LibraryERM.CreateGLAccount(GLAccount);
-        BankAccountPostingGroup.FindFirst;
+        BankAccountPostingGroup.FindFirst();
         BankAccountPostingGroup.Validate("G/L Account No.", GLAccount."No.");
         BankAccountPostingGroup.Modify(true);
         LibraryERM.CreateBankAccount(BankAccount);
         BankAccount.Validate("Currency Code", CurrencyCode);
         BankAccount.Validate("Bank Acc. Posting Group", BankAccountPostingGroup.Code);
-        BankAccount.Validate("Last Statement No.", LibraryUtility.GenerateGUID);
+        BankAccount.Validate("Last Statement No.", LibraryUtility.GenerateGUID());
         BankAccount.Modify(true);
     end;
 
@@ -1355,7 +1355,7 @@ codeunit 142052 "ERM Payables/Receivables"
         SuggestBankAccReconLines.SetTableView(BankAccount);
         SuggestBankAccReconLines.InitializeRequest(WorkDate, WorkDate, true);  // Set TRUE for Include Checks Option.
         SuggestBankAccReconLines.UseRequestPage(false);
-        SuggestBankAccReconLines.Run;
+        SuggestBankAccReconLines.Run();
         Commit(); // Commit Required for Open Page.
     end;
 
@@ -1363,7 +1363,7 @@ codeunit 142052 "ERM Payables/Receivables"
     begin
         GenJournalLine.SetRange("Journal Template Name", JournalTemplateName);
         GenJournalLine.SetRange("Journal Batch Name", JournalBatchName);
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
         GenJournalLine.Validate(Amount, Amount);
         GenJournalLine.Validate("Applies-to Doc. Type", GenJournalLine."Applies-to Doc. Type"::Invoice);
         GenJournalLine.Validate("Applies-to Doc. No.", AppliestoDocNo);
@@ -1396,7 +1396,7 @@ codeunit 142052 "ERM Payables/Receivables"
         SalesInvoiceHeader: Record "Sales Invoice Header";
     begin
         SalesInvoiceHeader.SetRange("Sell-to Customer No.", SalesLine."Sell-to Customer No.");
-        SalesInvoiceHeader.FindFirst;
+        SalesInvoiceHeader.FindFirst();
         UpdateApplicationOnGenJournalLine(
           GenJournalLine, DepositHeader."Journal Template Name", DepositHeader."Journal Batch Name",
           SalesInvoiceHeader."No.", 0D, -SalesLine."Amount Including VAT");
@@ -1425,7 +1425,7 @@ codeunit 142052 "ERM Payables/Receivables"
     local procedure FindBankRecLine(var BankRecLine: Record "Bank Rec. Line"; BankAccountNo: Code[20])
     begin
         BankRecLine.SetRange("Bank Account No.", BankAccountNo);
-        BankRecLine.FindFirst;
+        BankRecLine.FindFirst();
     end;
 
     local procedure VerifyBankAccLedgerEntryAmount(BankAccountNo: Code[20]; TotalDepositAmount: Decimal)
@@ -1449,7 +1449,7 @@ codeunit 142052 "ERM Payables/Receivables"
         GLEntry.SetRange(Description, Description);
         GLEntry.SetFilter(
           "Document Type", '%1|%2', GLEntry."Document Type"::Payment, GLEntry."Document Type"::"Finance Charge Memo");
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         GLEntry.TestField("Bal. Account No.", BalAccountNo);
     end;
 

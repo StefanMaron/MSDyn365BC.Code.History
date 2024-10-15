@@ -241,7 +241,7 @@ codeunit 134338 "Copy Purch/Sales Doc UT"
         CopyPurchDoc.SetParameters(FromDocType, DocumentNo, IncludeHeader, RecalculateLines);
         CopyPurchDoc.SetPurchHeader(NewPurchHeader);
         CopyPurchDoc.UseRequestPage(false);
-        CopyPurchDoc.RunModal;
+        CopyPurchDoc.RunModal();
     end;
 
     local procedure RunCopySalesDoc(DocumentNo: Code[20]; NewSalesHeader: Record "Sales Header"; FromDocType: Enum "Sales Document Type From"; IncludeHeader: Boolean; RecalculateLines: Boolean)
@@ -252,7 +252,7 @@ codeunit 134338 "Copy Purch/Sales Doc UT"
         CopySalesDoc.SetParameters(FromDocType, DocumentNo, IncludeHeader, RecalculateLines);
         CopySalesDoc.SetSalesHeader(NewSalesHeader);
         CopySalesDoc.UseRequestPage(false);
-        CopySalesDoc.RunModal;
+        CopySalesDoc.RunModal();
     end;
 
     local procedure VerifyEventArgs(FromDocumentType: Option; FromDocumentNo: Code[20]; ToRecordID: RecordID; ExpectedEventName: Text)
@@ -260,7 +260,7 @@ codeunit 134338 "Copy Purch/Sales Doc UT"
         NameValueBuffer: Record "Name/Value Buffer";
     begin
         NameValueBuffer.SetRange(Name, ExpectedEventName);
-        NameValueBuffer.FindFirst;
+        NameValueBuffer.FindFirst();
         Assert.AreEqual(
           GetValueText(FromDocumentType, FromDocumentNo, ToRecordID),
           NameValueBuffer.Value,

@@ -57,7 +57,7 @@ codeunit 144030 "IRS 1099 Upgrade Test"
         // [FEAUTURE] [UT]
         // [SCENARIO 283821] Make sure that upgrade is needed if IRS 1099 code "DIV-07" does not exists
 
-        Initialize;
+        Initialize();
         Assert.IsTrue(IRS1099Management.UpgradeNeeded, 'Upgrade not needed');
     end;
 
@@ -147,7 +147,7 @@ codeunit 144030 "IRS 1099 Upgrade Test"
         // [FEATURE] [UI]
         // [SCENARIO 412412] Notification of upgrade February 2020 thrown on opening IRS 1099 Form Box Page if code IRS 1099 code "NEC-01" does not exist
 
-        Initialize;
+        Initialize();
         IRSCode := GetIRS1099UpgradeCode2019;
         InsertIRS1099Code(IRSCode);
         IRSCode := GetIRS1099UpgradeCode2020;
@@ -160,7 +160,7 @@ codeunit 144030 "IRS 1099 Upgrade Test"
         IRS1099FormBoxPage.FILTER.SetFilter(Code, IRSCode);
         IRS1099FormBoxPage.Code.AssertEquals(IRSCode);
         RemoveIRS1099UpgradeCodeYear2019;
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
         LibraryVariableStorage.AssertEmpty;
     end;
 
@@ -218,7 +218,7 @@ codeunit 144030 "IRS 1099 Upgrade Test"
         // [FEATURE] [Job Queue Entry]
         // [SCENARIO 283821] Job Queue Entry Card creates and opens when it's possible to create task during an upgrade
 
-        Initialize;
+        Initialize();
         RemoveIRS1099UpgradeCodeYear2019();
 
         // [GIVEN] TASKSCHEDULER.CANCREATETASK is TRUE
@@ -245,7 +245,7 @@ codeunit 144030 "IRS 1099 Upgrade Test"
     begin
         // [SCENARIO 283821] An upgrade performs after the confirmation when it is not possible to create task during an upgrade
 
-        Initialize;
+        Initialize();
         RemoveIRS1099UpgradeCodeYear2019();
 
         // [GIVEN] TASKSCHEDULER.CANCREATETASK is FALSE
@@ -279,8 +279,8 @@ codeunit 144030 "IRS 1099 Upgrade Test"
         // [FEATURE] [UT]
         // [SCENARIO 287814] No confirmation throws when update IRS code in Vendor without related data
 
-        Initialize;
-        IRSCode := LibraryUtility.GenerateGUID;
+        Initialize();
+        IRSCode := LibraryUtility.GenerateGUID();
         InsertIRS1099Code(IRSCode);
 
         Vendor.Init();
@@ -288,7 +288,7 @@ codeunit 144030 "IRS 1099 Upgrade Test"
         Vendor."IRS 1099 Code" := IRSCode;
         Vendor.Insert();
 
-        IRSCode := LibraryUtility.GenerateGUID;
+        IRSCode := LibraryUtility.GenerateGUID();
         InsertIRS1099Code(IRSCode);
 
         Vendor.Validate("IRS 1099 Code", IRSCode);
@@ -314,13 +314,13 @@ codeunit 144030 "IRS 1099 Upgrade Test"
         // [FEATURE] [UT]
         // [SCENARIO 287814] IRS Code gets updated in posted entries after update in vendor
 
-        Initialize;
-        OldIRSCode := LibraryUtility.GenerateGUID;
+        Initialize();
+        OldIRSCode := LibraryUtility.GenerateGUID();
         InsertIRS1099Code(OldIRSCode);
         MockDataWithIRS1099Code(
           Vendor, VendorLedgerEntry, PurchaseHeader, PurchInvHeader, PurchCrMemoHdr,
           GenJournalLineAccount, GenJournalLineBalAccount, OldIRSCode);
-        NewIRSCode := LibraryUtility.GenerateGUID;
+        NewIRSCode := LibraryUtility.GenerateGUID();
         InsertIRS1099Code(NewIRSCode);
 
         LibraryVariableStorage.Enqueue(StrSubstNo(ConfirmIRS1099CodeUpdateQst, Vendor."IRS 1099 Code", NewIRSCode));
@@ -357,7 +357,7 @@ codeunit 144030 "IRS 1099 Upgrade Test"
         // [FEATURE] [Report]
         // [SCENARIO 287814] "Vendor 1099 Div" report is blocked if upgrade needed
 
-        Initialize;
+        Initialize();
         RemoveIRS1099UpgradeCodeYear2019();
         asserterror Vendor1099Div.UseRequestPage(false);
         Assert.ExpectedError(BlockIfUpgradeNeededErr);
@@ -373,7 +373,7 @@ codeunit 144030 "IRS 1099 Upgrade Test"
         // [FEATURE] [Report]
         // [SCENARIO 287814] "Vendor 1099 Magnetic Media" report is blocked if upgrade needed
 
-        Initialize;
+        Initialize();
         RemoveIRS1099UpgradeCodeYear2019();
         asserterror Vendor1099MagneticMedia.UseRequestPage(false);
         Assert.ExpectedError(BlockIfUpgradeNeededErr);
@@ -393,17 +393,17 @@ codeunit 144030 "IRS 1099 Upgrade Test"
         // [FEATURE] [Report]
         // [SCENARIO 287814] "Vendor 1099 Div" report prints "DIV-05" code
 
-        Initialize;
+        Initialize();
         IRSCode := GetIRS1099UpgradeCode2019();
         InsertIRS1099Code(IRSCode);
 
         // [GIVEN] Payment applied to invoice with "IRS 1099 Code" = "DIV-05" and "IRS Amount" = 100
-        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
         LibraryVariableStorage.Enqueue(LibraryReportValidation.GetFileName);
         MockAppliedPmtEntry(DetailedVendorLedgEntry);
         Vendor.SetRange("No.", DetailedVendorLedgEntry."Vendor No.");
         Vendor1099Div.SetTableView(Vendor);
-        Vendor1099Div.Run;
+        Vendor1099Div.Run();
 
         // [WHEN] Print "Vendor 1099 Div" report
         LibraryReportValidation.OpenFile;
@@ -428,17 +428,17 @@ codeunit 144030 "IRS 1099 Upgrade Test"
         // [FEATURE] [Report]
         // [SCENARIO 287814] "Vendor 1099 Magnetic Media" report exports "DIV-05" code to file
 
-        Initialize;
+        Initialize();
         IRSCode := GetIRS1099UpgradeCode2019();
         InsertIRS1099Code(IRSCode);
 
         // [GIVEN] Payment applied to invoice with "IRS 1099 Code" = "DIV-05" and "IRS Amount" = 100
-        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
         LibraryVariableStorage.Enqueue(LibraryReportValidation.GetFileName);
         MockAppliedPmtEntry(DetailedVendorLedgEntry);
         Vendor.SetRange("No.", DetailedVendorLedgEntry."Vendor No.");
         Vendor1099Div.SetTableView(Vendor);
-        Vendor1099Div.Run;
+        Vendor1099Div.Run();
 
         // [WHEN] Print "Vendor 1099 Div" report
         LibraryReportValidation.OpenFile;
@@ -466,10 +466,10 @@ codeunit 144030 "IRS 1099 Upgrade Test"
         // [FEATURE] [UT]
         // [SCENARIO 291872] IRS Code not updated in posted entries after update in vendor if initial code is blank
 
-        Initialize;
+        Initialize();
         MockDataWithIRS1099Code(
           Vendor, VendorLedgerEntry, PurchaseHeader, PurchInvHeader, PurchCrMemoHdr, GenJournalLineAccount, GenJournalLineBalAccount, '');
-        NewIRSCode := LibraryUtility.GenerateGUID;
+        NewIRSCode := LibraryUtility.GenerateGUID();
         InsertIRS1099Code(NewIRSCode);
 
         Vendor.Validate("IRS 1099 Code", NewIRSCode);
@@ -575,7 +575,7 @@ codeunit 144030 "IRS 1099 Upgrade Test"
         // [FEATURE] [UI]
         // [SCENARIO 412412] A "Vendor 1099 Misc 2021" report shown from the Vendor List page when "MISC-11" code exists in the database
 
-        Initialize;
+        Initialize();
         InsertIRS1099Code(GetIRS1099UpgradeCode2020);
         InsertIRS1099Code(GetIRS1099UpgradeCode2020February);
         InsertIRS1099Code(GetIRS1099UpgradeCode2021);
@@ -594,7 +594,7 @@ codeunit 144030 "IRS 1099 Upgrade Test"
         // [FEATURE] [UI]
         // [SCENARIO 412412] A "Vendor 1099 Misc 2019" 2021 shown from the IRS-100 Form Box page when "MISC-11" code exists in the database
 
-        Initialize;
+        Initialize();
         InsertIRS1099Code(GetIRS1099UpgradeCode2020);
         InsertIRS1099Code(GetIRS1099UpgradeCode2020February);
         InsertIRS1099Code(GetIRS1099UpgradeCode2021);

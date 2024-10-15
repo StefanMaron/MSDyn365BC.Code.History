@@ -16,9 +16,9 @@ codeunit 10332 "Exp. Mapping Head EFT CA"
         DataExchLineDef.Init();
         DataExchLineDef.SetRange("Data Exch. Def Code", "Data Exch. Def Code");
         DataExchLineDef.SetRange("Line Type", DataExchLineDef."Line Type"::Header);
-        if DataExchLineDef.FindFirst then begin
+        if DataExchLineDef.FindFirst() then begin
             DataExch.SetRange("Entry No.", "Entry No.");
-            if DataExch.FindFirst then
+            if DataExch.FindFirst() then
                 if ACHRBHeader.Get("Entry No.") then begin
                     RecordRef.GetTable(ACHRBHeader);
                     EFTExportMgt.InsertDataExchLineForFlatFile(

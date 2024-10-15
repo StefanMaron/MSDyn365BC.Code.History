@@ -5,7 +5,9 @@ table 273 "Bank Acc. Reconciliation"
     LookupPageID = "Bank Acc. Reconciliation List";
     Permissions = TableData "Bank Account" = rm,
                   TableData "Data Exch." = rimd,
+#if not CLEAN20
                   TableData "Bank Rec. Header" = r,
+#endif
                   TableData "Bank Account Ledger Entry" = rm,
                   TableData "Check Ledger Entry" = rm;
 
@@ -33,7 +35,7 @@ table 273 "Bank Acc. Reconciliation"
                     "Balance Last Statement" := BankAcc."Balance Last Statement";
                 end;
 
-                CreateDim(DATABASE::"Bank Account", BankAcc."No.");
+                CreateDimFromDefaultDim();
             end;
         }
         field(2; "Statement No."; Code[20])
@@ -127,6 +129,28 @@ table 273 "Bank Acc. Reconciliation"
                                                                                 "Bank Account No." = FIELD("Bank Account No."),
                                                                                 "Statement No." = FIELD("Statement No.")));
             Caption = 'Total Difference';
+            Editable = false;
+            FieldClass = FlowField;
+        }
+        field(12; "Total Paid Amount"; Decimal)
+        {
+            AutoFormatExpression = GetCurrencyCode();
+            CalcFormula = Sum("Bank Acc. Reconciliation Line"."Statement Amount" WHERE("Statement Type" = FIELD("Statement Type"),
+                                                                                        "Bank Account No." = FIELD("Bank Account No."),
+                                                                                        "Statement No." = FIELD("Statement No."),
+                                                                                        "Statement Amount" = FILTER(< 0)));
+            Caption = 'Total Paid Amount';
+            Editable = false;
+            FieldClass = FlowField;
+        }
+        field(13; "Total Received Amount"; Decimal)
+        {
+            AutoFormatExpression = GetCurrencyCode();
+            CalcFormula = Sum("Bank Acc. Reconciliation Line"."Statement Amount" WHERE("Statement Type" = FIELD("Statement Type"),
+                                                                                        "Bank Account No." = FIELD("Bank Account No."),
+                                                                                        "Statement No." = FIELD("Statement No."),
+                                                                                        "Statement Amount" = FILTER(> 0)));
+            Caption = 'Total Received Amount';
             Editable = false;
             FieldClass = FlowField;
         }
@@ -350,6 +374,8 @@ table 273 "Bank Acc. Reconciliation"
         MustHaveValueQst: Label 'The bank account must have a value in %1. Do you want to open the bank account card?';
         NoTransactionsImportedMsg: Label 'No bank transactions were imported. For example, because the transactions were imported in other bank account reconciliations, or because they are already applied to bank account ledger entries. You can view the applied transactions on the Bank Account Statement List page and on the Posted Payment Reconciliations page.';
 
+#if not CLEAN20
+    [Obsolete('Replaced by CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])', '20.0')]
     procedure CreateDim(Type1: Integer; No1: Code[20])
     var
         SourceCodeSetup: Record "Source Code Setup";
@@ -372,6 +398,31 @@ table 273 "Bank Acc. Reconciliation"
 
         if (OldDimSetID <> "Dimension Set ID") and LinesExist then begin
             Modify;
+            UpdateAllLineDim("Dimension Set ID", OldDimSetID);
+        end;
+    end;
+#endif
+
+    procedure CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    var
+        SourceCodeSetup: Record "Source Code Setup";
+        OldDimSetID: Integer;
+    begin
+        SourceCodeSetup.Get();
+#if not CLEAN20
+        RunEventOnAfterCreateDimTableIDs(DefaultDimSource);
+#endif
+
+        "Shortcut Dimension 1 Code" := '';
+        "Shortcut Dimension 2 Code" := '';
+        OldDimSetID := "Dimension Set ID";
+        "Dimension Set ID" :=
+          DimMgt.GetRecDefaultDimID(
+            Rec, CurrFieldNo, DefaultDimSource, SourceCodeSetup."Payment Reconciliation Journal",
+            "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
+
+        if (OldDimSetID <> "Dimension Set ID") and LinesExist() then begin
+            Modify();
             UpdateAllLineDim("Dimension Set ID", OldDimSetID);
         end;
     end;
@@ -620,10 +671,10 @@ table 273 "Bank Acc. Reconciliation"
             1:
                 begin
                     if TempBankAccount.Count > 0 then begin
-                        TempBankAccount.FindFirst;
+                        TempBankAccount.FindFirst();
                         BankAccount.Get(TempBankAccount."No.");
                     end else
-                        BankAccount.FindFirst;
+                        BankAccount.FindFirst();
                 end;
             else begin
                     if TempBankAccount.Count > 0 then begin
@@ -759,7 +810,7 @@ table 273 "Bank Acc. Reconciliation"
             CopyFilters(BankAccReconciliation);
 
         SetRange("Statement Type", "Statement Type"::"Bank Reconciliation");
-        if not FindSet then
+        if not FindSet() then
             exit;
 
         repeat
@@ -768,6 +819,8 @@ table 273 "Bank Acc. Reconciliation"
         until Next() = 0;
     end;
 
+#if not CLEAN20
+    [Obsolete('NA Bank Rec. Header deprecated in favor of W1 bank reconciliation. Remove references to "Bank Rec. Header" and use GetTempCopy instead', '20.0')]
     procedure GetTempCopyFromBankRecHeader(var BankAccReconciliation: Record "Bank Acc. Reconciliation")
     var
         BankRecHeader: Record "Bank Rec. Header";
@@ -779,7 +832,7 @@ table 273 "Bank Acc. Reconciliation"
             BankRecHeader.SetFilter("Statement Balance", BankAccReconciliation.GetFilter("Balance Last Statement"));
         end;
 
-        if not BankRecHeader.FindSet then
+        if not BankRecHeader.FindSet() then
             exit;
 
         repeat
@@ -792,6 +845,7 @@ table 273 "Bank Acc. Reconciliation"
             BankAccReconciliation.Insert();
         until BankRecHeader.Next() = 0;
     end;
+#endif
 
     procedure InsertRec(StatementType: Option; BankAccountNo: Code[20])
     begin
@@ -829,17 +883,70 @@ table 273 "Bank Acc. Reconciliation"
 
     local procedure CopyBankAccountsToTemp(var TempBankAccount: Record "Bank Account" temporary; var FromBankAccount: Record "Bank Account")
     begin
-        if FromBankAccount.FindSet then
+        if FromBankAccount.FindSet() then
             repeat
                 TempBankAccount := FromBankAccount;
                 if TempBankAccount.Insert() then;
             until FromBankAccount.Next() = 0;
     end;
 
+    procedure CreateDimFromDefaultDim()
+    var
+        DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
+    begin
+        InitDefaultDimensionSources(DefaultDimSource);
+        CreateDim(DefaultDimSource);
+    end;
+
+    local procedure InitDefaultDimensionSources(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    begin
+        DimMgt.AddDimSource(DefaultDimSource, Database::"Bank Account", Rec."Bank Account No.");
+
+        OnAfterInitDefaultDimensionSources(Rec, DefaultDimSource);
+    end;
+
+#if not CLEAN20
+    local procedure CreateDefaultDimSourcesFromDimArray(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; TableID: array[10] of Integer; No: array[10] of Code[20])
+    var
+        DimArrayConversionHelper: Codeunit "Dim. Array Conversion Helper";
+    begin
+        DimArrayConversionHelper.CreateDefaultDimSourcesFromDimArray(Database::"Bank Acc. Reconciliation", DefaultDimSource, TableID, No);
+    end;
+
+    local procedure CreateDimTableIDs(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; var TableID: array[10] of Integer; var No: array[10] of Code[20])
+    var
+        DimArrayConversionHelper: Codeunit "Dim. Array Conversion Helper";
+    begin
+        DimArrayConversionHelper.CreateDimTableIDs(Database::"Bank Acc. Reconciliation", DefaultDimSource, TableID, No);
+    end;
+
+    local procedure RunEventOnAfterCreateDimTableIDs(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    var
+        DimArrayConversionHelper: Codeunit "Dim. Array Conversion Helper";
+        TableID: array[10] of Integer;
+        No: array[10] of Code[20];
+    begin
+        if not DimArrayConversionHelper.IsSubscriberExist(Database::"Bank Acc. Reconciliation") then
+            exit;
+
+        CreateDimTableIDs(DefaultDimSource, TableID, No);
+        OnAfterCreateDimTableIDs(Rec, CurrFieldNo, TableID, No);
+        CreateDefaultDimSourcesFromDimArray(DefaultDimSource, TableID, No);
+    end;
+#endif
+
     [IntegrationEvent(false, false)]
+    local procedure OnAfterInitDefaultDimensionSources(var BankAccReconciliation: Record "Bank Acc. Reconciliation"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    begin
+    end;
+
+#if not CLEAN20
+    [IntegrationEvent(false, false)]
+    [Obsolete('Temporary event for compatibility', '20.0')]
     local procedure OnAfterCreateDimTableIDs(var BankAccReconciliation: Record "Bank Acc. Reconciliation"; var FieldNo: Integer; var TableID: array[10] of Integer; var No: array[10] of Code[20])
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidateShortcutDimCode(var BankAccReconciliation: Record "Bank Acc. Reconciliation"; var xBankAccReconciliation: Record "Bank Acc. Reconciliation"; FieldNumber: Integer; var ShortcutDimCode: Code[20])

@@ -32,7 +32,7 @@
         PurchOrderLine: Record "Purchase Line";
         i: Integer;
     begin
-        Initialize;
+        Initialize();
         PurchOrderHeader."Prices Including VAT" := false;
         PreparePurchOrder(PurchOrderHeader);
         AddSpecificOrderLine100PctPrepmt(PurchOrderLine, PurchOrderHeader);
@@ -103,7 +103,7 @@
         PurchInvoiceHeader: Record "Purchase Header";
         PurchOrderLine: Record "Purchase Line";
     begin
-        Initialize;
+        Initialize();
         PurchOrderHeader."Prices Including VAT" := PricesInclVAT;
         PreparePurchOrderWithPostedPrepmtInv(PurchOrderHeader, PurchOrderLine, 1, PositiveDiff);
 
@@ -155,7 +155,7 @@
         PurchInvoiceHeader: Record "Purchase Header";
         PurchOrderLine: Record "Purchase Line";
     begin
-        Initialize;
+        Initialize();
         PurchOrderHeader."Prices Including VAT" := PricesInclVAT;
         PreparePurchOrderWithPostedPrepmtInv(PurchOrderHeader, PurchOrderLine, 1, PositiveDiff);
 
@@ -214,7 +214,7 @@
 
     local procedure PostPartInvFinRemoteInv(var PurchOrderHeader: Record "Purchase Header"; PositiveDiff: Boolean)
     begin
-        Initialize;
+        Initialize();
         PostPartialInvoiceWithPrepmt(PurchOrderHeader, PositiveDiff);
         PostInvoiceWithRcptFromOrder(PurchOrderHeader);
         VerifyZeroVendorAccEntry;
@@ -242,7 +242,7 @@
         PurchLine: Record "Purchase Line";
         PositiveDiff: Boolean;
     begin
-        Initialize;
+        Initialize();
         PositiveDiff := true;
         PreparePOLineWithLineDisc(PurchHeader, PurchLine, PositiveDiff);
         PostPurchPrepmtInvoice(PurchHeader);
@@ -304,14 +304,14 @@
     var
         PurchLine: Record "Purchase Line";
     begin
-        Initialize;
+        Initialize();
         PreparePurchOrderWithPostedPrepmtInv(PurchHeader, PurchLine, 2, PositiveDiff);
 
         LibraryPurchase.PostPurchaseDocument(PurchHeader, true, false);
-        PurchHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID);
+        PurchHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
         LibraryPurchase.PostPurchaseDocument(PurchHeader, false, true);
 
-        PurchLine.FindFirst;
+        PurchLine.FindFirst();
         PurchLine.TestField("Quantity Invoiced", GetQtyToShipTFS332246(PositiveDiff));
 
         VerifyZeroVendorAccEntry;
@@ -349,7 +349,7 @@
     var
         PurchHeader: Record "Purchase Header";
     begin
-        Initialize;
+        Initialize();
         PurchHeader."Prices Including VAT" := PricesInclVAT;
         PostPartialInvoiceWithPrepmt(PurchHeader, PositiveDiff);
         InvoicePurchaseDoc(PurchHeader);
@@ -376,7 +376,7 @@
         PurchLine: Record "Purchase Line";
         PositiveDiff: Boolean;
     begin
-        Initialize;
+        Initialize();
         PositiveDiff := true;
         PurchHeader."Prices Including VAT" := PricesInclVAT;
         PreparePOLineWithLineDisc(PurchHeader, PurchLine, PositiveDiff);
@@ -404,7 +404,7 @@
     begin
         // [FEATURE] [Get Receipt Lines] [UI]
         // [SCENARIO 374897] Error when User tries to decrease PurchaseInvoiceLine.Quantity value with 100% Prepayment after Get Receipt Lines
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Order with 100% Prepayment, Line Discount and "Line Amount" = "X". Post Prepayment. Post Receipt.
         PreparePOPostPrepmtAndReceipt(PurchaseOrderHeader);
@@ -431,7 +431,7 @@
     begin
         // [FEATURE] [Get Receipt Lines] [UI]
         // [SCENARIO 374897] Error when User tries to decrease PurchaseInvoiceLine."Direct Unit Cost" value with 100% Prepayment after Get Receipt Lines
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Order with 100% Prepayment, Line Discount and "Direct Unit Cost" = "X". Post Prepayment. Post Receipt.
         PreparePOPostPrepmtAndReceipt(PurchaseOrderHeader);
@@ -461,7 +461,7 @@
     begin
         // [FEATURE] [Get Receipt Lines] [UI]
         // [SCENARIO 374897] Error when User tries to increase PurchaseInvoiceLine."Direct Unit Cost" value with 100% Prepayment after Get Receipt Lines
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Order with 100% Prepayment, Line Discount and "Direct Unit Cost" = "X". Post Prepayment. Post Receipt.
         PreparePOPostPrepmtAndReceipt(PurchaseOrderHeader);
@@ -490,7 +490,7 @@
     begin
         // [FEATURE] [Get Receipt Lines] [UI]
         // [SCENARIO 374897] Error when User tries to decrease PurchaseInvoiceLine."Line Discount %" value with 100% Prepayment after Get Receipt Lines
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Order with 100% Prepayment, Line Discount and "Line Amount" = "X". Post Prepayment. Post Receipt.
         PreparePOPostPrepmtAndReceipt(PurchaseOrderHeader);
@@ -516,7 +516,7 @@
     begin
         // [FEATURE] [Get Receipt Lines] [UI]
         // [SCENARIO 374897] Error when User tries to increase PurchaseInvoiceLine."Line Discount %" value with 100% Prepayment after Get Receipt Lines
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Order with 100% Prepayment, Line Discount and "Line Amount" = "X". Post Prepayment. Post Receipt.
         PreparePOPostPrepmtAndReceipt(PurchaseOrderHeader);
@@ -705,7 +705,7 @@
     begin
         // [FEATURE] [FCY]
         // [SCENARIO 379324] Prepayment LCY rounding works the same way as final invoice LCY rounding in case of currency
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Order with 100% Prepayment, Currency (Exch. Rate = 1:1000), VAT% = 10, Line Amount Excl. VAT = 100.01, Total Amount = 110.01 (VAT Amount = 10)
         LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", 10);
@@ -719,7 +719,7 @@
         PrepmtInvNo := FindPrepmtInvoice(PurchaseHeader."Buy-from Vendor No.", PurchaseHeader."No.");
 
         // [WHEN] Post final invoice
-        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID);
+        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
         InvoiceNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // [THEN] There are 3 Prepayment Invoice G/L Entries:
@@ -838,7 +838,7 @@
         VATPostingSetup: array[2] of Record "VAT Posting Setup";
         PurchaseHeader: Record "Purchase Header";
     begin
-        Initialize;
+        Initialize();
         CreateTwoVATPostingSetups(VATPostingSetup, 21);
 
         CreatePurchDoc(
@@ -891,7 +891,7 @@
 
         PurchLine.SetRange("Document No.", PurchHeader."No.");
         PurchLine.SetFilter(Quantity, '<>%1', 0);
-        if PurchLine.FindSet then
+        if PurchLine.FindSet() then
             repeat
                 UpdateQtysInLine(PurchLine, GetQtyToShipTFS332246(PositiveDiff), 0);
             until PurchLine.Next = 0;
@@ -916,7 +916,7 @@
         DummyGLAccount."VAT Bus. Posting Group" := VATPostingSetup[1]."VAT Bus. Posting Group";
         DummyGLAccount."VAT Prod. Posting Group" := VATPostingSetup[1]."VAT Prod. Posting Group";
         VATPostingSetup[2].Get(VATPostingSetup[1]."VAT Bus. Posting Group", LibraryERM.CreateRelatedVATPostingSetup(DummyGLAccount));
-        VATPostingSetup[2].Validate("VAT Identifier", LibraryUtility.GenerateGUID);
+        VATPostingSetup[2].Validate("VAT Identifier", LibraryUtility.GenerateGUID());
         VATPostingSetup[2].Modify(true);
 
         for i := 1 to ArrayLen(VATPostingSetup) do
@@ -1023,7 +1023,7 @@
             SetRange("Buy-from Vendor No.", VendorNo);
             SetRange("Prepayment Invoice", true);
             SetRange("Prepayment Order No.", OrderNo);
-            FindFirst;
+            FindFirst();
             exit("No.");
         end;
     end;
@@ -1086,7 +1086,7 @@
 
     local procedure InvoicePurchaseDoc(var PurchaseHeader: Record "Purchase Header"): Code[20]
     begin
-        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID);
+        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
         exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
     end;
 
@@ -1201,7 +1201,7 @@
         VendLedgEntry: Record "Vendor Ledger Entry";
     begin
         with VendLedgEntry do begin
-            FindLast;
+            FindLast();
             CalcFields(Amount);
             Assert.AreEqual(0, Amount, 'Expected zero Vendor Ledger Entry due to 100% prepayment.');
         end;
@@ -1233,7 +1233,7 @@
         with GLEntry do begin
             SetRange("Document No.", DocumentNo);
             SetRange("G/L Account No.", GLAccountNo);
-            FindFirst;
+            FindFirst();
             Assert.AreEqual(ExpectedAmount, Amount, FieldCaption(Amount));
             Assert.AreEqual(ExpectedVATAmount, "VAT Amount", FieldCaption("VAT Amount"));
         end;

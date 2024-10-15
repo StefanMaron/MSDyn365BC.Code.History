@@ -919,7 +919,7 @@
 
         TransferLine.SetRange("Document No.", "No.");
         TransferLine.SetFilter("Item No.", '<>%1', '');
-        if TransferLine.FindSet then begin
+        if TransferLine.FindSet() then begin
             TransferLine.LockTable();
             repeat
                 case FieldID of
@@ -994,6 +994,7 @@
                             TempTransferLine := TransferLine;
                             TransferLine.Validate("Item No.", TempTransferLine."Item No.");
                             TransferLine.Validate("Variant Code", TempTransferLine."Variant Code");
+                            TransferLine.Validate("Dimension Set ID", TempTransferLine."Dimension Set ID");
                         end;
                     else
                         OnUpdateTransLines(TransferLine, TransferHeader, FieldID);
@@ -1210,9 +1211,9 @@
             exit;
 
         InventoryPostingSetup.SetRange("Location Code", "Transfer-from Code");
-        InventoryPostingSetup.FindFirst;
+        InventoryPostingSetup.FindFirst();
         InventoryPostingSetup.SetRange("Location Code", "Transfer-to Code");
-        InventoryPostingSetup.FindFirst;
+        InventoryPostingSetup.FindFirst();
     end;
 
     procedure HasShippedItems(): Boolean
@@ -1277,10 +1278,10 @@
         LineNo: Integer;
     begin
         TransferLine.SetRange("Document No.", "No.");
-        if TransferLine.FindLast then;
+        if TransferLine.FindLast() then;
         LineNo := TransferLine."Line No.";
 
-        if PurchRcptLine.FindSet then
+        if PurchRcptLine.FindSet() then
             repeat
                 LineNo := LineNo + 10000;
                 AddTransferLineFromReceiptLine(PurchRcptLine, LineNo);

@@ -170,7 +170,7 @@ report 10113 "Vendor/Item Statistics"
                 begin
                     PurchInvHeader.SetRange("Posting Date", "Posting Date");
                     PurchInvHeader.SetRange("Vendor Invoice No.", "External Document No.");
-                    if PurchInvHeader.FindFirst then
+                    if PurchInvHeader.FindFirst() then
                         if PurchInvHeader."Order Date" > 0D then
                             TotalDays := ("Posting Date" - PurchInvHeader."Order Date") * "Invoiced Quantity";
 

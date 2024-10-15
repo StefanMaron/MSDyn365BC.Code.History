@@ -48,6 +48,11 @@ page 1356 "Posted Service Inv. - Update"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the payment of the service invoice.';
                 }
+                field("Company Bank Account Code"; "Company Bank Account Code")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the bank account to use for bank information when the document is printed.';
+                }
             }
         }
     }
@@ -75,7 +80,8 @@ page 1356 "Posted Service Inv. - Update"
     begin
         exit(
           ("Payment Method Code" <> xServiceInvoiceHeader."Payment Method Code") or
-          ("Payment Reference" <> xServiceInvoiceHeader."Payment Reference"));
+          ("Payment Reference" <> xServiceInvoiceHeader."Payment Reference") or
+          ("Company Bank Account Code" <> xServiceInvoiceHeader."Company Bank Account Code"));
     end;
 
     [Scope('OnPrem')]

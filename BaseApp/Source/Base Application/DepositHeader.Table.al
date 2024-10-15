@@ -1,8 +1,18 @@
-table 10140 "Deposit Header"
+﻿table 10140 "Deposit Header"
 {
     Caption = 'Deposit Header';
     DataCaptionFields = "No.";
+#if not CLEAN20
     LookupPageID = "Deposit List";
+#endif
+    ObsoleteReason = 'Replaced by new Bank Deposits extension';
+#if not CLEAN20
+    ObsoleteState = Pending;
+    ObsoleteTag = '20.0';
+#else
+    ObsoleteState = Removed;
+    ObsoleteTag = '23.0';
+#endif
 
     fields
     {
@@ -25,6 +35,8 @@ table 10140 "Deposit Header"
             TableRelation = "Bank Account";
 
             trigger OnValidate()
+            var
+                DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
             begin
                 BankAccount.Get("Bank Account No.");
                 GenJnlLine.SetRange("Journal Template Name", "Journal Template Name");
@@ -35,7 +47,8 @@ table 10140 "Deposit Header"
                 "Bank Acc. Posting Group" := BankAccount."Bank Acc. Posting Group";
                 "Language Code" := BankAccount."Language Code";
 
-                CreateDim(DATABASE::"Bank Account", "Bank Account No.");
+                DimMgt.AddDimSource(DefaultDimSource, Database::"Bank Account", Rec."Bank Account No.");
+                CreateDim(DefaultDimSource);
             end;
         }
         field(3; "Currency Code"; Code[10])
@@ -287,7 +300,7 @@ table 10140 "Deposit Header"
         DepositHeader2.Reset();
         DepositHeader2.SetRange("Journal Template Name", "Journal Template Name");
         DepositHeader2.SetRange("Journal Batch Name", "Journal Batch Name");
-        if DepositHeader2.FindFirst then
+        if DepositHeader2.FindFirst() then
             Error(Text002, TableCaption, GenJnlBatch.TableCaption);
 
         if "Posting Date" = 0D then
@@ -348,21 +361,15 @@ table 10140 "Deposit Header"
             "Currency Factor" := 0;
     end;
 
-    local procedure CreateDim(Type1: Integer; No1: Code[20])
+    local procedure CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
     var
         SourceCodeSetup: Record "Source Code Setup";
-        TableID: array[10] of Integer;
-        No: array[10] of Code[20];
     begin
         SourceCodeSetup.Get();
-        TableID[1] := Type1;
-        No[1] := No1;
         "Shortcut Dimension 1 Code" := '';
         "Shortcut Dimension 2 Code" := '';
         "Dimension Set ID" :=
-          DimMgt.GetDefaultDimID(
-            TableID, No, SourceCodeSetup.Deposits,
-            "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
+            DimMgt.GetDefaultDimID(DefaultDimSource, SourceCodeSetup.Deposits, "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
     end;
 
     local procedure ValidateShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])

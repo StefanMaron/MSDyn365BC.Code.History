@@ -45,7 +45,7 @@ codeunit 139002 "Web Services Tests"
         // Tests that the Urls are displayed on the Web Services page depending on the
         // Service type (OData vs SOAP).
 
-        Initialize;
+        Initialize();
         WebServicesPage.OpenView;
 
         WebServicesPage.GotoKey(WebService."Object Type"::Page, PageServiceTxt);
@@ -76,7 +76,7 @@ codeunit 139002 "Web Services Tests"
         // System:     Page    PageA   n   true
         // Tenant:
 
-        Initialize;
+        Initialize();
         WebServicesPage.OpenView;
 
         // Verify Web Service
@@ -101,7 +101,7 @@ codeunit 139002 "Web Services Tests"
         // System:     Page    PageB   n   true
         // Tenant:     Page    PageB   n   true
 
-        Initialize;
+        Initialize();
         WebServicesPage.OpenView;
 
         // Verify Web Service
@@ -126,7 +126,7 @@ codeunit 139002 "Web Services Tests"
         // System:     Page    PageC   n   false
         // Tenant:     Page    PageC   n   true
 
-        Initialize;
+        Initialize();
         WebServicesPage.OpenView;
 
         // Verify Web Service
@@ -151,7 +151,7 @@ codeunit 139002 "Web Services Tests"
         // System:     Page    PageD   n   true
         // Tenant:     Page    PageD   n   false
 
-        Initialize;
+        Initialize();
         WebServicesPage.OpenView;
 
         // Verify Web Service
@@ -176,7 +176,7 @@ codeunit 139002 "Web Services Tests"
         // System:     Page    PageE   n    true
         // Tenant:     Page    PageE   n1   false
 
-        Initialize;
+        Initialize();
         WebServicesPage.OpenView;
 
         // Verify Web Service
@@ -201,7 +201,7 @@ codeunit 139002 "Web Services Tests"
         // System:     Page    PageF   n    true
         // Tenant:     Page    PageF   n1   true
 
-        Initialize;
+        Initialize();
         WebServicesPage.OpenView;
 
         // Verify Web Service
@@ -228,7 +228,7 @@ codeunit 139002 "Web Services Tests"
         // Tenant:     Page    PageI   n    true
         // Tenant:     Page    PageJ   n    true
 
-        Initialize;
+        Initialize();
         WebServicesPage.OpenView;
 
         // Verify Web Service
@@ -261,7 +261,7 @@ codeunit 139002 "Web Services Tests"
         // Tenant:     Page    PageL   n    true
         // Tenant:     Page    PageM   n1   false
 
-        Initialize;
+        Initialize();
         WebServicesPage.OpenView;
 
         // Verify Web Service
@@ -292,7 +292,7 @@ codeunit 139002 "Web Services Tests"
         // System:     Page    PageN   n    true
         // Tenant:     Page    PageO   n    true
 
-        Initialize;
+        Initialize();
         WebServicesPage.OpenView;
 
         // Verify Web Service
@@ -323,7 +323,7 @@ codeunit 139002 "Web Services Tests"
         // System:     Page    PageP   n    true
         // Tenant:     Page    PageQ   n    false
 
-        Initialize;
+        Initialize();
         WebServicesPage.OpenView;
 
         // Verify Web Service

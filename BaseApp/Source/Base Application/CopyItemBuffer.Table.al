@@ -119,6 +119,14 @@ table 729 "Copy Item Buffer"
         {
             Caption = 'Item Cross References';
             DataClassification = SystemMetadata;
+            ObsoleteReason = 'Replaced with parameter Item References';
+#if not CLEAN20        
+            ObsoleteState = Pending;
+            ObsoleteTag = '20.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '23.0';
+#endif  
         }
         field(28; "Item References"; Boolean)
         {

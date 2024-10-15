@@ -22,6 +22,7 @@ page 1040 "Copy Job"
                         if (SourceJobNo <> '') and not SourceJob.Get(SourceJobNo) then
                             Error(Text003, SourceJob.TableCaption, SourceJobNo);
                         TargetJobDescription := SourceJob.Description;
+                        TargetSellToCustomerNo := SourceJob."Sell-to Customer No.";
                         TargetBillToCustomerNo := SourceJob."Bill-to Customer No.";
 
                         FromJobTaskNo := '';
@@ -136,6 +137,13 @@ page 1040 "Copy Job"
                     Caption = 'Job Description';
                     ToolTip = 'Specifies a description of the job.';
                 }
+                field(TargetSellToCustomerNo; TargetSellToCustomerNo)
+                {
+                    ApplicationArea = Jobs;
+                    Caption = 'Sell-To Customer No.';
+                    TableRelation = Customer;
+                    ToolTip = 'Specifies the number of an alternate customer that the job is sold to instead of the main customer.';
+                }
                 field(TargetBillToCustomerNo; TargetBillToCustomerNo)
                 {
                     ApplicationArea = Jobs;
@@ -189,7 +197,7 @@ page 1040 "Copy Job"
             CopyJob.SetCopyOptions(CopyJobPrices, CopyQuantity, CopyDimensions, Source, PlanningLineType, LedgerEntryType);
             CopyJob.SetJobTaskRange(FromJobTaskNo, ToJobTaskNo);
             CopyJob.SetJobTaskDateRange(FromDate, ToDate);
-            CopyJob.CopyJob(SourceJob, TargetJobNo, TargetJobDescription, TargetBillToCustomerNo);
+            CopyJob.CopyJob(SourceJob, TargetJobNo, TargetJobDescription, TargetSellToCustomerNo, TargetBillToCustomerNo);
             TargetJob.Get(TargetJobNo);
             Message(Text001, SourceJob."No.", TargetJob."No.", TargetJob.Status);
         end
@@ -203,6 +211,7 @@ page 1040 "Copy Job"
         ToJobTaskNo: Code[20];
         TargetJobNo: Code[20];
         TargetJobDescription: Text[100];
+        TargetSellToCustomerNo: Code[20];
         TargetBillToCustomerNo: Code[20];
         FromDate: Date;
         ToDate: Date;
@@ -267,6 +276,7 @@ page 1040 "Copy Job"
         SourceJob := SourceJob2;
         SourceJobNo := SourceJob."No.";
         TargetJobDescription := SourceJob.Description;
+        TargetSellToCustomerNo := SourceJob."Sell-to Customer No.";
         TargetBillToCustomerNo := SourceJob."Bill-to Customer No.";
 
         OnAfterSetFromJob(SourceJob, FromDate, ToDate);

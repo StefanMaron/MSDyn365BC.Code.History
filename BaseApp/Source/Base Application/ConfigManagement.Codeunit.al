@@ -30,7 +30,7 @@ codeunit 8616 "Config. Management"
         with ConfigLine do begin
             if NewCompanyName = '' then
                 Error(Text000);
-            if not FindFirst then
+            if not FindFirst() then
                 exit;
             SingleTable := Next() = 0;
             if SingleTable then begin
@@ -42,7 +42,7 @@ codeunit 8616 "Config. Management"
             end;
             if not Confirm(ConfirmTableText, SingleTable) then
                 exit;
-            if FindSet then
+            if FindSet() then
                 repeat
                     CopyData(ConfigLine);
                 until Next() = 0;
@@ -105,7 +105,7 @@ codeunit 8616 "Config. Management"
         FieldRec.SetRange(TableNo, TableNumber);
         FieldRec.SetRange(ObsoleteState, FieldRec.ObsoleteState::No);
         repeat
-            if FieldRec.FindSet then begin
+            if FieldRec.FindSet() then begin
                 ToCompanyRecRef.Init();
                 repeat
                     if not TempFieldRec.Get(TableNumber, FieldRec."No.") then begin
@@ -120,7 +120,7 @@ codeunit 8616 "Config. Management"
         // Treatment of fields that require post-validation:
         TempFieldRec.SetRange(TableNo, TableNumber);
         TempFieldRec.SetRange(ObsoleteState, TempFieldRec.ObsoleteState::No);
-        if TempFieldRec.FindSet then begin
+        if TempFieldRec.FindSet() then begin
             FromCompanyRecRef.Find('-');
             repeat
                 ToCompanyRecRef.SetPosition(FromCompanyRecRef.GetPosition);
@@ -644,15 +644,15 @@ codeunit 8616 "Config. Management"
 
         NextLineNo := 10000;
         ConfigLine.Reset();
-        if ConfigLine.FindLast then
+        if ConfigLine.FindLast() then
             NextLineNo := ConfigLine."Line No." + 10000;
 
         NextVertNo := 0;
         ConfigLine.SetCurrentKey("Vertical Sorting");
-        if ConfigLine.FindLast then
+        if ConfigLine.FindLast() then
             NextVertNo := ConfigLine."Vertical Sorting" + 1;
 
-        if AllObj.FindSet then
+        if AllObj.FindSet() then
             repeat
                 if not HideDialog then
                     ConfigProgressBar.Update(AllObj."Object Name");
@@ -661,7 +661,7 @@ codeunit 8616 "Config. Management"
                     Include := false;
                     TableInfo.SetRange("Company Name", CompanyName);
                     TableInfo.SetRange("Table No.", AllObj."Object ID");
-                    if TableInfo.FindFirst then
+                    if TableInfo.FindFirst() then
                         if TableInfo."No. of Records" > 0 then
                             Include := true;
                 end;
@@ -671,7 +671,7 @@ codeunit 8616 "Config. Management"
                     if IncludeRelatedTables then begin
                         ConfigPackageMgt.SetFieldFilter(Field, AllObj."Object ID", 0);
                         Field.SetFilter(RelationTableNo, '<>%1&<>%2&..%3', 0, AllObj."Object ID", 99000999);
-                        if Field.FindSet then
+                        if Field.FindSet() then
                             repeat
                                 InsertTempInt(TempInt, Field.RelationTableNo, IncludeLicensedTablesOnly);
                             until Field.Next() = 0;
@@ -684,7 +684,7 @@ codeunit 8616 "Config. Management"
                 end;
             until AllObj.Next() = 0;
 
-        if TempInt.FindSet then
+        if TempInt.FindSet() then
             repeat
                 InsertConfigLine(TempInt.Number, NextLineNo, NextVertNo);
             until TempInt.Next() = 0;
@@ -712,7 +712,7 @@ codeunit 8616 "Config. Management"
         "Field": Record "Field";
     begin
         ConfigPackageMgt.SetFieldFilter(Field, TableID, 0);
-        if Field.FindSet then
+        if Field.FindSet() then
             repeat
                 if IsDimSetIDField(Field.TableNo, Field."No.") then
                     exit(true);
@@ -788,6 +788,7 @@ codeunit 8616 "Config. Management"
         exit(TableID in [1 .. 99000999,
                          DATABASE::"Permission Set",
                          DATABASE::Permission,
+                         DATABASE::"Tenant Permission Set Rel.",
                          DATABASE::"Tenant Permission Set",
                          DATABASE::"Tenant Permission"]);
     end;
@@ -804,6 +805,7 @@ codeunit 8616 "Config. Management"
     begin
         if (TableID > 2000000000) and not (TableID in [DATABASE::"Permission Set",
                                                        DATABASE::Permission,
+                                                       DATABASE::"Tenant Permission Set Rel.",
                                                        DATABASE::"Tenant Permission Set",
                                                        DATABASE::"Tenant Permission"])
         then
@@ -821,7 +823,7 @@ codeunit 8616 "Config. Management"
         with ConfigLine do begin
             Reset;
             SetCurrentKey("Vertical Sorting");
-            if FindSet then
+            if FindSet() then
                 repeat
                     case "Line Type" of
                         "Line Type"::Area:
@@ -853,7 +855,7 @@ codeunit 8616 "Config. Management"
         AddDimTables: Boolean;
     begin
         Filter := '';
-        if ConfigLine.FindSet then
+        if ConfigLine.FindSet() then
             repeat
                 ConfigLine.CheckBlocked;
                 if (ConfigLine."Table ID" > 0) and (ConfigLine.Status <= ConfigLine.Status::Completed) then

@@ -214,7 +214,7 @@ table 5950 "Service Order Allocation"
                     ServItemLine.SetRange("Document Type", "Document Type");
                     ServItemLine.SetRange("Document No.", "Document No.");
                     ServItemLine.SetRange("Service Item No.", "Service Item No.");
-                    ServItemLine.FindFirst;
+                    ServItemLine.FindFirst();
                     Validate("Service Item Line No.", ServItemLine."Line No.");
                 end;
             end;
@@ -253,7 +253,7 @@ table 5950 "Service Order Allocation"
                     ServItemLine.SetRange("Document Type", "Document Type");
                     ServItemLine.SetRange("Document No.", "Document No.");
                     ServItemLine.SetRange("Serial No.", "Service Item Serial No.");
-                    ServItemLine.FindFirst;
+                    ServItemLine.FindFirst();
                     Validate("Service Item Line No.", ServItemLine."Line No.");
                 end;
             end;
@@ -422,7 +422,7 @@ table 5950 "Service Order Allocation"
 
         RepairStatus2.Reset();
         RepairStatus2.SetRange(Initial, true);
-        if RepairStatus2.FindFirst then
+        if RepairStatus2.FindFirst() then
             RepairStatusCode := RepairStatus2.Code;
 
         ChangeServItemLine := false;
@@ -449,7 +449,7 @@ table 5950 "Service Order Allocation"
                 if RepairStatus.Initial then begin
                     RepairStatus2.Reset();
                     RepairStatus2.SetRange(Referred, true);
-                    if RepairStatus2.FindFirst then begin
+                    if RepairStatus2.FindFirst() then begin
                         ChangeServItemLine := true;
                         RepairStatusCode := RepairStatus2.Code;
                         Validate(Status, Status::Active);
@@ -469,7 +469,7 @@ table 5950 "Service Order Allocation"
                     if RepairStatus."In Process" then begin
                         RepairStatus2.Reset();
                         RepairStatus2.SetRange("Partly Serviced", true);
-                        if RepairStatus2.FindFirst then begin
+                        if RepairStatus2.FindFirst() then begin
                             RepairStatusCode := RepairStatus2.Code;
                             ChangeServItemLine := true;
                             Validate(Status, Status::Active);

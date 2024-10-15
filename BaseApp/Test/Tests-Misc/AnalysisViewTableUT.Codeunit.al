@@ -179,7 +179,7 @@ codeunit 134066 "Analysis View Table-UT"
     begin
         LibraryERM.CreateAnalysisView(AnalysisView);
 
-        GLEntry.FindLast;
+        GLEntry.FindLast();
         AnalysisViewEntry."Analysis View Code" := AnalysisView.Code;
         AnalysisViewEntry."Account No." := GLEntry."G/L Account No.";
         AnalysisViewEntry."Posting Date" := GLEntry."Posting Date";

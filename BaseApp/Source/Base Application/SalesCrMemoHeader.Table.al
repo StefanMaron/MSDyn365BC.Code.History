@@ -1,4 +1,4 @@
-table 114 "Sales Cr.Memo Header"
+﻿table 114 "Sales Cr.Memo Header"
 {
     Caption = 'Sales Cr.Memo Header';
     DataCaptionFields = "No.", "Sell-to Customer Name";
@@ -473,6 +473,11 @@ table 114 "Sales Cr.Memo Header"
         {
             Caption = 'Prepayment Order No.';
         }
+        field(163; "Company Bank Account Code"; Code[20])
+        {
+            Caption = 'Company Bank Account Code';
+            TableRelation = "Bank Account" where("Currency Code" = FIELD("Currency Code"));
+        }
         field(171; "Sell-to Phone No."; Text[30])
         {
             Caption = 'Sell-to Phone No.';
@@ -935,7 +940,7 @@ table 114 "Sales Cr.Memo Header"
     begin
         NavigatePage.SetDoc("Posting Date", "No.");
         NavigatePage.SetRec(Rec);
-        NavigatePage.Run;
+        NavigatePage.Run();
     end;
 
     procedure LookupAdjmtValueEntries()

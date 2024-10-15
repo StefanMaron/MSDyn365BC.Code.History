@@ -30,7 +30,7 @@ codeunit 141037 "Electronic Payment"
         // Verify G/L Entry value after posting Gen. Journal Line using Foreign Exchange related fields.
 
         // Setup: Create Payment Journal Line and update Foreign Exchange related fields.
-        Initialize;
+        Initialize();
         CreatePaymentJournal(GenJournalLine);
         UpdatePaymentJournalForeignExchange(GenJournalLine);
 
@@ -50,7 +50,7 @@ codeunit 141037 "Electronic Payment"
         // Verify G/L Entry value after posting Gen. Journal Line using Gateway and Qualifier related fields.
 
         // Setup: Create Payment Journal Line and update Gateway and Qualifier related fields.
-        Initialize;
+        Initialize();
         CreatePaymentJournal(GenJournalLine);
         UpdatePaymentJournalGatewayAndQualifier(GenJournalLine);
 
@@ -72,7 +72,7 @@ codeunit 141037 "Electronic Payment"
         // Verify G/L Entry after apply and post Sales Credit Memo with Electronic Payment using values for Foreign Exchange, Gateway and Qualifier related fields.
 
         // Setup: Create and Post Sales Credit Memo.
-        Initialize;
+        Initialize();
         CreateSalesCreditMemo(SalesLine);
         DocumentNo := PostSalesCreditMemo(SalesLine."Document No.");
 
@@ -97,7 +97,7 @@ codeunit 141037 "Electronic Payment"
         // Verify Vendor balance after post payment using Suggest Vendor Payment.
 
         // Setup: Create Vendor, Post Purchase Invoice.
-        Initialize;
+        Initialize();
         LibraryERM.CreateBankAccount(BankAccount);
         CreateAndPostPurchaseInvoice(PurchaseLine);
         CreateAndPostPurchaseInvoice(PurchaseLine2);
@@ -133,7 +133,7 @@ codeunit 141037 "Electronic Payment"
         // does not generate an error and does not update Last No. Used field in No Series Line
 
         // Setup
-        Initialize;
+        Initialize();
         CreateAndPostPurchaseInvoice(PurchaseLine);
         CreateNoSeriesWithAllFalse(NoSeriesLine);
         OldLastNoUsed := NoSeriesLine."Last No. Used";
@@ -156,8 +156,8 @@ codeunit 141037 "Electronic Payment"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
-        LibraryERMCountryData.CreateVATData;
+        LibraryVariableStorage.Clear();
+        LibraryERMCountryData.CreateVATData();
     end;
 
     local procedure CreateAndPostElectronicPaymentLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentNo: Code[20]; AccountNo: Code[20]; Amount: Decimal)
@@ -269,7 +269,7 @@ codeunit 141037 "Electronic Payment"
     begin
         GenJournalLine.Validate("Foreign Exchange Indicator", LibraryRandom.RandIntInRange(1, 3));
         GenJournalLine.Validate("Foreign Exchange Ref.Indicator", LibraryRandom.RandIntInRange(1, 3));
-        GenJournalLine.Validate("Foreign Exchange Reference", LibraryUtility.GenerateGUID);
+        GenJournalLine.Validate("Foreign Exchange Reference", LibraryUtility.GenerateGUID());
         GenJournalLine.Modify(true);
     end;
 
@@ -340,7 +340,7 @@ codeunit 141037 "Electronic Payment"
     begin
         GLEntry.SetRange("Document No.", GenJournalLine."Document No.");
         GLEntry.SetRange("Bal. Account No.", GenJournalLine."Bal. Account No.");
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         Assert.AreNearlyEqual(
           GenJournalLine.Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision,
           StrSubstNo(AmountErr, GLEntry.FieldCaption(Amount), GLEntry.Amount, GLEntry.TableCaption));

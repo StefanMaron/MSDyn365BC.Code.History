@@ -94,6 +94,7 @@
                     Type::"Payroll Accrual":
                         begin
                         end;
+#if not CLEAN20
                     Type::Deposits:
                         begin
                             "Source Code" := SourceCodeSetup.Deposits;
@@ -102,6 +103,7 @@
                             "Posting Report ID" := REPORT::Deposit;
                             "Bal. Account Type" := "Bal. Account Type"::"Bank Account";
                         end;
+#endif
                     Type::"Sales Tax":
                         begin
                             "Page ID" := PAGE::"Sales Tax Journal";
@@ -171,17 +173,19 @@
             Caption = 'Force Doc. Balance';
             InitValue = true;
         }
-        field(19; "Bal. Account Type"; enum "Gen. Journal Account Type")
+        field(19; "Bal. Account Type"; Enum "Gen. Journal Account Type")
         {
             Caption = 'Bal. Account Type';
 
             trigger OnValidate()
             begin
+#if not CLEAN20
                 if Type = Type::Deposits then
                     if "Bal. Account Type" <> "Bal. Account Type"::"Bank Account" then begin
                         "Bal. Account Type" := "Bal. Account Type"::"Bank Account";
                         Error(USText000, FieldCaption(Type), Type, FieldCaption("Bal. Account Type"), "Bal. Account Type");
                     end;
+#endif
                 "Bal. Account No." := '';
             end;
         }
@@ -311,6 +315,14 @@
                 end;
             end;
         }
+        field(32; "Allow Posting Date From"; Date)
+        {
+            Caption = 'Allow Posting From';
+        }
+        field(33; "Allow Posting Date To"; Date)
+        {
+            Caption = 'Allow Posting To';
+        }
     }
 
     keys
@@ -336,9 +348,11 @@
         GenJnlLine.DeleteAll(true);
         GenJnlBatch.SetRange("Journal Template Name", Name);
         GenJnlBatch.DeleteAll();
+#if not CLEAN20
         DepositHeader.SetCurrentKey("Journal Template Name", "Journal Batch Name");
         DepositHeader.SetRange("Journal Template Name", Name);
         DepositHeader.DeleteAll(true);
+#endif
     end;
 
     trigger OnInsert()
@@ -353,8 +367,10 @@
         GenJnlLine: Record "Gen. Journal Line";
         GenJnlAlloc: Record "Gen. Jnl. Allocation";
         SourceCodeSetup: Record "Source Code Setup";
+#if not CLEAN20
         DepositHeader: Record "Deposit Header";
         USText000: Label 'If the %1 is %2, then the %3 must be %4.';
+#endif
 
     local procedure CheckGLAcc(AccNo: Code[20])
     var

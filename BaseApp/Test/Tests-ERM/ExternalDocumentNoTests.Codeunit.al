@@ -37,15 +37,15 @@ codeunit 134345 "External Document No. Tests"
         // [FEATURE] [UT]
         // [SCENARIO 295702] A reversed Vendor Ledger Entry does not consider when calling function SetFilterForExternalDocNoFunction
 
-        Initialize;
-        VendNo := LibraryPurchase.CreateVendorNo;
+        Initialize();
+        VendNo := LibraryPurchase.CreateVendorNo();
         ExtDocNo := LibraryUtility.GenerateRandomText(GetExtDocNoLength);
         EntryNo := MockVendorLedgerEntry(VendNo, WorkDate, ExtDocNo, false);
         MockVendorLedgerEntry(VendNo, WorkDate, ExtDocNo, true);
         VendorMgt.SetFilterForExternalDocNo(
           VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, CopyStr(ExtDocNo, 1, 35), VendNo, WorkDate);
         Assert.RecordCount(VendorLedgerEntry, 1);
-        VendorLedgerEntry.FindFirst;
+        VendorLedgerEntry.FindFirst();
         Assert.AreEqual(EntryNo, VendorLedgerEntry."Entry No.", 'Incorrect entry no.');
     end;
 
@@ -61,10 +61,10 @@ codeunit 134345 "External Document No. Tests"
         // [FEATURE] [Report]
         // [SCENARIO 295702] A "General Journal -Test" report runs successfully if there is duplicated External Document No. in reversed Vendor Ledger Entry
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor Ledger Entry with Reversed enabled, "External Document No." = "X" and "Document Date" = 01.01.2019
-        VendNo := LibraryPurchase.CreateVendorNo;
+        VendNo := LibraryPurchase.CreateVendorNo();
         ExtDocNo := LibraryUtility.GenerateRandomText(GetExtDocNoLength);
         MockVendorLedgerEntry(VendNo, WorkDate, ExtDocNo, true);
 
@@ -94,10 +94,10 @@ codeunit 134345 "External Document No. Tests"
         // [FEATURE] [Report]
         // [SCENARIO 295702] A "Vendor Pre-Payment Journal" report runs successfully if there is duplicated External Document No. in reversed Vendor Ledger Entry
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor Ledger Entry with Reversed enabled, "External Document No." = "X" and "Document Date" = 01.01.2019
-        VendNo := LibraryPurchase.CreateVendorNo;
+        VendNo := LibraryPurchase.CreateVendorNo();
         ExtDocNo := LibraryUtility.GenerateRandomText(GetExtDocNoLength);
         MockVendorLedgerEntry(VendNo, WorkDate, ExtDocNo, true);
 
@@ -128,7 +128,7 @@ codeunit 134345 "External Document No. Tests"
         // [FEATURE] [Report]
         // [SCENARIO 295702] A "Purchase Document - Test" report runs successfully if there is duplicated External Document No. in reversed Vendor Ledger Entry
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor Ledger Entry with Reversed enabled and "External Document No." = "X" and "Document Date" = 01.01.2019
         CreatePrepmtVendor(VendNo, LineGLAccountNo);
@@ -162,7 +162,7 @@ codeunit 134345 "External Document No. Tests"
         // [FEATURE] [Report]
         // [SCENARIO 295702] A "Purchase Prepmt. Doc. - Test" report runs successfully if there is duplicated External Document No. in reversed Vendor Ledger Entry
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor Ledger Entry with Reversed enabled and "External Document No." = "X" and "Document Date" = 01.01.2019
         CreatePrepmtVendor(VendNo, LineGLAccountNo);
@@ -187,7 +187,7 @@ codeunit 134345 "External Document No. Tests"
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"External Document No. Tests");
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
         if IsInitialized then
             exit;
 
@@ -282,7 +282,7 @@ codeunit 134345 "External Document No. Tests"
         Clear(VendorPrePaymentJournal);
         VendorPrePaymentJournal.SetTableView(GenJournalBatch);
         VendorPrePaymentJournal.SetTableView(GenJournalLine);
-        VendorPrePaymentJournal.RunModal;
+        VendorPrePaymentJournal.RunModal();
     end;
 
     [RequestPageHandler]

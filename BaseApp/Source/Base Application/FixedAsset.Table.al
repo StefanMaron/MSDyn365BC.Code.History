@@ -345,7 +345,7 @@
             MainAssetComp.SetRange("FA No.", '');
             MainAssetComp.DeleteAll();
             MainAssetComp.SetRange("FA No.");
-            if not MainAssetComp.FindFirst then begin
+            if not MainAssetComp.FindFirst() then begin
                 FA.Get("Component of Main Asset");
                 FA."Main Asset/Component" := FA."Main Asset/Component"::" ";
                 FA."Component of Main Asset" := '';

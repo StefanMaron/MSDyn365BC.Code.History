@@ -1,8 +1,12 @@
+#if not CLEAN20
 page 596 "XBRL G/L Map Lines Part"
 {
     Caption = 'XBRL G/L Map Lines Part';
     PageType = ListPart;
     SourceTable = "XBRL G/L Map Line";
+    ObsoleteReason = 'XBRL feature will be discontinued';
+    ObsoleteState = Pending;
+    ObsoleteTag = '20.0';
 
     layout
     {
@@ -61,3 +65,5 @@ page 596 "XBRL G/L Map Lines Part"
     }
 }
 
+
+#endif

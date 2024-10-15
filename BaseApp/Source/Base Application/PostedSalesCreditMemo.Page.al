@@ -1,4 +1,4 @@
-page 134 "Posted Sales Credit Memo"
+﻿page 134 "Posted Sales Credit Memo"
 {
     Caption = 'Posted Sales Credit Memo';
     InsertAllowed = false;
@@ -269,6 +269,13 @@ page 134 "Posted Sales Credit Memo"
                         Clear(ChangeExchangeRate);
                     end;
                 }
+                field("Company Bank Account Code"; "Company Bank Account Code")
+                {
+                    ApplicationArea = Suite;
+                    Editable = false;
+                    Importance = Promoted;
+                    ToolTip = 'Specifies the bank account to use for bank information when the document is printed.';
+                }
             }
             group("Electronic Invoice")
             {
@@ -361,6 +368,13 @@ page 134 "Posted Sales Credit Memo"
                     Editable = false;
                     Importance = Promoted;
                     ToolTip = 'Specifies the location where the credit memo was registered.';
+                }
+                field("Customer Posting Group"; "Customer Posting Group")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Editable = false;
+                    ToolTip = 'Specifies the customer''s market type to link business transactions to.';
+                    Visible = false;
                 }
                 field("Applies-to Doc. Type"; "Applies-to Doc. Type")
                 {
@@ -736,7 +750,7 @@ page 134 "Posted Sales Credit Memo"
                     begin
                         RecRef.GetTable(Rec);
                         DocumentAttachmentDetails.OpenForRecRef(RecRef);
-                        DocumentAttachmentDetails.RunModal;
+                        DocumentAttachmentDetails.RunModal();
                     end;
                 }
             }
@@ -928,7 +942,7 @@ page 134 "Posted Sales Credit Memo"
                 Image = Navigate;
                 Promoted = true;
                 PromotedCategory = Category4;
-                ShortCutKey = 'Shift+Ctrl+I';
+                ShortCutKey = 'Ctrl+Alt+Q';
                 ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
                 Visible = NOT IsOfficeAddin;
 

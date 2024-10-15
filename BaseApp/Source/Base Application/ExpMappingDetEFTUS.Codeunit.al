@@ -18,7 +18,7 @@ codeunit 10328 "Exp. Mapping Det EFT US"
         if ACHUSDetail.Find('-') then
             repeat
                 DataExch.SetRange("Entry No.", "Entry No.");
-                if DataExch.FindFirst then begin
+                if DataExch.FindFirst() then begin
                     RecordRef.GetTable(ACHUSDetail);
                     EFTExportMgt.InsertDataExchLineForFlatFile(
                       DataExch,

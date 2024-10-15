@@ -1,0 +1,61 @@
+permissionset 1002 "LOCAL READ"
+{
+    Access = Public;
+    Assignable = true;
+    Caption = 'Country/region-specific read only access';
+
+    Permissions = tabledata "Account Identifier" = R,
+                  tabledata "ACH Cecoban Detail" = R,
+                  tabledata "ACH Cecoban Footer" = R,
+                  tabledata "ACH Cecoban Header" = R,
+                  tabledata "ACH RB Detail" = R,
+                  tabledata "ACH RB Footer" = R,
+                  tabledata "ACH RB Header" = R,
+                  tabledata "ACH US Detail" = R,
+                  tabledata "ACH US Footer" = R,
+                  tabledata "ACH US Header" = R,
+                  tabledata "B10 Adjustment" = R,
+                  tabledata "Bank Comment Line" = R,
+#if not CLEAN20
+                  tabledata "Bank Rec. Header" = R,
+                  tabledata "Bank Rec. Line" = R,
+                  tabledata "Bank Rec. Sub-line" = R,
+#endif
+                  tabledata "CFDI Documents" = R,
+                  tabledata "CFDI Relation Document" = R,
+                  tabledata "Credit Manager Cue" = R,
+                  tabledata "Data Dictionary Info" = R,
+#if not CLEAN20
+                  tabledata "Deposit Header" = R,
+#endif
+                  tabledata "Document Header" = R,
+                  tabledata "Document Line" = R,
+                  tabledata "EFT Export" = R,
+                  tabledata "EFT Export Workset" = R,
+                  tabledata "GIFI Code" = R,
+                  tabledata "IRS 1099 Adjustment" = R,
+                  tabledata "IRS 1099 Form-Box" = R,
+                  tabledata "Item Location Variant Buffer" = R,
+                  tabledata "MX Electronic Invoicing Setup" = R,
+                  tabledata "PAC Web Service" = R,
+                  tabledata "PAC Web Service Detail" = R,
+                  tabledata "Posted Bank Rec. Header" = R,
+                  tabledata "Posted Bank Rec. Line" = R,
+                  tabledata "Posted Deposit Header" = R,
+                  tabledata "Posted Deposit Line" = R,
+                  tabledata "Sales Tax Amount Difference" = R,
+                  tabledata "Sales Tax Amount Line" = R,
+                  tabledata "Sales Tax Setup Wizard" = R,
+                  tabledata "SAT Account Code" = R,
+                  tabledata "SAT Classification" = R,
+                  tabledata "SAT Country Code" = R,
+                  tabledata "SAT MX Resources" = R,
+                  tabledata "SAT Payment Method" = R,
+                  tabledata "SAT Payment Method Code" = R,
+                  tabledata "SAT Payment Term" = R,
+                  tabledata "SAT Relationship Type" = R,
+                  tabledata "SAT Tax Scheme" = R,
+                  tabledata "SAT Unit of Measure" = R,
+                  tabledata "SAT Use Code" = R,
+                  tabledata "Vendor Location" = R;
+}

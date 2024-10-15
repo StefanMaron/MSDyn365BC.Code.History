@@ -39,7 +39,7 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         // [FEATURE] [Tax Group Code]
         // [SCENARIO 136988] Doc Totals with Sales Tax are updated when adding Tax Group Code on Purchase Invoice
         // Setup
-        Initialize;
+        Initialize();
         TaxPercentage := LibraryRandom.RandInt(9);
 
         // [GIVEN] User has created a purchase document with a purchase line that did not default the Tax Code Group
@@ -113,7 +113,7 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         // [FEATURE] [Quantity]
         // [SCENARIO 136988] Doc Totals with Sales Tax are updated when changing Quantity on Purchase Invoice
         // Setup
-        Initialize;
+        Initialize();
         TaxPercentage := LibraryRandom.RandInt(9);
 
         // [GIVEN] User has created a purchase document with a purchase line item that defaults the Tax Group Code
@@ -180,7 +180,7 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         // [FEATURE] [Invoice Discount Amount]
         // [SCENARIO 136988] Purchase Invoice Doc Totals, Sales Tax are calculated but Invoice Discount is not per setup option
         // Setup
-        Initialize;
+        Initialize();
         TaxPercentage := LibraryRandom.RandInt(9);
         CalcInvDisc := false;
         SetupCalcInvoiceDisc(CalcInvDisc);
@@ -264,7 +264,7 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         // [FEATURE] [Invoice Discount Amount]
         // [SCENARIO 136988] Purchase Invoice Doc Totals, Tax and Inv Discount are calculated when setup option marked
         // Setup
-        Initialize;
+        Initialize();
         TaxPercentage := LibraryRandom.RandInt(9);
         CalcInvDisc := true;
         SetupCalcInvoiceDisc(CalcInvDisc);
@@ -344,7 +344,7 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         // [FEATURE] [Invoice Discount Amount]
         // [SCENARIO 136988] Purchase Invoice Doc Totals, Tax and Invoice Discount are updated when changing Inv Disc Amount
         // Setup
-        Initialize;
+        Initialize();
         TaxPercentage := LibraryRandom.RandInt(9);
         CalcInvDisc := true;
         SetupCalcInvoiceDisc(CalcInvDisc);
@@ -411,7 +411,7 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         // [FEATURE] [Post]
         // [SCENARIO 136988] Doc Totals and taxes match before and after posting on Purchase Invoice
         // Setup
-        Initialize;
+        Initialize();
         TaxPercentage := LibraryRandom.RandInt(9);
 
         // [GIVEN] User has created a purchase document with a purchase line with no default Tax Group Code
@@ -478,7 +478,7 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         // [FEATURE] [Tax Group Code]
         // [SCENARIO 136988] Doc Totals with Sales Tax are updated when adding Tax Group Code on Purchase Order
         // Setup
-        Initialize;
+        Initialize();
         TaxPercentage := LibraryRandom.RandInt(9);
 
         // [GIVEN] User has created a purchase document with a purchase line that did not default the Tax Code Group
@@ -552,7 +552,7 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         // [FEATURE] [Quantity]
         // [SCENARIO 136988] Doc Totals with Sales Tax are updated when changing Quantity on Purchase Order
         // Setup
-        Initialize;
+        Initialize();
         TaxPercentage := LibraryRandom.RandInt(9);
 
         // [GIVEN] User has created a purchase document with a purchase line item that defaults the Tax Group Code
@@ -618,7 +618,7 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         // [FEATURE] [Invoice Discount Amount]
         // [SCENARIO 136988] Purchase Order Doc Totals, Sales Tax are calculated but Invoice Discount is not per setup option
         // Setup
-        Initialize;
+        Initialize();
         TaxPercentage := LibraryRandom.RandInt(9);
         CalcInvDisc := false;
         SetupCalcInvoiceDisc(CalcInvDisc);
@@ -701,7 +701,7 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         // [FEATURE] [Invoice Discount Amount]
         // [SCENARIO 136988] Purchase Order Doc Totals, Tax and Inv Discount are calculated when setup option marked
         // Setup
-        Initialize;
+        Initialize();
         TaxPercentage := LibraryRandom.RandInt(9);
         CalcInvDisc := true;
         SetupCalcInvoiceDisc(CalcInvDisc);
@@ -783,7 +783,7 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         // [FEATURE] [Invoice Discount Amount]
         // [SCENARIO 136988] Purchase Order Doc Totals, Tax and Invoice Discount are updated when changing Inv Disc Amount
         // Setup
-        Initialize;
+        Initialize();
         TaxPercentage := LibraryRandom.RandInt(9);
         CalcInvDisc := true;
         SetupCalcInvoiceDisc(CalcInvDisc);
@@ -850,7 +850,7 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         // [FEATURE] [Post]
         // [SCENARIO 136988] Doc Totals and taxes match before and after posting on Purchase Order
         // Setup
-        Initialize;
+        Initialize();
         TaxPercentage := LibraryRandom.RandInt(9);
 
         // [GIVEN] User has created a purchase document with a purchase line with no default Tax Group Code
@@ -917,7 +917,7 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         // [FEATURE] [Tax Group Code]
         // [SCENARIO 136988] Doc Totals with Sales Tax are updated when adding Tax Group Code on Purchase Return Order
         // Setup
-        Initialize;
+        Initialize();
         TaxPercentage := LibraryRandom.RandInt(9);
 
         // [GIVEN] User has created a purchase document with a purchase line that did not default the Tax Code Group
@@ -991,7 +991,7 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         // [FEATURE] [Quantity]
         // [SCENARIO 136988] Doc Totals with Sales Tax are updated when changing Quantity on Purchase Return Order
         // Setup
-        Initialize;
+        Initialize();
         TaxPercentage := LibraryRandom.RandInt(9);
 
         // [GIVEN] User has created a purchase document with a purchase line item that defaults the Tax Group Code
@@ -1057,7 +1057,7 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         // [FEATURE] [Invoice Discount Amount]
         // [SCENARIO 136988] Purchase Return Order Doc Totals, Sales Tax are calculated but Inv Disc is not per setup option
         // Setup
-        Initialize;
+        Initialize();
         TaxPercentage := LibraryRandom.RandInt(9);
         CalcInvDisc := false;
         SetupCalcInvoiceDisc(CalcInvDisc);
@@ -1140,7 +1140,7 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         // [FEATURE] [Invoice Discount Amount]
         // [SCENARIO 136988] Purchase Return Order Doc Totals, Tax and Inv Discount are calc'd when setup option marked
         // Setup
-        Initialize;
+        Initialize();
         TaxPercentage := LibraryRandom.RandInt(9);
         CalcInvDisc := true;
         SetupCalcInvoiceDisc(CalcInvDisc);
@@ -1222,7 +1222,7 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         // [FEATURE] [Invoice Discount Amount]
         // [SCENARIO 136988] Purchase Return Order Doc Totals, Tax and Invoice Discount are updated when changing Inv Disc Amount
         // Setup
-        Initialize;
+        Initialize();
         TaxPercentage := LibraryRandom.RandInt(9);
         CalcInvDisc := true;
         SetupCalcInvoiceDisc(CalcInvDisc);
@@ -1289,7 +1289,7 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         // [FEATURE] [Post]
         // [SCENARIO 136988] Doc Totals and taxes match before and after posting on Purchase Return Order
         // Setup
-        Initialize;
+        Initialize();
         TaxPercentage := LibraryRandom.RandInt(9);
 
         // [GIVEN] User has created a purchase document with a purchase line with no default Tax Group Code
@@ -1356,7 +1356,7 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         // [FEATURE] [Tax Group Code]
         // [SCENARIO 136988] Doc Totals with Sales Tax are updated when adding Tax Group Code on Credit Memo
         // Setup
-        Initialize;
+        Initialize();
         TaxPercentage := LibraryRandom.RandInt(9);
 
         // [GIVEN] User has created a purchase document with a purchase line that did not default the Tax Code Group
@@ -1430,7 +1430,7 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         // [FEATURE] [Quantity]
         // [SCENARIO 136988] Doc Totals with Sales Tax are updated when changing Quantity on Credit Memo
         // Setup
-        Initialize;
+        Initialize();
         TaxPercentage := LibraryRandom.RandInt(9);
 
         // [GIVEN] User has created a purchase document with a purchase line item that defaults the Tax Group Code
@@ -1496,7 +1496,7 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         // [FEATURE] [Invoice Discount Amount]
         // [SCENARIO 136988] Credit Memo Doc Totals, Sales Tax are calculated but Inv Disc is not per setup option
         // Setup
-        Initialize;
+        Initialize();
         TaxPercentage := LibraryRandom.RandInt(9);
         CalcInvDisc := false;
         SetupCalcInvoiceDisc(CalcInvDisc);
@@ -1579,7 +1579,7 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         // [FEATURE] [Invoice Discount Amount]
         // [SCENARIO 136988] Purchase Credit Memo Doc Totals, Tax and Inv Discount are calc'd when setup option marked
         // Setup
-        Initialize;
+        Initialize();
         TaxPercentage := LibraryRandom.RandInt(9);
         CalcInvDisc := true;
         SetupCalcInvoiceDisc(CalcInvDisc);
@@ -1661,7 +1661,7 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         // [FEATURE] [Invoice Discount Amount]
         // [SCENARIO 136988] Credit Memo Doc Totals, Tax and Invoice Discount are updated when changing Inv Disc Amount
         // Setup
-        Initialize;
+        Initialize();
         TaxPercentage := LibraryRandom.RandInt(9);
         CalcInvDisc := true;
         SetupCalcInvoiceDisc(CalcInvDisc);
@@ -1728,7 +1728,7 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         // [FEATURE] [Post]
         // [SCENARIO 136988] Doc Totals and taxes match before and after posting on Credit Memo
         // Setup
-        Initialize;
+        Initialize();
         TaxPercentage := LibraryRandom.RandInt(9);
 
         // [GIVEN] User has created a purchase document with a purchase line with no default Tax Group Code
@@ -1795,7 +1795,7 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         // [FEATURE] [Tax Group Code]
         // [SCENARIO 136988] Doc Totals with Sales Tax are updated when adding Tax Group Code on Blanket Order
         // Setup
-        Initialize;
+        Initialize();
         TaxPercentage := LibraryRandom.RandInt(9);
 
         // [GIVEN] User has created a purchase document with a purchase line that did not default the Tax Code Group
@@ -1869,7 +1869,7 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         // [FEATURE] [Quantity]
         // [SCENARIO 136988] Doc Totals with Sales Tax are updated when changing Quantity on Blanket Order
         // Setup
-        Initialize;
+        Initialize();
         TaxPercentage := LibraryRandom.RandInt(9);
 
         // [GIVEN] User has created a purchase document with a purchase line item that defaults the Tax Group Code
@@ -1935,7 +1935,7 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         // [FEATURE] [Invoice Discount Amount]
         // [SCENARIO 136988] Blanket Order Doc Totals, Sales Tax are calculated but Invoice Discount is not per setup option
         // Setup
-        Initialize;
+        Initialize();
         TaxPercentage := LibraryRandom.RandInt(9);
         CalcInvDisc := false;
         SetupCalcInvoiceDisc(CalcInvDisc);
@@ -2018,7 +2018,7 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         // [FEATURE] [Invoice Discount Amount]
         // [SCENARIO 136988] Blanket Order Doc Totals, Tax and Inv Discount are calculated when setup option marked
         // Setup
-        Initialize;
+        Initialize();
         TaxPercentage := LibraryRandom.RandInt(9);
         CalcInvDisc := true;
         SetupCalcInvoiceDisc(CalcInvDisc);
@@ -2100,7 +2100,7 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         // [FEATURE] [Invoice Discount Amount]
         // [SCENARIO 136988] Blanket Order Doc Totals, Tax and Invoice Discount are updated when changing Inv Disc Amount
         // Setup
-        Initialize;
+        Initialize();
         TaxPercentage := LibraryRandom.RandInt(9);
         CalcInvDisc := true;
         SetupCalcInvoiceDisc(CalcInvDisc);
@@ -2168,7 +2168,7 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         // [FEATURE] [Tax Group Code]
         // [SCENARIO 136988] Doc Totals with Sales Tax are updated when adding Tax Group Code on Purchase Quote
         // Setup
-        Initialize;
+        Initialize();
         TaxPercentage := LibraryRandom.RandInt(9);
 
         // [GIVEN] User has created a purchase document with a purchase line that did not default the Tax Code Group
@@ -2242,7 +2242,7 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         // [FEATURE] [Quantity]
         // [SCENARIO 136988] Doc Totals with Sales Tax are updated when changing Quantity on Purchase Quote
         // Setup
-        Initialize;
+        Initialize();
         TaxPercentage := LibraryRandom.RandInt(9);
 
         // [GIVEN] User has created a purchase document with a purchase line item that defaults the Tax Group Code
@@ -2308,7 +2308,7 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         // [FEATURE] [Invoice Discount Amount]
         // [SCENARIO 136988] Purchase Quote Doc Totals, Sales Tax are calculated but Invoice Discount is not per setup option
         // Setup
-        Initialize;
+        Initialize();
         TaxPercentage := LibraryRandom.RandInt(9);
         CalcInvDisc := false;
         SetupCalcInvoiceDisc(CalcInvDisc);
@@ -2391,7 +2391,7 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         // [FEATURE] [Invoice Discount Amount]
         // [SCENARIO 136988] Purchase Quote Doc Totals, Tax and Inv Discount are calculated when setup option marked
         // Setup
-        Initialize;
+        Initialize();
         TaxPercentage := LibraryRandom.RandInt(9);
         CalcInvDisc := true;
         SetupCalcInvoiceDisc(CalcInvDisc);
@@ -2473,7 +2473,7 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         // [FEATURE] [Invoice Discount Amount]
         // [SCENARIO 136988] Purchase Quote Doc Totals, Tax and Invoice Discount are updated when changing Inv Disc Amount
         // Setup
-        Initialize;
+        Initialize();
         TaxPercentage := LibraryRandom.RandInt(9);
         CalcInvDisc := true;
         SetupCalcInvoiceDisc(CalcInvDisc);
@@ -2552,15 +2552,15 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibraryApplicationArea: Codeunit "Library - Application Area";
     begin
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
         LibraryApplicationArea.ClearApplicationAreaCache();
         if isInitialized then
             exit;
 
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.CreateVATData();
         CreateVATPostingSetup;
         LibraryInventory.NoSeriesSetup(InventorySetup);
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
 
         PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup."Use Vendor's Tax Area Code" := true;

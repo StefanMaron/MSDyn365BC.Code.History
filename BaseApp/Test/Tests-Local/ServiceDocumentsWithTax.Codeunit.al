@@ -27,7 +27,7 @@ codeunit 144010 "Service Documents With Tax"
         ServiceHeader: Record "Service Header";
     begin
         // Setup: Create Service Order.
-        Initialize;
+        Initialize();
         ServiceDocumentTestError(ServiceHeader."Document Type"::Order);
     end;
 
@@ -39,7 +39,7 @@ codeunit 144010 "Service Documents With Tax"
         ServiceHeader: Record "Service Header";
     begin
         // Setup: Create Service Invoice.
-        Initialize;
+        Initialize();
         ServiceDocumentTestError(ServiceHeader."Document Type"::Invoice);
     end;
 
@@ -51,7 +51,7 @@ codeunit 144010 "Service Documents With Tax"
         ServiceHeader: Record "Service Header";
     begin
         // Setup: Create Service Credit Memo.
-        Initialize;
+        Initialize();
         ServiceDocumentTestError(ServiceHeader."Document Type"::"Credit Memo");
     end;
 
@@ -82,7 +82,7 @@ codeunit 144010 "Service Documents With Tax"
         ServiceHeader: Record "Service Header";
     begin
         // Setup: Create Service Order.
-        Initialize;
+        Initialize();
         ServiceDocumentTestCustomerWithCurrency(ServiceHeader."Document Type"::Order);
     end;
 
@@ -94,7 +94,7 @@ codeunit 144010 "Service Documents With Tax"
         ServiceHeader: Record "Service Header";
     begin
         // Setup: Create Service Invoice.
-        Initialize;
+        Initialize();
         ServiceDocumentTestCustomerWithCurrency(ServiceHeader."Document Type"::Invoice);
     end;
 
@@ -106,7 +106,7 @@ codeunit 144010 "Service Documents With Tax"
         ServiceHeader: Record "Service Header";
     begin
         // Setup: Create Service Credit Memo.
-        Initialize;
+        Initialize();
         ServiceDocumentTestCustomerWithCurrency(ServiceHeader."Document Type"::"Credit Memo");
     end;
 
@@ -140,7 +140,7 @@ codeunit 144010 "Service Documents With Tax"
         ServiceHeader: Record "Service Header";
     begin
         // Setup: Create Service Order.
-        Initialize;
+        Initialize();
         ServiceDocumentTestCustomerWithoutCurrency(ServiceHeader."Document Type"::Order);
     end;
 
@@ -152,7 +152,7 @@ codeunit 144010 "Service Documents With Tax"
         ServiceHeader: Record "Service Header";
     begin
         // Setup: Create Service Invoice.
-        Initialize;
+        Initialize();
         ServiceDocumentTestCustomerWithoutCurrency(ServiceHeader."Document Type"::Invoice);
     end;
 
@@ -164,7 +164,7 @@ codeunit 144010 "Service Documents With Tax"
         ServiceHeader: Record "Service Header";
     begin
         // Setup: Create Service Credit Memo.
-        Initialize;
+        Initialize();
         ServiceDocumentTestCustomerWithoutCurrency(ServiceHeader."Document Type"::"Credit Memo");
     end;
 
@@ -198,7 +198,7 @@ codeunit 144010 "Service Documents With Tax"
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Service Documents With Tax");
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreateItem(TaxGroupCode: Code[10]): Code[20]
@@ -314,7 +314,7 @@ codeunit 144010 "Service Documents With Tax"
         SalesTaxAmountLine: Record "Sales Tax Amount Line";
     begin
         SalesTaxAmountLine.SetRange("Tax Area Code", TaxAreaCode);
-        SalesTaxAmountLine.FindFirst;
+        SalesTaxAmountLine.FindFirst();
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.AssertElementWithValueExists('VATBaseAmount', SalesTaxAmountLine."Line Amount");
         LibraryReportDataset.AssertElementWithValueExists('SumLineAmount', ServiceLine."Line Amount");

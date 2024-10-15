@@ -68,11 +68,11 @@ codeunit 134021 "ERM Unrealized VAT With FCY"
 
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Unrealized VAT With FCY");
         SetUnrealizedVATTypeToBlank;
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         IsInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Unrealized VAT With FCY");
@@ -265,7 +265,7 @@ codeunit 134021 "ERM Unrealized VAT With FCY"
         ExchangeRateSign: Integer;
         TransactionNo: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         ExchangeRateSign := ConvertRateChangeOption(RateChange);
@@ -310,7 +310,7 @@ codeunit 134021 "ERM Unrealized VAT With FCY"
         ExchangeRateSign: Integer;
         TransactionNo: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         ExchangeRateSign := ConvertRateChangeOption(RateChange);
@@ -357,7 +357,7 @@ codeunit 134021 "ERM Unrealized VAT With FCY"
         ExchangeRateSign: Integer;
         TransactionNo: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         ExchangeRateSign := ConvertRateChangeOption(RateChange);
@@ -581,7 +581,7 @@ codeunit 134021 "ERM Unrealized VAT With FCY"
         ExchangeRateSign: Integer;
         TransactionNo: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         ExchangeRateSign := ConvertRateChangeOption(RateChange);
@@ -626,7 +626,7 @@ codeunit 134021 "ERM Unrealized VAT With FCY"
         ExchangeRateSign: Integer;
         TransactionNo: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         ExchangeRateSign := ConvertRateChangeOption(RateChange);
@@ -674,7 +674,7 @@ codeunit 134021 "ERM Unrealized VAT With FCY"
         ExchangeRateSign: Integer;
         TransactionNo: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         ExchangeRateSign := ConvertRateChangeOption(RateChange);
@@ -947,7 +947,7 @@ codeunit 134021 "ERM Unrealized VAT With FCY"
         LibraryPurchase.CreatePurchHeader(PurchHeader, DocumentType, VendorNo);
         PurchHeader.Validate("Posting Date", PostingDate);
         PurchHeader.Validate("Currency Code", CurrencyCode);
-        PurchHeader.Validate("Vendor Cr. Memo No.", LibraryUtility.GenerateGUID);
+        PurchHeader.Validate("Vendor Cr. Memo No.", LibraryUtility.GenerateGUID());
         PurchHeader.Modify(true);
     end;
 
@@ -1007,7 +1007,7 @@ codeunit 134021 "ERM Unrealized VAT With FCY"
     var
         GLEntry: Record "G/L Entry";
     begin
-        GLEntry.FindLast;
+        GLEntry.FindLast();
         exit(GLEntry."Transaction No." + 1);
     end;
 
@@ -1079,7 +1079,7 @@ codeunit 134021 "ERM Unrealized VAT With FCY"
     begin
         // Need to set Unrealized VAT Type to blank to match demo data according to W1. Require for country enabling.
         VATPostingSetup.SetFilter("Unrealized VAT Type", '<>%1', VATPostingSetup."Unrealized VAT Type"::" ");
-        if VATPostingSetup.FindSet then
+        if VATPostingSetup.FindSet() then
             repeat
                 VATPostingSetup.Validate("Unrealized VAT Type", VATPostingSetup."Unrealized VAT Type"::" ");
                 VATPostingSetup.Modify(true);
@@ -1125,7 +1125,7 @@ codeunit 134021 "ERM Unrealized VAT With FCY"
     begin
         GLEntry.SetRange("Transaction No.", TransactionNo);
         GLEntry.SetRange("G/L Account No.", GLAccountNo);
-        GLEntry.FindLast;
+        GLEntry.FindLast();
 
         Assert.AreEqual(ExpectedAmount, GLEntry.Amount, StrSubstNo(AmountError, GLEntry.TableCaption, GLEntry."Entry No."));
     end;
@@ -1135,7 +1135,7 @@ codeunit 134021 "ERM Unrealized VAT With FCY"
         VATEntry: Record "VAT Entry";
     begin
         VATEntry.SetRange("Transaction No.", TransactionNo);
-        VATEntry.FindLast;
+        VATEntry.FindLast();
 
         Assert.AreEqual(ExpectedAmount, VATEntry.Amount, StrSubstNo(AmountError, VATEntry.TableCaption, VATEntry."Entry No."));
     end;

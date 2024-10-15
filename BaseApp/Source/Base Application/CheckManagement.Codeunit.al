@@ -1,4 +1,4 @@
-﻿codeunit 367 CheckManagement
+codeunit 367 CheckManagement
 {
     Permissions = TableData "Cust. Ledger Entry" = rm,
                   TableData "Vendor Ledger Entry" = rm,
@@ -51,13 +51,13 @@
               CheckLedgEntry2."Entry Status"::Posted,
               CheckLedgEntry2."Entry Status"::"Financially Voided");
         CheckLedgEntry2.SetRange("Check No.", CheckLedgEntry."Document No.");
-        if CheckLedgEntry2.FindFirst then
+        if CheckLedgEntry2.FindFirst() then
             Error(CheckAlreadyExistsErr, CheckLedgEntry."Document No.", BankAcc.TableCaption);
 
         if NextCheckEntryNo = 0 then begin
             CheckLedgEntry2.LockTable();
             CheckLedgEntry2.Reset();
-            if CheckLedgEntry2.FindLast then
+            if CheckLedgEntry2.FindLast() then
                 NextCheckEntryNo := CheckLedgEntry2."Entry No." + 1
             else
                 NextCheckEntryNo := 1;
@@ -144,7 +144,7 @@
             CheckLedgEntry2.SetRange("Bank Account No.", GenJnlLine."Bal. Account No.");
         CheckLedgEntry2.SetRange("Entry Status", CheckLedgEntry2."Entry Status"::Printed);
         CheckLedgEntry2.SetRange("Check No.", GenJnlLine."Document No.");
-        CheckLedgEntry2.FindFirst;
+        CheckLedgEntry2.FindFirst();
         CheckLedgEntry2."Original Entry Status" := CheckLedgEntry2."Entry Status";
         CheckLedgEntry2."Entry Status" := CheckLedgEntry2."Entry Status"::Voided;
         CheckLedgEntry2."Positive Pay Exported" := false;
@@ -187,6 +187,8 @@
         GenJnlLine2."Shortcut Dimension 2 Code" := BankAccLedgEntry2."Global Dimension 2 Code";
         GenJnlLine2."Dimension Set ID" := BankAccLedgEntry2."Dimension Set ID";
         GenJnlLine2."Allow Zero-Amount Posting" := true;
+        GenJnlLine2."Journal Template Name" := BankAccLedgEntry2."Journal Templ. Name";
+        GenJnlLine2."Journal Batch Name" := BankAccLedgEntry2."Journal Batch Name";
         OnFinancialVoidCheckOnBeforePostVoidCheckLine(GenJnlLine2, CheckLedgEntry, BankAccLedgEntry2);
         GenJnlPostLine.RunWithCheck(GenJnlLine2);
         OnFinancialVoidCheckOnAfterPostVoidCheckLine(GenJnlLine2, GenJnlPostLine);
@@ -216,7 +218,7 @@
                         SetRange("Transaction No.", BankAccLedgEntry2."Transaction No.");
                         SetRange("Document No.", BankAccLedgEntry2."Document No.");
                         SetRange("Posting Date", BankAccLedgEntry2."Posting Date");
-                        if FindSet then
+                        if FindSet() then
                             repeat
                                 OnFinancialVoidCheckOnBeforePostCust(GenJnlLine2, CustLedgEntry, BalanceAmountLCY);
                                 CalcFields("Original Amount");
@@ -230,6 +232,8 @@
                                     "Amount to Apply" := CheckLedgEntry.Amount;
                                     Modify;
                                 end;
+                                GenJnlLine2."Journal Template Name" := BankAccLedgEntry2."Journal Templ. Name";
+                                GenJnlLine2."Journal Batch Name" := BankAccLedgEntry2."Journal Batch Name";
                                 OnFinancialVoidCheckOnBeforePostBalAccLine(GenJnlLine2, CheckLedgEntry);
                                 GenJnlPostLine.RunWithCheck(GenJnlLine2);
                                 OnFinancialVoidCheckOnAfterPostBalAccLine(GenJnlLine2, CheckLedgEntry, GenJnlPostLine);
@@ -248,7 +252,7 @@
                         SetRange("Document No.", BankAccLedgEntry2."Document No.");
                         SetRange("Posting Date", BankAccLedgEntry2."Posting Date");
                         OnFinancialVoidCheckOnAfterVendorLedgEntrySetFilters(VendorLedgEntry, BankAccLedgEntry2);
-                        if FindSet then
+                        if FindSet() then
                             repeat
                                 OnFinancialVoidCheckOnBeforePostVend(GenJnlLine2, VendorLedgEntry, BalanceAmountLCY);
                                 CalcFields("Original Amount");
@@ -262,6 +266,8 @@
                                     "Amount to Apply" := CheckLedgEntry.Amount;
                                     Modify;
                                 end;
+                                GenJnlLine2."Journal Template Name" := BankAccLedgEntry2."Journal Templ. Name";
+                                GenJnlLine2."Journal Batch Name" := BankAccLedgEntry2."Journal Batch Name";
                                 OnFinancialVoidCheckOnBeforePostBalAccLine(GenJnlLine2, CheckLedgEntry);
                                 GenJnlPostLine.RunWithCheck(GenJnlLine2);
                                 OnFinancialVoidCheckOnAfterPostBalAccLine(GenJnlLine2, CheckLedgEntry, GenJnlPostLine);
@@ -275,7 +281,7 @@
                     SetRange("Document No.", BankAccLedgEntry2."Document No.");
                     SetRange("Posting Date", BankAccLedgEntry2."Posting Date");
                     SetFilter("Entry No.", '<>%1', BankAccLedgEntry2."Entry No.");
-                    if FindSet then
+                    if FindSet() then
                         repeat
                             OnFinancialVoidCheckOnBeforePostBankAccount(GenJnlLine2, BankAccLedgEntry3);
                             GenJnlLine2.Validate(Amount, -Amount);
@@ -283,6 +289,8 @@
                             GenJnlLine2."Shortcut Dimension 1 Code" := "Global Dimension 1 Code";
                             GenJnlLine2."Shortcut Dimension 2 Code" := "Global Dimension 2 Code";
                             GenJnlLine2."Dimension Set ID" := "Dimension Set ID";
+                            GenJnlLine2."Journal Template Name" := BankAccLedgEntry2."Journal Templ. Name";
+                            GenJnlLine2."Journal Batch Name" := BankAccLedgEntry2."Journal Batch Name";
                             OnFinancialVoidCheckOnBeforePostBalAccLine(GenJnlLine2, CheckLedgEntry);
                             GenJnlPostLine.RunWithCheck(GenJnlLine2);
                             OnFinancialVoidCheckOnAfterPostBalAccLine(GenJnlLine2, CheckLedgEntry, GenJnlPostLine);
@@ -294,7 +302,7 @@
                     SetRange("Transaction No.", BankAccLedgEntry2."Transaction No.");
                     SetRange("Document No.", BankAccLedgEntry2."Document No.");
                     SetRange("Posting Date", BankAccLedgEntry2."Posting Date");
-                    if FindSet then
+                    if FindSet() then
                         repeat
                             OnFinancialVoidCheckOnBeforePostFixedAsset(GenJnlLine2, FALedgEntry);
                             GenJnlLine2.Validate(Amount, -Amount);
@@ -302,6 +310,8 @@
                             GenJnlLine2."Shortcut Dimension 1 Code" := "Global Dimension 1 Code";
                             GenJnlLine2."Shortcut Dimension 2 Code" := "Global Dimension 2 Code";
                             GenJnlLine2."Dimension Set ID" := "Dimension Set ID";
+                            GenJnlLine2."Journal Template Name" := BankAccLedgEntry2."Journal Templ. Name";
+                            GenJnlLine2."Journal Batch Name" := BankAccLedgEntry2."Journal Batch Name";
                             OnFinancialVoidCheckOnBeforePostBalAccLine(GenJnlLine2, CheckLedgEntry);
                             GenJnlPostLine.RunWithCheck(GenJnlLine2);
                             OnFinancialVoidCheckOnAfterPostBalAccLine(GenJnlLine2, CheckLedgEntry, GenJnlPostLine);
@@ -318,7 +328,7 @@
                         SetRange("Transaction No.", BankAccLedgEntry2."Transaction No.");
                         SetRange("Document No.", BankAccLedgEntry2."Document No.");
                         SetRange("Posting Date", BankAccLedgEntry2."Posting Date");
-                        if FindSet then
+                        if FindSet() then
                             repeat
                                 OnFinancialVoidCheckOnBeforePostEmp(GenJnlLine2, EmployeeLedgerEntry);
                                 CalcFields("Original Amount");
@@ -327,6 +337,8 @@
                                   "Global Dimension 1 Code", "Global Dimension 2 Code", "Dimension Set ID");
                                 BalanceAmountLCY := BalanceAmountLCY + GenJnlLine2."Amount (LCY)";
                                 OnFinancialVoidCheckOnBeforePostBalAccLine(GenJnlLine2, CheckLedgEntry);
+                                GenJnlLine2."Journal Template Name" := BankAccLedgEntry2."Journal Templ. Name";
+                                GenJnlLine2."Journal Batch Name" := BankAccLedgEntry2."Journal Batch Name";
                                 GenJnlPostLine.RunWithCheck(GenJnlLine2);
                                 OnFinancialVoidCheckOnAfterPostBalAccLine(GenJnlLine2, CheckLedgEntry, GenJnlPostLine);
                             until Next() = 0;
@@ -338,6 +350,8 @@
                     GenJnlLine2."Shortcut Dimension 1 Code" := '';
                     GenJnlLine2."Shortcut Dimension 2 Code" := '';
                     GenJnlLine2."Dimension Set ID" := 0;
+                    GenJnlLine2."Journal Template Name" := BankAccLedgEntry2."Journal Templ. Name";
+                    GenJnlLine2."Journal Batch Name" := BankAccLedgEntry2."Journal Batch Name";
                     OnFinancialVoidCheckOnBeforePostBalAccLine(GenJnlLine2, CheckLedgEntry);
                     GenJnlPostLine.RunWithCheck(GenJnlLine2);
                     OnFinancialVoidCheckOnAfterPostBalAccLine(GenJnlLine2, CheckLedgEntry, GenJnlPostLine);
@@ -374,7 +388,7 @@
             SetRange("Posting Date", BankAccLedgEntry2."Posting Date");
             SetFilter("Entry No.", '<>%1', BankAccLedgEntry2."Entry No.");
             SetRange("G/L Account No.", CheckLedgEntry."Bal. Account No.");
-            if FindSet then
+            if FindSet() then
                 repeat
                     OnFinancialVoidPostGLAccountOnBeforeGLEntryLoop(GLEntry, CheckLedgEntry);
                     GenJnlLine.Validate("Account No.", "G/L Account No.");
@@ -391,6 +405,8 @@
                     GenJnlLine."VAT Prod. Posting Group" := "VAT Prod. Posting Group";
                     if VATPostingSetup.Get("VAT Bus. Posting Group", "VAT Prod. Posting Group") then
                         GenJnlLine."VAT Calculation Type" := VATPostingSetup."VAT Calculation Type";
+                    GenJnlLine."Journal Template Name" := BankAccLedgEntry2."Journal Templ. Name";
+                    GenJnlLine."Journal Batch Name" := BankAccLedgEntry2."Journal Batch Name";
                     OnFinancialVoidCheckOnBeforePostBalAccLine(GenJnlLine, CheckLedgEntry);
                     GenJnlPostLine.RunWithCheck(GenJnlLine);
                     OnFinancialVoidCheckOnAfterPostBalAccLine(GenJnlLine, CheckLedgEntry, GenJnlPostLine);
@@ -414,7 +430,7 @@
                 SetRange("Transaction No.", BankAccountLedgerEntry."Transaction No.");
                 SetRange("Document No.", BankAccountLedgerEntry."Document No.");
                 SetRange("Posting Date", BankAccountLedgerEntry."Posting Date");
-                if not FindFirst then
+                if not FindFirst() then
                     exit(false);
             end;
         end else
@@ -427,7 +443,7 @@
         PayDetailedVendorLedgEntry.SetRange(Unapplied, false);
         PayDetailedVendorLedgEntry.SetFilter("Applied Vend. Ledger Entry No.", '<>%1', 0);
         PayDetailedVendorLedgEntry.SetRange("Entry Type", PayDetailedVendorLedgEntry."Entry Type"::Application);
-        if not PayDetailedVendorLedgEntry.FindSet then
+        if not PayDetailedVendorLedgEntry.FindSet() then
             Error(NoAppliedEntryErr);
         repeat
             GenJournalLine3.CopyFromPaymentVendLedgEntry(OrigPaymentVendorLedgerEntry);
@@ -469,7 +485,7 @@
                 SetRange("Transaction No.", BankAccountLedgerEntry."Transaction No.");
                 SetRange("Document No.", BankAccountLedgerEntry."Document No.");
                 SetRange("Posting Date", BankAccountLedgerEntry."Posting Date");
-                if not FindFirst then
+                if not FindFirst() then
                     exit(false);
             end;
         end else
@@ -482,7 +498,7 @@
         PayDetailedCustLedgEntry.SetRange(Unapplied, false);
         PayDetailedCustLedgEntry.SetFilter("Applied Cust. Ledger Entry No.", '<>%1', 0);
         PayDetailedCustLedgEntry.SetRange("Entry Type", PayDetailedCustLedgEntry."Entry Type"::Application);
-        if not PayDetailedCustLedgEntry.FindSet then
+        if not PayDetailedCustLedgEntry.FindSet() then
             Error(NoAppliedEntryErr);
         repeat
             GenJournalLine3.CopyFromPaymentCustLedgEntry(OrigPaymentCustLedgerEntry);
@@ -526,7 +542,7 @@
             SetRange("Transaction No.", BankAccountLedgerEntry."Transaction No.");
             SetRange("Document No.", BankAccountLedgerEntry."Document No.");
             SetRange("Posting Date", BankAccountLedgerEntry."Posting Date");
-            if not FindFirst then
+            if not FindFirst() then
                 exit(false);
         end;
 
@@ -537,7 +553,7 @@
         PayDetailedEmployeeLedgEntry.SetRange(Unapplied, false);
         PayDetailedEmployeeLedgEntry.SetFilter("Applied Empl. Ledger Entry No.", '<>%1', 0);
         PayDetailedEmployeeLedgEntry.SetRange("Entry Type", PayDetailedEmployeeLedgEntry."Entry Type"::Application);
-        if not PayDetailedEmployeeLedgEntry.FindSet then
+        if not PayDetailedEmployeeLedgEntry.FindSet() then
             Error(NoAppliedEntryErr);
         repeat
             GenJournalLine3.CopyFromPaymentEmpLedgEntry(OrigPaymentEmployeeLedgerEntry);
@@ -580,7 +596,7 @@
             SetRange("Check No.", OriginalCheckLedgerEntry."Check No.");
             SetRange("Check Date", OriginalCheckLedgerEntry."Check Date");
             SetFilter("Entry No.", '<>%1', OriginalCheckLedgerEntry."Entry No.");
-            if FindSet then
+            if FindSet() then
                 repeat
                     RelatedCheckLedgerEntry2 := RelatedCheckLedgerEntry;
                     RelatedCheckLedgerEntry2."Original Entry Status" := "Entry Status";
@@ -707,7 +723,7 @@
         CheckLedgEntry2.SetRange("Bank Account No.", BankAccountNo);
         CheckLedgEntry2.SetRange("Entry Status", CheckLedgEntry2."Entry Status"::Exported);
         CheckLedgEntry2.SetRange("Check No.", GenJournalLine."Document No.");
-        if CheckLedgEntry2.FindSet then
+        if CheckLedgEntry2.FindSet() then
             repeat
                 CheckLedgEntry3 := CheckLedgEntry2;
                 CheckLedgEntry3."Original Entry Status" := CheckLedgEntry3."Entry Status";
@@ -788,7 +804,7 @@
         GenJnlShowCTEntries: Codeunit "Gen. Jnl.-Show CT Entries";
     begin
         GenJnlShowCTEntries.SetFiltersOnCreditTransferEntry(GenJournalLine, CreditTransferEntry);
-        if CreditTransferEntry.FindLast then begin
+        if CreditTransferEntry.FindLast() then begin
             if CreditTransferRegister.Get(CreditTransferEntry."Credit Transfer Register No.") then
                 CreditTransferRegister.Delete();
             // For journal entries with multiple lines, the register would have already been deleted,
@@ -825,6 +841,8 @@
         GenJnlLine2."Shortcut Dimension 1 Code" := BankAccLedgEntry2."Global Dimension 1 Code";
         GenJnlLine2."Shortcut Dimension 2 Code" := BankAccLedgEntry2."Global Dimension 2 Code";
         GenJnlLine2."Dimension Set ID" := BankAccLedgEntry2."Dimension Set ID";
+        GenJnlLine2."Journal Template Name" := BankAccLedgEntry2."Journal Templ. Name";
+        GenJnlLine2."Journal Batch Name" := BankAccLedgEntry2."Journal Batch Name";
         OnPostRoundingAmountOnBeforeGenJnlPostLine(GenJnlLine2, CheckLedgEntry, BankAccLedgEntry2);
         GenJnlPostLine.RunWithCheck(GenJnlLine2);
         OnPostRoundingAmountOnAfterGenJnlPostLine(GenJnlLine2, CheckLedgEntry, GenJnlPostLine);
@@ -868,7 +886,7 @@
     local procedure ClearBankLedgerEntry(var BankAccountLedgerEntry: Record "Bank Account Ledger Entry")
     begin
         BankAccountLedgerEntry.Reset();
-        BankAccountLedgerEntry.FindLast;
+        BankAccountLedgerEntry.FindLast();
         BankAccountLedgerEntry.Open := false;
         BankAccountLedgerEntry."Remaining Amount" := 0;
         BankAccountLedgerEntry."Statement Status" := BankAccLedgEntry2."Statement Status"::Closed;

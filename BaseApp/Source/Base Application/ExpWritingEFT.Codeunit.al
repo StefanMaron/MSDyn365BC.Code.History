@@ -12,22 +12,15 @@ codeunit 10322 "Exp. Writing EFT"
         DataExchFooter: Record "Data Exch.";
         DataExchDetail: Record "Data Exch.";
         ExportEFTACH: Codeunit "Export EFT (ACH)";
-#if not CLEAN17
-        CustomLayoutReporting: Codeunit "Custom Layout Reporting";
-        FileManagement: Codeunit "File Management";
-#endif
         ExportFile: File;
         OutStream: OutStream;
         InStream: InStream;
         Filename2: Text[250];
         RecordCount: Integer;
         ArrayLength: Integer;
-#if not CLEAN17
-        ClientFile: Text;
-#endif
     begin
         DataExchDetail.SetRange("Entry No.", DataExchEntryCodeDetail);
-        if DataExchDetail.FindFirst then begin
+        if DataExchDetail.FindFirst() then begin
             // Need to copy the File Name and File from the footer to the Detail record.
             ExportFile.WriteMode := true;
             ExportFile.TextMode := true;
@@ -43,20 +36,11 @@ codeunit 10322 "Exp. Writing EFT"
         end;
         ExportFile.Close;
 
-#if not CLEAN17
-        if CustomLayoutReporting.IsWebClient then
-            ExportEFTACH.AddFileToClientZip(Filename, ACHFileName, TempNameValueBuffer, ZipFileName, DataCompression)
-        else begin
-            ClientFile := FileManagement.CombinePath(FilePath, ACHFileName);
-            FileManagement.DownloadToFile(Filename, ClientFile);
-        end;
-#else
         ExportEFTACH.AddFileToClientZip(Filename, ACHFileName, TempNameValueBuffer, ZipFileName, DataCompression);
-#endif
 
         // Need to clear out the File Name and blob (File Content) for the footer record(s)
         DataExchFooter.SetRange("Entry No.", DataExchEntryCodeFooter);
-        if DataExchFooter.FindFirst then begin
+        if DataExchFooter.FindFirst() then begin
             ArrayLength := ArrayLen(DataExchEntryCodeFooterArray);
             RecordCount := 1;
             while (DataExchEntryCodeFooterArray[RecordCount] > 0) and (RecordCount < ArrayLength) do begin

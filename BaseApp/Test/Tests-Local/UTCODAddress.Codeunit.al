@@ -26,7 +26,7 @@ codeunit 144008 "UT COD Address"
         // Purpose of the test is to validate CreateNewCustomer Function of Codeunit 5900 - ServOrderManagement.
 
         // Setup: Service Header. Create Customer Template without State.
-        Initialize;
+        Initialize();
         CreateServiceHeader(ServiceHeader);
         CreateCustomerTemplate(CustomerTemplate, '');  // Blank value for State.
 
@@ -49,7 +49,7 @@ codeunit 144008 "UT COD Address"
         // Purpose of the test is to validate CreateNewCustomer Function of Codeunit 5900 - ServOrderManagement.
 
         // Setup: Service Header. Create Customer Template with State.
-        Initialize;
+        Initialize();
         CreateServiceHeader(ServiceHeader);
         CreateCustomerTemplate(CustomerTemplate, LibraryUTUtility.GetNewCode);
 
@@ -75,7 +75,7 @@ codeunit 144008 "UT COD Address"
         // Purpose of the test is to validate FormatAddr Function of Codeunit 365 - Format Address.
 
         // Setup: Create Country Region Address Format Type - City+County+Post Code. Create Customer.
-        Initialize;
+        Initialize();
         CreateCustomer(Customer, CreateCountryRegion(CountryRegion."Address Format"::"City+County+Post Code"));
         CityCountyPostCode := Customer.City + ', ' + Customer.County + ' ' + Customer."Post Code";  // Calculation is based on Address Format Type - City+County+Post Code.
 
@@ -102,7 +102,7 @@ codeunit 144008 "UT COD Address"
         // Purpose of the test is to validate FormatAddr Function of Codeunit 365 - Format Address.
 
         // Setup: Create Country Region Address Format Type - City+County+New Line+Post Code. Create Customer.
-        Initialize;
+        Initialize();
         CreateCustomer(Customer, CreateCountryRegion(CountryRegion."Address Format"::"City+County+New Line+Post Code"));
         CityCounty := Customer.City + ', ' + Customer.County;  // Calculation is based on Address Format Type - City+County+New Line+Post Code.
 
@@ -130,7 +130,7 @@ codeunit 144008 "UT COD Address"
         // Purpose of the test is to validate FormatAddr Function of Codeunit 365 - Format Address.
 
         // Setup: Create Country Region Address Format Type - Post Code+City+County. Create Customer.
-        Initialize;
+        Initialize();
         CreateCustomer(Customer, CreateCountryRegion(CountryRegion."Address Format"::"Post Code+City+County"));
         PostCodeCityCounty := Customer."Post Code" + ' ' + Customer.City + ', ' + Customer.County;  // Calculation is based on Address Format Type - Post Code+City+County.
 
@@ -155,7 +155,7 @@ codeunit 144008 "UT COD Address"
         // Purpose of the test is to validate TransferShptTransferFrom Function of Codeunit 365 - Format Address.
 
         // Setup: Create Transfer Shipment Header.
-        Initialize;
+        Initialize();
         CreateTransferShipmentHeader(TransferShipmentHeader);
 
         // Exercise.
@@ -178,7 +178,7 @@ codeunit 144008 "UT COD Address"
         // Purpose of the test is to validate TransferShptTransferTo Function of Codeunit 365 - Format Address.
 
         // Setup: Create Transfer Shipment Header.
-        Initialize;
+        Initialize();
         CreateTransferShipmentHeader(TransferShipmentHeader);
 
         // Exercise.
@@ -201,7 +201,7 @@ codeunit 144008 "UT COD Address"
         // Purpose of the test is to validate TransferRcptTransferFrom Function of Codeunit 365 - Format Address.
 
         // Setup: Create Transfer Receipt Header.
-        Initialize;
+        Initialize();
         CreateTransferReceiptHeader(TransferReceiptHeader);
 
         // Exercise.
@@ -224,7 +224,7 @@ codeunit 144008 "UT COD Address"
         // Purpose of the test is to validate TransferRcptTransferTo Function of Codeunit 365 - Format Address.
 
         // Setup: Create Transfer Receipt Header.
-        Initialize;
+        Initialize();
         CreateTransferReceiptHeader(TransferReceiptHeader);
 
         // Exercise.
@@ -247,7 +247,7 @@ codeunit 144008 "UT COD Address"
         // Purpose of the test is to validate TransferHeaderTransferFrom Function of Codeunit 365 - Format Address.
 
         // Setup: Create Transfer Header.
-        Initialize;
+        Initialize();
         CreateTransferHeader(TransferHeader);
 
         // Exercise.
@@ -270,7 +270,7 @@ codeunit 144008 "UT COD Address"
         // Purpose of the test is to validate TransferHeaderTransferTo Function of Codeunit 365 - Format Address.
 
         // Setup: Create Transfer Header.
-        Initialize;
+        Initialize();
         CreateTransferHeader(TransferHeader);
 
         // Exercise.
@@ -283,7 +283,7 @@ codeunit 144008 "UT COD Address"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreateServiceHeader(var ServiceHeader: Record "Service Header")

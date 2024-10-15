@@ -260,11 +260,11 @@ page 10807 "Sales Tax Setup Wizard"
 
                 trigger OnAction()
                 var
-                    AssistedSetup: Codeunit "Assisted Setup";
+                    GuidedExperience: Codeunit "Guided Experience";
                     Info: ModuleInfo;
                 begin
                     StoreSalesTaxSetup;
-                    AssistedSetup.Complete(PAGE::"Sales Tax Setup Wizard");
+                    GuidedExperience.CompleteAssistedSetup(ObjectType::Page, PAGE::"Sales Tax Setup Wizard");
                     CurrPage.Close;
                     AssignTaxAreaCode;
                 end;
@@ -276,7 +276,7 @@ page 10807 "Sales Tax Setup Wizard"
     begin
         if not Get then begin
             Init;
-            Initialize;
+            Initialize();
             Insert;
         end;
         LoadTopBanners;
@@ -287,11 +287,12 @@ page 10807 "Sales Tax Setup Wizard"
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
     var
-        AssistedSetup: Codeunit "Assisted Setup";
+        GuidedExperience: Codeunit "Guided Experience";
+        GuidedExperienceType: Enum "Guided Experience Type";
     begin
-        if CloseAction = ACTION::OK then 
-            if AssistedSetup.Exists(PAGE::"Sales Tax Setup Wizard") then
-                if AssistedSetup.ExistsAndIsNotComplete(PAGE::"Sales Tax Setup Wizard") then
+        if CloseAction = ACTION::OK then
+            if GuidedExperience.Exists(GuidedExperienceType::"Assisted Setup", ObjectType::Page, PAGE::"Sales Tax Setup Wizard") then
+                if GuidedExperience.AssistedSetupExistsAndIsNotComplete(ObjectType::Page, PAGE::"Sales Tax Setup Wizard") then
                     if not Confirm(NAVNotSetUpQst, false) then
                         Error('');
     end;
@@ -401,22 +402,22 @@ page 10807 "Sales Tax Setup Wizard"
         if AssignToCustomers then begin
             AssignTaxAreaToCustomer.SetTableView(Customer);
             AssignTaxAreaToCustomer.SetDefaultAreaCode("Tax Area Code");
-            AssignTaxAreaToCustomer.Run;
+            AssignTaxAreaToCustomer.Run();
             Commit();
         end;
         if AssignToVendors then begin
             AssignTaxAreaToVendor.SetTableView(Vendor);
             AssignTaxAreaToVendor.SetDefaultAreaCode("Tax Area Code");
-            AssignTaxAreaToVendor.Run;
+            AssignTaxAreaToVendor.Run();
             Commit();
         end;
         if AssignToLocations then begin
             AssignTaxAreaToLocation.SetTableView(Location);
             AssignTaxAreaToLocation.SetDefaultAreaCode("Tax Area Code");
-            AssignTaxAreaToLocation.Run;
+            AssignTaxAreaToLocation.Run();
             Commit();
         end;
-        if AssignToCompanyInfo and DummyCompanyInformation.FindFirst then begin
+        if AssignToCompanyInfo and DummyCompanyInformation.FindFirst() then begin
             DummyCompanyInformation.Validate("Tax Area Code", "Tax Area Code");
             DummyCompanyInformation.Modify();
             Commit();

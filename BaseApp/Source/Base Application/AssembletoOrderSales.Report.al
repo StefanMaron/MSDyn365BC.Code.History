@@ -236,7 +236,7 @@ report 915 "Assemble to Order - Sales"
             SetCurrentKey("Order Type", "Order No.", "Order Line No.");
             SetRange("Order Type", "Order Type"::Assembly);
             SetRange("Order No.", AsmOrderNo);
-            if FindSet then
+            if FindSet() then
                 repeat
                     if "Entry Type" = "Entry Type"::"Assembly Consumption" then
                         TempATOSalesBuffer.UpdateBufferWithItemLedgEntry(ItemLedgEntry, false);
@@ -273,7 +273,7 @@ report 915 "Assemble to Order - Sales"
             SetCurrentKey(Type, "No.");
             SetRange(Type, Type::Item);
             SetRange("No.", ItemNo);
-            if FindSet then
+            if FindSet() then
                 repeat
                     ParentItem.Get("Parent Item No.");
                     if ParentItem."Assembly Policy" = ParentItem."Assembly Policy"::"Assemble-to-Order" then

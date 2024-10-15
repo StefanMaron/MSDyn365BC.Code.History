@@ -26,7 +26,7 @@ codeunit 135521 "Income Stmt. Entity E2E Test"
         ResponseText: Text;
     begin
         // [SCENARIO] User can retrieve Income Statement Report information from the incomeStatement API.
-        Initialize;
+        Initialize();
 
         // [WHEN] A GET request is made to the incomeStatement API.
         TargetURL := LibraryGraphMgt.CreateTargetURL('', PAGE::"Income Statement Entity", ServiceNameTxt);
@@ -47,7 +47,7 @@ codeunit 135521 "Income Stmt. Entity E2E Test"
         TargetURL: Text;
     begin
         // [SCENARIO] Create a incomeStatement record through a POST method and check if it was created
-        Initialize;
+        Initialize();
 
         // [GIVEN] The user has constructed a incomeStatement JSON object to send to the service.
         IncomeStatementEntityBufferJSON := GetIncomeStatementJSON(TempAccScheduleLineEntity);
@@ -65,7 +65,7 @@ codeunit 135521 "Income Stmt. Entity E2E Test"
         if IsInitialized then
             exit;
 
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
         IsInitialized := true;
     end;
 
@@ -80,7 +80,7 @@ codeunit 135521 "Income Stmt. Entity E2E Test"
         if AccScheduleLineEntity."Line No." = 0 then
             AccScheduleLineEntity."Line No." := LibraryRandom.RandIntInRange(1, 10000);
         if AccScheduleLineEntity.Description = '' then
-            AccScheduleLineEntity.Description := LibraryUtility.GenerateGUID;
+            AccScheduleLineEntity.Description := LibraryUtility.GenerateGUID();
 
         JSONManagement.AddJPropertyToJObject(JsonObject, 'lineNumber', AccScheduleLineEntity."Line No.");
         JSONManagement.AddJPropertyToJObject(JsonObject, 'display', AccScheduleLineEntity.Description);

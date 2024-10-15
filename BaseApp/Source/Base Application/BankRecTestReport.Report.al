@@ -1,8 +1,12 @@
+#if not CLEAN20
 report 10407 "Bank Rec. Test Report"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './BankRecTestReport.rdlc';
     Caption = 'Bank Rec. Test Report';
+    ObsoleteReason = 'Deprecated in favor of W1 Bank Reconciliation';
+    ObsoleteState = Pending;
+    ObsoleteTag = '20.0';
 
     dataset
     {
@@ -777,3 +781,4 @@ report 10407 "Bank Rec. Test Report"
     end;
 }
 
+#endif

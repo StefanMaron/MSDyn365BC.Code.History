@@ -298,11 +298,11 @@ codeunit 132572 "Payment Export FX Tables UT"
         PaymentExportData: Record "Payment Export Data";
     begin
         // check validation passed
-        if DataExch.FindLast then;
+        if DataExch.FindLast() then;
         DataExch."Entry No." += 1;
         DataExch.Insert();
 
-        if PaymentExportData.FindLast then;
+        if PaymentExportData.FindLast() then;
         PaymentExportData."Entry No." += 1;
         PaymentExportData.Validate("Data Exch Entry No.", DataExch."Entry No.");
         Assert.AreEqual(DataExch."Entry No.", PaymentExportData."Data Exch Entry No.", DataExchEntryNoRelationErr);
@@ -339,7 +339,7 @@ codeunit 132572 "Payment Export FX Tables UT"
         DataExchFieldMapping.SetRange("Data Exch. Line Def Code", '');
         DataExchFieldMapping.SetRange("Table ID", DATABASE::"Payment Export Data");
         DataExchFieldMapping.SetRange("Column No.", 1);
-        DataExchFieldMapping.FindFirst;
+        DataExchFieldMapping.FindFirst();
 
         // Exercise
         DataExchFieldMapping.Validate("Use Default Value", true);
@@ -370,7 +370,7 @@ codeunit 132572 "Payment Export FX Tables UT"
         DataExchFieldMapping.SetRange("Data Exch. Line Def Code", '');
         DataExchFieldMapping.SetRange("Table ID", DATABASE::"Payment Export Data");
         DataExchFieldMapping.SetRange("Column No.", 1);
-        DataExchFieldMapping.FindFirst;
+        DataExchFieldMapping.FindFirst();
 
         // Exercise
         DataExchFieldMapping.Validate("Use Default Value", true);

@@ -1,3 +1,4 @@
+#if not CLEAN20
 codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
 {
     Permissions = TableData "Cust. Ledger Entry" = rimd;
@@ -18,6 +19,7 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
         LibraryRandom: Codeunit "Library - Random";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryApplicationArea: Codeunit "Library - Application Area";
+        LibrarySetupStorage: Codeunit "Library - Setup Storage";
         IsInitialized: Boolean;
         AmountErr: Label '%1 field must be %2 in %3 table for %4 field %5.';
         ExchRateWasAdjustedTxt: Label 'One or more currency exchange rates have been adjusted.';
@@ -35,7 +37,7 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
     begin
         // Check that after Modify Higher Exchange rate and run Adjust Exchange rate batch job Unrealized Gain entry created
         // Customer's Detailed Ledger Entry.
-        Initialize;
+        Initialize();
         AdjustExchRateForCustomer(LibraryRandom.RandInt(50), DetailedCustLedgEntry."Entry Type"::"Unrealized Gain");
     end;
 
@@ -48,7 +50,7 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
     begin
         // Check that after Modify Lower Exchange rate and run Adjust Exchange rate batch job Unrealized Loss entry created on
         // Customer's Detailed Ledger Entry.
-        Initialize;
+        Initialize();
         AdjustExchRateForCustomer(-LibraryRandom.RandInt(50), DetailedCustLedgEntry."Entry Type"::"Unrealized Loss");
     end;
 
@@ -58,7 +60,7 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
     procedure BankAdjustExchRateForHigher()
     begin
         // Check that after Modify Higher Exchange rate and run Adjust Exchange rate batch job GL entry created on for Bank Account.
-        Initialize;
+        Initialize();
         AdjustExchRateForBank(LibraryRandom.RandInt(50));
     end;
 
@@ -68,7 +70,7 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
     procedure BankAdjustExchRateForLower()
     begin
         // Check that after Modify Lower Exchange rate and run Adjust Exchange rate batch job GL entry created on for Bank Account.
-        Initialize;
+        Initialize();
         AdjustExchRateForBank(-LibraryRandom.RandInt(50));
     end;
 
@@ -86,7 +88,7 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
         // Check Customer Entry for Unrealized Gain with Apply Credit Memo and Refund.
 
         // Setup: Modify Exchange Rate and Run Adjust Exchange Rate Batch after Create and Post General Journal Line for Customer.
-        Initialize;
+        Initialize();
         CreateGenAndModifyExchRate(
           GenJournalLine, GenJournalLine."Account Type"::Customer, CreateCustomer(CreateCurrency),
           GenJournalLine."Document Type"::"Credit Memo", -LibraryRandom.RandDec(100, 2), -LibraryRandom.RandInt(50));
@@ -122,7 +124,7 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
         // Verify program allows to create General journal line with a Balancing Account Type Bank with presetup Currency.
 
         // Setup: Create General Journal Line with Random value and update Bal. Account No.
-        Initialize;
+        Initialize();
         CreateGeneralJournalLine(
           GenJournalLine, GenJournalLine."Account Type"::Vendor, LibraryPurchase.CreateVendorNo,
           GenJournalLine."Document Type"::" ", LibraryRandom.RandDec(100, 2));
@@ -159,7 +161,7 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
         // Check GL Entry after Run Adjust Exchange Rate Batch Job with multiple Currency Exchange Rate with Negative Amount on General Line.
 
         // Setup: Create Currency with three different exchange Rate and Starting Date. Custom 1 and 2 M is required for difference only 1 Month.
-        Initialize;
+        Initialize();
         CurrencyCode := CreateCurrencyWithMultipleExchangeRate(FirstStartingDate, SecondStartingDate);
 
         // Create and Post General Line. Amount 1 is required.
@@ -189,7 +191,7 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
         // Check GL Entry after Run Adjust Exchange Rate Batch Job with multiple Currency Exchange Rate with Positive Amount on General Line.
 
         // Setup: Create Currency with different exchange Rate and Starting Date.
-        Initialize;
+        Initialize();
         CurrencyCode := CreateCurrencyWithMultipleExchangeRate(FirstStartingDate, SecondStartingDate);
 
         // Create and Post General Line. Amount 1 is Required.
@@ -224,7 +226,7 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
         // Check GL Entry for Currency Gain/Loss after running Adjust Exchange Rate Batch Job with multiple Currency Exchange Rate.
 
         // Setup: Create Currency with different Exchange Rate and Starting Date. Taken Random value to set Exchange rate amount and next Date.
-        Initialize;
+        Initialize();
         CurrencyCode := CreateCurrency;
         ExchRateAmount := LibraryRandom.RandDec(100, 2);
         FirstStartingDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate);
@@ -272,7 +274,7 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
         // Check GL Entry after running Adjust Exchange Rate batch job with posting of Customer Invoice and Payment With Different Exchange Rates.
 
         // Setup: Create and post Customer Invoice and Payment. Take Integer value to handle entries through Adjust Exchange Rate batch job.
-        Initialize;
+        Initialize();
         RelExchRateAmount := LibraryRandom.RandInt(100) * 2;
         FirstStartingDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate);
         PostSalesOrderAndPayment(SalesLine, FirstStartingDate, RelExchRateAmount);
@@ -304,7 +306,7 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
         // Check GL Entry after applying Payment to Customer Invoice With Different Exchange Rates.
 
         // Setup: Create and post Customer Invoice and Payment. Take Integer value to handle entries through Adjust Exchange Rate batch job.
-        Initialize;
+        Initialize();
         RelExchRateAmount := LibraryRandom.RandInt(100) * 2;
         FirstStartingDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate);
         PostingDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'M>', FirstStartingDate);
@@ -352,7 +354,7 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
         // Check GL Entry for Adjust Exchange Rate batch job after unapplying Customer Entries.
 
         // Setup: Create and post Customer Invoice and Payment. Take Integer value to handle entries through Adjust Exchange Rate batch job.
-        Initialize;
+        Initialize();
         RelExchRateAmount := LibraryRandom.RandInt(100) * 2;
         FirstStartingDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate);
         PostingDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'M>', FirstStartingDate);
@@ -403,7 +405,7 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
         // Check GL Entry after posting Vendor Invoice and Payment With Different Exchange Rates.
 
         // Setup: Create and post Vendor Invoice and Payment. Take Integer value to handle entries through Adjust Exchange Rate batch job.
-        Initialize;
+        Initialize();
         RelExchRateAmount := LibraryRandom.RandInt(100) * 2;
         FirstStartingDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate);
         PostPurchaseOrderAndPayment(PurchaseLine, FirstStartingDate, RelExchRateAmount);
@@ -437,7 +439,7 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
         // Check GL Entry after applying Payment to Vendor Invoice With Different Exchange Rates.
 
         // Setup: Create and post Vendor Invoice and Payment. Take Integer value to handle entries through Adjust Exchange Rate batch job.
-        Initialize;
+        Initialize();
         RelExchRateAmount := LibraryRandom.RandInt(100) * 2;
         FirstStartingDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate);
         PostingDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'M>', FirstStartingDate);
@@ -485,7 +487,7 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
         // Check GL Entry for Adjust Exchange Rate batch job after unapplying Vendor Entries.
 
         // Setup: Create and post Vendor Invoice and Payment. Take Integer value to handle entries through Adjust Exchange Rate batch job.
-        Initialize;
+        Initialize();
         RelExchRateAmount := LibraryRandom.RandInt(100) * 2;
         FirstStartingDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate);
         PostingDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'M>', FirstStartingDate);
@@ -538,7 +540,7 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
         // [SCENARIO] Program doesn't allow to reverse the payment transaction when Realized gain or loss entries associated with Vendor Receipt transaction.
 
         // [GIVEN] Create Currency, Vendor, Apply Payment on Invoice using Gen. Journal Line.
-        Initialize;
+        Initialize();
         CurrencyCode := CreateCurrencyWithMultipleExchangeRate(StartingDate, StartingDate2);
         CreatePostPaymentWithAppln(
           GenJournalLine, GenJournalLine."Account Type"::Vendor, CreateVendor(CurrencyCode), CurrencyCode, 1, StartingDate);
@@ -568,7 +570,7 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
         // [SCENARIO] Program doesn't allow to reverse the payment transaction when Realized gain or loss entries associated with Customer Receipt transaction.
 
         // [GIVEN] Create Currency, Customer, Apply Payment on Invoice using Gen. Journal Line.
-        Initialize;
+        Initialize();
         CurrencyCode := CreateCurrencyWithMultipleExchangeRate(StartingDate, StartingDate2);
         CreatePostPaymentWithAppln(
           GenJournalLine, GenJournalLine."Account Type"::Customer, CreateCustomer(CurrencyCode), CurrencyCode, -1, StartingDate);
@@ -596,7 +598,7 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
     begin
         // [FEATURE] [Reverse] [Purchase]
         // [SCENARIO 201007] It is not allowed to reverse purchase payment transaction when LCY Payment is posted and applied to FCY Invoice
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Currency, Vendor, Apply LCY Payment on Invoice using Gen. Journal Line.
         CurrencyCode := CreateCurrencyWithMultipleExchangeRate(StartingDate, StartingDate2);
@@ -626,7 +628,7 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
     begin
         // [FEATURE] [Reverse] [Sales]
         // [SCENARIO 201007] It is not allowed to reverse sales payment transaction when LCY Payment is posted and applied to FCY Invoice
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Currency, Customer, Apply LCY Payment on Invoice using Gen. Journal Line.
         CurrencyCode := CreateCurrencyWithMultipleExchangeRate(StartingDate, StartingDate2);
@@ -657,7 +659,7 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
     begin
         // [FEATURE] [Reverse] [Purchase]
         // [SCENARIO 201007] Reversed Purchase LCY Payment that was applied to FCY invoice in different transaction should have zero balance
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Currency, Vendor, Apply Payment to Invoice
         CurrencyCode := CreateCurrencyWithMultipleExchangeRate(StartingDate, StartingDate2);
@@ -691,7 +693,7 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
     begin
         // [FEATURE] [Reverse] [Purchase]
         // [SCENARIO 201007] Reversed Purchase FCY Invoice that was applied to LCY payment in different transaction should have zero balance
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Currency, Vendor, Apply Invoice To Payment
         CurrencyCode := CreateCurrencyWithMultipleExchangeRate(StartingDate, StartingDate2);
@@ -724,7 +726,7 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
     begin
         // [FEATURE] [Reverse] [Sales]
         // [SCENARIO 201007] Reversed Sales LCY Payment that was applied to FCY invoice in different transaction should have zero balance
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Currency, Customer, Apply Payment to Invoice
         CurrencyCode := CreateCurrencyWithMultipleExchangeRate(StartingDate, StartingDate2);
@@ -758,7 +760,7 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
     begin
         // [FEATURE] [Reverse] [Sales]
         // [SCENARIO 201007] Reversed Sales FCY Invoice that was applied to LCY payment in different transaction should have zero balance
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Currency, Customer, Apply Invoice To Payment
         CurrencyCode := CreateCurrencyWithMultipleExchangeRate(StartingDate, StartingDate2);
@@ -787,7 +789,7 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 253498] Run Adjust Exchange Rates report twice when currency is changed for customer entries from gains to losses
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Invoice with Amount = 39008 posted with exch.rate = 1,0887
         ExchRateAmt := LibraryRandom.RandDec(10, 2);
@@ -825,7 +827,7 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 253498] Run Adjust Exchange Rates report twice when currency is changed for customer entries from losses to gains
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Invoice with Amount = 39008 posted with exch.rate = 1,0887
         ExchRateAmt := LibraryRandom.RandDec(10, 2);
@@ -965,16 +967,21 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
     begin
         Clear(PostingDate);
         Clear(SetHandler);
+        LibrarySetupStorage.Restore();
         if IsInitialized then
             exit;
 
-        LibraryApplicationArea.EnableFoundationSetup;
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdateLocalPostingSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateLocalPostingSetup();
+        LibraryERM.SetJournalTemplateNameMandatory(false);
         IsInitialized := true;
         Commit();
+
+        LibrarySetupStorage.SaveGeneralLedgerSetup();
     end;
 
     local procedure AdjustExchRateForBank(ExchRateAmt: Decimal)
@@ -1149,7 +1156,7 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
         BankAccountPostingGroup: Record "Bank Account Posting Group";
     begin
         BankAccountPostingGroup.SetFilter("G/L Account No.", '<>''''');
-        BankAccountPostingGroup.FindFirst;
+        BankAccountPostingGroup.FindFirst();
         LibraryERM.CreateBankAccount(BankAccount);
         BankAccount.Validate("Currency Code", CurrencyCode);
         BankAccount.Validate("Bank Acc. Posting Group", BankAccountPostingGroup.Code);
@@ -1370,7 +1377,7 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
     local procedure FindCurrencyExchRate(var CurrencyExchangeRate: Record "Currency Exchange Rate"; CurrencyCode: Code[10])
     begin
         CurrencyExchangeRate.SetRange("Currency Code", CurrencyCode);
-        CurrencyExchangeRate.FindFirst;
+        CurrencyExchangeRate.FindFirst();
     end;
 
     local procedure FindGLEntry(var GLEntry: Record "G/L Entry"; DocumentNo: Code[20]; GLAccountNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type")
@@ -1378,7 +1385,7 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
         GLEntry.SetRange("Document Type", DocumentType);
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("G/L Account No.", GLAccountNo);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
     end;
 
     local procedure FindRelationalExchRateAmount(CurrencyCode: Code[10]; StartingDate: Date; StartingDate2: Date): Decimal
@@ -1398,14 +1405,14 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
     begin
         VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
         VendorLedgerEntry.SetRange("Document Type", DocType);
-        VendorLedgerEntry.FindFirst;
+        VendorLedgerEntry.FindFirst();
     end;
 
     local procedure FindCustLedgerEntryByDocType(var CustLedgerEntry: Record "Cust. Ledger Entry"; CustomerNo: Code[20]; DocType: Enum "Gen. Journal Document Type")
     begin
         CustLedgerEntry.SetRange("Customer No.", CustomerNo);
         CustLedgerEntry.SetRange("Document Type", DocType);
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
     end;
 
     local procedure ModifyExchangeRate(CurrencyCode: Code[10]; ExchRateAmt: Decimal)
@@ -1459,7 +1466,7 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
         AdjustExchangeRates.SetTableView(Currency);
         AdjustExchangeRates.InitializeRequest2(0D, EndDate, 'Test', EndDate, DocumentNo, true, false);
         AdjustExchangeRates.UseRequestPage(false);
-        AdjustExchangeRates.Run;
+        AdjustExchangeRates.Run();
     end;
 
     local procedure SelectGenJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch")
@@ -1511,7 +1518,7 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
     begin
         DetailedCustLedgEntry.SetRange("Document No.", DocumentNo);
         DetailedCustLedgEntry.SetRange("Entry Type", EntryType);
-        DetailedCustLedgEntry.FindFirst;
+        DetailedCustLedgEntry.FindFirst();
         DetailedCustLedgEntry.TestField("Ledger Entry Amount", true);
         DetailedCustLedgEntry.CalcSums("Amount (LCY)");
         Currency.Get(DetailedCustLedgEntry."Currency Code");
@@ -1650,4 +1657,4 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
         Assert.ExpectedMessage(ExchRateWasAdjustedTxt, Message);
     end;
 }
-
+#endif

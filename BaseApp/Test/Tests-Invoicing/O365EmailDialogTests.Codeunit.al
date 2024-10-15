@@ -11,6 +11,7 @@ codeunit 138925 "O365 Email Dialog Tests"
         LibraryInvoicingApp: Codeunit "Library - Invoicing App";
         LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibraryWorkflow: Codeunit "Library - Workflow";
         InvoiceSentMsg: Label 'Your invoice is being sent.';
         EventSubscriberInvoicingApp: Codeunit "EventSubscriber Invoicing App";
         MailManagement: Codeunit "Mail Management";
@@ -40,7 +41,7 @@ codeunit 138925 "O365 Email Dialog Tests"
         CompanyName: Text;
     begin
         // [Scenario] Default subject of draft invoice
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [GIVEN] The company has a name
@@ -62,7 +63,7 @@ codeunit 138925 "O365 Email Dialog Tests"
         CompanyName: Text;
     begin
         // [Scenario] Default subject of sent invoice
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [GIVEN] The company has a name
@@ -89,7 +90,7 @@ codeunit 138925 "O365 Email Dialog Tests"
         CompanyName: Text;
     begin
         // [Scenario] Default subject of estimates
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [GIVEN] The company has a name
@@ -110,11 +111,11 @@ codeunit 138925 "O365 Email Dialog Tests"
         EmailSubject: Text;
     begin
         // [Scenario] User modified email subject (draft invoice)
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [WHEN] A draft invoice has been sent with a modified email subject
-        EmailSubject := LibraryUtility.GenerateGUID;
+        EmailSubject := LibraryUtility.GenerateGUID();
         LibraryVariableStorage.Enqueue(EmailSubject);
         SendInvoice(LibraryInvoicingApp.CreateInvoice);
 
@@ -131,16 +132,16 @@ codeunit 138925 "O365 Email Dialog Tests"
         EmailSubject: Text;
     begin
         // [Scenario] User modified email subject (sent invoice)
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [GIVEN] Sent invoice
-        EmailSubject := LibraryUtility.GenerateGUID;
+        EmailSubject := LibraryUtility.GenerateGUID();
         LibraryVariableStorage.Enqueue(EmailSubject);
         PostedInvoiceNo := SendInvoice(LibraryInvoicingApp.CreateInvoice);
 
         // [WHEN] The sent invoice has been sent with a modified email subject
-        EmailSubject := LibraryUtility.GenerateGUID;
+        EmailSubject := LibraryUtility.GenerateGUID();
         LibraryVariableStorage.Enqueue(EmailSubject);
         ReSendInvoice(PostedInvoiceNo);
 
@@ -158,11 +159,11 @@ codeunit 138925 "O365 Email Dialog Tests"
         EmailSubject: Text;
     begin
         // [Scenario] User modified email subject (Estimate)
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [WHEN] An estimate has been sent with a modified email subject
-        EmailSubject := LibraryUtility.GenerateGUID;
+        EmailSubject := LibraryUtility.GenerateGUID();
         LibraryVariableStorage.Enqueue(EmailSubject);
         SendEstimate(LibraryInvoicingApp.CreateEstimate);
 
@@ -179,12 +180,12 @@ codeunit 138925 "O365 Email Dialog Tests"
         InvoiceNo: Code[20];
     begin
         // [Scenario] User modified email subject but did not send email
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [GIVEN] User clicks send invoice, modifies subject and cancels sending
         CancelEmail := true;
-        EmailSubject := LibraryUtility.GenerateGUID;
+        EmailSubject := LibraryUtility.GenerateGUID();
         LibraryVariableStorage.Enqueue(EmailSubject);
         InvoiceNo := LibraryInvoicingApp.CreateInvoice;
         SendInvoice(InvoiceNo);
@@ -207,16 +208,16 @@ codeunit 138925 "O365 Email Dialog Tests"
         EmailSubject: Text;
     begin
         // [Scenario] User modified email subject of sent invoice but did not send email
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [GIVEN] Sent invoice
-        LibraryVariableStorage.Enqueue(LibraryUtility.GenerateGUID);
+        LibraryVariableStorage.Enqueue(LibraryUtility.GenerateGUID());
         PostedInvoiceNo := SendInvoice(LibraryInvoicingApp.CreateInvoice);
 
         // [GIVEN] User clicks send invoice, modifies subject and cancels sending
         CancelEmail := true;
-        EmailSubject := LibraryUtility.GenerateGUID;
+        EmailSubject := LibraryUtility.GenerateGUID();
         LibraryVariableStorage.Enqueue(EmailSubject);
         ReSendInvoice(PostedInvoiceNo);
 
@@ -240,12 +241,12 @@ codeunit 138925 "O365 Email Dialog Tests"
         EstimateNo: Code[20];
     begin
         // [Scenario] User modified email subject but did not send email (Estimate)
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [GIVEN] User clicks send estimate, modifies subject and cancels sending
         CancelEmail := true;
-        EmailSubject := LibraryUtility.GenerateGUID;
+        EmailSubject := LibraryUtility.GenerateGUID();
         LibraryVariableStorage.Enqueue(EmailSubject);
         EstimateNo := LibraryInvoicingApp.CreateEstimate;
         SendEstimate(EstimateNo);
@@ -270,7 +271,7 @@ codeunit 138925 "O365 Email Dialog Tests"
         InvoiceNo: Code[20];
     begin
         // [Scenario] Verify email subject of draft invoice after an estimate is sent
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [GIVEN] The company has a name
@@ -304,7 +305,7 @@ codeunit 138925 "O365 Email Dialog Tests"
         EstimateNo: Code[20];
     begin
         // [Scenario] Verify email subject of sent invoice after an estimate is sent
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [GIVEN] The company has a name
@@ -337,7 +338,7 @@ codeunit 138925 "O365 Email Dialog Tests"
         InvoiceNo: Code[20];
     begin
         // [Scenario] Verify email subject of draft invoice after an estimate is sent with modified subject
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [GIVEN] The company has a name
@@ -346,7 +347,7 @@ codeunit 138925 "O365 Email Dialog Tests"
         // [GIVEN] An estimate
         EstimateNo := LibraryInvoicingApp.CreateEstimate;
         // [GIVEN] The estimate has been sent with modified email subject
-        EmailSubject := LibraryUtility.GenerateGUID;
+        EmailSubject := LibraryUtility.GenerateGUID();
         LibraryVariableStorage.Enqueue(EmailSubject);
         SendEstimate(EstimateNo);
 
@@ -375,7 +376,7 @@ codeunit 138925 "O365 Email Dialog Tests"
         EstimateNo: Code[20];
     begin
         // [Scenario] Verify email subject of sent invoice after an estimate is sent with modified subject
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [GIVEN] The company has a name
@@ -384,7 +385,7 @@ codeunit 138925 "O365 Email Dialog Tests"
         // [GIVEN] An estimate
         EstimateNo := LibraryInvoicingApp.CreateEstimate;
         // [GIVEN] The estimate has been sent with modified email subject
-        EmailSubject := LibraryUtility.GenerateGUID;
+        EmailSubject := LibraryUtility.GenerateGUID();
         LibraryVariableStorage.Enqueue(EmailSubject);
         SendEstimate(EstimateNo);
 
@@ -407,7 +408,7 @@ codeunit 138925 "O365 Email Dialog Tests"
         EmailAddress: Text;
     begin
         // [Scenario] User modified email address (draft invoice)
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [WHEN] A draft invoice has been sent with a modified email address
@@ -428,7 +429,7 @@ codeunit 138925 "O365 Email Dialog Tests"
         EmailAddress: Text;
     begin
         // [Scenario] User modified email address (sent invoice)
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [GIVEN] Sent invoice
@@ -455,7 +456,7 @@ codeunit 138925 "O365 Email Dialog Tests"
         EmailAddress: Text;
     begin
         // [Scenario] User modified email address (Estimate)
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [WHEN] An estimate has been sent with a modified email address
@@ -476,7 +477,7 @@ codeunit 138925 "O365 Email Dialog Tests"
         InvoiceNo: Code[20];
     begin
         // [Scenario] User modified email address but did not send email
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [GIVEN] User clicks send invoice, modifies address and cancels sending
@@ -504,7 +505,7 @@ codeunit 138925 "O365 Email Dialog Tests"
         EmailAddress: Text;
     begin
         // [Scenario] User modified email address of sent invoice but did not send email
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [GIVEN] Sent invoice
@@ -538,7 +539,7 @@ codeunit 138925 "O365 Email Dialog Tests"
         EstimateNo: Code[20];
     begin
         // [Scenario] User modified email address but did not send email (Estimate)
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [GIVEN] User clicks send estimate, modifies addresss and cancels sending
@@ -571,7 +572,7 @@ codeunit 138925 "O365 Email Dialog Tests"
         PostedInvoiceNo: Code[20];
     begin
         // [Scenario] Verify email address of draft invoice after an estimate is sent with modified address
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [GIVEN] An estimate
@@ -611,7 +612,7 @@ codeunit 138925 "O365 Email Dialog Tests"
         PostedInvoiceNo: Code[20];
     begin
         // [Scenario] Verify email address of sent invoice after an estimate is sent with modified address
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [GIVEN] An estimate
@@ -643,7 +644,7 @@ codeunit 138925 "O365 Email Dialog Tests"
         O365SalesTestInvoiceTest: TestPage "O365 Sales Test Invoice Page";
         BCO365SalesInvoice: TestPage "BC O365 Sales Invoice";
     begin
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [GIVEN] Create new test invoice
@@ -661,7 +662,7 @@ codeunit 138925 "O365 Email Dialog Tests"
 
         // [THEN] Recipient should be correct
         Assert.AreEqual(
-          MailManagement.GetSenderEmailAddress,
+          MailManagement.GetSenderEmailAddress(Enum::"Email Scenario"::Default),
           EventSubscriberInvoicingApp.GetEmailAddress, 'To Email address should be sender address');
     end;
 
@@ -674,9 +675,10 @@ codeunit 138925 "O365 Email Dialog Tests"
     var
         O365C2GraphEventSettings: Record "O365 C2Graph Event Settings";
         O365DocumentSentHistory: Record "O365 Document Sent History";
+        LibraryWorkflow: Codeunit "Library - Workflow";
     begin
         BindActiveDirectoryMockEvents;
-        LibraryInvoicingApp.SetupEmail;
+        LibraryWorkflow.SetUpEmailAccount();
         EventSubscriberInvoicingApp.Clear;
         LibraryVariableStorage.AssertEmpty;
         Clear(CancelEmail);
@@ -750,7 +752,7 @@ codeunit 138925 "O365 Email Dialog Tests"
         CompanyInformation: Record "Company Information";
     begin
         CompanyInformation.Get();
-        CompanyInformation.Validate(Name, LibraryUtility.GenerateGUID);
+        CompanyInformation.Validate(Name, LibraryUtility.GenerateGUID());
         CompanyInformation.Modify(true);
         exit(CompanyInformation.Name);
     end;
@@ -862,12 +864,12 @@ codeunit 138925 "O365 Email Dialog Tests"
     procedure TestInvoiceEmailDialogModalPageHandler(var O365SalesEmailDialog: TestPage "O365 Sales Email Dialog")
     begin
         Assert.AreEqual(
-          MailManagement.GetSenderEmailAddress, O365SalesEmailDialog.FromAddressField.Value,
+          MailManagement.GetSenderEmailAddress(Enum::"Email Scenario"::Default), O365SalesEmailDialog.FromAddressField.Value,
           'From address should be senders address in test invoice');
 
         // verify to address
         Assert.AreEqual(
-          MailManagement.GetSenderEmailAddress, O365SalesEmailDialog.SendToText.Value,
+          MailManagement.GetSenderEmailAddress(Enum::"Email Scenario"::Default), O365SalesEmailDialog.SendToText.Value,
           'To address should be senders address in test invoice');
 
         // verify subject and email body

@@ -24,7 +24,7 @@ codeunit 134570 "Wizard Test - Pmt. Jnl App."
         PaymentJournal: TestPage "Payment Journal";
     begin
         // Setup
-        Initialize;
+        Initialize();
         Commit();
         PaymentJournal.OpenEdit;
 
@@ -49,7 +49,7 @@ codeunit 134570 "Wizard Test - Pmt. Jnl App."
         PmtAppWorkflowSetupWzrd: TestPage "Pmt. App. Workflow Setup Wzrd.";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         PmtAppWorkflowSetupWzrd.OpenEdit;
         PmtAppWorkflowSetupWzrd.NextPage.Invoke;
@@ -82,10 +82,10 @@ codeunit 134570 "Wizard Test - Pmt. Jnl App."
         GenJournalBatch: Record "Gen. Journal Batch";
         AssistedSetupTestLibrary: Codeunit "Assisted Setup Test Library";
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         LibraryWorkflow.DisableAllWorkflows;
         GenJournalTemplate.SetRange(Type, GenJournalTemplate.Type::Payments);
-        GenJournalTemplate.FindFirst;
+        GenJournalTemplate.FindFirst();
         GenJournalBatch.SetRange("Journal Template Name", GenJournalTemplate.Name);
         GenJournalBatch.ModifyAll("No. Series", '');
         AssistedSetupTestLibrary.DeleteAll();
@@ -175,7 +175,7 @@ codeunit 134570 "Wizard Test - Pmt. Jnl App."
         WorkflowDefinition: Query "Workflow Definition";
     begin
         // Setup
-        Initialize;
+        Initialize();
         LibraryDocumentApprovals.CreateMockupUserSetup(UserSetup);
         Assert.IsFalse(FindWorkflowEnabledEntryPoints(DATABASE::"Gen. Journal Line",
             WorkflowEventHandling.RunWorkflowOnSendGeneralJournalLineForApprovalCode,
@@ -219,7 +219,7 @@ codeunit 134570 "Wizard Test - Pmt. Jnl App."
 
         Assert.AreEqual(1, WorkflowStep.Count, 'More than 1 expected response found.');
 
-        WorkflowStep.FindFirst;
+        WorkflowStep.FindFirst();
 
         WorkflowStepArgument.Get(WorkflowStep.Argument);
         Assert.AreEqual(WorkflowStepArgument."Approver User ID", ApprovalWorkflowWizard."Approver ID",

@@ -219,7 +219,7 @@ codeunit 142061 "ERM Misc. Report II"
         TopType: Option Sales,"Qty on Hand";
     begin
         // Setup: Create and Post two Item Journal.
-        Initialize;
+        Initialize();
         SelectAndPostItemJournal(ItemJournalLine, LibraryRandom.RandDec(100, 2));  // Use Random value for Quantity.
         SelectAndPostItemJournal(ItemJournalLine2, ItemJournalLine.Quantity + 10);  // Use greater value than posted Item Journal.
         EnqueueValuesForTopInventoryItemsReport(
@@ -262,7 +262,7 @@ codeunit 142061 "ERM Misc. Report II"
         TopType: Option Sales;
     begin
         // Setup: Create and Post two Sales Order.
-        Initialize;
+        Initialize();
         CreateAndPostSalesDocument(
           SalesLine, SalesLine."Document Type"::Order, CreateCustomer(''), LibraryRandom.RandDec(10, 2),
           LibraryRandom.RandDec(10, 2));  // Use Random value for Quantity and Unit Price.
@@ -309,7 +309,7 @@ codeunit 142061 "ERM Misc. Report II"
         TopType: Option Sales,"Qty on Hand","Inventory Value";
     begin
         // Setup: Create and Post two Purchase Order.
-        Initialize;
+        Initialize();
         CreateAndPostPurchaseDocument(
           LibraryInventory.CreateItem(Item), '', true, PurchaseHeader."Document Type"::Order, LibraryRandom.RandDec(10, 2));  // Random value for Quantity.
         Item.CalcFields(Inventory);
@@ -339,7 +339,7 @@ codeunit 142061 "ERM Misc. Report II"
         FilterStringValue2: Text[50];
     begin
         // Verify Item Status by Salesperson with Filters.
-        Initialize;
+        Initialize();
         LibrarySales.CreateSalesperson(SalespersonPurchaser);
         CreateSalesDocument(
           SalesLine, SalesLine."Document Type"::Order, LibraryRandom.RandDec(100, 2), CreateCustomer(''),
@@ -374,7 +374,7 @@ codeunit 142061 "ERM Misc. Report II"
         // Verify Ship to Address Listing Report.
 
         // Setup: Create Ship to Address, create Tax Area code.
-        Initialize;
+        Initialize();
         LibrarySales.CreateShipToAddress(ShiptoAddress, CreateCustomer(''));
         LibraryERM.CreateTaxArea(TaxArea);
         ShiptoAddress.Validate("Tax Area Code", TaxArea.Code);
@@ -401,7 +401,7 @@ codeunit 142061 "ERM Misc. Report II"
         CurrencyCode: Code[10];
     begin
         // Verify Customer Account Detail Report With Print Amount In Customer Currency True.
-        Initialize;
+        Initialize();
         Amount := LibraryRandom.RandDec(100, 2);  // Taken random Amount.
         CurrencyCode := CreateCurrency;
         CustomerAccountDetailReport(CurrencyCode, false, Amount, LibraryERM.ConvertCurrency(Amount, CurrencyCode, '', WorkDate));
@@ -415,7 +415,7 @@ codeunit 142061 "ERM Misc. Report II"
         Amount: Decimal;
     begin
         // Verify Customer Account Detail Report With Print Amount In Customer Currency False.
-        Initialize;
+        Initialize();
         Amount := LibraryRandom.RandDec(100, 2);  // Taken random Amount.
         CustomerAccountDetailReport(CreateCurrency, true, Amount, Amount);
     end;
@@ -462,7 +462,7 @@ codeunit 142061 "ERM Misc. Report II"
         GenJournalLine2: Record "Gen. Journal Line";
     begin
         // Setup: Create and post two General Journal Lines.
-        Initialize;
+        Initialize();
         CreateAndPostGenJournalLine(GenJournalLine, CreateCustomer(''), -LibraryRandom.RandDec(100, 2));  // Taken random Amount.
         CreateAndPostGenJournalLine(GenJournalLine2, CreateCustomer(''), -LibraryRandom.RandDec(100, 2));  // Taken random Amount.
         EnqueueValuesForCustAccountDetailReport(
@@ -488,7 +488,7 @@ codeunit 142061 "ERM Misc. Report II"
         // Verify Customer Account Detail Report With Account with Balance Only True.
 
         // Setup and Exercise.
-        Initialize;
+        Initialize();
         CustomerNo := CreateCustomer('');
         CustomerAccountDetailReportBalance(true, CustomerNo);
 
@@ -507,7 +507,7 @@ codeunit 142061 "ERM Misc. Report II"
         // Verify Customer Account Detail Report With Account with Balance Only False.
 
         // Setup and Exercise.
-        Initialize;
+        Initialize();
         CustomerNo := CreateCustomer('');
         CustomerAccountDetailReportBalance(false, CustomerNo);
 
@@ -542,7 +542,7 @@ codeunit 142061 "ERM Misc. Report II"
         CompanyInformation: Record "Company Information";
     begin
         // Verify Return Shipment Report with Print Company and without Log Interaction option.
-        Initialize;
+        Initialize();
         CompanyInformation.Get();
         ReturnShipmentReport(CompanyInformation.Name, true, false, true);
     end;
@@ -553,7 +553,7 @@ codeunit 142061 "ERM Misc. Report II"
     procedure ReturnShipmentWithLogInteract()
     begin
         // Verify Return Shipment Report without Print Company and with Log Interaction option.
-        Initialize;
+        Initialize();
         ReturnShipmentReport('', false, true, false);
     end;
 
@@ -568,7 +568,7 @@ codeunit 142061 "ERM Misc. Report II"
         // Verify Vendor Listing report with Print Amounts In Vendor's Currency option.
 
         // Setup & Exercise.
-        Initialize;
+        Initialize();
         VendorNo := CreateVendorWithCurrency(CreateCurrency);
         CreateAndPostInvoiceAndRunReportVendorListing(VendorLedgerEntry, VendorNo, true, false);
 
@@ -590,7 +590,7 @@ codeunit 142061 "ERM Misc. Report II"
         // Verify Vendor Listing report with Vend. With Balances Only option.
 
         // Setup & Exercise.
-        Initialize;
+        Initialize();
         VendorNo := CreateVendorWithCurrency(CreateCurrency);
         CreateAndPostInvoiceAndRunReportVendorListing(VendorLedgerEntry, VendorNo, false, true);
 
@@ -612,7 +612,7 @@ codeunit 142061 "ERM Misc. Report II"
         // Verify Cash Requirement By Due Date report with Print Detail option.
 
         // Setup & Exercise.
-        Initialize;
+        Initialize();
         CreateAndPostInvoiceAndRunReportCashReqtByDueDate(VendorLedgerEntry, false);
 
         // Verify.
@@ -633,7 +633,7 @@ codeunit 142061 "ERM Misc. Report II"
         // [GIVEN] Vendor Ledger Entry with "External Document No." (lenght of value is max)
         // [WHEN] Run report "Cash Requirements by Due Date"
         // Setup & Exercise.
-        Initialize;
+        Initialize();
         CreateAndPostInvoiceAndRunReportCashReqtByDueDate(VendorLedgerEntry, true);
 
         // [THEN] Report contains value of "External Document No."
@@ -703,7 +703,7 @@ codeunit 142061 "ERM Misc. Report II"
         VATPostingSetup: Record "VAT Posting Setup";
     begin
         // Setup: Create Sales Document.
-        Initialize;
+        Initialize();
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         CreateSalesDocument(
           SalesLine, DocumentType, LibraryRandom.RandDec(100, 2),
@@ -739,7 +739,7 @@ codeunit 142061 "ERM Misc. Report II"
         // Verify Customer Item Statistics Report after posting Sales Order.
 
         // Setup: Create and post Sales Order.
-        Initialize;
+        Initialize();
         CreateAndPostSalesDocument(
           SalesLine, SalesLine."Document Type"::Order, CreateCustomer(''), LibraryRandom.RandDec(10, 2),
           LibraryRandom.RandDec(10, 2));  // Use Random value for Quantity and Unit Price.
@@ -766,7 +766,7 @@ codeunit 142061 "ERM Misc. Report II"
         // Verify Customer Item Statistics by Sales Person Report after posting Sales Order.
 
         // Setup: Create Customer, create and post Sales Order.
-        Initialize;
+        Initialize();
         PostSalesOrderWithSalesperson(SalesLine, LibraryRandom.RandDec(10, 2));  // Taken random value for Commission Pct.
         Customer.Get(SalesLine."Sell-to Customer No.");
 
@@ -788,7 +788,7 @@ codeunit 142061 "ERM Misc. Report II"
         // Verify error on Daily Invoicing Report when Include Invoice and Include Credit Memo both are set to FALSE.
 
         // Setup.
-        Initialize;
+        Initialize();
 
         // Exercise.
         asserterror RunDailyInvoicingReport(false, false, '');
@@ -810,7 +810,7 @@ codeunit 142061 "ERM Misc. Report II"
         // Verify Daily Invoicing Report with Include Invoice and Include Credit Memo TRUE after posting Sales Order and Sales Credit Memo.
 
         // Setup: Create and post Sales Invoice and Sales credit Memo.
-        Initialize;
+        Initialize();
         PostedSalesInvoiceNo :=
           CreateAndPostSalesDocument(SalesLine, SalesLine."Document Type"::Order, CreateCustomer(''),
             LibraryRandom.RandDec(10, 2), LibraryRandom.RandDec(10, 2));  // Use Random value for Quantity and Unit Price.
@@ -840,7 +840,7 @@ codeunit 142061 "ERM Misc. Report II"
         UnitPrice: Decimal;
     begin
         // Verify Outstanding Sales Order Aging Report With Print Amount in Customer Currency TRUE.
-        Initialize;
+        Initialize();
         CurrencyCode := CreateCurrency;
         UnitPrice := LibraryRandom.RandDec(10, 2);  // Taken random for Unit Price.
         OutStandingSalesOrderAgingReport(CurrencyCode, UnitPrice, false, LibraryERM.ConvertCurrency(UnitPrice, CurrencyCode, '', WorkDate));
@@ -854,7 +854,7 @@ codeunit 142061 "ERM Misc. Report II"
         UnitPrice: Decimal;
     begin
         // Verify Outstanding Sales Order Aging Report With Print Amount in Customer Currency FALSE.
-        Initialize;
+        Initialize();
         UnitPrice := LibraryRandom.RandDec(10, 2);  // Taken random for Unit Price.
         OutStandingSalesOrderAgingReport(CreateCurrency, UnitPrice, true, UnitPrice);
     end;
@@ -887,7 +887,7 @@ codeunit 142061 "ERM Misc. Report II"
         UnitPrice: Decimal;
     begin
         // Verify Outstanding Sales Order Status Report With Print Amount in Customer Currency TRUE.
-        Initialize;
+        Initialize();
         CurrencyCode := CreateCurrency;
         UnitPrice := LibraryRandom.RandDec(10, 2);  // Taken random for Unit Price.
         OutStandingSalesOrderStatusReport(CurrencyCode, UnitPrice, false, LibraryERM.ConvertCurrency(UnitPrice, CurrencyCode, '', WorkDate));
@@ -901,7 +901,7 @@ codeunit 142061 "ERM Misc. Report II"
         UnitPrice: Decimal;
     begin
         // Verify Outstanding Sales Order Status Report With Print Amount in Customer Currency FALSE.
-        Initialize;
+        Initialize();
         UnitPrice := LibraryRandom.RandDec(10, 2);
         OutStandingSalesOrderStatusReport(CreateCurrency, UnitPrice, true, UnitPrice);
     end;
@@ -937,7 +937,7 @@ codeunit 142061 "ERM Misc. Report II"
         // Verify Sales person Statistics By Invoice Report after posting Sales Order.
 
         // Setup: Create Customer, create and post Sales Order.
-        Initialize;
+        Initialize();
         PostSalesOrderWithSalesperson(SalesLine, LibraryRandom.RandDec(10, 2));  // Taken random value for Commission Pct.
         Customer.Get(SalesLine."Sell-to Customer No.");
 
@@ -968,7 +968,7 @@ codeunit 142061 "ERM Misc. Report II"
         // Verify Sales Commission Report after posting Sales Order.
 
         // Setup: Create Customer with Salesperson Code, create and post Sales Order.
-        Initialize;
+        Initialize();
         CommissionPct := LibraryRandom.RandDec(10, 2);  // Taken random value for Commission Pct.
         PostSalesOrderWithSalesperson(SalesLine, CommissionPct);
         Customer.Get(SalesLine."Sell-to Customer No.");
@@ -1001,7 +1001,7 @@ codeunit 142061 "ERM Misc. Report II"
         // Verify Projected Cash Receipt Report with Print Total in Customer Currency True.
 
         // Setup and Exercise.
-        Initialize;
+        Initialize();
         ProjectedCashReceiptReport(CustLedgerEntry, true);
 
         // Verify: Verify Amount on Projected Cash Receipt Report.
@@ -1018,7 +1018,7 @@ codeunit 142061 "ERM Misc. Report II"
         // Verify Projected Cash Receipt Report with Print Total in Customer Currency False.
 
         // Setup and Exercise.
-        Initialize;
+        Initialize();
         ProjectedCashReceiptReport(CustLedgerEntry, false);
 
         // Verify: Verify Amount on Projected Cash Receipt Report.
@@ -1058,7 +1058,7 @@ codeunit 142061 "ERM Misc. Report II"
         // Verify Drop Shipment Report after Get Sales Order and Carryout Action Message on Requisition Line.
 
         // Setup: Create and modify Sales Order, Get Sales Order and Carryout Action Message on Requisition Line.
-        Initialize;
+        Initialize();
         CreateSalesDocument(
           SalesLine, SalesLine."Document Type"::Order, LibraryRandom.RandDec(10, 2), CreateCustomer(''),
           CreateItem, LibraryRandom.RandDec(10, 2));  // Taken random for Unit Price and Quantity.
@@ -1090,7 +1090,7 @@ codeunit 142061 "ERM Misc. Report II"
         // Verify Open Sales Invoice By Job Report after posting Sales Invoice.
 
         // Setup: Create Sales Invoice by Job and post it.
-        Initialize;
+        Initialize();
         CreateSalesInvoiceByJob(Job);
         DocumentNo := FindAndPostSalesInvoice(Job."Bill-to Customer No.");
         LibraryVariableStorage.Enqueue(Job."No.");  // Enqueue for OpenSalesInvoicesByJobrequestPageHandler.
@@ -1120,7 +1120,7 @@ codeunit 142061 "ERM Misc. Report II"
         // [FEATURE] [Sales]
         // [SCENARIO 380266] Check report (1401) must print Credit Memo with amount in case of Invoice and Credit Memo documents
 
-        Initialize;
+        Initialize();
 
         LibraryERM.SetAmountRoundingPrecision(0.01);
         ApplyTo := LibraryUTUtility.GetNewCode;
@@ -1163,7 +1163,7 @@ codeunit 142061 "ERM Misc. Report II"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO 380266] Check report (1401) must print Credit Memo with amount in case of Invoice and Credit Memo documents
-        Initialize;
+        Initialize();
 
         LibraryERM.SetAmountRoundingPrecision(0.01);
         ApplyTo := LibraryUTUtility.GetNewCode;
@@ -1231,9 +1231,9 @@ codeunit 142061 "ERM Misc. Report II"
     var
         InventorySetup: Record "Inventory Setup";
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         LibraryInventory.NoSeriesSetup(InventorySetup);
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.CreateVATData();
     end;
 
     local procedure CreateAndPostGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; CustomerNo: Code[20]; Amount: Decimal)
@@ -1649,7 +1649,7 @@ codeunit 142061 "ERM Misc. Report II"
         with CustLedgerEntry do begin
             Reset;
             SetRange("Customer No.", CustomerNo);
-            FindLast;
+            FindLast();
             CalcFields("Remaining Amount");
             Validate("Applies-to ID", ApplyTo);
             Validate("Amount to Apply", "Remaining Amount");
@@ -1665,7 +1665,7 @@ codeunit 142061 "ERM Misc. Report II"
         with VendorLedgerEntry do begin
             Reset;
             SetRange("Vendor No.", VendorNo);
-            FindLast;
+            FindLast();
             CalcFields("Remaining Amount");
             Validate("Applies-to ID", ApplyTo);
             Validate("Amount to Apply", "Remaining Amount");
@@ -1725,7 +1725,7 @@ codeunit 142061 "ERM Misc. Report II"
     begin
         SalesHeader.SetRange("Bill-to Customer No.", BillToCustomerNo);
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Invoice);
-        SalesHeader.FindFirst;
+        SalesHeader.FindFirst();
         exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));
     end;
 
@@ -1739,14 +1739,14 @@ codeunit 142061 "ERM Misc. Report II"
     local procedure FindVendorLedgerEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; DocumentNo: Code[20])
     begin
         VendorLedgerEntry.SetRange("Document No.", DocumentNo);
-        VendorLedgerEntry.FindFirst;
+        VendorLedgerEntry.FindFirst();
     end;
 
     local procedure FindAndModifyRequisitionLine(var RequisitionLine: Record "Requisition Line"; JournalBatchName: Code[10]; VendorNo: Code[20])
     begin
         RequisitionLine.SetRange("Journal Batch Name", JournalBatchName);
         RequisitionLine.SetRange(Type, RequisitionLine.Type::Item);
-        RequisitionLine.FindFirst;
+        RequisitionLine.FindFirst();
         RequisitionLine.Validate("Vendor No.", VendorNo);
         RequisitionLine.Modify(true);
     end;
@@ -1762,7 +1762,7 @@ codeunit 142061 "ERM Misc. Report II"
     begin
         ReqWkshTemplate.SetRange(Type, ReqWkshTemplate.Type::"Req.");
         ReqWkshTemplate.SetRange(Recurring, false);
-        ReqWkshTemplate.FindFirst;
+        ReqWkshTemplate.FindFirst();
         LibraryPlanning.CreateRequisitionWkshName(RequisitionWkshName, ReqWkshTemplate.Name);
         LibraryPlanning.CreateRequisitionLine(RequisitionLine, ReqWkshTemplate.Name, RequisitionWkshName.Name);
         LibraryPlanning.GetSalesOrders(SalesLine, RequisitionLine, RetrieveDimensionsFrom::Item);
@@ -1802,7 +1802,7 @@ codeunit 142061 "ERM Misc. Report II"
             LibraryInventory.CreateItem(Item), '', false, PurchaseHeader."Document Type"::"Return Order", LibraryRandom.RandDec(10, 2));  // Use random value for Quantity.
         EnqueueValuesForReturnShipmentReport(DocumentNo, PrintCompanyAddress, LogInteraction);
         ItemLedgerEntry.SetRange("Document No.", DocumentNo);
-        ItemLedgerEntry.FindFirst;
+        ItemLedgerEntry.FindFirst();
 
         // Exercise.
         REPORT.Run(REPORT::"Return Shipment");
@@ -1833,7 +1833,7 @@ codeunit 142061 "ERM Misc. Report II"
         JobTask.SetRange("Job Task No.", JobTask."Job Task No.");
         Clear(JobCreateSalesInvoice);
         JobCreateSalesInvoice.SetTableView(JobTask);
-        JobCreateSalesInvoice.Run;
+        JobCreateSalesInvoice.Run();
     end;
 
     local procedure SelectAndPostItemJournal(var ItemJournalLine: Record "Item Journal Line"; Quantity: Decimal)

@@ -75,11 +75,17 @@ page 251 "General Journal Batches"
                     ToolTip = 'Specifies the format of the bank statement file that can be imported into this general journal batch.';
                     Visible = false;
                 }
+#if not CLEAN20
                 field(BackgroundErrorCheck; "Background Error Check")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if you want the journal lines to be checked automatically for potential issues.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced with GLSetup.Enable Data Check';
+                    ObsoleteTag = '20.0';
+                    Visible = false;
                 }
+#endif                
                 field("Copy to Posted Jnl. Lines"; "Copy to Posted Jnl. Lines")
                 {
                     ApplicationArea = Suite;
@@ -282,7 +288,7 @@ page 251 "General Journal Batches"
         if not CurrPage.LookupMode then
             if GetFilter("Journal Template Name") <> '' then begin
                 GenJnlTemplate.SetFilter(Name, GetFilter("Journal Template Name"));
-                if GenJnlTemplate.FindSet then
+                if GenJnlTemplate.FindSet() then
                     if GenJnlTemplate.Next() = 0 then
                         exit(GenJnlTemplate.Name + ' ' + GenJnlTemplate.Description);
             end;

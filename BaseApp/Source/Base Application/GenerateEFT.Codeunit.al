@@ -10,23 +10,15 @@ codeunit 10098 "Generate EFT"
         DummyLastEFTExportWorkset: Record "EFT Export Workset";
         TempNameValueBuffer: Record "Name/Value Buffer" temporary;
         DataCompression: Codeunit "Data Compression";
-        #if not CLEAN17
-        FileManagement: Codeunit "File Management";
-        #endif
         ExportPaymentsACH: Codeunit "Export Payments (ACH)";
         ACHFileCreated: Boolean;
         IATFileCreated: Boolean;
         Path: Text;
-        #if not CLEAN17
-        SaveFolderMsg: Label 'Select a folder to save reports to.';
-        SelectAFolderMsg: Label 'A folder needs to be selected.';
-        #endif
         NothingToExportErr: Label 'There is nothing to export.';
         ProcessOrderNo: Integer;
         GeneratingFileMsg: Label 'The electronic funds transfer file is now being generated.';
         ZipFileName: Text;
 
-    [Scope('OnPrem')]
     procedure ProcessAndGenerateEFTFile(BalAccountNo: Code[20]; SettlementDate: Date; var TempEFTExportWorkset: Record "EFT Export Workset" temporary; var EFTValues: Codeunit "EFT Values")
     var
         CustomLayoutReporting: Codeunit "Custom Layout Reporting";
@@ -39,28 +31,19 @@ codeunit 10098 "Generate EFT"
         ACHFileCreated := false;
         IATFileCreated := false;
 
-#if not CLEAN17
-        if FileManagement.IsLocalFileSystemAccessible then
-            if not IsTestMode then begin
-                FileManagement.SelectFolderDialog(SaveFolderMsg, Path);
-                if Path = '' then begin
-                    Message(SelectAFolderMsg);
-                    exit;
-                end;
-            end;
-#endif
-
         Window.Open(GeneratingFileMsg);
 
         TempEFTExportWorkset.SetRange("Bank Payment Type", 3, 3);
-        if TempEFTExportWorkset.FindFirst then
+        OnProcessAndGenerateEFTFileOnAfterBankPaymentTypeSetFilters3(TempEFTExportWorkset);
+        if TempEFTExportWorkset.FindFirst() then
             StartEFTProcess(SettlementDate, TempEFTExportWorkset, EFTValues);
 
         EFTValues.SetParentDefCode('');
 
         TempEFTExportWorkset.Reset();
         TempEFTExportWorkset.SetRange("Bank Payment Type", 4, 4);
-        if TempEFTExportWorkset.FindFirst then
+        OnProcessAndGenerateEFTFileOnAfterBankPaymentTypeSetFilters4(TempEFTExportWorkset);
+        if TempEFTExportWorkset.FindFirst() then
             StartEFTProcess(SettlementDate, TempEFTExportWorkset, EFTValues);
 
         if EFTValues.GetIATFileCreated or EFTValues.GetEFTFileCreated then
@@ -88,7 +71,7 @@ codeunit 10098 "Generate EFT"
         end;
     end;
 
-    local procedure GenJnlLineChecks(var EFTExportWorkset: Record "EFT Export Workset" temporary)
+    procedure GenJnlLineChecks(var EFTExportWorkset: Record "EFT Export Workset" temporary)
     var
         GenJnlLine: Record "Gen. Journal Line";
     begin
@@ -110,14 +93,14 @@ codeunit 10098 "Generate EFT"
             (TempEFTExportWorkset."Bank Payment Type" = TempEFTExportWorkset."Bank Payment Type"::"Electronic Payment-IAT"))
         then
             with TempEFTExportWorkset do begin
-                if not FindSet then
+                if not FindSet() then
                     Error(NothingToExportErr);
 
                 ExpLauncherEFT.EFTPaymentProcess(TempEFTExportWorkset, TempNameValueBuffer, DataCompression, ZipFileName, EFTValues);
             end;
     end;
 
-    local procedure SetGenJrnlCheckTransmitted(EFTExportWorkset: Record "EFT Export Workset")
+    procedure SetGenJrnlCheckTransmitted(EFTExportWorkset: Record "EFT Export Workset")
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
@@ -125,19 +108,11 @@ codeunit 10098 "Generate EFT"
         GenJournalLine.SetRange("Journal Batch Name", EFTExportWorkset."Journal Batch Name");
         GenJournalLine.SetRange("Line No.", EFTExportWorkset."Line No.");
         GenJournalLine.SetRange("EFT Export Sequence No.", EFTExportWorkset."Sequence No.");
-        if GenJournalLine.FindFirst then begin
+        if GenJournalLine.FindFirst() then begin
             GenJournalLine."Check Transmitted" := true;
             GenJournalLine.Modify();
         end;
     end;
-
-#if not CLEAN17
-    local procedure IsTestMode() TestMode: Boolean
-    begin
-        // Check to see if the test mode flag is set (usually via test codeunits by subscribing to OnIsTestMode event)
-        OnIsTestMode(TestMode);
-    end;
-    #endif
 
     [Scope('OnPrem')]
     procedure SetSavePath(SavePath: Text)
@@ -209,7 +184,7 @@ codeunit 10098 "Generate EFT"
         until TempEFTExportWorkset.Next() = 0;
         Commit();
 
-        if TempEFTExportWorkset.FindFirst then begin
+        if TempEFTExportWorkset.FindFirst() then begin
             repeat
                 LocalBankAccount.Get(TempEFTExportWorkset."Bank Account No.");
                 CheckDigitCheck := not (LocalBankAccount."Export Format" in [LocalBankAccount."Export Format"::CA, LocalBankAccount."Export Format"::MX]);
@@ -218,7 +193,7 @@ codeunit 10098 "Generate EFT"
             until TempEFTExportWorkset.Next() = 0;
         end;
 
-        TempEFTExportWorkset.FindFirst;
+        TempEFTExportWorkset.FindFirst();
 
         if ProcessOrderNo >= 1 then begin
             repeat
@@ -230,16 +205,18 @@ codeunit 10098 "Generate EFT"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeInitalChecks(BankAccountNo: Code[20]; var IsHandled: Boolean);
+    local procedure OnProcessAndGenerateEFTFileOnAfterBankPaymentTypeSetFilters3(var TempEFTExportWorkset: Record "EFT Export Workset" temporary);
     begin
     end;
 
-#if not CLEAN17
     [IntegrationEvent(false, false)]
-    [Obsolete('Event was no longer being called.', '17.4')]
-    local procedure OnIsTestMode(var TestMode: Boolean)
+    local procedure OnProcessAndGenerateEFTFileOnAfterBankPaymentTypeSetFilters4(var TempEFTExportWorkset: Record "EFT Export Workset" temporary);
     begin
     end;
-#endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInitalChecks(BankAccountNo: Code[20]; var IsHandled: Boolean);
+    begin
+    end;
 }
 

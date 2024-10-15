@@ -41,7 +41,7 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
         // [FEATURE] [Tax Group Code]
         // [SCENARIO 136987] Doc Totals with Sales Tax are updated when adding Tax Group Code on Sales Invoice
         // Setup
-        Initialize;
+        Initialize();
         TaxPercentage := LibraryRandom.RandInt(9);
 
         // [GIVEN] User has created a sales document with a sales line that did not default the Tax Code Group
@@ -118,7 +118,7 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
         // [FEATURE] [Quantity]
         // [SCENARIO 136987] Doc Totals with Sales Tax are updated when changing Quantity on Sales Invoice
         // Setup
-        Initialize;
+        Initialize();
         TaxPercentage := LibraryRandom.RandInt(9);
         PrepareSalesReceivableSetupWarnings(StockWarningSetup, CreditWarningSetup);
 
@@ -185,7 +185,7 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
         // [FEATURE] [Invoice Discount Amount]
         // [SCENARIO 136987] Sales Invoice Doc Totals, Sales Tax are calculated but Invoice Discount is not per setup option
         // Setup
-        Initialize;
+        Initialize();
         TaxPercentage := LibraryRandom.RandInt(9);
         CalcInvDisc := false;
         SetupCalcInvoiceDisc(CalcInvDisc);
@@ -266,7 +266,7 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
         // [FEATURE] [Invoice Discount Amount]
         // [SCENARIO 136987] Sales Invoice Doc Totals, Tax and Inv Discount are calculated when setup option marked
         // Setup
-        Initialize;
+        Initialize();
         TaxPercentage := LibraryRandom.RandInt(9);
         CalcInvDisc := true;
         SetupCalcInvoiceDisc(CalcInvDisc);
@@ -344,7 +344,7 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
         // [FEATURE] [Invoice Discount Amount]
         // [SCENARIO 136987] Sales Invoice Doc Totals, Tax and Invoice Discount are updated when changing Inv Disc Amount
         // Setup
-        Initialize;
+        Initialize();
         TaxPercentage := LibraryRandom.RandInt(9);
         CalcInvDisc := true;
         SetupCalcInvoiceDisc(CalcInvDisc);
@@ -409,7 +409,7 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
         // [FEATURE] [Post]
         // [SCENARIO 136987] Doc Totals and taxes match before and after posting on Sales Invoice
         // Setup
-        Initialize;
+        Initialize();
         TaxPercentage := LibraryRandom.RandInt(9);
 
         // [GIVEN] User has created a sales document with a sales line with no default Tax Group Code
@@ -478,7 +478,7 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
         // [FEATURE] [Tax Group Code]
         // [SCENARIO 136987] Doc Totals with Sales Tax are updated when adding Tax Group Code on Sales Order
         // Setup
-        Initialize;
+        Initialize();
         TaxPercentage := LibraryRandom.RandInt(9);
 
         // [GIVEN] User has created a sales document with a sales line that did not default the Tax Code Group
@@ -555,7 +555,7 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
         // [FEATURE] [Quantity]
         // [SCENARIO 136987] Doc Totals with Sales Tax are updated when changing Quantity on Sales Order
         // Setup
-        Initialize;
+        Initialize();
         TaxPercentage := LibraryRandom.RandInt(9);
         PrepareSalesReceivableSetupWarnings(StockWarningSetup, CreditWarningSetup);
 
@@ -622,7 +622,7 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
         // [FEATURE] [Invoice Discount Amount]
         // [SCENARIO 136987] Sales Order Doc Totals, Sales Tax are calculated but Invoice Discount is not per setup option
         // Setup
-        Initialize;
+        Initialize();
         TaxPercentage := LibraryRandom.RandInt(9);
         CalcInvDisc := false;
         SetupCalcInvoiceDisc(CalcInvDisc);
@@ -702,7 +702,7 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
         // [FEATURE] [Invoice Discount Amount]
         // [SCENARIO 136987] Sales Order Doc Totals, Tax and Inv Discount are calculated when setup option marked
         // Setup
-        Initialize;
+        Initialize();
         TaxPercentage := LibraryRandom.RandInt(9);
         CalcInvDisc := true;
         SetupCalcInvoiceDisc(CalcInvDisc);
@@ -779,7 +779,7 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
         // [FEATURE] [Invoice Discount Amount]
         // [SCENARIO 136987] Sales Order Doc Totals, Tax and Invoice Discount are updated when changing Inv Disc Amount
         // Setup
-        Initialize;
+        Initialize();
         TaxPercentage := LibraryRandom.RandInt(9);
         CalcInvDisc := true;
         SetupCalcInvoiceDisc(CalcInvDisc);
@@ -844,7 +844,7 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
         // [FEATURE] [Post]
         // [SCENARIO 136987] Doc Totals and taxes match before and after posting on Sales Order
         // Setup
-        Initialize;
+        Initialize();
         TaxPercentage := LibraryRandom.RandInt(9);
 
         // [GIVEN] User has created a sales document with a sales line with no default Tax Group Code
@@ -913,7 +913,7 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
         // [FEATURE] [Tax Group Code]
         // [SCENARIO 136987] Doc Totals with Sales Tax are updated when adding Tax Group Code on Sales Return Order
         // Setup
-        Initialize;
+        Initialize();
         TaxPercentage := LibraryRandom.RandInt(9);
 
         // [GIVEN] User has created a sales document with a sales line that did not default the Tax Code Group
@@ -991,7 +991,7 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
         // [FEATURE] [Quantity]
         // [SCENARIO 136987] Doc Totals with Sales Tax are updated when changing Quantity on Sales Return Order
         // Setup
-        Initialize;
+        Initialize();
         TaxPercentage := LibraryRandom.RandInt(9);
         PrepareSalesReceivableSetupWarnings(StockWarningSetup, CreditWarningSetup);
 
@@ -1059,7 +1059,7 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
         // [FEATURE] [Invoice Discount Amount]
         // [SCENARIO 136987] Sales Return Order Doc Totals, Sales Tax are calculated but Inv Disc is not per setup option
         // Setup
-        Initialize;
+        Initialize();
         TaxPercentage := LibraryRandom.RandInt(9);
         CalcInvDisc := false;
         SetupCalcInvoiceDisc(CalcInvDisc);
@@ -1140,7 +1140,7 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
         // [FEATURE] [Invoice Discount Amount]
         // [SCENARIO 136987] Sales Return Order Doc Totals, Tax and Inv Discount are calc'd when setup option marked
         // Setup
-        Initialize;
+        Initialize();
         TaxPercentage := LibraryRandom.RandInt(9);
         CalcInvDisc := true;
         SetupCalcInvoiceDisc(CalcInvDisc);
@@ -1219,7 +1219,7 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
         // [FEATURE] [Invoice Discount Amount]
         // [SCENARIO 136987] Sales Return Order Doc Totals, Tax and Invoice Discount are updated when changing Inv Disc Amount
         // Setup
-        Initialize;
+        Initialize();
         TaxPercentage := LibraryRandom.RandInt(9);
         CalcInvDisc := true;
         SetupCalcInvoiceDisc(CalcInvDisc);
@@ -1284,7 +1284,7 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
         // [FEATURE] [Post]
         // [SCENARIO 136987] Doc Totals and taxes match before and after posting on Sales Return Order
         // Setup
-        Initialize;
+        Initialize();
         TaxPercentage := LibraryRandom.RandInt(9);
 
         // [GIVEN] User has created a sales document with a sales line with no default Tax Group Code
@@ -1353,7 +1353,7 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
         // [FEATURE] [Tax Group Code]
         // [SCENARIO 136987] Doc Totals with Sales Tax are updated when adding Tax Group Code on Credit Memo
         // Setup
-        Initialize;
+        Initialize();
         TaxPercentage := LibraryRandom.RandInt(9);
 
         // [GIVEN] User has created a sales document with a sales line that did not default the Tax Code Group
@@ -1430,7 +1430,7 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
         // [FEATURE] [Quantity]
         // [SCENARIO 136987] Doc Totals with Sales Tax are updated when changing Quantity on Credit Memo
         // Setup
-        Initialize;
+        Initialize();
         TaxPercentage := LibraryRandom.RandInt(9);
         PrepareSalesReceivableSetupWarnings(StockWarningSetup, CreditWarningSetup);
 
@@ -1497,7 +1497,7 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
         // [FEATURE] [Invoice Discount Amount]
         // [SCENARIO 136987] Credit Memo Doc Totals, Sales Tax are calculated but Inv Disc is not per setup option
         // Setup
-        Initialize;
+        Initialize();
         TaxPercentage := LibraryRandom.RandInt(9);
         CalcInvDisc := false;
         SetupCalcInvoiceDisc(CalcInvDisc);
@@ -1578,7 +1578,7 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
         // [FEATURE] [Invoice Discount Amount]
         // [SCENARIO 136987] Sales Credit Memo Doc Totals, Tax and Inv Discount are calc'd when setup option marked
         // Setup
-        Initialize;
+        Initialize();
         TaxPercentage := LibraryRandom.RandInt(9);
         CalcInvDisc := true;
         SetupCalcInvoiceDisc(CalcInvDisc);
@@ -1657,7 +1657,7 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
         // [FEATURE] [Invoice Discount Amount]
         // [SCENARIO 136987] Credit Memo Doc Totals, Tax and Invoice Discount are updated when changing Inv Disc Amount
         // Setup
-        Initialize;
+        Initialize();
         TaxPercentage := LibraryRandom.RandInt(9);
         CalcInvDisc := true;
         SetupCalcInvoiceDisc(CalcInvDisc);
@@ -1722,7 +1722,7 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
         // [FEATURE] [Post]
         // [SCENARIO 136987] Doc Totals and taxes match before and after posting on Credit Memo
         // Setup
-        Initialize;
+        Initialize();
         TaxPercentage := LibraryRandom.RandInt(9);
 
         // [GIVEN] User has created a sales document with a sales line with no default Tax Group Code
@@ -1791,7 +1791,7 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
         // [FEATURE] [Tax Group Code]
         // [SCENARIO 136987] Doc Totals with Sales Tax are updated when adding Tax Group Code on Blanket Order
         // Setup
-        Initialize;
+        Initialize();
         TaxPercentage := LibraryRandom.RandInt(9);
 
         // [GIVEN] User has created a sales document with a sales line that did not default the Tax Code Group
@@ -1868,7 +1868,7 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
         // [FEATURE] [Quantity]
         // [SCENARIO 136987] Doc Totals with Sales Tax are updated when changing Quantity on Blanket Order
         // Setup
-        Initialize;
+        Initialize();
         TaxPercentage := LibraryRandom.RandInt(9);
         PrepareSalesReceivableSetupWarnings(StockWarningSetup, CreditWarningSetup);
 
@@ -1934,7 +1934,7 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
         // [FEATURE] [Invoice Discount Amount]
         // [SCENARIO 136987] Blanket Order Doc Totals, Sales Tax are calculated but Invoice Discount is not per setup option
         // Setup
-        Initialize;
+        Initialize();
         TaxPercentage := LibraryRandom.RandInt(9);
         CalcInvDisc := false;
         SetupCalcInvoiceDisc(CalcInvDisc);
@@ -2015,7 +2015,7 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
         // [FEATURE] [Invoice Discount Amount]
         // [SCENARIO 136987] Blanket Order Doc Totals, Tax and Inv Discount are calculated when setup option marked
         // Setup
-        Initialize;
+        Initialize();
         TaxPercentage := LibraryRandom.RandInt(9);
         CalcInvDisc := true;
         SetupCalcInvoiceDisc(CalcInvDisc);
@@ -2094,7 +2094,7 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
         // [FEATURE] [Invoice Discount Amount]
         // [SCENARIO 136987] Blanket Order Doc Totals, Tax and Invoice Discount are updated when changing Inv Disc Amount
         // Setup
-        Initialize;
+        Initialize();
         TaxPercentage := LibraryRandom.RandInt(9);
         CalcInvDisc := true;
         SetupCalcInvoiceDisc(CalcInvDisc);
@@ -2160,7 +2160,7 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
         // [FEATURE] [Tax Group Code]
         // [SCENARIO 136987] Doc Totals with Sales Tax are updated when adding Tax Group Code on Sales Quote
         // Setup
-        Initialize;
+        Initialize();
         TaxPercentage := LibraryRandom.RandInt(9);
 
         // [GIVEN] User has created a sales document with a sales line that did not default the Tax Code Group
@@ -2237,7 +2237,7 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
         // [FEATURE] [Quantity]
         // [SCENARIO 136987] Doc Totals with Sales Tax are updated when changing Quantity on Sales Quote
         // Setup
-        Initialize;
+        Initialize();
         TaxPercentage := LibraryRandom.RandInt(9);
         PrepareSalesReceivableSetupWarnings(StockWarningSetup, CreditWarningSetup);
 
@@ -2304,7 +2304,7 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
         // [FEATURE] [Invoice Discount Amount]
         // [SCENARIO 136987] Sales Quote Doc Totals, Sales Tax are calculated but Invoice Discount is not per setup option
         // Setup
-        Initialize;
+        Initialize();
         TaxPercentage := LibraryRandom.RandInt(9);
         CalcInvDisc := false;
         SetupCalcInvoiceDisc(CalcInvDisc);
@@ -2384,7 +2384,7 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
         // [FEATURE] [Invoice Discount Amount]
         // [SCENARIO 136987] Sales Quote Doc Totals, Tax and Inv Discount are calculated when setup option marked
         // Setup
-        Initialize;
+        Initialize();
         TaxPercentage := LibraryRandom.RandInt(9);
         CalcInvDisc := true;
         SetupCalcInvoiceDisc(CalcInvDisc);
@@ -2461,7 +2461,7 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
         // [FEATURE] [Invoice Discount Amount]
         // [SCENARIO 136987] Sales Quote Doc Totals, Tax and Invoice Discount are updated when changing Inv Disc Amount
         // Setup
-        Initialize;
+        Initialize();
         TaxPercentage := LibraryRandom.RandInt(9);
         CalcInvDisc := true;
         SetupCalcInvoiceDisc(CalcInvDisc);
@@ -2543,15 +2543,15 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibraryApplicationArea: Codeunit "Library - Application Area";
     begin
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
         LibraryApplicationArea.ClearApplicationAreaCache();
         if isInitialized then
             exit;
 
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.CreateVATData();
         CreateVATPostingSetup;
         LibraryInventory.NoSeriesSetup(InventorySetup);
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
 
         isInitialized := true;
         Commit();
@@ -2695,7 +2695,7 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
 
     local procedure GetRandomCode(FieldLength: Integer) RandomCode: Code[20]
     begin
-        RandomCode := LibraryUtility.GenerateGUID;
+        RandomCode := LibraryUtility.GenerateGUID();
         repeat
             RandomCode += Format(LibraryRandom.RandInt(9));  // Generating any Random integer value.
         until StrLen(RandomCode) = FieldLength;

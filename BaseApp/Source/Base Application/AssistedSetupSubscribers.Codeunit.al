@@ -8,7 +8,6 @@ codeunit 1814 "Assisted Setup Subscribers"
         ApprovalWorkflowSetupDescriptionTxt: Label 'Create approval workflows that automatically notify an approver when a user tries to create or change certain values, such as an amount above a specified limit.';
         EmailSetupTxt: Label 'Set up outgoing email';
         EmailSetupShortTxt: Label 'Outgoing email';
-        SMTPSetupDescriptionTxt: Label 'Choose the email account your business will use to send out invoices and other documents. You can use a Microsoft 365 account or another provider.';
         EmailAccountSetupDescriptionTxt: Label 'Set up the email accounts your business will use to send out invoices and other documents. You can use a Microsoft 365 account or another provider.';
         OutlookAddinCentralizedSetupTitleTxt: Label 'Outlook Add-in Centralized Deployment';
         OutlookAddinCentralizedSetupShortTitleTxt: Label 'Outlook Add-in Centralized Deployment', MaxLength = 50;
@@ -63,7 +62,6 @@ codeunit 1814 "Assisted Setup Subscribers"
         AzureAdSetupTitleTxt: Label 'Set up your Azure Active Directory accounts';
         AzureAdSetupShortTitleTxt: Label 'Set up Azure Active Directory', MaxLength = 50;
         AzureAdSetupDescriptionTxt: Label 'Register an Azure Active Directory app so that you can use Power BI, Power Automate, Exchange, and other Azure services from on-premises.';
-        HelpIntroductiontoFinancialsTxt: Label 'https://go.microsoft.com/fwlink/?linkid=828702', Locked = true;
         HelpSetupCashFlowForecastTxt: Label 'https://go.microsoft.com/fwlink/?linkid=828693', Locked = true;
         HelpSetupEmailTxt: Label 'https://go.microsoft.com/fwlink/?linkid=828689', Locked = true;
         HelpImportbusinessdataTxt: Label 'https://go.microsoft.com/fwlink/?linkid=828687', Locked = true;
@@ -79,10 +77,6 @@ codeunit 1814 "Assisted Setup Subscribers"
         HelpSetupTeamsCentralizedDeploymentTxt: Label 'https://go.microsoft.com/fwlink/?linkid=2170851', Locked = true;
         HelpSetupExcelCentralizedDeploymentTxt: Label 'https://go.microsoft.com/fwlink/?linkid=2163968', Locked = true;
         HelpWorkwithPowerBINameTxt: Label 'Work with Power BI';
-        HelpCreateasalesinvoiceNameTxt: Label 'Create a sales invoice';
-        HelpAddacustomerNameTxt: Label 'Add a customer';
-        HelpAddanitemNameTxt: Label 'Add an item';
-        HelpSetupReportingNameTxt: Label 'Set up reporting';
         VideoWorkwithextensionsNameTxt: Label 'Install extensions to add features and integrations';
         VideoWorkwithExcelNameTxt: Label 'Work with Excel';
         VideoWorkwithgeneraljournalsNameTxt: Label 'Work with general journals';
@@ -92,8 +86,6 @@ codeunit 1814 "Assisted Setup Subscribers"
         VideoUrlSetupCRMConnectionTxt: Label '', Locked = true;
         VideoUrlSetupApprovalsTxt: Label 'https://go.microsoft.com/fwlink/?linkid=843246', Locked = true;
         VideoUrlSetupEmailLoggingTxt: Label 'https://go.microsoft.com/fwlink/?linkid=843360', Locked = true;
-        SetupDimensionsTxt: Label 'Set up dimensions';
-        VideoUrlSetupDimensionsTxt: Label 'https://go.microsoft.com/fwlink/?linkid=843362', Locked = true;
         CreateJobTxt: Label 'Create a job';
         VideoUrlCreateJobTxt: Label 'https://go.microsoft.com/fwlink/?linkid=843363', Locked = true;
         InviteExternalAccountantTitleTxt: Label 'Invite your external accountant to the company';
@@ -308,7 +300,7 @@ codeunit 1814 "Assisted Setup Subscribers"
 
     local procedure InitializeCustomize()
     var
-        EmailFeature: Codeunit "Email Feature";
+        SetupEmailLogging: Codeunit "Setup Email Logging";
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
         GuidedExperience: Codeunit "Guided Experience";
         Language: Codeunit Language;
@@ -334,31 +326,24 @@ codeunit 1814 "Assisted Setup Subscribers"
             GLOBALLANGUAGE(CurrentGlobalLanguage);
         end;
 
-        if EmailFeature.IsEnabled() then begin
-            GuidedExperience.InsertAssistedSetup(EmailSetupTxt, CopyStr(EmailSetupShortTxt, 1, 50), EmailAccountSetupDescriptionTxt, 5, ObjectType::Page,
-                Page::"Email Account Wizard", AssistedSetupGroup::FirstInvoice, '', VideoCategory::FirstInvoice, HelpSetupEmailTxt);
-            GlobalLanguage(Language.GetDefaultApplicationLanguageId());
-            GuidedExperience.AddTranslationForSetupObjectTitle(GuidedExperienceType::"Assisted Setup", ObjectType::Page,
-                Page::"Email Account Wizard", Language.GetDefaultApplicationLanguageId(), EmailSetupTxt);
-            GuidedExperience.Remove(GuidedExperienceType::"Assisted Setup", ObjectType::Page, Page::"Email Setup Wizard");
-        end else begin
-            GuidedExperience.InsertAssistedSetup(EmailSetupTxt, CopyStr(EmailSetupTxt, 1, 50), SMTPSetupDescriptionTxt, 7, ObjectType::Page,
-                Page::"Email Setup Wizard", AssistedSetupGroup::FirstInvoice, VideoUrlSetupEmailTxt, VideoCategory::FirstInvoice, HelpSetupEmailTxt);
-            GlobalLanguage(Language.GetDefaultApplicationLanguageId());
-            GuidedExperience.AddTranslationForSetupObjectTitle(GuidedExperienceType::"Assisted Setup", ObjectType::Page,
-                PAGE::"Email Setup Wizard", Language.GetDefaultApplicationLanguageId(), EmailSetupTxt);
-            GuidedExperience.Remove(GuidedExperienceType::"Assisted Setup", ObjectType::Page, Page::"Email Account Wizard");
-        end;
+        GuidedExperience.InsertAssistedSetup(EmailSetupTxt, CopyStr(EmailSetupShortTxt, 1, 50), EmailAccountSetupDescriptionTxt, 5, ObjectType::Page,
+            Page::"Email Account Wizard", AssistedSetupGroup::FirstInvoice, '', VideoCategory::FirstInvoice, HelpSetupEmailTxt);
+        GlobalLanguage(Language.GetDefaultApplicationLanguageId());
+        GuidedExperience.AddTranslationForSetupObjectTitle(GuidedExperienceType::"Assisted Setup", ObjectType::Page,
+            Page::"Email Account Wizard", Language.GetDefaultApplicationLanguageId(), EmailSetupTxt);
         GlobalLanguage(CurrentGlobalLanguage);
 
-        if not ApplicationAreaMgmtFacade.IsBasicOnlyEnabled() then begin
-            GuidedExperience.InsertAssistedSetup(SetupEmailLoggingTitleTxt, SetupEmailLoggingShortTitleTxt, SetupEmailLoggingDescriptionTxt, 10, ObjectType::Page,
-                Page::"Setup Email Logging", AssistedSetupGroup::ApprovalWorkflows, VideoUrlSetupEmailLoggingTxt, VideoCategory::ApprovalWorkflows, SetupEmailLoggingHelpTxt);
-            GLOBALLANGUAGE(Language.GetDefaultApplicationLanguageId());
-            GuidedExperience.AddTranslationForSetupObjectTitle(GuidedExperienceType::"Assisted Setup", ObjectType::Page,
-                PAGE::"Setup Email Logging", Language.GetDefaultApplicationLanguageId(), SetupEmailLoggingTitleTxt);
-            GLOBALLANGUAGE(CurrentGlobalLanguage);
-        end;
+        if SetupEmailLogging.IsEmailLoggingUsingGraphApiFeatureEnabled() then
+            GuidedExperience.Remove(GuidedExperienceType::"Assisted Setup", ObjectType::Page, Page::"Setup Email Logging")
+        else
+            if not ApplicationAreaMgmtFacade.IsBasicOnlyEnabled() then begin
+                GuidedExperience.InsertAssistedSetup(SetupEmailLoggingTitleTxt, SetupEmailLoggingShortTitleTxt, SetupEmailLoggingDescriptionTxt, 10, ObjectType::Page,
+                    Page::"Setup Email Logging", AssistedSetupGroup::ApprovalWorkflows, VideoUrlSetupEmailLoggingTxt, VideoCategory::ApprovalWorkflows, SetupEmailLoggingHelpTxt);
+                GLOBALLANGUAGE(Language.GetDefaultApplicationLanguageId());
+                GuidedExperience.AddTranslationForSetupObjectTitle(GuidedExperienceType::"Assisted Setup", ObjectType::Page,
+                    PAGE::"Setup Email Logging", Language.GetDefaultApplicationLanguageId(), SetupEmailLoggingTitleTxt);
+                GLOBALLANGUAGE(CurrentGlobalLanguage);
+            end;
 
         GuidedExperience.InsertAssistedSetup(SetupTimeSheetsTitleTxt, SetupTimeSheetsShortTitleTxt, SetupTimeSheetsDescriptionTxt, 10, ObjectType::Page,
             Page::"Time Sheet Setup Wizard", AssistedSetupGroup::DoMoreWithBC, '', VideoCategory::DoMoreWithBC, SetupTimeSheetsHelpTxt);
@@ -412,7 +397,7 @@ codeunit 1814 "Assisted Setup Subscribers"
 
     local procedure UpdateTaxSetupCompleted()
     var
-        AssistedSetup: Codeunit "Assisted Setup";
+        GuidedExperience: Codeunit "Guided Experience";
         CompanyInformation: Record "Company Information";
         TaxSetup: Record "Tax Setup";
         TaxJurisdiction: Record "Tax Jurisdiction";
@@ -427,7 +412,7 @@ codeunit 1814 "Assisted Setup Subscribers"
         if TaxJurisdiction.IsEmpty() then
             exit;
 
-        AssistedSetup.Complete(PAGE::"Sales Tax Setup Wizard");
+        GuidedExperience.CompleteAssistedSetup(ObjectType::Page, PAGE::"Sales Tax Setup Wizard");
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::Video, 'OnRegisterVideo', '', false, false)]
@@ -470,21 +455,12 @@ codeunit 1814 "Assisted Setup Subscribers"
 
     local procedure UpdateSetUpEmail()
     var
-        SMTPMailSetup: Record "SMTP Mail Setup";
         EmailAccount: Codeunit "Email Account";
-        EmailFeature: Codeunit "Email Feature";
         GuidedExperience: Codeunit "Guided Experience";
     begin
-        if EmailFeature.IsEnabled() then begin
-            if not EmailAccount.IsAnyAccountRegistered() then
-                exit;
-            GuidedExperience.CompleteAssistedSetup(ObjectType::Page, Page::"Email Account Wizard");
+        if not EmailAccount.IsAnyAccountRegistered() then
             exit;
-        end;
-
-        if not SMTPMailSetup.GetSetup then
-            exit;
-        GuidedExperience.CompleteAssistedSetup(ObjectType::Page, Page::"Email Setup Wizard");
+        GuidedExperience.CompleteAssistedSetup(ObjectType::Page, Page::"Email Account Wizard");
     end;
 
     local procedure UpdateSetUpApprovalWorkflow()
@@ -515,9 +491,8 @@ codeunit 1814 "Assisted Setup Subscribers"
 
     local procedure EmailAccountIsSetup(): Boolean
     var
-        EmailFeature: Codeunit "Email Feature";
         EmailAccount: Codeunit "Email Account";
     begin
-        exit(EmailFeature.IsEnabled() and EmailAccount.IsAnyAccountRegistered());
+        exit(EmailAccount.IsAnyAccountRegistered());
     end;
 }

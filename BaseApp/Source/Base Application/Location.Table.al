@@ -645,12 +645,12 @@
         field(27027; "SAT Municipality Code"; Code[10])
         {
             Caption = 'SAT Municipality Code';
-            TableRelation = "SAT Municipality" WHERE (State = FIELD ("SAT State Code"));
+            TableRelation = "SAT Municipality" WHERE(State = FIELD("SAT State Code"));
         }
         field(27028; "SAT Locality Code"; Code[10])
         {
             Caption = 'SAT Locality Code';
-            TableRelation = "SAT Locality" WHERE (State = FIELD ("SAT State Code"));
+            TableRelation = "SAT Locality" WHERE(State = FIELD("SAT State Code"));
         }
         field(27029; "SAT Suburb ID"; Integer)
         {
@@ -679,7 +679,7 @@
 
     fieldgroups
     {
-        fieldgroup(Dropdown; "Code", Name)
+        fieldgroup(DropDown; "Code", Name)
         {
         }
     }
@@ -690,6 +690,7 @@
         WhseEmployee: Record "Warehouse Employee";
         WorkCenter: Record "Work Center";
         StockkeepingUnit: Record "Stockkeeping Unit";
+        DimensionManagement: Codeunit DimensionManagement;
     begin
         StockkeepingUnit.SetRange("Location Code", Code);
         if not StockkeepingUnit.IsEmpty() then
@@ -714,11 +715,15 @@
             until WorkCenter.Next() = 0;
 
         CalendarManagement.DeleteCustomizedBaseCalendarData(CustomizedCalendarChange."Source Type"::Location, Code);
+        DimensionManagement.DeleteDefaultDim(Database::Location, Rec.Code);
     end;
 
     trigger OnRename()
+    var
+        DimensionManagement: Codeunit DimensionManagement;
     begin
         CalendarManagement.RenameCustomizedBaseCalendarData(CustomizedCalendarChange."Source Type"::Location, Code, xRec.Code);
+        DimensionManagement.RenameDefaultDim(Database::Location, xRec.Code, Rec.Code);
     end;
 
     var
@@ -777,6 +782,12 @@
             exit(Location."Require Put-away");
         WhseSetup.Get();
         exit(WhseSetup."Require Put-away");
+    end;
+
+    procedure BinMandatory(LocationCode: Code[10]): Boolean
+    begin
+        if Location.Get(LocationCode) then
+            exit(Location."Bin Mandatory");
     end;
 
     procedure GetLocationSetup(LocationCode: Code[10]; var Location2: Record Location): Boolean
@@ -865,7 +876,7 @@
         WarehouseEntry.SetCurrentKey("Bin Code", "Location Code", "Item No.");
         WarehouseEntry.SetRange("Bin Code", BinCode);
         WarehouseEntry.SetRange("Location Code", Code);
-        if WarehouseEntry.FindFirst then
+        if WarehouseEntry.FindFirst() then
             repeat
                 WarehouseEntry.SetRange("Item No.", WarehouseEntry."Item No.");
 
@@ -879,7 +890,7 @@
                     Error(Text006, CaptionOfField, Bin.TableCaption, BinCode);
                 end;
 
-                WarehouseEntry.FindLast;
+                WarehouseEntry.FindLast();
                 WarehouseEntry.SetRange("Item No.");
             until WarehouseEntry.Next() = 0;
     end;
@@ -923,7 +934,7 @@
         OnLineMapMgt: Codeunit "Online Map Management";
     begin
         OnlineMapSetup.SetRange(Enabled, true);
-        if OnlineMapSetup.FindFirst then
+        if OnlineMapSetup.FindFirst() then
             OnLineMapMgt.MakeSelection(DATABASE::Location, GetPosition)
         else
             Message(Text012);
@@ -960,7 +971,7 @@
         WhseTransferRelease: Codeunit "Whse.-Transfer Release";
     begin
         TransferLine.SetRange("Transfer-to Code", Code);
-        if TransferLine.FindSet then
+        if TransferLine.FindSet() then
             repeat
                 if TransferLine."Quantity Received" <> TransferLine."Quantity Shipped" then begin
                     TransferHeader.Get(TransferLine."Document No.");
@@ -968,7 +979,7 @@
                     WhseTransferRelease.CreateInboundWhseRequest(WarehouseRequest, TransferHeader);
 
                     TransferLine.SetRange("Document No.", TransferLine."Document No.");
-                    TransferLine.FindLast;
+                    TransferLine.FindLast();
                     TransferLine.SetRange("Document No.");
                 end;
             until TransferLine.Next() = 0;
@@ -986,7 +997,7 @@
             if ExcludeInTransitLocations then
                 Location.SetRange("Use As In-Transit", false);
 
-            if Location.FindSet then
+            if Location.FindSet() then
                 repeat
                     Init;
                     Copy(Location);
@@ -994,7 +1005,7 @@
                 until Location.Next() = 0;
         end;
 
-        FindFirst;
+        FindFirst();
     end;
 
     [Scope('OnPrem')]
@@ -1013,6 +1024,14 @@
             LocationAddress += ' ' + SATLocality.Description;
         if SATSuburb.Get("SAT Suburb ID") then
             LocationAddress += ' ' + SATSuburb.Description;
+    end;
+
+    procedure GetSATPostalCode(): Code[20];
+    var
+        SATSuburb: Record "SAT Suburb";
+    begin
+        SATSuburb.GET("SAT Suburb ID");
+        exit(SATSuburb."Postal Code");
     end;
 
     [IntegrationEvent(false, false)]

@@ -55,7 +55,7 @@ codeunit 142056 "UT REP Bank Reconciliation"
         // Purpose of the test is to validate trigger Adjustment - OnAfterGetRecord of Report 10407.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateBankReconciliation(BankRecLine);
 
         // Exercise.
@@ -78,7 +78,7 @@ codeunit 142056 "UT REP Bank Reconciliation"
         // Purpose of the test is to validate trigger Bank Rec. Header - OnAfterGetRecord of Report 10407.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateBankReconciliation(BankRecLine);
 
         // Exercise.
@@ -113,7 +113,7 @@ codeunit 142056 "UT REP Bank Reconciliation"
     begin
         // Purpose of the test is to validate Bank Rec. Header - OnAfterGetRecord trigger of Report ID - 10408.
         // Setup: Create Posted Bank Rec. Document.
-        Initialize;
+        Initialize();
         CreatePostedBankRecDocument(PostedBankRecHeader, Positive);
         Commit();  // Codeunit 10124 Bank-Rec Printed - On Run trigger Call commit.
 
@@ -141,7 +141,7 @@ codeunit 142056 "UT REP Bank Reconciliation"
     begin
         // Purpose of the test is to validate Bank Account Ledger Entry - OnAfterGetRecord trigger of Report ID - 10409.
         // Setup: Create Bank Account Ledger Entry.
-        Initialize;
+        Initialize();
         BankAccountNo := CreateBankAccountLedgerEntry;
 
         // Exercise.
@@ -162,7 +162,7 @@ codeunit 142056 "UT REP Bank Reconciliation"
     begin
         // Purpose of the test is to validate Push Action for Page 10120 Bank Rec.Worksheet.
         // Setup.
-        Initialize;
+        Initialize();
         CreateBankReconciliation(BankRecLine);
 
         // Pre-Exercise
@@ -188,11 +188,11 @@ codeunit 142056 "UT REP Bank Reconciliation"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 362540] Filters on Bank Rec. Test Report set according to page Bank Reconciliation Worksheet from which report is called.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Bank Reconciliations X and Y.
         CreateBankReconciliation(BankRecLine1);
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         CreateBankReconciliation(BankRecLine2);
         LibraryVariableStorage.Enqueue(BankRecLine2."Statement No.");
 
@@ -212,7 +212,7 @@ codeunit 142056 "UT REP Bank Reconciliation"
         PostedBankRecLine2: Record "Posted Bank Rec. Line";
     begin
         // [SCENARIO 260490] Stan runs "Bank Reconciliation" report. Posted Bank Reconciliation Lines with empty "Document No." are visible in the Deposits and Outstanding deposits sections.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Two Posted Bank Reconciliation Lines with empty "Document No." field, "Record Type" = Deposit. For the first line Cleared = TRUE, for the second line Cleared = FALSE.
         MockPostedBankRecHeader(PostedBankRecHeader, LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode);
@@ -223,7 +223,7 @@ codeunit 142056 "UT REP Bank Reconciliation"
           PostedBankRecLine2, PostedBankRecHeader."Bank Account No.", PostedBankRecHeader."Statement No.",
           PostedBankRecLine2."Record Type"::Deposit, 0, '', 0, '', LibraryRandom.RandText(50), LibraryRandom.RandDec(100, 2), false);
 
-        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
         Commit();
 
         // [WHEN] Run "Bank Reconciliation" report, "Print Deposits" and "Print Outstanding Deposits" flags are set.
@@ -296,7 +296,7 @@ codeunit 142056 "UT REP Bank Reconciliation"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreateBankAccount(): Code[20]
@@ -352,7 +352,7 @@ codeunit 142056 "UT REP Bank Reconciliation"
         BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
         BankAccountLedgerEntry2: Record "Bank Account Ledger Entry";
     begin
-        BankAccountLedgerEntry2.FindLast;
+        BankAccountLedgerEntry2.FindLast();
         BankAccountLedgerEntry."Entry No." := BankAccountLedgerEntry2."Entry No." + 1;
         BankAccountLedgerEntry."Bank Account No." := CreateBankAccount;
         BankAccountLedgerEntry."Document Type" := BankAccountLedgerEntry."Document Type"::Payment;
@@ -380,7 +380,7 @@ codeunit 142056 "UT REP Bank Reconciliation"
         PostedBankRecLine2.SetRange("Bank Account No.", BankAccountNo);
         PostedBankRecLine2.SetRange("Statement No.", StatementNo);
         PostedBankRecLine2.SetRange("Record Type", RecordType);
-        if PostedBankRecLine2.FindLast then;
+        if PostedBankRecLine2.FindLast() then;
         LineNo := PostedBankRecLine2."Line No." + 10000;
 
         PostedBankRecLine.Init();

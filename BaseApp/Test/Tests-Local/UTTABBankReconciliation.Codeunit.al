@@ -217,7 +217,7 @@ codeunit 141035 "UT TAB Bank Reconciliation"
         FixedAsset: Record "Fixed Asset";
     begin
         // Purpose of the test is to validate Account No. - OnValidate Trigger of Table ID - 10121 Bank Rec. Line.
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
 
         // Setup: Create Fixed Asset and Bank Reconciliation with Account Type - Fixed Asset.
         CreateFixedAsset(FixedAsset);
@@ -338,7 +338,7 @@ codeunit 141035 "UT TAB Bank Reconciliation"
         FixedAsset: Record "Fixed Asset";
     begin
         // Purpose of the test is to validate Bal. Account No. - OnValidate Trigger of Table ID - 10121 Bank Rec. Line.
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
 
         // Setup: Create Fixed Asset and Bank Reconciliation with Bal. Account Type - Fixed Asset.
         CreateFixedAsset(FixedAsset);
@@ -575,9 +575,9 @@ codeunit 141035 "UT TAB Bank Reconciliation"
         BankRecProcessLines.SetDoSuggestLines(
           true, BankRecHeader."Bank Account No.", BankRecHeader."Statement No.");
         LibraryVariableStorage.Enqueue(WorkDate);
-        BankRecProcessLines.Run;
+        BankRecProcessLines.Run();
         LibraryVariableStorage.Enqueue(WorkDate);
-        BankRecProcessLines.Run;
+        BankRecProcessLines.Run();
 
         // [WHEN] Expand Deposit Line
         FindBankRecLine(BankRecLine, BankAccount."No.", BankRecHeader."Statement No.", BankRecLine."Record Type"::Deposit);
@@ -634,12 +634,12 @@ codeunit 141035 "UT TAB Bank Reconciliation"
         BankRecProcessLines.SetDoSuggestLines(
           true, BankRecHeader."Bank Account No.", BankRecHeader."Statement No.");
         LibraryVariableStorage.Enqueue(PostingDate[2]);
-        BankRecProcessLines.Run;
+        BankRecProcessLines.Run();
         Clear(BankRecProcessLines);
         BankRecProcessLines.SetDoSuggestLines(
           true, BankRecHeader."Bank Account No.", BankRecHeader."Statement No.");
         LibraryVariableStorage.Enqueue(PostingDate[1]);
-        BankRecProcessLines.Run;
+        BankRecProcessLines.Run();
 
         // [WHEN] Expand Deposit Line
         BankRecLine.Reset();
@@ -685,21 +685,21 @@ codeunit 141035 "UT TAB Bank Reconciliation"
         BankRecProcessLines.SetDoSuggestLines(
           true, BankRecHeader."Bank Account No.", BankRecHeader."Statement No.");
         LibraryVariableStorage.Enqueue(WorkDate);
-        BankRecProcessLines.Run;
+        BankRecProcessLines.Run();
 
         FindBankRecLine(BankRecLine, BankAccount."No.", BankRecHeader."Statement No.", BankRecLine."Record Type"::Deposit);
         BankRecLine.ExpandLine(BankRecLine);
-        BankRecLine.FindLast;
+        BankRecLine.FindLast();
         BankRecLine.CollapseLines(BankRecLine);
-        BankRecLine.FindFirst;
+        BankRecLine.FindFirst();
         BankRecLine.ExpandLine(BankRecLine);
 
         // [WHEN] Collapse last Deposit Line second time
-        BankRecLine.FindLast;
+        BankRecLine.FindLast();
         BankRecLine.CollapseLines(BankRecLine);
 
         // [THEN] Collapsed Deposit Line has amount = 30
-        BankRecLine.FindFirst;
+        BankRecLine.FindFirst();
         BankRecLine.TestField(Amount, Amount[1] + Amount[2]);
         // [THEN] Bank Account Ledger Entries are applied to Bank Statement "S"
         for i := 1 to ArrayLen(EntryNo) do begin
@@ -1095,7 +1095,7 @@ codeunit 141035 "UT TAB Bank Reconciliation"
             SetRange("Bank Account No.", BankAccountNo);
             SetRange("Statement No.", StatementNo);
             SetRange("Record Type", RecordType);
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -1105,7 +1105,7 @@ codeunit 141035 "UT TAB Bank Reconciliation"
             SetRange("Bank Account No.", BankAccountNo);
             SetRange("Statement No.", StatementNo);
             SetRange("Bank Rec. Line No.", BankRecLineNo);
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -1113,7 +1113,7 @@ codeunit 141035 "UT TAB Bank Reconciliation"
     var
         BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
     begin
-        if BankAccountLedgerEntry.FindLast then
+        if BankAccountLedgerEntry.FindLast() then
             exit(BankAccountLedgerEntry."Entry No." + 1);
         exit(1);
     end;

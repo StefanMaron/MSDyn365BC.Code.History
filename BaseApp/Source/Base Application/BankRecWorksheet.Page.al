@@ -1,3 +1,4 @@
+#if not CLEAN20
 page 10120 "Bank Rec. Worksheet"
 {
     Caption = 'Bank Rec. Worksheet';
@@ -5,6 +6,9 @@ page 10120 "Bank Rec. Worksheet"
     PromotedActionCategories = 'New,Process,Report,Posting,Bank Rec.';
     RefreshOnActivate = true;
     SourceTable = "Bank Rec. Header";
+    ObsoleteReason = 'Deprecated in favor of W1 Bank Reconciliation';
+    ObsoleteState = Pending;
+    ObsoleteTag = '20.0';
 
     layout
     {
@@ -497,7 +501,7 @@ page 10120 "Bank Rec. Worksheet"
                 ProcessLines.SetDoClearLines(true, "Bank Account No.", "Statement No.");
         end;
         ProcessLines.SetTableView(Rec);
-        ProcessLines.RunModal;
+        ProcessLines.RunModal();
         DoRecalc;
     end;
 
@@ -533,3 +537,4 @@ page 10120 "Bank Rec. Worksheet"
     end;
 }
 
+#endif

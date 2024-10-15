@@ -6,16 +6,30 @@ codeunit 224 "EmplEntry-Apply Posted Entries"
     TableNo = "Employee Ledger Entry";
 
     trigger OnRun()
+    var
+        ApplyUnapplyParameters: Record "Apply Unapply Parameters";
     begin
         if PreviewMode then
             case RunOptionPreviewContext of
                 RunOptionPreview::Apply:
-                    Apply(Rec, DocumentNoPreviewContext, ApplicationDatePreviewContext);
+                    Apply(Rec, ApplyUnapplyParametersContext);
                 RunOptionPreview::Unapply:
-                    PostUnApplyEmployee(DetailedEmployeeLedgEntryPreviewContext, DocumentNoPreviewContext, ApplicationDatePreviewContext);
+                    PostUnApplyEmployee(DetailedEmployeeLedgEntryPreviewContext, ApplyUnapplyParametersContext);
             end
-        else
-            Apply(Rec, "Document No.", 0D);
+        else begin
+            Clear(ApplyUnapplyParameters);
+            GLSetup.GetRecordOnce();
+            if GLSetup."Journal Templ. Name Mandatory" then begin
+                GLSetup.TestField("Apply Jnl. Template Name");
+                GLSetup.TestField("Apply Jnl. Batch Name");
+                ApplyUnapplyParameters."Journal Template Name" := GLSetup."Apply Jnl. Template Name";
+                ApplyUnapplyParameters."Journal Batch Name" := GLSetup."Apply Jnl. Batch Name";
+                GenJnlBatch.Get(GLSetup."Apply Jnl. Template Name", GLSetup."Apply Jnl. Batch Name");
+            end;
+            ApplyUnapplyParameters."Document No." := Rec."Document No.";
+
+            Apply(Rec, ApplyUnapplyParameters);
+        end;
     end;
 
     var
@@ -30,50 +44,60 @@ codeunit 224 "EmplEntry-Apply Posted Entries"
         LatestEntryMustBeApplicationErr: Label 'The latest transaction number must be an application in employee ledger entry number %1.', Comment = '%1 - arbitrary text, the identifier of the ledger entry';
         CannotUnapplyExchRateErr: Label 'You cannot unapply the entry with the posting date %1, because the exchange rate for the additional reporting currency has been changed.', Comment = '%1 - a date';
         CannotApplyClosedEntriesErr: Label 'One or more of the entries that you selected is closed. You cannot apply closed entries.';
+        GLSetup: Record "General Ledger Setup";
+        GenJnlBatch: Record "Gen. Journal Batch";
         DetailedEmployeeLedgEntryPreviewContext: Record "Detailed Employee Ledger Entry";
-        ApplicationDatePreviewContext: Date;
-        DocumentNoPreviewContext: Code[20];
+        ApplyUnapplyParametersContext: Record "Apply Unapply Parameters";
         RunOptionPreview: Option Apply,Unapply;
         RunOptionPreviewContext: Option Apply,Unapply;
         PreviewMode: Boolean;
 
+#if not CLEAN20
+    [Obsolete('Replaced by Apply(EmplLedgEntry; ApplyUnapplyParameters)', '20.0')]
     procedure Apply(EmplLedgEntry: Record "Employee Ledger Entry"; DocumentNo: Code[20]; ApplicationDate: Date)
+    var
+        ApplyUnapplyParameters: Record "Apply Unapply Parameters";
     begin
-        OnBeforeApply(EmplLedgEntry, DocumentNo, ApplicationDate);
-        with EmplLedgEntry do begin
-            Get("Entry No.");
+        ApplyUnapplyParameters."Document No." := DocumentNo;
+        ApplyUnapplyParameters."Posting Date" := ApplicationDate;
+        Apply(EmplLedgEntry, ApplyUnapplyParameters)
+    end;
+#endif
 
-            if ApplicationDate = 0D then
-                ApplicationDate := GetApplicationDate(EmplLedgEntry)
-            else
-                if ApplicationDate < GetApplicationDate(EmplLedgEntry) then
-                    Error(MustNotBeBeforeErr);
+    procedure Apply(EmplLedgEntry: Record "Employee Ledger Entry"; ApplyUnapplyParameters: Record "Apply Unapply Parameters")
+    begin
+        OnBeforeApply(EmplLedgEntry, ApplyUnapplyParameters."Document No.", ApplyUnapplyParameters."Posting Date");
 
-            if DocumentNo = '' then
-                DocumentNo := "Document No.";
+        EmplLedgEntry.Get(EmplLedgEntry."Entry No.");
 
-            EmplPostApplyEmplLedgEntry(EmplLedgEntry, DocumentNo, ApplicationDate);
-        end;
+        if ApplyUnapplyParameters."Posting Date" = 0D then
+            ApplyUnapplyParameters."Posting Date" := GetApplicationDate(EmplLedgEntry)
+        else
+            if ApplyUnapplyParameters."Posting Date" < GetApplicationDate(EmplLedgEntry) then
+                Error(MustNotBeBeforeErr);
+
+        if ApplyUnapplyParameters."Document No." = '' then
+            ApplyUnapplyParameters."Document No." := EmplLedgEntry."Document No.";
+
+        EmplPostApplyEmplLedgEntry(EmplLedgEntry, ApplyUnapplyParameters);
     end;
 
     procedure GetApplicationDate(EmplLedgEntry: Record "Employee Ledger Entry") ApplicationDate: Date
     var
         ApplyToEmplLedgEntry: Record "Employee Ledger Entry";
     begin
-        with EmplLedgEntry do begin
-            ApplicationDate := 0D;
-            ApplyToEmplLedgEntry.SetCurrentKey("Employee No.", "Applies-to ID");
-            ApplyToEmplLedgEntry.SetRange("Employee No.", "Employee No.");
-            ApplyToEmplLedgEntry.SetRange("Applies-to ID", "Applies-to ID");
-            ApplyToEmplLedgEntry.Find('-');
-            repeat
-                if ApplyToEmplLedgEntry."Posting Date" > ApplicationDate then
-                    ApplicationDate := ApplyToEmplLedgEntry."Posting Date";
-            until ApplyToEmplLedgEntry.Next() = 0;
-        end;
+        ApplicationDate := 0D;
+        ApplyToEmplLedgEntry.SetCurrentKey("Employee No.", "Applies-to ID");
+        ApplyToEmplLedgEntry.SetRange("Employee No.", EmplLedgEntry."Employee No.");
+        ApplyToEmplLedgEntry.SetRange("Applies-to ID", EmplLedgEntry."Applies-to ID");
+        ApplyToEmplLedgEntry.Find('-');
+        repeat
+            if ApplyToEmplLedgEntry."Posting Date" > ApplicationDate then
+                ApplicationDate := ApplyToEmplLedgEntry."Posting Date";
+        until ApplyToEmplLedgEntry.Next() = 0;
     end;
 
-    local procedure EmplPostApplyEmplLedgEntry(EmplLedgEntry: Record "Employee Ledger Entry"; DocumentNo: Code[20]; ApplicationDate: Date)
+    local procedure EmplPostApplyEmplLedgEntry(EmplLedgEntry: Record "Employee Ledger Entry"; ApplyUnapplyParameters: Record "Apply Unapply Parameters")
     var
         SourceCodeSetup: Record "Source Code Setup";
         GenJnlLine: Record "Gen. Journal Line";
@@ -84,48 +108,48 @@ codeunit 224 "EmplEntry-Apply Posted Entries"
         EntryNoBeforeApplication: Integer;
         EntryNoAfterApplication: Integer;
     begin
-        with EmplLedgEntry do begin
-            Window.Open(PostingApplicationMsg);
+        Window.Open(PostingApplicationMsg);
 
-            SourceCodeSetup.Get();
+        SourceCodeSetup.Get();
 
-            GenJnlLine.Init();
-            GenJnlLine."Document No." := DocumentNo;
-            GenJnlLine."Posting Date" := ApplicationDate;
-            GenJnlLine."Document Date" := GenJnlLine."Posting Date";
-            GenJnlLine."Account Type" := GenJnlLine."Account Type"::Employee;
-            GenJnlLine."Account No." := "Employee No.";
-            CalcFields("Debit Amount", "Credit Amount", "Debit Amount (LCY)", "Credit Amount (LCY)");
-            GenJnlLine.Correction :=
-              ("Debit Amount" < 0) or ("Credit Amount" < 0) or
-              ("Debit Amount (LCY)" < 0) or ("Credit Amount (LCY)" < 0);
-            GenJnlLine."Document Type" := "Document Type";
-            GenJnlLine.Description := Description;
-            GenJnlLine."Shortcut Dimension 2 Code" := "Global Dimension 2 Code";
-            GenJnlLine."Shortcut Dimension 1 Code" := "Global Dimension 1 Code";
-            GenJnlLine."Dimension Set ID" := "Dimension Set ID";
-            GenJnlLine."Posting Group" := "Employee Posting Group";
-            GenJnlLine."Source No." := "Employee No.";
-            GenJnlLine."Source Type" := GenJnlLine."Source Type"::Employee;
-            GenJnlLine."Source Code" := SourceCodeSetup."Employee Entry Application";
-            GenJnlLine."System-Created Entry" := true;
+        GenJnlLine.Init();
+        GenJnlLine."Document No." := ApplyUnapplyParameters."Document No.";
+        GenJnlLine."Posting Date" := ApplyUnapplyParameters."Posting Date";
+        GenJnlLine."Document Date" := GenJnlLine."Posting Date";
+        GenJnlLine."Account Type" := GenJnlLine."Account Type"::Employee;
+        GenJnlLine."Account No." := EmplLedgEntry."Employee No.";
+        EmplLedgEntry.CalcFields("Debit Amount", "Credit Amount", "Debit Amount (LCY)", "Credit Amount (LCY)");
+        GenJnlLine.Correction :=
+            (EmplLedgEntry."Debit Amount" < 0) or (EmplLedgEntry."Credit Amount" < 0) or
+            (EmplLedgEntry."Debit Amount (LCY)" < 0) or (EmplLedgEntry."Credit Amount (LCY)" < 0);
+        GenJnlLine."Document Type" := EmplLedgEntry."Document Type";
+        GenJnlLine.Description := EmplLedgEntry.Description;
+        GenJnlLine."Shortcut Dimension 1 Code" := EmplLedgEntry."Global Dimension 1 Code";
+        GenJnlLine."Shortcut Dimension 2 Code" := EmplLedgEntry."Global Dimension 2 Code";
+        GenJnlLine."Dimension Set ID" := EmplLedgEntry."Dimension Set ID";
+        GenJnlLine."Posting Group" := EmplLedgEntry."Employee Posting Group";
+        GenJnlLine."Source No." := EmplLedgEntry."Employee No.";
+        GenJnlLine."Source Type" := GenJnlLine."Source Type"::Employee;
+        GenJnlLine."Source Code" := SourceCodeSetup."Employee Entry Application";
+        GenJnlLine."System-Created Entry" := true;
+        GenJnlLine."Journal Template Name" := ApplyUnapplyParameters."Journal Template Name";
+        GenJnlLine."Journal Batch Name" := ApplyUnapplyParameters."Journal Batch Name";
 
-            EntryNoBeforeApplication := FindLastApplDtldEmplLedgEntry;
+        EntryNoBeforeApplication := FindLastApplDtldEmplLedgEntry();
 
-            OnEmplPostApplyEmplLedgEntryOnBeforeGenJnlPostLine(GenJnlLine, EmplLedgEntry);
-            GenJnlPostLine.EmplPostApplyEmplLedgEntry(GenJnlLine, EmplLedgEntry);
+        OnEmplPostApplyEmplLedgEntryOnBeforeGenJnlPostLine(GenJnlLine, EmplLedgEntry);
+        GenJnlPostLine.EmplPostApplyEmplLedgEntry(GenJnlLine, EmplLedgEntry);
 
-            EntryNoAfterApplication := FindLastApplDtldEmplLedgEntry;
-            if EntryNoAfterApplication = EntryNoBeforeApplication then
-                Error(NoEntriesAppliedErr);
+        EntryNoAfterApplication := FindLastApplDtldEmplLedgEntry;
+        if EntryNoAfterApplication = EntryNoBeforeApplication then
+            Error(NoEntriesAppliedErr);
 
-            if PreviewMode then
-                GenJnlPostPreview.ThrowError;
+        if PreviewMode then
+            GenJnlPostPreview.ThrowError();
 
-            Commit();
-            Window.Close;
-            UpdateAnalysisView.UpdateAll(0, true);
-        end;
+        Commit();
+        Window.Close();
+        UpdateAnalysisView.UpdateAll(0, true);
     end;
 
     local procedure FindLastApplDtldEmplLedgEntry(): Integer
@@ -141,18 +165,16 @@ codeunit 224 "EmplEntry-Apply Posted Entries"
         DtldEmplLedgEntry: Record "Detailed Employee Ledger Entry";
         ApplicationEntryNo: Integer;
     begin
-        with DtldEmplLedgEntry do begin
-            SetCurrentKey("Employee Ledger Entry No.", "Entry Type");
-            SetRange("Employee Ledger Entry No.", EmplLedgEntryNo);
-            SetRange("Entry Type", "Entry Type"::Application);
-            SetRange(Unapplied, false);
-            ApplicationEntryNo := 0;
-            if Find('-') then
-                repeat
-                    if "Entry No." > ApplicationEntryNo then
-                        ApplicationEntryNo := "Entry No.";
-                until Next() = 0;
-        end;
+        DtldEmplLedgEntry.SetCurrentKey("Employee Ledger Entry No.", "Entry Type");
+        DtldEmplLedgEntry.SetRange("Employee Ledger Entry No.", EmplLedgEntryNo);
+        DtldEmplLedgEntry.SetRange("Entry Type", DtldEmplLedgEntry."Entry Type"::Application);
+        DtldEmplLedgEntry.SetRange(Unapplied, false);
+        ApplicationEntryNo := 0;
+        if DtldEmplLedgEntry.Find('-') then
+            repeat
+                if DtldEmplLedgEntry."Entry No." > ApplicationEntryNo then
+                    ApplicationEntryNo := DtldEmplLedgEntry."Entry No.";
+            until DtldEmplLedgEntry.Next() = 0;
         exit(ApplicationEntryNo);
     end;
 
@@ -161,17 +183,15 @@ codeunit 224 "EmplEntry-Apply Posted Entries"
         DtldEmplLedgEntry: Record "Detailed Employee Ledger Entry";
         LastTransactionNo: Integer;
     begin
-        with DtldEmplLedgEntry do begin
-            SetCurrentKey("Employee Ledger Entry No.", "Entry Type");
-            SetRange("Employee Ledger Entry No.", EmplLedgEntryNo);
-            SetRange(Unapplied, false);
-            LastTransactionNo := 0;
-            if FindSet then
-                repeat
-                    if LastTransactionNo < "Transaction No." then
-                        LastTransactionNo := "Transaction No.";
-                until Next() = 0;
-        end;
+        DtldEmplLedgEntry.SetCurrentKey("Employee Ledger Entry No.", "Entry Type");
+        DtldEmplLedgEntry.SetRange("Employee Ledger Entry No.", EmplLedgEntryNo);
+        DtldEmplLedgEntry.SetRange(Unapplied, false);
+        LastTransactionNo := 0;
+        if DtldEmplLedgEntry.FindSet() then
+            repeat
+                if LastTransactionNo < DtldEmplLedgEntry."Transaction No." then
+                    LastTransactionNo := DtldEmplLedgEntry."Transaction No.";
+            until DtldEmplLedgEntry.Next() = 0;
         exit(LastTransactionNo);
     end;
 
@@ -204,16 +224,26 @@ codeunit 224 "EmplEntry-Apply Posted Entries"
     var
         UnapplyEmplEntries: Page "Unapply Employee Entries";
     begin
-        with DtldEmplLedgEntry do begin
-            TestField("Entry Type", "Entry Type"::Application);
-            TestField(Unapplied, false);
-            UnapplyEmplEntries.SetDtldEmplLedgEntry("Entry No.");
-            UnapplyEmplEntries.LookupMode(true);
-            UnapplyEmplEntries.RunModal;
-        end;
+        DtldEmplLedgEntry.TestField("Entry Type", DtldEmplLedgEntry."Entry Type"::Application);
+        DtldEmplLedgEntry.TestField(Unapplied, false);
+        UnapplyEmplEntries.SetDtldEmplLedgEntry(DtldEmplLedgEntry."Entry No.");
+        UnapplyEmplEntries.LookupMode(true);
+        UnapplyEmplEntries.RunModal();
     end;
 
+#if not CLEAN20
+    [Obsolete('Replaced by PostUnApplyEmployee(DtldCustLedgEntry2; ApplyUnapplyParameters)', '20.0')]
     procedure PostUnApplyEmployee(DtldEmplLedgEntry2: Record "Detailed Employee Ledger Entry"; DocNo: Code[20]; PostingDate: Date)
+    var
+        ApplyUnapplyParameters: Record "Apply Unapply Parameters";
+    begin
+        ApplyUnapplyParameters."Document No." := DocNo;
+        ApplyUnapplyParameters."Posting Date" := PostingDate;
+        PostUnApplyEmployee(DtldEmplLedgEntry2, ApplyUnapplyParameters);
+    end;
+#endif
+
+    procedure PostUnApplyEmployee(DtldEmplLedgEntry2: Record "Detailed Employee Ledger Entry"; ApplyUnapplyParameters: Record "Apply Unapply Parameters")
     var
         GLEntry: Record "G/L Entry";
         EmplLedgEntry: Record "Employee Ledger Entry";
@@ -234,8 +264,9 @@ codeunit 224 "EmplEntry-Apply Posted Entries"
         EmplLedgEntry.LockTable();
         EmplLedgEntry.Get(DtldEmplLedgEntry2."Employee Ledger Entry No.");
         OnPostUnApplyEmployeeOnAfterGetEmplLedgEntry(DtldEmplLedgEntry2, EmplLedgEntry);
-        CheckPostingDate(PostingDate, MaxPostingDate);
-        if PostingDate < DtldEmplLedgEntry2."Posting Date" then
+        if GenJnlBatch.Get(EmplLedgEntry."Journal Templ. Name", EmplLedgEntry."Journal Batch Name") then;
+        CheckPostingDate(ApplyUnapplyParameters, MaxPostingDate);
+        if ApplyUnapplyParameters."Posting Date" < DtldEmplLedgEntry2."Posting Date" then
             Error(MustNotBeBeforeErr);
         if DtldEmplLedgEntry2."Transaction No." = 0 then begin
             DtldEmplLedgEntry.SetCurrentKey("Application No.", "Employee No.", "Entry Type");
@@ -250,7 +281,7 @@ codeunit 224 "EmplEntry-Apply Posted Entries"
         if DtldEmplLedgEntry.Find('-') then
             repeat
                 if not AddCurrChecked then begin
-                    CheckAdditionalCurrency(PostingDate, DtldEmplLedgEntry."Posting Date");
+                    CheckAdditionalCurrency(ApplyUnapplyParameters."Posting Date", DtldEmplLedgEntry."Posting Date");
                     AddCurrChecked := true;
                 end;
                 if DtldEmplLedgEntry."Transaction No." <> 0 then begin
@@ -269,56 +300,55 @@ codeunit 224 "EmplEntry-Apply Posted Entries"
         DateComprReg.CheckMaxDateCompressed(MaxPostingDate, 0);
         OnPostUnApplyEmployeeOnAfterCheckMaxDateCompressed(DtldEmplLedgEntry2);
 
-        with DtldEmplLedgEntry2 do begin
-            SourceCodeSetup.Get();
-            EmplLedgEntry.Get("Employee Ledger Entry No.");
-            GenJnlLine."Document No." := DocNo;
-            GenJnlLine."Posting Date" := PostingDate;
-            GenJnlLine."Account Type" := GenJnlLine."Account Type"::Employee;
-            GenJnlLine."Account No." := "Employee No.";
-            GenJnlLine.Correction := true;
-            GenJnlLine."Document Type" := "Document Type";
-            GenJnlLine.Description := EmplLedgEntry.Description;
-            GenJnlLine."Dimension Set ID" := EmplLedgEntry."Dimension Set ID";
-            GenJnlLine."Shortcut Dimension 1 Code" := EmplLedgEntry."Global Dimension 1 Code";
-            GenJnlLine."Shortcut Dimension 2 Code" := EmplLedgEntry."Global Dimension 2 Code";
-            GenJnlLine."Source Type" := GenJnlLine."Source Type"::Employee;
-            GenJnlLine."Source No." := "Employee No.";
-            GenJnlLine."Source Code" := SourceCodeSetup."Unapplied Empl. Entry Appln.";
-            GenJnlLine."Posting Group" := EmplLedgEntry."Employee Posting Group";
-            GenJnlLine."Source Currency Code" := "Currency Code";
-            GenJnlLine."System-Created Entry" := true;
-            Window.Open(UnapplyingMsg);
-            OnPostUnApplyEmployeeOnBeforeGenJnlPostLineUnapplyEmplLedgEntry(GenJnlLine, EmplLedgEntry, DtldEmplLedgEntry2, GenJnlPostLine);
-            GenJnlPostLine.UnapplyEmplLedgEntry(GenJnlLine, DtldEmplLedgEntry2);
+        SourceCodeSetup.Get();
+        EmplLedgEntry.Get(DtldEmplLedgEntry2."Employee Ledger Entry No.");
+        GenJnlLine."Document No." := ApplyUnapplyParameters."Document No.";
+        GenJnlLine."Posting Date" := ApplyUnapplyParameters."Posting Date";
+        GenJnlLine."Account Type" := GenJnlLine."Account Type"::Employee;
+        GenJnlLine."Account No." := DtldEmplLedgEntry2."Employee No.";
+        GenJnlLine.Correction := true;
+        GenJnlLine."Document Type" := EmplLedgEntry."Document Type";
+        GenJnlLine.Description := EmplLedgEntry.Description;
+        GenJnlLine."Dimension Set ID" := EmplLedgEntry."Dimension Set ID";
+        GenJnlLine."Shortcut Dimension 1 Code" := EmplLedgEntry."Global Dimension 1 Code";
+        GenJnlLine."Shortcut Dimension 2 Code" := EmplLedgEntry."Global Dimension 2 Code";
+        GenJnlLine."Source Type" := GenJnlLine."Source Type"::Employee;
+        GenJnlLine."Source No." := EmplLedgEntry."Employee No.";
+        GenJnlLine."Source Code" := SourceCodeSetup."Unapplied Empl. Entry Appln.";
+        GenJnlLine."Posting Group" := EmplLedgEntry."Employee Posting Group";
+        GenJnlLine."Source Currency Code" := DtldEmplLedgEntry2."Currency Code";
+        GenJnlLine."System-Created Entry" := true;
+        Window.Open(UnapplyingMsg);
 
-            if PreviewMode then
-                GenJnlPostPreview.ThrowError;
+        OnPostUnApplyEmployeeOnBeforeGenJnlPostLineUnapplyEmplLedgEntry(GenJnlLine, EmplLedgEntry, DtldEmplLedgEntry2, GenJnlPostLine);
+        GenJnlPostLine.UnapplyEmplLedgEntry(GenJnlLine, DtldEmplLedgEntry2);
 
-            Commit();
-            Window.Close;
-        end;
+        if PreviewMode then
+            GenJnlPostPreview.ThrowError();
+
+        Commit();
+        Window.Close();
     end;
 
-    local procedure CheckPostingDate(PostingDate: Date; var MaxPostingDate: Date)
+    local procedure CheckPostingDate(ApplyUnapplyParameters: Record "Apply Unapply Parameters"; var MaxPostingDate: Date)
     var
         GenJnlCheckLine: Codeunit "Gen. Jnl.-Check Line";
     begin
-        if GenJnlCheckLine.DateNotAllowed(PostingDate) then
+        GenJnlCheckLine.SetGenJnlBatch(GenJnlBatch);
+        if GenJnlCheckLine.DateNotAllowed(ApplyUnapplyParameters."Posting Date") then
             Error(NotAllowedPostingDatesErr);
 
-        if PostingDate > MaxPostingDate then
-            MaxPostingDate := PostingDate;
+        if ApplyUnapplyParameters."Posting Date" > MaxPostingDate then
+            MaxPostingDate := ApplyUnapplyParameters."Posting Date";
     end;
 
     local procedure CheckAdditionalCurrency(OldPostingDate: Date; NewPostingDate: Date)
     var
-        GLSetup: Record "General Ledger Setup";
         CurrExchRate: Record "Currency Exchange Rate";
     begin
         if OldPostingDate = NewPostingDate then
             exit;
-        GLSetup.Get();
+        GLSetup.GetRecordOnce();
         if GLSetup."Additional Reporting Currency" <> '' then
             if CurrExchRate.ExchangeRate(OldPostingDate, GLSetup."Additional Reporting Currency") <>
                CurrExchRate.ExchangeRate(NewPostingDate, GLSetup."Additional Reporting Currency")
@@ -351,13 +381,13 @@ codeunit 224 "EmplEntry-Apply Posted Entries"
         EmplLedgEntry.SetCurrentKey("Employee No.", Open, Positive);
         EmplLedgEntry.SetRange("Employee No.", ApplyingEmplLedgEntry."Employee No.");
         EmplLedgEntry.SetRange(Open, true);
-        if EmplLedgEntry.FindFirst then begin
+        if EmplLedgEntry.FindFirst() then begin
             ApplyEmplEntries.SetEmplLedgEntry(ApplyingEmplLedgEntry);
             ApplyEmplEntries.SetRecord(EmplLedgEntry);
             ApplyEmplEntries.SetTableView(EmplLedgEntry);
             if ApplyingEmplLedgEntry."Applies-to ID" <> EmplEntryApplID then
                 ApplyEmplEntries.SetAppliesToID(ApplyingEmplLedgEntry."Applies-to ID");
-            ApplyEmplEntries.RunModal;
+            ApplyEmplEntries.RunModal();
             Clear(ApplyEmplEntries);
             ApplyingEmplLedgEntry."Applying Entry" := false;
             ApplyingEmplLedgEntry."Applies-to ID" := '';
@@ -382,38 +412,84 @@ codeunit 224 "EmplEntry-Apply Posted Entries"
         exit(LastTransactionNo);
     end;
 
+#if not CLEAN20
+    [Obsolete('Replaced by PreviewApply(EmployeeLedgerEntry, ApplyUnapplyParameters)', '20.0')]
     procedure PreviewApply(EmployeeLedgerEntry: Record "Employee Ledger Entry"; DocumentNo: Code[20]; ApplicationDate: Date)
+    var
+        ApplyUnapplyParameters: Record "Apply Unapply Parameters";
+    begin
+        ApplyUnapplyParameters."Document No." := DocumentNo;
+        ApplyUnapplyParameters."Posting Date" := ApplicationDate;
+        PreviewApply(EmployeeLedgerEntry, ApplyUnapplyParameters);
+    end;
+#endif
+
+    procedure PreviewApply(EmployeeLedgerEntry: Record "Employee Ledger Entry"; ApplyUnapplyParameters: Record "Apply Unapply Parameters")
     var
         GenJnlPostPreview: Codeunit "Gen. Jnl.-Post Preview";
         EmplEntryApplyPostedEntries: Codeunit "EmplEntry-Apply Posted Entries";
     begin
         BindSubscription(EmplEntryApplyPostedEntries);
-        EmplEntryApplyPostedEntries.SetApplyContext(ApplicationDate, DocumentNo);
+        EmplEntryApplyPostedEntries.SetApplyContext(ApplyUnapplyParameters);
         GenJnlPostPreview.Preview(EmplEntryApplyPostedEntries, EmployeeLedgerEntry);
     end;
 
+#if not CLEAN20
+    [Obsolete('Replaced by PreviewUnapply(DetailedEmployeeLedgEntry, ApplyUnapplyParameters)', '20.0')]
     procedure PreviewUnapply(DetailedEmployeeLedgEntry: Record "Detailed Employee Ledger Entry"; DocumentNo: Code[20]; ApplicationDate: Date)
+    var
+        ApplyUnapplyParameters: Record "Apply Unapply Parameters";
+    begin
+        ApplyUnapplyParameters."Document No." := DocumentNo;
+        ApplyUnapplyParameters."Posting Date" := ApplicationDate;
+        PreviewUnapply(DetailedEmployeeLedgEntry, ApplyUnapplyParameters);
+    end;
+#endif
+
+    procedure PreviewUnapply(DetailedEmployeeLedgEntry: Record "Detailed Employee Ledger Entry"; ApplyUnapplyParameters: Record "Apply Unapply Parameters")
     var
         EmployeeLedgerEntry: Record "Employee Ledger Entry";
         GenJnlPostPreview: Codeunit "Gen. Jnl.-Post Preview";
         EmplEntryApplyPostedEntries: Codeunit "EmplEntry-Apply Posted Entries";
     begin
         BindSubscription(EmplEntryApplyPostedEntries);
-        EmplEntryApplyPostedEntries.SetUnapplyContext(DetailedEmployeeLedgEntry, ApplicationDate, DocumentNo);
+        EmplEntryApplyPostedEntries.SetUnapplyContext(DetailedEmployeeLedgEntry, ApplyUnapplyParameters);
         GenJnlPostPreview.Preview(EmplEntryApplyPostedEntries, EmployeeLedgerEntry);
     end;
 
+#if not CLEAN20
+    [Obsolete('Replaced by SetApplyContext(ApplyUnapplyParameters)', '20.0')]
     procedure SetApplyContext(ApplicationDate: Date; DocumentNo: Code[20])
+    var
+        ApplyUnapplyParameters: Record "Apply Unapply Parameters";
     begin
-        ApplicationDatePreviewContext := ApplicationDate;
-        DocumentNoPreviewContext := DocumentNo;
+        ApplyUnapplyParameters."Document No." := DocumentNo;
+        ApplyUnapplyParameters."Posting Date" := ApplicationDate;
+        SetApplyContext(ApplyUnapplyParameters);
+    end;
+#endif
+
+    procedure SetApplyContext(ApplyUnapplyParameters: Record "Apply Unapply Parameters")
+    begin
+        ApplyUnapplyParametersContext := ApplyUnapplyParameters;
         RunOptionPreviewContext := RunOptionPreview::Apply;
     end;
 
+#if not CLEAN20
+    [Obsolete('Replaced by SetUnapplyContext(DetailedEmployeeLedgEntry; ApplyUnapplyParameters)', '20.0')]
     procedure SetUnapplyContext(var DetailedEmployeeLedgEntry: Record "Detailed Employee Ledger Entry"; ApplicationDate: Date; DocumentNo: Code[20])
+    var
+        ApplyUnapplyParameters: Record "Apply Unapply Parameters";
     begin
-        ApplicationDatePreviewContext := ApplicationDate;
-        DocumentNoPreviewContext := DocumentNo;
+        ApplyUnapplyParameters."Document No." := DocumentNo;
+        ApplyUnapplyParameters."Posting Date" := ApplicationDate;
+        SetUnapplyContext(DetailedEmployeeLedgEntry, ApplyUnapplyParameters);
+    end;
+#endif
+
+    procedure SetUnapplyContext(var DetailedEmployeeLedgEntry: Record "Detailed Employee Ledger Entry"; ApplyUnapplyParameters: Record "Apply Unapply Parameters")
+    begin
+        ApplyUnapplyParametersContext := ApplyUnapplyParameters;
         DetailedEmployeeLedgEntryPreviewContext := DetailedEmployeeLedgEntry;
         RunOptionPreviewContext := RunOptionPreview::Unapply;
     end;
@@ -453,4 +529,3 @@ codeunit 224 "EmplEntry-Apply Posted Entries"
     begin
     end;
 }
-

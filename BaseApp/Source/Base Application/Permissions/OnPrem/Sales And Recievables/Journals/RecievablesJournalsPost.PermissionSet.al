@@ -36,7 +36,9 @@ permissionset 6207 "Recievables Journals - Post"
                   tabledata "General Ledger Setup" = r,
                   tabledata "General Posting Setup" = r,
                   tabledata "Line Fee Note on Report Hist." = rim,
+#if not CLEAN20
                   tabledata "Native - Payment" = RIMD,
+#endif
                   tabledata "Reminder Level" = r,
                   tabledata "Reminder Terms" = r,
                   tabledata "Reminder Terms Translation" = r,

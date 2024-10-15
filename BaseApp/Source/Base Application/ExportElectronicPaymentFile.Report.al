@@ -386,7 +386,7 @@ report 11380 "Export Electronic Payment File"
             VendLedgEntry.SetRange("Document No.", GenJnlLine."Applies-to Doc. No.");
             VendLedgEntry.SetRange("Vendor No.", Vendor."No.");
             VendLedgEntry.SetRange(Open, true);
-            VendLedgEntry.FindFirst;
+            VendLedgEntry.FindFirst();
             VendLedgEntry.CalcFields("Remaining Amt. (LCY)");
             if (VendLedgEntry."Pmt. Discount Date" >= SettleDate) and
                (VendLedgEntry."Remaining Pmt. Disc. Possible" <> 0) and
@@ -416,7 +416,7 @@ report 11380 "Export Electronic Payment File"
             CustLedgEntry.SetRange("Document No.", GenJnlLine."Applies-to Doc. No.");
             CustLedgEntry.SetRange("Customer No.", Customer."No.");
             CustLedgEntry.SetRange(Open, true);
-            CustLedgEntry.FindFirst;
+            CustLedgEntry.FindFirst();
             CustLedgEntry.CalcFields("Remaining Amt. (LCY)");
             if (CustLedgEntry."Pmt. Discount Date" >= SettleDate) and
                (CustLedgEntry."Remaining Pmt. Disc. Possible" <> 0) and

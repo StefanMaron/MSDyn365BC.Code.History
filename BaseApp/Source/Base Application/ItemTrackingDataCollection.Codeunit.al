@@ -293,7 +293,7 @@ codeunit 6501 "Item Tracking Data Collection"
         ItemTrackingSummaryForm.LookupMode(false);
         ItemTrackingSummaryForm.SetSelectionMode(false);
         Window.Close();
-        ItemTrackingSummaryForm.RunModal;
+        ItemTrackingSummaryForm.RunModal();
     end;
 
     local procedure ShouldExitLookupTrackingAvailability(TempTrackingSpecification: Record "Tracking Specification" temporary; LookupMode: Enum "Item Tracking Type"): Boolean
@@ -990,7 +990,7 @@ codeunit 6501 "Item Tracking Data Collection"
         InsertAdjustmentEntries;
     end;
 
-    local procedure SumUpTempTrkgSpec(var TempTrackingSpecification: Record "Tracking Specification" temporary; ReservEntry: Record "Reservation Entry")
+    procedure SumUpTempTrkgSpec(var TempTrackingSpecification: Record "Tracking Specification" temporary; ReservEntry: Record "Reservation Entry")
     var
         ItemTrackingMgt: Codeunit "Item Tracking Management";
     begin
@@ -1010,7 +1010,7 @@ codeunit 6501 "Item Tracking Data Collection"
         end;
     end;
 
-    local procedure RelateJnlLineToTempTrkgSpec(var ReservEntry: Record "Reservation Entry"; var TempTrackingSpecification: Record "Tracking Specification" temporary)
+    procedure RelateJnlLineToTempTrkgSpec(var ReservEntry: Record "Reservation Entry"; var TempTrackingSpecification: Record "Tracking Specification" temporary)
     var
         ItemJnlLine: Record "Item Journal Line";
         ItemTrackingSetup: Record "Item Tracking Setup";

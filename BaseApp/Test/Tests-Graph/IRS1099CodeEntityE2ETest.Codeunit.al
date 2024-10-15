@@ -27,7 +27,7 @@ codeunit 135519 "IRS 1099 Code Entity E2E Test"
         IRS1099FormBoxId: Guid;
     begin
         // [SCENARIO] Create an IRS1099FormBox and verify it has Id and LastDateTimeModified.
-        Initialize;
+        Initialize();
 
         // [GIVEN] a modified IRS1099FormBox record
         IRS1099FormBoxCode := CreateIRS1099FormBox;
@@ -51,7 +51,7 @@ codeunit 135519 "IRS 1099 Code Entity E2E Test"
         "Count": Integer;
     begin
         // [SCENARIO] User can retrieve all IRS1099FormBox records from the IRS1099FormBox API.
-        Initialize;
+        Initialize();
 
         // [GIVEN] 2 irs1099Codes in the IRS1099FormBox Table
         for Count := 1 to 2 do
@@ -78,7 +78,7 @@ codeunit 135519 "IRS 1099 Code Entity E2E Test"
         TargetURL: Text;
     begin
         // [SCENARIO] Create an IRS1099FormBox through a POST method and check if it was created
-        Initialize;
+        Initialize();
 
         // [GIVEN] The user has constructed an IRS1099FormBox JSON object to send to the service.
         IRS1099FormBoxJSON := GetIRS1099FormBoxJSON(TempIRS1099FormBox);
@@ -106,12 +106,12 @@ codeunit 135519 "IRS 1099 Code Entity E2E Test"
         IRS1099FormBoxCode: Text;
     begin
         // [SCENARIO] User can modify an IRS1099FormBox through a PATCH request.
-        Initialize;
+        Initialize();
 
         // [GIVEN] An IRS1099FormBox exists.
         IRS1099FormBoxCode := CreateIRS1099FormBox;
         IRS1099FormBox.Get(IRS1099FormBoxCode);
-        IRS1099FormBox.Description := LibraryUtility.GenerateGUID;
+        IRS1099FormBox.Description := LibraryUtility.GenerateGUID();
         RequestBody := GetIRS1099FormBoxJSON(IRS1099FormBox);
 
         // [WHEN] The user makes a patch request to the service.
@@ -136,7 +136,7 @@ codeunit 135519 "IRS 1099 Code Entity E2E Test"
         Responsetext: Text;
     begin
         // [SCENARIO] User can delete an IRS1099FormBox by making a DELETE request.
-        Initialize;
+        Initialize();
 
         // [GIVEN] An IRS1099FormBox exists.
         IRS1099FormBoxCode := CreateIRS1099FormBox;
@@ -174,7 +174,7 @@ codeunit 135519 "IRS 1099 Code Entity E2E Test"
         IRS1099FormBox: Record "IRS 1099 Form-Box";
     begin
         IRS1099FormBox.SetFilter(Code, StrSubstNo('%1*', IRS1099FormBoxPrefixTxt));
-        if IRS1099FormBox.FindLast then
+        if IRS1099FormBox.FindLast() then
             exit(IncStr(IRS1099FormBox.Code));
 
         exit(IRS1099FormBoxPrefixTxt + '00001');
@@ -190,7 +190,7 @@ codeunit 135519 "IRS 1099 Code Entity E2E Test"
         if IRS1099FormBox.Code = '' then
             IRS1099FormBox.Code := GetNextIRS1099FormBoxID;
         if IRS1099FormBox.Description = '' then
-            IRS1099FormBox.Description := LibraryUtility.GenerateGUID;
+            IRS1099FormBox.Description := LibraryUtility.GenerateGUID();
 
         JSONManagement.AddJPropertyToJObject(JsonObject, 'code', IRS1099FormBox.Code);
         JSONManagement.AddJPropertyToJObject(JsonObject, 'displayName', IRS1099FormBox.Description);

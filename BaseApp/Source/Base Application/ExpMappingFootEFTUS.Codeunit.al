@@ -16,9 +16,9 @@ codeunit 10330 "Exp. Mapping Foot EFT US"
         DataExchLineDef.Init();
         DataExchLineDef.SetRange("Data Exch. Def Code", "Data Exch. Def Code");
         DataExchLineDef.SetRange("Line Type", DataExchLineDef."Line Type"::Footer);
-        if DataExchLineDef.FindFirst then begin
+        if DataExchLineDef.FindFirst() then begin
             DataExch.SetRange("Entry No.", "Entry No.");
-            if DataExch.FindFirst then
+            if DataExch.FindFirst() then
                 if ACHUSFooter.Get("Entry No.") then begin
                     RecordRef.GetTable(ACHUSFooter);
                     EFTExportMgt.InsertDataExchLineForFlatFile(

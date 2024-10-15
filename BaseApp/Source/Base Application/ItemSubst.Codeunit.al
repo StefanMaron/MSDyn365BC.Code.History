@@ -22,7 +22,6 @@ codeunit 5701 "Item Subst."
         CatalogItemMgt: Codeunit "Catalog Item Management";
         AvailToPromise: Codeunit "Available to Promise";
         ItemCheckAvail: Codeunit "Item-Check Avail.";
-        DimMgt: Codeunit DimensionManagement;
         UOMMgt: Codeunit "Unit of Measure Management";
         SaveDropShip: Boolean;
         SetupDataIsPresent: Boolean;
@@ -126,10 +125,7 @@ codeunit 5701 "Item Subst."
         TempSalesLine.Validate(Quantity, SaveQty);
         TempSalesLine.Validate("Unit of Measure Code", OldSalesUOM);
 
-        TempSalesLine.CreateDim(
-          DimMgt.TypeToTableID3(TempSalesLine.Type.AsInteger()), TempSalesLine."No.",
-          DATABASE::Job, TempSalesLine."Job No.",
-          DATABASE::"Responsibility Center", TempSalesLine."Responsibility Center");
+        TempSalesLine.CreateDimFromDefaultDim(0);
 
         OnItemSubstGetOnAfterSubstSalesLineItem(TempSalesLine, SalesLine, TempItemSubstitution);
     end;
@@ -163,7 +159,7 @@ codeunit 5701 "Item Subst."
                         GetSetupData;
                     OnCalcCustPriceOnBeforeCalcQtyAvail(Item, TempSalesLine, TempItemSubstitution, ItemSubstitution);
                     TempItemSubstitution."Quantity Avail. on Shpt. Date" :=
-                      AvailToPromise.QtyAvailabletoPromise(
+                      AvailToPromise.CalcQtyAvailabletoPromise(
                         Item, GrossReq, SchedRcpt,
                         Item.GetRangeMax("Date Filter"), CompanyInfo."Check-Avail. Time Bucket",
                         CompanyInfo."Check-Avail. Period Calc.");
@@ -204,7 +200,7 @@ codeunit 5701 "Item Subst."
                         GetSetupData;
                     OnAssemblyCalcCustPriceOnBeforeCalcQtyAvail(Item, AssemblyLine, TempItemSubstitution);
                     TempItemSubstitution."Quantity Avail. on Shpt. Date" :=
-                      AvailToPromise.QtyAvailabletoPromise(
+                      AvailToPromise.CalcQtyAvailabletoPromise(
                         Item, GrossReq, SchedRcpt,
                         Item.GetRangeMax("Date Filter"), CompanyInfo."Check-Avail. Time Bucket",
                         CompanyInfo."Check-Avail. Period Calc.");
@@ -322,9 +318,9 @@ codeunit 5701 "Item Subst."
                         GetSetupData;
                     OnInsertInSubstServiceListOnBeforeCalcQtyAvail(Item, ServInvLine, TempItemSubstitution);
                     TempItemSubstitution."Quantity Avail. on Shpt. Date" :=
-                      AvailToPromise.QtyAvailabletoPromise(
+                      AvailToPromise.CalcQtyAvailabletoPromise(
                         Item, GrossReq, SchedRcpt,
-                        Item.GetRangeMax("Date Filter"), 2,
+                        Item.GetRangeMax("Date Filter"), "Analysis Period Type"::Month,
                         CompanyInfo."Check-Avail. Period Calc.");
                     Item.CalcFields(Inventory);
                     OnInsertInSubstServiceListOnAfterCalcQtyAvail(Item, ServInvLine, TempItemSubstitution);
@@ -339,7 +335,7 @@ codeunit 5701 "Item Subst."
                     ItemSubstitution2.SetFilter("Substitute No.", '<>%1&<>%2', ItemSubstitution."No.", OrgNo);
                     ItemSubstitution.CopyFilter("Variant Code", ItemSubstitution2."Variant Code");
                     ItemSubstitution.CopyFilter("Location Filter", ItemSubstitution2."Location Filter");
-                    if ItemSubstitution2.FindFirst then
+                    if ItemSubstitution2.FindFirst() then
                         InsertInSubstServiceList(OrgNo, ItemSubstitution2, (RelatLevel + 1));
                 end else begin
                     TempItemSubstitution.Find;
@@ -371,7 +367,7 @@ codeunit 5701 "Item Subst."
                         ItemSubstitution2.SetFilter("Substitute No.", '<>%1&<>%2', NonStockItem."Item No.", OrgNo);
                         ItemSubstitution.CopyFilter("Variant Code", ItemSubstitution2."Variant Code");
                         ItemSubstitution.CopyFilter("Location Filter", ItemSubstitution2."Location Filter");
-                        if ItemSubstitution2.FindFirst then
+                        if ItemSubstitution2.FindFirst() then
                             InsertInSubstServiceList(OrgNo, ItemSubstitution2, (RelatLevel + 1));
                     end else begin
                         TempItemSubstitution.Find;
@@ -511,9 +507,9 @@ codeunit 5701 "Item Subst."
                     Item.Get(ItemSubstitution."Substitute No.");
                     OnCreateSubstListOnBeforeCalcQtyAvail(Item, ProdOrderCompSubst, TempItemSubstitution);
                     TempItemSubstitution."Quantity Avail. on Shpt. Date" :=
-                      AvailToPromise.QtyAvailabletoPromise(
+                      AvailToPromise.CalcQtyAvailabletoPromise(
                         Item, GrossReq, SchedRcpt,
-                        Item.GetRangeMax("Date Filter"), 2, ODF);
+                        Item.GetRangeMax("Date Filter"), "Analysis Period Type"::Month, ODF);
                     Item.CalcFields(Inventory);
                     OnCreateSubstListOnAfterCalcQtyAvail(Item, ProdOrderCompSubst, TempItemSubstitution);
                     TempItemSubstitution.Inventory := Item.Inventory;
@@ -525,7 +521,7 @@ codeunit 5701 "Item Subst."
                     ItemSubstitution2.SetFilter("Substitute No.", '<>%1&<>%2', ItemSubstitution."No.", OrgNo);
                     ItemSubstitution.CopyFilter("Variant Code", ItemSubstitution2."Variant Code");
                     ItemSubstitution.CopyFilter("Location Filter", ItemSubstitution2."Location Filter");
-                    if ItemSubstitution2.FindFirst then
+                    if ItemSubstitution2.FindFirst() then
                         CreateSubstList(OrgNo, ItemSubstitution2, RelationsLevel2 + 1, DemandDate, CalcATP);
                 end else begin
                     TempItemSubstitution.Reset();

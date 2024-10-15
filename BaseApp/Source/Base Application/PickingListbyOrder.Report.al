@@ -273,7 +273,7 @@ report 10153 "Picking List by Order"
                                         SetRange("Source Subtype", "Sales Line"."Document Type");
                                         SetRange("Source ID", "Sales Line"."Document No.");
                                         SetRange("Source Ref. No.", "Sales Line"."Line No.");
-                                        AnySerialNos := FindFirst;
+                                        AnySerialNos := FindFirst();
                                     end
                                 else
                                     AnySerialNos := false;

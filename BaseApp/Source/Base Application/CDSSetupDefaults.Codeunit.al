@@ -9,6 +9,7 @@ codeunit 7204 "CDS Setup Defaults"
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
         CRMProductName: Codeunit "CRM Product Name";
         JobQueueCategoryLbl: Label 'BCI INTEG', Locked = true;
+        OptionJobQueueCategoryLbl: Label 'BCI OPTION', Locked = true;
         CustomerTableMappingNameTxt: Label 'CUSTOMER', Locked = true;
         VendorTableMappingNameTxt: Label 'VENDOR', Locked = true;
         JobQueueEntryNameTok: Label ' %1 - %2 synchronization job.', Comment = '%1 = The Integration Table Name to synchronized (ex. CUSTOMER), %2 = CRM product name';
@@ -148,6 +149,9 @@ codeunit 7204 "CDS Setup Defaults"
             IntegrationTableMapping."Dependency Filter" := 'SALESPEOPLE|CURRENCY'
         else
             IntegrationTableMapping."Dependency Filter" := 'CURRENCY';
+
+        if CRMIntegrationManagement.IsOptionMappingEnabled() then
+            IntegrationTableMapping."Dependency Filter" += '|PAYMENT TERMS|SHIPMENT METHOD|SHIPPING AGENT';
         IntegrationTableMapping.Modify();
 
         if not IsTeamOwnershipModel then begin
@@ -222,7 +226,7 @@ codeunit 7204 "CDS Setup Defaults"
           Customer.FieldNo("Country/Region Code"),
           CRMAccount.FieldNo(Address1_Country),
           IntegrationFieldMapping.Direction::Bidirectional,
-          '', true, false);
+          '', false, false);
 
         // County > Address1_StateOrProvince
         InsertIntegrationFieldMapping(
@@ -354,6 +358,9 @@ codeunit 7204 "CDS Setup Defaults"
             IntegrationTableMapping."Dependency Filter" := 'SALESPEOPLE|CURRENCY'
         else
             IntegrationTableMapping."Dependency Filter" := 'CURRENCY';
+
+        if CRMIntegrationManagement.IsOptionMappingEnabled() then
+            IntegrationTableMapping."Dependency Filter" += '|PAYMENT TERMS|SHIPMENT METHOD|SHIPPING AGENT';
         IntegrationTableMapping.Modify();
 
         if not IsTeamOwnershipModel then begin
@@ -428,7 +435,7 @@ codeunit 7204 "CDS Setup Defaults"
           Vendor.FieldNo("Country/Region Code"),
           CRMAccount.FieldNo(Address1_Country),
           IntegrationFieldMapping.Direction::Bidirectional,
-          '', true, false);
+          '', false, false);
 
         // County > Address1_StateOrProvince
         InsertIntegrationFieldMapping(
@@ -619,7 +626,7 @@ codeunit 7204 "CDS Setup Defaults"
           Contact.FieldNo("Country/Region Code"),
           CRMContact.FieldNo(Address1_Country),
           IntegrationFieldMapping.Direction::Bidirectional,
-          '', true, false);
+          '', false, false);
 
         // County > Address1_StateOrProvince
         InsertIntegrationFieldMapping(
@@ -788,17 +795,20 @@ codeunit 7204 "CDS Setup Defaults"
         CRMAccount: Record "CRM Account";
         CRMIntegrationTableSynch: Codeunit "CRM Integration Table Synch.";
         IsHandled: Boolean;
+        OptionMappingEnabled: Boolean;
     begin
         IsHandled := false;
         OnBeforeResetPaymentTermsMapping(IntegrationTableMappingName, IsHandled);
         if IsHandled then
             exit;
 
+        OptionMappingEnabled := CRMIntegrationManagement.IsOptionMappingEnabled();
+
         InsertIntegrationTableMapping(
           IntegrationTableMapping, IntegrationTableMappingName,
           DATABASE::"Payment Terms", DATABASE::"CRM Account",
           CRMAccount.FieldNo(PaymentTermsCodeEnum), 0,
-          '', '', false);
+          '', '', OptionMappingEnabled);
 
         // Code > "CRM Account".PaymentTermsCode
         InsertIntegrationFieldMapping(
@@ -808,7 +818,10 @@ codeunit 7204 "CDS Setup Defaults"
           IntegrationFieldMapping.Direction::FromIntegrationTable,
           '', true, false);
 
-        CRMIntegrationTableSynch.SynchOption(IntegrationTableMapping);
+        if not OptionMappingEnabled then
+            CRMIntegrationTableSynch.SynchOption(IntegrationTableMapping)
+        else
+            RecreateOptionJobQueueEntryFromIntTableMapping(IntegrationTableMapping, 30, true, 1440);
     end;
 
     [Scope('OnPrem')]
@@ -820,17 +833,20 @@ codeunit 7204 "CDS Setup Defaults"
         CRMAccount: Record "CRM Account";
         CRMIntegrationTableSynch: Codeunit "CRM Integration Table Synch.";
         IsHandled: Boolean;
+        OptionMappingEnabled: Boolean;
     begin
         IsHandled := false;
         OnBeforeResetShipmentMethodMapping(IntegrationTableMappingName, IsHandled);
         if IsHandled then
             exit;
 
+        OptionMappingEnabled := CRMIntegrationManagement.IsOptionMappingEnabled();
+
         InsertIntegrationTableMapping(
           IntegrationTableMapping, IntegrationTableMappingName,
           DATABASE::"Shipment Method", DATABASE::"CRM Account",
           CRMAccount.FieldNo(Address1_FreightTermsCodeEnum), 0,
-          '', '', false);
+          '', '', OptionMappingEnabled);
 
         // Code > "CRM Account".Address1_FreightTermsCode
         InsertIntegrationFieldMapping(
@@ -840,7 +856,10 @@ codeunit 7204 "CDS Setup Defaults"
           IntegrationFieldMapping.Direction::FromIntegrationTable,
           '', true, false);
 
-        CRMIntegrationTableSynch.SynchOption(IntegrationTableMapping);
+        if not OptionMappingEnabled then
+            CRMIntegrationTableSynch.SynchOption(IntegrationTableMapping)
+        else
+            RecreateOptionJobQueueEntryFromIntTableMapping(IntegrationTableMapping, 30, true, 1440);
     end;
 
     [Scope('OnPrem')]
@@ -852,17 +871,20 @@ codeunit 7204 "CDS Setup Defaults"
         CRMAccount: Record "CRM Account";
         CRMIntegrationTableSynch: Codeunit "CRM Integration Table Synch.";
         IsHandled: Boolean;
+        OptionMappingEnabled: Boolean;
     begin
         IsHandled := false;
         OnBeforeResetShippingAgentMapping(IntegrationTableMappingName, IsHandled);
         if IsHandled then
             exit;
 
+        OptionMappingEnabled := CRMIntegrationManagement.IsOptionMappingEnabled();
+
         InsertIntegrationTableMapping(
           IntegrationTableMapping, IntegrationTableMappingName,
           DATABASE::"Shipping Agent", DATABASE::"CRM Account",
           CRMAccount.FieldNo(Address1_ShippingMethodCodeEnum), 0,
-          '', '', false);
+          '', '', OptionMappingEnabled);
 
         // Code > "CRM Account".Address1_ShippingMethodCode
         InsertIntegrationFieldMapping(
@@ -872,7 +894,10 @@ codeunit 7204 "CDS Setup Defaults"
           IntegrationFieldMapping.Direction::FromIntegrationTable,
           '', true, false);
 
-        CRMIntegrationTableSynch.SynchOption(IntegrationTableMapping);
+        if not OptionMappingEnabled then
+            CRMIntegrationTableSynch.SynchOption(IntegrationTableMapping)
+        else
+            RecreateOptionJobQueueEntryFromIntTableMapping(IntegrationTableMapping, 30, true, 1440);
     end;
 
     local procedure InsertIntegrationTableMapping(var IntegrationTableMapping: Record "Integration Table Mapping"; MappingName: Code[20]; TableNo: Integer; IntegrationTableNo: Integer; IntegrationTableUIDFieldNo: Integer; IntegrationTableModifiedFieldNo: Integer; TableConfigTemplateCode: Code[10]; IntegrationTableConfigTemplateCode: Code[10]; SynchOnlyCoupledRecords: Boolean)
@@ -972,12 +997,17 @@ codeunit 7204 "CDS Setup Defaults"
         exit(Codeunit.Run(Codeunit::"Job Queue - Enqueue", JobQueueEntry))
     end;
 
-    local procedure RecreateJobQueueEntryFromIntTableMapping(IntegrationTableMapping: Record "Integration Table Mapping"; IntervalInMinutes: Integer; ShouldRecreateJobQueueEntry: Boolean; InactivityTimeoutPeriod: Integer)
+    local procedure RecreateOptionJobQueueEntryFromIntTableMapping(IntegrationTableMapping: Record "Integration Table Mapping"; IntervalInMinutes: Integer; ShouldRecreateJobQueueEntry: Boolean; InactivityTimeoutPeriod: Integer)
     begin
-        RecreateJobQueueEntryFromIntTableMapping(IntegrationTableMapping, IntervalInMinutes, ShouldRecreateJobQueueEntry, InactivityTimeoutPeriod, CRMProductName.CDSServiceName());
+        RecreateJobQueueEntryFromIntTableMapping(IntegrationTableMapping, IntervalInMinutes, ShouldRecreateJobQueueEntry, InactivityTimeoutPeriod, CRMProductName.CDSServiceName(), true);
     end;
 
-    internal procedure RecreateJobQueueEntryFromIntTableMapping(IntegrationTableMapping: Record "Integration Table Mapping"; IntervalInMinutes: Integer; ShouldRecreateJobQueueEntry: Boolean; InactivityTimeoutPeriod: Integer; ServiceName: Text)
+    local procedure RecreateJobQueueEntryFromIntTableMapping(IntegrationTableMapping: Record "Integration Table Mapping"; IntervalInMinutes: Integer; ShouldRecreateJobQueueEntry: Boolean; InactivityTimeoutPeriod: Integer)
+    begin
+        RecreateJobQueueEntryFromIntTableMapping(IntegrationTableMapping, IntervalInMinutes, ShouldRecreateJobQueueEntry, InactivityTimeoutPeriod, CRMProductName.CDSServiceName(), false);
+    end;
+
+    internal procedure RecreateJobQueueEntryFromIntTableMapping(IntegrationTableMapping: Record "Integration Table Mapping"; IntervalInMinutes: Integer; ShouldRecreateJobQueueEntry: Boolean; InactivityTimeoutPeriod: Integer; ServiceName: Text; IsOption: Boolean)
     var
         JobQueueEntry: Record "Job Queue Entry";
     begin
@@ -997,6 +1027,8 @@ codeunit 7204 "CDS Setup Defaults"
         JobQueueEntry.Status := JobQueueEntry.Status::Ready;
         JobQueueEntry."Rerun Delay (sec.)" := 30;
         JobQueueEntry."Inactivity Timeout Period" := InactivityTimeoutPeriod;
+        if IsOption then
+            JobQueueEntry."Job Queue Category Code" := OptionJobQueueCategoryLbl;
         if ShouldRecreateJobQueueEntry then
             Codeunit.Run(Codeunit::"Job Queue - Enqueue", JobQueueEntry)
         else
@@ -1039,6 +1071,12 @@ codeunit 7204 "CDS Setup Defaults"
                 CDSTableNo := DATABASE::"CRM Account";
             DATABASE::"Salesperson/Purchaser":
                 CDSTableNo := DATABASE::"CRM Systemuser";
+            DATABASE::"Payment Terms":
+                CDSTableNo := DATABASE::"CRM Payment Terms";
+            DATABASE::"Shipment Method":
+                CDSTableNo := DATABASE::"CRM Freight Terms";
+            DATABASE::"Shipping Agent":
+                CDSTableNo := DATABASE::"CRM Shipping Method";
         end;
 
         if CDSTableNo <> 0 then
@@ -1347,6 +1385,30 @@ codeunit 7204 "CDS Setup Defaults"
                         IntegrationTableMapping.Modify();
                     end;
                 end;
+        end;
+    end;
+
+    procedure ResetOptionMappingConfiguration()
+    var
+        IntegrationTableMapping: Record "Integration Table Mapping";
+    begin
+        if IntegrationTableMapping.Get('PAYMENT TERMS') then begin
+            IntegrationTableMapping."Synch. Only Coupled Records" := true;
+            IntegrationTableMapping."Coupling Codeunit ID" := Codeunit::"CDS Int. Option Couple";
+            IntegrationTableMapping.Modify();
+            RecreateOptionJobQueueEntryFromIntTableMapping(IntegrationTableMapping, 30, true, 1440);
+        end;
+        if IntegrationTableMapping.Get('SHIPMENT METHOD') then begin
+            IntegrationTableMapping."Synch. Only Coupled Records" := true;
+            IntegrationTableMapping."Coupling Codeunit ID" := Codeunit::"CDS Int. Option Couple";
+            IntegrationTableMapping.Modify();
+            RecreateOptionJobQueueEntryFromIntTableMapping(IntegrationTableMapping, 30, true, 1440);
+        end;
+        if IntegrationTableMapping.Get('SHIPPING AGENT') then begin
+            IntegrationTableMapping."Synch. Only Coupled Records" := true;
+            IntegrationTableMapping."Coupling Codeunit ID" := Codeunit::"CDS Int. Option Couple";
+            IntegrationTableMapping.Modify();
+            RecreateOptionJobQueueEntryFromIntTableMapping(IntegrationTableMapping, 30, true, 1440);
         end;
     end;
 

@@ -117,7 +117,7 @@ codeunit 142054 SalesDocTotalsWithSalesTax
         Initialize();
 
         LibraryLowerPermissions.SetSalesDocsCreate();
-        LibraryLowerPermissions.AddO365Setup;
+        LibraryLowerPermissions.AddO365Setup();
 
         // Create excise tax to be used by purchase invoice
         TaxPercent := LibraryRandom.RandIntInRange(10, 20);
@@ -180,7 +180,7 @@ codeunit 142054 SalesDocTotalsWithSalesTax
         Initialize();
 
         LibraryLowerPermissions.SetSalesDocsCreate();
-        LibraryLowerPermissions.AddO365Setup;
+        LibraryLowerPermissions.AddO365Setup();
 
         // Create excise tax to be used by purchase invoice
         TaxPercent := LibraryRandom.RandIntInRange(10, 20);
@@ -255,7 +255,7 @@ codeunit 142054 SalesDocTotalsWithSalesTax
 
         // [GIVEN] User has created a sales document with a sales line containing sales tax
         LibraryLowerPermissions.SetSalesDocsCreate;
-        LibraryLowerPermissions.AddO365Setup;
+        LibraryLowerPermissions.AddO365Setup();
         CreateSalesDocument(SalesLine, SalesHeader."Document Type"::Invoice, TaxGroupCode, TaxPercentage, TaxAreaCode);
 
         // Store away the line created, to pull back in later
@@ -744,7 +744,7 @@ codeunit 142054 SalesDocTotalsWithSalesTax
         Initialize();
 
         LibraryLowerPermissions.SetSalesDocsCreate();
-        LibraryLowerPermissions.AddO365Setup;
+        LibraryLowerPermissions.AddO365Setup();
 
         // [GIVEN] Tax setup where tax detail with "Expense/Capitalize" = true and "Tax Below Maximum" = 10%
         TaxPercent := LibraryRandom.RandIntInRange(10, 20);
@@ -805,7 +805,7 @@ codeunit 142054 SalesDocTotalsWithSalesTax
 
         TaxJurisdiction[1].TestField("Tax Account (Sales)");
         GLEntry.SetRange("G/L Account No.", TaxJurisdiction[1]."Tax Account (Sales)");
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         GLEntry.TestField("Additional-Currency Amount");
     end;
 
@@ -853,14 +853,14 @@ codeunit 142054 SalesDocTotalsWithSalesTax
         LibraryApplicationArea: Codeunit "Library - Application Area";
         InstructionMgt: Codeunit "Instruction Mgt.";
     begin
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
 
         if isInitialized then
             exit;
 
         InstructionMgt.DisableMessageForCurrentUser(InstructionMgt.QueryPostOnCloseCode);
 
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.CreateVATData();
         Clear(VATPostingSetup);
         if not VATPostingSetup.Get('', '') then begin
             VATPostingSetup."VAT Bus. Posting Group" := '';

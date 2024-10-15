@@ -47,7 +47,9 @@ codeunit 5011 "Graph Mgt - Vendor Payments"
             if FindSet() then
                 repeat
                     UpdateVendorID();
+#if not CLEAN20                    
                     UpdateGraphContactId();
+#endif                    
                     UpdateAppliesToInvoiceID();
                     UpdateJournalBatchID();
                     Modify(false);

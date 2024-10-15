@@ -947,10 +947,7 @@ codeunit 144083 "EMail Custom Report Layout"
     end;
 
     local procedure Initialize();
-    var
-        LibraryEmailFeature: Codeunit "Library - Email Feature";
     begin
-        LibraryEmailFeature.SetEmailFeatureEnabled(true);
         LibrarySetupStorage.Restore();
         LibraryWorkflow.SetUpEmailAccount();
 
@@ -959,7 +956,7 @@ codeunit 144083 "EMail Custom Report Layout"
 
         IsInitialized := true;
 
-        SetFederalIdInCompanyInFormation(LibraryUtility.GenerateGUID);
+        SetFederalIdInCompanyInFormation(LibraryUtility.GenerateGUID());
 
         TestClientTypeMgtSubscriber.SetClientType(CLIENTTYPE::Web);
         BindSubscription(TestClientTypeMgtSubscriber);
@@ -1016,7 +1013,7 @@ codeunit 144083 "EMail Custom Report Layout"
 
             GenJournalLine.Validate("Transaction Type Code", GenJournalLine."Transaction Type Code"::BUS);
             GenJournalLine.Validate("Transaction Code", COPYSTR(LibraryUtility.GenerateGUID, 1, 3));
-            GenJournalLine.Validate("Company Entry Description", LibraryUtility.GenerateGUID);
+            GenJournalLine.Validate("Company Entry Description", LibraryUtility.GenerateGUID());
             GenJournalLine.Modify(true);
         end;
 
@@ -1041,9 +1038,9 @@ codeunit 144083 "EMail Custom Report Layout"
     begin
         CreateBankAccount(BankAccount, LibraryUtility.GenerateGUID, BankAccount."Export Format"::US);
         CreateBankAccWithBankStatementSetup(BankAccount, 'US EFT DEFAULT');
-        BankAccount.Validate("Client No.", LibraryUtility.GenerateGUID);
-        BankAccount.Validate("Client Name", LibraryUtility.GenerateGUID);
-        BankAccount.Validate("Input Qualifier", LibraryUtility.GenerateGUID);
+        BankAccount.Validate("Client No.", LibraryUtility.GenerateGUID());
+        BankAccount.Validate("Client Name", LibraryUtility.GenerateGUID());
+        BankAccount.Validate("Input Qualifier", LibraryUtility.GenerateGUID());
         BankAccount.Modify(true);
         exit(BankAccount."No.");
     end;
@@ -1056,10 +1053,10 @@ codeunit 144083 "EMail Custom Report Layout"
         LibraryERM.CreateBankAccount(BankAccount);
         BankAccount.Validate("Export Format", ExportFormat);
         BankAccount.Validate("Bank Acc. Posting Group", BankAccountPostingGroup.Code);
-        BankAccount.Validate("Last Remittance Advice No.", LibraryUtility.GenerateGUID);
+        BankAccount.Validate("Last Remittance Advice No.", LibraryUtility.GenerateGUID());
         BankAccount.Validate("E-Pay Export File Path", TEMPORARYPATH);
         BankAccount.Validate("E-Pay Trans. Program Path", '.\\');
-        BankAccount.Validate("Last E-Pay Export File Name", LibraryUtility.GenerateGUID);
+        BankAccount.Validate("Last E-Pay Export File Name", LibraryUtility.GenerateGUID());
         BankAccount.Validate("Transit No.", TransitNo);
         BankAccount.Modify(true);
     end;
@@ -1107,7 +1104,7 @@ codeunit 144083 "EMail Custom Report Layout"
           GenJournalLine."Document Type"::Payment,
           AccountType, AccountNo, Amount);
 
-        GenJournalLine.Validate("Document No.", LibraryUtility.GenerateGUID);
+        GenJournalLine.Validate("Document No.", LibraryUtility.GenerateGUID());
         GenJournalLine.Validate("Applies-to Doc. Type", GenJournalLine."Applies-to Doc. Type"::Invoice);
         GenJournalLine.Validate("Applies-to Doc. No.", AppliesToDocNo);
         GenJournalLine.Validate("Bank Payment Type", GenJournalLine."Bank Payment Type"::"Electronic Payment");
@@ -1179,7 +1176,7 @@ codeunit 144083 "EMail Custom Report Layout"
         CustomReportLayout.SetRange("Built-In", true);
         CustomReportLayout.SetRange(Type, CustomReportLayoutType);
         CustomReportLayout.SetRange("Report ID", ReportID);
-        if NOT CustomReportLayout.FINDFIRST then
+        if NOT CustomReportLayout.FindFirst() then
             CustomReportLayout.GET(CustomReportLayout.InitBuiltInLayout(ReportID, CustomReportLayoutType));
 
         exit(CustomReportLayout.Code);

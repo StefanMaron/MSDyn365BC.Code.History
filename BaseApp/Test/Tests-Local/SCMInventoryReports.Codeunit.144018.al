@@ -52,7 +52,7 @@ codeunit 144018 "SCM Inventory Reports"
         // Verify Item Status by Salesperson report for Contribution Margin column with cost adjustments.
 
         // Setup: Create Item, Create and Post Item Journal Line, Create and Post Sales Order.
-        Initialize;
+        Initialize();
         CreateItem(Item);
 
         Quantity1 := LibraryRandom.RandDec(10, 2); // Use Random value for Sales Order 1 Quantity.
@@ -89,9 +89,9 @@ codeunit 144018 "SCM Inventory Reports"
         // [FEATURE] [Item] [UI] [UT]
         // [SCENARIO 260822] "Inventory to G/L Reconcile" report must be able to start from Item List for #Suite app. area
 
-        Initialize;
+        Initialize();
 
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
 
         ItemList.OpenEdit;
         Assert.IsTrue(ItemList."Inventory to G/L Reconcile".Visible, FieldInvisibleErr);
@@ -111,7 +111,7 @@ codeunit 144018 "SCM Inventory Reports"
     begin
         // [FEATURE] [Inventory Valuation]
         // [SCENARIO 259492] Both inbound and outbound item ledger entries are included in the "Inventory Valuation" report when entries are within the report period
-        Initialize;
+        Initialize();
 
         PositiveQty := LibraryRandom.RandDecInRange(100, 200, 2);
         NegativeQty := LibraryRandom.RandDec(Round(PositiveQty, 1, '<') - 1, 2);
@@ -145,7 +145,7 @@ codeunit 144018 "SCM Inventory Reports"
         // [FEATURE] [Inventory Valuation]
         // [SCENARIO 259492] Inbound item ledger entry is not included in the "Inventory Valuation" report when it's posted later than report period, outbound entry is within period
 
-        Initialize;
+        Initialize();
 
         LibraryInventory.CreateItem(Item);
         Qty := LibraryRandom.RandDecInRange(100, 200, 2);
@@ -179,7 +179,7 @@ codeunit 144018 "SCM Inventory Reports"
         // [FEATURE] [Inventory Valuation]
         // [SCENARIO 259492] Outbound item ledger entry is not included in the "Inventory Valuation" report when it's posted later than report period, inbound entry is within period
 
-        Initialize;
+        Initialize();
 
         LibraryInventory.CreateItem(Item);
         Qty := LibraryRandom.RandDecInRange(100, 200, 2);
@@ -213,7 +213,7 @@ codeunit 144018 "SCM Inventory Reports"
         // [FEATURE] [Inventory Valuation]
         // [SCENARIO 259492] Inbound item ledger entry is not included in the "Inventory Valuation" report when it's posted later than report period, oubbound entry is posted before inbound
 
-        Initialize;
+        Initialize();
 
         LibraryInventory.CreateItem(Item);
         Qty := LibraryRandom.RandDecInRange(100, 200, 2);
@@ -242,10 +242,10 @@ codeunit 144018 "SCM Inventory Reports"
     procedure InventroryValuationRequestPageElementsApplicationArea()
     begin
         // [SCENARIO 292447] All request page elements of Inventory Valuation report should be visible in SaaS
-        Initialize;
+        Initialize();
 
         // [GIVEN] Enable foundation setup
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
 
         // [WHEN] Inventory Valuation report is being run
         Commit();
@@ -267,7 +267,7 @@ codeunit 144018 "SCM Inventory Reports"
     begin
         // [FEATURE] [Inventory Valuation] [Non-Inventory]
         // [SCENARIO 358497] Inventory Valuation report doesn't include Non-Inventory Items
-        Initialize;
+        Initialize();
 
         // [GIVEN] Non-Inventory Item "NONINV"
         LibraryInventory.CreateNonInventoryTypeItem(Item);
@@ -414,7 +414,7 @@ codeunit 144018 "SCM Inventory Reports"
         LibraryInventory.CreateItemJournalBatch(ItemJournalBatch, ItemJournalTemplate.Name);
         ItemJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
         ItemJournalBatch.Modify(true);
-        LibraryUtility.GenerateGUID;  // To avoid 'Item Journal Batch already exists' error.
+        LibraryUtility.GenerateGUID();  // To avoid 'Item Journal Batch already exists' error.
     end;
 
     local procedure CreateAndPostItemJournalLine(var ItemJournalLine: Record "Item Journal Line"; EntryType: Option; ItemNo: Code[20]; Quantity: Decimal; PostingDate: Date)
@@ -436,7 +436,7 @@ codeunit 144018 "SCM Inventory Reports"
         SalespersonPurchaser: Record "Salesperson/Purchaser";
     begin
         LibrarySales.CreateCustomer(Customer);
-        SalespersonPurchaser.FindFirst;
+        SalespersonPurchaser.FindFirst();
         Customer.Validate("Salesperson Code", SalespersonPurchaser.Code);
         Customer.Modify(true);
         exit(Customer."No.");
@@ -505,7 +505,7 @@ codeunit 144018 "SCM Inventory Reports"
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
         ItemLedgerEntry.SetRange("Item No.", ItemNo);
-        ItemLedgerEntry.FindFirst;
+        ItemLedgerEntry.FindFirst();
         exit(ItemLedgerEntry."Entry No.");
     end;
 
@@ -573,7 +573,7 @@ codeunit 144018 "SCM Inventory Reports"
         GeneralPostingSetup.SetFilter("Purchase Variance Account", '<>%1', '');
         GeneralPostingSetup.SetFilter("Sales Prepayments Account", '<>%1', '');
         GeneralPostingSetup.SetFilter("Purch. Prepayments Account", '<>%1', '');
-        GeneralPostingSetup.FindFirst;
+        GeneralPostingSetup.FindFirst();
     end;
 
     [Scope('OnPrem')]
@@ -581,7 +581,7 @@ codeunit 144018 "SCM Inventory Reports"
     begin
         // Filter VAT Posting Setup so that errors are not generated due to mandatory fields.
         VATPostingSetup.SetFilter("VAT Prod. Posting Group", '<>%1', '');
-        VATPostingSetup.FindFirst;
+        VATPostingSetup.FindFirst();
     end;
 
     local procedure UpdateUnitCostAndPostRevaluationJournal(ItemNo: Code[20]): Decimal

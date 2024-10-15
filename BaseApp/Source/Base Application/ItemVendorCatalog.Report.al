@@ -286,28 +286,8 @@ report 10164 "Item/Vendor Catalog"
                 StartingDate := PriceListLine."Starting Date";
                 DirectUnitCost := PriceListLine."Direct Unit Cost";
             end;
-#if CLEAN17
-        end;
-#else
-        end else
-            GetPriceDataV15();
-#endif
-    end;
-
-#if not CLEAN17
-    local procedure GetPriceDataV15();
-    var
-        PurchPrice: Record "Purchase Price";
-    begin
-        PurchPrice.SetRange("Item No.", "Item Vendor"."Item No.");
-        PurchPrice.SetRange("Vendor No.", "Item Vendor"."Vendor No.");
-        PurchPrice.SetFilter("Starting Date", '%1..%2', 0D, WorkDate());
-        if PurchPrice.FindLast() then begin
-            StartingDate := PurchPrice."Starting Date";
-            DirectUnitCost := PurchPrice."Direct Unit Cost";
         end;
     end;
-#endif
 
     procedure WhichOrder() "Order": Integer
     var

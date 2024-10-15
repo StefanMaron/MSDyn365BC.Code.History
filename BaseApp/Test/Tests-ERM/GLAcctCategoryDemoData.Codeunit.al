@@ -26,7 +26,7 @@ codeunit 134440 "G/L Acct. Category - Demo Data"
         GLAccount: Record "G/L Account";
     begin
         // Setup
-        Initialize;
+        Initialize();
         FindFirstPostingGLAccount(GLAccount);
 
         // Verify
@@ -63,7 +63,7 @@ codeunit 134440 "G/L Acct. Category - Demo Data"
         InitialCategory: Text;
     begin
         // Setup
-        Initialize;
+        Initialize();
         FindFirstPostingGLAccount(GLAccount);
 
         // Exercise
@@ -87,10 +87,10 @@ codeunit 134440 "G/L Acct. Category - Demo Data"
         InitialSubCategory: Text;
     begin
         // Setup
-        Initialize;
+        Initialize();
         FindFirstPostingGLAccount(GLAccount);
         GLAccount.SetFilter("Account Subcategory Descript.", '<>%1', '');
-        GLAccount.FindFirst;
+        GLAccount.FindFirst();
 
         GLAccountCard.OpenEdit;
         GLAccountCard.GotoRecord(GLAccount);
@@ -114,7 +114,7 @@ codeunit 134440 "G/L Acct. Category - Demo Data"
         InitialCategory: Text;
     begin
         // Setup
-        Initialize;
+        Initialize();
         FindFirstPostingGLAccount(GLAccount);
 
         GLAccountCard.OpenEdit;
@@ -138,7 +138,7 @@ codeunit 134440 "G/L Acct. Category - Demo Data"
         GLAccountCard: TestPage "G/L Account Card";
     begin
         // Setup
-        Initialize;
+        Initialize();
         FindFirstPostingGLAccount(GLAccount);
 
         GLAccountCard.OpenEdit;
@@ -164,7 +164,7 @@ codeunit 134440 "G/L Acct. Category - Demo Data"
         InitialSubCategory: Text;
     begin
         // Setup
-        Initialize;
+        Initialize();
         FindFirstPostingGLAccount(GLAccount);
 
         GLAccountCard.OpenEdit;
@@ -189,7 +189,7 @@ codeunit 134440 "G/L Acct. Category - Demo Data"
         GLAccount: Record "G/L Account";
     begin
         // Setup
-        Initialize;
+        Initialize();
         GLAccount.Init();
 
         // Exercise and Verify
@@ -218,7 +218,7 @@ codeunit 134440 "G/L Acct. Category - Demo Data"
         AccountNumber: Code[20];
     begin
         // Setup
-        Initialize;
+        Initialize();
         AccountNumber := LibraryUtility.GenerateRandomCode(GLAccount.FieldNo("No."), DATABASE::"G/L Account");
         GLAccount.Init();
         GLAccount."No." := AccountNumber;
@@ -249,7 +249,7 @@ codeunit 134440 "G/L Acct. Category - Demo Data"
         TotalEquity: Decimal;
     begin
         // Setup
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get();
         AccScheduleLine.SetRange("Schedule Name", GeneralLedgerSetup."Acc. Sched. for Balance Sheet");
         AccScheduleLine.SetRange("Totaling Type", AccScheduleLine."Totaling Type"::Formula);
@@ -257,21 +257,21 @@ codeunit 134440 "G/L Acct. Category - Demo Data"
 
         // Execute - Calculate Total Assets
         AccScheduleLine.SetRange(Description, TotalAssetsTxt);
-        AccScheduleLine.FindFirst;
+        AccScheduleLine.FindFirst();
         AccScheduleName.Get(GeneralLedgerSetup."Acc. Sched. for Balance Sheet");
 
         ColumnLayout.SetRange("Column Layout Name", AccScheduleName."Default Column Layout");
-        ColumnLayout.FindFirst;
+        ColumnLayout.FindFirst();
         TotalAssets := AccSchedManagement.CalcCell(AccScheduleLine, ColumnLayout, false);
 
         // Execute - Calculate Total Liabilities
         AccScheduleLine.SetRange(Description, TotatLiabilitiesTxt);
-        AccScheduleLine.FindFirst;
+        AccScheduleLine.FindFirst();
         TotalLiabilities := AccSchedManagement.CalcCell(AccScheduleLine, ColumnLayout, false);
 
         // Execute - Calculate Total Equity
         AccScheduleLine.SetRange(Description, TotalEquityTxt);
-        AccScheduleLine.FindFirst;
+        AccScheduleLine.FindFirst();
         TotalEquity := AccSchedManagement.CalcCell(AccScheduleLine, ColumnLayout, false);
 
         // Verify - Total Assets = Total Liabilities + Total Equity
@@ -283,13 +283,13 @@ codeunit 134440 "G/L Acct. Category - Demo Data"
         LibraryApplicationArea: Codeunit "Library - Application Area";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"G/L Acct. Category - Demo Data");
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
     end;
 
     local procedure FindFirstPostingGLAccount(var GLAccount: Record "G/L Account")
     begin
         GLAccount.SetRange("Account Type", GLAccount."Account Type"::Posting);
-        GLAccount.FindFirst;
+        GLAccount.FindFirst();
     end;
 
     local procedure SetAccountCategoryAndValidateIncomeBalanceField(GLAccount: Record "G/L Account"; AccountCategory: Enum "G/L Account Category"; IncomeBalance: Option)

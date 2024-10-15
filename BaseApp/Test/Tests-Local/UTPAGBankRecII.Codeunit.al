@@ -27,7 +27,7 @@ codeunit 142080 "UT PAG Bank Rec II"
         // Purpose of the Page - 10125 Page Posted Bank Rec.Worksheet.
 
         // Setup: Create Posted Bank Rec. Document.
-        Initialize;
+        Initialize();
         CreatePostedBankRec(PostedBankRecLine, PostedBankRecLine."Account Type"::"Bank Account", '');
 
         // Exercise.
@@ -49,7 +49,7 @@ codeunit 142080 "UT PAG Bank Rec II"
         // Purpose of the test is to run PrintRecords function of Page - 10125 Posted Bank Rec.Worksheet.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreatePostedBankRec(PostedBankRecLine, PostedBankRecLine."Account Type"::"Bank Account", '');
 
         // Pre-Exercise
@@ -72,7 +72,7 @@ codeunit 142080 "UT PAG Bank Rec II"
         // Purpose of the test is to validate GetTableID function of Page - 10127 Posted Bank Rec. Dep Lines Sub.
 
         // Setup.
-        Initialize;
+        Initialize();
 
         // Exercise & Verify: Verify Table ID after execution of function - GetTableID.
         Assert.AreEqual(DATABASE::"Posted Bank Rec. Line", PostedBankRecDepLinesSub.GetTableID, ValueMustEqualErr);
@@ -88,7 +88,7 @@ codeunit 142080 "UT PAG Bank Rec II"
         // Purpose of the test is to validate GetTableID function of Page - 10128 Bank Rec. Adj. Lines Subform.
 
         // Setup.
-        Initialize;
+        Initialize();
 
         // Exercise & Verify: Verify Table ID after execution of function - GetTableID.
         Assert.AreEqual(DATABASE::"Posted Bank Rec. Line", PostedBankRecAdjLinesSub.GetTableID, ValueMustEqualErr);
@@ -104,7 +104,7 @@ codeunit 142080 "UT PAG Bank Rec II"
         // Purpose of the test is to validate GetTableID function of Page - 10126 Posted Bank Rec. Chk Lines Sub.
 
         // Setup.
-        Initialize;
+        Initialize();
 
         // Exercise & Verify: Verify Table ID after execution of function - GetTableID.
         Assert.AreEqual(DATABASE::"Posted Bank Rec. Line", PostedBankRecChkLinesSub.GetTableID, ValueMustEqualErr);
@@ -121,7 +121,7 @@ codeunit 142080 "UT PAG Bank Rec II"
         // Purpose of the test is to validate  GetAccounts function of Page - 10128 Posted Bank Rec. Adj Lines Sub.
 
         // Setup: Create G/L Account.
-        Initialize;
+        Initialize();
         CreateGLAccount(GLAccount);
         GetAccountsPostedBankRecAdjLinesSubform(PostedBankRecLine."Account Type"::"G/L Account", GLAccount."No.", GLAccount.Name);
     end;
@@ -137,7 +137,7 @@ codeunit 142080 "UT PAG Bank Rec II"
         // Purpose of the test is to validate  GetAccounts function of Page - 10128 Posted Bank Rec. Adj Lines Sub.
 
         // Setup: Create Customer.
-        Initialize;
+        Initialize();
         CreateCustomer(Customer);
         GetAccountsPostedBankRecAdjLinesSubform(PostedBankRecLine."Account Type"::Customer, Customer."No.", Customer.Name);
     end;
@@ -153,7 +153,7 @@ codeunit 142080 "UT PAG Bank Rec II"
         // Purpose of the test is to validate  GetAccounts function of Page - 10128 Posted Bank Rec. Adj Lines Sub.
 
         // Setup: Create Vendor.
-        Initialize;
+        Initialize();
         CreateVendor(Vendor);
         GetAccountsPostedBankRecAdjLinesSubform(PostedBankRecLine."Account Type"::Vendor, Vendor."No.", Vendor.Name);
     end;
@@ -169,7 +169,7 @@ codeunit 142080 "UT PAG Bank Rec II"
         // Purpose of the test is to validate  GetAccounts function of Page - 10128 Posted Bank Rec. Adj Lines Sub.
 
         // Setup: Create Bank Account.
-        Initialize;
+        Initialize();
         CreateBankAccount(BankAccount);
         GetAccountsPostedBankRecAdjLinesSubform(PostedBankRecLine."Account Type"::"Bank Account", BankAccount."No.", BankAccount.Name);
     end;
@@ -185,7 +185,7 @@ codeunit 142080 "UT PAG Bank Rec II"
         // Purpose of the test is to validate  GetAccounts function of Page - 10128 Posted Bank Rec. Adj Lines Sub.
 
         // Setup: Create Fixed Asset.
-        Initialize;
+        Initialize();
         CreateFixedAsset(FixedAsset);
         GetAccountsPostedBankRecAdjLinesSubform(PostedBankRecLine."Account Type"::"Fixed Asset", FixedAsset."No.", FixedAsset.Description);
     end;
@@ -220,7 +220,7 @@ codeunit 142080 "UT PAG Bank Rec II"
         // Purpose of the test is to validate trigger OnAction - ClearLines of Page - 36720 Bank Rec.Worksheet Dyn.
 
         // Setup: Create G/L Account and Bank Reconciliation, Open Bank Rec.Worksheet Dyn Page.
-        Initialize;
+        Initialize();
         UpdateBankRecAdjDocNoInGeneralLedgerSetup('');
         CreateGLAccount(GLAccount);
         CreateBankReconciliation(BankRecLine, BankRecLine."Account Type"::"G/L Account", GLAccount."No.");
@@ -246,7 +246,7 @@ codeunit 142080 "UT PAG Bank Rec II"
         // Purpose of the test is to validate trigger OnAction - RecordAdjustments of Page - 36720 Bank Rec.Worksheet Dyn.
 
         // Setup: Create G/L Account and Bank Reconciliation, Open Bank Rec.Worksheet Dyn Page.
-        Initialize;
+        Initialize();
         UpdateBankRecAdjDocNoInGeneralLedgerSetup(CreateNoSeries);
         CreateGLAccount(GLAccount);
         CreateBankReconciliation(BankRecLine, BankRecLine."Account Type"::"G/L Account", GLAccount."No.");
@@ -271,7 +271,7 @@ codeunit 142080 "UT PAG Bank Rec II"
         // Purpose of the test is to validate GetTableID function of Page - 36721 Bank Rec. Check Lines Dyn.
 
         // Setup.
-        Initialize;
+        Initialize();
 
         // Exercise & Verify: Verify Table ID after execution of function - GetTableID.
         Assert.AreEqual(DATABASE::"Bank Rec. Line", BankRecCheckLinesDyn.GetTableID, ValueMustEqualErr);
@@ -287,7 +287,7 @@ codeunit 142080 "UT PAG Bank Rec II"
         // Purpose of the test is to validate GetTableID function of Page - 36723 Bank Rec. Adj. Lines Subform.
 
         // Setup.
-        Initialize;
+        Initialize();
 
         // Exercise & Verify: Verify Table ID after execution of function - GetTableID.
         Assert.AreEqual(DATABASE::"Bank Rec. Line", BankRecAdjLines.GetTableID, ValueMustEqualErr);
@@ -303,7 +303,7 @@ codeunit 142080 "UT PAG Bank Rec II"
         // Purpose of the test is to validate GetTableID function of Page - 36722 Bank Rec. Dep. Lines - Dyn.
 
         // Setup.
-        Initialize;
+        Initialize();
 
         // Exercise & Verify: Verify Table ID after execution of function - GetTableID.
         Assert.AreEqual(DATABASE::"Bank Rec. Line", BankRecDepLinesDyn.GetTableID, ValueMustEqualErr);
@@ -320,7 +320,7 @@ codeunit 142080 "UT PAG Bank Rec II"
         // Purpose of the test is to validate  GetAccounts function of Page - 36723 Page Bank Rec. Adj. Lines.
 
         // Setup: Create G/L Account.
-        Initialize;
+        Initialize();
         CreateGLAccount(GLAccount);
         GetAccountsBankRecAdjLines(BankRecLine."Account Type"::"G/L Account", GLAccount."No.", GLAccount.Name);
     end;
@@ -336,7 +336,7 @@ codeunit 142080 "UT PAG Bank Rec II"
         // Purpose of the test is to validate  GetAccounts function of Page - 36723 Page Bank Rec. Adj. Lines.
 
         // Setup: Create Customer.
-        Initialize;
+        Initialize();
         CreateCustomer(Customer);
         GetAccountsBankRecAdjLines(BankRecLine."Account Type"::Customer, Customer."No.", Customer.Name);
     end;
@@ -352,7 +352,7 @@ codeunit 142080 "UT PAG Bank Rec II"
         // Purpose of the test is to validate  GetAccounts function of Page - 36723 Page Bank Rec. Adj. Lines.
 
         // Setup: Create Vendor.
-        Initialize;
+        Initialize();
         CreateVendor(Vendor);
         GetAccountsBankRecAdjLines(BankRecLine."Account Type"::Vendor, Vendor."No.", Vendor.Name);
     end;
@@ -368,7 +368,7 @@ codeunit 142080 "UT PAG Bank Rec II"
         // Purpose of the test is to validate  GetAccounts function of Page - 36723 Page Bank Rec. Adj. Lines.
 
         // Setup: Create Bank Account.
-        Initialize;
+        Initialize();
         CreateBankAccount(BankAccount);
         GetAccountsBankRecAdjLines(BankRecLine."Account Type"::"Bank Account", BankAccount."No.", BankAccount.Name);
     end;
@@ -384,7 +384,7 @@ codeunit 142080 "UT PAG Bank Rec II"
         // Purpose of the test is to validate  GetAccounts function of Page - 36723 Page Bank Rec. Adj. Lines.
 
         // Setup: Create Fixed Asset.
-        Initialize;
+        Initialize();
         CreateFixedAsset(FixedAsset);
         GetAccountsBankRecAdjLines(BankRecLine."Account Type"::"Fixed Asset", FixedAsset."No.", FixedAsset.Description);
     end;
@@ -408,12 +408,12 @@ codeunit 142080 "UT PAG Bank Rec II"
 
         // Verify:
         BankCommentLine.SetRange("Bank Account No.", BankAccount."No.");
-        BankCommentLine.FindFirst;
+        BankCommentLine.FindFirst();
     end;
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreateBankAccount(var BankAccount: Record "Bank Account")
@@ -542,7 +542,7 @@ codeunit 142080 "UT PAG Bank Rec II"
 
     local procedure OpenBankCommentSheetToEnterComment(var BankCommentSheet: TestPage "Bank Comment Sheet"; BankAccountNo: Code[20])
     begin
-        BankCommentSheet.OpenNew;
+        BankCommentSheet.OpenNew();
         BankCommentSheet.FILTER.SetFilter("Bank Account No.", BankAccountNo);
         BankCommentSheet.Comment.SetValue(LibraryUTUtility.GetNewCode);
         BankCommentSheet.Date.SetValue(WorkDate);
@@ -590,7 +590,7 @@ codeunit 142080 "UT PAG Bank Rec II"
         BankRecLine2.SetRange("Bank Account No.", BankRecLine."Bank Account No.");
         BankRecLine2.SetRange("Statement No.", BankRecLine."Statement No.");
         BankRecLine2.SetRange("Record Type", BankRecLine2."Record Type"::Adjustment);
-        BankRecLine2.FindFirst;
+        BankRecLine2.FindFirst();
         BankRecLine2.TestField(Amount, BankRecLine.Amount - BankRecLine."Cleared Amount");
     end;
 

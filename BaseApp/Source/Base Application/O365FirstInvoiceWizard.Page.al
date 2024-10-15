@@ -715,12 +715,12 @@ page 2142 "O365 First Invoice Wizard"
 
         if CompanyInformation.Get and (CompanyInformation.County <> '') then begin
             TaxArea.SetRange(Code, CompanyInformation.County);
-            if TaxArea.FindFirst then
+            if TaxArea.FindFirst() then
                 TaxAreaCodeCA := TaxArea.Code
             else begin
                 TaxArea.SetRange(Code);
                 TaxArea.SetRange(Description, CompanyInformation.County);
-                if TaxArea.FindFirst then
+                if TaxArea.FindFirst() then
                     TaxAreaCodeCA := TaxArea.Code
             end;
         end;
@@ -728,7 +728,7 @@ page 2142 "O365 First Invoice Wizard"
         if TaxAreaCodeCA = '' then begin
             TaxArea.SetRange(Code);
             TaxArea.SetRange(Description);
-            if TaxArea.FindFirst then
+            if TaxArea.FindFirst() then
                 TaxAreaCodeCA := TaxArea.Code;
         end;
     end;

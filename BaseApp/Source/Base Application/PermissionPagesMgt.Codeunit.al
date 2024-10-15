@@ -133,7 +133,7 @@ codeunit 9001 "Permission Pages Mgt."
         if RunAsModal then
             Permissions.RunModal
         else
-            Permissions.Run;
+            Permissions.Run();
     end;
 
     local procedure ShowTenantPermissions(AggregatePermissionSetScope: Option; AppId: Guid; var TenantPermission: Record "Tenant Permission"; RunAsModal: Boolean)
@@ -154,7 +154,7 @@ codeunit 9001 "Permission Pages Mgt."
         if RunAsModal then
             TenantPermissions.RunModal
         else
-            TenantPermissions.Run;
+            TenantPermissions.Run();
     end;
 
     procedure IsPermissionSetEditable(AggregatePermissionSet: Record "Aggregate Permission Set"): Boolean

@@ -453,5 +453,15 @@ report 10001 Budget
     begin
         RndFactor := NewRoundingFactor;
     end;
+
+    procedure GetPeriodLength(): DateFormula
+    begin
+        exit(PeriodLength);
+    end;
+
+    procedure GetPeriodStartDate(): Date
+    begin
+        exit(PeriodStartingDate[1]);
+    end;
 }
 

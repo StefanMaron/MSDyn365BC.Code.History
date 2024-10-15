@@ -40,10 +40,10 @@ codeunit 134061 "ERM VAT Tool - UT"
         // Verify Item filter VAT Rate Change Setup is updated from item list.
 
         // Setup.
-        Initialize;
+        Initialize();
 
         // Exercise: Select item from item list.
-        Item.FindFirst;
+        Item.FindFirst();
         VATRateChangeSetup.LookUpItemFilter(Text);
 
         // Verify: Verify Item Filter field in VAT Rate Change setup.
@@ -62,10 +62,10 @@ codeunit 134061 "ERM VAT Tool - UT"
         // Verify Resource filter VAT Rate Change Setup is updated from Resource list.
 
         // Setup.
-        Initialize;
+        Initialize();
 
         // Exercise: Select Resource from Resource list.
-        Resource.FindFirst;
+        Resource.FindFirst();
         VATRateChangeSetup.LookUpResourceFilter(Text);
 
         // Verify: Verify Resource Filter field in VAT Rate Change setup.
@@ -84,10 +84,10 @@ codeunit 134061 "ERM VAT Tool - UT"
         // Verify G/L Account filter VAT Rate Change Setup is updated from G/L Account list.
 
         // Setup.
-        Initialize;
+        Initialize();
 
         // Exercise: Select Resource from G/L Account list.
-        GLAccount.FindFirst;
+        GLAccount.FindFirst();
         VATRateChangeSetup.LookUpGLAccountFilter(Text);
 
         // Verify: Verify Resource Filter field in VAT Rate Change setup.
@@ -104,7 +104,7 @@ codeunit 134061 "ERM VAT Tool - UT"
         // Verify OnOpen Trigger in VAT Rate Change setup page.
 
         // Setup: Delete the record in VAT Rate Change setup.
-        Initialize;
+        Initialize();
         VATRateChangeSetup.DeleteAll();
 
         // Exercise: Open VAT Rate change setup page.
@@ -126,7 +126,7 @@ codeunit 134061 "ERM VAT Tool - UT"
         // Verify Show Action for Item in VAT Rate Change Log Entries.
 
         // Setup: Create VAT Rate change log entry for Item.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         RecRef.GetTable(Item);
         CreateVATRateChangeLogEntries(RecRef);
@@ -149,7 +149,7 @@ codeunit 134061 "ERM VAT Tool - UT"
         // Verify Show Action for Item Category in VAT Rate Change Log Entries.
 
         // Setup: Create VAT Rate change log entry for Item Category.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItemCategory(ItemCategory);
         RecRef.GetTable(ItemCategory);
         CreateVATRateChangeLogEntries(RecRef);
@@ -172,7 +172,7 @@ codeunit 134061 "ERM VAT Tool - UT"
         // Verify Show Action for Item Charge in VAT Rate Change Log Entries.
 
         // Setup: Create VAT Rate change log entry for Item Charge.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItemCharge(ItemCharge);
         RecRef.GetTable(ItemCharge);
         CreateVATRateChangeLogEntries(RecRef);
@@ -195,7 +195,7 @@ codeunit 134061 "ERM VAT Tool - UT"
         // Verify Show Action for G/L Account in VAT Rate Change Log Entries.
 
         // Setup: Create VAT Rate change log entry for G/L Account.
-        Initialize;
+        Initialize();
         LibraryERM.CreateGLAccount(GLAccount);
         RecRef.GetTable(GLAccount);
         CreateVATRateChangeLogEntries(RecRef);
@@ -219,7 +219,7 @@ codeunit 134061 "ERM VAT Tool - UT"
         // Verify Show Action for Purchase Line in VAT Rate Change Log Entries.
 
         // Setup: Create VAT Rate change log entry for Purchase Line.
-        Initialize;
+        Initialize();
         CreatePurchaseDocument(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order);
         RecRef.GetTable(PurchaseLine);
         CreateVATRateChangeLogEntries(RecRef);
@@ -243,7 +243,7 @@ codeunit 134061 "ERM VAT Tool - UT"
         // Verify Show Action for Purchase Order in VAT Rate Change Log Entries.
 
         // Setup: Create VAT Rate change log entry for Purchase Order.
-        Initialize;
+        Initialize();
         CreatePurchaseDocument(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order);
         RecRef.GetTable(PurchaseHeader);
         CreateVATRateChangeLogEntries(RecRef);
@@ -267,7 +267,7 @@ codeunit 134061 "ERM VAT Tool - UT"
         // Verify Show Action for Purchase Quote in VAT Rate Change Log Entries.
 
         // Setup: Create VAT Rate change log entry for Purchase Quote.
-        Initialize;
+        Initialize();
         CreatePurchaseDocument(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Quote);
         RecRef.GetTable(PurchaseHeader);
         CreateVATRateChangeLogEntries(RecRef);
@@ -291,7 +291,7 @@ codeunit 134061 "ERM VAT Tool - UT"
         // Verify Show Action for Purchase Invoice in VAT Rate Change Log Entries.
 
         // Setup: Create VAT Rate change log entry for Purchase Invoice.
-        Initialize;
+        Initialize();
         CreatePurchaseDocument(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Invoice);
         RecRef.GetTable(PurchaseHeader);
         CreateVATRateChangeLogEntries(RecRef);
@@ -315,7 +315,7 @@ codeunit 134061 "ERM VAT Tool - UT"
         // Verify Show Action for Purchase Credit Memo in VAT Rate Change Log Entries.
 
         // Setup: Create VAT Rate change log entry for Purchase Credit Memo.
-        Initialize;
+        Initialize();
         CreatePurchaseDocument(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::"Credit Memo");
         RecRef.GetTable(PurchaseHeader);
         CreateVATRateChangeLogEntries(RecRef);
@@ -338,7 +338,7 @@ codeunit 134061 "ERM VAT Tool - UT"
         // Verify Show Action for Resource in VAT Rate Change Log Entries.
 
         // Setup: Create VAT Rate change log entry for Resource.
-        Initialize;
+        Initialize();
         LibraryResource.FindResource(Resource);
         RecRef.GetTable(Resource);
         CreateVATRateChangeLogEntries(RecRef);
@@ -362,7 +362,7 @@ codeunit 134061 "ERM VAT Tool - UT"
         // Verify Show Action for Sales Line in VAT Rate Change Log Entries.
 
         // Setup: Create VAT Rate change log entry for Sales Line.
-        Initialize;
+        Initialize();
         CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Order);
         RecRef.GetTable(SalesLine);
         CreateVATRateChangeLogEntries(RecRef);
@@ -386,7 +386,7 @@ codeunit 134061 "ERM VAT Tool - UT"
         // Verify Show Action for Sales Order in VAT Rate Change Log Entries.
 
         // Setup: Create VAT Rate change log entry for Sales Order.
-        Initialize;
+        Initialize();
         CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Order);
         RecRef.GetTable(SalesHeader);
         CreateVATRateChangeLogEntries(RecRef);
@@ -410,7 +410,7 @@ codeunit 134061 "ERM VAT Tool - UT"
         // Verify Show Action for Sales Quote in VAT Rate Change Log Entries.
 
         // Setup: Create VAT Rate change log entry for Sales Quote.
-        Initialize;
+        Initialize();
         CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Quote);
         RecRef.GetTable(SalesHeader);
         CreateVATRateChangeLogEntries(RecRef);
@@ -434,7 +434,7 @@ codeunit 134061 "ERM VAT Tool - UT"
         // Verify Show Action for Sales Invoice in VAT Rate Change Log Entries.
 
         // Setup: Create VAT Rate change log entry for Sales Invoice.
-        Initialize;
+        Initialize();
         CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice);
         RecRef.GetTable(SalesHeader);
         CreateVATRateChangeLogEntries(RecRef);
@@ -458,7 +458,7 @@ codeunit 134061 "ERM VAT Tool - UT"
         // Verify Show Action for Sales Credit Memo in VAT Rate Change Log Entries.
 
         // Setup: Create VAT Rate change log entry for Sales Credit Memo.
-        Initialize;
+        Initialize();
         CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::"Credit Memo");
         RecRef.GetTable(SalesHeader);
         CreateVATRateChangeLogEntries(RecRef);
@@ -482,7 +482,7 @@ codeunit 134061 "ERM VAT Tool - UT"
         // Verify Show Action for Service Invoice in VAT Rate Change Log Entries.
 
         // Setup: Create VAT Rate change log entry for Service Invoice.
-        Initialize;
+        Initialize();
         CreateServiceDocument(ServiceHeader, ServiceLine, ServiceHeader."Document Type"::Invoice);
         RecRef.GetTable(ServiceLine);
         CreateVATRateChangeLogEntries(RecRef);
@@ -506,7 +506,7 @@ codeunit 134061 "ERM VAT Tool - UT"
         // Verify Show Action for Service Quote in VAT Rate Change Log Entries.
 
         // Setup: Create VAT Rate change log entry for Service Quote.
-        Initialize;
+        Initialize();
         CreateServiceDocument(ServiceHeader, ServiceLine, ServiceHeader."Document Type"::Quote);
         RecRef.GetTable(ServiceLine);
         CreateVATRateChangeLogEntries(RecRef);
@@ -530,7 +530,7 @@ codeunit 134061 "ERM VAT Tool - UT"
         // Verify Show Action for Service Order in VAT Rate Change Log Entries.
 
         // Setup: Create VAT Rate change log entry for Service Order.
-        Initialize;
+        Initialize();
         CreateServiceDocument(ServiceHeader, ServiceLine, ServiceHeader."Document Type"::Order);
         RecRef.GetTable(ServiceLine);
         CreateVATRateChangeLogEntries(RecRef);
@@ -550,7 +550,7 @@ codeunit 134061 "ERM VAT Tool - UT"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 262066] Unrealized Amount fields are hidden on page "VAT Entries" when "Unrealized VAT" = FALSE and "Prepayment Unrealized VAT" = FALSE in "General Ledger Setup"
-        Initialize;
+        Initialize();
 
         // [GIVEN] "General Ledger Setup"."Unrealized VAT" = FALSE
         // [GIVEN] "General Ledger Setup"."Prepayment Unrealized VAT" = FALSE
@@ -575,7 +575,7 @@ codeunit 134061 "ERM VAT Tool - UT"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 262066] Unrealized Amount fields are shown on page "VAT Entries" when "Unrealized VAT" = TRUE and "Prepayment Unrealized VAT" = FALSE in "General Ledger Setup"
-        Initialize;
+        Initialize();
 
         // [GIVEN] "General Ledger Setup"."Unrealized VAT" = TRUE
         // [GIVEN] "General Ledger Setup"."Prepayment Unrealized VAT" = FALSE
@@ -600,7 +600,7 @@ codeunit 134061 "ERM VAT Tool - UT"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 262066] Unrealized Amount fields are shown on page "VAT Entries" when "Unrealized VAT" = TRUE and "Prepayment Unrealized VAT" = TRUE in "General Ledger Setup"
-        Initialize;
+        Initialize();
 
         // [GIVEN] "General Ledger Setup"."Unrealized VAT" = TRUE
         // [GIVEN] "General Ledger Setup"."Prepayment Unrealized VAT" = TRUE
@@ -625,7 +625,7 @@ codeunit 134061 "ERM VAT Tool - UT"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 262066] Unrealized Amount fields are shown on page "VAT Entries" when "Unrealized VAT" = FALSE and "Prepayment Unrealized VAT" = TRUE in "General Ledger Setup"
-        Initialize;
+        Initialize();
 
         // [GIVEN] "General Ledger Setup"."Unrealized VAT" = FALSE
         // [GIVEN] "General Ledger Setup"."Prepayment Unrealized VAT" = TRUE
@@ -653,7 +653,7 @@ codeunit 134061 "ERM VAT Tool - UT"
         // [FEATURE] [UT]
         // [SCENARIO 265994] "General Ledger Setup"."Set Account Visibility" returns UnrealizedVATVisible = FALSE when "Unrealized VAT" = FALSE and "Prepayment Unrealized VAT" = FALSE in "General Ledger Setup"
         // [SCENARIO 265994] Unrealized fields are hidden on pages "VAT Posting Setup" and "VAT Posting Setup Card" when "Unrealized VAT" = FALSE and "Prepayment Unrealized VAT" = FALSE in "General Ledger Setup"
-        Initialize;
+        Initialize();
 
         // [GIVEN] "General Ledger Setup"."Unrealized VAT" = FALSE
         // [GIVEN] "General Ledger Setup"."Prepayment Unrealized VAT" = FALSE
@@ -681,7 +681,7 @@ codeunit 134061 "ERM VAT Tool - UT"
         // [FEATURE] [UT]
         // [SCENARIO 265994] "General Ledger Setup"."Set Account Visibility" returns UnrealizedVATVisible = TRUE when "Unrealized VAT" = TRUE and "Prepayment Unrealized VAT" = FALSE in "General Ledger Setup"
         // [SCENARIO 265994] Unrealized fields are shown on pages "VAT Posting Setup" and "VAT Posting Setup Card" when "Unrealized VAT" = TRUE and "Prepayment Unrealized VAT" = FALSE in "General Ledger Setup"
-        Initialize;
+        Initialize();
 
         // [GIVEN] "General Ledger Setup"."Unrealized VAT" = TRUE
         // [GIVEN] "General Ledger Setup"."Prepayment Unrealized VAT" = FALSE
@@ -709,7 +709,7 @@ codeunit 134061 "ERM VAT Tool - UT"
         // [FEATURE] [UT]
         // [SCENARIO 265994] "General Ledger Setup"."Set Account Visibility" returns UnrealizedVATVisible = TRUE when "Unrealized VAT" = TRUE and "Prepayment Unrealized VAT" = TRUE in "General Ledger Setup"
         // [SCENARIO 265994] Unrealized fields are shown on pages "VAT Posting Setup" and "VAT Posting Setup Card" when "Unrealized VAT" = TRUE and "Prepayment Unrealized VAT" = TRUE in "General Ledger Setup"
-        Initialize;
+        Initialize();
 
         // [GIVEN] "General Ledger Setup"."Unrealized VAT" = TRUE
         // [GIVEN] "General Ledger Setup"."Prepayment Unrealized VAT" = TRUE
@@ -737,7 +737,7 @@ codeunit 134061 "ERM VAT Tool - UT"
         // [FEATURE] [UT]
         // [SCENARIO 265994] "General Ledger Setup"."Set Account Visibility" returns UnrealizedVATVisible = TRUE when "Unrealized VAT" = FALSE and "Prepayment Unrealized VAT" = TRUE in "General Ledger Setup"
         // [SCENARIO 265994] Unrealized fields are shown on pages "VAT Posting Setup" and "VAT Posting Setup Card" when "Unrealized VAT" = FALSE and "Prepayment Unrealized VAT" = TRUE in "General Ledger Setup"
-        Initialize;
+        Initialize();
 
         // [GIVEN] "General Ledger Setup"."Unrealized VAT" = FALSE
         // [GIVEN] "General Ledger Setup"."Prepayment Unrealized VAT" = TRUE
@@ -760,7 +760,7 @@ codeunit 134061 "ERM VAT Tool - UT"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM VAT Tool - UT");
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
         if IsInitialized then
             exit;
 
@@ -774,8 +774,8 @@ codeunit 134061 "ERM VAT Tool - UT"
 
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         IsInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM VAT Tool - UT");
@@ -846,7 +846,7 @@ codeunit 134061 "ERM VAT Tool - UT"
         VATPostingSetup: TestPage "VAT Posting Setup";
     begin
         VATPostingSetup.Trap;
-        VATPostingSetup.OpenNew;
+        VATPostingSetup.OpenNew();
         Assert.IsTrue(VATPostingSetup."Unrealized VAT Type".Visible, FieldShowErr);
         Assert.IsTrue(VATPostingSetup."Sales VAT Unreal. Account".Visible, FieldShowErr);
         Assert.IsTrue(VATPostingSetup."Purch. VAT Unreal. Account".Visible, FieldShowErr);
@@ -859,7 +859,7 @@ codeunit 134061 "ERM VAT Tool - UT"
         VATPostingSetup: TestPage "VAT Posting Setup";
     begin
         VATPostingSetup.Trap;
-        VATPostingSetup.OpenNew;
+        VATPostingSetup.OpenNew();
         Assert.IsFalse(VATPostingSetup."Unrealized VAT Type".Visible, FieldHideErr);
         Assert.IsFalse(VATPostingSetup."Sales VAT Unreal. Account".Visible, FieldHideErr);
         Assert.IsFalse(VATPostingSetup."Purch. VAT Unreal. Account".Visible, FieldHideErr);
@@ -872,7 +872,7 @@ codeunit 134061 "ERM VAT Tool - UT"
         VATPostingSetupCard: TestPage "VAT Posting Setup Card";
     begin
         VATPostingSetupCard.Trap;
-        VATPostingSetupCard.OpenNew;
+        VATPostingSetupCard.OpenNew();
         Assert.IsTrue(VATPostingSetupCard."Unrealized VAT Type".Visible, FieldShowErr);
         Assert.IsTrue(VATPostingSetupCard."Sales VAT Unreal. Account".Visible, FieldShowErr);
         Assert.IsTrue(VATPostingSetupCard."Purch. VAT Unreal. Account".Visible, FieldShowErr);
@@ -885,7 +885,7 @@ codeunit 134061 "ERM VAT Tool - UT"
         VATPostingSetupCard: TestPage "VAT Posting Setup Card";
     begin
         VATPostingSetupCard.Trap;
-        VATPostingSetupCard.OpenNew;
+        VATPostingSetupCard.OpenNew();
         Assert.IsFalse(VATPostingSetupCard."Unrealized VAT Type".Visible, FieldHideErr);
         Assert.IsFalse(VATPostingSetupCard."Sales VAT Unreal. Account".Visible, FieldHideErr);
         Assert.IsFalse(VATPostingSetupCard."Purch. VAT Unreal. Account".Visible, FieldHideErr);

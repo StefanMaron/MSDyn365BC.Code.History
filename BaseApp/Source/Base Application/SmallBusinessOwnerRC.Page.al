@@ -583,6 +583,13 @@ page 9020 "Small Business Owner RC"
                     RunObject = Page "Posted Deposit List";
                     ToolTip = 'View the posted deposit header, deposit header lines, deposit comments, and deposit dimensions.';
                 }
+                action("Posted Bank Deposits")
+                {
+                    Caption = 'Posted Bank Deposits';
+                    Image = PostedDeposit;
+                    RunObject = codeunit "Open P. Bank Deposits L. Page";
+                    ToolTip = 'View the posted bank deposit header, bank deposit header lines, bank deposit comments, and bank deposit dimensions.';
+                }
                 action("Posted Bank Recs.")
                 {
                     Caption = 'Posted Bank Recs.';
@@ -917,9 +924,9 @@ page 9020 "Small Business Owner RC"
                 Caption = 'Cash Management';
                 action("Deposits to Post")
                 {
-                    Caption = 'Deposits to Post';
-                    RunObject = Page Deposits;
-                    ToolTip = 'View the list of deposits that are ready to post.';
+                    Caption = 'Bank Deposits to Post';
+                    RunObject = codeunit "Open Deposits Page";
+                    ToolTip = 'View the list of bank deposits that are ready to post.';
                 }
                 action("Bank Rec. to Post")
                 {
@@ -981,10 +988,10 @@ page 9020 "Small Business Owner RC"
             }
             action(Deposit)
             {
-                Caption = 'Deposit';
+                Caption = 'Bank Deposit';
                 Image = DepositSlip;
-                RunObject = Page Deposit;
-                ToolTip = 'Create a new deposit. ';
+                RunObject = codeunit "Open Deposit Page";
+                ToolTip = 'Create a new bank deposit. ';
             }
             separator(Action5)
             {
@@ -1193,7 +1200,7 @@ page 9020 "Small Business Owner RC"
                 Caption = 'Find entries...';
                 Image = Navigate;
                 RunObject = Page Navigate;
-                ShortCutKey = 'Shift+Ctrl+I';
+                ShortCutKey = 'Ctrl+Alt+Q';
                 ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
             }
             action("Export GIFI Info. to Excel")

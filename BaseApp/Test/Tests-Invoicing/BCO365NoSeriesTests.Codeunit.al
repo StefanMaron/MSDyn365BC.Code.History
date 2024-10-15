@@ -10,6 +10,7 @@ codeunit 138947 "BC O365 No. Series Tests"
     var
         LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
         LibraryInvoicingApp: Codeunit "Library - Invoicing App";
+        LibraryWorkflow: Codeunit "Library - Workflow";
         EventSubscriberInvoicingApp: Codeunit "EventSubscriber Invoicing App";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryRandom: Codeunit "Library - Random";
@@ -31,7 +32,7 @@ codeunit 138947 "BC O365 No. Series Tests"
     begin
         // [SCENARIO] Verify changing next invoice number updates future series correctly
         LibraryLowerPermissions.SetInvoiceApp;
-        Initialize;
+        Initialize();
 
         // [WHEN] The user changes number series for invoices
         BCO365NoSeriesSettings.OpenView;
@@ -75,7 +76,7 @@ codeunit 138947 "BC O365 No. Series Tests"
     begin
         // [SCENARIO] Verify changing next estimate number updates future series correctly
         LibraryLowerPermissions.SetInvoiceApp;
-        Initialize;
+        Initialize();
 
         // [WHEN] The user changes number series for estimates
         BCO365NoSeriesSettings.OpenView;
@@ -118,7 +119,7 @@ codeunit 138947 "BC O365 No. Series Tests"
     begin
         // [SCENARIO] Verify changing invoice number multiple times is possible
         LibraryLowerPermissions.SetInvoiceApp;
-        Initialize;
+        Initialize();
 
         // [WHEN] The user changes number series for invoices twice
         BCO365NoSeriesSettings.OpenView;
@@ -146,7 +147,7 @@ codeunit 138947 "BC O365 No. Series Tests"
     begin
         // [SCENARIO] Verify the user is prevented from setting an invalid invoice/estimate number series
         LibraryLowerPermissions.SetInvoiceApp;
-        Initialize;
+        Initialize();
 
         // [WHEN] The user changes invoice number series to an invalid one (i.e. with no digits)
         BCO365NoSeriesSettings.OpenView;
@@ -176,7 +177,7 @@ codeunit 138947 "BC O365 No. Series Tests"
         LibraryAzureKVMockMgmt: Codeunit "Library - Azure KV Mock Mgmt.";
     begin
         EventSubscriberInvoicingApp.Clear;
-        LibraryInvoicingApp.SetupEmail;
+        LibraryWorkflow.SetUpEmailAccount();
 
         if IsInitialized then
             exit;

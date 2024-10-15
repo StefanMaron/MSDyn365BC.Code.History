@@ -33,7 +33,7 @@ codeunit 144012 "Purchase Documents With Tax"
         // Verify Tax Amount on Statistics Page, Purchase Order with Type - G/L Account.
 
         // Setup: Create Purchase Order with Type - G/L Account.
-        Initialize;
+        Initialize();
         LibraryERM.CreateTaxGroup(TaxGroup);
         PurchaseOrderWithType(PurchaseLine.Type::"G/L Account", CreateGLAccount, TaxGroup.Code);
     end;
@@ -49,7 +49,7 @@ codeunit 144012 "Purchase Documents With Tax"
         // Verify Tax Amount on Statistics Page, Purchase Order with Type - Item.
 
         // Setup: Create Purchase Order with Type - Item.
-        Initialize;
+        Initialize();
         LibraryERM.CreateTaxGroup(TaxGroup);
         PurchaseOrderWithType(PurchaseLine.Type::Item, CreateItem(TaxGroup.Code), TaxGroup.Code);
     end;
@@ -84,7 +84,7 @@ codeunit 144012 "Purchase Documents With Tax"
         // Verify General Ledger Entries and Tax Entries, Post Purchase Order with Type - G/L Account.
 
         // Setup: Create Purchase Order with Type - G/L Account.
-        Initialize;
+        Initialize();
         LibraryERM.CreateTaxGroup(TaxGroup);
         PostPurchaseOrderWithType(PurchaseLine.Type::"G/L Account", CreateGLAccount, TaxGroup.Code);
     end;
@@ -99,7 +99,7 @@ codeunit 144012 "Purchase Documents With Tax"
         // Verify General Ledger Entries and Tax Entries, Post Purchase Order with Type - Item.
 
         // Setup: Create Purchase Order with Type - Item.
-        Initialize;
+        Initialize();
         LibraryERM.CreateTaxGroup(TaxGroup);
         PostPurchaseOrderWithType(PurchaseLine.Type::Item, CreateItem(TaxGroup.Code), TaxGroup.Code);
     end;
@@ -138,7 +138,7 @@ codeunit 144012 "Purchase Documents With Tax"
         // Verify Amount Received Not Invoiced on Purchase Line, Post Purchase Order as receive and Tax Area code as blank on line.
 
         // Setup: Create Tax Group, Tax Area Line and Purchase Order.
-        Initialize;
+        Initialize();
         LibraryERM.CreateTaxGroup(TaxGroup);
         CreateTaxAreaLine(TaxAreaLine);
         CreatePurchaseDocument(PurchaseLine, '', PurchaseLine.Type::Item, CreateItem(TaxGroup.Code), TaxGroup.Code, CreateVendor);  // Blank value for Tax Area Code.
@@ -164,7 +164,7 @@ codeunit 144012 "Purchase Documents With Tax"
         // Verify that amount on posted invoice whent purchase order post partially with line discount percentage.
 
         // Setup: Create purchase order with Line Discount.
-        Initialize;
+        Initialize();
         LibraryERM.CreateTaxGroup(TaxGroup);
         CreateTaxAreaLine(TaxAreaLine);
         CreateTaxDetail(TaxAreaLine."Tax Jurisdiction Code", TaxGroup.Code);
@@ -214,8 +214,8 @@ codeunit 144012 "Purchase Documents With Tax"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryVariableStorage.Clear();
+        LibraryApplicationArea.EnableFoundationSetup();
     end;
 
     local procedure CreateAndPostPurchaseDocumentWithLineDiscount(var PurchaseLine: Record "Purchase Line"; TaxAreaCode: Code[20]; TaxGroupCode: Code[20])
@@ -485,7 +485,7 @@ codeunit 144012 "Purchase Documents With Tax"
         TaxAreaCode: Code[20];
         DocNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         InitializeVendorAndTaxSettings(
           VendorNo, PostingDate, LocationCode, TaxGroupCode, TaxAreaCode,
@@ -528,7 +528,7 @@ codeunit 144012 "Purchase Documents With Tax"
         GLEntry.SetRange("Document Type", GLEntry."Document Type"::Invoice);
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("G/L Account No.", GLAccountNo);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         GLEntry.TestField(Amount, Amount);
         GLEntry.TestField(Quantity, Quantity);
     end;
@@ -541,7 +541,7 @@ codeunit 144012 "Purchase Documents With Tax"
         VATEntry.SetRange(Type, VATEntry.Type::Purchase);
         VATEntry.SetRange("Document No.", DocumentNo);
         VATEntry.SetRange("Bill-to/Pay-to No.", BillToPayToNo);
-        VATEntry.FindFirst;
+        VATEntry.FindFirst();
         VATEntry.TestField(Base, Base);
         VATEntry.TestField(Amount, Amount);
     end;

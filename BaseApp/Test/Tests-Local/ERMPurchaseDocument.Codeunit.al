@@ -31,7 +31,7 @@ codeunit 140611 "ERM - Purchase Document"
         // Create Vendor and Create Customer and Create Item-Vendor Catalog and Create Sales Order with Release Status and Create Purchase Order through Requisition Worksheet and Verify IRS 1099 Liable True.
 
         // Setup: Create Item Vendor and Create Sales Order.
-        Initialize;
+        Initialize();
         LibraryPurchase.CreateVendor(Vendor);
         Vendor.Validate("IRS 1099 Code", FindIrs1099Code);
         Vendor.Modify(true);
@@ -51,7 +51,7 @@ codeunit 140611 "ERM - Purchase Document"
     begin
         if isInitialized then
             exit;
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.CreateVATData();
         isInitialized := true;
         Commit();
     end;
@@ -60,7 +60,7 @@ codeunit 140611 "ERM - Purchase Document"
     begin
         RequisitionLine.SetRange(Type, RequisitionLine.Type::Item);
         RequisitionLine.SetRange("No.", ItemNo);
-        RequisitionLine.FindFirst;
+        RequisitionLine.FindFirst();
         RequisitionLine.Validate("Vendor No.", VendorNo);
         RequisitionLine.Modify(true);
         LibraryPlanning.CarryOutActionMsgPlanWksh(RequisitionLine);
@@ -91,7 +91,7 @@ codeunit 140611 "ERM - Purchase Document"
         Purchasing: Record Purchasing;
     begin
         Purchasing.SetRange("Special Order", true);
-        Purchasing.FindFirst;
+        Purchasing.FindFirst();
         exit(Purchasing.Code);
     end;
 
@@ -101,7 +101,7 @@ codeunit 140611 "ERM - Purchase Document"
         GetSalesOrders: Report "Get Sales Orders";
     begin
         RequisitionWkshName.SetRange("Template Type", RequisitionWkshName."Template Type"::"Req.");
-        RequisitionWkshName.FindFirst;
+        RequisitionWkshName.FindFirst();
         RequisitionLine.Validate("Worksheet Template Name", RequisitionWkshName."Worksheet Template Name");
         RequisitionLine.Validate("Journal Batch Name", RequisitionWkshName.Name);
 
@@ -110,7 +110,7 @@ codeunit 140611 "ERM - Purchase Document"
         Clear(GetSalesOrders);
         GetSalesOrders.SetReqWkshLine(RequisitionLine, 1);
         GetSalesOrders.UseRequestPage(false);
-        GetSalesOrders.RunModal;
+        GetSalesOrders.RunModal();
     end;
 
     local procedure VerifyIRS1099Liable(VendorNo: Code[20])
@@ -120,7 +120,7 @@ codeunit 140611 "ERM - Purchase Document"
         PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::Order);
         PurchaseLine.SetRange(Type, PurchaseLine.Type::Item);
         PurchaseLine.SetRange("Buy-from Vendor No.", VendorNo);
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
         PurchaseLine.TestField("IRS 1099 Liable", true);
     end;
 }

@@ -137,7 +137,7 @@ codeunit 6721 "Booking Manager"
 
         SalesLine.SetRange("Document Type", SalesHeader."Document Type"::Invoice);
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        if SalesLine.FindLast then
+        if SalesLine.FindLast() then
             LineNo := SalesLine."Line No." + 10000
         else
             LineNo := 10000;
@@ -175,7 +175,7 @@ codeunit 6721 "Booking Manager"
             NewTempBookingItem.SetRange("Customer Email", TempBookingItem."Customer Email");
             NewTempBookingItem.SetRange("Invoice Status", NewTempBookingItem."Invoice Status"::draft);
             NewTempBookingItem.SetFilter("Invoice No.", '=''''');
-            if NewTempBookingItem.FindSet then begin
+            if NewTempBookingItem.FindSet() then begin
                 Clear(SalesHeader);
                 CreateSalesHeader(SalesHeader, NewTempBookingItem);
                 repeat
@@ -199,7 +199,7 @@ codeunit 6721 "Booking Manager"
             exit;
 
         InvoicedBookingItem.SetRange("Document No.", Rec."No.");
-        if InvoicedBookingItem.FindFirst then
+        if InvoicedBookingItem.FindFirst() then
             SetBookingItemInvoiced(InvoicedBookingItem);
     end;
 
@@ -212,7 +212,7 @@ codeunit 6721 "Booking Manager"
             exit;
 
         InvoicedBookingItem.SetRange("Document No.", Rec."Document No.");
-        if InvoicedBookingItem.FindFirst then
+        if InvoicedBookingItem.FindFirst() then
             SetBookingItemInvoiced(InvoicedBookingItem);
     end;
 
@@ -237,7 +237,7 @@ codeunit 6721 "Booking Manager"
             exit;
 
         InvoicedBookingItem.SetRange("Document No.", Rec."Document No.");
-        if InvoicedBookingItem.FindFirst then
+        if InvoicedBookingItem.FindFirst() then
             SetBookingItemInvoiced(InvoicedBookingItem);
     end;
 
@@ -256,7 +256,7 @@ codeunit 6721 "Booking Manager"
         InvoicedBookingItem.ModifyAll(Posted, true);
         InvoicedBookingItem.ModifyAll("Document No.", SalesInvHdrNo);
         InvoicedBookingItem.SetRange("Document No.", SalesInvHdrNo);
-        if InvoicedBookingItem.FindFirst then
+        if InvoicedBookingItem.FindFirst() then
             SetBookingItemInvoiced(InvoicedBookingItem);
     end;
 
@@ -269,7 +269,7 @@ codeunit 6721 "Booking Manager"
             exit;
 
         InvoicedBookingItem.SetRange("Document No.", Rec."No.");
-        if InvoicedBookingItem.FindFirst then
+        if InvoicedBookingItem.FindFirst() then
             SetBookingItemInvoiced(InvoicedBookingItem);
     end;
 

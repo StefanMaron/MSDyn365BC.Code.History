@@ -19,7 +19,7 @@ codeunit 5941 "ContractDiscount-Find"
             SetRange(Type, Type);
             SetFilter("No.", '%1|%2', "No.", '');
             SetRange("Starting Date", 0D, "Starting Date");
-            if not FindLast then
+            if not FindLast() then
                 "Discount %" := 0;
         end;
 

@@ -280,7 +280,7 @@ codeunit 2162 "O365 Sales Invoice Events"
 
         SalesInvoiceHeader.SetAutoCalcFields(Cancelled, Closed, Corrective, "Remaining Amount");
         SalesInvoiceHeader.SetRange("Cust. Ledger Entry No.", Rec."Cust. Ledger Entry No.");
-        if not SalesInvoiceHeader.FindFirst then
+        if not SalesInvoiceHeader.FindFirst() then
             exit;
 
         if not CheckSalesInvoiceHeader(SalesInvoiceHeader) then
@@ -297,11 +297,11 @@ codeunit 2162 "O365 Sales Invoice Events"
         // Remove overdue event
         O365SalesEvent.SetRange(Type, O365SalesEvent.Type::"Invoice Overdue");
         O365SalesEvent.SetRange("Document No.", SalesInvoiceHeader."No.");
-        if not O365SalesEvent.FindFirst then
+        if not O365SalesEvent.FindFirst() then
             exit;
 
         CalendarEvent.SetRange("Record ID to Process", O365SalesEvent.RecordId);
-        if CalendarEvent.FindFirst then
+        if CalendarEvent.FindFirst() then
             if not CalendarEvent.Archived then
                 CalendarEvent.Delete(true);
     end;

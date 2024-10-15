@@ -46,7 +46,7 @@ codeunit 144007 "UT PAG Address"
     begin
         // [FEATURE] [Vendor Ledger Entry] [UT] [UI]
         // [SCENARIO 256652] Vendor Ledger Entry "IRS 1099" fields are editable and visible.
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
 
         VendorLedgerEntry."Entry No." :=
           LibraryUtility.GetNewRecNo(VendorLedgerEntry, VendorLedgerEntry.FieldNo("Entry No."));

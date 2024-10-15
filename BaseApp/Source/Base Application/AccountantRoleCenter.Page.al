@@ -51,14 +51,6 @@ page 9027 "Accountant Role Center"
             {
                 ApplicationArea = Basic, Suite;
             }
-            part(Control10; "Product Video Topics")
-            {
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Replaced with Assisted Setup.';
-                Visible = false;
-                ApplicationArea = All;
-                ObsoleteTag = '17.0';
-            }
             part(Control100; "Cash Flow Forecast Chart")
             {
                 ApplicationArea = Basic, Suite;
@@ -693,10 +685,10 @@ page 9027 "Accountant Role Center"
                 action(Deposit)
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Deposit';
+                    Caption = 'Bank Deposit';
                     Image = DepositSlip;
-                    RunObject = Page Deposits;
-                    ToolTip = 'Create a new deposit. ';
+                    RunObject = Codeunit "Open Deposits Page";
+                    ToolTip = 'Create a new bank deposit. ';
                 }
                 action("Cash Flow Forecasts")
                 {
@@ -935,6 +927,14 @@ page 9027 "Accountant Role Center"
                     RunObject = Page "Posted Deposit List";
                     ToolTip = 'View the posted deposit header, deposit header lines, deposit comments, and deposit dimensions.';
                 }
+                action("Posted Bank Deposits")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Posted Bank Deposits';
+                    Image = PostedDeposit;
+                    RunObject = codeunit "Open P. Bank Deposits L. Page";
+                    ToolTip = 'View the posted bank deposit header, bank deposit header lines, bank deposit comments, and bank deposit dimensions.';
+                }
                 action("Posted Bank Recs.")
                 {
                     ApplicationArea = Basic, Suite;
@@ -1024,10 +1024,10 @@ page 9027 "Accountant Role Center"
             {
                 AccessByPermission = TableData "Gen. Journal Template" = IMD;
                 ApplicationArea = Basic, Suite;
-                Caption = 'Deposit';
-                RunObject = Page Deposit;
+                Caption = 'Bank Deposit';
+                RunObject = Codeunit "Open Deposit Page";
                 RunPageMode = Create;
-                ToolTip = 'Create a new deposit. ';
+                ToolTip = 'Create a new bank deposit. ';
             }
         }
         area(processing)
@@ -1276,7 +1276,9 @@ page 9027 "Accountant Role Center"
                     ToolTip = 'Set up the number of accounting periods, such as 12 monthly periods, within the fiscal year and specify which period is the start of the new fiscal year.';
                     ObsoleteState = Pending;
                     ObsoleteReason = 'Setup is no longer shown in this page.';
+#pragma warning disable AS0072
                     ObsoleteTag = '19.0';
+#pragma warning restore
                 }
                 action("General &Ledger Setup")
                 {
@@ -1344,7 +1346,7 @@ page 9027 "Accountant Role Center"
                     Caption = 'Find entries...';
                     Image = Navigate;
                     RunObject = Page Navigate;
-                    ShortCutKey = 'Shift+Ctrl+I';
+                    ShortCutKey = 'Ctrl+Alt+Q';
                     ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
                 }
             }

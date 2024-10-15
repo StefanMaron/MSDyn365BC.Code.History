@@ -13,6 +13,10 @@
 			"path": "..\\..\\..\\Modules\\DevTools\\TestFramework\\TestLibraries\\Variable Storage"
 		},
 		{
+			"name": "Permissions Mock",
+			"path": "..\\..\\..\\Modules\\DevTools\\TestFramework\\TestLibraries\\Permissions Mock"
+		},
+		{
 			"name": "TestRunner",
 			"path": "..\\..\\..\\Modules\\DevTools\\TestFramework\\TestRunner"
 		},
@@ -101,10 +105,6 @@
 			"path": "..\\Tests\\MOCKSERVICETESTS-Internal"
 		},
 		{
-			"name": "NATIVEINVOICINGTEST-Internal",
-			"path": "..\\Tests\\NATIVEINVOICINGTEST-Internal"
-		},
-		{
 			"name": "Performance-Internal",
 			"path": "..\\Tests\\Performance-Internal"
 		},
@@ -151,6 +151,10 @@
 		{
 			"name": "TestLibraries",
 			"path": "..\\Tests\\TestLibraries"
+		},
+		{
+			"name": "Upgrade",
+			"path": "..\\Tests\\Upgrade"
 		},
 		{
 			"name": "User",

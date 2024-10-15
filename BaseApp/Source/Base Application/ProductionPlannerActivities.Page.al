@@ -64,25 +64,25 @@ page 9038 "Production Planner Activities"
             cuegroup("Production Orders")
             {
                 Caption = 'Production Orders';
-                field("Simulated Prod. Orders"; "Simulated Prod. Orders")
+                field("Simulated Prod. Orders"; Rec."Simulated Prod. Orders")
                 {
                     ApplicationArea = Manufacturing;
                     DrillDownPageID = "Simulated Production Orders";
                     ToolTip = 'Specifies the number of simulated production orders that are displayed in the Manufacturing Cue on the Role Center. The documents are filtered by today''s date.';
                 }
-                field("Planned Prod. Orders - All"; "Planned Prod. Orders - All")
+                field("Planned Prod. Orders - All"; Rec."Planned Prod. Orders - All")
                 {
                     ApplicationArea = Manufacturing;
                     DrillDownPageID = "Planned Production Orders";
                     ToolTip = 'Specifies the number of planned production orders that are displayed in the Manufacturing Cue on the Role Center. The documents are filtered by today''s date.';
                 }
-                field("Firm Plan. Prod. Orders - All"; "Firm Plan. Prod. Orders - All")
+                field("Firm Plan. Prod. Orders - All"; Rec."Firm Plan. Prod. Orders - All")
                 {
                     ApplicationArea = Manufacturing;
                     DrillDownPageID = "Firm Planned Prod. Orders";
                     ToolTip = 'Specifies the number of firm planned production orders that are displayed in the Manufacturing Cue on the Role Center. The documents are filtered by today''s date.';
                 }
-                field("Released Prod. Orders - All"; "Released Prod. Orders - All")
+                field("Released Prod. Orders - All"; Rec."Released Prod. Orders - All")
                 {
                     ApplicationArea = Manufacturing;
                     DrillDownPageID = "Released Production Orders";
@@ -111,7 +111,7 @@ page 9038 "Production Planner Activities"
                         ApplicationArea = Manufacturing;
                         Caption = 'Find entries...';
                         RunObject = Page Navigate;
-                        ShortCutKey = 'Shift+Ctrl+I';
+                        ShortCutKey = 'Ctrl+Alt+Q';
                         ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
                     }
                 }
@@ -119,7 +119,7 @@ page 9038 "Production Planner Activities"
             cuegroup("Planning - Operations")
             {
                 Caption = 'Planning - Operations';
-                field("Purchase Orders"; "Purchase Orders")
+                field("Purchase Orders"; Rec."Purchase Orders")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'My Purchase Orders';
@@ -157,13 +157,13 @@ page 9038 "Production Planner Activities"
             cuegroup(Design)
             {
                 Caption = 'Design';
-                field("Prod. BOMs under Development"; "Prod. BOMs under Development")
+                field("Prod. BOMs under Development"; Rec."Prod. BOMs under Development")
                 {
                     ApplicationArea = Manufacturing;
                     DrillDownPageID = "Production BOM List";
                     ToolTip = 'Specifies the number of production BOMs that are under development that are displayed in the Manufacturing Cue on the Role Center. The documents are filtered by today''s date.';
                 }
-                field("Routings under Development"; "Routings under Development")
+                field("Routings under Development"; Rec."Routings under Development")
                 {
                     ApplicationArea = Manufacturing;
                     DrillDownPageID = "Routing List";
@@ -198,33 +198,6 @@ page 9038 "Production Planner Activities"
                     }
                 }
             }
-            cuegroup("My User Tasks")
-            {
-                Caption = 'My User Tasks';
-                Visible = false;
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Replaced with User Tasks Activities part';
-                ObsoleteTag = '17.0';
-                field("UserTaskManagement.GetMyPendingUserTasksCount"; UserTaskManagement.GetMyPendingUserTasksCount)
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Pending User Tasks';
-                    Image = Checklist;
-                    ToolTip = 'Specifies the number of pending tasks that are assigned to you or to a group that you are a member of.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced with User Tasks Activities part';
-                    ObsoleteTag = '17.0';
-
-                    trigger OnDrillDown()
-                    var
-                        UserTaskList: Page "User Task List";
-                    begin
-                        UserTaskList.SetPageToShowMyPendingUserTasks;
-                        UserTaskList.Run;
-                    end;
-                }
-            }
         }
     }
 
@@ -252,21 +225,20 @@ page 9038 "Production Planner Activities"
 
     trigger OnOpenPage()
     begin
-        Reset;
-        if not Get then begin
-            Init;
-            Insert;
+        Rec.Reset();
+        if not Rec.Get() then begin
+            Rec.Init();
+            Rec.Insert();
         end;
 
-        SetRange("User ID Filter", UserId);
+        Rec.SetRange("User ID Filter", UserId());
 
-        ShowIntelligentCloud := not EnvironmentInfo.IsSaaS;
+        ShowIntelligentCloud := not EnvironmentInfo.IsSaaS();
     end;
 
     var
         CuesAndKpis: Codeunit "Cues And KPIs";
         EnvironmentInfo: Codeunit "Environment Information";
-        UserTaskManagement: Codeunit "User Task Management";
         ShowIntelligentCloud: Boolean;
 }
 

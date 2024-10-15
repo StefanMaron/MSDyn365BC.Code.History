@@ -26,7 +26,7 @@ codeunit 138051 "O365 Test Auto Tax Setup"
         Customer: Record Customer;
         SalesHeader: Record "Sales Header";
     begin
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [GIVEN] A new sales order for a new customer. None or few tax areas have been created.
@@ -59,7 +59,7 @@ codeunit 138051 "O365 Test Auto Tax Setup"
         TempTaxRate: Text;
     begin
         // [FEATURE] [O365] [Sales] [Invoice] [UI]
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [GIVEN] A new sales order for a new tax area and tax group shows 0% as tax.

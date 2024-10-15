@@ -99,6 +99,7 @@ page 279 "Source Code Setup"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the source code that is assigned to entries that are posted from a deposit.';
+                    Visible = not BankDepositFeatureEnabled;
                 }
                 field("Payment Reconciliation Journal"; "Payment Reconciliation Journal")
                 {
@@ -110,7 +111,7 @@ page 279 "Source Code Setup"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code linked to entries that are posted from Consolidation.';
                 }
-             }
+            }
             group(Sales)
             {
                 Caption = 'Sales';
@@ -466,12 +467,18 @@ page 279 "Source Code Setup"
     }
 
     trigger OnOpenPage()
+    var
+        BankDepositFeatureMgt: Codeunit "Bank Deposit Feature Mgt.";
     begin
         Reset;
         if not Get then begin
             Init;
             Insert;
         end;
+        BankDepositFeatureEnabled := BankDepositFeatureMgt.IsEnabled();
     end;
+
+    var
+        BankDepositFeatureEnabled: Boolean;
 }
 

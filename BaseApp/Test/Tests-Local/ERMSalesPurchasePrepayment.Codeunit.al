@@ -29,7 +29,7 @@ codeunit 142075 "ERM Sales/Purchase Prepayment"
         // Purpose of the test is to validate error on Modifying Prepayment % after Posting Prepayment Invoice.
 
         // Setup: Create and Post Purchase Prepayment Invoice.
-        Initialize;
+        Initialize();
         No := CreateAndPostPurchasePrepaymentInvoice;
         OpenPurchaseOrder(PurchaseOrder, No);
 
@@ -52,7 +52,7 @@ codeunit 142075 "ERM Sales/Purchase Prepayment"
         // Purpose of the test is to validate error on Modifying Quantity after Posting Prepayment Invoice.
 
         // Setup: Create and Post Purchase Prepayment Invoice.
-        Initialize;
+        Initialize();
         No := CreateAndPostPurchasePrepaymentInvoice;
         OpenPurchaseOrder(PurchaseOrder, No);
 
@@ -74,7 +74,7 @@ codeunit 142075 "ERM Sales/Purchase Prepayment"
         // Purpose of the test is to validate error on Modifying Direct Unit Cost after Posting Prepayment Invoice.
 
         // Setup: Create and Post Purchase Prepayment Invoice.
-        Initialize;
+        Initialize();
         No := CreateAndPostPurchasePrepaymentInvoice;
         OpenPurchaseOrder(PurchaseOrder, No);
 
@@ -97,7 +97,7 @@ codeunit 142075 "ERM Sales/Purchase Prepayment"
         // Purpose of the test is to validate error on Modifying Line Amount after Posting Prepayment Invoice.
 
         // Setup: Create and Post Purchase Prepayment Invoice.
-        Initialize;
+        Initialize();
         No := CreateAndPostPurchasePrepaymentInvoice;
         OpenPurchaseOrder(PurchaseOrder, No);
 
@@ -121,7 +121,7 @@ codeunit 142075 "ERM Sales/Purchase Prepayment"
         // Purpose of the test is to validate error on Modifying Prepayment % after Posting Prepayment Invoice.
 
         // Setup: Create and Post Sales Prepayment Invoice.
-        Initialize;
+        Initialize();
         No := CreateAndPostSalesPrepaymentInvoice;
         OpenSalesOrder(SalesOrder, No);
 
@@ -143,7 +143,7 @@ codeunit 142075 "ERM Sales/Purchase Prepayment"
         // Purpose of the test is to validate error on Modifying Quantity after Posting Prepayment Invoice.
 
         // Setup: Create and Post Sales Prepayment Invoice.
-        Initialize;
+        Initialize();
         No := CreateAndPostSalesPrepaymentInvoice;
         OpenSalesOrder(SalesOrder, No);
 
@@ -165,7 +165,7 @@ codeunit 142075 "ERM Sales/Purchase Prepayment"
         // Purpose of the test is to validate error on Modifying Unit Price after Posting Prepayment Invoice.
 
         // Setup: Create and Post Sales Prepayment Invoice.
-        Initialize;
+        Initialize();
         No := CreateAndPostSalesPrepaymentInvoice;
         OpenSalesOrder(SalesOrder, No);
 
@@ -187,7 +187,7 @@ codeunit 142075 "ERM Sales/Purchase Prepayment"
         // Purpose of the test is to validate error on Modifying Line Amount after Posting Prepayment Invoice.
 
         // Setup: Create and Post Sales Prepayment Invoice.
-        Initialize;
+        Initialize();
         No := CreateAndPostSalesPrepaymentInvoice;
         OpenSalesOrder(SalesOrder, No);
 
@@ -209,7 +209,7 @@ codeunit 142075 "ERM Sales/Purchase Prepayment"
         // Purpose of the test is to validate error on Modifying Line Discount % after Posting Prepayment Invoice.
 
         // Setup: Create and Post Sales Prepayment Invoice.
-        Initialize;
+        Initialize();
         No := CreateAndPostSalesPrepaymentInvoice;
         OpenSalesOrder(SalesOrder, No);
 
@@ -228,7 +228,7 @@ codeunit 142075 "ERM Sales/Purchase Prepayment"
         if IsInitialized then
             exit;
 
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.CreateVATData();
         ModifySalesReceivablesSetup;  // Modify Stock out Warning.
         LibraryPurchase.SetDiscountPostingSilent(0);
         LibrarySales.SetDiscountPostingSilent(0);

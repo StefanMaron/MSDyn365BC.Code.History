@@ -37,7 +37,7 @@ codeunit 144024 "Purch. Documents With Tax"
         // Verify Value Entry after Post purchase Order with Item And Item Charge with different Unit Costs.
 
         // Setup: Create Sales Order with Drop Shipment, post Purchase Order after carry out action message.
-        Initialize;
+        Initialize();
         Item.Get(CreateItem);
         CreateAndPostItemJournal(ItemJournalLine, Item."No.");
         CreateSalesOrderWithDropShipment(SalesLine, Item."No.", ItemJournalLine.Quantity);
@@ -79,7 +79,7 @@ codeunit 144024 "Purch. Documents With Tax"
         // Verify Unit Cost on Item Page after Post purchase Order with Item And Item Charge with different Unit Costs.
 
         // Setup: Create Sales Order with Drop Shipment, post Purchase Order after carry out action message. Create and Post Purchase Invoice with Item Charge.
-        Initialize;
+        Initialize();
         Item.Get(CreateItem);
         CreateAndPostItemJournal(ItemJournalLine, Item."No.");
         CreateSalesOrderWithDropShipment(SalesLine, Item."No.", ItemJournalLine.Quantity);
@@ -104,7 +104,7 @@ codeunit 144024 "Purch. Documents With Tax"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreateAndPostItemJournal(var ItemJournalLine: Record "Item Journal Line"; ItemNo: Code[20])
@@ -226,7 +226,7 @@ codeunit 144024 "Purch. Documents With Tax"
         RetrieveDimensionsFrom: Option Item,"Sales Line";
     begin
         ReqWkshTemplate.SetRange(Type, ReqWkshTemplate.Type::"Req.");
-        ReqWkshTemplate.FindFirst;
+        ReqWkshTemplate.FindFirst();
         LibraryPlanning.CreateRequisitionWkshName(RequisitionWkshName, ReqWkshTemplate.Name);
         LibraryPlanning.CreateRequisitionLine(RequisitionLine, ReqWkshTemplate.Name, RequisitionWkshName.Name);
         LibraryPlanning.GetSalesOrders(SalesLine, RequisitionLine, RetrieveDimensionsFrom::Item);
@@ -239,7 +239,7 @@ codeunit 144024 "Purch. Documents With Tax"
     begin
         PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::Order);
         PurchaseLine.SetRange("Buy-from Vendor No.", VendorNo);
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
         PurchaseLine.Validate("Direct Unit Cost", DirectUnitCost);
         PurchaseLine.Modify(true);
         PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
@@ -286,7 +286,7 @@ codeunit 144024 "Purch. Documents With Tax"
     begin
         ValueEntry.SetRange("Item Ledger Entry Type", ItemLedgerEntryType);
         ValueEntry.SetRange("Document No.", DocumentNo);
-        ValueEntry.FindFirst;
+        ValueEntry.FindFirst();
         Assert.AreNearlyEqual(ValueQuantity, ValueEntry."Valued Quantity", LibraryERM.GetAmountRoundingPrecision, ValueMustEqualErr);
         Assert.AreNearlyEqual(
           CostAmountExpected, ValueEntry."Cost Amount (Expected)", LibraryERM.GetAmountRoundingPrecision, ValueMustEqualErr);

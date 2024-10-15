@@ -590,7 +590,7 @@ page 5907 "Service Item Worksheet Subform"
                     ApplicationArea = ItemTracking;
                     Caption = 'Item &Tracking Lines';
                     Image = ItemTrackingLines;
-                    ShortCutKey = 'Shift+Ctrl+I';
+                    ShortCutKey = 'Ctrl+Alt+I'; 
                     ToolTip = 'View or edit serial numbers and lot numbers that are assigned to the item on the document or journal line.';
 
                     trigger OnAction()
@@ -689,11 +689,6 @@ page 5907 "Service Item Worksheet Subform"
             CurrPage.Update();
     end;
 
-    local procedure ShowReservationEntries()
-    begin
-        ShowReservationEntries(true);
-    end;
-
     local procedure SelectFaultResolutionCode()
     var
         ServItemLine: Record "Service Item Line";
@@ -710,7 +705,7 @@ page 5907 "Service Item Worksheet Subform"
         Clear(FaultResolutionRelation);
         FaultResolutionRelation.SetDocument(DATABASE::"Service Line", "Document Type".AsInteger(), "Document No.", "Line No.");
         FaultResolutionRelation.SetFilters("Symptom Code", "Fault Code", "Fault Area Code", ServItemLine."Service Item Group Code");
-        FaultResolutionRelation.RunModal;
+        FaultResolutionRelation.RunModal();
         CurrPage.Update(false);
     end;
 

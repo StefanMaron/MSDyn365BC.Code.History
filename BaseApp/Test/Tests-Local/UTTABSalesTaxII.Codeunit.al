@@ -36,7 +36,7 @@ codeunit 142090 "UT TAB Sales Tax II"
         // Purpose of the test is to validate Trigger OnValidate of Customer No. of Table - 5900 Service Header
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateCustomer(Customer);
         CreateServiceHeader(ServiceHeader, Customer."No.", '');
         RecRef.GetTable(ServiceHeader);
@@ -67,7 +67,7 @@ codeunit 142090 "UT TAB Sales Tax II"
         // Purpose of the test is to validate Trigger OnValidate of Tax Liable of Table - 5900 Service Header.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateCustomer(Customer);
         CreateServiceOrder(ServiceLine, Customer."No.", ServiceLine.Type::Item, CreateItem, '');
         ServiceHeader.Get(ServiceLine."Document Type", ServiceLine."Document No.");
@@ -94,7 +94,7 @@ codeunit 142090 "UT TAB Sales Tax II"
         // Purpose of the test is to validate Trigger OnValidate of Customer No. of Table - 5902 Service Line when Shipment Header is posted.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateCustomer(Customer);
         CreateServiceOrder(ServiceLine, Customer."No.", ServiceLine.Type::Item, CreateItem, '');
         ServiceLine."Quantity Shipped" := LibraryRandom.RandInt(100);
@@ -122,7 +122,7 @@ codeunit 142090 "UT TAB Sales Tax II"
         // Purpose of the test is to validate OnDelete Trigger of Table ID - 5900 Service Header.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateCustomer(Customer);
         CreateServiceHeader(ServiceHeader, Customer."No.", CreateTaxArea(TaxArea."Country/Region"::CA, false));
         CreateSalesTaxDifference(SalesTaxDifference, ServiceHeader);
@@ -151,7 +151,7 @@ codeunit 142090 "UT TAB Sales Tax II"
         // Purpose of the test is to validate Trigger OnValidate of No. of Table - 5902 Service Line when Type as blank.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateCustomer(Customer);
         CreateServiceOrder(ServiceLine, Customer."No.", ServiceLine.Type::" ", '', '');
         RecRef.GetTable(ServiceLine);
@@ -181,7 +181,7 @@ codeunit 142090 "UT TAB Sales Tax II"
         // Purpose of the test is to validate Trigger OnValidate of No. of Table - 5902 Service Line when Type as Cost.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateCustomer(Customer);
         CreateCost(ServiceCost);
         CreateServiceOrder(ServiceLine, Customer."No.", ServiceLine.Type::Cost, ServiceCost.Code, '');
@@ -227,7 +227,7 @@ codeunit 142090 "UT TAB Sales Tax II"
         FieldRef: FieldRef;
     begin
         // Setup.
-        Initialize;
+        Initialize();
         CreateCustomer(Customer);
         CreateServiceOrder(ServiceLine, Customer."No.", ServiceLine.Type::Item, CreateItem, HeaderTaxAreaCode);
         ServiceLine."Tax Area Code" := LineTaxAreaCode;
@@ -292,7 +292,7 @@ codeunit 142090 "UT TAB Sales Tax II"
         FieldRef: FieldRef;
     begin
         // Setup.
-        Initialize;
+        Initialize();
         CreateGenJournalLine(GenJournalLine, GenJournalLine."Document Type"::" ", AccountType, AccountNo, BalAccountType, BalAccountNo);
         RecRef.GetTable(GenJournalLine);
         FieldRef := RecRef.Field(FieldNo);
@@ -534,7 +534,7 @@ codeunit 142090 "UT TAB Sales Tax II"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO 200318] Tax Area Code is updated in the General Journal Line after validate vendor
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Vendor with a Tax Area Code
         CreateVendor(Vendor);
@@ -559,7 +559,7 @@ codeunit 142090 "UT TAB Sales Tax II"
     begin
         // [FEATURE] [Service Contract Account Group] [UT]
         // [SCENARIO 289828] Service Contract Account Group "Non-Prepaid Contract Acc." can be validated only by GLAccount with Tax Group Code defined
-        Initialize;
+        Initialize();
         // [GIVEN] GLAccount with Tax Group Code undefined - X
         GLAccount."No." := LibraryUTUtility.GetNewCode;
         GLAccount.Insert();
@@ -583,7 +583,7 @@ codeunit 142090 "UT TAB Sales Tax II"
     begin
         // [FEATURE] [Service Contract Account Group] [UT]
         // [SCENARIO 289828] Service Contract Account Group "Non-Prepaid Contract Acc." can be validated only by GLAccount with Tax Group Code defined
-        Initialize;
+        Initialize();
         // [GIVEN] GLAccount with Tax Group Code defined - X
         LibraryERM.CreateTaxGroup(TaxGroup);
         GLAccount."No." := LibraryUTUtility.GetNewCode;
@@ -609,7 +609,7 @@ codeunit 142090 "UT TAB Sales Tax II"
     begin
         // [FEATURE] [Service Contract Account Group] [UT]
         // [SCENARIO 289828] Service Contract Account Group "Prepaid Contract Acc." can be validated only by GLAccount with Tax Group Code defined
-        Initialize;
+        Initialize();
         // [GIVEN] GLAccount with Tax Group Code defined - X
         LibraryERM.CreateTaxGroup(TaxGroup);
         GLAccount."No." := LibraryUTUtility.GetNewCode;
@@ -634,7 +634,7 @@ codeunit 142090 "UT TAB Sales Tax II"
     begin
         // [FEATURE] [Service Contract Account Group] [UT]
         // [SCENARIO 289828] Service Contract Account Group "Prepaid Contract Acc." can be validated only by GLAccount with Tax Group Code defined
-        Initialize;
+        Initialize();
         // [GIVEN] GLAccount with Tax Group Code undefined - X
         GLAccount."No." := LibraryUTUtility.GetNewCode;
         GLAccount.Insert();
@@ -650,14 +650,14 @@ codeunit 142090 "UT TAB Sales Tax II"
 
     local procedure Initialize()
     begin
-        LibrarySetupStorage.Restore;
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibrarySetupStorage.Restore();
+        LibraryApplicationArea.EnableFoundationSetup();
 
         if IsInitialized then
             exit;
 
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.CreateVATData();
         CreateVATPostingSetup;
 
         IsInitialized := true;

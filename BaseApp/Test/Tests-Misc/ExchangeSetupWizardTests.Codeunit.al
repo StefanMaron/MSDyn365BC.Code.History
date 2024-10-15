@@ -11,6 +11,8 @@ codeunit 139310 "Exchange Setup Tests"
     var
         Assert: Codeunit Assert;
         LibraryAzureADAuthFlow: Codeunit "Library - Azure AD Auth Flow";
+        PrivacyNotice: Codeunit "Privacy Notice";
+        PrivacyNoticeRegistrations: Codeunit "Privacy Notice Registrations";
         OAuthInitialized: Boolean;
 
     [Test]
@@ -18,11 +20,11 @@ codeunit 139310 "Exchange Setup Tests"
     [Scope('OnPrem')]
     procedure VerifySetupWhenExitRightAway()
     var
-        AssistedSetup: Codeunit "Assisted Setup";
+        GuidedExperience: Codeunit "Guided Experience";
         OutlookIndividualDeployment: TestPage "Outlook Individual Deployment";
     begin
         // [GIVEN] A newly setup company
-        Initialize;
+        Initialize();
 
         // [WHEN] The Outlook Individual Deployment wizard is exited right away
         OutlookIndividualDeployment.Trap;
@@ -30,25 +32,26 @@ codeunit 139310 "Exchange Setup Tests"
         OutlookIndividualDeployment.Close;
 
         // [THEN] No assisted setup entry exists
-        Assert.IsFalse(AssistedSetup.Exists(Page::"Teams Individual Deployment"), 'Outlook Individual Deployment assisted setup entry should not exist.');
+        Assert.IsFalse(GuidedExperience.Exists("Guided Experience Type"::"Assisted Setup", ObjectType::Page, Page::"Teams Individual Deployment"), 'Outlook Individual Deployment assisted setup entry should not exist.');
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure VerifySetupWhenFinished()
     var
-        AssistedSetup: Codeunit "Assisted Setup";
+        GuidedExperience: Codeunit "Guided Experience";
         OutlookIndividualDeployment: TestPage "Outlook Individual Deployment";
     begin
         // [GIVEN] A newly setup company
-        Initialize;
+        Initialize();
+        PrivacyNotice.SetApprovalState(PrivacyNoticeRegistrations.GetExchangePrivacyNoticeId(), "Privacy Notice Approval State"::"Not set");
 
         // [WHEN] The Outlook Individual Deployment is completed
         RunWizardToCompletion(OutlookIndividualDeployment);
         OutlookIndividualDeployment.ActionDone.Invoke;
 
         // [THEN] No assisted setup entry exists
-        Assert.IsFalse(AssistedSetup.Exists(Page::"Teams Individual Deployment"), 'Outlook Individual Deployment assisted setup entry should not exist.');
+        Assert.IsFalse(GuidedExperience.Exists("Guided Experience Type"::"Assisted Setup", ObjectType::Page, Page::"Teams Individual Deployment"), 'Outlook Individual Deployment assisted setup entry should not exist.');
     end;
 
     [Test]
@@ -62,7 +65,7 @@ codeunit 139310 "Exchange Setup Tests"
         // [SCENARIO] User is not prompted for email and password when a token is available.
 
         // [GIVEN] An access token is available for the user.
-        Initialize;
+        Initialize();
         InitializeOAuth(true);
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
 
@@ -88,7 +91,7 @@ codeunit 139310 "Exchange Setup Tests"
         // [SCENARIO] User is not prompted for email and password when a token is available.
 
         // [GIVEN] An access token is available for the user.
-        Initialize;
+        Initialize();
         InitializeOAuth(true);
 
         // [WHEN] The user runs the Outlook Individual Deployment Page.
@@ -109,9 +112,10 @@ codeunit 139310 "Exchange Setup Tests"
     begin
         OutlookIndividualDeployment.Trap;
         OutlookIndividualDeploymentPage.SkipDeploymentStage(true);
-        OutlookIndividualDeploymentPage.Run;
+        OutlookIndividualDeploymentPage.Run();
 
         with OutlookIndividualDeployment do begin
+            ActionNext.Invoke; // Privacy Notice step to intro step
             ActionNext.Invoke; // Intro step to manual instructions step
             Assert.IsFalse(ActionNext.Visible, 'Next should not be visible at the end of the wizard');
             Assert.IsTrue(ActionDone.Visible(), 'Done should be visible at the end of the wizard');
@@ -124,6 +128,7 @@ codeunit 139310 "Exchange Setup Tests"
         LibraryAzureKVMockMgmt: Codeunit "Library - Azure KV Mock Mgmt.";
         EnvironmentInfoTestLibrary: Codeunit "Environment Info Test Library";
     begin
+        PrivacyNotice.SetApprovalState(PrivacyNoticeRegistrations.GetExchangePrivacyNoticeId(), "Privacy Notice Approval State"::Agreed);
         LibraryAzureKVMockMgmt.InitMockAzureKeyvaultSecretProvider;
         LibraryAzureKVMockMgmt.EnsureSecretNameIsAllowed('SmtpSetup');
         AssistedSetupTestLibrary.DeleteAll();

@@ -29,7 +29,7 @@ codeunit 144000 "ERM VAT"
         // Test to validate Amount in G/L entry and VAT Entry after post Purchase Order with VAT.
 
         // Setup: Create Purchase Order with VAT.
-        Initialize;
+        Initialize();
         CreateVatPostingSetup(VATPostingSetup);
         CreatePurchaseDocument(
           PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, CreateVendor(VATPostingSetup."VAT Bus. Posting Group"),
@@ -62,7 +62,7 @@ codeunit 144000 "ERM VAT"
         // Test to validate Amount in G/L Entry and VAT Entry after post Purchase Credit Memo with VAT.
 
         // Setup: Create Purchase Order with VAT.
-        Initialize;
+        Initialize();
         CreateVatPostingSetup(VATPostingSetup);
         CreatePurchaseDocument(
           PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::"Credit Memo",
@@ -101,7 +101,7 @@ codeunit 144000 "ERM VAT"
         // Test to Amount in G/L Entry and VAT Entry after post Purchase application.
 
         // Create and Post Purchase Order and Purchase Credit Memo.
-        Initialize;
+        Initialize();
         SourceCodeSetup.Get();
         CreateVatPostingSetup(VATPostingSetup);
         VendorNo := CreateVendor(VATPostingSetup."VAT Bus. Posting Group");
@@ -142,10 +142,10 @@ codeunit 144000 "ERM VAT"
         LibraryERM.SetApplyVendorEntry(ApplyingVendorLedgerEntry, ApplyingVendorLedgerEntry."Remaining Amount");
 
         // Find Posted Vendor Ledger Entries.
-        GLRegister.FindLast;
+        GLRegister.FindLast();
         VendorLedgerEntry.SetRange("Entry No.", GLRegister."From Entry No.", GLRegister."To Entry No.");
         VendorLedgerEntry.SetRange("Applying Entry", false);
-        VendorLedgerEntry.FindFirst;
+        VendorLedgerEntry.FindFirst();
 
         // Set Applies-to ID.
         LibraryERM.SetAppliestoIdVendor(VendorLedgerEntry);
@@ -213,7 +213,7 @@ codeunit 144000 "ERM VAT"
     begin
         GLAccount.SetRange("Direct Posting", true);
         GLAccount.SetRange("Reconciliation Account", true);
-        GLAccount.FindFirst;
+        GLAccount.FindFirst();
     end;
 
     local procedure UpdateGeneralLedgerSetup(NewUnrealizedVAT: Boolean) OldUnrealizedVAT: Boolean
@@ -232,7 +232,7 @@ codeunit 144000 "ERM VAT"
     begin
         VATEntry.SetRange("Document Type", DocumentType);
         VATEntry.SetRange("Document No.", DocumentNo);
-        VATEntry.FindFirst;
+        VATEntry.FindFirst();
         Assert.AreNearlyEqual(
           VATEntry.Base, Amount, LibraryERM.GetAmountRoundingPrecision,
           StrSubstNo(AmountError, VATEntry.FieldCaption(Base), Amount, VATEntry.TableCaption));
@@ -248,7 +248,7 @@ codeunit 144000 "ERM VAT"
         GLEntry.SetRange("G/L Account No.", GLAcountNo);
         GLEntry.SetRange("Gen. Posting Type", GenPostingType);
         GLEntry.SetRange("Source Code", SourceCode);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         Assert.AreNearlyEqual(
           GLEntry.Amount, Amount, LibraryERM.GetAmountRoundingPrecision,
           StrSubstNo(AmountError, GLEntry.FieldCaption(Amount), Amount, GLEntry.TableCaption));
@@ -259,7 +259,7 @@ codeunit 144000 "ERM VAT"
         VATEntry: Record "VAT Entry";
         GLRegister: Record "G/L Register";
     begin
-        GLRegister.FindLast;
+        GLRegister.FindLast();
         VATEntry.SetRange("Entry No.", GLRegister."From VAT Entry No.", GLRegister."To VAT Entry No.");
         VATEntry.FindSet();
         Assert.AreNearlyEqual(
@@ -284,7 +284,7 @@ codeunit 144000 "ERM VAT"
         GLEntry.SetRange("Document Type", DocumentType);
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("G/L Account No.", GLAcountNo);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         Assert.AreNearlyEqual(
           GLEntry.Amount, -Amount, LibraryERM.GetAmountRoundingPrecision,
           StrSubstNo(AmountError, GLEntry.FieldCaption(Amount), -Amount, GLEntry.TableCaption));

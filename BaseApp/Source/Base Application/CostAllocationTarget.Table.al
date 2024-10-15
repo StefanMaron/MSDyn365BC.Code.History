@@ -100,11 +100,9 @@ table 1107 "Cost Allocation Target"
         {
             Caption = 'Comment';
         }
-        field(30; Base; Option)
+        field(30; Base; Enum "Cost Allocation Target Base")
         {
             Caption = 'Base';
-            OptionCaption = 'Static,G/L Entries,G/L Budget Entries,Cost Type Entries,Cost Budget Entries,,,,,No of Employees,,Items Sold (Qty.),Items Purchased (Qty.),Items Sold (Amount),Items Purchased (Amount)';
-            OptionMembers = Static,"G/L Entries","G/L Budget Entries","Cost Type Entries","Cost Budget Entries",,,,,"No of Employees",,"Items Sold (Qty.)","Items Purchased (Qty.)","Items Sold (Amount)","Items Purchased (Amount)";
 
             trigger OnValidate()
             begin
@@ -119,7 +117,7 @@ table 1107 "Cost Allocation Target"
                     "No. Filter" := '';
                     "Cost Center Filter" := '';
                     "Cost Object Filter" := '';
-                    "Date Filter Code" := 0;
+                    "Date Filter Code" := "Cost Allocation Target Period"::" ";
                     "Group Filter" := '';
                 end else begin
                     "Static Base" := 0;
@@ -169,11 +167,9 @@ table 1107 "Cost Allocation Target"
                     Validate("Cost Object Filter", CopyStr(SelectionFilter, 1, MaxStrLen("Cost Object Filter")));
             end;
         }
-        field(34; "Date Filter Code"; Option)
+        field(34; "Date Filter Code"; Enum "Cost Allocation Target Period")
         {
             Caption = 'Date Filter Code';
-            OptionCaption = ' ,Week,Last Week,Month,Last Month,Month of Last Year,Year,Last Year,Period,Last Period,Period of Last Year,Fiscal Year,Last Fiscal Year';
-            OptionMembers = " ",Week,"Last Week",Month,"Last Month","Month of Last Year",Year,"Last Year",Period,"Last Period","Period of Last Year","Fiscal Year","Last Fiscal Year";
         }
         field(35; "Group Filter"; Text[250])
         {
@@ -187,11 +183,9 @@ table 1107 "Cost Allocation Target"
                     Validate("Group Filter", CopyStr(SelectionFilter, 1, MaxStrLen("Group Filter")));
             end;
         }
-        field(38; "Allocation Target Type"; Option)
+        field(38; "Allocation Target Type"; Enum "Cost Allocation Target Type")
         {
             Caption = 'Allocation Target Type';
-            OptionCaption = 'All Costs,Percent per Share,Amount per Share';
-            OptionMembers = "All Costs","Percent per Share","Amount per Share";
 
             trigger OnValidate()
             begin
@@ -318,7 +312,7 @@ table 1107 "Cost Allocation Target"
                 exit;
             end;
 
-            if FindSet then
+            if FindSet() then
                 repeat
                     Percent := Round(100 * Share / TotalShare, 0.00001);
                     "Share Updated on" := Today;
@@ -376,7 +370,7 @@ table 1107 "Cost Allocation Target"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeLookupGroupFilter(Base, SelectionFilter, IsHandled);
+        OnBeforeLookupGroupFilter(Base.AsInteger(), SelectionFilter, IsHandled);
         if IsHandled then
             exit;
 

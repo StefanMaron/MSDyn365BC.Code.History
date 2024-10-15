@@ -77,7 +77,7 @@ codeunit 144040 "UT Address Format"
         CustomAddressFormat: Record "Custom Address Format";
     begin
         CustomAddressFormat.SetRange("Country/Region Code", CountryRegionCode);
-        CustomAddressFormat.FindLast;
+        CustomAddressFormat.FindLast();
         CustomAddressFormat.TestField("Line Format", ExpectedLineFormat);
     end;
 }

@@ -70,7 +70,7 @@ table 10010 "IRS 1099 Form-Box"
         IRS1099FormBox: Record "IRS 1099 Form-Box";
     begin
         with IRS1099FormBox do
-            if not FindFirst then begin
+            if not FindFirst() then begin
                 InsertIRS1099('B', 'Proceeds From Broker+Barter Exchange Transactions', 0.0);
                 InsertIRS1099('B-02', 'Stocks, bonds, etc.', 0.0);
                 InsertIRS1099('B-03', 'Bartering', 0.0);

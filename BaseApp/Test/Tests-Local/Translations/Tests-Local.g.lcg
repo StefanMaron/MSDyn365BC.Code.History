@@ -14,15 +14,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Bank Account Reconciliation - NamedType WrongFieldValueErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 3778703352 - NamedType 1142546291" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[We have chosen the following report layouts: %1 for %2.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Bank Recon. with Matching - NamedType AutoSelectReportTxt)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 3778703352 - NamedType 1909587369" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[%1 was not refreshed.]]></Val>
@@ -57,33 +48,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[%1=TableCaption]D;]A;(LookupHint=Codeunit Bank Recon. with Matching - NamedType RecordNotFoundErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3778703352 - NamedType 22470183" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[No report was selected for %1. Based on the current setup of %2, a compatible report has been selected.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1=OptionValue,%2=FieldCaption]D;]A;(LookupHint=Codeunit Bank Recon. with Matching - NamedType ReportIsSelectedTxt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3778703352 - NamedType 781845903" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[One or more reports selected for bank reconciliation may not be compatible with the current setup of %1. Make sure the report %2 is selected for %3.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1=FieldCaption,%2=ReportNumber,%3=OptionValue]D;]A;(LookupHint=Codeunit Bank Recon. with Matching - NamedType TooManyReportsAreSelectedTxt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3778703352 - NamedType 383896469" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The expected message %1 is not a sub-string of the actual message %2.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1=ExpectedMessage,%2=ActualMessage]D;]A;(LookupHint=Codeunit Bank Recon. with Matching - NamedType UnexpectedMessageErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3778703352 - NamedType 3192598306" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

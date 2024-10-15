@@ -62,7 +62,7 @@ report 1131 "Cost Allocation"
 
                 trigger OnPostDataItem()
                 begin
-                    if CostRegister.FindLast then;
+                    if CostRegister.FindLast() then;
                     ModifyAll("Allocated with Journal No.", CostRegister."No." + 1);
                     ModifyAll(Allocated, true);
                 end;
@@ -99,7 +99,7 @@ report 1131 "Cost Allocation"
 
                 trigger OnPostDataItem()
                 begin
-                    if CostBudgetRegister.FindLast then;
+                    if CostBudgetRegister.FindLast() then;
                     ModifyAll("Allocated with Journal No.", CostBudgetRegister."No." + 1);
                     ModifyAll(Allocated, true);
                 end;
@@ -417,7 +417,7 @@ report 1131 "Cost Allocation"
         if Confirm(ConfirmText, true) then begin
             SkipSourcesWithoutTargets := CheckTargets;
             CostAllocations.InitializeRequest(CostAllocationSource, CostAllocationTarget, SkipSourcesWithoutTargets);
-            CostAllocations.Run;
+            CostAllocations.Run();
         end;
     end;
 
@@ -480,7 +480,7 @@ report 1131 "Cost Allocation"
           Text022);
         if TempCostJnlLine.Count > 0 then
             JournalLineCount := 10000 * 100000 div TempCostJnlLine.Count();
-        if TempCostJnlLine.FindSet then begin
+        if TempCostJnlLine.FindSet() then begin
             repeat
                 CostJnlLineStep := CostJnlLineStep + JournalLineCount;
                 Window2.Update(1, CostJnlLineStep div 100000);

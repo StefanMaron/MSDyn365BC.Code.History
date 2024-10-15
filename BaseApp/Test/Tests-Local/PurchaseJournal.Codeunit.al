@@ -27,7 +27,7 @@ codeunit 144014 "Purchase Journal"
 
         // Setup: Create Number Series, and Purchase Journal.
         LibraryLowerPermissions.SetJournalsEdit;
-        LibraryLowerPermissions.AddO365Setup;
+        LibraryLowerPermissions.AddO365Setup();
         CreateGeneralJournalLine(GenJournalLine, GenJournalBatch);
         LastNoUsed := GenJournalLine."Document No.";
 
@@ -37,7 +37,7 @@ codeunit 144014 "Purchase Journal"
 
         // Verify: Verify Last No. Used field of Number Series, Updated after posting Purchase Journal.
         NoSeriesLine.SetRange("Series Code", GenJournalBatch."No. Series");
-        NoSeriesLine.FindFirst;
+        NoSeriesLine.FindFirst();
         NoSeriesLine.TestField("Last No. Used", LastNoUsed);
     end;
 
@@ -54,7 +54,7 @@ codeunit 144014 "Purchase Journal"
 
         // Setup: Create Number Series. Create and Post Purchase Journal.
         LibraryLowerPermissions.SetJournalsPost;
-        LibraryLowerPermissions.AddO365Setup;
+        LibraryLowerPermissions.AddO365Setup();
         CreateGeneralJournalLine(GenJournalLine, GenJournalBatch);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         FindGeneralJournalBatch(GenJournalBatch, GenJournalBatch."Journal Template Name", GenJournalBatch."Bal. Account No.");

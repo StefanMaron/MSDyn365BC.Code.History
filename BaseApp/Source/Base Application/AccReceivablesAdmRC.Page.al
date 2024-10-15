@@ -239,8 +239,8 @@ page 9003 "Acc. Receivables Adm. RC"
             action(Deposits)
             {
                 ApplicationArea = Basic, Suite;
-                Caption = 'Deposits';
-                RunObject = Page "Deposit List";
+                Caption = 'Bank Deposits';
+                RunObject = Codeunit "Open Deposit List Page";
                 ToolTip = 'View a list of item sales for each customer during a selected time period. The report contains information on quantity, sales amount, profit, and possible discounts. It can be used, for example, to analyze a company''s customer groups.';
             }
             action(Reminders)
@@ -387,6 +387,13 @@ page 9003 "Acc. Receivables Adm. RC"
                     RunObject = Page "Posted Deposit List";
                     ToolTip = 'View the posted deposit header, deposit header lines, deposit comments, and deposit dimensions.';
                 }
+                action("Posted Bank Deposits")
+                {
+                    Caption = 'Posted Bank Deposits';
+                    Image = PostedDeposit;
+                    RunObject = codeunit "Open P. Bank Deposits L. Page";
+                    ToolTip = 'View the posted bank deposit header, bank deposit header lines, bank deposit comments, and bank deposit dimensions.';
+                }
                 action("Posted Bank Recs.")
                 {
                     Caption = 'Posted Bank Recs.';
@@ -511,10 +518,10 @@ page 9003 "Acc. Receivables Adm. RC"
             }
             action(Deposit)
             {
-                Caption = 'Deposit';
+                Caption = 'Bank Deposit';
                 Image = DepositSlip;
-                RunObject = Page Deposit;
-                ToolTip = 'Create a new deposit. ';
+                RunObject = codeunit "Open Deposit Page";
+                ToolTip = 'Create a new bank deposit. ';
             }
             separator(Action111)
             {
@@ -570,7 +577,7 @@ page 9003 "Acc. Receivables Adm. RC"
                 Caption = 'Find entries...';
                 Image = Navigate;
                 RunObject = Page Navigate;
-                ShortCutKey = 'Shift+Ctrl+I';
+                ShortCutKey = 'Ctrl+Alt+Q';
                 ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
             }
             separator(Customer)

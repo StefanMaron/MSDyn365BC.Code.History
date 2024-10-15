@@ -1,9 +1,13 @@
+#if not CLEAN20
 page 36720 "Bank Rec. Worksheet Dyn"
 {
     Caption = 'Bank Rec. Worksheet';
     PageType = Card;
     RefreshOnActivate = true;
     SourceTable = "Bank Rec. Header";
+    ObsoleteReason = 'Deprecated in favor of W1 Bank Reconciliation';
+    ObsoleteState = Pending;
+    ObsoleteTag = '20.0';
 
     layout
     {
@@ -355,7 +359,7 @@ page 36720 "Bank Rec. Worksheet Dyn"
                 ProcessLines.SetDoClearLines(true, "Bank Account No.", "Statement No.");
         end;
         ProcessLines.SetTableView(Rec);
-        ProcessLines.RunModal;
+        ProcessLines.RunModal();
         DoRecalc;
     end;
 
@@ -378,3 +382,4 @@ page 36720 "Bank Rec. Worksheet Dyn"
     end;
 }
 
+#endif

@@ -64,7 +64,7 @@ report 5185 "Log Segment"
         begin
             SegLine.SetRange("Segment No.", SegmentNo);
             SegLine.SetFilter("Correspondence Type", '<>0');
-            Send := SegLine.FindFirst;
+            Send := SegLine.FindFirst();
             DeliverEnable := Send;
         end;
     }

@@ -148,24 +148,53 @@ Page 1 "Company Information"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies your company''s web site.';
                 }
+#if not CLEAN20
                 field("IC Partner Code"; "IC Partner Code")
                 {
                     ApplicationArea = Intercompany;
                     Importance = Additional;
                     ToolTip = 'Specifies your company''s intercompany partner code.';
+                    ObsoleteReason = 'Replaced by the same field from "Intercompany Setup" page.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '20.0';
                 }
                 field("IC Inbox Type"; "IC Inbox Type")
                 {
                     ApplicationArea = Intercompany;
                     Importance = Additional;
                     ToolTip = 'Specifies what type of intercompany inbox you have, either File Location or Database.';
+                    ObsoleteReason = 'Replaced by the same field from "Intercompany Setup" page.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '20.0';
                 }
                 field("IC Inbox Details"; "IC Inbox Details")
                 {
                     ApplicationArea = Intercompany;
                     Importance = Additional;
                     ToolTip = 'Specifies details about the location of your intercompany inbox, which can transfer intercompany transactions into your company.';
+                    ObsoleteReason = 'Replaced by the same field from "Intercompany Setup" page.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '20.0';
                 }
+                field(OpenNewICSetupPageTxt; OpenNewICSetupPageTxt)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Editable = false;
+                    ShowCaption = false;
+                    Style = StrongAccent;
+                    StyleExpr = true;
+                    ToolTip = 'Run new Intercompany Setup page.';
+                    ObsoleteReason = 'Temporary control';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '20.0';
+
+                    trigger OnDrillDown()
+                    begin
+                        CurrPage.Update(true);
+                        Page.Run(Page::"Intercompany Setup");
+                    end;
+                }
+#endif
             }
             group(Payments)
             {
@@ -333,12 +362,12 @@ Page 1 "Company Information"
                     field("SCT Permission Type"; "SCT Permission Type")
                     {
                         ApplicationArea = BasicMX;
-                        ToolTip = 'Specifies the type of permission provided by Secretar�a de Comunicaciones y Transportes which must correspond to the type of motor transport used for the transfer of goods or merchandise.';
+                        ToolTip = 'Specifies the type of permission provided by SecretarпїЅa de Comunicaciones y Transportes which must correspond to the type of motor transport used for the transfer of goods or merchandise.';
                     }
                     field("SCT Permission Number"; "SCT Permission Number")
                     {
                         ApplicationArea = BasicMX;
-                        ToolTip = 'Specifies the permission number as defined by the Secretar�a de Comunicaciones y Transportes that must correspond to the type of motor transport that is used for the transfer of goods or merchandise.';
+                        ToolTip = 'Specifies the permission number as defined by the SecretarпїЅa de Comunicaciones y Transportes that must correspond to the type of motor transport that is used for the transfer of goods or merchandise.';
                     }
                 }
             }
@@ -405,12 +434,17 @@ Page 1 "Company Information"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether the GLN is used in electronic documents as a party identification number.';
                 }
+#if not CLEAN20
                 field("Auto. Send Transactions"; "Auto. Send Transactions")
                 {
                     ApplicationArea = Intercompany;
                     Importance = Additional;
                     ToolTip = 'Specifies that as soon as transactions arrive in the intercompany outbox, they will be sent to the intercompany partner.';
+                    ObsoleteReason = 'Replaced by the same field from "Intercompany Setup" page.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '20.0';
                 }
+#endif
                 field("Allow Blank Payment Info."; "Allow Blank Payment Info.")
                 {
                     ApplicationArea = Basic, Suite;
@@ -631,27 +665,20 @@ Page 1 "Company Information"
                     RunObject = Page "Permission Sets";
                     ToolTip = 'View or edit which feature objects that users need to access and set up the related permissions in permission sets that you can assign to the users of the database.';
                 }
-                action("SMTP Mail Setup")
-                {
-                    ApplicationArea = Advanced;
-                    Caption = 'SMTP Mail Setup';
-                    Image = MailSetup;
-                    RunObject = Page "SMTP Mail Setup";
-                    ToolTip = 'Set up the integration and security of the mail server at your site that handles email.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced with the ''Email Account Setup'' action';
-                    ObsoleteTag = '17.0';
-                    Visible = not IsEmailFeatureEnabled;
-                }
+#if not CLEAN20
                 action("Email Account Setup")
                 {
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The action is not being used and will be removed';
+                    ObsoleteTag = '20.0';
                     ApplicationArea = Basic, Suite;
                     Caption = 'Email Account Setup';
                     Image = MailSetup;
                     RunObject = page "Email Accounts";
                     ToolTip = 'Set up email accounts used in the product.';
-                    Visible = IsEmailFeatureEnabled;
+                    Visible = false;
                 }
+#endif
             }
             separator(Action1030000)
             {
@@ -762,8 +789,6 @@ Page 1 "Company Information"
     end;
 
     trigger OnInit()
-    var
-        ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
     begin
         SetShowMandatoryConditions;
     end;
@@ -771,17 +796,15 @@ Page 1 "Company Information"
     trigger OnOpenPage()
     var
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
-        EmailFeature: Codeunit "Email Feature";
         MonitorSensitiveField: Codeunit "Monitor Sensitive Field";
     begin
-        IsEmailFeatureEnabled := EmailFeature.IsEnabled();
-        Reset;
-        if not Get then begin
-            Init;
-            Insert;
+        Rec.Reset;
+        if not Rec.Get() then begin
+            Rec.Init();
+            Rec.Insert();
         end;
 
-        CountyVisible := FormatAddress.UseCounty("Country/Region Code");
+        CountyVisible := FormatAddress.UseCounty(Rec."Country/Region Code");
 
         ApplicationAreaMgmtFacade.GetExperienceTierCurrentCompany(Experience);
         MonitorSensitiveField.ShowPromoteMonitorSensitiveFieldNotification();
@@ -793,7 +816,6 @@ Page 1 "Company Information"
         CalendarMgmt: Codeunit "Calendar Management";
         CompanyInformationMgt: Codeunit "Company Information Mgt.";
         FormatAddress: Codeunit "Format Address";
-        EnvironmentInfo: Codeunit "Environment Information";
         Experience: Text;
         SystemIndicatorText: Code[4];
         [InDataSet]
@@ -804,7 +826,9 @@ Page 1 "Company Information"
         CountyVisible: Boolean;
         SystemIndicatorChanged: Boolean;
         CompanyBadgeRefreshPageTxt: Label 'The Company Badge settings have changed. Refresh the browser (Ctrl+F5) to update the badge.';
-        IsEmailFeatureEnabled: Boolean;
+#if not CLEAN20
+        OpenNewICSetupPageTxt: Label 'Open new Intercompany Setup page';
+#endif
 
     local procedure UpdateSystemIndicator()
     var

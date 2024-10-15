@@ -41,7 +41,7 @@ codeunit 144021 "UT REP Purch. Process Doc O365"
         // Purpose of the test is to validate OnPreDataItem Trigger of Purchase Invoice Header of Report 10121 - Purchase Invoice.
 
         // Setup: Create Purchase Invoice Header.
-        Initialize;
+        Initialize();
         CreatePostedPurchaseInvoice(PurchInvHeader, PurchInvLine);
 
         // Exercise: Opens handler - PurchaseInvoiceRequestPageHandler. Commit required as the explicit Commit used on OnRun Trigger of Codeunit 319 - Purch. Inv.-Printed.
@@ -64,7 +64,7 @@ codeunit 144021 "UT REP Purch. Process Doc O365"
         // Purpose of the test is to validate OnAfterGetRecord of Purchase Invoice Header of Report 10121 - Purchase Invoice.
 
         // Setup: Create Purchase Invoice Header with Tax Area Country US.
-        Initialize;
+        Initialize();
         OnAfterGetRecordPurchInvHeaderTaxAreaPurchInv(TaxArea."Country/Region"::US, TotalSalesTaxTxt);
     end;
 
@@ -78,7 +78,7 @@ codeunit 144021 "UT REP Purch. Process Doc O365"
         // Purpose of the test is to validate OnAfterGetRecord of Purchase Invoice Header of Report 10121 - Purchase Invoice.
 
         // Setup: Create Purchase Invoice Header with Tax Area Country CA.
-        Initialize;
+        Initialize();
         OnAfterGetRecordPurchInvHeaderTaxAreaPurchInv(TaxArea."Country/Region"::CA, TotalTaxTxt);
     end;
 
@@ -116,7 +116,7 @@ codeunit 144021 "UT REP Purch. Process Doc O365"
         // Purpose of the test is to validate OnAfterGetRecord Trigger of CopyLoop of Report 10121 - Purchase Invoice.
 
         // Setup: Create Purchase Invoice.
-        Initialize;
+        Initialize();
         CreatePostedPurchaseInvoice(PurchInvHeader, PurchInvLine);
 
         // Exercise: Set Number of copies on handler - NumberOfCopiesPurchaseInvoiceRequestPageHandler. Commit required as the explicit Commit used on OnRun Trigger of Codeunit 319 - Purch. Inv.-Printed.
@@ -138,7 +138,7 @@ codeunit 144021 "UT REP Purch. Process Doc O365"
         // Purpose of the test is to validate OnAfterGetRecord Trigger of Purchase Invoice Line of Report 10121 - Purchase Invoice.
 
         // Setup: Create Purchase Invoice with Type - G/L Account.
-        Initialize;
+        Initialize();
         OnAfterGetRecordPurchaseInvoiceLinePurchaseInvoice(PurchInvLine.Type::"G/L Account");
     end;
 
@@ -152,7 +152,7 @@ codeunit 144021 "UT REP Purch. Process Doc O365"
         // Purpose of the test is to validate OnAfterGetRecord Trigger of Purchase Invoice Line of Report 10121 - Purchase Invoice.
 
         // Setup: Create Purchase Invoice with Type - Item.
-        Initialize;
+        Initialize();
         OnAfterGetRecordPurchaseInvoiceLinePurchaseInvoice(PurchInvLine.Type::Item);
     end;
 
@@ -191,7 +191,7 @@ codeunit 144021 "UT REP Purch. Process Doc O365"
         // Purpose of the test is to validate OnPreDataItem Trigger of Purchase Header of Report 10123 - Purchase Quote.
 
         // Setup: Create Purchase Header Document Type - Quote.
-        Initialize;
+        Initialize();
         OnPreDataItemPurchaseDocument(PurchaseHeader."Document Type"::Quote, REPORT::"Purchase Quote NA", NoPurchaseHeaderTxt);
     end;
 
@@ -222,7 +222,7 @@ codeunit 144021 "UT REP Purch. Process Doc O365"
         // Purpose of the test is to validate OnAfterGetRecord Trigger of Purchase Header of Report 10123 - Purchase Quote.
 
         // Setup: Create Purchase Header Document Type - Quote.
-        Initialize;
+        Initialize();
         OnAfterGetRecordPurchaseDocument(PurchaseHeader."Document Type"::Quote, REPORT::"Purchase Quote NA", PaymentTermsDescTxt);
     end;
 
@@ -233,7 +233,7 @@ codeunit 144021 "UT REP Purch. Process Doc O365"
         SalespersonPurchaser: Record "Salesperson/Purchaser";
     begin
         // Create Purchase Header.
-        PaymentTerms.FindFirst;
+        PaymentTerms.FindFirst();
         CreateSalespersonPurchaser(SalespersonPurchaser);
         CreatePurchaseHeader(PurchaseHeader, DocumentType);
         PurchaseHeader."Payment Terms Code" := PaymentTerms.Code;
@@ -261,7 +261,7 @@ codeunit 144021 "UT REP Purch. Process Doc O365"
         // Purpose of the test is to validate OnAfterGetRecord Trigger of CopyLoop of Report 10123 - Purchase Quote.
 
         // Setup: Create Purchase Header Document Type - Quote.
-        Initialize;
+        Initialize();
         OnAfterGetRecordCopyLoopPurchaseDocument(PurchaseHeader."Document Type"::Quote, REPORT::"Purchase Quote NA");
     end;
 
@@ -293,7 +293,7 @@ codeunit 144021 "UT REP Purch. Process Doc O365"
         // Purpose of the test is to validate OnAfterGetRecord of CopyLoop of Report 10123 - Purchase Quote.
 
         // Setup: Create Purchase Quote with Tax Area Country CA.
-        Initialize;
+        Initialize();
         OnAfterGetRecordCopyLoopTaxAreaPurchaseDocument(
           TaxArea."Country/Region"::CA, PurchaseHeader."Document Type"::Quote, REPORT::"Purchase Quote NA", TotalTaxPurchaseLineTxt,
           TotalTaxTxt);
@@ -310,7 +310,7 @@ codeunit 144021 "UT REP Purch. Process Doc O365"
         // Purpose of the test is to validate OnAfterGetRecord of CopyLoop of Report 10123 - Purchase Quote.
 
         // Setup: Create Purchase Quote with Tax Area Country US.
-        Initialize;
+        Initialize();
         OnAfterGetRecordCopyLoopTaxAreaPurchaseDocument(
           TaxArea."Country/Region"::US, PurchaseHeader."Document Type"::Quote, REPORT::"Purchase Quote NA", TotalTaxPurchaseLineTxt,
           TotalSalesTaxTxt);
@@ -348,7 +348,7 @@ codeunit 144021 "UT REP Purch. Process Doc O365"
         // Purpose of the test is to validate OnPreDataItem Trigger of Purchase Credit Memo Header of Report 10120 - Purchase Credit Memo.
 
         // Setup: Create Purchase Credit Memo.
-        Initialize;
+        Initialize();
         CreatePostedPurchaseCreditMemo(PurchCrMemoHdr, PurchCrMemoLine);
 
         // Exercise: Opens handler - PurchaseCreditMemoRequestPageHandler. Commit required as the explicit Commit used on OnRun Trigger of Codeunit 320 - PurchCrMemo-Printed.
@@ -370,7 +370,7 @@ codeunit 144021 "UT REP Purch. Process Doc O365"
         // Purpose of the test is to validate OnAfterGetRecord of Purchase Credit Memo Header of Report 10120 - Purchase Credit Memo.
 
         // Setup: Create Purchase Credit Memo with Tax Area Country US.
-        Initialize;
+        Initialize();
         OnAfterGetRecordTaxAreaPurchCrMemo(TaxArea."Country/Region"::US, TotalSalesTaxTxt);
     end;
 
@@ -384,7 +384,7 @@ codeunit 144021 "UT REP Purch. Process Doc O365"
         // Purpose of the test is to validate OnAfterGetRecord of Purchase Credit Memo Header of Report 10120 - Purchase Credit Memo.
 
         // Setup: Create Purchase Credit Memo with Tax Area Country CA.
-        Initialize;
+        Initialize();
         OnAfterGetRecordTaxAreaPurchCrMemo(TaxArea."Country/Region"::CA, TotalTaxTxt);
     end;
 
@@ -422,7 +422,7 @@ codeunit 144021 "UT REP Purch. Process Doc O365"
         // Purpose of the test is to validate OnAfterGetRecord Trigger of CopyLoop of Report 10120 - Purchase Credit Memo.
 
         // Setup: Create Purchase Credit Memo.
-        Initialize;
+        Initialize();
         CreatePostedPurchaseCreditMemo(PurchCrMemoHdr, PurchCrMemoLine);
 
         // Exercise: Set Number of copies on handler - NumberOfCopiesPurchaseCreditMemoRequestPageHandler. Commit required as the explicit Commit used on OnRun Trigger of Codeunit 320 - PurchCrMemo-Printed.
@@ -445,7 +445,7 @@ codeunit 144021 "UT REP Purch. Process Doc O365"
         // Purpose of the test is to validate OnAfterGetRecord Trigger of Purchase Credit Memo Line of Report 10120 - Purchase Credit Memo.
 
         // Setup: Create Purchase Credit Memo with Type - G/L Account.
-        Initialize;
+        Initialize();
         CreatePostedPurchaseCreditMemo(PurchCrMemoHdr, PurchCrMemoLine);
         LibraryVariableStorage.Enqueue(false);  // Enqueue value for PurchaseCreditMemoRequestPageHandler.
         UpdatePurchaseCrMemoLineType(PurchCrMemoLine, PurchCrMemoLine.Type::"G/L Account");
@@ -470,7 +470,7 @@ codeunit 144021 "UT REP Purch. Process Doc O365"
         // Purpose of the test is to validate OnAfterGetRecord Trigger of Purchase Credit Memo Line of Report 10120 - Purchase Credit Memo.
 
         // Setup: Create Purchase Credit Memo with Type - Item.
-        Initialize;
+        Initialize();
         CreatePostedPurchaseCreditMemo(PurchCrMemoHdr, PurchCrMemoLine);
         LibraryVariableStorage.Enqueue(false);  // Enqueue value for PurchaseCreditMemoRequestPageHandler.
         UpdatePurchaseCrMemoLineType(PurchCrMemoLine, PurchCrMemoLine.Type::Item);
@@ -496,7 +496,7 @@ codeunit 144021 "UT REP Purch. Process Doc O365"
         // Purpose of the test is to validate OnPreDataItem Trigger of Purchase Receipt Header of Report 10124 - Purchase Receipt.
 
         // Setup: Create Posted Purchase Receipt.
-        Initialize;
+        Initialize();
         CreatePostedPurchaseReceipt(PurchRcptHeader, PurchRcptLine);
 
         // Exercise: Set Print Company Address as TRUE on handler - PurchaseReceiptRequestPageHandler. Commit required as the explicit Commit used on OnRun Trigger of Codeunit 318 - Purch.Rcpt.-Printed.
@@ -522,7 +522,7 @@ codeunit 144021 "UT REP Purch. Process Doc O365"
         // Purpose of the test is to validate OnAfterGetRecord Trigger of Purchase Receipt Header of Report 10124 - Purchase Receipt.
 
         // Setup: Create Posted Purchase Receipt.
-        Initialize;
+        Initialize();
         CreateShipmentMethod(ShipmentMethod);
         CreateSalespersonPurchaser(SalespersonPurchaser);
         CreateTaxArea(TaxArea, LibraryRandom.RandIntInRange(0, 1)); // Only two option value for Tax Area so using Range 0 to 1.
@@ -555,7 +555,7 @@ codeunit 144021 "UT REP Purch. Process Doc O365"
         // Purpose of the test is to validate OnAfterGetRecord Trigger of CopyLoop of Report 10124 - Purchase Receipt.
 
         // Setup: Create Posted Purchase Receipt.
-        Initialize;
+        Initialize();
         CreatePostedPurchaseReceipt(PurchRcptHeader, PurchRcptLine);
 
         // Exercise: Set Number of copies on handler - NumberOfCopiesPurchaseReceiptRequestPageHandler. Commit required as the explicit Commit used on OnRun Trigger of Codeunit 318 - Purch.Rcpt.-Printed.
@@ -578,7 +578,7 @@ codeunit 144021 "UT REP Purch. Process Doc O365"
         // Purpose of the test is to validate OnAfterGetRecord of Purchase Receipt Line of Report 10124 - Purchase Receipt.
 
         // Setup: Create Posted Purchase Receipt.
-        Initialize;
+        Initialize();
         CreatePostedPurchaseReceipt(PurchRcptHeader, PurchRcptLine);
         LibraryVariableStorage.Enqueue(false);  // Enqueue value for PurchaseReceiptRequestPageHandler.
         PurchRcptLine.Type := PurchRcptLine.Type::Item;
@@ -607,7 +607,7 @@ codeunit 144021 "UT REP Purch. Process Doc O365"
         // Purpose of the test is to validate OnAfterGetRecord of Purchase Receipt Line of Report 10124 - Purchase Receipt.
 
         // Setup: Create Posted Purchase Receipt with Type - G/L Account.
-        Initialize;
+        Initialize();
         CreatePostedPurchaseReceipt(PurchRcptHeader, PurchRcptLine);
         LibraryVariableStorage.Enqueue(false);  // Enqueue value for PurchaseReceiptRequestPageHandler.
         UpdatePurchaseReceiptLineType(PurchRcptLine, PurchRcptLine.Type::"G/L Account");
@@ -632,7 +632,7 @@ codeunit 144021 "UT REP Purch. Process Doc O365"
         // Purpose of the test is to validate OnAfterGetRecord of Purchase Receipt Line of Report 10124 - Purchase Receipt.
 
         // Setup: Create Posted Purchase Receipt with Type - Item.
-        Initialize;
+        Initialize();
         CreatePostedPurchaseReceipt(PurchRcptHeader, PurchRcptLine);
         LibraryVariableStorage.Enqueue(false);  // Enqueue value for PurchaseReceiptRequestPageHandler.
         UpdatePurchaseReceiptLineType(PurchRcptLine, PurchRcptLine.Type::Item);
@@ -658,7 +658,7 @@ codeunit 144021 "UT REP Purch. Process Doc O365"
         // Purpose of the test is to validate OnPreDataItem Trigger of Return Shipment Header of Report 10127 - Return Shipment.
 
         // Setup: Create Posted Return Shipment.
-        Initialize;
+        Initialize();
         CreatePostedReturnShipment(ReturnShipmentHeader, ReturnShipmentLine);
 
         // Exercise: Set Print Company Address as TRUE on handler - ReturnShipmentRequestPageHandler. Commit required as the explicit Commit used on OnRun Trigger of Codeunit 6651 - Return Shipment - Printed.
@@ -684,7 +684,7 @@ codeunit 144021 "UT REP Purch. Process Doc O365"
         // Purpose of the test is to validate OnAfterGetRecord Trigger of Purchase Receipt Header of Report 10127 - Return Shipment.
 
         // Setup: Create Tax Area. Create Posted Return Shipment.
-        Initialize;
+        Initialize();
         CreateShipmentMethod(ShipmentMethod);
         CreateSalespersonPurchaser(SalespersonPurchaser);
         CreateTaxArea(TaxArea, LibraryRandom.RandIntInRange(0, 1)); // Only two option value for Tax Area so using Range 0 to 1.
@@ -717,7 +717,7 @@ codeunit 144021 "UT REP Purch. Process Doc O365"
         // Purpose of the test is to validate OnAfterGetRecord Trigger of CopyLoop of Report 10127 - Return Shipment.
 
         // Setup: Create Posted Return Shipment.
-        Initialize;
+        Initialize();
         CreatePostedReturnShipment(ReturnShipmentHeader, ReturnShipmentLine);
 
         // Exercise: Set Number of copies on handler - NumberOfCopiesReturnShipmentRequestPageHandler. Commit required as the explicit Commit used on OnRun Trigger of Codeunit 6651 - Return Shipment - Printed.
@@ -740,7 +740,7 @@ codeunit 144021 "UT REP Purch. Process Doc O365"
         // Purpose of the test is to validate OnAfterGetRecord of Purchase Receipt Line of Report 10127 - Return Shipment.
 
         // Setup: Create Posted Return Shipment.
-        Initialize;
+        Initialize();
         CreatePostedReturnShipment(ReturnShipmentHeader, ReturnShipmentLine);
         LibraryVariableStorage.Enqueue(false);  // Enqueue value for ReturnShipmentRequestPageHandler.
         ReturnShipmentLine.Type := ReturnShipmentLine.Type::Item;
@@ -769,7 +769,7 @@ codeunit 144021 "UT REP Purch. Process Doc O365"
         // Purpose of the test is to validate OnAfterGetRecord of Purchase Receipt Line of Report 10127 - Return Shipment.
 
         // Setup: Create Posted Return Shipment with Type - G/L Account.
-        Initialize;
+        Initialize();
         CreatePostedReturnShipment(ReturnShipmentHeader, ReturnShipmentLine);
         LibraryVariableStorage.Enqueue(false);  // Enqueue value for ReturnShipmentRequestPageHandler.
         UpdateReturnShipmentLineType(ReturnShipmentLine, ReturnShipmentLine.Type::"G/L Account");
@@ -794,7 +794,7 @@ codeunit 144021 "UT REP Purch. Process Doc O365"
         // Purpose of the test is to validate OnAfterGetRecord of Purchase Receipt Line of Report 10127 - Return Shipment.
 
         // Setup: Create Posted Return Shipment with Type - Item.
-        Initialize;
+        Initialize();
         CreatePostedReturnShipment(ReturnShipmentHeader, ReturnShipmentLine);
         LibraryVariableStorage.Enqueue(false);  // Enqueue value for ReturnShipmentRequestPageHandler.
         UpdateReturnShipmentLineType(ReturnShipmentLine, ReturnShipmentLine.Type::Item);
@@ -820,7 +820,7 @@ codeunit 144021 "UT REP Purch. Process Doc O365"
         // Purpose of the test is to validate OnAfterGetRecord of VendorLedgerEntry of Report 10092 - Open Purchase Invoices by Job.
 
         // Setup: Create Posted Purchase Invoice with Job.
-        Initialize;
+        Initialize();
         CreatePostedPurchaseInvoiceWithJob(PurchInvLine);
         AmountLCY :=
           CreateDetailedVendorLedgerEntry(CreateVendorLedgerEntry(PurchInvLine."Document No.", PurchInvLine."Buy-from Vendor No."));
@@ -837,9 +837,9 @@ codeunit 144021 "UT REP Purch. Process Doc O365"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
-        LibraryLowerPermissions.SetOutsideO365Scope;
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryVariableStorage.Clear();
+        LibraryLowerPermissions.SetOutsideO365Scope();
+        LibraryApplicationArea.EnableFoundationSetup();
     end;
 
     local procedure CreateJob(): Code[20]
@@ -971,7 +971,7 @@ codeunit 144021 "UT REP Purch. Process Doc O365"
         Vendor: Record Vendor;
         VendorPostingGroup: Record "Vendor Posting Group";
     begin
-        VendorPostingGroup.FindFirst;
+        VendorPostingGroup.FindFirst();
         Vendor.Init();
         Vendor."No." := LibraryUTUtility.GetNewCode;
         Vendor."Vendor Posting Group" := VendorPostingGroup.Code;
@@ -984,7 +984,7 @@ codeunit 144021 "UT REP Purch. Process Doc O365"
         VendorLedgerEntry: Record "Vendor Ledger Entry";
         VendorLedgerEntry2: Record "Vendor Ledger Entry";
     begin
-        if VendorLedgerEntry2.FindLast then;
+        if VendorLedgerEntry2.FindLast() then;
         VendorLedgerEntry."Entry No." := VendorLedgerEntry2."Entry No." + 1;
         VendorLedgerEntry."Document No." := DocumentNo;
         VendorLedgerEntry."Document Type" := VendorLedgerEntry."Document Type"::Invoice;
@@ -999,7 +999,7 @@ codeunit 144021 "UT REP Purch. Process Doc O365"
         DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
         DetailedVendorLedgEntry2: Record "Detailed Vendor Ledg. Entry";
     begin
-        if DetailedVendorLedgEntry2.FindLast then;
+        if DetailedVendorLedgEntry2.FindLast() then;
         DetailedVendorLedgEntry.Init();
         DetailedVendorLedgEntry."Entry No." := DetailedVendorLedgEntry2."Entry No." + 1;
         DetailedVendorLedgEntry."Vendor Ledger Entry No." := VendorLedgerEntryNo;

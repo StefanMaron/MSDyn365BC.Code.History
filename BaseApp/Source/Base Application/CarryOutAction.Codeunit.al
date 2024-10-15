@@ -156,7 +156,7 @@ codeunit 99000813 "Carry Out Action"
             ReqLine3.SetCurrentKey("Worksheet Template Name", "Journal Batch Name", "Line No.");
             ReqLine3.SetRange("Worksheet Template Name", ReqWkshTempName);
             ReqLine3.SetRange("Journal Batch Name", ReqJournalName);
-            if ReqLine3.FindLast then
+            if ReqLine3.FindLast() then
                 LineNo := ReqLine3."Line No.";
         end;
         LineNo += 10000;
@@ -231,7 +231,7 @@ codeunit 99000813 "Carry Out Action"
 
     procedure GetTransferOrdersToPrint(var TransferHeader: Record "Transfer Header")
     begin
-        if TempTransHeaderToPrint.FindSet then
+        if TempTransHeaderToPrint.FindSet() then
             repeat
                 TransferHeader := TempTransHeaderToPrint;
                 TransferHeader.Insert();
@@ -454,7 +454,7 @@ codeunit 99000813 "Carry Out Action"
                 ProdOrder.Delete(true);
         end else begin
             ProdOrderLine.SetRange("Line No.", ReqLine."Ref. Line No.");
-            if ProdOrderLine.FindFirst then
+            if ProdOrderLine.FindFirst() then
                 ProdOrderLine.Delete(true);
         end;
     end;
@@ -479,7 +479,7 @@ codeunit 99000813 "Carry Out Action"
                 PurchHeader.Delete(true);
         end else begin
             PurchLine.SetRange("Line No.", ReqLine."Ref. Line No.");
-            if PurchLine.FindFirst then
+            if PurchLine.FindFirst() then
                 PurchLine.Delete(true);
         end;
     end;
@@ -502,7 +502,7 @@ codeunit 99000813 "Carry Out Action"
                 TransHeader.Delete(true);
         end else begin
             TransLine.SetRange("Line No.", ReqLine."Ref. Line No.");
-            if TransLine.FindFirst then
+            if TransLine.FindFirst() then
                 TransLine.Delete(true);
         end;
     end;
@@ -606,7 +606,7 @@ codeunit 99000813 "Carry Out Action"
         ProdOrderLine.SetRange("Prod. Order No.", ProdOrder."No.");
         ProdOrderLine.SetRange(Status, ProdOrder.Status);
         ProdOrderLine.LockTable();
-        if ProdOrderLine.FindLast then
+        if ProdOrderLine.FindLast() then
             NextLineNo := ProdOrderLine."Line No." + 10000
         else
             NextLineNo := 10000;
@@ -863,9 +863,6 @@ codeunit 99000813 "Carry Out Action"
             TransHeader.Validate("Transfer-to Code", "Location Code");
             TransHeader."Receipt Date" := "Due Date";
             TransHeader."Shipment Date" := "Transfer Shipment Date";
-            TransHeader."Shortcut Dimension 1 Code" := "Shortcut Dimension 1 Code";
-            TransHeader."Shortcut Dimension 2 Code" := "Shortcut Dimension 2 Code";
-            OnBeforeTransHeaderInsert(TransHeader, ReqLine);
             OnInsertTransHeaderOnBeforeTransHeaderModify(TransHeader, ReqLine);
             TransHeader.Modify();
             TempDocumentEntry.Init();
@@ -901,7 +898,7 @@ codeunit 99000813 "Carry Out Action"
             InsertTransHeader(ReqLine, TransHeader);
 
         TransLine.SetRange("Document No.", TransHeader."No.");
-        if TransLine.FindLast then
+        if TransLine.FindLast() then
             NextLineNo := TransLine."Line No." + 10000
         else
             NextLineNo := 10000;
@@ -939,7 +936,7 @@ codeunit 99000813 "Carry Out Action"
     procedure PrintTransferOrders()
     begin
         CarryOutAction.GetTransferOrdersToPrint(TempTransHeaderToPrint);
-        if TempTransHeaderToPrint.FindSet then begin
+        if TempTransHeaderToPrint.FindSet() then begin
             PrintOrder := true;
             repeat
                 PrintTransferOrder(TempTransHeaderToPrint);
@@ -976,7 +973,7 @@ codeunit 99000813 "Carry Out Action"
                 PurchLine.Reset();
                 PurchLine.SetRange("Document Type", PurchHeader."Document Type");
                 PurchLine.SetRange("Document No.", PurchHeader."No.");
-                PurchLine.FindFirst;
+                PurchLine.FindFirst();
                 CODEUNIT.Run(CODEUNIT::"Purch.-Calc.Discount", PurchLine);
             end;
 
@@ -1524,7 +1521,7 @@ codeunit 99000813 "Carry Out Action"
         ProductionBOMCommentLine.SetRange("Production BOM No.", ProductionBOMHeader."No.");
         ProductionBOMCommentLine.SetRange("BOM Line No.", ProdOrderComponent."Line No.");
         ProductionBOMCommentLine.SetRange("Version Code", ActiveVersionCode);
-        if ProductionBOMCommentLine.FindSet then
+        if ProductionBOMCommentLine.FindSet() then
             repeat
                 ProdOrderCompCmtLine.CopyFromProdBOMComponent(ProductionBOMCommentLine, ProdOrderComponent);
                 if not ProdOrderCompCmtLine.Insert() then
@@ -1649,12 +1646,6 @@ codeunit 99000813 "Carry Out Action"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeTransferCapNeed(ReqLine: Record "Requisition Line"; ProdOrder: Record "Production Order"; RoutingNo: Code[20]; RoutingRefNo: Integer; var IsHandled: Boolean)
-    begin
-    end;
-
-    [Obsolete('Replaced by event OnInsertTransHeaderOnBeforeTransHeaderModify', '17.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeTransHeaderInsert(var TransferHeader: Record "Transfer Header"; RequisitionLine: Record "Requisition Line")
     begin
     end;
 

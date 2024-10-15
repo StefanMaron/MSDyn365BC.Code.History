@@ -234,7 +234,7 @@ page 36642 "Customer Credit FactBox"
     procedure GetLatestPayment()
     begin
         // Find the Latest Payment
-        if LatestCustLedgerEntry.FindLast then
+        if LatestCustLedgerEntry.FindLast() then
             LatestCustLedgerEntry.CalcFields("Amount (LCY)")
         else
             LatestCustLedgerEntry.Init();

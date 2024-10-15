@@ -1,3 +1,4 @@
+#if not CLEAN20
 page 589 "XBRL Linkbases"
 {
     AutoSplitKey = true;
@@ -5,6 +6,9 @@ page 589 "XBRL Linkbases"
     DataCaptionFields = "XBRL Taxonomy Name", "XBRL Schema Line No.";
     PageType = List;
     SourceTable = "XBRL Linkbase";
+    ObsoleteReason = 'XBRL feature will be discontinued';
+    ObsoleteState = Pending;
+    ObsoleteTag = '20.0';
 
     layout
     {
@@ -166,9 +170,18 @@ page 589 "XBRL Linkbases"
         }
     }
 
+    trigger OnOpenPage()
+    var
+        XBRLDeprecationNotification: Codeunit "XBRL Deprecation Notification";
+    begin
+        XBRLDeprecationNotification.Show();
+    end;
+
     var
         Text001: Label 'Do you want to replace the existing linkbase?';
         Text002: Label 'Do you want to apply the linkbase to the taxonomy now?';
         Text003: Label 'Do you want to apply the selected linkbases to taxonomy %1?';
 }
 
+
+#endif

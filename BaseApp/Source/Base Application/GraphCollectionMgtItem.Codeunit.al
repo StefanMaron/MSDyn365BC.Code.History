@@ -373,7 +373,7 @@ codeunit 5470 "Graph Collection Mgt - Item"
         CombinedDateTime: DateTime;
     begin
         Item.SetRange("Last DateTime Modified", 0DT);
-        if not Item.FindSet then
+        if not Item.FindSet() then
             exit;
 
         repeat

@@ -41,7 +41,7 @@ codeunit 138944 "BC O365 Tax Tests"
         // [THEN] a notification does not appear for tax setup pops up (handler), send test action is vsible and draft no. is visible
 
         // Open test invoice in edit mode
-        SalesHeader.FindLast;
+        SalesHeader.FindLast();
         BCO365SalesInvoice.OpenEdit;
         BCO365SalesInvoice.GotoRecord(SalesHeader);
 
@@ -68,7 +68,7 @@ codeunit 138944 "BC O365 Tax Tests"
         O365SalesTestInvoicePage."Create Test Invoice".Invoke;
 
         // [WHEN] Open test invoice in edit mode
-        SalesHeader.FindLast;
+        SalesHeader.FindLast();
         BCO365SalesInvoice.OpenEdit;
         BCO365SalesInvoice.GotoRecord(SalesHeader);
 
@@ -99,7 +99,7 @@ codeunit 138944 "BC O365 Tax Tests"
 
         // [WHEN] User creates a simple invoice for the first time and adds a customer
         ItemPrice := LibraryRandom.RandDec(100, 2);
-        BCO365SalesInvoice.OpenNew;
+        BCO365SalesInvoice.OpenNew();
         BCO365SalesInvoice."Sell-to Customer Name".Value(LibraryInvoicingApp.CreateCustomer);
         BCO365SalesInvoice.Lines.New;
         BCO365SalesInvoice.Lines.Description.Value(LibraryInvoicingApp.CreateItem);
@@ -123,7 +123,7 @@ codeunit 138944 "BC O365 Tax Tests"
 
         // [WHEN] User creates a simple estimate for the first time and adds a customer
         ItemPrice := LibraryRandom.RandDec(100, 2);
-        BCO365SalesQuote.OpenNew;
+        BCO365SalesQuote.OpenNew();
         BCO365SalesQuote."Sell-to Customer Name".Value(LibraryInvoicingApp.CreateCustomer);
         BCO365SalesQuote.Lines.New;
         BCO365SalesQuote.Lines.Description.Value(LibraryInvoicingApp.CreateItem);
@@ -147,7 +147,7 @@ codeunit 138944 "BC O365 Tax Tests"
 
         // [WHEN] User creates a simple invoice for the first time and adds a customer
         ItemPrice := LibraryRandom.RandDec(100, 2);
-        BCO365SalesInvoice.OpenNew;
+        BCO365SalesInvoice.OpenNew();
         BCO365SalesInvoice."Sell-to Customer Name".Value(LibraryInvoicingApp.CreateCustomer);
         BCO365SalesInvoice.Lines.New;
         BCO365SalesInvoice.Lines.Description.Value(LibraryInvoicingApp.CreateItem);
@@ -192,11 +192,9 @@ codeunit 138944 "BC O365 Tax Tests"
 
     local procedure Init()
     var
-        SMTPMailSetup: Record "SMTP Mail Setup";
         O365C2GraphEventSettings: Record "O365 C2Graph Event Settings";
     begin
         LibraryVariableStorage.AssertEmpty;
-        SMTPMailSetup.DeleteAll();
         Clear(ItemPrice);
         EventSubscriberInvoicingApp.Clear;
         ApplicationArea('#Invoicing');

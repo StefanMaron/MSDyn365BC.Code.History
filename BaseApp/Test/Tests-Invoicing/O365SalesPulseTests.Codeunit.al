@@ -50,7 +50,7 @@ codeunit 138959 "O365 Sales Pulse Tests"
         CODEUNIT.Run(CODEUNIT::"Calendar Event Execution");
 
         // Assert event is completed
-        CalendarEvent.FindLast;
+        CalendarEvent.FindLast();
         Assert.AreEqual(CalendarEvent.State::Completed, CalendarEvent.State, '');
     end;
 
@@ -82,7 +82,7 @@ codeunit 138959 "O365 Sales Pulse Tests"
         CODEUNIT.Run(CODEUNIT::"Calendar Event Execution");
 
         // Assert event is completed
-        CalendarEvent.FindLast;
+        CalendarEvent.FindLast();
         Assert.AreEqual(CalendarEvent.State::Completed, CalendarEvent.State, '');
     end;
 
@@ -209,18 +209,18 @@ codeunit 138959 "O365 Sales Pulse Tests"
         // Assert event is created
         CalendarEvent.SetRange(Description, StrSubstNo(EstimateEmailFailedMsg, EstimateCode));
         Assert.AreEqual(CalendarEvent.Count, 1, 'Wrong number of calendar events.');
-        CalendarEvent.FindFirst;
+        CalendarEvent.FindFirst();
         Assert.AreEqual(Today, CalendarEvent."Scheduled Date", '');
 
         // Execute event
         CODEUNIT.Run(CODEUNIT::"Calendar Event Execution");
 
         // Assert event is completed
-        CalendarEvent.FindLast;
+        CalendarEvent.FindLast();
         Assert.AreEqual(CalendarEvent.State::Completed, CalendarEvent.State, '');
 
         LibraryNotificationMgt.ClearTemporaryNotificationContext;
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -243,18 +243,18 @@ codeunit 138959 "O365 Sales Pulse Tests"
         // Assert event is created
         CalendarEvent.SetRange(Description, StrSubstNo(InvoiceEmailFailedMsg, InvoiceCode));
         Assert.AreEqual(CalendarEvent.Count, 1, 'Wrong number of calendar events.');
-        CalendarEvent.FindFirst;
+        CalendarEvent.FindFirst();
         Assert.AreEqual(Today, CalendarEvent."Scheduled Date", '');
 
         // Execute event
         CODEUNIT.Run(CODEUNIT::"Calendar Event Execution");
 
         // Assert event is completed
-        CalendarEvent.FindLast;
+        CalendarEvent.FindLast();
         Assert.AreEqual(CalendarEvent.State::Completed, CalendarEvent.State, '');
 
         LibraryNotificationMgt.ClearTemporaryNotificationContext;
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     local procedure CreateQuote(var SalesHeader: Record "Sales Header")
@@ -313,22 +313,6 @@ codeunit 138959 "O365 Sales Pulse Tests"
 
         O365SalesInitialSetup."C2Graph Endpoint" := '127.0.0.1:8081/c2graph/status200/;{USER}=test;{PASSWORD}=test';
         O365SalesInitialSetup.Modify();
-
-        SetupSMTP;
-    end;
-
-    local procedure SetupSMTP()
-    var
-        SMTPMailSetup: Record "SMTP Mail Setup";
-    begin
-        SMTPMailSetup.DeleteAll();
-        SMTPMailSetup.Init();
-        SMTPMailSetup."SMTP Server" := '127.0.0.1';
-        SMTPMailSetup."SMTP Server Port" := 8081;
-        SMTPMailSetup.Authentication := SMTPMailSetup.Authentication::Basic;
-        SMTPMailSetup."User ID" := 'TestUser';
-        SMTPMailSetup.SetPassword('TestPassword');
-        SMTPMailSetup.Insert();
     end;
 
     [ModalPageHandler]

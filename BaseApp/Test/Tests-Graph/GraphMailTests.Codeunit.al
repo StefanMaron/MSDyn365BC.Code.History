@@ -30,7 +30,7 @@ codeunit 138926 "Graph Mail Tests"
         LibraryLowerPermissions.SetInvoiceApp;
 
         // Execute
-        Initialize;
+        Initialize();
 
         // Verify
         Assert.IsTrue(GraphMail.HasConfiguration, 'Graph Mail still does not have configuration after configuring it.');
@@ -46,7 +46,7 @@ codeunit 138926 "Graph Mail Tests"
         GraphMailSetup: Record "Graph Mail Setup";
     begin
         // Setup
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
 
         GraphMailSetup.Insert();
@@ -72,7 +72,7 @@ codeunit 138926 "Graph Mail Tests"
         GraphMailSetup: Record "Graph Mail Setup";
     begin
         // Setup
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
 
         // Execute
@@ -93,7 +93,7 @@ codeunit 138926 "Graph Mail Tests"
         GraphMail: Codeunit "Graph Mail";
     begin
         // Setup
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
 
         // Execute
@@ -111,7 +111,7 @@ codeunit 138926 "Graph Mail Tests"
         GraphMailSetup: Record "Graph Mail Setup";
     begin
         // Setup
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
 
         // Execute
@@ -119,62 +119,6 @@ codeunit 138926 "Graph Mail Tests"
 
         // Verify
         Assert.IsTrue(GraphMailSetup.IsEnabled, '');
-
-        Cleanup;
-    end;
-
-    [Test]
-    [HandlerFunctions('GraphSetupNoLicenseModalPageHandler')]
-    [Scope('OnPrem')]
-    procedure TestSmtpSetupTriggeredWhenUserHasNoExchangeLicense()
-    var
-        O365SetupEmail: Codeunit "O365 Setup Email";
-        MailManagement: Codeunit "Mail Management";
-        GraphMail: Codeunit "Graph Mail";
-    begin
-        // Setup
-        Initialize;
-        EventSubscriberInvoicingApp.SetGraphEndpointSuffix('nomail');
-        LibraryLowerPermissions.SetInvoiceApp;
-
-        // Execute
-        O365SetupEmail.SetupEmail(true);
-
-        // Verify
-        Assert.IsTrue(MailManagement.IsSMTPEnabled, 'SMTP is not configured');
-        Assert.IsFalse(GraphMail.IsEnabled, 'Graph mail was configured when the user has no license');
-    end;
-
-    [Test]
-    [HandlerFunctions('VerifyNoNotificationsAreSend,EmailSetupWizardPageHandler')]
-    [Scope('OnPrem')]
-    procedure TestCanSetUpSMTPFromGraph()
-    var
-        O365SetupEmail: Codeunit "O365 Setup Email";
-        GraphMailSetup: TestPage "Graph Mail Setup";
-        BCO365EmailSetupWizard: TestPage "BC O365 Email Setup Wizard";
-    begin
-        // [SCENARIO] User can set up SMTP email from Graph email settings
-        Initialize;
-        LibraryLowerPermissions.SetInvoiceApp;
-
-        // [GIVEN] User opens Graph settings
-        GraphMailSetup.OpenEdit;
-        Assert.IsTrue(GraphMailSetup.ShowSmtp.Visible, 'SMTP email setup control is not visible.');
-        GraphMailSetup.Close;
-
-        // [WHEN] User drills down on the SMTP setup label
-        // In Test Suite, it's impossible to set CloseAction and Field.SETVALUE at the same time: executing handler logic here
-        BCO365EmailSetupWizard.OpenEdit;
-        BCO365EmailSetupWizard.EmailSettingsWizardPage."Email Provider".SetValue('Office 365');
-        BCO365EmailSetupWizard.EmailSettingsWizardPage.FromAccount.SetValue('test@microsoft.com');
-        BCO365EmailSetupWizard.EmailSettingsWizardPage.Password.SetValue('Microsoft');
-        BCO365EmailSetupWizard.OK.Invoke;
-        GraphMailSetup.OpenEdit;
-        GraphMailSetup.ShowSmtp.DrillDown;
-
-        // [THEN] SMTP setup is successful
-        Assert.IsTrue(O365SetupEmail.SMTPEmailIsSetUp, 'SMTP email not set up correctly.');
 
         Cleanup;
     end;
@@ -268,12 +212,6 @@ codeunit 138926 "Graph Mail Tests"
         Assert.IsTrue(MailManagement.IsGraphEnabled(), '');
     end;
 
-    [ModalPageHandler]
-    [Scope('OnPrem')]
-    procedure EmailSetupWizardPageHandler(var BCO365EmailSetupWizard: TestPage "BC O365 Email Setup Wizard")
-    begin
-    end;
-
     local procedure CreateInvoiceInWeb(SendInvoice: Boolean)
     var
         SalesHeader: Record "Sales Header";
@@ -282,13 +220,13 @@ codeunit 138926 "Graph Mail Tests"
     begin
         ItemPrice := LibraryRandom.RandDec(100, 2);
 
-        BCO365SalesInvoice.OpenNew;
+        BCO365SalesInvoice.OpenNew();
         BCO365SalesInvoice."Sell-to Customer Name".Value(LibraryInvoicingApp.CreateCustomerWithEmail);
         BCO365SalesInvoice.Lines.New;
         BCO365SalesInvoice.Lines.Description.Value(LibraryInvoicingApp.CreateItem);
         BCO365SalesInvoice.Lines."Unit Price".SetValue(ItemPrice);
 
-        SalesHeader.FindLast;
+        SalesHeader.FindLast();
 
         LibraryVariableStorage.Enqueue(SendInvoice);
         BCO365SalesInvoice.Post.Invoke;
@@ -307,15 +245,6 @@ codeunit 138926 "Graph Mail Tests"
         Assert.AreEqual('MeganB@M365x214355.onmicrosoft.com', GraphMailSetup."Sender Email".Value, '');
 
         GraphMailSetup.OK.Invoke;
-    end;
-
-    [ModalPageHandler]
-    [Scope('OnPrem')]
-    procedure GraphSetupNoLicenseModalPageHandler(var BCO365EmailSetupWizard: TestPage "BC O365 Email Setup Wizard")
-    begin
-        BCO365EmailSetupWizard.EmailSettingsWizardPage.FromAccount.Value('a@b.com');
-        BCO365EmailSetupWizard.EmailSettingsWizardPage.Password.Value('password');
-        BCO365EmailSetupWizard.OK.Invoke;
     end;
 
     [ModalPageHandler]
@@ -370,7 +299,7 @@ codeunit 138926 "Graph Mail Tests"
         EventSubscriberInvoicingApp.SetAppId('INV');
         BindSubscription(EventSubscriberInvoicingApp);
 
-        O365TaxSettingsCard.OpenNew;
+        O365TaxSettingsCard.OpenNew();
         O365TaxSettingsCard.State.Value('AB');
         O365TaxSettingsCard.StateRate.SetValue(6);
         O365TaxSettingsCard.City.Value('TEST');

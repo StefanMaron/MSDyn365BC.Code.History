@@ -67,7 +67,7 @@ page 7161 "Analysis Dim. Selection-Level"
     procedure GetDimSelBuf(var AnalysisDimSelBuf: Record "Analysis Dim. Selection Buffer")
     begin
         AnalysisDimSelBuf.DeleteAll();
-        if FindSet then
+        if FindSet() then
             repeat
                 AnalysisDimSelBuf := Rec;
                 AnalysisDimSelBuf.Insert();

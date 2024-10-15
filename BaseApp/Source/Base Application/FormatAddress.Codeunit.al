@@ -31,7 +31,7 @@
         if CountryCode = '' then begin
             GetGLSetup();
             Clear(Country);
-            Country."Address Format" := GLSetup."Local Address Format";
+            Country."Address Format" := "Country/Region Address Format".FromInteger(GLSetup."Local Address Format");
             Country."Contact Address Format" := GLSetup."Local Cont. Addr. Format";
         end else
             if not Country.Get(CountryCode) then begin
@@ -48,7 +48,7 @@
             CustomAddressFormat.Reset();
             CustomAddressFormat.SetCurrentKey("Country/Region Code", "Line Position");
             CustomAddressFormat.SetRange("Country/Region Code", CountryCode);
-            if CustomAddressFormat.FindSet then
+            if CustomAddressFormat.FindSet() then
                 repeat
                     case CustomAddressFormat."Field ID" of
                         CompanyInfo.FieldNo(Name):
@@ -153,7 +153,7 @@
         if CountryCode = '' then begin
             GetGLSetup();
             Clear(Country);
-            Country."Address Format" := GLSetup."Local Address Format";
+            Country."Address Format" := "Country/Region Address Format".FromInteger(GLSetup."Local Address Format");
             Country."Contact Address Format" := GLSetup."Local Cont. Addr. Format";
         end else
             Country.Get(CountryCode);
@@ -164,7 +164,7 @@
             GeneratePostCodeCity(PostCodeCityText, CountyText, City, PostCode, County, Country);
     end;
 
-    local procedure GeneratePostCodeCity(var PostCodeCityText: Text[100]; var CountyText: Text[50]; City: Text[50]; PostCode: Code[20]; County: Text[50]; Country: Record "Country/Region")
+    procedure GeneratePostCodeCity(var PostCodeCityText: Text[100]; var CountyText: Text[50]; City: Text[50]; PostCode: Code[20]; County: Text[50]; Country: Record "Country/Region")
     var
         DummyString: Text;
         OverMaxStrLen: Integer;
@@ -248,7 +248,7 @@
         CustomAddressFormat.Reset();
         CustomAddressFormat.SetRange("Country/Region Code", Country.Code);
         CustomAddressFormat.SetRange("Field ID", 0);
-        if not CustomAddressFormat.FindFirst then
+        if not CustomAddressFormat.FindFirst() then
             exit;
 
         CustomAddressFormatLine.Reset();
@@ -256,7 +256,7 @@
         CustomAddressFormatLine.SetRange("Country/Region Code", CustomAddressFormat."Country/Region Code");
         CustomAddressFormatLine.SetRange("Line No.", CustomAddressFormat."Line No.");
         CustomAddressFormatLineQty := CustomAddressFormatLine.Count();
-        if CustomAddressFormatLine.FindSet then
+        if CustomAddressFormatLine.FindSet() then
             repeat
                 Counter += 1;
                 case CustomAddressFormatLine."Field ID" of

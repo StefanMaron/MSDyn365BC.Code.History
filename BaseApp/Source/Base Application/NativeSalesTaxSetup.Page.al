@@ -1,3 +1,4 @@
+#if not CLEAN20
 page 2865 "Native - Sales Tax Setup"
 {
     Caption = 'Native - Sales Tax Setup';
@@ -113,4 +114,4 @@ page 2865 "Native - Sales Tax Setup"
     var
         NativeAPILanguageHandler: Codeunit "Native API - Language Handler";
 }
-
+#endif

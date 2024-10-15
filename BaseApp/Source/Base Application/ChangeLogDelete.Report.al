@@ -54,7 +54,7 @@ report 510 "Change Log - Delete"
                 exit(true);
             if "Change Log Entry".GetFilter("Date and Time") <> '' then begin
                 ChangeLogEntry.CopyFilters("Change Log Entry");
-                if not ChangeLogEntry.FindLast then
+                if not ChangeLogEntry.FindLast() then
                     Error(NothingToDeleteErr);
                 if DT2Date(ChangeLogEntry."Date and Time") > CalcDate('<-1Y>', Today) then
                     if not ConfirmManagement.GetResponse(Text002, false) then

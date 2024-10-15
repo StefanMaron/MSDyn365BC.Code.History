@@ -115,15 +115,11 @@ page 5475 "Sales Invoice Entity"
                     var
                         Contact: Record Contact;
                         Customer: Record Customer;
-                        GraphIntContact: Codeunit "Graph Int. - Contact";
                     begin
                         RegisterFieldSet(FieldNo("Contact Graph Id"));
 
                         if "Contact Graph Id" = '' then
                             Error(ContactIdHasToHaveValueErr);
-
-                        if not GraphIntContact.FindOrCreateCustomerFromGraphContactSafe("Contact Graph Id", Customer, Contact) then
-                            exit;
 
                         UpdateCustomerFromGraphContactId(Customer);
 
@@ -529,7 +525,7 @@ page 5475 "Sales Invoice Entity"
         LastOrderNo: Integer;
     begin
         LastOrderNo := 1;
-        if TempFieldBuffer.FindLast then
+        if TempFieldBuffer.FindLast() then
             LastOrderNo := TempFieldBuffer.Order + 1;
 
         Clear(TempFieldBuffer);
@@ -584,7 +580,7 @@ page 5475 "Sales Invoice Entity"
         if not UpdateCustomer then begin
             TempFieldBuffer.Reset();
             TempFieldBuffer.SetRange("Field ID", FieldNo("Customer Id"));
-            UpdateCustomer := not TempFieldBuffer.FindFirst;
+            UpdateCustomer := not TempFieldBuffer.FindFirst();
             TempFieldBuffer.Reset();
         end;
 
@@ -752,7 +748,7 @@ page 5475 "Sales Invoice Entity"
         SalesHeader.SendToPosting(CODEUNIT::"Sales-Post");
         SalesInvoiceHeader.SetCurrentKey("Pre-Assigned No.");
         SalesInvoiceHeader.SetRange("Pre-Assigned No.", PreAssignedNo);
-        SalesInvoiceHeader.FindFirst;
+        SalesInvoiceHeader.FindFirst();
     end;
 
     local procedure SendPostedInvoice(var SalesInvoiceHeader: Record "Sales Invoice Header")
@@ -803,10 +799,10 @@ page 5475 "Sales Invoice Entity"
         CheckInvoiceCanBeCanceled(SalesInvoiceHeader);
         if not CODEUNIT.Run(CODEUNIT::"Correct Posted Sales Invoice", SalesInvoiceHeader) then begin
             SalesCrMemoHeader.SetRange("Applies-to Doc. No.", SalesInvoiceHeader."No.");
-            if SalesCrMemoHeader.FindFirst then
+            if SalesCrMemoHeader.FindFirst() then
                 Error(CancelingInvoiceFailedCreditMemoCreatedAndPostedErr, GetLastErrorText);
             SalesHeader.SetRange("Applies-to Doc. No.", SalesInvoiceHeader."No.");
-            if SalesHeader.FindFirst then
+            if SalesHeader.FindFirst() then
                 Error(CancelingInvoiceFailedCreditMemoCreatedButNotPostedErr, GetLastErrorText);
             Error(CancelingInvoiceFailedNothingCreatedErr, GetLastErrorText);
         end;

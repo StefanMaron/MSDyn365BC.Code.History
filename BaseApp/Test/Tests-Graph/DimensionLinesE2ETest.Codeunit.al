@@ -43,7 +43,7 @@ codeunit 135532 "Dimension Lines E2E Test"
         ResponseText: Text;
     begin
         // [SCENARIO] Create a dimension line in a customer payment through a POST method and check if it was created
-        LibraryGraphJournalLines.Initialize;
+        LibraryGraphJournalLines.Initialize();
 
         // [GIVEN] a journal
         JournalName := LibraryGraphJournalLines.CreateCustomerPaymentsJournal;
@@ -71,7 +71,7 @@ codeunit 135532 "Dimension Lines E2E Test"
 
         GraphMgtCustomerPayments.SetCustomerPaymentsFilters(GenJournalLine);
         GenJournalLine.SetRange("Line No.", LineNo);
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
         Assert.IsTrue(
           DimensionSetIDContainsDimension(GenJournalLine."Dimension Set ID", Dimension.Code, DimensionValue.Code),
           'The dimension line should exist in the SetID of the journal line.');
@@ -88,7 +88,7 @@ codeunit 135532 "Dimension Lines E2E Test"
         ResponseText: Text;
     begin
         // [SCENARIO] Creating a dimension line through a POST method without specifying a parent Id fails
-        LibraryGraphJournalLines.Initialize;
+        LibraryGraphJournalLines.Initialize();
 
         // [GIVEN] a dimension with a value
         LibraryDimension.CreateDimension(Dimension);
@@ -120,7 +120,7 @@ codeunit 135532 "Dimension Lines E2E Test"
         TargetURL: Text;
     begin
         // [SCENARIO] Try to create a dimension line with an already existing code
-        LibraryGraphJournalLines.Initialize;
+        LibraryGraphJournalLines.Initialize();
 
         // [GIVEN] a journal
         JournalName := LibraryGraphJournalLines.CreateCustomerPaymentsJournal;
@@ -152,7 +152,7 @@ codeunit 135532 "Dimension Lines E2E Test"
 
         GraphMgtCustomerPayments.SetCustomerPaymentsFilters(GenJournalLine);
         GenJournalLine.SetRange("Line No.", LineNo);
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
         Assert.IsTrue(
           DimensionSetIDContainsDimension(GenJournalLine."Dimension Set ID", DimensionCode, DimensionValueCode[1]),
           'The dimension line should exist in the SetID of the journal line.');
@@ -173,7 +173,7 @@ codeunit 135532 "Dimension Lines E2E Test"
         TargetURL: Text;
     begin
         // [SCENARIO] Create dimension lines in a journal line and use a GET method to retrieve them
-        LibraryGraphJournalLines.Initialize;
+        LibraryGraphJournalLines.Initialize();
 
         // [GIVEN] a journal
         JournalName := LibraryGraphJournalLines.CreateCustomerPaymentsJournal;
@@ -231,7 +231,7 @@ codeunit 135532 "Dimension Lines E2E Test"
     begin
         // [SCENARIO] Create dimension lines in a journal line and use a GET method to retrieve them
         // [GIVEN] a customer payment in the General Journal Table
-        LibraryGraphJournalLines.Initialize;
+        LibraryGraphJournalLines.Initialize();
 
         JournalName := LibraryGraphJournalLines.CreateJournal;
         JournalLineGUID := CreateJournalLine(JournalName);
@@ -280,7 +280,7 @@ codeunit 135532 "Dimension Lines E2E Test"
         TargetURL: Text;
     begin
         // [SCENARIO] Using a GET request to retrieve dimension lines without a filter fails
-        LibraryGraphJournalLines.Initialize;
+        LibraryGraphJournalLines.Initialize();
 
         AccountNo := LibraryGraphJournalLines.CreateAccount;
         GLAccount.Get(AccountNo);
@@ -301,7 +301,7 @@ codeunit 135532 "Dimension Lines E2E Test"
         TargetURL: Text;
     begin
         // [SCENARIO] Using a GET request to retrieve dimension lines with a random entity fails
-        LibraryGraphJournalLines.Initialize;
+        LibraryGraphJournalLines.Initialize();
 
         // [GIVEN] a Target URL without filters
         TargetURL := LibraryGraphMgt.CreateTargetURL('', PAGE::"Dimension Lines Entity", ServiceNameTxt);
@@ -329,7 +329,7 @@ codeunit 135532 "Dimension Lines E2E Test"
         TargetURL: Text;
     begin
         // [SCENARIO] Create a dimension line, use a PATCH method to change it and then verify the changes
-        LibraryGraphJournalLines.Initialize;
+        LibraryGraphJournalLines.Initialize();
 
         // [GIVEN] a journal
         JournalName := LibraryGraphJournalLines.CreateCustomerPaymentsJournal;
@@ -369,7 +369,7 @@ codeunit 135532 "Dimension Lines E2E Test"
         GraphMgtCustomerPayments.SetCustomerPaymentsFilters(GenJournalLine);
         GenJournalLine.SetRange("Journal Batch Name", JournalName);
         GenJournalLine.SetRange("Line No.", LineNo);
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
         Assert.IsTrue(
           DimensionSetIDContainsDimension(GenJournalLine."Dimension Set ID", DimensionCode, DimensionValueCode[2]),
           'The dimension line should exist in the SetID of the journal line.');
@@ -393,7 +393,7 @@ codeunit 135532 "Dimension Lines E2E Test"
         TargetURL: Text;
     begin
         // [SCENARIO] Try to change the code of an existing dimension line
-        LibraryGraphJournalLines.Initialize;
+        LibraryGraphJournalLines.Initialize();
 
         // [GIVEN] a journal
         JournalName := LibraryGraphJournalLines.CreateCustomerPaymentsJournal;
@@ -431,7 +431,7 @@ codeunit 135532 "Dimension Lines E2E Test"
         GraphMgtCustomerPayments.SetCustomerPaymentsFilters(GenJournalLine);
         GenJournalLine.SetRange("Journal Batch Name", JournalName);
         GenJournalLine.SetRange("Line No.", LineNo);
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
         Assert.IsTrue(
           DimensionSetIDContainsDimension(GenJournalLine."Dimension Set ID", DimensionCode[1], DimensionValueCode[1]),
           'The dimension line should exist in the SetID of the journal line.');
@@ -452,7 +452,7 @@ codeunit 135532 "Dimension Lines E2E Test"
         TargetURL: Text;
     begin
         // [SCENARIO] Create a dimension line, use a DELETE method to remove it and then verify the deletion
-        LibraryGraphJournalLines.Initialize;
+        LibraryGraphJournalLines.Initialize();
 
         // [GIVEN] a journal
         JournalName := LibraryGraphJournalLines.CreateCustomerPaymentsJournal;
@@ -478,7 +478,7 @@ codeunit 135532 "Dimension Lines E2E Test"
         // [THEN] the dimension line shouldn't exist in the table
         GraphMgtCustomerPayments.SetCustomerPaymentsFilters(GenJournalLine);
         GenJournalLine.SetFilter("Line No.", Format(LineNo));
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
         Assert.IsFalse(
           DimensionSetIDContainsDimension(GenJournalLine."Dimension Set ID", Dimension.Code, DimensionValue.Code),
           'The dimension line shouldn''t exist in the SetID of the journal line.');
@@ -505,7 +505,7 @@ codeunit 135532 "Dimension Lines E2E Test"
         GraphMgtCustomerPayments.SetCustomerPaymentsTemplateAndBatch(GenJournalLine, JournalName);
         GraphMgtCustomerPayments.SetCustomerPaymentsFilters(GenJournalLine);
         GenJournalLine.SetRange("Line No.", LineNo);
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
         exit(GenJournalLine.SystemId);
     end;
 
@@ -518,7 +518,7 @@ codeunit 135532 "Dimension Lines E2E Test"
         GraphMgtJournalLines.SetJournalLineTemplateAndBatch(GenJournalLine, JournalName);
         GraphMgtJournalLines.SetJournalLineFilters(GenJournalLine);
         GenJournalLine.SetRange("Line No.", LineNo);
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
         exit(GenJournalLine.SystemId);
     end;
 

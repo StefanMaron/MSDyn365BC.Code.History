@@ -68,7 +68,7 @@ codeunit 142055 "UT REP Vendor 1099"
         // Purpose of the test is to validate trigger Vendor - OnAfterGetRecord of Report 10109.
 
         // Setup: Create Vendor and Detailed Leger Entry.
-        Initialize;
+        Initialize();
         SetupToCreateLedgerEntriesForVendor(VendorLedgerEntry, IRS1099CodeDiv, LibraryRandom.RandIntInRange(100, 1000));
 
         // Exercise.
@@ -90,7 +90,7 @@ codeunit 142055 "UT REP Vendor 1099"
         // Purpose of the test is to validate trigger Vendor - OnAfterGetRecord of Report 10109.
 
         // Setup: Create Vendor and Detailed Leger Entry.
-        Initialize;
+        Initialize();
         SetupToCreateLedgerEntriesForVendor(VendorLedgerEntry, IRS1099CodeDiv, LibraryRandom.RandIntInRange(100, 1000));
 
         // Exercise.
@@ -111,7 +111,7 @@ codeunit 142055 "UT REP Vendor 1099"
         // Purpose of the test is to validate trigger Vendor - OnAfterGetRecord of Report 10109.
 
         // Setup: Create Vendor and Detailed Leger Entry.
-        Initialize;
+        Initialize();
         SetupToCreateLedgerEntriesForVendor(VendorLedgerEntry, IRS1099CodeInt, LibraryRandom.RandIntInRange(100, 1000));
 
         // Exercise.
@@ -133,7 +133,7 @@ codeunit 142055 "UT REP Vendor 1099"
         // Purpose of the test is to validate trigger Vendor - OnAfterGetRecord of Report 10109.
 
         // Setup: Create Vendor and Detailed Leger Entry.
-        Initialize;
+        Initialize();
         SetupToCreateLedgerEntriesForVendor(VendorLedgerEntry, IRS1099CodeMisc, LibraryRandom.RandIntInRange(100, 1000));
 
         // Exercise.
@@ -156,7 +156,7 @@ codeunit 142055 "UT REP Vendor 1099"
         // [GIVEN] 2 vendors "A", "B"
         // [GIVEN] 3 invoices per vendor posted in different transactions.
         // [GIVEN] One payment per vendor applied to all 3 invoices and closed them within a single transaction
-        Initialize;
+        Initialize();
         DocAmountSum := SetupMultipleDocScenario(IRS1099CodeDiv);
 
         // [WHEN] Run Report 1099 Div
@@ -180,7 +180,7 @@ codeunit 142055 "UT REP Vendor 1099"
         // [GIVEN] 2 vendors "A", "B"
         // [GIVEN] 3 invoices per vendor posted in different transactions.
         // [GIVEN] One payment per vendor applied to all 3 invoices and closed them within a single transaction
-        Initialize;
+        Initialize();
         DocAmountSum := SetupMultipleDocScenario(IRS1099CodeDiv);
 
         // [WHEN] Run Report 1099 Information
@@ -203,7 +203,7 @@ codeunit 142055 "UT REP Vendor 1099"
         // [GIVEN] 2 vendors "A", "B"
         // [GIVEN] 3 invoices per vendor posted in different transactions.
         // [GIVEN] One payment per vendor applied to all 3 invoices and closed them within a single transaction
-        Initialize;
+        Initialize();
         DocAmountSum := SetupMultipleDocScenario(IRS1099CodeInt);
 
         // [WHEN] Run Report 1099 Int
@@ -227,7 +227,7 @@ codeunit 142055 "UT REP Vendor 1099"
         // [GIVEN] 2 vendors "A", "B"
         // [GIVEN] 3 invoices per vendor posted in different transactions.
         // [GIVEN] One payment per vendor applied to all 3 invoices and closed them within a single transaction
-        Initialize;
+        Initialize();
         DocAmountSum := SetupMultipleDocScenario(IRS1099CodeMisc);
 
         // [WHEN] Run Report 1099 Misc
@@ -249,7 +249,7 @@ codeunit 142055 "UT REP Vendor 1099"
     begin
         // [FEATURE] [Vendor 1099 Magnetic Media]
         // [SCENARIO 364351] Vendor 1099 Magnetic Media "DivCRec" line has "Sequence No." element in position 500 with length 8
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor with "DivCRec" source data
         SetupToCreateLedgerEntriesForVendor(VendorLedgerEntry, IRS1099CodeDiv, LibraryRandom.RandIntInRange(100, 1000));
@@ -277,7 +277,7 @@ codeunit 142055 "UT REP Vendor 1099"
     begin
         // [FEATURE] [Vendor 1099 Magnetic Media]
         // [SCENARIO 364351] Vendor 1099 Magnetic Media "IntCRec" line has "Sequence No." element in position 500 with length 8
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor with "IntCRec" source data
         SetupToCreateLedgerEntriesForVendor(VendorLedgerEntry, IRS1099CodeInt, LibraryRandom.RandIntInRange(100, 1000));
@@ -305,7 +305,7 @@ codeunit 142055 "UT REP Vendor 1099"
     begin
         // [FEATURE] [Vendor 1099 Magnetic Media]
         // [SCENARIO 364351] Vendor 1099 Magnetic Media "MiscCRec" line has "Sequence No." element in position 500 with length 8
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor with "MiscCRec" source data
         SetupToCreateLedgerEntriesForVendor(VendorLedgerEntry, IRS1099CodeMisc, LibraryRandom.RandIntInRange(100, 1000));
@@ -334,7 +334,7 @@ codeunit 142055 "UT REP Vendor 1099"
     begin
         // [FEATURE] [Vendor 1099 Magnetic Media]
         // [SCENARIO] The Div B record contains a flag, corresponding to the value of FATCA set on the vendor (true)
-        Initialize;
+        Initialize();
 
         // [GIVEN] A Vendor which is marked as FACTA
         SetupToCreateLedgerEntriesForVendor(VendorLedgerEntry, IRS1099CodeDiv, LibraryRandom.RandIntInRange(100, 1000));
@@ -365,7 +365,7 @@ codeunit 142055 "UT REP Vendor 1099"
     begin
         // [FEATURE] [Vendor 1099 Magnetic Media]
         // [SCENARIO] The Div B record contains a flag, corresponding to the value of FATCA set on the vendor (false)
-        Initialize;
+        Initialize();
 
         // [GIVEN] A Vendor which is not marked as FACTA
         SetupToCreateLedgerEntriesForVendor(VendorLedgerEntry, IRS1099CodeDiv, LibraryRandom.RandIntInRange(100, 1000));
@@ -394,7 +394,7 @@ codeunit 142055 "UT REP Vendor 1099"
     begin
         // [FEATURE] [Vendor 1099 Magnetic Media]
         // [SCENARIO] The Int B record contains a flag, corresponding to the value of FATCA set on the vendor (true)
-        Initialize;
+        Initialize();
 
         // [GIVEN] A Vendor which is marked as FACTA
         SetupToCreateLedgerEntriesForVendor(VendorLedgerEntry, IRS1099CodeInt, LibraryRandom.RandIntInRange(100, 1000));
@@ -426,7 +426,7 @@ codeunit 142055 "UT REP Vendor 1099"
     begin
         // [FEATURE] [Vendor 1099 Magnetic Media]
         // [SCENARIO] The Misc B record contains a flag, corresponding to the value of FATCA set on the vendor (true)
-        Initialize;
+        Initialize();
 
         // [GIVEN] A Vendor which is marked as FACTA
         SetupToCreateLedgerEntriesForVendor(VendorLedgerEntry, IRS1099CodeMisc, LibraryRandom.RandIntInRange(100, 1000));
@@ -456,7 +456,7 @@ codeunit 142055 "UT REP Vendor 1099"
     begin
         // [FEATURE] [Vendor 1099 Magnetic Media]
         // [SCENARIO 280534] The Misc A record have to contain Amount Code = 1 when Record B contains Direct Sales indicator and "IRS 1099 Code" = "MISC-07"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor with "MiscARec" source data and MISC-07 code
         SetupToCreateLedgerEntriesForVendor(VendorLedgerEntry, IRS1099CodeMisc07Tok, LibraryRandom.RandIntInRange(5000, 10000)); // Amount have to be greater than 5000 For MISC-07
@@ -484,7 +484,7 @@ codeunit 142055 "UT REP Vendor 1099"
     begin
         // [SCENARIO 332661] A "Vendor 1099 Div" report shows the amount with adjustment
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor ledger entry for vendor "A" with "DIV-01-A" code, "Posting Date" = 01.01.2022 and total amount = 100
         SetupToCreateLedgerEntriesForVendor(VendorLedgerEntry, IRS1099CodeDiv, LibraryRandom.RandIntInRange(100, 1000));
@@ -527,7 +527,7 @@ codeunit 142055 "UT REP Vendor 1099"
     begin
         // [SCENARIO 332661] A "Vendor 1099 Misc" report shows the amount with adjustment
 
-        Initialize;
+        Initialize();
         // [GIVEN] Vendor ledger entries for vendor "A" with "MISC-02" code, "Posting Date" = 01.01.2022 and total amount = 100
         SetupToCreateLedgerEntriesForVendor(VendorLedgerEntry, IRS1099CodeMisc, LibraryRandom.RandIntInRange(100, 1000));
 
@@ -570,7 +570,7 @@ codeunit 142055 "UT REP Vendor 1099"
     begin
         // [FEATURE] [Vendor 1099 Magnetic Media]
         // [SCENARIO 332661] A "Vendor 1099 Magnetic Media" report shows the amount with adjustment
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor ledger entries for vendor "A" with "MISC-02" code, "Posting Date" = 01.01.2022 and total amount = 100
         // BUG 384664: Adjustment with multiple vendor ledger entries
@@ -619,7 +619,7 @@ codeunit 142055 "UT REP Vendor 1099"
         // [FEATURE] [UT]
         // [SCENARIO 332661] Calculate1099Amount function of codeunit "IRS 1099 Management" failed on non-existing IRS 1099 code
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor Ledger Entry with IRS 1099 code "DIV-01-A"
         EntryAmount := LibraryRandom.RandIntInRange(100, 1000);
@@ -786,7 +786,7 @@ codeunit 142055 "UT REP Vendor 1099"
         // [FEATURE] [Vendor 1099 Magnetic Media]
         // [SCENARIO 389780] The magnetic media file contains the information about the MISC-10 code in the correct position in B and C sections
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor entry with MISC-10 code and amount = "X"
         SetupToCreateLedgerEntriesForVendor(VendorLedgerEntry, IRS1099CodeMisc10Tok, LibraryRandom.RandIntInRange(5000, 10000));
@@ -936,7 +936,7 @@ codeunit 142055 "UT REP Vendor 1099"
         // [FEATURE] [Vendor 1099 Magnetic Media]
         // [SCENARIO 41241] The magnetic media file contains the information about the MISC-11 code in the correct position in B and C sections
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor entry with MISC-11 code and amount = "X"
         SetupToCreateLedgerEntriesForVendor(VendorLedgerEntry, IRS1099CodeMisc11Tok, LibraryRandom.RandIntInRange(5000, 10000));
@@ -971,7 +971,7 @@ codeunit 142055 "UT REP Vendor 1099"
         // [FEATURE] [Vendor 1099 Magnetic Media]
         // [SCENARIO 41241] The magnetic media file contains the information about the DIV-02-E and DIV-02-F codes in the correct position in B and C sections
 
-        Initialize;
+        Initialize();
 
         VendorNo := CreateVendor;
         // [GIVEN] Vendor entry with DIV-02-E code and amount = "X"
@@ -1321,7 +1321,7 @@ codeunit 142055 "UT REP Vendor 1099"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreateDetailedVendorLedgerEntry(VendorLedgerEntryNo: Integer; AppliedVendLedgerEntryNo: Integer; EntryType: Option; VendorNo: Code[20]; Amount: Decimal; LedgerEntryAmount: Boolean)
@@ -1494,7 +1494,7 @@ codeunit 142055 "UT REP Vendor 1099"
     begin
         FileName := FileMgt.ServerTempFileName('txt');
         Vendor1099MagneticMedia.InitializeRequest(FileName);
-        Vendor1099MagneticMedia.Run;
+        Vendor1099MagneticMedia.Run();
     end;
 
     local procedure RunVendor1099MagneticMediaReportSingleVendor(var FileName: Text; VendorNo: Code[20])
@@ -1507,7 +1507,7 @@ codeunit 142055 "UT REP Vendor 1099"
         Vendor.SetRange("No.", VendorNo);
         Vendor1099MagneticMedia.SetTableView(Vendor);
         Vendor1099MagneticMedia.InitializeRequest(FileName);
-        Vendor1099MagneticMedia.Run;
+        Vendor1099MagneticMedia.Run();
     end;
 
     [RequestPageHandler]

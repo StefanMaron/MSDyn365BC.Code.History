@@ -34,7 +34,7 @@ codeunit 134093 "ERM G/L Account Where-Used"
     var
         CustomerPostingGroup: Record "Customer Posting Group";
     begin
-        Initialize;
+        Initialize();
         // [GIVEN] Customer Posting Group with "Invoice Rounding Account" = "G"
         LibrarySales.CreateCustomerPostingGroup(CustomerPostingGroup);
         CustomerPostingGroup.Validate("Invoice Rounding Account", LibraryERM.CreateGLAccountWithSalesSetup);
@@ -57,7 +57,7 @@ codeunit 134093 "ERM G/L Account Where-Used"
     var
         VendorPostingGroup: Record "Vendor Posting Group";
     begin
-        Initialize;
+        Initialize();
         // [GIVEN] Vendor Posting Group with "Invoice Rounding Account" = "G"
         LibraryPurchase.CreateVendorPostingGroup(VendorPostingGroup);
         VendorPostingGroup.Validate("Invoice Rounding Account", LibraryERM.CreateGLAccountWithPurchSetup);
@@ -82,12 +82,12 @@ codeunit 134093 "ERM G/L Account Where-Used"
         JobPostingGroup: Record "Job Posting Group";
     begin
         // [SCENARIO 263861] Job Posted Group should be shown on Where-Used page
-        Initialize;
+        Initialize();
 
         // [GIVEN] Job Posting Group with G/L Account "G"
         LibraryERM.CreateGLAccount(GLAccount);
         JobPostingGroup.Init();
-        JobPostingGroup.Code := LibraryUtility.GenerateGUID;
+        JobPostingGroup.Code := LibraryUtility.GenerateGUID();
         JobPostingGroup."WIP Costs Account" := GLAccount."No.";
         JobPostingGroup.Insert();
 
@@ -109,11 +109,11 @@ codeunit 134093 "ERM G/L Account Where-Used"
         Location: Record Location;
         InventoryPostingSetup: Record "Inventory Posting Setup";
     begin
-        Initialize;
+        Initialize();
         // [GIVEN] Inventory Posting Setup with "Inventory Account" = "G"
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
         InventoryPostingSetup.SetRange("Location Code", Location.Code);
-        InventoryPostingSetup.FindFirst;
+        InventoryPostingSetup.FindFirst();
 
         // [WHEN] Run Where-Used function for G/L Accoun "G"
         CalcGLAccWhereUsed.CheckGLAcc(InventoryPostingSetup."Inventory Account");
@@ -138,7 +138,7 @@ codeunit 134093 "ERM G/L Account Where-Used"
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
         // [SCENARIO 212385] "Freight G/L Acc. No." from Sales & Receivables Setup should be shown on Where-Used page
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales & Receivables Setup has "Freight G/L Acc. No." = "F"
         SalesReceivablesSetup.Get();
@@ -162,12 +162,12 @@ codeunit 134093 "ERM G/L Account Where-Used"
         EmployeePostingGroup: Record "Employee Posting Group";
     begin
         // [SCENARIO 259180] Employee Posted Group should be shown on Where-Used page
-        Initialize;
+        Initialize();
 
         // [GIVEN] Employee Posting Group with G/L Account "G"
         LibraryERM.CreateGLAccount(GLAccount);
         EmployeePostingGroup.Init();
-        EmployeePostingGroup.Code := LibraryUtility.GenerateGUID;
+        EmployeePostingGroup.Code := LibraryUtility.GenerateGUID();
         EmployeePostingGroup."Payables Account" := GLAccount."No.";
         EmployeePostingGroup.Insert();
 
@@ -191,10 +191,10 @@ codeunit 134093 "ERM G/L Account Where-Used"
         GLAccountNo: Code[20];
     begin
         // [SCENARIO 261566] Where-Used for G/L Account added to different setup tables
-        Initialize;
+        Initialize();
 
         // [GIVEN] G/L Account "G" is assigned to Customer and Vendor Posting Group as Receivables and Payable Account
-        GLAccountNo := LibraryERM.CreateGLAccountNo;
+        GLAccountNo := LibraryERM.CreateGLAccountNo();
         LibrarySales.CreateCustomerPostingGroup(CustomerPostingGroup);
         CustomerPostingGroup.Validate("Receivables Account", GLAccountNo);
         CustomerPostingGroup.Modify(true);
@@ -221,7 +221,7 @@ codeunit 134093 "ERM G/L Account Where-Used"
         GenJournalTemplate: Record "Gen. Journal Template";
     begin
         // [SCENARIO 263861] Gen. Journal Template should be shown on Where-Used page
-        Initialize;
+        Initialize();
 
         // [GIVEN] Gen. Journal Template with Bal. Account "G"
         LibraryERM.CreateGLAccount(GLAccount);
@@ -248,7 +248,7 @@ codeunit 134093 "ERM G/L Account Where-Used"
         GenJournalTemplate: Record "Gen. Journal Template";
     begin
         // [SCENARIO 263861] Gen. Journal Template with Bal. Account Type <> G/L Acount, but Bal. Account No. = G/L Account No. should not be shown on Where-Used page
-        Initialize;
+        Initialize();
 
         // [GIVEN] Gen. Journal Template with Bal. Account "G", but Bal. Account Type = "Bank Account"
         LibraryERM.CreateGLAccount(GLAccount);
@@ -274,7 +274,7 @@ codeunit 134093 "ERM G/L Account Where-Used"
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
         // [SCENARIO 263861] Gen. Journal Batch should be shown on Where-Used page
-        Initialize;
+        Initialize();
 
         // [GIVEN] Gen. Journal Batch with Bal. Account "G"
         LibraryERM.CreateGLAccount(GLAccount);
@@ -310,7 +310,7 @@ codeunit 134093 "ERM G/L Account Where-Used"
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
         // [SCENARIO 263861] Gen. Jnl. Allocation should be shown on Where-Used page
-        Initialize;
+        Initialize();
 
         // [GIVEN] Gen. Jnl. Allocation with Account No. "G"
         LibraryERM.CreateGLAccount(GLAccount);
@@ -358,7 +358,7 @@ codeunit 134093 "ERM G/L Account Where-Used"
         GeneralPostingSetup: Record "General Posting Setup";
     begin
         // [SCENARIO 263861] General Posting Setup should be shown on Where-Used page
-        Initialize;
+        Initialize();
 
         // [GIVEN] General Posting Setup with Bal. Account "G"
         LibraryERM.CreateGLAccount(GLAccount);
@@ -392,12 +392,12 @@ codeunit 134093 "ERM G/L Account Where-Used"
         BankAccountPostingGroup: Record "Bank Account Posting Group";
     begin
         // [SCENARIO 263861] Bank Account Posted Group should be shown on Where-Used page
-        Initialize;
+        Initialize();
 
         // [GIVEN] Bank Account Posting Group with G/L Account "G"
         LibraryERM.CreateGLAccount(GLAccount);
         BankAccountPostingGroup.Init();
-        BankAccountPostingGroup.Code := LibraryUtility.GenerateGUID;
+        BankAccountPostingGroup.Code := LibraryUtility.GenerateGUID();
         BankAccountPostingGroup."G/L Account No." := GLAccount."No.";
         BankAccountPostingGroup.Insert();
 
@@ -422,7 +422,7 @@ codeunit 134093 "ERM G/L Account Where-Used"
         VATPostingSetup: Record "VAT Posting Setup";
     begin
         // [SCENARIO 263861] VAT Posting Setup should be shown on Where-Used page
-        Initialize;
+        Initialize();
 
         // [GIVEN] VAT Posting Setup with Bal. Account "G"
         LibraryERM.CreateGLAccount(GLAccount);
@@ -456,7 +456,7 @@ codeunit 134093 "ERM G/L Account Where-Used"
         FAPostingGroup: Record "FA Posting Group";
     begin
         // [SCENARIO 263861] FA Posted Group should be shown on Where-Used page
-        Initialize;
+        Initialize();
 
         // [GIVEN] FA Posting Group with G/L Account "G"
         LibraryERM.CreateGLAccount(GLAccount);
@@ -484,7 +484,7 @@ codeunit 134093 "ERM G/L Account Where-Used"
         FAPostingGroup: Record "FA Posting Group";
     begin
         // [SCENARIO 263861] FA Allocation should be shown on Where-Used page
-        Initialize;
+        Initialize();
 
         // [GIVEN] FA Allocation with Account No. "G"
         LibraryERM.CreateGLAccount(GLAccount);
@@ -521,7 +521,7 @@ codeunit 134093 "ERM G/L Account Where-Used"
         InventoryPostingSetup: Record "Inventory Posting Setup";
     begin
         // [SCENARIO 263861] Inventory Posting Setup should be shown on Where-Used page
-        Initialize;
+        Initialize();
 
         // [GIVEN] Inventory Posting Setup with Bal. Account "G"
         LibraryERM.CreateGLAccount(GLAccount);
@@ -555,7 +555,7 @@ codeunit 134093 "ERM G/L Account Where-Used"
         ServiceContractAccountGroup: Record "Service Contract Account Group";
     begin
         // [SCENARIO 263861] Service Contract Account Group should be shown on Where-Used page
-        Initialize;
+        Initialize();
 
         // [GIVEN] Service Contract Account Group with G/L Account "G"
         GLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup);
@@ -582,7 +582,7 @@ codeunit 134093 "ERM G/L Account Where-Used"
         ICPartner: Record "IC Partner";
     begin
         // [SCENARIO 263861] IC Partner should be shown on Where-Used page
-        Initialize;
+        Initialize();
 
         // [GIVEN] IC Partner with G/L Account "G"
         LibraryERM.CreateGLAccount(GLAccount);
@@ -609,7 +609,7 @@ codeunit 134093 "ERM G/L Account Where-Used"
         PaymentMethod: Record "Payment Method";
     begin
         // [SCENARIO 263861] Payment Method should be shown on Where-Used page
-        Initialize;
+        Initialize();
 
         // [GIVEN] Payment Method with G/L Account "G"
         LibraryERM.CreateGLAccount(GLAccount);
@@ -636,7 +636,7 @@ codeunit 134093 "ERM G/L Account Where-Used"
         SalesSetup: Record "Sales & Receivables Setup";
     begin
         // [SCENARIO 263861] Sales & Receivables Setup should be shown on Where-Used page
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales & Receivables Setup with G/L Account "G"
         GLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup);
@@ -661,7 +661,7 @@ codeunit 134093 "ERM G/L Account Where-Used"
         SalesReceivablesSetupPage: TestPage "Sales & Receivables Setup";
     begin
         // [SCENARIO 263861] Sales & Receivables Setup page should be open on Show Details action from Where-Used page
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales & Receivables Setup with G/L Account "G"
         GLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup);
@@ -684,7 +684,7 @@ codeunit 134093 "ERM G/L Account Where-Used"
         PurchSetup: Record "Purchases & Payables Setup";
     begin
         // [SCENARIO 263861] Purchases & Payables Setup should be shown on Where-Used page
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchases & Payables Setup with "Debit Acc. for Non-Item Lines" = "G"
         GLAccount.Get(LibraryERM.CreateGLAccountNo);
@@ -709,7 +709,7 @@ codeunit 134093 "ERM G/L Account Where-Used"
         PurchasesPayablesSetupPage: TestPage "Purchases & Payables Setup";
     begin
         // [SCENARIO 263861] Purchases & Payables Setup page should be open on Show Details action from Where-Used page
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchases & Payables Setup with G/L Account "G"
         GLAccount.Get(LibraryERM.CreateGLAccountNo);
@@ -732,7 +732,7 @@ codeunit 134093 "ERM G/L Account Where-Used"
         BusinessUnit: Record "Business Unit";
     begin
         // [SCENARIO 263861] Business Unit should be shown on Where-Used page
-        Initialize;
+        Initialize();
 
         // [GIVEN] Business Unit with G/L Account "G"
         LibraryERM.CreateGLAccount(GLAccount);
@@ -759,7 +759,7 @@ codeunit 134093 "ERM G/L Account Where-Used"
         CashFlowSetup: Record "Cash Flow Setup";
     begin
         // [SCENARIO 263861] Cash Flow Setup should be shown on Where-Used page
-        Initialize;
+        Initialize();
 
         // [GIVEN] Cash Flow Setup with G/L Account "G"
         GLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup);
@@ -787,13 +787,13 @@ codeunit 134093 "ERM G/L Account Where-Used"
         ERMGLAccountWhereUsed: Codeunit "ERM G/L Account Where-Used";
     begin
         // [SCENARIO 263861] Where-Used function can be used by extensions
-        Initialize;
+        Initialize();
         BindSubscription(ERMGLAccountWhereUsed);
 
         // [GIVEN] Some extension table "Table With Link to G/L Account" with link to G/L Account "G"
         TableWithLinkToGLAccount.Init();
-        TableWithLinkToGLAccount.Code := LibraryUtility.GenerateGUID;
-        TableWithLinkToGLAccount."Account No." := LibraryERM.CreateGLAccountNo;
+        TableWithLinkToGLAccount.Code := LibraryUtility.GenerateGUID();
+        TableWithLinkToGLAccount."Account No." := LibraryERM.CreateGLAccountNo();
         TableWithLinkToGLAccount.Insert();
 
         // [WHEN] Run Where-Used function for G/L Account "G"
@@ -816,13 +816,13 @@ codeunit 134093 "ERM G/L Account Where-Used"
         TableWithLinkToGLAccountPage: TestPage "Table With Link To G/L Account";
     begin
         // [SCENARIO 263861] Show Details action from Where-Used page can be used by extension
-        Initialize;
+        Initialize();
         BindSubscription(ERMGLAccountWhereUsed);
 
         // [GIVEN] Some extension table "Table With Link to G/L Account" with link to G/L Account "G"
         TableWithLinkToGLAccount.Init();
-        TableWithLinkToGLAccount.Code := LibraryUtility.GenerateGUID;
-        TableWithLinkToGLAccount."Account No." := LibraryERM.CreateGLAccountNo;
+        TableWithLinkToGLAccount.Code := LibraryUtility.GenerateGUID();
+        TableWithLinkToGLAccount."Account No." := LibraryERM.CreateGLAccountNo();
         TableWithLinkToGLAccount.Insert();
 
         // [WHEN] Run Where-Used function for G/L Account "G"
@@ -835,8 +835,8 @@ codeunit 134093 "ERM G/L Account Where-Used"
 
     local procedure Initialize()
     begin
-        LibrarySetupStorage.Restore;
-        LibraryVariableStorage.Clear;
+        LibrarySetupStorage.Restore();
+        LibraryVariableStorage.Clear();
         if isInitialized then
             exit;
 

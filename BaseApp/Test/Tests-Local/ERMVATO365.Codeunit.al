@@ -227,7 +227,7 @@ codeunit 144023 "ERM VAT O365"
 
     local procedure Initialize()
     begin
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
         UpdateGeneralLedgerSetup(true);
     end;
 
@@ -239,10 +239,10 @@ codeunit 144023 "ERM VAT O365"
         LibraryERM.FindCustomerLedgerEntry(ApplyCustLedgerEntry, DocumentType, DocumentNo);
         ApplyCustLedgerEntry.CalcFields("Remaining Amount");
         LibraryERM.SetApplyCustomerEntry(ApplyCustLedgerEntry, ApplyCustLedgerEntry."Remaining Amount");
-        GLRegister.FindLast;
+        GLRegister.FindLast();
         CustLedgerEntry.SetRange("Entry No.", GLRegister."From Entry No.", GLRegister."To Entry No.");
         CustLedgerEntry.SetRange("Applying Entry", false);
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
         LibraryERM.SetAppliestoIdCustomer(CustLedgerEntry)
     end;
 
@@ -294,7 +294,7 @@ codeunit 144023 "ERM VAT O365"
     begin
         GLAccount.SetRange("Direct Posting", true);
         GLAccount.SetRange("Reconciliation Account", true);
-        GLAccount.FindFirst;
+        GLAccount.FindFirst();
     end;
 
     local procedure UpdateGeneralLedgerSetup(NewUnrealizedVAT: Boolean) OldUnrealizedVAT: Boolean
@@ -313,7 +313,7 @@ codeunit 144023 "ERM VAT O365"
     begin
         VATEntry.SetRange("Document Type", DocumentType);
         VATEntry.SetRange("Document No.", DocumentNo);
-        VATEntry.FindFirst;
+        VATEntry.FindFirst();
         Assert.AreNearlyEqual(
           VATEntry.Base, Amount, LibraryERM.GetAmountRoundingPrecision,
           StrSubstNo(AmountErr, VATEntry.FieldCaption(Base), Amount, VATEntry.TableCaption));
@@ -329,7 +329,7 @@ codeunit 144023 "ERM VAT O365"
         GLEntry.SetRange("G/L Account No.", GLAcountNo);
         GLEntry.SetRange("Gen. Posting Type", GenPostingType);
         GLEntry.SetRange("Source Code", SourceCode);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         Assert.AreNearlyEqual(
           GLEntry.Amount, Amount, LibraryERM.GetAmountRoundingPrecision,
           StrSubstNo(AmountErr, GLEntry.FieldCaption(Amount), Amount, GLEntry.TableCaption));
@@ -340,7 +340,7 @@ codeunit 144023 "ERM VAT O365"
         VATEntry: Record "VAT Entry";
         GLRegister: Record "G/L Register";
     begin
-        GLRegister.FindLast;
+        GLRegister.FindLast();
         VATEntry.SetRange("Entry No.", GLRegister."From VAT Entry No.", GLRegister."To VAT Entry No.");
         VATEntry.FindSet();
         Assert.AreNearlyEqual(
@@ -365,7 +365,7 @@ codeunit 144023 "ERM VAT O365"
         GLEntry.SetRange("Document Type", DocumentType);
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("G/L Account No.", GLAcountNo);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         Assert.AreNearlyEqual(
           GLEntry.Amount, -Amount, LibraryERM.GetAmountRoundingPrecision,
           StrSubstNo(AmountErr, GLEntry.FieldCaption(Amount), -Amount, GLEntry.TableCaption));

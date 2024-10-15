@@ -2,6 +2,7 @@ codeunit 141008 "UT PAG Bank Deposit"
 {
     Subtype = Test;
     TestPermissions = Disabled;
+    EventSubscriberInstance = Manual;
 
     trigger OnRun()
     begin
@@ -16,8 +17,16 @@ codeunit 141008 "UT PAG Bank Deposit"
         LibraryReportDataset: Codeunit "Library - Report Dataset";
         LibraryERM: Codeunit "Library - ERM";
         LibraryUtility: Codeunit "Library - Utility";
+        UTPAGBankDeposit: Codeunit "UT PAG Bank Deposit";
         ValueMustExistMsg: Label 'Value must exist.';
         PostingDateErr: Label 'Validation error for Field: Posting Date,  Message = ''Posting Date must have a value in Deposit Header: No.=%1. It cannot be zero or empty. (Select Refresh to discard errors)''';
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Bank Deposit Feature Mgt.", 'OnBeforeIsEnabled', '', false, false)]
+    local procedure OnBeforeBankDepositFeatureIsEnabled(var Result: Boolean; var IsHandled: Boolean)
+    begin
+        IsHandled := true;
+        Result := false;
+    end;
 
     [Test]
     [HandlerFunctions('DepositTestReportRequestPageHandler')]
@@ -31,16 +40,17 @@ codeunit 141008 "UT PAG Bank Deposit"
     begin
         // Purpose of the test is to validate TestReport - OnAction trigger of the Page ID: 36646, Deposits.
         // Setup.
-        Initialize;
+        if not BindSubscription(UTPAGBankDeposit) then;
+        Initialize();
         CreateDepositHeader(DepositHeader, '');
         CreateGenJournalLine(GenJournalLine, DepositHeader, GenJournalLine."Account Type"::"G/L Account", CreateGLAccount);
         LibraryVariableStorage.Enqueue(DepositHeader."No.");  // Enqueue value for use in DepositTestReportRequestPageHandler.
-
         // Exercise & Verify: Verify the Deposit Test Report after calling action Test Report on Deposits page through DepositTestReportRequestPageHandler.
-        Deposits.OpenEdit;
+        Deposits.OpenEdit();
         Deposits.GotoRecord(DepositHeader);
-        Deposits.TestReport.Invoke;  // Invokes DepositTestReportRequestPageHandler.
-        Deposits.Close;
+        Deposits.TestReport.Invoke();  // Invokes DepositTestReportRequestPageHandler.
+        Deposits.Close();
+        UnbindSubscription(UTPAGBankDeposit);
     end;
 
     [Test]
@@ -55,7 +65,7 @@ codeunit 141008 "UT PAG Bank Deposit"
     begin
         // Purpose of the test is to validate Dimensions - OnAction trigger of the Page ID: 10147, Posted Deposit List.
         // Setup.
-        Initialize;
+        Initialize();
         CreatePostedDepositForCustomer(PostedDepositHeader, PostedDepositLine);
         UpdateDimensionOnPostedDepositHeader(PostedDepositHeader, CreateDimension);
 
@@ -78,7 +88,7 @@ codeunit 141008 "UT PAG Bank Deposit"
     begin
         // Purpose of the test is to validate Dimensions - OnAction trigger of the Page ID: 10144, Posted Deposit Subform.
         // Setup.
-        Initialize;
+        Initialize();
         CreatePostedDepositForCustomer(PostedDepositHeader, PostedDepositLine);
         PostedDepositLine."Dimension Set ID" := CreateDimension;
         PostedDepositLine.Modify();
@@ -101,7 +111,7 @@ codeunit 141008 "UT PAG Bank Deposit"
     begin
         // Purpose of the test is to validate AccountLedgerEntries - OnAction trigger of the Page ID: 10144, Posted Deposit Subform.
         // Setup.
-        Initialize;
+        Initialize();
         CreatePostedDepositForCustomer(PostedDepositHeader, PostedDepositLine);
         CreatePostedSalesInvoiceLine(PostedDepositLine."Account No.");
         CreateCustomerLedgerEntry(CustLedgerEntry, PostedDepositLine."Document No.", PostedDepositLine."Account No.");
@@ -130,7 +140,7 @@ codeunit 141008 "UT PAG Bank Deposit"
     begin
         // Purpose of the test is to validate AccountCard - OnAction trigger of the Page ID: 10144, Posted Deposit Subform.
         // Setup.
-        Initialize;
+        Initialize();
         CreatePostedDepositForCustomer(PostedDepositHeader, PostedDepositLine);
         LibraryVariableStorage.Enqueue(PostedDepositLine."Account No.");  // Enqueue values for use in CustomerCardPageHandler.
 
@@ -156,7 +166,7 @@ codeunit 141008 "UT PAG Bank Deposit"
     begin
         // Purpose of the test is to validate Print - OnAction trigger of the Page ID: 10143, Posted Deposit.
         // Setup.
-        Initialize;
+        Initialize();
         CreatePostedDepositForCustomer(PostedDepositHeader, PostedDepositLine);
         CreatePostedSalesInvoiceLine(PostedDepositLine."Account No.");
         CreateCustomerLedgerEntry(CustLedgerEntry, PostedDepositLine."Document No.", PostedDepositLine."Account No.");
@@ -182,7 +192,7 @@ codeunit 141008 "UT PAG Bank Deposit"
     begin
         // Purpose of the test is to validate Dimensions - OnAction trigger of the Page ID: 10143, Posted Deposit.
         // Setup.
-        Initialize;
+        Initialize();
         CreatePostedDepositForCustomer(PostedDepositHeader, PostedDepositLine);
         UpdateDimensionOnPostedDepositHeader(PostedDepositHeader, CreateDimension);
 
@@ -204,7 +214,7 @@ codeunit 141008 "UT PAG Bank Deposit"
     begin
         // Purpose of the test is to validate Dimensions - OnAction trigger of the Page ID: 10141, Deposit Subform.
         // Setup.
-        Initialize;
+        Initialize();
         CreateDepositHeader(DepositHeader, '');
         CreateGenJournalLine(GenJournalLine, DepositHeader, GenJournalLine."Account Type"::Customer, CreateCustomer);
 
@@ -230,7 +240,7 @@ codeunit 141008 "UT PAG Bank Deposit"
     begin
         // Purpose of the test is to validate AccountCard - OnAction trigger of the Page ID: 10141, Deposit Subform.
         // Setup.
-        Initialize;
+        Initialize();
         CreateDepositHeader(DepositHeader, '');
         CreateGenJournalLine(GenJournalLine, DepositHeader, GenJournalLine."Account Type"::Customer, CreateCustomer);
         LibraryVariableStorage.Enqueue(GenJournalLine."Account No.");  // Enqueue values for use in CustomerCardPageHandler.
@@ -259,7 +269,7 @@ codeunit 141008 "UT PAG Bank Deposit"
     begin
         // Purpose of the test is to validate AccountLedgerEntries - OnAction trigger of the Page ID: 10141, Deposit Subform.
         // Setup.
-        Initialize;
+        Initialize();
         CreateDepositHeader(DepositHeader, '');
         CreateGenJournalLine(GenJournalLine, DepositHeader, GenJournalLine."Account Type"::Customer, CreateCustomer);
         CreatePostedSalesInvoiceLine(GenJournalLine."Account No.");
@@ -290,7 +300,7 @@ codeunit 141008 "UT PAG Bank Deposit"
     begin
         // Purpose of the test is to validate ApplyEntries - OnAction trigger of the Page ID: 10141, Deposit Subform.
         // Setup.
-        Initialize;
+        Initialize();
         CreateDepositHeader(DepositHeader, '');
         CreateGenJournalLine(GenJournalLine, DepositHeader, GenJournalLine."Account Type"::Customer, CreateCustomer);
         CreatePostedSalesInvoiceLine(GenJournalLine."Account No.");
@@ -320,7 +330,7 @@ codeunit 141008 "UT PAG Bank Deposit"
     begin
         // Purpose of the test is to validate Post - OnAction trigger of the Page ID: 10140, Deposit. Transaction model is AutoCommit for explicit commit used in Codeunit ID: 10140, Deposit-Post.
         // Setup.
-        Initialize;
+        Initialize();
         CreateDepositHeader(DepositHeader, '');
         CreateGenJournalLine(GenJournalLine, DepositHeader, GenJournalLine."Account Type"::"G/L Account", CreateGLAccount);
 
@@ -343,7 +353,7 @@ codeunit 141008 "UT PAG Bank Deposit"
     begin
         // Purpose of the test is to validate DepositTestReport - OnAction trigger of the Page ID: 10140, Deposit.
         // Setup.
-        Initialize;
+        Initialize();
         CreateDepositHeader(DepositHeader, '');
         LibraryVariableStorage.Enqueue(DepositHeader."No.");  // Enqueue values for use in DepositTestReportRequestPageHandler.
 
@@ -365,7 +375,7 @@ codeunit 141008 "UT PAG Bank Deposit"
     begin
         // Purpose of the test is to validate PostAndPrint - OnAction trigger of the Page ID: 10140, Deposit. Transaction model is AutoCommit for explicit commit used in Codeunit ID: 10140, Deposit-Post.
         // Setup.
-        Initialize;
+        Initialize();
         CreateDepositHeader(DepositHeader, '');
         CreateGenJournalLine(GenJournalLine, DepositHeader, GenJournalLine."Account Type"::"G/L Account", CreateGLAccount);
 
@@ -388,7 +398,7 @@ codeunit 141008 "UT PAG Bank Deposit"
     begin
         // Purpose of the test is to validate Dimensions - OnAction trigger of the Page ID: 10140, Deposit.
         // Setup.
-        Initialize;
+        Initialize();
         CreateDepositHeader(DepositHeader, '');
 
         // Exercise: Update the Dimension on Deposit page through EditDimensionSetEntriesPageHandler.
@@ -410,7 +420,7 @@ codeunit 141008 "UT PAG Bank Deposit"
         CreditAmount: Decimal;
     begin
         // [SCENARIO 218101] 'Total Deposit Lines' and Difference controls are updated when Credit Amount is updated on Deposit Subpage
-        Initialize;
+        Initialize();
 
         // [GIVEN] Deposit page is opened with 'Total Deposit Amount' = 100
         CreateDepositHeader(DepositHeader, '');
@@ -438,7 +448,7 @@ codeunit 141008 "UT PAG Bank Deposit"
     begin
         // [FEATURE] [Posting Date]
         // [SCENARIO 317751] User can validate an empty Posting Date on a Deposit Card
-        Initialize;
+        Initialize();
 
         // [GIVEN] Created a Deposit Header and opened its Deposit Card
         CreateDepositHeader(DepositHeader, '');
@@ -635,7 +645,7 @@ codeunit 141008 "UT PAG Bank Deposit"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreateNewDepositTypeLineAndReopen(GenJournalBatch: Record "Gen. Journal Batch")
@@ -772,7 +782,7 @@ codeunit 141008 "UT PAG Bank Deposit"
         DimensionSetEntry: Record "Dimension Set Entry";
         DimensionSetEntry2: Record "Dimension Set Entry";
     begin
-        DimensionSetEntry2.FindLast;
+        DimensionSetEntry2.FindLast();
         DimensionSetEntry."Dimension Set ID" := DimensionSetEntry2."Dimension Set ID" + 1;
         DimensionSetEntry."Dimension Code" := DimensionCode;
         DimensionSetEntry."Dimension Value Code" := DimensionValueCode;
@@ -785,7 +795,7 @@ codeunit 141008 "UT PAG Bank Deposit"
     var
         CustLedgerEntry2: Record "Cust. Ledger Entry";
     begin
-        CustLedgerEntry2.FindLast;
+        CustLedgerEntry2.FindLast();
         CustLedgerEntry."Entry No." := CustLedgerEntry2."Entry No." + 1;
         CustLedgerEntry."Document Type" := CustLedgerEntry."Document Type"::Invoice;
         CustLedgerEntry."Document No." := DocumentNo;
@@ -799,7 +809,7 @@ codeunit 141008 "UT PAG Bank Deposit"
         DetailedCustomerLedgEntry: Record "Detailed Cust. Ledg. Entry";
         DetailedCustomerLedgEntry2: Record "Detailed Cust. Ledg. Entry";
     begin
-        DetailedCustomerLedgEntry2.FindLast;
+        DetailedCustomerLedgEntry2.FindLast();
         DetailedCustomerLedgEntry."Entry No." := DetailedCustomerLedgEntry2."Entry No." + 1;
         DetailedCustomerLedgEntry."Cust. Ledger Entry No." := CustLedgerEntryNo;
         DetailedCustomerLedgEntry."Customer No." := CustomerNo;
@@ -886,7 +896,7 @@ codeunit 141008 "UT PAG Bank Deposit"
         DimensionValue: Record "Dimension Value";
     begin
         DimensionValue.SetRange("Global Dimension No.", 1);  // Global Dimension - 1.
-        DimensionValue.FindFirst;
+        DimensionValue.FindFirst();
         EditDimensionSetEntries."Dimension Code".SetValue(DimensionValue."Dimension Code");
         EditDimensionSetEntries.DimensionValueCode.SetValue(DimensionValue.Code);
         EditDimensionSetEntries.OK.Invoke;

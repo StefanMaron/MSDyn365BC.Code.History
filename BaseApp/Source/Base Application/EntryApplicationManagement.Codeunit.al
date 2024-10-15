@@ -136,13 +136,13 @@ codeunit 10202 "Entry Application Management"
         VendLedgEntry.SetRange("Document Type", VendLedgEntry."Document Type"::Payment);
         VendLedgEntry.SetRange("Vendor No.", VendorNo);
         VendLedgEntry.SetRange("Posting Date", PeriodDate[1], PeriodDate[2]);
-        if VendLedgEntry.FindSet then
+        if VendLedgEntry.FindSet() then
             repeat
                 DtldVendLedgEntry.SetCurrentKey("Vendor Ledger Entry No.");
                 DtldVendLedgEntry.SetRange("Vendor Ledger Entry No.", VendLedgEntry."Entry No.");
                 DtldVendLedgEntry.SetRange("Entry Type", DtldVendLedgEntry."Entry Type"::Application);
                 DtldVendLedgEntry.SetRange(Unapplied, false);
-                if DtldVendLedgEntry.FindSet then
+                if DtldVendLedgEntry.FindSet() then
                     repeat
                         PmtDtldVendLedgEntry.SetFilter("Vendor Ledger Entry No.", '<>%1', VendLedgEntry."Entry No.");
                         PmtDtldVendLedgEntry.SetRange("Entry Type", DtldVendLedgEntry."Entry Type"::Application);

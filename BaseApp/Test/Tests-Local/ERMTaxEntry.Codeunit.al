@@ -35,7 +35,7 @@ codeunit 144017 "ERM Tax Entry"
         // Check that First Fully Paid Unrealized Amount exists in GL Entry after posting Sales Invoice and Applying Payment over it.
 
         // Setup: Update General Ledger Setup, Create and Post Sales Invoice.
-        Initialize;
+        Initialize();
         LibraryERM.SetUnrealizedVAT(true);
         TaxAreaCode := CreateTaxAreaLineWithUnrealizedType(TaxDetail, TaxJurisdiction."Unrealized VAT Type"::"First (Fully Paid)");
         CustomerNo := CreateCustomerWithTaxArea(TaxAreaCode);
@@ -70,7 +70,7 @@ codeunit 144017 "ERM Tax Entry"
         // Check that Last Fully Paid Unralized Amount exists in GL Entry after posting Sales Invoice and Applying Payment over it.
 
         // Setup: Update General Ledger Setup, Create and Post Sales Invoice.
-        Initialize;
+        Initialize();
         LibraryERM.SetUnrealizedVAT(true);
         TaxAreaCode := CreateTaxAreaLineWithUnrealizedType(TaxDetail, TaxJurisdiction."Unrealized VAT Type"::Last);
         CustomerNo := CreateCustomerWithTaxArea(TaxAreaCode);
@@ -103,7 +103,7 @@ codeunit 144017 "ERM Tax Entry"
         // Check that First Fully Paid Unrealized Amount exists in GL Entry after posting Sales Invoice and Applying Partial Payment over it.
 
         // Setup: Update General Ledger Setup, Create and Post General Journal.
-        Initialize;
+        Initialize();
         LibraryERM.SetUnrealizedVAT(true);
         TaxAreaCode := CreateTaxAreaLineWithUnrealizedType(TaxDetail, TaxJurisdiction."Unrealized VAT Type"::"First (Fully Paid)");
         CustomerNo := CreateCustomerWithTaxArea(TaxAreaCode);
@@ -121,7 +121,7 @@ codeunit 144017 "ERM Tax Entry"
 
     local procedure Initialize()
     begin
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.CreateVATData();
     end;
 
     local procedure CreateAndPostJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountNo: Code[20]; Amount: Decimal; AppliesToDocNo: Code[20])
@@ -216,7 +216,7 @@ codeunit 144017 "ERM Tax Entry"
         SalesInvoiceLine: Record "Sales Invoice Line";
     begin
         SalesInvoiceLine.SetRange("Document No.", DocumentNo);
-        SalesInvoiceLine.FindFirst;
+        SalesInvoiceLine.FindFirst();
 
         // Return Payment Amount less than VAT Amount to use it as partial Amount.
         exit((SalesInvoiceLine.Amount * TaxBelowMaximum) / 100);
@@ -228,7 +228,7 @@ codeunit 144017 "ERM Tax Entry"
     begin
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("G/L Account No.", GLAccountNo);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         Assert.AreNearlyEqual(
           Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision,
           StrSubstNo(AmountError, GLEntry.FieldCaption(Amount), GLEntry.Amount, GLEntry.TableCaption));

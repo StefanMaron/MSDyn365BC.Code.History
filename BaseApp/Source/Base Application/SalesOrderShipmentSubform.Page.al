@@ -35,37 +35,6 @@ page 10027 "Sales Order Shipment Subform"
                         NoOnAfterValidate();
                     end;
                 }
-#if not CLEAN19
-                field("Cross-Reference No."; "Cross-Reference No.")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Editable = false;
-                    ToolTip = 'Specifies the cross-reference number of the item specified on the line.';
-                    Visible = false;
-                    ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '19.0';
-
-                    trigger OnLookup(var Text: Text): Boolean
-                    var
-                        ItemCrossReference: Record "Item Cross Reference";
-                    begin
-                        // Item Cross Ref - start
-                        if Type = Type::Item then begin
-                            SalesHeader.Get("Document Type", "Document No.");
-                            ItemCrossReference.Reset();
-                            ItemCrossReference.SetCurrentKey("Cross-Reference Type", "Cross-Reference Type No.");
-                            ItemCrossReference.SetRange("Cross-Reference Type", ItemCrossReference."Cross-Reference Type"::Customer);
-                            ItemCrossReference.SetRange("Cross-Reference Type No.", SalesHeader."Sell-to Customer No.");
-                            if PAGE.RunModal(PAGE::"Cross Reference List", ItemCrossReference) = ACTION::LookupOK then begin
-                                Validate("Cross-Reference No.", ItemCrossReference."Cross-Reference No.");
-                                InsertExtendedText(false);
-                            end;
-                        end;
-                        // Item Cross Ref - end
-                    end;
-                }
-#endif
                 field("Variant Code"; "Variant Code")
                 {
                     ApplicationArea = Basic, Suite;
@@ -411,9 +380,6 @@ page 10027 "Sales Order Shipment Subform"
     end;
 
     var
-#if not CLEAN19
-        SalesHeader: Record "Sales Header";
-#endif
         TransferExtendedText: Codeunit "Transfer Extended Text";
         ShortcutDimCode: array[8] of Code[20];
         [InDataSet]
@@ -468,7 +434,7 @@ page 10027 "Sales Order Shipment Subform"
         PurchHeader.SetRange("No.", "Purchase Order No.");
         PurchOrder.SetTableView(PurchHeader);
         PurchOrder.Editable := false;
-        PurchOrder.Run;
+        PurchOrder.Run();
     end;
 
     procedure OpenSpecialPurchOrderForm()
@@ -479,7 +445,7 @@ page 10027 "Sales Order Shipment Subform"
         PurchHeader.SetRange("No.", "Special Order Purchase No.");
         PurchOrder.SetTableView(PurchHeader);
         PurchOrder.Editable := false;
-        PurchOrder.Run;
+        PurchOrder.Run();
     end;
 
     procedure InsertExtendedText(Unconditionally: Boolean)
@@ -518,7 +484,7 @@ page 10027 "Sales Order Shipment Subform"
         TrackingForm: Page "Order Tracking";
     begin
         TrackingForm.SetSalesLine(Rec);
-        TrackingForm.RunModal;
+        TrackingForm.RunModal();
     end;
 
     procedure ItemChargeAssgnt()

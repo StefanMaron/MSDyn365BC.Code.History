@@ -71,7 +71,7 @@ page 9377 "Analysis Report Inventory"
                     InventoryAnalysisReport: Page "Inventory Analysis Report";
                 begin
                     InventoryAnalysisReport.SetReportName(Name);
-                    InventoryAnalysisReport.Run;
+                    InventoryAnalysisReport.Run();
                 end;
             }
         }

@@ -93,7 +93,7 @@ codeunit 134802 "Positive Pay Test Unit 2"
         // Check for the existence of the file, we'll do this by checking to make sure the blob
         // created and stored in the Positive Pay Entry table is not empty/null
         PositivePayEntry.SetRange("Bank Account No.", BankAccountNumber);
-        if PositivePayEntry.FindFirst then begin
+        if PositivePayEntry.FindFirst() then begin
             PositivePayEntry.CalcFields("Exported File");
             if not PositivePayEntry."Exported File".HasValue then
                 Error(PositivePayFileNotFoundErr);
@@ -155,7 +155,7 @@ codeunit 134802 "Positive Pay Test Unit 2"
         ReplacePosition: Integer;
     begin
         // [SCENARIO 379424] Text Tranformation by rules when export Positive Pay
-        Initialize;
+        Initialize();
 
         // [GIVEN] Bank Export/Import Setup used Data Exchange Definition of type "Positive Pay Export"
         LibraryPaymentExport.CreateBankExportImportSetup(
@@ -201,7 +201,7 @@ codeunit 134802 "Positive Pay Test Unit 2"
         LineCount: Integer;
     begin
         // [SCENARIO 380648] Exported Positive Pay file should not contain empty line in the beginning, if there is no header in Data Exchange Setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Bank Export/Import Setup used Data Exchange Definition of type "Positive Pay Export" having no header
         LibraryPaymentExport.CreateBankExportImportSetup(
@@ -260,7 +260,7 @@ codeunit 134802 "Positive Pay Test Unit 2"
     begin
         // [SCENARIO 381212] A decimal mark is removed from a string containing any decimal value
         // [FEATURE] [UT]
-        Initialize;
+        Initialize();
         PadChar := CopyStr(LibraryUtility.GenerateRandomText(1), 1, 1);
 
         for WaveNo := 1 to LibraryRandom.RandIntInRange(5, 35) do begin
@@ -313,7 +313,7 @@ codeunit 134802 "Positive Pay Test Unit 2"
     begin
         // [SCENARIO 381212] If a string contains integer value, its treated like a value without decimal mark
         // [FEATURE] [UT]
-        Initialize;
+        Initialize();
         PadChar := CopyStr(LibraryUtility.GenerateRandomText(1), 1, 1);
 
         for WaveNo := 1 to LibraryRandom.RandIntInRange(5, 35) do begin
@@ -349,9 +349,9 @@ codeunit 134802 "Positive Pay Test Unit 2"
         // [SCENARIO 381212] If a string contains no decimal or integer, then the original string is returned
         // [FEATURE] [UT]
 
-        Initialize;
+        Initialize();
         PadChar := CopyStr(LibraryUtility.GenerateRandomText(1), 1, 1);
-        OriginalString := LibraryUtility.GenerateGUID;
+        OriginalString := LibraryUtility.GenerateGUID();
         PadLength := StrLen(OriginalString) + StrLen(PadChar);
         Assert.AreEqual(
           StringConversionManagement.RemoveDecimalFromString(OriginalString, PadLength, PadChar, Justification::Right),
@@ -427,7 +427,7 @@ codeunit 134802 "Positive Pay Test Unit 2"
     begin
         // [FEATURE] [Data Exchange] [Transformation Rule]
         // [SCENARIO 293066] When Export Positive Pay, blank value can be replaced with symbol using regex-replace transformation rule.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Bank Export/Import Setup used Data Exchange Definition of type "Positive Pay Export"
         LibraryPaymentExport.CreateBankExportImportSetup(
@@ -467,15 +467,15 @@ codeunit 134802 "Positive Pay Test Unit 2"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Positive Pay Test Unit 2");
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Positive Pay Test Unit 2");
-        LibraryERMCountryData.DisableActivateChequeNoOnGeneralLedgerSetup;
-        LibraryERMCountryData.UpdateLocalPostingSetup;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdateLocalData;
+        LibraryERMCountryData.DisableActivateChequeNoOnGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateLocalPostingSetup();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdateLocalData();
         CreateAccountingPeriodsWithNewFiscalYear;
         isInitialized := true;
         Commit();
@@ -493,7 +493,7 @@ codeunit 134802 "Positive Pay Test Unit 2"
         // Setup: Post Payment Journal for Vendor and modify Bank Account Reconciliation Line with type "Check Ledger Entry".
         FilterCheckLedgerEntry(CheckLedgerEntry, BankAccountNumber);
 
-        Initialize;
+        Initialize();
         with GenJournalLine do begin
             // Try to hit as many account types as possible, for code coverage
             for CheckCount := 1 to 2 do
@@ -569,7 +569,7 @@ codeunit 134802 "Positive Pay Test Unit 2"
     begin
         // Create Fiscal Year.
         LibraryFiscalYear.CloseAccountingPeriod;
-        LibraryFiscalYear.CreateFiscalYear;
+        LibraryFiscalYear.CreateFiscalYear();
         FindAccountingPeriod(AccountingPeriod);
         while not (AccountingPeriod."Starting Date" >= WorkDate) do
             AccountingPeriod.Next; // Cannot Calculate FA Depreciation if Depreciation Date earlier than Workdate
@@ -587,7 +587,7 @@ codeunit 134802 "Positive Pay Test Unit 2"
             SetRange("New Fiscal Year", false);
             SetRange(Closed, false);
             SetRange("Date Locked", false);
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -624,7 +624,7 @@ codeunit 134802 "Positive Pay Test Unit 2"
     begin
         DataExchLineDef.SetRange("Data Exch. Def Code", DataExchDefCode);
         DataExchLineDef.SetRange("Line Type", DataExchLineDef."Line Type"::Detail);
-        DataExchLineDef.FindFirst;
+        DataExchLineDef.FindFirst();
         DataExchLineDef.Validate("Column Count", DataExchLineDef."Column Count" + 1);
         DataExchLineDef.Modify(true);
 
@@ -636,13 +636,13 @@ codeunit 134802 "Positive Pay Test Unit 2"
 
         DataExchMapping.SetRange("Data Exch. Def Code", DataExchLineDef."Data Exch. Def Code");
         DataExchMapping.SetRange("Data Exch. Line Def Code", DataExchLineDef.Code);
-        DataExchMapping.FindFirst;
+        DataExchMapping.FindFirst();
         DataExchFieldMapping.InsertRec(
           DataExchLineDef."Data Exch. Def Code", DataExchLineDef.Code, DataExchMapping."Table ID",
           DataExchColumnDef."Column No.", 4, false, 0);
 
         TransformationRule.Init();
-        TransformationRule.Validate(Code, LibraryUtility.GenerateGUID);
+        TransformationRule.Validate(Code, LibraryUtility.GenerateGUID());
         TransformationRule.Validate("Transformation Type", TransformationRule."Transformation Type"::Replace);
         TransformationRule.Validate("Find Value", 'O');
         TransformationRule.Validate("Replace Value", ReplaceValue);
@@ -670,7 +670,7 @@ codeunit 134802 "Positive Pay Test Unit 2"
     begin
         DataExchLineDef.SetRange("Data Exch. Def Code", DataExchDefCode);
         DataExchLineDef.SetRange("Line Type", DataExchLineDef."Line Type"::Detail);
-        DataExchLineDef.FindFirst;
+        DataExchLineDef.FindFirst();
         DataExchLineDef.Validate("Column Count", 1);
         DataExchLineDef.Modify(true);
 
@@ -690,12 +690,12 @@ codeunit 134802 "Positive Pay Test Unit 2"
 
         DataExchMapping.SetRange("Data Exch. Def Code", DataExchLineDef."Data Exch. Def Code");
         DataExchMapping.SetRange("Data Exch. Line Def Code", DataExchLineDef.Code);
-        DataExchMapping.FindFirst;
+        DataExchMapping.FindFirst();
         DataExchFieldMapping.InsertRec(
           DataExchLineDef."Data Exch. Def Code", DataExchLineDef.Code, DataExchMapping."Table ID", 1, 5, true, 0);
 
         TransformationRule.Init();
-        TransformationRule.Validate(Code, LibraryUtility.GenerateGUID);
+        TransformationRule.Validate(Code, LibraryUtility.GenerateGUID());
         TransformationRule.Validate("Transformation Type", TransformationRule."Transformation Type"::"Regular Expression - Replace");
         TransformationRule.Validate("Find Value", RegexValue);
         TransformationRule.Validate("Replace Value", CopyStr(ReplaceValue, 1, StrLen(ReplaceValue)));
@@ -708,7 +708,7 @@ codeunit 134802 "Positive Pay Test Unit 2"
     local procedure GetPositivePayExportedFile(var PositivePayEntry: Record "Positive Pay Entry"; BankAccountNo: Code[20])
     begin
         PositivePayEntry.SetRange("Bank Account No.", BankAccountNo);
-        PositivePayEntry.FindFirst;
+        PositivePayEntry.FindFirst();
         PositivePayEntry.CalcFields("Exported File");
     end;
 
@@ -756,7 +756,7 @@ codeunit 134802 "Positive Pay Test Unit 2"
         BankAccountNo: Code[20];
         DataExchDefCode: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         DataExchDefCode := FindPositivePayExportDataExchDef(DataExchLineDef."Line Type"::Detail);
 
@@ -826,7 +826,7 @@ codeunit 134802 "Positive Pay Test Unit 2"
     begin
         DataExchLineDef.SetRange("Data Exch. Def Code", DataExchDefCode);
         DataExchLineDef.SetRange("Line Type", LineType);
-        DataExchLineDef.FindFirst;
+        DataExchLineDef.FindFirst();
         TempDataExchLineDef := DataExchLineDef;
         DataExchLineDef.Delete();
     end;
@@ -838,7 +838,7 @@ codeunit 134802 "Positive Pay Test Unit 2"
         ConfirmFinancialVoid: Page "Confirm Financial Void";
     begin
         CheckLedgerEntry.SetRange("Document No.", DocumentNo);
-        CheckLedgerEntry.FindFirst;
+        CheckLedgerEntry.FindFirst();
         CheckManagement.FinancialVoidCheck(CheckLedgerEntry);
         ConfirmFinancialVoid.SetCheckLedgerEntry(CheckLedgerEntry);
     end;

@@ -310,7 +310,7 @@ report 10109 "Vendor 1099 Div"
             SetFilter("Document Type", '%1|%2', "Document Type"::Invoice, "Document Type"::"Credit Memo");
             SetFilter("IRS 1099 Amount", '<>0');
             SetRange("IRS 1099 Code", 'DIV-', 'DIV-99');
-            if FindSet then
+            if FindSet() then
                 repeat
                     IRS1099Management.Calculate1099Amount(
                       Invoice1099Amount, Amounts, Codes, LastLineNo, TempAppliedEntry, "Amount to Apply");

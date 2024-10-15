@@ -49,7 +49,7 @@ codeunit 132522 "Sales-Calc. Discount Test"
 
         // Setup
         // PATTERN: Delegated Setup
-        Initialize;
+        Initialize();
 
         DiscountTest('', '', 1)
     end;
@@ -61,7 +61,7 @@ codeunit 132522 "Sales-Calc. Discount Test"
         // Test: not eligible for LCY discount on LCY sales order
 
         // PATTERN: Delegated Setup
-        Initialize;
+        Initialize();
 
         DiscountTest('', '', -1)
     end;
@@ -75,7 +75,7 @@ codeunit 132522 "Sales-Calc. Discount Test"
         // Test: eligible for FCY discount on FCY sales order
 
         // PATTERN: Delegated Setup
-        Initialize;
+        Initialize();
         // PATTERN: In-line Setup
         // PATTERN: Random Generated Value
         Currency.Next(LibraryRandom.RandInt(Currency.Count));
@@ -90,7 +90,7 @@ codeunit 132522 "Sales-Calc. Discount Test"
         Currency: Record Currency;
     begin
         // PATTERN: Delegated Setup
-        Initialize;
+        Initialize();
         // PATTERN: In-line Setup
         // PATTERN: Random Generated Value
         Currency.Next(LibraryRandom.RandInt(Currency.Count));
@@ -108,7 +108,7 @@ codeunit 132522 "Sales-Calc. Discount Test"
         // Test: eligible for LCY discount on FCY sales order
 
         // PATTERN: Delegated Setup
-        Initialize;
+        Initialize();
         // PATTERN: In-line Setup
         // PATTERN: Random Generated Value
         Currency.Next(LibraryRandom.RandInt(Currency.Count));
@@ -125,7 +125,7 @@ codeunit 132522 "Sales-Calc. Discount Test"
         // Test: not eligible for LCY discount on FCY sales order
 
         // PATTERN: Delegated Setup
-        Initialize;
+        Initialize();
         // PATTERN: In-line Setup
         // PATTERN: Random Generated Value
         Currency.Next(LibraryRandom.RandInt(Currency.Count));
@@ -141,7 +141,7 @@ codeunit 132522 "Sales-Calc. Discount Test"
     begin
         // [FEATURE] [UT] [Sales]
         // [SCENARIO 268348] The "Sales Line"."Line Discount %" is positive when "Quantity", "Unit Price" and "Line Discount Amount" are positive
-        Initialize;
+        Initialize();
         CreateSalesOrderWithQuantityAndUnitPrice(SalesLine, 1, 100);
         SalesLine.Validate("Line Discount Amount", 50);
         Assert.IsTrue(SalesLine."Line Discount %" > 0, LineDscPctErr);
@@ -155,7 +155,7 @@ codeunit 132522 "Sales-Calc. Discount Test"
     begin
         // [FEATURE] [UT] [Sales]
         // [SCENARIO 268348] Wrong value of "Line Discount %" is reported if validate negative "Line Discount Amount" when "Quantity" and "Unit Price" are positive.
-        Initialize;
+        Initialize();
         CreateSalesOrderWithQuantityAndUnitPrice(SalesLine, LibraryRandom.RandIntInRange(10, 100), LibraryRandom.RandIntInRange(10, 100));
         asserterror SalesLine.Validate("Line Discount Amount", -LibraryRandom.RandIntInRange(10, 100));
         Assert.ExpectedError(LineDiscountPctErr);
@@ -169,7 +169,7 @@ codeunit 132522 "Sales-Calc. Discount Test"
     begin
         // [FEATURE] [UT] [Sales]
         // [SCENARIO 268348] The "Sales Line"."Line Discount %" is positive when "Quantity" is positive, and "Unit Price" and "Line Discount Amount" are negative
-        Initialize;
+        Initialize();
         CreateSalesOrderWithQuantityAndUnitPrice(SalesLine, 1, -100);
         SalesLine.Validate("Line Discount Amount", -50);
         Assert.IsTrue(SalesLine."Line Discount %" > 0, LineDscPctErr);
@@ -183,7 +183,7 @@ codeunit 132522 "Sales-Calc. Discount Test"
     begin
         // [FEATURE] [UT] [Sales]
         // [SCENARIO 268348] Wrong value of "Line Discount %" is reported if validate negative "Line Discount Amount" when "Quantity" and "Unit Price" are negative.
-        Initialize;
+        Initialize();
         CreateSalesOrderWithQuantityAndUnitPrice(SalesLine, -LibraryRandom.RandIntInRange(10, 100), -LibraryRandom.RandIntInRange(10, 100));
         asserterror SalesLine.Validate("Line Discount Amount", -LibraryRandom.RandIntInRange(10, 100));
         Assert.ExpectedError(LineDiscountPctErr);
@@ -197,7 +197,7 @@ codeunit 132522 "Sales-Calc. Discount Test"
     begin
         // [FEATURE] [UT] [Sales]
         // [SCENARIO 268348] The "Sales Line"."Line Discount %" is positive when "Quantity" and "Unit Price" are negative, and "Line Discount Amount" is positive
-        Initialize;
+        Initialize();
         CreateSalesOrderWithQuantityAndUnitPrice(SalesLine, -1, -100);
         SalesLine.Validate("Line Discount Amount", 50);
         Assert.IsTrue(SalesLine."Line Discount %" > 0, LineDscPctErr);
@@ -211,7 +211,7 @@ codeunit 132522 "Sales-Calc. Discount Test"
     begin
         // [FEATURE] [UT] [Sales]
         // [SCENARIO 268348] Wrong value of "Line Discount %" is reported if validate positive "Line Discount Amount" when "Quantity" is negative and "Unit Price" is positive.
-        Initialize;
+        Initialize();
         CreateSalesOrderWithQuantityAndUnitPrice(SalesLine, -LibraryRandom.RandIntInRange(10, 100), LibraryRandom.RandIntInRange(10, 100));
         asserterror SalesLine.Validate("Line Discount Amount", LibraryRandom.RandIntInRange(10, 100));
         Assert.ExpectedError(LineDiscountPctErr);
@@ -225,7 +225,7 @@ codeunit 132522 "Sales-Calc. Discount Test"
     begin
         // [FEATURE] [UT] [Sales]
         // [SCENARIO 268348] Wrong value of "Line Discount %" is reported if validate positive "Line Discount Amount" when "Quantity" is positive and "Unit Price" is negative.
-        Initialize;
+        Initialize();
         CreateSalesOrderWithQuantityAndUnitPrice(SalesLine, LibraryRandom.RandIntInRange(10, 100), -LibraryRandom.RandIntInRange(10, 100));
         asserterror SalesLine.Validate("Line Discount Amount", LibraryRandom.RandIntInRange(10, 100));
         Assert.ExpectedError(LineDiscountPctErr);
@@ -239,7 +239,7 @@ codeunit 132522 "Sales-Calc. Discount Test"
     begin
         // [FEATURE] [UT] [Sales]
         // [SCENARIO 268348] The "Sales Line"."Line Discount %" is positive when "Quantity" and "Line Discount Amount" are negative, and "Unit Price" is positive
-        Initialize;
+        Initialize();
         CreateSalesOrderWithQuantityAndUnitPrice(SalesLine, -1, 100);
         SalesLine.Validate("Line Discount Amount", -50);
         Assert.IsTrue(SalesLine."Line Discount %" > 0, LineDscPctErr);
@@ -253,7 +253,7 @@ codeunit 132522 "Sales-Calc. Discount Test"
     begin
         // [FEATURE] [UT] [Sales]
         // [SCENARIO 268348] Wrong value of "Line Discount %" is reported when validate "Line Discount Amount" and the calculated "Line Discount %" more than 100
-        Initialize;
+        Initialize();
         CreateSalesOrderWithQuantityAndUnitPrice(SalesLine, 1, 100);
         asserterror SalesLine.Validate("Line Discount Amount", 150);
         Assert.ExpectedError(LineDiscountPctErr);
@@ -267,7 +267,7 @@ codeunit 132522 "Sales-Calc. Discount Test"
     begin
         // [FEATURE] [UT] [Sales]
         // [SCENARIO 268348] Wrong value of "Line Discount %" is reported when validate "Line Amount" and the calculated "Line Discount %" less than 0
-        Initialize;
+        Initialize();
         CreateSalesOrderWithQuantityAndUnitPrice(SalesLine, 1, 100);
         asserterror SalesLine.Validate("Line Amount", SalesLine.Amount * 2);
         Assert.ExpectedError(LineAmountInvalidErr);
@@ -281,7 +281,7 @@ codeunit 132522 "Sales-Calc. Discount Test"
     begin
         // [FEATURE] [UT] [Sales]
         // [SCENARIO 268348]  The "Sales Line"."Line Discount %" is positive when "Line Amount" is positive and less than "Amount"
-        Initialize;
+        Initialize();
         CreateSalesOrderWithQuantityAndUnitPrice(SalesLine, 1, 100);
         SalesLine.Validate("Line Amount", SalesLine.Amount / 2);
         Assert.IsTrue(SalesLine."Line Discount %" in [1 .. 100], LineDscPctErr);
@@ -295,7 +295,7 @@ codeunit 132522 "Sales-Calc. Discount Test"
     begin
         // [FEATURE] [UT] [Sales]
         // [SCENARIO 268348] Wrong value of "Line Discount %" is reported when validate "Line Amount" and the calculated "Line Discount %" is more than 100
-        Initialize;
+        Initialize();
         CreateSalesOrderWithQuantityAndUnitPrice(SalesLine, 1, 100);
         asserterror SalesLine.Validate("Line Amount", -SalesLine.Amount);
         Assert.ExpectedError(LineAmountInvalidErr);

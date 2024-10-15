@@ -144,13 +144,12 @@ codeunit 1901 "Report Selection Mgt."
         OnAfterInitReportSelectionWhse();
     end;
 
-#if not CLEAN17
-    [Obsolete('Replaced by InitReportSelection().', '17.0')]
-    procedure InitReportUsage(ReportUsage: Integer)
+    procedure InitReportSelectionJob()
     begin
-        InitReportSelection("Report Selection Usage".FromInteger(ReportUsage));
+        OnBeforeInitReportSelectionJobs();
+        InitReportSelection("Report Selection Usage"::JQ);
+        OnAfterInitReportSelectionJobs();
     end;
-#endif
 
     procedure InitReportSelection(ReportUsage: Enum "Report Selection Usage")
     begin
@@ -285,18 +284,12 @@ codeunit 1901 "Report Selection Mgt."
                 InsertRepSelection("Report Selection Usage"::"Posted Payment Reconciliation", '1', REPORT::"Posted Payment Reconciliation");
             "Report Selection Usage"::"V.Remittance":
                 InsertRepSelection("Report Selection Usage"::"V.Remittance", '1', REPORT::"Export Electronic Payments");
+            "Report Selection Usage"::JQ:
+                InsertRepSelection("Report Selection Usage"::JQ, '1', Report::"Job Quote");
             else
                 OnInitReportUsage(ReportUsage.AsInteger());
         end;
     end;
-
-#if not CLEAN17
-    [Obsolete('Replaced by InitReportSelectionWhse().', '17.0')]
-    procedure InitReportUsageWhse(ReportUsage: Integer)
-    begin
-        InitReportSelectionWhse("Report Selection Warehouse Usage".FromInteger(ReportUsage));
-    end;
-#endif
 
     procedure InitReportSelectionWhse(ReportUsage: Enum "Report Selection Warehouse Usage")
     begin
@@ -338,14 +331,6 @@ codeunit 1901 "Report Selection Mgt."
             ReportSelections.Insert();
         end;
     end;
-
-#if not CLEAN17
-    [Obsolete('Replaced by InsertReportSelectionWhse().', '17.0')]
-    procedure InsertRepSelectionWhse(ReportUsage: Integer; Sequence: Code[10]; ReportID: Integer)
-    begin
-        InsertReportSelectionWhse("Report Selection Warehouse Usage".FromInteger(ReportUsage), Sequence, ReportID);
-    end;
-#endif
 
     procedure InsertReportSelectionWhse(ReportUsage: Enum "Report Selection Warehouse Usage"; Sequence: Code[10]; ReportID: Integer)
     var
@@ -401,6 +386,11 @@ codeunit 1901 "Report Selection Mgt."
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeInitReportSelectionJobs()
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterInitReportSelectionSales()
     begin
     end;
@@ -437,6 +427,11 @@ codeunit 1901 "Report Selection Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitReportSelectionWhse()
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitReportSelectionJobs()
     begin
     end;
 

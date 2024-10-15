@@ -37,7 +37,7 @@ codeunit 144003 "UT REP Purchase Process Doc"
         // Purpose of the test is to validate OnPreDataItem of Purchase Header of Report 402 - Purchase Document - Test.
 
         // Setup: Create Purchase Header Document Type - Order.
-        Initialize;
+        Initialize();
         CreatePurchaseHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order);
 
         // Exercise.
@@ -59,7 +59,7 @@ codeunit 144003 "UT REP Purchase Process Doc"
         // Purpose of the test is to validate OnPreDataItem Trigger of Purchase Header of Report 10119 - Purchase Blanket Order.
 
         // Setup: Create Purchase Header Document Type - Blanket Order.
-        Initialize;
+        Initialize();
         OnPreDataItemPurchaseDocument(
           PurchaseHeader."Document Type"::"Blanket Order", REPORT::"Purchase Blanket Order", NoPurchaseHeaderCap);
     end;
@@ -74,7 +74,7 @@ codeunit 144003 "UT REP Purchase Process Doc"
         // Purpose of the test is to validate OnPreDataItem Trigger of Purchase Header of Report 10122 - Purchase Order.
 
         // Setup: Create Purchase Header Document Type - Order.
-        Initialize;
+        Initialize();
         OnPreDataItemPurchaseDocument(PurchaseHeader."Document Type"::Order, REPORT::"Purchase Order", 'No_PurchaseHeader');
     end;
 
@@ -88,7 +88,7 @@ codeunit 144003 "UT REP Purchase Process Doc"
         // Purpose of the test is to validate OnPreDataItem Trigger of Purchase Header of Report 10125 - Purchase Order (Pre-Printed).
 
         // Setup: Create Purchase Header Document Type - Order for Report - Purchase Order (Pre-Printed).
-        Initialize;
+        Initialize();
         OnPreDataItemPurchaseDocument(PurchaseHeader."Document Type"::Order, REPORT::"Purchase Order (Pre-Printed)", 'No_PurchHdr');
     end;
 
@@ -102,7 +102,7 @@ codeunit 144003 "UT REP Purchase Process Doc"
         // Purpose of the test is to validate OnPreDataItem Trigger of Purchase Header of Report 10126 - Return Order Confirm.
 
         // Setup: Create Purchase Header Document Type - Return Order for Report - Return Order Confirm.
-        Initialize;
+        Initialize();
         OnPreDataItemPurchaseDocument(PurchaseHeader."Document Type"::"Return Order", REPORT::"Return Order Confirm", NoPurchaseHeaderCap);
     end;
 
@@ -133,7 +133,7 @@ codeunit 144003 "UT REP Purchase Process Doc"
         // Purpose of the test is to validate OnAfterGetRecord Trigger of Purchase Header of Report 10119 - Purchase Blanket Order.
 
         // Setup: Create Purchase Header Document Type - Blanket Order.
-        Initialize;
+        Initialize();
         OnAfterGetRecordPurchaseDocument(
           PurchaseHeader."Document Type"::"Blanket Order", REPORT::"Purchase Blanket Order", PaymentTermsDescriptionCap);
     end;
@@ -148,7 +148,7 @@ codeunit 144003 "UT REP Purchase Process Doc"
         // Purpose of the test is to validate OnAfterGetRecord Trigger of Purchase Header of Report 10122 - Purchase Order.
 
         // Setup: Create Purchase Header Document Type - Order.
-        Initialize;
+        Initialize();
         OnAfterGetRecordPurchaseDocument(PurchaseHeader."Document Type"::Order, REPORT::"Purchase Order", PaymentTermsDescriptionCap);
     end;
 
@@ -162,7 +162,7 @@ codeunit 144003 "UT REP Purchase Process Doc"
         // Purpose of the test is to validate OnAfterGetRecord Trigger of Purchase Header of Report 10125 - Purchase Order (Pre-Printed).
 
         // Setup: Create Purchase Header Document Type - Order for Report - Purchase Order (Pre-Printed).
-        Initialize;
+        Initialize();
         OnAfterGetRecordPurchaseDocument(
           PurchaseHeader."Document Type"::Order, REPORT::"Purchase Order (Pre-Printed)", PaymentTermsDescriptionCap);
     end;
@@ -177,7 +177,7 @@ codeunit 144003 "UT REP Purchase Process Doc"
         // Purpose of the test is to validate OnAfterGetRecord Trigger of Purchase Header of Report 10126 - Return Order Confirm.
 
         // Setup: Create Purchase Header Document Type - Return Order for Report - Return Order Confirm.
-        Initialize;
+        Initialize();
         OnAfterGetRecordPurchaseDocument(
           PurchaseHeader."Document Type"::"Return Order", REPORT::"Return Order Confirm", PaymentTermsDescCap);
     end;
@@ -189,7 +189,7 @@ codeunit 144003 "UT REP Purchase Process Doc"
         SalespersonPurchaser: Record "Salesperson/Purchaser";
     begin
         // Create Purchase Header.
-        PaymentTerms.FindFirst;
+        PaymentTerms.FindFirst();
         CreateSalespersonPurchaser(SalespersonPurchaser);
         CreatePurchaseHeader(PurchaseHeader, DocumentType);
         PurchaseHeader."Payment Terms Code" := PaymentTerms.Code;
@@ -217,7 +217,7 @@ codeunit 144003 "UT REP Purchase Process Doc"
         // Purpose of the test is to validate OnAfterGetRecord Trigger of CopyLoop of Report 10119 - Purchase Blanket Order.
 
         // Setup: Create Purchase Header Document Type - Blanket Order.
-        Initialize;
+        Initialize();
         OnAfterGetRecordCopyLoopPurchaseDocument(PurchaseHeader."Document Type"::"Blanket Order", REPORT::"Purchase Blanket Order");
     end;
 
@@ -231,7 +231,7 @@ codeunit 144003 "UT REP Purchase Process Doc"
         // Purpose of the test is to validate OnAfterGetRecord Trigger of CopyLoop of Report 10122 - Purchase Order.
 
         // Setup: Create Purchase Header Document Type Order.
-        Initialize;
+        Initialize();
         OnAfterGetRecordCopyLoopPurchaseDocument(PurchaseHeader."Document Type"::Order, REPORT::"Purchase Order");
     end;
 
@@ -245,7 +245,7 @@ codeunit 144003 "UT REP Purchase Process Doc"
         // Purpose of the test is to validate OnAfterGetRecord Trigger of CopyLoop of Report 10123 - Purchase Quote.
 
         // Setup: Create Purchase Header Document Type - Quote.
-        Initialize;
+        Initialize();
         OnAfterGetRecordCopyLoopPurchaseDocument(PurchaseHeader."Document Type"::Quote, REPORT::"Purchase Quote NA");
     end;
 
@@ -259,7 +259,7 @@ codeunit 144003 "UT REP Purchase Process Doc"
         // Purpose of the test is to validate OnAfterGetRecord Trigger of CopyLoop of Report 10125 - Purchase Order (Pre-Printed).
 
         // Setup: Create Purchase Header Document Type - Order for Report - Purchase Order (Pre-Printed).
-        Initialize;
+        Initialize();
         OnAfterGetRecordCopyLoopPurchaseDocument(PurchaseHeader."Document Type"::Order, REPORT::"Purchase Order (Pre-Printed)");
     end;
 
@@ -273,7 +273,7 @@ codeunit 144003 "UT REP Purchase Process Doc"
         // Purpose of the test is to validate OnAfterGetRecord Trigger of CopyLoop of Report 10126 - Return Order Confirm.
 
         // Setup: Create Purchase Header Document Type - Return Order for Report - Return Order Confirm.
-        Initialize;
+        Initialize();
         OnAfterGetRecordCopyLoopPurchaseDocument(PurchaseHeader."Document Type"::"Return Order", REPORT::"Return Order Confirm");
     end;
 
@@ -305,7 +305,7 @@ codeunit 144003 "UT REP Purchase Process Doc"
         // Purpose of the test is to validate OnAfterGetRecord of CopyLoop of Report 10119 - Purchase Blanket Order.
 
         // Setup: Create Purchase Blanket Order with Tax Area Country CA.
-        Initialize;
+        Initialize();
         OnAfterGetRecordCopyLoopTaxAreaPurchaseDocument(
           TaxArea."Country/Region"::CA, PurchaseHeader."Document Type"::"Blanket Order", REPORT::"Purchase Blanket Order",
           TotalTaxLabelCap, TotalTaxTxt);
@@ -322,7 +322,7 @@ codeunit 144003 "UT REP Purchase Process Doc"
         // Purpose of the test is to validate OnAfterGetRecord of CopyLoop of Report 10119 - Purchase Blanket Order.
 
         // Setup: Create Purchase Blanket Order with Tax Area Country US.
-        Initialize;
+        Initialize();
         OnAfterGetRecordCopyLoopTaxAreaPurchaseDocument(
           TaxArea."Country/Region"::US, PurchaseHeader."Document Type"::"Blanket Order", REPORT::"Purchase Blanket Order",
           TotalTaxLabelCap, TotalSalesTaxTxt);
@@ -339,7 +339,7 @@ codeunit 144003 "UT REP Purchase Process Doc"
         // Purpose of the test is to validate OnAfterGetRecord of Copy Loop of Report 10122 - Purchase Order.
 
         // Setup: Create Purchase Order with Tax Area Country CA.
-        Initialize;
+        Initialize();
         OnAfterGetRecordCopyLoopTaxAreaPurchaseDocument(
           TaxArea."Country/Region"::CA, PurchaseHeader."Document Type"::Order, REPORT::"Purchase Order", TotalTaxLabelCap, TotalTaxTxt);
     end;
@@ -355,7 +355,7 @@ codeunit 144003 "UT REP Purchase Process Doc"
         // Purpose of the test is to validate OnAfterGetRecord of Copy Loop of Report 10122 - Purchase Order.
 
         // Setup: Create Purchase Order with Tax Area Country US.
-        Initialize;
+        Initialize();
         OnAfterGetRecordCopyLoopTaxAreaPurchaseDocument(
           TaxArea."Country/Region"::US, PurchaseHeader."Document Type"::Order, REPORT::"Purchase Order", TotalTaxLabelCap, TotalSalesTaxTxt);
     end;
@@ -390,7 +390,7 @@ codeunit 144003 "UT REP Purchase Process Doc"
         // Purpose of the test is to validate OnAfterGetRecord of Purchase Line of Report 10125 - Purchase Order (Pre-Printed).
 
         // Setup: Create Purchase Document Type Order with Tax Area.
-        Initialize;
+        Initialize();
         OnAfterGetRecordPurchaseLine(
           PurchaseHeader."Document Type"::Order, REPORT::"Purchase Order (Pre-Printed)", ItemNumberToPrintCap, 'Quantity_PurchaseLine');
     end;
@@ -405,7 +405,7 @@ codeunit 144003 "UT REP Purchase Process Doc"
         // Purpose of the test is to validate OnAfterGetRecord of CopyLoop of Report 10126 - Return Order Confirm.
 
         // Setup: Create Purchase Document Type Return Order with Tax Area.
-        Initialize;
+        Initialize();
         OnAfterGetRecordPurchaseLine(
           PurchaseHeader."Document Type"::"Return Order", REPORT::"Return Order Confirm", 'ItemNoTo_PrintPurchLine', 'Qty_PrintPurchLine');
     end;
@@ -445,7 +445,7 @@ codeunit 144003 "UT REP Purchase Process Doc"
         // Purpose of the test is to validate OnAfterGetRecord of VendorLedgerEntry of Report 10092 - Open Purchase Invoices by Job.
 
         // Setup: Create Posted Purchase Invoice with Job.
-        Initialize;
+        Initialize();
         CreatePostedPurchaseInvoiceWithJob(PurchInvLine);
         AmountLCY :=
           CreateDetailedVendorLedgerEntry(CreateVendorLedgerEntry(PurchInvLine."Document No.", PurchInvLine."Buy-from Vendor No."));
@@ -462,7 +462,7 @@ codeunit 144003 "UT REP Purchase Process Doc"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreateJob(): Code[20]
@@ -537,7 +537,7 @@ codeunit 144003 "UT REP Purchase Process Doc"
         Vendor: Record Vendor;
         VendorPostingGroup: Record "Vendor Posting Group";
     begin
-        VendorPostingGroup.FindFirst;
+        VendorPostingGroup.FindFirst();
         Vendor."No." := LibraryUTUtility.GetNewCode;
         Vendor."Vendor Posting Group" := VendorPostingGroup.Code;
         Vendor.Insert();
@@ -549,7 +549,7 @@ codeunit 144003 "UT REP Purchase Process Doc"
         VendorLedgerEntry: Record "Vendor Ledger Entry";
         VendorLedgerEntry2: Record "Vendor Ledger Entry";
     begin
-        VendorLedgerEntry2.FindLast;
+        VendorLedgerEntry2.FindLast();
         VendorLedgerEntry."Entry No." := VendorLedgerEntry2."Entry No." + 1;
         VendorLedgerEntry."Document No." := DocumentNo;
         VendorLedgerEntry."Document Type" := VendorLedgerEntry."Document Type"::Invoice;
@@ -564,7 +564,7 @@ codeunit 144003 "UT REP Purchase Process Doc"
         DetailedVendorLedgerEntry: Record "Detailed Vendor Ledg. Entry";
         DetailedVendorLedgerEntry2: Record "Detailed Vendor Ledg. Entry";
     begin
-        DetailedVendorLedgerEntry2.FindLast;
+        DetailedVendorLedgerEntry2.FindLast();
         DetailedVendorLedgerEntry."Entry No." := DetailedVendorLedgerEntry2."Entry No." + 1;
         DetailedVendorLedgerEntry."Vendor Ledger Entry No." := VendorLedgerEntryNo;
         DetailedVendorLedgerEntry."Amount (LCY)" := LibraryRandom.RandDec(10, 2);
@@ -594,7 +594,7 @@ codeunit 144003 "UT REP Purchase Process Doc"
     begin
         PurchaseLine.SetRange("Document Type", DocumentType);
         PurchaseLine.SetRange("Document No.", DocumentNo);
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
         PurchaseLine.Type := PurchaseLine.Type::Item;
         PurchaseLine."No." := LibraryUTUtility.GetNewCode;
         PurchaseLine.Quantity := LibraryRandom.RandDec(10, 2);

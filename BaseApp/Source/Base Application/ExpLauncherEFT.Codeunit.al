@@ -36,7 +36,7 @@ codeunit 10320 "Exp. Launcher EFT"
         Filepath: Text;
         ACHFileName: Text;
     begin
-        TempEFTExportWorkset.FindFirst;
+        TempEFTExportWorkset.FindFirst();
 
         BankAccount.Get(TempEFTExportWorkset."Bank Account No.");
 
@@ -55,7 +55,7 @@ codeunit 10320 "Exp. Launcher EFT"
             BankExportImportSetup.SetRange(Code, BankAccount."Payment Export Format");
 
         OnEFTPaymentProcessAfterBankExportImportSetupSetFilters(TempEFTExportWorkset, BankExportImportSetup);
-        if BankExportImportSetup.FindFirst then begin
+        if BankExportImportSetup.FindFirst() then begin
             DataExchDefCode := BankExportImportSetup."Data Exch. Def. Code";
             ACHFileName := BankAccount."Last E-Pay Export File Name";
             UpdateLastEPayExportFileName(BankAccount);
@@ -68,7 +68,7 @@ codeunit 10320 "Exp. Launcher EFT"
                 repeat
                     ProcessDetails(TempEFTExportWorkset, BankAccount, DataExchDefCode, DataExchEntryCodeDetail, DetailArray, Filename, EFTValues);
                 until TempEFTExportWorkset.Next() = 0;
-                TempEFTExportWorkset.FindFirst;
+                TempEFTExportWorkset.FindFirst();
                 ProcessFooters(TempEFTExportWorkset, BankAccount, DataExchDefCode, FooterArray, Filename, DataExchEntryCodeFooter, EFTValues);
 
                 if not IsTestMode then
@@ -105,7 +105,7 @@ codeunit 10320 "Exp. Launcher EFT"
         DataExchLineDef.Init();
         DataExchLineDef.SetRange("Data Exch. Def Code", DataExchDefCode);
         DataExchLineDef.SetRange("Line Type", DataExchLineDef."Line Type"::Header);
-        if DataExchLineDef.FindSet then begin
+        if DataExchLineDef.FindSet() then begin
             repeat
                 // Insert the Data Exchange Header records
                 DataExch."Entry No." := 0;
@@ -120,7 +120,7 @@ codeunit 10320 "Exp. Launcher EFT"
                 // It is only here where we know the True DataExch."Entry No"..
                 DataExchMapping.SetRange("Data Exch. Def Code", DataExchDefCode);
                 DataExchMapping.SetRange("Data Exch. Line Def Code", DataExchLineDef.Code);
-                DataExchMapping.FindFirst;
+                DataExchMapping.FindFirst();
 
                 // Populate the Header work tables
                 EFTExportMgt.PrepareEFTHeader(DataExch, BankAccount."Bank Account No.", BankAccount."No.");
@@ -196,17 +196,17 @@ codeunit 10320 "Exp. Launcher EFT"
         DataExchLineDef.Init();
         DataExchLineDef.SetRange("Data Exch. Def Code", DataExchDefCode);
         DataExchLineDef.SetRange("Line Type", DataExchLineDef."Line Type"::Detail);
-        if DataExchLineDef.FindSet then begin
+        if DataExchLineDef.FindSet() then begin
             repeat
                 // Insert the Data Exchange Detail records
                 DataExch.SetRange("Data Exch. Def Code", DataExchDefCode);
                 DataExch.SetRange("Data Exch. Line Def Code", DataExchLineDef.Code);
-                DataExch.FindFirst;
+                DataExch.FindFirst();
 
                 // It is only here where we know the True DataExch."Entry No"..
                 DataExchMapping.SetRange("Data Exch. Def Code", DataExchDefCode);
                 DataExchMapping.SetRange("Data Exch. Line Def Code", DataExchLineDef.Code);
-                DataExchMapping.FindFirst;
+                DataExchMapping.FindFirst();
 
                 if (EFTValues.GetParentDefCode = '') or (EFTValues.GetParentDefCode = DataExchLineDef.Code) then begin
                     EFTValues.SetParentDefCode(DataExchLineDef.Code);
@@ -258,7 +258,7 @@ codeunit 10320 "Exp. Launcher EFT"
         DataExchLineDef.Init();
         DataExchLineDef.SetRange("Data Exch. Def Code", DataExchDefCode);
         DataExchLineDef.SetRange("Line Type", DataExchLineDef."Line Type"::Footer);
-        if DataExchLineDef.FindSet then begin
+        if DataExchLineDef.FindSet() then begin
             repeat
                 // Insert the Data Exchange Footer records
                 DataExch."Entry No." := 0;
@@ -273,7 +273,7 @@ codeunit 10320 "Exp. Launcher EFT"
                 // It is only here where we know the True DataExch."Entry No"..
                 DataExchMapping.SetRange("Data Exch. Def Code", DataExchDefCode);
                 DataExchMapping.SetRange("Data Exch. Line Def Code", DataExchLineDef.Code);
-                DataExchMapping.FindFirst;
+                DataExchMapping.FindFirst();
 
                 // Create the Entries and values in the Data Exch. Field table
                 if DataExchMapping."Pre-Mapping Codeunit" > 0 then
@@ -347,7 +347,7 @@ codeunit 10320 "Exp. Launcher EFT"
         DataExchLineDef.Init();
         DataExchLineDef.SetRange("Data Exch. Def Code", DataExchDefCode);
         DataExchLineDef.SetRange("Line Type", DataExchLineDef."Line Type"::Detail);
-        if DataExchLineDef.FindSet then
+        if DataExchLineDef.FindSet() then
             repeat
                 // Insert the Data Exchange Detail records
                 DataExch."Entry No." := 0;

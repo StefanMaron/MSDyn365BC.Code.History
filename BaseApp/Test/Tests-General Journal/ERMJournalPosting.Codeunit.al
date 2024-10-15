@@ -31,7 +31,7 @@ codeunit 134420 "ERM Journal Posting"
         Qty: Decimal;
         PostedQty: Decimal;
     begin
-        Initialize;
+        Initialize();
         Qty := LibraryRandom.RandDecInRange(MinRange, MaxRange, 2);
         CreateGenJournalBatch(GenJournalBatch);
         FindGLAccount(GLAccount, false);
@@ -50,7 +50,7 @@ codeunit 134420 "ERM Journal Posting"
         Qty: Decimal;
         PostedQty: Decimal;
     begin
-        Initialize;
+        Initialize();
         Qty := LibraryRandom.RandDecInRange(MinRange, MiddleRange, 2);
         CreateGenJournalBatch(GenJournalBatch);
         FindGLAccount(GLAccount, false);
@@ -70,7 +70,7 @@ codeunit 134420 "ERM Journal Posting"
         Qty: Decimal;
         PostedQty: Decimal;
     begin
-        Initialize;
+        Initialize();
         Qty := 0;
         CreateGenJournalBatch(GenJournalBatch);
         FindGLAccount(GLAccount, false);
@@ -88,14 +88,14 @@ codeunit 134420 "ERM Journal Posting"
         GLAccountOmitDesc: Record "G/L Account";
         GLAccountWithDesc: Record "G/L Account";
     begin
-        Initialize;
+        Initialize();
         CreateGenJournalBatch(GenJournalBatch);
         FindGLAccount(GLAccountOmitDesc, true);
 
         LibraryLowerPermissions.SetJournalsEdit;
         CreateGenJrnLine(GenJournalLine, GenJournalBatch, GLAccountOmitDesc);
         Assert.IsTrue(DelChr(GenJournalLine.Description, '=', ' ') = '', 'Description must be blank');
-        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.SetO365Setup();
 
         FindGLAccount(GLAccountWithDesc, false);
         LibraryLowerPermissions.SetJournalsEdit;
@@ -112,7 +112,7 @@ codeunit 134420 "ERM Journal Posting"
     begin
         // [FEATURE] [UT] [Batch] [Performance]
         // [SCENARIO 301026] COD 13 "Gen. Jnl.-Post Batch" resets auto calc fields
-        Initialize;
+        Initialize();
 
         // [GIVEN] General Journal Line with enabled auto calc fields for "Has Payment Export Error" field
         LibraryJournals.CreateGenJournalLineWithBatch(
@@ -142,7 +142,7 @@ codeunit 134420 "ERM Journal Posting"
     begin
         // [FEATURE] [UT] [Batch] [Performance] [Preview]
         // [SCENARIO 301026] COD 13 "Gen. Jnl.-Post Batch" resets auto calc fields in case of Preview posting
-        Initialize;
+        Initialize();
 
         // [GIVEN] General Journal Line with enabled auto calc fields for "Has Payment Export Error" field
         LibraryJournals.CreateGenJournalLineWithBatch(
@@ -232,8 +232,8 @@ codeunit 134420 "ERM Journal Posting"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Journal Posting");
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         isInitialized := true;
         MinRange := 0;
         MiddleRange := 100;
@@ -262,7 +262,7 @@ codeunit 134420 "ERM Journal Posting"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         GLEntry.SetRange("Document No.", GenJournalLine."Document No.");
-        GLEntry.FindLast;
+        GLEntry.FindLast();
         exit(GLEntry.Quantity);
     end;
 

@@ -123,7 +123,7 @@ page 491 "Items by Location"
     end;
 #endif
 
-    local procedure SetMatrixColumns(StepType: Enum "Matrix Page Step Type")
+    procedure SetMatrixColumns(StepType: Enum "Matrix Page Step Type")
     var
         MatrixMgt: Codeunit "Matrix Management";
         CaptionFieldNo: Integer;

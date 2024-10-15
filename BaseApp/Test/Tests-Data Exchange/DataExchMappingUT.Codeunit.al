@@ -199,7 +199,7 @@ codeunit 132545 "Data Exch. Mapping UT"
     begin
         Field.SetRange(TableNo, TableID);
         Field.SetRange(FieldName, FieldName);
-        Field.FindFirst;
+        Field.FindFirst();
         exit(Field."No.");
     end;
 

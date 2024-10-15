@@ -142,9 +142,9 @@ codeunit 142087 "ERM Nec Report"
         InventorySetup: Record "Inventory Setup";
     begin
         Clear(LibraryReportDataset);
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         LibraryInventory.NoSeriesSetup(InventorySetup);
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.CreateVATData();
     end;
 
     local procedure CreateAndPostPurchaseOrder(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; IRS1099Code: Code[10])

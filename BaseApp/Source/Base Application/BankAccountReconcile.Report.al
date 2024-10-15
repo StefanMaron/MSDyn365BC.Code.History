@@ -137,7 +137,7 @@ report 10409 "Bank Account - Reconcile"
                     CheckLedgEntry.SetCurrentKey("Bank Account Ledger Entry No.");
                     CheckLedgEntry.SetRange("Bank Account Ledger Entry No.", "Entry No.");
                     CheckLedgEntry.SetRange("Entry Status", CheckLedgEntry."Entry Status"::Posted);
-                    if CheckLedgEntry.FindFirst then
+                    if CheckLedgEntry.FindFirst() then
                         ListChecks := true
                     else begin
                         ListChecks := false;

@@ -198,6 +198,12 @@ page 36603 "Credit & Collections Mgr. RC"
                     RunObject = Page "Posted Deposit List";
                     ToolTip = 'View the posted deposit header, deposit header lines, deposit comments, and deposit dimensions.';
                 }
+                action("Posted Bank Deposits")
+                {
+                    Caption = 'Posted Bank Deposits';
+                    RunObject = codeunit "Open P. Bank Deposits L. Page";
+                    ToolTip = 'View the posted bank deposit header, bank deposit header lines, bank deposit comments, and bank deposit dimensions.';
+                }
             }
         }
         area(processing)

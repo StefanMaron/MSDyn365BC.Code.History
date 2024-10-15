@@ -37,7 +37,7 @@ codeunit 142092 "ERM Sales/Purchase Tax III"
         // [FEATURE] [Prepayment] [Invoice Discount] [Rounding] [Sales]
         // [SCENARIO 229419] Sales order post in case of prepayment, invoice discount (prepayment % + discount % = 100),
         // [SCENARIO 229419] several lines with different tax detail setup, "Prepmt. Include Tax" = FALSE
-        Initialize;
+        Initialize();
         PrepareExpectedAmounts_TFS229419(Amount, AmountIncludingVAT, InvoiceDiscountAmount, VATAmount);
 
         // [GIVEN] Sales order with prepayment (85%), invoice discount (15%), several lines with different tax setup
@@ -70,7 +70,7 @@ codeunit 142092 "ERM Sales/Purchase Tax III"
         // [FEATURE] [Prepayment] [Invoice Discount] [Rounding] [Sales]
         // [SCENARIO 229419] Sales order post in case of prepayment, invoice discount (prepayment % + discount % = 100),
         // [SCENARIO 229419] several lines with different tax detail setup, "Prepmt. Include Tax" = TRUE
-        Initialize;
+        Initialize();
         PrepareExpectedAmounts_TFS229419(Amount, AmountIncludingVAT, InvoiceDiscountAmount, VATAmount);
 
         // [GIVEN] Sales order with prepayment (85%), invoice discount (15%), several lines with different tax setup
@@ -103,7 +103,7 @@ codeunit 142092 "ERM Sales/Purchase Tax III"
         // [FEATURE] [Prepayment] [Invoice Discount] [Rounding] [Sales]
         // [SCENARIO 229419] Sales order post in case of prepayment, invoice discount (prepayment % + discount % > 100),
         // [SCENARIO 229419] several lines with different tax detail setup, "Prepmt. Include Tax" = FALSE
-        Initialize;
+        Initialize();
         PrepareExpectedAmounts_TFS229419(Amount, AmountIncludingVAT, InvoiceDiscountAmount, VATAmount);
 
         // [GIVEN] Sales order with prepayment (85.01%), invoice discount (15%), several lines with different tax setup
@@ -136,7 +136,7 @@ codeunit 142092 "ERM Sales/Purchase Tax III"
         // [FEATURE] [Prepayment] [Invoice Discount] [Rounding] [Sales]
         // [SCENARIO 229419] Sales order post in case of prepayment, invoice discount (prepayment % + discount % > 100),
         // [SCENARIO 229419] several lines with different tax detail setup, "Prepmt. Include Tax" = TRUE
-        Initialize;
+        Initialize();
         PrepareExpectedAmounts_TFS229419(Amount, AmountIncludingVAT, InvoiceDiscountAmount, VATAmount);
 
         // [GIVEN] Sales order with prepayment (85.01%), invoice discount (15%), several lines with different tax setup
@@ -169,7 +169,7 @@ codeunit 142092 "ERM Sales/Purchase Tax III"
         // [FEATURE] [Prepayment] [Invoice Discount] [Rounding] [Purchase]
         // [SCENARIO 229419] Purchase order post in case of prepayment, invoice discount (prepayment % + discount % = 100),
         // [SCENARIO 229419] several lines with different tax detail setup, "Prepmt. Include Tax" = FALSE
-        Initialize;
+        Initialize();
         PrepareExpectedAmounts_TFS229419(Amount, AmountIncludingVAT, InvoiceDiscountAmount, VATAmount);
 
         // [GIVEN] Purchase order with prepayment (85%), invoice discount (15%), several lines with different tax setup
@@ -202,7 +202,7 @@ codeunit 142092 "ERM Sales/Purchase Tax III"
         // [FEATURE] [Prepayment] [Invoice Discount] [Rounding] [Purchase]
         // [SCENARIO 229419] Purchase order post in case of prepayment, invoice discount (prepayment % + discount % = 100),
         // [SCENARIO 229419] several lines with different tax detail setup, "Prepmt. Include Tax" = TRUE
-        Initialize;
+        Initialize();
         PrepareExpectedAmounts_TFS229419(Amount, AmountIncludingVAT, InvoiceDiscountAmount, VATAmount);
 
         // [GIVEN] Purchase order with prepayment (85%), invoice discount (15%), several lines with different tax setup
@@ -235,7 +235,7 @@ codeunit 142092 "ERM Sales/Purchase Tax III"
         // [FEATURE] [Prepayment] [Invoice Discount] [Rounding] [Purchase]
         // [SCENARIO 229419] Purchase order post in case of prepayment, invoice discount (prepayment % + discount % > 100),
         // [SCENARIO 229419] several lines with different tax detail setup, "Prepmt. Include Tax" = FALSE
-        Initialize;
+        Initialize();
         PrepareExpectedAmounts_TFS229419(Amount, AmountIncludingVAT, InvoiceDiscountAmount, VATAmount);
 
         // [GIVEN] Purchase order with prepayment (85.01%), invoice discount (15%), several lines with different tax setup
@@ -268,7 +268,7 @@ codeunit 142092 "ERM Sales/Purchase Tax III"
         // [FEATURE] [Prepayment] [Invoice Discount] [Rounding] [Purchase]
         // [SCENARIO 229419] Purchase order post in case of prepayment, invoice discount (prepayment % + discount % > 100),
         // [SCENARIO 229419] several lines with different tax detail setup, "Prepmt. Include Tax" = TRUE
-        Initialize;
+        Initialize();
         PrepareExpectedAmounts_TFS229419(Amount, AmountIncludingVAT, InvoiceDiscountAmount, VATAmount);
 
         // [GIVEN] Purchase order with prepayment (85.01%), invoice discount (15%), several lines with different tax setup
@@ -301,7 +301,7 @@ codeunit 142092 "ERM Sales/Purchase Tax III"
         // [FEATURE] [Purchase]
         // [SCENARIO 231225] Purchase invoice posting in case of two lines and three tax areas: NOTAX, TAX, Provincial TAX,
         // [SCENARIO 231225] where Provincial TAX has several tax justisdictions invlucding Expense/Capitalize
-        Initialize;
+        Initialize();
 
         // [GIVEN] "NOTAX", "TAX" ("Tax Below Maximum" = 5), "PROVTAX" ("Tax Below Maximum" = 1.6\3.4\0.56\7.44, where 1.6\0.56 have Expense/Capitalize = TRUE) areas
         CreateTaxSetup_TFS231225(NoTaxAreaCode, TaxAreaCode, ProvTaxAreaCode, TaxGroupCode);
@@ -340,7 +340,7 @@ codeunit 142092 "ERM Sales/Purchase Tax III"
     begin
         // [FEATURE] [Purchase] [Expense/Capitalize] [Get Receipt Lines]
         // [SCENARIO 233346] Incorrect Tax Amount on the Purchase Invoice subform after Getting Receipt Lines from received not invoiced Purchase Order with "Expense/Capitalize" = TRUE in Tax Details
-        Initialize;
+        Initialize();
 
         // [GIVEN] Tax area "BC" with "Country/Region" = CA having two lines and custom Tax Detail setup lines including "Expense/Capitalize" = TRUE
         CreateCustomTaxSetup_TFS210430(TaxAreaCode, TaxGroupCode, DummyTaxCountry::CA);
@@ -382,7 +382,7 @@ codeunit 142092 "ERM Sales/Purchase Tax III"
     begin
         // [FEATURE] [Purchase] [Expense/Capitalize] [Get Return Shipment Lines]
         // [SCENARIO 233346] Incorrect Tax Amount on the Purchase Cr. Memo subform after Getting Return Shipment Lines from shipped not invoiced Purchase Cr. Memo with "Expense/Capitalize" = TRUE in Tax Details
-        Initialize;
+        Initialize();
 
         // [GIVEN] Tax area "BC" with "Country/Region" = CA having two lines and custom Tax Detail setup lines including "Expense/Capitalize" = TRUE
         CreateCustomTaxSetup_TFS210430(TaxAreaCode, TaxGroupCode, DummyTaxCountry::CA);
@@ -424,7 +424,7 @@ codeunit 142092 "ERM Sales/Purchase Tax III"
     begin
         // [FEATURE] [Sales] [Expense/Capitalize] [Get Shipment Lines]
         // [SCENARIO 233346] Incorrect Tax Amount on the Sales Invoice Subform after Getting Shipment Lines from shipped not invoiced Sales Order with "Expense/Capitalize" = TRUE in Tax Details
-        Initialize;
+        Initialize();
 
         // [GIVEN] Tax area "BC" with "Country/Region" = CA having two lines and custom Tax Detail setup lines including "Expense/Capitalize" = TRUE
         CreateCustomTaxSetup_TFS210430(TaxAreaCode, TaxGroupCode, DummyTaxCountry::CA);
@@ -466,7 +466,7 @@ codeunit 142092 "ERM Sales/Purchase Tax III"
     begin
         // [FEATURE] [Sales] [Expense/Capitalize] [Get Return Receipt Lines]
         // [SCENARIO 233346] Incorrect Tax Amount on the Sales Cr. Memo Subform after Getting Return Receipt Lines from Received not invoiced Sales Return Order with "Expense/Capitalize" = TRUE in Tax Details
-        Initialize;
+        Initialize();
 
         // [GIVEN] Tax area "BC" with "Country/Region" = CA having two lines and custom Tax Detail setup lines including "Expense/Capitalize" = TRUE
         CreateCustomTaxSetup_TFS210430(TaxAreaCode, TaxGroupCode, DummyTaxCountry::CA);
@@ -503,7 +503,7 @@ codeunit 142092 "ERM Sales/Purchase Tax III"
     begin
         // [FEATURE] [Prepayment] [Rounding] [Sales]
         // [SCENARIO 262985] Sales order post in case of 25% prepayment, several lines with custom amount, prepayment include tax
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales order with 25% prepayment, several lines with custom amount, prepayment include tax
         CreateSalesOrder_TFS262985(SalesHeader);
@@ -527,7 +527,7 @@ codeunit 142092 "ERM Sales/Purchase Tax III"
     begin
         // [FEATURE] [Prepayment] [Rounding] [Purchase]
         // [SCENARIO 262985] Purchase order post in case of 25% prepayment, several lines with custom amount, prepayment include tax
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase order with 25% prepayment, several lines with custom amount, prepayment include tax
         CreatePurchaseOrder_TFS262985(PurchaseHeader);
@@ -550,7 +550,7 @@ codeunit 142092 "ERM Sales/Purchase Tax III"
     begin
         // [FEATURE] [Rounding] [Purchase] [Negative Line] [Expense/Capitalize]
         // [SCENARIO 273130] Posting purchase invoice with positive and negative lines, custom Tax setup having Expense/Capitalize, amounts with rounding
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase invoice with positive and negative line, Expense/Capitalize Tax setup, custom amounts with rounding (Total Tax = -829.035)
         CreatePurchaseOrder_TFS273130(PurchaseHeader);
@@ -572,7 +572,7 @@ codeunit 142092 "ERM Sales/Purchase Tax III"
     begin
         // [FEATURE] [Rounding] [Sales] [Negative Line] [Expense/Capitalize]
         // [SCENARIO 273130] Posting sales invoice with positive and negative lines, custom Tax setup having Expense/Capitalize, amounts with rounding
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales invoice with positive and negative line, Expense/Capitalize Tax setup, custom amounts with rounding (Total Tax = -829.035)
         CreateSalesOrder_TFS273130(SalesHeader);
@@ -596,7 +596,7 @@ codeunit 142092 "ERM Sales/Purchase Tax III"
     begin
         // [FEATURE] [Rounding] [Sales] [Negative Line]
         // [SCENARIO 280515] Posting of sales order with positive and negative lines, custom Tax setup (Country = US)
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales order with positive and negative lines, custom amounts with rounding (Total Tax = 21.155)
         CreateTaxSetup_TFS280515(TaxAreaCode, TaxGroupCode, DummyTaxCountry::US);
@@ -620,7 +620,7 @@ codeunit 142092 "ERM Sales/Purchase Tax III"
     begin
         // [FEATURE] [Rounding] [Purchase] [Negative Line]
         // [SCENARIO 280515] Posting of purchase order with positive and negative lines, custom Tax setup (Country = US)
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase order with positive and negative lines, custom amounts with rounding (Total Tax = 21.155)
         CreateTaxSetup_TFS280515(TaxAreaCode, TaxGroupCode, DummyTaxCountry::US);
@@ -644,7 +644,7 @@ codeunit 142092 "ERM Sales/Purchase Tax III"
     begin
         // [FEATURE] [Rounding] [Service] [Negative Line]
         // [SCENARIO 280515] Posting of service order with positive and negative lines, custom Tax setup (Country = US)
-        Initialize;
+        Initialize();
 
         // [GIVEN] Service order with positive and negative lines, custom amounts with rounding (Total Tax = 21.155)
         CreateTaxSetup_TFS280515(TaxAreaCode, TaxGroupCode, DummyTaxCountry::US);
@@ -669,7 +669,7 @@ codeunit 142092 "ERM Sales/Purchase Tax III"
     begin
         // [FEATURE] [Rounding] [Sales] [Negative Line]
         // [SCENARIO 280515] Posting of sales order with positive and negative lines, custom Tax setup (Country = CA)
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales order with positive and negative lines, custom amounts with rounding (Total Tax = 21.155)
         CreateTaxSetup_TFS280515(TaxAreaCode, TaxGroupCode, DummyTaxCountry::CA);
@@ -693,7 +693,7 @@ codeunit 142092 "ERM Sales/Purchase Tax III"
     begin
         // [FEATURE] [Rounding] [Purchase] [Negative Line]
         // [SCENARIO 280515] Posting of purchase order with positive and negative lines, custom Tax setup (Country = CA)
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase order with positive and negative lines, custom amounts with rounding (Total Tax = 21.155)
         CreateTaxSetup_TFS280515(TaxAreaCode, TaxGroupCode, DummyTaxCountry::CA);
@@ -717,7 +717,7 @@ codeunit 142092 "ERM Sales/Purchase Tax III"
     begin
         // [FEATURE] [Rounding] [Service] [Negative Line]
         // [SCENARIO 280515] Posting of service order with positive and negative lines, custom Tax setup (Country = CA)
-        Initialize;
+        Initialize();
 
         // [GIVEN] Service order with positive and negative lines, custom amounts with rounding (Total Tax = 21.155)
         CreateTaxSetup_TFS280515(TaxAreaCode, TaxGroupCode, DummyTaxCountry::CA);
@@ -743,7 +743,7 @@ codeunit 142092 "ERM Sales/Purchase Tax III"
     begin
         // [FEATURE] [Draft Sales Invoice]
         // [SCENARIO 283166] Draft Sales Invoice in case of Tax Country = CA, two taxes from different jurisdictions
-        Initialize;
+        Initialize();
 
         // [GIVEN] Tax setup with "Country/Region" = CA and two different jurisdictions with 5% and 7% taxes
         CreateTaxSetup_TFS283166(TaxAreaCode, TaxGroupCode);
@@ -779,7 +779,7 @@ codeunit 142092 "ERM Sales/Purchase Tax III"
     begin
         // [FEATURE] [Sales Quote]
         // [SCENARIO 283166] Sales Quote in case of Tax Country = CA, two taxes from different jurisdictions
-        Initialize;
+        Initialize();
 
         // [GIVEN] Tax setup with "Country/Region" = CA and two different jurisdictions with 5% and 7% taxes
         CreateTaxSetup_TFS283166(TaxAreaCode, TaxGroupCode);
@@ -819,7 +819,7 @@ codeunit 142092 "ERM Sales/Purchase Tax III"
     begin
         // [FEATURE] [Sales] [Effective Date]
         // [SCENARIO 300462] Tax Amounts recalculated when set Posting Date before Effective Date of Tax Details in Sales Invoice
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Invoice with Amount = 100 and Tax = 5% with Effective Date = 01-01-19
         CreateTaxSetup_TFS280515(TaxAreaCode, TaxGroupCode, DummyTaxCountry::US);
@@ -832,7 +832,7 @@ codeunit 142092 "ERM Sales/Purchase Tax III"
         SalesLine.Modify(true);
 
         TaxDetail.SetRange("Tax Group Code", TaxGroupCode);
-        TaxDetail.FindFirst;
+        TaxDetail.FindFirst();
 
         // [WHEN] Set Posting Date 31-12-18 on Sales Invoice
         SalesHeader.Validate("Posting Date", TaxDetail."Effective Date" - 1);
@@ -861,7 +861,7 @@ codeunit 142092 "ERM Sales/Purchase Tax III"
     begin
         // [FEATURE] [Purchase] [Effective Date]
         // [SCENARIO 300462] Tax Amounts recalculated when set Posting Date before Effective Date of Tax Details in Purchase Invoice
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Invoice with Amount = 100 and Tax = 5% with Effective Date = 01-01-19
         CreateTaxSetup_TFS280515(TaxAreaCode, TaxGroupCode, DummyTaxCountry::US);
@@ -875,7 +875,7 @@ codeunit 142092 "ERM Sales/Purchase Tax III"
         PurchaseLine.Modify(true);
 
         TaxDetail.SetRange("Tax Group Code", TaxGroupCode);
-        TaxDetail.FindFirst;
+        TaxDetail.FindFirst();
 
         // [WHEN] Set Posting Date 31-12-18 on Purchase Invoice
         PurchaseHeader.Validate("Posting Date", TaxDetail."Effective Date" - 1);
@@ -1710,7 +1710,7 @@ codeunit 142092 "ERM Sales/Purchase Tax III"
     begin
         LibrarySales.SetReturnOrderNoSeriesInSetup;
         LibraryPurchase.SetReturnOrderNoSeriesInSetup;
-        LibraryService.SetupServiceMgtNoSeries;
+        LibraryService.SetupServiceMgtNoSeries();
         LibraryApplicationArea.EnableEssentialSetup();
 
         if IsInitialized then
@@ -2253,8 +2253,8 @@ codeunit 142092 "ERM Sales/Purchase Tax III"
             Validate("Tax Liable", true);
             Validate("Tax Area Code", TaxAreaCode);
             Validate("Tax Identification Type", "Tax Identification Type"::"Legal Entity");
-            "RFC No." := LibraryUtility.GenerateGUID;
-            "CURP No." := LibraryUtility.GenerateGUID;
+            "RFC No." := LibraryUtility.GenerateGUID();
+            "CURP No." := LibraryUtility.GenerateGUID();
             Validate("Post Code", PostCode.Code);
             Modify(true);
             exit("No.");
@@ -2314,7 +2314,7 @@ codeunit 142092 "ERM Sales/Purchase Tax III"
     begin
         with PurchaseHeader do begin
             LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, VendorNo);
-            Validate("Ship-to Address", LibraryUtility.GenerateGUID);
+            Validate("Ship-to Address", LibraryUtility.GenerateGUID());
             Validate("Currency Code", CurrencyCode);
             Validate("Tax Liable", true);
             Validate("Tax Area Code", TaxAreaCode);
@@ -2337,7 +2337,7 @@ codeunit 142092 "ERM Sales/Purchase Tax III"
     begin
         with SalesHeader do begin
             LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CustomerNo);
-            Validate("Bill-to Address", LibraryUtility.GenerateGUID);
+            Validate("Bill-to Address", LibraryUtility.GenerateGUID());
             Validate("Currency Code", CurrencyCode);
             Validate("Tax Liable", true);
             Validate("Tax Area Code", TaxAreaCode);
@@ -2553,7 +2553,7 @@ codeunit 142092 "ERM Sales/Purchase Tax III"
             SetRange("Document Type", DocumentType);
             SetRange("Document No.", DocumentNo);
             SetRange(Type, LineType);
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -2564,7 +2564,7 @@ codeunit 142092 "ERM Sales/Purchase Tax III"
             SetRange("Document Type", DocumentType);
             SetRange("Document No.", DocumentNo);
             SetRange(Type, LineType);
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -2578,12 +2578,12 @@ codeunit 142092 "ERM Sales/Purchase Tax III"
     local procedure FindServiceInvoiceHeader(var ServiceInvoiceHeader: Record "Service Invoice Header"; ServiceHeader: Record "Service Header")
     begin
         ServiceInvoiceHeader.SetRange("Customer No.", ServiceHeader."Customer No.");
-        ServiceInvoiceHeader.FindFirst;
+        ServiceInvoiceHeader.FindFirst();
     end;
 
     local procedure PostPurchaseDocument(PurchaseHeader: Record "Purchase Header"): Code[20]
     begin
-        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID);
+        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
         exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
     end;
 
@@ -2813,7 +2813,7 @@ codeunit 142092 "ERM Sales/Purchase Tax III"
             SetRange("Document Type", "Document Type"::Invoice);
             SetRange("Document No.", InvoiceNo);
             SetRange("G/L Account No.", GLAccountNo);
-            FindFirst;
+            FindFirst();
             TestField(Amount, ExpectedAmount);
         end;
     end;

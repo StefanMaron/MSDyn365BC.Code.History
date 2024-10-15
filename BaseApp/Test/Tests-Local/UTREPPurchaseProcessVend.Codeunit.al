@@ -37,7 +37,7 @@ codeunit 144002 "UT REP Purchase Process Vend"
     begin
         // Purpose of the test is to validate OnOpenPage Trigger of Report ID - 10093  Open Vendor Entries.
         // Setup.
-        Initialize;
+        Initialize();
 
         // Exercise.
         LibraryLowerPermissions.SetPurchDocsCreate;
@@ -58,7 +58,7 @@ codeunit 144002 "UT REP Purchase Process Vend"
         // Purpose of the test is to validate OnPreReport Trigger of Report ID - 10093  Open Vendor Entries.
 
         // Setup: Create Vendor and Vendor Ledger Entry without Currency.
-        Initialize;
+        Initialize();
         CreateVendorLedgerEntry(VendorLedgerEntry, Vendor, '', '', WorkDate, Vendor.Blocked::" ");  // Due Date - WORKDATE.
 
         // Exercise.
@@ -84,7 +84,7 @@ codeunit 144002 "UT REP Purchase Process Vend"
         // Purpose of the test is to validate Vendor - OnAfterGetRecord of Report ID - 10093 Open Vendor Entries.
 
         // Setup: Run Report Open Vendor Entries for Vendor Blocked of Payment Type to verify Payment Type is updated on Report Open Vendor Entries.
-        Initialize;
+        Initialize();
         OnAfterGetRecordVendorBlockedOpenVendorEntries(Vendor.Blocked::Payment);
     end;
 
@@ -99,7 +99,7 @@ codeunit 144002 "UT REP Purchase Process Vend"
         // Purpose of the test is to validate Vendor - OnAfterGetRecord of Report ID - 10093 Open Vendor Entries.
 
         // Setup: Run Report Open Vendor Entries for Vendor Blocked of All Type  to verify All Type is updated on Report Open Vendor Entries.
-        Initialize;
+        Initialize();
         OnAfterGetRecordVendorBlockedOpenVendorEntries(Vendor.Blocked::All);
     end;
 
@@ -134,7 +134,7 @@ codeunit 144002 "UT REP Purchase Process Vend"
         // Purpose of the test is to validate VendorLedgerEntry - OnAfterGetRecord of Report ID - 10093 Open Vendor Entries.
 
         // Setup: Run Report Open Vendor Entries to verify RemainingAmountPrint is updated with Vendor Ledger Entry Remaining Amount.
-        Initialize;
+        Initialize();
         CurrencyCode := CreateCurrency;
         CreateVendorLedgerEntry(VendorLedgerEntry, Vendor, CurrencyCode, CurrencyCode, WorkDate, Vendor.Blocked::" ");  // Due Date - WORKDATE.
         CreateDetailedVendorLedgerEntry(VendorLedgerEntry."Entry No.", Vendor."No.");
@@ -161,7 +161,7 @@ codeunit 144002 "UT REP Purchase Process Vend"
         // Purpose of the test is to validate VendorLedgerEntry - OnAfterGetRecord of Report ID - 10093 Open Vendor Entries.
 
         // Setup: Run Report Open Vendor Entries to verify RemainingAmountPrint is updated with Vendor Ledger Entry Remaining Amount(LCY).
-        Initialize;
+        Initialize();
         CreateVendorLedgerEntry(
           VendorLedgerEntry, Vendor, '', '', CalcDate('<' + Format(-LibraryRandom.RandInt(5)) + 'D>', WorkDate), Vendor.Blocked::" ");  // Due Date Less than End Date of Report Open Vendor Entries.
         CreateDetailedVendorLedgerEntry(VendorLedgerEntry."Entry No.", Vendor."No.");
@@ -191,10 +191,10 @@ codeunit 144002 "UT REP Purchase Process Vend"
     begin
         // Purpose of the test is to validate VendorLedgerEntry - OnAfterGetRecord of Report ID - 10093 Open Vendor Entries.
         // Setup.
-        Initialize;
-        CurrencyExchangeRate.FindFirst;
+        Initialize();
+        CurrencyExchangeRate.FindFirst();
         CurrencyExchangeRate2.SetFilter("Currency Code", '<>%1', CurrencyExchangeRate."Currency Code");
-        CurrencyExchangeRate2.FindFirst;
+        CurrencyExchangeRate2.FindFirst();
         CreateVendorLedgerEntry(
           VendorLedgerEntry, Vendor, CurrencyExchangeRate."Currency Code", CurrencyExchangeRate2."Currency Code", WorkDate,
           Vendor.Blocked::" ");  // Due Date - WORKDATE;
@@ -227,7 +227,7 @@ codeunit 144002 "UT REP Purchase Process Vend"
         // Purpose of the test is to validate VendorLedgerEntry - OnAfterGetRecord of Report ID - 10093 Open Vendor Entries.
 
         // Setup: Create Vendor and Vendor Ledger Entry without Currency.
-        Initialize;
+        Initialize();
         CreateVendorLedgerEntry(VendorLedgerEntry, Vendor, '', '', WorkDate, Vendor.Blocked::" ");  // Due Date - WORKDATE.
         CreateDetailedVendorLedgerEntry(VendorLedgerEntry."Entry No.", Vendor."No.");
 
@@ -251,7 +251,7 @@ codeunit 144002 "UT REP Purchase Process Vend"
     begin
         // Purpose of the test is to validate OnPreReport trigger of the Report ID: 10102, Top __ Vendor List for SubTitle without DateFilter.
         // Setup.
-        Initialize;
+        Initialize();
         CreateVendor(Vendor, '', Vendor.Blocked::" ");
 
         // Exercise.
@@ -275,7 +275,7 @@ codeunit 144002 "UT REP Purchase Process Vend"
     begin
         // Purpose of the test is to validate OnPreReport trigger of the Report ID: 10102, Top __ Vendor List for SubTitle with DateFilter.
         // Setup.
-        Initialize;
+        Initialize();
         CreateVendor(Vendor, '', Vendor.Blocked::" ");
 
         // Exercise.
@@ -301,7 +301,7 @@ codeunit 144002 "UT REP Purchase Process Vend"
     begin
         // Purpose of the test is to validate Vendor - OnAfterGetRecord trigger of the Report ID: 10102, Top __ Vendor List for TopType of Balances.
         // Setup.
-        Initialize;
+        Initialize();
         CreateVendorLedgerEntry(VendorLedgerEntry, Vendor, '', '', WorkDate, Vendor.Blocked::" ");  // Due Date - WORKDATE.
 
         // Exercise.
@@ -327,7 +327,7 @@ codeunit 144002 "UT REP Purchase Process Vend"
     begin
         // Purpose of the test is to validate Vendor - OnAfterGetRecord trigger of the Report ID: 10102, Top __ Vendor List for TopType of Purchases.
         // Setup.
-        Initialize;
+        Initialize();
         CreateVendorLedgerEntry(VendorLedgerEntry, Vendor, '', '', WorkDate, Vendor.Blocked::" ");  // Due Date - WORKDATE.
 
         // Exercise.
@@ -353,7 +353,7 @@ codeunit 144002 "UT REP Purchase Process Vend"
         // Purpose of the test is to validate Trigger OnAfterGetRecord - VendorLedgerEntry of Report ID - 10103 Vendor Account Detail for Vendor without Currency.
 
         // Setup: Run Report Vendor Account Detail to verify AmountToPrint is updated with Vendor Ledger Entry Amount(LCY).
-        Initialize;
+        Initialize();
         CreateVendorLedgerEntry(VendorLedgerEntry, Vendor, '', '', WorkDate, Vendor.Blocked::" ");  // Due Date - WORKDATE.
         CreateDetailedVendorLedgerEntry(VendorLedgerEntry."Entry No.", Vendor."No.");
 
@@ -384,7 +384,7 @@ codeunit 144002 "UT REP Purchase Process Vend"
         // Purpose of the test is to validate Trigger OnAfterGetRecord - VendorLedgerEntry of Report ID - 10103 Vendor Account Detail for Vendor with Currency.
 
         // Setup: Run Report Vendor Account Detail to verify AmountToPrint is updated with Vendor Ledger Entry Amount.
-        Initialize;
+        Initialize();
         CurrencyCode := CreateCurrency;
         CreateVendorLedgerEntry(VendorLedgerEntry, Vendor, CurrencyCode, CurrencyCode, WorkDate, Vendor.Blocked::" ");  // Due Date - WORKDATE.
         CreateDetailedVendorLedgerEntry(VendorLedgerEntry."Entry No.", Vendor."No.");
@@ -413,10 +413,10 @@ codeunit 144002 "UT REP Purchase Process Vend"
     begin
         // Purpose of the test is to validate Trigger OnAfterGetRecord - VendorLedgerEntry of Report ID - 10103 Vendor Account Detail for Vendor and Vendor Ledger Entry having different Currency.
         // Setup.
-        Initialize;
-        CurrencyExchangeRate.FindFirst;
+        Initialize();
+        CurrencyExchangeRate.FindFirst();
         CurrencyExchangeRate2.SetFilter("Currency Code", '<>%1', CurrencyExchangeRate."Currency Code");
-        CurrencyExchangeRate2.FindFirst;
+        CurrencyExchangeRate2.FindFirst();
         CreateVendorLedgerEntry(
           VendorLedgerEntry, Vendor, CurrencyExchangeRate."Currency Code", CurrencyExchangeRate2."Currency Code", WorkDate,
           Vendor.Blocked::" ");  // Due Date - WORKDATE;
@@ -449,7 +449,7 @@ codeunit 144002 "UT REP Purchase Process Vend"
         // Purpose of the test is to validate OnAfterGetRecord - VendorLedgerEntry of Report ID - 10093 Open Vendor Entries for External Document No.
 
         // Setup: Create Vendor Ledger Entry without Currency.
-        Initialize;
+        Initialize();
         CreateVendorLedgerEntry(VendorLedgerEntry, Vendor, '', '', WorkDate, Vendor.Blocked::" ");  // Due Date - WORKDATE.
         CreateDetailedVendorLedgerEntry(VendorLedgerEntry."Entry No.", Vendor."No.");
 
@@ -473,7 +473,7 @@ codeunit 144002 "UT REP Purchase Process Vend"
     begin
         // Purpose of the test is to validate OnPreReport of Report ID - 10103 Vendor Account Detail for Accounts with Balances.
         // Setup.
-        Initialize;
+        Initialize();
         CreateVendorLedgerEntry(VendorLedgerEntry, Vendor, '', '', WorkDate, Vendor.Blocked::" ");  // Due Date - WORKDATE.
 
         // Exercise.
@@ -495,7 +495,7 @@ codeunit 144002 "UT REP Purchase Process Vend"
     begin
         // Purpose of the test is to validate OnPreReport Trigger Of Report ID - 10104 Vendor Comment List for Comment Line with Vendor.
         // Setup.
-        Initialize;
+        Initialize();
         CreateVendor(Vendor, '', Vendor.Blocked::" ");
         UpdateVendorName(Vendor);
         CreateCommentLine(CommentLine, Vendor."No.");
@@ -521,7 +521,7 @@ codeunit 144002 "UT REP Purchase Process Vend"
     begin
         // Purpose of the test is to validate OnAfterGetRecord - CommentLine Trigger Of Report ID - 10104 Vendor Comment List for Comment Line without Vendor.
         // Setup.
-        Initialize;
+        Initialize();
         CreateCommentLine(CommentLine, '');  // Comment Line without Vendor.
 
         // Exercise.
@@ -544,7 +544,7 @@ codeunit 144002 "UT REP Purchase Process Vend"
     begin
         // Purpose of the test is to validate OnAfterGetRecord - Vendor Trigger of Report ID - 10106 Vendor - Listing for Vendor Balance and Vendor Filter.
         // Setup.
-        Initialize;
+        Initialize();
         CreateVendorLedgerEntry(VendorLedgerEntry, Vendor, '', '', WorkDate, Vendor.Blocked::" ");  // Due Date - WORKDATE.
         CreateDetailedVendorLedgerEntry(VendorLedgerEntry."Entry No.", Vendor."No.");
 
@@ -571,7 +571,7 @@ codeunit 144002 "UT REP Purchase Process Vend"
     begin
         // Purpose of the test is to validate OnAfterGetRecord - Vendor Trigger of Report ID - 10106 Vendor - Listing for Vendor Balance and Payment terms.
         // Setup.
-        Initialize;
+        Initialize();
         CreatePaymentTerms(PaymentTerms);
         CreateVendorLedgerEntry(VendorLedgerEntry, Vendor, '', '', WorkDate, Vendor.Blocked::" ");  // Due Date - WORKDATE.
         Vendor."Payment Terms Code" := PaymentTerms.Code;
@@ -603,7 +603,7 @@ codeunit 144002 "UT REP Purchase Process Vend"
     begin
         // Purpose of the test is to validate OnAfterGetrecord - ValueEntry Trigger of Report ID - 10113  Vendor/Item Statistics for Filters and Item Description.
         // Setup.
-        Initialize;
+        Initialize();
         CreateItem(Item);
         CreateVendor(Vendor, '', Vendor.Blocked::" ");
         CreateValueEntry(ValueEntry, Vendor."No.", Item."No.");
@@ -636,7 +636,7 @@ codeunit 144002 "UT REP Purchase Process Vend"
     begin
         // Purpose of the test is to validate OnAfterGetrecord - ValueEntry Trigger of Report ID - 10113  Vendor/Item Statistics for Value Entry without Item.
         // Setup.
-        Initialize;
+        Initialize();
         CreateVendor(Vendor, '', Vendor.Blocked::" ");
         CreateValueEntry(ValueEntry, Vendor."No.", '');  // Value Entry without Item.
         CreatePurchaseInvoiceHeader(PurchInvHeader, ValueEntry."External Document No.", ValueEntry."Posting Date");
@@ -661,7 +661,7 @@ codeunit 144002 "UT REP Purchase Process Vend"
         // Purpose of the test is to validate OnAfterGetrecord - ValueEntry Trigger of Report ID - 10114 Vendor Item Stat. by Purchaser for Value Entry with Item.
 
         // Setup: Run report Vendor Item Stat. by Purchaser to verify Item Description of Item is is updated on the Report.
-        Initialize;
+        Initialize();
         CreateItem(Item);
         OnAfterGetRecordVendItemStatByPurchaser(Item."No.", Item.Description);
     end;
@@ -675,7 +675,7 @@ codeunit 144002 "UT REP Purchase Process Vend"
         // Purpose of the test is to validate OnAfterGetrecord - ValueEntry Trigger of Report ID - 10114 Vendor Item Stat. by Purchaser for Value Entry without Item.
 
         // Setup: Run report Vendor Item Stat. by Purchaser to verify Item Description is updated as Others if no Item is present on Value Entry.
-        Initialize;
+        Initialize();
         OnAfterGetRecordVendItemStatByPurchaser('', 'Others');
     end;
 
@@ -721,7 +721,7 @@ codeunit 144002 "UT REP Purchase Process Vend"
     begin
         // Purpose of the test is to validate OnAfteGetRecord - Vendor Trigger of Report ID - 10105 Vendor Labels.
         // Setup.
-        Initialize;
+        Initialize();
         CreateVendor(Vendor, '', Vendor.Blocked::" ");
         LibraryVariableStorage.Enqueue(Vendor."No.");  // Required inside VendorLabelsRequestPageHandler
 
@@ -746,7 +746,7 @@ codeunit 144002 "UT REP Purchase Process Vend"
     begin
         // Purpose of the test is to validate OnAfteGetRecord - Vendor Trigger of Report ID - 10105 Vendor Labels.
         // Setup.
-        Initialize;
+        Initialize();
         CreateVendor(Vendor, '', Vendor.Blocked::" ");
         NoOfPrintLinesOnLabel := 10 + LibraryRandom.RandInt(10);  // Value more than 10 Required.
         LibraryVariableStorage.Enqueue(NoOfPrintLinesOnLabel);  // Required inside VendorLabelsRequestPageHandler
@@ -772,7 +772,7 @@ codeunit 144002 "UT REP Purchase Process Vend"
     begin
         // Purpose of the test is to validate OnAfterGetRecord -  VendorLedgerEntry Trigger of Repor ID -10108 AP - Vendor Register.
         // Setup.
-        Initialize;
+        Initialize();
         CreateVendorLedgerEntry(VendorLedgerEntry, Vendor, '', '', WorkDate, Vendor.Blocked::" ");  // Due Date - WORKDATE.
         UpdateVendorName(Vendor);
         CreateDetailedVendorLedgerEntry(VendorLedgerEntry."Entry No.", Vendor."No.");
@@ -801,7 +801,7 @@ codeunit 144002 "UT REP Purchase Process Vend"
     begin
         // Purpose of the test is to validate OnOpenPage Trigger of Report ID - 10107 Vendor Purchase Statistics.
         // Setup.
-        Initialize;
+        Initialize();
 
         // Exercise.
         LibraryLowerPermissions.SetVendorView;
@@ -823,7 +823,7 @@ codeunit 144002 "UT REP Purchase Process Vend"
         // Purpose of the test is to validate OnAfterGetRecord - Vendor Trigger on Report ID - 10107 Vendor Purchase Statistics.
 
         // Setup: Create Vendor Ledger Entry and Detailed Vendor Ledger Entry of Initial Document Type Payment.
-        Initialize;
+        Initialize();
         CreateVendorLedgerEntry(VendorLedgerEntry, Vendor, '', '', WorkDate, Vendor.Blocked::" ");  // Due Date - WORKDATE.
         UpdateVendLedgerEntryDiscounts(VendorLedgerEntry);
         CreateDetailedVendorLedgerEntry(VendorLedgerEntry."Entry No.", Vendor."No.");
@@ -858,7 +858,7 @@ codeunit 144002 "UT REP Purchase Process Vend"
         // Purpose of the test is to validate OnAfterGetRecord - Vendor Trigger on Report ID - 10107 Vendor Purchase Statistics.
 
         // Setup: Create VendorLedger Entry of Document Type Invoice and Detailed Vendor Ledger Entry of Initial Document Type Finance Charge Memo.
-        Initialize;
+        Initialize();
         CreateVendorLedgerEntry(VendorLedgerEntry, Vendor, '', '', WorkDate, Vendor.Blocked::" ");  // Due Date - WORKDATE.
         UpdateVendLedgerEntryDiscounts(VendorLedgerEntry);
         UpdateVendorLedgerEntry(VendorLedgerEntry);  // Update Document Type Invoice.
@@ -883,11 +883,11 @@ codeunit 144002 "UT REP Purchase Process Vend"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryVariableStorage.Clear();
+        LibraryLowerPermissions.SetOutsideO365Scope();
 
         if not IsInitialized then begin
-            LibraryApplicationArea.EnableFoundationSetup;
+            LibraryApplicationArea.EnableFoundationSetup();
             IsInitialized := true;
         end;
     end;
@@ -923,7 +923,7 @@ codeunit 144002 "UT REP Purchase Process Vend"
         VendorLedgerEntry2: Record "Vendor Ledger Entry";
     begin
         CreateVendor(Vendor, CurrencyCode, Blocked);
-        VendorLedgerEntry2.FindLast;
+        VendorLedgerEntry2.FindLast();
         VendorLedgerEntry."Entry No." := VendorLedgerEntry2."Entry No." + 1;
         VendorLedgerEntry."Vendor No." := Vendor."No.";
         VendorLedgerEntry."Currency Code" := CurrencyCode2;
@@ -943,7 +943,7 @@ codeunit 144002 "UT REP Purchase Process Vend"
         DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
         DetailedVendorLedgEntry2: Record "Detailed Vendor Ledg. Entry";
     begin
-        DetailedVendorLedgEntry2.FindLast;
+        DetailedVendorLedgEntry2.FindLast();
         DetailedVendorLedgEntry."Entry No." := DetailedVendorLedgEntry2."Entry No." + 1;
         DetailedVendorLedgEntry."Vendor Ledger Entry No." := VendorLedgerEntryNo;
         DetailedVendorLedgEntry.Amount := -LibraryRandom.RandDec(10, 2);  // Amount less than 0 required.
@@ -975,7 +975,7 @@ codeunit 144002 "UT REP Purchase Process Vend"
     var
         ValueEntry2: Record "Value Entry";
     begin
-        ValueEntry2.FindLast;
+        ValueEntry2.FindLast();
         ValueEntry."Entry No." := ValueEntry2."Entry No." + 1;
         ValueEntry."Source Type" := ValueEntry."Source Type"::Vendor;
         ValueEntry."Source No." := VendorNo;
@@ -1013,7 +1013,7 @@ codeunit 144002 "UT REP Purchase Process Vend"
         LibraryVariableStorage.Enqueue(TopType);  // Enqueue TopType for use in TopVendorListRequestPageHandler.
         Vendor.SetRange("No.", Vendor."No.");
         TopVendorList.SetTableView(Vendor);
-        TopVendorList.Run;  // Invokes TopVendorListRequestPageHandler.
+        TopVendorList.Run();  // Invokes TopVendorListRequestPageHandler.
     end;
 
     local procedure UpdateInitialDocumentTypeDetailedVendorLedgerEntry(VendorLedgerEntryNo: Integer; VendorNo: Code[20]; InitialDocumentType: Option)
@@ -1022,7 +1022,7 @@ codeunit 144002 "UT REP Purchase Process Vend"
     begin
         DetailedVendorLedgerEntry.SetRange("Vendor Ledger Entry No.", VendorLedgerEntryNo);
         DetailedVendorLedgerEntry.SetRange("Vendor No.", VendorNo);
-        DetailedVendorLedgerEntry.FindFirst;
+        DetailedVendorLedgerEntry.FindFirst();
         DetailedVendorLedgerEntry."Initial Document Type" := InitialDocumentType;
         DetailedVendorLedgerEntry.Modify();
     end;

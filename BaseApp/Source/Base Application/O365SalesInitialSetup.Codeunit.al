@@ -168,7 +168,7 @@ codeunit 2110 "O365 Sales Initial Setup"
         end;
 
         ConfigTmplSelectionRules.SetRange("Table ID", DATABASE::Customer);
-        if not ConfigTmplSelectionRules.FindFirst then begin
+        if not ConfigTmplSelectionRules.FindFirst() then begin
             ConfigTmplSelectionRules.Validate("Table ID", DATABASE::Customer);
             ConfigTmplSelectionRules.Validate("Page ID", PAGE::"Customer Entity");
             ConfigTmplSelectionRules.Validate("Template Code", O365SalesInitialSetup."Default Customer Template");
@@ -215,7 +215,7 @@ codeunit 2110 "O365 Sales Initial Setup"
           CompanyCustomerTemplate.FieldNo("Allow Line Disc."),
           CompanyCustomerTemplate.FieldNo("Prices Including VAT"));
 
-        if not ConfigTemplateLine.FindSet then
+        if not ConfigTemplateLine.FindSet() then
             exit;
 
         if not CompanyCustomerTemplate.Get(MarketingSetup."Cust. Template Company Code") then begin
@@ -253,7 +253,7 @@ codeunit 2110 "O365 Sales Initial Setup"
         // NA Customer template has Tax Liable and Tax Area Code but does not use the same IDs
         // They must be set manually
         ConfigTemplateLine.SetRange("Field ID", Customer.FieldNo("Tax Liable"));
-        if ConfigTemplateLine.FindFirst then begin
+        if ConfigTemplateLine.FindFirst() then begin
             if not Evaluate(DefaultTaxLiableValue, ConfigTemplateLine."Default Value") then
                 DefaultTaxLiableValue := true; // default to true
             CompanyTemplateFieldRef := CompanyTemplateRecordRef.Field(CompanyCustomerTemplate.FieldNo("Tax Liable"));
@@ -263,7 +263,7 @@ codeunit 2110 "O365 Sales Initial Setup"
         end;
 
         ConfigTemplateLine.SetRange("Field ID", Customer.FieldNo("Tax Area Code"));
-        if ConfigTemplateLine.FindFirst then begin
+        if ConfigTemplateLine.FindFirst() then begin
             CompanyTemplateFieldRef := CompanyTemplateRecordRef.Field(CompanyCustomerTemplate.FieldNo("Tax Area Code"));
             CompanyTemplateFieldRef.Validate(ConfigTemplateLine."Default Value");
             PersonTemplateFieldRef := PersonTemplateRecordRef.Field(PersonCustomerTemplate.FieldNo("Tax Area Code"));
@@ -284,7 +284,7 @@ codeunit 2110 "O365 Sales Initial Setup"
         ConfigTemplateHeader.DeleteAll(true);
 
         ConfigTmplSelectionRules.SetRange("Table ID", DATABASE::Item);
-        if not ConfigTmplSelectionRules.FindFirst then begin
+        if not ConfigTmplSelectionRules.FindFirst() then begin
             ConfigTmplSelectionRules.Validate("Table ID", DATABASE::Item);
             ConfigTmplSelectionRules.Validate("Page ID", PAGE::"Item Entity");
             ConfigTmplSelectionRules.Validate("Template Code", O365SalesInitialSetup."Default Item Template");
@@ -332,7 +332,7 @@ codeunit 2110 "O365 Sales Initial Setup"
         CustomReportLayout.Reset();
         CustomReportLayout.SetRange(Code, LayoutCode);
         CustomReportLayout.SetRange("Report ID", ReportID);
-        if not CustomReportLayout.FindFirst then
+        if not CustomReportLayout.FindFirst() then
             exit;
 
         if ReportLayoutSelection.Get(ReportID, CompanyName) then
@@ -439,7 +439,7 @@ codeunit 2110 "O365 Sales Initial Setup"
         if not (GetO365SalesInitialSetup and O365SalesInitialSetup."Is initialized") then
             exit;
 
-        if AccountingPeriod.FindLast then
+        if AccountingPeriod.FindLast() then
             if AccountingPeriod."Starting Date" > WorkDate + 366 then
                 exit;
 
@@ -449,12 +449,12 @@ codeunit 2110 "O365 Sales Initial Setup"
             exit;
 
         AccountingPeriod.LockTable();
-        if AccountingPeriod.FindLast then
+        if AccountingPeriod.FindLast() then
             if AccountingPeriod."Starting Date" > WorkDate + 366 then
                 exit;
 
         AccountingPeriod.SetRange("New Fiscal Year", true);
-        if not AccountingPeriod.FindLast then
+        if not AccountingPeriod.FindLast() then
             AccountingPeriod."Starting Date" := CalcDate('<-CY>', WorkDate)
         else
             AccountingPeriod."Starting Date" := CalcDate('<1Y>', AccountingPeriod."Starting Date");
@@ -463,7 +463,7 @@ codeunit 2110 "O365 Sales Initial Setup"
         CreateFiscalYear.InitializeRequest(12, DateFormulaVariable, AccountingPeriod."Starting Date");
         CreateFiscalYear.UseRequestPage(false);
         CreateFiscalYear.HideConfirmationDialog(true);
-        CreateFiscalYear.RunModal;
+        CreateFiscalYear.RunModal();
     end;
 
     local procedure InitializeBankAccount()
@@ -489,12 +489,12 @@ codeunit 2110 "O365 Sales Initial Setup"
     begin
         if GetCompany then;
         O365PaymentInstructions.SetRange(Default, true);
-        if O365PaymentInstructions.FindFirst then begin
+        if O365PaymentInstructions.FindFirst() then begin
             O365PaymentInstructions.SetPaymentInstructions(
               StrSubstNo(O365PaymentInstructions.GetPaymentInstructions, Company."Display Name"));
             O365PaymentInstructions.Modify(true);
             O365PaymentInstrTransl.SetRange(Id, O365PaymentInstructions.Id);
-            if O365PaymentInstrTransl.FindSet then
+            if O365PaymentInstrTransl.FindSet() then
                 repeat
                     O365PaymentInstrTransl.SetTranslPaymentInstructions(
                       StrSubstNo(O365PaymentInstrTransl.GetTransPaymentInstructions, Company."Display Name"));
@@ -507,15 +507,11 @@ codeunit 2110 "O365 Sales Initial Setup"
     var
         O365EmailSetup: Record "O365 Email Setup";
         EmailAccount: Record "Email Account";
-        EmailFeature: Codeunit "Email Feature";
         EmailScenario: Codeunit "Email Scenario";
         BccEmail: Text[80];
     begin
-        if EmailFeature.IsEnabled() then begin
-            if EmailScenario.GetEmailAccount(Enum::"Email Scenario"::Default, EmailAccount) then
-                BccEmail := CopyStr(EmailAccount."Email Address", 1, MaxStrLen(BccEmail));
-        end else
-            BccEmail := TryGetEmailFromSmtpSetup();
+        if EmailScenario.GetEmailAccount(Enum::"Email Scenario"::Default, EmailAccount) then
+            BccEmail := CopyStr(EmailAccount."Email Address", 1, MaxStrLen(BccEmail));
 
         if BccEmail = '' then begin
             BccEmail := TryGetEmailFromCurrentUser();
@@ -526,7 +522,7 @@ codeunit 2110 "O365 Sales Initial Setup"
         O365EmailSetup.SetCurrentKey(Email, RecipientType);
         O365EmailSetup.SetRange(Email, BccEmail);
         O365EmailSetup.SetRange(RecipientType, O365EmailSetup.RecipientType::BCC);
-        if O365EmailSetup.FindFirst then
+        if O365EmailSetup.FindFirst() then
             exit;
 
         // Add the email to BCC on all invoices
@@ -596,26 +592,6 @@ codeunit 2110 "O365 Sales Initial Setup"
         UserPersonalization.Modify(true);
     end;
 
-    local procedure TryGetEmailFromSmtpSetup(): Text[80]
-    var
-        SMTPMailSetup: Record "SMTP Mail Setup";
-        MailManagement: Codeunit "Mail Management";
-        BccEmail: Text[80];
-    begin
-        if not (SMTPMailSetup.GetSetup and MailManagement.IsSMTPEnabled) then
-            exit;
-
-        if SMTPMailSetup.Authentication <> SMTPMailSetup.Authentication::Basic then
-            exit;
-
-        BccEmail := CopyStr(SMTPMailSetup."User ID", 1, MaxStrLen(BccEmail));
-
-        if not MailManagement.CheckValidEmailAddress(BccEmail) then
-            exit('');
-
-        exit(BccEmail);
-    end;
-
     local procedure TryGetEmailFromCurrentUser() BccEmail: Text[80]
     var
         User: Record User;
@@ -664,7 +640,7 @@ codeunit 2110 "O365 Sales Initial Setup"
 
         O365SalesInvoice.SetRecord(SalesHeader);
         O365SalesInvoice.SuppressExitPrompt;
-        O365SalesInvoice.Run;
+        O365SalesInvoice.Run();
     end;
 
     procedure RemoveInitialDraftInvoice(SenderNotification: Notification)
@@ -774,7 +750,7 @@ codeunit 2110 "O365 Sales Initial Setup"
         exit(true);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"LogInManagement", 'OnAfterCompanyOpen', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"System Initialization", 'OnAfterLogin', '', false, false)]
     local procedure OnAfterCompanyOpen()
     var
         CompanyInformationMgt: Codeunit "Company Information Mgt.";
@@ -841,18 +817,18 @@ codeunit 2110 "O365 Sales Initial Setup"
         CompanyInformation: Record "Company Information";
         TaxArea: Record "Tax Area";
     begin
-        if TaxArea.FindFirst then
+        if TaxArea.FindFirst() then
             TaxAreaCode := TaxArea.Code;
 
         if CompanyInformation.Get and (CompanyInformation.County <> '') then begin
             TaxArea.Reset();
             TaxArea.SetRange(Code, CompanyInformation.County);
-            if TaxArea.FindFirst then
+            if TaxArea.FindFirst() then
                 TaxAreaCode := TaxArea.Code
             else begin
                 TaxArea.Reset();
                 TaxArea.SetRange(Description, CompanyInformation.County);
-                if TaxArea.FindFirst then
+                if TaxArea.FindFirst() then
                     TaxAreaCode := TaxArea.Code
             end;
         end;
@@ -929,7 +905,7 @@ codeunit 2110 "O365 Sales Initial Setup"
         PaymentMethod.ModifyAll("Bal. Account No.", '');
     end;
 
-#if not CLEAN19
+#if not CLEAN20
     [Obsolete('This procedure will be deprecated', '19.0')]
     procedure EnsureConfigurationTemplatateSelectionRuleExists(TableId: Integer)
     var
@@ -939,7 +915,7 @@ codeunit 2110 "O365 Sales Initial Setup"
         ExpectedCode: Code[10];
     begin
         ConfigTmplSelectionRules.SetRange("Table ID", TableId);
-        if ConfigTmplSelectionRules.FindFirst then
+        if ConfigTmplSelectionRules.FindFirst() then
             exit;
 
         if not GetO365SalesInitialSetup then
@@ -967,7 +943,7 @@ codeunit 2110 "O365 Sales Initial Setup"
 
         ConfigTemplateHeader.SetRange("Table ID", TableId);
         ConfigTemplateHeader.SetRange(Code, ExpectedCode);
-        if not ConfigTemplateHeader.FindFirst then
+        if not ConfigTemplateHeader.FindFirst() then
             exit;
 
         ConfigTmplSelectionRules.Validate("Template Code", ExpectedCode);

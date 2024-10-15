@@ -1042,7 +1042,7 @@ report 10089 "Payment Journal - Test"
                 GenJnlAlloc.SetRange("Journal Template Name", "Journal Template Name");
                 GenJnlAlloc.SetRange("Journal Batch Name", "Journal Batch Name");
                 GenJnlAlloc.SetRange("Journal Line No.", "Line No.");
-                if not GenJnlAlloc.FindFirst then
+                if not GenJnlAlloc.FindFirst() then
                     AddError(Text061);
             end;
 
@@ -1051,12 +1051,12 @@ report 10089 "Payment Journal - Test"
             GenJnlAlloc.SetRange("Journal Batch Name", "Journal Batch Name");
             GenJnlAlloc.SetRange("Journal Line No.", "Line No.");
             GenJnlAlloc.SetFilter(Amount, '<>0');
-            if GenJnlAlloc.FindFirst then
+            if GenJnlAlloc.FindFirst() then
                 if not GenJnlTemplate.Recurring then
                     AddError(Text021)
                 else begin
                     GenJnlAlloc.SetRange("Account No.", '');
-                    if GenJnlAlloc.FindFirst then
+                    if GenJnlAlloc.FindFirst() then
                         AddError(
                           StrSubstNo(
                             Text022,
@@ -1074,7 +1074,7 @@ report 10089 "Payment Journal - Test"
                 Month := Date2DMY("Posting Date", 2);
                 MonthText := Format("Posting Date", 0, Text023);
                 AccountingPeriod.SetRange("Starting Date", 0D, "Posting Date");
-                if not AccountingPeriod.FindLast then
+                if not AccountingPeriod.FindLast() then
                     AccountingPeriod.Name := '';
                 "Document No." :=
                   DelChr(
@@ -1364,7 +1364,7 @@ report 10089 "Payment Journal - Test"
                         OldCustLedgEntry.SetCurrentKey("Document No.", "Document Type", "Customer No.");
                         OldCustLedgEntry.SetRange("Document Type", "Document Type");
                         OldCustLedgEntry.SetRange("Document No.", "Document No.");
-                        if OldCustLedgEntry.FindFirst then
+                        if OldCustLedgEntry.FindFirst() then
                             AddError(
                               StrSubstNo(
                                 Text039, "Document Type", "Document No."));
@@ -1382,7 +1382,7 @@ report 10089 "Payment Journal - Test"
                             OldCustLedgEntry.SetRange("Document Type", "Document Type");
                             OldCustLedgEntry.SetRange("Customer No.", "Account No.");
                             OldCustLedgEntry.SetRange("External Document No.", "External Document No.");
-                            if OldCustLedgEntry.FindFirst then
+                            if OldCustLedgEntry.FindFirst() then
                                 AddError(
                                   StrSubstNo(
                                     Text039,
@@ -1459,7 +1459,7 @@ report 10089 "Payment Journal - Test"
                         OldVendLedgEntry.SetCurrentKey("Document No.", "Document Type", "Vendor No.");
                         OldVendLedgEntry.SetRange("Document Type", "Document Type");
                         OldVendLedgEntry.SetRange("Document No.", "Document No.");
-                        if OldVendLedgEntry.FindFirst then
+                        if OldVendLedgEntry.FindFirst() then
                             AddError(
                               StrSubstNo(
                                 Text040,
@@ -1478,7 +1478,7 @@ report 10089 "Payment Journal - Test"
                             OldVendLedgEntry.SetRange("Document Type", "Document Type");
                             OldVendLedgEntry.SetRange("Vendor No.", "Account No.");
                             OldVendLedgEntry.SetRange("External Document No.", "External Document No.");
-                            if OldVendLedgEntry.FindFirst then
+                            if OldVendLedgEntry.FindFirst() then
                                 AddError(
                                   StrSubstNo(
                                     Text040,
@@ -1914,7 +1914,7 @@ report 10089 "Payment Journal - Test"
                 TempGenJnlLine.SetRange("Bal. Account Type", AccType);
                 TempGenJnlLine.SetRange("Bal. Account No.", AccNo);
             end;
-            if TempGenJnlLine.FindFirst then begin
+            if TempGenJnlLine.FindFirst() then begin
                 ErrorFound := true;
                 AddError(
                   StrSubstNo(
@@ -1942,7 +1942,7 @@ report 10089 "Payment Journal - Test"
                     GenJnlLine4.SetRange("Posting Date", "Posting Date");
                     GenJnlLine4.SetRange("Document No.", "Document No.");
                     GenJnlLine4.SetFilter("IC Partner Code", '<>%1', '');
-                    if GenJnlLine4.FindFirst then
+                    if GenJnlLine4.FindFirst() then
                         CurrentICPartner := GenJnlLine4."IC Partner Code"
                     else
                         CurrentICPartner := '';

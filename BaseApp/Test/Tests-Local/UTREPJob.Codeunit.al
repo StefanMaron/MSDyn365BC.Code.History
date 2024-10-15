@@ -49,7 +49,7 @@ codeunit 144006 "UT REP Job"
     begin
         // Purpose of the test is to validate GetItemDescription Function of Report 10210 - Job Actual to Budget (Cost).
         // Setup.
-        Initialize;
+        Initialize();
         CreateResource(Resource);
 
         // Exercise: Function GetItemDescription of Report Job Actual to Budget (Cost) with Resource.
@@ -71,7 +71,7 @@ codeunit 144006 "UT REP Job"
     begin
         // Purpose of the test is to validate GetItemDescription Function of Report 10210 - Job Actual to Budget (Cost).
         // Setup.
-        Initialize;
+        Initialize();
         CreateGLAccount(GLAccount);
 
         // Exercise: Function GetItemDescription of Report Job Actual to Budget (Cost) with GL Account.
@@ -93,7 +93,7 @@ codeunit 144006 "UT REP Job"
         // Purpose of the test is to validate Job - OnPreDataItem Trigger of Report 10210 - Job Actual to Budget (Cost).
 
         // Setup: Create multiple job.
-        Initialize;
+        Initialize();
         CreateJob(Job);
         CreateJob(Job2);
 
@@ -118,7 +118,7 @@ codeunit 144006 "UT REP Job"
         // Purpose of the test is to validate Job Planning Line - OnAfterGetRecord Trigger of Report 10210 - Job Actual to Budget (Cost).
 
         // Setup: Create Item, Job Task, Job Planning Line and Job Ledger Entry.
-        Initialize;
+        Initialize();
         CreateItem(Item);
         CreateJobTask(JobTask, JobTask."Job Task Type"::Posting);
         CreateJobPlanningLine(JobPlanningLine, JobTask, JobPlanningLine."Line Type"::Budget, Item."No.");
@@ -148,7 +148,7 @@ codeunit 144006 "UT REP Job"
         // Purpose of the test is to validate Job Planning Line - OnAfterGetRecord Trigger of Report 10210 - Job Actual to Budget (Cost).
 
         // Setup: Create Item, Job Task and multiple Job Planning Lines.
-        Initialize;
+        Initialize();
         CreateItem(Item);
         CreateJobTask(JobTask, JobTask."Job Task Type"::Posting);
         CreateJobPlanningLine(JobPlanningLine, JobTask, JobPlanningLine."Line Type"::Budget, Item."No.");
@@ -176,7 +176,7 @@ codeunit 144006 "UT REP Job"
         // Purpose of the test is to validate Job Ledger Entry - OnAfterGetRecord Trigger of Report 10210 - Job Actual to Budget (Cost).
 
         // Setup: Create Job Task and Job Ledger Entry.
-        Initialize;
+        Initialize();
         CreateJobTask(JobTask, JobTask."Job Task Type"::Posting);
         CreateJobLedgerEntry(JobLedgerEntry, JobTask, LibraryUTUtility.GetNewCode, JobLedgerEntry."Entry Type");
 
@@ -202,7 +202,7 @@ codeunit 144006 "UT REP Job"
         // [SCENARIO 225543] Linked Job Planning Line and Job Ledger Entry with different UOMs creates one line in Job Actual To Budget Cost Report
 
         // [GIVEN] Item, Job Task, Job Planning Line "JPL" with Unit of Measure "UOM1" and Job Ledger Entry "JLE" with Unit of Measure "UOM2".
-        Initialize;
+        Initialize();
         CreateItem(Item);
         CreateJobTask(JobTask, JobTask."Job Task Type"::Posting);
 
@@ -232,7 +232,7 @@ codeunit 144006 "UT REP Job"
         // Purpose of the test is to validate Job Ledger Entry - OnAfterGetRecord Trigger of Report 10210 - Job Actual to Budget (Cost).
 
         // Setup: Create Item, Job Task, Job Planning Line and Job Ledger Entry.
-        Initialize;
+        Initialize();
         CreateItem(Item);
         CreateJobTask(JobTask, JobTask."Job Task Type"::"End-Total");
         UpdateTotalingJobTask(JobTask);
@@ -259,7 +259,7 @@ codeunit 144006 "UT REP Job"
     begin
         // Purpose of the test is to validate GetItemDescription Function of Report 10211 - Job Actual to Budget (Price).
         // Setup.
-        Initialize;
+        Initialize();
         CreateResource(Resource);
 
         // Exercise: Function GetItemDescription of Report Job Actual to Budget (Price) with Resource.
@@ -281,7 +281,7 @@ codeunit 144006 "UT REP Job"
     begin
         // Purpose of the test is to validate GetItemDescription Function of Report 10211 - Job Actual to Budget (Price).
         // Setup.
-        Initialize;
+        Initialize();
         CreateGLAccount(GLAccount);
 
         // Exercise: Function GetItemDescription of Report Job Actual to Budget (Price) with GL Account.
@@ -303,7 +303,7 @@ codeunit 144006 "UT REP Job"
         // Purpose of the test is to validate Job - OnPreDataItem Trigger of Report 10211 - Job Actual to Budget (Price).
 
         // Setup: Create multiple job.
-        Initialize;
+        Initialize();
         CreateJob(Job);
         CreateJob(Job2);
 
@@ -328,7 +328,7 @@ codeunit 144006 "UT REP Job"
         // Purpose of the test is to validate Job Planning Line - OnAfterGetRecord Trigger of Report 10211 - Job Actual to Budget (Price).
 
         // Setup: Create Item, Job Task, Job Planning Line and Job Ledger Entry.
-        Initialize;
+        Initialize();
         CreateItem(Item);
         CreateJobTask(JobTask, JobTask."Job Task Type"::Posting);
         CreateJobPlanningLine(JobPlanningLine, JobTask, JobPlanningLine."Line Type"::Budget, Item."No.");
@@ -359,7 +359,7 @@ codeunit 144006 "UT REP Job"
         // Purpose of the test is to validate Job Planning Line - OnAfterGetRecord Trigger of Report 10211 - Job Actual to Budget (Price).
 
         // Setup: Create Item, Job Task and multiple Job Planning Lines.
-        Initialize;
+        Initialize();
         CreateItem(Item);
         CreateJobTask(JobTask, JobTask."Job Task Type"::Posting);
         CreateJobPlanningLine(JobPlanningLine, JobTask, JobPlanningLine."Line Type"::Budget, Item."No.");
@@ -387,7 +387,7 @@ codeunit 144006 "UT REP Job"
         // Purpose of the test is to validate Job Ledger Entry - OnAfterGetRecord Trigger of Report 10211 - Job Actual to Budget (Price).
 
         // Setup: Create Job Task and Job Ledger Entry.
-        Initialize;
+        Initialize();
         CreateJobTask(JobTask, JobTask."Job Task Type"::Posting);
         CreateJobLedgerEntry(JobLedgerEntry, JobTask, LibraryUTUtility.GetNewCode, JobLedgerEntry."Entry Type");
 
@@ -412,7 +412,7 @@ codeunit 144006 "UT REP Job"
         // Purpose of the test is to validate Job Ledger Entry - OnAfterGetRecord Trigger of Report 10211 - Job Actual to Budget (Price).
 
         // Setup: Create Item, Job Task, Job Planning Line and Job Ledger Entry.
-        Initialize;
+        Initialize();
         CreateItem(Item);
         CreateJobTask(JobTask, JobTask."Job Task Type"::"End-Total");
         UpdateTotalingJobTask(JobTask);
@@ -442,7 +442,7 @@ codeunit 144006 "UT REP Job"
         // Purpose of the test is to validate Job - OnAfterGetRecord Trigger of Report 10212 - Completed Jobs.
 
         // Setup: Create Job Task, Job Planning Line and Job Ledger Entry.
-        Initialize;
+        Initialize();
         CreateJobTask(JobTask, JobTask."Job Task Type"::Posting);
         UpdateStatusJob(JobTask."Job No.", Job.Status::Completed);
         CreateJobPlanningLine(JobPlanningLine, JobTask, JobPlanningLine."Line Type"::Billable, LibraryUTUtility.GetNewCode);
@@ -469,7 +469,7 @@ codeunit 144006 "UT REP Job"
         // Purpose of the test is to validate Job - OnAfterGetRecord Trigger of Report 10212 - Completed Jobs.
 
         // Setup: Create Job Task, Job Planning Line and Job Ledger Entry.
-        Initialize;
+        Initialize();
         CreateJobTask(JobTask, JobTask."Job Task Type"::Posting);
         UpdateStatusJob(JobTask."Job No.", Job.Status::Completed);
         CreateJobPlanningLine(
@@ -499,7 +499,7 @@ codeunit 144006 "UT REP Job"
         // Purpose of the test is to validate Job - OnAfterGetRecord Trigger of Report 10212 - Completed Jobs.
 
         // Setup: Create Job Task, Job Planning Line and Job Ledger Entry.
-        Initialize;
+        Initialize();
         CreateJobTask(JobTask, JobTask."Job Task Type"::Posting);
         UpdateStatusJob(JobTask."Job No.", Job.Status::Completed);
         CreateJobPlanningLine(JobPlanningLine, JobTask, JobPlanningLine."Line Type"::Budget, LibraryUTUtility.GetNewCode);
@@ -529,7 +529,7 @@ codeunit 144006 "UT REP Job"
         // Purpose of the test is to validate Job - OnAfterGetRecord Trigger of Report 10213 - Customer Jobs (Cost).
 
         // Setup: Create Job Task, Job Planning Line and Job Ledger Entry.
-        Initialize;
+        Initialize();
         CreateJobTask(JobTask, JobTask."Job Task Type"::Posting);
         UpdateStatusJob(JobTask."Job No.", Job.Status::Open);
         CreateJobPlanningLine(JobPlanningLine, JobTask, JobPlanningLine."Line Type"::Budget, LibraryUTUtility.GetNewCode);
@@ -559,7 +559,7 @@ codeunit 144006 "UT REP Job"
         // Purpose of the test is to validate OnAfterGetRecord Trigger of Report 10214 - Customer Jobs (Price).
 
         // Setup: Create Job Task, Job Planning Line and Job Ledger Entry.
-        Initialize;
+        Initialize();
         CreateJobTask(JobTask, JobTask."Job Task Type"::Posting);
         UpdateStatusJob(JobTask."Job No.", Job.Status::Open);
         CreateJobPlanningLine(JobPlanningLine, JobTask, JobPlanningLine."Line Type"::Budget, LibraryUTUtility.GetNewCode);
@@ -589,7 +589,7 @@ codeunit 144006 "UT REP Job"
         // Purpose of the test is to validate OnAfterGetRecord Trigger of Report 10214 - Customer Jobs (Price).
 
         // Setup: Create Job Task, Job Planning Line and Job Ledger Entry.
-        Initialize;
+        Initialize();
         CreateJobTask(JobTask, JobTask."Job Task Type"::Posting);
         UpdateStatusJob(JobTask."Job No.", Job.Status::Open);
         CreateJobPlanningLine(JobPlanningLine, JobTask, JobPlanningLine."Line Type"::Budget, LibraryUTUtility.GetNewCode);
@@ -617,7 +617,7 @@ codeunit 144006 "UT REP Job"
     begin
         // Purpose of the test is to validate GetItemDescription Function of Report 10215 - Job Cost Budget.
         // Setup.
-        Initialize;
+        Initialize();
         CreateResource(Resource);
 
         // Exercise: Function GetItemDescription of Report Job Cost Budget with Resource
@@ -639,7 +639,7 @@ codeunit 144006 "UT REP Job"
     begin
         // Purpose of the test is to validate GetItemDescription Function of Report 10215 - Job Cost Budget.
         // Setup.
-        Initialize;
+        Initialize();
         CreateGLAccount(GLAccount);
 
         // Exercise: Function GetItemDescription of Report Job Cost Budget with GL Account.
@@ -661,7 +661,7 @@ codeunit 144006 "UT REP Job"
     begin
         // Purpose of the test is to validate GetItemDescription Function of Report 10215 - Job Cost Budget.
         // Setup.
-        Initialize;
+        Initialize();
         CreateItem(Item);
 
         // Exercise: Function GetItemDescription of Report Job Cost Budget with GL Account.
@@ -683,7 +683,7 @@ codeunit 144006 "UT REP Job"
         // Purpose of the test is to validate OnPreDataItem - JobPlanningLine Trigger of Report 10215 - Job Cost Budget.
 
         // Setup: Create Job Task and Job Planning Line.
-        Initialize;
+        Initialize();
         CreateJobTask(JobTask, JobTask."Job Task Type"::Posting);
         CreateJobPlanningLine(JobPlanningLine, JobTask, JobPlanningLine."Line Type"::Budget, LibraryUTUtility.GetNewCode);
 
@@ -709,7 +709,7 @@ codeunit 144006 "UT REP Job"
         // Purpose of the test is to validate OnPreDataItem - JobPlanningLine Trigger of Report 10215 - Job Cost Budget.
 
         // Setup: Create Job Task and Job Planning Line.
-        Initialize;
+        Initialize();
         CreateJobTask(JobTask, JobTask."Job Task Type"::"End-Total");
         CreateJobPlanningLine(JobPlanningLine, JobTask, JobPlanningLine."Line Type"::Billable, LibraryUTUtility.GetNewCode);
 
@@ -733,7 +733,7 @@ codeunit 144006 "UT REP Job"
         // Purpose of the test is to validate OnAfterGetRecord - Job Trigger of Report 10216 - Job List.
 
         // Setup: Create Job Task and Job Planning Line.
-        Initialize;
+        Initialize();
         CreateJobTask(JobTask, JobTask."Job Task Type"::Total);
         CreateJobPlanningLine(JobPlanningLine, JobTask, JobPlanningLine."Line Type"::Budget, LibraryUTUtility.GetNewCode);
 
@@ -759,7 +759,7 @@ codeunit 144006 "UT REP Job"
         // Purpose of the test is to validate OnPreDataItem - Job Trigger of Report 10216 - Job List.
 
         // Setup: Create Job Task and Job Planning Line.
-        Initialize;
+        Initialize();
         CreateJobTask(JobTask, JobTask."Job Task Type"::Total);
         CreateJobPlanningLine(JobPlanningLine, JobTask, JobPlanningLine."Line Type"::Billable, LibraryUTUtility.GetNewCode);
 
@@ -784,7 +784,7 @@ codeunit 144006 "UT REP Job"
         // Purpose of the test is to validate OnAfterGetRecord - JobLedgerEntry Trigger of Report 10217 - Job Register.
 
         // Setup: Create Job Task, Job Ledger Entry and Job Register.
-        Initialize;
+        Initialize();
         CreateJobTask(JobTask, JobTask."Job Task Type"::Total);
         CreateJobLedgerEntry(JobLedgerEntry, JobTask, LibraryUTUtility.GetNewCode, JobLedgerEntry."Entry Type");
         CreateJobRegister(JobLedgerEntry."Entry No.");
@@ -813,7 +813,7 @@ codeunit 144006 "UT REP Job"
         // Purpose of the test is to validate OnAfterGetRecord - Job Trigger of Report 10219 - Job Cost Suggested Billing.
 
         // Setup: Create Job Task and Job Planning Line.
-        Initialize;
+        Initialize();
         CreateJobTask(JobTask, JobTask."Job Task Type"::Total);
         CreateJobPlanningLine(JobPlanningLine, JobTask, JobPlanningLine."Line Type"::Billable, LibraryUTUtility.GetNewCode);
         UpdateStatusJob(JobTask."Job No.", Job.Status::Open);
@@ -841,7 +841,7 @@ codeunit 144006 "UT REP Job"
         // Purpose of the test is to validate OnAfterGetRecord - Job Trigger of Report 10219 - Job Cost Suggested Billing.
 
         // Setup: Create Job Task and Job Ledger Entry.
-        Initialize;
+        Initialize();
         CreateJobTask(JobTask, JobTask."Job Task Type"::Total);
         UpdateStatusJob(JobTask."Job No.", Job.Status::Open);
         CreateJobLedgerEntry(JobLedgerEntry, JobTask, Item."No.", JobLedgerEntry."Entry Type"::Sale);
@@ -868,7 +868,7 @@ codeunit 144006 "UT REP Job"
         // Purpose of the test is to validate OnAfterGetRecord - Job Trigger of Report 10219 - Job Cost Suggested Billing.
 
         // Setup: Create Job Task and Job Ledger Entry.
-        Initialize;
+        Initialize();
         CreateJobTask(JobTask, JobTask."Job Task Type"::Total);
         UpdateStatusJob(JobTask."Job No.", Job.Status::Open);
         CreateJobLedgerEntry(JobLedgerEntry, JobTask, Item."No.", JobLedgerEntry."Entry Type"::Usage);
@@ -894,7 +894,7 @@ codeunit 144006 "UT REP Job"
         // Purpose of the test is to validate OnAfterGetRecord - JobLedgerEntry Trigger of Report 10220 - Job Cost Transaction Detail.
 
         // Setup: Create Job Task and Job Ledger Entry.
-        Initialize;
+        Initialize();
         CreateJobTask(JobTask, JobTask."Job Task Type"::Total);
         CreateJobLedgerEntry(JobLedgerEntry, JobTask, LibraryUTUtility.GetNewCode, JobLedgerEntry."Entry Type"::Usage);
         JobLedgerEntry."Amt. Posted to G/L" := LibraryRandom.RandDec(10, 2);
@@ -996,7 +996,7 @@ codeunit 144006 "UT REP Job"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreateItem(var Item: Record Item)
@@ -1103,7 +1103,7 @@ codeunit 144006 "UT REP Job"
         JobRegister: Record "Job Register";
         JobRegister2: Record "Job Register";
     begin
-        JobRegister2.FindLast;
+        JobRegister2.FindLast();
         JobRegister."No." := JobRegister2."No." + 1;
         JobRegister."From Entry No." := JobLedgerEntryEntryNo;
         JobRegister."To Entry No." := JobLedgerEntryEntryNo;
@@ -1115,7 +1115,7 @@ codeunit 144006 "UT REP Job"
         JobPlanningLine: Record "Job Planning Line";
     begin
         JobPlanningLine.SetRange("Job No.", JobNo);
-        if JobPlanningLine.FindLast then
+        if JobPlanningLine.FindLast() then
             exit(JobPlanningLine."Line No." + 1);
         exit(1)
     end;
@@ -1124,7 +1124,7 @@ codeunit 144006 "UT REP Job"
     var
         JobLedgerEntry: Record "Job Ledger Entry";
     begin
-        if JobLedgerEntry.FindLast then
+        if JobLedgerEntry.FindLast() then
             exit(JobLedgerEntry."Entry No." + 1);
         exit(1)
     end;

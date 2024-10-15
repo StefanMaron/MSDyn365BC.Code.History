@@ -37,10 +37,10 @@ codeunit 136111 "Service Planning Management"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Service Planning Management");
 
-        LibraryService.SetupServiceMgtNoSeries;
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryService.SetupServiceMgtNoSeries();
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         Commit();
         isInitialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Service Planning Management");
@@ -264,7 +264,7 @@ codeunit 136111 "Service Planning Management"
 
         ServiceOrderAllocation.SetRange("Document Type", ServiceOrderAllocation."Document Type"::Order);
         ServiceOrderAllocation.SetRange("Document No.", ServiceItemLine."Document No.");
-        ServiceOrderAllocation.FindFirst;
+        ServiceOrderAllocation.FindFirst();
         ServiceOrderAllocation.Validate("Allocation Date", WorkDate);
         ServiceOrderAllocation.Modify(true);
 
@@ -399,7 +399,7 @@ codeunit 136111 "Service Planning Management"
         // 3. Verify: Status as Active and other values on all Service Items after Reallocation, Cancel Allocated Entries.
         ServiceItemLine.SetRange("Document Type", ServiceItemLine."Document Type"::Order);
         ServiceItemLine.SetRange("Document No.", ServiceItemLine."Document No.");
-        ServiceItemLine.FindFirst;
+        ServiceItemLine.FindFirst();
         VerifyValuesServiceAllocation(ServiceItemLine, ServiceOrderAllocation.Status::Active, Resource."No.", '', WorkDate, AllocatedHours);
         VerifyCancelServiceAllocation(ServiceItemLine."Document No.", ServiceItemLine."Service Item No.", ResourceNo, AllocatedHours);
     end;
@@ -623,7 +623,7 @@ codeunit 136111 "Service Planning Management"
         // Test Dispatch Board Report for Service Quote.
 
         // 1. Setup: Create Service Quote - Service Item, Service Header and Service Item Line.
-        Initialize;
+        Initialize();
         LibraryService.CreateServiceItem(ServiceItem, '');
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Quote, ServiceItem."Customer No.");
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
@@ -643,7 +643,7 @@ codeunit 136111 "Service Planning Management"
         // Test Service Load Level Report.
 
         // 1. Setup:
-        Initialize;
+        Initialize();
 
         // 2. Exercise: Create Resource and update Vat Prod. Posting Group.
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
@@ -699,7 +699,7 @@ codeunit 136111 "Service Planning Management"
         // Check Quantity on Order Planning Worksheet for Service Order after running Calculate Plan.
 
         // Setup: Create Service Order for Item having Zero inventory.
-        Initialize;
+        Initialize();
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, '');
         CreateServiceLineWithItem(ServiceHeader);
 
@@ -721,7 +721,7 @@ codeunit 136111 "Service Planning Management"
         // Check Creation of Purchase Order after doing Make Order for Service Demand from Order Planning.
 
         // Setup: Create Service Order for Item having Zero inventory. Run Calculate Plan from Order Planning Worksheet.
-        Initialize;
+        Initialize();
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, '');
         CreateServiceLineWithItem(ServiceHeader);
         LibraryPlanning.CalculateOrderPlanService(RequisitionLine);
@@ -788,7 +788,7 @@ codeunit 136111 "Service Planning Management"
 
             RepairStatus.Init();
             RepairStatus.SetRange(Initial, true);
-            RepairStatus.FindFirst;
+            RepairStatus.FindFirst();
             ServiceItemLine.Validate("Repair Status Code", RepairStatus.Code);
             ServiceItemLine.Modify(true);
         end;
@@ -797,7 +797,7 @@ codeunit 136111 "Service Planning Management"
     local procedure CreateServiceItemResourceSkill(var ServiceItem: Record "Service Item"; var ResourceSkill: Record "Resource Skill"; var Item: Record Item)
     begin
         // Create Service Item, Update Service Item Group Code, Create Skill Codes Update it on the - Service Item, Item.
-        Initialize;
+        Initialize();
         LibraryService.CreateServiceItem(ServiceItem, '');
         UpdateServiceItemGroupCode(ServiceItem);
         CreateResourceSkill(ResourceSkill, ResourceSkill.Type::"Service Item", ServiceItem."No.");
@@ -811,7 +811,7 @@ codeunit 136111 "Service Planning Management"
         ServiceHeader: Record "Service Header";
     begin
         // Create a new Service Order - Service Header, Service Item, Service Item Line.
-        Initialize;
+        Initialize();
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, '');
         CreateServiceItemLine(ServiceItemLine, ServiceHeader);
     end;
@@ -821,7 +821,7 @@ codeunit 136111 "Service Planning Management"
         ServiceItem: Record "Service Item";
     begin
         // Create a new Service Item, Service Order - Service Header, One Service Item Line.
-        Initialize;
+        Initialize();
         LibraryService.CreateServiceItem(ServiceItem, '');
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, ServiceItem."Customer No.");
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
@@ -928,7 +928,7 @@ codeunit 136111 "Service Planning Management"
         RequisitionLine.SetRange(Type, RequisitionLine.Type::Item);
         RequisitionLine.SetRange("No.", No);
         RequisitionLine.SetRange("Location Code", LocationCode);
-        RequisitionLine.FindFirst;
+        RequisitionLine.FindFirst();
     end;
 
     local procedure GetManufacturingUserTemplate(var ManufacturingUserTemplate: Record "Manufacturing User Template"; MakeOrder: Option)
@@ -945,7 +945,7 @@ codeunit 136111 "Service Planning Management"
         RequisitionLine: Record "Requisition Line";
     begin
         RequisitionLine.SetRange("Demand Order No.", DocumentNo);
-        RequisitionLine.FindFirst;
+        RequisitionLine.FindFirst();
         GetManufacturingUserTemplate(ManufacturingUserTemplate, ManufacturingUserTemplate."Make Orders"::"The Active Order");
         LibraryPlanning.MakeSupplyOrders(ManufacturingUserTemplate, RequisitionLine);
     end;
@@ -971,11 +971,11 @@ codeunit 136111 "Service Planning Management"
         ServiceOrderAllocation.SetRange("Document Type", ServiceItemLine."Document Type");
         ServiceOrderAllocation.SetRange("Document No.", ServiceItemLine."Document No.");
         ServiceOrderAllocation.SetRange("Service Item Line No.", ServiceItemLine."Line No.");
-        ServiceOrderAllocation.FindFirst;
+        ServiceOrderAllocation.FindFirst();
         Clear(ResourceAllocations);
         ResourceAllocations.SetTableView(ServiceOrderAllocation);
         ResourceAllocations.SetRecord(ServiceOrderAllocation);
-        ResourceAllocations.Run;
+        ResourceAllocations.Run();
     end;
 
     local procedure UpdateRepairStatusInitial(var ServiceItemLine: Record "Service Item Line")
@@ -983,7 +983,7 @@ codeunit 136111 "Service Planning Management"
         RepairStatus: Record "Repair Status";
     begin
         RepairStatus.SetRange(Initial, true);
-        if not RepairStatus.FindFirst then begin
+        if not RepairStatus.FindFirst() then begin
             LibraryService.CreateRepairStatus(RepairStatus);
             RepairStatus.Validate(Initial, true);
             RepairStatus.Modify(true);
@@ -997,7 +997,7 @@ codeunit 136111 "Service Planning Management"
         RepairStatus: Record "Repair Status";
     begin
         RepairStatus.SetRange(Finished, true);
-        if not RepairStatus.FindFirst then begin
+        if not RepairStatus.FindFirst() then begin
             LibraryService.CreateRepairStatus(RepairStatus);
             RepairStatus.Validate(Finished, true);
             RepairStatus.Modify(true);
@@ -1011,7 +1011,7 @@ codeunit 136111 "Service Planning Management"
         RepairStatus: Record "Repair Status";
     begin
         RepairStatus.SetRange("Partly Serviced", true);
-        if not RepairStatus.FindFirst then begin
+        if not RepairStatus.FindFirst() then begin
             LibraryService.CreateRepairStatus(RepairStatus);
             RepairStatus.Validate("Partly Serviced", true);
             RepairStatus.Modify(true);
@@ -1025,7 +1025,7 @@ codeunit 136111 "Service Planning Management"
         RepairStatus: Record "Repair Status";
     begin
         RepairStatus.SetRange(Referred, true);
-        if not RepairStatus.FindFirst then begin
+        if not RepairStatus.FindFirst() then begin
             LibraryService.CreateRepairStatus(RepairStatus);
             RepairStatus.Validate(Referred, true);
             RepairStatus.Modify(true);
@@ -1039,7 +1039,7 @@ codeunit 136111 "Service Planning Management"
         RepairStatus: Record "Repair Status";
     begin
         RepairStatus.SetRange("In Process", true);
-        if not RepairStatus.FindFirst then begin
+        if not RepairStatus.FindFirst() then begin
             LibraryService.CreateRepairStatus(RepairStatus);
             RepairStatus.Validate("In Process", true);
             RepairStatus.Modify(true);
@@ -1061,7 +1061,7 @@ codeunit 136111 "Service Planning Management"
     begin
         ServiceOrderAllocation.SetRange("Document Type", ServiceOrderAllocation."Document Type"::Order);
         ServiceOrderAllocation.SetRange("Document No.", DocumentNo);
-        ServiceOrderAllocation.FindFirst;
+        ServiceOrderAllocation.FindFirst();
         UpdateValuesServiceAllocation(ServiceOrderAllocation, ResourceNo, ResourceGroupNo, AllocatedHours);
     end;
 
@@ -1102,7 +1102,7 @@ codeunit 136111 "Service Planning Management"
         AllocatedHours := Round(AllocatedHours / ServiceOrderAllocation.Count, 0.1);
         repeat
             ServiceOrderAllocation.SetRange("Service Item Line No.", ServiceItemLine."Line No.");
-            ServiceOrderAllocation.FindFirst;
+            ServiceOrderAllocation.FindFirst();
             ServiceOrderAllocation.TestField(Status, Status);
             ServiceOrderAllocation.TestField("Allocated Hours", AllocatedHours);
             ServiceOrderAllocation.TestField("Service Item No.", ServiceItemLine."Service Item No.");
@@ -1120,7 +1120,7 @@ codeunit 136111 "Service Planning Management"
         ServiceOrderAllocation.SetRange("Document No.", DocumentNo);
         ServiceOrderAllocation.SetRange("Service Item No.", ServiceItemNo);
         ServiceOrderAllocation.SetRange(Status, ServiceOrderAllocation.Status::Canceled);
-        ServiceOrderAllocation.FindFirst;
+        ServiceOrderAllocation.FindFirst();
         ServiceOrderAllocation.TestField("Resource No.", ResourceNo);
         ServiceOrderAllocation.TestField("Allocation Date", WorkDate);
         ServiceOrderAllocation.TestField("Allocated Hours", AllocatedHours);
@@ -1137,7 +1137,7 @@ codeunit 136111 "Service Planning Management"
         ServiceOrderAllocation.SetRange("Resource No.", ResourceNo);
         ServiceOrderAllocation.SetRange("Allocation Date", WorkDate);
         ServiceOrderAllocation.SetRange("Allocated Hours", AllocatedHours);
-        ServiceOrderAllocation.FindFirst;
+        ServiceOrderAllocation.FindFirst();
     end;
 
     local procedure VerifyNoOfAllocations(DocumentNo: Code[20]; NoOfAllocations: Integer)
@@ -1156,11 +1156,11 @@ codeunit 136111 "Service Planning Management"
         Item: Record Item;
     begin
         ServiceLine.SetRange("Document No.", DocumentNo);
-        ServiceLine.FindFirst;
+        ServiceLine.FindFirst();
         Item.Get(ServiceLine."No.");
         PurchaseLine.SetRange(Type, PurchaseLine.Type::Item);
         PurchaseLine.SetRange("No.", ServiceLine."No.");
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
         PurchaseLine.TestField("Buy-from Vendor No.", Item."Vendor No.");
         PurchaseLine.TestField("Location Code", ServiceLine."Location Code");
         PurchaseLine.TestField(Quantity, ServiceLine.Quantity);
@@ -1173,7 +1173,7 @@ codeunit 136111 "Service Planning Management"
         RequisitionLine: Record "Requisition Line";
     begin
         ServiceLine.SetRange("Document No.", DocumentNo);
-        ServiceLine.FindFirst;
+        ServiceLine.FindFirst();
         FindRequisitionLine(RequisitionLine, ServiceLine."Document No.", ServiceLine."No.", ServiceLine."Location Code");
         RequisitionLine.TestField("Due Date", ServiceLine."Needed by Date");
         RequisitionLine.TestField(Quantity, ServiceLine.Quantity);
@@ -1188,12 +1188,12 @@ codeunit 136111 "Service Planning Management"
         ResLedgerEntry: Record "Res. Ledger Entry";
     begin
         ServiceInvoiceHeader.SetRange("Order No.", OrderNo);
-        ServiceInvoiceHeader.FindFirst;
+        ServiceInvoiceHeader.FindFirst();
         ServiceInvoiceLine.SetRange("Document No.", ServiceInvoiceHeader."No.");
         ServiceInvoiceLine.SetRange(Type, ServiceInvoiceLine.Type::Resource);
-        ServiceInvoiceLine.FindFirst;
+        ServiceInvoiceLine.FindFirst();
         ResLedgerEntry.SetRange("Document No.", ServiceInvoiceLine."Document No.");
-        ResLedgerEntry.FindFirst;
+        ResLedgerEntry.FindFirst();
         ResLedgerEntry.TestField(Quantity, -ServiceInvoiceLine.Quantity);
         ResLedgerEntry.TestField("Order Type", ResLedgerEntry."Order Type"::Service);
         ResLedgerEntry.TestField("Order No.", ServiceInvoiceHeader."Order No.");
@@ -1221,7 +1221,7 @@ codeunit 136111 "Service Planning Management"
     begin
         ServiceOrderAllocation.SetRange("Document Type", ServiceOrderAllocation."Document Type"::Order);
         ServiceOrderAllocation.SetRange("Document No.", DocumentNo);
-        ServiceOrderAllocation.FindFirst;
+        ServiceOrderAllocation.FindFirst();
         ServiceOrderAllocation.TestField(Status, Status);
     end;
 
@@ -1232,7 +1232,7 @@ codeunit 136111 "Service Planning Management"
         ServiceOrderAllocation.SetRange("Document Type", ServiceOrderAllocation."Document Type"::Order);
         ServiceOrderAllocation.SetRange("Document No.", ServiceItemLine."Document No.");
         ServiceOrderAllocation.SetRange("Service Item Line No.", ServiceItemLine."Line No.");
-        ServiceOrderAllocation.FindFirst;
+        ServiceOrderAllocation.FindFirst();
         ServiceOrderAllocation.TestField(Status, Status);
         ServiceOrderAllocation.TestField("Allocated Hours", AllocatedHours);
         ServiceOrderAllocation.TestField("Service Item No.", ServiceItemLine."Service Item No.");
@@ -1278,14 +1278,14 @@ codeunit 136111 "Service Planning Management"
         ResAvailabilityService: Page "Res. Availability (Service)";
     begin
         // Run the Res. Availability (Service) form from Resource Allocations form.
-        ServiceOrderAllocation2.FindFirst;
+        ServiceOrderAllocation2.FindFirst();
         ResourceAllocations.GetRecord(ServiceOrderAllocation2);
         ResAvailabilityService.SetData(
           ServiceOrderAllocation2."Document Type".AsInteger(), ServiceOrderAllocation2."Document No.", ServiceOrderAllocation2."Service Item Line No.",
           ServiceOrderAllocation2."Entry No.");
         if ServiceOrderAllocation2."Resource No." <> '' then
             ResAvailabilityService.SetRecord(Resource2);
-        ResAvailabilityService.RunModal;
+        ResAvailabilityService.RunModal();
     end;
 
     [PageHandler]
@@ -1295,13 +1295,13 @@ codeunit 136111 "Service Planning Management"
         ResGrAvailabilityService: Page "Res.Gr. Availability (Service)";
     begin
         // Run the Res. Group Availability (Service) form from Resource Allocations form.
-        ServiceOrderAllocation2.FindFirst;
+        ServiceOrderAllocation2.FindFirst();
         ResourceAllocations.GetRecord(ServiceOrderAllocation2);
         ResGrAvailabilityService.SetData(
           ServiceOrderAllocation2."Document Type".AsInteger(), ServiceOrderAllocation2."Document No.", ServiceOrderAllocation2."Entry No.");
         if ServiceOrderAllocation2."Resource No." <> '' then
             ResGrAvailabilityService.SetRecord(Resource2);
-        ResGrAvailabilityService.RunModal;
+        ResGrAvailabilityService.RunModal();
     end;
 
     [ModalPageHandler]

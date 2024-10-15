@@ -49,12 +49,6 @@ report 1408 "Bank Acc. Recon. - Test"
                 column(Bank_Acc__Reconciliation___TotalBalOnBankAccountLCY; BankAcc."Balance at Date (LCY)")
                 {
                 }
-                column(Bank_Acc__Reconciliation___TotalPositiveAdjustments; TotalPositiveDifference)
-                {
-                }
-                column(Bank_Acc__Reconciliation___TotalNegativeAdjustments; TotalNegativeDifference)
-                {
-                }
                 column(Bank_Acc__Reconciliation___TotalOutstdBankTransactions; TotalOutstdBankTransac)
                 {
                 }
@@ -92,12 +86,6 @@ report 1408 "Bank Acc. Recon. - Test"
                 {
                 }
                 column(Ending_G_L_BalanceCaption; Ending_G_L_BalanceCaptionLbl)
-                {
-                }
-                column(Positive_AdjustmentsCaption; Positive_AdjustmentsCaptionLbl)
-                {
-                }
-                column(Negative_AdjustmentsCaption; Negative_AdjustmentsCaptionLbl)
                 {
                 }
                 column(Subtotal_Caption; Subtotal_CaptionLbl)
@@ -496,22 +484,9 @@ report 1408 "Bank Acc. Recon. - Test"
                 OutstandingBankTransaction.DeleteAll();
                 OutstandingPayment.DeleteAll();
                 CreateOutstandingBankTransactions("Bank Account No.");
-                case "Statement Type" of
-                    "Statement Type"::"Bank Reconciliation":
-                        begin
-                            TotalOutstdBankTransac := "Total Outstd Bank Transactions" -
-                              ("Total Applied Amount" - "Total Applied Amount Payments");
-                            TotalPositiveDifference := "Total Positive Difference";
-                            TotalNegativeDifference := "Total Negative Difference";
-                        end;
-                    "Statement Type"::"Payment Application":
-                        begin
-                            TotalOutstdBankTransac := "Total Outstd Bank Transactions" -
-                              ("Total Applied Amount" - "Total Applied Amount Payments" - "Total Unposted Applied Amount");
-                            TotalPositiveDifference := "Total Positive Adjustments";
-                            TotalNegativeDifference := "Total Negative Adjustments";
-                        end;
-                end;
+                TotalOutstdBankTransac := BankAccReconTest.TotalOutstandingBankTransactions("Bank Acc. Reconciliation");
+                TotalPositiveDifference := BankAccReconTest.TotalPositiveDifference("Bank Acc. Reconciliation");
+                TotalNegativeDifference := BankAccReconTest.TotalNegativeDifference("Bank Acc. Reconciliation");
                 if "Statement Date" = 0D then
                     AddError(StrSubstNo(StatementDateErr, FieldCaption("Statement Date")));
 
@@ -553,7 +528,7 @@ report 1408 "Bank Acc. Recon. - Test"
                 end;
                 BankAcc.CalcFields("Balance at Date", "Balance at Date (LCY)");
 
-                TotalOutstdPayments := "Total Outstd Payments" - "Total Applied Amount Payments";
+                TotalOutstdPayments := BankAccReconTest.TotalOutstandingPayments("Bank Acc. Reconciliation");
                 EndingGLBalance := BankAcc."Balance at Date" + TotalPositiveDifference + TotalNegativeDifference;
                 EndingStatementBalance := "Statement Ending Balance" + TotalOutstdBankTransac + TotalOutstdPayments;
             end;
@@ -608,6 +583,7 @@ report 1408 "Bank Acc. Recon. - Test"
         CheckLedgEntry: Record "Check Ledger Entry";
         BankAccReconLine: Record "Bank Acc. Reconciliation Line";
         DimensionManagement: Codeunit DimensionManagement;
+        BankAccReconTest: Codeunit "Bank Acc. Recon. Test";
         AppliedAmount: Decimal;
         TotalAmount: Decimal;
         TotalAppliedAmount: Decimal;
@@ -648,8 +624,6 @@ report 1408 "Bank Acc. Recon. - Test"
         G_L_BalanceCaptionLbl: Label 'G/L Balance';
         G_L_BalanceLCYCaptionLbl: Label 'G/L Balance (LCY)';
         Ending_G_L_BalanceCaptionLbl: Label 'Ending G/L Balance';
-        Positive_AdjustmentsCaptionLbl: Label 'Positive Adjustments';
-        Negative_AdjustmentsCaptionLbl: Label 'Negative Adjustments';
         Subtotal_CaptionLbl: Label 'Subtotal';
         Difference_CaptionLbl: Label 'Difference';
         BankAccountBalanceLbl: Label 'Bank Account Balance';
@@ -688,7 +662,7 @@ report 1408 "Bank Acc. Recon. - Test"
         BankAccountLedgerEntry.SetRange(Reversed, false);
         if "Bank Acc. Reconciliation"."Statement Type" = "Bank Acc. Reconciliation"."Statement Type"::"Bank Reconciliation" then
             BankAccountLedgerEntry.SetRange("Statement Status", BankAccountLedgerEntry."Statement Status"::Open);
-        if BankAccountLedgerEntry.FindSet then
+        if BankAccountLedgerEntry.FindSet() then
             repeat
                 BankAccountLedgerEntry.CalcFields("Check Ledger Entries");
                 if BankAccountLedgerEntry."Check Ledger Entries" <> 0 then begin
@@ -724,7 +698,7 @@ report 1408 "Bank Acc. Recon. - Test"
         AppliedPaymentEntry.SetRange("Bank Account No.", BankAccReconciliationLine."Bank Account No.");
         AppliedPaymentEntry.SetRange("Statement No.", BankAccReconciliationLine."Statement No.");
         AppliedPaymentEntry.SetRange("Statement Line No.", BankAccReconciliationLine."Statement Line No.");
-        if AppliedPaymentEntry.FindSet then
+        if AppliedPaymentEntry.FindSet() then
             repeat
                 if AppliedPaymentEntry."Applies-to Entry No." = 0 then
                     AppliedAmountTemp += AppliedPaymentEntry."Applied Amount"
@@ -798,7 +772,7 @@ report 1408 "Bank Acc. Recon. - Test"
         CheckLedgEntry.SetCurrentKey("Bank Account Ledger Entry No.");
         CheckLedgEntry.SetRange("Bank Account Ledger Entry No.", BankAccountLedgerEntry."Entry No.");
         CheckLedgEntry.SetRange(Open, true);
-        if CheckLedgEntry.FindSet then
+        if CheckLedgEntry.FindSet() then
             repeat
                 if not CheckLedgEntry.Open then
                     AddError(

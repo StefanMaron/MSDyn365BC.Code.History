@@ -163,7 +163,7 @@ table 9053 "Sales Cue"
         CountDelayedInvoices: Integer;
     begin
         FilterOrders(SalesHeader, FieldNo(Delayed));
-        if SalesHeader.FindSet then begin
+        if SalesHeader.FindSet() then begin
             repeat
                 SummarizeDelayedData(SalesHeader, SumDelayDays, CountDelayedInvoices);
             until SalesHeader.Next() = 0;

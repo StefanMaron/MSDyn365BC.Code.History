@@ -36,7 +36,7 @@ codeunit 144004 "UT REP Purchase Process Misc"
     begin
         // Purpose of the test is to validate Integer - OnPreDataItem trigger of the Report ID: 10101, Reconcile AP to GL for Subtitle.
         // Setup.
-        Initialize;
+        Initialize();
         CreatePurchaseOrder(PurchaseLine, '');
 
         // Exercise.
@@ -58,7 +58,7 @@ codeunit 144004 "UT REP Purchase Process Misc"
         // Purpose of the test is to validate OnAfterGetRecord Trigger Check Ledger Entry of Report 1406 - Bank Account - Check Details.
 
         // Setup: Create Check Ledger Entry With Entry Status - Printed.
-        Initialize;
+        Initialize();
         OnAfterGetRecChkLedgEntryBankAccountCheckDetails('AmountPrinted', CheckLedgerEntry."Entry Status"::Printed);
     end;
 
@@ -73,7 +73,7 @@ codeunit 144004 "UT REP Purchase Process Misc"
         // Purpose of the test is to validate OnAfterGetRecord Trigger Check Ledger Entry of Report 1406 - Bank Account - Check Details.
 
         // Setup: Create Check Ledger Entry With Entry Status - Voided.
-        Initialize;
+        Initialize();
         OnAfterGetRecChkLedgEntryBankAccountCheckDetails('AmountVoided', CheckLedgerEntry."Entry Status"::Voided);
     end;
 
@@ -104,7 +104,7 @@ codeunit 144004 "UT REP Purchase Process Misc"
     begin
         // Test to verify the VendCurrency - OnAfterGetRecord trigger of the Report ID: 10098, Projected Cash Payments Report without Print Totals.
         // Setup.
-        Initialize;
+        Initialize();
         CreateVendor(Vendor);
         CreateVendorLedgerEntry(VendorLedgerEntry, Vendor."No.", '');  // Blank Purchaser Code.
 
@@ -129,7 +129,7 @@ codeunit 144004 "UT REP Purchase Process Misc"
     begin
         // Test to verify the VendCurrency - OnAfterGetRecord trigger of the Report ID: 10098, Projected Cash Payments Report with Print Totals.
         // Setup.
-        Initialize;
+        Initialize();
         CreateVendor(Vendor);
         UpdateCurrencyCodeOnVendor(Vendor);
         CreateVendorLedgerEntry(VendorLedgerEntry, Vendor."No.", '');  // Blank Purchaser Code.
@@ -174,7 +174,7 @@ codeunit 144004 "UT REP Purchase Process Misc"
         LibraryVariableStorage.Enqueue(WorkDate());
         ProjectedCashPayments.SetTableView(Vendor);
         LibraryLowerPermissions.SetAccountPayables;
-        ProjectedCashPayments.Run; // Invokes ProjectedCashPaymentsWithStartDateRequestPageHandler.
+        ProjectedCashPayments.Run(); // Invokes ProjectedCashPaymentsWithStartDateRequestPageHandler.
 
         // [THEN] For each month only 1 AmountDue have to be specified
         LibraryReportDataset.LoadDataSetFile;
@@ -198,7 +198,7 @@ codeunit 144004 "UT REP Purchase Process Misc"
     begin
         // Test to verify the Gen. Journal Line - OnAfterGetRecord trigger of the Report ID: 10089, Payment Journal - Test Report for Bank Payment Type of Electronic Payment for Check Exported.
         // Setup.
-        Initialize;
+        Initialize();
         CreateAndUpdateGenJournalLine(
           GenJournalLine, CreateBankAccount, GenJournalLine."Bank Payment Type"::"Electronic Payment", LibraryRandom.RandDec(10, 2));
         UpdateBalanceAccountOnGenJournalLine(GenJournalLine);
@@ -222,7 +222,7 @@ codeunit 144004 "UT REP Purchase Process Misc"
     begin
         // Test to verify the Gen. Journal Line - OnAfterGetRecord trigger of the Report ID: 10089, Payment Journal - Test Report for Bank Payment Type of Electronic Payment for Check Transmitted.
         // Setup.
-        Initialize;
+        Initialize();
         CreateAndUpdateGenJournalLine(
           GenJournalLine, CreateBankAccount, GenJournalLine."Bank Payment Type"::"Electronic Payment", LibraryRandom.RandDec(10, 2));
 
@@ -244,7 +244,7 @@ codeunit 144004 "UT REP Purchase Process Misc"
     begin
         // Test to verify the Gen. Journal Line - OnAfterGetRecord trigger of the Report ID: 10089, Payment Journal - Test Report for Bank Payment Type of Computer Check for Check Printed with positive Amount.
         // Setup.
-        Initialize;
+        Initialize();
         OnAfterGetRecordGenJnlLinePrintCheckPaymentJnlTest(LibraryRandom.RandDec(10, 2));  // Amount Positive.
     end;
 
@@ -256,7 +256,7 @@ codeunit 144004 "UT REP Purchase Process Misc"
     begin
         // Test to verify the Gen. Journal Line - OnAfterGetRecord trigger of the Report ID: 10089, Payment Journal - Test Report for Bank Payment Type of Computer Check for Check Printed with Negative Amount.
         // Setup.
-        Initialize;
+        Initialize();
         OnAfterGetRecordGenJnlLinePrintCheckPaymentJnlTest(-LibraryRandom.RandDec(10, 2));  // Amount Negative.
     end;
 
@@ -286,7 +286,7 @@ codeunit 144004 "UT REP Purchase Process Misc"
     begin
         // Test to verify the Purchase Line - OnAfterGetRecord trigger of Report ID: 10096, Outstanding Purch.Order Status Report for Purchase order created.
         // Setup.
-        Initialize;
+        Initialize();
         CreateVendor(Vendor);
         CreatePurchaseOrder(PurchaseLine, Vendor."No.");
 
@@ -310,7 +310,7 @@ codeunit 144004 "UT REP Purchase Process Misc"
     begin
         // Test to verify the Vendor - OnAfterGetRecord trigger of Report ID: 10095, Outstanding Purch. Order Aging Report for Vendor Subtitle with Print Detail.
         // Setup.
-        Initialize;
+        Initialize();
         LibraryApplicationArea.DisableApplicationAreaSetup;
         CreateVendor(Vendor);
         CreatePurchaseOrder(PurchaseLine, Vendor."No.");
@@ -334,7 +334,7 @@ codeunit 144004 "UT REP Purchase Process Misc"
     begin
         // Test to verify the Vendor - OnAfterGetRecord trigger of Report ID: 10095, Outstanding Purch. Order Aging Report for Vendor Subtitle without Print Detail.
         // Setup.
-        Initialize;
+        Initialize();
         LibraryApplicationArea.DisableApplicationAreaSetup;
         CreateVendor(Vendor);
         CreatePurchaseOrder(PurchaseLine, Vendor."No.");
@@ -358,7 +358,7 @@ codeunit 144004 "UT REP Purchase Process Misc"
     begin
         // Test to verify the Vendor Ledger Entry - OnPreDataItem trigger of Report ID: 10088, Cash Requirements by Due Date Report for Subtitle without Print Detail.
         // Setup.
-        Initialize;
+        Initialize();
         CreateVendor(Vendor);
         CreateVendorLedgerEntry(VendorLedgerEntry, Vendor."No.", '');  // Blank Purchaser Code.
 
@@ -382,7 +382,7 @@ codeunit 144004 "UT REP Purchase Process Misc"
     begin
         // Test to verify the Vendor Ledger Entry - OnPreDataItem trigger of Report ID: 10088, Cash Requirements by Due Date Report for Subtitle with Print Detail.
         // Setup.
-        Initialize;
+        Initialize();
         CreateVendor(Vendor);
         CreateVendorLedgerEntry(VendorLedgerEntry, Vendor."No.", '');  // Blank Purchaser Code.
 
@@ -405,7 +405,7 @@ codeunit 144004 "UT REP Purchase Process Misc"
     begin
         // Test to verify the Vendor - OnAfterGetRecord trigger of Report ID: 10086, Cash Application Report for Payment Date.
         // Setup.
-        Initialize;
+        Initialize();
         CreateVendor(Vendor);
         CreateVendorLedgerEntry(VendorLedgerEntry, Vendor."No.", '');  // Blank Purchaser Code.
 
@@ -427,7 +427,7 @@ codeunit 144004 "UT REP Purchase Process Misc"
     begin
         // Purpose of the test is to validate Vendor - OnAfterGetRecord trigger of the Report ID: 393, Suggest Vendor Payments.
         // Setup.
-        Initialize;
+        Initialize();
         CreateVendor(Vendor);
         CreateVendorLedgerEntry(VendorLedgerEntry, Vendor."No.", '');  // Blank Purchaser Code.
         CreateDetailedVendorLedgerEntry(VendorLedgerEntry."Entry No.", VendorLedgerEntry."Vendor No.");
@@ -450,7 +450,7 @@ codeunit 144004 "UT REP Purchase Process Misc"
     begin
         // Purpose of the test is to validate Value Entry - OnPreDataItem trigger of the Report ID: 10091, Item Statistics by Purchaser.
         // Setup.
-        Initialize;
+        Initialize();
         CreateSalespersonPurchaser(SalespersonPurchaser);
         CreateValueEntry(SalespersonPurchaser.Code);
 
@@ -473,7 +473,7 @@ codeunit 144004 "UT REP Purchase Process Misc"
     begin
         // Purpose of the test is to validate OnPreReport trigger of the Report ID: 10094, Outstanding Order Stat. by PO.
         // Setup.
-        Initialize;
+        Initialize();
         CreatePurchaseOrder(PurchaseLine, '');  // Blank Buy from Vendor No.
 
         // Exercise.
@@ -496,7 +496,7 @@ codeunit 144004 "UT REP Purchase Process Misc"
     begin
         // Purpose of the test is to validate Salesperson/Purchaser - OnPreDataItem trigger of the REPORT ID: 10100, Purchaser Stat. by Invoice for SubTitle without Print Detail.
         // Setup.
-        Initialize;
+        Initialize();
         CreateSalespersonPurchaser(SalespersonPurchaser);
         CreateVendorLedgerEntry(VendorLedgerEntry, '', SalespersonPurchaser.Code);  // Blank Vendor No.
 
@@ -519,7 +519,7 @@ codeunit 144004 "UT REP Purchase Process Misc"
     begin
         // Purpose of the test is to validate Salesperson/Purchaser - OnPreDataItem trigger of the REPORT ID: 10100, Purchaser Stat. by Invoice for SubTitle with Print Detail.
         // Setup.
-        Initialize;
+        Initialize();
         CreateSalespersonPurchaser(SalespersonPurchaser);
         CreateVendorLedgerEntry(VendorLedgerEntry, '', SalespersonPurchaser.Code);  // Blank Vendor No.
 
@@ -533,11 +533,11 @@ codeunit 144004 "UT REP Purchase Process Misc"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryVariableStorage.Clear();
+        LibraryLowerPermissions.SetOutsideO365Scope();
 
         if not IsInitialized then begin
-            LibraryApplicationArea.EnableFoundationSetup;
+            LibraryApplicationArea.EnableFoundationSetup();
             IsInitialized := true;
         end;
     end;
@@ -567,7 +567,7 @@ codeunit 144004 "UT REP Purchase Process Misc"
     var
         VendorLedgerEntry2: Record "Vendor Ledger Entry";
     begin
-        VendorLedgerEntry2.FindLast;
+        VendorLedgerEntry2.FindLast();
         VendorLedgerEntry."Entry No." := VendorLedgerEntry2."Entry No." + 1;
         VendorLedgerEntry."Vendor No." := VendorNo;
         VendorLedgerEntry."Posting Date" := WorkDate;
@@ -587,7 +587,7 @@ codeunit 144004 "UT REP Purchase Process Misc"
         DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
         DetailedVendorLedgEntry2: Record "Detailed Vendor Ledg. Entry";
     begin
-        DetailedVendorLedgEntry2.FindLast;
+        DetailedVendorLedgEntry2.FindLast();
         DetailedVendorLedgEntry."Entry No." := DetailedVendorLedgEntry2."Entry No." + 1;
         DetailedVendorLedgEntry."Vendor Ledger Entry No." := VendorLedgerEntryNo;
         DetailedVendorLedgEntry."Vendor No." := VendorNo;
@@ -615,7 +615,7 @@ codeunit 144004 "UT REP Purchase Process Misc"
     var
         BankAccount: Record "Bank Account";
     begin
-        BankAccount.FindFirst;
+        BankAccount.FindFirst();
         BankAccount.SetRange("Date Filter", WorkDate);
         CheckLedgerEntry."Entry No." := SelectCheckLedgerEntryNo;
         CheckLedgerEntry."Bank Account No." := BankAccount."No.";
@@ -700,7 +700,7 @@ codeunit 144004 "UT REP Purchase Process Misc"
         ValueEntry: Record "Value Entry";
         ValueEntry2: Record "Value Entry";
     begin
-        ValueEntry2.FindLast;
+        ValueEntry2.FindLast();
         ValueEntry."Entry No." := ValueEntry2."Entry No." + 1;
         ValueEntry."Source Type" := ValueEntry."Source Type"::Vendor;
         ValueEntry."Item Ledger Entry Type" := ValueEntry."Item Ledger Entry Type"::Purchase;
@@ -716,7 +716,7 @@ codeunit 144004 "UT REP Purchase Process Misc"
     begin
         VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
         CashApplication.SetTableView(VendorLedgerEntry);
-        CashApplication.Run;  // Invokes CashApplicationRequestPageHandler.
+        CashApplication.Run();  // Invokes CashApplicationRequestPageHandler.
     end;
 
     local procedure RunCashRequirementsByDueDateReport(VendorNo: Code[20]; PrintDetail: Boolean)
@@ -727,7 +727,7 @@ codeunit 144004 "UT REP Purchase Process Misc"
         LibraryVariableStorage.Enqueue(PrintDetail);  // Enqueue value for use in CashRequirementsByDueDateRequestPageHandler.
         VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
         CashRequirementsByDueDate.SetTableView(VendorLedgerEntry);
-        CashRequirementsByDueDate.Run;  // Invokes CashRequirementsByDueDateRequestPageHandler.
+        CashRequirementsByDueDate.Run();  // Invokes CashRequirementsByDueDateRequestPageHandler.
     end;
 
     local procedure RunPaymentJournalTestReport(AccountNo: Code[20])
@@ -738,7 +738,7 @@ codeunit 144004 "UT REP Purchase Process Misc"
         GenJournalLine.SetRange("Account No.", AccountNo);
         PaymentJournalTest.SetTableView(GenJournalLine);
         LibraryLowerPermissions.SetJournalsEdit;
-        PaymentJournalTest.Run;  // Invokes PaymentJournalTestRequestPageHandler.
+        PaymentJournalTest.Run();  // Invokes PaymentJournalTestRequestPageHandler.
     end;
 
     local procedure RunOutstandingPurchOrderAgingReport(No: Code[20]; PrintDetails: Boolean)
@@ -750,7 +750,7 @@ codeunit 144004 "UT REP Purchase Process Misc"
         Vendor.SetRange("No.", No);
         OutstandingPurchOrderAging.SetTableView(Vendor);
         LibraryLowerPermissions.SetFinancialReporting;
-        OutstandingPurchOrderAging.Run;  // Invokes OutstandingPurchOrderAgingRequestPageHandler.
+        OutstandingPurchOrderAging.Run();  // Invokes OutstandingPurchOrderAgingRequestPageHandler.
     end;
 
     local procedure RunOutstandingPurchOrderStatusReport(No: Code[20])
@@ -761,7 +761,7 @@ codeunit 144004 "UT REP Purchase Process Misc"
         Vendor.SetRange("No.", No);
         OutstandingPurchOrderStatus.SetTableView(Vendor);
         LibraryLowerPermissions.SetFinancialReporting;
-        OutstandingPurchOrderStatus.Run;  // Invokes OutstandingPurchOrderStatusRequestPageHandler.
+        OutstandingPurchOrderStatus.Run();  // Invokes OutstandingPurchOrderStatusRequestPageHandler.
     end;
 
     local procedure RunProjectedCashPaymentsReport(No: Code[20]; PrintTotalsInVendorCurrency: Boolean)
@@ -773,7 +773,7 @@ codeunit 144004 "UT REP Purchase Process Misc"
         Vendor.SetRange("No.", No);
         ProjectedCashPayments.SetTableView(Vendor);
         LibraryLowerPermissions.SetAccountPayables;
-        ProjectedCashPayments.Run;  // Invokes ProjectedCashPaymentsRequestPageHandler.
+        ProjectedCashPayments.Run();  // Invokes ProjectedCashPaymentsRequestPageHandler.
     end;
 
     local procedure RunReconcileAPToGLReport(DocumentNo: Code[20])
@@ -784,7 +784,7 @@ codeunit 144004 "UT REP Purchase Process Misc"
         PurchaseLine.SetRange("Document No.", DocumentNo);
         ReconcileAPToGL.SetTableView(PurchaseLine);
         LibraryLowerPermissions.SetAccountPayables;
-        ReconcileAPToGL.Run;  // Invokes ReconcileAPToGLRequestPageHandler.
+        ReconcileAPToGL.Run();  // Invokes ReconcileAPToGLRequestPageHandler.
     end;
 
     local procedure RunPurchaserStatByInvoiceReport("Code": Code[20]; PrintDetail: Boolean)
@@ -796,7 +796,7 @@ codeunit 144004 "UT REP Purchase Process Misc"
         SalespersonPurchaser.SetRange(Code, Code);
         PurchaserStatByInvoice.SetTableView(SalespersonPurchaser);
         LibraryLowerPermissions.SetAccountPayables;
-        PurchaserStatByInvoice.Run;  // Invokes PurchaserInvoiceByStatRequestPageHandler.
+        PurchaserStatByInvoice.Run();  // Invokes PurchaserInvoiceByStatRequestPageHandler.
     end;
 
     local procedure RunOutstandingOrderStatByPOReport(No: Code[20])
@@ -807,7 +807,7 @@ codeunit 144004 "UT REP Purchase Process Misc"
         PurchaseHeader.SetRange("No.", No);
         OutstandingOrderStatByPO.SetTableView(PurchaseHeader);
         LibraryLowerPermissions.SetPurchDocsCreate;
-        OutstandingOrderStatByPO.Run;  // Invokes OutstandingOrderStatByPORequestPageHandler.
+        OutstandingOrderStatByPO.Run();  // Invokes OutstandingOrderStatByPORequestPageHandler.
     end;
 
     local procedure RunSuggestVendorPaymentsReport(No: Code[20])
@@ -823,7 +823,7 @@ codeunit 144004 "UT REP Purchase Process Misc"
         SuggestVendorPayments.SetGenJnlLine(GenJournalLine);
         SuggestVendorPayments.SetTableView(Vendor);
         LibraryLowerPermissions.SetAccountPayables;
-        SuggestVendorPayments.Run;  // Invokes SuggestVendorPaymentsRequestPageHandler.
+        SuggestVendorPayments.Run();  // Invokes SuggestVendorPaymentsRequestPageHandler.
     end;
 
     local procedure RunItemStatisticsByPurchaserReport("Code": Code[20])
@@ -834,7 +834,7 @@ codeunit 144004 "UT REP Purchase Process Misc"
         SalespersonPurchaser.SetRange(Code, Code);
         ItemStatisticsByPurchaser.SetTableView(SalespersonPurchaser);
         LibraryLowerPermissions.SetAccountPayables;
-        ItemStatisticsByPurchaser.Run;  // Invokes ItemStatisticsByPurchaserRequestPageHandler.
+        ItemStatisticsByPurchaser.Run();  // Invokes ItemStatisticsByPurchaserRequestPageHandler.
     end;
 
     local procedure UpdateBalanceAccountOnGenJournalLine(GenJournalLine: Record "Gen. Journal Line")
@@ -854,7 +854,7 @@ codeunit 144004 "UT REP Purchase Process Misc"
     var
         CheckLedgerEntry: Record "Check Ledger Entry";
     begin
-        if CheckLedgerEntry.FindLast then
+        if CheckLedgerEntry.FindLast() then
             exit(CheckLedgerEntry."Entry No." + 1);
         exit(1);
     end;

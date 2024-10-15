@@ -406,7 +406,7 @@ codeunit 7000 "Sales Price Calc. Mgt."
             exit;
 
         with SalesLineDisc do begin
-            if FindSet then
+            if FindSet() then
                 repeat
                     if IsInMinQty("Unit of Measure Code", "Minimum Quantity") then
                         case true of
@@ -568,7 +568,7 @@ codeunit 7000 "Sales Price Calc. Mgt."
             exit;
 
         with ToSalesPrice do
-            if FromSalesPrice.FindSet then
+            if FromSalesPrice.FindSet() then
                 repeat
                     ToSalesPrice := FromSalesPrice;
                     Insert;
@@ -578,7 +578,7 @@ codeunit 7000 "Sales Price Calc. Mgt."
     local procedure CopySalesDiscToSalesDisc(var FromSalesLineDisc: Record "Sales Line Discount"; var ToSalesLineDisc: Record "Sales Line Discount")
     begin
         with ToSalesLineDisc do
-            if FromSalesLineDisc.FindSet then
+            if FromSalesLineDisc.FindSet() then
                 repeat
                     ToSalesLineDisc := FromSalesLineDisc;
                     Insert;
@@ -1049,7 +1049,7 @@ codeunit 7000 "Sales Price Calc. Mgt."
             end else begin
                 SetRange(Type, Type::Customer);
                 SetRange("No.", CustNo);
-                if FindSet then
+                if FindSet() then
                     repeat
                         ToCampaignTargetGr := FromCampaignTargetGr;
                         ToCampaignTargetGr.Insert();
@@ -1058,7 +1058,7 @@ codeunit 7000 "Sales Price Calc. Mgt."
                     if Cont.Get(ContNo) then begin
                         SetRange(Type, Type::Contact);
                         SetRange("No.", Cont."Company No.");
-                        if FindSet then
+                        if FindSet() then
                             repeat
                                 ToCampaignTargetGr := FromCampaignTargetGr;
                                 ToCampaignTargetGr.Insert();
@@ -1247,11 +1247,11 @@ codeunit 7000 "Sales Price Calc. Mgt."
                         JobItemPrice.SetRange("Currency Code", "Currency Code");
                         JobItemPrice.SetRange("Job Task No.", "Job Task No.");
                         OnJobPlanningLineFindJTPriceOnAfterSetJobItemPriceFilters(JobItemPrice, JobPlanningLine);
-                        if JobItemPrice.FindFirst then
+                        if JobItemPrice.FindFirst() then
                             CopyJobItemPriceToJobPlanLine(JobPlanningLine, JobItemPrice)
                         else begin
                             JobItemPrice.SetRange("Job Task No.", ' ');
-                            if JobItemPrice.FindFirst then
+                            if JobItemPrice.FindFirst() then
                                 CopyJobItemPriceToJobPlanLine(JobPlanningLine, JobItemPrice);
                         end;
 
@@ -1292,11 +1292,11 @@ codeunit 7000 "Sales Price Calc. Mgt."
                         JobGLAccPrice.SetRange("Currency Code", "Currency Code");
                         JobGLAccPrice.SetRange("Job Task No.", "Job Task No.");
                         OnJobPlanningLineFindJTPriceOnAfterSetJobGLAccPriceFilters(JobGLAccPrice, JobPlanningLine);
-                        if JobGLAccPrice.FindFirst then
+                        if JobGLAccPrice.FindFirst() then
                             CopyJobGLAccPriceToJobPlanLine(JobPlanningLine, JobGLAccPrice)
                         else begin
                             JobGLAccPrice.SetRange("Job Task No.", '');
-                            if JobGLAccPrice.FindFirst then
+                            if JobGLAccPrice.FindFirst() then
                                 CopyJobGLAccPriceToJobPlanLine(JobPlanningLine, JobGLAccPrice);
                         end;
                     end;
@@ -1487,11 +1487,11 @@ codeunit 7000 "Sales Price Calc. Mgt."
                         JobItemPrice.SetRange("Currency Code", "Currency Code");
                         JobItemPrice.SetRange("Job Task No.", "Job Task No.");
                         OnJobJnlLineFindJTPriceOnAfterSetJobItemPriceFilters(JobItemPrice, JobJnlLine);
-                        if JobItemPrice.FindFirst then
+                        if JobItemPrice.FindFirst() then
                             CopyJobItemPriceToJobJnlLine(JobJnlLine, JobItemPrice)
                         else begin
                             JobItemPrice.SetRange("Job Task No.", ' ');
-                            if JobItemPrice.FindFirst then
+                            if JobItemPrice.FindFirst() then
                                 CopyJobItemPriceToJobJnlLine(JobJnlLine, JobItemPrice);
                         end;
                         if JobItemPrice.IsEmpty or (not JobItemPrice."Apply Job Discount") then
@@ -1531,11 +1531,11 @@ codeunit 7000 "Sales Price Calc. Mgt."
                         JobGLAccPrice.SetRange("G/L Account No.", "No.");
                         JobGLAccPrice.SetRange("Currency Code", "Currency Code");
                         JobGLAccPrice.SetRange("Job Task No.", "Job Task No.");
-                        if JobGLAccPrice.FindFirst then
+                        if JobGLAccPrice.FindFirst() then
                             CopyJobGLAccPriceToJobJnlLine(JobJnlLine, JobGLAccPrice)
                         else begin
                             JobGLAccPrice.SetRange("Job Task No.", '');
-                            if JobGLAccPrice.FindFirst then;
+                            if JobGLAccPrice.FindFirst() then;
                             CopyJobGLAccPriceToJobJnlLine(JobJnlLine, JobGLAccPrice);
                         end;
                         OnAfterJobJnlLineFindJTPriceGLAccount(JobJnlLine);
@@ -1648,7 +1648,7 @@ codeunit 7000 "Sales Price Calc. Mgt."
     local procedure FindJobResPrice(var JobResPrice: Record "Job Resource Price"; WorkTypeCode: Code[10]): Boolean
     begin
         JobResPrice.SetRange("Work Type Code", WorkTypeCode);
-        if JobResPrice.FindFirst then
+        if JobResPrice.FindFirst() then
             exit(true);
         JobResPrice.SetRange("Work Type Code", '');
         exit(JobResPrice.FindFirst);

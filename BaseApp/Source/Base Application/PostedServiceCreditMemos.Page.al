@@ -263,7 +263,7 @@ page 5971 "Posted Service Credit Memos"
                     begin
                         CurrPage.SetSelectionFilter(ServiceCrMemoHeader);
                         ProgressWindow.Open(ProcessingInvoiceMsg);
-                        if ServiceCrMemoHeader.FindSet then begin
+                        if ServiceCrMemoHeader.FindSet() then begin
                             repeat
                                 ServiceCrMemoHeader.RequestStampEDocument;
                                 ProgressWindow.Update(1, ServiceCrMemoHeader."No.");
@@ -307,7 +307,7 @@ page 5971 "Posted Service Credit Memos"
                     begin
                         CurrPage.SetSelectionFilter(ServiceCrMemoHeader);
                         ProgressWindow.Open(ProcessingInvoiceMsg);
-                        if ServiceCrMemoHeader.FindSet then begin
+                        if ServiceCrMemoHeader.FindSet() then begin
                             repeat
                                 ServiceCrMemoHeader.CancelEDocument;
                                 ProgressWindow.Update(1, ServiceCrMemoHeader."No.");
@@ -370,7 +370,7 @@ page 5971 "Posted Service Credit Memos"
                 Image = Navigate;
                 Promoted = true;
                 PromotedCategory = Process;
-                ShortCutKey = 'Shift+Ctrl+I';
+                ShortCutKey = 'Ctrl+Alt+Q';
                 ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
 
                 trigger OnAction()

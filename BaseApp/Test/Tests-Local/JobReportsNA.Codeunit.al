@@ -78,7 +78,7 @@ codeunit 142065 "Job Reports NA"
     begin
         // Run and verify Resource Register Report with blank filters.
         // Setup.
-        Initialize;
+        Initialize();
         ResourceNo2 := CreateAndPostMultipleResourceLine(ResourceNo);
 
         // Exercise.
@@ -98,9 +98,9 @@ codeunit 142065 "Job Reports NA"
     begin
         // Run and verify Resource Register Report with Invalid Resource Register No.
         // Setup: Create Resources and post journal.
-        Initialize;
+        Initialize();
         CreateResourceSetup(CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'Y>', WorkDate));  // Using random value for Posting Date.
-        ResourceRegister.FindLast;
+        ResourceRegister.FindLast();
 
         // Exercise.
         RunResourceRegisterReport(Format(ResourceRegister."No." + 1), '', '', false);
@@ -119,7 +119,7 @@ codeunit 142065 "Job Reports NA"
     begin
         // Run and verify Resource Register Report with filter Print Resource Des as True.
         // Setup: Create Resources and post journal.
-        Initialize;
+        Initialize();
         ResourceNo := CreateResourceSetup(CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'Y>', WorkDate));  // Using random value for Posting Date.
 
         // Exercise.
@@ -140,7 +140,7 @@ codeunit 142065 "Job Reports NA"
     begin
         // Run and verify Resource Usage Report with blank filters.
         // Setup.
-        Initialize;
+        Initialize();
         ResourceNo2 := CreateAndPostMultipleResourceLine(ResourceNo);
 
         // Exercise.
@@ -160,7 +160,7 @@ codeunit 142065 "Job Reports NA"
     begin
         // Run and veify Resource Usage Report with Resource No. filter.
         // Setup: Create Resources and post journal.
-        Initialize;
+        Initialize();
         Resource.Get(CreateResourceSetup(WorkDate));
 
         // Exercise.
@@ -180,7 +180,7 @@ codeunit 142065 "Job Reports NA"
     begin
         // Run and verify Resource Usage Report with Base Unit Of Measure filter.
         // Setup: Create Resources and post journal.
-        Initialize;
+        Initialize();
         Resource.Get(CreateResourceSetup(WorkDate));
 
         // Exercise.
@@ -202,7 +202,7 @@ codeunit 142065 "Job Reports NA"
     begin
         // Run and verify Resource Usage Report with Date Filter.
         // Setup: Create Resources and post journal.
-        Initialize;
+        Initialize();
         PostingDate := LibraryRandom.RandDate(5);
         CreateResourceSetup(PostingDate); // Using random values Posting Date.
 
@@ -226,7 +226,7 @@ codeunit 142065 "Job Reports NA"
     begin
         // Run and verify Job Cost Transaction Detail report with blank filters.
         // Setup: Create two Jobs and post Job Journal for both.
-        Initialize;
+        Initialize();
         CreateJobAndPostJobJournal(Job, JobJournalLine."Line Type"::" ", WorkDate);
         CreateJobAndPostJobJournal(Job2, JobJournalLine."Line Type"::" ", WorkDate);
 
@@ -248,7 +248,7 @@ codeunit 142065 "Job Reports NA"
     begin
         // Run and verify Job Cost Transaction Detail report with Job No filter.
         // Setup.
-        Initialize;
+        Initialize();
         CreateJobAndPostJobJournal(Job, JobJournalLine."Line Type"::" ", WorkDate);
 
         // Exercise & Verify.
@@ -265,7 +265,7 @@ codeunit 142065 "Job Reports NA"
     begin
         // Run and verify Job Cost Transaction Detail report with Bill To Customer No filter.
         // Setup.
-        Initialize;
+        Initialize();
         CreateJobAndPostJobJournal(Job, JobJournalLine."Line Type"::" ", WorkDate);
 
         // Exercise & Verify.
@@ -286,7 +286,7 @@ codeunit 142065 "Job Reports NA"
     begin
         // Run and verify Job Cost Transaction Detail report with Posting Date filter.
         // Setup.
-        Initialize;
+        Initialize();
         PostingDate := CalcDate('<1Y>', WorkDate);
         CreateJobAndPostJobJournal(Job, JobJournalLine."Line Type"::" ", PostingDate);
 
@@ -307,7 +307,7 @@ codeunit 142065 "Job Reports NA"
     begin
         // Run and verify Job Cost Transaction Detail report with Posting Date and Job No filters.
         // Setup: Create a Job and post two Journal Lines for it at different posting dates.
-        Initialize;
+        Initialize();
         CreateJobAndPostJobJournal(Job, JobJournalLine."Line Type"::" ", CalcDate('<1Y>', WorkDate));
         FindJobTask(JobTask, Job."No.");
         CreateAndPostJobJournalLine(JobTask, CreateItem, JobJournalLine.Type::Item, JobJournalLine."Line Type"::" ", WorkDate);
@@ -342,7 +342,7 @@ codeunit 142065 "Job Reports NA"
         JobJournalLine: Record "Job Journal Line";
     begin
         // Setup: Create a Job and post Job Journal for it.
-        Initialize;
+        Initialize();
         CreateJobAndPostJobJournal(Job, JobJournalLine."Line Type"::" ", WorkDate);
         FindJobLedgerEntry(JobLedgerEntry, Job."No.", JobJournalLine.Type::Resource);
 
@@ -368,10 +368,10 @@ codeunit 142065 "Job Reports NA"
     begin
         // Run and verify Job Register report with Job No. filter.
         // Setup.
-        Initialize;
+        Initialize();
         CreateJobAndPostJobJournal(Job, JobJournalLine."Line Type"::" ", WorkDate);
         CreateJobAndPostJobJournal(Job2, JobJournalLine."Line Type"::" ", WorkDate);
-        JobRegister.FindLast;
+        JobRegister.FindLast();
         FindJobLedgerEntry(JobLedgerEntry, Job."No.", JobJournalLine.Type::Resource);
 
         // Exercise.
@@ -398,7 +398,7 @@ codeunit 142065 "Job Reports NA"
     begin
         // Run and verify Job Register report with Type filter.
         // Setup: Create a Job and post Job Journals for it with different types.
-        Initialize;
+        Initialize();
         CreateJobAndPostJobJournal(Job, JobJournalLine."Line Type"::" ", WorkDate);
         FindJobTask(JobTask, Job."No.");
         CreateAndPostJobJournalLine(JobTask, CreateItem, JobJournalLine.Type::Item, JobJournalLine."Line Type"::" ", WorkDate);
@@ -423,7 +423,7 @@ codeunit 142065 "Job Reports NA"
     begin
         // Run and verify Job Cost Suggested Billing report with Bill to Customer No. filter.
         // Setup: Create Job Planning Line for a new Job, Create Sales Invoice from Job Planning Line and find the created Sales Invoice.
-        Initialize;
+        Initialize();
         TotalPrice := CreateJobAndSalesInvoiceFromJobPlanningLine(Job);
 
         // Exercise: Post Sales Invoice created from Job Planning Line.
@@ -448,7 +448,7 @@ codeunit 142065 "Job Reports NA"
     begin
         // Run and verify Completed Job report with Bill to Customer No. filter.
         // Setup: Create Job Planning Line for a new Job, Create Sales Invoice from Job Planning Line and find the created Sales Invoice.
-        Initialize;
+        Initialize();
         CreateJob(Job);
         LibraryJob.CreateJobTask(Job, JobTask);
         CreateSalesInvoiceFromJobPlaningLine(JobTask, JobPlanningLine);
@@ -480,7 +480,7 @@ codeunit 142065 "Job Reports NA"
     begin
         // Verify Job Ledger Entry for posted purchase invoice with Use Tax.
         // Setup: Create Purch Invoice for Job with Sales Tax and a Tax Detail.
-        Initialize;
+        Initialize();
         CreateAndPostPurchaseDocument(PurchaseLine, '');
         PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
 
@@ -502,7 +502,7 @@ codeunit 142065 "Job Reports NA"
     begin
         // Verify Job Ledger Entry for posted purchase invoice with Use Tax and Currency.
         // Setup: Create Purch Invoice for Job with Sales Tax and a Tax Detail.
-        Initialize;
+        Initialize();
         CreateAndPostPurchaseDocument(PurchaseLine, CreateCurrency);
         PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
 
@@ -564,7 +564,7 @@ codeunit 142065 "Job Reports NA"
         // Run and verify Sales Invoice report with different Tax Jurisdiction.
 
         // Setup: Create and Post Sales Invoice and Create Tax Area Line.
-        Initialize;
+        Initialize();
         DocumentNo := CreateAndPostSalesInvoice(SalesLine);
         LibraryVariableStorage.Enqueue(DocumentNo);
         CreateTaxAreaLine(TaxDetail, CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate));  // Using random value for Effective Date.
@@ -592,7 +592,7 @@ codeunit 142065 "Job Reports NA"
         // Run and verify Purchase Invoice report with different Tax Jurisdiction.
 
         // Setup: Create and Post Purchase Invoice and Create Tax Area Line.
-        Initialize;
+        Initialize();
         DocumentNo := CreateAndPostPurchaseInvoice(PurchaseLine, PurchaseLine."Document Type"::Invoice);
         LibraryVariableStorage.Enqueue(DocumentNo);
         CreateTaxAreaLine(TaxDetail, CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'Y>', WorkDate));  // Using random value for Effective Date.
@@ -620,7 +620,7 @@ codeunit 142065 "Job Reports NA"
         // Run and verify Service Shipment report with different Tax Jurisdiction.
 
         // Setup: Create and Post Service Shipment and Create Tax Area Line.
-        Initialize;
+        Initialize();
         CreateAndPostServiceInvoice(ServiceLine);
         DocumentNo := FindServiceShipmentHeaderWithCustomer(ServiceLine."Customer No.");
         CreateTaxAreaLine(TaxDetail, CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'Y>', WorkDate));  // Using random value for Effective Date.
@@ -641,8 +641,8 @@ codeunit 142065 "Job Reports NA"
         if isInitialized then
             exit;
 
-        LibraryVariableStorage.Clear;
-        LibraryERMCountryData.CreateVATData;
+        LibraryVariableStorage.Clear();
+        LibraryERMCountryData.CreateVATData();
         LibraryApplicationArea.EnableEssentialSetup;
 
         SetJobNoSeries(JobsSetup, NoSeries);
@@ -815,7 +815,7 @@ codeunit 142065 "Job Reports NA"
     begin
         LibraryJob.CreateJob(Job);
         LibrarySales.CreateCustomer(Customer);
-        Job.Validate("Bill-to Customer No.", Customer."No.");
+        Job.Validate("Sell-to Customer No.", Customer."No.");
         LibraryJob.CreateJobWIPMethod(JobWIPMethod);
         Job.Validate("WIP Method", JobWIPMethod.Code);
         Job.Modify(true);
@@ -1029,13 +1029,13 @@ codeunit 142065 "Job Reports NA"
     begin
         JobLedgerEntry.SetRange("Job No.", JobNo);
         JobLedgerEntry.SetRange(Type, Type);
-        JobLedgerEntry.FindLast;  // To fetch last ledger entry created for the job.
+        JobLedgerEntry.FindLast();  // To fetch last ledger entry created for the job.
     end;
 
     local procedure FindJobTask(var JobTask: Record "Job Task"; JobNo: Code[20])
     begin
         JobTask.SetRange("Job No.", JobNo);
-        JobTask.FindFirst;
+        JobTask.FindFirst();
     end;
 
     local procedure FindSalesHeader(var SalesHeader: Record "Sales Header"; JobNo: Code[20])
@@ -1051,7 +1051,7 @@ codeunit 142065 "Job Reports NA"
         SalesLine.SetRange("Document Type", SalesLine."Document Type"::Invoice);
         SalesLine.SetRange(Type, SalesLine.Type::Resource);
         SalesLine.SetRange("Job No.", JobNo);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
     end;
 
     local procedure FindServiceShipmentHeader(OrderNo: Code[20]): Code[20]
@@ -1059,7 +1059,7 @@ codeunit 142065 "Job Reports NA"
         ServiceShipmentHeader: Record "Service Shipment Header";
     begin
         ServiceShipmentHeader.SetRange("Order No.", OrderNo);
-        ServiceShipmentHeader.FindFirst;
+        ServiceShipmentHeader.FindFirst();
         exit(ServiceShipmentHeader."No.");
     end;
 
@@ -1068,7 +1068,7 @@ codeunit 142065 "Job Reports NA"
         ServiceShipmentHeader: Record "Service Shipment Header";
     begin
         ServiceShipmentHeader.SetRange("Customer No.", CustomerNo);
-        ServiceShipmentHeader.FindFirst;
+        ServiceShipmentHeader.FindFirst();
         LibraryVariableStorage.Enqueue(ServiceShipmentHeader."No.");
         exit(ServiceShipmentHeader."No.");
     end;
@@ -1101,7 +1101,7 @@ codeunit 142065 "Job Reports NA"
     begin
         // Setup: Create Customer, Customer Invoice Discount, Update Sales & Receivable Setup with Calc. Inv. Discount as True, Service
         // Item, Service Header with Document Type as Order, Service Item Line and Service Line with Type Resource.
-        Initialize;
+        Initialize();
         ModifySalesReceivablesSetup;
         LibrarySales.CreateCustomer(Customer);
         CreateCustomerInvoiceDiscount(Customer."No.", DiscountPct, 0);  // Using Zero for Service Charge.
@@ -1199,7 +1199,7 @@ codeunit 142065 "Job Reports NA"
         JobLedgerEntry: Record "Job Ledger Entry";
     begin
         // Setup: Create a job and post job journals for it with Line Type as Billable and Budget.
-        Initialize;
+        Initialize();
         CreateJobAndPostJobJournal(Job, LineType, WorkDate);
         FindJobTask(JobTask, Job."No.");
         CreateAndPostJobJournalLine(JobTask, LibraryJob.FindItem, JobJournalLine.Type::Item, JobJournalLine."Line Type"::Budget, WorkDate);
@@ -1253,7 +1253,7 @@ codeunit 142065 "Job Reports NA"
     begin
         JobLedgerEntry.SetFilter("Document No.", DocumentNo);
         JobLedgerEntry.SetFilter("Job No.", JobNo);
-        JobLedgerEntry.FindFirst;
+        JobLedgerEntry.FindFirst();
         JobLedgerEntry.TestField("Direct Unit Cost (LCY)", Amount);
     end;
 
@@ -1288,7 +1288,7 @@ codeunit 142065 "Job Reports NA"
         ResLedgerEntry.SetRange("Resource No.", ServiceLine."No.");
         ResLedgerEntry.SetRange("Document No.", FindServiceShipmentHeader(ServiceLine."Document No."));
         ResLedgerEntry.SetRange("Entry Type", ResLedgerEntry."Entry Type"::Usage);
-        ResLedgerEntry.FindFirst;
+        ResLedgerEntry.FindFirst();
         ResLedgerEntry.TestField(Quantity, ServiceLine.Quantity);
         Assert.AreNearlyEqual(TotalPrice, ResLedgerEntry."Total Price", LibraryERM.GetAmountRoundingPrecision, AmountError);
     end;

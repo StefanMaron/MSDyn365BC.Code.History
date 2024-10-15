@@ -1,9 +1,13 @@
+#if not CLEAN20
 page 10146 "Deposit List"
 {
     Caption = 'Deposit List';
     Editable = false;
     PageType = List;
     SourceTable = "Deposit Header";
+    ObsoleteReason = 'Replaced by new Bank Deposits extension';
+    ObsoleteState = Pending;
+    ObsoleteTag = '20.0';
 
     layout
     {
@@ -69,3 +73,4 @@ page 10146 "Deposit List"
     }
 }
 
+#endif

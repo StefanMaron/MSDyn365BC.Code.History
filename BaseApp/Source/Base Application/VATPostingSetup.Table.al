@@ -166,6 +166,10 @@ table 325 "VAT Posting Setup"
         {
             Caption = 'Description';
         }
+        field(21; Blocked; Boolean)
+        {
+            Caption = 'Blocked';
+        }
         field(10001; "CFDI VAT Exemption"; Boolean)
         {
             Caption = 'CFDI VAT Exemption';
@@ -254,7 +258,7 @@ table 325 "VAT Posting Setup"
         VATPostingSetup.SetFilter("VAT Prod. Posting Group", '<>%1', "VAT Prod. Posting Group");
         VATPostingSetup.SetFilter("VAT %", '<>%1', "VAT %");
         VATPostingSetup.SetRange("VAT Identifier", "VAT Identifier");
-        if VATPostingSetup.FindFirst then
+        if VATPostingSetup.FindFirst() then
             Error(
               Text001,
               FieldCaption("VAT Identifier"), VATPostingSetup."VAT Identifier",
@@ -270,7 +274,7 @@ table 325 "VAT Posting Setup"
         VATPostingSetup.SetRange("VAT Bus. Posting Group", "VAT Bus. Posting Group");
         VATPostingSetup.SetFilter("VAT Prod. Posting Group", '<>%1', "VAT Prod. Posting Group");
         VATPostingSetup.SetRange("VAT Identifier", "VAT Identifier");
-        if not VATPostingSetup.FindFirst then
+        if not VATPostingSetup.FindFirst() then
             VATPostingSetup."VAT %" := "VAT %";
         exit(VATPostingSetup."VAT %");
     end;
@@ -396,7 +400,7 @@ table 325 "VAT Posting Setup"
 
         TempAccountUseBuffer.Reset();
         TempAccountUseBuffer.SetCurrentKey("No. of Use");
-        if TempAccountUseBuffer.FindLast then begin
+        if TempAccountUseBuffer.FindLast() then begin
             RecFieldRef := RecRef.Field(AccountFieldNo);
             RecFieldRef.Value(TempAccountUseBuffer."Account No.");
         end;

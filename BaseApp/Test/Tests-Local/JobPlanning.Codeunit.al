@@ -74,7 +74,7 @@ codeunit 144016 "Job Planning"
         Job: Record Job;
     begin
         JobsUtil.CreateJob(Job);
-        Job.Validate("Bill-to Customer No.", CreateCustomer);
+        Job.Validate("Sell-to Customer No.", CreateCustomer);
         Job.Modify(true);
         JobsUtil.CreateJobTask(Job, JobTask);
     end;
@@ -117,7 +117,7 @@ codeunit 144016 "Job Planning"
         JobPlanningLine.SetRange("Job No.", JobNo);
         JobPlanningLine.SetRange("Line Type", JobPlanningLine."Line Type"::Billable);
         JobPlanningLine.SetRange("Document No.", DocumentNo);
-        JobPlanningLine.FindFirst;
+        JobPlanningLine.FindFirst();
         JobCreateInvoice.CreateSalesInvoice(JobPlanningLine, false);  // Create Sales Invoice, Request Page Handler - JobTransferToSalesInvoiceRequestPageHandler
         JobCreateInvoice.GetJobPlanningLineInvoices(JobPlanningLine);  // Open Sales Invoice in Page Handler -SalesInvoiceModalPageHandler and Post Sales Invoice in Handler.
     end;
@@ -129,7 +129,7 @@ codeunit 144016 "Job Planning"
     begin
         JobLedgerEntry.SetRange("Job No.", JobNo);
         JobTransferToPlanningLine.GetJobLedgEntry(JobLedgerEntry);
-        JobTransferToPlanningLine.Run;  // Added Request Page Handler - JobTransferToPlanningLineRequestPageHandler
+        JobTransferToPlanningLine.Run();  // Added Request Page Handler - JobTransferToPlanningLineRequestPageHandler
     end;
 
     local procedure VerifyGeneralLedgerEntry(JobNo: Code[20]; Amount: Decimal; SourceNo: Code[20])
@@ -139,7 +139,7 @@ codeunit 144016 "Job Planning"
         GLEntry.SetRange("Job No.", JobNo);
         GLEntry.SetRange("Gen. Posting Type", GLEntry."Gen. Posting Type"::Sale);
         GLEntry.SetRange("Source Type", GLEntry."Source Type"::Customer);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         GLEntry.TestField("Source No.", SourceNo);
         GLEntry.TestField(Amount, -Amount);
     end;
