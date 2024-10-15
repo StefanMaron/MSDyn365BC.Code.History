@@ -3086,6 +3086,8 @@
                               <GroupExpression>=Fields!IntrastatJnlLineTariffNo.Value</GroupExpression>
                               <GroupExpression>=Fields!IntrastatJnlLineTranType.Value</GroupExpression>
                               <GroupExpression>=Fields!IntrastatJnlLinTranMethod.Value</GroupExpression>
+                              <GroupExpression>=Fields!CountryRegionofOriginCode.Value</GroupExpression>
+                              <GroupExpression>=Fields!PartnerVATID.Value</GroupExpression>
                             </GroupExpressions>
                           </Group>
                           <TablixMembers>
@@ -3817,6 +3819,12 @@ End Function
         </Field>
         <Field Name="TotalCaption">
           <DataField>TotalCaption</DataField>
+        </Field>
+        <Field Name="CountryRegionofOriginCode">
+          <DataField>CountryRegionofOriginCode</DataField>
+        </Field>
+        <Field Name="PartnerVATID">
+          <DataField>PartnerVATID</DataField>
         </Field>
         <Field Name="CountryRegionOfOriginIntrastatCode">
           <DataField>CountryRegionOfOriginIntrastatCode</DataField>

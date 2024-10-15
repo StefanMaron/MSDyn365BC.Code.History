@@ -240,6 +240,7 @@ page 6781 "Posted Direct Transfer"
                 var
                     DirectTransHeader: Record "Direct Trans. Header";
                 begin
+                    DirectTransHeader := Rec;
                     CurrPage.SetSelectionFilter(DirectTransHeader);
                     DirectTransHeader.PrintRecords(true);
                 end;
