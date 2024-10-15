@@ -57,7 +57,6 @@ page 99000882 "Change Status on Prod. Order"
     var
         ProdOrderStatus: Record "Production Order";
         PostingDate: Date;
-        ReqUpdUnitCost: Boolean;
         [InDataSet]
         FirmPlannedStatusEditable: Boolean;
         [InDataSet]
@@ -65,6 +64,9 @@ page 99000882 "Change Status on Prod. Order"
         [InDataSet]
         FinishedStatusEditable: Boolean;
         Text666: Label '%1 is not a valid selection.';
+
+    protected var
+        ReqUpdUnitCost: Boolean;
 
     procedure Set(ProdOrder: Record "Production Order")
     begin
@@ -81,7 +83,7 @@ page 99000882 "Change Status on Prod. Order"
 
         PostingDate := WorkDate;
 
-        OnAfterSet;
+        OnAfterSet(ProdOrder);
     end;
 
     procedure ReturnPostingInfo(var Status: Option Simulated,Planned,"Firm Planned",Released,Finished; var PostingDate2: Date; var UpdUnitCost: Boolean)
@@ -98,7 +100,7 @@ page 99000882 "Change Status on Prod. Order"
     end;
 
     [IntegrationEvent(TRUE, false)]
-    local procedure OnAfterSet()
+    local procedure OnAfterSet(ProdOrder: Record "Production Order")
     begin
     end;
 }

@@ -99,5 +99,30 @@ table 5151 "Integration Record"
         SetRange("Record ID", FindRecordId);
         exit(FindFirst);
     end;
+
+    internal procedure FindBySystemId(FindRecordId: RecordID; ParentSystemId: Guid): Boolean
+    begin
+        if FindRecordId.TableNo = 0 then
+            exit(false);
+
+        // It is possible to use RecordID to find records via temporary tables
+        // that don't have the systemID set but use RecordId to find the parent
+        // We need to support this get in order not to break existing scenarios
+        if IsNullGuid(ParentSystemId) then
+            exit(FindByRecordId(FindRecordId));
+
+        Reset();
+        if not Rec.Get(ParentSystemId) then
+            exit(false);
+
+        if (Rec."Record ID" <> FindRecordId) or (Rec."Table ID" <> FindRecordId.TableNo()) then begin
+            // Tables are out of sync, fix on the fly
+            Rec."Record ID" := FindRecordId;
+            Rec."Table ID" := FindRecordId.TableNo();
+            Rec.Modify(true);
+        end;
+
+        exit(true);
+    end;
 }
 

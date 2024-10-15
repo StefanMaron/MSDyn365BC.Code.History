@@ -300,12 +300,14 @@ page 1817 "CRM Connection Setup Wizard"
 
         Init;
         if CRMConnectionSetup.Get then begin
+            "Authentication Type" := CRMConnectionSetup."Authentication Type";
             "Server Address" := CRMConnectionSetup."Server Address";
             "User Name" := CRMConnectionSetup."User Name";
             "User Password Key" := CRMConnectionSetup."User Password Key";
             Password := CRMConnectionSetup.GetPassword();
             ConnectionStringFieldsEditable := false;
-        end;
+        end else
+            InitializeDefaultAuthenticationType();
         InitializeDefaultProxyVersion;
         Insert;
         Step := Step::Start;
@@ -533,6 +535,11 @@ page 1817 "CRM Connection Setup Wizard"
                     "Dynamics NAV OData Accesskey" := IdentityManagement.GetWebServicesKey(User."User Security ID");
             end;
         CurrPage.Update;
+    end;
+
+    local procedure InitializeDefaultAuthenticationType()
+    begin
+        Validate("Authentication Type", "Authentication Type"::Office365);
     end;
 
     local procedure InitializeDefaultProxyVersion()

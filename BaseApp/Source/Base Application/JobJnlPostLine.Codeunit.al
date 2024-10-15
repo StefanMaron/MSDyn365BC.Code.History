@@ -115,7 +115,7 @@ codeunit 1012 "Job Jnl.-Post Line"
                 JobLedgEntryNo := CreateJobLedgEntry(JobJnlLine2);
         end;
 
-        OnAfterRunCode(JobJnlLine2, JobLedgEntryNo);
+        OnAfterRunCode(JobJnlLine2, JobLedgEntryNo, JobReg);
 
         exit(JobLedgEntryNo);
     end;
@@ -360,6 +360,7 @@ codeunit 1012 "Job Jnl.-Post Line"
                             OnPostItemOnAfterApplyItemTracking(JobJnlLine2, ItemLedgEntry, JobLedgEntry2, SkipJobLedgerEntry);
                         end;
                     end;
+                    OnPostItemOnAfterSetSkipJobLedgerEntry(JobJnlLine2, ItemLedgEntry, SkipJobLedgerEntry);
                     if not SkipJobLedgerEntry then begin
                         TempRemainingQty := JobJnlLine2."Remaining Qty.";
                         JobJnlLine2.Quantity := -ValueEntry."Invoiced Quantity" / "Qty. per Unit of Measure";
@@ -385,11 +386,17 @@ codeunit 1012 "Job Jnl.-Post Line"
         end;
     end;
 
-    local procedure PostResource(var JobJnlLine2: Record "Job Journal Line"): Integer
+    local procedure PostResource(var JobJnlLine2: Record "Job Journal Line") EntryNo: Integer
     var
         ResJnlLine: Record "Res. Journal Line";
         ResLedgEntry: Record "Res. Ledger Entry";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforePostResource(JobJnlLine, JobJnlLine2, EntryNo, IsHandled);
+        if IsHandled then
+            exit(EntryNo);
+
         with ResJnlLine do begin
             Init;
             CopyFromJobJnlLine(JobJnlLine2);
@@ -568,7 +575,7 @@ codeunit 1012 "Job Jnl.-Post Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCopyJobJnlLine(var JobJournalLine: Record "Job Journal Line"; JobJournalLine2: Record "Job Journal Line")
+    local procedure OnAfterCopyJobJnlLine(var JobJournalLine: Record "Job Journal Line"; var JobJournalLine2: Record "Job Journal Line")
     begin
     end;
 
@@ -578,7 +585,7 @@ codeunit 1012 "Job Jnl.-Post Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterRunCode(var JobJournalLine: Record "Job Journal Line"; JobLedgEntryNo: Integer)
+    local procedure OnAfterRunCode(var JobJournalLine: Record "Job Journal Line"; JobLedgEntryNo: Integer; var JobRegister: Record "Job Register")
     begin
     end;
 
@@ -618,6 +625,11 @@ codeunit 1012 "Job Jnl.-Post Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforePostResource(var JobJournalLine: Record "Job Journal Line"; var JobJnlLine2: Record "Job Journal Line"; var EntryNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCheckJobOnBeforeTestJobTaskType(var JobJournalLine: Record "Job Journal Line"; var IsHandled: Boolean)
     begin
     end;
@@ -639,6 +651,11 @@ codeunit 1012 "Job Jnl.-Post Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnPostItemOnAfterApplyItemTracking(var JobJournalLine: Record "Job Journal Line"; ItemLedgerEntry: Record "Item Ledger Entry"; var JobLedgerEntry: Record "Job Ledger Entry"; var SkipJobLedgerEntry: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostItemOnAfterSetSkipJobLedgerEntry(var JobJnlLine2: Record "Job Journal Line"; ItemLedgEntry: Record "Item Ledger Entry"; var SkipJobLedgerEntry: Boolean)
     begin
     end;
 
