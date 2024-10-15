@@ -4788,6 +4788,53 @@ codeunit 134920 "ERM General Journal UT"
         Assert.IsTrue(GenJournalBatch.Get(GenJournalTemplate.Name, NewGenJnlBatchName), 'Record not found');
     end;
 
+    [Test]
+    [HandlerFunctions('YesConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure RenumberDocNoMultipleLinesForDifferentNoSeries()
+    var
+        GLAccount: Record "G/L Account";
+        GLAccount2: Record "G/L Account";
+        GenJournalLine: Record "Gen. Journal Line";
+        GenJournalLine2: Record "Gen. Journal Line";
+        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeriesCode: Code[20];
+        NoSeriesCode2: Code[20];
+        NewDocNo: Code[20];
+    begin
+        // [FEATURE] [No. Series]
+        // [SCENARIO 383931] Different No. Series Gen. Journal lines are preserved after Renumber Document No.
+        Initialize();
+
+        // [GIVEN] Setup GL Accounts and two No. Series created (GU1.. and GU2..)
+        LibraryERM.CreateGLAccount(GLAccount);
+        LibraryERM.CreateGLAccount(GLAccount2);
+        NoSeriesCode := LibraryERM.CreateNoSeriesCode();
+        NoSeriesCode2 := LibraryERM.CreateNoSeriesCode();
+
+        // [GIVEN] Created two Gen. Journal Lines (GJL1 and GJL2) for each No. Series
+        CreateGenJournalLine(GenJournalLine, GenJournalLine."Document Type"::" ",
+          GenJournalLine."Account Type"::"G/L Account", GLAccount."No.",
+          GenJournalLine."Account Type"::"G/L Account", GLAccount2."No.", NoSeriesCode);
+        CreateGenJournalLine(GenJournalLine2, GenJournalLine2."Document Type"::" ",
+          GenJournalLine2."Account Type"::"G/L Account", GLAccount."No.",
+          GenJournalLine2."Account Type"::"G/L Account", GLAccount2."No.", NoSeriesCode2);
+
+        // [WHEN] Run "Renumber Document No" for lines
+        Commit();
+        GenJournalLine.RenumberDocumentNo();
+
+        // [THEN] GJL1 has "Doc No." from "GU1.." No. Series, GJL2 has "Doc No." from "GU2.." No. Series
+        Clear(NoSeriesManagement);
+        NewDocNo := NoSeriesManagement.GetNextNo(NoSeriesCode, WorkDate, false);
+        VerifyGenJnlLineDocNo(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name",
+          10000, NewDocNo);
+        Clear(NoSeriesManagement);
+        NewDocNo := NoSeriesManagement.GetNextNo(NoSeriesCode2, WorkDate, false);
+        VerifyGenJnlLineDocNo(GenJournalLine2."Journal Template Name", GenJournalLine2."Journal Batch Name",
+          10000, NewDocNo);
+    end;
+
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore;

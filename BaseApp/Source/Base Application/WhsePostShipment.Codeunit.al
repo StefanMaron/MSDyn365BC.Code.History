@@ -864,7 +864,7 @@
         GetLocation(PostedWhseShptLine."Location Code");
         if Location."Bin Mandatory" then begin
             CreateWhseJnlLine(TempWhseJnlLine, PostedWhseShptLine);
-            WMSMgt.CheckWhseJnlLine(TempWhseJnlLine, 0, 0, false);
+            CheckWhseJnlLine(TempWhseJnlLine);
             OnBeforeRegisterWhseJnlLines(TempWhseJnlLine, PostedWhseShptLine);
             ItemTrackingMgt.SplitWhseJnlLine(TempWhseJnlLine, TempWhseJnlLine2, TempTrackingSpecification, false);
             if TempWhseJnlLine2.Find('-') then
@@ -874,6 +874,18 @@
         end;
 
         OnAfterPostWhseJnlLines(TempWhseJnlLine, PostedWhseShptLine, TempTrackingSpecification, WhseJnlRegisterLine);
+    end;
+
+    local procedure CheckWhseJnlLine(var TempWhseJnlLine: Record "Warehouse Journal Line" temporary)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckWhseJnlLine(TempWhseJnlLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        WMSMgt.CheckWhseJnlLine(TempWhseJnlLine, 0, 0, false);
     end;
 
     local procedure CreateWhseJnlLine(var WhseJnlLine: Record "Warehouse Journal Line"; PostedWhseShptLine: Record "Posted Whse. Shipment Line")
@@ -1425,6 +1437,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckShippingAdviceComplete(var WhseShptLine: Record "Warehouse Shipment Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckWhseJnlLine(var TempWhseJnlLine: Record "Warehouse Journal Line" temporary; var IsHandled: Boolean)
     begin
     end;
 

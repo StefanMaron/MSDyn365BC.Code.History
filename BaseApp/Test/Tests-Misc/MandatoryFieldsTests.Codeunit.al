@@ -97,6 +97,7 @@ codeunit 134590 "Mandatory Fields Tests"
         LibraryApplicationArea: Codeunit "Library - Application Area";
     begin
         // [FEATURE] [Sales]
+        Initialize();
         LibraryApplicationArea.DisableApplicationAreaSetup();
 
         LibrarySales.DisableWarningOnCloseUnpostedDoc;

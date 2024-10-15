@@ -1,4 +1,4 @@
-page 5415 "Item Avail. by Variant Lines"
+﻿page 5415 "Item Avail. by Variant Lines"
 {
     Caption = 'Lines';
     DeleteAllowed = false;
@@ -365,7 +365,7 @@ page 5415 "Item Avail. by Variant Lines"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterSet(var ItemVariant: record "Item Variant"; var Item: Record Item; AmountType: Option "Net Change","Balance at Date")
     begin
     end;

@@ -261,7 +261,7 @@
 
         with PostedWhseRcptLine do begin
             if (WhseActivHeader."No." = '') and InsertHeader then
-                InsertWhseActivHeader("Location Code");
+                InsertWhseActivHeader(PostedWhseRcptLine);
 
             WhseActivLine.Init();
             WhseActivLine."Activity Type" := WhseActivHeader.Type;
@@ -378,12 +378,14 @@
         OnAfterAssignPlaceBinZone(WhseActivLine);
     end;
 
-    local procedure InsertWhseActivHeader(LocationCode: Code[10])
+    local procedure InsertWhseActivHeader(var PostedWhseRcptLine: Record "Posted Whse. Receipt Line")
     begin
+        OnBeforeInsertWhseActivHeader(PostedWhseRcptLine);
+
         WhseActivHeader.LockTable();
         WhseActivHeader.Init();
         WhseActivHeader.Type := WhseActivHeader.Type::"Put-away";
-        WhseActivHeader."Location Code" := LocationCode;
+        WhseActivHeader."Location Code" := PostedWhseRcptLine."Location Code";
         WhseActivHeader.Validate("Assigned User ID", AssignedID);
         WhseActivHeader."Sorting Method" := SortActivity;
         WhseActivHeader."Breakbulk Filter" := BreakbulkFilter;
@@ -988,6 +990,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetPutAwayTemplate(SKU: Record "Stockkeeping Unit"; Item: Record Item; Location: Record Location; var PutAwayTemplHeader: Record "Put-away Template Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertWhseActivHeader(var PostedWhseReceiptLine: Record "Posted Whse. Receipt Line")
     begin
     end;
 
