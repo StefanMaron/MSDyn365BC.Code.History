@@ -19,6 +19,7 @@ codeunit 138916 "O365 Translation Tests"
         LibraryERM: Codeunit "Library - ERM";
         LibraryUtility: Codeunit "Library - Utility";
         LibrarySales: Codeunit "Library - Sales";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         EventSubscriberInvoicingApp: Codeunit "EventSubscriber Invoicing App";
         Assert: Codeunit Assert;
@@ -345,57 +346,62 @@ codeunit 138916 "O365 Translation Tests"
         O365SalesInitialSetup: Record "O365 Sales Initial Setup";
         O365C2GraphEventSettings: Record "O365 C2Graph Event Settings";
     begin
-        if not Initialized then begin
-            if O365SalesInitialSetup.Insert() then;
-            OrigLang := GlobalLanguage;
+        LibraryTestInitialize.OnTestInitialize(CODEUNIT::"O365 Translation Tests");
 
-            CreateCountry(CountryRegion);
-            TranslatedCountryName :=
-              CopyStr(CountryRegion.Name + CountryRegion.Name, 1, MaxStrLen(TranslatedCountryName));
-            InsertCountryRegionTranslation(CountryRegion.Code, FRCTxt, TranslatedCountryName);
+        if not Initialized then
+            exit;
 
-            LibraryERM.CreateTaxArea(TaxArea);
-            TranslatedTaxAreaName :=
-              CopyStr(TaxArea.Description + TaxArea.Description, 1, MaxStrLen(TranslatedTaxAreaName));
-            InsertTaxAreaTranslation(TaxArea.Code, FRCTxt, TranslatedTaxAreaName);
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"O365 Translation Tests");
+        if O365SalesInitialSetup.Insert() then;
+        OrigLang := GlobalLanguage;
 
-            LibraryERM.CreatePaymentTerms(PaymentTerms);
-            PaymentTerms.Description := LibraryUtility.GenerateGUID;
-            PaymentTerms.Modify();
-            TranslatedPaymentTermsName :=
-              CopyStr(PaymentTerms.Description + PaymentTerms.Description, 1, MaxStrLen(TranslatedPaymentTermsName));
-            InsertPaymentTermsTranslation(PaymentTerms.Code, FRCTxt, TranslatedPaymentTermsName);
+        CreateCountry(CountryRegion);
+        TranslatedCountryName :=
+            CopyStr(CountryRegion.Name + CountryRegion.Name, 1, MaxStrLen(TranslatedCountryName));
+        InsertCountryRegionTranslation(CountryRegion.Code, FRCTxt, TranslatedCountryName);
 
-            LibraryERM.CreatePaymentMethod(PaymentMethod);
-            PaymentMethod.Description := LibraryUtility.GenerateGUID;
-            PaymentMethod."Use for Invoicing" := true;
-            PaymentMethod.Modify();
-            TranslatedPaymentMethodName :=
-              CopyStr(PaymentMethod.Description + PaymentMethod.Description, 1, MaxStrLen(TranslatedPaymentMethodName));
-            InsertPaymentMethodTranslation(PaymentMethod.Code, FRCTxt, TranslatedPaymentMethodName);
+        LibraryERM.CreateTaxArea(TaxArea);
+        TranslatedTaxAreaName :=
+            CopyStr(TaxArea.Description + TaxArea.Description, 1, MaxStrLen(TranslatedTaxAreaName));
+        InsertTaxAreaTranslation(TaxArea.Code, FRCTxt, TranslatedTaxAreaName);
 
-            CreateUOM(UnitOfMeasure);
-            TranslatedUOMDescription :=
-              CopyStr(LibraryUtility.GenerateRandomXMLText(MaxStrLen(TranslatedUOMDescription)), 1, MaxStrLen(TranslatedUOMDescription));
-            InsertUOMTranslation(UnitOfMeasure.Code, FRCTxt, TranslatedUOMDescription);
+        LibraryERM.CreatePaymentTerms(PaymentTerms);
+        PaymentTerms.Description := LibraryUtility.GenerateGUID;
+        PaymentTerms.Modify();
+        TranslatedPaymentTermsName :=
+            CopyStr(PaymentTerms.Description + PaymentTerms.Description, 1, MaxStrLen(TranslatedPaymentTermsName));
+        InsertPaymentTermsTranslation(PaymentTerms.Code, FRCTxt, TranslatedPaymentTermsName);
 
-            CreateUOM(OtherUnitOfMeasure);
-            TranslatedOtherUOMDescription := CopyStr(LibraryUtility.GenerateRandomXMLText(MaxStrLen(TranslatedOtherUOMDescription)),
-                1, MaxStrLen(TranslatedOtherUOMDescription));
-            InsertUOMTranslation(OtherUnitOfMeasure.Code, FRCTxt, TranslatedOtherUOMDescription);
+        LibraryERM.CreatePaymentMethod(PaymentMethod);
+        PaymentMethod.Description := LibraryUtility.GenerateGUID;
+        PaymentMethod."Use for Invoicing" := true;
+        PaymentMethod.Modify();
+        TranslatedPaymentMethodName :=
+            CopyStr(PaymentMethod.Description + PaymentMethod.Description, 1, MaxStrLen(TranslatedPaymentMethodName));
+        InsertPaymentMethodTranslation(PaymentMethod.Code, FRCTxt, TranslatedPaymentMethodName);
 
-            if not O365C2GraphEventSettings.Get then
-                O365C2GraphEventSettings.Insert(true);
+        CreateUOM(UnitOfMeasure);
+        TranslatedUOMDescription :=
+            CopyStr(LibraryUtility.GenerateRandomXMLText(MaxStrLen(TranslatedUOMDescription)), 1, MaxStrLen(TranslatedUOMDescription));
+        InsertUOMTranslation(UnitOfMeasure.Code, FRCTxt, TranslatedUOMDescription);
 
-            O365C2GraphEventSettings.SetEventsEnabled(false);
-            O365C2GraphEventSettings.Modify();
+        CreateUOM(OtherUnitOfMeasure);
+        TranslatedOtherUOMDescription := CopyStr(LibraryUtility.GenerateRandomXMLText(MaxStrLen(TranslatedOtherUOMDescription)),
+            1, MaxStrLen(TranslatedOtherUOMDescription));
+        InsertUOMTranslation(OtherUnitOfMeasure.Code, FRCTxt, TranslatedOtherUOMDescription);
 
-            EventSubscriberInvoicingApp.SetRunJobQueueTasks(false);
-            EventSubscriberInvoicingApp.SetAppId('INV');
+        if not O365C2GraphEventSettings.Get then
+            O365C2GraphEventSettings.Insert(true);
+
+        O365C2GraphEventSettings.SetEventsEnabled(false);
+        O365C2GraphEventSettings.Modify();
+
+        EventSubscriberInvoicingApp.SetRunJobQueueTasks(false);
+        EventSubscriberInvoicingApp.SetAppId('INV');
         BindSubscription(EventSubscriberInvoicingApp);
 
-            Initialized := true;
-        end;
+        Initialized := true;
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"O365 Translation Tests");
     end;
 
     [SendNotificationHandler(true)]

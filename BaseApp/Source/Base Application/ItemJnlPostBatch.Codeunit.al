@@ -320,6 +320,7 @@ codeunit 23 "Item Jnl.-Post Batch"
                 ItemJnlLine2.Amount := 0;
                 OnHandleRecurringLineOnBeforeModify(ItemJnlLine2);
             end;
+            OnHandleRecurringLineOnBeforeItemJnlLineModify(ItemJnlLine2);
             ItemJnlLine2.Modify();
         until ItemJnlLine2.Next = 0;
     end;
@@ -372,6 +373,7 @@ codeunit 23 "Item Jnl.-Post Batch"
                 ItemJnlLine3.Insert();
                 ItemJnlLine3.SetUpNewLine(ItemJnlLine2);
                 ItemJnlLine3.Modify();
+                OnHandleNonRecurringLineOnAfterItemJnlLineModify(ItemJnlLine3);
             end;
         end;
     end;
@@ -785,6 +787,7 @@ codeunit 23 "Item Jnl.-Post Batch"
             "Location Code" := ItemJnlLine."Location Code";
             "Item No." := ItemJnlLine."Item No.";
             "Variant Code" := ItemJnlLine."Variant Code";
+            OnBeforeInsertTempSKU(TempSKU, ItemJnlLine);
             Insert;
         end;
     end;
@@ -972,6 +975,7 @@ codeunit 23 "Item Jnl.-Post Batch"
     end;
 
     [IntegrationEvent(false, false)]
+    [Obsolete('Event will be replaced by OnHandleRecurringLineOnBeforeItemJnlLineModify(ItemJnlLine2)', '17.0')]
     local procedure OnHandleRecurringLineOnBeforeModify(var ItemJournalLine: Record "Item Journal Line")
     begin
     end;
@@ -1003,6 +1007,21 @@ codeunit 23 "Item Jnl.-Post Batch"
 
     [IntegrationEvent(false, false)]
     local procedure OnPostWhseJnlLineOnBeforeCreateWhseJnlLines(ItemJournalLine: Record "Item Journal Line"; var ItemJnlTemplateType: Option)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnHandleRecurringLineOnBeforeItemJnlLineModify(var ItemJournalLine: Record "Item Journal Line");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertTempSKU(var TempStockkeepingUnit: Record "Stockkeeping Unit" temporary; ItemJournalLine: Record "Item Journal Line");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnHandleNonRecurringLineOnAfterItemJnlLineModify(var ItemJournalLine: Record "Item Journal Line");
     begin
     end;
 }

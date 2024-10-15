@@ -82,7 +82,7 @@ page 118 "General Ledger Setup"
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
-                    ToolTip = 'Specifies if and when general ledger accounts can be deleted. If you enter a date, G/L accounts with entries on or after this date cannot be deleted.';
+                    ToolTip = 'Specifies if and when general ledger accounts can be deleted. If you enter a date, G/L accounts with entries on or after this date can be deleted only after confirmation by the user.';
                 }
                 field("Check G/L Account Usage"; "Check G/L Account Usage")
                 {
@@ -368,7 +368,7 @@ page 118 "General Ledger Setup"
                 field("Payment Tolerance Warning"; "Payment Tolerance Warning")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies if a warning will appear when an application has a balance within the tolerance specified in the Max. Payment Tolerance field in the General Ledger Setup window.';
+                    ToolTip = 'Specifies whether to display a message when a payment differs from the invoice amount within the specified tolerance, so you can choose how to process it. If you do not enable the message, and a tolerance level is specified, invoices with amounts that are within tolerance will be automatically closed and you cannot choose to leave the remaining amount. Default tolerance levels are specified in the Payment Tolerance % and Max. Payment Tolerance fields, but can also be specified for each customer ledger entry.';
                 }
                 field("Payment Tolerance Posting"; "Payment Tolerance Posting")
                 {

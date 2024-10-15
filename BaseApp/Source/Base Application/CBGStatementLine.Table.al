@@ -303,7 +303,13 @@ table 11401 "CBG Statement Line"
             trigger OnValidate()
             var
                 CBGStatementln: Record "CBG Statement Line";
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeAppliesToIDOnValidate(Rec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if "Applies-to ID" <> '' then begin
                     CBGStatementln.SetCurrentKey("Journal Template Name", "No.", "Applies-to ID");
                     CBGStatementln.SetRange("Journal Template Name", "Journal Template Name");
@@ -714,7 +720,7 @@ table 11401 "CBG Statement Line"
         "Amount incl. VAT" := LastRecord."Amount incl. VAT";
     end;
 
-    [Obsolete('Function scope will be changed to OnPrem','15.1')]
+    [Obsolete('Function scope will be changed to OnPrem', '15.1')]
     procedure UpdateLineBalance()
     begin
         if ((Amount > 0) and (not Correction)) or
@@ -1582,6 +1588,11 @@ table 11401 "CBG Statement Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateDimTableIDs(var CBGStatementLine: Record "CBG Statement Line"; CurrentFieldNo: Integer; var TableID: array[10] of Integer; var No: array[10] of Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeAppliesToIDOnValidate(var CBGStatementLine: Record "CBG Statement Line"; var IsHandled: Boolean);
     begin
     end;
 

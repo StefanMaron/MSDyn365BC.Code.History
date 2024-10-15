@@ -557,6 +557,7 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
 
         CreateInvoceWithOneLineThroughTestPage(Vendor, Item, ItemQuantity, PurchaseInvoice);
         PurchaseInvoice.PurchLines.InvoiceDiscountAmount.SetValue(InvoiceDiscountAmount);
+        UpdatePurchDocAmount(PurchaseInvoice, Vendor."No.");
 
         LibraryVariableStorage.Enqueue(PostMsg);
         LibraryVariableStorage.Enqueue(true);
@@ -1607,6 +1608,17 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
 
         for I := 1 to NumberOfLines do
             LibrarySmallBusiness.CreatePurchaseLine(PurchaseLine, PurchaseHeader, Item, ItemQuantity);
+    end;
+
+    local procedure UpdatePurchDocAmount(var PurchaseInvoice: TestPage "Purchase Invoice"; VendorNo: Code[20])
+    var
+        PurchaseHeader: Record "Purchase Header";
+    begin
+        PurchaseHeader.SetRange("Buy-from Vendor No.", VendorNo);
+        PurchaseHeader.FindLast;
+        LibrarySmallBusiness.UpdatePurchHeaderDocTotal(PurchaseHeader);
+        PurchaseInvoice.DocAmount.SetValue(PurchaseHeader."Doc. Amount Incl. VAT");
+        PurchaseInvoice.DocAmountVAT.SetValue(PurchaseHeader."Doc. Amount VAT");
     end;
 
     local procedure CreatePurchHeaderWithDocTypeAndNumberOfLines(var PurchaseHeader: Record "Purchase Header"; var Item: Record Item; var Vendor: Record Vendor; ItemQuantity: Decimal; NumberOfLines: Integer; DocumentType: Option)

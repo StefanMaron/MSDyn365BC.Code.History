@@ -1176,9 +1176,7 @@ page 43 "Sales Invoice"
 
                     trigger OnAction()
                     begin
-                        CopySalesDoc.SetSalesHeader(Rec);
-                        CopySalesDoc.RunModal;
-                        Clear(CopySalesDoc);
+                        CopyDocument();
                         if Get("Document Type", "No.") then;
                     end;
                 }
@@ -1574,7 +1572,6 @@ page 43 "Sales Invoice"
     end;
 
     var
-        CopySalesDoc: Report "Copy Sales Document";
         MoveNegSalesLines: Report "Move Negative Sales Lines";
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
         ReportPrint: Codeunit "Test Report-Print";

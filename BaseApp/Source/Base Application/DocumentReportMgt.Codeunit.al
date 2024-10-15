@@ -25,7 +25,7 @@ codeunit 9651 "Document Report Mgt."
         EnableLegacyPrint: Boolean;
 
     [Scope('OnPrem')]
-    [Obsolete('Update calling code to use the function with an OutStream parameter','15.3')]
+    [Obsolete('Update calling code to use the function with an OutStream parameter', '15.3')]
     procedure MergeWordLayout(ReportID: Integer; ReportAction: Option SaveAsPdf,SaveAsWord,SaveAsExcel,Preview,Print,SaveAsHtml; InStrXmlData: InStream; FileName: Text)
     var
         DocumentStream: OutStream;
@@ -117,12 +117,12 @@ codeunit 9651 "Document Report Mgt."
             ReportAction::SaveAsPdf, ReportAction::Preview:
                 begin
                     CurrentFileType := FileTypePdfTxt;
-                    ConvertToPdf(TempBlobOut, ReportID);
+                    ConvertWordToPdf(TempBlobOut, ReportID);
                 end;
             ReportAction::SaveAsHtml:
                 begin
                     CurrentFileType := FileTypeHtmlTxt;
-                    ConvertToHtml(TempBlobOut);
+                    ConvertWordToHtml(TempBlobOut);
                 end;
             ReportAction::SaveAsExcel:
                 Error(NotImplementedErr);
@@ -245,7 +245,7 @@ codeunit 9651 "Document Report Mgt."
         NAVWordXmlMerger.NewWordDocumentLayout(DocumentStream, REPORT.WordXmlPart(ReportId));
     end;
 
-    local procedure ConvertToPdf(var TempBlob: Codeunit "Temp Blob"; ReportID: Integer)
+    procedure ConvertWordToPdf(var TempBlob: Codeunit "Temp Blob"; ReportID: Integer)
     begin
         if not TryConvertWordBlobToPdf(TempBlob) then
             Error(CompanyInformationPicErr);
@@ -278,7 +278,7 @@ codeunit 9651 "Document Report Mgt."
         PdfWriter.ConvertToPdf(InStreamWordDoc, OutStreamPdfDoc);
     end;
 
-    local procedure ConvertToHtml(var TempBlob: Codeunit "Temp Blob")
+    procedure ConvertWordToHtml(var TempBlob: Codeunit "Temp Blob")
     var
         TempBlobHtml: Codeunit "Temp Blob";
         TempBlobWord: Codeunit "Temp Blob";
@@ -302,7 +302,7 @@ codeunit 9651 "Document Report Mgt."
         else begin
             if EnableLegacyPrint then begin
                 if ClientTypeMgt.GetCurrentClientType in [CLIENTTYPE::Web, CLIENTTYPE::Phone, CLIENTTYPE::Tablet, CLIENTTYPE::Desktop] then begin
-                    ConvertToPdf(TempBlob, ReportID);
+                    ConvertWordToPdf(TempBlob, ReportID);
                     FileMgt.BLOBExport(TempBlob, UserFileName(ReportID, FileTypePdfTxt), true);
                 end else
                     PrintWordDocOnServer(TempBlob, PrinterName, Collate);

@@ -127,6 +127,11 @@ table 5478 "Purch. Inv. Line Aggregate"
             AutoFormatType = 1;
             Caption = 'Line Amount';
         }
+        field(5402; "Variant Code"; Code[10])
+        {
+            Caption = 'Variant Code';
+            TableRelation = IF (Type = CONST(Item)) "Item Variant".Code WHERE("Item No." = FIELD("No."));
+        }
         field(5407; "Unit of Measure Code"; Code[10])
         {
             Caption = 'Unit of Measure Code';
@@ -142,6 +147,16 @@ table 5478 "Purch. Inv. Line Aggregate"
         field(8001; Id; Text[50])
         {
             Caption = 'Id';
+        }
+        field(8002; "Variant Id"; Guid)
+        {
+            Caption = 'Variant Id';
+            TableRelation = IF (Type = CONST(Item)) "Item Variant".SystemId WHERE("Item No." = FIELD("No."));
+
+            trigger OnValidate()
+            begin
+                UpdateVariantCode();
+            end;
         }
         field(9020; "Tax Code"; Code[50])
         {
@@ -309,6 +324,19 @@ table 5478 "Purch. Inv. Line Aggregate"
     begin
         UpdateReferencedRecordIds;
         "API Type" := Type;
+    end;
+
+    local procedure UpdateVariantCode()
+    var
+        ItemVariant: Record "Item Variant";
+    begin
+        if IsNullGuid("Variant Id") then begin
+            Validate("Variant Code", '');
+            exit;
+        end;
+
+        if ItemVariant.GetBySystemId("Variant Id") then
+            "Variant Code" := ItemVariant.Code;
     end;
 
     procedure UpdateReferencedRecordIds()

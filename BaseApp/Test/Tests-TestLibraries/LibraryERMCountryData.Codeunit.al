@@ -7,6 +7,11 @@ codeunit 131305 "Library - ERM Country Data"
     begin
     end;
 
+    var
+        PCS: Label 'PCS';
+        BOX: Label 'BOX';
+        LibraryERM: Codeunit "Library - ERM";
+
     procedure InitializeCountry()
     begin
         exit;
@@ -84,7 +89,7 @@ codeunit 131305 "Library - ERM Country Data"
 
     procedure UpdateGeneralPostingSetup()
     begin
-        exit;
+        UpdateAccountsInGeneralPostingSetup;
     end;
 
     procedure UpdateInventoryPostingSetup()
@@ -104,12 +109,17 @@ codeunit 131305 "Library - ERM Country Data"
 
     procedure UpdatePrepaymentAccounts()
     begin
-        exit;
+        UpdateVATPostingSetupOnPrepAccount;
+        UpdateGenProdPostingSetupOnPrepAccount;
     end;
 
     procedure UpdatePurchasesPayablesSetup()
+    var
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
-        exit;
+        PurchasesPayablesSetup.Get();
+        PurchasesPayablesSetup.Validate("Check Doc. Total Amounts", false);
+        PurchasesPayablesSetup.Modify();
     end;
 
     procedure UpdateSalesReceivablesSetup()
@@ -124,12 +134,40 @@ codeunit 131305 "Library - ERM Country Data"
 
     procedure CreateGeneralPostingSetupData()
     begin
-        exit;
+        CreateMissingGeneralPostingSetup;
+    end;
+
+    [Scope('OnPrem')]
+    procedure UpdateVATPostingSetup()
+    begin
+    end;
+
+    local procedure CreateGLAccount(): Code[20]
+    var
+        GLAccount: Record "G/L Account";
+    begin
+        LibraryERM.CreateGLAccount(GLAccount);
+        exit(GLAccount."No.");
+    end;
+
+    local procedure CreateUnitOfMeasure("Code": Text)
+    var
+        UnitofMeasure: Record "Unit of Measure";
+    begin
+        UnitofMeasure.Init();
+        UnitofMeasure.Code := Code;
+        UnitofMeasure.Description := Code;
+        UnitofMeasure.Insert();
     end;
 
     procedure CreateUnitsOfMeasure()
+    var
+        UnitofMeasure: Record "Unit of Measure";
     begin
-        exit;
+        if not UnitofMeasure.Get(PCS) then
+            CreateUnitOfMeasure(PCS);
+        if not UnitofMeasure.Get(BOX) then
+            CreateUnitOfMeasure(BOX);
     end;
 
     procedure CreateTransportMethodTableData()
@@ -139,7 +177,7 @@ codeunit 131305 "Library - ERM Country Data"
 
     procedure UpdateFAPostingGroup()
     begin
-        exit;
+        UpdateAccountInFAPostingGroups;
     end;
 
     procedure UpdateFAPostingType()
@@ -157,9 +195,64 @@ codeunit 131305 "Library - ERM Country Data"
         exit;
     end;
 
-    procedure UpdateVATPostingSetup()
+    local procedure CreateMissingGeneralPostingSetup()
+    var
+        GeneralPostingSetup: Record "General Posting Setup";
+        GeneralBusinessPostingGroup: Record "Gen. Business Posting Group";
+        GeneralProductPostingGroup: Record "Gen. Product Posting Group";
     begin
-        exit;
+        GeneralBusinessPostingGroup.FindSet;
+        repeat
+            GeneralProductPostingGroup.FindSet;
+            repeat
+                GeneralPostingSetup.Reset();
+                if not GeneralPostingSetup.Get(GeneralBusinessPostingGroup.Code, GeneralProductPostingGroup.Code) then begin
+                    LibraryERM.CreateGeneralPostingSetup(GeneralPostingSetup, GeneralBusinessPostingGroup.Code, GeneralProductPostingGroup.Code);
+                    GeneralPostingSetup.Validate("Sales Account", CreateGLAccount);
+                    GeneralPostingSetup.Validate("Sales Line Disc. Account", GeneralPostingSetup."Sales Account");
+                    GeneralPostingSetup.Validate("Sales Inv. Disc. Account", GeneralPostingSetup."Sales Account");
+                    GeneralPostingSetup.Validate("Purch. Account", CreateGLAccount);
+                    GeneralPostingSetup.Validate("Purch. Line Disc. Account", GeneralPostingSetup."Purch. Account");
+                    GeneralPostingSetup.Validate("Purch. Inv. Disc. Account", GeneralPostingSetup."Purch. Account");
+                    GeneralPostingSetup.Validate("Sales Credit Memo Account", GeneralPostingSetup."Sales Account");
+                    GeneralPostingSetup.Validate("Purch. Credit Memo Account", GeneralPostingSetup."Purch. Account");
+                    GeneralPostingSetup.Validate("Direct Cost Applied Account", CreateGLAccount);
+                    GeneralPostingSetup.Validate("Overhead Applied Account", GeneralPostingSetup."Direct Cost Applied Account");
+                    GeneralPostingSetup.Validate("Purchase Variance Account", GeneralPostingSetup."Purch. Account");
+                    GeneralPostingSetup.Validate("COGS Account", GeneralPostingSetup."Overhead Applied Account");
+                    GeneralPostingSetup.Validate("Inventory Adjmt. Account", GeneralPostingSetup."Overhead Applied Account");
+                    GeneralPostingSetup.Modify(true);
+                end;
+            until GeneralProductPostingGroup.Next = 0;
+        until GeneralBusinessPostingGroup.Next = 0;
+    end;
+
+    local procedure UpdateAccountsInGeneralPostingSetup()
+    var
+        GeneralPostingSetup: Record "General Posting Setup";
+    begin
+        if GeneralPostingSetup.FindSet then
+            repeat
+                if GeneralPostingSetup."Purch. Credit Memo Account" = '' then
+                    GeneralPostingSetup.Validate("Purch. Credit Memo Account", CreateGLAccount);
+                if GeneralPostingSetup."Sales Credit Memo Account" = '' then
+                    GeneralPostingSetup.Validate("Sales Credit Memo Account", CreateGLAccount);
+                if GeneralPostingSetup."COGS Account" = '' then
+                    GeneralPostingSetup.Validate("COGS Account", CreateGLAccount);
+                if GeneralPostingSetup."Inventory Adjmt. Account" = '' then
+                    GeneralPostingSetup.Validate("Inventory Adjmt. Account", CreateGLAccount);
+                if GeneralPostingSetup."Purch. Account" = '' then
+                    GeneralPostingSetup.Validate("Purch. Account", CreateGLAccount);
+                if GeneralPostingSetup."Sales Account" = '' then
+                    GeneralPostingSetup.Validate("Sales Account", CreateGLAccount);
+                if GeneralPostingSetup."Direct Cost Applied Account" = '' then
+                    GeneralPostingSetup.Validate("Direct Cost Applied Account", CreateGLAccount);
+                if GeneralPostingSetup."Overhead Applied Account" = '' then
+                    GeneralPostingSetup.Validate("Overhead Applied Account", CreateGLAccount);
+                if GeneralPostingSetup."Purchase Variance Account" = '' then
+                    GeneralPostingSetup.Validate("Purchase Variance Account", CreateGLAccount);
+                GeneralPostingSetup.Modify(true);
+            until GeneralPostingSetup.Next = 0;
     end;
 
     procedure DisableActivateChequeNoOnGeneralLedgerSetup()
@@ -170,6 +263,61 @@ codeunit 131305 "Library - ERM Country Data"
     procedure RemoveBlankGenJournalTemplate()
     begin
         exit;
+    end;
+
+    local procedure UpdateVATPostingSetupOnPrepAccount()
+    var
+        GeneralPostingSetup: Record "General Posting Setup";
+        GenProdPostingGroup: Record "Gen. Product Posting Group";
+        GLAccount: Record "G/L Account";
+    begin
+        GeneralPostingSetup.SetFilter("Sales Prepayments Account", '<>%1', '');
+        if GeneralPostingSetup.FindSet then
+            repeat
+                GLAccount.Get(GeneralPostingSetup."Sales Prepayments Account");
+                if GLAccount."VAT Prod. Posting Group" = '' then begin
+                    GenProdPostingGroup.Get(GeneralPostingSetup."Gen. Prod. Posting Group");
+                    GLAccount.Validate("VAT Prod. Posting Group", GenProdPostingGroup."Def. VAT Prod. Posting Group");
+                    GLAccount.Modify(true);
+                end;
+            until GeneralPostingSetup.Next = 0;
+        GeneralPostingSetup.Reset();
+        GeneralPostingSetup.SetFilter("Purch. Prepayments Account", '<>%1', '');
+        if GeneralPostingSetup.FindSet then
+            repeat
+                GLAccount.Get(GeneralPostingSetup."Purch. Prepayments Account");
+                if GLAccount."VAT Prod. Posting Group" = '' then begin
+                    GenProdPostingGroup.Get(GeneralPostingSetup."Gen. Prod. Posting Group");
+                    GLAccount.Validate("VAT Prod. Posting Group", GenProdPostingGroup."Def. VAT Prod. Posting Group");
+                    GLAccount.Modify(true);
+                end;
+            until GeneralPostingSetup.Next = 0;
+    end;
+
+    local procedure UpdateGenProdPostingSetupOnPrepAccount()
+    var
+        GeneralPostingSetup: Record "General Posting Setup";
+        GLAccount: Record "G/L Account";
+    begin
+        GeneralPostingSetup.SetFilter("Sales Prepayments Account", '<>%1', '');
+        if GeneralPostingSetup.FindSet then
+            repeat
+                GLAccount.Get(GeneralPostingSetup."Sales Prepayments Account");
+                if GLAccount."Gen. Prod. Posting Group" = '' then begin
+                    GLAccount.Validate("Gen. Prod. Posting Group", GeneralPostingSetup."Gen. Prod. Posting Group");
+                    GLAccount.Modify(true);
+                end;
+            until GeneralPostingSetup.Next = 0;
+        GeneralPostingSetup.Reset();
+        GeneralPostingSetup.SetFilter("Purch. Prepayments Account", '<>%1', '');
+        if GeneralPostingSetup.FindSet then
+            repeat
+                GLAccount.Get(GeneralPostingSetup."Purch. Prepayments Account");
+                if GLAccount."Gen. Prod. Posting Group" = '' then begin
+                    GLAccount.Validate("Gen. Prod. Posting Group", GeneralPostingSetup."Gen. Prod. Posting Group");
+                    GLAccount.Modify(true);
+                end;
+            until GeneralPostingSetup.Next = 0;
     end;
 
     procedure UpdateLocalPostingSetup()
@@ -185,10 +333,9 @@ codeunit 131305 "Library - ERM Country Data"
     procedure CompanyInfoSetVATRegistrationNo()
     var
         CompanyInformation: Record "Company Information";
-        LibraryERM: Codeunit "Library - ERM";
     begin
         CompanyInformation.Get();
-        CompanyInformation."VAT Registration No." := LibraryERM.GenerateVATRegistrationNo(CompanyInformation."Country/Region Code");
+        CompanyInformation."VAT Registration No." := 'NL805734958B02';
         CompanyInformation.Modify();
     end;
 
@@ -202,6 +349,35 @@ codeunit 131305 "Library - ERM Country Data"
 
     procedure InsertRecordsToProtectedTables()
     begin
+    end;
+
+    local procedure UpdateAccountInFAPostingGroups()
+    var
+        FAPostingGroup: Record "FA Posting Group";
+    begin
+        if FAPostingGroup.FindSet then
+            repeat
+                FAPostingGroup.Validate("Acq. Cost Acc. on Disposal", CreateGLAccountWithSetup);
+                FAPostingGroup.Modify(true);
+            until FAPostingGroup.Next = 0;
+    end;
+
+    local procedure CreateGLAccountWithSetup(): Code[20]
+    var
+        GeneralPostingSetup: Record "General Posting Setup";
+        GLAccount: Record "G/L Account";
+        VATPostingSetup: Record "VAT Posting Setup";
+    begin
+        LibraryERM.FindGeneralPostingSetup(GeneralPostingSetup);
+        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        LibraryERM.CreateGLAccount(GLAccount);
+        GLAccount.Validate("Gen. Posting Type", GLAccount."Gen. Posting Type"::Sale);
+        GLAccount.Validate("Gen. Bus. Posting Group", GeneralPostingSetup."Gen. Bus. Posting Group");
+        GLAccount.Validate("Gen. Prod. Posting Group", GeneralPostingSetup."Gen. Prod. Posting Group");
+        GLAccount.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        GLAccount.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        GLAccount.Modify(true);
+        exit(GLAccount."No.");
     end;
 }
 

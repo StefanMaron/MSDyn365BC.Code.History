@@ -667,7 +667,7 @@ table 7321 "Warehouse Shipment Line"
                     QtyOutstandingBase := Abs(ServiceLine."Outstanding Qty. (Base)");
                 end;
             else
-                OnCheckSourceDocLineQtyOnCaseSourceType(Rec, WhseQtyOutstandingBase, QtyOutstandingBase);
+                OnCheckSourceDocLineQtyOnCaseSourceType(Rec, WhseQtyOutstandingBase, QtyOutstandingBase, QuantityBase);
         end;
         if QuantityBase > QtyOutstandingBase then
             FieldError(Quantity, StrSubstNo(Text002, FieldCaption("Qty. Outstanding")));
@@ -728,6 +728,7 @@ table 7321 "Warehouse Shipment Line"
             if Find('-') then
                 repeat
                     Validate("Qty. to Ship", 0);
+                    OnDeleteQtyToHandleOnBeforeModify(WhseShptLine);
                     Modify;
                 until Next = 0;
         end;
@@ -834,6 +835,8 @@ table 7321 "Warehouse Shipment Line"
                         ReserveTransferLine.CallItemTracking(TransferLine, Direction, SecondSourceQtyArray);
                 end
         end;
+
+        OnAfterOpenItemTrackingLines(Rec, SecondSourceQtyArray);
     end;
 
     procedure SetIgnoreErrors()
@@ -993,6 +996,11 @@ table 7321 "Warehouse Shipment Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterOpenItemTrackingLines(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; var SecondSourceQtyArray: array[3] of Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAutoFillQtyToHandleOnBeforeModify(var WarehouseShipmentLine: Record "Warehouse Shipment Line")
     begin
     end;
@@ -1033,12 +1041,17 @@ table 7321 "Warehouse Shipment Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCheckSourceDocLineQtyOnCaseSourceType(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; WhseQtyOutstandingBase: Decimal; QtyOutstandingBase: Decimal)
+    local procedure OnCheckSourceDocLineQtyOnCaseSourceType(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; WhseQtyOutstandingBase: Decimal; var QtyOutstandingBase: Decimal; QuantityBase: Decimal)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateQuantityStatusUpdate(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; xWarehouseShipmentLine: Record "Warehouse Shipment Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDeleteQtyToHandleOnBeforeModify(var WhseShptLine: Record "Warehouse Shipment Line")
     begin
     end;
 }

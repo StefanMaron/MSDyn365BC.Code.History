@@ -43,7 +43,7 @@ codeunit 132549 "Import XML Gen Jnl Line"
         ConvertEncoding(TempBlobOEM, TempBlobUTF8, Encoding.UTF8);
 
         // Setup
-        SetupSourceMock('SEPA CAMT', TempBlobUTF8);
+        SetupSourceMoq('SEPA CAMT', TempBlobUTF8);
 
         // Exercise
         CreateGenJnlLineTemplateWithFilter(GenJnlLineTemplate, 'SEPA CAMT');
@@ -73,7 +73,7 @@ codeunit 132549 "Import XML Gen Jnl Line"
         ConvertEncoding(TempBlobOEM, TempBlobUTF8, Encoding.UTF8);
 
         // Setup
-        SetupSourceMock('SEPA CAMT', TempBlobUTF8);
+        SetupSourceMoq('SEPA CAMT', TempBlobUTF8);
 
         // Exercise
         CreateGenJnlLineTemplateWithFilter(GenJnlLineTemplate, 'SEPA CAMT');
@@ -106,7 +106,7 @@ codeunit 132549 "Import XML Gen Jnl Line"
         ConvertEncoding(TempBlobOEM, TempBlobUTF8, Encoding.UTF8);
 
         // Setup
-        SetupSourceMock('SEPA CAMT', TempBlobUTF8);
+        SetupSourceMoq('SEPA CAMT', TempBlobUTF8);
 
         // Exercise
         CreateGenJnlLineTemplateWithFilter(GenJnlLineTemplate, 'SEPA CAMT');
@@ -137,7 +137,7 @@ codeunit 132549 "Import XML Gen Jnl Line"
         ConvertEncoding(TempBlobOEM, TempBlobUTF8, Encoding.UTF8);
 
         // Setup
-        SetupSourceMock('SEPA CAMT', TempBlobUTF8);
+        SetupSourceMoq('SEPA CAMT', TempBlobUTF8);
 
         CreateGenJnlLineTemplateWithFilter(GenJnlLineTemplate, 'SEPA CAMT');
         BankAcc.Get(GenJnlLineTemplate."Bal. Account No.");
@@ -175,7 +175,7 @@ codeunit 132549 "Import XML Gen Jnl Line"
         ConvertEncoding(TempBlobOEM, TempBlobUTF8, Encoding.UTF8);
 
         // Setup
-        SetupSourceMock('SEPA CAMT', TempBlobUTF8);
+        SetupSourceMoq('SEPA CAMT', TempBlobUTF8);
         CreateGenJnlTemplateForGLAccountImport(GenJnlLineTemplate, 'SEPA CAMT');
 
         // Exercise
@@ -207,7 +207,7 @@ codeunit 132549 "Import XML Gen Jnl Line"
         ConvertEncoding(TempBlobOEM, TempBlobUTF8, Encoding.UTF8);
 
         // Setup
-        SetupSourceMock('SEPA CAMT', TempBlobUTF8);
+        SetupSourceMoq('SEPA CAMT', TempBlobUTF8);
         CreateGenJnlTemplateForGLAccountImport(GenJnlLineTemplate, 'SEPA CAMT');
 
         // Exercise
@@ -236,7 +236,7 @@ codeunit 132549 "Import XML Gen Jnl Line"
         ConvertEncoding(TempBlobOEM, TempBlobUTF8, Encoding.UTF8);
 
         // Setup
-        SetupSourceMock('SEPA CAMT', TempBlobUTF8);
+        SetupSourceMoq('SEPA CAMT', TempBlobUTF8);
         CreateGenJnlTemplateForGLAccountImport(GenJnlLineTemplate, 'SEPA CAMT');
 
         // Exercise
@@ -266,7 +266,7 @@ codeunit 132549 "Import XML Gen Jnl Line"
         ConvertEncoding(TempBlobOEM, TempBlobUTF8, Encoding.UTF8);
 
         // Setup
-        SetupSourceMock('SEPA CAMT', TempBlobUTF8);
+        SetupSourceMoq('SEPA CAMT', TempBlobUTF8);
 
         // Exercise
         CreateGenJnlLineTemplateWithFilter(GenJnlLineTemplate, 'SEPA CAMT');
@@ -298,7 +298,7 @@ codeunit 132549 "Import XML Gen Jnl Line"
         ConvertEncoding(TempBlobOEM, TempBlobUTF8, Encoding.UTF8);
 
         // Setup
-        SetupSourceMock('SEPA CAMT', TempBlobUTF8);
+        SetupSourceMoq('SEPA CAMT', TempBlobUTF8);
 
         // Exercise
         CreateGenJnlLineTemplateWithFilter(GenJnlLineTemplate, 'SEPA CAMT');
@@ -330,7 +330,7 @@ codeunit 132549 "Import XML Gen Jnl Line"
         ConvertEncoding(TempBlobOEM, TempBlobUTF8, Encoding.UTF8);
 
         // Setup
-        SetupSourceMock('SEPA CAMT', TempBlobUTF8);
+        SetupSourceMoq('SEPA CAMT', TempBlobUTF8);
 
         // Exercise
         CreateGenJnlLineTemplateWithFilter(GenJnlLineTemplate, 'SEPA CAMT');
@@ -369,7 +369,7 @@ codeunit 132549 "Import XML Gen Jnl Line"
         ConvertEncoding(TempBlobOEM, TempBlobUTF8, Encoding.UTF8);
 
         // Setup
-        SetupSourceMock('SEPA CAMT', TempBlobUTF8);
+        SetupSourceMoq('SEPA CAMT', TempBlobUTF8);
 
         // Exercise
         CreateGenJnlLineTemplateWithFilter(GenJnlLineTemplate, 'SEPA CAMT');
@@ -850,7 +850,7 @@ codeunit 132549 "Import XML Gen Jnl Line"
         Writer.Close;
     end;
 
-    local procedure SetupSourceMock(DataExchDefCode: Code[20]; TempBlob: Codeunit "Temp Blob")
+    local procedure SetupSourceMoq(DataExchDefCode: Code[20]; TempBlob: Codeunit "Temp Blob")
     var
         DataExchDef: Record "Data Exch. Def";
         DataExchLineDef: Record "Data Exch. Line Def";
@@ -882,7 +882,7 @@ codeunit 132549 "Import XML Gen Jnl Line"
         WriteCAMTFile(OutStream, 'UTF-8');
         ConvertEncoding(TempBlobOEM, TempBlobUTF8, Encoding.UTF8);
 
-        SetupSourceMock('SEPA CAMT', TempBlobUTF8);
+        SetupSourceMoq('SEPA CAMT', TempBlobUTF8);
         CreateGenJnlLineTemplateWithFilter(GenJnlLine, 'SEPA CAMT');
         BankAcc.Get(GenJnlLine."Bal. Account No.");
         BankAcc.IBAN := IBANTxt;
@@ -996,7 +996,7 @@ codeunit 132549 "Import XML Gen Jnl Line"
         DocNo := GenJnlLineTemplate."Document No.";
         CreateLine(TempExpdGenJnlLine, GenJnlLineTemplate, EntryNo, 1, LineNo * 1,
           IncCode(0, DocNo), DMY2Date(5, 5, Date2DMY(WorkDate, 3)), '', '', '', -105678.5, CurrencyCode);
-        CreateLine(TempExpdGenJnlLine, GenJnlLineTemplate, EntryNo, 2, LineNo * 2,
+        CreateLine(TempExpdGenJnlLine, GenJnlLineTemplate, EntryNo, 2, LineNo * 3,
           IncCode(1, DocNo), DMY2Date(8, 8, Date2DMY(WorkDate, 3)), '', 'MUELLER', '', -105.42, CurrencyCode);
     end;
 

@@ -1115,6 +1115,7 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
     procedure AdjustCostForTransferAndItemChargeAssignment()
     var
         InventorySetup: Record "Inventory Setup";
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
         ComponentItem: Record Item;
         ProdItem: Record Item;
         PurchaseHeader: Record "Purchase Header";
@@ -1129,6 +1130,9 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
         // Setup: Update Inventory Setup
         UpdateInventorySetup(InventorySetup, false, false, InventorySetup."Automatic Cost Adjustment"::Never,
           InventorySetup."Average Cost Calc. Type"::Item, InventorySetup."Average Cost Period"::Day);
+        // Setup: Update Check Doc. Total Amounts in Purchases & Payables Setup
+        PurchasesPayablesSetup.Get();
+        UpdatePurchasesPayablesSetupForCheckDocTotalAmounts(false);
 
         // Create a production item
         CreateProdItemWithAvgCosting(ComponentItem, ProdItem);
@@ -1158,6 +1162,8 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
 
         // Verify: Verify Value Entries - Cost Amount Actual should contain the Item Charge adjust entry, the total should be zero.
         Assert.AreEqual(0, InventoryCostByItem(ComponentItem."No."), InvCostMustBeZeroErr);
+        // Teardown:
+        UpdatePurchasesPayablesSetupForCheckDocTotalAmounts(PurchasesPayablesSetup."Check Doc. Total Amounts");
     end;
 
     local procedure AcceptActionMessage(var RequisitionLine: Record "Requisition Line"; ItemNo: Code[20])
@@ -1777,6 +1783,15 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
     begin
         PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup.Validate("Exact Cost Reversing Mandatory", ExactCostReversingMandatory);
+        PurchasesPayablesSetup.Modify(true);
+    end;
+
+    local procedure UpdatePurchasesPayablesSetupForCheckDocTotalAmounts(CheckDocTotalAmounts: Boolean)
+    var
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+    begin
+        PurchasesPayablesSetup.Get();
+        PurchasesPayablesSetup.Validate("Check Doc. Total Amounts", CheckDocTotalAmounts);
         PurchasesPayablesSetup.Modify(true);
     end;
 

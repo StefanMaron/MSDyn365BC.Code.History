@@ -542,11 +542,16 @@ report 206 "Sales - Invoice"
                             end;
 
                             trigger OnPreDataItem()
+                            var
+                                PostedAssemblyLine: Record "Posted Assembly Line";
+                                DummyValueEntry: Record "Value Entry";
                             begin
                                 Clear(TempPostedAsmLine);
                                 if not DisplayAssemblyInformation then
                                     CurrReport.Break();
-                                CollectAsmInformation;
+                                PostedAssemblyLine.GetAssemblyLinesForDocument(
+                                  TempPostedAsmLine, DummyValueEntry."Document Type"::"Sales Invoice",
+                                  "Sales Invoice Line"."Document No.", "Sales Invoice Line"."Line No.");
                                 Clear(TempPostedAsmLine);
                                 SetRange(Number, 1, TempPostedAsmLine.Count);
                             end;
@@ -1324,59 +1329,6 @@ report 206 "Sales - Invoice"
         FormatAddr.GetCompanyAddr(SalesInvoiceHeader."Responsibility Center", RespCenter, CompanyInfo, CompanyAddr);
         FormatAddr.SalesInvBillTo(CustAddr, SalesInvoiceHeader);
         ShowShippingAddr := FormatAddr.SalesInvShipTo(ShipToAddr, CustAddr, SalesInvoiceHeader);
-    end;
-
-    local procedure CollectAsmInformation()
-    var
-        ValueEntry: Record "Value Entry";
-        ItemLedgerEntry: Record "Item Ledger Entry";
-        PostedAsmHeader: Record "Posted Assembly Header";
-        PostedAsmLine: Record "Posted Assembly Line";
-        SalesShipmentLine: Record "Sales Shipment Line";
-    begin
-        TempPostedAsmLine.DeleteAll();
-        if "Sales Invoice Line".Type <> "Sales Invoice Line".Type::Item then
-            exit;
-        with ValueEntry do begin
-            SetCurrentKey("Document No.");
-            SetRange("Document No.", "Sales Invoice Line"."Document No.");
-            SetRange("Document Type", "Document Type"::"Sales Invoice");
-            SetRange("Document Line No.", "Sales Invoice Line"."Line No.");
-            SetRange(Adjustment, false);
-            if not FindSet then
-                exit;
-        end;
-        repeat
-            if ItemLedgerEntry.Get(ValueEntry."Item Ledger Entry No.") then
-                if ItemLedgerEntry."Document Type" = ItemLedgerEntry."Document Type"::"Sales Shipment" then begin
-                    SalesShipmentLine.Get(ItemLedgerEntry."Document No.", ItemLedgerEntry."Document Line No.");
-                    if SalesShipmentLine.AsmToShipmentExists(PostedAsmHeader) then begin
-                        PostedAsmLine.SetRange("Document No.", PostedAsmHeader."No.");
-                        if PostedAsmLine.FindSet then
-                            repeat
-                                TreatAsmLineBuffer(PostedAsmLine);
-                            until PostedAsmLine.Next = 0;
-                    end;
-                end;
-        until ValueEntry.Next = 0;
-    end;
-
-    local procedure TreatAsmLineBuffer(PostedAsmLine: Record "Posted Assembly Line")
-    begin
-        Clear(TempPostedAsmLine);
-        TempPostedAsmLine.SetRange(Type, PostedAsmLine.Type);
-        TempPostedAsmLine.SetRange("No.", PostedAsmLine."No.");
-        TempPostedAsmLine.SetRange("Variant Code", PostedAsmLine."Variant Code");
-        TempPostedAsmLine.SetRange(Description, PostedAsmLine.Description);
-        TempPostedAsmLine.SetRange("Unit of Measure Code", PostedAsmLine."Unit of Measure Code");
-        if TempPostedAsmLine.FindFirst then begin
-            TempPostedAsmLine.Quantity += PostedAsmLine.Quantity;
-            TempPostedAsmLine.Modify();
-        end else begin
-            Clear(TempPostedAsmLine);
-            TempPostedAsmLine := PostedAsmLine;
-            TempPostedAsmLine.Insert();
-        end;
     end;
 
     local procedure GetUOMText(UOMCode: Code[10]): Text[50]

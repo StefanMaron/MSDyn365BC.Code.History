@@ -334,9 +334,19 @@ codeunit 1315 "Chart Management"
         if not ChartDefinition.Get(ChartCodeunitId, ChartName) then begin
             ChartDefinition."Code Unit ID" := ChartCodeunitId;
             ChartDefinition."Chart Name" := ChartName;
-            ChartDefinition.Enabled := true;
+            EnableChart(ChartDefinition);
             ChartDefinition.Insert();
         end;
+    end;
+
+    procedure EnableChart(var ChartDefinition: Record "Chart Definition")
+    begin
+        if ChartDefinition."Code Unit ID" = CODEUNIT::"Acc. Sched. Chart Management" then begin
+            if not ChartDefinition.IsSetupComplete(ChartDefinition) then
+                exit;
+            ChartDefinition.Enabled := true;
+        end else
+            ChartDefinition.Enabled := true;
     end;
 
     local procedure GetPeriodLength(): Text[1]

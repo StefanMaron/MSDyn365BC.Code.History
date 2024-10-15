@@ -787,8 +787,8 @@ codeunit 134135 "ERM Reverse Fixed Assets"
 
     local procedure VerifyAlreadyReversedTransactionError()
     begin
-        Assert.ExpectedErrorCode('Dialog');
-        Assert.ExpectedError('entry has already been involved in a reversal');
+        Assert.ExpectedErrorCode('TestField');
+        Assert.ExpectedError('Closed by Entry No. must be equal to');
     end;
 
     [ConfirmHandler]

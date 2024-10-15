@@ -263,6 +263,15 @@ table 5079 "Marketing Setup"
         Text010: Label 'The queue and storage folders cannot be the same. Choose a different folder.';
         ExchangeAccountNotConfiguredErr: Label 'You must set up an Exchange account for email logging.';
         DuplicateSearchQst: Label 'Do you want to generate duplicate search strings?';
+        EmailLoggingTelemetryCategoryTxt: Label 'AL Email Logging', Locked = true;
+        ConfigureExchangeAccountTxt: Label 'Configure Exchange account.', Locked = true;
+        ExchangeAccountNotConfiguredTxt: Label 'Exchange account is not configured.', Locked = true;
+        ExchangeAccountConfiguredTxt: Label 'Exchange account is configured.', Locked = true;
+        QueueFolderNotSetTxt: Label 'Queue folder is not set.', Locked = true;
+        QueueFolderSetTxt: Label 'Queue folder is set.', Locked = true;
+        StorageFolderNotSetTxt: Label 'Storage folder is not set.', Locked = true;
+        StorageFolderSetTxt: Label 'Storage folder is set.', Locked = true;
+        SetExchangeAccountPasswordTxt: Label 'Set Exchange account password.', Locked = true;
         IsolatedStorageManagement: Codeunit "Isolated Storage Management";
 
     [Scope('OnPrem')]
@@ -271,10 +280,16 @@ table 5079 "Marketing Setup"
         InStream: InStream;
         OutStream: OutStream;
     begin
-        if (ExchangeFolder.FullPath = "Storage Folder Path") and (ExchangeFolder.FullPath <> '') then
+        if (ExchangeFolder.FullPath = "Storage Folder Path") and (ExchangeFolder.FullPath <> '') then begin
+            SendTraceTag('0000BXS', EmailLoggingTelemetryCategoryTxt, Verbosity::Warning, QueueFolderNotSetTxt, DataClassification::SystemMetadata);
             Error(Text010);
-        if (ExchangeFolder.ReadUniqueID = GetStorageFolderUID) and ExchangeFolder."Unique ID".HasValue then
+        end;
+        if (ExchangeFolder.ReadUniqueID = GetStorageFolderUID) and ExchangeFolder."Unique ID".HasValue then begin
+            SendTraceTag('0000BXT', EmailLoggingTelemetryCategoryTxt, Verbosity::Warning, QueueFolderNotSetTxt, DataClassification::SystemMetadata);
             Error(Text010);
+        end;
+
+        SendTraceTag('0000BXU', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, QueueFolderSetTxt, DataClassification::SystemMetadata);
 
         "Queue Folder Path" := ExchangeFolder.FullPath;
 
@@ -290,10 +305,16 @@ table 5079 "Marketing Setup"
         InStream: InStream;
         OutStream: OutStream;
     begin
-        if (ExchangeFolder.FullPath = "Queue Folder Path") and (ExchangeFolder.FullPath <> '') then
+        if (ExchangeFolder.FullPath = "Queue Folder Path") and (ExchangeFolder.FullPath <> '') then begin
+            SendTraceTag('0000BXV', EmailLoggingTelemetryCategoryTxt, Verbosity::Warning, StorageFolderNotSetTxt, DataClassification::SystemMetadata);
             Error(Text010);
-        if (ExchangeFolder.ReadUniqueID = GetQueueFolderUID) and ExchangeFolder."Unique ID".HasValue then
+        end;
+        if (ExchangeFolder.ReadUniqueID = GetQueueFolderUID) and ExchangeFolder."Unique ID".HasValue then begin
+            SendTraceTag('0000BXW', EmailLoggingTelemetryCategoryTxt, Verbosity::Warning, StorageFolderNotSetTxt, DataClassification::SystemMetadata);
             Error(Text010);
+        end;
+
+        SendTraceTag('0000BXX', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, StorageFolderSetTxt, DataClassification::SystemMetadata);
 
         "Storage Folder Path" := ExchangeFolder.FullPath;
 
@@ -324,6 +345,8 @@ table 5079 "Marketing Setup"
     [Scope('OnPrem')]
     procedure SetExchangeAccountPassword(Password: Text)
     begin
+        SendTraceTag('0000BY0', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, SetExchangeAccountPasswordTxt, DataClassification::SystemMetadata);
+
         if IsNullGuid("Exchange Account Password Key") then
             "Exchange Account Password Key" := CreateGuid;
 
@@ -335,15 +358,23 @@ table 5079 "Marketing Setup"
     var
         Value: Text;
     begin
-        if "Exchange Account User Name" = '' then
+        SendTraceTag('0000BY1', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, ConfigureExchangeAccountTxt, DataClassification::SystemMetadata);
+
+        if "Exchange Account User Name" = '' then begin
+            SendTraceTag('0000BY2', EmailLoggingTelemetryCategoryTxt, Verbosity::Warning, ExchangeAccountNotConfiguredTxt, DataClassification::SystemMetadata);
             Error(ExchangeAccountNotConfiguredErr);
+        end;
         if IsNullGuid("Exchange Account Password Key") or
            not ISOLATEDSTORAGE.Contains("Exchange Account Password Key", DATASCOPE::Company)
-        then
+        then begin
+            SendTraceTag('0000BY3', EmailLoggingTelemetryCategoryTxt, Verbosity::Warning, ExchangeAccountNotConfiguredTxt, DataClassification::SystemMetadata);
             Error(ExchangeAccountNotConfiguredErr);
+        end;
 
         IsolatedStorageManagement.Get("Exchange Account Password Key", DATASCOPE::Company, Value);
         WebCredentials := WebCredentials.WebCredentials("Exchange Account User Name", Value);
+
+        SendTraceTag('0000BY4', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, ExchangeAccountConfiguredTxt, DataClassification::SystemMetadata);
     end;
 
     procedure TrySetWebhookSubscriptionUser(UserSecurityID: Guid): Boolean

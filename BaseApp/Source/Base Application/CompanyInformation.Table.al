@@ -397,6 +397,10 @@ table 79 "Company Information"
                         Error(GLNCheckDigitErr, FieldCaption(GLN));
             end;
         }
+        field(95; "Use GLN in Electronic Document"; Boolean)
+        {
+            Caption = 'Use GLN in Electronic Documents';
+        }
         field(96; "Picture - Last Mod. Date Time"; DateTime)
         {
             Caption = 'Picture - Last Mod. Date Time';
@@ -648,7 +652,11 @@ table 79 "Company Information"
     local procedure IBANError(WrongIBAN: Text)
     var
         ConfirmManagement: Codeunit "Confirm Management";
+        IsHandled: Boolean;
     begin
+        OnBeforeIBANError(IsHandled);
+        if IsHandled then
+            exit;
         if not ConfirmManagement.GetResponseOrDefault(StrSubstNo(NotValidIBANErr, WrongIBAN), true) then
             Error('');
     end;
@@ -860,6 +868,11 @@ table 79 "Company Information"
         RecordRef.GetTable(Rec);
         TempBlob.ToRecordRef(RecordRef, FieldNo(Picture));
         RecordRef.SetTable(Rec);
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeIBANError(var IsHandled: Boolean)
+    begin
     end;
 }
 

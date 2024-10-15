@@ -215,6 +215,10 @@ codeunit 130512 "Library - Purchase"
         CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(100));
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDecInRange(1, 100, 2));
         PurchaseLine.Modify(true);
+        PurchaseHeader.CalcFields(Amount, "Amount Including VAT");
+        PurchaseHeader."Doc. Amount Incl. VAT" := PurchaseHeader."Amount Including VAT";
+        PurchaseHeader."Doc. Amount VAT" := PurchaseHeader."Amount Including VAT" - PurchaseHeader.Amount;
+        PurchaseHeader.Modify(true);
     end;
 
     procedure CreatePurchaseOrder(var PurchaseHeader: Record "Purchase Header")

@@ -47,6 +47,7 @@ codeunit 136300 "Job Consumption Basic"
 
     local procedure Initialize()
     var
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
         PurchasePrice: Record "Purchase Price";
         SalesPrice: Record "Sales Price";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -63,6 +64,10 @@ codeunit 136300 "Job Consumption Basic"
         // Removing special prices
         PurchasePrice.DeleteAll(true);
         SalesPrice.DeleteAll(true);
+
+        PurchasesPayablesSetup.Get();
+        PurchasesPayablesSetup.Validate("Check Doc. Total Amounts", false);
+        PurchasesPayablesSetup.Modify(true);
 
         LibraryJob.ConfigureGeneralPosting();
         LibraryJob.ConfigureVATPosting();

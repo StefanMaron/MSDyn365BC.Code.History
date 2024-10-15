@@ -259,10 +259,17 @@ codeunit 136907 Resource
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
         PurchaseLine2: Record "Purchase Line";
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
         DocumentNo: Code[20];
     begin
         // Setup: Create Item. Create Job and Job Task. Create and post Purchase Order with two lines with different Job Line Type.
         Initialize;
+
+        // Disable localization "Check Doc. Total Amounts":
+        PurchasesPayablesSetup.Get();
+        PurchasesPayablesSetup."Check Doc. Total Amounts" := false;
+        PurchasesPayablesSetup.Modify();
+
         LibraryInventory.CreateItem(Item);
         CreateJobWithJobTask(JobTask);
         CreateAndPostPurchaseOrderWithMultipleLines(PurchaseHeader, PurchaseLine, PurchaseLine2, JobTask, Item."No.");

@@ -80,7 +80,7 @@ codeunit 138500 "Common Demodata"
     var
         VATPostingSetup: Record "VAT Posting Setup";
     begin
-        // [SCENARIO] There are 12 VAT posting setup entries: 2 - "Reverse Charge VAT", none - "Full VAT" and 'Sales Tax'
+        // [SCENARIO] There are 12 VAT posting setup entries: 2 - "Reverse Charge VAT", 0 - "Full VAT" and 'Sales Tax'
         with VATPostingSetup do begin
             SetRange("VAT Calculation Type", "VAT Calculation Type"::"Reverse Charge VAT");
             Assert.RecordCount(VATPostingSetup, 2);

@@ -1163,6 +1163,63 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
           CopyStr(StrSubstNo('%1-%2', SalesHeader."No.", LongDescription), 1, MaxStrLen(DeferralHeader."Schedule Description")));
     end;
 
+    [Test]
+    [HandlerFunctions('GeneralJournalTemplateHandler,DeferralScheduleHandlerSimple')]
+    [Scope('OnPrem')]
+    procedure AssistEditOnDeferralCodeForNewLine()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        DeferralHeader: Record "Deferral Header";
+        DeferralLine: Record "Deferral Line";
+        GeneralJournal: TestPage "General Journal";
+        GenJnlManagement: Codeunit GenJnlManagement;
+        GLAccountNo: Code[20];
+        DeferralCode: Code[10];
+        Amount: Decimal;
+    begin
+        // [FEATURE] [Deferral schedule] [UI]
+        // [SCENARIO 348150] Open deferral schedule for not inserted new general journal line
+        Initialize;
+
+        // [GIVEN] General Journal with new line that is not inserted and Line No = 0
+        CreateGeneralJournalBatch(GenJournalBatch);
+        GenJnlManagement.SetJournalSimplePageModePreference(false, Page::"General Journal");
+        LibraryVariableStorage.Enqueue(GenJournalBatch."Journal Template Name");
+        GLAccountNo := LibraryERM.CreateGLAccountNo;
+        DeferralCode := CreateEqual5Periods;
+        Amount := LibraryRandom.RandDecInRange(1000, 2000, 2);
+        Commit;
+
+        GeneralJournal.OpenEdit;
+        GeneralJournal."Account Type".SetValue(GenJournalLine."Account Type"::"G/L Account");
+        GeneralJournal."Account No.".SetValue(GLAccountNo);
+        GeneralJournal.Amount.SetValue(Amount);
+        GeneralJournal."Document No.".SetValue(GenJournalBatch.Name);
+        GeneralJournal."Deferral Code".SetValue(DeferralCode);
+
+        // [WHEN] Invoke Assist edit on Deferral Code
+        GeneralJournal."Deferral Code".AssistEdit;
+
+        // [THEN] Deferral schedule with lines created for Line No = 10000
+        DeferralHeader.Get(
+          DeferralHeader."Deferral Doc. Type"::"G/L",
+          GenJournalBatch."Journal Template Name", GenJournalBatch.Name, 0, '', 10000);
+
+        LibraryERM.FindDeferralLine(
+          DeferralLine, DeferralHeader."Deferral Doc. Type"::"G/L",
+          GenJournalBatch.Name, GenJournalBatch."Journal Template Name", 0, '', 10000);
+
+        // [THEN] Deferral schedule with lines does not exist for line 0
+        asserterror
+          DeferralHeader.Get(DeferralHeader."Deferral Doc. Type"::"G/L",
+            GenJournalBatch."Journal Template Name", GenJournalBatch.Name, 0, '', 0);
+        asserterror
+          LibraryERM.FindDeferralLine(
+            DeferralLine, DeferralHeader."Deferral Doc. Type"::"G/L",
+            GenJournalBatch.Name, GenJournalBatch."Journal Template Name", 0, '', 0);
+    end;
+
     local procedure Initialize()
     var
         AccountingPeriod: Record "Accounting Period";
@@ -1695,6 +1752,14 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
         LibraryVariableStorage.Enqueue(DeferralSchedule.StartDateCalcMethod.Value);
         if DeferralSchedule.DeferralSheduleSubform.First then
             LibraryVariableStorage.Enqueue(DeferralSchedule.DeferralSheduleSubform."Posting Date".AsDate);
+        DeferralSchedule.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure DeferralScheduleHandlerSimple(var DeferralSchedule: TestPage "Deferral Schedule")
+    begin
+        DeferralSchedule."Start Date".SetValue(WorkDate);
         DeferralSchedule.OK.Invoke;
     end;
 

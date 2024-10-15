@@ -396,6 +396,7 @@ codeunit 5496 "Graph Mgt - Sales Order Buffer"
         SalesInvoiceLineAggregate."Tax Amount" := SalesLine."Amount Including VAT" - SalesLine."VAT Base Amount";
         SalesInvoiceLineAggregate.UpdateReferencedRecordIds;
         UpdateLineAmountsFromSalesLine(SalesInvoiceLineAggregate, SalesLine);
+        SalesInvoiceAggregator.SetItemVariantId(SalesInvoiceLineAggregate, SalesLine."No.", SalesLine."Variant Code");
     end;
 
     procedure PropagateInsertLine(var SalesInvoiceLineAggregate: Record "Sales Invoice Line Aggregate"; var TempFieldBuffer: Record "Field Buffer" temporary)

@@ -482,6 +482,7 @@ table 11400 "CBG Statement"
                 if "Dimension Set ID" <> 0 then
                     GenJnlLine."Dimension Set ID" := "Dimension Set ID";
                 GenJnlLine.Insert();
+                OnProcessStatementASGenJournalOnAfterGenJnlLineInsert(GenJnlLine, CBGStatementLine, Rec);
 
                 if GenJnlLine.Find('-') then begin
                     NumberOfLines := GenJnlLine.Count();
@@ -612,6 +613,11 @@ table 11400 "CBG Statement"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeProcessStatementASGenJournal(var CBGStatement: Record "CBG Statement")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnProcessStatementASGenJournalOnAfterGenJnlLineInsert(var GenJnlLine: Record "Gen. Journal Line"; CBGStatementLine: Record "CBG Statement Line"; CBGStatement: Record "CBG Statement")
     begin
     end;
 }

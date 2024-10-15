@@ -31,7 +31,6 @@ report 11413 "Create Intrastat Decl. Disk"
                     TestField("Country/Region Code");
                     TestField("Transaction Type");
                     TestField("Transport Method");
-                    TestField("Entry/Exit Point");
                     TestField("Net Weight");
                     TestField("Total Weight");
 

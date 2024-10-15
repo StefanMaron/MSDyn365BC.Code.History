@@ -51,6 +51,7 @@ codeunit 8612 "Config. Template Management"
         RecRef2: RecordRef;
         SkipCurrentField: Boolean;
     begin
+        OnBeforeInsertTemplate(ConfigTemplateLine, ConfigTemplateHeader);
         ConfigTemplateLine.SetRange("Data Template Code", ConfigTemplateHeader.Code);
         if ConfigTemplateLine.FindSet then
             repeat
@@ -78,6 +79,8 @@ codeunit 8612 "Config. Template Management"
                                     UpdateRecord(ConfigTemplateHeader2, RecRef2);
                                     UpdatingRelatedTable := false;
                                 end;
+                    else
+                        OnInsertTemplateCaseElse(ConfigTemplateLine, ConfigTemplateHeader2, FieldRef, RecRef2, SkipFields, TempSkipField);
                 end;
             until ConfigTemplateLine.Next = 0;
     end;
@@ -516,7 +519,17 @@ codeunit 8612 "Config. Template Management"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertTemplate(var ConfigTemplateLine: Record "Config. Template Line"; var ConfigTemplateHeader: Record "Config. Template Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateWithSkipFields(var SkipFieldValidation: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertTemplateCaseElse(var ConfigTemplateLine: Record "Config. Template Line"; var ConfigTemplateHeader: Record "Config. Template Header"; FldRef: FieldRef; var RecRef: RecordRef; SkipFields: Boolean; var TempSkipField: record Field)
     begin
     end;
 }

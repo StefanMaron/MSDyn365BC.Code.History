@@ -937,6 +937,7 @@ codeunit 134988 "ERM Purchase Reports III"
         // Setup
         Initialize;
         InitGeneralLedgerSetup(true);
+        UpdatePurchPayablesSetup(false);
 
         // Excercise
         CreateAndSetupPurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Invoice);
@@ -958,6 +959,7 @@ codeunit 134988 "ERM Purchase Reports III"
         // Setup
         Initialize;
         InitGeneralLedgerSetup(true);
+        UpdatePurchPayablesSetup(false);
 
         // Excercise
         CreateAndSetupPurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo");
@@ -1001,31 +1003,6 @@ codeunit 134988 "ERM Purchase Reports III"
         LibraryReportDataset.GetNextRow;
         LibraryReportDataset.GetElementValueInCurrentRow(VALExchRateTok, ActualResult);
         Assert.AreNotEqual(0, StrPos(ActualResult, Format(ExpectedResult)), WrongExchRateErr);
-    end;
-
-    [Test]
-    [HandlerFunctions('PurchaseInvoiceExcelRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure PurchInvoiceReportLayoutWithEnabledPrintVATSpecInLCY()
-    var
-        PurchaseHeader: Record "Purchase Header";
-        DocumentNo: Code[20];
-    begin
-        // [SCENARIO 379970] Report Purchase - Invoice includes VAT specification in LCY section
-        Initialize;
-
-        // [GIVEN] "General Ledger Setup"."Print VAT specification in LCY" is true
-        InitGeneralLedgerSetup(true);
-
-        // [GIVEN] Purchase Invoice posted
-        CreateAndSetupPurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Invoice);
-        DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
-
-        // [WHEN] Run Purchase - Invoice report
-        SavePurchaseInvoiceReport(DocumentNo);
-
-        // [THEN] VAT specification in LCY section printed
-        VerifyPurchaseInvoiceReportVATAmountInLCYSection(DocumentNo);
     end;
 
     [Test]
@@ -1657,6 +1634,7 @@ codeunit 134988 "ERM Purchase Reports III"
         // [FEATURE] [Aged Accounts Payable]
         // [SCENARIO 290824] Aged Accounts Payable report prints vendor phone number and contact when Print Details = "Yes"
         Initialize;
+        UpdatePurchPayablesSetup(false);
 
         // [GIVEN] Create and post invoice for vendor "VEND", with Amount = "100", "Posting Date" = "01.01.2019" and "Due Date" = "01.02.2019"
         LibraryPurchase.CreateVendor(Vendor);
@@ -1693,6 +1671,7 @@ codeunit 134988 "ERM Purchase Reports III"
         // [FEATURE] [Aged Accounts Payable]
         // [SCENARIO 290824] Aged Accounts Payable report prints external document number when "Use External Doc. No." = "Yes"
         Initialize;
+        UpdatePurchPayablesSetup(false);
 
         // [GIVEN] Create and post invoice for vendor "VEND", with "Vendor Invoice No." = "XXX", "Posting Date" = "01.01.2019" and "Due Date" = "01.02.2019"
         LibraryPurchase.CreateVendor(Vendor);
@@ -1719,6 +1698,7 @@ codeunit 134988 "ERM Purchase Reports III"
         // [FEATURE] [Aged Accounts Payable]
         // [SCENARIO 290824] Aged Accounts Payable report prints document number when "Use External Doc. No." = "No"
         Initialize;
+        UpdatePurchPayablesSetup(false);
 
         // [GIVEN] Create and post invoice for vendor "VEND", with "Posting Date" = "01.01.2019" and "Due Date" = "01.02.2019"
         LibraryPurchase.CreateVendor(Vendor);
@@ -1804,6 +1784,17 @@ codeunit 134988 "ERM Purchase Reports III"
         AgedAccountsPayable.SetTableView(Vendor);
         AgedAccountsPayable.InitializeRequest(WorkDate, AgingBy, PeriodLength, AmountLCY, PrintDetails, HeadingType, false);
         AgedAccountsPayable.Run;
+    end;
+
+    local procedure UpdatePurchPayablesSetup(CheckDocTotalAmounts: Boolean)
+    var
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+    begin
+        with PurchasesPayablesSetup do begin
+            Get;
+            "Check Doc. Total Amounts" := CheckDocTotalAmounts;
+            Modify(true);
+        end;
     end;
 
     local procedure AssignedQuantityOnPurchaseDocumentTestReport(DocumentType: Option)

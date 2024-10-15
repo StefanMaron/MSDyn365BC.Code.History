@@ -5810,8 +5810,9 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         if DueDate <> 0D then
             PurchaseHeader.Validate("Due Date", DueDate);
 
-        PurchaseHeader.Modify(true);
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", 1);
+        PurchaseHeader.Validate("Doc. Amount Incl. VAT", PurchaseLine."Outstanding Amount");
+        PurchaseHeader.Modify(true);
 
         exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
     end;
