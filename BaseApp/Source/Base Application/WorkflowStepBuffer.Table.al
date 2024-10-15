@@ -259,6 +259,7 @@ table 1507 "Workflow Step Buffer"
         ResponseNotExistErr: Label 'The workflow response %1 does not exist.', Comment = '%1 = response description (e.g. The workflow response Remove record does not exist.)';
         WhenNextStepDescTxt: Label 'Next when "%1"';
         ThenNextStepDescTxt: Label 'Next then "%1"';
+        ResponseDeleteLbl: Label 'You are about to change the "When Event". This change will cause the "On Condition" and the "Then Responses" to be deleted. Do you want to continue?';
 
     [Scope('OnPrem')]
     procedure OpenEventConditions()
@@ -821,6 +822,12 @@ table 1507 "Workflow Step Buffer"
 
         TempWorkflowEvent.SetView(EventFilter);
         if PAGE.RunModal(0, TempWorkflowEvent) = ACTION::LookupOK then begin
+            If ("Event Description" <> '') and ("Event Description" <> TempWorkflowEvent.Description) then
+                if Dialog.Confirm(ResponseDeleteLbl, false) then
+                    DeleteResponse()
+                else
+                    exit(false);
+
             Validate("Event Description", TempWorkflowEvent.Description);
             WorkflowEvent.Get(TempWorkflowEvent."Function Name");
             exit(true);
@@ -890,6 +897,22 @@ table 1507 "Workflow Step Buffer"
                     if TempWorkflowResponse.Insert() then;
                 end;
             until WorkflowResponse.Next() = 0;
+    end;
+
+    local procedure DeleteResponse()
+    var
+        WorkflowStep: Record "Workflow Step";
+        TempWorkflowStepBuffer: Record "Workflow Step Buffer" temporary;
+    begin
+        if "Response Step ID" > 0 then begin
+            WorkflowStep.Get("Workflow Code", "Response Step ID");
+            WorkflowStep.Delete(true);
+        end;
+
+        if "Response Step ID" = MultipleResponseID() then begin
+            TempWorkflowStepBuffer.PopulateTableFromEvent("Workflow Code", "Event Step ID");
+            TempWorkflowStepBuffer.DeleteAll(true);
+        end;
     end;
 }
 
