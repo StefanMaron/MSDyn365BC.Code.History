@@ -14,6 +14,7 @@ codeunit 7310 "Whse.-Shipment Release"
     procedure Release(var WhseShptHeader: Record "Warehouse Shipment Header")
     var
         Location: Record Location;
+        Location2: Record Location;
         WhsePickRqst: Record "Whse. Pick Request";
         WhseShptLine: Record "Warehouse Shipment Line";
         ATOLink: Record "Assemble-to-Order Link";
@@ -49,9 +50,16 @@ codeunit 7310 "Whse.-Shipment Release"
                         AsmLine.SetRange(Type, AsmLine.Type::Item);
                         if AsmLine.FindSet() then
                             repeat
-                                if AsmLine.CalcQtyToPickBase > 0 then
+                                if AsmLine."Location Code" = Location.Code then
+                                    Location2 := Location
+                                else
+                                    if (AsmLine."Location Code" <> '') and (Location2.Code <> AsmLine."Location Code") then
+                                        Location2.Get(AsmLine."Location Code");
+
+                                if (AsmLine."Location Code" <> '') and Location2."Bin Mandatory" then
                                     if AsmLine.IsInventoriableItem() then
-                                        AsmLine.TestField("Bin Code");
+                                        if AsmLine.CalcQtyToPickBase() > 0 then
+                                            AsmLine.TestField("Bin Code");
                             until AsmLine.Next() = 0;
                     end;
                 end;

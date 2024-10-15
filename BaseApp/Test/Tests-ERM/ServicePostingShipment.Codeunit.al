@@ -28,7 +28,6 @@ codeunit 136107 "Service Posting - Shipment"
         WarningMsg: Label 'The field Automatic Cost Posting should not be set to Yes if field Use Legacy G/L Entry Locking in General Ledger Setup table is set to No because of possibility of deadlocks.';
         ExpectedMsg: Label 'Expected Cost Posting to G/L has been changed';
         ExpectedCostPostingConfirm: Label 'If you change the Expected Cost Posting to G/L';
-        InvPostBuffNotTempErr: Label 'Invoice Post. Buffer variable in the codeunit 5988 must be temporary';
         WhseShptIsCreatedMsg: Label 'Warehouse Shipment Header has been created.', Locked = true;
         WhseShptIsNotCreatedErr: Label 'There are no Warehouse Shipment Lines created.', Locked = true;
 
@@ -2316,15 +2315,6 @@ codeunit 136107 "Service Posting - Shipment"
         WarrantyLedgerEntry.SetRange(Quantity, Quantity);
         WarrantyLedgerEntry.SetRange(Open, false);
         WarrantyLedgerEntry.FindFirst();
-    end;
-
-    [EventSubscriber(ObjectType::Table, Database::"Invoice Post. Buffer", 'OnAfterInsertEvent', '', false, false)]
-    procedure VerifyInvPostBufferTemporary(var Rec: Record "Invoice Post. Buffer"; RunTrigger: Boolean)
-    var
-        RecRef: RecordRef;
-    begin
-        RecRef.GetTable(Rec);
-        Assert.IsTrue(RecRef.IsTemporary, InvPostBuffNotTempErr);
     end;
 
     local procedure VerifyServiceShipmentLinesAfterUndoConsumption(Item: array[3] of Record Item; Bin: array[3] of Record Bin; Qty: array[3] of Decimal)

@@ -1314,6 +1314,11 @@ table 472 "Job Queue Entry"
 
     internal procedure ScheduleRecurrentJobQueueEntryWithRunDateFormula(ObjType: Option; ObjID: Integer; RecId: RecordID; JobQueueCategoryCode: Code[10]; MaxAttemptsToRun: Integer; NextRunDateFormula: DateFormula; StartingTime: Time)
     begin
+        ScheduleRecurrentJobQueueEntryWithRunDateFormula(ObjType, ObjID, RecId, JobQueueCategoryCode, MaxAttemptsToRun, NextRunDateFormula, StartingTime, DefaultJobTimeout());
+    end;
+
+    internal procedure ScheduleRecurrentJobQueueEntryWithRunDateFormula(ObjType: Option; ObjID: Integer; RecId: RecordID; JobQueueCategoryCode: Code[10]; MaxAttemptsToRun: Integer; NextRunDateFormula: DateFormula; StartingTime: Time; JobTimeout: Duration)
+    begin
         Reset();
         if format(NextRunDateFormula) = '<0D>' then
             Evaluate(NextRunDateFormula, '<1D>');
@@ -1334,6 +1339,7 @@ table 472 "Job Queue Entry"
             "Next Run Date Formula" := NextRunDateFormula;
             "Earliest Start Date/Time" := CreateDateTime(CalcDate("Next Run Date Formula", Today), "Starting Time");
             "Maximum No. of Attempts to Run" := MaxAttemptsToRun;
+            "Job Timeout" := JobTimeout;
             EnqueueTask();
         end;
     end;
