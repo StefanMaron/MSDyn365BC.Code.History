@@ -905,6 +905,37 @@ codeunit 134474 "ERM Dimension Locations"
         Assert.ExpectedError(LibraryERM.GetGlobalDimensionCode(1));
     end;
 
+    [Test]
+    procedure VerifyDefaultDimensionOnTransferOrder()
+    var
+        Location: Record Location;
+        DimensionValue: Record "Dimension Value";
+        TransferHeader: Record "Transfer Header";
+        TransferOrder: TestPage "Transfer Order";
+    begin
+        // [SCENARIO 472831] Verify Transfer Header should automatically be created when a default dimension is assigned to the Transfer-from Location.
+        Initialize();
+
+        // [GIVEN] Create Dimension and Dimension Value.
+        LibraryDimension.CreateDimWithDimValue(DimensionValue);
+
+        // [GIVEN] Create a Location with Default Dimension.
+        CreateLocationWithDefaultDimension(Location, DimensionValue);
+
+        // [GIVEN] Open a new Transfer Order.
+        TransferOrder.OpenNew();
+
+        // [THEN] Assign a Location with Default Dimension to "Transfer-from Code".
+        TransferOrder."Transfer-from Code".SetValue(Location.Code);
+
+        // [THEN] Get the Transfer Header.
+        TransferHeader.Get(TransferOrder."No.".Value());
+        TransferOrder.OK.Invoke();
+
+        // [VERIFY] Verify Default Dimension on the Transfer Header.
+        VerifyDimensionValue(TransferHeader."Dimension Set ID", DimensionValue);
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"ERM Dimension Locations");

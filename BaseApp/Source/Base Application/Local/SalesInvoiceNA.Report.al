@@ -29,6 +29,7 @@ report 10074 "Sales Invoice NA"
                         with TempSalesInvoiceLine do begin
                             Init();
                             "Document No." := "Sales Invoice Header"."No.";
+                            GetHighestLineNoForDocumentLine(SalesLineComments."No.", SalesLineComments."Document Line No.");
                             "Line No." := HighestLineNo + 10;
                             HighestLineNo := "Line No.";
                         end;
@@ -1002,6 +1003,20 @@ report 10074 "Sales Invoice NA"
                     TempLineFeeNoteOnReportHist.Insert();
                 until LineFeeNoteOnReportHist.Next() = 0;
         end;
+    end;
+
+    local procedure GetHighestLineNoForDocumentLine(DocNo: Code[20]; DocLineNo: Integer)
+    var
+        SalesInvoiceLine: Record "Sales Invoice Line";
+    begin
+        SalesInvoiceLine.LoadFields("Document No.", "Attached to Line No.", "Line No.");
+        SalesInvoiceLine.SetCurrentKey("Document No.", "Attached to Line No.", "Line No.");
+        SalesInvoiceLine.SetRange("Document No.", DocNo);
+        SalesInvoiceLine.SetRange("Attached to Line No.", DocLineNo);
+        SalesInvoiceLine.SetAscending("Line No.", true);
+        if SalesInvoiceLine.FindLast() then
+            if SalesInvoiceLine."Line No." > HighestLineNo then
+                HighestLineNo := SalesInvoiceLine."Line No.";
     end;
 }
 

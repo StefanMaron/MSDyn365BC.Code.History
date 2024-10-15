@@ -122,6 +122,7 @@ codeunit 9030 "Undo Transfer Shipment"
                 WhseUndoQty.UpdateShptSourceDocLines(PostedWhseShptLine);
 
             TransShptLine."Correction Line" := true;
+            OnBeforeModifyTransShptLine(TransShptLine);
             TransShptLine.Modify();
 
         until TransShptLine.Next() = 0;
@@ -200,6 +201,8 @@ codeunit 9030 "Undo Transfer Shipment"
         ItemJnlLine."Document Date" := TransShptHeader."Shipment Date";
         ItemJnlLine."Unit of Measure Code" := TransShptLine."Unit of Measure Code";
 
+        OnAfterCopyItemJnlLineFromTransShpt(ItemJnlLine, TransShptHeader, TransShptLine);
+
         WhseUndoQty.InsertTempWhseJnlLine(
                        ItemJnlLine,
                        Database::"Transfer Line", Direction::Outbound.AsInteger(), TransShptLine."Transfer Order No.", TransShptLine."Line No.",
@@ -259,6 +262,7 @@ codeunit 9030 "Undo Transfer Shipment"
             ItemJnlLine."Quantity (Base)" := ItemLedgEntry.Quantity;
             ItemJnlLine."Invoiced Quantity" := ItemLedgEntry."Invoiced Quantity";
             ItemJnlLine."Invoiced Qty. (Base)" := ItemLedgEntry."Invoiced Quantity";
+            OnPostCorrectiveItemLedgEntriesOnBeforeRun(ItemJnlLine, ItemLedgEntry);
             ItemJnlPostLine.Run(ItemJnlLine);
         until ItemLedgEntry.Next() = 0;
     end;
@@ -276,6 +280,7 @@ codeunit 9030 "Undo Transfer Shipment"
         NewTransShptLine."Quantity (Base)" := -OldTransShptLine."Quantity (Base)";
         NewTransShptLine."Correction Line" := true;
         NewTransShptLine."Dimension Set ID" := OldTransShptLine."Dimension Set ID";
+        OnBeforeInsertNewTransShptLine(NewTransShptLine, OldTransShptLine);
         NewTransShptLine.Insert();
 
         InsertItemEntryRelation(TempGlobalItemEntryRelation, NewTransShptLine, OldTransShptLine."Trans. Order Line No.");
@@ -375,6 +380,26 @@ codeunit 9030 "Undo Transfer Shipment"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateOrderLine(var TransferLine: Record "Transfer Line"; var TransShptLine: Record "Transfer Shipment Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertNewTransShptLine(var TransferShipmentLineNew: Record "Transfer Shipment Line"; TransferShipmentLineOld: Record "Transfer Shipment Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeModifyTransShptLine(var TransferShipmentLine: Record "Transfer Shipment Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyItemJnlLineFromTransShpt(var ItemJournalLine: Record "Item Journal Line"; TransferShipmentHeader: Record "Transfer Shipment Header"; TransferShipmentLine: Record "Transfer Shipment Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostCorrectiveItemLedgEntriesOnBeforeRun(var ItemJournalLine: Record "Item Journal Line"; var ItemLedgerEntry: Record "Item Ledger Entry")
     begin
     end;
 }

@@ -135,8 +135,14 @@ page 379 "Bank Acc. Reconciliation"
                     ToolTip = 'Create bank account ledger entries suggestions and enter them automatically.';
 
                     trigger OnAction()
+                    var
+                        IsHandled: Boolean;
                     begin
                         RecallEmptyListNotification();
+                        IsHandled := false;
+                        OnActionSuggestLinesOnBeforeSuggestBankAccReconLines(Rec, IsHandled);
+                        if IsHandled then
+                            exit;
                         SuggestBankAccReconLines.SetStmt(Rec);
                         SuggestBankAccReconLines.RunModal();
                         Clear(SuggestBankAccReconLines);
@@ -653,4 +659,9 @@ page 379 "Bank Acc. Reconciliation"
     begin
     end;
 #endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnActionSuggestLinesOnBeforeSuggestBankAccReconLines(var BankAccReconciliation: Record "Bank Acc. Reconciliation"; var IsHandled: Boolean)
+    begin
+    end;
 }

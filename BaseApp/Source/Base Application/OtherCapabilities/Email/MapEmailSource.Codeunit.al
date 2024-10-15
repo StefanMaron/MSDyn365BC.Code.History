@@ -27,7 +27,7 @@ codeunit 8898 "Map Email Source"
         if not SourceRecordRef.GetBySystemId(SourceSystemID) then
             exit;
 
-        DocumentAttachmentMgmt.SetDocumentAttachmentFiltersForRecRef(DocumentAttachment, SourceRecordRef);
+        DocumentAttachmentMgmt.SetDocumentAttachmentRelatedFiltersForRecRef(DocumentAttachment, SourceRecordRef);
         if DocumentAttachment.FindSet() then
             repeat
                 EmailRelatedAttachments."Attachment Name" :=

@@ -25,6 +25,9 @@ permissionset 5729 "D365 CUSTOMER, EDIT"
                   tabledata "Customer Bank Account" = IMD,
                   tabledata "Customer Discount Group" = RIMD,
                   tabledata "Customer Templ." = rm,
+#if not CLEAN20
+                  tabledata "Customer Template" = r,
+#endif
                   tabledata "Detailed Cust. Ledg. Entry" = Rimd,
                   tabledata "Dtld. Price Calculation Setup" = Rid,
                   tabledata "Duplicate Price Line" = Rid,

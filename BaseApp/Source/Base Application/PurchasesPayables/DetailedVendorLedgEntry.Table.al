@@ -293,22 +293,25 @@ table 380 "Detailed Vendor Ledg. Entry"
             "Debit Amount (LCY)" := 0;
             "Credit Amount (LCY)" := -"Amount (LCY)";
         end;
+
+        OnAfterUpdateDebitCredit(rec, Correction);
     end;
 
     procedure SetZeroTransNo(TransactionNo: Integer)
     var
-        DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry";
+        DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
         ApplicationNo: Integer;
     begin
-        DtldVendLedgEntry.SetCurrentKey("Transaction No.");
-        DtldVendLedgEntry.SetRange("Transaction No.", TransactionNo);
-        if DtldVendLedgEntry.FindSet(true) then begin
-            ApplicationNo := DtldVendLedgEntry."Entry No.";
+        DetailedVendorLedgEntry.SetCurrentKey("Transaction No.");
+        DetailedVendorLedgEntry.SetRange("Transaction No.", TransactionNo);
+        if DetailedVendorLedgEntry.FindSet(true) then begin
+            ApplicationNo := DetailedVendorLedgEntry."Entry No.";
             repeat
-                DtldVendLedgEntry."Transaction No." := 0;
-                DtldVendLedgEntry."Application No." := ApplicationNo;
-                DtldVendLedgEntry.Modify();
-            until DtldVendLedgEntry.Next() = 0;
+                DetailedVendorLedgEntry."Transaction No." := 0;
+                DetailedVendorLedgEntry."Application No." := ApplicationNo;
+                OnSetZeroTransNoOnBeforeDetailedVendorLedgEntryModify(DetailedVendorLedgEntry);
+                DetailedVendorLedgEntry.Modify();
+            until DetailedVendorLedgEntry.Next() = 0;
         end;
     end;
 
@@ -325,6 +328,16 @@ table 380 "Detailed Vendor Ledg. Entry"
         SetRange("Entry Type", "Entry Type"::"Unrealized Loss", "Entry Type"::"Unrealized Gain");
         CalcSums("Amount (LCY)");
         exit("Amount (LCY)");
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateDebitCredit(var DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry"; Correction: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetZeroTransNoOnBeforeDetailedVendorLedgEntryModify(var DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry")
+    begin
     end;
 }
 

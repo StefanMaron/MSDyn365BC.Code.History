@@ -96,7 +96,14 @@ table 1173 "Document Attachment"
             Caption = 'Flow to Purch. Trx';
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateDocumentFlowPurchase(Rec, xRec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if not "Document Reference ID".HasValue() then
                     Error(NoDocumentAttachedErr);
             end;
@@ -106,7 +113,14 @@ table 1173 "Document Attachment"
             Caption = 'Flow to Sales Trx';
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateDocumentFlowSales(Rec, xRec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if not "Document Reference ID".HasValue() then
                     Error(NoDocumentAttachedErr);
             end;
@@ -142,14 +156,19 @@ table 1173 "Document Attachment"
     }
 
     trigger OnInsert()
+    var
+        IsHandled: Boolean;
     begin
         if IncomingFileName <> '' then begin
             Validate("File Extension", FileManagement.GetExtension(IncomingFileName));
             Validate("File Name", CopyStr(FileManagement.GetFileNameWithoutExtension(IncomingFileName), 1, MaxStrLen("File Name")));
         end;
 
-        if not "Document Reference ID".HasValue() then
-            Error(NoDocumentAttachedErr);
+        IsHandled := false;
+        OnInsertOnBeforeCheckDocRefID(Rec, IsHandled);
+        if not IsHandled then
+            if not "Document Reference ID".HasValue() then
+                Error(NoDocumentAttachedErr);
 
         Validate("Attached Date", CurrentDateTime);
         if IsNullGuid("Attached By") then
@@ -186,7 +205,7 @@ table 1173 "Document Attachment"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeExport(Rec, IsHandled);
+        OnBeforeExport(Rec, IsHandled, ShowFileDialog);
         if IsHandled then
             exit;
 
@@ -264,6 +283,8 @@ table 1173 "Document Attachment"
     end;
 
     local procedure InsertAttachment(DocStream: InStream; RecRef: RecordRef; FileName: Text; AllowDuplicateFileName: Boolean)
+    var
+        IsHandled: Boolean;
     begin
         InitFieldsFromRecRef(RecRef);
 
@@ -276,11 +297,14 @@ table 1173 "Document Attachment"
         Validate("File Extension", FileManagement.GetExtension(IncomingFileName));
         Validate("File Name", CopyStr(FileManagement.GetFileNameWithoutExtension(IncomingFileName), 1, MaxStrLen("File Name")));
 
-        // IMPORTSTREAM(stream,description, mime-type,filename)
-        // description and mime-type are set empty and will be automatically set by platform code from the filename
-        "Document Reference ID".ImportStream(DocStream, '', '', FileName);
-        if not "Document Reference ID".HasValue() then
-            Error(NoDocumentAttachedErr);
+        OnInsertAttachmentOnBeforeImportStream(Rec, DocStream, FileName, IsHandled);
+        if not IsHandled then begin
+            // IMPORTSTREAM(stream,description, mime-type,filename)
+            // description and mime-type are set empty and will be automatically set by platform code from the filename
+            "Document Reference ID".ImportStream(DocStream, '', '', FileName);
+            if not "Document Reference ID".HasValue() then
+                Error(NoDocumentAttachedErr);
+        end;
 
         OnBeforeInsertAttachment(Rec, RecRef);
         Insert(true);
@@ -417,7 +441,7 @@ table 1173 "Document Attachment"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeExport(var DocumentAttachment: Record "Document Attachment"; var IsHandled: Boolean)
+    local procedure OnBeforeExport(var DocumentAttachment: Record "Document Attachment"; var IsHandled: Boolean; ShowFileDialog: Boolean)
     begin
     end;
 
@@ -443,6 +467,26 @@ table 1173 "Document Attachment"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitFieldsFromRecRef(var DocumentAttachment: Record "Document Attachment"; var RecRef: RecordRef)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateDocumentFlowPurchase(var DocumentAttachment: Record "Document Attachment"; xDocumentAttachment: Record "Document Attachment"; IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateDocumentFlowSales(var DocumentAttachment: Record "Document Attachment"; xDocumentAttachment: Record "Document Attachment"; IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertOnBeforeCheckDocRefID(var DocumentAttachment: Record "Document Attachment"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertAttachmentOnBeforeImportStream(var DocumentAttachment: Record "Document Attachment"; DocInStream: InStream; FileName: Text; var IsHandled: Boolean)
     begin
     end;
 }

@@ -368,6 +368,10 @@ codeunit 5508 "Graph Mgt - Sal. Cr. Memo Buf."
 
         TargetRecordRef.Insert(true);
 
+        SalesHeader.Get(TargetRecordRef.RecordId);
+        SetShortcutDimensions(SalesHeader, SalesCrMemoEntityBuffer, TempFieldBuffer);
+        SalesHeader.Modify(true);
+
         SalesCrMemoEntityBuffer."No." := NoFieldRef.Value;
         SalesCrMemoEntityBuffer.Get(SalesCrMemoEntityBuffer."No.", SalesCrMemoEntityBuffer.Posted);
     end;
@@ -1027,6 +1031,17 @@ codeunit 5508 "Graph Mgt - Sal. Cr. Memo Buf."
             exit(true);
 
         exit(false);
+    end;
+
+    local procedure SetShortcutDimensions(var SalesHeader: Record "Sales Header"; SalesCrMemoEntityBuffer: Record "Sales Cr. Memo Entity Buffer"; var TempFieldBuffer: Record "Field Buffer" temporary)
+    begin
+        TempFieldBuffer.SetRange("Table ID", Database::"Sales Cr. Memo Entity Buffer");
+        TempFieldBuffer.SetRange("Field ID", SalesCrMemoEntityBuffer.FieldNo("Shortcut Dimension 1 Code"));
+        if not TempFieldBuffer.IsEmpty() then
+            SalesHeader.Validate("Shortcut Dimension 1 Code", SalesCrMemoEntityBuffer."Shortcut Dimension 1 Code");
+        TempFieldBuffer.SetRange("Field ID", SalesCrMemoEntityBuffer.FieldNo("Shortcut Dimension 2 Code"));
+        if not TempFieldBuffer.IsEmpty() then
+            SalesHeader.Validate("Shortcut Dimension 2 Code", SalesCrMemoEntityBuffer."Shortcut Dimension 2 Code");
     end;
 }
 

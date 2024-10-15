@@ -158,6 +158,7 @@ page 10046 "Purch. Credit Memo Stats."
         TempSalesTaxAmtLine: Record "Sales Tax Amount Line" temporary;
         PrevPrintOrder: Integer;
         PrevTaxPercent: Decimal;
+        SalesTaxCalculationOverridden: Boolean;
     begin
         ClearAll();
         TaxArea.Get("Tax Area Code");
@@ -208,14 +209,22 @@ page 10046 "Purch. Credit Memo Stats."
 
         SalesTaxCalculate.StartSalesTaxCalculation();
         TempSalesTaxLine.DeleteAll();
-        if TaxArea."Use External Tax Engine" then
-            SalesTaxCalculate.CallExternalTaxEngineForDoc(DATABASE::"Purch. Cr. Memo Hdr.", 0, "No.")
-        else begin
-            SalesTaxCalculate.AddPurchCrMemoLines("No.");
-            SalesTaxCalculate.EndSalesTaxCalculation("Posting Date");
-        end;
+
+        SalesTaxCalculationOverridden := false;
+        OnAfterCalculateSalesTax(PurchCrMemoLine, TempSalesTaxLine, TempSalesTaxAmtLine, SalesTaxCalculationOverridden);
+        if not SalesTaxCalculationOverridden then
+            if TaxArea."Use External Tax Engine" then
+                SalesTaxCalculate.CallExternalTaxEngineForDoc(DATABASE::"Purch. Cr. Memo Hdr.", 0, "No.")
+            else begin
+                SalesTaxCalculate.AddPurchCrMemoLines("No.");
+                SalesTaxCalculate.EndSalesTaxCalculation("Posting Date");
+            end;
+
         SalesTaxCalculate.GetSalesTaxAmountLineTable(TempSalesTaxLine);
-        SalesTaxCalculate.GetSummarizedSalesTaxTable(TempSalesTaxAmtLine);
+
+        if not SalesTaxCalculationOverridden then
+            SalesTaxCalculate.GetSummarizedSalesTaxTable(TempSalesTaxAmtLine);
+
         if TaxArea."Country/Region" = TaxArea."Country/Region"::CA then
             BreakdownTitle := Text006
         else
@@ -272,5 +281,10 @@ page 10046 "Purch. Credit Memo Stats."
         Text006: Label 'Tax Breakdown:';
         Text007: Label 'Sales Tax Breakdown:';
         Text008: Label 'Other Taxes';
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalculateSalesTax(var PurchCrMemoLine: Record "Purch. Cr. Memo Line"; var SalesTaxAmountLine: Record "Sales Tax Amount Line"; var SalesTaxAmountLine2: Record "Sales Tax Amount Line"; var SalesTaxCalculationOverridden: Boolean)
+    begin
+    end;
 }
 

@@ -263,6 +263,8 @@
             if WhsePosting then
                 PostWhseJnlLines(TempWhseJnlLine, TempTrackingSpecification);
 
+            OnAfterPostItemJnlLine(ServiceHeader, ItemJnlLine, TempHandlingSpecification);
+
             exit("Item Shpt. Entry No.");
         end;
     end;
@@ -518,6 +520,7 @@
 
             OnBeforeResJnlPostLine(ResJnlLine, ServiceHeader, ServiceLine);
             ResJnlPostLine.RunWithCheck(ResJnlLine);
+            OnAfterPostResJnlLine(ServiceHeader, ResJnlLine);
         end;
     end;
 
@@ -920,6 +923,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnPostSalesTaxToGLOnBeforeGenJnlPostLineRunWithCheck(var GenJnlLine: Record "Gen. Journal Line"; ServiceHeader: Record "Service Header"; var TempSalesTaxAmtLine: Record "Sales Tax Amount Line" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterPostItemJnlLine(ServiceHeader: Record "Service Header"; var ItemJournalLine: Record "Item Journal Line"; var TempHandlingTrackingSpecification: Record "Tracking Specification")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterPostResJnlLine(ServiceHeader: Record "Service Header"; var ResJournalLine: Record "Res. Journal Line")
     begin
     end;
 }

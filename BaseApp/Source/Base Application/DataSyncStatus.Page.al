@@ -47,7 +47,13 @@ page 6250 "Data Sync Status"
         ShowMigrationErrors: Boolean;
 
     local procedure PostingErrors(JournalBatchName: Text)
+    var
+        SkipPostingErrors: Boolean;
     begin
+        OnSkipPostingErrors(SkipPostingErrors, JournalBatchName);
+        if SkipPostingErrors then
+            exit;
+        
         GenJournalLine.Reset();
         GenJournalLine.SetRange("Journal Template Name", JnlTemplateNameTxt);
         GenJournalLine.SetFilter("Journal Batch Name", JournalBatchName);
@@ -70,6 +76,11 @@ page 6250 "Data Sync Status"
     procedure SetMigrationVisibility(IsMigration: Boolean)
     begin
         ShowMigrationErrors := IsMigration;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSkipPostingErrors(var SkipPostingErrors: Boolean; JournalBatchName: Text)
+    begin
     end;
 }
 

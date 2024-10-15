@@ -53,6 +53,7 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         HasErrorsErr: Label 'The file export has one or more errors.\\For each line to be exported, resolve the errors displayed to the right and then try to export again.';
         CdtrAgtTagErr: Label 'There should not be CdtrAgt tag.';
         EuroCurrErr: Label 'Only transactions in euro (EUR) are allowed, because the %1 bank account is set up to use the %2 export format.', Comment = '%1= bank account No, %2 export format; Example: Only transactions in euro (EUR) are allowed, because the GIRO bank account is set up to use the SEPACT export format.';
+        ErrorTextsExistErr: Label 'Error texts entries has to be deleted, from %1 table.', Comment = '%1 = Payment Jnl. Export Error Text';
 
     [Test]
     [Scope('OnPrem')]
@@ -1715,6 +1716,42 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
             '//CstmrCdtTrfInitn/GrpHdr/InitgPty/Id/OrgId/Othr/Id', CompanyInformation."VAT Registration No.");
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure ValidatePaymentJnlExportErrorTextHasNoErrorEntriesWhenJournalLineDeleted()
+    var
+        GenJnlLine: Record "Gen. Journal Line";
+        TempPaymentExportData: Record "Payment Export Data" temporary;
+        PaymentJnlExportErrorText: Record "Payment Jnl. Export Error Text";
+        SEPACTFillExportBuffer: Codeunit "SEPA CT-Fill Export Buffer";
+    begin
+        // [SCENARIO 471305] Under certain circumstances records from table 1228 "Payment Jnl. Export Error Text are not deleted when the corresponding Payment Journal Line is deleted
+        Init();
+
+        // [GIVEN] Create Gen. Journal Line for Payment and set amount negative so the system can generate an error
+        CreateGenJnlLine(GenJnlLine);
+        GenJnlLine.Amount := -GenJnlLine.Amount;
+        GenJnlLine.Modify(true);
+
+        // [WHEN] Execute fill export buffer the system will generate an error for negative amount with Document No. D1
+        asserterror SEPACTFillExportBuffer.FillExportBuffer(GenJnlLine, TempPaymentExportData);
+
+        // [THEN] Modify the payment journal document no. form D1 to D2 
+        GenJnlLine."Document No." := LibraryRandom.RandText(10);
+        GenJnlLine."Document No." := LibraryUtility.GenerateRandomAlphabeticText(LibraryRandom.RandInt(20), 1);
+        GenJnlLine.Modify(true);
+
+        // [WHEN] Execute fill export buffer the system will generate another error for negative amount with Document No. D2
+        asserterror SEPACTFillExportBuffer.FillExportBuffer(GenJnlLine, TempPaymentExportData);
+
+        // [WHEN] Delete the payment general line
+        GenJnlLine.Delete(true);
+
+        // [VERIFY] Apply Filter on "Payment Jnl. Export Error Text" and verify no error entry exists
+        FilterPaymentJnlExportErrorText(PaymentJnlExportErrorText, GenJnlLine);
+        Assert.IsTrue(PaymentJnlExportErrorText.IsEmpty, StrSubstNo(ErrorTextsExistErr, PaymentJnlExportErrorText.TableCaption()));
+    end;
+
     local procedure Init()
     var
         NoSeries: Record "No. Series";
@@ -2258,6 +2295,15 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         GenJournalLine.Find();
         GenJournalLine.TestField("Check Exported", ExpectedFlag);
         GenJournalLine.TestField("Exported to Payment File", ExpectedFlag);
+    end;
+
+    local procedure FilterPaymentJnlExportErrorText(
+        var PaymentJnlExportErrorText: Record "Payment Jnl. Export Error Text";
+        GenJnlLine: Record "Gen. Journal Line")
+    begin
+        PaymentJnlExportErrorText.SetRange("Journal Template Name", GenJnlLine."Journal Template Name");
+        PaymentJnlExportErrorText.SetRange("Journal Batch Name", GenJnlLine."Journal Batch Name");
+        PaymentJnlExportErrorText.SetRange("Journal Line No.", GenJnlLine."Line No.");
     end;
 
     [RequestPageHandler]

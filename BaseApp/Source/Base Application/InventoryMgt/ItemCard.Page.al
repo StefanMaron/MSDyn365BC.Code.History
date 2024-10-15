@@ -3275,7 +3275,7 @@ page 30 "Item Card"
         NewMode := false;
 
         if ItemTemplMgt.InsertItemFromTemplate(Item) then begin
-            Copy(Item);
+            Rec.Copy(Item);
             OnCreateItemFromTemplateOnBeforeCurrPageUpdate(Rec);
             EnableControls();
             CurrPage.Update();
@@ -3287,9 +3287,11 @@ page 30 "Item Card"
                     exit;
                 end;
 
+        OnCreateItemFromTemplateOnBeforeIsFoundationEnabled(Rec);
+
         if ApplicationAreaMgmtFacade.IsFoundationEnabled() then
             if (Item."No." = '') and InventorySetup.Get() then
-                Validate("Costing Method", InventorySetup."Default Costing Method");
+                Rec.Validate("Costing Method", InventorySetup."Default Costing Method");
     end;
 
     local procedure SetNoFieldVisible()
@@ -3396,6 +3398,11 @@ page 30 "Item Card"
 
     [IntegrationEvent(false, false)]
     local procedure OnEnablePlanningControlsOnAfterGetParameters(var PlanningParameters: Record "Planning Parameters")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateItemFromTemplateOnBeforeIsFoundationEnabled(var Item: Record Item)
     begin
     end;
 }

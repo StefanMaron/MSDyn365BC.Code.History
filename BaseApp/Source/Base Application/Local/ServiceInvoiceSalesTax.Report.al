@@ -382,16 +382,6 @@ report 10474 "Service Invoice-Sales Tax"
 
                                 DescriptionToPrint := Description + ' ' + "Description 2";
                                 if Type = Type::" " then begin
-                                    if OnLineNumber < NumberOfLines then begin
-                                        Next();
-                                        if Type = Type::" " then begin
-                                            DescriptionToPrint :=
-                                              CopyStr(DescriptionToPrint + ' ' + Description + ' ' + "Description 2", 1, MaxStrLen(DescriptionToPrint));
-                                            OnLineNumber := OnLineNumber + 1;
-                                            ServInvLine.Next();
-                                        end else
-                                            Next(-1);
-                                    end;
                                     "No." := '';
                                     "Unit of Measure" := '';
                                     Amount := 0;

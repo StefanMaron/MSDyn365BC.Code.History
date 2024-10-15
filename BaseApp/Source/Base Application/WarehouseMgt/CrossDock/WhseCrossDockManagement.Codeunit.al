@@ -571,7 +571,7 @@ codeunit 5780 "Whse. Cross-Dock Management"
         TransferLine.SetRange("Variant Code", VariantCode);
         TransferLine.SetRange("Shipment Date", 0D, CrossDockDate);
         TransferLine.SetFilter("Outstanding Qty. (Base)", '>0');
-        OnCalcCrossDockToTransferOrderOnAfterTransferLineSetFilters(TransferLine);
+        OnCalcCrossDockToTransferOrderOnAfterTransferLineSetFilters(TransferLine, WhseCrossDockOpp, QtyOnPick, QtyPicked, ItemNo, VariantCode, LocationCode, CrossDockDate, LineNo);
         if TransferLine.Find('-') then
             repeat
                 if WhseRequest.Get(
@@ -603,7 +603,6 @@ codeunit 5780 "Whse. Cross-Dock Management"
         ProdOrderComp.SetRange("Variant Code", VariantCode);
         ProdOrderComp.SetRange("Location Code", LocationCode);
         ProdOrderComp.SetRange("Due Date", 0D, CrossDockDate);
-        ProdOrderComp.SetRange("Flushing Method", "Flushing Method"::Manual);
         ProdOrderComp.SetRange("Planning Level Code", 0);
         ProdOrderComp.SetFilter("Remaining Qty. (Base)", '>0');
         if ProdOrderComp.Find('-') then
@@ -764,7 +763,7 @@ codeunit 5780 "Whse. Cross-Dock Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCalcCrossDockToTransferOrderOnAfterTransferLineSetFilters(var TransferLine: Record "Transfer Line")
+    local procedure OnCalcCrossDockToTransferOrderOnAfterTransferLineSetFilters(var TransferLine: Record "Transfer Line"; var WhseCrossDockOpp: Record "Whse. Cross-Dock Opportunity"; var QtyOnPick: Decimal; var QtyPicked: Decimal; ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; CrossDockDate: Date; LineNo: Integer)
     begin
     end;
 

@@ -411,7 +411,12 @@ codeunit 10331 "EFT Export Mgt"
         OutStream: OutStream;
         InStream: InStream;
         NoOfRec: Integer;
+        IsHandled: Boolean;
     begin
+        OnBeforeAddPadBlocks(EFTValues, IsHandled);
+        if IsHandled then
+            exit;
+
         ExportFile.WriteMode := true;
         ExportFile.TextMode := true;
         if Exists(Filename) then
@@ -456,6 +461,11 @@ codeunit 10331 "EFT Export Mgt"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeACHCecobanHeaderInsert(var ACHCecobanHeader: Record "ACH Cecoban Header"; BankAccCode: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeAddPadBlocks(var EFTValues: Codeunit "EFT Values"; var IsHandled: Boolean)
     begin
     end;
 }

@@ -76,6 +76,13 @@ codeunit 5652 "Insurance Jnl.-Post Line"
             InsuranceReg."To Entry No." := NextEntryNo;
             InsuranceReg.Modify();
         end;
+
+        OnAfterCode(InsCoverageLedgEntry);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCode(var InsCoverageLedgerEntry: Record "Ins. Coverage Ledger Entry")
+    begin
     end;
 }
 

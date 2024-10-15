@@ -516,7 +516,7 @@
         "Medical Insurer Name" := TransHeader."Medical Insurer Name";
         "Medical Ins. Policy Number" := TransHeader."Medical Ins. Policy Number";
         "SAT Weight Unit Of Measure" := TransHeader."SAT Weight Unit Of Measure";
-        "CFDI Export Code" := "CFDI Export Code";
+        "CFDI Export Code" := TransHeader."CFDI Export Code";
 
         OnAfterCopyFromTransferHeader(Rec, TransHeader);
     end;

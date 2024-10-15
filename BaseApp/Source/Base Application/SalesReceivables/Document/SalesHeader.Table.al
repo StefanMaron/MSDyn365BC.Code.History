@@ -127,6 +127,7 @@
                 then
                     RecreateSalesLines(SellToCustomerTxt);
 
+                OnValidateSellToCustomerNoOnBeforeUpdateSellToCont(Rec, xRec, Customer, SkipSellToContact);
                 if not SkipSellToContact then
                     UpdateSellToCont("Sell-to Customer No.");
 
@@ -591,6 +592,7 @@
                         Validate("Pmt. Discount Date", 0D);
                         Validate("Payment Discount %", 0);
                     end;
+                    OnValidatePaymentTermsCodeOnAfterValidatePaymentDiscountWhenBlank(Rec, xRec, CurrFieldNo);
                 end;
                 if xRec."Payment Terms Code" = "Prepmt. Payment Terms Code" then begin
                     if xRec."Prepayment Due Date" = 0D then begin
@@ -798,6 +800,7 @@
                     SalesLine.SetRange("Document No.", "No.");
                     SalesLine.SetFilter("Unit Price", '<>%1', 0);
                     SalesLine.SetFilter("VAT %", '<>%1', 0);
+                    OnValidatePricesIncludingVATOnBeforeSalesLineFindFirst(SalesLine);
                     if SalesLine.FindFirst() then begin
                         RecalculatePrice := ConfirmRecalculatePrice(SalesLine);
                         OnAfterConfirmSalesPrice(Rec, SalesLine, RecalculatePrice);
@@ -1589,7 +1592,14 @@
             TableRelation = "Payment Method";
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidatePaymentMethodCode(Rec, PaymentMethod, IsHandled);
+                if IsHandled then
+                    exit;
+
                 UpdateDirectDebitPmtTermsCode();
 
                 "Bal. Account Type" := PaymentMethod."Bal. Account Type";
@@ -1782,7 +1792,14 @@
             MinValue = 0;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateVATBaseDiscountPct(Rec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if not (CurrFieldNo in [0, FieldNo("Posting Date"), FieldNo("Document Date")]) then
                     TestStatusOpen();
                 GLSetup.Get();
@@ -3147,7 +3164,14 @@
     end;
 
     trigger OnInsert()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOnInsert(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         InitInsert();
         InsertMode := true;
 
@@ -3719,7 +3743,14 @@
     end;
 
     procedure SalesLinesExist(): Boolean
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSalesLinesExist(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         SalesLine.Reset();
         SalesLine.SetRange("Document Type", "Document Type");
         SalesLine.SetRange("Document No.", "No.");
@@ -3779,7 +3810,7 @@
             SalesLine.Reset();
             SalesLine.SetRange("Document Type", "Document Type");
             SalesLine.SetRange("Document No.", "No.");
-            OnRecreateSalesLinesOnAfterSetSalesLineFilters(SalesLine);
+            OnRecreateSalesLinesOnAfterSetSalesLineFilters(SalesLine, Rec);
             if SalesLine.FindSet() then begin
                 OnRecreateSalesLinesOnAfterFindSalesLine(Rec, SalesLine, ChangedFieldName);
                 TempReservEntry.DeleteAll();
@@ -4031,7 +4062,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeUpdateDirectDebitPmtTermsCode(Rec, IsHandled);
+        OnBeforeUpdateDirectDebitPmtTermsCode(Rec, IsHandled, PaymentMethod);
         if IsHandled then
             exit;
 
@@ -4098,6 +4129,7 @@
         SalesLine2.SetRange("Document No.", "No.");
         SalesLine2.SetFilter(Type, '<>%1', SalesLine.Type::" ");
         SalesLine2.SetFilter(Quantity, '<>0');
+        OnUpdateSalesLineAmountsOnAfterSalesLineSetFilters(Rec, SalesLine);
         SalesLine2.LockTable();
         LockTable();
         if SalesLine2.FindSet() then begin
@@ -4382,8 +4414,12 @@
     procedure ValidateShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])
     var
         OldDimSetID: Integer;
+        IsHandled: Boolean;
     begin
-        OnBeforeValidateShortcutDimCode(Rec, xRec, FieldNumber, ShortcutDimCode);
+        IsHandled := false;
+        OnBeforeValidateShortcutDimCode(Rec, xRec, FieldNumber, ShortcutDimCode, IsHandled);
+        if IsHandled then
+            exit;
 
         OldDimSetID := "Dimension Set ID";
         DimMgt.ValidateShortcutDimValues(FieldNumber, ShortcutDimCode, "Dimension Set ID");
@@ -4391,7 +4427,8 @@
             Modify();
 
         if OldDimSetID <> "Dimension Set ID" then begin
-            Modify();
+            if not IsNullGuid(Rec.SystemId) then
+                Modify();
             if SalesLinesExist() then
                 UpdateAllLineDim("Dimension Set ID", OldDimSetID);
         end;
@@ -4975,6 +5012,7 @@
     var
         ShipToAddress: Record "Ship-to Address";
         IsHandled: Boolean;
+        IsShipmentMethodCodeAssigned: Boolean;
     begin
         IsHandled := false;
         OnBeforeGetShipmentMethodCode(Rec, IsHandled);
@@ -4982,15 +5020,18 @@
             exit;
 
         if "Ship-to Code" <> '' then begin
+            ShipToAddress.SetLoadFields("Shipment Method Code");
             ShipToAddress.Get("Sell-to Customer No.", "Ship-to Code");
-            if ShipToAddress."Shipment Method Code" <> '' then
+            if ShipToAddress."Shipment Method Code" <> '' then begin
                 Validate("Shipment Method Code", ShipToAddress."Shipment Method Code");
-        end else
-            if "Sell-to Customer No." <> '' then begin
-                GetCust("Sell-to Customer No.");
-                if Customer."Shipment Method Code" <> '' then
-                    Validate("Shipment Method Code", Customer."Shipment Method Code");
+                IsShipmentMethodCodeAssigned := true;
             end;
+        end;
+
+        if (not IsShipmentMethodCodeAssigned) and ("Sell-to Customer No." <> '') then begin
+            GetCust("Sell-to Customer No.");
+            Validate("Shipment Method Code", Customer."Shipment Method Code");
+        end;
     end;
 
     procedure GetShippingTime(CalledByFieldNo: Integer)
@@ -5310,6 +5351,8 @@
                                 end;
                         until SalesLine.Next() = 0;
                 end;
+            else
+                OnLookupAdjmtValueEntriesCaseDocumentTypeElse(Rec, SalesLine, QtyType);
         end;
         PAGE.RunModal(0, TempValueEntry);
     end;
@@ -6287,6 +6330,7 @@
         DeferralHeader.SetRange("Gen. Jnl. Batch Name", '');
         DeferralHeader.SetRange("Document Type", "Document Type");
         DeferralHeader.SetRange("Document No.", "No.");
+        OnDeferralHeadersExistOnAfterSetFilters(Rec, DeferralHeader);
         exit(not DeferralHeader.IsEmpty);
     end;
 
@@ -6585,6 +6629,10 @@
             end;
             UpdateLocationCode(SellToCustomer."Location Code");
             UpdateTaxAreaCode();
+            IsHandled := false;
+            OnCopySellToCustomerAddressFieldsFromCustomerOnBeforeUpdateLocation(Rec, SellToCustomer, IsHandled);
+            if not IsHandled then
+                UpdateLocationCode(SellToCustomer."Location Code");
         end;
 
         OnAfterCopySellToCustomerAddressFieldsFromCustomer(Rec, SellToCustomer, CurrFieldNo, SkipBillToContact, SkipSellToContact);
@@ -8828,7 +8876,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeUpdateDirectDebitPmtTermsCode(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    local procedure OnBeforeUpdateDirectDebitPmtTermsCode(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean; var PaymentMethod: Record "Payment Method")
     begin
     end;
 
@@ -9098,7 +9146,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeValidateShortcutDimCode(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header"; FieldNumber: Integer; var ShortcutDimCode: Code[20])
+    local procedure OnBeforeValidateShortcutDimCode(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header"; FieldNumber: Integer; var ShortcutDimCode: Code[20]; var IsHandled: Boolean)
     begin
     end;
 
@@ -9108,7 +9156,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnRecreateSalesLinesOnAfterSetSalesLineFilters(var SalesLine: Record "Sales Line")
+    local procedure OnRecreateSalesLinesOnAfterSetSalesLineFilters(var SalesLine: Record "Sales Line"; var SalesHeader: Record "Sales Header")
     begin
     end;
 
@@ -9594,6 +9642,61 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckCustomerPostingGroupChange(var SalesHeader: Record "Sales Header"; var xSalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidatePaymentTermsCodeOnAfterValidatePaymentDiscountWhenBlank(var SalesHeader: Record "Sales Header"; var xSalesHeader: Record "Sales Header"; CurrentFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateSalesLineAmountsOnAfterSalesLineSetFilters(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLookupAdjmtValueEntriesCaseDocumentTypeElse(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; QtyType: Option General,Invoicing);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSalesLinesExist(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateVATBaseDiscountPct(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidatePricesIncludingVATOnBeforeSalesLineFindFirst(var SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidatePaymentMethodCode(var SalesHeader: Record "Sales Header"; PaymentMethod: Record "Payment Method"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnInsert(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateSellToCustomerNoOnBeforeUpdateSellToCont(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header"; SellToCustomer: Record Customer; var SkipSellToContact: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDeferralHeadersExistOnAfterSetFilters(var SalesHeader: Record "Sales Header"; var DeferralHeader: Record "Deferral Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCopySellToCustomerAddressFieldsFromCustomerOnBeforeUpdateLocation(var SalesHeader: Record "Sales Header"; var SellToCustomer: Record Customer; var IsHandled: Boolean)
     begin
     end;
 }
