@@ -207,6 +207,7 @@ table 311 "Sales & Receivables Setup"
             Caption = 'Archive Quotes and Orders';
             ObsoleteReason = 'Replaced by new fields Archive Quotes and Archive Orders';
             ObsoleteState = Pending;
+            ObsoleteTag = '15.0';
         }
         field(38; "Post with Job Queue"; Boolean)
         {
@@ -354,6 +355,7 @@ table 311 "Sales & Receivables Setup"
             ObsoleteState = Pending;
             OptionCaption = 'Manual,Automatic,Always Ask';
             OptionMembers = Manual,Automatic,"Always Ask";
+            ObsoleteTag = '15.0';
         }
         field(171; "Insert Std. Lines on Quotes"; Boolean)
         {
@@ -361,6 +363,7 @@ table 311 "Sales & Receivables Setup"
             DataClassification = SystemMetadata;
             ObsoleteReason = 'Not needed after refactoring';
             ObsoleteState = Pending;
+            ObsoleteTag = '15.0';
         }
         field(172; "Insert Std. Lines on Orders"; Boolean)
         {
@@ -368,6 +371,7 @@ table 311 "Sales & Receivables Setup"
             DataClassification = SystemMetadata;
             ObsoleteReason = 'Not needed after refactoring';
             ObsoleteState = Pending;
+            ObsoleteTag = '15.0';
         }
         field(173; "Insert Std. Lines on Invoices"; Boolean)
         {
@@ -375,6 +379,7 @@ table 311 "Sales & Receivables Setup"
             DataClassification = SystemMetadata;
             ObsoleteReason = 'Not needed after refactoring';
             ObsoleteState = Pending;
+            ObsoleteTag = '15.0';
         }
         field(174; "Insert Std. Lines on Cr. Memos"; Boolean)
         {
@@ -382,6 +387,7 @@ table 311 "Sales & Receivables Setup"
             DataClassification = SystemMetadata;
             ObsoleteReason = 'Not needed after refactoring';
             ObsoleteState = Pending;
+            ObsoleteTag = '15.0';
         }
         field(200; "Quote Validity Calculation"; DateFormula)
         {
@@ -476,30 +482,35 @@ table 311 "Sales & Receivables Setup"
             Caption = 'OIOUBL Invoice Path';
             ObsoleteReason = 'Moved to OIOUBL extension, the same table, same field name prefixed with OIOUBL-.';
             ObsoleteState = Removed;
+            ObsoleteTag = '15.0';
         }
         field(13601; "OIOUBL Cr. Memo Path"; Text[250])
         {
             Caption = 'OIOUBL Cr. Memo Path';
             ObsoleteReason = 'Moved to OIOUBL extension, the same table, same field name prefixed with OIOUBL-.';
             ObsoleteState = Removed;
+            ObsoleteTag = '15.0';
         }
         field(13602; "OIOUBL Reminder Path"; Text[250])
         {
             Caption = 'OIOUBL Reminder Path';
             ObsoleteReason = 'Moved to OIOUBL extension, the same table, same field name prefixed with OIOUBL-.';
             ObsoleteState = Removed;
+            ObsoleteTag = '15.0';
         }
         field(13603; "OIOUBL Fin. Chrg. Memo Path"; Text[250])
         {
             Caption = 'OIOUBL Fin. Chrg. Memo Path';
             ObsoleteReason = 'Moved to OIOUBL extension, the same table, same field name prefixed with OIOUBL-.';
             ObsoleteState = Removed;
+            ObsoleteTag = '15.0';
         }
         field(13604; "Default OIOUBL Profile Code"; Code[10])
         {
             Caption = 'Default OIOUBL Profile Code';
             ObsoleteReason = 'Moved to OIOUBL extension, the same table, same field name prefixed with OIOUBL-.';
             ObsoleteState = Removed;
+            ObsoleteTag = '15.0';
         }
     }
 

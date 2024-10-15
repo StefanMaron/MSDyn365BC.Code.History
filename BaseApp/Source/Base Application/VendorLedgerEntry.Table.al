@@ -540,6 +540,7 @@ table 25 "Vendor Ledger Entry"
             Caption = 'Giro Acc. No.';
             ObsoleteReason = 'Moved to Payment and Reconciliation Formats (DK) extension to field name: GiroAccNo';
             ObsoleteState = Removed;
+            ObsoleteTag = '15.0';
         }
     }
 

@@ -465,12 +465,14 @@ table 4 Currency
             Caption = 'Id';
             ObsoleteState = Pending;
             ObsoleteReason = 'This functionality will be replaced by the systemID field';
+            ObsoleteTag = '15.0';
         }
         field(13600; "OIOUBL Currency Code"; Code[10])
         {
             Caption = 'OIOUBL Currency Code';
             ObsoleteReason = 'Moved to OIOUBL extension, the same table, same field name prefixed with OIOUBL-.';
             ObsoleteState = Removed;
+            ObsoleteTag = '15.0';
         }
     }
 

@@ -21,6 +21,7 @@ codeunit 148053 "OIOUBL-ERM Elec Document Sales"
         LibrarySales: Codeunit "Library - Sales";
         LibraryRandom: Codeunit "Library - Random";
         LibraryXMLReadOnServer: Codeunit "Library - XML Read OnServer";
+        LibraryXPathXMLReader: Codeunit "Library - XPath XML Reader";
         LibraryUtility: Codeunit "Library - Utility";
         OIOUBLNewFileMock: Codeunit "OIOUBL-File Events Mock";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
@@ -35,7 +36,6 @@ codeunit 148053 "OIOUBL-ERM Elec Document Sales"
         OIOUBLFormatNameTxt: Label 'OIOUBL';
         PEPPOLFormatNameTxt: Label 'PEPPOL 2.1';
         WrongInvoiceLineCountErr: Label 'Wrong count of "InvoiceLine".';
-        WrongAllowanceTotalAmountErr: Label 'Wrong count of "AllowanceTotalAmount".';
         BaseQuantityTxt: Label 'cbc:BaseQuantity';
         CodeunitNotFoundErr: Label 'Object of type CodeUnit with ID %1 could not be found.';
         MetadataObjNotFoundErr: Label 'MetadataObjectNotFound';
@@ -310,10 +310,11 @@ codeunit 148053 "OIOUBL-ERM Elec Document Sales"
     procedure CheckAllowanceChargeInOIOUBLReport();
     var
         SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
         DocumentNo: Code[20];
         ExpectedResult: Decimal;
     begin
-        // [SCENARIO 377873] OIOUBL XML File shouldn'l contain XML node "LegalMonetaryTotal/AllowanceTotalAmount" and should contain XML node "InvoiceLine/AllowanceCharge" with line discount
+        // [SCENARIO 377873] OIOUBL XML File shouldn't contain XML node "LegalMonetaryTotal/AllowanceTotalAmount" and should contain XML node "InvoiceLine/AllowanceCharge" with line discount
         // [SCENARIO 280609] CurrencyID attribute has value of "LCY Code" of General Ledger Setup in exported OIOUBL file
         Initialize();
 
@@ -322,17 +323,18 @@ codeunit 148053 "OIOUBL-ERM Elec Document Sales"
         CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice);
 
         // [GIVEN] First sales line with line discount = "X"
-        ExpectedResult := CreateSalesLineWithDiscount(SalesHeader, LibraryRandom.RandIntInRange(1, 50));
+        CreateSalesLineWithDiscount(SalesLine, SalesHeader, LibraryRandom.RandIntInRange(1, 50));
+        ExpectedResult := SalesLine."Inv. Discount Amount" + SalesLine."Line Discount Amount";
 
         // [GIVEN] Second sales line without line discount
-        CreateSalesLineWithDiscount(SalesHeader, 0);
+        CreateSalesLineWithDiscount(SalesLine, SalesHeader, 0);
 
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         // [WHEN] Run report "OIOUBL-Create Elec. Invoices"
         RunReportCreateElecSalesInvoices(DocumentNo);
 
-        // [THEN] OIOUBL XML file contains XML node "LegalMonetaryTotal/AllowanceTotalAmount"
+        // [THEN] OIOUBL XML file does not contain XML node "LegalMonetaryTotal/AllowanceTotalAmount"
         // [THEN] Contains XML node "InvoiceLine/cac:AllowanceCharge/cbc:Amount" with value = "X" for first invoice line
         // [THEN] Doesn't contain XML node "InvoiceLine/cac:AllowanceCharge" for second invoice line
         // [THEN] CurrencyID attribute is "DKK" in exported file
@@ -975,6 +977,150 @@ codeunit 148053 "OIOUBL-ERM Elec Document Sales"
         VerifyFileListInZipArchive(FileNameLst);
     end;
 
+    [Test]
+    procedure AmountPriceDiscountOnSalesInvoiceWithLineInvoiceDiscount()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        OIOUBLExportSalesInvoice: Codeunit "OIOUBL-Export Sales Invoice";
+        LineExtensionAmounts: List of [Decimal];
+        PriceAmounts: List of [Decimal];
+        AllowanceChargeAmounts: List of [Decimal];
+        TotalAllowanceChargeAmount: Decimal;
+    begin
+        // [SCENARIO 341090] Create OIOUBL document for Posted Sales Invoice, that has lines with Line Discount and Inv. Discount.
+        Initialize();
+
+        // [GIVEN] Posted Sales Invoice with two lines. Every line has Line Discount and Invoice Discount.
+        CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice);
+        CreateSalesLineWithLineAndInvoiceDiscount(
+            SalesLine, SalesHeader, LibraryRandom.RandDecInRange(100, 200, 2), LibraryRandom.RandDecInRange(10, 20, 2));
+        CreateSalesLineWithLineAndInvoiceDiscount(
+            SalesLine, SalesHeader, LibraryRandom.RandDecInRange(100, 200, 2), LibraryRandom.RandDecInRange(10, 20, 2));
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, false, true));
+        GetAmountsSalesInvoiceLines(SalesInvoiceHeader."No.", LineExtensionAmounts, PriceAmounts, AllowanceChargeAmounts, TotalAllowanceChargeAmount);
+
+        // [WHEN] Create Electronic Document for Posted Sales Invoice.
+        OIOUBLExportSalesInvoice.ExportXML(SalesInvoiceHeader);
+
+        // [THEN] InvoiceLine/LineExtensionAmount is equal to Line Amount + Inv. Discount Amount for each Invoice Line.
+        // [THEN] InvoiceLine/Price/PriceAmount is equal to (Line Amount + Inv. Discount Amount) / Line Quantity.
+        // [THEN] InvoiceLine/AllowanceCharge/Amount is equal to Line Discount.
+        // [THEN] LegalMonetaryTotal/LineExtensionAmount is equal to sum of LineExtensionAmount of InvoiceLine sections.
+        // [THEN] AllowanceCharge/Amount is equal to sum of Inv. Discount Amount of Sales Invoice Lines.
+        VerifyAmountPriceDiscountOnSalesInvoice(
+            SalesInvoiceHeader."No.", LineExtensionAmounts, PriceAmounts, AllowanceChargeAmounts, TotalAllowanceChargeAmount);
+    end;
+
+    [Test]
+    procedure AmountPriceDiscountOnSalesInvoicePricesInclVATWithLineInvoiceDiscount()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        OIOUBLExportSalesInvoice: Codeunit "OIOUBL-Export Sales Invoice";
+        LineExtensionAmounts: List of [Decimal];
+        PriceAmounts: List of [Decimal];
+        AllowanceChargeAmounts: List of [Decimal];
+        TotalAllowanceChargeAmount: Decimal;
+    begin
+        // [SCENARIO 341090] Create OIOUBL document for Posted Sales Invoice, that has lines with Line Discount and Inv. Discount; Prices Incl. VAT is set.
+        Initialize();
+
+        // [GIVEN] Posted Sales Invoice with two lines, Prices Incl. VAT is set. Every line has Line Discount and Invoice Discount.
+        // [GIVEN] VAT = 20%.
+        CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice);
+        SetPricesInclVATOnSalesHeader(SalesHeader);
+        CreateSalesLineWithLineAndInvoiceDiscount(
+            SalesLine, SalesHeader, LibraryRandom.RandDecInRange(100, 200, 2), LibraryRandom.RandDecInRange(10, 20, 2));
+        CreateSalesLineWithLineAndInvoiceDiscount(
+            SalesLine, SalesHeader, LibraryRandom.RandDecInRange(100, 200, 2), LibraryRandom.RandDecInRange(10, 20, 2));
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, false, true));
+        GetAmountsSalesInvoiceLinesPricesInclVAT(
+            SalesInvoiceHeader."No.", LineExtensionAmounts, PriceAmounts, AllowanceChargeAmounts, TotalAllowanceChargeAmount);
+
+        // [WHEN] Create Electronic Document for Posted Sales Invoice.
+        OIOUBLExportSalesInvoice.ExportXML(SalesInvoiceHeader);
+
+        // [THEN] InvoiceLine/LineExtensionAmount is equal to Line Amount + 0.8 * Inv. Discount Amount  for each Invoice Line.
+        // [THEN] InvoiceLine/Price/PriceAmount is equal to (Line Amount + 0.8 * Inv. Discount Amount) / Line Quantity.
+        // [THEN] InvoiceLine/AllowanceCharge/Amount is equal to 0.8 * Line Discount.
+        // [THEN] LegalMonetaryTotal/LineExtensionAmount is equal to sum of LineExtensionAmount of InvoiceLine sections.
+        // [THEN] AllowanceCharge/Amount is equal to sum of 0.8 * Inv. Discount Amount of Sales Invoice Lines.
+        VerifyAmountPriceDiscountOnSalesInvoice(
+            SalesInvoiceHeader."No.", LineExtensionAmounts, PriceAmounts, AllowanceChargeAmounts, TotalAllowanceChargeAmount);
+    end;
+
+    [Test]
+    procedure AmountPriceDiscountOnSalesCrMemoWithLineInvoiceDiscount()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+        OIOUBLExportSalesCrMemo: Codeunit "OIOUBL-Export Sales Cr. Memo";
+        LineExtensionAmounts: List of [Decimal];
+        PriceAmounts: List of [Decimal];
+        TotalAllowanceChargeAmount: Decimal;
+    begin
+        // [SCENARIO 341090] Create OIOUBL document for Posted Sales Credit Memo, that has lines with Line Discount and Inv. Discount.
+        Initialize();
+
+        // [GIVEN] Posted Sales Credit Memo with two lines. Every line has Line Discount and Invoice Discount.
+        CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo");
+        CreateSalesLineWithLineAndInvoiceDiscount(
+            SalesLine, SalesHeader, LibraryRandom.RandDecInRange(100, 200, 2), LibraryRandom.RandDecInRange(10, 20, 2));
+        CreateSalesLineWithLineAndInvoiceDiscount(
+            SalesLine, SalesHeader, LibraryRandom.RandDecInRange(100, 200, 2), LibraryRandom.RandDecInRange(10, 20, 2));
+        SalesCrMemoHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, false, true));
+        GetAmountsSalesCrMemoLines(SalesCrMemoHeader."No.", LineExtensionAmounts, PriceAmounts, TotalAllowanceChargeAmount);
+
+        // [WHEN] Create Electronic Document for Posted Sales Credit Memo.
+        OIOUBLExportSalesCrMemo.ExportXML(SalesCrMemoHeader);
+
+        // [THEN] CreditNoteLine/LineExtensionAmount is equal to Line Amount + Inv. Discount Amount for each Credit Memo Line.
+        // [THEN] CreditNoteLine/Price/PriceAmount is equal to (Line Amount + Inv. Discount Amount) / Line Quantity.
+        // [THEN] LegalMonetaryTotal/LineExtensionAmount is equal to sum of LineExtensionAmount of CreditNoteLine sections.
+        // [THEN] AllowanceCharge/Amount is equal to sum of Inv. Discount Amount of Sales CrMemo Lines.
+        VerifyAmountPriceDiscountOnSalesCrMemo(SalesCrMemoHeader."No.", LineExtensionAmounts, PriceAmounts, TotalAllowanceChargeAmount);
+    end;
+
+    [Test]
+    procedure AmountPriceDiscountOnSalesCrMemoPricesInclVATWithLineInvoiceDiscount()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+        OIOUBLExportSalesCrMemo: Codeunit "OIOUBL-Export Sales Cr. Memo";
+        LineExtensionAmounts: List of [Decimal];
+        PriceAmounts: List of [Decimal];
+        TotalAllowanceChargeAmount: Decimal;
+    begin
+        // [SCENARIO 341090] Create OIOUBL document for Posted Sales Credit Memo, that has lines with Line Discount and Inv. Discount; Prices Incl. VAT is set.
+        Initialize();
+
+        // [GIVEN] Posted Sales Credit Memo with two lines, Prices Incl. VAT is set. Every line has Line Discount and Invoice Discount.
+        // [GIVEN] VAT = 20%.
+        CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo");
+        SetPricesInclVATOnSalesHeader(SalesHeader);
+        CreateSalesLineWithLineAndInvoiceDiscount(
+            SalesLine, SalesHeader, LibraryRandom.RandDecInRange(100, 200, 2), LibraryRandom.RandDecInRange(10, 20, 2));
+        CreateSalesLineWithLineAndInvoiceDiscount(
+            SalesLine, SalesHeader, LibraryRandom.RandDecInRange(100, 200, 2), LibraryRandom.RandDecInRange(10, 20, 2));
+        SalesCrMemoHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, false, true));
+        GetAmountsSalesCrMemoLinesPricesInclVAT(
+            SalesCrMemoHeader."No.", LineExtensionAmounts, PriceAmounts, TotalAllowanceChargeAmount);
+
+        // [WHEN] Create Electronic Document for Posted Sales Credit Memo.
+        OIOUBLExportSalesCrMemo.ExportXML(SalesCrMemoHeader);
+
+        // [THEN] CreditNoteLine/LineExtensionAmount is equal to Line Amount + 0.8 * Inv. Discount Amount for each Credit Memo Line.
+        // [THEN] CreditNoteLine/Price/PriceAmount is equal to (Line Amount + 0.8 * Inv. Discount Amount) / Line Quantity.
+        // [THEN] LegalMonetaryTotal/LineExtensionAmount is equal to sum of LineExtensionAmount of CreditNoteLine sections.
+        // [THEN] AllowanceCharge/Amount is equal to sum of 0.8 * Inv. Discount Amount of Sales CrMemo Lines.
+        VerifyAmountPriceDiscountOnSalesCrMemo(SalesCrMemoHeader."No.", LineExtensionAmounts, PriceAmounts, TotalAllowanceChargeAmount);
+    end;
+
     local procedure Initialize();
     var
         SalesHeader: Record "Sales Header";
@@ -1121,8 +1267,8 @@ codeunit 148053 "OIOUBL-ERM Elec Document Sales"
     begin
         LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
         LibrarySales.CreateSalesLine(
-        SalesLine, SalesHeader, Type, No, LibraryRandom.RandDec(10, 2));  // Random Value for Quantity.
-        SalesLine.VALIDATE("Unit Price", LibraryRandom.RandDec(10, 2));  // Random Value for Unit Price.
+        SalesLine, SalesHeader, Type, No, LibraryRandom.RandDecInRange(10, 20, 2));  // Random Value for Quantity.
+        SalesLine.VALIDATE("Unit Price", LibraryRandom.RandDecInRange(100, 200, 2));  // Random Value for Unit Price.
         SalesLine.VALIDATE("Unit of Measure", UnitOfMeasure.Code);
         SalesLine.MODIFY(true);
     end;
@@ -1141,14 +1287,19 @@ codeunit 148053 "OIOUBL-ERM Elec Document Sales"
         SalesLine.MODIFY(true);
     end;
 
-    local procedure CreateSalesLineWithDiscount(SalesHeader: Record "Sales Header"; Discount: Integer): Decimal;
-    var
-        SalesLine: Record "Sales Line";
+    local procedure CreateSalesLineWithDiscount(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; LineDiscountPct: Integer)
     begin
         CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo());
-        SalesLine.VALIDATE("Line Discount %", Discount);
-        SalesLine.MODIFY(true);
-        exit(SalesLine."Inv. Discount Amount" + SalesLine."Line Discount Amount");
+        SalesLine.Validate("Line Discount %", LineDiscountPct);
+        SalesLine.Modify(true);
+    end;
+
+    local procedure CreateSalesLineWithLineAndInvoiceDiscount(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; LineDiscountAmt: Decimal; InvDiscountAmt: Decimal)
+    begin
+        CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo());
+        SalesLine.Validate("Line Discount Amount", LineDiscountAmt);
+        SalesLine.Validate("Inv. Discount Amount", InvDiscountAmt);
+        SalesLine.Modify(true);
     end;
 
     local procedure CreateElectronicDocumentFormat(DocFormatCode: Code[20]; DocFormatUsage: Option; CodeunitID: Integer);
@@ -1166,7 +1317,6 @@ codeunit 148053 "OIOUBL-ERM Elec Document Sales"
     local procedure CreateOIOUBLProfile(): Code[10];
     var
         OIOUBLProfile: Record "OIOUBL-Profile";
-        LibraryUtility: Codeunit "Library - Utility";
     begin
         with OIOUBLProfile do begin
             VALIDATE("OIOUBL-Code", LibraryUtility.GenerateRandomCode(FIELDNO("OIOUBL-Code"), DATABASE::"OIOUBL-Profile"));
@@ -1250,6 +1400,13 @@ codeunit 148053 "OIOUBL-ERM Elec Document Sales"
         SalesCrMemoHeader.FindFirst();
     end;
 
+    local procedure FormatAmount(Amount: Decimal): Text
+    var
+        TypeHelper: Codeunit "Type Helper";
+    begin
+        exit(Format(Amount, 0, TypeHelper.GetXMLAmountFormatWithTwoDecimalPlaces()))
+    end;
+
     local procedure GetNonExistingCodeunitID(): Integer;
     var
         AllObj: Record AllObj;
@@ -1264,6 +1421,85 @@ codeunit 148053 "OIOUBL-ERM Elec Document Sales"
         ElectronicDocumentFormat: Record "Electronic Document Format";
     begin
         exit(ElectronicDocumentFormat.GetAttachmentFileName(DocumentNo, DocumentType, Extension));
+    end;
+
+    local procedure GetAmountsSalesInvoiceLines(SalesInvHeaderNo: Code[20]; var LineExtensionAmounts: List of [Decimal]; var PriceAmounts: List of [Decimal]; var AllowanceChargeAmounts: List of [Decimal]; var TotalAllowanceChargeAmount: Decimal)
+    var
+        SalesInvoiceLine: Record "Sales Invoice Line";
+    begin
+        TotalAllowanceChargeAmount := 0;
+        with SalesInvoiceLine do begin
+            SetRange("Document No.", SalesInvHeaderNo);
+            FindSet();
+            repeat
+                LineExtensionAmounts.Add(Amount + "Inv. Discount Amount");
+                PriceAmounts.Add(Round((Amount + "Inv. Discount Amount") / Quantity));
+                AllowanceChargeAmounts.Add("Line Discount Amount");
+                TotalAllowanceChargeAmount += "Inv. Discount Amount";
+            until Next() = 0;
+        end;
+    end;
+
+    local procedure GetAmountsSalesInvoiceLinesPricesInclVAT(SalesInvHeaderNo: Code[20]; var LineExtensionAmounts: List of [Decimal]; var PriceAmounts: List of [Decimal]; var AllowanceChargeAmounts: List of [Decimal]; var TotalAllowanceChargeAmount: Decimal)
+    var
+        SalesInvoiceLine: Record "Sales Invoice Line";
+        ExclVATFactor: Decimal;
+    begin
+        TotalAllowanceChargeAmount := 0;
+        with SalesInvoiceLine do begin
+            SetRange("Document No.", SalesInvHeaderNo);
+            FindSet();
+            repeat
+                ExclVATFactor := 1 + "VAT %" / 100;
+                LineExtensionAmounts.Add(Amount + Round("Inv. Discount Amount" / ExclVATFactor));
+                PriceAmounts.Add(Round((Amount + Round("Inv. Discount Amount" / ExclVATFactor)) / Quantity));
+                AllowanceChargeAmounts.Add(Round("Line Discount Amount" / ExclVATFactor));
+                TotalAllowanceChargeAmount += Round("Inv. Discount Amount" / ExclVATFactor);
+            until Next() = 0;
+        end;
+    end;
+
+    local procedure GetAmountsSalesCrMemoLines(SalesCrMemoHeaderNo: Code[20]; var LineExtensionAmounts: List of [Decimal]; var PriceAmounts: List of [Decimal]; var TotalAllowanceChargeAmount: Decimal)
+    var
+        SalesCrMemoLine: Record "Sales Cr.Memo Line";
+    begin
+        TotalAllowanceChargeAmount := 0;
+        with SalesCrMemoLine do begin
+            SetRange("Document No.", SalesCrMemoHeaderNo);
+            FindSet();
+            repeat
+                LineExtensionAmounts.Add(Amount + "Inv. Discount Amount");
+                PriceAmounts.Add(Round((Amount + "Inv. Discount Amount") / Quantity));
+                TotalAllowanceChargeAmount += "Inv. Discount Amount";
+            until Next() = 0;
+        end;
+    end;
+
+    local procedure GetAmountsSalesCrMemoLinesPricesInclVAT(SalesCrMemoHeaderNo: Code[20]; var LineExtensionAmounts: List of [Decimal]; var PriceAmounts: List of [Decimal]; var TotalAllowanceChargeAmount: Decimal)
+    var
+        SalesCrMemoLine: Record "Sales Cr.Memo Line";
+        ExclVATFactor: Decimal;
+    begin
+        TotalAllowanceChargeAmount := 0;
+        with SalesCrMemoLine do begin
+            SetRange("Document No.", SalesCrMemoHeaderNo);
+            FindSet();
+            repeat
+                ExclVATFactor := 1 + "VAT %" / 100;
+                LineExtensionAmounts.Add(Amount + Round("Inv. Discount Amount" / ExclVATFactor));
+                PriceAmounts.Add(Round((Amount + Round("Inv. Discount Amount" / ExclVATFactor)) / Quantity));
+                TotalAllowanceChargeAmount += Round("Inv. Discount Amount" / ExclVATFactor);
+            until Next() = 0;
+        end;
+    end;
+
+    local procedure InitializeLibraryXPathXMLReader(FileName: Text)
+    begin
+        Clear(LibraryXPathXMLReader);
+        LibraryXPathXMLReader.Initialize(FileName, '');
+        LibraryXPathXMLReader.SetDefaultNamespaceUsage(false);
+        LibraryXPathXMLReader.AddAdditionalNamespace('cac', 'urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2');
+        LibraryXPathXMLReader.AddAdditionalNamespace('cbc', 'urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2');
     end;
 
     local procedure RunReport(ReportID: Integer; No: Code[20]);
@@ -1325,6 +1561,12 @@ codeunit 148053 "OIOUBL-ERM Elec Document Sales"
         Customer.Get(CustomerNo);
         Customer."Document Sending Profile" := DocumentSendingProfileCode;
         Customer.Modify();
+    end;
+
+    local procedure SetPricesInclVATOnSalesHeader(var SalesHeader: Record "Sales Header")
+    begin
+        SalesHeader.Validate("Prices Including VAT", true);
+        SalesHeader.Modify(true);
     end;
 
     local procedure SMTPMailSetupInitialize()
@@ -1479,10 +1721,10 @@ codeunit 148053 "OIOUBL-ERM Elec Document Sales"
     begin
         LibraryXMLReadOnServer.Initialize(OIOUBLNewFileMock.PopFilePath());
         LibraryXMLReadOnServer.VerifyNodeValue(IDTxt, DocumentNo);
-        Assert.AreEqual(1, LibraryXMLReadOnServer.GetNodesCount('cbc:AllowanceTotalAmount'), WrongAllowanceTotalAmountErr);
+        LibraryXMLReadOnServer.VerifyElementAbsenceInSubtree('cac:LegalMonetaryTotal', 'cbc:AllowanceTotalAmount');
         Assert.AreEqual(2, LibraryXMLReadOnServer.GetNodesCount('cac:InvoiceLine'), WrongInvoiceLineCountErr);
         LibraryXMLReadOnServer.VerifyNodeValueInSubtree('cac:InvoiceLine', 'cbc:Amount', FORMAT(ExpectedValue, 0, '<Precision,2:3><Sign><Integer><Decimals><Comma,.>'));
-        Assert.AreEqual(2, LibraryXMLReadOnServer.GetNodesCount('cac:AllowanceCharge'), WrongAllowanceChargeErr);
+        Assert.AreEqual(1, LibraryXMLReadOnServer.GetNodesCount('cac:AllowanceCharge'), WrongAllowanceChargeErr);
 
         GeneralLedgerSetup.Get();
         LibraryXMLReadOnServer.VerifyAttributeValueInSubtree('cac:PaymentTerms', 'cbc:Amount', 'currencyID', GeneralLedgerSetup."LCY Code");
@@ -1495,11 +1737,58 @@ codeunit 148053 "OIOUBL-ERM Elec Document Sales"
         LibraryXMLReadOnServer.VerifyAttributeValueInSubtree('cac:LegalMonetaryTotal', 'cbc:LineExtensionAmount', 'currencyID', GeneralLedgerSetup."LCY Code");
         LibraryXMLReadOnServer.VerifyAttributeValueInSubtree('cac:LegalMonetaryTotal', 'cbc:TaxExclusiveAmount', 'currencyID', GeneralLedgerSetup."LCY Code");
         LibraryXMLReadOnServer.VerifyAttributeValueInSubtree('cac:LegalMonetaryTotal', 'cbc:TaxInclusiveAmount', 'currencyID', GeneralLedgerSetup."LCY Code");
-        LibraryXMLReadOnServer.VerifyAttributeValueInSubtree('cac:LegalMonetaryTotal', 'cbc:AllowanceTotalAmount', 'currencyID', GeneralLedgerSetup."LCY Code");
         LibraryXMLReadOnServer.VerifyAttributeValueInSubtree('cac:LegalMonetaryTotal', 'cbc:PayableAmount', 'currencyID', GeneralLedgerSetup."LCY Code");
 
         LibraryXMLReadOnServer.VerifyAttributeValueInSubtree('cac:InvoiceLine', 'cbc:LineExtensionAmount', 'currencyID', GeneralLedgerSetup."LCY Code");
         LibraryXMLReadOnServer.VerifyAttributeValueInSubtree('cac:Price', 'cbc:PriceAmount', 'currencyID', GeneralLedgerSetup."LCY Code")
+    end;
+
+    local procedure VerifyAmountPriceDiscountOnSalesInvoice(SalesInvHeaderNo: Code[20]; LineExtensionAmounts: List of [Decimal]; PriceAmounts: List of [Decimal]; AllowanceChargeAmounts: List of [Decimal]; TotalAllowanceChargeAmount: Decimal)
+    var
+        TotalLineExtensionAmount: Decimal;
+        i: Integer;
+    begin
+        InitializeLibraryXPathXMLReader(OIOUBLNewFileMock.PopFilePath());
+        LibraryXPathXMLReader.VerifyNodeValue(IDTxt, SalesInvHeaderNo);
+
+        for i := 1 to LineExtensionAmounts.Count() do begin
+            LibraryXPathXMLReader.VerifyNodeValueByXPathWithIndex(
+                '//cac:InvoiceLine/cbc:LineExtensionAmount', FormatAmount(LineExtensionAmounts.Get(i)), i - 1);
+            LibraryXPathXMLReader.VerifyNodeValueByXPathWithIndex(
+                '//cac:InvoiceLine/cac:Price/cbc:PriceAmount', FormatAmount(PriceAmounts.Get(i)), i - 1);
+            LibraryXPathXMLReader.VerifyNodeValueByXPathWithIndex(
+                '//cac:InvoiceLine/cac:AllowanceCharge/cbc:Amount', FormatAmount(AllowanceChargeAmounts.Get(i)), i - 1);
+
+            TotalLineExtensionAmount += LineExtensionAmounts.Get(i);
+        end;
+
+        LibraryXPathXMLReader.VerifyNodeValueByXPath(
+            '//cac:LegalMonetaryTotal/cbc:LineExtensionAmount', FormatAmount(TotalLineExtensionAmount));
+        LibraryXPathXMLReader.VerifyNodeValueByXPath(
+            '//cac:AllowanceCharge/cbc:Amount', FormatAmount(TotalAllowanceChargeAmount));
+    end;
+
+    local procedure VerifyAmountPriceDiscountOnSalesCrMemo(SalesCmMemoHeaderNo: Code[20]; LineExtensionAmounts: List of [Decimal]; PriceAmounts: List of [Decimal]; TotalAllowanceChargeAmount: Decimal)
+    var
+        TotalLineExtensionAmount: Decimal;
+        i: Integer;
+    begin
+        InitializeLibraryXPathXMLReader(OIOUBLNewFileMock.PopFilePath());
+        LibraryXPathXMLReader.VerifyNodeValue(IDTxt, SalesCmMemoHeaderNo);
+
+        for i := 1 to LineExtensionAmounts.Count() do begin
+            LibraryXPathXMLReader.VerifyNodeValueByXPathWithIndex(
+                '//cac:CreditNoteLine/cbc:LineExtensionAmount', FormatAmount(LineExtensionAmounts.Get(i)), i - 1);
+            LibraryXPathXMLReader.VerifyNodeValueByXPathWithIndex(
+                '//cac:CreditNoteLine/cac:Price/cbc:PriceAmount', FormatAmount(PriceAmounts.Get(i)), i - 1);
+
+            TotalLineExtensionAmount += LineExtensionAmounts.Get(i);
+        end;
+
+        LibraryXPathXMLReader.VerifyNodeValueByXPath(
+            '//cac:LegalMonetaryTotal/cbc:LineExtensionAmount', FormatAmount(TotalLineExtensionAmount));
+        LibraryXPathXMLReader.VerifyNodeValueByXPath(
+            '//cac:AllowanceCharge/cbc:Amount', FormatAmount(TotalAllowanceChargeAmount));
     end;
 
     [ConfirmHandler]

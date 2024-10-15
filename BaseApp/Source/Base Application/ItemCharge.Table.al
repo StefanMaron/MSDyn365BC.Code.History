@@ -79,6 +79,7 @@ table 5800 "Item Charge"
             ObsoleteState = Removed;
             OptionCaption = 'General Rebate,General Fine,Freight Charge,Duty,Tax';
             OptionMembers = "General Rebate","General Fine","Freight Charge",Duty,Tax;
+            ObsoleteTag = '15.0';
         }
     }
 

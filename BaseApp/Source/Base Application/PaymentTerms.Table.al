@@ -44,6 +44,7 @@ table 3 "Payment Terms"
             Caption = 'Id';
             ObsoleteState = Pending;
             ObsoleteReason = 'This functionality will be replaced by the systemID field';
+            ObsoleteTag = '15.0';
         }
         field(13600; "OIOUBL Code"; Option)
         {
@@ -52,6 +53,7 @@ table 3 "Payment Terms"
             ObsoleteState = Removed;
             OptionCaption = ' ,Contract,Specific';
             OptionMembers = " ",Contract,Specific;
+            ObsoleteTag = '15.0';
         }
     }
 

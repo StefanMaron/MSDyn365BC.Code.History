@@ -8,6 +8,7 @@ report 206 "Sales - Invoice"
     PreviewMode = PrintLayout;
     ObsoleteReason = 'Replaced with report 1306 Standard Sales - Invoice';
     ObsoleteState = Pending;
+    ObsoleteTag = '15.2';
 
     dataset
     {

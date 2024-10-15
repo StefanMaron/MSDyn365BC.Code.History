@@ -451,6 +451,7 @@ table 1226 "Payment Export Data"
             Caption = 'Recipient Giro Acc. No.';
             ObsoleteReason = 'Moved to Payment and Reconciliation Formats (DK) extension to field name: RecipientGiroAccNo';
             ObsoleteState = Removed;
+            ObsoleteTag = '15.0';
         }
     }
 

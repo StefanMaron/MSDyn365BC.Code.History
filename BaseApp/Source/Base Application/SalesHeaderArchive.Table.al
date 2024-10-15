@@ -675,6 +675,7 @@ table 5107 "Sales Header Archive"
             Caption = 'Credit Card No.';
             ObsoleteReason = 'This field is not needed and it is not used anymore.';
             ObsoleteState = Removed;
+            ObsoleteTag = '15.0';
         }
         field(5043; "Interaction Exist"; Boolean)
         {
@@ -845,12 +846,14 @@ table 5107 "Sales Header Archive"
             Caption = 'EAN No.';
             ObsoleteReason = 'Moved to OIOUBL extension, the same table, same field name prefixed with OIOUBL-.';
             ObsoleteState = Removed;
+            ObsoleteTag = '15.0';
         }
         field(13602; "Account Code"; Text[30])
         {
             Caption = 'Account Code';
             ObsoleteReason = 'Moved to OIOUBL extension, the same table, same field name prefixed with OIOUBL-.';
             ObsoleteState = Removed;
+            ObsoleteTag = '15.0';
         }
         field(13605; "Sell-to Contact Phone No."; Text[30])
         {
@@ -858,12 +861,14 @@ table 5107 "Sales Header Archive"
             ExtendedDatatype = PhoneNo;
             ObsoleteReason = 'Moved to OIOUBL extension, the same table, same field name prefixed with OIOUBL-.';
             ObsoleteState = Removed;
+            ObsoleteTag = '15.0';
         }
         field(13606; "Sell-to Contact Fax No."; Text[30])
         {
             Caption = 'Sell-to Contact Fax No.';
             ObsoleteReason = 'Moved to OIOUBL extension, the same table, same field name prefixed with OIOUBL-.';
             ObsoleteState = Removed;
+            ObsoleteTag = '15.0';
         }
         field(13607; "Sell-to Contact E-Mail"; Text[80])
         {
@@ -871,6 +876,7 @@ table 5107 "Sales Header Archive"
             ExtendedDatatype = EMail;
             ObsoleteReason = 'Moved to OIOUBL extension, the same table, same field name prefixed with OIOUBL-.';
             ObsoleteState = Removed;
+            ObsoleteTag = '15.0';
         }
         field(13608; "Sell-to Contact Role"; Option)
         {
@@ -879,6 +885,7 @@ table 5107 "Sales Header Archive"
             ObsoleteState = Removed;
             OptionCaption = ' ,,,Purchase Responsible,,,Accountant,,,Budget Responsible,,,Requisitioner';
             OptionMembers = " ",,,"Purchase Responsible",,,Accountant,,,"Budget Responsible",,,Requisitioner;
+            ObsoleteTag = '15.0';
         }
         field(13620; "Payment Channel"; Option)
         {
@@ -887,6 +894,7 @@ table 5107 "Sales Header Archive"
             ObsoleteState = Removed;
             OptionCaption = ' ,Payment Slip,Account Transfer,National Clearing,Direct Debit';
             OptionMembers = " ","Payment Slip","Account Transfer","National Clearing","Direct Debit";
+            ObsoleteTag = '15.0';
         }
     }
 

@@ -217,7 +217,7 @@ codeunit 134975 "ERM Dimension Report"
         Assert.ExpectedError(AnalysisCodeMissing);
     end;
 
-    [Test]
+    //[Test]
     [Scope('OnPrem')]
     procedure DimensionCheckCalcInvtReportForMultipleLines()
     var

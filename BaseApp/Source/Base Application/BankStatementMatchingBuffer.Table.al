@@ -60,6 +60,7 @@ table 1250 "Bank Statement Matching Buffer"
             DataClassification = SystemMetadata;
             ObsoleteReason = 'Moved to Payment and Reconciliation Formats (DK) extension to field name: DescriptionBankStatment';
             ObsoleteState = Removed;
+            ObsoleteTag = '15.0';
         }
         field(13601; "Match Status"; Option)
         {
@@ -69,6 +70,7 @@ table 1250 "Bank Statement Matching Buffer"
             ObsoleteState = Removed;
             OptionCaption = ' ,NoMatch,Duplicate,IsPaid,Partial,Extra,Fully';
             OptionMembers = " ",NoMatch,Duplicate,IsPaid,Partial,Extra,Fully;
+            ObsoleteTag = '15.0';
         }
     }
 

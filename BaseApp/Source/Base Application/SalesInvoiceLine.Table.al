@@ -504,6 +504,7 @@ table 113 "Sales Invoice Line"
             ObsoleteState = Removed;
             TableRelation = "Product Group".Code WHERE("Item Category Code" = FIELD("Item Category Code"));
             ValidateTableRelation = false;
+            ObsoleteTag = '15.0';
         }
         field(5811; "Appl.-from Item Entry"; Integer)
         {
@@ -535,6 +536,7 @@ table 113 "Sales Invoice Line"
             Caption = 'Account Code';
             ObsoleteReason = 'Moved to OIOUBL extension, the same table, same field name prefixed with OIOUBL-.';
             ObsoleteState = Removed;
+            ObsoleteTag = '15.0';
         }
     }
 

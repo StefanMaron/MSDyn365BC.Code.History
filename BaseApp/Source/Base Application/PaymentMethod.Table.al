@@ -96,12 +96,14 @@ table 289 "Payment Method"
             Caption = 'Bank Data Conversion Pmt. Type';
             ObsoleteState = Removed;
             ObsoleteReason = 'Changed to AMC Banking 365 Fundamentals Extension';
+            ObsoleteTag = '15.0';
         }
         field(10; "Use for Invoicing"; Boolean)
         {
             Caption = 'Use for Invoicing';
             ObsoleteState = Pending;
             ObsoleteReason = 'Microsoft Invoicing is not supported on Business Central';
+            ObsoleteTag = '15.0';
 
             trigger OnValidate()
             var
@@ -122,6 +124,7 @@ table 289 "Payment Method"
             Caption = 'Id';
             ObsoleteState = Pending;
             ObsoleteReason = 'This functionality will be replaced by the systemID field';
+            ObsoleteTag = '15.0';
         }
         field(13600; "Payment Channel"; Option)
         {
@@ -130,6 +133,7 @@ table 289 "Payment Method"
             ObsoleteState = Removed;
             OptionCaption = ' ,Payment Slip,Account Transfer,National Clearing,Direct Debit';
             OptionMembers = " ","Payment Slip","Account Transfer","National Clearing","Direct Debit";
+            ObsoleteTag = '15.0';
         }
         field(13601; "Payment Type Validation"; Option)
         {
@@ -138,6 +142,7 @@ table 289 "Payment Method"
             ObsoleteState = Removed;
             OptionCaption = ' ,FIK 71,FIK 73,FIK 01,FIK 04,Domestic,International';
             OptionMembers = " ","FIK 71","FIK 73","FIK 01","FIK 04",Domestic,International;
+            ObsoleteTag = '15.0';
         }
     }
 

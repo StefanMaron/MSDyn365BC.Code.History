@@ -226,10 +226,13 @@ table 112 "Sales Invoice Header"
             Caption = 'Applies-to Doc. No.';
 
             trigger OnLookup()
+            var
+                CustLedgEntry: Record "Cust. Ledger Entry";
             begin
                 CustLedgEntry.SetCurrentKey("Document No.");
                 CustLedgEntry.SetRange("Document Type", "Applies-to Doc. Type");
                 CustLedgEntry.SetRange("Document No.", "Applies-to Doc. No.");
+                OnLookupAppliesToDocNoOnAfterSetFilters(CustLedgEntry, Rec);
                 PAGE.Run(0, CustLedgEntry);
             end;
         }
@@ -696,6 +699,7 @@ table 112 "Sales Invoice Header"
             Caption = 'Id';
             ObsoleteState = Pending;
             ObsoleteReason = 'This functionality will be replaced by the systemID field';
+            ObsoleteTag = '15.0';
         }
         field(8001; "Draft Invoice SystemId"; Guid)
         {
@@ -707,6 +711,7 @@ table 112 "Sales Invoice Header"
             Caption = 'EAN No.';
             ObsoleteReason = 'Moved to OIOUBL extension, the same table, same field name prefixed with OIOUBL-.';
             ObsoleteState = Removed;
+            ObsoleteTag = '15.0';
         }
         field(13601; "Electronic Invoice Created"; Boolean)
         {
@@ -714,18 +719,21 @@ table 112 "Sales Invoice Header"
             Editable = false;
             ObsoleteReason = 'Moved to OIOUBL extension, the same table, same field name prefixed with OIOUBL-.';
             ObsoleteState = Removed;
+            ObsoleteTag = '15.0';
         }
         field(13602; "Account Code"; Text[30])
         {
             Caption = 'Account Code';
             ObsoleteReason = 'Moved to OIOUBL extension, the same table, same field name prefixed with OIOUBL-.';
             ObsoleteState = Removed;
+            ObsoleteTag = '15.0';
         }
         field(13604; "OIOUBL Profile Code"; Code[10])
         {
             Caption = 'OIOUBL Profile Code';
             ObsoleteReason = 'Moved to OIOUBL extension, the same table, same field name prefixed with OIOUBL-.';
             ObsoleteState = Removed;
+            ObsoleteTag = '15.0';
         }
         field(13605; "Sell-to Contact Phone No."; Text[30])
         {
@@ -733,12 +741,14 @@ table 112 "Sales Invoice Header"
             ExtendedDatatype = PhoneNo;
             ObsoleteReason = 'Moved to OIOUBL extension, the same table, same field name prefixed with OIOUBL-.';
             ObsoleteState = Removed;
+            ObsoleteTag = '15.0';
         }
         field(13606; "Sell-to Contact Fax No."; Text[30])
         {
             Caption = 'Sell-to Contact Fax No.';
             ObsoleteReason = 'Moved to OIOUBL extension, the same table, same field name prefixed with OIOUBL-.';
             ObsoleteState = Removed;
+            ObsoleteTag = '15.0';
         }
         field(13607; "Sell-to Contact E-Mail"; Text[80])
         {
@@ -746,6 +756,7 @@ table 112 "Sales Invoice Header"
             ExtendedDatatype = EMail;
             ObsoleteReason = 'Moved to OIOUBL extension, the same table, same field name prefixed with OIOUBL-.';
             ObsoleteState = Removed;
+            ObsoleteTag = '15.0';
         }
         field(13608; "Sell-to Contact Role"; Option)
         {
@@ -754,6 +765,7 @@ table 112 "Sales Invoice Header"
             ObsoleteState = Removed;
             OptionCaption = ' ,,,Purchase Responsible,,,Accountant,,,Budget Responsible,,,Requisitioner';
             OptionMembers = " ",,,"Purchase Responsible",,,Accountant,,,"Budget Responsible",,,Requisitioner;
+            ObsoleteTag = '15.0';
         }
         field(13620; "Payment Channel"; Option)
         {
@@ -762,6 +774,7 @@ table 112 "Sales Invoice Header"
             ObsoleteState = Removed;
             OptionCaption = ' ,Payment Slip,Account Transfer,National Clearing,Direct Debit';
             OptionMembers = " ","Payment Slip","Account Transfer","National Clearing","Direct Debit";
+            ObsoleteTag = '15.0';
         }
     }
 
@@ -841,7 +854,6 @@ table 112 "Sales Invoice Header"
     var
         SalesCommentLine: Record "Sales Comment Line";
         SalesSetup: Record "Sales & Receivables Setup";
-        CustLedgEntry: Record "Cust. Ledger Entry";
         DimMgt: Codeunit DimensionManagement;
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
         UserSetupMgt: Codeunit "User Setup Management";
@@ -1150,6 +1162,11 @@ table 112 "Sales Invoice Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnGetPaymentReferenceLbl(var PaymentReferenceLbl: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLookupAppliesToDocNoOnAfterSetFilters(var CustLedgEntry: Record "Cust. Ledger Entry"; SalesInvoiceHeader: Record "Sales Invoice Header")
     begin
     end;
 }

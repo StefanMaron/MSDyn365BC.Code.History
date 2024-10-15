@@ -278,6 +278,7 @@ table 274 "Bank Acc. Reconciliation Line"
             Caption = 'Payment Reference';
             ObsoleteReason = 'Moved to Payment and Reconciliation Formats (DK) extension to field name: PaymentReference';
             ObsoleteState = Removed;
+            ObsoleteTag = '15.0';
         }
     }
 

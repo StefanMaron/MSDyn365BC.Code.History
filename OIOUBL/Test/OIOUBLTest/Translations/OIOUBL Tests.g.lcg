@@ -518,15 +518,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit OIOUBL-ERM Elec Document Sales - NamedType WrongInvoiceLineCountErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 4277811839 - NamedType 504803820" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Wrong count of "AllowanceTotalAmount".]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit OIOUBL-ERM Elec Document Sales - NamedType WrongAllowanceTotalAmountErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 4277811839 - NamedType 3702624130" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[cbc:BaseQuantity]]></Val>
@@ -615,15 +606,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit OIOUBL-UT ERM Elec. Doc Sales - NamedType WrongInvoiceLineCountErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3705946935 - NamedType 504803820" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Wrong count of "AllowanceTotalAmount".]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit OIOUBL-UT ERM Elec. Doc Sales - NamedType WrongAllowanceTotalAmountErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3705946935 - NamedType 3702624130" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

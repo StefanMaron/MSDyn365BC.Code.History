@@ -175,6 +175,7 @@ table 5718 "Nonstock Item"
             Caption = 'Product Group Code';
             ObsoleteReason = 'Product Groups became first level children of Item Categories.';
             ObsoleteState = Removed;
+            ObsoleteTag = '15.0';
         }
         field(14; "Last Date Modified"; Date)
         {

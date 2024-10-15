@@ -245,7 +245,7 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         if CustLedgerEntry.FindLast then;
         CustLedgerEntry."Entry No." += 1;
         CustLedgerEntry."Customer No." := Customer."No.";
-        CustLedgerEntry."Posting Date" := Today;
+        CustLedgerEntry."Posting Date" := GetTodayDate();
         CustLedgerEntry."Document No." := '123';
         CustLedgerEntry.Description := 'Test';
         CustLedgerEntry."Currency Code" := EURCode;
@@ -253,7 +253,7 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         if VendorLedgerEntry.FindLast then;
         VendorLedgerEntry."Entry No." += 1;
         VendorLedgerEntry."Vendor No." := Vendor."No.";
-        VendorLedgerEntry."Posting Date" := Today;
+        VendorLedgerEntry."Posting Date" := GetTodayDate();
         VendorLedgerEntry."Document No." := '123';
         VendorLedgerEntry.Description := 'Test';
         VendorLedgerEntry."Currency Code" := EURCode;
@@ -261,7 +261,7 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         if EmployeeLedgerEntry.FindLast then;
         EmployeeLedgerEntry."Entry No." += 1;
         EmployeeLedgerEntry."Employee No." := Employee."No.";
-        EmployeeLedgerEntry."Posting Date" := Today;
+        EmployeeLedgerEntry."Posting Date" := GetTodayDate();
         EmployeeLedgerEntry."Document No." := '123';
         EmployeeLedgerEntry.Description := 'Test';
         EmployeeLedgerEntry."Currency Code" := '';
@@ -270,7 +270,7 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
             if FindLast then;
             CredTrfRegNo := "Credit Transfer Register No.";
             i := "Entry No.";
-            TrfDate := Today;
+            TrfDate := GetTodayDate();
             CreateNew(
               CredTrfRegNo, 0, GenJnlLine."Account Type"::Vendor, VendorLedgerEntry."Vendor No.", VendorLedgerEntry."Entry No.",
               TrfDate, VendorLedgerEntry."Currency Code", 123.45, 'ID123',
@@ -926,7 +926,7 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         Init;
         // Setup.
         CreateGenJnlLine(GenJnlLine);
-        GenJnlLine."Posting Date" := CalcDate('<1D>', Today);
+        GenJnlLine."Posting Date" := CalcDate('<1D>', GetTodayDate());
         GenJnlLine.Modify;
         PaymentJnlExportErrorText.DeleteAll;
 
@@ -950,6 +950,8 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         Init;
         // Setup.
         CreateVendorLedgerEntry(VendLedgerEntry, -2);
+        VendLedgerEntry."Posting Date" := CalcDate('<-1D>', Today());
+        VendLedgerEntry.Modify();
         CreateGenJnlLine(GenJnlLine);
         GenJnlLine."Posting Date" := CalcDate('<-1D>', Today);
         GenJnlLine.Validate("Applies-to Doc. Type", GenJnlLine."Applies-to Doc. Type"::Invoice);
@@ -978,7 +980,7 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         // Setup.
         CreateVendorLedgerEntry(VendLedgerEntry, -2);
         CreateGenJnlLine(GenJnlLine);
-        GenJnlLine."Posting Date" := CalcDate('<1D>', Today);
+        GenJnlLine."Posting Date" := CalcDate('<1D>', GetTodayDate());
         GenJnlLine.Validate("Applies-to Doc. Type", GenJnlLine."Applies-to Doc. Type"::Invoice);
         GenJnlLine.Validate("Applies-to Doc. No.", VendLedgerEntry."Document No.");
         GenJnlLine.Modify;
@@ -1002,7 +1004,7 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         // Setup.
         CreateVendorLedgerEntry(VendorLedgerEntry, 0);
         CreateGenJnlLine(GenJnlLine);
-        GenJnlLine."Posting Date" := Today;
+        GenJnlLine."Posting Date" := GetTodayDate();
         GenJnlLine.Validate("Applies-to Doc. Type", GenJnlLine."Applies-to Doc. Type"::Invoice);
         GenJnlLine.Validate("Applies-to Doc. No.", VendorLedgerEntry."Document No.");
         GenJnlLine.Modify;
@@ -1384,7 +1386,7 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
         LibraryERM.CreateBankAccount(BankAccount);
         if EURCode = GetEURCurrencyCode then
-            LibraryERM.CreateExchangeRate(EURCode, CalcDate('<-1Y>', Today), LibraryRandom.RandDec(100, 2),
+            LibraryERM.CreateExchangeRate(EURCode, CalcDate('<-1Y>', GetTodayDate()), LibraryRandom.RandDec(100, 2),
               LibraryRandom.RandDec(100, 2));
 
         Vendor.Init;
@@ -1539,8 +1541,8 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         VendLedgerEntry.SetRange("Vendor No.", Vendor."No.");
         VendLedgerEntry.SetRange("Document Type", VendLedgerEntry."Document Type"::Invoice);
         VendLedgerEntry.FindLast;
-        VendLedgerEntry.Validate("Posting Date", CalcDate('<-30D>', Today));
-        VendLedgerEntry.Validate("Due Date", CalcDate('<' + Format(DateOffset) + 'D>', Today));
+        VendLedgerEntry.Validate("Posting Date", CalcDate('<-30D>', GetTodayDate()));
+        VendLedgerEntry.Validate("Due Date", CalcDate('<' + Format(DateOffset) + 'D>', GetTodayDate()));
         VendLedgerEntry.Modify;
     end;
 
@@ -1576,6 +1578,11 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
     local procedure GetEURCurrencyCode(): Code[10]
     begin
         exit('EUR');
+    end;
+
+    local procedure GetTodayDate(): Date
+    begin
+        exit(WorkDate());
     end;
 
     local procedure UpdateAppliesToIDOnVendorLedgerEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; NewAppliesToID: Code[50])

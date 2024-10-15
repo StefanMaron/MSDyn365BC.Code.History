@@ -217,10 +217,13 @@ table 114 "Sales Cr.Memo Header"
             Caption = 'Applies-to Doc. No.';
 
             trigger OnLookup()
+            var
+                CustLedgEntry: Record "Cust. Ledger Entry";
             begin
                 CustLedgEntry.SetCurrentKey("Document No.");
                 CustLedgEntry.SetRange("Document Type", "Applies-to Doc. Type");
                 CustLedgEntry.SetRange("Document No.", "Applies-to Doc. No.");
+                OnLookupAppliesToDocNoOnAfterSetFilters(CustLedgEntry, Rec);
                 PAGE.Run(0, CustLedgEntry);
             end;
         }
@@ -601,6 +604,7 @@ table 114 "Sales Cr.Memo Header"
             Caption = 'Id';
             ObsoleteState = Pending;
             ObsoleteReason = 'This functionality will be replaced by the systemID field';
+            ObsoleteTag = '15.0';
         }
         field(8001; "Draft Cr. Memo SystemId"; Guid)
         {
@@ -612,6 +616,7 @@ table 114 "Sales Cr.Memo Header"
             Caption = 'EAN No.';
             ObsoleteReason = 'Moved to OIOUBL extension, the same table, same field name prefixed with OIOUBL-.';
             ObsoleteState = Removed;
+            ObsoleteTag = '15.0';
         }
         field(13601; "Electronic Credit Memo Created"; Boolean)
         {
@@ -619,18 +624,21 @@ table 114 "Sales Cr.Memo Header"
             Editable = false;
             ObsoleteReason = 'Moved to OIOUBL extension, the same table, same field name prefixed with OIOUBL-.';
             ObsoleteState = Removed;
+            ObsoleteTag = '15.0';
         }
         field(13602; "Account Code"; Text[30])
         {
             Caption = 'Account Code';
             ObsoleteReason = 'Moved to OIOUBL extension, the same table, same field name prefixed with OIOUBL-.';
             ObsoleteState = Removed;
+            ObsoleteTag = '15.0';
         }
         field(13604; "OIOUBL Profile Code"; Code[10])
         {
             Caption = 'OIOUBL Profile Code';
             ObsoleteReason = 'Moved to OIOUBL extension, the same table, same field name prefixed with OIOUBL-.';
             ObsoleteState = Removed;
+            ObsoleteTag = '15.0';
         }
         field(13605; "Sell-to Contact Phone No."; Text[30])
         {
@@ -638,12 +646,14 @@ table 114 "Sales Cr.Memo Header"
             ExtendedDatatype = PhoneNo;
             ObsoleteReason = 'Moved to OIOUBL extension, the same table, same field name prefixed with OIOUBL-.';
             ObsoleteState = Removed;
+            ObsoleteTag = '15.0';
         }
         field(13606; "Sell-to Contact Fax No."; Text[30])
         {
             Caption = 'Sell-to Contact Fax No.';
             ObsoleteReason = 'Moved to OIOUBL extension, the same table, same field name prefixed with OIOUBL-.';
             ObsoleteState = Removed;
+            ObsoleteTag = '15.0';
         }
         field(13607; "Sell-to Contact E-Mail"; Text[80])
         {
@@ -651,6 +661,7 @@ table 114 "Sales Cr.Memo Header"
             ExtendedDatatype = EMail;
             ObsoleteReason = 'Moved to OIOUBL extension, the same table, same field name prefixed with OIOUBL-.';
             ObsoleteState = Removed;
+            ObsoleteTag = '15.0';
         }
         field(13608; "Sell-to Contact Role"; Option)
         {
@@ -659,6 +670,7 @@ table 114 "Sales Cr.Memo Header"
             ObsoleteState = Removed;
             OptionCaption = ' ,,,Purchase Responsible,,,Accountant,,,Budget Responsible,,,Requisitioner';
             OptionMembers = " ",,,"Purchase Responsible",,,Accountant,,,"Budget Responsible",,,Requisitioner;
+            ObsoleteTag = '15.0';
         }
     }
 
@@ -726,7 +738,6 @@ table 114 "Sales Cr.Memo Header"
 
     var
         SalesCommentLine: Record "Sales Comment Line";
-        CustLedgEntry: Record "Cust. Ledger Entry";
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
         DimMgt: Codeunit DimensionManagement;
         UserSetupMgt: Codeunit "User Setup Management";
@@ -948,6 +959,11 @@ table 114 "Sales Cr.Memo Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSendRecords(var ReportSelections: Record "Report Selections"; var SalesCrMemoHeader: Record "Sales Cr.Memo Header"; DocTxt: Text; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLookupAppliesToDocNoOnAfterSetFilters(var CustLedgEntry: Record "Cust. Ledger Entry"; SalesCrMemoHeader: Record "Sales Cr.Memo Header")
     begin
     end;
 }

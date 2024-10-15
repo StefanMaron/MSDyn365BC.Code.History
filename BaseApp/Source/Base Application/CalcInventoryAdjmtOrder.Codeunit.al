@@ -38,9 +38,9 @@ codeunit 5896 "Calc. Inventory Adjmt. - Order"
         InvtAdjmtEntryOrder.CalcOvhdCost(OutputQty);
         InvtAdjmtEntryOrder.RoundCosts(1);
 
-        InvtAdjmtEntryOrder.CalcDirectCostFromCostShares;
-        InvtAdjmtEntryOrder.CalcIndirectCostFromCostShares;
-        InvtAdjmtEntryOrder.CalcUnitCost;
+        InvtAdjmtEntryOrder.CalcDirectCostFromCostShares();
+        InvtAdjmtEntryOrder.CalcIndirectCostFromCostShares();
+        InvtAdjmtEntryOrder.CalcUnitCost();
     end;
 
     local procedure CalcActualVariances(SourceInvtAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)"; OutputQty: Decimal; var VarianceInvtAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)")
@@ -132,9 +132,9 @@ codeunit 5896 "Calc. Inventory Adjmt. - Order"
                             NewActInvtAdjmtEntryOrder.RoundCosts(-1);
 
                             UpdateOutputAdjmtBuf(TempItemLedgEntry, NewActInvtAdjmtEntryOrder, InvtAdjmtBuf);
-                            Delete;
+                            Delete();
                         end;
-                    until Next = 0;
+                    until Next() = 0;
                 end;
     end;
 
@@ -184,9 +184,9 @@ codeunit 5896 "Calc. Inventory Adjmt. - Order"
             InvtAdjmtEntryOrder.GetCostsFromItem(OutputQty)
         else begin
             InvtAdjmtEntryOrder.RoundCosts(OutputQty);
-            InvtAdjmtEntryOrder.CalcDirectCostFromCostShares;
-            InvtAdjmtEntryOrder.CalcIndirectCostFromCostShares;
-            InvtAdjmtEntryOrder.CalcUnitCost;
+            InvtAdjmtEntryOrder.CalcDirectCostFromCostShares();
+            InvtAdjmtEntryOrder.CalcIndirectCostFromCostShares();
+            InvtAdjmtEntryOrder.CalcUnitCost();
         end;
     end;
 
@@ -217,7 +217,7 @@ codeunit 5896 "Calc. Inventory Adjmt. - Order"
                                     InvtAdjmtEntryOrder.AddSingleLvlSubcontrdCost("Cost Amount (Actual)", "Cost Amount (Actual) (ACY)");
                             end;
                     end;
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -241,6 +241,7 @@ codeunit 5896 "Calc. Inventory Adjmt. - Order"
               "Entry Type"::"Assembly Consumption");
             if InvtAdjmtEntryOrder."Order Type" = InvtAdjmtEntryOrder."Order Type"::Production then
                 SetRange("Order Line No.", InvtAdjmtEntryOrder."Order Line No.");
+            OnCalcActualMaterialCostsOnAfterSetFilters(ItemLedgEntry, InvtAdjmtEntryOrder);
             if Find('-') then
                 repeat
                     ValueEntry.SetCurrentKey("Item Ledger Entry No.", "Entry Type");
@@ -255,7 +256,7 @@ codeunit 5896 "Calc. Inventory Adjmt. - Order"
                       -ValueEntry."Cost Amount (Non-Invtbl.)(ACY)");
                     if Positive then
                         AdjustForRevNegCon(InvtAdjmtEntryOrder, "Entry No.");
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -267,10 +268,10 @@ codeunit 5896 "Calc. Inventory Adjmt. - Order"
             SetCurrentKey("Item Ledger Entry No.", "Entry Type");
             SetRange("Item Ledger Entry No.", ItemLedgEntryNo);
             SetRange("Entry Type", "Entry Type"::Revaluation);
-            if FindSet then
+            if FindSet() then
                 repeat
                     InvtAdjmtEntryOrder.AddSingleLvlMaterialCost("Cost Amount (Actual)", "Cost Amount (Actual) (ACY)");
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -294,6 +295,7 @@ codeunit 5896 "Calc. Inventory Adjmt. - Order"
             SetRange("Routing No.", InvtAdjmtEntryOrder."Routing No.");
             SetRange("Routing Reference No.", InvtAdjmtEntryOrder."Routing Reference No.");
             SetRange("Item No.", InvtAdjmtEntryOrder."Item No.");
+            OnCalcActualCapacityCostsOnAfterSetFilters(CapLedgEntry, InvtAdjmtEntryOrder);
             if Find('-') then
                 repeat
                     CalcFields("Direct Cost", "Direct Cost (ACY)", "Overhead Cost", "Overhead Cost (ACY)");
@@ -305,7 +307,7 @@ codeunit 5896 "Calc. Inventory Adjmt. - Order"
                           "Direct Cost" * ShareOfTotalCapCost, "Direct Cost (ACY)" * ShareOfTotalCapCost);
                     InvtAdjmtEntryOrder.AddSingleLvlCapOvhdCost(
                       "Overhead Cost" * ShareOfTotalCapCost, "Overhead Cost (ACY)" * ShareOfTotalCapCost);
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -327,7 +329,7 @@ codeunit 5896 "Calc. Inventory Adjmt. - Order"
                     OutputQty += Quantity;
                     if OnlyInbounds and not Positive then
                         OutputQty -= Quantity;
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -362,13 +364,13 @@ codeunit 5896 "Calc. Inventory Adjmt. - Order"
     local procedure CopyILEToILE(var FromItemLedgEntry: Record "Item Ledger Entry"; var ToItemLedgEntry: Record "Item Ledger Entry")
     begin
         with ToItemLedgEntry do begin
-            Reset;
-            DeleteAll;
-            if FromItemLedgEntry.FindSet then
+            Reset();
+            DeleteAll();
+            if FromItemLedgEntry.FindSet() then
                 repeat
                     ToItemLedgEntry := FromItemLedgEntry;
-                    Insert;
-                until FromItemLedgEntry.Next = 0;
+                    Insert();
+                until FromItemLedgEntry.Next() = 0;
         end;
     end;
 
@@ -401,12 +403,12 @@ codeunit 5896 "Calc. Inventory Adjmt. - Order"
             SetRange("Order Line No.", ItemLedgEntry."Order Line No.");
             SetRange("Entry Type", ItemLedgEntry."Entry Type");
             SetRange(Positive, false);
-            if FindSet then
+            if FindSet() then
                 repeat
                     OutbndItemLedgEntry.Get("Entry No.");
                     if OutbndItemLedgEntry."Applies-to Entry" <> 0 then
                         Qty += OutbndItemLedgEntry.Quantity;
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -422,6 +424,16 @@ codeunit 5896 "Calc. Inventory Adjmt. - Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcActualMaterialCosts(var InventoryAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcActualCapacityCostsOnAfterSetFilters(var CapLedgEntry: Record "Capacity Ledger Entry"; var InventoryAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcActualMaterialCostsOnAfterSetFilters(var ItemLedgEntry: Record "Item Ledger Entry"; var InventoryAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)")
     begin
     end;
 

@@ -636,7 +636,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         VendorLedgerEntry.CalcFields("Original Amount");
 
         // Save and Verify Vendor Balance to Date Report.
-        SaveVendorBalanceToDate(PurchaseHeader, false, false);
+        SaveVendorBalanceToDate(PurchaseHeader, false, false, false);
         VerifyVendorBalanceToDate(PurchaseHeader."Buy-from Vendor No.", DocumentNo);
         with VendorLedgerEntry do
             LibraryReportDataset.AssertElementWithValueExists('OriginalAmt', "Original Amount");
@@ -662,7 +662,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         VendorLedgerEntry.CalcFields("Original Amount");
 
         // Save and Verify Report Vendor Balance to Date.
-        SaveVendorBalanceToDate(PurchaseHeader, false, false);
+        SaveVendorBalanceToDate(PurchaseHeader, false, false, false);
         VerifyVendorBalanceToDate(PurchaseHeader."Buy-from Vendor No.", DocumentNo);
         LibraryReportDataset.AssertElementWithValueExists('CurrTotalBufferCurrCode', PurchaseHeader."Currency Code");
         with VendorLedgerEntry do
@@ -689,7 +689,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         VendorLedgerEntry.CalcFields("Original Amt. (LCY)");
 
         // Save and Verify Report Vendor Balance to Date.
-        SaveVendorBalanceToDate(PurchaseHeader, true, false);
+        SaveVendorBalanceToDate(PurchaseHeader, true, false, false);
         VerifyVendorBalanceToDate(PurchaseHeader."Buy-from Vendor No.", DocumentNo);
         with VendorLedgerEntry do
             LibraryReportDataset.AssertElementWithValueExists('OriginalAmt', "Original Amt. (LCY)");
@@ -718,7 +718,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         ApplyPaymentFromGenJournalLine(GenJournalLine, PurchaseHeader."Buy-from Vendor No.", LineAmount / 2, DocumentNo);
 
         // Save and Verify Report Vendor Balance to Date.
-        SaveVendorBalanceToDate(PurchaseHeader, false, true);
+        SaveVendorBalanceToDate(PurchaseHeader, false, true, false);
         VerifyVendorBalanceToDate(PurchaseHeader."Buy-from Vendor No.", DocumentNo);
         with GenJournalLine do begin
             LibraryReportDataset.AssertElementWithValueExists('DocType_DtldVendLedEnt', Format("Document Type"));
@@ -1725,6 +1725,186 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.AssertElementWithValueExists('DocNo_DtldVendLedgEntry', GenJnlLine."External Document No.");
     end;
+    
+    [Test]
+    [HandlerFunctions('ReportHandlerVendorBalanceToDate')]
+    [Scope('OnPrem')]
+    procedure VendorBalanceToDateMultipleCurrenciesWithTheSameAmount()
+    var
+        PurchaseHeaderCrMemo: Record "Purchase Header";
+        PurchaseHeaderInvoice: Record "Purchase Header";
+        VendorLedgerEntryInvoice: Record "Vendor Ledger Entry";
+        VendorLedgerEntryCrMemo: Record "Vendor Ledger Entry";
+        InvoiceDocumentNo: Code[20];
+        CrMemoDocumentNo: Code[20];
+        Amount: Decimal;
+        ItemsCount: Integer;
+    begin
+        // [SCENARIO 341358] Check Vendor Balance To Date with two lines with the same Amount in different Currency
+
+        Initialize;
+        ItemsCount := LibraryRandom.RandInt(10);
+        Amount := LibraryRandom.RandDecInRange(100, 1000, 2);
+
+        // [GIVEN] Created Purchase Credit Memo with Currency for Vendor
+        CreatePurchaseDocumentWithAmount(
+          PurchaseHeaderCrMemo,
+          PurchaseHeaderCrMemo."Document Type"::"Credit Memo",
+          CreateCurrencyAndExchangeRate,
+          CreateItem,
+          LibraryPurchase.CreateVendorNo,
+          Amount,
+          ItemsCount);
+        CrMemoDocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeaderCrMemo, true, true);
+
+        // [GIVEN] Created Purchase Invoice for Vendor
+        CreatePurchaseDocumentWithAmount(
+          PurchaseHeaderInvoice,
+          PurchaseHeaderInvoice."Document Type"::Invoice,
+          '',
+          CreateItem,
+          PurchaseHeaderCrMemo."Buy-from Vendor No.",
+          Amount,
+          ItemsCount);
+        InvoiceDocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeaderInvoice, true, true);
+
+        // [GIVEN] Found Vendor Ledger Entries for created Documents
+        LibraryERM.FindVendorLedgerEntry(VendorLedgerEntryInvoice, VendorLedgerEntryInvoice."Document Type"::Invoice, InvoiceDocumentNo);
+        LibraryERM.FindVendorLedgerEntry(
+          VendorLedgerEntryCrMemo, VendorLedgerEntryCrMemo."Document Type"::"Credit Memo", CrMemoDocumentNo);
+        VendorLedgerEntryCrMemo.CalcFields("Original Amount");
+        VendorLedgerEntryInvoice.CalcFields("Original Amount");
+
+        // [WHEN]  Save Report "Vendor Balance to Date".
+        SaveVendorBalanceToDate(PurchaseHeaderCrMemo, false, false, false);
+
+        // [THEN] Report was created
+        LibraryReportDataset.LoadDataSetFile;
+
+        // [THEN] Original Amount was filled correctly
+        LibraryReportDataset.AssertElementWithValueExists('OriginalAmt', VendorLedgerEntryCrMemo."Original Amount");
+        LibraryReportDataset.AssertElementWithValueExists('OriginalAmt', VendorLedgerEntryInvoice."Original Amount");
+    end;
+
+    [Test]
+    [HandlerFunctions('ReportHandlerVendorBalanceToDate')]
+    [Scope('OnPrem')]
+    procedure VendorBalanceToDateMultipleCurrenciesWithTheSameAmountWithShowEntriesWithZeroBalance()
+    var
+        PurchaseHeaderCrMemo: Record "Purchase Header";
+        PurchaseHeaderInvoice: Record "Purchase Header";
+        VendorLedgerEntryInvoice: Record "Vendor Ledger Entry";
+        VendorLedgerEntryCrMemo: Record "Vendor Ledger Entry";
+        InvoiceDocumentNo: Code[20];
+        CrMemoDocumentNo: Code[20];
+        Amount: Decimal;
+        ItemsCount: Integer;
+    begin
+        // [SCENARIO 341358] Check Vendor Balance To Date with two lines with the same Amount in different Currency
+
+        Initialize;
+        ItemsCount := LibraryRandom.RandInt(10);
+        Amount := LibraryRandom.RandDecInRange(100, 1000, 2);
+
+        // [GIVEN] Created Purchase Credit Memo with Currency for Vendor
+        CreatePurchaseDocumentWithAmount(
+          PurchaseHeaderCrMemo,
+          PurchaseHeaderCrMemo."Document Type"::"Credit Memo",
+          CreateCurrencyAndExchangeRate,
+          CreateItem,
+          LibraryPurchase.CreateVendorNo,
+          Amount,
+          ItemsCount);
+        CrMemoDocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeaderCrMemo, true, true);
+
+        // [GIVEN] Created Purchase Invoice for Vendor
+        CreatePurchaseDocumentWithAmount(
+          PurchaseHeaderInvoice,
+          PurchaseHeaderInvoice."Document Type"::Invoice,
+          '',
+          CreateItem,
+          PurchaseHeaderCrMemo."Buy-from Vendor No.",
+          Amount,
+          ItemsCount);
+        InvoiceDocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeaderInvoice, true, true);
+
+        // [GIVEN] Found Vendor Ledger Entries for created Documents
+        LibraryERM.FindVendorLedgerEntry(VendorLedgerEntryInvoice, VendorLedgerEntryInvoice."Document Type"::Invoice, InvoiceDocumentNo);
+        LibraryERM.FindVendorLedgerEntry(
+          VendorLedgerEntryCrMemo, VendorLedgerEntryCrMemo."Document Type"::"Credit Memo", CrMemoDocumentNo);
+        VendorLedgerEntryCrMemo.CalcFields("Original Amount");
+        VendorLedgerEntryInvoice.CalcFields("Original Amount");
+
+        // [WHEN]  Run Report "Vendor Balance to Date" with Show Entries with Zero Balance = 'No'
+        SaveVendorBalanceToDate(PurchaseHeaderCrMemo, false, false, true);
+
+        // [THEN] Report was created
+        LibraryReportDataset.LoadDataSetFile;
+
+        // [THEN] Original Amount was filled correctly
+        LibraryReportDataset.AssertElementWithValueExists('OriginalAmt', VendorLedgerEntryCrMemo."Original Amount");
+        LibraryReportDataset.AssertElementWithValueExists('OriginalAmt', VendorLedgerEntryInvoice."Original Amount");
+    end;
+
+    [Test]
+    [HandlerFunctions('ReportHandlerVendorBalanceToDate')]
+    [Scope('OnPrem')]
+    procedure VendorBalanceToDateWithTheSameAmountSkipReport()
+    var
+        PurchaseHeaderCrMemo: Record "Purchase Header";
+        PurchaseHeaderInvoice: Record "Purchase Header";
+        VendorLedgerEntryInvoice: Record "Vendor Ledger Entry";
+        VendorLedgerEntryCrMemo: Record "Vendor Ledger Entry";
+        InvoiceDocumentNo: Code[20];
+        CrMemoDocumentNo: Code[20];
+        Amount: Decimal;
+        ItemsCount: Integer;
+    begin
+        // [SCENARIO 341358] Check Vendor Balance To Date with two lines skip with the same Amount
+
+        Initialize;
+        ItemsCount := LibraryRandom.RandInt(10);
+        Amount := LibraryRandom.RandDecInRange(100, 1000, 2);
+
+        // [GIVEN] Created Purchase Credit Memo for Vendor
+        CreatePurchaseDocumentWithAmount(
+          PurchaseHeaderCrMemo,
+          PurchaseHeaderCrMemo."Document Type"::"Credit Memo",
+          '',
+          CreateItem,
+          LibraryPurchase.CreateVendorNo,
+          Amount,
+          ItemsCount);
+        CrMemoDocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeaderCrMemo, true, true);
+
+        // [GIVEN] Created Purchase Invoice for Vendor
+        CreatePurchaseDocumentWithAmount(
+          PurchaseHeaderInvoice,
+          PurchaseHeaderInvoice."Document Type"::Invoice,
+          '',
+          CreateItem,
+          PurchaseHeaderCrMemo."Buy-from Vendor No.",
+          Amount,
+          ItemsCount);
+        InvoiceDocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeaderInvoice, true, true);
+
+        // [GIVEN] Found Vendor Ledger Entries for created Documents
+        LibraryERM.FindVendorLedgerEntry(VendorLedgerEntryInvoice, VendorLedgerEntryInvoice."Document Type"::Invoice, InvoiceDocumentNo);
+        LibraryERM.FindVendorLedgerEntry(
+          VendorLedgerEntryCrMemo, VendorLedgerEntryCrMemo."Document Type"::"Credit Memo", CrMemoDocumentNo);
+        VendorLedgerEntryCrMemo.CalcFields("Original Amount");
+        VendorLedgerEntryInvoice.CalcFields("Original Amount");
+
+        // [WHEN]  Save Report "Vendor Balance to Date".
+        SaveVendorBalanceToDate(PurchaseHeaderCrMemo, false, false, false);
+
+        // [THEN] Report was created
+        LibraryReportDataset.LoadDataSetFile;
+
+        // [THEN] Documents are not exported
+        LibraryReportDataset.AssertElementTagWithValueNotExist('DocNo_VendLedgEntry', VendorLedgerEntryCrMemo."Document No.");
+        LibraryReportDataset.AssertElementTagWithValueNotExist('DocNo_VendLedgEntry', VendorLedgerEntryInvoice."Document No.");
+    end;
 
     local procedure Initialize()
     var
@@ -2008,6 +2188,17 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDecInRange(1000, 2000, 2));
         PurchaseLine.Modify(true);
         exit(PurchaseLine."Line Amount");
+    end;
+
+    local procedure CreatePurchaseDocumentWithAmount(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; CurrencyCode: Code[10]; ItemNo: Code[20]; VendorNo: Code[20]; DirectUnitCost: Decimal; ItemQuantity: Integer)
+    var
+        PurchaseLine: Record "Purchase Line";
+    begin
+        CreatePurchaseDocument(PurchaseHeader, DocumentType, CurrencyCode, ItemNo, VendorNo);
+        FindPurchaseLine(PurchaseLine, DocumentType, PurchaseHeader."No.");
+        PurchaseLine.Validate(Quantity, ItemQuantity);
+        PurchaseLine.Validate("Direct Unit Cost", DirectUnitCost);
+        PurchaseLine.Modify(true);
     end;
 
     local procedure CreatePurchaseOrderWithTwoLines(var VendorNo: Code[20]; var ExpectedAmount: Decimal)
@@ -2449,13 +2640,14 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         VendorSummaryAging.Run;
     end;
 
-    local procedure SaveVendorBalanceToDate(PurchaseHeader: Record "Purchase Header"; AmountLCY: Boolean; Unapplied: Boolean)
+    local procedure SaveVendorBalanceToDate(PurchaseHeader: Record "Purchase Header"; AmountLCY: Boolean; Unapplied: Boolean; ShowEntriesWithZeroBalance: Boolean)
     var
         Vendor: Record Vendor;
         VendorBalanceToDate: Report "Vendor - Balance to Date";
     begin
         LibraryVariableStorage.Enqueue(AmountLCY);
         LibraryVariableStorage.Enqueue(Unapplied);
+        LibraryVariableStorage.Enqueue(ShowEntriesWithZeroBalance);
 
         // Exercise.
         Commit; // Required to run report with request page.
@@ -2937,6 +3129,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         LibraryVariableStorage.Dequeue(Unapplied);
         VendorBalanceToDate.ShowAmountsInLCY.SetValue(AmountLCY);
         VendorBalanceToDate.PrintUnappliedEntries.SetValue(Unapplied);
+        VendorBalanceToDate.ShowEntriesWithZeroBalance.SetValue(LibraryVariableStorage.DequeueBoolean);
         VendorBalanceToDate.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 

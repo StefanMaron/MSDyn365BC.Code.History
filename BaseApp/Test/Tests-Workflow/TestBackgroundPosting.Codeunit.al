@@ -416,7 +416,7 @@ codeunit 139027 "Test Background Posting"
     [Test]
     [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
-    procedure PostPuchOrderNotificationNegativeTest()
+    procedure PostPurchOrderNotificationNegativeTest()
     var
         PurchHeader: Record "Purchase Header";
         PurchSetup: Record "Purchases & Payables Setup";

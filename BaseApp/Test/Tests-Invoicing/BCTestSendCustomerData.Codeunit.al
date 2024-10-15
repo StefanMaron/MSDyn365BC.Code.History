@@ -13,6 +13,7 @@ codeunit 138963 "BC Test Send Customer Data"
         LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
         LibrarySales: Codeunit "Library - Sales";
         LibraryInventory: Codeunit "Library - Inventory";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         CustomerInformationTxt: Label 'Account Information';
         SentInvoicesTxt: Label 'Sent Invoices';
         DraftInvoicesTxt: Label 'Draft Invoices';
@@ -32,6 +33,7 @@ codeunit 138963 "BC Test Send Customer Data"
         BCO365SalesCustomerCard: TestPage "BC O365 Sales Customer Card";
     begin
         // [SCENARIO] User can send an email with an excel book to the customer
+        Initialize();
         BindSubscription(BCTestSendCustomerData);
         CreateCustomerData(Customer);
         CompanyInformation.Get;
@@ -62,6 +64,7 @@ codeunit 138963 "BC Test Send Customer Data"
         BCO365SalesCustomerCard: TestPage "BC O365 Sales Customer Card";
     begin
         // [SCENARIO] User can send an email with an excel book to the customer
+        Initialize();
         BindSubscription(BCTestSendCustomerData);
         CreateCustomer(Customer);
         CompanyInformation.Get;
@@ -92,6 +95,7 @@ codeunit 138963 "BC Test Send Customer Data"
         ServerFileName: Text;
     begin
         // [SCENARIO] User can send an email with an excel book to the customer
+        Initialize();
         BindSubscription(BCTestSendCustomerData);
         CreateCustomerData(Customer);
         LibraryLowerPermissions.SetInvoiceApp;
@@ -169,6 +173,7 @@ codeunit 138963 "BC Test Send Customer Data"
         ServerFileName: Text;
     begin
         // [SCENARIO] User can send an email with an excel book to the customer. Company sensitive data is excluded.
+        Initialize();
         BindSubscription(BCTestSendCustomerData);
         CreateCustomerData(Customer);
         // Mark Customer."Responsibility Center" as company sensitive so it isn't exported
@@ -193,6 +198,11 @@ codeunit 138963 "BC Test Send Customer Data"
         Assert.IsTrue(TempExcelBuffer.IsEmpty, '"Responsibility Center" was not expected');
 
         UnbindSubscription(BCTestSendCustomerData);
+    end;
+
+    local procedure Initialize()
+    begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"BC Test Send Customer Data");
     end;
 
     local procedure CreateCustomer(var Customer: Record Customer)

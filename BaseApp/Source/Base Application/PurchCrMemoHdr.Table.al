@@ -205,10 +205,13 @@ table 124 "Purch. Cr. Memo Hdr."
             Caption = 'Applies-to Doc. No.';
 
             trigger OnLookup()
+            var
+                VendLedgEntry: Record "Vendor Ledger Entry";
             begin
                 VendLedgEntry.SetCurrentKey("Document No.");
                 VendLedgEntry.SetRange("Document Type", "Applies-to Doc. Type");
                 VendLedgEntry.SetRange("Document No.", "Applies-to Doc. No.");
+                OnLookupAppliesToDocNoOnAfterSetFilters(VendLedgEntry, Rec);
                 PAGE.Run(0, VendLedgEntry);
             end;
         }
@@ -608,7 +611,6 @@ table 124 "Purch. Cr. Memo Hdr."
     var
         PurchCrMemoHeader: Record "Purch. Cr. Memo Hdr.";
         PurchCommentLine: Record "Purch. Comment Line";
-        VendLedgEntry: Record "Vendor Ledger Entry";
         DimMgt: Codeunit DimensionManagement;
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
         UserSetupMgt: Codeunit "User Setup Management";
@@ -693,6 +695,11 @@ table 124 "Purch. Cr. Memo Hdr."
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePrintRecords(var PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr."; ShowRequestPage: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLookupAppliesToDocNoOnAfterSetFilters(var VendLedgEntry: Record "Vendor Ledger Entry"; PurchCrMemoHeader: Record "Purch. Cr. Memo Hdr.")
     begin
     end;
 }

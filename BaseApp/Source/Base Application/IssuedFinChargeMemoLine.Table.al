@@ -168,6 +168,7 @@ table 305 "Issued Fin. Charge Memo Line"
             Caption = 'Account Code';
             ObsoleteReason = 'Moved to OIOUBL extension, the same table, same field name prefixed with OIOUBL-.';
             ObsoleteState = Removed;
+            ObsoleteTag = '15.0';
         }
     }
 

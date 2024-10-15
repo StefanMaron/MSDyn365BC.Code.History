@@ -97,12 +97,14 @@ table 9 "Country/Region"
             Caption = 'Id';
             ObsoleteState = Pending;
             ObsoleteReason = 'This functionality will be replaced by the systemID field';
+            ObsoleteTag = '15.0';
         }
         field(13600; "OIOUBL Country/Region Code"; Code[10])
         {
             Caption = 'OIOUBL Country/Region Code';
             ObsoleteReason = 'Moved to OIOUBL extension, the same table, same field name prefixed with OIOUBL-.';
             ObsoleteState = Removed;
+            ObsoleteTag = '15.0';
         }
     }
 

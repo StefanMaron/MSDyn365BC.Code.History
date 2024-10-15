@@ -18,6 +18,8 @@ report 5914 "Delete Invoiced Service Orders"
             var
                 ApprovalsMgmt: Codeunit "Approvals Mgmt.";
             begin
+                OnBeforeServiceHeaderOnAfterGetRecord("Service Header");
+
                 Window.Update(1, "No.");
 
                 ItemChargeAssgntService.Reset;
@@ -139,6 +141,11 @@ report 5914 "Delete Invoiced Service Orders"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeDeleteServiceOrderItemLine(ServiceItemLine: Record "Service Item Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeServiceHeaderOnAfterGetRecord(var ServiceHeader: Record "Service Header")
     begin
     end;
 }

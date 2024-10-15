@@ -278,6 +278,7 @@ table 273 "Bank Acc. Reconciliation"
             Caption = 'FIK Payment Reconciliation';
             ObsoleteReason = 'Moved to Payment and Reconciliation Formats (DK) extension to field name: FIKPaymentReconciliation';
             ObsoleteState = Removed;
+            ObsoleteTag = '15.0';
         }
     }
 

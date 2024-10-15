@@ -1373,7 +1373,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePostAllocations(var AllocateGenJnlLine: Record "Gen. Journal Line"; Reversing: Boolean; IsHandled: Boolean)
+    local procedure OnBeforePostAllocations(var AllocateGenJnlLine: Record "Gen. Journal Line"; Reversing: Boolean; var IsHandled: Boolean)
     begin
     end;
 

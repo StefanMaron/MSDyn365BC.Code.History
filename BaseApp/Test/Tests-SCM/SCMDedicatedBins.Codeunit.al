@@ -17,6 +17,7 @@ codeunit 137502 "SCM Dedicated Bins"
         LibrarySales: Codeunit "Library - Sales";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryWarehouse: Codeunit "Library - Warehouse";
+        LibraryRandom: Codeunit "Library - Random";
         MessageCounter: Integer;
         IsInitialized: Boolean;
         AutomaticBinUpdate: Label 'This change may have caused bin codes on some production order component lines to be different from those on the production order routing line. Do you want to automatically align all of these unmatched bin codes?';
@@ -94,6 +95,16 @@ codeunit 137502 "SCM Dedicated Bins"
             ItemJournalLine.Modify(true);
         end;
         LibraryInventory.PostItemJournalLine(ItemJournalTemplate.Name, ItemJournalBatch.Name);
+    end;
+
+    local procedure CreateAndReserveSalesOrder(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; ItemNo: Code[20]; LocationCode: Code[10]; Qty: Decimal; ReservedQty: Decimal)
+    begin
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', ItemNo, ReservedQty, LocationCode, WorkDate);
+        LibrarySales.AutoReserveSalesLine(SalesLine);
+        SalesLine.Validate(Quantity, Qty);
+        SalesLine.Modify(true);
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
     end;
 
     [Test]
@@ -182,6 +193,14 @@ codeunit 137502 "SCM Dedicated Bins"
         if LocationCode <> '' then
             WhseJournalBatch.SetRange("Location Code", LocationCode);
         WhseJournalBatch.FindFirst;
+    end;
+
+    local procedure FindWhsePickRequestForShipment(var WhsePickRequest: Record "Whse. Pick Request"; WhseShipmentNo: Code[20])
+    begin
+        WhsePickRequest.SetRange(Status, WhsePickRequest.Status::Released);
+        WhsePickRequest.SetRange("Document Type", WhsePickRequest."Document Type"::Shipment);
+        WhsePickRequest.SetRange("Document No.", WhseShipmentNo);
+        WhsePickRequest.FindFirst;
     end;
 
     local procedure SetupDefaultBinsScenario(RequireReceive: Boolean; RequireShipment: Boolean; DirectedPickAndPut: Boolean)
@@ -808,6 +827,169 @@ codeunit 137502 "SCM Dedicated Bins"
         // Verify bin is set to B1
         PurchLine.Get(PurchLine."Document Type", PurchLine."Document No.", PurchLine."Line No.");
         Assert.AreEqual(Bin1.Code, PurchLine."Bin Code", 'bin is set to B1');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CreatePickFromShipmentWithAnotherDocReservedFromDedicatedBin()
+    var
+        Location: Record Location;
+        Bin: array[2] of Record Bin;
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        Qty: Decimal;
+    begin
+        // [FEATURE] [Dedicated Bin] [Shipment] [Pick] [Reservation]
+        // [SCENARIO 340437] Creating pick from shipment directly takes reserved quantity in dedicated bin into account.
+        Initialize;
+        Qty := LibraryRandom.RandIntInRange(10, 20);
+
+        // [GIVEN] Location set up for required shipment and pick. "Directed put-away and pick" = FALSE.
+        // [GIVEN] Ordinary bin "B" and dedicated bin "D".
+        CreateWhseLocation(Location, false, false, false, true, true, true);
+        CreateBin(Bin[1], Location.Code, '', '');
+        CreateBin(Bin[2], Location.Code, '', '');
+        Bin[2].Validate(Dedicated, true);
+        Bin[2].Modify(true);
+
+        // [GIVEN] Set up the dedicated bin "D" as a default shipment bin.
+        Location.Validate("Shipment Bin Code", Bin[2].Code);
+        Location.Modify(true);
+
+        // [GIVEN] Create item and post 60 pcs to bin "B".
+        LibraryInventory.CreateItem(Item);
+        CreateAndPostPositiveAdjustmt(Item, Location.Code, Bin[1].Code, 3 * Qty);
+
+        // [GIVEN] Sales order "SO1" for 20 pcs fully reserved from the inventory.
+        // [GIVEN] Create warehouse shipment, pick and register the pick.
+        // [GIVEN] 20 pcs is thereby moved from bin "B" to the dedicated bin "D".
+        CreateAndReserveSalesOrder(SalesHeader, SalesLine, Item."No.", Location.Code, Qty, Qty);
+        LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
+        WarehouseShipmentHeader.Get(
+          LibraryWarehouse.FindWhseShipmentNoBySourceDoc(DATABASE::"Sales Line", SalesLine."Document Type", SalesLine."Document No."));
+        LibraryWarehouse.CreatePick(WarehouseShipmentHeader);
+        LibraryWarehouse.FindWhseActivityBySourceDoc(
+          WarehouseActivityHeader, DATABASE::"Sales Line", SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.");
+        LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
+
+        // [GIVEN] Sales order "SO2" for 20 pcs fully reserved from the inventory.
+        CreateAndReserveSalesOrder(SalesHeader, SalesLine, Item."No.", Location.Code, Qty, Qty);
+
+        // [GIVEN] Sales order "SO3" for 40 pcs, partially (20 pcs) reserved from the inventory.
+        // [GIVEN] Create warehouse shipment.
+        CreateAndReserveSalesOrder(SalesHeader, SalesLine, Item."No.", Location.Code, 2 * Qty, Qty);
+        LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
+        WarehouseShipmentHeader.Get(
+          LibraryWarehouse.FindWhseShipmentNoBySourceDoc(DATABASE::"Sales Line", SalesLine."Document Type", SalesLine."Document No."));
+
+        // [WHEN] Create pick for "SO3".
+        LibraryWarehouse.CreatePick(WarehouseShipmentHeader);
+
+        // [THEN] A warehouse pick for 20 pcs is created, that is 60 in inventory minus 40 reserved for "SO1" and "SO2".
+        LibraryWarehouse.FindWhseActivityLineBySourceDoc(
+          WarehouseActivityLine, DATABASE::"Sales Line", SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.");
+        WarehouseActivityLine.TestField(Quantity, Qty);
+        WarehouseActivityLine.TestField("Qty. to Handle", Qty);
+
+        // [THEN] The pick can be successfully registered.
+        WarehouseActivityHeader.Get(WarehouseActivityHeader.Type::Pick, WarehouseActivityLine."No.");
+        LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CreatePickFromPickWorksheetWithAnotherDocReservedFromDedicatedBin()
+    var
+        Location: Record Location;
+        Bin: array[2] of Record Bin;
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        WhseWorksheetTemplate: Record "Whse. Worksheet Template";
+        WhseWorksheetName: Record "Whse. Worksheet Name";
+        WhsePickRequest: Record "Whse. Pick Request";
+        WhseWorksheetLine: Record "Whse. Worksheet Line";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        Qty: Decimal;
+    begin
+        // [FEATURE] [Dedicated Bin] [Shipment] [Pick Worksheet] [Pick] [Reservation]
+        // [SCENARIO 340437] Creating pick from shipment via pick worksheet takes reserved quantity in dedicated bin into account.
+        Initialize;
+        Qty := LibraryRandom.RandIntInRange(10, 20);
+
+        // [GIVEN] Location set up for required shipment and pick. "Directed put-away and pick" = FALSE.
+        // [GIVEN] Ordinary bin "B" and dedicated bin "D".
+        CreateWhseLocation(Location, false, false, false, true, true, true);
+        CreateBin(Bin[1], Location.Code, '', '');
+        CreateBin(Bin[2], Location.Code, '', '');
+        Bin[2].Validate(Dedicated, true);
+        Bin[2].Modify(true);
+
+        // [GIVEN] Set up the dedicated bin "D" as a default shipment bin.
+        Location.Validate("Shipment Bin Code", Bin[2].Code);
+        Location.Modify(true);
+
+        // [GIVEN] Create item and post 60 pcs to bin "B".
+        LibraryInventory.CreateItem(Item);
+        CreateAndPostPositiveAdjustmt(Item, Location.Code, Bin[1].Code, 3 * Qty);
+
+        // [GIVEN] Sales order "SO1" for 20 pcs fully reserved from the inventory.
+        // [GIVEN] Create warehouse shipment, pick and register the pick.
+        // [GIVEN] 20 pcs is thereby moved from bin "B" to the dedicated bin "D".
+        CreateAndReserveSalesOrder(SalesHeader, SalesLine, Item."No.", Location.Code, Qty, Qty);
+        LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
+        WarehouseShipmentHeader.Get(
+          LibraryWarehouse.FindWhseShipmentNoBySourceDoc(DATABASE::"Sales Line", SalesLine."Document Type", SalesLine."Document No."));
+        LibraryWarehouse.CreatePick(WarehouseShipmentHeader);
+        LibraryWarehouse.FindWhseActivityBySourceDoc(
+          WarehouseActivityHeader, DATABASE::"Sales Line", SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.");
+        LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
+
+        // [GIVEN] Sales order "SO2" for 20 pcs fully reserved from the inventory.
+        CreateAndReserveSalesOrder(SalesHeader, SalesLine, Item."No.", Location.Code, Qty, Qty);
+
+        // [GIVEN] Sales order "SO3" for 40 pcs, partially (20 pcs) reserved from the inventory.
+        // [GIVEN] Create warehouse shipment.
+        CreateAndReserveSalesOrder(SalesHeader, SalesLine, Item."No.", Location.Code, 2 * Qty, Qty);
+        LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
+        WarehouseShipmentHeader.Get(
+          LibraryWarehouse.FindWhseShipmentNoBySourceDoc(DATABASE::"Sales Line", SalesLine."Document Type", SalesLine."Document No."));
+        LibraryWarehouse.ReleaseWarehouseShipment(WarehouseShipmentHeader);
+
+        // [WHEN] Open warehouse worksheet and pull the shipment for "SO3".
+        LibraryWarehouse.SelectWhseWorksheetTemplate(WhseWorksheetTemplate, WhseWorksheetTemplate.Type::Pick);
+        LibraryWarehouse.CreateWhseWorksheetName(WhseWorksheetName, WhseWorksheetTemplate.Name, Location.Code);
+        FindWhsePickRequestForShipment(WhsePickRequest, WarehouseShipmentHeader."No.");
+        LibraryWarehouse.GetOutboundSourceDocuments(WhsePickRequest, WhseWorksheetName, Location.Code);
+
+        // [THEN] Whse. worksheet line for full quantity (40 pcs) is created.
+        // [THEN] "Qty. to Handle" on the worksheet line = 20 pcs.
+        WhseWorksheetLine.SetRange("Worksheet Template Name", WhseWorksheetTemplate.Name);
+        WhseWorksheetLine.SetRange(Name, WhseWorksheetName.Name);
+        WhseWorksheetLine.SetRange("Location Code", Location.Code);
+        WhseWorksheetLine.SetRange("Item No.", Item."No.");
+        WhseWorksheetLine.FindFirst;
+        WhseWorksheetLine.TestField(Quantity, 2 * Qty);
+        WhseWorksheetLine.TestField("Qty. to Handle", Qty);
+
+        // [THEN] A warehouse pick for 20 pcs will be created when you run "Create Pick" on the whse. worksheet.
+        LibraryWarehouse.CreatePickFromPickWorksheet(
+          WhseWorksheetLine, WhseWorksheetLine."Line No.", WhseWorksheetLine."Worksheet Template Name", WhseWorksheetLine.Name,
+          Location.Code, '', 0, 0, 0, false, false, false, false, false, false, false);
+        LibraryWarehouse.FindWhseActivityLineBySourceDoc(
+          WarehouseActivityLine, DATABASE::"Sales Line", SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.");
+        WarehouseActivityLine.TestField(Quantity, Qty);
+        WarehouseActivityLine.TestField("Qty. to Handle", Qty);
+
+        // [THEN] This warehouse pick can be successfully registered.
+        WarehouseActivityHeader.Get(WarehouseActivityHeader.Type::Pick, WarehouseActivityLine."No.");
+        LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
     end;
 
     local procedure CreateLocation(var Location: Record Location)

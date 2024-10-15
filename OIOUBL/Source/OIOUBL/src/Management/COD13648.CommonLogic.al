@@ -437,7 +437,7 @@ codeunit 13648 "OIOUBL-Common Logic"
         RootElement.Add(TaxTotalElement);
     end;
 
-    procedure InsertLegalMonetaryTotal(var InvoiceElement: XmlElement; TaxableAmount: Decimal; TaxAmount: Decimal; TotalAmount: Decimal; TotalInvDiscountAmount: Decimal; CurrencyCode: Code[10])
+    procedure InsertLegalMonetaryTotal(var InvoiceElement: XmlElement; LineAmount: Decimal; TaxAmount: Decimal; TotalAmount: Decimal; TotalInvDiscountAmount: Decimal; CurrencyCode: Code[10])
     var
         LegalMonetaryTotalElement: XmlElement;
     begin
@@ -446,7 +446,7 @@ codeunit 13648 "OIOUBL-Common Logic"
         LegalMonetaryTotalElement.Add(
           XmlElement.Create('LineExtensionAmount', DocNameSpaceCBC,
             XmlAttribute.Create('currencyID', CurrencyCode),
-            OIOUBLDocumentEncode.DecimalToText(TaxableAmount)));
+            OIOUBLDocumentEncode.DecimalToText(LineAmount)));
         LegalMonetaryTotalElement.Add(
           XmlElement.Create('TaxExclusiveAmount', DocNameSpaceCBC,
             XmlAttribute.Create('currencyID', CurrencyCode),

@@ -22,6 +22,7 @@ codeunit 148055 "OIOUBL-Elec. Service Document"
         LibraryUtility: Codeunit "Library - Utility";
         LibraryRandom: Codeunit "Library - Random";
         LibraryXMLReadOnServer: Codeunit "Library - XML Read OnServer";
+        LibraryXPathXMLReader: Codeunit "Library - XPath XML Reader";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         OIOUBLNewFileMock: Codeunit "OIOUBL-File Events Mock";
         PEPPOLManagement: Codeunit "PEPPOL Management";
@@ -1253,6 +1254,146 @@ codeunit 148055 "OIOUBL-Elec. Service Document"
         VerifyFileListInZipArchive(FileNameLst);
     end;
 
+    [Test]
+    procedure AmountPriceDiscountOnServiceInvoiceWithLineInvoiceDiscount()
+    var
+        ServiceHeader: Record "Service Header";
+        ServiceLine: Record "Service Line";
+        ServiceInvoiceHeader: Record "Service Invoice Header";
+        OIOUBLExportServiceInvoice: Codeunit "OIOUBL-Export Service Invoice";
+        LineExtensionAmounts: List of [Decimal];
+        PriceAmounts: List of [Decimal];
+        TotalAllowanceChargeAmount: Decimal;
+    begin
+        // [SCENARIO 341090] Create OIOUBL document for Posted Service Invoice, that has lines with Line Discount and Inv. Discount.
+        Initialize();
+
+        // [GIVEN] Posted Service Invoice with two lines. Every line has Line Discount and Invoice Discount.
+        CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Invoice, CreateCustomer(LibraryUtility.GenerateGUID(), ''));
+        CreateServiceLineWithLineAndInvoiceDiscount(
+            ServiceLine, ServiceHeader, LibraryRandom.RandDecInRange(100, 200, 2), LibraryRandom.RandDecInRange(10, 20, 2));
+        CreateServiceLineWithLineAndInvoiceDiscount(
+            ServiceLine, ServiceHeader, LibraryRandom.RandDecInRange(100, 200, 2), LibraryRandom.RandDecInRange(10, 20, 2));
+        ServiceInvoiceHeader.Get(PostServiceInvoice(ServiceHeader."No."));
+        GetAmountsServiceInvoiceLines(ServiceInvoiceHeader."No.", LineExtensionAmounts, PriceAmounts, TotalAllowanceChargeAmount);
+
+        // [WHEN] Create Electronic Document for Posted Service Invoice.
+        OIOUBLExportServiceInvoice.ExportXML(ServiceInvoiceHeader);
+
+        // [THEN] InvoiceLine/LineExtensionAmount is equal to Line Amount + Inv. Discount Amount for each Invoice Line.
+        // [THEN] InvoiceLine/Price/PriceAmount is equal to (Line Amount + Inv. Discount Amount) / Line Quantity.
+        // [THEN] LegalMonetaryTotal/LineExtensionAmount is equal to sum of LineExtensionAmount of InvoiceLine sections.
+        // [THEN] AllowanceCharge/Amount is equal to sum of Inv. Discount Amount of Service Invoice Lines.
+        VerifyAmountPriceDiscountOnServiceInvoice(
+            ServiceInvoiceHeader."No.", LineExtensionAmounts, PriceAmounts, TotalAllowanceChargeAmount);
+    end;
+
+    [Test]
+    procedure AmountPriceDiscountOnServiceInvoicePricesInclVATWithLineInvoiceDiscount()
+    var
+        ServiceHeader: Record "Service Header";
+        ServiceLine: Record "Service Line";
+        ServiceInvoiceHeader: Record "Service Invoice Header";
+        OIOUBLExportServiceInvoice: Codeunit "OIOUBL-Export Service Invoice";
+        LineExtensionAmounts: List of [Decimal];
+        PriceAmounts: List of [Decimal];
+        TotalAllowanceChargeAmount: Decimal;
+    begin
+        // [SCENARIO 341090] Create OIOUBL document for Posted Service Invoice, that has lines with Line Discount and Inv. Discount; Prices Incl. VAT is set.
+        Initialize();
+
+        // [GIVEN] Posted Service Invoice with two lines, Prices Incl. VAT is set. Every line has Line Discount and Invoice Discount.
+        // [GIVEN] VAT = 20%.
+        CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Invoice, CreateCustomer(LibraryUtility.GenerateGUID(), ''));
+        SetPricesInclVATOnServiceHeader(ServiceHeader);
+        CreateServiceLineWithLineAndInvoiceDiscount(
+            ServiceLine, ServiceHeader, LibraryRandom.RandDecInRange(100, 200, 2), LibraryRandom.RandDecInRange(10, 20, 2));
+        CreateServiceLineWithLineAndInvoiceDiscount(
+            ServiceLine, ServiceHeader, LibraryRandom.RandDecInRange(100, 200, 2), LibraryRandom.RandDecInRange(10, 20, 2));
+        ServiceInvoiceHeader.Get(PostServiceInvoice(ServiceHeader."No."));
+        GetAmountsServiceInvoiceLinesPricesInclVAT(
+            ServiceInvoiceHeader."No.", LineExtensionAmounts, PriceAmounts, TotalAllowanceChargeAmount);
+
+        // [WHEN] Create Electronic Document for Posted Service Invoice.
+        OIOUBLExportServiceInvoice.ExportXML(ServiceInvoiceHeader);
+
+        // [THEN] InvoiceLine/LineExtensionAmount is equal to Line Amount + 0.8 * Inv. Discount Amount  for each Invoice Line.
+        // [THEN] InvoiceLine/Price/PriceAmount is equal to (Line Amount + 0.8 * Inv. Discount Amount) / Line Quantity.
+        // [THEN] LegalMonetaryTotal/LineExtensionAmount is equal to sum of LineExtensionAmount of InvoiceLine sections.
+        // [THEN] AllowanceCharge/Amount is equal to sum of 0.8 * Inv. Discount Amount of Service Invoice Lines.
+        VerifyAmountPriceDiscountOnServiceInvoice(
+            ServiceInvoiceHeader."No.", LineExtensionAmounts, PriceAmounts, TotalAllowanceChargeAmount);
+    end;
+
+    [Test]
+    procedure AmountPriceDiscountOnServiceCrMemoWithLineInvoiceDiscount()
+    var
+        ServiceHeader: Record "Service Header";
+        ServiceLine: Record "Service Line";
+        ServiceCrMemoHeader: Record "Service Cr.Memo Header";
+        OIOUBLExportServiceCrMemo: Codeunit "OIOUBL-Export Service Cr.Memo";
+        LineExtensionAmounts: List of [Decimal];
+        PriceAmounts: List of [Decimal];
+        TotalAllowanceChargeAmount: Decimal;
+    begin
+        // [SCENARIO 341090] Create OIOUBL document for Posted Service Credit Memo, that has lines with Line Discount and Inv. Discount.
+        Initialize();
+
+        // [GIVEN] Posted Service Credit Memo with two lines. Every line has Line Discount and Invoice Discount.
+        CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::"Credit Memo", CreateCustomer(LibraryUtility.GenerateGUID(), ''));
+        CreateServiceLineWithLineAndInvoiceDiscount(
+            ServiceLine, ServiceHeader, LibraryRandom.RandDecInRange(100, 200, 2), LibraryRandom.RandDecInRange(10, 20, 2));
+        CreateServiceLineWithLineAndInvoiceDiscount(
+            ServiceLine, ServiceHeader, LibraryRandom.RandDecInRange(100, 200, 2), LibraryRandom.RandDecInRange(10, 20, 2));
+        ServiceCrMemoHeader.Get(PostServiceCrMemo(ServiceHeader."No."));
+        GetAmountsServiceCrMemoLines(ServiceCrMemoHeader."No.", LineExtensionAmounts, PriceAmounts, TotalAllowanceChargeAmount);
+
+        // [WHEN] Create Electronic Document for Posted Service Credit Memo.
+        OIOUBLExportServiceCrMemo.ExportXML(ServiceCrMemoHeader);
+
+        // [THEN] CreditNoteLine/LineExtensionAmount is equal to Line Amount + Inv. Discount Amount for each Credit Memo Line.
+        // [THEN] CreditNoteLine/Price/PriceAmount is equal to (Line Amount + Inv. Discount Amount) / Line Quantity.
+        // [THEN] LegalMonetaryTotal/LineExtensionAmount is equal to sum of LineExtensionAmount of CreditNoteLine sections.
+        // [THEN] AllowanceCharge/Amount is equal to sum of Inv. Discount Amount of Service CrMemo Lines.
+        VerifyAmountPriceDiscountOnServiceCrMemo(ServiceCrMemoHeader."No.", LineExtensionAmounts, PriceAmounts, TotalAllowanceChargeAmount);
+    end;
+
+    [Test]
+    procedure AmountPriceDiscountOnServiceCrMemoPricesInclVATWithLineInvoiceDiscount()
+    var
+        ServiceHeader: Record "Service Header";
+        ServiceLine: Record "Service Line";
+        ServiceCrMemoHeader: Record "Service Cr.Memo Header";
+        OIOUBLExportServiceCrMemo: Codeunit "OIOUBL-Export Service Cr.Memo";
+        LineExtensionAmounts: List of [Decimal];
+        PriceAmounts: List of [Decimal];
+        TotalAllowanceChargeAmount: Decimal;
+    begin
+        // [SCENARIO 341090] Create OIOUBL document for Posted Service Credit Memo, that has lines with Line Discount and Inv. Discount; Prices Incl. VAT is set.
+        Initialize();
+
+        // [GIVEN] Posted Service Credit Memo with two lines, Prices Incl. VAT is set. Every line has Line Discount and Invoice Discount.
+        // [GIVEN] VAT = 20%.
+        CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::"Credit Memo", CreateCustomer(LibraryUtility.GenerateGUID(), ''));
+        SetPricesInclVATOnServiceHeader(ServiceHeader);
+        CreateServiceLineWithLineAndInvoiceDiscount(
+            ServiceLine, ServiceHeader, LibraryRandom.RandDecInRange(100, 200, 2), LibraryRandom.RandDecInRange(10, 20, 2));
+        CreateServiceLineWithLineAndInvoiceDiscount(
+            ServiceLine, ServiceHeader, LibraryRandom.RandDecInRange(100, 200, 2), LibraryRandom.RandDecInRange(10, 20, 2));
+        ServiceCrMemoHeader.Get(PostServiceCrMemo(ServiceHeader."No."));
+        GetAmountsServiceCrMemoLinesPricesInclVAT(
+            ServiceCrMemoHeader."No.", LineExtensionAmounts, PriceAmounts, TotalAllowanceChargeAmount);
+
+        // [WHEN] Create Electronic Document for Posted Service Credit Memo.
+        OIOUBLExportServiceCrMemo.ExportXML(ServiceCrMemoHeader);
+
+        // [THEN] CreditNoteLine/LineExtensionAmount is equal to Line Amount + 0.8 * Inv. Discount Amount for each Credit Memo Line.
+        // [THEN] CreditNoteLine/Price/PriceAmount is equal to (Line Amount + 0.8 * Inv. Discount Amount) / Line Quantity.
+        // [THEN] LegalMonetaryTotal/LineExtensionAmount is equal to sum of LineExtensionAmount of CreditNoteLine sections.
+        // [THEN] AllowanceCharge/Amount is equal to sum of 0.8 * Inv. Discount Amount of Service CrMemo Lines.
+        VerifyAmountPriceDiscountOnServiceCrMemo(ServiceCrMemoHeader."No.", LineExtensionAmounts, PriceAmounts, TotalAllowanceChargeAmount);
+    end;
+
     local procedure Initialize();
     var
         DocumentSendingProfile: Record "Document Sending Profile";
@@ -1400,10 +1541,18 @@ codeunit 148055 "OIOUBL-Elec. Service Document"
     local procedure CreateServiceLine(var ServiceLine: Record "Service Line"; ServiceHeader: Record "Service Header"; Type: Option; ItemNo: Code[20]; AccountCode: Text[30]);
     begin
         LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, Type, ItemNo);
-        ServiceLine.VALIDATE("Unit Price", LibraryRandom.RandDec(10, 2));
-        ServiceLine.VALIDATE(Quantity, LibraryRandom.RandDec(10, 2));
+        ServiceLine.VALIDATE("Unit Price", LibraryRandom.RandDecInRange(100, 200, 2));
+        ServiceLine.VALIDATE(Quantity, LibraryRandom.RandDecInRange(10, 20, 2));
         ServiceLine.VALIDATE("OIOUBL-Account Code", AccountCode);
         ServiceLine.MODIFY(true);
+    end;
+
+    local procedure CreateServiceLineWithLineAndInvoiceDiscount(var ServiceLine: Record "Service Line"; ServiceHeader: Record "Service Header"; LineDiscountAmt: Decimal; InvDiscountAmt: Decimal)
+    begin
+        CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, LibraryInventory.CreateItemNo(), ServiceHeader."OIOUBL-Account Code");
+        ServiceLine.Validate("Line Discount Amount", LineDiscountAmt);
+        ServiceLine.Validate("Inv. Discount Amount", InvDiscountAmt);
+        ServiceLine.Modify(true);
     end;
 
     local procedure CreateServiceDocumentWithMultipleLineAndUOM(var ServiceLine: Record "Service Line"; DocumentType: Option; var OIOUBLUoMs: List of [Code[10]]);
@@ -1460,7 +1609,6 @@ codeunit 148055 "OIOUBL-Elec. Service Document"
     local procedure CreateOIOUBLProfile(): Code[10];
     var
         OIOUBLProfile: Record "OIOUBL-Profile";
-        LibraryUtility: Codeunit "Library - Utility";
     begin
         with OIOUBLProfile do begin
             VALIDATE("OIOUBL-Code", LibraryUtility.GenerateRandomCode(FIELDNO("OIOUBL-Code"), DATABASE::"OIOUBL-Profile"));
@@ -1545,6 +1693,13 @@ codeunit 148055 "OIOUBL-Elec. Service Document"
         exit(ElectronicDocumentFormat.Code);
     end;
 
+    local procedure FormatAmount(Amount: Decimal): Text
+    var
+        TypeHelper: Codeunit "Type Helper";
+    begin
+        exit(Format(Amount, 0, TypeHelper.GetXMLAmountFormatWithTwoDecimalPlaces()))
+    end;
+
     local procedure GenerateVATRegNo(CountryRegionCode: Code[10]): Text[20]
     begin
         exit(CountryRegionCode + PadStr(DelStr(LibraryUtility.GenerateGUID(), 1, 2), 8, '0'));
@@ -1571,6 +1726,83 @@ codeunit 148055 "OIOUBL-Elec. Service Document"
         ElectronicDocumentFormat: Record "Electronic Document Format";
     begin
         exit(ElectronicDocumentFormat.GetAttachmentFileName(DocumentNo, DocumentType, Extension));
+    end;
+
+    local procedure GetAmountsServiceInvoiceLines(ServiceInvHeaderNo: Code[20]; var LineExtensionAmounts: List of [Decimal]; var PriceAmounts: List of [Decimal]; var TotalAllowanceChargeAmount: Decimal)
+    var
+        ServiceInvoiceLine: Record "Service Invoice Line";
+    begin
+        TotalAllowanceChargeAmount := 0;
+        with ServiceInvoiceLine do begin
+            SetRange("Document No.", ServiceInvHeaderNo);
+            FindSet();
+            repeat
+                LineExtensionAmounts.Add(Amount + "Inv. Discount Amount");
+                PriceAmounts.Add(Round((Amount + "Inv. Discount Amount") / Quantity));
+                TotalAllowanceChargeAmount += "Inv. Discount Amount";
+            until Next() = 0;
+        end;
+    end;
+
+    local procedure GetAmountsServiceInvoiceLinesPricesInclVAT(ServiceInvHeaderNo: Code[20]; var LineExtensionAmounts: List of [Decimal]; var PriceAmounts: List of [Decimal]; var TotalAllowanceChargeAmount: Decimal)
+    var
+        ServiceInvoiceLine: Record "Service Invoice Line";
+        ExclVATFactor: Decimal;
+    begin
+        TotalAllowanceChargeAmount := 0;
+        with ServiceInvoiceLine do begin
+            SetRange("Document No.", ServiceInvHeaderNo);
+            FindSet();
+            repeat
+                ExclVATFactor := 1 + "VAT %" / 100;
+                LineExtensionAmounts.Add(Amount + Round("Inv. Discount Amount" / ExclVATFactor));
+                PriceAmounts.Add(Round((Amount + Round("Inv. Discount Amount" / ExclVATFactor)) / Quantity));
+                TotalAllowanceChargeAmount += Round("Inv. Discount Amount" / ExclVATFactor);
+            until Next() = 0;
+        end;
+    end;
+
+    local procedure GetAmountsServiceCrMemoLines(ServiceCrMemoHeaderNo: Code[20]; var LineExtensionAmounts: List of [Decimal]; var PriceAmounts: List of [Decimal]; var TotalAllowanceChargeAmount: Decimal)
+    var
+        ServiceCrMemoLine: Record "Service Cr.Memo Line";
+    begin
+        TotalAllowanceChargeAmount := 0;
+        with ServiceCrMemoLine do begin
+            SetRange("Document No.", ServiceCrMemoHeaderNo);
+            FindSet();
+            repeat
+                LineExtensionAmounts.Add(Amount + "Inv. Discount Amount");
+                PriceAmounts.Add(Round((Amount + "Inv. Discount Amount") / Quantity));
+                TotalAllowanceChargeAmount += "Inv. Discount Amount";
+            until Next() = 0;
+        end;
+    end;
+
+    local procedure GetAmountsServiceCrMemoLinesPricesInclVAT(ServiceCrMemoHeaderNo: Code[20]; var LineExtensionAmounts: List of [Decimal]; var PriceAmounts: List of [Decimal]; var TotalAllowanceChargeAmount: Decimal)
+    var
+        ServiceCrMemoLine: Record "Service Cr.Memo Line";
+        ExclVATFactor: Decimal;
+    begin
+        TotalAllowanceChargeAmount := 0;
+        with ServiceCrMemoLine do begin
+            SetRange("Document No.", ServiceCrMemoHeaderNo);
+            FindSet();
+            repeat
+                ExclVATFactor := 1 + "VAT %" / 100;
+                LineExtensionAmounts.Add(Amount + Round("Inv. Discount Amount" / ExclVATFactor));
+                PriceAmounts.Add(Round((Amount + Round("Inv. Discount Amount" / ExclVATFactor)) / Quantity));
+                TotalAllowanceChargeAmount += Round("Inv. Discount Amount" / ExclVATFactor);
+            until Next() = 0;
+        end;
+    end;
+
+    local procedure InitializeLibraryXPathXMLReader(FileName: Text)
+    begin
+        Clear(LibraryXPathXMLReader);
+        LibraryXPathXMLReader.Initialize(FileName, '');
+        LibraryXPathXMLReader.SetDefaultNamespaceUsage(false);
+        LibraryXPathXMLReader.AddAdditionalNamespace('cac', 'urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2');
+        LibraryXPathXMLReader.AddAdditionalNamespace('cbc', 'urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2');
     end;
 
     local procedure PostServiceCrMemo(DocumentNo: Code[20]) PostedDocumentNo: Code[20];
@@ -1652,6 +1884,12 @@ codeunit 148055 "OIOUBL-Elec. Service Document"
         Customer.Modify();
     end;
 
+    local procedure SetPricesInclVATOnServiceHeader(var ServiceHeader: Record "Service Header")
+    begin
+        ServiceHeader.Validate("Prices Including VAT", true);
+        ServiceHeader.Modify(true);
+    end;
+
     local procedure SMTPMailSetupInitialize()
     begin
         SMTPMailSetupClear();
@@ -1668,6 +1906,55 @@ codeunit 148055 "OIOUBL-Elec. Service Document"
     begin
         SMTPMailSetup.DeleteAll();
         Commit();
+    end;
+
+    local procedure UpdateOIOUBLPathOnServiceManagementSetup();
+    var
+        ServiceMgtSetup: Record "Service Mgt. Setup";
+    begin
+        ServiceMgtSetup.GET();
+        ServiceMgtSetup.VALIDATE("OIOUBL-Service Cr. Memo Path", TEMPORARYPATH());
+        ServiceMgtSetup.VALIDATE("OIOUBL-Service Invoice Path", TEMPORARYPATH());
+        ServiceMgtSetup.MODIFY(true);
+    end;
+
+    local procedure UpdateServiceLineUnitOfMeasure(ServiceLine: Record "Service Line");
+    var
+        UnitOfMeasure: Record "Unit of Measure";
+    begin
+        LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
+        ServiceLine.VALIDATE("Unit of Measure", UnitOfMeasure.Code);
+        ServiceLine.MODIFY(true);
+    end;
+
+    local procedure UpdateVATPostingSetupPct(var VATPostingSetup: Record "VAT Posting Setup"; NewVATPct: Decimal) OldVATPct: Decimal;
+    begin
+        OldVATPct := VATPostingSetup."VAT %";
+        VATPostingSetup.VALIDATE("VAT %", NewVATPct);
+        VATPostingSetup.MODIFY(true);
+    end;
+
+    local procedure UpdateServiceSetup();
+    var
+        ServiceSetup: Record "Service Mgt. Setup";
+    begin
+        with ServiceSetup do begin
+            Get();
+            Validate("OIOUBL-Service Invoice Path", TemporaryPath());
+            Validate("OIOUBL-Service Cr. Memo Path", TemporaryPath());
+            Modify(true);
+        end;
+    end;
+
+    local procedure UpdateCompanySwiftCode()
+    var
+        CompanyInformation: Record "Company Information";
+    begin
+        with CompanyInformation do begin
+            Get();
+            Validate("SWIFT Code", DelStr(LibraryUtility.GenerateGUID(), 1, 2));
+            Modify(true);
+        end;
     end;
 
     local procedure VerifyTaxOnElectronicServiceDocument(DocumentNo: Code[20]; AccountCode: Text[30]; TaxAmount: Decimal);
@@ -1755,53 +2042,50 @@ codeunit 148055 "OIOUBL-Elec. Service Document"
         LibraryXMLReadOnServer.VerifyAttributeValueByIndexInSubtree('cac:CreditNoteLine', 'cbc:CreditedQuantity', 'unitCode', UoMCode, NodeIndex);
     end;
 
-    local procedure UpdateOIOUBLPathOnServiceManagementSetup();
+    local procedure VerifyAmountPriceDiscountOnServiceInvoice(ServiceInvHeaderNo: Code[20]; LineExtensionAmounts: List of [Decimal]; PriceAmounts: List of [Decimal]; TotalAllowanceChargeAmount: Decimal)
     var
-        ServiceMgtSetup: Record "Service Mgt. Setup";
+        TotalLineExtensionAmount: Decimal;
+        i: Integer;
     begin
-        ServiceMgtSetup.GET();
-        ServiceMgtSetup.VALIDATE("OIOUBL-Service Cr. Memo Path", TEMPORARYPATH());
-        ServiceMgtSetup.VALIDATE("OIOUBL-Service Invoice Path", TEMPORARYPATH());
-        ServiceMgtSetup.MODIFY(true);
-    end;
+        InitializeLibraryXPathXMLReader(OIOUBLNewFileMock.PopFilePath());
+        LibraryXPathXMLReader.VerifyNodeValue(IDCapTxt, ServiceInvHeaderNo);
 
-    local procedure UpdateServiceLineUnitOfMeasure(ServiceLine: Record "Service Line");
-    var
-        UnitOfMeasure: Record "Unit of Measure";
-    begin
-        LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
-        ServiceLine.VALIDATE("Unit of Measure", UnitOfMeasure.Code);
-        ServiceLine.MODIFY(true);
-    end;
+        for i := 1 to LineExtensionAmounts.Count() do begin
+            LibraryXPathXMLReader.VerifyNodeValueByXPathWithIndex(
+                '//cac:InvoiceLine/cbc:LineExtensionAmount', FormatAmount(LineExtensionAmounts.Get(i)), i - 1);
+            LibraryXPathXMLReader.VerifyNodeValueByXPathWithIndex(
+                '//cac:InvoiceLine/cac:Price/cbc:PriceAmount', FormatAmount(PriceAmounts.Get(i)), i - 1);
 
-    local procedure UpdateVATPostingSetupPct(var VATPostingSetup: Record "VAT Posting Setup"; NewVATPct: Decimal) OldVATPct: Decimal;
-    begin
-        OldVATPct := VATPostingSetup."VAT %";
-        VATPostingSetup.VALIDATE("VAT %", NewVATPct);
-        VATPostingSetup.MODIFY(true);
-    end;
-
-    local procedure UpdateServiceSetup();
-    var
-        ServiceSetup: Record "Service Mgt. Setup";
-    begin
-        with ServiceSetup do begin
-            Get();
-            Validate("OIOUBL-Service Invoice Path", TemporaryPath());
-            Validate("OIOUBL-Service Cr. Memo Path", TemporaryPath());
-            Modify(true);
+            TotalLineExtensionAmount += LineExtensionAmounts.Get(i);
         end;
+
+        LibraryXPathXMLReader.VerifyNodeValueByXPath(
+            '//cac:LegalMonetaryTotal/cbc:LineExtensionAmount', FormatAmount(TotalLineExtensionAmount));
+        LibraryXPathXMLReader.VerifyNodeValueByXPath(
+            '//cac:AllowanceCharge/cbc:Amount', FormatAmount(TotalAllowanceChargeAmount));
     end;
 
-    local procedure UpdateCompanySwiftCode()
+    local procedure VerifyAmountPriceDiscountOnServiceCrMemo(ServiceCmMemoHeaderNo: Code[20]; LineExtensionAmounts: List of [Decimal]; PriceAmounts: List of [Decimal]; TotalAllowanceChargeAmount: Decimal)
     var
-        CompanyInformation: Record "Company Information";
+        TotalLineExtensionAmount: Decimal;
+        i: Integer;
     begin
-        with CompanyInformation do begin
-            Get();
-            Validate("SWIFT Code", DelStr(LibraryUtility.GenerateGUID(), 1, 2));
-            Modify(true);
+        InitializeLibraryXPathXMLReader(OIOUBLNewFileMock.PopFilePath());
+        LibraryXPathXMLReader.VerifyNodeValue(IDCapTxt, ServiceCmMemoHeaderNo);
+
+        for i := 1 to LineExtensionAmounts.Count() do begin
+            LibraryXPathXMLReader.VerifyNodeValueByXPathWithIndex(
+                '//cac:CreditNoteLine/cbc:LineExtensionAmount', FormatAmount(LineExtensionAmounts.Get(i)), i - 1);
+            LibraryXPathXMLReader.VerifyNodeValueByXPathWithIndex(
+                '//cac:CreditNoteLine/cac:Price/cbc:PriceAmount', FormatAmount(PriceAmounts.Get(i)), i - 1);
+
+            TotalLineExtensionAmount += LineExtensionAmounts.Get(i);
         end;
+
+        LibraryXPathXMLReader.VerifyNodeValueByXPath(
+            '//cac:LegalMonetaryTotal/cbc:LineExtensionAmount', FormatAmount(TotalLineExtensionAmount));
+        LibraryXPathXMLReader.VerifyNodeValueByXPath(
+            '//cac:AllowanceCharge/cbc:Amount', FormatAmount(TotalAllowanceChargeAmount));
     end;
 
     [ConfirmHandler]

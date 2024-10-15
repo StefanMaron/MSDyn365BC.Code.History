@@ -151,8 +151,7 @@ codeunit 13637 "OIOUBL-Export Sales Cr. Memo"
         CrMemoLineElement.Add(
           XmlElement.Create('LineExtensionAmount', DocNameSpace,
             XmlAttribute.Create('currencyID', CurrencyCode),
-            OIOUBLDocumentEncode.DecimalToText(SalesCrMemoLine.Amount + SalesCrMemoLine."Inv. Discount Amount" +
-              SalesCrMemoLine."Line Discount Amount")));
+            OIOUBLDocumentEncode.DecimalToText(SalesCrMemoLine.Amount + SalesCrMemoLine."Inv. Discount Amount")));
 
         OIOUBLXMLGenerator.InsertLineTaxTotal(CrMemoLineElement,
           SalesCrMemoLine."Amount Including VAT",
@@ -161,7 +160,10 @@ codeunit 13637 "OIOUBL-Export Sales Cr. Memo"
           SalesCrMemoLine."VAT %",
           CurrencyCode);
         OIOUBLXMLGenerator.InsertItem(CrMemoLineElement, SalesCrMemoLine.Description, SalesCrMemoLine."No.");
-        OIOUBLXMLGenerator.InsertPrice(CrMemoLineElement, SalesCrMemoLine."Unit Price", SalesCrMemoLine."Unit of Measure Code", CurrencyCode);
+        OIOUBLXMLGenerator.InsertPrice(
+            CrMemoLineElement,
+            Round((SalesCrMemoLine.Amount + SalesCrMemoLine."Inv. Discount Amount") / SalesCrMemoLine.Quantity),
+            SalesCrMemoLine."Unit of Measure Code", CurrencyCode);
 
         CrMemoElement.Add(CrMemoLineElement);
     end;
@@ -177,7 +179,7 @@ codeunit 13637 "OIOUBL-Export Sales Cr. Memo"
         XMLdocOut: XmlDocument;
         XMLCurrNode: XmlElement;
         CurrencyCode: Code[10];
-        TaxableAmount: Decimal;
+        LineAmount: Decimal;
         TaxAmount: Decimal;
         TotalAmount: Decimal;
         TotalInvDiscountAmount: Decimal;
@@ -270,8 +272,7 @@ codeunit 13637 "OIOUBL-Export Sales Cr. Memo"
         if SalesCrMemoLine2.FINDSET() then
             repeat
                 ExcludeVAT(SalesCrMemoLine2, SalesCrMemoHeader."Prices Including VAT");
-                TotalInvDiscountAmount := TotalInvDiscountAmount + SalesCrMemoLine2."Inv. Discount Amount" +
-                  SalesCrMemoLine2."Line Discount Amount";
+                TotalInvDiscountAmount += SalesCrMemoLine2."Inv. Discount Amount";
             until SalesCrMemoLine2.NEXT() = 0;
 
         if TotalInvDiscountAmount > 0 then
@@ -295,7 +296,7 @@ codeunit 13637 "OIOUBL-Export Sales Cr. Memo"
         end;
 
         // CreditMemo->LegalMonetaryTotal
-        TaxableAmount := 0;
+        LineAmount := 0;
         TaxAmount := 0;
 
         SalesCrMemoLine2.RESET();
@@ -303,12 +304,11 @@ codeunit 13637 "OIOUBL-Export Sales Cr. Memo"
         if SalesCrMemoLine2.FINDSET() then
             repeat
                 ExcludeVAT(SalesCrMemoLine2, SalesCrMemoHeader."Prices Including VAT");
-                TaxableAmount := TaxableAmount + SalesCrMemoLine2.Amount + SalesCrMemoLine2."Inv. Discount Amount" +
-                SalesCrMemoLine2."Line Discount Amount";
-                TotalAmount := TotalAmount + SalesCrMemoLine2."Amount Including VAT";
-                TaxAmount := TaxAmount + SalesCrMemoLine2."Amount Including VAT" - SalesCrMemoLine2.Amount;
+                LineAmount += SalesCrMemoLine2.Amount + SalesCrMemoLine2."Inv. Discount Amount";
+                TotalAmount += SalesCrMemoLine2."Amount Including VAT";
+                TaxAmount += SalesCrMemoLine2."Amount Including VAT" - SalesCrMemoLine2.Amount;
             until SalesCrMemoLine2.NEXT() = 0;
-        OIOUBLXMLGenerator.InsertLegalMonetaryTotal(XMLCurrNode, TaxableAmount, TaxAmount, TotalAmount, TotalInvDiscountAmount, CurrencyCode);
+        OIOUBLXMLGenerator.InsertLegalMonetaryTotal(XMLCurrNode, LineAmount, TaxAmount, TotalAmount, TotalInvDiscountAmount, CurrencyCode);
 
         // CreditMemo->CreditMemoLine
         repeat
@@ -346,7 +346,7 @@ codeunit 13637 "OIOUBL-Export Sales Cr. Memo"
         TaxAmountParam := TaxAmountParam + AmountIncludingVAT - Amount;
     end;
 
-    local procedure ExcludeVAT(var SalesCrMemoLine: Record 115; PricesInclVAT: Boolean);
+    local procedure ExcludeVAT(var SalesCrMemoLine: Record "Sales Cr.Memo Line"; PricesInclVAT: Boolean);
     var
         ExclVATFactor: Decimal;
     begin

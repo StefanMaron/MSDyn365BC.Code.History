@@ -314,12 +314,14 @@ table 5911 "Service Mgt. Setup"
             Caption = 'OIOUBL Service Invoice Path';
             ObsoleteReason = 'Moved to OIOUBL extension, the same table, same field name prefixed with OIOUBL-.';
             ObsoleteState = Removed;
+            ObsoleteTag = '15.0';
         }
         field(13601; "OIOUBL Service Cr. Memo Path"; Text[250])
         {
             Caption = 'OIOUBL Service Cr. Memo Path';
             ObsoleteReason = 'Moved to OIOUBL extension, the same table, same field name prefixed with OIOUBL-.';
             ObsoleteState = Removed;
+            ObsoleteTag = '15.0';
         }
     }
 

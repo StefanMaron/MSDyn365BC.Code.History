@@ -108,6 +108,7 @@ table 372 "Payment Buffer"
             DataClassification = SystemMetadata;
             ObsoleteReason = 'Moved to Payment and Reconciliation Formats (DK) extension to field name: GiroAccNo';
             ObsoleteState = Removed;
+            ObsoleteTag = '15.0';
         }
     }
 

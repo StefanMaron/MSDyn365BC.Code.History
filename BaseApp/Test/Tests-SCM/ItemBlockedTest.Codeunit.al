@@ -22,6 +22,7 @@ codeunit 134815 "Item Blocked Test"
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryNotificationMgt: Codeunit "Library - Notification Mgt.";
         IsInitialized: Boolean;
+        PurchasingBlockedCopyFromItemErr: Label 'You cannot purchase item %1 because the Purchasing Blocked check box is selected on the item card.';
 
     [Test]
     [Scope('OnPrem')]
@@ -317,7 +318,7 @@ codeunit 134815 "Item Blocked Test"
             PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", LibraryRandom.RandDec(100, 2));
 
         // [THEN] An error appears: 'You cannot purchase this item'
-        Assert.ExpectedError(PurchasingBlockedErr);
+        Assert.ExpectedError(StrSubstNo(PurchasingBlockedCopyFromItemErr, Item."No."));
     end;
 
     [Test]
