@@ -82,6 +82,7 @@ codeunit 905 "Assembly Line Management"
             AssemblyLine.SetSkipVerificationsThatChangeDatabase(SkipVerificationsThatChangeDatabase);
             AssemblyLine.Validate(Type, BOMComponent.Type);
             AssemblyLine.Validate("No.", BOMComponent."No.");
+            OnAddBOMLineOnAfterValidatedNo(AssemblyHeader, AssemblyLine, BOMComponent);
             if AssemblyLine.Type = AssemblyLine.Type::Resource then
                 case BOMComponent."Resource Usage Type" of
                     BOMComponent."Resource Usage Type"::Direct:
@@ -669,6 +670,8 @@ codeunit 905 "Assembly Line Management"
                     EarliestEndingDate, '', ReqLine."Ref. Order Type"::Assembly);
             end;
         end;
+
+        OnAfterCalcEarliestDueDate(AsmHeader);
     end;
 
     procedure CompletelyPicked(AsmHeader: Record "Assembly Header"): Boolean
@@ -735,12 +738,22 @@ codeunit 905 "Assembly Line Management"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcEarliestDueDate(var AsmHeader: Record "Assembly Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAddBOMLineOnAfterValidateUOMCode(var AssemblyLine: Record "Assembly Line"; BOMComponent: Record "BOM Component"; AssemblyHeader: Record "Assembly Header")
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnAddBOMLineOnBeforeValidateQuantity(AssemblyHeader: Record "Assembly Header"; var AssemblyLine: Record "Assembly Line"; BOMComponent: Record "BOM Component")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAddBOMLineOnAfterValidatedNo(AssemblyHeader: Record "Assembly Header"; var AssemblyLine: Record "Assembly Line"; BOMComponent: Record "BOM Component")
     begin
     end;
 

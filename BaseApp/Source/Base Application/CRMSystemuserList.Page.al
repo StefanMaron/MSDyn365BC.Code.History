@@ -110,7 +110,6 @@ page 5340 "CRM Systemuser List"
                 PromotedIsBig = true;
                 PromotedOnly = true;
                 ToolTip = 'Create the Dataverse user as a salesperson in Business Central.';
-                Visible = ShowCouplingControls;
 
                 trigger OnAction()
                 var
@@ -168,6 +167,7 @@ page 5340 "CRM Systemuser List"
                 Caption = 'Uncouple';
                 Image = UnLinkAccount;
                 ToolTip = 'Delete the coupling between the user in Dataverse and salesperson in Business Central.';
+                Visible = ShowCouplingControls;
 
                 trigger OnAction()
                 var

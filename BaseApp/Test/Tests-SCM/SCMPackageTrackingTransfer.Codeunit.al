@@ -20,6 +20,7 @@ codeunit 137266 "SCM Package Tracking Transfer"
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryUtility: Codeunit "Library - Utility";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryWarehouse: Codeunit "Library - Warehouse";
         NoSeriesMgt: Codeunit NoSeriesManagement;
         LibraryItemTracking: Codeunit "Library - Item Tracking";
@@ -39,9 +40,11 @@ codeunit 137266 "SCM Package Tracking Transfer"
         InvSetup: Record "Inventory Setup";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"SCM Package Tracking Transfer");
         if isInitialized then
             exit;
 
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Package Tracking Transfer");
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.UpdateVATPostingSetup();
         LibraryERMCountryData.CreateVATData();
@@ -53,6 +56,7 @@ codeunit 137266 "SCM Package Tracking Transfer"
 
         isInitialized := true;
         Commit();
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Package Tracking Transfer");
     end;
 
     [Test]

@@ -122,6 +122,8 @@ report 296 "Batch Post Sales Orders"
             ReplaceDocumentDate := false;
             PrintDoc := false;
             PrintDocVisible := SalesReceivablesSetup."Post & Print with Job Queue";
+
+            OnAfterOnOpenPage(ShipReq, InvReq, PostingDateReq, ReplacePostingDate, ReplaceDocumentDate, CalcInvDisc);
         end;
     }
 
@@ -149,6 +151,11 @@ report 296 "Batch Post Sales Orders"
         ReplacePostingDate := ReplacePostingDateParam;
         ReplaceDocumentDate := ReplaceDocumentDateParam;
         CalcInvDisc := CalcInvDiscParam;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterOnOpenPage(var ShipReq: Boolean; var InvReq: Boolean; var PostingDateReq: Date; var ReplacePostingDate: Boolean; var ReplaceDocumentDate: Boolean; var CalcInvDisc: Boolean)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

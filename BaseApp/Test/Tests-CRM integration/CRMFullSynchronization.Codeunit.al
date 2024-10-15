@@ -77,8 +77,8 @@ codeunit 139187 "CRM Full Synchronization"
         VerifyDependencyFilter('ITEM-PRODUCT', 'UNIT OF MEASURE');
         // [THEN] 'RESOURCE-PRODUCT' line, where "Dependency Filter" = 'UNIT OF MEASURE'
         VerifyDependencyFilter('RESOURCE-PRODUCT', 'UNIT OF MEASURE');
-        // [THEN] 'CUSTPRCGRP-PRICE' line, where "Dependency Filter" = 'CURRENCY'
-        VerifyDependencyFilter('CUSTPRCGRP-PRICE', 'CURRENCY');
+        // [THEN] 'CUSTPRCGRP-PRICE' line, where "Dependency Filter" = 'CURRENCY|ITEM-PRODUCT'
+        VerifyDependencyFilter('CUSTPRCGRP-PRICE', 'CURRENCY|ITEM-PRODUCT');
         // [THEN] 'SALESPRC-PRODPRICE' line, where "Dependency Filter" = 'CUSTPRCGRP-PRICE|ITEM-PRODUCT'
         VerifyDependencyFilter('SALESPRC-PRODPRICE', 'CUSTPRCGRP-PRICE|ITEM-PRODUCT');
     end;
@@ -109,8 +109,8 @@ codeunit 139187 "CRM Full Synchronization"
         VerifyDependencyFilter('ITEM-PRODUCT', 'UNIT OF MEASURE');
         // [THEN] 'RESOURCE-PRODUCT' line, where "Dependency Filter" = 'UNIT OF MEASURE'
         VerifyDependencyFilter('RESOURCE-PRODUCT', 'UNIT OF MEASURE');
-        // [THEN] 'PLHEADER-PRICE' line, where "Dependency Filter" = 'CURRENCY'
-        VerifyDependencyFilter('PLHEADER-PRICE', 'CURRENCY');
+        // [THEN] 'PLHEADER-PRICE' line, where "Dependency Filter" = 'CURRENCY|ITEM-PRODUCT'
+        VerifyDependencyFilter('PLHEADER-PRICE', 'CURRENCY|ITEM-PRODUCT');
         // [THEN] 'PLLINE-PRODPRICE' line, where "Dependency Filter" = 'PLHEADER-PRICE|ITEM-PRODUCT'
         VerifyDependencyFilter('PLLINE-PRODPRICE', 'PLHEADER-PRICE|ITEM-PRODUCT');
     end;
@@ -722,6 +722,7 @@ codeunit 139187 "CRM Full Synchronization"
         // [GIVEN] 'SALESPEOPLE' and 'UNIT OF MEASURE' are 'In Process', 'CURRENCY' is 'Finished'
         CRMFullSynchReviewLine.Generate;
         SetStatus('CURRENCY', CRMFullSynchReviewLine."Job Queue Entry Status"::Finished);
+        SetStatus('ITEM-PRODUCT', CRMFullSynchReviewLine."Job Queue Entry Status"::Finished);
         SetStatus('SALESPEOPLE', CRMFullSynchReviewLine."Job Queue Entry Status"::"In Process");
         SetStatus('UNIT OF MEASURE', CRMFullSynchReviewLine."Job Queue Entry Status"::"In Process");
 
@@ -738,7 +739,7 @@ codeunit 139187 "CRM Full Synchronization"
         Counter := CRMFullSynchReviewLine.Count();
         CRMFullSynchReviewLine.SetRange(
           "Job Queue Entry Status", CRMFullSynchReviewLine."Job Queue Entry Status"::" ");
-        Assert.RecordCount(CRMFullSynchReviewLine, Counter - 1);
+        Assert.RecordCount(CRMFullSynchReviewLine, Counter - 2);
     end;
 
     [Test]
@@ -754,6 +755,7 @@ codeunit 139187 "CRM Full Synchronization"
         // [GIVEN] 'SALESPEOPLE' and 'CURRENCY' are 'Finished', 'UNIT OF MEASURE' is 'In Process'
         CRMFullSynchReviewLine.Generate;
         SetStatus('CURRENCY', CRMFullSynchReviewLine."Job Queue Entry Status"::Finished);
+        SetStatus('ITEM-PRODUCT', CRMFullSynchReviewLine."Job Queue Entry Status"::Finished);
         SetStatus('SALESPEOPLE', CRMFullSynchReviewLine."Job Queue Entry Status"::Finished);
         SetStatus('UNIT OF MEASURE', CRMFullSynchReviewLine."Job Queue Entry Status"::"In Process");
 
@@ -771,7 +773,7 @@ codeunit 139187 "CRM Full Synchronization"
         Counter := CRMFullSynchReviewLine.Count();
         CRMFullSynchReviewLine.SetRange(
           "Job Queue Entry Status", CRMFullSynchReviewLine."Job Queue Entry Status"::" ");
-        Assert.RecordCount(CRMFullSynchReviewLine, Counter - 3);
+        Assert.RecordCount(CRMFullSynchReviewLine, Counter - 4);
     end;
 
     [Test]

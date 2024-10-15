@@ -1,5 +1,6 @@
 report 10145 "Item Sales by Customer"
 {
+    ApplicationArea = Basic, Suite;
     DefaultLayout = RDLC;
     RDLCLayout = './ItemSalesbyCustomer.rdlc';
     Caption = 'Item Sales by Customer';

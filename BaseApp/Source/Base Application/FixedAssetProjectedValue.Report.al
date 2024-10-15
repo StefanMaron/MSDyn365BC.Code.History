@@ -666,7 +666,6 @@ report 5607 "Fixed Asset - Projected Value"
         CalculateDepr: Codeunit "Calculate Depreciation";
         FADateCalculation: Codeunit "FA Date Calculation";
         DepreciationCalculation: Codeunit "Depreciation Calculation";
-        DeprBookCode: Code[10];
         FAFilter: Text;
         DeprBookText: Text[50];
         GroupCodeName: Text[50];
@@ -687,9 +686,7 @@ report 5607 "Fixed Asset - Projected Value"
         Custom1DeprUntil: Date;
         PeriodLength: Integer;
         UseAccountingPeriod: Boolean;
-        StartingDate: Date;
         StartingDate2: Date;
-        EndingDate: Date;
         EndingDate2: Date;
         PrintAmountsPerDate: Boolean;
         UntilDate: Date;
@@ -735,6 +732,11 @@ report 5607 "Fixed Asset - Projected Value"
         FABufferProjectionFAPostingDateLbl: Label 'FA Posting Date';
         FABufferProjectionDepreciationLbl: Label 'Depreciation';
         FABufferProjectedValueLbl: Label 'Fixed Asset - Projected Value';
+
+    protected var
+        DeprBookCode: Code[10];
+        StartingDate: Date;
+        EndingDate: Date;
 
     local procedure SkipRecord(): Boolean
     begin

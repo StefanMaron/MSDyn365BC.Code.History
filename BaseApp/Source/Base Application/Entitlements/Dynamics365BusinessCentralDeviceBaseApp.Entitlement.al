@@ -9,6 +9,7 @@ entitlement "Dynamics 365 Business Central Device BaseApp"
                          "D365 BUS PREMIUM",
                          "D365 DIM CORRECTION",
                          "D365 MONITOR FIELDS",
+                         "LOCAL",
                          "Reten. Pol. Setup - BaseApp",
                          "Security - Baseapp";
 }

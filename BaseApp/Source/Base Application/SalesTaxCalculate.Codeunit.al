@@ -21,7 +21,7 @@ codeunit 398 "Sales Tax Calculate"
         TaxDetail: Record "Tax Detail";
         TaxJurisdiction: Record "Tax Jurisdiction";
         TMPTaxDetail: Record "Tax Detail" temporary;
-        TempSalesTaxLine: Record "Sales Tax Amount Line" temporary;
+        TempSalesTaxAmountLine: Record "Sales Tax Amount Line" temporary;
         Currency: Record Currency;
         SalesHeader: Record "Sales Header";
         TempSalesHeader: Record "Sales Header" temporary;
@@ -42,7 +42,7 @@ codeunit 398 "Sales Tax Calculate"
         ServHeaderRead: Boolean;
         TaxAreaRead: Boolean;
         RoundByJurisdiction: Boolean;
-        TaxDetailMaximumsTemp: Record "Tax Detail" temporary;
+        TempTaxDetailMaximums: Record "Tax Detail" temporary;
         MaxAmountPerQty: Decimal;
         TaxCountry: Option US,CA;
         ServiceHeader: Record "Service Header";
@@ -161,45 +161,45 @@ codeunit 398 "Sales Tax Calculate"
                     // This temporary table should be cleared before the first call
                     // to this routine.  All subsequent calls will use the values in
                     // that get put into this temporary table.
-                    TaxDetailMaximumsTemp := TaxDetail;
-                    if not TaxDetailMaximumsTemp.Find then
-                        TaxDetailMaximumsTemp.Insert();
-                    MaxAmountPerQty := TaxDetailMaximumsTemp."Maximum Amount/Qty.";
+                    TempTaxDetailMaximums := TaxDetail;
+                    if not TempTaxDetailMaximums.Find then
+                        TempTaxDetailMaximums.Insert();
+                    MaxAmountPerQty := TempTaxDetailMaximums."Maximum Amount/Qty.";
                     if (Abs(TaxBaseAmount) <= TaxDetail."Maximum Amount/Qty.") or
                        (TaxDetail."Maximum Amount/Qty." = 0)
                     then begin
                         TaxAmount := TaxAmount + TaxBaseAmount * TaxDetail."Tax Below Maximum" / 100;
-                        TaxDetailMaximumsTemp."Maximum Amount/Qty." := TaxDetailMaximumsTemp."Maximum Amount/Qty." - TaxBaseAmount;
-                        TaxDetailMaximumsTemp.Modify();
+                        TempTaxDetailMaximums."Maximum Amount/Qty." := TempTaxDetailMaximums."Maximum Amount/Qty." - TaxBaseAmount;
+                        TempTaxDetailMaximums.Modify();
                     end else begin
                         MaxAmount := TaxBaseAmount / Abs(TaxBaseAmount) * TaxDetail."Maximum Amount/Qty.";
                         TaxAmount :=
                           TaxAmount + ((MaxAmount * TaxDetail."Tax Below Maximum") +
                                        ((TaxBaseAmount - MaxAmount) * TaxDetail."Tax Above Maximum")) / 100;
-                        TaxDetailMaximumsTemp."Maximum Amount/Qty." := 0;
-                        TaxDetailMaximumsTemp.Modify();
+                        TempTaxDetailMaximums."Maximum Amount/Qty." := 0;
+                        TempTaxDetailMaximums.Modify();
                     end;
                 end;
                 TaxDetail.SetRange("Tax Type", TaxDetail."Tax Type"::"Excise Tax");
                 if TaxDetail.FindLast and not TaxDetail."Expense/Capitalize" then begin
-                    TaxDetailMaximumsTemp := TaxDetail;
-                    if not TaxDetailMaximumsTemp.Find then
-                        TaxDetailMaximumsTemp.Insert();
-                    MaxAmountPerQty := TaxDetailMaximumsTemp."Maximum Amount/Qty.";
+                    TempTaxDetailMaximums := TaxDetail;
+                    if not TempTaxDetailMaximums.Find then
+                        TempTaxDetailMaximums.Insert();
+                    MaxAmountPerQty := TempTaxDetailMaximums."Maximum Amount/Qty.";
 
                     if (Abs(Quantity) <= TaxDetail."Maximum Amount/Qty.") or
                        (TaxDetail."Maximum Amount/Qty." = 0)
                     then begin
                         TaxAmount := TaxAmount + Quantity * TaxDetail."Tax Below Maximum";
-                        TaxDetailMaximumsTemp."Maximum Amount/Qty." := TaxDetailMaximumsTemp."Maximum Amount/Qty." - Quantity;
-                        TaxDetailMaximumsTemp.Modify();
+                        TempTaxDetailMaximums."Maximum Amount/Qty." := TempTaxDetailMaximums."Maximum Amount/Qty." - Quantity;
+                        TempTaxDetailMaximums.Modify();
                     end else begin
                         MaxAmount := Quantity / Abs(Quantity) * TaxDetail."Maximum Amount/Qty.";
                         TaxAmount :=
                           TaxAmount + (MaxAmount * TaxDetail."Tax Below Maximum") +
                           ((Quantity - MaxAmount) * TaxDetail."Tax Above Maximum");
-                        TaxDetailMaximumsTemp."Maximum Amount/Qty." := 0;
-                        TaxDetailMaximumsTemp.Modify();
+                        TempTaxDetailMaximums."Maximum Amount/Qty." := 0;
+                        TempTaxDetailMaximums.Modify();
                     end;
                 end;
             until TaxAreaLine.Next(-1) = 0;
@@ -459,24 +459,24 @@ codeunit 398 "Sales Tax Calculate"
                         // to this routine.  All subsequent calls will use the values in
                         // that get put into this temporary table.
 
-                        TaxDetailMaximumsTemp := TaxDetail;
-                        if not TaxDetailMaximumsTemp.Find then
-                            TaxDetailMaximumsTemp.Insert();
-                        MaxAmountPerQty := TaxDetailMaximumsTemp."Maximum Amount/Qty.";
+                        TempTaxDetailMaximums := TaxDetail;
+                        if not TempTaxDetailMaximums.Find then
+                            TempTaxDetailMaximums.Insert();
+                        MaxAmountPerQty := TempTaxDetailMaximums."Maximum Amount/Qty.";
 
                         if (Abs(TaxBaseAmount) <= TaxDetail."Maximum Amount/Qty.") or
                            (TaxDetail."Maximum Amount/Qty." = 0)
                         then begin
                             AddedTaxAmount := TaxBaseAmount * TaxDetail."Tax Below Maximum" / 100;
-                            TaxDetailMaximumsTemp."Maximum Amount/Qty." := TaxDetailMaximumsTemp."Maximum Amount/Qty." - Quantity;
-                            TaxDetailMaximumsTemp.Modify();
+                            TempTaxDetailMaximums."Maximum Amount/Qty." := TempTaxDetailMaximums."Maximum Amount/Qty." - Quantity;
+                            TempTaxDetailMaximums.Modify();
                         end else begin
                             MaxAmount := TaxBaseAmount / Abs(TaxBaseAmount) * TaxDetail."Maximum Amount/Qty.";
                             AddedTaxAmount :=
                               ((MaxAmount * TaxDetail."Tax Below Maximum") +
                                ((TaxBaseAmount - MaxAmount) * TaxDetail."Tax Above Maximum")) / 100;
-                            TaxDetailMaximumsTemp."Maximum Amount/Qty." := 0;
-                            TaxDetailMaximumsTemp.Modify();
+                            TempTaxDetailMaximums."Maximum Amount/Qty." := 0;
+                            TempTaxDetailMaximums.Modify();
                         end;
                     end else
                         AddedTaxAmount := 0;
@@ -493,22 +493,22 @@ codeunit 398 "Sales Tax Calculate"
                    not TaxDetail."Expense/Capitalize"
                 then begin
                     if TaxLiable then begin
-                        TaxDetailMaximumsTemp := TaxDetail;
-                        if not TaxDetailMaximumsTemp.Find then
-                            TaxDetailMaximumsTemp.Insert();
+                        TempTaxDetailMaximums := TaxDetail;
+                        if not TempTaxDetailMaximums.Find then
+                            TempTaxDetailMaximums.Insert();
                         if (Abs(Quantity) <= TaxDetail."Maximum Amount/Qty.") or
                            (TaxDetail."Maximum Amount/Qty." = 0)
                         then begin
                             AddedTaxAmount := Quantity * TaxDetail."Tax Below Maximum";
-                            TaxDetailMaximumsTemp."Maximum Amount/Qty." := TaxDetailMaximumsTemp."Maximum Amount/Qty." - Quantity;
-                            TaxDetailMaximumsTemp.Modify();
+                            TempTaxDetailMaximums."Maximum Amount/Qty." := TempTaxDetailMaximums."Maximum Amount/Qty." - Quantity;
+                            TempTaxDetailMaximums.Modify();
                         end else begin
                             MaxAmount := Quantity / Abs(Quantity) * TaxDetail."Maximum Amount/Qty.";
                             AddedTaxAmount :=
                               (MaxAmount * TaxDetail."Tax Below Maximum") +
                               ((Quantity - MaxAmount) * TaxDetail."Tax Above Maximum");
-                            TaxDetailMaximumsTemp."Maximum Amount/Qty." := 0;
-                            TaxDetailMaximumsTemp.Modify();
+                            TempTaxDetailMaximums."Maximum Amount/Qty." := 0;
+                            TempTaxDetailMaximums.Modify();
                         end;
                     end else
                         AddedTaxAmount := 0;
@@ -623,13 +623,15 @@ codeunit 398 "Sales Tax Calculate"
 
     procedure ClearMaximums()
     begin
-        TaxDetailMaximumsTemp.DeleteAll();
+        TempTaxDetailMaximums.DeleteAll();
     end;
 
     procedure StartSalesTaxCalculation()
     begin
-        TempSalesTaxLine.Reset();
-        TempSalesTaxLine.DeleteAll();
+        OnBeforeStartSalestaxCalculation();
+
+        TempSalesTaxAmountLine.Reset();
+        TempSalesTaxAmountLine.DeleteAll();
         TempTaxAmountDifference.Reset();
         TempTaxAmountDifference.DeleteAll();
         ClearAll;
@@ -681,7 +683,7 @@ codeunit 398 "Sales Tax Calculate"
             exit;
 
         SalesLine.TestField("Tax Group Code");
-        with TempSalesTaxLine do begin
+        with TempSalesTaxAmountLine do begin
             Reset;
             case TaxCountry of
                 TaxCountry::US:  // Area Code
@@ -696,6 +698,8 @@ codeunit 398 "Sales Tax Calculate"
                     end;
             end;
             SetRange("Tax Group Code", SalesLine."Tax Group Code");
+            OnAddSalesLineOnAfterTempSalesTaxAmountLineSetFilters(TempSalesTaxAmountLine);
+
             TaxAreaLine.SetCurrentKey("Tax Area", "Calculation Order");
             TaxAreaLine.SetRange("Tax Area", SalesLine."Tax Area Code");
 
@@ -730,7 +734,7 @@ codeunit 398 "Sales Tax Calculate"
                             "Is Report-to Jurisdiction" := ("Tax Jurisdiction Code" = TaxJurisdiction."Report-to Jurisdiction");
                         end;
                         SalesTaxAmountLineCalc.SetTaxBaseAmount(
-                            TempSalesTaxLine, SalesLine."Line Amount" - SalesLine."Inv. Discount Amount", ExchangeFactor, false);
+                            TempSalesTaxAmountLine, SalesLine."Line Amount" - SalesLine."Inv. Discount Amount", ExchangeFactor, false);
                         "Line Amount" := SalesLine."Line Amount" / ExchangeFactor;
                         "Tax Liable" := SalesLine."Tax Liable";
                         Quantity := SalesLine."Quantity (Base)";
@@ -742,7 +746,7 @@ codeunit 398 "Sales Tax Calculate"
                         "Line Amount" := "Line Amount" + (SalesLine."Line Amount" / ExchangeFactor);
                         "Tax Liable" := SalesLine."Tax Liable";
                         SalesTaxAmountLineCalc.SetTaxBaseAmount(
-                            TempSalesTaxLine, SalesLine."Line Amount" - SalesLine."Inv. Discount Amount", ExchangeFactor, true);
+                            TempSalesTaxAmountLine, SalesLine."Line Amount" - SalesLine."Inv. Discount Amount", ExchangeFactor, true);
                         "Tax Amount" := 0;
                         Quantity := Quantity + SalesLine."Quantity (Base)";
                         "Invoice Discount Amount" := "Invoice Discount Amount" + SalesLine."Inv. Discount Amount";
@@ -751,7 +755,7 @@ codeunit 398 "Sales Tax Calculate"
                 until TaxAreaLine.Next() = 0;
         end;
 
-        OnAfterAddSalesLine(TempSalesTaxLine, SalesLine, SalesHeader, ExchangeFactor);
+        OnAfterAddSalesLine(TempSalesTaxAmountLine, SalesLine, SalesHeader, ExchangeFactor);
     end;
 
     procedure AddSalesInvoiceLines(DocNo: Code[20])
@@ -776,7 +780,7 @@ codeunit 398 "Sales Tax Calculate"
             repeat
                 SalesTaxAmountLineCalc.InitFromSalesInvLine(SalesInvoiceLine);
                 SalesTaxAmountLineCalc.CalcSalesOrServLineSalesTaxAmountLine(
-                  TempSalesTaxLine, TaxAreaLine, TaxCountry, TaxArea, TaxJurisdiction, ExchangeFactor);
+                  TempSalesTaxAmountLine, TaxAreaLine, TaxCountry, TaxArea, TaxJurisdiction, ExchangeFactor);
             until SalesInvoiceLine.Next() = 0;
 
         CopyTaxDifferencesToTemp(
@@ -807,7 +811,7 @@ codeunit 398 "Sales Tax Calculate"
             repeat
                 SalesTaxAmountLineCalc.InitFromSalesCrMemoLine(SalesCrMemoLine);
                 SalesTaxAmountLineCalc.CalcSalesOrServLineSalesTaxAmountLine(
-                  TempSalesTaxLine, TaxAreaLine, TaxCountry, TaxArea, TaxJurisdiction, ExchangeFactor);
+                  TempSalesTaxAmountLine, TaxAreaLine, TaxCountry, TaxArea, TaxJurisdiction, ExchangeFactor);
             until SalesCrMemoLine.Next() = 0;
 
         CopyTaxDifferencesToTemp(
@@ -851,7 +855,7 @@ codeunit 398 "Sales Tax Calculate"
 
         PurchLine.TestField("Tax Group Code");
 
-        with TempSalesTaxLine do begin
+        with TempSalesTaxAmountLine do begin
             Reset;
             case TaxCountry of
                 TaxCountry::US:  // Area Code
@@ -867,6 +871,8 @@ codeunit 398 "Sales Tax Calculate"
             end;
             SetRange("Tax Group Code", PurchLine."Tax Group Code");
             SetRange("Use Tax", PurchLine."Use Tax");
+            OnAddPurchLineOnAfterTempSalesTaxAmountLineSetFilters(TempSalesTaxAmountLine);
+
             TaxAreaLine.SetCurrentKey("Tax Area", "Calculation Order");
             TaxAreaLine.SetRange("Tax Area", PurchLine."Tax Area Code");
             if TaxAreaLine.FindSet then
@@ -884,7 +890,7 @@ codeunit 398 "Sales Tax Calculate"
                             "Is Report-to Jurisdiction" := ("Tax Jurisdiction Code" = TaxJurisdiction."Report-to Jurisdiction");
                         end;
                         SalesTaxAmountLineCalc.SetTaxBaseAmount(
-                            TempSalesTaxLine, PurchLine."Line Amount" - PurchLine."Inv. Discount Amount", ExchangeFactor, false);
+                            TempSalesTaxAmountLine, PurchLine."Line Amount" - PurchLine."Inv. Discount Amount", ExchangeFactor, false);
                         "Line Amount" := PurchLine."Line Amount" / ExchangeFactor;
                         "Tax Liable" := PurchLine."Tax Liable";
                         "Use Tax" := PurchLine."Use Tax";
@@ -907,7 +913,7 @@ codeunit 398 "Sales Tax Calculate"
                         "Line Amount" := "Line Amount" + (PurchLine."Line Amount" / ExchangeFactor);
                         "Tax Liable" := PurchLine."Tax Liable";
                         SalesTaxAmountLineCalc.SetTaxBaseAmount(
-                            TempSalesTaxLine, PurchLine."Line Amount" - PurchLine."Inv. Discount Amount", ExchangeFactor, true);
+                            TempSalesTaxAmountLine, PurchLine."Line Amount" - PurchLine."Inv. Discount Amount", ExchangeFactor, true);
                         "Tax Amount" := 0;
                         Quantity := Quantity + PurchLine."Quantity (Base)";
                         "Invoice Discount Amount" := "Invoice Discount Amount" + PurchLine."Inv. Discount Amount";
@@ -916,7 +922,7 @@ codeunit 398 "Sales Tax Calculate"
                 until TaxAreaLine.Next() = 0;
         end;
 
-        OnAfterAddPurchLine(TempSalesTaxLine, PurchLine, PurchHeader, ExchangeFactor);
+        OnAfterAddPurchLine(TempSalesTaxAmountLine, PurchLine, PurchHeader, ExchangeFactor);
     end;
 
     procedure AddPurchInvoiceLines(DocNo: Code[20])
@@ -941,8 +947,8 @@ codeunit 398 "Sales Tax Calculate"
             repeat
                 SalesTaxAmountLineCalc.InitFromPurchInvLine(PurchInvLine);
                 SalesTaxAmountLineCalc.CalcPurchLineSalesTaxAmountLine(
-                  TempSalesTaxLine, TaxAreaLine, TaxCountry, TaxArea, TaxJurisdiction, ExchangeFactor, TaxDetail, PurchInvHeader."Posting Date");
-                OnAddPurchInvoiceLinesOnAfterCalcPurchLineSalesTaxAmountLine(TempSalesTaxLine, PurchInvLine, PurchInvHeader, ExchangeFactor);
+                  TempSalesTaxAmountLine, TaxAreaLine, TaxCountry, TaxArea, TaxJurisdiction, ExchangeFactor, TaxDetail, PurchInvHeader."Posting Date");
+                OnAddPurchInvoiceLinesOnAfterCalcPurchLineSalesTaxAmountLine(TempSalesTaxAmountLine, PurchInvLine, PurchInvHeader, ExchangeFactor);
             until PurchInvLine.Next() = 0;
 
         CopyTaxDifferencesToTemp(
@@ -973,7 +979,7 @@ codeunit 398 "Sales Tax Calculate"
             repeat
                 SalesTaxAmountLineCalc.InitFromPurchCrMemoLine(PurchCrMemoLine);
                 SalesTaxAmountLineCalc.CalcPurchLineSalesTaxAmountLine(
-                  TempSalesTaxLine, TaxAreaLine, TaxCountry, TaxArea, TaxJurisdiction, ExchangeFactor, TaxDetail, PurchCrMemoHeader."Posting Date");
+                  TempSalesTaxAmountLine, TaxAreaLine, TaxCountry, TaxArea, TaxJurisdiction, ExchangeFactor, TaxDetail, PurchCrMemoHeader."Posting Date");
             until PurchCrMemoLine.Next() = 0;
 
         CopyTaxDifferencesToTemp(
@@ -1009,7 +1015,7 @@ codeunit 398 "Sales Tax Calculate"
 
         ServiceLine.TestField("Tax Group Code");
 
-        with TempSalesTaxLine do begin
+        with TempSalesTaxAmountLine do begin
             Reset;
             case TaxCountry of
                 TaxCountry::US:  // Area Code
@@ -1041,7 +1047,7 @@ codeunit 398 "Sales Tax Calculate"
                             "Is Report-to Jurisdiction" := ("Tax Jurisdiction Code" = TaxJurisdiction."Report-to Jurisdiction");
                         end;
                         SalesTaxAmountLineCalc.SetTaxBaseAmount(
-                            TempSalesTaxLine, ServiceLine."Line Amount" - ServiceLine."Inv. Discount Amount", ExchangeFactor, false);
+                            TempSalesTaxAmountLine, ServiceLine."Line Amount" - ServiceLine."Inv. Discount Amount", ExchangeFactor, false);
                         "Line Amount" := ServiceLine."Line Amount" / ExchangeFactor;
                         "Tax Liable" := ServiceLine."Tax Liable";
                         Quantity := ServiceLine."Quantity (Base)";
@@ -1052,7 +1058,7 @@ codeunit 398 "Sales Tax Calculate"
                         "Line Amount" := "Line Amount" + (ServiceLine."Line Amount" / ExchangeFactor);
                         "Tax Liable" := ServiceLine."Tax Liable";
                         SalesTaxAmountLineCalc.SetTaxBaseAmount(
-                            TempSalesTaxLine, ServiceLine."Line Amount" - ServiceLine."Inv. Discount Amount", ExchangeFactor, true);
+                            TempSalesTaxAmountLine, ServiceLine."Line Amount" - ServiceLine."Inv. Discount Amount", ExchangeFactor, true);
                         "Tax Amount" := 0;
                         Quantity := Quantity + ServiceLine."Quantity (Base)";
                         "Invoice Discount Amount" := "Invoice Discount Amount" + ServiceLine."Inv. Discount Amount";
@@ -1084,7 +1090,7 @@ codeunit 398 "Sales Tax Calculate"
             repeat
                 SalesTaxAmountLineCalc.InitFromServInvLine(ServInvLine);
                 SalesTaxAmountLineCalc.CalcSalesOrServLineSalesTaxAmountLine(
-                  TempSalesTaxLine, TaxAreaLine, TaxCountry, TaxArea, TaxJurisdiction, ExchangeFactor);
+                  TempSalesTaxAmountLine, TaxAreaLine, TaxCountry, TaxArea, TaxJurisdiction, ExchangeFactor);
             until ServInvLine.Next() = 0;
 
         CopyTaxDifferencesToTemp(
@@ -1115,7 +1121,7 @@ codeunit 398 "Sales Tax Calculate"
             repeat
                 SalesTaxAmountLineCalc.InitFromServCrMemoLine(ServCrMemoLine);
                 SalesTaxAmountLineCalc.CalcSalesOrServLineSalesTaxAmountLine(
-                  TempSalesTaxLine, TaxAreaLine, TaxCountry, TaxArea, TaxJurisdiction, ExchangeFactor);
+                  TempSalesTaxAmountLine, TaxAreaLine, TaxCountry, TaxArea, TaxJurisdiction, ExchangeFactor);
             until ServCrMemoLine.Next() = 0;
 
         CopyTaxDifferencesToTemp(
@@ -1141,16 +1147,16 @@ codeunit 398 "Sales Tax Calculate"
         IsHandled := false;
         case true of
             SalesHeaderRead:
-                OnBeforeEndSalesTaxCalculationSales(SalesHeader, TempSalesTaxLine, IsHandled);
+                OnBeforeEndSalesTaxCalculationSales(SalesHeader, TempSalesTaxAmountLine, IsHandled);
             PurchHeaderRead:
-                OnBeforeEndSalesTaxCalculationPurchase(PurchHeader, TempSalesTaxLine, IsHandled);
+                OnBeforeEndSalesTaxCalculationPurchase(PurchHeader, TempSalesTaxAmountLine, IsHandled);
             ServHeaderRead:
-                OnBeforeEndSalesTaxCalculationService(ServiceHeader, TempSalesTaxLine, IsHandled);
+                OnBeforeEndSalesTaxCalculationService(ServiceHeader, TempSalesTaxAmountLine, IsHandled);
         end;
         if IsHandled then
             exit;
 
-        with TempSalesTaxLine do begin
+        with TempSalesTaxAmountLine do begin
             Reset;
             SetRange("Tax Type", "Tax Type"::"Sales and Use Tax");
             if FindSet then
@@ -1260,7 +1266,7 @@ codeunit 398 "Sales Tax Calculate"
                           Text000,
                           FieldCaption("Calculation Order"), TaxArea.TableCaption, "Tax Area Code",
                           TaxDetail.FieldCaption("Calculate Tax on Tax"), CalculationOrderViolation);
-                    SalesTaxAmountLine2.Copy(TempSalesTaxLine);
+                    SalesTaxAmountLine2.Copy(TempSalesTaxAmountLine);
                     if "Tax Type" = "Tax Type"::"Excise Tax" then
                         SalesTaxAmountLine2."Tax %" := 0
                     else
@@ -1271,7 +1277,7 @@ codeunit 398 "Sales Tax Calculate"
                                 SalesTaxAmountLine2."Tax %" := TaxDetail."Tax Below Maximum"
                             else
                                 SalesTaxAmountLine2."Tax %" := "Tax %";
-                    OnEndSalesTaxCalculationOnBeforeSalesTaxAmountLine2Insert(SalesTaxAmountLine2, TempSalesTaxLine);
+                    OnEndSalesTaxCalculationOnBeforeSalesTaxAmountLine2Insert(SalesTaxAmountLine2, TempSalesTaxAmountLine);
                     SalesTaxAmountLine2.Insert();
                 until Next(-1) = 0;
                 HandleRoundTaxUpOrDown(SalesTaxAmountLine2, RoundTax, TotalTaxAmount, LastTaxAreaCode, LastTaxGroupCode);
@@ -1314,42 +1320,42 @@ codeunit 398 "Sales Tax Calculate"
             exit;
 
         Clear(TaxJurisdiction);
-        TempSalesTaxLine.Reset();
+        TempSalesTaxAmountLine.Reset();
 
         with SummarizedSalesTaxAmtLine do begin
             DeleteAll();
-            if TempSalesTaxLine.FindSet then
+            if TempSalesTaxAmountLine.FindSet then
                 repeat
                     Clear(SummarizedSalesTaxAmtLine);
                     case TaxCountry of
                         TaxCountry::US:
                             begin
-                                "Tax Area Code for Key" := TempSalesTaxLine."Tax Area Code for Key";
+                                "Tax Area Code for Key" := TempSalesTaxAmountLine."Tax Area Code for Key";
                                 if TaxArea.Code <> "Tax Area Code for Key" then
                                     TaxArea.Get("Tax Area Code for Key");
                                 "Print Description" := TaxArea.Description;
                             end;
                         TaxCountry::CA:
                             begin
-                                "Tax Jurisdiction Code" := TempSalesTaxLine."Tax Jurisdiction Code";
+                                "Tax Jurisdiction Code" := TempSalesTaxAmountLine."Tax Jurisdiction Code";
                                 if TaxJurisdiction.Code <> "Tax Jurisdiction Code" then
                                     TaxJurisdiction.Get("Tax Jurisdiction Code");
                                 "Print Order" := TaxJurisdiction."Print Order";
                                 "Print Description" := TaxJurisdiction."Print Description";
                                 if StrPos("Print Description", '%1') <> 0 then
-                                    "Tax %" := TempSalesTaxLine."Tax %";
+                                    "Tax %" := TempSalesTaxAmountLine."Tax %";
                             end;
                     end;
                     if not Find('=') then
                         Insert;
-                    if (TempSalesTaxLine."Tax Difference" <> 0) or
-                       (TempSalesTaxLine."Tax Type" = TempSalesTaxLine."Tax Type"::"Excise Tax")
+                    if (TempSalesTaxAmountLine."Tax Difference" <> 0) or
+                       (TempSalesTaxAmountLine."Tax Type" = TempSalesTaxAmountLine."Tax Type"::"Excise Tax")
                     then
-                        "Tax Amount" += TempSalesTaxLine."Tax Amount"
+                        "Tax Amount" += TempSalesTaxAmountLine."Tax Amount"
                     else
-                        "Tax Amount" += TempSalesTaxLine."Tax Base Amount FCY" * TempSalesTaxLine."Tax %" / 100;
+                        "Tax Amount" += TempSalesTaxAmountLine."Tax Base Amount FCY" * TempSalesTaxAmountLine."Tax %" / 100;
                     Modify;
-                until TempSalesTaxLine.Next() = 0;
+                until TempSalesTaxAmountLine.Next() = 0;
 
             SetRange("Tax Amount", 0);
             DeleteAll();
@@ -1377,24 +1383,26 @@ codeunit 398 "Sales Tax Calculate"
         end;
     end;
 
-    procedure GetSalesTaxAmountLineTable(var SalesTaxLine2: Record "Sales Tax Amount Line" temporary)
+    procedure GetSalesTaxAmountLineTable(var TempSalesTaxAmountLine2: Record "Sales Tax Amount Line" temporary)
     begin
-        TempSalesTaxLine.Reset();
-        if TempSalesTaxLine.FindSet then
+        TempSalesTaxAmountLine.Reset();
+        if TempSalesTaxAmountLine.FindSet then
             repeat
-                SalesTaxLine2.Copy(TempSalesTaxLine);
-                SalesTaxLine2.Insert();
-            until TempSalesTaxLine.Next() = 0;
+                TempSalesTaxAmountLine2.Copy(TempSalesTaxAmountLine);
+                TempSalesTaxAmountLine2.Insert();
+            until TempSalesTaxAmountLine.Next() = 0;
+
+        OnAfterGetSalesTaxAmountLineTable(TempSalesTaxAmountLine2);
     end;
 
     procedure PutSalesTaxAmountLineTable(var SalesTaxLine2: Record "Sales Tax Amount Line" temporary; ProductArea: Integer; DocumentType: Integer; DocumentNo: Code[20])
     begin
-        TempSalesTaxLine.Reset();
-        TempSalesTaxLine.DeleteAll();
+        TempSalesTaxAmountLine.Reset();
+        TempSalesTaxAmountLine.DeleteAll();
         if SalesTaxLine2.FindSet then
             repeat
-                TempSalesTaxLine.Copy(SalesTaxLine2);
-                TempSalesTaxLine.Insert();
+                TempSalesTaxAmountLine.Copy(SalesTaxLine2);
+                TempSalesTaxAmountLine.Insert();
             until SalesTaxLine2.Next() = 0;
 
         CreateSingleTaxDifference(ProductArea, DocumentType, DocumentNo);
@@ -1434,7 +1442,7 @@ codeunit 398 "Sales Tax Calculate"
 
         ResetTaxAmountsInSalesLines(SalesLine, SalesHeader."Tax Area Code");
 
-        with TempSalesTaxLine do begin
+        with TempSalesTaxAmountLine do begin
             Reset;
             if FindSet then
                 repeat
@@ -1462,7 +1470,7 @@ codeunit 398 "Sales Tax Calculate"
                         then begin
                             if "Tax Type" = "Tax Type"::"Sales and Use Tax" then begin
                                 Amount := (SalesLine."Line Amount" - SalesLine."Inv. Discount Amount");
-                                OnDistTaxOverSalesLinesOnTempSalesTaxLineLoopOnAfterSetTempSalesTaxLineAmount(TempSalesTaxLine, SalesLine, SalesHeader, Amount);
+                                OnDistTaxOverSalesLinesOnTempSalesTaxLineLoopOnAfterSetTempSalesTaxLineAmount(TempSalesTaxAmountLine, SalesLine, SalesHeader, Amount);
                                 if "Tax Difference" <> 0 then
                                     TaxAmount := Amount * "Tax Amount" / "Tax Base Amount"
                                 else
@@ -1563,7 +1571,7 @@ codeunit 398 "Sales Tax Calculate"
         ResetTaxAmountsInPurchLines(PurchLine, PurchHeader."Tax Area Code");
         PurchLine.SetPurchHeader(PurchHeader);
 
-        with TempSalesTaxLine do begin
+        with TempSalesTaxAmountLine do begin
             Reset;
             // LOCKING
             if FindSet then
@@ -1585,7 +1593,7 @@ codeunit 398 "Sales Tax Calculate"
                         then begin
                             if "Tax Type" = "Tax Type"::"Sales and Use Tax" then begin
                                 Amount := (PurchLine."Line Amount" - PurchLine."Inv. Discount Amount");
-                                OnDistTaxOverPurchLinesOnTempSalesTaxLineLoopOnAfterSetTempSalesTaxLineAmount(TempSalesTaxLine, PurchLine, PurchHeader, Amount);
+                                OnDistTaxOverPurchLinesOnTempSalesTaxLineLoopOnAfterSetTempSalesTaxLineAmount(TempSalesTaxAmountLine, PurchLine, PurchHeader, Amount);
                                 if "Tax Difference" <> 0 then
                                     TaxAmount := Amount * "Tax Amount" / "Tax Base Amount"
                                 else
@@ -1710,7 +1718,7 @@ codeunit 398 "Sales Tax Calculate"
                 exit;
         end;
 
-        with TempSalesTaxLine do begin
+        with TempSalesTaxAmountLine do begin
             Reset;
             if FindSet then
                 repeat
@@ -1890,27 +1898,27 @@ codeunit 398 "Sales Tax Calculate"
         TaxAmountDifference.SetRange("Document No.", TempTaxAmountDifference."Document No.");
         TaxAmountDifference.DeleteAll();
 
-        TempSalesTaxLine.Reset();
-        TempSalesTaxLine.SetFilter("Tax Difference", '<>0');
-        if TempSalesTaxLine.FindSet then
+        TempSalesTaxAmountLine.Reset();
+        TempSalesTaxAmountLine.SetFilter("Tax Difference", '<>0');
+        if TempSalesTaxAmountLine.FindSet then
             repeat
                 TaxAmountDifference."Document Product Area" := TempTaxAmountDifference."Document Product Area";
                 TaxAmountDifference."Document Type" := TempTaxAmountDifference."Document Type";
                 TaxAmountDifference."Document No." := TempTaxAmountDifference."Document No.";
-                TaxAmountDifference."Tax Area Code" := TempSalesTaxLine."Tax Area Code for Key";
-                TaxAmountDifference."Tax Jurisdiction Code" := TempSalesTaxLine."Tax Jurisdiction Code";
-                if TempSalesTaxLine.Positive then
-                    TaxAmountDifference."Tax %" := TempSalesTaxLine."Tax %"
+                TaxAmountDifference."Tax Area Code" := TempSalesTaxAmountLine."Tax Area Code for Key";
+                TaxAmountDifference."Tax Jurisdiction Code" := TempSalesTaxAmountLine."Tax Jurisdiction Code";
+                if TempSalesTaxAmountLine.Positive then
+                    TaxAmountDifference."Tax %" := TempSalesTaxAmountLine."Tax %"
                 else
-                    TaxAmountDifference."Tax %" := -TempSalesTaxLine."Tax %";
-                TaxAmountDifference."Tax Group Code" := TempSalesTaxLine."Tax Group Code";
-                TaxAmountDifference."Expense/Capitalize" := TempSalesTaxLine."Expense/Capitalize";
-                TaxAmountDifference."Tax Type" := TempSalesTaxLine."Tax Type";
-                TaxAmountDifference."Use Tax" := TempSalesTaxLine."Use Tax";
-                TaxAmountDifference."Tax Difference" := TempSalesTaxLine."Tax Difference";
-                TaxAmountDifference.Positive := TempSalesTaxLine.Positive;
+                    TaxAmountDifference."Tax %" := -TempSalesTaxAmountLine."Tax %";
+                TaxAmountDifference."Tax Group Code" := TempSalesTaxAmountLine."Tax Group Code";
+                TaxAmountDifference."Expense/Capitalize" := TempSalesTaxAmountLine."Expense/Capitalize";
+                TaxAmountDifference."Tax Type" := TempSalesTaxAmountLine."Tax Type";
+                TaxAmountDifference."Use Tax" := TempSalesTaxAmountLine."Use Tax";
+                TaxAmountDifference."Tax Difference" := TempSalesTaxAmountLine."Tax Difference";
+                TaxAmountDifference.Positive := TempSalesTaxAmountLine.Positive;
                 TaxAmountDifference.Insert();
-            until TempSalesTaxLine.Next() = 0;
+            until TempSalesTaxAmountLine.Next() = 0;
     end;
 
     procedure SetPurchHeader(NewPurchHeader: Record "Purchase Header")
@@ -1936,7 +1944,15 @@ codeunit 398 "Sales Tax Calculate"
     var
         MaxAmount: Decimal;
         TaxBaseAmount: Decimal;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCalculateExpenseTax(
+            TaxAreaCode, TaxGroupCode, TaxLiable, Date, Amount, Quantity, ExchangeRate, TaxAmount,
+            TempTaxDetailMaximums, TaxDetail, TaxAreaLine, IsHandled);
+        if IsHandled then
+            exit;
+
         TaxAmount := 0;
 
         if not TaxLiable or (TaxAreaCode = '') or (TaxGroupCode = '') or
@@ -1970,45 +1986,45 @@ codeunit 398 "Sales Tax Calculate"
                         TaxBaseAmount := Amount + TaxAmount
                     else
                         TaxBaseAmount := Amount;
-                    TaxDetailMaximumsTemp := TaxDetail;
-                    if not TaxDetailMaximumsTemp.Find then
-                        TaxDetailMaximumsTemp.Insert();
-                    MaxAmountPerQty := TaxDetailMaximumsTemp."Maximum Amount/Qty.";
+                    TempTaxDetailMaximums := TaxDetail;
+                    if not TempTaxDetailMaximums.Find then
+                        TempTaxDetailMaximums.Insert();
+                    MaxAmountPerQty := TempTaxDetailMaximums."Maximum Amount/Qty.";
                     if (Abs(TaxBaseAmount) <= TaxDetail."Maximum Amount/Qty.") or
                        (TaxDetail."Maximum Amount/Qty." = 0)
                     then begin
                         TaxAmount := TaxAmount + TaxBaseAmount * TaxDetail."Tax Below Maximum" / 100;
-                        TaxDetailMaximumsTemp."Maximum Amount/Qty." := TaxDetailMaximumsTemp."Maximum Amount/Qty." - TaxBaseAmount;
-                        TaxDetailMaximumsTemp.Modify();
+                        TempTaxDetailMaximums."Maximum Amount/Qty." := TempTaxDetailMaximums."Maximum Amount/Qty." - TaxBaseAmount;
+                        TempTaxDetailMaximums.Modify();
                     end else begin
                         MaxAmount := TaxBaseAmount / Abs(TaxBaseAmount) * TaxDetail."Maximum Amount/Qty.";
                         TaxAmount :=
                           TaxAmount + ((MaxAmount * TaxDetail."Tax Below Maximum") +
                                        ((TaxBaseAmount - MaxAmount) * TaxDetail."Tax Above Maximum")) / 100;
-                        TaxDetailMaximumsTemp."Maximum Amount/Qty." := 0;
-                        TaxDetailMaximumsTemp.Modify();
+                        TempTaxDetailMaximums."Maximum Amount/Qty." := 0;
+                        TempTaxDetailMaximums.Modify();
                     end;
                 end;
                 TaxDetail.SetRange("Tax Type", TaxDetail."Tax Type"::"Excise Tax");
                 if TaxDetail.FindLast and TaxDetail."Expense/Capitalize" then begin
-                    TaxDetailMaximumsTemp := TaxDetail;
-                    if not TaxDetailMaximumsTemp.Find then
-                        TaxDetailMaximumsTemp.Insert();
-                    MaxAmountPerQty := TaxDetailMaximumsTemp."Maximum Amount/Qty.";
+                    TempTaxDetailMaximums := TaxDetail;
+                    if not TempTaxDetailMaximums.Find then
+                        TempTaxDetailMaximums.Insert();
+                    MaxAmountPerQty := TempTaxDetailMaximums."Maximum Amount/Qty.";
 
                     if (Abs(Quantity) <= TaxDetail."Maximum Amount/Qty.") or
                        (TaxDetail."Maximum Amount/Qty." = 0)
                     then begin
                         TaxAmount := TaxAmount + Quantity * TaxDetail."Tax Below Maximum";
-                        TaxDetailMaximumsTemp."Maximum Amount/Qty." := TaxDetailMaximumsTemp."Maximum Amount/Qty." - Quantity;
-                        TaxDetailMaximumsTemp.Modify();
+                        TempTaxDetailMaximums."Maximum Amount/Qty." := TempTaxDetailMaximums."Maximum Amount/Qty." - Quantity;
+                        TempTaxDetailMaximums.Modify();
                     end else begin
                         MaxAmount := Quantity / Abs(Quantity) * TaxDetail."Maximum Amount/Qty.";
                         TaxAmount :=
                           TaxAmount + (MaxAmount * TaxDetail."Tax Below Maximum") +
                           ((Quantity - MaxAmount) * TaxDetail."Tax Above Maximum");
-                        TaxDetailMaximumsTemp."Maximum Amount/Qty." := 0;
-                        TaxDetailMaximumsTemp.Modify();
+                        TempTaxDetailMaximums."Maximum Amount/Qty." := 0;
+                        TempTaxDetailMaximums.Modify();
                     end;
                 end;
             until TaxAreaLine.Next(-1) = 0;
@@ -2071,10 +2087,10 @@ codeunit 398 "Sales Tax Calculate"
                 SetRange("Tax Area Code", TaxAreaCode);
             if FindSet(true) then
                 repeat
-                    TempSalesTaxLine.SetRange("Tax Area Code", TaxAreaCode);
-                    TempSalesTaxLine.SetRange("Tax Group Code", "Tax Group Code");
-                    TempSalesTaxLine.SetRange("Use Tax", "Use Tax");
-                    if TempSalesTaxLine.IsEmpty() then begin
+                    TempSalesTaxAmountLine.SetRange("Tax Area Code", TaxAreaCode);
+                    TempSalesTaxAmountLine.SetRange("Tax Group Code", "Tax Group Code");
+                    TempSalesTaxAmountLine.SetRange("Use Tax", "Use Tax");
+                    if TempSalesTaxAmountLine.IsEmpty() then begin
                         Amount := "Line Amount" - "Inv. Discount Amount";
                         "Amount Including VAT" := Amount;
                         "VAT Base Amount" := Amount;
@@ -2093,9 +2109,9 @@ codeunit 398 "Sales Tax Calculate"
                 SetRange("Tax Area Code", TaxAreaCode);
             if FindSet(true) then
                 repeat
-                    TempSalesTaxLine.SetRange("Tax Area Code", TaxAreaCode);
-                    TempSalesTaxLine.SetRange("Tax Group Code", "Tax Group Code");
-                    if TempSalesTaxLine.IsEmpty() then begin
+                    TempSalesTaxAmountLine.SetRange("Tax Area Code", TaxAreaCode);
+                    TempSalesTaxAmountLine.SetRange("Tax Group Code", "Tax Group Code");
+                    if TempSalesTaxAmountLine.IsEmpty() then begin
                         Amount := "Line Amount" - "Inv. Discount Amount";
                         "Amount Including VAT" := Amount;
                         "VAT Base Amount" := Amount;
@@ -2266,6 +2282,31 @@ codeunit 398 "Sales Tax Calculate"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterAddPurchLine(var TempSalesTaxLine: Record "Sales Tax Amount Line" temporary; PurchLine: Record "Purchase Line"; PurchHeader: Record "Purchase Header"; ExchangeFactor: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeStartSalestaxCalculation()
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAddSalesLineOnAfterTempSalesTaxAmountLineSetFilters(var TempSalesTaxAmountLine: Record "Sales Tax Amount Line" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAddPurchLineOnAfterTempSalesTaxAmountLineSetFilters(var TempSalesTaxAmountLine: Record "Sales Tax Amount Line" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetSalesTaxAmountLineTable(var TempSalesTaxAmountLine: Record "Sales Tax Amount Line" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalculateExpenseTax(TaxAreaCode: Code[20]; TaxGroupCode: Code[20]; TaxLiable: Boolean; Date: Date; Amount: Decimal; Quantity: Decimal; ExchangeRate: Decimal; var TaxAmount: Decimal; var TempTaxDetailMaximums: Record "Tax Detail" temporary; var TaxDetail: Record "Tax Detail"; var TaxAreaLine: Record "Tax Area Line"; var IsHandled: Boolean)
     begin
     end;
 }

@@ -41,7 +41,7 @@ codeunit 134255 "Delete Bank Reconciliation"
 
         // [GIVEN] The 2 bank ledger entries are suggested as lines for a bank account 
         // reconciliation
-        SuggestLedgerEntryLinesForBankAccReconciliation(BankAccountNo, StatementNo);
+        SuggestLedgerEntryLinesForBankAccReconciliation(BankAccountNo, StatementNo, LedgerEntryDate);
         VerifyStatementLines(BankAccountNo, StatementNo);
 
         // [WHEN] Deleting the bank account reconciliation
@@ -54,7 +54,7 @@ codeunit 134255 "Delete Bank Reconciliation"
             'The second bank account ledger entry was not reset correctly.');
 
         // [WHEN] Suggesting lines for a new bank reconciliation        
-        SuggestLedgerEntryLinesForBankAccReconciliation(BankAccountNo, StatementNo);
+        SuggestLedgerEntryLinesForBankAccReconciliation(BankAccountNo, StatementNo, LedgerEntryDate);
 
         // [THEN] The two ledger entries can be added to the new bank account reconciliation
         VerifyStatementLines(BankAccountNo, StatementNo);
@@ -90,7 +90,7 @@ codeunit 134255 "Delete Bank Reconciliation"
 
         // [GIVEN] The 2 ledger entries are suggested as lines for a bank account 
         // reconciliation
-        SuggestLedgerEntryLinesForBankAccReconciliation(BankAccountNo, StatementNo);
+        SuggestLedgerEntryLinesForBankAccReconciliation(BankAccountNo, StatementNo, LedgerEntryDate);
         VerifyStatementLines(BankAccountNo, StatementNo);
 
         // [WHEN] Deleting the bank account reconciliation
@@ -103,7 +103,7 @@ codeunit 134255 "Delete Bank Reconciliation"
             'The second check ledger entry was not reset correctly.');
 
         // [WHEN] Suggesting lines for a new bank reconciliation        
-        SuggestLedgerEntryLinesForBankAccReconciliation(BankAccountNo, StatementNo);
+        SuggestLedgerEntryLinesForBankAccReconciliation(BankAccountNo, StatementNo, LedgerEntryDate);
 
         // [THEN] The two ledger entries can be added to the new bank account reconciliation
         VerifyStatementLines(BankAccountNo, StatementNo);
@@ -137,14 +137,14 @@ codeunit 134255 "Delete Bank Reconciliation"
             and CheckLedgerEntry.Open);
     end;
 
-    local procedure SuggestLedgerEntryLinesForBankAccReconciliation(BankAccountNo: Code[20]; StatementNo: Code[20])
+    local procedure SuggestLedgerEntryLinesForBankAccReconciliation(BankAccountNo: Code[20]; StatementNo: Code[20]; StatementDate: Date)
     var
         BankAccountReconciliation: Record "Bank Acc. Reconciliation";
         BankAccountReconciliationLine: Record "Bank Acc. Reconciliation Line";
     begin
         // [GIVEN] A bank account reconciliation
         BankAccountReconciliation.DeleteAll();
-        CreateBankAccRec(BankAccountReconciliation, BankAccountNo, StatementNo);
+        CreateBankAccRec(BankAccountReconciliation, BankAccountNo, StatementNo, StatementDate);
 
         // [GIVEN] There are no bank account reconciliation lines
         BankAccountReconciliationLine.DeleteAll();
@@ -165,13 +165,13 @@ codeunit 134255 "Delete Bank Reconciliation"
             'The bank account reconciliation should have 2 lines.');
     end;
 
-    local procedure CreateBankAccRec(var BankAccRecon: Record "Bank Acc. Reconciliation"; BankAccNo: Code[20]; StatementNo: Code[20])
+    local procedure CreateBankAccRec(var BankAccRecon: Record "Bank Acc. Reconciliation"; BankAccNo: Code[20]; StatementNo: Code[20]; StatementDate: Date)
     begin
         with BankAccRecon do begin
             Init;
             "Bank Account No." := BankAccNo;
             "Statement No." := StatementNo;
-            "Statement Date" := WorkDate;
+            "Statement Date" := StatementDate;
             "Statement Type" := "Statement Type"::"Payment Application";
             Insert;
         end;

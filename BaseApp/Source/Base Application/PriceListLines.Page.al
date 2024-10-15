@@ -15,16 +15,16 @@ page 7001 "Price List Lines"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field(SourceType; CustomerSourceType)
+                field(SourceType; SourceType)
                 {
                     ApplicationArea = All;
                     Caption = 'Applies-to Type';
-                    Visible = IsCustomerGroup and AllowUpdatingDefaults;
+                    Visible = not IsJobGroup and AllowUpdatingDefaults;
                     ToolTip = 'Specifies the source of the price on the price list line. For example, the price can come from the customer or customer price group.';
 
                     trigger OnValidate()
                     begin
-                        ValidateSourceType(CustomerSourceType.AsInteger());
+                        ValidateSourceType(SourceType.AsInteger());
                     end;
                 }
                 field(JobSourceType; JobSourceType)
@@ -44,8 +44,8 @@ page 7001 "Price List Lines"
                     ApplicationArea = All;
                     Caption = 'Applies-to Job No.';
                     Importance = Promoted;
-                    Editable = IsJobTask;
-                    Visible = AllowUpdatingDefaults and IsJobGroup;
+                    Editable = IsParentAllowed;
+                    Visible = AllowUpdatingDefaults and IsParentAllowed;
                     ToolTip = 'Specifies the job that is the source of the price on the price list line.';
                 }
                 field(SourceNo; Rec."Source No.")
@@ -149,7 +149,7 @@ page 7001 "Price List Lines"
                     Editable = AmountEditable;
                     Enabled = PriceMandatory;
                     Visible = PriceVisible;
-                    Style = Subordinate;
+                    Style = Attention;
                     StyleExpr = not PriceMandatory or LineToVerify;
                     ToolTip = 'Specifies the unit price of the product.';
                 }
@@ -160,7 +160,7 @@ page 7001 "Price List Lines"
                     Editable = AmountEditable;
                     Enabled = PriceMandatory;
                     Visible = PriceVisible;
-                    Style = Subordinate;
+                    Style = Attention;
                     StyleExpr = not PriceMandatory or LineToVerify;
                     ToolTip = 'Specifies the unit cost factor, if you have agreed with your customer that he should pay certain item usage by cost value plus a certain percent value to cover your overhead expenses.';
                 }
@@ -186,7 +186,7 @@ page 7001 "Price List Lines"
                     Visible = PriceVisible;
                     Enabled = PriceMandatory;
                     Editable = PriceMandatory;
-                    Style = Subordinate;
+                    Style = Attention;
                     StyleExpr = not PriceMandatory or LineToVerify;
                     ToolTip = 'Specifies if a line discount will be calculated when the price is offered.';
                 }
@@ -197,7 +197,7 @@ page 7001 "Price List Lines"
                     Visible = DiscountVisible;
                     Enabled = DiscountMandatory;
                     Editable = DiscountMandatory;
-                    Style = Subordinate;
+                    Style = Attention;
                     StyleExpr = not DiscountMandatory or LineToVerify;
                     ToolTip = 'Specifies the line discount percentage for the product.';
                 }
@@ -207,7 +207,7 @@ page 7001 "Price List Lines"
                     Visible = PriceVisible;
                     Enabled = PriceMandatory;
                     Editable = PriceMandatory;
-                    Style = Subordinate;
+                    Style = Attention;
                     StyleExpr = not PriceMandatory or LineToVerify;
                     ToolTip = 'Specifies if an invoice discount will be calculated when the price is offered.';
                 }
@@ -256,10 +256,9 @@ page 7001 "Price List Lines"
         AmountTypeIsVisible: Boolean;
         AmountTypeIsEditable: Boolean;
         JobSourceType: Enum "Job Price Source Type";
-        CustomerSourceType: Enum "Sales Price Source Type";
-        IsCustomerGroup: Boolean;
+        SourceType: Enum "Sales Price Source Type";
         IsJobGroup: Boolean;
-        IsJobTask: Boolean;
+        IsParentAllowed: Boolean;
         LineToVerify: Boolean;
         SourceNoEnabled: Boolean;
         AllowUpdatingDefaults: Boolean;
@@ -306,35 +305,37 @@ page 7001 "Price List Lines"
     end;
 
     procedure SetSubFormLinkFilter(NewViewAmountType: Enum "Price Amount Type")
-    var
-        PriceListLine: Record "Price List Line";
     begin
         ViewAmountType := NewViewAmountType;
+        Rec.FilterGroup(2);
         if ViewAmountType = ViewAmountType::Any then
-            PriceListLine.SetRange("Amount Type")
+            Rec.SetRange("Amount Type")
         else
-            PriceListLine.SetFilter("Amount Type", '%1|%2', ViewAmountType, ViewAmountType::Any);
-        CurrPage.SetTableView(PriceListLine);
+            Rec.SetFilter("Amount Type", '%1|%2', ViewAmountType, ViewAmountType::Any);
+        Rec.FilterGroup(0);
         UpdateColumnVisibility();
         CurrPage.Update(false);
         CurrPage.Activate(true);
     end;
 
     local procedure UpdateSourceType()
+    var
+        PriceSource: Record "Price Source";
     begin
         case PriceListHeader."Source Group" of
             "Price Source Group"::Customer:
                 begin
-                    IsCustomerGroup := true;
-                    CustomerSourceType := "Sales Price Source Type".FromInteger(Rec."Source Type".AsInteger());
+                    IsJobGroup := false;
+                    SourceType := "Sales Price Source Type".FromInteger(Rec."Source Type".AsInteger());
                 end;
             "Price Source Group"::Job:
                 begin
                     IsJobGroup := true;
                     JobSourceType := "Job Price Source Type".FromInteger(Rec."Source Type".AsInteger());
-                    IsJobTask := JobSourceType = JobSourceType::"Job Task";
                 end;
         end;
+        PriceSource."Source Type" := Rec."Source Type";
+        IsParentAllowed := PriceSource.IsParentSourceAllowed();
     end;
 
     local procedure SetSourceNoEnabled()

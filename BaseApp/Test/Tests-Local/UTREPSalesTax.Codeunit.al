@@ -16,6 +16,7 @@ codeunit 142066 "UT REP Sales Tax"
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryUTUtility: Codeunit "Library UT Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibraryUtility: Codeunit "Library - Utility";
         AreaFiltersCap: Label 'AreaFilters';
         CompanyAddressCap: Label 'CompanyAddress1';
         CopyNoCap: Label 'CopyNo';
@@ -1867,6 +1868,8 @@ codeunit 142066 "UT REP Sales Tax"
         CreateTaxDetailWithJurisdiction(TaxDetail);
         TaxArea.Code := LibraryUTUtility.GetNewCode;
         TaxArea."Use External Tax Engine" := UseExternalTaxEngine;
+        // TFS ID 387685: Check that TaxArea with maxstrlen Description doesn't raise StringOverflow
+        TaxArea.Description := LibraryUtility.GenerateRandomXMLText(MaxStrLen(TaxArea.Description));
         TaxArea.Insert();
         TaxAreaLine."Tax Area" := TaxArea.Code;
         TaxAreaLine."Tax Jurisdiction Code" := TaxDetail."Tax Jurisdiction Code";
