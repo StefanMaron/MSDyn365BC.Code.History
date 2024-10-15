@@ -622,6 +622,7 @@ report 393 "Suggest Vendor Payments"
                     end;
                 end;
             until VendLedgEntry.Next() = 0;
+        OnAfterGetVendLedgEntries(VendLedgEntry, Vendor, PostingDate, LastDueDateToPayReq, UsePriority, UseDueDateAsPostingDate, DueDateOffset, Positive, Future, PayableVendLedgEntry, NextEntryNo);
     end;
 
     local procedure IncludeVendor(Vendor: Record Vendor; VendorBalance: Decimal) Result: Boolean
@@ -1207,6 +1208,11 @@ report 393 "Suggest Vendor Payments"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterIncludeVendor(Vendor: Record Vendor; VendorBalance: Decimal; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetVendLedgEntries(var VendorLedgerEntry: Record "Vendor Ledger Entry"; Vendor: Record Vendor; PostingDate: Date; LastDueDateToPayReq: Date; UseVendorPriority: Boolean; UseDueDateAsPostingDate: Boolean; DueDateOffset: DateFormula; Positive: Boolean; Future: Boolean; var PayableVendorLedgerEntry: Record "Payable Vendor Ledger Entry" temporary; var NextEntryNo: Integer)
     begin
     end;
 

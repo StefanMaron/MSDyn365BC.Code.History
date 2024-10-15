@@ -232,6 +232,19 @@
             Caption = 'Amounts in Add. Rep. Currency';
             Editable = false;
         }
+        field(10600; "KID Number"; Code[25])
+        {
+            Caption = 'KID';
+#if not CLEAN18
+            ObsoleteState = Pending;
+            ObsoleteTag = '20.0';
+            ObsoleteReason = 'Moved to extension';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '23.0';
+            ObsoleteReason = 'Moved to extension';
+#endif
+        }
         field(4800; "VATGroup Return"; Boolean)
         {
             ObsoleteState = Removed;

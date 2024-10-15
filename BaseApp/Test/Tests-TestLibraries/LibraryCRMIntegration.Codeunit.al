@@ -344,6 +344,18 @@ codeunit 139164 "Library - CRM Integration"
     end;
 
     [Scope('OnPrem')]
+    procedure CoupleItem(var Item: Record Item; CRMUom: Record "CRM Uom"; var CRMProduct: Record "CRM Product")
+    var
+        Currency: Record Currency;
+        CRMTransactioncurrency: Record "CRM Transactioncurrency";
+    begin
+        CreateCoupledCurrencyAndTransactionCurrency(Currency, CRMTransactioncurrency);
+        CreateCRMProduct(CRMProduct, CRMTransactioncurrency, CRMUom);
+        CoupleRecordIdToCRMId(Item.RecordId, CRMProduct.ProductId);
+        Item.Find();
+    end;
+
+    [Scope('OnPrem')]
     procedure CreateCoupledSalespersonAndSystemUser(var SalespersonPurchaser: Record "Salesperson/Purchaser"; var CRMSystemuser: Record "CRM Systemuser")
     var
         CRMIntegrationRecord: Record "CRM Integration Record";
@@ -384,6 +396,14 @@ codeunit 139164 "Library - CRM Integration"
         // Couple NAV Unit of Measure and CRM UoM Schedule
         CoupleRecordIdToCRMId(UnitGroup.RecordId, CRMUomschedule.UoMScheduleId);
         UnitGroup.Find();
+    end;
+
+    [Scope('OnPrem')]
+    procedure CoupleItemUnitOfMeasure(ItemUnitOfMeasure: Record "Item Unit of Measure"; CRMUomschedule: Record "CRM Uomschedule"; var CRMUom: Record "CRM Uom")
+    begin
+        CreateCRMUom(CRMUomschedule, CRMUom, ItemUnitOfMeasure.Code);
+        CoupleRecordIdToCRMId(ItemUnitOfMeasure.RecordId, CRMUom.UoMId);
+        CRMUom.Find();
     end;
 
     [Scope('OnPrem')]
@@ -1012,6 +1032,26 @@ codeunit 139164 "Library - CRM Integration"
         CRMUomschedule.CreatedOn := CurrentCRMDateTime();
         CRMUomschedule.ModifiedOn := CRMUomschedule.CreatedOn;
         CRMUomschedule.Insert();
+    end;
+
+    [Scope('OnPrem')]
+    procedure CreateCRMUom(CRMUomschedule: Record "CRM Uomschedule"; var CRMUom: Record "CRM Uom"; CRMUomName: Text[200])
+    var
+        CRMSystemuser: Record "CRM Systemuser";
+    begin
+        EnsureCRMSystemUser();
+        CRMSystemuser.SetFilter(FirstName, '<>Integration');
+        CRMSystemuser.FindFirst();
+
+        Clear(CRMUom);
+        CRMUom.Init();
+        CRMUom.Name := CRMUomName;
+        CRMUom.UoMScheduleId := CRMUomschedule.UoMScheduleId;
+        CRMUom.CreatedBy := CRMSystemuser.SystemUserId;
+        CRMUom.ModifiedBy := CRMSystemuser.SystemUserId;
+        CRMUom.CreatedOn := CurrentCRMDateTime();
+        CRMUom.ModifiedOn := CRMUomschedule.CreatedOn;
+        CRMUom.Insert();
     end;
 
     [Scope('OnPrem')]
