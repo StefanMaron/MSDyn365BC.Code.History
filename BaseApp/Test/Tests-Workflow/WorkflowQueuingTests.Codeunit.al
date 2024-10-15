@@ -11,9 +11,15 @@ codeunit 134315 "Workflow Queuing Tests"
     var
         Assert: Codeunit Assert;
         LibraryWorkflow: Codeunit "Library - Workflow";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryJournals: Codeunit "Library - Journals";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
+
+    local procedure Initialize()
+    begin
+        LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Workflow Queuing Tests");
+    end;
 
     [Test]
     [Scope('OnPrem')]
@@ -30,6 +36,7 @@ codeunit 134315 "Workflow Queuing Tests"
         // [WHEN] The entry point event is executed.
         // [THEN] The workflow is completed and archived, and is not getting stuck in the process.
 
+        Initialize();
         // Setup
         LibraryERMCountryData.CreateVATData();
         WorkflowStepInstanceArchive.DeleteAll();

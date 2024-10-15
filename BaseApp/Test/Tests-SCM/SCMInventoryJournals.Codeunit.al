@@ -25,6 +25,7 @@ codeunit 137275 "SCM Inventory Journals"
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         Assert: Codeunit Assert;
+        LibraryCosting: Codeunit "Library - Costing";
         ItemLedgerEntryType: Enum "Item Ledger Entry Type";
         isInitialized: Boolean;
         GlobalNewSerialNo: Code[50];
@@ -1699,6 +1700,32 @@ codeunit 137275 "SCM Inventory Journals"
             StrSubstNo(TextGetLastErrorText, GetLastErrorText, RecurringMustNoErr));
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure RevaluationJournalLinePostedWIthoutErrorWhenItemDefaultDimensionWithCodeMandatory()
+    var
+        Item: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        GlobalDimensionValueCode: Code[20];
+    begin
+        // [SCENARIO 497656] Item Revaluation Journal posted without error after posting Transfer Order and running Calculate Inventory Value Report when Item's Default Dimensions set as Code mandatory
+        Initialize();
+
+        // [GIVEN] Create Item, Create and post Transfer Order.
+        LibraryInventory.CreateItem(Item);
+        CreateAndPostTransferOrder(Item."No.");
+
+        // [GIVEN] Create Default Dimension for Item with Code Mandatory
+        GlobalDimensionValueCode := AddGlobalDimension(Database::Item, 1);
+
+        // [THEN] Create Revaluation Journal for Item, and Update Unit Cost Revalued for Item at transferred Location.
+        CreateRevaluationJournalForItem(Item."No.", ItemJournalLine);
+        UpdateItemJournallineUnitCostRevalued(Item."No.", GlobalDimensionValueCode);
+
+        // [THEN] Verify: Post Revaluation Journal Line For Item without any error
+        Codeunit.Run(Codeunit::"Item Jnl.-Post Batch", ItemJournalLine);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2348,6 +2375,66 @@ codeunit 137275 "SCM Inventory Journals"
         PhysInventoryJournal."Qty. (Phys. Inventory)".SetValue(ItemJournalLine."Qty. (Phys. Inventory)" - LibraryRandom.RandDec(10, 2));
         PhysInventoryJournal."Entry Type".AssertEquals(ItemJournalLine."Entry Type"::"Negative Adjmt.");
         PhysInventoryJournal.Close();
+    end;
+
+    local procedure AddGlobalDimension(TableID: Integer; DimNo: Integer) GlobalDimensionValueCode: Code[20];
+    var
+        DefaultDimension: Record "Default Dimension";
+        DimensionValue: Record "Dimension Value";
+        DimensionCode: Code[20];
+    begin
+        DimensionCode := LibraryERM.GetGlobalDimensionCode(DimNo);
+        DefaultDimension.Init();
+        DefaultDimension."Table ID" := TableID;
+        DefaultDimension."Dimension Code" := DimensionCode;
+        LibraryDimension.CreateDimensionValue(DimensionValue, DimensionCode);
+        GlobalDimensionValueCode := DimensionValue.Code;
+        DefaultDimension."Value Posting" := DefaultDimension."Value Posting"::"Code Mandatory";
+        DefaultDimension.Insert();
+    end;
+
+    local procedure CreateRevaluationJournalForItem(
+        ItemNo: Code[20];
+        var ItemJournalLine: Record "Item Journal Line")
+    var
+        ItemJournalBatch: Record "Item Journal Batch";
+        ItemJournalTemplate: Record "Item Journal Template";
+        Item: Record Item;
+        CalculatePer: Option "Item Ledger Entry",Item;
+        CalcBase: Option " ","Last Direct Unit Cost","Standard Cost - Assembly List","Standard Cost - Manufacturing";
+    begin
+        Item.SetRange("No.", ItemNo);
+        SelectAndClearItemJournalBatch(ItemJournalBatch, ItemJournalTemplate.Type::Revaluation);
+        ItemJournalLine.Validate("Journal Template Name", ItemJournalBatch."Journal Template Name");
+        ItemJournalLine.Validate("Journal Batch Name", ItemJournalBatch.Name);
+        ItemJournalLine.Validate("Value Entry Type", ItemJournalLine."Value Entry Type"::Revaluation);
+        LibraryCosting.CalculateInventoryValue(
+            ItemJournalLine, Item, WorkDate(), LibraryUtility.GetGlobalNoSeriesCode(),
+            CalculatePer::Item, true, false, false, CalcBase::" ", false);
+    end;
+
+    local procedure UpdateItemJournallineUnitCostRevalued(ItemNo: Code[20]; GlobalDimensionValueCode: Code[20])
+    var
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        ItemLedgerEntry.SetRange("Item No.", ItemNo);
+        ItemLedgerEntry.FindLast();
+
+        SelectItemJournalLineForLocation(ItemJournalLine, ItemNo, ItemLedgerEntry."Location Code");
+        ItemJournalLine.Validate("Unit Cost (Revalued)", LibraryRandom.RandDec(10, 2));
+        ItemJournalLine.Validate("Shortcut Dimension 1 Code", GlobalDimensionValueCode);
+        ItemJournalLine.Modify(true);
+    end;
+
+    local procedure SelectItemJournalLineForLocation(
+        var ItemJournalLine: Record "Item Journal Line";
+        ItemNo: Code[20];
+        LocationCode: Code[10])
+    begin
+        ItemJournalLine.SetRange("Item No.", ItemNo);
+        ItemJournalLine.SetRange("Location Code", LocationCode);
+        ItemJournalLine.FindFirst();
     end;
 
     [ModalPageHandler]

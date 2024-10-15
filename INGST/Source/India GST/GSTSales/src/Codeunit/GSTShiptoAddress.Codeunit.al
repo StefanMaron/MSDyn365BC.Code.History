@@ -22,8 +22,13 @@ codeunit 18151 "GST Ship To Address"
     var
         SelltoCustomer: Record Customer;
     begin
-        if SelltoCustomer.Get(SalesHeader."Sell-to Customer No.") then
-            SalesHeader.State := SelltoCustomer."State Code";
+        if SalesHeader."Sell-to Customer No." <> SalesHeader."Bill-to Customer No." then begin
+            if SelltoCustomer.Get(SalesHeader."Bill-to Customer No.") then
+                SalesHeader.State := SelltoCustomer."State Code";
+        end
+        else
+            if SelltoCustomer.Get(SalesHeader."Sell-to Customer No.") then
+                SalesHeader.State := SelltoCustomer."State Code";
     end;
 
     procedure UpdateShiptoAddressState(var SalesHeader: Record "Sales Header")

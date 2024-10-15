@@ -6,6 +6,7 @@ codeunit 120 "Calc. Running Cust. Balance"
 
     var
         CustLedgerEntry2: Record "Cust. Ledger Entry";
+        ClientTypeManagement: Codeunit System.Environment."Client Type Management";
         EntryValuesLCY: Dictionary of [Integer, Decimal];
 
     internal procedure GetCustomerBalanceLCY(var CustLedgerEntry: Record "Cust. Ledger Entry"): Decimal
@@ -20,9 +21,10 @@ codeunit 120 "Calc. Running Cust. Balance"
     var
         BalanceLCY: Decimal;
     begin
+        if ClientTypeManagement.GetCurrentClientType() in [ClientType::OData, ClientType::ODataV4] then
+            exit;
         if EntryValuesLCY.Get(CustLedgerEntry."Entry No.", RunningBalanceLCY) then
             exit;
-
         RunningBalanceLCY := 0;
         CustLedgerEntry2.SetLoadFields("Entry No.", "Amount (LCY)");
         CustLedgerEntry2.SetAutoCalcFields("Amount (LCY)");

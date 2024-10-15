@@ -181,6 +181,11 @@ page 5746 "Posted Transfer Rcpt. Subform"
         SetDimensionsVisibility();
     end;
 
+    trigger OnAfterGetRecord()
+    begin
+        Rec.ShowShortcutDimCode(ShortcutDimCode);
+    end;
+
     protected var
         ShortcutDimCode: array[8] of Code[20];
         DimVisible1: Boolean;

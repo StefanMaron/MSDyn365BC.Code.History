@@ -522,20 +522,25 @@ table 7321 "Warehouse Shipment Line"
     trigger OnDelete()
     var
         ItemTrackingMgt: Codeunit "Item Tracking Management";
+        IsHandled: Boolean;
     begin
         TestReleased();
 
         if "Assemble to Order" then
             Validate("Qty. to Ship", 0);
 
-        if "Qty. Shipped" < "Qty. Picked" then
-            if not Confirm(
-                 StrSubstNo(
-                   Text007,
-                   FieldCaption("Qty. Picked"), "Qty. Picked", FieldCaption("Qty. Shipped"),
-                   "Qty. Shipped", TableCaption), false)
-            then
-                Error('');
+        if "Qty. Shipped" < "Qty. Picked" then begin
+            IsHandled := false;
+            OnDeleteOnBeforeConfirmDelete(Rec, IsHandled);
+            if not IsHandled then
+                if not Confirm(
+                     StrSubstNo(
+                       Text007,
+                       FieldCaption("Qty. Picked"), "Qty. Picked", FieldCaption("Qty. Shipped"),
+                       "Qty. Shipped", TableCaption), false)
+                then
+                    Error('');
+        end;
 
         ItemTrackingMgt.SetDeleteReservationEntries(true);
         ItemTrackingMgt.DeleteWhseItemTrkgLines(
@@ -1341,6 +1346,11 @@ table 7321 "Warehouse Shipment Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnCreatePickDocFromWhseShptOnBeforeRunWhseShipmentCreatePick(var WhseShipmentCreatePick: Report "Whse.-Shipment - Create Pick")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDeleteOnBeforeConfirmDelete(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; var IsHandled: Boolean)
     begin
     end;
 }

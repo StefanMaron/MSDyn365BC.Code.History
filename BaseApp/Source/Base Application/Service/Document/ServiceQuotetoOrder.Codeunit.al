@@ -256,6 +256,7 @@ codeunit 5923 "Service-Quote to Order"
         ServiceQuoteLine.SetRange("Document No.", ServiceQuoteHeader."No.");
         ServiceQuoteLine.SetRange(Type, ServiceQuoteLine.Type::Item);
         ServiceQuoteLine.SetFilter("No.", '<>%1', '');
+        OnTransferQuoteToOrderLinesOnAfterServiceQuoteLineSetFilters(ServiceQuoteLine);
         if ServiceQuoteLine.FindSet() then
             repeat
                 IsHandled := false;
@@ -355,6 +356,11 @@ codeunit 5923 "Service-Quote to Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnRunOnBeforeCheckBlockedCustOnDocs(var ServiceHeaderOrder: Record "Service Header"; var ServiceHeader: Record "Service Header"; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTransferQuoteToOrderLinesOnAfterServiceQuoteLineSetFilters(var QuoteServiceLine: Record "Service Line")
     begin
     end;
 }

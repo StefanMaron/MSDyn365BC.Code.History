@@ -9,6 +9,7 @@ codeunit 134831 "Alloc. Acc. Purch. E2E Tests"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryPurchase: Codeunit "Library - Purchase";
         TestProxyNotifMgtExt: Codeunit "Test Proxy Notif. Mgt. Ext.";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryJournals: Codeunit "Library - Journals";
         LibraryERM: Codeunit "Library - ERM";
         Any: Codeunit Any;
@@ -20,6 +21,8 @@ codeunit 134831 "Alloc. Acc. Purch. E2E Tests"
         AllocationAccount: Record "Allocation Account";
         AllocAccManualOverride: Record "Alloc. Acc. Manual Override";
     begin
+        LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Alloc. Acc. Purch. E2E Tests");
+
         AllocationAccount.DeleteAll();
         AllocAccManualOverride.DeleteAll();
 

@@ -21,6 +21,7 @@
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryCosting: Codeunit "Library - Costing";
         LibraryDimension: Codeunit "Library - Dimension";
+        LibraryERM: Codeunit "Library - ERM";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryUtility: Codeunit "Library - Utility";
         Assert: Codeunit Assert;
@@ -3401,6 +3402,62 @@
         VerifyTransLineUnshipped(TransferLine, 1);
     end;
 
+    [Test]
+    procedure DimensionShortcutsOnPostedTransferShipmentReceiptSubforms()
+    var
+        Item: Record Item;
+        DefaultDimension: Record "Default Dimension";
+        DimensionValue: Record "Dimension Value";
+        Location: array[3] of Record Location;
+        ItemJournalLine: Record "Item Journal Line";
+        TransferHeader: Record "Transfer Header";
+        TransferLine: Record "Transfer Line";
+        PostedTransferShipment: TestPage "Posted Transfer Shipment";
+        PostedTranferReceipt: TestPage "Posted Transfer Receipt";
+    begin
+        // [FEATURE] [Transfer Shipment] [Transfer Receipt] [Dimension]
+        // [SCENARIO 498094] Dimension shortcuts are properly updated on posted transfer shipment and receipt subform pages.
+        Initialize();
+
+        // [GIVEN] Create dimension and set it as a Shortcut Dimension 8 Code in General Ledger Setup.
+        LibraryDimension.CreateDimWithDimValue(DimensionValue);
+        LibraryERM.SetShortcutDimensionCode(8, DimensionValue."Dimension Code");
+
+        // [GIVEN] Item "I" with the dimension.
+        LibraryInventory.CreateItem(Item);
+        LibraryDimension.CreateDefaultDimensionItem(
+          DefaultDimension, Item."No.", DimensionValue."Dimension Code", DimensionValue.Code);
+
+        // [GIVEN] Locations "A", "B", and in-transit location.
+        LibraryWarehouse.CreateTransferLocations(Location[1], Location[2], Location[3]);
+
+        // [GIVEN] Post inventory adjustment of "I" to location "A".
+        LibraryInventory.CreateItemJournalLineInItemTemplate(
+          ItemJournalLine, Item."No.", Location[1].Code, '', LibraryRandom.RandIntInRange(10, 20));
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [GIVEN] Create transfer order from "A" to "B".
+        LibraryWarehouse.CreateTransferHeader(TransferHeader, Location[1].Code, Location[2].Code, Location[3].Code);
+        LibraryWarehouse.CreateTransferLine(TransferHeader, TransferLine, Item."No.", LibraryRandom.RandInt(10));
+
+        // [WHEN] Ship and receive the transfer order.
+        LibraryInventory.PostTransferHeader(TransferHeader, true, true);
+
+        // [THEN] Shortcut Dimension 8 Code is filled in on the posted transfer shipment subform.
+        PostedTransferShipment.OpenView();
+        PostedTransferShipment.Filter.SetFilter("Transfer-from Code", Location[1].Code);
+        PostedTransferShipment.TransferShipmentLines.Filter.SetFilter("Item No.", Item."No.");
+        PostedTransferShipment.TransferShipmentLines.ShortcutDimCode8.AssertEquals(DimensionValue.Code);
+        PostedTransferShipment.Close();
+
+        // [THEN] Shortcut Dimension 8 Code is filled in on the posted transfer receipt subform.
+        PostedTranferReceipt.OpenView();
+        PostedTranferReceipt.Filter.SetFilter("Transfer-to Code", Location[2].Code);
+        PostedTranferReceipt.TransferReceiptLines.Filter.SetFilter("Item No.", Item."No.");
+        PostedTranferReceipt.TransferReceiptLines.ShortcutDimCode8.AssertEquals(DimensionValue.Code);
+        PostedTranferReceipt.Close();
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -3420,6 +3477,7 @@
 
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
         LibrarySetupStorage.Save(DATABASE::"Inventory Setup");
+        LibrarySetupStorage.SaveGeneralLedgerSetup();
 
         isInitialized := true;
         Commit();

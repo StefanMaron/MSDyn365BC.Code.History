@@ -30,11 +30,16 @@ codeunit 1254 "Match Bank Pmt. Appl."
     procedure MatchNoOverwriteOfManualOrAccepted(BankAccReconciliation: Record "Bank Acc. Reconciliation")
     var
         MatchBankPayments: Codeunit "Match Bank Payments";
+        IsHandled: Boolean;
     begin
-        BankAccReconciliationLine.FilterBankRecLines(BankAccReconciliation);
-        if BankAccReconciliationLine.FindFirst() then begin
-            MatchBankPayments.SetApplyEntries(true);
-            MatchBankPayments.MatchNoOverwriteOfManualOrAccepted(BankAccReconciliationLine);
+        IsHandled := false;
+        OnBeforeMatchNoOverwriteOfManualOrAccepted(BankAccReconciliation, IsHandled);
+        if not IsHandled then begin
+            BankAccReconciliationLine.FilterBankRecLines(BankAccReconciliation);
+            if BankAccReconciliationLine.FindFirst() then begin
+                MatchBankPayments.SetApplyEntries(true);
+                MatchBankPayments.MatchNoOverwriteOfManualOrAccepted(BankAccReconciliationLine);
+            end;
         end;
         OnAfterMatchBankPayments(BankAccReconciliation);
     end;
@@ -49,6 +54,11 @@ codeunit 1254 "Match Bank Pmt. Appl."
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeOnRun(var BankAccReconciliation: Record "Bank Acc. Reconciliation"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeMatchNoOverwriteOfManualOrAccepted(var BankAccReconciliation: Record "Bank Acc. Reconciliation"; var IsHandled: Boolean)
     begin
     end;
 
