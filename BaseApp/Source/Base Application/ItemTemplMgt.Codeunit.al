@@ -20,6 +20,7 @@
             exit(false);
 
         Item.Init();
+        InitItemNo(Item, ItemTempl);
         Item.Insert(true);
 
         ApplyItemTemplate(Item, ItemTempl);
@@ -287,6 +288,16 @@
 
         IsHandled := true;
         Page.Run(Page::"Item Templ. List");
+    end;
+
+    local procedure InitItemNo(var Item: Record Item; ItemTempl: Record "Item Templ.")
+    var
+        NoSeriesManagement: Codeunit NoSeriesManagement;
+    begin
+        if ItemTempl."No. Series" = '' then
+            exit;
+
+        NoSeriesManagement.InitSeries(ItemTempl."No. Series", '', 0D, Item."No.", Item."No. Series");
     end;
 
     [IntegrationEvent(false, false)]

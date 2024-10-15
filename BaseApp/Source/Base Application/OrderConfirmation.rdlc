@@ -5223,6 +5223,7 @@
                                                     <Value>=Fields!PmntTermsDesc.Value</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
+                                                      <Format>=last(Fields!UnitPrice_SalesLineFormat.Value)</Format>
                                                     </Style>
                                                   </TextRun>
                                                 </TextRuns>
@@ -5576,6 +5577,7 @@
                                                     <Value>=Fields!ShipToAddr3.Value</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
+                                                      <Format>=last(Fields!UnitPrice_SalesLineFormat.Value)</Format>
                                                     </Style>
                                                   </TextRun>
                                                 </TextRuns>
@@ -5879,6 +5881,7 @@
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                       <FontWeight>Bold</FontWeight>
+                                                      <Format>=last(Fields!UnitPrice_SalesLineFormat.Value)</Format>
                                                     </Style>
                                                   </TextRun>
                                                 </TextRuns>
@@ -6202,7 +6205,7 @@
                                                     <Value>=Fields!VATAmtLineLineAmt.Value</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
-                                                      <Format>=Fields!VATAmountLine__Line_Amount__Control72Format.Value</Format>
+                                                      <Format>=last(Fields!UnitPrice_SalesLineFormat.Value)</Format>
                                                     </Style>
                                                   </TextRun>
                                                 </TextRuns>
@@ -6772,6 +6775,7 @@
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                       <FontWeight>Bold</FontWeight>
+                                                      <Format>=last(Fields!UnitPrice_SalesLineFormat.Value)</Format>
                                                     </Style>
                                                   </TextRun>
                                                 </TextRuns>
@@ -7086,7 +7090,7 @@
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                       <FontWeight>Bold</FontWeight>
-                                                      <Format>=Fields!VALVATAmountLCYFormat.Value</Format>
+                                                      <Format>=last(Fields!UnitPrice_SalesLineFormat.Value)</Format>
                                                     </Style>
                                                   </TextRun>
                                                 </TextRuns>
@@ -7560,6 +7564,7 @@
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                       <FontWeight>Bold</FontWeight>
+                                                      <Format>=last(Fields!UnitPrice_SalesLineFormat.Value)</Format>
                                                     </Style>
                                                   </TextRun>
                                                 </TextRuns>
@@ -8026,6 +8031,7 @@
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                       <FontWeight>Bold</FontWeight>
+                                                      <Format>=last(Fields!UnitPrice_SalesLineFormat.Value)</Format>
                                                     </Style>
                                                   </TextRun>
                                                 </TextRuns>

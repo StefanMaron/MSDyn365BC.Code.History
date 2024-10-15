@@ -49,6 +49,7 @@
         Text008: Label '%1 %2 cannot be finished as the associated subcontract order %3 has not been fully delivered.';
         Text009: Label 'You cannot finish line %1 on %2 %3. It has consumption or capacity posted with no output.';
         Text010: Label 'You must specify a %1 in %2 %3 %4.';
+        ProdOrderCompRemainToPickErr: Label 'You cannot finish production order no. %1 because there is an outstanding pick for one or more components.', Comment = '%1: Production Order No.';
 
     [Obsolete('Replaced by ChangeProdOrderStatus with enum parameter NewStatus.', '17.0')]
     procedure ChangeStatusOnProdOrder(ProdOrder: Record "Production Order"; NewStatus: Option Quote,Planned,"Firm Planned",Released,Finished; NewPostingDate: Date; NewUpdateUnitCost: Boolean)
@@ -765,11 +766,10 @@
 
         with ProdOrderComp do begin
             ShowWarning := false;
-            SetAutoCalcFields("Pick Qty. (Base)");
             SetProdOrderCompFilters(ProdOrderComp, ProdOrder);
             if FindSet then
                 repeat
-                    TestField("Pick Qty. (Base)", 0);
+                    CheckNothingRemainingToPickForProdOrderComp(ProdOrderComp);
                     if (("Flushing Method" <> "Flushing Method"::Backward) and
                         ("Flushing Method" <> "Flushing Method"::"Pick + Backward") and
                         ("Routing Link Code" = '')) or
@@ -1008,6 +1008,24 @@
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetTimeAndQuantityOmItemJnlLine(var ItemJournalLine: Record "Item Journal Line"; ProdOrderRoutingLine: Record "Prod. Order Routing Line")
     begin
+    end;
+
+    local procedure CheckNothingRemainingToPickForProdOrderComp(ProdOrderComponent: Record "Prod. Order Component")
+    var
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+    begin
+        WarehouseActivityLine.SetFilter(
+          "Activity Type", '%1|%2|%3',
+          WarehouseActivityLine."Activity Type"::"Invt. Movement", WarehouseActivityLine."Activity Type"::"Invt. Pick",
+          WarehouseActivityLine."Activity Type"::Pick);
+        WarehouseActivityLine.SetSourceFilter(
+          DATABASE::"Prod. Order Component", ProdOrderComponent.Status, ProdOrderComponent."Prod. Order No.",
+          ProdOrderComponent."Prod. Order Line No.", ProdOrderComponent."Line No.", true);
+        WarehouseActivityLine.SetRange("Original Breakbulk", false);
+        WarehouseActivityLine.SetRange("Breakbulk No.", 0);
+        WarehouseActivityLine.SetFilter("Qty. Outstanding (Base)", '<>%1', 0);
+        if not WarehouseActivityLine.IsEmpty() then
+            Error(ProdOrderCompRemainToPickErr, ProdOrderComponent."Prod. Order No.");
     end;
 
     [IntegrationEvent(false, false)]

@@ -8214,9 +8214,6 @@ End Function
         <Field Name="TotalAmountExclInclVAT">
           <DataField>TotalAmountExclInclVAT</DataField>
         </Field>
-        <Field Name="TotalAmountExclInclVATFormat">
-          <DataField>TotalAmountExclInclVATFormat</DataField>
-        </Field>
         <Field Name="TotalAmountExclInclVATText">
           <DataField>TotalAmountExclInclVATText</DataField>
         </Field>

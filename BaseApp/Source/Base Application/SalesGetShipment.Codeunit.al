@@ -81,11 +81,13 @@ codeunit 64 "Sales-Get Shipment"
                         SalesShptLine := SalesShptLine2;
                         SalesShptLine.InsertInvLineFromShptLine(SalesLine);
                         CalcUpdatePrepmtAmtToDeductRounding(SalesShptLine, SalesLine, PrepmtAmtToDeductRounding);
-                        if Type = Type::"Charge (Item)" then
-                            GetItemChargeAssgnt(SalesShptLine2, SalesLine."Qty. to Invoice");
                     end;
                     OnAfterInsertLine(SalesShptLine, SalesLine, SalesShptLine2, TransferLine);
-                until Next = 0;
+                until Next() = 0;
+
+                UpdateItemChargeLines();
+
+                if SalesLine.Find() then;
 
                 OnAfterInsertLines(SalesHeader, SalesLine);
                 CalcInvoiceDiscount(SalesLine);
@@ -100,6 +102,23 @@ codeunit 64 "Sales-Get Shipment"
     begin
         SalesHeader.Get(SalesHeader2."Document Type", SalesHeader2."No.");
         SalesHeader.TestField("Document Type", SalesHeader."Document Type"::Invoice);
+    end;
+
+    local procedure UpdateItemChargeLines()
+    var
+        SalesShipmentLineLocal: Record "Sales Shipment Line";
+        SalesLineChargeItemUpdate: Record "Sales Line";
+    begin
+        SalesLineChargeItemUpdate.SetRange("Document Type", SalesLine."Document Type");
+        SalesLineChargeItemUpdate.SetRange("Document No.", SalesLine."Document No.");
+        SalesLineChargeItemUpdate.SetRange(Type, SalesLineChargeItemUpdate.Type::"Charge (Item)");
+        if SalesLineChargeItemUpdate.FindSet() then
+            repeat
+                if SalesShipmentLineLocal.Get(
+                    SalesLineChargeItemUpdate."Shipment No.", SalesLineChargeItemUpdate."Shipment Line No.")
+                then
+                    GetItemChargeAssgnt(SalesShipmentLineLocal, SalesLineChargeItemUpdate."Qty. to Invoice");
+            until SalesLineChargeItemUpdate.Next() = 0;
     end;
 
     procedure GetItemChargeAssgnt(var SalesShptLine: Record "Sales Shipment Line"; QtyToInvoice: Decimal)
@@ -180,6 +199,7 @@ codeunit 64 "Sales-Get Shipment"
                                     SalesShptLine2.SetCurrentKey("Order No.", "Order Line No.");
                                     SalesShptLine2.SetRange("Order No.", ItemChargeAssgntSales."Applies-to Doc. No.");
                                     SalesShptLine2.SetRange("Order Line No.", ItemChargeAssgntSales."Applies-to Doc. Line No.");
+                                    SalesShptLine2.SetRange(Correction, false);
                                     SalesShptLine2.SetFilter(Quantity, '<>0');
                                     if SalesShptLine2.FindFirst then begin
                                         SalesLine2.SetCurrentKey("Document Type", "Shipment No.", "Shipment Line No.");

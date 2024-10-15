@@ -4592,6 +4592,7 @@
     var
         PurchLine: Record "Purchase Line";
         PurchInvoiceLine: Record "Purchase Line";
+        TempPurchaseLineReceiptBuffer: Record "Purchase Line" temporary;
         DeductionFactor: Decimal;
         PrepmtVATPart: Decimal;
         PrepmtVATAmtRemainder: Decimal;
@@ -4599,6 +4600,7 @@
         TotalPrepmtAmount: array[2] of Decimal;
         FinalInvoice: Boolean;
         PricesInclVATRoundingAmount: array[2] of Decimal;
+        CurrentLineFinalInvoice: Boolean;
     begin
         if PrepmtPurchLine."Prepayment Line" then begin
             PrepmtVATPart :=
@@ -4608,15 +4610,31 @@
                 Reset;
                 SetRange("Attached to Line No.", PrepmtPurchLine."Line No.");
                 if FindSet(true) then begin
-                    FinalInvoice := IsFinalInvoice;
+                    FinalInvoice := true;
                     repeat
                         PurchLine := TempPrepmtDeductLCYPurchLine;
                         PurchLine.Find();
+
                         if "Document Type" = "Document Type"::Invoice then begin
                             PurchInvoiceLine := PurchLine;
                             GetPurchOrderLine(PurchLine, PurchInvoiceLine);
                             PurchLine."Qty. to Invoice" := PurchInvoiceLine."Qty. to Invoice";
+
+                            TempPurchaseLineReceiptBuffer := PurchLine;
+                            if TempPurchaseLineReceiptBuffer.Find() then begin
+                                TempPurchaseLineReceiptBuffer."Qty. to Invoice" += "Qty. to Invoice";
+                                TempPurchaseLineReceiptBuffer.Modify();
+                            end else begin
+                                TempPurchaseLineReceiptBuffer.Quantity := Quantity;
+                                TempPurchaseLineReceiptBuffer."Qty. to Invoice" := "Qty. to Invoice";
+                                TempPurchaseLineReceiptBuffer.Insert();
+                            end;
+                            CurrentLineFinalInvoice := TempPurchaseLineReceiptBuffer.IsFinalInvoice();
+                        end else begin
+                            CurrentLineFinalInvoice := IsFinalInvoice();
+                            FinalInvoice := FinalInvoice and CurrentLineFinalInvoice;
                         end;
+
                         if PurchLine."Qty. to Invoice" <> "Qty. to Invoice" then
                             PurchLine."Prepmt Amt to Deduct" := CalcPrepmtAmtToDeduct(PurchLine, PurchHeader.Receive);
                         DeductionFactor :=
@@ -4625,12 +4643,12 @@
 
                         "Prepmt. VAT Amount Inv. (LCY)" :=
                           -CalcRoundedAmount(PurchLine."Prepmt Amt to Deduct" * PrepmtVATPart, PrepmtVATAmtRemainder);
-                        if ("Prepayment %" <> 100) or IsFinalInvoice or ("Currency Code" <> '') then
+                        if ("Prepayment %" <> 100) or CurrentLineFinalInvoice or ("Currency Code" <> '') then
                             CalcPrepmtRoundingAmounts(TempPrepmtDeductLCYPurchLine, PurchLine, DeductionFactor, TotalRoundingAmount);
                         Modify;
 
                         if PurchHeader."Prices Including VAT" then
-                            if (("Prepayment %" <> 100) or IsFinalInvoice) and (DeductionFactor = 1) then begin
+                            if (("Prepayment %" <> 100) or CurrentLineFinalInvoice) and (DeductionFactor = 1) then begin
                                 PricesInclVATRoundingAmount[1] := TotalRoundingAmount[1];
                                 PricesInclVATRoundingAmount[2] := TotalRoundingAmount[2];
                             end;
@@ -4638,10 +4656,16 @@
                         if "VAT Calculation Type" <> "VAT Calculation Type"::"Full VAT" then
                             TotalPrepmtAmount[1] += "Prepmt. Amount Inv. (LCY)";
                         TotalPrepmtAmount[2] += "Prepmt. VAT Amount Inv. (LCY)";
-                        FinalInvoice := FinalInvoice and IsFinalInvoice;
                     until Next() = 0;
                 end;
             end;
+
+            if FinalInvoice then
+                if TempPurchaseLineReceiptBuffer.FindSet() then
+                    repeat
+                        if not TempPurchaseLineReceiptBuffer.IsFinalInvoice() then
+                            FinalInvoice := false;
+                    until not FinalInvoice or (TempPurchaseLineReceiptBuffer.Next() = 0);
 
             UpdatePrepmtPurchLineWithRounding(
               PrepmtPurchLine, TotalRoundingAmount, TotalPrepmtAmount,

@@ -615,6 +615,16 @@ table 79 "Company Information"
         {
             Caption = 'Participant No.';
         }
+        field(11051; "Check for Partner VAT ID"; Boolean)
+        {
+            Caption = 'Check for Partner VAT ID';
+            InitValue = true;
+        }
+        field(11052; "Check for Country of Origin"; Boolean)
+        {
+            Caption = 'Check for Country of Origin';
+            InitValue = true;
+        }
         field(11100; "Statistic No."; Code[20])
         {
             Caption = 'Statistic No.';
