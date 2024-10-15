@@ -66,6 +66,7 @@ codeunit 134902 "ERM Account Schedule"
         IncorrectCalcCellValueErr: Label 'Incorrect CalcCell Value';
         Dim1FilterErr: Label 'Incorrect Dimension 1 Filter was created.';
         PeriodTextCaptionLbl: Label 'Period: ';
+        ClearDimTotalingConfirmTxt: Label 'Changing Analysis View will clear differing dimension totaling columns of Account Schedule Lines. \Do you want to continue?';
 
     [Test]
     [Scope('OnPrem')]
@@ -4610,6 +4611,348 @@ codeunit 134902 "ERM Account Schedule"
         LibraryReportDataset.AssertElementWithValueExists(LineSkippedTok, true);
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure AccScheduleChangeToAnalysisViewWithDiffDimensionClearsAccScheduleLineDimension1Totaling()
+    var
+        AccScheduleName: Record "Acc. Schedule Name";
+        AccScheduleLine: Record "Acc. Schedule Line";
+        AnalysisView: array[2] of Record "Analysis View";
+        DimensionValue: array[4] of Record "Dimension Value";
+    begin
+        // [SCENARIO 390219] Changing Analysis view of Account Schedule clears "Dimension 1 Totaling" of Account Schedule Line when dimensions are different and user cofirms.
+        Initialize();
+
+        // [GIVEN] Two Analysis Views "AV1" and "AV2" with Dimensions "D1" and "D2" in "Dimension 1 Code".
+        LibraryDimension.CreateDimWithDimValue(DimensionValue[1]);
+        CreateAnanlysisViewWithDimensions(AnalysisView[1], DimensionValue);
+        LibraryDimension.CreateDimWithDimValue(DimensionValue[1]);
+        CreateAnanlysisViewWithDimensions(AnalysisView[2], DimensionValue);
+
+        // [GIVEN] Account Schedule with Analysis View set to "AV1".
+        CreateAccountScheduleWithAnalysisView(AccScheduleName, AnalysisView[1].Code);
+
+        // [GIVEN] Account Schedule Line with "Dimension 1 Totaling" = Dimension Value of "D1"
+        LibraryERM.CreateAccScheduleLine(AccScheduleLine, AccScheduleName.Name);
+        AccScheduleLine.Validate("Dimension 1 Totaling", DimensionValue[1].Code);
+        AccScheduleLine.Modify(true);
+
+        // [WHEN] Analysis View of Account Schedule is changed from "AV1" to "AV2" and user confirms the change.
+        LibraryVariableStorage.Enqueue(true);
+        AccScheduleName.Validate("Analysis View Name", AnalysisView[2].Code);
+        AccScheduleName.Modify(true);
+
+        // [THEN] Account Schedule Line "Dimension 1 Totaling" is empty.
+        // [THEN] Account Schedule Analysis View = "AV2".
+        AccScheduleName.TestField("Analysis View Name", AnalysisView[2].Code);
+        Assert.ExpectedMessage(ClearDimTotalingConfirmTxt, LibraryVariableStorage.DequeueText);
+        AccScheduleLine.Find();
+        AccScheduleLine.TestField("Dimension 1 Totaling", '');
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure AccScheduleChangeToAnalysisViewWithDiffDimensionClearsAccScheduleLineDimension2Totaling()
+    var
+        AccScheduleName: Record "Acc. Schedule Name";
+        AccScheduleLine: Record "Acc. Schedule Line";
+        AnalysisView: array[2] of Record "Analysis View";
+        DimensionValue: array[4] of Record "Dimension Value";
+        DimensionValueCode: Code[20];
+    begin
+        // [SCENARIO 390219] Changing Analysis view of Account Schedule clears "Dimension 2 Totaling" of Account Schedule Line when dimensions are different and user cofirms.
+        Initialize();
+
+        // [GIVEN] Two Analysis Views "AV1" and "AV2" with Dimensions "D1" and "D2" in "Dimension 2 Code".
+        LibraryDimension.CreateDimWithDimValue(DimensionValue[2]);
+        CreateAnanlysisViewWithDimensions(AnalysisView[1], DimensionValue);
+        DimensionValueCode := DimensionValue[2].Code;
+        LibraryDimension.CreateDimWithDimValue(DimensionValue[2]);
+        CreateAnanlysisViewWithDimensions(AnalysisView[2], DimensionValue);
+
+        // [GIVEN] Account Schedule with Analysis View set to "AV1".
+        CreateAccountScheduleWithAnalysisView(AccScheduleName, AnalysisView[1].Code);
+
+        // [GIVEN] Account Schedule Line with "Dimension 2 Totaling" = Dimension Value of "D1"
+        LibraryERM.CreateAccScheduleLine(AccScheduleLine, AccScheduleName.Name);
+        AccScheduleLine.Validate("Dimension 2 Totaling", DimensionValueCode);
+        AccScheduleLine.Modify(true);
+
+        // [WHEN] Analysis View of Account Schedule is changed from "AV1" to "AV2" and user confirms the change.
+        LibraryVariableStorage.Enqueue(true);
+        AccScheduleName.Validate("Analysis View Name", AnalysisView[2].Code);
+        AccScheduleName.Modify(true);
+
+        // [THEN] Account Schedule Line "Dimension 2 Totaling" is empty.
+        // [THEN] Account Schedule Analysis View = "AV2".
+        AccScheduleName.TestField("Analysis View Name", AnalysisView[2].Code);
+        Assert.ExpectedMessage(ClearDimTotalingConfirmTxt, LibraryVariableStorage.DequeueText);
+        AccScheduleLine.Find();
+        AccScheduleLine.TestField("Dimension 2 Totaling", '');
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure AccScheduleChangeToAnalysisViewWithDiffDimensionClearsAccScheduleLineDimension3Totaling()
+    var
+        AccScheduleName: Record "Acc. Schedule Name";
+        AccScheduleLine: Record "Acc. Schedule Line";
+        AnalysisView: array[2] of Record "Analysis View";
+        DimensionValue: array[4] of Record "Dimension Value";
+        DimensionValueCode: Code[20];
+    begin
+        // [SCENARIO 390219] Changing Analysis view of Account Schedule clears "Dimension 3 Totaling" of Account Schedule Line when dimensions are different and user cofirms.
+        Initialize();
+
+        // [GIVEN] Two Analysis Views "AV1" and "AV2" with Dimensions "D1" and "D2" in "Dimension 3 Code".
+        LibraryDimension.CreateDimWithDimValue(DimensionValue[3]);
+        CreateAnanlysisViewWithDimensions(AnalysisView[1], DimensionValue);
+        DimensionValueCode := DimensionValue[3].Code;
+        LibraryDimension.CreateDimWithDimValue(DimensionValue[3]);
+        CreateAnanlysisViewWithDimensions(AnalysisView[2], DimensionValue);
+
+        // [GIVEN] Account Schedule with Analysis View set to "AV1".
+        CreateAccountScheduleWithAnalysisView(AccScheduleName, AnalysisView[1].Code);
+
+        // [GIVEN] Account Schedule Line with "Dimension 3 Totaling" = Dimension Value of "D1"
+        LibraryERM.CreateAccScheduleLine(AccScheduleLine, AccScheduleName.Name);
+        AccScheduleLine.Validate("Dimension 3 Totaling", DimensionValueCode);
+        AccScheduleLine.Modify(true);
+
+        // [WHEN] Analysis View of Account Schedule is changed from "AV1" to "AV2" and user confirms the change.
+        LibraryVariableStorage.Enqueue(true);
+        AccScheduleName.Validate("Analysis View Name", AnalysisView[2].Code);
+        AccScheduleName.Modify(true);
+
+        // [THEN] Account Schedule Line "Dimension 3 Totaling" is empty.
+        // [THEN] Account Schedule Analysis View = "AV2".
+        AccScheduleName.TestField("Analysis View Name", AnalysisView[2].Code);
+        Assert.ExpectedMessage(ClearDimTotalingConfirmTxt, LibraryVariableStorage.DequeueText);
+        AccScheduleLine.Find();
+        AccScheduleLine.TestField("Dimension 3 Totaling", '');
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure AccScheduleChangeToAnalysisViewWithDiffDimensionClearsAccScheduleLineDimension4Totaling()
+    var
+        AccScheduleName: Record "Acc. Schedule Name";
+        AccScheduleLine: Record "Acc. Schedule Line";
+        AnalysisView: array[2] of Record "Analysis View";
+        DimensionValue: array[4] of Record "Dimension Value";
+        DimensionValueCode: Code[20];
+    begin
+        // [SCENARIO 390219] Changing Analysis view of Account Schedule clears "Dimension 4 Totaling" of Account Schedule Line when dimensions are different and user cofirms.
+        Initialize();
+
+        // [GIVEN] Two Analysis Views "AV1" and "AV2" with Dimensions "D1" and "D2" in "Dimension 4 Code".
+        LibraryDimension.CreateDimWithDimValue(DimensionValue[4]);
+        CreateAnanlysisViewWithDimensions(AnalysisView[1], DimensionValue);
+        DimensionValueCode := DimensionValue[4].Code;
+        LibraryDimension.CreateDimWithDimValue(DimensionValue[4]);
+        CreateAnanlysisViewWithDimensions(AnalysisView[2], DimensionValue);
+
+        // [GIVEN] Account Schedule with Analysis View set to "AV1".
+        CreateAccountScheduleWithAnalysisView(AccScheduleName, AnalysisView[1].Code);
+
+        // [GIVEN] Account Schedule Line with "Dimension 4 Totaling" = Dimension Value of "D1"
+        LibraryERM.CreateAccScheduleLine(AccScheduleLine, AccScheduleName.Name);
+        AccScheduleLine.Validate("Dimension 4 Totaling", DimensionValueCode);
+        AccScheduleLine.Modify(true);
+
+        // [WHEN] Analysis View of Account Schedule is changed from "AV1" to "AV2" and user confirms the change.
+        LibraryVariableStorage.Enqueue(true);
+        AccScheduleName.Validate("Analysis View Name", AnalysisView[2].Code);
+        AccScheduleName.Modify(true);
+
+        // [THEN] Account Schedule Line "Dimension 4 Totaling" is empty.
+        // [THEN] Account Schedule Analysis View = "AV2".
+        AccScheduleName.TestField("Analysis View Name", AnalysisView[2].Code);
+        Assert.ExpectedMessage(ClearDimTotalingConfirmTxt, LibraryVariableStorage.DequeueText);
+        AccScheduleLine.Find();
+        AccScheduleLine.TestField("Dimension 4 Totaling", '');
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure AccScheduleChangeToAnalysisViewWithDiffDimensionKeepsAccScheduleLineDimension1Totaling()
+    var
+        AccScheduleName: Record "Acc. Schedule Name";
+        AccScheduleLine: Record "Acc. Schedule Line";
+        AnalysisView: array[2] of Record "Analysis View";
+        DimensionValue: array[4] of Record "Dimension Value";
+        DimensionValueCode: Code[20];
+    begin
+        // [SCENARIO 390219] Changing Analysis view of Account Schedule doesn't clear "Dimension 1 Totaling" of Account Schedule Line when dimensions are different and user cancels.
+        Initialize();
+
+        // [GIVEN] Two Analysis Views "AV1" and "AV2" with Dimensions "D1" and "D2" in "Dimension 1 Code" having Dimension Values.
+        LibraryDimension.CreateDimWithDimValue(DimensionValue[1]);
+        CreateAnanlysisViewWithDimensions(AnalysisView[1], DimensionValue);
+        DimensionValueCode := DimensionValue[1].Code;
+        LibraryDimension.CreateDimWithDimValue(DimensionValue[1]);
+        CreateAnanlysisViewWithDimensions(AnalysisView[2], DimensionValue);
+
+        // [GIVEN] Account Schedule with Analysis View set to "AV1".
+        CreateAccountScheduleWithAnalysisView(AccScheduleName, AnalysisView[1].Code);
+
+        // [GIVEN] Account Schedule Line with "Dimension 1 Totaling" = Dimension Value of "D1".
+        LibraryERM.CreateAccScheduleLine(AccScheduleLine, AccScheduleName.Name);
+        AccScheduleLine.Validate("Dimension 1 Totaling", DimensionValueCode);
+        AccScheduleLine.Modify(true);
+
+        // [WHEN] Analysis View of Account Schedule is changed from "AV1" to "AV2" and user cancels the change.
+        LibraryVariableStorage.Enqueue(false);
+        AccScheduleName.Validate("Analysis View Name", AnalysisView[2].Code);
+        AccScheduleName.Modify(true);
+
+        // [THEN] Account Schedule Line "Dimension 1 Totaling" = Dimension Value of "D1".
+        // [THEN] Account Schedule Analysis View = "AV1".
+        Assert.ExpectedMessage(ClearDimTotalingConfirmTxt, LibraryVariableStorage.DequeueText);
+        AccScheduleLine.Find();
+        AccScheduleLine.TestField("Dimension 1 Totaling", DimensionValueCode);
+        AccScheduleName.TestField("Analysis View Name", AnalysisView[1].Code);
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure AccScheduleChangeToAnalysisViewWithDiffDimensionKeepsAccScheduleLineDimension2Totaling()
+    var
+        AccScheduleName: Record "Acc. Schedule Name";
+        AccScheduleLine: Record "Acc. Schedule Line";
+        AnalysisView: array[2] of Record "Analysis View";
+        DimensionValue: array[4] of Record "Dimension Value";
+        DimensionValueCode: Code[20];
+    begin
+        // [SCENARIO 390219] Changing Analysis view of Account Schedule doesn't clear "Dimension 2 Totaling" of Account Schedule Line when dimensions are different and user cancels.
+        Initialize();
+
+        // [GIVEN] Two Analysis Views "AV1" and "AV2" with Dimensions "D1" and "D2" in "Dimension 2 Code" having Dimension Values.
+        LibraryDimension.CreateDimWithDimValue(DimensionValue[2]);
+        CreateAnanlysisViewWithDimensions(AnalysisView[1], DimensionValue);
+        DimensionValueCode := DimensionValue[2].Code;
+        LibraryDimension.CreateDimWithDimValue(DimensionValue[2]);
+        CreateAnanlysisViewWithDimensions(AnalysisView[2], DimensionValue);
+
+        // [GIVEN] Account Schedule with Analysis View set to "AV1".
+        CreateAccountScheduleWithAnalysisView(AccScheduleName, AnalysisView[1].Code);
+
+        // [GIVEN] Account Schedule Line with "Dimension 2 Totaling" = Dimension Value of "D1".
+        LibraryERM.CreateAccScheduleLine(AccScheduleLine, AccScheduleName.Name);
+        AccScheduleLine.Validate("Dimension 2 Totaling", DimensionValueCode);
+        AccScheduleLine.Modify(true);
+
+        // [WHEN] Analysis View of Account Schedule is changed from "AV1" to "AV2" and user cancels the change.
+        LibraryVariableStorage.Enqueue(false);
+        AccScheduleName.Validate("Analysis View Name", AnalysisView[2].Code);
+        AccScheduleName.Modify(true);
+
+        // [THEN] Account Schedule Line "Dimension 2 Totaling" = Dimension Value of "D1".
+        // [THEN] Account Schedule Analysis View = "AV1".
+        Assert.ExpectedMessage(ClearDimTotalingConfirmTxt, LibraryVariableStorage.DequeueText);
+        AccScheduleLine.Find();
+        AccScheduleLine.TestField("Dimension 2 Totaling", DimensionValueCode);
+        AccScheduleName.TestField("Analysis View Name", AnalysisView[1].Code);
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure AccScheduleChangeToAnalysisViewWithDiffDimensionKeepsAccScheduleLineDimension3Totaling()
+    var
+        AccScheduleName: Record "Acc. Schedule Name";
+        AccScheduleLine: Record "Acc. Schedule Line";
+        AnalysisView: array[2] of Record "Analysis View";
+        DimensionValue: array[4] of Record "Dimension Value";
+        DimensionValueCode: Code[20];
+    begin
+        // [SCENARIO 390219] Changing Analysis view of Account Schedule doesn't clear "Dimension 3 Totaling" of Account Schedule Line when dimensions are different and user cancels.
+        Initialize();
+
+        // [GIVEN] Two Analysis Views "AV1" and "AV2" with Dimensions "D1" and "D2" in "Dimension 3 Code" having Dimension Values.
+        LibraryDimension.CreateDimWithDimValue(DimensionValue[3]);
+        CreateAnanlysisViewWithDimensions(AnalysisView[1], DimensionValue);
+        DimensionValueCode := DimensionValue[3].Code;
+        LibraryDimension.CreateDimWithDimValue(DimensionValue[3]);
+        CreateAnanlysisViewWithDimensions(AnalysisView[2], DimensionValue);
+
+        // [GIVEN] Account Schedule with Analysis View set to "AV1".
+        CreateAccountScheduleWithAnalysisView(AccScheduleName, AnalysisView[1].Code);
+
+        // [GIVEN] Account Schedule Line with "Dimension 3 Totaling" = Dimension Value of "D1".
+        LibraryERM.CreateAccScheduleLine(AccScheduleLine, AccScheduleName.Name);
+        AccScheduleLine.Validate("Dimension 3 Totaling", DimensionValueCode);
+        AccScheduleLine.Modify(true);
+
+        // [WHEN] Analysis View of Account Schedule is changed from "AV1" to "AV2" and user cancels the change.
+        LibraryVariableStorage.Enqueue(false);
+        AccScheduleName.Validate("Analysis View Name", AnalysisView[2].Code);
+        AccScheduleName.Modify(true);
+
+        // [THEN] Account Schedule Line "Dimension 3 Totaling" = Dimension Value of "D1".
+        // [THEN] Account Schedule Analysis View = "AV1".
+        Assert.ExpectedMessage(ClearDimTotalingConfirmTxt, LibraryVariableStorage.DequeueText);
+        AccScheduleLine.Find();
+        AccScheduleLine.TestField("Dimension 3 Totaling", DimensionValueCode);
+        AccScheduleName.TestField("Analysis View Name", AnalysisView[1].Code);
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure AccScheduleChangeToAnalysisViewWithDiffDimensionKeepsAccScheduleLineDimension4Totaling()
+    var
+        AccScheduleName: Record "Acc. Schedule Name";
+        AccScheduleLine: Record "Acc. Schedule Line";
+        AnalysisView: array[2] of Record "Analysis View";
+        DimensionValue: array[4] of Record "Dimension Value";
+        DimensionValueCode: Code[20];
+    begin
+        // [SCENARIO 390219] Changing Analysis view of Account Schedule doesn't clear "Dimension 4 Totaling" of Account Schedule Line when dimensions are different and user cancels.
+        Initialize();
+
+        // [GIVEN] Two Analysis Views "AV1" and "AV2" with Dimensions "D1" and "D2" in "Dimension 4 Code" having Dimension Values.
+        LibraryDimension.CreateDimWithDimValue(DimensionValue[4]);
+        CreateAnanlysisViewWithDimensions(AnalysisView[1], DimensionValue);
+        DimensionValueCode := DimensionValue[4].Code;
+        LibraryDimension.CreateDimWithDimValue(DimensionValue[4]);
+        CreateAnanlysisViewWithDimensions(AnalysisView[2], DimensionValue);
+
+        // [GIVEN] Account Schedule with Analysis View set to "AV1".
+        CreateAccountScheduleWithAnalysisView(AccScheduleName, AnalysisView[1].Code);
+
+        // [GIVEN] Account Schedule Line with "Dimension 4 Totaling" = Dimension Value of "D1".
+        LibraryERM.CreateAccScheduleLine(AccScheduleLine, AccScheduleName.Name);
+        AccScheduleLine.Validate("Dimension 4 Totaling", DimensionValueCode);
+        AccScheduleLine.Modify(true);
+
+        // [WHEN] Analysis View of Account Schedule is changed from "AV1" to "AV2" and user cancels the change.
+        LibraryVariableStorage.Enqueue(false);
+        AccScheduleName.Validate("Analysis View Name", AnalysisView[2].Code);
+        AccScheduleName.Modify(true);
+
+        // [THEN] Account Schedule Line "Dimension 4 Totaling" = Dimension Value of "D1".
+        // [THEN] Account Schedule Analysis View = "AV1".
+        Assert.ExpectedMessage(ClearDimTotalingConfirmTxt, LibraryVariableStorage.DequeueText);
+        AccScheduleLine.Find();
+        AccScheduleLine.TestField("Dimension 4 Totaling", DimensionValueCode);
+        AccScheduleName.TestField("Analysis View Name", AnalysisView[1].Code);
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         ObjectOptions: Record "Object Options";
@@ -4728,6 +5071,13 @@ codeunit 134902 "ERM Account Schedule"
         AccScheduleLine.Modify(true);
     end;
 
+    local procedure CreateAccountScheduleWithAnalysisView(var AccScheduleName: Record "Acc. Schedule Name"; AnalysisViewCode: Code[10])
+    begin
+        LibraryERM.CreateAccScheduleName(AccScheduleName);
+        AccScheduleName.Validate("Analysis View Name", AnalysisViewCode);
+        AccScheduleName.Modify(true);
+    end;
+
     local procedure CreateAccountScheduleWithComparisonFormula(var AccScheduleLine: Record "Acc. Schedule Line"; AccountNo: Code[20])
     var
         ColumnLayout: Record "Column Layout";
@@ -4741,6 +5091,16 @@ codeunit 134902 "ERM Account Schedule"
             Validate("Comparison Date Formula", ComparisionDateFormula);
             Modify(true);
         end;
+    end;
+
+    local procedure CreateAnanlysisViewWithDimensions(var AnalysisView: Record "Analysis View"; DimensionValue: array[4] of Record "Dimension Value")
+    begin
+        LibraryERM.CreateAnalysisView(AnalysisView);
+        AnalysisView.Validate("Dimension 1 Code", DimensionValue[1]."Dimension Code");
+        AnalysisView.Validate("Dimension 2 Code", DimensionValue[2]."Dimension Code");
+        AnalysisView.Validate("Dimension 3 Code", DimensionValue[3]."Dimension Code");
+        AnalysisView.Validate("Dimension 4 Code", DimensionValue[4]."Dimension Code");
+        AnalysisView.Modify(true);
     end;
 
     local procedure CreateAndPrintAccountSchedule(var AccScheduleName: Record "Acc. Schedule Name"; var ColumnLayoutName: Record "Column Layout Name"; Verify: Boolean)
@@ -6024,6 +6384,14 @@ codeunit 134902 "ERM Account Schedule"
             ResponseRef::LookupCancel:
                 Response := ACTION::LookupCancel;
         end;
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandler(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := LibraryVariableStorage.DequeueBoolean;
+        LibraryVariableStorage.Enqueue(Question);
     end;
 
     [MessageHandler]

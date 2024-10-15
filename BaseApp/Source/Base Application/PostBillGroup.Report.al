@@ -701,7 +701,14 @@ report 7000099 "Post Bill Group"
 
     [Scope('OnPrem')]
     procedure CalcBankAccount(BankAcc2: Code[20]; Amount2: Decimal; EntryNo: Integer)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCalcBankAccount(BankAcc2, Amount2, EntryNo, TempBankAccPostBuffer, IsHandled);
+        if IsHandled then
+            exit;
+
         if TempBankAccPostBuffer.Get(BankAcc2, '', EntryNo) then begin
             TempBankAccPostBuffer.Amount := TempBankAccPostBuffer.Amount + Amount2;
             TempBankAccPostBuffer.Modify();
@@ -760,6 +767,11 @@ report 7000099 "Post Bill Group"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGenJournalLineInsert(var GenJournalLine: Record "Gen. Journal Line"; CustLedgerEntry: Record "Cust. Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcBankAccount(BankAcc2: Code[20]; Amount2: Decimal; EntryNo: Integer; var TempBankAccPostBuffer: Record "BG/PO Post. Buffer"; var IsHandled: Boolean)
     begin
     end;
 }

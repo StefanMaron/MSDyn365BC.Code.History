@@ -155,6 +155,39 @@ codeunit 10753 "SII Job Upload Pending Docs."
         SIIJobManagement.RenewJobQueueEntry(JobType::HandlePending);
     end;
 
+    [EventSubscriber(ObjectType::Codeunit, 80, 'OnBeforePostSalesDoc', '', false, false)]
+    local procedure ChangeSpecialSchemeCodeOnBeforePostSalesDoc(var SalesHeader: Record "Sales Header"; CommitIsSuppressed: Boolean; PreviewMode: Boolean; var HideProgressWindow: Boolean)
+    var
+        SalesLine: Record "Sales Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        VATClause: Record "VAT Clause";
+        Found: Boolean;
+    begin
+        if SalesHeader."Special Scheme Code" <> SalesHeader."Special Scheme Code"::"01 General" then
+            exit;
+
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        if SalesLine.FindSet() then
+            repeat
+                if (VATPostingSetup."VAT Bus. Posting Group" <> SalesLine."VAT Bus. Posting Group") or
+                   (VATPostingSetup."VAT Prod. Posting Group" <> SalesLine."VAT Prod. Posting Group")
+                then begin
+                    if not VATPostingSetup.Get(SalesLine."VAT Bus. Posting Group", SalesLine."VAT Prod. Posting Group") then
+                        VATPostingSetup.Init();
+                    if VATPostingSetup."VAT Clause Code" <> '' then
+                        if VATPostingSetup."VAT Clause Code" <> VATClause.Code then begin
+                            VATClause.Get(VATPostingSetup."VAT Clause Code");
+                            Found :=
+                              VATClause."SII Exemption Code" in [VATClause."SII Exemption Code"::"E2 Exempt on account of Article 21",
+                                                                 VATClause."SII Exemption Code"::"E3 Exempt on account of Article 22"]
+                        end;
+                end;
+            until (SalesLine.Next() = 0) or Found;
+        if Found then
+            SalesHeader."Special Scheme Code" := SalesHeader."Special Scheme Code"::"02 Export";
+    end;
+
     procedure CreateSIIRequestForCustLedgEntry(var CustLedgEntry: Record "Cust. Ledger Entry")
     var
         SIISetup: Record "SII Setup";

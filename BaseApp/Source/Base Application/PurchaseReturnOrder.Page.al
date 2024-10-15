@@ -725,13 +725,15 @@ page 6640 "Purchase Return Order"
             part(Control1901138007; "Vendor Details FactBox")
             {
                 ApplicationArea = PurchReturnOrder;
-                SubPageLink = "No." = FIELD("Buy-from Vendor No.");
+                SubPageLink = "No." = FIELD("Buy-from Vendor No."),
+                              "Date Filter" = field("Date Filter");
                 Visible = false;
             }
             part(Control1904651607; "Vendor Statistics FactBox")
             {
                 ApplicationArea = PurchReturnOrder;
-                SubPageLink = "No." = FIELD("Pay-to Vendor No.");
+                SubPageLink = "No." = FIELD("Pay-to Vendor No."),
+                              "Date Filter" = field("Date Filter");
             }
             part(Control1903433907; "Cartera Payables Statistics FB")
             {
@@ -742,12 +744,14 @@ page 6640 "Purchase Return Order"
             part(Control1903435607; "Vendor Hist. Buy-from FactBox")
             {
                 ApplicationArea = PurchReturnOrder;
-                SubPageLink = "No." = FIELD("Buy-from Vendor No.");
+                SubPageLink = "No." = FIELD("Buy-from Vendor No."),
+                              "Date Filter" = field("Date Filter");
             }
             part(Control1906949207; "Vendor Hist. Pay-to FactBox")
             {
                 ApplicationArea = PurchReturnOrder;
-                SubPageLink = "No." = FIELD("Pay-to Vendor No.");
+                SubPageLink = "No." = FIELD("Pay-to Vendor No."),
+                              "Date Filter" = field("Date Filter");
                 Visible = false;
             }
             part(Control3; "Purchase Line FactBox")
@@ -1530,7 +1534,7 @@ page 6640 "Purchase Return Order"
     var
         PurchaseHeader: Record "Purchase Header";
         InstructionMgt: Codeunit "Instruction Mgt.";
-        IsHandled: Boolean;        
+        IsHandled: Boolean;
     begin
         SendToPosting(PostingCodeunitID);
 

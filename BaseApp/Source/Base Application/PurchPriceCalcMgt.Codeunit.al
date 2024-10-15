@@ -464,8 +464,15 @@ codeunit 7010 "Purch. Price Calc. Mgt."
         LineDiscPerCent := LineDiscPerCent2;
     end;
 
-    local procedure IsInMinQty(UnitofMeasureCode: Code[10]; MinQty: Decimal): Boolean
+    local procedure IsInMinQty(UnitofMeasureCode: Code[10]; MinQty: Decimal) Result: Boolean
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeIsInMinQty(Item, UnitofMeasureCode, MinQty, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if UnitofMeasureCode = '' then
             exit(MinQty <= QtyPerUOM * Qty);
         exit(MinQty <= Qty);
@@ -474,11 +481,16 @@ codeunit 7010 "Purch. Price Calc. Mgt."
     local procedure ConvertPriceToVAT(FromPriceInclVAT: Boolean; FromVATProdPostingGr: Code[20]; FromVATBusPostingGr: Code[20]; var UnitPrice: Decimal)
     var
         VATPostingSetup: Record "VAT Posting Setup";
+        IsHandled: Boolean;
     begin
         if FromPriceInclVAT then begin
             if not VATPostingSetup.Get(FromVATBusPostingGr, FromVATProdPostingGr) then
                 VATPostingSetup.Init();
-            OnBeforeConvertPriceToVAT(VATPostingSetup);
+
+            IsHandled := false;
+            OnBeforeConvertPriceToVAT(VATPostingSetup, VATBusPostingGr, FromVATBusPostingGr, UnitPrice, PricesInclVAT, IsHandled);
+            if IsHandled then
+                exit;
 
             if PricesInclVAT then begin
                 if VATBusPostingGr <> FromVATBusPostingGr then
@@ -974,7 +986,7 @@ codeunit 7010 "Purch. Price Calc. Mgt."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeConvertPriceToVAT(var VATPostingSetup: Record "VAT Posting Setup")
+    local procedure OnBeforeConvertPriceToVAT(var VATPostingSetup: Record "VAT Posting Setup"; VATBusPostingGr: Code[20]; FromVATBusPostingGr: Code[20]; UnitPrice: Decimal; PricesInclVAT: Boolean; var IsHandled: Boolean)
     begin
     end;
 
@@ -1040,6 +1052,11 @@ codeunit 7010 "Purch. Price Calc. Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetPurchLinePrice(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeIsInMinQty(var Item: Record Item; UnitofMeasureCode: Code[10]; MinQty: Decimal; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 

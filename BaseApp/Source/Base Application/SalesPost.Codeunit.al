@@ -2336,7 +2336,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeUpdateWhseDocuments(SalesHeader, IsHandled);
+        OnBeforeUpdateWhseDocuments(SalesHeader, IsHandled, WhseReceive, WhseShip, WhseRcptHeader, WhseShptHeader, TempWhseRcptHeader, TempWhseShptHeader);
         if IsHandled then
             exit;
 
@@ -2950,7 +2950,7 @@
                   TotalSalesLineLCY."VAT Base Amount";
             end;
 
-            OnRoundAmountOnBeforeIncrAmount(SalesHeader, SalesLine, SalesLineQty, TotalSalesLine, TotalSalesLineLCY);
+            OnRoundAmountOnBeforeIncrAmount(SalesHeader, SalesLine, SalesLineQty, TotalSalesLine, TotalSalesLineLCY, xSalesLine);
 
             IncrAmount(SalesHeader, SalesLine, TotalSalesLineLCY);
             Increment(TotalSalesLineLCY."Unit Cost (LCY)", Round(SalesLineQty * "Unit Cost (LCY)"));
@@ -4511,6 +4511,7 @@
     var
         SalesLine: Record "Sales Line";
         SalesInvoiceLine: Record "Sales Line";
+        TempSalesLineShipmentBuffer: Record "Sales Line" temporary;
         DeductionFactor: Decimal;
         PrepmtVATPart: Decimal;
         PrepmtVATAmtRemainder: Decimal;
@@ -4518,6 +4519,7 @@
         TotalPrepmtAmount: array[2] of Decimal;
         FinalInvoice: Boolean;
         PricesInclVATRoundingAmount: array[2] of Decimal;
+        CurrentLineFinalInvoice: Boolean;
     begin
         if PrepmtSalesLine."Prepayment Line" then begin
             PrepmtVATPart :=
@@ -4527,15 +4529,31 @@
                 Reset;
                 SetRange("Attached to Line No.", PrepmtSalesLine."Line No.");
                 if FindSet(true) then begin
-                    FinalInvoice := IsFinalInvoice;
+                    FinalInvoice := true;
                     repeat
                         SalesLine := TempPrepmtDeductLCYSalesLine;
                         SalesLine.Find();
+
                         if "Document Type" = "Document Type"::Invoice then begin
                             SalesInvoiceLine := SalesLine;
                             GetSalesOrderLine(SalesLine, SalesInvoiceLine);
                             SalesLine."Qty. to Invoice" := SalesInvoiceLine."Qty. to Invoice";
+
+                            TempSalesLineShipmentBuffer := SalesLine;
+                            if TempSalesLineShipmentBuffer.Find() then begin
+                                TempSalesLineShipmentBuffer."Qty. to Invoice" += "Qty. to Invoice";
+                                TempSalesLineShipmentBuffer.Modify();
+                            end else begin
+                                TempSalesLineShipmentBuffer.Quantity := Quantity;
+                                TempSalesLineShipmentBuffer."Qty. to Invoice" := "Qty. to Invoice";
+                                TempSalesLineShipmentBuffer.Insert();
+                            end;
+                            CurrentLineFinalInvoice := TempSalesLineShipmentBuffer.IsFinalInvoice();
+                        end else begin
+                            CurrentLineFinalInvoice := IsFinalInvoice();
+                            FinalInvoice := FinalInvoice and CurrentLineFinalInvoice;
                         end;
+
                         if SalesLine."Qty. to Invoice" <> "Qty. to Invoice" then
                             SalesLine."Prepmt Amt to Deduct" := CalcPrepmtAmtToDeduct(SalesLine, SalesHeader.Ship);
                         DeductionFactor :=
@@ -4544,12 +4562,12 @@
 
                         "Prepmt. VAT Amount Inv. (LCY)" :=
                           CalcRoundedAmount(SalesLine."Prepmt Amt to Deduct" * PrepmtVATPart, PrepmtVATAmtRemainder);
-                        if ("Prepayment %" <> 100) or IsFinalInvoice or ("Currency Code" <> '') then
+                        if ("Prepayment %" <> 100) or CurrentLineFinalInvoice or ("Currency Code" <> '') then
                             CalcPrepmtRoundingAmounts(TempPrepmtDeductLCYSalesLine, SalesLine, DeductionFactor, TotalRoundingAmount);
                         Modify;
 
                         if SalesHeader."Prices Including VAT" then
-                            if (("Prepayment %" <> 100) or IsFinalInvoice) and (DeductionFactor = 1) then begin
+                            if (("Prepayment %" <> 100) or CurrentLineFinalInvoice) and (DeductionFactor = 1) then begin
                                 PricesInclVATRoundingAmount[1] := TotalRoundingAmount[1];
                                 PricesInclVATRoundingAmount[2] := TotalRoundingAmount[2];
                             end;
@@ -4557,10 +4575,16 @@
                         if "VAT Calculation Type" <> "VAT Calculation Type"::"Full VAT" then
                             TotalPrepmtAmount[1] += "Prepmt. Amount Inv. (LCY)";
                         TotalPrepmtAmount[2] += "Prepmt. VAT Amount Inv. (LCY)";
-                        FinalInvoice := FinalInvoice and IsFinalInvoice;
                     until Next() = 0;
                 end;
             end;
+
+            if FinalInvoice then
+                if TempSalesLineShipmentBuffer.FindSet() then
+                    repeat
+                        if not TempSalesLineShipmentBuffer.IsFinalInvoice() then
+                            FinalInvoice := false;
+                    until not FinalInvoice or (TempSalesLineShipmentBuffer.Next() = 0);
 
             UpdatePrepmtSalesLineWithRounding(
               PrepmtSalesLine, TotalRoundingAmount, TotalPrepmtAmount,
@@ -5264,7 +5288,7 @@
               SalesHeader."Shortcut Dimension 1 Code", SalesHeader."Shortcut Dimension 2 Code",
               SalesHeader."Dimension Set ID", SalesHeader."Reason Code");
 
-            OnPostBalancingEntryOnAfterInitNewLine(SalesHeader);
+            OnPostBalancingEntryOnAfterInitNewLine(SalesHeader, GenJnlLine);
             CopyDocumentFields("Gen. Journal Document Type"::" ", DocNo, ExtDocNo, SourceCode, '');
             "Account Type" := "Account Type"::Customer;
             "Account No." := SalesHeader."Bill-to Customer No.";
@@ -5291,7 +5315,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeSetAmountsForBalancingEntry(CustLedgEntry, GenJnlLine, IsHandled);
+        OnBeforeSetAmountsForBalancingEntry(CustLedgEntry, GenJnlLine, IsHandled, TotalSalesLineLCY2);
         if IsHandled then
             exit;
 
@@ -7388,7 +7412,7 @@
                             InitQtyToReceive
                         else
                             InitQtyToShip2;
-                        OnPostUpdateOrderLineOnAfterInitQtyToReceiveOrShip(SalesHeader);
+                        OnPostUpdateOrderLineOnAfterInitQtyToReceiveOrShip(SalesHeader, TempSalesLine);
                     end;
 
                     if ("Purch. Order Line No." <> 0) and (Quantity = "Quantity Invoiced") then
@@ -7432,8 +7456,7 @@
                     OnPostUpdateInvoiceLineOnBeforeCalcQuantityInvoiced(SalesOrderLine, TempSalesLine);
                     SalesOrderLine."Quantity Invoiced" += "Qty. to Invoice";
                     SalesOrderLine."Qty. Invoiced (Base)" += "Qty. to Invoice (Base)";
-                    if Abs(SalesOrderLine."Quantity Invoiced") > Abs(SalesOrderLine."Quantity Shipped") then
-                        Error(InvoiceMoreThanShippedErr, SalesOrderLine."Document No.");
+                    CheckSalesLineInvoiceMoreThanShipped(SalesOrderLine, TempSalesLine, SalesShptLine);
                     OnPostUpdateInvoiceLineOnBeforeInitQtyToInvoice(SalesOrderLine, TempSalesLine);
                     SalesOrderLine.InitQtyToInvoice;
                     if SalesOrderLine."Prepayment %" <> 0 then begin
@@ -7457,6 +7480,19 @@
         end;
 
         OnAfterPostUpdateInvoiceLine(TempSalesLine);
+    end;
+
+    local procedure CheckSalesLineInvoiceMoreThanShipped(var SalesOrderLine: Record "Sales Line"; var TempSalesLine: Record "Sales Line" temporary; var SalesShptLine: Record "Sales Shipment Line")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckSalesLineInvoiceMoreThanShipped(SalesOrderLine, TempSalesLine, SalesShptLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        if Abs(SalesOrderLine."Quantity Invoiced") > Abs(SalesOrderLine."Quantity Shipped") then
+            Error(InvoiceMoreThanShippedErr, SalesOrderLine."Document No.");
     end;
 
     local procedure PostUpdateReturnReceiptLine()
@@ -7755,7 +7791,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCheckTrackingAndWarehouseForReceive(var SalesHeader: Record "Sales Header"; var Receive: Boolean; CommitIsSuppressed: Boolean; var TempWhseShptHeader: Record "Warehouse Shipment Header" temporary; var TempWhseRcptHeader: Record "Warehouse Receipt Header" temporary; TempSalesLine: record "Sales Line" temporary)
+    local procedure OnAfterCheckTrackingAndWarehouseForReceive(var SalesHeader: Record "Sales Header"; var Receive: Boolean; CommitIsSuppressed: Boolean; var TempWhseShptHeader: Record "Warehouse Shipment Header" temporary; var TempWhseRcptHeader: Record "Warehouse Receipt Header" temporary; var TempSalesLine: record "Sales Line" temporary)
     begin
     end;
 
@@ -8437,6 +8473,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckSalesLineInvoiceMoreThanShipped(var SalesOrderLine: Record "Sales Line"; var TempSalesLine: Record "Sales Line" temporary; var SalesShptLine: Record "Sales Shipment Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckTotalInvoiceAmount(SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
     end;
@@ -8552,7 +8593,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeSetAmountsForBalancingEntry(var CustLedgEntry: Record "Cust. Ledger Entry"; var GenJnlLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
+    local procedure OnBeforeSetAmountsForBalancingEntry(var CustLedgEntry: Record "Cust. Ledger Entry"; var GenJnlLine: Record "Gen. Journal Line"; var IsHandled: Boolean; var TotalSalesLineLCY2: Record "Sales Line")
     begin
     end;
 
@@ -8677,7 +8718,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeUpdateWhseDocuments(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    local procedure OnBeforeUpdateWhseDocuments(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean; WhseReceive: Boolean; WhseShip: Boolean; WhseRcptHeader: Record "Warehouse Receipt Header"; WhseShptHeader: Record "Warehouse Shipment Header"; var TempWhseRcptHeader: Record "Warehouse Receipt Header" temporary; var TempWhseShptHeader: Record "Warehouse Shipment Header" temporary)
     begin
     end;
 
@@ -9251,7 +9292,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPostUpdateOrderLineOnAfterInitQtyToReceiveOrShip(var SalesHeader: Record "Sales Header")
+    local procedure OnPostUpdateOrderLineOnAfterInitQtyToReceiveOrShip(var SalesHeader: Record "Sales Header"; var TempSalesLine: Record "Sales Line" temporary)
     begin
     end;
 
@@ -9381,7 +9422,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPostBalancingEntryOnAfterInitNewLine(SalesHeader: Record "Sales Header")
+    local procedure OnPostBalancingEntryOnAfterInitNewLine(SalesHeader: Record "Sales Header"; var GenJnlLine: Record "Gen. Journal Line")
     begin
     end;
 
@@ -9626,7 +9667,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnRoundAmountOnBeforeIncrAmount(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; SalesLineQty: Decimal; var TotalSalesLine: Record "Sales Line"; var TotalSalesLineLCY: Record "Sales Line")
+    local procedure OnRoundAmountOnBeforeIncrAmount(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; SalesLineQty: Decimal; var TotalSalesLine: Record "Sales Line"; var TotalSalesLineLCY: Record "Sales Line"; var xSalesLine: Record "Sales Line")
     begin
     end;
 

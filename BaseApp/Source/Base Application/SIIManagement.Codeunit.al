@@ -236,8 +236,16 @@ codeunit 10756 "SII Management"
     var
         NoTaxableEntry: Record "No Taxable Entry";
     begin
+        NoTaxableAmount := 0;
         if NoTaxableEntriesExistSales(NoTaxableEntry, SourceNo, DocumentType, DocumentNo, PostingDate, IsService, UseNoTaxableType, IsLocalRule) then begin
             NoTaxableEntry.CalcSums("Amount (LCY)");
+            if DoNotReportNegativeLines() then
+                case true of
+                    (DocumentType = NoTaxableEntry."Document Type"::Invoice) and (NoTaxableEntry."Amount (LCY)" > 0):
+                        exit(false);
+                    (DocumentType = NoTaxableEntry."Document Type"::"Credit Memo") and (NoTaxableEntry."Amount (LCY)" < 0):
+                        exit(false);
+                end;
             NoTaxableAmount := -NoTaxableEntry."Amount (LCY)";
             exit(true);
         end;
@@ -358,9 +366,11 @@ codeunit 10756 "SII Management"
     procedure FindVatEntriesFromLedger(LedgerEntryRecRef: RecordRef; var VATEntry: Record "VAT Entry"): Boolean
     var
         DummyCustLedgerEntry: Record "Cust. Ledger Entry";
+        SIISetup: Record "SII Setup";
         TransNoFieldRef: FieldRef;
         DocNumberFieldRef: FieldRef;
         PostingDateFieldRef: FieldRef;
+        DocTypeFieldRef: FieldRef;
         TransactionNumber: Integer;
         DocNumber: Code[20];
         PostingDate: Date;
@@ -381,7 +391,28 @@ codeunit 10756 "SII Management"
         VATEntry.SetRange("Posting Date", PostingDate);
         VATEntry.SetRange("Document No.", DocNumber);
         VATEntry.SetRange("No Taxable Type", VATEntry."No Taxable Type"::" ");
-        exit(VATEntry.FindSet);
+        SIISetup.Get();
+        if SIISetup."Do Not Export Negative Lines" then begin
+            DocTypeFieldRef := LedgerEntryRecRef.Field(DummyCustLedgerEntry.FieldNo("Document Type"));
+            Evaluate(DummyCustLedgerEntry."Document Type", Format(DocTypeFieldRef.Value));
+            case LedgerEntryRecRef.Number() of
+                DATABASE::"Cust. Ledger Entry":
+                    case DummyCustLedgerEntry."Document Type" of
+                        DummyCustLedgerEntry."Document Type"::Invoice:
+                            VATEntry.SetFilter(Base, '<=%1', 0);
+                        DummyCustLedgerEntry."Document Type"::"Credit Memo":
+                            VATEntry.SetFilter(Base, '>=%1', 0);
+                    end;
+                DATABASE::"Vendor Ledger Entry":
+                    case DummyCustLedgerEntry."Document Type" of
+                        DummyCustLedgerEntry."Document Type"::Invoice:
+                            VATEntry.SetFilter(Base, '>=%1', 0);
+                        DummyCustLedgerEntry."Document Type"::"Credit Memo":
+                            VATEntry.SetFilter(Base, '<=%1', 0);
+                    end;
+            end;
+        end;
+        exit(VATEntry.FindSet());
     end;
 
     [Scope('OnPrem')]
@@ -799,6 +830,15 @@ codeunit 10756 "SII Management"
                         else
                             "Special Scheme Code" := "Special Scheme Code"::"01 General";
         end;
+    end;
+
+    local procedure DoNotReportNegativeLines(): Boolean
+    var
+        SIISetup: Record "SII Setup";
+    begin
+        if not SIISetup.Get() then
+            exit(false);
+        exit(SIISetup."Do Not Export Negative Lines");
     end;
 }
 

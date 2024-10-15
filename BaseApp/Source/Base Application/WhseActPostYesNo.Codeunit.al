@@ -57,8 +57,15 @@ codeunit 7323 "Whse.-Act.-Post (Yes/No)"
         PrintDoc := SetPrint;
     end;
 
-    local procedure SelectForPutAway(): Boolean
+    local procedure SelectForPutAway() Result: Boolean
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSelectForPutAway(WhseActivLine, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         with WhseActivLine do
             if ("Source Document" = "Source Document"::"Prod. Output") or
                ("Source Document" = "Source Document"::"Inbound Transfer") or
@@ -75,8 +82,15 @@ codeunit 7323 "Whse.-Act.-Post (Yes/No)"
         exit(true);
     end;
 
-    local procedure SelectForOtherTypes(): Boolean
+    local procedure SelectForOtherTypes() Result: Boolean
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSelectForOtherTypes(WhseActivLine, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         with WhseActivLine do
             if ("Source Document" = "Source Document"::"Prod. Consumption") or
                ("Source Document" = "Source Document"::"Outbound Transfer")
@@ -94,6 +108,16 @@ codeunit 7323 "Whse.-Act.-Post (Yes/No)"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeConfirmPost(var WhseActivLine: Record "Warehouse Activity Line"; var HideDialog: Boolean; var Selection: Integer; var DefaultOption: Integer; var IsHandled: Boolean; var PrintDoc: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSelectForPutAway(var WhseActivLine: Record "Warehouse Activity Line"; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSelectForOtherTypes(var WhseActivLine: Record "Warehouse Activity Line"; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

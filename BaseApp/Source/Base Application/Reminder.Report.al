@@ -726,6 +726,9 @@ report 117 Reminder
                     column(TotalRemAmt_IssuedReminderLine; TotalRemAmt)
                     {
                     }
+                    column(FinalTotalInclVAT; NNC_TotalInclVAT)
+                    {
+                    }
                     column(VALVATBaseLCY_Control109; VALVATBaseLCY)
                     {
                         AutoFormatType = 1;

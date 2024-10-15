@@ -588,6 +588,7 @@ codeunit 5988 "Serv-Documents Mgt."
         PServShptLine: Record "Service Shipment Line";
         ServItemMgt: Codeunit ServItemManagement;
         RecordLinkManagement: Codeunit "Record Link Management";
+        IsHandled: Boolean;
     begin
         with ServHeader do begin
             if ("Document Type" = "Document Type"::Order) or
@@ -641,7 +642,10 @@ codeunit 5988 "Serv-Documents Mgt."
                             if not ServLine.FindFirst then
                                 ServOrderMgt.CalcContractDates(ServHeader, ServItemLine);
                         end;
-                        ServOrderMgt.CalcServItemDates(ServHeader, ServItemLine."Service Item No.");
+                        IsHandled := false;
+                        OnPrepareShipmentHeaderOnBeforeCalcServItemDates(ServHeader, ServItemLine, IsHandled);
+                        if not IsHandled then
+                            ServOrderMgt.CalcServItemDates(ServHeader, ServItemLine."Service Item No.");
                     until ServItemLine.Next() = 0
                 else begin
                     ServShptItemLine.Init();
@@ -1066,10 +1070,16 @@ codeunit 5988 "Serv-Documents Mgt."
     local procedure GetAndCheckCustomer()
     var
         Cust: Record Customer;
+        IsHandled: Boolean;
         Text1100000: Label 'The Credit Memo doesn''t have a Corrected Invoice No. Do you want to continue?';
         Text1100001: Label 'The posting process has been cancelled by the user.';
         Text1100002: Label 'Corrective Invoice';
     begin
+        IsHandled := false;
+        OnBeforeGetAndCheckCustomer(ServHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         with ServHeader do begin
             Cust.Get("Customer No.");
 
@@ -2259,6 +2269,11 @@ codeunit 5988 "Serv-Documents Mgt."
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetAndCheckCustomer(var ServiceHeader: Record "Service Header" temporary; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeInitialize(var ServiceHeader: Record "Service Header"; var ServiceLine: Record "Service Line"; var CloseCondition: Boolean)
     begin
     end;
@@ -2458,6 +2473,11 @@ codeunit 5988 "Serv-Documents Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnFinalizeOnBeforeFinalizeHeaderAndLines(var PassedServHeader: Record "Service Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPrepareShipmentHeaderOnBeforeCalcServItemDates(var ServHeader: Record "Service Header"; var ServItemLine: Record "Service Item Line"; var IsHandled: Boolean)
     begin
     end;
 }

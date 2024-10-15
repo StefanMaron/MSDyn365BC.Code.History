@@ -7,7 +7,8 @@ report 86 "Adjust Add. Reporting Currency"
                   TableData "Job Ledger Entry" = m,
                   TableData "VAT Entry" = m,
                   TableData "Dimension Set ID Filter Line" = imd,
-                  TableData "Value Entry" = m;
+                  TableData "Value Entry" = m,
+                  TableData "No Taxable Entry" = m;
     ProcessingOnly = true;
 
     dataset

@@ -1,4 +1,4 @@
-table 5200 Employee
+﻿table 5200 Employee
 {
     Caption = 'Employee';
     DataCaptionFields = "No.", Name, "First Family Name", "Second Family Name";
@@ -510,7 +510,13 @@ table 5200 Employee
     var
         ResourcesSetup: Record "Resources Setup";
         Resource: Record Resource;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOnInsert(Rec, xRec, IsHandled);
+        if IsHandled then
+            exit;
+
         "Last Modified Date Time" := CurrentDateTime;
         UpdateNamesFromOldFields;
         HumanResSetup.Get();
@@ -699,6 +705,11 @@ table 5200 Employee
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidateShortcutDimCode(var Employee: Record Employee; var xEmployee: Record Employee; FieldNumber: Integer; var ShortcutDimCode: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnInsert(var Employee: Record Employee; var xEmployee: Record Employee; var IsHandled: Boolean)
     begin
     end;
 

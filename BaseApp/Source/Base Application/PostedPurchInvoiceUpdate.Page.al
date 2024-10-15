@@ -150,7 +150,7 @@ page 1351 "Posted Purch. Invoice - Update"
           ("Succeeded Company Name" <> xPurchInvHeader."Succeeded Company Name") or
           ("Succeeded VAT Registration No." <> xPurchInvHeader."Succeeded VAT Registration No.");
 
-        OnAfterRecordChanged(Rec, xRec, IsChanged);
+        OnAfterRecordChanged(Rec, xRec, IsChanged, xPurchInvHeader);
     end;
 
     [Scope('OnPrem')]
@@ -161,7 +161,7 @@ page 1351 "Posted Purch. Invoice - Update"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterRecordChanged(var PurchInvHeader: Record "Purch. Inv. Header"; xPurchInvHeader: Record "Purch. Inv. Header"; var IsChanged: Boolean)
+    local procedure OnAfterRecordChanged(var PurchInvHeader: Record "Purch. Inv. Header"; xPurchInvHeader: Record "Purch. Inv. Header"; var IsChanged: Boolean; xPurchInvHeaderGlobal: Record "Purch. Inv. Header")
     begin
     end;
 }

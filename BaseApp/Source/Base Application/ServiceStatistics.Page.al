@@ -605,6 +605,7 @@ page 6030 "Service Statistics"
     var
         ServLine: Record "Service Line";
         TempServLine: Record "Service Line" temporary;
+        IsHandled: Boolean;
     begin
         CurrPage.Caption(StrSubstNo(Text000, "Document Type"));
 
@@ -641,15 +642,18 @@ page 6030 "Service Statistics"
                 if TotalServLineLCY[i].Amount <> 0 then
                     AdjProfitPct[i] := Round(AdjProfitLCY[i] / TotalServLineLCY[i].Amount * 100, 0.1);
 
-                if "Prices Including VAT" then begin
-                    TotalAmount2[i] := TotalServLine[i].Amount;
-                    TotalAmount1[i] := TotalAmount2[i] + VATAmount[i];
-                    TotalServLine[i]."Line Amount" :=
-                      TotalAmount1[i] + TotalServLine[i]."Inv. Discount Amount" + TotalServLine[i]."Pmt. Discount Amount";
-                end else begin
-                    TotalAmount1[i] := TotalServLine[i].Amount;
-                    TotalAmount2[i] := TotalServLine[i]."Amount Including VAT";
-                end;
+                IsHandled := false;
+                OnAfterGetRecordAfterCalcProfit(Rec, IsHandled);
+                If not IsHandled then
+                    if "Prices Including VAT" then begin
+                        TotalAmount2[i] := TotalServLine[i].Amount;
+                        TotalAmount1[i] := TotalAmount2[i] + VATAmount[i];
+                        TotalServLine[i]."Line Amount" :=
+                            TotalAmount1[i] + TotalServLine[i]."Inv. Discount Amount" + TotalServLine[i]."Pmt. Discount Amount";
+                    end else begin
+                        TotalAmount1[i] := TotalServLine[i].Amount;
+                        TotalAmount2[i] := TotalServLine[i]."Amount Including VAT";
+                    end;
             end;
 
         if Cust.Get("Bill-to Customer No.") then
@@ -745,6 +749,8 @@ page 6030 "Service Statistics"
               TotalServLine[IndexNo]."Pmt. Discount Amount";
         end else
             TotalAmount2[IndexNo] := TotalAmount1[IndexNo] + VATAmount[IndexNo];
+
+        OnUpdateHeaderInfoOnAfterCalcTotalAmount(Rec);
 
         if "Prices Including VAT" then
             TotalServLineLCY[IndexNo].Amount := TotalAmount2[IndexNo]
@@ -872,6 +878,16 @@ page 6030 "Service Statistics"
 
     [IntegrationEvent(true, false)]
     local procedure OnAfterUpdateHeaderInfo(var TotalServLineLCY: array[7] of Record "Service Line"; var IndexNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterGetRecordAfterCalcProfit(var ServiceHeader: Record "Service Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateHeaderInfoOnAfterCalcTotalAmount(var ServiceHeader: Record "Service Header")
     begin
     end;
 }

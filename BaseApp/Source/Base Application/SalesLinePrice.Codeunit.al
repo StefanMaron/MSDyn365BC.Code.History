@@ -61,6 +61,7 @@ codeunit 7020 "Sales Line - Price" implements "Line With Price"
     procedure IsDiscountAllowed() Result: Boolean;
     begin
         Result := SalesLine."Allow Line Disc." or not PriceCalculated;
+        OnAfterIsDiscountAllowed(SalesLine, PriceCalculated, Result);
     end;
 
     procedure Verify()
@@ -236,6 +237,8 @@ codeunit 7020 "Sales Line - Price" implements "Line With Price"
                         SalesLine.Validate("Unit Cost (LCY)");
                 end;
         end;
+
+        OnAfterValidatePrice(SalesLine, CurrPriceType, AmountType);
     end;
 
     procedure Update(AmountType: enum "Price Amount Type")
@@ -315,6 +318,16 @@ codeunit 7020 "Sales Line - Price" implements "Line With Price"
 
     [IntegrationEvent(false, false)]
     local procedure OnCopyToBufferOnAfterPriceCalculationBufferMgtSet(var PriceCalculationBufferMgt: Codeunit "Price Calculation Buffer Mgt."; PriceCalculationBuffer: Record "Price Calculation Buffer"; var PriceSourceList: Codeunit "Price Source List")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterIsDiscountAllowed(SalesLine: Record "Sales Line"; PriceCalculated: Boolean; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterValidatePrice(var SalesLine: Record "Sales Line"; CurrPriceType: Enum "Price Type"; AmountType: Enum "Price Amount Type")
     begin
     end;
 }

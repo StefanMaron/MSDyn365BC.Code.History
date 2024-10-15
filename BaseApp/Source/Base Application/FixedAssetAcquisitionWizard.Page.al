@@ -71,6 +71,7 @@ page 5551 "Fixed Asset Acquisition Wizard"
                     {
                         ApplicationArea = FixedAssets;
                         Caption = 'Acquisition Cost Incl. VAT';
+                        ToolTip = 'Specifies the total amount (including VAT) of the acquisition document.';
 
                         trigger OnValidate()
                         begin
@@ -81,6 +82,7 @@ page 5551 "Fixed Asset Acquisition Wizard"
                     {
                         ApplicationArea = FixedAssets;
                         Caption = 'Acquisition Date';
+                        ToolTip = 'Specifies the date on which the fixed asset was acquired.';
 
                         trigger OnValidate()
                         begin
@@ -101,6 +103,7 @@ page 5551 "Fixed Asset Acquisition Wizard"
                         ApplicationArea = FixedAssets;
                         Caption = 'Post to';
                         OptionCaption = 'G/L Account,Vendor,Bank Account';
+                        Tooltip = 'Specifies the ledger type to use for posting the acquisition.';
                         Visible = false;
                     }
                     group(Control34)
@@ -111,6 +114,7 @@ page 5551 "Fixed Asset Acquisition Wizard"
                         {
                             ApplicationArea = FixedAssets;
                             Caption = 'Balancing Account No.';
+                            ToolTip = 'Specifies the number of the general ledger, customer, vendor, or bank account to which a balancing entry for the acquisition line will be posted.';
 
                             trigger OnValidate()
                             begin
@@ -126,11 +130,13 @@ page 5551 "Fixed Asset Acquisition Wizard"
                         {
                             ApplicationArea = FixedAssets;
                             Caption = 'Vendor';
+                            ToolTip = 'Specifies the number of the vendor to which a balancing entry for the acquisition line will be posted.';
                         }
                         field(ExternalDocNo; "External Document No.")
                         {
                             ApplicationArea = FixedAssets;
                             Caption = 'External Document No.';
+                            ToolTip = 'Specifies the identification number that the vendor assigned to the document. For example, this number is useful if you need to contact the vendor about the document.';
 
                             trigger OnValidate()
                             begin
@@ -146,6 +152,7 @@ page 5551 "Fixed Asset Acquisition Wizard"
                         {
                             ApplicationArea = FixedAssets;
                             Caption = 'Bank Account';
+                            ToolTip = 'Specifies the number of the bank account to which a balancing entry for the acquisition line will be posted.';
 
                             trigger OnValidate()
                             begin

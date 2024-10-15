@@ -19080,6 +19080,12 @@
         <Field Name="TotalRemAmt_IssuedReminderLineFormat">
           <DataField>TotalRemAmt_IssuedReminderLineFormat</DataField>
         </Field>
+        <Field Name="FinalTotalInclVAT">
+          <DataField>FinalTotalInclVAT</DataField>
+        </Field>
+        <Field Name="FinalTotalInclVATFormat">
+          <DataField>FinalTotalInclVATFormat</DataField>
+        </Field>
         <Field Name="VALVATBaseLCY_Control109">
           <DataField>VALVATBaseLCY_Control109</DataField>
         </Field>

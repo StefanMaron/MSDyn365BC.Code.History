@@ -1542,6 +1542,68 @@ codeunit 147522 "SII Document Processing"
         VerifySIIJobQueueEntryCount(0);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure SpecialSchemeCodeOfSalesInvWithE2ExemptionCode()
+    var
+        SalesHeader: Record "Sales Header";
+        VATClause: Record "VAT Clause";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SIIDocUploadState: Record "SII Doc. Upload State";
+    begin
+        // [FEATURE] [Sales] [Exemption]
+        // [SCENARIO 395354] "Special Scheme Codes" automatically changes to "02 export" when posting sales invoice with exemption code "E2"
+
+        Initialize();
+        // [GIVEN] Sales invoice with default "Special Scheme Code" equals "01" and "Exemptio Code" = "E2"
+        LibrarySII.CreateSalesWithSpecificVATClause(
+          SalesHeader, SalesHeader."Document Type"::Invoice, WorkDate(), 0,
+          VATClause."SII Exemption Code"::"E2 Exempt on account of Article 21");
+
+        // [WHEN] Post sales invoice
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+
+        // [THEN] Posted Sales invoice has "Special Scheme Code" = "02"
+        SalesInvoiceHeader.TestField("Special Scheme Code", SalesInvoiceHeader."Special Scheme Code"::"02 Export");
+
+        // [THEN] SII Doc. Upload State for posted Sales invoice has "Special Scheme Code" = "02"
+        LibrarySII.FindSIIDocUploadState(
+          SIIDocUploadState, SIIDocUploadState."Document Source"::"Customer Ledger",
+          SIIDocUploadState."Document Type"::Invoice, SalesInvoiceHeader."No.");
+        SIIDocUploadState.TestField("Sales Special Scheme Code", SIIDocUploadState."Sales Special Scheme Code"::"02 Export");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SpecialSchemeCodeOfSalesInvWithE3ExemptionCode()
+    var
+        SalesHeader: Record "Sales Header";
+        VATClause: Record "VAT Clause";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SIIDocUploadState: Record "SII Doc. Upload State";
+    begin
+        // [FEATURE] [Sales] [Exemption]
+        // [SCENARIO 395354] "Special Scheme Codes" automatically changes to "02 export" when posting sales invoice with exemption code "E3"
+
+        Initialize();
+        // [GIVEN] Sales invoice with default "Special Scheme Code" equals "01" and "Exemptio Code" = "E3"
+        LibrarySII.CreateSalesWithSpecificVATClause(
+          SalesHeader, SalesHeader."Document Type"::Invoice, WorkDate(), 0,
+          VATClause."SII Exemption Code"::"E3 Exempt on account of Article 22");
+
+        // [WHEN] Post sales invoice
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+
+        // [THEN] Posted Sales invoice has "Special Scheme Code" = "02"
+        SalesInvoiceHeader.TestField("Special Scheme Code", SalesInvoiceHeader."Special Scheme Code"::"02 Export");
+
+        // [THEN] SII Doc. Upload State for posted Sales invoice has "Special Scheme Code" = "02"
+        LibrarySII.FindSIIDocUploadState(
+          SIIDocUploadState, SIIDocUploadState."Document Source"::"Customer Ledger",
+          SIIDocUploadState."Document Type"::Invoice, SalesInvoiceHeader."No.");
+        SIIDocUploadState.TestField("Sales Special Scheme Code", SIIDocUploadState."Sales Special Scheme Code"::"02 Export");
+    end;
+    
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore;

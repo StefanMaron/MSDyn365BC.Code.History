@@ -49,7 +49,7 @@ report 10710 "Make 349 Declaration"
 
             trigger OnPostDataItem()
             begin
-                Txt := PadStr('', 500, ' ');
+                Txt := PadStr('', 501, ' ');
                 OutFile.Write(Txt);
             end;
         }
@@ -1051,7 +1051,7 @@ report 10710 "Make 349 Declaration"
               PeriodChangeText + PadStr('', 314, ' ');
 
             OutFile.Seek(0);
-            OutStr.WriteText(Txt);
+            OutFile.Write(Txt);
             OutFile.Close;
             ConvertFileEncoding(FileName, Utf8Lbl, Iso88591Lbl);
         end else begin
@@ -1189,7 +1189,7 @@ report 10710 "Make 349 Declaration"
         AccumPrevDeclAmount: Decimal;
         AccumOrigDeclAmount: Decimal;
         AmountToIncludein349: Decimal;
-        Txt: Text[500];
+        Txt: Text[501];
         VatRegNo: Text[9];
         FileName: Text;
         OpTriang: Text[1];

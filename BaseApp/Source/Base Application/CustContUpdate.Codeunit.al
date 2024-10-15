@@ -8,7 +8,7 @@ codeunit 5056 "CustCont-Update"
     var
         RMSetup: Record "Marketing Setup";
         CustContactUpdateCategoryTxt: Label 'Customer Contact Orphaned Links', Locked = true;
-        CustContactUpdateTelemetryMsg: Label 'Contact %1 does not exist. The contact business relation with code %2 which points to it has been deleted', Locked = true;
+        CustContactUpdateTelemetryMsg: Label 'Contact does not exist. The contact business relation which points to it has been deleted', Locked = true;
 
     procedure OnInsert(var Cust: Record Customer)
     begin
@@ -36,7 +36,7 @@ codeunit 5056 "CustCont-Update"
                 exit;
             if not Cont.Get("Contact No.") then begin
                 Delete();
-                Session.LogMessage('0000B37', StrSubstNo(CustContactUpdateTelemetryMsg, "Contact No.", "Business Relation Code"), Verbosity::Normal, DataClassification::EndUserIdentifiableInformation, TelemetryScope::ExtensionPublisher, 'Category', CustContactUpdateCategoryTxt);
+                Session.LogMessage('0000B37', CustContactUpdateTelemetryMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CustContactUpdateCategoryTxt);
                 exit;
             end;
             OldCont := Cont;

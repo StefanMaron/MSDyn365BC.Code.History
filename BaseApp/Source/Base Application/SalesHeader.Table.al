@@ -115,7 +115,7 @@
                 if not SkipSellToContact then
                     UpdateSellToCont("Sell-to Customer No.");
 
-                OnValidateSellToCustomerNoOnBeforeRecallModifyAddressNotification(Rec);
+                OnValidateSellToCustomerNoOnBeforeRecallModifyAddressNotification(Rec, xRec);
                 if (xRec."Sell-to Customer No." <> '') and (xRec."Sell-to Customer No." <> "Sell-to Customer No.") then
                     RecallModifyAddressNotification(GetModifyCustomerAddressNotificationId);
             end;
@@ -229,7 +229,7 @@
                 "Bill-to IC Partner Code" := Cust."IC Partner Code";
                 "Send IC Document" := ("Bill-to IC Partner Code" <> '') and ("IC Direction" = "IC Direction"::Outgoing);
 
-                OnValidateBillToCustomerNoOnBeforeRecallModifyAddressNotification(Rec);
+                OnValidateBillToCustomerNoOnBeforeRecallModifyAddressNotification(Rec, xRec);
                 if (xRec."Bill-to Customer No." <> '') and (xRec."Bill-to Customer No." <> "Bill-to Customer No.") then
                     RecallModifyAddressNotification(GetModifyBillToCustomerAddressNotificationId);
 
@@ -436,7 +436,11 @@
 
             trigger OnLookup()
             begin
+                OnBeforeLookupShipToCity(Rec, PostCode);
+
                 PostCode.LookupPostCode("Ship-to City", "Ship-to Post Code", "Ship-to County", "Ship-to Country/Region Code");
+
+                OnAfterLookupShipToCity(Rec, PostCode);
             end;
 
             trigger OnValidate()
@@ -471,6 +475,11 @@
                 IsHandled: Boolean;
                 NeedUpdateCurrencyFactor: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidatePostingDate(Rec, xRec, CurrFieldNo, IsHandled);
+                if IsHandled then
+                    exit;
+
                 TestField("Posting Date");
                 TestNoSeriesDate(
                   "Posting No.", "Posting No. Series",
@@ -799,6 +808,7 @@
                                         SalesLine."Line Amount" := SalesLine."Amount Including VAT" + SalesLine."Inv. Discount Amount"
                                     else
                                         SalesLine."Line Amount" := SalesLine.Amount + SalesLine."Inv. Discount Amount";
+                                UpdatePrepmtAmounts(SalesLine);
                             end;
                             OnValidatePricesIncludingVATOnBeforeSalesLineModify(Rec, SalesLine, Currency, RecalculatePrice);
                             SalesLine.Modify();
@@ -943,8 +953,13 @@
             end;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
-                OnBeforeValidateAppliesToDocNo(Rec, CustLedgEntry);
+                IsHandled := false;
+                OnBeforeValidateAppliesToDocNo(Rec, CustLedgEntry, xRec, IsHandled);
+                if IsHandled then
+                    exit;
 
                 if "Applies-to Doc. No." <> '' then
                     TestField("Bal. Account No.", '');
@@ -1390,6 +1405,8 @@
                 OnBeforeLookupShipToPostCode(Rec, PostCode);
 
                 PostCode.LookupPostCode("Ship-to City", "Ship-to Post Code", "Ship-to County", "Ship-to Country/Region Code");
+
+                OnAfterLookupShipToPostCode(Rec, PostCode);
             end;
 
             trigger OnValidate()
@@ -1444,7 +1461,14 @@
             Caption = 'Document Date';
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateDocumentDate(Rec, xRec, CurrFieldNo, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if xRec."Document Date" <> "Document Date" then
                     UpdateDocumentDate := true;
                 Validate("Payment Terms Code");
@@ -1526,7 +1550,7 @@
                 IsHandled: Boolean;
             begin
                 IsHandled := false;
-                OnBeforeValidateShippingAgentCode(Rec, IsHandled);
+                OnBeforeValidateShippingAgentCode(Rec, IsHandled, xRec, CurrFieldNo);
                 if IsHandled then
                     exit;
 
@@ -1874,7 +1898,10 @@
                 if ("Prepmt. Payment Terms Code" <> '') and ("Document Date" <> 0D) then begin
                     PaymentTerms.Get("Prepmt. Payment Terms Code");
                     if IsCreditDocType and not PaymentTerms."Calc. Pmt. Disc. on Cr. Memos" then begin
-                        Validate("Prepayment Due Date", "Document Date");
+                        IsHandled := false;
+                        OnValidatePrepmtPaymentTermsCodeOnCaseIfOnBeforeValidatePrepaymentDueDate(Rec, xRec, CurrFieldNo, IsHandled);
+                        if not IsHandled then
+                            Validate("Prepayment Due Date", "Document Date");
                         Validate("Prepmt. Pmt. Discount Date", 0D);
                         Validate("Prepmt. Payment Discount %", 0);
                     end else begin
@@ -1898,7 +1925,10 @@
                         end;
                     end;
                 end else begin
-                    Validate("Prepayment Due Date", "Document Date");
+                    IsHandled := false;
+                    OnPrepmtPaymentTermsCodeOnCaseElseOnBeforeValidatePrepaymentDueDate(Rec, xRec, CurrFieldNo, IsHandled);
+                    if not IsHandled then
+                        Validate("Prepayment Due Date", "Document Date");
                     if not UpdateDocumentDate then begin
                         Validate("Prepmt. Pmt. Discount Date", 0D);
                         Validate("Prepmt. Payment Discount %", 0);
@@ -3279,18 +3309,9 @@
                     end;
             end;
 
-        IsHandled := false;
-        OnInitRecordOnBeforeAssignShipmentDate(Rec, IsHandled);
-        if not IsHandled then
-            if "Document Type" in ["Document Type"::Order, "Document Type"::Invoice, "Document Type"::Quote] then
-                "Shipment Date" := WorkDate;
+        InitShipmentDate();
 
-        IsHandled := false;
-        OnInitRecordOnBeforeAssignWorkDateToPostingDate(Rec, IsHandled);
-        if not ("Document Type" in ["Document Type"::"Blanket Order", "Document Type"::Quote]) and
-           ("Posting Date" = 0D)
-        then
-            "Posting Date" := WorkDate;
+        InitPostingDate();
 
         if SalesSetup."Default Posting Date" = SalesSetup."Default Posting Date"::"No Date" then
             "Posting Date" := 0D;
@@ -3318,6 +3339,34 @@
         SIIManagement.UpdateSIIInfoInSalesDoc(Rec);
 
         OnAfterInitRecord(Rec);
+    end;
+
+    local procedure InitShipmentDate()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnInitRecordOnBeforeAssignShipmentDate(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        if "Document Type" in ["Document Type"::Order, "Document Type"::Invoice, "Document Type"::Quote] then
+            "Shipment Date" := WorkDate();
+    end;
+
+    local procedure InitPostingDate()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnInitRecordOnBeforeAssignWorkDateToPostingDate(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        if not ("Document Type" in ["Document Type"::"Blanket Order", "Document Type"::Quote]) and
+           ("Posting Date" = 0D)
+        then
+            "Posting Date" := WorkDate();
     end;
 
     local procedure InitNoSeries()
@@ -3683,6 +3732,8 @@
                 SalesLine.FindLast();
                 ExtendedTextAdded := true;
             end;
+
+        OnAfterRecreateSalesLinesHandleSupplementTypes(Rec);
     end;
 
     local procedure StoreSalesCommentLineToTemp(var TempSalesCommentLine: Record "Sales Comment Line" temporary)
@@ -3886,7 +3937,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeUpdateSalesLinesByFieldNo(Rec, ChangedFieldNo, AskQuestion, IsHandled);
+        OnBeforeUpdateSalesLinesByFieldNo(Rec, ChangedFieldNo, AskQuestion, IsHandled, xRec);
         if IsHandled then
             exit;
 
@@ -4693,7 +4744,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCheckCreditMaxBeforeInsert(Rec, IsHandled, HideCreditCheckDialogue);
+        OnBeforeCheckCreditMaxBeforeInsert(Rec, IsHandled, HideCreditCheckDialogue, GetFilterCustNo(), GetFilterContNo());
         if IsHandled then
             exit;
 
@@ -4709,6 +4760,7 @@
                 SalesHeader."Bill-to Customer No." := Cust."Bill-to Customer No."
             else
                 SalesHeader."Bill-to Customer No." := Cust."No.";
+            OnCheckCreditMaxBeforeInsertOnCaseIfOnBeforeSalesHeaderCheckCase(SalesHeader);
             CustCheckCreditLimit.SalesHeaderCheck(SalesHeader);
         end else
             if GetFilterContNo <> '' then begin
@@ -5675,12 +5727,19 @@
             OnAfterInsertTempSalesLine(SalesLine, TempSalesLine);
             SalesLineReserve.CopyReservEntryToTemp(TempReservEntry, SalesLine);
             RecreateReqLine(SalesLine, 0, true);
-            OnRecreateReservEntryReqLineOnAfterLoop(Rec);
+            OnRecreateReservEntryReqLineOnAfterLoop(Rec, SalesLine);
         until SalesLine.Next() = 0;
     end;
 
     local procedure TransferItemChargeAssgntSalesToTemp(var ItemChargeAssgntSales: Record "Item Charge Assignment (Sales)"; var TempItemChargeAssgntSales: Record "Item Charge Assignment (Sales)" temporary)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeTransferItemChargeAssgntSalesToTemp(Rec, ItemChargeAssgntSales, TempItemChargeAssgntSales, IsHandled);
+        if IsHandled then
+            exit;
+
         ItemChargeAssgntSales.SetRange("Document Type", "Document Type");
         ItemChargeAssgntSales.SetRange("Document No.", "No.");
         if ItemChargeAssgntSales.FindSet then begin
@@ -5697,7 +5756,7 @@
     var
         IsHandled: Boolean;
     begin
-        OnBeforeCreateSalesLine(TempSalesLine, IsHandled);
+        OnBeforeCreateSalesLine(TempSalesLine, IsHandled, Rec);
         if IsHandled then
             exit;
 
@@ -6141,7 +6200,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeSetBillToCustomerAddressFieldsFromCustomer(Rec, BillToCustomer, SkipBillToContact, IsHandled);
+        OnBeforeSetBillToCustomerAddressFieldsFromCustomer(Rec, BillToCustomer, SkipBillToContact, IsHandled, xRec, GLSetup);
         if IsHandled then
             exit;
 
@@ -6914,7 +6973,7 @@
 
     procedure TestStatusOpen()
     begin
-        OnBeforeTestStatusOpen(Rec);
+        OnBeforeTestStatusOpen(Rec, xRec, CurrFieldNo);
 
         if StatusCheckSuspended then
             exit;
@@ -7013,6 +7072,7 @@
         Customer: Record Customer;
         StandardCodesMgt: Codeunit "Standard Codes Mgt.";
     begin
+        Customer.SetFilter("Date Filter", GetFilter("Date Filter"));
         if "Sell-to Customer No." <> '' then
             Customer.Get("Sell-to Customer No.");
 
@@ -7066,6 +7126,19 @@
     procedure SetCalledFromWhseDoc(NewCalledFromWhseDoc: Boolean)
     begin
         CalledFromWhseDoc := NewCalledFromWhseDoc;
+    end;
+
+    local procedure UpdatePrepmtAmounts(var SalesLine: Record "Sales Line")
+    var
+        Currency: Record Currency;
+    begin
+        Currency.Initialize("Currency Code");
+        if "Document Type" = "Document Type"::Order then begin
+            SalesLine."Prepmt. Line Amount" := Round(
+                SalesLine."Line Amount" * SalesLine."Prepayment %" / 100, Currency."Amount Rounding Precision");
+            if Abs(SalesLine."Inv. Discount Amount" + SalesLine."Prepmt. Line Amount") > Abs(SalesLine."Line Amount") then
+                SalesLine."Prepmt. Line Amount" := SalesLine."Line Amount" - SalesLine."Inv. Discount Amount";
+        end;
     end;
 
     [IntegrationEvent(false, false)]
@@ -7312,7 +7385,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckCreditMaxBeforeInsert(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean; HideCreditCheckDialogue: Boolean)
+    local procedure OnBeforeCheckCreditMaxBeforeInsert(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean; HideCreditCheckDialogue: Boolean; FilterCustNo: Code[20]; FilterContNo: Code[20])
     begin
     end;
 
@@ -7387,7 +7460,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCreateSalesLine(var TempSalesLine: Record "Sales Line" temporary; var IsHandled: Boolean)
+    local procedure OnBeforeCreateSalesLine(var TempSalesLine: Record "Sales Line" temporary; var IsHandled: Boolean; var SalesHeader: record "Sales Header")
     begin
     end;
 
@@ -7487,6 +7560,21 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterLookupShipToCity(var SalesHeader: Record "Sales Header"; var PostCodeRec: Record "Post Code")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeLookupShipToCity(var SalesHeader: Record "Sales Header"; var PostCodeRec: Record "Post Code")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterLookupShipToPostCode(var SalesHeader: Record "Sales Header"; var PostCodeRec: Record "Post Code")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeLookupShipToPostCode(var SalesHeader: Record "Sales Header"; var PostCodeRec: Record "Post Code")
     begin
     end;
@@ -7522,12 +7610,22 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeTransferItemChargeAssgntSalesToTemp(var SalesHeader: Record "Sales Header"; var ItemChargeAssgntSales: Record "Item Charge Assignment (Sales)"; var TempItemChargeAssgntSales: Record "Item Charge Assignment (Sales)" temporary; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateCurrencyFactor(var SalesHeader: Record "Sales Header"; var Updated: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateBillToPostCode(var SalesHeader: Record "Sales Header"; var PostCodeRec: Record "Post Code")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateDocumentDate(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header"; CurrentFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 
@@ -7647,7 +7745,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeUpdateSalesLinesByFieldNo(var SalesHeader: Record "Sales Header"; ChangedFieldNo: Integer; var AskQuestion: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeUpdateSalesLinesByFieldNo(var SalesHeader: Record "Sales Header"; ChangedFieldNo: Integer; var AskQuestion: Boolean; var IsHandled: Boolean; xSalesHeader: Record "Sales Header")
     begin
     end;
 
@@ -7668,6 +7766,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateShipToCodeFromCust(var SalesHeader: Record "Sales Header"; var Customer: Record Customer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidatePostingDate(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header"; CurrentFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 
@@ -7770,7 +7873,7 @@
     end;
 
     [IntegrationEvent(TRUE, false)]
-    local procedure OnBeforeTestStatusOpen(var SalesHeader: Record "Sales Header")
+    local procedure OnBeforeTestStatusOpen(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header"; CallingFieldNo: Integer)
     begin
     end;
 
@@ -7805,7 +7908,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeValidateAppliesToDocNo(var SalesHeader: Record "Sales Header"; var CustLedgEntry: Record "Cust. Ledger Entry");
+    local procedure OnBeforeValidateAppliesToDocNo(var SalesHeader: Record "Sales Header"; var CustLedgEntry: Record "Cust. Ledger Entry"; xSalesHeader: Record "Sales Header"; var IsHandled: Boolean);
     begin
     end;
 
@@ -7840,7 +7943,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnRecreateReservEntryReqLineOnAfterLoop(var SalesHeader: Record "Sales Header")
+    local procedure OnRecreateReservEntryReqLineOnAfterLoop(var SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line")
     begin
     end;
 
@@ -8060,12 +8163,12 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeSetBillToCustomerAddressFieldsFromCustomer(var SalesHeader: Record "Sales Header"; var BillToCustomer: Record Customer; var SkipBillToContact: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeSetBillToCustomerAddressFieldsFromCustomer(var SalesHeader: Record "Sales Header"; var BillToCustomer: Record Customer; var SkipBillToContact: Boolean; var IsHandled: Boolean; xSalesHeader: Record "Sales Header"; var GLSetup: Record "General Ledger Setup")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnValidateBillToCustomerNoOnBeforeRecallModifyAddressNotification(var SalesHeader: Record "Sales Header")
+    local procedure OnValidateBillToCustomerNoOnBeforeRecallModifyAddressNotification(var SalesHeader: Record "Sales Header"; var xSalesHeader: Record "Sales Header")
     begin
     end;
 
@@ -8090,7 +8193,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeValidateShippingAgentCode(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    local procedure OnBeforeValidateShippingAgentCode(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean; var xSalesHeader: Record "Sales Header"; CurrentFieldNo: Integer)
     begin
     end;
 
@@ -8130,7 +8233,27 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnValidateSellToCustomerNoOnBeforeRecallModifyAddressNotification(var SalesHeader: Record "Sales Header")
+    local procedure OnValidateSellToCustomerNoOnBeforeRecallModifyAddressNotification(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckCreditMaxBeforeInsertOnCaseIfOnBeforeSalesHeaderCheckCase(var SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPrepmtPaymentTermsCodeOnCaseElseOnBeforeValidatePrepaymentDueDate(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header"; CurrFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidatePrepmtPaymentTermsCodeOnCaseIfOnBeforeValidatePrepaymentDueDate(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header"; CurrFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterRecreateSalesLinesHandleSupplementTypes(var SalesHeader: Record "Sales Header")
     begin
     end;
 }

@@ -385,7 +385,7 @@ codeunit 143006 "Library - SII"
     end;
 
     [Scope('OnPrem')]
-    procedure CreateVATPostingSetupWithSIIExemptVATClause(VATBusPostGroupCode: Code[20]): Code[20]
+    procedure CreateVATPostingSetupWithSIIExemptVATClause(VATBusPostGroupCode: Code[20]; ExemptionCode: Option): Code[20]
     var
         VATProductPostingGroup: Record "VAT Product Posting Group";
         VATPostingSetup: Record "VAT Posting Setup";
@@ -399,7 +399,7 @@ codeunit 143006 "Library - SII"
         VATPostingSetup.Validate("Sales VAT Account", LibraryERM.CreateGLAccountNo);
         VATPostingSetup.Validate("Purchase VAT Account", LibraryERM.CreateGLAccountNo);
         LibraryERM.CreateVATClause(VATClause);
-        VATClause.Validate("SII Exemption Code", VATClause."SII Exemption Code"::"E6 Exempt on other grounds");
+        VATClause.Validate("SII Exemption Code", ExemptionCode);
         VATClause.Modify(true);
         VATPostingSetup.Validate("VAT Clause Code", VATClause.Code);
         VATPostingSetup.Modify(true);
@@ -475,6 +475,15 @@ codeunit 143006 "Library - SII"
 
     local procedure CreateSalesWithVATClause(var SalesHeader: Record "Sales Header"; DocType: Enum "Sales Document Type"; PostingDate: Date; CorrectionType: Option)
     var
+        VATClause: Record "VAT Clause";
+    begin
+        CreateSalesWithSpecificVATClause(
+          SalesHeader, DocType, PostingDate, CorrectionType, VATClause."SII Exemption Code"::"E6 Exempt on other grounds");
+    end;
+
+    [Scope('OnPrem')]
+    procedure CreateSalesWithSpecificVATClause(var SalesHeader: Record "Sales Header"; DocType: Option; PostingDate: Date; CorrectionType: Option; ExemptionCode: Option)
+    var
         Customer: Record Customer;
         ItemNo: Code[20];
     begin
@@ -485,7 +494,8 @@ codeunit 143006 "Library - SII"
         SalesHeader.Modify(true);
         ItemNo :=
           CreateItemNoWithSpecificVATSetup(
-            CreateVATPostingSetupWithSIIExemptVATClause(Customer."VAT Bus. Posting Group"));
+            CreateVATPostingSetupWithSIIExemptVATClause(Customer."VAT Bus. Posting Group",
+              ExemptionCode));
         CreateSalesLineWithUnitPrice(SalesHeader, ItemNo);
     end;
 

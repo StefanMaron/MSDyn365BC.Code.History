@@ -1,4 +1,4 @@
-codeunit 10750 "SII XML Creator"
+﻿codeunit 10750 "SII XML Creator"
 {
 
     trigger OnRun()
@@ -1186,6 +1186,7 @@ codeunit 10750 "SII XML Creator"
         XMLDOMManagement.AddElementWithPrefix(XMLNode, 'TipoRectificativa', 'I', 'sii', SiiTxt, TempXMLNode);
         GenerateFacturasRectificadasNode(XMLNode, OldCustLedgerEntry."Document No.", OldCustLedgerEntry."Posting Date");
         GetClaveRegimenNodeSales(RegimeCodes, SIIDocUploadState, CustLedgerEntry, Customer);
+        GenerateNodeForFechaOperacionSales(XMLNode, CustLedgerEntry, RegimeCodes);
         GenerateClaveRegimenNode(XMLNode, RegimeCodes);
 
         TotalAmount := -TotalBase - TotalVATAmount;
@@ -1648,11 +1649,11 @@ codeunit 10750 "SII XML Creator"
 
         if SIIManagement.FindVatEntriesFromLedger(LedgerEntryRecRef, VATEntry) then begin
             repeat
-                TotalBaseAmount += VATEntry.Base;
+                TotalBaseAmount += VATEntry.Base + VATEntry."Unrealized Base";
                 if VATEntry."VAT %" <> 0 then
-                    TotalNonExemptVATBaseAmount += VATEntry.Base;
+                    TotalNonExemptVATBaseAmount += VATEntry.Base + VATEntry."Unrealized Base";
                 if VATEntry."VAT Calculation Type" <> VATEntry."VAT Calculation Type"::"Reverse Charge VAT" then
-                    TotalVATAmount += VATEntry.Amount;
+                    TotalVATAmount += VATEntry.Amount + VATEntry."Unrealized Amount";
             until VATEntry.Next() = 0;
         end;
     end;
@@ -1752,31 +1753,59 @@ codeunit 10750 "SII XML Creator"
     local procedure GenerateNodeForFechaOperacionSales(var XMLNode: DotNet XmlNode; CustLedgerEntry: Record "Cust. Ledger Entry"; RegimeCodes: array[3] of Code[2])
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
         SalesInvoiceLine: Record "Sales Invoice Line";
+        SalesCrMemoLine: Record "Sales Cr.Memo Line";
         SalesShipmentLine: Record "Sales Shipment Line";
+        ReturnReceiptLine: Record "Return Receipt Line";
         LastShipDate: Date;
+        PostingDate: Date;
     begin
-        if CustLedgerEntry."Document Type" = CustLedgerEntry."Document Type"::Invoice then
-            if SalesInvoiceHeader.Get(CustLedgerEntry."Document No.") then begin
-                SalesInvoiceLine.SetRange("Document No.", CustLedgerEntry."Document No.");
-                SalesInvoiceLine.SetFilter(Quantity, '>%1', 0);
-                if SalesInvoiceLine.FindSet then
-                    repeat
-                        if SalesInvoiceLine."Shipment No." = '' then begin
-                            if (SalesInvoiceLine."Shipment Date" > LastShipDate) and
-                               (Date2DMY(SalesInvoiceLine."Shipment Date", 3) = Date2DMY(SalesInvoiceHeader."Posting Date", 3))
-                            then
-                                LastShipDate := SalesInvoiceLine."Shipment Date";
-                        end else
-                            if SalesShipmentLine.Get(SalesInvoiceLine."Shipment No.", SalesInvoiceLine."Shipment Line No.") then
-                                if (SalesShipmentLine."Posting Date" > LastShipDate) and
-                                   (Date2DMY(SalesShipmentLine."Posting Date", 3) = Date2DMY(SalesInvoiceHeader."Posting Date", 3))
-                                then
-                                    LastShipDate := SalesShipmentLine."Posting Date";
-                    until SalesInvoiceLine.Next() = 0;
-                OnGenerateNodeForFechaOperacionSalesOnBeforeFillFechaOperacion(LastShipDate, SalesInvoiceHeader);
-                FillFechaOperacion(XMLNode, LastShipDate, SalesInvoiceHeader."Posting Date", true, RegimeCodes);
-            end;
+        case CustLedgerEntry."Document Type" of
+            CustLedgerEntry."Document Type"::Invoice:
+                if SalesInvoiceHeader.Get(CustLedgerEntry."Document No.") then begin
+                    PostingDate := SalesInvoiceHeader."Posting Date";
+                    SalesInvoiceLine.SetRange("Document No.", CustLedgerEntry."Document No.");
+                    SalesInvoiceLine.SetFilter(Quantity, '>%1', 0);
+                    if SalesInvoiceLine.FindSet() then
+                        repeat
+                            if SalesInvoiceLine."Shipment No." = '' then begin
+                                if SalesInvoiceLine."Shipment Date" <> 0D then
+                                    if (SalesInvoiceLine."Shipment Date" > LastShipDate) and (Date2DMY(SalesInvoiceLine."Shipment Date", 3) = Date2DMY(SalesInvoiceHeader."Posting Date", 3))
+                                    then
+                                        LastShipDate := SalesInvoiceLine."Shipment Date";
+                            end else
+                                if SalesShipmentLine.Get(SalesInvoiceLine."Shipment No.", SalesInvoiceLine."Shipment Line No.") then
+                                    if (SalesShipmentLine."Posting Date" > LastShipDate) and
+                                       (Date2DMY(SalesShipmentLine."Posting Date", 3) = Date2DMY(SalesInvoiceHeader."Posting Date", 3))
+                                    then
+                                        LastShipDate := SalesShipmentLine."Posting Date";
+                        until SalesInvoiceLine.Next() = 0;
+                    OnGenerateNodeForFechaOperacionSalesOnBeforeFillFechaOperacion(LastShipDate, SalesInvoiceHeader);
+                end;
+            CustLedgerEntry."Document Type"::"Credit Memo":
+                if SalesCrMemoHeader.Get(CustLedgerEntry."Document No.") then begin
+                    PostingDate := SalesCrMemoHeader."Posting Date";
+                    SalesCrMemoLine.SetRange("Document No.", CustLedgerEntry."Document No.");
+                    SalesCrMemoLine.SetFilter(Quantity, '>%1', 0);
+                    if SalesCrMemoLine.FindSet() then
+                        repeat
+                            if SalesCrMemoLine."Return Receipt No." = '' then begin
+                                if SalesCrMemoLine."Shipment Date" <> 0D then
+                                    if (SalesCrMemoLine."Shipment Date" > LastShipDate) and (Date2DMY(SalesCrMemoLine."Shipment Date", 3) = Date2DMY(SalesCrMemoHeader."Posting Date", 3))
+                                    then
+                                        LastShipDate := SalesCrMemoLine."Shipment Date";
+                            end else
+                                if ReturnReceiptLine.Get(SalesCrMemoLine."Return Receipt No.", SalesCrMemoLine."Return Receipt Line No.") then
+                                    if (ReturnReceiptLine."Posting Date" > LastShipDate) and
+                                       (Date2DMY(ReturnReceiptLine."Posting Date", 3) = Date2DMY(SalesCrMemoHeader."Posting Date", 3))
+                                    then
+                                        LastShipDate := ReturnReceiptLine."Posting Date";
+                        until SalesCrMemoLine.Next() = 0;
+                end;
+        end;
+        if PostingDate <> 0D then
+            FillFechaOperacion(XMLNode, LastShipDate, PostingDate, true, RegimeCodes);
     end;
 
     local procedure GenerateNodeForFechaOperacionPurch(var XMLNode: DotNet XmlNode; VendorLedgerEntry: Record "Vendor Ledger Entry")
@@ -1989,12 +2018,16 @@ codeunit 10750 "SII XML Creator"
         StopExemptLoop: Boolean;
         BaseAmount: Decimal;
         ExemptionEntryIndex: Integer;
+        ExentaExported: Boolean;
     begin
         for ExemptionEntryIndex := 1 to ArrayLen(ExemptionCausePresent) do
             if ExemptionCausePresent[ExemptionEntryIndex] and (not StopExemptLoop) then begin
                 StopExemptLoop := false;
 
-                XMLDOMManagement.AddElementWithPrefix(XMLNode, 'Exenta', '', 'sii', SiiTxt, XMLNode);
+                if not ExentaExported then begin
+                    XMLDOMManagement.AddElementWithPrefix(XMLNode, 'Exenta', '', 'sii', SiiTxt, XMLNode);
+                    ExentaExported := true;
+                end;
                 if IncludeChangesVersion11 then
                     XMLDOMManagement.AddElementWithPrefix(XMLNode, 'DetalleExenta', '', 'sii', SiiTxt, XMLNode);
 
@@ -2014,8 +2047,9 @@ codeunit 10750 "SII XML Creator"
                   'sii',
                   SiiTxt, TempXmlNode);
                 XMLDOMManagement.FindNode(XMLNode, '..', XMLNode);
-                XMLDOMManagement.FindNode(XMLNode, '..', XMLNode);
             end;
+        if ExentaExported then
+            XMLDOMManagement.FindNode(XMLNode, '..', XMLNode);
     end;
 
     local procedure CalcTotalDiffAmounts(var TotalBaseAmountDiff: Decimal; var TotalVATAmountDiff: Decimal; var TotalECPercentDiff: Decimal; var TotalECAmountDiff: Decimal; var TempOldVATEntryPerPercent: Record "VAT Entry" temporary; var TempVATEntryPerPercent: Record "VAT Entry" temporary)
@@ -2410,7 +2444,9 @@ codeunit 10750 "SII XML Creator"
     var
         TempXMLNode: DotNet XmlNode;
     begin
-        if (LastShptRcptDate = 0D) or (LastShptRcptDate = PostingDate) then
+        if ((LastShptRcptDate = 0D) or (LastShptRcptDate = PostingDate)) and
+           not (IsSales and RegimeCodesContainsValue(RegimeCodes, '14'))
+        then
             exit;
 
         if LastShptRcptDate > WorkDate then

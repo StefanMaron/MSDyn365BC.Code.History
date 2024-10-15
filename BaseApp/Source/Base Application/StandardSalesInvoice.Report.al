@@ -953,9 +953,13 @@ report 1306 "Standard Sales - Invoice"
                 }
                 column(Amount_ReportTotalsLine; Amount)
                 {
+                    AutoFormatExpression = Header."Currency Code";
+                    AutoFormatType = 1;
                 }
                 column(AmountFormatted_ReportTotalsLine; "Amount Formatted")
                 {
+                    AutoFormatExpression = Header."Currency Code";
+                    AutoFormatType = 1;
                 }
                 column(FontBold_ReportTotalsLine; "Font Bold")
                 {
@@ -1057,23 +1061,17 @@ report 1306 "Standard Sales - Invoice"
             dataitem(Totals; "Integer")
             {
                 DataItemTableView = SORTING(Number) WHERE(Number = CONST(1));
-                column(TotalNetAmount; TotalAmount)
+                column(TotalNetAmount; Format(TotalAmount, 0, AutoFormat.ResolveAutoFormat("Auto Format"::AmountFormat, Header."Currency Code")))
                 {
-                    AutoFormatExpression = Header."Currency Code";
-                    AutoFormatType = 1;
                 }
                 column(TotalVATBaseLCY; TotalVATBaseLCY)
                 {
                 }
-                column(TotalAmountIncludingVAT; TotalAmountInclVAT)
+                column(TotalAmountIncludingVAT; Format(TotalAmountInclVAT, 0, AutoFormat.ResolveAutoFormat("Auto Format"::AmountFormat, Header."Currency Code")))
                 {
-                    AutoFormatExpression = Header."Currency Code";
-                    AutoFormatType = 1;
                 }
-                column(TotalVATAmount; TotalAmountVAT)
+                column(TotalVATAmount; Format(TotalAmountVAT, 0, AutoFormat.ResolveAutoFormat("Auto Format"::AmountFormat, Header."Currency Code")))
                 {
-                    AutoFormatExpression = Header."Currency Code";
-                    AutoFormatType = 1;
                 }
                 column(TotalVatMinusECAmount; TotalAmountVAT - TotalECAmount)
                 {
@@ -1087,10 +1085,8 @@ report 1306 "Standard Sales - Invoice"
                 column(TotalVATAmountLCY; TotalVATAmountLCY)
                 {
                 }
-                column(TotalInvoiceDiscountAmount; TotalInvDiscAmount)
+                column(TotalInvoiceDiscountAmount; Format(TotalInvDiscAmount, 0, AutoFormat.ResolveAutoFormat("Auto Format"::AmountFormat, Header."Currency Code")))
                 {
-                    AutoFormatExpression = Header."Currency Code";
-                    AutoFormatType = 1;
                 }
                 column(TotalPaymentDiscountOnVAT; TotalPaymentDiscOnVAT)
                 {
@@ -1104,18 +1100,16 @@ report 1306 "Standard Sales - Invoice"
                 column(TotalIncludingVATText; TotalInclVATText)
                 {
                 }
-                column(TotalSubTotal; TotalSubTotal)
+                column(TotalSubTotal; Format(TotalSubTotal, 0, AutoFormat.ResolveAutoFormat("Auto Format"::AmountFormat, Header."Currency Code")))
                 {
-                    AutoFormatExpression = Header."Currency Code";
-                    AutoFormatType = 1;
                 }
-                column(TotalSubTotalMinusInvoiceDiscount; TotalSubTotal + TotalInvDiscAmount)
+                column(TotalSubTotalMinusInvoiceDiscount; Format(TotalSubTotal + TotalInvDiscAmount, 0, AutoFormat.ResolveAutoFormat("Auto Format"::AmountFormat, Header."Currency Code")))
                 {
                 }
                 column(TotalText; TotalText)
                 {
                 }
-                column(TotalAmountExclInclVAT; TotalAmountExclInclVATValue)
+                column(TotalAmountExclInclVAT; Format(TotalAmountExclInclVATValue, 0, AutoFormat.ResolveAutoFormat("Auto Format"::AmountFormat, Header."Currency Code")))
                 {
                 }
                 column(TotalAmountExclInclVATText; TotalAmountExclInclVATTextValue)
@@ -1366,6 +1360,7 @@ report 1306 "Standard Sales - Invoice"
         FormatAddr: Codeunit "Format Address";
         FormatDocument: Codeunit "Format Document";
         SegManagement: Codeunit SegManagement;
+        AutoFormat: Codeunit "Auto Format";
         WorkDescriptionInstream: InStream;
         JobNo: Code[20];
         JobTaskNo: Code[20];
@@ -1579,6 +1574,8 @@ report 1306 "Standard Sales - Invoice"
         FillNameValueTable(LeftHeader, PaymentMethodDescLbl, PaymentMethod.Description);
         FillNameValueTable(LeftHeader, Cust.GetLegalEntityTypeLbl, Cust.GetLegalEntityType);
         FillNameValueTable(LeftHeader, ShptMethodDescLbl, ShipmentMethod.Description);
+
+        OnAfterFillLeftHeader(LeftHeader, Header);
     end;
 
     local procedure FillRightHeader()
@@ -1645,6 +1642,11 @@ report 1306 "Standard Sales - Invoice"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterLineOnPreDataItem(var SalesInvoiceHeader: Record "Sales Invoice Header"; var SalesInvoiceLine: Record "Sales Invoice Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterFillLeftHeader(var LeftHeader: Record "Name/Value Buffer"; SalesInvoiceHeader: Record "Sales Invoice Header")
     begin
     end;
 

@@ -2708,6 +2708,7 @@ codeunit 147524 "SII Documents No Taxable"
     var
         Customer: Record Customer;
         SalesHeader: Record "Sales Header";
+        VATClause: Record "VAT Clause";
     begin
         LibraryERM.CreateVATPostingSetupWithAccounts(
           VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", LibraryRandom.RandIntInRange(10, 25));
@@ -2729,7 +2730,7 @@ codeunit 147524 "SII Documents No Taxable"
         LibrarySII.CreateSalesLineWithUnitPrice(
           SalesHeader,
           LibrarySII.CreateItemNoWithSpecificVATSetup(
-            LibrarySII.CreateVATPostingSetupWithSIIExemptVATClause(Customer."VAT Bus. Posting Group")));
+            LibrarySII.CreateVATPostingSetupWithSIIExemptVATClause(Customer."VAT Bus. Posting Group", VATClause."SII Exemption Code"::"E1 Exempt on account of Article 20")));
 
         // No Taxable with EU Service
         LibrarySII.CreateSalesLineWithUnitPrice(

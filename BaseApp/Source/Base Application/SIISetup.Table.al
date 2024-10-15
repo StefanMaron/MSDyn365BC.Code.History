@@ -95,8 +95,12 @@ table 10751 "SII Setup"
         field(20; "Invoice Amount Threshold"; Decimal)
         {
             Caption = 'Invoice Amount Threshold';
-            InitValue = 100;
+            InitValue = 100000000;
             MinValue = 0;
+        }
+        field(21; "Do Not Export Negative Lines"; Boolean)
+        {
+            Caption = 'Do Not Export Negative Lines';
         }
         field(30; "Starting Date"; Date)
         {

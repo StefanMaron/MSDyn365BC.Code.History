@@ -345,6 +345,9 @@
                                             CopyAmounts(GenJnlLine, VATEntry);
                                             if PostSettlement then
                                                 PostGenJnlLine(GenJnlLine);
+
+                                            OnCloseVATEntriesOnAfterPostGenJnlLineReverseChargeVATSales(
+                                                VATEntry, GenJnlLine, GenJnlPostLine, "VAT Posting Setup", PostSettlement, ReversingEntry, DocNo, PostingDate);
                                         end;
                                 end;
                             "VAT Posting Setup"."VAT Calculation Type"::"Sales Tax":
@@ -829,6 +832,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterIncrementGenPostingType(OldGenPostingType: Enum "General Posting Type"; var NewGenPostingType: Enum "General Posting Type")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCloseVATEntriesOnAfterPostGenJnlLineReverseChargeVATSales(var VATEntry: Record "VAT Entry"; GenJnlLine: Record "Gen. Journal Line"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line"; VATPostingSetup: Record "VAT Posting Setup"; PostSettlement: Boolean; var ReversingEntry: Boolean; DocNo: Code[20]; PostingDate: Date)
     begin
     end;
 }

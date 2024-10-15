@@ -71,6 +71,7 @@
                             "Allow Line Disc." := TempSalesPrice."Allow Line Disc.";
                             "Allow Invoice Disc." := TempSalesPrice."Allow Invoice Disc.";
                             "Unit Price" := TempSalesPrice."Unit Price";
+                            OnFindSalesLinePriceOnItemTypeOnAfterSetUnitPrice(SalesHeader, SalesLine, TempSalesPrice);
                         end;
                         if not "Allow Line Disc." then
                             "Line Discount %" := 0;
@@ -330,11 +331,7 @@
             if FoundSalesPrice then
                 repeat
                     if IsInMinQty("Unit of Measure Code", "Minimum Quantity") then begin
-                        ConvertPriceToVAT(
-                          "Price Includes VAT", Item."VAT Prod. Posting Group",
-                          "VAT Bus. Posting Gr. (Price)", "Unit Price");
-                        ConvertPriceToUoM("Unit of Measure Code", "Unit Price");
-                        ConvertPriceLCYToFCY("Currency Code", "Unit Price");
+                        CalcBestUnitPriceConvertPrice(SalesPrice);
 
                         case true of
                             ((BestSalesPrice."Currency Code" = '') and ("Currency Code" <> '')) or
@@ -374,6 +371,24 @@
         end;
 
         SalesPrice := BestSalesPrice;
+    end;
+
+    local procedure CalcBestUnitPriceConvertPrice(var SalesPrice: Record "Sales Price")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCalcBestUnitPriceConvertPrice(SalesPrice, IsHandled);
+        if IsHandled then
+            exit;
+
+        with SalesPrice do begin
+            ConvertPriceToVAT(
+                "Price Includes VAT", Item."VAT Prod. Posting Group",
+                "VAT Bus. Posting Gr. (Price)", "Unit Price");
+            ConvertPriceToUoM("Unit of Measure Code", "Unit Price");
+            ConvertPriceLCYToFCY("Currency Code", "Unit Price");
+        end;
     end;
 
     procedure CalcBestLineDisc(var SalesLineDisc: Record "Sales Line Discount")
@@ -624,10 +639,14 @@
     procedure ConvertPriceToVAT(FromPricesInclVAT: Boolean; FromVATProdPostingGr: Code[20]; FromVATBusPostingGr: Code[20]; var UnitPrice: Decimal)
     var
         VATPostingSetup: Record "VAT Posting Setup";
+        IsHandled: Boolean;
     begin
         if FromPricesInclVAT then begin
             VATPostingSetup.Get(FromVATBusPostingGr, FromVATProdPostingGr);
-            OnBeforeConvertPriceToVAT(VATPostingSetup);
+            IsHandled := false;
+            OnBeforeConvertPriceToVAT(VATPostingSetup, UnitPrice, IsHandled);
+            if IsHandled then
+                exit;
 
             case VATPostingSetup."VAT Calculation Type" of
                 VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT":
@@ -796,10 +815,15 @@
         OnAfterGetSalesLineLineDisc(SalesLine, TempSalesLineDisc);
     end;
 
-    procedure SalesLinePriceExists(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; ShowAll: Boolean): Boolean
+    procedure SalesLinePriceExists(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; ShowAll: Boolean) Result: Boolean
     var
         IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSalesLinePriceExistsProcedure(SalesHeader, SalesLine, ShowAll, TempSalesPrice, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         with SalesLine do
             if (Type = Type::Item) and Item.Get("No.") then begin
                 IsHandled := false;
@@ -1803,7 +1827,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeConvertPriceToVAT(var VATPostingSetup: Record "VAT Posting Setup")
+    local procedure OnBeforeConvertPriceToVAT(var VATPostingSetup: Record "VAT Posting Setup"; var UnitPrice: Decimal; var IsHandled: Boolean)
     begin
     end;
 
@@ -1954,6 +1978,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeSalesLinePriceExistsProcedure(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; ShowAll: Boolean; TempSalesPrice: Record "Sales Price" temporary; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeServLinePriceExists(var ServiceLine: Record "Service Line"; var ServiceHeader: Record "Service Header"; var TempSalesPrice: Record "Sales Price" temporary; ShowAll: Boolean; var IsHandled: Boolean)
     begin
     end;
@@ -2010,6 +2039,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnFindSalesLinePriceOnAfterSetResPrice(var SalesLine: Record "Sales Line"; var ResPrice: Record "Resource Price")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindSalesLinePriceOnItemTypeOnAfterSetUnitPrice(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var TempSalesPrice: Record "Sales Price" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcBestUnitPriceConvertPrice(var SalesPrice: Record "Sales Price"; var IsHandled: Boolean)
     begin
     end;
 }

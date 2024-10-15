@@ -971,24 +971,28 @@ page 43 "Sales Invoice"
             part(Control1903720907; "Sales Hist. Sell-to FactBox")
             {
                 ApplicationArea = Basic, Suite;
-                SubPageLink = "No." = FIELD("Sell-to Customer No.");
+                SubPageLink = "No." = FIELD("Sell-to Customer No."),
+                              "Date Filter" = field("Date Filter");
                 Visible = false;
             }
             part(Control1907234507; "Sales Hist. Bill-to FactBox")
             {
                 ApplicationArea = Basic, Suite;
-                SubPageLink = "No." = FIELD("Bill-to Customer No.");
+                SubPageLink = "No." = FIELD("Bill-to Customer No."),
+                              "Date Filter" = field("Date Filter");
                 Visible = false;
             }
             part(Control1902018507; "Customer Statistics FactBox")
             {
                 ApplicationArea = Advanced;
-                SubPageLink = "No." = FIELD("Bill-to Customer No.");
+                SubPageLink = "No." = FIELD("Bill-to Customer No."),
+                              "Date Filter" = field("Date Filter");
             }
             part(Control1900316107; "Customer Details FactBox")
             {
                 ApplicationArea = Basic, Suite;
-                SubPageLink = "No." = FIELD("Sell-to Customer No.");
+                SubPageLink = "No." = FIELD("Sell-to Customer No."),
+                              "Date Filter" = field("Date Filter");
             }
             part(Control1903433807; "Cartera Receiv. Statistics FB")
             {
@@ -1952,6 +1956,7 @@ page 43 "Sales Invoice"
     var
         SalesPostYesNo: Codeunit "Sales-Post (Yes/No)";
     begin
+        OnBeforeShowPreview(Rec);
         SalesPostYesNo.Preview(Rec);
     end;
 
@@ -1995,6 +2000,11 @@ page 43 "Sales Invoice"
         SIISchemeCodeMgt: Codeunit "SII Scheme Code Mgt.";
     begin
         DocHasMultipleRegimeCode := SIISchemeCodeMgt.SalesDocHasRegimeCodes(Rec);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowPreview(var SalesHeader: Record "Sales Header")
+    begin
     end;
 
     [IntegrationEvent(false, false)]
