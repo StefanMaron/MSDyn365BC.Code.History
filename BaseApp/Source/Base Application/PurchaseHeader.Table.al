@@ -444,7 +444,7 @@
 
                 if "Currency Code" <> '' then begin
                     UpdateCurrencyFactor();
-                    if ("Currency Factor" <> xRec."Currency Factor") and not CalledFromWhseDoc then
+                    if ("Currency Factor" <> xRec."Currency Factor") and not GetCalledFromWhseDoc() then
                         SkipJobCurrFactorUpdate := not ConfirmCurrencyFactorUpdate();
                 end;
 
@@ -5709,6 +5709,11 @@
             exit;
 
         PurchLine.DeleteAll(true);
+    end;
+
+    procedure GetCalledFromWhseDoc(): Boolean
+    begin
+        exit(CalledFromWhseDoc);
     end;
 
     procedure SetCalledFromWhseDoc(NewCalledFromWhseDoc: Boolean)
