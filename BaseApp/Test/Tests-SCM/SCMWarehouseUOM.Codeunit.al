@@ -37,6 +37,7 @@ codeunit 137150 "SCM Warehouse UOM"
         LibraryInventory: Codeunit "Library - Inventory";
         LibrarySales: Codeunit "Library - Sales";
         LibraryPurchase: Codeunit "Library - Purchase";
+        LibraryService: Codeunit "Library - Service";
         LibraryAssembly: Codeunit "Library - Assembly";
         LibraryPlanning: Codeunit "Library - Planning";
         LibraryUtility: Codeunit "Library - Utility";
@@ -3679,6 +3680,167 @@ codeunit 137150 "SCM Warehouse UOM"
         end;
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure BaseUoMOnSalesWhenSalesUoMBlank()
+    var
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        // [FEATURE] [Unit of Measure] [Sales] [UT]
+        // [SCENARIO 359651] "Base Unit of Measure" on Item is used by default on a new sales line if "Sales Unit of Measure" is blank.
+        Initialize();
+
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Sales Unit of Measure", '');
+        Item.Modify(true);
+
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', Item."No.", 0, '', WorkDate);
+
+        SalesLine.TestField("Unit of Measure Code", Item."Base Unit of Measure");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure BaseUoMOnServiceWhenSalesUoMBlank()
+    var
+        Item: Record Item;
+        ServiceHeader: Record "Service Header";
+        ServiceLine: Record "Service Line";
+    begin
+        // [FEATURE] [Unit of Measure] [Service] [UT]
+        // [SCENARIO 359651] "Base Unit of Measure" on Item is used by default on a new service line if "Sales Unit of Measure" is blank.
+        Initialize();
+
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Sales Unit of Measure", '');
+        Item.Modify(true);
+
+        LibraryService.CreateServiceDocumentWithItemServiceLine(ServiceHeader, ServiceHeader."Document Type"::Order);
+        FindServiceLine(ServiceLine, ServiceHeader);
+
+        ServiceLine.Validate("No.", Item."No.");
+
+        ServiceLine.TestField("Unit of Measure Code", Item."Base Unit of Measure");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure BaseUoMOnPurchaseWhenPurchUoMBlank()
+    var
+        Item: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        // [FEATURE] [Unit of Measure] [Purchase] [UT]
+        // [SCENARIO 359651] "Base Unit of Measure" on Item is used by default on a new purchase line if "Purch. Unit of Measure" is blank.
+        Initialize();
+
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Purch. Unit of Measure", '');
+        Item.Modify(true);
+
+        LibraryPurchase.CreatePurchaseDocumentWithItem(
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '', Item."No.", 0, '', WorkDate);
+
+        PurchaseLine.TestField("Unit of Measure Code", Item."Base Unit of Measure");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure BaseUoMOnItemJnlLineWhenUoMBlank()
+    var
+        Item: Record Item;
+        ItemJournalTemplate: Record "Item Journal Template";
+        ItemJournalBatch: Record "Item Journal Batch";
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        // [FEATURE] [Unit of Measure] [Item Journal Line] [UT]
+        // [SCENARIO 359651] "Base Unit of Measure" on Item is used by default on a new item journal line for purchase if "Purch. Unit of Measure" is blank.
+        Initialize();
+
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Purch. Unit of Measure", '');
+        Item.Modify(true);
+
+        LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Item);
+        LibraryInventory.SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplate.Type::Item, ItemJournalTemplate.Name);
+        LibraryInventory.CreateItemJournalLine(
+          ItemJournalLine, ItemJournalTemplate.Name, ItemJournalBatch.Name, ItemJournalLine."Entry Type"::Purchase, Item."No.", 0);
+
+        ItemJournalLine.TestField("Unit of Measure Code", Item."Base Unit of Measure");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CannotPostSalesForItemWithBlankUoM()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        // [FEATURE] [Unit of Measure] [Sales]
+        // [SCENARIO 359651] Cannot post item-type sales line with blank "Unit of Measure Code".
+        Initialize();
+
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '',
+          LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10), '', WorkDate);
+        SalesLine.Validate("Unit of Measure Code", '');
+        SalesLine.Modify(true);
+
+        asserterror LibrarySales.PostSalesDocument(SalesHeader, true, false);
+
+        Assert.ExpectedErrorCode('TestField');
+        Assert.ExpectedError(SalesLine.FieldCaption("Unit of Measure Code"));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CannotPostServiceForItemWithBlankUoM()
+    var
+        ServiceHeader: Record "Service Header";
+        ServiceLine: Record "Service Line";
+    begin
+        // [FEATURE] [Unit of Measure] [Service]
+        // [SCENARIO 359651] Cannot post item-type service line with blank "Unit of Measure Code".
+        Initialize();
+
+        LibraryService.CreateServiceDocumentWithItemServiceLine(ServiceHeader, ServiceHeader."Document Type"::Order);
+        FindServiceLine(ServiceLine, ServiceHeader);
+        ServiceLine.Validate("Unit of Measure Code", '');
+        ServiceLine.Modify(true);
+
+        asserterror LibraryService.PostServiceOrder(ServiceHeader, true, false, false);
+
+        Assert.ExpectedErrorCode('TestField');
+        Assert.ExpectedError(ServiceLine.FieldCaption("Unit of Measure Code"));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CannotPostPurchaseForItemWithBlankUoM()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        // [FEATURE] [Unit of Measure] [Purchase]
+        // [SCENARIO 359651] Cannot post item-type purchase line with blank "Unit of Measure Code".
+        Initialize();
+
+        LibraryPurchase.CreatePurchaseDocumentWithItem(
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '',
+          LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10), '', WorkDate);
+        PurchaseLine.Validate("Unit of Measure Code", '');
+        PurchaseLine.Modify(true);
+
+        asserterror LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
+
+        Assert.ExpectedErrorCode('TestField');
+        Assert.ExpectedError(PurchaseLine.FieldCaption("Unit of Measure Code"));
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -5096,6 +5258,13 @@ codeunit 137150 "SCM Warehouse UOM"
         FindWarehouseShipmentLine(WarehouseShipmentLine, WarehouseShipmentLine."Source Document"::"Sales Order", SalesHeaderNo);
         WarehouseShipmentHeader.Get(WarehouseShipmentLine."No.");
         WhseShipmentRelease.Release(WarehouseShipmentHeader);
+    end;
+
+    local procedure FindServiceLine(var ServiceLine: Record "Service Line"; ServiceHeader: Record "Service Header")
+    begin
+        ServiceLine.SetRange("Document Type", ServiceHeader."Document Type");
+        ServiceLine.SetRange("Document No.", ServiceHeader."No.");
+        ServiceLine.FindFirst;
     end;
 
     local procedure GetBinContentOnMovementWorksheet(var WhseWorksheetLine: Record "Whse. Worksheet Line"; LocationCode: Code[10]; ItemNo: Code[20])

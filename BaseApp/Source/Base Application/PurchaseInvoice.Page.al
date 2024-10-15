@@ -1614,6 +1614,8 @@ page 51 "Purchase Invoice"
 
     local procedure ValidateShippingOption()
     begin
+        OnBeforeValidateShipToOptions(Rec, ShipToOptions);
+
         case ShipToOptions of
             ShipToOptions::"Default (Company Address)",
           ShipToOptions::"Custom Address":
@@ -1621,6 +1623,8 @@ page 51 "Purchase Invoice"
             ShipToOptions::Location:
                 Validate("Location Code");
         end;
+
+        OnAfterValidateShipToOptions(Rec, ShipToOptions);
     end;
 
     local procedure CalculateCurrentShippingAndPayToOption()
@@ -1652,6 +1656,16 @@ page 51 "Purchase Invoice"
 
     [IntegrationEvent(false, false)]
     local procedure OnPostDocumentOnBeforePurchaseHeaderInsert(var PurchaseHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateShipToOptions(var PurchaseHeader: Record "Purchase Header"; ShipToOptions: Option)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterValidateShipToOptions(var PurchaseHeader: Record "Purchase Header"; ShipToOptions: Option)
     begin
     end;
 }

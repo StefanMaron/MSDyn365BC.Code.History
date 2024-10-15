@@ -240,6 +240,7 @@ report 5754 "Create Pick"
     local procedure CreateTempLine()
     var
         DummySalesHeader: Record "Sales Header";
+        WarehouseShipmentLine: Record "Warehouse Shipment Line";
         PickWhseActivHeader: Record "Warehouse Activity Header";
         TempWhseItemTrkgLine: Record "Whse. Item Tracking Line" temporary;
         ItemTrackingMgt: Codeunit "Item Tracking Management";
@@ -270,9 +271,17 @@ report 5754 "Create Pick"
             CreatePick.SetWhseWkshLine(PickWhseWkshLine, TempNo);
             case PickWhseWkshLine."Whse. Document Type" of
                 PickWhseWkshLine."Whse. Document Type"::Shipment:
-                    CreatePick.SetTempWhseItemTrkgLine(
-                      PickWhseWkshLine."Whse. Document No.", DATABASE::"Warehouse Shipment Line", '', 0,
-                      PickWhseWkshLine."Whse. Document Line No.", PickWhseWkshLine."Location Code");
+                    begin
+                        WarehouseShipmentLine.Get(PickWhseWkshLine."Whse. Document No.", PickWhseWkshLine."Whse. Document Line No.");
+                        if not WarehouseShipmentLine."Assemble to Order" then
+                            CreatePick.SetTempWhseItemTrkgLine(
+                              PickWhseWkshLine."Whse. Document No.", DATABASE::"Warehouse Shipment Line", '', 0,
+                              PickWhseWkshLine."Whse. Document Line No.", PickWhseWkshLine."Location Code")
+                        else
+                            CreatePick.SetTempWhseItemTrkgLine(
+                              PickWhseWkshLine."Source No.", DATABASE::"Assembly Line", '', 0,
+                              PickWhseWkshLine."Source Line No.", PickWhseWkshLine."Location Code");
+                    end;
                 PickWhseWkshLine."Whse. Document Type"::Assembly:
                     CreatePick.SetTempWhseItemTrkgLine(
                       PickWhseWkshLine."Whse. Document No.", DATABASE::"Assembly Line", '', 0,

@@ -378,16 +378,20 @@ codeunit 134204 "Document Approval - Requests"
         ApprovalEntry: Record "Approval Entry";
         UserSetup: Record "User Setup";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
     begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"Document Approval - Requests");
         ApprovalEntry.DeleteAll();
         UserSetup.DeleteAll();
         if IsInitialized then
             exit;
 
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"Document Approval - Requests");
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.CreateVATData;
         Commit();
         IsInitialized := true;
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"Document Approval - Requests");
     end;
 
     local procedure CreateApprovalEntry(var ApprovalEntry: Record "Approval Entry"; No: Code[20])

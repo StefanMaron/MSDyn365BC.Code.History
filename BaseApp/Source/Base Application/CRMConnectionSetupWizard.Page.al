@@ -490,6 +490,8 @@ page 1817 "CRM Connection Setup Wizard"
         end;
         if PublishItemAvailabilityService then
             CRMIntegrationManagement.SetupItemAvailabilityService;
+        if EnableSalesOrderIntegration then
+            "Is S.Order Integration Enabled" := true;
 
         CRMIntegrationManagement.InitializeCRMSynchStatus();
         CRMConnectionSetup.UpdateFromWizard(Rec, Password);

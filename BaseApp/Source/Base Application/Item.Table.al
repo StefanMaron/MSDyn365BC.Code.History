@@ -1380,16 +1380,12 @@ table 27 Item
         field(5425; "Sales Unit of Measure"; Code[10])
         {
             Caption = 'Sales Unit of Measure';
-            TableRelation = IF ("No." = FILTER(<> '')) "Item Unit of Measure".Code WHERE("Item No." = FIELD("No."))
-            ELSE
-            "Unit of Measure";
+            TableRelation = "Item Unit of Measure".Code WHERE("Item No." = FIELD("No."));
         }
         field(5426; "Purch. Unit of Measure"; Code[10])
         {
             Caption = 'Purch. Unit of Measure';
-            TableRelation = IF ("No." = FILTER(<> '')) "Item Unit of Measure".Code WHERE("Item No." = FIELD("No."))
-            ELSE
-            "Unit of Measure";
+            TableRelation = "Item Unit of Measure".Code WHERE("Item No." = FIELD("No."));
         }
         field(5427; "Unit of Measure Filter"; Code[10])
         {
@@ -2430,7 +2426,14 @@ table 27 Item
     end;
 
     trigger OnInsert()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOnInsert(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if "No." = '' then begin
             GetInvtSetup;
             InvtSetup.TestField("Item Nos.");
@@ -3566,6 +3569,11 @@ table 27 Item
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateNewItem(var Item: Record Item; var ItemName: Text[100])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnInsert(var Item: Record Item; var IsHandled: Boolean)
     begin
     end;
 
