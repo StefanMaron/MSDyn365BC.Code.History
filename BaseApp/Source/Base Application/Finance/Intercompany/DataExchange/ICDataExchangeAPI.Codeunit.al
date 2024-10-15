@@ -545,7 +545,7 @@ codeunit 561 "IC Data Exchange API" implements "IC Data Exchange"
         TempICPartnerICInboxTransaction."Document No." := GetValueFromJsonTokenOrEmptyText(IndividualToken, 'documentNumber');
         TempICPartnerICInboxTransaction."Posting Date" := GetValueFromJsonTokenOrToday(IndividualToken, 'postingDate');
         TempICPartnerICInboxTransaction."Transaction Source" := GetValueFromJsonTokenOrIntegerZero(IndividualToken, 'transactionSourceIndex');
-        TempICPartnerICInboxTransaction."Posting Date" := GetValueFromJsonTokenOrToday(IndividualToken, 'documentDate');
+        TempICPartnerICInboxTransaction."Document Date" := GetValueFromJsonTokenOrToday(IndividualToken, 'documentDate');
         TempICPartnerICInboxTransaction."Line Action" := GetValueFromJsonTokenOrIntegerZero(IndividualToken, 'lineActionIndex');
         TempICPartnerICInboxTransaction."Original Document No." := GetValueFromJsonTokenOrEmptyText(IndividualToken, 'originalDocumentNumber');
         TempICPartnerICInboxTransaction."Source Line No." := GetValueFromJsonTokenOrIntegerZero(IndividualToken, 'sourceLineNumber');
@@ -568,7 +568,7 @@ codeunit 561 "IC Data Exchange API" implements "IC Data Exchange"
         TempICPartnerHandledICInboxTransaction."Document No." := GetValueFromJsonTokenOrEmptyText(IndividualToken, 'documentNumber');
         TempICPartnerHandledICInboxTransaction."Posting Date" := GetValueFromJsonTokenOrToday(IndividualToken, 'postingDate');
         TempICPartnerHandledICInboxTransaction."Transaction Source" := GetValueFromJsonTokenOrIntegerZero(IndividualToken, 'transactionSourceIndex');
-        TempICPartnerHandledICInboxTransaction."Posting Date" := GetValueFromJsonTokenOrToday(IndividualToken, 'documentDate');
+        TempICPartnerHandledICInboxTransaction."Document Date" := GetValueFromJsonTokenOrToday(IndividualToken, 'documentDate');
         TempICPartnerHandledICInboxTransaction.Status := GetValueFromJsonTokenOrIntegerZero(IndividualToken, 'statusIndex');
         TempICPartnerHandledICInboxTransaction."Source Line No." := GetValueFromJsonTokenOrIntegerZero(IndividualToken, 'sourceLineNumber');
         TempICPartnerHandledICInboxTransaction."IC Account Type" := Enum::"IC Journal Account Type".FromInteger(GetValueFromJsonTokenOrIntegerZero(IndividualToken, 'icAccountTypeOrdinal'));
@@ -657,7 +657,7 @@ codeunit 561 "IC Data Exchange API" implements "IC Data Exchange"
         ICInboxTransaction."Document No." := GetValueFromJsonTokenOrEmptyText(IndividualToken, 'documentNumber');
         ICInboxTransaction."Posting Date" := GetValueFromJsonTokenOrToday(IndividualToken, 'postingDate');
         ICInboxTransaction."Transaction Source" := GetValueFromJsonTokenOrIntegerZero(IndividualToken, 'transactionSourceIndex');
-        ICInboxTransaction."Posting Date" := GetValueFromJsonTokenOrToday(IndividualToken, 'documentDate');
+        ICInboxTransaction."Document Date" := GetValueFromJsonTokenOrToday(IndividualToken, 'documentDate');
         ICInboxTransaction."Line Action" := GetValueFromJsonTokenOrIntegerZero(IndividualToken, 'lineActionIndex');
         ICInboxTransaction."Original Document No." := GetValueFromJsonTokenOrEmptyText(IndividualToken, 'originalDocumentNumber');
         ICInboxTransaction."Source Line No." := GetValueFromJsonTokenOrIntegerZero(IndividualToken, 'sourceLineNumber');
