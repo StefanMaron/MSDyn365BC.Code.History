@@ -555,11 +555,12 @@ codeunit 134821 "ERM Cost Accounting - Pages"
 
     [Test]
     [Scope('OnPrem')]
-    procedure TestCostBudgetByCostObjectPrevSetError()
+    procedure TestCostBudgetByCostObjectPrevSetNoErrorIfPrevSetLessMaximumSetLength()
     var
         CostBudgetByCostObjectPage: TestPage "Cost Budget by Cost Object";
     begin
-        Initialize;
+        // [SCENARIO 414679] No error when previous set exists and step is less than MaximumSetLength
+        Initialize();
 
         LibraryLowerPermissions.SetO365Setup;
         LibraryLowerPermissions.AddCostAccountingEdit;
@@ -568,9 +569,8 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         LibraryLowerPermissions.SetCostAccountingView;
         CostBudgetByCostObjectPage.OpenEdit;
         CostBudgetByCostObjectPage.NextColumn.Invoke;
-        asserterror CostBudgetByCostObjectPage.PreviousSet.Invoke;
-        Assert.ExpectedError(PreviousSetNotFoundError);
-        CostBudgetByCostObjectPage.Close;
+        CostBudgetByCostObjectPage.PreviousSet.Invoke;
+        CostBudgetByCostObjectPage.Close();
     end;
 
     [Test]
@@ -875,19 +875,19 @@ codeunit 134821 "ERM Cost Accounting - Pages"
 
     [Test]
     [Scope('OnPrem')]
-    procedure TestCostBudgetByCostCenterPrevSetError()
+    procedure TestCostBudgetByCostCenterPrevSetNoErrorIfPrevSetLessMaximumSetLength()
     var
         CostBudgetByCostCenterPage: TestPage "Cost Budget by Cost Center";
     begin
-        Initialize;
+        // [SCENARIO 414679] No error when previous set exists and step is less than MaximumSetLength
+        Initialize();
         CheckCreateCostCenters;
 
         LibraryLowerPermissions.SetCostAccountingView;
         CostBudgetByCostCenterPage.OpenEdit;
         CostBudgetByCostCenterPage.NextColumn.Invoke;
-        asserterror CostBudgetByCostCenterPage.PreviousSet.Invoke;
-        Assert.ExpectedError(PreviousSetNotFoundError);
-        CostBudgetByCostCenterPage.Close;
+        CostBudgetByCostCenterPage.PreviousSet.Invoke;
+        CostBudgetByCostCenterPage.Close();
     end;
 
     [Test]

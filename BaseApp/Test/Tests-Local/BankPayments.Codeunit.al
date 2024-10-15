@@ -471,7 +471,7 @@ codeunit 144002 "Bank Payments"
         Assert.AreEqual(VendorBankAccount."SWIFT Code", PmtExpData."Recipient Bank BIC", 'Incorrect Recipient Bank BIC');
 
         // Extra Info
-        Assert.AreEqual(RefPmtExp.Description, PmtExpData."Recipient Name", 'Incorrect Recipient Name');
+        Assert.AreEqual(RefPmtExp."Description 2", PmtExpData."Recipient Name", 'Incorrect Recipient Name');
         Assert.AreEqual(RefPmtExp."Document No.", PmtExpData."Document No.", 'Incorrect Document No.');
     end;
 }

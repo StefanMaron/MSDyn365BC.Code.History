@@ -66,7 +66,11 @@ codeunit 1222 "SEPA CT-Prepare Source"
                     "Due Date" := RefPmtExp."Due Date";
                     "Posting Date" := RefPmtExp."Payment Date";
                     "Recipient Bank Account" := RefPmtExp."Vendor Account";
-                    Description := RefPmtExp.Description;
+#if CLEAN20
+                    Description := CopyStr(RefPmtExp."Description 2", 1, MaxStrLen(Description));
+#else
+                    Description := CopyStr(RefPmtExp.GetDescription(), 1, MaxStrLen(Description));
+#endif
                     "Message to Recipient" := RefPmtExp."External Document No.";
 
                     Insert;

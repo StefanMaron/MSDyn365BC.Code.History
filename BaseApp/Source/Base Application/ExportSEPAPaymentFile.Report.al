@@ -297,14 +297,18 @@ report 13403 "Export SEPA Payment File"
             end;
 
             if VendBankAcc.Name <> '' then
-                XMLDomMgt.AddElement(XMLNodeCurr, 'Nm', VendBankAcc.Name, '', XMLNewChild);
+                XMLDomMgt.AddElement(XMLNodeCurr, 'Nm', CopyStr(VendBankAcc.Name, 1, 70), '', XMLNewChild);
 
             XMLDomMgt.AddElement(XMLNodeCurr, 'PstlAdr', '', '', XMLNewChild);
             XMLNodeCurr := XMLNewChild;
             if VendBankAcc.Address <> '' then
-                XMLDomMgt.AddElement(XMLNodeCurr, 'AdrLine', VendBankAcc.Address, '', XMLNewChild);
+                XMLDomMgt.AddElement(
+                    XMLNodeCurr, 'AdrLine',
+                    CopyStr(JoinAddressFields(VendBankAcc.Address, VendBankAcc."Address 2"), 1, 70), '', XMLNewChild);
             if VendBankAcc.City <> '' then
-                XMLDomMgt.AddElement(XMLNodeCurr, 'AdrLine', VendBankAcc.City, '', XMLNewChild);
+                XMLDomMgt.AddElement(
+                    XMLNodeCurr, 'AdrLine',
+                    CopyStr(JoinAddressFields(VendBankAcc."Post Code", VendBankAcc.City), 1, 70), '', XMLNewChild);
             XMLDomMgt.AddElement(XMLNodeCurr, 'Ctry', VendBankAcc."Country/Region Code", '', XMLNewChild);
 
             XMLNodeCurr := XMLNodeCurr.ParentNode;
@@ -317,12 +321,16 @@ report 13403 "Export SEPA Payment File"
         XMLDomMgt.AddElement(XMLNodeCurr, 'Cdtr', '', '', XMLNewChild);
         XMLNodeCurr := XMLNewChild;
 
-        XMLDomMgt.AddElement(XMLNodeCurr, 'Nm', RefPaymentExported.Description, '', XMLNewChild);
+#if CLEAN20
+        XMLDomMgt.AddElement(XMLNodeCurr, 'Nm', CopyStr(RefPaymentExported."Description 2", 1, 70), '', XMLNewChild);
+#else
+        XMLDomMgt.AddElement(XMLNodeCurr, 'Nm', CopyStr(RefPaymentExported.GetDescription(), 1, 70), '', XMLNewChild);
+#endif
         XMLDomMgt.AddElement(XMLNodeCurr, 'PstlAdr', '', '', XMLNewChild);
         XMLNodeCurr := XMLNewChild;
 
-        XMLDomMgt.AddElement(XMLNodeCurr, 'AdrLine', GetAddressLine(1, 1), '', XMLNewChild);
-        XMLDomMgt.AddElement(XMLNodeCurr, 'AdrLine', GetAddressLine(1, 2), '', XMLNewChild);
+        XMLDomMgt.AddElement(XMLNodeCurr, 'AdrLine', CopyStr(GetAddressLine(1, 1), 1, 70), '', XMLNewChild);
+        XMLDomMgt.AddElement(XMLNodeCurr, 'AdrLine', CopyStr(GetAddressLine(1, 2), 1, 70), '', XMLNewChild);
         XMLDomMgt.AddElement(XMLNodeCurr, 'Ctry', CopyStr(Vendor."Country/Region Code", 1, 2), '', XMLNewChild);
         XMLNodeCurr := XMLNodeCurr.ParentNode;
         XMLNodeCurr := XMLNodeCurr.ParentNode;
@@ -400,7 +408,9 @@ report 13403 "Export SEPA Payment File"
             if FindSet then begin
                 repeat
                     TestField("Vendor No.");
-                    TestField(Description);
+#if CLEAN20
+                    TestField("Description 2");
+#endif
                     TestField("Vendor Account");
                     TestField("Document No.");
                     TestField(Amount);
@@ -486,15 +496,20 @@ report 13403 "Export SEPA Payment File"
         case Type of
             Type::Company:
                 if No = 1 then
-                    exit(DelChr(CompanyInfo.Address, '<>') + ' ' + DelChr(CompanyInfo."Address 2", '<>'))
+                    exit(CopyStr(JoinAddressFields(CompanyInfo.Address, CompanyInfo."Address 2"), 1, 250))
                 else
-                    exit(DelChr(CompanyInfo."Post Code", '<>') + ' ' + DelChr(CompanyInfo.City, '<>'));
+                    exit(CopyStr(JoinAddressFields(CompanyInfo."Post Code", CompanyInfo.City), 1, 250));
             Type::Vendor:
                 if No = 1 then
-                    exit(DelChr(Vendor.Address, '<>') + ' ' + DelChr(Vendor."Address 2", '<>'))
+                    exit(CopyStr(JoinAddressFields(Vendor.Address, Vendor."Address 2"), 1, 250))
                 else
-                    exit(DelChr(Vendor."Post Code", '<>') + ' ' + DelChr(Vendor.City, '<>'));
+                    exit(CopyStr(JoinAddressFields(Vendor."Post Code", Vendor.City), 1, 250));
         end;
+    end;
+
+    local procedure JoinAddressFields(Field1: Text; Field2: Text): Text
+    begin
+        exit(DelChr(Field1, '<>') + ' ' + DelChr(Field2, '<>'));
     end;
 
     local procedure GetCurrencyCode(CurrencyCode: Code[10]): Code[10]

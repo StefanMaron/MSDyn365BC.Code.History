@@ -1066,6 +1066,7 @@ codeunit 7302 "WMS Management"
            (Bin.Code <> BinCode)
         then
             Bin.Get(LocationCode, BinCode);
+        Bin.TestField(Code);
 
         GetLocation(LocationCode);
         if Location."Directed Put-away and Pick" then

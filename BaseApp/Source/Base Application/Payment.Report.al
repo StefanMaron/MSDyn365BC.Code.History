@@ -58,9 +58,15 @@ report 32000005 Payment
                 column(VendNo_RefPmtExported; "Vendor No.")
                 {
                 }
-                column(Desc_RefPmtExported; Description)
+#if CLEAN20
+                column(Desc_RefPmtExported; "Description 2")
                 {
                 }
+#else
+                column(Desc_RefPmtExported; GetDescription())
+                {
+                }
+#endif
                 column(DocNo_RefPmtExported; "Document No.")
                 {
                 }
@@ -79,7 +85,7 @@ report 32000005 Payment
                 column(VendNoCaption_RefPmtExported; FieldCaption("Vendor No."))
                 {
                 }
-                column(DescCaption_RefPmtExported; FieldCaption(Description))
+                column(DescCaption_RefPmtExported; FieldCaption("Description 2"))
                 {
                 }
                 column(MsgTypeCaption_RefPmtExported; FieldCaption("Message Type"))

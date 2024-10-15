@@ -103,7 +103,7 @@ codeunit 144004 "Bank Payments - SEPA V2"
         VerifyValue(LibraryXPathXMLReader, 'PmtInf/CdtTrfTxInf/CdtrAgt/FinInstnId/BIC[1]', VendorBankAccount."SWIFT Code");
 
         // Verify Creditor information
-        VerifyValue(LibraryXPathXMLReader, 'PmtInf/CdtTrfTxInf/Cdtr/Nm[1]', RefPmtExported.Description);
+        VerifyValue(LibraryXPathXMLReader, 'PmtInf/CdtTrfTxInf/Cdtr/Nm[1]', RefPmtExported."Description 2");
         VerifyValue(LibraryXPathXMLReader, 'PmtInf/CdtTrfTxInf/Cdtr/PstlAdr/AdrLine[1]', Vendor.Address + ' ' + Vendor."Address 2");
         VerifyValue(LibraryXPathXMLReader, 'PmtInf/CdtTrfTxInf/Cdtr/PstlAdr/AdrLine[2]', Vendor."Post Code" + ' ' + Vendor.City);
         VerifyValue(LibraryXPathXMLReader, 'PmtInf/CdtTrfTxInf/Cdtr/PstlAdr/Ctry[1]', Vendor."Country/Region Code");
@@ -545,8 +545,14 @@ codeunit 144004 "Bank Payments - SEPA V2"
         VerifyValue(LibraryXPathXMLReader,
           'PmtInf/CdtTrfTxInf/CdtrAgt/FinInstnId/CmbndId/ClrSysMmbId[1]', VendorBankAccount."Clearing Code");
         VerifyValue(LibraryXPathXMLReader, 'PmtInf/CdtTrfTxInf/CdtrAgt/FinInstnId/CmbndId/Nm[1]', VendorBankAccount.Name);
-        VerifyValue(LibraryXPathXMLReader, 'PmtInf/CdtTrfTxInf/CdtrAgt/FinInstnId/CmbndId/PstlAdr/AdrLine[1]', VendorBankAccount.Address);
-        VerifyValue(LibraryXPathXMLReader, 'PmtInf/CdtTrfTxInf/CdtrAgt/FinInstnId/CmbndId/PstlAdr/AdrLine[2]', VendorBankAccount.City);
+        VerifyValue(
+            LibraryXPathXMLReader,
+            'PmtInf/CdtTrfTxInf/CdtrAgt/FinInstnId/CmbndId/PstlAdr/AdrLine[1]',
+            VendorBankAccount.Address + ' ' + VendorBankAccount."Address 2");
+        VerifyValue(
+            LibraryXPathXMLReader,
+            'PmtInf/CdtTrfTxInf/CdtrAgt/FinInstnId/CmbndId/PstlAdr/AdrLine[2]',
+            VendorBankAccount."Post Code" + ' ' + VendorBankAccount.City);
         VerifyValue(LibraryXPathXMLReader,
           'PmtInf/CdtTrfTxInf/CdtrAgt/FinInstnId/CmbndId/PstlAdr/Ctry[1]', VendorBankAccount."Country/Region Code");
     end;
@@ -789,7 +795,9 @@ codeunit 144004 "Bank Payments - SEPA V2"
         with VendorBankAccount do begin
             Validate(Name, Code);
             Validate("Country/Region Code", CountryCode);
-            Validate(Address, LibraryUtility.GenerateRandomCode(FieldNo(Address), DATABASE::"Vendor Bank Account"));
+            Validate(Address, LibraryUtility.GenerateGUID());
+            Validate("Address 2", LibraryUtility.GenerateGUID());
+            Validate(City, LibraryUtility.GenerateGUID());
             Validate("Post Code", FindPostCode(CountryCode));
             Validate("Bank Branch No.", LibraryUtility.GenerateRandomCode(FieldNo("Bank Branch No."), DATABASE::"Vendor Bank Account"));
             Validate("Bank Account No.", '159030-776');

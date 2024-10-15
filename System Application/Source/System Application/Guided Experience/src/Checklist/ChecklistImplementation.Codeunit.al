@@ -164,9 +164,6 @@ codeunit 1993 "Checklist Implementation"
         GuidedExperienceImpl: Codeunit "Guided Experience Impl.";
         Dimensions: Dictionary of [Text, Text];
     begin
-        if not IsCallerModuleBaseApp(CallerModuleInfo) then
-            exit;
-
         if ChecklistSetup.FindFirst() then begin
             ChecklistSetup."Is Setup Done" := true;
             ChecklistSetup.Modify();
@@ -183,9 +180,6 @@ codeunit 1993 "Checklist Implementation"
     var
         GuidedExperience: Codeunit "Guided Experience";
     begin
-        if not (IsCallerModuleBaseApp(CallerModuleInfo) or IsCallerModuleSystemApp(CallerModuleInfo)) then
-            exit;
-
         GuidedExperience.OnRegisterAssistedSetup();
         GuidedExperience.OnRegisterManualSetup();
 
@@ -597,16 +591,6 @@ codeunit 1993 "Checklist Implementation"
             exit(false);
 
         exit(UserChecklistStatus."Is Visible");
-    end;
-
-    local procedure IsCallerModuleBaseApp(CallerModuleInfo: ModuleInfo): Boolean
-    begin
-        exit(CallerModuleInfo.Id = '437dbf0e-84ff-417a-965d-ed2bb9650972');
-    end;
-
-    local procedure IsCallerModuleSystemApp(CallerModuleInfo: ModuleInfo): Boolean
-    begin
-        exit(CallerModuleInfo.Id = '63ca2fa4-4f03-4f2b-a480-172fef340d3f');
     end;
 
     local procedure LogMessageOnDatabaseEvent(Code: Code[300]; Tag: Text; Message: Text)
