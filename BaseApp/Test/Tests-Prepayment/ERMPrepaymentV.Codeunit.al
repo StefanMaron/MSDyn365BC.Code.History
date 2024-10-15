@@ -2186,7 +2186,7 @@
         VerifyPostedSalesInvoiceCommentLine(PostedInvoiceNo[1], ExpectedComment[1], 2, 1);
         VerifyPostedSalesInvoiceCommentLine(PostedInvoiceNo[2], ExpectedComment[2], 2, 1);
         VerifyPostedSalesCreditMemoCommentLine(PostedCreditMemoNo, ExpectedComment[1], 10000, 3, 2);
-        VerifyPostedSalesCreditMemoCommentLine(PostedCreditMemoNo, ExpectedComment[2], 30000, 3, 2);
+        VerifyPostedSalesCreditMemoCommentLine(PostedCreditMemoNo, ExpectedComment[2], 20000, 3, 2);
     end;
 
     [Test]
@@ -2237,7 +2237,7 @@
         VerifyPostedPurchaseInvoiceCommentLine(PostedInvoiceNo[1], ExpectedComment[1], 2, 1);
         VerifyPostedPurchaseInvoiceCommentLine(PostedInvoiceNo[2], ExpectedComment[2], 2, 1);
         VerifyPostedPurchaseCreditMemoCommentLine(PostedCreditMemoNo, ExpectedComment[1], 10000, 3, 2);
-        VerifyPostedPurchaseCreditMemoCommentLine(PostedCreditMemoNo, ExpectedComment[2], 30000, 3, 2);
+        VerifyPostedPurchaseCreditMemoCommentLine(PostedCreditMemoNo, ExpectedComment[2], 20000, 3, 2);
     end;
 
     [Test]

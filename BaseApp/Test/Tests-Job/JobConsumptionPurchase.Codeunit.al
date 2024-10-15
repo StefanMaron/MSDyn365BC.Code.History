@@ -2780,6 +2780,57 @@ codeunit 136302 "Job Consumption Purchase"
         VerifyItemLedgEntriesInvoiced(Item."No.", PurchaseLine.Amount);
     end;
 
+    [Test]
+    procedure UndoPurchaseReceiptWithNegativeQuantityAndJob()
+    var
+        Vendor: Record Vendor;
+        JobTask: Record "Job Task";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        Qty: Decimal;
+        UnitCost: Decimal;
+        Sign: Integer;
+    begin
+        // [FEATURE] [Undo Receipt]
+        // [SCENARIO 408885] Undoing purchase receipt with negative quantity and job.
+        Initialize();
+        Qty := LibraryRandom.RandInt(10);
+        UnitCost := LibraryRandom.RandDec(100, 2);
+
+        // [GIVEN] Purchase order with job, quantity = -1, unit cost = 10 LCY.
+        LibraryPurchase.CreateVendor(Vendor);
+        CreateJobWithJobTask(JobTask);
+        CreatePurchaseHeader(PurchaseHeader."Document Type"::Order, Vendor."No.", PurchaseHeader);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, -Qty);
+        PurchaseLine.Validate("Direct Unit Cost", UnitCost);
+        PurchaseLine.Validate("Job No.", JobTask."Job No.");
+        PurchaseLine.Validate("Job Task No.", JobTask."Job Task No.");
+        PurchaseLine.Modify(true);
+
+        // [GIVEN] Post a receipt.
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
+
+        // [WHEN] Undo the receipt.
+        UndoPurchRcpt(PurchaseLine);
+
+        // [THEN] The receipt is undone.
+        // [THEN] Four item entries have been posted in total (negative receipt, undone receipt, positive job consumption, undone job consumption).
+        ItemLedgerEntry.SetRange("Job No.", JobTask."Job No.");
+        Assert.RecordCount(ItemLedgerEntry, 4);
+
+        // [THEN] Check quantity = 1 and -1, cost amount (actual) = 10 and -10.
+        ItemLedgerEntry.SetAutoCalcFields("Cost Amount (Expected)", "Cost Amount (Actual)");
+        ItemLedgerEntry.FindSet();
+        repeat
+            Sign := GetILEAmountSign(ItemLedgerEntry);
+            ItemLedgerEntry.TestField("Completely Invoiced", true);
+            ItemLedgerEntry.TestField("Invoiced Quantity", Qty * Sign);
+            ItemLedgerEntry.TestField("Cost Amount (Expected)", 0);
+            ItemLedgerEntry.TestField("Cost Amount (Actual)", Qty * UnitCost * Sign);
+        until ItemLedgerEntry.Next() = 0;
+    end;
+
     local procedure Initialize()
     var
         PurchasePrice: Record "Purchase Price";
