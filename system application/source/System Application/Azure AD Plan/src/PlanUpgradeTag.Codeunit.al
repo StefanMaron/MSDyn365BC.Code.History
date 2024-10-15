@@ -58,5 +58,14 @@ codeunit 9058 "Plan Upgrade Tag"
     begin
         exit('MS-394628-RenameDevicePlan-20210325');
     end;
+
+    /// <summary>
+    /// Returns the Premium Partner Sandbox upgrade tag.
+    /// </summary>
+    /// <returns>The Premium Partner Sandbox upgrade tag.</returns>
+    internal procedure GetPremiumPartnerSandboxUpgradeTag(): Code[250]
+    begin
+        exit('MS-426983-AddPremiumPartnerSandbox-20220218');
+    end;
 }
 

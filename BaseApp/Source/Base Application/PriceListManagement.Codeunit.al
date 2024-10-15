@@ -1,4 +1,4 @@
-codeunit 7017 "Price List Management"
+﻿codeunit 7017 "Price List Management"
 {
     var
         PriceIsFound: Boolean;
@@ -70,6 +70,8 @@ codeunit 7017 "Price List Management"
         AdjustAmount(PriceAsset."Unit Price 2", PriceLineFilters);
         PriceListLine.CopyPriceFrom(PriceAsset);
         PriceListLine.Validate("Minimum Quantity", PriceLineFilters."Minimum Quantity");
+        OnAddLineOnAfterPopulatePriceListLineFields(PriceListLine, ToPriceListHeader, PriceAsset, PriceLineFilters);
+
         if PriceLineFilters.Worksheet then
             InsertWorksheetLine(ToPriceListHeader, PriceListLine, ExistingPriceListLine)
         else
@@ -189,6 +191,7 @@ codeunit 7017 "Price List Management"
             FromPriceListLine.SetRange("Price Type", ToPriceListHeader."Price Type");
             FromPriceListLine.SetRange("Source Group", ToPriceListHeader."Source Group");
         end;
+        OnCopyLinesOnAfterFromPriceListLineSetFilters(FromPriceListLine, PriceLineFilters);
         if FromPriceListLine.FindSet() then
             repeat
                 CopyLine(PriceLineFilters, FromPriceListLine, ToPriceListHeader);
@@ -207,6 +210,8 @@ codeunit 7017 "Price List Management"
         AdjustAmount(ToPriceListLine."Unit Price", PriceLineFilters);
         AdjustAmount(ToPriceListLine."Direct Unit Cost", PriceLineFilters);
         AdjustAmount(ToPriceListLine."Unit Cost", PriceLineFilters);
+        OnCopyLineOnAfterAdjustAmounts(ToPriceListLine, PriceLineFilters, FromPriceListLine, ToPriceListHeader);
+
         if PriceLineFilters.Worksheet then
             CopyToWorksheetLine(ToPriceListLine, FromPriceListLine, PriceLineFilters."Copy As New Lines")
         else begin
@@ -798,6 +803,7 @@ codeunit 7017 "Price List Management"
             PriceWorksheetLine.Delete();
             PriceListLine.Mark(true);
         end;
+        OnAfterImplementNewPrice(PriceWorksheetLine, PriceListLine, Implemented);
     end;
 
     local procedure InsertWorksheetLine(var ToPriceListHeader: Record "Price List Header"; NewPriceListLine: Record "Price List Line"; ExistingPriceListLine: Record "Price List Line")
@@ -837,6 +843,7 @@ codeunit 7017 "Price List Management"
         PriceWorksheetLine."Existing Direct Unit Cost" := FromPriceListLine."Direct Unit Cost";
         PriceWorksheetLine."Existing Unit Cost" := FromPriceListLine."Unit Cost";
         PriceWorksheetLine.Validate("Existing Line", not CreateNewLine);
+        OnCopyToWorksheetLineOnBeforeInsert(PriceWorksheetLine, FromPriceListLine);
         PriceWorksheetLine.Insert(true);
     end;
 
@@ -877,7 +884,17 @@ codeunit 7017 "Price List Management"
     end;
 
     [IntegrationEvent(true, false)]
+    local procedure OnAddLineOnAfterPopulatePriceListLineFields(var PriceListLine: Record "Price List Line"; ToPriceListHeader: Record "Price List Header"; PriceAsset: Record "Price Asset"; PriceLineFilters: Record "Price Line Filters")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
     local procedure OnAfterBuildSourceFilters(var PriceSource: Record "Price Source"; var SourceFilter: array[3] of Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterImplementNewPrice(var PriceWorksheetLine: Record "Price Worksheet Line"; var PriceListLine: Record "Price List Line"; var Implemented: Boolean);
     begin
     end;
 
@@ -893,6 +910,21 @@ codeunit 7017 "Price List Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnBuildSourceFiltersOnBeforeFindLines(var PriceListLine: Record "Price List Line"; PriceSource: Record "Price Source")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCopyToWorksheetLineOnBeforeInsert(var PriceWorksheetLine: Record "Price Worksheet Line"; FromPriceListLine: Record "Price List Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCopyLinesOnAfterFromPriceListLineSetFilters(var PriceListLine: Record "Price List Line"; PriceLineFilters: Record "Price Line Filters")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnCopyLineOnAfterAdjustAmounts(var ToPriceListLine: Record "Price List Line"; PriceLineFilters: Record "Price Line Filters"; FromPriceListLine: Record "Price List Line"; ToPriceListHeader: Record "Price List Header")
     begin
     end;
 }

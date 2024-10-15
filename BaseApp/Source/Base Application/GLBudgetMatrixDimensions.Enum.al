@@ -1,7 +1,7 @@
 enum 114 "G/L Budget Matrix Dimensions"
 {
     AssignmentCompatibility = true;
-    Extensible = false;
+    Extensible = true;
 
     value(0; "G/L Account") { Caption = 'G/L Account'; }
     value(1; "Period") { Caption = 'Period'; }
