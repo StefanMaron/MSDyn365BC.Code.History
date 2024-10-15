@@ -686,6 +686,8 @@ table 472 "Job Queue Entry"
 #endif
         JobQueueLogEntry."Job Queue Category Code" := Rec."Job Queue Category Code";
         JobQueueLogEntry."System Task Id" := Rec."System Task ID";
+        JobQueueLogEntry."User Session ID" := Rec."User Session ID";
+        JobQueueLogEntry."User Service Instance ID" := Rec."User Service Instance ID";
         Rec.CalcFields(XML);
         JobQueueLogEntry.XML := Rec.XML;
         OnBeforeInsertLogEntry(JobQueueLogEntry, Rec);
@@ -939,7 +941,13 @@ table 472 "Job Queue Entry"
     var
         JobQueueDispatcher: Codeunit "Job Queue Dispatcher";
         SessionId: Integer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCleanupAfterExecution(Rec, IsHandled);
+        If IsHandled then
+            exit;
+
         if "Notify On Success" then
             if Session.StartSession(SessionId, Codeunit::"Job Queue - Send Notification", CurrentCompany(), Rec) then;
 
@@ -1027,8 +1035,12 @@ table 472 "Job Queue Entry"
     local procedure SetStatusValue(NewStatus: Option)
     var
         JobQueueDispatcher: Codeunit "Job Queue Dispatcher";
+        IsHandled: Boolean;
     begin
-        OnBeforeSetStatusValue(Rec, xRec, NewStatus);
+        IsHandled := false;
+        OnBeforeSetStatusValue(Rec, xRec, NewStatus, IsHandled);
+        if IsHandled then
+            exit;
 
         if NewStatus = Status then
             exit;
@@ -1442,7 +1454,7 @@ table 472 "Job Queue Entry"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeSetStatusValue(var JobQueueEntry: Record "Job Queue Entry"; var xJobQueueEntry: Record "Job Queue Entry"; var NewStatus: Option)
+    local procedure OnBeforeSetStatusValue(var JobQueueEntry: Record "Job Queue Entry"; var xJobQueueEntry: Record "Job Queue Entry"; var NewStatus: Option; var IsHandled: Boolean)
     begin
     end;
 
@@ -1481,6 +1493,11 @@ table 472 "Job Queue Entry"
 
     [IntegrationEvent(false, false)]
     local procedure OnSetXmlContentOnBeforeModify(var JobQueueEntry: Record "Job Queue Entry"; var Params: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCleanupAfterExecution(var JobQueueEntry: Record "Job Queue Entry"; var IsHandled: Boolean)
     begin
     end;
 }

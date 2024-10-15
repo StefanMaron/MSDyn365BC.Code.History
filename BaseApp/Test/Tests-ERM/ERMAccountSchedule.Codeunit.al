@@ -72,6 +72,7 @@ codeunit 134902 "ERM Account Schedule"
         AlreadyExistsErr: Label 'Account schedule %1 will be overwritten.', Comment = '%1 - name of the account schedule.';
         ColLayoutAlreadyExistsErr: Label 'Column layout %1 will be overwritten.', Comment = '%1 - name of the column layout.';
         NoTablesAndErrorsMsg: Label '%1 tables are processed.\%2 errors found.\%3 records inserted.\%4 records modified.', Comment = '%1 = number of tables processed, %2 = number of errors, %3 = number of records inserted, %4 = number of records modified';
+        LookupDimFilterErr: Label 'Function LookupDimFilter returned wrong value.';
 
     [Test]
     [Scope('OnPrem')]
@@ -5547,6 +5548,106 @@ codeunit 134902 "ERM Account Schedule"
         // Verification done in AccScheduleOverviewWithExpectedRowNoPageHandler
     end;
 
+    [Test]
+    [HandlerFunctions('DimensionValueListPageHandler')]
+    [Scope('OnPrem')]
+    procedure VerifyDimension1FilterNotCopiedfromDimension3Filter()
+    var
+        AccScheduleLine: Record "Acc. Schedule Line";
+        TotalDimValue: array[2] of Record "Dimension Value";
+        TotalingDimValue: Record "Dimension Value";
+        ResultDimValue: Record "Dimension Value";
+        AccScheduleOverview: TestPage "Acc. Schedule Overview";
+        Text: Text;
+        Result: Boolean;
+    begin
+        // [SCENARIO 438600] Verify Dimension 3 Filter not copied to Dimension 1 Filter
+        Initialize();
+        LibraryLowerPermissions.SetOutsideO365Scope();
+
+        // [GIVEN] Create new Acc. Schedule for G/L Account
+        CreateAccountScheduleWithGLAccount(AccScheduleLine);
+
+        // [GIVEN] Create Dimension Value without totalings "D1"
+        CreateDimValueWithCodeAndType(TotalingDimValue, 'D1', TotalingDimValue."Dimension Value Type"::Standard);
+
+        // [GIVEN] Create new dim value "D0" with "Dimension Value Type"::Total and "Totaling" = "D1..D2"
+        CreateTotallingDimValueWithCode(TotalDimValue[1], 'D0', 'D1', 'D2');
+
+        // [GIVEN] Create new dim value "D2" with "Dimension Value Type"::Total and "Totaling" = "D0..D1"
+        CreateTotallingDimValueWithCode(TotalDimValue[2], 'D2', 'D0', 'D1');
+
+        // [GIVEN] Run Acc. Schedule Overview
+        AccScheduleOverview.Trap;
+        OpenAccountScheduleOverviewPage(AccScheduleLine."Schedule Name");
+        LibraryVariableStorage.Enqueue(ResponseRef::LookupOK);
+        LibraryVariableStorage.Enqueue(TotalingDimValue.Code);
+
+        // [WHEN] Lookup called and confirmed 
+        Result := TotalingDimValue.LookUpDimFilter(TotalingDimValue.Code, Text);
+        Assert.IsTrue(Result, LookupDimFilterErr);
+        Assert.AreEqual(Format(TotalingDimValue.Code), Text, LookupDimFilterErr);
+        AccScheduleOverview.Dim3Filter.SetValue(CopyStr(Text, 1, MaxStrLen(ResultDimValue.Code)));
+
+        // [THEN] Verify Dimension 1 Filter and Dimension 3 Filter are not equal.
+        Assert.AreNotEqual(AccScheduleOverview.Dim1Filter.Value, AccScheduleOverview.Dim3Filter.Value, IncorrectValueInAccScheduleErr);
+        AccScheduleOverview.OK.Invoke;
+
+        // Tear down
+        ResultDimValue.Reset();
+        ResultDimValue.DeleteAll();
+    end;
+
+    [Test]
+    [HandlerFunctions('DimensionValueListPageHandler')]
+    [Scope('OnPrem')]
+    procedure VerifyDimension1FilterNotCopiedfromDimension4Filter()
+    var
+        AccScheduleLine: Record "Acc. Schedule Line";
+        TotalDimValue: array[2] of Record "Dimension Value";
+        TotalingDimValue: Record "Dimension Value";
+        ResultDimValue: Record "Dimension Value";
+        AccScheduleOverview: TestPage "Acc. Schedule Overview";
+        Text: Text;
+        Result: Boolean;
+    begin
+        // [SCENARIO 438600] Verify Dimension 4 Filter not copied to Dimension 1 Filter
+        Initialize();
+        LibraryLowerPermissions.SetOutsideO365Scope();
+
+        // [GIVEN] Create new Acc. Schedule for G/L Account
+        CreateAccountScheduleWithGLAccount(AccScheduleLine);
+
+        // [GIVEN] Create Dimension Value without totalings "D1"
+        CreateDimValueWithCodeAndType(TotalingDimValue, 'D1', TotalingDimValue."Dimension Value Type"::Standard);
+
+        // [GIVEN] Create new dim value "D0" with "Dimension Value Type"::Total and "Totaling" = "D1..D2"
+        CreateTotallingDimValueWithCode(TotalDimValue[1], 'D0', 'D1', 'D2');
+
+        // [GIVEN] Create new dim value "D2" with "Dimension Value Type"::Total and "Totaling" = "D0..D1"
+        CreateTotallingDimValueWithCode(TotalDimValue[2], 'D2', 'D0', 'D1');
+
+        // [GIVEN] Run Acc. Schedule Overview
+        AccScheduleOverview.Trap;
+        OpenAccountScheduleOverviewPage(AccScheduleLine."Schedule Name");
+        LibraryVariableStorage.Enqueue(ResponseRef::LookupOK);
+        LibraryVariableStorage.Enqueue(TotalingDimValue.Code);
+
+        // [WHEN] Lookup called and confirmed 
+        Result := TotalingDimValue.LookUpDimFilter(TotalingDimValue.Code, Text);
+        Assert.IsTrue(Result, LookupDimFilterErr);
+        Assert.AreEqual(Format(TotalingDimValue.Code), Text, LookupDimFilterErr);
+        AccScheduleOverview.Dim4Filter.SetValue(CopyStr(Text, 1, MaxStrLen(ResultDimValue.Code)));
+
+        // [THEN] Verify Dimension 1 Filter and Dimension 4 Filter are not equal.
+        Assert.AreNotEqual(AccScheduleOverview.Dim1Filter.Value, AccScheduleOverview.Dim4Filter.Value, IncorrectValueInAccScheduleErr);
+        AccScheduleOverview.OK.Invoke;
+
+        // Tear down
+        ResultDimValue.Reset();
+        ResultDimValue.DeleteAll();
+    end;
+
     local procedure Initialize()
     var
         ObjectOptions: Record "Object Options";
@@ -6149,7 +6250,7 @@ codeunit 134902 "ERM Account Schedule"
         Clear(AccountSchedule);
         AccountSchedule.SetAccSchedName(ScheduleName);
         AccountSchedule.SetColumnLayoutName(ColumnLayoutName);
-        AccountSchedule.SetFilters(Format(WorkDate), '', '', '', '', '', '', '');
+        AccountSchedule.SetFilters(Format(WorkDate), '', '', '', '', '', '', '', '');
         AccountSchedule.SaveAsExcel(ColumnLayoutName);
     end;
 
@@ -7079,6 +7180,28 @@ codeunit 134902 "ERM Account Schedule"
             Assert.AreEqual('', NewAccountScheduleName.AlreadyExistsColumnLayoutText.Value(), 'AlreadyExistsColumnLayoutText should be blank');
         end;
         NewAccountScheduleName.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure DimensionValueListPageHandler(var DimensionValueList: Page "Dimension Value List"; var Response: Action)
+    var
+        DimensionValue: Record "Dimension Value";
+        DequeueVar: Variant;
+        ResponseOption: Option;
+    begin
+        LibraryVariableStorage.Dequeue(DequeueVar);
+        ResponseOption := DequeueVar;
+        LibraryVariableStorage.Dequeue(DequeueVar);
+        DimensionValue.SetRange(Code, DequeueVar);
+        DimensionValue.FindFirst();
+        DimensionValueList.SetRecord(DimensionValue);
+        case ResponseOption of
+            ResponseRef::LookupOK:
+                Response := ACTION::LookupOK;
+            ResponseRef::LookupCancel:
+                Response := ACTION::LookupCancel;
+        end;
     end;
 
     [RequestPageHandler]

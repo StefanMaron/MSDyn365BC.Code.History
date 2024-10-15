@@ -1924,6 +1924,35 @@
         EFTRegister.TestField("Total Amount (LCY)", -TotalAmount);
     end;
 
+    [Test]
+    [HandlerFunctions('CreateEFTFileRequestPageHandler')]
+    procedure LodgementReferenceOnEFTBalancingRecordLine()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        Vendor: Record Vendor;
+        GenJournalLine: Record "Gen. Journal Line";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        FilePath: Text;
+    begin
+        // [FEATURE] [EFT Payment]
+        // [SCENARIO 436487] Lodgement Reference number for EFT Balancing record in EFT file.
+        Initialize();
+
+        // [GIVEN] Payment Journal Line with Bal. Account = Bank Account "B".
+        // [GIVEN] Bank Account "B" has EFT Balancing Record Required set.
+        UpdateGLSetupAndPurchasesPayablesSetup(VATPostingSetup);
+        CreateVendor(Vendor, '', VATPostingSetup."VAT Bus. Posting Group");
+        CreateGenJournalBatchWithBankAccountEFTBalancingRecordRequired(GenJournalBatch, true);
+        CreatePaymentJournalLine(GenJournalBatch, GenJournalLine, Vendor);
+        UpdateGenJournalLineSkipWHT(GenJournalLine, true);
+
+        // [WHEN] EFT File is created.
+        FilePath := EFTPaymentCreateFile(GenJournalLine);
+
+        // [THEN] EFT Balancing record contains Payment Reference of Gen. Jnl. Line as Lodgement Reference on positions 63..80.
+        VerifyLodgementReferenceOnEFTBalancingRecordLine(FilePath, CopyStr(GenJournalLine."Payment Reference", 1, 18));
+    end;
+
     local procedure Initialize()
     var
         GenJournalLine: Record "Gen. Journal Line";
@@ -2584,6 +2613,17 @@
             63,
             MaxStrLen(LodgementReference)),
           ValueMustBeSameMsg);
+    end;
+
+    local procedure VerifyLodgementReferenceOnEFTBalancingRecordLine(FilePath: Text; ExpLodgementReference: Text[18])
+    var
+        BalancingRecordLine: Text;
+        LodgementReferenceText: Text[18];
+    begin
+        BalancingRecordLine := LibraryTextFileValidation.FindLineWithValue(FilePath, 19, 2, '13');  // 13 - transaction code for balancing line
+        LodgementReferenceText := CopyStr(BalancingRecordLine, 63, 18);
+        LodgementReferenceText := DelChr(LodgementReferenceText, '>');
+        Assert.AreEqual(ExpLodgementReference, LodgementReferenceText, '');
     end;
 
     local procedure VerifyRecordCount(FilePath: Text; ExpectedCount: Integer)

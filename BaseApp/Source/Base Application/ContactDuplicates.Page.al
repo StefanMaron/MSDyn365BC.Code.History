@@ -105,6 +105,28 @@ page 5134 "Contact Duplicates"
                     ContactDuplicateDetails.Run();
                 end;
             }
+            action(MergeDuplicate)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Merge Contacts';
+                Enabled = not "Separate Contacts";
+                Ellipsis = true;
+                Image = ItemSubstitution;
+                Promoted = true;
+                ToolTip = 'Merge two contact records into one. Before merging, review which field values you want to keep or override. The merge action cannot be undone.';
+
+                trigger OnAction()
+                var
+                    MergeDuplBuffer: Record "Merge Duplicates Buffer";
+                    MergeDuplicate: Page "Merge Duplicate";
+                begin
+                    MergeDuplBuffer.Validate("Table ID", DATABASE::Contact);
+                    MergeDuplBuffer.Current := "Contact No.";
+                    MergeDuplBuffer.Duplicate := "Duplicate Contact No.";
+                    MergeDuplicate.Set(MergeDuplBuffer);
+                    MergeDuplicate.Run();
+                end;
+            }
         }
     }
 

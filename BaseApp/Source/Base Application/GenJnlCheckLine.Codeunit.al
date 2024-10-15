@@ -225,6 +225,13 @@ codeunit 11 "Gen. Jnl.-Check Line"
         exit(IsDateNotAllowed(PostingDate, SetupRecordID));
     end;
 
+    procedure DeferralPostingDateNotAllowed(PostingDate: Date): Boolean
+    var
+        SetupRecordID: RecordID;
+    begin
+        exit(IsDeferralPostingDateNotAllowed(PostingDate, SetupRecordID));
+    end;
+
     procedure DateNotAllowed(PostingDate: Date; TemplateName: Code[20]): Boolean
     var
         SetupRecordID: RecordID;
@@ -244,6 +251,21 @@ codeunit 11 "Gen. Jnl.-Check Line"
 
         DateIsNotAllowed := not UserSetupManagement.IsPostingDateValidWithSetup(PostingDate, SetupRecordID);
         OnAfterDateNoAllowed(PostingDate, DateIsNotAllowed);
+        exit(DateIsNotAllowed);
+    end;
+
+    procedure IsDeferralPostingDateNotAllowed(PostingDate: Date; var SetupRecordID: RecordID) DateIsNotAllowed: Boolean
+    var
+        UserSetupManagement: Codeunit "User Setup Management";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeIsDeferralPostingDateNotAllowed(PostingDate, SetupRecordID, GenJnlBatch, DateIsNotAllowed, IsHandled);
+        if IsHandled then
+            exit;
+
+        DateIsNotAllowed := not UserSetupManagement.IsDeferralPostingDateValidWithSetup(PostingDate, SetupRecordID);
+        OnAfterDeferralPostingDateNoAllowed(PostingDate, DateIsNotAllowed);
         exit(DateIsNotAllowed);
     end;
 
@@ -966,12 +988,22 @@ codeunit 11 "Gen. Jnl.-Check Line"
     end;
 
     [IntegrationEvent(true, false)]
+    local procedure OnAfterDeferralPostingDateNoAllowed(PostingDate: Date; var DateIsNotAllowed: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeDateNotAllowed(GenJnlLine: Record "Gen. Journal Line"; var DateCheckDone: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeIsDateNotAllowed(PostingDate: Date; SetupRecordID: RecordId; GenJnlBatch: Record "Gen. Journal Batch"; var DateIsNotAllowed: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeIsDeferralPostingDateNotAllowed(PostingDate: Date; SetupRecordID: RecordId; GenJnlBatch: Record "Gen. Journal Batch"; var DateIsNotAllowed: Boolean; var IsHandled: Boolean)
     begin
     end;
 

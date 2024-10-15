@@ -132,6 +132,9 @@ codeunit 11603 "EFT Management"
 
     [Scope('OnPrem')]
     procedure CloseFile(EFTRegister: Record "EFT Register"; FileDescription: Text[12]; BankAccount: Record "Bank Account")
+    var
+        EFTFileName: Text;
+        EFTFileExtension: Text;
     begin
         EFTRegister.LockTable();
         EFTRegister.Find;
@@ -143,8 +146,11 @@ codeunit 11603 "EFT Management"
         EFTRegister.Modify();
         FileVar.Close;
 
-        if CanDownloadFile then begin
-            if RBMgt.DownloadHandler(ServerFileName, '', '', '', FileDescription + '.txt') then
+        if CanDownloadFile() then begin
+            EFTFileExtension := '.txt';
+            EFTFileName := FileDescription;
+            OnCloseFileBeforeDownloadFile(EFTRegister, EFTFileName, EFTFileExtension);
+            if RBMgt.DownloadHandler(ServerFileName, '', '', '', EFTFileName + EFTFileExtension) then
                 Message(Text11002, TotalAmountLCY);
         end;
     end;
@@ -164,6 +170,7 @@ codeunit 11603 "EFT Management"
     var
         TempGenJournalLine: Record "Gen. Journal Line" temporary;
         WHTManagement: Codeunit WHTManagement;
+        LodgementReference: Text[50];
     begin
         PreparePaymentBuffer(EFTRegister, TempGenJournalLine);
         with TempGenJournalLine do begin
@@ -185,10 +192,11 @@ codeunit 11603 "EFT Management"
                 TotalAmountLCY += Amount - "WHT Absorb Base";
                 NoOfLines += 1;
                 VendBankAcc.Get(Vend."No.", "EFT Bank Account No.");
+                LodgementReference := GetPmtRefOrDocNoFromGenJnlLine(TempGenJournalLine);
                 WriteFile(
                   120, '1' + TFR(FormatBranchNumber(VendBankAcc."EFT BSB No."), 7) + TFL(VendBankAcc."Bank Account No.", 9) +
                   BLK(1) + TypeOfLine + NFL(Value100(Amount - "WHT Absorb Base", 10), 10) + TFR(Vend.Name, 32) +
-                  TFR(GetPmtRefOrDocNoFromGenJnlLine(TempGenJournalLine), 18) + TFR(FormatBranchNumber(BankAccount."EFT BSB No."), 7) + TFL(
+                  TFR(LodgementReference, 18) + TFR(FormatBranchNumber(BankAccount."EFT BSB No."), 7) + TFL(
                     BankAccount."Bank Account No.", 9) +
                   TFR(BankAccount."EFT Security Name", 16) + NFL(Value100("WHT Absorb Base", 8), 8));
             until Next() = 0;
@@ -196,7 +204,7 @@ codeunit 11603 "EFT Management"
                 WriteFile(
                   120, '1' + TFR(FormatBranchNumber(BankAccount."EFT BSB No."), 7) + TFL(BankAccount."Bank Account No.", 9) + BLK(1) +
                   '13' + NFL(Value100(TotalAmountLCY, 10), 10) +
-                  TFR(BankAccount."EFT Security Name", 32) + TFR('', 18) +
+                  TFR(BankAccount."EFT Security Name", 32) + TFR(LodgementReference, 18) +
                   TFR(FormatBranchNumber(BankAccount."EFT BSB No."), 7) + TFL(BankAccount."Bank Account No.", 9) +
                   TFR(BankAccount."EFT Security Name", 16) + NFL(Value100(0, 8), 8));
                 NoOfLines += 1;
@@ -544,7 +552,7 @@ codeunit 11603 "EFT Management"
         Message(EFTRegisterExportCanceledMsg, EFTRegister."No.");
     end;
 
-    local procedure GetPmtRefOrDocNoFromGenJnlLine(GenJnlLine: Record "Gen. Journal Line"): Text[250]
+    local procedure GetPmtRefOrDocNoFromGenJnlLine(GenJnlLine: Record "Gen. Journal Line"): Text[50]
     begin
         if GenJnlLine."Payment Reference" = '' then
             exit(GenJnlLine."Document No.");
@@ -566,6 +574,11 @@ codeunit 11603 "EFT Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInitPaymentBufferWithPaymentReference(var PaymentBufferGenJournalLine: Record "Gen. Journal Line"; var VendorNo: Code[20]; var EFTBankAccountNo: Code[20]; var DocumentNo: Code[20]; var PaymentReference: Code[50]; var Amount: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCloseFileBeforeDownloadFile(EFTRegister: Record "EFT Register"; var EFTFileName: Text; var EFTFileExtension: Text)
     begin
     end;
 }
