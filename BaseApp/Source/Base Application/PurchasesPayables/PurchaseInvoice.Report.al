@@ -1,7 +1,7 @@
 report 406 "Purchase - Invoice"
 {
     DefaultLayout = RDLC;
-    RDLCLayout = './PurchaseInvoice.rdlc';
+    RDLCLayout = './PurchasesPayables/PurchaseInvoice.rdlc';
     Caption = 'Purchase - Invoice';
     PreviewMode = PrintLayout;
 

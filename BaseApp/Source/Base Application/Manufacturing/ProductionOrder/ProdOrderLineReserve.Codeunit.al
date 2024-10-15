@@ -386,20 +386,24 @@ codeunit 99000837 "Prod. Order Line-Reserve"
     procedure CallItemTracking(var ProdOrderLine: Record "Prod. Order Line")
     var
         TrackingSpecification: Record "Tracking Specification";
-        ItemTrackingDocMgt: Codeunit "Item Tracking Doc. Management";
+        ItemTrackingDocManagement: Codeunit "Item Tracking Doc. Management";
         ItemTrackingLines: Page "Item Tracking Lines";
+        IsHandled: Boolean;
     begin
-        if ProdOrderLine.Status = ProdOrderLine.Status::Finished then
-            ItemTrackingDocMgt.ShowItemTrackingForProdOrderComp(DATABASE::"Prod. Order Line",
-              ProdOrderLine."Prod. Order No.", ProdOrderLine."Line No.", 0)
-        else begin
-            ProdOrderLine.TestField("Item No.");
-            TrackingSpecification.InitFromProdOrderLine(ProdOrderLine);
-            ItemTrackingLines.SetSourceSpec(TrackingSpecification, ProdOrderLine."Due Date");
-            ItemTrackingLines.SetInbound(ProdOrderLine.IsInbound());
-            OnCallItemTrackingOnBeforeItemTrackingLinesRunModal(ProdOrderLine, ItemTrackingLines);
-            ItemTrackingLines.RunModal();
-        end;
+        IsHandled := false;
+        OnBeforeCallItemTracking(ProdOrderLine, IsHandled);
+        if not IsHandled then
+            if ProdOrderLine.Status = ProdOrderLine.Status::Finished then
+                ItemTrackingDocManagement.ShowItemTrackingForProdOrderComp(
+                    DATABASE::"Prod. Order Line", ProdOrderLine."Prod. Order No.", ProdOrderLine."Line No.", 0)
+            else begin
+                ProdOrderLine.TestField("Item No.");
+                TrackingSpecification.InitFromProdOrderLine(ProdOrderLine);
+                ItemTrackingLines.SetSourceSpec(TrackingSpecification, ProdOrderLine."Due Date");
+                ItemTrackingLines.SetInbound(ProdOrderLine.IsInbound());
+                OnCallItemTrackingOnBeforeItemTrackingLinesRunModal(ProdOrderLine, ItemTrackingLines);
+                ItemTrackingLines.RunModal();
+            end;
 
         OnAfterCallItemTracking(ProdOrderLine);
     end;
@@ -682,6 +686,11 @@ codeunit 99000837 "Prod. Order Line-Reserve"
 
     [IntegrationEvent(false, false)]
     local procedure OnDeleteLineConfirmOnAfterReservEntry2Modify(var ReservEntry: Record "Reservation Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCallItemTracking(var ProdOrderLine: Record "Prod. Order Line"; var IsHandled: Boolean)
     begin
     end;
 }

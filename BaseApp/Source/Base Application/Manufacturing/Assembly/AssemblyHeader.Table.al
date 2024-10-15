@@ -1152,6 +1152,7 @@
             ClearCurrentFieldNum(FieldNo("Dimension Set ID"));
             Modify(true);
         end;
+        OnAfterShowDimensions(Rec);
     end;
 
     procedure ShowStatistics()
@@ -2038,6 +2039,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetReservationFilters(var ReservEntry: Record "Reservation Entry"; AssemblyHeader: Record "Assembly Header");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterShowDimensions(var AssemblyHeader: Record "Assembly Header")
     begin
     end;
 

@@ -71,6 +71,16 @@ page 123 "VAT Entries Preview"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount of the VAT entry in LCY.';
                 }
+                field(NonDeductibleVATBase; Rec."Non-Deductible VAT Base")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the amount of VAT that is not deducted due to the type of goods or services purchased.';
+                }
+                field(NonDeductibleVATAmount; Rec."Non-Deductible VAT Amount")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the amount of the transaction for which VAT is not applied, due to the type of goods or services purchased.';
+                }
                 field("VAT Difference"; Rec."VAT Difference")
                 {
                     ApplicationArea = Basic, Suite;
@@ -93,6 +103,24 @@ page 123 "VAT Entries Preview"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies, in the additional reporting currency, the VAT difference that arises when you make a correction to a VAT amount on a sales or purchase document.';
+                    Visible = false;
+                }
+                field(NonDeductibleVATBaseACY; Rec."Non-Deductible VAT Base ACY")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the amount of VAT that is not deducted due to the type of goods or services purchased. The amount is in the additional reporting currency.';
+                    Visible = false;
+                }
+                field(NonDeductibleVATAmountACY; Rec."Non-Deductible VAT Amount ACY")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the amount of the transaction for which VAT is not applied, due to the type of goods or services purchased. The amount is in the additional reporting currency.';
+                    Visible = false;
+                }
+                field(NonDedVATDiff; "Non-Deductible VAT Diff.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the difference between the calculated Non-Deductible VAT amount and a Non-Deductible VAT amount that you have entered manually.';
                     Visible = false;
                 }
                 field("VAT Calculation Type"; Rec."VAT Calculation Type")

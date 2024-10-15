@@ -18,6 +18,7 @@ codeunit 135301 "O365 Sales Item Charge Tests"
         Assert: Codeunit Assert;
         IncorrectCreditMemoQtyAssignmentErr: Label 'ENU=Item charge assignment incorrect on corrective credit memo.';
         IncorrectAmountOfLinesErr: Label 'ENU=The amount of lines must be greater than 0.';
+        QuantityIsNotAsExpectedErr: Label 'Quantity is not as expected.';
         EnvironmentInfoTestLibrary: Codeunit "Environment Info Test Library";
         isInitialized: Boolean;
 
@@ -264,6 +265,46 @@ codeunit 135301 "O365 Sales Item Charge Tests"
         asserterror SalesShptHeader.Delete(true);
     end;
 
+    [Test]
+    [HandlerFunctions('ItemChargeAssignmentSalesPageHandler,GetShipmentLinesHandler')]
+    procedure VerifyQtyOnItemChargeAssignmentLinesForSalesInvoiceLinesFromSalesShipmentsFromSalesOrder()
+    var
+        Item: Record Item;
+        ItemCharge: Record "Item Charge";
+        SalesHeader: Record "Sales Header";
+        SalesHeaderInvoice: Record "Sales Header";
+        PostedSaleShipmentNo, PostedSaleShipmentNo2 : Code[20];
+    begin
+        // [SCENARIO 464057] Verify Qty. on Item Charge Assignment Lines for Sales Invoice Lines created from Sales Shipments created from Sales Order
+        Initialize();
+
+        // [GIVEN] Create new Item
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create Item Charge
+        LibraryInventory.CreateItemCharge(ItemCharge);
+
+        // [GIVEN] Create Sales Order with Item Charge
+        CreateSalesOrderWithItemCharge(SalesHeader, ItemCharge."No.", Item."No.", 11);
+
+        // [GIVEN] Set Sales Order Lines Qty. to Ship
+        SetSalesLinesQtyToShip(SalesHeader, 5);
+
+        // [GIVEN] Update Qty. to Assign on Item Charge Assignment
+        LibraryVariableStorage.Enqueue(11);
+        UpdateQtyToAssignOnItemChargeAssignment(SalesHeader);
+
+        // [GIVEN] Post Ship for Item and Charge (Item) line two time
+        PostedSaleShipmentNo := LibrarySales.PostSalesDocument(SalesHeader, true, false);
+        PostedSaleShipmentNo2 := LibrarySales.PostSalesDocument(SalesHeader, true, false);
+
+        // [WHEN] Create Sales Invoice for Posted Shipment Lines from Sales Order        
+        CreateSalesInvoice(SalesHeaderInvoice, SalesHeader."Sell-to Customer No.", PostedSaleShipmentNo, PostedSaleShipmentNo2);
+
+        // [THEN] Verify results
+        VerifyItemChargeAssignmentLines(SalesHeaderInvoice, ItemCharge."No.", 5, 6);
+    end;
+
     local procedure Initialize()
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
@@ -439,6 +480,92 @@ codeunit 135301 "O365 Sales Item Charge Tests"
         end;
     end;
 
+    local procedure UpdateQtyToAssignOnItemChargeAssignment(SalesHeader: Record "Sales Header")
+    var
+        SalesLine: Record "Sales Line";
+    begin
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.SetRange(Type, SalesLine.Type::"Charge (Item)");
+        SalesLine.FindFirst();
+        SalesLine.ShowItemChargeAssgnt();
+    end;
+
+    local procedure VerifyItemChargeAssignmentLines(var SalesHeader: Record "Sales Header"; ItemChargeNo: Code[20]; Quantity: Decimal; Quantity2: Decimal)
+    var
+        ItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)";
+        FirstLine: Boolean;
+    begin
+        ItemChargeAssignmentSales.SetRange("Document Type", SalesHeader."Document Type");
+        ItemChargeAssignmentSales.SetRange("Document No.", SalesHeader."No.");
+        ItemChargeAssignmentSales.SetRange("Item Charge No.", ItemChargeNo);
+        ItemChargeAssignmentSales.FindSet();
+        FirstLine := true;
+        repeat
+            if FirstLine then begin
+                Assert.AreEqual(ItemChargeAssignmentSales."Qty. to Assign", Quantity, QuantityIsNotAsExpectedErr);
+                Assert.AreEqual(ItemChargeAssignmentSales."Qty. to Handle", Quantity, QuantityIsNotAsExpectedErr);
+                FirstLine := false;
+            end else begin
+                Assert.AreEqual(ItemChargeAssignmentSales."Qty. to Assign", Quantity2, QuantityIsNotAsExpectedErr);
+                Assert.AreEqual(ItemChargeAssignmentSales."Qty. to Handle", Quantity2, QuantityIsNotAsExpectedErr);
+            end;
+        until ItemChargeAssignmentSales.Next() = 0;
+    end;
+
+    local procedure CreateSalesInvoice(var SalesHeaderInvoice: Record "Sales Header"; CustomerNo: Code[20]; PostedSaleShipmentNo: Code[20]; PostedSaleShipmentNo2: Code[20])
+    var
+        SalesLineInvoice: Record "Sales Line";
+        i, LineNo : Integer;
+    begin
+        LibrarySales.CreateSalesHeader(
+          SalesHeaderInvoice, SalesHeaderInvoice."Document Type"::Invoice, CustomerNo);
+        SalesLineInvoice.Validate("Document Type", SalesHeaderInvoice."Document Type");
+        SalesLineInvoice.Validate("Document No.", SalesHeaderInvoice."No.");
+        LineNo := 10000;
+        for i := 1 to 2 do begin
+            LibraryVariableStorage.Enqueue(PostedSaleShipmentNo);
+            LibraryVariableStorage.Enqueue(LineNo);
+            LibrarySales.GetShipmentLines(SalesLineInvoice);
+
+            LibraryVariableStorage.Enqueue(PostedSaleShipmentNo2);
+            LibraryVariableStorage.Enqueue(LineNo);
+            LibrarySales.GetShipmentLines(SalesLineInvoice);
+            LineNo += 10000;
+        end;
+    end;
+
+    local procedure SetSalesLinesQtyToShip(var SalesHeader: Record "Sales Header"; Quantity: Decimal)
+    var
+        SalesLine: Record "Sales Line";
+    begin
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.FindSet();
+        repeat
+            SalesLine.Validate("Qty. to Ship", Quantity);
+            SalesLine.Modify(true);
+        until SalesLine.Next() = 0;
+    end;
+
+    local procedure CreateSalesOrderWithItemCharge(var SalesHeader: Record "Sales Header"; ItemChargeNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal)
+    var
+        SalesLineItemCharge: Record "Sales Line";
+        SalesLineItem: Record "Sales Line";
+        Customer: Record Customer;
+    begin
+        LibrarySales.CreateCustomer(Customer);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
+        LibrarySales.CreateSalesLine(
+          SalesLineItem, SalesHeader, SalesLineItem.Type::Item, ItemNo, Quantity);
+        SalesLineItem.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
+        SalesLineItem.Modify(true);
+        LibrarySales.CreateSalesLine(
+          SalesLineItemCharge, SalesHeader, SalesLineItemCharge.Type::"Charge (Item)", ItemChargeNo, Quantity);
+        SalesLineItemCharge.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
+        SalesLineItemCharge.Modify(true);
+    end;
+
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ItemChargeAssignmentPageHandler(var ItemChargeAssignmentSales: TestPage "Item Charge Assignment (Sales)")
@@ -472,6 +599,27 @@ codeunit 135301 "O365 Sales Item Charge Tests"
     begin
         // Pick assignment by amount
         Choice := 2;
+    end;
+
+    [ModalPageHandler]
+    procedure GetShipmentLinesHandler(var GetShipmentLines: TestPage "Get Shipment Lines")
+    var
+        SalesShipmentLine: Record "Sales Shipment Line";
+        DocumentNo: Code[20];
+        LineNo: Integer;
+    begin
+        DocumentNo := LibraryVariableStorage.DequeueText();
+        LineNo := LibraryVariableStorage.DequeueInteger();
+        SalesShipmentLine.Get(DocumentNo, LineNo);
+        GetShipmentLines.GoToKey(SalesShipmentLine."Document No.", SalesShipmentLine."Line No.");
+        GetShipmentLines.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    procedure ItemChargeAssignmentSalesPageHandler(var ItemChargeAssignmentSales: TestPage "Item Charge Assignment (Sales)")
+    begin
+        ItemChargeAssignmentSales."Qty. to Assign".SetValue(LibraryVariableStorage.DequeueDecimal());
+        ItemChargeAssignmentSales.OK.Invoke;
     end;
 }
 

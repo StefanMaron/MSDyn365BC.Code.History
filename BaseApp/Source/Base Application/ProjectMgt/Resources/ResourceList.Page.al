@@ -109,7 +109,18 @@
                     Caption = 'Default Deferral Template';
                     ToolTip = 'Specifies the default template that governs how to defer revenues and expenses to the periods when they occurred.';
                 }
+#if not CLEAN23
                 field("Coupled to CRM"; Rec."Coupled to CRM")
+                {
+                    ApplicationArea = All;
+                    ToolTip = 'Specifies that the resource is coupled to a product in Dynamics 365 Sales.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by flow field Coupled to Dataverse';
+                    ObsoleteTag = '23.0';
+                }
+#endif
+                field("Coupled to Dataverse"; Rec."Coupled to Dataverse")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies that the resource is coupled to a product in Dynamics 365 Sales.';

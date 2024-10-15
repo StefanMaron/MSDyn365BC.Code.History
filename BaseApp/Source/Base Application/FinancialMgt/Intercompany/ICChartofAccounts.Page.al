@@ -197,7 +197,7 @@ page 605 "IC Chart of Accounts"
                     trigger OnAction()
                     var
                         ICSetup: Record "IC Setup";
-                        ICMappingAccounts: Codeunit "IC Mapping Accounts";
+                        ICMapping: Codeunit "IC Mapping";
                         ICChartOfAccountsSetup: Page "IC Chart of Accounts Setup";
                         ICPartnerCode: Code[20];
                     begin
@@ -209,7 +209,7 @@ page 605 "IC Chart of Accounts"
                         ICPartnerCode := ICSetup."Partner Code for Acc. Syn.";
                         if (ICPartnerCode <> '') then
                             if Confirm(StrSubstNo(SynchronizeIntercompanyQst, ICPartnerCode), true) then begin
-                                ICMappingAccounts.SynchronizeAccounts(false, ICPartnerCode);
+                                ICMapping.SynchronizeAccounts(false, ICPartnerCode);
                                 exit;
                             end;
                         ICChartOfAccountsSetup.Run();

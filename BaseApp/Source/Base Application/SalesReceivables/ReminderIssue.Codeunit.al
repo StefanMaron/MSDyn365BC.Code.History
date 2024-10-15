@@ -23,6 +23,8 @@ codeunit 393 "Reminder-Issue"
             UpdateReminderRounding(ReminderHeader);
             if (PostingDate <> 0D) and (ReplacePostingDate or ("Posting Date" = 0D)) then
                 Validate("Posting Date", PostingDate);
+            if (VATDate <> 0D) and ReplaceVATDate then
+                Validate("VAT Reporting Date", VATDate);
             TestField("Customer No.");
             CheckIfBlocked("Customer No.");
 
@@ -178,8 +180,8 @@ codeunit 393 "Reminder-Issue"
         ErrorMessageMgt: Codeunit "Error Message Management";
         DocNo: Code[20];
         NextEntryNo: Integer;
-        ReplacePostingDate: Boolean;
-        PostingDate: Date;
+        ReplacePostingDate, ReplaceVATDate : Boolean;
+        PostingDate, VATDate : Date;
         SrcCode: Code[10];
         ReminderInterestAmount: Decimal;
         ReminderInterestVATAmount: Decimal;
@@ -195,6 +197,13 @@ codeunit 393 "Reminder-Issue"
         MultipleLineFeesSameDocErr: Label 'You cannot issue multiple line fees for the same level for the same document. Error with line fees for %1 %2.', Comment = '%1 = Document Type, %2 = Document No. E.g. You cannot issue multiple line fees for the same level for the same document. Error with line fees for Invoice 1312312.';
         MissingJournalFieldErr: Label 'Please enter a %1 when posting Additional Fees or Interest.', Comment = '%1 - field caption';
         VATDateNotAllowedErr: Label '%1 is not within your range of allowed posting dates.', Comment = '%1 - VAT Date field caption';
+
+    procedure Set(var NewReminderHeader: Record "Reminder Header"; NewReplacePostingDate: Boolean; NewPostingDate: Date; NewReplaceVATDate: Boolean; NewVATDate: Date)
+    begin
+        Set(NewReminderHeader, NewReplacePostingDate, NewPostingDate);
+        ReplaceVATDate := NewReplaceVATDate;
+        VATDate := NewVATDate;
+    end;
 
     procedure Set(var NewReminderHeader: Record "Reminder Header"; NewReplacePostingDate: Boolean; NewPostingDate: Date)
     begin

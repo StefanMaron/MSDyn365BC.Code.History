@@ -1,7 +1,7 @@
 report 210 "Blanket Sales Order"
 {
     DefaultLayout = RDLC;
-    RDLCLayout = './BlanketSalesOrder.rdlc';
+    RDLCLayout = './SalesReceivables/BlanketSalesOrder.rdlc';
     Caption = 'Blanket Sales Order';
     PreviewMode = PrintLayout;
 

@@ -35,6 +35,7 @@ codeunit 137159 "SCM Warehouse VII"
         LibraryManufacturing: Codeunit "Library - Manufacturing";
         LibraryERM: Codeunit "Library - ERM";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
+        LibraryJob: Codeunit "Library - Job";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         isInitialized: Boolean;
@@ -65,6 +66,7 @@ codeunit 137159 "SCM Warehouse VII"
         ItemTrackingQuantityMsg: Label 'The corrections cannot be saved as excess quantity has been defined.\Close the form anyway?';
         BlankCodeErr: Label 'Code must be filled in. Enter a value.';
         UsageNotLinkedToBlankLineTypeMsg: Label 'Usage will not be linked to the job planning line because the Line Type field is empty';
+        ReservationSpecificTrackingConfirmMessage: Label 'Do you want to reserve specific tracking numbers?';
 
     [Test]
     [Scope('OnPrem')]
@@ -2116,6 +2118,72 @@ codeunit 137159 "SCM Warehouse VII"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesSNHandler,EnterQuantityToCreatePageHandler,ItemTrackingListPageHandler,ReserveFromCurrentLineHandler,ConfirmHandler,WhseSrcCreateDocReqHandler,DummyMessageHandler')]
+    procedure VerifyWhseItemTrackingLineIsDeletedWhenWarehousePickCreatedFromJobIsDeleted()
+    var
+        Location: Record Location;
+        Item: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        JobPlanningLine: Record "Job Planning Line";
+        WhseActivityHeader: Record "Warehouse Activity Header";
+        WhseItemTrackingLine: Record "Whse. Item Tracking Line";
+        ItemTrackingMode: Option " ",AssignLotNo,AssignSerialNo,AssignMultipleLotNo,SelectEntries,SelectSerialNo,SelectLotNo;
+        SerialNo: Code[20];
+    begin
+        // [SCENARIO 470228] Verify that the warehouse item tracking line is deleted when the warehouse pick created from job is deleted.
+        Initialize();
+
+        // [GIVEN] Create full WMS Location
+        CreateFullWarehouseSetup(Location);
+        UpdateLocation(Location);
+
+        // [GIVEN] Create Item with Item Tracking Code
+        CreateItemWithItemTrackingCode(Item, false, true, false, '', LibraryUtility.GetGlobalNoSeriesCode);
+
+        // [GIVEN] Create Purchase Order, Warehouse Receipt and Post Warehouse Receipt
+        CreateWarehouseReceiptFromPurchaseOrder(PurchaseHeader, Item."No.", 1, Location.Code, true);
+        PostWarehouseReceipt(PurchaseHeader."No.");
+        SerialNo := LibraryVariableStorage.DequeueText();
+
+        // [GIVEN] Create Job with Job Task
+        CreateJobWithJobTask(JobTask);
+
+        // [GIVEN] Create Job Planning Line
+        LibraryJob.CreateJobPlanningLine(JobPlanningLine."Line Type"::"Both Budget and Billable", JobPlanningLine.Type::Item, JobTask, JobPlanningLine);
+        UpdateJobPlanningLine(JobPlanningLine, Item."No.", Location.Code, 1);
+
+        // [GIVEN] Setup Item Tracking information on Job Planning Line
+        LibraryVariableStorage.Enqueue(ItemTrackingMode::SelectSerialNo);
+        LibraryVariableStorage.Enqueue(SerialNo);
+        LibraryVariableStorage.Enqueue(1);
+        JobPlanningLine.OpenItemTrackingLines();
+
+        // [GIVEN] Reserve Item from Job Planning Line.        
+        LibraryVariableStorage.Enqueue(ReservationSpecificTrackingConfirmMessage);  // Enqueue for ConfirmHandler.
+        OpenReservationPage(JobPlanningLine."Job No.", JobPlanningLine."Job Task No.");
+
+        // [GIVEN] Create Warehouse Pick from Job
+        Job.Get(JobTask."Job No.");
+        OpenJobAndCreateWarehousePick(Job);
+
+        // [GIVEN] Verify Warehouse Item Tracking Line is created
+        SetWhseItemTrackingLineFilters(WhseItemTrackingLine, Item."No.", Location.Code, Job."No.");
+        Assert.RecordIsNotEmpty(WhseItemTrackingLine);
+
+        // [GIVEN] Find Warehouse Activity Header
+        FindWarehouseActivityHeader(WhseActivityHeader, Location.Code, WhseActivityHeader.Type::Pick);
+
+        // [WHEN] Delete Warehouse Pick
+        WhseActivityHeader.Delete(true);
+
+        // [THEN] Verify results
+        SetWhseItemTrackingLineFilters(WhseItemTrackingLine, Item."No.", Location.Code, Job."No.");
+        Assert.RecordIsEmpty(WhseItemTrackingLine);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -3869,6 +3937,60 @@ codeunit 137159 "SCM Warehouse VII"
             PurchaseLine."No.", PurchaseLine.FieldCaption("Line No."), PurchaseLine."Line No.", ExpectedQty));
     end;
 
+    local procedure UpdateLocation(var Location: Record Location)
+    var
+        Bin: Record Bin;
+    begin
+        Location.Validate("Directed Put-away and Pick", false);
+        Location.Validate("Require Put-away", false);
+        Location.Modify(true);
+        LibraryWarehouse.CreateBin(Bin, Location.Code, LibraryUtility.GenerateRandomCode(Bin.FieldNo(Code), Database::Bin), '', '');
+        Location.Validate("To-Job Bin Code", Bin.Code);
+        Location.Modify(true);
+    end;
+
+    local procedure SetWhseItemTrackingLineFilters(var WhseItemTrackingLine: Record "Whse. Item Tracking Line"; ItemNo: Code[20]; LocationCode: Code[20]; JobNo: Code[20])
+    begin
+        WhseItemTrackingLine.SetRange("Item No.", ItemNo);
+        WhseItemTrackingLine.SetRange("Location Code", LocationCode);
+        WhseItemTrackingLine.SetRange("Source ID", JobNo);
+    end;
+
+    local procedure UpdateJobPlanningLine(var JobPlanningLine: Record "Job Planning Line"; ItemNo: Code[20]; LocationCode: Code[10]; Quantity: Decimal)
+    begin
+        JobPlanningLine.Validate("No.", ItemNo);
+        JobPlanningLine.Validate("Location Code", LocationCode);
+        JobPlanningLine.Validate("Quantity", Quantity);
+        JobPlanningLine.Modify(true);
+    end;
+
+    local procedure FindWarehouseActivityHeader(var WarehouseActivityHeader: Record "Warehouse Activity Header"; LocationCode: Code[10]; ActivityType: Enum "Warehouse Activity Type")
+    begin
+        WarehouseActivityHeader.SetRange("Location Code", LocationCode);
+        WarehouseActivityHeader.SetRange(Type, ActivityType);
+        WarehouseActivityHeader.FindFirst();
+    end;
+
+    local procedure OpenJobAndCreateWarehousePick(Job: Record Job)
+    var
+        JobCardPage: TestPage "Job Card";
+    begin
+        JobCardPage.OpenEdit();
+        JobCardPage.GoToRecord(Job);
+        JobCardPage."Create Warehouse Pick".Invoke(); // Needs WhseSrcCreateDocReqHandler
+        JobCardPage.Close();
+    end;
+
+    local procedure OpenReservationPage(JobNo: Code[20]; JobTaskNo: Code[20])
+    var
+        JobPlanningLines: TestPage "Job Planning Lines";
+    begin
+        JobPlanningLines.OpenView;
+        JobPlanningLines.Filter.SetFilter("Job No.", JobNo);
+        JobPlanningLines.Filter.SetFilter("Job Task No.", JobTaskNo);
+        JobPlanningLines.Reserve.Invoke;
+    end;
+
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ConfirmHandler(ConfirmMessage: Text[1024]; var Reply: Boolean)
@@ -3994,6 +4116,47 @@ codeunit 137159 "SCM Warehouse VII"
     end;
 
     [ModalPageHandler]
+    procedure ItemTrackingLinesSNHandler(var ItemTrackingLines: TestPage "Item Tracking Lines")
+    var
+        DequeueVariable: Variant;
+        SerialNo: Variant;
+        QuantityBase: Variant;
+        ItemTrackingMode: Option " ",AssignLotNo,AssignSerialNo,AssignMultipleLotNo,SelectEntries,SelectSerialNo,SelectLotNo;
+    begin
+        LibraryVariableStorage.Dequeue(DequeueVariable);
+        ItemTrackingMode := DequeueVariable;
+        case ItemTrackingMode of
+            ItemTrackingMode::AssignSerialNo:
+                begin
+                    ItemTrackingLines."Assign Serial No.".Invoke;
+                    LibraryVariableStorage.Enqueue(ItemTrackingLines."Serial No.".Value);
+                end;
+            ItemTrackingMode::SelectSerialNo:
+                begin
+                    LibraryVariableStorage.Dequeue(SerialNo);
+                    LibraryVariableStorage.Dequeue(QuantityBase);
+                    ItemTrackingLines."Serial No.".SetValue(SerialNo);
+                    ItemTrackingLines."Quantity (Base)".SetValue(QuantityBase);
+                end;
+        end;
+        ItemTrackingLines.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    procedure ReserveFromCurrentLineHandler(var Reservation: TestPage Reservation)
+    begin
+        Reservation."Reserve from Current Line".Invoke;
+        Reservation.OK.Invoke;
+    end;
+
+    [RequestPageHandler]
+    procedure WhseSrcCreateDocReqHandler(var CreatePickReqPage: TestRequestPage "Whse.-Source - Create Document")
+    begin
+        CreatePickReqPage.DoNotFillQtytoHandle.SetValue(true);
+        CreatePickReqPage.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ItemTrackingSummaryPageHandler(var ItemTrackingSummary: TestPage "Item Tracking Summary")
     begin
@@ -4017,6 +4180,12 @@ codeunit 137159 "SCM Warehouse VII"
         LibraryVariableStorage.Dequeue(DequeueVariable);
         LocalMessage := DequeueVariable;
         Assert.IsTrue(StrPos(Message, LocalMessage) > 0, Message);
+    end;
+
+    [MessageHandler]
+    procedure DummyMessageHandler(Message: Text[1024])
+    begin
+        // Dummy message handler
     end;
 
     [ModalPageHandler]

@@ -503,7 +503,13 @@ page 673 "Job Queue Entry Card"
     local procedure ShowModifyOnlyWhenReadOnlyNotification()
     var
         ModifyOnlyWhenReadOnlyNotification: Notification;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeShowModifyOnlyWhenReadOnlyNotification(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         ModifyOnlyWhenReadOnlyNotification.Id := GetModifyOnlyWhenReadOnlyNotificationId();
         ModifyOnlyWhenReadOnlyNotification.Message := GetChooseSetOnHoldMsg();
         ModifyOnlyWhenReadOnlyNotification.Scope := NOTIFICATIONSCOPE::LocalScope;
@@ -511,6 +517,11 @@ page 673 "Job Queue Entry Card"
         ModifyOnlyWhenReadOnlyNotification.AddAction(SetOnHoldLbl, CODEUNIT::"Job Queue - Send Notification",
           'SetJobQueueEntryStatusToOnHold');
         ModifyOnlyWhenReadOnlyNotification.Send();
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowModifyOnlyWhenReadOnlyNotification(var JobQueueEntry: Record "Job Queue Entry"; var IsHandled: Boolean)
+    begin
     end;
 }
 

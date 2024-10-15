@@ -1,7 +1,7 @@
 report 405 "Order"
 {
     DefaultLayout = RDLC;
-    RDLCLayout = './Order.rdlc';
+    RDLCLayout = './PurchasesPayables/Order.rdlc';
     Caption = 'Order';
     PreviewMode = PrintLayout;
 

@@ -107,11 +107,25 @@ report 10941 "VAT Balancing Report"
             column(VATReportCaption; VATReportCaptionLbl)
             {
             }
+            column(ReverseChargeVATCaption; ReverseChargeVATValue)
+            {
+            }
+            column(SalesPctReverseChargeVAT; SalesPercentReverseChargeVAT)
+            {
+            }
+            column(PurchVATOppositeSign; PurchaseVATOppositeSign)
+            {
+            }
 
             trigger OnAfterGetRecord()
+            var
+                IsReverseChargeVAT: Boolean;
+                VATPercentSales: Decimal;
             begin
                 VatReceivableVarianceKr := 0;
                 VatPayableVarianceKr := 0;
+                PurchaseVATOppositeSign := 0;
+                IsReverseChargeVAT := "VAT Calculation Type" = "Tax Calculation Type"::"Reverse Charge VAT";
 
                 VatF.Reset();
                 VatF.SetCurrentKey(Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Posting Date");
@@ -132,27 +146,34 @@ report 10941 "VAT Balancing Report"
 
                 if (TurnoverOut <> 0) and (TurnoverOut <> VatReceivable) then begin
                     VatReceivablePct := Round(VatReceivable / TurnoverOut * 100, 0.1);
-                    if Abs(VatReceivablePct - "VAT %") > 0.1 then begin
-                        VatReceivableVarianceKr := Round(VatReceivable - (TurnoverOut * "VAT %" / 100), 1);
-                        VatReceivableVarianceTxt := StrSubstNo(Text001, VatReceivablePct, VatReceivableVarianceKr);
-                    end;
+                    if Abs(VatReceivablePct - "VAT %") > 0.1 then
+                        if not ((VatReceivable = 0) and IsReverseChargeVAT) then begin
+                            VatReceivableVarianceKr := Round(VatReceivable - (TurnoverOut * "VAT %" / 100), 1);
+                            VatReceivableVarianceTxt := StrSubstNo(Text001, VatReceivablePct, VatReceivableVarianceKr);
+                        end;
                 end;
 
-                Index := ArrayFind;
+                if IsReverseChargeVAT then
+                    VATPercentSales := 0
+                else
+                    VATPercentSales := "VAT Posting Setup"."VAT %";
+                Index := ArrayIndexOf(VATPercentSales);
                 if Index <> 0 then
-                    VATBuffer[Index] [2] := VATBuffer[Index] [2] + TurnoverOut
+                    VATBuffer[Index] [2] += TurnoverOut
                 else begin
-                    Index := ArrayInsert;
-                    VATBuffer[Index] [1] := "VAT Posting Setup"."VAT %";
-                    VATBuffer[Index] [2] := VATBuffer[Index] [2] + TurnoverOut;
+                    Index := ArrayInsert();
+                    VATBuffer[Index] [1] := VATPercentSales;
+                    VATBuffer[Index] [2] += TurnoverOut;
                 end;
 
-                TotalVatReceivable := TotalVatReceivable + VatReceivable;
+                TotalVatReceivable += VatReceivable;
 
                 VatF.SetRange(Type, VatF.Type::Purchase);
                 VatF.CalcSums(Base, Amount);
                 TurnoverIn := VatF.Base;
                 VatPayableVariance := VatF.Amount;
+                if IsReverseChargeVAT then
+                    PurchaseVATOppositeSign := -VatPayableVariance;
 
                 if (TurnoverIn <> 0) and (TurnoverIn <> VatPayableVariance) then begin
                     VatPayablePct := Round(VatPayableVariance / TurnoverIn * 100, 0.1);
@@ -162,7 +183,7 @@ report 10941 "VAT Balancing Report"
                     end;
                 end;
 
-                TotalVatPayable := TotalVatPayable + VatPayableVariance;
+                TotalVatPayable += (VatPayableVariance + PurchaseVATOppositeSign);
 
                 if (TurnoverOut = 0) and (VatReceivable = 0) and (TurnoverIn = 0) and (VatPayableVariance = 0) then
                     CurrReport.Skip();
@@ -174,6 +195,9 @@ report 10941 "VAT Balancing Report"
                 Clear(TurnoverIn);
                 Clear(VatReceivable);
                 Clear(VatPayableVariance);
+
+                ReverseChargeVATValue := Format("VAT Calculation Type"::"Reverse Charge VAT");
+                SalesPercentReverseChargeVAT := '0%';
             end;
         }
         dataitem("Integer"; "Integer")
@@ -187,7 +211,6 @@ report 10941 "VAT Balancing Report"
             }
             column(TotalVatReceivableTotalVatPayable; -TotalVatReceivable - TotalVatPayable)
             {
-                DecimalPlaces = 0 : 0;
             }
             column(IntegerPurchaseVATCaption; PurchaseVATCaptionLbl)
             {
@@ -305,6 +328,9 @@ report 10941 "VAT Balancing Report"
         VatPayablePct: Decimal;
         VatReceivableVarianceKr: Decimal;
         VatPayableVarianceKr: Decimal;
+        PurchaseVATOppositeSign: Decimal;
+        ReverseChargeVATValue: Text;
+        SalesPercentReverseChargeVAT: Text;
         YY: Integer;
         MM: Integer;
         DD: Integer;
@@ -396,10 +422,9 @@ report 10941 "VAT Balancing Report"
     var
         i: Integer;
     begin
-        for i := 1 to NumberofElements do begin
+        for i := 1 to NumberofElements do
             if VATBuffer[i] [1] = "VAT Posting Setup"."VAT %" then
                 exit(i);
-        end;
         exit(0);
     end;
 
@@ -414,6 +439,16 @@ report 10941 "VAT Balancing Report"
     begin
         if Period <> Period::Custom then
             Error(Text004);
+    end;
+
+    local procedure ArrayIndexOf(VATPercent: Decimal): Integer
+    var
+        i: Integer;
+    begin
+        for i := 1 to NumberofElements do
+            if VATBuffer[i] [1] = VATPercent then
+                exit(i);
+        exit(0);
     end;
 }
 

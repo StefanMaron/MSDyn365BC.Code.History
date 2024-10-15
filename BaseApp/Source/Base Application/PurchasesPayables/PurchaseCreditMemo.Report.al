@@ -1,7 +1,7 @@
 report 407 "Purchase - Credit Memo"
 {
     DefaultLayout = RDLC;
-    RDLCLayout = './PurchaseCreditMemo.rdlc';
+    RDLCLayout = './PurchasesPayables/PurchaseCreditMemo.rdlc';
     Caption = 'Purchase - Credit Memo';
     PreviewMode = PrintLayout;
 

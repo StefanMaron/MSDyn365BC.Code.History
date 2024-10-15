@@ -220,6 +220,7 @@ table 5895 "Inventory Adjustment Buffer"
               "Cost Amount (Expected) (ACY)" * QtyFactor + PrevInvtAdjmtBufSum."Cost Amount (Expected) (ACY)";
             "Cost Amount (Actual) (ACY)" :=
               "Cost Amount (Actual) (ACY)" * QtyFactor + PrevInvtAdjmtBufSum."Cost Amount (Actual) (ACY)";
+            OnSumCostsTillValuationDateOnAfterSetCostAmounts(Rec, PrevInvtAdjmtBufSum, QtyFactor);
             PrevInvtAdjmtBufSum := Rec;
 
             if FromDate <> 0D then
@@ -332,6 +333,11 @@ table 5895 "Inventory Adjustment Buffer"
 
     [IntegrationEvent(false, false)]
     local procedure OnSumCostsTillValuationDateGetItem(var Item: Record Item; var ValueEntry: Record "Value Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSumCostsTillValuationDateOnAfterSetCostAmounts(var InventoryAdjustmentBuffer: Record "Inventory Adjustment Buffer"; PrevInventoryAdjustmentBufferSum: Record "Inventory Adjustment Buffer"; QtyFactor: Decimal)
     begin
     end;
 
