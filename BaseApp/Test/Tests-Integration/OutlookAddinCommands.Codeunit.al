@@ -14,6 +14,7 @@ codeunit 139056 "Outlook Add-in Commands"
         LibraryOfficeHostProvider: Codeunit "Library - Office Host Provider";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryMarketing: Codeunit "Library - Marketing";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         OutlookCommand: DotNet OutlookCommand;
         IsInitialized: Boolean;
 
@@ -834,6 +835,8 @@ codeunit 139056 "Outlook Add-in Commands"
         OfficeAttachmentManager: Codeunit "Office Attachment Manager";
         OfficeHostType: DotNet OfficeHostType;
     begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"Outlook Add-in Commands");
+
         AddinManifestManagement.CreateDefaultAddins(OfficeAddin);
         Clear(TempOfficeAddinContext);
         TempOfficeAddinContext.Init;

@@ -4,6 +4,7 @@ table 5005350 "Phys. Inventory Order Header"
     DataCaptionFields = "No.", Description;
     ObsoleteReason = 'Merged to W1';
     ObsoleteState = Pending;
+    ObsoleteTag = '15.0';
 
     fields
     {

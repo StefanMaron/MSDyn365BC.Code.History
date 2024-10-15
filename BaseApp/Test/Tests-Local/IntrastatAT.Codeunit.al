@@ -264,19 +264,22 @@ codeunit 144061 "Intrastat AT"
         FilenameSales: Text;
         FilenamePurchase: Text;
         Filepath: Text;
-    begin
+    begin	
+        // [SCENARIO 344448] Stan can generate intrastat file from the Intrastat Journal with the correct content
+		
         Initialize;
         DisableTransportMethodCheck;
         DisableTransactionSpecificationCheck;
 
-        // Setup
+        // [GIVEN] Intrastat batch with entries taken by "Get Entries"
         PrepareIntrastatBatch(IntrastatJnlBatch);
         GetIntrastatFilenames(Filepath, FilenameSales, FilenamePurchase, IntrastatJnlBatch);
 
-        // Exercise
+        // [WHEN] Create intrastat file
         RunIntrastatMakeDiskTaxAuth(IntrastatJnlBatch, Filepath);
 
-        // Verify
+        // [THEN] File content is correct
+        // TFS 344448: A period text in the file is correct
         VerifyIntrastatMakeDiskFiles(IntrastatJnlLine, FilenameSales, FilenamePurchase);
     end;
 
@@ -869,7 +872,9 @@ codeunit 144061 "Intrastat AT"
 
     local procedure VerifyIntrastatMakeDiskFiles(var IntrastatJnlLine: Record "Intrastat Jnl. Line"; FilenameSales: Text; FilenamePurchase: Text)
     var
+        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
         LineCount: Integer;
+        PeriodText: Text;
     begin
         // files exist
         Assert.IsTrue(FileManagement.ServerFileExists(FilenameSales), FileNotCreatedErr);
@@ -889,9 +894,16 @@ codeunit 144061 "Intrastat AT"
         LineCount := CountInternalRefNo(IntrastatJnlLine);
         VerifyStringInstancesInFile(FilenameSales, ':112+0:177', LineCount);
 
+        IntrastatJnlBatch.Get(IntrastatJnlLine."Journal Template Name", IntrastatJnlLine."Journal Batch Name");
+        PeriodText :=
+          StrSubstNo('DTM+320:%1%2:610', CopyStr(IntrastatJnlBatch."Statistics Period", 1, 2), IntrastatJnlBatch."Statistics Period");
+        VerifyStringInstancesInFile(FilenameSales, PeriodText, 1);
+
         IntrastatJnlLine.SetRange(Type, IntrastatJnlLine.Type::Receipt);
         LineCount := CountInternalRefNo(IntrastatJnlLine);
         VerifyStringInstancesInFile(FilenamePurchase, ':112+0:177', LineCount);
+
+        VerifyStringInstancesInFile(FilenameSales, PeriodText, 1);
     end;
 
     local procedure VerifyStringInstancesInFile(Filename: Text; SearchString: Text; InstanceCount: Integer)

@@ -261,6 +261,7 @@ codeunit 99000809 "Planning Line Management"
                                 PlanningComponent."Planning Line Origin" := ReqLine."Planning Line Origin";
                                 PlanningComponent.Validate("Unit of Measure Code", AsmBOMComp[Level]."Unit of Measure Code");
                                 PlanningComponent."Quantity per" := Quantity * AsmBOMComp[Level]."Quantity per";
+                                OnTransferAsmBOMOnBeforeGetDefaultBin(PlanningComponent, AsmBOMComp[Level], ReqLine);
                                 PlanningComponent.GetDefaultBin;
                                 PlanningComponent.Quantity := AsmBOMComp[Level]."Quantity per";
                                 PlanningComponent.Position := AsmBOMComp[Level].Position;
@@ -1021,6 +1022,11 @@ codeunit 99000809 "Planning Line Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnTransferBOMOnBeforeUpdatePlanningComp(var ProductionBOMLine: Record "Production BOM Line"; var UpdateCondition: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTransferAsmBOMOnBeforeGetDefaultBin(var PlanningComponent: Record "Planning Component"; var AsmBOMComponent: Record "BOM Component"; ReqLine: Record "Requisition Line")
     begin
     end;
 }

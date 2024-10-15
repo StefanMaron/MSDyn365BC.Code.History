@@ -575,6 +575,7 @@ report 7305 "Whse.-Source - Create Document"
         AssemblyHeader: Record "Assembly Header";
         PostedWhseReceiptLine: Record "Posted Whse. Receipt Line";
         TempWhseWorksheetLineMovement: Record "Whse. Worksheet Line" temporary;
+        TempWhseItemTrackingLine: Record "Whse. Item Tracking Line" temporary;
         CreatePick: Codeunit "Create Pick";
         CreatePutAway: Codeunit "Create Put-away";
         UOMMgt: Codeunit "Unit of Measure Management";
@@ -822,7 +823,7 @@ report 7305 "Whse.-Source - Create Document"
     begin
         with WhseItemTrackingLine do begin
             SetSourceFilter(DATABASE::"Whse. Worksheet Line", 0, WhseWorksheetLine.Name, -1, false);
-            SetRange("Source Batch Name",WhseWorksheetLine."Worksheet Template Name");
+            SetRange("Source Batch Name", WhseWorksheetLine."Worksheet Template Name");
             SetRange("Location Code", WhseWorksheetLine."Location Code");
             SetRange("Item No.", WhseWorksheetLine."Item No.");
             SetRange("Variant Code", WhseWorksheetLine."Variant Code");
@@ -892,7 +893,48 @@ report 7305 "Whse.-Source - Create Document"
                 TempWhseWorksheetLineMovement := WhseWorksheetLine;
                 Insert;
             end;
+            UpdateWhseItemTrackingBuffer(WhseWorksheetLine, TempWhseWorksheetLineMovement);
             Reset;
+        end;
+    end;
+
+    local procedure UpdateWhseItemTrackingBuffer(SourceWhseWorksheetLine: Record "Whse. Worksheet Line"; BufferWhseWorksheetLine: Record "Whse. Worksheet Line")
+    var
+        WhseItemTrackingLine: Record "Whse. Item Tracking Line";
+        LastWhseItemTrkgLineNo: Integer;
+    begin
+        with TempWhseItemTrackingLine do begin
+            Reset();
+            if FindLast() then
+                LastWhseItemTrkgLineNo := "Entry No.";
+
+            WhseItemTrackingLine.SetSourceFilter(
+              DATABASE::"Whse. Worksheet Line", 0, SourceWhseWorksheetLine.Name, SourceWhseWorksheetLine."Line No.", true);
+            WhseItemTrackingLine.SetSourceFilter(SourceWhseWorksheetLine."Worksheet Template Name", 0);
+            WhseItemTrackingLine.SetRange("Location Code", SourceWhseWorksheetLine."Location Code");
+            WhseItemTrackingLine.SetFilter("Qty. to Handle (Base)", '>0');
+            if WhseItemTrackingLine.FindSet() then
+                repeat
+                    SetSourceFilter(
+                      DATABASE::"Whse. Worksheet Line", 0, BufferWhseWorksheetLine.Name, BufferWhseWorksheetLine."Line No.", false);
+                    SetSourceFilter(BufferWhseWorksheetLine."Worksheet Template Name", 0);
+                    SetRange("Location Code", BufferWhseWorksheetLine."Location Code");
+                    SetRange("Serial No.", WhseItemTrackingLine."Serial No.");
+                    SetRange("Lot No.", WhseItemTrackingLine."Lot No.");
+                    if FindFirst() then begin
+                        "Quantity (Base)" += WhseItemTrackingLine."Quantity (Base)";
+                        "Quantity Handled (Base)" += WhseItemTrackingLine."Quantity Handled (Base)";
+                        "Qty. to Handle (Base)" += WhseItemTrackingLine."Qty. to Handle (Base)";
+                        Modify();
+                    end else begin
+                        Init();
+                        TempWhseItemTrackingLine := WhseItemTrackingLine;
+                        "Source Ref. No." := BufferWhseWorksheetLine."Line No.";
+                        "Entry No." := LastWhseItemTrkgLineNo + 1;
+                        Insert();
+                        LastWhseItemTrkgLineNo := "Entry No.";
+                    end;
+                until WhseItemTrackingLine.Next() = 0;
         end;
     end;
 
@@ -902,7 +944,8 @@ report 7305 "Whse.-Source - Create Document"
         CreatePick.SetWhseWkshLine(WhseWorksheetLine, 1);
 
         with WhseWorksheetLine do begin
-            CreatePick.SetTempWhseItemTrkgLine(
+            CreatePick.SetTempWhseItemTrkgLineFromBuffer(
+              TempWhseItemTrackingLine,
               Name, DATABASE::"Whse. Worksheet Line", "Worksheet Template Name", 0, "Line No.", "Location Code");
             PickQty := "Qty. to Handle";
             PickQtyBase := "Qty. to Handle (Base)";

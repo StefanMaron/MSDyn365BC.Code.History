@@ -233,6 +233,7 @@ table 843 "Cash Flow Setup"
             ObsoleteReason = 'Renamed to Azure AI Enabled';
             Caption = 'Cortana Intelligence Enabled';
             InitValue = false;
+            ObsoleteTag = '15.0';
         }
         field(32; "Show Cortana Notification"; Boolean)
         {
@@ -240,6 +241,7 @@ table 843 "Cash Flow Setup"
             ObsoleteReason = 'Renamed to Show AzureAI Notification';
             Caption = 'Show AzureAI Notification';
             InitValue = true;
+            ObsoleteTag = '15.0';
         }
         field(33; "Time Series Model"; Option)
         {

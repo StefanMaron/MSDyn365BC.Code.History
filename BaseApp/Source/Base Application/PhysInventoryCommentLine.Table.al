@@ -3,6 +3,7 @@ table 5005358 "Phys. Inventory Comment Line"
     Caption = 'Phys. Inventory Comment Line';
     ObsoleteReason = 'Merged to W1';
     ObsoleteState = Pending;
+    ObsoleteTag = '15.0';
 
     fields
     {

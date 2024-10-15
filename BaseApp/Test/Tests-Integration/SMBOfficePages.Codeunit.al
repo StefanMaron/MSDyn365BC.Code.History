@@ -15,6 +15,7 @@ codeunit 139048 "SMB Office Pages"
         LibrarySales: Codeunit "Library - Sales";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         Assert: Codeunit Assert;
         LibraryOfficeHostProvider: Codeunit "Library - Office Host Provider";
         ActiveDirectoryMockEvents: Codeunit "Active Directory Mock Events";
@@ -35,7 +36,7 @@ codeunit 139048 "SMB Office Pages"
     begin
         // [FEATURE] [Contact]
         // [SCENARIO 164857] Stan is shown a welcome page if they open the add-in from the welcome email
-        Initialize;
+        Initialize();
 
         // [GIVEN] Email address of message is donotreply@contoso.com
         TestEmail := 'donotreply@contoso.com';
@@ -61,7 +62,7 @@ codeunit 139048 "SMB Office Pages"
         // [FEATURE] [Contact]
         // [SCENARIO 147182] Stan is shown a dialog page that asks to create a new contact
         // Setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] New email is created but not assigned to contact
         TestEmail := RandomEmail;
@@ -88,7 +89,7 @@ codeunit 139048 "SMB Office Pages"
         // [FEATURE] [Contact]
         // [SCENARIO 147182] Stan creates a new contact when prompted in the add-in
         // Setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] New email is created but not assigned to contact
         TestEmail := RandomEmail;
@@ -116,7 +117,7 @@ codeunit 139048 "SMB Office Pages"
         // [FEATURE] [Contact]
         // [SCENARIO 163383] Error - Record of the Contact is not linked with any other table in company association page
         // Setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] A person contact exists
         CreateContact(Contact1, Contact1.Type::Person);
@@ -153,7 +154,7 @@ codeunit 139048 "SMB Office Pages"
         // [FEATURE] [Contact]
         // [SCENARIO 147182] Stan creates a new contact and associates a company when prompted in the add-in
         // Setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] New email is created but not assigned to contact
         TestEmail := RandomEmail;
@@ -194,7 +195,7 @@ codeunit 139048 "SMB Office Pages"
         // [FEATURE] [Contact]
         // [SCENARIO 166021] Stan creates a new contact and associates a company when prompted in the add-in
         // Setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] New email is created but not assigned to contact
         TestEmail := RandomEmail;
@@ -231,7 +232,7 @@ codeunit 139048 "SMB Office Pages"
         // [FEATURE] [Contact]
         // [SCENARIO 147182] Stan creates a new contact and sets the type to person
         // Setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] New email is created but not assigned to contact
         TestEmail := RandomEmail;
@@ -261,7 +262,7 @@ codeunit 139048 "SMB Office Pages"
         // [FEATURE] [Contact]
         // [SCENARIO] Stan creates a new contact when prompted in the add-in and associate the contact to a company that has the same email as the contact
         // Setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] A person contacts and a company contact with the same email as the contact exist
         TestEmail := CreateContact(CompanyContact, CompanyContact.Type::Company);
@@ -316,7 +317,7 @@ codeunit 139048 "SMB Office Pages"
         // [FEATURE] [Contact]
         // [SCENARIO 147182] Stan creates a new contact when prompted in the add-in
         // Setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] New email is created but not assigned to contact
         TestEmail := RandomEmail;
@@ -353,7 +354,7 @@ codeunit 139048 "SMB Office Pages"
         // [FEATURE] [Contact]
         // [SCENARIO 147182] Stan shows the contact list when prompted in the add-in
         // Setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] New email is created but not assigned to contact
         TestEmail := RandomEmail;
@@ -383,7 +384,7 @@ codeunit 139048 "SMB Office Pages"
     begin
         // [FEATURE] [Contact]
         // [SCENARIO 199938] Stan is redirected to the person contact when one person contact and 1 to many company contacts have the same email address.
-        Initialize;
+        Initialize();
 
         // [GIVEN] One person contact and two company contacts exist with the same email address.
         TestEmail := CreateContact(CompanyContact1, CompanyContact1.Type::Company);
@@ -417,7 +418,7 @@ codeunit 139048 "SMB Office Pages"
         // [FEATURE] [Contact]
         // [SCENARIO 147177] Stan can only view contact information in his email when Company not linked
         // Setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] New Person contact with email is created and assigned to Company contact
         CreateContact(Contact, Contact.Type::Company);
@@ -450,7 +451,7 @@ codeunit 139048 "SMB Office Pages"
         // [FEATURE] [Contact] [Customer]
         // [SCENARIO 147177] Stan can view customer information in his email through with addin
         // Setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] New contact with email is created and assigned to customer
         TestEmail := RandomEmail;
@@ -479,7 +480,7 @@ codeunit 139048 "SMB Office Pages"
         // [FEATURE] [Contact] [Vendor]
         // [SCENARIO 147178] Stan can view vendor information in his email through with addin
         // Setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] New contact with email is created and assigned to vendor
         TestEmail := RandomEmail;
@@ -508,7 +509,7 @@ codeunit 139048 "SMB Office Pages"
         // [FEATURE] [Contact] [Customer]
         // [SCENARIO 147177] Stan can view customer fact box information on customer
         // Setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] New contact with email is created and assigned to customer
         TestEmail := RandomEmail;
@@ -538,7 +539,7 @@ codeunit 139048 "SMB Office Pages"
         // [FEATURE] [Contact] [Vendor]
         // [SCENARIO 147178] Stan can view vendor information in his email through with addin
         // Setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] New contact with email is created and assigned to vendor
         TestEmail := RandomEmail;
@@ -569,7 +570,7 @@ codeunit 139048 "SMB Office Pages"
         // [FEATURE] [Contact] [Customer]
         // [SCENARIO 147177] Stan cannot view customer fact box information on customer in NAV
         // Setup
-        Initialize;
+        Initialize();
         SetOfficeHostUnAvailable;
 
         // [GIVEN] New contact with email is created and assigned to customer
@@ -601,7 +602,7 @@ codeunit 139048 "SMB Office Pages"
         // [FEATURE] [Contact] [Vendor]
         // [SCENARIO 147178] Stan cannot view vendor information on Vendor card in NAV
         // Setup
-        Initialize;
+        Initialize();
         SetOfficeHostUnAvailable;
 
         // [GIVEN] New contact with email is created and assigned to vendor
@@ -634,7 +635,7 @@ codeunit 139048 "SMB Office Pages"
         // [FEATURE] [Contact] [Customer] [Vendor]
         // [SCENARIO 147177] Stan can view multiple contacts for an email address
         // Setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] New contact with email is created and assigned to customer and vendor
         TestEmail := RandomEmail;
@@ -668,7 +669,7 @@ codeunit 139048 "SMB Office Pages"
         // [FEATURE] [Contact] [Customer] [Vendor]
         // [SCENARIO 147177] Stan can view multiple contacts for an email address
         // Setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] New contact with email is created/assigned to customer and vendor and que customer zoom info
         TestEmail := RandomEmail;
@@ -704,7 +705,7 @@ codeunit 139048 "SMB Office Pages"
         // [FEATURE] [Contact] [Customer] [Vendor]
         // [SCENARIO 147177] Stan can view multiple contacts for an email address
         // Setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] New contact with email is created/assigned to customer and vendor and que vendor zoom info
         TestEmail := RandomEmail;
@@ -741,8 +742,8 @@ codeunit 139048 "SMB Office Pages"
         OriginalVersion: Text[20];
     begin
         // Setup
-        Initialize;
-        OfficeAddinContext.Init;
+        Initialize();
+        OfficeAddinContext.Init();
         RecRef.GetTable(OfficeAddinContext);
         for i := 1 to RecRef.FieldCount do begin
             FieldRef := RecRef.FieldIndex(i);
@@ -785,7 +786,7 @@ codeunit 139048 "SMB Office Pages"
     begin
         // [SCENARIO 144958] Stan can select a contact to interact with from the add-in
         // [GIVEN] No contact is selected
-        Initialize;
+        Initialize();
         ContactList.Trap;
 
         // [WHEN] User launches the add-in
@@ -811,7 +812,7 @@ codeunit 139048 "SMB Office Pages"
     begin
         // [SCENARIO 144958] Stan can select a contact to interact with from the add-in
         // [GIVEN] No contact is passed to the add-in from outlook
-        Initialize;
+        Initialize();
 
         // [GIVEN] A customer exists with an email address
         Email := RandomEmail;
@@ -850,7 +851,7 @@ codeunit 139048 "SMB Office Pages"
     begin
         // [SCENARIO 144958] Stan can select a sales contact to interact with from the add-in
         // [GIVEN] No contact is passed to the add-in from outlook
-        Initialize;
+        Initialize();
 
         // [GIVEN] Both a customer and vendor company exist
         CreateContactFromCustomer(RandomEmail, CustomerContactNo, NewBusRelCode, false);
@@ -882,7 +883,7 @@ codeunit 139048 "SMB Office Pages"
     begin
         // [SCENARIO 144958] Stan can select a purchase contact to interact with from the add-in
         // [GIVEN] No contact is passed to the add-in from outlook
-        Initialize;
+        Initialize();
 
         // [GIVEN] Both a customer and vendor company exist
         CreateContactFromVendor(RandomEmail, VendorContactNo, NewBusRelCode, false);
@@ -914,7 +915,7 @@ codeunit 139048 "SMB Office Pages"
     begin
         // [SCENARIO 144958] Stan can select a sales contact to interact with from the add-in
         // [GIVEN] No contact is passed to the add-in from outlook
-        Initialize;
+        Initialize();
 
         // [GIVEN] Both a customer and vendor company exist
         CreateContactFromVendor(RandomEmail, VendorContactNo, NewBusRelCode, false);
@@ -946,7 +947,7 @@ codeunit 139048 "SMB Office Pages"
         // The mail engine should work even with junk in the filters
 
         // Setup
-        Initialize;
+        Initialize();
         OfficeAddinContext.SetFilter(Email, CreateGuid);
         OfficeAddinContext.SetFilter(Name, '''&Jones123&%5''');
 
@@ -970,7 +971,7 @@ codeunit 139048 "SMB Office Pages"
         // The mail engine should remove single quotes from the filters
 
         // Setup
-        Initialize;
+        Initialize();
         OfficeAddinContext.SetFilter(Email, CreateGuid);
         OfficeAddinContext.SetFilter(Name, '''John Smith''');
 
@@ -994,7 +995,7 @@ codeunit 139048 "SMB Office Pages"
         // The mail engine should remove single quotes from the filters
 
         // Setup
-        Initialize;
+        Initialize();
         OfficeAddinContext.SetFilter(Email, CreateGuid);
         OfficeAddinContext.SetFilter(Name, 'John Smith');
 
@@ -1020,7 +1021,7 @@ codeunit 139048 "SMB Office Pages"
         // [FEATURE] [Contact] [Vendor]
         // [SCENARIO 159886] Stan can click on Contact from the vendor
         // Setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] New contact with email is created and assigned to vendor
         TestEmail := RandomEmail;
@@ -1086,7 +1087,7 @@ codeunit 139048 "SMB Office Pages"
     begin
         // [FEATURE] [Contact] [Vendor]
         // [SCENARIO 159886] Stan can click on Contact from the vendor and it opens the contact list because multiple contacts have the same email
-        Initialize;
+        Initialize();
 
         // [GIVEN] New contact with email is created
         TestEmail := CreateContact(Contact, Contact.Type::Person);
@@ -1129,7 +1130,7 @@ codeunit 139048 "SMB Office Pages"
         // [FEATURE] [Contact] [Vendor]
         // [SCENARIO 159886] Stan can click on Contact from the vendor and it opens the contact directly
         // Setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] New contact with email is created and assigned to vendor
         TestEmail := RandomEmail;
@@ -1161,7 +1162,7 @@ codeunit 139048 "SMB Office Pages"
         // [FEATURE] [Contact] [Customer]
         // [SCENARIO 159886] Stan can click on Contact from the customer
         // Setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] New contact with email is created and assigned to customer
         TestEmail := RandomEmail;
@@ -1269,7 +1270,7 @@ codeunit 139048 "SMB Office Pages"
         // [FEATURE] [Contact] [Customer]
         // [SCENARIO 159886] Stan can click on Contact from the customer and it opens the contact directly
         // Setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] New contact with email is created and assigned to customer
         TestEmail := RandomEmail;
@@ -1400,7 +1401,7 @@ codeunit 139048 "SMB Office Pages"
     begin
         // [FEATURE] [Contact] [Customer]
         // [SCENARIO 163053] Creating a new sales document from the customer card sets the sell-to and bill-to contact according to the original contact that came through the add-in.
-        Initialize;
+        Initialize();
 
         // [GIVEN] A customer exists
         CustomerNo := CreateContactFromCustomer(RandomEmail, CustomerContactNo, NewBusRelCode, true);
@@ -1457,7 +1458,7 @@ codeunit 139048 "SMB Office Pages"
     begin
         // [FEATURE] [Contact] [Vendor]
         // [SCENARIO 163053] Creating a new purchase document from the customer card sets the buy-from to contact according to the original contact that came through the add-in.
-        Initialize;
+        Initialize();
 
         // [GIVEN] A vendor exists
         VendorNo := CreateContactFromVendor(RandomEmail, VendorContactNo, NewBusRelCode, true);
@@ -1506,7 +1507,7 @@ codeunit 139048 "SMB Office Pages"
     begin
         // [FEATURE] [Customer] [Invoice]
         // [SCENARIO 166905] Creating a new invoice in the context of an appointment causes an Office Invoice record to be created.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer exists with email address
         // [WHEN] Add-in is launched from an appointment for the customer
@@ -1529,7 +1530,7 @@ codeunit 139048 "SMB Office Pages"
     begin
         // [FEATURE] [Customer] [Invoice]
         // [SCENARIO 166905] Creating a new invoice when not in the context of an appointment does not cause an Office Invoice record to be created.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer exists with email address
         // [WHEN] Add-in is launched for the customer from a message
@@ -1553,7 +1554,7 @@ codeunit 139048 "SMB Office Pages"
     begin
         // [FEATURE] [Customer] [Invoice]
         // [SCENARIO 166905] New invoice action prompts user when an invoice has already been created for the appointment.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer exists with email address
         // [WHEN] Add-in is launched for the customer from an appointment
@@ -1587,7 +1588,7 @@ codeunit 139048 "SMB Office Pages"
     begin
         // [FEATURE] [Customer] [Invoice]
         // [SCENARIO 166905] New invoice add-in command prompts user when an invoice has already been created for the appointment.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer exists with email address
         CustEmail := RandomEmail;
@@ -1626,7 +1627,7 @@ codeunit 139048 "SMB Office Pages"
     begin
         // [FEATURE] [Customer] [Invoice]
         // [SCENARIO 166905] Invoice exists page allows user to create a new invoice for the customer.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer exists with email address
         // [WHEN] Add-in is launched for the customer from an appointment
@@ -1660,7 +1661,7 @@ codeunit 139048 "SMB Office Pages"
     begin
         // [FEATURE] [Customer] [Invoice]
         // [SCENARIO 166905] Invoice exists page allows user to view an existing invoice.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer exists with email address
         // [WHEN] Add-in is launched for the customer from an appointment
@@ -1693,7 +1694,7 @@ codeunit 139048 "SMB Office Pages"
     begin
         // [FEATURE] [Customer] [Invoice]
         // [SCENARIO 166905] Invoice exists page allows user to navigate to posted invoice.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Office invoice record exists for the appointment
         SalesInvoiceHeader.FindFirst;
@@ -2004,30 +2005,36 @@ codeunit 139048 "SMB Office Pages"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         AddinManifestManagement: Codeunit "Add-in Manifest Management";
     begin
-        BindActiveDirectoryMockEvents;
-        LibraryVariableStorage.Clear;
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"SMB Office Pages");
+
+        BindActiveDirectoryMockEvents();
+        LibraryVariableStorage.Clear();
         Clear(LibraryOfficeHostProvider);
         BindSubscription(LibraryOfficeHostProvider);
         InitializeOfficeHostProvider(HostType);
-        OfficeAttachmentManager.Done;
+        OfficeAttachmentManager.Done();
 
         // Lazy Setup.
         if IsInitialized then
             exit;
 
-        AddinManifestManagement.CreateDefaultAddins(OfficeAddin);
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"SMB Office Pages");
 
-        SetupSales;
-        SetupMarketing;
+        AddinManifestManagement.CreateDefaultAddins(OfficeAddin);
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+
+        SetupSales();
+        SetupMarketing();
 
         LibrarySales.CreateSalesperson(SalespersonPurchaser);
 
         IsInitialized := true;
-        Commit;
+        Commit();
+
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"SMB Office Pages");
     end;
 
     local procedure InitializeOfficeHostProvider(HostType: Text)

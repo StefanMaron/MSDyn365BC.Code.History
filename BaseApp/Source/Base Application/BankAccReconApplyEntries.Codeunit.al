@@ -41,10 +41,17 @@ codeunit 374 "Bank Acc. Recon. Apply Entries"
                         OnAfterApplyCheckLedgEntry(BankAccReconLine);
                     end;
             end;
+
+        OnAfterApplyEntries(BankAccReconLine);
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterApplyCheckLedgEntry(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterApplyEntries(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line")
     begin
     end;
 }

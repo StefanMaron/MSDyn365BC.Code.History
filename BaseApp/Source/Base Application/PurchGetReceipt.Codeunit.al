@@ -36,6 +36,8 @@ codeunit 74 "Purch.-Get Receipt"
         TransferLine: Boolean;
         PrepmtAmtToDeductRounding: Decimal;
     begin
+        OnBeforeCreateInvLines(PurchRcptLine2, TransferLine);
+
         with PurchRcptLine2 do begin
             SetFilter("Qty. Rcd. Not Invoiced", '<>0');
             OnCreateInvLinesOnBeforeFind(PurchRcptLine2);
@@ -269,6 +271,11 @@ codeunit 74 "Purch.-Get Receipt"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcUpdatePrepmtAmtToDeductRounding(PurchRcptLine: Record "Purch. Rcpt. Line"; PurchaseLine: Record "Purchase Line"; var RoundingAmount: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateInvLines(var PurchRcptLine: Record "Purch. Rcpt. Line"; var TransferLine: Boolean)
     begin
     end;
 
