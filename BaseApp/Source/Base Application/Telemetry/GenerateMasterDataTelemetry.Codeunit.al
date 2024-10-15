@@ -56,7 +56,7 @@ codeunit 1353 "Generate Master Data Telemetry"
     local procedure GetNoOfRecords(TableInformation: Record "Table Information"; TableName: Text[30]): Integer
     begin
         TableInformation.SetRange("Table Name", TableName);
-        if TableInformation.FindFirst then
+        if TableInformation.FindFirst() then
             exit(TableInformation."No. of Records");
         exit(-1);
     end;

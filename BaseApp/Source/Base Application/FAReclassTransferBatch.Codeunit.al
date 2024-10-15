@@ -79,13 +79,13 @@ codeunit 5643 "FA Reclass. Transfer Batch"
             if OneFAReclassDone then begin
                 FAReclassJnlLine2.CopyFilters(FAReclassJnlLine);
                 FAReclassJnlLine2.SetFilter("FA No.", '<>%1', '');
-                if FAReclassJnlLine2.FindLast then; // Remember the last line
+                if FAReclassJnlLine2.FindLast() then; // Remember the last line
                 DeleteAll();
 
                 FAReclassJnlLine3.SetRange("Journal Template Name", "Journal Template Name");
                 FAReclassJnlLine3.SetRange("Journal Batch Name", "Journal Batch Name");
                 if FAReclassJnlTempl."Increment Batch Name" then
-                    if not FAReclassJnlLine3.FindLast then
+                    if not FAReclassJnlLine3.FindLast() then
                         if IncStr("Journal Batch Name") <> '' then begin
                             FAReclassJnlBatch.Get("Journal Template Name", "Journal Batch Name");
                             FAReclassJnlBatch.Delete();
@@ -95,7 +95,7 @@ codeunit 5643 "FA Reclass. Transfer Batch"
                         end;
 
                 FAReclassJnlLine3.SetRange("Journal Batch Name", "Journal Batch Name");
-                if not FAReclassJnlLine3.FindLast then begin
+                if not FAReclassJnlLine3.FindLast() then begin
                     FAReclassJnlLine3.Init();
                     FAReclassJnlLine3."Journal Template Name" := "Journal Template Name";
                     FAReclassJnlLine3."Journal Batch Name" := "Journal Batch Name";

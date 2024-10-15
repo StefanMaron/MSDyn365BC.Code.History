@@ -46,14 +46,14 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         LocationCode: Code[10];
     begin
         // VSTF 333341
-        Initialize;
+        Initialize();
 
         // SETUP: Create bin content on dedicated bin
         LocationCode := MockLocationCode;
 
         Bin.Init();
         Bin."Location Code" := LocationCode;
-        Bin.Code := LibraryUtility.GenerateGUID;
+        Bin.Code := LibraryUtility.GenerateGUID();
         Bin.Insert();
 
         MockItemWithBaseUOM(Item);
@@ -75,7 +75,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
 
         // make a warehouse worksheet line- for use in the calling of the report
         WhseWorksheetTemplate.SetRange(Type, WhseWorksheetTemplate.Type::Movement);
-        WhseWorksheetTemplate.FindFirst;
+        WhseWorksheetTemplate.FindFirst();
         WhseWorksheetLine."Worksheet Template Name" := WhseWorksheetTemplate.Name;
 
         // EXERCISE: Invoke get bin content on movement worksheet
@@ -85,7 +85,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         WhseGetBinContent.UseRequestPage(false);
         WhseInternalPutAwayHeaderDummy.Init();
         WhseGetBinContent.InitializeReport(WhseWorksheetLine, WhseInternalPutAwayHeaderDummy, 0);
-        WhseGetBinContent.Run;
+        WhseGetBinContent.Run();
 
         // VERIFY: Make sure the warehouse worksheet line appears with the quantity on the bin content
         WhseWorksheetLine.SetRange("Item No.", BinContent."Item No.");
@@ -152,10 +152,10 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         RefDate: Date;
     begin
         // VSTF 332220
-        Initialize;
+        Initialize();
 
         // SETUP: Create entries for inventory, Create pick from warehouse shipment
-        TakeBinCode := LibraryUtility.GenerateGUID;
+        TakeBinCode := LibraryUtility.GenerateGUID();
         RefDate := WorkDate - 4;
 
         CreateInventory(ItemLedgerEntry, TakeBinCode, DPPLocation);
@@ -169,7 +169,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
 
         // VERIFY: Reservation Entry has the same Shipment Date as WarehouseShipmentLine
         ReservationEntry.SetRange("Item No.", ItemLedgerEntry."Item No.");
-        ReservationEntry.FindLast;
+        ReservationEntry.FindLast();
         Assert.AreEqual(RefDate, ReservationEntry."Shipment Date",
           'Reservation Entry has the same Shipment Date as WarehouseShipmentLine');
     end;
@@ -187,9 +187,9 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         BinCode: array[2] of Code[20];
         LotNo: array[3] of Code[20];
     begin
-        Initialize;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.CreateVATData;
+        Initialize();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.CreateVATData();
 
         LibraryVariableStorage.Enqueue(WarehouseReceiptHeaderCreatedMsg);
         VSTF334573CreateInventory(ItemUOM, LocationCode, LotNo, BinCode);
@@ -220,7 +220,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
     begin
         // [FEATURE] [Item Availability]
         // [SCENARIO 361067.1] Shipping/Receipt Transfer Lines are shown in Availability By Event in case of Outstanding Qty. <> 0
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item
         MockItem(Item);
@@ -246,7 +246,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
     begin
         // [FEATURE] [Item Availability]
         // [SCENARIO 361067.2] Receipt Transfer Line is shown in Availability By Event in case of Outstanding Qty. = 0
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item
         MockItem(Item);
@@ -272,7 +272,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
     begin
         // [FEATURE] [Service]
         // [SCENARIO 380057] COD 5750 "Whse.-Create Source Document".CheckIfFromServiceLine2ShptLin() returns TRUE in case of "Qty. to Consume" = 0
-        Initialize;
+        Initialize();
 
         MockServiceLine(ServiceLine);
         Assert.IsTrue(
@@ -289,7 +289,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
     begin
         // [FEATURE] [Service]
         // [SCENARIO 380057] COD 5750 "Whse.-Create Source Document".CheckIfFromServiceLine2ShptLin() returns FALSE in case of "Qty. to Consume" <> 0
-        Initialize;
+        Initialize();
 
         MockServiceLine(ServiceLine);
         ServiceLine.Validate("Qty. to Consume", ServiceLine.Quantity / 2);
@@ -309,7 +309,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
     begin
         // [FEATURE] [Pick] [UI]
         // [SCENARIO 228376] When the spacing between Line No. is 1 on two adjacent lines, "SplitLine" function does the re-numbering of all lines in warehouse pick. The cursor stays on the pick line that was split.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Three warehouse pick lines with "Line No." = 1, 2, 3.
         MockWhseActivityHeader(WarehouseActivityHeader, WarehouseActivityHeader.Type::Pick, CreateLocationWithWhseEmployee);
@@ -347,7 +347,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
     begin
         // [FEATURE] [Put-away] [UI]
         // [SCENARIO 228376] After "SplitLine" function does the re-numbering of all lines in warehouse put-away, the cursor stays on the line that was split.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Three warehouse put-away lines with "Line No." = 1, 2, 3.
         MockWhseActivityHeader(WarehouseActivityHeader, WarehouseActivityHeader.Type::"Put-away", CreateLocationWithWhseEmployee);
@@ -377,7 +377,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
     begin
         // [FEATURE] [Movement] [UI]
         // [SCENARIO 228376] After "SplitLine" function does the re-numbering of all lines in warehouse movement, the cursor stays on the line that was split.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Three warehouse movement lines with "Line No." = 1, 2, 3.
         MockWhseActivityHeader(WarehouseActivityHeader, WarehouseActivityHeader.Type::Movement, CreateLocationWithWhseEmployee);
@@ -407,7 +407,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
     begin
         // [FEATURE] [Inventory Pick] [UI]
         // [SCENARIO 228376] After "SplitLine" function does the re-numbering of all lines in inventory pick, the cursor stays on the line that was split.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Three inventory pick lines with "Line No." = 1, 2, 3.
         MockWhseActivityHeader(WarehouseActivityHeader, WarehouseActivityHeader.Type::"Invt. Pick", CreateLocationWithWhseEmployee);
@@ -437,7 +437,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
     begin
         // [FEATURE] [Inventory Put-away] [UI]
         // [SCENARIO 228376] After "SplitLine" function does the re-numbering of all lines in inventory put-away, the cursor stays on the line that was split.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Three inventory put-away lines with "Line No." = 1, 2, 3.
         MockWhseActivityHeader(WarehouseActivityHeader, WarehouseActivityHeader.Type::"Invt. Put-away", CreateLocationWithWhseEmployee);
@@ -467,7 +467,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
     begin
         // [FEATURE] [Inventory Movement] [UI]
         // [SCENARIO 228376] After "SplitLine" function does the re-numbering of all lines in inventory movement, the cursor stays on the line that was split.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Three inventory movement lines with "Line No." = 1, 2, 3.
         MockWhseActivityHeader(WarehouseActivityHeader, WarehouseActivityHeader.Type::"Invt. Movement", CreateLocationWithWhseEmployee);
@@ -499,14 +499,14 @@ codeunit 137504 "SCM Warehouse Unit Tests"
     begin
         // [FEATURE] [Pick]
         // [SCENARIO 256408] Warehouse pick lines at location with disabled mandatory bin are sorted by Shelf No. when you choose "Shelf or Bin" sorting method on the header.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Location with "Bin Mandatory" = FALSE.
         LibraryWarehouse.CreateLocationWMS(Location, false, false, true, false, true);
 
         for i := 1 to 3 do begin
-            ItemNo[i] := LibraryUtility.GenerateGUID;
-            ShelfNo[i] := LibraryUtility.GenerateGUID;
+            ItemNo[i] := LibraryUtility.GenerateGUID();
+            ShelfNo[i] := LibraryUtility.GenerateGUID();
         end;
 
         // [GIVEN] Warehouse pick with 3 lines:
@@ -541,15 +541,15 @@ codeunit 137504 "SCM Warehouse Unit Tests"
     begin
         // [FEATURE] [Pick]
         // [SCENARIO 256408] Warehouse pick lines at location with enabled mandatory bin are sorted by Bin Code when you choose "Shelf or Bin" sorting method on the header.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Location with "Bin Mandatory" = TRUE.
         LibraryWarehouse.CreateLocationWMS(Location, true, false, true, false, true);
 
         for i := 1 to 3 do begin
-            ItemNo[i] := LibraryUtility.GenerateGUID;
-            ShelfNo[i] := LibraryUtility.GenerateGUID;
-            BinCode[i] := LibraryUtility.GenerateGUID;
+            ItemNo[i] := LibraryUtility.GenerateGUID();
+            ShelfNo[i] := LibraryUtility.GenerateGUID();
+            BinCode[i] := LibraryUtility.GenerateGUID();
         end;
 
         // [GIVEN] Warehouse pick with 3 lines:
@@ -630,7 +630,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         // [GIVEN] Location with "Bin Mandatory" = TRUE.
         LibraryWarehouse.CreateLocationWMS(Location, true, false, true, false, true);
 
-        ItemNo := LibraryUtility.GenerateGUID;
+        ItemNo := LibraryUtility.GenerateGUID();
         for i := 1 to 3 do begin
             ShelfNo[i] := LibraryUtility.GenerateGUID();
             BinCode[i] := LibraryUtility.GenerateGUID();
@@ -733,7 +733,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Warehouse Unit Tests");
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreateItemWithLotTracking(): Code[20]
@@ -743,7 +743,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
     begin
         LibraryInventory.CreateItem(Item);
         ItemTrackingCode.Init();
-        ItemTrackingCode.Code := LibraryUtility.GenerateGUID;
+        ItemTrackingCode.Code := LibraryUtility.GenerateGUID();
         ItemTrackingCode."Lot Specific Tracking" := true;
         ItemTrackingCode."Lot Warehouse Tracking" := true;
         ItemTrackingCode.Insert();
@@ -763,10 +763,10 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         ItemNo := CreateItemWithLotTracking;
 
         MockILE(ItemLedgerEntry, ItemNo, LocationCode, 10);
-        ItemLedgerEntry."Lot No." := LibraryUtility.GenerateGUID;
+        ItemLedgerEntry."Lot No." := LibraryUtility.GenerateGUID();
         ItemLedgerEntry.Modify();
 
-        WarehouseEntry2.FindLast;
+        WarehouseEntry2.FindLast();
         WarehouseEntry.Init();
         WarehouseEntry."Entry No." := WarehouseEntry2."Entry No." + 1;
         WarehouseEntry."Item No." := ItemLedgerEntry."Item No.";
@@ -797,12 +797,12 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         SourceSubLineNo: Integer;
         PlaceActionType: Enum "Warehouse Action Type";
     begin
-        PlaceBinCode := LibraryUtility.GenerateGUID;
+        PlaceBinCode := LibraryUtility.GenerateGUID();
         case DemandType of
             DemandType::Sales:
                 begin
                     SalesLine."Document Type" := SalesLine."Document Type"::Order;
-                    SalesLine."Document No." := LibraryUtility.GenerateGUID;
+                    SalesLine."Document No." := LibraryUtility.GenerateGUID();
                     SalesLine.Type := SalesLine.Type::Item;
                     SalesLine."No." := ItemLedgerEntry."Item No.";
                     SalesLine."Location Code" := ItemLedgerEntry."Location Code";
@@ -812,7 +812,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
                     SalesLine.Insert();
 
                     WarehouseShipmentHeader.Init();
-                    WarehouseShipmentHeader."No." := LibraryUtility.GenerateGUID;
+                    WarehouseShipmentHeader."No." := LibraryUtility.GenerateGUID();
                     WarehouseShipmentHeader.Insert();
                     WarehouseShipmentLine.Init();
                     WarehouseShipmentLine."No." := WarehouseShipmentHeader."No.";
@@ -842,7 +842,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
             DemandType::Assembly:
                 begin
                     AssemblyHeader."Document Type" := AssemblyHeader."Document Type"::Order;
-                    AssemblyHeader."No." := LibraryUtility.GenerateGUID;
+                    AssemblyHeader."No." := LibraryUtility.GenerateGUID();
                     AssemblyHeader.Insert();
                     AssemblyLine."Document Type" := AssemblyHeader."Document Type";
                     AssemblyLine."Document No." := AssemblyHeader."No.";
@@ -866,7 +866,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
             DemandType::Production:
                 begin
                     ProdOrder.Status := ProdOrder.Status::Released;
-                    ProdOrder."No." := LibraryUtility.GenerateGUID;
+                    ProdOrder."No." := LibraryUtility.GenerateGUID();
                     ProdOrder.Insert();
                     ProdOrderComponent.Init();
                     ProdOrderComponent.Status := ProdOrder.Status;
@@ -898,7 +898,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
             else
                 WarehouseActivityHeader.Type := WarehouseActivityHeader.Type::"Invt. Movement";
         end;
-        WarehouseActivityHeader."No." := LibraryUtility.GenerateGUID;
+        WarehouseActivityHeader."No." := LibraryUtility.GenerateGUID();
         WarehouseActivityHeader."Registering No. Series" := LibraryUtility.GetGlobalNoSeriesCode;
         WarehouseActivityHeader.Insert();
         if WarehouseActivityHeader.Type <> WarehouseActivityHeader.Type::"Invt. Pick" then
@@ -937,7 +937,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         WarehouseActivityLine."No." := WarehouseActivityHeader."No.";
         WarehouseActivityLine2.SetRange("Activity Type", WarehouseActivityLine."Activity Type");
         WarehouseActivityLine2.SetRange("No.", WarehouseActivityLine."No.");
-        if WarehouseActivityLine2.FindLast then
+        if WarehouseActivityLine2.FindLast() then
             WarehouseActivityLine."Line No." := WarehouseActivityLine2."Line No." + 10000
         else
             WarehouseActivityLine."Line No." := 10000;
@@ -973,7 +973,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         Qty: Decimal;
     begin
         // Refer VSTF 335595
-        Initialize;
+        Initialize();
 
         // SETUP : Create sales
         LocationCode := MockCustomLocationCode(false, true, false, false);
@@ -982,7 +982,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
 
         Qty := 20 / 144;
         SalesHeader."Document Type" := SalesHeader."Document Type"::Order;
-        SalesHeader."No." := LibraryUtility.GenerateGUID;
+        SalesHeader."No." := LibraryUtility.GenerateGUID();
         SalesHeader.Insert();
         SalesLine."Document Type" := SalesHeader."Document Type";
         SalesLine."Document No." := SalesHeader."No.";
@@ -995,7 +995,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         SalesLine.Insert();
 
         WarehouseShipmentHeader.Init();
-        WarehouseShipmentHeader."No." := LibraryUtility.GenerateGUID;
+        WarehouseShipmentHeader."No." := LibraryUtility.GenerateGUID();
         WarehouseShipmentHeader."Location Code" := LocationCode;
         WarehouseShipmentHeader.Insert();
 
@@ -1004,7 +1004,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
 
         // VERIFY : No rounding errors on Quantity
         WarehouseShipmentLine.SetRange("No.", WarehouseShipmentHeader."No.");
-        WarehouseShipmentLine.FindFirst;
+        WarehouseShipmentLine.FindFirst();
         Assert.AreEqual(SalesLine.Quantity, WarehouseShipmentLine.Quantity,
           'Quantity must be same as that of sales line.');
         Assert.AreEqual(UoMMgt.RoundQty(SalesLine."Outstanding Quantity"), WarehouseShipmentLine."Qty. Outstanding",
@@ -1039,7 +1039,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
     begin
         // VSTF 330787
         // SETUP : Create inventory with entries designed to induce the rounding errors
-        Initialize;
+        Initialize();
         VSTF330787CreateInventory(ItemNo, LocationCode, true, ItemUnitOfMeasureForSales, LotNo);
 
         // SETUP : Create sales, and reservation entries against inventory.
@@ -1053,7 +1053,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         WhseShipmentCreatePick.SetWhseShipmentLine(WarehouseShipmentLine, WarehouseShipmentHeader);
         WhseShipmentCreatePick.SetHideValidationDialog(true);
         WhseShipmentCreatePick.UseRequestPage(false);
-        WhseShipmentCreatePick.RunModal;
+        WhseShipmentCreatePick.RunModal();
 
         // VERIFY: Qty on pick should be same as demand
         WarehouseActivityLine.SetRange("Activity Type", WarehouseActivityLine."Activity Type"::Pick);
@@ -1086,7 +1086,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         VSTF330787CreateItemUnitOfMeasure(ItemUnitOfMeasureBAG, ItemNo, 0.45);
         VSTF330787CreateItemUnitOfMeasure(ItemUnitOfMeasureCAS, ItemNo, 10.8);
 
-        LotNo := LibraryUtility.GenerateGUID;
+        LotNo := LibraryUtility.GenerateGUID();
         VSTF330787CreateEntry(ItemNo, LocationCode, BinCode, 4, LotNo, ItemUnitOfMeasureBAG);
         VSTF330787CreateEntry(ItemNo, LocationCode, BinCode, 4, LotNo, ItemUnitOfMeasureBAG);
         VSTF330787CreateEntry(ItemNo, LocationCode, BinCode, 10, LotNo, ItemUnitOfMeasureCAS);
@@ -1164,7 +1164,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
             SetRange("Source ID", PurchaseLine."Document No.");
             SetRange("Source Ref. No.", PurchaseLine."Line No.");
             SetRange("Item No.", PurchaseLine."No.");
-            FindFirst;
+            FindFirst();
             exit("Lot No.");
         end;
     end;
@@ -1176,7 +1176,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
     begin
         WarehouseReceiptLine.SetRange("Source Document", WarehouseReceiptLine."Source Document"::"Purchase Order");
         WarehouseReceiptLine.SetRange("Source No.", SourceNo);
-        WarehouseReceiptLine.FindFirst;
+        WarehouseReceiptLine.FindFirst();
         WarehouseReceiptHeader.Get(WarehouseReceiptLine."No.");
         LibraryWarehouse.PostWhseReceipt(WarehouseReceiptHeader);
     end;
@@ -1197,7 +1197,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
             // only one empty exists after split
             SetRange(Quantity);
             SetRange("Bin Code", '');
-            FindFirst;
+            FindFirst();
 
             Validate("Bin Code", BinCode[2]);
             Modify(true);
@@ -1222,7 +1222,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
             SetRange("Source Document", "Source Document"::"Purchase Order");
             if Qty <> 0 then
                 SetRange(Quantity, Qty);
-            FindFirst;
+            FindFirst();
         end
     end;
 
@@ -1237,7 +1237,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         Zone.SetRange("Bin Type Code", BinTypeCode);
         Zone.SetRange("Cross-Dock Bin Zone", false);
 
-        Zone.FindFirst;
+        Zone.FindFirst();
     end;
 
     local procedure CreateBinWithPutPickType(LocationCode: Code[10]): Code[20]
@@ -1285,7 +1285,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         Bin: Record Bin;
     begin
         Bin.Init();
-        Bin.Code := LibraryUtility.GenerateGUID;
+        Bin.Code := LibraryUtility.GenerateGUID();
         Bin."Location Code" := LocationCode;
         Bin.Insert();
         exit(Bin.Code);
@@ -1295,7 +1295,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
     begin
         Clear(ItemUnitOfMeasure);
         ItemUnitOfMeasure."Item No." := ItemNo;
-        ItemUnitOfMeasure.Code := LibraryUtility.GenerateGUID;
+        ItemUnitOfMeasure.Code := LibraryUtility.GenerateGUID();
         ItemUnitOfMeasure."Qty. per Unit of Measure" := QtyPerUOM;
         ItemUnitOfMeasure.Insert();
     end;
@@ -1314,7 +1314,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         ItemLedgerEntry."Qty. per Unit of Measure" := ItemUnitOfMeasure."Qty. per Unit of Measure";
         ItemLedgerEntry.Modify();
 
-        WarehouseEntry2.FindLast;
+        WarehouseEntry2.FindLast();
         WarehouseEntry.Init();
         WarehouseEntry."Entry No." := WarehouseEntry2."Entry No." + 1;
         WarehouseEntry."Item No." := ItemLedgerEntry."Item No.";
@@ -1336,7 +1336,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
             BinContent."Unit of Measure Code" := WarehouseEntry."Unit of Measure Code";
             BinContent."Qty. per Unit of Measure" := WarehouseEntry."Qty. per Unit of Measure";
             BinType.SetRange(Pick, true);
-            BinType.FindFirst;
+            BinType.FindFirst();
             BinContent."Bin Type Code" := BinType.Code;
             BinContent.Insert();
         end;
@@ -1381,7 +1381,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         QtyFromCasILE: Decimal;
     begin
         SalesLine."Document Type" := SalesLine."Document Type"::Order;
-        SalesLine."Document No." := LibraryUtility.GenerateGUID;
+        SalesLine."Document No." := LibraryUtility.GenerateGUID();
         SalesLine.Type := SalesLine.Type::Item;
         SalesLine."No." := ItemNo;
         SalesLine."Location Code" := LocationCode;
@@ -1397,8 +1397,8 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         ItemLedgerEntry.SetRange("Item No.", ItemNo);
         ItemLedgerEntry.SetFilter("Unit of Measure Code", '<>%1', ItemUnitOfMeasure.Code);
 
-        ItemLedgerEntry.FindFirst;
-        ReservationEntry.FindLast;
+        ItemLedgerEntry.FindFirst();
+        ReservationEntry.FindLast();
         VSTF330787CreateReservation(ReservationEntry."Entry No." + 1, false,
           DATABASE::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.",
           -0.16667, -ItemLedgerEntry.Quantity, ItemUnitOfMeasure."Qty. per Unit of Measure", LotNo);
@@ -1406,12 +1406,12 @@ codeunit 137504 "SCM Warehouse Unit Tests"
           DATABASE::"Item Ledger Entry", 0, '', ItemLedgerEntry."Entry No.",
           ItemLedgerEntry.Quantity * ItemLedgerEntry."Qty. per Unit of Measure", ItemLedgerEntry.Quantity,
           ItemLedgerEntry."Qty. per Unit of Measure", LotNo);
-        if WhseItemTrackingLine.FindLast then;
+        if WhseItemTrackingLine.FindLast() then;
         VSTF330787CreateWhseItemTrkgLine(WhseItemTrackingLine."Entry No." + 1, WarehouseShipmentLine."Location Code",
           DATABASE::"Warehouse Shipment Line", 0, WarehouseShipmentLine."No.", WarehouseShipmentLine."Line No.",
           0.16667, ItemLedgerEntry.Quantity, ItemUnitOfMeasure."Qty. per Unit of Measure", LotNo);
 
-        ItemLedgerEntry.FindLast;
+        ItemLedgerEntry.FindLast();
         VSTF330787CreateReservation(ReservationEntry."Entry No." + 2, false,
           DATABASE::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.",
           -0.16667, -ItemLedgerEntry.Quantity, ItemUnitOfMeasure."Qty. per Unit of Measure", LotNo);
@@ -1424,7 +1424,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
           0.16667, ItemLedgerEntry.Quantity, ItemUnitOfMeasure."Qty. per Unit of Measure", LotNo);
 
         ItemLedgerEntry.SetRange("Unit of Measure Code", ItemUnitOfMeasure.Code);
-        ItemLedgerEntry.FindLast;
+        ItemLedgerEntry.FindLast();
         QtyFromCasILE := 104.4;
         VSTF330787CreateReservation(ReservationEntry."Entry No." + 3, false,
           DATABASE::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.",
@@ -1441,7 +1441,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
     begin
         // SETUP : Create whse shipment from demand
         WarehouseShipmentHeader.Init();
-        WarehouseShipmentHeader."No." := LibraryUtility.GenerateGUID;
+        WarehouseShipmentHeader."No." := LibraryUtility.GenerateGUID();
         WarehouseShipmentHeader.Insert();
         WarehouseShipmentLine.Init();
         WarehouseShipmentLine."No." := WarehouseShipmentHeader."No.";
@@ -1566,7 +1566,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         ReservEntry: Record "Reservation Entry";
     begin
         with ReservEntry do begin
-            FindLast;
+            FindLast();
             Init;
             "Item No." := ItemUOM."Item No.";
             "Qty. per Unit of Measure" := ItemUOM."Qty. per Unit of Measure";
@@ -1687,7 +1687,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         with WarehouseActivityHeader do begin
             Init;
             Type := ActivityType;
-            "No." := LibraryUtility.GenerateGUID;
+            "No." := LibraryUtility.GenerateGUID();
             "Location Code" := LocationCode;
             Insert;
         end;
@@ -1701,7 +1701,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
             "No." := WarehouseActivityHeader."No.";
             "Line No." := LineNo;
             "Action Type" := ActionType;
-            "Item No." := LibraryUtility.GenerateGUID;
+            "Item No." := LibraryUtility.GenerateGUID();
             Quantity := LibraryRandom.RandIntInRange(10, 20);
             "Qty. Outstanding" := Quantity;
             "Qty. to Handle" := LibraryRandom.RandInt(5);
@@ -1763,7 +1763,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         with WhseShptLine do begin
             SetRange("Source Document", "Source Document"::"Outbound Transfer");
             SetRange("Source No.", TransNo);
-            FindFirst;
+            FindFirst();
             WhseShptHeader.Get("No.");
         end;
     end;
@@ -1772,7 +1772,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
     begin
         WhseActivityHdr.SetRange("Location Code", LocationCode);
         WhseActivityHdr.SetRange(Type, ActivityType);
-        WhseActivityHdr.FindLast;
+        WhseActivityHdr.FindLast();
     end;
 
     local procedure GetWhseRegisteredPickAmount(ItemNo: Code[20]): Decimal
@@ -1799,7 +1799,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         with ReservationEntry do begin
             SetRange("Source Subtype", "Source Subtype"::"0");
             SetRange("Item No.", ItemNo);
-            if FindSet then
+            if FindSet() then
                 repeat
                     Sum += "Qty. to Handle (Base)";
                 until Next = 0;
@@ -1854,10 +1854,10 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         WarehouseActivityLine.SetRange("Activity Type", WarehouseActivityLine."Activity Type"::"Invt. Pick");
         VSTF335757SetFilterOnWhseActivityLines(ProdOrderComponent, WarehouseActivityLine);
         WarehouseActivityLine.SetRange("Bin Code", DefaultBinCode);
-        WarehouseActivityLine.FindFirst;
+        WarehouseActivityLine.FindFirst();
         Assert.AreEqual(QtyOnDefaultBin, WarehouseActivityLine.Quantity, 'Qty from Default bin is 1st priority.');
         WarehouseActivityLine.SetRange("Bin Code", NonDefaultBinCode);
-        WarehouseActivityLine.FindFirst;
+        WarehouseActivityLine.FindFirst();
         Assert.AreEqual(ProdOrderComponent."Expected Quantity" - QtyOnDefaultBin,
           WarehouseActivityLine.Quantity, 'Qty from NonDefault bin is 2nd priority.')
     end;
@@ -1886,10 +1886,10 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         VSTF335757SetFilterOnWhseActivityLines(ProdOrderComponent, WarehouseActivityLine);
         Assert.AreEqual(2, WarehouseActivityLine.Count, '2 lines- one from default and one from non default.');
         WarehouseActivityLine.SetRange("Bin Code", DefaultBinCode);
-        WarehouseActivityLine.FindFirst;
+        WarehouseActivityLine.FindFirst();
         Assert.AreEqual(QtyOnDefaultBin, WarehouseActivityLine.Quantity, 'Qty from Default bin is 1st priority.');
         WarehouseActivityLine.SetRange("Bin Code", NonDefaultBinCode);
-        WarehouseActivityLine.FindFirst;
+        WarehouseActivityLine.FindFirst();
         Assert.AreEqual(ProdOrderComponent."Expected Quantity" - QtyOnDefaultBin,
           WarehouseActivityLine.Quantity, 'Qty from NonDefault bin is 2nd priority.')
     end;
@@ -1918,11 +1918,11 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         VSTF335757SetFilterOnWhseActivityLines(ProdOrderComponent, WarehouseActivityLine);
         Assert.AreEqual(2, WarehouseActivityLine.Count, '2 lines- one from default and one from non default.');
         WarehouseActivityLine.SetRange("Bin Code", NonDefaultBinCode);
-        WarehouseActivityLine.FindFirst;
+        WarehouseActivityLine.FindFirst();
         Assert.AreEqual(QtyOnNonDefaultBin, WarehouseActivityLine.Quantity,
           'Qty from Non Default bin is 1st priority as it is the source line.');
         WarehouseActivityLine.SetRange("Bin Code", DefaultBinCode);
-        WarehouseActivityLine.FindFirst;
+        WarehouseActivityLine.FindFirst();
         Assert.AreEqual(ProdOrderComponent."Expected Quantity" - QtyOnNonDefaultBin,
           WarehouseActivityLine.Quantity, 'Qty from Default bin is 2nd priority.')
     end;
@@ -1977,11 +1977,11 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         Assert.AreEqual(2, WarehouseActivityLine.Count, '1 pair of lines- take from non default and place to default');
         WarehouseActivityLine.SetRange("Bin Code", NonDefaultBinCode);
         WarehouseActivityLine.SetRange("Action Type", WarehouseActivityLine."Action Type"::Take);
-        WarehouseActivityLine.FindFirst;
+        WarehouseActivityLine.FindFirst();
         Assert.AreEqual(QtyOnNonDefaultBin, WarehouseActivityLine.Quantity, 'Full qty from non default bin');
         WarehouseActivityLine.SetRange("Bin Code", DefaultBinCode);
         WarehouseActivityLine.SetRange("Action Type", WarehouseActivityLine."Action Type"::Place);
-        WarehouseActivityLine.FindFirst;
+        WarehouseActivityLine.FindFirst();
         Assert.AreEqual(QtyOnNonDefaultBin, WarehouseActivityLine.Quantity, 'Same qty as Take on Place line');
     end;
 
@@ -2010,11 +2010,11 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         Assert.AreEqual(2, WarehouseActivityLine.Count, '1 pair of lines- take from default and place to non default.');
         WarehouseActivityLine.SetRange("Bin Code", DefaultBinCode);
         WarehouseActivityLine.SetRange("Action Type", WarehouseActivityLine."Action Type"::Take);
-        WarehouseActivityLine.FindFirst;
+        WarehouseActivityLine.FindFirst();
         Assert.AreEqual(QtyOnDefaultBin, WarehouseActivityLine.Quantity, 'Full qty from default bin');
         WarehouseActivityLine.SetRange("Bin Code", NonDefaultBinCode);
         WarehouseActivityLine.SetRange("Action Type", WarehouseActivityLine."Action Type"::Place);
-        WarehouseActivityLine.FindFirst;
+        WarehouseActivityLine.FindFirst();
         Assert.AreEqual(QtyOnDefaultBin, WarehouseActivityLine.Quantity, 'Same qty as Take on Place line');
     end;
 
@@ -2027,7 +2027,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         // [SCENARIO 207605] Stan cannot create Bin without Location Code
 
         Bin.Init();
-        Bin.Validate(Code, LibraryUtility.GenerateGUID);
+        Bin.Validate(Code, LibraryUtility.GenerateGUID());
         asserterror Bin.Insert(true);
 
         Assert.ExpectedError(CannotCreateBinWithoutLocationErr);
@@ -2040,7 +2040,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         LocationCode: Code[10];
     begin
         // Refer to VSTF 335757
-        Initialize;
+        Initialize();
 
         // SETUP : Create inventory for new item in 2 bins for Require Pick location.
         ItemNo := MockItemNo;
@@ -2053,7 +2053,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
 
         // SETUP : Create prod. order with 7 PCS of component.
         ProductionOrder.Status := ProductionOrder.Status::Released;
-        ProductionOrder."No." := LibraryUtility.GenerateGUID;
+        ProductionOrder."No." := LibraryUtility.GenerateGUID();
         ProductionOrder.Insert();
         ProdOrderComponent.Status := ProductionOrder.Status;
         ProdOrderComponent."Prod. Order No." := ProductionOrder."No.";
@@ -2089,7 +2089,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
     begin
         MockILENo(ItemNo, LocationCode, Qty);
 
-        BinCode := LibraryUtility.GenerateGUID;
+        BinCode := LibraryUtility.GenerateGUID();
 
         BinContent.Init();
         BinContent.Default := Default;
@@ -2098,7 +2098,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         BinContent."Item No." := ItemNo;
         BinContent.Insert();
 
-        WarehouseEntry2.FindLast;
+        WarehouseEntry2.FindLast();
         WarehouseEntry.Init();
         WarehouseEntry."Entry No." := WarehouseEntry2."Entry No." + 1;
         WarehouseEntry."Location Code" := LocationCode;
@@ -2117,7 +2117,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         CreateInvtPickMovement.SetWhseRequest(WarehouseRequest, true);
         CreateInvtPickMovement.CheckSourceDoc(WarehouseRequest);
         WarehouseActivityHeader.Type := ActivityType;
-        WarehouseActivityHeader."No." := LibraryUtility.GenerateGUID;
+        WarehouseActivityHeader."No." := LibraryUtility.GenerateGUID();
         WarehouseActivityHeader."Source Type" := DATABASE::"Prod. Order Component";
         WarehouseActivityHeader."Source Subtype" := ProdOrderComponent.Status.AsInteger();
         WarehouseActivityHeader."Source No." := ProdOrderComponent."Prod. Order No.";
@@ -2169,7 +2169,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         FieldName: Text;
     begin
         // Refer to SICLIY 6636
-        Initialize;
+        Initialize();
 
         // SETUP : Create new item, make Invt location, make sales and a warehouse activity line.
         RaiseErrorOnChangingQtyIfPickExistsGetQuantities(Qty, QtyToShip, NewQtyToShip, Increase);
@@ -2213,7 +2213,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         FieldName: Text;
     begin
         // Refer to SICLIY 6636
-        Initialize;
+        Initialize();
 
         // SETUP : Create new item, make Invt location, make sales and a warehouse activity line.
         RaiseErrorOnChangingQtyIfPickExistsGetQuantities(Qty, QtyToShip, NewQtyToShip, Increase);
@@ -2257,7 +2257,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         FieldName: Text;
     begin
         // Refer to SICLIY 6636
-        Initialize;
+        Initialize();
 
         // SETUP : Create new item, make Invt location, make sales and a warehouse activity line.
         RaiseErrorOnChangingQtyIfPickExistsGetQuantities(Qty, QtyToReceive, NewQtyToReceive, Increase);
@@ -2297,7 +2297,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         SalesHeader: Record "Sales Header";
     begin
         SalesHeader."Document Type" := SalesHeader."Document Type"::Order;
-        SalesHeader."No." := LibraryUtility.GenerateGUID;
+        SalesHeader."No." := LibraryUtility.GenerateGUID();
         SalesHeader.Insert();
 
         SalesLine."Document Type" := SalesLine."Document Type"::Order;
@@ -2319,7 +2319,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         TransferLine: Record "Transfer Line";
     begin
         TransferLine.Init();
-        TransferLine."Document No." := LibraryUtility.GenerateGUID;
+        TransferLine."Document No." := LibraryUtility.GenerateGUID();
         TransferLine."Item No." := ItemNo;
         TransferLine."Transfer-from Code" := LocationCode;
         TransferLine.Quantity := Qty;
@@ -2335,7 +2335,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         TransferLine: Record "Transfer Line";
     begin
         TransferLine.Init();
-        TransferLine."Document No." := LibraryUtility.GenerateGUID;
+        TransferLine."Document No." := LibraryUtility.GenerateGUID();
         TransferLine."Item No." := ItemNo;
         TransferLine."Transfer-to Code" := LocationCode;
         TransferLine.Quantity := Qty;
@@ -2352,7 +2352,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         WhseActivityLine: Record "Warehouse Activity Line";
     begin
         WhseActivityLine.Init();
-        WhseActivityLine."No." := LibraryUtility.GenerateGUID;
+        WhseActivityLine."No." := LibraryUtility.GenerateGUID();
         WhseActivityLine."Source Type" := SourceType;
         WhseActivityLine."Source Subtype" := SourceSubtype;
         WhseActivityLine."Source No." := SourceNo;
@@ -2415,7 +2415,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         SalesOrderSubform: TestPage "Sales Order Subform";
     begin
         // Refer to VSTF SE 207913 - second scenario
-        Initialize;
+        Initialize();
         LibrarySales.SetDiscountPostingSilent(0);
         // SETUP : Create item, with two UOMs, add inventory less than the higher UOM, and make sales for 1 base unit of measure
         MockItem(Item);
@@ -2432,7 +2432,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
 
         SalesHeader.Init();
         SalesHeader."Document Type" := SalesLine."Document Type"::Order;
-        SalesHeader."No." := LibraryUtility.GenerateGUID;
+        SalesHeader."No." := LibraryUtility.GenerateGUID();
         SalesHeader.Validate("Sell-to Customer No.", Customer."No.");
         SalesHeader.Insert();
         SalesLine."Document Type" := SalesHeader."Document Type";
@@ -2452,7 +2452,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         SalesOrderSubform."Unit of Measure Code".SetValue(BigItemUnitOfMeasure.Code);
         // VERIFY : An availabity notification is sent
         Assert.ExpectedMessage(StrSubstNo(NotificationMsg, Item."No."), LibraryVariableStorage.DequeueText());
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
 
         LibraryVariableStorage.AssertEmpty();
     end;
@@ -2538,10 +2538,10 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         GlobalDim2Value: Code[10];
     begin
         MockItem(Item);
-        LocationCode := LibraryUtility.GenerateGUID;
-        VariantCode := LibraryUtility.GenerateGUID;
-        GlobalDim1Value := LibraryUtility.GenerateGUID;
-        GlobalDim2Value := LibraryUtility.GenerateGUID;
+        LocationCode := LibraryUtility.GenerateGUID();
+        VariantCode := LibraryUtility.GenerateGUID();
+        GlobalDim1Value := LibraryUtility.GenerateGUID();
+        GlobalDim2Value := LibraryUtility.GenerateGUID();
 
         MockCustomILE(ItemLedgerEntry, Item."No.", LocationCode, 1, true, '', '', '');
         MockCustomILE(ItemLedgerEntry, Item."No.", '', 1, true, VariantCode, '', '');
@@ -2585,7 +2585,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
     local procedure MockILE(var ItemLedgerEntry: Record "Item Ledger Entry"; ItemNo: Code[20]; LocationCode: Code[10]; Qty: Decimal)
     begin
         with ItemLedgerEntry do begin
-            FindLast;
+            FindLast();
             "Entry No." += 1;
             "Item No." := ItemNo;
             "Entry Type" := "Entry Type"::"Positive Adjmt.";
@@ -2637,7 +2637,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
             SetRange("Activity Type", WarehouseActivityHeader.Type);
             SetRange("No.", WarehouseActivityHeader."No.");
             SetRange("Action Type", ActionType);
-            FindFirst;
+            FindFirst();
             TestField("Shelf No.", ShelfNo);
             TestField("Bin Code", BinCode);
         end;

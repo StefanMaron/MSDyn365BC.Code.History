@@ -36,7 +36,7 @@ codeunit 138933 "O365 Contact Lookup"
         Contact.Get(FindContactNoByCustomer(Customer."No."));
 
         // [GIVEN] Open Estimate page
-        O365SalesQuote.OpenNew;
+        O365SalesQuote.OpenNew();
         O365SalesQuote."Sell-to Customer Name".Activate;
 
         // [WHEN] Lookup contacts from estimate and choose CONT
@@ -64,7 +64,7 @@ codeunit 138933 "O365 Contact Lookup"
         Contact.Get(FindContactNoByCustomer(Customer."No."));
 
         // [GIVEN] Open Draft Invoice page
-        O365SalesInvoice.OpenNew;
+        O365SalesInvoice.OpenNew();
         O365SalesInvoice."Sell-to Customer Name".Activate;
 
         // [WHEN] Lookup contacts from estimate and choose CONT
@@ -90,7 +90,7 @@ codeunit 138933 "O365 Contact Lookup"
         // [GIVEN] Contact CONT with Name = XXX, Email = YY@YY.com, Phone No. = ZZZ
         CreateContact(Contact);
         // [GIVEN] Open Estimate page
-        O365SalesQuote.OpenNew;
+        O365SalesQuote.OpenNew();
         O365SalesQuote."Sell-to Customer Name".Activate;
 
         // [WHEN] Lookup contacts from estimate and choose CONT
@@ -147,7 +147,7 @@ codeunit 138933 "O365 Contact Lookup"
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"O365 Contact Lookup");
 
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         EventSubscriberInvoicingApp.Clear;
         ApplicationArea('#Invoicing');
         if Initialized then

@@ -60,7 +60,7 @@ table 424 "IC Comment Line"
         ICCommentLine.SetRange("IC Partner Code", "IC Partner Code");
         ICCommentLine.SetRange("Transaction Source", "Transaction Source");
         ICCommentLine.SetRange(Date, WorkDate);
-        if not ICCommentLine.FindFirst then
+        if not ICCommentLine.FindFirst() then
             Date := WorkDate;
 
         OnAfterSetUpNewLine(Rec, ICCommentLine);

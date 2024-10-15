@@ -127,7 +127,7 @@ table 7504 "Item Attribute Value Selection"
 
     procedure PopulateItemAttributeValueSelection(var TempItemAttributeValue: Record "Item Attribute Value" temporary; DefinedOnTableID: Integer; DefinedOnKeyValue: Code[20])
     begin
-        if TempItemAttributeValue.FindSet then
+        if TempItemAttributeValue.FindSet() then
             repeat
                 InsertRecord(TempItemAttributeValue, DefinedOnTableID, DefinedOnKeyValue);
             until TempItemAttributeValue.Next() = 0;
@@ -139,7 +139,7 @@ table 7504 "Item Attribute Value Selection"
         ValDecimal: Decimal;
         ValDate: Date;
     begin
-        if FindSet then
+        if FindSet() then
             repeat
                 Clear(TempNewItemAttributeValue);
                 TempNewItemAttributeValue.Init();
@@ -282,12 +282,12 @@ table 7504 "Item Attribute Value Selection"
         OnBeforeFindItemAttributeCaseInsensitive(ItemAttribute, Rec);
 
         ItemAttribute.SetRange(Name, "Attribute Name");
-        if ItemAttribute.FindFirst then
+        if ItemAttribute.FindFirst() then
             exit;
 
         AttributeName := LowerCase("Attribute Name");
         ItemAttribute.SetRange(Name);
-        if ItemAttribute.FindSet then
+        if ItemAttribute.FindSet() then
             repeat
                 if LowerCase(ItemAttribute.Name) = AttributeName then
                     exit;
@@ -309,7 +309,7 @@ table 7504 "Item Attribute Value Selection"
     begin
         ItemAttributeValue.SetRange("Attribute ID", "Attribute ID");
         ItemAttributeValue.SetRange(Value);
-        if ItemAttributeValue.FindSet then begin
+        if ItemAttributeValue.FindSet() then begin
             AttributeValue := LowerCase(Value);
             repeat
                 if LowerCase(ItemAttributeValue.Value) = AttributeValue then
@@ -328,7 +328,7 @@ table 7504 "Item Attribute Value Selection"
             exit;
         AttributeName := LowerCase("Attribute Name");
         TempItemAttributeValueSelection.Copy(Rec, true);
-        if TempItemAttributeValueSelection.FindSet then
+        if TempItemAttributeValueSelection.FindSet() then
             repeat
                 if TempItemAttributeValueSelection."Attribute ID" <> "Attribute ID" then
                     if LowerCase(TempItemAttributeValueSelection."Attribute Name") = AttributeName then

@@ -23,8 +23,46 @@ codeunit 1380 "Batch Processing Mgt."
         InterCompanyZipFileNamePatternTok: Label 'General Journal IC Batch - %1.zip', Comment = '%1 - today date, Sample: Sales IC Batch - 23-01-2024.zip';
         BatchProcessingTxt: Label 'Batch processing of %1 records.', Comment = '%1 - a table caption';
         ProcessingMsg: Label 'Executing codeunit %1 on record %2.', Comment = '%1 - codeunit id,%2 - record id';
+        ProcessConfirmWithSkipQst: Label 'You have selected multiple documents for processing. \Some of the documents are not available and will be skipped. (Selected %1, Skipping %2)\\Do you want to continue?', Comment = '%1=integer(number of rows selected) %2=integer(number of rows skipped)';
+        ProcessConfirmWithoutSkipQst: Label 'You have selected multiple documents for processing. (Selected %1, Skipping 0)\\Do you want to continue?', Comment = '%1=integer(number of rows selected)';
+        NotARecordErr: Label 'Something went wrong and we could not complete the process. Contact your administrator for assistance.';
 
     procedure BatchProcess(var RecRef: RecordRef)
+    begin
+        BatchProcess(RecRef, "Error Handling Options"::"Show Notification");
+    end;
+
+    procedure BatchProcess(SourceRecord: Variant; SourceRecordProcessingCodeunitId: Integer; ErrorHandlingOptions: Enum "Error Handling Options"; NoSelected: Integer; NoSkipped: Integer)
+    var
+        ConfirmManagement: Codeunit "Confirm Management";
+        RecRef: RecordRef;
+        ProcessConfirmQst: Text;
+    begin
+        if not SourceRecord.IsRecord then
+            Error(NotARecordErr);
+
+        RecRef.GetTable(SourceRecord);
+        if RecRef.Count = 0 then
+            exit;
+
+        SetProcessingCodeunit(SourceRecordProcessingCodeunitId);
+        if RecRef.Count = 1 then begin
+            RecRef.FindFirst();
+            RecRef.SetTable(SourceRecord);
+            Codeunit.Run(ProcessingCodeunitID, SourceRecord)
+        end else begin
+            if NoSkipped <> 0 then
+                ProcessConfirmQst := StrSubstNo(ProcessConfirmWithSkipQst, NoSelected, NoSkipped)
+            else
+                ProcessConfirmQst := StrSubstNo(ProcessConfirmWithoutSkipQst, NoSelected);
+            if not ConfirmManagement.GetResponseOrDefault(StrSubstNo(ProcessConfirmQst, NoSelected, NoSkipped), true) then
+                exit;
+
+            BatchProcess(RecRef, ErrorHandlingOptions);
+        end;
+    end;
+
+    procedure BatchProcess(var RecRef: RecordRef; ErrorHandlingOptions: Enum "Error Handling Options")
     var
         ErrorContextElement: Codeunit "Error Context Element";
         ErrorMessageMgt: Codeunit "Error Message Management";
@@ -83,7 +121,7 @@ codeunit 1380 "Batch Processing Mgt."
                 Window.Close;
                 if not IsHandled then
                     if (CounterPosted <> CounterTotal) and not FullBatchProcessed then begin
-                        ErrorMessageHandler.NotifyAboutErrors();
+                        ErrorMessageHandler.InformAboutErrors(ErrorHandlingOptions);
                         ErrorMessageMgt.PopContext(ErrorContextElement);
                     end else
                         Message(BatchCompletedMsg);
@@ -197,7 +235,7 @@ codeunit 1380 "Batch Processing Mgt."
         ClearLastError;
 
         BatchProcessingMgt.SetRecRefForCustomProcessing(RecRef);
-        Result := BatchProcessingMgt.Run;
+        Result := BatchProcessingMgt.Run();
         BatchProcessingMgt.GetRecRefForCustomProcessing(RecRef);
 
         RecVar := RecRef;
@@ -301,7 +339,7 @@ codeunit 1380 "Batch Processing Mgt."
         BatchProcessingSessionMap.SetRange("User ID", UserSecurityId);
         BatchProcessingSessionMap.SetRange("Session ID", SessionId);
         BatchProcessingSessionMap.SetFilter("Batch ID", '<>%1', BatchIDGlobal);
-        if BatchProcessingSessionMap.FindSet then begin
+        if BatchProcessingSessionMap.FindSet() then begin
             repeat
                 BatchProcessingParameter.SetRange("Batch ID", BatchProcessingSessionMap."Batch ID");
                 if not BatchProcessingParameter.IsEmpty() then
@@ -309,12 +347,6 @@ codeunit 1380 "Batch Processing Mgt."
             until BatchProcessingSessionMap.Next() = 0;
             BatchProcessingSessionMap.DeleteAll();
         end;
-    end;
-
-    [Obsolete('Replaced by SetParameter().', '17.0')]
-    procedure AddParameter(ParameterId: Integer; Value: Variant)
-    begin
-        SetParameter("Batch Posting Parameter Type".FromInteger(ParameterId), Value);
     end;
 
     procedure SetParameter(ParameterId: Enum "Batch Posting Parameter Type"; Value: Variant)
@@ -333,12 +365,6 @@ codeunit 1380 "Batch Processing Mgt."
         OnSetParameterOnBeforeParameterInsert(BatchProcessingParameter, IsProcessed);
         if not IsProcessed then
             BatchProcessingParameter.Insert();
-    end;
-
-    [Obsolete('Replaced by GetTextParameter().', '17.0')]
-    procedure GetParameterText(RecordID: RecordID; ParameterId: Integer; var ParameterValue: Text[250]): Boolean
-    begin
-        exit(GetTextParameter(RecordID, "Batch Posting Parameter Type".FromInteger(ParameterId), ParameterValue))
     end;
 
     procedure GetTextParameter(RecordID: RecordID; ParameterId: Enum "Batch Posting Parameter Type"; var ParameterValue: Text[250]): Boolean
@@ -360,12 +386,6 @@ codeunit 1380 "Batch Processing Mgt."
         exit(true);
     end;
 
-    [Obsolete('Replaced by GetBooleanParameter().', '17.0')]
-    procedure GetParameterBoolean(RecordID: RecordID; ParameterId: Integer; var ParameterValue: Boolean): Boolean
-    begin
-        exit(GetBooleanParameter(RecordID, "Batch Posting Parameter Type".FromInteger(ParameterId), ParameterValue));
-    end;
-
     procedure GetBooleanParameter(RecordID: RecordID; ParameterId: Enum "Batch Posting Parameter Type"; var ParameterValue: Boolean): Boolean
     var
         Result: Boolean;
@@ -381,12 +401,6 @@ codeunit 1380 "Batch Processing Mgt."
         exit(true);
     end;
 
-    [Obsolete('Replaced by GetIntegerParameter().', '17.0')]
-    procedure GetParameterInteger(RecordID: RecordID; ParameterId: Integer; var ParameterValue: Integer): Boolean
-    begin
-        exit(GetIntegerParameter(RecordID, "Batch Posting Parameter Type".FromInteger(ParameterId), ParameterValue));
-    end;
-
     procedure GetIntegerParameter(RecordID: RecordID; ParameterId: Enum "Batch Posting Parameter Type"; var ParameterValue: Integer): Boolean
     var
         Result: Integer;
@@ -400,12 +414,6 @@ codeunit 1380 "Batch Processing Mgt."
 
         ParameterValue := Result;
         exit(true);
-    end;
-
-    [Obsolete('Replaced by GetDateParameter().', '17.0')]
-    procedure GetParameterDate(RecordID: RecordID; ParameterId: Integer; var ParameterValue: Date): Boolean
-    begin
-        exit(GetDateParameter(RecordID, "Batch Posting Parameter Type".FromInteger(ParameterId), ParameterValue));
     end;
 
     procedure GetDateParameter(RecordID: RecordID; ParameterId: Enum "Batch Posting Parameter Type"; var ParameterValue: Date): Boolean
@@ -443,7 +451,6 @@ codeunit 1380 "Batch Processing Mgt."
         RecRef := RecRefCustomerProcessing;
     end;
 
-    [Scope('OnPrem')]
     procedure GetBatchFromSession(SourceRecordID: RecordID; SourceSessionID: Integer)
     var
         BatchProcessingSessionMap: Record "Batch Processing Session Map";
@@ -451,7 +458,7 @@ codeunit 1380 "Batch Processing Mgt."
         BatchProcessingSessionMap.SetRange("Record ID", SourceRecordID);
         BatchProcessingSessionMap.SetRange("Session ID", SourceSessionID);
         BatchProcessingSessionMap.SetRange("User ID", UserSecurityId);
-        if BatchProcessingSessionMap.FindFirst then begin
+        if BatchProcessingSessionMap.FindFirst() then begin
             BatchProcessingSessionMap."Session ID" := SessionId;
             BatchProcessingSessionMap.Modify();
         end;
@@ -557,7 +564,7 @@ codeunit 1380 "Batch Processing Mgt."
     begin
     end;
 
-    [InternalEvent(false)]
+    [InternalEvent(false, false)]
     local procedure OnSystemSetBatchProcessingActive(var Result: Boolean)
     begin
     end;
@@ -567,17 +574,17 @@ codeunit 1380 "Batch Processing Mgt."
     begin
     end;
 
-    [InternalEvent(false)]
+    [InternalEvent(false, false)]
     local procedure OnAddArtifact(BatchID: Guid; ArtifactType: Enum "Batch Processing Artifact Type"; ArtifactName: Text[1024]; var TempBlobArtifactValue: Codeunit "Temp Blob")
     begin
     end;
 
-    [InternalEvent(false)]
+    [InternalEvent(false, false)]
     local procedure OnHasArtifacts(ArtifactType: Enum "Batch Processing Artifact Type"; var Result: Boolean)
     begin
     end;
 
-    [InternalEvent(false)]
+    [InternalEvent(false, false)]
     local procedure OnGetArtifacts(ArtifactType: Enum "Batch Processing Artifact Type"; var TempBatchProcessingArtifactResult: Record "Batch Processing Artifact" temporary; var Result: Boolean)
     begin
     end;

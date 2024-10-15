@@ -922,8 +922,8 @@ codeunit 132540 "Test Data Exch.Import - CSV"
     var
         LineNo: Integer;
     begin
-        ExpectedDataExchField.FindFirst;
-        ActualDataExchField.FindFirst;
+        ExpectedDataExchField.FindFirst();
+        ActualDataExchField.FindFirst();
         repeat
             LineNo += 1;
             AreEqualRecords(ExpectedDataExchField, ActualDataExchField, StrSubstNo(TableErrorMsg, Msg, LineNo));

@@ -45,8 +45,8 @@ codeunit 137915 "SCM Assembly Posting"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Assembly Posting");
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         Initialized := true;
         Commit();
@@ -59,7 +59,7 @@ codeunit 137915 "SCM Assembly Posting"
     var
         AssemblyHeader: Record "Assembly Header";
     begin
-        Initialize;
+        Initialize();
         // Post assembly order without any parent item
         CreateAssemblyOrder(AssemblyHeader, '', 0);
         LibraryAssembly.PostAssemblyHeader(AssemblyHeader, ErrItemNoEmpty);
@@ -72,7 +72,7 @@ codeunit 137915 "SCM Assembly Posting"
         AssemblyHeader: Record "Assembly Header";
         AssembledItem: Record Item;
     begin
-        Initialize;
+        Initialize();
         // Post assembly order without any qty to assemble
         LibraryInventory.CreateItem(AssembledItem);
         CreateAssemblyOrder(AssemblyHeader, AssembledItem."No.", 10);
@@ -88,7 +88,7 @@ codeunit 137915 "SCM Assembly Posting"
         AssemblyHeader: Record "Assembly Header";
         AssembledItem: Record Item;
     begin
-        Initialize;
+        Initialize();
         // Post assembly order without any lines
         LibraryInventory.CreateItem(AssembledItem);
         CreateAssemblyOrder(AssemblyHeader, AssembledItem."No.", 10);
@@ -103,7 +103,7 @@ codeunit 137915 "SCM Assembly Posting"
         AssembledItem: Record Item;
         AssemblyLine: Record "Assembly Line";
     begin
-        Initialize;
+        Initialize();
         // Post assembly order with only text lines
         LibraryInventory.CreateItem(AssembledItem);
         CreateAssemblyOrder(AssemblyHeader, AssembledItem."No.", 10);
@@ -125,7 +125,7 @@ codeunit 137915 "SCM Assembly Posting"
         CompItem: Record Item;
         AssemblyLine: Record "Assembly Line";
     begin
-        Initialize;
+        Initialize();
         // Post assembly order without any Quantity to Consume
         LibraryInventory.CreateItem(AssembledItem);
         LibraryInventory.CreateItem(CompItem);
@@ -147,7 +147,7 @@ codeunit 137915 "SCM Assembly Posting"
         ItemJournalLine: Record "Item Journal Line";
         ItemJournalTemplate: Record "Item Journal Template";
     begin
-        Initialize;
+        Initialize();
         // Post assembly order without component item availability
         LibraryInventory.CreateItem(AssembledItem);
         LibraryInventory.CreateItem(CompItem);
@@ -158,7 +158,7 @@ codeunit 137915 "SCM Assembly Posting"
         // insert items and post again
         ItemJournalTemplate.SetRange(Type, ItemJournalTemplate.Type::Item);
         ItemJournalTemplate.SetRange(Recurring, false);
-        ItemJournalTemplate.FindFirst;
+        ItemJournalTemplate.FindFirst();
         ItemJournalLine.SetRange("Journal Template Name", ItemJournalTemplate.Name);
         ItemJournalLine.SetRange("Journal Batch Name", DefaultBatch);
         ItemJournalLine.DeleteAll();
@@ -187,7 +187,7 @@ codeunit 137915 "SCM Assembly Posting"
         AssemblyCommentLineItemLine2: Record "Assembly Comment Line";
         PostedAssemblyHeader: Record "Posted Assembly Header";
     begin
-        Initialize;
+        Initialize();
         // Post assembly order with one line of each type and verify
         CreatePostableAssemblyOrder(AssemblyHeader, AssemblyLine1, AssemblyLine2, AssemblyLine3, AssemblyLine4,
           AssemblyCommentLineHeader1, AssemblyCommentLineHeader2,
@@ -209,7 +209,7 @@ codeunit 137915 "SCM Assembly Posting"
           StrSubstNo(TextGetLastErrorText, GetLastErrorText, ErrOrderDoesNotExist));
 
         // delete posted assembly order
-        PostedAssemblyHeader.FindLast;
+        PostedAssemblyHeader.FindLast();
         PostedAssemblyHeader.Delete(true);
         VerifyPstdAssemblyOrderDeleted(PostedAssemblyHeader."No.");
     end;
@@ -232,7 +232,7 @@ codeunit 137915 "SCM Assembly Posting"
         AssemblyCommentLineItemLine2: Record "Assembly Comment Line";
         PostedAssemblyHeader: Record "Posted Assembly Header";
     begin
-        Initialize;
+        Initialize();
         // partially post order using different posting dates
         CreatePostableAssemblyOrder(AssemblyHeader, AssemblyLine1, AssemblyLine2, AssemblyLine3, AssemblyLine4,
           AssemblyCommentLineHeader1, AssemblyCommentLineHeader2,
@@ -253,7 +253,7 @@ codeunit 137915 "SCM Assembly Posting"
           AssemblyCommentLineItemLine1, AssemblyCommentLineItemLine2);
 
         // delete posted assembly order
-        PostedAssemblyHeader.FindLast;
+        PostedAssemblyHeader.FindLast();
         PostedAssemblyHeader.Delete(true);
         VerifyPstdAssemblyOrderDeleted(PostedAssemblyHeader."No.");
 
@@ -291,12 +291,12 @@ codeunit 137915 "SCM Assembly Posting"
           StrSubstNo(TextGetLastErrorText, GetLastErrorText, ErrOrderDoesNotExist));
 
         // delete last posted assembly order
-        PostedAssemblyHeader.FindLast;
+        PostedAssemblyHeader.FindLast();
         PostedAssemblyHeader.Delete(true);
         VerifyPstdAssemblyOrderDeleted(PostedAssemblyHeader."No.");
 
         // delete posted assembly order created from 2nd posting here
-        PostedAssemblyHeader.FindLast;
+        PostedAssemblyHeader.FindLast();
         PostedAssemblyHeader.Delete(true);
         VerifyPstdAssemblyOrderDeleted(PostedAssemblyHeader."No.");
     end;
@@ -310,7 +310,7 @@ codeunit 137915 "SCM Assembly Posting"
         CompItem: Record Item;
         AssemblyLine: Record "Assembly Line";
     begin
-        Initialize;
+        Initialize();
         // Post assembly order with only text lines
         LibraryInventory.CreateItem(AssembledItem);
         LibraryInventory.CreateItem(CompItem);
@@ -332,7 +332,7 @@ codeunit 137915 "SCM Assembly Posting"
         AssemblyLine: Record "Assembly Line";
         Resource: Record Resource;
     begin
-        Initialize;
+        Initialize();
         // Post assembly order after changing Type to Resource
         LibraryInventory.CreateItem(AssembledItem);
         LibraryInventory.CreateItem(CompItem);
@@ -361,7 +361,7 @@ codeunit 137915 "SCM Assembly Posting"
         DocumentNo: Code[10];
         OriginalManualNo: Boolean;
     begin
-        Initialize;
+        Initialize();
         // set the no series of Assembly order to accept manual nos.
         AssemblySetup.Get();
         NoSeries.Get(AssemblySetup."Assembly Order Nos.");
@@ -391,7 +391,7 @@ codeunit 137915 "SCM Assembly Posting"
         // deleted posted order from 1st posting
         PostedAssemblyHeader.Reset();
         PostedAssemblyHeader.SetRange("Order No.", DocumentNo);
-        PostedAssemblyHeader.FindLast;
+        PostedAssemblyHeader.FindLast();
         PostedAssemblyHeader.Delete(true);
         // create another order with same doc no. - should fail
         ClearLastError;
@@ -466,14 +466,14 @@ codeunit 137915 "SCM Assembly Posting"
         CapLedgEntry: Record "Capacity Ledger Entry";
         DimMgt: Codeunit DimensionManagement;
     begin
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(CompItem);
         LibraryInventory.CreateItem(AsmItem);
         LibraryResource.CreateResourceNew(Resource);
         // put in inventory the component items
         ItemJournalTemplate.SetRange(Type, ItemJournalTemplate.Type::Item);
         ItemJournalTemplate.SetRange(Recurring, false);
-        ItemJournalTemplate.FindFirst;
+        ItemJournalTemplate.FindFirst();
         ItemJournalLine.SetRange("Journal Template Name", ItemJournalTemplate.Name);
         ItemJournalLine.SetRange("Journal Batch Name", DefaultBatch);
         ItemJournalLine.DeleteAll();
@@ -510,45 +510,45 @@ codeunit 137915 "SCM Assembly Posting"
         // verify dimensions
         // - Posted order
         PostedAsmHeader.SetRange("Order No.", AssemblyHeader."No.");
-        PostedAsmHeader.FindFirst;
+        PostedAsmHeader.FindFirst();
         Assert.AreEqual(AssemblyHeader."Dimension Set ID", PostedAsmHeader."Dimension Set ID", '');
         PostedAsmLine.SetRange("Order No.", AssemblyHeader."No.");
         PostedAsmLine.SetRange("Order Line No.", AssemblyLineItem."Line No.");
-        PostedAsmLine.FindFirst;
+        PostedAsmLine.FindFirst();
         Assert.AreEqual(AssemblyLineItem."Dimension Set ID", PostedAsmLine."Dimension Set ID", '');
         PostedAsmLine.SetRange("Order Line No.", AssemblyLineResource."Line No.");
-        PostedAsmLine.FindFirst;
+        PostedAsmLine.FindFirst();
         Assert.AreEqual(AssemblyLineResource."Dimension Set ID", PostedAsmLine."Dimension Set ID", '');
         // - Item Ledger Entry
         ItemLedgEntry.SetRange("Entry Type", ItemLedgEntry."Entry Type"::"Assembly Output");
         ItemLedgEntry.SetRange("Document Type", ItemLedgEntry."Document Type"::"Posted Assembly");
         ItemLedgEntry.SetRange("Document No.", PostedAsmHeader."No.");
-        ItemLedgEntry.FindFirst;
+        ItemLedgEntry.FindFirst();
         Assert.AreEqual(ItemLedgEntry."Dimension Set ID", AssemblyHeader."Dimension Set ID", '');
         ItemLedgEntry.SetRange("Entry Type", ItemLedgEntry."Entry Type"::"Assembly Consumption");
-        ItemLedgEntry.FindFirst;
+        ItemLedgEntry.FindFirst();
         Assert.AreEqual(ItemLedgEntry."Dimension Set ID", AssemblyLineItem."Dimension Set ID", '');
         // - Value Entry
         ValueEntry.SetRange("Item Ledger Entry Type", ValueEntry."Item Ledger Entry Type"::"Assembly Consumption");
         ValueEntry.SetRange("Document Type", ValueEntry."Document Type"::"Posted Assembly");
         ValueEntry.SetRange("Document No.", PostedAsmHeader."No.");
-        ValueEntry.FindFirst;
+        ValueEntry.FindFirst();
         Assert.AreEqual(ValueEntry."Dimension Set ID", AssemblyLineItem."Dimension Set ID", '');
         ValueEntry.SetRange("Item Ledger Entry Type", ValueEntry."Item Ledger Entry Type"::"Assembly Output");
-        ValueEntry.FindFirst;
+        ValueEntry.FindFirst();
         Assert.AreEqual(ValueEntry."Dimension Set ID", AssemblyHeader."Dimension Set ID", '');
         ValueEntry.SetRange("Item Ledger Entry Type", ValueEntry."Item Ledger Entry Type"::" ");
-        ValueEntry.FindFirst;
+        ValueEntry.FindFirst();
         Assert.AreEqual(ValueEntry."Dimension Set ID", AssemblyLineResource."Dimension Set ID", '');
         // - Res Ledger Entry
         ResLedgEntry.SetRange("Document No.", PostedAsmHeader."No.");
         ResLedgEntry.SetRange("Resource No.", Resource."No.");
-        ResLedgEntry.FindFirst;
+        ResLedgEntry.FindFirst();
         Assert.AreEqual(ResLedgEntry."Dimension Set ID", AssemblyLineResource."Dimension Set ID", '');
         // - Capacity Ledger Entry
         CapLedgEntry.SetRange("Document No.", PostedAsmHeader."No.");
         CapLedgEntry.SetRange("No.", Resource."No.");
-        CapLedgEntry.FindFirst;
+        CapLedgEntry.FindFirst();
         Assert.AreEqual(CapLedgEntry."Dimension Set ID", AssemblyLineResource."Dimension Set ID", '');
     end;
 
@@ -575,20 +575,20 @@ codeunit 137915 "SCM Assembly Posting"
         Clear(Resource);
         Resource.Validate("No.", ResourceNo);
         Resource.Insert(true);
-        UnitOfMeasure.FindFirst;
+        UnitOfMeasure.FindFirst();
         LibraryResource.CreateResourceUnitOfMeasure(ResourceUnitOfMeasure, ResourceNo, UnitOfMeasure.Code, 1);
         Resource.Validate("Base Unit of Measure", ResourceUnitOfMeasure.Code);
-        GenProdPostingGroup.FindLast;
+        GenProdPostingGroup.FindLast();
         Resource.Validate("Gen. Prod. Posting Group", GenProdPostingGroup.Code);
-        VATProdPostingGroup.FindFirst;
+        VATProdPostingGroup.FindFirst();
         Resource.Validate("VAT Prod. Posting Group", VATProdPostingGroup.Code);
         Resource.Modify(true);
 
         // put other than default UOM
         ResourceUnitOfMeasure.SetRange("Resource No.", Resource."No.");
-        ResourceUnitOfMeasure.FindFirst;
+        ResourceUnitOfMeasure.FindFirst();
         ResourceUnitOfMeasure.Delete();
-        UnitOfMeasure.FindLast;
+        UnitOfMeasure.FindLast();
         LibraryResource.CreateResourceUnitOfMeasure(ResourceUnitOfMeasure, Resource."No.", UnitOfMeasure.Code, 1);
         Resource.Validate("Base Unit of Measure", ResourceUnitOfMeasure.Code);
         Resource.Modify(true);
@@ -665,7 +665,7 @@ codeunit 137915 "SCM Assembly Posting"
         AssembledItem.Validate("Last Direct Cost", 9); // adding last direct cost to get some value for Direct Cost on asm. output
         AssembledItem.Modify(true);
         UnitOfMeasure.SetFilter(Code, '<>%1', AssembledItem."Base Unit of Measure");
-        UnitOfMeasure.FindFirst;
+        UnitOfMeasure.FindFirst();
         LibraryInventory.CreateItemUnitOfMeasure(AssemblyItemUnitOfMeasure, AssembledItem."No.", UnitOfMeasure.Code, 2); // add a new UOM
 
         LibraryInventory.CreateItem(CompItem);
@@ -684,14 +684,14 @@ codeunit 137915 "SCM Assembly Posting"
         CompItem.Validate("Indirect Cost %", 6);
         CompItem.Modify(true);
         UnitOfMeasure.SetFilter(Code, '<>%1', CompItem."Base Unit of Measure");
-        UnitOfMeasure.FindFirst;
+        UnitOfMeasure.FindFirst();
         LibraryInventory.CreateItemUnitOfMeasure(CompItemUnitOfMeasure, CompItem."No.", UnitOfMeasure.Code, 3); // add a new UOM
         LibraryInventory.CreateItemVariant(ItemVariant, CompItem."No.");
         ItemVariant.Validate(Description, 'Variant of Component item');
         ItemVariant.Modify(true);
         ItemJournalTemplate.SetRange(Type, ItemJournalTemplate.Type::Item);
         ItemJournalTemplate.SetRange(Recurring, false);
-        ItemJournalTemplate.FindFirst;
+        ItemJournalTemplate.FindFirst();
         ItemJournalLine.SetRange("Journal Template Name", ItemJournalTemplate.Name);
         ItemJournalLine.SetRange("Journal Batch Name", DefaultBatch);
         ItemJournalLine.DeleteAll();
@@ -709,7 +709,7 @@ codeunit 137915 "SCM Assembly Posting"
         Resource.Validate("Indirect Cost %", 9);
         Resource.Modify(true);
         UnitOfMeasure.SetFilter(Code, '<>%1', Resource."Base Unit of Measure");
-        UnitOfMeasure.FindFirst;
+        UnitOfMeasure.FindFirst();
         LibraryResource.CreateResourceUnitOfMeasure(ResourceUnitOfMeasure, Resource."No.", UnitOfMeasure.Code, 4); // add a new UOM
 
         CreateAssemblyOrder(AssemblyHeader, AssembledItem."No.", 10);
@@ -772,7 +772,7 @@ codeunit 137915 "SCM Assembly Posting"
         SourceCodeSetup: Record "Source Code Setup";
     begin
         // get last posted document
-        PostedAssemblyHeader.FindLast;
+        PostedAssemblyHeader.FindLast();
 
         // verify document header
         Assert.AreEqual(AssemblyHeader.Description, PostedAssemblyHeader.Description, '');
@@ -830,7 +830,7 @@ codeunit 137915 "SCM Assembly Posting"
         PostedAssemblyLine.SetRange("Order Line No.", AssemblyLine."Line No.");
         PostedAssemblyLine.SetRange("Document No.", PostedAssemblyHeader."No.");
         Assert.AreEqual(1, PostedAssemblyLine.Count, '');
-        PostedAssemblyLine.FindLast;
+        PostedAssemblyLine.FindLast();
 
         // verify fields matching the original assembly line
         Assert.AreEqual(AssemblyLine."Document No.", PostedAssemblyLine."Order No.", '');
@@ -868,7 +868,7 @@ codeunit 137915 "SCM Assembly Posting"
         AssemblyCommentLine.SetRange("Document Line No.", DocLineNo);
         AssemblyCommentLine.SetRange("Line No.", LineNo);
         Assert.AreEqual(1, AssemblyCommentLine.Count, '');
-        AssemblyCommentLine.FindLast;
+        AssemblyCommentLine.FindLast();
 
         Assert.AreEqual(OriginalAssemblyCommentLine.Date, AssemblyCommentLine.Date, 'Comment date');
         Assert.AreEqual(OriginalAssemblyCommentLine.Comment, AssemblyCommentLine.Comment, 'Comment text');
@@ -945,15 +945,15 @@ codeunit 137915 "SCM Assembly Posting"
             end else begin
                 if PostedAssemblyLine.Type = PostedAssemblyLine.Type::Item then begin
                     Assert.AreEqual(1, ItemLedgEntry.Count, '');
-                    ItemLedgEntry.FindFirst;
+                    ItemLedgEntry.FindFirst();
                     VerifyILE(ItemLedgEntry, PostedAssemblyLine."Document No.", PostedAssemblyLine."Line No.");
                 end;
                 if PostedAssemblyLine.Type = PostedAssemblyLine.Type::Resource then begin
                     Assert.AreEqual(1, CapLedgEntry.Count, '');
-                    CapLedgEntry.FindFirst;
+                    CapLedgEntry.FindFirst();
                     VerifyCapLE(CapLedgEntry, PostedAssemblyLine."Document No.", PostedAssemblyLine."Line No.");
                     Assert.AreEqual(1, ResLedgEntry.Count, '');
-                    ResLedgEntry.FindFirst;
+                    ResLedgEntry.FindFirst();
                     VerifyResLE(ResLedgEntry, PostedAssemblyLine."Document No.", PostedAssemblyLine."Line No.");
                 end;
             end;
@@ -962,7 +962,7 @@ codeunit 137915 "SCM Assembly Posting"
         ItemLedgEntry.SetRange("Document Line No.", 0);
         ItemLedgEntry.SetRange("Order Line No.", 0);
         Assert.AreEqual(1, ItemLedgEntry.Count, '');
-        ItemLedgEntry.FindFirst;
+        ItemLedgEntry.FindFirst();
         VerifyILE(ItemLedgEntry, PostedAssemblyHeader."No.", 0);
         CapLedgEntry.SetRange("Order Line No.", 0);
         Assert.AreEqual(0, CapLedgEntry.Count, '');
@@ -1078,12 +1078,12 @@ codeunit 137915 "SCM Assembly Posting"
             ValueEntry.SetRange("Order Line No.", 0);
             ValueEntry.SetRange("Entry Type", ValueEntry."Entry Type"::"Indirect Cost");
             Assert.AreEqual(1, ValueEntry.Count, Identifier);
-            ValueEntry.FindFirst;
+            ValueEntry.FindFirst();
             VerifyVE(ValueEntry, PostedAssemblyDocumentNo, PostedAssemblyLineNo);
             ValueEntry.SetRange("Entry Type", ValueEntry."Entry Type"::"Direct Cost");
         end;
         Assert.AreEqual(1, ValueEntry.Count, Identifier);
-        ValueEntry.FindFirst;
+        ValueEntry.FindFirst();
         VerifyVE(ValueEntry, PostedAssemblyDocumentNo, PostedAssemblyLineNo);
     end;
 
@@ -1114,13 +1114,13 @@ codeunit 137915 "SCM Assembly Posting"
         ItemLedgEntry.SetRange("Order Type", ItemLedgEntry."Order Type"::Assembly);
         ItemLedgEntry.SetRange("Order No.", PostedAssemblyHeader."Order No.");
         ItemLedgEntry.SetRange("Order Line No.", PostedAssemblyLine."Order Line No.");
-        if ItemLedgEntry.FindFirst then;
+        if ItemLedgEntry.FindFirst() then;
         CapLedgEntry.SetCurrentKey("Order Type", "Order No.", "Order Line No.");
         CapLedgEntry.SetRange("Document No.", ValueEntry."Document No.");
         CapLedgEntry.SetRange("Order Type", CapLedgEntry."Order Type"::Assembly);
         CapLedgEntry.SetRange("Order No.", PostedAssemblyHeader."Order No.");
         CapLedgEntry.SetRange("Order Line No.", PostedAssemblyLine."Order Line No.");
-        if CapLedgEntry.FindFirst then begin
+        if CapLedgEntry.FindFirst() then begin
             Assert.AreEqual(PostedAssemblyLine.Type::Resource, PostedAssemblyLine.Type, Identifier);
             Assert.AreEqual(CapLedgEntry.Type::Resource, CapLedgEntry.Type, Identifier);
         end;
@@ -1335,11 +1335,11 @@ codeunit 137915 "SCM Assembly Posting"
         ValueEntry.SetRange("Document No.", PostedAssemblyHeader."No.");
         ValueEntry.SetRange("Entry Type", ValueEntry."Entry Type"::"Direct Cost");
         Assert.AreEqual(1, ValueEntry.Count, Identifier);
-        ValueEntry.FindFirst;
+        ValueEntry.FindFirst();
         VerifyVE(ValueEntry, PostedAssemblyDocumentNo, PostedAssemblyLineNo);
         ValueEntry.SetRange("Entry Type", ValueEntry."Entry Type"::"Indirect Cost");
         Assert.AreEqual(1, ValueEntry.Count, Identifier);
-        ValueEntry.FindFirst;
+        ValueEntry.FindFirst();
         VerifyVE(ValueEntry, PostedAssemblyDocumentNo, PostedAssemblyLineNo);
     end;
 
@@ -1408,9 +1408,9 @@ codeunit 137915 "SCM Assembly Posting"
         ItemLedgEntry.SetRange("Document No.", PostedAssemblyHeader."No.");
         ItemLedgEntry.SetRange("Order Type", ItemLedgEntry."Order Type"::Assembly);
         ItemLedgEntry.SetRange("Order No.", PostedAssemblyHeader."Order No.");
-        ItemLedgEntry.FindFirst;
+        ItemLedgEntry.FindFirst();
         ItemRegister.SetRange("From Entry No.", ItemLedgEntry."Entry No.");
-        ItemLedgEntry.FindLast;
+        ItemLedgEntry.FindLast();
         ItemRegister.SetRange("To Entry No.", ItemLedgEntry."Entry No.");
         SourceCodeSetup.Get();
         ItemRegister.SetRange("Source Code", SourceCodeSetup.Assembly);

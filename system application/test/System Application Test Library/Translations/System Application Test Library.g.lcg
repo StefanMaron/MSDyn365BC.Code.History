@@ -1346,6 +1346,24 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Page Translation Test Page - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Page 1221110250 - Control 970416965 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Specifies the primary key.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Page Translation Test Page - Control PK - Property ToolTip)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 1221110250 - Control 4263934329 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Specified the translated value.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Page Translation Test Page - Control TextField - Property ToolTip)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Query 1346074966 - Property 2879900210" ItemType=";Query - Query" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Dummy Query]]></Val>

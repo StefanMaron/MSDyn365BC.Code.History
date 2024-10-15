@@ -34,7 +34,7 @@ codeunit 134263 "Test Bank Payment Application"
         DimValue: Record "Dimension Value";
         DimValue2: Record "Dimension Value";
     begin
-        Initialize;
+        Initialize();
 
         // Create Sales Invoice and Post
         CreateCustAndPostSalesInvoice(CustLedgEntry, '');
@@ -69,7 +69,7 @@ codeunit 134263 "Test Bank Payment Application"
         DimValue: Record "Dimension Value";
         DimValue2: Record "Dimension Value";
     begin
-        Initialize;
+        Initialize();
 
         // Create Sales Invoice and Post
         CreateCustAndPostSalesInvoice(CustLedgEntry, '');
@@ -110,7 +110,7 @@ codeunit 134263 "Test Bank Payment Application"
         DimValue: Record "Dimension Value";
         DimValue2: Record "Dimension Value";
     begin
-        Initialize;
+        Initialize();
 
         // Create Sales Invoice and Post
         CreateCustAndPostSalesInvoice(CustLedgEntry, '');
@@ -148,7 +148,7 @@ codeunit 134263 "Test Bank Payment Application"
         BankAccReconLine: Record "Bank Acc. Reconciliation Line";
         Customer: Record Customer;
     begin
-        Initialize;
+        Initialize();
 
         // Create Sales Invoice and Post
         CreateCustAndPostSalesInvoice(CustLedgEntry, '');
@@ -199,7 +199,7 @@ codeunit 134263 "Test Bank Payment Application"
         BankAccReconLine: Record "Bank Acc. Reconciliation Line";
         Customer: Record Customer;
     begin
-        Initialize;
+        Initialize();
 
         // Create Sales Invoice and Post
         CreateCustAndPostSalesInvoice(CustLedgEntry, '');
@@ -250,7 +250,7 @@ codeunit 134263 "Test Bank Payment Application"
         BankAccRecon: Record "Bank Acc. Reconciliation";
         BankAccReconLine: Record "Bank Acc. Reconciliation Line";
     begin
-        Initialize;
+        Initialize();
 
         // Create Sales Invoice and Post
         LibrarySales.CreateCustomer(Cust);
@@ -288,7 +288,7 @@ codeunit 134263 "Test Bank Payment Application"
         BankAccReconLine: Record "Bank Acc. Reconciliation Line";
         AppliedPmtEntry: Record "Applied Payment Entry";
     begin
-        Initialize;
+        Initialize();
 
         // Create Sales Invoice and Post
         CreateCustAndPostSalesInvoice(CustLedgEntry, '');
@@ -305,7 +305,7 @@ codeunit 134263 "Test Bank Payment Application"
 
         AppliedPmtEntry.SetRange("Account Type", AppliedPmtEntry."Account Type"::Customer);
         AppliedPmtEntry.SetRange("Account No.", CustLedgEntry."Customer No.");
-        AppliedPmtEntry.FindFirst;
+        AppliedPmtEntry.FindFirst();
         Commit();
 
         // Should be possible to reduce
@@ -335,7 +335,7 @@ codeunit 134263 "Test Bank Payment Application"
         BankAccReconLine: Record "Bank Acc. Reconciliation Line";
         AppliedPmtEntry: Record "Applied Payment Entry";
     begin
-        Initialize;
+        Initialize();
 
         // Create Sales Invoice and Post
         CreateCustAndPostSalesInvoice(CustLedgEntry, '');
@@ -376,7 +376,7 @@ codeunit 134263 "Test Bank Payment Application"
         i: Integer;
         RemStmtAmt: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Create Sales Invoice and Post
         LibrarySales.CreateCustomer(Cust);
@@ -434,7 +434,7 @@ codeunit 134263 "Test Bank Payment Application"
         BankAccRecon: Record "Bank Acc. Reconciliation";
         BankAccReconLine: Record "Bank Acc. Reconciliation Line";
     begin
-        Initialize;
+        Initialize();
 
         // Create Sales Invoice and Post
         CreateCustAndPostSalesInvoice(CustLedgEntry, '');
@@ -465,7 +465,7 @@ codeunit 134263 "Test Bank Payment Application"
         BankAccRecon: Record "Bank Acc. Reconciliation";
         CustLedgEntry: Record "Cust. Ledger Entry";
     begin
-        Initialize;
+        Initialize();
 
         // Create Sales Invoice and Post
         CreateCustAndPostSalesInvoice(CustLedgEntry, '');
@@ -492,7 +492,7 @@ codeunit 134263 "Test Bank Payment Application"
         BankAccReconLine: Record "Bank Acc. Reconciliation Line";
         CustLedgEntry: Record "Cust. Ledger Entry";
     begin
-        Initialize;
+        Initialize();
 
         // Create Sales Invoice and Post
         CreateCustAndPostSalesInvoice(CustLedgEntry, '');
@@ -523,7 +523,7 @@ codeunit 134263 "Test Bank Payment Application"
     begin
         // [SCENARIO] Vendor and Bank Account Ledger Entries are created when post Bank. Account Reconciliation Line applied to Posted Sales Invoice
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Invoice with Amount = 100
         CreateCustAndPostSalesInvoice(CustLedgEntry, '');
@@ -565,7 +565,7 @@ codeunit 134263 "Test Bank Payment Application"
         PmtTerms: Record "Payment Terms";
         StmtAmt: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Create Sales Invoice and Post
         LibrarySales.CreateCustomer(Cust);
@@ -612,7 +612,7 @@ codeunit 134263 "Test Bank Payment Application"
         i: Integer;
         RemStmtAmt: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Create Sales Invoice and Post
         LibrarySales.CreateCustomer(Cust);
@@ -670,7 +670,7 @@ codeunit 134263 "Test Bank Payment Application"
         PmtTerms: Record "Payment Terms";
         StmtAmt: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Create Sales Invoice and Post
         LibrarySales.CreateCustomer(Cust);
@@ -720,7 +720,7 @@ codeunit 134263 "Test Bank Payment Application"
         PmtVendLedgEntry: Record "Vendor Ledger Entry";
     begin
         // [SCENARIO] Vendor and Bank Account Ledger Entries are created when post Bank. Account Reconciliation Line applied to Posted Purchase Invoice
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Invoice with Amount = 100
         CreateVendAndPostPurchInvoice(VendLedgEntry, '');
@@ -761,7 +761,7 @@ codeunit 134263 "Test Bank Payment Application"
         CustLedgEntry: Record "Cust. Ledger Entry";
         Curr: Record Currency;
     begin
-        Initialize;
+        Initialize();
 
         // Create Sales Invoice and Post
         Curr.Get(LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, 10, 10));
@@ -798,7 +798,7 @@ codeunit 134263 "Test Bank Payment Application"
         CustLedgEntry: Record "Cust. Ledger Entry";
         Curr: Record Currency;
     begin
-        Initialize;
+        Initialize();
 
         // Create Sales Invoice and Post
         Curr.Get(LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, 10, 10));
@@ -836,7 +836,7 @@ codeunit 134263 "Test Bank Payment Application"
         Curr: Record Currency;
         StmtAmt: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Create Sales Invoice and Post
         Curr.Get(LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, 10, 10));
@@ -887,7 +887,7 @@ codeunit 134263 "Test Bank Payment Application"
         CustLedgEntry: Record "Cust. Ledger Entry";
         Curr: Record Currency;
     begin
-        Initialize;
+        Initialize();
 
         // Create Sales Invoice and Post
         Curr.Get(LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, 10, 10));
@@ -932,7 +932,7 @@ codeunit 134263 "Test Bank Payment Application"
         PmtTerms: Record "Payment Terms";
         StmtAmt: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Create Sales Invoice and Post
         LibrarySales.CreateCustomer(Cust);
@@ -976,7 +976,7 @@ codeunit 134263 "Test Bank Payment Application"
         MinAmount: Decimal;
         MaxAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryERM.CreateBankAccount(BankAccount);
@@ -1008,7 +1008,7 @@ codeunit 134263 "Test Bank Payment Application"
         MinAmount: Decimal;
         MaxAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryERM.CreateBankAccount(BankAccount);
@@ -1040,7 +1040,7 @@ codeunit 134263 "Test Bank Payment Application"
         MinAmount: Decimal;
         MaxAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryERM.CreateBankAccount(BankAccount);
@@ -1072,7 +1072,7 @@ codeunit 134263 "Test Bank Payment Application"
         MinAmount: Decimal;
         MaxAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryERM.CreateBankAccount(BankAccount);
@@ -1108,7 +1108,7 @@ codeunit 134263 "Test Bank Payment Application"
         // [SCENARIO] Minimum and Maximum correctly calculated when "Match Tolerance Type" is Percentage, Amount is positive and "Tolerance Percent" is defined
         // [TFS 381097] Amount Range is correctly calculated when "Match Tolerance Type" is Percentage
 
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryERM.CreateBankAccount(BankAccount);
@@ -1142,7 +1142,7 @@ codeunit 134263 "Test Bank Payment Application"
         // [FEATURE] [UT] [Payment Tolerance]
         // [SCENARIO] Minimum and Maximum correctly calculated when "Match Tolerance Type" is Percentage, Amount is negative and "Tolerance Percent" is defined
 
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryERM.CreateBankAccount(BankAccount);
@@ -1175,7 +1175,7 @@ codeunit 134263 "Test Bank Payment Application"
         // [FEATURE] [UT] [Payment Tolerance]
         // [SCENARIO] Minimum and Maximum correctly calculated when "Match Tolerance Type" is Percentage, Amount is positive and "Tolerance Percent" is zero
 
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryERM.CreateBankAccount(BankAccount);
@@ -1208,7 +1208,7 @@ codeunit 134263 "Test Bank Payment Application"
         // [FEATURE] [UT] [Payment Tolerance]
         // [SCENARIO] Minimum and Maximum correctly calculated when "Match Tolerance Type" is Percentage, Amount is negative and "Tolerance Percent" is zero
 
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryERM.CreateBankAccount(BankAccount);
@@ -1241,7 +1241,7 @@ codeunit 134263 "Test Bank Payment Application"
     begin
         // [FEATURE] [Source Code]
         // [SCENARIO 379544] Source Code Setup "Payment Reconciliation Journal" value is used as "Source Code" when post reconcicliation with "Statement Type" = "Payment Application"
-        Initialize;
+        Initialize();
 
         // [GIVEN] SourceCodeSetup."Payment Reconciliation Journal" = "X"
         LibraryERM.CreateSourceCode(SourceCode);
@@ -1280,7 +1280,7 @@ codeunit 134263 "Test Bank Payment Application"
     begin
         // [SCENARIO 380959] "Remaining Amount After Posting" calculated as "Remaining Amount" of Ledger Entry minus "Statement Amount" on Bank Account Reconciliation Line
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Invoice "X" with Amount = 100
         LibrarySales.CreateCustomer(Cust);
@@ -1403,7 +1403,7 @@ codeunit 134263 "Test Bank Payment Application"
         // [FEATURE] [Sales]
         // [SCENARIO 211371] "Applies-to ID" is blank when no entries applied during sales posting of Bank Account Reconciliation Line
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Bank Acc. Reconciliation Line with "Account Type" = Customer
         LibraryERM.CreateBankAccount(BankAcc);
@@ -1434,7 +1434,7 @@ codeunit 134263 "Test Bank Payment Application"
         // [FEATURE] [Purchase]
         // [SCENARIO 211371] "Applies-to ID" is blank when no entries applied during purchase posting of Bank Account Reconciliation Line
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Bank Acc. Reconciliation Line with "Account Type" = Vendor
         LibraryERM.CreateBankAccount(BankAcc);
@@ -1463,7 +1463,7 @@ codeunit 134263 "Test Bank Payment Application"
     begin
         // [FEATURE] [Bank Account] [Currency]
         // [SCENARIO 223618] Bank Payment Application of Bank Acc.Reconciliation to Bank Account both in LCY
-        Initialize;
+        Initialize();
 
         // [GIVEN] Bank Account Reconciliation Line with Amount = 100 no currency
         // [GIVEN] Set Application to Bank Account "B" of no currency specified
@@ -1492,7 +1492,7 @@ codeunit 134263 "Test Bank Payment Application"
     begin
         // [FEATURE] [Bank Account] [Currency]
         // [SCENARIO 223618] Bank Payment Application of Bank Acc.Reconciliation to Bank Account both in FCY
-        Initialize;
+        Initialize();
 
         // [GIVEN] Bank Account Reconciliation Line with Amount = 100 in currency "C"
         // [GIVEN] Set Application to Bank Account "B" in currency "C"
@@ -1521,7 +1521,7 @@ codeunit 134263 "Test Bank Payment Application"
     begin
         // [FEATURE] [Bank Account] [Currency]
         // [SCENARIO 223618] Bank Payment Application of Bank Acc.Reconciliation to Bank Account in different currenncies is not allowed
-        Initialize;
+        Initialize();
 
         // [GIVEN] Bank Account Reconciliation Line with Amount = 100 in currency "C"
         // [GIVEN] Set Application to Bank Account "B" in local currency
@@ -1551,7 +1551,7 @@ codeunit 134263 "Test Bank Payment Application"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 255420] Posting payments only for Bank Account Reconciliation Line with "Transaction Date" less than "Posting Date" of applied Sales Invoice is not allowed.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Bank Account Reconciliation Line with "Transaction Date" = 15.01
         LibraryERM.CreateBankAccount(BankAccount);
@@ -1585,7 +1585,7 @@ codeunit 134263 "Test Bank Payment Application"
         // [FEATURE] [UI]
         // [SCENARIO 284536] Payment Reconciliation line with negative amount automatically applies when validate G/L Account No.
 
-        Initialize;
+        Initialize();
         LibraryERM.CreateBankAccount(BankAcc);
 
         // [GIVEN] Payment Reconciliation Line with Amount = -100
@@ -1650,20 +1650,23 @@ codeunit 134263 "Test Bank Payment Application"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Test Bank Payment Application");
-        LibraryLowerPermissions.SetOutsideO365Scope;
-        LibrarySetupStorage.Restore;
+        LibraryLowerPermissions.SetOutsideO365Scope();
+        LibrarySetupStorage.Restore();
         if Initialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Test Bank Payment Application");
 
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
+        LibraryERM.SetJournalTemplateNameMandatory(false);
+        UpdateCustPostingGrp();
+
         Initialized := true;
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
-        UpdateCustPostingGrp;
-        LibrarySetupStorage.Save(DATABASE::"Source Code Setup");
         Commit();
+        LibrarySetupStorage.SaveGeneralLedgerSetup();
+        LibrarySetupStorage.Save(DATABASE::"Source Code Setup");
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Test Bank Payment Application");
     end;
 
@@ -1764,7 +1767,7 @@ codeunit 134263 "Test Bank Payment Application"
         CustLedgEntry.SetRange("Customer No.", Cust."No.");
         CustLedgEntry.SetRange("Document Type", CustLedgEntry."Document Type"::Invoice);
         CustLedgEntry.SetRange("Document No.", LibrarySales.PostSalesDocument(SalesHeader, true, true));
-        CustLedgEntry.FindFirst;
+        CustLedgEntry.FindFirst();
         CustLedgEntry.CalcFields("Remaining Amount");
     end;
 
@@ -1794,7 +1797,7 @@ codeunit 134263 "Test Bank Payment Application"
         VendLedgEntry.SetRange("Vendor No.", Vend."No.");
         VendLedgEntry.SetRange("Document Type", VendLedgEntry."Document Type"::Invoice);
         VendLedgEntry.SetRange("Document No.", LibraryPurch.PostPurchaseDocument(PurchHeader, true, true));
-        VendLedgEntry.FindFirst;
+        VendLedgEntry.FindFirst();
     end;
 
     local procedure UpdateSourceCodeSetupForPmtReconJnl(NewSourceCode: Code[10])
@@ -1891,7 +1894,7 @@ codeunit 134263 "Test Bank Payment Application"
         GLRegister: Record "G/L Register";
         GLEntry: Record "G/L Entry";
     begin
-        GLRegister.FindLast;
+        GLRegister.FindLast();
         Assert.AreEqual(ExpectedSourceCode, GLRegister."Source Code", GLRegister.FieldCaption("Source Code"));
 
         with GLEntry do begin
@@ -1916,7 +1919,7 @@ codeunit 134263 "Test Bank Payment Application"
     begin
         LibraryERM.CreateGLAccount(GLAcc);
         with CustPostingGroup do
-            if FindSet then
+            if FindSet() then
                 repeat
                     if "Payment Disc. Debit Acc." = '' then begin
                         Validate("Payment Disc. Debit Acc.", GLAcc."No.");

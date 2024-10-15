@@ -33,7 +33,7 @@ codeunit 141001 "Electronic Invoices - Tests"
         SalesSetup: Record "Sales & Receivables Setup";
         IsElectronicInvoicing: Boolean;
     begin
-        Initialize;
+        Initialize();
 
         for IsElectronicInvoicing := false to true do begin
             // Exercise
@@ -53,7 +53,7 @@ codeunit 141001 "Electronic Invoices - Tests"
         SalesHeader: Record "Sales Header";
         IsElectronicInvoicing: Boolean;
     begin
-        Initialize;
+        Initialize();
 
         CreateSalesDoc(SalesHeader, SalesHeader."Document Type"::Quote);
 

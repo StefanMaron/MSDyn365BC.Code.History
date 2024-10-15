@@ -122,7 +122,7 @@ codeunit 137060 "SCM Inventory 7.0"
         Initialize(false);
 
         LibraryWarehouse.CreateLocation(Location);
-        VendorNo := LibraryUtility.GenerateGUID;
+        VendorNo := LibraryUtility.GenerateGUID();
         CreateItem(Item, Location.Code, Item."Costing Method"::FIFO);
         LibraryInventory.CreateStockKeepingUnit(Item, 0, false, false);
         StockkeepingUnit.Get(Location.Code, Item."No.", '');
@@ -594,7 +594,7 @@ codeunit 137060 "SCM Inventory 7.0"
 
         // [GIVEN] Create item "I" with base unit of measure "U1"
         LibraryInventory.CreateItem(Item);
-        Item.Validate("Vendor Item No.", LibraryUtility.GenerateGUID);
+        Item.Validate("Vendor Item No.", LibraryUtility.GenerateGUID());
         Item.Modify(true);
 
         // [GIVEN] Create unit of measure "U2" for item "I"
@@ -863,7 +863,7 @@ codeunit 137060 "SCM Inventory 7.0"
 
         // [GIVEN] Create item "I" with base unit of measure "U1", Set vendor item no. = "N1"
         LibraryInventory.CreateItem(Item);
-        Item.Validate("Vendor Item No.", LibraryUtility.GenerateGUID);
+        Item.Validate("Vendor Item No.", LibraryUtility.GenerateGUID());
         Item.Modify(true);
 
         // [GIVEN] Create unit of measure "U2" for item "I"
@@ -939,7 +939,7 @@ codeunit 137060 "SCM Inventory 7.0"
 
         // [GIVEN] Create item "I", set vendor item no. = "N1"
         LibraryInventory.CreateItem(Item);
-        Item.Validate("Vendor Item No.", LibraryUtility.GenerateGUID);
+        Item.Validate("Vendor Item No.", LibraryUtility.GenerateGUID());
         Item.Modify(true);
 
         // [GIVEN] Create location "L"
@@ -1137,7 +1137,7 @@ codeunit 137060 "SCM Inventory 7.0"
     var
         Language: Record Language;
     begin
-        Language.FindFirst;
+        Language.FindFirst();
         LibraryPurchase.CreateVendor(Vendor);
         Vendor.Validate("Language Code", Language.Code);
         Vendor.Modify(true);
@@ -1152,7 +1152,7 @@ codeunit 137060 "SCM Inventory 7.0"
         ItemReference.Validate("Unit of Measure", UoMCode);
         ItemReference.Validate("Reference Type", ItemReference."Reference Type"::Vendor);
         ItemReference.Validate("Reference Type No.", VendorNo);
-        ItemReference.Validate("Reference No.", LibraryUtility.GenerateGUID);
+        ItemReference.Validate("Reference No.", LibraryUtility.GenerateGUID());
         ItemReference.Insert(true);
     end;
 
@@ -1174,7 +1174,7 @@ codeunit 137060 "SCM Inventory 7.0"
             "Item No." := ItemNo;
             "Variant Code" := VariantCode;
             Evaluate("Lead Time Calculation", StrSubstNo('<%1D>', LibraryRandom.RandInt(10)));
-            "Vendor Item No." := LibraryUtility.GenerateGUID;
+            "Vendor Item No." := LibraryUtility.GenerateGUID();
             Insert;
         end;
     end;
@@ -1236,7 +1236,7 @@ codeunit 137060 "SCM Inventory 7.0"
         SKU."Location Code" := LocationCode;
         SKU."Item No." := ItemNo;
         SKU."Variant Code" := VariantCode;
-        SKU."Vendor Item No." := LibraryUtility.GenerateGUID;
+        SKU."Vendor Item No." := LibraryUtility.GenerateGUID();
         SKU.Insert();
     end;
 
@@ -1337,7 +1337,7 @@ codeunit 137060 "SCM Inventory 7.0"
         DimensionValue: Record "Dimension Value";
         DefaultDimension: Record "Default Dimension";
     begin
-        VendorNo := LibraryPurchase.CreateVendorNo;
+        VendorNo := LibraryPurchase.CreateVendorNo();
         if LibraryDimension.FindDefaultDimension(DefaultDimension, DATABASE::Vendor, VendorNo) then
             exit;
         CreateDimensionWithValue(DimensionValue);
@@ -1362,7 +1362,7 @@ codeunit 137060 "SCM Inventory 7.0"
     local procedure FindTransferShipmentHeader(var TransferShipmentHeader: Record "Transfer Shipment Header"; TransferOrderNo: Code[20])
     begin
         TransferShipmentHeader.SetRange("Transfer Order No.", TransferOrderNo);
-        TransferShipmentHeader.FindFirst;
+        TransferShipmentHeader.FindFirst();
     end;
 
     local procedure CreateItemWithDimension(var Item: Record Item; var DimensionValue: Record "Dimension Value")
@@ -1418,17 +1418,17 @@ codeunit 137060 "SCM Inventory 7.0"
         DimensionSetEntry: Record "Dimension Set Entry";
     begin
         ItemJournalLine.SetRange("Journal Template Name", RevaluationItemJournalTemplate.Name);
-        ItemJournalLine.FindLast;
+        ItemJournalLine.FindLast();
         DimensionSetEntry.SetRange("Dimension Set ID", ItemJournalLine."Dimension Set ID");
         DimensionSetEntry.SetRange("Dimension Code", DimCode1);
-        DimensionSetEntry.FindFirst;
+        DimensionSetEntry.FindFirst();
         Assert.IsFalse(
           DimensionSetEntry."Dimension Value Code" <> DimValue1, StrSubstNo(DimErr, DimValue1, DimensionSetEntry."Dimension Value Code"));
 
         Clear(DimensionSetEntry);
         DimensionSetEntry.SetRange("Dimension Set ID", ItemJournalLine."Dimension Set ID");
         DimensionSetEntry.SetRange("Dimension Code", DimCode2);
-        DimensionSetEntry.FindFirst;
+        DimensionSetEntry.FindFirst();
         Assert.IsFalse(
           DimensionSetEntry."Dimension Value Code" <> DimValue2, StrSubstNo(DimErr, DimValue2, DimensionSetEntry."Dimension Value Code"));
     end;
@@ -1449,7 +1449,7 @@ codeunit 137060 "SCM Inventory 7.0"
         FindTransferShipmentHeader(TransferShipmentHeader, TransferOrderNo);
         TransferShipmentLine.SetRange("Document No.", TransferShipmentHeader."No.");
         TransferShipmentLine.SetRange("Item No.", ItemNo);
-        TransferShipmentLine.FindFirst;
+        TransferShipmentLine.FindFirst();
         VerifyDimensionSetEntry(TransferShipmentLine."Dimension Set ID", DimensionValue."Dimension Code", DimensionValue.Code);
     end;
 
@@ -1464,7 +1464,7 @@ codeunit 137060 "SCM Inventory 7.0"
     local procedure VerifyDimensionOnTransferReceiptHeader(var TransferReceiptHeader: Record "Transfer Receipt Header"; TransferOrderNo: Code[20]; DimensionValue: Record "Dimension Value")
     begin
         TransferReceiptHeader.SetRange("Transfer Order No.", TransferOrderNo);
-        TransferReceiptHeader.FindFirst;
+        TransferReceiptHeader.FindFirst();
         VerifyDimensionSetEntry(TransferReceiptHeader."Dimension Set ID", DimensionValue."Dimension Code", DimensionValue.Code);
     end;
 
@@ -1474,7 +1474,7 @@ codeunit 137060 "SCM Inventory 7.0"
     begin
         TransferReceiptLine.SetRange("Document No.", DocumentNo);
         TransferReceiptLine.SetRange("Item No.", ItemNo);
-        TransferReceiptLine.FindFirst;
+        TransferReceiptLine.FindFirst();
         VerifyDimensionSetEntry(TransferReceiptLine."Dimension Set ID", DimensionValue."Dimension Code", DimensionValue.Code);
         VerifyDimensionSetEntry(TransferReceiptLine."Dimension Set ID", DimensionValue2."Dimension Code", DimensionValue2.Code);
     end;

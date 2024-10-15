@@ -37,7 +37,7 @@ codeunit 1203 "Import XML File to Data Exch."
         DataExchDef.Get(DataExch."Data Exch. Def Code");
         DataExchLineDef.SetRange("Data Exch. Def Code", DataExchDef.Code);
         DataExchLineDef.SetRange("Parent Code", '');
-        if not DataExchLineDef.FindSet then
+        if not DataExchLineDef.FindSet() then
             exit;
 
         DataExch."File Content".CreateInStream(XmlStream);
@@ -81,7 +81,7 @@ codeunit 1203 "Import XML File to Data Exch."
 
         CurrentIndex := 1;
 
-        if DataExchColumnDef.FindSet then
+        if DataExchColumnDef.FindSet() then
             repeat
                 XMLDOMManagement.FindNodesWithNamespaceManager(
                   CurrentXmlNode,
@@ -102,7 +102,7 @@ codeunit 1203 "Import XML File to Data Exch."
         // insert Constant values
         DataExchColumnDef.SetFilter(Path, '%1', '');
         DataExchColumnDef.SetFilter(Constant, '<>%1', '');
-        if DataExchColumnDef.FindSet then
+        if DataExchColumnDef.FindSet() then
             repeat
                 CurrentNodeID := IncreaseNodeID(NodeID, CurrentIndex);
                 CurrentIndex += 1;
@@ -114,7 +114,7 @@ codeunit 1203 "Import XML File to Data Exch."
         DataExchLineDef.SetRange("Data Exch. Def Code", CurrentDataExchLineDef."Data Exch. Def Code");
         DataExchLineDef.SetRange("Parent Code", CurrentDataExchLineDef.Code);
 
-        if DataExchLineDef.FindSet then
+        if DataExchLineDef.FindSet() then
             repeat
                 XMLDOMManagement.FindNodesWithNamespaceManager(
                   CurrentXmlNode,
@@ -125,7 +125,7 @@ codeunit 1203 "Import XML File to Data Exch."
                 DataExchField.SetRange("Data Exch. No.", EntryNo);
                 DataExchField.SetRange("Data Exch. Line Def Code", DataExchLineDef.Code);
                 LastLineNo := 1;
-                if DataExchField.FindLast then
+                if DataExchField.FindLast() then
                     LastLineNo := DataExchField."Line No." + 1;
 
                 NodeCount := XmlNodeList.Count();

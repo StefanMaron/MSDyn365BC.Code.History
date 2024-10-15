@@ -1,4 +1,4 @@
-page 138 "Posted Purchase Invoice"
+﻿page 138 "Posted Purchase Invoice"
 {
     Caption = 'Posted Purchase Invoice';
     DeleteAllowed = false;
@@ -351,6 +351,13 @@ page 138 "Posted Purchase Invoice"
                     Editable = false;
                     Importance = Additional;
                     ToolTip = 'Specifies the number of the vendor.';
+                }
+                field("Vendor Posting Group"; "Vendor Posting Group")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Editable = false;
+                    ToolTip = 'Specifies the vendor''s market type to link business transactions made for the vendor with the appropriate account in the general ledger.';
+                    Visible = false;
                 }
             }
             group("Shipping and Payment")
@@ -775,7 +782,7 @@ page 138 "Posted Purchase Invoice"
                     Image = Navigate;
                     Promoted = true;
                     PromotedCategory = Category5;
-                    ShortCutKey = 'Shift+Ctrl+I';
+                    ShortCutKey = 'Ctrl+Alt+Q';
                     ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
                     Visible = NOT IsOfficeAddin;
 
@@ -800,7 +807,7 @@ page 138 "Posted Purchase Invoice"
                     begin
                         RecRef.GetTable(Rec);
                         DocumentAttachmentDetails.OpenForRecRef(RecRef);
-                        DocumentAttachmentDetails.RunModal;
+                        DocumentAttachmentDetails.RunModal();
                     end;
                 }
             }
@@ -811,7 +818,7 @@ page 138 "Posted Purchase Invoice"
                 Image = Navigate;
                 Promoted = true;
                 PromotedCategory = Category5;
-                ShortCutKey = 'Shift+Ctrl+I';
+                ShortCutKey = 'Ctrl+Alt+Q';
                 ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
                 Visible = false;
 
@@ -889,7 +896,7 @@ page 138 "Posted Purchase Invoice"
                 begin
                     PostedPurchInvoiceUpdate.LookupMode := true;
                     PostedPurchInvoiceUpdate.SetRec(Rec);
-                    PostedPurchInvoiceUpdate.RunModal;
+                    PostedPurchInvoiceUpdate.RunModal();
                 end;
             }
         }

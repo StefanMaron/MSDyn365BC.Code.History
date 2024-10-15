@@ -531,7 +531,7 @@ page 9231 "Items by Location Matrix"
         MATRIX_CurrentColumnOrdinal: Integer;
     begin
         MATRIX_CurrentColumnOrdinal := 0;
-        if TempMatrixLocation.FindSet then
+        if TempMatrixLocation.FindSet() then
             repeat
                 MATRIX_CurrentColumnOrdinal := MATRIX_CurrentColumnOrdinal + 1;
                 MATRIX_OnAfterGetRecord(MATRIX_CurrentColumnOrdinal);

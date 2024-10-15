@@ -21,7 +21,7 @@ codeunit 5917 "Process Service Email Queue"
             ServEmailQueue.SetRange(Status, ServEmailQueue.Status::" ");
         end;
         ServEmailQueue.LockTable();
-        if ServEmailQueue.FindSet then
+        if ServEmailQueue.FindSet() then
             repeat
                 Commit();
                 Clear(ServMailMgt);

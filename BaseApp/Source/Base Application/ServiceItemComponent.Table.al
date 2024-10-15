@@ -227,7 +227,7 @@ table 5941 "Service Item Component"
             ServItemComponent.SetRange(Active, false);
             ServItemComponent.SetRange("Parent Service Item No.", "Parent Service Item No.");
             ServItemComponent.SetRange("From Line No.", "Line No.");
-            if ServItemComponent.FindFirst then
+            if ServItemComponent.FindFirst() then
                 if not ConfirmManagement.GetResponseOrDefault(StrSubstNo(Text002, "No."), true) then
                     Error('');
             ServItemComponent.DeleteAll();
@@ -241,7 +241,7 @@ table 5941 "Service Item Component"
             ServItemComponent.SetCurrentKey(Active, "Parent Service Item No.", "Line No.");
             ServItemComponent.SetRange(Active, false);
             ServItemComponent.SetRange("Parent Service Item No.", "Parent Service Item No.");
-            if ServItemComponent.FindLast then
+            if ServItemComponent.FindLast() then
                 NextNo := ServItemComponent."Line No." + 1
             else
                 NextNo := 1;
@@ -293,15 +293,15 @@ table 5941 "Service Item Component"
             TestField("Parent Service Item No.");
             ServiceItemComponent.SetRange("Parent Service Item No.", "Parent Service Item No.");
             if BelowxRec then begin
-                if ServiceItemComponent.FindLast then;
+                if ServiceItemComponent.FindLast() then;
                 ResultLineNo := ServiceItemComponent."Line No." + 10000;
             end else
                 if "Parent Service Item No." = xServiceItemComponent."Parent Service Item No." then begin
                     ServiceItemComponent.SetFilter("Line No.", '<%1', xServiceItemComponent."Line No.");
-                    if ServiceItemComponent.FindLast then;
+                    if ServiceItemComponent.FindLast() then;
                     ResultLineNo := Round((xServiceItemComponent."Line No." + ServiceItemComponent."Line No.") / 2, 1);
                 end else begin
-                    if ServiceItemComponent.FindLast then;
+                    if ServiceItemComponent.FindLast() then;
                     ResultLineNo := ServiceItemComponent."Line No." + 10000;
                 end;
         end;

@@ -39,7 +39,7 @@ codeunit 1309 "O365 Getting Started Mgt."
         WizardHasBeenShownToUser := O365GettingStarted.Get(UserId, ClientTypeManagement.GetCurrentClientType);
 
         if not WizardHasBeenShownToUser then begin
-            O365GettingStarted.OnO365DemoCompanyInitialize;
+            O365GettingStarted.OnO365DemoCompanyInitialize();
             if Launch then begin
                 Commit();
                 PAGE.RunModal(PageToStart);

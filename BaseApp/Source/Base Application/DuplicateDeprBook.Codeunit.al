@@ -1,4 +1,4 @@
-codeunit 5640 "Duplicate Depr. Book"
+﻿codeunit 5640 "Duplicate Depr. Book"
 {
 
     trigger OnRun()
@@ -12,7 +12,6 @@ codeunit 5640 "Duplicate Depr. Book"
         GenJnlLine2: Record "Gen. Journal Line";
         FAJnlLine2: Record "FA Journal Line";
         DeprBook: Record "Depreciation Book";
-        DimMgt: Codeunit DimensionManagement;
         FAGetJnl: Codeunit "FA Get Journal";
         InsuranceJnlPostLine: Codeunit "Insurance Jnl.-Post Line";
         FAAmount: Decimal;
@@ -141,7 +140,7 @@ codeunit 5640 "Duplicate Depr. Book"
         else begin
             InsuranceJnlLine."Line No." := NextLineNo;
             if DeprBook."Use Default Dimension" then
-                InsuranceJnlLine.CreateDim(DATABASE::Insurance, InsuranceJnlLine."Insurance No.");
+                InsuranceJnlLine.CreateDimFromDefaultDim();
             InsuranceJnlLine.Insert(true);
         end;
     end;
@@ -373,12 +372,7 @@ codeunit 5640 "Duplicate Depr. Book"
                 "Posting No. Series" := FAJnlSetup.GetGenNoSeries(GenJnlLine);
                 FAJnlSetup.SetGenJnlTrailCodes(GenJnlLine);
                 if DeprBook."Use Default Dimension" then
-                    CreateDim(
-                      DimMgt.TypeToTableID1("Account Type".AsInteger()), "Account No.",
-                      DimMgt.TypeToTableID1("Bal. Account Type".AsInteger()), "Bal. Account No.",
-                      DATABASE::Job, "Job No.",
-                      DATABASE::"Salesperson/Purchaser", "Salespers./Purch. Code",
-                      DATABASE::Campaign, "Campaign No.");
+                    CreateDimFromDefaultDim(0);
                 "Line No." := GenJnlLine2."Line No." + 10000;
                 OnBeforeGenJnlLineInsert(GenJnlLine, FAJnlLine, GenJnlPosting, DuplicateInGenJnl);
                 Insert(true);
@@ -396,7 +390,7 @@ codeunit 5640 "Duplicate Depr. Book"
                 "Posting No. Series" := FAJnlSetup.GetFANoSeries(FAJnlLine);
                 FAJnlSetup.SetFAJnlTrailCodes(FAJnlLine);
                 if DeprBook."Use Default Dimension" then
-                    CreateDim(DATABASE::"Fixed Asset", "FA No.");
+                    CreateDimFromDefaultDim();
                 "Line No." := FAJnlLine2."Line No." + 10000;
                 OnBeforeFAJnlLineInsert(GenJnlLine, FAJnlLine, GenJnlPosting, DuplicateInGenJnl, DeprBook);
                 Insert(true);
@@ -414,12 +408,7 @@ codeunit 5640 "Duplicate Depr. Book"
                 "Posting No. Series" := FAJnlSetup.GetGenNoSeries(GenJnlLine);
                 FAJnlSetup.SetGenJnlTrailCodes(GenJnlLine);
                 if DeprBook."Use Default Dimension" then
-                    CreateDim(
-                      DimMgt.TypeToTableID1("Account Type".AsInteger()), "Account No.",
-                      DimMgt.TypeToTableID1("Bal. Account Type".AsInteger()), "Bal. Account No.",
-                      DATABASE::Job, "Job No.",
-                      DATABASE::"Salesperson/Purchaser", "Salespers./Purch. Code",
-                      DATABASE::Campaign, "Campaign No.");
+                    CreateDimFromDefaultDim(0);
                 "Line No." := GenJnlLine2."Line No." + 10000;
                 OnBeforeGenJnlLineInsert(GenJnlLine, FAJnlLine, GenJnlPosting, DuplicateInGenJnl);
                 Insert(true);
@@ -437,7 +426,7 @@ codeunit 5640 "Duplicate Depr. Book"
                 "Posting No. Series" := FAJnlSetup.GetFANoSeries(FAJnlLine);
                 FAJnlSetup.SetFAJnlTrailCodes(FAJnlLine);
                 if DeprBook."Use Default Dimension" then
-                    CreateDim(DATABASE::"Fixed Asset", "FA No.");
+                    CreateDimFromDefaultDim();
                 "Line No." := FAJnlLine2."Line No." + 10000;
                 OnBeforeFAJnlLineInsert(GenJnlLine, FAJnlLine, GenJnlPosting, DuplicateInGenJnl, DeprBook);
                 Insert(true);

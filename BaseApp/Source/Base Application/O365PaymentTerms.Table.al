@@ -61,7 +61,7 @@ table 2153 "O365 Payment Terms"
     begin
         CurrentRecordCode := Code;
         DeleteAll();
-        if PaymentTerms.FindSet then
+        if PaymentTerms.FindSet() then
             repeat
                 if IncludePaymentTermCode(PaymentTerms.Code) then begin
                     Code := PaymentTerms.Code;

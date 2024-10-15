@@ -39,7 +39,7 @@ codeunit 139460 "User Access in SaaS Tests"
         UserPersonalizationCard: TestPage "User Personalization Card";
     begin
         // [SCENARIO] External users should not be visible in SaaS (page User Personalization Card)
-        Initialize;
+        Initialize();
 
         // [GIVEN] Two users, of which only one is external
         CreateUserWithPersonalization(FullUserPersonalization, UserEuropeDcst1FullTok, User."License Type"::"Full User");
@@ -77,7 +77,7 @@ codeunit 139460 "User Access in SaaS Tests"
         UserPersonalizationCard: TestPage "User Personalization Card";
     begin
         // [SCENARIO] External users should be visible on-prem and in PaaS (page User Personalization Card)
-        Initialize;
+        Initialize();
         // [GIVEN] Two users, of which only one is external
         CreateUserWithPersonalization(FullUserPersonalization, UserEuropeDcst1FullTok, User."License Type"::"Full User");
         CreateUserWithPersonalization(ExternalUserPersonalization, UserEuropeDcst2ExternalTok, User."License Type"::"External User");
@@ -114,7 +114,7 @@ codeunit 139460 "User Access in SaaS Tests"
         UserPersonalizationList: TestPage "User Personalization List";
     begin
         // [SCENARIO] External users should not be visible in SaaS (page User Personalization List)
-        Initialize;
+        Initialize();
         // [GIVEN] Two users, of which only one is external
         CreateUserWithPersonalization(FullUserPersonalization, UserEuropeDcst1FullTok, User."License Type"::"Full User");
         CreateUserWithPersonalization(ExternalUserPersonalization, UserEuropeDcst2ExternalTok, User."License Type"::"External User");
@@ -151,7 +151,7 @@ codeunit 139460 "User Access in SaaS Tests"
         UserPersonalizationList: TestPage "User Personalization List";
     begin
         // [SCENARIO] External users should be visible on-prem and in PaaS (page User Personalization List)
-        Initialize;
+        Initialize();
         // [GIVEN] Two users, of which only one is external
         CreateUserWithPersonalization(FullUserPersonalization, UserEuropeDcst1FullTok, User."License Type"::"Full User");
         CreateUserWithPersonalization(ExternalUserPersonalization, UserEuropeDcst2ExternalTok, User."License Type"::"External User");
@@ -185,7 +185,7 @@ codeunit 139460 "User Access in SaaS Tests"
     procedure CannotAccessWebServiceKeyForAnotherUserInSaaS()
     begin
         // [SCENARIO] In SaaS, a user cannot access another user's web service key
-        Initialize;
+        Initialize();
         // [GIVEN] Running in SaaS
         // [WHEN] The current user opens another user's card
         // [THEN] The user cannnot see the other user's current web service key
@@ -201,7 +201,7 @@ codeunit 139460 "User Access in SaaS Tests"
     procedure CanAccessWebServiceKeyForSelfInSaaS()
     begin
         // [SCENARIO] In SaaS, a user can access his/her own web service key (read/edit)
-        Initialize;
+        Initialize();
         // [GIVEN] Running in SaaS
         // [WHEN] The current user opens another user's card
         // [THEN] The current user can see his/her own current web service key
@@ -218,7 +218,7 @@ codeunit 139460 "User Access in SaaS Tests"
         TestUserPermissionsSubs: Codeunit "Test User Permissions Subs.";
     begin
         // [SCENARIO] In SaaS, an admin user can change another user's web service key, but cannot read it
-        Initialize;
+        Initialize();
         TestUserPermissionsSubs.SetCanManageUser(UserSecurityId()); // admin
         BindSubscription(TestUserPermissionsSubs);
 
@@ -236,7 +236,7 @@ codeunit 139460 "User Access in SaaS Tests"
     procedure CannotAccessWebServiceKeyForAnotherUserOnPrem()
     begin
         // [SCENARIO] On-prem and in PaaS, a user cannot access another user's web service key
-        Initialize;
+        Initialize();
         // [GIVEN] Running on-premise or in PaaS
         // [WHEN] The current user opens another user's card
         // [THEN] The current user cannot see another user's current web service key
@@ -254,7 +254,7 @@ codeunit 139460 "User Access in SaaS Tests"
         TestUserPermissionsSubs: Codeunit "Test User Permissions Subs.";
     begin
         // [SCENARIO] In SaaS, an admin user can change another user's web service key, but cannot read it
-        Initialize;
+        Initialize();
         TestUserPermissionsSubs.SetCanManageUser(UserSecurityId()); // admin
         BindSubscription(TestUserPermissionsSubs);
 
@@ -272,7 +272,7 @@ codeunit 139460 "User Access in SaaS Tests"
     procedure CanAccessWebServiceKeyForSelfOnPrem()
     begin
         // [SCENARIO] On-prem and in PaaS, a user can access his/her own web service key (read/edit)
-        Initialize;
+        Initialize();
         // [GIVEN] Running on-premise or in PaaS
         // [WHEN] The current user opens his/her user's card
         // [THEN] The current user can see his/her own current web service key
@@ -286,7 +286,7 @@ codeunit 139460 "User Access in SaaS Tests"
     procedure CannotAddNewUserSaaS()
     begin
         // [SCENARIO] in SaaS, users can only be added through the Office 365 portal
-        Initialize;
+        Initialize();
         // [GIVEN] NAV running in SaaS
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
         // [WHEN] The admin attempts to add a new user through the UI of NAV
@@ -304,7 +304,7 @@ codeunit 139460 "User Access in SaaS Tests"
         UserGroup: Record "User Group";
     begin
         // [SCENARIO] When removing the last default user group to be assigned to new users, Victor receives a warning that new users cannot login
-        Initialize;
+        Initialize();
         // [GIVEN] User groups defined, and one is set as default
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(false);
         UserGroup.ModifyAll("Assign to All New Users", false, true);
@@ -325,7 +325,7 @@ codeunit 139460 "User Access in SaaS Tests"
         UserGroup: Record "User Group";
     begin
         // [SCENARIO] In PaaS and on-prem, when removing the last default user group to be assigned to new users, Victor does not receive a warning
-        Initialize;
+        Initialize();
         // [GIVEN] User groups defined, and one is set as default
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(false);
         UserGroup.ModifyAll("Assign to All New Users", false, true);
@@ -351,7 +351,7 @@ codeunit 139460 "User Access in SaaS Tests"
         Plan: Query Plan;
     begin
         // [SCENARIO] Upgraded user from 1.5 without user login entry
-        Initialize;
+        Initialize();
         // [GIVEN] A existing user with no user login entry
 
         UserGroupMember.DeleteAll();
@@ -385,7 +385,7 @@ codeunit 139460 "User Access in SaaS Tests"
         PlanID: Guid;
     begin
         // [SCENARIO] Upgraded user from 1.5 without 2.0 Plans in the db
-        Initialize;
+        Initialize();
         // [GIVEN] A existing user with a plan that is missing a rolecenter (old plan)
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
         LibraryPermissions.CreateUser(User, UserEuropeDcst1FullTok, true);
@@ -411,7 +411,7 @@ codeunit 139460 "User Access in SaaS Tests"
         DummyUser: Record User;
     begin
         // [SCENARIO] in SaaS, users of limited license type cannot be added
-        Initialize;
+        Initialize();
         // [GIVEN] NAV running in SaaS
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
 
@@ -430,7 +430,7 @@ codeunit 139460 "User Access in SaaS Tests"
         User: Record User;
     begin
         // [SCENARIO] in SaaS, user's license type cannot be set to limited
-        Initialize;
+        Initialize();
         // [GIVEN] NAV running in SaaS
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
 
@@ -456,9 +456,9 @@ codeunit 139460 "User Access in SaaS Tests"
         UserPersonalization: Record "User Personalization";
     begin
         User.SetRange("User Name", UserName);
-        if User.FindFirst then begin
+        if User.FindFirst() then begin
             UserPersonalization.SetRange("User SID", User."User Security ID");
-            if UserPersonalization.FindFirst then
+            if UserPersonalization.FindFirst() then
                 UserPersonalization.Delete(true);
             User.Validate("License Type", LicenseType);
             User.Modify(true);
@@ -482,10 +482,10 @@ codeunit 139460 "User Access in SaaS Tests"
         CreateUserWithLicenseType(UserName, LicenseType);
 
         UserPersonalization.SetRange("User SID", User."User Security ID");
-        if UserPersonalization.FindFirst then
+        if UserPersonalization.FindFirst() then
             UserPersonalization.Delete(true);
         User.SetRange("User Name", UserName);
-        User.FindFirst;
+        User.FindFirst();
         UserPersonalization.Init();
         UserPersonalization.Validate("User SID", User."User Security ID");
         UserPersonalization.Validate(Company, CompanyName);
@@ -496,7 +496,7 @@ codeunit 139460 "User Access in SaaS Tests"
     var
         UserCardPage: TestPage "User Card";
     begin
-        UserCardPage.OpenNew;
+        UserCardPage.OpenNew();
         UserCardPage."Windows User Name".Value := UserName;
         UserCardPage.OK.Invoke;
     end;

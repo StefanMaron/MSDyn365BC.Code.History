@@ -63,7 +63,7 @@ codeunit 137006 "SCM PAC Output Consumption"
 
         // 1. Create required setups.
         // Update Manufacturing Setup, Inventory Setup and Update Shop Calendar Working Days based on Work Shift code.
-        Initialize;
+        Initialize();
         LibraryManufacturing.CreateWorkCenterGroup(WorkCenterGroup);
         LibraryManufacturing.CreateCapacityUnitOfMeasure(CapacityUnitOfMeasure, "Capacity Unit of Measure"::Minutes);
         UpdateInventorySetup();
@@ -176,7 +176,7 @@ codeunit 137006 "SCM PAC Output Consumption"
 
         // 1. Create required setups.
         // Update Manufacturing Setup, Inventory Setup and Update Shop Calendar Working Days based on Work Shift code.
-        Initialize;
+        Initialize();
         LibraryManufacturing.CreateWorkCenterGroup(WorkCenterGroup);
         LibraryManufacturing.CreateCapacityUnitOfMeasure(CapacityUnitOfMeasure, "Capacity Unit of Measure"::Minutes);
         UpdateInventorySetup();
@@ -284,7 +284,7 @@ codeunit 137006 "SCM PAC Output Consumption"
 
         // 1. Create required setups.
         // Update Manufacturing Setup, Inventory Setup and Update Shop Calendar Working Days based on Work Shift code.
-        Initialize;
+        Initialize();
         LibraryManufacturing.CreateWorkCenterGroup(WorkCenterGroup);
         LibraryManufacturing.CreateCapacityUnitOfMeasure(CapacityUnitOfMeasure, "Capacity Unit of Measure"::Minutes);
         UpdateInventorySetup();
@@ -386,7 +386,7 @@ codeunit 137006 "SCM PAC Output Consumption"
 
         // 1. Create required setups.
         // Update Manufacturing Setup, Inventory Setup and Update Shop Calendar Working Days based on Work Shift code.
-        Initialize;
+        Initialize();
         LibraryManufacturing.CreateWorkCenterGroup(WorkCenterGroup);
         LibraryManufacturing.CreateCapacityUnitOfMeasure(CapacityUnitOfMeasure, "Capacity Unit of Measure"::Minutes);
         UpdateInventorySetup();
@@ -488,7 +488,7 @@ codeunit 137006 "SCM PAC Output Consumption"
 
         // 1. Create required setups.
         // Update Manufacturing Setup, Inventory Setup and Update Shop Calendar Working Days based on Work Shift code.
-        Initialize;
+        Initialize();
         LibraryManufacturing.CreateWorkCenterGroup(WorkCenterGroup);
         LibraryManufacturing.CreateCapacityUnitOfMeasure(CapacityUnitOfMeasure, Type::Minutes);
         UpdateInventorySetup();
@@ -582,7 +582,7 @@ codeunit 137006 "SCM PAC Output Consumption"
 
         // 1. Create required setups.
         // Update Manufacturing Setup, Inventory Setup and Update Shop Calendar Working Days based on Work Shift code.
-        Initialize;
+        Initialize();
         LibraryManufacturing.CreateWorkCenterGroup(WorkCenterGroup);
         LibraryManufacturing.CreateCapacityUnitOfMeasure(CapacityUnitOfMeasure, "Capacity Unit of Measure"::Minutes);
         UpdateInventorySetup();
@@ -674,7 +674,7 @@ codeunit 137006 "SCM PAC Output Consumption"
 
         // 1. Create required setups.
         // Update Manufacturing Setup, Inventory Setup and Update Shop Calendar Working Days based on Work Shift code.
-        Initialize;
+        Initialize();
         LibraryManufacturing.CreateWorkCenterGroup(WorkCenterGroup);
         LibraryManufacturing.CreateCapacityUnitOfMeasure(CapacityUnitOfMeasure, "Capacity Unit of Measure"::Minutes);
         UpdateInventorySetup();
@@ -739,14 +739,14 @@ codeunit 137006 "SCM PAC Output Consumption"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM PAC Output Consumption");
         // Lazy Setup.
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
 
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM PAC Output Consumption");
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibrarySetupStorage.Save(DATABASE::"Inventory Setup");
         isInitialized := true;
         Commit();
@@ -838,7 +838,7 @@ codeunit 137006 "SCM PAC Output Consumption"
     begin
         // Create Routing Lines with required fields where random is used, values not important for test.
         CapacityUnitOfMeasure.SetRange(Type, CapacityUnitOfMeasure.Type::Minutes);
-        CapacityUnitOfMeasure.FindFirst;
+        CapacityUnitOfMeasure.FindFirst();
         // Random used such that the Next Operation No is greater than the Previous Operation No.
         OperationNo := FindLastOperationNo(RoutingHeader."No.") + Format(LibraryRandom.RandInt(5));
 
@@ -858,7 +858,7 @@ codeunit 137006 "SCM PAC Output Consumption"
         RoutingLine: Record "Routing Line";
     begin
         RoutingLine.SetRange("Routing No.", RoutingNo);
-        if RoutingLine.FindLast then
+        if RoutingLine.FindLast() then
             exit(RoutingLine."Operation No.");
     end;
 
@@ -870,7 +870,7 @@ codeunit 137006 "SCM PAC Output Consumption"
     begin
         // Update Routing link Code on specified BOM component Lines.
         ProductionBOMHeader.SetRange("No.", ProductionBOMNo);
-        ProductionBOMHeader.FindFirst;
+        ProductionBOMHeader.FindFirst();
         ProductionBOMHeader.Validate(Status, ProductionBOMHeader.Status::"Under Development");
         ProductionBOMHeader.Modify(true);
         UpdateBOMLineRoutingLinkCode(ProductionBOMHeader, ProductionBOMLine, ItemNo, RoutingLinkCode);
@@ -884,7 +884,7 @@ codeunit 137006 "SCM PAC Output Consumption"
         ProductionBOMLine.SetRange("Production BOM No.", ProductionBOMHeader."No.");
         ProductionBOMLine.SetRange(Type, ProductionBOMLine.Type::Item);
         ProductionBOMLine.SetRange("No.", ItemNo);
-        ProductionBOMLine.FindFirst;
+        ProductionBOMLine.FindFirst();
         ProductionBOMLine.Validate("Routing Link Code", RoutingLinkCode);
         ProductionBOMLine.Modify(true);
     end;
@@ -974,7 +974,7 @@ codeunit 137006 "SCM PAC Output Consumption"
         // Create Planned Production Order with Random Quantity Greater than 1 and in Proportion to Purchased Items.
         ProdOrderLine.SetRange(Status, ProdOrderLine.Status::Planned);
         ProdOrderLine.SetRange("Prod. Order No.", ProductionOrderNo);
-        ProdOrderLine.FindFirst;
+        ProdOrderLine.FindFirst();
         ProdOrderLine.Validate("Planning Flexibility", ProdOrderLine."Planning Flexibility"::None);
         ProdOrderLine.Modify(true);
     end;
@@ -987,7 +987,7 @@ codeunit 137006 "SCM PAC Output Consumption"
         ProdOrderComponent.SetRange(Status, ProdOrderComponent.Status::Planned);
         ProdOrderComponent.SetRange("Prod. Order No.", ProductionOrderNo);
         ProdOrderComponent.SetRange("Item No.", ItemNo);
-        ProdOrderComponent.FindFirst;
+        ProdOrderComponent.FindFirst();
         ProdOrderComponent.Delete(true);
         Commit();
     end;
@@ -1001,7 +1001,7 @@ codeunit 137006 "SCM PAC Output Consumption"
         ProdOrderRoutingLine.SetRange("Prod. Order No.", ProductionOrderNo);
         ProdOrderRoutingLine.SetRange(Type, ProdOrderRoutingLine.Type::"Work Center");
         ProdOrderRoutingLine.SetRange("No.", WorkCenterNo);
-        ProdOrderRoutingLine.FindFirst;
+        ProdOrderRoutingLine.FindFirst();
         ProdOrderRoutingLine.Delete(true);
         Commit();
     end;
@@ -1053,7 +1053,7 @@ codeunit 137006 "SCM PAC Output Consumption"
         LibraryManufacturing.ChangeProdOrderStatus(ProductionOrder, ProductionOrder.Status::Released, WorkDate, false);
         ProductionOrder.SetRange(Status, ProductionOrder.Status::Released);
         ProductionOrder.SetRange("Source No.", ProductionOrder."Source No.");
-        ProductionOrder.FindFirst;
+        ProductionOrder.FindFirst();
         exit(ProductionOrder."No.");
     end;
 

@@ -132,6 +132,7 @@ table 7004 "Sales Line Discount"
             Caption = 'Unit of Measure Code';
             TableRelation = IF (Type = CONST(Item)) "Item Unit of Measure".Code WHERE("Item No." = FIELD(Code));
 
+#if not CLEAN19
             trigger OnValidate()
             var
                 IsHandled: Boolean;
@@ -143,6 +144,7 @@ table 7004 "Sales Line Discount"
 
                 TestField(Type, Type::Item);
             end;
+#endif
         }
         field(5700; "Variant Code"; Code[10])
         {
@@ -196,10 +198,12 @@ table 7004 "Sales Line Discount"
         Campaign: Record Campaign;
         Text003: Label 'You can only change the %1 and %2 from the Campaign Card when %3 = %4.';
 
+#if not CLEAN19
     [Obsolete('This table is replaced by the new implementation (V16) of price calculation: table Price List Line', '22.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateUnitofMeasureCode(var SalesLineDiscount: Record "Sales Line Discount"; xSalesLineDiscount: Record "Sales Line Discount"; var IsHandled: Boolean)
     begin
     end;
+#endif
 }
 

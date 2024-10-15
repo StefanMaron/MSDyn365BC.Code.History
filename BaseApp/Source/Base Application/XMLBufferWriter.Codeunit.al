@@ -118,7 +118,7 @@ codeunit 1235 "XML Buffer Writer"
     var
         ParentXMLBuffer: Record "XML Buffer";
     begin
-        if XMLBuffer.FindLast then;
+        if XMLBuffer.FindLast() then;
 
         ParentXMLBuffer.Init();
         ParseXMLIteratively(XMLBuffer, ParentXMLBuffer);
@@ -126,7 +126,7 @@ codeunit 1235 "XML Buffer Writer"
         XmlReader.Close;
         XMLBuffer.Reset();
         XMLBuffer.SetRange("Import ID", XMLBuffer."Import ID");
-        XMLBuffer.FindFirst;
+        XMLBuffer.FindFirst();
     end;
 
     local procedure ParseXMLIteratively(var XMLBuffer: Record "XML Buffer"; ParentXMLBuffer: Record "XML Buffer")
@@ -214,7 +214,7 @@ codeunit 1235 "XML Buffer Writer"
                 SetRange("Parent Entry No.", ParentXMLBuffer."Entry No.");
                 SetRange(Type, Type::Element);
                 SetRange(Name, XmlReader.Name);
-                if FindFirst then
+                if FindFirst() then
                     exit;
             end;
 
@@ -230,7 +230,7 @@ codeunit 1235 "XML Buffer Writer"
                 SetRange("Parent Entry No.", ParentXMLBuffer."Entry No.");
                 SetRange(Type, Type::Attribute);
                 SetRange(Name, XmlReader.Name);
-                if FindFirst then
+                if FindFirst() then
                     exit;
             end;
 
@@ -247,7 +247,7 @@ codeunit 1235 "XML Buffer Writer"
                 SetRange("Parent Entry No.", ParentXMLBuffer."Entry No.");
                 SetRange(Type, Type::"Processing Instruction");
                 SetRange(Name, XmlReader.Name);
-                if FindFirst then
+                if FindFirst() then
                     exit;
             end;
 
@@ -359,7 +359,7 @@ codeunit 1235 "XML Buffer Writer"
 
         with XMLBuffer do begin
             Reset;
-            if FindLast then;
+            if FindLast() then;
             Init;
             "Entry No." += 1;
             "Parent Entry No." := ParentXMLBuffer."Entry No.";
@@ -380,7 +380,7 @@ codeunit 1235 "XML Buffer Writer"
     begin
         with XMLBuffer do begin
             Reset;
-            if FindLast then;
+            if FindLast() then;
             Init;
             "Entry No." += 1;
             "Parent Entry No." := ParentXMLBuffer."Entry No.";

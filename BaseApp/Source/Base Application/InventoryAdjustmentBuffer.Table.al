@@ -319,7 +319,7 @@ table 5895 "Inventory Adjustment Buffer"
     begin
         CopyOfInvtAdjmtBuf.Copy(Rec);
         Reset;
-        if FindLast then
+        if FindLast() then
             LastNo := "Entry No.";
         Copy(CopyOfInvtAdjmtBuf);
     end;

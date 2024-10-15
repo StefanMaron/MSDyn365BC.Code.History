@@ -13,6 +13,7 @@ codeunit 1408 "Sales Credit Memo Hdr. - Edit"
         SalesCrMemoHeader."Shipping Agent Code" := "Shipping Agent Code";
         SalesCrMemoHeader."Shipping Agent Service Code" := "Shipping Agent Service Code";
         SalesCrMemoHeader."Package Tracking No." := "Package Tracking No.";
+        SalesCrMemoHeader."Company Bank Account Code" := "Company Bank Account Code";
         OnBeforeSalesCrMemoHeaderModify(SalesCrMemoHeader, Rec);
         SalesCrMemoHeader.TestField("No.", "No.");
         SalesCrMemoHeader.Modify();

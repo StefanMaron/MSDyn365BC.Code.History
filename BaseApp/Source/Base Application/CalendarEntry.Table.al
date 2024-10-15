@@ -304,12 +304,12 @@ table 99000757 "Calendar Entry"
 
         if "Capacity Type" = "Capacity Type"::"Machine Center" then begin
             MachineCenter.SetFilter("No.", FilterText);
-            if not MachineCenter.FindFirst then
+            if not MachineCenter.FindFirst() then
                 exit('');
             exit(StrSubstNo('%1 %2', MachineCenter."No.", MachineCenter.Name));
         end;
         WorkCenter.SetFilter("No.", FilterText);
-        if not WorkCenter.FindFirst then
+        if not WorkCenter.FindFirst() then
             exit('');
         exit(StrSubstNo('%1 %2', WorkCenter."No.", WorkCenter.Name));
     end;
@@ -326,15 +326,6 @@ table 99000757 "Calendar Entry"
         StartingTime := DT2Time("Starting Date-Time");
         EndingTime := DT2Time("Ending Date-Time");
         CurrDate := DT2Date("Ending Date-Time");
-    end;
-
-    [Obsolete('Replaced CapType from Option to Enum.', '17.0')]
-    procedure SetCapacityFilters(CapType: Option; CapNo: Code[20])
-    begin
-        Reset();
-        SetCurrentKey("Capacity Type", "No.", "Starting Date-Time", "Ending Date-Time");
-        SetRange("Capacity Type", CapType);
-        SetRange("No.", CapNo);
     end;
 
     procedure SetCapacityFilters(CapType: Enum "Capacity Type"; CapNo: Code[20])

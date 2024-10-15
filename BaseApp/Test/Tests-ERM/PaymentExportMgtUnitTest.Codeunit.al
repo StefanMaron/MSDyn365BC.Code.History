@@ -50,11 +50,11 @@ codeunit 132571 "Payment Export Mgt Unit Test"
         VendLedgerEntry: Record "Vendor Ledger Entry";
         PmtExportMgtGenJnlLine: Codeunit "Pmt Export Mgt Gen. Jnl Line";
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         CreateVendorLedgerEntry(VendLedgerEntry, VendLedgerEntry."Document Type"::Invoice, true);
-        CreateGenJournalBatch(GenJnlBatch, LibraryUtility.GenerateGUID);
+        CreateGenJournalBatch(GenJnlBatch, LibraryUtility.GenerateGUID());
         CreateGenJournalLine(GenJnlLine, GenJnlBatch, VendLedgerEntry);
 
         // Setup
@@ -84,11 +84,11 @@ codeunit 132571 "Payment Export Mgt Unit Test"
         VendLedgerEntry: Record "Vendor Ledger Entry";
         PmtExportMgtGenJnlLine: Codeunit "Pmt Export Mgt Gen. Jnl Line";
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         CreateVendorLedgerEntry(VendLedgerEntry, VendLedgerEntry."Document Type"::Invoice, false);
-        CreateGenJournalBatch(GenJnlBatch, LibraryUtility.GenerateGUID);
+        CreateGenJournalBatch(GenJnlBatch, LibraryUtility.GenerateGUID());
         CreateGenJournalLine(GenJnlLine, GenJnlBatch, VendLedgerEntry);
 
         // Setup
@@ -119,11 +119,11 @@ codeunit 132571 "Payment Export Mgt Unit Test"
         VendLedgerEntry: Record "Vendor Ledger Entry";
         PmtExportMgtGenJnlLine: Codeunit "Pmt Export Mgt Gen. Jnl Line";
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         CreateVendorLedgerEntry(VendLedgerEntry, VendLedgerEntry."Document Type"::Invoice, true);
-        CreateGenJournalBatch(GenJnlBatch, LibraryUtility.GenerateGUID);
+        CreateGenJournalBatch(GenJnlBatch, LibraryUtility.GenerateGUID());
         CreateGenJournalLine(GenJnlLine, GenJnlBatch, VendLedgerEntry);
 
         // Setup
@@ -154,7 +154,7 @@ codeunit 132571 "Payment Export Mgt Unit Test"
         VendLedgerEntry: Record "Vendor Ledger Entry";
         PmtExportMgtGenJnlLine: Codeunit "Pmt Export Mgt Gen. Jnl Line";
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         CreateBankAccountWithExportFormat(BankAccount);
@@ -190,12 +190,12 @@ codeunit 132571 "Payment Export Mgt Unit Test"
         VendLedgerEntry2: Record "Vendor Ledger Entry";
         PmtExportMgtGenJnlLine: Codeunit "Pmt Export Mgt Gen. Jnl Line";
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         CreateVendorLedgerEntry(VendLedgerEntry1, VendLedgerEntry1."Document Type"::Invoice, false);
         CreateVendorLedgerEntry(VendLedgerEntry2, VendLedgerEntry2."Document Type"::Invoice, true);
-        CreateGenJournalBatch(GenJnlBatch, LibraryUtility.GenerateGUID);
+        CreateGenJournalBatch(GenJnlBatch, LibraryUtility.GenerateGUID());
         CreateGenJournalLine(GenJnlLine1, GenJnlBatch, VendLedgerEntry1);
         CreateGenJournalLine(GenJnlLine2, GenJnlBatch, VendLedgerEntry2);
 
@@ -212,7 +212,7 @@ codeunit 132571 "Payment Export Mgt Unit Test"
         // Pre-Exercise
         GenJnlLine.SetRange("Journal Template Name", GenJnlBatch."Journal Template Name");
         GenJnlLine.SetRange("Journal Batch Name", GenJnlBatch.Name);
-        GenJnlLine.FindFirst;
+        GenJnlLine.FindFirst();
 
         // Exercise
         PmtExportMgtGenJnlLine.ExportJournalPaymentFileYN(GenJnlLine);
@@ -237,12 +237,12 @@ codeunit 132571 "Payment Export Mgt Unit Test"
         VendLedgerEntry2: Record "Vendor Ledger Entry";
         PmtExportMgtGenJnlLine: Codeunit "Pmt Export Mgt Gen. Jnl Line";
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         CreateVendorLedgerEntry(VendLedgerEntry1, VendLedgerEntry1."Document Type"::Invoice, false);
         CreateVendorLedgerEntry(VendLedgerEntry2, VendLedgerEntry2."Document Type"::Invoice, false);
-        CreateGenJournalBatch(GenJnlBatch, LibraryUtility.GenerateGUID);
+        CreateGenJournalBatch(GenJnlBatch, LibraryUtility.GenerateGUID());
         CreateGenJournalLine(GenJnlLine1, GenJnlBatch, VendLedgerEntry1);
         CreateGenJournalLine(GenJnlLine2, GenJnlBatch, VendLedgerEntry2);
 
@@ -260,7 +260,7 @@ codeunit 132571 "Payment Export Mgt Unit Test"
         // Pre-Exercise
         GenJnlLine.SetRange("Journal Template Name", GenJnlBatch."Journal Template Name");
         GenJnlLine.SetRange("Journal Batch Name", GenJnlBatch.Name);
-        GenJnlLine.FindFirst;
+        GenJnlLine.FindFirst();
 
         // Exercise
         PmtExportMgtGenJnlLine.ExportJournalPaymentFileYN(GenJnlLine);
@@ -285,12 +285,12 @@ codeunit 132571 "Payment Export Mgt Unit Test"
         VendLedgerEntry2: Record "Vendor Ledger Entry";
         PmtExportMgtGenJnlLine: Codeunit "Pmt Export Mgt Gen. Jnl Line";
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         CreateVendorLedgerEntry(VendLedgerEntry1, VendLedgerEntry1."Document Type"::Invoice, false);
         CreateVendorLedgerEntry(VendLedgerEntry2, VendLedgerEntry2."Document Type"::Invoice, true);
-        CreateGenJournalBatch(GenJnlBatch, LibraryUtility.GenerateGUID);
+        CreateGenJournalBatch(GenJnlBatch, LibraryUtility.GenerateGUID());
         CreateGenJournalLine(GenJnlLine1, GenJnlBatch, VendLedgerEntry1);
         CreateGenJournalLine(GenJnlLine2, GenJnlBatch, VendLedgerEntry2);
 
@@ -307,7 +307,7 @@ codeunit 132571 "Payment Export Mgt Unit Test"
         // Pre-Exercise
         GenJnlLine.SetRange("Journal Template Name", GenJnlBatch."Journal Template Name");
         GenJnlLine.SetRange("Journal Batch Name", GenJnlBatch.Name);
-        GenJnlLine.FindFirst;
+        GenJnlLine.FindFirst();
 
         // Exercise
         PmtExportMgtGenJnlLine.ExportJournalPaymentFileYN(GenJnlLine);
@@ -333,7 +333,7 @@ codeunit 132571 "Payment Export Mgt Unit Test"
         VendLedgerEntry2: Record "Vendor Ledger Entry";
         PmtExportMgtGenJnlLine: Codeunit "Pmt Export Mgt Gen. Jnl Line";
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         CreateBankAccountWithExportFormat(BankAccount);
@@ -356,7 +356,7 @@ codeunit 132571 "Payment Export Mgt Unit Test"
         // Pre-Exercise
         GenJnlLine.SetRange("Journal Template Name", GenJnlBatch."Journal Template Name");
         GenJnlLine.SetRange("Journal Batch Name", GenJnlBatch.Name);
-        GenJnlLine.FindFirst;
+        GenJnlLine.FindFirst();
 
         // Exercise
         asserterror PmtExportMgtGenJnlLine.ExportJournalPaymentFileYN(GenJnlLine);
@@ -372,7 +372,7 @@ codeunit 132571 "Payment Export Mgt Unit Test"
     var
         CustBankAcc: Record "Customer Bank Account";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateCustWithCustBankAcc(CustBankAcc, LibraryUtility.GenerateGUID, '', '');
@@ -390,7 +390,7 @@ codeunit 132571 "Payment Export Mgt Unit Test"
     var
         CustBankAcc: Record "Customer Bank Account";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateCustWithCustBankAcc(CustBankAcc, '', '', '');
@@ -411,7 +411,7 @@ codeunit 132571 "Payment Export Mgt Unit Test"
         CustLedgerEntry2: Record "Cust. Ledger Entry";
         PmtExportMgtCustLedgEntry: Codeunit "Pmt Export Mgt Cust Ledg Entry";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateCustLedgerEntry(CustLedgerEntry1, CustLedgerEntry1."Document Type"::Refund, true);
@@ -421,7 +421,7 @@ codeunit 132571 "Payment Export Mgt Unit Test"
 
         // Pre-Exercise
         CustLedgerEntry2.SetRange("Entry No.", CustLedgerEntry1."Entry No.");
-        CustLedgerEntry2.FindLast;
+        CustLedgerEntry2.FindLast();
 
         // Exercise
         PmtExportMgtCustLedgEntry.ExportCustPaymentFileYN(CustLedgerEntry2);
@@ -442,7 +442,7 @@ codeunit 132571 "Payment Export Mgt Unit Test"
         CustLedgerEntry2: Record "Cust. Ledger Entry";
         PmtExportMgtCustLedgEntry: Codeunit "Pmt Export Mgt Cust Ledg Entry";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateCustLedgerEntry(CustLedgerEntry1, CustLedgerEntry1."Document Type"::Refund, false);
@@ -452,7 +452,7 @@ codeunit 132571 "Payment Export Mgt Unit Test"
 
         // Pre-Exercise
         CustLedgerEntry2.SetRange("Entry No.", CustLedgerEntry1."Entry No.");
-        CustLedgerEntry2.FindLast;
+        CustLedgerEntry2.FindLast();
 
         // Exercise
         asserterror PmtExportMgtCustLedgEntry.ExportCustPaymentFileYN(CustLedgerEntry2);
@@ -470,7 +470,7 @@ codeunit 132571 "Payment Export Mgt Unit Test"
         CustLedgerEntry2: Record "Cust. Ledger Entry";
         PmtExportMgtCustLedgEntry: Codeunit "Pmt Export Mgt Cust Ledg Entry";
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         CreateCustLedgerEntry(CustLedgerEntry1, CustLedgerEntry1."Document Type"::Invoice, true);
@@ -499,7 +499,7 @@ codeunit 132571 "Payment Export Mgt Unit Test"
         CustLedgerEntry2: Record "Cust. Ledger Entry";
         PmtExportMgtCustLedgEntry: Codeunit "Pmt Export Mgt Cust Ledg Entry";
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         CreateCustLedgerEntry(CustLedgerEntry1, CustLedgerEntry1."Document Type"::Invoice, false);
@@ -511,7 +511,7 @@ codeunit 132571 "Payment Export Mgt Unit Test"
 
         // Pre-Exercise
         CustLedgerEntry.SetRange("Entry No.", CustLedgerEntry1."Entry No.", CustLedgerEntry2."Entry No.");
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
 
         // Exercise
         asserterror PmtExportMgtCustLedgEntry.ExportCustPaymentFileYN(CustLedgerEntry);
@@ -534,7 +534,7 @@ codeunit 132571 "Payment Export Mgt Unit Test"
         PaymentJournal: TestPage "Payment Journal";
         BankAccountNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         DeleteExtraPaymentJnlTemplates;
@@ -584,7 +584,7 @@ codeunit 132571 "Payment Export Mgt Unit Test"
         DataExchMapping: Record "Data Exch. Mapping";
         Vendor: Record Vendor;
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         DefinePaymentExportFormat(DataExchMapping);
@@ -630,11 +630,11 @@ codeunit 132571 "Payment Export Mgt Unit Test"
         VendLedgerEntry: Record "Vendor Ledger Entry";
         PmtExportMgtGenJnlLine: Codeunit "Pmt Export Mgt Gen. Jnl Line";
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         CreateVendorLedgerEntry(VendLedgerEntry, VendLedgerEntry."Document Type"::Invoice, true);
-        CreateGenJournalBatch(GenJnlBatch, LibraryUtility.GenerateGUID);
+        CreateGenJournalBatch(GenJnlBatch, LibraryUtility.GenerateGUID());
         CreateGenJournalLine(GenJnlLine, GenJnlBatch, VendLedgerEntry);
 
         // Setup
@@ -664,11 +664,11 @@ codeunit 132571 "Payment Export Mgt Unit Test"
         VendLedgerEntry: Record "Vendor Ledger Entry";
         PmtExportMgtGenJnlLine: Codeunit "Pmt Export Mgt Gen. Jnl Line";
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         CreateVendorLedgerEntry(VendLedgerEntry, VendLedgerEntry."Document Type"::Invoice, false);
-        CreateGenJournalBatch(GenJnlBatch, LibraryUtility.GenerateGUID);
+        CreateGenJournalBatch(GenJnlBatch, LibraryUtility.GenerateGUID());
         CreateGenJournalLine(GenJnlLine, GenJnlBatch, VendLedgerEntry);
 
         // Setup
@@ -699,11 +699,11 @@ codeunit 132571 "Payment Export Mgt Unit Test"
         VendLedgerEntry: Record "Vendor Ledger Entry";
         PmtExportMgtGenJnlLine: Codeunit "Pmt Export Mgt Gen. Jnl Line";
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         CreateVendorLedgerEntry(VendLedgerEntry, VendLedgerEntry."Document Type"::Invoice, true);
-        CreateGenJournalBatch(GenJnlBatch, LibraryUtility.GenerateGUID);
+        CreateGenJournalBatch(GenJnlBatch, LibraryUtility.GenerateGUID());
         CreateGenJournalLine(GenJnlLine, GenJnlBatch, VendLedgerEntry);
 
         // Setup
@@ -734,7 +734,7 @@ codeunit 132571 "Payment Export Mgt Unit Test"
         VendLedgerEntry: Record "Vendor Ledger Entry";
         PmtExportMgtGenJnlLine: Codeunit "Pmt Export Mgt Gen. Jnl Line";
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         CreateBankAccountWithExportFormat(BankAccount);
@@ -770,12 +770,12 @@ codeunit 132571 "Payment Export Mgt Unit Test"
         VendLedgerEntry2: Record "Vendor Ledger Entry";
         PmtExportMgtGenJnlLine: Codeunit "Pmt Export Mgt Gen. Jnl Line";
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         CreateVendorLedgerEntry(VendLedgerEntry1, VendLedgerEntry1."Document Type"::Invoice, false);
         CreateVendorLedgerEntry(VendLedgerEntry2, VendLedgerEntry2."Document Type"::Invoice, true);
-        CreateGenJournalBatch(GenJnlBatch, LibraryUtility.GenerateGUID);
+        CreateGenJournalBatch(GenJnlBatch, LibraryUtility.GenerateGUID());
         CreateGenJournalLine(GenJnlLine1, GenJnlBatch, VendLedgerEntry1);
         CreateGenJournalLine(GenJnlLine2, GenJnlBatch, VendLedgerEntry2);
 
@@ -792,7 +792,7 @@ codeunit 132571 "Payment Export Mgt Unit Test"
         // Pre-Exercise
         GenJnlLine.SetRange("Journal Template Name", GenJnlBatch."Journal Template Name");
         GenJnlLine.SetRange("Journal Batch Name", GenJnlBatch.Name);
-        GenJnlLine.FindFirst;
+        GenJnlLine.FindFirst();
 
         // Exercise
         PmtExportMgtGenJnlLine.ExportJournalPaymentFileYN(GenJnlLine);
@@ -817,12 +817,12 @@ codeunit 132571 "Payment Export Mgt Unit Test"
         VendLedgerEntry2: Record "Vendor Ledger Entry";
         PmtExportMgtGenJnlLine: Codeunit "Pmt Export Mgt Gen. Jnl Line";
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         CreateVendorLedgerEntry(VendLedgerEntry1, VendLedgerEntry1."Document Type"::Invoice, false);
         CreateVendorLedgerEntry(VendLedgerEntry2, VendLedgerEntry2."Document Type"::Invoice, false);
-        CreateGenJournalBatch(GenJnlBatch, LibraryUtility.GenerateGUID);
+        CreateGenJournalBatch(GenJnlBatch, LibraryUtility.GenerateGUID());
         CreateGenJournalLine(GenJnlLine1, GenJnlBatch, VendLedgerEntry1);
         CreateGenJournalLine(GenJnlLine2, GenJnlBatch, VendLedgerEntry2);
 
@@ -840,7 +840,7 @@ codeunit 132571 "Payment Export Mgt Unit Test"
         // Pre-Exercise
         GenJnlLine.SetRange("Journal Template Name", GenJnlBatch."Journal Template Name");
         GenJnlLine.SetRange("Journal Batch Name", GenJnlBatch.Name);
-        GenJnlLine.FindFirst;
+        GenJnlLine.FindFirst();
 
         // Exercise
         PmtExportMgtGenJnlLine.ExportJournalPaymentFileYN(GenJnlLine);
@@ -865,12 +865,12 @@ codeunit 132571 "Payment Export Mgt Unit Test"
         VendLedgerEntry2: Record "Vendor Ledger Entry";
         PmtExportMgtGenJnlLine: Codeunit "Pmt Export Mgt Gen. Jnl Line";
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         CreateVendorLedgerEntry(VendLedgerEntry1, VendLedgerEntry1."Document Type"::Invoice, false);
         CreateVendorLedgerEntry(VendLedgerEntry2, VendLedgerEntry2."Document Type"::Invoice, true);
-        CreateGenJournalBatch(GenJnlBatch, LibraryUtility.GenerateGUID);
+        CreateGenJournalBatch(GenJnlBatch, LibraryUtility.GenerateGUID());
         CreateGenJournalLine(GenJnlLine1, GenJnlBatch, VendLedgerEntry1);
         CreateGenJournalLine(GenJnlLine2, GenJnlBatch, VendLedgerEntry2);
 
@@ -887,7 +887,7 @@ codeunit 132571 "Payment Export Mgt Unit Test"
         // Pre-Exercise
         GenJnlLine.SetRange("Journal Template Name", GenJnlBatch."Journal Template Name");
         GenJnlLine.SetRange("Journal Batch Name", GenJnlBatch.Name);
-        GenJnlLine.FindFirst;
+        GenJnlLine.FindFirst();
 
         // Exercise
         PmtExportMgtGenJnlLine.ExportJournalPaymentFileYN(GenJnlLine);
@@ -913,7 +913,7 @@ codeunit 132571 "Payment Export Mgt Unit Test"
         VendLedgerEntry2: Record "Vendor Ledger Entry";
         PmtExportMgtGenJnlLine: Codeunit "Pmt Export Mgt Gen. Jnl Line";
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         CreateBankAccountWithExportFormat(BankAccount);
@@ -936,7 +936,7 @@ codeunit 132571 "Payment Export Mgt Unit Test"
         // Pre-Exercise
         GenJnlLine.SetRange("Journal Template Name", GenJnlBatch."Journal Template Name");
         GenJnlLine.SetRange("Journal Batch Name", GenJnlBatch.Name);
-        GenJnlLine.FindFirst;
+        GenJnlLine.FindFirst();
 
         // Exercise
         asserterror PmtExportMgtGenJnlLine.ExportJournalPaymentFileYN(GenJnlLine);
@@ -952,11 +952,11 @@ codeunit 132571 "Payment Export Mgt Unit Test"
     var
         GenJnlLine: Record "Gen. Journal Line";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         GenJnlLine."Bal. Account Type" := GenJnlLine."Bal. Account Type"::"G/L Account";
-        GenJnlLine."Recipient Bank Account" := LibraryUtility.GenerateGUID;
+        GenJnlLine."Recipient Bank Account" := LibraryUtility.GenerateGUID();
 
         // Exercise
         GenJnlLine.Validate("Account No.", '');
@@ -971,11 +971,11 @@ codeunit 132571 "Payment Export Mgt Unit Test"
     var
         GenJnlLine: Record "Gen. Journal Line";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         GenJnlLine."Account Type" := GenJnlLine."Account Type"::"G/L Account";
-        GenJnlLine."Recipient Bank Account" := LibraryUtility.GenerateGUID;
+        GenJnlLine."Recipient Bank Account" := LibraryUtility.GenerateGUID();
 
         // Exercise
         GenJnlLine.Validate("Bal. Account No.", '');
@@ -991,11 +991,11 @@ codeunit 132571 "Payment Export Mgt Unit Test"
         GenJnlLine: Record "Gen. Journal Line";
         BankAccountCode: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         GenJnlLine."Bal. Account Type" := GenJnlLine."Bal. Account Type"::Customer;
-        GenJnlLine."Recipient Bank Account" := LibraryUtility.GenerateGUID;
+        GenJnlLine."Recipient Bank Account" := LibraryUtility.GenerateGUID();
         BankAccountCode := GenJnlLine."Recipient Bank Account";
         // Exercise
         GenJnlLine.Validate("Account No.", '');
@@ -1011,11 +1011,11 @@ codeunit 132571 "Payment Export Mgt Unit Test"
         GenJnlLine: Record "Gen. Journal Line";
         BankAccountCode: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         GenJnlLine."Account Type" := GenJnlLine."Account Type"::Vendor;
-        GenJnlLine."Recipient Bank Account" := LibraryUtility.GenerateGUID;
+        GenJnlLine."Recipient Bank Account" := LibraryUtility.GenerateGUID();
         BankAccountCode := GenJnlLine."Recipient Bank Account";
 
         // Exercise
@@ -1033,7 +1033,7 @@ codeunit 132571 "Payment Export Mgt Unit Test"
         Customer: Record Customer;
         CustomerBankAcc: Record "Customer Bank Account";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateCustWithCustBankAcc(CustomerBankAcc, LibraryUtility.GenerateGUID, '', '');
@@ -1058,7 +1058,7 @@ codeunit 132571 "Payment Export Mgt Unit Test"
         Vendor: Record Vendor;
         VendorBankAcc: Record "Vendor Bank Account";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVendorWithVendorBankAcc(VendorBankAcc, LibraryUtility.GenerateGUID, '', '');
@@ -1083,7 +1083,7 @@ codeunit 132571 "Payment Export Mgt Unit Test"
         Customer: Record Customer;
         CustomerBankAcc: Record "Customer Bank Account";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateCustWithCustBankAcc(CustomerBankAcc, LibraryUtility.GenerateGUID, '', '');
@@ -1108,7 +1108,7 @@ codeunit 132571 "Payment Export Mgt Unit Test"
         Vendor: Record Vendor;
         VendorBankAcc: Record "Vendor Bank Account";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVendorWithVendorBankAcc(VendorBankAcc, LibraryUtility.GenerateGUID, '', '');
@@ -1131,7 +1131,7 @@ codeunit 132571 "Payment Export Mgt Unit Test"
     var
         BankAcc: Record "Bank Account";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateBankAccount(BankAcc, LibraryUtility.GenerateGUID, '');
@@ -1149,7 +1149,7 @@ codeunit 132571 "Payment Export Mgt Unit Test"
     var
         BankAcc: Record "Bank Account";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateBankAccount(BankAcc, '', '');
@@ -1167,7 +1167,7 @@ codeunit 132571 "Payment Export Mgt Unit Test"
     var
         VendorBankAcc: Record "Vendor Bank Account";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVendorWithVendorBankAcc(VendorBankAcc, LibraryUtility.GenerateGUID, '', '');
@@ -1185,7 +1185,7 @@ codeunit 132571 "Payment Export Mgt Unit Test"
     var
         VendorBankAcc: Record "Vendor Bank Account";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVendorWithVendorBankAcc(VendorBankAcc, '', '', '');
@@ -1206,7 +1206,7 @@ codeunit 132571 "Payment Export Mgt Unit Test"
         VendLedgerEntry2: Record "Vendor Ledger Entry";
         PmtExportMgtVendLedgEntry: Codeunit "Pmt Export Mgt Vend Ledg Entry";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVendorLedgerEntry(VendLedgerEntry1, VendLedgerEntry1."Document Type"::Payment, true);
@@ -1216,7 +1216,7 @@ codeunit 132571 "Payment Export Mgt Unit Test"
 
         // Pre-Exercise
         VendLedgerEntry2.SetRange("Entry No.", VendLedgerEntry1."Entry No.");
-        VendLedgerEntry2.FindLast;
+        VendLedgerEntry2.FindLast();
 
         // Exercise
         PmtExportMgtVendLedgEntry.ExportVendorPaymentFileYN(VendLedgerEntry2);
@@ -1237,7 +1237,7 @@ codeunit 132571 "Payment Export Mgt Unit Test"
         VendLedgerEntry2: Record "Vendor Ledger Entry";
         PmtExportMgtVendLedgEntry: Codeunit "Pmt Export Mgt Vend Ledg Entry";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVendorLedgerEntry(VendLedgerEntry1, VendLedgerEntry1."Document Type"::Payment, false);
@@ -1247,7 +1247,7 @@ codeunit 132571 "Payment Export Mgt Unit Test"
 
         // Pre-Exercise
         VendLedgerEntry2.SetRange("Entry No.", VendLedgerEntry1."Entry No.");
-        VendLedgerEntry2.FindLast;
+        VendLedgerEntry2.FindLast();
 
         // Exercise
         asserterror PmtExportMgtVendLedgEntry.ExportVendorPaymentFileYN(VendLedgerEntry2);
@@ -1265,7 +1265,7 @@ codeunit 132571 "Payment Export Mgt Unit Test"
         VendLedgerEntry2: Record "Vendor Ledger Entry";
         PmtExportMgtVendLedgEntry: Codeunit "Pmt Export Mgt Vend Ledg Entry";
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         CreateVendorLedgerEntry(VendLedgerEntry1, VendLedgerEntry1."Document Type"::Invoice, true);
@@ -1294,7 +1294,7 @@ codeunit 132571 "Payment Export Mgt Unit Test"
         VendLedgerEntry2: Record "Vendor Ledger Entry";
         PmtExportMgtVendLedgEntry: Codeunit "Pmt Export Mgt Vend Ledg Entry";
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         CreateVendorLedgerEntry(VendLedgerEntry1, VendLedgerEntry1."Document Type"::Invoice, false);
@@ -1306,7 +1306,7 @@ codeunit 132571 "Payment Export Mgt Unit Test"
 
         // Pre-Exercise
         VendLedgerEntry.SetRange("Entry No.", VendLedgerEntry1."Entry No.", VendLedgerEntry2."Entry No.");
-        VendLedgerEntry.FindFirst;
+        VendLedgerEntry.FindFirst();
 
         // Exercise
         asserterror PmtExportMgtVendLedgEntry.ExportVendorPaymentFileYN(VendLedgerEntry);
@@ -1328,13 +1328,13 @@ codeunit 132571 "Payment Export Mgt Unit Test"
         VendLedgerEntry: Record "Vendor Ledger Entry";
         PmtExportMgtGenJnlLine: Codeunit "Pmt Export Mgt Gen. Jnl Line";
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         CreateVendorLedgerEntry(VendLedgerEntry, VendLedgerEntry."Document Type"::Payment, true);
 
         LibraryERM.CreateBankAccount(BankAccount);
-        CreateGenJournalBatch(GenJnlBatch, LibraryUtility.GenerateGUID);
+        CreateGenJournalBatch(GenJnlBatch, LibraryUtility.GenerateGUID());
         GenJnlBatch."Bal. Account No." := BankAccount."No.";
         GenJnlBatch.Modify();
 
@@ -1632,7 +1632,7 @@ codeunit 132571 "Payment Export Mgt Unit Test"
         DataExch: Record "Data Exch.";
         PaymentExportMgt: Codeunit "Payment Export Mgt";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         CreateDataExchDef(DataExchDef, FileType);
@@ -1690,7 +1690,7 @@ codeunit 132571 "Payment Export Mgt Unit Test"
         DataExch: Record "Data Exch.";
         PaymentExportMgt: Codeunit "Payment Export Mgt";
     begin
-        Initialize;
+        Initialize();
 
         // Setup export definition
         CreateDataExchDef(DataExchDef, FileType);
@@ -1724,7 +1724,7 @@ codeunit 132571 "Payment Export Mgt Unit Test"
         RecRef: RecordRef;
         ExpectedError: Text;
     begin
-        Initialize;
+        Initialize();
 
         // Setup export definition
         if Length = 0 then
@@ -1775,7 +1775,7 @@ codeunit 132571 "Payment Export Mgt Unit Test"
         DataExchField: Record "Data Exch. Field";
         PaymentExportMgt: Codeunit "Payment Export Mgt";
     begin
-        Initialize;
+        Initialize();
 
         // Setup export definition
         CreateDataExchDef(DataExchDef, DataExchDef."File Type"::"Fixed Text");
@@ -1826,7 +1826,7 @@ codeunit 132571 "Payment Export Mgt Unit Test"
         DataExchField: Record "Data Exch. Field";
         PaymentExportMgt: Codeunit "Payment Export Mgt";
     begin
-        Initialize;
+        Initialize();
 
         // Setup export definition
         CreateDataExchDef(DataExchDef, DataExchDef."File Type"::"Variable Text");
@@ -1873,7 +1873,7 @@ codeunit 132571 "Payment Export Mgt Unit Test"
         DataExchField: Record "Data Exch. Field";
         PaymentExportMgt: Codeunit "Payment Export Mgt";
     begin
-        Initialize;
+        Initialize();
 
         // Setup export definition
         CreateDataExchDef(DataExchDef, DataExchDef."File Type"::"Fixed Text");
@@ -1919,7 +1919,7 @@ codeunit 132571 "Payment Export Mgt Unit Test"
         DataExchField: Record "Data Exch. Field";
         PaymentExportMgt: Codeunit "Payment Export Mgt";
     begin
-        Initialize;
+        Initialize();
 
         // Setup export definition
         CreateDataExchDef(DataExchDef, DataExchDef."File Type"::"Variable Text");
@@ -1984,11 +1984,11 @@ codeunit 132571 "Payment Export Mgt Unit Test"
         GenJnlBatch: Record "Gen. Journal Batch";
         GenJnlLine: Record "Gen. Journal Line";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVendorLedgerEntry(VendLedgerEntry, VendLedgerEntry."Document Type"::Invoice, true);
-        CreateGenJournalBatch(GenJnlBatch, LibraryUtility.GenerateGUID);
+        CreateGenJournalBatch(GenJnlBatch, LibraryUtility.GenerateGUID());
 
         // Exercise
         SuggestVendorPayment(VendLedgerEntry, GenJnlBatch, GenJnlLine);
@@ -2006,11 +2006,11 @@ codeunit 132571 "Payment Export Mgt Unit Test"
         GenJnlBatch: Record "Gen. Journal Batch";
         GenJnlLine: Record "Gen. Journal Line";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVendorLedgerEntry(VendLedgerEntry, VendLedgerEntry."Document Type"::Invoice, false);
-        CreateGenJournalBatch(GenJnlBatch, LibraryUtility.GenerateGUID);
+        CreateGenJournalBatch(GenJnlBatch, LibraryUtility.GenerateGUID());
 
         // Exercise
         SuggestVendorPayment(VendLedgerEntry, GenJnlBatch, GenJnlLine);
@@ -2029,7 +2029,7 @@ codeunit 132571 "Payment Export Mgt Unit Test"
     begin
         // [SCENARIO 377827] Posting Exch. Field should not be removed when posting non-related General Journal Line in the same batch with related
 
-        Initialize;
+        Initialize();
         // [GIVEN] Posting Exch. Field
         MockDataExchField(DataExchField, MockDataExchNo);
 
@@ -2067,7 +2067,7 @@ codeunit 132571 "Payment Export Mgt Unit Test"
     begin
         // [FEATURE] [Purchase] [Payment Export]
         // [SCENARIO 379332] Codeunit 1211 must call batch validation once per batch
-        Initialize;
+        Initialize();
 
         // [GIVEN] 3 Gen. Journal Batches with some 4 lines per each batch
         GenJournalTemplateName := CreateGenJnlBatchWithLines(BatchCount);
@@ -2137,7 +2137,7 @@ codeunit 132571 "Payment Export Mgt Unit Test"
         SuggestVendorPayments.InitializeRequest(VendLedgerEntry."Due Date", false, 0, false, VendLedgerEntry."Due Date", '1', false,
           GenJnlBatch."Bal. Account Type", '', GenJnlLine."Bank Payment Type"::" ");
         SuggestVendorPayments.UseRequestPage(false);
-        SuggestVendorPayments.RunModal;
+        SuggestVendorPayments.RunModal();
     end;
 
     local procedure CheckCreditTransferRegisterStatus(BankAccountNo: Code[20]; Status: Option)
@@ -2145,7 +2145,7 @@ codeunit 132571 "Payment Export Mgt Unit Test"
         CreditTransferRegister: Record "Credit Transfer Register";
     begin
         CreditTransferRegister.SetRange("From Bank Account No.", BankAccountNo);
-        CreditTransferRegister.FindLast;
+        CreditTransferRegister.FindLast();
         CreditTransferRegister.TestField(Status, Status);
     end;
 
@@ -2196,19 +2196,19 @@ codeunit 132571 "Payment Export Mgt Unit Test"
         with CustLedgerEntry do begin
             Init;
             "Entry No." := LastCustLedgerEntryNo + 1000;
-            "Customer No." := LibrarySales.CreateCustomerNo;
+            "Customer No." := LibrarySales.CreateCustomerNo();
             "Posting Date" := WorkDate;
             "Document Type" := DocumentType;
-            "Document No." := LibraryUtility.GenerateGUID;
+            "Document No." := LibraryUtility.GenerateGUID();
             Open := true;
             "Due Date" := CalcDate('<1D>', "Posting Date");
             "Bal. Account Type" := "Bal. Account Type"::"Bank Account";
-            "Bal. Account No." := LibraryUtility.GenerateGUID;
+            "Bal. Account No." := LibraryUtility.GenerateGUID();
             Amount := LibraryRandom.RandDecInRange(100, 1000, 2);
             LibraryPaymentExport.CreatePaymentMethod(PaymentMethod);
             "Payment Method Code" := PaymentMethod.Code;
-            "Recipient Bank Account" := LibraryUtility.GenerateGUID;
-            "Message to Recipient" := LibraryUtility.GenerateGUID;
+            "Recipient Bank Account" := LibraryUtility.GenerateGUID();
+            "Message to Recipient" := LibraryUtility.GenerateGUID();
             "Exported to Payment File" := Exported;
             Insert;
         end;
@@ -2248,14 +2248,14 @@ codeunit 132571 "Payment Export Mgt Unit Test"
             "Account No." := VendLedgerEntry."Vendor No.";
             "Posting Date" := WorkDate;
             "Document Type" := "Document Type"::Payment;
-            "Document No." := LibraryUtility.GenerateGUID;
-            "External Document No." := LibraryUtility.GenerateGUID;
+            "Document No." := LibraryUtility.GenerateGUID();
+            "External Document No." := LibraryUtility.GenerateGUID();
             Amount := VendLedgerEntry.Amount;
             "Bal. Account Type" := GenJnlBatch."Bal. Account Type";
             "Bal. Account No." := GenJnlBatch."Bal. Account No.";
             "Payment Method Code" := VendLedgerEntry."Payment Method Code";
-            "Recipient Bank Account" := LibraryUtility.GenerateGUID;
-            "Message to Recipient" := LibraryUtility.GenerateGUID;
+            "Recipient Bank Account" := LibraryUtility.GenerateGUID();
+            "Message to Recipient" := LibraryUtility.GenerateGUID();
             Insert;
         end;
     end;
@@ -2268,20 +2268,20 @@ codeunit 132571 "Payment Export Mgt Unit Test"
         with VendLedgerEntry do begin
             Init;
             "Entry No." := LastVendorLedgerEntryNo + 1000;
-            "Vendor No." := LibraryPurchase.CreateVendorNo;
+            "Vendor No." := LibraryPurchase.CreateVendorNo();
             "Posting Date" := WorkDate;
             "Document Type" := DocumentType;
-            "Document No." := LibraryUtility.GenerateGUID;
+            "Document No." := LibraryUtility.GenerateGUID();
             Open := true;
             "Due Date" := CalcDate('<1D>', "Posting Date");
             Amount := -LibraryRandom.RandDecInRange(100, 1000, 2);
             "Bal. Account Type" := "Bal. Account Type"::"Bank Account";
-            "Bal. Account No." := LibraryUtility.GenerateGUID;
+            "Bal. Account No." := LibraryUtility.GenerateGUID();
             LibraryERM.CreatePaymentMethod(PaymentMethod);
             "Payment Method Code" := PaymentMethod.Code;
             LibraryPurchase.CreateVendorBankAccount(VendorBankAccount, "Vendor No.");
             "Recipient Bank Account" := VendorBankAccount.Code;
-            "Message to Recipient" := LibraryUtility.GenerateGUID;
+            "Message to Recipient" := LibraryUtility.GenerateGUID();
             "Exported to Payment File" := Exported;
             Insert;
         end;
@@ -2385,7 +2385,7 @@ codeunit 132571 "Payment Export Mgt Unit Test"
             SetRange("Journal Batch Name", GenJnlBatch.Name);
             SetRange("Applies-to Doc. Type", VendLedgerEntry."Document Type");
             SetRange("Applies-to Doc. No.", VendLedgerEntry."Document No.");
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -2393,7 +2393,7 @@ codeunit 132571 "Payment Export Mgt Unit Test"
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
-        if CustLedgerEntry.FindLast then
+        if CustLedgerEntry.FindLast() then
             exit(CustLedgerEntry."Entry No.");
         exit(0);
     end;
@@ -2402,7 +2402,7 @@ codeunit 132571 "Payment Export Mgt Unit Test"
     var
         VendLedgerEntry: Record "Vendor Ledger Entry";
     begin
-        if VendLedgerEntry.FindLast then
+        if VendLedgerEntry.FindLast() then
             exit(VendLedgerEntry."Entry No.");
         exit(0);
     end;
@@ -2493,7 +2493,7 @@ codeunit 132571 "Payment Export Mgt Unit Test"
     [Scope('OnPrem')]
     procedure InitializeEventHitsCounter()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         LibraryVariableStorage.Enqueue(0);
     end;
 
@@ -2513,8 +2513,8 @@ codeunit 132571 "Payment Export Mgt Unit Test"
     var
         LineNo: Integer;
     begin
-        ExpectedDataExchField.FindFirst;
-        ActualDataExchField.FindFirst;
+        ExpectedDataExchField.FindFirst();
+        ActualDataExchField.FindFirst();
         repeat
             LineNo += 1;
             AreEqualRecords(ExpectedDataExchField, ActualDataExchField, StrSubstNo(TableErrorMsg, Msg, LineNo));

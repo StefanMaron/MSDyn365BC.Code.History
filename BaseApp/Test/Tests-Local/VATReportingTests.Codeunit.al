@@ -47,7 +47,7 @@ codeunit 141002 "VAT Reporting - Tests"
         TempVATAmtLine: Record "VAT Amount Line" temporary;
         AlwaysShowVATSum: Boolean;
     begin
-        Initialize;
+        Initialize();
 
         CreateSalesDoc(SalesHeader, SalesHeader."Document Type"::"Blanket Order");
         GetSalesHeaderVATAmt(TempVATAmtLine, SalesHeader);
@@ -72,7 +72,7 @@ codeunit 141002 "VAT Reporting - Tests"
         TempVATAmtLine: Record "VAT Amount Line" temporary;
         AlwaysShowVATSum: Boolean;
     begin
-        Initialize;
+        Initialize();
 
         CreateSalesDocWithMultipleVAT(SalesHeader, SalesHeader."Document Type"::"Blanket Order");
         GetSalesHeaderVATAmt(TempVATAmtLine, SalesHeader);
@@ -97,7 +97,7 @@ codeunit 141002 "VAT Reporting - Tests"
         TempVATAmtLine: Record "VAT Amount Line" temporary;
         AlwaysShowVATSum: Boolean;
     begin
-        Initialize;
+        Initialize();
 
         CreatePurchDoc(PurchHeader, PurchHeader."Document Type"::Order);
         GetPurchHeaderVATAmt(TempVATAmtLine, PurchHeader);
@@ -122,7 +122,7 @@ codeunit 141002 "VAT Reporting - Tests"
         TempVATAmtLine: Record "VAT Amount Line" temporary;
         AlwaysShowVATSum: Boolean;
     begin
-        Initialize;
+        Initialize();
 
         CreatePurchInvAndPost(PurchInvHeader);
         GetPurchInvoiceHeaderVATAmt(TempVATAmtLine, PurchInvHeader);
@@ -147,7 +147,7 @@ codeunit 141002 "VAT Reporting - Tests"
         TempVATAmtLine: Record "VAT Amount Line" temporary;
         AlwaysShowVATSum: Boolean;
     begin
-        Initialize;
+        Initialize();
 
         CreatePurchCrMemoAndPost(PurchCrMemoHdr);
         GetPurchCrMemoHeaderVATAmt(TempVATAmtLine, PurchCrMemoHdr);
@@ -172,7 +172,7 @@ codeunit 141002 "VAT Reporting - Tests"
         TempVATAmtLine: Record "VAT Amount Line" temporary;
         AlwaysShowVATSum: Boolean;
     begin
-        Initialize;
+        Initialize();
 
         CreatePurchDocWithMultipleVAT(PurchHeader, PurchHeader."Document Type"::Order);
         GetPurchHeaderVATAmt(TempVATAmtLine, PurchHeader);
@@ -197,7 +197,7 @@ codeunit 141002 "VAT Reporting - Tests"
         TempVATAmtLine: Record "VAT Amount Line" temporary;
         AlwaysShowVATSum: Boolean;
     begin
-        Initialize;
+        Initialize();
 
         CreatePurchInvWithMultipleVATAndPost(PurchInvHeader);
         GetPurchInvoiceHeaderVATAmt(TempVATAmtLine, PurchInvHeader);
@@ -222,7 +222,7 @@ codeunit 141002 "VAT Reporting - Tests"
         TempVATAmtLine: Record "VAT Amount Line" temporary;
         AlwaysShowVATSum: Boolean;
     begin
-        Initialize;
+        Initialize();
 
         CreatePurchCrMemoWithMultipleVATAndPost(PurchCrMemoHdr);
         GetPurchCrMemoHeaderVATAmt(TempVATAmtLine, PurchCrMemoHdr);
@@ -248,7 +248,7 @@ codeunit 141002 "VAT Reporting - Tests"
         Month: Integer;
         WD: Date;
     begin
-        Initialize;
+        Initialize();
 
         WD := WorkDate;
 
@@ -281,7 +281,7 @@ codeunit 141002 "VAT Reporting - Tests"
         Month: Integer;
         WD: Date;
     begin
-        Initialize;
+        Initialize();
 
         WD := WorkDate;
 
@@ -314,7 +314,7 @@ codeunit 141002 "VAT Reporting - Tests"
         Month: Integer;
         WD: Date;
     begin
-        Initialize;
+        Initialize();
 
         WD := WorkDate;
 
@@ -347,7 +347,7 @@ codeunit 141002 "VAT Reporting - Tests"
         Month: Integer;
         WD: Date;
     begin
-        Initialize;
+        Initialize();
 
         WD := WorkDate;
 
@@ -375,7 +375,7 @@ codeunit 141002 "VAT Reporting - Tests"
         with LibraryReportDataset do begin
             LoadDataSetFile;
             Reset;
-            VATAmtLine.FindFirst;
+            VATAmtLine.FindFirst();
             repeat
                 SetRange(VATId, VATAmtLine."VAT Identifier");
                 Assert.AreEqual(AlwaysShowVATSum, GetNextRow, '');
@@ -387,7 +387,7 @@ codeunit 141002 "VAT Reporting - Tests"
     begin
         with LibraryReportDataset do begin
             LoadDataSetFile;
-            VATAmtLine.FindFirst;
+            VATAmtLine.FindFirst();
             repeat
                 Reset;
                 SetRange('VATProdPostingGrp_VATPostingSetup', VATAmtLine."VAT Identifier");
@@ -407,7 +407,7 @@ codeunit 141002 "VAT Reporting - Tests"
     begin
         with LibraryReportDataset do begin
             LoadDataSetFile;
-            VATAmtLine.FindFirst;
+            VATAmtLine.FindFirst();
             repeat
                 Reset;
                 SetRange('VATProdPostingGroup_VATPostingSetup', VATAmtLine."VAT Identifier");
@@ -601,7 +601,7 @@ codeunit 141002 "VAT Reporting - Tests"
         SalesInvoiceLine: Record "Sales Invoice Line";
     begin
         SalesInvoiceLine.SetRange("Document No.", SalesInvoiceHeader."No.");
-        if SalesInvoiceLine.FindSet then
+        if SalesInvoiceLine.FindSet() then
             repeat
                 with VATAmtLine do begin
                     Init;
@@ -624,7 +624,7 @@ codeunit 141002 "VAT Reporting - Tests"
         SalesCrMemoLine: Record "Sales Cr.Memo Line";
     begin
         SalesCrMemoLine.SetRange("Document No.", SalesCrMemoHeader."No.");
-        if SalesCrMemoLine.FindSet then
+        if SalesCrMemoLine.FindSet() then
             repeat
                 with VATAmtLine do begin
                     Init;
@@ -649,7 +649,7 @@ codeunit 141002 "VAT Reporting - Tests"
     begin
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        if SalesLine.FindSet then
+        if SalesLine.FindSet() then
             repeat
                 with VATAmtLine do begin
                     Init;
@@ -672,7 +672,7 @@ codeunit 141002 "VAT Reporting - Tests"
         PurchInvLine: Record "Purch. Inv. Line";
     begin
         PurchInvLine.SetRange("Document No.", PurchInvHeader."No.");
-        if PurchInvLine.FindSet then
+        if PurchInvLine.FindSet() then
             repeat
                 with VATAmtLine do begin
                     Init;
@@ -696,7 +696,7 @@ codeunit 141002 "VAT Reporting - Tests"
         PurchCrMemoLine: Record "Purch. Cr. Memo Line";
     begin
         PurchCrMemoLine.SetRange("Document No.", PurchCrMemoHdr."No.");
-        if PurchCrMemoLine.FindSet then
+        if PurchCrMemoLine.FindSet() then
             repeat
                 with VATAmtLine do begin
                     Init;
@@ -720,7 +720,7 @@ codeunit 141002 "VAT Reporting - Tests"
     begin
         PurchLine.SetRange("Document Type", PurchHeader."Document Type");
         PurchLine.SetRange("Document No.", PurchHeader."No.");
-        if PurchLine.FindSet then
+        if PurchLine.FindSet() then
             repeat
                 with VATAmtLine do begin
                     Init;

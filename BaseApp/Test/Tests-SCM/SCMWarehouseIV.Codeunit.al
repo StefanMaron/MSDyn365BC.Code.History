@@ -62,7 +62,7 @@ codeunit 137407 "SCM Warehouse IV"
         WarehouseEmployee.DeleteAll();
 
         // [WHEN] GetAllowedLocation(X)
-        Location.FindFirst;
+        Location.FindFirst();
         asserterror WMSManagement.GetAllowedLocation(Location.Code);
 
         // [THEN] Error message : 'Must setup Whse Employee'
@@ -326,7 +326,7 @@ codeunit 137407 "SCM Warehouse IV"
         // [SCENARIO] item tracking lines are created from Purchase Line for Serial No.
 
         // [GIVEN] Create Location and Bin. Create Item Tracking Code with Serial No.
-        Initialize;
+        Initialize();
         ItemNo := CreateInitalSetupForWarehouse(Bin, true);
 
         // [WHEN] Create Purchase With Item Tracking Line.
@@ -349,7 +349,7 @@ codeunit 137407 "SCM Warehouse IV"
         // [SCENARIO] item tracking lines are created from Purchase Line for Lot No.
 
         // [GIVEN] Create Location and Bin. Create Item Tracking Code with Lot No.
-        Initialize;
+        Initialize();
         ItemNo := CreateInitalSetupForWarehouse(Bin, false);
 
         // [WHEN] Create Purchase With Item Tracking Line.
@@ -366,7 +366,7 @@ codeunit 137407 "SCM Warehouse IV"
     procedure PostPurchaseOrderFromActivityHeaderWithTrackingLineSerialNo()
     begin
         // Create Purchase Order, Create Item Tracking line for Serial No. Post Inventory Put and Verify Posted Document.
-        Initialize;
+        Initialize();
         LibraryVariableStorage.Enqueue(ItemTrackingMode::AssignSerialNo);
         PostAndVerifyInventoryPut(true, true, false, false);
     end;
@@ -377,7 +377,7 @@ codeunit 137407 "SCM Warehouse IV"
     procedure PostPurchaseOrderFromActivityHeaderWithTrackingLineLot()
     begin
         // Create Purchase Order, Create Item Tracking line for Lot No. Post Inventory Put and Verify Posted Document.
-        Initialize;
+        Initialize();
         LibraryVariableStorage.Enqueue(ItemTrackingMode::AssignLotNo);
         PostAndVerifyInventoryPut(false, true, false, false);
     end;
@@ -388,7 +388,7 @@ codeunit 137407 "SCM Warehouse IV"
     procedure PostPurchaseOrderFromActivityHeaderSerialNo()
     begin
         // Create Purchase Order, Post Inventory Put for Serial No. and Verify Posted Document.
-        Initialize;
+        Initialize();
         LibraryVariableStorage.Enqueue(ItemTrackingMode::AssignSerialNo);
         PostAndVerifyInventoryPut(true, false, true, false);
     end;
@@ -399,7 +399,7 @@ codeunit 137407 "SCM Warehouse IV"
     procedure PostPurchaseOrderFromActivityHeaderLotNo()
     begin
         // Create Purchase Order, Post Inventory Put for Lot No. and Verify Posted Document.
-        Initialize;
+        Initialize();
         LibraryVariableStorage.Enqueue(ItemTrackingMode::AssignLotNo);
         PostAndVerifyInventoryPut(false, false, false, true);
     end;
@@ -430,7 +430,7 @@ codeunit 137407 "SCM Warehouse IV"
     procedure PostSalesOrderFromActivityHeaderWithTrackingLineSerialNo()
     begin
         // Create Purchase Order with Item Tracking Line and Post Inventory Put. Create Sales Order with Item Tracking line for Serial No. Post Inventory Pick and Verify Posted Document.
-        Initialize;
+        Initialize();
         LibraryVariableStorage.Enqueue(ItemTrackingMode::AssignSerialNo);
         PostAndVerifyInventoryPick(true, true, false, false);
     end;
@@ -441,7 +441,7 @@ codeunit 137407 "SCM Warehouse IV"
     procedure PostSalesOrderFromActivityHeaderWithTrackingLineLot()
     begin
         // Create Purchase Order with Item Tracking Line and Post Inventory Put. Create Sales Order with Item Tracking line for Lot No. Post Inventory Pick and Verify Posted Document.
-        Initialize;
+        Initialize();
         LibraryVariableStorage.Enqueue(ItemTrackingMode::AssignLotNo);
         PostAndVerifyInventoryPick(false, true, false, false);
     end;
@@ -452,7 +452,7 @@ codeunit 137407 "SCM Warehouse IV"
     procedure PostSalesOrderFromActivityHeaderSerialNo()
     begin
         // Create Purchase Order with Inventory Put, Create Sales Order with Item Tracking Line, Post Inventory Pick for Serial No. and Verify Posted Document.
-        Initialize;
+        Initialize();
         PostAndVerifyInventoryPick(true, false, true, false);
     end;
 
@@ -462,7 +462,7 @@ codeunit 137407 "SCM Warehouse IV"
     procedure PostSalesOrderFromActivityHeaderLotNo()
     begin
         // Create Purchase Order with Inventory Put, Create Sales Order with Item Tracking Line,Post Inventory Pick for Lot No. and Verify Posted Document.
-        Initialize;
+        Initialize();
         PostAndVerifyInventoryPick(false, false, false, true);
     end;
 
@@ -504,7 +504,7 @@ codeunit 137407 "SCM Warehouse IV"
         // Create Purchase Order with Same Item two Lines, Create Inventory Put with same Lot No. with same Expiration date. Change Expiration date and Verify the Error Message.
 
         // [GIVEN] Create Purchase Order, Assign Item Tracking Line With same Lot No. and Create Inventory Put.
-        Initialize;
+        Initialize();
         CreateInventoryPutWithSameLotNo(WarehouseActivityLine);
 
         // [WHEN] Update Inventory Put Line for Different Expiration Date.
@@ -531,7 +531,7 @@ codeunit 137407 "SCM Warehouse IV"
         // Create Warehouse Item Journal Line and select No on confirmation Dialog of Posting and Check line is not Posted.
 
         // [GIVEN] Create Full Warehouse Setup.
-        Initialize;
+        Initialize();
         CreateFullWarehouseSetup(Location);
         CreateWarehouseJournalBatch(WarehouseJournalBatch, Location.Code);
 
@@ -563,7 +563,7 @@ codeunit 137407 "SCM Warehouse IV"
         // Create and Post Warehouse Item Journal Line and Verify Warehouse Entries.
 
         // [GIVEN] Create Full Warehouse Setup.
-        Initialize;
+        Initialize();
         CreateFullWarehouseSetup(Location);
         CreateWarehouseJournalBatch(WarehouseJournalBatch, Location.Code);
 
@@ -598,7 +598,7 @@ codeunit 137407 "SCM Warehouse IV"
         // Create and Post Warehouse Item Journal Line and Verify Warehouse Entries.
 
         // [GIVEN] Create Full Warehouse Setup.
-        Initialize;
+        Initialize();
         CreateFullWarehouseSetup(Location);
         CreateWarehouseJournalBatch(WarehouseJournalBatch, Location.Code);
         SetIncrementBatchName(WarehouseJournalBatch, false);
@@ -635,7 +635,7 @@ codeunit 137407 "SCM Warehouse IV"
         // Check posting of Purchase Invoices across multiple Purchase Orders.
 
         // Setup.
-        Initialize;
+        Initialize();
         LoopCount := LibraryRandom.RandInt(5);  // Use Random for multiple Purchase orders.
 
         // [WHEN] Create multiple Purchase Orders and post them as Receive.
@@ -656,7 +656,7 @@ codeunit 137407 "SCM Warehouse IV"
         // Test and verify Warehouse Receipt with partial Quantity To Receive.
 
         // [GIVEN] Create Warehouse Receipt From Purchase Order.
-        Initialize;
+        Initialize();
         CreateWarehouseReceiptFromPurchaseOrder(PurchaseLine);
 
         // [WHEN] Post Warehouse Receipt with partial Quantity To Receive.
@@ -681,7 +681,7 @@ codeunit 137407 "SCM Warehouse IV"
         // Register Warehouse Activity created by Warehouse Receipt with partial Quantity To Receive.
 
         // [GIVEN] Create Warehouse Receipt From Purchase Order. Post Warehouse Receipt with partial Quantity To Receive.
-        Initialize;
+        Initialize();
         CreateWarehouseReceiptFromPurchaseOrder(PurchaseLine);
         PostWarehouseReceiptWithPartialQuantityToReceive(WarehouseReceiptLine, PurchaseLine);
 
@@ -692,7 +692,7 @@ codeunit 137407 "SCM Warehouse IV"
 
         // [THEN] Verify Registered Warehouse Activity.
         RegisteredWhseActivityHdr.SetRange("Whse. Activity No.", WarehouseActivityHeader."No.");
-        RegisteredWhseActivityHdr.FindFirst;
+        RegisteredWhseActivityHdr.FindFirst();
     end;
 
     [Test]
@@ -707,7 +707,7 @@ codeunit 137407 "SCM Warehouse IV"
         // Test functionality of Create Stock Keeping Unit batch job with Location and Replace Previous SKUs as False.
 
         // [GIVEN] Create an Item and a Location.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         LibraryWarehouse.CreateLocation(Location);
 
@@ -730,7 +730,7 @@ codeunit 137407 "SCM Warehouse IV"
         // Test functionality of Create Stock Keeping Unit batch job with Variant and Replace Previous SKUs as False.
 
         // [GIVEN] Create an Item and a Variant.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         LibraryInventory.CreateItemVariant(ItemVariant, Item."No.");
 
@@ -755,7 +755,7 @@ codeunit 137407 "SCM Warehouse IV"
         // Test functionality of Create Stock Keeping Unit batch job with Location and Variant and Replace Previous SKUs as True.
 
         // [GIVEN] Create an Item, two Locations and two Variants. Create two Stock keeping units for Location and Variant. Update Item's Unit Cost.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         LibraryWarehouse.CreateLocation(Location);
         LibraryWarehouse.CreateLocation(Location2);
@@ -783,7 +783,7 @@ codeunit 137407 "SCM Warehouse IV"
         // Test to verify Registered Pick exists after we create a Pick from Sales Order and Register it.
 
         // [GIVEN] Create Location, Create Item and update Inventory on the Location. Create a Sales Order and Warehouse Shipment and Create a Pick from it.
-        Initialize;
+        Initialize();
         CreatePickFromSalesOrder(WarehouseActivityHeader);
 
         // [WHEN] Register the Pick.
@@ -791,7 +791,7 @@ codeunit 137407 "SCM Warehouse IV"
 
         // [THEN] Verify that the new Pick exists in the Registered Picks.
         RegisteredWhseActivityHdr.SetRange("Whse. Activity No.", WarehouseActivityHeader."No.");
-        RegisteredWhseActivityHdr.FindFirst;
+        RegisteredWhseActivityHdr.FindFirst();
     end;
 
     [Test]
@@ -805,7 +805,7 @@ codeunit 137407 "SCM Warehouse IV"
         // Test to verify that Registered Pick gets deleted on running Delete Registered Warehouse Document report.
 
         // [GIVEN] Create Location, Create Item and update Inventory on the Location. Create a Sales Order and Warehouse Shipment. Create a Pick and Register it.
-        Initialize;
+        Initialize();
         CreatePickFromSalesOrder(WarehouseActivityHeader);
         LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
 
@@ -830,7 +830,7 @@ codeunit 137407 "SCM Warehouse IV"
         // [SCENARIO] Warehouse Entries after posting multiple Item Journal Lines.
 
         // [GIVEN] Create Location and Find Bin.
-        Initialize;
+        Initialize();
         CreateLocationAndFindBin(Bin, false);
         Quantity := LibraryRandom.RandDec(100, 2);  // Use Random for Quantity.
 
@@ -858,7 +858,7 @@ codeunit 137407 "SCM Warehouse IV"
         // Test and verify partial Inventory Pick with multiple Items.
 
         // [GIVEN] Create Location and Find Bin. Post multiple Item Journal Lines. Create and Release Sales Order with multiple lines.
-        Initialize;
+        Initialize();
         CreateLocationAndFindBin(Bin, false);
         PartialQuantity := LibraryRandom.RandDec(100, 2);  // Use Random for Partial Quantity.
         Quantity := PartialQuantity + LibraryRandom.RandDec(100, 2);  // Use Random for Quantity required for test.
@@ -890,7 +890,7 @@ codeunit 137407 "SCM Warehouse IV"
         // Test and verify full Inventory Pick with multiple Items after partial Inventory Pick.
 
         // [GIVEN] Create Location and Find Bin. Post multiple Item Journal Lines. Create and Release Sales Order with multiple lines. Create and post Inventory Pick with partial Quantity To Handle.
-        Initialize;
+        Initialize();
         CreateLocationAndFindBin(Bin, false);
         PartialQuantity := LibraryRandom.RandDec(100, 2);  // Use Random for Partial Quantity.
         Quantity := PartialQuantity + LibraryRandom.RandDec(100, 2);  // Use Random for Quantity required for test.
@@ -918,7 +918,7 @@ codeunit 137407 "SCM Warehouse IV"
         // Test and verify Source Code on Warehouse Register after register Warehouse Journal Line.
 
         // [GIVEN] Create Warehouse Journal Line with Item Tracking Line.
-        Initialize;
+        Initialize();
         CreateWarehouseJournalLineWithItemTrackingLines(WarehouseJournalLine, WarehouseJournalLine."Entry Type"::"Positive Adjmt.");
 
         // [WHEN] Register Warehouse Journal Line.
@@ -943,7 +943,7 @@ codeunit 137407 "SCM Warehouse IV"
         // Test and verify Source Code on Warehouse Register after calculate and post Warehouse Adjustment.
 
         // [GIVEN] Create Warehouse Journal Line with Item Tracking Line. Register Warehouse Journal Line.
-        Initialize;
+        Initialize();
         CreateWarehouseJournalLineWithItemTrackingLines(WarehouseJournalLine, WarehouseJournalLine."Entry Type"::"Positive Adjmt.");
         LibraryWarehouse.RegisterWhseJournalLine(
           WarehouseJournalLine."Journal Template Name", WarehouseJournalLine."Journal Batch Name", WarehouseJournalLine."Location Code",
@@ -985,7 +985,7 @@ codeunit 137407 "SCM Warehouse IV"
 
         // [THEN] Verify Source Code on Warehouse Register.
         SourceCodeSetup.Get();
-        WarehouseRegister.FindLast;
+        WarehouseRegister.FindLast();
         WarehouseRegister.TestField("Source Code", SourceCodeSetup."Compress Whse. Entries");
     end;
 
@@ -1034,7 +1034,7 @@ codeunit 137407 "SCM Warehouse IV"
         // Post Warehouse Item Journal Batch and Verify Warehouse Entries.
 
         // [GIVEN] Create Full Warehouse Setup.
-        Initialize;
+        Initialize();
         CreateFullWarehouseSetup(Location);
         CreateWarehouseJournalBatch(WarehouseJournalBatch, Location.Code);
 
@@ -1064,7 +1064,7 @@ codeunit 137407 "SCM Warehouse IV"
         // Create Location by Page and verify it.
 
         // Setup.
-        Initialize;
+        Initialize();
 
         // [WHEN] Create New Location by Page.
         TempLocation.Init();
@@ -1088,7 +1088,7 @@ codeunit 137407 "SCM Warehouse IV"
         // Run Calculate Bins report without Bin template Code and handle error dialog.
 
         // [GIVEN] Create Location and Open Bin Creation Worksheet.
-        Initialize;
+        Initialize();
         CreateAndUpdateLocationWithSetup(Location, true, false, false);
         BinTemplateCode := '';  // BinTemplateCode used in CalculateBinRequestPageHandler.
         BinCreationWorksheet.OpenEdit;
@@ -1110,7 +1110,7 @@ codeunit 137407 "SCM Warehouse IV"
         // Run Calculate Bins report with Bin template Code and Verify Bin Code is created in Bin Creation Worksheet.
 
         // [GIVEN] Create Location and Open Bin Creation Worksheet.
-        Initialize;
+        Initialize();
         CreateLocationAndBinTemplate;
         FillBinCodeValue;  // Fill RackNo, SectionNo, LevelNo used in CalculateBinRequestPageHandler.
         BinCreationWorksheet.OpenEdit;
@@ -1132,7 +1132,7 @@ codeunit 137407 "SCM Warehouse IV"
         // Run Calculate Bins report with Field Separator and Verify Bin Code is created in Bin Creation Worksheet.
 
         // [GIVEN] Create Location and Open Bin Creation Worksheet.
-        Initialize;
+        Initialize();
         CreateLocationAndBinTemplate;
         FillBinCodeValue;  // Fill RackNo, SectionNo, LevelNo used in CalculateBinRequestPageHandler.
         FieldSeparator := Format(LibraryRandom.RandInt(5));  // Field Separator used in CalculateBinRequestPageHandler.
@@ -1155,7 +1155,7 @@ codeunit 137407 "SCM Warehouse IV"
         // Run Calculate Bins report with blank Rack From No. and Rack To No. as Blank and Verify Bin Code is not created on Bin Creation Worksheet.
 
         // [GIVEN] Create Location and Open Bin Creation Worksheet.
-        Initialize;
+        Initialize();
         CreateLocationAndBinTemplate;
         FillBinCodeValue;  // Fill RackNo, SectionNo, LevelNo used in CalculateBinRequestPageHandler.
         RackNo := '';  // Set Rack No as Blank.
@@ -1180,7 +1180,7 @@ codeunit 137407 "SCM Warehouse IV"
         // Calculate Bin when Level is greater than the maximum length of Bin Code and handle error dialog.
 
         // [GIVEN] Create Location and Open Bin Creation Worksheet.
-        Initialize;
+        Initialize();
         CreateLocationAndBinTemplate;
 
         // Set Value for RackNo SectionNo and LevelNo used in CalculateBinRequestPageHandler.
@@ -1211,7 +1211,7 @@ codeunit 137407 "SCM Warehouse IV"
         // Test the functionality of Warehouse Get Bin Content Report run from Item Journal line.
 
         // [GIVEN] Create Location with Zones and Bins. Add Inventory on Location Bin to update the Bin Content.
-        Initialize;
+        Initialize();
         CreateLocationAndFindBin(Bin, false);
         Quantity := LibraryRandom.RandDec(100, 2);  // Use Random value for Quantity.
         CreateAndPostItemJournalLine(LibraryInventory.CreateItem(Item), Quantity, Bin."Location Code", Bin.Code);
@@ -1237,7 +1237,7 @@ codeunit 137407 "SCM Warehouse IV"
         // Test the functionality of Warehouse Get Bin Content Report run from Transfer Order.
 
         // [GIVEN] Create Location with Bins. Post Item Journal on Location Bin with Item Tracking. Create a Transfer Order.
-        Initialize;
+        Initialize();
         CreateLocationAndFindBin(Bin, true);
         CreateItemWithItemTrackingCode(Item, true, false);
         Quantity := LibraryRandom.RandInt(10);  // Use Random value for Quantity.
@@ -1265,7 +1265,7 @@ codeunit 137407 "SCM Warehouse IV"
         // Test that Bin Content is created by invoking Create Bin Content on Bin Content Creation Worksheet page.
 
         // [GIVEN] Create Location with Zones and Bins. Find Bin and create an Item.
-        Initialize;
+        Initialize();
         CreateFullWarehouseSetup(Location);
         FindBin(Bin, Location.Code);
         LibraryInventory.CreateItem(Item);
@@ -1288,7 +1288,7 @@ codeunit 137407 "SCM Warehouse IV"
         // Test and verify Get Warehouse Documents functionality on Pick Worksheet.
 
         // [GIVEN] Create initial setup for Pick Worksheet.
-        Initialize;
+        Initialize();
         CreateInitialSetupForPickWorksheet(SalesLine);
 
         // [WHEN] Invoke Get Warehouse Documents from Pick Worksheet.
@@ -1310,7 +1310,7 @@ codeunit 137407 "SCM Warehouse IV"
         // Test and verify Create Pick functionality on Pick Worksheet.
 
         // [GIVEN] Create initial setup for Pick Worksheet. Invoke Get Warehouse Documents from Pick Worksheet.
-        Initialize;
+        Initialize();
         CreateInitialSetupForPickWorksheet(SalesLine);
         PickWorksheet.OpenEdit;
         PickWorksheet."Get Warehouse Documents".Invoke;
@@ -1335,7 +1335,7 @@ codeunit 137407 "SCM Warehouse IV"
         // Test and verify functionality of Warehouse Pick with Warehouse Tracking Lines.
 
         // [GIVEN] Create and register Warehouse Journal Line with Item Tracking Lines. Calculate and post Warehouse Adjustment. Create and release Warehouse Shipment from Sales Order.
-        Initialize;
+        Initialize();
         CreateWarehouseJournalLineWithItemTrackingLines(WarehouseJournalLine, WarehouseJournalLine."Entry Type"::"Positive Adjmt.");
         LibraryWarehouse.RegisterWhseJournalLine(
           WarehouseJournalLine."Journal Template Name", WarehouseJournalLine."Journal Batch Name", WarehouseJournalLine."Location Code",
@@ -1366,7 +1366,7 @@ codeunit 137407 "SCM Warehouse IV"
         // Create Warehouse Put Away Worksheet.
 
         // [GIVEN] Create Full Warehouse Setup. Create Warehouse Receipt from Purchase Order.
-        Initialize;
+        Initialize();
         CreateAndUpdateFullWareHouseSetup(Location);
         CreateAndPostWarehouseReceiptFromPurchaseOrder(PurchaseLine, Location.Code);
 
@@ -1390,7 +1390,7 @@ codeunit 137407 "SCM Warehouse IV"
         // Create Put Away from Put Away Worksheet.
 
         // [GIVEN] Create Full Warehouse Setup. Create Warehouse Receipt from Purchase Order. Create Worksheet Line.
-        Initialize;
+        Initialize();
         CreateAndUpdateFullWareHouseSetup(Location);
         CreateAndPostWarehouseReceiptFromPurchaseOrder(PurchaseLine, Location.Code);
         PutAwayWorksheet.OpenEdit;
@@ -1513,7 +1513,7 @@ codeunit 137407 "SCM Warehouse IV"
     begin
         // [FEATURE] [Inventory Put-Away] [Bin Mandatory] [UT]
         // [SCENARIO] Posted inventory put-away can be deleted if bin is not mandatory on location.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted inventory put-away on location with bin not mandatory.
         LibraryWarehouse.CreateLocationWMS(Location, false, true, false, false, false);
@@ -1536,7 +1536,7 @@ codeunit 137407 "SCM Warehouse IV"
     begin
         // [FEATURE] [Inventory Put-Away] [Bin Mandatory] [UT]
         // [SCENARIO] Posted inventory put-away cannot be deleted if bin is mandatory on location.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted inventory put-away on location with mandatory bin.
         LibraryWarehouse.CreateLocationWMS(Location, true, true, false, false, false);
@@ -1606,7 +1606,7 @@ codeunit 137407 "SCM Warehouse IV"
     begin
         // [FEATURE] [Stockkeeping Unit] [Physical Inventory] [Counting Period]
         // [SCENARIO 208608] On creating "Stockkeeping Unit" the field "Phys Invt Counting Period Code" is validated by the same way as on validating the same in Item table.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Location "L";
         LibraryWarehouse.CreateLocation(Location);
@@ -1641,7 +1641,7 @@ codeunit 137407 "SCM Warehouse IV"
     begin
         // [FEATURE] [Stockkeeping Unit] [Physical Inventory] [Counting Period]
         // [SCENARIO 208608] On creating "Stockkeeping Unit" the field "Phys Invt Counting Period Code" remains blank if the field "Phys Invt Counting Period Code" of Item is blank, no dialogue occurs.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Location "L";
         LibraryWarehouse.CreateLocation(Location);
@@ -1679,7 +1679,7 @@ codeunit 137407 "SCM Warehouse IV"
     begin
         // [FEATURE] [Get Bin Content] [Transfer Order] [Item Tracking]
         // [SCENARIO 223887] Transfer Line populated by invoking "Get Bin Content" function does not receive any item tracking when there is uncertainty which serial no. is available.
-        Initialize;
+        Initialize();
 
         // [GIVEN] WMS location "L" with mandatory shipment and pick.
         CreateAndUpdateLocationWithSetup(Location, true, true, true);
@@ -1733,7 +1733,7 @@ codeunit 137407 "SCM Warehouse IV"
     begin
         // [FEATURE] [Bin Content]
         // [SCENARIO 303213] Only first Bin is Fixed and Default when Item stock is created in non-WMS location with several Bins
-        Initialize;
+        Initialize();
 
         // [GIVEN] Location with disabled Directed Put-away and Pick and two Bins "B1" and "B2"
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
@@ -1783,10 +1783,10 @@ codeunit 137407 "SCM Warehouse IV"
         // [SCENARIO 312703] Warranty Date specified via Lot Item Tracking is propagated to Service Item Warranty Starting Dates when Sales Order is posted
         // [SCENARIO 312703] Warranty Ending Date (Parts) is calculated via Warranty Date Formula specified in Item Tracking
         // [SCENARIO 312703] Warranty Ending Date (Labor) is calculated via Default Warranty Duration specified in Service Mgt. Setup
-        Initialize;
+        Initialize();
         Evaluate(WarrantyDateFormula, '<2Y>');
         Evaluate(DefaultWarrantyDuration, '<3Y>');
-        LotNo := LibraryUtility.GenerateGUID;
+        LotNo := LibraryUtility.GenerateGUID();
         Qty := LibraryRandom.RandInt(10);
         WarrantyStartDate := CalcDate('<1M>', WorkDate);
 
@@ -1828,7 +1828,7 @@ codeunit 137407 "SCM Warehouse IV"
         // [THEN] Warranty Ending Date (Parts) = 1/2/2020 <> Warranty Ending Date (Labor) = 1/2/2021
         with ServiceItem do begin
             SetRange("Item No.", Item."No.");
-            FindFirst;
+            FindFirst();
             TestField("Warranty Starting Date (Parts)", WarrantyStartDate);
             TestField("Warranty Starting Date (Labor)", "Warranty Starting Date (Parts)");
             TestField("Warranty Ending Date (Parts)", CalcDate(WarrantyDateFormula, WarrantyStartDate));
@@ -1856,7 +1856,7 @@ codeunit 137407 "SCM Warehouse IV"
         // [SCENARIO 312841] Warranty Date in Service Item is propagated from Purchase Order Posting Date
         // [SCENARIO 312841] When Sales Order has Posting Date <blank> (Sales & Receivables Setup must have Default Posting Date = "No Date")
         // [SCENARIO 312841] and Drop Shipment is used for this Sales Order
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales & Receivables Setup had Default Posting Date = "No Date"
         SalesReceivablesSetup.Get();
@@ -1896,7 +1896,7 @@ codeunit 137407 "SCM Warehouse IV"
         // [THEN] Service Item is created with Warranty Starting Date (Parts) = Warranty Starting Date (Labor) = 1/1/2021
         with ServiceItem do begin
             SetRange("Item No.", Item."No.");
-            FindFirst;
+            FindFirst();
             TestField("Warranty Starting Date (Parts)", PurchaseHeader."Posting Date");
             TestField("Warranty Starting Date (Labor)", "Warranty Starting Date (Parts)");
         end;
@@ -2018,8 +2018,8 @@ codeunit 137407 "SCM Warehouse IV"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Warehouse IV");
-        LibraryVariableStorage.Clear;
-        LibrarySetupStorage.Restore;
+        LibraryVariableStorage.Clear();
+        LibrarySetupStorage.Restore();
         // Clear global variables.
         Clear(BinTemplateCode);
         Clear(RackNo);
@@ -2033,11 +2033,11 @@ codeunit 137407 "SCM Warehouse IV"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Warehouse IV");
 
         LibraryFiscalYear.CreateClosedAccountingPeriods();
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibrarySetupStorage.Save(DATABASE::"Service Mgt. Setup");
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
-        NoSeriesSetup;
+        NoSeriesSetup();
         isInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Warehouse IV");
@@ -2235,7 +2235,7 @@ codeunit 137407 "SCM Warehouse IV"
         SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
         LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
         WarehouseShipmentHeader.SetRange("Location Code", SalesLine."Location Code");
-        WarehouseShipmentHeader.FindFirst;
+        WarehouseShipmentHeader.FindFirst();
         LibraryWarehouse.ReleaseWarehouseShipment(WarehouseShipmentHeader);
     end;
 
@@ -2429,7 +2429,7 @@ codeunit 137407 "SCM Warehouse IV"
         LibraryUtility: Codeunit "Library - Utility";
         LocationPage: TestPage "Location Card";
     begin
-        LocationPage.OpenNew;
+        LocationPage.OpenNew();
         LocationPage.Code.SetValue(LibraryUtility.GenerateRandomCode(Location.FieldNo(Code), DATABASE::Location));
         LocationPage."Bin Mandatory".SetValue(Location."Bin Mandatory");
         LocationPage."Directed Put-away and Pick".SetValue(Location."Directed Put-away and Pick");
@@ -2454,7 +2454,7 @@ codeunit 137407 "SCM Warehouse IV"
         SalesHeader.Get(SalesHeader."Document Type"::Order, SalesLine."Document No.");
         LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
         WarehouseShipmentHeader.SetRange("Location Code", Location.Code);
-        WarehouseShipmentHeader.FindFirst;
+        WarehouseShipmentHeader.FindFirst();
         LibraryWarehouse.CreatePick(WarehouseShipmentHeader);
         FindWarehouseActivityNo(WarehouseActivityLine, SalesLine."Document No.", WarehouseActivityLine."Activity Type"::Pick);
         WarehouseActivityHeader.Get(WarehouseActivityLine."Activity Type", WarehouseActivityLine."No.");
@@ -2548,7 +2548,7 @@ codeunit 137407 "SCM Warehouse IV"
         Bin.SetRange("Location Code", LocationCode);
         Bin.SetRange("Zone Code", Zone.Code);
         Bin.SetRange("Adjustment Bin", false);
-        Bin.FindFirst;
+        Bin.FindFirst();
     end;
 
     local procedure FillBinCodeValue()
@@ -2564,20 +2564,20 @@ codeunit 137407 "SCM Warehouse IV"
         StockkeepingUnit.SetRange("Item No.", ItemNo);
         StockkeepingUnit.SetRange("Location Code", LocationCode);
         StockkeepingUnit.SetRange("Variant Code", ItemVariantCode);
-        StockkeepingUnit.FindFirst;
+        StockkeepingUnit.FindFirst();
     end;
 
     local procedure FindWarehouseActivityHeader(var WarehouseActivityHeader: Record "Warehouse Activity Header"; SourceNo: Code[20])
     begin
         WarehouseActivityHeader.SetRange("Source No.", SourceNo);
-        WarehouseActivityHeader.FindFirst;
+        WarehouseActivityHeader.FindFirst();
     end;
 
     local procedure FindWarehouseActivityNo(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceNo: Code[20]; ActivityType: Enum "Warehouse Activity Type")
     begin
         WarehouseActivityLine.SetRange("Source No.", SourceNo);
         WarehouseActivityLine.SetRange("Activity Type", ActivityType);
-        WarehouseActivityLine.FindFirst;
+        WarehouseActivityLine.FindFirst();
     end;
 
     local procedure FindWarehouseRegister(JournalBatchName: Code[10]): Boolean
@@ -2601,14 +2601,14 @@ codeunit 137407 "SCM Warehouse IV"
     local procedure FindZone(var Zone: Record Zone; LocationCode: Code[10])
     begin
         Zone.SetRange("Location Code", LocationCode);
-        Zone.FindFirst;
+        Zone.FindFirst();
     end;
 
     local procedure FindWarehouseReceiptLine(var WarehouseReceiptLine: Record "Warehouse Receipt Line"; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20])
     begin
         WarehouseReceiptLine.SetRange("Source Document", SourceDocument);
         WarehouseReceiptLine.SetRange("Source No.", SourceNo);
-        WarehouseReceiptLine.FindFirst;
+        WarehouseReceiptLine.FindFirst();
     end;
 
     local procedure GetLotNoFromReservationLine(ItemNo: Code[20]): Code[20]
@@ -2616,7 +2616,7 @@ codeunit 137407 "SCM Warehouse IV"
         ReservationEntry: Record "Reservation Entry";
     begin
         ReservationEntry.SetRange("Item No.", ItemNo);
-        ReservationEntry.FindFirst;
+        ReservationEntry.FindFirst();
         exit(ReservationEntry."Lot No.");
     end;
 
@@ -2628,7 +2628,7 @@ codeunit 137407 "SCM Warehouse IV"
         for i := 1 to 3 do
             with WhseInternalPickHeader do begin
                 Init;
-                "No." := LibraryUtility.GenerateGUID;
+                "No." := LibraryUtility.GenerateGUID();
                 "Location Code" := LocationCode;
                 Insert;
                 DocumentNo[i] := "No.";
@@ -2643,7 +2643,7 @@ codeunit 137407 "SCM Warehouse IV"
         for i := 1 to 3 do
             with WhseInternalPutAwayHeader do begin
                 Init;
-                "No." := LibraryUtility.GenerateGUID;
+                "No." := LibraryUtility.GenerateGUID();
                 "Location Code" := LocationCode;
                 Insert;
                 DocumentNo[i] := "No.";
@@ -2659,7 +2659,7 @@ codeunit 137407 "SCM Warehouse IV"
             with RegisteredWhseActivityHdr do begin
                 Init;
                 Type := ActivityType;
-                "No." := LibraryUtility.GenerateGUID;
+                "No." := LibraryUtility.GenerateGUID();
                 "Location Code" := LocationCode;
                 Insert;
                 DocumentNo[i] := "No.";
@@ -2761,7 +2761,7 @@ codeunit 137407 "SCM Warehouse IV"
         Clear(DateCompressWhseEntries);
         WarehouseEntry.SetRange("Item No.", ItemNo);
         DateCompressWhseEntries.SetTableView(WarehouseEntry);
-        DateCompressWhseEntries.Run;
+        DateCompressWhseEntries.Run();
     end;
 
     local procedure RunDeleteRegisteredWarehouseDocumentReport(WarehouseActivityHeaderNo: Code[20])
@@ -2773,7 +2773,7 @@ codeunit 137407 "SCM Warehouse IV"
         Commit(); // COMMIT is required to run the Report.
         RegisteredWhseActivityHdr.SetRange("Whse. Activity No.", WarehouseActivityHeaderNo);
         DeleteRegisteredWhseDocs.SetTableView(RegisteredWhseActivityHdr);
-        DeleteRegisteredWhseDocs.Run;
+        DeleteRegisteredWhseDocs.Run();
     end;
 
     local procedure RunWarehouseGetBinContentReportFromItemJournalLine(LocationCode: Code[10]; ItemNo: Code[20]; BinCode: Code[20])
@@ -2840,7 +2840,7 @@ codeunit 137407 "SCM Warehouse IV"
         LibraryUtility: Codeunit "Library - Utility";
     begin
         LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Item);
-        LibraryUtility.GenerateGUID;  // Fix for Item Journal Posting creates a new Item Journal Batch.
+        LibraryUtility.GenerateGUID();  // Fix for Item Journal Posting creates a new Item Journal Batch.
         LibraryInventory.CreateItemJournalBatch(ItemJournalBatch, ItemJournalTemplate.Name);
         ItemJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
         ItemJournalBatch.Modify(true);
@@ -2918,7 +2918,7 @@ codeunit 137407 "SCM Warehouse IV"
         BinContent.SetRange("Location Code", LocationCode);
         BinContent.SetRange("Zone Code", ZoneCode);
         BinContent.SetRange("Bin Code", BinCode);
-        BinContent.FindFirst;
+        BinContent.FindFirst();
         BinContent.TestField("Item No.", ItemNo);
     end;
 
@@ -2928,7 +2928,7 @@ codeunit 137407 "SCM Warehouse IV"
     begin
         BinContent.SetRange("Location Code", LocationCode);
         BinContent.SetRange("Bin Code", BinCode);
-        BinContent.FindFirst;
+        BinContent.FindFirst();
         BinContent.TestField(Default, IsDefault);
         BinContent.TestField(Fixed, IsFixed);
     end;
@@ -2962,7 +2962,7 @@ codeunit 137407 "SCM Warehouse IV"
         ItemJournalLine: Record "Item Journal Line";
     begin
         ItemJournalLine.SetRange("Item No.", ItemNo);
-        ItemJournalLine.FindFirst;
+        ItemJournalLine.FindFirst();
         ItemJournalLine.TestField("Location Code", LocationCode);
         ItemJournalLine.TestField("Bin Code", BinCode);
         ItemJournalLine.TestField(Quantity, Quantity);
@@ -2988,7 +2988,7 @@ codeunit 137407 "SCM Warehouse IV"
         WhseWorksheetLine: Record "Whse. Worksheet Line";
     begin
         WhseWorksheetLine.SetRange("Item No.", SalesLine."No.");
-        WhseWorksheetLine.FindFirst;
+        WhseWorksheetLine.FindFirst();
         WhseWorksheetLine.TestField(Quantity, SalesLine.Quantity);
         WhseWorksheetLine.TestField("Destination No.", SalesLine."Sell-to Customer No.");
     end;
@@ -2999,7 +2999,7 @@ codeunit 137407 "SCM Warehouse IV"
     begin
         PostedInvtPickLine.SetRange("Source No.", SourceNo);
         PostedInvtPickLine.SetRange("Location Code", LocationCode);
-        PostedInvtPickLine.FindFirst;
+        PostedInvtPickLine.FindFirst();
         PostedInvtPickLine.TestField("Item No.", ItemNo);
         PostedInvtPickLine.TestField("Expiration Date", ExpirationDate);
         PostedInvtPickLine.TestField("Bin Code", BinCode);
@@ -3011,7 +3011,7 @@ codeunit 137407 "SCM Warehouse IV"
     begin
         PostedInvtPutAwayLine.SetRange("Source No.", SourceNo);
         PostedInvtPutAwayLine.SetRange("Location Code", LocationCode);
-        PostedInvtPutAwayLine.FindFirst;
+        PostedInvtPutAwayLine.FindFirst();
         PostedInvtPutAwayLine.TestField("Item No.", ItemNo);
         PostedInvtPutAwayLine.TestField("Expiration Date", ExpirationDate);
         PostedInvtPutAwayLine.TestField("Bin Code", BinCode);
@@ -3023,10 +3023,10 @@ codeunit 137407 "SCM Warehouse IV"
         PurchInvLine: Record "Purch. Inv. Line";
     begin
         PurchInvHeader.SetRange("Order No.", OrderNo);
-        PurchInvHeader.FindFirst;
+        PurchInvHeader.FindFirst();
 
         PurchInvLine.SetRange("Document No.", PurchInvHeader."No.");
-        PurchInvLine.FindFirst;
+        PurchInvLine.FindFirst();
         PurchInvLine.TestField("Location Code", LocationCode);
         PurchInvLine.TestField("Bin Code", Bincode);
         PurchInvLine.TestField(Quantity, Quantity);
@@ -3038,10 +3038,10 @@ codeunit 137407 "SCM Warehouse IV"
         SalesInvoiceLine: Record "Sales Invoice Line";
     begin
         SalesInvoiceHeader.SetRange("Order No.", OrderNo);
-        SalesInvoiceHeader.FindFirst;
+        SalesInvoiceHeader.FindFirst();
 
         SalesInvoiceLine.SetRange("Document No.", SalesInvoiceHeader."No.");
-        SalesInvoiceLine.FindFirst;
+        SalesInvoiceLine.FindFirst();
         SalesInvoiceLine.TestField("Location Code", LocationCode);
         SalesInvoiceLine.TestField("Bin Code", Bincode);
         SalesInvoiceLine.TestField(Quantity, Quantity);
@@ -3052,7 +3052,7 @@ codeunit 137407 "SCM Warehouse IV"
         WhseWorksheetLine: Record "Whse. Worksheet Line";
     begin
         WhseWorksheetLine.SetRange("Item No.", PurchaseLine."No.");
-        WhseWorksheetLine.FindFirst;
+        WhseWorksheetLine.FindFirst();
         WhseWorksheetLine.TestField(Quantity, PurchaseLine.Quantity);
     end;
 
@@ -3073,7 +3073,7 @@ codeunit 137407 "SCM Warehouse IV"
         PurchRcptLine: Record "Purch. Rcpt. Line";
     begin
         PurchRcptLine.SetRange("Order No.", OrderNo);
-        PurchRcptLine.FindFirst;
+        PurchRcptLine.FindFirst();
         PurchRcptLine.TestField("Location Code", LocationCode);
         PurchRcptLine.TestField("Bin Code", Bincode);
         PurchRcptLine.TestField(Quantity, Quantity);
@@ -3099,7 +3099,7 @@ codeunit 137407 "SCM Warehouse IV"
         SalesLine.SetRange("Document Type", SalesLine."Document Type"::Order);
         SalesLine.SetRange("Document No.", DocumentNo);
         SalesLine.SetRange("No.", No);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         SalesLine.TestField("Quantity Shipped", QuantityShipped);
     end;
 
@@ -3108,7 +3108,7 @@ codeunit 137407 "SCM Warehouse IV"
         SalesShipmentLine: Record "Sales Shipment Line";
     begin
         SalesShipmentLine.SetRange("Order No.", OrderNo);
-        SalesShipmentLine.FindFirst;
+        SalesShipmentLine.FindFirst();
         SalesShipmentLine.TestField("Location Code", LocationCode);
         SalesShipmentLine.TestField("Bin Code", Bincode);
         SalesShipmentLine.TestField(Quantity, Quantity);
@@ -3128,7 +3128,7 @@ codeunit 137407 "SCM Warehouse IV"
     begin
         TransferLine.SetRange("Document No.", TransferHeaderNo);
         TransferLine.SetRange("Item No.", ItemNo);
-        TransferLine.FindFirst;
+        TransferLine.FindFirst();
         TransferLine.TestField(Quantity, Quantity);
     end;
 
@@ -3179,7 +3179,7 @@ codeunit 137407 "SCM Warehouse IV"
     begin
         WarehouseEntry.SetRange("Entry Type", EntryType);
         WarehouseEntry.SetRange("Item No.", ItemNo);
-        WarehouseEntry.FindFirst;
+        WarehouseEntry.FindFirst();
         WarehouseEntry.TestField(Quantity, Quantity);
     end;
 
@@ -3190,7 +3190,7 @@ codeunit 137407 "SCM Warehouse IV"
         WarehouseJournalLine2.SetRange("Journal Template Name", WarehouseJournalLine."Journal Template Name");
         WarehouseJournalLine2.SetRange("Journal Batch Name", WarehouseJournalLine."Journal Batch Name");
         WarehouseJournalLine2.SetRange("Item No.", WarehouseJournalLine."Item No.");
-        WarehouseJournalLine2.FindFirst;
+        WarehouseJournalLine2.FindFirst();
     end;
 
     local procedure VerifyWarehouseRegister(JournalBatchName: Code[10]; SourceCode: Code[10])
@@ -3198,7 +3198,7 @@ codeunit 137407 "SCM Warehouse IV"
         WarehouseRegister: Record "Warehouse Register";
     begin
         WarehouseRegister.SetRange("Journal Batch Name", JournalBatchName);
-        WarehouseRegister.FindFirst;
+        WarehouseRegister.FindFirst();
         WarehouseRegister.TestField("Source Code", SourceCode);
     end;
 

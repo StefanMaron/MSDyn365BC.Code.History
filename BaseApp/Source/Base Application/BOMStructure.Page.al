@@ -287,11 +287,13 @@ page 5870 "BOM Structure"
         [InDataSet]
         IsParentExpr: Boolean;
         ItemFilter: Code[250];
-        ShowBy: Enum "BOM Structure Show By";
         CouldNotFindBOMLevelsErr: Label 'Could not find items with BOM levels.';
         [InDataSet]
         HasWarning: Boolean;
         Text001: Label 'There are no warnings.';
+
+    protected var
+        ShowBy: Enum "BOM Structure Show By";
 
     procedure InitItem(var NewItem: Record Item)
     begin
@@ -337,7 +339,7 @@ page 5870 "BOM Structure"
         case ShowBy of
             ShowBy::Item:
                 begin
-                    Item.FindFirst;
+                    Item.FindFirst();
                     RaiseError := (not Item.HasBOM) and (Item."Routing No." = '');
                     ErrorText := CouldNotFindBOMLevelsErr;
                     OnRefreshPageOnBeforeRaiseError(Item, RaiseError, ErrorText);

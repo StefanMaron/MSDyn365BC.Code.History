@@ -35,7 +35,7 @@ codeunit 137042 "SCM Capacity Req. Planning"
     begin
         // Setup : Update Sales and Manufacturing Setup.Create Items, Production BOM,Routing and update Item.
         // Create Planned Production Order. Update and Refresh it
-        Initialize;
+        Initialize();
         CapReqPlanningSetup(TempSalesReceivablesSetup, TempManufacturingSetup, ProductionOrder);
         AllocatedTime := CalculateAllocatedTime(ProductionOrder);
 
@@ -59,7 +59,7 @@ codeunit 137042 "SCM Capacity Req. Planning"
     begin
         // Setup : Update Sales and Manufacturing Setup.Create Items, Production BOM,Routing and update Item.
         // Create Planned Production Order.Update and Refresh it.
-        Initialize;
+        Initialize();
         CapReqPlanningSetup(TempSalesReceivablesSetup, TempManufacturingSetup, ProductionOrder);
 
         // Exercise: Change Production Order Quantity.
@@ -89,7 +89,7 @@ codeunit 137042 "SCM Capacity Req. Planning"
     begin
         // Setup : Update Sales and Manufacturing Setup.Create Items, Production BOM,Routing and update Item.
         // Create Planned Production Order.Update and Refresh it.
-        Initialize;
+        Initialize();
         SalesReceivablesSetup.Get();
         CapReqPlanningSetup(TempSalesReceivablesSetup, TempManufacturingSetup, ProductionOrder);
 
@@ -121,7 +121,7 @@ codeunit 137042 "SCM Capacity Req. Planning"
     begin
         // Setup : Update Sales and Manufacturing Setup.Create Items, Production BOM,Routing and update Item.
         // Create Planned Production Order.Update and Refresh it.
-        Initialize;
+        Initialize();
         SalesReceivablesSetup.Get();
         CapReqPlanningSetup(TempSalesReceivablesSetup, TempManufacturingSetup, ProductionOrder);
 
@@ -154,7 +154,7 @@ codeunit 137042 "SCM Capacity Req. Planning"
     begin
         // Setup : Update Sales and Manufacturing Setup.Create Items, Production BOM,Routing and update Item.
         // Create Planned Production Order.Update and Refresh it.
-        Initialize;
+        Initialize();
         SalesReceivablesSetup.Get();
         CapReqPlanningSetup(TempSalesReceivablesSetup, TempManufacturingSetup, ProductionOrder);
 
@@ -197,7 +197,7 @@ codeunit 137042 "SCM Capacity Req. Planning"
         Item: Record Item;
     begin
         // Setup : Update Sales Setup.Create Items, Production BOM with three Items,Routing and update Item.
-        Initialize;
+        Initialize();
         UpdateSalesReceivablesSetup(TempSalesReceivablesSetup);
         CreateProdOrderItemSetup(Item, Item."Flushing Method"::Forward, 2);
 
@@ -227,7 +227,7 @@ codeunit 137042 "SCM Capacity Req. Planning"
         SalesHeader: Record "Sales Header";
     begin
         // Setup : Update Sales Setup.Create Items, Production BOM with three Items,Routing and update Item.
-        Initialize;
+        Initialize();
         UpdateSalesReceivablesSetup(TempSalesReceivablesSetup);
         CreateProdOrderItemSetup(Item, Item."Flushing Method"::Forward, 2);
 
@@ -239,7 +239,7 @@ codeunit 137042 "SCM Capacity Req. Planning"
         // Verify : Firm Planned Production Order created.
         ProductionOrder.SetRange(Status, ProductionOrder.Status::"Firm Planned");
         ProductionOrder.SetRange("Source No.", Item."No.");
-        ProductionOrder.FindLast;
+        ProductionOrder.FindLast();
 
         // Tear down: Set Sales & Receivables Setup as default for Credit Warnings and Stockout Warning.
         RestoreSalesReceivablesSetup(TempSalesReceivablesSetup);
@@ -258,8 +258,8 @@ codeunit 137042 "SCM Capacity Req. Planning"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Capacity Req. Planning");
 
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.CreateVATData();
 
         isInitialized := true;
         Commit();
@@ -445,7 +445,7 @@ codeunit 137042 "SCM Capacity Req. Planning"
         RoutingLine: Record "Routing Line";
     begin
         RoutingLine.SetRange("Routing No.", RoutingNo);
-        if RoutingLine.FindLast then
+        if RoutingLine.FindLast() then
             exit(RoutingLine."Operation No.");
     end;
 
@@ -462,7 +462,7 @@ codeunit 137042 "SCM Capacity Req. Planning"
         RoutingLine.SetRange("Routing No.", RoutingNo);
         RoutingLine.SetRange(Type, Type);
         RoutingLine.SetRange("No.", No);
-        RoutingLine.FindFirst;
+        RoutingLine.FindFirst();
     end;
 
     local procedure CalculateAllocatedTime(ProductionOrder: Record "Production Order") ExpectedlAllocatedTime: Decimal
@@ -514,7 +514,7 @@ codeunit 137042 "SCM Capacity Req. Planning"
     begin
         ProdOrderLine.SetRange(Status, ProductionOrder.Status);
         ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
-        ProdOrderLine.FindFirst;
+        ProdOrderLine.FindFirst();
         ProdOrderLine.TestField("Item No.", ProductionOrder."Source No.");
         ProdOrderLine.TestField(Quantity, ProductionOrder.Quantity);
     end;

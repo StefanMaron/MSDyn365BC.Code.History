@@ -28,7 +28,7 @@ codeunit 136355 "UT T Job WIP Warning"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"UT T Job WIP Warning");
 
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         IsInitialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"UT T Job WIP Warning");
@@ -66,7 +66,7 @@ codeunit 136355 "UT T Job WIP Warning"
     [Scope('OnPrem')]
     procedure TestCreation()
     begin
-        Initialize;
+        Initialize();
         SetUp;
 
         // Validate that the generated Job WIP Entry generates 4 warnings.
@@ -82,7 +82,7 @@ codeunit 136355 "UT T Job WIP Warning"
     [Scope('OnPrem')]
     procedure TestFunctionsDeleteEntries()
     begin
-        Initialize;
+        Initialize();
         SetUp;
 
         // Validate that the generated Job WIP Warnings are deleted when the Job WIP Entry is deleted.

@@ -1015,7 +1015,7 @@ codeunit 139305 "Data Migration Wizard Tests"
     var
         DataTypeBuffer: Record "Data Type Buffer";
     begin
-        if DataTypeBuffer.FindLast then;
+        if DataTypeBuffer.FindLast() then;
 
         DataTypeBuffer.Init();
         DataTypeBuffer.ID += 1;
@@ -1046,7 +1046,7 @@ codeunit 139305 "Data Migration Wizard Tests"
     var
         DataTypeBuffer: Record "Data Type Buffer";
     begin
-        if DataTypeBuffer.FindLast then;
+        if DataTypeBuffer.FindLast() then;
 
         DataTypeBuffer.Init();
         DataTypeBuffer.ID += 1;

@@ -59,7 +59,7 @@ codeunit 132533 "Backup Management Test"
         // Test the limit on the number of backups
 
         // Setup
-        Initialize;
+        Initialize();
 
         // Exercise
         for i := 1 to MaxUserBackups do
@@ -82,7 +82,7 @@ codeunit 132533 "Backup Management Test"
         // Test that a persistent backup is reloaded in-memory
 
         // Setup
-        Initialize;
+        Initialize();
         ItemCount := Item.Count();
         Assert.AreNotEqual(0, ItemCount, StrSubstNo(TableEmptyError, 'Item'));
 
@@ -110,7 +110,7 @@ codeunit 132533 "Backup Management Test"
         // Test that a modified record is restored by a database restore
 
         // Setup
-        Initialize;
+        Initialize();
         Assert.IsTrue(Item.FindSet, StrSubstNo(TableEmptyError, 'Item'));
         Item.Next(LibraryRandom.RandInt(Item.Count));
         ItemDescription := Item.Description;
@@ -137,7 +137,7 @@ codeunit 132533 "Backup Management Test"
         // Test that a deleted record is restored by a database restore
 
         // Setup
-        Initialize;
+        Initialize();
         Assert.IsTrue(Item.FindSet, StrSubstNo(TableEmptyError, 'Item'));
         Item.Next(LibraryRandom.RandInt(Item.Count));
         ItemNo := Item."No.";
@@ -164,7 +164,7 @@ codeunit 132533 "Backup Management Test"
         // Test that a deleted table is restored by a database restore
 
         // Setup
-        Initialize;
+        Initialize();
         ItemCount := Item.Count();
         Assert.AreNotEqual(0, ItemCount, StrSubstNo(TableEmptyError, 'Item'));
 
@@ -186,7 +186,7 @@ codeunit 132533 "Backup Management Test"
         // Test that an insertion is undone by a database restore
 
         // Setup
-        Initialize;
+        Initialize();
         if Item.Get('TEST') then
             Item.Delete();
 
@@ -208,7 +208,7 @@ codeunit 132533 "Backup Management Test"
         // Test that no two backups with the same name can be created
 
         // Setup
-        Initialize;
+        Initialize();
 
         // Exercise
         BackupMgt.BackupTable(BackupName, DATABASE::Item);
@@ -227,7 +227,7 @@ codeunit 132533 "Backup Management Test"
         // Test that attempting to restore a non-existent database backup gives an error.
 
         // Setup
-        Initialize;
+        Initialize();
 
         // Exercise, Verify
         asserterror BackupMgt.RestoreDatabase(BackupName);
@@ -246,7 +246,7 @@ codeunit 132533 "Backup Management Test"
         // Test that a record modification is undone by a table restore
 
         // Setup
-        Initialize;
+        Initialize();
         Assert.IsTrue(Item.FindSet, StrSubstNo(TableEmptyError, 'Item'));
         Item.Next(LibraryRandom.RandInt(Item.Count));
         ItemDescription := Item.Description;
@@ -273,7 +273,7 @@ codeunit 132533 "Backup Management Test"
         // Test that a record deletion is undone by a table restore
 
         // Setup
-        Initialize;
+        Initialize();
         Assert.IsTrue(Item.FindSet, StrSubstNo(TableEmptyError, 'Item'));
         Item.Next(LibraryRandom.RandInt(Item.Count));
         ItemNo := Item."No.";
@@ -300,7 +300,7 @@ codeunit 132533 "Backup Management Test"
         // Test that a table deletion is undone by a table restore.
 
         // Setup
-        Initialize;
+        Initialize();
         ItemCount := Item.Count();
         Assert.AreNotEqual(0, ItemCount, StrSubstNo(TableEmptyError, 'Item'));
 
@@ -322,7 +322,7 @@ codeunit 132533 "Backup Management Test"
         // Test that a record insertion is undone by a table restore
 
         // Setup
-        Initialize;
+        Initialize();
         if Item.Get('Test') then
             Item.Delete();
 
@@ -347,7 +347,7 @@ codeunit 132533 "Backup Management Test"
         // Test that a single table can be restored from a full database backup.
 
         // Setup
-        Initialize;
+        Initialize();
         ItemCount := Item.Count();
         Assert.IsFalse(Item.IsEmpty, StrSubstNo(TableEmptyError, 'Item'));
 
@@ -372,7 +372,7 @@ codeunit 132533 "Backup Management Test"
         // Test that a table backup can be added to an existing database backup
 
         // Setup
-        Initialize;
+        Initialize();
         ItemCount := Item.Count();
         CustomerCount := Customer.Count();
         Assert.AreNotEqual(0, CustomerCount, StrSubstNo(TableEmptyError, 'Customer'));
@@ -403,7 +403,7 @@ codeunit 132533 "Backup Management Test"
         // Test that the second time a table is backed up, the first backup is not overwritten
 
         // Setup
-        Initialize;
+        Initialize();
         if Item.Get('TEST') then
             Item.Delete();
         ItemCount := Item.Count();
@@ -432,7 +432,7 @@ codeunit 132533 "Backup Management Test"
         // Test that an empty table backup will be overwritten
 
         // Setup
-        Initialize;
+        Initialize();
         if Item.Get('TEST') then
             Item.Delete();
         ItemCount := Item.Count();
@@ -465,7 +465,7 @@ codeunit 132533 "Backup Management Test"
         // Test that attempting to restore a table from a non-existing backup gives an error
 
         // Setup
-        Initialize;
+        Initialize();
 
         // Exercise, Verify
         asserterror BackupMgt.RestoreTable(BackupName, DATABASE::Item);
@@ -484,7 +484,7 @@ codeunit 132533 "Backup Management Test"
         // Test that restoring a non-existing table backup results in an empty table
 
         // Setup
-        Initialize;
+        Initialize();
         Assert.IsFalse(Item.IsEmpty, StrSubstNo(TableEmptyError, 'Item'));
 
         // Exercise
@@ -507,7 +507,7 @@ codeunit 132533 "Backup Management Test"
         // Test that all database backups are deleted
 
         // Setup
-        Initialize;
+        Initialize();
 
         // Exercise
         BackupMgt.BackupTable(BackupName, DATABASE::Item);
@@ -526,7 +526,7 @@ codeunit 132533 "Backup Management Test"
         // Test that a database backup is deleted
 
         // Setup
-        Initialize;
+        Initialize();
 
         // Exercise
         BackupMgt.BackupTable(BackupName, DATABASE::Item);
@@ -545,7 +545,7 @@ codeunit 132533 "Backup Management Test"
         // Test that a table backup is deleted
 
         // Setup
-        Initialize;
+        Initialize();
         Assert.IsFalse(Item.IsEmpty, StrSubstNo(TableEmptyError, 'Item'));
 
         // Exercise

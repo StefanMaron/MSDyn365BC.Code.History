@@ -47,7 +47,7 @@ codeunit 141003 "IRS - Tests"
         TempIRS_GLAcc: Record "G/L Account" temporary;
         IRSNumbers: Record "IRS Numbers";
     begin
-        Initialize;
+        Initialize();
 
         CreateSalesInvWithMultipleVATAndPost(SalesInvoiceHeader);
         GetSalesInvoiceHeaderIRS_VATAmt(TempIRS_GLAcc, SalesInvoiceHeader);
@@ -69,7 +69,7 @@ codeunit 141003 "IRS - Tests"
         TempIRS_GLAcc: Record "G/L Account" temporary;
         IRSNumbers: Record "IRS Numbers";
     begin
-        Initialize;
+        Initialize();
 
         CreatePurchInvWithMultipleVATAndPost(PurchInvHeader);
         GetPurchInvoiceHeaderIRS_VATAmt(TempIRS_GLAcc, PurchInvHeader);
@@ -91,7 +91,7 @@ codeunit 141003 "IRS - Tests"
         TempIRS_GLAcc: Record "G/L Account" temporary;
         IRS_GLAcc: Record "G/L Account";
     begin
-        Initialize;
+        Initialize();
 
         CreateSalesInvWithMultipleVATAndPost(SalesInvoiceHeader);
         GetSalesInvoiceHeaderIRS_VATAmt(TempIRS_GLAcc, SalesInvoiceHeader);
@@ -113,7 +113,7 @@ codeunit 141003 "IRS - Tests"
         TempIRS_GLAcc: Record "G/L Account" temporary;
         IRS_GLAcc: Record "G/L Account";
     begin
-        Initialize;
+        Initialize();
 
         CreatePurchInvWithMultipleVATAndPost(PurchInvHeader);
         GetPurchInvoiceHeaderIRS_VATAmt(TempIRS_GLAcc, PurchInvHeader);
@@ -160,7 +160,7 @@ codeunit 141003 "IRS - Tests"
     begin
         with LibraryReportDataset do begin
             LoadDataSetFile;
-            IRS_GLAcc.FindFirst;
+            IRS_GLAcc.FindFirst();
             while GetNextRow do begin
                 AssertCurrentRowValueEquals('IRSNumber_IRSNumbers', IRS_GLAcc."IRS Number");
                 AssertCurrentRowValueEquals('No_GLAcc', IRS_GLAcc."No.");
@@ -179,7 +179,7 @@ codeunit 141003 "IRS - Tests"
     begin
         with LibraryReportDataset do begin
             LoadDataSetFile;
-            IRS_GLAcc.FindFirst;
+            IRS_GLAcc.FindFirst();
             while GetNextRow do begin
                 GetNextRow; // This report outputs alternating empty lines
                 AssertCurrentRowValueEquals('No_GLAcc', IRS_GLAcc."No.");
@@ -300,7 +300,7 @@ codeunit 141003 "IRS - Tests"
         GLAcc: Record "G/L Account";
     begin
         SalesInvoiceLine.SetRange("Document No.", SalesInvoiceHeader."No.");
-        if SalesInvoiceLine.FindSet then
+        if SalesInvoiceLine.FindSet() then
             repeat
                 VATPostingSetup.Get(SalesInvoiceLine."VAT Bus. Posting Group", SalesInvoiceLine."VAT Prod. Posting Group");
                 GLAcc.Get(VATPostingSetup."Sales VAT Account");
@@ -318,7 +318,7 @@ codeunit 141003 "IRS - Tests"
         GLAcc: Record "G/L Account";
     begin
         PurchInvLine.SetRange("Document No.", PurchInvHeader."No.");
-        if PurchInvLine.FindSet then
+        if PurchInvLine.FindSet() then
             repeat
                 VATPostingSetup.Get(PurchInvLine."VAT Bus. Posting Group", PurchInvLine."VAT Prod. Posting Group");
                 GLAcc.Get(VATPostingSetup."Sales VAT Account");
@@ -332,7 +332,7 @@ codeunit 141003 "IRS - Tests"
     local procedure GetGLAccFilter(var GLAcc: Record "G/L Account"; var FilterField: Code[20]) FilterText: Text
     begin
         FilterField := '';
-        if GLAcc.FindSet then
+        if GLAcc.FindSet() then
             repeat
                 if FilterText = '' then
                     FilterText := FilterField

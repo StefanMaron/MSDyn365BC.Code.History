@@ -43,7 +43,7 @@ report 5183 "Resend Attachments"
                         InteractionLogEntryNew."Correspondence Type" := AttachmentManagement.ConvertCorrespondenceType(CorrespondenceType);
                     SegLine.CopyFromInteractLogEntry(InteractionLogEntryNew);
                     InterLogEntryCommentLine.SetRange("Entry No.", "Entry No.");
-                    if InterLogEntryCommentLine.FindFirst then;
+                    if InterLogEntryCommentLine.FindFirst() then;
                     Attachment.CalcFields("Attachment File");
                     Clear(Attachment."Merge Source");
                     NewEntryNo := SegManagement.LogInteraction(SegLine, Attachment, InterLogEntryCommentLine, false, false);

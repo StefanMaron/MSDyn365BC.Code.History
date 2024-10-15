@@ -30,7 +30,7 @@ codeunit 139194 "CDS Connection Wizard Tests"
     [Scope('OnPrem')]
     procedure VerifyStatusNotCompletedWhenNotFinished()
     var
-        AssistedSetup: Codeunit "Assisted Setup";
+        GuidedExperience: Codeunit "Guided Experience";
         CDSConnectionSetupWizard: TestPage "CDS Connection Setup Wizard";
     begin
         // [GIVEN] A newly setup company
@@ -41,7 +41,7 @@ codeunit 139194 "CDS Connection Wizard Tests"
         CDSConnectionSetupWizard.Close();
 
         // [THEN] Status of assisted setup remains Not Completed
-        Assert.IsFalse(AssistedSetup.IsComplete(PAGE::"CDS Connection Setup Wizard"), 'Dataverse Connection Setup status should not be completed.');
+        Assert.IsFalse(GuidedExperience.IsAssistedSetupComplete(ObjectType::Page, Page::"CDS Connection Setup Wizard"), 'Dataverse Connection Setup status should not be completed.');
     end;
 
     [Test]
@@ -50,7 +50,7 @@ codeunit 139194 "CDS Connection Wizard Tests"
     [Scope('OnPrem')]
     procedure VerifyStatusNotCompletedWhenExitRightAway()
     var
-        AssistedSetup: Codeunit "Assisted Setup";
+        GuidedExperience: Codeunit "Guided Experience";
         CDSConnectionSetupWizard: TestPage "CDS Connection Setup Wizard";
     begin
         // [GIVEN] A newly setup company
@@ -62,7 +62,7 @@ codeunit 139194 "CDS Connection Wizard Tests"
         CDSConnectionSetupWizard.Close();
 
         // [THEN] Status of assisted setup remains Not Completed
-        Assert.IsFalse(AssistedSetup.IsComplete(PAGE::"CDS Connection Setup Wizard"), 'Dataverse Connection Setup status should not be completed.');
+        Assert.IsFalse(GuidedExperience.IsAssistedSetupComplete(ObjectType::Page, Page::"CDS Connection Setup Wizard"), 'Dataverse Connection Setup status should not be completed.');
     end;
 
     //[Test]
@@ -71,7 +71,7 @@ codeunit 139194 "CDS Connection Wizard Tests"
     [Scope('OnPrem')]
     procedure VerifyWizardNotExitedWhenConfirmIsNo()
     var
-        AssistedSetup: Codeunit "Assisted Setup";
+        GuidedExperience: Codeunit "Guided Experience";
         CDSConnectionSetupWizard: TestPage "CDS Connection Setup Wizard";
     begin
         // [GIVEN] A newly setup company
@@ -83,7 +83,7 @@ codeunit 139194 "CDS Connection Wizard Tests"
         CDSConnectionSetupWizard.Close();
 
         // [THEN] Status of assisted setup remains Not Completed
-        Assert.IsFalse(AssistedSetup.IsComplete(PAGE::"CDS Connection Setup Wizard"), 'Dataverse Connection Setup status should not be completed.');
+        Assert.IsFalse(GuidedExperience.IsAssistedSetupComplete(ObjectType::Page, Page::"CDS Connection Setup Wizard"), 'Dataverse Connection Setup status should not be completed.');
     end;
 
     [Test]

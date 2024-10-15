@@ -80,7 +80,7 @@ codeunit 137051 "SCM Warehouse - III"
     [Scope('OnPrem')]
     procedure InvtPickFromPurchReturnOrderWithStrictExpiration()
     begin
-        Initialize;
+        Initialize();
         InventoryPickFromPurchaseReturnOrder(true);  // Strict Expiration Posting True.
     end;
 
@@ -89,7 +89,7 @@ codeunit 137051 "SCM Warehouse - III"
     [Scope('OnPrem')]
     procedure InvtPickFromPurchReturnOrderWithoutStrictExpiration()
     begin
-        Initialize;
+        Initialize();
         InventoryPickFromPurchaseReturnOrder(false);  // Strict Expiration Posting False.
     end;
 
@@ -132,7 +132,7 @@ codeunit 137051 "SCM Warehouse - III"
     [Scope('OnPrem')]
     procedure InventoryPickFromSalesOrderWithStrictExpiration()
     begin
-        Initialize;
+        Initialize();
         InventoryPickFromSalesOrder(true);  // Strict Expiration Posting True.
     end;
 
@@ -141,7 +141,7 @@ codeunit 137051 "SCM Warehouse - III"
     [Scope('OnPrem')]
     procedure InventoryPickFromSalesOrderWithoutStrictExpiration()
     begin
-        Initialize;
+        Initialize();
         InventoryPickFromSalesOrder(false);  // Strict Expiration Posting False.
     end;
 
@@ -191,7 +191,7 @@ codeunit 137051 "SCM Warehouse - III"
     [Scope('OnPrem')]
     procedure PickErrorWhseShipmentWithoutStrictExpiration()
     begin
-        Initialize;
+        Initialize();
         PickErrorOnWarehouseShipment(false);
     end;
 
@@ -200,7 +200,7 @@ codeunit 137051 "SCM Warehouse - III"
     [Scope('OnPrem')]
     procedure PickErrorWhseShipmentWithStrictExpiration()
     begin
-        Initialize;
+        Initialize();
         PickErrorOnWarehouseShipment(true);
     end;
 
@@ -244,7 +244,7 @@ codeunit 137051 "SCM Warehouse - III"
         WarehouseShipmentHeader: Record "Warehouse Shipment Header";
     begin
         // Setup: Create Item and update Inventory, create and release Purchase Order, create Put Away, create and release Sales Order, create and release Whse Shipment.
-        Initialize;
+        Initialize();
         CreateItemWithItemTrackingCode(Item, '');  // Creating Item without Item Tracking Code for the test.
         CreateAndPostWarehouseReceiptFromPO(PurchaseHeader, LocationWhite.Code, Item."No.");
         RegisterWarehouseActivity(PurchaseHeader."No.", WarehouseActivityLine."Activity Type"::"Put-away");
@@ -271,7 +271,7 @@ codeunit 137051 "SCM Warehouse - III"
     begin
         // Setup: Create Item, update Item inventory, create and release Purchase Order, create Put Away, create and release Sales Order, create and release Whse Shipment.
         // Update Quantity on Pick, register and delete it. Create and release Sales Order, create Whse Shipment.
-        Initialize;
+        Initialize();
         CreateItemWithItemTrackingCode(Item, '');  // Creating Item without Item Tracking Code for the test.
         CreateAndPostWarehouseReceiptFromPO(PurchaseHeader, LocationWhite.Code, Item."No.");
         RegisterWarehouseActivity(PurchaseHeader."No.", WarehouseActivityLine."Activity Type"::"Put-away");
@@ -298,7 +298,7 @@ codeunit 137051 "SCM Warehouse - III"
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
         // Setup: Update Item inventory, create and release Purchase Order, create Put Away, create and release Sales Order, create and release Whse Shipment.
-        Initialize;
+        Initialize();
         CreateItemWithItemTrackingCode(Item, '');  // Creating Item without Item Tracking Code for the test.
         CreateAndPostWarehouseReceiptFromPO(PurchaseHeader, LocationWhite.Code, Item."No.");
         RegisterWarehouseActivity(PurchaseHeader."No.", WarehouseActivityLine."Activity Type"::"Put-away");
@@ -323,7 +323,7 @@ codeunit 137051 "SCM Warehouse - III"
     begin
         // Setup: Update Item inventory, create and release Purchase Order, create Put Away, create and release Sales Order, create and release Whse Shipment.
         // Delete Warehouse Shipment Lines and again create the Sales Order and create and release Wraehouse Shipment.
-        Initialize;
+        Initialize();
         CreateItemWithItemTrackingCode(Item, '');  // Creating Item without Item Tracking Code for the test.
         CreateAndPostWarehouseReceiptFromPO(PurchaseHeader, LocationWhite.Code, Item."No.");
         CreateAndPostWarehouseShipmentFromSO(SalesHeader, WarehouseShipmentHeader, Item."No.", Quantity2, LocationWhite.Code);
@@ -348,7 +348,7 @@ codeunit 137051 "SCM Warehouse - III"
         WarehouseShipmentHeader: Record "Warehouse Shipment Header";
     begin
         // Setup: Update Item inventory, create and release Purchase Order, create Put Away, create and release Sales Order, create and release Whse Shipment.
-        Initialize;
+        Initialize();
         CreateItemWithItemTrackingCode(Item, '');  // Creating Item without Item Tracking Code for the test.
         CreateAndPostWarehouseReceiptFromPO(PurchaseHeader, LocationWhite.Code, Item."No.");
         RegisterWarehouseActivity(PurchaseHeader."No.", WarehouseActivityLine."Activity Type"::"Put-away");
@@ -374,7 +374,7 @@ codeunit 137051 "SCM Warehouse - III"
         WarehouseShipmentHeader: Record "Warehouse Shipment Header";
     begin
         // Setup: Update Item inventory, create and release Purchase Order, create Put Away, create and release Sales Order, create and release Whse Shipment.
-        Initialize;
+        Initialize();
         CreateItemWithItemTrackingCode(Item, '');  // Creating Item without Item Tracking Code for the test.
         CreateAndPostWarehouseReceiptFromPO(PurchaseHeader, LocationWhite.Code, Item."No.");
         RegisterWarehouseActivity(PurchaseHeader."No.", WarehouseActivityLine."Activity Type"::"Put-away");
@@ -398,7 +398,7 @@ codeunit 137051 "SCM Warehouse - III"
         WarehouseShipmentHeader: Record "Warehouse Shipment Header";
     begin
         // Setup: Update Item inventory, create and release Purchase Order, create Put Away, create and release Sales Order, create and release Whse Shipment.
-        Initialize;
+        Initialize();
         CreateItemWithItemTrackingCode(Item, '');  // Creating Item without Item Tracking Code for the test.
         CreateAndPostWarehouseReceiptFromPO(PurchaseHeader, LocationWhite.Code, Item."No.");
         RegisterWarehouseActivity(PurchaseHeader."No.", WarehouseActivityLine."Activity Type"::"Put-away");
@@ -427,12 +427,12 @@ codeunit 137051 "SCM Warehouse - III"
         WarehouseActivityHeader: Record "Warehouse Activity Header";
     begin
         // Setup: Create Item Movement Setup.
-        Initialize;
+        Initialize();
         CreateItemMovementSetup(ProductionOrder, WarehouseActivityHeader);
 
         // Exercise: Change Source No On Inventory Movement.
         FindWarehouseActivityHeader(WarehouseActivityHeader, ProductionOrder."No.");
-        asserterror WarehouseActivityHeader.Validate("Source No.", LibraryUtility.GenerateGUID);
+        asserterror WarehouseActivityHeader.Validate("Source No.", LibraryUtility.GenerateGUID());
 
         // Verify: Verify the error message on changing Source No.
         Assert.ExpectedError(SourceNoError);
@@ -447,7 +447,7 @@ codeunit 137051 "SCM Warehouse - III"
         WarehouseActivityHeader: Record "Warehouse Activity Header";
     begin
         // Setup: Create Item Movement Setup.
-        Initialize;
+        Initialize();
         CreateItemMovementSetup(ProductionOrder, WarehouseActivityHeader);
 
         // Exercise: Change Source Document for Inventory movement.
@@ -468,7 +468,7 @@ codeunit 137051 "SCM Warehouse - III"
         InventoryMovement: TestPage "Inventory Movement";
     begin
         // Setup: Create Item Movement Setup.
-        Initialize;
+        Initialize();
         CreateItemMovementSetup(ProductionOrder, WarehouseActivityHeader);
 
         // Exercise: Get Source Document for already created Inventory movement.
@@ -487,7 +487,7 @@ codeunit 137051 "SCM Warehouse - III"
         Quantity: Decimal;
     begin
         // Setup.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandDec(10, 2) + 10;  // Small value required.
         PickFromWhseShipmentUsingProdOrder(false, Quantity);  // No updation of Bin on Whse Activity Line.
     end;
@@ -500,7 +500,7 @@ codeunit 137051 "SCM Warehouse - III"
         Quantity: Decimal;
     begin
         // Setup.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandDec(10, 2) + 10;  // Small value required.
         PickFromWhseShipmentUsingProdOrder(true, Quantity);  // Updating Bin on Whse Activity Line.
     end;
@@ -513,7 +513,7 @@ codeunit 137051 "SCM Warehouse - III"
         Quantity: Decimal;
     begin
         // Setup.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandDec(10, 2) + 100;  // Large value required.
         PickFromWhseShipmentUsingProdOrder(false, Quantity);  // No updation of Bin on Whse Activity Line.
     end;
@@ -526,7 +526,7 @@ codeunit 137051 "SCM Warehouse - III"
         Quantity: Decimal;
     begin
         // Setup.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandDec(10, 2) + 100;  // Large value required.
         PickFromWhseShipmentUsingProdOrder(true, Quantity);  // Updating Bin on Whse Activity Line.
     end;
@@ -587,7 +587,7 @@ codeunit 137051 "SCM Warehouse - III"
     begin
         // Setup: Update Location Setup, create Manufacturing Setup. Create Sales Order and post Whse Shipment.
         // Create production Order from sales Order, update Bin on Production Order Line, explode routing and Post Output Journal.
-        Initialize;
+        Initialize();
         UpdateLocationSetup(true);  // Always Create Pick Line as TRUE.
         CreateManufacturingSetup(RoutingHeader, Item);
         Quantity := LibraryRandom.RandDec(100, 2);
@@ -615,7 +615,7 @@ codeunit 137051 "SCM Warehouse - III"
     procedure PickHandlingErrorWithProdOrder()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         PickHandlingWithProductionOrder(false, true);  // AlwaysCreatePickLine-FALSE, OutputJournal-TRUE.
     end;
 
@@ -625,7 +625,7 @@ codeunit 137051 "SCM Warehouse - III"
     procedure PickUsingProdOrderWithReducedOutputQuantity()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         PickHandlingWithProductionOrder(true, true);  // AlwaysCreatePickLine-TRUE, OutputJournal-TRUE.
     end;
 
@@ -635,7 +635,7 @@ codeunit 137051 "SCM Warehouse - III"
     procedure PickUsingProdOrderWithoutOutputJournal()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         PickHandlingWithProductionOrder(true, false);  // AlwaysCreatePickLine-TRUE, OutputJournal-FALSE.
     end;
 
@@ -686,7 +686,7 @@ codeunit 137051 "SCM Warehouse - III"
     procedure PickFromWhseShipmentWithReservation()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         PickFromMultipleSources(false);  // Pick From Pick WorkSheet FALSE.
     end;
 
@@ -696,7 +696,7 @@ codeunit 137051 "SCM Warehouse - III"
     procedure PickFromPickWorksheetWithReservation()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         PickFromMultipleSources(true);  // Pick From Pick WorkSheet TRUE.
     end;
 
@@ -738,7 +738,7 @@ codeunit 137051 "SCM Warehouse - III"
     procedure PutAwayRegisterWithUpdatedBinOnSource()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         PickUsingMultipleBins(true, false, false);  // Updating Bin On Put away.
     end;
 
@@ -748,7 +748,7 @@ codeunit 137051 "SCM Warehouse - III"
     procedure PickRegisterWithUpdatedBinOnSource()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         PickUsingMultipleBins(false, true, false);  // UpdateBinAndPostWhseShipment set to TRUE.
     end;
 
@@ -758,7 +758,7 @@ codeunit 137051 "SCM Warehouse - III"
     procedure MultiplePickCreationWithUpdatedBinOnSource()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         PickUsingMultipleBins(false, true, true);  // MultiplePick set to TRUE.
     end;
 
@@ -843,7 +843,7 @@ codeunit 137051 "SCM Warehouse - III"
     begin
         // Setup: Update Location Setup, create Manufacturing Setup. Create Sales Order and post Whse Shipment.
         // Create production Order from sales Order, update Bin on Production Order Line, explode routing and Post Output Journal.
-        Initialize;
+        Initialize();
         UpdateLocationSetup(true);  // Always Create Pick Line as TRUE.
         Quantity := LibraryRandom.RandDec(100, 2);
         CreateManufacturingSetup(RoutingHeader, Item);
@@ -879,7 +879,7 @@ codeunit 137051 "SCM Warehouse - III"
     begin
         // Setup: Create Item, update Item inventory, create and release Purchase Order, create and post Whse Receipt, create Put Away, create and release Sales Order, create and release Whse Shipment.
         // create Pick and update Quantity on Pick, register and delete it. Create and release Sales Order, create Whse Shipment.
-        Initialize;
+        Initialize();
         CreateItemWithItemTrackingCode(Item, '');  // Creating Item without Item Tracking Code for the test.
         CreateAndPostWarehouseReceiptFromPO(PurchaseHeader, LocationWhite.Code, Item."No.");
         RegisterWarehouseActivity(PurchaseHeader."No.", WarehouseActivityLine."Activity Type"::"Put-away");
@@ -902,7 +902,7 @@ codeunit 137051 "SCM Warehouse - III"
     procedure PickFromWhseShipmentWithLotNo()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         PickUsingPickWorksheetWithLotNo(false, false);
     end;
 
@@ -912,7 +912,7 @@ codeunit 137051 "SCM Warehouse - III"
     procedure DeletePickAndRecreateFromPickWorksheetWithLotNo()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         PickUsingPickWorksheetWithLotNo(true, false);  // Delete and recreate Pick using Pick Worksheet.
     end;
 
@@ -922,7 +922,7 @@ codeunit 137051 "SCM Warehouse - III"
     procedure MultiplePicksErrorWithLotNo()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         PickUsingPickWorksheetWithLotNo(true, true);  // Delete and recreate using Pick Worksheet and recreate from Whse Shipment.
     end;
 
@@ -980,7 +980,7 @@ codeunit 137051 "SCM Warehouse - III"
     procedure PickFromWhseShipmentWithSerialNo()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         PickUsingPickWorksheetWithSerialNo(false, false);
     end;
 
@@ -990,7 +990,7 @@ codeunit 137051 "SCM Warehouse - III"
     procedure DeletePickAndRecreateFromPickWorksheetWithSerialNo()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         PickUsingPickWorksheetWithSerialNo(true, false);  // Delete and recreate Pick using Pick Worksheet.
     end;
 
@@ -1000,7 +1000,7 @@ codeunit 137051 "SCM Warehouse - III"
     procedure MultiplePicksErrorWithSerialNo()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         PickUsingPickWorksheetWithSerialNo(true, true);  // Delete and recreate Pick using Pick Worksheet and recreate from Whse Shipment.
     end;
 
@@ -1058,7 +1058,7 @@ codeunit 137051 "SCM Warehouse - III"
     procedure InventoryPutAwayUsingWhseBatchJob()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         CreateInventoryPutAwayPickUsingWhseBatchJob(true, false, false, false);  // Inventory Put-Away TRUE.
     end;
 
@@ -1068,7 +1068,7 @@ codeunit 137051 "SCM Warehouse - III"
     procedure MultipleInventoryPutAwayUsingWhseBatchJob()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         CreateInventoryPutAwayPickUsingWhseBatchJob(true, true, false, false);  // Multiple Inventory Put-Away TRUE.
     end;
 
@@ -1078,7 +1078,7 @@ codeunit 137051 "SCM Warehouse - III"
     procedure InventoryPickUsingWhseBatchJob()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         CreateInventoryPutAwayPickUsingWhseBatchJob(true, false, true, false);  // Inventory Put-Away and Pick with reservation TRUE.
     end;
 
@@ -1088,7 +1088,7 @@ codeunit 137051 "SCM Warehouse - III"
     procedure InventoryPickUsingWhseBatchJobWithTransferOrder()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         CreateInventoryPutAwayPickUsingWhseBatchJob(true, false, false, true);  // Inventory Put-Away and Pick with Transfer Order TRUE.
     end;
 
@@ -1166,7 +1166,7 @@ codeunit 137051 "SCM Warehouse - III"
     procedure InventoryPickUsingProdOrderWithReservation()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         CreateInventoryPickUsingWhseBatchJobWithProdOrder(false);
     end;
 
@@ -1176,7 +1176,7 @@ codeunit 137051 "SCM Warehouse - III"
     procedure InventoryPickUsingProdOrderWithTransferOrder()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         CreateInventoryPickUsingWhseBatchJobWithProdOrder(true);  // Using Transfer Order TRUE.
     end;
 
@@ -1195,7 +1195,7 @@ codeunit 137051 "SCM Warehouse - III"
         Quantity: Decimal;
     begin
         // Create Parent and Child Item, Update the Inventory, create and release Purchase Order.
-        Initialize;
+        Initialize();
         CreateItem(Item, '');
         CreateItem(Item2, '');
         LibraryPurchase.CreateVendor(Vendor);
@@ -1241,7 +1241,7 @@ codeunit 137051 "SCM Warehouse - III"
     procedure AvailableInventoryPickFromSalesOrder()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         InventoryPickWithSalesOrder(false, false);
     end;
 
@@ -1251,7 +1251,7 @@ codeunit 137051 "SCM Warehouse - III"
     procedure MultipleInventoryPickFromSalesOrder()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         InventoryPickWithSalesOrder(true, false);  // Error creating multiple Inventory Picks.
     end;
 
@@ -1261,7 +1261,7 @@ codeunit 137051 "SCM Warehouse - III"
     procedure PostInventoryPickWithUpdatedActivityLine()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         InventoryPickWithSalesOrder(true, true);  // Update and Post Inventory Pick.
     end;
 
@@ -1314,7 +1314,7 @@ codeunit 137051 "SCM Warehouse - III"
     procedure AvailableInventoryPickWithReservation()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         CreateInventoryPickWithReservation(false);
     end;
 
@@ -1324,7 +1324,7 @@ codeunit 137051 "SCM Warehouse - III"
     procedure AvailableInventoryPickWithReservationAfterCreateInventoryPick()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         CreateInventoryPickWithReservation(true);  // Available Inventory Pick after reservation.
     end;
 
@@ -1390,7 +1390,7 @@ codeunit 137051 "SCM Warehouse - III"
     begin
         // Setup: Create Item, create and release Purchase Order, create Put Away, create and release Sales Order, create and release Whse Shipment.
         // Update Quantity on Pick, register and delete it. Create and release Sales Order, create Whse Shipment.
-        Initialize;
+        Initialize();
         CreateItem(Item, '');
         CreateAndPostWarehouseReceiptFromPO(PurchaseHeader, LocationWhite.Code, Item."No.");
         RegisterWarehouseActivity(PurchaseHeader."No.", WarehouseActivityLine."Activity Type"::"Put-away");
@@ -1415,7 +1415,7 @@ codeunit 137051 "SCM Warehouse - III"
         LocationCard: TestPage "Location Card";
     begin
         // Setup: Create Multiple Bins for a Location and create Bin for another Location.
-        Initialize;
+        Initialize();
         LibraryWarehouse.CreateBin(
           Bin, LocationSilver.Code,
           CopyStr(
@@ -1438,7 +1438,7 @@ codeunit 137051 "SCM Warehouse - III"
         LocationCard: TestPage "Location Card";
     begin
         // Setup: Create Multiple Bins for a Location and create Bin for another Location.
-        Initialize;
+        Initialize();
         LibraryWarehouse.CreateBin(
           Bin, LocationSilver.Code,
           CopyStr(
@@ -1467,7 +1467,7 @@ codeunit 137051 "SCM Warehouse - III"
         BinMandatory: Boolean;
     begin
         // Setup: Create multiple Bins for a Location and update Location.
-        Initialize;
+        Initialize();
         LibraryWarehouse.CreateBin(
           Bin, LocationOrange2.Code,
           CopyStr(
@@ -1495,7 +1495,7 @@ codeunit 137051 "SCM Warehouse - III"
         WorkCenterCard: TestPage "Work Center Card";
     begin
         // Setup: Create multiple Bins for a Location, create Bin for another Location and create Work center with Location.
-        Initialize;
+        Initialize();
         LibraryWarehouse.CreateBin(
           Bin, LocationSilver.Code,
           CopyStr(
@@ -1521,7 +1521,7 @@ codeunit 137051 "SCM Warehouse - III"
         WorkCenterCard: TestPage "Work Center Card";
     begin
         // Setup: Create multiple Bins for a Location, create Bin for another Location and create Work center with Location.
-        Initialize;
+        Initialize();
         LibraryWarehouse.CreateBin(
           Bin, LocationSilver.Code,
           CopyStr(
@@ -1550,7 +1550,7 @@ codeunit 137051 "SCM Warehouse - III"
         WorkCenter: Record "Work Center";
     begin
         // Setup: Create multiple Bins for Location and create Work Center with that Location.
-        Initialize;
+        Initialize();
         LibraryWarehouse.CreateBin(
           Bin, LocationOrange2.Code,
           CopyStr(
@@ -1577,7 +1577,7 @@ codeunit 137051 "SCM Warehouse - III"
         MachineCenterCard2: TestPage "Machine Center Card";
     begin
         // Setup: Create multiple Bins for a Location, create Bin for another Location, create Work Center With Location  and create Machine Center for that Work center.
-        Initialize;
+        Initialize();
 
         CreateWorkAndMachineCenter(WorkCenter, Bin, MachineCenter);
 
@@ -1601,7 +1601,7 @@ codeunit 137051 "SCM Warehouse - III"
         MachineCenterCard: TestPage "Machine Center Card";
     begin
         // Setup: Create multiple Bins for a Location, create Bin for another Location, create Work Center With Location  and create Machine Center for that Work center.
-        Initialize;
+        Initialize();
         LibraryWarehouse.CreateBin(
           Bin, LocationSilver.Code,
           CopyStr(
@@ -1633,7 +1633,7 @@ codeunit 137051 "SCM Warehouse - III"
         WorkCenterCard: TestPage "Work Center Card";
     begin
         // Setup: Create Work Center without Location and create Machine Center for that Machine Center.
-        Initialize;
+        Initialize();
         CreateWorkCenterSetup(WorkCenter);
         UpdateLocationOnWorkCenter(WorkCenter, '');
         OpenWorkCenterCard(WorkCenterCard, LocationSilver.Code);
@@ -1658,7 +1658,7 @@ codeunit 137051 "SCM Warehouse - III"
         MachineCenter: Record "Machine Center";
     begin
         // Setup: Create Work Center With Location and create Machine Center of that Work Center not having Bin Code on it.
-        Initialize;
+        Initialize();
         CreateWorkCenterSetup(WorkCenter);
         LibraryManufacturing.CreateMachineCenter(MachineCenter, WorkCenter."No.", LibraryRandom.RandInt(10));
 
@@ -1679,7 +1679,7 @@ codeunit 137051 "SCM Warehouse - III"
         MachineCenter: Record "Machine Center";
     begin
         // Setup: Create Bin for a Location, create Work Center With Location  and create Machine Center of that Work Center having Bin Code on it.
-        Initialize;
+        Initialize();
 
         CreateWorkAndMachineCenter(WorkCenter, Bin, MachineCenter);
         MachineCenter.Validate("To-Production Bin Code", Bin.Code);
@@ -1706,7 +1706,7 @@ codeunit 137051 "SCM Warehouse - III"
         // Verify Quantity on Item Ledger Entry when Inventory Activity Posted with Expiration Date on Item Tracking Lines.
 
         // Setup: Create LocationCode,Item with tracking Code and Purchase Document with Inventory Put away / Pick away.
-        Initialize;
+        Initialize();
         CreateTrackedItem(Item, true, false, false, true, true);
         CreateBinContent(Bin, Item."No.", Item."Base Unit of Measure");
         Quantity := CreatePurchaseDocumentWithItemTrackingLines(PurchaseHeader, Item."No.", Bin."Location Code");
@@ -1735,7 +1735,7 @@ codeunit 137051 "SCM Warehouse - III"
         // Verify Quantity WareHouse Inventory Activity Lines when Sales Order created with Inventory Put away / Pick away.
 
         // Setup: Create LocationCode,Item with tracking Code and Purchase Document with Inventory Put away / Pick away.
-        Initialize;
+        Initialize();
         CreateTrackedItem(Item, true, false, false, true, true);
         CreateBinContent(Bin, Item."No.", Item."Base Unit of Measure");
         CreatePurchaseDocumentWithItemTrackingLines(PurchaseHeader, Item."No.", Bin."Location Code");
@@ -1762,7 +1762,7 @@ codeunit 137051 "SCM Warehouse - III"
         // [SCENARIO] Field "Use As In-Transit" in Location Card Page should be editable when creating new Location
 
         // [WHEN] Create new Location
-        LocationCard.OpenNew;
+        LocationCard.OpenNew();
 
         // [THEN] Field "Use As In-Transit" on Location Card Page is editable
         Assert.IsTrue(LocationCard."Use As In-Transit".Editable, UseAsInTransitEditableErr);
@@ -1785,7 +1785,7 @@ codeunit 137051 "SCM Warehouse - III"
         // [FEATURE] [Warehouse] [Tracking] [FEFO] [Pick] [Pick Worksheet]
         // [SCENARIO 362753]
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Warehouse location with FEFO enabled
         CreateFullWhseLocationWithFEFO(Location);
@@ -1814,7 +1814,7 @@ codeunit 137051 "SCM Warehouse - III"
 
         // [WHEN] Create a new pick from pick worksheet for the remaining quantity of item "I"
         WhseWorksheetLine.SetRange("Location Code", LocationCode);
-        WhseWorksheetLine.FindFirst;
+        WhseWorksheetLine.FindFirst();
         UpdateQuantityOnWhseWorksheetLine(WhseWorksheetLine, WhseWorksheetLine."Qty. Outstanding");
         LibraryWarehouse.CreatePickFromPickWorksheet(
           WhseWorksheetLine, WhseWorksheetLine."Line No.", WhseWorksheetLine."Worksheet Template Name", WhseWorksheetLine.Name,
@@ -1840,7 +1840,7 @@ codeunit 137051 "SCM Warehouse - III"
         // [SCENARIO 364373] When shipping Sales Order "SO", using FEFO, Lot No should be assigned after Pick, Quantity reserved fully, including reservation for "SO".
 
         // [GIVEN] Warehouse location with FEFO enabled, Lot tracked Item available on stock of quantity "Q"
-        Initialize;
+        Initialize();
 
         LibraryWarehouse.FindBin(Bin, LocationSilver3.Code, '', 2); // Find Bin of Index 2.
         LocationSilver3.Validate("Shipment Bin Code", Bin.Code);
@@ -1894,7 +1894,7 @@ codeunit 137051 "SCM Warehouse - III"
         // [SCENARIO 372295] Pick should contain Lot No for Sales Order Line if stock available and there are Lots partially picked.
 
         // [GIVEN] Warehouse location with FEFO enabled, Lot tracked Item available on stock: Lot "XL", quantity 200, Lot "L" of quantity 100
-        Initialize;
+        Initialize();
 
         LibraryWarehouse.FindBin(Bin, LocationSilver3.Code, '', 3); // Find Bin of Index 3.
         LocationSilver3.Validate("Shipment Bin Code", Bin.Code);
@@ -2005,7 +2005,7 @@ codeunit 137051 "SCM Warehouse - III"
         // [SCENARIO 372295] Pick should contain Lot No for Sales Order Line if stock available and there are Lots partially picked and shipped.
 
         // [GIVEN] Warehouse location with FEFO enabled, Lot tracked Item available on stock: Lot "L", quantity 200
-        Initialize;
+        Initialize();
 
         LibraryWarehouse.FindBin(Bin, LocationSilver3.Code, '', 3); // Find Bin of Index 3.
         LocationSilver3.Validate("Shipment Bin Code", Bin.Code);
@@ -2071,7 +2071,7 @@ codeunit 137051 "SCM Warehouse - III"
         // [SCENARIO] Can register Inventory Movement from Internal Movement when two Items have the same "Lot No" code.
 
         // [GIVEN] Two Items with Lot specific tracking, including warehouse tracking, both on inventory, "Lot No." codes are equal.
-        Initialize;
+        Initialize();
         CreateTrackedItem(Item, true, false, false, false, false);
         Qty := LibraryRandom.RandIntInRange(5, 10);
         LibraryWarehouse.FindBin(Bin, LocationSilver.Code, '', 1);  // Find Bin of Index 1.
@@ -2101,7 +2101,7 @@ codeunit 137051 "SCM Warehouse - III"
         with WarehouseActivityHeader do begin
             SetRange(Type, Type::"Invt. Movement");
             SetRange("No.", WarehouseActivityLine."No.");
-            FindFirst;
+            FindFirst();
             LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
         end;
 
@@ -2109,7 +2109,7 @@ codeunit 137051 "SCM Warehouse - III"
         with RegisteredInvtMovementLine do begin
             SetRange("Location Code", LocationSilver.Code);
             SetRange("Item No.", Item."No.");
-            FindFirst;
+            FindFirst();
             TestField(Quantity, Qty);
         end;
     end;
@@ -2128,7 +2128,7 @@ codeunit 137051 "SCM Warehouse - III"
         // [FEATURE] [Warehouse] [Item Tracking] [Put-Away]
         // [SCENARIO] Put-away created from a posted warehouse receipt is not combined with other receipts for the same lot no.
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "I" with Lot No. tracking
         CreateTrackedItem(Item, true, false, false, false, false);
@@ -2136,7 +2136,7 @@ codeunit 137051 "SCM Warehouse - III"
         CreateLocationForPutAwayWorksheet(Location);
 
         for I := 1 to ArrayLen(LotNo) do
-            LotNo[I] := LibraryUtility.GenerateGUID;
+            LotNo[I] := LibraryUtility.GenerateGUID();
 
         // [GIVEN] Post 1st warehouse receipt with 2 pcs of item "I": 1 - "LotA" and 1 - "LotB"
         PostPurchaseReceiptWithItemTracking(Item, LotNo, Location.Code);
@@ -2168,7 +2168,7 @@ codeunit 137051 "SCM Warehouse - III"
     begin
         // [FEATURE] [Inventory Pick] [Shipping Advice]
         // [SCENARIO 377991] Inventory Pick should not be created if Quantity is not fully sufficient with Shipping Advice Complete
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order for Item with Shipping Advice = "Complete", Quantity = "X"
         Quantity := LibraryRandom.RandDec(100, 2);
@@ -2205,7 +2205,7 @@ codeunit 137051 "SCM Warehouse - III"
     begin
         // [FEATURE] [Inventory Pick] [Shipping Advice]
         // [SCENARIO 377991] Inventory Pick should be created if Quantity is not fully sufficient with Shipping Advice Partial
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order for Item with Shipping Advice = "Partial", Quantity = "X"
         PickQty := LibraryRandom.RandInt(10);
@@ -2246,7 +2246,7 @@ codeunit 137051 "SCM Warehouse - III"
     begin
         // [FEATURE] [Sales Order] [Pick] [Item Tracking]
         // [SCENARIO 379663] Pick created from Sales Shipment should contain all available required quantity excluding reserved and blocked Lot.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Lot-tracked Item.
         // [GIVEN] Full WMS Location.
@@ -2297,7 +2297,7 @@ codeunit 137051 "SCM Warehouse - III"
     begin
         // [FEATURE] [Sales Order] [Pick] [Bin Content] [Item Tracking]
         // [SCENARIO 379664] Pick created from Sales Shipment should contain all available required quantity excluding reserved Lot and blocked Bin.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Lot-tracked Item.
         // [GIVEN] Full WMS Location.
@@ -2348,7 +2348,7 @@ codeunit 137051 "SCM Warehouse - III"
     begin
         // [FEATURE] [Sales Order] [Pick] [Bin Content] [Item Tracking]
         // [SCENARIO 379664] Pick created from Sales Shipment should contain all available required quantity excluding blocked Lot and blocked Bin.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Lot-tracked Item.
         // [GIVEN] Full WMS Location.
@@ -2404,7 +2404,7 @@ codeunit 137051 "SCM Warehouse - III"
     begin
         // [FEATURE] [Sales Order] [Pick] [Bin Content] [Item Tracking]
         // [SCENARIO 379664] Pick created from Sales Shipment should contain all available required quantity excluding reserved Lot, blocked Lot and blocked Bin.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Lot-tracked Item.
         // [GIVEN] Full WMS Location.
@@ -2468,7 +2468,7 @@ codeunit 137051 "SCM Warehouse - III"
     begin
         // [FEATURE] [Sales Order] [Pick] [Bin Content] [Item Tracking]
         // [SCENARIO 380216] Available quantity to pick created from Sales Shipment includes neither quantity in blocked Bin nor quantity reserved by other Sales Order.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Lot-tracked Item.
         // [GIVEN] Full WMS Location.
@@ -2515,7 +2515,7 @@ codeunit 137051 "SCM Warehouse - III"
     begin
         // [FEATURE] [Sales Order] [Pick] [Bin Content] [Item Tracking]
         // [SCENARIO 380216] Available quantity to pick created from Sales Shipment includes neither quantity in blocked Bins nor quantity reserved from not blocked bin.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Lot-tracked Item.
         // [GIVEN] Full WMS Location.
@@ -2562,7 +2562,7 @@ codeunit 137051 "SCM Warehouse - III"
     begin
         // [FEATURE] [Sales Order] [Pick] [Item Tracking]
         // [SCENARIO 380216] Available quantity to pick created from Sales Shipment includes neither quantity in blocked Lot nor quantity reserved by other Sales Order.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Lot-tracked Item.
         // [GIVEN] Full WMS Location.
@@ -2611,7 +2611,7 @@ codeunit 137051 "SCM Warehouse - III"
     begin
         // [FEATURE] [Sales Order] [Pick] [Bin Content] [Item Tracking]
         // [SCENARIO 380216] Available quantity to pick created from Sales Shipment does not include quantity in blocked Bin.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Lot-tracked Item.
         // [GIVEN] Full WMS Location.
@@ -2660,7 +2660,7 @@ codeunit 137051 "SCM Warehouse - III"
     begin
         // [FEATURE] [Sales Order] [Pick] [Item Tracking]
         // [SCENARIO 380216] Available quantity to pick created from Sales Shipment does not include quantity in blocked Lot.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Lot-tracked Item.
         // [GIVEN] Full WMS Location.
@@ -2707,7 +2707,7 @@ codeunit 137051 "SCM Warehouse - III"
         // [SCENARIO 379358] Internal Movement Quantity should not be less than Item Tracking if Lot Warehouse Tracking is checked.
 
         // [GIVEN] Item with Lot Warehouse Tracking Code.
-        Initialize;
+        Initialize();
         CreateTrackedItem(Item, true, false, false, false, false);
 
         // [GIVEN] "Lot No." with Item Inventory of "Qty".
@@ -2722,7 +2722,7 @@ codeunit 137051 "SCM Warehouse - III"
         LibraryWarehouse.GetBinContentInternalMovement(
           InternalMovementHeader, LocationSilver.Code, StrSubstNo('%1', Item."No."), Bin.Code);
         InternalMovementLine.SetRange("No.", InternalMovementHeader."No.");
-        InternalMovementLine.FindFirst;
+        InternalMovementLine.FindFirst();
 
         // [WHEN] Change Quantity to a value less than "Qty".
         asserterror InternalMovementLine.Validate(Quantity, Qty - LibraryRandom.RandInt(10));
@@ -2744,7 +2744,7 @@ codeunit 137051 "SCM Warehouse - III"
     begin
         // [FEATURE] [Warehouse Worksheet] [Unit of Measure]
         // [SCENARIO 380191] "Qty. to Handle" must be equal to "Qty. Outstanding" if "Qty. to Handle (Base)" is equal to "Qty. Outstanding (Base)"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item with non Base Unit Of Measure, "Qty. per Unit of Measure" = 0.33333
         QuantityPerUoM := 0.33333;
@@ -2783,7 +2783,7 @@ codeunit 137051 "SCM Warehouse - III"
     begin
         // [FEATURE] [Inventory Put-away]
         // [SCENARIO 380898] On validate of Location Code for Warehouse Activity of Type Inventory Put-away Location."Require Receive" isn't checked.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Location "L" with "Require Receive" enabled.
         CreateLocationRequireReceive(Location);
@@ -2809,7 +2809,7 @@ codeunit 137051 "SCM Warehouse - III"
     begin
         // [FEATURE] [Inventory Put-away][Production]
         // [SCENARIO 380898] Inventory Put-away can be created for a production order on a location with "Require Receipt" enabled.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Location "L" with "Require Receive" enabled.
         CreateLocationRequireReceive(Location);
@@ -2839,7 +2839,7 @@ codeunit 137051 "SCM Warehouse - III"
     begin
         // [FEATURE] [Inventory Put-away][Purchase]
         // [SCENARIO 380898] Inventory Put-away can't be created for a purchase order on a location with "Require Receipt" enabled.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Location with "Require Receive" enabled.
         CreateLocationRequireReceive(Location);
@@ -2870,7 +2870,7 @@ codeunit 137051 "SCM Warehouse - III"
     begin
         // [FEATURE] [Inventory Put-away][Production]
         // [SCENARIO 380898] Inventory Put-away can be created for a Production Order on a location with "Require Receipt" enabled and this Production Order is shown in Source Documents list.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Location "L" with "Require Receive" enabled.
         CreateLocationRequireReceive(Location);
@@ -2899,7 +2899,7 @@ codeunit 137051 "SCM Warehouse - III"
     begin
         // [FEATURE] [Inventory Put-away][Purchase]
         // [SCENARIO 380898] Inventory Put-away can't be created for a purchase order on a location with "Require Receipt" enabled and this purchase order isn't shown in Source Documents list.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Location L with "Require Receive" enabled.
         CreateLocationRequireReceive(Location);
@@ -2931,7 +2931,7 @@ codeunit 137051 "SCM Warehouse - III"
     begin
         // [FEATURE] [Sales Order] [Pick] [Reservation] [Adjustment Bin]
         // [SCENARIO 208295] Reserved quantity should not be distributed to the adjustment bin on creating warehouse pick.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Full WMS location "L" with adjustment bin "A-01".
         LibraryWarehouse.CreateFullWMSLocation(Location, 2);
@@ -2982,7 +2982,7 @@ codeunit 137051 "SCM Warehouse - III"
     begin
         // [FEATURE] [Warehouse Pick] [FEFO] [Item Tracking]
         // [SCENARIO 218658] Create Pick function should pick all required quantity from available inventory when "Pick According to FEFO" is enabled at location.
-        Initialize;
+        Initialize();
 
         // [GIVEN] WMS location with FEFO enabled.
         CreateFullWhseLocationWithFEFO(Location);
@@ -2993,12 +2993,12 @@ codeunit 137051 "SCM Warehouse - III"
         // [GIVEN] Lots "L1", "L2", "L3" are purchased and put-away. Quantity of each lot = 20 pcs.
         // [GIVEN] The lots are arranged by their expiration dates - "L1" has the earliest date, "L3" has the latest.
         for i := 1 to ArrayLen(LotNos) do
-            LotNos[i] := LibraryUtility.GenerateGUID;
+            LotNos[i] := LibraryUtility.GenerateGUID();
         CreatePurchaseWithMultipleLotTracking(PurchaseHeader, Item."No.", LotNos, Location.Code, 60);
         for i := 1 to ArrayLen(LotNos) do begin
             ReservationEntry.SetRange("Item No.", Item."No.");
             ReservationEntry.SetRange("Lot No.", LotNos[i]);
-            ReservationEntry.FindFirst;
+            ReservationEntry.FindFirst();
             ReservationEntry.Validate("Expiration Date", WorkDate + i);
             ReservationEntry.Modify(true);
         end;
@@ -3042,7 +3042,7 @@ codeunit 137051 "SCM Warehouse - III"
     begin
         // [FEATURE] [Inventory Put-away] [Production Order] [Item Variant]
         // [SCENARIO 252196] Item Variant is populated on output item entries, when the output is posted through inventory put-away.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Location set up for required put-away.
         CreateLocationRequireReceive(Location);
@@ -3094,7 +3094,7 @@ codeunit 137051 "SCM Warehouse - III"
     begin
         // [FEATURE] [Sales] [Order] [Inventory Pick] [FEFO] [Reservation] [Late Binding]
         // [SCENARIO 256426] FEFO is respected when you create inventory pick from sales order with non-specific reservation.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Lot-tracked item "I" with expiration calculation formula defined on item card.
         Qty := LibraryRandom.RandIntInRange(20, 40);
@@ -3139,7 +3139,7 @@ codeunit 137051 "SCM Warehouse - III"
     begin
         // [FEATURE] [Purchase] [Order] [Inventory Pick] [FEFO] [Reservation] [Late Binding]
         // [SCENARIO 256426] FEFO is respected when you create inventory pick from purchase return order with non-specific reservation.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Lot-tracked item "I" with expiration calculation formula defined on item card.
         CreateLotTrackedItemWithExpirationCalculation(Item);
@@ -3184,7 +3184,7 @@ codeunit 137051 "SCM Warehouse - III"
     begin
         // [FEATURE] [Sales] [Order] [Inventory Pick] [FEFO] [Reservation] [Item Tracking]
         // [SCENARIO 256426] Lot-specific reservation has a priority against FEFO when you create inventory pick from sales order.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Lot-tracked item "I" with expiration calculation formula defined on item card.
         CreateLotTrackedItemWithExpirationCalculation(Item);
@@ -3235,7 +3235,7 @@ codeunit 137051 "SCM Warehouse - III"
     begin
         // [FEATURE] [Sales] [Order] [Inventory Movement] [FEFO] [Reservation] [Late Binding]
         // [SCENARIO 256426] FEFO is respected when you create inventory movement from sales order with non-specific reservation.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Lot-tracked item "I" with expiration calculation formula defined on item card.
         Qty := LibraryRandom.RandIntInRange(20, 40);
@@ -3291,7 +3291,7 @@ codeunit 137051 "SCM Warehouse - III"
     begin
         // [FEATURE] [Internal Movement] [Inventory Movement] [FEFO]
         // [SCENARIO 256426] FEFO is respected when you create inventory movement from internal movement and no item tracking is defined.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Lot-tracked item "I" with expiration calculation formula defined on item card.
         Qty := LibraryRandom.RandIntInRange(20, 40);
@@ -3309,7 +3309,7 @@ codeunit 137051 "SCM Warehouse - III"
         LibraryWarehouse.CreateInternalMovementHeader(InternalMovementHeader, LocationSilver.Code, Bin[2].Code);
         LibraryWarehouse.GetBinContentInternalMovement(InternalMovementHeader, LocationSilver.Code, Item."No.", '');
         InternalMovementLine.SetRange("No.", InternalMovementHeader."No.");
-        InternalMovementLine.FindFirst;
+        InternalMovementLine.FindFirst();
         InternalMovementLine.Validate("Qty. (Base)", Qty);
         InternalMovementLine.Modify(true);
 
@@ -3347,12 +3347,12 @@ codeunit 137051 "SCM Warehouse - III"
     begin
         // [FEATURE] [Item Variant] [Internal Movement] [Item Tracking]
         // [SCENARIO 257683] When you open item tracking lines on an internal movement line with populated variant code, a new record in whse. item tracking should be initialized with that variant code.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Lot-tracked item "I" with item variant "V".
         CreateTrackedItem(Item, true, false, false, false, false);
         LibraryInventory.CreateItemVariant(ItemVariant, Item."No.");
-        LotNo := LibraryUtility.GenerateGUID;
+        LotNo := LibraryUtility.GenerateGUID();
         Qty := LibraryRandom.RandInt(10);
 
         // [GIVEN] Post the positive adjustment of item "I", variant "V". Set lot no. = "L" on the item tracking lines.
@@ -3375,7 +3375,7 @@ codeunit 137051 "SCM Warehouse - III"
         // [THEN] Variant code is equal to "V" on created whse. item tracking line.
         FilterWhseItemTracking(
           WhseItemTrackingLine, DATABASE::"Internal Movement Line", 0, InternalMovementLine."No.", InternalMovementLine."Line No.");
-        WhseItemTrackingLine.FindFirst;
+        WhseItemTrackingLine.FindFirst();
         WhseItemTrackingLine.TestField("Variant Code", ItemVariant.Code);
 
         LibraryVariableStorage.AssertEmpty;
@@ -3397,12 +3397,12 @@ codeunit 137051 "SCM Warehouse - III"
     begin
         // [FEATURE] [Item Variant] [Internal Put-away] [Item Tracking]
         // [SCENARIO 257683] When you open item tracking lines on an internal put-away line with populated variant code, a new record in whse. item tracking should be initialized with that variant code.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Lot-tracked item "I" with item variant "V".
         CreateTrackedItem(Item, true, false, false, false, false);
         LibraryInventory.CreateItemVariant(ItemVariant, Item."No.");
-        LotNo := LibraryUtility.GenerateGUID;
+        LotNo := LibraryUtility.GenerateGUID();
         Qty := LibraryRandom.RandInt(10);
 
         // [GIVEN] Register whse. journal line for positive adjustment of item "I", variant "V" on location with directed put-away and pick. Set lot no. = "L" on the warehouse journal line.
@@ -3426,7 +3426,7 @@ codeunit 137051 "SCM Warehouse - III"
         FilterWhseItemTracking(
           WhseItemTrackingLine, DATABASE::"Whse. Internal Put-away Line", 0,
           WhseInternalPutAwayHeader."No.", WhseInternalPutAwayLine."Line No.");
-        WhseItemTrackingLine.FindFirst;
+        WhseItemTrackingLine.FindFirst();
         WhseItemTrackingLine.TestField("Variant Code", ItemVariant.Code);
 
         LibraryVariableStorage.AssertEmpty;
@@ -3449,7 +3449,7 @@ codeunit 137051 "SCM Warehouse - III"
     begin
         // [FEATURE] [FEFO] [Warehouse Pick] [Item Tracking] [Expiration Date]
         // [SCENARIO 263227] Warning message reading that expired items are not included in pick, does not raise, if the expired lot is blocked and cannot be picked anyway.
-        Initialize;
+        Initialize();
 
         // [GIVEN] WMS location with enabled picking by FEFO.
         CreateFullWhseLocationWithFEFO(Location);
@@ -3458,7 +3458,7 @@ codeunit 137051 "SCM Warehouse - III"
         CreateItemTrackingCode(ItemTrackingCode, true, false, true, true, true);
         CreateItemWithItemTrackingCode(Item, ItemTrackingCode.Code);
         for i := 1 to ArrayLen(LotNos) do
-            LotNos[i] := LibraryUtility.GenerateGUID;
+            LotNos[i] := LibraryUtility.GenerateGUID();
         LotQty := LibraryRandom.RandIntInRange(20, 40);
 
         // [GIVEN] Purchase three lots "L1", "L2", "L3" of the item.
@@ -3506,7 +3506,7 @@ codeunit 137051 "SCM Warehouse - III"
     begin
         // [FEATURE] [FEFO] [Warehouse Pick] [Item Tracking] [Expiration Date]
         // [SCENARIO 263227] Warning message reading that expired items are not included in pick, does not raise, if the expired lot is not in the inventory and cannot be picked anyway.
-        Initialize;
+        Initialize();
 
         // [GIVEN] WMS location with enabled picking by FEFO.
         CreateFullWhseLocationWithFEFO(Location);
@@ -3515,7 +3515,7 @@ codeunit 137051 "SCM Warehouse - III"
         CreateItemTrackingCode(ItemTrackingCode, true, false, true, true, true);
         CreateItemWithItemTrackingCode(Item, ItemTrackingCode.Code);
         for i := 1 to ArrayLen(LotNos) do
-            LotNos[i] := LibraryUtility.GenerateGUID;
+            LotNos[i] := LibraryUtility.GenerateGUID();
         LotQty := LibraryRandom.RandIntInRange(20, 40);
 
         // [GIVEN] Purchase three lots "L1", "L2", "L3" of the item.
@@ -3563,7 +3563,7 @@ codeunit 137051 "SCM Warehouse - III"
     begin
         // [FEATURE] [FEFO] [Warehouse Pick] [Item Tracking] [Expiration Date]
         // [SCENARIO 263227] Warning message reading that expired items are not included in pick raises, when the lot cannot be picked only because it is expired.
-        Initialize;
+        Initialize();
 
         // [GIVEN] WMS location with enabled picking by FEFO.
         CreateFullWhseLocationWithFEFO(Location);
@@ -3572,7 +3572,7 @@ codeunit 137051 "SCM Warehouse - III"
         CreateItemTrackingCode(ItemTrackingCode, true, false, true, true, true);
         CreateItemWithItemTrackingCode(Item, ItemTrackingCode.Code);
         for i := 1 to ArrayLen(LotNos) do
-            LotNos[i] := LibraryUtility.GenerateGUID;
+            LotNos[i] := LibraryUtility.GenerateGUID();
         LotQty := LibraryRandom.RandIntInRange(20, 40);
 
         // [GIVEN] Purchase three lots "L1", "L2", "L3" of the item.
@@ -3616,7 +3616,7 @@ codeunit 137051 "SCM Warehouse - III"
     begin
         // [FEATURE] [Reservation] [Available to Reserve] [Sales] [Order]
         // [SCENARIO 279622] Units in the Open Shop Floor bin must be excluded from Total Available Quantity in the Reservation page
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Location with an employee
         LibraryWarehouse.CreateFullWMSLocation(Location, 2);
@@ -3667,7 +3667,7 @@ codeunit 137051 "SCM Warehouse - III"
     begin
         // [FEATURE] [Reservation] [Available to Reserve] [Sales] [Order]
         // [SCENARIO 279622] Units in the To-Production bin must be excluded from Total Available Quantity in the Reservation page
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Location with an employee
         LibraryWarehouse.CreateFullWMSLocation(Location, 2);
@@ -3717,7 +3717,7 @@ codeunit 137051 "SCM Warehouse - III"
         // [FEATURE] [FEFO] [Warehouse Pick] [Lot Tracked Item]
         // [SCENARIO 309231] When create Pick from Sales Order and Pick According to FEFO is used and there are other unregistered Picks pending
         // [SCENARIO 309231] then Pick is created with appropriate Quantity in Take and Place Lines
-        Initialize;
+        Initialize();
         PartQty := LibraryRandom.RandIntInRange(10, 50);
 
         // [GIVEN] Location with Pick According To FEFO, Require Shipment, Require Pick and Bin Mandatory
@@ -3731,7 +3731,7 @@ codeunit 137051 "SCM Warehouse - III"
         CreateTrackedItem(Item, true, false, false, false, false);
 
         // [GIVEN] Bin "B1" had Lot "L1" with Expiration Date = 1/1/2020 and 200 PCS
-        LotNo := LibraryUtility.GenerateGUID;
+        LotNo := LibraryUtility.GenerateGUID();
         LibraryWarehouse.FindBin(Bin, Location.Code, '', 1);
         PostItemJournalLineWithLotNoExpiration(Item."No.", Location.Code, Bin.Code, LotNo, PartQty, CalcDate('<5Y>', WorkDate));
         PostItemJournalLineWithLotNoExpiration(Item."No.", Location.Code, Bin.Code, LotNo, PartQty, CalcDate('<5Y>', WorkDate));
@@ -3739,7 +3739,7 @@ codeunit 137051 "SCM Warehouse - III"
           Item."No.", Location.Code, Bin.Code, LotNo, 2 * PartQty, CalcDate('<5Y>', WorkDate));
 
         // [GIVEN] Bin "B2" had Lot "L2" with Expiration Date = 1/1/2021 and 100 PCS
-        LotNo := LibraryUtility.GenerateGUID;
+        LotNo := LibraryUtility.GenerateGUID();
         LibraryWarehouse.FindBin(Bin, Location.Code, '', 2);
         PostItemJournalLineWithLotNoExpiration(
           Item."No.", Location.Code, Bin.Code, LotNo, 2 * PartQty, CalcDate('<5Y+1D>', WorkDate));
@@ -3786,9 +3786,9 @@ codeunit 137051 "SCM Warehouse - III"
     begin
         // [FEATURE] [FEFO] [Directed Put-Away and Pick] [Item Tracking] [Expiration Date] [Pick]
         // [SCENARIO 319438] Only items stored in bins of "Pick" type are included to picking by FEFO.
-        Initialize;
-        LotNo[1] := LibraryUtility.GenerateGUID;
-        LotNo[2] := LibraryUtility.GenerateGUID;
+        Initialize();
+        LotNo[1] := LibraryUtility.GenerateGUID();
+        LotNo[2] := LibraryUtility.GenerateGUID();
         Qty := LibraryRandom.RandIntInRange(10, 20);
 
         // [GIVEN] Directed put-away and pick location with FEFO enabled.
@@ -3907,7 +3907,7 @@ codeunit 137051 "SCM Warehouse - III"
         // [FEATURE] [Pick] [Production] [Item Tracking]
         // [SCENARIO 331480] When partially registered Pick is deleted for Lot Tracked Component Item and old Item Tracking is replaced
         // [SCENARIO 331480] then newly created Pick has same Lot as specified in Item Tracking
-        Initialize;
+        Initialize();
         LotQty := 4 * LibraryRandom.RandInt(10);
         ComponentQty := LotQty / 2;
         PartialQtyMultiplier := 0.5;
@@ -3965,7 +3965,7 @@ codeunit 137051 "SCM Warehouse - III"
         // [FEATURE] [Pick] [Production] [Item Tracking]
         // [SCENARIO 331480] When partially registered Pick is deleted for Lot Tracked Component Item and Item Tracking is updated
         // [SCENARIO 331480] then newly created Pick has same Lot as specified in Item Tracking
-        Initialize;
+        Initialize();
         LotQty := 4 * LibraryRandom.RandInt(10);
         ComponentQty := LotQty / 2;
         PartialQtyMultiplier := 0.5;
@@ -4025,7 +4025,7 @@ codeunit 137051 "SCM Warehouse - III"
         // [FEATURE] [Pick] [Assembly] [Item Tracking]
         // [SCENARIO 331480] When partially registered Pick is deleted for Lot Tracked Assembly Component Item and old Item Tracking is replaced
         // [SCENARIO 331480] then newly created Pick has same Lot as specified in Item Tracking
-        Initialize;
+        Initialize();
         LotQty := 4 * LibraryRandom.RandInt(10);
         ComponentQty := LotQty / 2;
         PartialQtyMultiplier := 0.5;
@@ -4084,7 +4084,7 @@ codeunit 137051 "SCM Warehouse - III"
         // [FEATURE] [Pick] [Assembly] [Item Tracking]
         // [SCENARIO 331480] When partially registered Pick is deleted for Lot Tracked Assembly Component Item and old Item Tracking is updated
         // [SCENARIO 331480] then newly created Pick has same Lot as specified in Item Tracking
-        Initialize;
+        Initialize();
         LotQty := 4 * LibraryRandom.RandInt(10);
         ComponentQty := LotQty / 2;
         PartialQtyMultiplier := 0.5;
@@ -4523,17 +4523,17 @@ codeunit 137051 "SCM Warehouse - III"
         Clear(SourceNo);
         Clear(LocationCode);
         Clear(Counter);
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
 
         // Lazy Setup.
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Warehouse - III");
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.CreateGeneralPostingSetupData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.CreateGeneralPostingSetupData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         CreateLocationSetup;
-        NoSeriesSetup;
+        NoSeriesSetup();
         ItemJournalSetup;
         OutputJournalSetup;
         IsInitialized := true;
@@ -4546,7 +4546,7 @@ codeunit 137051 "SCM Warehouse - III"
         WarehouseActivityHeader: Record "Warehouse Activity Header";
     begin
         WarehouseActivityHeader.SetRange("Location Code", LocationCode);
-        WarehouseActivityHeader.FindFirst;
+        WarehouseActivityHeader.FindFirst();
         LibraryWarehouse.AutoFillQtyInventoryActivity(WarehouseActivityHeader);
         LibraryWarehouse.PostInventoryActivity(WarehouseActivityHeader, true);
     end;
@@ -4842,7 +4842,7 @@ codeunit 137051 "SCM Warehouse - III"
         CreateFullWMSLocation(Location, 2);
         LibraryVariableStorage.Enqueue(ArrayLen(LotNo));
         for Index := 1 to ArrayLen(LotNo) do begin
-            LotNo[Index] := LibraryUtility.GenerateGUID;
+            LotNo[Index] := LibraryUtility.GenerateGUID();
             LibraryVariableStorage.Enqueue(LotNo[Index]);
             LibraryVariableStorage.Enqueue(LotQty);
             TotalQty += LotQty;
@@ -4971,7 +4971,7 @@ codeunit 137051 "SCM Warehouse - III"
         i: Integer;
     begin
         for i := 1 to ArrayLen(AssignedLotNos) do begin
-            AssignedLotNos[i] := LibraryUtility.GenerateGUID;
+            AssignedLotNos[i] := LibraryUtility.GenerateGUID();
             CreateLotTrackedItemJournalLine(
               ItemJournalLine, ItemNo, '', LocationCode, BinCode, WorkDate - i, AssignedLotNos[i], Qty);
         end;
@@ -5209,7 +5209,7 @@ codeunit 137051 "SCM Warehouse - III"
         WhseWorksheetTemplate: Record "Whse. Worksheet Template";
     begin
         WhseWorksheetTemplate.SetRange(Type, WhseWorksheetTemplate.Type::Pick);
-        WhseWorksheetTemplate.FindFirst;
+        WhseWorksheetTemplate.FindFirst();
         LibraryWarehouse.CreateWhseWorksheetName(WhseWorksheetName, WhseWorksheetTemplate.Name, LocationCode);
     end;
 
@@ -5367,7 +5367,7 @@ codeunit 137051 "SCM Warehouse - III"
     begin
         with PostedWhseReceiptLine do begin
             SetRange("Item No.", ItemNo);
-            FindFirst;
+            FindFirst();
             SetRange("No.", "No.");
             SetHideValidationDialog(true);
             CreatePutAwayDoc(PostedWhseReceiptLine, '');
@@ -5430,7 +5430,7 @@ codeunit 137051 "SCM Warehouse - III"
         WarehouseJournalLine.OpenItemTrackingLines();
 
         WhseItemTrackingLine.SetRange("Lot No.", LotNo);
-        WhseItemTrackingLine.FindFirst;
+        WhseItemTrackingLine.FindFirst();
         WhseItemTrackingLine.Validate("Expiration Date", ExpirationDate);
         WhseItemTrackingLine.Modify(true);
     end;
@@ -5474,7 +5474,7 @@ codeunit 137051 "SCM Warehouse - III"
             SetRange("Action Type", "Action Type"::Place);
             SetRange("No.", WarehouseActivityNo);
             SetRange("Lot No.", LotNo);
-            FindLast;
+            FindLast();
         end;
     end;
 
@@ -5493,7 +5493,7 @@ codeunit 137051 "SCM Warehouse - III"
     begin
         with ItemLedgerEntry do begin
             SetRange("Item No.", ItemNo);
-            FindLast;
+            FindLast();
             exit("Lot No.");
         end;
     end;
@@ -5504,7 +5504,7 @@ codeunit 137051 "SCM Warehouse - III"
     begin
         ProdOrderLine.SetRange(Status, ProductionOrder.Status);
         ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
-        ProdOrderLine.FindFirst;
+        ProdOrderLine.FindFirst();
         exit(ProdOrderLine."Line No.");
     end;
 
@@ -5529,14 +5529,14 @@ codeunit 137051 "SCM Warehouse - III"
         WarehouseActivityHeader: Record "Warehouse Activity Header";
     begin
         WarehouseActivityHeader.SetRange("No.", WarehouseActivityLine."No.");
-        WarehouseActivityHeader.FindFirst;
+        WarehouseActivityHeader.FindFirst();
         WarehouseActivityHeader.Delete(true);
     end;
 
     local procedure DeleteWarehouseShipmentLines(WarehouseShipmentHeader: Record "Warehouse Shipment Header")
     begin
         WarehouseShipmentHeader.SetRange("No.", WarehouseShipmentNo);
-        WarehouseShipmentHeader.FindFirst;
+        WarehouseShipmentHeader.FindFirst();
         LibraryWarehouse.ReopenWhseShipment(WarehouseShipmentHeader);
         WarehouseShipmentHeader.DeleteAll(true);
     end;
@@ -5571,7 +5571,7 @@ codeunit 137051 "SCM Warehouse - III"
     begin
         WarehouseActivityLine.SetRange("Source No.", SourceNo);
         WarehouseActivityLine.SetRange("Activity Type", ActivityType);
-        WarehouseActivityLine.FindFirst;
+        WarehouseActivityLine.FindFirst();
     end;
 
     local procedure FindWarehouseShipmentNo(): Code[20]
@@ -5587,13 +5587,13 @@ codeunit 137051 "SCM Warehouse - III"
     begin
         WarehouseReceiptLine.SetRange("Source Document", SourceDocument);
         WarehouseReceiptLine.SetRange("Source No.", SourceNo);
-        WarehouseReceiptLine.FindFirst;
+        WarehouseReceiptLine.FindFirst();
     end;
 
     local procedure FindWarehouseActivityHeader(var WarehouseActivityHeader: Record "Warehouse Activity Header"; SourceNo: Code[20])
     begin
         WarehouseActivityHeader.SetRange("Source No.", SourceNo);
-        WarehouseActivityHeader.FindFirst;
+        WarehouseActivityHeader.FindFirst();
     end;
 
     local procedure FindRegisterWarehouseActivityLine(var RegisteredWhseActivityLine: Record "Registered Whse. Activity Line"; ActivityType: Enum "Warehouse Activity Type"; ActionType: Enum "Warehouse Action Type"; LocationCode: Code[10]; SourceNo: Code[20])
@@ -5602,21 +5602,21 @@ codeunit 137051 "SCM Warehouse - III"
         RegisteredWhseActivityLine.SetRange("Location Code", LocationCode);
         RegisteredWhseActivityLine.SetRange("Action Type", ActionType);
         RegisteredWhseActivityLine.SetRange("Source No.", SourceNo);
-        RegisteredWhseActivityLine.FindFirst;
+        RegisteredWhseActivityLine.FindFirst();
     end;
 
     local procedure FindBin(var Bin: Record Bin)
     begin
         Bin.SetRange("Location Code", LocationWhite.Code);
         Bin.SetRange("Adjustment Bin", false);
-        Bin.FindFirst;
+        Bin.FindFirst();
     end;
 
     local procedure FindBinContent(var BinContent: Record "Bin Content"; ItemNo: Code[20]; LocationCode: Code[10])
     begin
         BinContent.SetRange("Item No.", ItemNo);
         BinContent.SetRange("Location Code", LocationCode);
-        BinContent.FindFirst;
+        BinContent.FindFirst();
     end;
 
     local procedure FindWhseWorksheetLine(var WhseWorksheetLine: Record "Whse. Worksheet Line"; WhseWorksheetName: Record "Whse. Worksheet Name"; LocationCode: Code[10])
@@ -5624,7 +5624,7 @@ codeunit 137051 "SCM Warehouse - III"
         WhseWorksheetLine.SetRange("Worksheet Template Name", WhseWorksheetName."Worksheet Template Name");
         WhseWorksheetLine.SetRange(Name, WhseWorksheetName.Name);
         WhseWorksheetLine.SetRange("Location Code", LocationCode);
-        WhseWorksheetLine.FindFirst;
+        WhseWorksheetLine.FindFirst();
     end;
 
     local procedure FindWarehouseShipmentHeader(var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; SourceNo: Code[20])
@@ -5632,7 +5632,7 @@ codeunit 137051 "SCM Warehouse - III"
         WarehouseShipmentLine: Record "Warehouse Shipment Line";
     begin
         FilterWarehouseShipmentLine(WarehouseShipmentLine, SourceNo);
-        WarehouseShipmentLine.FindFirst;
+        WarehouseShipmentLine.FindFirst();
         WarehouseShipmentHeader.Get(WarehouseShipmentLine."No.");
     end;
 
@@ -5675,7 +5675,7 @@ codeunit 137051 "SCM Warehouse - III"
         WarehouseActivityHeader.SetRange("Location Code", LocationCode);
         WarehouseActivityHeader.SetRange("Source Document", WarehouseActivityHeader."Source Document"::"Sales Order");
         WarehouseActivityHeader.SetRange("Source No.", SalesHeaderNo);
-        WarehouseActivityHeader.FindFirst;
+        WarehouseActivityHeader.FindFirst();
         WarehouseActivityLine.SetRange("No.", WarehouseActivityHeader."No.");
         WarehouseActivityLine.SetRange("Item No.", ItemNo);
         WarehouseActivityLine.FindSet();
@@ -5711,7 +5711,7 @@ codeunit 137051 "SCM Warehouse - III"
         i: Integer;
     begin
         for i := 1 to ArrayLen(LotNos) do
-            LotNos[i] := LibraryUtility.GenerateGUID;
+            LotNos[i] := LibraryUtility.GenerateGUID();
         NoOfBins := ArrayLen(LotNos);
         LotQuantity := NoOfBins * QuantityPerLotPerBin;
         FullQuantity := ArrayLen(LotNos) * LotQuantity;
@@ -5776,7 +5776,7 @@ codeunit 137051 "SCM Warehouse - III"
         FindWarehouseActivityNo(WarehouseActivityLine, SourceNo, Type);
         WarehouseActivityHeader.SetRange(Type, Type);
         WarehouseActivityHeader.SetRange("No.", WarehouseActivityLine."No.");
-        WarehouseActivityHeader.FindFirst;
+        WarehouseActivityHeader.FindFirst();
         LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
     end;
 
@@ -5786,7 +5786,7 @@ codeunit 137051 "SCM Warehouse - III"
     begin
         ReservationEntry.SetRange("Item No.", ItemNo);
         ReservationEntry.SetRange("Location Code", LocationCode);
-        ReservationEntry.FindFirst;
+        ReservationEntry.FindFirst();
         ReservationEntry.Validate("Expiration Date", ExpirationDate);
         ReservationEntry.Modify(true);
         ReservationEntry.SetRange("Item No.", ItemNo);
@@ -5923,7 +5923,7 @@ codeunit 137051 "SCM Warehouse - III"
     begin
         FindBin(Bin);
         ProdOrderLine.SetRange("Item No.", ItemNo);
-        ProdOrderLine.FindFirst;
+        ProdOrderLine.FindFirst();
         ProdOrderLine.Validate("Bin Code", Bin.Code);
         ProdOrderLine.Modify(true);
     end;
@@ -5932,7 +5932,7 @@ codeunit 137051 "SCM Warehouse - III"
     begin
         SalesLine.SetRange("Document Type", SalesLine."Document Type"::Order);
         SalesLine.SetRange("Document No.", DocumentNo);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         SalesLine.Validate(Quantity, Quantity);
         SalesLine.Modify(true);
     end;
@@ -5994,7 +5994,7 @@ codeunit 137051 "SCM Warehouse - III"
         with WarehouseShipmentLine do begin
             SetRange("Source Document", "Source Document"::"Sales Order");
             SetRange("Source No.", SourceNo);
-            FindFirst;
+            FindFirst();
             Validate("Bin Code", BinCode);
             Modify(true);
         end;
@@ -6167,7 +6167,7 @@ codeunit 137051 "SCM Warehouse - III"
     begin
         WarehouseActivityLine.SetRange("Source No.", SourceNo);
         WarehouseActivityLine.SetRange("Location Code", LocationCode);
-        WarehouseActivityLine.FindFirst;
+        WarehouseActivityLine.FindFirst();
         WarehouseActivityLine.TestField("Item No.", ItemNo);
         WarehouseActivityLine.TestField("Bin Code", BinCode);
         WarehouseActivityLine.TestField(Quantity, Quantity);
@@ -6179,7 +6179,7 @@ codeunit 137051 "SCM Warehouse - III"
     begin
         PostedInvtPickLine.SetRange("Source No.", SourceNo);
         PostedInvtPickLine.SetRange("Location Code", LocationCode);
-        PostedInvtPickLine.FindFirst;
+        PostedInvtPickLine.FindFirst();
         PostedInvtPickLine.TestField("Item No.", ItemNo);
         PostedInvtPickLine.TestField("Expiration Date", ExpirationDate);
         PostedInvtPickLine.TestField("Bin Code", BinCode);
@@ -6219,7 +6219,7 @@ codeunit 137051 "SCM Warehouse - III"
     begin
         WarehouseShipmentLine.SetRange("No.", No);
         WarehouseShipmentLine.SetRange("Item No.", ItemNo);
-        WarehouseShipmentLine.FindFirst;
+        WarehouseShipmentLine.FindFirst();
         WarehouseShipmentLine.TestField(Quantity, Quantity);
     end;
 
@@ -6304,7 +6304,7 @@ codeunit 137051 "SCM Warehouse - III"
         WorkCenter: Record "Work Center";
     begin
         WorkCenter.SetRange("No.", No);
-        WorkCenter.FindFirst;
+        WorkCenter.FindFirst();
         WorkCenter.TestField("Location Code", LocationCode);
     end;
 
@@ -6313,7 +6313,7 @@ codeunit 137051 "SCM Warehouse - III"
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
         ItemLedgerEntry.SetRange("Item No.", ItemNo);
-        ItemLedgerEntry.FindFirst;
+        ItemLedgerEntry.FindFirst();
         ItemLedgerEntry.TestField("Location Code", LocationCode);
         ItemLedgerEntry.TestField(Quantity, Quantity);
     end;
@@ -6341,7 +6341,7 @@ codeunit 137051 "SCM Warehouse - III"
         with WarehouseActivityLine do begin
             SetRange("Location Code", LocationCode);
             SetRange("Item No.", ItemNo);
-            FindFirst;
+            FindFirst();
             TestField(Quantity, ExpectedQuantity);
             TestField("Lot No.", ExpectedLotNo);
         end;
@@ -6499,7 +6499,7 @@ codeunit 137051 "SCM Warehouse - III"
     begin
         WarehouseRequest.SetRange("Location Code", LocationSilver.Code);
         WarehouseRequest.SetRange("Source No.", SourceNo);
-        WarehouseRequest.FindFirst;
+        WarehouseRequest.FindFirst();
         SourceDocuments.SetRecord(WarehouseRequest);
         Response := ACTION::LookupOK;
     end;
@@ -6526,7 +6526,7 @@ codeunit 137051 "SCM Warehouse - III"
     begin
         WhsePickRequest.SetRange("Location Code", LocationCode);
         WhsePickRequest.SetRange("Document No.", WarehouseShipmentNo);
-        WhsePickRequest.FindFirst;
+        WhsePickRequest.FindFirst();
         PickSelection.SetRecord(WhsePickRequest);
         Response := ACTION::LookupOK;
     end;

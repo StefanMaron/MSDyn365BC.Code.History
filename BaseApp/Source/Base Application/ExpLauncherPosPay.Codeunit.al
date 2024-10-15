@@ -29,12 +29,12 @@ codeunit 1700 "Exp. Launcher Pos. Pay"
         FooterArray: array[100] of Integer;
     begin
         CheckLedgerEntry2.CopyFilters(CheckLedgerEntry);
-        CheckLedgerEntry2.FindFirst;
+        CheckLedgerEntry2.FindFirst();
 
         BankAccount.Get(CheckLedgerEntry2."Bank Account No.");
 
         BankExportImportSetup.SetRange(Code, BankAccount."Positive Pay Export Code");
-        if BankExportImportSetup.FindFirst then begin
+        if BankExportImportSetup.FindFirst() then begin
             DataExchDefCode := BankExportImportSetup."Data Exch. Def. Code";
             Filename := FileManagement.ServerTempFileName('txt');
 
@@ -100,7 +100,7 @@ codeunit 1700 "Exp. Launcher Pos. Pay"
         DataExchLineDef.Init();
         DataExchLineDef.SetRange("Data Exch. Def Code", DataExchDefCode);
         DataExchLineDef.SetRange("Line Type", DataExchLineDef."Line Type"::Header);
-        if DataExchLineDef.FindSet then begin
+        if DataExchLineDef.FindSet() then begin
             repeat
                 // Insert the Data Exchange Header records
                 DataExch."Entry No." := 0;
@@ -115,7 +115,7 @@ codeunit 1700 "Exp. Launcher Pos. Pay"
                 // It is only here where we know the True DataExch."Entry No"..
                 DataExchMapping.SetRange("Data Exch. Def Code", DataExchDefCode);
                 DataExchMapping.SetRange("Data Exch. Line Def Code", DataExchLineDef.Code);
-                DataExchMapping.FindFirst;
+                DataExchMapping.FindFirst();
 
                 // Populate the Header/Detail/Footer work tables
                 PositivePayExportMgt.PreparePosPayHeader(DataExch, BankAccount."Bank Account No.");
@@ -147,7 +147,7 @@ codeunit 1700 "Exp. Launcher Pos. Pay"
         DataExchLineDef.Init();
         DataExchLineDef.SetRange("Data Exch. Def Code", DataExchDefCode);
         DataExchLineDef.SetRange("Line Type", DataExchLineDef."Line Type"::Detail);
-        if DataExchLineDef.FindSet then begin
+        if DataExchLineDef.FindSet() then begin
             repeat
                 // Insert the Data Exchange Detail records
                 DataExch."Entry No." := 0;
@@ -162,7 +162,7 @@ codeunit 1700 "Exp. Launcher Pos. Pay"
                 // It is only here where we know the True DataExch."Entry No"..
                 DataExchMapping.SetRange("Data Exch. Def Code", DataExchDefCode);
                 DataExchMapping.SetRange("Data Exch. Line Def Code", DataExchLineDef.Code);
-                DataExchMapping.FindFirst;
+                DataExchMapping.FindFirst();
 
                 if DataExchEntryCodeDetail = 0 then
                     DataExchEntryCodeDetail := DataExch."Entry No.";
@@ -205,7 +205,7 @@ codeunit 1700 "Exp. Launcher Pos. Pay"
         DataExchLineDef.Init();
         DataExchLineDef.SetRange("Data Exch. Def Code", DataExchDefCode);
         DataExchLineDef.SetRange("Line Type", DataExchLineDef."Line Type"::Footer);
-        if DataExchLineDef.FindSet then begin
+        if DataExchLineDef.FindSet() then begin
             repeat
                 // Insert the Data Exchange Footer records
                 DataExch."Entry No." := 0;
@@ -220,7 +220,7 @@ codeunit 1700 "Exp. Launcher Pos. Pay"
                 // It is only here where we know the True DataExch."Entry No"..
                 DataExchMapping.SetRange("Data Exch. Def Code", DataExchDefCode);
                 DataExchMapping.SetRange("Data Exch. Line Def Code", DataExchLineDef.Code);
-                DataExchMapping.FindFirst;
+                DataExchMapping.FindFirst();
 
                 // Populate the Header/Detail/Footer work tables
                 if DataExchMapping."Pre-Mapping Codeunit" > 0 then

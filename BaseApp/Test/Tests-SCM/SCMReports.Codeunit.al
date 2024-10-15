@@ -40,7 +40,7 @@ codeunit 137309 "SCM Reports"
     procedure ItemAgeCompositionValueWithoutPeriodLength()
     begin
         // Run Item Age Composition Value report without Period Length and validate the data.
-        Initialize;
+        Initialize();
         RunItemAgeCompositionValueReportAndValidateData(0, 'InvtValue1_Item', 'InvtValue5_Item');
     end;
 
@@ -50,7 +50,7 @@ codeunit 137309 "SCM Reports"
     procedure ItemAgeCompositionValueWithPeriodLength()
     begin
         // Run Item Age Composition Value report with Period Length and validate the data.
-        Initialize;
+        Initialize();
         RunItemAgeCompositionValueReportAndValidateData(
           LibraryRandom.RandInt(5), 'InvtValue1_Item', 'InvtValue5_Item');
     end;
@@ -62,7 +62,7 @@ codeunit 137309 "SCM Reports"
     begin
         // Setup: Create an Item, post its ledger entry before workdate.
         Evaluate(PeriodLength, '<' + Format(RandomDays) + 'D>');
-        ItemNo := LibraryInventory.CreateItemNo;
+        ItemNo := LibraryInventory.CreateItemNo();
         CreateAndPostItemJournal(ItemNo, 4 * RandomDays, '');
 
         // Exercise: Run the Item Age Composition Value report and save it.
@@ -79,7 +79,7 @@ codeunit 137309 "SCM Reports"
     begin
         // [FEATURE] [Item] [Item Age Composition - Qty.]
         // [SCENARIO] Report 5807 "Item Age Composition - Qty." without Period Length and validate the data.
-        Initialize;
+        Initialize();
         RunItemAgeCompositionQuantityReportAndValidateData(
           0, RepItemAgeCompQty_Qty1Txt, RepItemAgeCompQty_TotalTxt);
     end;
@@ -91,7 +91,7 @@ codeunit 137309 "SCM Reports"
     begin
         // [FEATURE] [Item] [Item Age Composition - Qty.]
         // [SCENARIO] Report 5807 "Item Age Composition - Qty." with Period Length and validate the data.
-        Initialize;
+        Initialize();
 
         // Date range on the Report is calculated based on Random days as the difference between the two dates is the No. of Random days.
         RunItemAgeCompositionQuantityReportAndValidateData(
@@ -112,10 +112,10 @@ codeunit 137309 "SCM Reports"
     begin
         // [FEATURE] [Item] [Item Age Composition - Qty.] [Location]
         // [SCENARIO 375795] Report 5807 "Item Age Composition - Qty." filters data by Location Filter
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item with 2 Positive Adjustments: Location="A" with Qty="X", Location="B" with Qty="Y"
-        ItemNo := LibraryInventory.CreateItemNo;
+        ItemNo := LibraryInventory.CreateItemNo();
         for i := 1 to 2 do begin
             LocationCode[i] := CreateLocation;
             CreateAndPostItemJournal(ItemNo, 0, LocationCode[i]);
@@ -138,7 +138,7 @@ codeunit 137309 "SCM Reports"
     begin
         // Setup: Create an Item, post its ledger entry before workdate.
         Evaluate(PeriodLength, '<' + Format(RandomDays) + 'D>');
-        ItemNo := LibraryInventory.CreateItemNo;
+        ItemNo := LibraryInventory.CreateItemNo();
         CreateAndPostItemJournal(ItemNo, RandomDays, '');
 
         // Exercise: Run the Item Age Composition Quantity report and save it.
@@ -162,7 +162,7 @@ codeunit 137309 "SCM Reports"
         // Test the functionality of Calculate Inventory Value Test with Average Costing Method.
 
         // Setup: Create Item with Certified BOM and Routing.
-        Initialize;
+        Initialize();
         CreateManufacturingItem(
           Item, Item."Costing Method"::Average, ProductionBOMHeader.Status::Certified, RoutingHeader.Status::Certified);
 
@@ -189,7 +189,7 @@ codeunit 137309 "SCM Reports"
         // Test the functionality of Calculate Inventory Value Test with Certified BOM and Routing.
 
         // Setup: Create Item with Certified BOM and Routing.
-        Initialize;
+        Initialize();
         CreateManufacturingItem(
           Item, Item."Costing Method"::Standard, ProductionBOMHeader.Status::Certified, RoutingHeader.Status::Certified);
 
@@ -220,7 +220,7 @@ codeunit 137309 "SCM Reports"
         // Test the functionality of Calculate Inventory Value Test with Under Development BOM and Routing.
 
         // Setup: Create Item with Under Development BOM and Routing.
-        Initialize;
+        Initialize();
         CreateManufacturingItem(
           Item, Item."Costing Method"::Standard, ProductionBOMHeader.Status::"Under Development",
           RoutingHeader.Status::"Under Development");
@@ -253,7 +253,7 @@ codeunit 137309 "SCM Reports"
         // Test the functionality of Calculate Inventory Value Test with BOM and Routing Versions.
 
         // Setup: Create Item with Under Development BOM and Routing. Create Production BOM Version and Routing Version.
-        Initialize;
+        Initialize();
         CreateManufacturingItem(
           Item, Item."Costing Method"::Standard, ProductionBOMHeader.Status::"Under Development",
           RoutingHeader.Status::"Under Development");
@@ -288,7 +288,7 @@ codeunit 137309 "SCM Reports"
         // Run Item Charges Specification Report and Verify Posted Item Charge for Sales Order.
 
         // Setup: Create and Post Sales Order with Item Charge.
-        Initialize;
+        Initialize();
         UpdateSalesReceivableSetup(OldCreditWarnings, OldStockoutWarning, SalesReceivablesSetup."Credit Warnings"::"No Warning", false);
         CreateAndPostSalesOrderWithItemCharge(SalesLine);
 
@@ -314,7 +314,7 @@ codeunit 137309 "SCM Reports"
         // Run Item Charges Specification Report and Verify Posted Item Charge for Purchase Order.
 
         // Setup: Create and Post Purchase Order with Item Charge.
-        Initialize;
+        Initialize();
         CreateAndPostPurchaseOrderWithItemCharge(PurchaseLine);
 
         // Exercise: Run Item Charges Specification Report with Source Type as Purchase.
@@ -341,7 +341,7 @@ codeunit 137309 "SCM Reports"
         // Run Compare List Report for Two Items with different BOMs and validate the data.
 
         // Setup: Create two Items with Routing and Production BOM.
-        Initialize;
+        Initialize();
         CreateManufacturingItem(
           Item, Item."Costing Method"::Standard, ProductionBOMHeader.Status::Certified, RoutingHeader.Status::Certified);
         CreateManufacturingItem(
@@ -374,8 +374,8 @@ codeunit 137309 "SCM Reports"
         // Verify data in Item Register Value report after Posting Item Journal Line.
 
         // Setup: Create and Post Item Journal Line.
-        Initialize;
-        ItemNo := LibraryInventory.CreateItemNo;
+        Initialize();
+        ItemNo := LibraryInventory.CreateItemNo();
         JournalBatchName := CreateAndPostItemJournal(ItemNo, LibraryRandom.RandInt(5), '');
 
         // Exercise: Run Item Register Value Report.
@@ -396,7 +396,7 @@ codeunit 137309 "SCM Reports"
         // Test functionality of Subcontractor Dispatch List report without updating Subcontractor No. on Work Center.
 
         // Setup: Create and Refresh Production Order.
-        Initialize;
+        Initialize();
         ProductionOrder.Get(ProductionOrder.Status::Released, CreateAndRefreshProductionOrder);
 
         // Exercise: Run Subcontractor Dispatch List report without updating Subcontractor No. on Work Center.
@@ -420,12 +420,12 @@ codeunit 137309 "SCM Reports"
         // Test functionality of Subcontractor Dispatch List report with updating Subcontractor No. on Work Center.
 
         // Setup: Create and Refresh Production Order.
-        Initialize;
+        Initialize();
         ProductionOrder.Get(ProductionOrder.Status::Released, CreateAndRefreshProductionOrder);
 
         // Exercise: Run Subcontractor Dispatch List report with updating Subcontractor No. on Work Center.
         ProdOrderRoutingLine.SetRange("Prod. Order No.", ProductionOrder."No.");
-        ProdOrderRoutingLine.FindFirst;
+        ProdOrderRoutingLine.FindFirst();
         UpdateAndCalculateWorkCenterCalendar(ProdOrderRoutingLine."No.");
         Commit();
         RunSubcontractorDispatchList(ProdOrderRoutingLine);
@@ -443,7 +443,7 @@ codeunit 137309 "SCM Reports"
         // Test functionality of Bin Content Create Worksheet Report.
 
         // Setup: Create Location with Zones and Bins. Create Bin Creation Worksheet Line.
-        Initialize;
+        Initialize();
         CreateBinCreationWorksheetLine(BinCreationWorksheetLine);
 
         // Exercise: Run Bin Content Create Worksheet Report.
@@ -473,7 +473,7 @@ codeunit 137309 "SCM Reports"
         // Test and verify functionality of Warehouse Posted Shipment report.
 
         // Setup: Create Full Warehouse Setup. Create and release Purchase Order. Create and post Warehouse Receipt. Register Put away. Create and release Sales Order. Create, release and post Warehouse Shipment.
-        Initialize;
+        Initialize();
         CreateFullWarehouseSetup(Location);
         CreateAndReleasePurchaseOrder(PurchaseHeader, PurchaseLine, Location.Code);
         CreateAndPostWarehouseReceipt(PurchaseHeader);
@@ -502,7 +502,7 @@ codeunit 137309 "SCM Reports"
         // Test to check the Blocked Warning on Warehouse Inventory Registering Test report.
 
         // Setup: Create Location, Create and modify Item and Create Warehouse Item Journal line.
-        Initialize;
+        Initialize();
         CreateFullWarehouseSetup(Location);
         ItemNo := CreateBlockedItem;
         CreateWarehouseItemJournalLine(Location.Code, ItemNo, WorkDate);
@@ -532,7 +532,7 @@ codeunit 137309 "SCM Reports"
         // Test to check the Date range Warning on Warehouse Inventory Registering Test report.
 
         // Setup: Create Location, Create an Item, Create and modify User Setup and Create Warehouse Item Journal line.
-        Initialize;
+        Initialize();
         CreateFullWarehouseSetup(Location);
         LibraryInventory.CreateItem(Item);
         CreateAndModifyUserSetup(UserSetup);
@@ -570,7 +570,7 @@ codeunit 137309 "SCM Reports"
 
         // Setup: Update Inventory Setup and Create Parent and Child Items with different Replenishment Systems.
         // Also assign BOM No. to Parent Item with Component of Child Item.
-        Initialize;
+        Initialize();
         LibraryInventory.UpdateInventorySetup(
           InventorySetup, true, true, InventorySetup."Automatic Cost Adjustment"::Always,
           InventorySetup."Average Cost Calc. Type"::Item, InventorySetup."Average Cost Period"::Day);
@@ -669,7 +669,7 @@ codeunit 137309 "SCM Reports"
         // Verify Quantity Explosion of BOM Test Report values when Production Bom created without version.
 
         // Setup: Create Item with New BOM.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(SecondChildItem);
         CreateItemWithReplSysAndCostingMethod(FirstChildItem, FirstChildItem."Costing Method"::FIFO,
           FirstChildItem."Replenishment System"::"Prod. Order",
@@ -724,7 +724,7 @@ codeunit 137309 "SCM Reports"
         // Verify Rolled-up Cost Shares Test Report values when Production Bom created without versions.
 
         // Setup: Create Item with New BOM.
-        Initialize;
+        Initialize();
         CreateItemWithReplSysAndCostingMethod(FirstChildItem, FirstChildItem."Costing Method"::FIFO,
           FirstChildItem."Replenishment System"::"Prod. Order", '', LibraryRandom.RandDec(10, 2));
         ProductionBOMHeaderNo := CreateProductionBOMWithLines(FirstChildItem, ProductionBOMLine.Type::Item,
@@ -763,7 +763,7 @@ codeunit 137309 "SCM Reports"
         // Verify Rolled-up Cost Shares Test Report values when Production Bom Line created with Type Item and Certified version.
 
         // Setup: Create Item with New BOM with certified Production BOM Version.
-        Initialize;
+        Initialize();
         CreateItemWithReplSysAndCostingMethod(FirstChildItem, FirstChildItem."Costing Method"::FIFO,
           FirstChildItem."Replenishment System"::"Prod. Order", '', LibraryRandom.RandDec(10, 2));
         CreateItemWithReplSysAndCostingMethod(SecondChildItem, SecondChildItem."Costing Method"::FIFO,
@@ -801,7 +801,7 @@ codeunit 137309 "SCM Reports"
         // Verify Rolled-up Cost Shares Test Report values when Production Bom Line created with Type Production BOM and Certified version.
 
         // Setup: Create Item with New BOM with certified Production BOM Version.
-        Initialize;
+        Initialize();
         CreateItemWithReplSysAndCostingMethod(FirstChildItem, FirstChildItem."Costing Method"::FIFO,
           FirstChildItem."Replenishment System"::"Prod. Order", '', LibraryRandom.RandDec(10, 2));
         CreateItemWithReplSysAndCostingMethod(SecondChildItem, SecondChildItem."Costing Method"::FIFO,
@@ -840,7 +840,7 @@ codeunit 137309 "SCM Reports"
         // [SCENARIO] Verify Detailed Calculation Test Report values when Production Bom created with Type Item and Certified version.
 
         // Setup: Create Item with New BOM with certified Production BOM Version.
-        Initialize;
+        Initialize();
         CreateItemWithReplSysAndCostingMethod(FirstChildItem, FirstChildItem."Costing Method"::FIFO,
           FirstChildItem."Replenishment System"::"Prod. Order", '', LibraryRandom.RandDec(10, 2));
         CreateItemWithReplSysAndCostingMethod(SecondChildItem, SecondChildItem."Costing Method"::FIFO,
@@ -880,7 +880,7 @@ codeunit 137309 "SCM Reports"
         // [SCENARIO] Verify Detailed Calculation Test Report values when Production Bom created with Type Production Bom and Certified version.
 
         // Setup: Create Item with New BOM with certified Production BOM Version.
-        Initialize;
+        Initialize();
         CreateItemWithReplSysAndCostingMethod(FirstChildItem, FirstChildItem."Costing Method"::FIFO,
           FirstChildItem."Replenishment System"::"Prod. Order", '', LibraryRandom.RandDec(10, 2));
         CreateItemWithReplSysAndCostingMethod(SecondChildItem, SecondChildItem."Costing Method"::FIFO,
@@ -919,7 +919,7 @@ codeunit 137309 "SCM Reports"
         // [SCENARIO] Verify Detailed Calculation Test Report values when Routing created with certified version and report run for greater than Routing Version Starting Date.
 
         // Setup: Create Item with Routing Version and delete one routing line from Routing version after copy Routing version.
-        Initialize;
+        Initialize();
         CreateManufacturingItem(
           Item, Item."Costing Method"::Standard, ProductionBOMHeader.Status::New, RoutingHeader.Status::"Under Development");
         CreateRoutingLineWithTypeMachineCenter(RoutingHeader, Item."Routing No.");
@@ -954,7 +954,7 @@ codeunit 137309 "SCM Reports"
     begin
         // [FEATURE] [Detailed Calculation]
         // [SCENARIO] Verify Detailed Calculation Test Report values when Routing created with certified version and report run for less than Routing Version Starting Date.
-        Initialize;
+        Initialize();
         DetailedCalculationWithTypeRoutingVersionAndCalcDate(RoutingVersion.Status::Certified, -LibraryRandom.RandInt(5));
     end;
 
@@ -967,7 +967,7 @@ codeunit 137309 "SCM Reports"
     begin
         // [FEATURE] [Detailed Calculation]
         // [SCENARIO] Verify Detailed Calculation Test Report values when Routing created with closed version and report run for greater than Routing Version Starting Date.
-        Initialize;
+        Initialize();
         DetailedCalculationWithTypeRoutingVersionAndCalcDate(RoutingVersion.Status::Closed, LibraryRandom.RandInt(5));
     end;
 
@@ -980,7 +980,7 @@ codeunit 137309 "SCM Reports"
     begin
         // [FEATURE] [Detailed Calculation]
         // [SCENARIO] Verify Detailed Calculation Test Report values when Routing created with closed version and report run for less than Routing Version Starting Date.
-        Initialize;
+        Initialize();
         DetailedCalculationWithTypeRoutingVersionAndCalcDate(RoutingVersion.Status::Closed, -LibraryRandom.RandInt(5));
     end;
 
@@ -1000,19 +1000,19 @@ codeunit 137309 "SCM Reports"
     begin
         // [FEATURE] [Detailed Calculation]
         // [SCENARIO 351249] Run Detailed Calculation Report Production BOM with Prod. BOM Line below the Item line
-        Initialize;
+        Initialize();
 
         // [GIVEN] Child Production BOM "ChildBOM" having item "BOMChildItem" of Unit Cost = 7, Qty = 5
         CreateItemsWithIndirectCost(BOMItem, BOMChildItem);
         ProductionBOMLineChild.SetRange("No.", BOMChildItem."No.");
-        ProductionBOMLineChild.FindFirst;
+        ProductionBOMLineChild.FindFirst();
 
         // [GIVEN] Item "ParentItem" with Production BOM "ParentBOM" having Item "ChildItem" of Unit Cost = 10, Qty = 3
         CreateItemsWithIndirectCost(Item, ChildItem);
 
         // [GIVEN] "ChildBOM" is added to "ParentBOM" with Qty = 2
         ProductionBOMLine.SetRange("No.", ChildItem."No.");
-        ProductionBOMLine.FindFirst;
+        ProductionBOMLine.FindFirst();
         ProductionBOMHeader.Get(ProductionBOMLine."Production BOM No.");
         ProductionBOMHeader.Validate(Status, ProductionBOMHeader.Status::"Under Development");
         ProductionBOMHeader.Modify(true);
@@ -1028,7 +1028,7 @@ codeunit 137309 "SCM Reports"
         Item.SetRecFilter;
         REPORT.Run(REPORT::"Detailed Calculation", true, false, Item);
 
-        ProductionBOMLine.FindFirst;
+        ProductionBOMLine.FindFirst();
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.GetNextRow;
 
@@ -1057,7 +1057,7 @@ codeunit 137309 "SCM Reports"
         // Verify Quantity Explosion of BOM Test Report values when Production BOM is closed wihout any Error message.
 
         // Setup: Create Item with New Production BOM.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(ChildItem);
         CreateItemWithReplSysAndCostingMethod(ParentItem, ParentItem."Costing Method"::FIFO,
           ParentItem."Replenishment System"::"Prod. Order",
@@ -1084,7 +1084,7 @@ codeunit 137309 "SCM Reports"
         RoutingHeader: Record "Routing Header";
     begin
         // Verify Error message when Quantity Explosion of Bom report is run for Production Bom Line Type Item.
-        Initialize;
+        Initialize();
         CreateManufacturingItem(
           Item, Item."Costing Method"::Average, ProductionBOMHeader.Status::Certified, RoutingHeader.Status::Certified);
         VerifyProductionBomErrorForTheReport(Item, ProductionBOMLine.Type::Item,
@@ -1102,7 +1102,7 @@ codeunit 137309 "SCM Reports"
         RoutingHeader: Record "Routing Header";
     begin
         // Verify Error message when Quantity Explosion of Bom report is run for Production Bom Line Type Production Bom.
-        Initialize;
+        Initialize();
         CreateManufacturingItem(
           Item, Item."Costing Method"::Average, ProductionBOMHeader.Status::Certified, RoutingHeader.Status::Certified);
         VerifyProductionBomErrorForTheReport(Item, ProductionBOMLine.Type::"Production BOM",
@@ -1120,7 +1120,7 @@ codeunit 137309 "SCM Reports"
         RoutingHeader: Record "Routing Header";
     begin
         // Verify Error message when Rolled-up Cost Shares report is run for Production Bom Line Type Item.
-        Initialize;
+        Initialize();
         CreateManufacturingItem(
           Item, Item."Costing Method"::Average, ProductionBOMHeader.Status::Certified, RoutingHeader.Status::Certified);
         VerifyProductionBomErrorForTheReport(Item, ProductionBOMLine.Type::Item,
@@ -1138,7 +1138,7 @@ codeunit 137309 "SCM Reports"
         RoutingHeader: Record "Routing Header";
     begin
         // Verify Error message when Rolled-up Cost Shares report is run for Production Bom Line Type Production Bom.
-        Initialize;
+        Initialize();
         CreateManufacturingItem(
           Item, Item."Costing Method"::Average, ProductionBOMHeader.Status::Certified, RoutingHeader.Status::Certified);
         VerifyProductionBomErrorForTheReport(Item, ProductionBOMLine.Type::"Production BOM",
@@ -1151,7 +1151,7 @@ codeunit 137309 "SCM Reports"
     procedure InvValuationWIPReportForCostPostedtoGLOnStartingPeriod()
     begin
         // Verify Inv. Valu. WIP Test Report values for starting period when Output is made to Expected cost in period First and Output invoiced in period Third.
-        Initialize;
+        Initialize();
         InvValuationWIPReportForCostPostedtoGL(
           WorkDate, CalcDate(StrSubstNo('<%1M>', LibraryRandom.RandIntInRange(3, 5)), WorkDate));
     end;
@@ -1164,7 +1164,7 @@ codeunit 137309 "SCM Reports"
         InventoryValuationWIPDate: Date;
     begin
         // Verify Inv. Valu. WIP Test Report values for ending period when Output is made to Expected cost in period First and Output invoiced in period Third.
-        Initialize;
+        Initialize();
         InventoryValuationWIPDate := CalcDate(StrSubstNo('<%1M>', LibraryRandom.RandIntInRange(3, 5)), WorkDate);
         InvValuationWIPReportForCostPostedtoGL(InventoryValuationWIPDate, InventoryValuationWIPDate);
     end;
@@ -1180,8 +1180,8 @@ codeunit 137309 "SCM Reports"
         // Verify that Item Age Composition - Qty. report running successfully with year value.
 
         // Setup: Craete Item and evaluate date formula.
-        Initialize;
-        ItemNo := LibraryInventory.CreateItemNo;
+        Initialize();
+        ItemNo := LibraryInventory.CreateItemNo();
         Evaluate(PeriodLength, StrSubstNo('<%1Y>', LibraryRandom.RandInt(5)));
 
         // Exercise: Run Item Age Composition - Qty Report.
@@ -1203,8 +1203,8 @@ codeunit 137309 "SCM Reports"
         // Verify that Item Age Composition - Value report running successfully with year value.
 
         // Setup: Craete Item and evaluate date formula.
-        Initialize;
-        ItemNo := LibraryInventory.CreateItemNo;
+        Initialize();
+        ItemNo := LibraryInventory.CreateItemNo();
         Evaluate(PeriodLength, StrSubstNo('<%1Y>', LibraryRandom.RandInt(5)));
 
         // Exercise: Run Item Age Composition - Value Report.
@@ -1241,7 +1241,7 @@ codeunit 137309 "SCM Reports"
         // Test Routing version can be deleted after update Status without reopen the routing version page.
 
         // Setup: Create Item with Under Development BOM and Routing. Create a Routing Version.
-        Initialize;
+        Initialize();
         RoutingNo := CreateRouting(RoutingHeader.Status::"Under Development");
         CreateRoutingVersion(RoutingVersion, RoutingNo);
         UpdateRoutingVersion(RoutingVersion, RoutingVersion.Status::Certified, WorkDate);
@@ -1274,7 +1274,7 @@ codeunit 137309 "SCM Reports"
         LibraryAssembly.CreateAssemblyList(ComponentItem."Costing Method"::Standard, ComponentItem."No.", true, 1, 0, 0, 1, '', '');
 
         BOMComponent.SetRange("Parent Item No.", ComponentItem."No.");
-        BOMComponent.FindFirst;
+        BOMComponent.FindFirst();
 
         // [GIVEN] Create item "I2", create assembly BOM component. Set "I1" as component of "I2"
         LibraryAssembly.CreateItem(
@@ -1352,14 +1352,14 @@ codeunit 137309 "SCM Reports"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Reports");
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Reports");
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.CreateGeneralPostingSetupData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.CreateGeneralPostingSetupData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.UpdateInventoryPostingSetup;
 
         isInitialized := true;
@@ -1386,7 +1386,7 @@ codeunit 137309 "SCM Reports"
     begin
         ProductionBOMLine.SetRange("Production BOM No.", ProductionBOMNo);
         ProductionBOMLine.SetRange("No.", ComponentNo);
-        if ProductionBOMLine.FindFirst then begin
+        if ProductionBOMLine.FindFirst() then begin
             Item.Get(ComponentNo);
             exit(Round(Item."Unit Cost" * ProductionBOMLine.Quantity));
         end;
@@ -1482,7 +1482,7 @@ codeunit 137309 "SCM Reports"
         LibraryVariableStorage.Enqueue(ProductionOrder."No.");
         ProdOrderLine.SetRange(Status, ProductionOrder.Status);
         ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
-        ProdOrderLine.FindFirst;
+        ProdOrderLine.FindFirst();
         ProductionJournalMgt.Handling(ProductionOrder, ProdOrderLine."Line No.");
         exit(ProductionOrder."No.");
     end;
@@ -1555,7 +1555,7 @@ codeunit 137309 "SCM Reports"
         CreateFullWarehouseSetup(Location);
         FindBin(Bin, Location.Code);
         LibraryInventory.CreateItem(Item);
-        BinCreationWkshName.FindFirst;
+        BinCreationWkshName.FindFirst();
         LibraryWarehouse.CreateBinCreationWorksheetLine(
           BinCreationWorksheetLine, BinCreationWkshName."Worksheet Template Name", BinCreationWkshName.Name, Location.Code, Bin.Code);
         BinCreationWorksheetLine.Validate("Item No.", Item."No.");
@@ -1860,32 +1860,32 @@ codeunit 137309 "SCM Reports"
         Zone: Record Zone;
     begin
         Zone.SetRange("Location Code", LocationCode);
-        Zone.FindFirst;
+        Zone.FindFirst();
         Bin.SetRange("Location Code", LocationCode);
         Bin.SetRange("Zone Code", Zone.Code);
         Bin.SetRange("Adjustment Bin", false);
-        Bin.FindFirst;
+        Bin.FindFirst();
     end;
 
     local procedure FindWarehouseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceNo: Code[20]; ActivityType: Enum "Warehouse Activity Type")
     begin
         WarehouseActivityLine.SetRange("Source No.", SourceNo);
         WarehouseActivityLine.SetRange("Activity Type", ActivityType);
-        WarehouseActivityLine.FindFirst;
+        WarehouseActivityLine.FindFirst();
     end;
 
     local procedure FindWarehouseReceiptLine(var WarehouseReceiptLine: Record "Warehouse Receipt Line"; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20])
     begin
         WarehouseReceiptLine.SetRange("Source Document", SourceDocument);
         WarehouseReceiptLine.SetRange("Source No.", SourceNo);
-        WarehouseReceiptLine.FindFirst;
+        WarehouseReceiptLine.FindFirst();
     end;
 
     local procedure FindWarehouseShipmentLine(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20])
     begin
         WarehouseShipmentLine.SetRange("Source Document", SourceDocument);
         WarehouseShipmentLine.SetRange("Source No.", SourceNo);
-        WarehouseShipmentLine.FindFirst;
+        WarehouseShipmentLine.FindFirst();
     end;
 
     local procedure FindValueEntry(var ValueEntry: Record "Value Entry"; ItemNo: Code[20])
@@ -1893,7 +1893,7 @@ codeunit 137309 "SCM Reports"
         ValueEntry.SetRange("Item No.", ItemNo);
         ValueEntry.SetRange("Item Ledger Entry Type", ValueEntry."Item Ledger Entry Type"::Output);
         ValueEntry.SetRange("Entry Type", ValueEntry."Entry Type"::Revaluation);
-        ValueEntry.FindFirst;
+        ValueEntry.FindFirst();
     end;
 
     local procedure FindRoutingLine(var RoutingLine: Record "Routing Line"; RoutingNo: Code[20]; VersionCode: Code[20])
@@ -1908,7 +1908,7 @@ codeunit 137309 "SCM Reports"
         ProductionBOMLine: Record "Production BOM Line";
     begin
         ProductionBOMLine.SetRange("Production BOM No.", ProductionBOMNo);
-        ProductionBOMLine.FindFirst;
+        ProductionBOMLine.FindFirst();
         exit(ProductionBOMLine."No.");
     end;
 
@@ -1917,7 +1917,7 @@ codeunit 137309 "SCM Reports"
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
         ItemLedgerEntry.SetRange("Item No.", ItemNo);
-        ItemLedgerEntry.FindFirst;
+        ItemLedgerEntry.FindFirst();
         ItemLedgerEntry.CalcFields("Cost Amount (Actual)");
         exit(ItemLedgerEntry."Cost Amount (Actual)");
     end;
@@ -1942,7 +1942,7 @@ codeunit 137309 "SCM Reports"
             SetRange("Item No.", ItemNo);
             if LocationCode <> '' then
                 SetRange("Location Code", LocationCode);
-            FindFirst;
+            FindFirst();
             exit(Quantity);
         end;
     end;
@@ -2002,7 +2002,7 @@ codeunit 137309 "SCM Reports"
         ProductionBOMNo: Code[20];
     begin
         // Setup: Create Item with New BOM and Production BOM Versions.
-        Initialize;
+        Initialize();
         CreateItemWithReplSysAndCostingMethod(FirstChildItem, FirstChildItem."Costing Method"::FIFO,
           FirstChildItem."Replenishment System"::"Prod. Order", '', LibraryRandom.RandDec(10, 2));
         ProductionBOMNo := CreateProductionBOMWithLines(FirstChildItem, ProductionBOMLine.Type::Item, LibraryInventory.CreateItem(Item));
@@ -2067,7 +2067,7 @@ codeunit 137309 "SCM Reports"
     begin
         // Setup: Post Purchase Order,Production Journal and Revaluation Journal with modified Unit Cost(Revalued)
         // before finishing Released Prod. Order.
-        Initialize;
+        Initialize();
         LibraryInventory.UpdateInventorySetup(
           InventorySetup, true, true, InventorySetup."Automatic Cost Adjustment"::Always,
           InventorySetup."Average Cost Calc. Type"::Item, InventorySetup."Average Cost Period"::Day);
@@ -2245,7 +2245,7 @@ codeunit 137309 "SCM Reports"
         ItemJournalLine.SetRange("Journal Template Name", JournalTemplateName);
         ItemJournalLine.SetRange("Journal Batch Name", JournalTemplateBatch);
         ItemJournalLine.SetRange("Item No.", ItemNo);
-        ItemJournalLine.FindFirst;
+        ItemJournalLine.FindFirst();
         ItemJournalLine.Validate("Unit Cost (Revalued)", UnitCostRevalued);
         ItemJournalLine.Modify(true);
     end;
@@ -2300,7 +2300,7 @@ codeunit 137309 "SCM Reports"
         ValueEntry: Record "Value Entry";
     begin
         ValueEntry.SetRange("Item No.", ItemNo);
-        ValueEntry.FindFirst;
+        ValueEntry.FindFirst();
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.SetRange('ItemNo_ValueEntry', ItemNo);
         LibraryReportDataset.GetNextRow;
@@ -2412,7 +2412,7 @@ codeunit 137309 "SCM Reports"
         SelectionsWithFilter: Integer;
     begin
         // Setup:
-        Initialize;
+        Initialize();
 
         SelectionsWithFilter := CreateRandNumberRepSelections(UsageOptionForTable, ReportID);
 

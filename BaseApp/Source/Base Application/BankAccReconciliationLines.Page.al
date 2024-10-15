@@ -106,7 +106,7 @@ page 380 "Bank Acc. Reconciliation Lines"
                 {
                     ApplicationArea = Basic, Suite;
                     ShowCaption = false;
-                    Caption = '';
+                    Caption = ' ';
                 }
                 field(Balance; Balance + "Statement Amount")
                 {
@@ -263,7 +263,7 @@ page 380 "Bank Acc. Reconciliation Lines"
         BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
     begin
         CurrPage.SetSelectionFilter(BankAccReconciliationLine);
-        if BankAccReconciliationLine.FindSet then
+        if BankAccReconciliationLine.FindSet() then
             repeat
                 TempBankAccReconciliationLine := BankAccReconciliationLine;
                 TempBankAccReconciliationLine.Insert();

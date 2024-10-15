@@ -184,6 +184,12 @@ page 489 "Column Layout"
                         exit(CostObject.LookupCostObjectFilter(Text));
                     end;
                 }
+                field(HideCurrencySymbol; "Hide Currency Symbol")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies whether to hide currency symbols when a calculated result is not a currency.';
+                    Visible = false;
+                }
             }
         }
         area(factboxes)

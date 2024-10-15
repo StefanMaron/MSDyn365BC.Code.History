@@ -504,7 +504,7 @@ page 303 "Vendor Entry Statistics"
             VendLedgEntry[j].SetRange("Document Type", j); // Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund
             VendLedgEntry[j].SetRange("Vendor No.", "No.");
             OnAfterGetRecordOnAfterVendLedgEntrySetFiltersCalcAmount(VendLedgEntry[j]);
-            if VendLedgEntry[j].FindLast then
+            if VendLedgEntry[j].FindLast() then
                 VendLedgEntry[j].CalcFields(Amount, "Remaining Amount");
         end;
 

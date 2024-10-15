@@ -1,7 +1,8 @@
 codeunit 134231 "ERM Bank Account"
 {
     Permissions = TableData "Cust. Ledger Entry" = rimd,
-                  TableData "Vendor Ledger Entry" = rimd;
+                  TableData "Vendor Ledger Entry" = rimd,
+                  TableData "Bank Account Ledger Entry" = rimd;
     Subtype = Test;
     TestPermissions = NonRestrictive;
 
@@ -59,7 +60,7 @@ codeunit 134231 "ERM Bank Account"
         // Verify it got changed
         Assert.AreEqual(BankAccount.Name, AccountName, 'Bank account information did not get updated');
 
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
         // Delete the bank account
         BankAccount.Get(AccountNo);
         BankAccount.Delete(true);
@@ -96,7 +97,7 @@ codeunit 134231 "ERM Bank Account"
         // Verify it got changed
         Assert.AreEqual(SWIFTCode.Name, Name, 'SWIFT code information did not get updated');
 
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
         // Delete record
         SWIFTCode.Get(Code);
         SWIFTCode.Delete(true);
@@ -446,6 +447,53 @@ codeunit 134231 "ERM Bank Account"
         Assert.IsTrue(BankAccountList.BalanceLCY.Visible, 'Balance (LCY) must be visible');
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure RunningBalance()
+    var
+        BankAccountledgerEntry: Record "Bank Account Ledger Entry";
+        BankAccount: Record "Bank Account";
+        CalcRunningAccBalance: Codeunit "Calc. Running Acc. Balance";
+        i: Integer;
+        TotalAmt: Decimal;
+        TotalAmtLCY: Decimal;
+    begin
+        // [SCENARIO] Bank ledger entries show a running balance
+        // [FEATURE] [Bank]
+        Initialize();
+
+        // [GIVEN] Bank Account and some entries - also more on same day.
+        LibraryERM.CreateBankAccount(BankAccount);
+        if BankAccountledgerEntry.FindLast() then;
+        for i := 1 to 5 do begin
+            BankAccountledgerEntry."Entry No." += 1;
+            BankAccountledgerEntry."Bank Account No." := BankAccount."No.";
+            BankAccountledgerEntry."Posting Date" := DMY2Date(1 + i div 2, 1, 2025);  // should give Januar 1,2,2,3,3,4
+            BankAccountledgerEntry.Amount := 1;
+            BankAccountledgerEntry."Debit Amount" := 1;
+            BankAccountledgerEntry."Credit Amount" := 0;
+            BankAccountledgerEntry."Amount (LCY)" := 1;
+            BankAccountledgerEntry."Debit Amount (LCY)" := 1;
+            BankAccountledgerEntry."Credit Amount (LCY)" := 0;
+            BankAccountledgerEntry.Insert();
+        end;
+
+        // [WHEN] Running balance is calculated per entry
+        // [THEN] RunningBalance and RunningBalanceLCY are the sum of entries up till then.
+        BankAccount.CalcFields(Balance, "Balance (LCY)");
+        Assert.AreEqual(5, BankAccount.Balance, 'Amount out of balance.');
+        Assert.AreEqual(5, BankAccount."Balance (LCY)", 'Amount (LCY) out of balance.');
+        BankAccountledgerEntry.SetRange("Bank Account No.", BankAccount."No.");
+        BankAccountledgerEntry.SetCurrentKey("Posting Date", "Entry No.");
+        if BankAccountledgerEntry.FindSet() then
+            repeat
+                TotalAmt += BankAccountledgerEntry.Amount;
+                TotalAmtLCY += BankAccountledgerEntry."Amount (LCY)";
+                Assert.AreEqual(TotalAmt, CalcRunningAccBalance.GetBankAccBalance(BankAccountledgerEntry), 'TotalAmt out of balance');
+                Assert.AreEqual(TotalAmtLCY, CalcRunningAccBalance.GetBankAccBalanceLCY(BankAccountledgerEntry), 'TotalAmtLCY out of balance');
+            until BankAccountledgerEntry.Next() = 0;
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Bank Account");
@@ -476,7 +524,7 @@ codeunit 134231 "ERM Bank Account"
     begin
         BankAccount.Init();
         OldIBAN := BankAccount.IBAN;
-        IBANNumber := LibraryUtility.GenerateGUID;
+        IBANNumber := LibraryUtility.GenerateGUID();
         LibraryVariableStorage.Enqueue(StrSubstNo(IBANConfirmationMsg, IBANNumber));
         LibraryVariableStorage.Enqueue(ConfirmReply);
 
@@ -499,7 +547,7 @@ codeunit 134231 "ERM Bank Account"
     begin
         VendBankAccount.Init();
         OldIBAN := VendBankAccount.IBAN;
-        IBANNumber := LibraryUtility.GenerateGUID;
+        IBANNumber := LibraryUtility.GenerateGUID();
         LibraryVariableStorage.Enqueue(StrSubstNo(IBANConfirmationMsg, IBANNumber));
         LibraryVariableStorage.Enqueue(ConfirmReply);
 

@@ -49,7 +49,7 @@ codeunit 135510 "Sales Invoice E2E Test"
     begin
         // [SCENARIO 184721] Create posted and unposted Sales invoices and use a GET method to retrieve them
         // [GIVEN] 2 invoices, one posted and one unposted
-        Initialize;
+        Initialize();
         CreateSalesInvoices(InvoiceID1, InvoiceID2);
         Commit();
 
@@ -82,7 +82,7 @@ codeunit 135510 "Sales Invoice E2E Test"
     begin
         // [SCENARIO 184721] Create posted and unposted Sales invoices and use HTTP POST to delete them
         // [GIVEN] 2 invoices, one posted and one unposted
-        Initialize;
+        Initialize();
 
         LibrarySales.CreateCustomer(Customer);
         CustomerNo := Customer."No.";
@@ -131,7 +131,7 @@ codeunit 135510 "Sales Invoice E2E Test"
         CurrencyCode: Code[10];
     begin
         // [SCENARIO 184721] Create posted and unposted with specific currency set and use HTTP POST to create them
-        Initialize;
+        Initialize();
 
         // [GIVEN] an Invoice with a non-LCY currencyCode set
         LibrarySales.CreateCustomer(Customer);
@@ -141,7 +141,7 @@ codeunit 135510 "Sales Invoice E2E Test"
         JSONManagement.GetJSONObject(JObject);
         JSONManagement.AddJPropertyToJObject(JObject, 'customerNumber', CustomerNo);
         Currency.SetFilter(Code, '<>%1', '');
-        Currency.FindFirst;
+        Currency.FindFirst();
         CurrencyCode := Currency.Code;
         JSONManagement.AddJPropertyToJObject(JObject, 'currencyCode', CurrencyCode);
         InvoiceJSON := JSONManagement.WriteObjectToString;
@@ -186,7 +186,7 @@ codeunit 135510 "Sales Invoice E2E Test"
         CurrencyCode: Code[10];
     begin
         // [SCENARIO 285872] Create posted and unposted with specific email set and use HTTP POST to create them
-        Initialize;
+        Initialize();
         Email := 'test@microsoft.com';
         // [GIVEN] an Customer with  no email set
         LibrarySales.CreateCustomer(Customer);
@@ -197,7 +197,7 @@ codeunit 135510 "Sales Invoice E2E Test"
         JSONManagement.GetJSONObject(JObject);
         JSONManagement.AddJPropertyToJObject(JObject, 'customerNumber', CustomerNo);
         Currency.SetFilter(Code, '<>%1', '');
-        Currency.FindFirst;
+        Currency.FindFirst();
         CurrencyCode := Currency.Code;
         JSONManagement.AddJPropertyToJObject(JObject, 'currencyCode', CurrencyCode);
         JSONManagement.AddJPropertyToJObject(JObject, 'email', Email);
@@ -241,7 +241,7 @@ codeunit 135510 "Sales Invoice E2E Test"
         InvoiceJSON: Text;
     begin
         // [SCENARIO 184721] Create unposted with specific document and due date set and use HTTP POST to create them
-        Initialize;
+        Initialize();
 
         // [GIVEN] an Invoice with a document and due date set
         LibrarySales.CreateCustomer(Customer);
@@ -311,7 +311,7 @@ codeunit 135510 "Sales Invoice E2E Test"
         ComplexTypeJSON: Text;
     begin
         // [SCENARIO 184721] Create Sales Invoice, use a PATCH method to change it and then verify the changes
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomerWithAddress(Customer);
 
         // [GIVEN] a Sales Person purchaser
@@ -332,7 +332,7 @@ codeunit 135510 "Sales Invoice E2E Test"
         SalesHeader.Reset();
         SalesHeader.SetRange("No.", InvoiceID);
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Invoice);
-        SalesHeader.FindFirst;
+        SalesHeader.FindFirst();
         InvoiceIntegrationID := SalesHeader.SystemId;
         Assert.AreNotEqual('', InvoiceIntegrationID, 'ID should not be empty');
 
@@ -381,7 +381,7 @@ codeunit 135510 "Sales Invoice E2E Test"
         InvoiceWithBlanksJSON: Text;
     begin
         // [SCENARIO 184721] Create Sales Invoice with all the Ids filled, use a PATCH method to blank the Ids and the Codes
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomerWithAddress(Customer);
 
         // [GIVEN] a currency
@@ -448,7 +448,7 @@ codeunit 135510 "Sales Invoice E2E Test"
     begin
         // [SCENARIO 184721] Create draft invoice and issue a patch request to change the number
         // [GIVEN] 1 draft invoice and a json with a new number
-        Initialize;
+        Initialize();
         LibrarySales.CreateSalesInvoice(SalesHeader);
         NewInvoiceNumber := CopyStr(CreateGuid, 1, MaxStrLen(SalesHeader."No."));
         NewInvoiceNumberJSON := LibraryGraphMgt.AddPropertytoJSON('', NumberFieldTxt, NewInvoiceNumber);
@@ -475,7 +475,7 @@ codeunit 135510 "Sales Invoice E2E Test"
     begin
         // [SCENARIO 184721] Create posted and unposted Sales invoices and use HTTP DELETE to delete them
         // [GIVEN] 2 invoices, one posted and one unposted
-        Initialize;
+        Initialize();
         CreateSalesInvoices(InvoiceID1, InvoiceID2);
 
         SalesInvoiceHeader.Get(InvoiceID1);
@@ -521,7 +521,7 @@ codeunit 135510 "Sales Invoice E2E Test"
         // [SCENARIO 184721] Create an invoice both through the client UI and through the API
         // [SCENARIO] and compare them. They should be the same and have the same fields autocompleted wherever needed.
         // [GIVEN] An unposted invoice
-        Initialize;
+        Initialize();
         LibraryGraphDocumentTools.InitializeUIPage;
         LibraryApplicationArea.DisableApplicationAreaSetup;
 
@@ -580,7 +580,7 @@ codeunit 135510 "Sales Invoice E2E Test"
     begin
         // [SCENARIO 184721] When an invoice is created,the GET Method should update the invoice and assign a total
         // [GIVEN] 2 invoices, one posted and one unposted without totals assigned
-        Initialize;
+        Initialize();
         LibraryGraphDocumentTools.CreateDocumentWithDiscountPctPending(
           SalesHeader, DiscountPct, SalesHeader."Document Type"::Invoice);
         SalesHeader.CalcFields("Recalculate Invoice Disc.");
@@ -613,7 +613,7 @@ codeunit 135510 "Sales Invoice E2E Test"
     begin
         // [SCENARIO 184721] When an invoice is created, the GET Method should update the invoice and assign a total
         // [GIVEN] 2 invoices, one posted and one unposted with discount amount that should be redistributed
-        Initialize;
+        Initialize();
         LibraryGraphDocumentTools.CreateDocumentWithDiscountPctPending(
           SalesHeader, DiscountPct, SalesHeader."Document Type"::Invoice);
         SalesHeader.CalcFields(Amount);
@@ -648,11 +648,11 @@ codeunit 135510 "Sales Invoice E2E Test"
         CurrencyCode: Code[10];
     begin
         // [SCENARIO 184721] Create an invoice wihtout Customer throws an error
-        Initialize;
+        Initialize();
 
         // [GIVEN] a sales invoice JSON with currency only
         Currency.SetFilter(Code, '<>%1', '');
-        Currency.FindFirst;
+        Currency.FindFirst();
         CurrencyCode := Currency.Code;
         InvoiceJSON := LibraryGraphMgt.AddPropertytoJSON('', 'currencyCode', CurrencyCode);
         Commit();
@@ -678,7 +678,7 @@ codeunit 135510 "Sales Invoice E2E Test"
         InvoiceID: Text;
     begin
         // [SCENARIO 184721] Create Sales Invoice, use a PATCH method to change it and then verify the changes
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomerWithAddress(Customer);
 
         // [GIVEN] an item with unit price and unit cost
@@ -726,7 +726,7 @@ codeunit 135510 "Sales Invoice E2E Test"
         InvoiceID: Text;
     begin
         // [SCENARIO 184721] Clearing manually set discount
-        Initialize;
+        Initialize();
 
         // [GIVEN] an item with unit price and unit cost
         LibraryInventory.CreateItemWithUnitPriceAndUnitCost(
@@ -800,7 +800,7 @@ codeunit 135510 "Sales Invoice E2E Test"
 
     local procedure CreateInvoiceThroughTestPage(var SalesInvoice: TestPage "Sales Invoice"; Customer: Record Customer; InvoiceDate: Date)
     begin
-        SalesInvoice.OpenNew;
+        SalesInvoice.OpenNew();
         SalesInvoice."Sell-to Customer No.".SetValue(Customer."No.");
         SalesInvoice."Document Date".SetValue(InvoiceDate);
     end;
@@ -832,7 +832,7 @@ codeunit 135510 "Sales Invoice E2E Test"
         SalesLine.Reset();
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
     end;
 
     local procedure ModifySalesHeaderPostingDate(var SalesHeader: Record "Sales Header"; PostingDate: Date)

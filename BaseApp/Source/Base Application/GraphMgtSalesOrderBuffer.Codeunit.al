@@ -111,14 +111,14 @@ codeunit 5496 "Graph Mgt - Sales Order Buffer"
         SalesLine.SetRange("Document Type", Rec."Document Type");
         SalesLine.SetRange("Recalculate Invoice Disc.", true);
 
-        if SalesLine.FindFirst then begin
+        if SalesLine.FindFirst() then begin
             ModifyTotalsSalesLine(SalesLine, true);
             exit;
         end;
 
         SalesLine.SetRange("Recalculate Invoice Disc.");
 
-        if not SalesLine.FindFirst then
+        if not SalesLine.FindFirst() then
             BlankTotals(Rec."Document No.");
     end;
 
@@ -209,7 +209,7 @@ codeunit 5496 "Graph Mgt - Sales Order Buffer"
         SalesOrderEntityBuffer: Record "Sales Order Entity Buffer";
     begin
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Order);
-        if SalesHeader.FindSet then
+        if SalesHeader.FindSet() then
             repeat
                 InsertOrModifyFromSalesHeader(SalesHeader);
             until SalesHeader.Next() = 0;
@@ -265,7 +265,7 @@ codeunit 5496 "Graph Mgt - Sales Order Buffer"
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
 
-        if not SalesLine.FindFirst then begin
+        if not SalesLine.FindFirst() then begin
             BlankTotals(SalesLine."Document No.");
             exit;
         end;
@@ -374,7 +374,7 @@ codeunit 5496 "Graph Mgt - Sales Order Buffer"
         SalesLine.SetRange("Document Type", SalesLine."Document Type"::Order);
         SalesLine.SetRange("Document No.", SalesOrderEntityBuffer."No.");
         SalesLine.SetRange("Recalculate Invoice Disc.", true);
-        if SalesLine.FindFirst then
+        if SalesLine.FindFirst() then
             CODEUNIT.Run(CODEUNIT::"Sales - Calc Discount By Type", SalesLine);
 
         SalesOrderEntityBuffer.Get(SalesOrderEntityBuffer."No.");
@@ -388,7 +388,7 @@ codeunit 5496 "Graph Mgt - Sales Order Buffer"
             Error(DocumentIDNotSpecifiedErr);
 
         SalesOrderEntityBuffer.SetFilter(Id, DocumentIdFilter);
-        if not SalesOrderEntityBuffer.FindFirst then
+        if not SalesOrderEntityBuffer.FindFirst() then
             exit;
 
         LoadSalesLines(SalesInvoiceLineAggregate, SalesOrderEntityBuffer);
@@ -444,7 +444,7 @@ codeunit 5496 "Graph Mgt - Sales Order Buffer"
         if SalesInvoiceLineAggregate."Line No." = 0 then begin
             LastUsedSalesLine.SetRange("Document Type", SalesLine."Document Type"::Order);
             LastUsedSalesLine.SetRange("Document No.", SalesOrderEntityBuffer."No.");
-            if LastUsedSalesLine.FindLast then
+            if LastUsedSalesLine.FindLast() then
                 SalesInvoiceLineAggregate."Line No." := LastUsedSalesLine."Line No." + 10000
             else
                 SalesInvoiceLineAggregate."Line No." := 10000;
@@ -549,7 +549,7 @@ codeunit 5496 "Graph Mgt - Sales Order Buffer"
         SearchSalesLine.SetRange("Location Code", SalesLine."Location Code");
         SearchSalesLine.SetRange("Completely Shipped", false);
 
-        CompletelyShipped := not SearchSalesLine.FindFirst;
+        CompletelyShipped := not SearchSalesLine.FindFirst();
 
         if not SalesOrderEntityBuffer.Get(SalesLine."Document No.") then
             exit;

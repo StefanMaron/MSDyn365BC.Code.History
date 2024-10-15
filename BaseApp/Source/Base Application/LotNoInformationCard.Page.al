@@ -91,7 +91,7 @@ page 6505 "Lot No. Information Card"
                     ApplicationArea = ItemTracking;
                     Caption = 'Item &Tracking Entries';
                     Image = ItemTrackingLedger;
-                    ShortCutKey = 'Shift+Ctrl+I';
+                    ShortCutKey = 'Ctrl+Alt+Q';
                     ToolTip = 'View serial or lot numbers that are assigned to items.';
 
                     trigger OnAction()
@@ -136,7 +136,7 @@ page 6505 "Lot No. Information Card"
                         ItemTracingBuffer.SetRange("Lot No.", "Lot No.");
                         ItemTracing.InitFilters(ItemTracingBuffer);
                         ItemTracing.FindRecords;
-                        ItemTracing.RunModal;
+                        ItemTracing.RunModal();
                     end;
                 }
             }
@@ -172,7 +172,7 @@ page 6505 "Lot No. Information Card"
 
                         LotNoInfoList.SetTableView(ShowRecords);
 
-                        if FocusOnRecord.FindFirst then
+                        if FocusOnRecord.FindFirst() then
                             LotNoInfoList.SetRecord(FocusOnRecord);
                         if LotNoInfoList.RunModal = ACTION::LookupOK then begin
                             LotNoInfoList.GetRecord(SelectedRecord);
@@ -188,7 +188,7 @@ page 6505 "Lot No. Information Card"
                 Image = Navigate;
                 Promoted = true;
                 PromotedCategory = Process;
-                ShortCutKey = 'Shift+Ctrl+I';
+                ShortCutKey = 'Ctrl+Alt+Q';
                 ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
 
                 trigger OnAction()

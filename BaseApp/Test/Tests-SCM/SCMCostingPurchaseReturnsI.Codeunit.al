@@ -86,7 +86,7 @@ codeunit 137031 "SCM Costing Purchase Returns I"
         VendorNo: Code[20];
     begin
         // Setup: Create required Setups with only Items, create Item Charge required for Purchase Return Order.
-        Initialize;
+        Initialize();
         UpdatePurchasePayableSetup;
         CreateItemsAndCopyToTemp(TempItem, NoOfItems);
         CreateAndPostPurchaseOrder(TempItem, PurchaseHeader, PurchaseItemQty);
@@ -104,7 +104,7 @@ codeunit 137031 "SCM Costing Purchase Returns I"
 
         // Update Purchase Return Lines with required Direct Cost and required Quantity.
         SelectPurchaseLines(PurchaseLine, PurchaseHeader."No.", PurchaseHeader."Document Type"::"Return Order");
-        TempItem.FindFirst;
+        TempItem.FindFirst();
         UpdatePurchaseLine(PurchaseLine, TempItem."Last Direct Cost", 1);  // Quantity Sign Factor value important for Test.
         PurchaseLine.Next;
         if NoOfCharges > 0 then begin
@@ -113,7 +113,7 @@ codeunit 137031 "SCM Costing Purchase Returns I"
         end
         else
             if (NoOfItems > 0) and (NoOfCharges = 0) then begin
-                TempItem.FindLast;
+                TempItem.FindLast();
                 UpdatePurchaseLine(PurchaseLine, -TempItem."Last Direct Cost", -1);  // Quantity Sign Factor value important for Test.
             end;
         CopyPurchaseLinesToTemp(TempPurchaseLine, PurchaseLine);
@@ -184,7 +184,7 @@ codeunit 137031 "SCM Costing Purchase Returns I"
         VendorNo: Code[20];
     begin
         // Setup: Create required Setups with only Items, create Item Charge required for Purchase Return Order.
-        Initialize;
+        Initialize();
         UpdatePurchasePayableSetup;
         CreateItemsAndCopyToTemp(TempItem, NoOfItems);
         CreateAndPostPurchaseOrder(TempItem, PurchaseHeader, PurchaseItemQty);
@@ -202,7 +202,7 @@ codeunit 137031 "SCM Costing Purchase Returns I"
 
         // Update Purchase Return Lines with required Last Direct Cost and required Quantity.
         SelectPurchaseLines(PurchaseLine, PurchaseHeader."No.", PurchaseHeader."Document Type"::"Return Order");
-        TempItem.FindFirst;
+        TempItem.FindFirst();
         UpdatePurchaseLine(PurchaseLine, TempItem."Last Direct Cost", -1);  // Quantity Sign Factor value important for Test.
         if NoOfCharges > 0 then begin
             PurchaseLine.Next;
@@ -320,7 +320,7 @@ codeunit 137031 "SCM Costing Purchase Returns I"
         VendorNo: Code[20];
     begin
         // Setup: Create required Setups with only Items, create Item Charge required for Credit Memo.
-        Initialize;
+        Initialize();
         UpdatePurchasePayableSetup;
         CreateItemsAndCopyToTemp(TempItem, NoOfItems);
         CreateAndPostPurchaseOrder(TempItem, PurchaseHeader, PurchaseItemQty);
@@ -344,7 +344,7 @@ codeunit 137031 "SCM Costing Purchase Returns I"
             UpdatePurchaseLine(PurchaseLine, TempItem."Last Direct Cost", SignFactor)
         else
             if NoOfItems > 0 then begin
-                TempItem.FindFirst;
+                TempItem.FindFirst();
                 UpdatePurchaseLine(PurchaseLine, SignFactor * TempItem."Last Direct Cost", SignFactor);
                 PurchaseLine.Next;
             end;
@@ -358,7 +358,7 @@ codeunit 137031 "SCM Costing Purchase Returns I"
 
         // Exercise: Post Credit Memo and Run Adjust Cost Item Entries report.
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
-        if TempItem.FindSet then
+        if TempItem.FindSet() then
             AdjustCostItemEntries(TempItem);
 
         // Verify: Verify Item Ledger Entry and Vendor Ledger Entry.
@@ -416,7 +416,7 @@ codeunit 137031 "SCM Costing Purchase Returns I"
         VendorNo: Code[20];
     begin
         // Setup: Create required Setups with only Items, create Item Charge required for Credit Memo.
-        Initialize;
+        Initialize();
         UpdatePurchasePayableSetup;
         CreateItemsAndCopyToTemp(TempItem, NoOfItems);
         CreateAndPostPurchaseOrder(TempItem, PurchaseHeader, PurchaseItemQty);
@@ -466,13 +466,12 @@ codeunit 137031 "SCM Costing Purchase Returns I"
         TempPurchaseLine: Record "Purchase Line" temporary;
         TempItem: Record Item temporary;
         NoSeriesManagement: Codeunit NoSeriesManagement;
-        DocType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Receipt","Posted Invoice","Posted Return Shipment","Posted Credit Memo";
         PurchaseItemQty: Decimal;
         PostedReturnShipmentNo: Code[20];
         PurchaseOrderNo: Code[20];
     begin
         // Setup: Create required Setups with only Item.
-        Initialize;
+        Initialize();
         UpdatePurchasePayableSetup;
         CostingMethod[1] := Item."Costing Method"::FIFO;
         CreateItemsAndCopyToTemp(TempItem, 1);  // No of Item = 1
@@ -481,9 +480,9 @@ codeunit 137031 "SCM Costing Purchase Returns I"
 
         // Create Credit Memo using Copy Document of Posted Purchase Receipt.
         PurchRcptHeader.SetRange("Order No.", PurchaseHeader."No.");
-        PurchRcptHeader.FindFirst;
+        PurchRcptHeader.FindFirst();
         CreateCrMemo(PurchaseHeader);
-        PurchaseHeaderCopyPurchDoc(PurchaseHeader, DocType::"Posted Receipt", PurchRcptHeader."No.");
+        PurchaseHeaderCopyPurchDoc(PurchaseHeader, "Purchase Document Type From"::"Posted Receipt", PurchRcptHeader."No.");
 
         // Copy Purchase Line to a temporary Purchase Line record.
         PurchaseHeader.Get(PurchaseHeader."Document Type"::"Credit Memo", PurchaseHeader."No.");
@@ -512,12 +511,12 @@ codeunit 137031 "SCM Costing Purchase Returns I"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Costing Purchase Returns I");
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.CreateGeneralPostingSetupData;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
-        NoSeriesSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.CreateGeneralPostingSetupData();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
+        NoSeriesSetup();
 
         isInitialized := true;
         Commit();
@@ -624,14 +623,14 @@ codeunit 137031 "SCM Costing Purchase Returns I"
     var
         PurchaseLine: Record "Purchase Line";
     begin
-        if TempItem.FindSet then
+        if TempItem.FindSet() then
             repeat
                 LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, TempItem."No.", ItemQty);
                 if SameItemTwice then
                     LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, TempItem."No.", ItemQty);
             until TempItem.Next = 0;
 
-        if TempItemCharge.FindSet then
+        if TempItemCharge.FindSet() then
             repeat
                 LibraryPurchase.CreatePurchaseLine(
                   PurchaseLine, PurchaseHeader, PurchaseLine.Type::"Charge (Item)", TempItemCharge."No.", LibraryRandom.RandInt(1));
@@ -648,7 +647,7 @@ codeunit 137031 "SCM Costing Purchase Returns I"
         if (PurchaseLine.Type = PurchaseLine.Type::Item) and (PurchaseLine.Quantity > 0) then begin
             ItemLedgerEntry.SetRange("Item No.", PurchaseLine."No.");
             ItemLedgerEntry.SetRange("Document Type", ItemLedgerEntry."Document Type"::"Purchase Receipt");
-            ItemLedgerEntry.FindFirst;
+            ItemLedgerEntry.FindFirst();
             PurchaseLine.Validate("Appl.-to Item Entry", ItemLedgerEntry."Entry No.");
         end;
         PurchaseLine.Validate("Qty. to Receive", 0);  // Value important for Test.
@@ -675,7 +674,7 @@ codeunit 137031 "SCM Costing Purchase Returns I"
         ItemChargeAssgntPurch: Codeunit "Item Charge Assgnt. (Purch.)";
     begin
         PurchRcptLine.SetRange("Order No.", PurchaseOrderNo);
-        PurchRcptLine.FindFirst;
+        PurchRcptLine.FindFirst();
         ItemChargeAssgntPurch.CreateRcptChargeAssgnt(PurchRcptLine, ItemChargeAssignmentPurch);
     end;
 
@@ -687,7 +686,7 @@ codeunit 137031 "SCM Costing Purchase Returns I"
         ItemChargeAssignmentPurch.SetRange("Document Type", PurchaseLine."Document Type");
         if PurchaseLine."Document Type" = PurchaseLine."Document Type"::"Credit Memo" then
             ItemChargeAssignmentPurch.SetRange("Document Line No.", PurchaseLine."Line No.");
-        ItemChargeAssignmentPurch.FindFirst;
+        ItemChargeAssignmentPurch.FindFirst();
         ItemChargeAssignmentPurch.Validate("Qty. to Assign", PurchaseLine.Quantity);
         ItemChargeAssignmentPurch.Modify(true);
     end;
@@ -710,18 +709,14 @@ codeunit 137031 "SCM Costing Purchase Returns I"
         CopyDocumentMgt.CopyPurchDoc(FromDocType, PurchaseHeader."No.", PurchaseHeader2);
     end;
 
-    local procedure PurchaseHeaderCopyPurchDoc(var PurchaseHeader: Record "Purchase Header"; DocType: Option; DocNo: Code[20])
+    local procedure PurchaseHeaderCopyPurchDoc(var PurchaseHeader: Record "Purchase Header"; DocType: Enum "Purchase Document Type From"; DocNo: Code[20])
     var
         CopyPurchaseDocument: Report "Copy Purchase Document";
     begin
         CopyPurchaseDocument.SetPurchHeader(PurchaseHeader);
-#if CLEAN17
         CopyPurchaseDocument.SetParameters(DocType, DocNo, true, true);
-#else
-        CopyPurchaseDocument.InitializeRequest(DocType, DocNo, true, true);
-#endif
         CopyPurchaseDocument.UseRequestPage(false);
-        CopyPurchaseDocument.RunModal;
+        CopyPurchaseDocument.RunModal();
     end;
 
     [Normal]
@@ -760,11 +755,11 @@ codeunit 137031 "SCM Costing Purchase Returns I"
         VerifyVendorLedgerEntry(TempPurchaseLine, PurchaseHeader."Vendor Cr. Memo No.");
 
         TempPurchaseLine.SetRange(Type, TempPurchaseLine.Type::Item);
-        if TempPurchaseLine.FindFirst then
+        if TempPurchaseLine.FindFirst() then
             VerifyItemLedgerReturnShipment(PostedReturnShipmentNo);
 
         TempPurchaseLine.SetRange(Type, TempPurchaseLine.Type::"Charge (Item)");
-        if TempPurchaseLine.FindFirst then
+        if TempPurchaseLine.FindFirst() then
             VerifyItemLedgerReceipt(TempPurchaseLine, PurchaseOrderNo);
     end;
 
@@ -783,7 +778,7 @@ codeunit 137031 "SCM Costing Purchase Returns I"
         until TempPurchaseLine.Next = 0;
 
         VendorLedgerEntry.SetRange("External Document No.", PostedExternalDocNo);
-        VendorLedgerEntry.FindFirst;
+        VendorLedgerEntry.FindFirst();
         VendorLedgerEntry.CalcFields(Amount);
 
         Assert.AreNearlyEqual(TotalAmountIncVAT, VendorLedgerEntry.Amount, 0.1, ErrAmountsMustBeSame);
@@ -824,7 +819,7 @@ codeunit 137031 "SCM Costing Purchase Returns I"
     begin
         // Verify Purchase Amount (Actual) from Purchase Receipt line after Item Charge has been applied to it.
         PurchRcptLine.SetRange("Order No.", PurchaseOrderNo);
-        PurchRcptLine.FindFirst;
+        PurchRcptLine.FindFirst();
         TempPurchaseLine.SetRange(Type, TempPurchaseLine.Type::"Charge (Item)");
         TempPurchaseLine.FindSet();
         repeat
@@ -833,7 +828,7 @@ codeunit 137031 "SCM Costing Purchase Returns I"
         until TempPurchaseLine.Next = 0;
 
         ItemLedgerEntry.SetRange("Document No.", PurchRcptLine."Document No.");
-        ItemLedgerEntry.FindFirst;
+        ItemLedgerEntry.FindFirst();
         ItemLedgerEntry.CalcFields("Purchase Amount (Actual)");
 
         Assert.AreNearlyEqual(CalcPurchaseAmountWithCharge, ItemLedgerEntry."Purchase Amount (Actual)", 0.1, ErrAmountsMustBeSame);

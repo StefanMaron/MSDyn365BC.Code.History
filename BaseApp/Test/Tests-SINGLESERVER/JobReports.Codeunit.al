@@ -43,9 +43,9 @@ codeunit 136906 "Job Reports"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Job Reports");
 
-        LibraryService.SetupServiceMgtNoSeries;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.CreateVATData;
+        LibraryService.SetupServiceMgtNoSeries();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.CreateVATData();
         UpdateJobPostingGroup;
 
         SetJobNoSeries(JobsSetup, NoSeries);
@@ -66,7 +66,7 @@ codeunit 136906 "Job Reports"
         // Test functionality of Job WIP To G/L before running Job Post WIP To G/L.
 
         // 1. Setup: Create Initial setup for Job. Run Job Calculate WIP.
-        Initialize;
+        Initialize();
         LibraryVariableStorage.Enqueue(true);
         CreateInitialSetupForJob(Job);
         LibraryVariableStorage.Enqueue(false);
@@ -94,7 +94,7 @@ codeunit 136906 "Job Reports"
         // Test functionality of Job WIP To G/L after Job Post WIP To G/L.
 
         // 1. Setup: Create Initial setup for Job. Run Job Calculate WIP. Run Job Post WIP To G/L.
-        Initialize;
+        Initialize();
         LibraryVariableStorage.Enqueue(true);
         TotalCost := CreateInitialSetupForJob(Job);
         LibraryVariableStorage.Enqueue(false);
@@ -117,7 +117,7 @@ codeunit 136906 "Job Reports"
         JobWipGLEntry: Record "Job WIP G/L Entry";
     begin
         // [SCENARIO 332702] Run report "Job WIP To G/L" with saving results to Excel file.
-        Initialize;
+        Initialize();
         LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
 
         // [GIVEN] Job and Job WIP G/L Entry.
@@ -264,7 +264,7 @@ codeunit 136906 "Job Reports"
         // Use Document No. as Job No. because value is not important.
         JobCalculateWIP.InitializeRequest;
         JobCalculateWIP.UseRequestPage(false);
-        JobCalculateWIP.Run;
+        JobCalculateWIP.Run();
     end;
 
     local procedure RunJobPostWIPToGL(Job: Record Job)
@@ -274,7 +274,7 @@ codeunit 136906 "Job Reports"
         Job.SetRange("No.", Job."No.");
         Clear(JobPostWIPToGL);
         JobPostWIPToGL.SetTableView(Job);
-        JobPostWIPToGL.Run;
+        JobPostWIPToGL.Run();
     end;
 
     local procedure RunJobWIPToGL(Job: Record Job)
@@ -285,14 +285,14 @@ codeunit 136906 "Job Reports"
         Clear(JobWIPToGL);
         JobWIPToGL.SetTableView(Job);
         Commit();
-        JobWIPToGL.Run;
+        JobWIPToGL.Run();
     end;
 
     local procedure UpdateJobPostingGroup()
     var
         JobPostingGroup: Record "Job Posting Group";
     begin
-        if JobPostingGroup.FindSet then
+        if JobPostingGroup.FindSet() then
             repeat
                 JobPostingGroup.Validate("WIP Costs Account", LibraryERM.CreateGLAccountNo);
                 JobPostingGroup.Validate("Job Costs Applied Account", LibraryERM.CreateGLAccountNo);

@@ -116,7 +116,7 @@ codeunit 7030 "Campaign Target Group Mgt"
                 ContBusRel.SetCurrentKey("Link to Table", "Contact No.");
                 ContBusRel.SetRange("Link to Table", ContBusRel."Link to Table"::Customer);
                 ContBusRel.SetRange("Contact No.", "Contact Company No.");
-                if ContBusRel.FindFirst then
+                if ContBusRel.FindFirst() then
                     InsertTargetGroup(CampaignTargetGr.Type::Customer, ContBusRel."No.", "Campaign No.")
                 else
                     InsertTargetGroup(
@@ -147,7 +147,7 @@ codeunit 7030 "Campaign Target Group Mgt"
                     ContBusRel.SetRange("Link to Table", ContBusRel."Link to Table"::Customer);
                     ContBusRel.SetRange("Contact No.", "Contact Company No.");
 
-                    if ContBusRel.FindFirst then begin
+                    if ContBusRel.FindFirst() then begin
                         if CampaignTargetGr.Get(
                              CampaignTargetGr.Type::Customer, ContBusRel."No.", "Campaign No.")
                         then
@@ -168,7 +168,7 @@ codeunit 7030 "Campaign Target Group Mgt"
                 ContBusRel.SetCurrentKey("Link to Table", "Contact No.");
                 ContBusRel.SetRange("Link to Table", ContBusRel."Link to Table"::Customer);
                 ContBusRel.SetRange("Contact No.", "Contact Company No.");
-                if ContBusRel.FindFirst then
+                if ContBusRel.FindFirst() then
                     InsertTargetGroup(CampaignTargetGr.Type::Customer, ContBusRel."No.", "Campaign No.")
                 else
                     InsertTargetGroup(
@@ -198,7 +198,7 @@ codeunit 7030 "Campaign Target Group Mgt"
                     ContBusRel.SetRange("Link to Table", ContBusRel."Link to Table"::Customer);
                     ContBusRel.SetRange("Contact No.", "Contact Company No.");
 
-                    if ContBusRel.FindFirst then begin
+                    if ContBusRel.FindFirst() then begin
                         if CampaignTargetGr.Get(
                              CampaignTargetGr.Type::Customer, ContBusRel."No.", "Campaign No.")
                         then

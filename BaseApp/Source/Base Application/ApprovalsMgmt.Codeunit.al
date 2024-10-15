@@ -1,4 +1,4 @@
-﻿codeunit 1535 "Approvals Mgmt."
+codeunit 1535 "Approvals Mgmt."
 {
     Permissions = TableData "Approval Entry" = imd,
                   TableData "Approval Comment Line" = imd,
@@ -369,7 +369,7 @@
         if UserSetup.Substitute = '' then
             if UserSetup."Approver ID" = '' then begin
                 ApprovalAdminUserSetup.SetRange("Approval Administrator", true);
-                if ApprovalAdminUserSetup.FindFirst then
+                if ApprovalAdminUserSetup.FindFirst() then
                     UserSetup.Get(ApprovalAdminUserSetup."User ID")
                 else
                     Error(SubstituteNotFoundErr, UserSetup."User ID");
@@ -549,7 +549,7 @@
         if IsHandled then
             exit;
 
-        if ApprovalEntry.FindFirst then begin
+        if ApprovalEntry.FindFirst() then begin
             ApprovalEntry2.CopyFilters(ApprovalEntry);
             ApprovalEntry2.SetRange("Sequence No.", ApprovalEntry."Sequence No.");
             if ApprovalEntry2.FindSet(true) then
@@ -564,7 +564,7 @@
         end;
 
         ApprovalEntry.SetRange(Status, ApprovalEntry.Status::Approved);
-        if ApprovalEntry.FindLast then
+        if ApprovalEntry.FindLast() then
             OnApproveApprovalRequest(ApprovalEntry)
         else
             Error(NoApprovalRequestsFoundErr);
@@ -594,10 +594,10 @@
         ApprovalEntry2.SetRange(Status, ApprovalEntry2.Status::Created);
         OnSendApprovalRequestFromApprovalEntryOnAfterSetApprovalEntry2Filters(ApprovalEntry2, ApprovalEntry);
 
-        if ApprovalEntry2.FindFirst then begin
+        if ApprovalEntry2.FindFirst() then begin
             ApprovalEntry3.CopyFilters(ApprovalEntry2);
             ApprovalEntry3.SetRange("Sequence No.", ApprovalEntry2."Sequence No.");
-            if ApprovalEntry3.FindSet then
+            if ApprovalEntry3.FindSet() then
                 repeat
                     ApprovalEntry3.Validate(Status, ApprovalEntry3.Status::Open);
                     ApprovalEntry3.Modify(true);
@@ -716,7 +716,7 @@
             SetCurrentKey("Workflow User Group Code", "Sequence No.");
             SetRange("Workflow User Group Code", WorkflowStepArgument."Workflow User Group Code");
 
-            if not FindSet then
+            if not FindSet() then
                 Error(NoWFUserGroupMembersErr);
 
             repeat
@@ -767,7 +767,7 @@
             SetRange("Workflow Step Instance ID", ApprovalEntryArgument."Workflow Step Instance ID");
             SetRange(Status, Status::Created);
             OnCreateApprovalRequestForApproverChainOnAfterSetApprovalEntryFilters(ApprovalEntry, ApprovalEntryArgument);
-            if FindLast then
+            if FindLast() then
                 ApproverId := "Approver ID"
             else
                 if (WorkflowStepArgument."Approver Type" = WorkflowStepArgument."Approver Type"::"Salesperson/Purchaser") and
@@ -1495,7 +1495,7 @@
         ApprovalEntry.SetAutoCalcFields("Pending Approvals", "Number of Approved Requests", "Number of Rejected Requests");
         ApprovalEntry.SetRange("Table ID", ApprovedRecordID.TableNo);
         ApprovalEntry.SetRange("Record ID to Approve", ApprovedRecordID);
-        if not ApprovalEntry.FindSet then
+        if not ApprovalEntry.FindSet() then
             exit(false);
 
         repeat
@@ -1523,7 +1523,7 @@
     begin
         ApprovalCommentLine.SetRange("Table ID", ApprovedRecordID.TableNo);
         ApprovalCommentLine.SetRange("Record ID to Approve", ApprovedRecordID);
-        if ApprovalCommentLine.FindSet then
+        if ApprovalCommentLine.FindSet() then
             repeat
                 PostedApprovalCommentLine.Init();
                 PostedApprovalCommentLine.TransferFields(ApprovalCommentLine);
@@ -1714,7 +1714,7 @@
 
         ApprovalComments.SetTableView(ApprovalCommentLine);
         ApprovalComments.SetWorkflowStepInstanceID(WorkflowStepInstanceID);
-        ApprovalComments.Run;
+        ApprovalComments.Run();
     end;
 
     procedure HasOpenApprovalEntriesForCurrentUser(RecordID: RecordID): Boolean
@@ -1725,6 +1725,9 @@
         ApprovalEntry.SetRange("Record ID to Approve", RecordID);
         ApprovalEntry.SetRange(Status, ApprovalEntry.Status::Open);
         ApprovalEntry.SetRange("Approver ID", UserId);
+        // Initial check before performing an expensive query due to the "Related to Change" flow field.
+        if ApprovalEntry.IsEmpty() then
+            exit(false);
         ApprovalEntry.SetRange("Related to Change", false);
 
         exit(not ApprovalEntry.IsEmpty());
@@ -1737,6 +1740,9 @@
         ApprovalEntry.SetRange("Table ID", RecordID.TableNo);
         ApprovalEntry.SetRange("Record ID to Approve", RecordID);
         ApprovalEntry.SetRange(Status, ApprovalEntry.Status::Open);
+        // Initial check before performing an expensive query due to the "Related to Change" flow field.
+        if ApprovalEntry.IsEmpty() then
+            exit(false);
         ApprovalEntry.SetRange("Related to Change", false);
         OnHasOpenApprovalEntriesOnAfterApprovalEntrySetFilters(ApprovalEntry);
         exit(not ApprovalEntry.IsEmpty);
@@ -1749,6 +1755,9 @@
         ApprovalEntry.SetRange("Table ID", RecordID.TableNo);
         ApprovalEntry.SetRange("Record ID to Approve", RecordID);
         ApprovalEntry.SetFilter(Status, '%1|%2', ApprovalEntry.Status::Open, ApprovalEntry.Status::Created);
+        // Initial check before performing an expensive query due to the "Related to Change" flow field.
+        if ApprovalEntry.IsEmpty() then
+            exit(false);
         ApprovalEntry.SetRange("Related to Change", false);
         exit(not ApprovalEntry.IsEmpty);
     end;
@@ -1759,6 +1768,9 @@
     begin
         ApprovalEntry.SetRange("Table ID", RecordID.TableNo);
         ApprovalEntry.SetRange("Record ID to Approve", RecordID);
+        // Initial check before performing an expensive query due to the "Related to Change" flow field.
+        if ApprovalEntry.IsEmpty() then
+            exit(false);
         ApprovalEntry.SetRange("Related to Change", false);
         exit(not ApprovalEntry.IsEmpty);
     end;
@@ -1826,9 +1838,6 @@
         then
             Error(PendingJournalBatchApprovalExistsErr);
         OnSendGeneralJournalBatchForApproval(GenJournalBatch);
-
-        GenJournalBatch."Pending Approval" := true;
-        GenJournalBatch.Modify();
     end;
 
     procedure TrySendJournalLineApprovalRequests(var GenJournalLine: Record "Gen. Journal Line")
@@ -1845,9 +1854,6 @@
             then begin
                 OnSendGeneralJournalLineForApproval(GenJournalLine);
                 LinesSent += 1;
-
-                GenJournalLine."Pending Approval" := true;
-                GenJournalLine.Modify();
             end;
         until GenJournalLine.Next() = 0;
 
@@ -1869,9 +1875,6 @@
         GetGeneralJournalBatch(GenJournalBatch, GenJournalLine);
         OnCancelGeneralJournalBatchApprovalRequest(GenJournalBatch);
         WorkflowWebhookManagement.FindAndCancel(GenJournalBatch.RecordId);
-
-        GenJournalBatch."Pending Approval" := false;
-        GenJournalBatch.Modify();
     end;
 
     procedure TryCancelJournalLineApprovalRequests(var GenJournalLine: Record "Gen. Journal Line")
@@ -1882,9 +1885,6 @@
             if HasOpenApprovalEntries(GenJournalLine.RecordId) then
                 OnCancelGeneralJournalLineApprovalRequest(GenJournalLine);
             WorkflowWebhookManagement.FindAndCancel(GenJournalLine.RecordId);
-
-            GenJournalLine."Pending Approval" := false;
-            GenJournalLine.Modify();
         until GenJournalLine.Next() = 0;
         Message(ApprovalReqCanceledForSelectedLinesMsg);
     end;
@@ -1961,7 +1961,7 @@
     begin
         FromApprovalEntry.SetRange("Table ID", FromRecID.TableNo);
         FromApprovalEntry.SetRange("Record ID to Approve", FromRecID);
-        if FromApprovalEntry.FindSet then begin
+        if FromApprovalEntry.FindSet() then begin
             repeat
                 ToApprovalEntry := FromApprovalEntry;
                 ToApprovalEntry."Entry No." := 0; // Auto increment
@@ -1973,7 +1973,7 @@
 
             FromApprovalCommentLine.SetRange("Table ID", FromRecID.TableNo);
             FromApprovalCommentLine.SetRange("Record ID to Approve", FromRecID);
-            if FromApprovalCommentLine.FindSet then begin
+            if FromApprovalCommentLine.FindSet() then begin
                 NextEntryNo := ToApprovalCommentLine.GetLastEntryNo() + 1;
                 repeat
                     ToApprovalCommentLine := FromApprovalCommentLine;
@@ -1998,7 +1998,7 @@
             SetRange("Record ID to Approve", ApprovalEntryArgument."Record ID to Approve");
             SetRange("Workflow Step Instance ID", ApprovalEntryArgument."Workflow Step Instance ID");
             OnGetLastSequenceNoOnAfterSetApprovalEntryFilters(ApprovalEntry, ApprovalEntryArgument);
-            if FindLast then
+            if FindLast() then
                 exit("Sequence No.");
         end;
         exit(0);
@@ -2089,7 +2089,7 @@
         if ApprovalEntryArgument."Salespers./Purch. Code" <> '' then begin
             UserSetup.SetCurrentKey("Salespers./Purch. Code");
             UserSetup.SetRange("Salespers./Purch. Code", ApprovalEntryArgument."Salespers./Purch. Code");
-            if not UserSetup.FindFirst then
+            if not UserSetup.FindFirst() then
                 Error(
                   PurchaserUserNotFoundErr, UserSetup."User ID", UserSetup.FieldCaption("Salespers./Purch. Code"),
                   UserSetup."Salespers./Purch. Code");
@@ -2123,7 +2123,7 @@
         WorkflowStepInstance.SetRange("Workflow Code", WorkflowStepInstance."Workflow Code");
         WorkflowStepInstance.SetRange(Type, WorkflowInstance.Type::Response);
         WorkflowStepInstance.SetRange(Status, WorkflowInstance.Status::Completed);
-        if WorkflowStepInstance.FindSet then
+        if WorkflowStepInstance.FindSet() then
             repeat
                 if WorkflowStepArgument.Get(WorkflowStepInstance.Argument) then
                     if WorkflowStepArgument."Approver Type" = WorkflowStepArgument."Approver Type"::"Workflow User Group" then begin

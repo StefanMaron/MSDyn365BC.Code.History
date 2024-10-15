@@ -150,10 +150,10 @@ report 1826 "Consolidation - Test"
                                 ReportedClosingDateError := true;
                             end;
 
-                            if TempSelectedDim.FindFirst then begin
+                            if TempSelectedDim.FindFirst() then begin
                                 DimSetEntry.SetRange("Dimension Set ID", "Dimension Set ID");
                                 TempDimBufIn.DeleteAll();
-                                if DimSetEntry.FindSet then begin
+                                if DimSetEntry.FindSet() then begin
                                     repeat
                                         if TempSelectedDim.Get(UserId, 3, REPORT::"Consolidation - Test", '', DimSetEntry."Dimension Code") then begin
                                             TempDimBufIn.Init();
@@ -239,7 +239,7 @@ report 1826 "Consolidation - Test"
 
                 trigger OnAfterGetRecord()
                 begin
-                    Print_control := TempSelectedDim.FindFirst;
+                    Print_control := TempSelectedDim.FindFirst();
                 end;
             }
 
@@ -317,7 +317,7 @@ report 1826 "Consolidation - Test"
                                         CompanyName));
                         end else begin
                             TempDim.SetRange("Consolidation Code", SelectedDim."Dimension Code");
-                            if TempDim.FindFirst then
+                            if TempDim.FindFirst() then
                                 TempSelectedDim."Dimension Code" := TempDim.Code
                             else
                                 AddError(StrSubstNo(

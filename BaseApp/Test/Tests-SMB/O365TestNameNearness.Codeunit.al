@@ -229,7 +229,7 @@ codeunit 138050 "O365 Test Name Nearness"
         SalesLine.Init();
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         Assert.AreEqual(10000, SalesLine."Line No.", 'wrong line number');
         Assert.AreEqual(SalesLine.Type::Item, SalesLine.Type, 'wrong line type');
         Assert.AreEqual(ItemNo, SalesLine."No.", 'wrong item number');

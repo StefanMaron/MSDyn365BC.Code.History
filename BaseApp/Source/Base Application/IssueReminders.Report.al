@@ -23,8 +23,9 @@ report 190 "Issue Reminders"
                 RecordNo := RecordNo + 1;
                 Clear(ReminderIssue);
                 ReminderIssue.Set("Reminder Header", ReplacePostingDate, PostingDateReq);
+                ReminderIssue.SetGenJnlBatch(GenJnlBatch);
                 if NoOfRecords = 1 then begin
-                    ReminderIssue.Run;
+                    ReminderIssue.Run();
                     Mark := false;
                 end else begin
                     NewDateTime := CurrentDateTime;
@@ -37,7 +38,7 @@ report 190 "Issue Reminders"
                         OldDateTime := CurrentDateTime;
                     end;
                     Commit();
-                    Mark := not ReminderIssue.Run;
+                    Mark := not ReminderIssue.Run();
                 end;
 
                 if PrintDoc <> PrintDoc::" " then begin
@@ -57,7 +58,7 @@ report 190 "Issue Reminders"
                 Window.Close;
                 Commit();
                 if PrintDoc <> PrintDoc::" " then
-                    if TempIssuedReminderHeader.FindSet then
+                    if TempIssuedReminderHeader.FindSet() then
                         repeat
                             IssuedReminderHeaderPrint := TempIssuedReminderHeader;
                             IsHandled := false;
@@ -68,20 +69,20 @@ report 190 "Issue Reminders"
                             end;
                         until TempIssuedReminderHeader.Next() = 0;
                 MarkedOnly := true;
-                if FindFirst then
-                    if ConfirmManagement.GetResponse(Text003, true) then
+                if FindFirst() then
+                    if ConfirmManagement.GetResponse(ShowNotIssuedQst, true) then
                         PAGE.RunModal(0, "Reminder Header");
             end;
 
             trigger OnPreDataItem()
             begin
                 if ReplacePostingDate and (PostingDateReq = 0D) then
-                    Error(Text000);
+                    Error(EnterPostingDateErr);
                 NoOfRecords := Count;
                 if NoOfRecords = 1 then
-                    Window.Open(Text001)
+                    Window.Open(IssuingReminderMsg)
                 else begin
-                    Window.Open(Text002);
+                    Window.Open(IssuingRemindersMsg);
                     OldDateTime := CurrentDateTime;
                 end;
             end;
@@ -124,6 +125,42 @@ report 190 "Issue Reminders"
                         Caption = 'Hide Email Dialog';
                         ToolTip = 'Specifies if you want to hide email dialog.';
                     }
+                    field(JnlTemplateName; GenJnlLineReq."Journal Template Name")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Journal Template Name';
+                        TableRelation = "Gen. Journal Template";
+                        ToolTip = 'Specifies the name of the journal template that is used for the posting.';
+                        Visible = IsJournalTemplNameVisible;
+
+                        trigger OnValidate()
+                        begin
+                            GenJnlLineReq."Journal Batch Name" := '';
+                        end;
+                    }
+                    field(JnlBatchName; GenJnlLineReq."Journal Batch Name")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Journal Batch Name';
+                        Lookup = true;
+                        ToolTip = 'Specifies the name of the journal batch that is used for the posting.';
+                        Visible = IsJournalTemplNameVisible;
+
+                        trigger OnLookup(var Text: Text): Boolean
+                        var
+                            GenJnlManagement: Codeunit GenJnlManagement;
+                        begin
+                            GenJnlManagement.SetJnlBatchName(GenJnlLineReq);
+                        end;
+
+                        trigger OnValidate()
+                        begin
+                            if GenJnlLineReq."Journal Batch Name" <> '' then begin
+                                GenJnlLineReq.TestField("Journal Template Name");
+                                GenJnlBatch.Get(GenJnlLineReq."Journal Template Name", GenJnlLineReq."Journal Batch Name");
+                            end;
+                        end;
+                    }
                 }
             }
         }
@@ -131,6 +168,18 @@ report 190 "Issue Reminders"
         actions
         {
         }
+
+        trigger OnOpenPage()
+        begin
+            GLSetup.Get();
+            if GLSetup."Journal Templ. Name Mandatory" then begin
+                IsJournalTemplNameVisible := true;
+                SalesSetup.get();
+                SalesSetup.TestField("Reminder Journal Template Name");
+                SalesSetup.TestField("Reminder Journal Batch Name");
+                GenJnlBatch.Get(SalesSetup."Reminder Journal Template Name", SalesSetup."Reminder Journal Batch Name");
+            end;
+        end;
     }
 
     labels
@@ -149,12 +198,16 @@ report 190 "Issue Reminders"
     end;
 
     var
-        Text000: Label 'Enter the posting date.';
-        Text001: Label 'Issuing reminder...';
-        Text002: Label 'Issuing reminders @1@@@@@@@@@@@@@';
-        Text003: Label 'It was not possible to issue some of the selected reminders.\Do you want to see these reminders?';
+        EnterPostingDateErr: Label 'Enter the posting date.';
+        IssuingReminderMsg: Label 'Issuing reminder...';
+        IssuingRemindersMsg: Label 'Issuing reminders @1@@@@@@@@@@@@@';
+        ShowNotIssuedQst: Label 'It was not possible to issue some of the selected reminders.\Do you want to see these reminders?';
         IssuedReminderHeader: Record "Issued Reminder Header";
         TempIssuedReminderHeader: Record "Issued Reminder Header" temporary;
+        GenJnlLineReq: Record "Gen. Journal Line";
+        GenJnlBatch: Record "Gen. Journal Batch";
+        GLSetup: Record "General Ledger Setup";
+        SalesSetup: Record "Sales & Receivables Setup";
         ReminderIssue: Codeunit "Reminder-Issue";
         ConfirmManagement: Codeunit "Confirm Management";
         Window: Dialog;
@@ -164,13 +217,17 @@ report 190 "Issue Reminders"
         OldProgress: Integer;
         NewDateTime: DateTime;
         OldDateTime: DateTime;
-        PostingDateReq: Date;
         ReplacePostingDate: Boolean;
         PrintDoc: Option " ",Print,Email;
         HideDialog: Boolean;
         [InDataSet]
         IsOfficeAddin: Boolean;
+        [InDataSet]
+        IsJournalTemplNameVisible: Boolean;
         ProceedOnIssuingWithInvRoundingQst: Label 'The invoice rounding amount will be added to the reminder when it is posted according to invoice rounding setup.\Do you want to continue?';
+
+    protected var
+        PostingDateReq: Date;
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitReport(var PrintDoc: Option " ",Print,Email; var ReplacePostingDate: Boolean; var PostingDateReq: Date; var HideDialog: Boolean)

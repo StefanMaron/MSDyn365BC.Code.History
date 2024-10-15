@@ -85,18 +85,18 @@ xmlport 130400 "CAL Test Suite"
                                 CALTestLine.SetRange("Test Suite", "<CAL Test Line>"."Test Suite");
                                 CALTestLine.SetRange("Function", '');
                                 "<CAL Test Line>"."Line No." := 10000;
-                                if CALTestLine.FindLast then
+                                if CALTestLine.FindLast() then
                                     "<CAL Test Line>"."Line No." := CALTestLine."Line No." + 10000;
                                 CALTestLine.SetFilter("Line No.", '>=%1', "<CAL Test Line>"."Line No.");
                             end else begin
                                 CALTestLine.SetRange("Function", "<CAL Test Line>"."Function");
-                                if not CALTestLine.FindFirst then
+                                if not CALTestLine.FindFirst() then
                                     currXMLport.Skip();
                                 CALTestLine.Delete();
                                 "<CAL Test Line>"."Line No." := CALTestLine."Line No.";
 
                                 CALTestLine.SetRange("Function", '');
-                                CALTestLine.FindLast;
+                                CALTestLine.FindLast();
                             end;
                         end;
                     }

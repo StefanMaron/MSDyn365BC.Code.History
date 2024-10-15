@@ -230,7 +230,7 @@ codeunit 5896 "Calc. Inventory Adjmt. - Order"
     local procedure CalcActualMaterialCosts(var InvtAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)")
     var
         ItemLedgEntry: Record "Item Ledger Entry";
-        ValueEntry: Record "Value Entry";
+        CalcActualMaterialCostQuery: Query "Calculate Actual Material Cost";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -238,31 +238,33 @@ codeunit 5896 "Calc. Inventory Adjmt. - Order"
         if IsHandled then
             exit;
 
-        with ItemLedgEntry do begin
-            SetCurrentKey("Order Type", "Order No.", "Order Line No.", "Entry Type");
-            SetRange("Order Type", InvtAdjmtEntryOrder."Order Type");
-            SetRange("Order No.", InvtAdjmtEntryOrder."Order No.");
-            SetFilter("Entry Type", '%1|%2',
-              "Entry Type"::Consumption,
-              "Entry Type"::"Assembly Consumption");
-            if InvtAdjmtEntryOrder."Order Type" = InvtAdjmtEntryOrder."Order Type"::Production then
-                SetRange("Order Line No.", InvtAdjmtEntryOrder."Order Line No.");
-            OnCalcActualMaterialCostsOnAfterSetFilters(ItemLedgEntry, InvtAdjmtEntryOrder);
-            if Find('-') then
-                repeat
-                    ValueEntry.SetCurrentKey("Item Ledger Entry No.", "Entry Type");
-                    ValueEntry.SetRange("Item Ledger Entry No.", "Entry No.");
-                    ValueEntry.SetFilter("Entry Type", '<>%1', ValueEntry."Entry Type"::Rounding);
-                    ValueEntry.SetRange(Inventoriable, true);
-                    ValueEntry.CalcSums("Cost Amount (Actual)", "Cost Amount (Actual) (ACY)",
-                      "Cost Amount (Non-Invtbl.)", "Cost Amount (Non-Invtbl.)(ACY)");
-                    InvtAdjmtEntryOrder.AddSingleLvlMaterialCost(-ValueEntry."Cost Amount (Actual)",
-                      -ValueEntry."Cost Amount (Actual) (ACY)");
-                    InvtAdjmtEntryOrder.AddSingleLvlMaterialCost(-ValueEntry."Cost Amount (Non-Invtbl.)",
-                      -ValueEntry."Cost Amount (Non-Invtbl.)(ACY)");
-                    if Positive then
-                        AdjustForRevNegCon(InvtAdjmtEntryOrder, "Entry No.");
-                until Next() = 0;
+        CalcActualMaterialCostQuery.SetRange(Order_Type, InvtAdjmtEntryOrder."Order Type");
+        CalcActualMaterialCostQuery.SetRange(Order_No_, InvtAdjmtEntryOrder."Order No.");
+        CalcActualMaterialCostQuery.SetFilter(Entry_Type, '%1|%2',
+                ItemLedgEntry."Entry Type"::Consumption,
+                ItemLedgEntry."Entry Type"::"Assembly Consumption");
+
+        CalcActualMaterialCostQuery.SetFilter(Value_Entry_Type, '<>%1', "Cost Entry Type"::Rounding);
+        CalcActualMaterialCostQuery.SetRange(Inventoriable, true);
+
+        if InvtAdjmtEntryOrder."Order Type" = InvtAdjmtEntryOrder."Order Type"::Production then
+            CalcActualMaterialCostQuery.SetRange(Order_Line_No_, InvtAdjmtEntryOrder."Order Line No.");
+        CalcActualMaterialCostQuery.Open();
+
+        OnCalcActualMaterialCostsOnAfterSetFilters(ItemLedgEntry, InvtAdjmtEntryOrder);
+
+        while CalcActualMaterialCostQuery.Read() do begin
+            InvtAdjmtEntryOrder.AddSingleLvlMaterialCost(
+                -CalcActualMaterialCostQuery.Cost_Amount__Actual_,
+                -CalcActualMaterialCostQuery.Cost_Amount__Actual___ACY_
+            );
+            InvtAdjmtEntryOrder.AddSingleLvlMaterialCost(
+                -CalcActualMaterialCostQuery.Cost_Amount__Non_Invtbl__,
+                -CalcActualMaterialCostQuery.Cost_Amount__Non_Invtbl___ACY_
+            );
+
+            if CalcActualMaterialCostQuery.Positive then
+                AdjustForRevNegCon(InvtAdjmtEntryOrder, CalcActualMaterialCostQuery.Entry_No_);
         end;
     end;
 

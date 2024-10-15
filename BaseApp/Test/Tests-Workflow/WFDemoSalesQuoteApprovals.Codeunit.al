@@ -43,7 +43,7 @@ codeunit 134172 "WF Demo Sales Quote Approvals"
         SalesQuotes: TestPage "Sales Quotes";
     begin
         // [SCENARIO] The user cannot make an order of a sales quote when the approval workflow is enabled and the sales quote is not approved and released.
-        Initialize;
+        Initialize();
 
         // [GIVEN] The approval workflow for puchase quote is enabled.
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesQuoteApprovalWorkflowCode);
@@ -72,7 +72,7 @@ codeunit 134172 "WF Demo Sales Quote Approvals"
         SalesQuotes: TestPage "Sales Quotes";
     begin
         // [SCENARIO 378153] The user cannot make an order of a sales quote when the approval workflow is enabled and the sales quote is not approved
-        Initialize;
+        Initialize();
 
         // [GIVEN] The approval workflow for puchase quote is enabled.
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesQuoteApprovalWorkflowCode);
@@ -108,7 +108,7 @@ codeunit 134172 "WF Demo Sales Quote Approvals"
         // [THEN] The user will get an error that he cannot release a Sales Quote that is not approved.
 
         // Setup
-        Initialize;
+        Initialize();
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesQuoteApprovalWorkflowCode);
 
         CreateSalesQuote(SalesHeader);
@@ -140,7 +140,7 @@ codeunit 134172 "WF Demo Sales Quote Approvals"
         // [THEN] The user will get an error that he cannot release the sales quote that is not approved.
 
         // Setup
-        Initialize;
+        Initialize();
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesQuoteApprovalWorkflowCode);
 
         // Setup - Create 3 approval usersetups
@@ -186,7 +186,7 @@ codeunit 134172 "WF Demo Sales Quote Approvals"
         // [THEN] The user will get an error that he cannot reopen the sales quote.
 
         // Setup
-        Initialize;
+        Initialize();
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesQuoteApprovalWorkflowCode);
 
         // Setup - Create 3 approval usersetups
@@ -231,7 +231,7 @@ codeunit 134172 "WF Demo Sales Quote Approvals"
         // [WHEN] Salesperson approves the approval request.
         // [THEN] Sales Quote is released.
 
-        Initialize;
+        Initialize();
 
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesQuoteApprovalWorkflowCode);
 
@@ -289,7 +289,7 @@ codeunit 134172 "WF Demo Sales Quote Approvals"
         // [WHEN] Salesperson rejects the approval request.
         // [THEN] Sales Quote is reopened and approval entries are marked as rejected.
 
-        Initialize;
+        Initialize();
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesQuoteApprovalWorkflowCode);
 
         // Setup - Create 3 approval usersetups
@@ -350,7 +350,7 @@ codeunit 134172 "WF Demo Sales Quote Approvals"
         // [WHEN] Approval Request is approved.
         // [THEN] Sales Quote is released.
 
-        Initialize;
+        Initialize();
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesQuoteApprovalWorkflowCode);
 
         // Setup - Create 3 usersetups
@@ -427,7 +427,7 @@ codeunit 134172 "WF Demo Sales Quote Approvals"
         // [WHEN] Sender cancels the approval request.
         // [THEN] Sales Quote is opend and approval requests are marked as cancelled.
 
-        Initialize;
+        Initialize();
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesQuoteApprovalWorkflowCode);
 
         // Setup - Create 3 approval usersetups
@@ -476,7 +476,7 @@ codeunit 134172 "WF Demo Sales Quote Approvals"
     begin
         // [SCENARIO 3] Approval action availability.
         // [GIVEN] SalesHeader approval disabled.
-        Initialize;
+        Initialize();
 
         // [WHEN] SalesHeader card is opened.
         CreateSalesQuote(SalesHeader);
@@ -555,7 +555,7 @@ codeunit 134172 "WF Demo Sales Quote Approvals"
     begin
         // [SCENARIO 3] Approval action availability.
         // [GIVEN] SalesHeader approval disabled.
-        Initialize;
+        Initialize();
 
         // [WHEN] SalesHeader card is opened.
         CreateSalesQuote(SalesHeader);
@@ -621,7 +621,7 @@ codeunit 134172 "WF Demo Sales Quote Approvals"
         // [WHEN] Salesperson approves the approval request.
         // [THEN] Sales Quote is released.
 
-        Initialize;
+        Initialize();
 
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesQuoteApprovalWorkflowCode);
 
@@ -688,7 +688,7 @@ codeunit 134172 "WF Demo Sales Quote Approvals"
         // [WHEN] Next approver opens the document.
         // [THEN] The user can only cancel the request if he is an approval administrator.
 
-        Initialize;
+        Initialize();
 
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesQuoteApprovalWorkflowCode);
 
@@ -749,7 +749,7 @@ codeunit 134172 "WF Demo Sales Quote Approvals"
     begin
         // [FEATURE] [UT] [Credit Limit]
         // [SCENARIO 279695] Method "CheckAvailableCreditLimit" of table "Sales Header" returns 0 when customer not assigned
-        Initialize;
+        Initialize();
 
         // [GIVEN] Contact created without customer
         // [GIVEN] Sales Quote created for the created contact with Customer Template Code assigned
@@ -774,7 +774,7 @@ codeunit 134172 "WF Demo Sales Quote Approvals"
         SalesQuotes: TestPage "Sales Quotes";
     begin
         // [SCENARIO 405467] The user cannot make an invoice of a sales quote when the approval workflow is enabled and the sales quote is not approved
-        Initialize;
+        Initialize();
 
         // [GIVEN] The approval workflow for sales quote is enabled.
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesQuoteApprovalWorkflowCode);
@@ -799,10 +799,10 @@ codeunit 134172 "WF Demo Sales Quote Approvals"
         UserSetup: Record "User Setup";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"WF Demo Sales Quote Approvals");
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         UserSetup.DeleteAll();
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.CreateVATData();
         LibraryWorkflow.DisableAllWorkflows;
         if IsInitialized then
             exit;
@@ -924,7 +924,7 @@ codeunit 134172 "WF Demo Sales Quote Approvals"
     local procedure RegetSalesDocument(var SalesHeader: Record "Sales Header")
     begin
         SalesHeader.SetRecFilter;
-        SalesHeader.FindFirst;
+        SalesHeader.FindFirst();
     end;
 
     local procedure VerifySalesQuoteIsReleased(var SalesHeader: Record "Sales Header")

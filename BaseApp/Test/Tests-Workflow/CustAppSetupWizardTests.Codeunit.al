@@ -28,7 +28,7 @@ codeunit 139307 "Cust. App. Setup Wizard Tests"
         UserSetup: Record "User Setup";
         CustomerCard: TestPage "Customer Card";
     begin
-        Initialize;
+        Initialize();
         LibraryApplicationArea.DisableApplicationAreaSetup;
         LibraryVariableStorage.Enqueue(UserSetup);
         LibraryVariableStorage.Enqueue(1);
@@ -51,7 +51,7 @@ codeunit 139307 "Cust. App. Setup Wizard Tests"
     var
         CustApprovalWFSetupWizard: TestPage "Cust. Approval WF Setup Wizard";
     begin
-        Initialize;
+        Initialize();
         CustApprovalWFSetupWizard.Trap;
 
         PAGE.Run(PAGE::"Cust. Approval WF Setup Wizard");
@@ -66,7 +66,7 @@ codeunit 139307 "Cust. App. Setup Wizard Tests"
     var
         CustApprovalWFSetupWizard: TestPage "Cust. Approval WF Setup Wizard";
     begin
-        Initialize;
+        Initialize();
         CustApprovalWFSetupWizard.Trap;
 
         PAGE.Run(PAGE::"Cust. Approval WF Setup Wizard");
@@ -89,7 +89,7 @@ codeunit 139307 "Cust. App. Setup Wizard Tests"
         UserSetup: Record "User Setup";
         CustomerCard: TestPage "Customer Card";
     begin
-        Initialize;
+        Initialize();
         LibraryApplicationArea.DisableApplicationAreaSetup;
         LibraryWorkflow.DisableAllWorkflows;
 
@@ -123,7 +123,7 @@ codeunit 139307 "Cust. App. Setup Wizard Tests"
         CustomerCard: TestPage "Customer Card";
         FieldOperator: Integer;
     begin
-        Initialize;
+        Initialize();
         LibraryApplicationArea.DisableApplicationAreaSetup;
         LibraryWorkflow.DisableAllWorkflows;
 
@@ -160,7 +160,7 @@ codeunit 139307 "Cust. App. Setup Wizard Tests"
         UserSetup: Record "User Setup";
         CustomerList: TestPage "Customer List";
     begin
-        Initialize;
+        Initialize();
         LibraryApplicationArea.DisableApplicationAreaSetup;
         LibraryWorkflow.DisableAllWorkflows;
 
@@ -194,7 +194,7 @@ codeunit 139307 "Cust. App. Setup Wizard Tests"
         CustomerList: TestPage "Customer List";
         FieldOperator: Integer;
     begin
-        Initialize;
+        Initialize();
         LibraryWorkflow.DisableAllWorkflows;
 
         FieldOperator := LibraryRandom.RandInt(3);
@@ -227,7 +227,7 @@ codeunit 139307 "Cust. App. Setup Wizard Tests"
         AssistedSetupTestLibrary: Codeunit "Assisted Setup Test Library";
         LibraryApplicationArea: Codeunit "Library - Application Area";
     begin
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
         AssistedSetupTestLibrary.DeleteAll();
         AssistedSetupTestLibrary.CallOnRegister();
     end;
@@ -312,7 +312,7 @@ codeunit 139307 "Cust. App. Setup Wizard Tests"
         VerifyCreateApprovalRequestResponse(Workflow, UserSetup);
 
         WorkflowRule.SetRange("Workflow Code", Workflow.Code);
-        if WorkflowRule.FindFirst then begin
+        if WorkflowRule.FindFirst() then begin
             Assert.AreEqual(FieldNo, WorkflowRule."Field No.", 'Wrong Field');
             RecOperator := WorkflowRule.Operator;
             Assert.AreEqual(FieldOperator, RecOperator, 'Wrong Field');
@@ -323,7 +323,7 @@ codeunit 139307 "Cust. App. Setup Wizard Tests"
     begin
         Workflow.SetRange(Enabled, true);
         Assert.RecordCount(Workflow, 1);
-        Workflow.FindFirst;
+        Workflow.FindFirst();
     end;
 
     local procedure VerifyCreateApprovalRequestResponse(Workflow: Record Workflow; UserSetup: Record "User Setup")
@@ -335,7 +335,7 @@ codeunit 139307 "Cust. App. Setup Wizard Tests"
         WorkflowStep.SetRange("Workflow Code", Workflow.Code);
         WorkflowStep.SetRange(Type, WorkflowStep.Type::Response);
         WorkflowStep.SetRange("Function Name", WorkflowResponseHandling.CreateApprovalRequestsCode);
-        if WorkflowStep.FindFirst then begin
+        if WorkflowStep.FindFirst() then begin
             WorkflowStepArgument.Get(WorkflowStep.Argument);
             WorkflowStepArgument.TestField("Approver Type", WorkflowStepArgument."Approver Type"::Approver);
             WorkflowStepArgument.TestField("Approver Limit Type", WorkflowStepArgument."Approver Limit Type"::"Specific Approver");

@@ -31,8 +31,8 @@ codeunit 1738 "OData Initializer"
         Session.LogMessage('0000E52', MetadataEndpointCallFailedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTxt);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::LogInManagement, 'OnAfterLogInEnd', '', false, false)]
-    local procedure OnAfterLogInEnd()
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"System Initialization", 'OnAfterLogin', '', false, false)]
+    local procedure OnAfterLogin()
     begin
         if not EnvironmentInfo.IsSaaS() then
             exit;

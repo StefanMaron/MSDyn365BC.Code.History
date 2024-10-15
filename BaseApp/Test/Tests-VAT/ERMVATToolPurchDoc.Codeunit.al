@@ -39,10 +39,10 @@ codeunit 134052 "ERM VAT Tool - Purch. Doc"
             exit;
 
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM VAT Tool - Purch. Doc");
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         ERMVATToolHelper.SetupItemNos;
         ERMVATToolHelper.ResetToolSetup;  // This resets setup table for the first test case after database is restored.
         LibrarySetupStorage.SavePurchasesSetup();
@@ -59,7 +59,7 @@ codeunit 134052 "ERM VAT Tool - Purch. Doc"
         PurchaseHeader: Record "Purchase Header";
     begin
         // Run VAT Rate Change with Perform Conversion = FALSE, expect no updates.
-        Initialize;
+        Initialize();
 
         // SETUP: Create posting groups to update and save them in VAT Change Tool Conversion table.
         ERMVATToolHelper.CreatePostingGroups(false);
@@ -90,7 +90,7 @@ codeunit 134052 "ERM VAT Tool - Purch. Doc"
         PurchaseHeader: Record "Purchase Header";
     begin
         // Run VAT Rate Change with Perform Conversion = FALSE, expect no updates.
-        Initialize;
+        Initialize();
 
         // SETUP: Create posting groups to update and save them in VAT Change Tool Conversion table.
         ERMVATToolHelper.CreatePostingGroups(false);
@@ -221,7 +221,7 @@ codeunit 134052 "ERM VAT Tool - Purch. Doc"
         PurchaseOrderHeader: Record "Purchase Header";
     begin
         // Purchase Blanket Order with one line, Partial Make Purchase Order, Partially Ship Purchase Order, Make.
-        Initialize;
+        Initialize();
 
         // SETUP: Create posting groups to update and save them in VAT Change Tool Conversion table.
         ERMVATToolHelper.CreatePostingGroups(false);
@@ -391,7 +391,7 @@ codeunit 134052 "ERM VAT Tool - Purch. Doc"
         LineCount: Integer;
     begin
         // Purchase Order with multiple lines, update one line only.
-        Initialize;
+        Initialize();
 
         // SETUP: Create posting groups to update and save them in VAT Change Tool Conversion table.
         ERMVATToolHelper.CreatePostingGroups(false);
@@ -409,7 +409,7 @@ codeunit 134052 "ERM VAT Tool - Purch. Doc"
         if First then
             PurchaseLine.Next
         else
-            PurchaseLine.FindFirst;
+            PurchaseLine.FindFirst();
         PurchaseLine.Validate("VAT Prod. Posting Group", VATProdPostingGroup);
         PurchaseLine.Modify(true);
 
@@ -535,7 +535,7 @@ codeunit 134052 "ERM VAT Tool - Purch. Doc"
         TempRecRef: RecordRef;
     begin
         // Purchase Invoice with one line, related to a Receipt Line, update both groups. No update expected.
-        Initialize;
+        Initialize();
 
         // SETUP: Create posting groups to update and save them in VAT Change Tool Conversion table.
         ERMVATToolHelper.CreatePostingGroups(false);
@@ -589,7 +589,7 @@ codeunit 134052 "ERM VAT Tool - Purch. Doc"
     procedure VATToolPurchOrderItemTracking()
     begin
         // Purchase Order with one line with Item Tracking with Serial No., update both groups.
-        Initialize;
+        Initialize();
 
         // SETUP: Create posting groups to update and save them in VAT Change Tool Conversion table.
         ERMVATToolHelper.CreatePostingGroups(false);
@@ -671,7 +671,7 @@ codeunit 134052 "ERM VAT Tool - Purch. Doc"
     begin
         // Purchase Order with one partially shipped line with Dimensions assigned, update both groups.
         // Verify that dimensions are copied to the new line.
-        Initialize;
+        Initialize();
 
         // SETUP: Create posting groups to update and save them in VAT Change Tool Conversion table.
         ERMVATToolHelper.CreatePostingGroups(false);
@@ -708,7 +708,7 @@ codeunit 134052 "ERM VAT Tool - Purch. Doc"
         TempRecRef: RecordRef;
     begin
         // Purchase Order with prepayment, update both groups. No update expected.
-        Initialize;
+        Initialize();
 
         // SETUP: Create posting groups to update and save them in VAT Change Tool Conversion table.
         ERMVATToolHelper.CreatePostingGroups(false);
@@ -762,7 +762,7 @@ codeunit 134052 "ERM VAT Tool - Purch. Doc"
         LineCount: Integer;
     begin
         // Sales Order with two lines, first partially received, no line number available between them. Update both groups.
-        Initialize;
+        Initialize();
 
         // SETUP: Create posting groups to update and save them in VAT Change Tool Conversion table.
         ERMVATToolHelper.CreatePostingGroups(false);
@@ -802,7 +802,7 @@ codeunit 134052 "ERM VAT Tool - Purch. Doc"
         // Check Description field value when out standing quantity is zero on purchase order.
 
         // Setup: Create posting groups to update and save them in VAT Change Tool Conversion table.
-        Initialize;
+        Initialize();
         ERMVATToolHelper.UpdateVatRateChangeSetup(VATRateChangeSetup);
         SetupToolPurch(VATRateChangeSetup."Update Purchase Documents"::"VAT Prod. Posting Group", true, true);
         ERMVATToolHelper.CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Order, '',
@@ -1137,7 +1137,7 @@ codeunit 134052 "ERM VAT Tool - Purch. Doc"
         PurchLine.Next();
         PurchLine.TestField("Attached to Line No.", SecondPurchLineNo);
 
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -1248,7 +1248,7 @@ codeunit 134052 "ERM VAT Tool - Purch. Doc"
         PurchaseOrderHeader: Record "Purchase Header";
         TempRecRef: RecordRef;
     begin
-        Initialize;
+        Initialize();
 
         // SETUP: Create posting groups to update and save them in VAT Change Tool Conversion table.
         ERMVATToolHelper.CreatePostingGroups(false);
@@ -1290,7 +1290,7 @@ codeunit 134052 "ERM VAT Tool - Purch. Doc"
         PurchaseOrderHeader: Record "Purchase Header";
         TempRecRef: RecordRef;
     begin
-        Initialize;
+        Initialize();
 
         // SETUP: Create posting groups to update and save them in VAT Change Tool Conversion table.
         ERMVATToolHelper.CreatePostingGroups(false);
@@ -1327,7 +1327,7 @@ codeunit 134052 "ERM VAT Tool - Purch. Doc"
         PurchaseOrderHeader: Record "Purchase Header";
         TempRecRef: RecordRef;
     begin
-        Initialize;
+        Initialize();
 
         // SETUP: Create posting groups to update and save them in VAT Change Tool Conversion table.
         ERMVATToolHelper.CreatePostingGroups(false);
@@ -1371,7 +1371,7 @@ codeunit 134052 "ERM VAT Tool - Purch. Doc"
         PurchaseOrderHeader: Record "Purchase Header";
         TempRecRef: RecordRef;
     begin
-        Initialize;
+        Initialize();
 
         // SETUP: Create posting groups to update and save them in VAT Change Tool Conversion table.
         ERMVATToolHelper.CreatePostingGroups(false);
@@ -1407,7 +1407,7 @@ codeunit 134052 "ERM VAT Tool - Purch. Doc"
         PurchaseHeader: Record "Purchase Header";
         TempRecRef: RecordRef;
     begin
-        Initialize;
+        Initialize();
 
         // SETUP: Create posting groups to update and save them in VAT Change Tool Conversion table.
         ERMVATToolHelper.CreatePostingGroups(AutoInsertDefault);
@@ -1444,7 +1444,7 @@ codeunit 134052 "ERM VAT Tool - Purch. Doc"
         TempRecRef: RecordRef;
         Update: Boolean;
     begin
-        Initialize;
+        Initialize();
 
         // SETUP: Create posting groups to update and save them in VAT Change Tool Conversion table.
         ERMVATToolHelper.CreatePostingGroups(false);
@@ -1485,7 +1485,7 @@ codeunit 134052 "ERM VAT Tool - Purch. Doc"
         PurchaseHeader: Record "Purchase Header";
     begin
         // Purchase Order with one partially shipped and released line, update VAT group and ignore header status. Verify Amount.
-        Initialize;
+        Initialize();
 
         // SETUP: Create posting groups to update and save them in VAT Change Tool Conversion table.
         ERMVATToolHelper.CreatePostingGroups(false);
@@ -1517,7 +1517,7 @@ codeunit 134052 "ERM VAT Tool - Purch. Doc"
 
     local procedure VATToolPurchLineReserve(FieldOption: Option)
     begin
-        Initialize;
+        Initialize();
 
         // SETUP: Create posting groups to update and save them in VAT Change Tool Conversion table.
         ERMVATToolHelper.CreatePostingGroups(false);
@@ -1542,7 +1542,7 @@ codeunit 134052 "ERM VAT Tool - Purch. Doc"
     var
         TempRecRef: RecordRef;
     begin
-        Initialize;
+        Initialize();
 
         // SETUP: Create posting groups to update and save them in VAT Change Tool Conversion table.
         ERMVATToolHelper.CreatePostingGroups(false);
@@ -1573,7 +1573,7 @@ codeunit 134052 "ERM VAT Tool - Purch. Doc"
     var
         TempRecRef: RecordRef;
     begin
-        Initialize;
+        Initialize();
 
         // SETUP: Create posting groups to update and save them in VAT Change Tool Conversion table.
         ERMVATToolHelper.CreatePostingGroups(false);
@@ -1598,7 +1598,7 @@ codeunit 134052 "ERM VAT Tool - Purch. Doc"
     var
         TempRecRef: RecordRef;
     begin
-        Initialize;
+        Initialize();
 
         // SETUP: Create posting groups to update and save them in VAT Change Tool Conversion table.
         ERMVATToolHelper.CreatePostingGroups(false);
@@ -1627,7 +1627,7 @@ codeunit 134052 "ERM VAT Tool - Purch. Doc"
         PurchaseHeader: Record "Purchase Header";
         TempRecRef: RecordRef;
     begin
-        Initialize;
+        Initialize();
 
         // SETUP: Create posting groups to update and save them in VAT Change Tool Conversion table.
         ERMVATToolHelper.CreatePostingGroups(false);
@@ -1670,7 +1670,7 @@ codeunit 134052 "ERM VAT Tool - Purch. Doc"
     begin
         PurchaseLine.SetFilter("Document No.", PurchaseHeader."No.");
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
-        if PurchaseLine.FindSet then
+        if PurchaseLine.FindSet() then
             repeat
                 DimensionSetID := PurchaseLine."Dimension Set ID";
                 LibraryDimension.FindDimension(Dimension);
@@ -1696,7 +1696,7 @@ codeunit 134052 "ERM VAT Tool - Purch. Doc"
         PurchaseLine3: Record "Purchase Line";
     begin
         GetPurchaseLine(PurchaseHeader, PurchaseLine3);
-        PurchaseLine3.FindLast;
+        PurchaseLine3.FindLast();
 
         with PurchaseLine do begin
             Init;
@@ -1775,10 +1775,10 @@ codeunit 134052 "ERM VAT Tool - Purch. Doc"
         PurchRcptHeader: Record "Purch. Rcpt. Header";
     begin
         PurchRcptHeader.SetRange("Order No.", PurchaseHeader."No.");
-        PurchRcptHeader.FindFirst;
+        PurchRcptHeader.FindFirst();
         PurchRcptLine.SetRange("Document No.", PurchRcptHeader."No.");
         PurchRcptLine.SetRange(Type, PurchRcptLine.Type::Item);
-        PurchRcptLine.FindFirst;
+        PurchRcptLine.FindFirst();
     end;
 
     local procedure GetReceiptLineForPurchInvoice(var PurchaseHeader: Record "Purchase Header"; var PurchRcptLine: Record "Purch. Rcpt. Line")
@@ -1795,7 +1795,7 @@ codeunit 134052 "ERM VAT Tool - Purch. Doc"
     begin
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type"::Order);
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
         exit(PurchaseLine."VAT Prod. Posting Group");
     end;
 
@@ -1891,7 +1891,7 @@ codeunit 134052 "ERM VAT Tool - Purch. Doc"
         CreatePurchaseItemChargeLine(PurchaseLine, PurchaseHeader);
         PurchaseLine3.SetRange("Document Type", PurchaseHeader."Document Type");
         PurchaseLine3.SetRange("Document No.", PurchaseHeader."No.");
-        PurchaseLine3.FindFirst;
+        PurchaseLine3.FindFirst();
         with PurchaseLine3 do
             LibraryInventory.CreateItemChargeAssignPurchase(ItemChargeAssignmentPurch,
               PurchaseLine, ItemChargeAssignmentPurch."Applies-to Doc. Type"::Order, "Document No.", "Line No.", "No.");
@@ -2026,7 +2026,7 @@ codeunit 134052 "ERM VAT Tool - Purch. Doc"
     begin
         // SETTABLE call required for each record of the temporary table.
         TempRecRef.Reset();
-        if TempRecRef.FindSet then begin
+        if TempRecRef.FindSet() then begin
             TempPurchLn.SetView(TempRecRef.GetView);
             repeat
                 TempRecRef.SetTable(TempPurchLn);
@@ -2082,7 +2082,7 @@ codeunit 134052 "ERM VAT Tool - Purch. Doc"
     begin
         SetTempTablePurch(TempRecRef, TempPurchLn);
         TempPurchLn.SetRange(Type, TempPurchLn.Type::"Charge (Item)");
-        TempPurchLn.FindFirst;
+        TempPurchLn.FindFirst();
         QtyItemCharge := TempPurchLn.Quantity;
         TempPurchLn.SetRange(Type, TempPurchLn.Type::Item);
         TempPurchLn.FindSet();

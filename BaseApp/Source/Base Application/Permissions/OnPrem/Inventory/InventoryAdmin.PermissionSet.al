@@ -48,7 +48,6 @@ permissionset 2928 "Inventory - Admin"
 #endif
                   tabledata "Shipping Agent" = RIMD,
                   tabledata "Shipping Agent Services" = RIMD,
-                  tabledata "Social Listening Setup" = RIMD,
                   tabledata "Source Code" = R,
                   tabledata "Source Code Setup" = R,
                   tabledata "Tariff Number" = RIMD,

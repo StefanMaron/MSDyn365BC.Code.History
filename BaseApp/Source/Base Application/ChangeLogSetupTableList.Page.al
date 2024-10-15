@@ -196,7 +196,7 @@ page 593 "Change Log Setup (Table) List"
               "Log Modification" = "Log Modification"::"Some Fields",
               "Log Deletion" = "Log Deletion"::"Some Fields");
         ChangeLogSetupFieldList.SetTableView(Field);
-        ChangeLogSetupFieldList.Run;
+        ChangeLogSetupFieldList.Run();
     end;
 
     local procedure UpdateRec()

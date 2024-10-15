@@ -258,7 +258,7 @@ table 910 "Posted Assembly Header"
         Navigate: Page Navigate;
     begin
         Navigate.SetDoc("Posting Date", "No.");
-        Navigate.Run;
+        Navigate.Run();
     end;
 
     procedure ShowItemTrackingLines()
@@ -310,7 +310,7 @@ table 910 "Posted Assembly Header"
         GLSetup.Get();
 
         PostedAssemblyLine.SetRange("Document No.", "No.");
-        if PostedAssemblyLine.FindSet then
+        if PostedAssemblyLine.FindSet() then
             repeat
                 case PostedAssemblyLine.Type of
                     PostedAssemblyLine.Type::Item:

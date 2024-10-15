@@ -137,7 +137,7 @@ report 513 "Move IC Trans. to Partner Comp"
                 case "Line Action" of
                     "Line Action"::"Send to IC Partner":
                         ICInboxOutboxMgt.OutboxTransToInbox(
-                          "IC Outbox Transaction", TempICInboxTransaction, CompanyInfo."IC Partner Code");
+                          "IC Outbox Transaction", TempICInboxTransaction, ICSetup."IC Partner Code");
                     "Line Action"::"Return to Inbox":
                         RecreateInboxTrans("IC Outbox Transaction");
                 end;
@@ -150,8 +150,8 @@ report 513 "Move IC Trans. to Partner Comp"
 
             trigger OnPreDataItem()
             begin
-                CompanyInfo.Get();
-                CompanyInfo.TestField("IC Partner Code");
+                ICSetup.Get();
+                ICSetup.TestField("IC Partner Code");
                 GLSetup.Get();
                 GLSetup.TestField("LCY Code");
             end;
@@ -176,7 +176,7 @@ report 513 "Move IC Trans. to Partner Comp"
 
     var
         CurrentPartner: Record "IC Partner";
-        CompanyInfo: Record "Company Information";
+        ICSetup: Record "IC Setup";
         GLSetup: Record "General Ledger Setup";
         TempICInboxTransaction: Record "IC Inbox Transaction" temporary;
         TempICInboxJnlLine: Record "IC Inbox Jnl. Line" temporary;
@@ -203,8 +203,8 @@ report 513 "Move IC Trans. to Partner Comp"
         PartnerICPartner: Record "IC Partner";
     begin
         PartnerICPartner.ChangeCompany(CurrentPartner."Inbox Details");
-        if not PartnerICPartner.Get(CompanyInfo."IC Partner Code") then
-            Error(Text001, CompanyInfo."IC Partner Code", CurrentPartner.Code);
+        if not PartnerICPartner.Get(ICSetup."IC Partner Code") then
+            Error(Text001, ICSetup."IC Partner Code", CurrentPartner.Code);
 
         PartnerInboxTransaction.ChangeCompany(CurrentPartner."Inbox Details");
         PartnerInboxTransaction.LockTable();

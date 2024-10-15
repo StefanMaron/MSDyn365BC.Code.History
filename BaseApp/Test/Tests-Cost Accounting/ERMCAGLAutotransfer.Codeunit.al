@@ -70,7 +70,7 @@ codeunit 134818 "ERM CA G/L Autotransfer"
         GLAccount: Record "G/L Account";
     begin
         // Setup:
-        Initialize;
+        Initialize();
         LibraryCostAccounting.SetAutotransferFromGL(Autotransfer);
         LibraryCostAccounting.SetupGLAccount(GLAccount);
 

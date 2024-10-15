@@ -509,7 +509,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
         LibraryPlanning.CalculateOrderPlanProduction(RequisitionLine);
 
         // Exercise: Change Requisition Line for another User.
-        UserID := LibraryUtility.GenerateGUID;
+        UserID := LibraryUtility.GenerateGUID();
         RequisitionLine.SetRange("Demand Order No.", ProductionOrder."No.");
         RequisitionLine.ModifyAll("User ID", UserID);
 
@@ -2756,15 +2756,15 @@ codeunit 137063 "SCM Manufacturing 7.0"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Manufacturing 7.0");
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         if Initialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Manufacturing 7.0");
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.CreateGeneralPostingSetupData;
-        NoSeriesSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.CreateGeneralPostingSetupData();
+        NoSeriesSetup();
         ItemJournalSetup;
         CapacityJournalSetup;
         OutputJournalSetup;
@@ -3454,7 +3454,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
         RoutingLine: Record "Routing Line";
     begin
         RoutingLine.SetRange("Routing No.", RoutingNo);
-        if RoutingLine.FindLast then
+        if RoutingLine.FindLast() then
             exit(RoutingLine."Operation No.");
         exit('');
     end;
@@ -3633,10 +3633,10 @@ codeunit 137063 "SCM Manufacturing 7.0"
           ChildItem."No.", LibraryRandom.RandDecInDecimalRange(0.2, 0.7, 1));
 
         ItemUnitOfMeasure.SetRange("Item No.", ChildItem."No.");
-        ItemUnitOfMeasure.FindLast;
+        ItemUnitOfMeasure.FindLast();
 
         ProductionBOMLine.Validate("Unit of Measure Code", ItemUnitOfMeasure.Code);
-        RoutingLink.FindLast;
+        RoutingLink.FindLast();
         ProductionBOMLine.Validate("Routing Link Code", RoutingLink.Code);
         ProductionBOMLine.Modify(true);
         ProductionBOMHeader.Validate(Status, ProductionBOMHeader.Status::Certified);
@@ -3787,7 +3787,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
     begin
         with ProdOrderLine do begin
             SetRange("Prod. Order No.", ProdOrderNo);
-            FindFirst;
+            FindFirst();
             NewDimSetID := LibraryDimension.CreateDimSet("Dimension Set ID", DimCode, DimValue);
             Validate("Dimension Set ID", NewDimSetID);
             Modify(true);
@@ -3868,7 +3868,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
     begin
         with ProductionBOMLine do begin
             Init;
-            "No." := LibraryUtility.GenerateGUID;
+            "No." := LibraryUtility.GenerateGUID();
             Type := Type::"Production BOM";
             "Unit of Measure Code" := UnitOfMeasureCode;
         end;
@@ -3898,7 +3898,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
     begin
         ProductionOrder.SetRange("Source Type", SourceType);
         ProductionOrder.SetRange("Source No.", SourceNo);
-        ProductionOrder.FindLast;
+        ProductionOrder.FindLast();
     end;
 
     local procedure UpdateFlushingMethodOnProdOrderRoutingLine(var ProductionOrder: Record "Production Order"; SourceNo: Code[20])
@@ -4153,7 +4153,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
     begin
         UpdateNoSeriesOnItemJournalBatch(ItemJournalBatch, '');
         CreateItemJournalLine(ItemJournalLine, ItemNo, Quantity);
-        ItemJournalLine.Validate("Document No.", LibraryUtility.GenerateGUID);
+        ItemJournalLine.Validate("Document No.", LibraryUtility.GenerateGUID());
         ItemJournalLine.Validate("Location Code", LocationCode);
         ItemJournalLine.Modify(true);
         ItemJournalLine.OpenItemTrackingLines(false);  // Assign Tracking on Page Handler.
@@ -4559,7 +4559,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
         RequisitionLine.SetRange("Demand Order No.", DemandOrderNo);
         RequisitionLine.SetRange("Worksheet Template Name", '');
         Assert.AreEqual(2, RequisitionLine.Count, NumberOfLineErr);
-        RequisitionLine.FindLast;
+        RequisitionLine.FindLast();
         RequisitionLine.TestField("No.", ItemNo);
         RequisitionLine.TestField(Quantity, Quantity);
     end;
@@ -4614,7 +4614,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
     begin
         PurchaseLine.SetRange("Buy-from Vendor No.", BuyFromVendorNo);
         Assert.AreEqual(1, PurchaseLine.Count, NumberOfLineErr);  // Value is important for Test.
-        PurchaseLine.FindLast;
+        PurchaseLine.FindLast();
         PurchaseLine.TestField("No.", No);
         PurchaseLine.TestField(Quantity, Quantity);
     end;
@@ -4745,7 +4745,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
         with RequisitionLine do begin
             SetRange("Prod. Order No.", ProdOrderLine."Prod. Order No.");
             SetRange("Prod. Order Line No.", ProdOrderLine."Line No.");
-            FindFirst;
+            FindFirst();
 
             TestField(Type, Type::Item);
             TestField("No.", ProdOrderLine."Item No.");
@@ -4793,7 +4793,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
             SetRange("No.", ComponentItemNo);
             SetRange("Ending Date", StartingDate);
             SetRange("Ending Time", StartingTime);
-            FindFirst;
+            FindFirst();
             Assert.AreEqual(TotalQty, Quantity, IncorrectQtyOnEndingDateErr);
         end;
     end;

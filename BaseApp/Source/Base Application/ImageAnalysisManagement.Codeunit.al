@@ -168,7 +168,7 @@ codeunit 2020 "Image Analysis Management"
         JSONManagement: Codeunit "JSON Management";
         UsageLimitError: Text;
     begin
-        Initialize;
+        Initialize();
         SetLastError('', false);
         OnBeforeImageAnalysis;
 
