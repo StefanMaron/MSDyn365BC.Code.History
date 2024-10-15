@@ -1,6 +1,7 @@
 codeunit 456 "Job Queue Management"
 {
     var
+        TelemetrySubscribers: Codeunit "Telemetry Subscribers";
         RunOnceQst: label 'This will create a temporary non-recurrent copy of this job and will run it once in the foreground.\Do you want to continue?';
         ExecuteBeginMsg: label 'Executing job queue entry...';
         ExecuteEndSuccessMsg: label 'Job finished executing.\Status: %1', Comment = '%1 is a status value, e.g. Success';
@@ -176,15 +177,7 @@ codeunit 456 "Job Queue Management"
         CurrentLanguage := GlobalLanguage();
         GlobalLanguage(1033);
 
-        Dimensions.Add('Category', JobQueueEntriesCategoryTxt);
-
-        Dimensions.Add('Id', Format(JobQueueEntry.ID, 0, 4));
-        Dimensions.Add('ObjectType', Format(JobQueueEntry."Object Type to Run"));
-        Dimensions.Add('ObjectId', Format(JobQueueEntry."Object ID to Run"));
-        Dimensions.Add('Status', Format(JobQueueEntry.Status));
-        Dimensions.Add('IsRecurring', Format(JobQueueEntry."Recurring Job"));
-        Dimensions.Add('EarliestStartDateTime', Format(JobQueueEntry."Earliest Start Date/Time"));
-        Dimensions.Add('CompanyName', JobQueueEntry.CurrentCompany());
+        TelemetrySubscribers.SetJobQueueTelemetryDimensions(JobQueueEntry, Dimensions);
 
         Session.LogMessage('0000FMG', RunJobQueueOnceTxt, Verbosity::Normal, DataClassification::OrganizationIdentifiableInformation, TelemetryScope::All, Dimensions);
         GlobalLanguage(CurrentLanguage);
@@ -298,16 +291,7 @@ codeunit 456 "Job Queue Management"
         CurrentLanguage := GlobalLanguage();
         GlobalLanguage(1033);
 
-        Dimensions.Add('Category', JobQueueEntriesCategoryTxt);
-
-        Dimensions.Add('Id', Format(JobQueueEntry.ID, 0, 4));
-        Dimensions.Add('ObjectType', Format(JobQueueEntry."Object Type to Run"));
-        Dimensions.Add('ObjectId', Format(JobQueueEntry."Object ID to Run"));
-        Dimensions.Add('Status', Format(JobQueueEntry.Status));
-        Dimensions.Add('IsRecurring', Format(JobQueueEntry."Recurring Job"));
-        Dimensions.Add('EarliestStartDateTime', Format(JobQueueEntry."Earliest Start Date/Time"));
-        Dimensions.Add('CompanyName', JobQueueEntry.CurrentCompany());
-        Dimensions.Add('ScheduledTaskId', Format(JobQueueEntry."System Task ID", 0, 4));
+        TelemetrySubscribers.SetJobQueueTelemetryDimensions(JobQueueEntry, Dimensions);
 
         Session.LogMessage('0000FMH', StaleJobQueueEntryTxt, Verbosity::Normal, DataClassification::OrganizationIdentifiableInformation, TelemetryScope::ExtensionPublisher, Dimensions);
 
@@ -322,14 +306,7 @@ codeunit 456 "Job Queue Management"
         CurrentLanguage := GlobalLanguage();
         GlobalLanguage(1033);
 
-        Dimensions.Add('Category', JobQueueEntriesCategoryTxt);
-
-        Dimensions.Add('Id', Format(JobQueueLogEntry.ID, 0, 4));
-        Dimensions.Add('ObjectType', Format(JobQueueLogEntry."Object Type to Run"));
-        Dimensions.Add('ObjectId', Format(JobQueueLogEntry."Object ID to Run"));
-        Dimensions.Add('Status', Format(JobQueueLogEntry.Status));
-        Dimensions.Add('CompanyName', JobQueueLogEntry.CurrentCompany());
-        Dimensions.Add('ScheduledTaskId', Format(JobQueueLogEntry."System Task ID", 0, 4));
+        TelemetrySubscribers.SetJobQueueTelemetryDimensions(JobQueueLogEntry, Dimensions);
 
         Session.LogMessage('0000FMI', StaleJobQueueLogEntryTxt, Verbosity::Normal, DataClassification::OrganizationIdentifiableInformation, TelemetryScope::ExtensionPublisher, Dimensions);
 
@@ -375,17 +352,8 @@ codeunit 456 "Job Queue Management"
         CurrentLanguage := GlobalLanguage();
         GlobalLanguage(1033);
 
-        Dimensions.Add('Category', JobQueueEntriesCategoryTxt);
-
-        Dimensions.Add('Id', Format(Rec.ID, 0, 4));
-        Dimensions.Add('ObjectType', Format(Rec."Object Type to Run"));
-        Dimensions.Add('ObjectId', Format(Rec."Object ID to Run"));
-        Dimensions.Add('Status', Format(Rec.Status));
-        Dimensions.Add('OldStatus', Format(xRec.Status));
-        Dimensions.Add('IsRecurring', Format(Rec."Recurring Job"));
-        Dimensions.Add('EarliestStartDateTime', Format(Rec."Earliest Start Date/Time"));
-        Dimensions.Add('CompanyName', Rec.CurrentCompany());
-        Dimensions.Add('ScheduledTaskId', Format(Rec."System Task ID", 0, 4));
+        TelemetrySubscribers.SetJobQueueTelemetryDimensions(Rec, Dimensions);
+        Dimensions.Add('JobQueueOldStatus', Format(xRec.Status));
 
         Session.LogMessage('0000FNM', JobQueueStatusChangeTxt, Verbosity::Normal, DataClassification::OrganizationIdentifiableInformation, TelemetryScope::ExtensionPublisher, Dimensions);
 

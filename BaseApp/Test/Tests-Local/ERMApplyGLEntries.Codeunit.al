@@ -1,3 +1,4 @@
+#if not CLEAN22
 codeunit 144003 "ERM Apply GL Entries"
 {
     // // [FEATURE] [Apply]
@@ -357,4 +358,4 @@ codeunit 144003 "ERM Apply GL Entries"
     begin
     end;
 }
-
+#endif

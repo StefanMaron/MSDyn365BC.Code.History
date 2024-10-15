@@ -159,6 +159,13 @@ page 20 "General Ledger Entries"
                     ToolTip = 'Specifies the amount of VAT that is included in the total amount.';
                     Visible = false;
                 }
+                field(NonDeductibleVATAmount; Rec."Non-Deductible VAT Amount")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Editable = false;
+                    ToolTip = 'Specifies the amount of the transaction for which VAT is not applied, due to the type of goods or services purchased.';
+                    Visible = false;
+                }
                 field("Remaining Amount"; Rec."Remaining Amount")
                 {
                     ApplicationArea = Basic, Suite;
@@ -583,18 +590,18 @@ page 20 "General Ledger Entries"
                         ReversalEntry.ReverseTransaction("Transaction No.")
                     end;
                 }
+#pragma warning disable AS0074
 #if not CLEAN22
                 action(ApplyEntries)
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Apply Entries';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by feature Review General Ledger Entries';
-                    ObsoleteTag = '22.0';
                     Image = ApplyEntries;
                     ShortCutKey = 'Shift+F11';
                     ToolTip = 'Select one or more ledger entries that you want to apply this entry to so that the related posted documents are closed as paid or refunded.';
-
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '22.0';
+                    ObsoleteReason = 'Local feature is replaced with W1 extension Review G/L Entries';
                     trigger OnAction()
                     var
                         GeneralLedgerEntriesApply: Page "General Ledger Entries Apply";
@@ -605,6 +612,7 @@ page 20 "General Ledger Entries"
                     end;
                 }
 #endif
+#pragma warning restore AS0074
                 group(IncomingDocument)
                 {
                     Caption = 'Incoming Document';
@@ -801,17 +809,17 @@ page 20 "General Ledger Entries"
         [InDataSet]
         IsVATDateEnabled: Boolean;
 
-protected var
+    protected var
         Dim1Visible: Boolean;
-    Dim2Visible: Boolean;
-    Dim3Visible: Boolean;
-    Dim4Visible: Boolean;
-    Dim5Visible: Boolean;
-    Dim6Visible: Boolean;
-    Dim7Visible: Boolean;
-    Dim8Visible: Boolean;
+        Dim2Visible: Boolean;
+        Dim3Visible: Boolean;
+        Dim4Visible: Boolean;
+        Dim5Visible: Boolean;
+        Dim6Visible: Boolean;
+        Dim7Visible: Boolean;
+        Dim8Visible: Boolean;
 
-local procedure SetDimVisibility()
+    local procedure SetDimVisibility()
     var
         DimensionManagement: Codeunit DimensionManagement;
     begin

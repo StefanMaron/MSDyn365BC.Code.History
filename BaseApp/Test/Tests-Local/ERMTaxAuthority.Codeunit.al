@@ -436,7 +436,7 @@ codeunit 144005 "ERM Tax Authority"
     end;
 
     [Test]
-    [HandlerFunctions('TaxAuthorityAuditFileRequestPageHandler,MessageHandlerOK,ConfirmHandlerYes')]
+    [HandlerFunctions('TaxAuthorityAuditFileRequestPageHandler,MessageHandlerOK')]
     procedure CustomerInformation()
     var
         GLEntry: Record "G/L Entry";

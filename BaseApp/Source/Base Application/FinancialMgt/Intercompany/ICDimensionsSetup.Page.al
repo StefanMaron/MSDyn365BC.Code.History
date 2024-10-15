@@ -30,7 +30,7 @@ page 678 "IC Dimensions Setup"
         ICDimensions: Record "IC Dimension";
         ICPartner: Record "IC Partner";
         ICPartnerDimensions: Record "IC Dimension";
-        ICMappingDimensions: Codeunit "IC Mapping Dimensions";
+        ICMapping: Codeunit "IC Mapping";
         MessageText: Text;
     begin
         if Rec."Partner Code for Acc. Syn." = '' then
@@ -57,7 +57,7 @@ page 678 "IC Dimensions Setup"
                 exit;
         end;
 
-        ICMappingDimensions.SynchronizeDimensions(true, Rec."Partner Code for Acc. Syn.");
+        ICMapping.SynchronizeDimensions(true, Rec."Partner Code for Acc. Syn.");
     end;
 
     var

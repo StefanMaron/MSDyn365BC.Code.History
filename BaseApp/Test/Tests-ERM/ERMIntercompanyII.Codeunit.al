@@ -743,6 +743,7 @@ codeunit 134152 "ERM Intercompany II"
     end;
 
     [Test]
+    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure PostMultiICGeneralJournalLine()
     var

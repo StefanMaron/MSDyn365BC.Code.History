@@ -3051,6 +3051,7 @@
                                                     <Style>
                                                       <FontFamily>Segoe UI</FontFamily>
                                                       <FontSize>8pt</FontSize>
+                                                      <FontWeight>=IIF(Fields!TrackingSpecBufferLotNo.Value&lt;&gt;"" OR Fields!TrackingSpecBufferSerNo.Value&lt;&gt;"", "Default","Bold")</FontWeight>
                                                     </Style>
                                                   </TextRun>
                                                 </TextRuns>
@@ -3063,6 +3064,10 @@
                                                 <Color>LightGrey</Color>
                                                 <Style>None</Style>
                                               </Border>
+                                              <TopBorder>
+                                                <Color>=IIF(Fields!TrackingSpecBufferLotNo.Value&lt;&gt;"" OR Fields!TrackingSpecBufferSerNo.Value&lt;&gt;"", "White","Black")</Color>
+                                                <Style>=IIF(Fields!TrackingSpecBufferLotNo.Value&lt;&gt;"" OR Fields!TrackingSpecBufferSerNo.Value&lt;&gt;"", "Default","Solid")</Style>
+                                              </TopBorder>
                                               <PaddingLeft>5pt</PaddingLeft>
                                               <PaddingRight>5pt</PaddingRight>
                                             </Style>
@@ -3088,26 +3093,30 @@
                                     <KeepWithGroup>After</KeepWithGroup>
                                   </TablixMember>
                                   <TablixMember>
-                                    <Group Name="TrackingSpecDetails" />
+                                    <Group Name="TrackingSpecDetails">
+                                      <Filters>
+                                        <Filter>
+                                          <FilterExpression>=Fields!TrackingSpecBufferEntryNo.Value</FilterExpression>
+                                          <Operator>NotEqual</Operator>
+                                          <FilterValues>
+                                            <FilterValue DataType="Integer">0</FilterValue>
+                                          </FilterValues>
+                                        </Filter>
+                                      </Filters>
+                                    </Group>
+                                    <Visibility>
+                                      <Hidden>=IIF(Fields!TrackingSpecBufferEntryNo.Value&lt;&gt;0,False,True)</Hidden>
+                                    </Visibility>
                                   </TablixMember>
                                 </TablixMembers>
                               </TablixRowHierarchy>
                               <DataSetName>DataSet_Result</DataSetName>
-                              <Filters>
-                                <Filter>
-                                  <FilterExpression>=Fields!TrackingSpecBufferNo.Value</FilterExpression>
-                                  <Operator>GreaterThanOrEqual</Operator>
-                                  <FilterValues>
-                                    <FilterValue>""</FilterValue>
-                                  </FilterValues>
-                                </Filter>
-                              </Filters>
                               <Top>9.73467cm</Top>
                               <Height>0.98806cm</Height>
                               <Width>18.45699cm</Width>
                               <ZIndex>3</ZIndex>
                               <Visibility>
-                                <Hidden>=IIF(Fields!TrackingSpecBufferNo.Value&lt;&gt;"",False,True)</Hidden>
+                                <Hidden>=IIF(Fields!ShowLotSN.Value,False,True)</Hidden>
                               </Visibility>
                               <Style>
                                 <Border>
@@ -4385,6 +4394,24 @@ End Function
         <Field Name="ExternalDocumentNo_Lbl">
           <DataField>ExternalDocumentNo_Lbl</DataField>
         </Field>
+        <Field Name="QuantityCaption">
+          <DataField>QuantityCaption</DataField>
+        </Field>
+        <Field Name="SerialNoCaption">
+          <DataField>SerialNoCaption</DataField>
+        </Field>
+        <Field Name="LotNoCaption">
+          <DataField>LotNoCaption</DataField>
+        </Field>
+        <Field Name="DescriptionCaption">
+          <DataField>DescriptionCaption</DataField>
+        </Field>
+        <Field Name="NoCaption">
+          <DataField>NoCaption</DataField>
+        </Field>
+        <Field Name="ShowLotSN">
+          <DataField>ShowLotSN</DataField>
+        </Field>
         <Field Name="LineNo_Line">
           <DataField>LineNo_Line</DataField>
         </Field>
@@ -4525,21 +4552,6 @@ End Function
         </Field>
         <Field Name="TrackingSpecBufferQtyFormat">
           <DataField>TrackingSpecBufferQtyFormat</DataField>
-        </Field>
-        <Field Name="QuantityCaption">
-          <DataField>QuantityCaption</DataField>
-        </Field>
-        <Field Name="SerialNoCaption">
-          <DataField>SerialNoCaption</DataField>
-        </Field>
-        <Field Name="LotNoCaption">
-          <DataField>LotNoCaption</DataField>
-        </Field>
-        <Field Name="DescriptionCaption">
-          <DataField>DescriptionCaption</DataField>
-        </Field>
-        <Field Name="NoCaption">
-          <DataField>NoCaption</DataField>
         </Field>
         <Field Name="WorkDescriptionLineNumber">
           <DataField>WorkDescriptionLineNumber</DataField>

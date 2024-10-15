@@ -1523,9 +1523,12 @@ page 50 "Purchase Order"
                     var
                         ICInOutboxMgt: Codeunit ICInboxOutboxMgt;
                         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
+                        ICFeedback: Codeunit "IC Feedback";
                     begin
-                        if ApprovalsMgmt.PrePostApprovalCheckPurch(Rec) then
+                        if ApprovalsMgmt.PrePostApprovalCheckPurch(Rec) then begin
                             ICInOutboxMgt.SendPurchDoc(Rec, false);
+                            ICFeedback.ShowIntercompanyMessage(Rec, "IC Transaction Document Type"::Order);
+                        end;
                     end;
                 }
                 action("Reject IC Purchase Order")
@@ -2287,6 +2290,15 @@ page 50 "Purchase Order"
             if PurchaseHeader.FindFirst() then
                 ICInboxOutboxMgt.ShowDuplicateICDocumentWarning(PurchaseHeader);
         end;
+        if (Rec."IC Direction" = Rec."IC Direction"::Outgoing) and (Rec."Buy-from IC Partner Code" <> '') and (Rec."IC Status" = Rec."IC Status"::Sent) then begin
+            PurchaseHeader.Reset();
+            PurchaseHeader.SetRange("IC Direction", PurchaseHeader."IC Direction"::Incoming);
+            PurchaseHeader.SetRange("Buy-from IC Partner Code", Rec."Buy-from IC Partner Code");
+            PurchaseHeader.SetRange("Document Type", PurchaseHeader."Document Type"::Invoice);
+            PurchaseHeader.SetRange("Your Reference", Rec."No.");
+            if PurchaseHeader.FindFirst() then
+                ICInboxOutboxMgt.ShowDuplicateICDocumentWarning(PurchaseHeader, ICIncomingInvoiceFromOriginalOrderMsg);
+        end;
         VATDateEnabled := VATReportingDateMgt.IsVATDateEnabled();
     end;
 
@@ -2333,6 +2345,7 @@ page 50 "Purchase Order"
         DocumentIsPosted: Boolean;
         OpenPostedPurchaseOrderQst: Label 'The order is posted as number %1 and moved to the Posted Purchase Invoices window.\\Do you want to open the posted invoice?', Comment = '%1 = posted document number';
         SureToRejectMsg: Label 'Rejecting this order will remove it from your company and send it back to the partner company.\\Do you want to continue?';
+        ICIncomingInvoiceFromOriginalOrderMsg: Label 'There is an %1 with no. %2 received from intercompany after you sent this order. You can remove this order and post that invoice instead.', Comment = '%1 - either "order", "invoice", or "posted invoice", %2 - a code';
         CanRequestApprovalForFlow: Boolean;
         CanCancelApprovalForFlow: Boolean;
         ShowShippingOptionsWithLocation: Boolean;
@@ -2564,14 +2577,17 @@ page 50 "Purchase Order"
         OrderPurchaseHeader: Record "Purchase Header";
         PurchInvHeader: Record "Purch. Inv. Header";
         InstructionMgt: Codeunit "Instruction Mgt.";
+        ICFeedback: Codeunit "IC Feedback";
     begin
         if not OrderPurchaseHeader.Get(Rec."Document Type", Rec."No.") then begin
             PurchInvHeader.SetRange("No.", Rec."Last Posting No.");
-            if PurchInvHeader.FindFirst() then
+            if PurchInvHeader.FindFirst() then begin
+                ICFeedback.ShowIntercompanyMessage(Rec, "IC Transaction Document Type"::Order);
                 if InstructionMgt.ShowConfirm(StrSubstNo(OpenPostedPurchaseOrderQst, PurchInvHeader."No."),
                      InstructionMgt.ShowPostedConfirmationMessageCode())
                 then
                     InstructionMgt.ShowPostedDocument(PurchInvHeader, Page::"Purchase Order");
+            end;
         end;
     end;
 

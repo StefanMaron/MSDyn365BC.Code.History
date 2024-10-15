@@ -2411,19 +2411,18 @@
                 DocumentTotals: Codeunit "Document Totals";
                 VATAmount: Decimal;
             begin
-                if "Document Type" in ["Document Type"::Invoice, "Document Type"::"Credit Memo"] then begin
-                    if FindSuggestedPurchLine(PurchLine) then
-                        if PurchLine."VAT Calculation Type" = PurchLine."VAT Calculation Type"::"Normal VAT" then begin
-                            Currency.Initialize("Currency Code");
-                            Currency.TestField("Amount Rounding Precision");
-                            DocumentTotals.CalculatePurchaseTotals(TotalPurchaseLine, VATAmount, PurchLine);
-                            UpdateDocAmountVAT(
-                              "Doc. Amount Incl. VAT", VATAmount, TotalPurchaseLine."Amount Including VAT", Currency."Amount Rounding Precision");
-                            DocBaseAmount := Round("Doc. Amount Incl. VAT" - VATAmount, Currency."Amount Rounding Precision");
-                        end else
-                            DocBaseAmount := "Doc. Amount Incl. VAT";
-                    SuggestAmount();
-                end;
+                if PurchLine."VAT Calculation Type" <> PurchLine."VAT Calculation Type"::"Normal VAT" then
+                    exit;                
+                if not ("Document Type" in ["Document Type"::Invoice, "Document Type"::"Credit Memo"]) then
+                    exit;
+                if not FindSuggestedPurchLine(PurchLine) then
+                    exit;
+                
+                Currency.Initialize("Currency Code");
+                Currency.TestField("Amount Rounding Precision");
+                DocumentTotals.CalculatePurchaseTotals(TotalPurchaseLine, VATAmount, PurchLine);
+                UpdateDocAmountVAT(
+                  "Doc. Amount Incl. VAT", VATAmount, TotalPurchaseLine."Amount Including VAT", Currency."Amount Rounding Precision");
             end;
         }
         field(11302; "Doc. Amount VAT"; Decimal)
@@ -2682,7 +2681,6 @@
         StatisticsInsuffucientPermissionsErr: Label 'You don''t have permission to view statistics.';
         Text054: Label 'There are unpaid prepayment invoices that are related to the document of type %1 with the number %2.';
         Text11300: Label '%1 must not be more than %2.';
-        DocBaseAmount: Decimal;
         DeferralLineQst: Label 'You have changed the %1 on the purchase header, do you want to update the deferral schedules for the lines with this date?', Comment = '%1=The posting date on the document.';
         PostedDocsToPrintCreatedMsg: Label 'One or more related posted documents have been generated during deletion to fill gaps in the posting number series. You can view or print the documents from the respective document archive.';
         BuyFromVendorTxt: Label 'Buy-from Vendor';
@@ -3447,7 +3445,6 @@
 
     procedure PriceMessageIfPurchLinesExist(ChangedFieldName: Text[100])
     var
-        PurchaseLine: Record "Purchase Line";
         ConfirmManagement: Codeunit "Confirm Management";
         MessageText: Text;
     begin
@@ -3458,20 +3455,9 @@
 
             if (ChangedFieldName.Contains(FieldCaption("Order Date"))) then begin
                 Confirmed := ConfirmManagement.GetResponseOrDefault(StrSubstNo(SplitMessageTxt, MessageText, UpdateLinesOrderDateAutomaticallyQst), false);
-                if Confirmed then begin
-                    Rec.Modify();
-                    PurchaseLine.SetRange("Document Type", Rec."Document Type");
-                    PurchaseLine.SetRange("Document No.", Rec."No.");
-                    if PurchaseLine.FindSet() then
-                        repeat
-                            PurchaseLine.Validate("Order Date", Rec."Order Date");
-                            if PurchaseLine."No." <> '' then
-                                PurchaseLine.Validate("No.");
-                            PurchaseLine.Modify();
-                        until PurchaseLine.Next() = 0;
-                end;
-            end
-            else
+                if Confirmed then
+                    UpdatePurchLinesByFieldNo(FieldNo("Order Date"), false);
+            end else
                 Message(StrSubstNo(SplitMessageTxt, MessageText, ReviewLinesManuallyMsg));
         end;
     end;
@@ -3679,6 +3665,11 @@
                         PurchLine.FieldNo("Deferral Code"):
                             if PurchLine."No." <> '' then
                                 PurchLine.Validate("Deferral Code");
+                        FieldNo("Order Date"):
+                            if PurchLine."No." <> '' then begin
+                                PurchLine.Validate("Order Date", "Order Date");
+                                PurchLine.UpdateDirectUnitCost(0);
+                            end;
                         else
                             OnUpdatePurchLinesByChangedFieldName(Rec, PurchLine, Field.FieldName, ChangedFieldNo, xRec);
                     end;
@@ -3709,29 +3700,6 @@
         if ReservationEngineMgt.ResvExistsForPurchHeader(Rec) then
             if not ConfirmManagement.GetResponseOrDefault(Text050, true) then
                 Error('');
-    end;
-
-    local procedure SuggestAmount()
-    begin
-        PurchLine.Reset();
-        PurchLine.SetRange("Document Type", "Document Type");
-        PurchLine.SetRange("Document No.", "No.");
-        PurchLine.SetRange("Suggested Line", true);
-        if PurchLine.Find('-') then begin
-            if ((PurchLine.Quantity in [0, 1]) and
-                (PurchLine."Direct Unit Cost" = 0))
-            then begin
-                PurchLine.Validate(Quantity, 1);
-                if "Prices Including VAT" then
-                    PurchLine.Validate("Direct Unit Cost", "Doc. Amount Incl. VAT")
-                else
-                    PurchLine.Validate("Direct Unit Cost", DocBaseAmount);
-                PurchLine."Suggested Line" := true;
-                PurchLine.UpdateVATAmounts();
-                PurchLine.Modify();
-            end;
-        end else
-            PurchLine.SetRange("Suggested Line");
     end;
 
 #if not CLEAN20
@@ -3844,7 +3812,8 @@
                 exit(false);
             if (Rec."Location Code" = '') and (xRec."Location Code" <> '') then
                 exit(true);
-            if (xRec."location Code" <> Rec."Location Code") then
+            if (xRec."location Code" <> Rec."Location Code") and ((CurrFieldNo = Rec.FieldNo("Location Code"))
+                or ((Rec."Sell-to Customer No." <> '') and (xRec."Sell-to Customer No." <> Rec."Sell-to Customer No."))) then
                 exit(true);
             if (xRec."Purchaser Code" <> '') and (xRec."Purchaser Code" <> Rec."Purchaser Code") then
                 exit(true);
@@ -6292,16 +6261,20 @@
         PostingGroupChangeInterface: Interface "Posting Group Change Method";
         IsHandled: Boolean;
     begin
+        IsHandled := false;
         OnBeforeCheckVendorPostingGroupChange(Rec, xRec, IsHandled);
         if IsHandled then
             exit;
+
         if ("Vendor Posting Group" <> xRec."Vendor Posting Group") and (xRec."Vendor Posting Group" <> '') then begin
             TestField("Pay-to Vendor No.");
             PayToVendor.Get("Pay-to Vendor No.");
-            PayToVendor.TestField("Allow Multiple Posting Groups");
             GetPurchSetup();
-            PostingGroupChangeInterface := PurchSetup."Check Multiple Posting Groups";
-            PostingGroupChangeInterface.ChangePostingGroup("Vendor Posting Group", xRec."Vendor Posting Group", Rec);
+            if PurchSetup."Allow Multiple Posting Groups" then begin
+                PayToVendor.TestField("Allow Multiple Posting Groups");
+                PostingGroupChangeInterface := PurchSetup."Check Multiple Posting Groups";
+                PostingGroupChangeInterface.ChangePostingGroup("Vendor Posting Group", xRec."Vendor Posting Group", Rec);
+            end;
         end;
     end;
 

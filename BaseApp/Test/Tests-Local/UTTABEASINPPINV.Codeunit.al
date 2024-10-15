@@ -63,47 +63,51 @@ codeunit 144033 "UT TAB EASINPPINV"
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
-    procedure ValidateDocAmountVATPurchaseInvoiceSecondLineWithNoVAT()
+    procedure VerifyDocAmtInclVATDontUpdateLineAmountOnInvoice()
     var
         PurchaseHeader: Record "Purchase Header";
-        PurchaseLine: array[2] of Record "Purchase Line";
+        PurchaseLine: Record "Purchase Line";
+        DocAmtInclVat: Decimal;
     begin
-        // [FEATURE] [Invoice]
-        // [SCENARIO] Stan can specify "Doc. Amount VAT" greater than "Doc. Amount Inc. VAT" on multiline purchase invoice having one or more NO VAT line.
-        CreatePurchaseDocumentWithTwoLinesNoVATSecondLine(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Invoice);
+        // [SCENARIO 465533] Changing "Doc. Amount Incl. VAT", on Purchase Invoice, must not affect "Direct Unit Cost" on purchase invoice lines
 
-        PurchaseHeader.CalcFields("Amount Including VAT");
-        PurchaseHeader.Validate("Doc. Amount Incl. VAT", PurchaseHeader."Amount Including VAT");
-        PurchaseHeader.TestField(
-          "Doc. Amount Incl. VAT",
-          PurchaseLine[1]."Amount Including VAT" + PurchaseLine[2]."Amount Including VAT");
-        PurchaseHeader.TestField("Doc. Amount VAT", PurchaseLine[1]."Amount Including VAT" - PurchaseLine[1].Amount);
-        PurchaseHeader.Validate("Doc. Amount VAT", 0);
-        PurchaseHeader.Validate("Doc. Amount VAT", PurchaseLine[1]."Amount Including VAT" - PurchaseLine[1].Amount);
-        PurchaseHeader.TestField("Doc. Amount VAT", PurchaseLine[1]."Amount Including VAT" - PurchaseLine[1].Amount);
+        // [GIVEN] Purchase Invoice
+        CreatePurchaseDocument(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Invoice);
+        DocAmtInclVat := PurchaseLine."Amount Including VAT" + LibraryRandom.RandDecInRange(10, 20, 2);
+
+        // [WHEN] Set value in "Doc. Amount Incl. VAT"
+        PurchaseHeader.Validate("Doc. Amount Incl. VAT", DocAmtInclVat);
+
+        // [THEN] Verify line amounts are not changed
+        PurchaseLine.SetLoadFields("Direct Unit Cost", "Amount Including VAT");
+        PurchaseLine.SetRecFilter();
+        PurchaseLine.FindFirst();
+        Assert.AreNotEqual(DocAmtInclVat, PurchaseLine."Amount Including VAT", 'Line amount including vat has been changed');
     end;
 
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
-    procedure ValidateDocAmountVATPurchaseCreditMemoSecondLineWithNoVAT()
+    procedure VerifyDocAmtInclVATDontUpdateLineAmountOnCrMemo()
     var
         PurchaseHeader: Record "Purchase Header";
-        PurchaseLine: array[2] of Record "Purchase Line";
+        PurchaseLine: Record "Purchase Line";
+        DocAmtInclVat: Decimal;
     begin
-        // [FEATURE] [Credit Memo]
-        // [SCENARIO] Stan can specify "Doc. Amount VAT" greater than "Doc. Amount Inc. VAT" on multiline purchase credit memo having one or more NO VAT line.
-        CreatePurchaseDocumentWithTwoLinesNoVATSecondLine(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::"Credit Memo");
+        // [SCENARIO 465533] Changing "Doc. Amount Incl. VAT", on Purchase Credit Memo, must not affect "Direct Unit Cost" on purchase credit memo lines
 
-        PurchaseHeader.CalcFields("Amount Including VAT");
-        PurchaseHeader.Validate("Doc. Amount Incl. VAT", PurchaseHeader."Amount Including VAT");
-        PurchaseHeader.TestField(
-          "Doc. Amount Incl. VAT",
-          PurchaseLine[1]."Amount Including VAT" + PurchaseLine[2]."Amount Including VAT");
-        PurchaseHeader.TestField("Doc. Amount VAT", PurchaseLine[1]."Amount Including VAT" - PurchaseLine[1].Amount);
-        PurchaseHeader.Validate("Doc. Amount VAT", 0);
-        PurchaseHeader.Validate("Doc. Amount VAT", PurchaseLine[1]."Amount Including VAT" - PurchaseLine[1].Amount);
-        PurchaseHeader.TestField("Doc. Amount VAT", PurchaseLine[1]."Amount Including VAT" - PurchaseLine[1].Amount);
+        // [GIVEN] Purchase Credit Memo
+        CreatePurchaseDocument(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::"Credit Memo");
+        DocAmtInclVat := PurchaseLine."Amount Including VAT" + LibraryRandom.RandDecInRange(10, 20, 2);
+
+        // [WHEN] Set value in "Doc. Amount Incl. VAT"
+        PurchaseHeader.Validate("Doc. Amount Incl. VAT", DocAmtInclVat);
+
+        // [THEN] Verify line amounts are not changed
+        PurchaseLine.SetLoadFields("Direct Unit Cost", "Amount Including VAT");
+        PurchaseLine.SetRecFilter();
+        PurchaseLine.FindFirst();
+        Assert.AreNotEqual(DocAmtInclVat, PurchaseLine."Amount Including VAT", 'Line amount including vat has been changed');
     end;
 
     local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocumentType: Option): Decimal

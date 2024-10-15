@@ -8,22 +8,36 @@ codeunit 7580 "Onboarding Signal"
     Access = Public;
     Permissions = tabledata "Onboarding Signal" = rimd;
 
+    var
+        Telemetry: Codeunit Telemetry;
+
     /// <summary> Register a new Onboarding Signal to keep track of. </summary>
     /// <param name="CompanyName"> The name of the company you want to register the onboarding signal for. </param>
     /// <param name="OnboardingSignalType"> A new Onboarding Signal. </param>
     procedure RegisterNewOnboardingSignal(CompanyName: Text[30]; OnboardingSignalType: Enum "Onboarding Signal Type")
     var
         OnboardingSignal: Record "Onboarding Signal";
+        CallerModuleInfo: ModuleInfo;
+        CustomDimensions: Dictionary of [Text, Text];
     begin
         OnboardingSignal.SetRange("Company Name", CompanyName);
         OnboardingSignal.SetRange("Onboarding Signal Type", OnboardingSignalType);
 
-        if not OnboardingSignal.FindFirst() then begin
+        if OnboardingSignal.IsEmpty() then begin
+            NavApp.GetCallerModuleInfo(CallerModuleInfo);
+
             OnboardingSignal.Init();
             OnboardingSignal."Company Name" := CompanyName;
             OnboardingSignal."Onboarding Signal Type" := OnboardingSignalType;
             OnboardingSignal."Onboarding Completed" := false;
+            OnboardingSignal."Onboarding Start Date" := Today();
+            OnboardingSignal."Onboarding Complete Date" := 0D;
+            OnboardingSignal."Extension ID" := CallerModuleInfo.Id();
             OnboardingSignal.Insert();
+
+            AddOnboardingSignalDimensions(OnboardingSignal, CustomDimensions);
+
+            Telemetry.LogMessage('0000EIW', 'Onboarding Signal Started', Verbosity::Normal, DataClassification::OrganizationIdentifiableInformation, TelemetryScope::All, CustomDimensions);
         end;
     end;
 
@@ -34,10 +48,10 @@ codeunit 7580 "Onboarding Signal"
     var
         Company: Record Company;
         OnboardingSignal: Record "Onboarding Signal";
-        EnvironmentInfo: Codeunit "Environment Information";
-        Telemetry: Codeunit Telemetry;
+        EnvironmentInformation: Codeunit "Environment Information";
         OnboardingSignalProvider: Interface "Onboarding Signal";
         TelemetryScope: TelemetryScope;
+        CustomDimensions: Dictionary of [Text, Text];
     begin
         if not Company.Get(CompanyName()) then
             exit;
@@ -45,10 +59,10 @@ codeunit 7580 "Onboarding Signal"
         if Company."Evaluation Company" then
             exit;
 
-        if EnvironmentInfo.IsSandbox() then
+        if EnvironmentInformation.IsSandbox() then
             exit;
 
-        OnboardingSignal.SetRange("Company Name", CompanyName);
+        OnboardingSignal.SetRange("Company Name", CompanyName());
         OnboardingSignal.SetRange("Onboarding Completed", false);
 
         if OnboardingSignal.FindSet() then
@@ -57,11 +71,39 @@ codeunit 7580 "Onboarding Signal"
 
                 if OnboardingSignalProvider.IsOnboarded() then begin
                     OnboardingSignal."Onboarding Completed" := true;
+                    OnboardingSignal."Onboarding Complete Date" := Today();
                     OnboardingSignal.Modify();
 
-                    Telemetry.LogMessage('0000EIV', 'Onboarding Completed for criteria: ' + GetOnboardingSignalStringForTelemetry(OnboardingSignal."Onboarding Signal Type"), Verbosity::Normal, DataClassification::OrganizationIdentifiableInformation, TelemetryScope::All);
+                    AddOnboardingSignalDimensions(OnboardingSignal, CustomDimensions);
+
+                    Telemetry.LogMessage('0000EIV', 'Onboarding Signal Completed', Verbosity::Normal, DataClassification::OrganizationIdentifiableInformation, TelemetryScope::All, CustomDimensions);
                 end;
             until OnboardingSignal.Next() = 0;
+    end;
+
+    /// <summary>
+    /// Check if a company has onboarded
+    /// </summary>
+    /// <param name="CompanyName"> The Company's name to check. </param>
+    /// <returns> True if all the signals for the current company has completed, except for the Company Signal </returns>
+    procedure HasCompanyOnboarded(CompanyName: Text): Boolean
+    var
+        OnboardingSignal: Record "Onboarding Signal";
+        OnboardingSignalType: Enum "Onboarding Signal Type";
+    begin
+        OnboardingSignal.SetRange("Company Name", CompanyName);
+        OnboardingSignal.SetRange("Onboarding Signal Type", OnboardingSignalType::Company);
+
+        if OnboardingSignal."Onboarding Completed" then
+            exit(true)
+        else begin
+            OnboardingSignal.Reset();
+            OnboardingSignal.SetRange("Company Name", CompanyName);
+            OnboardingSignal.SetFilter("Onboarding Signal Type", '<>%1', OnboardingSignalType::Company);
+            OnboardingSignal.SetRange("Onboarding Completed", false);
+
+            exit(OnboardingSignal.IsEmpty());
+        end;
     end;
 
     [EventSubscriber(ObjectType::Table, Database::Company, 'OnAfterDeleteEvent', '', false, false)]
@@ -71,12 +113,16 @@ codeunit 7580 "Onboarding Signal"
     begin
         OnboardingSignal.SetRange("Company Name", Rec.Name);
 
-        if OnboardingSignal.FindFirst() then
+        if not OnboardingSignal.IsEmpty() then
             OnboardingSignal.DeleteAll();
     end;
 
-    local procedure GetOnboardingSignalStringForTelemetry(OnboardingSignalType: Enum "Onboarding Signal Type"): Text
+    local procedure AddOnboardingSignalDimensions(OnboardingSignal: Record "Onboarding Signal"; var CustomDimensions: Dictionary of [Text, Text])
     begin
-        exit(Format(OnboardingSignalType.AsInteger()) + ', ' + Format(OnboardingSignalType));
+        CustomDimensions.Set('Start Date', Format(OnboardingSignal."Onboarding Start Date"));
+        CustomDimensions.Set('Complete Date', Format(OnboardingSignal."Onboarding Complete Date"));
+        CustomDimensions.Set('Criteria Name', Format(OnboardingSignal."Onboarding Signal Type"));
+        CustomDimensions.Set('Criteria ID', Format(OnboardingSignal."Onboarding Signal Type".AsInteger()));
+        CustomDimensions.Set('Register Extension ID', Format(OnboardingSignal."Extension ID"));
     end;
 }
