@@ -62,6 +62,18 @@ page 20012 "APIV1 - Sales Invoices"
                         RegisterFieldSet(FIELDNO("Document Date"));
                     end;
                 }
+                field(postingDate; "Posting Date")
+                {
+                    ApplicationArea = All;
+                    Caption = 'postingDate', Locked = true;
+                    trigger OnValidate()
+                    begin
+                        PostingDateVar := "Posting Date";
+                        PostingDateSet := TRUE;
+
+                        RegisterFieldSet(FIELDNO("Posting Date"));
+                    end;
+                }
                 field(dueDate; "Due Date")
                 {
                     ApplicationArea = All;
@@ -94,8 +106,7 @@ page 20012 "APIV1 - Sales Invoices"
                     var
                         O365SalesInvoiceMgmt: Codeunit "O365 Sales Invoice Mgmt";
                     begin
-                        SellToCustomer.SETRANGE(Id, "Customer Id");
-                        IF NOT SellToCustomer.FINDFIRST() THEN
+                        IF NOT SellToCustomer.GetBySystemId("Customer Id") THEN
                             ERROR(CouldNotFindSellToCustomerErr);
 
                         O365SalesInvoiceMgmt.EnforceCustomerTemplateIntegrity(SellToCustomer);
@@ -155,7 +166,7 @@ page 20012 "APIV1 - Sales Invoices"
 
                         O365SalesInvoiceMgmt.EnforceCustomerTemplateIntegrity(SellToCustomer);
 
-                        "Customer Id" := SellToCustomer.Id;
+                        "Customer Id" := SellToCustomer.SystemId;
                         RegisterFieldSet(FIELDNO("Customer Id"));
                         RegisterFieldSet(FIELDNO("Sell-to Customer No."));
                     end;
@@ -181,8 +192,7 @@ page 20012 "APIV1 - Sales Invoices"
                     var
                         O365SalesInvoiceMgmt: Codeunit "O365 Sales Invoice Mgmt";
                     begin
-                        BillToCustomer.SETRANGE(Id, "Bill-to Customer Id");
-                        IF NOT BillToCustomer.FINDFIRST() THEN
+                        IF NOT BillToCustomer.GetBySystemId("Bill-to Customer Id") THEN
                             ERROR(CouldNotFindBillToCustomerErr);
 
                         O365SalesInvoiceMgmt.EnforceCustomerTemplateIntegrity(BillToCustomer);
@@ -212,7 +222,7 @@ page 20012 "APIV1 - Sales Invoices"
 
                         O365SalesInvoiceMgmt.EnforceCustomerTemplateIntegrity(BillToCustomer);
 
-                        "Bill-to Customer Id" := BillToCustomer.Id;
+                        "Bill-to Customer Id" := BillToCustomer.SystemId;
                         RegisterFieldSet(FIELDNO("Bill-to Customer Id"));
                         RegisterFieldSet(FIELDNO("Bill-to Customer No."));
                     end;
@@ -292,8 +302,7 @@ page 20012 "APIV1 - Sales Invoices"
                         IF "Currency Id" = BlankGUID THEN
                             "Currency Code" := ''
                         ELSE BEGIN
-                            Currency.SETRANGE(Id, "Currency Id");
-                            IF NOT Currency.FINDFIRST() THEN
+                            IF NOT Currency.GetBySystemId("Currency Id") THEN
                                 ERROR(CurrencyIdDoesNotMatchACurrencyErr);
 
                             "Currency Code" := Currency.Code;
@@ -326,7 +335,7 @@ page 20012 "APIV1 - Sales Invoices"
                             IF NOT Currency.GET("Currency Code") THEN
                                 ERROR(CurrencyCodeDoesNotMatchACurrencyErr);
 
-                            "Currency Id" := Currency.Id;
+                            "Currency Id" := Currency.SystemId;
                         END;
 
                         RegisterFieldSet(FIELDNO("Currency Id"));
@@ -355,8 +364,7 @@ page 20012 "APIV1 - Sales Invoices"
                         IF "Payment Terms Id" = BlankGUID THEN
                             "Payment Terms Code" := ''
                         ELSE BEGIN
-                            PaymentTerms.SETRANGE(Id, "Payment Terms Id");
-                            IF NOT PaymentTerms.FINDFIRST() THEN
+                            IF NOT PaymentTerms.GetBySystemId("Payment Terms Id") THEN
                                 ERROR(PaymentTermsIdDoesNotMatchAPaymentTermsErr);
 
                             "Payment Terms Code" := PaymentTerms.Code;
@@ -376,8 +384,7 @@ page 20012 "APIV1 - Sales Invoices"
                         IF "Shipment Method Id" = BlankGUID THEN
                             "Shipment Method Code" := ''
                         ELSE BEGIN
-                            ShipmentMethod.SETRANGE(Id, "Shipment Method Id");
-                            IF NOT ShipmentMethod.FINDFIRST() THEN
+                            IF NOT ShipmentMethod.GetBySystemId("Shipment Method Id") THEN
                                 ERROR(ShipmentMethodIdDoesNotMatchAShipmentMethodErr);
 
                             "Shipment Method Code" := ShipmentMethod.Code;
@@ -617,6 +624,8 @@ page 20012 "APIV1 - Sales Invoices"
         RemainingAmountVar: Decimal;
         DocumentDateSet: Boolean;
         DocumentDateVar: Date;
+        PostingDateSet: Boolean;
+        PostingDateVar: Date;
         DueDateSet: Boolean;
         DueDateVar: Date;
         PostedInvoiceActionErr: Label 'The action can be applied to a posted invoice only.', Locked = true;
@@ -816,7 +825,7 @@ page 20012 "APIV1 - Sales Invoices"
         END;
 
         IF UpdateCustomer THEN BEGIN
-            VALIDATE("Customer Id", Customer.Id);
+            VALIDATE("Customer Id", Customer.SystemId);
             VALIDATE("Sell-to Customer No.", Customer."No.");
             RegisterFieldSet(FIELDNO("Customer Id"));
             RegisterFieldSet(FIELDNO("Sell-to Customer No."));
@@ -879,7 +888,7 @@ page 20012 "APIV1 - Sales Invoices"
     var
         SalesInvoiceAggregator: Codeunit "Sales Invoice Aggregator";
     begin
-        IF NOT (DueDateSet OR DocumentDateSet) THEN
+        IF NOT (DueDateSet OR DocumentDateSet OR PostingDateSet) THEN
             EXIT;
 
         TempFieldBuffer.RESET();
@@ -888,6 +897,11 @@ page 20012 "APIV1 - Sales Invoices"
         IF DocumentDateSet THEN BEGIN
             "Document Date" := DocumentDateVar;
             RegisterFieldSet(FIELDNO("Document Date"));
+        END;
+
+        IF PostingDateSet THEN BEGIN
+            "Posting Date" := PostingDateVar;
+            RegisterFieldSet(FIELDNO("Posting Date"));
         END;
 
         IF DueDateSet THEN BEGIN
@@ -1121,7 +1135,7 @@ page 20012 "APIV1 - Sales Invoices"
         END;
         GetDraftInvoice(SalesHeader);
         SendDraftInvoice(SalesHeader);
-        SetActionResponse(ActionContext, SalesHeader.Id);
+        SetActionResponse(ActionContext, SalesHeader.SystemId);
     end;
 
     [ServiceEnabled]
@@ -1166,6 +1180,6 @@ page 20012 "APIV1 - Sales Invoices"
                 Error(InvoicePartiallyPaidErr);
         SalesInvoiceHeader.SETRECFILTER();
         CorrectPostedSalesInvoice.CreateCreditMemoCopyDocument(SalesInvoiceHeader, SalesHeader);
-        SetActionResponse(ActionContext, Page::"APIV1 - Sales Credit Memos", SalesHeader.Id);
+        SetActionResponse(ActionContext, Page::"APIV1 - Sales Credit Memos", SalesHeader.SystemId);
     end;
 }

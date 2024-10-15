@@ -7347,7 +7347,7 @@ Cstr(Fields!RefNo_SalesInvHdr.Value)
         <Height>24.76782cm</Height>
         <Style />
       </Body>
-      <Width>19cm</Width>
+      <Width>18cm</Width>
       <Page>
         <PageHeader>
           <Height>10.93614cm</Height>
@@ -8775,7 +8775,7 @@ Cstr(Fields!RefNo_SalesInvHdr.Value)
                 </Image>
               </ReportItems>
               <KeepTogether>true</KeepTogether>
-              <Left>7.5cm</Left>
+              <Left>7cm</Left>
               <Height>14mm</Height>
               <Width>40mm</Width>
               <ZIndex>46</ZIndex>
@@ -8827,7 +8827,7 @@ Cstr(Fields!RefNo_SalesInvHdr.Value)
                 </Image>
               </ReportItems>
               <KeepTogether>true</KeepTogether>
-              <Left>15cm</Left>
+              <Left>14cm</Left>
               <Height>14mm</Height>
               <Width>40mm</Width>
               <ZIndex>48</ZIndex>

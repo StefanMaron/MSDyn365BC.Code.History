@@ -25,7 +25,7 @@ codeunit 32000000 "Ref. Payment Management"
         Text1090005: Label 'When applying one payment to multiple invoices the system does not support disregarding of payment discount at full payment.';
 
     [Scope('OnPrem')]
-    procedure SetLines(Rec: Record "Ref. Payment - Imported"; JnlBatchName: Code[20]; JnlTemplateName: Code[20])
+    procedure SetLines(RefPaymentImported: Record "Ref. Payment - Imported"; JnlBatchName: Code[20]; JnlTemplateName: Code[20])
     begin
         GLSetup.Get;
         GenJnlTemplate.Get(JnlTemplateName);
@@ -40,34 +40,34 @@ codeunit 32000000 "Ref. Payment Management"
         end else
             GetNroSeries(JnlBatchName, JnlTemplateName);
 
-        Rec.Ascending(true);
-        Rec.SetRange("Posted to G/L", false);
-        Rec.SetRange(Matched, true);
-        Rec.SetFilter("Entry No.", '<>%1', 0);
+        RefPaymentImported.Ascending(true);
+        RefPaymentImported.SetRange("Posted to G/L", false);
+        RefPaymentImported.SetRange(Matched, true);
+        RefPaymentImported.SetFilter("Entry No.", '<>%1', 0);
         CustLedgEntry.Reset;
-        if Rec.FindSet then
+        if RefPaymentImported.FindSet then
             repeat
-                BankAcc.SetRange("No.", Rec."Bank Account Code");
+                BankAcc.SetRange("No.", RefPaymentImported."Bank Account Code");
                 if BankAcc.FindFirst then
                     AccCode := BankAcc."No."
                 else
                     AccCode := '';
-                CustLedgEntry.SetRange("Entry No.", Rec."Entry No.");
+                CustLedgEntry.SetRange("Entry No.", RefPaymentImported."Entry No.");
                 GenJnlLine.Reset;
                 GenJnlLine.SetCurrentKey("Journal Template Name", "Journal Batch Name", "Applies-to Doc. No.", "Reference No.");
                 GenJnlLine.SetRange("Journal Template Name", JnlTemplateName);
                 GenJnlLine.SetRange("Journal Batch Name", JnlBatchName);
-                GenJnlLine.SetRange("Applies-to Doc. No.", Rec."Document No.");
-                GenJnlLine.SetRange("Applies-to Doc. No.", Rec."Document No.");
-                GenJnlLine.SetRange("Reference No.", Rec."Reference No.");
-                RefPmtImportTemp.SetRange("Account No.", Rec."Account No.");
-                RefPmtImportTemp.SetRange("Filing Code", Rec."Filing Code");
+                GenJnlLine.SetRange("Applies-to Doc. No.", RefPaymentImported."Document No.");
+                GenJnlLine.SetRange("Applies-to Doc. No.", RefPaymentImported."Document No.");
+                GenJnlLine.SetRange("Reference No.", RefPaymentImported."Reference No.");
+                RefPmtImportTemp.SetRange("Account No.", RefPaymentImported."Account No.");
+                RefPmtImportTemp.SetRange("Filing Code", RefPaymentImported."Filing Code");
                 if (CustLedgEntry.FindFirst or (not RefPmtImportTemp.FindFirst)) and (not GenJnlLine.FindFirst) then begin
                     GenJnlLine.Init;
                     GenJnlLine."Journal Template Name" := JnlTemplateName;
                     GenJnlLine.Validate("Journal Batch Name", JnlBatchName);
                     GenJnlLine."Line No." := LineNro;
-                    GenJnlLine.Validate("Posting Date", Rec."Banks Posting Date");
+                    GenJnlLine.Validate("Posting Date", RefPaymentImported."Banks Posting Date");
                     GenJnlLine.Validate("Account Type", 1);
                     GenJnlLine.Validate("Account No.", CustLedgEntry."Customer No.");
                     GenJnlLine.Validate("Document Type", 1);
@@ -75,10 +75,10 @@ codeunit 32000000 "Ref. Payment Management"
                     GenJnlLine."Applies-to Doc. No." := CustLedgEntry."Document No.";
                     GenJnlLine."Document No." := LastDocNro;
                     GenJnlLine.Validate("Bal. Account Type", 3);
-                    GenJnlLine."Reference No." := Rec."Reference No.";
+                    GenJnlLine."Reference No." := RefPaymentImported."Reference No.";
                     GenJnlLine."Source Code" := GenJnlTemplate."Source Code";
                     GenJnlLine.Validate("Currency Code", CustLedgEntry."Currency Code");
-                    GenJnlLine.Validate(Amount, Rec.Amount * -1);
+                    GenJnlLine.Validate(Amount, RefPaymentImported.Amount * -1);
                     if AccCode <> '' then
                         GenJnlLine.Validate("Bal. Account No.", AccCode)
                     else
@@ -87,7 +87,7 @@ codeunit 32000000 "Ref. Payment Management"
                     LineNro := LineNro + 10000;
                     LastDocNro := IncStr(LastDocNro);
                 end;
-            until Rec.Next = 0;
+            until RefPaymentImported.Next = 0;
     end;
 
     [Scope('OnPrem')]
@@ -100,7 +100,6 @@ codeunit 32000000 "Ref. Payment Management"
             LastDocNro := NoSeriesMgt.GetNextNo(GenJnlBatch."No. Series", WorkDate, false);
     end;
 
-    [Scope('OnPrem')]
     procedure MatchLines(JnlTemplateName: Code[20]; JnlBatchName: Code[20])
     var
         NoMatchLines: Boolean;

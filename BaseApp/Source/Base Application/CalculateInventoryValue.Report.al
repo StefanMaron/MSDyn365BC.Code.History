@@ -282,6 +282,11 @@ report 5899 "Calculate Inventory Value"
     {
     }
 
+    trigger OnPreReport()
+    begin
+        OnBeforePreReport;
+    end;
+
     var
         Text003: Label 'You must enter a document number.';
         Text010: Label 'Processing items #1##########';
@@ -639,6 +644,11 @@ report 5899 "Calculate Inventory Value"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterInsertItemJnlLine(var ItemJournalLine: Record "Item Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePreReport()
     begin
     end;
 }

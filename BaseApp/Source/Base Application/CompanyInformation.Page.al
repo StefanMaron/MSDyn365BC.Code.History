@@ -416,7 +416,7 @@ Page 1 "Company Information"
                 Caption = 'Responsibility Centers';
                 Image = Position;
                 RunObject = Page "Responsibility Center List";
-                                ToolTip = 'Set up responsibility centers to administer business operations that cover multiple locations, such as a sales offices or a purchasing departments.';
+                ToolTip = 'Set up responsibility centers to administer business operations that cover multiple locations, such as a sales offices or a purchasing departments.';
             }
             action("Report Layouts")
             {
@@ -427,7 +427,7 @@ Page 1 "Company Information"
                 PromotedCategory = "Report";
                 PromotedOnly = true;
                 RunObject = Page "Report Layout Selection";
-                                ToolTip = 'Specify the layout to use on reports when viewing, printing, and saving them. The layout defines things like text font, field placement, or background.';
+                ToolTip = 'Specify the layout to use on reports when viewing, printing, and saving them. The layout defines things like text font, field placement, or background.';
             }
             group("Application Settings")
             {
@@ -445,7 +445,7 @@ Page 1 "Company Information"
                         PromotedCategory = Category4;
                         PromotedIsBig = true;
                         RunObject = Page "General Ledger Setup";
-                                        ToolTip = 'Define your general accounting policies, such as the allowed posting period and how payments are processed. Set up your default dimensions for financial analysis.';
+                        ToolTip = 'Define your general accounting policies, such as the allowed posting period and how payments are processed. Set up your default dimensions for financial analysis.';
                     }
                     action("Sales & Receivables Setup")
                     {
@@ -453,7 +453,7 @@ Page 1 "Company Information"
                         Caption = 'Sales & Receivables Setup';
                         Image = ReceivablesPayablesSetup;
                         RunObject = Page "Sales & Receivables Setup";
-                                        ToolTip = 'Define your general policies for sales invoicing and returns, such as when to show credit and stockout warnings and how to post sales discounts. Set up your number series for creating customers and different sales documents.';
+                        ToolTip = 'Define your general policies for sales invoicing and returns, such as when to show credit and stockout warnings and how to post sales discounts. Set up your number series for creating customers and different sales documents.';
                     }
                     action("Purchases & Payables Setup")
                     {
@@ -461,7 +461,7 @@ Page 1 "Company Information"
                         Caption = 'Purchases & Payables Setup';
                         Image = Purchase;
                         RunObject = Page "Purchases & Payables Setup";
-                                        ToolTip = 'Define your general policies for purchase invoicing and returns, such as whether to require vendor invoice numbers and how to post purchase discounts. Set up your number series for creating vendors and different purchase documents.';
+                        ToolTip = 'Define your general policies for purchase invoicing and returns, such as whether to require vendor invoice numbers and how to post purchase discounts. Set up your number series for creating vendors and different purchase documents.';
                     }
                     action("Inventory Setup")
                     {
@@ -469,7 +469,7 @@ Page 1 "Company Information"
                         Caption = 'Inventory Setup';
                         Image = InventorySetup;
                         RunObject = Page "Inventory Setup";
-                                        ToolTip = 'Define your general inventory policies, such as whether to allow negative inventory and how to post and adjust item costs. Set up your number series for creating new inventory items or services.';
+                        ToolTip = 'Define your general inventory policies, such as whether to allow negative inventory and how to post and adjust item costs. Set up your number series for creating new inventory items or services.';
                     }
                     action("Fixed Assets Setup")
                     {
@@ -477,7 +477,7 @@ Page 1 "Company Information"
                         Caption = 'Fixed Assets Setup';
                         Image = FixedAssets;
                         RunObject = Page "Fixed Asset Setup";
-                                        ToolTip = 'Define your accounting policies for fixed assets, such as the allowed posting period and whether to allow posting to main assets. Set up your number series for creating new fixed assets.';
+                        ToolTip = 'Define your accounting policies for fixed assets, such as the allowed posting period and whether to allow posting to main assets. Set up your number series for creating new fixed assets.';
                     }
                     action("Human Resources Setup")
                     {
@@ -485,7 +485,7 @@ Page 1 "Company Information"
                         Caption = 'Human Resources Setup';
                         Image = HRSetup;
                         RunObject = Page "Human Resources Setup";
-                                        ToolTip = 'Set up number series for creating new employee cards and define if employment time is measured by days or hours.';
+                        ToolTip = 'Set up number series for creating new employee cards and define if employment time is measured by days or hours.';
                     }
                     action("Jobs Setup")
                     {
@@ -493,7 +493,7 @@ Page 1 "Company Information"
                         Caption = 'Jobs Setup';
                         Image = Job;
                         RunObject = Page "Jobs Setup";
-                                        ToolTip = 'Define your accounting policies for jobs, such as which WIP method to use and whether to update job item costs automatically.';
+                        ToolTip = 'Define your accounting policies for jobs, such as which WIP method to use and whether to update job item costs automatically.';
                     }
                 }
                 action("No. Series")
@@ -505,7 +505,7 @@ Page 1 "Company Information"
                     PromotedCategory = Category4;
                     PromotedIsBig = true;
                     RunObject = Page "No. Series";
-                                    ToolTip = 'Set up the number series from which a new number is automatically assigned to new cards and documents, such as item cards and sales invoices.';
+                    ToolTip = 'Set up the number series from which a new number is automatically assigned to new cards and documents, such as item cards and sales invoices.';
                 }
             }
             group("System Settings")
@@ -520,7 +520,7 @@ Page 1 "Company Information"
                     PromotedCategory = Category5;
                     PromotedIsBig = true;
                     RunObject = Page Users;
-                                    ToolTip = 'Set up the employees who will work in this company.';
+                    ToolTip = 'Set up the employees who will work in this company.';
                 }
                 action("Permission Sets")
                 {
@@ -528,7 +528,7 @@ Page 1 "Company Information"
                     Caption = 'Permission Sets';
                     Image = Permission;
                     RunObject = Page "Permission Sets";
-                                    ToolTip = 'View or edit which feature objects that users need to access and set up the related permissions in permission sets that you can assign to the users of the database.';
+                    ToolTip = 'View or edit which feature objects that users need to access and set up the related permissions in permission sets that you can assign to the users of the database.';
                 }
                 action("SMTP Mail Setup")
                 {
@@ -536,7 +536,7 @@ Page 1 "Company Information"
                     Caption = 'SMTP Mail Setup';
                     Image = MailSetup;
                     RunObject = Page "SMTP Mail Setup";
-                                    ToolTip = 'Set up the integration and security of the mail server at your site that handles email.';
+                    ToolTip = 'Set up the integration and security of the mail server at your site that handles email.';
                 }
             }
             group(Currencies)
@@ -551,7 +551,7 @@ Page 1 "Company Information"
                     PromotedCategory = Category6;
                     PromotedIsBig = true;
                     RunObject = Page Currencies;
-                                    ToolTip = 'Set up the different currencies that you trade in by defining which general ledger accounts the involved transactions are posted to and how the foreign currency amounts are rounded.';
+                    ToolTip = 'Set up the different currencies that you trade in by defining which general ledger accounts the involved transactions are posted to and how the foreign currency amounts are rounded.';
                 }
             }
             group("Regional Settings")
@@ -563,7 +563,7 @@ Page 1 "Company Information"
                     Caption = 'Countries/Regions';
                     Image = CountryRegion;
                     RunObject = Page "Countries/Regions";
-                                    ToolTip = 'Set up the country/regions where your different business partners are located, so that you can assign Country/Region codes to business partners where special local procedures are required.';
+                    ToolTip = 'Set up the country/regions where your different business partners are located, so that you can assign Country/Region codes to business partners where special local procedures are required.';
                 }
                 action("Post Codes")
                 {
@@ -574,7 +574,7 @@ Page 1 "Company Information"
                     PromotedCategory = Category8;
                     PromotedIsBig = true;
                     RunObject = Page "Post Codes";
-                                    ToolTip = 'Set up the post codes of cities where your business partners are located.';
+                    ToolTip = 'Set up the post codes of cities where your business partners are located.';
                 }
                 action("Online Map Setup")
                 {
@@ -582,7 +582,7 @@ Page 1 "Company Information"
                     Caption = 'Online Map Setup';
                     Image = MapSetup;
                     RunObject = Page "Online Map Setup";
-                                    ToolTip = 'Define which map provider to use and how routes and distances are displayed when you choose the Online Map field on business documents.';
+                    ToolTip = 'Define which map provider to use and how routes and distances are displayed when you choose the Online Map field on business documents.';
                 }
                 action(Languages)
                 {
@@ -593,7 +593,7 @@ Page 1 "Company Information"
                     PromotedCategory = Category7;
                     PromotedIsBig = true;
                     RunObject = Page Languages;
-                                    ToolTip = 'Set up the languages that are spoken by your different business partners, so that you can print item names or descriptions in the relevant language.';
+                    ToolTip = 'Set up the languages that are spoken by your different business partners, so that you can print item names or descriptions in the relevant language.';
                 }
             }
             group(Codes)
@@ -605,7 +605,7 @@ Page 1 "Company Information"
                     Caption = 'Source Codes';
                     Image = CodesList;
                     RunObject = Page "Source Codes";
-                                    ToolTip = 'Set up codes for your different types of business transactions, so that you can track the source of the transactions in an audit.';
+                    ToolTip = 'Set up codes for your different types of business transactions, so that you can track the source of the transactions in an audit.';
                 }
                 action("Reason Codes")
                 {
@@ -613,7 +613,7 @@ Page 1 "Company Information"
                     Caption = 'Reason Codes';
                     Image = CodesList;
                     RunObject = Page "Reason Codes";
-                                    ToolTip = 'View or set up codes that specify reasons why entries were created, such as Return, to specify why a purchase credit memo was posted.';
+                    ToolTip = 'View or set up codes that specify reasons why entries were created, such as Return, to specify why a purchase credit memo was posted.';
                 }
             }
         }
@@ -631,8 +631,10 @@ Page 1 "Company Information"
         if ApplicationAreaMgmtFacade.SaveExperienceTierCurrentCompany(Experience) then
             RestartSession;
 
-        if SystemIndicatorChanged then
+        if SystemIndicatorChanged then begin
+            Message(CompanyBadgeRefreshPageTxt);
             RestartSession();
+        end;
     end;
 
     trigger OnInit()
@@ -671,6 +673,7 @@ Page 1 "Company Information"
         BankAcctPostingGroup: Code[20];
         CountyVisible: Boolean;
         SystemIndicatorChanged: Boolean;
+        CompanyBadgeRefreshPageTxt: Label 'The Company Badge settings have changed. Refresh the browser (Ctrl+F5) to update the badge.';
 
     local procedure UpdateSystemIndicator()
     var

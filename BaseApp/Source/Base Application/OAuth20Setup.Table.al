@@ -116,6 +116,11 @@ table 1140 "OAuth 2.0 Setup"
             Caption = 'Latest Datetime';
             Editable = false;
         }
+        field(20; "Access Token Due DateTime"; DateTime)
+        {
+            Caption = 'Access Token Due DateTime';
+            Editable = false;
+        }
     }
 
     keys

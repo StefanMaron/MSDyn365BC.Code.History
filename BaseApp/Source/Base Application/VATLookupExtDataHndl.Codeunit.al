@@ -58,7 +58,6 @@ codeunit 248 "VAT Lookup Ext. Data Hndl"
 
     local procedure PrepareSOAPRequestBody(var TempBlob: Codeunit "Temp Blob")
     var
-        CompanyInformation: Record "Company Information";
         XMLDOMMgt: Codeunit "XML DOM Management";
         BodyContentInputStream: InStream;
         BodyContentOutputStream: OutStream;
@@ -68,15 +67,14 @@ codeunit 248 "VAT Lookup Ext. Data Hndl"
     begin
         TempBlob.CreateInStream(BodyContentInputStream);
         BodyContentXmlDoc := BodyContentXmlDoc.XmlDocument;
-        CompanyInformation.Get;
 
         XMLDOMMgt.AddRootElementWithPrefix(BodyContentXmlDoc, 'checkVatApprox', '', NamespaceTxt, EnvelopeXmlNode);
         XMLDOMMgt.AddElement(EnvelopeXmlNode, 'countryCode', VATRegistrationLog.GetCountryCode, NamespaceTxt, CreatedXmlNode);
         XMLDOMMgt.AddElement(EnvelopeXmlNode, 'vatNumber', VATRegistrationLog.GetVATRegNo, NamespaceTxt, CreatedXmlNode);
         XMLDOMMgt.AddElement(
-          EnvelopeXmlNode, 'requesterCountryCode', CompanyInformation.GetCompanyCountryRegionCode, NamespaceTxt, CreatedXmlNode);
+          EnvelopeXmlNode, 'requesterCountryCode', VATRegistrationLog.GetCountryCode, NamespaceTxt, CreatedXmlNode);
         XMLDOMMgt.AddElement(
-          EnvelopeXmlNode, 'requesterVatNumber', CompanyInformation.GetVATRegistrationNumber, NamespaceTxt, CreatedXmlNode);
+          EnvelopeXmlNode, 'requesterVatNumber', VATRegistrationLog.GetVATRegNo, NamespaceTxt, CreatedXmlNode);
 
         Clear(TempBlob);
         TempBlob.CreateOutStream(BodyContentOutputStream);

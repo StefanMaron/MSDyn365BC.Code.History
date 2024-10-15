@@ -1914,6 +1914,104 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         PurchaseLine.TestField(Quantity, 0);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesLineAmountIncludingVATWithDifferentVATCalculationTypes()
+    var
+        GLAccount: Record "G/L Account";
+        SalesHeader: Record "Sales Header";
+        SalesLine: array[2] of Record "Sales Line";
+        VATBusinessPostingGroup: Record "VAT Business Posting Group";
+        VATProductPostingGroup: array[2] of Record "VAT Product Posting Group";
+        VATPostingSetup: Record "VAT Posting Setup";
+        VATPercent: Decimal;
+    begin
+        // [FEATURE] [UT] [Sales]
+        // [SCENARIO 328781] "Amount Including VAT" is calculated correctly when there's two VAT Posting Setups with the same "VAT Identifier" but different VAT Calculation Types.
+        Initialize;
+
+        // [GIVEN] VAT Posting Setups "V1"/"V2" with different VAT Prod. Post. Groups, "VAT %" = 10, "VAT Identifier" = "VAT10" and VAT Calculation Type = "Normal VAT"/"Reverse Charge VAT".
+        LibraryERM.CreateVATBusinessPostingGroup(VATBusinessPostingGroup);
+        LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup[1]);
+        LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup[2]);
+        VATPercent := LibraryRandom.RandIntInRange(10, 20);
+        CreateVATPostingSetup(
+          VATPostingSetup, VATBusinessPostingGroup.Code, VATProductPostingGroup[1].Code,
+          VATPercent, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        CreateVATPostingSetup(
+          VATPostingSetup, VATBusinessPostingGroup.Code, VATProductPostingGroup[2].Code,
+          VATPercent, VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT");
+
+        // [GIVEN] G/L Account.
+        LibraryERM.CreateGLAccount(GLAccount);
+        GLAccount.Validate("VAT Prod. Posting Group", VATProductPostingGroup[1].Code);
+        GLAccount.Modify(true);
+
+        // [GIVEN] Sales Order with two Sales Lines "S1"/"S2" with "Unit Price" = "100"/"200", "VAT Prod. Post. Group" = "V1"/"V2".
+        LibrarySales.CreateSalesHeader(
+          SalesHeader, SalesHeader."Document Type"::Order,
+          LibrarySales.CreateCustomerWithVATBusPostingGroup(VATBusinessPostingGroup.Code));
+        CreateSalesLineWithUnitPriceAndVATProdPstGroup(
+          SalesLine[1], SalesHeader, VATProductPostingGroup[1].Code, SalesLine[1].Type::"G/L Account", GLAccount."No.", 0);
+        CreateSalesLineWithUnitPriceAndVATProdPstGroup(
+          SalesLine[2], SalesHeader, VATProductPostingGroup[2].Code, SalesLine[2].Type::"G/L Account", GLAccount."No.", 1);
+
+        // [WHEN] Sales Line "S1" Quantity is validated with 1.
+        SalesLine[1].Validate(Quantity, 1);
+
+        // [THEN] "S1" "Amount Including VAT" is equal to 100 * (1 + 10 / 100) = 110.
+        Assert.AreEqual(SalesLine[1]."Unit Price" * (1 + VATPercent / 100), SalesLine[1]."Amount Including VAT", '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchaseLineAmountIncludingVATWithDifferentVATCalculationTypes()
+    var
+        GLAccount: Record "G/L Account";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: array[2] of Record "Purchase Line";
+        VATBusinessPostingGroup: Record "VAT Business Posting Group";
+        VATProductPostingGroup: array[2] of Record "VAT Product Posting Group";
+        VATPostingSetup: Record "VAT Posting Setup";
+        VATPercent: Decimal;
+    begin
+        // [FEATURE] [UT] [Sales]
+        // [SCENARIO 328781] "Amount Including VAT" is calculated correctly when there's two VAT Posting Setups with the same "VAT Identifier" but different VAT Calculation Types.
+        Initialize;
+
+        // [GIVEN] VAT Posting Setups "V1"/"V2" with different VAT Prod. Post. Groups, "VAT %" = 10, "VAT Identifier" = "VAT10" and VAT Calculation Type = "Normal VAT"/"Reverse Charge VAT".
+        LibraryERM.CreateVATBusinessPostingGroup(VATBusinessPostingGroup);
+        LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup[1]);
+        LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup[2]);
+        VATPercent := LibraryRandom.RandIntInRange(10, 20);
+        CreateVATPostingSetup(
+          VATPostingSetup, VATBusinessPostingGroup.Code, VATProductPostingGroup[1].Code,
+          VATPercent, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        CreateVATPostingSetup(
+          VATPostingSetup, VATBusinessPostingGroup.Code, VATProductPostingGroup[2].Code,
+          VATPercent, VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT");
+
+        // [GIVEN] G/L Account.
+        LibraryERM.CreateGLAccount(GLAccount);
+        GLAccount.Validate("VAT Prod. Posting Group", VATProductPostingGroup[1].Code);
+        GLAccount.Modify(true);
+
+        // [GIVEN] Purchase Order with two Purchase Lines "P1"/"P2" with "Unit Price" = "100"/"200", "VAT Prod. Post. Group" = "V1"/"V2".
+        LibraryPurchase.CreatePurchHeader(
+          PurchaseHeader, PurchaseHeader."Document Type"::Order,
+          LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATBusinessPostingGroup.Code));
+        CreatePurchaseLineWithUnitPriceAndVATProdPstGroup(
+          PurchaseLine[1], PurchaseHeader, VATProductPostingGroup[1].Code, PurchaseLine[1].Type::"G/L Account", GLAccount."No.", 0);
+        CreatePurchaseLineWithUnitPriceAndVATProdPstGroup(
+          PurchaseLine[2], PurchaseHeader, VATProductPostingGroup[2].Code, PurchaseLine[2].Type::"G/L Account", GLAccount."No.", 1);
+
+        // [WHEN] Purchase Line "P1" Quantity is validated with 1.
+        PurchaseLine[1].Validate(Quantity, 1);
+
+        // [THEN] "S1" "Amount Including VAT" is equal to 100 * (1 + 10 / 100) = 110.
+        Assert.AreEqual(PurchaseLine[1]."Direct Unit Cost" * (1 + VATPercent / 100), PurchaseLine[1]."Amount Including VAT", '');
+    end;
+
     local procedure Initialize()
     var
         PurchaseHeader: Record "Purchase Header";
@@ -2054,6 +2152,14 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         SalesLine.Modify;
     end;
 
+    local procedure CreateSalesLineWithUnitPriceAndVATProdPstGroup(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; VATProdPstGroupCode: Code[20]; Type: Option; No: Code[20]; Quantity: Decimal)
+    begin
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, Type, No, Quantity);
+        SalesLine.Validate("VAT Prod. Posting Group", VATProdPstGroupCode);
+        SalesLine.Validate("Unit Price", LibraryRandom.RandIntInRange(1000, 1500));
+        SalesLine.Modify(true);
+    end;
+
     local procedure CreateSalesLineWithoutInsert(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header")
     var
         Item: Record Item;
@@ -2149,6 +2255,14 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         PurchaseLine.Modify(true);
     end;
 
+    local procedure CreatePurchaseLineWithUnitPriceAndVATProdPstGroup(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; VATProdPstGroupCode: Code[20]; Type: Option; No: Code[20]; Quantity: Decimal)
+    begin
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, Type, No, Quantity);
+        PurchaseLine.Validate("VAT Prod. Posting Group", VATProdPstGroupCode);
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(1000, 1500));
+        PurchaseLine.Modify(true);
+    end;
+
     local procedure CreatePurchaseLineWithoutInsert(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header")
     var
         Item: Record Item;
@@ -2230,6 +2344,15 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         LibrarySales.CreateCustomerWithVATRegNo(Customer);
         Customer.Validate("VAT Bus. Posting Group", VATBusPostingGroup);
         Customer.Modify;
+    end;
+
+    local procedure CreateVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; VATBusinessPostingGroupCode: Code[20]; VATProductPostingGroupCode: Code[20]; VATPercent: Decimal; VATCalculationType: Option)
+    begin
+        LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusinessPostingGroupCode, VATProductPostingGroupCode);
+        VATPostingSetup.Validate("VAT Identifier", VATBusinessPostingGroupCode);
+        VATPostingSetup.Validate("VAT %", VATPercent);
+        VATPostingSetup.Validate("VAT Calculation Type", VATCalculationType);
+        VATPostingSetup.Modify(true);
     end;
 
     local procedure CreateVendorWithVATRegNo(var Vendor: Record Vendor; VATBusPostingGroup: Code[20])

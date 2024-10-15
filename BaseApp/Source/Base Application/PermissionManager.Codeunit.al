@@ -16,6 +16,7 @@ codeunit 9002 "Permission Manager"
         LocalTok: Label 'LOCAL', Locked = true;
         EnvironmentInfo: Codeunit "Environment Information";
         TestabilityIntelligentCloud: Boolean;
+        CannotModifyOtherUsersErr: Label 'You cannot change settings for another user.';
 
     procedure AddUserToUserGroup(UserSecurityID: Guid; UserGroupCode: Code[20]; Company: Text[30])
     var
@@ -442,6 +443,22 @@ codeunit 9002 "Permission Manager"
         AccessControl."User Security ID" := UserSecurityID;
         AccessControl."Role ID" := RoleID;
         AccessControl.Insert(true);
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::User, 'OnBeforeModifyEvent', '', false, false)]
+    procedure CheckCurrentUserCanModifyUser(var Rec: Record User; var xRec: Record user; RunTrigger: Boolean)
+    var
+        LoggedInUser: Record User;
+        CurrentUserSecurityId: Guid;
+    begin
+        Rec.TestField("User Name");
+        CurrentUserSecurityId := UserSecurityId();
+        if not LoggedInUser.Get(CurrentUserSecurityId) then // Current user is Super from when there were no users in the system
+            exit;
+        if LoggedInUser."User Security ID" = Rec."User Security ID" then
+            exit;
+        if not CanManageUsersOnTenant(CurrentUserSecurityId) then
+            Error(CannotModifyOtherUsersErr);
     end;
 }
 

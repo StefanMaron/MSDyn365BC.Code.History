@@ -421,7 +421,6 @@ table 32000002 "Ref. Payment - Exported"
             end;
     end;
 
-    [Scope('OnPrem')]
     procedure SetDefaultTypes()
     begin
         if ("Foreign Payment Method" = '') or ("Foreign Banks Service Fee" = '') then
@@ -434,7 +433,6 @@ table 32000002 "Ref. Payment - Exported"
             end;
     end;
 
-    [Scope('OnPrem')]
     procedure CheckFixedCurrency(): Boolean
     var
         CurrExchRate: Record "Currency Exchange Rate";
@@ -486,7 +484,6 @@ table 32000002 "Ref. Payment - Exported"
         "Foreign Banks Service Fee" := '';
     end;
 
-    [Scope('OnPrem')]
     procedure UpdateLines()
     begin
         if FindSet(true) then
@@ -502,7 +499,6 @@ table 32000002 "Ref. Payment - Exported"
             until Next = 0;
     end;
 
-    [Scope('OnPrem')]
     procedure UpdateRemittanceInfo()
     begin
         case "Message Type" of
@@ -516,7 +512,6 @@ table 32000002 "Ref. Payment - Exported"
         end;
     end;
 
-    [Scope('OnPrem')]
     procedure ExistsNotTransferred(): Boolean
     var
         RefPaymentExported: Record "Ref. Payment - Exported";
@@ -539,19 +534,16 @@ table 32000002 "Ref. Payment - Exported"
         exit(true);
     end;
 
-    [Scope('OnPrem')]
     procedure SetUsePaymentDisc(NewUsePaymentDisc: Boolean)
     begin
         UsePaymentDisc := NewUsePaymentDisc;
     end;
 
-    [Scope('OnPrem')]
     procedure SetUsePaymentDiscTolerance(NewUsePmtDiscTolerance: Boolean)
     begin
         UsePmtDiscTolerance := NewUsePmtDiscTolerance;
     end;
 
-    [Scope('OnPrem')]
     procedure GetLastLineNo(): Integer
     var
         RefPaymentExported: Record "Ref. Payment - Exported";
@@ -568,7 +560,6 @@ table 32000002 "Ref. Payment - Exported"
         exit(WorkDate);
     end;
 
-    [Scope('OnPrem')]
     procedure MarkAffiliatedAsTransferred()
     var
         RefPaymentExported: Record "Ref. Payment - Exported";
@@ -580,7 +571,6 @@ table 32000002 "Ref. Payment - Exported"
         end;
     end;
 
-    [Scope('OnPrem')]
     procedure ExportToFile()
     var
         GenJnlLine: Record "Gen. Journal Line";

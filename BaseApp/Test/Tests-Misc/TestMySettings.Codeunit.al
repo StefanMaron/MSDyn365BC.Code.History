@@ -50,6 +50,23 @@ codeunit 139006 "Test My Settings"
         Assert.AreEqual(AllProfile."Profile ID", UserPersonalization."Profile ID", 'Profile ID not set in User Personalization.');
     end;
 
+    [Test]
+    [HandlerFunctions('AvailableRoleCentersHandlerBlankProfileIsHidden')]
+    [Scope('OnPrem')]
+    procedure TestBlankRoleCenterIsHiddenOnMySettings()
+    var
+        MySettings: TestPage "My Settings";
+    begin
+        // [WHEN] The user changes the Role Center in "My Settings" window, and chooses OK
+        Initialize;
+
+        MySettings.OpenEdit;
+        MySettings.UserRoleCenter.AssistEdit;
+
+        // [THEN] The Blank Role Center is Hidden
+        // Verify in AvailableRoleCentersHandlerBlankProfileIsHidden
+    end;
+
     [Scope('OnPrem')]
     procedure TestDefaultRoleCenterShownByDefault()
     var
@@ -469,10 +486,21 @@ codeunit 139006 "Test My Settings"
         AllProfile: Record "All Profile";
     begin
         AllProfile.SetRange("Default Role Center", false);
+        AllProfile.SetRange(Enabled, true);
         AllProfile.FindFirst;
         AvailableRoleCenters.GotoRecord(AllProfile);
         LibraryVariableStorage.Enqueue(AllProfile);
         AvailableRoleCenters.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure AvailableRoleCentersHandlerBlankProfileIsHidden(var AvailableRoleCenters: TestPage "Available Roles")
+    var
+        AllProfile: Record "All Profile";
+    begin
+        AllProfile.Get(AllProfile.Scope::Tenant, '63ca2fa4-4f03-4f2b-a480-172fef340d3f', 'BLANK');
+        Assert.IsFalse(AvailableRoleCenters.GotoRecord(AllProfile), 'The Blank Profile was not hidden.');
     end;
 
     [ModalPageHandler]
