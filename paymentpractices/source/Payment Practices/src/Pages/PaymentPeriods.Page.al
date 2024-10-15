@@ -1,0 +1,45 @@
+page 685 "Payment Periods"
+{
+    ApplicationArea = Basic, Suite;
+    Caption = 'Payment Periods';
+    DelayedInsert = true;
+    PageType = List;
+    SourceTable = "Payment Period";
+    SourceTableView = sorting("Days From");
+    UsageCategory = Tasks;
+
+    layout
+    {
+        area(content)
+        {
+            repeater(Group)
+            {
+                field("Code"; Rec."Code")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies code of the payment period.';
+                }
+                field("Days From"; Rec."Days From")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the lowest number of "Actual Payment Days" for the payment to be included in the period.';
+                }
+                field("Days To"; Rec."Days To")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the highest number of "Actual Payment Days" for the payment to be included in the period. 0 means no upper limit.';
+                }
+                field(Description; Rec.Description)
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the description of the payment period.';
+                }
+            }
+        }
+    }
+
+    actions
+    {
+    }
+}
+
