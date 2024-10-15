@@ -29,7 +29,7 @@ pageextension 8900 "Email Address Lookup" extends "Email Address Lookup"
                         JobPage.SetSelectionFilter(JobResponsibility);
                         ContactNoFilter := GetContactsFilter(JobResponsibility);
 
-                        // Pretty print selection in text field
+                        // Pretty print selection in text field 
                         JobSelection := '';
                         if JobResponsibility.FindSet() then
                             repeat

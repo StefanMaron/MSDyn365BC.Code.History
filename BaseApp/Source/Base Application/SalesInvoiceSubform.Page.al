@@ -80,6 +80,7 @@ page 47 "Sales Invoice Subform"
                         CrossReferenceNoLookUp();
                         NoOnAfterValidate();
                         UpdateEditableOnRow();
+                        DeltaUpdateTotals();
                         OnCrossReferenceNoOnLookup(Rec);
                     end;
 
@@ -104,6 +105,7 @@ page 47 "Sales Invoice Subform"
                         ItemReferenceMgt.SalesReferenceNoLookup(Rec);
                         NoOnAfterValidate();
                         UpdateEditableOnRow();
+                        DeltaUpdateTotals();
                         OnItemReferenceNoOnLookup(Rec);
                     end;
 
