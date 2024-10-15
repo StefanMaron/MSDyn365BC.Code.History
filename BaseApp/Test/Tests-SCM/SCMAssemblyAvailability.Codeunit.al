@@ -467,6 +467,52 @@ codeunit 137906 "SCM Assembly Availability"
         asserterror Error('') // roll back
     end;
 
+    [Test]
+    procedure AvailabilityOfAssemblyComponentWithFutureDemands()
+    var
+        AsmItem: Record Item;
+        CompItem: Record Item;
+        BOMComponent: Record "BOM Component";
+        ItemJournalLine: Record "Item Journal Line";
+        AssemblyHeader: Record "Assembly Header";
+        AssemblyLine: array[2] of Record "Assembly Line";
+        AssemblyInfoPaneManagement: Codeunit "Assembly Info-Pane Management";
+    begin
+        // [FEATURE] [Availability] [UT]
+        // [SCENARIO 396510] Availability of assembly component with future demands.
+        Initialize();
+
+        // [GIVEN] Assembly item.
+        LibraryInventory.CreateItem(AsmItem);
+        AsmItem.Validate("Replenishment System", AsmItem."Replenishment System"::Assembly);
+        AsmItem.Modify(true);
+
+        // [GIVEN] Component item.
+        LibraryInventory.CreateItem(CompItem);
+        LibraryManufacturing.CreateBOMComponent(
+          BOMComponent, AsmItem."No.", BOMComponent.Type::Item, CompItem."No.", 1, CompItem."Base Unit of Measure");
+
+        // [GIVEN] Post 2 pcs of the component to inventory.
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, CompItem."No.", '', '', 2);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [GIVEN] Assembly order for 1 pc on WORKDATE + 1. Assembly line = "A1".
+        LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate() + 1, AsmItem."No.", '', 1, '');
+        FindAssemblyLine(AssemblyLine[1], AssemblyHeader, CompItem."No.");
+
+        // [GIVEN] Assembly order for 1 pc on WORKDATE + 2. Assembly line = "A2".
+        LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate() + 2, AsmItem."No.", '', 1, '');
+        FindAssemblyLine(AssemblyLine[2], AssemblyHeader, CompItem."No.");
+
+        // [WHEN] Invoke "CalcAvailability" function that shows item availability in the factbox for assembly line.
+        // [THEN] Available quantity for the assembly line "A1" = 1.
+        // [THEN] Available quantity for the assembly line "A2" = 0.
+        Assert.AreEqual(
+          1, AssemblyInfoPaneManagement.CalcAvailability(AssemblyLine[1]), 'Wrong available quantity for the assembly line.');
+        Assert.AreEqual(
+          0, AssemblyInfoPaneManagement.CalcAvailability(AssemblyLine[2]), 'Wrong available quantity for the assembly line.');
+    end;
+
     [Normal]
     local procedure EditAssemblyOrderLineNo(AssemblyOrderNo: Code[20]; AssemblyLineNo: Code[20])
     begin
@@ -509,6 +555,14 @@ codeunit 137906 "SCM Assembly Availability"
         // EXECUTE: Change Demand "Quantity per" on Assembly Order Through UI.
         DummyAssemblyOrderTestPage.Lines."Quantity per".Value(Format(AssemblyQuantityPer));
         DummyAssemblyOrderTestPage.Close;
+    end;
+
+    local procedure FindAssemblyLine(var AssemblyLine: Record "Assembly Line"; AssemblyHeader: Record "Assembly Header"; ItemNo: Code[20])
+    begin
+        AssemblyLine.SetRange("Document Type", AssemblyHeader."Document Type");
+        AssemblyLine.SetRange("Document No.", AssemblyHeader."No.");
+        AssemblyLine.SetRange("No.", ItemNo);
+        AssemblyLine.FindFirst();
     end;
 
     [Normal]

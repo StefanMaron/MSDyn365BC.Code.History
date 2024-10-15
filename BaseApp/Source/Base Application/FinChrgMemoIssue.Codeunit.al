@@ -63,7 +63,9 @@ codeunit 395 "FinChrgMemo-Issue"
                         FinChrgMemoLine.Type::" ":
                             FinChrgMemoLine.TestField(Amount, 0);
                         FinChrgMemoLine.Type::"G/L Account":
-                            if (FinChrgMemoLine.Amount <> 0) and "Post Additional Fee" then begin
+                            if (FinChrgMemoLine.Amount <> 0) and
+                               ("Post Additional Fee" or (FinChrgMemoLine."Line Type" = FinChrgMemoLine."Line Type"::Rounding))
+                            then begin
                                 FinChrgMemoLine.TestField("No.");
                                 InitGenJnlLine(GenJnlLine."Account Type"::"G/L Account",
                                   FinChrgMemoLine."No.",

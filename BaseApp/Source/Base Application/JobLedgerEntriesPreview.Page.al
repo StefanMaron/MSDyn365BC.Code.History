@@ -73,7 +73,7 @@
                 field("Job Posting Group"; "Job Posting Group")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the code for the Job posting group that was used when the entry was posted.';
+                    ToolTip = 'Specifies the posting group that was used when the entry was posted. The value depends on the account type. For inventoriable items, the field contains the Inventory Posting Group. For other account types the field is blank.';
                     Visible = false;
                 }
                 field("Variant Code"; "Variant Code")

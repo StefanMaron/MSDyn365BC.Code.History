@@ -13,6 +13,7 @@ codeunit 145400 "ERM Fixed Assets Prepayment"
         LibraryERM: Codeunit "Library - ERM";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryRandom: Codeunit "Library - Random";
+        LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         AmountError: Label '%1 must be %2 in %3.', Comment = '%1 = Field Caption, %2 = Field Value,%3 = Table Caption";';
 
     [Test]
@@ -90,6 +91,7 @@ codeunit 145400 "ERM Fixed Assets Prepayment"
         GeneralPostingSetup.Validate("Purch. Prepayments Account", GLAccount2."No.");
         GeneralPostingSetup.Validate("Sales Prepayments Account", GLAccount2."No.");
         GeneralPostingSetup.Modify(true);
+        LibraryERMCountryData.UpdatePrepaymentAccounts();
     end;
 
     local procedure VerifyGLEntryAfterPrepaymentInvoice(PurchaseHeader: Record "Purchase Header"; Amount: Decimal)
