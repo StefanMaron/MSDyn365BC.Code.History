@@ -142,9 +142,10 @@ report 698 "Get Sales Orders"
             "Journal Batch Name" := ReqWkshName.Name;
             "Line No." := LineNo;
             Validate(Type, SalesLine.Type);
+            "Location Code" := SalesLine."Location Code";
             Validate("No.", SalesLine."No.");
             "Variant Code" := SalesLine."Variant Code";
-            Validate("Location Code", SalesLine."Location Code");
+            Validate("Location Code");
             "Bin Code" := SalesLine."Bin Code";
 
             // Drop Shipment means replenishment by purchase only

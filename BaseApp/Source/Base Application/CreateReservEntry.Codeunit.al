@@ -844,22 +844,34 @@
     var
         WhseShipmentLine: Record "Warehouse Shipment Line";
         WhseWkshLine: Record "Whse. Worksheet Line";
+        ReservationEntry: Record "Reservation Entry";
+        ItemTrackingSetup: Record "Item Tracking Setup";
         ItemTrkgMgt: Codeunit "Item Tracking Management";
+        WhseItemTrkgQtyBase: Decimal;
+        ReservEntryQtyBase: Decimal;
     begin
         with WhseShipmentLine do begin
-            SetCurrentKey("Source Type", "Source Subtype", "Source No.", "Source Line No.");
-            SetRange("Source Type", ReservEntry."Source Type");
-            SetRange("Source Subtype", ReservEntry."Source Subtype");
-            SetRange("Source No.", ReservEntry."Source ID");
-            SetRange("Source Line No.", ReservEntry."Source Ref. No.");
-            if FindFirst then
-                if not ItemTrkgMgt.WhseItemTrkgLineExists("No.", DATABASE::"Warehouse Shipment Line", 0, '', 0,
-                     "Source Line No.", "Location Code", ReservEntry."Serial No.", ReservEntry."Lot No.")
-                then begin
-                    ItemTrkgMgt.InitWhseWkshLine(WhseWkshLine,
-                      2, "No.", "Line No.", "Source Type", "Source Subtype", "Source No.", "Source Line No.", 0);
-                    ItemTrkgMgt.CreateWhseItemTrkgForResEntry(ReservEntry, WhseWkshLine);
-                end;
+            SetSourceFilter(
+              ReservEntry."Source Type", ReservEntry."Source Subtype", ReservEntry."Source ID", ReservEntry."Source Ref. No.", true);
+            if not FindFirst() then
+                exit;
+
+            ItemTrackingSetup.CopyTrackingFromReservEntry(ReservEntry);
+            WhseItemTrkgQtyBase :=
+              ItemTrkgMgt.CalcWhseItemTrkgLineQtyBase(
+                DATABASE::"Warehouse Shipment Line", 0, "No.", '', 0, "Source Line No.", "Location Code", ItemTrackingSetup);
+
+            ReservEntry.SetPointerFilter();
+            ReservationEntry.CopyFilters(ReservEntry);
+            ReservationEntry.SetTrackingFilterFromReservEntry(ReservEntry);
+            ReservationEntry.CalcSums("Quantity (Base)");
+            ReservEntryQtyBase := Abs(ReservationEntry."Quantity (Base)");
+
+            if WhseItemTrkgQtyBase < ReservEntryQtyBase then begin
+                ItemTrkgMgt.InitWhseWkshLine(WhseWkshLine,
+                  2, "No.", "Line No.", "Source Type", "Source Subtype", "Source No.", "Source Line No.", 0);
+                ItemTrkgMgt.CreateWhseItemTrkgForResEntry(ReservEntry, WhseWkshLine);
+            end;
         end;
     end;
 

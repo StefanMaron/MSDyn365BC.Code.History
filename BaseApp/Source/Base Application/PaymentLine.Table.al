@@ -1,4 +1,4 @@
-table 10866 "Payment Line"
+﻿table 10866 "Payment Line"
 {
     Caption = 'Payment Line';
     DrillDownPageID = "Payment Lines List";
@@ -561,6 +561,8 @@ table 10866 "Payment Line"
                         "Document No." := NoSeriesMgt.GetNextNo(PaymentClass."Line No. Series", "Posting Date", false);
         end;
         "Due Date" := Statement."Posting Date";
+
+        OnAfterSetUpNewLine(Rec);
     end;
 
     [Scope('OnPrem')]
@@ -682,7 +684,13 @@ table 10866 "Payment Line"
         DimSetEntry: Record "Dimension Set Entry";
         DimValue: Record "Dimension Value";
         PaymentHeader: Record "Payment Header";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeDimensionCreate(Rec, DefaultDimension, IsHandled);
+        if IsHandled then
+            exit;
+
         DefaultDimension.SetRange("No.", "Account No.");
         DefaultDimension.SetFilter("Dimension Value Code", '<>%1', '');
         if DefaultDimension.Find('-') then
@@ -824,6 +832,7 @@ table 10866 "Payment Line"
                     FixedAsset.TestField(Blocked, false);
                 end;
         end;
+        OnUpdateEntryOnBeforeDimensionSetup(Rec);
         DimensionSetup;
         PaymentAddress.SetRange("Account Type", "Account Type");
         PaymentAddress.SetRange("Account No.", "Account No.");
@@ -832,6 +841,8 @@ table 10866 "Payment Line"
             "Payment Address Code" := PaymentAddress.Code
         else
             "Payment Address Code" := '';
+
+        OnAfterUpdateEntry(Rec);
     end;
 
     [Scope('OnPrem')]
@@ -839,6 +850,26 @@ table 10866 "Payment Line"
     begin
         if Posted then
             Error(Text002);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetUpNewLine(var PaymentLine: Record "Payment Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateEntry(var PaymentLine: Record "Payment Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDimensionCreate(var PaymentLine: Record "Payment Line"; var DefaultDimension: Record "Default Dimension"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateEntryOnBeforeDimensionSetup(var PaymentLine: Record "Payment Line")
+    begin
     end;
 }
 

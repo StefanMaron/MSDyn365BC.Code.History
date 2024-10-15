@@ -1,7 +1,7 @@
 page 5340 "CRM Systemuser List"
 {
-    Caption = 'Users - Common Data Service';
-    AdditionalSearchTerms = 'Users CDS';
+    Caption = 'Users - Dataverse';
+    AdditionalSearchTerms = 'Users CDS, Users Common Data Service';
     DeleteAllowed = false;
     InsertAllowed = false;
     PageType = List;
@@ -22,7 +22,7 @@ page 5340 "CRM Systemuser List"
                     Caption = 'Name';
                     Editable = false;
                     StyleExpr = FirstColumnStyle;
-                    ToolTip = 'Specifies data from a corresponding field in a Common Data Service entity. For more information about Common Data Service, see Common Data Service Help Center.';
+                    ToolTip = 'Specifies data from a corresponding field in a Dataverse entity. For more information about Dataverse, see Dataverse Help Center.';
                 }
                 field(InternalEMailAddress; InternalEMailAddress)
                 {
@@ -37,7 +37,7 @@ page 5340 "CRM Systemuser List"
                     ApplicationArea = Suite;
                     Caption = 'Mobile Phone';
                     Editable = false;
-                    ToolTip = 'Specifies data from a corresponding field in a Common Data Service entity. For more information about Common Data Service, see Common Data Service Help Center.';
+                    ToolTip = 'Specifies data from a corresponding field in a Dataverse entity. For more information about Dataverse, see Dataverse Help Center.';
                 }
                 field(Coupled; Coupled)
                 {
@@ -45,7 +45,7 @@ page 5340 "CRM Systemuser List"
                     Caption = 'Coupled';
                     Editable = false;
                     OptionCaption = 'Yes,No,Current';
-                    ToolTip = 'Specifies if the Common Data Service record is coupled to Business Central.';
+                    ToolTip = 'Specifies if the Dataverse record is coupled to Business Central.';
                 }
                 field(SalespersonPurchaserCode; TempCRMSystemuser.FirstName)
                 {
@@ -90,7 +90,7 @@ page 5340 "CRM Systemuser List"
                     OptionCaption = 'No,Yes';
                     Visible = IsCDSIntegrationEnabled;
                     Editable = false;
-                    ToolTip = 'Specifies whether the user is associated with the default team in Common Data Service.';
+                    ToolTip = 'Specifies whether the user is associated with the default team in Dataverse.';
                 }
             }
         }
@@ -109,7 +109,7 @@ page 5340 "CRM Systemuser List"
                 PromotedCategory = Process;
                 PromotedIsBig = true;
                 PromotedOnly = true;
-                ToolTip = 'Create the Common Data Service user as a salesperson in Business Central.';
+                ToolTip = 'Create the Dataverse user as a salesperson in Business Central.';
                 Visible = ShowCouplingControls;
 
                 trigger OnAction()
@@ -140,7 +140,7 @@ page 5340 "CRM Systemuser List"
                 PromotedCategory = Process;
                 PromotedIsBig = true;
                 PromotedOnly = true;
-                ToolTip = 'Link the user in Common Data Service to a salesperson in Business Central.';
+                ToolTip = 'Link the user in Dataverse to a salesperson in Business Central.';
                 Visible = ShowCouplingControls;
 
                 trigger OnAction()
@@ -158,6 +158,7 @@ page 5340 "CRM Systemuser List"
                                 AddUsersToDefaultOwningTeam(TempSelectedCRMSystemuser, true);
                 end;
             }
+
             action(AddCoupledUsersToTeam)
             {
                 ApplicationArea = Suite;
@@ -168,7 +169,7 @@ page 5340 "CRM Systemuser List"
                 PromotedIsBig = true;
                 PromotedOnly = true;
                 Visible = IsCDSIntegrationEnabled;
-                ToolTip = 'Add the coupled Common Data Service users to the default owning team.';
+                ToolTip = 'Add the coupled Dataverse users to the default owning team.';
 
                 trigger OnAction()
                 var
@@ -266,9 +267,9 @@ page 5340 "CRM Systemuser List"
         TeamMember: Option No,Yes;
         Coupled: Option Yes,No,Current;
         FirstColumnStyle: Text;
-        AddScheduledCoupledUsersToTeamQst: Label 'New salespersons are scheduled to be coupled.\\Do you want to add the users they are coupled with in Common Data Service to the default owning team so that they can access the synchronized data?';
-        AddRecentlyCoupledUsersToTeamQst: Label 'Users in Common Data Service were linked to salespersons.\\ Do you want to add them to the default owning team so that they can access the synchronized data?';
-        ClosePageCoupledUserNotInTeamTxt: Label 'Some coupled users are not added to the default owning team in Common Data Service and might not have access to synchronized data.\\Do you want to add them now?';
+        AddScheduledCoupledUsersToTeamQst: Label 'New salespersons are scheduled to be coupled.\\Do you want to add the users they are coupled with in Dataverse to the default owning team so that they can access the synchronized data?';
+        AddRecentlyCoupledUsersToTeamQst: Label 'Users in Dataverse were linked to salespersons.\\ Do you want to add them to the default owning team so that they can access the synchronized data?';
+        ClosePageCoupledUserNotInTeamTxt: Label 'Some coupled users are not added to the default owning team in Dataverse and might not have access to synchronized data.\\Do you want to add them now?';
         ClosePageUncoupledUserTxt: Label 'No Salespersons were scheduled for coupling.\\Are you sure you would like to exit?';
         ShowCouplingControls: Boolean;
         HasCoupled: Boolean;

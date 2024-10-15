@@ -1,10 +1,12 @@
 page 1103 "Cost Entries"
 {
+    AdditionalSearchTerms = 'entries';
     Caption = 'Cost Entries';
     DataCaptionFields = "Cost Type No.";
     Editable = false;
     PageType = List;
     SourceTable = "Cost Entry";
+    UsageCategory = History;
 
     layout
     {

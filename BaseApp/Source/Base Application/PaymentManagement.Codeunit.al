@@ -1,4 +1,4 @@
-codeunit 10860 "Payment Management"
+﻿codeunit 10860 "Payment Management"
 {
     Permissions = TableData "Cust. Ledger Entry" = rm,
                   TableData "Vendor Ledger Entry" = rm;
@@ -62,7 +62,6 @@ codeunit 10860 "Payment Management"
     local procedure ProcessPaymentStep(PaymentHeaderNo: Code[20]; PaymentStep: Record "Payment Step")
     var
         PaymentStatus: Record "Payment Status";
-        Window: Dialog;
         ActionValidated: Boolean;
     begin
         OnBeforeProcessPaymentStep(PaymentHeaderNo, PaymentStep);
@@ -98,14 +97,39 @@ codeunit 10860 "Payment Management"
 
         Step.Get(PaymentStep."Payment Class", PaymentStep.Line);
 
+        ActionValidated := ProcessPaymentStepByActionType();
+
+        if ActionValidated then begin
+            PaymentHeader.Validate("Status No.", Step."Next Status");
+            PaymentHeader.Modify();
+            PaymentLine.SetRange("No.", PaymentHeader."No.");
+            PaymentLine.ModifyAll("Status No.", Step."Next Status");
+            PaymentStatus.Get(PaymentHeader."Payment Class", Step."Next Status");
+            PaymentLine.ModifyAll("Payment in Progress", PaymentStatus."Payment in Progress");
+        end else
+            Message(Text007);
+
+        OnAfterProcessPaymentStep(PaymentHeaderNo, PaymentStep);
+    end;
+
+    local procedure ProcessPaymentStepByActionType() ActionValidated: Boolean
+    var
+        Window: Dialog;
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeProcessPaymentStepByActionType(PaymentLine, Step, ActionValidated, IsHandled);
+        if IsHandled then
+            exit(ActionValidated);
+
         case Step."Action Type" of
             Step."Action Type"::None:
-                ActionValidated := true;
+                exit(true);
             Step."Action Type"::"Cancel File":
                 begin
                     PaymentHeader."File Export Completed" := false;
                     PaymentHeader.Modify();
-                    ActionValidated := true;
+                    exit(true);
                 end;
             Step."Action Type"::File:
                 begin
@@ -121,12 +145,12 @@ codeunit 10860 "Payment Management"
                     end;
 
                     PaymentHeader.Find;
-                    ActionValidated := PaymentHeader."File Export Completed";
+                    exit(PaymentHeader."File Export Completed");
                 end;
             Step."Action Type"::Report:
                 begin
                     REPORT.RunModal(Step."Report No.", true, true, PaymentLine);
-                    ActionValidated := true;
+                    exit(true);
                 end;
             Step."Action Type"::Ledger:
                 begin
@@ -150,24 +174,14 @@ codeunit 10860 "Payment Management"
                             PaymentLine.Validate("Status No.", Step."Next Status");
                             PaymentLine.Posted := true;
                             PaymentLine.Modify();
-                        until PaymentLine.Next = 0;
+                        until PaymentLine.Next() = 0;
                     Window.Close;
                     GenerEntries;
-                    ActionValidated := true;
+                    exit(true);
                 end;
+            else
+                OnProcessPaymentStepOnCaseElse(Step, PaymentLine, ActionValidated);
         end;
-
-        if ActionValidated then begin
-            PaymentHeader.Validate("Status No.", Step."Next Status");
-            PaymentHeader.Modify();
-            PaymentLine.SetRange("No.", PaymentHeader."No.");
-            PaymentLine.ModifyAll("Status No.", Step."Next Status");
-            PaymentStatus.Get(PaymentHeader."Payment Class", Step."Next Status");
-            PaymentLine.ModifyAll("Payment in Progress", PaymentStatus."Payment in Progress");
-        end else
-            Message(Text007);
-
-        OnAfterProcessPaymentStep(PaymentHeaderNo, PaymentStep);
     end;
 
     [Scope('OnPrem')]
@@ -373,6 +387,7 @@ codeunit 10860 "Payment Management"
                 InvPostingBuffer[1]."Source No." := PaymentLine."Account No.";
                 InvPostingBuffer[1]."External Document No." := PaymentLine."External Document No.";
                 InvPostingBuffer[1]."Dimension Set ID" := PaymentLine."Dimension Set ID";
+                OnGenerInvPostingBufferOnBeforeUpdtBuffer(InvPostingBuffer, PaymentLine, StepLedger);
                 UpdtBuffer;
                 if (InvPostingBuffer[1].Amount >= 0) xor InvPostingBuffer[1].Correction then
                     PaymentLine."Entry No. Debit" := InvPostingBuffer[1]."GL Entry No."
@@ -1130,7 +1145,22 @@ codeunit 10860 "Payment Management"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeProcessPaymentStepByActionType(var PaymentLine: Record "Payment Line"; PaymentStep: Record "Payment Step"; var ActionValidated: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterProcessPaymentStep(PaymentHeaderNo: Code[20]; PaymentStep: Record "Payment Step")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGenerInvPostingBufferOnBeforeUpdtBuffer(var InvPostingBuffer: array[2] of Record "Payment Post. Buffer" temporary; PaymentLine: Record "Payment Line"; StepLedger: Record "Payment Step Ledger")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnProcessPaymentStepOnCaseElse(var Step: Record "Payment Step"; var PaymentLine: Record "Payment Line"; var ActionValidated: Boolean)
     begin
     end;
 }

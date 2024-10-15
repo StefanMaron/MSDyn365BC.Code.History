@@ -57,8 +57,12 @@ codeunit 7324 "Whse.-Activity-Post"
         ItemTrackingRequired: Boolean;
         Selection: Option " ",Shipment,Receipt;
         ForceDelete: Boolean;
+        IsHandled: Boolean;
     begin
-        OnBeforeCode(WhseActivLine, SuppressCommit);
+        IsHandled := false;
+        OnBeforeCode(WhseActivLine, SuppressCommit, IsHandled);
+        IF IsHandled then
+            exit;
 
         GetPostingReference();
 
@@ -1086,7 +1090,7 @@ codeunit 7324 "Whse.-Activity-Post"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCode(var WarehouseActivityLine: Record "Warehouse Activity Line"; var SuppressCommit: Boolean)
+    local procedure OnBeforeCode(var WarehouseActivityLine: Record "Warehouse Activity Line"; var SuppressCommit: Boolean; var IsHandled: Boolean)
     begin
     end;
 

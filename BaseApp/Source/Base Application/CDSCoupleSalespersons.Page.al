@@ -1,6 +1,6 @@
 page 7209 "CDS Couple Salespersons"
 {
-    Caption = 'Couple Common Data Service Users with Salespersons', Comment = 'Common Data Service is the name of a Microsoft Service and should not be translated.';
+    Caption = 'Couple Dataverse Users with Salespersons', Comment = 'Dataverse is the name of a Microsoft Service and should not be translated.';
     DeleteAllowed = false;
     InsertAllowed = false;
     PromotedActionCategories = 'Create';
@@ -19,9 +19,9 @@ page 7209 "CDS Couple Salespersons"
                 field(FullName; FullName)
                 {
                     ApplicationArea = Suite;
-                    Caption = 'User Name Common Data Service', Comment = 'Common Data Service is the name of a Microsoft Service and should not be translated.';
+                    Caption = 'User Name Dataverse', Comment = 'Dataverse is the name of a Microsoft Service and should not be translated.';
                     Editable = false;
-                    ToolTip = 'Specifies data from a corresponding field in a Common Data Service entity.', Comment = 'Common Data Service is the name of a Microsoft Service and should not be translated.';
+                    ToolTip = 'Specifies data from a corresponding field in a Dataverse entity.', Comment = 'Dataverse is the name of a Microsoft Service and should not be translated.';
                 }
                 field(InternalEMailAddress; InternalEMailAddress)
                 {
@@ -73,7 +73,7 @@ page 7209 "CDS Couple Salespersons"
                     Caption = 'Default Team Member';
                     OptionCaption = 'No,Yes';
                     Editable = false;
-                    ToolTip = 'Specifies whether the user is associated with the default team in Common Data Service.';
+                    ToolTip = 'Specifies whether the user is associated with the default team in Dataverse.';
                 }
             }
         }
@@ -97,7 +97,7 @@ page 7209 "CDS Couple Salespersons"
                     PromotedCategory = Process;
                     PromotedIsBig = true;
                     PromotedOnly = true;
-                    ToolTip = 'Create the Common Data Service user as a salesperson in Business Central.';
+                    ToolTip = 'Create the Dataverse user as a salesperson in Business Central.';
 
                     trigger OnAction()
                     var

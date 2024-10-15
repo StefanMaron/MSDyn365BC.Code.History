@@ -3645,6 +3645,36 @@ codeunit 137079 "SCM Production Order III"
         Assert.AreEqual(DT2Date(ProdOrderRoutingLine."Ending Date-Time"), EndingDate, '');
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure DateTimeIsUpdatedOnChangeProdOrderStatus()
+    var
+        ProductionOrder: Record "Production Order";
+        ReleasedProdOrderNo: Code[20];
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 379013] "Starting Date-Time" and "Ending Date-Time" are updated on changing status of Production Order.
+        Initialize();
+
+        // [GIVEN] Firm Planned Production Order with "Starting Date"  = 'D1' and "Ending Date" = 'D2'.
+        LibraryManufacturing.CreateProductionOrder(
+            ProductionOrder, ProductionOrder.Status::"Firm Planned", ProductionOrder."Source Type"::Item,
+            LibraryInventory.CreateItemNo(), LibraryRandom.RandDecInRange(10, 20, 2));
+        ProductionOrder."Starting Date" := LibraryRandom.RandDate(10);
+        ProductionOrder."Ending Date" := LibraryRandom.RandDate(20);
+        ProductionOrder.Modify(true);
+
+        // [WHEN] Change status of Firm Planned Production Order to Released.
+        ReleasedProdOrderNo :=
+            LibraryManufacturing.ChangeStatusFirmPlanToReleased(
+                ProductionOrder."No.", ProductionOrder.Status::"Firm Planned", ProductionOrder.Status::Released);
+
+        // [THEN] "Starting Date-Time" and "Ending Date-Time" are corresponded with "Starting Date" + "Starting Time" and "Ending Date" + "Ending Time".
+        ProductionOrder.Get(ProductionOrder.Status::Released, ReleasedProdOrderNo);
+        ProductionOrder.TestField("Starting Date-Time", CreateDateTime(ProductionOrder."Starting Date", ProductionOrder."Starting Time"));
+        ProductionOrder.TestField("Ending Date-Time", CreateDateTime(ProductionOrder."Ending Date", ProductionOrder."Ending Time"));
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Production Order III");
