@@ -1069,7 +1069,9 @@ codeunit 137408 "SCM Warehouse VI"
         TransferHeader: Record "Transfer Header";
         WarehouseActivityHeader: Record "Warehouse Activity Header";
         WarehouseEntry: Record "Warehouse Entry";
+        ItemLedgerEntry: Record "Item Ledger Entry";
         LotNo: Code[20];
+        SerialNo: Code[50];
         Qty: Decimal;
     begin
         // [FEATURE] [Item Tracking] [Lot Specific Tracking]
@@ -1077,13 +1079,15 @@ codeunit 137408 "SCM Warehouse VI"
 
         // [GIVEN] Item with Lot specific tracking including Warehouse Tracking, also SN Transfer Tracking and SN Purchase Tracking.
         Initialize;
+        WarehouseSetupShipmentPostingPolicyShowErrorOn();
+
         CreateLotTrackedItemPartSerialTracked(Item);
 
         // [GIVEN] Location with Require Receive, Require Shipment and Require Pick.
         PrepareReceiveShipPickLocation(Location);
 
         // [GIVEN] Purchase Item to Location, assign Serial No and Lot No.
-        Qty := LibraryRandom.RandIntInRange(2, 5);
+        Qty := 1;
         CreatePurchaseOrder(PurchaseHeader, PurchaseLine, Location.Code, Item."No.", Qty);
         PurchaseLine.OpenItemTrackingLines();
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
@@ -1095,6 +1099,10 @@ codeunit 137408 "SCM Warehouse VI"
             WarehouseEntry, WarehouseEntry."Entry Type"::"Positive Adjmt.",
             Location."Receipt Bin Code", Item."No.");
 
+        ItemLedgerEntry.SetRange("Item No.", Item."No.");
+        ItemLedgerEntry.FindFirst();
+        SerialNo := ItemLedgerEntry."Serial No.";
+
         // [GIVEN] Create Transfer for Item to simple Location, create Warehouse Shipment, create Pick.
         CreateAndUpdateLocation(Location2, false, false); // To Location
         CreateAndReleaseTransferOrder(TransferHeader, Location.Code, Location2.Code, Item."No.", Qty);
@@ -1103,6 +1111,9 @@ codeunit 137408 "SCM Warehouse VI"
 
         // [GIVEN] Set Lot No for Pick lines created.
         SetWhseActivityLinesLotNo(Location.Code, WarehouseActivityHeader.Type::Pick, Item."No.", LotNo);
+
+        // [GIVEN] Also assign a serial no.
+        SetWhseActivityLinesSerialNo(Location.Code, WarehouseActivityHeader.Type::Pick, Item."No.", SerialNo);
 
         // [WHEN] Register Pick.
         RegisterWarehouseActivityHeader(Location.Code, WarehouseActivityHeader.Type::Pick);
@@ -3489,6 +3500,154 @@ codeunit 137408 "SCM Warehouse VI"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    procedure ProperQuantityInPickWhenBinWithFirstExpiringLotIsBlocked()
+    var
+        Location: Record Location;
+        Item: Record Item;
+        Bin: array[3] of Record Bin;
+        BinContent: Record "Bin Content";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        WarehouseShipmentLine: Record "Warehouse Shipment Line";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        LotNos: array[4] of Code[20];
+        Qty: Decimal;
+        i: Integer;
+    begin
+        // [FEATURE] [FEFO] [Pick] [Sales] [Item Tracking] [Bin]
+        // [SCENARIO 412045] Proper quantity in pick by FEFO when the bin containing first expiring lot is blocked.
+        Initialize();
+        Qty := LibraryRandom.RandIntInRange(10, 20);
+        for i := 1 to ArrayLen(LotNos) do
+            LotNos[i] := LibraryUtility.GenerateGUID();
+
+        // [GIVEN] Location with mandatory bin, shipment, pick, and enabled FEFO.
+        // [GIVEN] Bins "B1", "B2", and "B3". Bin "B1" is set up for shipment.
+        LibraryWarehouse.CreateLocationWMS(Location, true, false, true, false, true);
+        CreateWarehouseEmployee(Location.Code);
+        LibraryWarehouse.CreateBin(Bin[1], Location.Code, LibraryUtility.GenerateGUID(), '', '');
+        Location.Validate("Shipment Bin Code", Bin[1].Code);
+        Location.Modify(true);
+        LibraryWarehouse.CreateBin(Bin[2], Location.Code, LibraryUtility.GenerateGUID(), '', '');
+        LibraryWarehouse.CreateBin(Bin[3], Location.Code, LibraryUtility.GenerateGUID(), '', '');
+
+        // [GIVEN] Lot-tracked item with mandatory expiration date.
+        CreateItemWithItemTrackingCodeWithExpirateDate(Item);
+
+        // [GIVEN] Post 4 item journal lines:
+        // [GIVEN] Line 1: bin "B2", lot "L1", quantity = 5, expiration date = WorkDate + 30 days.
+        // [GIVEN] Line 2: bin "B2", lot "L2", quantity = 5, expiration date = WorkDate + 40 days.
+        // [GIVEN] Line 3: bin "B2", lot "L3", quantity = 5, expiration date = WorkDate + 50 days.
+        // [GIVEN] Line 4: bin "B3", lot "L4", quantity = 5, expiration date = WorkDate + 20 days (the first expiring lot!)
+        CreateAndPostItemJnlLineWithLotAndExpirationDate(Item."No.", LotNos[1], WorkDate() + 30, Location.Code, Bin[2].Code, Qty);
+        CreateAndPostItemJnlLineWithLotAndExpirationDate(Item."No.", LotNos[2], WorkDate() + 40, Location.Code, Bin[2].Code, Qty);
+        CreateAndPostItemJnlLineWithLotAndExpirationDate(Item."No.", LotNos[3], WorkDate() + 50, Location.Code, Bin[2].Code, Qty);
+        CreateAndPostItemJnlLineWithLotAndExpirationDate(Item."No.", LotNos[4], WorkDate() + 20, Location.Code, Bin[3].Code, Qty);
+
+        // [GIVEN] Block bin "B3" containing the first expiring lot "L4".
+        FindBinContentWithBinCode(BinContent, Bin[3], Item."No.");
+        BinContent.Validate("Block Movement", BinContent."Block Movement"::Outbound);
+        BinContent.Modify(true);
+
+        // [GIVEN] Sales order for 5 pcs, release.
+        // [GIVEN] Create warehouse shipment and pick, note lot no. = "L1", register pick.
+        CreateSalesOrderWithLocation(SalesHeader, SalesLine, Item."No.", Qty, Location.Code);
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+        LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
+        FindWarehouseShipmentHeader(WarehouseShipmentHeader, SalesHeader."No.", WarehouseShipmentLine."Source Document"::"Sales Order");
+        LibraryWarehouse.CreateWhsePick(WarehouseShipmentHeader);
+        FindWarehouseActivityLine2(
+          WarehouseActivityLine, WarehouseActivityLine."Activity Type"::Pick, WarehouseActivityLine."Action Type"::Take, Item."No.");
+        WarehouseActivityLine.TestField("Lot No.", LotNos[1]);
+        WarehouseActivityHeader.Get(WarehouseActivityLine."Activity Type", WarehouseActivityLine."No.");
+        LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
+
+        // [GIVEN] Sales order for 10 pcs, release.
+        // [GIVEN] Create warehouse shipment.
+        CreateSalesOrderWithLocation(SalesHeader, SalesLine, Item."No.", 2 * Qty, Location.Code);
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+        LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
+        FindWarehouseShipmentHeader(WarehouseShipmentHeader, SalesHeader."No.", WarehouseShipmentLine."Source Document"::"Sales Order");
+
+        // [WHEN] Create warehouse pick.
+        LibraryWarehouse.CreateWhsePick(WarehouseShipmentHeader);
+
+        // [THEN] Warehouse pick for 10 pcs is created - 5 pcs of lot "L2" and 5 pcs of lot "L3".
+        FindWarehouseActivityLine2(
+          WarehouseActivityLine, WarehouseActivityLine."Activity Type"::Pick, WarehouseActivityLine."Action Type"::Take, Item."No.");
+        WarehouseActivityLine.TestField("Lot No.", LotNos[2]);
+        WarehouseActivityLine.TestField(Quantity, Qty);
+
+        WarehouseActivityLine.Next();
+        WarehouseActivityLine.TestField("Lot No.", LotNos[3]);
+        WarehouseActivityLine.TestField(Quantity, Qty);
+    end;
+
+    [Test]
+    [HandlerFunctions('WhseItemTrackingPageHandler')]
+    procedure NonSpecificReservationWithOutstandingPickAsSpecificForFEFO()
+    var
+        Location: Record Location;
+        Zone: Record Zone;
+        Bin: array[2] of Record Bin;
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        LotNos: array[2] of Code[20];
+    begin
+        // [FEATURE] [FEFO] [Reservation] [Item Tracking] [Pick]
+        // [SCENARIO 415146] Non-specific reservation is considered specific for FEFO picking if the lot or serial no. is included in outstanding pick.
+        Initialize();
+
+        // [GIVEN] Location set up for directed put-away and pick and FEFO enabled.
+        CreateFullWarehouseSetup(Location);
+        UpdateParametersOnLocation(Location, true, false);
+        LibraryWarehouse.FindZone(Zone, Location.Code, LibraryWarehouse.SelectBinType(false, false, true, true), false);
+
+        // [GIVEN] Lot-tracked item with mandatory expiration date.
+        CreateItemWithItemTrackingCodeWithExpirateDate(Item);
+
+        // [GIVEN] Post 10 pcs to bin "B1", assign lot "L1" with expiration date = Workdate.
+        // [GIVEN] Post 10 pcs to bin "B2", assign lot "L2" with expiration date = Workdate + 1 week.
+        LibraryWarehouse.FindBin(Bin[1], Location.Code, Zone.Code, 1);
+        LibraryWarehouse.FindBin(Bin[2], Location.Code, Zone.Code, 2);
+        LotNos[1] := LibraryUtility.GenerateGUID();
+        CreateAndRegisterWhseJnlLineWithLotAndExpDate(Bin[1], Item."No.", LotNos[1], WorkDate(), 10);
+        LotNos[2] := LibraryUtility.GenerateGUID();
+        CreateAndRegisterWhseJnlLineWithLotAndExpDate(Bin[2], Item."No.", LotNos[2], LibraryRandom.RandDate(10), 10);
+        CalculateAndPostWarehouseAdjustment(Item);
+
+        // [GIVEN] Sales order "SO1" for 5 pcs, auto reserve.
+        // [GIVEN] Release the order, create warehouse shipment and pick.
+        CreateSalesOrderWithLocation(SalesHeader, SalesLine, Item."No.", 5, Location.Code);
+        LibrarySales.AutoReserveSalesLine(SalesLine);
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+        CreatePickFromSalesHeader(SalesHeader);
+
+        // [GIVEN] Sales order "SO2" for 10 pcs, auto reserve.
+        // [GIVEN] Release the order, create warehouse shipment.
+        CreateSalesOrderWithLocation(SalesHeader, SalesLine, Item."No.", 10, Location.Code);
+        LibrarySales.AutoReserveSalesLine(SalesLine);
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+
+        // [WHEN] Create pick for the order "SO2".
+        CreatePickFromSalesHeader(SalesHeader);
+
+        // [THEN] The pick suggests picking 5 pcs of lot "L1" from bin "B1" and 5 pcs of lot "L2" from bin "B2".
+        // [THEN] First 5 pcs of lot "L1" are considered reserved by the sales order "SO1".
+        FindWarehouseActivityHeaderBySourceNo(WarehouseActivityHeader, Location.Code, SalesHeader."No.");
+        WarehouseActivityLine.SetRange("No.", WarehouseActivityHeader."No.");
+        WarehouseActivityLine.SetRange("Action Type", WarehouseActivityLine."Action Type"::Take);
+        WarehouseActivityLine.FindFirst();
+        VerifyWarehouseActivityLines(WarehouseActivityLine, Bin[1].Code, LotNos[1], '', 5);
+        VerifyWarehouseActivityLines(WarehouseActivityLine, Bin[2].Code, LotNos[2], '', 5);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -3635,6 +3794,19 @@ codeunit 137408 "SCM Warehouse VI"
         ItemJournalLine.Modify(true);
         ItemJournalLine.OpenItemTrackingLines(true);  // Execute ItemTrackingLinesHandler for assigning Item Tracking lines.
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
+    end;
+
+    local procedure CreateAndPostItemJnlLineWithLotAndExpirationDate(ItemNo: Code[20]; LotNo: Code[20]; ExpirationDate: Date; LocationCode: Code[10]; BinCode: Code[20]; Qty: Decimal)
+    var
+        ItemJournalLine: Record "Item Journal Line";
+        ReservationEntry: Record "Reservation Entry";
+    begin
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, ItemNo, LocationCode, BinCode, Qty);
+        LibraryItemTracking.CreateItemJournalLineItemTracking(
+            ReservationEntry, ItemJournalLine, '', LotNo, ItemJournalLine.Quantity);
+        ReservationEntry.Validate("Expiration Date", ExpirationDate);
+        ReservationEntry.Modify(true);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
     end;
 
     local procedure CreateAndRefreshProductionOrder(var ProductionOrder: Record "Production Order"; SourceNo: Code[20]; LocationCode: Code[10])
@@ -4470,6 +4642,18 @@ codeunit 137408 "SCM Warehouse VI"
           WarehouseActivityHeader, WarehouseActivityLine."Action Type"::Place, ItemNo, LotNo);
     end;
 
+    local procedure SetWhseActivityLinesSerialNo(LocationCode: Code[10]; ActivityType: Option; ItemNo: Code[20]; SerialNo: Code[50])
+    var
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+    begin
+        FindWarehouseActivityHeader(WarehouseActivityHeader, LocationCode, ActivityType);
+        SetWarehouseActivityLineSerialNo(
+          WarehouseActivityHeader, WarehouseActivityLine."Action Type"::Take, ItemNo, SerialNo);
+        SetWarehouseActivityLineSerialNo(
+          WarehouseActivityHeader, WarehouseActivityLine."Action Type"::Place, ItemNo, SerialNo);
+    end;
+
     local procedure FindBin(var Bin: Record Bin; LocationCode: Code[10])
     var
         Zone: Record Zone;
@@ -5214,6 +5398,19 @@ codeunit 137408 "SCM Warehouse VI"
             Validate("Lot No.", LotNo);
             Modify(true);
         end;
+    end;
+
+    local procedure SetWarehouseActivityLineSerialNo(WarehouseActivityHeader: Record "Warehouse Activity Header"; ActionType: Option; ItemNo: Code[20]; SerialNo: Code[50])
+    var
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+    begin
+        WarehouseActivityLine.SetRange("Activity Type", WarehouseActivityHeader.Type);
+        WarehouseActivityLine.SetRange("No.", WarehouseActivityHeader."No.");
+        WarehouseActivityLine.SetRange("Action Type", ActionType);
+        WarehouseActivityLine.SetRange("Item No.", ItemNo);
+        WarehouseActivityLine.FindFirst();
+        WarehouseActivityLine.Validate("Serial No.", SerialNo);
+        WarehouseActivityLine.Modify(true);
     end;
 
     local procedure VerifyReservationEntryQty(ReservationEntry: Record "Reservation Entry"; QtyBase: Decimal; QtyToHandle: Decimal; QtyToInvoice: Decimal)

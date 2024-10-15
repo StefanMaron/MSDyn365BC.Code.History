@@ -1,4 +1,4 @@
-table 233 "Item Journal Batch"
+﻿table 233 "Item Journal Batch"
 {
     Caption = 'Item Journal Batch';
     DataCaptionFields = Name, Description;
@@ -131,11 +131,11 @@ table 233 "Item Journal Batch"
         "Posting No. Series" := ItemJnlTemplate."Posting No. Series";
         "Reason Code" := ItemJnlTemplate."Reason Code";
 
-        OnAfterSetupNewBatch(Rec);
+        OnAfterSetupNewBatch(Rec, ItemJnlTemplate);
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterSetupNewBatch(var ItemJournalBatch: Record "Item Journal Batch")
+    local procedure OnAfterSetupNewBatch(var ItemJournalBatch: Record "Item Journal Batch"; ItemJnlTemplate: Record "Item Journal Template")
     begin
     end;
 }

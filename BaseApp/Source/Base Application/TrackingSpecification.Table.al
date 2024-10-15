@@ -473,7 +473,14 @@ table 336 "Tracking Specification"
     }
 
     trigger OnDelete()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOnDelete(Rec, xRec, IsHandled);
+        if IsHandled then
+            exit;
+
         TestField("Quantity Handled (Base)", 0);
         TestField("Quantity Invoiced (Base)", 0);
     end;
@@ -500,8 +507,13 @@ table 336 "Tracking Specification"
     end;
 
     procedure InitQtyToShip()
+    var
+        IsHandled: Boolean;
     begin
-        OnBeforeInitQtyToShip(Rec);
+        IsHandled := false;
+        OnBeforeInitQtyToShip(Rec, IsHandled);
+        if IsHandled then
+            exit;
 
         "Qty. to Handle (Base)" := "Quantity (Base)" - "Quantity Handled (Base)";
         "Qty. to Handle" := CalcQty("Qty. to Handle (Base)");
@@ -1693,7 +1705,7 @@ table 336 "Tracking Specification"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeInitQtyToShip(var TrackingSpecification: Record "Tracking Specification")
+    local procedure OnBeforeInitQtyToShip(var TrackingSpecification: Record "Tracking Specification"; var IsHandled: Boolean)
     begin
     end;
 
@@ -1744,6 +1756,11 @@ table 336 "Tracking Specification"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInitExpirationDate(var TrackingSpecification: Record "Tracking Specification"; xRec: Record "Tracking Specification"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnDelete(var TrackingSpecification: Record "Tracking Specification"; xTrackingSpecification: Record "Tracking Specification"; var IsHandled: Boolean)
     begin
     end;
 

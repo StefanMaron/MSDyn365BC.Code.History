@@ -1,4 +1,4 @@
-report 595 "Adjust Exchange Rates"
+﻿report 595 "Adjust Exchange Rates"
 {
     ApplicationArea = Basic, Suite;
     Caption = 'Adjust Exchange Rates';
@@ -118,11 +118,11 @@ report 595 "Adjust Exchange Rates"
                             DimMgt.CopyDimBufToDimSetEntry(TempDimBuf, TempDimSetEntry);
                             if TempEntryNoAmountBuf.Amount > 0 then
                                 PostAdjmt(
-                                  Currency.GetRealizedGainsAccount, -TempEntryNoAmountBuf.Amount, TempEntryNoAmountBuf.Amount2,
+                                  Currency.GetRealizedGainsAccount(), -TempEntryNoAmountBuf.Amount, TempEntryNoAmountBuf.Amount2,
                                   "Currency Code", TempDimSetEntry, PostingDate, '')
                             else
                                 PostAdjmt(
-                                  Currency.GetRealizedLossesAccount, -TempEntryNoAmountBuf.Amount, TempEntryNoAmountBuf.Amount2,
+                                  Currency.GetRealizedLossesAccount(), -TempEntryNoAmountBuf.Amount, TempEntryNoAmountBuf.Amount2,
                                   "Currency Code", TempDimSetEntry, PostingDate, '');
                         end;
                     end;
@@ -548,9 +548,9 @@ report 595 "Adjust Exchange Rates"
 
                     if GLAmtTotal <> 0 then begin
                         if GLAmtTotal < 0 then
-                            GenJnlLine."Account No." := Currency3.GetRealizedGLLossesAccount
+                            GenJnlLine."Account No." := Currency3.GetRealizedGLLossesAccount()
                         else
-                            GenJnlLine."Account No." := Currency3.GetRealizedGLGainsAccount;
+                            GenJnlLine."Account No." := Currency3.GetRealizedGLGainsAccount();
                         GenJnlLine.Description :=
                           StrSubstNo(
                             PostingDescription,
@@ -565,9 +565,9 @@ report 595 "Adjust Exchange Rates"
                     end;
                     if GLAddCurrAmtTotal <> 0 then begin
                         if GLAddCurrAmtTotal < 0 then
-                            GenJnlLine."Account No." := Currency3.GetRealizedGLLossesAccount
+                            GenJnlLine."Account No." := Currency3.GetRealizedGLLossesAccount()
                         else
-                            GenJnlLine."Account No." := Currency3.GetRealizedGLGainsAccount;
+                            GenJnlLine."Account No." := Currency3.GetRealizedGLGainsAccount();
                         GenJnlLine.Description :=
                           StrSubstNo(
                             PostingDescription, '',
@@ -718,12 +718,15 @@ report 595 "Adjust Exchange Rates"
 
     trigger OnPostReport()
     begin
-        UpdateAnalysisView.UpdateAll(0, true);
-
-        if TotalCustomersAdjusted + TotalVendorsAdjusted + TotalBankAccountsAdjusted + TotalGLAccountsAdjusted < 1 then
-            Message(NothingToAdjustMsg)
-        else
-            Message(RatesAdjustedMsg);
+        if GenJnlPostLine.IsGLEntryInconsistent() then
+            GenJnlPostLine.ShowInconsistentEntries()
+        else begin    
+            UpdateAnalysisView.UpdateAll(0, true);
+            if TotalCustomersAdjusted + TotalVendorsAdjusted + TotalBankAccountsAdjusted + TotalGLAccountsAdjusted < 1 then
+                Message(NothingToAdjustMsg)
+            else
+                Message(RatesAdjustedMsg);
+        end;
 
         OnAfterPostReport(ExchRateAdjReg, PostingDate);
     end;
@@ -1041,7 +1044,7 @@ report 595 "Adjust Exchange Rates"
                                             CustPostingGr.Get("Posting Group");
                                             TempDtldCVLedgEntryBuf."Transaction No." :=
                                               PostAdjmt(
-                                                CustPostingGr.GetReceivablesAccount, AdjAmount, AdjBase, "Currency Code", TempDimSetEntry,
+                                                CustPostingGr.GetReceivablesAccount(), AdjAmount, AdjBase, "Currency Code", TempDimSetEntry,
                                                 AdjExchRateBuffer2."Posting Date", "IC Partner Code");
                                             if TempDtldCVLedgEntryBuf.Insert() then;
                                             InsertExchRateAdjmtReg(1, "Posting Group", "Currency Code");
@@ -1052,7 +1055,7 @@ report 595 "Adjust Exchange Rates"
                                             VendPostingGr.Get("Posting Group");
                                             TempDtldCVLedgEntryBuf."Transaction No." :=
                                               PostAdjmt(
-                                                VendPostingGr.GetPayablesAccount, AdjAmount, AdjBase, "Currency Code", TempDimSetEntry,
+                                                VendPostingGr.GetPayablesAccount(), AdjAmount, AdjBase, "Currency Code", TempDimSetEntry,
                                                 AdjExchRateBuffer2."Posting Date", "IC Partner Code");
                                             if TempDtldCVLedgEntryBuf.Insert() then;
                                             InsertExchRateAdjmtReg(2, "Posting Group", "Currency Code");
@@ -1066,11 +1069,11 @@ report 595 "Adjust Exchange Rates"
                         Currency2.Get("Currency Code");
                         if TotalGainsAmount <> 0 then
                             PostAdjmt(
-                              Currency2.GetUnrealizedGainsAccount, -TotalGainsAmount, AdjBase, "Currency Code", TempDimSetEntry,
+                              Currency2.GetUnrealizedGainsAccount(), -TotalGainsAmount, AdjBase, "Currency Code", TempDimSetEntry, // BUG
                               "Posting Date", "IC Partner Code");
                         if TotalLossesAmount <> 0 then
                             PostAdjmt(
-                              Currency2.GetUnrealizedLossesAccount, -TotalLossesAmount, AdjBase, "Currency Code", TempDimSetEntry,
+                              Currency2.GetUnrealizedLossesAccount(), -TotalLossesAmount, AdjBase, "Currency Code", TempDimSetEntry, // BUG
                               "Posting Date", "IC Partner Code");
                     end;
                 until AdjExchRateBuffer2.Next() = 0;

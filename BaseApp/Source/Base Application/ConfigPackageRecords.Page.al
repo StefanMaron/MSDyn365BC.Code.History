@@ -1665,7 +1665,7 @@ page 8626 "Config. Package Records"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeValidatePackageData(var ConfigPackageRecord: record "Config. Package Record"; var MatrixCellData: array[1000] of Text[250]; PackageColumnField: array[1000] of Integer; ColumnID: Integer; var IsHandled: Boolean)
     begin
     end;
