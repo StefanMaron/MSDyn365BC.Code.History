@@ -31,10 +31,22 @@ page 29 "Vendor Ledger Entries"
                     Editable = false;
                     ToolTip = 'Specifies the vendor entry''s document date.';
                 }
+#if not CLEAN23
                 field("Invoice Receipt Date"; Rec."Invoice Receipt Date")
                 {
                     ApplicationArea = Basic, Suite;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by W1 field "Invoice Received Date".';
+                    ObsoleteTag = '23.0';
                     ToolTip = 'Specifies the date when the document was received.';
+                    Visible = false;
+                }
+#endif
+                field("Invoice Received Date"; Rec."Invoice Received Date")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Editable = false;
+                    ToolTip = 'Specifies the date when the vendor''s invoice was received.';
                     Visible = false;
                 }
                 field("Document Type"; Rec."Document Type")

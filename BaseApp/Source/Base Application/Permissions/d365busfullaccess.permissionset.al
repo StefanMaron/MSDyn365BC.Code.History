@@ -150,6 +150,7 @@
                   tabledata "Contract Gain/Loss Entry" = RIM,
                   tabledata "Contract Group" = RIMD,
                   tabledata "Contract Trend Buffer" = RIMD,
+                  tabledata "Company Size" = RIMD,
                   tabledata "Copy Gen. Journal Parameters" = RIMD,
                   tabledata "Copy Item Buffer" = RIMD,
                   tabledata "Copy Item Parameters" = RIMD,
@@ -498,7 +499,9 @@
                   tabledata "Payment Export Remittance Text" = RIMD,
                   tabledata "Payment Jnl. Export Error Text" = RIMD,
                   tabledata "Payment Method Translation" = RIMD,
+#if not CLEAN23
                   tabledata "Payment Period Setup" = RIMD,
+#endif
                   tabledata "Payment Registration Buffer" = RIMD,
                   tabledata "Payment Registration Setup" = RIMD,
                   tabledata "Payment Reporting Argument" = Rimd,

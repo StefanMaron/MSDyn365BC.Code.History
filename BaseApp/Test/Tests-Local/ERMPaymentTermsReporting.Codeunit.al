@@ -1,3 +1,4 @@
+#if not CLEAN23
 codeunit 144062 "ERM Payment Terms Reporting"
 {
     // // [FEATURE] [Payment Terms] [Purchase]
@@ -5,6 +6,10 @@ codeunit 144062 "ERM Payment Terms Reporting"
     Permissions = TableData "Vendor Ledger Entry" = id,
                   TableData "Detailed Vendor Ledg. Entry" = i;
     Subtype = Test;
+
+    ObsoleteState = Pending;
+    ObsoleteReason = 'This codeunit is obsolete. The tests will be moved to W1 App "Payment Practice"';
+    ObsoleteTag = '23.0';
 
     trigger OnRun()
     begin
@@ -1247,4 +1252,4 @@ codeunit 144062 "ERM Payment Terms Reporting"
         PaymentPractices.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 }
-
+#endif

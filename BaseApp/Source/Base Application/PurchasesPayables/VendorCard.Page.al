@@ -142,6 +142,12 @@ page 26 "Vendor Card"
                     Importance = Additional;
                     ToolTip = 'Specifies that you can change the vendor name on open purchase documents. The change applies only to the documents.';
                 }
+                field("Company Size Code"; Rec."Company Size Code")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies the size of the vendor''s company.';
+                }
             }
             group("Address & Contact")
             {
@@ -492,10 +498,21 @@ page 26 "Vendor Card"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the vendor.';
                 }
+#if not CLEAN23
                 field("Exclude from Pmt. Pract. Rep."; Rec."Exclude from Pmt. Pract. Rep.")
                 {
                     ApplicationArea = Basic, Suite;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by W1 field "Exclude from Pmt. Practices"';
+                    ObsoleteTag = '23.0';
                     ToolTip = 'Specifies that vendor must be excluded from calculation in Payment Practices report.';
+                }
+#endif
+                field("Exclude from Pmt. Practices"; Rec."Exclude from Pmt. Practices")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies that the vendor must be excluded from Payment Practices calculations.';
                 }
             }
             group(Receiving)

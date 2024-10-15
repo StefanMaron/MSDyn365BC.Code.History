@@ -1092,7 +1092,14 @@
             TableRelation = Customer;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateSellToCustomerNo(Rec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if ("Document Type" = "Document Type"::Order) and
                    (xRec."Sell-to Customer No." <> "Sell-to Customer No.")
                 then begin
@@ -2003,6 +2010,10 @@
             Caption = 'Payment Reference';
             Numeric = true;
         }
+        field(175; "Invoice Received Date"; Date)
+        {
+
+        }
         field(178; "Journal Templ. Name"; Code[10])
         {
             Caption = 'Journal Template Name';
@@ -2090,6 +2101,7 @@
 
             trigger OnValidate()
             begin
+                UpdatePurchLinesByFieldNo(FieldNo("Campaign No."), CurrFieldNo <> 0);
                 CreateDimFromDefaultDim(Rec.FieldNo("Campaign No."));
             end;
         }
@@ -2424,6 +2436,14 @@
         field(10502; "Invoice Receipt Date"; Date)
         {
             Caption = 'Invoice Receipt Date';
+            ObsoleteReason = 'Replaced by W1 field "Invoice Received Date".';
+#if CLEAN23
+            ObsoleteState = Removed;
+            ObsoleteTag = '26.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '23.0';
+#endif
         }
     }
 
@@ -2574,7 +2594,7 @@
         Text028: Label 'Your identification is set up to process from %1 %2 only.';
         MaxAllowedValueIs100Err: Label 'The values must be less than or equal 100.';
         Text029: Label 'Deleting this document will cause a gap in the number series for return shipments. An empty return shipment %1 will be created to fill this gap in the number series.\\Do you want to continue?', Comment = '%1 = Document No.';
-        DoYouWantToKeepExistingDimensionsQst: Label 'This will change the dimension specified on the document. Do you want to keep the existing dimensions?';
+        DoYouWantToKeepExistingDimensionsQst: Label 'This will change the dimension specified on the document. Do you want to recalculate/update dimensions?';
         Text032: Label 'You have modified %1.\\Do you want to update the lines?', Comment = 'You have modified Currency Factor.\\Do you want to update the lines?';
         ReviewLinesManuallyMsg: Label 'You should review the lines and manually update prices and discounts if needed.';
         UpdateLinesOrderDateAutomaticallyQst: Label 'Do you want to update the order date for existing lines?';
@@ -3632,6 +3652,9 @@
                                 PurchLine.Validate("Order Date", "Order Date");
                                 PurchLine.UpdateDirectUnitCost(0);
                             end;
+                        FieldNo("Campaign No."):
+                            if PurchLine."No." <> '' then
+                                PurchLine.UpdateDirectUnitCost(0);
                         else
                             OnUpdatePurchLinesByChangedFieldName(Rec, PurchLine, Field.FieldName, ChangedFieldNo, xRec);
                     end;
@@ -3735,7 +3758,7 @@
 
         if (OldDimSetID <> "Dimension Set ID") and (OldDimSetID <> 0) and guiallowed then
             if CouldDimensionsBeKept() then
-                if ConfirmKeepExistingDimensions(OldDimSetID) then begin
+                if not ConfirmKeepExistingDimensions(OldDimSetID) then begin
                     "Dimension Set ID" := OldDimSetID;
                     DimMgt.UpdateGlobalDimFromDimSetID(Rec."Dimension Set ID", Rec."Shortcut Dimension 1 Code", Rec."Shortcut Dimension 2 Code");
                 end;
@@ -5236,7 +5259,10 @@
     procedure InitFromPurchHeader(SourcePurchHeader: Record "Purchase Header")
     begin
         "Document Date" := SourcePurchHeader."Document Date";
+#if not CLEAN23
         "Invoice Receipt Date" := SourcePurchHeader."Invoice Receipt Date";
+#endif
+        "Invoice Received Date" := SourcePurchHeader."Invoice Received Date";
         "Expected Receipt Date" := SourcePurchHeader."Expected Receipt Date";
         "Shortcut Dimension 1 Code" := SourcePurchHeader."Shortcut Dimension 1 Code";
         "Shortcut Dimension 2 Code" := SourcePurchHeader."Shortcut Dimension 2 Code";
@@ -7726,6 +7752,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInitPurchaseLineDefaultDimSource(var PurchaseHeader: Record "Purchase Header"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; SourcePurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateSellToCustomerNo(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
     begin
     end;
 }
