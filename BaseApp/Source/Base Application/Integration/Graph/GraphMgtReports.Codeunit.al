@@ -14,6 +14,11 @@ codeunit 5488 "Graph Mgt - Reports"
         FooterLineTypeTxt: Label 'total', Locked = true;
         SpacerLineTypeTxt: Label 'spacer', Locked = true;
 
+    local procedure FormatAmount(Amount: Decimal): Text[30]
+    begin
+        exit(CopyStr(DelChr(Format(Amount, 0, FormatStr(1)), '<', ' '), 1, 30));
+    end;
+
     procedure SetUpTrialBalanceAPIData(var TrialBalanceEntityBuffer: Record "Trial Balance Entity Buffer")
     var
         GLAccount: Record "G/L Account";
@@ -47,10 +52,10 @@ codeunit 5488 "Graph Mgt - Reports"
                     TrialBalanceEntityBuffer."Total Credit" := TransformAmount(GLAccount."Credit Amount");
                     if GLAccount."Balance at Date" < 0 then begin
                         TrialBalanceEntityBuffer."Balance at Date Credit" := TransformAmount(GLAccount."Balance at Date");
-                        TrialBalanceEntityBuffer."Balance at Date Debit" := DelChr(Format(0.0, 15, FormatStr(1)), '<', ' ');
+                        TrialBalanceEntityBuffer."Balance at Date Debit" := FormatAmount(0.0);
                     end else begin
                         TrialBalanceEntityBuffer."Balance at Date Debit" := TransformAmount(GLAccount."Balance at Date");
-                        TrialBalanceEntityBuffer."Balance at Date Credit" := DelChr(Format(0.0, 15, FormatStr(1)), '<', ' ');
+                        TrialBalanceEntityBuffer."Balance at Date Credit" := FormatAmount(0.0);
                     end;
                 end;
                 TrialBalanceEntityBuffer."Date Filter" := GetDateRangeMax(DateFilter);
@@ -498,9 +503,9 @@ codeunit 5488 "Graph Mgt - Reports"
     local procedure TransformAmount(Amount: Decimal) NewAmount: Text[30]
     begin
         if Amount < 0 then
-            NewAmount := DelChr(Format(Amount * -1, 15, FormatStr(1)), '<', ' ')
+            NewAmount := FormatAmount(Amount * -1)
         else
-            NewAmount := DelChr(Format(Amount, 15, FormatStr(1)), '<', ' ');
+            NewAmount := FormatAmount(Amount);
     end;
 
     [IntegrationEvent(false, false)]

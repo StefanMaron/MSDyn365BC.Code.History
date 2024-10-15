@@ -1820,8 +1820,14 @@ page 51 "Purchase Invoice"
             PurchaseHeader.SetRange("IC Reference Document No.", Rec."Vendor Order No.");
             PurchaseHeader.SetRange("Buy-from IC Partner Code", Rec."Buy-from IC Partner Code");
             PurchaseHeader.SetRange("Document Type", PurchaseHeader."Document Type"::Order);
-            if PurchaseHeader.FindFirst() then 
+            if PurchaseHeader.FindFirst() then
                 ICInboxOutboxMgt.ShowDuplicateICDocumentWarning(PurchaseHeader);
+            PurchaseHeader.Reset();
+            if PurchaseHeader.Get(PurchaseHeader."Document Type"::Order, CopyStr(Rec."Your Reference", 1, MaxStrLen(Rec."No."))) then
+                if (PurchaseHeader."IC Direction" = PurchaseHeader."IC Direction"::Outgoing) and
+                   (PurchaseHeader."Buy-from IC Partner Code" = Rec."Buy-from IC Partner Code") and
+                   (PurchaseHeader."IC Status" = PurchaseHeader."IC Status"::Sent) then
+                    ICInboxOutboxMgt.ShowDuplicateICDocumentWarning(PurchaseHeader, ICIncomingInvoiceFromOriginalOrderMsg);
         end;
         VATDateEnabled := VATReportingDateMgt.IsVATDateEnabled();
     end;
@@ -1861,6 +1867,7 @@ page 51 "Purchase Invoice"
         OpenApprovalEntriesExistForCurrUser: Boolean;
         ShowWorkflowStatus: Boolean;
         JobQueuesUsed: Boolean;
+        ICIncomingInvoiceFromOriginalOrderMsg: Label 'This invoice was received through intercompany and it''s related to the purchase %1 with no. %2. You can delete that order and post this invoice.', Comment = '%1 - either "order", "invoice", or "posted invoice", %2 - a code';
         SureToRejectMsg: Label 'Rejecting this invoice will remove it from your company and send it back to the partner company.\\ Do you want to continue?';
         OpenPostedPurchaseInvQst: Label 'The invoice is posted as number %1 and moved to the Posted Purchase Invoices window.\\Do you want to open the posted invoice?', Comment = '%1 = posted document number';
         IsOfficeAddin: Boolean;

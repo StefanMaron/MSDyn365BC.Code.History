@@ -191,6 +191,9 @@ table 172 "Standard Customer Sales Code"
         if not IsHandled then begin
             Currency.Initialize(SalesHeader."Currency Code");
 
+            if StdCustSalesCode.Blocked then
+                exit;
+
             StdCustSalesCode.TestField(Code);
             StdCustSalesCode.TestField("Customer No.", SalesHeader."Sell-to Customer No.");
             StdSalesCode.Get(StdCustSalesCode.Code);

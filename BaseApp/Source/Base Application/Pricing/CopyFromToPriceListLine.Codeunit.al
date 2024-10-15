@@ -872,6 +872,7 @@ Codeunit 7009 CopyFromToPriceListLine
                 PriceListLine.SetNextLineNo();
             end;
         end;
+        OnAfterInitLineNo(PriceListLine);
     end;
 
     local procedure GetMaxPriceLineNo(): Integer;
@@ -946,6 +947,11 @@ Codeunit 7009 CopyFromToPriceListLine
         if PriceListHeader."Starting Date" <> 0D then
             Description += StrSubstNo(PlaceHolderRangeTok, PriceListHeader."Starting Date", PriceListHeader."Ending Date");
         PriceListHeader.Description := CopyStr(Description, 1, MaxStrLen(PriceListHeader.Description));
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitLineNo(var PriceListLine: Record "Price List Line")
+    begin
     end;
 
     [IntegrationEvent(false, false)]

@@ -74,7 +74,7 @@
                     trigger OnValidate()
                     begin
                         // Update amount based on doc type
-                        if Rec."Document Type" = Rec."Document Type"::" " then
+                        if (Rec."Document Type" = Rec."Document Type"::" ") and (Rec.Amount <> 0) then
                             Error(EmptyDocumentTypeErr, Rec."Document No.");
 
                         if xRec."Document Type" <> Rec."Document Type" then
@@ -1216,7 +1216,7 @@
 
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
-        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
         GenJnlManagement: Codeunit GenJnlManagement;
         ClientTypeManagement: Codeunit "Client Type Management";
         JournalErrorsMgt: Codeunit "Journal Errors Mgt.";
@@ -1311,8 +1311,8 @@
             DebitCreditVisible := not (GeneralLedgerSetup."Show Amounts" = GeneralLedgerSetup."Show Amounts"::"Amount Only");
         end;
 
-        PurchasesPayablesSetup.GetRecordOnce();
-        IsPostingGroupEditable := PurchasesPayablesSetup."Allow Multiple Posting Groups";
+        SalesReceivablesSetup.GetRecordOnce();
+        IsPostingGroupEditable := SalesReceivablesSetup."Allow Multiple Posting Groups";
     end;
 
     local procedure SetDimensionsVisibility()

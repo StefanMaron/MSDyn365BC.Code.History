@@ -257,6 +257,41 @@
             Caption = 'Fixed Asset Line No.';
             DataClassification = SystemMetadata;
         }
+        field(6200; "Non-Deductible VAT %"; Decimal)
+        {
+            Caption = 'Non-Deductible VAT %"';
+            DecimalPlaces = 0 : 5;
+            DataClassification = SystemMetadata;
+        }
+        field(6201; "Non-Deductible VAT Base"; Decimal)
+        {
+            AutoFormatType = 1;
+            Caption = 'Non-Deductible VAT Base';
+            DataClassification = SystemMetadata;
+        }
+        field(6202; "Non-Deductible VAT Amount"; Decimal)
+        {
+            AutoFormatType = 1;
+            Caption = 'Non-Deductible VAT Amount';
+            DataClassification = SystemMetadata;
+        }
+        field(6203; "Non-Deductible VAT Base ACY"; Decimal)
+        {
+            AutoFormatType = 1;
+            Caption = 'Non-Deductible VAT Base ACY';
+            DataClassification = SystemMetadata;
+        }
+        field(6204; "Non-Deductible VAT Amount ACY"; Decimal)
+        {
+            AutoFormatType = 1;
+            Caption = 'Non-Deductible VAT Amount ACY';
+            DataClassification = SystemMetadata;
+        }
+        field(6205; "Non-Deductible VAT Diff."; Decimal)
+        {
+            Caption = 'Non-Deductible VAT Difference';
+            Editable = false;
+        }
         field(11624; Adjustment; Boolean)
         {
             Caption = 'Adjustment';
@@ -335,6 +370,7 @@
     var
         TempInvoicePostingBufferRounding: Record "Invoice Posting Buffer" temporary;
         DimMgt: Codeunit DimensionManagement;
+        NonDeductibleVAT: Codeunit "Non-Deductible VAT";
 
     procedure PrepareSales(var SalesLine: Record "Sales Line")
     var
@@ -382,6 +418,7 @@
             "VAT Base Amount (ACY)" := 0;
             "VAT Amount" := 0;
             "VAT Amount (ACY)" := 0;
+            NonDeductibleVAT.ClearNonDeductibleVAT(Rec);
         end;
 
         "Journal Templ. Name" := SalesLine.GetJnlTemplateName();
@@ -426,6 +463,7 @@
         Amount := "VAT Base Amount";
         "Amount (ACY)" := "VAT Base Amount (ACY)";
         "VAT Base Before Pmt. Disc." := "VAT Base Amount";
+        NonDeductibleVAT.Calculate(Rec);
     end;
 
     local procedure CalcVATAmount(ValueInclVAT: Boolean; Value: Decimal; VATPercent: Decimal): Decimal
@@ -476,6 +514,7 @@
         "Dimension Set ID" := PurchLine."Dimension Set ID";
         "Job No." := PurchLine."Job No.";
         "VAT %" := PurchLine."VAT %";
+        NonDeductibleVAT.Copy(Rec, PurchLine);
         PurchHeader.Get(PurchLine."Document Type", PurchLine."Document No.");
         Adjustment := PurchHeader.Adjustment;
         "BAS Adjustment" := PurchHeader."BAS Adjustment";
@@ -514,6 +553,7 @@
             "VAT Base Amount (ACY)" := 0;
             "VAT Amount" := 0;
             "VAT Amount (ACY)" := 0;
+            NonDeductibleVAT.ClearNonDeductibleVAT(Rec);
         end;
 
         "Journal Templ. Name" := PurchLine.GetJnlTemplateName();
@@ -563,6 +603,7 @@
         "VAT Base Amount (ACY)" := -"VAT Base Amount (ACY)";
         "VAT Amount" := -"VAT Amount";
         "VAT Amount (ACY)" := -"VAT Amount (ACY)";
+        NonDeductibleVAT.Reverse(Rec);
     end;
 
     procedure SetAmountsNoVAT(TotalAmount: Decimal; TotalAmountACY: Decimal; VATDifference: Decimal)
@@ -680,6 +721,7 @@
             "VAT Amount (ACY)" += InvoicePostingBuffer."VAT Amount (ACY)";
             "VAT Difference" += InvoicePostingBuffer."VAT Difference";
             "VAT Base Amount (ACY)" += InvoicePostingBuffer."VAT Base Amount (ACY)";
+            NonDeductibleVAT.Increment(Rec, InvoicePostingBuffer);
             Quantity += InvoicePostingBuffer.Quantity;
             "VAT Base Before Pmt. Disc." += InvoicePostingBuffer."VAT Base Before Pmt. Disc.";
             "VAT Base (ACY)" += InvoicePostingBuffer."VAT Base (ACY)";
@@ -810,7 +852,7 @@
         AdjustRoundingFieldsPair(TempInvoicePostingBufferRounding.Amount, Amount, "Amount (ACY)");
         AdjustRoundingFieldsPair(TempInvoicePostingBufferRounding."VAT Amount", "VAT Amount", "VAT Amount (ACY)");
         AdjustRoundingFieldsPair(TempInvoicePostingBufferRounding."VAT Base Amount", "VAT Base Amount", "VAT Base Amount (ACY)");
-
+        NonDeductibleVAT.AdjustRoundingForInvoicePostingBufferUpdate(TempInvoicePostingBufferRounding, Rec);
         OnAfterAdjustRoundingForUpdate(Rec, TempInvoicePostingBufferRounding);
     end;
 
@@ -827,7 +869,7 @@
         ApplyRoundingValueForFinalPosting(TempInvoicePostingBufferRounding.Amount, Amount);
         ApplyRoundingValueForFinalPosting(TempInvoicePostingBufferRounding."VAT Amount", "VAT Amount");
         ApplyRoundingValueForFinalPosting(TempInvoicePostingBufferRounding."VAT Base Amount", "VAT Base Amount");
-
+        NonDeductibleVAT.ApplyRoundingForFinalPostingFromInvoicePostingBuffer(TempInvoicePostingBufferRounding, Rec);
         OnAfterApplyRoundingForFinalPosting(Rec, TempInvoicePostingBufferRounding);
     end;
 
@@ -845,6 +887,7 @@
         "VAT Base Amount" := 0;
         "VAT Amount (ACY)" := 0;
         "VAT Base Amount (ACY)" := 0;
+        NonDeductibleVAT.ClearNonDeductibleVAT(Rec);
         "VAT Difference" := 0;
         "VAT %" := 0;
     end;
@@ -876,6 +919,7 @@
         GenJnlLine."Source Curr. VAT Amount" := Rec."VAT Amount (ACY)";
         GenJnlLine."VAT Difference" := Rec."VAT Difference";
         GenJnlLine."VAT Base Before Pmt. Disc." := Rec."VAT Base Before Pmt. Disc.";
+        NonDeductibleVAT.Copy(GenJnlLine, Rec);
 
         OnAfterCopyToGenJnlLine(GenJnlLine, Rec);
     end;

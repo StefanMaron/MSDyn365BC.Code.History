@@ -220,6 +220,11 @@ page 953 "Manager Time Sheet List"
 #if not CLEAN22
                 actionref("&Edit Time Sheet_Promoted"; "&Edit Time Sheet")
                 {
+                    ObsoleteReason = 'Removed as part of old Time Sheet UI.';
+                    ObsoleteState = Pending;
+#pragma warning disable AS0072
+                    ObsoleteTag = '22.0';
+#pragma warning restore AS0072
                 }
 #endif
                 actionref(MoveTimeSheetsToArchive_Promoted; MoveTimeSheetsToArchive)

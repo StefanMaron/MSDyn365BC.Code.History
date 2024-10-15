@@ -791,7 +791,8 @@ table 7001 "Price List Line"
         "VAT Bus. Posting Gr. (Price)" := PriceListHeader."VAT Bus. Posting Gr. (Price)";
         "Allow Invoice Disc." := PriceListHeader."Allow Invoice Disc.";
         "Allow Line Disc." := PriceListHeader."Allow Line Disc.";
-        OnAfterCopyFromPriceListHeader(PriceListHeader);
+
+        OnAfterCopyFromPriceListHeader(PriceListHeader, ForceDefaults);
     end;
 
     local procedure CopyFrom(PriceSource: Record "Price Source")
@@ -1175,7 +1176,7 @@ table 7001 "Price List Line"
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnAfterCopyFromPriceListHeader(PriceListHeader: Record "Price List Header")
+    local procedure OnAfterCopyFromPriceListHeader(PriceListHeader: Record "Price List Header"; ForceDefaults: Boolean)
     begin
     end;
 

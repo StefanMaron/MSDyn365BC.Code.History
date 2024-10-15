@@ -1134,6 +1134,21 @@
         {
             Caption = 'Coupled to Dynamics 365 Sales';
             Editable = false;
+            ObsoleteReason = 'Replaced by flow field Coupled to Dataverse';
+#if not CLEAN23
+            ObsoleteState = Pending;
+            ObsoleteTag = '23.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '26.0';
+#endif
+        }
+        field(721; "Coupled to Dataverse"; Boolean)
+        {
+            FieldClass = FlowField;
+            Caption = 'Coupled to Dynamics 365 Sales';
+            Editable = false;
+            CalcFormula = exist("CRM Integration Record" where("Integration ID" = field(SystemId), "Table ID" = const(Database::Item)));
         }
         field(910; "Assembly Policy"; Enum "Assembly Policy")
         {
@@ -2551,9 +2566,14 @@
         key(Key18; GTIN)
         {
         }
+#if not CLEAN23
         key(Key19; "Coupled to CRM")
         {
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Replaced by flow field Coupled to Dataverse';
+            ObsoleteTag = '23.0';
         }
+#endif
     }
 
     fieldgroups

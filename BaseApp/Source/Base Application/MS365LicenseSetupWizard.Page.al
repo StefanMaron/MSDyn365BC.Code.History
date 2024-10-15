@@ -129,7 +129,7 @@ page 1978 "MS 365 License Setup Wizard"
                 group(PermissionsEmptyInConfigPara1) 
                 {
                     ShowCaption = false;
-                    InstructionalText = 'You choose which user profile (role) and permissions are assigned in the License Configuration page for the Microsoft 365 license. Don’t worry, Business Central will not allow these users to edit data, no matter which permissions you configure.';
+                    InstructionalText = 'You choose which permissions are assigned in the License Configuration page for the Microsoft 365 license. Business Central will not allow these users to edit data, no matter which permissions you configure.';
                     Visible = WizardPermissions <> WizardPermissions::PermissionsEmptyInConfigAndEvalCompany;
                 }
                 group(PermissionsEvalCompanyPara1) 
