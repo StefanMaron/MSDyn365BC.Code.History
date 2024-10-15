@@ -94,9 +94,7 @@
         CountryCode := SetIntrastatDataOnCompanyInfo;
 
         // [GIVEN] Intrastat Journal with One Intrastat Journal Line
-        LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate);
-        IntrastatJnlBatch.Validate("Currency Identifier", 'EUR');
-        IntrastatJnlBatch.Modify(true);
+        CreateSimpleIntrastatJnlTemplateAndBatch(IntrastatJnlBatch);
         CreateIntrastatJnlLineWithMandatoryFields(IntrastatJnlLine,
           IntrastatJnlBatch."Journal Template Name", IntrastatJnlBatch.Name, CountryCode);
         Commit();
@@ -444,9 +442,7 @@
         Initialize();
 
         // [GIVEN] Prepare Intrastat Journal with one Intrastat Journal Line
-        LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate);
-        IntrastatJnlBatch.Validate("Currency Identifier", 'EUR');
-        IntrastatJnlBatch.Modify(true);
+        CreateSimpleIntrastatJnlTemplateAndBatch(IntrastatJnlBatch);
         CreateIntrastatJnlLineWithMandatoryFields(IntrastatJnlLine,
           IntrastatJnlBatch."Journal Template Name", IntrastatJnlBatch.Name, SetIntrastatDataOnCompanyInfo);
 
@@ -482,9 +478,7 @@
         Initialize();
 
         // [GIVEN] Prepare Intrastat Journal with one Intrastat Journal Line, which "Entry/Exit Point" equals 'XX'
-        LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate);
-        IntrastatJnlBatch.Validate("Currency Identifier", 'EUR');
-        IntrastatJnlBatch.Modify(true);
+        CreateSimpleIntrastatJnlTemplateAndBatch(IntrastatJnlBatch);
         CreateIntrastatJnlLineWithMandatoryFields(IntrastatJnlLine,
           IntrastatJnlBatch."Journal Template Name", IntrastatJnlBatch.Name, SetIntrastatDataOnCompanyInfo);
         Commit();
@@ -513,17 +507,15 @@
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
         Filename: Text;
     begin
-        // [FEATURE] [Intrastat] [Export]
+        // [FEATURE] [Intrastat] [Export] [Shipment]
         // [SCENARIO 376893] Create Intrastat Decl. with "Partner VAT ID" in shipment Intrastat Jnl. Line when Counterparty = false
         Initialize();
 
         // [GIVEN] Prepare shipment Intrastat Journal Line whith "Partner VAT ID" = 'NL23456789456' and Transaction Specification = '12'
-        LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate);
-        IntrastatJnlBatch.Validate("Currency Identifier", 'EUR');
-        IntrastatJnlBatch.Modify(true);
+        CreateSimpleIntrastatJnlTemplateAndBatch(IntrastatJnlBatch);
         CreateIntrastatJnlLineWithMandatoryFields(IntrastatJnlLine,
           IntrastatJnlBatch."Journal Template Name", IntrastatJnlBatch.Name, SetIntrastatDataOnCompanyInfo);
-        UpdatePartnerIDInIntrastatJnlLine(IntrastatJnlLine);
+        UpdatePartnerIDInIntrastatJnlLine(IntrastatJnlLine, IntrastatJnlLine.Type::Shipment);
         Commit();
         LibraryVariableStorage.Enqueue(false);
 
@@ -544,17 +536,15 @@
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
         Filename: Text;
     begin
-        // [FEATURE] [Intrastat] [Export]
+        // [FEATURE] [Intrastat] [Export] [Shipment]
         // [SCENARIO 376893] Create Intrastat Decl. with "Partner VAT ID" in shipment Intrastat Jnl. Line when Counterparty = true
         Initialize();
 
         // [GIVEN] Prepare shipment Intrastat Journal Line whith "Partner VAT ID" = 'NL0123456789' and Transaction Specification = '12'
-        LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate);
-        IntrastatJnlBatch.Validate("Currency Identifier", 'EUR');
-        IntrastatJnlBatch.Modify(true);
+        CreateSimpleIntrastatJnlTemplateAndBatch(IntrastatJnlBatch);
         CreateIntrastatJnlLineWithMandatoryFields(IntrastatJnlLine,
           IntrastatJnlBatch."Journal Template Name", IntrastatJnlBatch.Name, SetIntrastatDataOnCompanyInfo);
-        UpdatePartnerIDInIntrastatJnlLine(IntrastatJnlLine);
+        UpdatePartnerIDInIntrastatJnlLine(IntrastatJnlLine, IntrastatJnlLine.Type::Shipment);
         Commit();
         LibraryVariableStorage.Enqueue(true);
 
@@ -578,16 +568,14 @@
         Filename: Text;
         LineContent: Text;
     begin
-        // [FEATURE] [Intrastat] [Export]
+        // [FEATURE] [Intrastat] [Export] [Shipment]
         // [SCENARIO 386323] "Country/Region of Origin" aligned left in exported file
         Initialize();
 
-        LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate);
-        IntrastatJnlBatch.Validate("Currency Identifier", 'EUR');
-        IntrastatJnlBatch.Modify(true);
+        CreateSimpleIntrastatJnlTemplateAndBatch(IntrastatJnlBatch);
         CreateIntrastatJnlLineWithMandatoryFields(IntrastatJnlLine,
           IntrastatJnlBatch."Journal Template Name", IntrastatJnlBatch.Name, SetIntrastatDataOnCompanyInfo);
-        UpdatePartnerIDInIntrastatJnlLine(IntrastatJnlLine);
+        UpdatePartnerIDInIntrastatJnlLine(IntrastatJnlLine, IntrastatJnlLine.Type::Shipment);
         Item.Get(IntrastatJnlLine."Item No.");
         Item.Validate("Country/Region of Origin Code", CreateCountryRegionCode());
         Item.Modify(true);
@@ -604,6 +592,66 @@
         Assert.ExpectedMessage(
           StrSubstNo('%1 %2', Item."Country/Region of Origin Code", IntrastatJnlLine."Country/Region Code"),
           LineContent);
+    end;
+
+    [Test]
+    [HandlerFunctions('CreateIntrastatDeclDiskReqPageHandler')]
+    [Scope('OnPrem')]
+    procedure PartnerIDInReceiptIntrastatFileCounterpartyFalse()
+    var
+        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
+        IntrastatJnlLine: Record "Intrastat Jnl. Line";
+        Filename: Text;
+    begin
+        // [FEATURE] [Intrastat] [Export] [Receipt]
+        // [SCENARIO 389253] Create Intrastat Decl. with "Partner VAT ID" in receipt Intrastat Jnl. Line when Counterparty = false
+        Initialize();
+
+        // [GIVEN] Prepare receipt Intrastat Journal Line whith "Partner VAT ID" = 'NL23456789456' and Transaction Specification = '12'
+        CreateSimpleIntrastatJnlTemplateAndBatch(IntrastatJnlBatch);
+        CreateIntrastatJnlLineWithMandatoryFields(IntrastatJnlLine,
+          IntrastatJnlBatch."Journal Template Name", IntrastatJnlBatch.Name, SetIntrastatDataOnCompanyInfo);
+        UpdatePartnerIDInIntrastatJnlLine(IntrastatJnlLine, IntrastatJnlLine.Type::Receipt);
+        Commit();
+        LibraryVariableStorage.Enqueue(false);
+
+        // [WHEN] Run Create Intrastat Declaration Disc with Counterparty = true
+        Filename := FileManagement.ServerTempFileName('txt');
+        RunIntrastatMakeDiskTaxAuth(Filename);
+
+        // [THEN] Intrastat Declaration is created with Transaction = '12' and 'Partner ID' = 'NL23456789456'
+        VerifyTransactionAndPatnerIDInDeclarationFile(Filename, '', '');
+    end;
+
+    [Test]
+    [HandlerFunctions('CreateIntrastatDeclDiskReqPageHandler')]
+    [Scope('OnPrem')]
+    procedure PartnerIDInReceiptIntrastatFileCounterpartyTrue()
+    var
+        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
+        IntrastatJnlLine: Record "Intrastat Jnl. Line";
+        Filename: Text;
+    begin
+        // [FEATURE] [Intrastat] [Export] [Receipt]
+        // [SCENARIO 389253] Create Intrastat Decl. with "Partner VAT ID" in receipt Intrastat Jnl. Line when Counterparty = true
+        Initialize();
+
+        // [GIVEN] Prepare receipt Intrastat Journal Line whith "Partner VAT ID" = 'NL0123456789' and Transaction Specification = '12'
+        CreateSimpleIntrastatJnlTemplateAndBatch(IntrastatJnlBatch);
+        CreateIntrastatJnlLineWithMandatoryFields(IntrastatJnlLine,
+          IntrastatJnlBatch."Journal Template Name", IntrastatJnlBatch.Name, SetIntrastatDataOnCompanyInfo);
+        UpdatePartnerIDInIntrastatJnlLine(IntrastatJnlLine, IntrastatJnlLine.Type::Receipt);
+        Commit();
+        LibraryVariableStorage.Enqueue(true);
+
+        // [WHEN] Run Create Intrastat Declaration Disc with Counterparty = true
+        Filename := FileManagement.ServerTempFileName('txt');
+        RunIntrastatMakeDiskTaxAuth(Filename);
+
+        // [THEN] Intrastat Declaration is created with Transaction = '12' and 'Partner ID' = '     NL0123456789'
+        VerifyTransactionAndPatnerIDInDeclarationFile(
+          Filename, IntrastatJnlLine."Transaction Specification",
+          PadStr('', 17 - StrLen(IntrastatJnlLine."Partner VAT ID"), ' ') + IntrastatJnlLine."Partner VAT ID");
     end;
 
     local procedure Initialize()
@@ -807,6 +855,13 @@
         LibraryERM.CreateIntrastatJnlTemplate(IntrastatJnlTemplate);
         LibraryERM.CreateIntrastatJnlBatch(IntrastatJnlBatch, IntrastatJnlTemplate.Name);
         IntrastatJnlBatch.Validate("Statistics Period", Format(PostingDate, 0, '<Year,2><Month,2>'));
+        IntrastatJnlBatch.Validate("Currency Identifier", 'EUR');
+        IntrastatJnlBatch.Modify(true);
+    end;
+
+    local procedure CreateSimpleIntrastatJnlTemplateAndBatch(var IntrastatJnlBatch: Record "Intrastat Jnl. Batch")
+    begin
+        LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate);
         IntrastatJnlBatch.Validate("Currency Identifier", 'EUR');
         IntrastatJnlBatch.Modify(true);
     end;
@@ -1051,9 +1106,9 @@
         IntrastatJnlLine.Modify(true);
     end;
 
-    local procedure UpdatePartnerIDInIntrastatJnlLine(var IntrastatJnlLine: Record "Intrastat Jnl. Line")
+    local procedure UpdatePartnerIDInIntrastatJnlLine(var IntrastatJnlLine: Record "Intrastat Jnl. Line"; IntrastatJnlLineType: Option)
     begin
-        IntrastatJnlLine.Type := IntrastatJnlLine.Type::Shipment;
+        IntrastatJnlLine.Type := IntrastatJnlLineType;
         IntrastatJnlLine."Transaction Specification" := Format(LibraryRandom.RandIntInRange(10, 99));
         IntrastatJnlLine."Partner VAT ID" := LibraryUtility.GenerateGUID();
         IntrastatJnlLine.Modify();

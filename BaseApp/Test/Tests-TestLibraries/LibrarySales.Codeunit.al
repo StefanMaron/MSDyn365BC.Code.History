@@ -433,11 +433,16 @@ codeunit 130509 "Library - Sales"
     end;
 
     procedure CreateSalesCreditMemo(var SalesHeader: Record "Sales Header")
+    begin
+        CreateSalesCreditMemoForCustomerNo(SalesHeader, CreateCustomerNo());
+    end;
+
+    procedure CreateSalesCreditMemoForCustomerNo(var SalesHeader: Record "Sales Header"; CustomerNo: Code[20])
     var
         Item: Record Item;
         SalesLine: Record "Sales Line";
     begin
-        CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", CreateCustomerNo);
+        CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", CustomerNo);
         LibraryInventory.CreateItemWithUnitPriceAndUnitCost(
           Item, LibraryRandom.RandDecInRange(1, 100, 2), LibraryRandom.RandDecInRange(1, 100, 2));
         CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandInt(100));
