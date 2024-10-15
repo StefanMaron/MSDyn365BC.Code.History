@@ -1148,6 +1148,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Contact Lookup - NamedType ConfirmStubQst)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2226873536 - NamedType 2332186252" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Do you want to change]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Contact Lookup - NamedType ChangeQst)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1093329899 - NamedType 2835671693" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[https://outlook.office365.com/EWS/Exchange.asmx]]></Val>

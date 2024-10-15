@@ -1019,6 +1019,11 @@ page 508 "Blanket Sales Order Subform"
             SendLineInvoiceDiscountResetNotification();
     end;
 
+    procedure ForceTotalsCalculation()
+    begin
+        DocumentTotals.SalesDocTotalsNotUpToDate();
+    end;
+
     procedure UpdateEditableOnRow()
     begin
         IsCommentLine := not HasTypeToFillMandatoryFields;
