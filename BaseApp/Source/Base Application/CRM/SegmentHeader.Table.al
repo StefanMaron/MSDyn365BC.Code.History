@@ -478,10 +478,16 @@ table 5076 "Segment Header"
         SegInteractLanguage: Record "Segment Interaction Language";
         Attachment: Record Attachment;
         AttachmentManagement: Codeunit AttachmentManagement;
+        IsHandled: Boolean;
     begin
         SegInteractLanguage.SetRange("Segment No.", SegmentNo);
         SegInteractLanguage.SetRange("Segment Line No.", SegmentLineNo);
         SegInteractLanguage.DeleteAll(true);
+
+        IsHandled := false;
+        OnCreateSegInteractionsOnAfterDeleteAll(InteractionTemplateCode, SegmentNo, SegmentLineNo, IsHandled);
+        if IsHandled then
+            exit;
 
         InteractionTmplLanguage.Reset();
         InteractionTmplLanguage.SetRange("Interaction Template Code", InteractionTemplateCode);
@@ -828,6 +834,7 @@ table 5076 "Segment Header"
                 SavedSegCriteriaLine."Ignore Exclusion" := SegCriteriaLine."Ignore Exclusion";
                 SavedSegCriteriaLine."Entire Companies" := SegCriteriaLine."Entire Companies";
                 SavedSegCriteriaLine."No. of Filters" := SegCriteriaLine."No. of Filters";
+                OnSaveCriteriaOnBeforeInsertSegmentCriteriaLine(SegCriteriaLine, SavedSegCriteriaLine);
                 SavedSegCriteriaLine.Insert();
             until SegCriteriaLine.Next() = 0;
         end;
@@ -1114,6 +1121,16 @@ table 5076 "Segment Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateSubjectDefault(var SegmentHeader: Record "Segment Header"; xSegmentHeader: Record "Segment Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateSegInteractionsOnAfterDeleteAll(InteractionTemplateCode: Code[10]; SegmentNo: Code[20]; SegmentLineNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSaveCriteriaOnBeforeInsertSegmentCriteriaLine(var SegmentCriteriaLine: Record "Segment Criteria Line"; var SavedSegmentCriteriaLine: Record "Saved Segment Criteria Line")
     begin
     end;
 }

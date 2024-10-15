@@ -347,6 +347,11 @@ page 2633 "Statistical Accounts Journal"
         Rec.GetBalance(Rec, BalanceAfterPosting, Balance);
     end;
 
+    trigger OnAfterGetRecord()
+    begin
+        Rec.ShowShortcutDimCode(ShortcutDimCode);
+    end;
+
     local procedure SetDimensionVisibility()
     var
         DimensionManagement: Codeunit DimensionManagement;
