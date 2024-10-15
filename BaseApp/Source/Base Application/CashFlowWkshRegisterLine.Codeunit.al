@@ -21,14 +21,14 @@ codeunit 846 "Cash Flow Wksh. -Register Line"
     procedure RunWithCheck(var CFWkshLine2: Record "Cash Flow Worksheet Line")
     begin
         CFWkshLine.Copy(CFWkshLine2);
-        Code;
+        Code();
         CFWkshLine2 := CFWkshLine;
     end;
 
     local procedure "Code"()
     begin
         with CFWkshLine do begin
-            if EmptyLine then
+            if EmptyLine() then
                 exit;
 
             CFWkshCheckLine.RunCheck(CFWkshLine);

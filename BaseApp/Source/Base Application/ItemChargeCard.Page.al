@@ -15,7 +15,7 @@ page 31074 "Item Charge Card"
             group(General)
             {
                 Caption = 'General';
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = ItemCharges;
                     ToolTip = 'Specifies the number of the item charge.';
@@ -25,56 +25,36 @@ page 31074 "Item Charge Card"
                     ApplicationArea = ItemCharges;
                     ToolTip = 'Specifies a description of the item charge number that you are setting up.';
                 }
-                field("Search Description"; "Search Description")
+                field("Search Description"; Rec."Search Description")
                 {
                     ApplicationArea = ItemCharges;
                     ToolTip = 'Specifies the search description.';
                 }
-#if not CLEAN18
-                field("Incl. in Intrastat Amount"; "Incl. in Intrastat Amount")
-                {
-                    ApplicationArea = ItemCharges;
-                    ToolTip = 'Specifies to include Intrastat amounts for item charges.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '18.0';
-                    Visible = false;
-                }
-                field("Incl. in Intrastat Stat. Value"; "Incl. in Intrastat Stat. Value")
-                {
-                    ApplicationArea = ItemCharges;
-                    ToolTip = 'Specifies to include Intrastat amounts for value entries.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '18.0';
-                    Visible = false;
-                }
-#endif
             }
             group(Posting)
             {
                 Caption = 'Posting';
-                field("Gen. Prod. Posting Group"; "Gen. Prod. Posting Group")
+                field("Gen. Prod. Posting Group"; Rec."Gen. Prod. Posting Group")
                 {
                     ApplicationArea = ItemCharges;
                     ToolTip = 'Specifies the general product posting group to which this item charge belongs.';
                 }
-                field("Tax Group Code"; "Tax Group Code")
+                field("Tax Group Code"; Rec."Tax Group Code")
                 {
                     ApplicationArea = ItemCharges;
                     ToolTip = 'Specifies tax groups. A tax group represents a group of inventory items.';
                 }
-                field("VAT Prod. Posting Group"; "VAT Prod. Posting Group")
+                field("VAT Prod. Posting Group"; Rec."VAT Prod. Posting Group")
                 {
                     ApplicationArea = ItemCharges;
                     ToolTip = 'Specifies a VAT product posting group code for the VAT Statement.';
                 }
-                field("Global Dimension 1 Code"; "Global Dimension 1 Code")
+                field("Global Dimension 1 Code"; Rec."Global Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the dimension value code associated with the Item.';
                 }
-                field("Global Dimension 2 Code"; "Global Dimension 2 Code")
+                field("Global Dimension 2 Code"; Rec."Global Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the dimension value code associated with the Item.';

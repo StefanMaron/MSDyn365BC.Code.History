@@ -1,3 +1,4 @@
+#if not CLEAN19
 permissionset 9111 "General Ledger Accounts - Edit"
 {
     Access = Public;
@@ -17,9 +18,7 @@ permissionset 9111 "General Ledger Accounts - Edit"
                   tabledata "Cust. Ledger Entry" = r,
                   tabledata "Customer Posting Group" = r,
                   tabledata "Default Dimension" = RIMD,
-#if not CLEAN19
                   tabledata "Detailed G/L Entry" = Rm,
-#endif
                   tabledata "Employee Ledger Entry" = r,
                   tabledata "Employee Posting Group" = r,
                   tabledata "Extended Text Header" = RIMD,
@@ -79,10 +78,6 @@ permissionset 9111 "General Ledger Accounts - Edit"
                   tabledata "Standard General Journal Line" = r,
                   tabledata "Standard Purchase Line" = r,
                   tabledata "Standard Sales Line" = r,
-#if not CLEAN18
-                  tabledata "Subst. Customer Posting Group" = R,
-                  tabledata "Subst. Vendor Posting Group" = R,
-#endif
                   tabledata "Tax Area" = R,
                   tabledata "Tax Group" = R,
                   tabledata "VAT Assisted Setup Bus. Grp." = r,
@@ -97,3 +92,5 @@ permissionset 9111 "General Ledger Accounts - Edit"
                   tabledata "Vendor Ledger Entry" = r,
                   tabledata "Vendor Posting Group" = r;
 }
+
+#endif

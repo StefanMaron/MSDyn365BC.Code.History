@@ -1,3 +1,4 @@
+#if not CLEAN19
 permissionset 3846 "Fixed Assets - Edit"
 {
     Access = Public;
@@ -7,30 +8,18 @@ permissionset 3846 "Fixed Assets - Edit"
     Permissions = tabledata "Bank Account Ledger Entry" = r,
                   tabledata Bin = R,
                   tabledata "Check Ledger Entry" = r,
-#if not CLEAN18
-                  tabledata "Classification Code" = R,
-#endif
                   tabledata "Comment Line" = RIMD,
                   tabledata Currency = R,
                   tabledata "Currency Exchange Rate" = R,
                   tabledata "Cust. Ledger Entry" = r,
                   tabledata "Default Dimension" = RIMD,
-#if not CLEAN18
-                  tabledata "Depreciation Group" = R,
-#endif
                   tabledata "Depreciation Table Header" = RIMD,
                   tabledata "Depreciation Table Line" = RIMD,
-#if not CLEAN19
                   tabledata "Detailed G/L Entry" = rm,
-#endif
                   tabledata Employee = R,
                   tabledata "Employee Ledger Entry" = r,
                   tabledata "FA Class" = RIMD,
                   tabledata "FA Depreciation Book" = RIMD,
-#if not CLEAN18
-                  tabledata "FA Extended Posting Group" = R,
-                  tabledata "FA History Entry" = Rim,
-#endif
                   tabledata "FA Ledger Entry" = Rm,
                   tabledata "FA Location" = RIMD,
                   tabledata "FA Posting Group" = R,
@@ -72,3 +61,5 @@ permissionset 3846 "Fixed Assets - Edit"
                   tabledata Vendor = R,
                   tabledata "Vendor Ledger Entry" = r;
 }
+
+#endif

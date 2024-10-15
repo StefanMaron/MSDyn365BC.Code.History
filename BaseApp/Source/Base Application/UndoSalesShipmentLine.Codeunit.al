@@ -23,7 +23,7 @@ codeunit 5815 "Undo Sales Shipment Line"
                 exit;
 
         SalesShptLine.Copy(Rec);
-        Code;
+        Code();
         UpdateItemAnalysisView.UpdateAll(0, true);
         Rec := SalesShptLine;
     end;
@@ -35,18 +35,19 @@ codeunit 5815 "Undo Sales Shipment Line"
         TempGlobalItemEntryRelation: Record "Item Entry Relation" temporary;
         UndoPostingMgt: Codeunit "Undo Posting Management";
         ItemJnlPostLine: Codeunit "Item Jnl.-Post Line";
-        Text000: Label 'Do you really want to undo the selected Shipment lines?';
-        Text001: Label 'Undo quantity posting...';
-        Text002: Label 'There is not enough space to insert correction lines.';
         WhseUndoQty: Codeunit "Whse. Undo Quantity";
         ResJnlPostLine: Codeunit "Res. Jnl.-Post Line";
         AsmPost: Codeunit "Assembly-Post";
         UOMMgt: Codeunit "Unit of Measure Management";
         ATOWindow: Dialog;
         HideDialog: Boolean;
+        NextLineNo: Integer;
+
+        Text000: Label 'Do you really want to undo the selected Shipment lines?';
+        Text001: Label 'Undo quantity posting...';
+        Text002: Label 'There is not enough space to insert correction lines.';
         Text003: Label 'Checking lines...';
         Text004: Label 'Some shipment lines may have unused service items. Do you want to delete them?';
-        NextLineNo: Integer;
         Text005: Label 'This shipment has already been invoiced. Undo Shipment can be applied only to posted, but not invoiced shipments.';
         Text055: Label '#1#################################\\Checking Undo Assembly #2###########.';
         Text056: Label '#1#################################\\Posting Undo Assembly #2###########.';
@@ -145,7 +146,7 @@ codeunit 5815 "Undo Sales Shipment Line"
                 Correction := true;
 
                 OnBeforeSalesShptLineModify(SalesShptLine);
-                Modify;
+                Modify();
                 OnAfterSalesShptLineModify(SalesShptLine, DocLineNo);
 
                 UndoFinalizePostATO(SalesShptLine);
@@ -202,7 +203,7 @@ codeunit 5815 "Undo Sales Shipment Line"
         OnAfterCheckSalesShptLine(SalesShptLine, TempItemLedgEntry);
     end;
 
-    local procedure GetCorrectionLineNo(SalesShptLine: Record "Sales Shipment Line") Result: Integer;
+    procedure GetCorrectionLineNo(SalesShptLine: Record "Sales Shipment Line") Result: Integer;
     var
         SalesShptLine2: Record "Sales Shipment Line";
         LineSpacing: Integer;
@@ -239,7 +240,6 @@ codeunit 5815 "Undo Sales Shipment Line"
         SourceCodeSetup: Record "Source Code Setup";
         TempApplyToEntryList: Record "Item Ledger Entry" temporary;
         ItemLedgEntryNotInvoiced: Record "Item Ledger Entry";
-        Item: Record Item;
         ItemLedgEntryNo: Integer;
         RemQtyBase: Decimal;
         IsHandled: Boolean;
@@ -270,11 +270,6 @@ codeunit 5815 "Undo Sales Shipment Line"
             ItemJnlLine."Bin Code" := "Bin Code";
             ItemJnlLine."Document Date" := SalesShptHeader."Document Date";
 
-            // NAVCZ
-            if Item.Get("No.") then
-                ItemJnlLine."Unit of Measure Code" := Item."Base Unit of Measure";
-            // NAVCZ
-
             OnAfterCopyItemJnlLineFromSalesShpt(ItemJnlLine, SalesShptHeader, SalesShptLine, TempWhseJnlLine, WhseUndoQty);
 
             UndoPostingMgt.CollectItemLedgEntries(
@@ -286,7 +281,7 @@ codeunit 5815 "Undo Sales Shipment Line"
                 WhseUndoQty.InsertTempWhseJnlLine(
                     ItemJnlLine,
                     DATABASE::"Sales Line", SalesLine."Document Type"::Order.AsInteger(), "Order No.", "Order Line No.",
-                    TempWhseJnlLine."Reference Document"::"Posted Shipment", TempWhseJnlLine, NextLineNo);
+                    TempWhseJnlLine."Reference Document"::"Posted Shipment".AsInteger(), TempWhseJnlLine, NextLineNo);
             OnPostItemJnlLineOnAfterInsertTempWhseJnlLine(SalesShptLine, ItemJnlLine, TempWhseJnlLine, NextLineNo);
 
             if GetInvoicedShptEntries(SalesShptLine, ItemLedgEntryNotInvoiced) then begin
@@ -380,11 +375,11 @@ codeunit 5815 "Undo Sales Shipment Line"
                     BlanketOrderSalesLine."Quantity Shipped" :=
                       BlanketOrderSalesLine."Quantity Shipped" -
                       Round(
-                        "Qty. per Unit of Measure" / BlanketOrderSalesLine."Qty. per Unit of Measure" * Quantity, UOMMgt.QtyRndPrecision);
+                        "Qty. per Unit of Measure" / BlanketOrderSalesLine."Qty. per Unit of Measure" * Quantity, UOMMgt.QtyRndPrecision());
 
                 BlanketOrderSalesLine."Qty. Shipped (Base)" := BlanketOrderSalesLine."Qty. Shipped (Base)" - "Quantity (Base)";
                 OnBeforeBlanketOrderInitOutstanding(BlanketOrderSalesLine, SalesShptLine);
-                BlanketOrderSalesLine.InitOutstanding;
+                BlanketOrderSalesLine.InitOutstanding();
                 BlanketOrderSalesLine.Modify();
 
                 AsmPost.UpdateBlanketATO(xBlanketOrderSalesLine, BlanketOrderSalesLine);
@@ -419,7 +414,7 @@ codeunit 5815 "Undo Sales Shipment Line"
         ServItem.SetRange("Shipment Type", ServItem."Shipment Type"::Sales);
         if ServItem.Find('-') then
             repeat
-                if ServItem.CheckIfCanBeDeleted = '' then
+                if ServItem.CheckIfCanBeDeleted() = '' then
                     if ServItem.Delete(true) then;
             until ServItem.Next() = 0;
     end;
@@ -433,7 +428,7 @@ codeunit 5815 "Undo Sales Shipment Line"
 
             AsmPost.UndoInitPostATO(PostedAsmHeader);
 
-            ATOWindow.Close;
+            ATOWindow.Close();
         end;
     end;
 
@@ -446,7 +441,7 @@ codeunit 5815 "Undo Sales Shipment Line"
 
             AsmPost.UndoPostATO(PostedAsmHeader, ItemJnlPostLine, ResJnlPostLine, WhseJnlRegisterLine);
 
-            ATOWindow.Close;
+            ATOWindow.Close();
         end;
     end;
 
@@ -460,7 +455,7 @@ codeunit 5815 "Undo Sales Shipment Line"
             AsmPost.UndoFinalizePostATO(PostedAsmHeader);
             SynchronizeATO(SalesShptLine);
 
-            ATOWindow.Close;
+            ATOWindow.Close();
         end;
     end;
 
@@ -475,11 +470,11 @@ codeunit 5815 "Undo Sales Shipment Line"
             if AsmToOrderExists(AsmHeader) and (AsmHeader.Status = AsmHeader.Status::Released) then begin
                 AsmHeader.Status := AsmHeader.Status::Open;
                 AsmHeader.Modify();
-                AutoAsmToOrder;
+                AutoAsmToOrder();
                 AsmHeader.Status := AsmHeader.Status::Released;
                 AsmHeader.Modify();
             end else
-                AutoAsmToOrder;
+                AutoAsmToOrder();
 
             Modify(true);
         end;
@@ -494,7 +489,7 @@ codeunit 5815 "Undo Sales Shipment Line"
         ATOWindow.Update(2, PostedAsmHeader."No.");
     end;
 
-    local procedure GetInvoicedShptEntries(SalesShptLine: Record "Sales Shipment Line"; var ItemLedgEntry: Record "Item Ledger Entry"): Boolean
+    procedure GetInvoicedShptEntries(SalesShptLine: Record "Sales Shipment Line"; var ItemLedgEntry: Record "Item Ledger Entry"): Boolean
     begin
         ItemLedgEntry.SetCurrentKey("Document No.", "Document Type", "Document Line No.");
         ItemLedgEntry.SetRange("Document Type", ItemLedgEntry."Document Type"::"Sales Shipment");

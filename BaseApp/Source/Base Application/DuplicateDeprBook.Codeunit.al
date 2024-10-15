@@ -359,12 +359,9 @@
     end;
 
     local procedure InsertLine(GenJnlPosting: Boolean; DuplicateInGenJnl: Boolean; GenJnlLine: Record "Gen. Journal Line"; FAJnlLine: Record "FA Journal Line")
-    var
-        TempReasonCode: Code[10];
     begin
         if GenJnlPosting and DuplicateInGenJnl then
             with GenJnlLine do begin
-                TempReasonCode := "Reason Code"; // NAVECZ
                 AdjustGenJnlLine(GenJnlLine);
                 "Journal Template Name" := TemplateName;
                 "Journal Batch Name" := BatchName;
@@ -377,18 +374,12 @@
                 if DeprBook."Use Default Dimension" then
                     CreateDimFromDefaultDim(0);
                 "Line No." := GenJnlLine2."Line No." + 10000;
-                // NAVCZ
-                if TempReasonCode <> '' then
-                    if "FA Posting Type" = "FA Posting Type"::Disposal then
-                        "Reason Code" := TempReasonCode;
-                // NAVCZ
                 OnBeforeGenJnlLineInsert(GenJnlLine, FAJnlLine, GenJnlPosting, DuplicateInGenJnl);
                 Insert(true);
             end;
 
         if GenJnlPosting and not DuplicateInGenJnl then
             with FAJnlLine do begin
-                TempReasonCode := GenJnlLine."Reason Code"; // NAVCZ
                 MakeFAJnlLine(FAJnlLine, GenJnlLine);
                 "Journal Template Name" := TemplateName;
                 "Journal Batch Name" := BatchName;
@@ -401,19 +392,12 @@
                 if DeprBook."Use Default Dimension" then
                     CreateDimFromDefaultDim();
                 "Line No." := FAJnlLine2."Line No." + 10000;
-                // NAVCZ
-                if TempReasonCode <> '' then
-                    if "FA Posting Type" = "FA Posting Type"::Disposal then
-                        "Reason Code" := TempReasonCode;
-                // NAVCZ
                 OnBeforeFAJnlLineInsert(GenJnlLine, FAJnlLine, GenJnlPosting, DuplicateInGenJnl, DeprBook);
                 Insert(true);
             end;
 
         if not GenJnlPosting and DuplicateInGenJnl then
             with GenJnlLine do begin
-                TempReasonCode := FAJnlLine."Reason Code"; // NAVCZ
-
                 MakeGenJnlLine(GenJnlLine, FAJnlLine);
                 "Journal Template Name" := TemplateName;
                 "Journal Batch Name" := BatchName;
@@ -426,18 +410,12 @@
                 if DeprBook."Use Default Dimension" then
                     CreateDimFromDefaultDim(0);
                 "Line No." := GenJnlLine2."Line No." + 10000;
-                // NAVCZ
-                if TempReasonCode <> '' then
-                    if "FA Posting Type" = "FA Posting Type"::Disposal then
-                        "Reason Code" := TempReasonCode;
-                // NAVCZ
                 OnBeforeGenJnlLineInsert(GenJnlLine, FAJnlLine, GenJnlPosting, DuplicateInGenJnl);
                 Insert(true);
             end;
 
         if not GenJnlPosting and not DuplicateInGenJnl then
             with FAJnlLine do begin
-                TempReasonCode := "Reason Code"; // NAVCZ
                 AdjustFAJnlLine(FAJnlLine);
                 "Journal Template Name" := TemplateName;
                 "Journal Batch Name" := BatchName;
@@ -450,11 +428,6 @@
                 if DeprBook."Use Default Dimension" then
                     CreateDimFromDefaultDim();
                 "Line No." := FAJnlLine2."Line No." + 10000;
-                // NAVCZ
-                if TempReasonCode <> '' then
-                    if "FA Posting Type" = "FA Posting Type"::Disposal then
-                        "Reason Code" := TempReasonCode;
-                // NAVCZ
                 OnBeforeFAJnlLineInsert(GenJnlLine, FAJnlLine, GenJnlPosting, DuplicateInGenJnl, DeprBook);
                 Insert(true);
             end;

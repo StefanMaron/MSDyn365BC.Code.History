@@ -75,8 +75,8 @@ codeunit 5656 InsuranceJnlManagement
     begin
         OnBeforeOpenJournal(CurrentJnlBatchName, InsuranceJnlLine);
 
-        InsuranceJnlLine.CheckInsuranceJournalLineUserRestriction; // NAVCZ
-  
+        InsuranceJnlLine.CheckInsuranceJournalLineUserRestriction(); // NAVCZ
+
         CheckTemplateName(InsuranceJnlLine.GetRangeMax("Journal Template Name"), CurrentJnlBatchName);
         InsuranceJnlLine.FilterGroup := 2;
         InsuranceJnlLine.SetRange("Journal Batch Name", CurrentJnlBatchName);
@@ -162,7 +162,7 @@ codeunit 5656 InsuranceJnlManagement
             if not InsuranceJnlBatch.FindFirst() then begin
                 InsuranceJnlBatch.Init();
                 InsuranceJnlBatch."Journal Template Name" := CurrentJnlTemplateName;
-                InsuranceJnlBatch.SetupNewBatch;
+                InsuranceJnlBatch.SetupNewBatch();
                 InsuranceJnlBatch.Name := Text002;
                 InsuranceJnlBatch.Description := Text003;
                 InsuranceJnlBatch.Insert(true);

@@ -11,10 +11,12 @@ table 5714 "Responsibility Center"
             Caption = 'Code';
             NotBlank = true;
         }
-        field(2; Name; Text[50])
+#pragma warning disable AS0086
+        field(2; Name; Text[100])
         {
             Caption = 'Name';
         }
+#pragma warning restore AS0086
         field(3; Address; Text[100])
         {
             Caption = 'Address';
@@ -39,8 +41,13 @@ table 5714 "Responsibility Center"
             end;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
-                PostCode.ValidateCity(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
+                IsHandled := false;
+                OnBeforeValidateCity(Rec, PostCode, CurrFieldNo, IsHandled);
+                if not IsHandled then
+                    PostCode.ValidateCity(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
             end;
         }
         field(6; "Post Code"; Code[20])
@@ -59,8 +66,13 @@ table 5714 "Responsibility Center"
             end;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
-                PostCode.ValidatePostCode(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
+                IsHandled := false;
+                OnBeforeValidatePostCode(Rec, PostCode, CurrFieldNo, IsHandled);
+                if not IsHandled then
+                    PostCode.ValidatePostCode(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
             end;
         }
         field(7; "Country/Region Code"; Code[10])
@@ -159,110 +171,53 @@ table 5714 "Responsibility Center"
         {
             Caption = 'Bank Account Code';
             TableRelation = "Bank Account";
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
-#if not CLEAN18
-
-            trigger OnValidate()
-            var
-                BankAcc: Record "Bank Account";
-            begin
-                if BankAcc.Get("Bank Account Code") then begin
-                    "Bank Name" := BankAcc.Name;
-                    "Bank Account No." := BankAcc."Bank Account No.";
-                    "Bank Branch No." := BankAcc."Bank Branch No.";
-                    IBAN := BankAcc.IBAN;
-                    "SWIFT Code" := BankAcc."SWIFT Code";
-                end else begin
-                    CompanyInfo.Get();
-                    "Bank Name" := CompanyInfo."Bank Name";
-                    "Bank Account No." := CompanyInfo."Bank Account No.";
-                    "Bank Branch No." := CompanyInfo."Bank Branch No.";
-                    IBAN := CompanyInfo.IBAN;
-                    "SWIFT Code" := CompanyInfo."SWIFT Code";
-                end;
-            end;
-#endif
+            ObsoleteTag = '21.0';
         }
         field(11701; "Bank Account No."; Text[30])
         {
             Caption = 'Bank Account No.';
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(11702; "Bank Branch No."; Text[20])
         {
             Caption = 'Bank Branch No.';
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(11706; "Transit No."; Text[20])
         {
             Caption = 'Transit No.';
             Editable = false;
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(11707; IBAN; Code[50])
         {
             Caption = 'IBAN';
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
-#if not CLEAN18
-
-            trigger OnValidate()
-            begin
-                CompanyInfo.CheckIBAN(IBAN);
-            end;
-#endif
+            ObsoleteTag = '21.0';
         }
         field(11708; "SWIFT Code"; Code[20])
         {
             Caption = 'SWIFT Code';
             Editable = false;
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(11709; "Bank Name"; Text[100])
         {
             Caption = 'Bank Name';
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
     }
 
@@ -294,7 +249,6 @@ table 5714 "Responsibility Center"
     var
         PostCode: Record "Post Code";
         DimMgt: Codeunit DimensionManagement;
-        CompanyInfo: Record "Company Information";
 
     procedure ValidateShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])
     begin
@@ -303,7 +257,7 @@ table 5714 "Responsibility Center"
         DimMgt.ValidateDimValueCode(FieldNumber, ShortcutDimCode);
         if not IsTemporary then begin
             DimMgt.SaveDefaultDim(DATABASE::"Responsibility Center", Code, FieldNumber, ShortcutDimCode);
-            Modify;
+            Modify();
         end;
 
         OnAfterValidateShortcutDimCode(Rec, xRec, FieldNumber, ShortcutDimCode);
@@ -319,4 +273,14 @@ table 5714 "Responsibility Center"
     begin
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateCity(var ResponsibilityCenter: Record "Responsibility Center"; var PostCode: Record "Post Code"; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidatePostCode(var ResponsibilityCenter: Record "Responsibility Center"; var PostCode: Record "Post Code"; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
 }
+

@@ -215,13 +215,9 @@ table 380 "Detailed Vendor Ledg. Entry"
         {
             Caption = 'Vendor Posting Group';
             TableRelation = "Vendor Posting Group";
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(31000; Advance; Boolean)
         {
@@ -280,15 +276,6 @@ table 380 "Detailed Vendor Ledg. Entry"
         {
             SumIndexFields = "Amount (LCY)";
         }
-#if not CLEAN18
-        key(Key12; "Vendor No.", "Posting Date", "Entry Type", "Document Type", "Vendor Posting Group", Advance)
-        {
-            SumIndexFields = "Amount (LCY)", "Debit Amount (LCY)", "Credit Amount (LCY)";
-            ObsoleteState = Pending;
-            ObsoleteReason = 'Field "Vendor Posting Group" is removed and cannot be used in an active key.';
-            ObsoleteTag = '18.0';
-        }
-#endif
 #if not CLEAN19
         key(Key13; "Vendor No.", "Posting Date", "Entry Type", "Currency Code", Advance)
         {
@@ -298,11 +285,16 @@ table 380 "Detailed Vendor Ledg. Entry"
             ObsoleteTag = '19.0';
         }
 #endif
+#if not CLEAN21
         key(Key14; "Vendor No.", "Initial Entry Due Date", "Posting Date", "Initial Entry Global Dim. 1", "Initial Entry Global Dim. 2", "Currency Code", "Vendor Posting Group")
         {
             Enabled = false;
             SumIndexFields = Amount, "Amount (LCY)", "Debit Amount", "Credit Amount", "Debit Amount (LCY)", "Credit Amount (LCY)";
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The key is not used anymore.';
+            ObsoleteTag = '21.0';
         }
+#endif
     }
 
     fieldgroups
@@ -314,7 +306,7 @@ table 380 "Detailed Vendor Ledg. Entry"
 
     trigger OnInsert()
     begin
-        SetLedgerEntryAmount;
+        SetLedgerEntryAmount();
     end;
 
     procedure GetLastEntryNo(): Integer;

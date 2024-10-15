@@ -46,7 +46,7 @@ report 5191 "Delete Logged Segments"
 
     trigger OnPostReport()
     begin
-        Message(Text000, NoOfSegments, "Logged Segment".TableCaption);
+        Message(Text000, NoOfSegments, "Logged Segment".TableCaption());
     end;
 
     var

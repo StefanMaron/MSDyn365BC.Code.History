@@ -361,7 +361,7 @@ table 5079 "Marketing Setup"
             Session.LogMessage('0000BXV', StorageFolderNotSetTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
             Error(Text010);
         end;
-        if (ExchangeFolder.ReadUniqueID() = GetQueueFolderUID()) and ExchangeFolder."Unique ID".HasValue then begin
+        if (ExchangeFolder.ReadUniqueID() = GetQueueFolderUID()) and ExchangeFolder."Unique ID".HasValue() then begin
             Session.LogMessage('0000BXW', StorageFolderNotSetTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
             Error(Text010);
         end;

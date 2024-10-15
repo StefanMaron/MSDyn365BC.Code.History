@@ -60,6 +60,7 @@ codeunit 131305 "Library - ERM Country Data"
         LibraryERM.SetupReportSelection(DummyReportSelections.Usage::"SM.Invoice", REPORT::"Service - Invoice");
         LibraryERM.SetupReportSelection(DummyReportSelections.Usage::"SM.Credit Memo", REPORT::"Service - Credit Memo");
         LibraryERM.SetupReportSelection(DummyReportSelections.Usage::"P.Quote", Report::"Purchase - Quote");
+        LibraryERM.SetupReportSelection(DummyReportSelections.Usage::"P.Invoice", Report::"Purchase - Invoice");
     end;
 
     procedure UpdateAccountInCustomerPostingGroup()
@@ -94,11 +95,7 @@ codeunit 131305 "Library - ERM Country Data"
 
     procedure UpdateInventoryPostingSetup()
     begin
-#if not CLEAN18    
-        LibraryInventory.UpdateInventoryPostingSetupAll; // NAVCZ
-#else
         exit;
-#endif        
     end;
 
     procedure UpdateGenJournalTemplate()
@@ -107,20 +104,8 @@ codeunit 131305 "Library - ERM Country Data"
     end;
 
     procedure UpdateGeneralLedgerSetup()
-#if not CLEAN18
-    var
-        GeneralLedgerSetup: Record "General Ledger Setup";
-#endif
     begin
-#if not CLEAN18
-        // NAVCZ
-        GeneralLedgerSetup.Get();
-        GeneralLedgerSetup."Closed Period Entry Pos.Date" := LibraryFiscalYear.GetFirstPostingDate(false);
-        GeneralLedgerSetup.Modify();
-        // NAVCZ
-#else
         exit;
-#endif
     end;
 
     procedure UpdatePrepaymentAccounts()
@@ -143,7 +128,7 @@ codeunit 131305 "Library - ERM Country Data"
     begin
         // NAVCZ
         PurchasesPayablesSetup.Get();
-        PurchasesPayablesSetup."Allow Document Deletion Before" := CalcDate('<CY>', WorkDate);
+        PurchasesPayablesSetup."Allow Document Deletion Before" := CalcDate('<CY>', WorkDate());
         PurchasesPayablesSetup."Default Orig. Doc. VAT Date" :=
           PurchasesPayablesSetup."Default Orig. Doc. VAT Date"::"Posting Date";
         PurchasesPayablesSetup.Modify();
@@ -159,7 +144,7 @@ codeunit 131305 "Library - ERM Country Data"
         LibraryERM.CreateReasonCode(ReasonCode);
 
         SalesReceivablesSetup.Get();
-        SalesReceivablesSetup."Allow Document Deletion Before" := CalcDate('<CY>', WorkDate);
+        SalesReceivablesSetup."Allow Document Deletion Before" := CalcDate('<CY>', WorkDate());
         SalesReceivablesSetup.Modify();
         // NAVCZ
     end;
@@ -237,20 +222,9 @@ codeunit 131305 "Library - ERM Country Data"
 
     procedure UpdateLocalData()
     var
-        FASetup: Record "FA Setup";
-#if not CLEAN18
-        FAExtendedPostingGroup: Record "FA Extended Posting Group";
-#endif
         GeneralLedgerSetup: Record "General Ledger Setup";
         AccountingPeriod: Record "Accounting Period";
     begin
-        FASetup.Get();
-        FASetup.Validate("FA Acquisition As Custom 2", false);
-        FASetup.Modify(true);
-#if not CLEAN18
-        FAExtendedPostingGroup.DeleteAll();
-#endif
-
         GeneralLedgerSetup.Get();
         if GeneralLedgerSetup."Use VAT Date" and not AccountingPeriod.IsEmpty() then begin
             GeneralLedgerSetup."Use VAT Date" := false;
@@ -348,9 +322,7 @@ codeunit 131305 "Library - ERM Country Data"
         // NAVCZ
         UserSetup.Init();
         UserSetup."User ID" := UserId;
-        UserSetup."Allow Item Unapply" := true;
         UserSetup."Time Sheet Admin." := true;
-        UserSetup."Allow Complete Job" := true;
         if not UserSetup.Insert(true) then
             UserSetup.Modify(true);
     end;

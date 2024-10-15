@@ -1,12 +1,10 @@
-﻿#if not CLEAN19
+#if not CLEAN19
 codeunit 5601 "FA Insert G/L Account"
 {
     TableNo = "FA Ledger Entry";
 
     trigger OnRun()
     var
-        DeprBook: Record "Depreciation Book";
-        DeprDisposalEntry: Boolean;
         DisposalEntry: Boolean;
         IsHandled: Boolean;
     begin
@@ -25,45 +23,8 @@ codeunit 5601 "FA Insert G/L Account"
         if IsHandled then
             exit;
 
-#if not CLEAN18
-        // NAVCZ
-        DeprBook.Get("Depreciation Book Code");
-        DeprDisposalEntry :=
-          ("FA Posting Category" = "FA Posting Category"::Disposal) and
-          ("FA Posting Type" = "FA Posting Type"::Depreciation) and
-          (DeprBook."Disposal Calculation Method" = DeprBook."Disposal Calculation Method"::Gross);
-        if DeprDisposalEntry then
-            if DeprBook."Corresp. G/L Entries on Disp." then
-                if not DeprBook."Corresp. FA Entries on Disp." then begin
-                    "G/L Entry No." := 0;
-                    exit;
-                end;
-
-        if not DisposalEntry and not DeprDisposalEntry then
-            // NAVCZ
-            FAGLPostBuf."Account No." := FAGetGLAccNo.GetAccNo(Rec);
-        if DeprDisposalEntry then begin
-            case FAPostingType of
-                FAPostingType::AcqCost:
-                    "FA Posting Type" := "FA Posting Type"::"Acquisition Cost";
-                FAPostingType::BookVal:
-                    "FA Posting Type" := "FA Posting Type"::"Book Value on Disposal";
-                FAPostingType::Appreciation:
-                    "FA Posting Type" := "FA Posting Type"::Appreciation;
-                FAPostingType::WrDown:
-                    "FA Posting Type" := "FA Posting Type"::"Write-Down";
-            end;
-            if FAPostingType <> FAPostingType::" " then
-                FAGLPostBuf."Account No." := FAGetGLAccNo.GetCorrespondAccNo(Rec)
-            else
-                FAGLPostBuf."Account No." := FAGetGLAccNo.GetAccNo(Rec);
-            "FA Posting Type" := "FA Posting Type"::Depreciation;
-        end;
-        // NAVCZ
-#else
         if not DisposalEntry then
             FAGLPostBuf."Account No." := FAGetGLAccNo.GetAccNo(Rec);
-#endif
         FAGLPostBuf.Amount := Amount;
         FAGLPostBuf.Correction := Correction;
         FAGLPostBuf."Global Dimension 1 Code" := "Global Dimension 1 Code";
@@ -76,41 +37,8 @@ codeunit 5601 "FA Insert G/L Account"
             FAGLPostBuf."FA Entry Type" := FAGLPostBuf."FA Entry Type"::"Fixed Asset";
         FAGLPostBuf."Automatic Entry" := "Automatic Entry";
         GLEntryNo := "G/L Entry No.";
-        InsertBufferEntry;
+        InsertBufferEntry();
         "G/L Entry No." := TempFAGLPostBuf."Entry No.";
-#if not CLEAN18
-        // NAVCZ
-        if ("FA Posting Category" = "FA Posting Category"::Disposal) and
-           DeprBook."Corresp. G/L Entries on Disp."
-        then
-            if not DeprBook."Corresp. FA Entries on Disp." then begin
-                case "FA Posting Type" of
-                    "FA Posting Type"::"Acquisition Cost",
-                    "FA Posting Type"::"Book Value on Disposal",
-                    "FA Posting Type"::"Write-Down",
-                    "FA Posting Type"::Appreciation,
-                    "FA Posting Type"::"Custom 1",
-                    "FA Posting Type"::"Custom 2":
-                        begin
-                            FAGLPostBuf."Account No." := FAGetGLAccNo.GetCorrespondAccNo(Rec);
-                            FAGLPostBuf.Amount := -Amount;
-                            InsertBufferEntry;
-                            "G/L Entry No." := TempFAGLPostBuf."Entry No." - 1;
-                        end;
-                end;
-            end else
-                case "FA Posting Type" of
-                    "FA Posting Type"::"Custom 1",
-                    "FA Posting Type"::"Custom 2":
-                        begin
-                            FAGLPostBuf."Account No." := FAGetGLAccNo.GetCorrespondAccNo(Rec);
-                            FAGLPostBuf.Amount := -Amount;
-                            InsertBufferEntry;
-                            "G/L Entry No." := TempFAGLPostBuf."Entry No." - 1;
-                        end;
-                end;
-        // NAVCZ
-#endif
         if DisposalEntry then
             CalcDisposalAmount(Rec);
 
@@ -118,8 +46,6 @@ codeunit 5601 "FA Insert G/L Account"
     end;
 
     var
-        Text000: Label 'must not be more than 100';
-        Text001: Label 'There is not enough space to insert the balance accounts.';
         TempFAGLPostBuf: Record "FA G/L Posting Buffer" temporary;
         FAGLPostBuf: Record "FA G/L Posting Buffer";
         FAAlloc: Record "FA Allocation";
@@ -145,6 +71,9 @@ codeunit 5601 "FA Insert G/L Account"
         NetDisp: Boolean;
         FAPostingType: Option " ",AcqCost,BookVal,Appreciation,WrDown;
         ReasonMaintenanceCode: Code[10];
+
+        Text000: Label 'must not be more than 100';
+        Text001: Label 'There is not enough space to insert the balance accounts.';
         TemporaryRecordExpectedErr: Label 'Use a temporary record as a parameter for GetBalAccBuffer.';
 
     procedure InsertMaintenanceAccNo(var MaintenanceLedgEntry: Record "Maintenance Ledger Entry")
@@ -161,7 +90,7 @@ codeunit 5601 "FA Insert G/L Account"
             FAGLPostBuf."FA Entry Type" := FAGLPostBuf."FA Entry Type"::Maintenance;
             GLEntryNo := "G/L Entry No.";
             OnInsertMaintenanceAccNoOnBeforeInsertBufferEntry(FAGLPostBuf, MaintenanceLedgEntry);
-            InsertBufferEntry;
+            InsertBufferEntry();
             "G/L Entry No." := TempFAGLPostBuf."Entry No.";
         end;
 
@@ -173,9 +102,6 @@ codeunit 5601 "FA Insert G/L Account"
         GLAccNo: Code[20];
         DimensionSetIDArr: array[10] of Integer;
         IsHandled: Boolean;
-#if not CLEAN18
-        ExtSetupExist: Boolean;
-#endif
     begin
         NumberOfEntries := 0;
         TotalAllocAmount := 0;
@@ -184,11 +110,7 @@ codeunit 5601 "FA Insert G/L Account"
         FAPostingGr.Reset();
         FAPostingGr.GetPostingGroup(PostingGrCode, DeprBookCode);
         OnInsertBufferBalAccOnAfterGetFAPostingGroup(FAPostingGr);
-#if CLEAN18
         GLAccNo := GetGLAccNoFromFAPostingGroup(FAPostingGr, FAPostingType);
-#else
-        GLAccNo := GetGLAccNoFromFAPostingGroup(FAPostingGr, FAPostingType, ExtSetupExist); // NAVCZ
-#endif
 
         DimensionSetIDArr[1] := DimSetID;
 
@@ -204,14 +126,6 @@ codeunit 5601 "FA Insert G/L Account"
             SetRange(Code, PostingGrCode);
             SetRange("Allocation Type", FAPostingType);
             OnInsertBufferBalAccOnAfterFAAllocSetFilters(FAAlloc);
-#if not CLEAN18
-            // NAVCZ
-            if ExtSetupExist then
-                SetRange("Reason/Maintenance Code", ReasonMaintenanceCode)
-            else
-                SetRange("Reason/Maintenance Code", '');
-            // NAVCZ
-#endif
             if Find('-') then
                 repeat
                     if ("Account No." = '') and ("Allocation %" > 0) then
@@ -326,8 +240,8 @@ codeunit 5601 "FA Insert G/L Account"
         TempFAGLPostBuf.DeleteAll();
         TempGenJnlLine.Init();
         with GenJnlLine do begin
-            Reset;
-            Find;
+            Reset();
+            Find();
             TestField("Bal. Account No.", '');
             CheckAccountType(GenJnlLine);
             TestField("Account No.");
@@ -415,15 +329,8 @@ codeunit 5601 "FA Insert G/L Account"
         GenJnlLine.Modify(true);
     end;
 
-#if CLEAN18
     local procedure GetGLAccNoFromFAPostingGroup(FAPostingGr: Record "FA Posting Group"; FAPostingType: Enum "FA Posting Group Account Type") GLAccNo: Code[20]
-#else
-    local procedure GetGLAccNoFromFAPostingGroup(FAPostingGr: Record "FA Posting Group"; FAPostingType: Enum "FA Posting Group Account Type"; var ExtSetupExist: Boolean) GLAccNo: Code[20]
-#endif
     var
-#if not CLEAN18
-        FAExtPostingGr: Record "FA Extended Posting Group";
-#endif
         FieldErrorText: Text[50];
     begin
         FieldErrorText := Text000;
@@ -479,19 +386,6 @@ codeunit 5601 "FA Insert G/L Account"
                             FieldError("Allocated Sales Price %", FieldErrorText);
                     end;
                 FAPostingType::Maintenance:
-#if not CLEAN18
-                    // NAVCZ
-                    if not UseStandardMaintenance() then begin
-                        FAExtPostingGr.Get(Code, 2, ReasonMaintenanceCode);
-                        FAExtPostingGr.TestField("Maintenance Bal. Acc.");
-                        GLAccNo := FAExtPostingGr."Maintenance Bal. Acc.";
-                        FAExtPostingGr.CalcFields("Allocated Maintenance %");
-                        if FAExtPostingGr."Allocated Maintenance %" > 100 then
-                            FieldError("Allocated Maintenance %", FieldErrorText);
-                        ExtSetupExist := true;
-                    end else
-                    // NAVCZ
-#endif
                     begin
                         GLAccNo := GetMaintenanceBalanceAccount();
                         CalcFields("Allocated Maintenance %");
@@ -513,18 +407,6 @@ codeunit 5601 "FA Insert G/L Account"
                             FieldError("Allocated Loss %", FieldErrorText);
                     end;
                 FAPostingType::"Book Value Gain":
-#if not CLEAN18
-                    // NAVCZ
-                    if not UseStandardDisposal() then begin
-                        FAExtPostingGr.Get(Code, 1, ReasonMaintenanceCode);
-                        FAExtPostingGr.TestField("Book Val. Acc. on Disp. (Gain)");
-                        GLAccNo := FAExtPostingGr."Book Val. Acc. on Disp. (Gain)";
-                        FAExtPostingGr.CalcFields("Allocated Book Value % (Gain)");
-                        if FAExtPostingGr."Allocated Book Value % (Gain)" > 100 then
-                            FAExtPostingGr.FieldError("Allocated Book Value % (Gain)", FieldErrorText);
-                    end else
-                    // NAVCZ
-#endif
                     begin
                         GLAccNo := GetBookValueAccountOnDisposalGain();
                         CalcFields("Allocated Book Value % (Gain)");
@@ -532,18 +414,6 @@ codeunit 5601 "FA Insert G/L Account"
                             FieldError("Allocated Book Value % (Gain)", FieldErrorText);
                     end;
                 FAPostingType::"Book Value Loss":
-#if not CLEAN18
-                    // NAVCZ
-                    if not UseStandardDisposal() then begin
-                        FAExtPostingGr.Get(Code, 1, ReasonMaintenanceCode);
-                        FAExtPostingGr.TestField("Book Val. Acc. on Disp. (Loss)");
-                        GLAccNo := FAExtPostingGr."Book Val. Acc. on Disp. (Loss)";
-                        FAExtPostingGr.CalcFields("Allocated Book Value % (Loss)");
-                        if FAExtPostingGr."Allocated Book Value % (Loss)" > 100 then
-                            FAExtPostingGr.FieldError("Allocated Book Value % (Loss)", FieldErrorText);
-                    end else
-                    // NAVCZ
-#endif
                     begin
                         GLAccNo := GetBookValueAccountOnDisposalLoss();
                         CalcFields("Allocated Book Value % (Loss)");
@@ -659,9 +529,6 @@ codeunit 5601 "FA Insert G/L Account"
 
     local procedure CorrectDisposalEntry()
     var
-#if not CLEAN18
-        FAExtPostingGr: Record "FA Extended Posting Group";
-#endif
         LastDisposal: Boolean;
         GLAmount: Decimal;
     begin
@@ -672,23 +539,10 @@ codeunit 5601 "FA Insert G/L Account"
             GLAmount := GainLossAmount
         else
             GLAmount := FADeprBook."Gain/Loss";
-#if not CLEAN18
-        // NAVCZ
-        if FAExtPostingGr.Get(FAPostingGr2.Code, 1, ReasonMaintenanceCode) then begin
-            if GLAmount <= 0 then begin
-                FAExtPostingGr.TestField("Sales Acc. On Disp. (Gain)");
-                TempFAGLPostBuf."Account No." := FAExtPostingGr."Sales Acc. On Disp. (Gain)";
-            end else begin
-                FAExtPostingGr.TestField("Sales Acc. On Disp. (Loss)");
-                TempFAGLPostBuf."Account No." := FAExtPostingGr."Sales Acc. On Disp. (Loss)";
-            end;
-        end else
-            // NAVCZ
-#endif
-            if GLAmount <= 0 then
-                TempFAGLPostBuf."Account No." := FAPostingGr2.GetSalesAccountOnDisposalGain
-            else
-                TempFAGLPostBuf."Account No." := FAPostingGr2.GetSalesAccountOnDisposalLoss;
+        if GLAmount <= 0 then
+            TempFAGLPostBuf."Account No." := FAPostingGr2.GetSalesAccountOnDisposalGain
+        else
+            TempFAGLPostBuf."Account No." := FAPostingGr2.GetSalesAccountOnDisposalLoss();
         OnBeforeTempFAGLPostBufModify(FAPostingGr2, TempFAGLPostBuf, GLAmount);
         TempFAGLPostBuf.Modify();
         FAGLPostBuf := TempFAGLPostBuf;
@@ -697,64 +551,30 @@ codeunit 5601 "FA Insert G/L Account"
         if IdenticalSign(FADeprBook."Gain/Loss", GainLossAmount, DisposalAmount) then
             exit;
 
-#if not CLEAN18
-        // NAVCZ
-        if FAExtPostingGr.Get(FAPostingGr2.Code, 1, ReasonMaintenanceCode) then begin
-            FAExtPostingGr.TestField("Sales Acc. On Disp. (Gain)");
-            FAExtPostingGr.TestField("Sales Acc. On Disp. (Loss)");
-            if FAExtPostingGr."Sales Acc. On Disp. (Gain)" = FAExtPostingGr."Sales Acc. On Disp. (Loss)" then
-                exit;
-        end else
-            // NAVCZ
-#endif
-            if FAPostingGr2.GetSalesAccountOnDisposalGain = FAPostingGr2.GetSalesAccountOnDisposalLoss then
-                exit;
+        if FAPostingGr2.GetSalesAccountOnDisposalGain = FAPostingGr2.GetSalesAccountOnDisposalLoss then
+            exit;
 
         FAGLPostBuf."FA Entry No." := 0;
         FAGLPostBuf."FA Entry Type" := FAGLPostBuf."FA Entry Type"::" ";
         FAGLPostBuf."Automatic Entry" := true;
         OrgGenJnlLine := false;
-#if not CLEAN18
-
-        // NAVCZ
-        if FAExtPostingGr.Get(FAPostingGr2.Code, 1, ReasonMaintenanceCode) then begin
-            if FADeprBook."Gain/Loss" <= 0 then begin
-                FAGLPostBuf."Account No." := FAExtPostingGr."Sales Acc. On Disp. (Gain)";
-                FAGLPostBuf.Amount := DisposalAmount;
-                InsertBufferEntry;
-                FAGLPostBuf."Account No." := FAExtPostingGr."Sales Acc. On Disp. (Loss)";
-                FAGLPostBuf.Amount := -DisposalAmount;
-                FAGLPostBuf.Correction := not FAGLPostBuf.Correction;
-                InsertBufferEntry;
-            end else begin
-                FAGLPostBuf."Account No." := FAExtPostingGr."Sales Acc. On Disp. (Loss)";
-                FAGLPostBuf.Amount := DisposalAmount;
-                InsertBufferEntry;
-                FAGLPostBuf."Account No." := FAExtPostingGr."Sales Acc. On Disp. (Gain)";
-                FAGLPostBuf.Amount := -DisposalAmount;
-                FAGLPostBuf.Correction := not FAGLPostBuf.Correction;
-                InsertBufferEntry;
-            end;
-        end else
-            // NAVCZ
-#endif
-            if FADeprBook."Gain/Loss" <= 0 then begin
-                FAGLPostBuf."Account No." := FAPostingGr2.GetSalesAccountOnDisposalGain();
-                FAGLPostBuf.Amount := DisposalAmount;
-                InsertBufferEntry;
-                FAGLPostBuf."Account No." := FAPostingGr2.GetSalesAccountOnDisposalLoss();
-                FAGLPostBuf.Amount := -DisposalAmount;
-                FAGLPostBuf.Correction := not FAGLPostBuf.Correction;
-                InsertBufferEntry();
-            end else begin
-                FAGLPostBuf."Account No." := FAPostingGr2.GetSalesAccountOnDisposalLoss();
-                FAGLPostBuf.Amount := DisposalAmount;
-                InsertBufferEntry;
-                FAGLPostBuf."Account No." := FAPostingGr2.GetSalesAccountOnDisposalGain();
-                FAGLPostBuf.Amount := -DisposalAmount;
-                FAGLPostBuf.Correction := not FAGLPostBuf.Correction;
-                InsertBufferEntry();
-            end;
+        if FADeprBook."Gain/Loss" <= 0 then begin
+            FAGLPostBuf."Account No." := FAPostingGr2.GetSalesAccountOnDisposalGain();
+            FAGLPostBuf.Amount := DisposalAmount;
+            InsertBufferEntry();
+            FAGLPostBuf."Account No." := FAPostingGr2.GetSalesAccountOnDisposalLoss();
+            FAGLPostBuf.Amount := -DisposalAmount;
+            FAGLPostBuf.Correction := not FAGLPostBuf.Correction;
+            InsertBufferEntry();
+        end else begin
+            FAGLPostBuf."Account No." := FAPostingGr2.GetSalesAccountOnDisposalLoss();
+            FAGLPostBuf.Amount := DisposalAmount;
+            InsertBufferEntry();
+            FAGLPostBuf."Account No." := FAPostingGr2.GetSalesAccountOnDisposalGain();
+            FAGLPostBuf.Amount := -DisposalAmount;
+            FAGLPostBuf.Correction := not FAGLPostBuf.Correction;
+            InsertBufferEntry();
+        end;
     end;
 
     local procedure CorrectBookValueEntry()
@@ -774,7 +594,7 @@ codeunit 5601 "FA Insert G/L Account"
         FAGLPostBuf := TempFAGLPostBuf;
         if IdenticalSign(FADeprBook."Gain/Loss", GainLossAmount, BookValueAmount) then
             exit;
-        if FAPostingGr2.GetBookValueAccountOnDisposalGain = FAPostingGr2.GetBookValueAccountOnDisposalLoss then
+        if FAPostingGr2.GetBookValueAccountOnDisposalGain() = FAPostingGr2.GetBookValueAccountOnDisposalLoss() then
             exit;
         OrgGenJnlLine := false;
         OnCorrectBookValueEntryOnBeforeInsertBufferBalAcc(FAGLPostBuf);

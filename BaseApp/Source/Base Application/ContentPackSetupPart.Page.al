@@ -44,11 +44,11 @@ page 6317 "Content Pack Setup Part"
                     UserCard: Page "User Card";
                 begin
                     // Opens the User card page so they can make a Web Service Access Key when they don't already have one.
-                    User.Get(UserSecurityId);
+                    User.Get(UserSecurityId());
                     UserCard.SetRecord(User);
 
-                    if UserCard.RunModal = ACTION::OK then
-                        GetFieldValues;
+                    if UserCard.RunModal() = ACTION::OK then
+                        GetFieldValues();
                 end;
             }
             field(CompanyName; Company)
@@ -66,7 +66,7 @@ page 6317 "Content Pack Setup Part"
 
     trigger OnOpenPage()
     begin
-        GetFieldValues;
+        GetFieldValues();
     end;
 
     var
@@ -84,7 +84,7 @@ page 6317 "Content Pack Setup Part"
 
         UserName := UserId;
 
-        WebServiceAccessKey := IdentityManagement.GetWebServicesKey(UserSecurityId);
+        WebServiceAccessKey := IdentityManagement.GetWebServicesKey(UserSecurityId());
 
         Company := CompanyName;
     end;

@@ -74,14 +74,14 @@ table 5095 "Duplicate Search String Setup"
 
     local procedure InsertDuplicateSearchString(FieldNo: Integer; SearchLength: Integer)
     begin
-        Init;
+        Init();
         Validate("Field No.", FieldNo);
         Validate("Part of Field", "Part of Field"::First);
         Validate(Length, SearchLength);
-        Insert;
+        Insert();
 
         Validate("Part of Field", "Part of Field"::Last);
-        Insert;
+        Insert();
     end;
 
     procedure LookupFieldName()

@@ -416,7 +416,7 @@ codeunit 132516 "Unrealized VAT Part"
 
     local procedure GetUnRealizedVATPart(SettledAmount: Decimal; Paid: Decimal; Full: Decimal; TotalUnrealVATAmountFirst: Decimal; TotalUnrealVATAmountLast: Decimal): Decimal
     begin
-        exit(VATEntry.GetUnrealizedVATPart(SettledAmount, Paid, Full, TotalUnrealVATAmountFirst, TotalUnrealVATAmountLast, false)); // NAVCZ
+        exit(VATEntry.GetUnrealizedVATPart(SettledAmount, Paid, Full, TotalUnrealVATAmountFirst, TotalUnrealVATAmountLast));
     end;
 }
 

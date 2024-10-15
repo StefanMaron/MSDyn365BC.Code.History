@@ -17,7 +17,7 @@ page 321 "ECSL Report"
             {
                 Caption = 'General';
                 Enabled = IsEditable;
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
@@ -28,7 +28,7 @@ page 321 "ECSL Report"
                             CurrPage.Update();
                     end;
                 }
-                field("VAT Report Version"; "VAT Report Version")
+                field("VAT Report Version"; Rec."VAT Report Version")
                 {
                     ApplicationArea = BasicEU;
                     Enabled = IsEditable;
@@ -44,13 +44,13 @@ page 321 "ECSL Report"
 
                     trigger OnValidate()
                     begin
-                        InitPageControllers;
+                        InitPageControllers();
                     end;
                 }
                 group(Control3)
                 {
                     ShowCaption = false;
-                    field("Period Year"; "Period Year")
+                    field("Period Year"; Rec."Period Year")
                     {
                         ApplicationArea = BasicEU;
                         LookupPageID = "Date Lookup";
@@ -64,7 +64,7 @@ page 321 "ECSL Report"
                             ECSLVATReportLine.ClearLines(Rec);
                         end;
                     }
-                    field("Period Type"; "Period Type")
+                    field("Period Type"; Rec."Period Type")
                     {
                         ApplicationArea = BasicEU;
                         NotBlank = true;
@@ -78,7 +78,7 @@ page 321 "ECSL Report"
                             ECSLVATReportLine.ClearLines(Rec);
                         end;
                     }
-                    field("Period No."; "Period No.")
+                    field("Period No."; Rec."Period No.")
                     {
                         ApplicationArea = BasicEU;
                         NotBlank = true;
@@ -92,7 +92,7 @@ page 321 "ECSL Report"
                         end;
                     }
                 }
-                field("Start Date"; "Start Date")
+                field("Start Date"; Rec."Start Date")
                 {
                     ApplicationArea = BasicEU;
                     Editable = false;
@@ -101,10 +101,10 @@ page 321 "ECSL Report"
 
                     trigger OnValidate()
                     begin
-                        ClearPeriod;
+                        ClearPeriod();
                     end;
                 }
-                field("End Date"; "End Date")
+                field("End Date"; Rec."End Date")
                 {
                     ApplicationArea = BasicEU;
                     Editable = false;
@@ -113,7 +113,7 @@ page 321 "ECSL Report"
 
                     trigger OnValidate()
                     begin
-                        ClearPeriod;
+                        ClearPeriod();
                     end;
                 }
             }
@@ -145,9 +145,6 @@ page 321 "ECSL Report"
                     Caption = 'Suggest Lines';
                     Enabled = SuggestLinesControllerStatus;
                     Image = SuggestLines;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedOnly = true;
                     ToolTip = 'Create EC Sales List entries based on information gathered from sales-related documents.';
 
                     trigger OnAction()
@@ -155,8 +152,8 @@ page 321 "ECSL Report"
                         ECSLVATReportLine: Record "ECSL VAT Report Line";
                     begin
                         VATReportMediator.GetLines(Rec);
-                        UpdateSubForm;
-                        CheckForErrors;
+                        UpdateSubForm();
+                        CheckForErrors();
                         ECSLVATReportLine.SetRange("Report No.", "No.");
                         if ECSLVATReportLine.Count = 0 then
                             Message(NoLineGeneratedMsg);
@@ -168,15 +165,12 @@ page 321 "ECSL Report"
                     Caption = 'Release';
                     Enabled = ReleaseControllerStatus;
                     Image = ReleaseDoc;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedOnly = true;
                     ToolTip = 'Verify that the report includes all of the required information, and prepare it for submission.';
 
                     trigger OnAction()
                     begin
                         VATReportMediator.Release(Rec);
-                        if not CheckForErrors then
+                        if not CheckForErrors() then
                             Message(ReportReleasedMsg);
                     end;
                 }
@@ -186,15 +180,12 @@ page 321 "ECSL Report"
                     Caption = 'Submit';
                     Enabled = SubmitControllerStatus;
                     Image = SendElectronicDocument;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedOnly = true;
                     ToolTip = 'Submits the EC Sales List report to the tax authority''s reporting service.';
 
                     trigger OnAction()
                     begin
                         VATReportMediator.Export(Rec);
-                        if not CheckForErrors then
+                        if not CheckForErrors() then
                             Message(ReportSubmittedMsg);
                     end;
                 }
@@ -203,9 +194,6 @@ page 321 "ECSL Report"
                     ApplicationArea = BasicEU;
                     Caption = 'Mark as Su&bmitted';
                     Image = Approve;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedOnly = true;
                     ToolTip = 'Indicate that the tax authority has approved and returned the report.';
                     Visible = false;
 
@@ -220,9 +208,6 @@ page 321 "ECSL Report"
                     ApplicationArea = BasicEU;
                     Caption = 'Cancel Submission';
                     Image = Cancel;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedOnly = true;
                     ToolTip = 'Cancels previously submitted report.';
                     Visible = false;
 
@@ -238,9 +223,6 @@ page 321 "ECSL Report"
                     Caption = 'Reopen';
                     Enabled = ReopenControllerStatus;
                     Image = ReOpen;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedOnly = true;
                     ToolTip = 'Open the report again to make changes.';
 
                     trigger OnAction()
@@ -254,8 +236,6 @@ page 321 "ECSL Report"
                 ApplicationArea = BasicEU;
                 Caption = '&Print';
                 Image = Print;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Prepare the report for printing by specifying the information it will include.';
                 Visible = false;
 
@@ -289,30 +269,59 @@ page 321 "ECSL Report"
                 end;
             }
         }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(SuggestLines_Promoted; SuggestLines)
+                {
+                }
+                actionref(Release_Promoted; Release)
+                {
+                }
+                actionref(Submit_Promoted; Submit)
+                {
+                }
+                actionref("Mark as Submitted_Promoted"; "Mark as Submitted")
+                {
+                }
+                actionref("Cancel Submission_Promoted"; "Cancel Submission")
+                {
+                }
+                actionref(Reopen_Promoted; Reopen)
+                {
+                }
+                actionref(Print_Promoted; Print)
+                {
+                }
+            }
+        }
     }
 
     trigger OnAfterGetRecord()
     begin
-        InitPageControllers;
-        CheckForErrors;
+        InitPageControllers();
+        CheckForErrors();
     end;
 
     trigger OnClosePage()
     begin
-        DeleteErrors;
+        DeleteErrors();
     end;
 
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean
     begin
-        InitPageControllers;
+        InitPageControllers();
     end;
 
     trigger OnOpenPage()
     begin
         if "No." <> '' then
-            InitPageControllers;
+            InitPageControllers();
         IsEditable := Status = Status::Open;
-        DeleteErrors;
+        DeleteErrors();
     end;
 
     var
@@ -332,7 +341,7 @@ page 321 "ECSL Report"
 
     local procedure UpdateSubForm()
     begin
-        CurrPage.ECSLReportLines.PAGE.UpdateForm;
+        CurrPage.ECSLReportLines.PAGE.UpdateForm();
     end;
 
     local procedure ClearPeriod()
@@ -360,9 +369,9 @@ page 321 "ECSL Report"
         ErrorMessage.CopyToTemp(TempErrorMessage);
 
         CurrPage.ErrorMessagesPart.PAGE.SetRecords(TempErrorMessage);
-        CurrPage.ErrorMessagesPart.PAGE.Update;
-        CurrPage.ErrorMessagesPart.PAGE.DisableActions;
-        ErrorsExist := not TempErrorMessage.IsEmpty;
+        CurrPage.ErrorMessagesPart.PAGE.Update();
+        CurrPage.ErrorMessagesPart.PAGE.DisableActions();
+        ErrorsExist := not TempErrorMessage.IsEmpty();
 
         exit(ErrorsExist);
     end;

@@ -1,14 +1,13 @@
-﻿#if not CLEAN20
+#if not CLEAN20
 page 38 "Item Ledger Entries"
 {
     AdditionalSearchTerms = 'inventory transactions';
     ApplicationArea = Basic, Suite;
     Caption = 'Item Ledger Entries';
-    DataCaptionExpression = GetCaption;
+    DataCaptionExpression = GetCaption();
     DataCaptionFields = "Item No.";
     Editable = false;
     PageType = List;
-    PromotedActionCategories = 'New,Process,Report,Entry';
     SourceTable = "Item Ledger Entry";
     SourceTableView = SORTING("Entry No.")
                       ORDER(Descending);
@@ -272,7 +271,7 @@ page 38 "Item Ledger Entries"
                     ToolTip = 'Specifies the line number of the production order component.';
                     Visible = false;
                 }
-                field("Source No."; "Source No.")
+                field("Source No."; Rec."Source No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies where the entry originated.';
@@ -281,26 +280,6 @@ page 38 "Item Ledger Entries"
                     ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
                     ObsoleteTag = '20.0';
                 }
-#if not CLEAN18
-                field("Source No. 2"; "Source No. 2")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies where the entry originated';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
-                    ObsoleteTag = '18.0';
-                }
-                field("Source No. 3"; "Source No. 3")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies where the entry originated';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
-                    ObsoleteTag = '18.0';
-                }
-#endif
                 field("Entry No."; Rec."Entry No.")
                 {
                     ApplicationArea = Basic, Suite;
@@ -324,42 +303,42 @@ page 38 "Item Ledger Entries"
                     ToolTip = 'Specifies a reference to a combination of dimension values. The actual values are stored in the Dimension Set Entry table.';
                     Visible = false;
                 }
-                field("Shortcut Dimension 3 Code"; "Shortcut Dimension 3 Code")
+                field("Shortcut Dimension 3 Code"; Rec."Shortcut Dimension 3 Code")
                 {
                     ApplicationArea = Dimensions;
                     Editable = false;
                     ToolTip = 'Specifies the code for Shortcut Dimension 3, which is one of dimension codes that you set up in the General Ledger Setup window.';
                     Visible = Dim3Visible;
                 }
-                field("Shortcut Dimension 4 Code"; "Shortcut Dimension 4 Code")
+                field("Shortcut Dimension 4 Code"; Rec."Shortcut Dimension 4 Code")
                 {
                     ApplicationArea = Dimensions;
                     Editable = false;
                     ToolTip = 'Specifies the code for Shortcut Dimension 4, which is one of dimension codes that you set up in the General Ledger Setup window.';
                     Visible = Dim4Visible;
                 }
-                field("Shortcut Dimension 5 Code"; "Shortcut Dimension 5 Code")
+                field("Shortcut Dimension 5 Code"; Rec."Shortcut Dimension 5 Code")
                 {
                     ApplicationArea = Dimensions;
                     Editable = false;
                     ToolTip = 'Specifies the code for Shortcut Dimension 5, which is one of dimension codes that you set up in the General Ledger Setup window.';
                     Visible = Dim5Visible;
                 }
-                field("Shortcut Dimension 6 Code"; "Shortcut Dimension 6 Code")
+                field("Shortcut Dimension 6 Code"; Rec."Shortcut Dimension 6 Code")
                 {
                     ApplicationArea = Dimensions;
                     Editable = false;
                     ToolTip = 'Specifies the code for Shortcut Dimension 6, which is one of dimension codes that you set up in the General Ledger Setup window.';
                     Visible = Dim6Visible;
                 }
-                field("Shortcut Dimension 7 Code"; "Shortcut Dimension 7 Code")
+                field("Shortcut Dimension 7 Code"; Rec."Shortcut Dimension 7 Code")
                 {
                     ApplicationArea = Dimensions;
                     Editable = false;
                     ToolTip = 'Specifies the code for Shortcut Dimension 7, which is one of dimension codes that you set up in the General Ledger Setup window.';
                     Visible = Dim7Visible;
                 }
-                field("Shortcut Dimension 8 Code"; "Shortcut Dimension 8 Code")
+                field("Shortcut Dimension 8 Code"; Rec."Shortcut Dimension 8 Code")
                 {
                     ApplicationArea = Dimensions;
                     Editable = false;
@@ -397,8 +376,6 @@ page 38 "Item Ledger Entries"
                     ApplicationArea = Dimensions;
                     Caption = 'Dimensions';
                     Image = Dimensions;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     ShortCutKey = 'Alt+D';
                     ToolTip = 'View or edit dimensions, such as area, project, or department, that you can assign to sales and purchase documents to distribute costs and analyze transaction history.';
 
@@ -413,8 +390,6 @@ page 38 "Item Ledger Entries"
                     Caption = 'Set Dimension Filter';
                     Ellipsis = true;
                     Image = "Filter";
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     ToolTip = 'Limit the entries according to the dimension filters that you specify. NOTE: If you use a high number of dimension combinations, this function may not work and can result in a message that the SQL server only supports a maximum of 2100 parameters.';
 
                     trigger OnAction()
@@ -427,8 +402,6 @@ page 38 "Item Ledger Entries"
                     ApplicationArea = Basic, Suite;
                     Caption = '&Value Entries';
                     Image = ValueLedger;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     RunObject = Page "Value Entries";
                     RunPageLink = "Item Ledger Entry No." = FIELD("Entry No.");
                     RunPageView = SORTING("Item Ledger Entry No.");
@@ -510,8 +483,6 @@ page 38 "Item Ledger Entries"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Find entries...';
                 Image = Navigate;
-                Promoted = true;
-                PromotedCategory = Category4;
                 ShortCutKey = 'Ctrl+Alt+Q';
                 ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
 
@@ -520,6 +491,47 @@ page 38 "Item Ledger Entries"
                     Navigate.SetDoc(Rec."Posting Date", Rec."Document No.");
                     Navigate.Run();
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref("&Navigate_Promoted"; "&Navigate")
+                {
+                }
+                group(Category_Category4)
+                {
+                    Caption = 'Entry', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                    actionref("Applied E&ntries_Promoted"; "Applied E&ntries")
+                    {
+                    }
+                    actionref("Reservation Entries_Promoted"; "Reservation Entries")
+                    {
+                    }
+                    actionref(Dimensions_Promoted; Dimensions)
+                    {
+                    }
+                    actionref(SetDimensionFilter_Promoted; SetDimensionFilter)
+                    {
+                    }
+                    actionref("&Value Entries_Promoted"; "&Value Entries")
+                    {
+                    }
+                }
+                actionref("Order &Tracking_Promoted"; "Order &Tracking")
+                {
+                }
+                actionref("Application Worksheet_Promoted"; "Application Worksheet")
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
             }
         }
     }

@@ -30,9 +30,9 @@ codeunit 11702 "Issue Bank Statement"
                   CalcDate('<CY>', Rec."Document Date"));
             if not IsEmpty() then begin
                 FindFirst();
-                Error(AlreadyExistErr, FieldCaption("External Document No."), TableCaption, FieldCaption("No."), "No.");
+                Error(AlreadyExistErr, FieldCaption("External Document No."), TableCaption(), FieldCaption("No."), "No.");
             end;
-            Reset;
+            Reset();
         end;
 
         BankStmtLine.LockTable();
@@ -97,14 +97,14 @@ codeunit 11702 "Issue Bank Statement"
                                 Customer.FieldError("Privacy Blocked");
                             ReturnValue := false;
                             if AddError then
-                                AddErrorText(StrSubstNo(PrivacyBlockedErr, Customer.TableCaption, Customer."No."));
+                                AddErrorText(StrSubstNo(PrivacyBlockedErr, Customer.TableCaption(), Customer."No."));
                         end;
                         if Customer.Blocked in [Customer.Blocked::All] then begin
                             if CauseError then
                                 Customer.FieldError(Blocked);
                             ReturnValue := false;
                             if AddError then
-                                AddErrorText(StrSubstNo(CustVendIsBlockedErr, Customer.TableCaption, Customer."No."));
+                                AddErrorText(StrSubstNo(CustVendIsBlockedErr, Customer.TableCaption(), Customer."No."));
                         end;
                     end;
                 IssuedBankStmtLine.Type::Vendor:
@@ -115,7 +115,7 @@ codeunit 11702 "Issue Bank Statement"
                                 Vendor.FieldError("Privacy Blocked");
                             ReturnValue := false;
                             if AddError then
-                                AddErrorText(StrSubstNo(PrivacyBlockedErr, Vendor.TableCaption, Vendor."No."));
+                                AddErrorText(StrSubstNo(PrivacyBlockedErr, Vendor.TableCaption(), Vendor."No."));
                         end;
 
                         if Vendor.Blocked in [Vendor.Blocked::All] then begin
@@ -123,7 +123,7 @@ codeunit 11702 "Issue Bank Statement"
                                 Vendor.FieldError(Blocked);
                             ReturnValue := false;
                             if AddError then
-                                AddErrorText(StrSubstNo(CustVendIsBlockedErr, Vendor.TableCaption, Vendor."No."));
+                                AddErrorText(StrSubstNo(CustVendIsBlockedErr, Vendor.TableCaption(), Vendor."No."));
                         end;
                     end;
             end;

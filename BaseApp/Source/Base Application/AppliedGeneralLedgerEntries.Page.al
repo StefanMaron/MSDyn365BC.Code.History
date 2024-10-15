@@ -2,7 +2,7 @@
 page 11777 "Applied General Ledger Entries"
 {
     Caption = 'Applied General Ledger Entries (Obsolete)';
-    DataCaptionExpression = Caption;
+    DataCaptionExpression = Caption();
     Editable = false;
     PageType = List;
     SourceTable = "G/L Entry";
@@ -17,22 +17,22 @@ page 11777 "Applied General Ledger Entries"
             repeater(Control1220000)
             {
                 ShowCaption = false;
-                field("Posting Date"; "Posting Date")
+                field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the date when the posting of the apply general ledger entries was posted.';
                 }
-                field("Document Type"; "Document Type")
+                field("Document Type"; Rec."Document Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the original document type which will be applied.';
                 }
-                field("Document No."; "Document No.")
+                field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the entry''s Document No.';
                 }
-                field("G/L Account No."; "G/L Account No.")
+                field("G/L Account No."; Rec."G/L Account No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the account that the entry has been posted to.';
@@ -47,12 +47,12 @@ page 11777 "Applied General Ledger Entries"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the Amount of the entry.';
                 }
-                field("Applied Amount"; "Applied Amount")
+                field("Applied Amount"; Rec."Applied Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the sum of the amounts in the Amount to Apply field.';
                 }
-                field("Entry No."; "Entry No.")
+                field("Entry No."; Rec."Entry No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the entry number that is assigned to the entry.';
@@ -70,8 +70,6 @@ page 11777 "Applied General Ledger Entries"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Find entries...';
                 Image = Navigate;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Find all entries and documents that exist for the document number and posting date on the selected entry or document.';
 
                 trigger OnAction()
@@ -81,14 +79,25 @@ page 11777 "Applied General Ledger Entries"
                 end;
             }
         }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("&Navigate_Promoted"; "&Navigate")
+                {
+                }
+            }
+        }
     }
 
     trigger OnOpenPage()
     begin
-        Reset;
+        Reset();
         if "Entry No." <> 0 then begin
             GLEntry := Rec;
-            FindApplnEntriesDtldtLedgEntry;
+            FindApplnEntriesDtldtLedgEntry();
             GLAccount.Get("G/L Account No.");
         end;
         MarkedOnly(true);

@@ -6,7 +6,6 @@ page 5 Currencies
     Caption = 'Currencies';
     CardPageID = "Currency Card";
     PageType = List;
-    PromotedActionCategories = 'New,Process,Report,Exchange Rate Service';
     SourceTable = Currency;
     UsageCategory = Administration;
 
@@ -27,12 +26,12 @@ page 5 Currencies
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies a text to describe the currency code.';
                 }
-                field("ISO Code"; "ISO Code")
+                field("ISO Code"; Rec."ISO Code")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies a three-letter currency code defined in ISO 4217.';
                 }
-                field("ISO Numeric Code"; "ISO Numeric Code")
+                field("ISO Numeric Code"; Rec."ISO Numeric Code")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies a three-digit code number defined in ISO 4217.';
@@ -46,7 +45,7 @@ page 5 Currencies
 
                     trigger OnDrillDown()
                     begin
-                        DrillDownActionOnPage;
+                        DrillDownActionOnPage();
                     end;
                 }
                 field(ExchangeRateAmt; ExchangeRateAmt)
@@ -59,131 +58,131 @@ page 5 Currencies
 
                     trigger OnDrillDown()
                     begin
-                        DrillDownActionOnPage;
+                        DrillDownActionOnPage();
                     end;
                 }
-                field("EMU Currency"; "EMU Currency")
+                field("EMU Currency"; Rec."EMU Currency")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies whether the currency is an EMU currency, for example DEM or EUR.';
                 }
-                field("Realized Gains Acc."; "Realized Gains Acc.")
+                field("Realized Gains Acc."; Rec."Realized Gains Acc.")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the general ledger account number to which realized exchange rate gains will be posted.';
                 }
-                field("Realized Losses Acc."; "Realized Losses Acc.")
+                field("Realized Losses Acc."; Rec."Realized Losses Acc.")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the general ledger account number to which realized exchange rate losses will be posted.';
                 }
-                field("Unrealized Gains Acc."; "Unrealized Gains Acc.")
+                field("Unrealized Gains Acc."; Rec."Unrealized Gains Acc.")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the general ledger account number to which unrealized exchange rate gains will be posted when the Adjust Exchange Rates batch job is run.';
                 }
-                field("Unrealized Losses Acc."; "Unrealized Losses Acc.")
+                field("Unrealized Losses Acc."; Rec."Unrealized Losses Acc.")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the general ledger account number to which unrealized exchange rate losses will be posted when the Adjust Exchange Rates batch job is run.';
                 }
-                field("Realized G/L Gains Account"; "Realized G/L Gains Account")
+                field("Realized G/L Gains Account"; Rec."Realized G/L Gains Account")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the general ledger account to post exchange rate gains to for currency adjustments between LCY and the additional reporting currency.';
                     Visible = false;
                 }
-                field("Realized G/L Losses Account"; "Realized G/L Losses Account")
+                field("Realized G/L Losses Account"; Rec."Realized G/L Losses Account")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the general ledger account to post exchange rate gains to for currency adjustments between LCY and the additional reporting currency.';
                     Visible = false;
                 }
-                field("Residual Gains Account"; "Residual Gains Account")
+                field("Residual Gains Account"; Rec."Residual Gains Account")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the general ledger account to post residual amount gains to, if you post in the general ledger application area in both LCY and an additional reporting currency.';
                     Visible = false;
                 }
-                field("Residual Losses Account"; "Residual Losses Account")
+                field("Residual Losses Account"; Rec."Residual Losses Account")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the general ledger account to post residual amount losses to, if you post in the general ledger application area in both LCY and an additional reporting currency.';
                     Visible = false;
                 }
-                field("Amount Rounding Precision"; "Amount Rounding Precision")
+                field("Amount Rounding Precision"; Rec."Amount Rounding Precision")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the size of the interval to be used when rounding amounts in this currency.';
                 }
-                field("Amount Decimal Places"; "Amount Decimal Places")
+                field("Amount Decimal Places"; Rec."Amount Decimal Places")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the number of decimal places the program will display for amounts in this currency.';
                 }
-                field("Invoice Rounding Precision"; "Invoice Rounding Precision")
+                field("Invoice Rounding Precision"; Rec."Invoice Rounding Precision")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the size of the interval to be used when rounding amounts in this currency. You can specify invoice rounding for each currency in the Currency table.';
                 }
-                field("Invoice Rounding Type"; "Invoice Rounding Type")
+                field("Invoice Rounding Type"; Rec."Invoice Rounding Type")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies whether an invoice amount will be rounded up or down. The program uses this information together with the interval for rounding that you have specified in the Invoice Rounding Precision field.';
                 }
-                field("Unit-Amount Rounding Precision"; "Unit-Amount Rounding Precision")
+                field("Unit-Amount Rounding Precision"; Rec."Unit-Amount Rounding Precision")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the size of the interval to be used when rounding unit amounts (that is, item prices per unit) in this currency.';
                 }
-                field("Unit-Amount Decimal Places"; "Unit-Amount Decimal Places")
+                field("Unit-Amount Decimal Places"; Rec."Unit-Amount Decimal Places")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the number of decimal places the program will display for amounts in this currency.';
                 }
-                field("Appln. Rounding Precision"; "Appln. Rounding Precision")
+                field("Appln. Rounding Precision"; Rec."Appln. Rounding Precision")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the size of the interval that will be allowed as a rounding difference when you apply entries in different currencies to one another.';
                 }
-                field("Conv. LCY Rndg. Debit Acc."; "Conv. LCY Rndg. Debit Acc.")
+                field("Conv. LCY Rndg. Debit Acc."; Rec."Conv. LCY Rndg. Debit Acc.")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies conversion information that must also contain a debit account if you wish to insert correction lines for rounding differences in the general journals using the Insert Conv. LCY Rndg. Lines function.';
                 }
-                field("Conv. LCY Rndg. Credit Acc."; "Conv. LCY Rndg. Credit Acc.")
+                field("Conv. LCY Rndg. Credit Acc."; Rec."Conv. LCY Rndg. Credit Acc.")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies conversion information that must also contain a credit account if you wish to insert correction lines for rounding differences in the general journals using the Insert Conv. LCY Rndg. Lines function.';
                 }
-                field("Max. VAT Difference Allowed"; "Max. VAT Difference Allowed")
+                field("Max. VAT Difference Allowed"; Rec."Max. VAT Difference Allowed")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the maximum VAT correction amount allowed for the currency.';
                     Visible = false;
                 }
-                field("VAT Rounding Type"; "VAT Rounding Type")
+                field("VAT Rounding Type"; Rec."VAT Rounding Type")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies how the program will round VAT when calculated for this currency.';
                     Visible = false;
                 }
-                field("Last Date Adjusted"; "Last Date Adjusted")
+                field("Last Date Adjusted"; Rec."Last Date Adjusted")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies when the exchange rates were last adjusted, that is, the last date on which the Adjust Exchange Rates batch job was run.';
                 }
-                field("Last Date Modified"; "Last Date Modified")
+                field("Last Date Modified"; Rec."Last Date Modified")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the last date on which any information in the Currency table was modified.';
                 }
-                field("Payment Tolerance %"; "Payment Tolerance %")
+                field("Payment Tolerance %"; Rec."Payment Tolerance %")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the percentage that the payment or refund is allowed to be, less than the amount on the invoice or credit memo.';
                 }
-                field("Max. Payment Tolerance Amount"; "Max. Payment Tolerance Amount")
+                field("Max. Payment Tolerance Amount"; Rec."Max. Payment Tolerance Amount")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the maximum allowed amount that the payment or refund can differ from the amount on the invoice or credit memo.';
@@ -202,7 +201,7 @@ page 5 Currencies
                         CurrencyExchangeRate.SetCurrentCurrencyFactor(Code, CurrencyFactor);
                     end;
                 }
-                field("Coupled to CRM"; "Coupled to CRM")
+                field("Coupled to CRM"; Rec."Coupled to CRM")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies that the currency is coupled to a currency in Dataverse.';
@@ -238,8 +237,6 @@ page 5 Currencies
                     ApplicationArea = Suite;
                     Caption = 'Change Payment &Tolerance';
                     Image = ChangePaymentTolerance;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Change either or both the maximum payment tolerance and the payment tolerance percentage and filters by currency.';
 
                     trigger OnAction()
@@ -255,15 +252,11 @@ page 5 Currencies
                     ApplicationArea = Basic, Suite;
                     Caption = 'Suggest Accounts';
                     Image = Default;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
-                    PromotedOnly = true;
                     ToolTip = 'Suggest G/L Accounts for selected currency.';
 
                     trigger OnAction()
                     begin
-                        SuggestSetupAccounts;
+                        SuggestSetupAccounts();
                     end;
                 }
             }
@@ -272,8 +265,6 @@ page 5 Currencies
                 ApplicationArea = Suite;
                 Caption = 'Exch. &Rates';
                 Image = CurrencyExchangeRates;
-                Promoted = true;
-                PromotedCategory = Process;
                 RunObject = Page "Currency Exchange Rates";
                 RunPageLink = "Currency Code" = FIELD(Code);
                 ToolTip = 'View updated exchange rates for the currencies that you use.';
@@ -283,8 +274,6 @@ page 5 Currencies
                 ApplicationArea = Suite;
                 Caption = 'Adjust Exchange Rate';
                 Image = AdjustExchangeRates;
-                Promoted = true;
-                PromotedCategory = Process;
                 RunObject = Codeunit "Exch. Rate Adjmt. Run Handler";
                 ToolTip = 'Adjust general ledger, customer, vendor, and bank account entries to reflect a more updated balance if the exchange rate has changed since the entries were posted.';
             }
@@ -293,8 +282,6 @@ page 5 Currencies
                 ApplicationArea = Suite;
                 Caption = 'Exchange Rate Adjust. Register';
                 Image = ExchangeRateAdjustRegister;
-                Promoted = true;
-                PromotedCategory = Process;
                 RunObject = Page "Exchange Rate Adjmt. Register";
                 RunPageLink = "Currency Code" = FIELD(Code);
                 ToolTip = 'View the results of running the Adjust Exchange Rates batch job. One line is created for each currency or each combination of currency and posting group that is included in the adjustment.';
@@ -304,9 +291,6 @@ page 5 Currencies
                 ApplicationArea = Suite;
                 Caption = 'Exchange Rate Services';
                 Image = Web;
-                Promoted = true;
-                PromotedCategory = Category4;
-                PromotedIsBig = true;
                 RunObject = Page "Curr. Exch. Rate Service List";
                 ToolTip = 'View or edit the setup of the services that are set up to fetch updated currency exchange rates when you choose the Update Exchange Rates action.';
             }
@@ -315,9 +299,6 @@ page 5 Currencies
                 ApplicationArea = Suite;
                 Caption = 'Update Exchange Rates';
                 Image = UpdateXML;
-                Promoted = true;
-                PromotedCategory = Category4;
-                PromotedIsBig = true;
                 RunObject = Codeunit "Update Currency Exchange Rates";
                 ToolTip = 'Get the latest currency exchange rates from a service provider.';
             }
@@ -329,7 +310,6 @@ page 5 Currencies
                 ApplicationArea = Suite;
                 Caption = 'Foreign Currency Balance';
                 Image = "Report";
-                Promoted = false;
                 //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                 //PromotedCategory = "Report";
                 RunObject = Report "Foreign Currency Balance";
@@ -372,7 +352,7 @@ page 5 Currencies
                         CurrencyRecordRef: RecordRef;
                     begin
                         CurrPage.SetSelectionFilter(Currency);
-                        Currency.Next;
+                        Currency.Next();
 
                         if Currency.Count = 1 then
                             CRMIntegrationManagement.UpdateOneNow(Currency.RecordId)
@@ -458,6 +438,44 @@ page 5 Currencies
                 }
             }
         }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref(SuggestAccounts_Promoted; SuggestAccounts)
+                {
+                }
+                actionref("Change Payment &Tolerance_Promoted"; "Change Payment &Tolerance")
+                {
+                }
+                actionref("Exch. &Rates_Promoted"; "Exch. &Rates")
+                {
+                }
+                actionref("Adjust Exchange Rate_Promoted"; "Adjust Exchange Rate")
+                {
+                }
+                actionref("Exchange Rate Adjust. Register_Promoted"; "Exchange Rate Adjust. Register")
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Exchange Rate Service', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref("Exchange Rate Services_Promoted"; "Exchange Rate Services")
+                {
+                }
+                actionref(UpdateExchangeRates_Promoted; UpdateExchangeRates)
+                {
+                }
+            }
+        }
     }
 
     trigger OnAfterGetCurrRecord()
@@ -481,8 +499,8 @@ page 5 Currencies
     var
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
     begin
-        CRMIntegrationEnabled := CRMIntegrationManagement.IsCRMIntegrationEnabled;
-        CDSIntegrationEnabled := CRMIntegrationManagement.IsCDSIntegrationEnabled;
+        CRMIntegrationEnabled := CRMIntegrationManagement.IsCRMIntegrationEnabled();
+        CDSIntegrationEnabled := CRMIntegrationManagement.IsCDSIntegrationEnabled();
     end;
 
     var

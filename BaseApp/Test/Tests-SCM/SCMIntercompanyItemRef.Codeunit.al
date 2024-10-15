@@ -117,11 +117,11 @@ codeunit 137630 "SCM Intercompany Item Ref."
         Assert.AreEqual(
           SalesLine."IC Partner Ref. Type"::"Cross Reference",
           SalesLine."IC Partner Ref. Type",
-          StrSubstNo(TableFieldErr, SalesLine.TableCaption, SalesLine.FieldCaption("IC Partner Ref. Type")));
+          StrSubstNo(TableFieldErr, SalesLine.TableCaption(), SalesLine.FieldCaption("IC Partner Ref. Type")));
         Assert.AreEqual(
           ItemReference."Reference No.",
           SalesLine."IC Item Reference No.",
-          StrSubstNo(TableFieldErr, SalesLine.TableCaption, SalesLine.FieldCaption("IC Item Reference No.")));
+          StrSubstNo(TableFieldErr, SalesLine.TableCaption(), SalesLine.FieldCaption("IC Item Reference No.")));
     end;
 
     [Test]
@@ -155,11 +155,11 @@ codeunit 137630 "SCM Intercompany Item Ref."
         Assert.AreEqual(
           PurchaseLine."IC Partner Ref. Type"::"Cross Reference",
           PurchaseLine."IC Partner Ref. Type",
-          StrSubstNo(TableFieldErr, PurchaseLine.TableCaption, PurchaseLine.FieldCaption("IC Partner Ref. Type")));
+          StrSubstNo(TableFieldErr, PurchaseLine.TableCaption(), PurchaseLine.FieldCaption("IC Partner Ref. Type")));
         Assert.AreEqual(
           ItemReference."Reference No.",
           PurchaseLine."IC Item Reference No.",
-          StrSubstNo(TableFieldErr, PurchaseLine.TableCaption, PurchaseLine.FieldCaption("IC Item Reference No.")));
+          StrSubstNo(TableFieldErr, PurchaseLine.TableCaption(), PurchaseLine.FieldCaption("IC Item Reference No.")));
     end;
 
     [Test]
@@ -196,11 +196,11 @@ codeunit 137630 "SCM Intercompany Item Ref."
         Assert.AreEqual(
           SalesLine."IC Partner Ref. Type"::Item,
           SalesLine."IC Partner Ref. Type",
-          StrSubstNo(TableFieldErr, SalesLine.TableCaption, SalesLine.FieldCaption("IC Partner Ref. Type")));
+          StrSubstNo(TableFieldErr, SalesLine.TableCaption(), SalesLine.FieldCaption("IC Partner Ref. Type")));
         Assert.AreEqual(
           SalesLine."No.",
           SalesLine."IC Partner Reference",
-          StrSubstNo(TableFieldErr, SalesLine.TableCaption, SalesLine.FieldCaption("IC Partner Reference")));
+          StrSubstNo(TableFieldErr, SalesLine.TableCaption(), SalesLine.FieldCaption("IC Partner Reference")));
     end;
 
     [Test]
@@ -239,11 +239,11 @@ codeunit 137630 "SCM Intercompany Item Ref."
         Assert.AreEqual(
           PurchaseLine."IC Partner Ref. Type"::Item,
           PurchaseLine."IC Partner Ref. Type",
-          StrSubstNo(TableFieldErr, PurchaseLine.TableCaption, PurchaseLine.FieldCaption("IC Partner Ref. Type")));
+          StrSubstNo(TableFieldErr, PurchaseLine.TableCaption(), PurchaseLine.FieldCaption("IC Partner Ref. Type")));
         Assert.AreEqual(
           PurchaseLine."No.",
           PurchaseLine."IC Partner Reference",
-          StrSubstNo(TableFieldErr, PurchaseLine.TableCaption, PurchaseLine.FieldCaption("IC Partner Reference")));
+          StrSubstNo(TableFieldErr, PurchaseLine.TableCaption(), PurchaseLine.FieldCaption("IC Partner Reference")));
     end;
 
     [Test]
@@ -508,7 +508,7 @@ codeunit 137630 "SCM Intercompany Item Ref."
             Get(CreateICPartner);
             Validate("Outbound Sales Item No. Type", "Outbound Sales Item No. Type"::"Common Item No.");
             Validate("Outbound Purch. Item No. Type", "Outbound Purch. Item No. Type"::"Common Item No.");
-            Modify;
+            Modify();
             exit(Code);
         end;
     end;
@@ -626,10 +626,10 @@ codeunit 137630 "SCM Intercompany Item Ref."
 
         SalesHeader.Validate(
           "Requested Delivery Date",
-          CalcDate(StrSubstNo('<%1D>', LibraryRandom.RandIntInRange(5, 10)), WorkDate));
+          CalcDate(StrSubstNo('<%1D>', LibraryRandom.RandIntInRange(5, 10)), WorkDate()));
         SalesHeader.Validate(
           "Promised Delivery Date",
-          CalcDate(StrSubstNo('<%1D>', LibraryRandom.RandIntInRange(1, 4)), WorkDate));
+          CalcDate(StrSubstNo('<%1D>', LibraryRandom.RandIntInRange(1, 4)), WorkDate()));
         SalesHeader.Modify(true);
     end;
 
@@ -657,10 +657,10 @@ codeunit 137630 "SCM Intercompany Item Ref."
 
         PurchaseHeader.Validate(
           "Requested Receipt Date",
-          CalcDate(StrSubstNo('<%1D>', LibraryRandom.RandIntInRange(5, 10)), WorkDate));
+          CalcDate(StrSubstNo('<%1D>', LibraryRandom.RandIntInRange(5, 10)), WorkDate()));
         PurchaseHeader.Validate(
           "Promised Receipt Date",
-          CalcDate(StrSubstNo('<%1D>', LibraryRandom.RandIntInRange(1, 4)), WorkDate));
+          CalcDate(StrSubstNo('<%1D>', LibraryRandom.RandIntInRange(1, 4)), WorkDate()));
         PurchaseHeader.Modify(true);
     end;
 
@@ -748,7 +748,7 @@ codeunit 137630 "SCM Intercompany Item Ref."
     var
         ICOutboxSalesLine: Record "IC Outbox Sales Line";
     begin
-        ICInboxOutboxMgt.CreatePurchDocument(ICInboxPurchaseHeader, false, WorkDate);
+        ICInboxOutboxMgt.CreatePurchDocument(ICInboxPurchaseHeader, false, WorkDate());
         ICOutboxSalesLine."Document Type" := ConvertDocTypeToICOutboxSalesLine(SalesHeader."Document Type");
         InboxICPurchaseDocument(
           PurchaseHeader, ICOutboxTransaction, ICInboxTransaction, ICInboxPurchaseHeader, ICOutboxSalesLine, SalesHeader."No.", VendorNo);
@@ -763,13 +763,13 @@ codeunit 137630 "SCM Intercompany Item Ref."
           ICOutboxSalesLine, ICOutboxTransaction."Transaction No.",
           SalesDocumentNo, ICOutboxSalesLine."Document Type");
 
-        ICOutboxSalesLine.SetRecFilter;
+        ICOutboxSalesLine.SetRecFilter();
         ICOutboxSalesLine.SetRange("Line No.");
         ICOutboxSalesLine.FindFirst();
         repeat
             ICInboxOutboxMgt.OutboxSalesLineToInbox(ICInboxTransaction, ICOutboxSalesLine, ICInboxPurchaseLine);
             ICInboxOutboxMgt.CreatePurchLines(PurchaseHeader, ICInboxPurchaseLine);
-        until ICOutboxSalesLine.Next = 0;
+        until ICOutboxSalesLine.Next() = 0;
     end;
 
     local procedure SendICPurchaseDocument(var PurchaseHeader: Record "Purchase Header"; ICPartnerCode: Code[20]; var ICOutboxTransaction: Record "IC Outbox Transaction"; var ICInboxTransaction: Record "IC Inbox Transaction"; var ICInboxSalesHeader: Record "IC Inbox Sales Header")
@@ -810,7 +810,7 @@ codeunit 137630 "SCM Intercompany Item Ref."
         ICOutboxPurchaseLine: Record "IC Outbox Purchase Line";
         ICInboxSalesLine: Record "IC Inbox Sales Line";
     begin
-        ICInboxOutboxMgt.CreateSalesDocument(ICInboxSalesHeader, false, WorkDate);
+        ICInboxOutboxMgt.CreateSalesDocument(ICInboxSalesHeader, false, WorkDate());
         FindSalesDocument(SalesHeader, PurchaseHeader."Document Type", CustomerNo);
         FindICOutboxPurchaseLine(
           ICOutboxPurchaseLine, ICOutboxTransaction."Transaction No.",
@@ -1045,7 +1045,7 @@ codeunit 137630 "SCM Intercompany Item Ref."
         with Item do begin
             Get(ItemNo);
             Validate("Common Item No.", NewCommonItemNo);
-            Modify;
+            Modify();
         end;
     end;
 
@@ -1171,10 +1171,10 @@ codeunit 137630 "SCM Intercompany Item Ref."
         Assert.AreEqual(
           AccountNo, ICOutboxJnlLine."Account No.",
           StrSubstNo(
-            ValidationErr, ICOutboxJnlLine.FieldCaption("Account No."), ICOutboxJnlLine."Account No.", ICOutboxJnlLine.TableCaption));
+            ValidationErr, ICOutboxJnlLine.FieldCaption("Account No."), ICOutboxJnlLine."Account No.", ICOutboxJnlLine.TableCaption()));
         Assert.AreNearlyEqual(
           Amount, ICOutboxJnlLine.Amount, LibraryERM.GetAmountRoundingPrecision,
-          StrSubstNo(ValidationErr, ICOutboxJnlLine.FieldCaption(Amount), ICOutboxJnlLine.Amount, ICOutboxJnlLine.TableCaption));
+          StrSubstNo(ValidationErr, ICOutboxJnlLine.FieldCaption(Amount), ICOutboxJnlLine.Amount, ICOutboxJnlLine.TableCaption()));
     end;
 
     local procedure VerifySalesDocItemReferenceInfo(SalesHeader: Record "Sales Header"; PurchaseHeader: Record "Purchase Header")
@@ -1187,23 +1187,23 @@ codeunit 137630 "SCM Intercompany Item Ref."
         Assert.AreEqual(
           PurchaseLine."No.",
           SalesLine."No.",
-          StrSubstNo(TableFieldErr, SalesLine.TableCaption, SalesLine.FieldCaption("No.")));
+          StrSubstNo(TableFieldErr, SalesLine.TableCaption(), SalesLine.FieldCaption("No.")));
         Assert.AreEqual(
           PurchaseLine."Item Reference No.",
           SalesLine."Item Reference No.",
-          StrSubstNo(TableFieldErr, SalesLine.TableCaption, SalesLine.FieldCaption("Item Reference No.")));
+          StrSubstNo(TableFieldErr, SalesLine.TableCaption(), SalesLine.FieldCaption("Item Reference No.")));
         Assert.AreEqual(
           PurchaseLine."Variant Code",
           SalesLine."Variant Code",
-          StrSubstNo(TableFieldErr, SalesLine.TableCaption, SalesLine.FieldCaption("Variant Code")));
+          StrSubstNo(TableFieldErr, SalesLine.TableCaption(), SalesLine.FieldCaption("Variant Code")));
         Assert.AreEqual(
           SalesLine."IC Partner Ref. Type"::"Cross Reference",
           SalesLine."IC Partner Ref. Type",
-          StrSubstNo(TableFieldErr, SalesLine.TableCaption, SalesLine.FieldCaption("IC Partner Ref. Type")));
+          StrSubstNo(TableFieldErr, SalesLine.TableCaption(), SalesLine.FieldCaption("IC Partner Ref. Type")));
         Assert.AreEqual(
           PurchaseLine."Item Reference No.",
           SalesLine."IC Item Reference No.",
-          StrSubstNo(TableFieldErr, SalesLine.TableCaption, SalesLine.FieldCaption("IC Item Reference No.")));
+          StrSubstNo(TableFieldErr, SalesLine.TableCaption(), SalesLine.FieldCaption("IC Item Reference No.")));
     end;
 
     local procedure VerifyPurchDocItemReferenceInfo(PurchaseHeader: Record "Purchase Header"; SalesHeader: Record "Sales Header")
@@ -1216,23 +1216,23 @@ codeunit 137630 "SCM Intercompany Item Ref."
         Assert.AreEqual(
           SalesLine."No.",
           PurchaseLine."No.",
-          StrSubstNo(TableFieldErr, PurchaseLine.TableCaption, PurchaseLine.FieldCaption("No.")));
+          StrSubstNo(TableFieldErr, PurchaseLine.TableCaption(), PurchaseLine.FieldCaption("No.")));
         Assert.AreEqual(
           SalesLine."Item Reference No.",
           PurchaseLine."Item Reference No.",
-          StrSubstNo(TableFieldErr, PurchaseLine.TableCaption, PurchaseLine.FieldCaption("Item Reference No.")));
+          StrSubstNo(TableFieldErr, PurchaseLine.TableCaption(), PurchaseLine.FieldCaption("Item Reference No.")));
         Assert.AreEqual(
           SalesLine."Variant Code",
           PurchaseLine."Variant Code",
-          StrSubstNo(TableFieldErr, PurchaseLine.TableCaption, PurchaseLine.FieldCaption("Variant Code")));
+          StrSubstNo(TableFieldErr, PurchaseLine.TableCaption(), PurchaseLine.FieldCaption("Variant Code")));
         Assert.AreEqual(
           PurchaseLine."IC Partner Ref. Type"::"Cross Reference",
           PurchaseLine."IC Partner Ref. Type",
-          StrSubstNo(TableFieldErr, PurchaseLine.TableCaption, PurchaseLine.FieldCaption("IC Partner Ref. Type")));
+          StrSubstNo(TableFieldErr, PurchaseLine.TableCaption(), PurchaseLine.FieldCaption("IC Partner Ref. Type")));
         Assert.AreEqual(
           SalesLine."Item Reference No.",
           PurchaseLine."IC Item Reference No.",
-          StrSubstNo(TableFieldErr, PurchaseLine.TableCaption, PurchaseLine.FieldCaption("IC Item Reference No.")));
+          StrSubstNo(TableFieldErr, PurchaseLine.TableCaption(), PurchaseLine.FieldCaption("IC Item Reference No.")));
     end;
 
     local procedure VerifyPurchDocItemInfo(PurchaseHeader: Record "Purchase Header"; SalesHeader: Record "Sales Header")
@@ -1246,12 +1246,12 @@ codeunit 137630 "SCM Intercompany Item Ref."
         Assert.AreEqual(
           PurchaseLine."IC Partner Ref. Type"::Item,
           PurchaseLine."IC Partner Ref. Type",
-          StrSubstNo(TableFieldErr, PurchaseLine.TableCaption, PurchaseLine.FieldCaption("IC Partner Ref. Type")));
+          StrSubstNo(TableFieldErr, PurchaseLine.TableCaption(), PurchaseLine.FieldCaption("IC Partner Ref. Type")));
 
         Assert.AreEqual(
           SalesLine."No.",
           PurchaseLine."No.",
-          StrSubstNo(TableFieldErr, PurchaseLine.TableCaption, PurchaseLine.FieldCaption("No.")));
+          StrSubstNo(TableFieldErr, PurchaseLine.TableCaption(), PurchaseLine.FieldCaption("No.")));
     end;
 
     local procedure VerifySalesDocItemInfo(SalesHeader: Record "Sales Header"; PurchaseHeader: Record "Purchase Header")
@@ -1265,12 +1265,12 @@ codeunit 137630 "SCM Intercompany Item Ref."
         Assert.AreEqual(
           SalesLine."IC Partner Ref. Type"::Item,
           SalesLine."IC Partner Ref. Type",
-          StrSubstNo(TableFieldErr, SalesLine.TableCaption, SalesLine.FieldCaption("IC Partner Ref. Type")));
+          StrSubstNo(TableFieldErr, SalesLine.TableCaption(), SalesLine.FieldCaption("IC Partner Ref. Type")));
 
         Assert.AreEqual(
           PurchaseLine."No.",
           SalesLine."No.",
-          StrSubstNo(TableFieldErr, SalesLine.TableCaption, SalesLine.FieldCaption("No.")));
+          StrSubstNo(TableFieldErr, SalesLine.TableCaption(), SalesLine.FieldCaption("No.")));
     end;
 }
 

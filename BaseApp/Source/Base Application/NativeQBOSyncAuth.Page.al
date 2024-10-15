@@ -33,13 +33,13 @@ page 2844 "Native - QBO Sync Auth"
 
     trigger OnAfterGetRecord()
     begin
-        QBOSyncProxy.OnGetQBOAuthURL;
-        AuthorizationURL := QBOSyncProxy.GetQBOAuthURL;
+        QBOSyncProxy.OnGetQBOAuthURL();
+        AuthorizationURL := QBOSyncProxy.GetQBOAuthURL();
     end;
 
     trigger OnOpenPage()
     begin
-        Insert;
+        Insert();
     end;
 
     var

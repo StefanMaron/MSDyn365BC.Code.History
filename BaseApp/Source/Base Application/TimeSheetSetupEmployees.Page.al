@@ -12,7 +12,7 @@ page 979 "Time Sheet Setup Employees"
         {
             repeater(GroupName)
             {
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = BasicHR;
                     ToolTip = 'Specifies an identification number for the entry or record.';
@@ -23,7 +23,7 @@ page 979 "Time Sheet Setup Employees"
                     Caption = 'Full Name';
                     ToolTip = 'Specifies the full name of the employee.';
                 }
-                field("Resource No."; "Resource No.")
+                field("Resource No."; Rec."Resource No.")
                 {
                     ApplicationArea = BasicHR;
                     ToolTip = 'Specifies a resource number for the employee.';

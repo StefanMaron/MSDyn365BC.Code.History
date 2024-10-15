@@ -161,41 +161,6 @@ page 9004 "Bookkeeper Role Center"
             separator(Action53)
             {
             }
-#if not CLEAN18
-            action("FA Phys. Inventory List")
-            {
-                ApplicationArea = FixedAssets;
-                Caption = 'FA Phys. Inventory List';
-                RunObject = Report "FA Phys. Inventory List";
-                ToolTip = 'Open the report for fixed asset physical inventory.';
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
-                ObsoleteTag = '18.0';
-                Visible = false;
-            }
-            action("FA Receipt")
-            {
-                ApplicationArea = FixedAssets;
-                Caption = 'FA Receipt';
-                RunObject = Report "FA Receipt Report";
-                ToolTip = 'Open the report for fixed asset receipt.';
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
-                ObsoleteTag = '18.0';
-                Visible = false;
-            }
-            action("FA Disposal")
-            {
-                ApplicationArea = FixedAssets;
-                Caption = 'FA Disposal';
-                RunObject = Report "FA Disposal Report";
-                ToolTip = 'Open the report for fixed asset disposal.';
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
-                ObsoleteTag = '18.0';
-                Visible = false;
-            }
-#endif
 #if not CLEAN19
             separator(Action1220006)
             {

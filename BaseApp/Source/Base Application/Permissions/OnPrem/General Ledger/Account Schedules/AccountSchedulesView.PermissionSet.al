@@ -1,3 +1,4 @@
+#if not CLEAN20
 permissionset 5417 "Account Schedules - View"
 {
     Access = Public;
@@ -18,6 +19,8 @@ permissionset 5417 "Account Schedules - View"
                   tabledata "Acc. Schedule Result Line" = R,
                   tabledata "Acc. Schedule Result Value" = R,
 #endif
+                  tabledata "Financial Report" = RI,
+                  tabledata "Financial Report User Filters" = RIMD,
                   tabledata "Analysis View" = R,
                   tabledata "Analysis View Budget Entry" = R,
                   tabledata "Analysis View Entry" = R,
@@ -28,9 +31,9 @@ permissionset 5417 "Account Schedules - View"
                   tabledata "Column Layout Name" = R,
                   tabledata Dimension = R,
                   tabledata "Dimension Value" = R,
-#if not CLEAN20
                   tabledata "Export Acc. Schedule" = R,
-#endif
                   tabledata "G/L Account" = R,
                   tabledata "G/L Budget Name" = R;
 }
+
+#endif

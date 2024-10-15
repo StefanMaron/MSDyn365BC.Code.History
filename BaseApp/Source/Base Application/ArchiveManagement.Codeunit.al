@@ -1,4 +1,3 @@
-#if not CLEAN18
 codeunit 5063 ArchiveManagement
 {
 
@@ -7,6 +6,10 @@ codeunit 5063 ArchiveManagement
     end;
 
     var
+        DeferralUtilities: Codeunit "Deferral Utilities";
+        RecordLinkManagement: Codeunit "Record Link Management";
+        ReleaseSalesDoc: Codeunit "Release Sales Document";
+
         Text001: Label 'Document %1 has been archived.';
         Text002: Label 'Do you want to Restore %1 %2 Version %3?';
         Text003: Label '%1 %2 has been restored.';
@@ -15,10 +18,7 @@ codeunit 5063 ArchiveManagement
         Text006: Label 'Entries exist for on or more of the following:\  - %1\  - %2\  - %3.\Restoration of document will delete these entries.\Continue with restore?';
         Text007: Label 'Archive %1 no.: %2?';
         Text008: Label 'Item Tracking Line';
-        ReleaseSalesDoc: Codeunit "Release Sales Document";
         Text009: Label 'Unposted %1 %2 does not exist anymore.\It is not possible to restore the %1.';
-        DeferralUtilities: Codeunit "Deferral Utilities";
-        RecordLinkManagement: Codeunit "Record Link Management";
 
     procedure AutoArchiveSalesDocument(var SalesHeader: Record "Sales Header")
     var
@@ -135,7 +135,6 @@ codeunit 5063 ArchiveManagement
         SalesLine: Record "Sales Line";
         SalesHeaderArchive: Record "Sales Header Archive";
         SalesLineArchive: Record "Sales Line Archive";
-        SalesHeaderArchiveLast: Record "Sales Header Archive";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -146,28 +145,16 @@ codeunit 5063 ArchiveManagement
         SalesHeaderArchive.Init();
         SalesHeaderArchive.TransferFields(SalesHeader);
         SalesHeaderArchive."Archived By" := UserId;
-        SalesHeaderArchive."Date Archived" := WorkDate;
+        SalesHeaderArchive."Date Archived" := WorkDate();
         SalesHeaderArchive."Time Archived" := Time;
         SalesHeaderArchive."Version No." :=
             GetNextVersionNo(
                 DATABASE::"Sales Header", SalesHeader."Document Type".AsInteger(), SalesHeader."No.", SalesHeader."Doc. No. Occurrence");
         SalesHeaderArchive."Interaction Exist" := InteractionExist;
-        // NAVCZ
-        SalesHeaderArchive."Last Version" := true;
-        // NAVCZ
         RecordLinkManagement.CopyLinks(SalesHeader, SalesHeaderArchive);
         OnBeforeSalesHeaderArchiveInsert(SalesHeaderArchive, SalesHeader);
         SalesHeaderArchive.Insert();
         OnAfterSalesHeaderArchiveInsert(SalesHeaderArchive, SalesHeader);
-        // NAVCZ
-        if SalesHeaderArchive."Version No." > 1 then
-            if SalesHeaderArchiveLast.Get(SalesHeaderArchive."Document Type", SalesHeaderArchive."No.",
-                 SalesHeaderArchive."Doc. No. Occurrence", SalesHeaderArchive."Version No." - 1)
-            then begin
-                SalesHeaderArchiveLast."Last Version" := false;
-                SalesHeaderArchiveLast.Modify();
-            end;
-        // NAVCZ
 
         StoreSalesDocumentComments(
             SalesHeader."Document Type".AsInteger(), SalesHeader."No.", SalesHeader."Doc. No. Occurrence", SalesHeaderArchive."Version No.");
@@ -177,13 +164,13 @@ codeunit 5063 ArchiveManagement
         if SalesLine.FindSet() then
             repeat
                 with SalesLineArchive do begin
-                    Init;
+                    Init();
                     TransferFields(SalesLine);
                     "Doc. No. Occurrence" := SalesHeader."Doc. No. Occurrence";
                     "Version No." := SalesHeaderArchive."Version No.";
                     RecordLinkManagement.CopyLinks(SalesLine, SalesLineArchive);
                     OnBeforeSalesLineArchiveInsert(SalesLineArchive, SalesLine);
-                    Insert;
+                    Insert();
                 end;
                 if SalesLine."Deferral Code" <> '' then
                     StoreDeferrals(
@@ -201,7 +188,6 @@ codeunit 5063 ArchiveManagement
         PurchLine: Record "Purchase Line";
         PurchHeaderArchive: Record "Purchase Header Archive";
         PurchLineArchive: Record "Purchase Line Archive";
-        PurchHeaderArchiveLast: Record "Purchase Header Archive";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -212,28 +198,16 @@ codeunit 5063 ArchiveManagement
         PurchHeaderArchive.Init();
         PurchHeaderArchive.TransferFields(PurchHeader);
         PurchHeaderArchive."Archived By" := UserId;
-        PurchHeaderArchive."Date Archived" := WorkDate;
+        PurchHeaderArchive."Date Archived" := WorkDate();
         PurchHeaderArchive."Time Archived" := Time;
         PurchHeaderArchive."Version No." :=
             GetNextVersionNo(
                 DATABASE::"Purchase Header", PurchHeader."Document Type".AsInteger(), PurchHeader."No.", PurchHeader."Doc. No. Occurrence");
         PurchHeaderArchive."Interaction Exist" := InteractionExist;
-        // NAVCZ
-        PurchHeaderArchive."Last Version" := true;
-        // NAVCZ
         RecordLinkManagement.CopyLinks(PurchHeader, PurchHeaderArchive);
         OnBeforePurchHeaderArchiveInsert(PurchHeaderArchive, PurchHeader);
         PurchHeaderArchive.Insert();
         OnAfterPurchHeaderArchiveInsert(PurchHeaderArchive, PurchHeader);
-        // NAVCZ
-        if PurchHeaderArchive."Version No." > 1 then
-            if PurchHeaderArchiveLast.Get(PurchHeaderArchive."Document Type", PurchHeaderArchive."No.",
-                 PurchHeaderArchive."Doc. No. Occurrence", PurchHeaderArchive."Version No." - 1)
-            then begin
-                PurchHeaderArchiveLast."Last Version" := false;
-                PurchHeaderArchiveLast.Modify();
-            end;
-        // NAVCZ
 
         StorePurchDocumentComments(
             PurchHeader."Document Type".AsInteger(), PurchHeader."No.", PurchHeader."Doc. No. Occurrence", PurchHeaderArchive."Version No.");
@@ -243,13 +217,13 @@ codeunit 5063 ArchiveManagement
         if PurchLine.FindSet() then
             repeat
                 with PurchLineArchive do begin
-                    Init;
+                    Init();
                     TransferFields(PurchLine);
                     "Doc. No. Occurrence" := PurchHeader."Doc. No. Occurrence";
                     "Version No." := PurchHeaderArchive."Version No.";
                     RecordLinkManagement.CopyLinks(PurchLine, PurchLineArchive);
                     OnBeforePurchLineArchiveInsert(PurchLineArchive, PurchLine);
-                    Insert;
+                    Insert();
                 end;
                 if PurchLine."Deferral Code" <> '' then
                     StoreDeferrals(
@@ -320,7 +294,7 @@ codeunit 5063 ArchiveManagement
         if ConfirmRequired then begin
             if ConfirmManagement.GetResponseOrDefault(
                  StrSubstNo(
-                   Text006, ReservEntry.TableCaption, ItemChargeAssgntSales.TableCaption, Text008), true)
+                   Text006, ReservEntry.TableCaption(), ItemChargeAssgntSales.TableCaption(), Text008), true)
             then
                 RestoreDocument := true;
         end else
@@ -338,7 +312,7 @@ codeunit 5063 ArchiveManagement
                 SalesHeader."Opportunity No." := '';
             end;
             OnRestoreDocumentOnBeforeDeleteSalesHeader(SalesHeader);
-            SalesHeader.DeleteLinks;
+            SalesHeader.DeleteLinks();
             SalesHeader.Delete(true);
             OnRestoreDocumentOnAfterDeleteSalesHeader(SalesHeader);
 
@@ -394,7 +368,7 @@ codeunit 5063 ArchiveManagement
         if SalesLineArchive.FindSet() then
             repeat
                 with SalesLine do begin
-                    Init;
+                    Init();
                     TransferFields(SalesLineArchive);
                     OnRestoreSalesLinesOnBeforeSalesLineInsert(SalesLine, SalesLineArchive);
                     Insert(true);
@@ -670,7 +644,7 @@ codeunit 5063 ArchiveManagement
         SalesCommentLine."No." := SalesHeader."No.";
         SalesCommentLine."Document Line No." := 0;
         SalesCommentLine."Line No." := NextLine;
-        SalesCommentLine.Date := WorkDate;
+        SalesCommentLine.Date := WorkDate();
         SalesCommentLine.Comment := StrSubstNo(Text004, Format(SalesHeaderArchive."Version No."));
         SalesCommentLine.Insert();
     end;
@@ -935,4 +909,4 @@ codeunit 5063 ArchiveManagement
     begin
     end;
 }
-#endif
+

@@ -9,7 +9,7 @@ codeunit 11708 "Issue Payment Order + Print"
     trigger OnRun()
     begin
         PmtOrdHdr.Copy(Rec);
-        Code;
+        Code();
         Rec := PmtOrdHdr;
     end;
 
@@ -34,14 +34,14 @@ codeunit 11708 "Issue Payment Order + Print"
         IssuedPmtOrdHdr.Get(PmtOrdHdr."Last Issuing No.");
 
         if Selection = 2 then
-            IssuedPmtOrdHdr.ExportPmtOrd;
+            IssuedPmtOrdHdr.ExportPmtOrd();
 
         PrintPaymentOrder(IssuedPmtOrdHdr);
     end;
 
     local procedure PrintPaymentOrder(var IssuedPmtOrdHdr: Record "Issued Payment Order Header")
     begin
-        IssuedPmtOrdHdr.SetRecFilter;
+        IssuedPmtOrdHdr.SetRecFilter();
         IssuedPmtOrdHdr.PrintRecords(false);
     end;
 }

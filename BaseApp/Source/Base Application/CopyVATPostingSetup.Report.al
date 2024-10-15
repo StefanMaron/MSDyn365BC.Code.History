@@ -1,3 +1,4 @@
+﻿#if not CLEAN21
 report 85 "Copy - VAT Posting Setup"
 {
     Caption = 'Copy - VAT Posting Setup';
@@ -13,13 +14,13 @@ report 85 "Copy - VAT Posting Setup"
             var
                 ConfirmManagement: Codeunit "Confirm Management";
             begin
-                VATPostingSetup.Find;
+                VATPostingSetup.Find();
                 if VATSetup then begin
                     "VAT Calculation Type" := VATPostingSetup."VAT Calculation Type";
                     "VAT %" := VATPostingSetup."VAT %";
                     "Unrealized VAT Type" := VATPostingSetup."Unrealized VAT Type";
                     "Adjust for Payment Discount" := VATPostingSetup."Adjust for Payment Discount";
-
+                    
                     // NAVCZ
                     "VAT Clause Code" := VATPostingSetup."VAT Clause Code";
                     "VAT Identifier" := VATPostingSetup."VAT Identifier";
@@ -56,7 +57,7 @@ report 85 "Copy - VAT Posting Setup"
                 OnAfterCopyVATPostingSetup("VAT Posting Setup", VATPostingSetup, Sales, Purch, VATSetup);
 
                 if ConfirmManagement.GetResponseOrDefault(Text000, true) then
-                    Modify;
+                    Modify();
             end;
 
             trigger OnPreDataItem()
@@ -102,7 +103,7 @@ report 85 "Copy - VAT Posting Setup"
                         trigger OnValidate()
                         begin
                             if Selection = Selection::"All fields" then
-                                AllfieldsSelectionOnValidate;
+                                AllfieldsSelectionOnValidate();
                         end;
                     }
                     field(VATetc; VATSetup)
@@ -141,8 +142,12 @@ report 85 "Copy - VAT Posting Setup"
                     field(VIES; VIES)
                     {
                         ApplicationArea = Basic, Suite;
-                        Caption = 'VIES';
+                        Caption = 'VIES (Obsolete)';
                         ToolTip = 'Specifies if vies fields will be copied';
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                        ObsoleteTag = '21.0';
+                        Visible = false;
 
                         trigger OnValidate()
                         begin
@@ -153,7 +158,7 @@ report 85 "Copy - VAT Posting Setup"
                     field(Adv; Adv)
                     {
                         ApplicationArea = Basic, Suite;
-                        Caption = 'Advance';
+                        Caption = 'Advance (Obsolete)';
                         ToolTip = 'Specifies if the advance G/L accounts have to be copied.';
                         ObsoleteState = Pending;
                         ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
@@ -196,6 +201,8 @@ report 85 "Copy - VAT Posting Setup"
 
     var
         Text000: Label 'Copy VAT Posting Setup?';
+
+    protected var
         UseVATPostingSetup: Record "VAT Posting Setup";
         VATPostingSetup: Record "VAT Posting Setup";
         VATSetup: Boolean;
@@ -227,7 +234,7 @@ report 85 "Copy - VAT Posting Setup"
 
     local procedure AllfieldsSelectionOnValidate()
     begin
-        AllfieldsSelectionOnPush;
+        AllfieldsSelectionOnPush();
     end;
 
     [IntegrationEvent(false, false)]
@@ -235,3 +242,4 @@ report 85 "Copy - VAT Posting Setup"
     begin
     end;
 }
+#endif

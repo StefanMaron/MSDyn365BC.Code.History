@@ -1,4 +1,4 @@
-﻿table 83 "Item Journal Line"
+table 83 "Item Journal Line"
 {
     Caption = 'Item Journal Line';
     DrillDownPageID = "Item Journal Lines";
@@ -57,10 +57,10 @@
                     exit;
                 end;
 
-                GetItem;
+                GetItem();
                 OnValidateItemNoOnAfterGetItem(Rec, Item);
                 DisplayErrorIfItemIsBlocked(Item);
-                ValidateTypeWithItemNo;
+                ValidateTypeWithItemNo();
 
                 if "Value Entry Type" = "Value Entry Type"::Revaluation then
                     Item.TestField("Inventory Value Zero", false);
@@ -68,15 +68,7 @@
                 Description := Item.Description;
                 "Inventory Posting Group" := Item."Inventory Posting Group";
                 "Item Category Code" := Item."Item Category Code";
-#if not CLEAN18
-                // NAVCZ
-                if "Item No." <> xRec."Item No." then begin
-                    "Tariff No." := Item."Tariff No.";
-                    "Net Weight" := Item."Net Weight";
-                    "Country/Region of Origin Code" := Item."Country/Region of Origin Code";
-                end;
-                // NAVCZ
-#endif
+
                 if ("Value Entry Type" <> "Value Entry Type"::"Direct Cost") or
                    ("Item Charge No." <> '')
                 then begin
@@ -105,12 +97,8 @@
                    ((("Entry Type" = "Entry Type"::Output) and (WorkCenter."No." = '') and (MachineCenter."No." = '')) or
                    ("Entry Type" <> "Entry Type"::Output)) or
                    ("Value Entry Type" = "Value Entry Type"::Revaluation)
-                then begin
+                then
                     "Gen. Prod. Posting Group" := Item."Gen. Prod. Posting Group";
-#if not CLEAN18
-                    xSetGPPGfromSKU; // NAVCZ
-#endif
-                end;
 
                 case "Entry Type" of
                     "Entry Type"::Purchase,
@@ -157,14 +145,9 @@
 
                             ShouldCopyFromSingleProdOrderLine := ProdOrderLine.Count = 1;
                             OnValidateItemNoOnAfterCalcShouldCopyFromSingleProdOrderLine(Rec, xRec, ProdOrderLine, ShouldCopyFromSingleProdOrderLine);
-                            if ShouldCopyFromSingleProdOrderLine then begin
-                                CopyFromProdOrderLine(ProdOrderLine);
-                                // NAVCZ
-                                RetrieveCosts;
-                                "Unit Cost" := UnitCost;
-                                "Unit Amount" := UnitCost;
-                                // NAVCZ
-                            end else
+                            if ShouldCopyFromSingleProdOrderLine then
+                                CopyFromProdOrderLine(ProdOrderLine)
+                            else
                                 if "Order Line No." <> 0 then begin
                                     ProdOrderLine.SetRange("Line No.", "Order Line No.");
                                     if ProdOrderLine.FindFirst() then
@@ -225,6 +208,7 @@
             begin
                 if not ("Entry Type" in ["Entry Type"::"Positive Adjmt.", "Entry Type"::"Negative Adjmt."]) then
                     TestField("Phys. Inventory", false);
+
                 if CurrFieldNo <> 0 then begin
                     GetItem();
                     if Item.IsInventoriableType() then
@@ -234,11 +218,11 @@
                 case "Entry Type" of
                     "Entry Type"::Purchase:
                         if UserMgt.GetRespCenter(1, '') <> '' then
-                            "Location Code" := UserMgt.GetLocation(1, '', UserMgt.GetPurchasesFilter);
+                            "Location Code" := UserMgt.GetLocation(1, '', UserMgt.GetPurchasesFilter());
                     "Entry Type"::Sale:
                         begin
                             if UserMgt.GetRespCenter(0, '') <> '' then
-                                "Location Code" := UserMgt.GetLocation(0, '', UserMgt.GetSalesFilter);
+                                "Location Code" := UserMgt.GetLocation(0, '', UserMgt.GetSalesFilter());
                             CheckItemAvailable(FieldNo("Entry Type"));
                         end;
                     "Entry Type"::Consumption, "Entry Type"::Output:
@@ -333,16 +317,6 @@
 
                 Validate("Unit of Measure Code");
 
-#if not CLEAN18
-                // NAVCZ
-                if (("Entry Type" = "Entry Type"::Output) and (WorkCenter."No." = '') and (MachineCenter."No." = '')) or
-                   ("Entry Type" <> "Entry Type"::Output) or
-                   ("Value Entry Type" = "Value Entry Type"::Revaluation)
-                then
-                    xSetGPPGfromSKU;
-                // NAVCZ
-
-#endif
                 ItemJnlLineReserve.VerifyChange(Rec, xRec);
             end;
         }
@@ -406,16 +380,10 @@
                 OnValidateQuantityOnBeforeGetUnitAmount(Rec, xRec, CurrFieldNo);
 
                 GetUnitAmount(FieldNo(Quantity));
-                UpdateAmount;
+                UpdateAmount();
 
                 CheckItemAvailable(FieldNo(Quantity));
-#if not CLEAN18
-                // NAVCZ
-                ReadGLSetup;
-                if GLSetup."Mark Neg. Qty as Correction" then
-                    "G/L Correction" := (Quantity < 0) or ("Invoiced Quantity" < 0);
-                // NAVCZ
-#endif
+
                 if "Entry Type" = "Entry Type"::Transfer then begin
                     "Qty. (Calculated)" := 0;
                     "Qty. (Phys. Inventory)" := 0;
@@ -441,7 +409,7 @@
 
             trigger OnValidate()
             begin
-                UpdateAmount;
+                UpdateAmount();
                 if "Item No." <> '' then
                     if "Value Entry Type" = "Value Entry Type"::Revaluation then
                         "Unit Cost" := "Unit Amount"
@@ -452,7 +420,7 @@
                             "Entry Type"::"Assembly Output":
                                 begin
                                     if "Entry Type" = "Entry Type"::"Positive Adjmt." then begin
-                                        GetItem;
+                                        GetItem();
                                         if (CurrFieldNo = FieldNo("Unit Amount")) and
                                            (Item."Costing Method" = Item."Costing Method"::Standard)
                                         then
@@ -461,7 +429,7 @@
                                               FieldCaption("Unit Amount"), Item.FieldCaption("Costing Method"), Item."Costing Method");
                                     end;
 
-                                    ReadGLSetup;
+                                    ReadGLSetup();
                                     if "Entry Type" = "Entry Type"::Purchase then
                                         "Unit Cost" := "Unit Amount";
                                     if "Entry Type" = "Entry Type"::"Positive Adjmt." then
@@ -478,7 +446,7 @@
                             "Entry Type"::Consumption,
                             "Entry Type"::"Assembly Consumption":
                                 begin
-                                    GetItem;
+                                    GetItem();
                                     if (CurrFieldNo = FieldNo("Unit Amount")) and
                                        (Item."Costing Method" = Item."Costing Method"::Standard)
                                     then
@@ -502,7 +470,7 @@
             trigger OnValidate()
             begin
                 TestField("Item No.");
-                RetrieveCosts;
+                RetrieveCosts();
                 if "Entry Type" in ["Entry Type"::Purchase, "Entry Type"::"Positive Adjmt.", "Entry Type"::Consumption] then
                     if Item."Costing Method" = Item."Costing Method"::Standard then begin
                         if CurrFieldNo = FieldNo("Unit Cost") then
@@ -522,7 +490,7 @@
                         "Entry Type"::"Positive Adjmt.",
                         "Entry Type"::"Assembly Output":
                             begin
-                                ReadGLSetup;
+                                ReadGLSetup();
                                 "Unit Amount" :=
                                   Round(
                                     ("Unit Cost" - "Overhead Rate" * "Qty. per Unit of Measure") / (1 + "Indirect Cost %" / 100),
@@ -539,7 +507,7 @@
                                 "Unit Amount" := "Unit Cost";
                             end;
                     end;
-                    UpdateAmount;
+                    UpdateAmount();
                 end;
             end;
         }
@@ -560,7 +528,7 @@
                 TestField(Quantity);
                 "Unit Amount" := Amount / Quantity;
                 Validate("Unit Amount");
-                ReadGLSetup;
+                ReadGLSetup();
                 "Unit Amount" := Round("Unit Amount", GLSetup."Unit-Amount Rounding Precision");
             end;
         }
@@ -703,7 +671,7 @@
                       Text002,
                       FieldCaption("Indirect Cost %"), FieldCaption("Entry Type"), "Entry Type");
 
-                GetItem;
+                GetItem();
                 if Item."Costing Method" = Item."Costing Method"::Standard then
                     Error(
                       Text002,
@@ -989,7 +957,7 @@
                             case "Order Type" of
                                 "Order Type"::Production:
                                     begin
-                                        GetMfgSetup;
+                                        GetMfgSetup();
                                         if MfgSetup."Doc. No. Is Prod. Order No." then
                                             "Document No." := "Order No.";
                                         ProdOrder.Get(ProdOrder.Status::Released, "Order No.");
@@ -1030,9 +998,9 @@
                             if ("Order No." <> xRec."Order No.") or ("Order Type" <> xRec."Order Type") then
                                 case "Order Type" of
                                     "Order Type"::Production:
-                                        CreateProdDim;
+                                        CreateProdDim();
                                     "Order Type"::Assembly:
-                                        CreateAssemblyDim;
+                                        CreateAssemblyDim();
                                 end;
                         end;
                     "Order Type"::Transfer, "Order Type"::Service, "Order Type"::" ":
@@ -1078,9 +1046,9 @@
                             if "Order Line No." <> xRec."Order Line No." then
                                 case "Order Type" of
                                     "Order Type"::Production:
-                                        CreateProdDim;
+                                        CreateProdDim();
                                     "Order Type"::Assembly:
-                                        CreateAssemblyDim;
+                                        CreateAssemblyDim();
                                 end;
                         end;
                     else
@@ -1170,20 +1138,11 @@
                     ItemJnlLineReserve.VerifyChange(Rec, xRec);
                 end;
 
-#if not CLEAN18
-                // NAVCZ
-                if (("Entry Type" = "Entry Type"::Output) and (WorkCenter."No." = '') and (MachineCenter."No." = '')) or
-                   ("Entry Type" <> "Entry Type"::Output) or
-                   ("Value Entry Type" = "Value Entry Type"::Revaluation)
-                then
-                    xSetGPPGfromSKU;
-                // NAVCZ
-#endif
                 if "Variant Code" <> '' then begin
                     ItemVariant.Get("Item No.", "Variant Code");
                     Description := ItemVariant.Description;
                 end else begin
-                    GetItem;
+                    GetItem();
                     Description := Item.Description;
                 end;
             end;
@@ -1304,7 +1263,7 @@
                 if IsHandled then
                     exit;
 
-                GetItem;
+                GetItem();
                 "Qty. per Unit of Measure" := UOMMgt.GetQtyPerUnitOfMeasure(Item, "Unit of Measure Code");
                 "Qty. Rounding Precision" := UOMMgt.GetQtyRoundingPrecision(Item, "Unit of Measure Code");
                 "Qty. Rounding Precision (Base)" := UOMMgt.GetQtyRoundingPrecision(Item, Item."Base Unit of Measure");
@@ -1320,7 +1279,7 @@
                 if "Value Entry Type" = "Value Entry Type"::Revaluation then
                     TestField("Qty. per Unit of Measure", 1);
 
-                ReadGLSetup;
+                ReadGLSetup();
                 IsHandled := false;
                 OnValidateUnitOfMeasureCodeOnBeforeCalcUnitCost(Rec, UnitCost, IsHandled);
                 if not IsHandled then
@@ -1505,7 +1464,7 @@
 
             trigger OnValidate()
             begin
-                ReadGLSetup;
+                ReadGLSetup();
                 "Unit Cost (Calculated)" :=
                   Round("Inventory Value (Calculated)" / Quantity, GLSetup."Unit-Amount Rounding Precision");
             end;
@@ -1520,7 +1479,7 @@
             begin
                 TestField("Value Entry Type", "Value Entry Type"::Revaluation);
                 Validate(Amount, "Inventory Value (Revalued)" - "Inventory Value (Calculated)");
-                ReadGLSetup;
+                ReadGLSetup();
                 if ("Unit Cost (Revalued)" <> xRec."Unit Cost (Revalued)") or
                    ("Inventory Value (Revalued)" <> xRec."Inventory Value (Revalued)")
                 then begin
@@ -1529,7 +1488,7 @@
                           Round("Inventory Value (Revalued)" / Quantity, GLSetup."Unit-Amount Rounding Precision");
 
                     if CurrFieldNo <> 0 then
-                        ClearSingleAndRolledUpCosts;
+                        ClearSingleAndRolledUpCosts();
                 end
             end;
         }
@@ -1581,7 +1540,7 @@
 
                     OnValidateAppliesfromEntryOnBeforeCheckTrackingExistsError(Rec, ItemLedgEntry, IsHandled);
                     if not IsHandled then
-                        if ItemLedgEntry.TrackingExists then
+                        if ItemLedgEntry.TrackingExists() then
                             Error(Text033, FieldCaption("Applies-from Entry"), ItemTrackingLines.Caption);
 #if not CLEAN19
                     // NAVCZ
@@ -1599,7 +1558,7 @@
                     else
                         // NAVCZ
 #endif
-                        "Unit Cost" := CalcUnitCost(ItemLedgEntry);
+                    "Unit Cost" := CalcUnitCost(ItemLedgEntry);
                 end;
             end;
         }
@@ -1626,7 +1585,7 @@
 
             trigger OnValidate()
             begin
-                ReadGLSetup;
+                ReadGLSetup();
                 TestField("Value Entry Type", "Value Entry Type"::Revaluation);
                 if "Unit Cost (Revalued)" <> xRec."Unit Cost (Revalued)" then
                     Validate(
@@ -1648,7 +1607,7 @@
             trigger OnValidate()
             begin
                 TestField("Inventory Value Per");
-                GetItem;
+                GetItem();
                 Item.TestField("Costing Method", Item."Costing Method"::Standard);
             end;
         }
@@ -1712,7 +1671,7 @@
                     "Work Center Group Code" := '';
                     Validate("Item No.");
                     if Type in [Type::"Work Center", Type::"Machine Center"] then
-                        CreateDimWithProdOrderLine
+                        CreateDimWithProdOrderLine()
                     else
                         CreateDimFromDefaultDim(Rec.FieldNo("Work Center No."));
                     exit;
@@ -1748,7 +1707,7 @@
                 end;
 
                 if "Work Center No." <> '' then
-                    CreateDimWithProdOrderLine;
+                    CreateDimWithProdOrderLine();
             end;
         }
         field(5838; "Operation No."; Code[10])
@@ -1771,7 +1730,7 @@
                 TestField("Order No.");
                 TestField("Item No.");
 
-                CheckConfirmOutputOnFinishedOperation;
+                CheckConfirmOutputOnFinishedOperation();
                 GetProdOrderRtngLine(ProdOrderRtngLine);
 
                 case ProdOrderRtngLine.Type of
@@ -1798,7 +1757,7 @@
 
             trigger OnValidate()
             begin
-                if SubcontractingWorkCenterUsed and ("Setup Time" <> 0) then
+                if SubcontractingWorkCenterUsed() and ("Setup Time" <> 0) then
                     Error(SubcontractedErr, FieldCaption("Setup Time"), "Line No.");
                 "Setup Time (Base)" := CalcBaseTime("Setup Time");
             end;
@@ -1811,7 +1770,7 @@
 
             trigger OnValidate()
             begin
-                if SubcontractingWorkCenterUsed and ("Run Time" <> 0) then
+                if SubcontractingWorkCenterUsed() and ("Run Time" <> 0) then
                     Error(SubcontractedErr, FieldCaption("Run Time"), "Line No.");
 
                 "Run Time (Base)" := CalcBaseTime("Run Time");
@@ -1837,10 +1796,10 @@
             trigger OnValidate()
             begin
                 TestField("Entry Type", "Entry Type"::Output);
-                if SubcontractingWorkCenterUsed and ("Output Quantity" <> 0) then
+                if SubcontractingWorkCenterUsed() and ("Output Quantity" <> 0) then
                     Error(SubcontractedErr, FieldCaption("Output Quantity"), "Line No.");
 
-                CheckConfirmOutputOnFinishedOperation;
+                CheckConfirmOutputOnFinishedOperation();
 
                 if LastOutputOperation(Rec) then begin
                     GetItem();
@@ -1981,7 +1940,7 @@
                       Round(
                         CalendarMgt.QtyperTimeUnitofMeasure(
                           "Work Center No.", "Cap. Unit of Measure Code"),
-                        UOMMgt.QtyRndPrecision);
+                        UOMMgt.QtyRndPrecision());
 
                     Validate("Setup Time");
                     Validate("Run Time");
@@ -2004,7 +1963,7 @@
                             OnValidateCapUnitOfMeasureCodeOnCaseOrderTypeElse(Rec);
                     end;
 
-                ReadGLSetup;
+                ReadGLSetup();
                 "Unit Cost" :=
                   Round("Unit Cost" * "Qty. per Cap. Unit of Measure", GLSetup."Unit-Amount Rounding Precision");
                 "Unit Amount" :=
@@ -2201,13 +2160,9 @@
         field(11763; "G/L Correction"; Boolean)
         {
             Caption = 'G/L Correction';
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(11790; "Source No. 2"; Code[20])
         {
@@ -2225,13 +2180,9 @@
             TableRelation = IF ("Source Type" = CONST(Customer)) "Ship-to Address".Code WHERE("Customer No." = FIELD("Source No."))
             ELSE
             IF ("Source Type" = CONST(Vendor)) "Order Address".Code WHERE("Vendor No." = FIELD("Source No."));
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(31043; "FA No."; Code[20])
         {
@@ -2260,32 +2211,16 @@
         {
             Caption = 'Tariff No.';
             TableRelation = "Tariff Number";
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
-#if not CLEAN18
-
-            trigger OnValidate()
-            begin
-                if "Tariff No." <> xRec."Tariff No." then
-                    "Statistic Indication" := '';
-            end;
-#endif
+            ObsoleteTag = '21.0';
         }
         field(31063; "Physical Transfer"; Boolean)
         {
             Caption = 'Physical Transfer';
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(31065; "Shipment Method Code"; Code[10])
         {
@@ -2298,24 +2233,16 @@
         field(31066; "Net Weight"; Decimal)
         {
             Caption = 'Net Weight';
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(31069; "Incl. in Intrastat Stat. Value"; Boolean)
         {
             Caption = 'Incl. in Intrastat Stat. Value';
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
 
             trigger OnValidate()
             begin
@@ -2325,13 +2252,9 @@
         field(31070; "Incl. in Intrastat Amount"; Boolean)
         {
             Caption = 'Incl. in Intrastat Amount';
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
 
             trigger OnValidate()
             begin
@@ -2342,58 +2265,38 @@
         {
             Caption = 'Country/Region of Origin Code';
             TableRelation = "Country/Region";
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(31072; "Statistic Indication"; Code[10])
         {
             Caption = 'Statistic Indication';
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(31074; "Currency Code"; Code[10])
         {
             Caption = 'Currency Code';
             TableRelation = Currency;
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(31075; "Currency Factor"; Decimal)
         {
             Caption = 'Currency Factor';
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(31076; "Intrastat Transaction"; Boolean)
         {
             Caption = 'Intrastat Transaction';
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(31077; "Whse. Net Change Template"; Code[10])
         {
@@ -2518,14 +2421,14 @@
         ValidateNewShortcutDimCode(1, "New Shortcut Dimension 1 Code");
         ValidateNewShortcutDimCode(2, "New Shortcut Dimension 2 Code");
 
-        CheckPlanningAssignment;
+        CheckPlanningAssignment();
     end;
 
     trigger OnModify()
     begin
         OnBeforeVerifyReservedQty(Rec, xRec, 0);
         ItemJnlLineReserve.VerifyChange(Rec, xRec);
-        CheckPlanningAssignment;
+        CheckPlanningAssignment();
     end;
 
     trigger OnRename()
@@ -2547,9 +2450,6 @@
         MachineCenter: Record "Machine Center";
         Location: Record Location;
         Bin: Record Bin;
-#if not CLEAN18
-        StatReportingSetup: Record "Stat. Reporting Setup";
-#endif
         ItemCheckAvail: Codeunit "Item-Check Avail.";
         ItemJnlLineReserve: Codeunit "Item Jnl. Line-Reserve";
         NoSeriesMgt: Codeunit NoSeriesManagement;
@@ -2571,7 +2471,6 @@
         Text032: Label 'When posting, the entry %1 will be opened first.';
         Text033: Label 'If the item carries serial or lot numbers, then you must use the %1 field in the %2 window.';
         RevaluationPerEntryNotAllowedErr: Label 'This item has already been revalued with the Calculate Inventory Value function, so you cannot use the Applies-to Entry field as that may change the valuation.';
-        Text26500: Label '%1 is required for Item %2.';
         SubcontractedErr: Label '%1 must be zero in line number %2 because it is linked to the subcontracted work center.', Comment = '%1 - Field Caption, %2 - Line No.';
         FinishedOutputQst: Label 'The operation has been finished. Do you want to post output for the finished operation?';
         SalesBlockedErr: Label 'You cannot sell this item because the Sales Blocked check box is selected on the item card.';
@@ -2589,7 +2488,7 @@
     begin
         exit(
           (Quantity = 0) and
-          ((TimeIsEmpty and ("Item No." = '')) or
+          ((TimeIsEmpty() and ("Item No." = '')) or
            ("Value Entry Type" = "Value Entry Type"::Revaluation)));
     end;
 
@@ -2604,7 +2503,7 @@
     begin
         if "Run Time" <> 0 then
             TestField("Qty. per Cap. Unit of Measure");
-        exit(Round(Qty * "Qty. per Cap. Unit of Measure", UOMMgt.TimeRndPrecision));
+        exit(Round(Qty * "Qty. per Cap. Unit of Measure", UOMMgt.TimeRndPrecision()));
     end;
 
     procedure UpdateAmount()
@@ -2711,7 +2610,7 @@
            ("Value Entry Type" = "Value Entry Type"::"Direct Cost") and ("Item Charge No." = '')
         then
             if ItemCheckAvail.ItemJnlCheckLine(Rec) then
-                ItemCheckAvail.RaiseUpdateInterruptedError;
+                ItemCheckAvail.RaiseUpdateInterruptedError();
     end;
 
     local procedure CheckProdOrderCompBinCode()
@@ -2777,8 +2676,8 @@
             end else
                 "Document No." := LastItemJnlLine."Document No.";
         end else begin
-            "Posting Date" := WorkDate;
-            "Document Date" := WorkDate;
+            "Posting Date" := WorkDate();
+            "Document Date" := WorkDate();
             if ItemJnlBatch."No. Series" <> '' then begin
                 Clear(NoSeriesMgt);
                 "Document No." := NoSeriesMgt.TryGetNextNo(ItemJnlBatch."No. Series", "Posting Date");
@@ -2805,9 +2704,9 @@
 
         case "Entry Type" of
             "Entry Type"::Purchase:
-                "Location Code" := UserMgt.GetLocation(1, '', UserMgt.GetPurchasesFilter);
+                "Location Code" := UserMgt.GetLocation(1, '', UserMgt.GetPurchasesFilter());
             "Entry Type"::Sale:
-                "Location Code" := UserMgt.GetLocation(0, '', UserMgt.GetSalesFilter);
+                "Location Code" := UserMgt.GetLocation(0, '', UserMgt.GetSalesFilter());
             "Entry Type"::Output:
                 Clear(DimMgt);
         end;
@@ -3056,26 +2955,6 @@
         end;
     end;
 
-#if not CLEAN18
-    [Obsolete('Merge to W1', '18.0')]
-    procedure CreateDim(Type1: Integer; No1: Code[20]; Type2: Integer; No2: Code[20]; Type3: Integer; No3: Code[20]; Type4: Integer; No4: Code[20])
-    var
-        TableID: array[10] of Integer;
-        No: array[10] of Code[20];
-    begin
-        CreateTableArray(TableID, Type1, Type2, Type3);
-        // NAVCZ
-        TableID[4] := Type4;
-        // NAVCZ
-        CreateCodeArray(No, No1, No2, No3);
-        // NAVCZ
-        No[4] := No4;
-        // NAVCZ
-        OnAfterCreateDimTableIDs(Rec, CurrFieldNo, TableID, No);
-        PickDimension(TableID, No, 0, 0);
-    end;
-#endif
-
     procedure CopyDim(DimesionSetID: Integer)
     var
         DimSetEntry: Record "Dimension Set Entry";
@@ -3086,7 +2965,7 @@
         if IsHandled then
             exit;
 
-        ReadGLSetup;
+        ReadGLSetup();
         "Dimension Set ID" := DimesionSetID;
         DimSetEntry.SetRange("Dimension Set ID", DimesionSetID);
         DimSetEntry.SetRange("Dimension Code", GLSetup."Global Dimension 1 Code");
@@ -3316,14 +3195,6 @@
         "Source Currency Code" := SalesHeader."Currency Code";
         "Shpt. Method Code" := SalesHeader."Shipment Method Code";
         "Price Calculation Method" := SalesHeader."Price Calculation Method";
-#if not CLEAN18
-        // NAVCZ
-        "Source No. 3" := SalesHeader."Ship-to Code";
-        "Currency Code" := SalesHeader."Currency Code";
-        "Currency Factor" := SalesHeader."Currency Factor";
-        "Physical Transfer" := SalesHeader."Physical Transfer";
-        // NAVCZ
-#endif
 
         OnAfterCopyItemJnlLineFromSalesHeader(Rec, SalesHeader);
     end;
@@ -3370,16 +3241,6 @@
         "Source No." := SalesLine."Sell-to Customer No.";
         "Price Calculation Method" := SalesLine."Price Calculation Method";
         "Invoice-to Source No." := SalesLine."Bill-to Customer No.";
-#if not CLEAN18
-        // NAVCZ
-        "Net Weight" := SalesLine."Net Weight";
-        "Physical Transfer" := SalesLine."Physical Transfer";
-        "Country/Region of Origin Code" := SalesLine."Country/Region of Origin Code";
-        if "Net Weight" <> 0 then
-            if "Qty. per Unit of Measure" <> 0 then
-                "Net Weight" := Round("Net Weight" / "Qty. per Unit of Measure", 0.00001);
-        // NAVCZ
-#endif
 
         OnAfterCopyItemJnlLineFromSalesLine(Rec, SalesLine);
     end;
@@ -3394,13 +3255,7 @@
         "Reason Code" := PurchHeader."Reason Code";
         "Source Currency Code" := PurchHeader."Currency Code";
         "Shpt. Method Code" := PurchHeader."Shipment Method Code";
-#if not CLEAN18
-        // NAVCZ
-        "Source No. 3" := PurchHeader."Order Address Code";
-        "Currency Code" := PurchHeader."Currency Code";
-        "Physical Transfer" := PurchHeader."Physical Transfer";
-        // NAVCZ
-#endif
+        "Price Calculation Method" := PurchHeader."Price Calculation Method";
 
         OnAfterCopyItemJnlLineFromPurchHeader(Rec, PurchHeader);
     end;
@@ -3453,16 +3308,6 @@
         "Indirect Cost %" := PurchLine."Indirect Cost %";
         "Overhead Rate" := PurchLine."Overhead Rate";
         "Return Reason Code" := PurchLine."Return Reason Code";
-#if not CLEAN18
-        // NAVCZ
-        "Country/Region of Origin Code" := PurchLine."Country/Region of Origin Code";
-        "Net Weight" := PurchLine."Net Weight";
-        "Physical Transfer" := PurchLine."Physical Transfer";
-        if "Net Weight" <> 0 then
-            if "Qty. per Unit of Measure" <> 0 then
-                "Net Weight" := Round("Net Weight" / "Qty. per Unit of Measure", 0.00001);
-        // NAVCZ
-#endif
 
         OnAfterCopyItemJnlLineFromPurchLine(Rec, PurchLine);
     end;
@@ -3487,16 +3332,6 @@
             else
                 "Country/Region Code" := ServiceHeader."Country/Region Code";
 
-#if not CLEAN18
-        // NAVCZ
-        "Source No. 3" := ServiceHeader."Ship-to Code";
-        "Currency Code" := ServiceHeader."Currency Code";
-        "Currency Factor" := ServiceHeader."Currency Factor";
-        "Physical Transfer" := ServiceHeader."Physical Transfer";
-        "Intrastat Transaction" := ServiceHeader.IsIntrastatTransaction;
-        // NAVCZ
-
-#endif
         OnAfterCopyItemJnlLineFromServHeader(Rec, ServiceHeader);
     end;
 
@@ -3536,16 +3371,6 @@
         "Job Task No." := ServiceLine."Job Task No.";
         "Price Calculation Method" := ServiceLine."Price Calculation Method";
         "Invoice-to Source No." := ServiceLine."Bill-to Customer No.";
-#if not CLEAN18
-        // NAVCZ
-        "Net Weight" := ServiceLine."Net Weight";
-        "Physical Transfer" := ServiceLine."Physical Transfer";
-        "Country/Region of Origin Code" := ServiceLine."Country/Region of Origin Code";
-        if "Net Weight" <> 0 then
-            if "Qty. per Unit of Measure" <> 0 then
-                "Net Weight" := Round("Net Weight" / "Qty. per Unit of Measure", 0.00001);
-        // NAVCZ
-#endif
 
         OnAfterCopyItemJnlLineFromServLine(Rec, ServiceLine);
     end;
@@ -3558,12 +3383,6 @@
         "Source Posting Group" := ServShptHeader."Customer Posting Group";
         "Salespers./Purch. Code" := ServShptHeader."Salesperson Code";
         "Reason Code" := ServShptHeader."Reason Code";
-#if not CLEAN18
-        // NAVCZ
-        "Currency Code" := ServShptHeader."Currency Code";
-        "Currency Factor" := ServShptHeader."Currency Factor";
-        // NAVCZ
-#endif
 
         OnAfterCopyItemJnlLineFromServShptHeader(Rec, ServShptHeader);
     end;
@@ -3593,14 +3412,6 @@
         "Item Category Code" := ServShptLine."Item Category Code";
         Nonstock := ServShptLine.Nonstock;
         "Return Reason Code" := ServShptLine."Return Reason Code";
-#if not CLEAN18
-        // NAVCZ
-        "Net Weight" := ServShptLine."Net Weight";
-        if "Net Weight" <> 0 then
-            if "Qty. per Unit of Measure" <> 0 then
-                "Net Weight" := Round("Net Weight" / "Qty. per Unit of Measure", 0.00001);
-        // NAVCZ
-#endif
 
         OnAfterCopyItemJnlLineFromServShptLine(Rec, ServShptLine);
     end;
@@ -3635,14 +3446,6 @@
         "Item Category Code" := ServShptLine."Item Category Code";
         Nonstock := ServShptLine.Nonstock;
         "Return Reason Code" := ServShptLine."Return Reason Code";
-#if not CLEAN18
-        // NAVCZ
-        "Net Weight" := ServShptLine."Net Weight";
-        if "Net Weight" <> 0 then
-            if "Qty. per Unit of Measure" <> 0 then
-                "Net Weight" := Round("Net Weight" / "Qty. per Unit of Measure", 0.00001);
-        // NAVCZ
-#endif
 
         OnAfterCopyItemJnlLineFromServShptLineUndo(Rec, ServShptLine);
     end;
@@ -3785,8 +3588,8 @@
         then
             exit;
 
-        ReadGLSetup;
-        GetItem;
+        ReadGLSetup();
+        GetItem();
 
         UnitCost := FindUnitCost();
 
@@ -3826,7 +3629,7 @@
         UnitCost: Decimal;
     begin
         with ValueEntry do begin
-            Reset;
+            Reset();
             SetCurrentKey("Item Ledger Entry No.");
             SetRange("Item Ledger Entry No.", ItemLedgEntry."Entry No.");
             CalcSums("Cost Amount (Expected)", "Cost Amount (Actual)");
@@ -3875,7 +3678,7 @@
 
     procedure OutputValuePosting(): Boolean
     begin
-        exit(TimeIsEmpty and ("Invoiced Quantity" <> 0) and not Subcontracting);
+        exit(TimeIsEmpty() and ("Invoiced Quantity" <> 0) and not Subcontracting);
     end;
 
     procedure TimeIsEmpty(): Boolean
@@ -3941,7 +3744,7 @@
     begin
         ReservEntry.InitSortingAndFilters(false);
         SetReservationFilters(ReservEntry);
-        ReservEntry.ClearTrackingFilter;
+        ReservEntry.ClearTrackingFilter();
         exit(not ReservEntry.IsEmpty);
     end;
 
@@ -4024,21 +3827,19 @@
 
         case "Entry Type" of
             "Entry Type"::Consumption:
-                LookupProdOrderComp;
+                LookupProdOrderComp();
             "Entry Type"::Output:
-                LookupProdOrderLine;
+                LookupProdOrderLine();
             else begin
-                    ItemList.LookupMode := true;
-                    // NAVCZ
-                    if "Item No." <> '' then
-                        if Item.Get("Item No.") then
-                            ItemList.SetRecord(Item);
-                    // NAVCZ
-                    if ItemList.RunModal = ACTION::LookupOK then begin
-                        ItemList.GetRecord(Item);
-                        Validate("Item No.", Item."No.");
-                    end;
+                ItemList.LookupMode := true;
+                if "Item No." <> '' then
+                    if Item.Get("Item No.") then
+                        ItemList.SetRecord(Item);
+                if ItemList.RunModal() = ACTION::LookupOK then begin
+                    ItemList.GetRecord(Item);
+                    Validate("Item No.", Item."No.");
                 end;
+            end;
         end;
     end;
 
@@ -4057,7 +3858,7 @@
         ProdOrderLineList.SetTableView(ProdOrderLine);
         ProdOrderLineList.SetRecord(ProdOrderLine);
 
-        if ProdOrderLineList.RunModal = ACTION::LookupOK then begin
+        if ProdOrderLineList.RunModal() = ACTION::LookupOK then begin
             ProdOrderLineList.GetRecord(ProdOrderLine);
             Validate("Item No.", ProdOrderLine."Item No.");
             if "Order Line No." <> ProdOrderLine."Line No." then
@@ -4089,7 +3890,7 @@
         if IsHandled then
             exit;
 
-        if ProdOrderCompLineList.RunModal = ACTION::LookupOK then begin
+        if ProdOrderCompLineList.RunModal() = ACTION::LookupOK then begin
             ProdOrderCompLineList.GetRecord(ProdOrderComp);
             if "Prod. Order Comp. Line No." <> ProdOrderComp."Line No." then begin
                 Validate("Item No.", ProdOrderComp."Item No.");
@@ -4103,7 +3904,7 @@
         ItemJnlLine1: Record "Item Journal Line";
         PriceType: Enum "Price Type";
     begin
-        GetItem;
+        GetItem();
 
         if ("Value Entry Type" <> "Value Entry Type"::"Direct Cost") or
            ("Item Charge No." <> '')
@@ -4119,9 +3920,9 @@
         OnRecalculateUnitAmountOnAfterCalcQtyPerUnitOfMeasure(Rec, xRec);
         GetUnitAmount(FieldNo("Unit of Measure Code"));
 
-        ReadGLSetup;
+        ReadGLSetup();
 
-        UpdateAmount;
+        UpdateAmount();
 
         case "Entry Type" of
             "Entry Type"::Purchase:
@@ -4191,13 +3992,13 @@
     procedure SwitchLinesWithErrorsFilter(var ShowAllLinesEnabled: Boolean)
     var
         TempErrorMessage: Record "Error Message" temporary;
-        JournalErrorsMgt: Codeunit "Journal Errors Mgt.";
+        ItemJournalErrorsMgt: Codeunit "Item Journal Errors Mgt.";
     begin
         if ShowAllLinesEnabled then begin
             MarkedOnly(false);
             ShowAllLinesEnabled := false;
         end else begin
-            JournalErrorsMgt.GetErrorMessages(TempErrorMessage);
+            ItemJournalErrorsMgt.GetErrorMessages(TempErrorMessage);
             if TempErrorMessage.FindSet() then
                 repeat
                     if Rec.Get(TempErrorMessage."Context Record ID") then
@@ -4261,7 +4062,7 @@
     var
         ValueEntry: Record "Value Entry";
     begin
-        GetItem;
+        GetItem();
         if Item."Costing Method" <> Item."Costing Method"::Average then
             exit(true);
 
@@ -4271,54 +4072,6 @@
         exit(ValueEntry.IsEmpty);
     end;
 
-#if not CLEAN18
-    [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
-    [Scope('OnPrem')]
-    procedure CheckIntrastat()
-    begin
-        // NAVCZ
-        GetItem();
-        if "Intrastat Transaction" and Item.IsInventoriableType() then begin
-            StatReportingSetup.Get();
-            if StatReportingSetup."Transaction Type Mandatory" and ("Transaction Type" = '') then
-                Error(Text26500, FieldCaption("Transaction Type"), "Item No.");
-            if StatReportingSetup."Transaction Spec. Mandatory" and ("Transaction Specification" = '') then
-                Error(Text26500, FieldCaption("Transaction Specification"), "Item No.");
-            if StatReportingSetup."Transport Method Mandatory" and ("Transport Method" = '') then
-                Error(Text26500, FieldCaption("Transport Method"), "Item No.");
-            if StatReportingSetup."Shipment Method Mandatory" and ("Shpt. Method Code" = '') then
-                Error(Text26500, FieldCaption("Shpt. Method Code"), "Item No.");
-            if StatReportingSetup."Tariff No. Mandatory" and ("Tariff No." = '') then
-                Error(Text26500, FieldCaption("Tariff No."), "Item No.");
-            if StatReportingSetup."Net Weight Mandatory" and ("Net Weight" = 0) then
-                Error(Text26500, FieldCaption("Net Weight"), "Item No.");
-            if StatReportingSetup."Country/Region of Origin Mand." and
-               ("Country/Region of Origin Code" = '') and ("Entry Type" <> "Entry Type"::Sale)
-            then
-                Error(Text26500, FieldCaption("Country/Region of Origin Code"), "Item No.");
-        end;
-    end;
-
-    [Obsolete('Moved to Advanced Localization Pack for Czech.', '18.0')]
-    [Scope('OnPrem')]
-    procedure xSetGPPGfromSKU()
-    var
-        GenPostingSetup: Record "General Posting Setup";
-        InvtSetup: Record "Inventory Setup";
-    begin
-        // NAVCZ
-        InvtSetup.Get();
-        if not InvtSetup."Use GPPG from SKU" then
-            exit;
-        GetLocation("Location Code");
-        GetItem;
-        if "Gen. Prod. Posting Group" <> Item."Gen. Prod. Posting Group" then
-            Validate("Gen. Prod. Posting Group", Item."Gen. Prod. Posting Group");
-        if "Gen. Bus. Posting Group" <> '' then
-            GenPostingSetup.Get("Gen. Bus. Posting Group", "Gen. Prod. Posting Group");
-    end;
-
-#endif
     procedure ClearTracking()
     begin
         "Serial No." := '';
@@ -4459,7 +4212,7 @@
 
     procedure CheckItemJournalLineRestriction()
     begin
-        OnCheckItemJournalLinePostRestrictions;
+        OnCheckItemJournalLinePostRestrictions();
     end;
 
 #if not CLEAN19
@@ -4539,11 +4292,11 @@
 
         // Service is not a valid item type
         // i.e items of type service cannot be in a relation with another table
-        if Item.IsServiceType then
+        if Item.IsServiceType() then
             Item.TestField(Type, Item.Type::Inventory);
 
         // Non-inventoriable item types are valid only for the following entry types
-        if Item.IsNonInventoriableType and
+        if Item.IsNonInventoriableType() and
            not ("Entry Type" in ["Entry Type"::Consumption, "Entry Type"::"Assembly Consumption"])
         then
             Item.TestField(Type, Item.Type::Inventory);

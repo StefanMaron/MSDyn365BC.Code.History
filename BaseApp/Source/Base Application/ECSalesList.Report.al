@@ -177,7 +177,7 @@ report 130 "EC Sales List"
                         if VATEntry."VAT Registration No." = "VAT Registration No." then
                             if ReportLayout = ReportLayout::"Separate &Lines" then begin
                                 if (VATEntry."EU Service" = "EU Service") and (VATEntry."EU 3-Party Trade" = "EU 3-Party Trade") then
-                                    CurrReport.Skip
+                                    CurrReport.Skip()
                             end else
                                 CurrReport.Skip();
                         ResetVATEntry := true
@@ -248,7 +248,7 @@ report 130 "EC Sales List"
         CompanyInfo.Get();
         FormatAddr.Company(CompanyAddr, CompanyInfo);
 
-        VATEntryFilter := "VAT Entry".GetFilters;
+        VATEntryFilter := "VAT Entry".GetFilters();
 
         GLSetup.Get();
     end;

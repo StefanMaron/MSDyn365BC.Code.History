@@ -34,7 +34,7 @@ table 31020 "Purch. Advance Letter Header"
                 TaxRegistrationNoFldTok: Label 'Tax Registration No. CZL', Locked = true;
             begin
                 if "No." = '' then
-                    InitRecord;
+                    InitRecord();
                 TestField(Status, Status::Open);
 
                 if xRec."Pay-to Vendor No." <> "Pay-to Vendor No." then begin
@@ -45,7 +45,7 @@ table 31020 "Purch. Advance Letter Header"
                                 if Confirm(Text013Qst, true, "Pay-to Vendor No.", Vend."Pay-to Vendor No.") then
                                     "Pay-to Vendor No." := Vend."Pay-to Vendor No.";
                         end;
-                    if LetterLinesExist then
+                    if LetterLinesExist() then
                         Error(Text005Err, FieldCaption("Pay-to Vendor No."));
                 end;
 
@@ -109,17 +109,8 @@ table 31020 "Purch. Advance Letter Header"
 
                 Validate("VAT Country/Region Code");
                 VendBankAcc.SetRange("Vendor No.", "Pay-to Vendor No.");
-#if CLEAN18
                 if not VendBankAcc.Get(Vend."No.", Vend."Preferred Bank Account Code") then
                     if VendBankAcc.FindFirst() then;
-#else
-                if VendBankAcc.SetCurrentKey("Vendor No.", Priority) then
-                    VendBankAcc.SetFilter(Priority, '%1..', 1);
-                if not VendBankAcc.FindFirst() then begin
-                    VendBankAcc.SetRange(Priority);
-                    if VendBankAcc.FindFirst() then;
-                end;
-#endif
 
                 Validate("Bank Account Code", VendBankAcc.Code);
 
@@ -133,7 +124,7 @@ table 31020 "Purch. Advance Letter Header"
                 Validate("Payment Terms Code");
 
                 if (xRec."Pay-to Vendor No." <> '') and (xRec."Pay-to Vendor No." <> "Pay-to Vendor No.") then
-                    RecallModifyAddressNotification(GetModifyPayToVendorAddressNotificationId);
+                    RecallModifyAddressNotification(GetModifyPayToVendorAddressNotificationId());
             end;
 #endif
         }
@@ -284,16 +275,6 @@ table 31020 "Purch. Advance Letter Header"
             Caption = 'Vendor Posting Group';
             Editable = false;
             TableRelation = "Vendor Posting Group";
-#if not CLEAN18
-
-            trigger OnValidate()
-            var
-                PostingGroupManagement: Codeunit "Posting Group Management";
-            begin
-                if CurrFieldNo = FieldNo("Vendor Posting Group") then
-                    PostingGroupManagement.CheckPostingGroupChange("Vendor Posting Group", xRec."Vendor Posting Group", Rec);
-            end;
-#endif
         }
         field(32; "Currency Code"; Code[10])
         {
@@ -306,23 +287,23 @@ table 31020 "Purch. Advance Letter Header"
                 case true of
                     CurrFieldNo <> FieldNo("Currency Code"):
                         begin
-                            UpdateCurrencyFactor;
-                            UpdateVATCurrencyFactor;
+                            UpdateCurrencyFactor();
+                            UpdateVATCurrencyFactor();
                         end;
                     "Currency Code" <> xRec."Currency Code":
                         begin
-                            if LetterLinesExist then
+                            if LetterLinesExist() then
                                 Error(Text005Err, FieldCaption("Currency Code"));
-                            UpdateCurrencyFactor;
-                            UpdateVATCurrencyFactor;
+                            UpdateCurrencyFactor();
+                            UpdateVATCurrencyFactor();
                             RecreateLines(FieldCaption("Currency Code"));
                         end;
                     "Currency Code" <> '':
                         begin
-                            UpdateCurrencyFactor;
-                            UpdateVATCurrencyFactor;
+                            UpdateCurrencyFactor();
+                            UpdateVATCurrencyFactor();
                             if "Currency Factor" <> xRec."Currency Factor" then
-                                ConfirmUpdateCurrencyFactor;
+                                ConfirmUpdateCurrencyFactor();
                         end;
                 end;
             end;
@@ -344,7 +325,7 @@ table 31020 "Purch. Advance Letter Header"
                     if Confirm(Text011Qst, true, FieldCaption("Currency Factor"), FieldCaption("VAT Currency Factor")) then
                         Validate("VAT Currency Factor", "Currency Factor");
 
-                ClearVATCorrection;
+                ClearVATCorrection();
             end;
 #endif
         }
@@ -397,7 +378,7 @@ table 31020 "Purch. Advance Letter Header"
             begin
                 CalcFields(Status);
                 if Status = Status::Open then
-                    Release;
+                    Release();
             end;
 #endif
         }
@@ -593,7 +574,7 @@ table 31020 "Purch. Advance Letter Header"
 
             trigger OnLookup()
             begin
-                ShowDocDim;
+                ShowDocDim();
             end;
 
             trigger OnValidate()
@@ -629,7 +610,7 @@ table 31020 "Purch. Advance Letter Header"
                 if not UserSetupMgt.CheckRespCenter(1, "Responsibility Center") then
                     Error(
                       RespCenterErr,
-                      RespCenter.TableCaption, UserSetupMgt.GetPurchasesFilter);
+                      RespCenter.TableCaption(), UserSetupMgt.GetPurchasesFilter());
 
                 CreateDim(
                   DATABASE::"Responsibility Center", "Responsibility Center",
@@ -661,9 +642,6 @@ table 31020 "Purch. Advance Letter Header"
                 TestField("Pay-to Vendor No.");
                 VendBankAcc.Get("Pay-to Vendor No.", "Bank Account Code");
                 "Bank Account No." := VendBankAcc."Bank Account No.";
-#if not CLEAN18
-                "Specific Symbol" := VendBankAcc."Specific Symbol";
-#endif
                 "Transit No." := VendBankAcc."Transit No.";
                 IBAN := VendBankAcc.IBAN;
                 "SWIFT Code" := VendBankAcc."SWIFT Code";
@@ -693,9 +671,6 @@ table 31020 "Purch. Advance Letter Header"
         {
             Caption = 'Constant Symbol';
             CharAllowed = '09';
-#if not CLEAN18
-            TableRelation = "Constant Symbol";
-#endif
         }
         field(11706; "Transit No."; Text[20])
         {
@@ -793,7 +768,7 @@ table 31020 "Purch. Advance Letter Header"
                 if "Amounts Including VAT" <> xRec."Amounts Including VAT" then begin
                     CalcFields(Status);
                     TestField(Status, Status::Open);
-                    if LetterLinesExist then
+                    if LetterLinesExist() then
                         Error(Text005Err, FieldCaption("Amounts Including VAT"));
                 end;
             end;
@@ -903,7 +878,7 @@ table 31020 "Purch. Advance Letter Header"
             trigger OnValidate()
             begin
                 if xRec."Due Date from Line" and (not "Due Date from Line") then
-                    CheckLinesForDueDates;
+                    CheckLinesForDueDates();
             end;
 #endif
         }
@@ -970,7 +945,7 @@ table 31020 "Purch. Advance Letter Header"
         if not UserSetupMgt.CheckRespCenter(1, "Responsibility Center") then
             Error(
               RespCenterDeleteErr,
-              RespCenter.TableCaption, UserSetupMgt.GetPurchasesFilter);
+              RespCenter.TableCaption(), UserSetupMgt.GetPurchasesFilter());
 
         Validate("Incoming Document Entry No.", 0);
 
@@ -995,7 +970,7 @@ table 31020 "Purch. Advance Letter Header"
             until AdvanceLetterLineRelation.Next() = 0;
         end;
 
-        DeleteLetterLines;
+        DeleteLetterLines();
 
         PurchCommentLine.SetRange("Document Type", PurchCommentLine."Document Type"::"Advance Letter");
         PurchCommentLine.SetRange("No.", "No.");
@@ -1012,7 +987,7 @@ table 31020 "Purch. Advance Letter Header"
             PurchAdvPmtTemplate.Get("Template Code");
 
         if "Document Date" = 0D then
-            "Document Date" := WorkDate;
+            "Document Date" := WorkDate();
 
         if "No." = '' then
             if "Template Code" <> '' then begin
@@ -1025,7 +1000,7 @@ table 31020 "Purch. Advance Letter Header"
                 NoSeriesMgt.InitSeries(PurchSetup."Advance Letter Nos.", xRec."No. Series", "Document Date", "No.", "No. Series");
             end;
 
-        InitRecord;
+        InitRecord();
 
         if GetFilter("Pay-to Vendor No.") <> '' then
             if GetRangeMin("Pay-to Vendor No.") = GetRangeMax("Pay-to Vendor No.") then
@@ -1131,11 +1106,11 @@ table 31020 "Purch. Advance Letter Header"
         OldDimSetID := "Dimension Set ID";
         DimMgt.ValidateShortcutDimValues(GlobalDimNo, ShortcutDimCode, "Dimension Set ID");
         if "No." <> '' then
-            Modify;
+            Modify();
 
         if OldDimSetID <> "Dimension Set ID" then begin
-            Modify;
-            if LetterLinesExist then
+            Modify();
+            if LetterLinesExist() then
                 UpdateAllLineDim("Dimension Set ID", OldDimSetID);
         end;
     end;
@@ -1151,8 +1126,8 @@ table 31020 "Purch. Advance Letter Header"
             "Dimension Set ID", StrSubstNo('%1', "No."),
             "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
         if OldDimSetID <> "Dimension Set ID" then begin
-            Modify;
-            if LetterLinesExist then
+            Modify();
+            if LetterLinesExist() then
                 UpdateAllLineDim("Dimension Set ID", OldDimSetID);
         end;
     end;
@@ -1191,7 +1166,7 @@ table 31020 "Purch. Advance Letter Header"
     procedure InitRecord()
     begin
         if "Document Date" = 0D then
-            "Document Date" := WorkDate;
+            "Document Date" := WorkDate();
 
         "Posting Description" := TableCaption + ' ' + "No.";
 
@@ -1274,8 +1249,8 @@ table 31020 "Purch. Advance Letter Header"
               Rec, CurrFieldNo, TableID, No, SourceCodeSetup.Purchases,
               "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
 
-        if (OldDimSetID <> "Dimension Set ID") and LetterLinesExist then begin
-            Modify;
+        if (OldDimSetID <> "Dimension Set ID") and LetterLinesExist() then begin
+            Modify();
             UpdateAllLineDim("Dimension Set ID", OldDimSetID);
         end;
     end;
@@ -1287,7 +1262,7 @@ table 31020 "Purch. Advance Letter Header"
     begin
         PurchAdvanceLetterLine.Reset();
         PurchAdvanceLetterLine.SetRange("Letter No.", "No.");
-        exit(PurchAdvanceLetterLine.FindFirst);
+        exit(PurchAdvanceLetterLine.FindFirst())
     end;
 
     [Scope('OnPrem')]
@@ -1317,11 +1292,11 @@ table 31020 "Purch. Advance Letter Header"
         BankOperationsFunctions: Codeunit "Bank Operations Functions";
     begin
         OnBeforeReleasePurchaseAdvanceLetter(Rec);
-        OnCheckPurchaseAdvanceLetterReleaseRestrictions;
+        OnCheckPurchaseAdvanceLetterReleaseRestrictions();
 
         if ("Variable Symbol" = '') and (not BankAccount.IsEmpty) then begin
             "Variable Symbol" := BankOperationsFunctions.CreateVariableSymbol("Vendor Adv. Payment No.");
-            Modify;
+            Modify();
         end;
 
         TestField("Post Advance VAT Option");
@@ -1380,7 +1355,7 @@ table 31020 "Purch. Advance Letter Header"
         then
             Error(ApprovalProcessReleaseErr);
 
-        Release;
+        Release();
     end;
 
     [Scope('OnPrem')]
@@ -1389,7 +1364,7 @@ table 31020 "Purch. Advance Letter Header"
         if Status = Status::"Pending Approval" then
             Error(ApprovalProcessReopenErr);
 
-        Reopen;
+        Reopen();
     end;
 
     [Scope('OnPrem')]
@@ -1436,7 +1411,7 @@ table 31020 "Purch. Advance Letter Header"
     begin
         Date := "Document Date";
         if Date = 0D then
-            Date := WorkDate;
+            Date := WorkDate();
 
         CalcFields("Amount To Link");
         exit(Round(CurrExchRate.ExchangeAmtFCYToLCY(Date,
@@ -1456,7 +1431,7 @@ table 31020 "Purch. Advance Letter Header"
         if IsClosed <> Closed then begin
             Closed := IsClosed;
             if IsModify then
-                Modify;
+                Modify();
         end;
     end;
 
@@ -1465,11 +1440,11 @@ table 31020 "Purch. Advance Letter Header"
         if "Currency Code" <> '' then begin
             CurrencyDate := "Posting Date";
             if CurrencyDate = 0D then
-                CurrencyDate := WorkDate;
+                CurrencyDate := WorkDate();
             "Currency Factor" := CurrExchRate.ExchangeRate(CurrencyDate, "Currency Code");
         end else
             "Currency Factor" := 0;
-        ClearVATCorrection;
+        ClearVATCorrection();
     end;
 
     procedure UpdateVATCurrencyFactor()
@@ -1532,7 +1507,7 @@ table 31020 "Purch. Advance Letter Header"
         RecRef: RecordRef;
         xRecRef: RecordRef;
     begin
-        if LetterLinesExist then begin
+        if LetterLinesExist() then begin
             if HideValidationDialog or not GuiAllowed then
                 Confirmed := true
             else
@@ -1542,7 +1517,7 @@ table 31020 "Purch. Advance Letter Header"
             if Confirmed then begin
                 PurchAdvanceLetterLinegre.LockTable();
                 xRecRef.GetTable(xRec);
-                Modify;
+                Modify();
                 RecRef.GetTable(Rec);
 
                 PurchAdvanceLetterLinegre.Reset();
@@ -1581,7 +1556,7 @@ table 31020 "Purch. Advance Letter Header"
     var
         Question: Text;
     begin
-        if not LetterLinesExist then
+        if not LetterLinesExist() then
             exit;
 
         if AskQuestion then begin
@@ -1592,7 +1567,7 @@ table 31020 "Purch. Advance Letter Header"
         end;
 
         PurchAdvanceLetterLinegre.LockTable();
-        Modify;
+        Modify();
 
         PurchAdvanceLetterLinegre.Reset();
         PurchAdvanceLetterLinegre.SetRange("Letter No.", "No.");
@@ -1658,9 +1633,9 @@ table 31020 "Purch. Advance Letter Header"
     [Scope('OnPrem')]
     procedure SetSecurityFilterOnRespCenter()
     begin
-        if UserSetupMgt.GetPurchasesFilter <> '' then begin
+        if UserSetupMgt.GetPurchasesFilter() <> '' then begin
             FilterGroup(2);
-            SetRange("Responsibility Center", UserSetupMgt.GetPurchasesFilter);
+            SetRange("Responsibility Center", UserSetupMgt.GetPurchasesFilter());
             FilterGroup(0);
         end;
     end;
@@ -1687,8 +1662,8 @@ table 31020 "Purch. Advance Letter Header"
             exit;
 
         if Vendor.Get("Pay-to Vendor No.") then
-            if HasPayToAddress and HasDifferentPayToAddress(Vendor) then
-                ShowModifyAddressNotification(GetModifyPayToVendorAddressNotificationId,
+            if HasPayToAddress() and HasDifferentPayToAddress(Vendor) then
+                ShowModifyAddressNotification(GetModifyPayToVendorAddressNotificationId(),
                     ModifyVendorAddressNotificationLbl, ModifyVendorAddressNotificationMsg,
                     'CopyPayToVendorAddressFieldsFromSalesAdvDocument', "Pay-to Vendor No.",
                     "Pay-to Name", FieldName("Pay-to Vendor No."));
@@ -1724,7 +1699,7 @@ table 31020 "Purch. Advance Letter Header"
         ModifyVendorAddressNotification: Notification;
     begin
         if not MyNotifications.Get(UserId, NotificationID) then
-            PageMyNotifications.InitializeNotificationsWithDefaultState;
+            PageMyNotifications.InitializeNotificationsWithDefaultState();
 
         if not MyNotifications.IsEnabled(NotificationID) then
             exit;

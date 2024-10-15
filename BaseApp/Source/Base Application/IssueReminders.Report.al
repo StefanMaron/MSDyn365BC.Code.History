@@ -56,7 +56,7 @@ report 190 "Issue Reminders"
                 ConfirmManagement: Codeunit "Confirm Management";
                 IsHandled: Boolean;
             begin
-                Window.Close;
+                Window.Close();
                 Commit();
                 if PrintEmailDocument <> PrintEmailDocument::" " then
                     if TempIssuedReminderHeader.FindSet() then
@@ -65,7 +65,7 @@ report 190 "Issue Reminders"
                                 IsHandled := false;
                                 OnBeforePrintIssuedReminderHeader(IssuedReminderHeaderPrint, IsHandled);
                                 if not IsHandled then begin
-                                    IssuedReminderHeaderPrint.SetRecFilter;
+                                    IssuedReminderHeaderPrint.SetRecFilter();
                                     IssuedReminderHeaderPrint.PrintRecords(false, PrintEmailDocument = PrintEmailDocument::Email, HideDialog);
                                 end;
                             until TempIssuedReminderHeader.Next() = 0;
@@ -193,7 +193,7 @@ report 190 "Issue Reminders"
     var
         OfficeMgt: Codeunit "Office Management";
     begin
-        IsOfficeAddin := OfficeMgt.IsAvailable;
+        IsOfficeAddin := OfficeMgt.IsAvailable();
         if IsOfficeAddin then
             PrintEmailDocument := 2;
 
@@ -201,10 +201,6 @@ report 190 "Issue Reminders"
     end;
 
     var
-        EnterPostingDateErr: Label 'Enter the posting date.';
-        IssuingReminderMsg: Label 'Issuing reminder...';
-        IssuingRemindersMsg: Label 'Issuing reminders @1@@@@@@@@@@@@@';
-        ShowNotIssuedQst: Label 'It was not possible to issue some of the selected reminders.\Do you want to see these reminders?';
         IssuedReminderHeader: Record "Issued Reminder Header";
         TempIssuedReminderHeader: Record "Issued Reminder Header" temporary;
         GenJnlLineReq: Record "Gen. Journal Line";
@@ -221,16 +217,21 @@ report 190 "Issue Reminders"
         NewDateTime: DateTime;
         OldDateTime: DateTime;
         ReplacePostingDate: Boolean;
-        PrintEmailDocument: Option " ",Print,Email;
         HideDialog: Boolean;
         [InDataSet]
-        IsOfficeAddin: Boolean;
-        [InDataSet]
         IsJournalTemplNameVisible: Boolean;
+
+        EnterPostingDateErr: Label 'Enter the posting date.';
+        IssuingReminderMsg: Label 'Issuing reminder...';
+        IssuingRemindersMsg: Label 'Issuing reminders @1@@@@@@@@@@@@@';
+        ShowNotIssuedQst: Label 'It was not possible to issue some of the selected reminders.\Do you want to see these reminders?';
         ProceedOnIssuingWithInvRoundingQst: Label 'The invoice rounding amount will be added to the reminder when it is posted according to invoice rounding setup.\Do you want to continue?';
 
     protected var
         PostingDateReq: Date;
+        PrintEmailDocument: Option " ",Print,Email;
+        [InDataSet]
+        IsOfficeAddin: Boolean;
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitReport(var PrintDoc: Option " ",Print,Email; var ReplacePostingDate: Boolean; var PostingDateReq: Date; var HideDialog: Boolean)

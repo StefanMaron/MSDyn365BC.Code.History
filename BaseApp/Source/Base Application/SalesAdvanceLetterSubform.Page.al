@@ -18,31 +18,31 @@ page 31001 "Sales Advance Letter Subform"
             repeater(Control1220024)
             {
                 ShowCaption = false;
-                field("Advance G/L Account No."; "Advance G/L Account No.")
+                field("Advance G/L Account No."; Rec."Advance G/L Account No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies G/L account number for advance. It is automatically setup from customer posting group.';
                 }
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the sales advance letter.';
                     Visible = false;
                 }
-                field("VAT Bus. Posting Group"; "VAT Bus. Posting Group")
+                field("VAT Bus. Posting Group"; Rec."VAT Bus. Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies a VAT business posting group code.';
                     Visible = false;
                 }
-                field("VAT Prod. Posting Group"; "VAT Prod. Posting Group")
+                field("VAT Prod. Posting Group"; Rec."VAT Prod. Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
                     ShowMandatory = true;
                     ToolTip = 'Specifies a VAT product posting group code for the VAT Statement.';
                 }
-                field("Gen. Prod. Posting Group"; "Gen. Prod. Posting Group")
+                field("Gen. Prod. Posting Group"; Rec."Gen. Prod. Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code for the general product posting group that was alligned to the customer.';
@@ -53,7 +53,7 @@ page 31001 "Sales Advance Letter Subform"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies description for sales advance.';
                 }
-                field("VAT %"; "VAT %")
+                field("VAT %"; Rec."VAT %")
                 {
                     ApplicationArea = Basic, Suite;
                     BlankZero = true;
@@ -68,70 +68,70 @@ page 31001 "Sales Advance Letter Subform"
                     ToolTip = 'Specifies the amout without VAT.';
                     Visible = false;
                 }
-                field("VAT Amount"; "VAT Amount")
+                field("VAT Amount"; Rec."VAT Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     BlankZero = true;
                     ToolTip = 'Specifies VAT amount of advance.';
                     Visible = false;
                 }
-                field("VAT Difference"; "VAT Difference")
+                field("VAT Difference"; Rec."VAT Difference")
                 {
                     ApplicationArea = Basic, Suite;
                     BlankZero = true;
                     ToolTip = 'Specifies difference amount of VAT.';
                     Visible = false;
                 }
-                field("Amount Including VAT"; "Amount Including VAT")
+                field("Amount Including VAT"; Rec."Amount Including VAT")
                 {
                     ApplicationArea = Basic, Suite;
                     BlankZero = true;
                     ShowMandatory = AmountsIncludingVAT;
                     ToolTip = 'Specifies whether the unit price on the line should be displayed including or excluding VAT.';
                 }
-                field("Amount To Link"; "Amount To Link")
+                field("Amount To Link"; Rec."Amount To Link")
                 {
                     ApplicationArea = Basic, Suite;
                     BlankZero = true;
                     ToolTip = 'Specifies the amount not yet paid by customer.';
                 }
-                field("Amount Linked"; "Amount Linked")
+                field("Amount Linked"; Rec."Amount Linked")
                 {
                     ApplicationArea = Basic, Suite;
                     BlankZero = true;
                     ToolTip = 'Specifies the amount paid by customer.';
                 }
-                field("Amount To Invoice"; "Amount To Invoice")
+                field("Amount To Invoice"; Rec."Amount To Invoice")
                 {
                     ApplicationArea = Basic, Suite;
                     BlankZero = true;
                     ToolTip = 'Specifies the paid amount for advance VAT document.';
                 }
-                field("Amount Invoiced"; "Amount Invoiced")
+                field("Amount Invoiced"; Rec."Amount Invoiced")
                 {
                     ApplicationArea = Basic, Suite;
                     BlankZero = true;
                     ToolTip = 'Specifies the amount with advance VAT document.';
                 }
-                field("Amount To Deduct"; "Amount To Deduct")
+                field("Amount To Deduct"; Rec."Amount To Deduct")
                 {
                     ApplicationArea = Basic, Suite;
                     BlankZero = true;
                     ToolTip = 'Specifies the maximum advance value for use in final sales invoice.';
                 }
-                field("Amount Deducted"; "Amount Deducted")
+                field("Amount Deducted"; Rec."Amount Deducted")
                 {
                     ApplicationArea = Basic, Suite;
                     BlankZero = true;
                     ToolTip = 'Specifies the amount that was used in final sales invoice.';
                 }
-                field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
+                field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code of the Shortcut Dimension 1, which is defined in the Shortcut Dimension 1 Code field in the General Ledger Setup window.';
                     Visible = DimVisible1;
                 }
-                field("Shortcut Dimension 2 Code"; "Shortcut Dimension 2 Code")
+                field("Shortcut Dimension 2 Code"; Rec."Shortcut Dimension 2 Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code of the Shortcut Dimension 2, which is defined in the Shortcut Dimension 2 Code field in the General Ledger Setup window.';
@@ -284,7 +284,7 @@ page 31001 "Sales Advance Letter Subform"
 
                     trigger OnAction()
                     begin
-                        SetLink;
+                        SetLink();
                     end;
                 }
                 action(Unlink)
@@ -297,7 +297,7 @@ page 31001 "Sales Advance Letter Subform"
 
                     trigger OnAction()
                     begin
-                        RemoveLinks;
+                        RemoveLinks();
                     end;
                 }
                 action(Dimensions)
@@ -353,7 +353,7 @@ page 31001 "Sales Advance Letter Subform"
 
     trigger OnOpenPage()
     begin
-        SetDimensionsVisibility;
+        SetDimensionsVisibility();
     end;
 
     var
@@ -395,7 +395,7 @@ page 31001 "Sales Advance Letter Subform"
         AdvanceLink.FilterGroup(2);
         LinksToAdvanceLetter.SetTableView(AdvanceLink);
         LinksToAdvanceLetter.LookupMode(true);
-        if LinksToAdvanceLetter.RunModal = ACTION::LookupOK then begin
+        if LinksToAdvanceLetter.RunModal() = ACTION::LookupOK then begin
             LinksToAdvanceLetter.GetSelection(AdvanceLink);
             SalesPostAdvances.RemoveLinks("Letter No.", AdvanceLink);
         end;

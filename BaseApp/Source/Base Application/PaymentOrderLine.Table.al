@@ -21,7 +21,7 @@ table 11709 "Payment Order Line"
 
             trigger OnValidate()
             begin
-                GetPaymentOrder;
+                GetPaymentOrder();
                 "Currency Code" := PmtOrdHdr."Currency Code";
                 "Payment Order Currency Code" := PmtOrdHdr."Payment Order Currency Code";
                 "Payment Order Currency Factor" := PmtOrdHdr."Payment Order Currency Factor";
@@ -46,10 +46,10 @@ table 11709 "Payment Order Line"
 
             trigger OnValidate()
             begin
-                TestStatusOpen;
+                TestStatusOpen();
                 if Type <> xRec.Type then begin
                     PmtOrdLn := Rec;
-                    Init;
+                    Init();
                     Validate("Payment Order No.");
                     Type := PmtOrdLn.Type;
                 end;
@@ -77,11 +77,11 @@ table 11709 "Payment Order Line"
                 Cust: Record Customer;
                 Employee: Record Employee;
             begin
-                TestStatusOpen;
+                TestStatusOpen();
                 if "No." <> xRec."No." then begin
                     if CurrFieldNo = FieldNo("No.") then begin
                         PmtOrdLn := Rec;
-                        Init;
+                        Init();
                         Validate("Payment Order No.");
                         Type := PmtOrdLn.Type;
                         "No." := PmtOrdLn."No.";
@@ -96,20 +96,10 @@ table 11709 "Payment Order Line"
                                 Name := Cust.Name;
                                 "Payment Method Code" := Cust."Payment Method Code";
                                 CustBankAcc.SetRange("Customer No.", "No.");
-#if CLEAN18
                                 if CustBankAcc.Get(Cust."No.", Cust."Preferred Bank Account Code") then begin
                                     Validate("Cust./Vendor Bank Account Code", CustBankAcc.Code);
                                     exit;
                                 end;
-#else
-                                if CustBankAcc.SetCurrentKey("Customer No.", Priority) then begin
-                                    CustBankAcc.SetFilter(Priority, '%1..', 1);
-                                    if CustBankAcc.FindFirst() then begin
-                                        Validate("Cust./Vendor Bank Account Code", CustBankAcc.Code);
-                                        exit;
-                                    end;
-                                end;
-#endif                                
                                 if CustBankAcc.FindFirst() then
                                     Validate("Cust./Vendor Bank Account Code", CustBankAcc.Code);
                             end;
@@ -122,20 +112,10 @@ table 11709 "Payment Order Line"
                                 Name := Vend.Name;
                                 "Payment Method Code" := Vend."Payment Method Code";
                                 VendBankAcc.SetRange("Vendor No.", "No.");
-#if CLEAN18
                                 if VendBankAcc.Get(Vend."No.", Vend."Preferred Bank Account Code") then begin
                                     Validate("Cust./Vendor Bank Account Code", VendBankAcc.Code);
                                     exit;
                                 end;
-#else
-                                if VendBankAcc.SetCurrentKey("Vendor No.", Priority) then begin
-                                    VendBankAcc.SetFilter(Priority, '%1..', 1);
-                                    if VendBankAcc.FindFirst() then begin
-                                        Validate("Cust./Vendor Bank Account Code", VendBankAcc.Code);
-                                        exit;
-                                    end;
-                                end;
-#endif
                                 if VendBankAcc.FindFirst() then
                                     Validate("Cust./Vendor Bank Account Code", VendBankAcc.Code);
                             end;
@@ -145,7 +125,7 @@ table 11709 "Payment Order Line"
                                 if not Employee.Get("No.") then
                                     Employee.Init();
                                 Employee.TestField("Privacy Blocked", false);
-                                Name := CopyStr(Employee.FullName, 1, MaxStrLen(Name));
+                                Name := CopyStr(Employee.FullName(), 1, MaxStrLen(Name));
                                 "Account No." := Employee."Bank Account No.";
                                 IBAN := Employee.IBAN;
                                 "SWIFT Code" := Employee."SWIFT Code";
@@ -159,9 +139,6 @@ table 11709 "Payment Order Line"
                                 BankAcc.Init();
                             BankAcc.TestField(Blocked, false);
                             "Account No." := BankAcc."Bank Account No.";
-#if not CLEAN18
-                            "Specific Symbol" := BankAcc."Specific Symbol";
-#endif
                             "Transit No." := BankAcc."Transit No.";
                             IBAN := BankAcc.IBAN;
                             "SWIFT Code" := BankAcc."SWIFT Code";
@@ -184,16 +161,13 @@ table 11709 "Payment Order Line"
                 VendBankAcc: Record "Vendor Bank Account";
                 CustBankAcc: Record "Customer Bank Account";
             begin
-                TestStatusOpen;
+                TestStatusOpen();
                 case Type of
                     Type::Vendor:
                         begin
                             if not VendBankAcc.Get("No.", "Cust./Vendor Bank Account Code") then
                                 VendBankAcc.Init();
                             "Account No." := VendBankAcc."Bank Account No.";
-#if not CLEAN18
-                            "Specific Symbol" := VendBankAcc."Specific Symbol";
-#endif
                             "Transit No." := VendBankAcc."Transit No.";
                             IBAN := VendBankAcc.IBAN;
                             "SWIFT Code" := VendBankAcc."SWIFT Code";
@@ -203,9 +177,6 @@ table 11709 "Payment Order Line"
                             if not CustBankAcc.Get("No.", "Cust./Vendor Bank Account Code") then
                                 CustBankAcc.Init();
                             "Account No." := CustBankAcc."Bank Account No.";
-#if not CLEAN18
-                            "Specific Symbol" := CustBankAcc."Specific Symbol";
-#endif
                             "Transit No." := CustBankAcc."Transit No.";
                             IBAN := CustBankAcc.IBAN;
                             "SWIFT Code" := CustBankAcc."SWIFT Code";
@@ -229,7 +200,7 @@ table 11709 "Payment Order Line"
             var
                 BankOperationsFunctions: Codeunit "Bank Operations Functions";
             begin
-                TestStatusOpen;
+                TestStatusOpen();
 
                 GetPaymentOrder();
                 if not PmtOrdHdr."Foreign Payment Order" then
@@ -257,7 +228,7 @@ table 11709 "Payment Order Line"
 
             trigger OnValidate()
             begin
-                TestStatusOpen;
+                TestStatusOpen();
             end;
 #endif
         }
@@ -266,14 +237,11 @@ table 11709 "Payment Order Line"
             Caption = 'Constant Symbol';
             CharAllowed = '09';
             Numeric = true;
-#if not CLEAN18
-            TableRelation = "Constant Symbol";
-#endif
 #if not CLEAN19
 
             trigger OnValidate()
             begin
-                TestStatusOpen;
+                TestStatusOpen();
             end;
 #endif
         }
@@ -286,7 +254,7 @@ table 11709 "Payment Order Line"
 
             trigger OnValidate()
             begin
-                TestStatusOpen;
+                TestStatusOpen();
             end;
 #endif
         }
@@ -299,8 +267,8 @@ table 11709 "Payment Order Line"
 
             trigger OnValidate()
             begin
-                TestStatusOpen;
-                GetPaymentOrder;
+                TestStatusOpen();
+                GetPaymentOrder();
                 if PmtOrdHdr."Currency Code" <> '' then
                     "Amount (LCY) to Pay" :=
                       Round(CurrExchRateG.ExchangeAmtFCYToLCY(PmtOrdHdr."Document Date",
@@ -311,7 +279,7 @@ table 11709 "Payment Order Line"
                     "Amount (LCY) to Pay" := "Amount to Pay";
 
                 if "Payment Order Currency Code" <> '' then begin
-                    GetOrderCurrency;
+                    GetOrderCurrency();
                     CurrencyG2.TestField("Amount Rounding Precision");
                     "Amount(Pay.Order Curr.) to Pay" :=
                       Round(CurrExchRateG.ExchangeAmtLCYToFCY(PmtOrdHdr."Document Date",
@@ -334,8 +302,8 @@ table 11709 "Payment Order Line"
 
             trigger OnValidate()
             begin
-                TestStatusOpen;
-                GetPaymentOrder;
+                TestStatusOpen();
+                GetPaymentOrder();
                 if PmtOrdHdr."Currency Code" <> '' then begin
                     CurrencyG.TestField("Amount Rounding Precision");
                     "Amount to Pay" := Round(CurrExchRateG.ExchangeAmtLCYToFCY(PmtOrdHdr."Document Date", PmtOrdHdr."Currency Code",
@@ -345,7 +313,7 @@ table 11709 "Payment Order Line"
                     "Amount to Pay" := "Amount (LCY) to Pay";
 
                 if "Payment Order Currency Code" <> '' then begin
-                    GetOrderCurrency;
+                    GetOrderCurrency();
                     CurrencyG2.TestField("Amount Rounding Precision");
                     "Amount(Pay.Order Curr.) to Pay" := Round(CurrExchRateG.ExchangeAmtLCYToFCY(PmtOrdHdr."Document Date",
                           "Payment Order Currency Code",
@@ -366,7 +334,7 @@ table 11709 "Payment Order Line"
 
             trigger OnValidate()
             begin
-                TestStatusOpen;
+                TestStatusOpen();
                 TestField("Applies-to C/V/E Entry No.", 0);
             end;
 #endif
@@ -437,7 +405,7 @@ table 11709 "Payment Order Line"
                 CustLedgEntry: Record "Cust. Ledger Entry";
                 VendLedgEntry: Record "Vendor Ledger Entry";
             begin
-                TestStatusOpen;
+                TestStatusOpen();
                 TestField("Applies-to C/V/E Entry No.", 0);
                 if not (Type in [Type::Customer, Type::Vendor]) then
                     FieldError(Type);
@@ -459,9 +427,9 @@ table 11709 "Payment Order Line"
                                 CustLedgEntry.SetRange("Customer No.", "No.");
                             case true of
                                 CustLedgEntry.IsEmpty:
-                                    Error(NotExistEntryErr, CustLedgEntry.FieldCaption("Document No."), CustLedgEntry.TableCaption, "Applies-to Doc. No.");
+                                    Error(NotExistEntryErr, CustLedgEntry.FieldCaption("Document No."), CustLedgEntry.TableCaption(), "Applies-to Doc. No.");
                                 CustLedgEntry.Count > 1:
-                                    Error(ExistEntryErr, CustLedgEntry.FieldCaption("Document No."), CustLedgEntry.TableCaption, "Applies-to Doc. No.");
+                                    Error(ExistEntryErr, CustLedgEntry.FieldCaption("Document No."), CustLedgEntry.TableCaption(), "Applies-to Doc. No.");
                                 else begin
                                         CustLedgEntry.FindFirst();
                                         Validate("Applies-to C/V/E Entry No.", CustLedgEntry."Entry No.");
@@ -482,9 +450,9 @@ table 11709 "Payment Order Line"
                                 VendLedgEntry.SetRange("Vendor No.", "No.");
                             case true of
                                 VendLedgEntry.IsEmpty:
-                                    Error(NotExistEntryErr, VendLedgEntry.FieldCaption("Document No."), VendLedgEntry.TableCaption, "Applies-to Doc. No.");
+                                    Error(NotExistEntryErr, VendLedgEntry.FieldCaption("Document No."), VendLedgEntry.TableCaption(), "Applies-to Doc. No.");
                                 VendLedgEntry.Count > 1:
-                                    Error(ExistEntryErr, VendLedgEntry.FieldCaption("Document No."), VendLedgEntry.TableCaption, "Applies-to Doc. No.");
+                                    Error(ExistEntryErr, VendLedgEntry.FieldCaption("Document No."), VendLedgEntry.TableCaption(), "Applies-to Doc. No.");
                                 else begin
                                         VendLedgEntry.FindFirst();
                                         Validate("Applies-to C/V/E Entry No.", VendLedgEntry."Entry No.");
@@ -531,7 +499,7 @@ table 11709 "Payment Order Line"
                                 VendLedgEntry.SetRange("Vendor No.", "No.");
                             VendLedgEntries.SetTableView(VendLedgEntry);
                             VendLedgEntries.LookupMode(true);
-                            if VendLedgEntries.RunModal = ACTION::LookupOK then begin
+                            if VendLedgEntries.RunModal() = ACTION::LookupOK then begin
                                 VendLedgEntries.GetRecord(VendLedgEntry);
                                 Validate("Applies-to C/V/E Entry No.", VendLedgEntry."Entry No.");
                             end else
@@ -549,7 +517,7 @@ table 11709 "Payment Order Line"
                                 CustLedgEntry.SetRange("Customer No.", "No.");
                             CustLedgEntries.SetTableView(CustLedgEntry);
                             CustLedgEntries.LookupMode(true);
-                            if CustLedgEntries.RunModal = ACTION::LookupOK then begin
+                            if CustLedgEntries.RunModal() = ACTION::LookupOK then begin
                                 CustLedgEntries.GetRecord(CustLedgEntry);
                                 Validate("Applies-to C/V/E Entry No.", CustLedgEntry."Entry No.");
                             end else
@@ -565,7 +533,7 @@ table 11709 "Payment Order Line"
                                 EmplLedgEntry.SetRange("Employee No.", "No.");
                             EmplLedgEntries.SetTableView(EmplLedgEntry);
                             EmplLedgEntries.LookupMode(true);
-                            if EmplLedgEntries.RunModal = ACTION::LookupOK then begin
+                            if EmplLedgEntries.RunModal() = ACTION::LookupOK then begin
                                 EmplLedgEntries.GetRecord(EmplLedgEntry);
                                 Validate("Applies-to C/V/E Entry No.", EmplLedgEntry."Entry No.");
                             end else
@@ -585,8 +553,8 @@ table 11709 "Payment Order Line"
                             "Amount Must Be Checked" := true;
                         end;
 
-                TestStatusOpen;
-                GetPaymentOrder;
+                TestStatusOpen();
+                GetPaymentOrder();
                 "Original Amount" := 0;
                 "Original Amount (LCY)" := 0;
                 "Orig. Amount(Pay.Order Curr.)" := 0;
@@ -597,18 +565,18 @@ table 11709 "Payment Order Line"
                 "Applies-to Doc. Type" := "Applies-to Doc. Type"::" ";
                 "Applies-to Doc. No." := '';
 
-                PaymentOrderManagement.ClearErrorMessageLog;
+                PaymentOrderManagement.ClearErrorMessageLog();
 
                 if "Applies-to C/V/E Entry No." = 0 then
                     exit;
 
                 case Type of
                     Type::Vendor:
-                        AppliesToVendLedgEntryNo;
+                        AppliesToVendLedgEntryNo();
                     Type::Customer:
-                        AppliesToCustLedgEntryNo;
+                        AppliesToCustLedgEntryNo();
                     Type::Employee:
-                        AppliesToEmplLedgEntryNo;
+                        AppliesToEmplLedgEntryNo();
                     else
                         FieldError(Type);
                 end;
@@ -646,8 +614,8 @@ table 11709 "Payment Order Line"
             var
                 CurrExchRate: Record "Currency Exchange Rate";
             begin
-                TestStatusOpen;
-                GetPaymentOrder;
+                TestStatusOpen();
+                GetPaymentOrder();
                 if "Payment Order Currency Code" <> '' then
                     Validate("Payment Order Currency Factor",
                       CurrExchRate.ExchangeRate(PmtOrdHdr."Document Date", "Payment Order Currency Code"))
@@ -674,10 +642,10 @@ table 11709 "Payment Order Line"
 
             trigger OnValidate()
             begin
-                TestStatusOpen;
-                GetPaymentOrder;
+                TestStatusOpen();
+                GetPaymentOrder();
                 if "Payment Order Currency Code" <> '' then begin
-                    GetOrderCurrency;
+                    GetOrderCurrency();
                     "Amount (LCY) to Pay" := Round(CurrExchRateG.ExchangeAmtFCYToLCY(PmtOrdHdr."Document Date",
                           "Payment Order Currency Code",
                           "Amount(Pay.Order Curr.) to Pay",
@@ -720,7 +688,7 @@ table 11709 "Payment Order Line"
 
             trigger OnValidate()
             begin
-                TestStatusOpen;
+                TestStatusOpen();
             end;
 #endif
         }
@@ -733,7 +701,7 @@ table 11709 "Payment Order Line"
             var
                 CompanyInfo: Record "Company Information";
             begin
-                TestStatusOpen;
+                TestStatusOpen();
                 CompanyInfo.CheckIBAN(IBAN);
             end;
 #endif
@@ -747,7 +715,7 @@ table 11709 "Payment Order Line"
 
             trigger OnValidate()
             begin
-                TestStatusOpen;
+                TestStatusOpen();
             end;
 #endif
         }
@@ -758,7 +726,7 @@ table 11709 "Payment Order Line"
 
             trigger OnValidate()
             begin
-                TestStatusOpen;
+                TestStatusOpen();
             end;
 #endif
         }
@@ -769,7 +737,7 @@ table 11709 "Payment Order Line"
 
             trigger OnValidate()
             begin
-                TestStatusOpen;
+                TestStatusOpen();
             end;
 #endif
         }
@@ -805,7 +773,7 @@ table 11709 "Payment Order Line"
 
             trigger OnValidate()
             begin
-                TestStatusOpen;
+                TestStatusOpen();
             end;
 #endif
         }
@@ -835,7 +803,7 @@ table 11709 "Payment Order Line"
 
             trigger OnValidate()
             begin
-                TestStatusOpen;
+                TestStatusOpen();
                 "Applies-to Doc. Type" := "Applies-to Doc. Type"::" ";
                 "Applies-to Doc. No." := '';
                 "Applies-to C/V/E Entry No." := 0;
@@ -862,8 +830,8 @@ table 11709 "Payment Order Line"
                 Currency: Record Currency;
                 RemAmount: Decimal;
             begin
-                TestStatusOpen;
-                GetPaymentOrder;
+                TestStatusOpen();
+                GetPaymentOrder();
                 "Applies-to Doc. Type" := "Applies-to Doc. Type"::" ";
                 "Applies-to Doc. No." := '';
                 "Applies-to C/V/E Entry No." := 0;
@@ -877,7 +845,7 @@ table 11709 "Payment Order Line"
                 "Letter Line No." := 0;
 
                 RemAmount := 0;
-                PaymentOrderManagement.ClearErrorMessageLog;
+                PaymentOrderManagement.ClearErrorMessageLog();
                 case "Letter Type" of
                     "Letter Type"::Purchase:
                         begin
@@ -922,7 +890,7 @@ table 11709 "Payment Order Line"
                                     end else begin
                                         if PurchAdvLetterHeader."Currency Code" <> '' then begin
                                             Currency.Get(PurchAdvLetterHeader."Currency Code");
-                                            Currency.InitRoundingPrecision;
+                                            Currency.InitRoundingPrecision();
                                             "Amount (LCY) to Pay" := Round(CurrExchRateG.ExchangeAmtFCYToLCY(PurchAdvLetterHeader."Document Date",
                                                   PurchAdvLetterHeader."Currency Code",
                                                   RemAmount,
@@ -958,8 +926,8 @@ table 11709 "Payment Order Line"
                 Currency: Record Currency;
                 RemAmount: Decimal;
             begin
-                TestStatusOpen;
-                GetPaymentOrder;
+                TestStatusOpen();
+                GetPaymentOrder();
                 "Applies-to Doc. Type" := "Applies-to Doc. Type"::" ";
                 "Applies-to Doc. No." := '';
                 "Applies-to C/V/E Entry No." := 0;
@@ -972,7 +940,7 @@ table 11709 "Payment Order Line"
                 "Remaining Pmt. Disc. Possible" := 0;
 
                 RemAmount := 0;
-                PaymentOrderManagement.ClearErrorMessageLog;
+                PaymentOrderManagement.ClearErrorMessageLog();
                 case "Letter Type" of
                     "Letter Type"::Purchase:
                         begin
@@ -1022,7 +990,7 @@ table 11709 "Payment Order Line"
                                     end else begin
                                         if PurchAdvLetterHeader."Currency Code" <> '' then begin
                                             Currency.Get(PurchAdvLetterHeader."Currency Code");
-                                            Currency.InitRoundingPrecision;
+                                            Currency.InitRoundingPrecision();
                                             "Amount (LCY) to Pay" := Round(CurrExchRateG.ExchangeAmtFCYToLCY(PurchAdvLetterHeader."Document Date",
                                                   PurchAdvLetterHeader."Currency Code",
                                                   RemAmount,
@@ -1068,7 +1036,7 @@ table 11709 "Payment Order Line"
 
             trigger OnValidate()
             begin
-                TestStatusOpen;
+                TestStatusOpen();
             end;
 #endif
         }
@@ -1117,18 +1085,18 @@ table 11709 "Payment Order Line"
 
     trigger OnDelete()
     begin
-        TestStatusOpen;
+        TestStatusOpen();
     end;
 
     trigger OnInsert()
     begin
-        TestStatusOpen;
-        ModifyPayOrderHeader;
+        TestStatusOpen();
+        ModifyPayOrderHeader();
     end;
 
     trigger OnModify()
     begin
-        ModifyPayOrderHeader;
+        ModifyPayOrderHeader();
     end;
 
     var
@@ -1157,7 +1125,7 @@ table 11709 "Payment Order Line"
         if "Payment Order No." <> PmtOrdHdr."No." then begin
             PmtOrdHdr.Get("Payment Order No.");
             if PmtOrdHdr."Currency Code" = '' then
-                CurrencyG.InitRoundingPrecision
+                CurrencyG.InitRoundingPrecision()
             else begin
                 PmtOrdHdr.TestField("Currency Factor");
                 CurrencyG.Get(PmtOrdHdr."Currency Code");
@@ -1172,7 +1140,7 @@ table 11709 "Payment Order Line"
     begin
         if "Payment Order Currency Code" <> CurrencyG2.Code then
             if "Payment Order Currency Code" = '' then
-                CurrencyG2.InitRoundingPrecision
+                CurrencyG2.InitRoundingPrecision()
             else begin
                 TestField("Payment Order Currency Factor");
                 CurrencyG2.Get("Payment Order Currency Code");
@@ -1204,7 +1172,7 @@ table 11709 "Payment Order Line"
     [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
     procedure ModifyPayOrderHeader()
     begin
-        GetPaymentOrder;
+        GetPaymentOrder();
         if PmtOrdHdr."Uncertainty Pay.Check DateTime" <> 0DT then begin
             PmtOrdHdr."Uncertainty Pay.Check DateTime" := 0DT;
             PmtOrdHdr.Modify();
@@ -1223,11 +1191,6 @@ table 11709 "Payment Order Line"
         CustLedgEntry.Get("Applies-to C/V/E Entry No.");
         "Applies-to Doc. Type" := CustLedgEntry."Document Type";
         "Applies-to Doc. No." := CustLedgEntry."Document No.";
-#if not CLEAN18
-        "Variable Symbol" := CustLedgEntry."Variable Symbol";
-        if CustLedgEntry."Constant Symbol" <> '' then
-            "Constant Symbol" := CustLedgEntry."Constant Symbol";
-#endif
         BankAccount.Get(PmtOrdHdr."Bank Account No.");
         if BankAccount."Payment Order Line Description" = '' then
             Description := CustLedgEntry.Description
@@ -1239,15 +1202,6 @@ table 11709 "Payment Order Line"
         Type := Type::Customer;
         "No." := CustLedgEntry."Customer No.";
         Validate("No.", CustLedgEntry."Customer No.");
-#if not CLEAN18
-        "Cust./Vendor Bank Account Code" :=
-          CopyStr(CustLedgEntry."Bank Account Code", 1, MaxStrLen("Cust./Vendor Bank Account Code"));
-        "Account No." := CustLedgEntry."Bank Account No.";
-        "Specific Symbol" := CustLedgEntry."Specific Symbol";
-        "Transit No." := CustLedgEntry."Transit No.";
-        IBAN := CustLedgEntry.IBAN;
-        "SWIFT Code" := CustLedgEntry."SWIFT Code";
-#endif
         Validate("Applied Currency Code", CustLedgEntry."Currency Code");
         if CustLedgEntry."Due Date" > "Due Date" then
             "Due Date" := CustLedgEntry."Due Date";
@@ -1299,11 +1253,6 @@ table 11709 "Payment Order Line"
         VendorLedgEntry.Get("Applies-to C/V/E Entry No.");
         "Applies-to Doc. Type" := VendorLedgEntry."Document Type";
         "Applies-to Doc. No." := VendorLedgEntry."Document No.";
-#if not CLEAN18
-        "Variable Symbol" := VendorLedgEntry."Variable Symbol";
-        if VendorLedgEntry."Constant Symbol" <> '' then
-            "Constant Symbol" := VendorLedgEntry."Constant Symbol";
-#endif
         BankAccount.Get(PmtOrdHdr."Bank Account No.");
         if BankAccount."Payment Order Line Description" = '' then
             Description := VendorLedgEntry.Description
@@ -1315,15 +1264,6 @@ table 11709 "Payment Order Line"
         Type := Type::Vendor;
         "No." := VendorLedgEntry."Vendor No.";
         Validate("No.", VendorLedgEntry."Vendor No.");
-#if not CLEAN18
-        "Cust./Vendor Bank Account Code" :=
-          CopyStr(VendorLedgEntry."Bank Account Code", 1, MaxStrLen("Cust./Vendor Bank Account Code"));
-        "Account No." := VendorLedgEntry."Bank Account No.";
-        "Specific Symbol" := VendorLedgEntry."Specific Symbol";
-        "Transit No." := VendorLedgEntry."Transit No.";
-        IBAN := VendorLedgEntry.IBAN;
-        "SWIFT Code" := VendorLedgEntry."SWIFT Code";
-#endif
         Validate("Applied Currency Code", VendorLedgEntry."Currency Code");
         if VendorLedgEntry."Due Date" > "Due Date" then
             "Due Date" := VendorLedgEntry."Due Date";
@@ -1379,18 +1319,12 @@ table 11709 "Payment Order Line"
 
         "Applies-to Doc. Type" := EmplLedgEntry."Document Type";
         "Applies-to Doc. No." := EmplLedgEntry."Document No.";
-#if not CLEAN18
-        "Variable Symbol" := EmplLedgEntry."Variable Symbol";
-        "Specific Symbol" := EmplLedgEntry."Specific Symbol";
-        if EmplLedgEntry."Constant Symbol" <> '' then
-            "Constant Symbol" := EmplLedgEntry."Constant Symbol";
-#endif            
         BankAccount.Get(PmtOrdHdr."Bank Account No.");
         if BankAccount."Payment Order Line Description" = '' then
             Description := EmplLedgEntry.Description
         else
             Description := CreateDescription(Format(EmplLedgEntry."Document Type"), EmplLedgEntry."Document No.",
-                Employee."No.", CopyStr(Employee.FullName, 1, MaxStrLen(Description)), '');
+                Employee."No.", CopyStr(Employee.FullName(), 1, MaxStrLen(Description)), '');
 
         Type := Type::Employee;
         Validate("No.", EmplLedgEntry."Employee No.");
@@ -1414,7 +1348,7 @@ table 11709 "Payment Order Line"
     begin
         if StatusCheckSuspended then
             exit;
-        GetPaymentOrder;
+        GetPaymentOrder();
         PmtOrdHdr.TestField(Status, PmtOrdHdr.Status::Open);
     end;
 

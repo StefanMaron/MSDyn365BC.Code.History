@@ -1,4 +1,4 @@
-﻿table 5876 "Phys. Invt. Order Line"
+table 5876 "Phys. Invt. Order Line"
 {
     Caption = 'Phys. Invt. Order Line';
     DrillDownPageID = "Physical Inventory Order Lines";
@@ -29,20 +29,20 @@
             var
                 TempPhysInvtOrderLine: Record "Phys. Invt. Order Line" temporary;
             begin
-                TestStatusOpen;
+                TestStatusOpen();
                 TestField("On Recording Lines", false);
 
                 TempPhysInvtOrderLine := Rec;
-                Init;
+                Init();
                 "Item No." := TempPhysInvtOrderLine."Item No.";
                 "Variant Code" := '';
-                ResetQtyExpected;
+                ResetQtyExpected();
 
                 if "Item No." = '' then
                     exit;
 
-                GetPhysInvtOrderHeader;
-                GetItem;
+                GetPhysInvtOrderHeader();
+                GetItem();
                 TestItemNotBlocked();
 
                 Validate(Description, Item.Description);
@@ -80,11 +80,11 @@
 
             trigger OnValidate()
             begin
-                TestStatusOpen;
+                TestStatusOpen();
                 TestField("On Recording Lines", false);
 
                 if "Variant Code" <> xRec."Variant Code" then begin
-                    ResetQtyExpected;
+                    ResetQtyExpected();
                     GetShelfNo();
                 end;
 
@@ -105,11 +105,11 @@
 
             trigger OnValidate()
             begin
-                TestStatusOpen;
+                TestStatusOpen();
                 TestField("On Recording Lines", false);
 
                 if "Location Code" <> xRec."Location Code" then
-                    ResetQtyExpected;
+                    ResetQtyExpected();
 
                 GetShelfNo();
                 CreateDimFromDefaultDim();
@@ -130,7 +130,7 @@
                 if IsHandled then
                     exit;
 
-                TestStatusOpen;
+                TestStatusOpen();
                 TestField("On Recording Lines", false);
 
                 if "Bin Code" <> '' then begin
@@ -141,7 +141,7 @@
                 end;
 
                 if "Bin Code" <> xRec."Bin Code" then
-                    ResetQtyExpected;
+                    ResetQtyExpected();
             end;
         }
         field(30; Description; Text[100])
@@ -188,10 +188,10 @@
 
             trigger OnValidate()
             begin
-                TestStatusOpen;
+                TestStatusOpen();
 
                 if "Use Item Tracking" <> xRec."Use Item Tracking" then
-                    ResetQtyExpected;
+                    ResetQtyExpected();
             end;
         }
         field(55; "Last Item Ledger Entry No."; Integer)
@@ -268,7 +268,7 @@
             trigger OnValidate()
             begin
                 ValidateShortcutDimCode(1, "Shortcut Dimension 1 Code");
-                Modify;
+                Modify();
             end;
         }
         field(91; "Shortcut Dimension 2 Code"; Code[20])
@@ -281,7 +281,7 @@
             trigger OnValidate()
             begin
                 ValidateShortcutDimCode(2, "Shortcut Dimension 2 Code");
-                Modify;
+                Modify();
             end;
         }
         field(100; "Shelf No."; Code[10])
@@ -371,7 +371,7 @@
 
     trigger OnDelete()
     begin
-        TestStatusOpen;
+        TestStatusOpen();
         TestField("On Recording Lines", false);
 
         ExpPhysInvtTracking.DeleteLine("Document No.", "Line No.", true);
@@ -384,7 +384,7 @@
 
     trigger OnInsert()
     begin
-        GetPhysInvtOrderHeader;
+        GetPhysInvtOrderHeader();
         PhysInvtOrderHeader.TestField(Status, PhysInvtOrderHeader.Status::Open);
     end;
 
@@ -394,11 +394,6 @@
     end;
 
     var
-        CannotSetErr: Label 'You cannot use item tracking because there is a difference between the values of the fields Qty. Expected (Base) = %1 and Qty. Exp. Item Tracking (Base) = %2.\%3', Comment = '%1 and %2 - Decimal, %3 = Text';
-        IndenitiedValuesMsg: Label 'Identified values on the line:  %1 %2 %3 %4.', Comment = '%1,%2,%3,%4 - field captions';
-        DifferentSumErr: Label 'The value of the Qty. Recorded (Base) field is different from the sum of all Quantity (Base) fields on related physical inventory recordings.%1', Comment = '%1 = text';
-        MustSpecifyErr: Label 'You must specify a serial number or lot number on physical inventory recording line %1 when the Use Item Tracking check box is selected.%2', Comment = '%1 = Recording No., %2 = Text';
-        PhysInvtOrderHeader: Record "Phys. Invt. Order Header";
         Item: Record Item;
         ItemVariant: Record "Item Variant";
         UnitOfMeasure: Record "Unit of Measure";
@@ -407,11 +402,19 @@
         SKU: Record "Stockkeeping Unit";
         BinContent: Record "Bin Content";
         DimManagement: Codeunit DimensionManagement;
-        CannotRenameErr: Label 'You cannot rename a %1.', Comment = '%1 = table caption';
         PhysInvtTrackingMgt: Codeunit "Phys. Invt. Tracking Mgt.";
+
+        CannotSetErr: Label 'You cannot use item tracking because there is a difference between the values of the fields Qty. Expected (Base) = %1 and Qty. Exp. Item Tracking (Base) = %2.\%3', Comment = '%1 and %2 - Decimal, %3 = Text';
+        IndenitiedValuesMsg: Label 'Identified values on the line:  %1 %2 %3 %4.', Comment = '%1,%2,%3,%4 - field captions';
+        DifferentSumErr: Label 'The value of the Qty. Recorded (Base) field is different from the sum of all Quantity (Base) fields on related physical inventory recordings.%1', Comment = '%1 = text';
+        MustSpecifyErr: Label 'You must specify a serial number or lot number on physical inventory recording line %1 when the Use Item Tracking check box is selected.%2', Comment = '%1 = Recording No., %2 = Text';
+        CannotRenameErr: Label 'You cannot rename a %1.', Comment = '%1 = table caption';
         UnknownEntryTypeErr: Label 'Unknown Entry Type.';
 
-    local procedure GetPhysInvtOrderHeader()
+    protected var
+        PhysInvtOrderHeader: Record "Phys. Invt. Order Header";
+
+    procedure GetPhysInvtOrderHeader()
     begin
         TestField("Document No.");
         if "Document No." <> PhysInvtOrderHeader."No." then
@@ -439,7 +442,7 @@
 
     procedure TestStatusOpen()
     begin
-        GetPhysInvtOrderHeader;
+        GetPhysInvtOrderHeader();
         PhysInvtOrderHeader.TestField(Status, PhysInvtOrderHeader.Status::Open);
     end;
 
@@ -448,7 +451,7 @@
         ItemLedgEntry: Record "Item Ledger Entry";
         WhseEntry: Record "Warehouse Entry";
     begin
-        if EmptyLine then
+        if EmptyLine() then
             exit;
 
         GetItem();
@@ -656,15 +659,15 @@
     var
         ItemJnlLine: Record "Item Journal Line";
     begin
-        if EmptyLine then
+        if EmptyLine() then
             exit;
         TestField("Item No.");
 
-        TestStatusOpen;
+        TestStatusOpen();
         TestField("Qty. Exp. Calculated", true);
         TestField("On Recording Lines", true);
 
-        GetPhysInvtOrderHeader;
+        GetPhysInvtOrderHeader();
 
         ItemJnlLine.Init();
         OnCalcCostsOnAfterInitItemJnlLine(Rec, ItemJnlLine);
@@ -691,9 +694,9 @@
     begin
         TestField("Item No.");
         TestField("Qty. Exp. Calculated", true);
-        TestQtyExpected;
+        TestQtyExpected();
         TestField("On Recording Lines", true);
-        TestQtyRecorded;
+        TestQtyRecorded();
     end;
 
     procedure EmptyLine(): Boolean
@@ -755,11 +758,11 @@
 
     procedure ShowDimensions()
     begin
-        if EmptyLine then
+        if EmptyLine() then
             exit;
         "Dimension Set ID" :=
           DimManagement.EditDimensionSet(
-            Rec, "Dimension Set ID", StrSubstNo('%1 %2 %3', TableCaption, "Document No.", "Line No."),
+            Rec, "Dimension Set ID", StrSubstNo('%1 %2 %3', TableCaption(), "Document No.", "Line No."),
             "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
     end;
 
@@ -780,7 +783,7 @@
 
         "Shortcut Dimension 1 Code" := '';
         "Shortcut Dimension 2 Code" := '';
-        GetPhysInvtOrderHeader;
+        GetPhysInvtOrderHeader();
         "Dimension Set ID" :=
           DimManagement.GetDefaultDimID(DefaultDimSource, SourceCodeSetup."Phys. Invt. Orders", "Shortcut Dimension 1 Code",
             "Shortcut Dimension 2 Code", PhysInvtOrderHeader."Dimension Set ID", 0);
@@ -832,7 +835,7 @@
     var
         PhysInvtRecordLine: Record "Phys. Invt. Record Line";
     begin
-        if EmptyLine then
+        if EmptyLine() then
             exit;
 
         TestField("Item No.");
@@ -847,7 +850,7 @@
 
     procedure ShowExpectPhysInvtTrackLines()
     begin
-        if EmptyLine then
+        if EmptyLine() then
             exit;
 
         TestField("Item No.");
@@ -861,7 +864,7 @@
 
     procedure ShowItemTrackingLines(Which: Option All,Positive,Negative)
     begin
-        if EmptyLine then
+        if EmptyLine() then
             exit;
         TestField("Item No.");
 
@@ -887,11 +890,11 @@
     var
         ItemLedgEntry: Record "Item Ledger Entry";
     begin
-        if EmptyLine then
+        if EmptyLine() then
             exit;
 
         TestField("Item No.");
-        GetPhysInvtOrderHeader;
+        GetPhysInvtOrderHeader();
         PhysInvtOrderHeader.TestField("Posting Date");
 
         ItemLedgEntry.SetItemVariantLocationFilters(
@@ -904,11 +907,11 @@
     var
         PhysInvtLedgEntry: Record "Phys. Inventory Ledger Entry";
     begin
-        if EmptyLine then
+        if EmptyLine() then
             exit;
 
         TestField("Item No.");
-        GetPhysInvtOrderHeader;
+        GetPhysInvtOrderHeader();
         PhysInvtOrderHeader.TestField("Posting Date");
 
         PhysInvtLedgEntry.Reset();
@@ -1169,3 +1172,4 @@
     begin
     end;
 }
+

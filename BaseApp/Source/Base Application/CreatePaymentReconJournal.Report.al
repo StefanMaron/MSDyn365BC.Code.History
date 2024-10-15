@@ -29,7 +29,7 @@ report 11701 "Create Payment Recon. Journal"
                 trigger OnPostDataItem()
                 begin
                     if not HideMessages then
-                        Window.Close;
+                        Window.Close();
 
                     MatchBankPmtApplication("Issued Bank Statement Header"."Bank Account No.", "Issued Bank Statement Header"."No.");
                 end;
@@ -43,7 +43,7 @@ report 11701 "Create Payment Recon. Journal"
 
             trigger OnAfterGetRecord()
             begin
-                CheckPmtReconExist;
+                CheckPmtReconExist();
 
                 CreateBankAccRecon("Issued Bank Statement Header");
                 UpdatePaymentReconciliationStatus("Payment Reconciliation Status"::Opened);
@@ -102,7 +102,7 @@ report 11701 "Create Payment Recon. Journal"
 
         trigger OnOpenPage()
         begin
-            GetParameters;
+            GetParameters();
         end;
     }
 
@@ -113,7 +113,7 @@ report 11701 "Create Payment Recon. Journal"
     trigger OnPreReport()
     begin
         if not CurrReport.UseRequestPage then
-            GetParameters;
+            GetParameters();
     end;
 
     var
@@ -156,7 +156,7 @@ report 11701 "Create Payment Recon. Journal"
     begin
         IssuedBankStmtHdr.CalcFields(Amount);
         with BankAccRecon do begin
-            Init;
+            Init();
             "Statement Type" := "Statement Type"::"Payment Application";
             "Bank Account No." := IssuedBankStmtHdr."Bank Account No.";
             "Statement No." := IssuedBankStmtHdr."No.";
@@ -172,7 +172,7 @@ report 11701 "Create Payment Recon. Journal"
         BankAccReconLn: Record "Bank Acc. Reconciliation Line";
     begin
         with BankAccReconLn do begin
-            Init;
+            Init();
             "Statement Type" := "Statement Type"::"Payment Application";
             "Transaction Date" := IssuedBankStmtHdr."Document Date";
             "Bank Account No." := IssuedBankStmtHdr."Bank Account No.";

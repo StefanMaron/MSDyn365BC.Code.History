@@ -2,6 +2,13 @@ table 372 "Payment Buffer"
 {
     Caption = 'Payment Buffer';
     ReplicateData = false;
+#if CLEAN21
+    TableType = Temporary;
+#else
+    ObsoleteReason = 'This table will be marked as temporary. Make sure you are not using this table to store records.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
+#endif
 
     fields
     {
@@ -100,19 +107,41 @@ table 372 "Payment Buffer"
             Editable = false;
             TableRelation = "Dimension Set Entry";
         }
+        field(1000; "Remit-to Code"; Code[20])
+        {
+            Caption = 'Remit-to Code';
+            DataClassification = SystemMetadata;
+            TableRelation = "Remit Address".Code WHERE("Vendor No." = FIELD("Vendor No."));
+        }
         field(11760; "Vendor Posting Group"; Code[20])
         {
             Caption = 'Vendor Posting Group';
             DataClassification = SystemMetadata;
             TableRelation = "Vendor Posting Group";
+#if CLEAN21
+            ObsoleteState = Removed;
+#else
+            ObsoleteState = Pending;
+#endif
+            ObsoleteReason = 'The field is not used anymore.';
+            ObsoleteTag = '21.0';
         }
     }
 
     keys
     {
+#if CLEAN21
+        key(Key1; "Vendor No.", "Currency Code", "Vendor Ledg. Entry No.", "Dimension Entry No.")
+#else
         key(Key1; "Vendor No.", "Currency Code", "Vendor Ledg. Entry No.", "Dimension Entry No.", "Vendor Posting Group")
+#endif
         {
             Clustered = true;
+#if not CLEAN21
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The obsoleted fields will be removed from primary key.';
+            ObsoleteTag = '21.0';
+#endif
         }
         key(Key2; "Document No.")
         {
@@ -142,6 +171,25 @@ table 372 "Payment Buffer"
 
         OnCopyFieldsToGenJournalLine(Rec, GenJournalLine);
     end;
+
+#if not CLEAN21
+    [Obsolete('Use the Get function without the "Vendor Posting Group" parameter instead. This field is obsolete and will be removed from primary key.', '21.0')]
+    procedure Get(VendorNo: Code[20]; CurrencyCode: Code[10]; VendorLedgEntryNo: Integer; DimensionEntryNo: Integer; VendorPostingGroup: Code[20]) Result: Boolean
+    var
+        TempPaymentBuffer: Record "Payment Buffer" temporary;
+    begin
+        TempPaymentBuffer.CopyFilters(Rec);
+        Reset();
+        SetRange("Vendor No.", VendorNo);
+        SetRange("Currency Code", CurrencyCode);
+        SetRange("Vendor Ledg. Entry No.", VendorLedgEntryNo);
+        SetRange("Dimension Entry No.", DimensionEntryNo);
+        if Count() > 1 then
+            SetRange("Vendor Posting Group", VendorPostingGroup);
+        Result := FindFirst();
+        CopyFilters(TempPaymentBuffer);
+    end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnCopyFieldsFromVendorLedgerEntry(VendorLedgerEntrySource: Record "Vendor Ledger Entry"; var PaymentBufferTarget: Record "Payment Buffer")

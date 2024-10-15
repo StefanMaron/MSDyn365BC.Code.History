@@ -44,8 +44,6 @@ codeunit 408 DimensionManagement
         IsCollectErrorsMode: Boolean;
         SourceCode: Code[10];
         InitDimQst: Label 'Do you want to initialize dimensions the selected tables. This may take some time and you can undo your changes. Do you really want to continue?';
-        EnterDimErr: Label 'You must enter dimension %1.', Comment = '%1 = dimension code';
-        DimValueErr: Label '%1 %2 must match the filter %3.', Comment = '%1 = fieldcaption of dimension value code; %2 = dimension code; %3 = dimension value code';
 
     procedure SetCollectErrorsMode()
     begin
@@ -162,7 +160,7 @@ codeunit 408 DimensionManagement
         EditDimSetEntries.SetFormCaption(NewCaption);
         OnEditDimensionSetOnBeforeEditDimEntries(EditDimSetEntries);
         EditDimSetEntries.RunModal();
-        NewDimSetID := EditDimSetEntries.GetDimensionID;
+        NewDimSetID := EditDimSetEntries.GetDimensionID();
         exit(NewDimSetID);
     end;
 
@@ -194,7 +192,7 @@ codeunit 408 DimensionManagement
         EditDimSetEntries.SetFormCaption(NewCaption);
         OnEditDimensionSetOnBeforeEditDimEntries(EditDimSetEntries);
         EditDimSetEntries.RunModal();
-        NewDimSetID := EditDimSetEntries.GetDimensionID;
+        NewDimSetID := EditDimSetEntries.GetDimensionID();
         UpdateGlobalDimFromDimSetID(NewDimSetID, GlobalDimVal1, GlobalDimVal2);
         OnAfterEditDimensionSet2(NewDimSetID, GlobalDimVal1, GlobalDimVal2);
         exit(NewDimSetID);
@@ -322,14 +320,14 @@ codeunit 408 DimensionManagement
 
     local procedure GetLastDimErrorID(): Integer
     begin
-        if ErrorMessageMgt.IsActive then
+        if ErrorMessageMgt.IsActive() then
             exit(ErrorMessageMgt.GetCachedLastErrorID());
         exit(LastErrorMessage.ID);
     end;
 
     local procedure FindLastErrorMessage(var Message: Text[250])
     begin
-        if ErrorMessageMgt.IsActive then
+        if ErrorMessageMgt.IsActive() then
             ErrorMessageMgt.GetLastError(Message)
         else
             Message := LastErrorMessage.Description;
@@ -359,9 +357,6 @@ codeunit 408 DimensionManagement
     var
         DimSetEntry: Record "Dimension Set Entry";
         TempDefaultDim: Record "Default Dimension" temporary;
-#if not CLEAN18
-        TempDimBuf: Record "Dimension Buffer" temporary;
-#endif
         DimValuePerAccount: Record "Dim. Value per Account";
         IsHandled: Boolean;
         IsChecked: Boolean;
@@ -377,12 +372,12 @@ codeunit 408 DimensionManagement
             if not IsCollectErrorsMode then
                 exit(false);
 
-        LastErrorID := GetLastDimErrorID;
+        LastErrorID := GetLastDimErrorID();
         DimSetEntry.Reset();
         DimSetEntry.SetRange("Dimension Set ID", DimSetID);
         CollectDefaultDimsToCheck(TableID, No, TempDefaultDim);
         with TempDefaultDim do begin
-            Reset;
+            Reset();
             if FindSet() then
                 repeat
                     DimSetEntry.SetRange("Dimension Code", "Dimension Code");
@@ -391,11 +386,11 @@ codeunit 408 DimensionManagement
                     if not IsHandled then begin
                         case "Value Posting" of
                             "Value Posting"::"Code Mandatory":
-                                if not DimSetEntry.FindFirst or (DimSetEntry."Dimension Value Code" = '') then
+                                if not DimSetEntry.FindFirst() or (DimSetEntry."Dimension Value Code" = '') then
                                     LogError(RecordId, FieldNo("Value Posting"), GetMissedMandatoryDimErr(TempDefaultDim), '');
                             "Value Posting"::"Same Code":
                                 if "Dimension Value Code" <> '' then begin
-                                    if not DimSetEntry.FindFirst or
+                                    if not DimSetEntry.FindFirst() or
                                        ("Dimension Value Code" <> DimSetEntry."Dimension Value Code")
                                     then
                                         LogError(RecordId, FieldNo("Value Posting"), GetSameCodeWrongDimErr(TempDefaultDim), '');
@@ -411,86 +406,17 @@ codeunit 408 DimensionManagement
                                 LogError(RecordId, FieldNo("Allowed Values Filter"), GetNotAllowedDimValuePerAccount(TempDefaultDim, DimSetEntry."Dimension Value Code"), '');
                     end;
                     if not IsCollectErrorsMode then
-                        if LastErrorID <> GetLastDimErrorID then
+                        if LastErrorID <> GetLastDimErrorID() then
                             exit(false);
                 until Next() = 0;
         end;
-#if not CLEAN18
-        // NAVCZ
-        if not CheckUserDimensionValues(DimSetID, TempDimBuf) then begin
-            if not IsCollectErrorsMode then
-                exit(false);
-        end;
-        // NAVCZ
-#endif
         OnCheckDimValuePostingOnBeforeExit(TableID, No, DimSetID, LastErrorMessage, ErrorMessageMgt, IsChecked, IsHandled);
         if IsHandled then
             exit(IsChecked);
 
-        exit(GetLastDimErrorID = LastErrorID);
-    end;
-#if not CLEAN18
-    [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
-    local procedure IsUserDimCheckAllowed(var UserSetup: Record "User Setup"): Boolean
-    var
-        GLSetup: Record "General Ledger Setup";
-    begin
-        // CZ
-        GLSetup.Get();
-        if GLSetup."User Checks Allowed" then begin
-            if UserId <> '' then
-                if UserSetup.Get(UserId) then
-                    exit(UserSetup."Check Dimension Values");
-        end;
-        exit(false);
+        exit(GetLastDimErrorID() = LastErrorID);
     end;
 
-    [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
-    local procedure CheckUserDimensionValues(DimSetID: Integer; var TempDimBuf: Record "Dimension Buffer" temporary): Boolean
-    var
-        SelectedDimension: Record "Selected Dimension";
-        UserSetup: Record "User Setup";
-        DimErrorText: Text[250];
-        LastErrorID: Integer;
-    begin
-        // CZ
-        if not IsUserDimCheckAllowed(UserSetup) then
-            exit(true);
-
-        if (DimSetID <> 0) and TempDimBuf.IsEmpty() then
-            GetDimBufForDimSetID(DimSetID, TempDimBuf);
-
-        LastErrorID := ErrorMessageMgt.GetLastErrorID;
-        SelectedDimension.SetRange("User ID", UserSetup."User ID");
-        SelectedDimension.SetRange("Object Type", 1);
-        SelectedDimension.SetRange("Object ID", DATABASE::"User Setup");
-        if SelectedDimension.Find('-') then
-            repeat
-                with SelectedDimension do begin
-                    TempDimBuf.SetRange("Dimension Code", "Dimension Code");
-                    if not TempDimBuf.Find('-') then begin
-                        if not LogError(
-                             UserSetup, UserSetup.FieldNo("Check Dimension Values"), StrSubstNo(EnterDimErr, "Dimension Code"), '')
-                        then
-                            exit(false);
-                    end;
-                    if "Dimension Value Filter" <> '' then begin
-                        TempDimBuf.SetFilter("Dimension Value Code", "Dimension Value Filter");
-                        if not TempDimBuf.Find('-') then begin
-                            DimErrorText :=
-                              StrSubstNo(DimValueErr, TempDimBuf.FieldCaption("Dimension Value Code"),
-                                "Dimension Code", "Dimension Value Filter");
-                            if not LogError(UserSetup, UserSetup.FieldNo("Check Dimension Values"), DimErrorText, '') then
-                                exit(false);
-                        end;
-                        TempDimBuf.SetRange("Dimension Value Code");
-                    end;
-                end;
-            until SelectedDimension.Next() = 0;
-        TempDimBuf.SetRange("Dimension Code");
-        exit(LastErrorID = ErrorMessageMgt.GetLastErrorID);
-    end;
-#endif
     procedure CheckDimBuffer(var DimBuffer: Record "Dimension Buffer"): Boolean
     var
         TempDimBuf: Record "Dimension Buffer" temporary;
@@ -534,7 +460,7 @@ codeunit 408 DimensionManagement
             Separator := '|';
         until TempDimBuf.Next() = 0;
 
-        LastErrorID := GetLastDimErrorID;
+        LastErrorID := GetLastDimErrorID();
         DimComb.SetFilter("Dimension 1 Code", DimFilter);
         DimComb.SetFilter("Dimension 2 Code", DimFilter);
         if DimComb.FindSet() then
@@ -558,10 +484,10 @@ codeunit 408 DimensionManagement
                       TempDimBuf."Dimension Code", TempDimBuf."Dimension Value Code");
                 end;
                 if not IsCollectErrorsMode then
-                    if LastErrorID <> GetLastDimErrorID then
+                    if LastErrorID <> GetLastDimErrorID() then
                         exit(false);
             until DimComb.Next() = 0;
-        exit(GetLastDimErrorID = LastErrorID);
+        exit(GetLastDimErrorID() = LastErrorID);
     end;
 
     local procedure CheckDimValueComb(Dim1: Code[20]; Dim1Value: Code[20]; Dim2: Code[20]; Dim2Value: Code[20]): Boolean
@@ -1170,7 +1096,7 @@ codeunit 408 DimensionManagement
 
         GetGLSetup(GLSetupShortcutDimCode);
         if GLSetupShortcutDimCode[FieldNumber] = '' then
-            Error(Text002, GLSetup.TableCaption);
+            Error(Text002, GLSetup.TableCaption());
         DimVal.SetRange("Dimension Code", GLSetupShortcutDimCode[FieldNumber]);
         DimVal."Dimension Code" := GLSetupShortcutDimCode[FieldNumber];
         DimVal.Code := ShortcutDimCode;
@@ -1195,7 +1121,7 @@ codeunit 408 DimensionManagement
 
         GetGLSetup(GLSetupShortcutDimCode);
         if (GLSetupShortcutDimCode[FieldNumber] = '') and (ShortcutDimCode <> '') then
-            Error(Text002, GLSetup.TableCaption);
+            Error(Text002, GLSetup.TableCaption());
         DimVal.SetRange("Dimension Code", GLSetupShortcutDimCode[FieldNumber]);
         if ShortcutDimCode <> '' then begin
             DimVal.SetRange(Code, ShortcutDimCode);
@@ -1222,9 +1148,9 @@ codeunit 408 DimensionManagement
         if ShortcutDimCode <> '' then begin
             DimVal.Get(DimVal."Dimension Code", ShortcutDimCode);
             if not CheckDim(DimVal."Dimension Code") then
-                Error(GetDimErr);
+                Error(GetDimErr());
             if not CheckDimValue(DimVal."Dimension Code", ShortcutDimCode) then
-                Error(GetDimErr);
+                Error(GetDimErr());
         end;
         GetDimensionSet(TempDimSetEntry, DimSetID);
         if TempDimSetEntry.Get(TempDimSetEntry."Dimension Set ID", DimVal."Dimension Code") then
@@ -1330,14 +1256,14 @@ codeunit 408 DimensionManagement
                             TempDimBuf.SetRange("Dimension Code", DefaultDim."Dimension Code");
                             case DefaultDim."Value Posting" of
                                 DefaultDim."Value Posting"::"Code Mandatory":
-                                    if (not TempDimBuf.FindFirst) or (TempDimBuf."Dimension Value Code" = '') then begin
+                                    if (not TempDimBuf.FindFirst()) or (TempDimBuf."Dimension Value Code" = '') then begin
                                         LogError(
                                             DefaultDim.RecordId, DefaultDim.FieldNo("Value Posting"), GetMissedMandatoryDimErr(DefaultDim), '');
                                         exit(false);
                                     end;
                                 DefaultDim."Value Posting"::"Same Code":
                                     if DefaultDim."Dimension Value Code" <> '' then begin
-                                        if (not TempDimBuf.FindFirst) or
+                                        if (not TempDimBuf.FindFirst()) or
                                            (DefaultDim."Dimension Value Code" <> TempDimBuf."Dimension Value Code")
                                         then begin
                                             LogError(
@@ -1363,12 +1289,6 @@ codeunit 408 DimensionManagement
                     end;
                 end;
             end;
-#if not CLEAN18
-        // NAVCZ
-        if not CheckUserDimensionValues(0, TempDimBuf) then
-            exit(false);
-        // NAVCZ
-#endif
         OnCheckValuePostingOnBeforeExit(TableID, No, TempDimBuf, LastErrorMessage, ErrorMessageMgt, IsChecked, IsHandled);
         if IsHandled then
             exit(IsChecked);
@@ -1450,7 +1370,7 @@ codeunit 408 DimensionManagement
         KeyRef := RecRef.KeyIndex(1);
         FieldRef := KeyRef.FieldIndex(1);
         Result := (KeyRef.FieldCount = 1) and (FieldRef.Type = FieldType::Code);
-        RecRef.Close;
+        RecRef.Close();
     end;
 
     procedure GlobalDimObjectNoList(var TempAllObjWithCaption: Record AllObjWithCaption temporary)
@@ -1550,12 +1470,12 @@ codeunit 408 DimensionManagement
         if Dim.Get(DimCode) then begin
             if Dim.Blocked then begin
                 LogError(
-                  Dim.RecordId, Dim.FieldNo(Blocked), StrSubstNo(Text014, Dim.TableCaption, DimCode), '');
+                  Dim.RecordId, Dim.FieldNo(Blocked), StrSubstNo(Text014, Dim.TableCaption(), DimCode), '');
                 exit(false);
             end;
         end else begin
             LogError(
-              DATABASE::Dimension, 0, StrSubstNo(Text015, Dim.TableCaption, DimCode), '');
+              DATABASE::Dimension, 0, StrSubstNo(Text015, Dim.TableCaption(), DimCode), '');
             exit(false);
         end;
         exit(true);
@@ -1577,7 +1497,7 @@ codeunit 408 DimensionManagement
                 if DimVal.Blocked then begin
                     LogError(
                       DimVal.RecordId, DimVal.FieldNo(Blocked),
-                      StrSubstNo(DimValueBlockedErr, DimVal.TableCaption, DimCode, DimValCode), '');
+                      StrSubstNo(DimValueBlockedErr, DimVal.TableCaption(), DimCode, DimValCode), '');
                     exit(false);
                 end;
                 if not CheckDimValueAllowed(DimVal) then
@@ -1607,7 +1527,7 @@ codeunit 408 DimensionManagement
         if not DimValueAllowed then
             DimErr :=
               StrSubstNo(
-                DimValueMustNotBeErr, DimVal.TableCaption, DimVal."Dimension Code", DimVal.Code, Format(DimVal."Dimension Value Type"))
+                DimValueMustNotBeErr, DimVal.TableCaption(), DimVal."Dimension Code", DimVal.Code, Format(DimVal."Dimension Value Type"))
         else
             OnCheckDimValueAllowed(DimVal, DimValueAllowed, DimErr);
 
@@ -1623,7 +1543,7 @@ codeunit 408 DimensionManagement
     begin
         if DimSetID = 0 then
             exit(true);
-        LastErrorID := GetLastDimErrorID;
+        LastErrorID := GetLastDimErrorID();
         DimSetEntry.Reset();
         DimSetEntry.SetRange("Dimension Set ID", DimSetID);
         if DimSetEntry.FindSet() then
@@ -1634,7 +1554,7 @@ codeunit 408 DimensionManagement
                     if not IsCollectErrorsMode then
                         exit(false);
             until DimSetEntry.Next() = 0;
-        exit(GetLastDimErrorID = LastErrorID);
+        exit(GetLastDimErrorID() = LastErrorID);
     end;
 
     procedure GetDimErr() ErrorMessage: Text[250]
@@ -1646,9 +1566,9 @@ codeunit 408 DimensionManagement
     var
         ForwardLinkMgt: Codeunit "Forward Link Mgt.";
     begin
-        if ErrorMessageMgt.IsActive then begin
+        if ErrorMessageMgt.IsActive() then begin
             if HelpArticleCode = '' then
-                HelpArticleCode := ForwardLinkMgt.GetHelpCodeForWorkingWithDimensions;
+                HelpArticleCode := ForwardLinkMgt.GetHelpCodeForWorkingWithDimensions();
             ErrorMessageMgt.LogContextFieldError(0, Message, SourceRecVariant, SourceFieldNo, HelpArticleCode);
             IsLogged := true;
         end else begin
@@ -1668,7 +1588,7 @@ codeunit 408 DimensionManagement
 
         GetGLSetup(GLSetupShortcutDimCode);
         if GLSetupShortcutDimCode[FieldNumber] = '' then
-            Error(Text002, GLSetup.TableCaption);
+            Error(Text002, GLSetup.TableCaption());
         DimVal.SetRange("Dimension Code", GLSetupShortcutDimCode[FieldNumber]);
         if PAGE.RunModal(0, DimVal) = ACTION::LookupOK then;
     end;
@@ -1806,7 +1726,7 @@ codeunit 408 DimensionManagement
                     ToSourceICDocDim."Table ID" := ToTableID;
                     ToSourceICDocDim."Transaction Source" := ToTransactionSource;
                     ToSourceICDocDim.Insert();
-                    Delete;
+                    Delete();
                 until Next() = 0;
         end;
     end;
@@ -1901,14 +1821,14 @@ codeunit 408 DimensionManagement
                 if ICDimVal.Blocked then begin
                     LogError(
                       ICDimVal.RecordId, ICDimVal.FieldNo(Blocked),
-                      StrSubstNo(DimValueBlockedErr, ICDimVal.TableCaption, ICDimCode, ICDimValCode), '');
+                      StrSubstNo(DimValueBlockedErr, ICDimVal.TableCaption(), ICDimCode, ICDimValCode), '');
                     exit(false);
                 end;
                 if not CheckICDimValueAllowed(ICDimVal) then begin
                     LogError(
                       ICDimVal.RecordId, ICDimVal.FieldNo("Dimension Value Type"),
                       StrSubstNo(
-                        DimValueMustNotBeErr, ICDimVal.TableCaption, ICDimCode, ICDimValCode,
+                        DimValueMustNotBeErr, ICDimVal.TableCaption(), ICDimCode, ICDimValCode,
                         Format(ICDimVal."Dimension Value Type")),
                       '');
                     exit(false);
@@ -1949,12 +1869,12 @@ codeunit 408 DimensionManagement
         if ICDim.Get(ICDimCode) then begin
             if ICDim.Blocked then begin
                 LogError(
-                  ICDim.RecordId, ICDim.FieldNo(Blocked), StrSubstNo(Text014, ICDim.TableCaption, ICDimCode), '');
+                  ICDim.RecordId, ICDim.FieldNo(Blocked), StrSubstNo(Text014, ICDim.TableCaption(), ICDimCode), '');
                 exit(false);
             end;
         end else begin
             LogError(
-              DATABASE::"IC Dimension", 0, StrSubstNo(Text015, ICDim.TableCaption, ICDimCode), '');
+              DATABASE::"IC Dimension", 0, StrSubstNo(Text015, ICDim.TableCaption(), ICDimCode), '');
             exit(false);
         end;
         exit(true);
@@ -2342,7 +2262,7 @@ codeunit 408 DimensionManagement
                 break;
             DefaultDimensionPriority.Priority := 0;
             DefaultDimensionPriority.SetRange("Table ID", TableID);
-            if ((InitialPriority = 0) or DefaultDimensionPriority.FindFirst) and
+            if ((InitialPriority = 0) or DefaultDimensionPriority.FindFirst()) and
                ((DefaultDimensionPriority.Priority < InitialPriority) or
                 ((DefaultDimensionPriority.Priority = InitialPriority) and (TableID < PriorityTableID)))
             then begin
@@ -2403,7 +2323,7 @@ codeunit 408 DimensionManagement
         TempDimSetEntryBuffer.SetFilter("Dimension Value ID", '%1', DimSetFilterCtr);
         if TempDimSetEntryBuffer.FindSet() then begin
             DimSetFilter := Format(TempDimSetEntryBuffer."Dimension Set ID");
-            if TempDimSetEntryBuffer.Next <> 0 then
+            if TempDimSetEntryBuffer.Next() <> 0 then
                 repeat
                     DimSetFilter += '|' + Format(TempDimSetEntryBuffer."Dimension Set ID");
                 until TempDimSetEntryBuffer.Next() = 0;
@@ -2428,7 +2348,7 @@ codeunit 408 DimensionManagement
         end else begin
             TempDimSetEntry."Dimension Set ID" := DimSetID;
             TempDimSetEntry."Dimension Value ID" := 1;
-            TempDimSetEntry.Insert
+            TempDimSetEntry.Insert();
         end;
     end;
 
@@ -2450,7 +2370,7 @@ codeunit 408 DimensionManagement
         CostAccSetup: Record "Cost Accounting Setup";
         CostAccMgt: Codeunit "Cost Account Mgt";
     begin
-        if CostAccSetup.Get and (DefaultDimension."Table ID" = DATABASE::"G/L Account") then
+        if CostAccSetup.Get() and (DefaultDimension."Table ID" = DATABASE::"G/L Account") then
             if GLAcc.Get(DefaultDimension."No.") then
                 CostAccMgt.UpdateCostTypeFromDefaultDimension(DefaultDimension, GLAcc, CallingTrigger);
     end;
@@ -2643,7 +2563,7 @@ codeunit 408 DimensionManagement
                             FieldRefField := RecRef.Field(DefaultDimension."Dimension Description Field ID");
                             if FieldTab.Get(DefaultDimension."Table ID", DefaultDimension."Dimension Description Field ID") then
                                 if FieldTab.Class = FieldTab.Class::FlowField then
-                                    FieldRefField.CalcField;
+                                    FieldRefField.CalcField();
                             TempValueText := Format(FieldRefField.Value);
                             if DefaultDimension."Dimension Description Format" <> '' then
                                 TempValueText := StrSubstNo(DefaultDimension."Dimension Description Format", TempValueText);

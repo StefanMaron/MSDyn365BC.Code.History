@@ -30,7 +30,7 @@ page 311 "Intrastat Journal"
                 trigger OnValidate()
                 begin
                     IntraJnlManagement.CheckName(CurrentJnlBatchName, Rec);
-                    CurrentJnlBatchNameOnAfterVali;
+                    CurrentJnlBatchNameOnAfterVali();
                 end;
             }
             repeater(Control1)
@@ -48,14 +48,14 @@ page 311 "Intrastat Journal"
                     StyleExpr = LineStyleExpression;
                     ToolTip = 'Specifies the date the item entry was posted.';
                 }
-                field("Document No."; "Document No.")
+                field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = BasicEU;
                     StyleExpr = LineStyleExpression;
                     ToolTip = 'Specifies the document number on the entry.';
                     ShowMandatory = true;
                 }
-                field("Item No."; "Item No.")
+                field("Item No."; Rec."Item No.")
                 {
                     ApplicationArea = BasicEU;
                     StyleExpr = LineStyleExpression;
@@ -68,28 +68,28 @@ page 311 "Intrastat Journal"
                     ToolTip = 'Specifies the name of the item.';
                     Caption = 'Item Name';
                 }
-                field("Tariff No."; "Tariff No.")
+                field("Tariff No."; Rec."Tariff No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the item''s tariff number.';
                 }
-                field("Item Description"; "Item Description")
+                field("Item Description"; Rec."Item Description")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the name of the tariff no. that is associated with the item.';
                     Caption = 'Tariff No. Description';
                 }
-                field("Country/Region Code"; "Country/Region Code")
+                field("Country/Region Code"; Rec."Country/Region Code")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the country/region of the address.';
                 }
-                field("Partner VAT ID"; "Partner VAT ID")
+                field("Partner VAT ID"; Rec."Partner VAT ID")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the counter party''s VAT number.';
                 }
-                field("Country/Region of Origin Code"; "Country/Region of Origin Code")
+                field("Country/Region of Origin Code"; Rec."Country/Region of Origin Code")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies a code for the country/region where the item was produced or processed.';
@@ -100,29 +100,29 @@ page 311 "Intrastat Journal"
                     ToolTip = 'Specifies the area of the customer or vendor, for the purpose of reporting to INTRASTAT.';
                     Visible = false;
                 }
-                field("Transaction Type"; "Transaction Type")
+                field("Transaction Type"; Rec."Transaction Type")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the type of transaction that the document represents, for the purpose of reporting to INTRASTAT.';
                 }
-                field("Transaction Specification"; "Transaction Specification")
+                field("Transaction Specification"; Rec."Transaction Specification")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies a specification of the document''s transaction, for the purpose of reporting to INTRASTAT.';
                     Visible = false;
                 }
-                field("Transport Method"; "Transport Method")
+                field("Transport Method"; Rec."Transport Method")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the transport method, for the purpose of reporting to INTRASTAT.';
                 }
-                field("Entry/Exit Point"; "Entry/Exit Point")
+                field("Entry/Exit Point"; Rec."Entry/Exit Point")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the code of either the port of entry where the items passed into your country/region or the port of exit.';
                     Visible = false;
                 }
-                field("Supplementary Units"; "Supplementary Units")
+                field("Supplementary Units"; Rec."Supplementary Units")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies if you must report information about quantity and units of measure for this item.';
@@ -132,12 +132,12 @@ page 311 "Intrastat Journal"
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the number of units of the item in the entry.';
                 }
-                field("Net Weight"; "Net Weight")
+                field("Net Weight"; Rec."Net Weight")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the net weight of one unit of the item.';
                 }
-                field("Total Weight"; "Total Weight")
+                field("Total Weight"; Rec."Total Weight")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the total weight for the items in the item entry.';
@@ -147,44 +147,44 @@ page 311 "Intrastat Journal"
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the total amount of the entry, excluding VAT.';
                 }
-                field("Statistical Value"; "Statistical Value")
+                field("Statistical Value"; Rec."Statistical Value")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the entry''s statistical value, which must be reported to the statistics authorities.';
                 }
-                field("Source Type"; "Source Type")
+                field("Source Type"; Rec."Source Type")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the entry type.';
                 }
-                field("Source Entry No."; "Source Entry No.")
+                field("Source Entry No."; Rec."Source Entry No.")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the number that the item entry had in the table it came from.';
                 }
-                field("Cost Regulation %"; "Cost Regulation %")
+                field("Cost Regulation %"; Rec."Cost Regulation %")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies any indirect costs, as a percentage.';
                     Visible = false;
                 }
-                field("Indirect Cost"; "Indirect Cost")
+                field("Indirect Cost"; Rec."Indirect Cost")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies an amount that represents the costs for freight and insurance.';
                     Visible = false;
                 }
-                field("Internal Ref. No."; "Internal Ref. No.")
+                field("Internal Ref. No."; Rec."Internal Ref. No.")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies a reference number used by the customs and tax authorities.';
                 }
-                field("Shpt. Method Code"; "Shpt. Method Code")
+                field("Shpt. Method Code"; Rec."Shpt. Method Code")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the item''s shipment method.';
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code for the location that the entry is linked to.';
@@ -273,8 +273,9 @@ page 311 "Intrastat Journal"
                 var
                     VATReportsConfiguration: Record "VAT Reports Configuration";
                 begin
-                    VATReportsConfiguration.SetRange("VAT Report Type", "VAT Report Configuration"::"Intrastat Report");
-                    if VATReportsConfiguration.FindFirst and (VATReportsConfiguration."Suggest Lines Codeunit ID" <> 0) then begin
+                    if FindVATReportsConfiguration(VATReportsConfiguration) and
+                        (VATReportsConfiguration."Suggest Lines Codeunit ID" <> 0)
+                    then begin
                         CODEUNIT.Run(VATReportsConfiguration."Suggest Lines Codeunit ID", Rec);
                         exit;
                     end;
@@ -299,8 +300,9 @@ page 311 "Intrastat Journal"
                 var
                     VATReportsConfiguration: Record "VAT Reports Configuration";
                 begin
-                    VATReportsConfiguration.SetRange("VAT Report Type", "VAT Report Configuration"::"Intrastat Report");
-                    if VATReportsConfiguration.FindFirst and (VATReportsConfiguration."Validate Codeunit ID" <> 0) then begin
+                    if FindVATReportsConfiguration(VATReportsConfiguration) and
+                        (VATReportsConfiguration."Validate Codeunit ID" <> 0)
+                    then begin
                         CODEUNIT.Run(VATReportsConfiguration."Validate Codeunit ID", Rec);
                         CurrPage.Update();
                         exit;
@@ -342,9 +344,12 @@ page 311 "Intrastat Journal"
                 var
                     VATReportsConfiguration: Record "VAT Reports Configuration";
                 begin
-                    VATReportsConfiguration.SetRange("VAT Report Type", "VAT Report Configuration"::"Intrastat Report");
-                    if VATReportsConfiguration.FindFirst and (VATReportsConfiguration."Validate Codeunit ID" <> 0) and
-                       (VATReportsConfiguration."Content Codeunit ID" <> 0)
+                    FeatureTelemetry.LogUptake('0000FAF', IntrastatTok, Enum::"Feature Uptake Status"::Used);
+                    Commit();
+
+                    if FindVATReportsConfiguration(VATReportsConfiguration) and
+                        (VATReportsConfiguration."Validate Codeunit ID" <> 0) and
+                        (VATReportsConfiguration."Content Codeunit ID" <> 0)
                     then begin
                         CODEUNIT.Run(VATReportsConfiguration."Validate Codeunit ID", Rec);
                         if ErrorsExistOnCurrentBatch(true) then
@@ -364,19 +369,20 @@ page 311 "Intrastat Journal"
                     IntrastatJnlLine.SetRange("Journal Template Name", "Journal Template Name");
                     IntrastatJnlLine.SetRange("Journal Batch Name", "Journal Batch Name");
                     REPORT.Run(REPORT::"Intrastat - Make Disk Tax Auth", true, false, IntrastatJnlLine);
+                    FeatureTelemetry.LogUsage('0000QWE', IntrastatTok, 'File created');
                 end;
             }
             action(Form)
             {
                 ApplicationArea = BasicEU;
-                Caption = 'Prints Intrastat Journal';
+                Caption = 'Print Intrastat Journal';
                 Ellipsis = true;
                 Image = PrintForm;
                 Promoted = true;
                 PromotedCategory = "Report";
                 PromotedIsBig = true;
                 PromotedOnly = true;
-                ToolTip = 'Print that Form - this is used to print Intrastat journal.';
+                ToolTip = 'Print the intrastat journal.';
 
                 trigger OnAction()
                 begin
@@ -420,8 +426,8 @@ page 311 "Intrastat Journal"
 
     trigger OnAfterGetCurrRecord()
     begin
-        if ClientTypeManagement.GetCurrentClientType <> CLIENTTYPE::ODataV4 then
-            UpdateStatisticalValue;
+        if ClientTypeManagement.GetCurrentClientType() <> CLIENTTYPE::ODataV4 then
+            UpdateStatisticalValue();
         UpdateErrors();
     end;
 
@@ -435,11 +441,12 @@ page 311 "Intrastat Journal"
         ServerSetting: Codeunit "Server Setting";
         JnlSelected: Boolean;
     begin
+        FeatureTelemetry.LogUptake('0000FAS', IntrastatTok, Enum::"Feature Uptake Status"::Discovered);
         IsSaaSExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled();
-        if ClientTypeManagement.GetCurrentClientType = CLIENTTYPE::ODataV4 then
+        if ClientTypeManagement.GetCurrentClientType() = CLIENTTYPE::ODataV4 then
             exit;
 
-        if IsOpenedFromBatch then begin
+        if IsOpenedFromBatch() then begin
             CurrentJnlBatchName := "Journal Batch Name";
             IntraJnlManagement.OpenJnl(CurrentJnlBatchName, Rec);
             exit;
@@ -458,7 +465,9 @@ page 311 "Intrastat Journal"
         ReportPrint: Codeunit "Test Report-Print";
         IntraJnlManagement: Codeunit IntraJnlManagement;
         ClientTypeManagement: Codeunit "Client Type Management";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
         LineStyleExpression: Text;
+        IntrastatTok: Label 'Intrastat', Locked = true;
         StatisticalValue: Decimal;
         TotalStatisticalValue: Decimal;
         CurrentJnlBatchName: Code[10];
@@ -467,6 +476,13 @@ page 311 "Intrastat Journal"
         [InDataSet]
         StatisticalValueVisible: Boolean;
         IsSaaSExcelAddinEnabled: Boolean;
+
+    local procedure FindVATReportsConfiguration(var VATReportsConfiguration: Record "VAT Reports Configuration"): Boolean
+    begin
+        VATReportsConfiguration.SetRange("VAT Report Type", "VAT Report Configuration"::"Intrastat Report");
+        OnBeforeFindVATReportsConfiguration(Rec, VATReportsConfiguration);
+        exit(VATReportsConfiguration.FindFirst());
+    end;
 
     local procedure UpdateStatisticalValue()
     begin
@@ -479,7 +495,7 @@ page 311 "Intrastat Journal"
 
     local procedure CurrentJnlBatchNameOnAfterVali()
     begin
-        CurrPage.SaveRecord;
+        CurrPage.SaveRecord();
         IntraJnlManagement.SetName(CurrentJnlBatchName, Rec);
         CurrPage.Update(false);
     end;
@@ -516,6 +532,11 @@ page 311 "Intrastat Journal"
         CurrPage.ErrorMessagesPart.PAGE.SetRecordID(Rec.RecordId);
         CurrPage.ErrorMessagesPart.PAGE.GetStyleOfRecord(Rec, LineStyleExpression);
         Rec.Mark(ErrorsExistOnCurrentLine());
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFindVATReportsConfiguration(var IntrastatJnlLine: Record "Intrastat Jnl. Line"; var VATReportsConfiguration: Record "VAT Reports Configuration")
+    begin
     end;
 
     [IntegrationEvent(true, false)]

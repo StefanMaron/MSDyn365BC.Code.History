@@ -121,19 +121,6 @@ table 5600 "Fixed Asset"
         {
             Caption = 'FA Location Code';
             TableRelation = "FA Location";
-#if not CLEAN18
-
-            trigger OnValidate()
-            begin
-                // NAVCZ
-                FASetup.Get();
-                if FASetup."Fixed Asset History" and
-                   ("FA Location Code" <> xRec."FA Location Code")
-                then
-                    ChangeEntry(FAHistory.Type::Location);
-                // NAVCZ
-            end;
-#endif
         }
         field(11; "Vendor No."; Code[20])
         {
@@ -170,19 +157,6 @@ table 5600 "Fixed Asset"
         {
             Caption = 'Responsible Employee';
             TableRelation = Employee;
-#if not CLEAN18
-
-            trigger OnValidate()
-            begin
-                // NAVCZ
-                FASetup.Get();
-                if FASetup."Fixed Asset History" and
-                   ("Responsible Employee" <> xRec."Responsible Employee")
-                then
-                    ChangeEntry(FAHistory.Type::"Responsible Employee");
-                // NAVCZ
-            end;
-#endif
         }
         field(17; "Serial No."; Text[50])
         {
@@ -295,14 +269,9 @@ table 5600 "Fixed Asset"
         {
             Caption = 'Tax Depreciation Group Code';
             Editable = false;
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            TableRelation = "Depreciation Group".Code;
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(31044; "SKP Code"; Code[20])
         {
@@ -314,14 +283,9 @@ table 5600 "Fixed Asset"
         field(31045; "Clasification Code"; Code[20])
         {
             Caption = 'Clasification Code';
-#if not CLEAN18
-            TableRelation = "Classification Code";
-            ObsoleteState = Pending;
-#else
-            ObsoleteState = Pending;
-#endif
+            ObsoleteState = Removed;
             ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
     }
 
@@ -358,18 +322,18 @@ table 5600 "Fixed Asset"
         key(Key10; Description)
         {
         }
+#if not CLEAN21
         key(Key11; "FA Location Code", "Responsible Employee")
         {
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
+            ObsoleteTag = '21.0';
         }
         key(Key12; "Responsible Employee", "FA Location Code")
         {
-        }
-#if not CLEAN18
-        key(Key14; "Tax Depreciation Group Code")
-        {
             ObsoleteState = Pending;
-            ObsoleteReason = 'Field "Tax Depreciation Group Code" is removed and cannot be used in an active key.';
-            ObsoleteTag = '18.0';
+            ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
+            ObsoleteTag = '21.0';
         }
 #endif
     }
@@ -403,7 +367,7 @@ table 5600 "Fixed Asset"
         FADeprBook.SetRange("FA No.", "No.");
         FADeprBook.DeleteAll(true);
         if not FADeprBook.IsEmpty() then
-            Error(Text001, TableCaption, "No.");
+            Error(Text001, TableCaption(), "No.");
 
         MainAssetComp.SetCurrentKey("FA No.");
         MainAssetComp.SetRange("FA No.", "No.");
@@ -466,8 +430,6 @@ table 5600 "Fixed Asset"
     end;
 
     var
-        Text000: Label 'A main asset cannot be deleted.';
-        Text001: Label 'You cannot delete %1 %2 because it has associated depreciation books.';
         CommentLine: Record "Comment Line";
         FA: Record "Fixed Asset";
         FASetup: Record "FA Setup";
@@ -477,13 +439,9 @@ table 5600 "Fixed Asset"
         FAMoveEntries: Codeunit "FA MoveEntries";
         NoSeriesMgt: Codeunit NoSeriesManagement;
         DimMgt: Codeunit DimensionManagement;
-#if not CLEAN18
-        FAHistory: Record "FA History Entry";
-#endif
-        OKConfirm: Boolean;
-        Text1220000: Label 'Do you want to assign new %1 %2 to Fixed Asset %3?';
-        Text1220001: Label 'Selected Fixed Asset %1 is disposed and FA Location/Responsible Employee cannot be assigned to it.';
-        Text1220002: Label 'Do you want to print FA assignment/discharge report?';
+
+        Text000: Label 'A main asset cannot be deleted.';
+        Text001: Label 'You cannot delete %1 %2 because it has associated depreciation books.';
         UnexpctedSubclassErr: Label 'This fixed asset subclass belongs to a different fixed asset class.';
         DontAskAgainActionTxt: Label 'Don''t ask again';
         NotificationNameTxt: Label 'Fixed Asset Acquisition Wizard';
@@ -542,76 +500,6 @@ table 5600 "Fixed Asset"
         OnAfterValidateShortcutDimCode(Rec, xRec, FieldNumber, ShortcutDimCode);
     end;
 
-#if not CLEAN18
-    [Obsolete('Moved to Fixed Asset Localization for Czech.', '18.0')]
-    [Scope('OnPrem')]
-    procedure PrintAssignmentAndDischarge(FAHistoryEntryNo: Integer)
-    begin
-        // NAVCZ
-        if GuiAllowed and (CurrFieldNo <> 0) then
-            if Confirm(Text1220002) then begin
-                FAHistory.Get(FAHistoryEntryNo);
-                FAHistory.SetRecFilter;
-                REPORT.Run(REPORT::"FA Assignment/Discharge", false, false, FAHistory);
-            end;
-    end;
-
-    [Obsolete('Moved to Fixed Asset Localization for Czech.', '18.0')]
-    [Scope('OnPrem')]
-    procedure ChangeEntry(ChangeType: Option Location,"Responsible Employee")
-    var
-        FADeprBook: Record "FA Depreciation Book";
-        OldValue: Code[20];
-        NewValue: Code[20];
-        IsHandled: Boolean;
-    begin
-        // NAVCZ
-        IsHandled := false;
-        OnBeforeChangeEntry(Rec, xRec, ChangeType, IsHandled);
-        if IsHandled then
-            exit;
-
-        if Inactive then
-            Error(Text1220001, "No.");
-
-        FASetup.Get();
-        FADeprBook.SetRange("FA No.", "No.");
-        FADeprBook.SetRange("Depreciation Book Code", FASetup."Default Depr. Book");
-        if FADeprBook.FindLast() then
-            if FADeprBook."Disposal Date" > 0D then
-                Error(Text1220001, "No.");
-
-        OKConfirm := true;
-        if GuiAllowed and (CurrFieldNo <> 0) then begin
-            if ChangeType = ChangeType::Location then
-                OKConfirm := Confirm(Text1220000, true, FieldCaption("FA Location Code"), "FA Location Code", "No.")
-            else
-                OKConfirm := Confirm(Text1220000, true, FieldCaption("Responsible Employee"), "Responsible Employee", "No.");
-        end;
-        if OKConfirm then begin
-            case ChangeType of
-                ChangeType::Location:
-                    begin
-                        OldValue := xRec."FA Location Code";
-                        NewValue := "FA Location Code";
-                    end;
-                ChangeType::"Responsible Employee":
-                    begin
-                        OldValue := xRec."Responsible Employee";
-                        NewValue := "Responsible Employee";
-                    end;
-            end;
-
-            PrintAssignmentAndDischarge(FAHistory.InsertEntry(ChangeType, "No.", OldValue, NewValue, 0, false));
-        end else begin
-            if ChangeType = ChangeType::Location then
-                "FA Location Code" := xRec."FA Location Code"
-            else
-                "Responsible Employee" := xRec."Responsible Employee";
-        end;
-    end;
-
-#endif
     procedure FieldsForAcquitionInGeneralGroupAreCompleted(): Boolean
     begin
         exit(("No." <> '') and (Description <> '') and ("FA Subclass Code" <> ''));
@@ -623,15 +511,15 @@ table 5600 "Fixed Asset"
         FixedAssetAcquisitionWizard: Codeunit "Fixed Asset Acquisition Wizard";
         FAAcquireWizardNotification: Notification;
     begin
-        if IsNotificationEnabledForCurrentUser then begin
-            FAAcquireWizardNotification.Id(GetNotificationID);
+        if IsNotificationEnabledForCurrentUser() then begin
+            FAAcquireWizardNotification.Id(GetNotificationID());
             FAAcquireWizardNotification.Message(ReadyToAcquireMsg);
             FAAcquireWizardNotification.Scope(NOTIFICATIONSCOPE::LocalScope);
             FAAcquireWizardNotification.AddAction(
               AcquireActionTxt, CODEUNIT::"Fixed Asset Acquisition Wizard", 'RunAcquisitionWizardFromNotification');
             FAAcquireWizardNotification.AddAction(
               DontAskAgainActionTxt, CODEUNIT::"Fixed Asset Acquisition Wizard", 'HideNotificationForCurrentUser');
-            FAAcquireWizardNotification.SetData(FixedAssetAcquisitionWizard.GetNotificationFANoDataItemID, "No.");
+            FAAcquireWizardNotification.SetData(FixedAssetAcquisitionWizard.GetNotificationFANoDataItemID(), "No.");
             NotificationLifecycleMgt.SendNotification(FAAcquireWizardNotification, RecordId);
         end
     end;
@@ -645,22 +533,22 @@ table 5600 "Fixed Asset"
     var
         MyNotifications: Record "My Notifications";
     begin
-        MyNotifications.InsertDefault(GetNotificationID, NotificationNameTxt, NotificationDescriptionTxt, true);
+        MyNotifications.InsertDefault(GetNotificationID(), NotificationNameTxt, NotificationDescriptionTxt, true);
     end;
 
     local procedure IsNotificationEnabledForCurrentUser(): Boolean
     var
         MyNotifications: Record "My Notifications";
     begin
-        exit(MyNotifications.IsEnabled(GetNotificationID));
+        exit(MyNotifications.IsEnabled(GetNotificationID()));
     end;
 
     procedure DontNotifyCurrentUserAgain()
     var
         MyNotifications: Record "My Notifications";
     begin
-        if not MyNotifications.Disable(GetNotificationID) then
-            MyNotifications.InsertDefault(GetNotificationID, NotificationNameTxt, NotificationDescriptionTxt, false);
+        if not MyNotifications.Disable(GetNotificationID()) then
+            MyNotifications.InsertDefault(GetNotificationID(), NotificationNameTxt, NotificationDescriptionTxt, false);
     end;
 
     procedure RecallNotificationForCurrentUser()
@@ -694,13 +582,5 @@ table 5600 "Fixed Asset"
     local procedure OnBeforeValidateShortcutDimCode(var FixedAsset: Record "Fixed Asset"; var xFixedAsset: Record "Fixed Asset"; FieldNumber: Integer; var ShortcutDimCode: Code[20])
     begin
     end;
-#if not CLEAN18
-
-    [Obsolete('Moved to Fixed Asset Localization for Czech.', '18.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeChangeEntry(var FixedAsset: Record "Fixed Asset"; var xFixedAsset: Record "Fixed Asset"; ChangeType: Option Location,"Responsible Employee"; var IsHandled: Boolean)
-    begin
-    end;
-#endif
 }
 

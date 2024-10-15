@@ -34,17 +34,23 @@ page 508 "Blanket Sales Order Subform"
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
 
                     trigger OnValidate()
+                    var
+                        Item: Record "Item";
                     begin
                         Rec.ShowShortcutDimCode(ShortcutDimCode);
                         NoOnAfterValidate();
                         DeltaUpdateTotals();
+                        if "Variant Code" = '' then
+                            VariantCodeMandatory := Item.IsVariantMandatory(Type = Type::Item, "No.");
                     end;
                 }
                 field("Item Reference No."; Rec."Item Reference No.")
                 {
                     AccessByPermission = tabledata "Item Reference" = R;
                     ApplicationArea = Suite, ItemReferences;
+                    QuickEntry = false;
                     ToolTip = 'Specifies the referenced item number.';
+                    Visible = ItemReferenceVisible;
 
                     trigger OnLookup(var Text: Text): Boolean
                     var
@@ -67,14 +73,19 @@ page 508 "Blanket Sales Order Subform"
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the variant of the item on the line.';
                     Visible = false;
+                    ShowMandatory = VariantCodeMandatory;
 
                     trigger OnValidate()
+                    var
+                        Item: Record "Item";
                     begin
                         VariantCodeOnAfterValidate();
                         DeltaUpdateTotals();
+                        if "Variant Code" = '' then
+                            VariantCodeMandatory := Item.IsVariantMandatory(Type = Type::Item, "No.");
                     end;
                 }
-                field("VAT Prod. Posting Group"; "VAT Prod. Posting Group")
+                field("VAT Prod. Posting Group"; Rec."VAT Prod. Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT specification of the involved item or resource to link transactions made for this record with the appropriate general ledger account according to the VAT posting setup.';
@@ -109,7 +120,7 @@ page 508 "Blanket Sales Order Subform"
                     ToolTip = 'Specifies information in addition to the description.';
                     Visible = false;
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the location from where inventory items to the customer on the sales document are to be shipped by default.';
@@ -147,7 +158,7 @@ page 508 "Blanket Sales Order Subform"
 
                     trigger OnValidate()
                     begin
-                        CurrPage.SaveRecord;
+                        CurrPage.SaveRecord();
                         CurrPage.Update(true);
                     end;
                 }
@@ -180,7 +191,7 @@ page 508 "Blanket Sales Order Subform"
                     ToolTip = 'Specifies the cost, in LCY, of one unit of the item or resource on the line.';
                     Visible = false;
                 }
-                field(PriceExists; Rec.PriceExists)
+                field(PriceExists; Rec.PriceExists())
                 {
                     ApplicationArea = Suite;
                     Caption = 'Sale Price Exists';
@@ -214,7 +225,7 @@ page 508 "Blanket Sales Order Subform"
 
                     trigger OnValidate()
                     begin
-                        RedistributeTotalsOnAfterValidate;
+                        RedistributeTotalsOnAfterValidate();
                     end;
                 }
                 field("Tax Group Code"; Rec."Tax Group Code")
@@ -225,7 +236,7 @@ page 508 "Blanket Sales Order Subform"
 
                     trigger OnValidate()
                     begin
-                        RedistributeTotalsOnAfterValidate;
+                        RedistributeTotalsOnAfterValidate();
                     end;
                 }
                 field("Line Discount %"; Rec."Line Discount %")
@@ -250,7 +261,7 @@ page 508 "Blanket Sales Order Subform"
                         DeltaUpdateTotals();
                     end;
                 }
-                field(LineDiscExists; Rec.LineDiscExists)
+                field(LineDiscExists; Rec.LineDiscExists())
                 {
                     ApplicationArea = Suite;
                     Caption = 'Sales Line Disc. Exists';
@@ -408,20 +419,20 @@ page 508 "Blanket Sales Order Subform"
                         ValidateShortcutDimension(8);
                     end;
                 }
-                field("Gross Weight"; "Gross Weight")
+                field("Gross Weight"; Rec."Gross Weight")
                 {
                     Caption = 'Unit Gross Weight';
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the gross weight of one unit of the item. In the sales statistics window, the gross weight on the line is included in the total gross weight of all the lines for the particular sales document.';
                     Visible = false;
                 }
-                field("Unit Volume"; "Unit Volume")
+                field("Unit Volume"; Rec."Unit Volume")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the volume of one unit of the item. In the sales statistics window, the volume of one unit of the item on the line is included in the total volume of all the lines for the particular sales document.';
                     Visible = false;
                 }
-                field("Units per Parcel"; "Units per Parcel")
+                field("Units per Parcel"; Rec."Units per Parcel")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of units per parcel of the item. In the sales statistics window, the number of units per parcel on the line helps to determine the total number of units for all the lines for the particular sales document.';
@@ -538,7 +549,7 @@ page 508 "Blanket Sales Order Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromSalesLine(Rec, ItemAvailFormsMgt.ByEvent)
+                            ItemAvailFormsMgt.ShowItemAvailFromSalesLine(Rec, ItemAvailFormsMgt.ByEvent())
                         end;
                     }
                     action(Period)
@@ -550,7 +561,7 @@ page 508 "Blanket Sales Order Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromSalesLine(Rec, ItemAvailFormsMgt.ByPeriod)
+                            ItemAvailFormsMgt.ShowItemAvailFromSalesLine(Rec, ItemAvailFormsMgt.ByPeriod())
                         end;
                     }
                     action(Variant)
@@ -562,7 +573,7 @@ page 508 "Blanket Sales Order Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromSalesLine(Rec, ItemAvailFormsMgt.ByVariant)
+                            ItemAvailFormsMgt.ShowItemAvailFromSalesLine(Rec, ItemAvailFormsMgt.ByVariant())
                         end;
                     }
                     action(Location)
@@ -575,7 +586,7 @@ page 508 "Blanket Sales Order Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromSalesLine(Rec, ItemAvailFormsMgt.ByLocation)
+                            ItemAvailFormsMgt.ShowItemAvailFromSalesLine(Rec, ItemAvailFormsMgt.ByLocation())
                         end;
                     }
                     action(Lot)
@@ -598,7 +609,7 @@ page 508 "Blanket Sales Order Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromSalesLine(Rec, ItemAvailFormsMgt.ByBOM)
+                            ItemAvailFormsMgt.ShowItemAvailFromSalesLine(Rec, ItemAvailFormsMgt.ByBOM())
                         end;
                     }
                 }
@@ -922,9 +933,13 @@ page 508 "Blanket Sales Order Subform"
     end;
 
     trigger OnAfterGetRecord()
+    var
+        Item: Record Item;
     begin
         Rec.ShowShortcutDimCode(ShortcutDimCode);
         Clear(DocumentTotals);
+        if "Variant Code" = '' then
+            VariantCodeMandatory := Item.IsVariantMandatory(Type = Type::Item, "No.");
     end;
 
     trigger OnDeleteRecord(): Boolean
@@ -961,9 +976,7 @@ page 508 "Blanket Sales Order Subform"
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
     begin
         SetDimensionsVisibility();
-#if not CLEAN19
         SetItemReferenceVisibility();
-#endif
         ExtendedPriceEnabled := PriceCalculationMgt.IsExtendedPriceCalculationEnabled();
     end;
 
@@ -977,6 +990,7 @@ page 508 "Blanket Sales Order Subform"
         AmountWithDiscountAllowed: Decimal;
         UpdateInvDiscountQst: Label 'One or more lines have been invoiced. The discount distributed to invoiced lines will not be taken into account.\\Do you want to update the invoice discount?';
         ExtendedPriceEnabled: Boolean;
+        VariantCodeMandatory: Boolean;
 
     protected var
         TotalSalesHeader: Record "Sales Header";
@@ -996,10 +1010,8 @@ page 508 "Blanket Sales Order Subform"
         IsBlankNumber: Boolean;
         [InDataSet]
         IsCommentLine: Boolean;
-#if not CLEAN19
         [InDataSet]
         ItemReferenceVisible: Boolean;
-#endif        
         VATAmount: Decimal;
 
     procedure ApproveCalcInvDisc()
@@ -1014,7 +1026,7 @@ page 508 "Blanket Sales Order Subform"
         ConfirmManagement: Codeunit "Confirm Management";
     begin
         SalesHeader.Get(Rec."Document Type", Rec."Document No.");
-        if SalesHeader.InvoicedLineExists then
+        if SalesHeader.InvoicedLineExists() then
             if not ConfirmManagement.GetResponseOrDefault(UpdateInvDiscountQst, true) then
                 exit;
 
@@ -1037,7 +1049,7 @@ page 508 "Blanket Sales Order Subform"
             Commit();
             TransferExtendedText.InsertSalesExtText(Rec);
         end;
-        if TransferExtendedText.MakeUpdate then
+        if TransferExtendedText.MakeUpdate() then
             UpdateForm(true);
     end;
 
@@ -1134,7 +1146,7 @@ page 508 "Blanket Sales Order Subform"
 
     protected procedure SaveAndAutoAsmToOrder()
     begin
-        if (Rec.Type = Rec.Type::Item) and Rec.IsAsmToOrderRequired then begin
+        if (Rec.Type = Rec.Type::Item) and Rec.IsAsmToOrderRequired() then begin
             CurrPage.SaveRecord();
             Rec.AutoAsmToOrder();
             CurrPage.Update(false);
@@ -1153,7 +1165,7 @@ page 508 "Blanket Sales Order Subform"
 
     procedure RedistributeTotalsOnAfterValidate()
     begin
-        CurrPage.SaveRecord;
+        CurrPage.SaveRecord();
 
         DocumentTotals.SalesRedistributeInvoiceDiscountAmounts(Rec, VATAmount, TotalSalesLine);
         CurrPage.Update(false);
@@ -1178,12 +1190,12 @@ page 508 "Blanket Sales Order Subform"
         Clear(DimMgt);
     end;
 
-#if not CLEAN19
     local procedure SetItemReferenceVisibility()
+    var
+        ItemReference: Record "Item Reference";
     begin
-        ItemReferenceVisible := true;
+        ItemReferenceVisible := not ItemReference.IsEmpty();
     end;
-#endif
 
     local procedure ValidateShortcutDimension(DimIndex: Integer)
     var

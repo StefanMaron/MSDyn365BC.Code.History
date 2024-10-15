@@ -1,4 +1,5 @@
-﻿enum 48 "Invt. Posting Buffer Account Type"
+#if not CLEAN21
+enum 48 "Invt. Posting Buffer Account Type"
 {
     Extensible = true;
     AssignmentCompatibility = true;
@@ -63,57 +64,40 @@
     {
         Caption = 'Mfg. Overhead Variance';
     }
-#if not CLEAN18
-    value(16; AccConsumption)
-    {
-        Caption = 'AccConsumption (Obsolete)';
-        ObsoleteState = Pending;
-        ObsoleteReason = 'This value is discontinued and should no longer be used.';
-        ObsoleteTag = '18.0';
-    }
-    value(17; AccWIPChange)
-    {
-        Caption = 'AccWIPChange (Obsolete)';
-        ObsoleteState = Pending;
-        ObsoleteReason = 'This value is discontinued and should no longer be used.';
-        ObsoleteTag = '18.0';
-    }
-#endif
     value(18; AccWIP)
     {
         Caption = 'AccWIP';
-    }
-#if not CLEAN18
-    value(19; AccProdChange)
-    {
-        Caption = 'AccProdChange (Obsolete)';
         ObsoleteState = Pending;
         ObsoleteReason = 'This value is discontinued and should no longer be used.';
-        ObsoleteTag = '18.0';
+        ObsoleteTag = '21.0';
     }
-
-    value(20; InvRoundingAdj)
-    {
-        Caption = 'InvRoundingAdj (Obsolete)';
-        ObsoleteState = Pending;
-        ObsoleteReason = 'This value is discontinued and should no longer be used.';
-        ObsoleteTag = '18.0';
-    }
-#endif
     value(21; Rounding)
     {
         Caption = 'Rounding';
+        ObsoleteState = Pending;
+        ObsoleteReason = 'This value is discontinued and should no longer be used.';
+        ObsoleteTag = '21.0';
     }
     value(22; "WIP Inventory (Interim)")
     {
         Caption = 'WIP Inventory (Interim)';
+        ObsoleteState = Pending;
+        ObsoleteReason = 'This value is discontinued and should no longer be used.';
+        ObsoleteTag = '21.0';
     }
     value(23; "AccWIPChange (Interim)")
     {
         Caption = 'AccWIPChange (Interim)';
+        ObsoleteState = Pending;
+        ObsoleteReason = 'This value is discontinued and should no longer be used.';
+        ObsoleteTag = '21.0';
     }
     value(24; "AccProdChange (Interim)")
     {
         Caption = 'AccProdChange (Interim)';
+        ObsoleteState = Pending;
+        ObsoleteReason = 'This value is discontinued and should no longer be used.';
+        ObsoleteTag = '21.0';
     }
 }
+#endif

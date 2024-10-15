@@ -496,11 +496,9 @@ table 123 "Purch. Inv. Line"
         {
             Caption = 'FA Posting Date';
         }
-        field(5601; "FA Posting Type"; Option)
+        field(5601; "FA Posting Type"; Enum "Purchase FA Posting Type")
         {
             Caption = 'FA Posting Type';
-            OptionCaption = ' ,Acquisition Cost,Maintenance,Custom 2,Appreciation';
-            OptionMembers = " ","Acquisition Cost",Maintenance,"Custom 2",Appreciation;
         }
         field(5602; "Depreciation Book Code"; Code[10])
         {
@@ -653,13 +651,9 @@ table 123 "Purch. Inv. Line"
             AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             Caption = 'VAT Difference (LCY)';
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(11765; "VAT % (Non Deductible)"; Decimal)
         {
@@ -694,13 +688,9 @@ table 123 "Purch. Inv. Line"
             AutoFormatType = 1;
             Caption = 'Ext. Amount (LCY)';
             Editable = false;
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(11771; "Ext.Amount Including VAT (LCY)"; Decimal)
         {
@@ -708,13 +698,9 @@ table 123 "Purch. Inv. Line"
             AutoFormatType = 1;
             Caption = 'Ext.Amount Including VAT (LCY)';
             Editable = false;
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(11772; "Ext. VAT Difference (LCY)"; Decimal)
         {
@@ -722,13 +708,9 @@ table 123 "Purch. Inv. Line"
             AutoFormatType = 1;
             Caption = 'Ext. VAT Difference (LCY)';
             Editable = false;
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(31010; "Prepayment Cancelled"; Boolean)
         {
@@ -782,13 +764,9 @@ table 123 "Purch. Inv. Line"
         {
             Caption = 'Country/Region of Origin Code';
             TableRelation = "Country/Region";
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(99000750; "Routing No."; Code[20])
         {
@@ -872,9 +850,6 @@ table 123 "Purch. Inv. Line"
 
     var
         DimMgt: Codeunit DimensionManagement;
-        TotalPurchInvLine: Record "Purch. Inv. Line";
-        TotalPurchInvLineLCY: Record "Purch. Inv. Line";
-        CurrExchRate: Record "Currency Exchange Rate";
         UOMMgt: Codeunit "Unit of Measure Management";
         DeferralUtilities: Codeunit "Deferral Utilities";
 
@@ -891,14 +866,14 @@ table 123 "Purch. Inv. Line"
 
     procedure ShowDimensions()
     begin
-        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2 %3', TableCaption, "Document No.", "Line No."));
+        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2 %3', TableCaption(), "Document No.", "Line No."));
     end;
 
     procedure ShowItemTrackingLines()
     var
         ItemTrackingDocMgt: Codeunit "Item Tracking Doc. Management";
     begin
-        ItemTrackingDocMgt.ShowItemTrackingForInvoiceLine(RowID1);
+        ItemTrackingDocMgt.ShowItemTrackingForInvoiceLine(RowID1());
     end;
 
     procedure CalcVATAmountLines(PurchInvHeader: Record "Purch. Inv. Header"; var TempVATAmountLine: Record "VAT Amount Line" temporary)
@@ -909,21 +884,7 @@ table 123 "Purch. Inv. Line"
             repeat
                 TempVATAmountLine.Init();
                 TempVATAmountLine.CopyFromPurchInvLine(Rec);
-#if not CLEAN18
-                // NAVCZ
-                TempVATAmountLine."Currency Code" := PurchInvHeader."Currency Code";
-                if PurchInvHeader."Currency Code" <> '' then
-                    RoundAmount(PurchInvHeader);
-                TempVATAmountLine."VAT Base (LCY)" := Amount;
-                TempVATAmountLine."VAT Amount (LCY)" := "Amount Including VAT" - Amount;
-                TempVATAmountLine."Amount Including VAT (LCY)" := "Amount Including VAT";
-                TempVATAmountLine."Calculated VAT Amount (LCY)" := "Amount Including VAT" - Amount - "VAT Difference (LCY)";
-                TempVATAmountLine."Ext. VAT Base (LCY)" := "Ext. Amount (LCY)";
-                TempVATAmountLine."Ext. VAT Amount (LCY)" := "Ext.Amount Including VAT (LCY)" - "Ext. Amount (LCY)";
-                TempVATAmountLine."Ext.Amount Including VAT (LCY)" := "Ext.Amount Including VAT (LCY)";
-                // NAVCZ
-#endif
-                TempVATAmountLine.InsertLine;
+                TempVATAmountLine.InsertLine();
             until Next() = 0;
     end;
 
@@ -1022,7 +983,7 @@ table 123 "Purch. Inv. Line"
     begin
         if "Qty. per Unit of Measure" = 0 then
             exit(QtyBase);
-        exit(Round(QtyBase / "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision));
+        exit(Round(QtyBase / "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision()));
     end;
 
     procedure GetItemLedgEntries(var TempItemLedgEntry: Record "Item Ledger Entry" temporary; SetQuantity: Boolean)
@@ -1082,98 +1043,6 @@ table 123 "Purch. Inv. Line"
         PurchCommentLine.ShowComments(PurchCommentLine."Document Type"::"Posted Invoice".AsInteger(), "Document No.", "Line No.");
     end;
 
-    local procedure RoundAmount(PurchInvHeader: Record "Purch. Inv. Header")
-    var
-        NoVAT: Boolean;
-    begin
-        // NAVCZ
-        IncrAmount(TotalPurchInvLine, PurchInvHeader);
-        if PurchInvHeader."Currency Code" <> '' then begin
-            NoVAT := Amount = "Amount Including VAT";
-            "Amount Including VAT" :=
-              Round(
-                CurrExchRate.ExchangeAmtFCYToLCY(
-                  PurchInvHeader."Posting Date", PurchInvHeader."Currency Code",
-                  TotalPurchInvLine."Amount Including VAT", PurchInvHeader."Currency Factor")) -
-              TotalPurchInvLineLCY."Amount Including VAT";
-#if not CLEAN18              
-            "Ext.Amount Including VAT (LCY)" :=
-                0;
-#endif
-#if CLEAN18
-            if NoVAT then
-                Amount := "Amount Including VAT"
-            else begin
-#else
-            if NoVAT then begin
-                Amount := "Amount Including VAT";
-                "Ext. Amount (LCY)" := "Ext.Amount Including VAT (LCY)";
-            end else begin
-#endif
-                Amount :=
-                  Round(
-                    CurrExchRate.ExchangeAmtFCYToLCY(
-                      PurchInvHeader."Posting Date", PurchInvHeader."Currency Code",
-                      TotalPurchInvLine.Amount, PurchInvHeader."Currency Factor")) -
-                  TotalPurchInvLineLCY.Amount;
-#if not CLEAN18
-                "Ext. Amount (LCY)" :=
-                0;
-#endif
-            end;
-            "Line Amount" :=
-              Round(
-                CurrExchRate.ExchangeAmtFCYToLCY(
-                  PurchInvHeader."Posting Date", PurchInvHeader."Currency Code",
-                  TotalPurchInvLine."Line Amount", PurchInvHeader."Currency Factor")) -
-              TotalPurchInvLineLCY."Line Amount";
-            "Line Discount Amount" :=
-              Round(
-                CurrExchRate.ExchangeAmtFCYToLCY(
-                  PurchInvHeader."Posting Date", PurchInvHeader."Currency Code",
-                  TotalPurchInvLine."Line Discount Amount", PurchInvHeader."Currency Factor")) -
-              TotalPurchInvLineLCY."Line Discount Amount";
-            "Inv. Discount Amount" :=
-              Round(
-                CurrExchRate.ExchangeAmtFCYToLCY(
-                  PurchInvHeader."Posting Date", PurchInvHeader."Currency Code",
-                  TotalPurchInvLine."Inv. Discount Amount", PurchInvHeader."Currency Factor")) -
-              TotalPurchInvLineLCY."Inv. Discount Amount";
-            "VAT Difference" :=
-              Round(
-                CurrExchRate.ExchangeAmtFCYToLCY(
-                  PurchInvHeader."Posting Date", PurchInvHeader."Currency Code",
-                  TotalPurchInvLine."VAT Difference", PurchInvHeader."Currency Factor")) -
-              TotalPurchInvLineLCY."VAT Difference";
-        end;
-
-        IncrAmount(TotalPurchInvLineLCY, PurchInvHeader);
-    end;
-
-    local procedure IncrAmount(var TotalPurchInvLine: Record "Purch. Inv. Line"; PurchInvHeader: Record "Purch. Inv. Header")
-    begin
-        // NAVCZ
-        if PurchInvHeader."Prices Including VAT" or
-           ("VAT Calculation Type" <> "VAT Calculation Type"::"Full VAT")
-        then
-            Increment(TotalPurchInvLine."Line Amount", "Line Amount");
-        Increment(TotalPurchInvLine.Amount, Amount);
-        Increment(TotalPurchInvLine."VAT Base Amount", "VAT Base Amount");
-        Increment(TotalPurchInvLine."VAT Difference", "VAT Difference");
-#if not CLEAN18
-        Increment(TotalPurchInvLine."VAT Difference (LCY)", "VAT Difference (LCY)");
-#endif
-        Increment(TotalPurchInvLine."Amount Including VAT", "Amount Including VAT");
-        Increment(TotalPurchInvLine."Line Discount Amount", "Line Discount Amount");
-        Increment(TotalPurchInvLine."Inv. Discount Amount", "Inv. Discount Amount");
-    end;
-
-    local procedure Increment(var Number: Decimal; Number2: Decimal)
-    begin
-        // NAVCZ
-        Number := Number + Number2;
-    end;
-
     procedure ShowShortcutDimCode(var ShortcutDimCode: array[8] of Code[20])
     begin
         DimMgt.GetShortcutDimensions("Dimension Set ID", ShortcutDimCode);
@@ -1181,7 +1050,7 @@ table 123 "Purch. Inv. Line"
 
     procedure InitFromPurchLine(PurchInvHeader: Record "Purch. Inv. Header"; PurchLine: Record "Purchase Line")
     begin
-        Init;
+        Init();
         TransferFields(PurchLine);
         if ("No." = '') and HasTypeToFillMandatoryFields() then
             Type := Type::" ";
@@ -1197,7 +1066,7 @@ table 123 "Purch. Inv. Line"
     begin
         DeferralUtilities.OpenLineScheduleView(
             "Deferral Code", "Deferral Document Type"::Purchase.AsInteger(), '', '',
-            GetDocumentType, "Document No.", "Line No.");
+            GetDocumentType(), "Document No.", "Line No.");
     end;
 
     procedure GetDocumentType(): Integer
@@ -1217,7 +1086,7 @@ table 123 "Purch. Inv. Line"
         PurchaseLine: Record "Purchase Line";
     begin
         if Type = Type::" " then
-            exit(PurchaseLine.FormatType);
+            exit(PurchaseLine.FormatType());
 
         exit(Format(Type));
     end;
@@ -1237,3 +1106,4 @@ table 123 "Purch. Inv. Line"
     begin
     end;
 }
+

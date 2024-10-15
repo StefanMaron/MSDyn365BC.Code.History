@@ -24,7 +24,7 @@ codeunit 11769 "Change Dimension Management"
         if CompanyName = '' then
             exit;
 
-        CheckChangeSetupRead;
+        CheckChangeSetupRead();
 
         if TempChangeLogSetupTable.Get(TableId) then begin
             OnDatabaseInsert := true;
@@ -38,7 +38,7 @@ codeunit 11769 "Change Dimension Management"
         if RecRef.IsTemporary then
             exit;
 
-        CheckChangeSetupRead;
+        CheckChangeSetupRead();
 
         if not TempChangeLogSetupTable.Get(RecRef.Number) then
             exit;
@@ -54,7 +54,7 @@ codeunit 11769 "Change Dimension Management"
         if RecRef.IsTemporary then
             exit;
 
-        CheckChangeSetupRead;
+        CheckChangeSetupRead();
 
         if not TempChangeLogSetupTable.Get(RecRef.Number) then
             exit;
@@ -84,7 +84,7 @@ codeunit 11769 "Change Dimension Management"
     begin
 #if not CLEAN19
         with TempDefaultDimension do begin
-            Reset;
+            Reset();
             SetRange("Table ID", RecRef.Number);
             SetRange("Automatic Create", true);
             SetRange("No.", '');
@@ -99,7 +99,7 @@ codeunit 11769 "Change Dimension Management"
                     if DimensionValue.Get("Dimension Code", Format(FieldRefFieldPK.Value)) then begin
                         if FieldTab.Get("Table ID", "Dimension Description Field ID") then
                             if FieldTab.Class = FieldTab.Class::FlowField then
-                                FieldRefField.CalcField;
+                                FieldRefField.CalcField();
                         TempValueText := Format(FieldRefField.Value);
                         if "Dimension Description Format" <> '' then
                             TempValueText := StrSubstNo("Dimension Description Format", TempValueText);
@@ -112,7 +112,7 @@ codeunit 11769 "Change Dimension Management"
                                 FieldRefFieldOld := XRecRef.Field("Dimension Description Field ID");
                                 if FieldTab.Get("Table ID", "Dimension Description Field ID") then
                                     if FieldTab.Class = FieldTab.Class::FlowField then
-                                        FieldRefFieldOld.CalcField;
+                                        FieldRefFieldOld.CalcField();
                                 TempValueTextOld := Format(FieldRefFieldOld.Value);
                                 if "Dimension Description Format" <> '' then
                                     TempValueTextOld := StrSubstNo("Dimension Description Format", TempValueTextOld);
@@ -137,7 +137,7 @@ codeunit 11769 "Change Dimension Management"
     local procedure CheckChangeSetupRead()
     begin
         if not DimChangeSetupRead then begin
-            ReadSetup;
+            ReadSetup();
             DimChangeSetupRead := true;
         end;
     end;

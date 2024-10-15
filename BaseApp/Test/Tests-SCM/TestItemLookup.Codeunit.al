@@ -234,7 +234,7 @@ codeunit 134835 "Test Item Lookup"
         LibrarySales.SetCreateItemFromDescription(true);
 
         // Setup
-        RandomItemDescription := CopyStr(Format(CreateGuid), 1, 50);
+        RandomItemDescription := CopyStr(Format(CreateGuid()), 1, 50);
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
         SalesLine.Validate("Document Type", SalesHeader."Document Type");
         SalesLine.Validate("Document No.", SalesHeader."No.");
@@ -311,11 +311,11 @@ codeunit 134835 "Test Item Lookup"
         Assert.IsTrue(SalesQuote.SalesLines."Line Discount %".Editable, StrSubstNo(EditableErr, 'Line Discount %'));
 
         // Setup nonexisting Item
-        NoneExixtingItemNo := CopyStr(Format(CreateGuid), 1, 20);
+        NoneExixtingItemNo := CopyStr(Format(CreateGuid()), 1, 20);
 
         // Excercise
         SalesQuote.SalesLines.New();
-        SalesQuote.SalesLines.FilteredTypeField.SetValue(SalesLine.FormatType);
+        SalesQuote.SalesLines.FilteredTypeField.SetValue(SalesLine.FormatType());
         SalesQuote.SalesLines.Description.SetValue(NoneExixtingItemNo);
 
         // Verify
@@ -358,11 +358,11 @@ codeunit 134835 "Test Item Lookup"
         Assert.IsTrue(SalesInvoice.SalesLines."Line Discount %".Editable, StrSubstNo(EditableErr, 'Line Discount %'));
 
         // Setup nonexisting Item
-        NoneExixtingItemNo := CopyStr(Format(CreateGuid), 1, 20);
+        NoneExixtingItemNo := CopyStr(Format(CreateGuid()), 1, 20);
 
         // Excercise
         SalesInvoice.SalesLines.New();
-        SalesInvoice.SalesLines.FilteredTypeField.SetValue(SalesLine.FormatType);
+        SalesInvoice.SalesLines.FilteredTypeField.SetValue(SalesLine.FormatType());
         SalesInvoice.SalesLines.Description.SetValue(NoneExixtingItemNo);
 
         // Verify
@@ -405,11 +405,11 @@ codeunit 134835 "Test Item Lookup"
         Assert.IsTrue(SalesOrder.SalesLines."Line Discount %".Editable, StrSubstNo(EditableErr, 'Line Discount %'));
 
         // Setup nonexisting Item
-        NoneExixtingItemNo := CopyStr(Format(CreateGuid), 1, 20);
+        NoneExixtingItemNo := CopyStr(Format(CreateGuid()), 1, 20);
 
         // Excercise
         SalesOrder.SalesLines.New();
-        SalesOrder.SalesLines.FilteredTypeField.SetValue(SalesLine.FormatType);
+        SalesOrder.SalesLines.FilteredTypeField.SetValue(SalesLine.FormatType());
         SalesOrder.SalesLines.Description.SetValue(NoneExixtingItemNo);
 
         // Verify
@@ -452,11 +452,11 @@ codeunit 134835 "Test Item Lookup"
         Assert.IsTrue(SalesCreditMemo.SalesLines."Line Discount %".Editable, StrSubstNo(EditableErr, 'Line Discount %'));
 
         // Setup nonexisting Item
-        NoneExixtingItemNo := CopyStr(Format(CreateGuid), 1, 20);
+        NoneExixtingItemNo := CopyStr(Format(CreateGuid()), 1, 20);
 
         // Excercise
         SalesCreditMemo.SalesLines.New();
-        SalesCreditMemo.SalesLines.FilteredTypeField.SetValue(SalesLine.FormatType);
+        SalesCreditMemo.SalesLines.FilteredTypeField.SetValue(SalesLine.FormatType());
         SalesCreditMemo.SalesLines.Description.SetValue(NoneExixtingItemNo);
 
         // Verify
@@ -700,11 +700,11 @@ codeunit 134835 "Test Item Lookup"
         Assert.IsTrue(PurchaseInvoice.PurchLines."Line Discount %".Editable, StrSubstNo(EditableErr, 'Line Discount %'));
 
         // Setup nonexisting Item
-        NoneExixtingItemNo := CopyStr(Format(CreateGuid), 1, 20);
+        NoneExixtingItemNo := CopyStr(Format(CreateGuid()), 1, 20);
 
         // Excercise
         PurchaseInvoice.PurchLines.New();
-        PurchaseInvoice.PurchLines.FilteredTypeField.SetValue(PurchaseLine.FormatType);
+        PurchaseInvoice.PurchLines.FilteredTypeField.SetValue(PurchaseLine.FormatType());
         PurchaseInvoice.PurchLines.Description.SetValue(NoneExixtingItemNo);
 
         // Verify
@@ -747,11 +747,11 @@ codeunit 134835 "Test Item Lookup"
         Assert.IsTrue(PurchaseCreditMemo.PurchLines."Line Discount %".Editable, StrSubstNo(EditableErr, 'Line Discount %'));
 
         // Setup nonexisting Item
-        NoneExixtingItemNo := CopyStr(Format(CreateGuid), 1, 20);
+        NoneExixtingItemNo := CopyStr(Format(CreateGuid()), 1, 20);
 
         // Excercise
         PurchaseCreditMemo.PurchLines.New();
-        PurchaseCreditMemo.PurchLines.FilteredTypeField.SetValue(PurchaseLine.FormatType);
+        PurchaseCreditMemo.PurchLines.FilteredTypeField.SetValue(PurchaseLine.FormatType());
         PurchaseCreditMemo.PurchLines.Description.SetValue(NoneExixtingItemNo);
 
         // Verify

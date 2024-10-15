@@ -1,7 +1,7 @@
 page 376 "Job Journal Reconcile"
 {
     Caption = 'Job Journal Reconcile';
-    DataCaptionExpression = Caption;
+    DataCaptionExpression = Caption();
     Editable = false;
     PageType = List;
     SourceTable = "Job Journal Quantity";
@@ -14,14 +14,14 @@ page 376 "Job Journal Reconcile"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Unit of Measure Code"; "Unit of Measure Code")
+                field("Unit of Measure Code"; Rec."Unit of Measure Code")
                 {
                     ApplicationArea = Jobs;
                     Style = Strong;
                     StyleExpr = Emphasize;
                     ToolTip = 'Specifies how each unit of the item or resource is measured, such as in pieces or hours. By default, the value in the Base Unit of Measure field on the item or resource card is inserted.';
                 }
-                field("Work Type Code"; "Work Type Code")
+                field("Work Type Code"; Rec."Work Type Code")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies which work type the resource applies to. Prices are updated based on this entry.';
@@ -54,11 +54,11 @@ page 376 "Job Journal Reconcile"
             OldWorkTypeCode := JobJnlLine."Work Type Code";
             repeat
                 if OldUnitOfMeasureCode <> JobJnlLine."Unit of Measure Code" then begin
-                    InsertUnitOfMeasureQty;
-                    InsertWorkTypeQty;
+                    InsertUnitOfMeasureQty();
+                    InsertWorkTypeQty();
                 end else
                     if OldWorkTypeCode <> JobJnlLine."Work Type Code" then
-                        InsertWorkTypeQty;
+                        InsertWorkTypeQty();
 
                 OldUnitOfMeasureCode := JobJnlLine."Unit of Measure Code";
                 OldWorkTypeCode := JobJnlLine."Work Type Code";
@@ -68,22 +68,21 @@ page 376 "Job Journal Reconcile"
                 TotalQty := TotalQty + JobJnlLine.Quantity;
             until (JobJnlLine.Next() = 0);
 
-            InsertUnitOfMeasureQty;
-            InsertWorkTypeQty;
-            Init;
+            InsertUnitOfMeasureQty();
+            InsertWorkTypeQty();
+            Init();
             "Is Total" := true;
             "Unit of Measure Code" := '';
             "Line Type" := "Line Type"::Total;
             "Work Type Code" := '';
             Quantity := TotalQty;
-            Insert;
+            Insert();
 
             TotalQty := 0;
         end;
     end;
 
     var
-        Text000: Label 'Total %1';
         JobJnlLine: Record "Job Journal Line";
         UnitOfMeasureQty: Decimal;
         WorkTypeQty: Decimal;
@@ -92,6 +91,8 @@ page 376 "Job Journal Reconcile"
         OldWorkTypeCode: Code[10];
         [InDataSet]
         Emphasize: Boolean;
+
+        Text000: Label 'Total %1';
 
     procedure SetJobJnlLine(var JobJnlLine2: Record "Job Journal Line")
     begin
@@ -103,25 +104,25 @@ page 376 "Job Journal Reconcile"
 
     local procedure InsertUnitOfMeasureQty()
     begin
-        Init;
+        Init();
         "Is Total" := false;
         "Unit of Measure Code" := OldUnitOfMeasureCode;
         "Line Type" := "Line Type"::Total;
         "Work Type Code" := '';
         Quantity := UnitOfMeasureQty;
-        Insert;
+        Insert();
         UnitOfMeasureQty := 0;
     end;
 
     local procedure InsertWorkTypeQty()
     begin
-        Init;
+        Init();
         "Is Total" := false;
         "Unit of Measure Code" := OldUnitOfMeasureCode;
         "Line Type" := 0;
         "Work Type Code" := OldWorkTypeCode;
         Quantity := WorkTypeQty;
-        Insert;
+        Insert();
         WorkTypeQty := 0;
     end;
 

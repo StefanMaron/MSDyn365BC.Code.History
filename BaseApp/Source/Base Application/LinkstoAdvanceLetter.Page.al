@@ -16,23 +16,23 @@ page 31007 "Links to Advance Letter"
             repeater(Control1220008)
             {
                 ShowCaption = false;
-                field("Entry Type"; "Entry Type")
+                field("Entry Type"; Rec."Entry Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the type of the entry.';
                 }
-                field("Document No."; "Document No.")
+                field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the document number for the link.';
                 }
-                field("Line No."; "Line No.")
+                field("Line No."; Rec."Line No.")
                 {
                     ApplicationArea = Basic, Suite;
                     BlankZero = true;
                     ToolTip = 'Specifies the line number.';
                 }
-                field("Currency Code"; "Currency Code")
+                field("Currency Code"; Rec."Currency Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the currency of amounts on the document.';
@@ -42,23 +42,23 @@ page 31007 "Links to Advance Letter"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount for the entry.';
                 }
-                field("Amount (LCY)"; "Amount (LCY)")
+                field("Amount (LCY)"; Rec."Amount (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount of connection advance and invoice.';
                     Visible = false;
                 }
-                field("Invoice No."; "Invoice No.")
+                field("Invoice No."; Rec."Invoice No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies an invoice number, or select an existing invoice from the list for the advance link.';
                 }
-                field("Transfer Date"; "Transfer Date")
+                field("Transfer Date"; Rec."Transfer Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies date of transfer';
                 }
-                field("Entry No."; "Entry No.")
+                field("Entry No."; Rec."Entry No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the entry number that is assigned to the entry.';

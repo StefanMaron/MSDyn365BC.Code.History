@@ -392,13 +392,9 @@ table 5911 "Service Mgt. Setup"
         field(11767; "Allow Alter Cust. Post. Groups"; Boolean)
         {
             Caption = 'Allow Alter Cust. Post. Groups';
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(11772; "Reas.Cd. on Tax Corr.Doc.Mand."; Boolean)
         {
@@ -456,3 +452,4 @@ table 5911 "Service Mgt. Setup"
         RecordHasBeenRead := true;
     end;
 }
+

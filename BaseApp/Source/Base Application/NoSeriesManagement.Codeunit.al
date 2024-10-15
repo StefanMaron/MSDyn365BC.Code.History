@@ -1,4 +1,5 @@
-﻿codeunit 396 NoSeriesManagement
+#if not CLEAN21
+codeunit 396 NoSeriesManagement
 {
     Permissions = TableData "No. Series Line" = rimd;
 
@@ -26,6 +27,7 @@
         TryNo: Code[20];
         TextAssignErr: Label 'You can not assign Nos. from No. series %1.', Comment = '%1 = No. Series';
         TextAssignDateErr: Label 'No. %1 from No. series %2 you can not assign on date %3.', Comment = '%1 = Document No.; %2 = No. Series Code; %3 = Series Date';
+        UpdateLastUsedDate: Boolean;
         PostErr: Label 'You have one or more documents that must be posted before you post document no. %1 according to your company''s No. Series setup.', Comment = '%1=Document No.';
         UnincrementableStringErr: Label 'The value in the %1 field must have a number so that we can assign the next number in the series.', Comment = '%1 = New Field Name';
 
@@ -37,7 +39,7 @@
                 Error(
                   Text000 +
                   Text001,
-                  NoSeries.FieldCaption("Manual Nos."), NoSeries.TableCaption, NoSeries.Code);
+                  NoSeries.FieldCaption("Manual Nos."), NoSeries.TableCaption(), NoSeries.Code);
         end;
         OnAfterTestManual(DefaultNoSeriesCode);
     end;
@@ -71,7 +73,7 @@
             if not NoSeries."Default Nos." then
                 Error(
                   Text003,
-                  NoSeries.FieldCaption("Default Nos."), NoSeries.TableCaption, NoSeries.Code);
+                  NoSeries.FieldCaption("Default Nos."), NoSeries.TableCaption(), NoSeries.Code);
             if OldNoSeriesCode <> '' then begin
                 NoSeriesCode := DefaultNoSeriesCode;
                 FilterSeries();
@@ -107,7 +109,7 @@
             exit(Result);
 
         NoSeriesCode := DefaultNoSeriesCode;
-        FilterSeries;
+        FilterSeries();
         if NewNoSeriesCode = '' then begin
             if OldNoSeriesCode <> '' then
                 NoSeries.Code := OldNoSeriesCode;
@@ -127,9 +129,9 @@
     procedure TestSeries(DefaultNoSeriesCode: Code[20]; NewNoSeriesCode: Code[20])
     begin
         NoSeriesCode := DefaultNoSeriesCode;
-        FilterSeries;
+        FilterSeries();
         NoSeries.Code := NewNoSeriesCode;
-        NoSeries.Find;
+        NoSeries.Find();
     end;
 
     procedure SetSeries(var NewNo: Code[20])
@@ -137,13 +139,13 @@
         NoSeriesCode2: Code[20];
     begin
         NoSeriesCode2 := NoSeries.Code;
-        FilterSeries;
+        FilterSeries();
         NoSeries.Code := NoSeriesCode2;
-        NoSeries.Find;
+        NoSeries.Find();
         NewNo := GetNextNo(NoSeries.Code, 0D, true);
     end;
 
-    local procedure FilterSeries()
+    procedure FilterSeries()
     var
         NoSeriesRelationship: Record "No. Series Relationship";
         IsHandled: Boolean;
@@ -177,9 +179,9 @@
         exit(DoGetNextNo(NoSeriesCode, SeriesDate, ModifySeries, false));
     end;
 
+    [Obsolete('Use DoGetNextNo() instead', '21.0')]
     procedure GetNextNo3(NoSeriesCode: Code[20]; SeriesDate: Date; ModifySeries: Boolean; NoErrorsOrWarnings: Boolean): Code[20]
     begin
-        // This function is deprecated. Use the function in the line below instead:
         exit(DoGetNextNo(NoSeriesCode, SeriesDate, ModifySeries, NoErrorsOrWarnings));
     end;
 
@@ -203,13 +205,11 @@
         OnBeforeDoGetNextNo(NoSeriesCode, SeriesDate, ModifySeries, NoErrorsOrWarnings);
 
         if SeriesDate = 0D then
-            SeriesDate := WorkDate;
+            SeriesDate := WorkDate();
 
         if ModifySeries or (LastNoSeriesLine."Series Code" = '') then begin
             NoSeries.Get(NoSeriesCode);
             SetNoSeriesLineFilter(NoSeriesLine, NoSeriesCode, SeriesDate);
-            if ModifySeries and not NoSeriesLine."Allow Gaps in Nos." then
-                NoSeriesLine.LockTable();
             if not NoSeriesLine.FindFirst() then begin
                 if NoErrorsOrWarnings then
                     exit('');
@@ -222,6 +222,11 @@
                   Text005,
                   NoSeriesCode);
             end;
+            UpdateLastUsedDate := NoSeriesLine."Last Date Used" <> SeriesDate;
+            if ModifySeries and (not NoSeriesLine."Allow Gaps in Nos." or UpdateLastUsedDate) then begin
+                NoSeriesLine.LockTable();
+                NoSeriesLine.Find();
+            end;
         end else
             NoSeriesLine := LastNoSeriesLine;
 
@@ -233,10 +238,10 @@
               NoSeries.Code, NoSeriesLine."Last Date Used");
         end;
 
+        NoSeriesLine."Last Date Used" := SeriesDate;
         if NoSeriesLine."Allow Gaps in Nos." and (LastNoSeriesLine."Series Code" = '') then
             NoSeriesLine."Last No. Used" := NoSeriesLine.GetNextSequenceNo(ModifySeries)
-        else begin
-            NoSeriesLine."Last Date Used" := SeriesDate;
+        else
             if NoSeriesLine."Last No. Used" = '' then begin
                 if NoErrorsOrWarnings and (NoSeriesLine."Starting No." = '') then
                     exit('');
@@ -247,7 +252,6 @@
                     NoSeriesLine."Last No. Used" := IncStr(NoSeriesLine."Last No. Used")
                 else
                     IncrementNoText(NoSeriesLine."Last No. Used", NoSeriesLine."Increment-by No.");
-        end;
 
         if (NoSeriesLine."Ending No." <> '') and
            (NoSeriesLine."Last No. Used" > NoSeriesLine."Ending No.")
@@ -273,9 +277,7 @@
               NoSeriesLine."Ending No.", NoSeriesCode);
         end;
 
-        NoSeriesLine.Validate(Open);
-
-        if ModifySeries and NoSeriesLine.Open and not NoSeriesLine."Allow Gaps in Nos." then
+        if ModifySeries and NoSeriesLine.Open and (not NoSeriesLine."Allow Gaps in Nos." or UpdateLastUsedDate) then
             ModifyNoSeriesLine(NoSeriesLine);
         if Not ModifySeries then
             LastNoSeriesLine := NoSeriesLine;
@@ -299,13 +301,18 @@
     local procedure ModifyNoSeriesLine(var NoSeriesLine: Record "No. Series Line")
     var
         IsHandled: Boolean;
+        LastNoUsed: Code[20];
     begin
         IsHandled := false;
         OnBeforeModifyNoSeriesLine(NoSeriesLine, IsHandled);
         if IsHandled then
             exit;
-
-        NoSeriesLine.Modify;
+        NoSeriesLine.Validate(Open);
+        LastNoUsed := NoSeriesLine."Last No. Used";
+        if NoSeriesLine."Allow Gaps in Nos." then
+            NoSeriesLine."Last No. Used" := '';
+        NoSeriesLine.Modify();
+        NoSeriesLine."Last No. Used" := LastNoUsed;
     end;
 
     procedure TryGetNextNo(NoSeriesCode: Code[20]; SeriesDate: Date): Code[20]
@@ -313,13 +320,13 @@
         NoSeriesMgt: Codeunit NoSeriesManagement;
     begin
         NoSeriesMgt.SetParametersBeforeRun(NoSeriesCode, SeriesDate);
-        if NoSeriesMgt.Run then
-            exit(NoSeriesMgt.GetNextNoAfterRun);
+        if NoSeriesMgt.Run() then
+            exit(NoSeriesMgt.GetNextNoAfterRun());
     end;
 
+    [Obsolete('Use SetParametersBeforeRun() instead', '21.0')]
     procedure GetNextNo1(NoSeriesCode: Code[20]; SeriesDate: Date)
     begin
-        // This function is deprecated. Use the function in the line below instead:
         SetParametersBeforeRun(NoSeriesCode, SeriesDate);
     end;
 
@@ -330,10 +337,10 @@
         OnAfterSetParametersBeforeRun(TryNoSeriesCode, TrySeriesDate, WarningNoSeriesCode);
     end;
 
+    [Obsolete('Use GetNextNoAfterRun() instead', '21.0')]
     procedure GetNextNo2(): Code[20]
     begin
-        // This function is deprecated. Use the function in the line below instead:
-        exit(GetNextNoAfterRun);
+        exit(GetNextNoAfterRun());
     end;
 
     procedure GetNextNoAfterRun(): Code[20]
@@ -343,17 +350,18 @@
 
     procedure SaveNoSeries()
     begin
-        if LastNoSeriesLine."Allow Gaps in Nos." then begin
-            if (LastNoSeriesLine."Last No. Used" <> '') and (LastNoSeriesLine."Last No. Used" > LastNoSeriesLine.GetLastNoUsed()) then begin
-                LastNoSeriesLine.testfield("Sequence Name");
-                if NumberSequence.Exists(LastNoSeriesLine."Sequence Name") then
-                    NumberSequence.Delete(LastNoSeriesLine."Sequence Name");
-                NumberSequence.Insert(LastNoSeriesLine."Sequence Name", LastNoSeriesLine.ExtractNoFromCode(LastNoSeriesLine."Last No. Used"), LastNoSeriesLine."Increment-by No.");
-                if NumberSequence.Next(LastNoSeriesLine."Sequence Name") > 0 then;
-            end;
-        end else
-            if LastNoSeriesLine."Series Code" <> '' then
-                LastNoSeriesLine.Modify();
+        if LastNoSeriesLine."Series Code" <> '' then begin
+            if LastNoSeriesLine."Allow Gaps in Nos." then
+                if (LastNoSeriesLine."Last No. Used" <> '') and (LastNoSeriesLine."Last No. Used" > LastNoSeriesLine.GetLastNoUsed()) then begin
+                    LastNoSeriesLine.TestField("Sequence Name");
+                    if NumberSequence.Exists(LastNoSeriesLine."Sequence Name") then
+                        NumberSequence.Delete(LastNoSeriesLine."Sequence Name");
+                    LastNoSeriesLine."Starting Sequence No." := LastNoSeriesLine.ExtractNoFromCode(LastNoSeriesLine."Last No. Used");
+                    LastNoSeriesLine.CreateNewSequence();
+                end;
+            if not LastNoSeriesLine."Allow Gaps in Nos." or UpdateLastUsedDate then
+                ModifyNoSeriesLine(LastNoSeriesLine);
+        end;
         OnAfterSaveNoSeries(LastNoSeriesLine);
     end;
 
@@ -443,10 +451,7 @@
     begin
         if No <> '' then
             if Length <> 0 then begin
-                // NAVCZ
-                // No := DELCHR(GetNoText(No),'<','0');
-                No := GetNoText(No);
-                // NAVCZ
+                No := DelChr(GetNoText(No), '<', '0');
                 TempNo := No;
                 No := NewNo;
                 NewNo := TempNo;
@@ -511,6 +516,7 @@
         end;
     end;
 
+    [Obsolete('Moved to Advanced Localization Pack for Czech.', '21.0')]
     [Scope('OnPrem')]
     procedure CheckAcceptabilityDocNo(DocumentNo: Code[20]; NoSeriesCode2: Code[20]; SeriesDate: Date)
     var
@@ -598,7 +604,7 @@
         Clear(TryNoSeriesCode);
         Clear(NoSeries);
 
-        exit(GetNextNo(NoSeriesCode, WorkDate, false));
+        exit(GetNextNo(NoSeriesCode, WorkDate(), false));
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"No. Series Line", 'OnAfterDeleteEvent', '', false, false)]
@@ -639,3 +645,4 @@
     end;
 }
 
+#endif

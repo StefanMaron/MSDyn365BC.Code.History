@@ -17,7 +17,7 @@ page 31092 "Acc. Schedule Res. Header List"
             repeater(Control1220008)
             {
                 ShowCaption = false;
-                field("Result Code"; "Result Code")
+                field("Result Code"; Rec."Result Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of account schedule results.';
@@ -27,22 +27,22 @@ page 31092 "Acc. Schedule Res. Header List"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of account schedule results.';
                 }
-                field("Date Filter"; "Date Filter")
+                field("Date Filter"; Rec."Date Filter")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the date filter of account schedule results.';
                 }
-                field("Acc. Schedule Name"; "Acc. Schedule Name")
+                field("Acc. Schedule Name"; Rec."Acc. Schedule Name")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the account schedule.';
                 }
-                field("Column Layout Name"; "Column Layout Name")
+                field("Column Layout Name"; Rec."Column Layout Name")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the column layout that you want to use in the window.';
                 }
-                field("User ID"; "User ID")
+                field("User ID"; Rec."User ID")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the ID of the user associated with the entry.';
@@ -54,12 +54,12 @@ page 31092 "Acc. Schedule Res. Header List"
                         UserMgt.DisplayUserInformation("User ID");
                     end;
                 }
-                field("Result Date"; "Result Date")
+                field("Result Date"; Rec."Result Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the created date of account schedule results.';
                 }
-                field("Result Time"; "Result Time")
+                field("Result Time"; Rec."Result Time")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the created time of account schedule results.';
@@ -104,7 +104,7 @@ page 31092 "Acc. Schedule Res. Header List"
                     trigger OnAction()
                     begin
                         AccSchedResultHdr := Rec;
-                        AccSchedResultHdr.SetRecFilter;
+                        AccSchedResultHdr.SetRecFilter();
                         REPORT.RunModal(REPORT::"Account Schedule Result", true, false, AccSchedResultHdr);
                     end;
                 }

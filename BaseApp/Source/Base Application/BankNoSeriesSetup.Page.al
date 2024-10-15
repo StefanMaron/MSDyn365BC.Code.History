@@ -18,13 +18,13 @@ page 11726 "Bank No. Series Setup"
             {
                 Caption = 'Numbering';
                 InstructionalText = 'To fill the Document No. field automatically, you must set up a number series.';
-                field("Payment Order Nos."; "Payment Order Nos.")
+                field("Payment Order Nos."; Rec."Payment Order Nos.")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the code for the number series that will be used to assign numbers to payment orders.';
                     Visible = PaymentOrderNosVisible;
                 }
-                field("Bank Statement Nos."; "Bank Statement Nos.")
+                field("Bank Statement Nos."; Rec."Bank Statement Nos.")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the code for the number series that will be used to assign numbers to bank statement.';
@@ -43,12 +43,20 @@ page 11726 "Bank No. Series Setup"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Bank Account Card';
                 Image = Setup;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 RunObject = Page "Bank Account Card";
                 RunPageLink = "No." = FIELD("No.");
                 ToolTip = 'Specifies account card';
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(Setup_Promoted; Setup)
+                {
+                }
             }
         }
     }

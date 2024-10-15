@@ -21,11 +21,8 @@ codeunit 31021 "Vendor Ledg. Entry Handler CZZ"
     var
         PurchAdvLetterHeaderCZZ: Record "Purch. Adv. Letter Header CZZ";
         AdvanceLetterTemplateCZZ: Record "Advance Letter Template CZZ";
-        AdvancePaymentsMgtCZZ: Codeunit "Advance Payments Mgt. CZZ";
     begin
         if VendorLedgerEntry."Advance Letter No. CZZ" = '' then
-            exit;
-        if not AdvancePaymentsMgtCZZ.IsEnabled() then
             exit;
 
         PurchAdvLetterHeaderCZZ.Get(VendorLedgerEntry."Advance Letter No. CZZ");
@@ -71,12 +68,8 @@ codeunit 31021 "Vendor Ledg. Entry Handler CZZ"
     [EventSubscriber(ObjectType::Table, Database::"Vendor Ledger Entry", 'OnBeforeCalcLinkAdvAmount', '', false, false)]
 #pragma warning restore AL0432
     local procedure ResetAmountOnBeforeCalcLinkAdvAmount(var Amount: Decimal; var IsHandled: Boolean)
-    var
-        AdvancePaymentsMgtCZZ: Codeunit "Advance Payments Mgt. CZZ";
     begin
         if IsHandled then
-            exit;
-        if not AdvancePaymentsMgtCZZ.IsEnabled() then
             exit;
 
         Amount := 0;

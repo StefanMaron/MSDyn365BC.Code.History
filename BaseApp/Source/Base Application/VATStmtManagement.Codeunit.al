@@ -72,7 +72,7 @@ codeunit 340 VATStmtManagement
     procedure OpenStmt(var CurrentStmtName: Code[10]; var VATStmtLine: Record "VAT Statement Line")
     begin
         OnBeforeOpenStmt(CurrentStmtName, VATStmtLine);
-        VATStmtLine.CheckVATStmtLineUserRestriction; // NAVCZ
+        VATStmtLine.CheckVATStmtLineUserRestriction(); // NAVCZ
 
         CheckTemplateName(VATStmtLine.GetRangeMax("Statement Template Name"), CurrentStmtName);
         VATStmtLine.FilterGroup(2);

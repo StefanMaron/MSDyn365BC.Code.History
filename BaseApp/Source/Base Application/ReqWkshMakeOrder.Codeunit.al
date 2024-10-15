@@ -1,4 +1,4 @@
-﻿codeunit 333 "Req. Wksh.-Make Order"
+codeunit 333 "Req. Wksh.-Make Order"
 {
     Permissions = TableData "Sales Line" = m;
     TableNo = "Requisition Line";
@@ -25,10 +25,10 @@
         Text003: Label 'Creating purchase lines            #4######\';
         Text004: Label 'Updating worksheet lines           #5######';
         Text005: Label 'Deleting worksheet lines           #5######';
-        Text006: Label '%1 on sales order %2 is already associated with purchase order %3.', Comment = '%1=No.;%2=Document No.;%3=Purch. Order No.';
+        Text006: Label '%1 on sales order %2 is already associated with purchase order %3.', Comment = '%1 = number of item, %2 = number of document, %3 = number of purchase order';
         Text007: Label '<Month Text>', Locked = true;
-        Text008: Label 'The combination of dimensions used in %1 %2, %3, %4 is blocked. %5';
-        Text009: Label 'A dimension used in %1 %2, %3, %4 has caused an error. %5';
+        Text008: Label 'The combination of dimensions used in %1 %2, %3, %4 is blocked. %5', Comment = '%1 = table caption, %2 = worksheet template name, %3 = journal batch name, %4 = number of line, %5 = error of dimension combination';
+        Text009: Label 'A dimension used in %1 %2, %3, %4 has caused an error. %5', Comment = '%1 = table caption, %2 = worksheet template name, %3 = journal batch name, %4 = number of line, %5 = error of dimension posting value';
         ReservEntry: Record "Reservation Entry";
         PurchSetup: Record "Purchases & Payables Setup";
         ReqTemplate: Record "Req. Wksh. Template";
@@ -68,10 +68,9 @@
         CounterFailed: Integer;
         PrevPurchCode: Code[10];
         PrevShipToCode: Code[10];
-        Text010: Label 'must match %1 on Sales Order %2, Line %3';
+        Text010: Label 'must match %1 on Sales Order %2, Line %3', Comment = '%1 = field caption, %2 = number of document, %3 = number of line';
         PrevChangedDocOrderType: Option;
         PrevChangedDocOrderNo: Code[20];
-        NoSeries: Code[20];
         PrevLocationCode: Code[10];
         NameAddressDetails: Text;
         SuppressCommit: Boolean;
@@ -114,11 +113,8 @@
     begin
         OnBeforeCode(ReqLine, PlanningResiliency, SuppressCommit, PrintPurchOrders);
 
-        InitShipReceiveDetails;
+        InitShipReceiveDetails();
         with ReqLine do begin
-            // NAVCZ
-            NoSeries := PurchOrderHeader."No. Series";
-            // NAVCZ
             Clear(PurchOrderHeader);
 
             SetRange("Worksheet Template Name", "Worksheet Template Name");
@@ -131,7 +127,7 @@
 
             if ReqTemplate.Recurring then begin
                 SetRange("Order Date", 0D, EndOrderDate);
-                SetFilter("Expiration Date", '%1 | %2..', 0D, WorkDate);
+                SetFilter("Expiration Date", '%1 | %2..', 0D, WorkDate());
             end;
 
             if not Find('=><') then begin
@@ -156,7 +152,7 @@
             OrderCounter := 0;
             OrderLineCounter := 0;
             Clear(PurchOrderHeader);
-            SetPurchOrderHeader;
+            SetPurchOrderHeader();
             SetReqLineSortingKey(ReqLine);
 
             ProcessReqLineActions(ReqLine);
@@ -173,7 +169,7 @@
                 PrintChangedDocument(PrevChangedDocOrderType, PrevChangedDocOrderNo);
 
             // Copy number of created orders and current journal batch name to requisition worksheet
-            Init;
+            Init();
             "Line No." := OrderCounter;
 
             if OrderCounter <> 0 then
@@ -196,18 +192,19 @@
                     ReqLine3.SetRange("Worksheet Template Name", "Worksheet Template Name");
                     ReqLine3.SetRange("Journal Batch Name", "Journal Batch Name");
                     OnCodeOnAfterReqLine3SetFilters(ReqLine, ReqLine3);
-                    if not ReqLine3.FindLast() then
-                        if IncStr("Journal Batch Name") <> '' then begin
-                            ReqWkshName.Get("Worksheet Template Name", "Journal Batch Name");
-                            NewReqWkshName := true;
-                            OnCheckNewNameNeccessary(ReqWkshName, NewReqWkshName);
-                            if NewReqWkshName then begin
-                                ReqWkshName.Delete();
-                                ReqWkshName.Name := IncStr("Journal Batch Name");
-                                if ReqWkshName.Insert() then;
-                                "Journal Batch Name" := ReqWkshName.Name;
+                    if ReqTemplate."Increment Batch Name" then
+                        if not ReqLine3.FindLast() then
+                            if IncStr("Journal Batch Name") <> '' then begin
+                                ReqWkshName.Get("Worksheet Template Name", "Journal Batch Name");
+                                NewReqWkshName := true;
+                                OnCheckNewNameNeccessary(ReqWkshName, NewReqWkshName);
+                                if NewReqWkshName then begin
+                                    ReqWkshName.Delete();
+                                    ReqWkshName.Name := IncStr("Journal Batch Name");
+                                    if ReqWkshName.Insert() then;
+                                    "Journal Batch Name" := ReqWkshName.Name;
+                                end;
                             end;
-                        end;
                 end;
         end;
 
@@ -268,6 +265,7 @@
     procedure CheckRequisitionLine(var ReqLine2: Record "Requisition Line")
     var
         SalesLine: Record "Sales Line";
+        Item: Record Item;
         Purchasing: Record Purchasing;
         TableID: array[10] of Integer;
         No: array[10] of Code[20];
@@ -308,7 +306,7 @@
                 Error(
                   Text008,
                   TableCaption, "Worksheet Template Name", "Journal Batch Name", "Line No.",
-                  DimMgt.GetDimCombErr);
+                  DimMgt.GetDimCombErr());
 
             TableID[1] := DimMgt.ReqLineTypeToTableID(Type);
             No[1] := "No.";
@@ -317,9 +315,9 @@
                     Error(
                       Text009,
                       TableCaption, "Worksheet Template Name", "Journal Batch Name", "Line No.",
-                      DimMgt.GetDimValuePostingErr)
+                      DimMgt.GetDimValuePostingErr())
                 else
-                    Error(DimMgt.GetDimValuePostingErr);
+                    Error(DimMgt.GetDimValuePostingErr());
 
             IsHandled := false;
             OnCheckRequisitionLineOnNonCancelActionMessageOnBeforeCheckUOM(ReqLine2, PurchasingCode, IsHandled);
@@ -337,6 +335,13 @@
                             SalesLine.FieldCaption("Unit of Measure Code"),
                             SalesLine."Document No.",
                             SalesLine."Line No."));
+
+            if Type = Type::Item then begin
+                Item.SetLoadFields("Variant Mandatory if Exists");
+                if Item.Get("No.") then
+                    if Item.IsVariantMandatory() then
+                        TestField("Variant Code");
+            end;
 
             if IsDropShipment() then
                 CheckLocation(ReqLine2);
@@ -642,7 +647,7 @@
                     PurchOrderLine."Sales Order No." := '';
                     PurchOrderLine."Sales Order Line No." := 0;
                     PurchOrderLine."Special Order" := true;
-                    PurchOrderLine.UpdateUnitCost;
+                    PurchOrderLine.UpdateUnitCost();
                 end;
 
             UpdateJobLink(PurchOrderLine, ReqLine2);
@@ -762,9 +767,6 @@
             PurchOrderHeader."Document Type" := PurchOrderHeader."Document Type"::Order;
             PurchOrderHeader."No." := '';
             PurchOrderHeader."Posting Date" := PostingDateReq;
-            // NAVCZ
-            PurchOrderHeader."No. Series" := NoSeries;
-            // NAVCZ
             OnBeforePurchOrderHeaderInsert(PurchOrderHeader, ReqLine2, ReceiveDateReq);
             PurchOrderHeader.Insert(true);
             PurchOrderHeader."Your Reference" := ReferenceReq;
@@ -790,7 +792,7 @@
                 UpdateShipToOrLocationCode(ReqLine2, PurchOrderHeader)
             else begin
                 PurchOrderHeader.Validate("Location Code", "Location Code");
-                PurchOrderHeader.SetShipToForSpecOrder;
+                PurchOrderHeader.SetShipToForSpecOrder();
                 if Vendor.Get(PurchOrderHeader."Buy-from Vendor No.") then
                     PurchOrderHeader.Validate("Shipment Method Code", Vendor."Shipment Method Code");
             end;
@@ -969,11 +971,11 @@
                       StrSubstNo(Description, Day, Week, Month, MonthText, AccountingPeriod.Name),
                       MaxStrLen(Description)),
                     '>');
-                Modify;
+                Modify();
             end;
     end;
 
-    local procedure ReserveBindingOrderToPurch(var PurchLine: Record "Purchase Line"; var ReqLine: Record "Requisition Line")
+    procedure ReserveBindingOrderToPurch(var PurchLine: Record "Purchase Line"; var ReqLine: Record "Requisition Line")
     var
         ProdOrderComp: Record "Prod. Order Component";
         SalesLine: Record "Sales Line";
@@ -1049,7 +1051,7 @@
 
     procedure SetTryParam(TryReqTemplate: Record "Req. Wksh. Template"; TryLineCount: Integer; TryNextLineNo: Integer; TryPrevPurchCode: Code[10]; TryPrevShipToCode: Code[10]; TryPrevLocationCode: Code[10]; TryOrderCounter: Integer; TryOrderLineCounter: Integer; var TryFailedReqLine: Record "Requisition Line"; var TempDocumentEntryNew: Record "Document Entry" temporary)
     begin
-        SetPlanningResiliency;
+        SetPlanningResiliency();
         ReqTemplate := TryReqTemplate;
         LineCount := TryLineCount;
         NextLineNo := TryNextLineNo;
@@ -1127,7 +1129,7 @@
         OrderNo := '';
     end;
 
-    local procedure PrintPurchOrder(PurchHeader: Record "Purchase Header")
+    procedure PrintPurchOrder(PurchHeader: Record "Purchase Header")
     var
         CarryOutAction: Codeunit "Carry Out Action";
     begin

@@ -124,12 +124,4 @@ table 11762 "Registration Country/Region"
     fieldgroups
     {
     }
-#if not CLEAN18
-    [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this procedure should not be used.','18.0')]
-    procedure VerifyFromVIES()
-    begin
-        Error('');
-    end;
-#endif
 }
-

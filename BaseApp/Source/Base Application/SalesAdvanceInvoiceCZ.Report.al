@@ -129,7 +129,6 @@ report 31001 "Sales - Advance Invoice CZ"
             column(RegistrationNo_SalesInvoiceHeader; FieldValueDictionary.Get(RegistrationNoFldTok))
             {
             }
-#if CLEAN18
             column(BankAccountNo_SalesInvoiceHeaderCaption; FieldCaptionDictionary.Get(BankAccountNoFldTok))
             {
             }
@@ -148,26 +147,6 @@ report 31001 "Sales - Advance Invoice CZ"
             column(BIC_SalesInvoiceHeader; FieldValueDictionary.Get(SWIFTCodeFldTok))
             {
             }
-#else
-            column(BankAccountNo_SalesInvoiceHeaderCaption; FieldCaption("Bank Account No."))
-            {
-            }
-            column(BankAccountNo_SalesInvoiceHeader; "Bank Account No.")
-            {
-            }
-            column(IBAN_SalesInvoiceHeaderCaption; FieldCaption(IBAN))
-            {
-            }
-            column(IBAN_SalesInvoiceHeader; IBAN)
-            {
-            }
-            column(BIC_SalesInvoiceHeaderCaption; FieldCaption("SWIFT Code"))
-            {
-            }
-            column(BIC_SalesInvoiceHeader; "SWIFT Code")
-            {
-            }
-#endif
             column(DocumentDate_SalesInvoiceHeaderCaption; FieldCaption("Document Date"))
             {
             }
@@ -252,17 +231,13 @@ report 31001 "Sales - Advance Invoice CZ"
                             VATPostingSetup.Init();
 
                         TempVATAmountLine.Init();
-#if CLEAN18
                         TempVATAmountLine."VAT Identifier" := VATPostingSetup."VAT Identifier";
-#else                        
-                        TempVATAmountLine."VAT Identifier" := "VAT Identifier";
-#endif
                         TempVATAmountLine."VAT Calculation Type" := "VAT Calculation Type";
                         TempVATAmountLine."Tax Group Code" := "Tax Group Code";
                         TempVATAmountLine."VAT %" := VATPostingSetup."VAT %";
                         TempVATAmountLine."VAT Base" := -"Advance Base";
                         TempVATAmountLine."Amount Including VAT" := -"Advance Base" - Amount;
-                        TempVATAmountLine.InsertLine;
+                        TempVATAmountLine.InsertLine();
                     end;
 
                     trigger OnPreDataItem()
@@ -290,20 +265,12 @@ report 31001 "Sales - Advance Invoice CZ"
                         AutoFormatExpression = "Sales Invoice Header"."Currency Code";
                         AutoFormatType = 1;
                     }
-#if CLEAN18
                     column(VATAmtLineVATBaseLCY; VATAmountLineVATBaseLCY)
-#else
-                    column(VATAmtLineVATBaseLCY; TempVATAmountLine."VAT Base (LCY)")
-#endif
                     {
                         AutoFormatExpression = "Sales Invoice Header"."Currency Code";
                         AutoFormatType = 1;
                     }
-#if CLEAN18
                     column(VATAmtLineVATAmtLCY; VATAmountLineVATAmountLCY)
-#else
-                    column(VATAmtLineVATAmtLCY; TempVATAmountLine."VAT Amount (LCY)")
-#endif
                     {
                         AutoFormatExpression = "Sales Invoice Header"."Currency Code";
                         AutoFormatType = 1;
@@ -314,19 +281,10 @@ report 31001 "Sales - Advance Invoice CZ"
                         TempVATAmountLine.GetLine(Number);
 
                         if CalculatedExchRate <> 1 then begin
-#if CLEAN18
                             VATAmountLineVATBaseLCY := TempVATAmountLine."VAT Base";
                             VATAmountLineVATAmountLCY := TempVATAmountLine."VAT Amount";
                             TempVATAmountLine."VAT Base" := Round(VATAmountLineVATBaseLCY / CalculatedExchRate * CurrExchRate."Exchange Rate Amount");
                             TempVATAmountLine."VAT Amount" := Round(VATAmountLineVATBaseLCY / CalculatedExchRate * CurrExchRate."Exchange Rate Amount");
-#else  
-                            TempVATAmountLine."VAT Base (LCY)" := TempVATAmountLine."VAT Base";
-                            TempVATAmountLine."VAT Amount (LCY)" := TempVATAmountLine."VAT Amount";
-                            TempVATAmountLine."VAT Base" :=
-                              Round(TempVATAmountLine."VAT Base (LCY)" / CalculatedExchRate * CurrExchRate."Exchange Rate Amount");
-                            TempVATAmountLine."VAT Amount" :=
-                              Round(TempVATAmountLine."VAT Amount (LCY)" / CalculatedExchRate * CurrExchRate."Exchange Rate Amount");
-#endif
                         end;
                     end;
 
@@ -368,11 +326,8 @@ report 31001 "Sales - Advance Invoice CZ"
                     DataItemTableView = SORTING("User ID");
                     dataitem(Employee; Employee)
                     {
-#if not CLEAN18
-                        DataItemLink = "No." = FIELD("Employee No.");
-#endif
                         DataItemTableView = SORTING("No.");
-                        column(FullName_Employee; Employee.FullName)
+                        column(FullName_Employee; Employee.FullName())
                         {
                         }
                         column(PhoneNo_Employee; Employee."Phone No.")
@@ -394,7 +349,7 @@ report 31001 "Sales - Advance Invoice CZ"
 
                 trigger OnPostDataItem()
                 begin
-                    if not IsReportInPreviewMode then
+                    if not IsReportInPreviewMode() then
                         CODEUNIT.Run(CODEUNIT::"Sales Inv.-Printed", "Sales Invoice Header");
                 end;
 
@@ -428,13 +383,13 @@ report 31001 "Sales - Advance Invoice CZ"
 
                 FormatAddr.SalesInvBillTo(CustAddr, "Sales Invoice Header");
                 if "Payment Terms Code" = '' then
-                    PaymentTerms.Init
+                    PaymentTerms.Init()
                 else begin
                     PaymentTerms.Get("Payment Terms Code");
                     PaymentTerms.TranslateDescription(PaymentTerms, "Language Code");
                 end;
                 if "Payment Method Code" = '' then
-                    PaymentMethod.Init
+                    PaymentMethod.Init()
                 else
                     PaymentMethod.Get("Payment Method Code");
                 EnlistExtensionFields(FieldValueDictionary, FieldCaptionDictionary);
@@ -488,20 +443,16 @@ report 31001 "Sales - Advance Invoice CZ"
         FieldCaptionDictionary: Dictionary of [Text[30], Text];
         RegistrationNoFldTok: Label 'Registration No. CZL', Locked = true;
         VATDateFldTok: Label 'VAT Date CZL', Locked = true;
-#if CLEAN18
         BankAccountNoFldTok: Label 'Bank Account No. CZL', Locked = true;
         IBANFldTok: Label 'IBAN CZL', Locked = true;
         SWIFTCodeFldTok: Label 'SWIFT Code CZL', Locked = true;
-#endif
         ExchRateText: Text[50];
         CompanyAddr: array[8] of Text[100];
         CustAddr: array[8] of Text[100];
         DocFooterText: Text[250];
         CalculatedExchRate: Decimal;
-#if CLEAN18
         VATAmountLineVATBaseLCY: Decimal;
         VATAmountLineVATAmountLCY: Decimal;
-#endif
         NoOfCopies: Integer;
         CopyNo: Integer;
         NoOfLoops: Integer;
@@ -525,18 +476,16 @@ report 31001 "Sales - Advance Invoice CZ"
     var
         MailManagement: Codeunit "Mail Management";
     begin
-        exit(CurrReport.Preview or MailManagement.IsHandlingGetEmailBody);
+        exit(CurrReport.Preview or MailManagement.IsHandlingGetEmailBody());
     end;
 
     local procedure EnlistExtensionFields(var FieldValueDictionary: Dictionary of [Text[30], Text]; var FieldCaptionDictionary: Dictionary of [Text[30], Text])
     begin
         FieldValueDictionary.Add(RegistrationNoFldTok, '');
         FieldValueDictionary.Add(VATDateFldTok, '');
-#if CLEAN18
         FieldValueDictionary.Add(BankAccountNoFldTok, '');
         FieldValueDictionary.Add(IBANFldTok, '');
         FieldValueDictionary.Add(SWIFTCodeFldTok, '');
-#endif
 
         ExtensionFieldsManagement.CopyDictionaryKeys(FieldValueDictionary, FieldCaptionDictionary);
     end;

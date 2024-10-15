@@ -86,36 +86,36 @@ page 31008 "Set Advance Link"
             repeater(Control1220014)
             {
                 ShowCaption = false;
-                field("Links-To ID"; "Links-To ID")
+                field("Links-To ID"; Rec."Links-To ID")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the link between advance and payment.';
                 }
-                field("Link Code"; "Link Code")
+                field("Link Code"; Rec."Link Code")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies a link code';
                 }
-                field("Posting Date"; "Posting Date")
+                field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the posting date for the entry.';
                 }
-                field("Entry Type"; "Entry Type")
+                field("Entry Type"; Rec."Entry Type")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the type of the entry.';
                 }
-                field("Document No."; "Document No.")
+                field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the document number for the set advance link.';
                 }
-                field("External Document No."; "External Document No.")
+                field("External Document No."; Rec."External Document No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -129,7 +129,7 @@ page 31008 "Set Advance Link"
                     ToolTip = 'Specifies the type of posted credit card';
                     Visible = false;
                 }
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -141,19 +141,19 @@ page 31008 "Set Advance Link"
                     Editable = false;
                     ToolTip = 'Specifies description of payment.';
                 }
-                field("Currency Code"; "Currency Code")
+                field("Currency Code"; Rec."Currency Code")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the currency of amounts on the document.';
                 }
-                field("Remaining Amount"; "Remaining Amount")
+                field("Remaining Amount"; Rec."Remaining Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the remaining amount of payment after link the advance.';
                 }
-                field("Amount To Link"; "Amount To Link")
+                field("Amount To Link"; Rec."Amount To Link")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount not yet paid by customer.';
@@ -161,16 +161,16 @@ page 31008 "Set Advance Link"
                     trigger OnValidate()
                     begin
                         Difference := "Amount To Link" - xRec."Amount To Link";
-                        AmountToLinkOnAfterValidate;
+                        AmountToLinkOnAfterValidate();
                     end;
                 }
-                field("Due Date"; "Due Date")
+                field("Due Date"; Rec."Due Date")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the due date on the entry.';
                 }
-                field("Entry No."; "Entry No.")
+                field("Entry No."; Rec."Entry No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -197,7 +197,7 @@ page 31008 "Set Advance Link"
 
                     trigger OnAction()
                     begin
-                        ShowLinkedEntries;
+                        ShowLinkedEntries();
                     end;
                 }
                 action(Dimensions)
@@ -259,8 +259,8 @@ page 31008 "Set Advance Link"
                         if JnlLineMode then
                             OK := true
                         else
-                            LinkEntries;
-                        CurrPage.Close;
+                            LinkEntries();
+                        CurrPage.Close();
                     end;
                 }
             }
@@ -272,8 +272,6 @@ page 31008 "Set Advance Link"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Find entries...';
                 Image = Navigate;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Find all entries and documents that exist for the document number and posting date on the selected entry or document.';
 
                 trigger OnAction()
@@ -285,24 +283,35 @@ page 31008 "Set Advance Link"
                 end;
             }
         }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("&Navigate_Promoted"; "&Navigate")
+                {
+                }
+            }
+        }
     }
 
     trigger OnClosePage()
     begin
         if OK then
-            SaveLinkIDToLetterLines;
+            SaveLinkIDToLetterLines();
     end;
 
     trigger OnOpenPage()
     begin
         if IsEmpty() then
-            OnOpen;
+            OnOpen();
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
     begin
         if CloseAction = ACTION::LookupOK then
-            LookupOKOnPush;
+            LookupOKOnPush();
     end;
 
     var

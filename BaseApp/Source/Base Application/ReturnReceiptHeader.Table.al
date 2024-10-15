@@ -47,12 +47,6 @@ table 6660 "Return Receipt Header"
             //This property is currently not supported
             //TestTableRelation = false;
             ValidateTableRelation = false;
-
-            trigger OnValidate()
-            begin
-                PostCode.ValidateCity(
-                  "Bill-to City", "Bill-to Post Code", "Bill-to County", "Bill-to Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
-            end;
         }
         field(10; "Bill-to Contact"; Text[100])
         {
@@ -92,12 +86,6 @@ table 6660 "Return Receipt Header"
             //This property is currently not supported
             //TestTableRelation = false;
             ValidateTableRelation = false;
-
-            trigger OnValidate()
-            begin
-                PostCode.ValidateCity(
-                  "Ship-to City", "Ship-to Post Code", "Ship-to County", "Ship-to Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
-            end;
         }
         field(18; "Ship-to Contact"; Text[100])
         {
@@ -309,12 +297,6 @@ table 6660 "Return Receipt Header"
             //This property is currently not supported
             //TestTableRelation = false;
             ValidateTableRelation = false;
-
-            trigger OnValidate()
-            begin
-                PostCode.ValidateCity(
-                  "Sell-to City", "Sell-to Post Code", "Sell-to County", "Sell-to Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
-            end;
         }
         field(84; "Sell-to Contact"; Text[100])
         {
@@ -329,12 +311,6 @@ table 6660 "Return Receipt Header"
             //This property is currently not supported
             //TestTableRelation = false;
             ValidateTableRelation = false;
-
-            trigger OnValidate()
-            begin
-                PostCode.ValidatePostCode(
-                  "Bill-to City", "Bill-to Post Code", "Bill-to County", "Bill-to Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
-            end;
         }
         field(86; "Bill-to County"; Text[30])
         {
@@ -355,12 +331,6 @@ table 6660 "Return Receipt Header"
             //This property is currently not supported
             //TestTableRelation = false;
             ValidateTableRelation = false;
-
-            trigger OnValidate()
-            begin
-                PostCode.ValidatePostCode(
-                  "Sell-to City", "Sell-to Post Code", "Sell-to County", "Sell-to Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
-            end;
         }
         field(89; "Sell-to County"; Text[30])
         {
@@ -381,12 +351,6 @@ table 6660 "Return Receipt Header"
             //This property is currently not supported
             //TestTableRelation = false;
             ValidateTableRelation = false;
-
-            trigger OnValidate()
-            begin
-                PostCode.ValidatePostCode(
-                  "Ship-to City", "Ship-to Post Code", "Ship-to County", "Ship-to Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
-            end;
         }
         field(92; "Ship-to County"; Text[30])
         {
@@ -565,79 +529,44 @@ table 6660 "Return Receipt Header"
         {
             Caption = 'Bank Account Code';
             TableRelation = "Customer Bank Account".Code WHERE("Customer No." = FIELD("Bill-to Customer No."));
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(11701; "Bank Account No."; Text[30])
         {
             Caption = 'Bank Account No.';
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(11702; "Bank Branch No."; Text[20])
         {
             Caption = 'Bank Branch No.';
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(11707; IBAN; Code[50])
         {
             Caption = 'IBAN';
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
-#if not CLEAN18
-
-            trigger OnValidate()
-            var
-                CompanyInfo: Record "Company Information";
-            begin
-                // NAVCZ
-                CompanyInfo.CheckIBAN(IBAN);
-                // NAVCZ
-            end;
-#endif
+            ObsoleteTag = '21.0';
         }
         field(11708; "SWIFT Code"; Code[20])
         {
             Caption = 'SWIFT Code';
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(11709; "Bank Name"; Text[100])
         {
             Caption = 'Bank Name';
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(11790; "Registration No."; Text[20])
         {
@@ -680,24 +609,16 @@ table 6660 "Return Receipt Header"
         field(31063; "Physical Transfer"; Boolean)
         {
             Caption = 'Physical Transfer';
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(31064; "Intrastat Exclude"; Boolean)
         {
             Caption = 'Intrastat Exclude';
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(31065; "Industry Code"; Code[20])
         {
@@ -736,7 +657,9 @@ table 6660 "Return Receipt Header"
     var
         PostSalesDelete: Codeunit "PostSales-Delete";
     begin
+#if not CLEAN19
         PostSalesDelete.IsDocumentDeletionAllowed("Posting Date");
+#endif
         TestField("No. Printed");
         LockTable();
         PostSalesDelete.DeleteSalesRcptLines(Rec);
@@ -751,7 +674,6 @@ table 6660 "Return Receipt Header"
     var
         ReturnRcptHeader: Record "Return Receipt Header";
         SalesCommentLine: Record "Sales Comment Line";
-        PostCode: Record "Post Code";
         DimMgt: Codeunit DimensionManagement;
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
         UserSetupMgt: Codeunit "User Setup Management";
@@ -834,7 +756,7 @@ table 6660 "Return Receipt Header"
 
     procedure ShowDimensions()
     begin
-        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2 - %3', TableCaption, "No.", Text001));
+        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2 - %3', TableCaption(), "No.", Text001));
     end;
 
     procedure SetSecurityFilterOnRespCenter()
@@ -846,9 +768,9 @@ table 6660 "Return Receipt Header"
         if IsHandled then
             exit;
 
-        if UserSetupMgt.GetSalesFilter <> '' then begin
+        if UserSetupMgt.GetSalesFilter() <> '' then begin
             FilterGroup(2);
-            SetRange("Responsibility Center", UserSetupMgt.GetSalesFilter);
+            SetRange("Responsibility Center", UserSetupMgt.GetSalesFilter());
             FilterGroup(0);
         end;
     end;
@@ -877,3 +799,4 @@ table 6660 "Return Receipt Header"
     begin
     end;
 }
+

@@ -54,9 +54,6 @@ table 11741 "Cash Desk Event"
                     Validate("Gen. Posting Type", "Gen. Posting Type"::" ");
                     Validate("VAT Bus. Posting Group", '');
                     Validate("VAT Prod. Posting Group", '');
-#if not CLEAN18
-                    Validate("EET Transaction", false);
-#endif
                 end;
             end;
         }
@@ -134,7 +131,7 @@ table 11741 "Cash Desk Event"
                         "Account Type"::Employee:
                             begin
                                 Employee.Get("Account No.");
-                                Description := CopyStr(Employee.FullName, 1, MaxStrLen(Description));
+                                Description := CopyStr(Employee.FullName(), 1, MaxStrLen(Description));
                                 "Gen. Posting Type" := "Gen. Posting Type"::" ";
                                 "VAT Bus. Posting Group" := '';
                                 "VAT Prod. Posting Group" := '';
@@ -179,21 +176,9 @@ table 11741 "Cash Desk Event"
         field(31125; "EET Transaction"; Boolean)
         {
             Caption = 'EET Transaction';
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
-            ObsoleteTag = '18.0';
-#if not CLEAN18
-            trigger OnValidate()
-            begin
-                if "EET Transaction" then
-                    if not ("Account Type" in ["Account Type"::"G/L Account", "Account Type"::Customer]) then
-                        FieldError("Account Type");
-            end;
-#endif
+            ObsoleteTag = '21.0';
         }
     }
 

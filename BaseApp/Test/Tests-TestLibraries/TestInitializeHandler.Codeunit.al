@@ -7,7 +7,6 @@ codeunit 143060 "Test Initialize Handler"
     begin
         UpdatePurchasesPayablesSetup();
         UpdateSalesReceivablesSetup();
-        UpdateAssemblySetup();
         UpdateInventorySetup();
         UpdateIntrastat();
         UpdateGeneralPostingSetup();
@@ -32,15 +31,6 @@ codeunit 143060 "Test Initialize Handler"
         SalesSetup."Invoice Rounding" := true;
         SalesSetup.Validate("Copy Line Descr. to G/L Entry", false);
         SalesSetup.Modify();
-    end;
-
-    local procedure UpdateAssemblySetup()
-    var
-        AssemblySetup: Record "Assembly Setup";
-    begin
-        AssemblySetup.Get();
-        AssemblySetup."Gen. Bus. Posting Group" := '';
-        AssemblySetup.Modify();
     end;
 
     local procedure UpdateInventorySetup()

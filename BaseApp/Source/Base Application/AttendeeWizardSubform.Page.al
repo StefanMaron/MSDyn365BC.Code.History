@@ -17,35 +17,35 @@ page 5198 "Attendee Wizard Subform"
                 IndentationColumn = AttendanceTypeIndent;
                 IndentationControls = "Attendance Type";
                 ShowCaption = false;
-                field("Attendance Type"; "Attendance Type")
+                field("Attendance Type"; Rec."Attendance Type")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Style = Strong;
                     StyleExpr = StyleIsStrong;
                     ToolTip = 'Specifies the type of attendance for the meeting. You can select from: Required, Optional and Task Organizer.';
                 }
-                field("Attendee Type"; "Attendee Type")
+                field("Attendee Type"; Rec."Attendee Type")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Style = Strong;
                     StyleExpr = StyleIsStrong;
                     ToolTip = 'Specifies the type of the attendee. You can choose from Contact or Salesperson.';
                 }
-                field("Attendee No."; "Attendee No.")
+                field("Attendee No."; Rec."Attendee No.")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Style = Strong;
                     StyleExpr = StyleIsStrong;
                     ToolTip = 'Specifies the number of the attendee participating in the task.';
                 }
-                field("Attendee Name"; "Attendee Name")
+                field("Attendee Name"; Rec."Attendee Name")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Style = Strong;
                     StyleExpr = StyleIsStrong;
                     ToolTip = 'Specifies the name of the attendee participating in the task.';
                 }
-                field("Send Invitation"; "Send Invitation")
+                field("Send Invitation"; Rec."Send Invitation")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Editable = SendInvitationEditable;
@@ -78,7 +78,7 @@ page 5198 "Attendee Wizard Subform"
         Get("To-do No.", "Line No.");
         if "Attendee No." in [SalespersonFilter, ContactFilter] then
             Error(Text001, TableCaption);
-        Delete;
+        Delete();
         exit(false);
     end;
 
@@ -89,7 +89,7 @@ page 5198 "Attendee Wizard Subform"
     begin
         xAttendee.Copy(Rec);
         ValidateAttendee(Rec, Rec);
-        Reset;
+        Reset();
         Rec := xAttendee;
         if Get("To-do No.", "Line No.") then begin
             repeat
@@ -99,7 +99,7 @@ page 5198 "Attendee Wizard Subform"
         end;
         Copy(xAttendee);
         "Line No." := "Line No." + SplitResult;
-        Insert;
+        Insert();
         exit(false);
     end;
 
@@ -118,7 +118,7 @@ page 5198 "Attendee Wizard Subform"
             Error(Text001, TableCaption);
         ValidateAttendee(xAttendee, Rec);
         Copy(xAttendee);
-        Modify;
+        Modify();
         exit(false);
     end;
 
@@ -140,7 +140,7 @@ page 5198 "Attendee Wizard Subform"
         if Attendee.FindSet() then
             repeat
                 Rec := Attendee;
-                Insert;
+                Insert();
             until Attendee.Next() = 0;
     end;
 

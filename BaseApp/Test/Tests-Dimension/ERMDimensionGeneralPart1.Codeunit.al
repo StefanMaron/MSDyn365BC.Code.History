@@ -149,7 +149,7 @@ codeunit 134477 "ERM Dimension General Part-1"
         // 3. Verify: Verify Default Dimension successfully deleted.
         Assert.IsFalse(
           DefaultDimension.Get(DATABASE::"G/L Account", '', Dimension.Code),
-          StrSubstNo(ExistError, DefaultDimension.TableCaption, DefaultDimension.FieldCaption("Dimension Code"), Dimension.Code));
+          StrSubstNo(ExistError, DefaultDimension.TableCaption(), DefaultDimension.FieldCaption("Dimension Code"), Dimension.Code));
     end;
 
     [Test]
@@ -790,7 +790,7 @@ codeunit 134477 "ERM Dimension General Part-1"
         // 3. Verify: Verify Dimension Value deleted.
         Assert.IsFalse(
           DimensionValue2.Get(DimensionValue."Dimension Code", DimensionValue.Code),
-          StrSubstNo(ExistError, DimensionValue.TableCaption, DimensionValue."Dimension Code", DimensionValue.Code));
+          StrSubstNo(ExistError, DimensionValue.TableCaption(), DimensionValue."Dimension Code", DimensionValue.Code));
     end;
 
     [Test]
@@ -818,7 +818,7 @@ codeunit 134477 "ERM Dimension General Part-1"
         // 3. Verify: Verify Default Dimension deleted.
         Assert.IsFalse(
           DefaultDimension.Get(DATABASE::Customer, Customer."No.", DimensionCode),
-          StrSubstNo(ExistError, DefaultDimension.TableCaption, DefaultDimension."Dimension Code", DefaultDimension."Dimension Value Code"));
+          StrSubstNo(ExistError, DefaultDimension.TableCaption(), DefaultDimension."Dimension Code", DefaultDimension."Dimension Value Code"));
     end;
 
     [Test]
@@ -1077,7 +1077,7 @@ codeunit 134477 "ERM Dimension General Part-1"
 
         // [GIVEN] Create a budget item entry
         LibraryInventory.CreateItemBudgetEntry(
-          ItemBudgetEntry, ItemBudgetEntry."Analysis Area"::Sales, ItemBudgetName.Name, WorkDate, Item."No.");
+          ItemBudgetEntry, ItemBudgetEntry."Analysis Area"::Sales, ItemBudgetName.Name, WorkDate(), Item."No.");
         ItemBudgetEntry.Validate("Global Dimension 2 Code", DimensionValue.Code);
         ItemBudgetEntry.Modify(true);
 
@@ -1114,10 +1114,10 @@ codeunit 134477 "ERM Dimension General Part-1"
         LibraryDimension.RunChangeGlobalDimensionsParallel(NewDimValue."Dimension Code", LibraryERM.GetGlobalDimensionCode(2));
 
         // [THEN] "Global Dimension 1 Code" is 'X' on Customer Ledger Entry.
-        CustLedgEntry.Find;
+        CustLedgEntry.Find();
         Assert.AreEqual(
           NewDimValue.Code, CustLedgEntry."Global Dimension 1 Code",
-          StrSubstNo(WrongValueErr, CustLedgEntry.FieldCaption("Global Dimension 1 Code"), CustLedgEntry.TableCaption));
+          StrSubstNo(WrongValueErr, CustLedgEntry.FieldCaption("Global Dimension 1 Code"), CustLedgEntry.TableCaption()));
     end;
 
     [Test]
@@ -1140,10 +1140,10 @@ codeunit 134477 "ERM Dimension General Part-1"
         LibraryDimension.RunChangeGlobalDimensionsParallel(NewDimValue."Dimension Code", LibraryERM.GetGlobalDimensionCode(2));
 
         // [THEN] "Global Dimension 1 Code" is 'X' on Vendor Ledger Entry.
-        VendLedgEntry.Find;
+        VendLedgEntry.Find();
         Assert.AreEqual(
           NewDimValue.Code, VendLedgEntry."Global Dimension 1 Code",
-          StrSubstNo(WrongValueErr, VendLedgEntry.FieldCaption("Global Dimension 1 Code"), VendLedgEntry.TableCaption));
+          StrSubstNo(WrongValueErr, VendLedgEntry.FieldCaption("Global Dimension 1 Code"), VendLedgEntry.TableCaption()));
     end;
 
     [Test]
@@ -1430,7 +1430,7 @@ codeunit 134477 "ERM Dimension General Part-1"
         RecRef: RecordRef;
     begin
         with CustLedgEntry do begin
-            Init;
+            Init();
             RecRef.GetTable(CustLedgEntry);
             "Entry No." :=
               LibraryUtility.GetNewLineNo(RecRef, FieldNo("Entry No."));
@@ -1439,7 +1439,7 @@ codeunit 134477 "ERM Dimension General Part-1"
               LibraryDimension.CreateDimSet(
                 LibraryDimension.CreateDimSet(0, OldDimValue."Dimension Code", OldDimValue.Code),
                 NewDimValue."Dimension Code", NewDimValue.Code);
-            Insert;
+            Insert();
         end;
     end;
 
@@ -1448,7 +1448,7 @@ codeunit 134477 "ERM Dimension General Part-1"
         RecRef: RecordRef;
     begin
         with VendLedgEntry do begin
-            Init;
+            Init();
             RecRef.GetTable(VendLedgEntry);
             "Entry No." :=
               LibraryUtility.GetNewLineNo(RecRef, FieldNo("Entry No."));
@@ -1457,7 +1457,7 @@ codeunit 134477 "ERM Dimension General Part-1"
               LibraryDimension.CreateDimSet(
                 LibraryDimension.CreateDimSet(0, OldDimValue."Dimension Code", OldDimValue.Code),
                 NewDimValue."Dimension Code", NewDimValue.Code);
-            Insert;
+            Insert();
         end;
     end;
 
@@ -1476,7 +1476,7 @@ codeunit 134477 "ERM Dimension General Part-1"
         for Counter := 1 to TableCounter do begin
             LibraryVariableStorage.Enqueue(Counter);
             LibraryVariableStorage.Enqueue(Item.Description);
-            Item.Next;
+            Item.Next();
         end;
     end;
 
@@ -1495,7 +1495,7 @@ codeunit 134477 "ERM Dimension General Part-1"
         for Counter := 1 to TableCounter do begin
             LibraryVariableStorage.Enqueue(Counter);
             LibraryVariableStorage.Enqueue(Location.Name);
-            Location.Next;
+            Location.Next();
         end;
     end;
 
@@ -1515,7 +1515,7 @@ codeunit 134477 "ERM Dimension General Part-1"
         for Counter := 1 to TableCounter do begin
             LibraryVariableStorage.Enqueue(Counter);
             LibraryVariableStorage.Enqueue(DimensionValue.Name);
-            DimensionValue.Next;
+            DimensionValue.Next();
         end;
     end;
 
@@ -1539,7 +1539,7 @@ codeunit 134477 "ERM Dimension General Part-1"
         Item.Get(ItemNo);
         RecRef.GetTable(Item);
         RecRef.Get(RecRef.RecordId);
-        PkFirst := RecRef.GetPosition;
+        PkFirst := RecRef.GetPosition();
         exit(PkFirst);
     end;
 
@@ -1614,7 +1614,7 @@ codeunit 134477 "ERM Dimension General Part-1"
         GLEntry.FindSet();
         repeat
             GLEntry.TestField("Dimension Set ID", DimensionSetID);
-        until GLEntry.Next = 0;
+        until GLEntry.Next() = 0;
     end;
 
     local procedure VerifyCustomerLedgerDimension(CustomerNo: Code[20]; DimensionSetID: Integer)

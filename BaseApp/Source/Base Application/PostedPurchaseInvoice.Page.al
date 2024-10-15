@@ -4,7 +4,6 @@ page 138 "Posted Purchase Invoice"
     Caption = 'Posted Purchase Invoice';
     InsertAllowed = false;
     PageType = Document;
-    PromotedActionCategories = 'New,Process,Report,Correct,Invoice,Print/Send,Navigate';
     RefreshOnActivate = true;
     SourceTable = "Purch. Inv. Header";
 
@@ -15,14 +14,14 @@ page 138 "Posted Purchase Invoice"
             group(General)
             {
                 Caption = 'General';
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     Importance = Additional;
                     ToolTip = 'Specifies the posted invoice number.';
                 }
-                field("Buy-from Vendor Name"; "Buy-from Vendor Name")
+                field("Buy-from Vendor Name"; Rec."Buy-from Vendor Name")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Vendor';
@@ -33,7 +32,7 @@ page 138 "Posted Purchase Invoice"
                 group("Buy-from")
                 {
                     Caption = 'Buy-from';
-                    field("Buy-from Address"; "Buy-from Address")
+                    field("Buy-from Address"; Rec."Buy-from Address")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Address';
@@ -41,7 +40,7 @@ page 138 "Posted Purchase Invoice"
                         Importance = Additional;
                         ToolTip = 'Specifies the address of the vendor who shipped the items.';
                     }
-                    field("Buy-from Address 2"; "Buy-from Address 2")
+                    field("Buy-from Address 2"; Rec."Buy-from Address 2")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Address 2';
@@ -49,7 +48,7 @@ page 138 "Posted Purchase Invoice"
                         Importance = Additional;
                         ToolTip = 'Specifies additional address information.';
                     }
-                    field("Buy-from City"; "Buy-from City")
+                    field("Buy-from City"; Rec."Buy-from City")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'City';
@@ -61,7 +60,7 @@ page 138 "Posted Purchase Invoice"
                     {
                         ShowCaption = false;
                         Visible = IsBuyFromCountyVisible;
-                        field("Buy-from County"; "Buy-from County")
+                        field("Buy-from County"; Rec."Buy-from County")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'County';
@@ -70,7 +69,7 @@ page 138 "Posted Purchase Invoice"
                             ToolTip = 'Specifies the state, province or county as a part of the address.';
                         }
                     }
-                    field("Buy-from Post Code"; "Buy-from Post Code")
+                    field("Buy-from Post Code"; Rec."Buy-from Post Code")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Post Code';
@@ -78,7 +77,7 @@ page 138 "Posted Purchase Invoice"
                         Importance = Additional;
                         ToolTip = 'Specifies the postal code.';
                     }
-                    field("Buy-from Country/Region Code"; "Buy-from Country/Region Code")
+                    field("Buy-from Country/Region Code"; Rec."Buy-from Country/Region Code")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Country/Region';
@@ -86,7 +85,7 @@ page 138 "Posted Purchase Invoice"
                         Importance = Additional;
                         ToolTip = 'Specifies the country or region of the ship-to address.';
                     }
-                    field("Buy-from Contact No."; "Buy-from Contact No.")
+                    field("Buy-from Contact No."; Rec."Buy-from Contact No.")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Contact No.';
@@ -122,76 +121,76 @@ page 138 "Posted Purchase Invoice"
                         ToolTip = 'Specifies the email address of the vendor contact person.';
                     }
                 }
-                field("Buy-from Contact"; "Buy-from Contact")
+                field("Buy-from Contact"; Rec."Buy-from Contact")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Contact';
                     Editable = false;
                     ToolTip = 'Specifies the name of the person to contact at the vendor who shipped the items.';
                 }
-                field("Posting Date"; "Posting Date")
+                field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     Importance = Promoted;
                     ToolTip = 'Specifies the date the purchase header was posted.';
                 }
-                field("Document Date"; "Document Date")
+                field("Document Date"; Rec."Document Date")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     Importance = Additional;
                     ToolTip = 'Specifies the date on which the purchase document was created.';
                 }
-                field("Due Date"; "Due Date")
+                field("Due Date"; Rec."Due Date")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     Importance = Promoted;
                     ToolTip = 'Specifies when the invoice is due. The program calculates the date using the Payment Terms Code and Document Date fields on the purchase header.';
                 }
-                field("Quote No."; "Quote No.")
+                field("Quote No."; Rec."Quote No.")
                 {
                     ApplicationArea = Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies the number of the purchase quote document if a quote was used to start the purchase process.';
                 }
-                field("Order No."; "Order No.")
+                field("Order No."; Rec."Order No.")
                 {
                     ApplicationArea = Suite;
                     Editable = false;
                     Importance = Additional;
                     ToolTip = 'Specifies the number of the purchase order that this invoice was posted from.';
                 }
-                field("Vendor Invoice No."; "Vendor Invoice No.")
+                field("Vendor Invoice No."; Rec."Vendor Invoice No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     Importance = Promoted;
                     ToolTip = 'Specifies the vendor''s own invoice number.';
                 }
-                field("Vendor Order No."; "Vendor Order No.")
+                field("Vendor Order No."; Rec."Vendor Order No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     Importance = Additional;
                     ToolTip = 'Specifies the vendor''s order number.';
                 }
-                field("Pre-Assigned No."; "Pre-Assigned No.")
+                field("Pre-Assigned No."; Rec."Pre-Assigned No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     Importance = Additional;
                     ToolTip = 'Specifies the number of the purchase document that the posted invoice was created for.';
                 }
-                field("No. Printed"; "No. Printed")
+                field("No. Printed"; Rec."No. Printed")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     Importance = Additional;
                     ToolTip = 'Specifies how many times the document has been printed.';
                 }
-                field("Posting Description"; "Posting Description")
+                field("Posting Description"; Rec."Posting Description")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -201,21 +200,21 @@ page 138 "Posted Purchase Invoice"
                     ObsoleteTag = '20.0';
                     Visible = false;
                 }
-                field("Order Address Code"; "Order Address Code")
+                field("Order Address Code"; Rec."Order Address Code")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     Importance = Additional;
                     ToolTip = 'Specifies the order address of the related vendor.';
                 }
-                field("Purchaser Code"; "Purchaser Code")
+                field("Purchaser Code"; Rec."Purchaser Code")
                 {
                     ApplicationArea = Suite;
                     Editable = false;
                     Importance = Additional;
                     ToolTip = 'Specifies which purchaser is assigned to the vendor.';
                 }
-                field("Responsibility Center"; "Responsibility Center")
+                field("Responsibility Center"; Rec."Responsibility Center")
                 {
                     ApplicationArea = Suite;
                     Editable = false;
@@ -232,7 +231,7 @@ page 138 "Posted Purchase Invoice"
 
                     trigger OnDrillDown()
                     begin
-                        ShowCorrectiveCreditMemo;
+                        ShowCorrectiveCreditMemo();
                     end;
                 }
                 field(Corrective; Corrective)
@@ -245,7 +244,7 @@ page 138 "Posted Purchase Invoice"
 
                     trigger OnDrillDown()
                     begin
-                        ShowCancelledCreditMemo;
+                        ShowCancelledCreditMemo();
                     end;
                 }
             }
@@ -257,7 +256,7 @@ page 138 "Posted Purchase Invoice"
             group("Invoice Details")
             {
                 Caption = 'Invoice Details';
-                field("Currency Code"; "Currency Code")
+                field("Currency Code"; Rec."Currency Code")
                 {
                     ApplicationArea = Suite;
                     Importance = Promoted;
@@ -270,13 +269,13 @@ page 138 "Posted Purchase Invoice"
                     begin
                         ChangeExchangeRate.SetParameter("Currency Code", "Currency Factor", "Posting Date");
                         ChangeExchangeRate.Editable(false);
-                        if ChangeExchangeRate.RunModal = ACTION::OK then begin
-                            "Currency Factor" := ChangeExchangeRate.GetParameter;
+                        if ChangeExchangeRate.RunModal() = ACTION::OK then begin
+                            "Currency Factor" := ChangeExchangeRate.GetParameter();
                             UpdateCurrencyFactor.ModifyPostedPurchaseInvoice(Rec);
                         end;
                     end;
                 }
-                field("Transaction Type"; "Transaction Type")
+                field("Transaction Type"; Rec."Transaction Type")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -286,7 +285,7 @@ page 138 "Posted Purchase Invoice"
                     ObsoleteTag = '20.0';
                     Visible = false;
                 }
-                field("Transaction Specification"; "Transaction Specification")
+                field("Transaction Specification"; Rec."Transaction Specification")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -296,7 +295,7 @@ page 138 "Posted Purchase Invoice"
                     ObsoleteTag = '20.0';
                     Visible = false;
                 }
-                field("Transport Method"; "Transport Method")
+                field("Transport Method"; Rec."Transport Method")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -306,7 +305,7 @@ page 138 "Posted Purchase Invoice"
                     ObsoleteTag = '20.0';
                     Visible = false;
                 }
-                field("Entry Point"; "Entry Point")
+                field("Entry Point"; Rec."Entry Point")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -326,7 +325,7 @@ page 138 "Posted Purchase Invoice"
                     ObsoleteTag = '20.0';
                     Visible = false;
                 }
-                field("VAT Registration No."; "VAT Registration No.")
+                field("VAT Registration No."; Rec."VAT Registration No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -336,7 +335,7 @@ page 138 "Posted Purchase Invoice"
                     ObsoleteTag = '20.0';
                     Visible = false;
                 }
-                field("Language Code"; "Language Code")
+                field("Language Code"; Rec."Language Code")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -346,7 +345,7 @@ page 138 "Posted Purchase Invoice"
                     ObsoleteTag = '20.0';
                     Visible = false;
                 }
-                field("VAT Country/Region Code"; "VAT Country/Region Code")
+                field("VAT Country/Region Code"; Rec."VAT Country/Region Code")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -356,183 +355,93 @@ page 138 "Posted Purchase Invoice"
                     ObsoleteTag = '20.0';
                     Visible = false;
                 }
-#if not CLEAN18
-            }
-            group(Payments)
-            {
-                Caption = 'Payments';
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                ObsoleteTag = '18.0';
-
-                field("Bank Account Code"; "Bank Account Code")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Editable = false;
-                    ToolTip = 'Specifies a code to idenfity vendor bank account.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '18.0';
-                    Visible = false;
-                }
-                field("Bank Account No."; "Bank Account No.")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Editable = false;
-                    ToolTip = 'Specifies the number used by the bank for the bank account.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '18.0';
-                    Visible = false;
-                }
-                field("Transit No."; "Transit No.")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Editable = false;
-                    ToolTip = 'Specifies a bank identification number of your own choice.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '18.0';
-                    Visible = false;
-                }
-                field("SWIFT Code"; "SWIFT Code")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Editable = false;
-                    ToolTip = 'Specifies the international bank identifier code (SWIFT) of the bank where you have the account.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '18.0';
-                    Visible = false;
-                }
-                field(IBAN; IBAN)
-                {
-                    ApplicationArea = Basic, Suite;
-                    Editable = false;
-                    ToolTip = 'Specifies the bank account''s international bank account number.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '18.0';
-                    Visible = false;
-                }
-                field("Specific Symbol"; "Specific Symbol")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Editable = false;
-                    ToolTip = 'Specifies the additional symbol of bank payments.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '18.0';
-                    Visible = false;
-                }
-                field("Variable Symbol"; "Variable Symbol")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Editable = false;
-                    ToolTip = 'Specifies the detail information for payment.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '18.0';
-                    Visible = false;
-                }
-                field("Constant Symbol"; "Constant Symbol")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Editable = false;
-                    ToolTip = 'Specifies the additional symbol of bank payments.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '18.0';
-                    Visible = false;
-                }
-#endif
-                field("Expected Receipt Date"; "Expected Receipt Date")
+                field("Expected Receipt Date"; Rec."Expected Receipt Date")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     Importance = Promoted;
                     ToolTip = 'Specifies the date on which the invoiced items were expected.';
                 }
-                field("Payment Terms Code"; "Payment Terms Code")
+                field("Payment Terms Code"; Rec."Payment Terms Code")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     Importance = Promoted;
                     ToolTip = 'Specifies the code to use to find the payment terms that apply to the purchase header.';
                 }
-                field("Payment Method Code"; "Payment Method Code")
+                field("Payment Method Code"; Rec."Payment Method Code")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     Importance = Additional;
                     ToolTip = 'Specifies the method of payment to vendors. The program has copied the code from the Payment Method Code field on the purchase header.';
                 }
-                field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
+                field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
                     Editable = false;
                     ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                 }
-                field("Shortcut Dimension 2 Code"; "Shortcut Dimension 2 Code")
+                field("Shortcut Dimension 2 Code"; Rec."Shortcut Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     Editable = false;
                     ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                 }
-                field("Payment Discount %"; "Payment Discount %")
+                field("Payment Discount %"; Rec."Payment Discount %")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the payment discount percent granted if payment is made on or before the date in the Pmt. Discount Date field.';
                 }
-                field("Pmt. Discount Date"; "Pmt. Discount Date")
+                field("Pmt. Discount Date"; Rec."Pmt. Discount Date")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     Importance = Additional;
                     ToolTip = 'Specifies the date on which the amount in the entry must be paid for a payment discount to be granted.';
                 }
-                field("Tax Liable"; "Tax Liable")
+                field("Tax Liable"; Rec."Tax Liable")
                 {
                     ApplicationArea = SalesTax;
                     Editable = false;
                     ToolTip = 'Specifies if the customer or vendor is liable for sales tax.';
                 }
-                field("Tax Area Code"; "Tax Area Code")
+                field("Tax Area Code"; Rec."Tax Area Code")
                 {
                     ApplicationArea = SalesTax;
                     Editable = false;
                     ToolTip = 'Specifies the tax area that is used to calculate and post sales tax.';
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
                     Editable = false;
                     Importance = Additional;
                     ToolTip = 'Specifies the code for the location where the items are registered.';
                 }
-                field("Shipment Method Code"; "Shipment Method Code")
+                field("Shipment Method Code"; Rec."Shipment Method Code")
                 {
                     ApplicationArea = Suite;
                     Editable = false;
                     Importance = Additional;
                     ToolTip = 'Specifies the delivery conditions of the related shipment, such as free on board (FOB).';
                 }
-                field("Payment Reference"; "Payment Reference")
+                field("Payment Reference"; Rec."Payment Reference")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     Importance = Additional;
                     ToolTip = 'Specifies the payment of the purchase invoice.';
                 }
-                field("Creditor No."; "Creditor No.")
+                field("Creditor No."; Rec."Creditor No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     Importance = Additional;
                     ToolTip = 'Specifies the number of the vendor.';
                 }
-                field("VAT Bus. Posting Group"; "VAT Bus. Posting Group")
+                field("VAT Bus. Posting Group"; Rec."VAT Bus. Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -542,7 +451,7 @@ page 138 "Posted Purchase Invoice"
                     ObsoleteTag = '20.0';
                     Visible = false;
                 }
-                field("Vendor Posting Group"; "Vendor Posting Group")
+                field("Vendor Posting Group"; Rec."Vendor Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -556,7 +465,7 @@ page 138 "Posted Purchase Invoice"
                 group("Ship-to")
                 {
                     Caption = 'Ship-to';
-                    field("Ship-to Code"; "Ship-to Code")
+                    field("Ship-to Code"; Rec."Ship-to Code")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Address Code';
@@ -564,28 +473,28 @@ page 138 "Posted Purchase Invoice"
                         Importance = Promoted;
                         ToolTip = 'Specifies the address on purchase orders shipped with a drop shipment directly from the vendor to a customer.';
                     }
-                    field("Ship-to Name"; "Ship-to Name")
+                    field("Ship-to Name"; Rec."Ship-to Name")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Name';
                         Editable = false;
                         ToolTip = 'Specifies the name of the company at the address to which the items in the purchase order were shipped.';
                     }
-                    field("Ship-to Address"; "Ship-to Address")
+                    field("Ship-to Address"; Rec."Ship-to Address")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Address';
                         Editable = false;
                         ToolTip = 'Specifies the address that the items in the purchase order were shipped to.';
                     }
-                    field("Ship-to Address 2"; "Ship-to Address 2")
+                    field("Ship-to Address 2"; Rec."Ship-to Address 2")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Address 2';
                         Editable = false;
                         ToolTip = 'Specifies additional address information.';
                     }
-                    field("Ship-to City"; "Ship-to City")
+                    field("Ship-to City"; Rec."Ship-to City")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'City';
@@ -596,7 +505,7 @@ page 138 "Posted Purchase Invoice"
                     {
                         ShowCaption = false;
                         Visible = IsShipToCountyVisible;
-                        field("Ship-to County"; "Ship-to County")
+                        field("Ship-to County"; Rec."Ship-to County")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'County';
@@ -604,21 +513,21 @@ page 138 "Posted Purchase Invoice"
                             ToolTip = 'Specifies the state, province or county as a part of the address.';
                         }
                     }
-                    field("Ship-to Post Code"; "Ship-to Post Code")
+                    field("Ship-to Post Code"; Rec."Ship-to Post Code")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Post Code';
                         Editable = false;
                         ToolTip = 'Specifies the postal code.';
                     }
-                    field("Ship-to Country/Region Code"; "Ship-to Country/Region Code")
+                    field("Ship-to Country/Region Code"; Rec."Ship-to Country/Region Code")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Country/Region';
                         Editable = false;
                         ToolTip = 'Specifies the country or region of the ship-to address.';
                     }
-                    field("Ship-to Contact"; "Ship-to Contact")
+                    field("Ship-to Contact"; Rec."Ship-to Contact")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Contact';
@@ -629,7 +538,7 @@ page 138 "Posted Purchase Invoice"
                 group("Pay-to")
                 {
                     Caption = 'Pay-to';
-                    field("Pay-to Name"; "Pay-to Name")
+                    field("Pay-to Name"; Rec."Pay-to Name")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Name';
@@ -637,7 +546,7 @@ page 138 "Posted Purchase Invoice"
                         Importance = Promoted;
                         ToolTip = 'Specifies the name of the vendor who you received the invoice from.';
                     }
-                    field("Pay-to Address"; "Pay-to Address")
+                    field("Pay-to Address"; Rec."Pay-to Address")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Address';
@@ -645,7 +554,7 @@ page 138 "Posted Purchase Invoice"
                         Importance = Additional;
                         ToolTip = 'Specifies the address of the vendor that you received the invoice from.';
                     }
-                    field("Pay-to Address 2"; "Pay-to Address 2")
+                    field("Pay-to Address 2"; Rec."Pay-to Address 2")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Address 2';
@@ -653,7 +562,7 @@ page 138 "Posted Purchase Invoice"
                         Importance = Additional;
                         ToolTip = 'Specifies additional address information.';
                     }
-                    field("Pay-to City"; "Pay-to City")
+                    field("Pay-to City"; Rec."Pay-to City")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'City';
@@ -665,7 +574,7 @@ page 138 "Posted Purchase Invoice"
                     {
                         ShowCaption = false;
                         Visible = IsPayToCountyVisible;
-                        field("Pay-to County"; "Pay-to County")
+                        field("Pay-to County"; Rec."Pay-to County")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'County';
@@ -674,7 +583,7 @@ page 138 "Posted Purchase Invoice"
                             ToolTip = 'Specifies the state, province or county as a part of the address.';
                         }
                     }
-                    field("Pay-to Post Code"; "Pay-to Post Code")
+                    field("Pay-to Post Code"; Rec."Pay-to Post Code")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Post Code';
@@ -682,7 +591,7 @@ page 138 "Posted Purchase Invoice"
                         Importance = Additional;
                         ToolTip = 'Specifies the postal code.';
                     }
-                    field("Pay-to Country/Region Code"; "Pay-to Country/Region Code")
+                    field("Pay-to Country/Region Code"; Rec."Pay-to Country/Region Code")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Country/Region';
@@ -690,7 +599,7 @@ page 138 "Posted Purchase Invoice"
                         Importance = Additional;
                         ToolTip = 'Specifies the country or region of the ship-to address.';
                     }
-                    field("Pay-to Contact No."; "Pay-to Contact No.")
+                    field("Pay-to Contact No."; Rec."Pay-to Contact No.")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Contact No.';
@@ -725,12 +634,105 @@ page 138 "Posted Purchase Invoice"
                         ExtendedDatatype = Email;
                         ToolTip = 'Specifies the email address of the vendor contact person.';
                     }
-                    field("Pay-to Contact"; "Pay-to Contact")
+                    field("Pay-to Contact"; Rec."Pay-to Contact")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Contact';
                         Editable = false;
                         ToolTip = 'Specifies the name of the person you should contact at the vendor who you received the invoice from.';
+                    }
+                }
+                group("Remit-to")
+                {
+                    field("Remit-to Code"; Rec."Remit-to Code")
+                    {
+                        Editable = false;
+                        ApplicationArea = Basic, Suite;
+                        Importance = Promoted;
+                        ToolTip = 'Specifies the code for the vendor''s remit address for this invoice.';
+                    }
+                    group("Remit-to information")
+                    {
+                        ShowCaption = false;
+                        Visible = true;
+
+                        field("Remit-to Name"; RemitToAddress[1])
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Caption = 'Name';
+                            Editable = false;
+                            Importance = Additional;
+                            QuickEntry = false;
+                            ToolTip = 'Specifies the name of the company at the address that this invoice was remitted to.';
+                        }
+                        field("Remit-to Address"; RemitToAddress[2])
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Caption = 'Address';
+                            Editable = false;
+                            Importance = Additional;
+                            QuickEntry = false;
+                            ToolTip = 'Specifies the address that this invoice was remitted to.';
+                        }
+                        field("Remit-to Address 2"; RemitToAddress[3])
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Caption = 'Address 2';
+                            Editable = false;
+                            Importance = Additional;
+                            QuickEntry = false;
+                            ToolTip = 'Specifies additional address information.';
+                        }
+                        field("Remit-to City"; RemitToAddress[4])
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Caption = 'City';
+                            Editable = false;
+                            Importance = Additional;
+                            QuickEntry = false;
+                            ToolTip = 'Specifies the city that this invoice was remitted to.';
+                        }
+                        group("Remit-to County group")
+                        {
+                            ShowCaption = false;
+                            Visible = IsRemitToCountyVisible;
+                            field("Remit-to County"; RemitToAddress[5])
+                            {
+                                ApplicationArea = Basic, Suite;
+                                Caption = 'County';
+                                Editable = false;
+                                Importance = Additional;
+                                QuickEntry = false;
+                                ToolTip = 'Specifies the state, province or county of the address.';
+                            }
+                        }
+                        field("Remit-to Post Code"; RemitToAddress[6])
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Caption = 'Post Code';
+                            Editable = false;
+                            Importance = Additional;
+                            QuickEntry = false;
+                            ToolTip = 'Specifies the postal code that this invoice was remitted to.';
+                        }
+                        field("Remit-to Country/Region Code"; RemitToAddress[7])
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Caption = 'Country/Region';
+                            Editable = false;
+                            Importance = Additional;
+                            QuickEntry = false;
+                            ToolTip = 'Specifies the country/region code that this invoice was remitted to.';
+                        }
+                        field("Remit-to Contact"; RemitToAddress[8])
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Caption = 'Contact';
+                            Editable = false;
+                            Importance = Additional;
+                            QuickEntry = false;
+                            ToolTip = 'Specifies the name of a contact person for the address that this invoice was remitted to.';
+                        }
                     }
                 }
             }
@@ -775,9 +777,6 @@ page 138 "Posted Purchase Invoice"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Statistics';
                     Image = Statistics;
-                    Promoted = true;
-                    PromotedCategory = Category5;
-                    PromotedIsBig = true;
                     RunObject = Page "Purchase Invoice Statistics";
                     RunPageLink = "No." = FIELD("No.");
                     ShortCutKey = 'F7';
@@ -788,8 +787,6 @@ page 138 "Posted Purchase Invoice"
                     ApplicationArea = Comments;
                     Caption = 'Co&mments';
                     Image = ViewComments;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     RunObject = Page "Purch. Comment Sheet";
                     RunPageLink = "Document Type" = CONST("Posted Invoice"),
                                   "No." = FIELD("No."),
@@ -802,9 +799,6 @@ page 138 "Posted Purchase Invoice"
                     ApplicationArea = Dimensions;
                     Caption = 'Dimensions';
                     Image = Dimensions;
-                    Promoted = true;
-                    PromotedCategory = Category5;
-                    PromotedIsBig = true;
                     ShortCutKey = 'Alt+D';
                     ToolTip = 'View or edit dimensions, such as area, project, or department, that you can assign to sales and purchase documents to distribute costs and analyze transaction history.';
 
@@ -819,8 +813,6 @@ page 138 "Posted Purchase Invoice"
                     ApplicationArea = Suite;
                     Caption = 'Approvals';
                     Image = Approvals;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     ToolTip = 'View a list of the records that are waiting to be approved. For example, you can see who requested the record to be approved, when it was sent, and when it is due to be approved.';
 
                     trigger OnAction()
@@ -866,8 +858,6 @@ page 138 "Posted Purchase Invoice"
                 Caption = '&Print';
                 Ellipsis = true;
                 Image = Print;
-                Promoted = true;
-                PromotedCategory = Category6;
                 ToolTip = 'Prepare to print the document. A report request window for the document opens where you can specify what to include on the print-out.';
                 Visible = NOT IsOfficeAddin;
 
@@ -883,8 +873,6 @@ page 138 "Posted Purchase Invoice"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Attach as PDF';
                 Image = PrintAttachment;
-                Promoted = true;
-                PromotedCategory = Category6;
                 ToolTip = 'Create a PDF file and attach it to the document.';
 
                 trigger OnAction()
@@ -904,9 +892,6 @@ page 138 "Posted Purchase Invoice"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Correct';
                     Image = Undo;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
                     ToolTip = 'Reverse this posted invoice. A credit memo will be created and matched with the invoice, and the invoice will be canceled. Shipments for the invoice will be reversed. To create a new invoice with the same information, use the Copy function. When you copy an invoice, remember to post shipments for the new invoice.';
                     Visible = not Cancelled;
 
@@ -915,7 +900,7 @@ page 138 "Posted Purchase Invoice"
                         CorrectPstdPurchInvYesNo: Codeunit "Correct PstdPurchInv (Yes/No)";
                     begin
                         if CorrectPstdPurchInvYesNo.CorrectInvoice(Rec) then
-                            CurrPage.Close;
+                            CurrPage.Close();
                     end;
                 }
                 action(CancelInvoice)
@@ -923,9 +908,6 @@ page 138 "Posted Purchase Invoice"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Cancel';
                     Image = Cancel;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
                     ToolTip = 'Create and post a purchase credit memo that reverses this posted purchase invoice. This posted purchase invoice will be canceled.';
                     Visible = not Cancelled;
 
@@ -934,7 +916,7 @@ page 138 "Posted Purchase Invoice"
                         CancelPstdPurchInvYesNo: Codeunit "Cancel PstdPurchInv (Yes/No)";
                     begin
                         if CancelPstdPurchInvYesNo.CancelInvoice(Rec) then
-                            CurrPage.Close;
+                            CurrPage.Close();
                     end;
                 }
                 action(CreateCreditMemo)
@@ -942,9 +924,6 @@ page 138 "Posted Purchase Invoice"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Create Corrective Credit Memo';
                     Image = CreateCreditMemo;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedOnly = true;
                     ToolTip = 'Create a credit memo for this posted invoice that you complete and post manually to reverse the posted invoice.';
 
                     trigger OnAction()
@@ -954,7 +933,7 @@ page 138 "Posted Purchase Invoice"
                     begin
                         if CorrectPostedPurchInvoice.CreateCreditMemoCopyDocument(Rec, PurchaseHeader) then begin
                             PAGE.Run(PAGE::"Purchase Credit Memo", PurchaseHeader);
-                            CurrPage.Close;
+                            CurrPage.Close();
                         end;
                     end;
                 }
@@ -963,15 +942,12 @@ page 138 "Posted Purchase Invoice"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Show Canceled/Corrective Credit Memo';
                     Image = CreditMemo;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedOnly = true;
                     ToolTip = 'Open the posted purchase credit memo that was created when you canceled the posted purchase invoice. If the posted purchase invoice is the result of a canceled purchase credit memo, then the canceled purchase credit memo will open.';
                     Visible = Cancelled OR Corrective;
 
                     trigger OnAction()
                     begin
-                        ShowCanceledOrCorrCrMemo;
+                        ShowCanceledOrCorrCrMemo();
                     end;
                 }
             }
@@ -984,8 +960,6 @@ page 138 "Posted Purchase Invoice"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Vendor';
                     Image = Vendor;
-                    Promoted = true;
-                    PromotedCategory = Category7;
                     RunObject = Page "Vendor Card";
                     RunPageLink = "No." = FIELD("Buy-from Vendor No.");
                     ShortCutKey = 'Shift+F7';
@@ -996,15 +970,13 @@ page 138 "Posted Purchase Invoice"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Find entries...';
                     Image = Navigate;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     ShortCutKey = 'Ctrl+Alt+Q';
                     ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
                     Visible = NOT IsOfficeAddin;
 
                     trigger OnAction()
                     begin
-                        Navigate;
+                        Navigate();
                     end;
                 }
                 action(DocAttach)
@@ -1012,8 +984,6 @@ page 138 "Posted Purchase Invoice"
                     ApplicationArea = All;
                     Caption = 'Attachments';
                     Image = Attach;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     ToolTip = 'Add a file as an attachment. You can attach images as well as documents.';
 
                     trigger OnAction()
@@ -1032,15 +1002,13 @@ page 138 "Posted Purchase Invoice"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Find entries...';
                 Image = Navigate;
-                Promoted = true;
-                PromotedCategory = Category5;
                 ShortCutKey = 'Ctrl+Alt+Q';
                 ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
                 Visible = false;
 
                 trigger OnAction()
                 begin
-                    Navigate;
+                    Navigate();
                 end;
             }
             group(IncomingDocument)
@@ -1100,10 +1068,6 @@ page 138 "Posted Purchase Invoice"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Update Document';
                 Image = Edit;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'Add new information that is relevant to the document, such as a payment reference. You can only edit a few fields because the document has already been posted.';
 
                 trigger OnAction()
@@ -1116,6 +1080,108 @@ page 138 "Posted Purchase Invoice"
                 end;
             }
         }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref("Update Document_Promoted"; "Update Document")
+                {
+                }
+                actionref(Navigate_Promoted; Navigate)
+                {
+                }
+                group(Category_Category4)
+                {
+                    Caption = 'Correct', Comment = 'Generated from the PromotedActionCategories property index 3.';
+                    ShowAs = SplitButton;
+
+                    actionref(CorrectInvoice_Promoted; CorrectInvoice)
+                    {
+                    }
+                    actionref(CancelInvoice_Promoted; CancelInvoice)
+                    {
+                    }
+                    actionref(CreateCreditMemo_Promoted; CreateCreditMemo)
+                    {
+                    }
+                    actionref(ShowCreditMemo_Promoted; ShowCreditMemo)
+                    {
+                    }
+                }
+            }
+            group(Category_Category6)
+            {
+                Caption = 'Print/Send', Comment = 'Generated from the PromotedActionCategories property index 5.';
+
+                actionref(Print_Promoted; Print)
+                {
+                }
+                actionref(AttachAsPDF_Promoted; AttachAsPDF)
+                {
+                }
+            }
+            group(Category_Category5)
+            {
+                Caption = 'Invoice', Comment = 'Generated from the PromotedActionCategories property index 4.';
+
+                actionref(Dimensions_Promoted; Dimensions)
+                {
+                }
+                actionref(Statistics_Promoted; Statistics)
+                {
+                }
+                actionref(DocAttach_Promoted; DocAttach)
+                {
+                }
+                actionref(Approvals_Promoted; Approvals)
+                {
+                }
+#if not CLEAN21
+                actionref("&Navigate_Promoted"; "&Navigate")
+                {
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
+                    ObsoleteTag = '21.0';
+                }
+#endif
+                actionref("Co&mments_Promoted"; "Co&mments")
+                {
+                }
+
+                separator(Navigate_Separator)
+                {
+                }
+
+                actionref(Vendor_Promoted; Vendor)
+                {
+                }
+            }
+            group("Category_Incoming Document")
+            {
+                Caption = 'Incoming Document';
+
+                actionref(IncomingDocAttachFile_Promoted; IncomingDocAttachFile)
+                {
+                }
+                actionref(IncomingDocCard_Promoted; IncomingDocCard)
+                {
+                }
+                actionref(SelectIncomingDoc_Promoted; SelectIncomingDoc)
+                {
+                }
+            }
+            group(Category_Category7)
+            {
+                Caption = 'Navigate', Comment = 'Generated from the PromotedActionCategories property index 6.';
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+        }
     }
 
     trigger OnAfterGetCurrRecord()
@@ -1123,23 +1189,26 @@ page 138 "Posted Purchase Invoice"
         IncomingDocument: Record "Incoming Document";
     begin
         HasIncomingDocument := IncomingDocument.PostedDocExists("No.", "Posting Date");
-        CurrPage.IncomingDocAttachFactBox.PAGE.LoadDataFromRecord(Rec);
+        if GuiAllowed() then
+            CurrPage.IncomingDocAttachFactBox.PAGE.LoadDataFromRecord(Rec);
     end;
 
     trigger OnAfterGetRecord()
     begin
         BuyFromContact.GetOrClear("Buy-from Contact No.");
         PayToContact.GetOrClear("Pay-to Contact No.");
+        FillRemitToFields();
     end;
 
     trigger OnOpenPage()
     var
         OfficeMgt: Codeunit "Office Management";
     begin
-        SetSecurityFilterOnRespCenter;
-        IsOfficeAddin := OfficeMgt.IsAvailable;
+        SetSecurityFilterOnRespCenter();
+        if GuiAllowed() then
+            IsOfficeAddin := OfficeMgt.IsAvailable();
 
-        ActivateFields;
+        ActivateFields();
     end;
 
     var
@@ -1147,17 +1216,32 @@ page 138 "Posted Purchase Invoice"
         BuyFromContact: Record Contact;
         PayToContact: Record Contact;
         FormatAddress: Codeunit "Format Address";
+        RemitToAddress: array[8] of Text[100];
         HasIncomingDocument: Boolean;
         IsOfficeAddin: Boolean;
         IsBuyFromCountyVisible: Boolean;
         IsPayToCountyVisible: Boolean;
         IsShipToCountyVisible: Boolean;
+        IsRemitToCountyVisible: Boolean;
 
     local procedure ActivateFields()
     begin
         IsBuyFromCountyVisible := FormatAddress.UseCounty("Buy-from Country/Region Code");
         IsPayToCountyVisible := FormatAddress.UseCounty("Pay-to Country/Region Code");
         IsShipToCountyVisible := FormatAddress.UseCounty("Ship-to Country/Region Code");
+    end;
+
+    local procedure FillRemitToFields()
+    var
+        RemitAddress: Record "Remit Address";
+    begin
+        RemitAddress.SetRange("Vendor No.", "Buy-from Vendor No.");
+        RemitAddress.SetRange(Code, "Remit-to Code");
+        if not RemitAddress.IsEmpty() then begin
+            RemitAddress.FindFirst();
+            FormatAddress.VendorRemitToAddress(RemitToAddress, RemitAddress);
+            IsRemitToCountyVisible := FormatAddress.UseCounty(RemitAddress."Country/Region Code");
+        end;
     end;
 }
 #endif

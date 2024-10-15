@@ -47,7 +47,7 @@ page 1061 "Select Payment Service"
 
                 trigger OnDrillDown()
                 begin
-                    CurrPage.Close;
+                    CurrPage.Close();
                     PAGE.Run(PAGE::"Payment Services");
                 end;
             }

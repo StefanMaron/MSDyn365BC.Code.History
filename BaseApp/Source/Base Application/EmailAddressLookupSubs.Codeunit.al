@@ -146,7 +146,7 @@ codeunit 8899 "Email Address Lookup Subs"
 
         Contact.SetFilter("E-Mail", '<>%1', '');
         if not Contact.FindSet() then begin
-            Message(StrSubstNo(NoRecordsFoundMsg, Contact.TableCaption));
+            Message(StrSubstNo(NoRecordsFoundMsg, Contact.TableCaption()));
             exit;
         end;
 
@@ -190,7 +190,7 @@ codeunit 8899 "Email Address Lookup Subs"
 
         Employee.SetFilter("E-Mail", '<>%1', '');
         if not Employee.FindSet() then begin
-            Message(StrSubstNo(NoRecordsFoundMsg, Employee.TableCaption));
+            Message(StrSubstNo(NoRecordsFoundMsg, Employee.TableCaption()));
             exit;
         end;
 
@@ -230,7 +230,7 @@ codeunit 8899 "Email Address Lookup Subs"
 
         Customer.SetFilter("E-Mail", '<>%1', '');
         if not Customer.FindSet() then begin
-            Message(StrSubstNo(NoRecordsFoundMsg, Customer.TableCaption));
+            Message(StrSubstNo(NoRecordsFoundMsg, Customer.TableCaption()));
             exit;
         end;
         CustomerList.SetTableView(Customer);
@@ -268,7 +268,7 @@ codeunit 8899 "Email Address Lookup Subs"
 
         Vendor.SetFilter("E-Mail", '<>%1', '');
         if not Vendor.FindSet() then begin
-            Message(StrSubstNo(NoRecordsFoundMsg, Vendor.TableCaption));
+            Message(StrSubstNo(NoRecordsFoundMsg, Vendor.TableCaption()));
             exit;
         end;
         VendorList.SetTableView(Vendor);
@@ -304,7 +304,7 @@ codeunit 8899 "Email Address Lookup Subs"
 
         User.SetFilter("Contact Email", '<>%1', '');
         if not User.FindSet() then begin
-            Message(StrSubstNo(NoRecordsFoundMsg, User.TableCaption));
+            Message(StrSubstNo(NoRecordsFoundMsg, User.TableCaption()));
             exit;
         end;
         UserList.SetTableView(User);

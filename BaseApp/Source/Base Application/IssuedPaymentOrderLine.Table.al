@@ -62,9 +62,6 @@ table 11711 "Issued Payment Order Line"
         field(9; "Constant Symbol"; Code[10])
         {
             Caption = 'Constant Symbol';
-#if not CLEAN18
-            TableRelation = "Constant Symbol";
-#endif
         }
         field(10; "Specific Symbol"; Code[10])
         {
@@ -252,7 +249,7 @@ table 11711 "Issued Payment Order Line"
 
         IssuedPaymentOrderLine := Rec;
         IssuedPaymentOrderLine.LockTable();
-        IssuedPaymentOrderLine.Find;
+        IssuedPaymentOrderLine.Find();
         IssuedPaymentOrderLine.Status := IssuedPaymentOrderLine.Status::Cancel;
         IssuedPaymentOrderLine.Modify();
 

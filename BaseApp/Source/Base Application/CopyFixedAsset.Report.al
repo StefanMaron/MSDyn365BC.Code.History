@@ -1,4 +1,3 @@
-#if not CLEAN18
 report 5685 "Copy Fixed Asset"
 {
     Caption = 'Copy Fixed Asset';
@@ -84,7 +83,7 @@ report 5685 "Copy Fixed Asset"
         FADeprBook.LockTable();
         FA.LockTable();
         if FANo = '' then
-            Error(Text000, FA.TableCaption, FA.FieldCaption("No."));
+            Error(Text000, FA.TableCaption(), FA.FieldCaption("No."));
         if (FirstFANo = '') and not UseFANoSeries then
             Error(Text001);
         FA.Get(FANo);
@@ -109,7 +108,7 @@ report 5685 "Copy Fixed Asset"
                 if NumberofCopies > 1 then
                     FirstFANo := IncStr(FirstFANo);
                 if FA2."No." = '' then
-                    Error(Text002, FA.TableCaption, FA.FieldCaption("No."));
+                    Error(Text002, FA.TableCaption(), FA.FieldCaption("No."));
                 FA2.Insert(true);
             end;
             if DefaultDim.Find('-') then
@@ -124,15 +123,10 @@ report 5685 "Copy Fixed Asset"
                     FADeprBook2."FA No." := FA2."No.";
                     FADeprBook2.Insert(true);
                 until FADeprBook.Next() = 0;
-            if FA2.Find then begin
+            if FA2.Find() then begin
                 FA2."Last Date Modified" := 0D;
                 FA2.Modify();
             end;
-            // NAVCZ
-            FASetup.Get();
-            if FASetup."Fixed Asset History" then
-                FAHistoryEntry.InitializeFAHistory(FA2, Today);
-            // NAVCZ
             OnAfterFixedAssetCopied(FA2, FA);
         end;
     end;
@@ -144,8 +138,6 @@ report 5685 "Copy Fixed Asset"
         FA2: Record "Fixed Asset";
         FADeprBook: Record "FA Depreciation Book";
         FADeprBook2: Record "FA Depreciation Book";
-        FAHistoryEntry: Record "FA History Entry";
-        FASetup: Record "FA Setup";
         FANo: Code[20];
         FANo2: Code[20];
         FirstFANo: Code[20];
@@ -180,4 +172,3 @@ report 5685 "Copy Fixed Asset"
     end;
 }
 
-#endif

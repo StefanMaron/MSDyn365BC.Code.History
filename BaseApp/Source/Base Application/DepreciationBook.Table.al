@@ -55,16 +55,6 @@ table 5611 "Depreciation Book"
             Caption = 'Disposal Calculation Method';
             OptionCaption = 'Net,Gross';
             OptionMembers = Net,Gross;
-
-#if not CLEAN18
-            trigger OnValidate()
-            begin
-                // NAVCZ
-                if "Disposal Calculation Method" = "Disposal Calculation Method"::Net then
-                    TestField("Corresp. G/L Entries on Disp.", false);
-                // NAVCZ
-            end;
-#endif
         }
         field(12; "Use Custom 1 Depreciation"; Boolean)
         {
@@ -252,12 +242,12 @@ table 5611 "Depreciation Book"
                     TestField("Periodic Depr. Date Calc.", "Periodic Depr. Date Calc."::"Last Entry");
                 end;
                 FADeprBook.LockTable();
-                Modify;
+                Modify();
                 FADeprBook.SetCurrentKey("Depreciation Book Code", "FA No.");
                 FADeprBook.SetRange("Depreciation Book Code", Code);
                 if FADeprBook.FindSet(true) then
                     repeat
-                        FADeprBook.CalcDeprPeriod;
+                        FADeprBook.CalcDeprPeriod();
                         FADeprBook.Modify();
                     until FADeprBook.Next() = 0;
             end;
@@ -265,108 +255,60 @@ table 5611 "Depreciation Book"
         field(31040; "Deprication from 1st Month Day"; Boolean)
         {
             Caption = 'Depreciation from 1st Month Day';
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(31041; "Acqui.,Appr.before Depr. Check"; Boolean)
         {
             Caption = 'Acqui.,Appr.before Depr. Check';
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(31042; "All Acquil. in same Year"; Boolean)
         {
             Caption = 'All Acquil. in same Year';
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(31043; "Check Deprication on Disposal"; Boolean)
         {
             Caption = 'Check Depreciation on Disposal';
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(31044; "Deprication from 1st Year Day"; Boolean)
         {
             Caption = 'Depreciation from 1st Year Day';
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(31045; "Mark Reclass. as Corrections"; Boolean)
         {
             Caption = 'Mark Reclass. as Corrections';
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(31050; "Corresp. G/L Entries on Disp."; Boolean)
         {
             Caption = 'Corresp. G/L Entries on Disp.';
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
 
-#if not CLEAN18
-            trigger OnValidate()
-            begin
-                if "Corresp. G/L Entries on Disp." then
-                    TestField("Disposal Calculation Method", "Disposal Calculation Method"::Gross)
-                else
-                    TestField("Corresp. FA Entries on Disp.", false);
-            end;
-#endif
         }
         field(31051; "Corresp. FA Entries on Disp."; Boolean)
         {
             Caption = 'Corresp. FA Entries on Disp.';
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
 
-#if not CLEAN18
-            trigger OnValidate()
-            begin
-                if "Corresp. FA Entries on Disp." then
-                    TestField("Corresp. G/L Entries on Disp.", true);
-            end;
-#endif
         }
     }
 
@@ -393,10 +335,10 @@ table 5611 "Depreciation Book"
         if not FADeprBook.IsEmpty() then
             Error(Text000);
 
-        if not InsCoverageLedgEntry.IsEmpty and (FASetup."Insurance Depr. Book" = Code) then
+        if not InsCoverageLedgEntry.IsEmpty() and (FASetup."Insurance Depr. Book" = Code) then
             Error(
               Text001,
-              FASetup.TableCaption, FASetup.FieldCaption("Insurance Depr. Book"), Code);
+              FASetup.TableCaption(), FASetup.FieldCaption("Insurance Depr. Book"), Code);
 
         FAPostingTypeSetup.SetRange("Depreciation Book Code", Code);
         FAPostingTypeSetup.DeleteAll();
@@ -413,28 +355,42 @@ table 5611 "Depreciation Book"
             "Part of Book Value" := true;
             "Part of Depreciable Basis" := true;
             "Include in Depr. Calculation" := true;
+#if not CLEAN21
             "Include in Gain/Loss Calc." := true; // NAVCZ
+#else
+            "Include in Gain/Loss Calc." := false;
+#endif
             "Depreciation Type" := false;
             "Acquisition Type" := true;
             Sign := Sign::Debit;
-            Insert;
+            Insert();
             "FA Posting Type" := "FA Posting Type"::"Write-Down";
+#if not CLEAN21
             "Part of Depreciable Basis" := true; // NAVCZ
+#else
+            "Part of Depreciable Basis" := false;
+#endif
             "Include in Gain/Loss Calc." := true;
             "Depreciation Type" := true;
             "Acquisition Type" := false;
             Sign := Sign::Credit;
-            Insert;
-            Init; // NAVCZ
+            Insert();
+#if not CLEAN21
+            Init(); // NAVCZ
             "Depreciation Book Code" := Code; // NAVCZ
+#endif
             "FA Posting Type" := "FA Posting Type"::"Custom 1";
+#if not CLEAN21
             "Include in Gain/Loss Calc." := true; // NAVCZ
             Sign := Sign::Credit; // NAVCZ
-            Insert;
+#endif
+            Insert();
             "FA Posting Type" := "FA Posting Type"::"Custom 2";
+#if not CLEAN21
             "Acquisition Type" := true; // NAVCZ
             Sign := Sign::Debit; // NAVCZ
-            Insert;
+#endif
+            Insert();
         end;
     end;
 
@@ -449,10 +405,11 @@ table 5611 "Depreciation Book"
     end;
 
     var
-        Text000: Label 'The book cannot be deleted because it is in use.';
-        Text001: Label 'The book cannot be deleted because %1 %2 = %3.';
         FASetup: Record "FA Setup";
         FAJnlSetup: Record "FA Journal Setup";
+
+        Text000: Label 'The book cannot be deleted because it is in use.';
+        Text001: Label 'The book cannot be deleted because %1 %2 = %3.';
 
     protected var
         FAPostingTypeSetup: Record "FA Posting Type Setup";

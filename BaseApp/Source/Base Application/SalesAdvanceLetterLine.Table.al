@@ -44,7 +44,7 @@ table 31001 "Sales Advance Letter Line"
             trigger OnValidate()
             begin
                 if Description <> xRec.Description then
-                    TestStatusOpen;
+                    TestStatusOpen();
             end;
 #endif
         }
@@ -61,19 +61,19 @@ table 31001 "Sales Advance Letter Line"
 
             trigger OnValidate()
             begin
-                GetLetterHeader;
+                GetLetterHeader();
                 if not SalesAdvanceLetterHeadergre."Amounts Including VAT" then begin
                     Validate(Amount);
                     exit;
                 end;
 
-                GetCurrency;
+                GetCurrency();
                 case "VAT Calculation Type" of
                     "VAT Calculation Type"::"Normal VAT":
                         "VAT Amount" :=
                             Round("Amount Including VAT" * "VAT %" / (100 + "VAT %"),
                                 Currency."Amount Rounding Precision",
-                                Currency.VATRoundingDirection);
+                                Currency.VATRoundingDirection());
                     "VAT Calculation Type"::"Reverse Charge VAT":
                         "VAT Amount" := 0;
                     "VAT Calculation Type"::"Full VAT":
@@ -96,20 +96,20 @@ table 31001 "Sales Advance Letter Line"
 
             trigger OnValidate()
             begin
-                TestStatusOpen;
+                TestStatusOpen();
 
                 if Amount <> xRec.Amount then
                     SalesAdvanceLetterHeadergre.TestField("Amounts Including VAT", false);
                 Amount := Round(Amount, Currency."Amount Rounding Precision");
 
-                GetCurrency;
+                GetCurrency();
                 Amount := Round(Amount, Currency."Amount Rounding Precision");
                 case "VAT Calculation Type" of
                     "VAT Calculation Type"::"Normal VAT":
                         "Amount Including VAT" :=
                           Round(
                             Amount * (1 + "VAT %" / 100),
-                            Currency."Amount Rounding Precision", Currency.VATRoundingDirection);
+                            Currency."Amount Rounding Precision", Currency.VATRoundingDirection());
                     "VAT Calculation Type"::"Reverse Charge VAT":
                         "Amount Including VAT" := Amount;
                     "VAT Calculation Type"::"Full VAT":
@@ -132,7 +132,7 @@ table 31001 "Sales Advance Letter Line"
 
             trigger OnValidate()
             begin
-                TestStatusOpen;
+                TestStatusOpen();
 
                 if "Amount Including VAT" <> xRec."Amount Including VAT" then
                     SalesAdvanceLetterHeadergre.TestField("Amounts Including VAT", true);
@@ -193,7 +193,7 @@ table 31001 "Sales Advance Letter Line"
 
             trigger OnValidate()
             begin
-                TestStatusOpen;
+                TestStatusOpen();
 
                 ValidateShortcutDimCode(1, "Shortcut Dimension 1 Code");
             end;
@@ -208,7 +208,7 @@ table 31001 "Sales Advance Letter Line"
 
             trigger OnValidate()
             begin
-                TestStatusOpen;
+                TestStatusOpen();
 
                 ValidateShortcutDimCode(2, "Shortcut Dimension 2 Code");
             end;
@@ -246,7 +246,7 @@ table 31001 "Sales Advance Letter Line"
 
             trigger OnValidate()
             begin
-                TestStatusOpen;
+                TestStatusOpen();
                 if xRec."Gen. Bus. Posting Group" <> "Gen. Bus. Posting Group" then
                     if GenBusPostingGrp.ValidateVatBusPostingGroup(GenBusPostingGrp, "Gen. Bus. Posting Group") then
                         Validate("VAT Bus. Posting Group", GenBusPostingGrp."Def. VAT Bus. Posting Group");
@@ -261,7 +261,7 @@ table 31001 "Sales Advance Letter Line"
 
             trigger OnValidate()
             begin
-                TestStatusOpen;
+                TestStatusOpen();
                 if xRec."Gen. Prod. Posting Group" <> "Gen. Prod. Posting Group" then begin
                     if GenProdPostingGrp.ValidateVatProdPostingGroup(GenProdPostingGrp, "Gen. Prod. Posting Group") then
                         Validate("VAT Prod. Posting Group", GenProdPostingGrp."Def. VAT Prod. Posting Group");
@@ -305,7 +305,7 @@ table 31001 "Sales Advance Letter Line"
                 TestField("Letter No.");
                 SalesAdvanceLetterHeadergre.Get("Letter No.");
 
-                GetLetterHeader;
+                GetLetterHeader();
                 CustPostGr.Get(SalesAdvanceLetterHeadergre."Customer Posting Group");
                 CustPostGr.TestField("Advance Account");
                 Validate("Advance G/L Account No.", CustPostGr."Advance Account");
@@ -320,12 +320,12 @@ table 31001 "Sales Advance Letter Line"
 
             trigger OnValidate()
             begin
-                TestStatusOpen;
+                TestStatusOpen();
 
                 TestField("Letter No.");
                 SalesAdvanceLetterHeadergre.Get("Letter No.");
 
-                GetLetterHeader;
+                GetLetterHeader();
                 "Bill-to Customer No." := SalesAdvanceLetterHeadergre."Bill-to Customer No.";
                 "VAT Bus. Posting Group" := SalesAdvanceLetterHeadergre."VAT Bus. Posting Group";
                 "Gen. Bus. Posting Group" := SalesAdvanceLetterHeadergre."Gen. Bus. Posting Group";
@@ -528,7 +528,7 @@ table 31001 "Sales Advance Letter Line"
     var
         SalesCommentLine: Record "Sales Comment Line";
     begin
-        TestStatusOpen;
+        TestStatusOpen();
 
         TestField("Amount Linked", 0);
         SetRange("Doc. No. Filter");
@@ -543,7 +543,7 @@ table 31001 "Sales Advance Letter Line"
 
     trigger OnInsert()
     begin
-        TestStatusOpen;
+        TestStatusOpen();
         SalesAdvanceLetterHeadergre.Get("Letter No.");
         "Currency Code" := SalesAdvanceLetterHeadergre."Currency Code";
         "Bill-to Customer No." := SalesAdvanceLetterHeadergre."Bill-to Customer No.";
@@ -553,7 +553,7 @@ table 31001 "Sales Advance Letter Line"
 
     trigger OnModify()
     begin
-        UpdateStatus;
+        UpdateStatus();
     end;
 
     trigger OnRename()
@@ -619,7 +619,7 @@ table 31001 "Sales Advance Letter Line"
         if true then begin
             SalesAdvanceLetterHeadergre.Get("Letter No.");
             if SalesAdvanceLetterHeadergre."Currency Code" = '' then
-                Currency.InitRoundingPrecision
+                Currency.InitRoundingPrecision()
             else begin
                 SalesAdvanceLetterHeadergre.TestField("Currency Factor");
                 Currency.Get(SalesAdvanceLetterHeadergre."Currency Code");
@@ -655,7 +655,7 @@ table 31001 "Sales Advance Letter Line"
         VATDifference: Decimal;
     begin
         if SalesAdvanceLetterHeader."Currency Code" = '' then
-            Currency.InitRoundingPrecision
+            Currency.InitRoundingPrecision()
         else
             Currency.Get(SalesAdvanceLetterHeader."Currency Code");
 
@@ -703,7 +703,7 @@ table 31001 "Sales Advance Letter Line"
                         Amount := NewAmount;
                         "VAT Amount" := VATAmount;
 
-                        Modify;
+                        Modify();
 
                         TempVATAmountLineRemainder."Amount Including VAT" :=
                           NewAmountIncludingVAT - Round(NewAmountIncludingVAT, Currency."Amount Rounding Precision");
@@ -722,7 +722,7 @@ table 31001 "Sales Advance Letter Line"
         VATFactor: Decimal;
     begin
         if SalesAdvanceLetterHeader."Currency Code" = '' then
-            Currency.InitRoundingPrecision
+            Currency.InitRoundingPrecision()
         else
             Currency.Get(SalesAdvanceLetterHeader."Currency Code");
 
@@ -787,12 +787,12 @@ table 31001 "Sales Advance Letter Line"
 
     local procedure GetCurrency()
     begin
-        GetLetterHeader;
+        GetLetterHeader();
         CurrencyCode := SalesAdvanceLetterHeadergre."Currency Code";
 
         if CurrencyCode = '' then begin
             Clear(Currency);
-            Currency.InitRoundingPrecision;
+            Currency.InitRoundingPrecision();
         end else
             if CurrencyCode <> Currency.Code then begin
                 Currency.Get(CurrencyCode);
@@ -805,7 +805,7 @@ table 31001 "Sales Advance Letter Line"
         if StatusCheckSuspended then
             exit;
 
-        GetLetterHeader;
+        GetLetterHeader();
         SalesAdvanceLetterHeadergre.CalcFields(Status);
         SalesAdvanceLetterHeadergre.TestField(Status, SalesAdvanceLetterHeadergre.Status::Open);
     end;
@@ -831,7 +831,7 @@ table 31001 "Sales Advance Letter Line"
         "Shortcut Dimension 1 Code" := '';
         "Shortcut Dimension 2 Code" := '';
 
-        GetLetterHeader;
+        GetLetterHeader();
         "Dimension Set ID" :=
           DimMgt.GetRecDefaultDimID(
             Rec, CurrFieldNo, TableID, No, SourceCodeSetup.Sales,
@@ -852,7 +852,7 @@ table 31001 "Sales Advance Letter Line"
         VATDifference: Decimal;
     begin
         if SalesAdvanceLetterHeader."Currency Code" = '' then
-            Currency.InitRoundingPrecision
+            Currency.InitRoundingPrecision()
         else
             Currency.Get(SalesAdvanceLetterHeader."Currency Code");
 
@@ -891,7 +891,7 @@ table 31001 "Sales Advance Letter Line"
             repeat
                 TempVATAmountLine."VAT Amount" :=
                     Round(TempVATAmountLine."Amount Including VAT" * TempVATAmountLine."VAT %" / (100 + TempVATAmountLine."VAT %"),
-                        Currency."Amount Rounding Precision", Currency.VATRoundingDirection);
+                        Currency."Amount Rounding Precision", Currency.VATRoundingDirection());
                 TempVATAmountLine."VAT Base" := TempVATAmountLine."Amount Including VAT" - TempVATAmountLine."VAT Amount";
                 TempVATAmountLine.Modify();
             until TempVATAmountLine.Next() = 0;
@@ -935,7 +935,7 @@ table 31001 "Sales Advance Letter Line"
                         Amount := NewAmount;
                         "VAT Amount" := Round(VATAmount, Currency."Amount Rounding Precision");
 
-                        Modify;
+                        Modify();
                         TempVATAmountLineRemainder."Amount Including VAT" :=
                           NewAmountIncludingVAT - Round(NewAmountIncludingVAT, Currency."Amount Rounding Precision");
                         TempVATAmountLineRemainder."VAT Amount" := VATAmount - NewAmountIncludingVAT + NewAmount;
@@ -956,7 +956,7 @@ table 31001 "Sales Advance Letter Line"
         SalesAdvanceLetterHdr.Get("Letter No.");
         Date := SalesAdvanceLetterHdr."Document Date";
         if Date = 0D then
-            Date := WorkDate;
+            Date := WorkDate();
         exit(Round(CurrExchRate.ExchangeAmtFCYToLCY(Date,
               SalesAdvanceLetterHdr."Currency Code",
               "Amount To Link",

@@ -31,7 +31,7 @@ table 11765 "Excel Template"
                 Sheet2: Text[250];
             begin
                 CalcFields(Template);
-                if Template.HasValue then begin
+                if Template.HasValue() then begin
                     FileName := FileMgt.ServerTempFileName(ExtensionTxt);
                     if Exists(FileName) then
                         Erase(FileName);
@@ -99,7 +99,7 @@ table 11765 "Excel Template"
         FileName: Text;
     begin
         CalcFields(Template);
-        if Template.HasValue then begin
+        if Template.HasValue() then begin
             TempBlob.FromRecord(Rec, FieldNo(Template));
             if ExportToFile = '' then begin
                 FileName := StrSubstNo('%1.%2', DefaultTxt, ExtensionTxt);

@@ -15,7 +15,7 @@ page 7207 "CDS Environments"
             repeater(Control2)
             {
                 ShowCaption = false;
-                field("Environment Name"; "Environment Name")
+                field("Environment Name"; Rec."Environment Name")
                 {
                     Caption = 'Name';
                     ApplicationArea = All;

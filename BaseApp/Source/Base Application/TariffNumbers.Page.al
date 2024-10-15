@@ -1,4 +1,3 @@
-#if not CLEAN18
 page 310 "Tariff Numbers"
 {
     ApplicationArea = Basic, Suite;
@@ -14,7 +13,7 @@ page 310 "Tariff Numbers"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
@@ -24,19 +23,10 @@ page 310 "Tariff Numbers"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description of the item.';
                 }
-                field("Supplementary Units"; "Supplementary Units")
+                field("Supplementary Units"; Rec."Supplementary Units")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether the customs and tax authorities require information about quantity and unit of measure for this item.';
-                }
-                field("Supplem. Unit of Measure Code"; "Supplem. Unit of Measure Code")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the supplementary unit of measure code for the tariff number. This number is assigned to an item.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '18.0';
-                    Visible = false;
                 }
             }
         }
@@ -60,4 +50,3 @@ page 310 "Tariff Numbers"
     }
 }
 
-#endif

@@ -41,7 +41,7 @@ codeunit 136400 "Resource Employee"
 
         // 1. Setup: Get next employee no from No Series.
         Initialize();
-        NextEmployeeNo := NoSeriesManagement.GetNextNo(LibraryHumanResource.SetupEmployeeNumberSeries, WorkDate, false);
+        NextEmployeeNo := NoSeriesManagement.GetNextNo(LibraryHumanResource.SetupEmployeeNumberSeries, WorkDate(), false);
 
         // 2. Exercise:  Create new Employee.
         LibraryLowerPermissions.SetO365HREdit;
@@ -89,7 +89,7 @@ codeunit 136400 "Resource Employee"
         Employee.Delete(true);
 
         // 3. Verify: Try to get the Employee and make sure that it cannot be found.
-        Assert.IsFalse(Employee.Get(EmployeeNo), StrSubstNo(ValidationErr, Employee.TableCaption, EmployeeNo));
+        Assert.IsFalse(Employee.Get(EmployeeNo), StrSubstNo(ValidationErr, Employee.TableCaption(), EmployeeNo));
     end;
 
     [Test]
@@ -158,7 +158,7 @@ codeunit 136400 "Resource Employee"
 
         // 3. Verify: Check Search Name has correct value in Employee.
         Employee.Get(EmployeeNo);
-        SearchNameCode := Employee.FullName + ' ' + Employee.Initials;
+        SearchNameCode := Employee.FullName() + ' ' + Employee.Initials;
         Employee.TestField("Search Name", SearchNameCode);
 
         // 2. Exercise: Modify the employee's Last Name
@@ -169,7 +169,7 @@ codeunit 136400 "Resource Employee"
 
         // 3. Verify: Check Search Name has correct value in Employee.
         Employee.Get(EmployeeNo);
-        SearchNameCode := Employee.FullName + ' ' + Employee.Initials;
+        SearchNameCode := Employee.FullName() + ' ' + Employee.Initials;
         Employee.TestField("Search Name", SearchNameCode);
     end;
 
@@ -213,7 +213,7 @@ codeunit 136400 "Resource Employee"
 
         // 3. Verify: Check Search Name has correct value in Employee.
         Employee.Get(EmployeeNo);
-        SearchNameCode := Employee.FullName + ' ' + Employee.Initials;
+        SearchNameCode := Employee.FullName() + ' ' + Employee.Initials;
         Employee.TestField("Search Name", SearchNameCode);
     end;
 
@@ -309,7 +309,7 @@ codeunit 136400 "Resource Employee"
         // 2. Exercise: Genrate New Employee No. by click on AssistEdit Button with No. Series Code.
         EmployeeCard."No.".AssistEdit;
         No := EmployeeCard."No.".Value;
-        EmployeeCard.Close;
+        EmployeeCard.Close();
 
         // 3. Verify: An Employee with that No. exsists
         Employee.Get(No);
@@ -612,8 +612,8 @@ codeunit 136400 "Resource Employee"
         EmployeeCard.OK.Invoke;
 
         // [THEN] Resource "R" has County = "COUNTY"
-        Employee.Find;
-        Resource.Find;
+        Employee.Find();
+        Resource.Find();
         Resource.TestField(County, Employee.County);
     end;
 
@@ -643,8 +643,8 @@ codeunit 136400 "Resource Employee"
         EmployeeCard.OK.Invoke;
 
         // [THEN] Resource "R" has City = "S"
-        Employee.Find;
-        Resource.Find;
+        Employee.Find();
+        Resource.Find();
         Resource.TestField(City, Employee.City);
     end;
 
@@ -674,7 +674,7 @@ codeunit 136400 "Resource Employee"
         EmployeeCard.OK.Invoke;
 
         // [THEN] Resource "R" has "Country/Region Code" = "CR"
-        Resource.Find;
+        Resource.Find();
         Resource.TestField("Country/Region Code", CountryRegion.Code);
     end;
 
@@ -713,7 +713,7 @@ codeunit 136400 "Resource Employee"
         Employee.Modify(true);
 
         // [THEN] Field Name or resource "R" is updated
-        Resource.Find;
+        Resource.Find();
         Resource.TestField(Name, ExpectedResourceName);
     end;
 
@@ -746,8 +746,8 @@ codeunit 136400 "Resource Employee"
     local procedure CreateEmployee(var Employee: Record Employee)
     begin
         LibraryHumanResource.CreateEmployee(Employee);
-        Employee.Validate("Employment Date", WorkDate);
-        Employee.Validate("Alt. Address Start Date", WorkDate);
+        Employee.Validate("Employment Date", WorkDate());
+        Employee.Validate("Alt. Address Start Date", WorkDate());
         Employee.Modify(true);
     end;
 
@@ -765,7 +765,7 @@ codeunit 136400 "Resource Employee"
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure NoSeriesListModalHandler(var NoSeriesList: TestPage "No. Series List")
+    procedure NoSeriesListModalHandler(var NoSeriesList: TestPage "No. Series")
     var
         visible: Boolean;
     begin

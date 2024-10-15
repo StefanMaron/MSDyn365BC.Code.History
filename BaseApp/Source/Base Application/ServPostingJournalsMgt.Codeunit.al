@@ -29,10 +29,6 @@ codeunit 5987 "Serv-Posting Journals Mgt."
         Invoice: Boolean;
         ItemJnlRollRndg: Boolean;
         ServiceLinePostingDate: Date;
-#if not CLEAN18
-        TotalVATDifferenceLCY: Decimal;
-        VariableSymbol: Code[10];
-#endif
 
     procedure Initialize(var TempServHeader: Record "Service Header"; TmpConsume: Boolean; TmpInvoice: Boolean)
     var
@@ -114,7 +110,7 @@ codeunit 5987 "Serv-Posting Journals Mgt."
         end;
 
         with ItemJnlLine do begin
-            Init;
+            Init();
             CopyFromServHeader(ServiceHeader);
             CopyFromServLine(ServiceLine);
 
@@ -346,13 +342,6 @@ codeunit 5987 "Serv-Posting Journals Mgt."
             InvoicePostBuffer.CopyToGenJnlLine(GenJnlLine);
             "Gen. Posting Type" := "Gen. Posting Type"::Sale;
 
-#if not CLEAN18
-            // NAVCZ
-            if "Currency Code" <> '' then
-                "VAT Amount" += InvoicePostBuffer."VAT Difference (LCY)";
-            TotalVATDifferenceLCY += InvoicePostBuffer."VAT Difference (LCY)";
-            // NAVCZ
-#endif
             OnBeforePostInvoicePostBuffer(GenJnlLine, InvoicePostBuffer, ServiceHeader, GenJnlPostLine);
             GLEntryNo := GenJnlPostLine.RunWithCheck(GenJnlLine);
             OnAfterPostInvoicePostBuffer(GenJnlLine, InvoicePostBuffer, ServiceHeader, GLEntryNo, GenJnlPostLine);
@@ -385,11 +374,7 @@ codeunit 5987 "Serv-Posting Journals Mgt."
 
             Amount := -TotalServiceLine."Amount Including VAT";
             "Source Currency Amount" := -TotalServiceLine."Amount Including VAT";
-#if CLEAN18
             "Amount (LCY)" := -TotalServiceLineLCY."Amount Including VAT";
-#else
-            "Amount (LCY)" := -TotalServiceLineLCY."Amount Including VAT" - TotalVATDifferenceLCY; // NAVCZ
-#endif
             "Sales/Purch. (LCY)" := -TotalServiceLineLCY.Amount;
             "Profit (LCY)" := -(TotalServiceLineLCY.Amount - TotalServiceLineLCY."Unit Cost (LCY)");
             "Inv. Discount (LCY)" := -TotalServiceLineLCY."Inv. Discount Amount";
@@ -399,22 +384,6 @@ codeunit 5987 "Serv-Posting Journals Mgt."
               CurrExchRate.ExchangeAmtFCYToLCY(
                 ServiceHeader."Posting Date", ServiceHeader."Currency Code", -TotalServiceLine."Pmt. Discount Amount", ServiceHeader."Currency Factor");
 
-#if not CLEAN18
-            // NAVCZ
-            Correction := ServiceHeader.Correction;
-            "Bank Account Code" := ServiceHeader."Bank Account Code";
-            "Bank Account No." := ServiceHeader."Bank Account No.";
-            "Specific Symbol" := ServiceHeader."Specific Symbol";
-            if ServiceHeader."Variable Symbol" <> '' then
-                "Variable Symbol" := ServiceHeader."Variable Symbol"
-            else
-                "Variable Symbol" := VariableSymbol;
-            "Constant Symbol" := ServiceHeader."Constant Symbol";
-            "Transit No." := ServiceHeader."Transit No.";
-            IBAN := ServiceHeader.IBAN;
-            "SWIFT Code" := ServiceHeader."SWIFT Code";
-            // NAVCZ
-#endif
             OnBeforePostCustomerEntry(GenJnlLine, ServiceHeader, TotalServiceLine, TotalServiceLineLCY, GenJnlPostLine, GenJnlLineDocNo);
             GenJnlPostLine.RunWithCheck(GenJnlLine);
             OnAfterPostCustomerEntry(GenJnlLine, ServiceHeader, GenJnlPostLine);
@@ -453,18 +422,10 @@ codeunit 5987 "Serv-Posting Journals Mgt."
             "Source Currency Amount" := Amount;
             CustLedgEntry.CalcFields(Amount);
             if CustLedgEntry.Amount = 0 then
-#if CLEAN18
                 "Amount (LCY)" := TotalServiceLineLCY."Amount Including VAT"
-#else
-                "Amount (LCY)" := TotalServiceLineLCY."Amount Including VAT" + TotalVATDifferenceLCY // NAVCZ
-#endif            
             else
                 "Amount (LCY)" :=
-#if CLEAN18
                   TotalServiceLineLCY."Amount Including VAT" +
-#else
-                  TotalServiceLineLCY."Amount Including VAT" + TotalVATDifferenceLCY + // NAVCZ
-#endif                
                   Round(CustLedgEntry."Remaining Pmt. Disc. Possible" / CustLedgEntry."Adjusted Currency Factor");
             "Allow Zero-Amount Posting" := true;
 
@@ -545,7 +506,7 @@ codeunit 5987 "Serv-Posting Journals Mgt."
         ResJnlLine: Record "Res. Journal Line";
     begin
         with ResJnlLine do begin
-            Init;
+            Init();
             OnPostResJnlLineOnAfterResJnlLineInit(ResJnlLine, EntryType, Qty);
             CopyDocumentFields(DocNo, ExtDocNo, SrcCode, PostingNoSeries);
             CopyFromServHeader(ServiceHeader);
@@ -666,7 +627,7 @@ codeunit 5987 "Serv-Posting Journals Mgt."
             JobTask.Get("Job No.", "Job Task No.");
 
             JobJnlLine.Init();
-            JobJnlLine.DontCheckStdCost;
+            JobJnlLine.DontCheckStdCost();
             JobJnlLine.Validate("Job No.", "Job No.");
             JobJnlLine.Validate("Job Task No.", "Job Task No.");
             JobJnlLine.Validate("Line Type", "Job Line Type");
@@ -757,15 +718,6 @@ codeunit 5987 "Serv-Posting Journals Mgt."
         ServiceLinePostingDate := PostingDate;
     end;
 
-#if not CLEAN18
-    [Obsolete('This procedure will be removed after removing feature from Base Application.', '18.0')]
-    [Scope('OnPrem')]
-    procedure SetVariableSymbol(VariableSymbolNew: Code[10])
-    begin
-        // NAVCZ
-        VariableSymbol := VariableSymbolNew;
-    end;
-#endif
 
 #if not CLEAN20
     [Obsolete('Replaced by new implementation in codeunit Service Post Invoice', '20.0')]

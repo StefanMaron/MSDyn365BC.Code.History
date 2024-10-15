@@ -1,13 +1,9 @@
 table 31049 "Credit Report Selections"
 {
     Caption = 'Credit Report Selections';
-#if CLEAN18
     ObsoleteState = Removed;
-#else
-    ObsoleteState = Pending;
-#endif
     ObsoleteReason = 'Moved to Compensation Localization Pack for Czech.';
-    ObsoleteTag = '18.0';
+    ObsoleteTag = '21.0';
 
     fields
     {
@@ -54,20 +50,4 @@ table 31049 "Credit Report Selections"
     {
     }
 
-#if not CLEAN18
-    var
-        CreditReportSelections2: Record "Credit Report Selections";
-
-    [Scope('OnPrem')]
-    [Obsolete('Moved to Compensation Localization Pack for Czech.', '18.0')]
-    procedure NewRecord()
-    begin
-        CreditReportSelections2.SetRange(Usage, Usage);
-        if CreditReportSelections2.FindLast and (CreditReportSelections2.Sequence <> '') then
-            Sequence := IncStr(CreditReportSelections2.Sequence)
-        else
-            Sequence := '1';
-    end;
-#endif
 }
-

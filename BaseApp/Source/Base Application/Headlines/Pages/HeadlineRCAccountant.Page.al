@@ -49,10 +49,11 @@ page 1442 "Headline RC Accountant"
     end;
 
     var
+        RCHeadlinesPageCommon: Codeunit "RC Headlines Page Common";
+
         [InDataSet]
         DefaultFieldsVisible: Boolean;
         [InDataSet]
         UserGreetingVisible: Boolean;
-        RCHeadlinesPageCommon: Codeunit "RC Headlines Page Common";
 }
 

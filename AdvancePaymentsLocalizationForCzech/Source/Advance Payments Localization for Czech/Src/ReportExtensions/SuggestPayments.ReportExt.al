@@ -7,16 +7,14 @@ reportextension 31000 "Suggest Payments CZZ" extends "Suggest Payments CZB"
         {
             trigger OnBeforePreDataItem()
             begin
-                if AdvancePaymentsEnabledCZZ then
-                    CurrReport.Break();
+                CurrReport.Break();
             end;
         }
         modify(PurchAdvLetterHdrPerLine)
         {
             trigger OnBeforePreDataItem()
             begin
-                if AdvancePaymentsEnabledCZZ then
-                    CurrReport.Break();
+                CurrReport.Break();
             end;
         }
 #endif
@@ -96,17 +94,10 @@ reportextension 31000 "Suggest Payments CZZ" extends "Suggest Payments CZB"
     trigger OnPreReport()
     begin
         BankAccountCZZ.Get(PaymentOrderHeaderCZB."Bank Account No.");
-#if not CLEAN19
-        AdvancePaymentsEnabledCZZ := AdvancePaymentsMgtCZZ.IsEnabled();
-#endif
     end;
 
     var
         BankAccountCZZ: Record "Bank Account";
-#if not CLEAN19
-        AdvancePaymentsMgtCZZ: Codeunit "Advance Payments Mgt. CZZ";
-        AdvancePaymentsEnabledCZZ: Boolean;
-#endif
         VendorAdvancesCZZ: Boolean;
 
     procedure AddPurchaseAdvanceCZZ(PurchAdvLetterHeaderCZZ: Record "Purch. Adv. Letter Header CZZ")

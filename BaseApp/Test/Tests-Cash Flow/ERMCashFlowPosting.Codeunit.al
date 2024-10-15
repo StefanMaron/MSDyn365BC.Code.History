@@ -89,11 +89,11 @@ codeunit 134554 "ERM Cash Flow - Posting"
             CFAccountComment.Reset();
             CFAccountComment.SetRange("Table Name", CFAccountComment."Table Name"::"Cash Flow Forecast");
             CFAccountComment.SetRange("No.", "No.");
-            Assert.AreEqual(0, CFAccountComment.Count, StrSubstNo(RecordNotDeleted, CFAccountComment.TableCaption));
+            Assert.AreEqual(0, CFAccountComment.Count, StrSubstNo(RecordNotDeleted, CFAccountComment.TableCaption()));
 
             CFForecastEntry.SetCurrentKey("Cash Flow Forecast No.");
             CFForecastEntry.SetRange("Cash Flow Forecast No.", "No.");
-            Assert.AreEqual(0, CFForecastEntry.Count, StrSubstNo(RecordNotDeleted, CFForecastEntry.TableCaption));
+            Assert.AreEqual(0, CFForecastEntry.Count, StrSubstNo(RecordNotDeleted, CFForecastEntry.TableCaption()));
         end;
     end;
 
@@ -182,8 +182,8 @@ codeunit 134554 "ERM Cash Flow - Posting"
         GLBudgetEntry.Modify(true);
 
         with CFWorksheetLine do begin
-            Init;
-            "Cash Flow Date" := WorkDate;
+            Init();
+            "Cash Flow Date" := WorkDate();
             "Document No." := Format(LibraryRandom.RandInt(50));
             "Cash Flow Forecast No." := CashFlowForecast."No.";
             Description := "Document No.";

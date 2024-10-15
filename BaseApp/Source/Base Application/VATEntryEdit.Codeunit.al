@@ -7,7 +7,7 @@ codeunit 338 "VAT Entry - Edit"
     begin
         VATEntry := Rec;
         VATEntry.LockTable();
-        VATEntry.Find;
+        VATEntry.Find();
         VATEntry.Validate(Type);
         VATEntry."Bill-to/Pay-to No." := "Bill-to/Pay-to No.";
         VATEntry."Ship-to/Order Address Code" := "Ship-to/Order Address Code";

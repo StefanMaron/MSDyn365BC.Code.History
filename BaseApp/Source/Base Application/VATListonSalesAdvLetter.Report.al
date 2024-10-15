@@ -17,7 +17,7 @@ report 31011 "VAT List on Sales Adv. Letter"
             DataItemTableView = SORTING(Number);
             MaxIteration = 1;
             PrintOnlyIfDetail = true;
-            column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+            column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
             column(gteToDate; ToDateTxt)
@@ -136,9 +136,9 @@ report 31011 "VAT List on Sales Adv. Letter"
                     trigger OnAfterGetRecord()
                     begin
                         if Number = 1 then
-                            TempVATAmountLineAdvPmt.FindSet
+                            TempVATAmountLineAdvPmt.FindSet()
                         else
-                            TempVATAmountLineAdvPmt.Next;
+                            TempVATAmountLineAdvPmt.Next();
 
                         TempVATAmountLine.Init();
                         TempVATAmountLine."VAT Identifier" := TempVATAmountLineAdvPmt."VAT Identifier";
@@ -147,7 +147,7 @@ report 31011 "VAT List on Sales Adv. Letter"
                         TempVATAmountLine."VAT Base" := TempVATAmountLineAdvPmt."VAT Base (LCY)";
                         TempVATAmountLine."Amount Including VAT" := TempVATAmountLineAdvPmt."Amount Including VAT (LCY)";
                         TempVATAmountLine."Line Amount" := TempVATAmountLineAdvPmt."Amount Including VAT (LCY)";
-                        TempVATAmountLine.InsertLine;
+                        TempVATAmountLine.InsertLine();
                     end;
 
                     trigger OnPreDataItem()
@@ -182,7 +182,7 @@ report 31011 "VAT List on Sales Adv. Letter"
                                 TempVATAmountLineAdvPmt."VAT %" := lreVATPostSetup."VAT %";
                                 TempVATAmountLineAdvPmt."VAT Base (LCY)" := "Advance Base" + CalcVATBaseExchRateCorrect(lreVATEntry);
                                 TempVATAmountLineAdvPmt."VAT Amount (LCY)" := Amount + "Advance Exch. Rate Difference";
-                                TempVATAmountLineAdvPmt.InsertLine;
+                                TempVATAmountLineAdvPmt.InsertLine();
                             until Next() = 0;
                         end;
                     end;
@@ -251,9 +251,9 @@ report 31011 "VAT List on Sales Adv. Letter"
                 trigger OnAfterGetRecord()
                 begin
                     if Number = 1 then
-                        TempVATAmountLine.FindSet
+                        TempVATAmountLine.FindSet()
                     else
-                        TempVATAmountLine.Next;
+                        TempVATAmountLine.Next();
                 end;
 
                 trigger OnPreDataItem()
@@ -308,7 +308,7 @@ report 31011 "VAT List on Sales Adv. Letter"
 
     trigger OnPreReport()
     begin
-        ReportFilter := "Sales Advance Letter Header".GetFilters;
+        ReportFilter := "Sales Advance Letter Header".GetFilters();
 
         if ToDate <> 0D then
             ToDateTxt := StrSubstNo(TodateLbl, Format(ToDate));

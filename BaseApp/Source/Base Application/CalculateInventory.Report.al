@@ -1,4 +1,5 @@
-﻿﻿report 790 "Calculate Inventory"
+﻿#if not CLEAN21
+report 790 "Calculate Inventory"
 {
     Caption = 'Calculate Inventory';
     ProcessingOnly = true;
@@ -60,7 +61,6 @@
                                 WhseEntry.SetRange("Item No.", "Item No.");
                                 WhseEntry.SetRange("Location Code", "Location Code");
                                 WhseEntry.SetRange("Variant Code", "Variant Code");
-                                WhseEntry.SetFilter("Registering Date", Item.GetFilter("Date Filter"));
                                 if WhseEntry.Find('-') then
                                     if WhseEntry."Entry No." <> OldWhseEntry."Entry No." then begin
                                         OldWhseEntry := WhseEntry;
@@ -82,7 +82,7 @@
 
                 trigger OnPreDataItem()
                 begin
-                    WhseEntry.SetCurrentKey("Item No.", "Bin Code", "Location Code", "Variant Code", "Registering Date");
+                    WhseEntry.SetCurrentKey("Item No.", "Bin Code", "Location Code", "Variant Code");
                     Item.CopyFilter("Bin Filter", WhseEntry."Bin Code");
 
                     if ColumnDim = '' then
@@ -100,10 +100,10 @@
                                (Item.GetFilter("Location Filter") = '') and
                                WhseEntry.IsEmpty
                             then begin
-                                Clear(QuantityOnHandBuffer);
-                                QuantityOnHandBuffer."Item No." := Item."No.";
-                                OnItemLedgerEntryOnPreDataItemOnBeforeInsertQuantityOnHandBuffer(QuantityOnHandBuffer, Item);
-                                QuantityOnHandBuffer.Insert();
+                                Clear(TempQuantityOnHandBuffer);
+                                TempQuantityOnHandBuffer."Item No." := Item."No.";
+                                OnItemLedgerEntryOnPreDataItemOnBeforeInsertQuantityOnHandBuffer(TempQuantityOnHandBuffer, Item);
+                                TempQuantityOnHandBuffer.Insert();
                             end;
                         end;
 
@@ -112,25 +112,25 @@
             }
             dataitem("Warehouse Entry"; "Warehouse Entry")
             {
-                DataItemLink = "Item No." = FIELD("No."), "Variant Code" = FIELD("Variant Filter"), "Location Code" = FIELD("Location Filter"), "Registering Date" = FIELD("Date Filter");
+                DataItemLink = "Item No." = FIELD("No."), "Variant Code" = FIELD("Variant Filter"), "Location Code" = FIELD("Location Filter");
 
                 trigger OnAfterGetRecord()
                 begin
                     if not "Item Ledger Entry".IsEmpty() then
                         CurrReport.Skip();   // Skip if item has any record in Item Ledger Entry.
 
-                    Clear(QuantityOnHandBuffer);
-                    QuantityOnHandBuffer."Item No." := "Item No.";
-                    QuantityOnHandBuffer."Location Code" := "Location Code";
-                    QuantityOnHandBuffer."Variant Code" := "Variant Code";
+                    Clear(TempQuantityOnHandBuffer);
+                    TempQuantityOnHandBuffer."Item No." := "Item No.";
+                    TempQuantityOnHandBuffer."Location Code" := "Location Code";
+                    TempQuantityOnHandBuffer."Variant Code" := "Variant Code";
 
                     GetLocation("Location Code");
                     if Location."Bin Mandatory" and not Location."Directed Put-away and Pick" then
-                        QuantityOnHandBuffer."Bin Code" := "Bin Code";
+                        TempQuantityOnHandBuffer."Bin Code" := "Bin Code";
 
-                    OnBeforeQuantityOnHandBufferFindAndInsert(QuantityOnHandBuffer, "Warehouse Entry");
-                    if not QuantityOnHandBuffer.Find then
-                        QuantityOnHandBuffer.Insert();   // Insert a zero quantity line.
+                    OnBeforeQuantityOnHandBufferFindAndInsert(TempQuantityOnHandBuffer, "Warehouse Entry");
+                    if not TempQuantityOnHandBuffer.Find() then
+                        TempQuantityOnHandBuffer.Insert();   // Insert a zero quantity line.
                 end;
             }
             dataitem(ItemWithNoTransaction; "Integer")
@@ -153,7 +153,7 @@
             begin
                 OnBeforeItemOnAfterGetRecord(Item);
                 if not HideValidationDialog then
-                    Window.Update;
+                    Window.Update();
                 TempSKU.DeleteAll();
                 // NAVCZ
                 if Blocked then
@@ -170,7 +170,7 @@
                         TempDimBufIn.SetRange("Entry No.");
                         TempDimBufIn.DeleteAll();
 
-                        DimBufMgt.DeleteAllDimensions;
+                        DimBufMgt.DeleteAllDimensions();
 
                         DefaultDim.SetRange("Table ID", DATABASE::Item);
                         DefaultDim.SetRange("No.", "No.");
@@ -205,7 +205,7 @@
 
             trigger OnPostDataItem()
             begin
-                CalcPhysInvQtyAndInsertItemJnlLine;
+                CalcPhysInvQtyAndInsertItemJnlLine();
             end;
 
             trigger OnPreDataItem()
@@ -217,10 +217,10 @@
                 if ItemsWithoutChange then begin
                     if GetFilter("Location Filter") <> '' then
                         if GetRangeMin("Location Filter") <> GetRangeMax("Location Filter") then
-                            Error(ItemFilterErr, TableCaption, FieldCaption("Location Filter"));
+                            Error(ItemFilterErr, TableCaption(), FieldCaption("Location Filter"));
                     if GetFilter("Variant Filter") <> '' then
                         if GetRangeMin("Variant Filter") <> GetRangeMax("Variant Filter") then
-                            Error(ItemFilterErr, TableCaption, FieldCaption("Variant Filter"));
+                            Error(ItemFilterErr, TableCaption(), FieldCaption("Variant Filter"));
                 end;
                 // NAVCZ
                 if PostingDate = 0D then
@@ -251,8 +251,8 @@
                 if not SkipDim then
                     SelectedDim.GetSelectedDim(UserId, 3, REPORT::"Calculate Inventory", '', TempSelectedDim);
 
-                QuantityOnHandBuffer.Reset();
-                QuantityOnHandBuffer.DeleteAll();
+                TempQuantityOnHandBuffer.Reset();
+                TempQuantityOnHandBuffer.DeleteAll();
 
                 OnAfterItemOnPreDataItem(Item, ZeroQty, IncludeItemWithNoTransaction);
             end;
@@ -278,7 +278,7 @@
 
                         trigger OnValidate()
                         begin
-                            ValidatePostingDate;
+                            ValidatePostingDate();
                         end;
                     }
                     field(DocumentNo; NextDocNo)
@@ -302,8 +302,12 @@
                     field(ItemsWithoutChange; ItemsWithoutChange)
                     {
                         ApplicationArea = Basic, Suite;
-                        Caption = 'Items without change';
+                        Caption = 'Items without change (Obsolete)';
                         ToolTip = 'Specifies placing a check mark in the check box if you want the program to insert lines for items that do not change.';
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Moved to Advanced Localizatipn Pack for Czech.';
+                        ObsoleteTag = '21.0';
+                        Visible = false;
                     }
                     field(IncludeItemWithNoTransaction; IncludeItemWithNoTransaction)
                     {
@@ -334,8 +338,12 @@
                     field(CardDim; CardDim)
                     {
                         ApplicationArea = Dimensions;
-                        Caption = 'Use Card Dimensions';
+                        Caption = 'Use Card Dimensions (Obsolete)';
                         ToolTip = 'Specifies if the card dimensions will be used for inventory entries';
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Moved to Advanced Localizatipn Pack for Czech.';
+                        ObsoleteTag = '21.0';
+                        Visible = false;
                     }
                 }
             }
@@ -348,8 +356,8 @@
         trigger OnOpenPage()
         begin
             if PostingDate = 0D then
-                PostingDate := WorkDate;
-            ValidatePostingDate;
+                PostingDate := WorkDate();
+            ValidatePostingDate();
             ColumnDim := DimSelectionBuf.GetDimSelectionText(3, REPORT::"Calculate Inventory", '');
         end;
     }
@@ -370,10 +378,6 @@
     end;
 
     var
-        Text000: Label 'Enter the posting date.';
-        Text001: Label 'Enter the document no.';
-        Text002: Label 'Processing items    #1##########';
-        Text003: Label 'Retain Dimensions';
         ItemJnlBatch: Record "Item Journal Batch";
         ItemJnlLine: Record "Item Journal Line";
         WhseEntry: Record "Warehouse Entry";
@@ -404,8 +408,13 @@
         ItemNotOnInventoryErr: Label 'Items Not on Inventory.';
         ItemFilterErr: Label 'When used %1 without change, %2 must be set to one value.', Comment = '%1=TABLECAPTION, %2=FIELDCAPTION';
 
+        Text000: Label 'Enter the posting date.';
+        Text001: Label 'Enter the document no.';
+        Text002: Label 'Processing items    #1##########';
+        Text003: Label 'Retain Dimensions';
+
     protected var
-        QuantityOnHandBuffer: Record "Inventory Buffer" temporary;
+        TempQuantityOnHandBuffer: Record "Inventory Buffer" temporary;
         TempSKU: Record "Stockkeeping Unit" temporary;
         HideValidationDialog: Boolean;
         PostingDate: Date;
@@ -466,7 +475,7 @@
 
                     OnInsertItemJnlLineOnBeforeInit(ItemJnlLine);
 
-                    Init;
+                    Init();
                     "Line No." := NextLineNo;
                     Validate("Posting Date", PostingDate);
                     if PhysInvQuantity >= Quantity2 then
@@ -509,7 +518,7 @@
                     else
                         "Last Item Ledger Entry No." := 0;
 
-                    OnBeforeInsertItemJnlLine(ItemJnlLine, QuantityOnHandBuffer);
+                    OnBeforeInsertItemJnlLine(ItemJnlLine, TempQuantityOnHandBuffer);
                     Insert(true);
                     OnAfterInsertItemJnlLine(ItemJnlLine);
 
@@ -518,7 +527,7 @@
                             ReserveWarehouse(ItemJnlLine);
 
                     if ColumnDim = '' then
-                        DimEntryNo2 := CreateDimFromItemDefault;
+                        DimEntryNo2 := CreateDimFromItemDefault();
 
                     if not CardDim then  // NAVCZ
                         if DimBufMgt.GetDimensions(DimEntryNo2, TempDimBufOut) then begin
@@ -535,12 +544,12 @@
                                     DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID",
                                       "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
                                     OnInsertItemJnlLineOnAfterUpdateDimensionSetID(ItemJnlLine);
-                                    Modify;
+                                    Modify();
                                 until TempDimBufOut.Next() = 0;
                                 TempDimBufOut.DeleteAll();
                             end;
                         end;
-                    end;
+                end;
                 // NAVCZ
             end;
 
@@ -549,14 +558,14 @@
 
     local procedure InsertQuantityOnHandBuffer(ItemNo: Code[20]; LocationCode: Code[10]; VariantCode: Code[10])
     begin
-        with QuantityOnHandBuffer do begin
-            Reset;
+        with TempQuantityOnHandBuffer do begin
+            Reset();
             SetRange("Item No.", ItemNo);
             SetRange("Location Code", LocationCode);
             SetRange("Variant Code", VariantCode);
             if not FindFirst() then begin
-                Reset;
-                Init;
+                Reset();
+                Init();
                 "Item No." := ItemNo;
                 "Location Code" := LocationCode;
                 "Variant Code" := VariantCode;
@@ -626,7 +635,7 @@
                             "Item No.", "Variant Code", "Location Code", Description, 0D, 0D, 0, "Reservation Status"::Prospect);
                     end;
                     WhseEntry.Find('+');
-                    WhseEntry.ClearTrackingFilter;
+                    WhseEntry.ClearTrackingFilter();
                 until WhseEntry.Next() = 0;
         end;
     end;
@@ -648,14 +657,8 @@
             repeat
                 if TempSelectedDim.Get(
                      UserId, 3, REPORT::"Calculate Inventory", '', DimSetEntry."Dimension Code")
-                then begin
-                    TempDimBufIn.Init();
-                    TempDimBufIn."Table ID" := DATABASE::"Item Ledger Entry";
-                    TempDimBufIn."Entry No." := DimSetID;
-                    TempDimBufIn."Dimension Code" := DimSetEntry."Dimension Code";
-                    TempDimBufIn."Dimension Value Code" := DimSetEntry."Dimension Value Code";
-                    if TempDimBufIn.Insert() then;
-                end;
+                then
+                    InsertDim(DATABASE::"Item Ledger Entry", DimSetID, DimSetEntry."Dimension Code", DimSetEntry."Dimension Value Code");
             until DimSetEntry.Next() = 0;
     end;
 
@@ -670,7 +673,7 @@
         NoWhseEntry2: Boolean;
     begin
         AdjustPosQty := false;
-        with QuantityOnHandBuffer do begin
+        with TempQuantityOnHandBuffer do begin
             ItemTrackingMgt.GetWhseItemTrkgSetup("Item No.", WhseItemTrackingSetup);
             OnCalcWhseQtyOnAfterGetWhseItemTrkgSetup("Location Code", WhseItemTrackingSetup);
             ItemTrackingSplit := WhseItemTrackingSetup.TrackingRequired();
@@ -793,7 +796,7 @@
     var
         DimEntryNo: Integer;
     begin
-        with QuantityOnHandBuffer do begin
+        with TempQuantityOnHandBuffer do begin
             if not HasNewQuantity(NewQuantity) then
                 exit;
             if BinCode = '' then begin
@@ -805,27 +808,27 @@
             end;
             if RetrieveBuffer(BinCode, DimEntryNo) then begin
                 Quantity := Quantity + NewQuantity;
-                OnUpdateBufferOnBeforeModify(QuantityOnHandBuffer, CalledFromItemLedgerEntry);
-                Modify;
+                OnUpdateBufferOnBeforeModify(TempQuantityOnHandBuffer, CalledFromItemLedgerEntry);
+                Modify();
             end else begin
                 Quantity := NewQuantity;
-                OnUpdateBufferOnBeforeInsert(QuantityOnHandBuffer, CalledFromItemLedgerEntry);
-                Insert;
+                OnUpdateBufferOnBeforeInsert(TempQuantityOnHandBuffer, CalledFromItemLedgerEntry);
+                Insert();
             end;
         end;
     end;
 
     local procedure RetrieveBuffer(BinCode: Code[20]; DimEntryNo: Integer): Boolean
     begin
-        with QuantityOnHandBuffer do begin
-            Reset;
+        with TempQuantityOnHandBuffer do begin
+            Reset();
             "Item No." := "Item Ledger Entry"."Item No.";
             "Variant Code" := "Item Ledger Entry"."Variant Code";
             "Location Code" := "Item Ledger Entry"."Location Code";
             "Dimension Entry No." := DimEntryNo;
             "Bin Code" := BinCode;
-            OnRetrieveBufferOnBeforeFind(QuantityOnHandBuffer, "Item Ledger Entry");
-            exit(Find);
+            OnRetrieveBufferOnBeforeFind(TempQuantityOnHandBuffer, "Item Ledger Entry");
+            exit(Find());
         end;
     end;
 
@@ -836,8 +839,8 @@
 
     local procedure ItemBinLocationIsCalculated(BinCode: Code[20]): Boolean
     begin
-        with QuantityOnHandBuffer do begin
-            Reset;
+        with TempQuantityOnHandBuffer do begin
+            Reset();
             SetRange("Item No.", "Item Ledger Entry"."Item No.");
             SetRange("Variant Code", "Item Ledger Entry"."Variant Code");
             SetRange("Location Code", "Item Ledger Entry"."Location Code");
@@ -869,21 +872,21 @@
         Item.CopyFilter("Location Filter", SKU."Location Code");
         OnAddZeroQtyOnAfterFilterSKU(Item, SKU);
         if SKU.Find('-') then begin
-            QuantityOnHandBuffer.Reset();
-            QuantityOnHandBuffer.SetRange("Item No.", Item."No.");
+            TempQuantityOnHandBuffer.Reset();
+            TempQuantityOnHandBuffer.SetRange("Item No.", Item."No.");
             IsHandled := false;
-            OnAddZeroQtySKUOnBeforeInsertZeroQtySKU(Item, SKU, QuantityOnHandBuffer, IsHandled);
+            OnAddZeroQtySKUOnBeforeInsertZeroQtySKU(Item, SKU, TempQuantityOnHandBuffer, IsHandled);
             if not IsHandled then
                 repeat
-                    QuantityOnHandBuffer.SetRange("Variant Code", SKU."Variant Code");
-                    QuantityOnHandBuffer.SetRange("Location Code", SKU."Location Code");
-                    if not QuantityOnHandBuffer.Find('-') then begin
-                        Clear(QuantityOnHandBuffer);
-                        QuantityOnHandBuffer."Item No." := SKU."Item No.";
-                        QuantityOnHandBuffer."Variant Code" := SKU."Variant Code";
-                        QuantityOnHandBuffer."Location Code" := SKU."Location Code";
-                        OnAddZeroQtySKUOnBeforeInsertQuantityOnHandBuffer(QuantityOnHandBuffer, SKU, Item);
-                        QuantityOnHandBuffer.Insert();
+                    TempQuantityOnHandBuffer.SetRange("Variant Code", SKU."Variant Code");
+                    TempQuantityOnHandBuffer.SetRange("Location Code", SKU."Location Code");
+                    if not TempQuantityOnHandBuffer.Find('-') then begin
+                        Clear(TempQuantityOnHandBuffer);
+                        TempQuantityOnHandBuffer."Item No." := SKU."Item No.";
+                        TempQuantityOnHandBuffer."Variant Code" := SKU."Variant Code";
+                        TempQuantityOnHandBuffer."Location Code" := SKU."Location Code";
+                        OnAddZeroQtySKUOnBeforeInsertQuantityOnHandBuffer(TempQuantityOnHandBuffer, SKU, Item);
+                        TempQuantityOnHandBuffer.Insert();
                     end;
                 until SKU.Next() = 0;
         end;
@@ -920,9 +923,9 @@
     begin
         AddZeroQtySKU();
 
-        with QuantityOnHandBuffer do begin
-            Reset;
-            OnCalcPhysInvQtyAndInsertItemJnlLineOnBeforeFindset(QuantityOnHandBuffer);
+        with TempQuantityOnHandBuffer do begin
+            Reset();
+            OnCalcPhysInvQtyAndInsertItemJnlLineOnBeforeFindset(TempQuantityOnHandBuffer);
             if FindSet() then begin
                 repeat
                     PosQty := 0;
@@ -963,7 +966,7 @@
                         NegQty := 0;
                     end;
 
-                    OnCalcPhysInvQtyAndInsertItemJnlLineOnBeforeCheckIfInsertNeeded(QuantityOnHandBuffer);
+                    OnCalcPhysInvQtyAndInsertItemJnlLineOnBeforeCheckIfInsertNeeded(TempQuantityOnHandBuffer);
                     if (PosQty = 0) and (NegQty = 0) and not AdjustPosQty then
                         InsertItemJnlLine(
                           "Item No.", "Variant Code", "Dimension Entry No.",
@@ -979,7 +982,7 @@
         DefaultDimension: Record "Default Dimension";
     begin
         with DefaultDimension do begin
-            SetRange("No.", QuantityOnHandBuffer."Item No.");
+            SetRange("No.", TempQuantityOnHandBuffer."Item No.");
             SetRange("Table ID", DATABASE::Item);
             SetFilter("Dimension Value Code", '<>%1', '');
             if FindSet() then
@@ -996,7 +999,7 @@
     local procedure InsertDim(TableID: Integer; EntryNo: Integer; DimCode: Code[20]; DimValueCode: Code[20])
     begin
         with TempDimBufIn do begin
-            Init;
+            Init();
             "Table ID" := TableID;
             "Entry No." := EntryNo;
             "Dimension Code" := DimCode;
@@ -1175,4 +1178,4 @@
     begin
     end;
 }
-
+#endif

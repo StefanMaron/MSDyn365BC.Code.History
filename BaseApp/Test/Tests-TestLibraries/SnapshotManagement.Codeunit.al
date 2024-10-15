@@ -37,7 +37,7 @@ codeunit 130013 "Snapshot Management"
     begin
         BackupStorage.DeleteBackupNo(SnapshotNo);
         TempSnapshot.Get(SnapshotNo);
-        TempSnapshot.Delete
+        TempSnapshot.Delete();
     end;
 
     [Scope('OnPrem')]
@@ -61,7 +61,7 @@ codeunit 130013 "Snapshot Management"
                 TempSnapshot2.Init();
                 TempSnapshot2.Copy(TempSnapshot);
                 TempSnapshot2.Insert();
-            until TempSnapshot.Next = 0;
+            until TempSnapshot.Next() = 0;
 
             TempSnapshot2.Reset();
             TempSnapshot2.SetCurrentKey("Incremental Index");
@@ -121,7 +121,7 @@ codeunit 130013 "Snapshot Management"
     begin
         TempSnapshot.Reset();
         TempSnapshot.SetRange("Snapshot No.", SnapshotNo);
-        exit(TempSnapshot.FindFirst)
+        exit(TempSnapshot.FindFirst())
     end;
 
     [Scope('OnPrem')]
@@ -129,7 +129,7 @@ codeunit 130013 "Snapshot Management"
     begin
         TempSnapshot.Reset();
         TempSnapshot.SetRange("Snapshot Name", SnapshotName);
-        exit(TempSnapshot.FindFirst)
+        exit(TempSnapshot.FindFirst())
     end;
 
     [Scope('OnPrem')]
@@ -225,7 +225,7 @@ codeunit 130013 "Snapshot Management"
                         if RestoringSnapshotNo = 0 then
                             BackupStorage.ClearImplicitTaint(TempSnapshot."Snapshot No.", TableID);
                 end;
-            until TempSnapshot.Next = 0
+            until TempSnapshot.Next() = 0
     end;
 
     [Scope('OnPrem')]
@@ -255,7 +255,7 @@ codeunit 130013 "Snapshot Management"
                 TempSnapshot2.Init();
                 TempSnapshot2.Copy(TempSnapshot);
                 TempSnapshot2.Insert();
-            until TempSnapshot.Next = 0
+            until TempSnapshot.Next() = 0
     end;
 
     [Scope('OnPrem')]

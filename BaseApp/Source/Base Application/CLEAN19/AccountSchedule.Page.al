@@ -2,12 +2,12 @@
 page 104 "Account Schedule"
 {
     AutoSplitKey = true;
-    Caption = 'Account Schedule';
+    Caption = 'Row Definition';
     DataCaptionFields = "Schedule Name";
     MultipleNewLines = true;
     PageType = Worksheet;
-    PromotedActionCategories = 'New,Process,Report,Insert';
     SourceTable = "Acc. Schedule Line";
+    RefreshOnActivate = true;
 
     layout
     {
@@ -18,7 +18,7 @@ page 104 "Account Schedule"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Name';
                 Lookup = true;
-                ToolTip = 'Specifies the name of the account schedule.';
+                ToolTip = 'Specifies the name of the row definition.';
 
                 trigger OnLookup(var Text: Text): Boolean
                 begin
@@ -28,7 +28,7 @@ page 104 "Account Schedule"
                 trigger OnValidate()
                 begin
                     AccSchedManagement.CheckName(CurrentSchedName);
-                    CurrentSchedNameOnAfterValidate;
+                    CurrentSchedNameOnAfterValidate();
                 end;
             }
             repeater(Control1)
@@ -36,7 +36,7 @@ page 104 "Account Schedule"
                 IndentationColumn = Indentation;
                 IndentationControls = Description;
                 ShowCaption = false;
-                field("Row No."; "Row No.")
+                field("Row No."; Rec."Row No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a number that identifies the line.';
@@ -46,12 +46,12 @@ page 104 "Account Schedule"
                     ApplicationArea = Basic, Suite;
                     Style = Strong;
                     StyleExpr = Bold;
-                    ToolTip = 'Specifies text that will appear on the account schedule line.';
+                    ToolTip = 'Specifies text that will appear on the financial report line.';
                 }
-                field("Totaling Type"; "Totaling Type")
+                field("Totaling Type"; Rec."Totaling Type")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the totaling type for the account schedule line. The type determines which accounts within the totaling interval you specify in the Totaling field will be totaled. ';
+                    ToolTip = 'Specifies the totaling type for the financial report line. The type determines which accounts within the totaling interval you specify in the Totaling field will be totaled. ';
                 }
                 field(Totaling; TotalingDisplayed)
                 {
@@ -68,7 +68,7 @@ page 104 "Account Schedule"
                             Rec.Validate(Totaling, TotalingDisplayed);
                     end;
 
-                    trigger OnLookup(var Text: Text): boolean
+                    trigger OnLookup(var Text: Text): Boolean
                     begin
                         Rec.LookupTotaling();
                         if Rec."Totaling Type" = Rec."Totaling Type"::"Account Category" then
@@ -78,22 +78,22 @@ page 104 "Account Schedule"
                     end;
 
                 }
-                field("Row Type"; "Row Type")
+                field("Row Type"; Rec."Row Type")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the row type for the account schedule row. The type determines how the amounts in the row are calculated.';
+                    ToolTip = 'Specifies the row type for the row definition. The type determines how the amounts in the row are calculated.';
                 }
-                field("Amount Type"; "Amount Type")
+                field("Amount Type"; Rec."Amount Type")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the type of entries that will be included in the amounts in the account schedule row.';
+                    ToolTip = 'Specifies the type of entries that will be included in the amounts in the row definition.';
                 }
-                field("Show Opposite Sign"; "Show Opposite Sign")
+                field("Show Opposite Sign"; Rec."Show Opposite Sign")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether to show debits in reports as negative amounts with a minus sign and credits as positive amounts.';
                 }
-                field("Dimension 1 Totaling"; "Dimension 1 Totaling")
+                field("Dimension 1 Totaling"; Rec."Dimension 1 Totaling")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies which dimension value amounts will be totaled on this line.';
@@ -104,7 +104,7 @@ page 104 "Account Schedule"
                         exit(LookUpDimFilter(1, Text));
                     end;
                 }
-                field("Dimension 2 Totaling"; "Dimension 2 Totaling")
+                field("Dimension 2 Totaling"; Rec."Dimension 2 Totaling")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies which dimension value amounts will be totaled on this line.';
@@ -115,7 +115,7 @@ page 104 "Account Schedule"
                         exit(LookUpDimFilter(2, Text));
                     end;
                 }
-                field("Dimension 3 Totaling"; "Dimension 3 Totaling")
+                field("Dimension 3 Totaling"; Rec."Dimension 3 Totaling")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies which dimension value amounts will be totaled on this line.';
@@ -126,7 +126,7 @@ page 104 "Account Schedule"
                         exit(LookUpDimFilter(3, Text));
                     end;
                 }
-                field("Dimension 4 Totaling"; "Dimension 4 Totaling")
+                field("Dimension 4 Totaling"; Rec."Dimension 4 Totaling")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies which dimension value amounts will be totaled on this line.';
@@ -157,13 +157,13 @@ page 104 "Account Schedule"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether to underline the amounts in this row.';
                 }
-                field("Double Underline"; "Double Underline")
+                field("Double Underline"; Rec."Double Underline")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether to double underline the amounts in this row.';
                     Visible = false;
                 }
-                field("New Page"; "New Page")
+                field("New Page"; Rec."New Page")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether there will be a page break after the current account when the account schedule is printed.';
@@ -193,18 +193,21 @@ page 104 "Account Schedule"
 
     actions
     {
+#if not CLEAN21
         area(navigation)
         {
             action(Overview)
             {
+
                 ApplicationArea = Basic, Suite;
-                Caption = 'Overview';
+                Caption = 'View Report';
                 Ellipsis = true;
                 Image = ViewDetails;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ToolTip = 'View an overview of the current account schedule.';
+                Visible = false;
+                ObsoleteReason = 'This page is now opened from Financial Reports Page instead (Overview action).';
+                ObsoleteState = Pending;
+                ObsoleteTag = '21.0';
 
                 trigger OnAction()
                 var
@@ -215,6 +218,7 @@ page 104 "Account Schedule"
                 end;
             }
         }
+#endif
         area(processing)
         {
             action(Indent)
@@ -222,10 +226,6 @@ page 104 "Account Schedule"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Indent';
                 Image = Indent;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 Scope = Repeater;
                 ToolTip = 'Make this row part of a group of rows. For example, indent rows that itemize a range of accounts, such as types of revenue.';
 
@@ -236,7 +236,7 @@ page 104 "Account Schedule"
                     CurrPage.SetSelectionFilter(AccScheduleLine);
                     if AccScheduleLine.FindSet() then
                         repeat
-                            AccScheduleLine.Indent;
+                            AccScheduleLine.Indent();
                             AccScheduleLine.Modify();
                         until AccScheduleLine.Next() = 0;
                     CurrPage.Update(false);
@@ -247,10 +247,6 @@ page 104 "Account Schedule"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Outdent';
                 Image = DecreaseIndent;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 Scope = Repeater;
                 ToolTip = 'Move this row out one level.';
 
@@ -261,7 +257,7 @@ page 104 "Account Schedule"
                     CurrPage.SetSelectionFilter(AccScheduleLine);
                     if AccScheduleLine.FindSet() then
                         repeat
-                            AccScheduleLine.Outdent;
+                            AccScheduleLine.Outdent();
                             AccScheduleLine.Modify();
                         until AccScheduleLine.Next() = 0;
                     CurrPage.Update(false);
@@ -277,9 +273,7 @@ page 104 "Account Schedule"
                     Caption = 'Insert G/L Accounts';
                     Ellipsis = true;
                     Image = InsertAccount;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    ToolTip = 'Open the list of general ledger accounts so you can add accounts to the account schedule.';
+                    ToolTip = 'Open the list of general ledger accounts so you can add accounts to the row definition.';
 
                     trigger OnAction()
                     var
@@ -296,9 +290,7 @@ page 104 "Account Schedule"
                     Caption = 'Insert CF Accounts';
                     Ellipsis = true;
                     Image = InsertAccount;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    ToolTip = 'Mark the cash flow accounts from the chart of cash flow accounts and copy them to account schedule lines.';
+                    ToolTip = 'Mark the cash flow accounts from the chart of cash flow accounts and copy them to row definition lines.';
 
                     trigger OnAction()
                     var
@@ -315,8 +307,6 @@ page 104 "Account Schedule"
                     Caption = 'Insert Cost Types';
                     Ellipsis = true;
                     Image = InsertAccount;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     ToolTip = 'Insert cost types to analyze what the costs are, where the costs come from, and who should bear the costs.';
 
                     trigger OnAction()
@@ -328,51 +318,116 @@ page 104 "Account Schedule"
                         AccSchedManagement.InsertCostTypes(AccSchedLine);
                     end;
                 }
+#if not CLEAN21
                 action(EditColumnLayoutSetup)
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Edit Column Layout Setup';
                     Ellipsis = true;
                     Image = SetupColumns;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     RunObject = Page "Column Layout";
                     ToolTip = 'Create or change the column layout for the current account schedule name.';
+                    Visible = false;
+                    ObsoleteReason = 'Relation to columns on a financial report are now stored on "Financial Report". This control is now replaced by the one on page Financial Reports, action EditColumnGroup.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '21.0';
                 }
+#endif
             }
         }
+#if not CLEAN21
         area(reporting)
         {
+            ObsoleteReason = 'Reports are now accesible from the Financial Reports page. Extend that page instead.';
+            ObsoleteState = Pending;
+            ObsoleteTag = '21.0';
             action(Print)
             {
+                ObsoleteReason = 'AccScheduleName is no longer printable directly as they are only row definitions, print instead related Financial Report by calling directly the Account Schedule Report with SetFinancialReportName or SetFinancialReportNameNonEditable.';
+                ObsoleteState = Pending;
+                ObsoleteTag = '21.0';
                 ApplicationArea = Basic, Suite;
                 Caption = '&Print';
                 Ellipsis = true;
                 Image = Print;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ToolTip = 'Prepare to print the document. A report request window for the document opens where you can specify what to include on the print-out.';
-
+                Visible = false;
                 trigger OnAction()
                 var
                     AccScheduleName: Record "Acc. Schedule Name";
                 begin
                     AccScheduleName.Get("Schedule Name");
-                    AccScheduleName.Print;
+                    AccScheduleName.Print();
                 end;
+            }
+        }
+#endif
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+#if not CLEAN21
+                actionref(Overview_Promoted; Overview)
+                {
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'This page is now opened from Financial Reports Page instead (Overview action).';
+                    ObsoleteTag = '21.0';
+                }
+#endif
+#if not CLEAN21
+                actionref(Print_Promoted; Print)
+                {
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'AccScheduleName is no longer printable directly as they are only row definitions, print instead related Financial Report by calling directly the Account Schedule Report with SetFinancialReportName or SetFinancialReportNameNonEditable.';
+                    ObsoleteTag = '21.0';
+                }
+#endif
+                actionref(Outdent_Promoted; Outdent)
+                {
+                }
+                actionref(Indent_Promoted; Indent)
+                {
+                }
+#if not CLEAN21
+                actionref(EditColumnLayoutSetup_Promoted; EditColumnLayoutSetup)
+                {
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Relation to columns on a financial report are now stored on "Financial Report". This control is now replaced by the one on page Financial Reports, action EditColumnGroup.';
+                    ObsoleteTag = '21.0';
+                }
+#endif
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Insert', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref(InsertGLAccounts_Promoted; InsertGLAccounts)
+                {
+                }
+                actionref(InsertCostTypes_Promoted; InsertCostTypes)
+                {
+                }
+                actionref(InsertCFAccounts_Promoted; InsertCFAccounts)
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
             }
         }
     }
 
     trigger OnAfterGetRecord()
     begin
-        if not DimCaptionsInitialized then
-            DimCaptionsInitialized := true;
-        if Rec."Totaling Type" = Rec."Totaling Type"::"Account Category" then
-            TotalingDisplayed := GetAccountCategoryTotalingToDisplay()
-        else
-            TotalingDisplayed := Rec.Totaling;
+       FormatLines();
+    end;
+
+    trigger OnAfterGetCurrRecord()
+    begin
+       FormatLines();
     end;
 
     trigger OnOpenPage()
@@ -382,7 +437,7 @@ page 104 "Account Schedule"
         OriginalSchedName := CurrentSchedName;
         AccSchedManagement.OpenAndCheckSchedule(CurrentSchedName, Rec);
         if CurrentSchedName <> OriginalSchedName then
-            CurrentSchedNameOnAfterValidate;
+            CurrentSchedNameOnAfterValidate();
     end;
 
     var
@@ -398,9 +453,19 @@ page 104 "Account Schedule"
 
     local procedure CurrentSchedNameOnAfterValidate()
     begin
-        CurrPage.SaveRecord;
+        CurrPage.SaveRecord();
         AccSchedManagement.SetName(CurrentSchedName, Rec);
         CurrPage.Update(false);
+    end;
+
+    local procedure FormatLines()
+    begin
+        if not DimCaptionsInitialized then
+            DimCaptionsInitialized := true;
+        if Rec."Totaling Type" = Rec."Totaling Type"::"Account Category" then
+            TotalingDisplayed := GetAccountCategoryTotalingToDisplay()
+        else
+            TotalingDisplayed := Rec.Totaling;
     end;
 
     procedure SetupAccSchedLine(var AccSchedLine: Record "Acc. Schedule Line")

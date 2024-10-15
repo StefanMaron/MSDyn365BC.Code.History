@@ -24,27 +24,27 @@ page 31018 "Advance Letter Line Relations"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the type of posting desc. parameters';
                 }
-                field("Document Type"; "Document Type")
+                field("Document Type"; Rec."Document Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the document typ (order, invoice).';
                 }
-                field("Document No."; "Document No.")
+                field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the document''s number of sales or purchase document (order, invoice).';
                 }
-                field("Document Line No."; "Document Line No.")
+                field("Document Line No."; Rec."Document Line No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of line of sales or purchase document (order, invoice).';
                 }
-                field("Letter No."; "Letter No.")
+                field("Letter No."; Rec."Letter No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of letter.';
                 }
-                field("Letter Line No."; "Letter Line No.")
+                field("Letter Line No."; Rec."Letter Line No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies letter line number.';
@@ -54,19 +54,19 @@ page 31018 "Advance Letter Line Relations"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount for the entry.';
                 }
-                field("Invoiced Amount"; "Invoiced Amount")
+                field("Invoiced Amount"; Rec."Invoiced Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the advance letter line invoiced amount.';
                     Visible = false;
                 }
-                field("Deducted Amount"; "Deducted Amount")
+                field("Deducted Amount"; Rec."Deducted Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the advance letter line deducted amount.';
                     Visible = false;
                 }
-                field("Amount To Deduct"; "Amount To Deduct")
+                field("Amount To Deduct"; Rec."Amount To Deduct")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the maximum advance value for use in final sales invoice.';

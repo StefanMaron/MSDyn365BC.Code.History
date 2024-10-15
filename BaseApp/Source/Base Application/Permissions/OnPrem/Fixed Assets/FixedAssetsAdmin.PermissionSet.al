@@ -4,18 +4,9 @@ permissionset 7568 "Fixed Assets - Admin"
     Assignable = false;
     Caption = 'FA setup';
 
-#if CLEAN18
     Permissions = tabledata "Depreciation Book" = RIMD,
-#else
-    Permissions = tabledata "Classification Code" = RIMD,
-                  tabledata "Depreciation Book" = RIMD,
-                  tabledata "Depreciation Group" = RIMD,
-#endif
                   tabledata "FA Allocation" = RIMD,
                   tabledata "FA Depreciation Book" = RIMD,
-#if not CLEAN18
-                  tabledata "FA Extended Posting Group" = RIMD,
-#endif
                   tabledata "FA Journal Batch" = RIMD,
                   tabledata "FA Journal Line" = MD,
                   tabledata "FA Journal Setup" = RIMD,

@@ -14,7 +14,7 @@
             trigger OnValidate()
             begin
                 if "No." <> xRec."No." then begin
-                    NoSeriesMgt.TestManual(GetNoSeriesCode);
+                    NoSeriesMgt.TestManual(GetNoSeriesCode());
                     "No. Series" := '';
                 end;
                 "Posting Description" := StrSubstNo(Text000, "No.");
@@ -30,7 +30,7 @@
                 Cont: Record Contact;
             begin
                 if CurrFieldNo = FieldNo("Customer No.") then
-                    if Undo then begin
+                    if Undo() then begin
                         "Customer No." := xRec."Customer No.";
                         CreateDimFromDefaultDim();
                         exit;
@@ -71,9 +71,6 @@
                 "Fin. Charge Terms Code" := Cust."Fin. Charge Terms Code";
                 OnValidateCustomerNoOnAfterAssignCustomerValues(Rec, Cust);
                 Validate("Reminder Terms Code");
-#if not CLEAN18
-                UpdateBankInfo; // NAVCZ
-#endif
 
                 CreateDimFromDefaultDim();
             end;
@@ -110,8 +107,13 @@
             end;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
-                PostCode.ValidatePostCode(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
+                IsHandled := false;
+                OnBeforeValidatePostCode(Rec, PostCode, CurrFieldNo, IsHandled);
+                if not IsHandled then
+                    PostCode.ValidatePostCode(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
             end;
         }
         field(8; City; Text[30])
@@ -130,8 +132,13 @@
             end;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
-                PostCode.ValidateCity(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
+                IsHandled := false;
+                OnBeforeValidateCity(Rec, PostCode, CurrFieldNo, IsHandled);
+                if not IsHandled then
+                    PostCode.ValidateCity(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
             end;
         }
         field(9; County; Text[30])
@@ -162,7 +169,7 @@
             trigger OnValidate()
             begin
                 if CurrFieldNo = FieldNo("Currency Code") then
-                    if Undo then begin
+                    if Undo() then begin
                         "Currency Code" := xRec."Currency Code";
                         exit;
                     end;
@@ -240,7 +247,7 @@
             trigger OnValidate()
             begin
                 if CurrFieldNo = FieldNo("Document Date") then
-                    if Undo then begin
+                    if Undo() then begin
                         "Document Date" := xRec."Document Date";
                         exit;
                     end;
@@ -259,7 +266,7 @@
             trigger OnValidate()
             begin
                 if CurrFieldNo = FieldNo("Reminder Terms Code") then
-                    if Undo then begin
+                    if Undo() then begin
                         "Reminder Terms Code" := xRec."Reminder Terms Code";
                         exit;
                     end;
@@ -281,7 +288,7 @@
             trigger OnValidate()
             begin
                 if CurrFieldNo = FieldNo("Fin. Charge Terms Code") then
-                    if Undo then begin
+                    if Undo() then begin
                         "Fin. Charge Terms Code" := xRec."Fin. Charge Terms Code";
                         exit;
                     end;
@@ -306,7 +313,7 @@
                     ReminderTerms.Get("Reminder Terms Code");
                     ReminderLevel.SetRange("Reminder Terms Code", "Reminder Terms Code");
                     ReminderLevel.SetRange("No.", 1, "Reminder Level");
-                    if ReminderLevel.FindLast and ("Document Date" <> 0D) then
+                    if ReminderLevel.FindLast() and ("Document Date" <> 0D) then
                         "Due Date" := CalcDate(ReminderLevel."Due Date Calculation", "Document Date");
 
                     OnAfterValidateReminderLevel(Rec, ReminderLevel);
@@ -386,8 +393,8 @@
             begin
                 with ReminderHeader do begin
                     ReminderHeader := Rec;
-                    TestNoSeries;
-                    if NoSeriesMgt.LookupSeries(GetIssuingNoSeriesCode, "Issuing No. Series") then
+                    TestNoSeries();
+                    if NoSeriesMgt.LookupSeries(GetIssuingNoSeriesCode(), "Issuing No. Series") then
                         Validate("Issuing No. Series");
                     Rec := ReminderHeader;
                 end;
@@ -396,8 +403,8 @@
             trigger OnValidate()
             begin
                 if "Issuing No. Series" <> '' then begin
-                    TestNoSeries;
-                    NoSeriesMgt.TestSeries(GetIssuingNoSeriesCode, "Issuing No. Series");
+                    TestNoSeries();
+                    NoSeriesMgt.TestSeries(GetIssuingNoSeriesCode(), "Issuing No. Series");
                 end;
                 TestField("Issuing No.", '');
             end;
@@ -450,7 +457,7 @@
 
             trigger OnLookup()
             begin
-                ShowDocDim;
+                ShowDocDim();
             end;
 
             trigger OnValidate()
@@ -468,134 +475,77 @@
         {
             Caption = 'Bank No.';
             TableRelation = "Bank Account";
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
-#if not CLEAN18
-
-            trigger OnValidate()
-            begin
-                UpdateBankInfo;
-            end;
-#endif
+            ObsoleteTag = '21.0';
         }
         field(11701; "Bank Account No."; Text[30])
         {
             Caption = 'Bank Account No.';
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(11702; "Bank Branch No."; Text[20])
         {
             Caption = 'Bank Branch No.';
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(11703; "Specific Symbol"; Code[10])
         {
             Caption = 'Specific Symbol';
             CharAllowed = '09';
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(11704; "Variable Symbol"; Code[10])
         {
             Caption = 'Variable Symbol';
             CharAllowed = '09';
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(11705; "Constant Symbol"; Code[10])
         {
             Caption = 'Constant Symbol';
             CharAllowed = '09';
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            TableRelation = "Constant Symbol";
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(11706; "Transit No."; Text[20])
         {
             Caption = 'Transit No.';
             Editable = false;
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(11707; IBAN; Code[50])
         {
             Caption = 'IBAN';
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
-#if not CLEAN18
-
-            trigger OnValidate()
-            var
-                CompanyInfo: Record "Company Information";
-            begin
-                CompanyInfo.CheckIBAN(IBAN);
-            end;
-#endif
+            ObsoleteTag = '21.0';
         }
         field(11708; "SWIFT Code"; Code[20])
         {
             Caption = 'SWIFT Code';
             Editable = false;
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(11709; "Bank Name"; Text[100])
         {
             Caption = 'Bank Name';
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(11761; "Multiple Interest Rates"; Boolean)
         {
@@ -673,9 +623,9 @@
             NoSeriesMgt.SetDefaultSeries("Issuing No. Series", GetIssuingNoSeriesCode());
 
         if "Posting Date" = 0D then
-            "Posting Date" := WorkDate;
-        "Document Date" := WorkDate;
-        "Due Date" := WorkDate;
+            "Posting Date" := WorkDate();
+        "Document Date" := WorkDate();
+        "Due Date" := WorkDate();
 
         if GetFilter("Customer No.") <> '' then
             if GetRangeMin("Customer No.") = GetRangeMax("Customer No.") then
@@ -718,9 +668,9 @@
     begin
         with ReminderHeader do begin
             ReminderHeader := Rec;
-            TestNoSeries;
+            TestNoSeries();
             if NoSeriesMgt.SelectSeries(SalesSetup."Reminder Nos.", OldReminderHeader."No. Series", "No. Series") then begin
-                TestNoSeries;
+                TestNoSeries();
                 NoSeriesMgt.SetSeries("No.");
                 Rec := ReminderHeader;
                 exit(true);
@@ -796,7 +746,7 @@
             then
                 exit(true);
             ReminderLine.DeleteAll();
-            Modify
+            Modify();
         end;
     end;
 
@@ -829,9 +779,9 @@
                 ReminderLine2 := ReminderLine;
                 ReminderLine2.CopyFilters(ReminderLine);
                 ReminderLine2.SetFilter("Line Type", '<>%1', ReminderLine2."Line Type"::"Line Fee");
-                if ReminderLine2.Next <> 0 then begin
-                    LineSpacing := (ReminderLine2."Line No." - ReminderLine."Line No.") div 3;
-                end else
+                if ReminderLine2.Next() <> 0 then
+                    LineSpacing := (ReminderLine2."Line No." - ReminderLine."Line No.") div 3
+                else
                     LineSpacing := 10000;
                 InsertBlankLine(ReminderLine."Line Type"::"Additional Fee");
 
@@ -841,7 +791,7 @@
                 ReminderLine.Type := ReminderLine.Type::"G/L Account";
                 TestField("Customer Posting Group");
                 CustPostingGr.Get("Customer Posting Group");
-                ReminderLine.Validate("No.", CustPostingGr.GetAdditionalFeeAccount);
+                ReminderLine.Validate("No.", CustPostingGr.GetAdditionalFeeAccount());
                 ReminderLine.Description :=
                   CopyStr(
                     TranslationHelper.GetTranslatedFieldCaption(
@@ -863,7 +813,7 @@
         ReminderRounding(Rec);
         InsertBeginTexts(Rec);
         InsertEndTexts(Rec);
-        Modify;
+        Modify();
 
         OnAfterInsertLines(Rec);
     end;
@@ -885,7 +835,7 @@
             ReminderLine.SetRange("Reminder No.", ReminderHeader."No.");
             ReminderLine.SetRange("Line Type", ReminderLine."Line Type"::"Additional Fee");
             ReminderLine.DeleteAll();
-            InsertLines;
+            InsertLines();
         end else begin
             InsertBeginTexts(ReminderHeader);
             InsertEndTexts(ReminderHeader);
@@ -963,7 +913,7 @@
             ReminderLine2 := ReminderLine;
             ReminderLine2.CopyFilters(ReminderLine);
             ReminderLine2.SetFilter("Line Type", '<>%1', ReminderLine2."Line Type"::"Line Fee");
-            if ReminderLine2.Next <> 0 then begin
+            if ReminderLine2.Next() <> 0 then begin
                 LineSpacing :=
                   (ReminderLine2."Line No." - ReminderLine."Line No.") div
                   (ReminderText.Count + 2);
@@ -1068,7 +1018,7 @@
         with ReminderHeader do begin
             Copy(Rec);
             FindFirst();
-            SetRecFilter;
+            SetRecFilter();
             ReportSelection.PrintForCust(ReportSelection.Usage::"Rem.Test", ReminderHeader, FieldNo("Customer No."));
         end;
     end;
@@ -1180,7 +1130,7 @@
                 Round(
                     TotalAmountInclVAT,
                     Currency."Invoice Rounding Precision",
-                    Currency.InvoiceRoundingDirection),
+                    Currency.InvoiceRoundingDirection()),
                 Currency."Amount Rounding Precision"));
     end;
 
@@ -1198,12 +1148,12 @@
         if ReminderRoundingAmount <> 0 then begin
             CustPostingGr.Get(ReminderHeader."Customer Posting Group");
             with ReminderLine do begin
-                Init;
+                Init();
                 Validate("Line No.", GetNextLineNo(ReminderHeader."No."));
                 Validate("Reminder No.", ReminderHeader."No.");
                 Validate(Type, Type::"G/L Account");
                 "System-Created Entry" := true;
-                Validate("No.", CustPostingGr.GetInvRoundingAccount);
+                Validate("No.", CustPostingGr.GetInvRoundingAccount());
                 Validate(
                   Amount,
                   Round(
@@ -1211,7 +1161,7 @@
                     Currency."Amount Rounding Precision"));
                 "VAT Amount" := ReminderRoundingAmount - Amount;
                 "Line Type" := "Line Type"::Rounding;
-                Insert;
+                Insert();
             end;
         end;
     end;
@@ -1219,7 +1169,7 @@
     local procedure GetCurrency()
     begin
         if "Currency Code" = '' then
-            Currency.InitRoundingPrecision
+            Currency.InitRoundingPrecision()
         else begin
             Currency.Get("Currency Code");
             Currency.TestField("Amount Rounding Precision");
@@ -1241,7 +1191,7 @@
         if ReminderLine.FindLast() then begin
             OldLineNo := ReminderLine."Line No.";
             ReminderLine.SetRange(Type);
-            if ReminderLine.Next <> 0 then
+            if ReminderLine.Next() <> 0 then
                 ReminderLine."Line No." := OldLineNo + ((ReminderLine."Line No." - OldLineNo) div 2)
             else
                 ReminderLine."Line No." := OldLineNo + 10000;
@@ -1255,7 +1205,7 @@
     begin
         "Dimension Set ID" :=
           DimMgt.EditDimensionSet(
-            Rec, "Dimension Set ID", StrSubstNo('%1 %2', TableCaption, "No."),
+            Rec, "Dimension Set ID", StrSubstNo('%1 %2', TableCaption(), "No."),
             "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
 
         OnAfterShowDocDim(Rec);
@@ -1282,30 +1232,6 @@
         exit(10000);
     end;
 
-#if not CLEAN18
-    [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
-    [Scope('OnPrem')]
-    procedure UpdateBankInfo()
-    var
-        BankAcc: Record "Bank Account";
-        CompanyInfo: Record "Company Information";
-    begin
-        // NAVCZ
-        if BankAcc.Get("Bank No.") then begin
-            "Bank Name" := BankAcc.Name;
-            "Bank Account No." := BankAcc."Bank Account No.";
-            "Bank Branch No." := BankAcc."Bank Branch No.";
-            IBAN := BankAcc.IBAN;
-        end else begin
-            CompanyInfo.Get();
-            "Bank Name" := CompanyInfo."Bank Name";
-            "Bank Account No." := CompanyInfo."Bank Account No.";
-            "Bank Branch No." := CompanyInfo."Bank Branch No.";
-            IBAN := CompanyInfo.IBAN;
-        end;
-    end;
-
-#endif
     local procedure GetFilterCustNo(): Code[20]
     begin
         if GetFilter("Customer No.") <> '' then
@@ -1320,8 +1246,8 @@
 
     procedure SetCustomerFromFilter()
     begin
-        if GetFilterCustNo <> '' then
-            Validate("Customer No.", GetFilterCustNo);
+        if GetFilterCustNo() <> '' then
+            Validate("Customer No.", GetFilterCustNo());
     end;
 
     [Scope('OnPrem')]
@@ -1329,7 +1255,7 @@
     begin
         if "No." = '' then begin
             TestNoSeries();
-            NoSeriesMgt.InitSeries(GetNoSeriesCode, xRec."No. Series", "Posting Date", "No.", "No. Series");
+            NoSeriesMgt.InitSeries(GetNoSeriesCode(), xRec."No. Series", "Posting Date", "No.", "No. Series");
         end;
     end;
 
@@ -1631,6 +1557,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateCustomerNoOnAfterAssignCustomerValues(var ReminderHeader: Record "Reminder Header"; Customer: Record Customer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateCity(var ReminderHeader: Record "Reminder Header"; var PostCode: Record "Post Code"; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidatePostCode(var ReminderHeader: Record "Reminder Header"; var PostCode: Record "Post Code"; CurrentFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 }

@@ -50,8 +50,9 @@ table 5809 "Item Charge Assignment (Sales)"
                 SalesLine.TestField("Qty. to Invoice");
                 TestField("Applies-to Doc. Line No.");
                 if ("Qty. to Assign" <> 0) and ("Applies-to Doc. Type" = "Document Type") then
-                    if SalesLineInvoiced then
-                        Error(Text000, SalesLine.TableCaption);
+                    if SalesLineInvoiced() then
+                        Error(CannotAssignToInvoiced, SalesLine.TableCaption());
+                Validate("Qty. to Handle", "Qty. to Assign");
                 Validate("Amount to Assign");
             end;
         }
@@ -81,9 +82,7 @@ table 5809 "Item Charge Assignment (Sales)"
             var
                 ItemChargeAssgntSales: Codeunit "Item Charge Assgnt. (Sales)";
             begin
-                SalesLine.Get("Document Type", "Document No.", "Document Line No.");
-                if not Currency.Get(SalesLine."Currency Code") then
-                    Currency.InitRoundingPrecision;
+                GetCurrency();
                 "Amount to Assign" := Round("Qty. to Assign" * "Unit Cost", Currency."Amount Rounding Precision");
                 ItemChargeAssgntSales.SuggestAssignmentFromLine(Rec);
             end;
@@ -131,41 +130,43 @@ table 5809 "Item Charge Assignment (Sales)"
             AutoFormatType = 1;
             Caption = 'Applies-to Doc. Line Amount';
         }
-        field(31060; "Incl. in Intrastat Amount"; Boolean)
+        field(16; "Qty. to Handle"; Decimal)
         {
-            Caption = 'Incl. in Intrastat Amount';
-#if CLEAN18
-            ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
-#if not CLEAN18
+            BlankZero = true;
+            Caption = 'Qty. to Handle';
+            DecimalPlaces = 0 : 5;
 
             trigger OnValidate()
             begin
-                CheckIncludeIntrastat;
+                if "Qty. to Handle" <> 0 then
+                    TestField("Qty. to Handle", "Qty. to Assign");
+                Validate("Amount to Handle");
             end;
-#endif
+        }
+        field(17; "Amount to Handle"; Decimal)
+        {
+            AutoFormatType = 1;
+            Caption = 'Amount to Handle';
+
+            trigger OnValidate()
+            begin
+                GetCurrency();
+                "Amount to Handle" := Round("Qty. to Handle" * "Unit Cost", Currency."Amount Rounding Precision");
+            end;
+        }
+        field(31060; "Incl. in Intrastat Amount"; Boolean)
+        {
+            Caption = 'Incl. in Intrastat Amount';
+            ObsoleteState = Removed;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '21.0';
         }
         field(31061; "Incl. in Intrastat Stat. Value"; Boolean)
         {
             Caption = 'Incl. in Intrastat Stat. Value';
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
-#if not CLEAN18
-
-            trigger OnValidate()
-            begin
-                CheckIncludeIntrastat;
-            end;
-#endif
+            ObsoleteTag = '21.0';
         }
     }
 
@@ -193,10 +194,17 @@ table 5809 "Item Charge Assignment (Sales)"
     end;
 
     var
-        Text000: Label 'You cannot assign item charges to the %1 because it has been invoiced. Instead you can get the posted document line and then assign the item charge to that line.';
         SalesLine: Record "Sales Line";
         Currency: Record Currency;
+        CannotAssignToInvoiced: Label 'You cannot assign item charges to the %1 because it has been invoiced. Instead you can get the posted document line and then assign the item charge to that line.';
         ItemChargeDeletionErr: Label 'You cannot delete posted documents that are applied as item charges to sales lines. This document applied to item %3 in %1 %2.', Comment = '%1 - Document Type; %2 - Document No., %3 - Item No.';
+
+    local procedure GetCurrency()
+    begin
+        SalesLine.Get("Document Type", "Document No.", "Document Line No.");
+        if not Currency.Get(SalesLine."Currency Code") then
+            Currency.InitRoundingPrecision;
+    end;
 
     procedure SalesLineInvoiced(): Boolean
     begin
@@ -218,6 +226,7 @@ table 5809 "Item Charge Assignment (Sales)"
     end;
 
 #if not CLEAN19
+
     [Scope('OnPrem')]
     [Obsolete('Unused function discontinued.', '19.0')]
     procedure SetIncludeAmount(): Boolean
@@ -227,7 +236,7 @@ table 5809 "Item Charge Assignment (Sales)"
     begin
         // NAVCZ
         if SalesHeader.Get("Document Type", "Document No.") then begin
-            CustomerNo := GetCustomer;
+            CustomerNo := GetCustomer();
 
             if (CustomerNo <> '') and (SalesHeader."Sell-to Customer No." = CustomerNo) then
                 exit(true);
@@ -264,19 +273,6 @@ table 5809 "Item Charge Assignment (Sales)"
         end;
 
         exit(CustomerNo);
-    end;
-#endif
-#if not CLEAN18
-
-    [Scope('OnPrem')]
-    [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
-    procedure CheckIncludeIntrastat()
-    var
-        StatReportingSetup: Record "Stat. Reporting Setup";
-    begin
-        // NAVCZ
-        StatReportingSetup.Get();
-        StatReportingSetup.TestField("No Item Charges in Intrastat", false);
     end;
 #endif
 }

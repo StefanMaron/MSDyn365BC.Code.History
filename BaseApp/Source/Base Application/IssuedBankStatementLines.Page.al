@@ -16,7 +16,7 @@ page 11713 "Issued Bank Statement Lines"
             repeater(Control1220014)
             {
                 ShowCaption = false;
-                field("Account No."; "Account No.")
+                field("Account No."; Rec."Account No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number used by the bank for the bank account.';
@@ -37,28 +37,28 @@ page 11713 "Issued Bank Statement Lines"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount that the bank statement line contains.';
                 }
-                field("Amount (LCY)"; "Amount (LCY)")
+                field("Amount (LCY)"; Rec."Amount (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount in the local currency for payment.';
                     Visible = false;
                 }
-                field("Variable Symbol"; "Variable Symbol")
+                field("Variable Symbol"; Rec."Variable Symbol")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the detail information for payment.';
                 }
-                field("Constant Symbol"; "Constant Symbol")
+                field("Constant Symbol"; Rec."Constant Symbol")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the additional symbol of bank payments.';
                 }
-                field("Specific Symbol"; "Specific Symbol")
+                field("Specific Symbol"; Rec."Specific Symbol")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the additional symbol of bank payments.';
                 }
-                field("Transit No."; "Transit No.")
+                field("Transit No."; Rec."Transit No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a bank identification number of your own choice.';
@@ -69,19 +69,19 @@ page 11713 "Issued Bank Statement Lines"
                     ToolTip = 'Specifies the type of partner (customer, vendor, bank account).';
                     Visible = false;
                 }
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of partner (customer, vendor, bank account).';
                     Visible = false;
                 }
-                field("Cust./Vendor Bank Account Code"; "Cust./Vendor Bank Account Code")
+                field("Cust./Vendor Bank Account Code"; Rec."Cust./Vendor Bank Account Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the bank account code of the customer or vendor.';
                     Visible = false;
                 }
-                field("Bank Statement No."; "Bank Statement No.")
+                field("Bank Statement No."; Rec."Bank Statement No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of bank statement.';

@@ -7,6 +7,12 @@ codeunit 1502 "Workflow Setup"
     end;
 
     var
+        WorkflowEventHandling: Codeunit "Workflow Event Handling";
+        WorkflowResponseHandling: Codeunit "Workflow Response Handling";
+        WorkflowRequestPageHandling: Codeunit "Workflow Request Page Handling";
+        BlankDateFormula: DateFormula;
+        CustomTemplateToken: Code[3];
+
         MsTemplateTok: Label 'MS-', Locked = true;
         MsWizardWorkflowTok: Label 'WZ-', Locked = true;
         JobQueueEntryDescTxt: Label 'Auto-created for sending of delegated approval requests. Can be deleted if not used. Will be recreated when the feature is activated.';
@@ -46,10 +52,6 @@ codeunit 1502 "Workflow Setup"
         InvalidEventCondErr: Label 'No event conditions are specified.';
         OverdueWorkflowCodeTxt: Label 'OVERDUE', Locked = true;
         OverdueWorkflowDescTxt: Label 'Overdue Approval Requests Workflow';
-        WorkflowEventHandling: Codeunit "Workflow Event Handling";
-        WorkflowResponseHandling: Codeunit "Workflow Response Handling";
-        WorkflowRequestPageHandling: Codeunit "Workflow Request Page Handling";
-        BlankDateFormula: DateFormula;
         SalesInvoiceApprWorkflowCodeTxt: Label 'SIAPW', Locked = true;
         SalesReturnOrderApprWorkflowCodeTxt: Label 'SROAPW', Locked = true;
         SalesQuoteApprWorkflowCodeTxt: Label 'SQAPW', Locked = true;
@@ -107,7 +109,6 @@ codeunit 1502 "Workflow Setup"
         SalesDocCategoryDescTxt: Label 'Sales Documents';
         AdminCategoryDescTxt: Label 'Administration';
         FinCategoryDescTxt: Label 'Finance';
-        CustomTemplateToken: Code[3];
 
     procedure InitWorkflow()
     var
@@ -129,7 +130,7 @@ codeunit 1502 "Workflow Setup"
 
     local procedure InsertWorkflowTemplates()
     begin
-        InsertApprovalsTableRelations;
+        InsertApprovalsTableRelations();
 
         InsertIncomingDocumentWorkflowTemplate();
         InsertIncomingDocumentApprovalWorkflowTemplate();
@@ -273,8 +274,8 @@ codeunit 1502 "Workflow Setup"
           DATABASE::"Incoming Document", IncomingDocument.FieldNo("Entry No."));
 
         OnIncomingDocumentCreatedEventID :=
-          InsertEntryPointEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnAfterInsertIncomingDocumentCode);
-        InsertResponseStep(Workflow, WorkflowResponseHandling.CreateNotificationEntryCode, OnIncomingDocumentCreatedEventID);
+          InsertEntryPointEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnAfterInsertIncomingDocumentCode());
+        InsertResponseStep(Workflow, WorkflowResponseHandling.CreateNotificationEntryCode(), OnIncomingDocumentCreatedEventID);
     end;
 
     local procedure InsertIncomingDocumentOCRWorkflowTemplate()
@@ -297,23 +298,23 @@ codeunit 1502 "Workflow Setup"
         DocErrorEventID: Integer;
     begin
         OCRSuccessEventID :=
-          InsertEntryPointEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnAfterReceiveFromOCRIncomingDocCode);
+          InsertEntryPointEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnAfterReceiveFromOCRIncomingDocCode());
         InsertEventArgument(
           OCRSuccessEventID, BuildIncomingDocumentOCRTypeConditions(IncomingDocument."OCR Status"::Success));
         CreateDocResponseID :=
-          InsertResponseStep(Workflow, WorkflowResponseHandling.GetCreateDocFromIncomingDocCode, OCRSuccessEventID);
+          InsertResponseStep(Workflow, WorkflowResponseHandling.GetCreateDocFromIncomingDocCode(), OCRSuccessEventID);
 
         DocSuccessEventID :=
           InsertEventStep(
-            Workflow, WorkflowEventHandling.RunWorkflowOnAfterCreateDocFromIncomingDocSuccessCode, CreateDocResponseID);
+            Workflow, WorkflowEventHandling.RunWorkflowOnAfterCreateDocFromIncomingDocSuccessCode(), CreateDocResponseID);
         InsertEventArgument(DocSuccessEventID, BuildIncomingDocumentTypeConditions(IncomingDocument.Status::Created));
-        InsertResponseStep(Workflow, WorkflowResponseHandling.DoNothingCode, DocSuccessEventID);
+        InsertResponseStep(Workflow, WorkflowResponseHandling.DoNothingCode(), DocSuccessEventID);
 
         DocErrorEventID :=
           InsertEventStep(
-            Workflow, WorkflowEventHandling.RunWorkflowOnAfterCreateDocFromIncomingDocFailCode, CreateDocResponseID);
+            Workflow, WorkflowEventHandling.RunWorkflowOnAfterCreateDocFromIncomingDocFailCode(), CreateDocResponseID);
         InsertEventArgument(DocErrorEventID, BuildIncomingDocumentTypeConditions(IncomingDocument.Status::Failed));
-        NotifyResponseID := InsertResponseStep(Workflow, WorkflowResponseHandling.CreateNotificationEntryCode, DocErrorEventID);
+        NotifyResponseID := InsertResponseStep(Workflow, WorkflowResponseHandling.CreateNotificationEntryCode(), DocErrorEventID);
 
         InsertNotificationArgument(NotifyResponseID, false, '', PAGE::"Incoming Document", '');
     end;
@@ -338,23 +339,23 @@ codeunit 1502 "Workflow Setup"
         CreateGenJnlLineFailResponseID: Integer;
     begin
         OCRSuccessForGenJnlLineEventID :=
-          InsertEntryPointEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnAfterReceiveFromOCRIncomingDocCode);
+          InsertEntryPointEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnAfterReceiveFromOCRIncomingDocCode());
         InsertEventArgument(
           OCRSuccessForGenJnlLineEventID, BuildIncomingDocumentOCRTypeConditions(IncomingDocument."OCR Status"::Success));
         CreateDocForGenJnlLineResponseID :=
-          InsertResponseStep(Workflow, WorkflowResponseHandling.GetCreateJournalFromIncomingDocCode, OCRSuccessForGenJnlLineEventID);
+          InsertResponseStep(Workflow, WorkflowResponseHandling.GetCreateJournalFromIncomingDocCode(), OCRSuccessForGenJnlLineEventID);
 
         GenJnlLineSuccessEventID :=
           InsertEventStep(
-            Workflow, WorkflowEventHandling.RunWorkflowOnAfterCreateGenJnlLineFromIncomingDocSuccessCode,
+            Workflow, WorkflowEventHandling.RunWorkflowOnAfterCreateGenJnlLineFromIncomingDocSuccessCode(),
             CreateDocForGenJnlLineResponseID);
-        InsertResponseStep(Workflow, WorkflowResponseHandling.DoNothingCode, GenJnlLineSuccessEventID);
+        InsertResponseStep(Workflow, WorkflowResponseHandling.DoNothingCode(), GenJnlLineSuccessEventID);
 
         GenJnlLineFailEventID :=
           InsertEventStep(
-            Workflow, WorkflowEventHandling.RunWorkflowOnAfterCreateGenJnlLineFromIncomingDocFailCode, CreateDocForGenJnlLineResponseID);
+            Workflow, WorkflowEventHandling.RunWorkflowOnAfterCreateGenJnlLineFromIncomingDocFailCode(), CreateDocForGenJnlLineResponseID);
         CreateGenJnlLineFailResponseID :=
-          InsertResponseStep(Workflow, WorkflowResponseHandling.CreateNotificationEntryCode, GenJnlLineFailEventID);
+          InsertResponseStep(Workflow, WorkflowResponseHandling.CreateNotificationEntryCode(), GenJnlLineFailEventID);
 
         InsertNotificationArgument(CreateGenJnlLineFailResponseID, false, '', PAGE::"Incoming Document", '');
     end;
@@ -380,25 +381,25 @@ codeunit 1502 "Workflow Setup"
         NotifyResponseID: Integer;
     begin
         IncDocCreatedEventID :=
-          InsertEntryPointEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnAfterReceiveFromDocExchIncomingDocCode);
+          InsertEntryPointEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnAfterReceiveFromDocExchIncomingDocCode());
         InsertEventArgument(IncDocCreatedEventID, BuildIncomingDocumentTypeConditions(IncomingDocument.Status::New));
-        ReleaseDocResponseID := InsertResponseStep(Workflow, WorkflowResponseHandling.ReleaseDocumentCode, IncDocCreatedEventID);
+        ReleaseDocResponseID := InsertResponseStep(Workflow, WorkflowResponseHandling.ReleaseDocumentCode(), IncDocCreatedEventID);
 
         DocReleasedEventID :=
-          InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnAfterReleaseIncomingDocCode, ReleaseDocResponseID);
+          InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnAfterReleaseIncomingDocCode(), ReleaseDocResponseID);
         InsertEventArgument(DocReleasedEventID, BuildIncomingDocumentTypeConditions(IncomingDocument.Status::Released));
         CreateDocResponseID :=
-          InsertResponseStep(Workflow, WorkflowResponseHandling.GetCreateDocFromIncomingDocCode, DocReleasedEventID);
+          InsertResponseStep(Workflow, WorkflowResponseHandling.GetCreateDocFromIncomingDocCode(), DocReleasedEventID);
 
         DocSuccessEventID :=
-          InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnAfterCreateDocFromIncomingDocSuccessCode, CreateDocResponseID);
+          InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnAfterCreateDocFromIncomingDocSuccessCode(), CreateDocResponseID);
         InsertEventArgument(DocSuccessEventID, BuildIncomingDocumentTypeConditions(IncomingDocument.Status::Created));
-        InsertResponseStep(Workflow, WorkflowResponseHandling.DoNothingCode, DocSuccessEventID);
+        InsertResponseStep(Workflow, WorkflowResponseHandling.DoNothingCode(), DocSuccessEventID);
 
         DocErrorEventID :=
-          InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnAfterCreateDocFromIncomingDocFailCode, CreateDocResponseID);
+          InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnAfterCreateDocFromIncomingDocFailCode(), CreateDocResponseID);
         InsertEventArgument(DocErrorEventID, BuildIncomingDocumentTypeConditions(IncomingDocument.Status::Failed));
-        NotifyResponseID := InsertResponseStep(Workflow, WorkflowResponseHandling.CreateNotificationEntryCode, DocErrorEventID);
+        NotifyResponseID := InsertResponseStep(Workflow, WorkflowResponseHandling.CreateNotificationEntryCode(), DocErrorEventID);
 
         InsertNotificationArgument(NotifyResponseID, false, '', PAGE::"Incoming Document", '');
     end;
@@ -429,26 +430,26 @@ codeunit 1502 "Workflow Setup"
         InsertTableRelation(DATABASE::"Purch. Inv. Header", PurchaseHeader.FieldNo("No."),
           DATABASE::"Gen. Journal Line", GenJournalLine.FieldNo("Applies-to Doc. No."));
 
-        DocReleasedEventID := InsertEntryPointEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnAfterReleasePurchaseDocCode);
+        DocReleasedEventID := InsertEntryPointEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnAfterReleasePurchaseDocCode());
         InsertEventArgument(
             DocReleasedEventID,
             BuildPurchHeaderTypeConditionsText("Purchase Document Type"::Invoice, "Purchase Document Status"::Released));
 
-        PostDocAsyncResponseID := InsertResponseStep(Workflow, WorkflowResponseHandling.PostDocumentAsyncCode, DocReleasedEventID);
+        PostDocAsyncResponseID := InsertResponseStep(Workflow, WorkflowResponseHandling.PostDocumentAsyncCode(), DocReleasedEventID);
 
         PostedEventID :=
-          InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnAfterPostPurchaseDocCode, PostDocAsyncResponseID);
-        CreatePmtLineResponseID := InsertResponseStep(Workflow, WorkflowResponseHandling.CreatePmtLineForPostedPurchaseDocAsyncCode,
+          InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnAfterPostPurchaseDocCode(), PostDocAsyncResponseID);
+        CreatePmtLineResponseID := InsertResponseStep(Workflow, WorkflowResponseHandling.CreatePmtLineForPostedPurchaseDocAsyncCode(),
             PostedEventID);
         InsertPmtLineCreationArgument(CreatePmtLineResponseID, '', '');
 
-        JournalLineCreatedEventID := InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnAfterInsertGeneralJournalLineCode,
+        JournalLineCreatedEventID := InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnAfterInsertGeneralJournalLineCode(),
             CreatePmtLineResponseID);
 
         GenJournalLine.SetRange("Document Type", GenJournalLine."Document Type"::Payment);
         InsertEventArgument(JournalLineCreatedEventID, BuildGeneralJournalLineTypeConditions(GenJournalLine));
 
-        NotifyResponseID := InsertResponseStep(Workflow, WorkflowResponseHandling.CreateNotificationEntryCode, JournalLineCreatedEventID);
+        NotifyResponseID := InsertResponseStep(Workflow, WorkflowResponseHandling.CreateNotificationEntryCode(), JournalLineCreatedEventID);
         InsertNotificationArgument(NotifyResponseID, false, '', PAGE::"Payment Journal", '');
     end;
 
@@ -879,19 +880,19 @@ codeunit 1502 "Workflow Setup"
         RestrictRecordUsageResponseID: Integer;
         AllowRecordUsageResponseID: Integer;
     begin
-        SentForApprovalEventID := InsertEntryPointEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnSendSalesDocForApprovalCode);
+        SentForApprovalEventID := InsertEntryPointEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnSendSalesDocForApprovalCode());
         InsertEventArgument(SentForApprovalEventID, DocSentForApprovalConditionString);
 
-        CheckCustomerCreditLimitResponseID := InsertResponseStep(Workflow, WorkflowResponseHandling.CheckCustomerCreditLimitCode,
+        CheckCustomerCreditLimitResponseID := InsertResponseStep(Workflow, WorkflowResponseHandling.CheckCustomerCreditLimitCode(),
             SentForApprovalEventID);
 
         CustomerCreditLimitExceededEventID := InsertEventStep(Workflow,
-            WorkflowEventHandling.RunWorkflowOnCustomerCreditLimitExceededCode, CheckCustomerCreditLimitResponseID);
+            WorkflowEventHandling.RunWorkflowOnCustomerCreditLimitExceededCode(), CheckCustomerCreditLimitResponseID);
 
         RestrictRecordUsageResponseID :=
-          InsertResponseStep(Workflow, WorkflowResponseHandling.RestrictRecordUsageCode, CustomerCreditLimitExceededEventID);
+          InsertResponseStep(Workflow, WorkflowResponseHandling.RestrictRecordUsageCode(), CustomerCreditLimitExceededEventID);
 
-        SetStatusToPendingApprovalResponseID := InsertResponseStep(Workflow, WorkflowResponseHandling.SetStatusToPendingApprovalCode,
+        SetStatusToPendingApprovalResponseID := InsertResponseStep(Workflow, WorkflowResponseHandling.SetStatusToPendingApprovalCode(),
             RestrictRecordUsageResponseID);
         CreateApprovalRequestResponseID := InsertResponseStep(Workflow, WorkflowResponseHandling.CreateApprovalRequestsCode(),
             SetStatusToPendingApprovalResponseID);
@@ -899,21 +900,21 @@ codeunit 1502 "Workflow Setup"
           WorkflowStepArgument."Approver Type", WorkflowStepArgument."Approver Limit Type",
           WorkflowStepArgument."Workflow User Group Code", WorkflowStepArgument."Approver User ID",
           WorkflowStepArgument."Due Date Formula", ShowConfirmationMessage);
-        SendApprovalRequestResponseID := InsertResponseStep(Workflow, WorkflowResponseHandling.SendApprovalRequestForApprovalCode,
+        SendApprovalRequestResponseID := InsertResponseStep(Workflow, WorkflowResponseHandling.SendApprovalRequestForApprovalCode(),
             CreateApprovalRequestResponseID);
 
         InsertNotificationArgument(SendApprovalRequestResponseID, false, '', 0, '');
 
         OnAllRequestsApprovedEventID := InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnApproveApprovalRequestCode(),
             SendApprovalRequestResponseID);
-        InsertEventArgument(OnAllRequestsApprovedEventID, BuildNoPendingApprovalsConditions);
+        InsertEventArgument(OnAllRequestsApprovedEventID, BuildNoPendingApprovalsConditions());
         AllowRecordUsageResponseID :=
-          InsertResponseStep(Workflow, WorkflowResponseHandling.AllowRecordUsageCode, OnAllRequestsApprovedEventID);
-        InsertResponseStep(Workflow, WorkflowResponseHandling.ReleaseDocumentCode, AllowRecordUsageResponseID);
+          InsertResponseStep(Workflow, WorkflowResponseHandling.AllowRecordUsageCode(), OnAllRequestsApprovedEventID);
+        InsertResponseStep(Workflow, WorkflowResponseHandling.ReleaseDocumentCode(), AllowRecordUsageResponseID);
 
         OnRequestApprovedEventID := InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnApproveApprovalRequestCode(),
             SendApprovalRequestResponseID);
-        InsertEventArgument(OnRequestApprovedEventID, BuildPendingApprovalsConditions);
+        InsertEventArgument(OnRequestApprovedEventID, BuildPendingApprovalsConditions());
         SendApprovalRequestResponseID2 := InsertResponseStep(Workflow, WorkflowResponseHandling.SendApprovalRequestForApprovalCode(),
             OnRequestApprovedEventID);
 
@@ -921,21 +922,21 @@ codeunit 1502 "Workflow Setup"
 
         OnRequestRejectedEventID := InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnRejectApprovalRequestCode(),
             SendApprovalRequestResponseID);
-        RejectAllApprovalsResponseID := InsertResponseStep(Workflow, WorkflowResponseHandling.RejectAllApprovalRequestsCode,
+        RejectAllApprovalsResponseID := InsertResponseStep(Workflow, WorkflowResponseHandling.RejectAllApprovalRequestsCode(),
             OnRequestRejectedEventID);
         InsertNotificationArgument(RejectAllApprovalsResponseID, true, '', WorkflowStepArgument."Link Target Page", '');
-        InsertResponseStep(Workflow, WorkflowResponseHandling.OpenDocumentCode, RejectAllApprovalsResponseID);
+        InsertResponseStep(Workflow, WorkflowResponseHandling.OpenDocumentCode(), RejectAllApprovalsResponseID);
 
         OnRequestCanceledEventID := InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnCancelSalesApprovalRequestCode(),
             SendApprovalRequestResponseID);
         InsertEventArgument(OnRequestCanceledEventID, DocCanceledConditionString);
-        CancelAllApprovalsResponseID := InsertResponseStep(Workflow, WorkflowResponseHandling.CancelAllApprovalRequestsCode,
+        CancelAllApprovalsResponseID := InsertResponseStep(Workflow, WorkflowResponseHandling.CancelAllApprovalRequestsCode(),
             OnRequestCanceledEventID);
         InsertNotificationArgument(CancelAllApprovalsResponseID, false, '', WorkflowStepArgument."Link Target Page", '');
         AllowRecordUsageResponseID :=
-          InsertResponseStep(Workflow, WorkflowResponseHandling.AllowRecordUsageCode, CancelAllApprovalsResponseID);
-        OpenDocumentResponseID := InsertResponseStep(Workflow, WorkflowResponseHandling.OpenDocumentCode, AllowRecordUsageResponseID);
-        ShowMessageResponseID := InsertResponseStep(Workflow, WorkflowResponseHandling.ShowMessageCode, OpenDocumentResponseID);
+          InsertResponseStep(Workflow, WorkflowResponseHandling.AllowRecordUsageCode(), CancelAllApprovalsResponseID);
+        OpenDocumentResponseID := InsertResponseStep(Workflow, WorkflowResponseHandling.OpenDocumentCode(), AllowRecordUsageResponseID);
+        ShowMessageResponseID := InsertResponseStep(Workflow, WorkflowResponseHandling.ShowMessageCode(), OpenDocumentResponseID);
         InsertMessageArgument(ShowMessageResponseID, ApprovalRequestCanceledMsg);
 
         OnRequestDelegatedEventID := InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnDelegateApprovalRequestCode(),
@@ -946,14 +947,14 @@ codeunit 1502 "Workflow Setup"
         SetNextStep(Workflow, SentApprovalRequestResponseID3, SendApprovalRequestResponseID);
 
         CustomerCreditLimitNotExceededEventID := InsertEventStep(Workflow,
-            WorkflowEventHandling.RunWorkflowOnCustomerCreditLimitNotExceededCode, CheckCustomerCreditLimitResponseID);
+            WorkflowEventHandling.RunWorkflowOnCustomerCreditLimitNotExceededCode(), CheckCustomerCreditLimitResponseID);
 
-        SetStatusToPendingApprovalResponseID2 := InsertResponseStep(Workflow, WorkflowResponseHandling.SetStatusToPendingApprovalCode,
+        SetStatusToPendingApprovalResponseID2 := InsertResponseStep(Workflow, WorkflowResponseHandling.SetStatusToPendingApprovalCode(),
             CustomerCreditLimitNotExceededEventID);
 
         CreateAndApproveApprovalRequestResponseID := InsertResponseStep(Workflow,
-            WorkflowResponseHandling.CreateAndApproveApprovalRequestAutomaticallyCode, SetStatusToPendingApprovalResponseID2);
-        InsertResponseStep(Workflow, WorkflowResponseHandling.ReleaseDocumentCode,
+            WorkflowResponseHandling.CreateAndApproveApprovalRequestAutomaticallyCode(), SetStatusToPendingApprovalResponseID2);
+        InsertResponseStep(Workflow, WorkflowResponseHandling.ReleaseDocumentCode(),
           CreateAndApproveApprovalRequestResponseID);
     end;
 
@@ -980,7 +981,7 @@ codeunit 1502 "Workflow Setup"
         OnSendOverdueNotificationsEventID: Integer;
     begin
         OnSendOverdueNotificationsEventID :=
-          InsertEntryPointEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnSendOverdueNotificationsCode);
+          InsertEntryPointEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnSendOverdueNotificationsCode());
         InsertResponseStep(Workflow, WorkflowResponseHandling.CreateOverdueNotificationCode(), OnSendOverdueNotificationsEventID);
     end;
 
@@ -1140,9 +1141,9 @@ codeunit 1502 "Workflow Setup"
             0, '', BlankDateFormula, false);
 
         InsertRecChangedApprovalWorkflowSteps(Workflow, WorkflowRule.Operator::Increased,
-          WorkflowEventHandling.RunWorkflowOnItemChangedCode,
-          WorkflowResponseHandling.CreateApprovalRequestsCode,
-          WorkflowResponseHandling.SendApprovalRequestForApprovalCode,
+          WorkflowEventHandling.RunWorkflowOnItemChangedCode(),
+          WorkflowResponseHandling.CreateApprovalRequestsCode(),
+          WorkflowResponseHandling.SendApprovalRequestForApprovalCode(),
           WorkflowStepArgument, DATABASE::Item, Item.FieldNo("Unit Price"),
           ItemUnitPriceChangeSentForAppTxt);
     end;
@@ -1367,9 +1368,9 @@ codeunit 1502 "Workflow Setup"
         SentForApprovalEventID := InsertEntryPointEventStep(Workflow, DocSendForApprovalEventCode);
         InsertEventArgument(SentForApprovalEventID, DocSendForApprovalConditionString);
 
-        RestrictRecordUsageResponseID := InsertResponseStep(Workflow, WorkflowResponseHandling.RestrictRecordUsageCode,
+        RestrictRecordUsageResponseID := InsertResponseStep(Workflow, WorkflowResponseHandling.RestrictRecordUsageCode(),
             SentForApprovalEventID);
-        SetStatusToPendingApprovalResponseID := InsertResponseStep(Workflow, WorkflowResponseHandling.SetStatusToPendingApprovalCode,
+        SetStatusToPendingApprovalResponseID := InsertResponseStep(Workflow, WorkflowResponseHandling.SetStatusToPendingApprovalCode(),
             RestrictRecordUsageResponseID);
         CreateApprovalRequestResponseID := InsertResponseStep(Workflow, WorkflowResponseHandling.CreateApprovalRequestsCode(),
             SetStatusToPendingApprovalResponseID);
@@ -1377,20 +1378,20 @@ codeunit 1502 "Workflow Setup"
           WorkflowStepArgument."Approver Type", WorkflowStepArgument."Approver Limit Type",
           WorkflowStepArgument."Workflow User Group Code", WorkflowStepArgument."Approver User ID",
           WorkflowStepArgument."Due Date Formula", ShowConfirmationMessage);
-        SendApprovalRequestResponseID := InsertResponseStep(Workflow, WorkflowResponseHandling.SendApprovalRequestForApprovalCode,
+        SendApprovalRequestResponseID := InsertResponseStep(Workflow, WorkflowResponseHandling.SendApprovalRequestForApprovalCode(),
             CreateApprovalRequestResponseID);
         InsertNotificationArgument(SendApprovalRequestResponseID, false, '', 0, '');
 
         OnAllRequestsApprovedEventID := InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnApproveApprovalRequestCode(),
             SendApprovalRequestResponseID);
-        InsertEventArgument(OnAllRequestsApprovedEventID, BuildNoPendingApprovalsConditions);
+        InsertEventArgument(OnAllRequestsApprovedEventID, BuildNoPendingApprovalsConditions());
         AllowRecordUsageResponseID :=
-          InsertResponseStep(Workflow, WorkflowResponseHandling.AllowRecordUsageCode, OnAllRequestsApprovedEventID);
-        InsertResponseStep(Workflow, WorkflowResponseHandling.ReleaseDocumentCode, AllowRecordUsageResponseID);
+          InsertResponseStep(Workflow, WorkflowResponseHandling.AllowRecordUsageCode(), OnAllRequestsApprovedEventID);
+        InsertResponseStep(Workflow, WorkflowResponseHandling.ReleaseDocumentCode(), AllowRecordUsageResponseID);
 
         OnRequestApprovedEventID := InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnApproveApprovalRequestCode(),
             SendApprovalRequestResponseID);
-        InsertEventArgument(OnRequestApprovedEventID, BuildPendingApprovalsConditions);
+        InsertEventArgument(OnRequestApprovedEventID, BuildPendingApprovalsConditions());
         SendApprovalRequestResponseID2 := InsertResponseStep(Workflow, WorkflowResponseHandling.SendApprovalRequestForApprovalCode(),
             OnRequestApprovedEventID);
 
@@ -1398,21 +1399,21 @@ codeunit 1502 "Workflow Setup"
 
         OnRequestRejectedEventID := InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnRejectApprovalRequestCode(),
             SendApprovalRequestResponseID);
-        RejectAllApprovalsResponseID := InsertResponseStep(Workflow, WorkflowResponseHandling.RejectAllApprovalRequestsCode,
+        RejectAllApprovalsResponseID := InsertResponseStep(Workflow, WorkflowResponseHandling.RejectAllApprovalRequestsCode(),
             OnRequestRejectedEventID);
         InsertNotificationArgument(RejectAllApprovalsResponseID, true, '', WorkflowStepArgument."Link Target Page", '');
-        InsertResponseStep(Workflow, WorkflowResponseHandling.OpenDocumentCode, RejectAllApprovalsResponseID);
+        InsertResponseStep(Workflow, WorkflowResponseHandling.OpenDocumentCode(), RejectAllApprovalsResponseID);
 
         OnRequestCanceledEventID := InsertEventStep(Workflow, DocCanceledEventCode,
             SendApprovalRequestResponseID);
         InsertEventArgument(OnRequestCanceledEventID, DocCanceledConditionString);
-        CancelAllApprovalsResponseID := InsertResponseStep(Workflow, WorkflowResponseHandling.CancelAllApprovalRequestsCode,
+        CancelAllApprovalsResponseID := InsertResponseStep(Workflow, WorkflowResponseHandling.CancelAllApprovalRequestsCode(),
             OnRequestCanceledEventID);
         InsertNotificationArgument(CancelAllApprovalsResponseID, false, '', WorkflowStepArgument."Link Target Page", '');
         AllowRecordUsageResponseID :=
-          InsertResponseStep(Workflow, WorkflowResponseHandling.AllowRecordUsageCode, CancelAllApprovalsResponseID);
-        OpenDocumentResponceID := InsertResponseStep(Workflow, WorkflowResponseHandling.OpenDocumentCode, AllowRecordUsageResponseID);
-        ShowMessageResponseID := InsertResponseStep(Workflow, WorkflowResponseHandling.ShowMessageCode, OpenDocumentResponceID);
+          InsertResponseStep(Workflow, WorkflowResponseHandling.AllowRecordUsageCode(), CancelAllApprovalsResponseID);
+        OpenDocumentResponceID := InsertResponseStep(Workflow, WorkflowResponseHandling.OpenDocumentCode(), AllowRecordUsageResponseID);
+        ShowMessageResponseID := InsertResponseStep(Workflow, WorkflowResponseHandling.ShowMessageCode(), OpenDocumentResponceID);
         InsertMessageArgument(ShowMessageResponseID, ApprovalRequestCanceledMsg);
 
         OnRequestDelegatedEventID := InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnDelegateApprovalRequestCode(),
@@ -1445,7 +1446,7 @@ codeunit 1502 "Workflow Setup"
         SentForApprovalEventID := InsertEntryPointEventStep(Workflow, RecSendForApprovalEventCode);
         InsertEventArgument(SentForApprovalEventID, ConditionString);
 
-        RestrictUsageResponseID := InsertResponseStep(Workflow, WorkflowResponseHandling.RestrictRecordUsageCode,
+        RestrictUsageResponseID := InsertResponseStep(Workflow, WorkflowResponseHandling.RestrictRecordUsageCode(),
             SentForApprovalEventID);
         CreateApprovalRequestResponseID := InsertResponseStep(Workflow, RecCreateApprovalRequestsCode,
             RestrictUsageResponseID);
@@ -1459,12 +1460,12 @@ codeunit 1502 "Workflow Setup"
 
         OnAllRequestsApprovedEventID := InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnApproveApprovalRequestCode(),
             SendApprovalRequestResponseID);
-        InsertEventArgument(OnAllRequestsApprovedEventID, BuildNoPendingApprovalsConditions);
-        InsertResponseStep(Workflow, WorkflowResponseHandling.AllowRecordUsageCode, OnAllRequestsApprovedEventID);
+        InsertEventArgument(OnAllRequestsApprovedEventID, BuildNoPendingApprovalsConditions());
+        InsertResponseStep(Workflow, WorkflowResponseHandling.AllowRecordUsageCode(), OnAllRequestsApprovedEventID);
 
         OnRequestApprovedEventID := InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnApproveApprovalRequestCode(),
             SendApprovalRequestResponseID);
-        InsertEventArgument(OnRequestApprovedEventID, BuildPendingApprovalsConditions);
+        InsertEventArgument(OnRequestApprovedEventID, BuildPendingApprovalsConditions());
         SendApprovalRequestResponseID2 := InsertResponseStep(Workflow, WorkflowResponseHandling.SendApprovalRequestForApprovalCode(),
             OnRequestApprovedEventID);
 
@@ -1472,23 +1473,23 @@ codeunit 1502 "Workflow Setup"
 
         OnRequestRejectedEventID := InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnRejectApprovalRequestCode(),
             SendApprovalRequestResponseID);
-        RejectAllApprovalsResponseID := InsertResponseStep(Workflow, WorkflowResponseHandling.RejectAllApprovalRequestsCode,
+        RejectAllApprovalsResponseID := InsertResponseStep(Workflow, WorkflowResponseHandling.RejectAllApprovalRequestsCode(),
             OnRequestRejectedEventID);
         InsertNotificationArgument(RejectAllApprovalsResponseID, true, '', WorkflowStepArgument."Link Target Page", '');
 
         OnRequestCanceledEventID := InsertEventStep(Workflow, RecCanceledEventCode, SendApprovalRequestResponseID);
-        CancelAllApprovalsResponseID := InsertResponseStep(Workflow, WorkflowResponseHandling.CancelAllApprovalRequestsCode,
+        CancelAllApprovalsResponseID := InsertResponseStep(Workflow, WorkflowResponseHandling.CancelAllApprovalRequestsCode(),
             OnRequestCanceledEventID);
         InsertNotificationArgument(CancelAllApprovalsResponseID, false, '', WorkflowStepArgument."Link Target Page", '');
 
         TempResponseResponseID := CancelAllApprovalsResponseID;
         if RemoveRestrictionOnCancel then begin
             AllowRecordUsageResponseID :=
-              InsertResponseStep(Workflow, WorkflowResponseHandling.AllowRecordUsageCode, CancelAllApprovalsResponseID);
+              InsertResponseStep(Workflow, WorkflowResponseHandling.AllowRecordUsageCode(), CancelAllApprovalsResponseID);
             TempResponseResponseID := AllowRecordUsageResponseID;
         end;
         if ShowConfirmationMessage then begin
-            ShowMessageResponseID := InsertResponseStep(Workflow, WorkflowResponseHandling.ShowMessageCode, TempResponseResponseID);
+            ShowMessageResponseID := InsertResponseStep(Workflow, WorkflowResponseHandling.ShowMessageCode(), TempResponseResponseID);
             InsertMessageArgument(ShowMessageResponseID, ApprovalRequestCanceledMsg);
         end;
 
@@ -1520,7 +1521,7 @@ codeunit 1502 "Workflow Setup"
         CustomerChangedEventID := InsertEntryPointEventStep(Workflow, RecChangedEventCode);
         InsertEventRule(CustomerChangedEventID, FieldNo, RuleOperator);
 
-        RevertFieldResponseID := InsertResponseStep(Workflow, WorkflowResponseHandling.RevertValueForFieldCode,
+        RevertFieldResponseID := InsertResponseStep(Workflow, WorkflowResponseHandling.RevertValueForFieldCode(),
             CustomerChangedEventID);
         InsertChangeRecValueArgument(RevertFieldResponseID, TableNo, FieldNo);
         CreateApprovalRequestResponseID := InsertResponseStep(Workflow, RecCreateApprovalRequestsCode,
@@ -1532,20 +1533,20 @@ codeunit 1502 "Workflow Setup"
         SendApprovalRequestResponseID := InsertResponseStep(Workflow, RecSendApprovalRequestForApprovalCode,
             CreateApprovalRequestResponseID);
         InsertNotificationArgument(SendApprovalRequestResponseID, false, '', 0, '');
-        ShowMessageResponseID := InsertResponseStep(Workflow, WorkflowResponseHandling.ShowMessageCode,
+        ShowMessageResponseID := InsertResponseStep(Workflow, WorkflowResponseHandling.ShowMessageCode(),
             SendApprovalRequestResponseID);
         InsertMessageArgument(ShowMessageResponseID, CopyStr(RecordChangeApprovalMsg, 1, 250));
 
         OnAllRequestsApprovedEventID := InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnApproveApprovalRequestCode(),
             ShowMessageResponseID);
-        InsertEventArgument(OnAllRequestsApprovedEventID, BuildNoPendingApprovalsConditions);
-        ApplyNewValuesResponseID := InsertResponseStep(Workflow, WorkflowResponseHandling.ApplyNewValuesCode,
+        InsertEventArgument(OnAllRequestsApprovedEventID, BuildNoPendingApprovalsConditions());
+        ApplyNewValuesResponseID := InsertResponseStep(Workflow, WorkflowResponseHandling.ApplyNewValuesCode(),
             OnAllRequestsApprovedEventID);
         InsertChangeRecValueArgument(ApplyNewValuesResponseID, TableNo, FieldNo);
 
         OnRequestApprovedEventID := InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnApproveApprovalRequestCode(),
             ShowMessageResponseID);
-        InsertEventArgument(OnRequestApprovedEventID, BuildPendingApprovalsConditions);
+        InsertEventArgument(OnRequestApprovedEventID, BuildPendingApprovalsConditions());
         SendApprovalRequestResponseID2 := InsertResponseStep(Workflow, WorkflowResponseHandling.SendApprovalRequestForApprovalCode(),
             OnRequestApprovedEventID);
 
@@ -1553,9 +1554,9 @@ codeunit 1502 "Workflow Setup"
 
         OnRequestRejectedEventID := InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnRejectApprovalRequestCode(),
             ShowMessageResponseID);
-        DiscardNewValuesResponseID := InsertResponseStep(Workflow, WorkflowResponseHandling.DiscardNewValuesCode,
+        DiscardNewValuesResponseID := InsertResponseStep(Workflow, WorkflowResponseHandling.DiscardNewValuesCode(),
             OnRequestRejectedEventID);
-        RejectAllApprovalsResponseID := InsertResponseStep(Workflow, WorkflowResponseHandling.RejectAllApprovalRequestsCode,
+        RejectAllApprovalsResponseID := InsertResponseStep(Workflow, WorkflowResponseHandling.RejectAllApprovalRequestsCode(),
             DiscardNewValuesResponseID);
         InsertNotificationArgument(RejectAllApprovalsResponseID, true, '', WorkflowStepArgument."Link Target Page", '');
 
@@ -1590,13 +1591,13 @@ codeunit 1502 "Workflow Setup"
         SentForApprovalEventID := InsertEntryPointEventStep(Workflow, RecSendForApprovalEventCode);
         InsertEventArgument(SentForApprovalEventID, ConditionString);
 
-        CheckBatchBalanceResponseID := InsertResponseStep(Workflow, WorkflowResponseHandling.CheckGeneralJournalBatchBalanceCode,
+        CheckBatchBalanceResponseID := InsertResponseStep(Workflow, WorkflowResponseHandling.CheckGeneralJournalBatchBalanceCode(),
             SentForApprovalEventID);
 
-        OnBatchIsBalancedEventID := InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnGeneralJournalBatchBalancedCode,
+        OnBatchIsBalancedEventID := InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnGeneralJournalBatchBalancedCode(),
             CheckBatchBalanceResponseID);
 
-        RestrictUsageResponseID := InsertResponseStep(Workflow, WorkflowResponseHandling.RestrictRecordUsageCode,
+        RestrictUsageResponseID := InsertResponseStep(Workflow, WorkflowResponseHandling.RestrictRecordUsageCode(),
             OnBatchIsBalancedEventID);
         CreateApprovalRequestResponseID := InsertResponseStep(Workflow, RecCreateApprovalRequestsCode,
             RestrictUsageResponseID);
@@ -1610,12 +1611,12 @@ codeunit 1502 "Workflow Setup"
 
         OnAllRequestsApprovedEventID := InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnApproveApprovalRequestCode(),
             SendApprovalRequestResponseID);
-        InsertEventArgument(OnAllRequestsApprovedEventID, BuildNoPendingApprovalsConditions);
-        InsertResponseStep(Workflow, WorkflowResponseHandling.AllowRecordUsageCode, OnAllRequestsApprovedEventID);
+        InsertEventArgument(OnAllRequestsApprovedEventID, BuildNoPendingApprovalsConditions());
+        InsertResponseStep(Workflow, WorkflowResponseHandling.AllowRecordUsageCode(), OnAllRequestsApprovedEventID);
 
         OnRequestApprovedEventID := InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnApproveApprovalRequestCode(),
             SendApprovalRequestResponseID);
-        InsertEventArgument(OnRequestApprovedEventID, BuildPendingApprovalsConditions);
+        InsertEventArgument(OnRequestApprovedEventID, BuildPendingApprovalsConditions());
         SendApprovalRequestResponseID2 := InsertResponseStep(Workflow, WorkflowResponseHandling.SendApprovalRequestForApprovalCode(),
             OnRequestApprovedEventID);
 
@@ -1623,15 +1624,15 @@ codeunit 1502 "Workflow Setup"
 
         OnRequestRejectedEventID := InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnRejectApprovalRequestCode(),
             SendApprovalRequestResponseID);
-        RejectAllApprovalsResponseID := InsertResponseStep(Workflow, WorkflowResponseHandling.RejectAllApprovalRequestsCode,
+        RejectAllApprovalsResponseID := InsertResponseStep(Workflow, WorkflowResponseHandling.RejectAllApprovalRequestsCode(),
             OnRequestRejectedEventID);
         InsertNotificationArgument(RejectAllApprovalsResponseID, true, '', WorkflowStepArgument."Link Target Page", '');
 
         OnRequestCanceledEventID := InsertEventStep(Workflow, RecCanceledEventCode, SendApprovalRequestResponseID);
-        CancelAllApprovalsResponseID := InsertResponseStep(Workflow, WorkflowResponseHandling.CancelAllApprovalRequestsCode,
+        CancelAllApprovalsResponseID := InsertResponseStep(Workflow, WorkflowResponseHandling.CancelAllApprovalRequestsCode(),
             OnRequestCanceledEventID);
         InsertNotificationArgument(CancelAllApprovalsResponseID, false, '', WorkflowStepArgument."Link Target Page", '');
-        ShowMessageResponseID := InsertResponseStep(Workflow, WorkflowResponseHandling.ShowMessageCode, CancelAllApprovalsResponseID);
+        ShowMessageResponseID := InsertResponseStep(Workflow, WorkflowResponseHandling.ShowMessageCode(), CancelAllApprovalsResponseID);
         InsertMessageArgument(ShowMessageResponseID, ApprovalRequestCanceledMsg);
 
         OnRequestDelegatedEventID := InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnDelegateApprovalRequestCode(),
@@ -1641,22 +1642,12 @@ codeunit 1502 "Workflow Setup"
 
         SetNextStep(Workflow, SentApprovalRequestResponseID3, SendApprovalRequestResponseID);
 
-        OnBatchIsNotBalancedEventID := InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnGeneralJournalBatchNotBalancedCode,
+        OnBatchIsNotBalancedEventID := InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnGeneralJournalBatchNotBalancedCode(),
             CheckBatchBalanceResponseID);
 
-        ShowMessageResponseID := InsertResponseStep(Workflow, WorkflowResponseHandling.ShowMessageCode, OnBatchIsNotBalancedEventID);
+        ShowMessageResponseID := InsertResponseStep(Workflow, WorkflowResponseHandling.ShowMessageCode(), OnBatchIsNotBalancedEventID);
         InsertMessageArgument(ShowMessageResponseID, GeneralJournalBatchIsNotBalancedMsg);
     end;
-
-#if not CLEAN18
-    [Obsolete('Replaced by InsertGenJnlLineApprovalWorkflowSteps().', '18.0')]
-    procedure InsertGenJnlLineApprovalWorkflow(var Workflow: Record Workflow; EventConditions: Text; ApproverType: Option; LimitType: Option; WorkflowUserGroupCode: Code[20]; SpecificApprover: Code[50]; DueDateFormula: DateFormula)
-    begin
-        InsertGenJnlLineApprovalWorkflowSteps(
-            Workflow, EventConditions, "Workflow Approver Type".FromInteger(ApproverType),
-            "Workflow Approver Limit Type".FromInteger(LimitType), WorkflowUserGroupCode, SpecificApprover, DueDateFormula);
-    end;
-#endif
 
     procedure InsertGenJnlLineApprovalWorkflowSteps(var Workflow: Record Workflow; EventConditions: Text; ApproverType: Enum "Workflow Approver Type"; LimitType: Enum "Workflow Approver Limit Type"; WorkflowUserGroupCode: Code[20]; SpecificApprover: Code[50]; DueDateFormula: DateFormula)
     var
@@ -1673,16 +1664,6 @@ codeunit 1502 "Workflow Setup"
           WorkflowStepArgument,
           false, false);
     end;
-
-#if not CLEAN18
-    [Obsolete('Replaced by InsertPurchaseDocumentApprovalWorkflowSteps().', '18.0')]
-    procedure InsertPurchaseDocumentApprovalWorkflow(var Workflow: Record Workflow; DocumentType: Option; ApproverType: Option; LimitType: Option; WorkflowUserGroupCode: Code[20]; DueDateFormula: DateFormula)
-    begin
-        InsertPurchaseDocumentApprovalWorkflowSteps(
-            Workflow, "Purchase Document Type".FromInteger(DocumentType), "Workflow Approver Type".FromInteger(ApproverType),
-            "Workflow Approver Limit Type".FromInteger(LimitType), WorkflowUserGroupCode, DueDateFormula);
-    end;
-#endif
 
     procedure InsertPurchaseDocumentApprovalWorkflowSteps(var Workflow: Record Workflow; DocumentType: Enum "Purchase Document Type"; ApproverType: Enum "Workflow Approver Type"; LimitType: Enum "Workflow Approver Limit Type"; WorkflowUserGroupCode: Code[20]; DueDateFormula: DateFormula)
     var
@@ -1724,16 +1705,6 @@ codeunit 1502 "Workflow Setup"
             WorkflowEventHandling.RunWorkflowOnCancelPurchaseApprovalRequestCode(),
             WorkflowStepArgument, true);
     end;
-
-#if not CLEAN18
-    [Obsolete('Replaced by InsertSalesDocumentApprovalWorkflowSteps().', '18.0')]
-    procedure InsertSalesDocumentApprovalWorkflow(var Workflow: Record Workflow; DocumentType: Option; ApproverType: Option; LimitType: Option; WorkflowUserGroupCode: Code[20]; DueDateFormula: DateFormula)
-    begin
-        InsertSalesDocumentApprovalWorkflowSteps(
-            Workflow, "Sales Document Type".FromInteger(DocumentType), "Workflow Approver Type".FromInteger(ApproverType),
-            "Workflow Approver Limit Type".FromInteger(LimitType), WorkflowUserGroupCode, DueDateFormula);
-    end;
-#endif
 
     procedure InsertSalesDocumentApprovalWorkflowSteps(var Workflow: Record Workflow; DocumentType: Enum "Sales Document Type"; ApproverType: Enum "Workflow Approver Type"; LimitType: Enum "Workflow Approver Limit Type"; WorkflowUserGroupCode: Code[20]; DueDateFormula: DateFormula)
     var
@@ -1777,15 +1748,6 @@ codeunit 1502 "Workflow Setup"
             WorkflowStepArgument, true);
     end;
 
-#if not CLEAN18
-    [Obsolete('Replaced by InsertSalesDocumentCreditLimitApprovalWorkflowSteps().', '18.0')]
-    procedure InsertSalesDocumentCreditLimitApprovalWorkflow(var Workflow: Record Workflow; DocumentType: Option; ApproverType: Option; LimitType: Option; WorkflowUserGroupCode: Code[20]; DueDateFormula: DateFormula)
-    begin
-        InsertSalesDocumentCreditLimitApprovalWorkflowSteps(
-            Workflow, "Sales Document Type".FromInteger(DocumentType), "Workflow Approver Type".FromInteger(ApproverType),
-            "Workflow Approver Limit Type".FromInteger(LimitType), WorkflowUserGroupCode, DueDateFormula);
-    end;
-#endif
 
     procedure InsertSalesDocumentCreditLimitApprovalWorkflowSteps(var Workflow: Record Workflow; DocumentType: Enum "Sales Document Type"; ApproverType: Enum "Workflow Approver Type"; LimitType: Enum "Workflow Approver Limit Type"; WorkflowUserGroupCode: Code[20]; DueDateFormula: DateFormula)
     var
@@ -2037,7 +1999,7 @@ codeunit 1502 "Workflow Setup"
 
     procedure GetWorkflowTemplateCode(WorkflowCode: Code[17]): Code[20]
     begin
-        exit(GetWorkflowTemplateToken + WorkflowCode);
+        exit(GetWorkflowTemplateToken() + WorkflowCode);
     end;
 
     procedure GetWorkflowTemplateToken(): Code[3]
@@ -2140,14 +2102,6 @@ codeunit 1502 "Workflow Setup"
             IncomingDocumentTypeCondnTxt, Encode(IncomingDocument.GetView(false)), Encode(IncomingDocumentAttachment.GetView(false))));
     end;
 
-#if not CLEAN18
-    [Obsolete('Replaced by BuildPurchHeaderTypeConditionsText().', '18.0')]
-    procedure BuildPurchHeaderTypeConditions(DocumentType: Option; Status: Option): Text
-    begin
-        exit(BuildPurchHeaderTypeConditionsText("Purchase Document Type".FromInteger(DocumentType), "Purchase Document Status".FromInteger(Status)));
-    end;
-#endif
-
     procedure BuildPurchHeaderTypeConditionsText(DocumentType: Enum "Purchase Document Type"; Status: Enum "Purchase Document Status"): Text
     var
         PurchaseHeader: Record "Purchase Header";
@@ -2157,14 +2111,6 @@ codeunit 1502 "Workflow Setup"
         PurchaseHeader.SetRange(Status, Status);
         exit(StrSubstNo(PurchHeaderTypeCondnTxt, Encode(PurchaseHeader.GetView(false)), Encode(PurchaseLine.GetView(false))));
     end;
-
-#if not CLEAN18
-    [Obsolete('Replaced by BuildSalesHeaderTypeConditionsText().', '18.0')]
-    procedure BuildSalesHeaderTypeConditions(DocumentType: Option; Status: Option): Text
-    begin
-        exit(BuildSalesHeaderTypeConditionsText("Sales Document Type".FromInteger(DocumentType), "Sales Document Status".FromInteger(Status)));
-    end;
-#endif
 
     procedure BuildSalesHeaderTypeConditionsText(DocumentType: Enum "Sales Document Type"; Status: Enum "Sales Document Status"): Text
     var
@@ -2218,7 +2164,7 @@ codeunit 1502 "Workflow Setup"
     var
         JobQueueEntry: Record "Job Queue Entry";
     begin
-        if TASKSCHEDULER.CanCreateTask then
+        if TASKSCHEDULER.CanCreateTask() then
             CreateJobQueueEntry(
               JobQueueEntry."Object Type to Run"::Report,
               REPORT::"Delegate Approval Requests",

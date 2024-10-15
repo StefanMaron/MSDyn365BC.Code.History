@@ -13,28 +13,28 @@ page 541 "Account Type Default Dim."
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Table ID"; "Table ID")
+                field("Table ID"; Rec."Table ID")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies a table ID for the account type if you are specifying default dimensions for an entire account type.';
 
                     trigger OnValidate()
                     begin
-                        TableIDOnAfterValidate;
+                        TableIDOnAfterValidate();
                     end;
                 }
-                field("Table Caption"; "Table Caption")
+                field("Table Caption"; Rec."Table Caption")
                 {
                     ApplicationArea = Dimensions;
                     DrillDown = false;
                     ToolTip = 'Specifies the table name for the account type you wish to define a default dimension for.';
                 }
-                field("Dimension Value Code"; "Dimension Value Code")
+                field("Dimension Value Code"; Rec."Dimension Value Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the dimension value code to suggest as the default dimension.';
                 }
-                field("Value Posting"; "Value Posting")
+                field("Value Posting"; Rec."Value Posting")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies how default dimensions and their values must be used.';
@@ -53,7 +53,7 @@ page 541 "Account Type Default Dim."
                         CurrPage.Update();
                     end;
                 }
-                field("Automatic Create"; "Automatic Create")
+                field("Automatic Create"; Rec."Automatic Create")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies if a value will be created automatic';
@@ -62,7 +62,7 @@ page 541 "Account Type Default Dim."
                     ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
                     ObsoleteTag = '19.0';
                 }
-                field("Dimension Description Field ID"; "Dimension Description Field ID")
+                field("Dimension Description Field ID"; Rec."Dimension Description Field ID")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the id of dimension description field';
@@ -71,7 +71,7 @@ page 541 "Account Type Default Dim."
                     ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
                     ObsoleteTag = '19.0';
                 }
-                field("Dimension Description Update"; "Dimension Description Update")
+                field("Dimension Description Update"; Rec."Dimension Description Update")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the rule for dimension description update';
@@ -80,7 +80,7 @@ page 541 "Account Type Default Dim."
                     ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
                     ObsoleteTag = '19.0';
                 }
-                field("Dimension Description Format"; "Dimension Description Format")
+                field("Dimension Description Format"; Rec."Dimension Description Format")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies a description format for the dimension';
@@ -89,7 +89,7 @@ page 541 "Account Type Default Dim."
                     ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
                     ObsoleteTag = '19.0';
                 }
-                field("Automatic Cr. Value Posting"; "Automatic Cr. Value Posting")
+                field("Automatic Cr. Value Posting"; Rec."Automatic Cr. Value Posting")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies rule for automatic create';

@@ -1,10 +1,9 @@
-#if not CLEAN18
 report 5610 "Fixed Asset - G/L Analysis"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './FixedAssetGLAnalysis.rdlc';
     ApplicationArea = FixedAssets;
-    Caption = 'Fixed Asset G/L Analysis (Obsolete)';
+    Caption = 'Fixed Asset G/L Analysis';
     UsageCategory = ReportsAndAnalysis;
 
     dataset
@@ -12,7 +11,7 @@ report 5610 "Fixed Asset - G/L Analysis"
         dataitem("Fixed Asset"; "Fixed Asset")
         {
             RequestFilterFields = "No.", "FA Class Code", "FA Subclass Code", "Budgeted Asset";
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(TodayFormatted; Format(Today, 0, 4))
@@ -131,17 +130,12 @@ report 5610 "Fixed Asset - G/L Analysis"
             begin
                 if not FADeprBook.Get("No.", DeprBookCode) then
                     CurrReport.Skip();
-                if SkipRecord then
+                if SkipRecord() then
                     CurrReport.Skip();
 
                 if GroupTotals = GroupTotals::"FA Posting Group" then
                     if "FA Posting Group" <> FADeprBook."FA Posting Group" then
                         Error(Text005, FieldCaption("FA Posting Group"), "No.");
-                // NAVCZ
-                if GroupTotals = GroupTotals::"Tax Depreciation Group Code" then
-                    if "Tax Depreciation Group Code" <> FADeprBook."Depreciation Group Code" then
-                        Error(Text005, FieldCaption("Tax Depreciation Group Code"), "No.");
-                // NAVCZ
 
                 Date[1] :=
                   FAGenReport.GetLastDate(
@@ -165,7 +159,7 @@ report 5610 "Fixed Asset - G/L Analysis"
                     CurrReport.Skip();
                 for i := 1 to 3 do
                     GroupAmounts[i] := 0;
-                MakeGroupHeadLine;
+                MakeGroupHeadLine();
             end;
 
             trigger OnPreDataItem()
@@ -185,22 +179,18 @@ report 5610 "Fixed Asset - G/L Analysis"
                         SetCurrentKey("Global Dimension 2 Code");
                     GroupTotals::"FA Posting Group":
                         SetCurrentKey("FA Posting Group");
-                    // NAVCZ
-                    GroupTotals::"Tax Depreciation Group Code":
-                        SetCurrentKey("Tax Depreciation Group Code");
-                // NAVCZ
                 end;
 
-                FAPostingType.CreateTypes;
-                FADateType.CreateTypes;
+                FAPostingType.CreateTypes();
+                FADateType.CreateTypes();
                 CheckDateType(DateType1, DateTypeNo1);
                 CheckDateType(DateType2, DateTypeNo2);
                 CheckPostingType(PostingType1, PostingTypeNo1);
                 CheckPostingType(PostingType2, PostingTypeNo2);
                 CheckPostingType(PostingType3, PostingTypeNo3);
-                MakeGroupTotalText;
+                MakeGroupTotalText();
                 FAGenReport.ValidateDates(StartingDate, EndingDate);
-                MakeDateHeadLine;
+                MakeDateHeadLine();
                 MakeAmountHeadLine(3, PostingType1, PostingTypeNo1, Period1);
                 MakeAmountHeadLine(4, PostingType2, PostingTypeNo2, Period2);
                 MakeAmountHeadLine(5, PostingType3, PostingTypeNo3, Period3);
@@ -298,7 +288,7 @@ report 5610 "Fixed Asset - G/L Analysis"
                     {
                         ApplicationArea = FixedAssets;
                         Caption = 'Group Totals';
-                        OptionCaption = ' ,FA Class,FA Subclass,FA Location,Main Asset,Global Dimension 1,Global Dimension 2,FA Posting Group,Tax Depreciation Group Code';
+                        OptionCaption = ' ,FA Class,FA Subclass,FA Location,Main Asset,Global Dimension 1,Global Dimension 2,FA Posting Group';
                         ToolTip = 'Specifies a group type if you want the report to group the fixed assets and print group totals. For example, if you have set up six FA classes, then select the FA Class option to have group totals printed for each of the six class codes. Select to see the available options. If you do not want group totals to be printed, select the blank option.';
                     }
                     field(PrintperFixedAsset; PrintDetails)
@@ -323,7 +313,7 @@ report 5610 "Fixed Asset - G/L Analysis"
 
         trigger OnOpenPage()
         begin
-            GetFASetup;
+            GetFASetup();
         end;
     }
 
@@ -334,16 +324,13 @@ report 5610 "Fixed Asset - G/L Analysis"
     trigger OnPreReport()
     begin
         DeprBook.Get(DeprBookCode);
-        FAFilter := "Fixed Asset".GetFilters;
+        FAFilter := "Fixed Asset".GetFilters();
 
         if GroupTotals = GroupTotals::"FA Posting Group" then
             FAGenReport.SetFAPostingGroup("Fixed Asset", DeprBook.Code);
-        // NAVCZ
-        if GroupTotals = GroupTotals::"Tax Depreciation Group Code" then
-            FAGenReport.SetFATaxDeprGroup("Fixed Asset", DeprBook.Code);
-        // NAVCZ
+
         FAGenReport.AppendPostingDateFilter(FAFilter, StartingDate, EndingDate);
-        DeprBookText := StrSubstNo('%1%2 %3', DeprBook.TableCaption, ':', DeprBookCode);
+        DeprBookText := StrSubstNo('%1%2 %3', DeprBook.TableCaption(), ':', DeprBookCode);
         if PrintDetails then begin
             FANo := "Fixed Asset".FieldCaption("No.");
             FADescription := "Fixed Asset".FieldCaption(Description);
@@ -351,12 +338,6 @@ report 5610 "Fixed Asset - G/L Analysis"
     end;
 
     var
-        Text000: Label 'Group Total';
-        Text001: Label 'Group Totals';
-        Text002: Label '%1 must be specified only together with the types %2, %3, %4 or %5.';
-        Text003: Label 'The date type %1 is not a valid option.';
-        Text004: Label 'The posting type %1 is not a valid option.';
-        Text005: Label '%1 has been modified in fixed asset %2.';
         FASetup: Record "FA Setup";
         DeprBook: Record "Depreciation Book";
         FADeprBook: Record "FA Depreciation Book";
@@ -369,7 +350,7 @@ report 5610 "Fixed Asset - G/L Analysis"
         GroupHeadLine: Text[50];
         FANo: Text[50];
         FADescription: Text[100];
-        GroupTotals: Option " ","FA Class","FA Subclass","FA Location","Main Asset","Global Dimension 1","Global Dimension 2","FA Posting Group","Tax Depreciation Group Code";
+        GroupTotals: Option " ","FA Class","FA Subclass","FA Location","Main Asset","Global Dimension 1","Global Dimension 2","FA Posting Group";
         GroupAmounts: array[3] of Decimal;
         TotalAmounts: array[3] of Decimal;
         HeadLineText: array[5] of Text[50];
@@ -395,6 +376,13 @@ report 5610 "Fixed Asset - G/L Analysis"
         PrintDetails: Boolean;
         SalesReport: Boolean;
         TypeExist: Boolean;
+
+        Text000: Label 'Group Total';
+        Text001: Label 'Group Totals';
+        Text002: Label '%1 must be specified only together with the types %2, %3, %4 or %5.';
+        Text003: Label 'The date type %1 is not a valid option.';
+        Text004: Label 'The posting type %1 is not a valid option.';
+        Text005: Label '%1 has been modified in fixed asset %2.';
         Text006: Label ' ,FA Class,FA Subclass,FA Location,Main Asset,Global Dimension 1,Global Dimension 2,FA Posting Group';
         CurrReportPageNoCaptionLbl: Label 'Page';
         FixedAssetGLAnalysisCptnLbl: Label 'Fixed Asset - G/L Analysis';
@@ -425,10 +413,6 @@ report 5610 "Fixed Asset - G/L Analysis"
                 GroupCodeName := "Fixed Asset".FieldCaption("Global Dimension 2 Code");
             GroupTotals::"FA Posting Group":
                 GroupCodeName := "Fixed Asset".FieldCaption("FA Posting Group");
-            // NAVCZ
-            GroupTotals::"Tax Depreciation Group Code":
-                GroupCodeName := "Fixed Asset".FieldCaption("Tax Depreciation Group Code");
-        // NAVCZ
         end;
         if GroupCodeName <> '' then
             GroupCodeName := StrSubstNo('%1%2 %3', Text001, ': ', GroupCodeName);
@@ -494,10 +478,6 @@ report 5610 "Fixed Asset - G/L Analysis"
                     GroupHeadLine := "Global Dimension 2 Code";
                 GroupTotals::"FA Posting Group":
                     GroupHeadLine := "FA Posting Group";
-                // NAVCZ
-                GroupTotals::"Tax Depreciation Group Code":
-                    GroupHeadLine := "Tax Depreciation Group Code";
-            // NAVCZ
             end;
         if GroupHeadLine = '' then
             GroupHeadLine := '*****';
@@ -580,8 +560,8 @@ report 5610 "Fixed Asset - G/L Analysis"
             FASetup.Get();
             DeprBookCode := FASetup."Default Depr. Book";
         end;
-        FAPostingType.CreateTypes;
-        FADateType.CreateTypes;
+        FAPostingType.CreateTypes();
+        FADateType.CreateTypes();
     end;
 }
-#endif
+

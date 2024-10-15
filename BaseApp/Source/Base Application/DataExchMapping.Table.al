@@ -14,7 +14,7 @@ table 1224 "Data Exch. Mapping"
         {
             Caption = 'Table ID';
             NotBlank = true;
-            TableRelation = AllObjWithCaption."Object ID" WHERE("Object Type" = CONST(Table));
+            TableRelation = AllObjWithCaption."Object ID" where("Object Type" = const(Table));
         }
         field(3; Name; Text[250])
         {
@@ -23,39 +23,51 @@ table 1224 "Data Exch. Mapping"
         field(4; "Mapping Codeunit"; Integer)
         {
             Caption = 'Mapping Codeunit';
-            TableRelation = AllObjWithCaption."Object ID" WHERE("Object Type" = CONST(Codeunit));
+            TableRelation = AllObjWithCaption."Object ID" where("Object Type" = const(Codeunit));
         }
         field(6; "Data Exch. No. Field ID"; Integer)
         {
             Caption = 'Data Exch. No. Field ID';
             Description = 'The ID of the field in the target table that contains the Data Exchange No..';
-            TableRelation = Field."No." WHERE(TableNo = FIELD("Table ID"));
+            TableRelation = Field."No." where(TableNo = field("Table ID"));
         }
         field(7; "Data Exch. Line Field ID"; Integer)
         {
             Caption = 'Data Exch. Line Field ID';
             Description = 'The ID of the field in the target table that contains the Data Exchange Line No..';
-            TableRelation = Field."No." WHERE(TableNo = FIELD("Table ID"));
+            TableRelation = Field."No." where(TableNo = field("Table ID"));
         }
         field(8; "Data Exch. Line Def Code"; Code[20])
         {
             Caption = 'Data Exch. Line Def Code';
             NotBlank = true;
-            TableRelation = "Data Exch. Line Def".Code WHERE("Data Exch. Def Code" = FIELD("Data Exch. Def Code"));
+            TableRelation = "Data Exch. Line Def".Code where("Data Exch. Def Code" = field("Data Exch. Def Code"));
         }
         field(9; "Pre-Mapping Codeunit"; Integer)
         {
             Caption = 'Pre-Mapping Codeunit';
-            TableRelation = AllObjWithCaption."Object ID" WHERE("Object Type" = CONST(Codeunit));
+            TableRelation = AllObjWithCaption."Object ID" where("Object Type" = const(Codeunit));
         }
         field(10; "Post-Mapping Codeunit"; Integer)
         {
             Caption = 'Post-Mapping Codeunit';
-            TableRelation = AllObjWithCaption."Object ID" WHERE("Object Type" = CONST(Codeunit));
+            TableRelation = AllObjWithCaption."Object ID" where("Object Type" = const(Codeunit));
         }
         field(20; "Use as Intermediate Table"; Boolean)
         {
             Caption = 'Use as Intermediate Table';
+        }
+        field(21; "Key Index"; Integer)
+        {
+            Caption = 'Key Index';
+            TableRelation = Key."No." where(TableNo = field("Table ID"));
+        }
+        field(22; "Key"; Text[250])
+        {
+            Caption = 'Key';
+            FieldClass = FlowField;
+            CalcFormula = lookup(Key.Key where(TableNo = field("Table ID"), "No." = field("Key Index")));
+            Editable = false;
         }
     }
 
@@ -72,16 +84,23 @@ table 1224 "Data Exch. Mapping"
     }
 
     trigger OnDelete()
+    var
+        DataExchFieldGrouping: Record "Data Exch. Field Grouping";
     begin
         DataExchFieldMapping.SetRange("Data Exch. Def Code", "Data Exch. Def Code");
         DataExchFieldMapping.SetRange("Table ID", "Table ID");
         DataExchFieldMapping.SetRange("Data Exch. Line Def Code", "Data Exch. Line Def Code");
         DataExchFieldMapping.DeleteAll();
+
+        DataExchFieldGrouping.SetRange("Data Exch. Def Code", "Data Exch. Def Code");
+        DataExchFieldGrouping.SetRange("Table ID", "Table ID");
+        DataExchFieldGrouping.SetRange("Data Exch. Line Def Code", "Data Exch. Line Def Code");
+        DataExchFieldGrouping.DeleteAll();
     end;
 
     trigger OnRename()
     begin
-        if HasFieldMappings then
+        if HasFieldMappings() then
             Error(RenameErr);
     end;
 
@@ -92,7 +111,7 @@ table 1224 "Data Exch. Mapping"
 
     procedure InsertRec(DataExchDefCode: Code[20]; DataExchLineDefCode: Code[20]; TableId: Integer; NewName: Text[250]; MappingCodeunit: Integer; DataExchNoFieldId: Integer; DataExchLineFieldId: Integer)
     begin
-        Init;
+        Init();
         Validate("Data Exch. Def Code", DataExchDefCode);
         Validate("Data Exch. Line Def Code", DataExchLineDefCode);
         Validate("Table ID", TableId);
@@ -100,30 +119,30 @@ table 1224 "Data Exch. Mapping"
         Validate("Mapping Codeunit", MappingCodeunit);
         Validate("Data Exch. No. Field ID", DataExchNoFieldId);
         Validate("Data Exch. Line Field ID", DataExchLineFieldId);
-        Insert;
+        Insert();
     end;
 
     procedure InsertRecForExport(DataExchDefCode: Code[20]; DataExchLineDefCode: Code[20]; TableId: Integer; NewName: Text[250]; ProcessingCodeunit: Integer)
     begin
-        Init;
+        Init();
         Validate("Data Exch. Def Code", DataExchDefCode);
         Validate("Data Exch. Line Def Code", DataExchLineDefCode);
         Validate("Table ID", TableId);
         Validate(Name, NewName);
         Validate("Mapping Codeunit", ProcessingCodeunit);
-        Insert;
+        Insert();
     end;
 
     procedure InsertRecForImport(DataExchDefCode: Code[20]; DataExchLineDefCode: Code[20]; TableId: Integer; NewName: Text[250]; DataExchNoFieldId: Integer; DataExchLineFieldId: Integer)
     begin
-        Init;
+        Init();
         Validate("Data Exch. Def Code", DataExchDefCode);
         Validate("Data Exch. Line Def Code", DataExchLineDefCode);
         Validate("Table ID", TableId);
         Validate(Name, NewName);
         Validate("Data Exch. No. Field ID", DataExchNoFieldId);
         Validate("Data Exch. Line Field ID", DataExchLineFieldId);
-        Insert;
+        Insert();
     end;
 
     procedure CreateDataExchMapping(TableID: Integer; CodeunitID: Integer; DataExchNoFieldID: Integer; DataExchLineFieldID: Integer)
@@ -191,4 +210,3 @@ table 1224 "Data Exch. Mapping"
         exit(false);
     end;
 }
-

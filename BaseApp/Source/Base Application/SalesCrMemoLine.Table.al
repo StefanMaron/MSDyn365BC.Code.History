@@ -575,26 +575,18 @@ table 115 "Sales Cr.Memo Line"
         {
             Caption = 'Reason Code';
             TableRelation = "Reason Code";
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
-            ObsoleteTag = '15.3';
+            ObsoleteTag = '21.0';
         }
         field(11764; "VAT Difference (LCY)"; Decimal)
         {
             AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             Caption = 'VAT Difference (LCY)';
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(31061; "Tariff No."; Code[20])
         {
@@ -615,13 +607,9 @@ table 115 "Sales Cr.Memo Line"
         {
             Caption = 'Country/Region of Origin Code';
             TableRelation = "Country/Region";
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
     }
 
@@ -678,9 +666,6 @@ table 115 "Sales Cr.Memo Line"
     end;
 
     var
-        TotalSalesCrMemoLine: Record "Sales Cr.Memo Line";
-        TotalSalesCrMemoLineLCY: Record "Sales Cr.Memo Line";
-        CurrExchRate: Record "Currency Exchange Rate";
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
         Currency: Record Currency;
         DimMgt: Codeunit DimensionManagement;
@@ -688,20 +673,20 @@ table 115 "Sales Cr.Memo Line"
 
     procedure GetCurrencyCode(): Code[10]
     begin
-        GetHeader;
+        GetHeader();
         exit(SalesCrMemoHeader."Currency Code");
     end;
 
     procedure ShowDimensions()
     begin
-        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2 %3', TableCaption, "Document No.", "Line No."));
+        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2 %3', TableCaption(), "Document No.", "Line No."));
     end;
 
     procedure ShowItemTrackingLines()
     var
         ItemTrackingDocMgt: Codeunit "Item Tracking Doc. Management";
     begin
-        ItemTrackingDocMgt.ShowItemTrackingForInvoiceLine(RowID1);
+        ItemTrackingDocMgt.ShowItemTrackingForInvoiceLine(RowID1());
     end;
 
     procedure CalcVATAmountLines(SalesCrMemoHeader: Record "Sales Cr.Memo Header"; var TempVATAmountLine: Record "VAT Amount Line" temporary)
@@ -719,24 +704,13 @@ table 115 "Sales Cr.Memo Line"
             repeat
                 TempVATAmountLine.Init();
                 TempVATAmountLine.CopyFromSalesCrMemoLine(Rec);
-#if not CLEAN18
-                // NAVCZ
-                TempVATAmountLine."Currency Code" := SalesCrMemoHeader."Currency Code";
-                if SalesCrMemoHeader."Currency Code" <> '' then
-                    RoundAmount(SalesCrMemoHeader);
-                TempVATAmountLine."VAT Base (LCY)" := Amount;
-                TempVATAmountLine."VAT Amount (LCY)" := "Amount Including VAT" - Amount;
-                TempVATAmountLine."Amount Including VAT (LCY)" := "Amount Including VAT";
-                TempVATAmountLine."Calculated VAT Amount (LCY)" := "Amount Including VAT" - Amount - "VAT Difference (LCY)";
-                // NAVCZ
-#endif
-                TempVATAmountLine.InsertLine;
+                TempVATAmountLine.InsertLine();
             until Next() = 0;
     end;
 
     procedure GetLineAmountExclVAT(): Decimal
     begin
-        GetHeader;
+        GetHeader();
         if not SalesCrMemoHeader."Prices Including VAT" then
             exit("Line Amount");
 
@@ -745,7 +719,7 @@ table 115 "Sales Cr.Memo Line"
 
     procedure GetLineAmountInclVAT(): Decimal
     begin
-        GetHeader;
+        GetHeader();
         if SalesCrMemoHeader."Prices Including VAT" then
             exit("Line Amount");
 
@@ -760,10 +734,10 @@ table 115 "Sales Cr.Memo Line"
             SalesCrMemoHeader.Init();
 
         if SalesCrMemoHeader."Currency Code" = '' then
-            Currency.InitRoundingPrecision
+            Currency.InitRoundingPrecision()
         else
             if not Currency.Get(SalesCrMemoHeader."Currency Code") then
-                Currency.InitRoundingPrecision;
+                Currency.InitRoundingPrecision();
     end;
 
     local procedure GetFieldCaption(FieldNumber: Integer): Text[100]
@@ -776,15 +750,15 @@ table 115 "Sales Cr.Memo Line"
 
     procedure GetCaptionClass(FieldNumber: Integer): Text[80]
     begin
-        GetHeader;
+        GetHeader();
         case FieldNumber of
             FieldNo("No."):
                 exit(StrSubstNo('3,%1', GetFieldCaption(FieldNumber)));
             else begin
-                    if SalesCrMemoHeader."Prices Including VAT" then
-                        exit('2,1,' + GetFieldCaption(FieldNumber));
-                    exit('2,0,' + GetFieldCaption(FieldNumber));
-                end
+                if SalesCrMemoHeader."Prices Including VAT" then
+                    exit('2,1,' + GetFieldCaption(FieldNumber));
+                exit('2,0,' + GetFieldCaption(FieldNumber));
+            end
         end;
     end;
 
@@ -877,83 +851,6 @@ table 115 "Sales Cr.Memo Line"
         SalesCommentLine.ShowComments(SalesCommentLine."Document Type"::"Posted Credit Memo".AsInteger(), "Document No.", "Line No.");
     end;
 
-    local procedure RoundAmount(SalesCrMemoHeader: Record "Sales Cr.Memo Header")
-    var
-        NoVAT: Boolean;
-    begin
-        // NAVCZ
-        IncrAmount(TotalSalesCrMemoLine, SalesCrMemoHeader);
-        if SalesCrMemoHeader."Currency Code" <> '' then begin
-            NoVAT := Amount = "Amount Including VAT";
-            "Amount Including VAT" :=
-              Round(
-                CurrExchRate.ExchangeAmtFCYToLCY(
-                  SalesCrMemoHeader."Posting Date", SalesCrMemoHeader."Currency Code",
-                  TotalSalesCrMemoLine."Amount Including VAT", SalesCrMemoHeader."Currency Factor")) -
-              TotalSalesCrMemoLineLCY."Amount Including VAT";
-            if NoVAT then
-                Amount := "Amount Including VAT"
-            else
-                Amount :=
-                  Round(
-                    CurrExchRate.ExchangeAmtFCYToLCY(
-                      SalesCrMemoHeader."Posting Date", SalesCrMemoHeader."Currency Code",
-                      TotalSalesCrMemoLine.Amount, SalesCrMemoHeader."Currency Factor")) -
-                  TotalSalesCrMemoLineLCY.Amount;
-            "Line Amount" :=
-              Round(
-                CurrExchRate.ExchangeAmtFCYToLCY(
-                  SalesCrMemoHeader."Posting Date", SalesCrMemoHeader."Currency Code",
-                  TotalSalesCrMemoLine."Line Amount", SalesCrMemoHeader."Currency Factor")) -
-              TotalSalesCrMemoLineLCY."Line Amount";
-            "Line Discount Amount" :=
-              Round(
-                CurrExchRate.ExchangeAmtFCYToLCY(
-                  SalesCrMemoHeader."Posting Date", SalesCrMemoHeader."Currency Code",
-                  TotalSalesCrMemoLine."Line Discount Amount", SalesCrMemoHeader."Currency Factor")) -
-              TotalSalesCrMemoLineLCY."Line Discount Amount";
-            "Inv. Discount Amount" :=
-              Round(
-                CurrExchRate.ExchangeAmtFCYToLCY(
-                  SalesCrMemoHeader."Posting Date", SalesCrMemoHeader."Currency Code",
-                  TotalSalesCrMemoLine."Inv. Discount Amount", SalesCrMemoHeader."Currency Factor")) -
-              TotalSalesCrMemoLineLCY."Inv. Discount Amount";
-            "VAT Difference" :=
-              Round(
-                CurrExchRate.ExchangeAmtFCYToLCY(
-                  SalesCrMemoHeader."Posting Date", SalesCrMemoHeader."Currency Code",
-                  TotalSalesCrMemoLine."VAT Difference", SalesCrMemoHeader."Currency Factor")) -
-              TotalSalesCrMemoLineLCY."VAT Difference";
-        end;
-
-        IncrAmount(TotalSalesCrMemoLineLCY, SalesCrMemoHeader);
-    end;
-
-    local procedure IncrAmount(var TotalSalesCrMemoLine: Record "Sales Cr.Memo Line"; SalesCrMemoHeader: Record "Sales Cr.Memo Header")
-    begin
-        // NAVCZ
-        if SalesCrMemoHeader."Prices Including VAT" or
-           ("VAT Calculation Type" <> "VAT Calculation Type"::"Full VAT")
-        then
-            Increment(TotalSalesCrMemoLine."Line Amount", "Line Amount");
-
-        Increment(TotalSalesCrMemoLine.Amount, Amount);
-        Increment(TotalSalesCrMemoLine."VAT Base Amount", "VAT Base Amount");
-        Increment(TotalSalesCrMemoLine."VAT Difference", "VAT Difference");
-#if not CLEAN18
-        Increment(TotalSalesCrMemoLine."VAT Difference (LCY)", "VAT Difference (LCY)");
-#endif
-        Increment(TotalSalesCrMemoLine."Amount Including VAT", "Amount Including VAT");
-        Increment(TotalSalesCrMemoLine."Line Discount Amount", "Line Discount Amount");
-        Increment(TotalSalesCrMemoLine."Inv. Discount Amount", "Inv. Discount Amount");
-    end;
-
-    local procedure Increment(var Number: Decimal; Number2: Decimal)
-    begin
-        // NAVCZ
-        Number := Number + Number2;
-    end;
-
     procedure ShowShortcutDimCode(var ShortcutDimCode: array[8] of Code[20])
     begin
         DimMgt.GetShortcutDimensions("Dimension Set ID", ShortcutDimCode);
@@ -961,7 +858,7 @@ table 115 "Sales Cr.Memo Line"
 
     procedure InitFromSalesLine(SalesCrMemoHeader: Record "Sales Cr.Memo Header"; SalesLine: Record "Sales Line")
     begin
-        Init;
+        Init();
         TransferFields(SalesLine);
         if ("No." = '') and HasTypeToFillMandatoryFields() then
             Type := Type::" ";
@@ -977,7 +874,7 @@ table 115 "Sales Cr.Memo Line"
     begin
         DeferralUtilities.OpenLineScheduleView(
             "Deferral Code", "Deferral Document Type"::Sales.AsInteger(), '', '',
-            GetDocumentType, "Document No.", "Line No.");
+            GetDocumentType(), "Document No.", "Line No.");
     end;
 
     procedure GetDocumentType(): Integer
@@ -997,7 +894,7 @@ table 115 "Sales Cr.Memo Line"
         SalesLine: Record "Sales Line";
     begin
         if Type = Type::" " then
-            exit(SalesLine.FormatType);
+            exit(SalesLine.FormatType());
 
         exit(Format(Type));
     end;
@@ -1017,3 +914,4 @@ table 115 "Sales Cr.Memo Line"
     begin
     end;
 }
+

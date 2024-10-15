@@ -134,7 +134,6 @@ codeunit 134022 "ERM Payment Tolerance"
         Customer: Record Customer;
         CustomerPostingGroup: Record "Customer Posting Group";
         GenJournalLine: Record "Gen. Journal Line";
-        LibraryJournals: Codeunit "Library - Journals"; // NAVCZ
         TolerancePct: Decimal;
         ToleranceAmount: Decimal;
     begin
@@ -150,7 +149,6 @@ codeunit 134022 "ERM Payment Tolerance"
         LibraryPmtDiscSetup.SetPmtDiscToleranceWarning(false);
         ToleranceAmount :=
           CustomerInvoiceAndPayment(GenJournalLine, Customer."No.", LibraryERM.CreateGLAccountWithSalesSetup, TolerancePct);
-        LibraryJournals.SetUserJournalPreference(Page::"General Journal", GenJournalLine."Journal Batch Name"); // NAVCZ
 
         // Exercise: Apply Payment with Invoice.
         ApplyFromGeneralJournal(GenJournalLine."Document Type", GenJournalLine."Account No.");
@@ -236,7 +234,7 @@ codeunit 134022 "ERM Payment Tolerance"
         Assert.AreNearlyEqual(
           Amount, CalcHalfToleranceAmount(Abs(GLEntry.Amount), TolerancePct, CurrencyCode), LibraryERM.GetAmountRoundingPrecision,
           StrSubstNo(
-            AmountErrorMessage, GLEntry.FieldCaption(Amount), Amount, GLEntry.TableCaption, GLEntry.FieldCaption("Entry No."),
+            AmountErrorMessage, GLEntry.FieldCaption(Amount), Amount, GLEntry.TableCaption(), GLEntry.FieldCaption("Entry No."),
             GLEntry."Entry No."));
     end;
 
@@ -277,7 +275,7 @@ codeunit 134022 "ERM Payment Tolerance"
         Assert.AreNearlyEqual(
           Amount, CalcHalfToleranceAmount(Abs(GLEntry.Amount), TolerancePct, CurrencyCode), LibraryERM.GetAmountRoundingPrecision,
           StrSubstNo(
-            AmountErrorMessage, GLEntry.FieldCaption(Amount), Amount, GLEntry.TableCaption, GLEntry.FieldCaption("Entry No."),
+            AmountErrorMessage, GLEntry.FieldCaption(Amount), Amount, GLEntry.TableCaption(), GLEntry.FieldCaption("Entry No."),
             GLEntry."Entry No."));
     end;
 
@@ -448,7 +446,7 @@ codeunit 134022 "ERM Payment Tolerance"
         CreatePostPaymentWithAppliesToDoc(
           GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name",
           GenJournalLine."Account Type"::Customer, GenJournalLine."Document No.",
-          CalcDate(Format(PaymentTerms."Discount Date Calculation"), WorkDate),
+          CalcDate(Format(PaymentTerms."Discount Date Calculation"), WorkDate()),
           GenJournalLine.Amount);
 
         // [THEN] Both entries are closed
@@ -491,7 +489,7 @@ codeunit 134022 "ERM Payment Tolerance"
         CreatePostPaymentWithAppliesToDoc(
           GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name",
           GenJournalLine."Account Type"::Customer, GenJournalLine."Document No.",
-          CalcDate(Format(PaymentTerms."Discount Date Calculation"), WorkDate),
+          CalcDate(Format(PaymentTerms."Discount Date Calculation"), WorkDate()),
           Round(GenJournalLine.Amount * (1 - PaymentTerms."Discount %" / 100)));
 
         // [THEN] Both entries are closed
@@ -534,7 +532,7 @@ codeunit 134022 "ERM Payment Tolerance"
         CreatePostPaymentWithAppliesToDoc(
           GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name",
           GenJournalLine."Account Type"::Vendor, GenJournalLine."Document No.",
-          CalcDate(Format(PaymentTerms."Discount Date Calculation"), WorkDate),
+          CalcDate(Format(PaymentTerms."Discount Date Calculation"), WorkDate()),
           GenJournalLine.Amount);
 
         // [THEN] Both entries are closed
@@ -577,7 +575,7 @@ codeunit 134022 "ERM Payment Tolerance"
         CreatePostPaymentWithAppliesToDoc(
           GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name",
           GenJournalLine."Account Type"::Vendor, GenJournalLine."Document No.",
-          CalcDate(Format(PaymentTerms."Discount Date Calculation"), WorkDate),
+          CalcDate(Format(PaymentTerms."Discount Date Calculation"), WorkDate()),
           Round(GenJournalLine.Amount * (1 - PaymentTerms."Discount %" / 100)));
 
         // [THEN] Both entries are closed
@@ -626,7 +624,7 @@ codeunit 134022 "ERM Payment Tolerance"
 
 #if not CLEAN20
     [Test]
-    [HandlerFunctions('MessageHandler,ApplyCustomerEntryPageHandlerForMultipleDocument,PostApplicationHandler,AdjustExchangeRatesReportHandler')]
+    [HandlerFunctions('MessageHandler,ApplyCustomerEntryPageHandlerForMultipleDocument,PostApplicationHandler')]
     [Scope('OnPrem')]
     procedure ApplySalesCreditMemoWithTwoRefunds()
     var
@@ -653,15 +651,15 @@ codeunit 134022 "ERM Payment Tolerance"
         // Batch job.
         CreateGenJournalLineWithCurrencyCode(
           GenJournalLine, CustomerNoToApply, CurrencyCode, GenJournalLine."Document Type"::"Credit Memo",
-          -GenJournalLineAmount, WorkDate, GenJournalLine."Account Type"::Customer);
+          -GenJournalLineAmount, WorkDate(), GenJournalLine."Account Type"::Customer);
         PostGeneralJnlLine(GenJournalLine);
         for Index := 1 to 2 do begin
             CreateGenJournalLineWithCurrencyCode(
               GenJournalLine, CustomerNoToApply, '', GenJournalLine."Document Type"::Refund,
-              (GenJournalLineAmount * AdjustmentFactor) / 2, CalcDate('<1D>', WorkDate), GenJournalLine."Account Type"::Customer);
+              (GenJournalLineAmount * AdjustmentFactor) / 2, CalcDate('<1D>', WorkDate()), GenJournalLine."Account Type"::Customer);
             PostGeneralJnlLine(GenJournalLine);
         end;
-        LibraryERM.RunAdjustExchangeRatesSimple(CurrencyCode, WorkDate, WorkDate);
+        LibraryERM.RunAdjustExchangeRatesSimple(CurrencyCode, WorkDate(), WorkDate());
         LibraryVariableStorage.Enqueue(CustomerNoToApply);
         ApplyCustomerLedgerEntries(CustomerNoToApply, GenJournalLine."Document Type"::"Credit Memo");
 
@@ -698,15 +696,15 @@ codeunit 134022 "ERM Payment Tolerance"
         // Batch job.
         CreateGenJournalLineWithCurrencyCode(
           GenJournalLine, CustomerNoToApply, CurrencyCode, GenJournalLine."Document Type"::"Credit Memo",
-          -GenJournalLineAmount, WorkDate, GenJournalLine."Account Type"::Customer);
+          -GenJournalLineAmount, WorkDate(), GenJournalLine."Account Type"::Customer);
         PostGeneralJnlLine(GenJournalLine);
         for Index := 1 to 2 do begin
             CreateGenJournalLineWithCurrencyCode(
               GenJournalLine, CustomerNoToApply, '', GenJournalLine."Document Type"::Refund,
-              (GenJournalLineAmount * AdjustmentFactor) / 2, CalcDate('<1D>', WorkDate), GenJournalLine."Account Type"::Customer);
+              (GenJournalLineAmount * AdjustmentFactor) / 2, CalcDate('<1D>', WorkDate()), GenJournalLine."Account Type"::Customer);
             PostGeneralJnlLine(GenJournalLine);
         end;
-        LibraryERM.RunExchRateAdjustmentSimple(CurrencyCode, WorkDate, WorkDate);
+        LibraryERM.RunExchRateAdjustmentSimple(CurrencyCode, WorkDate(), WorkDate());
         LibraryVariableStorage.Enqueue(CustomerNoToApply);
         ApplyCustomerLedgerEntries(CustomerNoToApply, GenJournalLine."Document Type"::"Credit Memo");
 
@@ -716,7 +714,7 @@ codeunit 134022 "ERM Payment Tolerance"
 
 #if not CLEAN20
     [Test]
-    [HandlerFunctions('MessageHandler,ApplyVendorEntryPageHandlerForMultipleDocument,PostApplicationHandler,AdjustExchangeRatesReportHandler')]
+    [HandlerFunctions('MessageHandler,ApplyVendorEntryPageHandlerForMultipleDocument,PostApplicationHandler')]
     [Scope('OnPrem')]
     procedure ApplyPurchInvoiceWithTwoPayments()
     var
@@ -744,16 +742,16 @@ codeunit 134022 "ERM Payment Tolerance"
 
         CreateGenJournalLineWithCurrencyCode(
           GenJournalLine, VendorNoToApply, CurrencyCode, GenJournalLine."Document Type"::Invoice,
-          -GenJournalLineAmount, WorkDate, GenJournalLine."Account Type"::Vendor);
+          -GenJournalLineAmount, WorkDate(), GenJournalLine."Account Type"::Vendor);
         PostGeneralJnlLine(GenJournalLine);
 
         for Index := 1 to 2 do begin
             CreateGenJournalLineWithCurrencyCode(
               GenJournalLine, VendorNoToApply, '', GenJournalLine."Document Type"::Payment,
-              (GenJournalLineAmount * AdjustmentFactor) / 2, CalcDate('<1D>', WorkDate), GenJournalLine."Account Type"::Vendor);
+              (GenJournalLineAmount * AdjustmentFactor) / 2, CalcDate('<1D>', WorkDate()), GenJournalLine."Account Type"::Vendor);
             PostGeneralJnlLine(GenJournalLine);
         end;
-        LibraryERM.RunAdjustExchangeRatesSimple(CurrencyCode, WorkDate, WorkDate);
+        LibraryERM.RunAdjustExchangeRatesSimple(CurrencyCode, WorkDate(), WorkDate());
         LibraryVariableStorage.Enqueue(VendorNoToApply);
         ApplyVendorLedgerEntries(VendorNoToApply, GenJournalLine."Document Type"::Invoice);
 
@@ -791,16 +789,16 @@ codeunit 134022 "ERM Payment Tolerance"
 
         CreateGenJournalLineWithCurrencyCode(
           GenJournalLine, VendorNoToApply, CurrencyCode, GenJournalLine."Document Type"::Invoice,
-          -GenJournalLineAmount, WorkDate, GenJournalLine."Account Type"::Vendor);
+          -GenJournalLineAmount, WorkDate(), GenJournalLine."Account Type"::Vendor);
         PostGeneralJnlLine(GenJournalLine);
 
         for Index := 1 to 2 do begin
             CreateGenJournalLineWithCurrencyCode(
               GenJournalLine, VendorNoToApply, '', GenJournalLine."Document Type"::Payment,
-              (GenJournalLineAmount * AdjustmentFactor) / 2, CalcDate('<1D>', WorkDate), GenJournalLine."Account Type"::Vendor);
+              (GenJournalLineAmount * AdjustmentFactor) / 2, CalcDate('<1D>', WorkDate()), GenJournalLine."Account Type"::Vendor);
             PostGeneralJnlLine(GenJournalLine);
         end;
-        LibraryERM.RunExchRateAdjustmentSimple(CurrencyCode, WorkDate, WorkDate);
+        LibraryERM.RunExchRateAdjustmentSimple(CurrencyCode, WorkDate(), WorkDate());
         LibraryVariableStorage.Enqueue(VendorNoToApply);
         ApplyVendorLedgerEntries(VendorNoToApply, GenJournalLine."Document Type"::Invoice);
 
@@ -999,7 +997,7 @@ codeunit 134022 "ERM Payment Tolerance"
         CreatePaymentOfGenJournalLine(
           GenJournalLine, GenJournalLine."Account Type"::Customer, GenJournalLine."Account No.",
           GenJournalLine."Bal. Account Type"::"G/L Account", GenJournalLine."Bal. Account No.",
-          -Amount, CalcDate(PaymentTerms."Discount Date Calculation", WorkDate), '');
+          -Amount, CalcDate(PaymentTerms."Discount Date Calculation", WorkDate()), '');
 
         // Update Applies-to Doc. No. And calls the Payment Discount Tolerance Warning.
         GenJournalLine.Validate("Applies-to Doc. No.", ApplyToDocNo);
@@ -1032,7 +1030,7 @@ codeunit 134022 "ERM Payment Tolerance"
         // [GIVEN] Set empty "Account No." and zero Amount for General Journal Line.
         CreatePaymentOfGenJournalLine(
           GenJournalLine, GenJournalLine."Account Type"::Customer, '', "Gen. Journal Account Type"::"G/L Account", '',
-          0, CalcDate(PaymentTerms."Discount Date Calculation", WorkDate), '');
+          0, CalcDate(PaymentTerms."Discount Date Calculation", WorkDate()), '');
 
         // [WHEN] Set "Applies-to Doc. No." = "SI1".
         GenJournalLine.Validate("Applies-to Doc. No.", AppliesToDocNo);
@@ -1067,7 +1065,7 @@ codeunit 134022 "ERM Payment Tolerance"
         Amount := Round(AppliesToDocAmount * 0.975, 0.01);
         CreatePaymentOfGenJournalLine(
           GenJournalLine, GenJournalLine."Account Type"::Customer, GenJournalLine."Account No.", "Gen. Journal Account Type"::"G/L Account", '',
-          -Amount, CalcDate(PaymentTerms."Discount Date Calculation", WorkDate), '');
+          -Amount, CalcDate(PaymentTerms."Discount Date Calculation", WorkDate()), '');
 
         // [WHEN] Set "Applies-to Doc. No." = "SI1".
         GenJournalLine.Validate("Applies-to Doc. No.", AppliesToDocNo);
@@ -1097,7 +1095,7 @@ codeunit 134022 "ERM Payment Tolerance"
         CreatePaymentOfGenJournalLine(
           GenJournalLine, GenJournalLine."Account Type"::Customer, GenJournalLine."Account No.",
           GenJournalLine."Bal. Account Type"::"G/L Account", GenJournalLine."Bal. Account No.",
-          0, CalcDate(PaymentTerms."Discount Date Calculation", WorkDate), GenJournalLine."Document No.");
+          0, CalcDate(PaymentTerms."Discount Date Calculation", WorkDate()), GenJournalLine."Document No.");
 
         // Update Amount. And calls the Payment Discount Tolerance Warning.
         GenJournalLine.Validate(Amount, -Amount);
@@ -1130,7 +1128,7 @@ codeunit 134022 "ERM Payment Tolerance"
         // [GIVEN] Apply "SI1" to General Journal Line using "Applies-to ID". Amount is set to zero.
         CreatePaymentOfGenJournalLine(
           GenJournalLine, GenJournalLine."Account Type"::Customer, GenJournalLine."Account No.",
-          "Gen. Journal Account Type"::"G/L Account", '', 0, CalcDate(PaymentTerms."Discount Date Calculation", WorkDate), '');
+          "Gen. Journal Account Type"::"G/L Account", '', 0, CalcDate(PaymentTerms."Discount Date Calculation", WorkDate()), '');
         SetCustLedgerEntryAppliesToID(
           GenJournalLine."Account No.", GenJournalLine."Document Type"::Invoice, PostedDocNo,
           GenJournalLine."Document No.", Amount);
@@ -1201,10 +1199,10 @@ codeunit 134022 "ERM Payment Tolerance"
         CreatePaymentOfGenJournalLine(
           GenJournalLine, GenJournalLine."Account Type"::Customer, GenJournalLine."Account No.",
           GenJournalLine."Bal. Account Type"::"G/L Account", GenJournalLine."Bal. Account No.",
-          -Amount, WorkDate, GenJournalLine."Document No.");
+          -Amount, WorkDate(), GenJournalLine."Document No.");
 
         // Update Posting Date Post the payment.
-        GenJournalLine.Validate("Posting Date", CalcDate('<1D>', CalcDate(PaymentTerms."Discount Date Calculation", WorkDate)));
+        GenJournalLine.Validate("Posting Date", CalcDate('<1D>', CalcDate(PaymentTerms."Discount Date Calculation", WorkDate())));
         GenJournalLine.Modify(true);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
@@ -1270,7 +1268,7 @@ codeunit 134022 "ERM Payment Tolerance"
         CreatePaymentOfGenJournalLine(
           GenJournalLine, GenJournalLine."Account Type"::Vendor, GenJournalLine."Account No.",
           GenJournalLine."Bal. Account Type"::"G/L Account", GenJournalLine."Bal. Account No.",
-          Amount, CalcDate(PaymentTerms."Discount Date Calculation", WorkDate), '');
+          Amount, CalcDate(PaymentTerms."Discount Date Calculation", WorkDate()), '');
 
         // Update Applies-to Doc. No. Post the payment.
         GenJournalLine.Validate("Applies-to Doc. No.", ApplyToDocNo);
@@ -1303,7 +1301,7 @@ codeunit 134022 "ERM Payment Tolerance"
         // [GIVEN] Set empty "Account No." and zero Amount for General Journal Line.
         CreatePaymentOfGenJournalLine(
           GenJournalLine, GenJournalLine."Account Type"::Vendor, '', "Gen. Journal Account Type"::"G/L Account", '',
-          0, CalcDate(PaymentTerms."Discount Date Calculation", WorkDate), '');
+          0, CalcDate(PaymentTerms."Discount Date Calculation", WorkDate()), '');
 
         // [WHEN] Set "Applies-to Doc. No." = "PI1".
         GenJournalLine.Validate("Applies-to Doc. No.", AppliesToDocNo);
@@ -1338,7 +1336,7 @@ codeunit 134022 "ERM Payment Tolerance"
         Amount := Round(AppliesToDocAmount * 0.975, 0.01);
         CreatePaymentOfGenJournalLine(
           GenJournalLine, GenJournalLine."Account Type"::Vendor, GenJournalLine."Account No.", "Gen. Journal Account Type"::"G/L Account", '',
-          Amount, CalcDate(PaymentTerms."Discount Date Calculation", WorkDate), '');
+          Amount, CalcDate(PaymentTerms."Discount Date Calculation", WorkDate()), '');
 
         // [WHEN] Set "Applies-to Doc. No." = "SI1".
         GenJournalLine.Validate("Applies-to Doc. No.", AppliesToDocNo);
@@ -1368,7 +1366,7 @@ codeunit 134022 "ERM Payment Tolerance"
         CreatePaymentOfGenJournalLine(
           GenJournalLine, GenJournalLine."Account Type"::Vendor, GenJournalLine."Account No.",
           GenJournalLine."Bal. Account Type"::"G/L Account", GenJournalLine."Bal. Account No.", 0,
-          CalcDate(PaymentTerms."Discount Date Calculation", WorkDate), GenJournalLine."Document No.");
+          CalcDate(PaymentTerms."Discount Date Calculation", WorkDate()), GenJournalLine."Document No.");
 
         // Update Amount. Post the payment.
         GenJournalLine.Validate(Amount, Amount);
@@ -1401,7 +1399,7 @@ codeunit 134022 "ERM Payment Tolerance"
         // [GIVEN] Apply "PI1" to General Journal Line using "Applies-to ID". Amount is set to zero.
         CreatePaymentOfGenJournalLine(
           GenJournalLine, GenJournalLine."Account Type"::Vendor, GenJournalLine."Account No.",
-          "Gen. Journal Account Type"::"G/L Account", '', 0, CalcDate(PaymentTerms."Discount Date Calculation", WorkDate), '');
+          "Gen. Journal Account Type"::"G/L Account", '', 0, CalcDate(PaymentTerms."Discount Date Calculation", WorkDate()), '');
         SetVendLedgerEntryAppliesToID(
           GenJournalLine."Account No.", GenJournalLine."Document Type"::Invoice, PostedDocNo,
           GenJournalLine."Document No.", -Amount);
@@ -1473,10 +1471,10 @@ codeunit 134022 "ERM Payment Tolerance"
         CreatePaymentOfGenJournalLine(
           GenJournalLine, GenJournalLine."Account Type"::Vendor, GenJournalLine."Account No.",
           GenJournalLine."Bal. Account Type"::"G/L Account", GenJournalLine."Bal. Account No.",
-          Amount, WorkDate, GenJournalLine."Document No.");
+          Amount, WorkDate(), GenJournalLine."Document No.");
 
         // Update Posting Date. Post the payment.
-        GenJournalLine.Validate("Posting Date", CalcDate('<1D>', CalcDate(PaymentTerms."Discount Date Calculation", WorkDate)));
+        GenJournalLine.Validate("Posting Date", CalcDate('<1D>', CalcDate(PaymentTerms."Discount Date Calculation", WorkDate())));
         GenJournalLine.Modify(true);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
@@ -1538,14 +1536,14 @@ codeunit 134022 "ERM Payment Tolerance"
         // [GIVEN] Cash Receipt Journal Line with zero amount, Posting Date in Payment Tolerance period
         CreateCashReceiptJournalLine(
           GenJournalLine, GenJournalLine."Account No.",
-          CalcDate('<1D>', CalcDate(PaymentTerms."Discount Date Calculation", WorkDate)));
+          CalcDate('<1D>', CalcDate(PaymentTerms."Discount Date Calculation", WorkDate())));
         // [WHEN] User Applies payment to Invoice via Applies-to Doc. No. lookup field
         ApplyAndPostPaymentToSalesDoc(GenJournalLine);
-        GenJournalLine.Find;
+        GenJournalLine.Find();
         // [THEN] No Payment Tolerance warning message appears, Amount value is equal to Sales Invoice Amount
         Assert.AreEqual(
           -Amount, GenJournalLine.Amount,
-          StrSubstNo(WrongAmountErr, GenJournalLine.TableCaption, GenJournalLine.FieldCaption(Amount)));
+          StrSubstNo(WrongAmountErr, GenJournalLine.TableCaption(), GenJournalLine.FieldCaption(Amount)));
     end;
 
     [Test]
@@ -2933,7 +2931,7 @@ codeunit 134022 "ERM Payment Tolerance"
         CreatePaymentOfGenJournalLine(
           GenJournalLine, GenJournalLine."Account Type"::Customer, GenJournalLine."Account No.",
           GenJournalLine."Bal. Account Type"::"G/L Account", GenJournalLine."Bal. Account No.",
-          ApplyingAmount, CalcDate(PaymentTerms."Discount Date Calculation", WorkDate), '');
+          ApplyingAmount, CalcDate(PaymentTerms."Discount Date Calculation", WorkDate()), '');
 
         // [WHEN] Set "Applies-to Doc. No." = "SI1". Select "Post the Balance as Payment Tolerance" on Payment Tolerance Warning page.
         LibraryVariableStorage.Enqueue(PostingAction::"Payment Tolerance Accounts");
@@ -2971,7 +2969,7 @@ codeunit 134022 "ERM Payment Tolerance"
         CreatePaymentOfGenJournalLine(
           GenJournalLine, GenJournalLine."Account Type"::Customer, GenJournalLine."Account No.",
           GenJournalLine."Bal. Account Type"::"G/L Account", GenJournalLine."Bal. Account No.",
-          ApplyingAmount, CalcDate(PaymentTerms."Discount Date Calculation", WorkDate), '');
+          ApplyingAmount, CalcDate(PaymentTerms."Discount Date Calculation", WorkDate()), '');
 
         // [WHEN] Set "Applies-to Doc. No." = "SI1". Select "Leave a Remaining Amount" on Payment Tolerance Warning page.
         LibraryVariableStorage.Enqueue(PostingAction::"Remaining Amount");
@@ -3009,7 +3007,7 @@ codeunit 134022 "ERM Payment Tolerance"
         CreatePaymentOfGenJournalLine(
           GenJournalLine, GenJournalLine."Account Type"::Vendor, GenJournalLine."Account No.",
           GenJournalLine."Bal. Account Type"::"G/L Account", GenJournalLine."Bal. Account No.",
-          ApplyingAmount, CalcDate(PaymentTerms."Discount Date Calculation", WorkDate), '');
+          ApplyingAmount, CalcDate(PaymentTerms."Discount Date Calculation", WorkDate()), '');
 
         // [WHEN] Set "Applies-to Doc. No." = "PI1". Select "Post the Balance as Payment Tolerance" on Payment Tolerance Warning page.
         LibraryVariableStorage.Enqueue(PostingAction::"Payment Tolerance Accounts");
@@ -3047,7 +3045,7 @@ codeunit 134022 "ERM Payment Tolerance"
         CreatePaymentOfGenJournalLine(
           GenJournalLine, GenJournalLine."Account Type"::Vendor, GenJournalLine."Account No.",
           GenJournalLine."Bal. Account Type"::"G/L Account", GenJournalLine."Bal. Account No.",
-          ApplyingAmount, CalcDate(PaymentTerms."Discount Date Calculation", WorkDate), '');
+          ApplyingAmount, CalcDate(PaymentTerms."Discount Date Calculation", WorkDate()), '');
 
         // [WHEN] Set "Applies-to Doc. No." = "PI1". Select "Leave a Remaining Amount" on Payment Tolerance Warning page.
         LibraryVariableStorage.Enqueue(PostingAction::"Remaining Amount");
@@ -3260,7 +3258,7 @@ codeunit 134022 "ERM Payment Tolerance"
         // [GIVEN] Create Payment Gen. Journal Line with Customer = "C1" and Applies-to Doc. No. = "SI1" with Posting Date able to trigger Tolerance Warning
         CreateCashReceiptJnlLine(GenJournalLine[2], Customer."No.");
         SetupGenJnlLineForApplication(
-          GenJournalLine[2], CalcDate(PaymentTerms."Discount Date Calculation", WorkDate) + 1,
+          GenJournalLine[2], CalcDate(PaymentTerms."Discount Date Calculation", WorkDate()) + 1,
           GenJournalLine[1]."Document Type"::Invoice, GenJournalLine[1]."Document No.");
 
         // Enqueue value for GeneralJournalTemplateListModalPageHandler
@@ -3309,7 +3307,7 @@ codeunit 134022 "ERM Payment Tolerance"
         InvoiceAmount := LibraryRandom.RandDecInRange(1000, 2000, 0);
         CreateAndPostGenJournalLines(
           GenJournalLine, GenJournalLine."Account Type"::Customer, CreateCustomerWithPmtTerms(PaymentTerms.Code),
-          InvoiceAmount, -InvoiceAmount * 2, CalcDate(PaymentTerms."Discount Date Calculation", WorkDate) + 1);
+          InvoiceAmount, -InvoiceAmount * 2, CalcDate(PaymentTerms."Discount Date Calculation", WorkDate()) + 1);
 
         // [GIVEN] Set "Amount To Apply" = 500 for the invoice, below pmt. discount tolerance
         FindCustLedgEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, GenJournalLine."Account No.");
@@ -3361,7 +3359,7 @@ codeunit 134022 "ERM Payment Tolerance"
         PmtToleranceAmount := Round(InvoiceAmount * PmtTolerancePct / 100);
         CreateAndPostGenJournalLines(
           GenJournalLine, GenJournalLine."Account Type"::Customer, CreateCustomerWithPmtTerms(PaymentTerms.Code),
-          InvoiceAmount, -InvoiceAmount * 2, CalcDate(PaymentTerms."Discount Date Calculation", WorkDate) + 1);
+          InvoiceAmount, -InvoiceAmount * 2, CalcDate(PaymentTerms."Discount Date Calculation", WorkDate()) + 1);
 
         // [GIVEN] Set "Amount To Apply" = 950 for the invoice
         FindCustLedgEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, GenJournalLine."Account No.");
@@ -3418,7 +3416,7 @@ codeunit 134022 "ERM Payment Tolerance"
         InvoiceAmount := -LibraryRandom.RandDecInRange(1000, 2000, 0);
         CreateAndPostGenJournalLines(
           GenJournalLine, GenJournalLine."Account Type"::Vendor, CreateVendorWithPmtTerms(PaymentTerms.Code),
-          InvoiceAmount, -InvoiceAmount * 2, CalcDate(PaymentTerms."Discount Date Calculation", WorkDate) + 1);
+          InvoiceAmount, -InvoiceAmount * 2, CalcDate(PaymentTerms."Discount Date Calculation", WorkDate()) + 1);
 
         // [GIVEN] Set "Amount To Apply" = -500 for the invoice
         FindVendLedgEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, GenJournalLine."Account No.");
@@ -3471,7 +3469,7 @@ codeunit 134022 "ERM Payment Tolerance"
         PmtToleranceAmount := Round(InvoiceAmount * PmtTolerancePct / 100);
         CreateAndPostGenJournalLines(
           GenJournalLine, GenJournalLine."Account Type"::Vendor, CreateVendorWithPmtTerms(PaymentTerms.Code),
-          InvoiceAmount, -InvoiceAmount * 2, CalcDate(PaymentTerms."Discount Date Calculation", WorkDate) + 1);
+          InvoiceAmount, -InvoiceAmount * 2, CalcDate(PaymentTerms."Discount Date Calculation", WorkDate()) + 1);
 
         // [GIVEN] Set "Amount To Apply" = -950 for the invoice
         FindVendLedgEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, GenJournalLine."Account No.");
@@ -3658,7 +3656,7 @@ codeunit 134022 "ERM Payment Tolerance"
         LibraryERMCountryData.UpdateAccountInVendorPostingGroups();
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
         LibraryERMCountryData.RemoveBlankGenJournalTemplate();
-        LibraryERM.SetJournalTemplateNameMandatory(false);
+        LibraryERMCountryData.UpdateJournalTemplMandatory(false);
         isInitialized := true;
         Commit();
 
@@ -3679,9 +3677,9 @@ codeunit 134022 "ERM Payment Tolerance"
         InvoiceAmountLCY: Decimal;
     begin
         PaymentAmountLCY := LibraryRandom.RandDecInRange(1000, 2000, 2);
-        PaymentAmountFCY := LibraryERM.ConvertCurrency(PaymentAmountLCY, '', CurrencyCode, WorkDate);
+        PaymentAmountFCY := LibraryERM.ConvertCurrency(PaymentAmountLCY, '', CurrencyCode, WorkDate());
         InvoiceAmountLCY := PaymentAmountLCY + MaxPmtTolAmountLCY + InvoiceAdjustLCY;
-        InvoiceAmountFCY := LibraryERM.ConvertCurrency(InvoiceAmountLCY, '', CurrencyCode, WorkDate) + InvoiceAdjustFCY;
+        InvoiceAmountFCY := LibraryERM.ConvertCurrency(InvoiceAmountLCY, '', CurrencyCode, WorkDate()) + InvoiceAdjustFCY;
     end;
 
     local procedure PostGeneralJnlLine(var GenJournalLine: Record "Gen. Journal Line")
@@ -3965,7 +3963,7 @@ codeunit 134022 "ERM Payment Tolerance"
         CreatePaymentTerms(PaymentTerms);
         CreateAndPostGenJournalLines(
           GenJournalLine, GenJournalLine."Account Type"::Customer, CreateCustomerWithPmtTerms(PaymentTerms.Code),
-          InvoiceAmount, PaymentAmount, WorkDate);
+          InvoiceAmount, PaymentAmount, WorkDate());
     end;
 
     local procedure CreateAndPostGenJournalLinesForVendorWithPaymentToleranceSetup(var GenJournalLine: Record "Gen. Journal Line"; InvoiceAmount: Decimal; TolerancePct: Decimal)
@@ -3978,7 +3976,7 @@ codeunit 134022 "ERM Payment Tolerance"
         CreatePaymentTerms(PaymentTerms);
         CreateAndPostGenJournalLines(
           GenJournalLine, GenJournalLine."Account Type"::Vendor, CreateVendorWithPmtTerms(PaymentTerms.Code),
-          InvoiceAmount, PaymentAmount, WorkDate);
+          InvoiceAmount, PaymentAmount, WorkDate());
     end;
 
     local procedure CreateAndPostGenJournalLinesWithPaymentDiscountToleranceSetup(var GenJournalLine: Record "Gen. Journal Line")
@@ -3991,7 +3989,7 @@ codeunit 134022 "ERM Payment Tolerance"
         CreatePaymentTerms(PaymentTerms);
         CreateAndPostGenJournalLines(
           GenJournalLine, GenJournalLine."Account Type"::Customer, CreateCustomerWithPmtTerms(PaymentTerms.Code), Amount, -Amount,
-          CalcDate(Format(PaymentTerms."Discount Date Calculation") + '+' + LibraryPmtDiscSetup.GetPmtDiscGracePeriod, WorkDate));
+          CalcDate(Format(PaymentTerms."Discount Date Calculation") + '+' + LibraryPmtDiscSetup.GetPmtDiscGracePeriod, WorkDate()));
     end;
 
     local procedure CreateAndPostSalesCreditMemo(var SalesLine: Record "Sales Line"; DocumentNo: Code[20]): Code[20]
@@ -4064,7 +4062,6 @@ codeunit 134022 "ERM Payment Tolerance"
     local procedure CreateGenLineAndApplyEntry(var GenJournalLine: Record "Gen. Journal Line"; AccountNo: Code[20]; Amount: Decimal; AccountType: Enum "Gen. Journal Account Type"; CurrencyCode: Code[10])
     var
         GenJournalBatch: Record "Gen. Journal Batch";
-        LibraryJournals: Codeunit "Library - Journals"; // NAVCZ
         GeneralJournal: TestPage "General Journal";
     begin
         SelectGenJournalBatch(GenJournalBatch);
@@ -4073,7 +4070,6 @@ codeunit 134022 "ERM Payment Tolerance"
           AccountType, AccountNo, Amount);
         GenJournalLine.Validate("Currency Code", CurrencyCode);
         GenJournalLine.Modify(true);
-        LibraryJournals.SetUserJournalPreference(Page::"General Journal", GenJournalLine."Journal Batch Name"); // NAVCZ
         GeneralJournal.OpenView;
         GeneralJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
         GeneralJournal."Apply Entries".Invoke;
@@ -4132,14 +4128,14 @@ codeunit 134022 "ERM Payment Tolerance"
         LibraryJournals.CreateGenJournalLineWithBatch(
           GenJnlLine, GenJnlLine."Document Type"::Payment, AccType, GenJnlLine."Account No.", PaymentAmount);
         GenJnlLine.Validate("Posting Date",
-          CalcDate(Format(PaymentTerms."Discount Date Calculation") + '+' + LibraryPmtDiscSetup.GetPmtDiscGracePeriod, WorkDate));
+          CalcDate(Format(PaymentTerms."Discount Date Calculation") + '+' + LibraryPmtDiscSetup.GetPmtDiscGracePeriod, WorkDate()));
         GenJnlLine.Modify(true);
     end;
 
     local procedure CalcHalfToleranceAmount(LineAmount: Decimal; TolerancePct: Decimal; CurrencyCode: Code[10]) Amount: Decimal
     begin
         Amount := LineAmount - (LineAmount * 0.5 * TolerancePct / 100);
-        Amount := Round(LibraryERM.ConvertCurrency(Amount, '', CurrencyCode, WorkDate));
+        Amount := Round(LibraryERM.ConvertCurrency(Amount, '', CurrencyCode, WorkDate()));
     end;
 
     local procedure CreateAndPostPurchaseInvoice(var PurchaseLine: Record "Purchase Line"): Code[20]
@@ -4217,8 +4213,6 @@ codeunit 134022 "ERM Payment Tolerance"
     end;
 
     local procedure CustomerInvoiceAndPayment(var GenJournalLine: Record "Gen. Journal Line"; CustomerNo: Code[20]; GLAccountNo: Code[20]; TolerancePct: Decimal) ToleranceAmount: Decimal
-    var
-        JournalUserPreferences: Record "Journal User Preferences";
     begin
         // Post Invoice and create Payment line with Random Amount.
         CreateModifyGenJournalLine(
@@ -4254,8 +4248,8 @@ codeunit 134022 "ERM Payment Tolerance"
     begin
         CurrencyAdjustFactor := LibraryRandom.RandDec(2, 2);
         CurrencyExchRateAmount := LibraryRandom.RandInt(100);
-        CreateCurrencyExchangeRate(WorkDate, CurrencyCode, CurrencyExchRateAmount, CurrencyAdjustFactor);
-        CreateCurrencyExchangeRate(CalcDate('<1D>', WorkDate), CurrencyCode, CurrencyExchRateAmount, 1);
+        CreateCurrencyExchangeRate(WorkDate(), CurrencyCode, CurrencyExchRateAmount, CurrencyAdjustFactor);
+        CreateCurrencyExchangeRate(CalcDate('<1D>', WorkDate()), CurrencyCode, CurrencyExchRateAmount, 1);
         exit(CurrencyAdjustFactor);
     end;
 
@@ -4587,7 +4581,7 @@ codeunit 134022 "ERM Payment Tolerance"
         CreatePaymentOfGenJournalLine(
           GenJournalLine, GenJournalLine."Account Type"::Customer, GenJournalLine."Account No.",
           GenJournalLine."Bal. Account Type"::"G/L Account", GenJournalLine."Bal. Account No.",
-          ApplyingAmount, CalcDate(PaymentTerms."Discount Date Calculation", WorkDate), '');
+          ApplyingAmount, CalcDate(PaymentTerms."Discount Date Calculation", WorkDate()), '');
     end;
 
     local procedure PostInvoiceAndCreatePaymentForVendorWithSpecificName(var GenJournalLine: Record "Gen. Journal Line"; var InvoiceNo: Code[20]; VendorName: Text)
@@ -4607,7 +4601,7 @@ codeunit 134022 "ERM Payment Tolerance"
         CreatePaymentOfGenJournalLine(
           GenJournalLine, GenJournalLine."Account Type"::Vendor, GenJournalLine."Account No.",
           GenJournalLine."Bal. Account Type"::"G/L Account", GenJournalLine."Bal. Account No.",
-          ApplyingAmount, CalcDate(PaymentTerms."Discount Date Calculation", WorkDate), '');
+          ApplyingAmount, CalcDate(PaymentTerms."Discount Date Calculation", WorkDate()), '');
     end;
 
     local procedure FindDetailedCustLedgEntry(CustomerNo: Code[20]; EntryType: Enum "Detailed CV Ledger Entry Type"): Boolean
@@ -4774,10 +4768,10 @@ codeunit 134022 "ERM Payment Tolerance"
     begin
         LibraryPmtDiscSetup.SetPmtToleranceWarning(true);
         ExchangeRateAmount := LibraryRandom.RandIntInRange(3, 5);
-        CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, ExchangeRateAmount, ExchangeRateAmount);
+        CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), ExchangeRateAmount, ExchangeRateAmount);
 
         MaxPmtTolAmountLCY := LibraryRandom.RandDecInRange(1000, 2000, 2);
-        MaxPmtTolAmount := LibraryERM.ConvertCurrency(MaxPmtTolAmountLCY, '', CurrencyCode, WorkDate);
+        MaxPmtTolAmount := LibraryERM.ConvertCurrency(MaxPmtTolAmountLCY, '', CurrencyCode, WorkDate());
         RunChangePaymentTolerance(false, '', 0, MaxPmtTolAmount);
         RunChangePaymentTolerance(false, CurrencyCode, 0, MaxPmtTolAmount);
     end;
@@ -4893,7 +4887,7 @@ codeunit 134022 "ERM Payment Tolerance"
         CustLedgerEntry.FindSet();
         repeat
             CustLedgerEntry.TestField("Remaining Amount", 0);
-        until CustLedgerEntry.Next = 0;
+        until CustLedgerEntry.Next() = 0;
     end;
 
     local procedure VerifyInvoiceAndPaymentsRemainingAmountIsZero(VendorCode: Code[20])
@@ -4905,7 +4899,7 @@ codeunit 134022 "ERM Payment Tolerance"
         VendorLedgerEntry.FindSet();
         repeat
             VendorLedgerEntry.TestField("Remaining Amount", 0);
-        until VendorLedgerEntry.Next = 0;
+        until VendorLedgerEntry.Next() = 0;
     end;
 
     local procedure VerifyVendLedEntry(RemainingAmount: Decimal; DocumentNo: Code[20])
@@ -4919,7 +4913,7 @@ codeunit 134022 "ERM Payment Tolerance"
         VendorLedgerEntry.CalcFields("Remaining Amount");
         Assert.AreNearlyEqual(RemainingAmount, VendorLedgerEntry."Remaining Amount", LibraryERM.GetAmountRoundingPrecision,
           StrSubstNo(
-            AmountErrorMessage, VendorLedgerEntry.FieldCaption("Remaining Amount"), RemainingAmount, VendorLedgerEntry.TableCaption,
+            AmountErrorMessage, VendorLedgerEntry.FieldCaption("Remaining Amount"), RemainingAmount, VendorLedgerEntry.TableCaption(),
             VendorLedgerEntry.FieldCaption("Entry No."), VendorLedgerEntry."Entry No."));
     end;
 
@@ -5137,7 +5131,7 @@ codeunit 134022 "ERM Payment Tolerance"
     begin
         ApplyCustomerEntries.FILTER.SetFilter("Customer No.", LibraryVariableStorage.DequeueText);
         ApplyCustomerEntries."Set Applies-to ID".Invoke;
-        ApplyCustomerEntries.Next;
+        ApplyCustomerEntries.Next();
         ApplyCustomerEntries."Set Applies-to ID".Invoke;
         Commit();
         ApplyCustomerEntries."Post Application".Invoke;
@@ -5149,7 +5143,7 @@ codeunit 134022 "ERM Payment Tolerance"
     begin
         ApplyVendorEntries.FILTER.SetFilter("Vendor No.", LibraryVariableStorage.DequeueText);
         ApplyVendorEntries.ActionSetAppliesToID.Invoke;
-        ApplyVendorEntries.Next;
+        ApplyVendorEntries.Next();
         ApplyVendorEntries.ActionSetAppliesToID.Invoke;
         Commit();
         ApplyVendorEntries.ActionPostApplication.Invoke;
@@ -5212,7 +5206,7 @@ codeunit 134022 "ERM Payment Tolerance"
     procedure ApplyCustomerEntriesHandler(var ApplyCustomerEntries: TestPage "Apply Customer Entries")
     begin
         ApplyCustomerEntries."Set Applies-to ID".Invoke;
-        ApplyCustomerEntries.Next;
+        ApplyCustomerEntries.Next();
         ApplyCustomerEntries."Set Applies-to ID".Invoke;
         // Enqueue values to verify in test case
         LibraryVariableStorage.Enqueue(ApplyCustomerEntries.ControlBalance.Value);
@@ -5225,7 +5219,7 @@ codeunit 134022 "ERM Payment Tolerance"
     procedure ApplyCustomerEntriesAndVerifyPmtDiscHandler(var ApplyCustomerEntries: TestPage "Apply Customer Entries")
     begin
         ApplyCustomerEntries."Set Applies-to ID".Invoke;
-        ApplyCustomerEntries.Next;
+        ApplyCustomerEntries.Next();
         ApplyCustomerEntries."Set Applies-to ID".Invoke;
         ApplyCustomerEntries.PmtDiscountAmount.AssertEquals(LibraryVariableStorage.DequeueDecimal);
         ApplyCustomerEntries.OK.Invoke;
@@ -5236,7 +5230,7 @@ codeunit 134022 "ERM Payment Tolerance"
     procedure ApplyVendorEntriesHandler(var ApplyVendorEntries: TestPage "Apply Vendor Entries")
     begin
         ApplyVendorEntries.ActionSetAppliesToID.Invoke;
-        ApplyVendorEntries.Next;
+        ApplyVendorEntries.Next();
         ApplyVendorEntries.ActionSetAppliesToID.Invoke;
         // Enqueue values to verify in test case
         LibraryVariableStorage.Enqueue(ApplyVendorEntries.ControlBalance.Value);
@@ -5249,7 +5243,7 @@ codeunit 134022 "ERM Payment Tolerance"
     procedure ApplyVendorEntriesAndVerifyPmtDiscHandler(var ApplyVendorEntries: TestPage "Apply Vendor Entries")
     begin
         ApplyVendorEntries.ActionSetAppliesToID.Invoke;
-        ApplyVendorEntries.Next;
+        ApplyVendorEntries.Next();
         ApplyVendorEntries.ActionSetAppliesToID.Invoke;
         ApplyVendorEntries.PmtDiscountAmount.AssertEquals(LibraryVariableStorage.DequeueDecimal);
 
@@ -5269,14 +5263,6 @@ codeunit 134022 "ERM Payment Tolerance"
     procedure MessageHandler(Message: Text[1024])
     begin
         // This is a dummy Handler
-    end;
-
-    [ReportHandler]
-    [Scope('OnPrem')]
-    procedure AdjustExchangeRatesReportHandler(var AdjustExchangeRates: Report "Adjust Exchange Rates")
-    begin
-        // NAVCZ
-        AdjustExchangeRates.SaveAsExcel(TemporaryPath + '.xlsx')
     end;
 
     [ModalPageHandler]

@@ -1,4 +1,4 @@
-table 352 "Default Dimension"
+﻿table 352 "Default Dimension"
 {
     Caption = 'Default Dimension';
 
@@ -30,7 +30,7 @@ table 352 "Default Dimension"
                 DimMgt.DefaultDimObjectNoList(TempAllObjWithCaption);
                 TempAllObjWithCaption."Object Type" := TempAllObjWithCaption."Object Type"::Table;
                 TempAllObjWithCaption."Object ID" := "Table ID";
-                if not TempAllObjWithCaption.Find then
+                if not TempAllObjWithCaption.Find() then
                     FieldError("Table ID");
             end;
         }
@@ -60,7 +60,7 @@ table 352 "Default Dimension"
                 SetRangeToLastFieldInPrimaryKey(RecRef, "No.");
                 if RecRef.IsEmpty() then
                     Error(NoValidateErr, "No.", RecRef.Caption);
-                RecRef.Close;
+                RecRef.Close();
             end;
         }
         field(3; "Dimension Code"; Code[20])
@@ -72,7 +72,7 @@ table 352 "Default Dimension"
             trigger OnValidate()
             begin
                 CheckDimension("Dimension Code");
-                UpdateDimensionId;
+                UpdateDimensionId();
                 if "Dimension Code" <> xRec."Dimension Code" then
                     Validate("Dimension Value Code", '');
             end;
@@ -86,7 +86,7 @@ table 352 "Default Dimension"
             trigger OnValidate()
             begin
                 CheckDimensionValue("Dimension Code", "Dimension Value Code");
-                UpdateDimensionValueId;
+                UpdateDimensionValueId();
             end;
         }
         field(5; "Value Posting"; Enum "Default Dimension Value Posting Type")
@@ -432,9 +432,10 @@ table 352 "Default Dimension"
     end;
 
     var
-        Text000: Label 'You can''t rename a %1.';
         GLSetup: Record "General Ledger Setup";
         DimMgt: Codeunit DimensionManagement;
+
+        Text000: Label 'You can''t rename a %1.';
         DimensionIdDoesNotMatchADimensionErr: Label 'The "dimensionId" does not match to a Dimension.', Locked = true;
         DimensionValueIdDoesNotMatchADimensionValueErr: Label 'The "dimensionValueId" does not match to a Dimension Value.', Locked = true;
         DimensionIdMismatchErr: Label 'The "dimensionId" and "dimensionValueId" match to different Dimension records.', Locked = true;
@@ -457,6 +458,7 @@ table 352 "Default Dimension"
         if not Evaluate(NewTableID, GetFilter("Table ID")) then
             exit('');
 
+        CurrTableID := 0;
         if NewTableID = 0 then
             if GetRangeMin("Table ID") = GetRangeMax("Table ID") then
                 NewTableID := GetRangeMin("Table ID")
@@ -519,10 +521,6 @@ table 352 "Default Dimension"
                 UpdateSalesPurchGlobalDimCode(GlobalDimCodeNo, AccNo, NewDimValue);
             DATABASE::Campaign:
                 UpdateCampaignGlobalDimCode(GlobalDimCodeNo, AccNo, NewDimValue);
-#if not CLEAN18
-            DATABASE::"Customer Template":
-                UpdateCustTempGlobalDimCode(GlobalDimCodeNo, AccNo, NewDimValue);
-#endif
             DATABASE::"Cash Flow Manual Expense":
                 UpdateNeutrPayGlobalDimCode(GlobalDimCodeNo, AccNo, NewDimValue);
             DATABASE::"Cash Flow Manual Revenue":
@@ -807,23 +805,6 @@ table 352 "Default Dimension"
         end;
     end;
 
-#if not CLEAN18
-    local procedure UpdateCustTempGlobalDimCode(GlobalDimCodeNo: Integer; CustTemplateNo: Code[20]; NewDimValue: Code[20])
-    var
-        CustTemplate: Record "Customer Template";
-    begin
-        if CustTemplate.Get(CustTemplateNo) then begin
-            case GlobalDimCodeNo of
-                1:
-                    CustTemplate."Global Dimension 1 Code" := NewDimValue;
-                2:
-                    CustTemplate."Global Dimension 2 Code" := NewDimValue;
-            end;
-            CustTemplate.Modify(true);
-        end;
-    end;
-#endif
-
     local procedure UpdateNeutrPayGlobalDimCode(GlobalDimCodeNo: Integer; CFManualExpenseNo: Code[20]; NewDimValue: Code[20])
     var
         CFManualExpense: Record "Cash Flow Manual Expense";
@@ -866,13 +847,13 @@ table 352 "Default Dimension"
     local procedure CheckDimension(DimensionCode: Code[20])
     begin
         if not DimMgt.CheckDim(DimensionCode) then
-            Error(DimMgt.GetDimErr);
+            Error(DimMgt.GetDimErr());
     end;
 
     local procedure CheckDimensionValue(DimensionCode: Code[20]; DimensionValueCode: Code[20])
     begin
         if not DimMgt.CheckDimValue(DimensionCode, DimensionValueCode) then
-            Error(DimMgt.GetDimErr);
+            Error(DimMgt.GetDimErr());
         if "Value Posting" = "Value Posting"::"No Code" then
             TestField("Dimension Value Code", '');
         CheckDimensionValueAllowedForAccount();
@@ -1116,36 +1097,33 @@ table 352 "Default Dimension"
         end;
 
         Customer.SetFilter(SystemId, IDFilter);
-        if Customer.FindFirst() then begin
+        if Customer.FindFirst() then
             if not RecordFound then begin
                 ParentRecordRef.GetTable(Customer);
                 RecordFound := true;
             end else
                 Error(MultipleParentsFoundErr);
-        end;
 
         Vendor.SetFilter(SystemId, IDFilter);
-        if Vendor.FindFirst() then begin
+        if Vendor.FindFirst() then
             if not RecordFound then begin
                 ParentRecordRef.GetTable(Vendor);
                 RecordFound := true;
             end else
                 Error(MultipleParentsFoundErr);
-        end;
 
         Employee.SetFilter(SystemId, IDFilter);
-        if Employee.FindFirst() then begin
+        if Employee.FindFirst() then
             if not RecordFound then begin
                 ParentRecordRef.GetTable(Employee);
                 RecordFound := true;
             end else
                 Error(MultipleParentsFoundErr);
-        end;
 
         exit(RecordFound);
     end;
 
-    local procedure UpdateParentType(): Boolean
+    procedure UpdateParentType(): Boolean
     var
         NewParentType: Enum "Default Dimension Parent Type";
     begin
@@ -1169,7 +1147,7 @@ table 352 "Default Dimension"
         exit(true);
     end;
 
-    local procedure UpdateParentId(): Boolean
+    procedure UpdateParentId(): Boolean
     var
         Customer: Record Customer;
         Item: Record Item;
@@ -1526,3 +1504,4 @@ table 352 "Default Dimension"
     begin
     end;
 }
+

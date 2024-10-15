@@ -3,7 +3,6 @@ page 11716 "Payment Order"
 {
     Caption = 'Payment Order (Obsolete)';
     PageType = Document;
-    PromotedActionCategories = 'New,Process,Report,Approve,Request Approval';
     RefreshOnActivate = true;
     SourceTable = "Payment Order Header";
     ObsoleteState = Pending;
@@ -17,7 +16,7 @@ page 11716 "Payment Order"
             group(General)
             {
                 Caption = 'General';
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the number of the payment order.';
@@ -29,35 +28,35 @@ page 11716 "Payment Order"
                             CurrPage.Update();
                     end;
                 }
-                field("Bank Account No."; "Bank Account No.")
+                field("Bank Account No."; Rec."Bank Account No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the name of bank account.';
                 }
-                field("Bank Account Name"; "Bank Account Name")
+                field("Bank Account Name"; Rec."Bank Account Name")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of bank account.';
                 }
-                field("Account No."; "Account No.")
+                field("Account No."; Rec."Account No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the number used by the bank for the bank account.';
                 }
-                field("Foreign Payment Order"; "Foreign Payment Order")
+                field("Foreign Payment Order"; Rec."Foreign Payment Order")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the foreign or domestic payment order.';
                 }
-                field("Document Date"; "Document Date")
+                field("Document Date"; Rec."Document Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ShowMandatory = true;
                     ToolTip = 'Specifies the date on which you created the document.';
                 }
-                field("Currency Code"; "Currency Code")
+                field("Currency Code"; Rec."Currency Code")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -68,13 +67,13 @@ page 11716 "Payment Order"
                         ChangeExchangeRate: Page "Change Exchange Rate";
                     begin
                         ChangeExchangeRate.SetParameter("Currency Code", "Currency Factor", "Document Date");
-                        if ChangeExchangeRate.RunModal = ACTION::OK then begin
-                            Validate("Currency Factor", ChangeExchangeRate.GetParameter);
+                        if ChangeExchangeRate.RunModal() = ACTION::OK then begin
+                            Validate("Currency Factor", ChangeExchangeRate.GetParameter());
                             CurrPage.Update();
                         end;
                     end;
                 }
-                field("Payment Order Currency Code"; "Payment Order Currency Code")
+                field("Payment Order Currency Code"; Rec."Payment Order Currency Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the payment order currency code.';
@@ -84,23 +83,23 @@ page 11716 "Payment Order"
                         ChangeExchangeRate: Page "Change Exchange Rate";
                     begin
                         ChangeExchangeRate.SetParameter("Payment Order Currency Code", "Payment Order Currency Factor", "Document Date");
-                        if ChangeExchangeRate.RunModal = ACTION::OK then begin
-                            Validate("Payment Order Currency Factor", ChangeExchangeRate.GetParameter);
+                        if ChangeExchangeRate.RunModal() = ACTION::OK then begin
+                            Validate("Payment Order Currency Factor", ChangeExchangeRate.GetParameter());
                             CurrPage.Update();
                         end;
                     end;
                 }
-                field("External Document No."; "External Document No.")
+                field("External Document No."; Rec."External Document No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of vendor''s document.';
                 }
-                field("No. of Lines"; "No. of Lines")
+                field("No. of Lines"; Rec."No. of Lines")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of lines in the payment order.';
                 }
-                field("Uncertainty Pay.Check DateTime"; "Uncertainty Pay.Check DateTime")
+                field("Uncertainty Pay.Check DateTime"; Rec."Uncertainty Pay.Check DateTime")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the date of the check of uncertainty.';
@@ -137,17 +136,17 @@ page 11716 "Payment Order"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the total credit amount for issued payment order lines. The program calculates this credit amount from the sum of line credit fields on issued payment order lines.';
                 }
-                field("Amount (LCY)"; "Amount (LCY)")
+                field("Amount (LCY)"; Rec."Amount (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the total amount that the line consists of. The amount is in the local currency.';
                 }
-                field("Debit (LCY)"; "Debit (LCY)")
+                field("Debit (LCY)"; Rec."Debit (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the total amount that the line consists of, if it is a debit amount. The amount is in the local currency.';
                 }
-                field("Credit (LCY)"; "Credit (LCY)")
+                field("Credit (LCY)"; Rec."Credit (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the total amount that the line consists of, if it is a credit amount. The amount is in the local currency.';
@@ -196,8 +195,6 @@ page 11716 "Payment Order"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Statistics';
                     Image = Statistics;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     RunObject = Page "Payment Order Statistics";
                     RunPageLink = "No." = FIELD("No.");
                     ShortCutKey = 'F7';
@@ -230,9 +227,6 @@ page 11716 "Payment Order"
                     ApplicationArea = All;
                     Caption = 'Approve';
                     Image = Approve;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
                     ToolTip = 'Relations to the workflow.';
                     Visible = OpenApprovalEntriesExistForCurrUser;
 
@@ -248,9 +242,6 @@ page 11716 "Payment Order"
                     ApplicationArea = All;
                     Caption = 'Reject';
                     Image = Reject;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
                     ToolTip = 'Rejects cash document';
                     Visible = OpenApprovalEntriesExistForCurrUser;
 
@@ -266,8 +257,6 @@ page 11716 "Payment Order"
                     ApplicationArea = All;
                     Caption = 'Delegate';
                     Image = Delegate;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     ToolTip = 'Specifies enu delegate of payment order.';
                     Visible = OpenApprovalEntriesExistForCurrUser;
 
@@ -283,8 +272,6 @@ page 11716 "Payment Order"
                     ApplicationArea = All;
                     Caption = 'Comments';
                     Image = ViewComments;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     ToolTip = 'Specifies payment order comments.';
                     Visible = OpenApprovalEntriesExistForCurrUser;
 
@@ -325,7 +312,7 @@ page 11716 "Payment Order"
 
                     trigger OnAction()
                     begin
-                        ImportPaymentOrder;
+                        ImportPaymentOrder();
                     end;
                 }
             }
@@ -342,7 +329,7 @@ page 11716 "Payment Order"
 
                     trigger OnAction()
                     begin
-                        TestPrintPaymentOrder;
+                        TestPrintPaymentOrder();
                     end;
                 }
                 action(Issue)
@@ -350,8 +337,6 @@ page 11716 "Payment Order"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Issue';
                     Image = ReleaseDoc;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ShortCutKey = 'F9';
                     ToolTip = 'Issue the payment order to indicate that it has been printed or exported. Payment order will be moved to issued payment order.';
 
@@ -378,9 +363,6 @@ page 11716 "Payment Order"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Re&open';
                     Image = ReOpen;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     ToolTip = 'Reopen the document to change it after it has been approved. Approved documents have the Approved status and must be opened before they can be changed.';
 
                     trigger OnAction()
@@ -401,8 +383,6 @@ page 11716 "Payment Order"
                     Caption = 'Send A&pproval Request';
                     Enabled = NOT OpenApprovalEntriesExist;
                     Image = SendApprovalRequest;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     ToolTip = 'Relations to the workflow.';
 
                     trigger OnAction()
@@ -419,8 +399,6 @@ page 11716 "Payment Order"
                     Caption = 'Cancel Approval Re&quest';
                     Enabled = OpenApprovalEntriesExist;
                     Image = CancelApprovalRequest;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     ToolTip = 'Relations to the workflow.';
 
                     trigger OnAction()
@@ -429,6 +407,55 @@ page 11716 "Payment Order"
                     begin
                         ApprovalsMgmt.OnCancelPaymentOrderApprovalRequest(Rec);
                     end;
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref(Reopen_Promoted; Reopen)
+                {
+                }
+                actionref(Issue_Promoted; Issue)
+                {
+                }
+                actionref(Statistics_Promoted; Statistics)
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Approve', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref(Approve_Promoted; Approve)
+                {
+                }
+                actionref(Reject_Promoted; Reject)
+                {
+                }
+                actionref(Delegate_Promoted; Delegate)
+                {
+                }
+                actionref(Comment_Promoted; Comment)
+                {
+                }
+            }
+            group(Category_Category5)
+            {
+                Caption = 'Request Approval', Comment = 'Generated from the PromotedActionCategories property index 4.';
+
+                actionref(SendApprovalRequest_Promoted; SendApprovalRequest)
+                {
+                }
+                actionref(CancelApprovalRequest_Promoted; CancelApprovalRequest)
+                {
                 }
             }
         }
@@ -441,7 +468,7 @@ page 11716 "Payment Order"
 
     trigger OnAfterGetRecord()
     begin
-        SetControlVisibility;
+        SetControlVisibility();
         FilterGroup := 2;
         if not (GetFilter("Bank Account No.") <> '') then begin
             if "Bank Account No." <> '' then
@@ -455,7 +482,7 @@ page 11716 "Payment Order"
         BankAccount: Record "Bank Account";
     begin
         FilterGroup := 2;
-        "Document Date" := WorkDate;
+        "Document Date" := WorkDate();
         "Bank Account No." := CopyStr(GetFilter("Bank Account No."), 1, MaxStrLen("Bank Account No."));
         FilterGroup := 0;
         CurrPage.Lines.PAGE.SetParameters("Bank Account No.");
@@ -468,7 +495,7 @@ page 11716 "Payment Order"
 
     trigger OnOpenPage()
     begin
-        SetDocNoVisible;
+        SetDocNoVisible();
     end;
 
     var
@@ -488,7 +515,7 @@ page 11716 "Payment Order"
         if IssuingCodeunitID <> CODEUNIT::"Issue Payment Order (Yes/No)" then
             exit;
 
-        if InstructionMgt.IsEnabled(InstructionMgt.GetOpeningIssuedDocumentNotificationId) then
+        if InstructionMgt.IsEnabled(InstructionMgt.GetOpeningIssuedDocumentNotificationId()) then
             ShowIssuedConfirmationMessage("No.");
     end;
 
@@ -499,7 +526,7 @@ page 11716 "Payment Order"
     begin
         IssuedPaymentOrderHeader.SetRange("Pre-Assigned No.", PreAssignedNo);
         if IssuedPaymentOrderHeader.FindFirst() then
-            if InstructionMgt.ShowConfirm(OpenIssuedPayOrdQst, InstructionMgt.ShowIssuedConfirmationMessageCode) then
+            if InstructionMgt.ShowConfirm(OpenIssuedPayOrdQst, InstructionMgt.ShowIssuedConfirmationMessageCode()) then
                 PAGE.Run(PAGE::"Issued Payment Order", IssuedPaymentOrderHeader);
     end;
 

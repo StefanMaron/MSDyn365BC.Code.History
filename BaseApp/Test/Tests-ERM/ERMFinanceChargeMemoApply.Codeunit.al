@@ -37,7 +37,7 @@ codeunit 134009 "ERM Finance Charge Memo Apply"
 
         // Create Sales Invoice, Finance Charge Memo and Issue it, Post General Journal Lines and Take backup for Current Workdate.
         Initialize();
-        CurrentDate := WorkDate;
+        CurrentDate := WorkDate();
         ChargeMemoNo := CreateInvoiceFinanceChargeMemo(GenJournalLine);
 
         // Verify: Check Finance Charge Memo is no more after issuing and Customer Ledger Entry for Remaining Amount after Post General
@@ -63,7 +63,7 @@ codeunit 134009 "ERM Finance Charge Memo Apply"
         // Create Sales Invoice, Finance Charge Memo and Issue it, Post General Journal Lines, Apply and unapply them and
         // Take backup for Current Workdate
         Initialize();
-        CurrentDate := WorkDate;
+        CurrentDate := WorkDate();
         CreateInvoiceFinanceChargeMemo(GenJournalLine);
         ApplyAndPostCustomerEntry(GenJournalLine."Document No.", GenJournalLine.Amount);
         UnapplyCustLedgerEntry(GenJournalLine."Account No.", GenJournalLine."Document No.");
@@ -326,7 +326,7 @@ codeunit 134009 "ERM Finance Charge Memo Apply"
             CustLedgerEntry2.CalcFields("Remaining Amount");
             CustLedgerEntry2.Validate("Amount to Apply", CustLedgerEntry2."Remaining Amount");
             CustLedgerEntry2.Modify(true);
-        until CustLedgerEntry2.Next = 0;
+        until CustLedgerEntry2.Next() = 0;
 
         LibraryERM.SetAppliestoIdCustomer(CustLedgerEntry2);
         LibraryERM.PostCustLedgerApplication(CustLedgerEntry);
@@ -376,7 +376,7 @@ codeunit 134009 "ERM Finance Charge Memo Apply"
         FinanceChargeTerms.Get(Customer."Fin. Charge Terms Code");
 
         // Set Workdate according to Finance Charge Terms with Grace Period and Due Date Calculation.
-        WorkDate := CalcDate(FinanceChargeTerms."Grace Period", CalcDate(FinanceChargeTerms."Due Date Calculation", WorkDate));
+        WorkDate := CalcDate(FinanceChargeTerms."Grace Period", CalcDate(FinanceChargeTerms."Due Date Calculation", WorkDate()));
         FinanceChargeMemoHeader.Init();
         FinanceChargeMemoHeader.Insert(true);
         CustLedgerEntry.SetRange("Document No.", DocumentNo);
@@ -513,9 +513,9 @@ codeunit 134009 "ERM Finance Charge Memo Apply"
         DetailedCustLedgEntry.SetRange("Customer No.", CustomerNo);
         DetailedCustLedgEntry.FindSet();
         repeat
-            Assert.IsTrue(DetailedCustLedgEntry.Unapplied, StrSubstNo(UnappliedError, DetailedCustLedgEntry.TableCaption,
+            Assert.IsTrue(DetailedCustLedgEntry.Unapplied, StrSubstNo(UnappliedError, DetailedCustLedgEntry.TableCaption(),
                 DetailedCustLedgEntry.Unapplied));
-        until DetailedCustLedgEntry.Next = 0;
+        until DetailedCustLedgEntry.Next() = 0;
     end;
 
     local procedure VerifyCustLedgerEntryForRemAmt(GenJournalLine: Record "Gen. Journal Line")

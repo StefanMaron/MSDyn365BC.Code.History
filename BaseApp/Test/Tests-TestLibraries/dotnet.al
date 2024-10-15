@@ -7,7 +7,7 @@ dotnet
 {
     assembly("Microsoft.Dynamics.Nav.PermissionTestHelper")
     {
-        Version = '20.0.0.0';
+        Version = '21.0.0.0';
         Culture = 'neutral';
         PublicKeyToken = '31bf3856ad364e35';
 
@@ -16,21 +16,8 @@ dotnet
         }
     }
 
-    assembly(mscorlib)
+    assembly(System.Security.Principal.Windows)
     {
-
-        type("System.Collections.ObjectModel.Collection`1"; "Collection1")
-        {
-        }
-
-        type("System.Reflection.BindingFlags"; "System.Reflection.BindingFlags")
-        {
-        }
-
-        type("System.Security.Cryptography.AsymmetricAlgorithm"; "AsymmetricAlgorithm")
-        {
-        }
-
         type("System.Security.Principal.WindowsIdentity"; "System.Security.Principal.WindowsIdentity")
         {
         }
@@ -39,49 +26,6 @@ dotnet
         {
         }
 
-        type("System.UnauthorizedAccessException"; "System.UnauthorizedAccessException")
-        {
-        }
-    }
-
-    assembly("System")
-    {
-        Version = '4.0.0.0';
-        Culture = 'neutral';
-        PublicKeyToken = 'b77a5c561934e089';
-
-        type("System.Diagnostics.ProcessStartInfo"; "System.Diagnostics.ProcessStartInfo")
-        {
-        }
-
-        type("System.Net.Mail.MailMessage"; "System.Net.Mail.MailMessage")
-        {
-        }
-    }
-
-    assembly("System.DirectoryServices.AccountManagement")
-    {
-        Version = '4.0.0.0';
-
-        type("System.DirectoryServices.AccountManagement.ContextType"; "System.DirectoryServices.AccountManagement.ContextType")
-        {
-        }
-
-        type("System.DirectoryServices.AccountManagement.GroupPrincipal"; "System.DirectoryServices.AccountManagement.GroupPrincipal")
-        {
-        }
-
-        type("System.DirectoryServices.AccountManagement.IdentityType"; "System.DirectoryServices.AccountManagement.IdentityType")
-        {
-        }
-
-        type("System.DirectoryServices.AccountManagement.Principal"; "System.DirectoryServices.AccountManagement.Principal")
-        {
-        }
-
-        type("System.DirectoryServices.AccountManagement.PrincipalContext"; "System.DirectoryServices.AccountManagement.PrincipalContext")
-        {
-        }
     }
 
     assembly("System.Management.Automation")
@@ -119,23 +63,29 @@ dotnet
         }
     }
 
-    assembly("System.Net.Http")
+    assembly("netstandard")
     {
-        Version = '4.0.0.0';
-        Culture = 'neutral';
-        PublicKeyToken = 'b03f5f7f11d50a3a';
+        type("System.Reflection.BindingFlags"; "System.Reflection.BindingFlags")
+        {
+        }
 
+        type("System.Security.Cryptography.AsymmetricAlgorithm"; "AsymmetricAlgorithm")
+        {
+        }
+
+        type("System.UnauthorizedAccessException"; "System.UnauthorizedAccessException")
+        {
+        }
+        type("System.Diagnostics.ProcessStartInfo"; "System.Diagnostics.ProcessStartInfo")
+        {
+        }
+
+        type("System.Net.Mail.MailMessage"; "System.Net.Mail.MailMessage")
+        {
+        }
         type("System.Net.Http.HttpRequestMessage"; "HttpRequestMessage")
         {
         }
-    }
-
-    assembly("System.Xml")
-    {
-        Version = '4.0.0.0';
-        Culture = 'neutral';
-        PublicKeyToken = 'b77a5c561934e089';
-
         type("System.Xml.XmlException"; "System.Xml.XmlException")
         {
         }
@@ -147,18 +97,9 @@ dotnet
         type("System.Xml.Schema.ValidationEventHandler"; "System.Xml.Schema.ValidationEventHandler")
         {
         }
-    }
-
-    assembly("System.Windows.Forms")
-    {
-        Version = '4.0.0.0';
-        Culture = 'neutral';
-        PublicKeyToken = 'b77a5c561934e089';
-
-        type("System.Windows.Forms.Control"; "System.Windows.Forms.Control")
+        type("System.Collections.ObjectModel.Collection`1"; "Collection1")
         {
         }
     }
-
 }
 

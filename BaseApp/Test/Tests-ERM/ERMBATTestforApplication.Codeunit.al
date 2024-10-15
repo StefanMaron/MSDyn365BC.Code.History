@@ -198,7 +198,7 @@ codeunit 134013 "ERM BAT Test for Application"
             CustLedgerEntry2.CalcFields("Remaining Amount");
             CustLedgerEntry2.Validate("Amount to Apply", CustLedgerEntry2."Remaining Amount");
             CustLedgerEntry2.Modify(true);
-        until CustLedgerEntry2.Next = 0;
+        until CustLedgerEntry2.Next() = 0;
 
         // Set Applies-to ID.
         LibraryERM.SetAppliestoIdCustomer(CustLedgerEntry2);

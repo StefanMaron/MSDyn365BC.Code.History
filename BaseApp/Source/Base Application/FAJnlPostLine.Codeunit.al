@@ -1,20 +1,15 @@
-#if not CLEAN18
 codeunit 5632 "FA Jnl.-Post Line"
 {
     Permissions = TableData "FA Ledger Entry" = r,
                   TableData "FA Register" = rm,
                   TableData "Maintenance Ledger Entry" = r,
-                  TableData "Ins. Coverage Ledger Entry" = r,
-                  TableData "FA History Entry" = rimd;
+                  TableData "Ins. Coverage Ledger Entry" = r;
 
     trigger OnRun()
     begin
     end;
 
     var
-        Text000: Label '%2 must not be %3 in %4 %5 = %6 for %1.';
-        Text001: Label '%2 = %3 must be canceled first for %1.';
-        Text002: Label '%1 is not a %2.';
         FA: Record "Fixed Asset";
         FA2: Record "Fixed Asset";
         DeprBook: Record "Depreciation Book";
@@ -29,8 +24,6 @@ codeunit 5632 "FA Jnl.-Post Line"
         CalculateAcqCostDepr: Codeunit "Calculate Acq. Cost Depr.";
         MakeFALedgEntry: Codeunit "Make FA Ledger Entry";
         MakeMaintenanceLedgEntry: Codeunit "Make Maintenance Ledger Entry";
-        FASetup: Record "FA Setup";
-        FAHistoryEntry: Record "FA History Entry";
         FANo: Code[20];
         BudgetNo: Code[20];
         DeprBookCode: Code[10];
@@ -42,6 +35,10 @@ codeunit 5632 "FA Jnl.-Post Line"
         DeprAcqCost: Boolean;
         ErrorEntryNo: Integer;
         ResultOnDisposal: Integer;
+
+        Text000: Label '%2 must not be %3 in %4 %5 = %6 for %1.';
+        Text001: Label '%2 = %3 must be canceled first for %1.';
+        Text002: Label '%1 is not a %2.';
         Text003: Label '%1 = %2 already exists for %5 (%3 = %4).';
 
     procedure FAJnlPostLine(FAJnlLine: Record "FA Journal Line"; CheckLine: Boolean)
@@ -72,28 +69,14 @@ codeunit 5632 "FA Jnl.-Post Line"
                 ErrorEntryNo := "FA Error Entry No.";
                 if "FA Posting Type" = "FA Posting Type"::Maintenance then begin
                     MakeMaintenanceLedgEntry.CopyFromFAJnlLine(MaintenanceLedgEntry, FAJnlLine);
-                    PostMaintenance;
+                    PostMaintenance();
                 end else begin
                     MakeFALedgEntry.CopyFromFAJnlLine(FALedgEntry, FAJnlLine);
-                    PostFixedAsset;
+                    PostFixedAsset();
                 end;
             end;
         end;
 
-        // NAVCZ
-        FASetup.Get();
-        if FASetup."Fixed Asset History" and
-           (FAJnlLine."FA Posting Type" = FAJnlLine."FA Posting Type"::Disposal) and
-           (FASetup."Default Depr. Book" = FAJnlLine."Depreciation Book Code")
-        then
-            if FAJnlLine."FA Error Entry No." = 0 then begin
-                InsertFAHistoryEntry(FAHistoryEntry.Type::Location, FAJnlLine."FA No.");
-                InsertFAHistoryEntry(FAHistoryEntry.Type::"Responsible Employee", FAJnlLine."FA No.");
-            end else begin
-                UpdateFAHistoryEntry(FAHistoryEntry.Type::Location, FAJnlLine."FA No.");
-                UpdateFAHistoryEntry(FAHistoryEntry.Type::"Responsible Employee", FAJnlLine."FA No.");
-            end;
-        // NAVCZ
         OnAfterFAJnlPostLine(FAJnlLine);
     end;
 
@@ -105,7 +88,7 @@ codeunit 5632 "FA Jnl.-Post Line"
         OnBeforeGenJnlPostLine(GenJnlLine, FAInsertLedgEntry, FAAmount, VATAmount, NextTransactionNo, NextGLEntryNo, GLRegisterNo, IsHandled);
         if not IsHandled then begin
             FAInsertLedgEntry.SetGLRegisterNo(GLRegisterNo);
-            FAInsertLedgEntry.DeleteAllGLAcc;
+            FAInsertLedgEntry.DeleteAllGLAcc();
             with GenJnlLine do begin
                 if "Account No." = '' then
                     exit;
@@ -130,7 +113,7 @@ codeunit 5632 "FA Jnl.-Post Line"
                     MaintenanceLedgEntry."VAT Amount" := VATAmount;
                     MaintenanceLedgEntry."Transaction No." := NextTransactionNo;
                     MaintenanceLedgEntry."G/L Entry No." := NextGLEntryNo;
-                    PostMaintenance;
+                    PostMaintenance();
                 end else begin
                     MakeFALedgEntry.CopyFromGenJnlLine(FALedgEntry, GenJnlLine);
                     FALedgEntry.Amount := FAAmount;
@@ -138,7 +121,7 @@ codeunit 5632 "FA Jnl.-Post Line"
                     FALedgEntry."Transaction No." := NextTransactionNo;
                     FALedgEntry."G/L Entry No." := NextGLEntryNo;
                     OnBeforePostFixedAssetFromGenJnlLine(GenJnlLine, FALedgEntry, FAAmount, VATAmount);
-                    PostFixedAsset;
+                    PostFixedAsset();
                 end;
             end;
         end;
@@ -165,9 +148,9 @@ codeunit 5632 "FA Jnl.-Post Line"
         if FAPostingType = FAPostingType::Disposal then
             PostDisposalEntry(FALedgEntry)
         else begin
-            if PostBudget then
-                SetBudgetAssetNo;
-            if not DeprLine then begin
+            if PostBudget() then
+                SetBudgetAssetNo();
+            if not DeprLine() then begin
                 OnPostFixedAssetOnBeforeInsertEntry(FALedgEntry);
                 FAInsertLedgEntry.SetOrgGenJnlLine(true);
                 FAInsertLedgEntry.InsertFA(FALedgEntry);
@@ -178,8 +161,8 @@ codeunit 5632 "FA Jnl.-Post Line"
         if DeprAcqCost then
             PostDeprUntilDate(FALedgEntry, 1);
         FAInsertLedgEntry.SetLastEntryNo(false);
-        if PostBudget then
-            PostBudgetAsset;
+        if PostBudget() then
+            PostBudgetAsset();
 
         OnAfterPostFixedAsset(FA, FALedgEntry);
     end;
@@ -198,19 +181,18 @@ codeunit 5632 "FA Jnl.-Post Line"
                 FADeprBook.TestField("FA Posting Group");
                 "FA Posting Group" := FADeprBook."FA Posting Group";
             end;
-        if PostBudget then
-            SetBudgetAssetNo;
+        if PostBudget() then
+            SetBudgetAssetNo();
         OnPostMaintenanceOnBeforeInsertEntry(MaintenanceLedgEntry);
         FAInsertLedgEntry.SetOrgGenJnlLine(true);
         FAInsertLedgEntry.InsertMaintenance(MaintenanceLedgEntry);
         FAInsertLedgEntry.SetOrgGenJnlLine(false);
-        if PostBudget then
-            PostBudgetAsset;
+        if PostBudget() then
+            PostBudgetAsset();
     end;
 
     local procedure PostDisposalEntry(var FALedgEntry: Record "FA Ledger Entry")
     var
-        FAPostingGroup: Record "FA Posting Group";
         MaxDisposalNo: Integer;
         SalesEntryNo: Integer;
         DisposalType: Option FirstDisposal,SecondDisposal,ErrorDisposal,LastErrorDisposal;
@@ -236,14 +218,14 @@ codeunit 5632 "FA Jnl.-Post Line"
             then
                 Error(
                   Text000,
-                  FAName, DeprBook.FieldCaption("Disposal Calculation Method"), "Disposal Calculation Method",
-                  DeprBook.TableCaption, DeprBook.FieldCaption(Code), DeprBook.Code);
+                  FAName(), DeprBook.FieldCaption("Disposal Calculation Method"), "Disposal Calculation Method",
+                  DeprBook.TableCaption(), DeprBook.FieldCaption(Code), DeprBook.Code);
             if ErrorEntryNo = 0 then
                 "Disposal Entry No." := MaxDisposalNo + 1
             else
                 if SalesEntryNo <> ErrorEntryNo then
                     Error(Text001,
-                      FAName, FieldCaption("Disposal Entry No."), MaxDisposalNo);
+                      FAName(), FieldCaption("Disposal Entry No."), MaxDisposalNo);
             if DisposalType = DisposalType::FirstDisposal then
                 PostReverseType(FALedgEntry);
             if DeprBook."Disposal Calculation Method" = DeprBook."Disposal Calculation Method"::Gross then
@@ -258,10 +240,6 @@ codeunit 5632 "FA Jnl.-Post Line"
             then
                 FAInsertLedgEntry.SetNetdisposal(true);
 
-            // NAVCZ
-            if DeprBook."G/L Integration - Disposal" then
-                FAPostingGroup.Get(FADeprBook."FA Posting Group");
-            // NAVCZ
             if DisposalType = DisposalType::FirstDisposal then begin
                 CalculateDisposal.CalcGainLoss(FANo, DeprBookCode, EntryAmounts);
                 for i := 1 to 14 do
@@ -277,44 +255,6 @@ codeunit 5632 "FA Jnl.-Post Line"
                             "Result on Disposal" := "Result on Disposal"::" ";
                         if i = 10 then
                             SetResultOnDisposal(FALedgEntry);
-                        // NAVCZ
-                        if (DeprBook."Disposal Calculation Method" <> DeprBook."Disposal Calculation Method"::Net) and
-                           not FAPostingGroup.UseStandardDisposal()
-                        then begin
-                            if not DeprBook."Corresp. G/L Entries on Disp." then
-                                FAInsertLedgEntry.InsertFA(FALedgEntry)
-                            else
-                                if not DeprBook."Corresp. FA Entries on Disp." then
-                                    FAInsertLedgEntry.InsertFA(FALedgEntry)
-                                else
-                                    if "FA Posting Type" <> "FA Posting Type"::Depreciation then begin
-                                        FAInsertLedgEntry.SetFAPostingType2(0);
-                                        FAInsertLedgEntry.InsertFA(FALedgEntry);
-                                        if i in [3, 5, 6, 10] then begin
-                                            case i of
-                                                3:
-                                                    FAInsertLedgEntry.SetFAPostingType2(1);
-                                                5:
-                                                    FAInsertLedgEntry.SetFAPostingType2(4);
-                                                6:
-                                                    FAInsertLedgEntry.SetFAPostingType2(3);
-                                                10:
-                                                    FAInsertLedgEntry.SetFAPostingType2(2);
-                                            end;
-                                            "FA Posting Category" := CalculateDisposal.SetFAPostingCategory(4);
-                                            "FA Posting Type" := CalculateDisposal.SetFAPostingType(4);
-                                            Amount := -EntryAmounts[i];
-                                            FAInsertLedgEntry.InsertFA(FALedgEntry);
-                                            if i in [3, 5, 6, 10] then begin
-                                                "FA Posting Category" := CalculateDisposal.SetFAPostingCategory(i);
-                                                "FA Posting Type" := CalculateDisposal.SetFAPostingType(i);
-                                                Amount := EntryAmounts[i];
-                                            end;
-                                        end;
-                                        FAInsertLedgEntry.SetFAPostingType2(0);
-                                    end;
-                        end else
-                            // NAVCZ
                         FAInsertLedgEntry.InsertFA(FALedgEntry);
                         PostAllocation(FALedgEntry);
                     end;
@@ -360,51 +300,11 @@ codeunit 5632 "FA Jnl.-Post Line"
                             "Result on Disposal" := "Result on Disposal"::" ";
                         if i = 10 then
                             "Result on Disposal" := ResultOnDisposal;
-                        // NAVCZ
-                        if (DeprBook."Disposal Calculation Method" <> DeprBook."Disposal Calculation Method"::Net) and
-                           not FAPostingGroup.UseStandardDisposal()
-                        then begin
-                            if not DeprBook."Corresp. G/L Entries on Disp." then
-                                FAInsertLedgEntry.InsertFA(FALedgEntry)
-                            else
-                                if not DeprBook."Corresp. FA Entries on Disp." then
-                                    FAInsertLedgEntry.InsertFA(FALedgEntry)
-                                else
-                                    if "FA Posting Type" <> "FA Posting Type"::Depreciation then begin
-                                        FAInsertLedgEntry.SetFAPostingType2(0);
-                                        FAInsertLedgEntry.InsertFA(FALedgEntry);
-                                        if i in [3, 5, 6, 10] then begin
-                                            case i of
-                                                3:
-                                                    FAInsertLedgEntry.SetFAPostingType2(1);
-                                                5:
-                                                    FAInsertLedgEntry.SetFAPostingType2(4);
-                                                6:
-                                                    FAInsertLedgEntry.SetFAPostingType2(3);
-                                                10:
-                                                    FAInsertLedgEntry.SetFAPostingType2(2);
-                                            end;
-                                            "FA Posting Category" := CalculateDisposal.SetFAPostingCategory(4);
-                                            "FA Posting Type" := CalculateDisposal.SetFAPostingType(4);
-                                            Amount := -EntryAmounts[i];
-                                            "Entry No." := EntryNumbers[i] + 1;
-                                            FAInsertLedgEntry.InsertFA(FALedgEntry);
-                                            if i in [3, 5, 6, 10] then begin
-                                                "FA Posting Category" := CalculateDisposal.SetFAPostingCategory(i);
-                                                "FA Posting Type" := CalculateDisposal.SetFAPostingType(i);
-                                                Amount := EntryAmounts[i];
-                                            end;
-                                        end;
-                                        FAInsertLedgEntry.SetFAPostingType2(0);
-                                    end;
-                        end else
-                            // NAVCZ
                         FAInsertLedgEntry.InsertFA(FALedgEntry);
                         PostAllocation(FALedgEntry);
                     end;
             end;
-            FAInsertLedgEntry.SetReasonMaintenanceCode("Reason Code"); //NAVCZ
-            FAInsertLedgEntry.CorrectEntries;
+            FAInsertLedgEntry.CorrectEntries();
             FAInsertLedgEntry.SetNetdisposal(false);
         end;
 
@@ -477,7 +377,7 @@ codeunit 5632 "FA Jnl.-Post Line"
         if not FA2."Budgeted Asset" then begin
             FA."No." := FA2."No.";
             DeprBookCode := '';
-            Error(Text002, FAName, FA.FieldCaption("Budgeted Asset"));
+            Error(Text002, FAName(), FA.FieldCaption("Budgeted Asset"));
         end;
         if FAPostingType = FAPostingType::Maintenance then
             MaintenanceLedgEntry."FA No./Budgeted FA No." := BudgetNo
@@ -494,32 +394,29 @@ codeunit 5632 "FA Jnl.-Post Line"
         FA2.TestField(Blocked, false);
         FA2.TestField(Inactive, false);
         if FAPostingType = FAPostingType::Maintenance then begin
-            with MaintenanceLedgEntry do begin
-                "Automatic Entry" := true;
-                "G/L Entry No." := 0;
-                "FA No./Budgeted FA No." := "FA No.";
-                "FA No." := BudgetNo;
-                Amount := -Amount2;
-                OnPostBudgetAssetOnBeforeInsertMaintenanceLedgEntry(MaintenanceLedgEntry);
-                FAInsertLedgEntry.InsertMaintenance(MaintenanceLedgEntry);
-            end;
-        end else
-            with FALedgEntry do begin
-                "Automatic Entry" := true;
-                "G/L Entry No." := 0;
-                "FA No./Budgeted FA No." := "FA No.";
-                "FA No." := BudgetNo;
-                if SalvageValue <> 0 then begin
-                    Amount := -SalvageValue;
-                    FAPostingType2 := "FA Posting Type";
-                    "FA Posting Type" := "FA Posting Type"::"Salvage Value";
-                    FAInsertLedgEntry.InsertFA(FALedgEntry);
-                    "FA Posting Type" := FAPostingType2;
-                end;
-                Amount := -Amount2;
-                OnPostBudgetAssetOnBeforeInsertFAEntry(FALedgEntry);
+            MaintenanceLedgEntry."Automatic Entry" := true;
+            MaintenanceLedgEntry."G/L Entry No." := 0;
+            MaintenanceLedgEntry."FA No./Budgeted FA No." := MaintenanceLedgEntry."FA No.";
+            MaintenanceLedgEntry."FA No." := BudgetNo;
+            MaintenanceLedgEntry.Amount := -Amount2;
+            OnPostBudgetAssetOnBeforeInsertMaintenanceLedgEntry(MaintenanceLedgEntry);
+            FAInsertLedgEntry.InsertMaintenance(MaintenanceLedgEntry);
+        end else begin
+            FALedgEntry."Automatic Entry" := true;
+            FALedgEntry."G/L Entry No." := 0;
+            FALedgEntry."FA No./Budgeted FA No." := FALedgEntry."FA No.";
+            FALedgEntry."FA No." := BudgetNo;
+            if SalvageValue <> 0 then begin
+                FALedgEntry.Amount := -SalvageValue;
+                FAPostingType2 := FALedgEntry."FA Posting Type";
+                FALedgEntry."FA Posting Type" := FALedgEntry."FA Posting Type"::"Salvage Value";
                 FAInsertLedgEntry.InsertFA(FALedgEntry);
+                FALedgEntry."FA Posting Type" := FAPostingType2;
             end;
+            FALedgEntry.Amount := -Amount2;
+            OnPostBudgetAssetOnBeforeInsertFAEntry(FALedgEntry);
+            FAInsertLedgEntry.InsertFA(FALedgEntry);
+        end;
     end;
 
     procedure PostReverseType(FALedgEntry: Record "FA Ledger Entry")
@@ -650,7 +547,7 @@ codeunit 5632 "FA Jnl.-Post Line"
               OldMaintenanceLedgEntry."Document No.",
               FAJnlLine2.FieldCaption("FA Posting Type"),
               FAJnlLine2."FA Posting Type",
-              FAName);
+              FAName());
         end;
     end;
 
@@ -661,57 +558,6 @@ codeunit 5632 "FA Jnl.-Post Line"
         if FAReg.FindLast() then begin
             FAReg."G/L Register No." := GLRegNo;
             FAReg.Modify();
-        end;
-    end;
-
-    [Obsolete('Moved to Fixed Asset Localization for Czech.', '18.0')]
-    [Scope('OnPrem')]
-    procedure InsertFAHistoryEntry(FAHType: Option Location,"Responsible Employee"; FANo: Code[20])
-    var
-        OldValue: Code[20];
-    begin
-        // NAVCZ
-        FA.Get(FANo);
-        case FAHType of
-            FAHType::Location:
-                begin
-                    OldValue := FA."FA Location Code";
-                    FA."FA Location Code" := '';
-                end;
-            FAHType::"Responsible Employee":
-                begin
-                    OldValue := FA."Responsible Employee";
-                    FA."Responsible Employee" := '';
-                end;
-        end;
-        FA.Modify();
-        FAHistoryEntry.InsertEntry(FAHType, FANo, OldValue, '', 0, true);
-    end;
-
-    [Obsolete('Moved to Fixed Asset Localization for Czech.', '18.0')]
-    [Scope('OnPrem')]
-    procedure UpdateFAHistoryEntry(FAHType: Option Location,"Responsible Employee"; FANo: Code[20])
-    begin
-        // NAVCZ
-        FAHistoryEntry.Reset();
-        FAHistoryEntry.SetRange(Disposal, true);
-        FAHistoryEntry.SetRange("FA No.", FANo);
-        FAHistoryEntry.SetRange("Closed by Entry No.", 0);
-        FAHistoryEntry.SetRange(Type, FAHType);
-        if FAHistoryEntry.FindLast() then begin
-            FA.Get(FANo);
-            case FAHType of
-                FAHType::Location:
-                    if FAHistoryEntry."Old Value" = '' then
-                        FA."FA Location Code" := ''
-                    else
-                        FA."FA Location Code" := CopyStr(FAHistoryEntry."Old Value", 1, MaxStrLen(FA."FA Location Code"));
-                FAHType::"Responsible Employee":
-                    FA."Responsible Employee" := FAHistoryEntry."Old Value";
-            end;
-            FAHistoryEntry."Closed by Entry No." := FAHistoryEntry.InsertEntry(FAHType, FANo, '', FAHistoryEntry."Old Value", 0, false);
-            FAHistoryEntry.Modify();
-            FA.Modify();
         end;
     end;
 
@@ -791,4 +637,3 @@ codeunit 5632 "FA Jnl.-Post Line"
     end;
 }
 
-#endif

@@ -14,6 +14,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
         AssemblyLine: Record "Assembly Line";
         Item: Record Item;
         LibraryERM: Codeunit "Library - ERM";
+        DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryCosting: Codeunit "Library - Costing";
@@ -31,7 +32,6 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
         ItemPostGrErr: Label 'Inventory Posting Group must have a value in Item: No.=%1. It cannot be zero or empty.';
         ResPostGrErr: Label 'Gen. Prod. Posting Group must have a value in Resource: No.=%1. It cannot be zero or empty.';
         NoSeriesErr: Label 'You have insufficient quantity of Item';
-        ZeroQtyErr: Label 'There is nothing to post.';
         AsmItemPostingErr: Label 'Gen. Prod. Posting Group must have a value in Item Journal Line: Journal Template Name=, Journal Batch Name=, Line No.=0. It cannot be zero or empty.';
         isInitialized: Boolean;
         AvailCheckErr: Label 'You have insufficient quantity of Item %1 on inventory.';
@@ -56,7 +56,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Kitting - D3 - Part 1");
         // Initialize setup.
-        ClearLastError;
+        ClearLastError();
         LibrarySetupStorage.Restore();
         LibraryAssembly.UpdateAssemblySetup(AssemblySetup, '',
           AssemblySetup."Copy Component Dimensions from"::"Item/Resource Card", LibraryUtility.GetGlobalNoSeriesCode);
@@ -71,7 +71,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
         LibraryERMCountryData.UpdateGeneralLedgerSetup(); // NAVCZ
 
         MfgSetup.Get();
-        WorkDate2 := CalcDate(MfgSetup."Default Safety Lead Time", WorkDate); // to avoid Due Date Before Work Date message.
+        WorkDate2 := CalcDate(MfgSetup."Default Safety Lead Time", WorkDate()); // to avoid Due Date Before Work Date message.
         LibraryCosting.AdjustCostItemEntries('', '');
         LibraryCosting.PostInvtCostToGL(false, WorkDate2, '');
         Commit();
@@ -528,7 +528,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
                         LibraryAssembly.GetUnitOfMeasureCode(Type, Item."No.", true), 1, 0, '');
                     // Verify.
                     Assert.AreEqual(ExpectedError, GetLastErrorText, '');
-                    ClearLastError;
+                    ClearLastError();
                 end;
             "BOM Component Type"::Resource:
                 begin
@@ -542,7 +542,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
                         LibraryAssembly.GetUnitOfMeasureCode(Type, Resource."No.", true), 1, 0, '');
                     // Verify.
                     Assert.AreEqual(ExpectedError, GetLastErrorText, '');
-                    ClearLastError;
+                    ClearLastError();
                 end;
         end;
     end;
@@ -889,7 +889,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
         AssemblyHeader.Modify(true);
 
         // Verify.
-        LibraryAssembly.PostAssemblyHeader(AssemblyHeader, ZeroQtyErr);
+        LibraryAssembly.PostAssemblyHeader(AssemblyHeader, DocumentErrorsMgt.GetNothingToPostErrorMsg());
     end;
 
     [Test]
@@ -1144,7 +1144,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
         // [FEATURE] [Adjust Cost Item Entries] [Assembly] [Posting]
         // [SCENARIO] Verify an error on posting Assembly Order (Adjust Cost after posting) when Qty to Assemble = 0.
 
-        NormalPosting(Item."Costing Method"::Standard, Item."Costing Method"::Standard, 0, 100, ZeroQtyErr, 0, false);
+        NormalPosting(Item."Costing Method"::Standard, Item."Costing Method"::Standard, 0, 100, DocumentErrorsMgt.GetNothingToPostErrorMsg(), 0, false);
     end;
 
     [Test]
@@ -1155,7 +1155,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
         // [FEATURE] [Adjust Cost Item Entries] [Assembly] [Posting]
         // [SCENARIO] Verify an error on posting Assembly Order (Adjust Cost after posting) when Qty to Consume = 0.
 
-        NormalPosting(Item."Costing Method"::Standard, Item."Costing Method"::Standard, 100, 0, ZeroQtyErr, 0, false);
+        NormalPosting(Item."Costing Method"::Standard, Item."Costing Method"::Standard, 100, 0, DocumentErrorsMgt.GetNothingToPostErrorMsg(), 0, false);
     end;
 
     [Test]
@@ -1288,7 +1288,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
         LibraryAssembly.AddCompInventory(AssemblyHeader, WorkDate2, 0);
 
         // Exercise.
-        LibraryAssembly.PrepareOrderPosting(AssemblyHeader, TempAssemblyLine, 100, 100, true, WorkDate);
+        LibraryAssembly.PrepareOrderPosting(AssemblyHeader, TempAssemblyLine, 100, 100, true, WorkDate());
         CODEUNIT.Run(CODEUNIT::"Assembly-Post (Yes/No)", AssemblyHeader);
 
         // Verify.
@@ -1407,7 +1407,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
                             Resource.Modify(true);
                         end
                 end;
-            until BOMComponent.Next = 0;
+            until BOMComponent.Next() = 0;
         BOMComponent.ModifyAll("Quantity per", 1);
 
         LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate2, ItemNo, '', 1, '');

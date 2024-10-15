@@ -15,10 +15,6 @@ codeunit 1522 "Workflow Request Page Handling"
         IncomingDocumentDescTxt: Label 'Incoming Document';
         PaymentOrderCodeTxt: Label 'PMTORD', Locked = true;
         PaymentOrderDescTxt: Label 'Payment Order';
-#if not CLEAN18
-        CreditDocumentCodeTxt: Label 'CREDIT', Locked = true;
-        CreditDocumentDescTxt: Label 'Credit';
-#endif
         SalesAdvanceLetterCodeTxt: Label 'SALESADV', Locked = true;
         SalesAdvanceLetterDescTxt: Label 'Sales Advance Letter';
         PurchAdvanceLetterCodeTxt: Label 'PURCHADV', Locked = true;
@@ -38,9 +34,6 @@ codeunit 1522 "Workflow Request Page Handling"
         AssignEntityToWorkflowEvent(DATABASE::"Incoming Document", IncomingDocumentCodeTxt);
         // NAVCZ
         AssignEntityToWorkflowEvent(DATABASE::"Payment Order Header", PaymentOrderCodeTxt);
-#if not CLEAN18
-        AssignEntityToWorkflowEvent(DATABASE::"Credit Header", CreditDocumentCodeTxt);
-#endif
         AssignEntityToWorkflowEvent(DATABASE::"Sales Advance Letter Header", SalesAdvanceLetterCodeTxt);
         AssignEntityToWorkflowEvent(DATABASE::"Purch. Advance Letter Header", PurchAdvanceLetterCodeTxt);
         // NAVCZ
@@ -61,10 +54,6 @@ codeunit 1522 "Workflow Request Page Handling"
         // NAVCZ
         InsertReqPageEntity(
           PaymentOrderCodeTxt, PaymentOrderDescTxt, DATABASE::"Payment Order Header", DATABASE::"Payment Order Line");
-#if not CLEAN18
-        InsertReqPageEntity(
-          CreditDocumentCodeTxt, CreditDocumentDescTxt, DATABASE::"Credit Header", DATABASE::"Credit Line");
-#endif
         InsertReqPageEntity(
           SalesAdvanceLetterCodeTxt, SalesAdvanceLetterDescTxt,
           DATABASE::"Sales Advance Letter Header", DATABASE::"Sales Advance Letter Line");
@@ -89,7 +78,7 @@ codeunit 1522 "Workflow Request Page Handling"
         DynamicRequestPageEntity.SetRange(Name, Name);
         DynamicRequestPageEntity.SetRange("Table ID", TableId);
         DynamicRequestPageEntity.SetRange("Related Table ID", RelatedTableId);
-        exit(DynamicRequestPageEntity.FindFirst);
+        exit(DynamicRequestPageEntity.FindFirst());
     end;
 
     local procedure CreateReqPageEntity(Name: Code[20]; Description: Text[100]; TableId: Integer; RelatedTableId: Integer)
@@ -127,10 +116,6 @@ codeunit 1522 "Workflow Request Page Handling"
         InsertPaymentOrderHeaderReqPageFields();
         InsertPaymentOrderLineReqPageFields();
 
-#if not CLEAN18
-        InsertCreditHeaderReqPageFields();
-        InsertCreditLineReqPageFields();
-#endif
 
         InsertSalesAdvanceLetterHeaderReqPageFields();
         InsertSalesAdvanceLetterLineReqPageFields();
@@ -261,30 +246,6 @@ codeunit 1522 "Workflow Request Page Handling"
         InsertDynReqPageField(DATABASE::"Payment Order Line", PmtOrdLn.FieldNo("Amount to Pay"));
     end;
 
-#if not CLEAN18
-    local procedure InsertCreditHeaderReqPageFields()
-    var
-        CreditHdr: Record "Credit Header";
-    begin
-        // NAVCZ
-        InsertDynReqPageField(DATABASE::"Credit Header", CreditHdr.FieldNo(Type));
-        InsertDynReqPageField(DATABASE::"Credit Header", CreditHdr.FieldNo("Company No."));
-    end;
-
-    local procedure InsertCreditLineReqPageFields()
-    var
-        CreditLn: Record "Credit Line";
-    begin
-        // NAVCZ
-        InsertDynReqPageField(DATABASE::"Credit Line", CreditLn.FieldNo("Source Type"));
-        InsertDynReqPageField(DATABASE::"Credit Line", CreditLn.FieldNo("Source No."));
-        InsertDynReqPageField(DATABASE::"Credit Line", CreditLn.FieldNo("Document Type"));
-        InsertDynReqPageField(DATABASE::"Credit Line", CreditLn.FieldNo("Document No."));
-        InsertDynReqPageField(DATABASE::"Credit Line", CreditLn.FieldNo("Currency Code"));
-        InsertDynReqPageField(DATABASE::"Credit Line", CreditLn.FieldNo(Amount));
-    end;
-
-#endif
     local procedure InsertSalesAdvanceLetterHeaderReqPageFields()
     var
         SalesAdvanceLetterHeader: Record "Sales Advance Letter Header";

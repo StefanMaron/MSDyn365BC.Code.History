@@ -61,7 +61,7 @@ table 744 "VAT Report Line Relation"
         if FindSet() then begin
             TableNo := "Table No.";
             FilterText := Format("Entry No.");
-            while Next <> 0 do
+            while Next() <> 0 do
                 FilterText += '|' + Format("Entry No.");
         end;
     end;

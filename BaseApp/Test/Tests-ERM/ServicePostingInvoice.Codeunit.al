@@ -10,7 +10,6 @@ codeunit 136108 "Service Posting - Invoice"
     end;
 
     var
-        InvoicePostError: Label 'There is nothing to post.';
         UnknownError: Label 'Unknown Error';
         WarningMsg: Label 'The field Automatic Cost Posting should not be set to Yes if field Use Legacy G/L Entry Locking in General Ledger Setup table is set to No because of possibility of deadlocks.';
         ExpectedMsg: Label 'Expected Cost Posting to G/L has been changed';
@@ -18,6 +17,7 @@ codeunit 136108 "Service Posting - Invoice"
         UndoShipmentErrorforService: Label 'Qty. Shipped Not Invoiced must be equal to ''%1''  in Service Shipment Line: %2=%3, %4=%5. Current value is ''%6''.';
         UndoShipmentConfirm: Label 'Do you want to undo the selected shipment line(s)?';
         Assert: Codeunit Assert;
+        DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryERM: Codeunit "Library - ERM";
         LibraryInventory: Codeunit "Library - Inventory";
@@ -70,9 +70,9 @@ codeunit 136108 "Service Posting - Invoice"
         // 3. Verify: Check that on posting Service Order the application generates an error when Qty. to Invoice is zero on
         // both Service Orders.
         asserterror LibraryService.PostServiceOrder(ServiceHeader, true, false, false);
-        Assert.AreEqual(StrSubstNo(InvoicePostError), GetLastErrorText, UnknownError);
+        Assert.AreEqual(StrSubstNo(DocumentErrorsMgt.GetNothingToPostErrorMsg()), GetLastErrorText, UnknownError);
         asserterror LibraryService.PostServiceOrder(ServiceHeader2, true, false, false);
-        Assert.AreEqual(StrSubstNo(InvoicePostError), GetLastErrorText, UnknownError);
+        Assert.AreEqual(StrSubstNo(DocumentErrorsMgt.GetNothingToPostErrorMsg()), GetLastErrorText, UnknownError);
     end;
 
     [Test]
@@ -128,7 +128,7 @@ codeunit 136108 "Service Posting - Invoice"
         // 1 Setup: Setup Automatic Cost Posting as FALSE and Expected Cost Posting to G/L as FALSE on Inventory Setup.
         Initialize();
         ModifyCostPostngInventorySetup(false, false);
-        LibraryERM.SetAllowPostingFromTo(WorkDate, WorkDate);
+        LibraryERM.SetAllowPostingFromTo(WorkDate(), WorkDate());
 
         // 2. Exercise: Post Service Order with two line, one with blank Type and Posting Date.
         CreateServiceOrder(ServiceHeader, ServiceItemLine, ServiceLine, ServiceItem, Type::Item);
@@ -163,7 +163,7 @@ codeunit 136108 "Service Posting - Invoice"
         // 3. Verify: Check that on posting the Service Order the application generates an error if Quantity Shipped is Zero.
         VerifyQtyShippedOnServiceLine(ServiceHeader."No.");
         asserterror LibraryService.PostServiceOrder(ServiceHeader, false, false, true);
-        Assert.AreEqual(StrSubstNo(InvoicePostError), GetLastErrorText, UnknownError);
+        Assert.AreEqual(StrSubstNo(DocumentErrorsMgt.GetNothingToPostErrorMsg()), GetLastErrorText, UnknownError);
     end;
 
     [Test]
@@ -1671,7 +1671,7 @@ codeunit 136108 "Service Posting - Invoice"
         // 3. Verify: Try to post the Service Order as Invoice while there is no Qty. in Invoice field.
         ServiceHeader.Get(ServiceHeader."Document Type", ServiceHeader."No.");
         asserterror LibraryService.PostServiceOrder(ServiceHeader, false, false, true);
-        Assert.AreEqual(StrSubstNo(InvoicePostError), GetLastErrorText, UnknownError);
+        Assert.AreEqual(StrSubstNo(DocumentErrorsMgt.GetNothingToPostErrorMsg()), GetLastErrorText, UnknownError);
     end;
 
     [Test]
@@ -1791,13 +1791,13 @@ codeunit 136108 "Service Posting - Invoice"
         Commit();  // Commit is required to run the batch job.
 
         // 2. Exercise: Run the Batch Post Service Invoices with any random date greater than work date.
-        PostingDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate);
+        PostingDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate());
         BatchPostServiceInvoices(ServiceHeader, PostingDate, false, false, false);
 
         // 3. Verify: Check that the posted Service Invoice different date from that inputted in report.
         FindServiceInvoiceHeader(ServiceInvoiceHeader, ServiceHeader."No.");
-        ServiceInvoiceHeader.TestField("Posting Date", WorkDate);
-        ServiceInvoiceHeader.TestField("Document Date", WorkDate);
+        ServiceInvoiceHeader.TestField("Posting Date", WorkDate());
+        ServiceInvoiceHeader.TestField("Document Date", WorkDate());
     end;
 
     [Test]
@@ -1818,7 +1818,7 @@ codeunit 136108 "Service Posting - Invoice"
         Commit();  // Commit is required to run the batch job.
 
         // 2. Exercise: Run the Batch Post Service Invoices with any random date greater than work date.
-        PostingDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate);
+        PostingDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate());
         BatchPostServiceInvoices(ServiceHeader, PostingDate, true, false, false);
 
         // 3. Verify: Check that the posted Service Invoice has the same date as inputted in report.
@@ -1844,7 +1844,7 @@ codeunit 136108 "Service Posting - Invoice"
         Commit();  // Commit is required to run the batch job.
 
         // 2. Exercise: Run the Batch Post Service Invoices with any random date less than work date.
-        PostingDate := CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate);
+        PostingDate := CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate());
         BatchPostServiceInvoices(ServiceHeader, PostingDate, false, true, false);
 
         // 3. Verify: Check that the posted Service Invoice has the same date as inputted in report.
@@ -1871,7 +1871,7 @@ codeunit 136108 "Service Posting - Invoice"
         CreateMultipleServiceLineAndInvoiceDiscount(ServiceHeader, CustInvoiceDisc, ServiceHeader."Document Type"::Invoice);
 
         // 2. Exercise: Run the Batch Post Service Invoices with any random date greater than work date.
-        PostingDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate);
+        PostingDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate());
         BatchPostServiceInvoices(ServiceHeader, PostingDate, false, false, false);
 
         // 3. Verify: Check that the posted Service Invoice has zero Invoice Discount Amount on Service Lines.
@@ -1898,7 +1898,7 @@ codeunit 136108 "Service Posting - Invoice"
         CreateMultipleServiceLineAndInvoiceDiscount(ServiceHeader, CustInvoiceDisc, ServiceHeader."Document Type"::Invoice);
 
         // 2. Exercise: Run the Batch Post Service Invoices with any random date greater than work date.
-        PostingDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate);
+        PostingDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate());
         BatchPostServiceInvoices(ServiceHeader, PostingDate, false, false, true);
 
         // 3. Verify: Check that the posted Service Invoice has non-zero Invoice Discount Amount on Service Lines.
@@ -1925,13 +1925,13 @@ codeunit 136108 "Service Posting - Invoice"
         Commit();  // Commit is required to run the batch job.
 
         // 2. Exercise: Run the Batch Post Service Cr. Memos with any random date greater than work date.
-        PostingDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate);
+        PostingDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate());
         BatchPostServiceCreditMemos(ServiceHeader, PostingDate, false, false, false);
 
         // 3. Verify: Check that the posted Service Credit Memo Header has different date from that inputted in report.
         FindServiceCreditMemoHeader(ServiceCrMemoHeader, ServiceHeader."No.");
-        ServiceCrMemoHeader.TestField("Posting Date", WorkDate);
-        ServiceCrMemoHeader.TestField("Document Date", WorkDate);
+        ServiceCrMemoHeader.TestField("Posting Date", WorkDate());
+        ServiceCrMemoHeader.TestField("Document Date", WorkDate());
     end;
 
     [Test]
@@ -1952,7 +1952,7 @@ codeunit 136108 "Service Posting - Invoice"
         Commit();  // Commit is required to run the batch job.
 
         // 2. Exercise: Run the Batch Post Service Cr. Memos with any random date greater than work date.
-        PostingDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate);
+        PostingDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate());
         BatchPostServiceCreditMemos(ServiceHeader, PostingDate, true, false, false);
 
         // 3. Verify: Check that the posted Service Credit Memo has the same date as inputted in report.
@@ -1978,7 +1978,7 @@ codeunit 136108 "Service Posting - Invoice"
         Commit();  // Commit is required to run the batch job.
 
         // 2. Exercise: Run the Batch Post Service Cr. Memos with any random date less than work date.
-        PostingDate := CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate);
+        PostingDate := CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate());
         BatchPostServiceCreditMemos(ServiceHeader, PostingDate, false, true, false);
 
         // 3. Verify: Check that the posted Service Credit Memo has the same date as inputted in report.
@@ -2005,7 +2005,7 @@ codeunit 136108 "Service Posting - Invoice"
         CreateMultipleServiceLineAndInvoiceDiscount(ServiceHeader, CustInvoiceDisc, ServiceHeader."Document Type"::"Credit Memo");
 
         // 2. Exercise: Run the Batch Post Service Cr. Memos with any random date greater than work date.
-        PostingDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate);
+        PostingDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate());
         BatchPostServiceCreditMemos(ServiceHeader, PostingDate, false, false, false);
 
         // 3. Verify: Check that the posted Service Credit Memo has zero Invoice Discount Amount on Service Lines.
@@ -2032,7 +2032,7 @@ codeunit 136108 "Service Posting - Invoice"
         CreateMultipleServiceLineAndInvoiceDiscount(ServiceHeader, CustInvoiceDisc, ServiceHeader."Document Type"::"Credit Memo");
 
         // 2. Exercise: Run the Batch Post Service Cr. Memos with any random date greater than work date.
-        PostingDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate);
+        PostingDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate());
         BatchPostServiceCreditMemos(ServiceHeader, PostingDate, false, false, true);
 
         // 3. Verify: Check that the posted Credit Memo has non-zero Invoice Discount Amount on Service Lines.
@@ -2088,7 +2088,7 @@ codeunit 136108 "Service Posting - Invoice"
         Commit();  // Commit is required to run the batch job.
 
         // 2. Exercise: Run the Batch Post Service Orders with any random date greater than work date.
-        PostingDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate);
+        PostingDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate());
         BatchPostServiceOrder(ServiceHeader, PostingDate, false, false, false);
 
         // 3. Verify: Check that the posted Service Invoice/Shipment Headers have different date from that inputted in report.
@@ -2117,7 +2117,7 @@ codeunit 136108 "Service Posting - Invoice"
         CreateServiceHeaderWithMultipleLines(ServiceHeader);
 
         // 2. Exercise: Run the Batch Post Service Orders with any random date greater than work date.
-        PostingDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate);
+        PostingDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate());
         BatchPostServiceOrder(ServiceHeader, PostingDate, true, false, false);
 
         // 3. Verify: Check that the posted Service Invoice/Shipment have the same date as inputted in report.
@@ -2144,7 +2144,7 @@ codeunit 136108 "Service Posting - Invoice"
         CreateServiceHeaderWithMultipleLines(ServiceHeader);
 
         // 2. Exercise: Run the Batch Post Service Orders with any random date less than work date.
-        PostingDate := CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate);
+        PostingDate := CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate());
         BatchPostServiceOrder(ServiceHeader, PostingDate, false, true, false);
 
         // 3. Verify: Check that the posted Service Invoice/Shipment has the same date as inputted in report.
@@ -2186,7 +2186,7 @@ codeunit 136108 "Service Posting - Invoice"
         Commit();  // Commit is required to run the batch job.
 
         // 2. Exercise: Run the Batch Post Service Orders with any random date greater than work date.
-        PostingDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate);
+        PostingDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate());
         BatchPostServiceOrder(ServiceHeader, PostingDate, false, false, false);
 
         // 3. Verify: Check that the posted Service Invoice has zero Invoice Discount Amount on Service Lines.
@@ -2225,7 +2225,7 @@ codeunit 136108 "Service Posting - Invoice"
         Commit();  // Commit is required to run the batch job.
 
         // 2. Exercise: Run the Batch Post Service Orders with any random date greater than work date.
-        PostingDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate);
+        PostingDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate());
         BatchPostServiceOrder(ServiceHeader, PostingDate, false, false, true);
 
         // 3. Verify: Check that the posted Invoice has non-zero Invoice Discount Amount on Service Lines.
@@ -2340,7 +2340,7 @@ codeunit 136108 "Service Posting - Invoice"
         Initialize();
 
         // [GIVEN] Set Allowed Posting Dates in GLSetup
-        LibraryERM.SetAllowPostingFromTo(CalcDate('<-CY>', WorkDate), CalcDate('<CY>', WorkDate));
+        LibraryERM.SetAllowPostingFromTo(CalcDate('<-CY>', WorkDate()), CalcDate('<CY>', WorkDate()));
 
         // [GIVEN] New Service Order with Service Item Line
         CreateServiceDocument(ServiceHeader, ServiceItemLine, LibrarySales.CreateCustomerNo);
@@ -2395,7 +2395,7 @@ codeunit 136108 "Service Posting - Invoice"
         // [THEN] CustLedgerEntry.ShowDoc() return TRUE
         LibraryVariableStorage.Enqueue(ServiceInvoiceHeader."No."); // used in PostedServiceInvoicePH
         LibraryVariableStorage.Enqueue(ServiceInvoiceHeader."Customer No."); // used in PostedServiceInvoicePH
-        Assert.IsTrue(CustLedgerEntry.ShowDoc, ServiceInvoiceHeader.TableCaption);
+        Assert.IsTrue(CustLedgerEntry.ShowDoc, ServiceInvoiceHeader.TableCaption());
         // Verify values in PostedServiceInvoicePH
     end;
 
@@ -2547,10 +2547,10 @@ codeunit 136108 "Service Posting - Invoice"
         CreateServiceOrder(ServiceHeader, ServiceItemLine, ServiceLine, ServiceItem, Type::Item);
         // [GIVEN] Workdate is 15-01. This service order has Posting Date = 14-01
         ServiceHeader.SetHideValidationDialog(true);
-        ServiceHeader.Validate("Posting Date", WorkDate - 1);
+        ServiceHeader.Validate("Posting Date", WorkDate() - 1);
         ServiceHeader.SetHideValidationDialog(false);
         // [GIVEN] Allowed Posting Date is 15-01 to 25-01
-        LibraryERM.SetAllowPostingFromTo(WorkDate, LibraryRandom.RandDate(10));
+        LibraryERM.SetAllowPostingFromTo(WorkDate(), LibraryRandom.RandDate(10));
         Commit();
 
         // [WHEN] Batch Post Service order report is invoked with ReplacePostingDate enabled and new PostDate = 16-01
@@ -2582,11 +2582,11 @@ codeunit 136108 "Service Posting - Invoice"
         ServiceHeader.Validate("Posting Date", WorkDate + 1);
         ServiceHeader.SetHideValidationDialog(false);
         // [GIVEN] Allowed Posting Date is 15-01 to 25-01
-        LibraryERM.SetAllowPostingFromTo(WorkDate, LibraryRandom.RandDate(10));
+        LibraryERM.SetAllowPostingFromTo(WorkDate(), LibraryRandom.RandDate(10));
         Commit();
 
         // [WHEN] Batch Post Service order report is invoked with ReplacePostingDate enabled and new PostDate = 14-01
-        BatchPostServiceOrder(ServiceHeader, WorkDate - 1, true, false, false);
+        BatchPostServiceOrder(ServiceHeader, WorkDate() - 1, true, false, false);
 
         // [THEN] Service Order is not posted
         VerifyNotPostedServiceOrder(ServiceHeader."No.");
@@ -2799,7 +2799,7 @@ codeunit 136108 "Service Posting - Invoice"
         ServiceInvoiceLine.FindSet();
         repeat
             TotalAmount += ServiceInvoiceLine."Amount Including VAT";
-        until ServiceInvoiceLine.Next = 0;
+        until ServiceInvoiceLine.Next() = 0;
     end;
 
     local procedure CreateMultipleServiceLines(ServiceHeader: Record "Service Header"; ServiceItemNo: Code[20])
@@ -3067,7 +3067,7 @@ codeunit 136108 "Service Posting - Invoice"
             // Division by 2 ensures Qty. to Invoice is less than Quantity Shipped.
             ServiceLine.Validate("Qty. to Invoice", ServiceLine."Quantity Shipped" / 2);
             ServiceLine.Modify(true);
-        until ServiceLine.Next = 0;
+        until ServiceLine.Next() = 0;
     end;
 
     local procedure ModifyQtyToShipOnServiceLine(DocumentNo: Code[20])
@@ -3080,7 +3080,7 @@ codeunit 136108 "Service Posting - Invoice"
         repeat
             ServiceLine.Validate("Qty. to Ship", ServiceLine."Qty. to Ship" * LibraryUtility.GenerateRandomFraction);
             ServiceLine.Modify(true);
-        until ServiceLine.Next = 0;
+        until ServiceLine.Next() = 0;
     end;
 
     local procedure ModifyQtyToConsumeServiceLine(DocumentNo: Code[20])
@@ -3093,7 +3093,7 @@ codeunit 136108 "Service Posting - Invoice"
         repeat
             ServiceLine.Validate("Qty. to Consume", ServiceLine."Qty. to Ship" * LibraryUtility.GenerateRandomFraction);
             ServiceLine.Modify(true);
-        until ServiceLine.Next = 0;
+        until ServiceLine.Next() = 0;
     end;
 
     local procedure ModifyQtyToInvoiceZero(DocumentNo: Code[20])
@@ -3106,7 +3106,7 @@ codeunit 136108 "Service Posting - Invoice"
         repeat
             ServiceLine.Validate("Qty. to Invoice", 0);  // Validate Qty. to Invoice as 0 - value 0 is important to test case.
             ServiceLine.Modify(true);
-        until ServiceLine.Next = 0;
+        until ServiceLine.Next() = 0;
     end;
 
     local procedure PostServiceOrderLinebyLine(ServiceHeader: Record "Service Header")
@@ -3130,7 +3130,7 @@ codeunit 136108 "Service Posting - Invoice"
             ServiceHeader.Get(TempServiceLine."Document Type", TempServiceLine."Document No.");
             ServicePost.PostWithLines(ServiceHeader, TempServiceLine, Ship, Consume, Invoice);
             TempServiceLine.Delete();
-        until ServiceLine.Next = 0;
+        until ServiceLine.Next() = 0;
     end;
 
     local procedure PostSrvOrderAsShipForResource(ServiceHeader: Record "Service Header")
@@ -3173,7 +3173,7 @@ codeunit 136108 "Service Posting - Invoice"
             ServiceHeader.Get(TempServiceLine."Document Type", TempServiceLine."Document No.");
             ServicePost.PostWithLines(ServiceHeader, TempServiceLine, Ship, Consume, Invoice);
             TempServiceLine.Delete();
-        until ServiceLine.Next = 0;
+        until ServiceLine.Next() = 0;
     end;
 
     local procedure SaveServiceLineInTempTable(var TempServiceLine: Record "Service Line" temporary; ServiceLine: Record "Service Line")
@@ -3184,7 +3184,7 @@ codeunit 136108 "Service Posting - Invoice"
         repeat
             TempServiceLine := ServiceLine;
             TempServiceLine.Insert();
-        until ServiceLine.Next = 0;
+        until ServiceLine.Next() = 0;
     end;
 
     local procedure SetSalesSetupExtDocNoMandatory(ExtDocNoMandatory: Boolean)
@@ -3213,7 +3213,7 @@ codeunit 136108 "Service Posting - Invoice"
         repeat
             ServiceLine.Validate("Qty. to Invoice", ServiceLine."Quantity Shipped");
             ServiceLine.Modify(true);
-        until ServiceLine.Next = 0;
+        until ServiceLine.Next() = 0;
     end;
 
     local procedure VerifyCustomerLedgerEntry(OrderNo: Code[20])
@@ -3240,7 +3240,7 @@ codeunit 136108 "Service Posting - Invoice"
         DetailedCustLedgEntry.FindSet();
         repeat
             DetailedCustLedgEntry.TestField(Amount, TotalAmount);
-        until DetailedCustLedgEntry.Next = 0;
+        until DetailedCustLedgEntry.Next() = 0;
     end;
 
     local procedure VerifyNonZeroDiscountInCredit(DocumentNo: Code[20]; InvoiceDiscountPct: Decimal)
@@ -3259,8 +3259,8 @@ codeunit 136108 "Service Posting - Invoice"
                 AmountsMustMatchError,
                 ServiceCrMemoLine.FieldCaption("Inv. Discount Amount"),
                 ServiceCrMemoLine."Line Amount" * InvoiceDiscountPct / 100,
-                ServiceCrMemoLine.TableCaption));
-        until ServiceCrMemoLine.Next = 0;
+                ServiceCrMemoLine.TableCaption()));
+        until ServiceCrMemoLine.Next() = 0;
     end;
 
     local procedure VerifyNonZeroDiscountInLines(DocumentNo: Code[20]; InvoiceDiscountPct: Decimal)
@@ -3279,8 +3279,8 @@ codeunit 136108 "Service Posting - Invoice"
                 AmountsMustMatchError,
                 ServiceInvoiceLine.FieldCaption("Inv. Discount Amount"),
                 ServiceInvoiceLine."Line Amount" * InvoiceDiscountPct / 100,
-                ServiceInvoiceLine.TableCaption));
-        until ServiceInvoiceLine.Next = 0;
+                ServiceInvoiceLine.TableCaption()));
+        until ServiceInvoiceLine.Next() = 0;
     end;
 
     local procedure VerifyQtyOnServiceShipmentLine(OrderNo: Code[20])
@@ -3291,7 +3291,7 @@ codeunit 136108 "Service Posting - Invoice"
         ServiceShipmentLine.FindSet();
         repeat
             ServiceShipmentLine.TestField(Quantity, ServiceShipmentLine."Quantity Invoiced");
-        until ServiceShipmentLine.Next = 0;
+        until ServiceShipmentLine.Next() = 0;
     end;
 
     local procedure VerifyQtyShippedOnServiceLine(DocumentNo: Code[20])
@@ -3303,7 +3303,7 @@ codeunit 136108 "Service Posting - Invoice"
         ServiceLine.FindSet();
         repeat
             ServiceLine.TestField("Quantity Shipped", 0);
-        until ServiceLine.Next = 0;
+        until ServiceLine.Next() = 0;
     end;
 
     local procedure VerifyResourceLedgerEntry(OrderNo: Code[20])
@@ -3349,7 +3349,7 @@ codeunit 136108 "Service Posting - Invoice"
         repeat
             GLEntry.TestField("Source No.", ServiceInvoiceHeader."Bill-to Customer No.");
             GLEntry.TestField("Posting Date", ServiceInvoiceHeader."Posting Date");
-        until GLEntry.Next = 0;
+        until GLEntry.Next() = 0;
     end;
 
     local procedure VerifyServiceOrderVATEntry(OrderNo: Code[20])
@@ -3377,7 +3377,7 @@ codeunit 136108 "Service Posting - Invoice"
         ServiceLedgerEntry.FindSet();
         repeat
             ServiceLedgerEntry.TestField("Customer No.", CustomerNo);
-        until ServiceLedgerEntry.Next = 0;
+        until ServiceLedgerEntry.Next() = 0;
     end;
 
     local procedure VerifySourceNoOnValueEntry(ItemNo: Code[20]; SourceCode: Code[20])
@@ -3386,7 +3386,7 @@ codeunit 136108 "Service Posting - Invoice"
     begin
         ValueEntry.SetRange("Item No.", ItemNo);
         ValueEntry.FindFirst();
-        ValueEntry.TESTFIELD("Source No. 2", SourceCode); // NAVCZ
+        ValueEntry.TestField("Source No.", SourceCode);
     end;
 
     local procedure VerifyOrderItemLedgerEntry(ServiceLine: Record "Service Line")
@@ -3400,7 +3400,7 @@ codeunit 136108 "Service Posting - Invoice"
         repeat
             ItemLedgerEntry.TestField("Item No.", ServiceLine."No.");
             ItemLedgerEntry.TestField(Quantity, -ServiceLine.Quantity);
-        until ItemLedgerEntry.Next = 0;
+        until ItemLedgerEntry.Next() = 0;
     end;
 
     local procedure VerifyInvoiceQtyItemLedger(OrderNo: Code[20])
@@ -3451,7 +3451,7 @@ codeunit 136108 "Service Posting - Invoice"
         VATEntry.FindSet();
         repeat
             VatBaseAmount += VATEntry.Base;
-        until VATEntry.Next = 0;
+        until VATEntry.Next() = 0;
         Assert.AreEqual(
           ServiceInvoiceLine."VAT Base Amount", -VatBaseAmount, StrSubstNo(BaseAmountError, -ServiceInvoiceLine."VAT Base Amount"));
     end;
@@ -3463,7 +3463,7 @@ codeunit 136108 "Service Posting - Invoice"
         FindServiceCreditMemoLines(ServiceCrMemoLine, DocumentNo);
         repeat
             ServiceCrMemoLine.TestField("Inv. Discount Amount", 0);
-        until ServiceCrMemoLine.Next = 0;
+        until ServiceCrMemoLine.Next() = 0;
     end;
 
     local procedure VerifyZeroDiscountInLines(DocumentNo: Code[20])
@@ -3473,7 +3473,7 @@ codeunit 136108 "Service Posting - Invoice"
         FindServiceInvoiceLines(ServiceInvoiceLine, DocumentNo);
         repeat
             ServiceInvoiceLine.TestField("Inv. Discount Amount", 0);
-        until ServiceInvoiceLine.Next = 0;
+        until ServiceInvoiceLine.Next() = 0;
     end;
 
     local procedure VerifyItemLedgerAndValueEntriesAfterUndoConsumption(var TempServiceLineBeforePosting: Record "Service Line" temporary)
@@ -3506,7 +3506,7 @@ codeunit 136108 "Service Posting - Invoice"
             ItemLedgerEntry.TestField("Cost Amount (Actual)", -RelatedItemLedgerEntry."Cost Amount (Actual)");
             ItemLedgerEntry.TestField("Sales Amount (Actual)", 0);
             VerifyValueEntryAfterUndoConsumption(ItemLedgerEntry);
-        until TempServiceLineBeforePosting.Next = 0;
+        until TempServiceLineBeforePosting.Next() = 0;
     end;
 
     local procedure VerifyValueEntryAfterUndoConsumption(var ItemLedgerEntry: Record "Item Ledger Entry")

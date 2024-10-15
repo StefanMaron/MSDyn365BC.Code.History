@@ -536,24 +536,16 @@ table 120 "Purch. Rcpt. Header"
         field(31063; "Physical Transfer"; Boolean)
         {
             Caption = 'Physical Transfer';
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(31064; "Intrastat Exclude"; Boolean)
         {
             Caption = 'Intrastat Exclude';
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(31065; "Industry Code"; Code[20])
         {
@@ -612,7 +604,9 @@ table 120 "Purch. Rcpt. Header"
     var
         PostPurchDelete: Codeunit "PostPurch-Delete";
     begin
+#if not CLEAN19
         PostPurchDelete.IsDocumentDeletionAllowed("Posting Date");
+#endif
         LockTable();
         PostPurchDelete.DeletePurchRcptLines(Rec);
 
@@ -657,7 +651,7 @@ table 120 "Purch. Rcpt. Header"
 
     procedure ShowDimensions()
     begin
-        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', TableCaption, "No."));
+        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', TableCaption(), "No."));
     end;
 
     procedure SetSecurityFilterOnRespCenter()
@@ -669,9 +663,9 @@ table 120 "Purch. Rcpt. Header"
         if IsHandled then
             exit;
 
-        if UserSetupMgt.GetPurchasesFilter <> '' then begin
+        if UserSetupMgt.GetPurchasesFilter() <> '' then begin
             FilterGroup(2);
-            SetRange("Responsibility Center", UserSetupMgt.GetPurchasesFilter);
+            SetRange("Responsibility Center", UserSetupMgt.GetPurchasesFilter());
             FilterGroup(0);
         end;
     end;
@@ -691,3 +685,4 @@ table 120 "Purch. Rcpt. Header"
     begin
     end;
 }
+

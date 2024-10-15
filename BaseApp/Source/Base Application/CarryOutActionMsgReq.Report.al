@@ -1,3 +1,4 @@
+#if not CLEAN21
 report 493 "Carry Out Action Msg. - Req."
 {
     Caption = 'Carry Out Action Msg. - Req.';
@@ -27,8 +28,12 @@ report 493 "Carry Out Action Msg. - Req."
                     field("PurchOrderHeader.""No. Series"""; PurchOrderHeader."No. Series")
                     {
                         ApplicationArea = Planning;
-                        Caption = 'No. Series';
+                        Caption = 'No. Series (Obsolete)';
                         ToolTip = 'Specifies no. series for reporting';
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
+                        ObsoleteTag = '21.0';
+                        Visible = false;
 
                         trigger OnLookup(var Text: Text): Boolean
                         begin
@@ -60,10 +65,10 @@ report 493 "Carry Out Action Msg. - Req."
 
         trigger OnOpenPage()
         begin
-            PurchOrderHeader."Order Date" := WorkDate;
-            PurchOrderHeader."Posting Date" := WorkDate;
+            PurchOrderHeader."Order Date" := WorkDate();
+            PurchOrderHeader."Posting Date" := WorkDate();
             if ReqWkshTmpl.Recurring then
-                EndOrderDate := WorkDate
+                EndOrderDate := WorkDate()
             else
                 EndOrderDate := 0D;
         end;
@@ -86,13 +91,9 @@ report 493 "Carry Out Action Msg. - Req."
     end;
 
     var
-        Text000: Label 'cannot be filtered when you create orders';
-        Text001: Label 'There is nothing to create.';
-        Text003: Label 'You are now in worksheet %1.';
         ReqWkshTmpl: Record "Req. Wksh. Template";
         ReqWkshName: Record "Requisition Wksh. Name";
         ReqLine: Record "Requisition Line";
-        PurchOrderHeader: Record "Purchase Header";
         PurchaseSetup: Record "Purchases & Payables Setup";
         ReqWkshMakeOrders: Codeunit "Req. Wksh.-Make Order";
         NoSeriesMgt: Codeunit NoSeriesManagement;
@@ -100,7 +101,12 @@ report 493 "Carry Out Action Msg. - Req."
         PrintOrders: Boolean;
         TempJnlBatchName: Code[10];
 
+        Text000: Label 'cannot be filtered when you create orders';
+        Text001: Label 'There is nothing to create.';
+        Text003: Label 'You are now in worksheet %1.';
+
     protected var
+        PurchOrderHeader: Record "Purchase Header";
         HideDialog: Boolean;
         SuppressCommit: Boolean;
 
@@ -150,7 +156,7 @@ report 493 "Carry Out Action Msg. - Req."
                           "Journal Batch Name");
 
             if not Find('=><') or (TempJnlBatchName <> "Journal Batch Name") then begin
-                Reset;
+                Reset();
                 FilterGroup := 2;
                 SetRange("Worksheet Template Name", "Worksheet Template Name");
                 SetRange("Journal Batch Name", "Journal Batch Name");
@@ -200,3 +206,4 @@ report 493 "Carry Out Action Msg. - Req."
     end;
 }
 
+#endif

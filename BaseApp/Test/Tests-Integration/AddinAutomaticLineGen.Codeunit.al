@@ -152,7 +152,7 @@ codeunit 139062 "Add-in Automatic Line Gen."
         PurchaseInvoice.PurchLines.First;
         PurchaseInvoice.PurchLines."No.".AssertEquals(Item[1]."No.");
         PurchaseInvoice.PurchLines.Quantity.AssertEquals(Quantity[1]);
-        PurchaseInvoice.PurchLines.Next;
+        PurchaseInvoice.PurchLines.Next();
         PurchaseInvoice.PurchLines."No.".AssertEquals(Item[2]."No.");
         PurchaseInvoice.PurchLines.Quantity.AssertEquals(Quantity[2]);
     end;
@@ -621,7 +621,7 @@ codeunit 139062 "Add-in Automatic Line Gen."
     begin
         OfficeSuggestedLineItems.First;
         Assert.IsFalse(OfficeSuggestedLineItems.Add.AsBoolean(), 'The Add value must be false for first item');
-        OfficeSuggestedLineItems.Next;
+        OfficeSuggestedLineItems.Next();
         Assert.IsFalse(OfficeSuggestedLineItems.Add.AsBoolean(), 'The Add value must be false for second item');
         OfficeSuggestedLineItems.OK.Invoke;
     end;
@@ -632,7 +632,7 @@ codeunit 139062 "Add-in Automatic Line Gen."
     begin
         OfficeSuggestedLineItems.First;
         OfficeSuggestedLineItems.DoNotShowAgain.SetValue(true);
-        OfficeSuggestedLineItems.Next;
+        OfficeSuggestedLineItems.Next();
         Assert.IsTrue(OfficeSuggestedLineItems.DoNotShowAgain.AsBoolean(), 'The DoNotShowAgain box should be checked.');
         OfficeSuggestedLineItems.OK.Invoke;
     end;
@@ -644,7 +644,7 @@ codeunit 139062 "Add-in Automatic Line Gen."
         OfficeSuggestedLineItems.First;
         repeat
             OfficeSuggestedLineItems.Add.SetValue(false);
-        until not OfficeSuggestedLineItems.Next;
+        until not OfficeSuggestedLineItems.Next();
 
         OfficeSuggestedLineItems.OK.Invoke;
     end;
@@ -656,7 +656,7 @@ codeunit 139062 "Add-in Automatic Line Gen."
         OfficeSuggestedLineItems.First;
         AssertError OfficeSuggestedLineItems.Add.SetValue(true);
 
-        OfficeSuggestedLineItems.Next;
+        OfficeSuggestedLineItems.Next();
         Assert.IsTrue(OfficeSuggestedLineItems.Add.Enabled, 'The "Add" box can be enabled if the line needs no resolution.');
 
         OfficeSuggestedLineItems.First;
@@ -684,15 +684,15 @@ codeunit 139062 "Add-in Automatic Line Gen."
     procedure HandleSuggestedLinesPageAddItems(var OfficeSuggestedLineItems: TestPage "Office Suggested Line Items")
     begin
         OfficeSuggestedLineItems.Last;
-        OfficeSuggestedLineItems.Next;
+        OfficeSuggestedLineItems.Next();
         OfficeSuggestedLineItems.Item.DrillDown;
         OfficeSuggestedLineItems.Quantity.SetValue(13);
 
-        OfficeSuggestedLineItems.Next;
+        OfficeSuggestedLineItems.Next();
         OfficeSuggestedLineItems.Item.DrillDown;
         OfficeSuggestedLineItems.Quantity.SetValue(26);
 
-        OfficeSuggestedLineItems.Next;
+        OfficeSuggestedLineItems.Next();
         OfficeSuggestedLineItems.OK.Invoke;
     end;
 
@@ -893,7 +893,7 @@ codeunit 139062 "Add-in Automatic Line Gen."
         for i := 1 to Count do begin
             SalesQuote.SalesLines."No.".AssertEquals(Item[i]."No.");
             SalesQuote.SalesLines.Quantity.AssertEquals(Quantity[i]);
-            SalesQuote.SalesLines.Next;
+            SalesQuote.SalesLines.Next();
         end;
     end;
 }

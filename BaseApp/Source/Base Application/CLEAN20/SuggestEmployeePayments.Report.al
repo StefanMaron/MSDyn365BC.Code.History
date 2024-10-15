@@ -49,12 +49,12 @@ report 394 "Suggest Employee Payments"
                 Window2.Open(InsertingJournalLinesMsg);
 
                 TempPayableEmployeeLedgerEntry.Reset();
-                MakeGenJnlLines;
+                MakeGenJnlLines();
                 TempPayableEmployeeLedgerEntry.Reset();
                 TempPayableEmployeeLedgerEntry.DeleteAll();
 
-                Window2.Close;
-                Window.Close;
+                Window2.Close();
+                Window.Close();
                 ShowMessage(MessageText);
             end;
 
@@ -164,7 +164,7 @@ report 394 "Suggest Employee Payments"
 
                             trigger OnValidate()
                             begin
-                                ValidatePostingDate;
+                                ValidatePostingDate();
                             end;
                         }
                         field(StartingDocumentNo; NextDocNo)
@@ -275,9 +275,9 @@ report 394 "Suggest Employee Payments"
 
         trigger OnOpenPage()
         begin
-            PostingDate := WorkDate;
-            ValidatePostingDate;
-            SetDefaults;
+            PostingDate := WorkDate();
+            ValidatePostingDate();
+            SetDefaults();
         end;
     }
 
@@ -301,15 +301,6 @@ report 394 "Suggest Employee Payments"
     end;
 
     var
-        PostingDateRequiredErr: Label 'In the Posting Date field, specify the date that will be used as the posting date for the journal entries.';
-        StartingDocNoErr: Label 'In the Starting Document No. field, specify the first document number to be used.';
-        ProcessingEmployeesMsg: Label 'Processing employees     #1##########', Comment = '#1########## is for the progress dialog. Don''t translate that part of the string';
-        InsertingJournalLinesMsg: Label 'Inserting payment journal lines #1##########', Comment = '#1########## is for the progress dialog. Don''t translate that part of the string';
-        AccountTypeErr: Label '%1 must be G/L Account or Bank Account.', Comment = '%1 - balancing account type';
-        BankPaymentTypeErr: Label 'Bank Payment Type field must be filled only when Bal. Account Type is set to Bank Account.';
-        BalAccountTypeErr: label 'Balancing account must be %1 or %2.';
-        ManualCheckErr: Label 'If bank payment type is set to Manual Check, and you have not selected the Summarize per Employee field,\ then you must select the New Doc. No. per Line.';
-        EmployeePaymentLinesCreatedTxt: Label 'You have created suggested employee payment lines.';
         Empl2: Record Employee;
         GenJnlTemplate: Record "Gen. Journal Template";
         GenJnlBatch: Record "Gen. Journal Batch";
@@ -322,7 +313,7 @@ report 394 "Suggest Employee Payments"
         TempPayableEmployeeLedgerEntry: Record "Payable Employee Ledger Entry" temporary;
         CompanyInformation: Record "Company Information";
         TempEmplPaymentBuffer: Record "Employee Payment Buffer" temporary;
-        OldTempEmplPaymentBuffer: Record "Employee Payment Buffer" temporary;
+        TempEmployeePaymentBufferOld: Record "Employee Payment Buffer" temporary;
         SelectedDim: Record "Selected Dimension";
         TempEmployeeLedgerEntry: Record "Employee Ledger Entry" temporary;
         NoSeriesMgt: Codeunit NoSeriesManagement;
@@ -346,13 +337,23 @@ report 394 "Suggest Employee Payments"
         BalAccNo: Code[20];
         MessageText: Text;
         GenJnlLineInserted: Boolean;
-        UnprocessedEntriesQst: Label 'There are one or more entries for which no payment suggestions have been made because the posting dates of the entries are later than the requested posting date. Do you want to see the entries?';
         [InDataSet]
         SummarizePerDimTextEnable: Boolean;
         ShowPostingDateWarning: Boolean;
         EmployeeBalance: Decimal;
-        ReplacePostingDateMsg: Label 'For one or more entries, the requested posting date is before the work date.\\These posting dates will use the work date.';
         SkipExportedPayments: Boolean;
+
+        PostingDateRequiredErr: Label 'In the Posting Date field, specify the date that will be used as the posting date for the journal entries.';
+        StartingDocNoErr: Label 'In the Starting Document No. field, specify the first document number to be used.';
+        ProcessingEmployeesMsg: Label 'Processing employees     #1##########', Comment = '#1########## is for the progress dialog. Don''t translate that part of the string';
+        InsertingJournalLinesMsg: Label 'Inserting payment journal lines #1##########', Comment = '#1########## is for the progress dialog. Don''t translate that part of the string';
+        AccountTypeErr: Label '%1 must be G/L Account or Bank Account.', Comment = '%1 - balancing account type';
+        BankPaymentTypeErr: Label 'Bank Payment Type field must be filled only when Bal. Account Type is set to Bank Account.';
+        BalAccountTypeErr: label 'Balancing account must be %1 or %2.';
+        ManualCheckErr: Label 'If bank payment type is set to Manual Check, and you have not selected the Summarize per Employee field,\ then you must select the New Doc. No. per Line.';
+        EmployeePaymentLinesCreatedTxt: Label 'You have created suggested employee payment lines.';
+        UnprocessedEntriesQst: Label 'There are one or more entries for which no payment suggestions have been made because the posting dates of the entries are later than the requested posting date. Do you want to see the entries?';
+        ReplacePostingDateMsg: Label 'For one or more entries, the requested posting date is before the work date.\\These posting dates will use the work date.';
         StartingDocumentNoErr: Label 'The value in the Starting Document No. field must have a number so that we can assign the next number in the series.';
         UnsupportedCurrencyErr: Label 'The balancing bank account must have local currency.';
 
@@ -402,19 +403,19 @@ report 394 "Suggest Employee Payments"
 
         if EmployeeLedgerEntry.FindSet() then
             repeat
-                SaveAmount;
+                SaveAmount();
             until EmployeeLedgerEntry.Next() = 0;
     end;
 
     local procedure SaveAmount()
     begin
         with GenJnlLine do begin
-            Init;
+            Init();
             Validate("Posting Date", PostingDate);
             "Document Type" := "Document Type"::Payment;
             "Account Type" := "Account Type"::Employee;
             Empl2.Get(EmployeeLedgerEntry."Employee No.");
-            Description := CopyStr(Empl2.FullName, 1, MaxStrLen(Description));
+            Description := CopyStr(Empl2.FullName(), 1, MaxStrLen(Description));
             "Posting Group" := Empl2."Employee Posting Group";
             "Salespers./Purch. Code" := Empl2."Salespers./Purch. Code";
             Validate("Bill-to/Pay-to No.", "Account No.");
@@ -447,6 +448,8 @@ report 394 "Suggest Employee Payments"
     begin
         TempPayableEmployeeLedgerEntry.SetRange("Employee No.", Employee."No.");
 
+        PrevCurrency := '';
+        CurrencyBalance := 0;
         if TempPayableEmployeeLedgerEntry.Find('-') then begin
             repeat
                 if TempPayableEmployeeLedgerEntry."Currency Code" <> PrevCurrency then begin
@@ -486,7 +489,7 @@ report 394 "Suggest Employee Payments"
         end;
 
         CopyEmployeeLedgerEntriesToTempEmplPaymentBuffer(RemainingAmtAvailable);
-        CopyTempEmpPaymentBuffersToGenJnlLines;
+        CopyTempEmpPaymentBuffersToGenJnlLines();
     end;
 
     local procedure CopyEmployeeLedgerEntriesToTempEmplPaymentBuffer(RemainingAmtAvailable: Decimal)
@@ -515,7 +518,7 @@ report 394 "Suggest Employee Payments"
 
                     if SummarizePerEmpl then begin
                         TempEmplPaymentBuffer."Employee Ledg. Entry No." := 0;
-                        if TempEmplPaymentBuffer.Find then begin
+                        if TempEmplPaymentBuffer.Find() then begin
                             TempEmplPaymentBuffer.Amount := TempEmplPaymentBuffer.Amount + TempPayableEmployeeLedgerEntry.Amount;
                             TempEmplPaymentBuffer.Modify();
                         end else begin
@@ -558,7 +561,7 @@ report 394 "Suggest Employee Payments"
     var
         Employee: Record Employee;
     begin
-        Clear(OldTempEmplPaymentBuffer);
+        Clear(TempEmployeePaymentBufferOld);
         TempEmplPaymentBuffer.SetCurrentKey("Document No.");
         TempEmplPaymentBuffer.SetFilter(
           "Employee Ledg. Entry Doc. Type", '<>%1&<>%2', TempEmplPaymentBuffer."Employee Ledg. Entry Doc. Type"::Refund,
@@ -566,7 +569,7 @@ report 394 "Suggest Employee Payments"
         if TempEmplPaymentBuffer.FindSet() then
             repeat
                 with GenJnlLine do begin
-                    Init;
+                    Init();
                     Window2.Update(1, TempEmplPaymentBuffer."Employee No.");
                     LastLineNo := LastLineNo + 10000;
                     "Line No." := LastLineNo;
@@ -582,15 +585,15 @@ report 394 "Suggest Employee Payments"
                             "Document No." := NextDocNo;
                             IncrementDocumentNo(GenJnlBatch, NextDocNo);
                         end else
-                            if (TempEmplPaymentBuffer."Employee No." = OldTempEmplPaymentBuffer."Employee No.") and
-                               (TempEmplPaymentBuffer."Currency Code" = OldTempEmplPaymentBuffer."Currency Code")
+                            if (TempEmplPaymentBuffer."Employee No." = TempEmployeePaymentBufferOld."Employee No.") and
+                               (TempEmplPaymentBuffer."Currency Code" = TempEmployeePaymentBufferOld."Currency Code")
                             then
-                                "Document No." := OldTempEmplPaymentBuffer."Document No."
+                                "Document No." := TempEmployeePaymentBufferOld."Document No."
                             else begin
                                 "Document No." := NextDocNo;
                                 IncrementDocumentNo(GenJnlBatch, NextDocNo);
-                                OldTempEmplPaymentBuffer := TempEmplPaymentBuffer;
-                                OldTempEmplPaymentBuffer."Document No." := "Document No.";
+                                TempEmployeePaymentBufferOld := TempEmplPaymentBuffer;
+                                TempEmployeePaymentBufferOld."Document No." := "Document No.";
                             end;
                     "Account Type" := "Account Type"::Employee;
                     SetHideValidation(true);
@@ -606,7 +609,7 @@ report 394 "Suggest Employee Payments"
                     "Bank Payment Type" := BankPmtType;
                     if SummarizePerEmpl then
                         "Applies-to ID" := "Document No.";
-                    Description := CopyStr(Employee.FullName, 1, MaxStrLen(Description));
+                    Description := CopyStr(Employee.FullName(), 1, MaxStrLen(Description));
                     "Source Line No." := TempEmplPaymentBuffer."Employee Ledg. Entry No.";
                     "Shortcut Dimension 1 Code" := TempEmplPaymentBuffer."Global Dimension 1 Code";
                     "Shortcut Dimension 2 Code" := TempEmplPaymentBuffer."Global Dimension 2 Code";
@@ -624,7 +627,7 @@ report 394 "Suggest Employee Payments"
 
                     OnBeforeUpdateGnlJnlLineDimensionsFromTempBuffer(GenJnlLine, TempEmplPaymentBuffer);
                     UpdateDimensions(GenJnlLine);
-                    Insert;
+                    Insert();
                     GenJnlLineInserted := true;
                 end;
             until TempEmplPaymentBuffer.Next() = 0;
@@ -709,7 +712,7 @@ report 394 "Suggest Employee Payments"
         Clear(TempPayableEmployeeLedgerEntry);
         TempPayableEmployeeLedgerEntry.SetRange("Employee No.", Employee."No.");
 
-        while TempPayableEmployeeLedgerEntry.Next <> 0 do begin
+        while TempPayableEmployeeLedgerEntry.Next() <> 0 do begin
             TempCurrency.Code := TempPayableEmployeeLedgerEntry."Currency Code";
             CurrencyBalance := 0;
             if TempCurrency.Insert() then begin
@@ -851,4 +854,5 @@ report 394 "Suggest Employee Payments"
     begin
     end;
 }
+
 #endif

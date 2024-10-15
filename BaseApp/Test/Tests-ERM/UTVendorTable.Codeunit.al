@@ -565,7 +565,7 @@
         // [THEN] Error is shown: 'Phone No. must not contain letters in Vendor  No.='
         Assert.ExpectedError(
           StrSubstNo(
-            PhoneNoCannotContainLettersErr, Vendor.FieldCaption("Phone No."), Vendor.TableCaption,
+            PhoneNoCannotContainLettersErr, Vendor.FieldCaption("Phone No."), Vendor.TableCaption(),
             Vendor.FieldCaption("No."), Vendor."No."));
         Assert.ExpectedErrorCode('NCLCSRTS:TableErrorStr');
     end;
@@ -696,6 +696,7 @@
     var
         Vendor: Record Vendor;
         LibraryApplicationArea: Codeunit "Library - Application Area";
+        LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"UT Vendor Table");
         Vendor.DeleteAll();
@@ -706,7 +707,7 @@
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"UT Vendor Table");
 
-        LibraryERM.SetJournalTemplateNameMandatory(false);
+        LibraryERMCountryData.UpdateJournalTemplMandatory(false);
 
         LibrarySetupStorage.Save(DATABASE::"Marketing Setup");
         LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
@@ -767,7 +768,7 @@
 
         Assert.ExpectedError(
           StrSubstNo(
-            DeleteVendorPurchaseDocExistsErr, Vendor.TableCaption, Vendor."No.", DocType));
+            DeleteVendorPurchaseDocExistsErr, Vendor.TableCaption(), Vendor."No.", DocType));
 
         Assert.ExpectedErrorCode(DialogErr);
     end;

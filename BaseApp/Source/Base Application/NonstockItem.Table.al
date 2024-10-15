@@ -14,7 +14,7 @@ table 5718 "Nonstock Item"
             trigger OnValidate()
             begin
                 if "Entry No." <> xRec."Entry No." then begin
-                    GetInvtSetup;
+                    GetInvtSetup();
                     NoSeriesMgt.TestManual(InvtSetup."Nonstock Item Nos.");
                     "No. Series" := '';
                 end;
@@ -145,23 +145,9 @@ table 5718 "Nonstock Item"
             Caption = 'Item Template Code';
             TableRelation = "Config. Template Header".Code WHERE("Table ID" = CONST(27));
             ObsoleteReason = 'This field will be removed with other functionality related to "old" templates. Use "Item Templ. Code" field instead.';
-#if not CLEAN18
-            ObsoleteState = Pending;
-            ObsoleteTag = '18.0';
-#else
-            ObsoleteState = Removed;;
+            ObsoleteState = Removed;
+            ;
             ObsoleteTag = '21.0';
-#endif
-
-#if not CLEAN18
-            trigger OnValidate()
-            begin
-                if ("Item Template Code" <> xRec."Item Template Code") and
-                   ("Item No." <> '')
-                then
-                    Error(Text001);
-            end;
-#endif
         }
         field(13; "Product Group Code"; Code[10])
         {
@@ -247,6 +233,9 @@ table 5718 "Nonstock Item"
 
     fieldgroups
     {
+        fieldgroup(DropDown; "Vendor Item No.", "Manufacturer Code", Description)
+        {
+        }
     }
 
     trigger OnDelete()
@@ -263,7 +252,7 @@ table 5718 "Nonstock Item"
     begin
         NonStockItem.LockTable();
         if "Entry No." = '' then begin
-            GetInvtSetup;
+            GetInvtSetup();
             InvtSetup.TestField("Nonstock Item Nos.");
             NoSeriesMgt.InitSeries(InvtSetup."Nonstock Item Nos.", xRec."No. Series", 0D, "Entry No.", "No. Series");
         end;
@@ -279,12 +268,6 @@ table 5718 "Nonstock Item"
         VenLength := StrLen("Vendor Item No.");
 
         NonStockItemSetup.Get();
-#if not CLEAN18
-        // NAVCZ
-        if NonStockItemSetup."No. From No. Series" then
-            exit;
-        // NAVCZ
-#endif
         case NonStockItemSetup."No. Format" of
             NonStockItemSetup."No. Format"::"Entry No.":
                 ItemNo := "Entry No.";
@@ -339,7 +322,6 @@ table 5718 "Nonstock Item"
         NonStockItem: Record "Nonstock Item";
         NonStockItemSetup: Record "Nonstock Item Setup";
         InvtSetup: Record "Inventory Setup";
-        CommentLine: Record "Comment Line";
         NoSeriesMgt: Codeunit NoSeriesManagement;
         ItemNo: Code[20];
         TempItemNo: Code[20];
@@ -348,9 +330,12 @@ table 5718 "Nonstock Item"
         Text002: Label 'No.=<%1> and Vendor Item No.=<%2> already exists.';
         HasInvtSetup: Boolean;
 
+    protected var
+        CommentLine: Record "Comment Line";
+
     procedure AssistEdit(): Boolean
     begin
-        GetInvtSetup;
+        GetInvtSetup();
         InvtSetup.TestField("Nonstock Item Nos.");
         if NoSeriesMgt.SelectSeries(InvtSetup."Nonstock Item Nos.", xRec."No. Series", "No. Series") then begin
             NoSeriesMgt.SetSeries("Entry No.");
@@ -358,7 +343,7 @@ table 5718 "Nonstock Item"
         end;
     end;
 
-    local procedure CheckVendorItemNo(VendorNo: Code[20]; VendorItemNo: Code[50]; CalledByFieldNo: Integer) Result: Boolean
+    procedure CheckVendorItemNo(VendorNo: Code[20]; VendorItemNo: Code[50]; CalledByFieldNo: Integer) Result: Boolean
     var
         IsHandled: Boolean;
     begin
@@ -371,7 +356,7 @@ table 5718 "Nonstock Item"
         NonStockItem.SetCurrentKey("Vendor No.", "Vendor Item No.");
         NonStockItem.SetRange("Vendor No.", VendorNo);
         NonStockItem.SetRange("Vendor Item No.", VendorItemNo);
-        exit(NonStockItem.FindFirst);
+        exit(NonStockItem.FindFirst());
     end;
 
     local procedure GetInvtSetup()

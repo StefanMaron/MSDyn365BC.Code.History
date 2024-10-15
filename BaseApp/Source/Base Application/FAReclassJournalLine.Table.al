@@ -1,3 +1,4 @@
+#if not CLEAN19
 table 5624 "FA Reclass. Journal Line"
 {
     Caption = 'FA Reclass. Journal Line';
@@ -191,7 +192,6 @@ table 5624 "FA Reclass. Journal Line"
     begin
     end;
 
-#if not CLEAN19
     [Obsolete('This procedure is discontinued. Use FAReclassJnlManagement event OnBeforeOpenJournal.', '19.0')]
     procedure CheckFAReclassJournalLineUserRestriction()
     begin
@@ -204,6 +204,7 @@ table 5624 "FA Reclass. Journal Line"
     local procedure OnCheckFAReclassJournalTemplateUserRestrictions(JournalTemplateName: Code[10])
     begin
     end;
-#endif
 }
 
+
+#endif

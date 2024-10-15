@@ -97,3 +97,4 @@ table 255 "VAT Statement Template"
         VATStmtName: Record "VAT Statement Name";
         VATStmtLine: Record "VAT Statement Line";
 }
+

@@ -152,9 +152,6 @@ table 1296 "Posted Payment Recon. Line"
         {
             Caption = 'Constant Symbol';
             CharAllowed = '09';
-#if not CLEAN18
-            TableRelation = "Constant Symbol";
-#endif
 #if not CLEAN19
             ObsoleteState = Pending;
 #else
@@ -324,3 +321,4 @@ table 1296 "Posted Payment Recon. Line"
         exit('');
     end;
 }
+

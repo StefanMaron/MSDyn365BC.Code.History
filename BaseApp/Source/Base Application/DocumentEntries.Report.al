@@ -13,7 +13,7 @@ report 35 "Document Entries"
             column(TodayFormatted; Format(Today, 0, 4))
             {
             }
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(DocNoFilter; Text001 + Format(DocNoFilter))
@@ -22,10 +22,10 @@ report 35 "Document Entries"
             column(PostDateFilter; Text002 + PostingDateFilter)
             {
             }
-            column(DocEntryNoofRecords; DocEntry."No. of Records")
+            column(DocEntryNoofRecords; TempDocumentEntry."No. of Records")
             {
             }
-            column(DocEntryTableName; DocEntry."Table Name")
+            column(DocEntryTableName; TempDocumentEntry."Table Name")
             {
             }
             column(PrintAmountsInLCY; PrintAmountsInLCY)
@@ -81,7 +81,7 @@ report 35 "Document Entries"
 
                 trigger OnPreDataItem()
                 begin
-                    if DocEntry."Table ID" <> DATABASE::"Service Ledger Entry" then
+                    if TempDocumentEntry."Table ID" <> DATABASE::"Service Ledger Entry" then
                         CurrReport.Break();
 
                     SetCurrentKey("Document No.", "Posting Date");
@@ -117,7 +117,7 @@ report 35 "Document Entries"
 
                 trigger OnPreDataItem()
                 begin
-                    if DocEntry."Table ID" <> DATABASE::"Warranty Ledger Entry" then
+                    if TempDocumentEntry."Table ID" <> DATABASE::"Warranty Ledger Entry" then
                         CurrReport.Break();
 
                     SetCurrentKey("Document No.", "Posting Date");
@@ -151,7 +151,7 @@ report 35 "Document Entries"
 
                 trigger OnPreDataItem()
                 begin
-                    if DocEntry."Table ID" <> DATABASE::"Service Shipment Header" then
+                    if TempDocumentEntry."Table ID" <> DATABASE::"Service Shipment Header" then
                         CurrReport.Break();
 
                     SetCurrentKey("No.");
@@ -193,7 +193,7 @@ report 35 "Document Entries"
 
                 trigger OnPreDataItem()
                 begin
-                    if DocEntry."Table ID" <> DATABASE::"Sales Shipment Header" then
+                    if TempDocumentEntry."Table ID" <> DATABASE::"Sales Shipment Header" then
                         CurrReport.Break();
 
                     SetCurrentKey("No.");
@@ -253,7 +253,7 @@ report 35 "Document Entries"
 
                 trigger OnPreDataItem()
                 begin
-                    if DocEntry."Table ID" <> DATABASE::"Sales Invoice Header" then
+                    if TempDocumentEntry."Table ID" <> DATABASE::"Sales Invoice Header" then
                         CurrReport.Break();
 
                     SetCurrentKey("No.");
@@ -295,7 +295,7 @@ report 35 "Document Entries"
 
                 trigger OnPreDataItem()
                 begin
-                    if DocEntry."Table ID" <> DATABASE::"Return Receipt Header" then
+                    if TempDocumentEntry."Table ID" <> DATABASE::"Return Receipt Header" then
                         CurrReport.Break();
 
                     SetCurrentKey("No.");
@@ -355,7 +355,7 @@ report 35 "Document Entries"
 
                 trigger OnPreDataItem()
                 begin
-                    if DocEntry."Table ID" <> DATABASE::"Sales Cr.Memo Header" then
+                    if TempDocumentEntry."Table ID" <> DATABASE::"Sales Cr.Memo Header" then
                         CurrReport.Break();
 
                     SetCurrentKey("No.");
@@ -418,7 +418,7 @@ report 35 "Document Entries"
 
                 trigger OnPreDataItem()
                 begin
-                    if DocEntry."Table ID" <> DATABASE::"Issued Reminder Header" then
+                    if TempDocumentEntry."Table ID" <> DATABASE::"Issued Reminder Header" then
                         CurrReport.Break();
 
                     SetCurrentKey("No.");
@@ -483,7 +483,7 @@ report 35 "Document Entries"
 
                 trigger OnPreDataItem()
                 begin
-                    if DocEntry."Table ID" <> DATABASE::"Issued Fin. Charge Memo Header" then
+                    if TempDocumentEntry."Table ID" <> DATABASE::"Issued Fin. Charge Memo Header" then
                         CurrReport.Break();
 
                     SetCurrentKey("No.");
@@ -524,7 +524,7 @@ report 35 "Document Entries"
 
                 trigger OnPreDataItem()
                 begin
-                    if DocEntry."Table ID" <> DATABASE::"Purch. Rcpt. Header" then
+                    if TempDocumentEntry."Table ID" <> DATABASE::"Purch. Rcpt. Header" then
                         CurrReport.Break();
 
                     SetCurrentKey("No.");
@@ -584,7 +584,7 @@ report 35 "Document Entries"
 
                 trigger OnPreDataItem()
                 begin
-                    if DocEntry."Table ID" <> DATABASE::"Purch. Inv. Header" then
+                    if TempDocumentEntry."Table ID" <> DATABASE::"Purch. Inv. Header" then
                         CurrReport.Break();
 
                     SetCurrentKey("No.");
@@ -626,7 +626,7 @@ report 35 "Document Entries"
 
                 trigger OnPreDataItem()
                 begin
-                    if DocEntry."Table ID" <> DATABASE::"Return Shipment Header" then
+                    if TempDocumentEntry."Table ID" <> DATABASE::"Return Shipment Header" then
                         CurrReport.Break();
 
                     SetCurrentKey("No.");
@@ -686,7 +686,7 @@ report 35 "Document Entries"
 
                 trigger OnPreDataItem()
                 begin
-                    if DocEntry."Table ID" <> DATABASE::"Purch. Cr. Memo Hdr." then
+                    if TempDocumentEntry."Table ID" <> DATABASE::"Purch. Cr. Memo Hdr." then
                         CurrReport.Break();
 
                     SetCurrentKey("No.");
@@ -731,7 +731,7 @@ report 35 "Document Entries"
 
                 trigger OnPreDataItem()
                 begin
-                    if DocEntry."Table ID" <> DATABASE::"Production Order" then
+                    if TempDocumentEntry."Table ID" <> DATABASE::"Production Order" then
                         CurrReport.Break();
 
                     SetCurrentKey(Status, "No.");
@@ -771,7 +771,7 @@ report 35 "Document Entries"
 
                 trigger OnPreDataItem()
                 begin
-                    if DocEntry."Table ID" <> DATABASE::"Transfer Shipment Header" then
+                    if TempDocumentEntry."Table ID" <> DATABASE::"Transfer Shipment Header" then
                         CurrReport.Break();
 
                     SetCurrentKey("No.");
@@ -811,7 +811,7 @@ report 35 "Document Entries"
 
                 trigger OnPreDataItem()
                 begin
-                    if DocEntry."Table ID" <> DATABASE::"Transfer Receipt Header" then
+                    if TempDocumentEntry."Table ID" <> DATABASE::"Transfer Receipt Header" then
                         CurrReport.Break();
 
                     SetCurrentKey("No.");
@@ -863,7 +863,7 @@ report 35 "Document Entries"
 
                 trigger OnPreDataItem()
                 begin
-                    if DocEntry."Table ID" <> DATABASE::"Posted Whse. Shipment Line" then
+                    if TempDocumentEntry."Table ID" <> DATABASE::"Posted Whse. Shipment Line" then
                         CurrReport.Break();
 
                     SetCurrentKey("Posted Source No.", "Posting Date");
@@ -915,7 +915,7 @@ report 35 "Document Entries"
 
                 trigger OnPreDataItem()
                 begin
-                    if DocEntry."Table ID" <> DATABASE::"Posted Whse. Receipt Line" then
+                    if TempDocumentEntry."Table ID" <> DATABASE::"Posted Whse. Receipt Line" then
                         CurrReport.Break();
 
                     SetCurrentKey("Posted Source No.", "Posting Date");
@@ -967,7 +967,7 @@ report 35 "Document Entries"
 
                 trigger OnPreDataItem()
                 begin
-                    if DocEntry."Table ID" <> DATABASE::"G/L Entry" then
+                    if TempDocumentEntry."Table ID" <> DATABASE::"G/L Entry" then
                         CurrReport.Break();
 
                     SetCurrentKey("Document No.", "Posting Date");
@@ -999,7 +999,7 @@ report 35 "Document Entries"
 
                 trigger OnPreDataItem()
                 begin
-                    if DocEntry."Table ID" <> DATABASE::"VAT Entry" then
+                    if TempDocumentEntry."Table ID" <> DATABASE::"VAT Entry" then
                         CurrReport.Break();
 
                     SetCurrentKey("Document No.", "Posting Date");
@@ -1058,7 +1058,7 @@ report 35 "Document Entries"
 
                 trigger OnPreDataItem()
                 begin
-                    if DocEntry."Table ID" <> DATABASE::"Cust. Ledger Entry" then
+                    if TempDocumentEntry."Table ID" <> DATABASE::"Cust. Ledger Entry" then
                         CurrReport.Break();
 
                     SetCurrentKey("Document No.");
@@ -1112,7 +1112,7 @@ report 35 "Document Entries"
 
                 trigger OnPreDataItem()
                 begin
-                    if DocEntry."Table ID" <> DATABASE::"Detailed Cust. Ledg. Entry" then
+                    if TempDocumentEntry."Table ID" <> DATABASE::"Detailed Cust. Ledg. Entry" then
                         CurrReport.Break();
 
                     SetCurrentKey("Document No.");
@@ -1152,7 +1152,7 @@ report 35 "Document Entries"
 
                 trigger OnPreDataItem()
                 begin
-                    if DocEntry."Table ID" <> DATABASE::"Reminder/Fin. Charge Entry" then
+                    if TempDocumentEntry."Table ID" <> DATABASE::"Reminder/Fin. Charge Entry" then
                         CurrReport.Break();
 
                     SetCurrentKey("Document No.", "Posting Date");
@@ -1206,7 +1206,7 @@ report 35 "Document Entries"
 
                 trigger OnPreDataItem()
                 begin
-                    if DocEntry."Table ID" <> DATABASE::"Vendor Ledger Entry" then
+                    if TempDocumentEntry."Table ID" <> DATABASE::"Vendor Ledger Entry" then
                         CurrReport.Break();
 
                     SetCurrentKey("Document No.");
@@ -1260,7 +1260,7 @@ report 35 "Document Entries"
 
                 trigger OnPreDataItem()
                 begin
-                    if DocEntry."Table ID" <> DATABASE::"Detailed Vendor Ledg. Entry" then
+                    if TempDocumentEntry."Table ID" <> DATABASE::"Detailed Vendor Ledg. Entry" then
                         CurrReport.Break();
 
                     SetCurrentKey("Document No.");
@@ -1306,7 +1306,7 @@ report 35 "Document Entries"
 
                 trigger OnPreDataItem()
                 begin
-                    if DocEntry."Table ID" <> DATABASE::"Item Ledger Entry" then
+                    if TempDocumentEntry."Table ID" <> DATABASE::"Item Ledger Entry" then
                         CurrReport.Break();
 
                     SetCurrentKey("Document No.");
@@ -1346,7 +1346,7 @@ report 35 "Document Entries"
 
                 trigger OnPreDataItem()
                 begin
-                    if DocEntry."Table ID" <> DATABASE::"Value Entry" then
+                    if TempDocumentEntry."Table ID" <> DATABASE::"Value Entry" then
                         CurrReport.Break();
 
                     SetCurrentKey("Document No.");
@@ -1394,7 +1394,7 @@ report 35 "Document Entries"
 
                 trigger OnPreDataItem()
                 begin
-                    if DocEntry."Table ID" <> DATABASE::"Phys. Inventory Ledger Entry" then
+                    if TempDocumentEntry."Table ID" <> DATABASE::"Phys. Inventory Ledger Entry" then
                         CurrReport.Break();
 
                     SetCurrentKey("Document No.", "Posting Date");
@@ -1438,7 +1438,7 @@ report 35 "Document Entries"
 
                 trigger OnPreDataItem()
                 begin
-                    if DocEntry."Table ID" <> DATABASE::"Res. Ledger Entry" then
+                    if TempDocumentEntry."Table ID" <> DATABASE::"Res. Ledger Entry" then
                         CurrReport.Break();
 
                     SetCurrentKey("Document No.", "Posting Date");
@@ -1482,7 +1482,7 @@ report 35 "Document Entries"
 
                 trigger OnPreDataItem()
                 begin
-                    if DocEntry."Table ID" <> DATABASE::"Job Ledger Entry" then
+                    if TempDocumentEntry."Table ID" <> DATABASE::"Job Ledger Entry" then
                         CurrReport.Break();
 
                     SetCurrentKey("Document No.", "Posting Date");
@@ -1537,7 +1537,7 @@ report 35 "Document Entries"
 
                 trigger OnPreDataItem()
                 begin
-                    if DocEntry."Table ID" <> DATABASE::"Bank Account Ledger Entry" then
+                    if TempDocumentEntry."Table ID" <> DATABASE::"Bank Account Ledger Entry" then
                         CurrReport.Break();
 
                     SetCurrentKey("Document No.", "Posting Date");
@@ -1594,7 +1594,7 @@ report 35 "Document Entries"
 
                 trigger OnPreDataItem()
                 begin
-                    if DocEntry."Table ID" <> DATABASE::"Check Ledger Entry" then
+                    if TempDocumentEntry."Table ID" <> DATABASE::"Check Ledger Entry" then
                         CurrReport.Break();
 
                     SetCurrentKey("Document No.", "Posting Date");
@@ -1634,7 +1634,7 @@ report 35 "Document Entries"
 
                 trigger OnPreDataItem()
                 begin
-                    if DocEntry."Table ID" <> DATABASE::"FA Ledger Entry" then
+                    if TempDocumentEntry."Table ID" <> DATABASE::"FA Ledger Entry" then
                         CurrReport.Break();
 
                     SetCurrentKey("Document No.", "Posting Date");
@@ -1674,7 +1674,7 @@ report 35 "Document Entries"
 
                 trigger OnPreDataItem()
                 begin
-                    if DocEntry."Table ID" <> DATABASE::"Maintenance Ledger Entry" then
+                    if TempDocumentEntry."Table ID" <> DATABASE::"Maintenance Ledger Entry" then
                         CurrReport.Break();
 
                     SetCurrentKey("Document No.", "Posting Date");
@@ -1714,7 +1714,7 @@ report 35 "Document Entries"
 
                 trigger OnPreDataItem()
                 begin
-                    if DocEntry."Table ID" <> DATABASE::"Ins. Coverage Ledger Entry" then
+                    if TempDocumentEntry."Table ID" <> DATABASE::"Ins. Coverage Ledger Entry" then
                         CurrReport.Break();
 
                     SetCurrentKey("Document No.", "Posting Date");
@@ -1750,7 +1750,7 @@ report 35 "Document Entries"
 
                 trigger OnPreDataItem()
                 begin
-                    if DocEntry."Table ID" <> DATABASE::"Capacity Ledger Entry" then
+                    if TempDocumentEntry."Table ID" <> DATABASE::"Capacity Ledger Entry" then
                         CurrReport.Break();
 
                     SetCurrentKey("Document No.", "Posting Date");
@@ -1794,7 +1794,7 @@ report 35 "Document Entries"
 
                 trigger OnPreDataItem()
                 begin
-                    if DocEntry."Table ID" <> DATABASE::"Warehouse Entry" then
+                    if TempDocumentEntry."Table ID" <> DATABASE::"Warehouse Entry" then
                         CurrReport.Break();
 
                     SetCurrentKey("Reference No.", "Registering Date");
@@ -1802,389 +1802,14 @@ report 35 "Document Entries"
                     SetFilter("Registering Date", PostingDateFilter);
                 end;
             }
-#if not CLEAN19
 
-            dataitem("Issued Bank Statement Header"; "Issued Bank Statement Header")
-            {
-                DataItemTableView = SORTING("No.");
-                column(No_IssuedBankStatementHeader; "No.")
-                {
-                    IncludeCaption = true;
-                }
-                column(BankAccountNo_IssuedBankStatementHeader; "Bank Account No.")
-                {
-                    IncludeCaption = true;
-                }
-                column(BankAccountName_IssuedBankStatementHeader; "Bank Account Name")
-                {
-                    IncludeCaption = true;
-                }
-                column(DocumentDate_IssuedBankStatementHeader; Format("Document Date"))
-                {
-                }
-                column(CurrencyCode_IssuedBankStatementHeader; "Currency Code")
-                {
-                    IncludeCaption = true;
-                }
-                column(Amount_IssuedBankStatementHeader; Amount)
-                {
-                    IncludeCaption = true;
-                }
-                column(Debit_IssuedBankStatementHeader; Debit)
-                {
-                    IncludeCaption = true;
-                }
-                column(Credit_IssuedBankStatementHeader; Credit)
-                {
-                    IncludeCaption = true;
-                }
-                column(IssuedBankStmtHdrCurrCaption; CurrencyCaption)
-                {
-                }
-                column(IssuedBankStmtHdrDocDateCaption; IssuedBankStmtHdrDocDateCaptionLbl)
-                {
-                }
-
-                trigger OnPreDataItem()
-                begin
-                    // NAVCZ
-                    if DocEntry."Table ID" <> DATABASE::"Issued Bank Statement Header" then
-                        CurrReport.Break();
-
-                    SetCurrentKey("No.");
-                    SetFilter("No.", DocNoFilter);
-                    SetFilter("Document Date", PostingDateFilter);
-                    // NAVCZ
-                end;
-            }
-            dataitem("Issued Payment Order Header"; "Issued Payment Order Header")
-            {
-                DataItemTableView = SORTING("No.");
-                column(No_IssuedPaymentOrderHeader; "No.")
-                {
-                    IncludeCaption = true;
-                }
-                column(BankAccountNo_IssuedPaymentOrderHeader; "Bank Account No.")
-                {
-                    IncludeCaption = true;
-                }
-                column(BankAccountName_IssuedPaymentOrderHeader; "Bank Account Name")
-                {
-                    IncludeCaption = true;
-                }
-                column(DocumentDate_IssuedPaymentOrderHeader; Format("Document Date"))
-                {
-                }
-                column(CurrencyCode_IssuedPaymentOrderHeader; "Currency Code")
-                {
-                    IncludeCaption = true;
-                }
-                column(Amount_IssuedPaymentOrderHeader; Amount)
-                {
-                    IncludeCaption = true;
-                }
-                column(Debit_IssuedPaymentOrderHeader; Debit)
-                {
-                    IncludeCaption = true;
-                }
-                column(Credit_IssuedPaymentOrderHeader; Credit)
-                {
-                    IncludeCaption = true;
-                }
-                column(IssuedPmtOrdHdrCurrCaption; CurrencyCaption)
-                {
-                }
-                column(IssuedPmtOrdHdrDocDateCaption; IssuedPmtOrdHdrDocDateCaptionLbl)
-                {
-                }
-
-                trigger OnPreDataItem()
-                begin
-                    // NAVCZ
-                    if DocEntry."Table ID" <> DATABASE::"Issued Payment Order Header" then
-                        CurrReport.Break();
-
-                    SetCurrentKey("No.");
-                    SetFilter("No.", DocNoFilter);
-                    SetFilter("Document Date", PostingDateFilter);
-                    // NAVCZ
-                end;
-            }
-#endif
-#if not CLEAN19
-            dataitem("Sales Advance Letter Entry"; "Sales Advance Letter Entry")
-            {
-                DataItemTableView = SORTING("Document No.", "Posting Date");
-                column(EntryNo_SalesAdvanceLetterEntry; "Entry No.")
-                {
-                    IncludeCaption = true;
-                }
-                column(LetterNo_SalesAdvanceLetterEntry; "Letter No.")
-                {
-                    IncludeCaption = true;
-                }
-                column(DocumentNo_SalesAdvanceLetterEntry; "Document No.")
-                {
-                    IncludeCaption = true;
-                }
-                column(PostingDate_SalesAdvanceLetterEntry; Format("Posting Date"))
-                {
-                }
-                column(CustomerNo_SalesAdvanceLetterEntry; "Customer No.")
-                {
-                    IncludeCaption = true;
-                }
-                column(Amount_SalesAdvanceLetterEntry; Amount)
-                {
-                    IncludeCaption = true;
-                }
-                column(CurrencyCode_SalesAdvanceLetterEntry; "Currency Code")
-                {
-                    IncludeCaption = true;
-                }
-                column(VATBaseAmountLCY_SalesAdvanceLetterEntry; "VAT Base Amount (LCY)")
-                {
-                    IncludeCaption = true;
-                }
-                column(VATAmountLCY_SalesAdvanceLetterEntry; "VAT Amount (LCY)")
-                {
-                    IncludeCaption = true;
-                }
-                column(VATBaseAmount_SalesAdvanceLetterEntry; "VAT Base Amount")
-                {
-                    IncludeCaption = true;
-                }
-                column(VATAmount_SalesAdvanceLetterEntry; "VAT Amount")
-                {
-                    IncludeCaption = true;
-                }
-                column(SalesAdvLetterEntryCurrCaption; CurrencyCaption)
-                {
-                }
-                column(SalesAdvLetterEntryPostDateCaption; SalesAdvLetterEntryPostDateCaptionLbl)
-                {
-                }
-
-                trigger OnPreDataItem()
-                begin
-                    // NAVCZ
-                    if DocEntry."Table ID" <> DATABASE::"Sales Advance Letter Entry" then
-                        CurrReport.Break();
-
-                    SetCurrentKey("Document No.", "Posting Date");
-                    SetFilter("Document No.", DocNoFilter);
-                    SetFilter("Posting Date", PostingDateFilter);
-                    // NAVCZ
-                end;
-            }
-            dataitem("Purch. Advance Letter Entry"; "Purch. Advance Letter Entry")
-            {
-                DataItemTableView = SORTING("Document No.", "Posting Date");
-                column(EntryNo_PurchAdvanceLetterEntry; "Entry No.")
-                {
-                    IncludeCaption = true;
-                }
-                column(LetterNo_PurchAdvanceLetterEntry; "Letter No.")
-                {
-                    IncludeCaption = true;
-                }
-                column(DocumentNo_PurchAdvanceLetterEntry; "Document No.")
-                {
-                    IncludeCaption = true;
-                }
-                column(PostingDate_PurchAdvanceLetterEntry; Format("Posting Date"))
-                {
-                }
-                column(VendorNo_PurchAdvanceLetterEntry; "Vendor No.")
-                {
-                    IncludeCaption = true;
-                }
-                column(Amount_PurchAdvanceLetterEntry; Amount)
-                {
-                    IncludeCaption = true;
-                }
-                column(CurrencyCode_PurchAdvanceLetterEntry; "Currency Code")
-                {
-                    IncludeCaption = true;
-                }
-                column(VATBaseAmountLCY_PurchAdvanceLetterEntry; "VAT Base Amount (LCY)")
-                {
-                    IncludeCaption = true;
-                }
-                column(VATAmountLCY_PurchAdvanceLetterEntry; "VAT Amount (LCY)")
-                {
-                    IncludeCaption = true;
-                }
-                column(VATBaseAmount_PurchAdvanceLetterEntry; "VAT Base Amount")
-                {
-                    IncludeCaption = true;
-                }
-                column(VATAmount_PurchAdvanceLetterEntry; "VAT Amount")
-                {
-                    IncludeCaption = true;
-                }
-                column(PurchAdvLetterEntryCurrCaption; CurrencyCaption)
-                {
-                }
-                column(PurchAdvLetterEntryPostDateCaption; PurchAdvLetterEntryPostDateCaptionLbl)
-                {
-                }
-
-                trigger OnPreDataItem()
-                begin
-                    // NAVCZ
-                    if DocEntry."Table ID" <> DATABASE::"Purch. Advance Letter Entry" then
-                        CurrReport.Break();
-
-                    SetCurrentKey("Document No.", "Posting Date");
-                    SetFilter("Document No.", DocNoFilter);
-                    SetFilter("Posting Date", PostingDateFilter);
-                    // NAVCZ
-                end;
-            }
-#endif
-#if not CLEAN18
-            dataitem("Posted Credit Header"; "Posted Credit Header")
-            {
-                DataItemTableView = SORTING("No.");
-                column(No_PostedCreditHeader; "No.")
-                {
-                    IncludeCaption = true;
-                }
-                column(Description_PostedCreditHeader; Description)
-                {
-                    IncludeCaption = true;
-                }
-                column(CompanyNo_PostedCreditHeader; "Company No.")
-                {
-                    IncludeCaption = true;
-                }
-                column(PostingDate_PostedCreditHeader; Format("Posting Date"))
-                {
-                }
-                column(BalanceLCY_PostedCreditHeader; "Balance (LCY)")
-                {
-                    IncludeCaption = true;
-                }
-                column(Type_PostedCreditHeader; Type)
-                {
-                    IncludeCaption = true;
-                }
-                column(PostedCreditHdrPostDateCaption; PostedCreditHdrPostDateCaptionLbl)
-                {
-                }
-
-                trigger OnPreDataItem()
-                begin
-                    // NAVCZ
-                    if DocEntry."Table ID" <> DATABASE::"Posted Credit Header" then
-                        CurrReport.Break();
-
-                    SetCurrentKey("No.");
-                    SetFilter("No.", DocNoFilter);
-                    SetFilter("Posting Date", PostingDateFilter);
-                    // NAVCZ
-                end;
-            }
-#endif
-            dataitem("Posted Invt. Put-away Header"; "Posted Invt. Put-away Header")
-            {
-                DataItemTableView = SORTING("No.");
-                column(No_PostedInvtPutawayHeader; "No.")
-                {
-                    IncludeCaption = true;
-                }
-                column(LocationCode_PostedInvtPutawayHeader; "Location Code")
-                {
-                    IncludeCaption = true;
-                }
-                column(PostingDate_PostedInvtPutawayHeader; Format("Posting Date"))
-                {
-                }
-                column(SourceNo_PostedInvtPutawayHeader; "Source No.")
-                {
-                    IncludeCaption = true;
-                }
-                column(DestinationNo_PostedInvtPutawayHeader; "Destination No.")
-                {
-                    IncludeCaption = true;
-                }
-                column(ExternalDocumentNo_PostedInvtPutawayHeader; "External Document No.")
-                {
-                    IncludeCaption = true;
-                }
-                column(ExpectedReceiptDate_PostedInvtPutawayHeader; "Expected Receipt Date")
-                {
-                    IncludeCaption = true;
-                }
-                column(PostedInvtPutAwayHdrPostDateCaption; PostedInvtPutAwayHdrPostDateCaptionLbl)
-                {
-                }
-
-                trigger OnPreDataItem()
-                begin
-                    // NAVCZ
-                    if DocEntry."Table ID" <> DATABASE::"Posted Invt. Put-away Header" then
-                        CurrReport.Break();
-
-                    SetCurrentKey("No.");
-                    SetFilter("No.", DocNoFilter);
-                    SetFilter("Posting Date", PostingDateFilter);
-                    // NAVCZ
-                end;
-            }
-#if not CLEAN18
-            dataitem("EET Entry"; "EET Entry")
-            {
-                DataItemTableView = SORTING("Document No.");
-                column(DocumentNo_EETEntry; "Document No.")
-                {
-                    IncludeCaption = true;
-                }
-                column(Description_EETEntry; Description)
-                {
-                    IncludeCaption = true;
-                }
-                column(BusinessPremisesCode_EETEntry; "Business Premises Code")
-                {
-                    IncludeCaption = true;
-                }
-                column(CashRegisterCode_EETEntry; "Cash Register Code")
-                {
-                    IncludeCaption = true;
-                }
-                column(EETStatus_EETEntry; "EET Status")
-                {
-                    IncludeCaption = true;
-                }
-                column(TotalSalesAmount_EETEntry; "Total Sales Amount")
-                {
-                    IncludeCaption = true;
-                }
-                column(EntryNo_EETEntry; "Entry No.")
-                {
-                    IncludeCaption = true;
-                }
-
-                trigger OnPreDataItem()
-                begin
-                    // NAVCZ
-                    if DocEntry."Table ID" <> DATABASE::"EET Entry" then
-                        CurrReport.Break();
-
-                    SetCurrentKey("Document No.");
-                    SetFilter("Document No.", DocNoFilter);
-                    // NAVCZ
-                end;
-            }
-#endif
             trigger OnAfterGetRecord()
             begin
                 if Number = 1 then begin
-                    if not DocEntry.Find('-') then
+                    if not TempDocumentEntry.Find('-') then
                         CurrReport.Break();
                 end else
-                    if DocEntry.Next() = 0 then
+                    if TempDocumentEntry.Next() = 0 then
                         CurrReport.Break();
                 CurrencyCaptionRBC := Text003;
             end;
@@ -2230,10 +1855,7 @@ report 35 "Document Entries"
     }
 
     var
-        DocEntry: Record "Document Entry" temporary;
         CurrExchRate: Record "Currency Exchange Rate";
-        DocNoFilter: Text;
-        PostingDateFilter: Text;
         Text001: Label 'Document No. : ';
         Text002: Label 'Posting Date : ';
         PrintAmountsInLCY: Boolean;
@@ -2282,34 +1904,24 @@ report 35 "Document Entries"
         InsCoverageLedgEntryPostDtCaptionLbl: Label 'Posting Date';
         CapLedgEntryPostDtCaptionLbl: Label 'Posting Date';
         WhseEntryRegisteringDateCaptionLbl: Label 'Registering Date';
-#if not CLEAN19
-        IssuedBankStmtHdrDocDateCaptionLbl: Label 'Document Date';
-        IssuedPmtOrdHdrDocDateCaptionLbl: Label 'Document Date';
-#endif
-#if not CLEAN19
-        SalesAdvLetterEntryPostDateCaptionLbl: Label 'Posting Date';
-        PurchAdvLetterEntryPostDateCaptionLbl: Label 'Posting Date';
-#endif
-#if not CLEAN18
-        PostedCreditHdrPostDateCaptionLbl: Label 'Posting Date';
-#endif
-        PostedInvtPutAwayHdrPostDateCaptionLbl: Label 'Posting Date';
-#if not CLEAN18
-        CashDeskNo: Code[20];
-#endif
 
-    procedure TransferDocEntries(var NewDocEntry: Record "Document Entry")
+    protected var
+        TempDocumentEntry: Record "Document Entry" temporary;
+        DocNoFilter: Text;
+        PostingDateFilter: Text;
+
+    procedure TransferDocEntries(var NewDocumentEntry: Record "Document Entry")
     var
-        TempDocumentEntry: Record "Document Entry";
+        TempDocumentEntry2: Record "Document Entry";
     begin
-        TempDocumentEntry := NewDocEntry;
-        NewDocEntry.Reset();
-        if NewDocEntry.Find('-') then
+        TempDocumentEntry2 := NewDocumentEntry;
+        NewDocumentEntry.Reset();
+        if NewDocumentEntry.Find('-') then
             repeat
-                DocEntry := NewDocEntry;
-                DocEntry.Insert();
-            until NewDocEntry.Next() = 0;
-        NewDocEntry := TempDocumentEntry;
+                TempDocumentEntry := NewDocumentEntry;
+                TempDocumentEntry.Insert();
+            until NewDocumentEntry.Next() = 0;
+        NewDocumentEntry := TempDocumentEntry2;
     end;
 
     procedure TransferFilters(NewDocNoFilter: Text; NewPostingDateFilter: Text)
@@ -2317,13 +1929,5 @@ report 35 "Document Entries"
         DocNoFilter := NewDocNoFilter;
         PostingDateFilter := NewPostingDateFilter;
     end;
-#if not CLEAN18
-
-    [Obsolete('Moved to Cash Desk Localization for Czech.', '18.2')]
-    [Scope('OnPrem')]
-    procedure SetCashDesk(NewCashDeskNo: Code[20])
-    begin
-        CashDeskNo := NewCashDeskNo; // NAVCZ
-    end;
-#endif
 }
+

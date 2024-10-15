@@ -119,10 +119,6 @@ codeunit 131330 "Library - Fixed Asset"
         FAPostingGroup.Validate("Sales Bal. Acc.", LibraryERM.CreateGLAccountNo);
         FAPostingGroup.Validate("Sales Acc. on Disp. (Loss)", LibraryERM.CreateGLAccountNo);
         FAPostingGroup.Validate("Book Val. Acc. on Disp. (Loss)", LibraryERM.CreateGLAccountNo);
-#if not CLEAN18
-        FAPostingGroup.Validate("Acq. Cost Bal. Acc. on Disp.", LibraryERM.CreateGLAccountNo);
-        FAPostingGroup.Validate("Book Value Bal. Acc. on Disp.", LibraryERM.CreateGLAccountNo);
-#endif
 
         FAPostingGroup.Insert(true);
     end;
@@ -508,7 +504,7 @@ codeunit 131330 "Library - Fixed Asset"
             Assert.IsTrue(
               GLEntry."FA Entry No." in [FARegister."From Entry No." .. FARegister."To Entry No."],
               FARegisterGLRegisterErr);
-        until GLEntry.Next = 0;
+        until GLEntry.Next() = 0;
     end;
 
     procedure VerifyMaintenanceLastFARegisterGLRegisterOneToOneRelation()
@@ -528,7 +524,7 @@ codeunit 131330 "Library - Fixed Asset"
             Assert.IsTrue(
               GLEntry."FA Entry No." in [FARegister."From Maintenance Entry No." .. FARegister."To Maintenance Entry No."],
               FARegisterGLRegisterErr);
-        until GLEntry.Next = 0;
+        until GLEntry.Next() = 0;
     end;
 }
 

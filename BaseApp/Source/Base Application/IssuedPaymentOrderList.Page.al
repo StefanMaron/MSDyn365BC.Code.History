@@ -22,32 +22,32 @@ page 11724 "Issued Payment Order List"
             {
                 Editable = false;
                 ShowCaption = false;
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the payment order.';
                 }
-                field("Account No."; "Account No.")
+                field("Account No."; Rec."Account No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number used by the bank for the bank account.';
                 }
-                field("Document Date"; "Document Date")
+                field("Document Date"; Rec."Document Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the date on which you created the document.';
                 }
-                field("Bank Account No."; "Bank Account No.")
+                field("Bank Account No."; Rec."Bank Account No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of bank account.';
                 }
-                field("Bank Account Name"; "Bank Account Name")
+                field("Bank Account Name"; Rec."Bank Account Name")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of bank account.';
                 }
-                field("Currency Code"; "Currency Code")
+                field("Currency Code"; Rec."Currency Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the currency of amounts on the document.';
@@ -57,17 +57,17 @@ page 11724 "Issued Payment Order List"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the total amount for payment order lines. The program calculates this amount from the sum of line amount fields on payment order lines.';
                 }
-                field("Amount (LCY)"; "Amount (LCY)")
+                field("Amount (LCY)"; Rec."Amount (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the total amount that the line consists of. The amount is in the local currency.';
                 }
-                field("No. of Lines"; "No. of Lines")
+                field("No. of Lines"; Rec."No. of Lines")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of lines in the payment order.';
                 }
-                field("File Name"; "File Name")
+                field("File Name"; Rec."File Name")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies internally field.';
@@ -102,8 +102,6 @@ page 11724 "Issued Payment Order List"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Statistics';
                     Image = Statistics;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     RunObject = Page "Issued Payment Order Stat.";
                     RunPageLink = "No." = FIELD("No.");
                     ShortCutKey = 'F7';
@@ -126,7 +124,7 @@ page 11724 "Issued Payment Order List"
 
                     trigger OnAction()
                     begin
-                        ExportPmtOrd;
+                        ExportPmtOrd();
                     end;
                 }
             }
@@ -143,7 +141,7 @@ page 11724 "Issued Payment Order List"
 
                     trigger OnAction()
                     begin
-                        PrintPaymentOrder;
+                        PrintPaymentOrder();
                     end;
                 }
                 action("Payment Order Domestic")
@@ -156,7 +154,7 @@ page 11724 "Issued Payment Order List"
 
                     trigger OnAction()
                     begin
-                        PrintDomesticPaymentOrder;
+                        PrintDomesticPaymentOrder();
                     end;
                 }
                 action("Payment Order International")
@@ -169,8 +167,19 @@ page 11724 "Issued Payment Order List"
 
                     trigger OnAction()
                     begin
-                        PrintForeignPaymentOrder;
+                        PrintForeignPaymentOrder();
                     end;
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(Statistics_Promoted; Statistics)
+                {
                 }
             }
         }
@@ -191,7 +200,7 @@ page 11724 "Issued Payment Order List"
         IssuedPmtOrdHdr: Record "Issued Payment Order Header";
     begin
         IssuedPmtOrdHdr := Rec;
-        IssuedPmtOrdHdr.SetRecFilter;
+        IssuedPmtOrdHdr.SetRecFilter();
         IssuedPmtOrdHdr.PrintRecords(true);
     end;
 
@@ -200,7 +209,7 @@ page 11724 "Issued Payment Order List"
         IssuedPmtOrdHdr: Record "Issued Payment Order Header";
     begin
         IssuedPmtOrdHdr := Rec;
-        IssuedPmtOrdHdr.SetRecFilter;
+        IssuedPmtOrdHdr.SetRecFilter();
         IssuedPmtOrdHdr.PrintDomesticPmtOrd(true);
     end;
 
@@ -209,7 +218,7 @@ page 11724 "Issued Payment Order List"
         IssuedPmtOrdHdr: Record "Issued Payment Order Header";
     begin
         IssuedPmtOrdHdr := Rec;
-        IssuedPmtOrdHdr.SetRecFilter;
+        IssuedPmtOrdHdr.SetRecFilter();
         IssuedPmtOrdHdr.PrintForeignPmtOrd(true);
     end;
 }

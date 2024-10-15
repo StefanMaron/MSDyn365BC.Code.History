@@ -66,48 +66,48 @@ codeunit 1521 "Workflow Response Handling"
 
     procedure CreateResponsesLibrary()
     begin
-        AddResponseToLibrary(DoNothingCode, 0, DoNothingTxt, 'GROUP 0');
-        AddResponseToLibrary(CreateNotificationEntryCode, 0, CreateNotifEntryTxt, 'GROUP 3');
-        AddResponseToLibrary(ReleaseDocumentCode, 0, ReleaseDocumentTxt, 'GROUP 0');
-        AddResponseToLibrary(OpenDocumentCode, 0, OpenDocumentTxt, 'GROUP 0');
-        AddResponseToLibrary(SetStatusToPendingApprovalCode, 0, SetStatusToPendingApprovalTxt, 'GROUP 0');
-        AddResponseToLibrary(GetApprovalCommentCode, 0, GetApprovalCommentTxt, 'GROUP 0');
-        AddResponseToLibrary(CreateApprovalRequestsCode, 0, CreateApprovalRequestsTxt, 'GROUP 5');
-        AddResponseToLibrary(SendApprovalRequestForApprovalCode, 0, SendApprReqForApprovalTxt, 'GROUP 2');
-        AddResponseToLibrary(ApproveAllApprovalRequestsCode, 0, ApproveAllApprReqTxt, 'GROUP 0');
-        AddResponseToLibrary(RejectAllApprovalRequestsCode, 0, RejectAllApprReqTxt, 'GROUP 2');
-        AddResponseToLibrary(CancelAllApprovalRequestsCode, 0, CancelAllAppReqTxt, 'GROUP 2');
-        AddResponseToLibrary(PostDocumentCode, 0, PostDocumentTxt, 'GROUP 0');
-        AddResponseToLibrary(PostDocumentAsyncCode, 0, BackgroundDocumentPostTxt, 'GROUP 0');
+        AddResponseToLibrary(DoNothingCode(), 0, DoNothingTxt, 'GROUP 0');
+        AddResponseToLibrary(CreateNotificationEntryCode(), 0, CreateNotifEntryTxt, 'GROUP 3');
+        AddResponseToLibrary(ReleaseDocumentCode(), 0, ReleaseDocumentTxt, 'GROUP 0');
+        AddResponseToLibrary(OpenDocumentCode(), 0, OpenDocumentTxt, 'GROUP 0');
+        AddResponseToLibrary(SetStatusToPendingApprovalCode(), 0, SetStatusToPendingApprovalTxt, 'GROUP 0');
+        AddResponseToLibrary(GetApprovalCommentCode(), 0, GetApprovalCommentTxt, 'GROUP 0');
+        AddResponseToLibrary(CreateApprovalRequestsCode(), 0, CreateApprovalRequestsTxt, 'GROUP 5');
+        AddResponseToLibrary(SendApprovalRequestForApprovalCode(), 0, SendApprReqForApprovalTxt, 'GROUP 2');
+        AddResponseToLibrary(ApproveAllApprovalRequestsCode(), 0, ApproveAllApprReqTxt, 'GROUP 0');
+        AddResponseToLibrary(RejectAllApprovalRequestsCode(), 0, RejectAllApprReqTxt, 'GROUP 2');
+        AddResponseToLibrary(CancelAllApprovalRequestsCode(), 0, CancelAllAppReqTxt, 'GROUP 2');
+        AddResponseToLibrary(PostDocumentCode(), 0, PostDocumentTxt, 'GROUP 0');
+        AddResponseToLibrary(PostDocumentAsyncCode(), 0, BackgroundDocumentPostTxt, 'GROUP 0');
 
-        AddResponseToLibrary(CreatePmtLineForPostedPurchaseDocAsyncCode, DATABASE::"Purch. Inv. Header", CreatePmtLineAsyncTxt, 'GROUP 1');
-        AddResponseToLibrary(CreatePmtLineForPostedPurchaseDocCode, DATABASE::"Purch. Inv. Header", CreatePmtLineTxt, 'GROUP 1');
+        AddResponseToLibrary(CreatePmtLineForPostedPurchaseDocAsyncCode(), DATABASE::"Purch. Inv. Header", CreatePmtLineAsyncTxt, 'GROUP 1');
+        AddResponseToLibrary(CreatePmtLineForPostedPurchaseDocCode(), DATABASE::"Purch. Inv. Header", CreatePmtLineTxt, 'GROUP 1');
 
-        AddResponseToLibrary(CreateOverdueNotificationCode, 0, CreateOverdueNotifTxt, 'GROUP 2');
-        AddResponseToLibrary(CheckCustomerCreditLimitCode, 0, CheckCustomerCreditLimitTxt, 'GROUP 0');
-        AddResponseToLibrary(CheckGeneralJournalBatchBalanceCode, 0, CheckGeneralJournalBatchBalanceTxt, 'GROUP 0');
-        AddResponseToLibrary(CreateAndApproveApprovalRequestAutomaticallyCode, 0, CreateApproveApprovalRequestAutomaticallyTxt, 'GROUP 0');
-        AddResponseToLibrary(ShowMessageCode, 0, ShowMessageTxt, 'GROUP 4');
-        AddResponseToLibrary(RestrictRecordUsageCode, 0, RestrictRecordUsageTxt, 'GROUP 0');
-        AddResponseToLibrary(AllowRecordUsageCode, 0, AllowRecordUsageTxt, 'GROUP 0');
+        AddResponseToLibrary(CreateOverdueNotificationCode(), 0, CreateOverdueNotifTxt, 'GROUP 2');
+        AddResponseToLibrary(CheckCustomerCreditLimitCode(), 0, CheckCustomerCreditLimitTxt, 'GROUP 0');
+        AddResponseToLibrary(CheckGeneralJournalBatchBalanceCode(), 0, CheckGeneralJournalBatchBalanceTxt, 'GROUP 0');
+        AddResponseToLibrary(CreateAndApproveApprovalRequestAutomaticallyCode(), 0, CreateApproveApprovalRequestAutomaticallyTxt, 'GROUP 0');
+        AddResponseToLibrary(ShowMessageCode(), 0, ShowMessageTxt, 'GROUP 4');
+        AddResponseToLibrary(RestrictRecordUsageCode(), 0, RestrictRecordUsageTxt, 'GROUP 0');
+        AddResponseToLibrary(AllowRecordUsageCode(), 0, AllowRecordUsageTxt, 'GROUP 0');
 
-        AddResponseToLibrary(GetMarkReadyForOCRCode, 0, MarkReadyForOCRTxt, 'GROUP 0');
-        AddResponseToLibrary(GetSendToOCRCode, 0, SendToOCRTxt, 'GROUP 0');
-        AddResponseToLibrary(GetReceiveFromOCRCode, 0, ReceiveFromOCRTxt, 'GROUP 0');
-        AddResponseToLibrary(GetSendToOCRAsyncCode, 0, BackgroundOCRSendIncomingDocTxt, 'GROUP 0');
-        AddResponseToLibrary(GetReceiveFromOCRAsyncCode, 0, BackgroundOCRReceiveIncomingDocTxt, 'GROUP 0');
-        AddResponseToLibrary(GetSendToOCRCode, 0, SendToOCRTxt, 'GROUP 0');
-        AddResponseToLibrary(GetCreateDocFromIncomingDocCode, 0, CreateDocFromIncomingDocTxt, 'GROUP 0');
-        AddResponseToLibrary(GetCreateReleasedDocFromIncomingDocCode, 0, CreateReleasedDocFromIncomingDocTxt, 'GROUP 0');
-        AddResponseToLibrary(GetCreateJournalFromIncomingDocCode, 0, CreateJournalFromIncomingDocTxt, 'GROUP 0');
+        AddResponseToLibrary(GetMarkReadyForOCRCode(), 0, MarkReadyForOCRTxt, 'GROUP 0');
+        AddResponseToLibrary(GetSendToOCRCode(), 0, SendToOCRTxt, 'GROUP 0');
+        AddResponseToLibrary(GetReceiveFromOCRCode(), 0, ReceiveFromOCRTxt, 'GROUP 0');
+        AddResponseToLibrary(GetSendToOCRAsyncCode(), 0, BackgroundOCRSendIncomingDocTxt, 'GROUP 0');
+        AddResponseToLibrary(GetReceiveFromOCRAsyncCode(), 0, BackgroundOCRReceiveIncomingDocTxt, 'GROUP 0');
+        AddResponseToLibrary(GetSendToOCRCode(), 0, SendToOCRTxt, 'GROUP 0');
+        AddResponseToLibrary(GetCreateDocFromIncomingDocCode(), 0, CreateDocFromIncomingDocTxt, 'GROUP 0');
+        AddResponseToLibrary(GetCreateReleasedDocFromIncomingDocCode(), 0, CreateReleasedDocFromIncomingDocTxt, 'GROUP 0');
+        AddResponseToLibrary(GetCreateJournalFromIncomingDocCode(), 0, CreateJournalFromIncomingDocTxt, 'GROUP 0');
 
-        AddResponseToLibrary(RevertValueForFieldCode, 0, RevertRecordValueTxt, 'GROUP 6');
-        AddResponseToLibrary(ApplyNewValuesCode, 0, ApplyNewValuesTxt, 'GROUP 7');
-        AddResponseToLibrary(DiscardNewValuesCode, 0, DiscardNewValuesTxt, 'GROUP 0');
+        AddResponseToLibrary(RevertValueForFieldCode(), 0, RevertRecordValueTxt, 'GROUP 6');
+        AddResponseToLibrary(ApplyNewValuesCode(), 0, ApplyNewValuesTxt, 'GROUP 7');
+        AddResponseToLibrary(DiscardNewValuesCode(), 0, DiscardNewValuesTxt, 'GROUP 0');
 
-        AddResponseToLibrary(GetApproveOverReceiptCode, 0, 'Approve Over-Receipt', 'GROUP 0');
+        AddResponseToLibrary(GetApproveOverReceiptCode(), 0, 'Approve Over-Receipt', 'GROUP 0');
 
-        OnAddWorkflowResponsesToLibrary;
+        OnAddWorkflowResponsesToLibrary();
     end;
 
     local procedure AddResponsePredecessors(ResponseFunctionName: Code[128])
@@ -115,133 +115,177 @@ codeunit 1521 "Workflow Response Handling"
         WorkflowEventHandling: Codeunit "Workflow Event Handling";
     begin
         case ResponseFunctionName of
-            SetStatusToPendingApprovalCode:
+            SetStatusToPendingApprovalCode():
                 begin
-                    AddResponsePredecessor(SetStatusToPendingApprovalCode, WorkflowEventHandling.RunWorkflowOnSendPurchaseDocForApprovalCode);
-                    AddResponsePredecessor(SetStatusToPendingApprovalCode, WorkflowEventHandling.RunWorkflowOnSendSalesDocForApprovalCode);
-                    AddResponsePredecessor(SetStatusToPendingApprovalCode, WorkflowEventHandling.RunWorkflowOnSendIncomingDocForApprovalCode);
+                    AddResponsePredecessor(
+                        SetStatusToPendingApprovalCode(), WorkflowEventHandling.RunWorkflowOnSendPurchaseDocForApprovalCode());
+                    AddResponsePredecessor(
+                        SetStatusToPendingApprovalCode(), WorkflowEventHandling.RunWorkflowOnSendSalesDocForApprovalCode());
+                    AddResponsePredecessor(
+                        SetStatusToPendingApprovalCode(), WorkflowEventHandling.RunWorkflowOnSendIncomingDocForApprovalCode());
                     AddResponsePredecessor(
                       SetStatusToPendingApprovalCode(), WorkflowEventHandling.RunWorkflowOnCustomerCreditLimitExceededCode());
                     AddResponsePredecessor(
                       SetStatusToPendingApprovalCode(), WorkflowEventHandling.RunWorkflowOnCustomerCreditLimitNotExceededCode());
                 end;
-            CreateApprovalRequestsCode:
-                begin
-                    AddResponsePredecessor(CreateApprovalRequestsCode, WorkflowEventHandling.RunWorkflowOnSendPurchaseDocForApprovalCode);
-                    AddResponsePredecessor(CreateApprovalRequestsCode, WorkflowEventHandling.RunWorkflowOnSendSalesDocForApprovalCode);
-                    AddResponsePredecessor(CreateApprovalRequestsCode(), WorkflowEventHandling.RunWorkflowOnCustomerCreditLimitExceededCode());
-                    AddResponsePredecessor(CreateApprovalRequestsCode(), WorkflowEventHandling.RunWorkflowOnCustomerCreditLimitNotExceededCode());
-                    AddResponsePredecessor(CreateApprovalRequestsCode(), WorkflowEventHandling.RunWorkflowOnSendIncomingDocForApprovalCode());
-                    AddResponsePredecessor(CreateApprovalRequestsCode(), WorkflowEventHandling.RunWorkflowOnSendCustomerForApprovalCode());
-                    AddResponsePredecessor(CreateApprovalRequestsCode, WorkflowEventHandling.RunWorkflowOnCustomerChangedCode);
-                    AddResponsePredecessor(CreateApprovalRequestsCode, WorkflowEventHandling.RunWorkflowOnSendVendorForApprovalCode);
-                    AddResponsePredecessor(CreateApprovalRequestsCode, WorkflowEventHandling.RunWorkflowOnVendorChangedCode);
-                    AddResponsePredecessor(CreateApprovalRequestsCode, WorkflowEventHandling.RunWorkflowOnSendItemForApprovalCode);
-                    AddResponsePredecessor(CreateApprovalRequestsCode, WorkflowEventHandling.RunWorkflowOnItemChangedCode);
-                    AddResponsePredecessor(
-                      CreateApprovalRequestsCode, WorkflowEventHandling.RunWorkflowOnSendGeneralJournalLineForApprovalCode);
-                    AddResponsePredecessor(
-                      CreateApprovalRequestsCode, WorkflowEventHandling.RunWorkflowOnSendGeneralJournalBatchForApprovalCode);
-                    AddResponsePredecessor(CreateApprovalRequestsCode, WorkflowEventHandling.RunWorkflowOnGeneralJournalBatchBalancedCode);
-                end;
-            SendApprovalRequestForApprovalCode:
+            CreateApprovalRequestsCode():
                 begin
                     AddResponsePredecessor(
-                      SendApprovalRequestForApprovalCode, WorkflowEventHandling.RunWorkflowOnSendPurchaseDocForApprovalCode);
-                    AddResponsePredecessor(SendApprovalRequestForApprovalCode, WorkflowEventHandling.RunWorkflowOnSendSalesDocForApprovalCode);
-                    AddResponsePredecessor(SendApprovalRequestForApprovalCode(), WorkflowEventHandling.RunWorkflowOnCustomerCreditLimitExceededCode());
-                    AddResponsePredecessor(SendApprovalRequestForApprovalCode(), WorkflowEventHandling.RunWorkflowOnCustomerCreditLimitNotExceededCode());
+                        CreateApprovalRequestsCode(), WorkflowEventHandling.RunWorkflowOnSendPurchaseDocForApprovalCode());
                     AddResponsePredecessor(
-                      SendApprovalRequestForApprovalCode(), WorkflowEventHandling.RunWorkflowOnSendIncomingDocForApprovalCode());
-                    AddResponsePredecessor(SendApprovalRequestForApprovalCode, WorkflowEventHandling.RunWorkflowOnSendCustomerForApprovalCode);
-                    AddResponsePredecessor(SendApprovalRequestForApprovalCode, WorkflowEventHandling.RunWorkflowOnCustomerChangedCode);
-                    AddResponsePredecessor(SendApprovalRequestForApprovalCode, WorkflowEventHandling.RunWorkflowOnSendVendorForApprovalCode);
-                    AddResponsePredecessor(SendApprovalRequestForApprovalCode, WorkflowEventHandling.RunWorkflowOnVendorChangedCode);
-                    AddResponsePredecessor(SendApprovalRequestForApprovalCode, WorkflowEventHandling.RunWorkflowOnSendItemForApprovalCode);
-                    AddResponsePredecessor(SendApprovalRequestForApprovalCode, WorkflowEventHandling.RunWorkflowOnItemChangedCode);
-                    AddResponsePredecessor(SendApprovalRequestForApprovalCode,
-                      WorkflowEventHandling.RunWorkflowOnSendGeneralJournalLineForApprovalCode);
-                    AddResponsePredecessor(SendApprovalRequestForApprovalCode,
-                      WorkflowEventHandling.RunWorkflowOnSendGeneralJournalBatchForApprovalCode);
+                        CreateApprovalRequestsCode(), WorkflowEventHandling.RunWorkflowOnSendSalesDocForApprovalCode());
                     AddResponsePredecessor(
-                      SendApprovalRequestForApprovalCode, WorkflowEventHandling.RunWorkflowOnGeneralJournalBatchBalancedCode);
-                    AddResponsePredecessor(SendApprovalRequestForApprovalCode, WorkflowEventHandling.RunWorkflowOnApproveApprovalRequestCode);
-                    AddResponsePredecessor(SendApprovalRequestForApprovalCode, WorkflowEventHandling.RunWorkflowOnDelegateApprovalRequestCode);
-                end;
-            ReleaseDocumentCode:
-                begin
-                    AddResponsePredecessor(ReleaseDocumentCode, WorkflowEventHandling.RunWorkflowOnApproveApprovalRequestCode);
-                    AddResponsePredecessor(ReleaseDocumentCode, WorkflowEventHandling.RunWorkflowOnCustomerCreditLimitNotExceededCode);
-                end;
-            RejectAllApprovalRequestsCode:
-                AddResponsePredecessor(RejectAllApprovalRequestsCode, WorkflowEventHandling.RunWorkflowOnRejectApprovalRequestCode);
-            OpenDocumentCode:
-                begin
-                    AddResponsePredecessor(OpenDocumentCode, WorkflowEventHandling.RunWorkflowOnRejectApprovalRequestCode);
-                    AddResponsePredecessor(OpenDocumentCode, WorkflowEventHandling.RunWorkflowOnCancelPurchaseApprovalRequestCode);
-                    AddResponsePredecessor(OpenDocumentCode, WorkflowEventHandling.RunWorkflowOnCancelSalesApprovalRequestCode);
-                    AddResponsePredecessor(OpenDocumentCode, WorkflowEventHandling.RunWorkflowOnCancelIncomingDocApprovalRequestCode);
-                    AddResponsePredecessor(OpenDocumentCode, WorkflowEventHandling.RunWorkflowOnCancelCustomerApprovalRequestCode);
-                    AddResponsePredecessor(OpenDocumentCode, WorkflowEventHandling.RunWorkflowOnCancelVendorApprovalRequestCode);
-                    AddResponsePredecessor(OpenDocumentCode, WorkflowEventHandling.RunWorkflowOnCancelItemApprovalRequestCode);
-                    AddResponsePredecessor(OpenDocumentCode, WorkflowEventHandling.RunWorkflowOnCancelGeneralJournalLineApprovalRequestCode);
-                    AddResponsePredecessor(OpenDocumentCode, WorkflowEventHandling.RunWorkflowOnCancelGeneralJournalBatchApprovalRequestCode);
-                end;
-            CancelAllApprovalRequestsCode:
-                begin
-                    AddResponsePredecessor(CancelAllApprovalRequestsCode, WorkflowEventHandling.RunWorkflowOnCancelPurchaseApprovalRequestCode);
-                    AddResponsePredecessor(CancelAllApprovalRequestsCode, WorkflowEventHandling.RunWorkflowOnCancelSalesApprovalRequestCode);
+                        CreateApprovalRequestsCode(), WorkflowEventHandling.RunWorkflowOnCustomerCreditLimitExceededCode());
                     AddResponsePredecessor(
-                      CancelAllApprovalRequestsCode, WorkflowEventHandling.RunWorkflowOnCancelIncomingDocApprovalRequestCode);
-                    AddResponsePredecessor(CancelAllApprovalRequestsCode, WorkflowEventHandling.RunWorkflowOnCancelCustomerApprovalRequestCode);
-                    AddResponsePredecessor(CancelAllApprovalRequestsCode, WorkflowEventHandling.RunWorkflowOnCancelVendorApprovalRequestCode);
-                    AddResponsePredecessor(CancelAllApprovalRequestsCode, WorkflowEventHandling.RunWorkflowOnCancelItemApprovalRequestCode);
-                    AddResponsePredecessor(CancelAllApprovalRequestsCode,
-                      WorkflowEventHandling.RunWorkflowOnCancelGeneralJournalLineApprovalRequestCode);
-                    AddResponsePredecessor(CancelAllApprovalRequestsCode,
-                      WorkflowEventHandling.RunWorkflowOnCancelGeneralJournalBatchApprovalRequestCode);
+                        CreateApprovalRequestsCode(), WorkflowEventHandling.RunWorkflowOnCustomerCreditLimitNotExceededCode());
+                    AddResponsePredecessor(
+                        CreateApprovalRequestsCode(), WorkflowEventHandling.RunWorkflowOnSendIncomingDocForApprovalCode());
+                    AddResponsePredecessor(
+                        CreateApprovalRequestsCode(), WorkflowEventHandling.RunWorkflowOnSendCustomerForApprovalCode());
+                    AddResponsePredecessor(
+                        CreateApprovalRequestsCode(), WorkflowEventHandling.RunWorkflowOnCustomerChangedCode());
+                    AddResponsePredecessor(
+                        CreateApprovalRequestsCode(), WorkflowEventHandling.RunWorkflowOnSendVendorForApprovalCode());
+                    AddResponsePredecessor(
+                        CreateApprovalRequestsCode(), WorkflowEventHandling.RunWorkflowOnVendorChangedCode());
+                    AddResponsePredecessor(
+                        CreateApprovalRequestsCode(), WorkflowEventHandling.RunWorkflowOnSendItemForApprovalCode());
+                    AddResponsePredecessor(
+                        CreateApprovalRequestsCode(), WorkflowEventHandling.RunWorkflowOnItemChangedCode());
+                    AddResponsePredecessor(
+                        CreateApprovalRequestsCode(), WorkflowEventHandling.RunWorkflowOnSendGeneralJournalLineForApprovalCode());
+                    AddResponsePredecessor(
+                        CreateApprovalRequestsCode(), WorkflowEventHandling.RunWorkflowOnSendGeneralJournalBatchForApprovalCode());
+                    AddResponsePredecessor(
+                        CreateApprovalRequestsCode(), WorkflowEventHandling.RunWorkflowOnGeneralJournalBatchBalancedCode());
                 end;
-            RevertValueForFieldCode:
+            SendApprovalRequestForApprovalCode():
                 begin
-                    AddResponsePredecessor(RevertValueForFieldCode, WorkflowEventHandling.RunWorkflowOnCustomerChangedCode);
-                    AddResponsePredecessor(RevertValueForFieldCode, WorkflowEventHandling.RunWorkflowOnVendorChangedCode);
-                    AddResponsePredecessor(RevertValueForFieldCode, WorkflowEventHandling.RunWorkflowOnItemChangedCode);
+                    AddResponsePredecessor(
+                        SendApprovalRequestForApprovalCode(), WorkflowEventHandling.RunWorkflowOnSendPurchaseDocForApprovalCode());
+                    AddResponsePredecessor(
+                        SendApprovalRequestForApprovalCode(), WorkflowEventHandling.RunWorkflowOnSendSalesDocForApprovalCode());
+                    AddResponsePredecessor(
+                        SendApprovalRequestForApprovalCode(), WorkflowEventHandling.RunWorkflowOnCustomerCreditLimitExceededCode());
+                    AddResponsePredecessor(
+                        SendApprovalRequestForApprovalCode(), WorkflowEventHandling.RunWorkflowOnCustomerCreditLimitNotExceededCode());
+                    AddResponsePredecessor(
+                        SendApprovalRequestForApprovalCode(), WorkflowEventHandling.RunWorkflowOnSendIncomingDocForApprovalCode());
+                    AddResponsePredecessor(
+                        SendApprovalRequestForApprovalCode(), WorkflowEventHandling.RunWorkflowOnSendCustomerForApprovalCode());
+                    AddResponsePredecessor(
+                        SendApprovalRequestForApprovalCode(), WorkflowEventHandling.RunWorkflowOnCustomerChangedCode());
+                    AddResponsePredecessor(
+                        SendApprovalRequestForApprovalCode(), WorkflowEventHandling.RunWorkflowOnSendVendorForApprovalCode());
+                    AddResponsePredecessor(
+                        SendApprovalRequestForApprovalCode(), WorkflowEventHandling.RunWorkflowOnVendorChangedCode());
+                    AddResponsePredecessor(
+                        SendApprovalRequestForApprovalCode(), WorkflowEventHandling.RunWorkflowOnSendItemForApprovalCode());
+                    AddResponsePredecessor(
+                        SendApprovalRequestForApprovalCode(), WorkflowEventHandling.RunWorkflowOnItemChangedCode());
+                    AddResponsePredecessor(
+                        SendApprovalRequestForApprovalCode(), WorkflowEventHandling.RunWorkflowOnSendGeneralJournalLineForApprovalCode());
+                    AddResponsePredecessor(
+                        SendApprovalRequestForApprovalCode(), WorkflowEventHandling.RunWorkflowOnSendGeneralJournalBatchForApprovalCode());
+                    AddResponsePredecessor(
+                        SendApprovalRequestForApprovalCode(), WorkflowEventHandling.RunWorkflowOnGeneralJournalBatchBalancedCode());
+                    AddResponsePredecessor(
+                        SendApprovalRequestForApprovalCode(), WorkflowEventHandling.RunWorkflowOnApproveApprovalRequestCode());
+                    AddResponsePredecessor(
+                        SendApprovalRequestForApprovalCode(), WorkflowEventHandling.RunWorkflowOnDelegateApprovalRequestCode());
                 end;
-            ApplyNewValuesCode:
-                AddResponsePredecessor(ApplyNewValuesCode, WorkflowEventHandling.RunWorkflowOnApproveApprovalRequestCode);
-            DiscardNewValuesCode:
-                AddResponsePredecessor(DiscardNewValuesCode, WorkflowEventHandling.RunWorkflowOnRejectApprovalRequestCode);
-            GetMarkReadyForOCRCode:
-                AddResponsePredecessor(GetMarkReadyForOCRCode, WorkflowEventHandling.RunWorkflowOnBinaryFileAttachedCode);
-            CreateOverdueNotificationCode:
-                AddResponsePredecessor(CreateOverdueNotificationCode, WorkflowEventHandling.RunWorkflowOnSendOverdueNotificationsCode);
-            PostDocumentAsyncCode:
-                AddResponsePredecessor(PostDocumentAsyncCode, WorkflowEventHandling.RunWorkflowOnAfterReleasePurchaseDocCode);
-            PostDocumentCode:
-                AddResponsePredecessor(PostDocumentCode, WorkflowEventHandling.RunWorkflowOnAfterReleasePurchaseDocCode);
-            CreatePmtLineForPostedPurchaseDocAsyncCode:
+            ReleaseDocumentCode():
+                begin
+                    AddResponsePredecessor(ReleaseDocumentCode(), WorkflowEventHandling.RunWorkflowOnApproveApprovalRequestCode());
+                    AddResponsePredecessor(ReleaseDocumentCode(), WorkflowEventHandling.RunWorkflowOnCustomerCreditLimitNotExceededCode());
+                end;
+            RejectAllApprovalRequestsCode():
+                AddResponsePredecessor(RejectAllApprovalRequestsCode(), WorkflowEventHandling.RunWorkflowOnRejectApprovalRequestCode());
+            OpenDocumentCode():
+                begin
+                    AddResponsePredecessor(OpenDocumentCode(), WorkflowEventHandling.RunWorkflowOnRejectApprovalRequestCode());
+                    AddResponsePredecessor(OpenDocumentCode(), WorkflowEventHandling.RunWorkflowOnCancelPurchaseApprovalRequestCode());
+                    AddResponsePredecessor(OpenDocumentCode(), WorkflowEventHandling.RunWorkflowOnCancelSalesApprovalRequestCode());
+                    AddResponsePredecessor(OpenDocumentCode(), WorkflowEventHandling.RunWorkflowOnCancelIncomingDocApprovalRequestCode());
+                    AddResponsePredecessor(OpenDocumentCode(), WorkflowEventHandling.RunWorkflowOnCancelCustomerApprovalRequestCode());
+                    AddResponsePredecessor(OpenDocumentCode(), WorkflowEventHandling.RunWorkflowOnCancelVendorApprovalRequestCode());
+                    AddResponsePredecessor(OpenDocumentCode(), WorkflowEventHandling.RunWorkflowOnCancelItemApprovalRequestCode());
+                    AddResponsePredecessor(OpenDocumentCode(), WorkflowEventHandling.RunWorkflowOnCancelGeneralJournalLineApprovalRequestCode());
+                    AddResponsePredecessor(OpenDocumentCode(), WorkflowEventHandling.RunWorkflowOnCancelGeneralJournalBatchApprovalRequestCode());
+                end;
+            CancelAllApprovalRequestsCode():
+                begin
+                    AddResponsePredecessor(
+                        CancelAllApprovalRequestsCode(), WorkflowEventHandling.RunWorkflowOnCancelPurchaseApprovalRequestCode());
+                    AddResponsePredecessor(
+                        CancelAllApprovalRequestsCode(), WorkflowEventHandling.RunWorkflowOnCancelSalesApprovalRequestCode());
+                    AddResponsePredecessor(
+                        CancelAllApprovalRequestsCode(), WorkflowEventHandling.RunWorkflowOnCancelIncomingDocApprovalRequestCode());
+                    AddResponsePredecessor(
+                        CancelAllApprovalRequestsCode(), WorkflowEventHandling.RunWorkflowOnCancelCustomerApprovalRequestCode());
+                    AddResponsePredecessor(
+                        CancelAllApprovalRequestsCode(), WorkflowEventHandling.RunWorkflowOnCancelVendorApprovalRequestCode());
+                    AddResponsePredecessor(
+                        CancelAllApprovalRequestsCode(), WorkflowEventHandling.RunWorkflowOnCancelItemApprovalRequestCode());
+                    AddResponsePredecessor(
+                        CancelAllApprovalRequestsCode(), WorkflowEventHandling.RunWorkflowOnCancelGeneralJournalLineApprovalRequestCode());
+                    AddResponsePredecessor(
+                        CancelAllApprovalRequestsCode(), WorkflowEventHandling.RunWorkflowOnCancelGeneralJournalBatchApprovalRequestCode());
+                end;
+            RevertValueForFieldCode():
+                begin
+                    AddResponsePredecessor(
+                        RevertValueForFieldCode(), WorkflowEventHandling.RunWorkflowOnCustomerChangedCode());
+                    AddResponsePredecessor(
+                        RevertValueForFieldCode(), WorkflowEventHandling.RunWorkflowOnVendorChangedCode());
+                    AddResponsePredecessor(
+                        RevertValueForFieldCode(), WorkflowEventHandling.RunWorkflowOnItemChangedCode());
+                end;
+            ApplyNewValuesCode():
                 AddResponsePredecessor(
-                  CreatePmtLineForPostedPurchaseDocAsyncCode, WorkflowEventHandling.RunWorkflowOnAfterPostPurchaseDocCode);
-            CreatePmtLineForPostedPurchaseDocCode:
-                AddResponsePredecessor(CreatePmtLineForPostedPurchaseDocCode, WorkflowEventHandling.RunWorkflowOnAfterPostPurchaseDocCode);
-            CheckGeneralJournalBatchBalanceCode:
-                AddResponsePredecessor(CheckGeneralJournalBatchBalanceCode,
-                  WorkflowEventHandling.RunWorkflowOnSendGeneralJournalBatchForApprovalCode);
-            CheckCustomerCreditLimitCode:
-                AddResponsePredecessor(CheckCustomerCreditLimitCode, WorkflowEventHandling.RunWorkflowOnSendSalesDocForApprovalCode);
-            CreateAndApproveApprovalRequestAutomaticallyCode:
-                AddResponsePredecessor(CreateAndApproveApprovalRequestAutomaticallyCode,
-                  WorkflowEventHandling.RunWorkflowOnCustomerCreditLimitNotExceededCode);
-            GetReceiveFromOCRCode:
-                AddResponsePredecessor(GetReceiveFromOCRCode, WorkflowEventHandling.RunWorkflowOnAfterSendToOCRIncomingDocCode);
-            GetReceiveFromOCRAsyncCode:
-                AddResponsePredecessor(GetReceiveFromOCRAsyncCode, WorkflowEventHandling.RunWorkflowOnAfterSendToOCRIncomingDocCode);
-            GetSendToOCRCode:
-                AddResponsePredecessor(GetSendToOCRCode, WorkflowEventHandling.RunWorkflowOnAfterReadyForOCRIncomingDocCode);
-            GetSendToOCRAsyncCode:
-                AddResponsePredecessor(GetSendToOCRAsyncCode, WorkflowEventHandling.RunWorkflowOnAfterReadyForOCRIncomingDocCode);
-            GetApproveOverReceiptCode:
-                AddResponsePredecessor(GetApproveOverReceiptCode, WorkflowEventHandling.RunWorkflowOnSendPurchaseDocForApprovalCode);
+                    ApplyNewValuesCode(), WorkflowEventHandling.RunWorkflowOnApproveApprovalRequestCode());
+            DiscardNewValuesCode():
+                AddResponsePredecessor(
+                    DiscardNewValuesCode(), WorkflowEventHandling.RunWorkflowOnRejectApprovalRequestCode());
+            GetMarkReadyForOCRCode():
+                AddResponsePredecessor(
+                    GetMarkReadyForOCRCode(), WorkflowEventHandling.RunWorkflowOnBinaryFileAttachedCode());
+            CreateOverdueNotificationCode():
+                AddResponsePredecessor(
+                    CreateOverdueNotificationCode(), WorkflowEventHandling.RunWorkflowOnSendOverdueNotificationsCode());
+            PostDocumentAsyncCode():
+                AddResponsePredecessor(
+                    PostDocumentAsyncCode(), WorkflowEventHandling.RunWorkflowOnAfterReleasePurchaseDocCode());
+            PostDocumentCode():
+                AddResponsePredecessor(
+                    PostDocumentCode(), WorkflowEventHandling.RunWorkflowOnAfterReleasePurchaseDocCode());
+            CreatePmtLineForPostedPurchaseDocAsyncCode():
+                AddResponsePredecessor(
+                  CreatePmtLineForPostedPurchaseDocAsyncCode(), WorkflowEventHandling.RunWorkflowOnAfterPostPurchaseDocCode());
+            CreatePmtLineForPostedPurchaseDocCode():
+                AddResponsePredecessor(
+                    CreatePmtLineForPostedPurchaseDocCode(), WorkflowEventHandling.RunWorkflowOnAfterPostPurchaseDocCode());
+            CheckGeneralJournalBatchBalanceCode():
+                AddResponsePredecessor(
+                    CheckGeneralJournalBatchBalanceCode(),
+                    WorkflowEventHandling.RunWorkflowOnSendGeneralJournalBatchForApprovalCode());
+            CheckCustomerCreditLimitCode():
+                AddResponsePredecessor(
+                    CheckCustomerCreditLimitCode(), WorkflowEventHandling.RunWorkflowOnSendSalesDocForApprovalCode());
+            CreateAndApproveApprovalRequestAutomaticallyCode():
+                AddResponsePredecessor(
+                    CreateAndApproveApprovalRequestAutomaticallyCode(),
+                    WorkflowEventHandling.RunWorkflowOnCustomerCreditLimitNotExceededCode());
+            GetReceiveFromOCRCode():
+                AddResponsePredecessor(GetReceiveFromOCRCode(), WorkflowEventHandling.RunWorkflowOnAfterSendToOCRIncomingDocCode());
+            GetReceiveFromOCRAsyncCode():
+                AddResponsePredecessor(GetReceiveFromOCRAsyncCode(), WorkflowEventHandling.RunWorkflowOnAfterSendToOCRIncomingDocCode());
+            GetSendToOCRCode():
+                AddResponsePredecessor(GetSendToOCRCode(), WorkflowEventHandling.RunWorkflowOnAfterReadyForOCRIncomingDocCode());
+            GetSendToOCRAsyncCode():
+                AddResponsePredecessor(GetSendToOCRAsyncCode(), WorkflowEventHandling.RunWorkflowOnAfterReadyForOCRIncomingDocCode());
+            GetApproveOverReceiptCode():
+                AddResponsePredecessor(GetApproveOverReceiptCode(), WorkflowEventHandling.RunWorkflowOnApproveApprovalRequestCode());
         end;
         OnAddWorkflowResponsePredecessorsToLibrary(ResponseFunctionName);
     end;
@@ -281,73 +325,73 @@ codeunit 1521 "Workflow Response Handling"
         Session.LogMessage('0000DYP', WorkflowResponseStartTelemetryTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, TelemetryDimensions);
 
         case WorkflowResponse."Function Name" of
-            DoNothingCode:
-                DoNothing;
-            CreateNotificationEntryCode:
+            DoNothingCode():
+                DoNothing();
+            CreateNotificationEntryCode():
                 CreateNotificationEntry(ResponseWorkflowStepInstance, xVariant);
-            ReleaseDocumentCode:
+            ReleaseDocumentCode():
                 ReleaseDocument(Variant);
-            OpenDocumentCode:
+            OpenDocumentCode():
                 OpenDocument(Variant);
-            SetStatusToPendingApprovalCode:
+            SetStatusToPendingApprovalCode():
                 SetStatusToPendingApproval(Variant);
-            GetApprovalCommentCode:
+            GetApprovalCommentCode():
                 GetApprovalComment(Variant, ResponseWorkflowStepInstance.ID);
-            CreateApprovalRequestsCode:
+            CreateApprovalRequestsCode():
                 CreateApprovalRequests(Variant, ResponseWorkflowStepInstance);
-            SendApprovalRequestForApprovalCode:
+            SendApprovalRequestForApprovalCode():
                 SendApprovalRequestForApproval(Variant, ResponseWorkflowStepInstance);
-            ApproveAllApprovalRequestsCode:
+            ApproveAllApprovalRequestsCode():
                 ApproveAllApprovalRequests(Variant, ResponseWorkflowStepInstance);
-            RejectAllApprovalRequestsCode:
+            RejectAllApprovalRequestsCode():
                 RejectAllApprovalRequests(Variant, ResponseWorkflowStepInstance);
-            CancelAllApprovalRequestsCode:
+            CancelAllApprovalRequestsCode():
                 CancelAllApprovalRequests(Variant, ResponseWorkflowStepInstance);
-            PostDocumentCode:
+            PostDocumentCode():
                 PostDocument(Variant);
-            PostDocumentAsyncCode:
+            PostDocumentAsyncCode():
                 PostDocumentAsync(Variant);
-            CreatePmtLineForPostedPurchaseDocAsyncCode:
+            CreatePmtLineForPostedPurchaseDocAsyncCode():
                 CreatePmtLineForPostedPurchaseDocAsync(ResponseWorkflowStepInstance);
-            CreatePmtLineForPostedPurchaseDocCode:
+            CreatePmtLineForPostedPurchaseDocCode():
                 CreatePmtLineForPostedPurchaseDoc(ResponseWorkflowStepInstance);
-            CreateOverdueNotificationCode:
+            CreateOverdueNotificationCode():
                 CreateOverdueNotifications(ResponseWorkflowStepInstance);
-            CheckCustomerCreditLimitCode:
+            CheckCustomerCreditLimitCode():
                 CheckCustomerCreditLimit(Variant);
-            CheckGeneralJournalBatchBalanceCode:
+            CheckGeneralJournalBatchBalanceCode():
                 CheckGeneralJournalBatchBalance(Variant);
-            CreateAndApproveApprovalRequestAutomaticallyCode:
+            CreateAndApproveApprovalRequestAutomaticallyCode():
                 CreateAndApproveApprovalRequestAutomatically(Variant, ResponseWorkflowStepInstance);
-            ShowMessageCode:
+            ShowMessageCode():
                 ShowMessage(ResponseWorkflowStepInstance);
-            RestrictRecordUsageCode:
+            RestrictRecordUsageCode():
                 RestrictRecordUsage(Variant, ResponseWorkflowStepInstance);
-            AllowRecordUsageCode:
+            AllowRecordUsageCode():
                 AllowRecordUsage(Variant);
-            GetMarkReadyForOCRCode:
+            GetMarkReadyForOCRCode():
                 MarkReadyForOCR(Variant);
-            GetSendToOCRCode:
+            GetSendToOCRCode():
                 SendToOCR(Variant);
-            GetSendToOCRAsyncCode:
+            GetSendToOCRAsyncCode():
                 SendToOCRAsync(Variant);
-            GetReceiveFromOCRCode:
+            GetReceiveFromOCRCode():
                 ReceiveFromOCR(Variant);
-            GetReceiveFromOCRAsyncCode:
+            GetReceiveFromOCRAsyncCode():
                 ReceiveFromOCRAsync(Variant);
-            GetCreateDocFromIncomingDocCode:
+            GetCreateDocFromIncomingDocCode():
                 CreateDocFromIncomingDoc(Variant);
-            GetCreateReleasedDocFromIncomingDocCode:
+            GetCreateReleasedDocFromIncomingDocCode():
                 CreateReleasedDocFromIncomingDoc(Variant);
-            GetCreateJournalFromIncomingDocCode:
+            GetCreateJournalFromIncomingDocCode():
                 CreateJournalFromIncomingDoc(Variant);
-            RevertValueForFieldCode:
+            RevertValueForFieldCode():
                 WorkflowChangeRecMgt.RevertValueForField(Variant, xVariant, ResponseWorkflowStepInstance);
-            ApplyNewValuesCode:
+            ApplyNewValuesCode():
                 WorkflowChangeRecMgt.ApplyNewValues(Variant, ResponseWorkflowStepInstance);
-            DiscardNewValuesCode:
+            DiscardNewValuesCode():
                 WorkflowChangeRecMgt.DiscardNewValues(Variant, ResponseWorkflowStepInstance);
-            GetApproveOverReceiptCode:
+            GetApproveOverReceiptCode():
                 ApproveOverReceipt(Variant);
             else begin
                     OnExecuteWorkflowResponse(ResponseExecuted, Variant, xVariant, ResponseWorkflowStepInstance);
@@ -560,9 +604,6 @@ codeunit 1521 "Workflow Response Handling"
         ReleasePurchaseDocument: Codeunit "Release Purchase Document";
         ReleaseSalesDocument: Codeunit "Release Sales Document";
         ReleaseIncomingDocument: Codeunit "Release Incoming Document";
-#if not CLEAN18
-        ReleaseCreditDocument: Codeunit "Release Credit Document";
-#endif
         RecRef: RecordRef;
         TargetRecRef: RecordRef;
         Handled: Boolean;
@@ -594,19 +635,15 @@ codeunit 1521 "Workflow Response Handling"
             // NAVCZ
             DATABASE::"Payment Order Header":
                 CODEUNIT.Run(CODEUNIT::"Issue Payment Order", Variant);
-#if not CLEAN18
-            DATABASE::"Credit Header":
-                ReleaseCreditDocument.PerformManualRelease(Variant);
-#endif
             DATABASE::"Sales Advance Letter Header":
                 begin
                     SalesAdvanceLetterHeader := Variant;
-                    SalesAdvanceLetterHeader.PerformManualRelease;
+                    SalesAdvanceLetterHeader.PerformManualRelease();
                 end;
             DATABASE::"Purch. Advance Letter Header":
                 begin
                     PurchAdvanceLetterHeader := Variant;
-                    PurchAdvanceLetterHeader.PerformManualRelease;
+                    PurchAdvanceLetterHeader.PerformManualRelease();
                 end;
             // NAVCZ
             else begin
@@ -626,9 +663,6 @@ codeunit 1521 "Workflow Response Handling"
         ReleasePurchaseDocument: Codeunit "Release Purchase Document";
         ReleaseSalesDocument: Codeunit "Release Sales Document";
         ReleaseIncomingDocument: Codeunit "Release Incoming Document";
-#if not CLEAN18
-        ReleaseCreditDocument: Codeunit "Release Credit Document";
-#endif
         IssuePaymentOrder: Codeunit "Issue Payment Order";
         RecRef: RecordRef;
         TargetRecRef: RecordRef;
@@ -660,19 +694,15 @@ codeunit 1521 "Workflow Response Handling"
             // NAVCZ
             DATABASE::"Payment Order Header":
                 IssuePaymentOrder.Reopen(Variant);
-#if not CLEAN18
-            DATABASE::"Credit Header":
-                ReleaseCreditDocument.Reopen(Variant);
-#endif
             DATABASE::"Sales Advance Letter Header":
                 begin
                     SalesAdvanceLetterHeader := Variant;
-                    SalesAdvanceLetterHeader.Reopen;
+                    SalesAdvanceLetterHeader.Reopen();
                 end;
             DATABASE::"Purch. Advance Letter Header":
                 begin
                     PurchAdvanceLetterHeader := Variant;
-                    PurchAdvanceLetterHeader.Reopen;
+                    PurchAdvanceLetterHeader.Reopen();
                 end;
             // NAVCZ
             else begin
@@ -882,7 +912,7 @@ codeunit 1521 "Workflow Response Handling"
             DATABASE::"Sales Header":
                 begin
                     SalesHeader := Variant;
-                    SalesHeader.CheckAvailableCreditLimit;
+                    SalesHeader.CheckAvailableCreditLimit();
                 end;
         end;
     end;
@@ -898,7 +928,7 @@ codeunit 1521 "Workflow Response Handling"
             DATABASE::"Gen. Journal Batch":
                 begin
                     GenJournalBatch := Variant;
-                    GenJournalBatch.CheckBalance;
+                    GenJournalBatch.CheckBalance();
                 end;
         end;
     end;
@@ -1008,7 +1038,7 @@ codeunit 1521 "Workflow Response Handling"
 
         WorkflowResponse.SetRange(Description, Description);
         if not WorkflowResponse.IsEmpty() then begin
-            if SystemInitialization.IsInProgress or (GetExecutionContext <> ExecutionContext::Normal) then
+            if SystemInitialization.IsInProgress() or (GetExecutionContext <> ExecutionContext::Normal) then
                 exit;
             Error(ResponseAlreadyExistErr, Description);
         end;
@@ -1042,25 +1072,25 @@ codeunit 1521 "Workflow Response Handling"
         if not WorkflowResponse.Get(WorkflowStepArgument."Response Function Name") then
             exit('');
         case WorkflowResponse."Function Name" of
-            CreateNotificationEntryCode:
+            CreateNotificationEntryCode():
                 exit(CopyStr(StrSubstNo(WorkflowResponse.Description,
-                      GetTokenValue(UserIDTok, WorkflowStepArgument.GetNotificationUserName)), 1, 250));
-            ShowMessageCode:
+                      GetTokenValue(UserIDTok, WorkflowStepArgument.GetNotificationUserName())), 1, 250));
+            ShowMessageCode():
                 exit(CopyStr(StrSubstNo(WorkflowResponse.Description,
                       GetTokenValue(MessageTok, WorkflowStepArgument.Message)), 1, 250));
-            CreatePmtLineForPostedPurchaseDocAsyncCode,
-          CreatePmtLineForPostedPurchaseDocCode:
+            CreatePmtLineForPostedPurchaseDocAsyncCode(),
+          CreatePmtLineForPostedPurchaseDocCode():
                 exit(CopyStr(StrSubstNo(WorkflowResponse.Description,
                       GetTokenValue(TemplateTok, WorkflowStepArgument."General Journal Template Name"),
                       GetTokenValue(GenJnlBatchTok, WorkflowStepArgument."General Journal Batch Name")), 1, 250));
-            CreateApprovalRequestsCode:
+            CreateApprovalRequestsCode():
                 exit(BuildTheCreateApprovalReqDescription(WorkflowResponse, WorkflowStepArgument));
-            SendApprovalRequestForApprovalCode,
-          RejectAllApprovalRequestsCode,
-          CancelAllApprovalRequestsCode,
-          CreateOverdueNotificationCode:
+            SendApprovalRequestForApprovalCode(),
+          RejectAllApprovalRequestsCode(),
+          CancelAllApprovalRequestsCode(),
+          CreateOverdueNotificationCode():
                 exit(CopyStr(StrSubstNo(WorkflowResponse.Description), 1, 250));
-            RevertValueForFieldCode:
+            RevertValueForFieldCode():
                 begin
                     WorkflowStepArgument.CalcFields("Field Caption");
                     exit(CopyStr(StrSubstNo(WorkflowResponse.Description,
@@ -1097,8 +1127,8 @@ codeunit 1521 "Workflow Response Handling"
         if IsHandled then
             exit(ArgumentMandatory);
         if ResponseFunctionName in
-           [CreateNotificationEntryCode, CreatePmtLineForPostedPurchaseDocAsyncCode, CreateApprovalRequestsCode,
-            CreatePmtLineForPostedPurchaseDocCode]
+           [CreateNotificationEntryCode(), CreatePmtLineForPostedPurchaseDocAsyncCode(), CreateApprovalRequestsCode(),
+            CreatePmtLineForPostedPurchaseDocCode()]
         then
             exit(true);
 
@@ -1119,26 +1149,23 @@ codeunit 1521 "Workflow Response Handling"
             exit(false);
 
         case WorkflowStep."Function Name" of
-            CreatePmtLineForPostedPurchaseDocAsyncCode,
-          CreatePmtLineForPostedPurchaseDocCode:
+            CreatePmtLineForPostedPurchaseDocAsyncCode(),
+          CreatePmtLineForPostedPurchaseDocCode():
                 if (WorkflowStepArgument."General Journal Template Name" = '') or
                    (WorkflowStepArgument."General Journal Batch Name" = '')
                 then
                     exit(false);
-            CreateApprovalRequestsCode:
+            CreateApprovalRequestsCode():
                 case WorkflowStepArgument."Approver Type" of
                     WorkflowStepArgument."Approver Type"::"Workflow User Group":
-                        begin
-                            if WorkflowStepArgument."Workflow User Group Code" = '' then
+                        if WorkflowStepArgument."Workflow User Group Code" = '' then
+                            exit(false);
+                    else
+                        if WorkflowStepArgument."Approver Limit Type" = WorkflowStepArgument."Approver Limit Type"::"Specific Approver" then
+                            if WorkflowStepArgument."Approver User ID" = '' then
                                 exit(false);
-                        end;
-                    else begin
-                            if WorkflowStepArgument."Approver Limit Type" = WorkflowStepArgument."Approver Limit Type"::"Specific Approver" then
-                                if WorkflowStepArgument."Approver User ID" = '' then
-                                    exit(false);
-                        end;
                 end;
-            CreateNotificationEntryCode:
+            CreateNotificationEntryCode():
                 if (WorkflowStepArgument."Notification User ID" = '') and not WorkflowStepArgument."Notify Sender" then
                     exit(false);
         end;
@@ -1210,7 +1237,7 @@ codeunit 1521 "Workflow Response Handling"
         IncomingDocument: Record "Incoming Document";
     begin
         IncomingDocument := Variant;
-        IncomingDocument.TryCreateDocumentWithDataExchange;
+        IncomingDocument.TryCreateDocumentWithDataExchange();
     end;
 
     local procedure CreateReleasedDocFromIncomingDoc(Variant: Variant)
@@ -1218,7 +1245,7 @@ codeunit 1521 "Workflow Response Handling"
         IncomingDocument: Record "Incoming Document";
     begin
         IncomingDocument := Variant;
-        IncomingDocument.CreateReleasedDocumentWithDataExchange;
+        IncomingDocument.CreateReleasedDocumentWithDataExchange();
     end;
 
     local procedure CreateJournalFromIncomingDoc(Variant: Variant)
@@ -1226,7 +1253,7 @@ codeunit 1521 "Workflow Response Handling"
         IncomingDocument: Record "Incoming Document";
     begin
         IncomingDocument := Variant;
-        IncomingDocument.TryCreateGeneralJournalLineWithDataExchange;
+        IncomingDocument.TryCreateGeneralJournalLineWithDataExchange();
     end;
 
     local procedure ApproveOverReceipt(var VariantRecord: Variant)

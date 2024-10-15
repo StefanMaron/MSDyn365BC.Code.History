@@ -4,11 +4,12 @@ table 11702 "Bank Pmt. Appl. Rule Code"
 #if not CLEAN19
     LookupPageID = "Bank Pmt. Appl. Rule Codes";
     ObsoleteState = Pending;
+    ObsoleteTag = '19.0';
 #else
     ObsoleteState = Removed;
+    ObsoleteTag = '22.0';
 #endif
-    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
-    ObsoleteTag = '19.0';
+    ObsoleteReason = 'The table will no longer be used.';
 
     fields
     {

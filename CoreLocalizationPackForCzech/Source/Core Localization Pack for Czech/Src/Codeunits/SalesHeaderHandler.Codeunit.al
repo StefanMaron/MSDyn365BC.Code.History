@@ -132,4 +132,32 @@ codeunit 11743 "Sales Header Handler CZL"
                     SalesLine."Physical Transfer CZL" := SalesHeader."Physical Transfer CZL";
         end;
     end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Sales Header", 'OnAfterValidateEvent', 'VAT Country/Region Code', false, false)]
+    local procedure UpdateVATRegistrationNoCodeOnAfterVATCountryRegionCodeValidate(var Rec: Record "Sales Header")
+    var
+        BillToCustomer: Record Customer;
+    begin
+        if Rec."Bill-to Customer No." <> '' then begin
+            BillToCustomer.Get(Rec."Bill-to Customer No.");
+            Rec."VAT Registration No." := BillToCustomer."VAT Registration No.";
+        end;
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Sales Header", 'OnAfterValidateEvent', 'Ship-to Country/Region Code', false, false)]
+    local procedure UpdateVATCountryRegionCodeOnAfterShipToCountryRegionCodeValidate(var Rec: Record "Sales Header")
+    begin
+        if Rec."Ship-to Country/Region Code" <> '' then
+            Rec."VAT Country/Region Code" := Rec."Ship-to Country/Region Code"
+        else
+            Rec."VAT Country/Region Code" := Rec."Sell-to Country/Region Code";
+        Rec.Validate("VAT Country/Region Code");
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Sales Header", 'OnAfterUpdateShipToAddress', '', false, false)]
+    local procedure UpdateVATCountryRegionCodeOnAfterUpdateShipToAddress(var SalesHeader: Record "Sales Header")
+    begin
+        if SalesHeader.IsCreditDocType() then
+            SalesHeader.Validate("VAT Country/Region Code", SalesHeader."Sell-to Country/Region Code");
+    end;
 }

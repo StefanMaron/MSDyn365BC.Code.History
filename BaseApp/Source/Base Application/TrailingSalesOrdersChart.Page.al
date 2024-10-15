@@ -34,16 +34,16 @@ page 760 "Trailing Sales Orders Chart"
                 begin
                     IsChartAddInReady := true;
                     TrailingSalesOrdersMgt.OnOpenPage(TrailingSalesOrdersSetup);
-                    UpdateStatus;
+                    UpdateStatus();
                     if IsChartDataReady then
-                        UpdateChart;
+                        UpdateChart();
                 end;
 
                 trigger Refresh()
                 begin
                     if IsChartAddInReady and IsChartDataReady then begin
                         NeedsUpdate := true;
-                        UpdateChart
+                        UpdateChart();
                     end;
                 end;
             }
@@ -68,7 +68,7 @@ page 760 "Trailing Sales Orders Chart"
                     trigger OnAction()
                     begin
                         TrailingSalesOrdersSetup.SetShowOrders(TrailingSalesOrdersSetup."Show Orders"::"All Orders");
-                        UpdateStatus;
+                        UpdateStatus();
                     end;
                 }
                 action(OrdersUntilToday)
@@ -81,7 +81,7 @@ page 760 "Trailing Sales Orders Chart"
                     trigger OnAction()
                     begin
                         TrailingSalesOrdersSetup.SetShowOrders(TrailingSalesOrdersSetup."Show Orders"::"Orders Until Today");
-                        UpdateStatus;
+                        UpdateStatus();
                     end;
                 }
                 action(DelayedOrders)
@@ -94,7 +94,7 @@ page 760 "Trailing Sales Orders Chart"
                     trigger OnAction()
                     begin
                         TrailingSalesOrdersSetup.SetShowOrders(TrailingSalesOrdersSetup."Show Orders"::"Delayed Orders");
-                        UpdateStatus;
+                        UpdateStatus();
                     end;
                 }
             }
@@ -112,7 +112,7 @@ page 760 "Trailing Sales Orders Chart"
                     trigger OnAction()
                     begin
                         TrailingSalesOrdersSetup.SetPeriodLength(TrailingSalesOrdersSetup."Period Length"::Day);
-                        UpdateStatus;
+                        UpdateStatus();
                     end;
                 }
                 action(Week)
@@ -125,7 +125,7 @@ page 760 "Trailing Sales Orders Chart"
                     trigger OnAction()
                     begin
                         TrailingSalesOrdersSetup.SetPeriodLength(TrailingSalesOrdersSetup."Period Length"::Week);
-                        UpdateStatus;
+                        UpdateStatus();
                     end;
                 }
                 action(Month)
@@ -138,7 +138,7 @@ page 760 "Trailing Sales Orders Chart"
                     trigger OnAction()
                     begin
                         TrailingSalesOrdersSetup.SetPeriodLength(TrailingSalesOrdersSetup."Period Length"::Month);
-                        UpdateStatus;
+                        UpdateStatus();
                     end;
                 }
                 action(Quarter)
@@ -151,7 +151,7 @@ page 760 "Trailing Sales Orders Chart"
                     trigger OnAction()
                     begin
                         TrailingSalesOrdersSetup.SetPeriodLength(TrailingSalesOrdersSetup."Period Length"::Quarter);
-                        UpdateStatus;
+                        UpdateStatus();
                     end;
                 }
                 action(Year)
@@ -164,7 +164,7 @@ page 760 "Trailing Sales Orders Chart"
                     trigger OnAction()
                     begin
                         TrailingSalesOrdersSetup.SetPeriodLength(TrailingSalesOrdersSetup."Period Length"::Year);
-                        UpdateStatus;
+                        UpdateStatus();
                     end;
                 }
             }
@@ -186,7 +186,7 @@ page 760 "Trailing Sales Orders Chart"
                         trigger OnAction()
                         begin
                             TrailingSalesOrdersSetup.SetValueToCalcuate(TrailingSalesOrdersSetup."Value to Calculate"::"Amount Excl. VAT");
-                            UpdateStatus;
+                            UpdateStatus();
                         end;
                     }
                     action(NoofOrders)
@@ -199,7 +199,7 @@ page 760 "Trailing Sales Orders Chart"
                         trigger OnAction()
                         begin
                             TrailingSalesOrdersSetup.SetValueToCalcuate(TrailingSalesOrdersSetup."Value to Calculate"::"No. of Orders");
-                            UpdateStatus;
+                            UpdateStatus();
                         end;
                     }
                 }
@@ -217,7 +217,7 @@ page 760 "Trailing Sales Orders Chart"
                         trigger OnAction()
                         begin
                             TrailingSalesOrdersSetup.SetChartType(TrailingSalesOrdersSetup."Chart Type"::"Stacked Area");
-                            UpdateStatus;
+                            UpdateStatus();
                         end;
                     }
                     action(StackedAreaPct)
@@ -230,7 +230,7 @@ page 760 "Trailing Sales Orders Chart"
                         trigger OnAction()
                         begin
                             TrailingSalesOrdersSetup.SetChartType(TrailingSalesOrdersSetup."Chart Type"::"Stacked Area (%)");
-                            UpdateStatus;
+                            UpdateStatus();
                         end;
                     }
                     action(StackedColumn)
@@ -243,7 +243,7 @@ page 760 "Trailing Sales Orders Chart"
                         trigger OnAction()
                         begin
                             TrailingSalesOrdersSetup.SetChartType(TrailingSalesOrdersSetup."Chart Type"::"Stacked Column");
-                            UpdateStatus;
+                            UpdateStatus();
                         end;
                     }
                     action(StackedColumnPct)
@@ -256,7 +256,7 @@ page 760 "Trailing Sales Orders Chart"
                         trigger OnAction()
                         begin
                             TrailingSalesOrdersSetup.SetChartType(TrailingSalesOrdersSetup."Chart Type"::"Stacked Column (%)");
-                            UpdateStatus;
+                            UpdateStatus();
                         end;
                     }
                 }
@@ -273,7 +273,7 @@ page 760 "Trailing Sales Orders Chart"
 
                 trigger OnAction()
                 begin
-                    RunSetup;
+                    RunSetup();
                 end;
             }
         }
@@ -281,16 +281,16 @@ page 760 "Trailing Sales Orders Chart"
 
     trigger OnFindRecord(Which: Text): Boolean
     begin
-        UpdateChart;
+        UpdateChart();
         IsChartDataReady := true;
 
         if not IsChartAddInReady then
-            SetActionsEnabled;
+            SetActionsEnabled();
     end;
 
     trigger OnOpenPage()
     begin
-        SetActionsEnabled;
+        SetActionsEnabled();
     end;
 
     var
@@ -338,7 +338,7 @@ page 760 "Trailing Sales Orders Chart"
             exit;
         TrailingSalesOrdersMgt.UpdateData(Rec);
         Update(CurrPage.BusinessChart);
-        UpdateStatus;
+        UpdateStatus();
         NeedsUpdate := false;
     end;
 
@@ -355,16 +355,16 @@ page 760 "Trailing Sales Orders Chart"
         OldTrailingSalesOrdersSetup := TrailingSalesOrdersSetup;
 
         if NeedsUpdate then
-            StatusText := TrailingSalesOrdersSetup.GetCurrentSelectionText;
+            StatusText := TrailingSalesOrdersSetup.GetCurrentSelectionText();
 
-        SetActionsEnabled;
+        SetActionsEnabled();
     end;
 
     local procedure RunSetup()
     begin
         PAGE.RunModal(PAGE::"Trailing Sales Orders Setup", TrailingSalesOrdersSetup);
         TrailingSalesOrdersSetup.Get(UserId);
-        UpdateStatus;
+        UpdateStatus();
     end;
 
     procedure SetActionsEnabled()

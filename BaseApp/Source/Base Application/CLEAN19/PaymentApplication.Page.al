@@ -5,7 +5,6 @@ page 1292 "Payment Application"
     DelayedInsert = true;
     DeleteAllowed = false;
     PageType = Worksheet;
-    PromotedActionCategories = 'New,Process,Report,Show';
     SourceTable = "Payment Application Proposal";
     SourceTableTemporary = true;
     SourceTableView = SORTING("Sorting Order")
@@ -66,7 +65,7 @@ page 1292 "Payment Application"
 
                         trigger OnValidate()
                         begin
-                            UpdateAfterChangingApplication;
+                            UpdateAfterChangingApplication();
                         end;
                     }
                     field(Applied; Applied)
@@ -76,16 +75,16 @@ page 1292 "Payment Application"
 
                         trigger OnValidate()
                         begin
-                            UpdateAfterChangingApplication;
+                            UpdateAfterChangingApplication();
                         end;
                     }
-                    field(RemainingAmountAfterPosting; GetRemainingAmountAfterPostingValue)
+                    field(RemainingAmountAfterPosting; GetRemainingAmountAfterPostingValue())
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Remaining Amount After Posting';
                         ToolTip = 'Specifies the amount that remains to be paid for the open entry after you have posted the payment in the Payment Reconciliation Journal window.';
                     }
-                    field("Applies-to Entry No."; "Applies-to Entry No.")
+                    field("Applies-to Entry No."; Rec."Applies-to Entry No.")
                     {
                         ApplicationArea = Basic, Suite;
                         Editable = false;
@@ -93,28 +92,28 @@ page 1292 "Payment Application"
 
                         trigger OnDrillDown()
                         begin
-                            AppliesToEntryNoDrillDown;
+                            AppliesToEntryNoDrillDown();
                         end;
                     }
-                    field("Due Date"; "Due Date")
+                    field("Due Date"; Rec."Due Date")
                     {
                         ApplicationArea = Basic, Suite;
                         Editable = false;
                         ToolTip = 'Specifies the due date of the open entry.';
                     }
-                    field("Document Type"; "Document Type")
+                    field("Document Type"; Rec."Document Type")
                     {
                         ApplicationArea = Basic, Suite;
                         Editable = false;
                         ToolTip = 'Specifies the type of document that is related to the open entry.';
                     }
-                    field("Document No."; "Document No.")
+                    field("Document No."; Rec."Document No.")
                     {
                         ApplicationArea = Basic, Suite;
                         Editable = false;
                         ToolTip = 'Specifies the number of the document that is related to the open entry.';
                     }
-                    field("External Document No."; "External Document No.")
+                    field("External Document No."; Rec."External Document No.")
                     {
                         ApplicationArea = Basic, Suite;
                         Editable = false;
@@ -126,7 +125,7 @@ page 1292 "Payment Application"
                         Editable = false;
                         ToolTip = 'Specifies the description of the open entry.';
                     }
-                    field("Remaining Amount"; "Remaining Amount")
+                    field("Remaining Amount"; Rec."Remaining Amount")
                     {
                         ApplicationArea = Basic, Suite;
                         Editable = false;
@@ -134,14 +133,14 @@ page 1292 "Payment Application"
                         ToolTip = 'Specifies the amount that remains to be paid for the open entry.';
                         Visible = false;
                     }
-                    field("Remaining Amt. Incl. Discount"; "Remaining Amt. Incl. Discount")
+                    field("Remaining Amt. Incl. Discount"; Rec."Remaining Amt. Incl. Discount")
                     {
                         ApplicationArea = Basic, Suite;
                         Editable = false;
                         Enabled = false;
                         ToolTip = 'Specifies the amount that remains to be paid for the open entry, minus any granted payment discount.';
                     }
-                    field("Pmt. Disc. Due Date"; "Pmt. Disc. Due Date")
+                    field("Pmt. Disc. Due Date"; Rec."Pmt. Disc. Due Date")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Pmt. Discount Date';
@@ -149,16 +148,16 @@ page 1292 "Payment Application"
 
                         trigger OnValidate()
                         begin
-                            UpdateAfterChangingApplication;
+                            UpdateAfterChangingApplication();
                         end;
                     }
-                    field("Pmt. Disc. Tolerance Date"; "Pmt. Disc. Tolerance Date")
+                    field("Pmt. Disc. Tolerance Date"; Rec."Pmt. Disc. Tolerance Date")
                     {
                         ApplicationArea = Basic, Suite;
                         ToolTip = 'Specifies the latest date the amount in the entry must be paid in order for payment discount tolerance to be granted.';
                         Visible = false;
                     }
-                    field("Remaining Pmt. Disc. Possible"; "Remaining Pmt. Disc. Possible")
+                    field("Remaining Pmt. Disc. Possible"; Rec."Remaining Pmt. Disc. Possible")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Remaining Pmt. Discount Possible';
@@ -166,10 +165,10 @@ page 1292 "Payment Application"
 
                         trigger OnValidate()
                         begin
-                            UpdateAfterChangingApplication;
+                            UpdateAfterChangingApplication();
                         end;
                     }
-                    field(AccountName; GetAccountName)
+                    field(AccountName; GetAccountName())
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Account Name';
@@ -178,16 +177,16 @@ page 1292 "Payment Application"
 
                         trigger OnDrillDown()
                         begin
-                            AccountNameDrillDown;
+                            AccountNameDrillDown();
                         end;
                     }
-                    field("Account Type"; "Account Type")
+                    field("Account Type"; Rec."Account Type")
                     {
                         ApplicationArea = Basic, Suite;
                         Editable = LineEditable;
                         ToolTip = 'Specifies the type of account that the payment application will be posted to when you post the payment reconciliation journal.';
                     }
-                    field("Account No."; "Account No.")
+                    field("Account No."; Rec."Account No.")
                     {
                         ApplicationArea = Basic, Suite;
                         Editable = LineEditable;
@@ -195,22 +194,22 @@ page 1292 "Payment Application"
 
                         trigger OnValidate()
                         begin
-                            CurrPage.SaveRecord;
+                            CurrPage.SaveRecord();
                         end;
                     }
-                    field("Posting Date"; "Posting Date")
+                    field("Posting Date"; Rec."Posting Date")
                     {
                         ApplicationArea = Basic, Suite;
                         Editable = false;
                         ToolTip = 'Specifies the posting date of the open entry.';
                         Visible = false;
                     }
-                    field("Match Confidence"; "Match Confidence")
+                    field("Match Confidence"; Rec."Match Confidence")
                     {
                         ApplicationArea = Basic, Suite;
                         ToolTip = 'Specifies the quality of the match between the payment and the open entry for payment application purposes.';
                     }
-                    field("Currency Code"; "Currency Code")
+                    field("Currency Code"; Rec."Currency Code")
                     {
                         ApplicationArea = Suite;
                         Caption = 'Entry Currency Code';
@@ -304,8 +303,6 @@ page 1292 "Payment Application"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Accept Applications';
                     Image = Approve;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Accept a payment application after reviewing it or manually applying it to entries. This closes the payment application and sets the Match Confidence to Accepted.';
 
                     trigger OnAction()
@@ -314,8 +311,8 @@ page 1292 "Payment Application"
                             if BankAccReconLine."Account Type" = BankAccReconLine."Account Type"::"Bank Account" then
                                 Error(ExcessiveAmountErr, BankAccReconLine.Difference);
 
-                        BankAccReconLine.AcceptApplication;
-                        CurrPage.Close;
+                        BankAccReconLine.AcceptApplication();
+                        CurrPage.Close();
                     end;
                 }
                 action(Reject)
@@ -323,14 +320,12 @@ page 1292 "Payment Application"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Remove Applications';
                     Image = Reject;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Remove a payment application from an entry. This unapplies the payment.';
 
                     trigger OnAction()
                     begin
                         if Confirm(RemoveApplicationsQst) then
-                            RemoveApplications;
+                            RemoveApplications();
                     end;
                 }
             }
@@ -342,8 +337,6 @@ page 1292 "Payment Application"
                     ApplicationArea = Basic, Suite;
                     Caption = 'All Open Entries';
                     Image = ViewDetails;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     ToolTip = 'Show all open entries that the payment can be applied to.';
 
                     trigger OnAction()
@@ -361,9 +354,7 @@ page 1292 "Payment Application"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Suggest Entries';
                     Image = Suggest;
-                    Promoted = true;
                     Visible = SortEntriesBasedOnProbabilityVisible;
-                    PromotedCategory = Category4;
                     ToolTip = 'Sort the list based on the probability that it is a match.';
 
                     trigger OnAction()
@@ -388,8 +379,6 @@ page 1292 "Payment Application"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Related-Party Open Entries';
                     Image = ViewDocumentLine;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     ToolTip = 'Show only open entries that are specifically for the related party in the Account No. field. This limits the list to those open entries that are most likely to relate to the payment.';
 
                     trigger OnAction()
@@ -414,8 +403,6 @@ page 1292 "Payment Application"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Applied Entries';
                     Image = ViewRegisteredOrder;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     ToolTip = 'View the ledger entries that have been applied to this record.';
 
                     trigger OnAction()
@@ -433,8 +420,6 @@ page 1292 "Payment Application"
                     ApplicationArea = Basic, Suite;
                     Caption = 'All Open Bank Transactions';
                     Image = ViewPostedOrder;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     ToolTip = 'View all open bank entries that the payment can be applied to.';
 
                     trigger OnAction()
@@ -452,8 +437,6 @@ page 1292 "Payment Application"
                     ApplicationArea = Basic, Suite;
                     Caption = 'All Open Payments';
                     Image = ViewCheck;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     ToolTip = 'Show all open checks that the payment can be applied to.';
 
                     trigger OnAction()
@@ -467,11 +450,49 @@ page 1292 "Payment Application"
                 }
             }
         }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref(Accept_Promoted; Accept)
+                {
+                }
+                actionref(Reject_Promoted; Reject)
+                {
+                }
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Show', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref(RelatedPartyOpenEntries_Promoted; RelatedPartyOpenEntries)
+                {
+                }
+                actionref(AllOpenBankTransactions_Promoted; AllOpenBankTransactions)
+                {
+                }
+                actionref(AllOpenEntries_Promoted; AllOpenEntries)
+                {
+                }
+                actionref(AppliedEntries_Promoted; AppliedEntries)
+                {
+                }
+                actionref(AllOpenPayments_Promoted; AllOpenPayments)
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+        }
     }
 
     trigger OnAfterGetCurrRecord()
     begin
-        UpdateTotals;
+        UpdateTotals();
         LineEditable := "Applies-to Entry No." = 0;
     end;
 
@@ -549,7 +570,7 @@ page 1292 "Payment Application"
                 Status := StrSubstNo(AppliedAutomaticallyStatusTxt, BankAccReconLine."Match Confidence");
         end;
 
-        UpdateRemAmtToApplyStyle;
+        UpdateRemAmtToApplyStyle();
     end;
 
     local procedure UpdateRemAmtToApplyStyle()
@@ -561,13 +582,17 @@ page 1292 "Payment Application"
     end;
 
     local procedure UpdateAfterChangingApplication()
+#if not CLEAN21
     var
         MatchBankPayments: Codeunit "Match Bank Payments";
+#endif
     begin
-        BankAccReconLine.SetManualApplication;
-        UpdateToSystemMatchConfidence;
-        UpdateTotals;
+        BankAccReconLine.SetManualApplication();
+        UpdateToSystemMatchConfidence();
+        UpdateTotals();
+#if not CLEAN21
         MatchBankPayments.UpdateType(BankAccReconLine);
+#endif
     end;
 
     local procedure UpdateToSystemMatchConfidence()

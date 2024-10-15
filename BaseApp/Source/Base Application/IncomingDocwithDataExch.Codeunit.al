@@ -8,7 +8,7 @@ codeunit 1216 "Incoming Doc. with Data. Exch."
         ProcessWithDataExch(Rec);
         RollbackIfErrors(Rec);
 
-        Find;
+        Rec.Get(Rec."Entry No.");
     end;
 
     var
@@ -54,7 +54,7 @@ codeunit 1216 "Incoming Doc. with Data. Exch."
             Error(AttachmentErr);
 
         IncomingDocumentAttachment.CalcFields(Content);
-        if not IncomingDocumentAttachment.Content.HasValue then
+        if not IncomingDocumentAttachment.Content.HasValue() then
             Error(AttachmentEmptyErr);
 
         IncomingDocumentAttachment.Content.CreateInStream(Stream);

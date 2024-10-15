@@ -1,24 +1,15 @@
 table 31051 "Credit Line"
 {
     Caption = 'Credit Line';
-#if CLEAN18
     ObsoleteState = Removed;
-#else
-    DrillDownPageID = "Credit Lines";
-    LookupPageID = "Credit Lines";
-    ObsoleteState = Pending;
-#endif
     ObsoleteReason = 'Moved to Compensation Localization Pack for Czech.';
-    ObsoleteTag = '18.0';
+    ObsoleteTag = '21.0';
 
     fields
     {
         field(5; "Credit No."; Code[20])
         {
             Caption = 'Credit No.';
-#if not CLEAN18
-            TableRelation = "Credit Header";
-#endif
         }
         field(10; "Line No."; Integer)
         {
@@ -49,16 +40,6 @@ table 31051 "Credit Line"
             TableRelation = IF ("Source Type" = CONST(Customer)) "Customer Posting Group"
             ELSE
             IF ("Source Type" = CONST(Vendor)) "Vendor Posting Group";
-#if not CLEAN18
-
-            trigger OnValidate()
-            var
-                PostingGroupManagement: Codeunit "Posting Group Management";
-            begin
-                if CurrFieldNo = FieldNo("Posting Group") then
-                    PostingGroupManagement.CheckPostingGroupChange("Posting Group", xRec."Posting Group", Rec);
-            end;
-#endif
         }
         field(23; "Global Dimension 1 Code"; Code[20])
         {
@@ -107,74 +88,6 @@ table 31051 "Credit Line"
                         end;
                 end;
             end;
-#if not CLEAN18
-
-            trigger OnValidate()
-            var
-                CustLedgEntry: Record "Cust. Ledger Entry";
-                VendLedgEntry: Record "Vendor Ledger Entry";
-            begin
-                case "Source Type" of
-                    "Source Type"::Customer:
-                        begin
-                            if not CustLedgEntry.Get("Source Entry No.") then
-                                Clear(CustLedgEntry);
-                            CustLedgEntry.CalcFields(Amount, "Remaining Amount", "Amount (LCY)", "Remaining Amt. (LCY)", "Amount on Credit (LCY)");
-                            if CustLedgEntry."Entry No." <> 0 then begin
-                                CustLedgEntry.TestField(Open, true);
-                                CustLedgEntry.TestField(Prepayment, false);
-                                CustLedgEntry.TestField("Prepayment Type", CustLedgEntry."Prepayment Type"::" ");
-                            end;
-                            CustLedgEntry.TestField("Amount on Credit (LCY)", 0);
-                            "Source No." := CustLedgEntry."Customer No.";
-                            "Posting Group" := CustLedgEntry."Customer Posting Group";
-                            Description := CustLedgEntry.Description;
-                            "Currency Code" := CustLedgEntry."Currency Code";
-                            "Ledg. Entry Original Amount" := CustLedgEntry.Amount;
-                            "Ledg. Entry Remaining Amount" := CustLedgEntry."Remaining Amount";
-                            "Ledg. Entry Original Amt.(LCY)" := CustLedgEntry."Amount (LCY)";
-                            "Ledg. Entry Rem. Amt. (LCY)" := CustLedgEntry."Remaining Amt. (LCY)";
-                            Amount := CustLedgEntry."Remaining Amount";
-                            "Amount (LCY)" := CustLedgEntry."Remaining Amt. (LCY)";
-                            "Posting Date" := CustLedgEntry."Posting Date";
-                            "Document Type" := CustLedgEntry."Document Type";
-                            "Document No." := CustLedgEntry."Document No.";
-                            "Variable Symbol" := CustLedgEntry."Variable Symbol";
-                        end;
-                    "Source Type"::Vendor:
-                        begin
-                            if not VendLedgEntry.Get("Source Entry No.") then
-                                Clear(VendLedgEntry);
-                            VendLedgEntry.CalcFields(Amount, "Remaining Amount", "Amount (LCY)", "Remaining Amt. (LCY)", "Amount on Credit (LCY)");
-                            if VendLedgEntry."Entry No." <> 0 then begin
-                                VendLedgEntry.TestField(Open, true);
-                                VendLedgEntry.TestField(Prepayment, false);
-                                VendLedgEntry.TestField("Prepayment Type", VendLedgEntry."Prepayment Type"::" ");
-                            end;
-                            VendLedgEntry.TestField("Amount on Credit (LCY)", 0);
-                            "Source No." := VendLedgEntry."Vendor No.";
-                            "Posting Group" := VendLedgEntry."Vendor Posting Group";
-                            Description := VendLedgEntry.Description;
-                            "Currency Code" := VendLedgEntry."Currency Code";
-                            "Ledg. Entry Original Amount" := VendLedgEntry.Amount;
-                            "Ledg. Entry Remaining Amount" := VendLedgEntry."Remaining Amount";
-                            "Ledg. Entry Original Amt.(LCY)" := VendLedgEntry."Amount (LCY)";
-                            "Ledg. Entry Rem. Amt. (LCY)" := VendLedgEntry."Remaining Amt. (LCY)";
-                            Amount := VendLedgEntry."Remaining Amount";
-                            "Amount (LCY)" := VendLedgEntry."Remaining Amt. (LCY)";
-                            "Posting Date" := VendLedgEntry."Posting Date";
-                            "Document Type" := VendLedgEntry."Document Type";
-                            "Document No." := VendLedgEntry."Document No.";
-                            "Variable Symbol" := VendLedgEntry."Variable Symbol";
-                        end;
-                end;
-                CheckPostingDate;
-                if "Line No." <> 0 then begin
-                    CopyLEDimensions;
-                    GetCurrencyFactor;
-                end;
-            end;
-#endif
         }
         field(30; "Posting Date"; Date)
         {
@@ -232,43 +145,12 @@ table 31051 "Credit Line"
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
             Caption = 'Amount';
-#if not CLEAN18
-
-            trigger OnValidate()
-            begin
-                TestField(Amount);
-                if Abs(Amount) > Abs("Ledg. Entry Remaining Amount") then
-                    Error(Text001Err, FieldCaption(Amount), FieldCaption("Ledg. Entry Remaining Amount"));
-                if (Amount > 0) and ("Ledg. Entry Remaining Amount" < 0) or
-                   (Amount < 0) and ("Ledg. Entry Remaining Amount" > 0)
-                then
-                    Error(Text002Err, FieldCaption(Amount), FieldCaption("Ledg. Entry Remaining Amount"));
-
-                "Remaining Amount" := "Ledg. Entry Remaining Amount" - Amount;
-                ConvertLCYAmounts;
-            end;
-#endif
         }
         field(88; "Remaining Amount"; Decimal)
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
             Caption = 'Remaining Amount';
-#if not CLEAN18
-
-            trigger OnValidate()
-            begin
-                if (Abs("Remaining Amount") >= Abs("Ledg. Entry Remaining Amount")) and ("Remaining Amount" <> 0) then
-                    Error(Text003Err, FieldCaption("Remaining Amount"), FieldCaption("Ledg. Entry Remaining Amount"));
-                if ("Remaining Amount" > 0) and ("Ledg. Entry Remaining Amount" < 0) or
-                   ("Remaining Amount" < 0) and ("Ledg. Entry Remaining Amount" > 0)
-                then
-                    Error(Text002Err, FieldCaption("Remaining Amount"), FieldCaption("Ledg. Entry Remaining Amount"));
-
-                Amount := "Ledg. Entry Remaining Amount" - "Remaining Amount";
-                ConvertLCYAmounts;
-            end;
-#endif
         }
         field(90; "Ledg. Entry Original Amt.(LCY)"; Decimal)
         {
@@ -285,41 +167,11 @@ table 31051 "Credit Line"
         {
             AutoFormatType = 1;
             Caption = 'Amount (LCY)';
-#if not CLEAN18
-            trigger OnValidate()
-            begin
-                TestField("Amount (LCY)");
-                if Abs("Amount (LCY)") > Abs("Ledg. Entry Rem. Amt. (LCY)") then
-                    Error(Text001Err, FieldCaption("Amount (LCY)"), FieldCaption("Ledg. Entry Rem. Amt. (LCY)"));
-                if ("Amount (LCY)" > 0) and ("Ledg. Entry Rem. Amt. (LCY)" < 0) or
-                   ("Amount (LCY)" < 0) and ("Ledg. Entry Rem. Amt. (LCY)" > 0)
-                then
-                    Error(Text002Err, FieldCaption("Amount (LCY)"), FieldCaption("Ledg. Entry Rem. Amt. (LCY)"));
-
-                ConvertAmounts;
-                Validate(Amount);
-            end;
-#endif
         }
         field(98; "Remaining Amount (LCY)"; Decimal)
         {
             AutoFormatType = 1;
             Caption = 'Remaining Amount (LCY)';
-#if not CLEAN18
-
-            trigger OnValidate()
-            begin
-                if (Abs("Remaining Amount (LCY)") >= Abs("Ledg. Entry Rem. Amt. (LCY)")) and ("Remaining Amount (LCY)" <> 0) then
-                    Error(Text003Err, FieldCaption("Remaining Amount (LCY)"), FieldCaption("Ledg. Entry Rem. Amt. (LCY)"));
-                if ("Remaining Amount (LCY)" > 0) and ("Ledg. Entry Rem. Amt. (LCY)" < 0) or
-                   ("Remaining Amount (LCY)" < 0) and ("Ledg. Entry Rem. Amt. (LCY)" > 0)
-                then
-                    Error(Text002Err, FieldCaption("Remaining Amount (LCY)"), FieldCaption("Ledg. Entry Rem. Amt. (LCY)"));
-
-                ConvertAmounts;
-                Validate("Remaining Amount");
-            end;
-#endif
         }
         field(100; "Manual Change Only"; Boolean)
         {
@@ -330,18 +182,6 @@ table 31051 "Credit Line"
             Caption = 'Dimension Set ID';
             Editable = false;
             TableRelation = "Dimension Set Entry";
-#if not CLEAN18
-
-            trigger OnLookup()
-            begin
-                ShowDimensions();
-            end;
-
-            trigger OnValidate()
-            begin
-                DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Global Dimension 1 Code", "Global Dimension 2 Code");
-            end;
-#endif
         }
     }
 
@@ -364,193 +204,4 @@ table 31051 "Credit Line"
     fieldgroups
     {
     }
-#if not CLEAN18
-
-    trigger OnDelete()
-    begin
-        TestStatusOpen;
-    end;
-
-    trigger OnInsert()
-    begin
-        TestStatusOpen;
-        TestField("Source Entry No.");
-        CopyLEDimensions;
-        GetCurrencyFactor;
-    end;
-
-    trigger OnModify()
-    begin
-        TestStatusOpen;
-    end;
-
-    var
-        CreditHeader: Record "Credit Header";
-        Currency: Record Currency;
-        CurrExchRate: Record "Currency Exchange Rate";
-        DimMgt: Codeunit DimensionManagement;
-        Text001Err: Label '%1 must be less or equal to %2.', Comment = '%1=fieldcaption1;%2=fieldcaption2';
-        Text002Err: Label '%1 must have the same sign as %2.', Comment = '%1=fieldcaption1;%2=fieldcaption2';
-        Text003Err: Label '%1 must be less than %2.', Comment = '%1=fieldcaption1;%2=fieldcaption2';
-        Text008Err: Label '%1 %2.', Comment = '%1=creditnumber;%2=linenumber';
-        StatusCheckSuspend: Boolean;
-        MustBeLessOrEqualErr: Label 'must be less or equal to %1', Comment = '%1 = Posting Date';
-
-    [Scope('OnPrem')]
-    [Obsolete('Moved to Compensation Localization Pack for Czech.', '18.0')]
-    procedure ShowDimensions()
-    begin
-        "Dimension Set ID" :=
-          DimMgt.EditDimensionSet("Dimension Set ID", StrSubstNo(Text008Err, "Credit No.", "Line No."));
-        DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Global Dimension 1 Code", "Global Dimension 2 Code");
-    end;
-
-    [Scope('OnPrem')]
-    [Obsolete('Moved to Compensation Localization Pack for Czech.', '18.0')]
-    procedure CopyLEDimensions()
-    var
-        CustLedgEntry: Record "Cust. Ledger Entry";
-        VendLedgEntry: Record "Vendor Ledger Entry";
-    begin
-        "Dimension Set ID" := 0;
-        "Global Dimension 1 Code" := '';
-        "Global Dimension 2 Code" := '';
-
-        if "Source Entry No." = 0 then
-            exit;
-        case "Source Type" of
-            "Source Type"::Customer:
-                begin
-                    CustLedgEntry.Get("Source Entry No.");
-                    "Dimension Set ID" := CustLedgEntry."Dimension Set ID";
-                    "Global Dimension 1 Code" := CustLedgEntry."Global Dimension 1 Code";
-                    "Global Dimension 2 Code" := CustLedgEntry."Global Dimension 2 Code";
-                end;
-            "Source Type"::Vendor:
-                begin
-                    VendLedgEntry.Get("Source Entry No.");
-                    "Dimension Set ID" := VendLedgEntry."Dimension Set ID";
-                    "Global Dimension 1 Code" := VendLedgEntry."Global Dimension 1 Code";
-                    "Global Dimension 2 Code" := VendLedgEntry."Global Dimension 2 Code";
-                end;
-        end;
-    end;
-
-    local procedure TestStatusOpen()
-    begin
-        if StatusCheckSuspend then
-            exit;
-        GetCreditHeader;
-        CreditHeader.TestField(Status, CreditHeader.Status::Open);
-    end;
-
-    [Scope('OnPrem')]
-    [Obsolete('Moved to Compensation Localization Pack for Czech.', '18.0')]
-    procedure SuspendStatusCheck(Suspend: Boolean)
-    begin
-        StatusCheckSuspend := Suspend;
-    end;
-
-    local procedure GetCurrency()
-    begin
-        if "Currency Code" = '' then begin
-            Clear(Currency);
-            Currency.InitRoundingPrecision;
-        end else
-            if "Currency Code" <> Currency.Code then begin
-                Currency.Get("Currency Code");
-                Currency.TestField("Amount Rounding Precision");
-            end;
-    end;
-
-    local procedure GetCurrencyFactor()
-    var
-        CurrExchRate: Record "Currency Exchange Rate";
-    begin
-        GetCreditHeader;
-        CreditHeader.TestField("Posting Date");
-        if "Currency Code" = '' then
-            "Currency Factor" := 1
-        else
-            "Currency Factor" := CurrExchRate.ExchangeRate(CreditHeader."Posting Date", "Currency Code");
-        ConvertLCYAmounts;
-    end;
-
-    [Scope('OnPrem')]
-    [Obsolete('Moved to Compensation Localization Pack for Czech.', '18.0')]
-    procedure SetCreditHeader(NewCreditHeader: Record "Credit Header")
-    begin
-        CreditHeader := NewCreditHeader;
-    end;
-
-    local procedure GetCreditHeader()
-    begin
-        TestField("Credit No.");
-        if "Credit No." <> CreditHeader."No." then
-            CreditHeader.Get("Credit No.");
-    end;
-
-    [Scope('OnPrem')]
-    [Obsolete('Moved to Compensation Localization Pack for Czech.', '18.0')]
-    procedure ConvertLCYAmounts()
-    begin
-        GetCreditHeader;
-        GetCurrency;
-        if "Currency Code" = '' then begin
-            "Amount (LCY)" := Amount;
-            "Remaining Amount (LCY)" := "Remaining Amount";
-        end else begin
-            "Amount (LCY)" := Round(
-                CurrExchRate.ExchangeAmtFCYToLCY(
-                  CreditHeader."Posting Date", "Currency Code",
-                  Amount, "Currency Factor"));
-            "Remaining Amount (LCY)" := Round(
-                CurrExchRate.ExchangeAmtFCYToLCY(
-                  CreditHeader."Posting Date", "Currency Code",
-                  "Remaining Amount", "Currency Factor"));
-        end;
-        Amount := Round(Amount, Currency."Amount Rounding Precision");
-        "Remaining Amount" := Round("Remaining Amount", Currency."Amount Rounding Precision");
-    end;
-
-    [Scope('OnPrem')]
-    [Obsolete('Moved to Compensation Localization Pack for Czech.', '18.0')]
-    procedure ConvertAmounts()
-    begin
-        GetCreditHeader;
-        GetCurrency;
-        if "Currency Code" = '' then begin
-            Amount := "Amount (LCY)";
-            "Remaining Amount" := "Remaining Amount (LCY)";
-        end else begin
-            Amount := Round(
-                CurrExchRate.ExchangeAmtLCYToFCY(
-                  CreditHeader."Posting Date", "Currency Code",
-                  "Amount (LCY)", "Currency Factor"),
-                Currency."Amount Rounding Precision");
-            "Remaining Amount" := Round(
-                CurrExchRate.ExchangeAmtLCYToFCY(
-                  CreditHeader."Posting Date", "Currency Code",
-                  "Remaining Amount (LCY)", "Currency Factor"),
-                Currency."Amount Rounding Precision");
-        end;
-
-        Clear(Currency);
-        Currency.InitRoundingPrecision;
-        "Amount (LCY)" := Round("Amount (LCY)", Currency."Amount Rounding Precision");
-        "Remaining Amount (LCY)" := Round("Remaining Amount (LCY)", Currency."Amount Rounding Precision");
-    end;
-
-    [Scope('OnPrem')]
-    [Obsolete('Moved to Compensation Localization Pack for Czech.', '18.0')]
-    procedure CheckPostingDate()
-    begin
-        TestField("Credit No.");
-        CreditHeader.Get("Credit No.");
-        if (CreditHeader."Posting Date" <> 0D) and ("Posting Date" <> 0D) then
-            if CreditHeader."Posting Date" < "Posting Date" then
-                FieldError("Posting Date", StrSubstNo(MustBeLessOrEqualErr, CreditHeader."Posting Date"));
-    end;
-#endif
 }
-

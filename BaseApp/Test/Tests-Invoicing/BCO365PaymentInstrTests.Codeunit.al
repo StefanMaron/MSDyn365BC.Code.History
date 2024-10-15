@@ -1,3 +1,4 @@
+#if not CLEAN21
 codeunit 138962 "BC O365 Payment Instr. Tests"
 {
     Subtype = Test;
@@ -84,7 +85,7 @@ codeunit 138962 "BC O365 Payment Instr. Tests"
         LibraryVariableStorage.Enqueue(NewPaymentDetailDescription);
         BCO365Settings.OpenEdit;
         BCO365Settings."Payment instructions".FindFirstField(
-          GetPaymentInstructionsInCurrentLanguage, O365PaymentInstructions.GetPaymentInstructionsInCurrentLanguage);
+          GetPaymentInstructionsInCurrentLanguage, O365PaymentInstructions.GetPaymentInstructionsInCurrentLanguage());
         BCO365Settings."Payment instructions".Edit.Invoke;
 
         // [WHEN] A draft invoice is created
@@ -95,7 +96,7 @@ codeunit 138962 "BC O365 Payment Instr. Tests"
         BCO365SalesInvoice.GotoKey(SalesHeader."Document Type"::Invoice, InvoiceNo);
         Assert.AreEqual(
           NewPaymentDetailName, BCO365SalesInvoice.PaymentInstructionsName.Value, 'Wrong payment detail name on draft invoice');
-        BCO365SalesInvoice.Close;
+        BCO365SalesInvoice.Close();
 
         // [WHEN] The draft invoice is sent
         PostedInvoiceNo := LibraryInvoicingApp.SendInvoice(InvoiceNo);
@@ -107,7 +108,7 @@ codeunit 138962 "BC O365 Payment Instr. Tests"
         Assert.AreEqual(
           NewPaymentDetailName, BCO365PostedSalesInvoice."Payment Instructions Name".Value, 'Wrong payment detail name on draft invoice');
 #endif
-        BCO365PostedSalesInvoice.Close;
+        BCO365PostedSalesInvoice.Close();
 
         // [WHEN] The posted invoice is being saved to XML
         SaveInvoiceToXML(PostedInvoiceNo);
@@ -154,7 +155,7 @@ codeunit 138962 "BC O365 Payment Instr. Tests"
         BCO365SalesInvoice.PaymentInstructionsName.AssistEdit;
         Assert.AreEqual(
           NewPaymentDetailName, BCO365SalesInvoice.PaymentInstructionsName.Value, 'New payment detail should be set on the invoice');
-        BCO365SalesInvoice.Close;
+        BCO365SalesInvoice.Close();
 
         // [WHEN] The draft invoice is sent
         PostedInvoiceNo := LibraryInvoicingApp.SendInvoice(InvoiceNo);
@@ -166,7 +167,7 @@ codeunit 138962 "BC O365 Payment Instr. Tests"
         Assert.AreEqual(
           NewPaymentDetailName, BCO365PostedSalesInvoice."Payment Instructions Name".Value, 'Wrong payment detail name on draft invoice');
 #endif
-        BCO365PostedSalesInvoice.Close;
+        BCO365PostedSalesInvoice.Close();
 
         // [WHEN] The posted invoice is being saved to XML
         SaveInvoiceToXML(PostedInvoiceNo);
@@ -220,7 +221,7 @@ codeunit 138962 "BC O365 Payment Instr. Tests"
         // [GIVEN] The newly creted payment detail is set on the invoice
         LibraryVariableStorage.Enqueue(NewPaymentDetailName);
         BCO365SalesInvoice.PaymentInstructionsName.AssistEdit;
-        BCO365SalesInvoice.Close;
+        BCO365SalesInvoice.Close();
 
         // [WHEN] The new payment instruction is deleted
         O365PaymentInstructions.SetRange(Name, NewPaymentDetailName);
@@ -257,7 +258,7 @@ codeunit 138962 "BC O365 Payment Instr. Tests"
         BCO365SalesInvoice.PaymentInstructionsName.AssistEdit;
         Assert.AreEqual(
           NewPaymentDetailName, BCO365SalesInvoice.PaymentInstructionsName.Value, 'New payment detail should be set on the invoice');
-        BCO365SalesInvoice.Close;
+        BCO365SalesInvoice.Close();
         LibraryInvoicingApp.SendInvoice(InvoiceNo);
 
         // [WHEN] The new payment instruction is deleted
@@ -301,7 +302,7 @@ codeunit 138962 "BC O365 Payment Instr. Tests"
         BCO365SalesInvoice.GotoKey(SalesHeader."Document Type"::Invoice, InvoiceNo);
         Assert.AreEqual(
           NewPaymentDetailName, BCO365SalesInvoice.PaymentInstructionsName.Value, 'updated payment detail should be set on the invoice');
-        BCO365SalesInvoice.Close;
+        BCO365SalesInvoice.Close();
 
         // [WHEN] The invoice is posted and saved to XML
         PostedInvoiceNo := LibraryInvoicingApp.SendInvoice(InvoiceNo);
@@ -329,7 +330,7 @@ codeunit 138962 "BC O365 Payment Instr. Tests"
         O365PaymentInstructions.SetRange(Default, true);
         O365PaymentInstructions.FindFirst();
         PaymentInstructionId := O365PaymentInstructions.Id;
-        OriginalPaymentDetailDescription := O365PaymentInstructions.GetPaymentInstructionsInCurrentLanguage;
+        OriginalPaymentDetailDescription := O365PaymentInstructions.GetPaymentInstructionsInCurrentLanguage();
 
         // [GIVEN] A draft invoice is created for this payment instruction
         PostedInvoiceNo := LibraryInvoicingApp.SendInvoice(LibraryInvoicingApp.CreateInvoice);
@@ -375,7 +376,7 @@ codeunit 138962 "BC O365 Payment Instr. Tests"
         BCO365SalesInvoice.PaymentInstructionsName.AssistEdit;
         Assert.AreEqual(
           NewPaymentDetailName, BCO365SalesInvoice.PaymentInstructionsName.Value, 'New payment detail should be set on the invoice');
-        BCO365SalesInvoice.Close;
+        BCO365SalesInvoice.Close();
 
         // [WHEN] The default payment instruction is modified
         NewPaymentDetailName := LibraryUtility.GenerateGUID();
@@ -387,7 +388,7 @@ codeunit 138962 "BC O365 Payment Instr. Tests"
         BCO365SalesInvoice.GotoKey(SalesHeader."Document Type"::Invoice, InvoiceNo);
         Assert.AreEqual(
           NewPaymentDetailName, BCO365SalesInvoice.PaymentInstructionsName.Value, 'updated payment detail should be set on the invoice');
-        BCO365SalesInvoice.Close;
+        BCO365SalesInvoice.Close();
 
         // [WHEN] The invoice is posted and saved to XML
         PostedInvoiceNo := LibraryInvoicingApp.SendInvoice(InvoiceNo);
@@ -419,7 +420,7 @@ codeunit 138962 "BC O365 Payment Instr. Tests"
         SalesInvoiceHeader: Record "Sales Invoice Header";
     begin
         SalesInvoiceHeader.Get(PostedInvoiceNo);
-        SalesInvoiceHeader.SetRecFilter;
+        SalesInvoiceHeader.SetRecFilter();
         Commit();
         REPORT.RunModal(REPORT::"Standard Sales - Invoice", true, false, SalesInvoiceHeader);
     end;
@@ -494,4 +495,4 @@ codeunit 138962 "BC O365 Payment Instr. Tests"
         Reply := true;
     end;
 }
-
+#endif

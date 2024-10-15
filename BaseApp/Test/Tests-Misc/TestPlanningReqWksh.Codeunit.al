@@ -93,8 +93,8 @@ codeunit 136127 "Test Planning/Req.Wksh"
         // Setup
         DemandQuantity := 25;
         ExpectedNumberOfRows := 1;
-        CalculationStartDate := CalcDate('<-5D>', WorkDate);
-        CalculationEndDate := CalcDate('<5D>', WorkDate);
+        CalculationStartDate := CalcDate('<-5D>', WorkDate());
+        CalculationEndDate := CalcDate('<5D>', WorkDate());
         CalculationOption := CalculationOption::PlanningNetChange;
         ItemNo := InitScenario(CalculationStartDate, CalculationEndDate, CalculationOption);
         CreateServiceDemand(DemandQuantity);
@@ -122,9 +122,9 @@ codeunit 136127 "Test Planning/Req.Wksh"
         // Setup
         ExpectedNumberOfRows := 1;
         DemandQuantity := 25;
-        CalculationStartDate := CalcDate('<-5D>', WorkDate);
-        CalculationEndDate := CalcDate('<3D>', WorkDate);
-        NewPostingDate := CalcDate('<5D>', WorkDate);
+        CalculationStartDate := CalcDate('<-5D>', WorkDate());
+        CalculationEndDate := CalcDate('<3D>', WorkDate());
+        NewPostingDate := CalcDate('<5D>', WorkDate());
         CalculationOption := CalculationOption::PlanningNetChange;
         ItemNo := InitScenario(CalculationStartDate, CalculationEndDate, CalculationOption);
         ServiceOrderNo := CreateServiceDemand(DemandQuantity);
@@ -154,8 +154,8 @@ codeunit 136127 "Test Planning/Req.Wksh"
         ExpectedNoOfLines := 1;
         DemandQuantity := 25;
         DemandQuantity2 := 30;
-        CalculationStartDate := CalcDate('<-5D>', WorkDate);
-        CalculationEndDate := CalcDate('<3D>', WorkDate);
+        CalculationStartDate := CalcDate('<-5D>', WorkDate());
+        CalculationEndDate := CalcDate('<3D>', WorkDate());
         CalculationOption := CalculationOption::PlanningNetChange;
         ItemNo := InitScenario(CalculationStartDate, CalculationEndDate, CalculationOption);
         CreateServiceDemand(DemandQuantity);
@@ -182,8 +182,8 @@ codeunit 136127 "Test Planning/Req.Wksh"
         // Setup
         ExpectedNumberOfRows := 1;
         DemandQuantity := 25;
-        CalculationStartDate := CalcDate('<-5D>', WorkDate);
-        CalculationEndDate := CalcDate('<30D>', WorkDate);
+        CalculationStartDate := CalcDate('<-5D>', WorkDate());
+        CalculationEndDate := CalcDate('<30D>', WorkDate());
         CalculationOption := CalculationOption::PlanningNetChange;
         ItemNo := InitScenario(CalculationStartDate, CalculationEndDate, CalculationOption);
         CreateJobDemand(DemandQuantity);
@@ -207,8 +207,8 @@ codeunit 136127 "Test Planning/Req.Wksh"
         // TEST 5
         // Setup
         DemandQuantity := 25;
-        CalculationStartDate := CalcDate('<-15D>', WorkDate);
-        CalculationEndDate := CalcDate('<-10D>', WorkDate);
+        CalculationStartDate := CalcDate('<-15D>', WorkDate());
+        CalculationEndDate := CalcDate('<-10D>', WorkDate());
         CalculationOption := CalculationOption::PlanningNetChange;
         ItemNo := InitScenario(CalculationStartDate, CalculationEndDate, CalculationOption);
         CreateJobDemand(DemandQuantity);
@@ -234,8 +234,8 @@ codeunit 136127 "Test Planning/Req.Wksh"
         // Setup
         DemandQuantity := 25;
         ExpectedNumberOfRows := 1;
-        CalculationStartDate := CalcDate('<-5D>', WorkDate);
-        CalculationEndDate := CalcDate('<5D>', WorkDate);
+        CalculationStartDate := CalcDate('<-5D>', WorkDate());
+        CalculationEndDate := CalcDate('<5D>', WorkDate());
         CalculationOption := CalculationOption::PlanningRegenerate;
         ItemNo := InitScenario(CalculationStartDate, CalculationEndDate, CalculationOption);
         CreateServiceDemand(DemandQuantity);
@@ -263,9 +263,9 @@ codeunit 136127 "Test Planning/Req.Wksh"
         // Setup
         ExpectedNumberOfRows := 1;
         DemandQuantity := 25;
-        CalculationStartDate := CalcDate('<-5D>', WorkDate);
-        CalculationEndDate := CalcDate('<3D>', WorkDate);
-        NewPostingDate := CalcDate('<5D>', WorkDate);
+        CalculationStartDate := CalcDate('<-5D>', WorkDate());
+        CalculationEndDate := CalcDate('<3D>', WorkDate());
+        NewPostingDate := CalcDate('<5D>', WorkDate());
         CalculationOption := CalculationOption::PlanningRegenerate;
         ItemNo := InitScenario(CalculationStartDate, CalculationEndDate, CalculationOption);
         ServiceOrderNo := CreateServiceDemand(DemandQuantity);
@@ -295,8 +295,8 @@ codeunit 136127 "Test Planning/Req.Wksh"
         ExpectedNoOfLines := 1;
         DemandQuantity := 25;
         DemandQuantity2 := 30;
-        CalculationStartDate := CalcDate('<-5D>', WorkDate);
-        CalculationEndDate := CalcDate('<3D>', WorkDate);
+        CalculationStartDate := CalcDate('<-5D>', WorkDate());
+        CalculationEndDate := CalcDate('<3D>', WorkDate());
         CalculationOption := CalculationOption::PlanningRegenerate;
         ItemNo := InitScenario(CalculationStartDate, CalculationEndDate, CalculationOption);
         CreateServiceDemand(DemandQuantity);
@@ -323,8 +323,8 @@ codeunit 136127 "Test Planning/Req.Wksh"
         ExpectedNumberOfRows := 1;
         // Setup
         DemandQuantity := 25;
-        CalculationStartDate := CalcDate('<-5D>', WorkDate);
-        CalculationEndDate := CalcDate('<30D>', WorkDate);
+        CalculationStartDate := CalcDate('<-5D>', WorkDate());
+        CalculationEndDate := CalcDate('<30D>', WorkDate());
         CalculationOption := CalculationOption::PlanningRegenerate;
         ItemNo := InitScenario(CalculationStartDate, CalculationEndDate, CalculationOption);
         CreateJobDemand(DemandQuantity);
@@ -348,8 +348,8 @@ codeunit 136127 "Test Planning/Req.Wksh"
         // TEST 10
         // Setup
         DemandQuantity := 25;
-        CalculationStartDate := CalcDate('<-15D>', WorkDate);
-        CalculationEndDate := CalcDate('<-10D>', WorkDate);
+        CalculationStartDate := CalcDate('<-15D>', WorkDate());
+        CalculationEndDate := CalcDate('<-10D>', WorkDate());
         CalculationOption := CalculationOption::PlanningRegenerate;
         ItemNo := InitScenario(CalculationStartDate, CalculationEndDate, CalculationOption);
         CreateJobDemand(DemandQuantity);
@@ -375,8 +375,8 @@ codeunit 136127 "Test Planning/Req.Wksh"
         // Setup
         DemandQuantity := 25;
         ExpectedNumberOfRows := 1;
-        CalculationStartDate := CalcDate('<-5D>', WorkDate);
-        CalculationEndDate := CalcDate('<5D>', WorkDate);
+        CalculationStartDate := CalcDate('<-5D>', WorkDate());
+        CalculationEndDate := CalcDate('<5D>', WorkDate());
         CalculationOption := CalculationOption::Requisition;
         ItemNo := InitScenario(CalculationStartDate, CalculationEndDate, CalculationOption);
         CreateServiceDemand(DemandQuantity);
@@ -404,9 +404,9 @@ codeunit 136127 "Test Planning/Req.Wksh"
         // Setup
         ExpectedNumberOfRows := 1;
         DemandQuantity := 25;
-        CalculationStartDate := CalcDate('<-5D>', WorkDate);
-        CalculationEndDate := CalcDate('<3D>', WorkDate);
-        NewPostingDate := CalcDate('<5D>', WorkDate);
+        CalculationStartDate := CalcDate('<-5D>', WorkDate());
+        CalculationEndDate := CalcDate('<3D>', WorkDate());
+        NewPostingDate := CalcDate('<5D>', WorkDate());
         CalculationOption := CalculationOption::Requisition;
         ItemNo := InitScenario(CalculationStartDate, CalculationEndDate, CalculationOption);
         ServiceOrderNo := CreateServiceDemand(DemandQuantity);
@@ -436,8 +436,8 @@ codeunit 136127 "Test Planning/Req.Wksh"
         ExpectedNoOfLines := 1;
         DemandQuantity := 25;
         DemandQuantity2 := 30;
-        CalculationStartDate := CalcDate('<-5D>', WorkDate);
-        CalculationEndDate := CalcDate('<3D>', WorkDate);
+        CalculationStartDate := CalcDate('<-5D>', WorkDate());
+        CalculationEndDate := CalcDate('<3D>', WorkDate());
         CalculationOption := CalculationOption::Requisition;
         ItemNo := InitScenario(CalculationStartDate, CalculationEndDate, CalculationOption);
         CreateServiceDemand(DemandQuantity);
@@ -464,8 +464,8 @@ codeunit 136127 "Test Planning/Req.Wksh"
         ExpectedNumberOfRows := 1;
         // Setup
         DemandQuantity := 25;
-        CalculationStartDate := CalcDate('<-5D>', WorkDate);
-        CalculationEndDate := CalcDate('<30D>', WorkDate);
+        CalculationStartDate := CalcDate('<-5D>', WorkDate());
+        CalculationEndDate := CalcDate('<30D>', WorkDate());
         CalculationOption := CalculationOption::Requisition;
         ItemNo := InitScenario(CalculationStartDate, CalculationEndDate, CalculationOption);
         CreateJobDemand(DemandQuantity);
@@ -489,8 +489,8 @@ codeunit 136127 "Test Planning/Req.Wksh"
         // TEST 15
         // Setup
         DemandQuantity := 25;
-        CalculationStartDate := CalcDate('<-15D>', WorkDate);
-        CalculationEndDate := CalcDate('<-10D>', WorkDate);
+        CalculationStartDate := CalcDate('<-15D>', WorkDate());
+        CalculationEndDate := CalcDate('<-10D>', WorkDate());
         CalculationOption := CalculationOption::Requisition;
         ItemNo := InitScenario(CalculationStartDate, CalculationEndDate, CalculationOption);
         CreateJobDemand(DemandQuantity);
@@ -543,8 +543,8 @@ codeunit 136127 "Test Planning/Req.Wksh"
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         // [WHEN] Calculate Plan Requisition Worksheet
-        CalculationStartDate := CalcDate('<-CY>', WorkDate);
-        CalculationEndDate := CalcDate('<CY>', WorkDate);
+        CalculationStartDate := CalcDate('<-CY>', WorkDate());
+        CalculationEndDate := CalcDate('<CY>', WorkDate());
         CalculatePlanRequisitionWorksh(Item."No.", CalculationStartDate, CalculationEndDate);
 
         // [THEN] Direct Unit Cost is 300 (from the price list) 
@@ -570,7 +570,7 @@ codeunit 136127 "Test Planning/Req.Wksh"
         PurchasesPayablesSetup.Modify();
 
         // [WHEN] Calculate Plan Requisition Worksheet (use request page)
-        CalculatePlanRequisitionWorksh('', CalcDate('<-CY>', WorkDate), CalcDate('<CY>', WorkDate), true);
+        CalculatePlanRequisitionWorksh('', CalcDate('<-CY>', WorkDate()), CalcDate('<CY>', WorkDate()), true);
 
         // [THEN] "Price Calculation Method" on the request page is 'Test Price'
         Assert.AreEqual(
@@ -670,7 +670,7 @@ codeunit 136127 "Test Planning/Req.Wksh"
         ItemUnitOfMeasure.Validate("Item No.", ItemNo);
         ItemUnitOfMeasure.Validate(Code, UnitOfMeasure.Code);
         ItemUnitOfMeasure.Validate("Qty. per Unit of Measure", 1);
-        if not ItemUnitOfMeasure.Modify then
+        if not ItemUnitOfMeasure.Modify() then
             ItemUnitOfMeasure.Insert();
         exit(UnitOfMeasure.Code);
     end;
@@ -744,7 +744,7 @@ codeunit 136127 "Test Planning/Req.Wksh"
         if RequisitionLine.FindFirst() then
             repeat
                 Assert.AreEqual(CheckDate, RequisitionLine."Due Date", 'Requisition Line Due Date');
-            until RequisitionLine.Next = 0;
+            until RequisitionLine.Next() = 0;
     end;
 
     local procedure ValidateRequisitionLines(ItemNo: Code[20]; NoOflinesExpected: Integer; QuantityExpected: Decimal; Descr: Text[100])
@@ -758,7 +758,7 @@ codeunit 136127 "Test Planning/Req.Wksh"
         if RequisitionLine.FindFirst() then
             repeat
                 Sum += RequisitionLine.Quantity;
-            until RequisitionLine.Next = 0;
+            until RequisitionLine.Next() = 0;
         Assert.AreEqual(QuantityExpected, Sum, 'Requisition Worksheet Lines Quantity sum');
     end;
 
@@ -857,7 +857,7 @@ codeunit 136127 "Test Planning/Req.Wksh"
         LocationCode: Code[10];
         VariantCode: Code[10];
     begin
-        NeededBy := WorkDate;
+        NeededBy := WorkDate();
         LocationCode := '';
         VariantCode := '';
         FindItem(Item);
@@ -914,7 +914,7 @@ codeunit 136127 "Test Planning/Req.Wksh"
         FindItem(Item);
         LocationCode := '';
         VariantCode := '';
-        PlanDate := WorkDate;
+        PlanDate := WorkDate();
 
         JobRec.Init();
         JobRec.Insert(true);
@@ -960,7 +960,7 @@ codeunit 136127 "Test Planning/Req.Wksh"
             Item.Get(ServiceItem."Item No.");
             if (Customer.Blocked = Customer.Blocked::" ") and not Item.Blocked then
                 exit;
-        until ServiceItem.Next = 0;
+        until ServiceItem.Next() = 0;
         Error(Text001);
     end;
 

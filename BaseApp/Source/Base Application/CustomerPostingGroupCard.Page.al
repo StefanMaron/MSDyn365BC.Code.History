@@ -21,13 +21,13 @@ page 148 "Customer Posting Group Card"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the description for the customer posting group.';
                 }
-                field("Receivables Account"; "Receivables Account")
+                field("Receivables Account"; Rec."Receivables Account")
                 {
                     ApplicationArea = Basic, Suite;
                     ShowMandatory = true;
                     ToolTip = 'Specifies the general ledger account to use when you post receivables from customers in this posting group.';
                 }
-                field("Service Charge Acc."; "Service Charge Acc.")
+                field("Service Charge Acc."; Rec."Service Charge Acc.")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
@@ -43,21 +43,21 @@ page 148 "Customer Posting Group Card"
                         ToolTip = 'Specifies the general ledger account to use when you post payment discounts granted to customers in this posting group.';
                         Visible = PmtDiscountVisible;
                     }
-                    field("Payment Disc. Credit Acc."; "Payment Disc. Credit Acc.")
+                    field("Payment Disc. Credit Acc."; Rec."Payment Disc. Credit Acc.")
                     {
                         ApplicationArea = Basic, Suite;
                         Importance = Additional;
                         ToolTip = 'Specifies the general ledger account to use when you post reductions in payment discounts granted to customers in this posting group.';
                         Visible = PmtDiscountVisible;
                     }
-                    field("Payment Tolerance Debit Acc."; "Payment Tolerance Debit Acc.")
+                    field("Payment Tolerance Debit Acc."; Rec."Payment Tolerance Debit Acc.")
                     {
                         ApplicationArea = Basic, Suite;
                         Importance = Additional;
                         ToolTip = 'Specifies the general ledger account to use when you post payment tolerance and payments for sales. This applies to this particular combination of business group and product group.';
                         Visible = PmtToleranceVisible;
                     }
-                    field("Payment Tolerance Credit Acc."; "Payment Tolerance Credit Acc.")
+                    field("Payment Tolerance Credit Acc."; Rec."Payment Tolerance Credit Acc.")
                     {
                         ApplicationArea = Basic, Suite;
                         Importance = Additional;
@@ -75,26 +75,26 @@ page 148 "Customer Posting Group Card"
                         ToolTip = 'Specifies the general ledger account to use when you post amounts that result from invoice rounding when you post transactions for customers.';
                         Visible = InvRoundingVisible;
                     }
-                    field("Debit Rounding Account"; "Debit Rounding Account")
+                    field("Debit Rounding Account"; Rec."Debit Rounding Account")
                     {
                         ApplicationArea = Basic, Suite;
                         Importance = Additional;
                         ToolTip = 'Specifies the general ledger account to use when you post rounding differences from a remaining amount.';
                     }
-                    field("Credit Rounding Account"; "Credit Rounding Account")
+                    field("Credit Rounding Account"; Rec."Credit Rounding Account")
                     {
                         ApplicationArea = Basic, Suite;
                         Importance = Additional;
                         ToolTip = 'Specifies the general ledger account to use when you post rounding differences from a remaining amount.';
                     }
-                    field("Debit Curr. Appln. Rndg. Acc."; "Debit Curr. Appln. Rndg. Acc.")
+                    field("Debit Curr. Appln. Rndg. Acc."; Rec."Debit Curr. Appln. Rndg. Acc.")
                     {
                         ApplicationArea = Basic, Suite;
                         Importance = Additional;
                         ToolTip = 'Specifies the general ledger account to use when you post rounding differences. These differences can occur when you apply entries in different currencies to one another.';
                         Visible = ApplnRoundingVisible;
                     }
-                    field("Credit Curr. Appln. Rndg. Acc."; "Credit Curr. Appln. Rndg. Acc.")
+                    field("Credit Curr. Appln. Rndg. Acc."; Rec."Credit Curr. Appln. Rndg. Acc.")
                     {
                         ApplicationArea = Basic, Suite;
                         Importance = Additional;
@@ -112,14 +112,14 @@ page 148 "Customer Posting Group Card"
                         ToolTip = 'Specifies the general ledger account to use when you post interest from reminders and finance charge memos for customers in this posting group.';
                         Visible = InterestAccountVisible;
                     }
-                    field("Additional Fee Account"; "Additional Fee Account")
+                    field("Additional Fee Account"; Rec."Additional Fee Account")
                     {
                         ApplicationArea = Basic, Suite;
                         Importance = Additional;
                         ToolTip = 'Specifies the general ledger account to use when you post additional fees from reminders and finance charge memos for customers in this posting group.';
                         Visible = AddFeeAccountVisible;
                     }
-                    field("Add. Fee per Line Account"; "Add. Fee per Line Account")
+                    field("Add. Fee per Line Account"; Rec."Add. Fee per Line Account")
                     {
                         ApplicationArea = Basic, Suite;
                         Importance = Additional;

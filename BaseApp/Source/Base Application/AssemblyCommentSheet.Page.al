@@ -42,7 +42,7 @@ page 907 "Assembly Comment Sheet"
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        SetupNewLine;
+        SetUpNewLine();
     end;
 }
 

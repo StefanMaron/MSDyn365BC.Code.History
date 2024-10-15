@@ -7,19 +7,6 @@ codeunit 1290 "SOAP Web Service Request Mgt."
     end;
 
     var
-        BodyPathTxt: Label '/soap:Envelope/soap:Body', Locked = true;
-        EnvelopePathTxt: Label '/soap:Envelope', Locked = true;
-        ContentTypeTxt: Label 'text/xml; charset=utf-8', Locked = true;
-        FaultStringXmlPathTxt: Label '/soap:Envelope/soap:Body/soap:Fault/faultstring', Locked = true;
-        NoRequestBodyErr: Label 'The request body is not set.';
-        NoServiceAddressErr: Label 'The web service URI is not set.';
-        ExpectedResponseNotReceivedErr: Label 'The expected data was not received from the web service.';
-        SchemaNamespaceTxt: Label 'http://www.w3.org/2001/XMLSchema', Locked = true;
-        SchemaInstanceNamespaceTxt: Label 'http://www.w3.org/2001/XMLSchema-instance', Locked = true;
-        SecurityUtilityNamespaceTxt: Label 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd', Locked = true;
-        SecurityExtensionNamespaceTxt: Label 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd', Locked = true;
-        SoapNamespaceTxt: Label 'http://schemas.xmlsoap.org/soap/envelope/', Locked = true;
-        UsernameTokenNamepsaceTxt: Label 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-username-token-profile-1.0#PasswordText', Locked = true;
         TempBlobDebugLog: Codeunit "Temp Blob";
         TempBlobResponseBody: Codeunit "Temp Blob";
         TempBlobResponseInStream: Codeunit "Temp Blob";
@@ -36,10 +23,24 @@ codeunit 1290 "SOAP Web Service Request Mgt."
         GlobalStreamEncoding: TextEncoding;
         TraceLogEnabled: Boolean;
         GlobalTimeout: Integer;
-        InternalErr: Label 'The remote service has returned the following error message:\\';
         GlobalContentType: Text;
         GlobalSkipCheckHttps: Boolean;
         GlobalProgressDialogEnabled: Boolean;
+
+        BodyPathTxt: Label '/soap:Envelope/soap:Body', Locked = true;
+        EnvelopePathTxt: Label '/soap:Envelope', Locked = true;
+        ContentTypeTxt: Label 'text/xml; charset=utf-8', Locked = true;
+        FaultStringXmlPathTxt: Label '/soap:Envelope/soap:Body/soap:Fault/faultstring', Locked = true;
+        NoRequestBodyErr: Label 'The request body is not set.';
+        NoServiceAddressErr: Label 'The web service URI is not set.';
+        ExpectedResponseNotReceivedErr: Label 'The expected data was not received from the web service.';
+        SchemaNamespaceTxt: Label 'http://www.w3.org/2001/XMLSchema', Locked = true;
+        SchemaInstanceNamespaceTxt: Label 'http://www.w3.org/2001/XMLSchema-instance', Locked = true;
+        SecurityUtilityNamespaceTxt: Label 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd', Locked = true;
+        SecurityExtensionNamespaceTxt: Label 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd', Locked = true;
+        SoapNamespaceTxt: Label 'http://schemas.xmlsoap.org/soap/envelope/', Locked = true;
+        UsernameTokenNamepsaceTxt: Label 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-username-token-profile-1.0#PasswordText', Locked = true;
+        InternalErr: Label 'The remote service has returned the following error message:\\';
         InvalidTokenFormatErr: Label 'The token must be in JWS or JWE Compact Serialization Format.';
 
     [TryFunction]
@@ -52,11 +53,11 @@ codeunit 1290 "SOAP Web Service Request Mgt."
         ResponseHeaders: DotNet NameValueCollection;
         ResponseInStream: InStream;
     begin
-        CheckGlobals;
+        CheckGlobals();
         BuildWebRequest(GlobalURL, HttpWebRequest);
         Clear(TempBlobResponseInStream);
         TempBlobResponseInStream.CreateInStream(ResponseInStream, GlobalStreamEncoding);
-        CreateSoapRequest(HttpWebRequest.GetRequestStream, GlobalRequestBodyInStream, GlobalUsername, GlobalPassword);
+        CreateSoapRequest(HttpWebRequest.GetRequestStream(), GlobalRequestBodyInStream, GlobalUsername, GlobalPassword);
         AddBasicAuthorizationHeader(GlobalURL, GlobalBasicUsername, GlobalBasicPassword, HttpWebRequest);
         AddSoapActionHeader(GlobalSoapAction, HttpWebRequest);
         WebRequestHelper.GetWebResponse(HttpWebRequest, HttpWebResponse, ResponseInStream,
@@ -121,7 +122,7 @@ codeunit 1290 "SOAP Web Service Request Mgt."
         TempXmlNode: DotNet XmlNode;
         PasswordXmlNode: DotNet XmlNode;
     begin
-        XmlDoc := XmlDoc.XmlDocument;
+        XmlDoc := XmlDoc.XmlDocument();
         with XMLDOMMgt do begin
             AddRootElementWithPrefix(XmlDoc, 'Envelope', 's', SoapNamespaceTxt, EnvelopeXmlNode);
             AddAttribute(EnvelopeXmlNode, 'xmlns:u', SecurityUtilityNamespaceTxt);
@@ -133,7 +134,7 @@ codeunit 1290 "SOAP Web Service Request Mgt."
                 AddAttributeWithPrefix(SecurityXmlNode, 'mustUnderstand', 's', SoapNamespaceTxt, '1');
 
                 AddElementWithPrefix(SecurityXmlNode, 'UsernameToken', '', 'o', SecurityExtensionNamespaceTxt, UsernameTokenXmlNode);
-                AddAttributeWithPrefix(UsernameTokenXmlNode, 'Id', 'u', SecurityUtilityNamespaceTxt, CreateUUID);
+                AddAttributeWithPrefix(UsernameTokenXmlNode, 'Id', 'u', SecurityUtilityNamespaceTxt, CreateUUID());
 
                 AddElementWithPrefix(UsernameTokenXmlNode, 'Username', Username, 'o', SecurityExtensionNamespaceTxt, TempXmlNode);
                 AddElementWithPrefix(UsernameTokenXmlNode, 'Password', Password, 'o', SecurityExtensionNamespaceTxt, PasswordXmlNode);
@@ -148,7 +149,7 @@ codeunit 1290 "SOAP Web Service Request Mgt."
 
     local procedure CreateUUID(): Text
     begin
-        exit('uuid-' + DelChr(LowerCase(Format(CreateGuid)), '=', '{}'));
+        exit('uuid-' + DelChr(LowerCase(Format(CreateGuid())), '=', '{}'));
     end;
 
     local procedure AddBodyToEnvelope(var BodyXmlNode: DotNet XmlNode; BodyInStream: InStream)
@@ -178,7 +179,7 @@ codeunit 1290 "SOAP Web Service Request Mgt."
         if not Found then
             Error(ExpectedResponseNotReceivedErr);
 
-        ResponseBodyXMLDoc := ResponseBodyXMLDoc.XmlDocument;
+        ResponseBodyXMLDoc := ResponseBodyXMLDoc.XmlDocument();
         ResponseBodyXMLDoc.AppendChild(ResponseBodyXMLDoc.ImportNode(ResponseBodyXmlNode.FirstChild, true));
 
         TempBlobBody.CreateOutStream(BodyOutStream, GlobalStreamEncoding);
@@ -216,7 +217,7 @@ codeunit 1290 "SOAP Web Service Request Mgt."
         if ErrorText <> '' then
             Error(ErrorText);
 
-        ResponseInputStream := WebException.Response.GetResponseStream;
+        ResponseInputStream := WebException.Response.GetResponseStream();
         if TraceLogEnabled then
             Trace.LogStreamToTempFile(ResponseInputStream, 'WebExceptionResponse', TempBlobDebugLog);
 
@@ -401,15 +402,15 @@ codeunit 1290 "SOAP Web Service Request Mgt."
         if JsonWebToken = '' then
             exit;
 
-        JwtSecurityTokenHandler := JwtSecurityTokenHandler.JwtSecurityTokenHandler;
+        JwtSecurityTokenHandler := JwtSecurityTokenHandler.JwtSecurityTokenHandler();
         JwtSecurityToken := JwtSecurityTokenHandler.ReadToken(JsonWebToken);
 
-        JSONManagement.InitializeEmptyObject;
+        JSONManagement.InitializeEmptyObject();
         JSONManagement.GetJSONObject(JObject);
         foreach Claim in JwtSecurityToken.Claims do
             JSONManagement.AddJPropertyToJObject(JObject, Claim.Type, Claim.Value);
 
-        WebTokenAsJson := JObject.ToString;
+        WebTokenAsJson := JObject.ToString();
     end;
 
     [TryFunction]

@@ -363,7 +363,7 @@ codeunit 134018 "ERM Payment Tolerance Purchase"
         GeneralLedgerSetup.Get();
         FindVendorLedgerEntry(VendorLedgerEntry, DocumentNo);
         Assert.AreNearlyEqual(Amount, VendorLedgerEntry.Amount, GeneralLedgerSetup."Amount Rounding Precision",
-          StrSubstNo(AmountErrorMessage, VendorLedgerEntry.FieldCaption(Amount), Amount, VendorLedgerEntry.TableCaption,
+          StrSubstNo(AmountErrorMessage, VendorLedgerEntry.FieldCaption(Amount), Amount, VendorLedgerEntry.TableCaption(),
             VendorLedgerEntry.FieldCaption("Entry No."), VendorLedgerEntry."Entry No."));
     end;
 
@@ -376,7 +376,7 @@ codeunit 134018 "ERM Payment Tolerance Purchase"
         FindVendorLedgerEntry(VendorLedgerEntry, DocumentNo);
         Assert.AreNearlyEqual(-ExpectedPmtTolAmount, VendorLedgerEntry."Max. Payment Tolerance",
           GeneralLedgerSetup."Amount Rounding Precision", StrSubstNo(AmountErrorMessage, VendorLedgerEntry.FieldCaption(Amount),
-            ExpectedPmtTolAmount, VendorLedgerEntry.TableCaption, VendorLedgerEntry.FieldCaption("Entry No."), VendorLedgerEntry."Entry No."));
+            ExpectedPmtTolAmount, VendorLedgerEntry.TableCaption(), VendorLedgerEntry.FieldCaption("Entry No."), VendorLedgerEntry."Entry No."));
     end;
 
     local procedure VerifyMaxPaymentTolCreditMemo(DocumentNo: Code[20]; ExpectedPmtTolAmount: Decimal)
@@ -388,7 +388,7 @@ codeunit 134018 "ERM Payment Tolerance Purchase"
         FindVendorLedgerEntry(VendorLedgerEntry, DocumentNo);
         Assert.AreNearlyEqual(ExpectedPmtTolAmount, VendorLedgerEntry."Max. Payment Tolerance",
           GeneralLedgerSetup."Amount Rounding Precision", StrSubstNo(AmountErrorMessage, VendorLedgerEntry.FieldCaption(Amount),
-            ExpectedPmtTolAmount, VendorLedgerEntry.TableCaption, VendorLedgerEntry.FieldCaption("Entry No."), VendorLedgerEntry."Entry No."));
+            ExpectedPmtTolAmount, VendorLedgerEntry.TableCaption(), VendorLedgerEntry.FieldCaption("Entry No."), VendorLedgerEntry."Entry No."));
     end;
 
     local procedure ExecuteUIHandler()

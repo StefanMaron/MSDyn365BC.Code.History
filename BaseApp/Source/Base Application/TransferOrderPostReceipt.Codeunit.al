@@ -29,11 +29,11 @@ codeunit 5705 "TransferOrder-Post Receipt"
         OnBeforeTransferOrderPostReceipt(TransHeader, SuppressCommit, ItemJnlPostLine);
 
         with TransHeader do begin
-            CheckBeforePost;
+            CheckBeforePost();
 
             SaveAndClearPostingFromWhseRef();
 
-            CheckDim;
+            CheckDim();
             CheckLines(TransHeader, TransLine);
 
             WhseReceive := TempWhseRcptHeader.FindFirst();
@@ -42,22 +42,6 @@ codeunit 5705 "TransferOrder-Post Receipt"
                 CheckWarehouse(TransLine);
 
             WhsePosting := IsWarehousePosting("Transfer-to Code");
-#if not CLEAN18
-            // NAVCZ
-            IntrastatTransaction := IsIntrastatTransaction;
-            if IntrastatTransaction and ShipOrReceiveInventoriableTypeItems() then begin
-                StatReportingSetup.Get();
-                if StatReportingSetup."Transaction Type Mandatory" then
-                    TestField("Transaction Type");
-                if StatReportingSetup."Transaction Spec. Mandatory" then
-                    TestField("Transaction Specification");
-                if StatReportingSetup."Transport Method Mandatory" then
-                    TestField("Transport Method");
-                if StatReportingSetup."Shipment Method Mandatory" then
-                    TestField("Shipment Method Code");
-            end;
-            // NAVCZ
-#endif
 
             if GuiAllowed then begin
                 Window.Open(
@@ -118,18 +102,7 @@ codeunit 5705 "TransferOrder-Post Receipt"
                         if not IsHandled then
                             Item.TestField(Blocked, false);
                     end;
-#if not CLEAN18
-                    // NAVCZ
-                    if IntrastatTransaction then begin
-                        if StatReportingSetup."Tariff No. Mandatory" then
-                            TransLine.TestField("Tariff No.");
-                        if StatReportingSetup."Net Weight Mandatory" and (TransLine."Item No." <> '') and Item.IsInventoriableType() then
-                            TransLine.TestField("Net Weight");
-                        if StatReportingSetup."Country/Region of Origin Mand." then
-                            TransLine.TestField("Country/Region of Origin Code");
-                    end;
-                    // NAVCZ
-#endif
+
                     OnCheckTransLine(TransLine, TransHeader, Location, WhseReceive);
 
                     InsertTransRcptLine(TransRcptHeader, TransRcptLine, TransLine);
@@ -153,7 +126,7 @@ codeunit 5705 "TransferOrder-Post Receipt"
                 repeat
                     TransLine.Validate("Quantity Received", TransLine."Quantity Received" + TransLine."Qty. to Receive");
                     OnRunOnBeforeUpdateWithWarehouseShipReceive(TransLine);
-                    TransLine.UpdateWithWarehouseShipReceive;
+                    TransLine.UpdateWithWarehouseShipReceive();
                     ReservMgt.SetReservSource(ItemJnlLine);
                     ReservMgt.SetItemTrackingHandling(1); // Allow deletion
                     ReservMgt.DeleteReservEntries(true, 0);
@@ -172,7 +145,7 @@ codeunit 5705 "TransferOrder-Post Receipt"
             end;
 
             "Last Receipt No." := TransRcptHeader."No.";
-            Modify;
+            Modify();
 
             TransLine.SetRange(Quantity);
             TransLine.SetRange("Qty. to Receive");
@@ -202,7 +175,6 @@ codeunit 5705 "TransferOrder-Post Receipt"
     end;
 
     var
-        Text001: Label 'There is nothing to post.';
         Text002: Label 'Warehouse handling is required for Transfer order = %1, %2 = %3.', Comment = '1%=TransLine2."Document No."; 2%=TransLine2.FIELDCAPTION("Line No."); 3%=TransLine2."Line No.");';
         Text003: Label 'Posting transfer lines     #2######';
         Text004: Label 'Transfer Order %1';
@@ -227,14 +199,12 @@ codeunit 5705 "TransferOrder-Post Receipt"
         TempWhseSplitSpecification: Record "Tracking Specification" temporary;
         WhseEntry: Record "Warehouse Entry";
         TempItemEntryRelation2: Record "Item Entry Relation" temporary;
-#if not CLEAN18
-        StatReportingSetup: Record "Stat. Reporting Setup";
-#endif
         ItemJnlPostLine: Codeunit "Item Jnl.-Post Line";
         DimMgt: Codeunit DimensionManagement;
         WhseTransferRelease: Codeunit "Whse.-Transfer Release";
         ReserveTransLine: Codeunit "Transfer Line-Reserve";
         WhsePostRcpt: Codeunit "Whse.-Post Receipt";
+        DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
         WhseJnlRegisterLine: Codeunit "Whse. Jnl.-Register Line";
         SourceCode: Code[10];
         WhsePosting: Boolean;
@@ -244,7 +214,6 @@ codeunit 5705 "TransferOrder-Post Receipt"
         WhseReceive: Boolean;
         InvtPickPutaway: Boolean;
         SuppressCommit: Boolean;
-        IntrastatTransaction: Boolean;
         HideValidationDialog: Boolean;
 
     local procedure PostItemJnlLine(var TransLine3: Record "Transfer Line"; TransRcptHeader2: Record "Transfer Receipt Header"; TransRcptLine2: Record "Transfer Receipt Line")
@@ -300,21 +269,6 @@ codeunit 5705 "TransferOrder-Post Receipt"
         ItemJnlLine."Transaction Specification" := TransRcptHeader2."Transaction Specification";
         ItemJnlLine."Shpt. Method Code" := TransRcptHeader2."Shipment Method Code";
         ItemJnlLine."Direct Transfer" := TransLine."Direct Transfer";
-#if not CLEAN18
-        // NAVCZ
-        ItemJnlLine."Tariff No." := TransLine."Tariff No.";
-        ItemJnlLine."Statistic Indication" := TransLine."Statistic Indication";
-        ItemJnlLine."Net Weight" := TransLine."Net Weight";
-        ItemJnlLine."Country/Region of Origin Code" := TransLine."Country/Region of Origin Code";
-        ItemJnlLine."Intrastat Transaction" := IntrastatTransaction;
-        ItemJnlLine.Validate("Gen. Bus. Posting Group", TransRcptLine2."Gen. Bus. Post. Group Receive");
-        // recalc to base UOM
-        if ItemJnlLine."Net Weight" <> 0 then
-            if TransLine."Qty. per Unit of Measure" <> 0 then
-                ItemJnlLine."Net Weight" := Round(ItemJnlLine."Net Weight" / TransLine."Qty. per Unit of Measure", 0.00001);
-        // NAVCZ
-#endif
-
         WriteDownDerivedLines(TransLine3);
         ItemJnlPostLine.SetPostponeReservationHandling(true);
 
@@ -350,12 +304,12 @@ codeunit 5705 "TransferOrder-Post Receipt"
             if not DimMgt.CheckDimIDComb(TransferHeader."Dimension Set ID") then
                 Error(
                   Text005,
-                  TransHeader."No.", DimMgt.GetDimCombErr);
+                  TransHeader."No.", DimMgt.GetDimCombErr());
         if TransferLine."Line No." <> 0 then
             if not DimMgt.CheckDimIDComb(TransferLine."Dimension Set ID") then
                 Error(
                   Text006,
-                  TransHeader."No.", TransferLine."Line No.", DimMgt.GetDimCombErr);
+                  TransHeader."No.", TransferLine."Line No.", DimMgt.GetDimCombErr());
 
         OnAfterCheckDimComb(TransferHeader, TransferLine);
     end;
@@ -376,13 +330,13 @@ codeunit 5705 "TransferOrder-Post Receipt"
             if not DimMgt.CheckDimValuePosting(TableIDArr, NumberArr, TransferHeader."Dimension Set ID") then
                 Error(
                   Text007,
-                  TransHeader."No.", TransferLine."Line No.", DimMgt.GetDimValuePostingErr);
+                  TransHeader."No.", TransferLine."Line No.", DimMgt.GetDimValuePostingErr());
 
         if TransferLine."Line No." <> 0 then
             if not DimMgt.CheckDimValuePosting(TableIDArr, NumberArr, TransferLine."Dimension Set ID") then
                 Error(
                   Text007,
-                  TransHeader."No.", TransferLine."Line No.", DimMgt.GetDimValuePostingErr);
+                  TransHeader."No.", TransferLine."Line No.", DimMgt.GetDimValuePostingErr());
     end;
 
     procedure SetHideValidationDialog(NewHideValidationDialog: Boolean)
@@ -457,13 +411,13 @@ codeunit 5705 "TransferOrder-Post Receipt"
                     QtyToReceive := 0;
                 end;
                 if TransLine4."Quantity (Base)" = 0 then
-                    TransLine4.Delete
+                    TransLine4.Delete()
                 else begin
                     TransLine4."Qty. to Ship" := TransLine4.Quantity;
                     TransLine4."Qty. to Ship (Base)" := TransLine4."Quantity (Base)";
                     TransLine4."Qty. to Receive" := TransLine4.Quantity;
                     TransLine4."Qty. to Receive (Base)" := TransLine4."Quantity (Base)";
-                    TransLine4.ResetPostedQty;
+                    TransLine4.ResetPostedQty();
                     TransLine4."Outstanding Quantity" := TransLine4.Quantity;
                     TransLine4."Outstanding Qty. (Base)" := TransLine4."Quantity (Base)";
 
@@ -521,12 +475,6 @@ codeunit 5705 "TransferOrder-Post Receipt"
         OnInsertTransRcptHeaderOnBeforeGetNextNo(TransRcptHeader, TransHeader);
         if TransRcptHeader."No." = '' then
             TransRcptHeader."No." := NoSeriesMgt.GetNextNo(TransRcptHeader."No. Series", TransHeader."Posting Date", true);
-#if not CLEAN18
-        // NAVCZ
-        TransRcptHeader."Gen. Bus. Post. Group Ship" := TransHeader."Gen. Bus. Post. Group Ship";
-        TransRcptHeader."Gen. Bus. Post. Group Receive" := TransHeader."Gen. Bus. Post. Group Receive";
-        // NAVCZ
-#endif
         OnBeforeTransRcptHeaderInsert(TransRcptHeader, TransHeader);
         TransRcptHeader.Insert();
 
@@ -542,10 +490,6 @@ codeunit 5705 "TransferOrder-Post Receipt"
         TransRcptLine."Document No." := TransferReceiptHeader."No.";
         TransRcptLine.CopyFromTransferLine(TransLine);
         // NAVCZ
-#if not CLEAN18
-        TransRcptLine."Gen. Bus. Post. Group Ship" := TransLine."Gen. Bus. Post. Group Ship";
-        TransRcptLine."Gen. Bus. Post. Group Receive" := TransLine."Gen. Bus. Post. Group Receive";
-#endif
         TransRcptLine."Posting Date" := TransHeader."Posting Date";
         // NAVCZ
         IsHandled := false;
@@ -606,7 +550,7 @@ codeunit 5705 "TransferOrder-Post Receipt"
             TransLine.SetFilter(Quantity, '<>0');
             TransLine.SetFilter("Qty. to Receive", '<>0');
             if not TransLine.Find('-') then
-                Error(Text001);
+                Error(DocumentErrorsMgt.GetNothingToPostErrorMsg());
         end;
     end;
 

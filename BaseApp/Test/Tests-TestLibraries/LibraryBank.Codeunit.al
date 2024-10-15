@@ -31,7 +31,7 @@ codeunit 143000 "Library - Bank"
     procedure CreateAccountMappingCode(var TextToAccMappingCode: Record "Text-to-Account Mapping Code")
     begin
         with TextToAccMappingCode do begin
-            Init;
+            Init();
             Validate(Code,
               LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::"Text-to-Account Mapping Code"));
             Validate(Description, Code);
@@ -48,7 +48,7 @@ codeunit 143000 "Library - Bank"
 
         BankStmtHdr.Init();
         BankStmtHdr.Validate("Bank Account No.", BankAcc."No.");
-        BankStmtHdr.Validate("Document Date", WorkDate);
+        BankStmtHdr.Validate("Document Date", WorkDate());
         BankStmtHdr.Insert(true);
 
         BankStmtHdr.Validate("External Document No.", BankStmtHdr."No.");
@@ -86,15 +86,6 @@ codeunit 143000 "Library - Bank"
     end;
 
     [Scope('OnPrem')]
-    procedure CreateConstantSymbol(var ConstantSymbol: Record "Constant Symbol")
-    begin
-        ConstantSymbol.Init();
-        ConstantSymbol.Validate(Code, LibraryUtility.GenerateRandomCode(ConstantSymbol.FieldNo(Code), DATABASE::"Constant Symbol"));
-        ConstantSymbol.Validate(Description, ConstantSymbol.Code);
-        ConstantSymbol.Insert(true)
-    end;
-
-    [Scope('OnPrem')]
     procedure CreatePaymentOrderHeader(var PmtOrdHdr: Record "Payment Order Header")
     var
         BankAcc: Record "Bank Account";
@@ -103,7 +94,7 @@ codeunit 143000 "Library - Bank"
 
         PmtOrdHdr.Init();
         PmtOrdHdr.Validate("Bank Account No.", BankAcc."No.");
-        PmtOrdHdr.Validate("Document Date", WorkDate);
+        PmtOrdHdr.Validate("Document Date", WorkDate());
         PmtOrdHdr.Insert(true);
     end;
 

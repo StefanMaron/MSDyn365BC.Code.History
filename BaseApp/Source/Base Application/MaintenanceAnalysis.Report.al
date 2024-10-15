@@ -1,10 +1,9 @@
-#if not CLEAN18
 report 5630 "Maintenance - Analysis"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './MaintenanceAnalysis.rdlc';
     ApplicationArea = FixedAssets;
-    Caption = 'Fixed Asset Maintenance Analysis (Obsolete)';
+    Caption = 'Fixed Asset Maintenance Analysis';
     UsageCategory = ReportsAndAnalysis;
 
     dataset
@@ -12,7 +11,7 @@ report 5630 "Maintenance - Analysis"
         dataitem("Fixed Asset"; "Fixed Asset")
         {
             RequestFilterFields = "No.", "FA Class Code", "FA Subclass Code";
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(TodayFormatted; Format(Today, 0, 4))
@@ -113,11 +112,6 @@ report 5630 "Maintenance - Analysis"
                 if GroupTotals = GroupTotals::"FA Posting Group" then
                     if "FA Posting Group" <> FADeprBook."FA Posting Group" then
                         Error(Text005, FieldCaption("FA Posting Group"), "No.");
-                // NAVCZ
-                if GroupTotals = GroupTotals::"Tax Depreciation Group Code" then
-                    if "Tax Depreciation Group Code" <> FADeprBook."Depreciation Group Code" then
-                        Error(Text005, FieldCaption("Tax Depreciation Group Code"), "No.");
-                // NAVCZ
 
                 MaintenanceLedgEntry.SetRange("FA No.", "No.");
                 Amounts[1] := CalculateAmount(MaintenanceCode1, Period1);
@@ -127,7 +121,7 @@ report 5630 "Maintenance - Analysis"
                     CurrReport.Skip();
                 for i := 1 to 3 do
                     GroupAmounts[i] := 0;
-                MakeGroupHeadLine;
+                MakeGroupHeadLine();
             end;
 
             trigger OnPreDataItem()
@@ -147,10 +141,6 @@ report 5630 "Maintenance - Analysis"
                         SetCurrentKey("Global Dimension 2 Code");
                     GroupTotals::"FA Posting Group":
                         SetCurrentKey("FA Posting Group");
-                    // NAVCZ
-                    GroupTotals::"Tax Depreciation Group Code":
-                        SetCurrentKey("Tax Depreciation Group Code");
-                // NAVCZ
                 end;
             end;
         }
@@ -239,7 +229,7 @@ report 5630 "Maintenance - Analysis"
                     {
                         ApplicationArea = FixedAssets;
                         Caption = 'Group Totals';
-                        OptionCaption = ' ,FA Class,FA SubClass,FA Location,Main Asset,Global Dimension 1,Global Dimension 2,FA Posting Group,Tax Depreciation Group Code';
+                        OptionCaption = ' ,FA Class,FA SubClass,FA Location,Main Asset,Global Dimension 1,Global Dimension 2,FA Posting Group';
                         ToolTip = 'Specifies if you want the report to group fixed assets and print totals using the category defined in this field. For example, maintenance expenses for fixed assets can be shown for each fixed asset class.';
                     }
                     field(PrintPerFixedAsset; PrintDetails)
@@ -274,21 +264,18 @@ report 5630 "Maintenance - Analysis"
         DeprBook.Get(DeprBookCode);
         if GroupTotals = GroupTotals::"FA Posting Group" then
             FAGenReport.SetFAPostingGroup("Fixed Asset", DeprBook.Code);
-        // NAVCZ
-        if GroupTotals = GroupTotals::"Tax Depreciation Group Code" then
-            FAGenReport.SetFATaxDeprGroup("Fixed Asset", DeprBook.Code);
-        // NAVCZ
+
         if DateSelection = DateSelection::"FA Posting Date" then
             FAGenReport.AppendFAPostingFilter("Fixed Asset", StartingDate, EndingDate);
 
-        FAFilter := "Fixed Asset".GetFilters;
+        FAFilter := "Fixed Asset".GetFilters();
 
         if DateSelection = DateSelection::"Posting Date" then
             FAGenReport.AppendPostingDateFilter(FAFilter, StartingDate, EndingDate);
 
-        DeprBookText := StrSubstNo('%1%2 %3', DeprBook.TableCaption, ':', DeprBookCode);
-        MakeGroupTotalText;
-        ValidateDates;
+        DeprBookText := StrSubstNo('%1%2 %3', DeprBook.TableCaption(), ':', DeprBookCode);
+        MakeGroupTotalText();
+        ValidateDates();
         MakeAmountHeadLine(1, MaintenanceCode1, Period1);
         MakeAmountHeadLine(2, MaintenanceCode2, Period2);
         MakeAmountHeadLine(3, MaintenanceCode3, Period3);
@@ -323,7 +310,7 @@ report 5630 "Maintenance - Analysis"
         GroupHeadLine: Text[50];
         FANo: Text[50];
         FADescription: Text[100];
-        GroupTotals: Option " ","FA Class","FA SubClass","FA Location","Main Asset","Global Dimension 1","Global Dimension 2","FA Posting Group","Tax Depreciation Group Code";
+        GroupTotals: Option " ","FA Class","FA SubClass","FA Location","Main Asset","Global Dimension 1","Global Dimension 2","FA Posting Group";
         GroupAmounts: array[3] of Decimal;
         TotalAmounts: array[3] of Decimal;
         HeadLineText: array[3] of Text[50];
@@ -363,10 +350,6 @@ report 5630 "Maintenance - Analysis"
                 GroupCodeName := "Fixed Asset".FieldCaption("Global Dimension 2 Code");
             GroupTotals::"FA Posting Group":
                 GroupCodeName := "Fixed Asset".FieldCaption("FA Posting Group");
-            // NAVCZ
-            GroupTotals::"Tax Depreciation Group Code":
-                GroupCodeName := "Fixed Asset".FieldCaption("Tax Depreciation Group Code");
-        // NAVCZ
         end;
         if GroupCodeName <> '' then
             GroupCodeName := Text001 + ': ' + GroupCodeName;
@@ -415,10 +398,6 @@ report 5630 "Maintenance - Analysis"
                     GroupHeadLine := "Global Dimension 2 Code";
                 GroupTotals::"FA Posting Group":
                     GroupHeadLine := "FA Posting Group";
-                // NAVCZ
-                GroupTotals::"Tax Depreciation Group Code":
-                    GroupHeadLine := "Tax Depreciation Group Code";
-            // NAVCZ
             end;
         if GroupHeadLine = '' then
             GroupHeadLine := '*****';
@@ -458,4 +437,4 @@ report 5630 "Maintenance - Analysis"
         end;
     end;
 }
-#endif
+

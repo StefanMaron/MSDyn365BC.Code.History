@@ -14,10 +14,6 @@ codeunit 11705 "Bank Statement Management"
     var
         BankAcc: Record "Bank Account";
         GLSetup: Record "General Ledger Setup";
-#if not CLEAN18
-        UserSetupLine: Record "User Setup Line";
-        UserSetupAdvMgt: Codeunit "User Setup Adv. Management";
-#endif
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -40,10 +36,6 @@ codeunit 11705 "Bank Statement Management"
 
         if StatSelected then begin
             GLSetup.Get();
-#if not CLEAN18
-            if GLSetup."User Checks Allowed" then
-                UserSetupAdvMgt.CheckBankAccountNo(UserSetupLine.Type::"Bank Stmt", BankAcc."No.");
-#endif
             BankStmtHdr.FilterGroup := 2;
             BankStmtHdr.SetRange("Bank Account No.", BankAcc."No.");
             BankStmtHdr.FilterGroup := 0;
@@ -55,10 +47,6 @@ codeunit 11705 "Bank Statement Management"
     var
         BankAcc: Record "Bank Account";
         GLSetup: Record "General Ledger Setup";
-#if not CLEAN18
-        UserSetupLine: Record "User Setup Line";
-        UserSetupAdvMgt: Codeunit "User Setup Adv. Management";
-#endif
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -81,10 +69,6 @@ codeunit 11705 "Bank Statement Management"
 
         if StatSelected then begin
             GLSetup.Get();
-#if not CLEAN18
-            if GLSetup."User Checks Allowed" then
-                UserSetupAdvMgt.CheckBankAccountNo(UserSetupLine.Type::"Bank Stmt", BankAcc."No.");
-#endif
             IssuedBankStmtHdr.FilterGroup := 2;
             IssuedBankStmtHdr.SetRange("Bank Account No.", BankAcc."No.");
             IssuedBankStmtHdr.FilterGroup := 0;

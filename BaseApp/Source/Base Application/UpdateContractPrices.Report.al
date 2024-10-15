@@ -59,7 +59,7 @@ report 6031 "Update Contract Prices"
                     until ServContractLine.Next() = 0;
 
                 if UpdateServContract then begin
-                    ServContract."Last Price Update Date" := WorkDate;
+                    ServContract."Last Price Update Date" := WorkDate();
                     ServContract."Next Price Update Date" := CalcDate(ServContract."Price Update Period", ServContract."Next Price Update Date");
                     ServContract."Last Price Update %" := PriceUpdPct;
                     ContractGainLossEntry.CreateEntry(
@@ -110,7 +110,7 @@ report 6031 "Update Contract Prices"
 
                 SetFilter("Next Price Update Date", '<>%1&<=%2', 0D, UpdateToDate);
 
-                Currency.InitRoundingPrecision;
+                Currency.InitRoundingPrecision();
                 ServMgtSetup.Get();
             end;
         }
@@ -161,14 +161,10 @@ report 6031 "Update Contract Prices"
 
     trigger OnInitReport()
     begin
-        UpdateToDate := WorkDate;
+        UpdateToDate := WorkDate();
     end;
 
     var
-        Text000: Label 'You must fill in the Price Update % field.';
-        Text001: Label 'The price update % is unusually large.\\Confirm that this is the correct percentage.';
-        Text002: Label 'The program has stopped the batch job at your request.';
-        Text003: Label 'You must fill in the Update to Date field.';
         ServContract: Record "Service Contract Header";
         ServContractLine: Record "Service Contract Line";
         ContractGainLossEntry: Record "Contract Gain/Loss Entry";
@@ -185,6 +181,11 @@ report 6031 "Update Contract Prices"
         UpdateToDate: Date;
         PerformUpd: Option "Update Contract Prices","Print Only";
         UpdateServContract: Boolean;
+
+        Text000: Label 'You must fill in the Price Update % field.';
+        Text001: Label 'The price update % is unusually large.\\Confirm that this is the correct percentage.';
+        Text002: Label 'The program has stopped the batch job at your request.';
+        Text003: Label 'You must fill in the Update to Date field.';
 
     procedure InitializeRequest(UpdateToDateFrom: Date; PricePercentage: Decimal; PerformUpdate: Option)
     begin

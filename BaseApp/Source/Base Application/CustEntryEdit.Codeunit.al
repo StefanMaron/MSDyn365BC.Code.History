@@ -1,4 +1,3 @@
-#if not CLEAN18
 codeunit 103 "Cust. Entry-Edit"
 {
     Permissions = TableData "Cust. Ledger Entry" = m,
@@ -16,7 +15,7 @@ codeunit 103 "Cust. Entry-Edit"
 
         CustLedgEntry := Rec;
         CustLedgEntry.LockTable();
-        CustLedgEntry.Find;
+        CustLedgEntry.Find();
         CustLedgEntry."On Hold" := "On Hold";
         if CustLedgEntry.Open then begin
             CustLedgEntry."Due Date" := "Due Date";
@@ -39,14 +38,6 @@ codeunit 103 "Cust. Entry-Edit"
             CustLedgEntry."Direct Debit Mandate ID" := "Direct Debit Mandate ID";
         end;
         CustLedgEntry.Validate("Exported to Payment File", "Exported to Payment File");
-        // NAVCZ
-        CustLedgEntry."Bank Account Code" := "Bank Account Code";
-        CustLedgEntry."Bank Account No." := "Bank Account No.";
-        CustLedgEntry."Specific Symbol" := "Specific Symbol";
-        CustLedgEntry."Transit No." := "Transit No.";
-        CustLedgEntry.IBAN := IBAN;
-        CustLedgEntry."SWIFT Code" := "SWIFT Code";
-        // NAVCZ
         OnBeforeCustLedgEntryModify(CustLedgEntry, Rec);
         CustLedgEntry.TestField("Entry No.", "Entry No.");
         CustLedgEntry.Modify();
@@ -84,4 +75,3 @@ codeunit 103 "Cust. Entry-Edit"
     end;
 }
 
-#endif

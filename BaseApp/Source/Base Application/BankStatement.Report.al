@@ -14,7 +14,7 @@ report 11706 "Bank Statement"
         {
             CalcFields = Amount;
             RequestFilterFields = "No.", "Bank Account No.";
-            column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+            column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
             column(gteFiltr; Filter)

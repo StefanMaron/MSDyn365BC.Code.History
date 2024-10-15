@@ -9,7 +9,7 @@ codeunit 11703 "Issue Bank Statement (Yes/No)"
     trigger OnRun()
     begin
         BankStmtHdr.Copy(Rec);
-        Code;
+        Code();
         Rec := BankStmtHdr;
     end;
 
@@ -32,7 +32,7 @@ codeunit 11703 "Issue Bank Statement (Yes/No)"
 
         if Selection = 2 then begin
             IssuedBankStmtHdr.Get(BankStmtHdr."Last Issuing No.");
-            IssuedBankStmtHdr.SetRecFilter;
+            IssuedBankStmtHdr.SetRecFilter();
             IssuedBankStmtHdr.CreatePmtReconJnl(false);
         end;
     end;

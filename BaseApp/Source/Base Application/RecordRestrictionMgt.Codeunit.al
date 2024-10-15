@@ -427,35 +427,6 @@ codeunit 1550 "Record Restriction Mgt."
         CheckRecordHasUsageRestrictions(Sender);
     end;
 
-#if not CLEAN18
-    [Obsolete('Moved to Compensation Localization Pack for Czech.', '18.0')]
-    [EventSubscriber(ObjectType::Table, Database::"Credit Header", 'OnCheckCreditPostRestrictions', '', false, false)]
-    [Scope('OnPrem')]
-    procedure CreditHeaderCheckCreditPostRestrictions(var Sender: Record "Credit Header")
-    begin
-        // NAVCZ
-        CheckRecordHasUsageRestrictions(Sender);
-    end;
-
-    [Obsolete('Moved to Compensation Localization Pack for Czech.', '18.0')]
-    [EventSubscriber(ObjectType::Table, Database::"Credit Header", 'OnCheckCreditReleaseRestrictions', '', false, false)]
-    [Scope('OnPrem')]
-    procedure CreditHeaderCheckCreditReleaseRestrictions(var Sender: Record "Credit Header")
-    begin
-        // NAVCZ
-        CheckRecordHasUsageRestrictions(Sender);
-    end;
-
-    [EventSubscriber(ObjectType::Table, Database::"Credit Header", 'OnCheckCreditPrintRestrictions', '', false, false)]
-    [Scope('OnPrem')]
-    [Obsolete('Moved to Compensation Localization Pack for Czech.', '18.0')]
-    procedure CreditHeaderCheckCreditPrintRestrictions(var Sender: Record "Credit Header")
-    begin
-        // NAVCZ
-        CheckRecordHasUsageRestrictions(Sender);
-    end;
-
-#endif
     [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     [EventSubscriber(ObjectType::Table, Database::"Sales Advance Letter Header", 'OnCheckSalesAdvanceLetterPostRestrictions', '', false, false)]
     [Scope('OnPrem')]
@@ -542,16 +513,6 @@ codeunit 1550 "Record Restriction Mgt."
         AllowRecordUsage(Rec);
     end;
 
-#if not CLEAN18
-    [Obsolete('Moved to Compensation Localization Pack for Czech.', '18.0')]
-    [EventSubscriber(ObjectType::Table, Database::"Credit Header", 'OnBeforeDeleteEvent', '', false, false)]
-    local procedure RemoveCreditHeaderRestrictionsBeforeDelete(var Rec: Record "Credit Header"; RunTrigger: Boolean)
-    begin
-        // NAVCZ
-        AllowRecordUsage(Rec);
-    end;
-
-#endif
     [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     [EventSubscriber(ObjectType::Table, Database::"Sales Advance Letter Header", 'OnBeforeDeleteEvent', '', false, false)]
     local procedure RemoveSalesAdvanceLetterHeaderRestrictionsBeforeDelete(var Rec: Record "Sales Advance Letter Header"; RunTrigger: Boolean)
@@ -719,15 +680,6 @@ codeunit 1550 "Record Restriction Mgt."
         UpdateRestriction(Rec, xRec);
     end;
 
-#if not CLEAN18
-    [Obsolete('Moved to Compensation Localization Pack for Czech.', '18.0')]
-    [EventSubscriber(ObjectType::Table, Database::"Credit Header", 'OnAfterRenameEvent', '', false, false)]
-    local procedure UpdateCreditHeaderRestrictionsAfterRename(var Rec: Record "Credit Header"; var xRec: Record "Credit Header"; RunTrigger: Boolean)
-    begin
-        // NAVCZ
-        UpdateRestriction(Rec, xRec);
-    end;
-#endif
 
     [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     [EventSubscriber(ObjectType::Table, Database::"Sales Advance Letter Header", 'OnAfterRenameEvent', '', false, false)]

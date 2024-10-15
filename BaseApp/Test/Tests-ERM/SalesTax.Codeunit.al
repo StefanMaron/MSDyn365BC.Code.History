@@ -643,7 +643,7 @@ codeunit 134064 "Sales Tax"
     begin
         CreateTaxJurisdiction(TaxJurisdiction);
         CreateTaxAreaLine(TaxAreaCode, TaxJurisdiction.Code);
-        CreateTaxDetail(TaxDetail, TaxJurisdiction.Code, TaxGroupCode, TaxType, WorkDate, false);
+        CreateTaxDetail(TaxDetail, TaxJurisdiction.Code, TaxGroupCode, TaxType, WorkDate(), false);
         TaxDetail.Validate("Maximum Amount/Qty.", MaxAmountQty);
         if MaxAmountQty = 0 then
             TaxDetail.Validate("Tax Above Maximum", 0);

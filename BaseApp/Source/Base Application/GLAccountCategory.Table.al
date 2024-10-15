@@ -47,7 +47,7 @@ table 570 "G/L Account Category"
                     "Income/Balance" := "Income/Balance"::"Balance Sheet";
                 if Description = '' then
                     Description := Format("Account Category");
-                UpdatePresentationOrder;
+                UpdatePresentationOrder();
             end;
         }
         field(8; "Income/Balance"; Option)
@@ -59,7 +59,7 @@ table 570 "G/L Account Category"
 
             trigger OnValidate()
             begin
-                UpdatePresentationOrder;
+                UpdatePresentationOrder();
             end;
         }
         field(9; "Additional Report Definition"; Option)
@@ -112,7 +112,7 @@ table 570 "G/L Account Category"
             Error(CannotDeleteSystemGeneratedErr, Description);
         GLAccount.SetRange("Account Subcategory Entry No.", "Entry No.");
         if GLAccount.FindFirst() then
-            Error(CategoryUsedOnAccountErr, TableCaption, Description, GLAccount.TableCaption, GLAccount."No.");
+            Error(CategoryUsedOnAccountErr, TableCaption(), Description, GLAccount.TableCaption(), GLAccount."No.");
         DeleteChildren("Entry No.");
         ShowNotificationAccSchedUpdateNeeded();
     end;
@@ -145,24 +145,28 @@ table 570 "G/L Account Category"
         if "Sibling Sequence No." = 0 then
             "Sibling Sequence No." := "Entry No." * 10000 mod 2000000000;
         Indentation := 0;
-        PresentationOrder := Format(1000000 + "Sibling Sequence No."); // NAVCZ
+        PresentationOrder := CopyStr(Format(1000000 + "Sibling Sequence No."), 2);
         while GLAccountCategory."Parent Entry No." <> 0 do begin
             Indentation += 1;
             GLAccountCategory.Get(GLAccountCategory."Parent Entry No.");
-            PresentationOrder := Format(1000000 + GLAccountCategory."Sibling Sequence No.") + PresentationOrder; // NAVCZ
+            PresentationOrder := CopyStr(Format(1000000 + GLAccountCategory."Sibling Sequence No."), 2) + PresentationOrder;
         end;
-        // NAVCZ
         case "Account Category" of
             "Account Category"::Assets:
                 PresentationOrder := '0' + PresentationOrder;
             "Account Category"::Liabilities:
                 PresentationOrder := '1' + PresentationOrder;
-            else
+            "Account Category"::Equity:
                 PresentationOrder := '2' + PresentationOrder;
+            "Account Category"::Income:
+                PresentationOrder := '3' + PresentationOrder;
+            "Account Category"::"Cost of Goods Sold":
+                PresentationOrder := '4' + PresentationOrder;
+            "Account Category"::Expense:
+                PresentationOrder := '5' + PresentationOrder;
         end;
-        // NAVCZ
         "Presentation Order" := CopyStr(PresentationOrder, 1, MaxStrLen("Presentation Order"));
-        Modify;
+        Modify();
     end;
 
     procedure InitializeDataSet()
@@ -199,10 +203,10 @@ table 570 "G/L Account Category"
         SiblingOrder := "Sibling Sequence No.";
         "Sibling Sequence No." := GLAccountCategory."Sibling Sequence No.";
         GLAccountCategory."Sibling Sequence No." := SiblingOrder;
-        GLAccountCategory.UpdatePresentationOrder;
+        GLAccountCategory.UpdatePresentationOrder();
         GLAccountCategory.Modify();
-        UpdatePresentationOrder;
-        Modify;
+        UpdatePresentationOrder();
+        Modify();
         UpdateDescendants(Rec);
         UpdateDescendants(GLAccountCategory);
     end;
@@ -236,8 +240,8 @@ table 570 "G/L Account Category"
                 "Parent Entry No." := GLAccountCategory."Parent Entry No."
             else
                 exit;
-        UpdatePresentationOrder;
-        Modify;
+        UpdatePresentationOrder();
+        Modify();
         UpdateDescendants(Rec);
     end;
 
@@ -259,7 +263,7 @@ table 570 "G/L Account Category"
             repeat
                 GLAccountCategory."Income/Balance" := ParentGLAccountCategory."Income/Balance";
                 GLAccountCategory."Account Category" := ParentGLAccountCategory."Account Category";
-                GLAccountCategory.UpdatePresentationOrder;
+                GLAccountCategory.UpdatePresentationOrder();
                 UpdateDescendants(GLAccountCategory);
             until GLAccountCategory.Next() = 0;
     end;
@@ -289,7 +293,7 @@ table 570 "G/L Account Category"
         GLAccountCategory.SetRange("Parent Entry No.", ParentEntryNo);
         if GLAccountCategory.FindSet() then
             repeat
-                GLAccountCategory.DeleteRow;
+                GLAccountCategory.DeleteRow();
             until GLAccountCategory.Next() = 0;
     end;
 
@@ -308,7 +312,7 @@ table 570 "G/L Account Category"
         if IsHandled then
             exit;
 
-        OldTotaling := GetTotaling;
+        OldTotaling := GetTotaling();
         if NewTotaling = OldTotaling then
             exit;
         if NewTotaling <> '' then begin
@@ -345,7 +349,7 @@ table 570 "G/L Account Category"
         OldTotaling: Text;
     begin
         GLAccount.SetRange("Income/Balance", "Income/Balance");
-        OldTotaling := GetTotaling;
+        OldTotaling := GetTotaling();
         if OldTotaling <> '' then begin
             GLAccount.SetFilter("No.", OldTotaling);
             if GLAccount.FindFirst() then
@@ -354,8 +358,8 @@ table 570 "G/L Account Category"
         end;
         GLAccList.SetTableView(GLAccount);
         GLAccList.LookupMode(true);
-        if GLAccList.RunModal = ACTION::LookupOK then
-            ValidateTotaling(GLAccList.GetSelectionFilter);
+        if GLAccList.RunModal() = ACTION::LookupOK then
+            ValidateTotaling(GLAccList.GetSelectionFilter());
     end;
 
     procedure PositiveNormalBalance(): Boolean
@@ -378,11 +382,11 @@ table 570 "G/L Account Category"
                 GLAccountCategory.SetRange("Parent Entry No.", "Entry No.");
                 if GLAccountCategory.FindSet() then
                     repeat
-                        Balance += GLAccountCategory.GetBalance;
+                        Balance += GLAccountCategory.GetBalance();
                     until GLAccountCategory.Next() = 0;
             end;
         end;
-        TotalingStr := GetTotaling;
+        TotalingStr := GetTotaling();
         if TotalingStr = '' then
             exit(Balance);
 

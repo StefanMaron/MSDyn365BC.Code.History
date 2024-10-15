@@ -310,7 +310,7 @@ table 5354 "CRM Salesorderdetail"
         }
         field(40; ProductIdName; Text[100])
         {
-            CalcFormula = Lookup ("CRM Product".Name WHERE(ProductId = FIELD(ProductId)));
+            CalcFormula = Lookup("CRM Product".Name WHERE(ProductId = FIELD(ProductId)));
             Caption = 'ProductIdName';
             ExternalAccess = Read;
             ExternalName = 'productidname';
@@ -319,7 +319,7 @@ table 5354 "CRM Salesorderdetail"
         }
         field(41; UoMIdName; Text[100])
         {
-            CalcFormula = Lookup ("CRM Uom".Name WHERE(UoMId = FIELD(UoMId)));
+            CalcFormula = Lookup("CRM Uom".Name WHERE(UoMId = FIELD(UoMId)));
             Caption = 'UoMIdName';
             ExternalAccess = Read;
             ExternalName = 'uomidname';
@@ -328,7 +328,7 @@ table 5354 "CRM Salesorderdetail"
         }
         field(42; SalesRepIdName; Text[200])
         {
-            CalcFormula = Lookup ("CRM Systemuser".FullName WHERE(SystemUserId = FIELD(SalesRepId)));
+            CalcFormula = Lookup("CRM Systemuser".FullName WHERE(SystemUserId = FIELD(SalesRepId)));
             Caption = 'SalesRepIdName';
             ExternalAccess = Read;
             ExternalName = 'salesrepidname';
@@ -349,7 +349,7 @@ table 5354 "CRM Salesorderdetail"
         }
         field(44; CreatedByName; Text[200])
         {
-            CalcFormula = Lookup ("CRM Systemuser".FullName WHERE(SystemUserId = FIELD(CreatedBy)));
+            CalcFormula = Lookup("CRM Systemuser".FullName WHERE(SystemUserId = FIELD(CreatedBy)));
             Caption = 'CreatedByName';
             ExternalAccess = Read;
             ExternalName = 'createdbyname';
@@ -358,7 +358,7 @@ table 5354 "CRM Salesorderdetail"
         }
         field(45; ModifiedByName; Text[200])
         {
-            CalcFormula = Lookup ("CRM Systemuser".FullName WHERE(SystemUserId = FIELD(ModifiedBy)));
+            CalcFormula = Lookup("CRM Systemuser".FullName WHERE(SystemUserId = FIELD(ModifiedBy)));
             Caption = 'ModifiedByName';
             ExternalAccess = Read;
             ExternalName = 'modifiedbyname';
@@ -478,7 +478,7 @@ table 5354 "CRM Salesorderdetail"
         }
         field(60; TransactionCurrencyIdName; Text[100])
         {
-            CalcFormula = Lookup ("CRM Transactioncurrency".CurrencyName WHERE(TransactionCurrencyId = FIELD(TransactionCurrencyId)));
+            CalcFormula = Lookup("CRM Transactioncurrency".CurrencyName WHERE(TransactionCurrencyId = FIELD(TransactionCurrencyId)));
             Caption = 'TransactionCurrencyIdName';
             ExternalAccess = Read;
             ExternalName = 'transactioncurrencyidname';
@@ -548,7 +548,7 @@ table 5354 "CRM Salesorderdetail"
         }
         field(68; CreatedOnBehalfByName; Text[200])
         {
-            CalcFormula = Lookup ("CRM Systemuser".FullName WHERE(SystemUserId = FIELD(CreatedOnBehalfBy)));
+            CalcFormula = Lookup("CRM Systemuser".FullName WHERE(SystemUserId = FIELD(CreatedOnBehalfBy)));
             Caption = 'CreatedOnBehalfByName';
             ExternalAccess = Read;
             ExternalName = 'createdonbehalfbyname';
@@ -566,7 +566,7 @@ table 5354 "CRM Salesorderdetail"
         }
         field(70; ModifiedOnBehalfByName; Text[200])
         {
-            CalcFormula = Lookup ("CRM Systemuser".FullName WHERE(SystemUserId = FIELD(ModifiedOnBehalfBy)));
+            CalcFormula = Lookup("CRM Systemuser".FullName WHERE(SystemUserId = FIELD(ModifiedOnBehalfBy)));
             Caption = 'ModifiedOnBehalfByName';
             ExternalAccess = Read;
             ExternalName = 'modifiedonbehalfbyname';
@@ -618,6 +618,12 @@ table 5354 "CRM Salesorderdetail"
             ExternalAccess = Insert;
             ExternalName = 'productassociationid';
             ExternalType = 'Uniqueidentifier';
+        }
+        field(76; BusinessCentralLineNumber; Integer)
+        {
+            ExternalName = 'bcbi_businesscentrallinenumber';
+            ExternalType = 'Integer';
+            Caption = 'BC Line Number';
         }
     }
 

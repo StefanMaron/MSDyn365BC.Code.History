@@ -1464,7 +1464,7 @@ codeunit 137297 "SCM Inventory Misc. V"
     local procedure CreateAndPostPurchaseOrder(var PurchaseLine: Record "Purchase Line"; ItemNo: Code[20]; Invoice: Boolean): Code[20]
     begin
         CreatePurchaseDocument(
-          PurchaseLine, PurchaseLine."Document Type"::Order, ItemNo, '', CreateVendor, LibraryRandom.RandInt(10), WorkDate);
+          PurchaseLine, PurchaseLine."Document Type"::Order, ItemNo, '', CreateVendor, LibraryRandom.RandInt(10), WorkDate());
         exit(PostPurchaseDocument(PurchaseLine, Invoice));
     end;
 
@@ -1655,29 +1655,10 @@ codeunit 137297 "SCM Inventory Misc. V"
 
     local procedure UpdateInventoryPostingSetup(LocationCode: Code[10]; InventoryPostingGroupCode: Code[20])
     var
-        InventoryPostingSetup: Record "Inventory Posting Setup";
-        RefInventoryPostingSetup: Record "Inventory Posting Setup";
+        Location: Record Location;
     begin
-        RefInventoryPostingSetup.SetFilter("Inventory Account", '<>%1', '');
-        RefInventoryPostingSetup.SetFilter("WIP Account", '<>%1', '');
-        // NAVCZ
-        RefInventoryPostingSetup.SetFilter("Consumption Account", '<>%1', '');
-        RefInventoryPostingSetup.SetFilter("Change In Inv.Of WIP Acc.", '<>%1', '');
-        RefInventoryPostingSetup.SetFilter("Change In Inv.Of Product Acc.", '<>%1', '');
-        // NAVCZ
-        RefInventoryPostingSetup.FindFirst();
-        InventoryPostingSetup.Init();
-        InventoryPostingSetup.Validate("Location Code", LocationCode);
-        InventoryPostingSetup.Validate("Invt. Posting Group Code", InventoryPostingGroupCode);
-        if not InventoryPostingSetup.Insert(true) then;
-        InventoryPostingSetup."Inventory Account" := RefInventoryPostingSetup."Inventory Account";
-        InventoryPostingSetup."WIP Account" := RefInventoryPostingSetup."WIP Account";
-        // NAVCZ
-        InventoryPostingSetup.Validate("Consumption Account", RefInventoryPostingSetup."Consumption Account");
-        InventoryPostingSetup.Validate("Change In Inv.Of WIP Acc.", RefInventoryPostingSetup."Change In Inv.Of WIP Acc.");
-        InventoryPostingSetup.Validate("Change In Inv.Of Product Acc.", RefInventoryPostingSetup."Change In Inv.Of Product Acc.");
-        // NAVCZ
-        InventoryPostingSetup.Modify();
+        Location.Get(LocationCode);
+        LibraryInventory.UpdateInventoryPostingSetup(Location, InventoryPostingGroupCode);
     end;
 
     local procedure UpdateUOMInProdOrderLine(ProductionOrder: Record "Production Order"; ItemUnitOfMeasureCode: Code[10])
@@ -1917,7 +1898,7 @@ codeunit 137297 "SCM Inventory Misc. V"
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure NoSeriesListPageHandler(var NoSeriesList: TestPage "No. Series List")
+    procedure NoSeriesListPageHandler(var NoSeriesList: TestPage "No. Series")
     begin
         NoSeriesList.OK().Invoke();
     end;

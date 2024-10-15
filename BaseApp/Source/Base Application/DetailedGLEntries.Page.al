@@ -17,27 +17,27 @@ page 11778 "Detailed G/L Entries"
             repeater(Control1220011)
             {
                 ShowCaption = false;
-                field("G/L Entry No."; "G/L Entry No.")
+                field("G/L Entry No."; Rec."G/L Entry No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of G/L entry.';
                 }
-                field("Posting Date"; "Posting Date")
+                field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the posting date for the entry.';
                 }
-                field("Document No."; "Document No.")
+                field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the entry''s Document No.';
                 }
-                field("Transaction No."; "Transaction No.")
+                field("Transaction No."; Rec."Transaction No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the Transaction No. assigned to all the entries involved in the same transaction.';
                 }
-                field("G/L Account No."; "G/L Account No.")
+                field("G/L Account No."; Rec."G/L Account No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the G/L account number.';
@@ -47,7 +47,7 @@ page 11778 "Detailed G/L Entries"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount of G/L entries.';
                 }
-                field("Applied G/L Entry No."; "Applied G/L Entry No.")
+                field("Applied G/L Entry No."; Rec."Applied G/L Entry No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of applied G/L entry.';
@@ -57,12 +57,12 @@ page 11778 "Detailed G/L Entries"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the line was unapplied';
                 }
-                field("Unapplied by Entry No."; "Unapplied by Entry No.")
+                field("Unapplied by Entry No."; Rec."Unapplied by Entry No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the apply was canceled by entries No.';
                 }
-                field("User ID"; "User ID")
+                field("User ID"; Rec."User ID")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the ID of the user associated with the entry.';
@@ -74,7 +74,7 @@ page 11778 "Detailed G/L Entries"
                         UserMgt.DisplayUserInformation("User ID");
                     end;
                 }
-                field("Entry No."; "Entry No.")
+                field("Entry No."; Rec."Entry No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the entry number that is assigned to the entry.';
@@ -92,8 +92,6 @@ page 11778 "Detailed G/L Entries"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Find entries...';
                 Image = Navigate;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Find all entries and documents that exist for the document number and posting date on the selected entry or document.';
 
                 trigger OnAction()
@@ -101,6 +99,17 @@ page 11778 "Detailed G/L Entries"
                     Navigate.SetDoc("Posting Date", "Document No.");
                     Navigate.Run();
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("&Navigate_Promoted"; "&Navigate")
+                {
+                }
             }
         }
     }

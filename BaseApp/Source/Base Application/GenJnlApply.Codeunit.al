@@ -16,7 +16,7 @@ codeunit 225 "Gen. Jnl.-Apply"
             exit;
 
         with GenJnlLine do begin
-            GetCurrency;
+            GetCurrency();
             if "Bal. Account Type" in
                ["Bal. Account Type"::Customer, "Bal. Account Type"::Vendor, "Bal. Account Type"::Employee]
             then begin
@@ -61,12 +61,6 @@ codeunit 225 "Gen. Jnl.-Apply"
     end;
 
     var
-        Text000: Label 'You must specify %1 or %2.';
-        ConfirmChangeQst: Label 'CurrencyCode in the %1 will be changed from %2 to %3.\Do you wish to continue?', Comment = '%1 = Table Name, %2 and %3 = Currency Code';
-        UpdateInterruptedErr: Label 'The update has been interrupted to respect the warning.';
-        Text005: Label 'The %1 or %2 must be Customer or Vendor.';
-        Text006: Label 'All entries in one application must be in the same currency.';
-        Text007: Label 'All entries in one application must be in the same currency or one or more of the EMU currencies. ';
         GenJnlLine: Record "Gen. Journal Line";
         GLSetup: Record "General Ledger Setup";
         Currency: Record Currency;
@@ -76,6 +70,13 @@ codeunit 225 "Gen. Jnl.-Apply"
         CurrencyCode2: Code[10];
         EntrySelected: Boolean;
         AccType: Enum "Gen. Journal Account Type";
+
+        Text000: Label 'You must specify %1 or %2.';
+        ConfirmChangeQst: Label 'CurrencyCode in the %1 will be changed from %2 to %3.\Do you wish to continue?', Comment = '%1 = Table Name, %2 and %3 = Currency Code';
+        UpdateInterruptedErr: Label 'The update has been interrupted to respect the warning.';
+        Text005: Label 'The %1 or %2 must be Customer or Vendor.';
+        Text006: Label 'All entries in one application must be in the same currency.';
+        Text007: Label 'All entries in one application must be in the same currency or one or more of the EMU currencies. ';
         EarlierPostingDateErr: Label 'You cannot apply and post an entry to an entry with an earlier posting date. Instead, post the document of type %1 with the number %2 and then apply it to the document of type %3 with the number %4.', Comment = '%1 = Applying document type, %2 = Applying document number, %3 = Entry document type, %4 = Entry document number';
 
     local procedure SelectCustLedgEntry(var GenJnlLine: Record "Gen. Journal Line") Selected: Boolean
@@ -110,7 +111,7 @@ codeunit 225 "Gen. Jnl.-Apply"
             ApplyCustEntries.SetRecord(CustLedgEntry);
             ApplyCustEntries.SetTableView(CustLedgEntry);
             ApplyCustEntries.LookupMode(true);
-            Selected := ApplyCustEntries.RunModal = ACTION::LookupOK;
+            Selected := ApplyCustEntries.RunModal() = ACTION::LookupOK;
             Clear(ApplyCustEntries);
         end;
 
@@ -149,7 +150,7 @@ codeunit 225 "Gen. Jnl.-Apply"
             ApplyVendEntries.SetRecord(VendLedgEntry);
             ApplyVendEntries.SetTableView(VendLedgEntry);
             ApplyVendEntries.LookupMode(true);
-            Selected := ApplyVendEntries.RunModal = ACTION::LookupOK;
+            Selected := ApplyVendEntries.RunModal() = ACTION::LookupOK;
             Clear(ApplyVendEntries);
         end;
 
@@ -182,7 +183,7 @@ codeunit 225 "Gen. Jnl.-Apply"
             ApplyEmplEntries.SetRecord(EmplLedgEntry);
             ApplyEmplEntries.SetTableView(EmplLedgEntry);
             ApplyEmplEntries.LookupMode(true);
-            Selected := ApplyEmplEntries.RunModal = ACTION::LookupOK;
+            Selected := ApplyEmplEntries.RunModal() = ACTION::LookupOK;
             Clear(ApplyEmplEntries);
         end;
 
@@ -252,13 +253,11 @@ codeunit 225 "Gen. Jnl.-Apply"
                     CurrencyAppln := SalesSetup."Appln. between Currencies";
                     case CurrencyAppln of
                         CurrencyAppln::No:
-                            begin
-                                if ApplnCurrencyCode <> CompareCurrencyCode then
-                                    if Message then
-                                        Error(Text006)
-                                    else
-                                        exit(false);
-                            end;
+                            if ApplnCurrencyCode <> CompareCurrencyCode then
+                                if Message then
+                                    Error(Text006)
+                                else
+                                    exit(false);
                         CurrencyAppln::EMU:
                             begin
                                 GLSetup.Get();
@@ -280,13 +279,11 @@ codeunit 225 "Gen. Jnl.-Apply"
                     CurrencyAppln := PurchSetup."Appln. between Currencies";
                     case CurrencyAppln of
                         CurrencyAppln::No:
-                            begin
-                                if ApplnCurrencyCode <> CompareCurrencyCode then
-                                    if Message then
-                                        Error(Text006)
-                                    else
-                                        exit(false);
-                            end;
+                            if ApplnCurrencyCode <> CompareCurrencyCode then
+                                if Message then
+                                    Error(Text006)
+                                else
+                                    exit(false);
                         CurrencyAppln::EMU:
                             begin
                                 GLSetup.Get();
@@ -311,7 +308,7 @@ codeunit 225 "Gen. Jnl.-Apply"
     begin
         with GenJnlLine do
             if "Currency Code" = '' then
-                Currency.InitRoundingPrecision
+                Currency.InitRoundingPrecision()
             else begin
                 Currency.Get("Currency Code");
                 Currency.TestField("Amount Rounding Precision");
@@ -376,13 +373,13 @@ codeunit 225 "Gen. Jnl.-Apply"
             end else
                 "Applies-to ID" := '';
 
-            SetJournalLineFieldsFromApplication;
+            SetJournalLineFieldsFromApplication();
 
             OnApplyCustomerLedgerEntryOnBeforeModify(GenJnlLine, CustLedgEntry);
             // NAVCZ
             if "Line No." <> 0 then
                 // NAVCZ
-                Modify;
+                Modify();
             if Amount <> 0 then
                 if not PaymentToleranceMgt.PmtTolGenJnl(GenJnlLine) then
                     exit;
@@ -551,13 +548,13 @@ codeunit 225 "Gen. Jnl.-Apply"
             end else
                 "Applies-to ID" := '';
 
-            SetJournalLineFieldsFromApplication;
+            SetJournalLineFieldsFromApplication();
 
             OnApplyVendorLedgerEntryOnBeforeModify(GenJnlLine, TempVendorLedgerEntry);
             // NAVCZ
             if "Line No." <> 0 then
                 // NAVCZ
-                Modify;
+                Modify();
             if Amount <> 0 then
                 if not PaymentToleranceMgt.PmtTolGenJnl(GenJnlLine) then
                     exit;
@@ -596,9 +593,9 @@ codeunit 225 "Gen. Jnl.-Apply"
             end else
                 "Applies-to ID" := '';
 
-            SetJournalLineFieldsFromApplication;
+            SetJournalLineFieldsFromApplication();
 
-            if Modify then;
+            if Modify() then;
         end;
 
         OnAfterApplyEmployeeLedgerEntry(GenJnlLine, EmplLedgEntry);
@@ -686,7 +683,7 @@ codeunit 225 "Gen. Jnl.-Apply"
             ApplyGeneralLedgerEntries.SetTableView(GLEntry);
             ApplyGeneralLedgerEntries.SetGenJnlLine(GenJnlLine, FieldNo("Applies-to ID"));
             ApplyGeneralLedgerEntries.LookupMode(true);
-            EntrySelected := ApplyGeneralLedgerEntries.RunModal = ACTION::LookupOK;
+            EntrySelected := ApplyGeneralLedgerEntries.RunModal() = ACTION::LookupOK;
             Clear(ApplyGeneralLedgerEntries);
             if not EntrySelected then
                 exit;
@@ -698,8 +695,8 @@ codeunit 225 "Gen. Jnl.-Apply"
             if GLEntry.FindSet() then begin
                 if Amount = 0 then begin
                     repeat
-                        if Abs(GLEntry."Amount to Apply") >= Abs(GLEntry.RemainingAmount) then
-                            Amount := Amount - GLEntry.RemainingAmount
+                        if Abs(GLEntry."Amount to Apply") >= Abs(GLEntry.RemainingAmount()) then
+                            Amount := Amount - GLEntry.RemainingAmount()
                         else
                             Amount := Amount - GLEntry."Amount to Apply";
                     until GLEntry.Next() = 0;
@@ -712,7 +709,7 @@ codeunit 225 "Gen. Jnl.-Apply"
             end else
                 "Applies-to ID" := '';
             if "Line No." <> 0 then
-                Modify;
+                Modify();
         end;
     end;
 
@@ -722,7 +719,7 @@ codeunit 225 "Gen. Jnl.-Apply"
     begin
         if not ConfirmManagement.GetResponseOrDefault(
              StrSubstNo(
-               ConfirmChangeQst, GenJournalLine.TableCaption, GenJournalLine."Currency Code",
+               ConfirmChangeQst, GenJournalLine.TableCaption(), GenJournalLine."Currency Code",
                CurrencyCode), true)
         then
             Error(UpdateInterruptedErr);

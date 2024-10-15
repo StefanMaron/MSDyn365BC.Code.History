@@ -129,7 +129,7 @@ codeunit 137002 "SCM WIP Costing Addnl Currency"
         LibraryManufacturing.CreateProductionOrder(
           ProductionOrder, ProductionOrder.Status::Released, ProductionOrder."Source Type"::Item, PurchaseLine."No.", PurchaseLine.Quantity);
         ProductionOrder.Validate("Starting Time", Time);
-        ProductionOrder.Validate("Due Date", WorkDate);
+        ProductionOrder.Validate("Due Date", WorkDate());
         ProductionOrder.Modify(true);
         exit(ProductionOrder."No.");
     end;

@@ -10,14 +10,15 @@ codeunit 1020 JobJnlManagement
     end;
 
     var
+        LastJobJnlLine: Record "Job Journal Line";
+        OpenFromBatch: Boolean;
+
         Text000: Label 'JOB';
         Text001: Label 'Job Journal';
         Text002: Label 'RECURRING';
         Text003: Label 'Recurring Job Journal';
         Text004: Label 'DEFAULT';
         Text005: Label 'Default Journal';
-        LastJobJnlLine: Record "Job Journal Line";
-        OpenFromBatch: Boolean;
 
     procedure TemplateSelection(PageID: Integer; RecurringJnl: Boolean; var JobJnlLine: Record "Job Journal Line"; var JnlSelected: Boolean)
     var
@@ -152,7 +153,7 @@ codeunit 1020 JobJnlManagement
             if not JobJnlBatch.FindFirst() then begin
                 JobJnlBatch.Init();
                 JobJnlBatch."Journal Template Name" := CurrentJnlTemplateName;
-                JobJnlBatch.SetupNewBatch;
+                JobJnlBatch.SetupNewBatch();
                 JobJnlBatch.Name := Text004;
                 JobJnlBatch.Description := Text005;
                 JobJnlBatch.Insert(true);
@@ -248,10 +249,10 @@ codeunit 1020 JobJnlManagement
     begin
         with JobEntryNo do begin
             LockTable();
-            if not Get then
-                Insert;
+            if not Get() then
+                Insert();
             "Entry No." := "Entry No." + 1;
-            Modify;
+            Modify();
             exit("Entry No.");
         end;
     end;

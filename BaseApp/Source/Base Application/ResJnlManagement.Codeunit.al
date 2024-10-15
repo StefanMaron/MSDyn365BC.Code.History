@@ -83,7 +83,7 @@ codeunit 270 ResJnlManagement
     procedure OpenJnl(var CurrentJnlBatchName: Code[10]; var ResJnlLine: Record "Res. Journal Line")
     begin
         OnBeforeOpenJnl(CurrentJnlBatchName, ResJnlLine);
-        ResJnlLine.CheckResJournalLineUserResctriction; // NAVCZ
+        ResJnlLine.CheckResJournalLineUserResctriction(); // NAVCZ
 
         CheckTemplateName(ResJnlLine.GetRangeMax("Journal Template Name"), CurrentJnlBatchName);
         ResJnlLine.FilterGroup := 2;
@@ -149,7 +149,7 @@ codeunit 270 ResJnlManagement
             if not ResJnlBatch.FindFirst() then begin
                 ResJnlBatch.Init();
                 ResJnlBatch."Journal Template Name" := CurrentJnlTemplateName;
-                ResJnlBatch.SetupNewBatch;
+                ResJnlBatch.SetupNewBatch();
                 ResJnlBatch.Name := Text004;
                 ResJnlBatch.Description := Text005;
                 ResJnlBatch.Insert(true);

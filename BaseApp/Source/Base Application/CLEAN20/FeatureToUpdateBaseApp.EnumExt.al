@@ -9,6 +9,8 @@ enumextension 2611 "Feature To Update - BaseApp" extends "Feature To Update"
         ObsoleteReason = 'Feature ItemReference got enabled by default.';
         ObsoleteTag = '19.0';
     }
+#endif
+#if not CLEAN21
     value(7049; SalesPrices)
     {
         Implementation = "Feature Data Update" = "Feature - Price Calculation";
@@ -17,10 +19,15 @@ enumextension 2611 "Feature To Update - BaseApp" extends "Feature To Update"
         ObsoleteTag = '19.0';
     }
 #endif
+#if not CLEAN21
     value(5401; UnitGroupMapping)
     {
         Implementation = "Feature Data Update" = "Feature - Unit Group Mapping";
+        ObsoleteState = Pending;
+        ObsoleteReason = 'Feature UnitGroupMapping will be deprecated and instead will be an option on the connection setup.';
+        ObsoleteTag = '21.0';
     }
+#endif
     value(5405; CurrencySymbolMapping)
     {
         Implementation = "Feature Data Update" = "Feature Map Currency Symbol";

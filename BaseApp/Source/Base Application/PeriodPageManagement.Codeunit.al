@@ -1,4 +1,4 @@
-﻿codeunit 362 PeriodPageManagement
+codeunit 362 PeriodPageManagement
 {
 
     trigger OnRun()
@@ -80,8 +80,6 @@
     end;
 
     procedure CreatePeriodFormat(PeriodType: Enum "Analysis Period Type"; Date: Date) PeriodFormat: Text[10]
-    var
-        Language: Codeunit Language;
     begin
         case PeriodType of
             PeriodType::Day:
@@ -93,19 +91,7 @@
                     PeriodFormat := Format(Date, 0, WeekYear4Txt);
                 end;
             PeriodType::Month:
-                // NAVCZ
-                begin
-                    PeriodFormat := Format(Date, 0, MonthText3Year4Txt);
-
-                    if Language.GetLanguageCode(GlobalLanguage) = 'CSY' then
-                        case Date2DMY(Date, 2) of
-                            6:
-                                PeriodFormat := Format(Date, 0, 'čvn <Year4>');
-                            7:
-                                PeriodFormat := Format(Date, 0, 'čvc <Year4>');
-                        end;
-                end;
-            // NAVCZ
+                PeriodFormat := Format(Date, 0, MonthText3Year4Txt);
             PeriodType::Quarter:
                 PeriodFormat := Format(Date, 0, QuarterYear4Txt);
             PeriodType::Year:

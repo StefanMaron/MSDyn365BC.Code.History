@@ -1,4 +1,4 @@
-﻿table 5606 "FA Posting Group"
+table 5606 "FA Posting Group"
 {
     Caption = 'FA Posting Group';
     DrillDownPageID = "FA Posting Groups";
@@ -433,39 +433,19 @@
         {
             Caption = 'Acq. Cost Bal. Acc. on Disp.';
             TableRelation = "G/L Account";
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Fixed Asset Localization for Czech';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
 
-#if not CLEAN18
-            trigger OnValidate()
-            begin
-                CheckGLAcc("Acq. Cost Bal. Acc. on Disp.", false);
-            end;
-#endif
         }
         field(31041; "Book Value Bal. Acc. on Disp."; Code[20])
         {
             Caption = 'Book Value Bal. Acc. on Disp.';
             TableRelation = "G/L Account";
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Fixed Asset Localization for Czech';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
 
-#if not CLEAN18
-            trigger OnValidate()
-            begin
-                CheckGLAcc("Book Value Bal. Acc. on Disp.", false);
-            end;
-#endif
         }
         field(31042; "Use Standard Disposal"; Boolean)
         {
@@ -492,20 +472,9 @@
     }
 
     trigger OnDelete()
-#if not CLEAN18
-    var
-        FAExtPostGrp: Record "FA Extended Posting Group";
-#endif
     begin
         FAAlloc.SetRange(Code, Code);
         FAAlloc.DeleteAll(true);
-#if not CLEAN18
-
-        // NAVCZ
-        FAExtPostGrp.SetRange("FA Posting Group Code", Code);
-        FAExtPostGrp.DeleteAll(true);
-        // NAVCZ
-#endif
     end;
 
     var
@@ -518,7 +487,7 @@
         if AccNo = '' then
             exit;
         GLAcc.Get(AccNo);
-        GLAcc.CheckGLAcc;
+        GLAcc.CheckGLAcc();
         if DirectPosting then
             GLAcc.TestField("Direct Posting");
     end;
@@ -551,15 +520,6 @@
 
         exit("Acquisition Cost Bal. Acc.");
     end;
-
-#if not CLEAN18
-    [Obsolete('Moved to Fixed Asset Localization for Czech.', '18.0')]
-    procedure GetAcquisitionCostBalanceAccountOnDisposal(): Code[20]
-    begin
-        TestField("Acq. Cost Bal. Acc. on Disp.");
-        exit("Acq. Cost Bal. Acc. on Disp.");
-    end;
-#endif
 
     procedure GetAccumDepreciationAccount(): Code[20]
     begin
@@ -624,15 +584,6 @@
 
         exit("Book Val. Acc. on Disp. (Loss)");
     end;
-
-#if not CLEAN18
-    [Obsolete('Moved to Fixed Asset Localization for Czech.', '18.0')]
-    procedure GetBookValueBalAccountOnDisposal(): Code[20]
-    begin
-        TestField("Book Value Bal. Acc. on Disp.");
-        exit("Book Value Bal. Acc. on Disp.");
-    end;
-#endif
 
     procedure GetCustom1Account(): Code[20]
     begin
@@ -801,29 +752,6 @@
         OnAfterGetPostingGroup(Rec, DepreciationBookCode, Result);
     end;
 
-#if not CLEAN18
-    [Obsolete('Moved to Fixed Asset Localization for Czech.', '18.0')]
-    procedure UseStandardDisposal(): Boolean
-    var
-        FAExtendedPostingGroup: Record "FA Extended Posting Group";
-    begin
-        // NAVCZ
-        FAExtendedPostingGroup.SetRange("FA Posting Group Code", Code);
-        FAExtendedPostingGroup.SetRange("FA Posting Type", FAExtendedPostingGroup."FA Posting Type"::Disposal);
-        exit(FAExtendedPostingGroup.IsEmpty());
-    end;
-
-    [Obsolete('Moved to Fixed Asset Localization for Czech.', '18.0')]
-    procedure UseStandardMaintenance(): Boolean
-    var
-        FAExtendedPostingGroup: Record "FA Extended Posting Group";
-    begin
-        // NAVCZ
-        FAExtendedPostingGroup.SetRange("FA Posting Group Code", Code);
-        FAExtendedPostingGroup.SetRange("FA Posting Type", FAExtendedPostingGroup."FA Posting Type"::Maintenance);
-        exit(FAExtendedPostingGroup.IsEmpty());
-    end;
-#endif
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetPostingGroup(var FAPostingGroup: Record "FA Posting Group"; DepreciationBookCode: Code[10]; var Result: Boolean)
     begin

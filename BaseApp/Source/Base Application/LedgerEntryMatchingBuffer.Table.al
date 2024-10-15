@@ -1,7 +1,14 @@
-﻿table 1248 "Ledger Entry Matching Buffer"
+table 1248 "Ledger Entry Matching Buffer"
 {
     Caption = 'Ledger Entry Matching Buffer';
     ReplicateData = false;
+#if CLEAN21
+    TableType = Temporary;
+#else
+    ObsoleteReason = 'Table will be marked as TableType=Temporary. Make sure you are not using this table to store records.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
+#endif
 
     fields
     {
@@ -28,6 +35,10 @@
         field(5; "Bal. Account No."; Code[20])
         {
             Caption = 'Bal. Account No.';
+            DataClassification = SystemMetadata;
+        }
+        field(7; Description; Text[100])
+        {
             DataClassification = SystemMetadata;
         }
         field(8; "Document Type"; Enum "Gen. Journal Document Type")
@@ -156,15 +167,6 @@
                 "Remaining Amt. Incl. Discount" -= CustLedgerEntry."Remaining Pmt. Disc. Possible";
             UsePaymentDiscounts := true;
         end;
-#if not CLEAN18
-
-        // NAVCZ
-        "Specific Symbol" := CustLedgerEntry."Specific Symbol";
-        "Variable Symbol" := CustLedgerEntry."Variable Symbol";
-        "Constant Symbol" := CustLedgerEntry."Constant Symbol";
-        // NAVCZ
-
-#endif
         OnBeforeInsertFromCustomerLedgerEntry(Rec, CustLedgerEntry);
         Insert(true);
     end;
@@ -197,15 +199,6 @@
                 "Remaining Amt. Incl. Discount" -= VendorLedgerEntry."Remaining Pmt. Disc. Possible";
             UsePaymentDiscounts := true;
         end;
-#if not CLEAN18
-
-        // NAVCZ
-        "Specific Symbol" := VendorLedgerEntry."Specific Symbol";
-        "Variable Symbol" := VendorLedgerEntry."Variable Symbol";
-        "Constant Symbol" := VendorLedgerEntry."Constant Symbol";
-        // NAVCZ
-
-#endif
         OnBeforeInsertFromVendorLedgerEntry(Rec, VendorLedgerEntry);
         Insert(true);
     end;
@@ -239,11 +232,8 @@
         "Posting Date" := GLEntry."Posting Date";
         "Document No." := GLEntry."Document No.";
         "External Document No." := GLEntry."External Document No.";
-        "Remaining Amount" := GLEntry.RemainingAmount;
+        "Remaining Amount" := GLEntry.RemainingAmount();
         "Remaining Amt. Incl. Discount" := "Remaining Amount";
-#if not CLEAN18
-        "Variable Symbol" := GLEntry."Variable Symbol";
-#endif
         Insert(true);
     end;
 
@@ -256,6 +246,7 @@
         "Account No." := BankAccountLedgerEntry."Bank Account No.";
         "Bal. Account Type" := BankAccountLedgerEntry."Bal. Account Type";
         "Bal. Account No." := BankAccountLedgerEntry."Bal. Account No.";
+        Description := BankAccountLedgerEntry.Description;
         "Posting Date" := BankAccountLedgerEntry."Posting Date";
         "Document Type" := BankAccountLedgerEntry."Document Type";
         "Document No." := BankAccountLedgerEntry."Document No.";

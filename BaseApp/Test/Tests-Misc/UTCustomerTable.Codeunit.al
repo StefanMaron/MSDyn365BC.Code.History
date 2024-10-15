@@ -575,7 +575,7 @@ codeunit 134825 "UT Customer Table"
         // [THEN] Error is shown: 'Phone No. must not contain letters in Customer  No.=..'
         Assert.ExpectedError(
           StrSubstNo(
-            PhoneNoCannotContainLettersErr, Customer.FieldCaption("Phone No."), Customer.TableCaption,
+            PhoneNoCannotContainLettersErr, Customer.FieldCaption("Phone No."), Customer.TableCaption(),
             Customer.FieldCaption("No."), Customer."No."));
         Assert.ExpectedErrorCode('NCLCSRTS:TableErrorStr');
     end;
@@ -761,6 +761,7 @@ codeunit 134825 "UT Customer Table"
     var
         Customer: Record Customer;
         LibraryApplicationArea: Codeunit "Library - Application Area";
+        LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"UT Customer Table");
         Customer.DeleteAll();
@@ -771,7 +772,7 @@ codeunit 134825 "UT Customer Table"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"UT Customer Table");
 
-        LibraryERM.SetJournalTemplateNameMandatory(false);
+        LibraryERMCountryData.UpdateJournalTemplMandatory(false);
 
         LibrarySetupStorage.SaveGeneralLedgerSetup();
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
@@ -824,7 +825,7 @@ codeunit 134825 "UT Customer Table"
 
         Assert.ExpectedError(
           StrSubstNo(
-            DeleteCustomerSalesDocExistsErr, Customer.TableCaption, Customer."No.", DocType));
+            DeleteCustomerSalesDocExistsErr, Customer.TableCaption(), Customer."No.", DocType));
 
         Assert.ExpectedErrorCode(DialogErr);
     end;

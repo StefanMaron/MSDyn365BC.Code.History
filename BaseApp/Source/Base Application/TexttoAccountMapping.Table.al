@@ -120,9 +120,6 @@ table 1251 "Text-to-Account Mapping"
         {
             Caption = 'Constant Symbol';
             CharAllowed = '09';
-#if not CLEAN18
-            TableRelation = "Constant Symbol";
-#endif
 #if not CLEAN19
             ObsoleteState = Pending;
 #else
@@ -198,12 +195,14 @@ table 1251 "Text-to-Account Mapping"
         {
             Enabled = false;
         }
+#if not CLEAN19
         key(Key3; Priority)
         {
             ObsoleteState = Pending;
             ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
             ObsoleteTag = '19.0';
         }
+#endif
     }
 
     fieldgroups
@@ -212,12 +211,12 @@ table 1251 "Text-to-Account Mapping"
 
     trigger OnInsert()
     begin
-        CheckMappingText;
+        CheckMappingText();
     end;
 
     trigger OnModify()
     begin
-        CheckMappingText;
+        CheckMappingText();
     end;
 
     var
@@ -243,7 +242,7 @@ table 1251 "Text-to-Account Mapping"
                 if TextToAccMapping.FindLast() then
                     LastLineNo := TextToAccMapping."Line No.";
 
-                Init;
+                Init();
                 "Line No." := LastLineNo + 10000;
                 Validate("Mapping Text", GenJnlLine.Description);
                 SetBalSourceType(GenJnlLine);
@@ -255,10 +254,10 @@ table 1251 "Text-to-Account Mapping"
                 end;
 
                 if "Mapping Text" <> '' then
-                    Insert;
+                    Insert();
             end;
 
-            Reset;
+            Reset();
         end;
 
         SetRange("Text-to-Account Mapping Code", ''); // NAVCZ
@@ -292,11 +291,11 @@ table 1251 "Text-to-Account Mapping"
                 if TextToAccMapping.FindLast() then
                     LastLineNo := TextToAccMapping."Line No.";
 
-                Init;
+                Init();
 #if CLEAN19
                 "Text-to-Account Mapping Code" := ''; // NAVCZ
 #else
-                "Text-to-Account Mapping Code" := BankAccReconciliationLine.GetTextToAccountMappingCode; // NAVCZ
+                "Text-to-Account Mapping Code" := BankAccReconciliationLine.GetTextToAccountMappingCode(); // NAVCZ
 #endif
                 "Line No." := LastLineNo + 10000;
                 Validate("Mapping Text", BankAccReconciliationLine."Transaction Text");
@@ -335,10 +334,10 @@ table 1251 "Text-to-Account Mapping"
                 then
                     // NAVCZ
 #endif
-                    Insert;
+                    Insert();
             end;
 
-            Reset;
+            Reset();
 
             Commit();
         end;
@@ -346,7 +345,7 @@ table 1251 "Text-to-Account Mapping"
 #if CLEAN19
         SetRange("Text-to-Account Mapping Code", ''); // NAVCZ
 #else
-        SetRange("Text-to-Account Mapping Code", BankAccReconciliationLine.GetTextToAccountMappingCode); // NAVCZ
+        SetRange("Text-to-Account Mapping Code", BankAccReconciliationLine.GetTextToAccountMappingCode()); // NAVCZ
 #endif
         PAGE.RunModal(PAGE::"Text-to-Account Mapping", Rec);
     end;
@@ -420,7 +419,7 @@ table 1251 "Text-to-Account Mapping"
     begin
 #if not CLEAN19
         // NAVCZ
-        if DisabledCheckMappingText then
+        if DisabledCheckMappingText() then
             exit;
         // NAVCZ
 
@@ -496,8 +495,8 @@ table 1251 "Text-to-Account Mapping"
     procedure FilterTextToAccountMapping(BankAccReconLine: Record "Bank Acc. Reconciliation Line")
     begin
         // NAVCZ
-        Reset;
-        SetRange("Text-to-Account Mapping Code", BankAccReconLine.GetTextToAccountMappingCode);
+        Reset();
+        SetRange("Text-to-Account Mapping Code", BankAccReconLine.GetTextToAccountMappingCode());
     end;
 
     [Scope('OnPrem')]
@@ -560,7 +559,7 @@ table 1251 "Text-to-Account Mapping"
         TextToAccountMapping.Reset();
         TextToAccountMapping.SetRange("Vendor No.", VendorNo);
         if not TextToAccountMapping.FindSet() then
-            exit(ResultCount);
+            exit(0);
 
         repeat
             if TextToAccountMapping."Mapping Text" = '' then // Default mapping
@@ -592,6 +591,7 @@ table 1251 "Text-to-Account Mapping"
         TextToAccountMapping.Reset();
         TextToAccountMapping.SetRange("Vendor No.", VendorNo);
         TextToAccountMapping.SetFilter("Mapping Text", '%1', '@' + DelChr(LineDescription, '=', FilterInvalidCharTxt));
-        exit(TextToAccountMapping.FindFirst);
+        exit(TextToAccountMapping.FindFirst());
     end;
 }
+

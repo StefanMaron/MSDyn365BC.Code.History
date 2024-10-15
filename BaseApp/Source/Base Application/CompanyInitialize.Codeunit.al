@@ -23,12 +23,6 @@ codeunit 2 "Company-Initialize"
                   TableData "Nonstock Item Setup" = i,
                   TableData "Warehouse Setup" = i,
                   TableData "Service Mgt. Setup" = i,
-#if not CLEAN18
-                  TableData "Credits Setup" = i,
-#endif
-#if not CLEAN18
-                  TableData "Stat. Reporting Setup" = i,
-#endif
                   TableData "Trial Balance Setup" = i,
                   TableData "Config. Setup" = i,
                   TableData "User Group Member" = d;
@@ -44,12 +38,10 @@ codeunit 2 "Company-Initialize"
         SatisfactionSurveyMgt: Codeunit "Satisfaction Survey Mgt.";
         UpgradeTag: Codeunit "Upgrade Tag";
         Window: Dialog;
-        InitializeCompanyOnRunLogLbl: Label 'OnRun executed in Codeunit 2 "Company-Initialize". Current language is %1.', Comment = '%1 = The language lcid.';
     begin
         Window.Open(Text000);
 
         OnBeforeOnRun();
-        Session.LogMessage('0000HQL', StrSubstNo(InitializeCompanyOnRunLogLbl, GlobalLanguage()), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, 'Category', 'CompanyInitialize'); 
 
         InitSetupTables();
         AddOnIntegrMgt.InitMfgSetup();
@@ -60,9 +52,6 @@ codeunit 2 "Company-Initialize"
         InitBankExportImportSetup();
         InitDocExchServiceSetup();
         // NAVCZ
-#if not CLEAN18
-        InitCreditRepSelection();
-#endif
         BankPmtApplRuleCode.InsertDefaultMatchingRuleCode();
         BankPmtApplRule."Bank Pmt. Appl. Rule Code" := BankPmtApplRuleCode.GetDefaultCode();
         // NAVCZ
@@ -207,10 +196,6 @@ codeunit 2 "Company-Initialize"
         InvtReceiptsTxt: Label 'INVTRCPT', Comment = 'INVENTORY RECEIPTS';
         InvtShipmentsTxt: Label 'INVTSHPT', Comment = 'INVENTORY SHIPMENTS';
         InvtOrderTxt: Label 'INVTORDER', Comment = 'INVENTORY ORDERS';
-#if not CLEAN18
-        Text11705: Label 'CREDIT';
-        Text11706: Label 'Credit';
-#endif
         PEPPOLBIS3_ElectronicFormatTxt: Label 'PEPPOL BIS3', Locked = true;
         PEPPOLBIS3_ElectronicFormatDescriptionTxt: Label 'PEPPOL BIS3 Format (Pan-European Public Procurement Online)';
         OPBALANCETxt: Label 'OPBALANCE';
@@ -251,13 +236,7 @@ codeunit 2 "Company-Initialize"
         IncomingDocumentsSetup: Record "Incoming Documents Setup";
         CompanyInfo: Record "Company Information";
         ICSetup: Record "IC Setup";
-#if not CLEAN18
-        CreditsSetup: Record "Credits Setup";
-#endif
         TrialBalanceSetup: Record "Trial Balance Setup";
-#if not CLEAN18
-        StatReportingSetup: Record "Stat. Reporting Setup";
-#endif
     begin
         with GLSetup do
             if not FindFirst() then begin
@@ -404,24 +383,6 @@ codeunit 2 "Company-Initialize"
             ICSetup.Insert();
         end;
 
-#if not CLEAN18
-        // NAVCZ
-        with CreditsSetup do
-            if WritePermission then
-                if not FindFirst() then begin
-                    Init();
-                    Insert();
-                end;
-#endif
-#if not CLEAN18
-        with StatReportingSetup do
-            if WritePermission then
-                if not FindFirst() then begin
-                    Init();
-                    Insert();
-                end;
-        // NAVCZ
-#endif
     end;
 
     local procedure InitSourceCodeSetup()
@@ -429,7 +390,7 @@ codeunit 2 "Company-Initialize"
         SourceCode: Record "Source Code";
         SourceCodeSetup: Record "Source Code Setup";
     begin
-        if not (SourceCodeSetup.FindFirst or SourceCode.FindFirst()) then
+        if not (SourceCodeSetup.FindFirst() or SourceCode.FindFirst()) then
             with SourceCodeSetup do begin
                 Init();
                 InsertSourceCode(Sales, Text001, Text002);
@@ -510,9 +471,6 @@ codeunit 2 "Company-Initialize"
                 InsertSourceCode("Phys. Invt. Orders", InvtOrderTxt, PageName(PAGE::"Physical Inventory Order"));
                 InsertSourceCode("Invt. Receipt", InvtReceiptsTxt, PageName(PAGE::"Invt. Receipts"));
                 InsertSourceCode("Invt. Shipment", InvtShipmentsTxt, PageName(PAGE::"Invt. Shipments"));
-#if not CLEAN18
-                InsertSourceCode(Credit, Text11705, Text11706); // NAVCZ
-#endif
                 InsertSourceCode("Open Balance Sheet", OPBALANCETxt, OpenBalanceSheetTxt); // NAVCZ
                 InsertSourceCode("Close Balance Sheet", CLBALANCETxt, CloseBalanceSheetTxt); // NAVCZ
                 Insert();
@@ -594,7 +552,7 @@ codeunit 2 "Company-Initialize"
         DocExchServiceSetup: Record "Doc. Exch. Service Setup";
     begin
         with DocExchServiceSetup do
-            if not Get then begin
+            if not Get() then begin
                 Init();
                 SetURLsToDefault();
                 Insert();
@@ -674,14 +632,6 @@ codeunit 2 "Company-Initialize"
           ClientAddIn.Category::"JavaScript Control Add-in",
           'Microsoft Dynamics BusinessChart control add-in',
           ApplicationPath + 'Add-ins\BusinessChart\Microsoft.Dynamics.Nav.Client.BusinessChart.zip');
-        InsertClientAddIn(
-          'Microsoft.Dynamics.Nav.Client.TimelineVisualization', '31bf3856ad364e35', '',
-          ClientAddIn.Category::"DotNet Control Add-in",
-          'Interactive visualizion for a timeline of events', '');
-        InsertClientAddIn(
-          'Microsoft.Dynamics.Nav.Client.PingPong', '31bf3856ad364e35', '',
-          ClientAddIn.Category::"DotNet Control Add-in",
-          'Microsoft Dynamics PingPong control add-in', '');
         InsertClientAddIn(
           'Microsoft.Dynamics.Nav.Client.VideoPlayer', '31bf3856ad364e35', '',
           ClientAddIn.Category::"JavaScript Control Add-in",
@@ -776,36 +726,6 @@ codeunit 2 "Company-Initialize"
         end;
     end;
 
-#if not CLEAN18
-    [Scope('OnPrem')]
-    [Obsolete('Moved to Compensation Localization Pack for Czech.', '18.0')]
-    procedure InitCreditRepSelection()
-    var
-        ReportSelections: Record "Credit Report Selections";
-    begin
-        // NAVCZ
-        with ReportSelections do
-            if WritePermission then
-                if not FindFirst() then begin
-                    InsertCreditRepSelection(Usage::Credit, '1', REPORT::Credit);
-                    InsertCreditRepSelection(Usage::"Posted Credit", '1', REPORT::"Posted Credit");
-                end;
-    end;
-
-    [Obsolete('Moved to Compensation Localization Pack for Czech.', '18.0')]
-    local procedure InsertCreditRepSelection(ReportUsage: Integer; Sequence: Code[10]; ReportID: Integer)
-    var
-        ReportSelections: Record "Credit Report Selections";
-    begin
-        // NAVCZ
-        ReportSelections.Init();
-        ReportSelections.Usage := ReportUsage;
-        ReportSelections.Sequence := Sequence;
-        ReportSelections."Report ID" := ReportID;
-        ReportSelections.Insert();
-    end;
-
-#endif
     local procedure InitApplicationAreasForSaaS()
     var
         ExperienceTierSetup: Record "Experience Tier Setup";
@@ -820,7 +740,7 @@ codeunit 2 "Company-Initialize"
             if EnvironmentInfo.IsSaaS() then begin
                 Company.Get(CompanyName);
 
-                if not (CompanyInformationMgt.IsDemoCompany or Company."Evaluation Company") then
+                if not (CompanyInformationMgt.IsDemoCompany() or Company."Evaluation Company") then
                     ApplicationAreaMgmtFacade.SaveExperienceTierCurrentCompany(ExperienceTierSetup.FieldCaption(Essential))
                 else
                     ApplicationAreaMgmtFacade.SaveExperienceTierCurrentCompany(ExperienceTierSetup.FieldCaption(Basic));
@@ -876,9 +796,7 @@ codeunit 2 "Company-Initialize"
     local procedure CompanyInitializeOnAfterLogin()
     var
         ClientTypeManagement: Codeunit "Client Type Management";
-        InitializeCompanyLogLbl: Label 'CompanyInitializeOnAfterLogin executed InitializeCompany in Codeunit 2 "Company-Initialize". Current language is %1.', Comment = '%1 = The language lcid.';
     begin
-        
         if not GuiAllowed() then
             exit;
 
@@ -888,7 +806,6 @@ codeunit 2 "Company-Initialize"
         if GetExecutionContext() <> ExecutionContext::Normal then
             exit;
 
-        Session.LogMessage('0000HQ2', StrSubstNo(InitializeCompanyLogLbl, GlobalLanguage()), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, 'Category', 'CompanyInitialize');        
         InitializeCompany();
     end;
 }

@@ -16,22 +16,22 @@ page 11783 "Multiple Interest Rates"
             repeater(Control1220007)
             {
                 ShowCaption = false;
-                field("Valid from Date"; "Valid from Date")
+                field("Valid from Date"; Rec."Valid from Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the start date that will be used to determine the interest rate.';
                 }
-                field("Interest Rate"; "Interest Rate")
+                field("Interest Rate"; Rec."Interest Rate")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the percentage to use to calculate interest for this finance charge code.';
                 }
-                field("Interest Period (Days)"; "Interest Period (Days)")
+                field("Interest Period (Days)"; Rec."Interest Period (Days)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the length of the interest period in days.';
                 }
-                field("Use Due Date Interest Rate"; "Use Due Date Interest Rate")
+                field("Use Due Date Interest Rate"; Rec."Use Due Date Interest Rate")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies using Due Date Interest Rate';

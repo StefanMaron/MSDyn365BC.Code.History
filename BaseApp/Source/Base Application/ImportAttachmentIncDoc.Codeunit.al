@@ -30,7 +30,7 @@ codeunit 134 "Import Attachment - Inc. Doc."
     begin
         OnBeforeUploadFile(IncomingDocumentAttachment);
         IncomingDocumentAttachment.CalcFields(Content);
-        if IncomingDocumentAttachment.Content.HasValue then
+        if IncomingDocumentAttachment.Content.HasValue() then
             if not Confirm(ReplaceContentQst, false) then
                 Error('');
 
@@ -57,7 +57,7 @@ codeunit 134 "Import Attachment - Inc. Doc."
             "Incoming Document Entry No." := IncomingDocument."Entry No.";
             "Line No." := GetIncomingDocumentNextLineNo(IncomingDocument);
 
-            if not Content.HasValue then begin
+            if not Content.HasValue() then begin
                 if FileManagement.ServerFileExists(FileName) then
                     FileManagement.BLOBImportFromServerFile(TempBlob, FileName)
                 else
@@ -68,10 +68,10 @@ codeunit 134 "Import Attachment - Inc. Doc."
                 RecordRef.SetTable(IncomingDocumentAttachment);
             end;
 
-            if not Content.HasValue then begin
+            if not Content.HasValue() then begin
                 Message(EmptyFileMsg);
                 if not IsTestMode then
-                    Delete;
+                    Delete();
                 exit(false);
             end;
 
@@ -89,7 +89,7 @@ codeunit 134 "Import Attachment - Inc. Doc."
             Insert(true);
 
             if Type in [Type::Image, Type::PDF] then
-                OnAttachBinaryFile;
+                OnAttachBinaryFile();
         end;
 
         OnAfterImportAttachment(IncomingDocumentAttachment);
@@ -203,7 +203,7 @@ codeunit 134 "Import Attachment - Inc. Doc."
 
         IncomingDocument.SetRange("Document No.", DocNo);
         IncomingDocument.SetRange("Posting Date", PostingDate);
-        exit(IncomingDocument.FindFirst);
+        exit(IncomingDocument.FindFirst());
     end;
 
     local procedure CreateNewSalesPurchIncomingDoc(var IncomingDocumentAttachment: Record "Incoming Document Attachment") IncomingDocEntryNo: Integer
@@ -213,9 +213,6 @@ codeunit 134 "Import Attachment - Inc. Doc."
         PurchaseHeader: Record "Purchase Header";
         SalesAdvanceLetterHeader: Record "Sales Advance Letter Header";
         PurchAdvanceLetterHeader: Record "Purch. Advance Letter Header";
-#if not CLEAN18
-        CreditHeader: Record "Credit Header";
-#endif
         DocTableNo: Integer;
         DocType: Enum "Incoming Document Type";
         DocNo: Code[20];
@@ -264,15 +261,6 @@ codeunit 134 "Import Attachment - Inc. Doc."
                         PurchAdvanceLetterHeader."Incoming Document Entry No." := IncomingDocument."Entry No.";
                         PurchAdvanceLetterHeader.Modify();
                     end;
-#if not CLEAN18
-                DATABASE::"Credit Header":
-                    begin
-                        CreditHeader.Get(DocNo);
-                        CreateIncomingDocumentExtended(IncomingDocumentAttachment, IncomingDocument, 0D, '', CreditHeader.RecordId);
-                        CreditHeader."Incoming Document Entry No." := IncomingDocument."Entry No.";
-                        CreditHeader.Modify();
-                    end;
-#endif
                 // NAVCZ
                 else
                     Error(NotSupportedDocTableErr, DocTableNo);
@@ -335,7 +323,7 @@ codeunit 134 "Import Attachment - Inc. Doc."
                 IncomingDocument.Status := IncomingDocument.Status::Created;
             IncomingDocument.Released := true;
             IncomingDocument."Released Date-Time" := CurrentDateTime;
-            IncomingDocument."Released By User ID" := UserSecurityId;
+            IncomingDocument."Released By User ID" := UserSecurityId();
         end;
         IncomingDocument.Modify();
     end;
@@ -396,10 +384,6 @@ codeunit 134 "Import Attachment - Inc. Doc."
                 exit(IncomingDocument."Document Type"::"Sales Advance");
             DATABASE::"Purch. Advance Letter Header":
                 exit(IncomingDocument."Document Type"::"Purchase Advance");
-#if not CLEAN18
-            DATABASE::"Credit Header":
-                exit(IncomingDocument."Document Type"::Credit);
-#endif
         end;
         // NAVCZ
     end;
@@ -432,7 +416,7 @@ codeunit 134 "Import Attachment - Inc. Doc."
         with IncomingDocumentAttachment do begin
             SetRange("Incoming Document Entry No.", IncomingDocument."Entry No.");
             if FindLast() then;
-            exit("Line No." + LineIncrement);
+            exit("Line No." + LineIncrement());
         end;
     end;
 

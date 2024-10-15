@@ -24,12 +24,12 @@ page 31093 "Acc. Sched. Formula Drill-Down"
             {
                 Editable = false;
                 ShowCaption = false;
-                field("Acc. Sched. Row No."; "Acc. Sched. Row No.")
+                field("Acc. Sched. Row No."; Rec."Acc. Sched. Row No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the account schedule row.';
                 }
-                field("Totaling Type"; "Totaling Type")
+                field("Totaling Type"; Rec."Totaling Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the totaling type for the account schedule line. The type determines which accounts within the totaling interval you specify in the Totaling field will be totaled.';
@@ -333,7 +333,7 @@ page 31093 "Acc. Sched. Formula Drill-Down"
     begin
         EntryNo += 1;
 
-        Init;
+        Init();
         "Entry No." := EntryNo;
         Expression := AccSchedLine.Totaling;
         Amount := Result;
@@ -343,7 +343,7 @@ page 31093 "Acc. Sched. Formula Drill-Down"
         "Dimension 2 Totaling" := AccSchedLine."Dimension 2 Totaling";
         "Dimension 3 Totaling" := AccSchedLine."Dimension 3 Totaling";
         "Dimension 4 Totaling" := AccSchedLine."Dimension 4 Totaling";
-        Insert;
+        Insert();
     end;
 }
 #endif

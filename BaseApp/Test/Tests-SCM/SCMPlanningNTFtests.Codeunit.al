@@ -280,7 +280,7 @@ codeunit 137021 "SCM Planning - NTF tests"
     begin
         LibraryJob.CreateJobPlanningLine(LineType, LibraryJob.ItemType, JobTask, JobPlanningLine);
         JobPlanningLine.Validate("No.", No);
-        JobPlanningLine.Validate("Planning Date", WorkDate);
+        JobPlanningLine.Validate("Planning Date", WorkDate());
         JobPlanningLine.Validate("Usage Link", UsageLink);
         JobPlanningLine.Validate(Quantity, Quantity);
         JobPlanningLine.Modify(true);
@@ -459,7 +459,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         repeat
             WarehouseActivityLine.Validate(Quantity, Qty);
             WarehouseActivityLine.Modify(true);
-        until WarehouseActivityLine.Next = 0;
+        until WarehouseActivityLine.Next() = 0;
     end;
 
     local procedure SetQtyToHandleOnReceiptLines(WarehouseReceiptHeader: Record "Warehouse Receipt Header"; Qty: Decimal)
@@ -472,7 +472,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         repeat
             WarehouseReceiptLine.Validate(Quantity, Qty);
             WarehouseReceiptLine.Modify(true);
-        until WarehouseReceiptLine.Next = 0;
+        until WarehouseReceiptLine.Next() = 0;
     end;
 
     local procedure RegisterWarehousePick(Location: Record Location; QtyToRegister: Decimal)
@@ -548,7 +548,7 @@ codeunit 137021 "SCM Planning - NTF tests"
             Item.SetFilter("Location Filter", LocationFilter);
             Item.SetRange("No.", Item."No.");
         end;
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
     end;
 
     local procedure PurchasePlan(Item: Record Item; PurchaseQty: Integer; ReceivingDate: Date; LocationCode: Code[10]; LocationFilter: Code[50])
@@ -563,7 +563,7 @@ codeunit 137021 "SCM Planning - NTF tests"
             Item.SetFilter("Location Filter", LocationFilter);
             Item.SetRange("No.", Item."No.");
         end;
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
     end;
 
     local procedure AddInventoryDirectedLocation(Item: Record Item; LocationCode: Code[10]; ZoneCode: Code[10]; BinCode: Code[20]; Qty: Integer)
@@ -686,7 +686,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         RequisitionLine.FindSet();
         repeat
             TotalQuantity += RequisitionLine.Quantity;
-        until RequisitionLine.Next = 0;
+        until RequisitionLine.Next() = 0;
         Assert.AreEqual(Quantity, TotalQuantity, StrSubstNo(FilterRequisitionLineMsg, RequisitionLine.GetFilters));
     end;
 
@@ -753,7 +753,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         // run planning for item and LocationTo
         Item.SetRange("No.", Item."No.");
         Item.SetRange("Location Filter", LocationToCode);
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate - 1, WorkDate + 5);
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate() - 1, WorkDate + 5);
     end;
 
     local procedure AssertTrackingLineForItem(ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; NoOfLines: Integer)
@@ -869,7 +869,7 @@ codeunit 137021 "SCM Planning - NTF tests"
             TransferLine.Validate("Qty. to Ship", QuantityToShip);
             TransferLine.Modify(true);
             CreateItemTrackingForTransfer(TransferLine, LotNo);
-        until TransferLine.Next = 0;
+        until TransferLine.Next() = 0;
 
         // post Shipment of tranfer
         if QuantityToShip > 0 then
@@ -947,7 +947,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         AddInventoryBlankLocation(Item, 150);
 
         // Exercise
-        SalesPlan(Item, 49, CalcDate(PlanningStartDate, CalcDate('<+1W>', WorkDate)), '', '');
+        SalesPlan(Item, 49, CalcDate(PlanningStartDate, CalcDate('<+1W>', WorkDate())), '', '');
 
         // Verify planning worksheet lines - check in doc section more info on the TDS used
         AssertNoLinesForItem(Item);
@@ -971,12 +971,12 @@ codeunit 137021 "SCM Planning - NTF tests"
         AddInventoryBlankLocation(Item, 150);
 
         // Exercise
-        SalesPlan(Item, 50, CalcDate(PlanningStartDate, CalcDate('<+1W>', WorkDate)), '', '');
+        SalesPlan(Item, 50, CalcDate(PlanningStartDate, CalcDate('<+1W>', WorkDate())), '', '');
 
         // Verify planning worksheet lines - check in doc section more info on the TDS used
         AssertNumberOfLinesForItem(Item, 1);
         AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D,
-          CalcDate(PlanningStartDate, CalcDate('<+1W + 2D>', WorkDate)), 0, 500, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
+          CalcDate(PlanningStartDate, CalcDate('<+1W + 2D>', WorkDate())), 0, 500, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
     end;
 
     [Test]
@@ -997,14 +997,14 @@ codeunit 137021 "SCM Planning - NTF tests"
         AddInventoryBlankLocation(Item, 150);
 
         // Exercise
-        SalesPlan(Item, 145, CalcDate(PlanningStartDate, CalcDate('<+1W>', WorkDate)), '', '');
+        SalesPlan(Item, 145, CalcDate(PlanningStartDate, CalcDate('<+1W>', WorkDate())), '', '');
 
         // Verify planning worksheet lines - check in doc section more info on the TDS
         AssertNumberOfLinesForItem(Item, 2);
         AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D,
-          CalcDate(PlanningStartDate, CalcDate('<+1W>', WorkDate)), 0, 5, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
+          CalcDate(PlanningStartDate, CalcDate('<+1W>', WorkDate())), 0, 5, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
         AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D,
-          CalcDate(PlanningStartDate, CalcDate('<+1W + 2D>', WorkDate)), 0, 500, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
+          CalcDate(PlanningStartDate, CalcDate('<+1W + 2D>', WorkDate())), 0, 500, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
     end;
 
     [Test]
@@ -1027,13 +1027,13 @@ codeunit 137021 "SCM Planning - NTF tests"
 
         // Exercise
         PurchaseSalesPlan(
-          Item, 150, CalcDate(PlanningStartDate, CalcDate('<+3W>', WorkDate)), 145, CalcDate(PlanningStartDate, CalcDate('<+2W>', WorkDate)),
+          Item, 150, CalcDate(PlanningStartDate, CalcDate('<+3W>', WorkDate())), 145, CalcDate(PlanningStartDate, CalcDate('<+2W>', WorkDate())),
           '', '');
 
         // Verify planning worksheet lines - check in doc section more info on the TDS
         AssertNumberOfLinesForItem(Item, 1);
         AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D,
-          CalcDate(PlanningStartDate, CalcDate('<+2W>', WorkDate)), 0, 5, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
+          CalcDate(PlanningStartDate, CalcDate('<+2W>', WorkDate())), 0, 5, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
     end;
 
     [Test]
@@ -1058,13 +1058,13 @@ codeunit 137021 "SCM Planning - NTF tests"
 
         // Exercise
         PurchaseSalesPlan(
-          Item, 200, CalcDate(PlanningStartDate, CalcDate('<+1W-1D>', WorkDate)), 45, CalcDate(PlanningStartDate, CalcDate('<+1D>', WorkDate)),
+          Item, 200, CalcDate(PlanningStartDate, CalcDate('<+1W-1D>', WorkDate())), 45, CalcDate(PlanningStartDate, CalcDate('<+1D>', WorkDate())),
           '', '');
 
         // Verify planning worksheet lines - check in doc section more info on the TDS
         AssertNumberOfLinesForItem(Item, 3);
         AssertPlanningLineWithMaximumOrderQty(Item."No.", RequisitionLine."Action Message"::New, 0D,
-          CalcDate(PlanningStartDate, CalcDate('<+1D>', WorkDate)), 0, 5, RequisitionLine."Ref. Order Type"::Purchase, '');
+          CalcDate(PlanningStartDate, CalcDate('<+1D>', WorkDate())), 0, 5, RequisitionLine."Ref. Order Type"::Purchase, '');
     end;
 
     [Test]
@@ -1086,9 +1086,9 @@ codeunit 137021 "SCM Planning - NTF tests"
         AddInventoryBlankLocation(Item, 150);
 
         // Exercise
-        CreatePurchaseOrder(PurchaseHeader, PurchaseLine, Item, 200, CalcDate(PlanningStartDate, CalcDate('<+1W + 2D>', WorkDate)), '');
+        CreatePurchaseOrder(PurchaseHeader, PurchaseLine, Item, 200, CalcDate(PlanningStartDate, CalcDate('<+1W + 2D>', WorkDate())), '');
         PurchaseSalesPlan(
-          Item, 5, CalcDate(PlanningStartDate, CalcDate('<+1WD>', WorkDate)), 145, CalcDate(PlanningStartDate, CalcDate('<+1W + 1D>', WorkDate)),
+          Item, 5, CalcDate(PlanningStartDate, CalcDate('<+1WD>', WorkDate())), 145, CalcDate(PlanningStartDate, CalcDate('<+1W + 1D>', WorkDate())),
           '', '');
 
         // Verify planning worksheet lines - check in doc section more info on the TDS
@@ -1113,14 +1113,14 @@ codeunit 137021 "SCM Planning - NTF tests"
         AddInventoryBlankLocation(Item, 150);
 
         // Exercise
-        SalesPlan(Item, 145, CalcDate(PlanningStartDate, CalcDate('<+1W>', WorkDate)), '', '');
+        SalesPlan(Item, 145, CalcDate(PlanningStartDate, CalcDate('<+1W>', WorkDate())), '', '');
 
         // Verify planning worksheet lines - check in doc section more info on the TDS
         AssertNumberOfLinesForItem(Item, 2);
         AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D,
-          CalcDate(PlanningStartDate, CalcDate('<+1W>', WorkDate)), 0, 5, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
+          CalcDate(PlanningStartDate, CalcDate('<+1W>', WorkDate())), 0, 5, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
         AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D,
-          CalcDate(PlanningStartDate, CalcDate('<+1W + 2D>', WorkDate)), 0, 490, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
+          CalcDate(PlanningStartDate, CalcDate('<+1W + 2D>', WorkDate())), 0, 490, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
     end;
 
     [Test]
@@ -1143,13 +1143,13 @@ codeunit 137021 "SCM Planning - NTF tests"
 
         // Exercise
         PurchaseSalesPlan(
-          Item, 300, CalcDate(PlanningStartDate, CalcDate('<+1W + 1D>', WorkDate)), 145, CalcDate(PlanningStartDate, CalcDate('<+1W>', WorkDate)),
+          Item, 300, CalcDate(PlanningStartDate, CalcDate('<+1W + 1D>', WorkDate())), 145, CalcDate(PlanningStartDate, CalcDate('<+1W>', WorkDate())),
           '', '');
 
         // Verify planning worksheet lines - check in doc section more info on the TDS
         AssertNumberOfLinesForItem(Item, 1);
         AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D,
-          CalcDate(PlanningStartDate, CalcDate('<+1W>', WorkDate)), 0, 5, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
+          CalcDate(PlanningStartDate, CalcDate('<+1W>', WorkDate())), 0, 5, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
     end;
 
     [Test]
@@ -1174,13 +1174,13 @@ codeunit 137021 "SCM Planning - NTF tests"
 
         // Exercise
         PurchaseSalesPlan(
-          Item, 300, CalcDate(PlanningStartDate, CalcDate('<+1W>', WorkDate)), 50, CalcDate(PlanningStartDate, CalcDate('<+1D>', WorkDate)), '',
+          Item, 300, CalcDate(PlanningStartDate, CalcDate('<+1W>', WorkDate())), 50, CalcDate(PlanningStartDate, CalcDate('<+1D>', WorkDate())), '',
           '');
 
         // Verify planning worksheet lines - check in doc section more info on the TDS
         AssertNumberOfLinesForItem(Item, 2);
         AssertPlanningLineWithMaximumOrderQty(Item."No.", RequisitionLine."Action Message"::New, 0D,
-          CalcDate(PlanningStartDate, CalcDate('<+1D>', WorkDate)), 0, 10, RequisitionLine."Ref. Order Type"::Purchase, '');
+          CalcDate(PlanningStartDate, CalcDate('<+1D>', WorkDate())), 0, 10, RequisitionLine."Ref. Order Type"::Purchase, '');
     end;
 
     [Test]
@@ -1204,9 +1204,9 @@ codeunit 137021 "SCM Planning - NTF tests"
         AddInventoryBlankLocation(Item, 150);
 
         // Exercise
-        CreatePurchaseOrder(PurchaseHeader, PurchaseLine, Item, 200, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate)), '');
+        CreatePurchaseOrder(PurchaseHeader, PurchaseLine, Item, 200, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())), '');
         PurchaseSalesPlan(
-          Item, 5, CalcDate(PlanningStartDate, CalcDate('<+3D>', WorkDate)), 145, CalcDate(PlanningStartDate, CalcDate('<+3D>', WorkDate)), '',
+          Item, 5, CalcDate(PlanningStartDate, CalcDate('<+3D>', WorkDate())), 145, CalcDate(PlanningStartDate, CalcDate('<+3D>', WorkDate())), '',
           '');
 
         // Verify planning worksheet lines - check in doc section more info on the TDS
@@ -1231,12 +1231,12 @@ codeunit 137021 "SCM Planning - NTF tests"
         AddInventoryBlankLocation(Item, 50);
 
         // Exercise
-        SalesPlan(Item, 45, CalcDate(PlanningStartDate, CalcDate('<+1W>', WorkDate)), '', '');
+        SalesPlan(Item, 45, CalcDate(PlanningStartDate, CalcDate('<+1W>', WorkDate())), '', '');
 
         // Verify planning worksheet lines - check in doc section more info on the TDS
         AssertNumberOfLinesForItem(Item, 1);
         AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D,
-          CalcDate(PlanningStartDate, CalcDate('<+1W>', WorkDate)), 0, 5, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
+          CalcDate(PlanningStartDate, CalcDate('<+1W>', WorkDate())), 0, 5, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
     end;
 
     [Test]
@@ -1261,20 +1261,20 @@ codeunit 137021 "SCM Planning - NTF tests"
 
         // Exercise
         CreateSalesOrderWith2Lines(
-          SalesHeader, SalesLine, Item, 155, CalcDate(PlanningStartDate, CalcDate('<+2W>', WorkDate)), 25,
-          CalcDate(PlanningStartDate, CalcDate('<+3W>', WorkDate)), '');
-        SalesPlan(Item, 5, CalcDate(PlanningStartDate, CalcDate('<+1W>', WorkDate)), '', '');
+          SalesHeader, SalesLine, Item, 155, CalcDate(PlanningStartDate, CalcDate('<+2W>', WorkDate())), 25,
+          CalcDate(PlanningStartDate, CalcDate('<+3W>', WorkDate())), '');
+        SalesPlan(Item, 5, CalcDate(PlanningStartDate, CalcDate('<+1W>', WorkDate())), '', '');
 
         // Verify planning worksheet lines - check in doc section more info on the TDS
         AssertNumberOfLinesForItem(Item, 4);
         AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D,
-          CalcDate(PlanningStartDate, CalcDate('<+1W>', WorkDate)), 0, 30, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
+          CalcDate(PlanningStartDate, CalcDate('<+1W>', WorkDate())), 0, 30, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
         AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D,
-          CalcDate(PlanningStartDate, CalcDate('<+2W>', WorkDate)), 0, 100, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
+          CalcDate(PlanningStartDate, CalcDate('<+2W>', WorkDate())), 0, 100, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
         AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D,
-          CalcDate(PlanningStartDate, CalcDate('<+2W>', WorkDate)), 0, 30, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
+          CalcDate(PlanningStartDate, CalcDate('<+2W>', WorkDate())), 0, 30, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
         AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D,
-          CalcDate(PlanningStartDate, CalcDate('<+3W>', WorkDate)), 0, 30, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
+          CalcDate(PlanningStartDate, CalcDate('<+3W>', WorkDate())), 0, 30, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
     end;
 
     [Test]
@@ -1299,20 +1299,20 @@ codeunit 137021 "SCM Planning - NTF tests"
         AddInventoryBlankLocation(Item, 10);
 
         // Exercise
-        CreatePurchaseOrder(PurchaseHeader, PurchaseLine, Item, 25, CalcDate(PlanningStartDate, CalcDate('<+1W>', WorkDate)), '');
-        CreatePurchaseOrder(PurchaseHeader, PurchaseLine, Item, 60, CalcDate(PlanningStartDate, CalcDate('<+2W>', WorkDate)), '');
-        CreatePurchaseOrder(PurchaseHeader, PurchaseLine, Item, 50, CalcDate(PlanningStartDate, CalcDate('<+3W>', WorkDate)), '');
+        CreatePurchaseOrder(PurchaseHeader, PurchaseLine, Item, 25, CalcDate(PlanningStartDate, CalcDate('<+1W>', WorkDate())), '');
+        CreatePurchaseOrder(PurchaseHeader, PurchaseLine, Item, 60, CalcDate(PlanningStartDate, CalcDate('<+2W>', WorkDate())), '');
+        CreatePurchaseOrder(PurchaseHeader, PurchaseLine, Item, 50, CalcDate(PlanningStartDate, CalcDate('<+3W>', WorkDate())), '');
         CreateSalesOrderWith2Lines(
-          SalesHeader, SalesLine, Item, 25, CalcDate(PlanningStartDate, CalcDate('<+1W>', WorkDate)), 55,
-          CalcDate(PlanningStartDate, CalcDate('<+2W>', WorkDate)), '');
-        SalesPlan(Item, 55, CalcDate(PlanningStartDate, CalcDate('<+3W>', WorkDate)), '', '');
+          SalesHeader, SalesLine, Item, 25, CalcDate(PlanningStartDate, CalcDate('<+1W>', WorkDate())), 55,
+          CalcDate(PlanningStartDate, CalcDate('<+2W>', WorkDate())), '');
+        SalesPlan(Item, 55, CalcDate(PlanningStartDate, CalcDate('<+3W>', WorkDate())), '', '');
 
         // Verify planning worksheet lines - check in doc section more info on the TDS
         AssertNumberOfLinesForItem(Item, 2);
         AssertPlanningLine(Item, RequisitionLine."Action Message"::"Change Qty.", 0D,
-          CalcDate(PlanningStartDate, CalcDate('<+2W>', WorkDate)), 60, 55, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
+          CalcDate(PlanningStartDate, CalcDate('<+2W>', WorkDate())), 60, 55, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
         AssertPlanningLine(Item, RequisitionLine."Action Message"::"Change Qty.", 0D,
-          CalcDate(PlanningStartDate, CalcDate('<+3W>', WorkDate)), 50, 55, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
+          CalcDate(PlanningStartDate, CalcDate('<+3W>', WorkDate())), 50, 55, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
     end;
 
     [Test]
@@ -1334,14 +1334,14 @@ codeunit 137021 "SCM Planning - NTF tests"
         AddInventoryBlankLocation(Item, 100);
 
         // Exercise
-        SalesPlan(Item, 200, CalcDate(PlanningStartDate, CalcDate('<+1W>', WorkDate)), '', '');
+        SalesPlan(Item, 200, CalcDate(PlanningStartDate, CalcDate('<+1W>', WorkDate())), '', '');
 
         // Verify planning worksheet lines - check in doc section more info on the TDS
         AssertNumberOfLinesForItem(Item, 5);
         AssertPlanningLineWithMaximumOrderQty(Item."No.", RequisitionLine."Action Message"::New, 0D,
-          CalcDate(PlanningStartDate, CalcDate('<+1W>', WorkDate)), 0, 110, RequisitionLine."Ref. Order Type"::Purchase, '');
+          CalcDate(PlanningStartDate, CalcDate('<+1W>', WorkDate())), 0, 110, RequisitionLine."Ref. Order Type"::Purchase, '');
         AssertPlanningLineWithMaximumOrderQty(Item."No.", RequisitionLine."Action Message"::New, 0D,
-          CalcDate(PlanningStartDate, CalcDate('<+1W + 2D>', WorkDate)), 0, 90, RequisitionLine."Ref. Order Type"::Purchase, '');
+          CalcDate(PlanningStartDate, CalcDate('<+1W + 2D>', WorkDate())), 0, 90, RequisitionLine."Ref. Order Type"::Purchase, '');
     end;
 
     [Test]
@@ -1366,15 +1366,15 @@ codeunit 137021 "SCM Planning - NTF tests"
         AddInventoryBlankLocation(Item, 100);
 
         // Exercise
-        CreateSalesOrder(SalesHeader, Item, 75, CalcDate(PlanningStartDate, CalcDate('<+2W+3D>', WorkDate)), '');
-        SalesPlan(Item, 30, CalcDate(PlanningStartDate, CalcDate('<+3W>', WorkDate)), '', '');
+        CreateSalesOrder(SalesHeader, Item, 75, CalcDate(PlanningStartDate, CalcDate('<+2W+3D>', WorkDate())), '');
+        SalesPlan(Item, 30, CalcDate(PlanningStartDate, CalcDate('<+3W>', WorkDate())), '', '');
 
         // Verify planning worksheet lines - check in doc section more info on the TDS
         AssertNumberOfLinesForItem(Item, 2);
         AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D,
-          CalcDate(PlanningStartDate, CalcDate('<+4W+1D>', WorkDate)), 0, 75, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
+          CalcDate(PlanningStartDate, CalcDate('<+4W+1D>', WorkDate())), 0, 75, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
         AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D,
-          CalcDate(PlanningStartDate, CalcDate('<+3W>', WorkDate)), 0, 5, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
+          CalcDate(PlanningStartDate, CalcDate('<+3W>', WorkDate())), 0, 5, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
     end;
 
     [Test]
@@ -1400,9 +1400,9 @@ codeunit 137021 "SCM Planning - NTF tests"
         AddInventoryBlankLocation(Item, 100);
 
         // Exercise
-        CreatePurchaseOrder(PurchaseHeader, PurchaseLine, Item, 110, CalcDate(PlanningStartDate, CalcDate('<+3W>', WorkDate)), '');
-        CreateSalesOrder(SalesHeader, Item, 55, CalcDate(PlanningStartDate, CalcDate('<+3W-2D>', WorkDate)), '');
-        SalesPlan(Item, 55, CalcDate(PlanningStartDate, CalcDate('<+3W>', WorkDate)), '', '');
+        CreatePurchaseOrder(PurchaseHeader, PurchaseLine, Item, 110, CalcDate(PlanningStartDate, CalcDate('<+3W>', WorkDate())), '');
+        CreateSalesOrder(SalesHeader, Item, 55, CalcDate(PlanningStartDate, CalcDate('<+3W-2D>', WorkDate())), '');
+        SalesPlan(Item, 55, CalcDate(PlanningStartDate, CalcDate('<+3W>', WorkDate())), '', '');
 
         // Verify planning worksheet lines - check in doc section more info on the TDS
         AssertNoLinesForItem(Item);
@@ -1426,14 +1426,14 @@ codeunit 137021 "SCM Planning - NTF tests"
         AddInventoryBlankLocation(Item, 150);
 
         // Exercise
-        SalesPlan(Item, 200, CalcDate(PlanningStartDate, CalcDate('<+1W>', WorkDate)), '', '');
+        SalesPlan(Item, 200, CalcDate(PlanningStartDate, CalcDate('<+1W>', WorkDate())), '', '');
 
         // Verify planning worksheet lines - check in doc section more info on the TDS
         AssertNumberOfLinesForItem(Item, 2);
         AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D,
-          CalcDate(PlanningStartDate, CalcDate('<+1W>', WorkDate)), 0, 60, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
+          CalcDate(PlanningStartDate, CalcDate('<+1W>', WorkDate())), 0, 60, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
         AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D,
-          CalcDate(PlanningStartDate, CalcDate('<+1W+2D>', WorkDate)), 0, 500, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
+          CalcDate(PlanningStartDate, CalcDate('<+1W+2D>', WorkDate())), 0, 500, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
     end;
 
     [Test]
@@ -1458,10 +1458,10 @@ codeunit 137021 "SCM Planning - NTF tests"
         AddInventoryBlankLocation(Item, 101);
 
         // Exercise
-        CreatePurchaseOrder(PurchaseHeader, PurchaseLine, Item, 100, CalcDate(PlanningStartDate, CalcDate('<+2W>', WorkDate)), '');
-        CreatePurchaseOrder(PurchaseHeader, PurchaseLine, Item, 20, CalcDate(PlanningStartDate, CalcDate('<+2w-2D>', WorkDate)), '');
-        CreateSalesOrder(SalesHeader, Item, 50, CalcDate(PlanningStartDate, CalcDate('<+1W>', WorkDate)), '');
-        SalesPlan(Item, 60, CalcDate(PlanningStartDate, CalcDate('<+2W-2D>', WorkDate)), '', '');
+        CreatePurchaseOrder(PurchaseHeader, PurchaseLine, Item, 100, CalcDate(PlanningStartDate, CalcDate('<+2W>', WorkDate())), '');
+        CreatePurchaseOrder(PurchaseHeader, PurchaseLine, Item, 20, CalcDate(PlanningStartDate, CalcDate('<+2w-2D>', WorkDate())), '');
+        CreateSalesOrder(SalesHeader, Item, 50, CalcDate(PlanningStartDate, CalcDate('<+1W>', WorkDate())), '');
+        SalesPlan(Item, 60, CalcDate(PlanningStartDate, CalcDate('<+2W-2D>', WorkDate())), '', '');
 
         // Verify planning worksheet lines - check in doc section more info on the TDS
         AssertNoLinesForItem(Item);
@@ -1484,7 +1484,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         AddInventoryBlankLocation(Item, 50);
 
         // Exercise
-        PurchasePlan(Item, 51, CalcDate(PlanningStartDate, CalcDate('<-1W>', WorkDate)), '', '');
+        PurchasePlan(Item, 51, CalcDate(PlanningStartDate, CalcDate('<-1W>', WorkDate())), '', '');
 
         // Verify planning worksheet lines - check in doc section more info on the TDS
         AssertNoLinesForItem(Item);
@@ -1508,7 +1508,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         AddInventoryBlankLocation(Item, 150);
 
         // Exercise
-        PurchasePlan(Item, 100, CalcDate(PlanningStartDate, CalcDate('<-1W>', WorkDate)), '', '');
+        PurchasePlan(Item, 100, CalcDate(PlanningStartDate, CalcDate('<-1W>', WorkDate())), '', '');
 
         // Verify planning worksheet lines - check in doc section more info on the TDS
         AssertNoLinesForItem(Item);
@@ -1535,11 +1535,11 @@ codeunit 137021 "SCM Planning - NTF tests"
         AddInventoryBlankLocation(Item, 150);
 
         // Exercise
-        CreatePurchaseOrder(PurchaseHeader, PurchaseLine, Item, 15, CalcDate('<+4D>', WorkDate), '');
-        CreatePurchaseOrder(PurchaseHeader, PurchaseLine, Item, 25, CalcDate('<+8D>', WorkDate), '');
-        CreatePurchaseOrder(PurchaseHeader, PurchaseLine, Item, 130, CalcDate('<+10D>', WorkDate), '');
-        CreateSalesOrderWith2Lines(SalesHeader, SalesLine, Item, 75, CalcDate('<+0D>', WorkDate), 70, CalcDate('<+2D>', WorkDate), '');
-        SalesPlan(Item, 25, CalcDate('<+6D>', WorkDate), '', '');
+        CreatePurchaseOrder(PurchaseHeader, PurchaseLine, Item, 15, CalcDate('<+4D>', WorkDate()), '');
+        CreatePurchaseOrder(PurchaseHeader, PurchaseLine, Item, 25, CalcDate('<+8D>', WorkDate()), '');
+        CreatePurchaseOrder(PurchaseHeader, PurchaseLine, Item, 130, CalcDate('<+10D>', WorkDate()), '');
+        CreateSalesOrderWith2Lines(SalesHeader, SalesLine, Item, 75, CalcDate('<+0D>', WorkDate()), 70, CalcDate('<+2D>', WorkDate()), '');
+        SalesPlan(Item, 25, CalcDate('<+6D>', WorkDate()), '', '');
 
         // Verify planning worksheet lines - check in doc section more info on the TDS
         AssertNoLinesForItem(Item);
@@ -1563,12 +1563,12 @@ codeunit 137021 "SCM Planning - NTF tests"
         AddInventoryBlankLocation(Item, 75);
 
         // Exercise
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         // Verify planning worksheet lines - check in doc section more info on the TDS
         AssertNumberOfLinesForItem(Item, 1);
         AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D,
-          CalcDate(PlanningStartDate, CalcDate('<+1D>', WorkDate)), 0, 500, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
+          CalcDate(PlanningStartDate, CalcDate('<+1D>', WorkDate())), 0, 500, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
     end;
 
     [Test]
@@ -1589,12 +1589,12 @@ codeunit 137021 "SCM Planning - NTF tests"
         AddInventoryBlankLocation(Item, 150);
 
         // Exercise
-        SalesPlan(Item, 75, CalcDate(PlanningStartDate, CalcDate('<-1W>', WorkDate)), '', '');
+        SalesPlan(Item, 75, CalcDate(PlanningStartDate, CalcDate('<-1W>', WorkDate())), '', '');
 
         // Verify planning worksheet lines - check in doc section more info on the TDS
         AssertNumberOfLinesForItem(Item, 1);
         AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D,
-          CalcDate(PlanningStartDate, CalcDate('<+1D>', WorkDate)), 0, 425, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
+          CalcDate(PlanningStartDate, CalcDate('<+1D>', WorkDate())), 0, 425, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
     end;
 
     [Test]
@@ -1615,7 +1615,7 @@ codeunit 137021 "SCM Planning - NTF tests"
 
         // Exercise
         PurchaseSalesPlan(
-          Item, 100, CalcDate(PlanningStartDate, CalcDate('<+1D>', WorkDate)), 75, CalcDate(PlanningStartDate, CalcDate('<-1W>', WorkDate)), '',
+          Item, 100, CalcDate(PlanningStartDate, CalcDate('<+1D>', WorkDate())), 75, CalcDate(PlanningStartDate, CalcDate('<-1W>', WorkDate())), '',
           '');
 
         // Verify planning worksheet lines - check in doc section more info on the TDS
@@ -1640,14 +1640,14 @@ codeunit 137021 "SCM Planning - NTF tests"
         AddInventoryBlankLocation(Item, 5);
 
         // Exercise
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         // Verify planning worksheet lines - check in doc section more info on the TDS
         AssertNumberOfLinesForItem(Item, 2);
         AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D,
-          CalcDate(PlanningStartDate, CalcDate('<+1D>', WorkDate)), 0, 500, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
+          CalcDate(PlanningStartDate, CalcDate('<+1D>', WorkDate())), 0, 500, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
         AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D,
-          CalcDate(PlanningStartDate, WorkDate), 0, 5, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
+          CalcDate(PlanningStartDate, WorkDate()), 0, 5, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
     end;
 
     [Test]
@@ -1668,14 +1668,14 @@ codeunit 137021 "SCM Planning - NTF tests"
         AddInventoryBlankLocation(Item, 100);
 
         // Exercise
-        SalesPlan(Item, 95, CalcDate(PlanningStartDate, CalcDate('<-1W>', WorkDate)), '', '');
+        SalesPlan(Item, 95, CalcDate(PlanningStartDate, CalcDate('<-1W>', WorkDate())), '', '');
 
         // Verify planning worksheet lines - check in doc section more info on the TDS
         AssertNumberOfLinesForItem(Item, 2);
         AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D,
-          CalcDate(PlanningStartDate, CalcDate('<+1D>', WorkDate)), 0, 490, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
+          CalcDate(PlanningStartDate, CalcDate('<+1D>', WorkDate())), 0, 490, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
         AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D,
-          CalcDate(PlanningStartDate, WorkDate), 0, 5, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
+          CalcDate(PlanningStartDate, WorkDate()), 0, 5, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
     end;
 
     [Test]
@@ -1697,13 +1697,13 @@ codeunit 137021 "SCM Planning - NTF tests"
 
         // Exercise
         PurchaseSalesPlan(
-          Item, 100, CalcDate(PlanningStartDate, CalcDate('<+1W-1D>', WorkDate)), 95, CalcDate(PlanningStartDate, CalcDate('<-1W-1D>', WorkDate)),
+          Item, 100, CalcDate(PlanningStartDate, CalcDate('<+1W-1D>', WorkDate())), 95, CalcDate(PlanningStartDate, CalcDate('<-1W-1D>', WorkDate())),
           '', '');
 
         // Verify planning worksheet lines - check in doc section more info on the TDS
         AssertNumberOfLinesForItem(Item, 1);
         AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D,
-          CalcDate(PlanningStartDate, WorkDate), 0, 5, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
+          CalcDate(PlanningStartDate, WorkDate()), 0, 5, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
     end;
 
     [Test]
@@ -1721,14 +1721,14 @@ codeunit 137021 "SCM Planning - NTF tests"
         FixedReorderQtyItemSetup(Item, 100, 500, 0, '', 0, 10, '', 0);
 
         // Exercise
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         // Verify planning worksheet lines - check in doc section more info on the TDS
         AssertNumberOfLinesForItem(Item, 2);
         AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D,
-          CalcDate(PlanningStartDate, CalcDate('<+1D>', WorkDate)), 0, 500, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
+          CalcDate(PlanningStartDate, CalcDate('<+1D>', WorkDate())), 0, 500, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
         AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D,
-          CalcDate(PlanningStartDate, WorkDate), 0, 10, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
+          CalcDate(PlanningStartDate, WorkDate()), 0, 10, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
     end;
 
     [Test]
@@ -1749,14 +1749,14 @@ codeunit 137021 "SCM Planning - NTF tests"
         AddInventoryBlankLocation(Item, 5);
 
         // Exercise
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         // Verify planning worksheet lines - check in doc section more info on the TDS
         AssertNumberOfLinesForItem(Item, 2);
         AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D,
-          CalcDate(PlanningStartDate, CalcDate('<+1D>', WorkDate)), 0, 490, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
+          CalcDate(PlanningStartDate, CalcDate('<+1D>', WorkDate())), 0, 490, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
         AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D,
-          CalcDate(PlanningStartDate, WorkDate), 0, 5, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
+          CalcDate(PlanningStartDate, WorkDate()), 0, 5, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
     end;
 
     [Test]
@@ -1780,16 +1780,16 @@ codeunit 137021 "SCM Planning - NTF tests"
 
         // Exercise
         CreateSalesOrderWith2Lines(
-          SalesHeader, SalesLine, Item, 25, CalcDate(PlanningStartDate, CalcDate('<-3W>', WorkDate)), 50,
-          CalcDate(PlanningStartDate, CalcDate('<-2W>', WorkDate)), '');
-        SalesPlan(Item, 40, CalcDate(PlanningStartDate, CalcDate('<-1W>', WorkDate)), '', '');
+          SalesHeader, SalesLine, Item, 25, CalcDate(PlanningStartDate, CalcDate('<-3W>', WorkDate())), 50,
+          CalcDate(PlanningStartDate, CalcDate('<-2W>', WorkDate())), '');
+        SalesPlan(Item, 40, CalcDate(PlanningStartDate, CalcDate('<-1W>', WorkDate())), '', '');
 
         // Verify planning worksheet lines - check in doc section more info on the TDS
         AssertNumberOfLinesForItem(Item, 2);
         AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D,
-          CalcDate(PlanningStartDate, CalcDate('<-1D>', WorkDate)), 0, 15, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
+          CalcDate(PlanningStartDate, CalcDate('<-1D>', WorkDate())), 0, 15, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
         AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D,
-          CalcDate(PlanningStartDate, WorkDate), 0, 10, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
+          CalcDate(PlanningStartDate, WorkDate()), 0, 10, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
     end;
 
     [Test]
@@ -1811,15 +1811,15 @@ codeunit 137021 "SCM Planning - NTF tests"
 
         // Exercise
         PurchaseSalesPlan(
-          Item, 150, CalcDate(PlanningStartDate, CalcDate('<+1W>', WorkDate)), 175, CalcDate(PlanningStartDate, CalcDate('<-1W>', WorkDate)),
+          Item, 150, CalcDate(PlanningStartDate, CalcDate('<+1W>', WorkDate())), 175, CalcDate(PlanningStartDate, CalcDate('<-1W>', WorkDate())),
           '', '');
 
         // Verify planning worksheet lines - check in doc section more info on the TDS
         AssertNumberOfLinesForItem(Item, 2);
         AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D,
-          CalcDate(PlanningStartDate, WorkDate), 0, 10, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
+          CalcDate(PlanningStartDate, WorkDate()), 0, 10, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
         AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D,
-          CalcDate(PlanningStartDate, CalcDate('<-1D>', WorkDate)), 0, 25, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
+          CalcDate(PlanningStartDate, CalcDate('<-1D>', WorkDate())), 0, 25, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
     end;
 
     [Test]
@@ -1844,16 +1844,16 @@ codeunit 137021 "SCM Planning - NTF tests"
         AddInventoryBlankLocation(Item, 150);
 
         // Exercise
-        CreateSalesOrderWith2Lines(SalesHeader, SalesLine, Item, 40, CalcDate(PlanningStartDate, CalcDate('<+2D>', WorkDate)), 40,
-          CalcDate(PlanningStartDate, CalcDate('<+1W-1D>', WorkDate)), '');
-        SalesPlan(Item, 180, CalcDate(PlanningStartDate, CalcDate('<+2W>', WorkDate)), '', '');
+        CreateSalesOrderWith2Lines(SalesHeader, SalesLine, Item, 40, CalcDate(PlanningStartDate, CalcDate('<+2D>', WorkDate())), 40,
+          CalcDate(PlanningStartDate, CalcDate('<+1W-1D>', WorkDate())), '');
+        SalesPlan(Item, 180, CalcDate(PlanningStartDate, CalcDate('<+2W>', WorkDate())), '', '');
 
         // Verify planning worksheet lines - check in doc section more info on the TDS
         AssertNumberOfLinesForItem(Item, 2);
         AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D,
-          CalcDate(PlanningStartDate, CalcDate('<+1W+4D>', WorkDate)), 0, 200, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
+          CalcDate(PlanningStartDate, CalcDate('<+1W+4D>', WorkDate())), 0, 200, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
         AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D,
-          CalcDate(PlanningStartDate, CalcDate('<+3W+4D>', WorkDate)), 0, 200, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
+          CalcDate(PlanningStartDate, CalcDate('<+3W+4D>', WorkDate())), 0, 200, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
     end;
 
     [Test]
@@ -1876,18 +1876,18 @@ codeunit 137021 "SCM Planning - NTF tests"
         AddInventoryBlankLocation(Item, 101);
 
         // Exercise
-        CreateSalesOrderWith2Lines(SalesHeader, SalesLine, Item, 50, CalcDate(PlanningStartDate, CalcDate('<+1D>', WorkDate)), 150,
-          CalcDate(PlanningStartDate, CalcDate('<+3D>', WorkDate)), '');
-        SalesPlan(Item, 150, CalcDate(PlanningStartDate, CalcDate('<+2W-2D>', WorkDate)), '', '');
+        CreateSalesOrderWith2Lines(SalesHeader, SalesLine, Item, 50, CalcDate(PlanningStartDate, CalcDate('<+1D>', WorkDate())), 150,
+          CalcDate(PlanningStartDate, CalcDate('<+3D>', WorkDate())), '');
+        SalesPlan(Item, 150, CalcDate(PlanningStartDate, CalcDate('<+2W-2D>', WorkDate())), '', '');
 
         // Verify planning worksheet lines - check in doc section more info on the TDS
         AssertNumberOfLinesForItem(Item, 3);
         AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D,
-          CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate)), 0, 200, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
+          CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())), 0, 200, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
         AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D,
-          CalcDate(PlanningStartDate, CalcDate('<+2W+1D>', WorkDate)), 0, 200, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
+          CalcDate(PlanningStartDate, CalcDate('<+2W+1D>', WorkDate())), 0, 200, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
         AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D,
-          CalcDate(PlanningStartDate, CalcDate('<+3D>', WorkDate)), 0, 99, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
+          CalcDate(PlanningStartDate, CalcDate('<+3D>', WorkDate())), 0, 99, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
     end;
 
     [Test]
@@ -1911,11 +1911,11 @@ codeunit 137021 "SCM Planning - NTF tests"
         AddInventoryBlankLocation(Item, 101);
 
         // Exercise
-        CreatePurchaseOrder(PurchaseHeader, PurchaseLine, Item, 100, CalcDate(PlanningStartDate, CalcDate('<+2W-1D>', WorkDate)), '');
-        CreatePurchaseOrder(PurchaseHeader, PurchaseLine, Item, 50, CalcDate(PlanningStartDate, CalcDate('<+4W-1D>', WorkDate)), '');
-        CreateSalesOrderWith2Lines(SalesHeader, SalesLine, Item, 50, CalcDate(PlanningStartDate, CalcDate('<+1W-1D>', WorkDate)), 25,
-          CalcDate(PlanningStartDate, CalcDate('<+2W-2D>', WorkDate)), '');
-        SalesPlan(Item, 75, CalcDate(PlanningStartDate, CalcDate('<+3W+1D>', WorkDate)), '', '');
+        CreatePurchaseOrder(PurchaseHeader, PurchaseLine, Item, 100, CalcDate(PlanningStartDate, CalcDate('<+2W-1D>', WorkDate())), '');
+        CreatePurchaseOrder(PurchaseHeader, PurchaseLine, Item, 50, CalcDate(PlanningStartDate, CalcDate('<+4W-1D>', WorkDate())), '');
+        CreateSalesOrderWith2Lines(SalesHeader, SalesLine, Item, 50, CalcDate(PlanningStartDate, CalcDate('<+1W-1D>', WorkDate())), 25,
+          CalcDate(PlanningStartDate, CalcDate('<+2W-2D>', WorkDate())), '');
+        SalesPlan(Item, 75, CalcDate(PlanningStartDate, CalcDate('<+3W+1D>', WorkDate())), '', '');
 
         // Verify planning worksheet lines - check in doc section more info on the TDS
         AssertNoLinesForItem(Item);
@@ -1941,16 +1941,16 @@ codeunit 137021 "SCM Planning - NTF tests"
         AddInventoryBlankLocation(Item, 101);
 
         // Exercise
-        CreateSalesOrderWith2Lines(SalesHeader, SalesLine, Item, 25, CalcDate(PlanningStartDate, CalcDate('<+1W-1D>', WorkDate)), 25,
-          CalcDate(PlanningStartDate, CalcDate('<+3D>', WorkDate)), '');
-        SalesPlan(Item, 125, CalcDate(PlanningStartDate, CalcDate('<+3W+1D>', WorkDate)), '', '');
+        CreateSalesOrderWith2Lines(SalesHeader, SalesLine, Item, 25, CalcDate(PlanningStartDate, CalcDate('<+1W-1D>', WorkDate())), 25,
+          CalcDate(PlanningStartDate, CalcDate('<+3D>', WorkDate())), '');
+        SalesPlan(Item, 125, CalcDate(PlanningStartDate, CalcDate('<+3W+1D>', WorkDate())), '', '');
 
         // Verify planning worksheet lines - check in doc section more info on the TDS
         AssertNumberOfLinesForItem(Item, 2);
         AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D,
-          CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate)), 0, 149, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
+          CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())), 0, 149, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
         AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D,
-          CalcDate(PlanningStartDate, CalcDate('<+4W+1D>', WorkDate)), 0, 125, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
+          CalcDate(PlanningStartDate, CalcDate('<+4W+1D>', WorkDate())), 0, 125, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
     end;
 
     [Test]
@@ -1973,18 +1973,18 @@ codeunit 137021 "SCM Planning - NTF tests"
         AddInventoryBlankLocation(Item, 101);
 
         // Exercise
-        CreateSalesOrderWith2Lines(SalesHeader, SalesLine, Item, 75, CalcDate(PlanningStartDate, CalcDate('<+1D>', WorkDate)), 50,
-          CalcDate(PlanningStartDate, CalcDate('<+1W-2D>', WorkDate)), '');
-        SalesPlan(Item, 50, CalcDate(PlanningStartDate, CalcDate('<+1W>', WorkDate)), '', '');
+        CreateSalesOrderWith2Lines(SalesHeader, SalesLine, Item, 75, CalcDate(PlanningStartDate, CalcDate('<+1D>', WorkDate())), 50,
+          CalcDate(PlanningStartDate, CalcDate('<+1W-2D>', WorkDate())), '');
+        SalesPlan(Item, 50, CalcDate(PlanningStartDate, CalcDate('<+1W>', WorkDate())), '', '');
 
         // Verify planning worksheet lines - check in doc section more info on the TDS
         AssertNumberOfLinesForItem(Item, 3);
         AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D,
-          CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate)), 0, 200, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
+          CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())), 0, 200, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
         AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D,
-          CalcDate(PlanningStartDate, CalcDate('<+1W>', WorkDate)), 0, 50, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
+          CalcDate(PlanningStartDate, CalcDate('<+1W>', WorkDate())), 0, 50, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
         AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D,
-          CalcDate(PlanningStartDate, CalcDate('<+1W-2D>', WorkDate)), 0, 24, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
+          CalcDate(PlanningStartDate, CalcDate('<+1W-2D>', WorkDate())), 0, 24, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
     end;
 
     [Test]
@@ -2008,15 +2008,15 @@ codeunit 137021 "SCM Planning - NTF tests"
         AddInventoryBlankLocation(Item, 101);
 
         // Exercise
-        CreatePurchaseOrder(PurchaseHeader, PurchaseLine, Item, 49, CalcDate(PlanningStartDate, CalcDate('<+3W>', WorkDate)), '');
+        CreatePurchaseOrder(PurchaseHeader, PurchaseLine, Item, 49, CalcDate(PlanningStartDate, CalcDate('<+3W>', WorkDate())), '');
         CreatePurchaseOrder(PurchaseHeader, PurchaseLine, Item, 200, CalcDate(PlanningStartDate,
-            CalcDate(DaysInMonthFormula, CalcDate('<-1D>', WorkDate))), ''); // +1M-1D
+            CalcDate(DaysInMonthFormula, CalcDate('<-1D>', WorkDate()))), ''); // +1M-1D
         CreatePurchaseOrder(PurchaseHeader, PurchaseLine, Item, 100, CalcDate(PlanningStartDate,
-            CalcDate(DaysInMonthFormula, CalcDate(DaysInMonthFormula, CalcDate('<-1D>', WorkDate)))), ''); // +2M-1D
-        CreateSalesOrderWith2Lines(SalesHeader, SalesLine, Item, 75, CalcDate(PlanningStartDate, CalcDate('<+1W>', WorkDate)), 75,
-          CalcDate(PlanningStartDate, CalcDate('<+3W>', WorkDate)), '');
+            CalcDate(DaysInMonthFormula, CalcDate(DaysInMonthFormula, CalcDate('<-1D>', WorkDate())))), ''); // +2M-1D
+        CreateSalesOrderWith2Lines(SalesHeader, SalesLine, Item, 75, CalcDate(PlanningStartDate, CalcDate('<+1W>', WorkDate())), 75,
+          CalcDate(PlanningStartDate, CalcDate('<+3W>', WorkDate())), '');
         SalesPlan(Item, 150, CalcDate(PlanningStartDate,
-            CalcDate(DaysInMonthFormula, CalcDate('<+1D>', WorkDate))), '', ''); // 1M+1D
+            CalcDate(DaysInMonthFormula, CalcDate('<+1D>', WorkDate()))), '', ''); // 1M+1D
 
         // Verify planning worksheet lines - check in doc section more info on the TDS
         AssertNoLinesForItem(Item);
@@ -2039,16 +2039,16 @@ codeunit 137021 "SCM Planning - NTF tests"
         LFLItemSetup(Item, false, '', '1W', '', 0, 0, 0);
 
         // Exercise
-        CreateSalesOrderWith2Lines(SalesHeader, SalesLine, Item, 25, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate)), 50,
-          CalcDate(PlanningStartDate, CalcDate('<+2W+1D>', WorkDate)), '');
-        SalesPlan(Item, 63, CalcDate(PlanningStartDate, CalcDate('<+2W+2D>', WorkDate)), '', '');
+        CreateSalesOrderWith2Lines(SalesHeader, SalesLine, Item, 25, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())), 50,
+          CalcDate(PlanningStartDate, CalcDate('<+2W+1D>', WorkDate())), '');
+        SalesPlan(Item, 63, CalcDate(PlanningStartDate, CalcDate('<+2W+2D>', WorkDate())), '', '');
 
         // Verify planning worksheet lines - check in doc section more info on the TDS
         AssertNumberOfLinesForItem(Item, 2);
         AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D,
-          CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate)), 0, 75, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
+          CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())), 0, 75, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
         AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D,
-          CalcDate(PlanningStartDate, CalcDate('<+2W+2D>', WorkDate)), 0, 63, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
+          CalcDate(PlanningStartDate, CalcDate('<+2W+2D>', WorkDate())), 0, 63, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
     end;
 
     [Test]
@@ -2071,16 +2071,16 @@ codeunit 137021 "SCM Planning - NTF tests"
         AddInventoryBlankLocation(Item, 10);
 
         // Exercise
-        CreateSalesOrderWith2Lines(SalesHeader, SalesLine, Item, 5, CalcDate(PlanningStartDate, CalcDate('<+1W-2D>', WorkDate)), 15,
-          CalcDate(PlanningStartDate, CalcDate('<+1W-1D>', WorkDate)), '');
-        SalesPlan(Item, 30, CalcDate(PlanningStartDate, CalcDate('<+2W>', WorkDate)), '', '');
+        CreateSalesOrderWith2Lines(SalesHeader, SalesLine, Item, 5, CalcDate(PlanningStartDate, CalcDate('<+1W-2D>', WorkDate())), 15,
+          CalcDate(PlanningStartDate, CalcDate('<+1W-1D>', WorkDate())), '');
+        SalesPlan(Item, 30, CalcDate(PlanningStartDate, CalcDate('<+2W>', WorkDate())), '', '');
 
         // Verify planning worksheet lines - check in doc section more info on the TDS
         AssertNumberOfLinesForItem(Item, 2);
         AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D,
-          CalcDate(PlanningStartDate, CalcDate('<+1W-2D>', WorkDate)), 0, 20, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
+          CalcDate(PlanningStartDate, CalcDate('<+1W-2D>', WorkDate())), 0, 20, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
         AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D,
-          CalcDate(PlanningStartDate, CalcDate('<+2W>', WorkDate)), 0, 30, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
+          CalcDate(PlanningStartDate, CalcDate('<+2W>', WorkDate())), 0, 30, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
     end;
 
     [Test]
@@ -2101,11 +2101,11 @@ codeunit 137021 "SCM Planning - NTF tests"
         LFLItemSetup(Item, false, '', '10D', '', 0, 0, 0);
 
         // Exercise
-        CreatePurchaseOrder(PurchaseHeader, PurchaseLine, Item, 55, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate)), '');
-        CreatePurchaseOrder(PurchaseHeader, PurchaseLine, Item, 30, CalcDate(PlanningStartDate, CalcDate('<+3W-2D>', WorkDate)), '');
-        CreateSalesOrderWith2Lines(SalesHeader, SalesLine, Item, 55, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate)), 10,
-          CalcDate(PlanningStartDate, CalcDate('<+3W-2D>', WorkDate)), '');
-        SalesPlan(Item, 20, CalcDate(PlanningStartDate, CalcDate('<+3W+3D>', WorkDate)), '', '');
+        CreatePurchaseOrder(PurchaseHeader, PurchaseLine, Item, 55, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())), '');
+        CreatePurchaseOrder(PurchaseHeader, PurchaseLine, Item, 30, CalcDate(PlanningStartDate, CalcDate('<+3W-2D>', WorkDate())), '');
+        CreateSalesOrderWith2Lines(SalesHeader, SalesLine, Item, 55, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())), 10,
+          CalcDate(PlanningStartDate, CalcDate('<+3W-2D>', WorkDate())), '');
+        SalesPlan(Item, 20, CalcDate(PlanningStartDate, CalcDate('<+3W+3D>', WorkDate())), '', '');
 
         // Verify planning worksheet lines - check in doc section more info on the TDS
         AssertNoLinesForItem(Item);
@@ -2129,12 +2129,12 @@ codeunit 137021 "SCM Planning - NTF tests"
         AddInventoryBlankLocation(Item, 150);
 
         // Exercise
-        SalesPlan(Item, 75, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate)), '', '');
+        SalesPlan(Item, 75, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())), '', '');
 
         // Verify planning worksheet lines - check in doc section more info on the TDS
         AssertNumberOfLinesForItem(Item, 1);
         AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D,
-          CalcDate(PlanningStartDate, CalcDate('<+1W+3D>', WorkDate)), 0, 250, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
+          CalcDate(PlanningStartDate, CalcDate('<+1W+3D>', WorkDate())), 0, 250, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
     end;
 
     [Test]
@@ -2158,13 +2158,13 @@ codeunit 137021 "SCM Planning - NTF tests"
 
         // Exercise
         PurchaseSalesPlan(
-          Item, 25, CalcDate(PlanningStartDate, CalcDate('<+3W>', WorkDate)), 75, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate)),
+          Item, 25, CalcDate(PlanningStartDate, CalcDate('<+3W>', WorkDate())), 75, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())),
           '', '');
 
         // Verify planning worksheet lines - check in doc section more info on the TDS
         AssertNumberOfLinesForItem(Item, 1);
         AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D,
-          CalcDate(PlanningStartDate, CalcDate('<+3W-1D>', WorkDate)), 0, 250, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
+          CalcDate(PlanningStartDate, CalcDate('<+3W-1D>', WorkDate())), 0, 250, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
     end;
 
     [Test]
@@ -2187,7 +2187,7 @@ codeunit 137021 "SCM Planning - NTF tests"
 
         // Exercise
         PurchaseSalesPlan(
-          Item, 26, CalcDate(PlanningStartDate, CalcDate('<+3W-1D>', WorkDate)), 75, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate)),
+          Item, 26, CalcDate(PlanningStartDate, CalcDate('<+3W-1D>', WorkDate())), 75, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())),
           '', '');
 
         // Verify planning worksheet lines - check in doc section more info on the TDS
@@ -2215,13 +2215,13 @@ codeunit 137021 "SCM Planning - NTF tests"
         AddInventoryBlankLocation(Item, 101);
 
         // Exercise
-        CreateSalesOrder(SalesHeader, Item, 50, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate)), '');
-        SalesPlan(Item, 25, CalcDate(PlanningStartDate, CalcDate('<+1W+2D>', WorkDate)), '', '');
+        CreateSalesOrder(SalesHeader, Item, 50, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())), '');
+        SalesPlan(Item, 25, CalcDate(PlanningStartDate, CalcDate('<+1W+2D>', WorkDate())), '', '');
 
         // Verify planning worksheet lines - check in doc section more info on the TDS
         AssertNumberOfLinesForItem(Item, 1);
         AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D,
-          CalcDate(PlanningStartDate, CalcDate('<+3W-1D>', WorkDate)), 0, 149, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
+          CalcDate(PlanningStartDate, CalcDate('<+3W-1D>', WorkDate())), 0, 149, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
     end;
 
     [Test]
@@ -2245,13 +2245,13 @@ codeunit 137021 "SCM Planning - NTF tests"
 
         // Exercise
         PurchaseSalesPlan(
-          Item, 25, CalcDate(PlanningStartDate, CalcDate('<+3W-1D>', WorkDate)), 50, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate)),
+          Item, 25, CalcDate(PlanningStartDate, CalcDate('<+3W-1D>', WorkDate())), 50, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())),
           '', '');
 
         // Verify planning worksheet lines - check in doc section more info on the TDS
         AssertNumberOfLinesForItem(Item, 1);
         AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D,
-          CalcDate(PlanningStartDate, CalcDate('<+3W-1D>', WorkDate)), 0, 124, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
+          CalcDate(PlanningStartDate, CalcDate('<+3W-1D>', WorkDate())), 0, 124, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
     end;
 
     [Test]
@@ -2273,16 +2273,16 @@ codeunit 137021 "SCM Planning - NTF tests"
         Item.Modify(true);
 
         // Exercise
-        CreateSalesOrderWith2Lines(SalesHeader, SalesLine, Item, 50, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate)), 100,
-          CalcDate(PlanningStartDate, CalcDate('<+2W-1D>', WorkDate)), '');
-        SalesPlan(Item, 25, CalcDate(PlanningStartDate, CalcDate('<+2W+3D>', WorkDate)), '', '');
+        CreateSalesOrderWith2Lines(SalesHeader, SalesLine, Item, 50, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())), 100,
+          CalcDate(PlanningStartDate, CalcDate('<+2W-1D>', WorkDate())), '');
+        SalesPlan(Item, 25, CalcDate(PlanningStartDate, CalcDate('<+2W+3D>', WorkDate())), '', '');
 
         // Verify planning worksheet lines - check in doc section more info on the TDS
         AssertNumberOfLinesForItem(Item, 2);
         AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D,
-          CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate)), 0, 150, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
+          CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())), 0, 150, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
         AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D,
-          CalcDate(PlanningStartDate, CalcDate('<+2W+3D>', WorkDate)), 0, 25, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
+          CalcDate(PlanningStartDate, CalcDate('<+2W+3D>', WorkDate())), 0, 25, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
     end;
 
     [Test]
@@ -2305,18 +2305,18 @@ codeunit 137021 "SCM Planning - NTF tests"
         AddInventoryBlankLocation(Item, 101);
 
         // Exercise
-        CreateSalesOrderWith2Lines(SalesHeader, SalesLine, Item, 50, CalcDate(PlanningStartDate, CalcDate('<+1D>', WorkDate)), 150,
-          CalcDate(PlanningStartDate, CalcDate('<+1W-2D>', WorkDate)), '');
-        SalesPlan(Item, 150, CalcDate(PlanningStartDate, CalcDate('<+2W-2D>', WorkDate)), '', '');
+        CreateSalesOrderWith2Lines(SalesHeader, SalesLine, Item, 50, CalcDate(PlanningStartDate, CalcDate('<+1D>', WorkDate())), 150,
+          CalcDate(PlanningStartDate, CalcDate('<+1W-2D>', WorkDate())), '');
+        SalesPlan(Item, 150, CalcDate(PlanningStartDate, CalcDate('<+2W-2D>', WorkDate())), '', '');
 
         // Verify planning worksheet lines - check in doc section more info on the TDS
         AssertNumberOfLinesForItem(Item, 3);
         AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D,
-          CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate)), 0, 200, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
+          CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())), 0, 200, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
         AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D,
-          CalcDate(PlanningStartDate, CalcDate('<+2W+1D>', WorkDate)), 0, 200, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
+          CalcDate(PlanningStartDate, CalcDate('<+2W+1D>', WorkDate())), 0, 200, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
         AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D,
-          CalcDate(PlanningStartDate, CalcDate('<+1W-2D>', WorkDate)), 0, 99, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
+          CalcDate(PlanningStartDate, CalcDate('<+1W-2D>', WorkDate())), 0, 99, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
     end;
 
     [Test]
@@ -2340,15 +2340,15 @@ codeunit 137021 "SCM Planning - NTF tests"
         AddInventoryBlankLocation(Item, 150);
 
         // Exercise
-        CreateSalesOrder(SalesHeader, Item, 74, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate)), '');
+        CreateSalesOrder(SalesHeader, Item, 74, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())), '');
         PurchaseSalesPlan(
-          Item, 25, CalcDate(PlanningStartDate, CalcDate('<+2W+3D>', WorkDate)), 1, CalcDate(PlanningStartDate, CalcDate('<+2W-2D>', WorkDate)),
+          Item, 25, CalcDate(PlanningStartDate, CalcDate('<+2W+3D>', WorkDate())), 1, CalcDate(PlanningStartDate, CalcDate('<+2W-2D>', WorkDate())),
           '', '');
 
         // Verify planning worksheet lines - check in doc section more info on the TDS
         AssertNumberOfLinesForItem(Item, 1);
         AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D,
-          CalcDate(PlanningStartDate, CalcDate('<+3W+3D>', WorkDate)), 0, 250, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
+          CalcDate(PlanningStartDate, CalcDate('<+3W+3D>', WorkDate())), 0, 250, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
     end;
 
     [Test]
@@ -2369,8 +2369,8 @@ codeunit 137021 "SCM Planning - NTF tests"
         AddInventoryBlankLocation(Item, 2);
 
         // Exercise
-        CreateSalesReturnOrder(SalesHeader, Item, 2, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate)), '');
-        SalesPlan(Item, 1, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate)), '', '');
+        CreateSalesReturnOrder(SalesHeader, Item, 2, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())), '');
+        SalesPlan(Item, 1, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())), '', '');
 
         // Verify planning worksheet lines - check in doc section more info on the TDS
         AssertNoLinesForItem(Item);
@@ -2396,14 +2396,14 @@ codeunit 137021 "SCM Planning - NTF tests"
 
         // Exercise
         CreateTransferOrder(
-          TransferHeader, Item."No.", LocationTwo.Code, LocationOne.Code, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate)), 1);
+          TransferHeader, Item."No.", LocationTwo.Code, LocationOne.Code, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())), 1);
         SalesPlan(
-          Item, 1, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate)), LocationOne.Code, LocationOne.Code + '|' + LocationTwo.Code);
+          Item, 1, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())), LocationOne.Code, LocationOne.Code + '|' + LocationTwo.Code);
 
         // Verify planning worksheet lines - check in doc section more info on the TDS
         AssertNumberOfLinesForItem(Item, 1);
         AssertPlanningLine(Item, RequisitionLine."Action Message"::Cancel, 0D,
-          CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate)), 1, 0, RequisitionLine."Ref. Order Type"::Transfer, '', 1);
+          CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())), 1, 0, RequisitionLine."Ref. Order Type"::Transfer, '', 1);
     end;
 
     [Test]
@@ -2423,14 +2423,14 @@ codeunit 137021 "SCM Planning - NTF tests"
         LFLItemSetup(Item, true, '', '', '', 0, 0, 0);
 
         // Exercise
-        CreateRelProdOrderAndRefresh(ProductionOrder, Item."No.", 1, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate)), '', '');
-        CreateSalesReturnOrder(SalesHeader, Item, 1, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate)), '');
-        SalesPlan(Item, 1, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate)), '', '');
+        CreateRelProdOrderAndRefresh(ProductionOrder, Item."No.", 1, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())), '', '');
+        CreateSalesReturnOrder(SalesHeader, Item, 1, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())), '');
+        SalesPlan(Item, 1, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())), '', '');
 
         // Verify planning worksheet lines - check in doc section more info on the TDS
         AssertNumberOfLinesForItem(Item, 1);
         AssertPlanningLine(Item, RequisitionLine."Action Message"::Cancel, 0D,
-          CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate)), 1, 0, RequisitionLine."Ref. Order Type"::"Prod. Order", '', 1);
+          CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())), 1, 0, RequisitionLine."Ref. Order Type"::"Prod. Order", '', 1);
     end;
 
     [Test]
@@ -2452,13 +2452,13 @@ codeunit 137021 "SCM Planning - NTF tests"
 
         // Exercise
         PurchaseSalesPlan(
-          Item, 1, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate)), 1, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate)),
+          Item, 1, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())), 1, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())),
           '', '');
 
         // Verify planning worksheet lines - check in doc section more info on the TDS
         AssertNumberOfLinesForItem(Item, 1);
         AssertPlanningLine(Item, RequisitionLine."Action Message"::Cancel, 0D,
-          CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate)), 1, 0, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
+          CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())), 1, 0, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
     end;
 
     [Test]
@@ -2481,19 +2481,19 @@ codeunit 137021 "SCM Planning - NTF tests"
 
         // Exercise
         CreateTransferOrder(
-          TransferHeader, Item."No.", LocationTwo.Code, LocationOne.Code, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate)), 1);
+          TransferHeader, Item."No.", LocationTwo.Code, LocationOne.Code, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())), 1);
         CreateRelProdOrderAndRefresh(
-          ProductionOrder, Item."No.", 1, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate)), LocationOne.Code, '');
+          ProductionOrder, Item."No.", 1, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())), LocationOne.Code, '');
         CreatePurchaseOrder(
-          PurchaseHeader, PurchaseLine, Item, 1, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate)), LocationOne.Code);
-        SalesPlan(Item, 1, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate)), LocationOne.Code, LocationOne.Code);
+          PurchaseHeader, PurchaseLine, Item, 1, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())), LocationOne.Code);
+        SalesPlan(Item, 1, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())), LocationOne.Code, LocationOne.Code);
 
         // Verify planning worksheet lines - check in doc section more info on the TDS
         AssertNumberOfLinesForItem(Item, 2);
         AssertPlanningLine(Item, RequisitionLine."Action Message"::Cancel, 0D,
-          CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate)), 1, 0, RequisitionLine."Ref. Order Type"::Purchase, LocationOne.Code, 1);
+          CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())), 1, 0, RequisitionLine."Ref. Order Type"::Purchase, LocationOne.Code, 1);
         AssertPlanningLine(Item, RequisitionLine."Action Message"::Cancel, 0D,
-          CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate)), 1, 0, RequisitionLine."Ref. Order Type"::"Prod. Order",
+          CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())), 1, 0, RequisitionLine."Ref. Order Type"::"Prod. Order",
           LocationOne.Code, 1);
     end;
 
@@ -2515,15 +2515,15 @@ codeunit 137021 "SCM Planning - NTF tests"
 
         // Exercise
         CreateTransferOrder(
-          TransferHeader, Item."No.", LocationTwo.Code, LocationOne.Code, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate)), 1);
+          TransferHeader, Item."No.", LocationTwo.Code, LocationOne.Code, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())), 1);
         CreateRelProdOrderAndRefresh(
-          ProductionOrder, Item."No.", 1, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate)), LocationOne.Code, '');
-        SalesPlan(Item, 1, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate)), LocationOne.Code, LocationOne.Code);
+          ProductionOrder, Item."No.", 1, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())), LocationOne.Code, '');
+        SalesPlan(Item, 1, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())), LocationOne.Code, LocationOne.Code);
 
         // Verify planning worksheet lines - check in doc section more info on the TDS
         AssertNumberOfLinesForItem(Item, 1);
         AssertPlanningLine(Item, RequisitionLine."Action Message"::Cancel, 0D,
-          CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate)), 1, 0, RequisitionLine."Ref. Order Type"::"Prod. Order",
+          CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())), 1, 0, RequisitionLine."Ref. Order Type"::"Prod. Order",
           LocationOne.Code, 1);
     end;
 
@@ -2546,15 +2546,15 @@ codeunit 137021 "SCM Planning - NTF tests"
 
         // Exercise
         CreateTransferOrder(
-          TransferHeader, Item."No.", LocationTwo.Code, LocationOne.Code, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate)), 1);
+          TransferHeader, Item."No.", LocationTwo.Code, LocationOne.Code, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())), 1);
         CreatePurchaseOrder(
-          PurchaseHeader, PurchaseLine, Item, 1, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate)), LocationOne.Code);
-        SalesPlan(Item, 1, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate)), LocationOne.Code, LocationOne.Code);
+          PurchaseHeader, PurchaseLine, Item, 1, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())), LocationOne.Code);
+        SalesPlan(Item, 1, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())), LocationOne.Code, LocationOne.Code);
 
         // Verify planning worksheet lines - check in doc section more info on the TDS
         AssertNumberOfLinesForItem(Item, 1);
         AssertPlanningLine(Item, RequisitionLine."Action Message"::Cancel, 0D,
-          CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate)), 1, 0, RequisitionLine."Ref. Order Type"::Purchase, LocationOne.Code, 1);
+          CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())), 1, 0, RequisitionLine."Ref. Order Type"::Purchase, LocationOne.Code, 1);
     end;
 
     [Test]
@@ -2576,15 +2576,15 @@ codeunit 137021 "SCM Planning - NTF tests"
 
         // Exercise
         CreateRelProdOrderAndRefresh(
-          ProductionOrder, Item."No.", 1, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate)), LocationOne.Code, '');
+          ProductionOrder, Item."No.", 1, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())), LocationOne.Code, '');
         CreatePurchaseOrder(
-          PurchaseHeader, PurchaseLine, Item, 1, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate)), LocationOne.Code);
-        SalesPlan(Item, 1, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate)), LocationOne.Code, LocationOne.Code);
+          PurchaseHeader, PurchaseLine, Item, 1, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())), LocationOne.Code);
+        SalesPlan(Item, 1, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())), LocationOne.Code, LocationOne.Code);
 
         // Verify planning worksheet lines - check in doc section more info on the TDS
         AssertNumberOfLinesForItem(Item, 1);
         AssertPlanningLine(Item, RequisitionLine."Action Message"::Cancel, 0D,
-          CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate)), 1, 0, RequisitionLine."Ref. Order Type"::Purchase, LocationOne.Code, 1);
+          CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())), 1, 0, RequisitionLine."Ref. Order Type"::Purchase, LocationOne.Code, 1);
     end;
 
     [Test]
@@ -2602,9 +2602,9 @@ codeunit 137021 "SCM Planning - NTF tests"
         LFLItemSetup(Item, true, '', '', '', 0, 0, 0);
 
         // Exercise
-        CreatePlanProdOrderAndRefresh(ProductionOrder, Item."No.", 1, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate)), '', '');
-        CreateRelProdOrderAndRefresh(ProductionOrder, Item."No.", 1, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate)), '', '');
-        SalesPlan(Item, 1, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate)), '', '');
+        CreatePlanProdOrderAndRefresh(ProductionOrder, Item."No.", 1, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())), '', '');
+        CreateRelProdOrderAndRefresh(ProductionOrder, Item."No.", 1, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())), '', '');
+        SalesPlan(Item, 1, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())), '', '');
 
         // Verify planning worksheet lines - check in doc section more info on the TDS
         AssertNoLinesForItem(Item);
@@ -2626,14 +2626,14 @@ codeunit 137021 "SCM Planning - NTF tests"
         LFLItemSetup(Item, true, '', '', '', 0, 0, 0);
 
         // Exercise
-        CreateFPlanProdOrderAndRefresh(ProductionOrder, Item."No.", 2, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate)), '', '');
-        CreateRelProdOrderAndRefresh(ProductionOrder, Item."No.", 1, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate)), '', '');
-        SalesPlan(Item, 1, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate)), '', '');
+        CreateFPlanProdOrderAndRefresh(ProductionOrder, Item."No.", 2, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())), '', '');
+        CreateRelProdOrderAndRefresh(ProductionOrder, Item."No.", 1, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())), '', '');
+        SalesPlan(Item, 1, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())), '', '');
 
         // Verify planning worksheet lines - check in doc section more info on the TDS
         AssertNumberOfLinesForItem(Item, 1);
         AssertPlanningLine(Item, RequisitionLine."Action Message"::Cancel, 0D,
-          CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate)), 2, 0, RequisitionLine."Ref. Order Type"::"Prod. Order", '', 1);
+          CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())), 2, 0, RequisitionLine."Ref. Order Type"::"Prod. Order", '', 1);
     end;
 
     [Test]
@@ -2651,9 +2651,9 @@ codeunit 137021 "SCM Planning - NTF tests"
         LFLItemSetup(Item, true, '', '', '', 0, 0, 0);
 
         // Exercise
-        CreatePlanProdOrderAndRefresh(ProductionOrder, Item."No.", 1, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate)), '', '');
-        CreateFPlanProdOrderAndRefresh(ProductionOrder, Item."No.", 1, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate)), '', '');
-        SalesPlan(Item, 1, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate)), '', '');
+        CreatePlanProdOrderAndRefresh(ProductionOrder, Item."No.", 1, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())), '', '');
+        CreateFPlanProdOrderAndRefresh(ProductionOrder, Item."No.", 1, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())), '', '');
+        SalesPlan(Item, 1, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())), '', '');
 
         // Verify planning worksheet lines - check in doc section more info on the TDS
         AssertNoLinesForItem(Item);
@@ -2679,9 +2679,9 @@ codeunit 137021 "SCM Planning - NTF tests"
 
         // Exercise
         CreateTransferOrder(
-          TransferHeader, Item."No.", LocationTwo.Code, LocationOne.Code, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate)), 1);
+          TransferHeader, Item."No.", LocationTwo.Code, LocationOne.Code, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())), 1);
         LibraryWarehouse.PostTransferOrder(TransferHeader, true, false);
-        SalesPlan(Item, 1, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate)), LocationOne.Code, LocationOne.Code);
+        SalesPlan(Item, 1, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())), LocationOne.Code, LocationOne.Code);
 
         // Verify planning worksheet lines - check in doc section more info on the TDS
         AssertNoLinesForItem(Item);
@@ -2710,9 +2710,9 @@ codeunit 137021 "SCM Planning - NTF tests"
         AddInventoryBlankLocation(ChildItem, 10);
 
         // Exercise
-        CreateRelProdOrderAndRefresh(ProductionOrder, Item."No.", 1, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate)), '', '');
+        CreateRelProdOrderAndRefresh(ProductionOrder, Item."No.", 1, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())), '', '');
         CalculateAndPostConsumption(ProductionOrder);
-        SalesPlan(Item, 1, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate)), '', '');
+        SalesPlan(Item, 1, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())), '', '');
 
         // Verify planning worksheet lines - check in doc section more info on the TDS
         AssertNoLinesForItem(Item);
@@ -2734,11 +2734,11 @@ codeunit 137021 "SCM Planning - NTF tests"
         LFLItemSetup(Item, true, '', '', '', 0, 0, 0);
 
         // Exercise
-        CreatePurchaseOrder(PurchaseHeader, PurchaseLine, Item, 2, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate)), '');
+        CreatePurchaseOrder(PurchaseHeader, PurchaseLine, Item, 2, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())), '');
         PurchaseLine.Validate("Qty. to Receive", 1);
         PurchaseLine.Modify(true);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
-        SalesPlan(Item, 1, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate)), '', '');
+        SalesPlan(Item, 1, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())), '', '');
 
         // Verify planning worksheet lines - check in doc section more info on the TDS
         AssertNoLinesForItem(Item);
@@ -2769,16 +2769,16 @@ codeunit 137021 "SCM Planning - NTF tests"
 
         // Exercise
         CreateTransferOrder(
-          TransferHeader, Item."No.", LocationTwo.Code, LocationOne.Code, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate)), 1);
+          TransferHeader, Item."No.", LocationTwo.Code, LocationOne.Code, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())), 1);
         CreateRelProdOrderAndRefresh(
-          ProductionOrder, Item."No.", 1, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate)), LocationOne.Code, '');
+          ProductionOrder, Item."No.", 1, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())), LocationOne.Code, '');
         CalculateAndPostConsumption(ProductionOrder);
-        SalesPlan(Item, 1, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate)), LocationOne.Code, LocationOne.Code);
+        SalesPlan(Item, 1, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())), LocationOne.Code, LocationOne.Code);
 
         // Verify planning worksheet lines - check in doc section more info on the TDS
         AssertNumberOfLinesForItem(Item, 1);
         AssertPlanningLine(Item, RequisitionLine."Action Message"::Cancel, 0D,
-          CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate)), 1, 0, RequisitionLine."Ref. Order Type"::Transfer, '', 1);
+          CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())), 1, 0, RequisitionLine."Ref. Order Type"::Transfer, '', 1);
     end;
 
     [Test]
@@ -2799,17 +2799,17 @@ codeunit 137021 "SCM Planning - NTF tests"
         LFLItemSetup(Item, true, '', '', '', 0, 0, 0);
 
         // Exercise
-        CreateRelProdOrderAndRefresh(ProductionOrder, Item."No.", 2, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate)), '', '');
-        CreatePurchaseOrder(PurchaseHeader, PurchaseLine, Item, 2, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate)), '');
+        CreateRelProdOrderAndRefresh(ProductionOrder, Item."No.", 2, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())), '', '');
+        CreatePurchaseOrder(PurchaseHeader, PurchaseLine, Item, 2, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())), '');
         PurchaseLine.Validate("Qty. to Receive", 1);
         PurchaseLine.Modify(true);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
-        SalesPlan(Item, 2, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate)), '', '');
+        SalesPlan(Item, 2, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())), '', '');
 
         // Verify planning worksheet lines - check in doc section more info on the TDS
         AssertNumberOfLinesForItem(Item, 1);
         AssertPlanningLine(Item, RequisitionLine."Action Message"::Cancel, 0D,
-          CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate)), 2, 0, RequisitionLine."Ref. Order Type"::"Prod. Order", '', 1);
+          CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())), 2, 0, RequisitionLine."Ref. Order Type"::"Prod. Order", '', 1);
     end;
 
     [Test]
@@ -2829,17 +2829,17 @@ codeunit 137021 "SCM Planning - NTF tests"
         LFLItemSetup(Item, true, '', '', '', 0, 0, 0);
 
         // Exercise
-        CreateSalesReturnOrder(SalesHeader, Item, 1, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate)), LocationOne.Code);
+        CreateSalesReturnOrder(SalesHeader, Item, 1, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())), LocationOne.Code);
         CreateTransferOrder(
-          TransferHeader, Item."No.", LocationWhite.Code, LocationOne.Code, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate)), 1);
+          TransferHeader, Item."No.", LocationWhite.Code, LocationOne.Code, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())), 1);
         LibraryWarehouse.ReleaseTransferOrder(TransferHeader);
         LibraryWarehouse.CreateWhseShipmentFromTO(TransferHeader);
-        SalesPlan(Item, 1, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate)), LocationOne.Code, LocationOne.Code);
+        SalesPlan(Item, 1, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())), LocationOne.Code, LocationOne.Code);
 
         // Verify planning worksheet lines - check in doc section more info on the TDS
         AssertNumberOfLinesForItem(Item, 1);
         AssertPlanningLine(Item, RequisitionLine."Action Message"::Cancel, 0D,
-          CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate)), 1, 0, RequisitionLine."Ref. Order Type"::Transfer, '', 1);
+          CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())), 1, 0, RequisitionLine."Ref. Order Type"::Transfer, '', 1);
     end;
 
     [Test]
@@ -2871,16 +2871,16 @@ codeunit 137021 "SCM Planning - NTF tests"
 
         // Exercise
         CreateSalesReturnOrder(
-          SalesHeader, Item, 1, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate)), LocationWhite.Code);
+          SalesHeader, Item, 1, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())), LocationWhite.Code);
         CreateRelProdOrderAndRefresh(
-          ProductionOrder, Item."No.", 1, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate)), LocationWhite.Code, '');
+          ProductionOrder, Item."No.", 1, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())), LocationWhite.Code, '');
         LibraryWarehouse.CreateWhsePickFromProduction(ProductionOrder);
-        SalesPlan(Item, 1, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate)), LocationWhite.Code, LocationWhite.Code);
+        SalesPlan(Item, 1, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())), LocationWhite.Code, LocationWhite.Code);
 
         // Verify planning worksheet lines - check in doc section more info on the TDS
         AssertNumberOfLinesForItem(Item, 1);
         AssertPlanningLine(Item, RequisitionLine."Action Message"::Cancel, 0D,
-          CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate)), 1, 0, RequisitionLine."Ref. Order Type"::"Prod. Order", '', 1);
+          CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())), 1, 0, RequisitionLine."Ref. Order Type"::"Prod. Order", '', 1);
     end;
 
     [ConfirmHandler]
@@ -2917,17 +2917,17 @@ codeunit 137021 "SCM Planning - NTF tests"
 
         // Exercise
         CreateSalesReturnOrder(
-          SalesHeader, Item, 1, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate)), LocationWhite.Code);
+          SalesHeader, Item, 1, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())), LocationWhite.Code);
         CreatePurchaseOrder(
-          PurchaseHeader, PurchaseLine, Item, 1, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate)), LocationWhite.Code);
+          PurchaseHeader, PurchaseLine, Item, 1, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())), LocationWhite.Code);
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
         LibraryWarehouse.CreateWhseReceiptFromPO(PurchaseHeader);
-        SalesPlan(Item, 1, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate)), LocationWhite.Code, LocationWhite.Code);
+        SalesPlan(Item, 1, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())), LocationWhite.Code, LocationWhite.Code);
 
         // Verify planning worksheet lines - check in doc section more info on the TDS
         AssertNumberOfLinesForItem(Item, 1);
         AssertPlanningLine(Item, RequisitionLine."Action Message"::Cancel, 0D,
-          CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate)), 1, 0, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
+          CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())), 1, 0, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
     end;
 
     [Test]
@@ -2954,15 +2954,15 @@ codeunit 137021 "SCM Planning - NTF tests"
         AddInventoryDirectedLocation(Item, LocationWhite.Code, 'PICK', Bin.Code, 10);
 
         // Exercise
-        CreateSalesReturnOrder(SalesHeader, Item, 2, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate)), LocationOne.Code);
+        CreateSalesReturnOrder(SalesHeader, Item, 2, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())), LocationOne.Code);
         CreateTransferOrder(
-          TransferHeader, Item."No.", LocationWhite.Code, LocationOne.Code, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate)), 2);
+          TransferHeader, Item."No.", LocationWhite.Code, LocationOne.Code, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())), 2);
         LibraryWarehouse.ReleaseTransferOrder(TransferHeader);
         LibraryWarehouse.CreateWhseShipmentFromTO(TransferHeader);
         GetLastWhseShipmentCreated(WarehouseShipmentHeader, LocationWhite);
         LibraryWarehouse.CreateWhsePick(WarehouseShipmentHeader);
         RegisterWarehousePick(LocationWhite, 1);
-        SalesPlan(Item, 2, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate)), LocationOne.Code, LocationOne.Code);
+        SalesPlan(Item, 2, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())), LocationOne.Code, LocationOne.Code);
 
         // Verify planning worksheet lines - check in doc section more info on the TDS
         AssertNoLinesForItem(Item);
@@ -3010,12 +3010,12 @@ codeunit 137021 "SCM Planning - NTF tests"
 
         // Exercise
         CreateSalesReturnOrder(
-          SalesHeader, Item, 1, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate)), LocationWhite.Code);
+          SalesHeader, Item, 1, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())), LocationWhite.Code);
         CreateRelProdOrderAndRefresh(
-          ProductionOrder, Item."No.", 1, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate)), LocationWhite.Code, '');
+          ProductionOrder, Item."No.", 1, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())), LocationWhite.Code, '');
         LibraryWarehouse.CreateWhsePickFromProduction(ProductionOrder);
         RegisterWarehousePick(LocationWhite, 1);
-        SalesPlan(Item, 1, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate)), LocationWhite.Code, LocationWhite.Code);
+        SalesPlan(Item, 1, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())), LocationWhite.Code, LocationWhite.Code);
 
         // Verify planning worksheet lines - check in doc section more info on the TDS
         AssertNoLinesForItem(Item);
@@ -3046,13 +3046,13 @@ codeunit 137021 "SCM Planning - NTF tests"
 
         // Exercise
         CreateSalesReturnOrder(
-          SalesHeader, Item, 2, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate)), LocationWhite.Code);
+          SalesHeader, Item, 2, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())), LocationWhite.Code);
         CreatePurchaseOrder(
-          PurchaseHeader, PurchaseLine, Item, 2, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate)), LocationWhite.Code);
+          PurchaseHeader, PurchaseLine, Item, 2, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())), LocationWhite.Code);
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
         LibraryWarehouse.CreateWhseReceiptFromPO(PurchaseHeader);
         PostWarehouseReceipt(LocationWhite, 1);
-        SalesPlan(Item, 2, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate)), LocationWhite.Code, LocationWhite.Code);
+        SalesPlan(Item, 2, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())), LocationWhite.Code, LocationWhite.Code);
 
         // Verify planning worksheet lines - check in doc section more info on the TDS
         AssertNoLinesForItem(Item);
@@ -3088,19 +3088,19 @@ codeunit 137021 "SCM Planning - NTF tests"
 
         // Exercise
         CreateSalesReturnOrder(
-          SalesHeader, Item, 1, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate)), LocationWhite.Code);
+          SalesHeader, Item, 1, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())), LocationWhite.Code);
         CreateTransferOrder(
-          TransferHeader, Item."No.", LocationOne.Code, LocationWhite.Code, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate)), 1);
+          TransferHeader, Item."No.", LocationOne.Code, LocationWhite.Code, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())), 1);
         CreateRelProdOrderAndRefresh(
-          ProductionOrder, Item."No.", 1, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate)), LocationWhite.Code, '');
+          ProductionOrder, Item."No.", 1, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())), LocationWhite.Code, '');
         LibraryWarehouse.CreateWhsePickFromProduction(ProductionOrder);
         RegisterWarehousePick(LocationWhite, 1);
-        SalesPlan(Item, 1, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate)), LocationWhite.Code, LocationWhite.Code);
+        SalesPlan(Item, 1, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())), LocationWhite.Code, LocationWhite.Code);
 
         // Verify planning worksheet lines - check in doc section more info on the TDS
         AssertNumberOfLinesForItem(Item, 1);
         AssertPlanningLine(Item, RequisitionLine."Action Message"::Cancel, 0D,
-          CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate)), 1, 0, RequisitionLine."Ref. Order Type"::Transfer, '', 1);
+          CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())), 1, 0, RequisitionLine."Ref. Order Type"::Transfer, '', 1);
     end;
 
     [MessageHandler]
@@ -3130,20 +3130,20 @@ codeunit 137021 "SCM Planning - NTF tests"
 
         // Exercise
         CreateSalesReturnOrder(
-          SalesHeader, Item, 2, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate)), LocationWhite.Code);
+          SalesHeader, Item, 2, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())), LocationWhite.Code);
         CreateRelProdOrderAndRefresh(
-          ProductionOrder, Item."No.", 2, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate)), LocationWhite.Code, '');
+          ProductionOrder, Item."No.", 2, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())), LocationWhite.Code, '');
         CreatePurchaseOrder(
-          PurchaseHeader, PurchaseLine, Item, 2, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate)), LocationWhite.Code);
+          PurchaseHeader, PurchaseLine, Item, 2, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())), LocationWhite.Code);
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
         LibraryWarehouse.CreateWhseReceiptFromPO(PurchaseHeader);
         PostWarehouseReceipt(LocationWhite, 1);
-        SalesPlan(Item, 2, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate)), LocationWhite.Code, LocationWhite.Code);
+        SalesPlan(Item, 2, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())), LocationWhite.Code, LocationWhite.Code);
 
         // Verify planning worksheet lines - check in doc section more info on the TDS
         AssertNumberOfLinesForItem(Item, 1);
         AssertPlanningLine(Item, RequisitionLine."Action Message"::Cancel, 0D,
-          CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate)), 2, 0, RequisitionLine."Ref. Order Type"::"Prod. Order", '', 1);
+          CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())), 2, 0, RequisitionLine."Ref. Order Type"::"Prod. Order", '', 1);
     end;
 
     [Test]
@@ -3195,7 +3195,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         // run planning for component and LocationTo
         ItemComp.SetRange("No.", ItemComp."No.");
         ItemComp.SetRange("Location Filter", LocationTo.Code);
-        LibraryPlanning.CalcRegenPlanForPlanWksh(ItemComp, WorkDate - 1, WorkDate + 35);
+        LibraryPlanning.CalcRegenPlanForPlanWksh(ItemComp, WorkDate() - 1, WorkDate + 35);
 
         // verify results
         AssertNoLinesForItem(ItemComp);
@@ -3206,7 +3206,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         AssertTrackingLineForSource(5741, 1, TransferHeader."No.", 3);  // 1 tracking entry against RPO, 1 tracking entry against FPPO, 1 surplus
 
         // rerun planning for a new period
-        LibraryPlanning.CalcRegenPlanForPlanWksh(ItemComp, WorkDate - 1, WorkDate + 15);
+        LibraryPlanning.CalcRegenPlanForPlanWksh(ItemComp, WorkDate() - 1, WorkDate + 15);
 
         // verify results
         AssertNoLinesForItem(ItemComp);
@@ -3243,7 +3243,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         // run planning for component and LocationTo
         ItemComp.SetRange("No.", ItemComp."No.");
         ItemComp.SetRange("Location Filter", LocationTo.Code);
-        LibraryPlanning.CalcRegenPlanForPlanWksh(ItemComp, WorkDate - 1, WorkDate + 35);
+        LibraryPlanning.CalcRegenPlanForPlanWksh(ItemComp, WorkDate() - 1, WorkDate + 35);
 
         // verify results
         AssertNoLinesForItem(ItemComp);
@@ -3257,7 +3257,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         CreateItemTrackingForFPPO(ProductionOrder[3], Text002);
 
         // rerun planning for a new period
-        LibraryPlanning.CalcRegenPlanForPlanWksh(ItemComp, WorkDate - 1, WorkDate + 15);
+        LibraryPlanning.CalcRegenPlanForPlanWksh(ItemComp, WorkDate() - 1, WorkDate + 15);
 
         // verify results
         AssertNoLinesForItem(ItemComp);
@@ -3284,7 +3284,7 @@ codeunit 137021 "SCM Planning - NTF tests"
 
         B335974_CreateSetup(Item, Location);
         // Create prod. order
-        CreateRelProdOrderAndRefresh(ProductionOrder, Item."No.", GlobalQty[1], WorkDate, Location.Code, '');
+        CreateRelProdOrderAndRefresh(ProductionOrder, Item."No.", GlobalQty[1], WorkDate(), Location.Code, '');
         DefineFullItemTrackingForProdOrder(ProductionOrder);
         ReduceOutputQtyTryPostingErrExpected(ProductionOrder);
         ReduceItemTrackingTryPostNoErrorExpected(ProductionOrder);
@@ -3316,7 +3316,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         // Create orders
         PurchaseQuantity := LibraryRandom.RandDec(100, 2);
         JobQuantity := PurchaseQuantity + LibraryRandom.RandDec(100, 2);
-        CreatePurchaseOrder(PurchaseHeader, PurchaseLine, Item, PurchaseQuantity, WorkDate, '');
+        CreatePurchaseOrder(PurchaseHeader, PurchaseLine, Item, PurchaseQuantity, WorkDate(), '');
         CreateJobAndPlanningLine(JobTask, JobPlanningLine, Item."No.", JobQuantity, UsageLink);
         if Reserve then
             PurchaseLine.ShowReservation
@@ -3326,17 +3326,17 @@ codeunit 137021 "SCM Planning - NTF tests"
         end;
 
         // Exercise
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), CalcDate(PlanningEndDate, WorkDate()));
 
         // Verify planning worksheet lines
         if UsageLink or Reserve then begin
             AssertNumberOfLinesForItem(Item, 1);
             AssertPlanningLine(Item, RequisitionLine."Action Message"::"Change Qty.", 0D,
-              WorkDate, PurchaseQuantity, JobQuantity, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
+              WorkDate(), PurchaseQuantity, JobQuantity, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
         end else begin
             AssertNumberOfLinesForItem(Item, 1);
             AssertPlanningLine(Item, RequisitionLine."Action Message"::Cancel, 0D,
-              WorkDate, PurchaseQuantity, 0, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
+              WorkDate(), PurchaseQuantity, 0, RequisitionLine."Ref. Order Type"::Purchase, '', 1);
         end;
     end;
 
@@ -3384,7 +3384,7 @@ codeunit 137021 "SCM Planning - NTF tests"
 
         // Create orders
         JobQuantity := LibraryRandom.RandDec(100, 2);
-        CreatePurchaseOrder(PurchaseHeader, PurchaseLine, Item, 2 * JobQuantity, WorkDate, '');
+        CreatePurchaseOrder(PurchaseHeader, PurchaseLine, Item, 2 * JobQuantity, WorkDate(), '');
         CreateJobAndPlanningLine(JobTask, JobPlanningLine, Item."No.", JobQuantity, true);
         CreateJobPlanningLine(JobPlanningLine, JobPlanningLine."Line Type"::Budget, JobTask, Item."No.", JobQuantity, false);
         CreateJobPlanningLine(JobPlanningLine, JobPlanningLine."Line Type"::Budget, JobTask, Item."No.", JobQuantity, true);
@@ -3392,7 +3392,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         PurchaseLine.Modify(true);
 
         // Exercise
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), CalcDate(PlanningEndDate, WorkDate()));
 
         // verify no lines - only the lines with usagelink=true are considered
         AssertNoLinesForItem(Item);
@@ -3425,7 +3425,7 @@ codeunit 137021 "SCM Planning - NTF tests"
                     for i := 1 to GlobalQty[1] - GlobalQty[2] do begin
                         ItemTrackingLines."Qty. to Handle (Base)".SetValue(0);
                         GlobalRemainingSerialNos[i] := ItemTrackingLines."Serial No.".Value;
-                        ItemTrackingLines.Next;
+                        ItemTrackingLines.Next();
                     end;
                 end;
             3:
@@ -3437,7 +3437,7 @@ codeunit 137021 "SCM Planning - NTF tests"
                           ItemTrackingLines."Serial No.".Value,
                           StrSubstNo(WrongSerialNoTxt, ItemTrackingLines."Serial No.".Value));
                         if i < GlobalQty[1] - GlobalQty[2] then
-                            ItemTrackingLines.Next;
+                            ItemTrackingLines.Next();
                     end;
                 end;
         end;
@@ -3593,15 +3593,15 @@ codeunit 137021 "SCM Planning - NTF tests"
         // Exercise - transfer order, ship partial
         CreateAndShipTransfer(TransferHeader, Item."No.", LocationTwo.Code, LocationOne.Code, 3 * QtyOnInventory, Text002,
           WorkDate, QtyOnInventory);
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), CalcDate(PlanningEndDate, WorkDate()));
 
         // Verify planning worksheet lines - check in doc section more info on the TDS
         AssertNumberOfLinesForItem(Item, 3);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, WorkDate, 0, 2 * QtyOnInventory,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, WorkDate(), 0, 2 * QtyOnInventory,
           RequisitionLine."Ref. Order Type"::Purchase, LocationWhite.Code, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, WorkDate, 0, 2 * QtyOnInventory,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, WorkDate(), 0, 2 * QtyOnInventory,
           RequisitionLine."Ref. Order Type"::Transfer, LocationThree.Code, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, WorkDate, 0, 2 * QtyOnInventory,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, WorkDate(), 0, 2 * QtyOnInventory,
           RequisitionLine."Ref. Order Type"::Transfer, LocationTwo.Code, 1);
     end;
 
@@ -3634,23 +3634,23 @@ codeunit 137021 "SCM Planning - NTF tests"
         CreateAndShipTransfer(TransferHeader, Item."No.", LocationTwo.Code, LocationOne.Code, 3 * QtyOnInventory, Text002,
           WorkDate, 0); // Qty=0 means nothing to ship
         AddInventoryNonDirectLocationWithLotNo(Item, LocationTwo.Code, QtyOnInventory, Text002);
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, CalcDate(PlanningEndDate, WorkDate)); // required in order to have the entries split in tab337
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), CalcDate(PlanningEndDate, WorkDate())); // required in order to have the entries split in tab337
         RemoveInventoryNonDirectLocationWithLotNo(Item, LocationTwo.Code, QtyOnInventory, Text002);
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), CalcDate(PlanningEndDate, WorkDate()));
 
         // Verify planning worksheet lines - check in doc section more info on the TDS
         AssertNumberOfLinesForItem(Item, 6);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, WorkDate, 0, 2 * QtyOnInventory,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, WorkDate(), 0, 2 * QtyOnInventory,
           RequisitionLine."Ref. Order Type"::Purchase, LocationWhite.Code, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, WorkDate, 0, QtyOnInventory,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, WorkDate(), 0, QtyOnInventory,
           RequisitionLine."Ref. Order Type"::Purchase, LocationWhite.Code, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, WorkDate, 0, 2 * QtyOnInventory,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, WorkDate(), 0, 2 * QtyOnInventory,
           RequisitionLine."Ref. Order Type"::Transfer, LocationThree.Code, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, WorkDate, 0, QtyOnInventory,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, WorkDate(), 0, QtyOnInventory,
           RequisitionLine."Ref. Order Type"::Transfer, LocationThree.Code, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, WorkDate, 0, 2 * QtyOnInventory,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, WorkDate(), 0, 2 * QtyOnInventory,
           RequisitionLine."Ref. Order Type"::Transfer, LocationTwo.Code, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, WorkDate, 0, QtyOnInventory,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, WorkDate(), 0, QtyOnInventory,
           RequisitionLine."Ref. Order Type"::Transfer, LocationTwo.Code, 1);
     end;
 

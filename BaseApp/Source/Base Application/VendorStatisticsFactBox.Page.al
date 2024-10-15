@@ -9,7 +9,7 @@ page 9094 "Vendor Statistics FactBox"
     {
         area(content)
         {
-            field("No."; "No.")
+            field("No."; Rec."No.")
             {
                 ApplicationArea = All;
                 Caption = 'Vendor No.';
@@ -17,10 +17,10 @@ page 9094 "Vendor Statistics FactBox"
 
                 trigger OnDrillDown()
                 begin
-                    ShowDetails;
+                    ShowDetails();
                 end;
             }
-            field("Balance (LCY)"; "Balance (LCY)")
+            field("Balance (LCY)"; Rec."Balance (LCY)")
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies the total value of your completed purchases from the vendor in the current fiscal year. It is calculated from amounts excluding VAT on all completed purchase invoices and credit memos.';
@@ -59,18 +59,18 @@ page 9094 "Vendor Statistics FactBox"
                     CustLedgerEntry.DrillDownOnEntries(DetailedCustLedgEntry);
                 end;
             }
-            field("Outstanding Orders (LCY)"; "Outstanding Orders (LCY)")
+            field("Outstanding Orders (LCY)"; Rec."Outstanding Orders (LCY)")
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies the sum of outstanding orders (in LCY) to this vendor.';
             }
-            field("Amt. Rcd. Not Invoiced (LCY)"; "Amt. Rcd. Not Invoiced (LCY)")
+            field("Amt. Rcd. Not Invoiced (LCY)"; Rec."Amt. Rcd. Not Invoiced (LCY)")
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'Amt. Rcd. Not Invd. (LCY)';
                 ToolTip = 'Specifies the total invoice amount (in LCY) for the items you have received but not yet been invoiced for.';
             }
-            field("Outstanding Invoices (LCY)"; "Outstanding Invoices (LCY)")
+            field("Outstanding Invoices (LCY)"; Rec."Outstanding Invoices (LCY)")
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies the sum of the vendor''s outstanding purchase invoices in LCY.';
@@ -85,7 +85,7 @@ page 9094 "Vendor Statistics FactBox"
             field("Balance Due (LCY)"; OverDueBalance)
             {
                 ApplicationArea = Basic, Suite;
-                CaptionClass = Format(StrSubstNo(Text000, Format(WorkDate)));
+                CaptionClass = Format(StrSubstNo(Text000, Format(WorkDate())));
                 Caption = 'Balance Due (LCY)';
 
                 trigger OnDrillDown()
@@ -106,7 +106,7 @@ page 9094 "Vendor Statistics FactBox"
                 Caption = 'Invoiced Prepayment Amount (LCY)';
                 ToolTip = 'Specifies your payments to the vendor, based on invoiced prepayments.';
             }
-            field("Payments (LCY)"; "Payments (LCY)")
+            field("Payments (LCY)"; Rec."Payments (LCY)")
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies the sum of payments paid to the vendor.';
@@ -123,7 +123,7 @@ page 9094 "Vendor Statistics FactBox"
                     VendorLedgerEntries.Run();
                 end;
             }
-            field("Refunds (LCY)"; "Refunds (LCY)")
+            field("Refunds (LCY)"; Rec."Refunds (LCY)")
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies the sum of refunds paid to the vendor.';
@@ -160,7 +160,7 @@ page 9094 "Vendor Statistics FactBox"
                     VendorLedgerEntries.Run();
                 end;
             }
-            field("Pay-to No. of Open. Adv. L."; "Pay-to No. of Open. Adv. L.")
+            field("Pay-to No. of Open. Adv. L."; Rec."Pay-to No. of Open. Adv. L.")
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'Adv. Letters - Opened (Obsolete)';
@@ -170,7 +170,7 @@ page 9094 "Vendor Statistics FactBox"
                 ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
                 ObsoleteTag = '19.0';
             }
-            field("Pay-to No. of P.Pay. Adv. L."; "Pay-to No. of P.Pay. Adv. L.")
+            field("Pay-to No. of P.Pay. Adv. L."; Rec."Pay-to No. of P.Pay. Adv. L.")
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'Adv. Letters - Pend. Pay. (Obsolete)';
@@ -180,7 +180,7 @@ page 9094 "Vendor Statistics FactBox"
                 ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
                 ObsoleteTag = '19.0';
             }
-            field("Pay-to No. of P.Inv. Adv. L."; "Pay-to No. of P.Inv. Adv. L.")
+            field("Pay-to No. of P.Inv. Adv. L."; Rec."Pay-to No. of P.Inv. Adv. L.")
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'Adv. Letters - Pend. Inv. (Obsolete)';
@@ -190,7 +190,7 @@ page 9094 "Vendor Statistics FactBox"
                 ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
                 ObsoleteTag = '19.0';
             }
-            field("Pay-to No. of P.F.Inv. Adv. L."; "Pay-to No. of P.F.Inv. Adv. L.")
+            field("Pay-to No. of P.F.Inv. Adv. L."; Rec."Pay-to No. of P.F.Inv. Adv. L.")
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'Adv. Letters - Pend. Fin. Inv. (Obsolete)';

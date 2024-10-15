@@ -1,3 +1,4 @@
+#if not CLEAN19
 permissionset 6719 "Jobs - Edit"
 {
     Access = Public;
@@ -8,16 +9,14 @@ permissionset 6719 "Jobs - Edit"
                   tabledata Customer = R,
                   tabledata "Customer Bank Account" = R,
                   tabledata "Default Dimension" = RIMD,
-#if not CLEAN19
                   tabledata "Detailed G/L Entry" = r,
-#endif
                   tabledata "Dtld. Price Calculation Setup" = RIMD,
                   tabledata "Duplicate Price Line" = RIMD,
                   tabledata "G/L Entry" = r,
                   tabledata "Gen. Journal Line" = r,
                   tabledata "General Ledger Setup" = RM,
                   tabledata Job = RIMD,
-#if not CLEAN19
+#if not CLEAN21
                   tabledata "Job G/L Account Price" = RIMD,
                   tabledata "Job Item Price" = RIMD,
 #endif
@@ -27,7 +26,7 @@ permissionset 6719 "Jobs - Edit"
                   tabledata "Job Planning Line" = RIMD,
                   tabledata "Job Planning Line Invoice" = RIMD,
                   tabledata "Job Posting Group" = R,
-#if not CLEAN19
+#if not CLEAN21
                   tabledata "Job Resource Price" = RIMD,
 #endif
                   tabledata "Job Task" = RIMD,
@@ -60,7 +59,7 @@ permissionset 6719 "Jobs - Edit"
                   tabledata "Res. Ledger Entry" = rm,
                   tabledata Resource = R,
                   tabledata "Resource Group" = R,
-#if not CLEAN19
+#if not CLEAN21
                   tabledata "Resource Price" = RIMD,
 #endif
                   tabledata "Return Receipt Header" = r,
@@ -83,3 +82,5 @@ permissionset 6719 "Jobs - Edit"
                   tabledata "Standard General Journal Line" = r,
                   tabledata "Work Type" = R;
 }
+
+#endif

@@ -1,4 +1,3 @@
-#if not CLEAN18
 page 521 "Application Worksheet"
 {
     AdditionalSearchTerms = 'undo application';
@@ -8,7 +7,6 @@ page 521 "Application Worksheet"
     InsertAllowed = false;
     ModifyAllowed = true;
     PageType = Worksheet;
-    PromotedActionCategories = 'New,Process,Report,Navigate,Entry';
     SaveValues = true;
     SourceTable = "Item Ledger Entry";
     UsageCategory = Tasks;
@@ -33,7 +31,7 @@ page 521 "Application Worksheet"
                         FilterTokens.MakeDateFilter(DateFilter);
                         SetFilter("Posting Date", DateFilter);
                         DateFilter := GetFilter("Posting Date");
-                        DateFilterOnAfterValidate;
+                        DateFilterOnAfterValidate();
                     end;
                 }
                 field("Item Filter"; ItemFilter)
@@ -48,15 +46,15 @@ page 521 "Application Worksheet"
                         ItemList: Page "Item List";
                     begin
                         ItemList.LookupMode(true);
-                        if ItemList.RunModal = ACTION::LookupOK then begin
-                            Text := ItemList.GetSelectionFilter;
+                        if ItemList.RunModal() = ACTION::LookupOK then begin
+                            Text := ItemList.GetSelectionFilter();
                             exit(true);
                         end;
                     end;
 
                     trigger OnValidate()
                     begin
-                        ItemFilterOnAfterValidate;
+                        ItemFilterOnAfterValidate();
                     end;
                 }
                 field(DocumentFilter; DocumentFilter)
@@ -69,7 +67,7 @@ page 521 "Application Worksheet"
                     begin
                         SetFilter("Document No.", DocumentFilter);
                         DocumentFilter := GetFilter("Document No.");
-                        DocumentFilterOnAfterValidate;
+                        DocumentFilterOnAfterValidate();
                     end;
                 }
                 field(LocationFilter; LocationFilter)
@@ -84,8 +82,8 @@ page 521 "Application Worksheet"
                         LocationList: Page "Location List";
                     begin
                         LocationList.LookupMode(true);
-                        if LocationList.RunModal = ACTION::LookupOK then begin
-                            Text := LocationList.GetSelectionFilter;
+                        if LocationList.RunModal() = ACTION::LookupOK then begin
+                            Text := LocationList.GetSelectionFilter();
                             exit(true);
                         end;
                     end;
@@ -94,7 +92,7 @@ page 521 "Application Worksheet"
                     begin
                         SetFilter("Location Code", LocationFilter);
                         LocationFilter := GetFilter("Location Code");
-                        LocationFilterOnAfterValidate;
+                        LocationFilterOnAfterValidate();
                     end;
                 }
             }
@@ -103,66 +101,66 @@ page 521 "Application Worksheet"
                 Editable = false;
                 Enabled = true;
                 ShowCaption = false;
-                field("Item No."; "Item No.")
+                field("Item No."; Rec."Item No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the item in the entry.';
                 }
-                field("Document No."; "Document No.")
+                field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the document number on the entry. The document is the voucher that the entry was based on, for example, a receipt.';
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the code for the location that the entry is linked to.';
                 }
-                field("Posting Date"; "Posting Date")
+                field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the entry''s posting date.';
                 }
-                field("Entry Type"; "Entry Type")
+                field("Entry Type"; Rec."Entry Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies which type of transaction that the entry is created from.';
                 }
-                field("Source Type"; "Source Type")
+                field("Source Type"; Rec."Source Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the source type that applies to the source number, shown in the Source No. field.';
                 }
-                field("Document Type"; "Document Type")
+                field("Document Type"; Rec."Document Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies what type of document was posted to create the item ledger entry.';
                 }
-                field("Document Line No."; "Document Line No.")
+                field("Document Line No."; Rec."Document Line No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the line on the posted document that corresponds to the item ledger entry.';
                     Visible = false;
                 }
-                field("Variant Code"; "Variant Code")
+                field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the variant of the item on the line.';
                     Visible = false;
                 }
-                field("Serial No."; "Serial No.")
+                field("Serial No."; Rec."Serial No.")
                 {
                     ApplicationArea = ItemTracking;
                     ToolTip = 'Specifies a serial number if the posted item carries such a number.';
                     Visible = false;
                 }
-                field("Lot No."; "Lot No.")
+                field("Lot No."; Rec."Lot No.")
                 {
                     ApplicationArea = ItemTracking;
                     ToolTip = 'Specifies a lot number if the posted item carries such a number.';
                     Visible = false;
                 }
-                field("Source No."; "Source No.")
+                field("Source No."; Rec."Source No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies where the entry originated.';
@@ -178,32 +176,32 @@ page 521 "Application Worksheet"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of units of the item in the item entry.';
                 }
-                field("Remaining Quantity"; "Remaining Quantity")
+                field("Remaining Quantity"; Rec."Remaining Quantity")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the quantity in the Quantity field that remains to be processed.';
                 }
-                field("Invoiced Quantity"; "Invoiced Quantity")
+                field("Invoiced Quantity"; Rec."Invoiced Quantity")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies how many units of the item on the line have been invoiced.';
                 }
-                field("Reserved Quantity"; "Reserved Quantity")
+                field("Reserved Quantity"; Rec."Reserved Quantity")
                 {
                     ApplicationArea = Reservation;
                     ToolTip = 'Specifies how many units of the item on the line have been reserved.';
                 }
-                field("Shipped Qty. Not Returned"; "Shipped Qty. Not Returned")
+                field("Shipped Qty. Not Returned"; Rec."Shipped Qty. Not Returned")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the quantity for this item ledger entry that was shipped and has not yet been returned.';
                 }
-                field("Cost Amount (Actual)"; "Cost Amount (Actual)")
+                field("Cost Amount (Actual)"; Rec."Cost Amount (Actual)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the adjusted cost, in LCY, of the quantity posting.';
                 }
-                field(GetUnitCostLCY; GetUnitCostLCY)
+                field(GetUnitCostLCY; GetUnitCostLCY())
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Unit Cost(LCY)';
@@ -220,19 +218,19 @@ page 521 "Application Worksheet"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether the item in the item ledge entry is positive.';
                 }
-                field("Applies-to Entry"; "Applies-to Entry")
+                field("Applies-to Entry"; Rec."Applies-to Entry")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the quantity on the journal line must be applied to an already-posted entry. In that case, enter the entry number that the quantity will be applied to.';
                     Visible = false;
                 }
-                field("Applied Entry to Adjust"; "Applied Entry to Adjust")
+                field("Applied Entry to Adjust"; Rec."Applied Entry to Adjust")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether there is one or more applied entries, which need to be adjusted.';
                     Visible = false;
                 }
-                field("Entry No."; "Entry No.")
+                field("Entry No."; Rec."Entry No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the entry, as assigned from the specified number series when the entry was created.';
@@ -263,8 +261,6 @@ page 521 "Application Worksheet"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Applied Entries';
                     Image = Approve;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     ShortCutKey = 'F9';
                     ToolTip = 'View the ledger entries that have been applied to this record.';
 
@@ -282,8 +278,6 @@ page 521 "Application Worksheet"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Unapplied Entries';
                     Image = Entries;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     ShortCutKey = 'Ctrl+F9';
                     ToolTip = 'View entries that you have unapplied.';
 
@@ -292,8 +286,8 @@ page 521 "Application Worksheet"
                         Clear(ApplicationsForm);
                         ApplicationsForm.SetRecordToShow(Rec, Apply, false);
                         ApplicationsForm.LookupMode := true;
-                        if ApplicationsForm.RunModal = ACTION::LookupOK then
-                            ApplicationsForm.ApplyRec;
+                        if ApplicationsForm.RunModal() = ACTION::LookupOK then
+                            ApplicationsForm.ApplyRec();
 
                         CurrPage.Update();
                     end;
@@ -309,15 +303,13 @@ page 521 "Application Worksheet"
                     ApplicationArea = Dimensions;
                     Caption = 'Dimensions';
                     Image = Dimensions;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     ShortCutKey = 'Alt+D';
                     ToolTip = 'View or edit dimensions, such as area, project, or department, that you can assign to sales and purchase documents to distribute costs and analyze transaction history.';
 
                     trigger OnAction()
                     begin
                         ShowDimensions();
-                        CurrPage.SaveRecord;
+                        CurrPage.SaveRecord();
                     end;
                 }
                 action("&Value Entries")
@@ -325,8 +317,6 @@ page 521 "Application Worksheet"
                     ApplicationArea = Basic, Suite;
                     Caption = '&Value Entries';
                     Image = ValueLedger;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     RunObject = Page "Value Entries";
                     RunPageLink = "Item Ledger Entry No." = FIELD("Entry No.");
                     RunPageView = SORTING("Item Ledger Entry No.");
@@ -339,8 +329,6 @@ page 521 "Application Worksheet"
                     ApplicationArea = Reservation;
                     Caption = 'Reservation Entries';
                     Image = ReservationLedger;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     ToolTip = 'View the entries for every reservation that is made, either manually or automatically.';
 
                     trigger OnAction()
@@ -361,14 +349,12 @@ page 521 "Application Worksheet"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Rea&pply';
                     Image = "Action";
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Reapply entries that you have removed.';
 
                     trigger OnAction()
                     begin
-                        UnblockItems;
-                        Reapplyall;
+                        UnblockItems();
+                        Reapplyall();
                     end;
                 }
                 action(UndoApplications)
@@ -376,30 +362,70 @@ page 521 "Application Worksheet"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Undo Manual Changes';
                     Image = Restore;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Undo your previous application change.';
 
                     trigger OnAction()
                     begin
-                        if Apply.ApplicationLogIsEmpty then begin
+                        if Apply.ApplicationLogIsEmpty() then begin
                             Message(NothingToRevertMsg);
                             exit;
                         end;
 
                         if Confirm(RevertAllQst) then begin
-                            Apply.UndoApplications;
+                            Apply.UndoApplications();
                             Message(RevertCompletedMsg);
                         end
                     end;
                 }
             }
         }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref(AppliedEntries_Promoted; AppliedEntries)
+                {
+                }
+                actionref(UnappliedEntries_Promoted; UnappliedEntries)
+                {
+                }
+                actionref(Reapply_Promoted; Reapply)
+                {
+                }
+                actionref(UndoApplications_Promoted; UndoApplications)
+                {
+                }
+            }
+            group(Category_Category5)
+            {
+                Caption = 'Entry', Comment = 'Generated from the PromotedActionCategories property index 4.';
+
+                actionref("Reservation Entries_Promoted"; "Reservation Entries")
+                {
+                }
+                actionref(Dimensions_Promoted; Dimensions)
+                {
+                }
+                actionref("&Value Entries_Promoted"; "&Value Entries")
+                {
+                }
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Navigate', Comment = 'Generated from the PromotedActionCategories property index 3.';
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+        }
     }
 
     trigger OnAfterGetCurrRecord()
     begin
-        UpdateFilterFields;
+        UpdateFilterFields();
     end;
 
     trigger OnFindRecord(Which: Text): Boolean
@@ -414,29 +440,28 @@ page 521 "Application Worksheet"
     trigger OnOpenPage()
     begin
         Apply.SetCalledFromApplicationWorksheet(true);
-        ReapplyTouchedEntries; // in case OnQueryClosePage trigger was not executed due to a sudden crash
-        UserSetupAdvMgt.CheckItemUnapply; // NAVCZ
+        ReapplyTouchedEntries(); // in case OnQueryClosePage trigger was not executed due to a sudden crash
+
         InventoryPeriod.IsValidDate(InventoryOpenedFrom);
         if InventoryOpenedFrom <> 0D then
             if GetFilter("Posting Date") = '' then
                 SetFilter("Posting Date", '%1..', CalcDate('<+1D>', InventoryOpenedFrom))
-            else begin
+            else
                 if GetFilter("Posting Date") <> StrSubstNo('%1..', CalcDate('<+1D>', InventoryOpenedFrom)) then
                     SetFilter("Posting Date",
-                      StrSubstNo('%2&%1..', CalcDate('<+1D>', InventoryOpenedFrom), GetFilter("Posting Date")))
-            end;
+                      StrSubstNo('%2&%1..', CalcDate('<+1D>', InventoryOpenedFrom), GetFilter("Posting Date")));
 
-        UpdateFilterFields;
+        UpdateFilterFields();
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
     begin
-        if Apply.AnyTouchedEntries then begin
+        if Apply.AnyTouchedEntries() then begin
             if not Confirm(Text003) then
                 exit(false);
 
-            UnblockItems;
-            Reapplyall;
+            UnblockItems();
+            Reapplyall();
         end;
 
         exit(true);
@@ -444,9 +469,6 @@ page 521 "Application Worksheet"
 
     var
         InventoryPeriod: Record "Inventory Period";
-        TempUnapplyItem: Record Item temporary;
-        UserSetupAdvMgt: Codeunit "User Setup Adv. Management";
-        Apply: Codeunit "Item Jnl.-Post Line";
         ApplicationsForm: Page "View Applied Entries";
         InventoryOpenedFrom: Date;
         DateFilter: Text;
@@ -458,6 +480,10 @@ page 521 "Application Worksheet"
         NothingToRevertMsg: Label 'Nothing to undo.';
         RevertCompletedMsg: Label 'The changes have been undone.';
 
+    protected var
+        TempUnapplyItem: Record Item temporary;
+        Apply: Codeunit "Item Jnl.-Post Line";
+
     local procedure UpdateFilterFields()
     begin
         ItemFilter := GetFilter("Item No.");
@@ -468,18 +494,18 @@ page 521 "Application Worksheet"
 
     local procedure Reapplyall()
     begin
-        Apply.RedoApplications;
-        Apply.CostAdjust;
-        Apply.ClearApplicationLog;
+        Apply.RedoApplications();
+        Apply.CostAdjust();
+        Apply.ClearApplicationLog();
     end;
 
     local procedure ReapplyTouchedEntries()
     begin
         Apply.RestoreTouchedEntries(TempUnapplyItem);
 
-        if Apply.AnyTouchedEntries then begin
-            UnblockItems;
-            Reapplyall;
+        if Apply.AnyTouchedEntries() then begin
+            UnblockItems();
+            Reapplyall();
         end;
     end;
 
@@ -509,9 +535,9 @@ page 521 "Application Worksheet"
     begin
         with TempUnapplyItem do
             if not Get(ItemNo) then begin
-                Init;
+                Init();
                 "No." := ItemNo;
-                Insert;
+                Insert();
             end;
     end;
 
@@ -539,4 +565,3 @@ page 521 "Application Worksheet"
     end;
 }
 
-#endif

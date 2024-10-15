@@ -1,10 +1,9 @@
-#if not CLEAN20        
+#if not CLEAN20
 page 5806 "Purch. Receipt Lines"
 {
     Caption = 'Purch. Receipt Lines';
     Editable = false;
     PageType = List;
-    PromotedActionCategories = 'New,Process,Report,Line';
     SourceTable = "Purch. Rcpt. Line";
 
     layout
@@ -14,14 +13,14 @@ page 5806 "Purch. Receipt Lines"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Document No."; "Document No.")
+                field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = Basic, Suite;
                     HideValue = DocumentNoHideValue;
                     StyleExpr = 'Strong';
                     ToolTip = 'Specifies the number of the related document.';
                 }
-                field("Posting Date"; "Posting Date")
+                field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the posting date for the entry.';
@@ -30,7 +29,7 @@ page 5806 "Purch. Receipt Lines"
                     ObsoleteReason = 'Functionality will be removed and this field should not be used.';
                     ObsoleteTag = '20.0';
                 }
-                field("Buy-from Vendor No."; "Buy-from Vendor No.")
+                field("Buy-from Vendor No."; Rec."Buy-from Vendor No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the vendor who delivered the items.';
@@ -40,7 +39,7 @@ page 5806 "Purch. Receipt Lines"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the line type.';
                 }
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
@@ -50,14 +49,14 @@ page 5806 "Purch. Receipt Lines"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description of a list of purchases that were posted.';
                 }
-                field("Description 2"; "Description 2")
+                field("Description 2"; Rec."Description 2")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies information in addition to the description.';
                     Visible = false;
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a code for the location where you want the items to be placed when they are received.';
@@ -67,66 +66,66 @@ page 5806 "Purch. Receipt Lines"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies how many units were posted as received or received and invoiced.';
                 }
-                field("Unit of Measure"; "Unit of Measure")
+                field("Unit of Measure"; Rec."Unit of Measure")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the item or resource''s unit of measure, such as piece or hour.';
                 }
-                field("Direct Unit Cost"; "Direct Unit Cost")
+                field("Direct Unit Cost"; Rec."Direct Unit Cost")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the cost of one unit of the selected item or resource.';
                     Visible = false;
                 }
-                field("Unit Cost (LCY)"; "Unit Cost (LCY)")
+                field("Unit Cost (LCY)"; Rec."Unit Cost (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the cost, in LCY, of one unit of the item or resource on the line.';
                     Visible = false;
                 }
-                field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
+                field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                     Visible = false;
                 }
-                field("Shortcut Dimension 2 Code"; "Shortcut Dimension 2 Code")
+                field("Shortcut Dimension 2 Code"; Rec."Shortcut Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                     Visible = false;
                 }
-                field("Indirect Cost %"; "Indirect Cost %")
+                field("Indirect Cost %"; Rec."Indirect Cost %")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the percentage of the item''s last purchase cost that includes indirect costs, such as freight that is associated with the purchase of the item.';
                     Visible = false;
                 }
-                field("Quantity Invoiced"; "Quantity Invoiced")
+                field("Quantity Invoiced"; Rec."Quantity Invoiced")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies how many units of the item on the line have been posted as invoiced.';
                     Visible = false;
                 }
-                field("Order No."; "Order No.")
+                field("Order No."; Rec."Order No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the line number of the order that created the entry.';
                     Visible = false;
                 }
-                field("Order Line No."; "Order Line No.")
+                field("Order Line No."; Rec."Order Line No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the line number of the order that created the entry.';
                     Visible = false;
                 }
-                field("Vendor Item No."; "Vendor Item No.")
+                field("Vendor Item No."; Rec."Vendor Item No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number that the vendor uses for this item.';
                     Visible = false;
                 }
-                field("Vendor Shipment No."; "Vendor Shipment No.")
+                field("Vendor Shipment No."; Rec."Vendor Shipment No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of vendor shipment.';
@@ -134,31 +133,31 @@ page 5806 "Purch. Receipt Lines"
                     ObsoleteState = Pending;
                     ObsoleteTag = '20.0';
                 }
-                field("Unit Cost"; "Unit Cost")
+                field("Unit Cost"; Rec."Unit Cost")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the cost of one unit of the item or resource on the line.';
                     Visible = false;
                 }
-                field("Prod. Order No."; "Prod. Order No.")
+                field("Prod. Order No."; Rec."Prod. Order No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the related production order.';
                     Visible = false;
                 }
-                field("Variant Code"; "Variant Code")
+                field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the variant of the item on the line.';
                     Visible = false;
                 }
-                field("Qty. per Unit of Measure"; "Qty. per Unit of Measure")
+                field("Qty. per Unit of Measure"; Rec."Qty. per Unit of Measure")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the quantity per unit of measure of the item that was received.';
                     Visible = false;
                 }
-                field("Unit of Measure Code"; "Unit of Measure Code")
+                field("Unit of Measure Code"; Rec."Unit of Measure Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies how each unit of the item or resource is measured, such as in pieces or hours. By default, the value in the Base Unit of Measure field on the item or resource card is inserted.';
@@ -194,9 +193,6 @@ page 5806 "Purch. Receipt Lines"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Show Document';
                     Image = View;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedOnly = true;
                     ShortCutKey = 'Shift+F7';
                     ToolTip = 'Open the document that the selected line exists on.';
 
@@ -214,16 +210,13 @@ page 5806 "Purch. Receipt Lines"
                     ApplicationArea = Dimensions;
                     Caption = 'Dimensions';
                     Image = Dimensions;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedOnly = true;
                     ShortCutKey = 'Alt+D';
                     ToolTip = 'View or edit dimensions, such as area, project, or department, that you can assign to sales and purchase documents to distribute costs and analyze transaction history.';
 
                     trigger OnAction()
                     begin
                         ShowDimensions();
-                        CurrPage.SaveRecord;
+                        CurrPage.SaveRecord();
                     end;
                 }
                 action("Item &Tracking Lines")
@@ -231,16 +224,34 @@ page 5806 "Purch. Receipt Lines"
                     ApplicationArea = ItemTracking;
                     Caption = 'Item &Tracking Lines';
                     Image = ItemTrackingLines;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedOnly = true;
-                    ShortCutKey = 'Ctrl+Alt+I'; 
+                    ShortCutKey = 'Ctrl+Alt+I';
                     ToolTip = 'View or edit serial numbers and lot numbers that are assigned to the item on the document or journal line.';
 
                     trigger OnAction()
                     begin
-                        ShowItemTrackingLines;
+                        ShowItemTrackingLines();
                     end;
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Line', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref("Show Document_Promoted"; "Show Document")
+                {
+                }
+                actionref(Dimensions_Promoted; Dimensions)
+                {
+                }
+                actionref("Item &Tracking Lines_Promoted"; "Item &Tracking Lines")
+                {
                 }
             }
         }
@@ -249,7 +260,7 @@ page 5806 "Purch. Receipt Lines"
     trigger OnAfterGetRecord()
     begin
         DocumentNoHideValue := false;
-        DocumentNoOnFormat;
+        DocumentNoOnFormat();
     end;
 
     trigger OnInit()
@@ -269,7 +280,7 @@ page 5806 "Purch. Receipt Lines"
     trigger OnQueryClosePage(CloseAction: Action): Boolean
     begin
         if CloseAction = ACTION::LookupOK then
-            LookupOKOnPush;
+            LookupOKOnPush();
     end;
 
     var
@@ -322,7 +333,7 @@ page 5806 "Purch. Receipt Lines"
 
     local procedure DocumentNoOnFormat()
     begin
-        if not IsFirstDocLine then
+        if not IsFirstDocLine() then
             DocumentNoHideValue := true;
     end;
 

@@ -739,24 +739,16 @@ table 5990 "Service Shipment Header"
         field(31063; "Physical Transfer"; Boolean)
         {
             Caption = 'Physical Transfer';
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(31064; "Intrastat Exclude"; Boolean)
         {
             Caption = 'Intrastat Exclude';
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(31065; "Industry Code"; Code[20])
         {
@@ -811,8 +803,33 @@ table 5990 "Service Shipment Header"
     }
 
     trigger OnDelete()
+#if CLEAN19
+    var
+        CertificateOfSupply: Record "Certificate of Supply";
+#endif
     begin
+#if not CLEAN19
         Error(DeleteErr); // NAVCZ
+#else
+        TestField("No. Printed");
+        LockTable();
+
+        ServShptItemLine.Reset();
+        ServShptItemLine.SetRange("No.", "No.");
+        ServShptItemLine.DeleteAll();
+
+        ServShptLine.Reset();
+        ServShptLine.SetRange("Document No.", "No.");
+        ServShptLine.DeleteAll();
+
+        ServCommentLine.Reset();
+        ServCommentLine.SetRange("Table Name", ServCommentLine."Table Name"::"Service Shipment Header");
+        ServCommentLine.SetRange("No.", "No.");
+        ServCommentLine.DeleteAll();
+
+        if CertificateOfSupply.Get(CertificateOfSupply."Document Type"::"Service Shipment", "No.") then
+            CertificateOfSupply.Delete(true);
+#endif
     end;
 
     var
@@ -823,7 +840,9 @@ table 5990 "Service Shipment Header"
         ServShptLine: Record "Service Shipment Line";
         DimMgt: Codeunit DimensionManagement;
         UserSetupMgt: Codeunit "User Setup Management";
+#if not CLEAN19
         DeleteErr: Label 'Posted document cannot be deleted!';
+#endif
 
     procedure PrintRecords(ShowRequestForm: Boolean)
     var
@@ -847,7 +866,7 @@ table 5990 "Service Shipment Header"
 
     procedure ShowDimensions()
     begin
-        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', TableCaption, "No."));
+        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', TableCaption(), "No."));
     end;
 
     procedure SetSecurityFilterOnRespCenter()
@@ -865,7 +884,7 @@ table 5990 "Service Shipment Header"
             FilterGroup(0);
         end;
 
-        SetRange("Date Filter", 0D, WorkDate - 1);
+        SetRange("Date Filter", 0D, WorkDate() - 1);
     end;
 
     [IntegrationEvent(false, false)]
@@ -873,3 +892,4 @@ table 5990 "Service Shipment Header"
     begin
     end;
 }
+

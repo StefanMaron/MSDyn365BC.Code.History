@@ -38,7 +38,7 @@ report 88 "VAT- VIES Declaration Disk"
                 TotalValueofServiceSuppliesTot += TotalValueOfServiceSupplies;
 
                 VATEntry.Copy("VAT Entry");
-                if VATEntry.Next = 1 then begin
+                if VATEntry.Next() = 1 then begin
                     if (VATEntry."Country/Region Code" <> "Country/Region Code") or
                        (VATEntry."VAT Registration No." <> "VAT Registration No.")
                     then
@@ -70,7 +70,7 @@ report 88 "VAT- VIES Declaration Disk"
                     DecimalNumeralZeroFormat(EU3PartyServiceTradeTotalAmt, 15) +
                     DecimalNumeralSign(-EU3PartyServiceTradeTotalAmt),
                     80));
-                VATFile.Close;
+                VATFile.Close();
             end;
 
             trigger OnPreDataItem()
@@ -145,10 +145,6 @@ report 88 "VAT- VIES Declaration Disk"
     end;
 
     var
-        Text001: Label 'WwWw';
-        Text002: Label 'LIST';
-        Text003: Label '%1 was not filled in for all VAT entries in which %2 = %3.';
-        Text004: Label 'It is not possible to display %1 in a field with a length of %2.';
         CompanyInfo: Record "Company Information";
         Country: Record "Country/Region";
         Cust: Record Customer;
@@ -169,6 +165,11 @@ report 88 "VAT- VIES Declaration Disk"
         UseAmtsInAddCurr: Boolean;
         ToFileNameTxt: Label 'Default.txt';
         HideFileDialog: Boolean;
+
+        Text001: Label 'WwWw';
+        Text002: Label 'LIST';
+        Text003: Label '%1 was not filled in for all VAT entries in which %2 = %3.';
+        Text004: Label 'It is not possible to display %1 in a field with a length of %2.';
 
     local procedure DecimalNumeralSign(DecimalNumeral: Decimal): Text[1]
     begin
@@ -272,4 +273,3 @@ report 88 "VAT- VIES Declaration Disk"
     begin
     end;
 }
-

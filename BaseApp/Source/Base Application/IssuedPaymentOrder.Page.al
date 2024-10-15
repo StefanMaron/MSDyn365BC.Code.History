@@ -18,37 +18,37 @@ page 11721 "Issued Payment Order"
             group(General)
             {
                 Caption = 'General';
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the number of the payment order.';
                 }
-                field("Bank Account No."; "Bank Account No.")
+                field("Bank Account No."; Rec."Bank Account No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the name of bank account.';
                 }
-                field("Bank Account Name"; "Bank Account Name")
+                field("Bank Account Name"; Rec."Bank Account Name")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the name of bank account.';
                 }
-                field("Account No."; "Account No.")
+                field("Account No."; Rec."Account No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the number used by the bank for the bank account.';
                 }
-                field("Foreign Payment Order"; "Foreign Payment Order")
+                field("Foreign Payment Order"; Rec."Foreign Payment Order")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the foreign or domestic payment order.';
                 }
-                field("No. exported"; "No. exported")
+                field("No. exported"; Rec."No. exported")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -65,16 +65,16 @@ page 11721 "Issued Payment Order"
                     begin
                         CurrPage.Lines.PAGE.FilterCanceledLines(CancelLinesFilter);
                         CurrPage.Lines.PAGE.Update(false);
-                        CancelLinesFilterOnAfterVal;
+                        CancelLinesFilterOnAfterVal();
                     end;
                 }
-                field("Document Date"; "Document Date")
+                field("Document Date"; Rec."Document Date")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the date on which you created the document.';
                 }
-                field("Currency Code"; "Currency Code")
+                field("Currency Code"; Rec."Currency Code")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -86,13 +86,13 @@ page 11721 "Issued Payment Order"
                     begin
                         ChangeExchangeRate.SetParameter("Currency Code", "Currency Factor", "Document Date");
                         ChangeExchangeRate.Editable(false);
-                        if ChangeExchangeRate.RunModal = ACTION::OK then begin
-                            Validate("Currency Factor", ChangeExchangeRate.GetParameter);
+                        if ChangeExchangeRate.RunModal() = ACTION::OK then begin
+                            Validate("Currency Factor", ChangeExchangeRate.GetParameter());
                             CurrPage.Update();
                         end;
                     end;
                 }
-                field("Payment Order Currency Code"; "Payment Order Currency Code")
+                field("Payment Order Currency Code"; Rec."Payment Order Currency Code")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -104,25 +104,25 @@ page 11721 "Issued Payment Order"
                     begin
                         ChangeExchangeRate.SetParameter("Payment Order Currency Code", "Payment Order Currency Factor", "Document Date");
                         ChangeExchangeRate.Editable(false);
-                        if ChangeExchangeRate.RunModal = ACTION::OK then begin
-                            Validate("Payment Order Currency Factor", ChangeExchangeRate.GetParameter);
+                        if ChangeExchangeRate.RunModal() = ACTION::OK then begin
+                            Validate("Payment Order Currency Factor", ChangeExchangeRate.GetParameter());
                             CurrPage.Update();
                         end;
                     end;
                 }
-                field("External Document No."; "External Document No.")
+                field("External Document No."; Rec."External Document No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the number of vendor''s document.';
                 }
-                field("No. of Lines"; "No. of Lines")
+                field("No. of Lines"; Rec."No. of Lines")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the number of lines in the payment order.';
                 }
-                field("Uncertainty Pay.Check DateTime"; "Uncertainty Pay.Check DateTime")
+                field("Uncertainty Pay.Check DateTime"; Rec."Uncertainty Pay.Check DateTime")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the date of the check of uncertainty.';
@@ -155,19 +155,19 @@ page 11721 "Issued Payment Order"
                     Editable = false;
                     ToolTip = 'Specifies the total credit amount for issued payment order lines. The program calculates this credit amount from the sum of line credit fields on issued payment order lines.';
                 }
-                field("Amount (LCY)"; "Amount (LCY)")
+                field("Amount (LCY)"; Rec."Amount (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the total amount that the line consists of. The amount is in the local currency.';
                 }
-                field("Debit (LCY)"; "Debit (LCY)")
+                field("Debit (LCY)"; Rec."Debit (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the total amount that the line consists of, if it is a debit amount. The amount is in the local currency.';
                 }
-                field("Credit (LCY)"; "Credit (LCY)")
+                field("Credit (LCY)"; Rec."Credit (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -202,8 +202,6 @@ page 11721 "Issued Payment Order"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Statistics';
                     Image = Statistics;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     RunObject = Page "Issued Payment Order Stat.";
                     RunPageLink = "No." = FIELD("No.");
                     ShortCutKey = 'F7';
@@ -226,7 +224,7 @@ page 11721 "Issued Payment Order"
 
                     trigger OnAction()
                     begin
-                        ExportPmtOrd;
+                        ExportPmtOrd();
                     end;
                 }
             }
@@ -243,7 +241,7 @@ page 11721 "Issued Payment Order"
 
                     trigger OnAction()
                     begin
-                        PrintPaymentOrder;
+                        PrintPaymentOrder();
                     end;
                 }
                 separator(Action1220026)
@@ -259,7 +257,7 @@ page 11721 "Issued Payment Order"
 
                     trigger OnAction()
                     begin
-                        PrintDomesticPaymentOrder;
+                        PrintDomesticPaymentOrder();
                     end;
                 }
                 action("Payment Order International")
@@ -272,7 +270,7 @@ page 11721 "Issued Payment Order"
 
                     trigger OnAction()
                     begin
-                        PrintForeignPaymentOrder;
+                        PrintForeignPaymentOrder();
                     end;
                 }
             }
@@ -281,14 +279,26 @@ page 11721 "Issued Payment Order"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Find entries...';
                 Image = Navigate;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Find all entries and documents that exist for the document number and posting date on the selected entry or document.';
 
                 trigger OnAction()
                 begin
-                    Navigate;
+                    Navigate();
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("&Navigate_Promoted"; "&Navigate")
+                {
+                }
+                actionref(Statistics_Promoted; Statistics)
+                {
+                }
             }
         }
     }
@@ -329,7 +339,7 @@ page 11721 "Issued Payment Order"
         IssuedPmtOrdHdr: Record "Issued Payment Order Header";
     begin
         IssuedPmtOrdHdr := Rec;
-        IssuedPmtOrdHdr.SetRecFilter;
+        IssuedPmtOrdHdr.SetRecFilter();
         IssuedPmtOrdHdr.PrintRecords(true);
     end;
 
@@ -338,7 +348,7 @@ page 11721 "Issued Payment Order"
         IssuedPmtOrdHdr: Record "Issued Payment Order Header";
     begin
         IssuedPmtOrdHdr := Rec;
-        IssuedPmtOrdHdr.SetRecFilter;
+        IssuedPmtOrdHdr.SetRecFilter();
         IssuedPmtOrdHdr.PrintDomesticPmtOrd(true);
     end;
 
@@ -347,7 +357,7 @@ page 11721 "Issued Payment Order"
         IssuedPmtOrdHdr: Record "Issued Payment Order Header";
     begin
         IssuedPmtOrdHdr := Rec;
-        IssuedPmtOrdHdr.SetRecFilter;
+        IssuedPmtOrdHdr.SetRecFilter();
         IssuedPmtOrdHdr.PrintForeignPmtOrd(true);
     end;
 }

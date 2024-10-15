@@ -555,108 +555,64 @@ table 124 "Purch. Cr. Memo Hdr."
         {
             Caption = 'Bank Account Code';
             TableRelation = "Bank Account";
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(11701; "Bank Account No."; Text[30])
         {
             Caption = 'Bank Account No.';
             Editable = false;
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(11703; "Specific Symbol"; Code[10])
         {
             Caption = 'Specific Symbol';
             CharAllowed = '09';
             Editable = false;
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(11704; "Variable Symbol"; Code[10])
         {
             Caption = 'Variable Symbol';
             CharAllowed = '09';
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(11705; "Constant Symbol"; Code[10])
         {
             Caption = 'Constant Symbol';
             CharAllowed = '09';
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            TableRelation = "Constant Symbol";
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(11706; "Transit No."; Text[20])
         {
             Caption = 'Transit No.';
             Editable = false;
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(11707; IBAN; Code[50])
         {
             Caption = 'IBAN';
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
-#if not CLEAN18
-
-            trigger OnValidate()
-            var
-                CompanyInfo: Record "Company Information";
-            begin
-                // NAVCZ
-                CompanyInfo.CheckIBAN(IBAN);
-                // NAVCZ
-            end;
-#endif
+            ObsoleteTag = '21.0';
         }
         field(11708; "SWIFT Code"; Code[20])
         {
             Caption = 'SWIFT Code';
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(11730; "Cash Desk Code"; Code[20])
         {
@@ -765,24 +721,16 @@ table 124 "Purch. Cr. Memo Hdr."
         field(31063; "Physical Transfer"; Boolean)
         {
             Caption = 'Physical Transfer';
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(31064; "Intrastat Exclude"; Boolean)
         {
             Caption = 'Intrastat Exclude';
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(31065; "Industry Code"; Code[20])
         {
@@ -839,17 +787,17 @@ table 124 "Purch. Cr. Memo Hdr."
         key(Key7; "Pay-to Vendor No.")
         {
         }
+        key(Key8; "Posting Date")
+        {
+        }
 #if not CLEAN19
-        key(Key8; "Letter No.")
+        key(Key9; "Letter No.")
         {
             ObsoleteState = Pending;
             ObsoleteReason = 'Field "Letter No." is removed and cannot be used in an active key.';
             ObsoleteTag = '19.0';
         }
 #endif
-        key(Key9; "Posting Date")
-        {
-        }
     }
 
     fieldgroups
@@ -905,7 +853,7 @@ table 124 "Purch. Cr. Memo Hdr."
                     // NAVCZ
 #endif
                 ReportSelection.PrintWithDialogForVend(
-                ReportSelection.Usage::"P.Cr.Memo", PurchCrMemoHeader, ShowRequestPage, FieldNo("Buy-from Vendor No."));
+                  ReportSelection.Usage::"P.Cr.Memo", PurchCrMemoHeader, ShowRequestPage, FieldNo("Buy-from Vendor No."));
             end;
     end;
 
@@ -937,7 +885,7 @@ table 124 "Purch. Cr. Memo Hdr."
 
     procedure ShowDimensions()
     begin
-        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', TableCaption, "No."));
+        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', TableCaption(), "No."));
     end;
 
     procedure SetSecurityFilterOnRespCenter()
@@ -949,9 +897,9 @@ table 124 "Purch. Cr. Memo Hdr."
         if IsHandled then
             exit;
 
-        if UserSetupMgt.GetPurchasesFilter <> '' then begin
+        if UserSetupMgt.GetPurchasesFilter() <> '' then begin
             FilterGroup(2);
-            SetRange("Responsibility Center", UserSetupMgt.GetPurchasesFilter);
+            SetRange("Responsibility Center", UserSetupMgt.GetPurchasesFilter());
             FilterGroup(0);
         end;
     end;
@@ -961,9 +909,9 @@ table 124 "Purch. Cr. Memo Hdr."
         CalcFields(Cancelled, Corrective);
         case true of
             Cancelled:
-                ShowCorrectiveInvoice;
+                ShowCorrectiveInvoice();
             Corrective:
-                ShowCancelledInvoice;
+                ShowCancelledInvoice();
         end;
     end;
 
@@ -1012,3 +960,4 @@ table 124 "Purch. Cr. Memo Hdr."
     begin
     end;
 }
+

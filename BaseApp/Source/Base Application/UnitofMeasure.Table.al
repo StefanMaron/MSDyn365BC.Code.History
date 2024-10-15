@@ -44,24 +44,16 @@ table 204 "Unit of Measure"
         field(31060; "Unspecified Intrastat"; Boolean)
         {
             Caption = 'Unspecified Intrastat';
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Unsupported functionality';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(31061; "Tariff Number UOM Code"; Code[20])
         {
             Caption = 'Tariff Number UOM Code';
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(31070; "Indivisible Unit"; Boolean)
         {
@@ -114,17 +106,17 @@ table 204 "Unit of Measure"
 
     trigger OnInsert()
     begin
-        SetLastDateTimeModified;
+        SetLastDateTimeModified();
     end;
 
     trigger OnModify()
     begin
-        SetLastDateTimeModified;
+        SetLastDateTimeModified();
     end;
 
     trigger OnRename()
     begin
-        UpdateItemBaseUnitOfMeasure;
+        UpdateItemBaseUnitOfMeasure();
     end;
 
     var
@@ -145,7 +137,7 @@ table 204 "Unit of Measure"
         UnitOfMeasureTranslation: Record "Unit of Measure Translation";
         Language: Codeunit Language;
     begin
-        if UnitOfMeasureTranslation.Get(Code, Language.GetUserLanguageCode) then
+        if UnitOfMeasureTranslation.Get(Code, Language.GetUserLanguageCode()) then
             exit(UnitOfMeasureTranslation.Description);
         exit(Description);
     end;
@@ -157,7 +149,7 @@ table 204 "Unit of Measure"
         if UnitOfMeasure.FindSet() then
             repeat
                 TempUnitOfMeasure := UnitOfMeasure;
-                TempUnitOfMeasure.Description := UnitOfMeasure.GetDescriptionInCurrentLanguage;
+                TempUnitOfMeasure.Description := UnitOfMeasure.GetDescriptionInCurrentLanguage();
                 TempUnitOfMeasure.Insert();
             until UnitOfMeasure.Next() = 0;
     end;

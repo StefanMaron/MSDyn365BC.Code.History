@@ -57,7 +57,7 @@ codeunit 134264 "Applied Payment Entries Test"
         LibraryVariableStorage.Dequeue(TotalRemainingAmount);
         Assert.AreEqual(Amount, TotalAppliedAmount, 'Wrong amount applied.');
         Assert.AreEqual(0, TotalRemainingAmount, 'Amount left to apply is incorrect.');
-        PaymentReconciliationJournal.Close;
+        PaymentReconciliationJournal.Close();
 
         LibraryVariableStorage.AssertEmpty;
     end;
@@ -107,7 +107,7 @@ codeunit 134264 "Applied Payment Entries Test"
           PaymentReconciliationJournal."Match Confidence".Value,
           'Unexpected match confidence after rejecting the application');
 
-        PaymentReconciliationJournal.Close;
+        PaymentReconciliationJournal.Close();
         LibraryVariableStorage.AssertEmpty;
     end;
 
@@ -163,7 +163,7 @@ codeunit 134264 "Applied Payment Entries Test"
         PaymentReconciliationJournal."Match Confidence".AssertEquals(Format(BankAccReconciliationLine."Match Confidence"::None));
         // [THEN] Bank Account Reconciliation Line field "Account No." is empty
         PaymentReconciliationJournal."Account No.".AssertEquals('');
-        PaymentReconciliationJournal.Close;
+        PaymentReconciliationJournal.Close();
         LibraryVariableStorage.AssertEmpty;
     end;
 
@@ -208,7 +208,7 @@ codeunit 134264 "Applied Payment Entries Test"
           Format(BankAccReconciliationLine."Match Confidence"::None),
           PaymentReconciliationJournal."Match Confidence".Value,
           'Unexpected match confidence after rejecting the application');
-        PaymentReconciliationJournal.Close;
+        PaymentReconciliationJournal.Close();
         LibraryVariableStorage.AssertEmpty;
     end;
 
@@ -251,7 +251,7 @@ codeunit 134264 "Applied Payment Entries Test"
           PaymentReconciliationJournal."Match Confidence".Value,
           'Unexpected match confidence after rejecting the application');
 
-        PaymentReconciliationJournal.Close;
+        PaymentReconciliationJournal.Close();
         LibraryVariableStorage.AssertEmpty;
     end;
 
@@ -296,7 +296,7 @@ codeunit 134264 "Applied Payment Entries Test"
         VerifyAppliedPaymentEntry(BankAccRecon, ExpectedMatchedLineNo, CustLedgEntry."Entry No.",
           CustLedgEntry."Bal. Account Type"::Customer, CustLedgEntry."Customer No.", Amount);
 
-        PaymentReconciliationJournal.Close;
+        PaymentReconciliationJournal.Close();
         LibraryVariableStorage.AssertEmpty;
     end;
 
@@ -426,7 +426,7 @@ codeunit 134264 "Applied Payment Entries Test"
         VerifyAppliedPaymentEntry(BankAccRecon, ExpectedMatchedLineNo, CustLedgEntry."Entry No.",
           CustLedgEntry."Bal. Account Type"::Customer, CustLedgEntry."Customer No.", ChangedAmount);
 
-        PaymentReconciliationJournal.Close;
+        PaymentReconciliationJournal.Close();
         LibraryVariableStorage.AssertEmpty;
     end;
 
@@ -469,7 +469,7 @@ codeunit 134264 "Applied Payment Entries Test"
         VerifyAppliedPaymentEntry(BankAccRecon, ExpectedMatchedLineNo, CustLedgEntry2."Entry No.",
           CustLedgEntry."Bal. Account Type"::Customer, CustLedgEntry2."Customer No.", Amount - AmountDelta);
 
-        PaymentReconciliationJournal.Close;
+        PaymentReconciliationJournal.Close();
         LibraryVariableStorage.AssertEmpty;
     end;
 
@@ -523,9 +523,9 @@ codeunit 134264 "Applied Payment Entries Test"
                   CustLedgEntry."Bal. Account Type"::Customer,
                   CustLedgEntry."Customer No.",
                   ExpectAmt);
-            until CustLedgEntry.Next = 0;
+            until CustLedgEntry.Next() = 0;
 
-        PaymentReconciliationJournal.Close;
+        PaymentReconciliationJournal.Close();
         LibraryVariableStorage.AssertEmpty;
     end;
 
@@ -628,7 +628,7 @@ codeunit 134264 "Applied Payment Entries Test"
         PaymentReconciliationJournal.First;
         VerifyAccountNameField(Cust, PaymentReconciliationJournal);
         Assert.AreEqual(Cust.Name, PaymentReconciliationJournal.AccountName.Value, 'Unexpected Account Name shown');
-        PaymentReconciliationJournal.Close;
+        PaymentReconciliationJournal.Close();
     end;
 
     local procedure InvokeAutoApplyAndOpenPaymentApplicationsPage(BankAccRecon: Record "Bank Acc. Reconciliation"; var PaymentReconciliationJournal: TestPage "Payment Reconciliation Journal"; EntryNo: Integer)
@@ -654,12 +654,12 @@ codeunit 134264 "Applied Payment Entries Test"
     local procedure CreateBankAccRec(var BankAccRecon: Record "Bank Acc. Reconciliation"; BankAccNo: Code[20]; StatementNo: Code[20])
     begin
         with BankAccRecon do begin
-            Init;
+            Init();
             "Bank Account No." := BankAccNo;
             "Statement No." := StatementNo;
-            "Statement Date" := WorkDate;
+            "Statement Date" := WorkDate();
             "Statement Type" := "Statement Type"::"Payment Application";
-            Insert;
+            Insert();
         end;
     end;
 
@@ -680,9 +680,9 @@ codeunit 134264 "Applied Payment Entries Test"
             SetRange("Bank Account No.", BankAccRecon."Bank Account No.");
             SetRange("Statement No.", BankAccRecon."Statement No.");
             if FindLast() then
-                Reset;
+                Reset();
 
-            Init;
+            Init();
             "Bank Account No." := BankAccRecon."Bank Account No.";
             "Statement Type" := BankAccRecon."Statement Type";
             "Statement No." := BankAccRecon."Statement No.";
@@ -690,7 +690,6 @@ codeunit 134264 "Applied Payment Entries Test"
             "Transaction Date" := TransactionDate;
             Validate("Statement Amount", Amount); // NAVCZ
             Difference := Amount;
-            Type := Type::"Bank Account Ledger Entry";
         end;
     end;
 
@@ -707,7 +706,7 @@ codeunit 134264 "Applied Payment Entries Test"
             BankAccReconLine.FieldNo("Bank Account No."), DATABASE::"Bank Acc. Reconciliation Line");
 
         with BankAcc do begin
-            Init;
+            Init();
             "No." := BankAccNo;
             "Currency Code" := LibraryERM.GetLCYCode;
             // NAVCZ
@@ -715,7 +714,7 @@ codeunit 134264 "Applied Payment Entries Test"
             "Bank Pmt. Appl. Rule Code" := GetBankPmtApplRuleCode;
             "Text-to-Account Mapping Code" := GetAccountMappingCode;
             // NAVCZ
-            Insert;
+            Insert();
         end;
 
         StatementNo :=
@@ -743,13 +742,13 @@ codeunit 134264 "Applied Payment Entries Test"
             FindLast();
             LastEntryNo := "Entry No.";
             InsertDetailedCustLedgerEntry(LastEntryNo + 1, Amt);
-            Init;
+            Init();
             "Entry No." := LastEntryNo + 1;
-            "Posting Date" := WorkDate;
+            "Posting Date" := WorkDate();
             "Customer No." := CustNo;
             "Document No." := CopyStr(CreateGuid, 1, 20);
             Open := true;
-            Insert;
+            Insert();
             CalcFields("Remaining Amount");
         end;
     end;
@@ -762,19 +761,19 @@ codeunit 134264 "Applied Payment Entries Test"
         with DetailedCustLedgEntry do begin
             FindLast();
             LastEntryNo := "Entry No.";
-            Init;
+            Init();
             "Entry No." := LastEntryNo + 1;
             "Cust. Ledger Entry No." := CustLedgerEntryNo;
             Amount := Amt;
             "Amount (LCY)" := Amt;
-            Insert;
+            Insert();
         end;
     end;
 
     local procedure CreateCustomer(var Cust: Record Customer)
     begin
         with Cust do begin
-            Init;
+            Init();
             "No." := LibraryUtility.GenerateRandomCode(FieldNo("No."), DATABASE::Customer);
             Name := CopyStr(CreateGuid, 1, 50);
             "Payment Terms Code" := CreatePaymentTerms;
@@ -790,9 +789,9 @@ codeunit 134264 "Applied Payment Entries Test"
         PaymentTerms: Record "Payment Terms";
     begin
         with PaymentTerms do begin
-            Init;
+            Init();
             Code := LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::"Payment Terms");
-            Insert;
+            Insert();
             exit(Code);
         end;
     end;
@@ -802,9 +801,9 @@ codeunit 134264 "Applied Payment Entries Test"
         PaymentMethod: Record "Payment Method";
     begin
         with PaymentMethod do begin
-            Init;
+            Init();
             Code := LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::"Payment Method");
-            Insert;
+            Insert();
             exit(Code);
         end;
     end;
@@ -829,7 +828,7 @@ codeunit 134264 "Applied Payment Entries Test"
         CustomerCard.Trap;
         PaymentReconciliationJournal.AccountName.DrillDown;
         Assert.AreEqual(Customer."No.", CustomerCard."No.".Value, 'Unexpected customer shown after drilldown on Account Name');
-        CustomerCard.Close;
+        CustomerCard.Close();
     end;
 
     local procedure VerifyAppliedPaymentEntryCount(BankAccRecon: Record "Bank Acc. Reconciliation"; ExpectedMatchedLineNo: Integer; ExpectedMatchedEntryNo: Integer; ExpectedMatchedAccType: Enum "Gen. Journal Account Type"; ExpectedMatchedAccNo: Code[50]; ExpectedAppliedAmount: Decimal; ExpectedCount: Integer)

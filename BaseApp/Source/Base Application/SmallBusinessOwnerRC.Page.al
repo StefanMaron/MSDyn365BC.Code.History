@@ -128,7 +128,7 @@ page 9020 "Small Business Owner RC"
                 RunObject = Report "Salesperson - Sales Statistics";
                 ToolTip = 'View amounts for sales, profit, invoice discount, and payment discount, as well as profit percentage, for each salesperson for a selected period. The report also shows the adjusted profit and adjusted profit percentage, which reflect any changes to the original costs of the items in the sales.';
             }
-#if not CLEAN19
+#if not CLEAN21
             action("Price &List")
             {
                 ApplicationArea = Basic, Suite;
@@ -167,44 +167,6 @@ page 9020 "Small Business Owner RC"
                 ObsoleteState = Pending;
                 ObsoleteReason = 'Orphaned page element removed.';
                 ObsoleteTag = '19.0';
-            }
-#endif
-#if not CLEAN18
-            action("FA Phys. Inventory List")
-            {
-                ApplicationArea = FixedAssets;
-                Caption = 'FA Phys. Inventory List';
-                Image = FixedAssets;
-                RunObject = Report "FA Phys. Inventory List";
-                ToolTip = 'Open the report for fixed asset physical inventory.';
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
-                ObsoleteTag = '18.0';
-                Visible = false;
-            }
-            action("FA Receipt")
-            {
-                ApplicationArea = FixedAssets;
-                Caption = 'FA Receipt';
-                Image = ReceiptLines;
-                RunObject = Report "FA Receipt Report";
-                ToolTip = 'Open the report for fixed asset receipt.';
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
-                ObsoleteTag = '18.0';
-                Visible = false;
-            }
-            action("FA Disposal")
-            {
-                ApplicationArea = FixedAssets;
-                Caption = 'FA Disposal';
-                Image = ShipmentLines;
-                RunObject = Report "FA Disposal Report";
-                ToolTip = 'Open the report for fixed asset disposal.';
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
-                ObsoleteTag = '18.0';
-                Visible = false;
             }
 #endif
             separator(Action129)
@@ -794,7 +756,7 @@ page 9020 "Small Business Owner RC"
                     RunObject = Page "Resource Groups";
                     ToolTip = 'View all resource groups.';
                 }
-#if not CLEAN19
+#if not CLEAN21
                 action("Resource Price Changes")
                 {
                     ApplicationArea = Basic, Suite;
@@ -999,7 +961,7 @@ page 9020 "Small Business Owner RC"
                 RunObject = Page "Payment Journal";
                 ToolTip = 'Pay your vendors by filling the payment journal automatically according to payments due, and potentially export all payment to your bank for automatic processing.';
             }
-#if not CLEAN19
+#if not CLEAN21
             action("Sales Price &Worksheet")
             {
                 ApplicationArea = Basic, Suite;

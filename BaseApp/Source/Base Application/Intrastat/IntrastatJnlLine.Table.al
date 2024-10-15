@@ -36,10 +36,7 @@ table 263 "Intrastat Jnl. Line"
 
             trigger OnValidate()
             begin
-                GetItemDescription;
-#if not CLEAN18
-                "Statistic Indication" := ''; // NAVCZ
-#endif
+                GetItemDescription();
             end;
         }
         field(7; "Item Description"; Text[250])
@@ -93,14 +90,6 @@ table 263 "Intrastat Jnl. Line"
                     "Total Weight" := Round("Net Weight" * Quantity, 0.00001)
                 else
                     "Total Weight" := 0;
-#if not CLEAN18
-                // NAVCZ
-                if Item.Get("Item No.") then
-                    if "Supplementary Units" then
-                        "Supplem. UoM Net Weight" := "Net Weight" *
-                           UnitOfMeasureManagement.GetQtyPerUnitOfMeasure(Item, "Supplem. UoM Code");
-                // NAVCZ
-#endif
             end;
         }
         field(14; Amount; Decimal)
@@ -123,20 +112,10 @@ table 263 "Intrastat Jnl. Line"
 
             trigger OnValidate()
             begin
-#if CLEAN18
                 if (Quantity <> 0) and Item.Get("Item No.") then
                     Validate("Net Weight", Item."Net Weight")
                 else
                     Validate("Net Weight", 0);
-#else
-                // NAVCZ
-                "Total Weight" := RoundValue("Net Weight" * Quantity);
-                if Item.Get("Item No.") then
-                    if "Supplementary Units" then
-                        "Supplem. UoM Quantity" := Quantity /
-                           UnitOfMeasureManagement.GetQtyPerUnitOfMeasure(Item, "Supplem. UoM Code");
-                // NAVCZ
-#endif
             end;
         }
         field(16; "Cost Regulation %"; Decimal)
@@ -187,20 +166,7 @@ table 263 "Intrastat Jnl. Line"
                     Item.Get("Item No.");
 
                 Name := Item.Description;
-#if CLEAN18
                 "Tariff No." := Item."Tariff No.";
-#else
-                // NAVCZ
-                Validate("Net Weight", Item."Net Weight");
-                Validate("Tariff No.", Item."Tariff No.");
-                "Base Unit of Measure" := Item."Base Unit of Measure";
-                // NAVCZ
-                "Country/Region of Origin Code" := Item."Country/Region of Origin Code";
-                GetItemDescription;
-                // NAVCZ
-                "Specific Movement" := Item."Specific Movement";
-                // NAVCZ
-#endif
             end;
         }
         field(21; Name; Text[100])
@@ -265,64 +231,39 @@ table 263 "Intrastat Jnl. Line"
         {
             Caption = 'Additional Costs';
             Editable = false;
-#if CLEAN18
             ObsoleteState = Removed;
             ObsoleteTag = '21.0';
-#else
-            ObsoleteState = Pending;
-            ObsoleteTag = '18.0';
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
         }
         field(31061; "Source Entry Date"; Date)
         {
             Caption = 'Source Entry Date';
             Editable = false;
-#if CLEAN18
             ObsoleteState = Removed;
             ObsoleteTag = '21.0';
-#else
-            ObsoleteState = Pending;
-            ObsoleteTag = '18.0';
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
         }
         field(31062; "Statistic Indication"; Code[10])
         {
             Caption = 'Statistic Indication';
-#if CLEAN18
             ObsoleteState = Removed;
             ObsoleteTag = '21.0';
-#else
-            ObsoleteState = Pending;
-            ObsoleteTag = '18.0';
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
         }
         field(31063; "Statistics Period"; Code[10])
         {
             Caption = 'Statistics Period';
             Editable = false;
-#if CLEAN18
             ObsoleteState = Removed;
             ObsoleteTag = '21.0';
-#else
-            ObsoleteState = Pending;
-            ObsoleteTag = '18.0';
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
         }
         field(31065; "Declaration No."; Code[10])
         {
             Caption = 'Declaration No.';
             Editable = false;
-#if CLEAN18
             ObsoleteState = Removed;
             ObsoleteTag = '21.0';
-#else
-            ObsoleteState = Pending;
-            ObsoleteTag = '18.0';
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
         }
         field(31066; "Statement Type"; Option)
@@ -331,92 +272,23 @@ table 263 "Intrastat Jnl. Line"
             Editable = false;
             OptionCaption = 'Primary,Null,Replacing,Deleting';
             OptionMembers = Primary,Null,Replacing,Deleting;
-#if CLEAN18
             ObsoleteState = Removed;
             ObsoleteTag = '21.0';
-#else
-            ObsoleteState = Pending;
-            ObsoleteTag = '18.0';
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
         }
         field(31067; "Prev. Declaration No."; Code[10])
         {
             Caption = 'Prev. Declaration No.';
-#if CLEAN18
             ObsoleteState = Removed;
             ObsoleteTag = '21.0';
-#else
-            ObsoleteState = Pending;
-            ObsoleteTag = '18.0';
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-#if not CLEAN18
-
-            trigger OnLookup()
-            var
-                IntrastatJnlLine: Record "Intrastat Jnl. Line";
-                IntrastatJnlLines: Page "Intrastat Journal Lines";
-                IntrastatJnlLine2: Record "Intrastat Jnl. Line";
-            begin
-                Clear(IntrastatJnlLines);
-                IntrastatJnlLine.Reset();
-                IntrastatJnlLine.FilterGroup(2);
-                IntrastatJnlLine.SetFilter("Declaration No.", '<>%1', '');
-                IntrastatJnlLine.FilterGroup(0);
-                IntrastatJnlLines.LookupMode := true;
-                IntrastatJnlLines.SetTableView(IntrastatJnlLine);
-                if IntrastatJnlLines.RunModal = ACTION::LookupOK then begin
-                    IntrastatJnlLines.GetRecord(IntrastatJnlLine2);
-                    "Prev. Declaration No." := IntrastatJnlLine2."Declaration No.";
-                end;
-            end;
-#endif
         }
         field(31068; "Prev. Declaration Line No."; Integer)
         {
             Caption = 'Prev. Declaration Line No.';
-#if CLEAN18
             ObsoleteState = Removed;
             ObsoleteTag = '21.0';
-#else
-            ObsoleteState = Pending;
-            ObsoleteTag = '18.0';
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-#if not CLEAN18
-
-            trigger OnLookup()
-            var
-                IntrastatJnlLine: Record "Intrastat Jnl. Line";
-                IntrastatJnlLines: Page "Intrastat Journal Lines";
-                IntrastatJnlLine2: Record "Intrastat Jnl. Line";
-            begin
-                Clear(IntrastatJnlLines);
-                IntrastatJnlLine.Reset();
-                IntrastatJnlLine.FilterGroup(2);
-                if "Prev. Declaration No." <> '' then
-                    IntrastatJnlLine.SetRange("Declaration No.", "Prev. Declaration No.")
-                else
-                    IntrastatJnlLine.SetFilter("Declaration No.", '<>%1', '');
-                IntrastatJnlLine.FilterGroup(0);
-                IntrastatJnlLines.LookupMode := true;
-                IntrastatJnlLines.SetTableView(IntrastatJnlLine);
-                if IntrastatJnlLines.RunModal = ACTION::LookupOK then begin
-                    IntrastatJnlLines.GetRecord(IntrastatJnlLine2);
-                    IntrastatJnlLine2."Journal Template Name" := "Journal Template Name";
-                    IntrastatJnlLine2."Journal Batch Name" := "Journal Batch Name";
-                    IntrastatJnlLine2.Type := Type;
-                    IntrastatJnlLine2."Internal Ref. No." := "Internal Ref. No.";
-                    IntrastatJnlLine2."Prev. Declaration No." := IntrastatJnlLine2."Declaration No.";
-                    IntrastatJnlLine2."Prev. Declaration Line No." := IntrastatJnlLine2."Line No.";
-                    IntrastatJnlLine2."Declaration No." := "Declaration No.";
-                    IntrastatJnlLine2."Line No." := "Line No.";
-                    IntrastatJnlLine2."Statistics Period" := "Statistics Period";
-                    TransferFields(IntrastatJnlLine2, false);
-                end;
-            end;
-#endif
         }
         field(31069; "Shipment Method Code"; Code[10])
         {
@@ -429,14 +301,8 @@ table 263 "Intrastat Jnl. Line"
         field(31070; "Specific Movement"; Code[10])
         {
             Caption = 'Specific Movement';
-#if CLEAN18
             ObsoleteState = Removed;
             ObsoleteTag = '21.0';
-#else
-            TableRelation = "Specific Movement".Code;
-            ObsoleteState = Pending;
-            ObsoleteTag = '18.0';
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
         }
         field(31071; "Supplem. UoM Code"; Code[10])
@@ -444,13 +310,8 @@ table 263 "Intrastat Jnl. Line"
             Caption = 'Supplem. UoM Code';
             Editable = false;
             TableRelation = "Item Unit of Measure".Code WHERE("Item No." = FIELD("Item No."));
-#if CLEAN18
             ObsoleteState = Removed;
             ObsoleteTag = '21.0';
-#else
-            ObsoleteState = Pending;
-            ObsoleteTag = '18.0';
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
         }
         field(31072; "Supplem. UoM Quantity"; Decimal)
@@ -458,13 +319,8 @@ table 263 "Intrastat Jnl. Line"
             Caption = 'Supplem. UoM Quantity';
             DecimalPlaces = 0 : 3;
             Editable = false;
-#if CLEAN18
             ObsoleteState = Removed;
             ObsoleteTag = '21.0';
-#else
-            ObsoleteState = Pending;
-            ObsoleteTag = '18.0';
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
         }
         field(31073; "Supplem. UoM Net Weight"; Decimal)
@@ -472,13 +328,8 @@ table 263 "Intrastat Jnl. Line"
             Caption = 'Supplem. UoM Net Weight';
             DecimalPlaces = 2 : 5;
             Editable = false;
-#if CLEAN18
             ObsoleteState = Removed;
             ObsoleteTag = '21.0';
-#else
-            ObsoleteState = Pending;
-            ObsoleteTag = '18.0';
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
         }
         field(31074; "Base Unit of Measure"; Code[10])
@@ -486,13 +337,8 @@ table 263 "Intrastat Jnl. Line"
             Caption = 'Base Unit of Measure';
             Editable = false;
             TableRelation = "Item Unit of Measure".Code WHERE("Item No." = FIELD("Item No."));
-#if CLEAN18
             ObsoleteState = Removed;
             ObsoleteTag = '21.0';
-#else
-            ObsoleteState = Pending;
-            ObsoleteTag = '18.0';
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
         }
     }
@@ -512,20 +358,6 @@ table 263 "Intrastat Jnl. Line"
         key(Key4; "Internal Ref. No.")
         {
         }
-#if not CLEAN18
-        key(Key5; Type, "Country/Region Code", "Tariff No.", "Statistic Indication", "Transaction Type", "Shpt. Method Code", "Area", "Transport Method")
-        {
-            ObsoleteState = Pending;
-            ObsoleteReason = 'Field "Statistic Indication" is removed and cannot be used in an active key.';
-            ObsoleteTag = '18.0';
-        }
-        key(Key6; Type, "Tariff No.", "Country/Region Code", "Country/Region of Origin Code", "Statistic Indication", "Transaction Type", "Shpt. Method Code", "Area", "Transport Method")
-        {
-            ObsoleteState = Pending;
-            ObsoleteReason = 'Field "Statistic Indication" is removed and cannot be used in an active key.';
-            ObsoleteTag = '18.0';
-        }
-#endif
         key(Key7; "Document No.")
         {
         }
@@ -565,7 +397,6 @@ table 263 "Intrastat Jnl. Line"
         IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
         Item: Record Item;
         TariffNumber: Record "Tariff Number";
-        UnitOfMeasureManagement: Codeunit "Unit of Measure Management";
 
     local procedure GetItemDescription()
     var
@@ -578,77 +409,12 @@ table 263 "Intrastat Jnl. Line"
 
         if "Tariff No." <> '' then begin
             TariffNumber.Get("Tariff No.");
-#if not CLEAN18
-            // NAVCZ
-            TariffNumber.CalcFields("Supplementary Units");
-            if TariffNumber."Supplementary Units" then begin
-                TariffNumber.TestField("Supplem. Unit of Measure Code");
-                "Supplem. UoM Code" := TariffNumber."Supplem. Unit of Measure Code";
-            end else
-                "Supplem. UoM Code" := '';
-            // NAVCZ
-#endif
             "Item Description" := TariffNumber.Description;
             "Supplementary Units" := TariffNumber."Supplementary Units";
-#if CLEAN18
         end else
             "Item Description" := '';
-#else
-        end else begin // NAVCZ
-            "Item Description" := '';
-            "Supplementary Units" := false;
-            "Supplem. UoM Code" := '';
-        end; // NAVCZ
-#endif            
     end;
 
-#if not CLEAN18
-    [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
-    [Scope('OnPrem')]
-    procedure RoundValue(Value: Decimal): Decimal
-    begin
-        // NAVCZ
-        if Value >= 1 then
-            exit(Round(Value, 1));
-        exit(Value);
-    end;
-
-    [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
-    [Scope('OnPrem')]
-    procedure GetQuantityStr(): Text[30]
-    var
-        TariffNumber: Record "Tariff Number";
-    begin
-        // NAVCZ
-        TariffNumber.Get("Tariff No.");
-        TariffNumber.CalcFields("Supplementary Units");
-        if not TariffNumber."Supplementary Units" then
-            exit(Format(0.0, 0, PrecisionFormat));
-        exit(Format("Supplem. UoM Quantity", 0, PrecisionFormat));
-    end;
-
-    [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
-    [Scope('OnPrem')]
-    procedure GetDeliveryGroupCode(): Code[10]
-    var
-        ShipmentMethod: Record "Shipment Method";
-    begin
-        // NAVCZ
-        ShipmentMethod.Get("Shpt. Method Code");
-        exit(ShipmentMethod."Intrastat Delivery Group Code");
-    end;
-
-    [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
-    [Scope('OnPrem')]
-    procedure GetTotalWeightStr(): Text[30]
-    begin
-        // NAVCZ
-        if "Total Weight" <= 1 then
-            exit(Format("Total Weight", 0, PrecisionFormat));
-        exit(Format(Round("Total Weight", 1, '>'), 0, PrecisionFormat));
-    end;
-
-#endif
     procedure IsOpenedFromBatch(): Boolean
     var
         IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
@@ -902,22 +668,6 @@ table 263 "Intrastat Jnl. Line"
             exit(Vendor."Partner Type" = "Partner Type"::Person);
     end;
 
-#if not CLEAN18
-    [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
-    local procedure PrecisionFormat(): Text
-    begin
-        // NAVCZ
-        exit('<Precision,3:3><Standard Format,9>');
-    end;
-
-    [Obsolete('This procedure is discontinued. Use IntraJnlManagement event OnBeforeOpenJnl.', '18.0')]
-    procedure CheckIntrastatJnlLineUserRestriction()
-    begin
-        // NAVCZ
-        OnCheckIntrastatJnlTemplateUserRestrictions(GetRangeMax("Journal Template Name"));
-    end;
-
-#endif
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetCountryOfOriginCode(var IntrastatJnlLine: Record "Intrastat Jnl. Line"; var CountryOfOriginCode: Code[10])
     begin
@@ -942,12 +692,4 @@ table 263 "Intrastat Jnl. Line"
     local procedure OnBeforeGetPartnerIDForCountry(CountryRegionCode: Code[10]; VATRegistrationNo: Text[50]; IsPrivatePerson: Boolean; IsThirdPartyTrade: Boolean; var PartnerID: Text[50]; var IsHandled: Boolean)
     begin
     end;
-#if not CLEAN18
-
-    [Obsolete('This Integration Event is discontinued. Use IntraJnlManagement event OnBeforeOpenJnl.', '18.1')]
-    [IntegrationEvent(false, false)]
-    local procedure OnCheckIntrastatJnlTemplateUserRestrictions(JournalTemplateName: Code[10])
-    begin
-    end;
-#endif
 }

@@ -38,19 +38,19 @@ table 486 "Business Chart Map"
 
     procedure Add(MapName: Text[249]; Value: Variant)
     begin
-        Reset;
+        Reset();
         if FindLast() then
             Index += 1
         else
             Index := 0;
         Name := CopyStr(MapName, 1, MaxStrLen(Name));
         "Value String" := CopyStr(Format(Value, 0, 9), 1, MaxStrLen("Value String"));
-        Insert;
+        Insert();
     end;
 
     procedure GetIndex(MapName: Text[249]): Integer
     begin
-        Reset;
+        Reset();
         SetRange(Name, MapName);
         if FindFirst() then
             exit(Index);

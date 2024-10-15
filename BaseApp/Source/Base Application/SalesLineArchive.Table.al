@@ -715,7 +715,7 @@ table 5108 "Sales Line Archive"
         {
             Caption = 'Cross-Reference No.';
             ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
-#if not CLEAN18
+#if not CLEAN19
             ObsoleteState = Pending;
             ObsoleteTag = '18.0';
 #else
@@ -974,24 +974,16 @@ table 5108 "Sales Line Archive"
         {
             Caption = 'Reason Code';
             TableRelation = "Reason Code";
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
-            ObsoleteTag = '15.3';
+            ObsoleteTag = '21.0';
         }
         field(31060; "Physical Transfer"; Boolean)
         {
             Caption = 'Physical Transfer';
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
     }
 
@@ -1022,6 +1014,9 @@ table 5108 "Sales Line Archive"
 
     fieldgroups
     {
+        fieldgroup(DropDown; "Document No.", "Line No.", "Version No.", "Sell-to Customer No.")
+        {
+        }
     }
 
     trigger OnDelete()
@@ -1108,9 +1103,9 @@ table 5108 "Sales Line Archive"
         OnCopyTempLinesOnAfterSalesLineArchiveSetFilters(SalesLineArchive, SalesHeaderArchive);
         if SalesLineArchive.FindSet() then
             repeat
-                Init;
+                Init();
                 Rec := SalesLineArchive;
-                Insert;
+                Insert();
                 TempSalesLine.TransferFields(SalesLineArchive);
                 TempSalesLine.Insert();
             until SalesLineArchive.Next() = 0;

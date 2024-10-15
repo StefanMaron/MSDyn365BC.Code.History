@@ -464,7 +464,7 @@
                 if Abs("Amount to Apply") > Abs("Remaining Amount") then
                     FieldError("Amount to Apply", StrSubstNo(MustNotBeLargerErr, FieldCaption("Remaining Amount")));
 #if not CLEAN19
-                TestAdvLink; // NAVCZ
+                TestAdvLink(); // NAVCZ
 #endif
             end;
         }
@@ -611,153 +611,75 @@
             CalcFormula = lookup("Dimension Set Entry"."Dimension Value Code" where("Dimension Set ID" = field("Dimension Set ID"),
                                                                                     "Global Dimension No." = const(8)));
         }
+        field(1000; "Remit-to Code"; Code[20])
+        {
+            Caption = 'Remit-to Code';
+            TableRelation = "Remit Address".Code WHERE("Vendor No." = FIELD("Vendor No."));
+        }
         field(11700; "Bank Account Code"; Code[20])
         {
             Caption = 'Bank Account Code';
             TableRelation = IF ("Document Type" = FILTER(Invoice | Payment | Reminder | "Finance Charge Memo")) "Vendor Bank Account".Code WHERE("Vendor No." = FIELD("Vendor No."))
             ELSE
             IF ("Document Type" = FILTER("Credit Memo" | Refund)) "Bank Account"."No.";
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
-#if not CLEAN18
-
-            trigger OnValidate()
-            var
-                VendBankAcc: Record "Vendor Bank Account";
-                BankAcc: Record "Bank Account";
-            begin
-                if "Bank Account Code" = xRec."Bank Account Code" then
-                    exit;
-                if "Bank Account Code" = '' then begin
-                    "Bank Account No." := '';
-                    "Specific Symbol" := '';
-                    "Transit No." := '';
-                    IBAN := '';
-                    "SWIFT Code" := '';
-                    exit;
-                end;
-                TestField("Vendor No.");
-                case "Document Type" of
-                    "Document Type"::Payment, "Document Type"::"Finance Charge Memo",
-                    "Document Type"::Invoice, "Document Type"::Reminder:
-                        begin
-                            VendBankAcc.Get("Vendor No.", "Bank Account Code");
-                            "Bank Account No." := VendBankAcc."Bank Account No.";
-                            "Specific Symbol" := VendBankAcc."Specific Symbol";
-                            "Transit No." := VendBankAcc."Transit No.";
-                            IBAN := VendBankAcc.IBAN;
-                            "SWIFT Code" := VendBankAcc."SWIFT Code";
-                        end;
-                    "Document Type"::"Credit Memo", "Document Type"::Refund:
-                        begin
-                            BankAcc.Get("Bank Account Code");
-                            "Bank Account No." := BankAcc."Bank Account No.";
-                            "Specific Symbol" := BankAcc."Specific Symbol";
-                            "Transit No." := BankAcc."Transit No.";
-                            IBAN := BankAcc.IBAN;
-                            "SWIFT Code" := BankAcc."SWIFT Code";
-                        end;
-                end;
-            end;
-#endif
+            ObsoleteTag = '21.0';
         }
         field(11701; "Bank Account No."; Text[30])
         {
             Caption = 'Bank Account No.';
             Editable = false;
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(11703; "Specific Symbol"; Code[10])
         {
             Caption = 'Specific Symbol';
             CharAllowed = '09';
             Editable = false;
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(11704; "Variable Symbol"; Code[10])
         {
             Caption = 'Variable Symbol';
             CharAllowed = '09';
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(11705; "Constant Symbol"; Code[10])
         {
             Caption = 'Constant Symbol';
             CharAllowed = '09';
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            TableRelation = "Constant Symbol";
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(11706; "Transit No."; Text[20])
         {
             Caption = 'Transit No.';
             Editable = false;
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(11707; IBAN; Code[50])
         {
             Caption = 'IBAN';
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
-#if not CLEAN18
-
-            trigger OnValidate()
-            var
-                CompanyInfo: Record "Company Information";
-            begin
-                CompanyInfo.CheckIBAN(IBAN);
-            end;
-#endif
+            ObsoleteTag = '21.0';
         }
         field(11708; "SWIFT Code"; Code[20])
         {
             Caption = 'SWIFT Code';
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
 #if not CLEAN19
         field(11710; "Amount on Payment Order (LCY)"; Decimal)
@@ -784,13 +706,9 @@
         field(11761; Compensation; Boolean)
         {
             Caption = 'Compensation';
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Compensation Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(31000; "Prepayment Type"; Option)
         {
@@ -841,19 +759,6 @@
             ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
             ObsoleteTag = '19.0';
         }
-#if not CLEAN18
-        field(31050; "Amount on Credit (LCY)"; Decimal)
-        {
-            CalcFormula = Sum("Credit Line"."Amount (LCY)" WHERE("Source Type" = CONST(Vendor),
-                                                                  "Source Entry No." = FIELD("Entry No.")));
-            Caption = 'Amount on Credit (LCY)';
-            Editable = false;
-            FieldClass = FlowField;
-            ObsoleteState = Pending;
-            ObsoleteReason = 'Moved to Compensation Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
-        }
-#endif
     }
 
     keys
@@ -916,31 +821,45 @@
         key(Key15; "Vendor No.", "Applies-to ID", Open, Positive, "Due Date")
         {
         }
-        key(Key16; "Vendor No.", "Currency Code", "Vendor Posting Group", "Document Type")
+        key(Key16; "Vendor Posting Group")
         {
         }
-        key(Key17; "Document No.", "Posting Date", "Currency Code")
+        key(Key17; "Pmt. Discount Date")
         {
         }
-        key(Key18; "Vendor No.", "Vendor Posting Group", Prepayment, "Posting Date")
-        {
-        }
-        key(Key19; "Document Type", "Document No.")
-        {
-        }
-        key(Key20; "Vendor Posting Group")
-        {
-        }
-        key(Key21; "Pmt. Discount Date")
-        {
-        }
-        key(Key22; "Document Type", "Due Date", Open)
+        key(Key18; "Document Type", "Due Date", Open)
         {
         }
         key(Key25; "Vendor No.", "Posting Date", "Applies-to ID")
         {
             IncludedFields = "Currency Code", "Amount to Apply", Open;
         }
+#if not CLEAN21
+        key(Key26; "Vendor No.", "Currency Code", "Vendor Posting Group", "Document Type")
+        {
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The key is not needed anymore.';
+            ObsoleteTag = '21.0';
+        }
+        key(Key27; "Document No.", "Posting Date", "Currency Code")
+        {
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The key is not needed anymore.';
+            ObsoleteTag = '21.0';
+        }
+        key(Key28; "Vendor No.", "Vendor Posting Group", Prepayment, "Posting Date")
+        {
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The key is not needed anymore.';
+            ObsoleteTag = '21.0';
+        }
+        key(Key29; "Document Type", "Document No.")
+        {
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The key is not needed anymore.';
+            ObsoleteTag = '21.0';
+        }
+#endif
     }
 
     fieldgroups
@@ -1069,8 +988,8 @@
         DtldVendLedgEntry.CopyFilter("Initial Entry Global Dim. 1", VendLedgEntry."Global Dimension 1 Code");
         DtldVendLedgEntry.CopyFilter("Initial Entry Global Dim. 2", VendLedgEntry."Global Dimension 2 Code");
         VendLedgEntry.SetCurrentKey("Vendor No.", "Posting Date");
-        VendLedgEntry.SetFilter("Date Filter", '..%1', WorkDate);
-        VendLedgEntry.SetFilter("Due Date", '<%1', WorkDate);
+        VendLedgEntry.SetFilter("Date Filter", '..%1', WorkDate());
+        VendLedgEntry.SetFilter("Due Date", '<%1', WorkDate());
         VendLedgEntry.SetFilter("Remaining Amount", '<>%1', 0);
         OnBeforeDrillDownOnOverdueEntries(VendLedgEntry, DtldVendLedgEntry, DrillDownPageID);
         PAGE.Run(DrillDownPageID, VendLedgEntry);
@@ -1094,7 +1013,7 @@
     var
         DimMgt: Codeunit DimensionManagement;
     begin
-        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', TableCaption, "Entry No."));
+        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', TableCaption(), "Entry No."));
     end;
 
     procedure SetStyle() Result: Text
@@ -1107,7 +1026,7 @@
             exit(Result);
 
         if Open then begin
-            if WorkDate > "Due Date" then
+            if WorkDate() > "Due Date" then
                 exit('Unfavorable')
         end else
             if "Closed at Date" > "Due Date" then
@@ -1156,24 +1075,13 @@
         "Payment Reference" := GenJnlLine."Payment Reference";
         "Payment Method Code" := GenJnlLine."Payment Method Code";
         "Exported to Payment File" := GenJnlLine."Exported to Payment File";
-        // NAVCZ
-#if not CLEAN18
-        Compensation := GenJnlLine.Compensation;
-#endif
 #if not CLEAN19
-        "Prepayment Type" := GenJnlLine."Prepayment Type";
-#endif
-#if not CLEAN18
-        "Bank Account Code" := GenJnlLine."Bank Account Code";
-        "Bank Account No." := GenJnlLine."Bank Account No.";
-        "Specific Symbol" := GenJnlLine."Specific Symbol";
-        "Variable Symbol" := GenJnlLine."Variable Symbol";
-        "Constant Symbol" := GenJnlLine."Constant Symbol";
-        "Transit No." := GenJnlLine."Transit No.";
-        IBAN := GenJnlLine.IBAN;
-        "SWIFT Code" := GenJnlLine."SWIFT Code";
-#endif
         // NAVCZ
+        "Prepayment Type" := GenJnlLine."Prepayment Type";
+        // NAVCZ
+#endif
+        if (GenJnlLine."Remit-to Code" <> '') then
+            "Remit-to Code" := GenJnlLine."Remit-to Code";
 
         OnAfterCopyVendLedgerEntryFromGenJnlLine(Rec, GenJnlLine);
     end;
@@ -1283,7 +1191,7 @@
         if "Document Type" = "Document Type"::Payment then
             if Prepayment then begin
                 CalcFields("Remaining Amount");
-                LinkedNotUsedAmt := CalcLinkAdvAmount;
+                LinkedNotUsedAmt := CalcLinkAdvAmount();
 
                 if Abs("Amount to Apply") > (Abs("Remaining Amount") - Abs(LinkedNotUsedAmt)) then
                     FieldError("Amount to Apply", StrSubstNo(MustNotBeLargerErr, FieldCaption("Remaining Amount to Link")));
@@ -1394,3 +1302,4 @@
     end;
 #endif
 }
+

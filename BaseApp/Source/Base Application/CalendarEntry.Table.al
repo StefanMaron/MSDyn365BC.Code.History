@@ -64,7 +64,7 @@ table 99000757 "Calendar Entry"
 
             trigger OnValidate()
             begin
-                CheckRedundancy;
+                CheckRedundancy();
             end;
         }
         field(5; "Work Shift Code"; Code[10])
@@ -75,7 +75,7 @@ table 99000757 "Calendar Entry"
 
             trigger OnValidate()
             begin
-                CheckRedundancy;
+                CheckRedundancy();
             end;
         }
         field(6; "Starting Time"; Time)
@@ -113,11 +113,11 @@ table 99000757 "Calendar Entry"
                 then
                     Error(Text000, FieldCaption("Ending Time"), FieldCaption("Starting Time"));
 
-                CalculateCapacity;
+                CalculateCapacity();
 
-                CheckRedundancy;
+                CheckRedundancy();
 
-                UpdateDatetime;
+                UpdateDatetime();
             end;
         }
         field(8; "Work Center No."; Code[20])
@@ -163,7 +163,7 @@ table 99000757 "Calendar Entry"
 
             trigger OnValidate()
             begin
-                CalculateCapacity;
+                CalculateCapacity();
             end;
         }
         field(22; "Absence Efficiency"; Decimal)
@@ -187,7 +187,7 @@ table 99000757 "Calendar Entry"
 
             trigger OnValidate()
             begin
-                CalculateCapacity;
+                CalculateCapacity();
             end;
         }
         field(24; "Starting Date-Time"; DateTime)
@@ -239,12 +239,13 @@ table 99000757 "Calendar Entry"
     }
 
     var
-        Text000: Label '%1 must be higher than %2.';
-        Text001: Label 'There is redundancy in %1 within the calendar of %2. From %3 to %4. Conflicting time from %5 to %6.';
         WorkCenter: Record "Work Center";
         MachineCenter: Record "Machine Center";
         CalendarEntry: Record "Calendar Entry";
         CalendarMgt: Codeunit "Shop Calendar Management";
+
+        Text000: Label '%1 must be higher than %2.';
+        Text001: Label 'There is redundancy in %1 within the calendar of %2. From %3 to %4. Conflicting time from %5 to %6.';
 
     local procedure CheckRedundancy()
     var

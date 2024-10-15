@@ -17,17 +17,17 @@ page 31003 "Sales Adv. Letters"
             repeater(Control1220011)
             {
                 ShowCaption = false;
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the sales advance letter.';
                 }
-                field("Bill-to Customer No."; "Bill-to Customer No.")
+                field("Bill-to Customer No."; Rec."Bill-to Customer No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of bill-to customer.';
                 }
-                field("Bill-to Name"; "Bill-to Name")
+                field("Bill-to Name"; Rec."Bill-to Name")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the customer.';
@@ -37,41 +37,41 @@ page 31003 "Sales Adv. Letters"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the stage during advance process.';
                 }
-                field("Currency Code"; "Currency Code")
+                field("Currency Code"; Rec."Currency Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the currency of amounts on the document.';
                 }
-                field("Amount Including VAT"; "Amount Including VAT")
+                field("Amount Including VAT"; Rec."Amount Including VAT")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether the unit price on the line should be displayed including or excluding VAT.';
                 }
-                field("Template Code"; "Template Code")
+                field("Template Code"; Rec."Template Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies an advance template code.';
                     Visible = false;
                 }
-                field("Amount To Link"; "Amount To Link")
+                field("Amount To Link"; Rec."Amount To Link")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount not yet paid by customer.';
                     Visible = false;
                 }
-                field("Amount To Invoice"; "Amount To Invoice")
+                field("Amount To Invoice"; Rec."Amount To Invoice")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the paid amount for advance VAT document.';
                     Visible = false;
                 }
-                field("Amount To Deduct"; "Amount To Deduct")
+                field("Amount To Deduct"; Rec."Amount To Deduct")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the maximum advance value for use in final sales invoice.';
                     Visible = false;
                 }
-                field("Document Linked Amount"; "Document Linked Amount")
+                field("Document Linked Amount"; Rec."Document Linked Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the document linked amount.';
@@ -112,9 +112,6 @@ page 31003 "Sales Adv. Letters"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Sales Order';
                     Image = Document;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     RunObject = Page "Sales Order";
                     RunPageLink = "Document Type" = CONST(Order),
                                   "No." = FIELD("Order No.");
@@ -130,9 +127,6 @@ page 31003 "Sales Adv. Letters"
                 Caption = '&Print Advance Letter';
                 Ellipsis = true;
                 Image = Print;
-                Promoted = true;
-                PromotedCategory = "Report";
-                PromotedIsBig = true;
                 ToolTip = 'Open the report for advance letter.';
 
                 trigger OnAction()
@@ -145,6 +139,25 @@ page 31003 "Sales Adv. Letters"
         }
         area(reporting)
         {
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("Sales Order_Promoted"; "Sales Order")
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Reports';
+
+                actionref("&Print Advance Letter_Promoted"; "&Print Advance Letter")
+                {
+                }
+            }
         }
     }
 

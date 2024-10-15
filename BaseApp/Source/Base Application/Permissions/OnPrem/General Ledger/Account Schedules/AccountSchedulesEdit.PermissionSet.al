@@ -1,3 +1,4 @@
+#if not CLEAN20
 permissionset 3632 "Account Schedules - Edit"
 {
     Access = Public;
@@ -19,6 +20,8 @@ permissionset 3632 "Account Schedules - Edit"
                   tabledata "Acc. Schedule Result Line" = RIMD,
                   tabledata "Acc. Schedule Result Value" = RIMD,
 #endif
+                  tabledata "Financial Report" = RIMD,
+                  tabledata "Financial Report User Filters" = RIMD,
                   tabledata "Account Schedules Chart Setup" = RIMD,
                   tabledata "Analysis View" = R,
                   tabledata "Analysis View Budget Entry" = R,
@@ -30,9 +33,9 @@ permissionset 3632 "Account Schedules - Edit"
                   tabledata "Column Layout Name" = RIMD,
                   tabledata Dimension = R,
                   tabledata "Dimension Value" = R,
-#if not CLEAN20
                   tabledata "Export Acc. Schedule" = RIMD,
-#endif
                   tabledata "G/L Account Category" = RIMD,
                   tabledata "G/L Budget Name" = RI;
 }
+
+#endif

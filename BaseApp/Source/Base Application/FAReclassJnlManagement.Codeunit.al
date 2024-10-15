@@ -75,7 +75,7 @@ codeunit 5646 FAReclassJnlManagement
     begin
         OnBeforeOpenJournal(CurrentJnlBatchName, FAReclassJnlLine);
 
-        FAReclassJnlLine.CheckFAReclassJournalLineUserRestriction; // NAVCZ
+        FAReclassJnlLine.CheckFAReclassJournalLineUserRestriction(); // NAVCZ
 
         CheckTemplateName(FAReclassJnlLine.GetRangeMax("Journal Template Name"), CurrentJnlBatchName);
         FAReclassJnlLine.FilterGroup := 2;

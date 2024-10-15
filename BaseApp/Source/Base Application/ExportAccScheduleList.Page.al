@@ -27,17 +27,17 @@ page 31084 "Export Acc. Schedule List"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies description of acc. schedule list';
                 }
-                field("Account Schedule Name"; "Account Schedule Name")
+                field("Account Schedule Name"; Rec."Account Schedule Name")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the account schedule.';
                 }
-                field("Column Layout Name"; "Column Layout Name")
+                field("Column Layout Name"; Rec."Column Layout Name")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the column layout that you want to use in the window.';
                 }
-                field("Show Amts. in Add. Curr."; "Show Amts. in Add. Curr.")
+                field("Show Amts. in Add. Curr."; Rec."Show Amts. in Add. Curr.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies amounts in add. currency.';
@@ -75,7 +75,7 @@ page 31084 "Export Acc. Schedule List"
 
                     trigger OnAction()
                     begin
-                        ShowFilterTable;
+                        ShowFilterTable();
                     end;
                 }
                 action("E&xport to Excel")

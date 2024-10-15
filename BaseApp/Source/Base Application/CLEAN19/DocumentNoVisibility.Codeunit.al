@@ -134,7 +134,7 @@ codeunit 1400 DocumentNoVisibility
             exit(TransferOrdNoVisible);
         IsTransferOrdNoInitialized := true;
 
-        NoSeriesCode := DetermineTransferOrderSeriesNo;
+        NoSeriesCode := DetermineTransferOrderSeriesNo();
         TransferOrdNoVisible := ForceShowNoSeriesForDocNo(NoSeriesCode);
         exit(TransferOrdNoVisible);
     end;
@@ -176,7 +176,7 @@ codeunit 1400 DocumentNoVisibility
             exit(VendNoVisible);
         IsVendNoInitialized := true;
 
-        NoSeriesCode := DetermineVendorSeriesNo;
+        NoSeriesCode := DetermineVendorSeriesNo();
         VendNoVisible := ForceShowNoSeriesForDocNo(NoSeriesCode);
         exit(VendNoVisible);
     end;
@@ -197,7 +197,7 @@ codeunit 1400 DocumentNoVisibility
             exit(ItemNoVisible);
         IsItemNoInitialized := true;
 
-        NoSeriesCode := DetermineItemSeriesNo;
+        NoSeriesCode := DetermineItemSeriesNo();
         ItemNoVisible := ForceShowNoSeriesForDocNo(NoSeriesCode);
         exit(ItemNoVisible);
     end;
@@ -218,7 +218,7 @@ codeunit 1400 DocumentNoVisibility
             exit(FANoVisible);
         IsFANoInitialized := true;
 
-        NoSeriesCode := DetermineFixedAssetSeriesNo;
+        NoSeriesCode := DetermineFixedAssetSeriesNo();
         FANoVisible := ForceShowNoSeriesForDocNo(NoSeriesCode);
         exit(FANoVisible);
     end;
@@ -239,7 +239,7 @@ codeunit 1400 DocumentNoVisibility
             exit(EmployeeNoVisible);
         IsEmployeeNoInitialized := true;
 
-        NoSeriesCode := DetermineEmployeeSeriesNo;
+        NoSeriesCode := DetermineEmployeeSeriesNo();
         EmployeeNoVisible := ForceShowNoSeriesForDocNo(NoSeriesCode);
         exit(EmployeeNoVisible);
     end;
@@ -260,7 +260,7 @@ codeunit 1400 DocumentNoVisibility
             exit(BankNoVisible);
         IsBankNoInitialized := true;
 
-        NoSeriesCode := DetermineBankAccountSeriesNo;
+        NoSeriesCode := DetermineBankAccountSeriesNo();
         BankNoVisible := ForceShowNoSeriesForDocNo(NoSeriesCode);
         exit(BankNoVisible);
     end;
@@ -281,7 +281,7 @@ codeunit 1400 DocumentNoVisibility
             exit(ResNoVisible);
         IsResNoInitialized := true;
 
-        NoSeriesCode := DetermineResourceSeriesNo;
+        NoSeriesCode := DetermineResourceSeriesNo();
         ResNoVisible := ForceShowNoSeriesForDocNo(NoSeriesCode);
         exit(ResNoVisible);
     end;
@@ -302,7 +302,7 @@ codeunit 1400 DocumentNoVisibility
             exit(JobNoVisible);
         IsJobNoInitialized := true;
 
-        NoSeriesCode := DetermineJobSeriesNo;
+        NoSeriesCode := DetermineJobSeriesNo();
         JobNoVisible := ForceShowNoSeriesForDocNo(NoSeriesCode);
         exit(JobNoVisible);
     end;
@@ -323,7 +323,7 @@ codeunit 1400 DocumentNoVisibility
             exit(ContactNoVisible);
         IsContactNoInitialized := true;
 
-        NoSeriesCode := DetermineContactSeriesNo;
+        NoSeriesCode := DetermineContactSeriesNo();
         ContactNoVisible := ForceShowNoSeriesForDocNo(NoSeriesCode);
         exit(ContactNoVisible);
     end;
@@ -590,7 +590,7 @@ codeunit 1400 DocumentNoVisibility
         if not NoSeries.Get(NoSeriesCode) then
             exit(true);
 
-        SeriesDate := WorkDate;
+        SeriesDate := WorkDate();
         NoSeriesRelationship.SetRange(Code, NoSeriesCode);
         if not NoSeriesRelationship.IsEmpty() then
             exit(true);
@@ -620,12 +620,12 @@ codeunit 1400 DocumentNoVisibility
                 RecRef.Open(RecVariant);
             FieldRef := RecRef.Field(FieldNo);
             FieldRef.SetRange(NewNo);
-            RecAlreadyExists := not RecRef.IsEmpty;
+            RecAlreadyExists := not RecRef.IsEmpty();
             while RecAlreadyExists do begin
                 RememberToSaveNoSeries := true;
                 NewNo := NoSeriesMgt.DoGetNextNo(NoSeriesCode, 0D, false, true);
                 FieldRef.SetRange(NewNo);
-                RecAlreadyExists := not RecRef.IsEmpty;
+                RecAlreadyExists := not RecRef.IsEmpty();
             end;
             if RememberToSaveNoSeries then
                 NoSeriesMgt.SaveNoSeries();

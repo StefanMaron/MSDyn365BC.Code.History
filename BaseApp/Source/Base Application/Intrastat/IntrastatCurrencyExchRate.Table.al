@@ -1,13 +1,9 @@
 table 31061 "Intrastat Currency Exch. Rate"
 {
     Caption = 'Intrastat Currency Exch. Rate';
-#if CLEAN18
     ObsoleteState = Removed;
-#else
-    ObsoleteState = Pending;
-#endif
     ObsoleteReason = 'Unsupported functionality';
-    ObsoleteTag = '18.0';
+    ObsoleteTag = '21.0';
 
     fields
     {
@@ -44,7 +40,7 @@ table 31061 "Intrastat Currency Exch. Rate"
     [Scope('OnPrem')]
     procedure ExchangeRate(Date: Date; CurrencyCode: Code[10]): Decimal
     begin
-        Reset;
+        Reset();
         SetRange("Currency Code", CurrencyCode);
         SetRange("Starting Date", 0D, Date);
         if FindLast() then
@@ -57,11 +53,10 @@ table 31061 "Intrastat Currency Exch. Rate"
     begin
         if Currencycode = '' then
             exit(1);
-        Reset;
+        Reset();
         SetRange("Currency Code", Currencycode);
         SetRange("Starting Date", PeriodStartDate, Date1);
         FindLast();
         exit("Exchange Rate Amount");
     end;
 }
-

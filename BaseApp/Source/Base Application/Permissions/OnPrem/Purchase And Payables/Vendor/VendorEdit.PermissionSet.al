@@ -1,3 +1,4 @@
+#if not CLEAN19
 permissionset 7371 "Vendor - Edit"
 {
     Access = Public;
@@ -18,9 +19,7 @@ permissionset 7371 "Vendor - Edit"
                   tabledata Currency = R,
                   tabledata "Cust. Ledger Entry" = r,
                   tabledata "Default Dimension" = RIMD,
-#if not CLEAN19
                   tabledata "Detailed G/L Entry" = rm,
-#endif
                   tabledata "Detailed Vendor Ledg. Entry" = Rim,
                   tabledata "Dtld. Price Calculation Setup" = Rid,
                   tabledata "Duplicate Price Line" = Rid,
@@ -46,9 +45,6 @@ permissionset 7371 "Vendor - Edit"
                   tabledata "Item Analysis View Budg. Entry" = r,
                   tabledata "Item Analysis View Entry" = rid,
                   tabledata "Item Budget Entry" = r,
-#if not CLEAN18
-                  tabledata "Item Cross Reference" = RIMD,
-#endif
                   tabledata "Item Journal Line" = r,
                   tabledata "Item Ledger Entry" = rm,
                   tabledata "Item Reference" = RIMD,
@@ -83,12 +79,13 @@ permissionset 7371 "Vendor - Edit"
                   tabledata "Purchase Header" = rm,
                   tabledata "Purchase Header Archive" = r,
                   tabledata "Purchase Line" = Rm,
-#if not CLEAN19
+#if not CLEAN21
                   tabledata "Purchase Line Discount" = Rid,
                   tabledata "Purchase Price" = Rid,
 #endif
                   tabledata "Purchase Price Access" = Rid,
                   tabledata "Registered Whse. Activity Line" = rm,
+                  tabledata "Remit Address" = RIMD,
                   tabledata "Res. Capacity Entry" = RIMD,
                   tabledata Resource = rm,
                   tabledata "Responsibility Center" = R,
@@ -108,9 +105,6 @@ permissionset 7371 "Vendor - Edit"
                   tabledata "Standard General Journal" = r,
                   tabledata "Standard General Journal Line" = r,
                   tabledata "Standard Vendor Purchase Code" = rid,
-#if not CLEAN18
-                  tabledata "Subst. Vendor Posting Group" = R,
-#endif
                   tabledata "Tax Area" = R,
                   tabledata Territory = R,
                   tabledata "To-do" = R,
@@ -129,9 +123,6 @@ permissionset 7371 "Vendor - Edit"
                   tabledata "Vendor Invoice Disc." = R,
                   tabledata "Vendor Ledger Entry" = Rm,
                   tabledata "Vendor Posting Group" = R,
-#if not CLEAN18
-                  tabledata "Vendor Template" = R,
-#endif
                   tabledata "Warehouse Activity Header" = r,
                   tabledata "Warehouse Activity Line" = r,
                   tabledata "Warehouse Request" = rm,
@@ -140,3 +131,5 @@ permissionset 7371 "Vendor - Edit"
                   tabledata "Whse. Worksheet Line" = r,
                   tabledata "Work Center" = r;
 }
+
+#endif

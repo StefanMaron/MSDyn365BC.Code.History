@@ -23,14 +23,14 @@ page 5959 "Standard Serv. Item Gr. Codes"
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        CurrPage.SaveRecord;
-                        LookupServItemGroupCode;
+                        CurrPage.SaveRecord();
+                        LookupServItemGroupCode();
                         CurrPage.Update(false);
                     end;
 
                     trigger OnValidate()
                     begin
-                        CurrentServiceItemGroupCodeOnA;
+                        CurrentServiceItemGroupCodeOnA();
                     end;
                 }
             }
@@ -145,12 +145,12 @@ page 5959 "Standard Serv. Item Gr. Codes"
             ComposeFormCaption(NewCode);
 
             if CurrentServiceItemGroupCode = '' then begin
-                Reset;
+                Reset();
                 FilterGroup := 2;
                 SetFilter("Service Item Group Code", '''''');
                 FilterGroup := 0;
             end else begin
-                Reset;
+                Reset();
                 SetRange("Service Item Group Code", CurrentServiceItemGroupCode);
             end;
         end;

@@ -20,6 +20,7 @@
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryERM: Codeunit "Library - ERM";
+        LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibraryUtility: Codeunit "Library - Utility";
         Assert: Codeunit Assert;
         IsInitialized: Boolean;
@@ -771,7 +772,7 @@
 
     local procedure SetJournalTemplNameMandatory()
     begin
-        LibraryERM.SetJournalTemplNameMandatory(true);
+        LibraryERMCountryData.UpdateJournalTemplMandatory(true);
 
         UpdateNoSeriesInSalesSetup();
         UpdateNoSeriesInPurchaseSetup();

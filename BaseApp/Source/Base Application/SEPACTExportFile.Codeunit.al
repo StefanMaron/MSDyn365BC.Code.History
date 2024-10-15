@@ -14,7 +14,7 @@ codeunit 1220 "SEPA CT-Export File"
         BankAccount.Get("Bal. Account No.");
         // NAVCZ
         BankAccount.GetBankExportImportSetup(BankExportImportSetup);
-        if Export(Rec, BankAccount.GetPaymentExportXMLPortID, BankExportImportSetup."Default File Type") then
+        if Export(Rec, BankAccount.GetPaymentExportXMLPortID(), BankExportImportSetup."Default File Type") then
             // NAVCZ
             ExpUserFeedbackGenJnl.SetExportFlagOnGenJnlLine(Rec);
     end;

@@ -17,14 +17,7 @@ table 260 "Tariff Number"
         }
         field(3; "Supplementary Units"; Boolean)
         {
-#if not CLEAN18
-            CalcFormula = Exist("Unit of Measure" WHERE(Code = FIELD("Supplem. Unit of Measure Code")));
-#endif
             Caption = 'Supplementary Units';
-#if not CLEAN18
-            Editable = false;
-            FieldClass = FlowField;
-#endif
         }
         field(11760; "Statement Code"; Code[10])
         {
@@ -73,13 +66,9 @@ table 260 "Tariff Number"
         {
             Caption = 'Supplem. Unit of Measure Code';
             TableRelation = "Unit of Measure";
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
     }
 
@@ -98,3 +87,4 @@ table 260 "Tariff Number"
         }
     }
 }
+

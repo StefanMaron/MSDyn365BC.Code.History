@@ -217,7 +217,7 @@ codeunit 139049 "SMB Office Addin Mgmt Test"
         GetOfficeAdminCredentials(TempOfficeAdminCredentials);
 
         // Verify
-        TempOfficeAdminCredentials.Find;
+        TempOfficeAdminCredentials.Find();
         Assert.AreEqual(AdminEmail, TempOfficeAdminCredentials.Email, 'Credential mismatch: Email');
         Assert.AreEqual(AdminPassword, TempOfficeAdminCredentials.GetPassword, 'Credential mismatch: Password');
     end;
@@ -266,7 +266,7 @@ codeunit 139049 "SMB Office Addin Mgmt Test"
         GetOfficeAdminCredentials(TempOfficeAdminCredentials);
 
         // Verify
-        TempOfficeAdminCredentials.Find;
+        TempOfficeAdminCredentials.Find();
         Assert.AreEqual(AdminEmail, TempOfficeAdminCredentials.Email, 'Credential mismatch: Email');
         Assert.AreEqual(AdminPassword, TempOfficeAdminCredentials.GetPassword, 'Credential mismatch: Password');
         Assert.AreEqual(TempOfficeAdminCredentials.DefaultEndpoint, TempOfficeAdminCredentials.Endpoint, 'Default endpoint not set.');
@@ -289,7 +289,7 @@ codeunit 139049 "SMB Office Addin Mgmt Test"
         // Exerise
         GetOfficeAdminCredentials(TempOfficeAdminCredentials);
 
-        TempOfficeAdminCredentials.Find;
+        TempOfficeAdminCredentials.Find();
         TempOfficeAdminCredentials.Endpoint := '';
         TempOfficeAdminCredentials.Modify(true);
 
@@ -316,7 +316,7 @@ codeunit 139049 "SMB Office Addin Mgmt Test"
         // Setup
         Initialize();
         AddinManifestManagement.GetAddin(OfficeAddin, CODEUNIT::"Hyperlink Manifest");
-        ManifestText := OfficeAddin.GetDefaultManifestText;
+        ManifestText := OfficeAddin.GetDefaultManifestText();
 
         XMLDomManagement.LoadXMLNodeFromText(ManifestText, XMLRootNode);
         XMLDomManagement.AddNamespaces(XMLNamespaceMgr, XMLRootNode.OwnerDocument);
@@ -355,7 +355,7 @@ codeunit 139049 "SMB Office Addin Mgmt Test"
         Initialize();
         InitializeHyperLinkNoSeries5Prefix;
         AddinManifestManagement.GetAddin(OfficeAddin, CODEUNIT::"Hyperlink Manifest");
-        OldManifest := OfficeAddin.GetDefaultManifestText;
+        OldManifest := OfficeAddin.GetDefaultManifestText();
 
         // Exercise
         AddinManifestManagement.SetTestMode(true);
@@ -528,7 +528,7 @@ codeunit 139049 "SMB Office Addin Mgmt Test"
         Filename2 := FileManagement.ServerTempFileName('xml');
 
         AddinManifestManagement.GetAddin(OfficeAddin, CODEUNIT::"Hyperlink Manifest");
-        Manifest1Text := OfficeAddin.GetDefaultManifestText;
+        Manifest1Text := OfficeAddin.GetDefaultManifestText();
 
         // Exercise
         AddinManifestManagement.DownloadManifestToClient(OfficeAddin, Filename);
@@ -539,7 +539,7 @@ codeunit 139049 "SMB Office Addin Mgmt Test"
         OfficeAddin2.Modify(true);
 
         AddinManifestManagement.DownloadManifestToClient(OfficeAddin2, Filename2);
-        Manifest2Text := OfficeAddin2.GetDefaultManifestText;
+        Manifest2Text := OfficeAddin2.GetDefaultManifestText();
 
         // Verify
         Assert.IsTrue(Exists(Filename), 'Existing manifest did not generate and download.');
@@ -577,7 +577,7 @@ codeunit 139049 "SMB Office Addin Mgmt Test"
 
         // [GIVEN] The user has made a change to the manifest for a given add-in.
         AddinManifestManagement.GetAddin(OfficeAddin, CODEUNIT::"Intelligent Info Manifest");
-        ManifestText := OfficeAddin.GetDefaultManifestText;
+        ManifestText := OfficeAddin.GetDefaultManifestText();
         SearchPosition := StrPos(ManifestText, SearchString) - 1;
         ManifestText := InsStr(ManifestText, NewResource, SearchPosition);
         TempBlob.CreateOutStream(OutStream, TEXTENCODING::UTF8);
@@ -734,7 +734,7 @@ codeunit 139049 "SMB Office Addin Mgmt Test"
     begin
         // Setup
         AddinManifestManagement.GetAddin(OfficeAddin, CODEUNIT::"Intelligent Info Manifest");
-        ManifestText := CreateGuid;
+        ManifestText := CreateGuid();
 
         // Exercise
         OfficeAddin.SetDefaultManifestText(ManifestText);
@@ -756,13 +756,13 @@ codeunit 139049 "SMB Office Addin Mgmt Test"
     begin
         // Setup - Office add-in has known value as default manifest
         AddinManifestManagement.GetAddin(OfficeAddin, CODEUNIT::"Intelligent Info Manifest");
-        ManifestText := CreateGuid;
+        ManifestText := CreateGuid();
         OfficeAddin."Default Manifest".CreateOutStream(OutStream, TEXTENCODING::UTF8);
         OutStream.Write(ManifestText);
         OfficeAddin.Modify();
 
         // Exercise
-        RetrievedManifestText := OfficeAddin.GetDefaultManifestText;
+        RetrievedManifestText := OfficeAddin.GetDefaultManifestText();
 
         // Verify
         Assert.AreEqual(ManifestText, RetrievedManifestText, 'Retrieved manifest is not the same as what was set.');
@@ -883,8 +883,8 @@ codeunit 139049 "SMB Office Addin Mgmt Test"
     procedure ExchangeCredentialsHandler(var OfficeAdminCredentialsDlg: TestPage "Office Admin. Credentials")
     begin
         OfficeAdminCredentialsDlg.New;
-        AdminEmail := CreateGuid;
-        AdminPassword := CreateGuid;
+        AdminEmail := CreateGuid();
+        AdminPassword := CreateGuid();
         Assert.IsTrue(OfficeAdminCredentialsDlg.UseO365.Visible, 'Could not find O365 selection field.');
         OfficeAdminCredentialsDlg.UseO365.SetValue(false);
         OfficeAdminCredentialsDlg.ActionNext.Invoke;
@@ -906,8 +906,8 @@ codeunit 139049 "SMB Office Addin Mgmt Test"
     procedure O365CredentialsHandler(var OfficeAdminCredentialsDlg: TestPage "Office Admin. Credentials")
     begin
         OfficeAdminCredentialsDlg.New;
-        AdminEmail := CreateGuid;
-        AdminPassword := CreateGuid;
+        AdminEmail := CreateGuid();
+        AdminPassword := CreateGuid();
         Assert.IsTrue(OfficeAdminCredentialsDlg.UseO365.Visible, 'Could not find O365 selection field.');
         OfficeAdminCredentialsDlg.UseO365.SetValue(true);
         OfficeAdminCredentialsDlg.ActionNext.Invoke;

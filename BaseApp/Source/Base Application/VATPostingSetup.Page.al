@@ -17,12 +17,12 @@ page 472 "VAT Posting Setup"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("VAT Bus. Posting Group"; "VAT Bus. Posting Group")
+                field("VAT Bus. Posting Group"; Rec."VAT Bus. Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT specification of the involved customer or vendor to link transactions made for this record with the appropriate general ledger account according to the VAT posting setup.';
                 }
-                field("VAT Prod. Posting Group"; "VAT Prod. Posting Group")
+                field("VAT Prod. Posting Group"; Rec."VAT Prod. Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT specification of the involved item or resource to link transactions made for this record with the appropriate general ledger account according to the VAT posting setup.';
@@ -37,42 +37,42 @@ page 472 "VAT Posting Setup"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if this particular combination of VAT business posting group and VAT product posting group is blocked.';
                 }
-                field("VAT Identifier"; "VAT Identifier")
+                field("VAT Identifier"; Rec."VAT Identifier")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a code to group various VAT posting setups with similar attributes, for example VAT percentage.';
                 }
-                field("VAT %"; "VAT %")
+                field("VAT %"; Rec."VAT %")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the relevant VAT rate for the particular combination of VAT business posting group and VAT product posting group. Do not enter the percent sign, only the number. For example, if the VAT rate is 25 %, enter 25 in this field.';
                     Width = 1;
                 }
-                field("VAT Calculation Type"; "VAT Calculation Type")
+                field("VAT Calculation Type"; Rec."VAT Calculation Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies how VAT will be calculated for purchases or sales of items with this particular combination of VAT business posting group and VAT product posting group.';
                 }
-                field("Unrealized VAT Type"; "Unrealized VAT Type")
+                field("Unrealized VAT Type"; Rec."Unrealized VAT Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies how to handle unrealized VAT, which is VAT that is calculated but not due until the invoice is paid.';
                     Visible = UnrealizedVATVisible;
                 }
-                field("Adjust for Payment Discount"; "Adjust for Payment Discount")
+                field("Adjust for Payment Discount"; Rec."Adjust for Payment Discount")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether to recalculate VAT amounts when you post payments that trigger payment discounts.';
                     Visible = AdjustForPmtDiscVisible;
                 }
-                field("Sales VAT Account"; "Sales VAT Account")
+                field("Sales VAT Account"; Rec."Sales VAT Account")
                 {
                     ApplicationArea = Basic, Suite;
                     ShowMandatory = true;
                     ToolTip = 'Specifies the general ledger account number to which to post sales VAT for the particular combination of VAT business posting group and VAT product posting group.';
                     Width = 1;
                 }
-                field("Sales Advance VAT Account"; "Sales Advance VAT Account")
+                field("Sales Advance VAT Account"; Rec."Sales Advance VAT Account")
                 {
                     ApplicationArea = VAT;
                     ToolTip = 'Specifies the sales advance VAT account for VAT posting setup.';
@@ -81,7 +81,7 @@ page 472 "VAT Posting Setup"
                     ObsoleteTag = '19.0';
                     Visible = false;
                 }
-                field("Sales Advance Offset VAT Acc."; "Sales Advance Offset VAT Acc.")
+                field("Sales Advance Offset VAT Acc."; Rec."Sales Advance Offset VAT Acc.")
                 {
                     ApplicationArea = VAT;
                     ToolTip = 'Specifies the sales advance VAT account for VAT posting setup.';
@@ -90,7 +90,7 @@ page 472 "VAT Posting Setup"
                     ObsoleteTag = '19.0';
                     Visible = false;
                 }
-                field("Sales Ded. VAT Base Adj. Acc."; "Sales Ded. VAT Base Adj. Acc.")
+                field("Sales Ded. VAT Base Adj. Acc."; Rec."Sales Ded. VAT Base Adj. Acc.")
                 {
                     ApplicationArea = VAT;
                     ToolTip = 'Specifies sales ded. vat base adj. Account';
@@ -99,21 +99,21 @@ page 472 "VAT Posting Setup"
                     ObsoleteTag = '19.0';
                     Visible = false;
                 }
-                field("Sales VAT Unreal. Account"; "Sales VAT Unreal. Account")
+                field("Sales VAT Unreal. Account"; Rec."Sales VAT Unreal. Account")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the general ledger account to post unrealized sales VAT to.';
                     Visible = UnrealizedVATVisible;
                     Width = 1;
                 }
-                field("Purchase VAT Account"; "Purchase VAT Account")
+                field("Purchase VAT Account"; Rec."Purchase VAT Account")
                 {
                     ApplicationArea = Basic, Suite;
                     ShowMandatory = true;
                     ToolTip = 'Specifies the general ledger account number to which to post purchase VAT for the particular combination of business group and product group.';
                     Width = 1;
                 }
-                field("Purch. Advance VAT Account"; "Purch. Advance VAT Account")
+                field("Purch. Advance VAT Account"; Rec."Purch. Advance VAT Account")
                 {
                     ApplicationArea = VAT;
                     ToolTip = 'Specifies the purchase advance VAT account number for VAT posting setup.';
@@ -122,7 +122,7 @@ page 472 "VAT Posting Setup"
                     ObsoleteTag = '19.0';
                     Visible = false;
                 }
-                field("Purch. Advance Offset VAT Acc."; "Purch. Advance Offset VAT Acc.")
+                field("Purch. Advance Offset VAT Acc."; Rec."Purch. Advance Offset VAT Acc.")
                 {
                     ApplicationArea = VAT;
                     ToolTip = 'Specifies the purchase advance offset VAT account for VAT posting setup.';
@@ -131,7 +131,7 @@ page 472 "VAT Posting Setup"
                     ObsoleteTag = '19.0';
                     Visible = false;
                 }
-                field("Purch. Ded. VAT Base Adj. Acc."; "Purch. Ded. VAT Base Adj. Acc.")
+                field("Purch. Ded. VAT Base Adj. Acc."; Rec."Purch. Ded. VAT Base Adj. Acc.")
                 {
                     ApplicationArea = VAT;
                     ToolTip = 'Specifies purchase ded. vat base adjj. Account';
@@ -140,69 +140,43 @@ page 472 "VAT Posting Setup"
                     ObsoleteTag = '19.0';
                     Visible = false;
                 }
-                field("Purch. VAT Unreal. Account"; "Purch. VAT Unreal. Account")
+                field("Purch. VAT Unreal. Account"; Rec."Purch. VAT Unreal. Account")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the general ledger account to post unrealized purchase VAT to.';
                     Visible = UnrealizedVATVisible;
                     Width = 1;
                 }
-                field("Reverse Chrg. VAT Acc."; "Reverse Chrg. VAT Acc.")
+                field("Reverse Chrg. VAT Acc."; Rec."Reverse Chrg. VAT Acc.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the general ledger account number to which you want to post reverse charge VAT (purchase VAT) for this combination of VAT business posting group and VAT product posting group, if you have selected the Reverse Charge VAT option in the VAT Calculation Type field.';
                     Width = 1;
                 }
-                field("Reverse Chrg. VAT Unreal. Acc."; "Reverse Chrg. VAT Unreal. Acc.")
+                field("Reverse Chrg. VAT Unreal. Acc."; Rec."Reverse Chrg. VAT Unreal. Acc.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the general ledger account to post amounts for unrealized reverse charge VAT to.';
                     Visible = UnrealizedVATVisible;
                     Width = 1;
                 }
-                field("VAT Clause Code"; "VAT Clause Code")
+                field("VAT Clause Code"; Rec."VAT Clause Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT Clause Code that is associated with the VAT Posting Setup.';
                 }
-                field("EU Service"; "EU Service")
+                field("EU Service"; Rec."EU Service")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if this combination of VAT business posting group and VAT product posting group are to be reported as services in the periodic VAT reports.';
                 }
-                field("Certificate of Supply Required"; "Certificate of Supply Required")
+                field("Certificate of Supply Required"; Rec."Certificate of Supply Required")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if documents that use this combination of VAT business posting group and VAT product posting group require a certificate of supply.';
                     Visible = false;
                 }
-#if not CLEAN18
-                field("Allow Non Deductible VAT"; '')
-                {
-                    ApplicationArea = VAT;
-                    ToolTip = 'Specifies to enable non-deductible VAT for VAT posting setup.';
-                    Caption = 'Allow Non Deductible VAT (Obsolete)';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality of Non Deductible VAT Correction has been removed.';
-                    ObsoleteTag = '18.0';
-                    Editable = false;
-                    Visible = false;
-                }
-#endif
-#if not CLEAN18
-                field("Non Deduct. VAT Corr. Account"; '')
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the G/L account for correction non deductible VAT entries.';
-                    Caption = 'Non Deduct. VAT Corr. Account (Obsolete)';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality of Non Deductible VAT Correction has been removed.';
-                    ObsoleteTag = '18.0';
-                    Editable = false;
-                    Visible = false;
-                }
-#endif
-                field("Tax Category"; "Tax Category")
+                field("Tax Category"; Rec."Tax Category")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT category in connection with electronic document sending. For example, when you send sales documents through the PEPPOL service, the value in this field is used to populate the TaxApplied element in the Supplier group. The number is based on the UNCL5305 standard.';
@@ -233,15 +207,11 @@ page 472 "VAT Posting Setup"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Suggest Accounts';
                 Image = Default;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'Suggest G/L Accounts for selected setup.';
 
                 trigger OnAction()
                 begin
-                    SuggestSetupAccounts;
+                    SuggestSetupAccounts();
                 end;
             }
             action(Copy)
@@ -250,36 +220,30 @@ page 472 "VAT Posting Setup"
                 Caption = '&Copy';
                 Ellipsis = true;
                 Image = Copy;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Copy selected fields or all fields in the VAT Posting Setup window to a new record. Before you start to copy, you must create the new record.';
 
                 trigger OnAction()
                 begin
-                    CurrPage.SaveRecord;
+                    CurrPage.SaveRecord();
                     CopyVATPostingSetup.SetVATSetup(Rec);
                     CopyVATPostingSetup.RunModal();
                     Clear(CopyVATPostingSetup);
                 end;
             }
-#if not CLEAN18
-            action("Non Deductable VAT")
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
             {
-                ApplicationArea = VAT;
-                Caption = 'Non Deductable VAT (Obsolete)';
-                Image = AdjustVATExemption;
-                ToolTip = 'Open the page for non deductable VAT setup';
-                ObsoleteState = Pending;
-                ObsoleteReason = 'The functionality of Non Deductible VAT Correction has been removed.';
-                ObsoleteTag = '18.0';
-                Visible = false;
+                Caption = 'Process';
 
-                trigger OnAction()
-                begin
-                    Error('');
-                end;
+                actionref(SuggestAccounts_Promoted; SuggestAccounts)
+                {
+                }
+                actionref(Copy_Promoted; Copy)
+                {
+                }
             }
-#endif                
         }
     }
 

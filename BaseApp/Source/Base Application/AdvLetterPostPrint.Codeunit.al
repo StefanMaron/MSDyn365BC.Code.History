@@ -56,15 +56,15 @@ codeunit 31010 "Adv.Letter-Post+Print"
         SalesPostAdvances.SetPreviewMode(PreviewMode);
         SalesPostAdvances.PostLetter(SalesAdvanceLetterHeader, 0);
         if PreviewMode then
-            GenJnlPostPreview.ThrowError;
+            GenJnlPostPreview.ThrowError();
 
         Commit();
 
         if Print then begin
             SalesPostAdvances.xGetLastPostNo(LastPrepaymentNo);
             SalesInvHeader."No." := LastPrepaymentNo;
-            SalesInvHeader.Find;
-            SalesInvHeader.SetRecFilter;
+            SalesInvHeader.Find();
+            SalesInvHeader.SetRecFilter();
             SalesInvHeader.PrintRecords(false);
         end;
     end;
@@ -78,14 +78,14 @@ codeunit 31010 "Adv.Letter-Post+Print"
         LastCrMemoNo: Code[20];
     begin
         if not PreviewMode then
-            if not Confirm(Text001Qst, false, SalesAdvanceLetterHeader.TableCaption, SalesAdvanceLetterHeader."No.") then
+            if not Confirm(Text001Qst, false, SalesAdvanceLetterHeader.TableCaption(), SalesAdvanceLetterHeader."No.") then
                 exit;
 
         SalesInvHeader.SetFilter("Reversed By Cr. Memo No.", '%1', '');
         SalesInvHeader.SetRange("Letter No.", SalesAdvanceLetterHeader."No.");
         PostedSalesInvoices.SetTableView(SalesInvHeader);
         PostedSalesInvoices.LookupMode(true);
-        if PostedSalesInvoices.RunModal = ACTION::LookupOK then begin
+        if PostedSalesInvoices.RunModal() = ACTION::LookupOK then begin
             PostedSalesInvoices.GetSelection(SalesInvHeader);
             PostedSalesInvoices.GetRecord(SalesInvHeader);
 
@@ -95,14 +95,14 @@ codeunit 31010 "Adv.Letter-Post+Print"
             SalesPostAdvances.PostLetter(SalesAdvanceLetterHeader, 1);
 
             if PreviewMode then
-                GenJnlPostPreview.ThrowError;
+                GenJnlPostPreview.ThrowError();
 
             Commit();
             if Print then begin
                 SalesPostAdvances.xGetLastPostNo(LastCrMemoNo);
                 SalesCrMemoHeader."No." := LastCrMemoNo;
-                SalesCrMemoHeader.Find;
-                SalesCrMemoHeader.SetRecFilter;
+                SalesCrMemoHeader.Find();
+                SalesCrMemoHeader.SetRecFilter();
                 SalesCrMemoHeader.PrintRecords(false);
             end;
         end;
@@ -116,7 +116,7 @@ codeunit 31010 "Adv.Letter-Post+Print"
         SalesPostAdvances.SetPreviewMode(PreviewMode);
         SalesPostAdvances.RefundAndCloseLetter('', SalesAdvanceLetterHeader, PostingDate, VATDate, false);
         if PreviewMode then
-            GenJnlPostPreview.ThrowError;
+            GenJnlPostPreview.ThrowError();
     end;
 
     [Scope('OnPrem')]
@@ -127,21 +127,21 @@ codeunit 31010 "Adv.Letter-Post+Print"
         LastPrepaymentNo: Code[20];
     begin
         if not PreviewMode then
-            if not Confirm(Text000Qst, false, PurchAdvanceLetterHeader.TableCaption, PurchAdvanceLetterHeader."No.") then
+            if not Confirm(Text000Qst, false, PurchAdvanceLetterHeader.TableCaption(), PurchAdvanceLetterHeader."No.") then
                 exit;
 
         PurchPostAdvances.SetPreviewMode(PreviewMode);
         PurchPostAdvances.PostLetter(PurchAdvanceLetterHeader, 0);
         if PreviewMode then
-            GenJnlPostPreview.ThrowError;
+            GenJnlPostPreview.ThrowError();
 
         Commit();
 
         if Print then begin
             PurchPostAdvances.xGetLastPostNo(LastPrepaymentNo);
             PurchInvHeader."No." := LastPrepaymentNo;
-            PurchInvHeader.Find;
-            PurchInvHeader.SetRecFilter;
+            PurchInvHeader.Find();
+            PurchInvHeader.SetRecFilter();
             PurchInvHeader.PrintRecords(false);
         end;
     end;
@@ -155,14 +155,14 @@ codeunit 31010 "Adv.Letter-Post+Print"
         LastCrMemoNo: Code[20];
     begin
         if not PreviewMode then
-            if not Confirm(Text001Qst, false, PurchAdvanceLetterHeader.TableCaption, PurchAdvanceLetterHeader."No.") then
+            if not Confirm(Text001Qst, false, PurchAdvanceLetterHeader.TableCaption(), PurchAdvanceLetterHeader."No.") then
                 exit;
 
         PurchInvHeader.SetRange("Letter No.", PurchAdvanceLetterHeader."No.");
         PurchInvHeader.SetFilter("Reversed By Cr. Memo No.", '%1', '');
         PostedPurchInvoices.SetTableView(PurchInvHeader);
         PostedPurchInvoices.LookupMode(true);
-        if PostedPurchInvoices.RunModal = ACTION::LookupOK then begin
+        if PostedPurchInvoices.RunModal() = ACTION::LookupOK then begin
             PostedPurchInvoices.GetSelection(PurchInvHeader);
             PostedPurchInvoices.GetRecord(PurchInvHeader);
 
@@ -172,14 +172,14 @@ codeunit 31010 "Adv.Letter-Post+Print"
             PurchPostAdvances.PostLetter(PurchAdvanceLetterHeader, 1);
 
             if PreviewMode then
-                GenJnlPostPreview.ThrowError;
+                GenJnlPostPreview.ThrowError();
 
             Commit();
             if Print then begin
                 PurchPostAdvances.xGetLastPostNo(LastCrMemoNo);
                 PurchCrMemoHdr."No." := LastCrMemoNo;
-                PurchCrMemoHdr.Find;
-                PurchCrMemoHdr.SetRecFilter;
+                PurchCrMemoHdr.Find();
+                PurchCrMemoHdr.SetRecFilter();
                 PurchCrMemoHdr.PrintRecords(false);
             end;
         end;
@@ -193,7 +193,7 @@ codeunit 31010 "Adv.Letter-Post+Print"
         PurchPostAdvances.SetPreviewMode(PreviewMode);
         PurchPostAdvances.RefundAndCloseLetter('', PurchAdvanceLetterHeader, PostingDate, VATDate, false);
         if PreviewMode then
-            GenJnlPostPreview.ThrowError;
+            GenJnlPostPreview.ThrowError();
     end;
 
     [Scope('OnPrem')]

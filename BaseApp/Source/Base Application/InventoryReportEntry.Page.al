@@ -1,4 +1,3 @@
-#if not CLEAN18
 page 5846 "Inventory Report Entry"
 {
     Caption = 'Inventory Report Entry';
@@ -18,7 +17,7 @@ page 5846 "Inventory Report Entry"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether the inventory report entry refers to an item or a general ledger account.';
                 }
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
@@ -38,7 +37,7 @@ page 5846 "Inventory Report Entry"
                         GetInvtReport.DrillDownInventory(Rec);
                     end;
                 }
-                field("Inventory (Interim)"; "Inventory (Interim)")
+                field("Inventory (Interim)"; Rec."Inventory (Interim)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a value that depends on the type of the inventory period entry.';
@@ -48,7 +47,7 @@ page 5846 "Inventory Report Entry"
                         GetInvtReport.DrillDownInventoryInterim(Rec);
                     end;
                 }
-                field("WIP Inventory"; "WIP Inventory")
+                field("WIP Inventory"; Rec."WIP Inventory")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies a value that depends on the type of the inventory period entry.';
@@ -58,49 +57,7 @@ page 5846 "Inventory Report Entry"
                         GetInvtReport.DrillDownWIPInventory(Rec);
                     end;
                 }
-                field(Consumption; Consumption)
-                {
-                    ApplicationArea = Manufacturing;
-                    ToolTip = 'Specifies the consumption value.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '18.0';
-                    Visible = false;
-
-                    trigger OnDrillDown()
-                    begin
-                        GetInvtReport.DrillDownConsumption(Rec);
-                    end;
-                }
-                field("Change In Inv.Of WIP"; "Change In Inv.Of WIP")
-                {
-                    ApplicationArea = Manufacturing;
-                    ToolTip = 'Specifies the change in inventory for the work in process (WIP) value.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '18.0';
-                    Visible = false;
-
-                    trigger OnDrillDown()
-                    begin
-                        GetInvtReport.DrillDownChInvWip(Rec);
-                    end;
-                }
-                field("Change In Inv.Of Product"; "Change In Inv.Of Product")
-                {
-                    ApplicationArea = Manufacturing;
-                    ToolTip = 'Specifies the change in the inventory product value.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '18.0';
-                    Visible = false;
-
-                    trigger OnDrillDown()
-                    begin
-                        GetInvtReport.DrillDownChInvProd(Rec);
-                    end;
-                }
-                field("Direct Cost Applied Actual"; "Direct Cost Applied Actual")
+                field("Direct Cost Applied Actual"; Rec."Direct Cost Applied Actual")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a value that depends on the type of the inventory period entry.';
@@ -110,7 +67,7 @@ page 5846 "Inventory Report Entry"
                         GetInvtReport.DrillDownDirectCostApplActual(Rec);
                     end;
                 }
-                field("Overhead Applied Actual"; "Overhead Applied Actual")
+                field("Overhead Applied Actual"; Rec."Overhead Applied Actual")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies a value that depends on the type of the inventory period entry.';
@@ -120,7 +77,7 @@ page 5846 "Inventory Report Entry"
                         GetInvtReport.DrillDownOverheadAppliedActual(Rec);
                     end;
                 }
-                field("Purchase Variance"; "Purchase Variance")
+                field("Purchase Variance"; Rec."Purchase Variance")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a value that depends on the type of the inventory period entry.';
@@ -130,7 +87,7 @@ page 5846 "Inventory Report Entry"
                         GetInvtReport.DrillDownPurchaseVariance(Rec);
                     end;
                 }
-                field("Inventory Adjmt."; "Inventory Adjmt.")
+                field("Inventory Adjmt."; Rec."Inventory Adjmt.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a value that depends on the type of the inventory period entry.';
@@ -140,7 +97,7 @@ page 5846 "Inventory Report Entry"
                         GetInvtReport.DrillDownInventoryAdjmt(Rec);
                     end;
                 }
-                field("Invt. Accrual (Interim)"; "Invt. Accrual (Interim)")
+                field("Invt. Accrual (Interim)"; Rec."Invt. Accrual (Interim)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a value that depends on the type of the inventory period entry.';
@@ -160,7 +117,7 @@ page 5846 "Inventory Report Entry"
                         GetInvtReport.DrillDownCOGS(Rec);
                     end;
                 }
-                field("COGS (Interim)"; "COGS (Interim)")
+                field("COGS (Interim)"; Rec."COGS (Interim)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a value that depends on the type of the inventory period entry.';
@@ -170,7 +127,7 @@ page 5846 "Inventory Report Entry"
                         GetInvtReport.DrillDownCOGSInterim(Rec);
                     end;
                 }
-                field("Material Variance"; "Material Variance")
+                field("Material Variance"; Rec."Material Variance")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies a value that depends on the type of the inventory period entry.';
@@ -180,7 +137,7 @@ page 5846 "Inventory Report Entry"
                         GetInvtReport.DrillDownMaterialVariance(Rec);
                     end;
                 }
-                field("Capacity Variance"; "Capacity Variance")
+                field("Capacity Variance"; Rec."Capacity Variance")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies a value that depends on the type of the inventory period entry.';
@@ -190,7 +147,7 @@ page 5846 "Inventory Report Entry"
                         GetInvtReport.DrillDownCapVariance(Rec);
                     end;
                 }
-                field("Subcontracted Variance"; "Subcontracted Variance")
+                field("Subcontracted Variance"; Rec."Subcontracted Variance")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies a value that depends on the type of the inventory period entry.';
@@ -200,7 +157,7 @@ page 5846 "Inventory Report Entry"
                         GetInvtReport.DrillDownSubcontractedVariance(Rec);
                     end;
                 }
-                field("Capacity Overhead Variance"; "Capacity Overhead Variance")
+                field("Capacity Overhead Variance"; Rec."Capacity Overhead Variance")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies a value that depends on the type of the inventory period entry.';
@@ -210,7 +167,7 @@ page 5846 "Inventory Report Entry"
                         GetInvtReport.DrillDownCapOverheadVariance(Rec);
                     end;
                 }
-                field("Mfg. Overhead Variance"; "Mfg. Overhead Variance")
+                field("Mfg. Overhead Variance"; Rec."Mfg. Overhead Variance")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies a value that depends on the type of the inventory period entry.';
@@ -220,7 +177,7 @@ page 5846 "Inventory Report Entry"
                         GetInvtReport.DrillDownMfgOverheadVariance(Rec);
                     end;
                 }
-                field("Direct Cost Applied WIP"; "Direct Cost Applied WIP")
+                field("Direct Cost Applied WIP"; Rec."Direct Cost Applied WIP")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a value that depends on the type of the inventory period entry.';
@@ -230,7 +187,7 @@ page 5846 "Inventory Report Entry"
                         GetInvtReport.DrillDownDirectCostApplToWIP(Rec);
                     end;
                 }
-                field("Overhead Applied WIP"; "Overhead Applied WIP")
+                field("Overhead Applied WIP"; Rec."Overhead Applied WIP")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies a value that depends on the type of the inventory period entry.';
@@ -240,7 +197,7 @@ page 5846 "Inventory Report Entry"
                         GetInvtReport.DrillDownOverheadAppliedToWIP(Rec);
                     end;
                 }
-                field("Inventory To WIP"; "Inventory To WIP")
+                field("Inventory To WIP"; Rec."Inventory To WIP")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a value that depends on the type of the inventory period entry.';
@@ -250,7 +207,7 @@ page 5846 "Inventory Report Entry"
                         GetInvtReport.DrillDownInvtToWIP(Rec);
                     end;
                 }
-                field("WIP To Interim"; "WIP To Interim")
+                field("WIP To Interim"; Rec."WIP To Interim")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a value that depends on the type of the inventory period entry.';
@@ -260,7 +217,7 @@ page 5846 "Inventory Report Entry"
                         GetInvtReport.DrillDownWIPToInvtInterim(Rec);
                     end;
                 }
-                field("Direct Cost Applied"; "Direct Cost Applied")
+                field("Direct Cost Applied"; Rec."Direct Cost Applied")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a value that depends on the type of the inventory period entry.';
@@ -270,7 +227,7 @@ page 5846 "Inventory Report Entry"
                         GetInvtReport.DrillDownDirectCostApplied(Rec);
                     end;
                 }
-                field("Overhead Applied"; "Overhead Applied")
+                field("Overhead Applied"; Rec."Overhead Applied")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies a value that depends on the type of the inventory period entry.';
@@ -278,20 +235,6 @@ page 5846 "Inventory Report Entry"
                     trigger OnDrillDown()
                     begin
                         GetInvtReport.DrillDownOverheadApplied(Rec);
-                    end;
-                }
-                field("Inv. Rounding Adj."; "Inv. Rounding Adj.")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the inventory rounding adjustment value.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '18.0';
-                    Visible = false;
-
-                    trigger OnDrillDown()
-                    begin
-                        GetInvtReport.DrillDownInvAdjmtRnd(Rec);
                     end;
                 }
             }
@@ -319,4 +262,3 @@ page 5846 "Inventory Report Entry"
         GetInvtReport: Codeunit "Get Inventory Report";
 }
 
-#endif

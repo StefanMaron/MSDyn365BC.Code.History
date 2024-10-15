@@ -33,7 +33,7 @@ table 5813 "Inventory Posting Setup"
                         GLAccountCategoryMgt.GetCI31FinishedProducts(),
                         GLAccountCategoryMgt.GetCI32Goods())); // NAVCZ
 #else
-                      "Inventory Account", GLAccountCategory."Account Category"::Assets, GLAccountCategoryMgt.GetInventory);
+                      "Inventory Account", GLAccountCategory."Account Category"::Assets, GLAccountCategoryMgt.GetInventory());
 #endif
 
                 Validate("Inventory Account");
@@ -52,10 +52,7 @@ table 5813 "Inventory Posting Setup"
                         GLAccountCategoryMgt.GetCI31FinishedProducts(),
                         GLAccountCategoryMgt.GetCI32Goods())); // NAVCZ
 #else
-                      FieldNo("Inventory Account"), "Inventory Account", false, false, GLAccountCategory."Account Category"::Assets, GLAccountCategoryMgt.GetInventory);
-#endif
-#if not CLEAN18
-                CheckValueEntries(FieldCaption("Inventory Account")); // NAVCZ
+                      FieldNo("Inventory Account"), "Inventory Account", false, false, GLAccountCategory."Account Category"::Assets, GLAccountCategoryMgt.GetInventory());
 #endif
             end;
         }
@@ -85,7 +82,7 @@ table 5813 "Inventory Posting Setup"
                         GLAccountCategoryMgt.GetCI31FinishedProducts(),
                         GLAccountCategoryMgt.GetCI32Goods())); // NAVCZ
 #else
-                      "Inventory Account (Interim)", GLAccountCategory."Account Category"::Assets, GLAccountCategoryMgt.GetInventory);
+                      "Inventory Account (Interim)", GLAccountCategory."Account Category"::Assets, GLAccountCategoryMgt.GetInventory());
 #endif
 
                 Validate("Inventory Account (Interim)");
@@ -104,10 +101,7 @@ table 5813 "Inventory Posting Setup"
                         GLAccountCategoryMgt.GetCI31FinishedProducts(),
                         GLAccountCategoryMgt.GetCI32Goods())); // NAVCZ
 #else
-                      FieldNo("Inventory Account (Interim)"), "Inventory Account (Interim)", false, false, GLAccountCategory."Account Category"::Assets, GLAccountCategoryMgt.GetInventory);
-#endif
-#if not CLEAN18
-                CheckValueEntries(FieldCaption("Inventory Account (Interim)")); // NAVCZ
+                      FieldNo("Inventory Account (Interim)"), "Inventory Account (Interim)", false, false, GLAccountCategory."Account Category"::Assets, GLAccountCategoryMgt.GetInventory());
 #endif
             end;
         }
@@ -115,68 +109,27 @@ table 5813 "Inventory Posting Setup"
         {
             Caption = 'Consumption Account';
             TableRelation = "G/L Account";
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
 
-#if not CLEAN18
-            trigger OnLookup()
-            begin
-                if "View All Accounts on Lookup" then
-                    GLAccountCategoryMgt.LookupGLAccountWithoutCategory("Consumption Account")
-                else
-                    GLAccountCategoryMgt.LookupGLAccount(
-                      "Consumption Account", GLAccountCategory."Account Category"::Expense,
-                      GLAccountCategoryMgt.GetA2MaterialAndEnergyConsumption());
-
-                Validate("Consumption Account");
-            end;
-
-            trigger OnValidate()
-            begin
-                if "View All Accounts on Lookup" then
-                    GLAccountCategoryMgt.CheckGLAccountWithoutCategory("Consumption Account", false, false)
-                else
-                    CheckGLAccount(
-                      FieldNo("Consumption Account"), "Consumption Account", false, false, GLAccountCategory."Account Category"::Expense,
-                      GLAccountCategoryMgt.GetA2MaterialAndEnergyConsumption());
-            end;
-#endif
         }
 
         field(11761; "Change In Inv.Of WIP Acc."; Code[20])
         {
             Caption = 'Change In Inv.Of WIP Acc.';
             TableRelation = "G/L Account";
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
-#if not CLEAN18
-            trigger OnValidate()
-            begin
-                CheckValueEntries(FieldCaption("Change In Inv.Of WIP Acc."));
-            end;
-#endif
+            ObsoleteTag = '21.0';
         }
         field(11762; "Change In Inv.Of Product Acc."; Code[20])
         {
             Caption = 'Change In Inv.Of Product Acc.';
             TableRelation = "G/L Account";
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(99000750; "WIP Account"; Code[20])
         {
@@ -226,14 +179,15 @@ table 5813 "Inventory Posting Setup"
 
     trigger OnDelete()
     begin
-        CheckSetupUsage;
+        CheckSetupUsage();
     end;
 
     var
         GLAccountCategory: Record "G/L Account Category";
         GLAccountCategoryMgt: Codeunit "G/L Account Category Mgt.";
-        YouCannotDeleteErr: Label 'You cannot delete %1 %2.', Comment = '%1 = Location Code; %2 = Posting Group';
         PostingSetupMgt: Codeunit PostingSetupManagement;
+
+        YouCannotDeleteErr: Label 'You cannot delete %1 %2.', Comment = '%1 = Location Code; %2 = Posting Group';
 
     local procedure CheckSetupUsage()
     var
@@ -350,7 +304,7 @@ table 5813 "Inventory Posting Setup"
         InvtPostingSetupFieldRef.SetFilter('<>%1', "Location Code");
         TempAccountUseBuffer.UpdateBuffer(InvtPostingSetupRecRef, AccountFieldNo);
 
-        InvtPostingSetupRecRef.Close;
+        InvtPostingSetupRecRef.Close();
 
         TempAccountUseBuffer.Reset();
         TempAccountUseBuffer.SetCurrentKey("No. of Use");
@@ -359,22 +313,6 @@ table 5813 "Inventory Posting Setup"
             RecFieldRef.Value(TempAccountUseBuffer."Account No.");
         end;
     end;
-#if not CLEAN18
-    [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
-    local procedure CheckValueEntries(FieldCaption1: Text[250])
-    var
-        ValueEntry: Record "Value Entry";
-        TextChange: Label 'Do you really want to change %1 although value entries exist?';
-    begin
-        // NAVCZ
-        ValueEntry.SetCurrentKey("Item No.", "Valuation Date", "Location Code", "Variant Code");
-        ValueEntry.SetRange("Location Code", "Location Code");
-        ValueEntry.SetRange("Inventory Posting Group", "Invt. Posting Group Code");
-        if not ValueEntry.IsEmpty() then
-            if not Confirm(TextChange, false, FieldCaption1) then
-                Error('');
-    end;
-#endif
 
     local procedure CheckGLAccount(ChangedFieldNo: Integer; AccNo: Code[20]; CheckProdPostingGroup: Boolean; CheckDirectPosting: Boolean; AccountCategory: Option; AccountSubcategory: Text)
     begin

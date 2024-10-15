@@ -57,7 +57,6 @@ codeunit 134045 "ERM VAT Sales/Purchase"
     end;
 
     [Test]
-    [HandlerFunctions('YesConfirmHandler')]
     [Scope('OnPrem')]
     procedure ErrorVATAmountOnPurchaseOrder()
     var
@@ -101,7 +100,6 @@ codeunit 134045 "ERM VAT Sales/Purchase"
     end;
 
     [Test]
-    [HandlerFunctions('YesConfirmHandler')]
     [Scope('OnPrem')]
     procedure VATDifferenceOnPurchaseOrder()
     var
@@ -190,7 +188,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
 
         // Take 1 Fix value to Create 1 Purchase Line.
         BaseAmount := CreatePurchDocWithPartQtyToRcpt(PurchaseHeader, PurchaseLine, '', 1, PurchaseHeader."Document Type"::Order);
-        DocumentNo := NoSeriesManagement.GetNextNo(PurchaseHeader."Posting No. Series", WorkDate, false);
+        DocumentNo := NoSeriesManagement.GetNextNo(PurchaseHeader."Posting No. Series", WorkDate(), false);
 
         // Exercise: Post Purchase Order with Receive and Invoice.
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -217,7 +215,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
 
         // Take 1 Fix value to Create 1 Purchase Line.
         BaseAmount := CreatePurchDocWithPartQtyToRcpt(PurchaseHeader, PurchaseLine, '', 1, PurchaseHeader."Document Type"::Order);
-        DocumentNo := NoSeriesManagement.GetNextNo(PurchaseHeader."Posting No. Series", WorkDate, false);
+        DocumentNo := NoSeriesManagement.GetNextNo(PurchaseHeader."Posting No. Series", WorkDate(), false);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
         PurchaseLine.Get(PurchaseHeader."Document Type", PurchaseHeader."No.", PurchaseLine."Line No.");
         PurchaseLine.Validate("Qty. to Invoice", PurchaseLine."Quantity Received");
@@ -339,7 +337,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         CalcSalesVATAmountLines(VATAmountLine, SalesHeader, SalesLine);
 
         // Verify: Verify VAT Amount Line for VAT Difference.
-        Assert.AreEqual(0, VATAmountLine."VAT Difference", StrSubstNo(VATDifferenceErr, 0, VATAmountLine.TableCaption));
+        Assert.AreEqual(0, VATAmountLine."VAT Difference", StrSubstNo(VATDifferenceErr, 0, VATAmountLine.TableCaption()));
 
         // Tear Down: Delete Sales Header.
         SalesHeader.Delete(true);
@@ -370,7 +368,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         CalcSalesVATAmountLines(VATAmountLine, SalesHeader, SalesLine);
 
         // Verify: Verify VAT Amount Line for VAT Difference.
-        Assert.AreEqual(0, VATAmountLine."VAT Difference", StrSubstNo(VATDifferenceErr, 0, VATAmountLine.TableCaption));
+        Assert.AreEqual(0, VATAmountLine."VAT Difference", StrSubstNo(VATDifferenceErr, 0, VATAmountLine.TableCaption()));
 
         // Tear Down: Delete Sales Header.
         SalesHeader.Delete(true);
@@ -401,7 +399,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         CalcPurchaseVATAmountLines(VATAmountLine, PurchaseHeader, PurchaseLine);
 
         // Verify: Verify VAT Amount Line for VAT Difference.
-        Assert.AreEqual(0, VATAmountLine."VAT Difference", StrSubstNo(VATDifferenceErr, 0, VATAmountLine.TableCaption));
+        Assert.AreEqual(0, VATAmountLine."VAT Difference", StrSubstNo(VATDifferenceErr, 0, VATAmountLine.TableCaption()));
 
         // Tear Down: Delete Purchase Header.
         PurchaseHeader.Delete(true);
@@ -430,7 +428,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         CalcPurchaseVATAmountLines(VATAmountLine, PurchaseHeader, PurchaseLine);
 
         // Verify: Verify VAT Amount Line for VAT Difference.
-        Assert.AreEqual(0, VATAmountLine."VAT Difference", StrSubstNo(VATDifferenceErr, 0, VATAmountLine.TableCaption));
+        Assert.AreEqual(0, VATAmountLine."VAT Difference", StrSubstNo(VATDifferenceErr, 0, VATAmountLine.TableCaption()));
 
         // Tear Down: Delete Purchase Header.
         PurchaseHeader.Delete(true);
@@ -461,7 +459,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         PurchaseLine.CalcVATAmountLines(1, PurchaseHeader, PurchaseLine, TempVATAmountLine);
         VATAmount := TempVATAmountLine."VAT Amount";
         // NAVCZ
-        PostedDocumentNo := NoSeriesManagement.GetNextNo(PurchaseHeader."Posting No. Series", WorkDate, false);
+        PostedDocumentNo := NoSeriesManagement.GetNextNo(PurchaseHeader."Posting No. Series", WorkDate(), false);
 
         // Exercise: Post Purchase Order with Ship and Invoice.
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -632,7 +630,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         // Verify: Verify VAT Amount on VAT Amount line which should be same after Copy Sales Document for First Sales Invoice.
         Assert.AreEqual(
           VATDifference, VATAmountLine."VAT Difference",
-          StrSubstNo(VATDifferenceErr, GeneralLedgerSetup."Max. VAT Difference Allowed", VATAmountLine.TableCaption));
+          StrSubstNo(VATDifferenceErr, GeneralLedgerSetup."Max. VAT Difference Allowed", VATAmountLine.TableCaption()));
     end;
 
     [Test]
@@ -667,7 +665,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         // Verify: Verify VAT Amount on VAT Amount line which should be same after Copy Purchase Document for First Purchase Invoice.
         Assert.AreEqual(
           VATDifference, VATAmountLine."VAT Difference",
-          StrSubstNo(VATDifferenceErr, VATDifference, VATAmountLine.TableCaption));
+          StrSubstNo(VATDifferenceErr, VATDifference, VATAmountLine.TableCaption()));
     end;
 
     [Test]
@@ -2485,7 +2483,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         SalesOrder.OpenEdit;
         SalesOrder.FILTER.SetFilter("No.", No);
         SalesOrder.SalesLines.First;
-        SalesOrder.SalesLines.Next;
+        SalesOrder.SalesLines.Next();
         SalesOrder.SalesLines.Type.SetValue(Format(SalesOrder.SalesLines.Type));
         SalesOrder.SalesLines."No.".SetValue(
           LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, GLAccount."Gen. Posting Type"::Sale));
@@ -2508,7 +2506,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         with SalesHeader do begin
             LibrarySales.CreateSalesHeader(SalesHeader, "Document Type"::Invoice, CustomerNo);
             Validate("Payment Terms Code", PaymentTerms.Code);
-            Validate("Document Date", CalcDate(Format(-LibraryRandom.RandIntInRange(50, 100)) + '<D>', WorkDate));
+            Validate("Document Date", CalcDate(Format(-LibraryRandom.RandIntInRange(50, 100)) + '<D>', WorkDate()));
             Validate("Payment Method Code", PaymentMethod.Code);
             Modify(true);
             CreateSalesLine(SalesLine, SalesHeader, VATPostingSetup);
@@ -2530,7 +2528,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         with PurchaseHeader do begin
             LibraryPurchase.CreatePurchHeader(PurchaseHeader, "Document Type"::Invoice, VendorNo);
             Validate("Payment Terms Code", PaymentTerms.Code);
-            Validate("Document Date", CalcDate(Format(-LibraryRandom.RandIntInRange(50, 100)) + '<D>', WorkDate));
+            Validate("Document Date", CalcDate(Format(-LibraryRandom.RandIntInRange(50, 100)) + '<D>', WorkDate()));
             Validate("Payment Method Code", PaymentMethod.Code);
             Modify(true);
             CreatePurchaseLine(PurchaseLine, PurchaseHeader, VATPostingSetup);
@@ -2626,9 +2624,9 @@ codeunit 134045 "ERM VAT Sales/Purchase"
             MaxVATDifference := 0;
 
         with GeneralLedgerSetup do begin
-            Get;
+            Get();
             Validate("Max. VAT Difference Allowed", MaxVATDifference);
-            Modify;
+            Modify();
         end;
         exit(MaxVATDifference);
     end;
@@ -2880,7 +2878,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         // Verify: Verify VAT Difference field on VAT Amount Line.
         Assert.AreEqual(
           GeneralLedgerSetup."Max. VAT Difference Allowed", VATAmountLine."VAT Difference",
-          StrSubstNo(VATDifferenceErr, GeneralLedgerSetup."Max. VAT Difference Allowed", VATAmountLine.TableCaption));
+          StrSubstNo(VATDifferenceErr, GeneralLedgerSetup."Max. VAT Difference Allowed", VATAmountLine.TableCaption()));
     end;
 
     local procedure VerifyGLEntry(DocumentNo: Code[20]; VATAmount: Decimal)
@@ -2892,7 +2890,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         GLEntry.FindFirst();
         Assert.AreNearlyEqual(
           VATAmount, GLEntry."VAT Amount", LibraryERM.GetAmountRoundingPrecision,
-          StrSubstNo(AmountErr, GLEntry.FieldCaption("VAT Amount"), VATAmount, GLEntry.TableCaption));
+          StrSubstNo(AmountErr, GLEntry.FieldCaption("VAT Amount"), VATAmount, GLEntry.TableCaption()));
     end;
 
     local procedure VerifyVATBase(DocumentNo: Code[20]; Base: Decimal; Type: Enum "General Posting Type")
@@ -2902,7 +2900,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         FindVATEntry(VATEntry, DocumentNo, Type);
         Assert.AreNearlyEqual(
           Base, VATEntry.Base, LibraryERM.GetAmountRoundingPrecision,
-          StrSubstNo(AmountErr, VATEntry.FieldCaption(Base), Base, VATEntry.TableCaption));
+          StrSubstNo(AmountErr, VATEntry.FieldCaption(Base), Base, VATEntry.TableCaption()));
     end;
 
     local procedure VerifyVATBusAndGenBusGroupOnVATEntry(DocumentNo: Code[20]; VATBusPostingGroup: Code[20]; GenBusPostingGroup: Code[20])
@@ -2926,7 +2924,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         Assert.AreEqual(
           Customer."VAT Bus. Posting Group", VATBusPostingGroup, StrSubstNo(PostingGroupErr,
             SalesHeader.FieldCaption("VAT Bus. Posting Group"),
-            Customer."VAT Bus. Posting Group", SalesHeader.TableCaption, SalesHeader."No."));
+            Customer."VAT Bus. Posting Group", SalesHeader.TableCaption(), SalesHeader."No."));
     end;
 
     local procedure VerifyVATDifference(DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20]; No: Code[20]; VATDifference: Decimal)
@@ -2939,7 +2937,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         SalesLine.FindFirst();
         Assert.AreNearlyEqual(
           VATDifference, SalesLine."VAT Difference", LibraryERM.GetAmountRoundingPrecision,
-          StrSubstNo(AmountErr, SalesLine.FieldCaption("VAT Difference"), VATDifference, SalesLine.TableCaption));
+          StrSubstNo(AmountErr, SalesLine.FieldCaption("VAT Difference"), VATDifference, SalesLine.TableCaption()));
     end;
 
     local procedure VerifyVATEntry(PurchaseLine: Record "Purchase Line"; DocumentNo: Code[20]; Amount: Decimal)
@@ -2950,12 +2948,12 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         FindVATEntry(VATEntry, DocumentNo, VATEntry.Type::Purchase);
         VATEntry.TestField("VAT Bus. Posting Group", PurchaseLine."VAT Bus. Posting Group");
         VATEntry.TestField("VAT Prod. Posting Group", PurchaseLine."VAT Prod. Posting Group");
-        VATEntry.TestField("Posting Date", WorkDate);
+        VATEntry.TestField("Posting Date", WorkDate());
         VATEntry.TestField("Bill-to/Pay-to No.", PurchaseLine."Buy-from Vendor No.");
         VATEntry.TestField("EU 3-Party Trade", false);
         Assert.AreNearlyEqual(
           Amount, VATEntry.Amount, LibraryERM.GetAmountRoundingPrecision,
-          StrSubstNo(AmountErr, VATEntry.FieldCaption(Amount), Amount, VATEntry.TableCaption));
+          StrSubstNo(AmountErr, VATEntry.FieldCaption(Amount), Amount, VATEntry.TableCaption()));
     end;
 
     local procedure VerifyRoundingEntry(DocumentNo: Code[20]; No: Code[20])
@@ -2981,10 +2979,10 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         VATEntry.FindFirst();
         Assert.AreNearlyEqual(
           BaseAmount, VATEntry.Base, LibraryERM.GetAmountRoundingPrecision,
-          StrSubstNo(AmountErr, VATEntry.FieldCaption(Base), BaseAmount, VATEntry.TableCaption));
+          StrSubstNo(AmountErr, VATEntry.FieldCaption(Base), BaseAmount, VATEntry.TableCaption()));
         Assert.AreNearlyEqual(
           VATAmount, VATEntry.Amount, LibraryERM.GetAmountRoundingPrecision,
-          StrSubstNo(AmountErr, VATEntry.FieldCaption(Amount), VATAmount, VATEntry.TableCaption));
+          StrSubstNo(AmountErr, VATEntry.FieldCaption(Amount), VATAmount, VATEntry.TableCaption()));
     end;
 
     local procedure VerifyAmountOnCustomerLedgerEntry(PostedInvoiceNo: Code[20])
@@ -3026,7 +3024,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         SalesHeader: Record "Sales Header";
     begin
         with SalesLine do begin
-            Find;
+            Find();
             SalesHeader.Get("Document Type", "Document No.");
             Assert.AreEqual(ExpectedAmount, Amount, FieldCaption(Amount));
             Assert.AreEqual(ExpectedAmountInclVAT, "Amount Including VAT", FieldCaption("Amount Including VAT"));
@@ -3041,7 +3039,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
     local procedure VerifyPurchLineAmounts(PurchaseLine: Record "Purchase Line"; ExpectedAmount: Decimal; ExpectedAmountInclVAT: Decimal)
     begin
         with PurchaseLine do begin
-            Find;
+            Find();
             Assert.AreEqual(ExpectedAmount, Amount, FieldCaption(Amount));
             Assert.AreEqual(ExpectedAmountInclVAT, "Amount Including VAT", FieldCaption("Amount Including VAT"));
             Assert.AreEqual(ExpectedAmountInclVAT, "Outstanding Amount", FieldCaption("Outstanding Amount"));

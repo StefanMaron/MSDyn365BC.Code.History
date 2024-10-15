@@ -95,14 +95,14 @@ table 31027 "VAT Amount Line Adv. Payment"
     begin
         if not (("VAT Base (LCY)" = 0) and ("VAT Amount (LCY)" = 0)) then begin
             VATAmountLineAdvPmt := Rec;
-            if Find then begin
+            if Find() then begin
                 "VAT Base (LCY)" := "VAT Base (LCY)" + VATAmountLineAdvPmt."VAT Base (LCY)";
                 "VAT Amount (LCY)" := "VAT Amount (LCY)" + VATAmountLineAdvPmt."VAT Amount (LCY)";
                 "Amount Including VAT (LCY)" := "VAT Base (LCY)" + "VAT Amount (LCY)";
-                Modify;
+                Modify();
             end else begin
                 "Amount Including VAT (LCY)" := "VAT Base (LCY)" + "VAT Amount (LCY)";
-                Insert;
+                Insert();
             end;
         end;
     end;

@@ -481,11 +481,9 @@ table 125 "Purch. Cr. Memo Line"
         {
             Caption = 'FA Posting Date';
         }
-        field(5601; "FA Posting Type"; Option)
+        field(5601; "FA Posting Type"; Enum "Purchase FA Posting Type")
         {
             Caption = 'FA Posting Type';
-            OptionCaption = ' ,Acquisition Cost,Maintenance,Custom 2,Appreciation';
-            OptionMembers = " ","Acquisition Cost",Maintenance,"Custom 2",Appreciation;
         }
         field(5602; "Depreciation Book Code"; Code[10])
         {
@@ -577,7 +575,7 @@ table 125 "Purch. Cr. Memo Line"
         {
             Caption = 'Cross-Reference Type No.';
             ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
-#if not CLEAN18
+#if not CLEAN19
             ObsoleteState = Pending;
             ObsoleteTag = '17.0';
 #else
@@ -648,13 +646,9 @@ table 125 "Purch. Cr. Memo Line"
             AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             Caption = 'VAT Difference (LCY)';
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(11765; "VAT % (Non Deductible)"; Decimal)
         {
@@ -702,13 +696,9 @@ table 125 "Purch. Cr. Memo Line"
         {
             Caption = 'Country/Region of Origin Code';
             TableRelation = "Country/Region";
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
     }
 
@@ -757,9 +747,6 @@ table 125 "Purch. Cr. Memo Line"
 
     var
         DimMgt: Codeunit DimensionManagement;
-        TotalPurchCrMemoLine: Record "Purch. Cr. Memo Line";
-        TotalPurchCrMemoLineLCY: Record "Purch. Cr. Memo Line";
-        CurrExchRate: Record "Currency Exchange Rate";
         DeferralUtilities: Codeunit "Deferral Utilities";
 
     procedure GetCurrencyCode(): Code[10]
@@ -775,14 +762,14 @@ table 125 "Purch. Cr. Memo Line"
 
     procedure ShowDimensions()
     begin
-        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2 %3', TableCaption, "Document No.", "Line No."));
+        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2 %3', TableCaption(), "Document No.", "Line No."));
     end;
 
     procedure ShowItemTrackingLines()
     var
         ItemTrackingDocMgt: Codeunit "Item Tracking Doc. Management";
     begin
-        ItemTrackingDocMgt.ShowItemTrackingForInvoiceLine(RowID1);
+        ItemTrackingDocMgt.ShowItemTrackingForInvoiceLine(RowID1());
     end;
 
     procedure CalcVATAmountLines(PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr."; var TempVATAmountLine: Record "VAT Amount Line" temporary)
@@ -793,18 +780,7 @@ table 125 "Purch. Cr. Memo Line"
             repeat
                 TempVATAmountLine.Init();
                 TempVATAmountLine.CopyFromPurchCrMemoLine(Rec);
-#if not CLEAN18
-                // NAVCZ
-                TempVATAmountLine."Currency Code" := PurchCrMemoHdr."Currency Code";
-                if PurchCrMemoHdr."Currency Code" <> '' then
-                    RoundAmount(PurchCrMemoHdr);
-                TempVATAmountLine."VAT Base (LCY)" := Amount;
-                TempVATAmountLine."VAT Amount (LCY)" := "Amount Including VAT" - Amount;
-                TempVATAmountLine."Amount Including VAT (LCY)" := "Amount Including VAT";
-                TempVATAmountLine."Calculated VAT Amount (LCY)" := "Amount Including VAT" - Amount - "VAT Difference (LCY)";
-                // NAVCZ
-#endif
-                TempVATAmountLine.InsertLine;
+                TempVATAmountLine.InsertLine();
             until Next() = 0;
     end;
 
@@ -922,82 +898,6 @@ table 125 "Purch. Cr. Memo Line"
         PurchCommentLine.ShowComments(PurchCommentLine."Document Type"::"Posted Credit Memo".AsInteger(), "Document No.", "Line No.");
     end;
 
-    local procedure RoundAmount(PurchCrMemoHeader: Record "Purch. Cr. Memo Hdr.")
-    var
-        NoVAT: Boolean;
-    begin
-        // NAVCZ
-        IncrAmount(TotalPurchCrMemoLine, PurchCrMemoHeader);
-        if PurchCrMemoHeader."Currency Code" <> '' then begin
-            NoVAT := Amount = "Amount Including VAT";
-            "Amount Including VAT" :=
-              Round(
-                CurrExchRate.ExchangeAmtFCYToLCY(
-                  PurchCrMemoHeader."Posting Date", PurchCrMemoHeader."Currency Code",
-                  TotalPurchCrMemoLine."Amount Including VAT", PurchCrMemoHeader."Currency Factor")) -
-              TotalPurchCrMemoLineLCY."Amount Including VAT";
-            if NoVAT then
-                Amount := "Amount Including VAT"
-            else
-                Amount :=
-                  Round(
-                    CurrExchRate.ExchangeAmtFCYToLCY(
-                      PurchCrMemoHeader."Posting Date", PurchCrMemoHeader."Currency Code",
-                      TotalPurchCrMemoLine.Amount, PurchCrMemoHeader."Currency Factor")) -
-                  TotalPurchCrMemoLineLCY.Amount;
-            "Line Amount" :=
-              Round(
-                CurrExchRate.ExchangeAmtFCYToLCY(
-                  PurchCrMemoHeader."Posting Date", PurchCrMemoHeader."Currency Code",
-                  TotalPurchCrMemoLine."Line Amount", PurchCrMemoHeader."Currency Factor")) -
-              TotalPurchCrMemoLineLCY."Line Amount";
-            "Line Discount Amount" :=
-              Round(
-                CurrExchRate.ExchangeAmtFCYToLCY(
-                  PurchCrMemoHeader."Posting Date", PurchCrMemoHeader."Currency Code",
-                  TotalPurchCrMemoLine."Line Discount Amount", PurchCrMemoHeader."Currency Factor")) -
-              TotalPurchCrMemoLineLCY."Line Discount Amount";
-            "Inv. Discount Amount" :=
-              Round(
-                CurrExchRate.ExchangeAmtFCYToLCY(
-                  PurchCrMemoHeader."Posting Date", PurchCrMemoHeader."Currency Code",
-                  TotalPurchCrMemoLine."Inv. Discount Amount", PurchCrMemoHeader."Currency Factor")) -
-              TotalPurchCrMemoLineLCY."Inv. Discount Amount";
-            "VAT Difference" :=
-              Round(
-                CurrExchRate.ExchangeAmtFCYToLCY(
-                  PurchCrMemoHeader."Posting Date", PurchCrMemoHeader."Currency Code",
-                  TotalPurchCrMemoLine."VAT Difference", PurchCrMemoHeader."Currency Factor")) -
-              TotalPurchCrMemoLineLCY."VAT Difference";
-        end;
-
-        IncrAmount(TotalPurchCrMemoLineLCY, PurchCrMemoHeader);
-    end;
-
-    local procedure IncrAmount(var TotalPurchCrMemoLine: Record "Purch. Cr. Memo Line"; PurchCrMemoHeader: Record "Purch. Cr. Memo Hdr.")
-    begin
-        // NAVCZ
-        if PurchCrMemoHeader."Prices Including VAT" or
-           ("VAT Calculation Type" <> "VAT Calculation Type"::"Full VAT")
-        then
-            Increment(TotalPurchCrMemoLine."Line Amount", "Line Amount");
-        Increment(TotalPurchCrMemoLine.Amount, Amount);
-        Increment(TotalPurchCrMemoLine."VAT Base Amount", "VAT Base Amount");
-        Increment(TotalPurchCrMemoLine."VAT Difference", "VAT Difference");
-#if not CLEAN18
-        Increment(TotalPurchCrMemoLine."VAT Difference (LCY)", "VAT Difference (LCY)");
-#endif
-        Increment(TotalPurchCrMemoLine."Amount Including VAT", "Amount Including VAT");
-        Increment(TotalPurchCrMemoLine."Line Discount Amount", "Line Discount Amount");
-        Increment(TotalPurchCrMemoLine."Inv. Discount Amount", "Inv. Discount Amount");
-    end;
-
-    local procedure Increment(var Number: Decimal; Number2: Decimal)
-    begin
-        // NAVCZ
-        Number := Number + Number2;
-    end;
-
     procedure ShowShortcutDimCode(var ShortcutDimCode: array[8] of Code[20])
     begin
         DimMgt.GetShortcutDimensions("Dimension Set ID", ShortcutDimCode);
@@ -1005,7 +905,7 @@ table 125 "Purch. Cr. Memo Line"
 
     procedure InitFromPurchLine(PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr."; PurchLine: Record "Purchase Line")
     begin
-        Init;
+        Init();
         TransferFields(PurchLine);
         if ("No." = '') and HasTypeToFillMandatoryFields() then
             Type := Type::" ";
@@ -1021,7 +921,7 @@ table 125 "Purch. Cr. Memo Line"
     begin
         DeferralUtilities.OpenLineScheduleView(
             "Deferral Code", "Deferral Document Type"::Purchase.AsInteger(), '', '',
-            GetDocumentType, "Document No.", "Line No.");
+            GetDocumentType(), "Document No.", "Line No.");
     end;
 
     procedure GetDocumentType(): Integer
@@ -1041,7 +941,7 @@ table 125 "Purch. Cr. Memo Line"
         PurchaseLine: Record "Purchase Line";
     begin
         if Type = Type::" " then
-            exit(PurchaseLine.FormatType);
+            exit(PurchaseLine.FormatType());
 
         exit(Format(Type));
     end;

@@ -126,7 +126,7 @@ codeunit 841 "Cash Flow Management"
             CFWorksheetLine."Source Type"::Tax:
                 ShowTax(SourceNo, DocumentDate);
             CFWorksheetLine."Source Type"::"Azure AI":
-                ShowAzureAIForecast;
+                ShowAzureAIForecast();
             else begin
                 IsHandled := false;
                 OnShowSourceLocalSourceTypeCase(SourceType, SourceNo, ShowDocument, DocumentNo, DocumentDate, BudgetName, IsHandled);
@@ -142,7 +142,7 @@ codeunit 841 "Cash Flow Management"
     begin
         GLAccount.SetRange("No.", SourceNo);
         if not GLAccount.FindFirst() then
-            Error(SourceDataDoesNotExistErr, GLAccount.TableCaption, SourceNo);
+            Error(SourceDataDoesNotExistErr, GLAccount.TableCaption(), SourceNo);
         if ShowDocument then
             PAGE.Run(PAGE::"G/L Account Card", GLAccount)
         else
@@ -155,9 +155,9 @@ codeunit 841 "Cash Flow Management"
     begin
         CustLedgEntry.SetRange("Document No.", SourceNo);
         if not CustLedgEntry.FindFirst() then
-            Error(SourceDataDoesNotExistInfoErr, CustLedgEntry.TableCaption, CustLedgEntry.FieldCaption("Document No."), SourceNo);
+            Error(SourceDataDoesNotExistInfoErr, CustLedgEntry.TableCaption(), CustLedgEntry.FieldCaption("Document No."), SourceNo);
         if ShowDocument then
-            CustLedgEntry.ShowDoc
+            CustLedgEntry.ShowDoc()
         else
             PAGE.Run(0, CustLedgEntry);
     end;
@@ -168,9 +168,9 @@ codeunit 841 "Cash Flow Management"
     begin
         VendLedgEntry.SetRange("Document No.", SourceNo);
         if not VendLedgEntry.FindFirst() then
-            Error(SourceDataDoesNotExistInfoErr, VendLedgEntry.TableCaption, VendLedgEntry.FieldCaption("Document No."), SourceNo);
+            Error(SourceDataDoesNotExistInfoErr, VendLedgEntry.TableCaption(), VendLedgEntry.FieldCaption("Document No."), SourceNo);
         if ShowDocument then
-            VendLedgEntry.ShowDoc
+            VendLedgEntry.ShowDoc()
         else
             PAGE.Run(0, VendLedgEntry);
     end;
@@ -247,7 +247,7 @@ codeunit 841 "Cash Flow Management"
     begin
         FixedAsset.SetRange("No.", SourceNo);
         if not FixedAsset.FindFirst() then
-            Error(SourceDataDoesNotExistInfoErr, FixedAsset.TableCaption, FixedAsset.FieldCaption("No."), SourceNo);
+            Error(SourceDataDoesNotExistInfoErr, FixedAsset.TableCaption(), FixedAsset.FieldCaption("No."), SourceNo);
         PAGE.Run(PAGE::"Fixed Asset Card", FixedAsset);
     end;
 
@@ -258,9 +258,9 @@ codeunit 841 "Cash Flow Management"
         Budget: Page Budget;
     begin
         if not GLAccount.Get(SourceNo) then
-            Error(SourceDataDoesNotExistErr, GLAccount.TableCaption, SourceNo);
+            Error(SourceDataDoesNotExistErr, GLAccount.TableCaption(), SourceNo);
         if not GLBudgetName.Get(BudgetName) then
-            Error(SourceDataDoesNotExistErr, GLBudgetName.TableCaption, BudgetName);
+            Error(SourceDataDoesNotExistErr, GLBudgetName.TableCaption(), BudgetName);
         Budget.SetBudgetName(BudgetName);
         Budget.SetGLAccountFilter(SourceNo);
         Budget.Run();
@@ -334,14 +334,14 @@ codeunit 841 "Cash Flow Management"
             DATABASE::"Purchase Header":
                 begin
                     SetViewOnPurchaseHeaderForTaxCalc(PurchaseHeader, TaxPayableDate);
-                    PurchaseOrderList.SkipShowingLinesWithoutVAT;
+                    PurchaseOrderList.SkipShowingLinesWithoutVAT();
                     PurchaseOrderList.SetTableView(PurchaseHeader);
                     PurchaseOrderList.Run();
                 end;
             DATABASE::"Sales Header":
                 begin
                     SetViewOnSalesHeaderForTaxCalc(SalesHeader, TaxPayableDate);
-                    SalesOrderList.SkipShowingLinesWithoutVAT;
+                    SalesOrderList.SkipShowingLinesWithoutVAT();
                     SalesOrderList.SetTableView(SalesHeader);
                     SalesOrderList.Run();
                 end;
@@ -433,10 +433,10 @@ codeunit 841 "Cash Flow Management"
         if not GLAccountCategory.FindSet() then
             exit;
 
-        CashAccountFilter := GLAccountCategory.GetTotaling;
+        CashAccountFilter := GLAccountCategory.GetTotaling();
 
-        while GLAccountCategory.Next <> 0 do
-            CashAccountFilter += '|' + GLAccountCategory.GetTotaling;
+        while GLAccountCategory.Next() <> 0 do
+            CashAccountFilter += '|' + GLAccountCategory.GetTotaling();
 
         CashAccountFilter := CashAccountFilter.TrimStart('|').TrimEnd('|');
     end;
@@ -445,13 +445,13 @@ codeunit 841 "Cash Flow Management"
     var
         CashFlowNoSeriesCode: Code[20];
     begin
-        DeleteExistingSetup;
+        DeleteExistingSetup();
         CreateCashFlowAccounts(LiquidFundsGLAccountFilter);
-        CashFlowNoSeriesCode := CreateCashFlowNoSeries;
+        CashFlowNoSeriesCode := CreateCashFlowNoSeries();
         CreateCashFlowSetup(CashFlowNoSeriesCode);
-        CreateCashFlowForecast;
-        CreateCashFlowChartSetup;
-        CreateCashFlowReportSelection;
+        CreateCashFlowForecast();
+        CreateCashFlowChartSetup();
+        CreateCashFlowReportSelection();
     end;
 
     local procedure DeleteExistingSetup()
@@ -498,9 +498,10 @@ codeunit 841 "Cash Flow Management"
         CreateCashFlowAccount(CashFlowAccount."Source Type"::"Cash Flow Manual Expense", '');
         CreateCashFlowAccount(CashFlowAccount."Source Type"::"Cash Flow Manual Revenue", '');
         CreateCashFlowAccount(CashFlowAccount."Source Type"::Tax, '');
+        OnAfterCreateCashFlowAccounts(LiquidFundsGLAccountFilter);
     end;
 
-    local procedure CreateCashFlowAccount(SourceType: Enum "Cash Flow Source Type"; LiquidFundsGLAccountFilter: Code[250])
+    procedure CreateCashFlowAccount(SourceType: Enum "Cash Flow Source Type"; LiquidFundsGLAccountFilter: Code[250])
     var
         CashFlowAccount: Record "Cash Flow Account";
     begin
@@ -523,7 +524,7 @@ codeunit 841 "Cash Flow Management"
     local procedure InitCashFlowAccount(var CashFlowAccount: Record "Cash Flow Account"; SourceType: Enum "Cash Flow Source Type")
     begin
         with CashFlowAccount do begin
-            Init;
+            Init();
             Validate("Source Type", SourceType);
             Validate("No.", GetNoFromSourceType(SourceType.AsInteger()));
             Validate(Name, Format("Source Type", MaxStrLen(Name)));
@@ -583,6 +584,7 @@ codeunit 841 "Cash Flow Management"
             "FA Disposal CF Account No.", GetNoFromSourceType(CashFlowAccount."Source Type"::"Fixed Assets Disposal".AsInteger()));
         CashFlowSetup.Validate("Job CF Account No.", GetNoFromSourceType(CashFlowAccount."Source Type"::Job.AsInteger()));
         CashFlowSetup.Validate("Tax CF Account No.", GetNoFromSourceType(CashFlowAccount."Source Type"::Tax.AsInteger()));
+        OnBeforeInsertOnCreateCashFlowSetup(CashFlowSetup, CashFlowNoSeriesCode);
         CashFlowSetup.Insert();
     end;
 
@@ -615,7 +617,7 @@ codeunit 841 "Cash Flow Management"
     var
         CashFlowReportSelection: Record "Cash Flow Report Selection";
     begin
-        CashFlowReportSelection.NewRecord;
+        CashFlowReportSelection.NewRecord();
         CashFlowReportSelection.Validate("Report ID", 846);
         CashFlowReportSelection.Insert();
     end;
@@ -637,7 +639,7 @@ codeunit 841 "Cash Flow Management"
 
         Window.Open(UpdatingMsg);
 
-        if not CashFlowSetup.Get then
+        if not CashFlowSetup.Get() then
             exit;
 
         if not CashFlowForecast.Get(CashFlowSetup."CF No. on Chart in Role Center") then
@@ -652,16 +654,17 @@ codeunit 841 "Cash Flow Management"
         SuggestWorksheetLines.InitializeRequest(
           Sources, CashFlowSetup."CF No. on Chart in Role Center", CashFlowForecast."Default G/L Budget Name", true);
         SuggestWorksheetLines.UseRequestPage := false;
+        OnBeforeRunSuggestWorksheetLinesOnUpdateCashFlowForecast(SuggestWorksheetLines);
         SuggestWorksheetLines.Run();
         CODEUNIT.Run(CODEUNIT::"Cash Flow Wksh.-Register Batch");
 
-        Window.Close;
+        Window.Close();
     end;
 
     local procedure UpdateCashFlowForecastManualPaymentHorizon(var CashFlowForecast: Record "Cash Flow Forecast")
     begin
-        CashFlowForecast.Validate("Manual Payments From", WorkDate);
-        CashFlowForecast.Validate("Manual Payments To", CalcDate('<+1Y>', WorkDate));
+        CashFlowForecast.Validate("Manual Payments From", WorkDate());
+        CashFlowForecast.Validate("Manual Payments To", CalcDate('<+1Y>', WorkDate()));
         CashFlowForecast.Modify();
     end;
 
@@ -683,6 +686,7 @@ codeunit 841 "Cash Flow Management"
         StartDate: Date;
         EndDate: Date;
     begin
+        DummyDate := 0D;
         PurchaseHeader.SetRange("Document Type", PurchaseHeader."Document Type"::Order);
         PurchaseHeader.SetFilter("Document Date", '<>%1', DummyDate);
         if TaxPaymentDueDate <> DummyDate then begin
@@ -823,8 +827,24 @@ codeunit 841 "Cash Flow Management"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateCashFlowAccounts(LiquidFundsGLAccountFilter: Code[250])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterGetTotalAmountFromSalesOrder(SalesHeader: Record "Sales Header"; var Result: Decimal)
     begin
     end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertOnCreateCashFlowSetup(var CashFlowSetup: Record "Cash Flow Setup"; CashFlowNoSeriesCode: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRunSuggestWorksheetLinesOnUpdateCashFlowForecast(var SuggestWorksheetLines: Report "Suggest Worksheet Lines")
+    begin
+    end;
 }
+
 #endif

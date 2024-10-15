@@ -50,7 +50,7 @@ codeunit 419 "File Management"
         ErrorMessage: Text;
     begin
         // ExtFilter examples: 'csv,txt' if you only accept *.csv and *.txt or '*.*' if you accept any extensions
-        ClearLastError;
+        ClearLastError();
 
         if (FileFilter = '') xor (ExtFilter = '') then
             Error(SingleFilterErr);
@@ -87,7 +87,7 @@ codeunit 419 "File Management"
             ToFile := GetFileName(ToFile);
         end else begin
             ToFile := CreateFileNameWithExtension(Format(CreateGuid()), GetExtension(Name));
-            Path := Magicpath;
+            Path := Magicpath();
         end;
         IsDownloaded := DownloadFromStream(InStream, Text006, Path, GetToFilterText('', Name), ToFile);
         if IsDownloaded then
@@ -122,9 +122,9 @@ codeunit 419 "File Management"
     var
         TempFile: File;
     begin
-        TempFile.CreateTempFile;
+        TempFile.CreateTempFile();
         FileName := CreateFileNameWithExtension(TempFile.Name, FileExtension);
-        TempFile.Close;
+        TempFile.Close();
     end;
 
 #pragma warning disable AS0022
@@ -135,7 +135,7 @@ codeunit 419 "File Management"
         Path: Text;
     begin
         FileName := ServerFileName;
-        Path := Magicpath;
+        Path := Magicpath();
         Download(ServerFileName, '', Path, AllFilesDescriptionTxt, FileName);
         exit(FileName);
     end;
@@ -165,7 +165,7 @@ codeunit 419 "File Management"
         if IsHandled then
             exit;
 
-        ClearLastError;
+        ClearLastError();
 
         if (FileFilter = '') xor (ExtFilter = '') then
             Error(SingleFilterErr);
@@ -198,7 +198,7 @@ codeunit 419 "File Management"
         if IsHandled then
             exit;
 
-        ClearLastError;
+        ClearLastError();
         Downloaded := Download(FromFile, DialogTitle, ToFolder, ToFilter, ToFile);
         if not Downloaded then
             if GetLastErrorText <> '' then
@@ -217,7 +217,7 @@ codeunit 419 "File Management"
         if IsHandled then
             exit(true);
 
-        ClearLastError;
+        ClearLastError();
         Downloaded := DownloadFromStream(FromInStream, DialogTitle, ToFolder, ToFilter, ToFile);
         if not Downloaded then
             if GetLastErrorText <> '' then
@@ -423,7 +423,7 @@ codeunit 419 "File Management"
         InputFile.CreateInStream(InStream);
         TempBlob.CreateOutStream(OutStream);
         CopyStream(OutStream, InStream);
-        InputFile.Close;
+        InputFile.Close();
     end;
 
     [Scope('OnPrem')]
@@ -441,7 +441,7 @@ codeunit 419 "File Management"
         OutputFile.CreateOutStream(OutStream);
         TempBlob.CreateInStream(InStream);
         CopyStream(OutStream, InStream);
-        OutputFile.Close;
+        OutputFile.Close();
     end;
 
     [Scope('OnPrem')]
@@ -455,7 +455,7 @@ codeunit 419 "File Management"
         OutputFile.Create(FileName);
         OutputFile.CreateOutStream(OutStream);
         CopyStream(OutStream, Instream);
-        OutputFile.Close;
+        OutputFile.Close();
     end;
 
     [Scope('OnPrem')]
@@ -468,7 +468,7 @@ codeunit 419 "File Management"
         File.Create(FileName);
         File.CreateOutStream(OutStream);
         OutStream.WriteText(FileContent);
-        File.Close;
+        File.Close();
     end;
 
     procedure GetToFilterText(FilterString: Text; FileName: Text): Text
@@ -534,7 +534,7 @@ codeunit 419 "File Management"
             exit(false);
 
         String := GetDirectoryName(FileName);
-        if String.IndexOfAny(PathHelper.GetInvalidPathChars) <> -1 then
+        if String.IndexOfAny(PathHelper.GetInvalidPathChars()) <> -1 then
             exit(false);
 
         exit(true);
@@ -572,7 +572,7 @@ codeunit 419 "File Management"
         EncodedTxt: Text;
     begin
         StreamReader := StreamReader.StreamReader(Source, Encoding.Default, true);
-        EncodedTxt := StreamReader.ReadToEnd;
+        EncodedTxt := StreamReader.ReadToEnd();
         Destination.WriteText(EncodedTxt);
     end;
 
@@ -583,7 +583,7 @@ codeunit 419 "File Management"
     begin
         StreamWriter := StreamWriter.StreamWriter(Destination, Encoding.Default);
         StreamWriter.Write(Source);
-        StreamWriter.Close;
+        StreamWriter.Close();
     end;
 
     procedure StripNotsupportChrInFileName(InText: Text): Text
@@ -602,7 +602,7 @@ codeunit 419 "File Management"
         ErrorMessage: Text;
     begin
         // NAVCZ
-        ClearLastError;
+        ClearLastError();
 
         // There is no way to check if NVInStream is null before using it after calling the
         // UPLOADINTOSTREAM therefore if result is false this is the only way we can throw the error.

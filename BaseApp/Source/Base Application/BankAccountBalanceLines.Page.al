@@ -14,13 +14,13 @@ page 378 "Bank Account Balance Lines"
             {
                 Editable = false;
                 ShowCaption = false;
-                field("Period Start"; "Period Start")
+                field("Period Start"; Rec."Period Start")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Period Start';
                     ToolTip = 'Specifies the start date of the period defined on the line for the summary of the bank account balance.';
                 }
-                field("Period Name"; "Period Name")
+                field("Period Name"; Rec."Period Name")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Period Name';
@@ -40,7 +40,7 @@ page 378 "Bank Account Balance Lines"
                         ShowBankAccEntries();
                     end;
                 }
-                field("BankAcc.""Net Change (LCY)"""; "Net Change (LCY)")
+                field("BankAcc.""Net Change (LCY)"""; Rec."Net Change (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     AutoFormatType = 1;
@@ -86,7 +86,7 @@ page 378 "Bank Account Balance Lines"
 
     trigger OnOpenPage()
     begin
-        Reset;
+        Reset();
     end;
 
     var
@@ -124,7 +124,7 @@ page 378 "Bank Account Balance Lines"
 
     local procedure ShowBankAccEntries()
     begin
-        SetDateFilter;
+        SetDateFilter();
         BankAccLedgEntry.Reset();
         BankAccLedgEntry.SetCurrentKey("Bank Account No.", "Posting Date");
         BankAccLedgEntry.SetRange("Bank Account No.", BankAcc."No.");

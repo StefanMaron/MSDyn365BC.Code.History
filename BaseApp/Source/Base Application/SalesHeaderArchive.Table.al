@@ -543,11 +543,9 @@ table 5107 "Sales Header Archive"
             Editable = false;
             TableRelation = "IC Partner";
         }
-        field(129; "IC Direction"; Option)
+        field(129; "IC Direction"; Enum "IC Direction Type")
         {
             Caption = 'IC Direction';
-            OptionCaption = 'Outgoing,Incoming';
-            OptionMembers = Outgoing,Incoming;
         }
         field(130; "Prepayment %"; Decimal)
         {
@@ -724,17 +722,9 @@ table 5107 "Sales Header Archive"
         field(5051; "Sell-to Customer Template Code"; Code[10])
         {
             Caption = 'Sell-to Customer Template Code';
-#if not CLEAN18
-            TableRelation = "Customer Template";
-#endif
             ObsoleteReason = 'Will be removed with other functionality related to "old" templates. Replaced by "Sell-to Customer Templ. Code".';
-#if not CLEAN18
-            ObsoleteState = Pending;
-            ObsoleteTag = '18.0';
-#else
             ObsoleteState = Removed;
             ObsoleteTag = '21.0';
-#endif
         }
         field(5052; "Sell-to Contact No."; Code[20])
         {
@@ -874,106 +864,64 @@ table 5107 "Sales Header Archive"
             TableRelation = IF ("Document Type" = FILTER(Quote | Order | Invoice | "Blanket Order")) "Bank Account"."No."
             ELSE
             IF ("Document Type" = FILTER("Credit Memo" | "Return Order")) "Customer Bank Account".Code WHERE("Customer No." = FIELD("Bill-to Customer No."));
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(11701; "Bank Account No."; Text[30])
         {
             Caption = 'Bank Account No.';
             Editable = false;
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(11703; "Specific Symbol"; Code[10])
         {
             Caption = 'Specific Symbol';
             CharAllowed = '09';
             Editable = false;
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(11704; "Variable Symbol"; Code[10])
         {
             Caption = 'Variable Symbol';
             CharAllowed = '09';
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(11705; "Constant Symbol"; Code[10])
         {
             Caption = 'Constant Symbol';
             CharAllowed = '09';
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            TableRelation = "Constant Symbol";
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(11706; "Transit No."; Text[20])
         {
             Caption = 'Transit No.';
             Editable = false;
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(11707; IBAN; Code[50])
         {
             Caption = 'IBAN';
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
-#if not CLEAN18
-
-            trigger OnValidate()
-            var
-                CompanyInfo: Record "Company Information";
-            begin
-                CompanyInfo.CheckIBAN(IBAN);
-            end;
-#endif
+            ObsoleteTag = '21.0';
         }
         field(11708; "SWIFT Code"; Code[20])
         {
             Caption = 'SWIFT Code';
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(11760; "VAT Date"; Date)
         {
@@ -1031,13 +979,9 @@ table 5107 "Sales Header Archive"
         {
             Caption = 'Last Version';
             Editable = false;
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'The functionality will be removed and this field should not be used.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(31060; "Perform. Country/Region Code"; Code[10])
         {
@@ -1059,24 +1003,16 @@ table 5107 "Sales Header Archive"
         field(31063; "Physical Transfer"; Boolean)
         {
             Caption = 'Physical Transfer';
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(31064; "Intrastat Exclude"; Boolean)
         {
             Caption = 'Intrastat Exclude';
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(31066; "EU 3-Party Intermediate Role"; Boolean)
         {
@@ -1103,6 +1039,9 @@ table 5107 "Sales Header Archive"
 
     fieldgroups
     {
+        fieldgroup(DropDown; "No.", "Version No.", "Sell-to Customer Name")
+        {
+        }
     }
 
     trigger OnDelete()
@@ -1156,9 +1095,9 @@ table 5107 "Sales Header Archive"
         if IsHandled then
             exit;
 
-        if UserSetupMgt.GetSalesFilter <> '' then begin
+        if UserSetupMgt.GetSalesFilter() <> '' then begin
             FilterGroup(2);
-            SetRange("Responsibility Center", UserSetupMgt.GetSalesFilter);
+            SetRange("Responsibility Center", UserSetupMgt.GetSalesFilter());
             FilterGroup(0);
         end;
     end;
@@ -1168,3 +1107,4 @@ table 5107 "Sales Header Archive"
     begin
     end;
 }
+

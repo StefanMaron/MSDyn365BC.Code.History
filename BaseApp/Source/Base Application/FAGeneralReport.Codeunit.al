@@ -1,4 +1,3 @@
-#if not CLEAN18
 codeunit 5626 "FA General Report"
 {
     Permissions = TableData "Fixed Asset" = rm;
@@ -8,6 +7,10 @@ codeunit 5626 "FA General Report"
     end;
 
     var
+        FADeprBook: Record "FA Depreciation Book";
+        FALedgEntry: Record "FA Ledger Entry";
+        DepreciationCalc: Codeunit "Depreciation Calculation";
+
         Text000: Label 'Posting Date Filter';
         Text001: Label 'You must specify the Starting Date and the Ending Date.';
         Text002: Label 'The Starting Date is later than the Ending Date.';
@@ -15,21 +18,18 @@ codeunit 5626 "FA General Report"
         Text004: Label 'You must specify the First Depreciation Date and the Last Depreciation Date.';
         Text005: Label 'The First Depreciation Date is later than the Last Depreciation Date.';
         Text006: Label 'Sorting fixed assets';
-        FADeprBook: Record "FA Depreciation Book";
-        FALedgEntry: Record "FA Ledger Entry";
-        DepreciationCalc: Codeunit "Depreciation Calculation";
 
     procedure GetLastDate(FANo: Code[20]; PostingType: Integer; EndingDate: Date; DeprBookCode: Code[10]; GLEntry: Boolean): Date
     var
         FirstLast: Text[1];
     begin
-        ClearAll;
+        ClearAll();
         if PostingType = 0 then
             exit(0D);
         if EndingDate = 0D then
             EndingDate := DMY2Date(31, 12, 9999);
         with FALedgEntry do begin
-            Reset;
+            Reset();
             if GLEntry then begin
                 SetCurrentKey(
                   "FA No.", "Depreciation Book Code", "FA Posting Category", "FA Posting Type", "Posting Date");
@@ -83,7 +83,7 @@ codeunit 5626 "FA General Report"
 
     procedure CalcFAPostedAmount(FANo: Code[20]; PostingType: Integer; Period: Option "Before Starting Date","Net Change","at Ending Date"; StartingDate: Date; EndingDate: Date; DeprBookCode: Code[10]; BeforeAmount: Decimal; UntilAmount: Decimal; OnlyReclassified: Boolean; OnlyBookValue: Boolean) Result: Decimal
     begin
-        ClearAll;
+        ClearAll();
         if PostingType = 0 then
             exit(0);
         if EndingDate = 0D then
@@ -161,7 +161,7 @@ codeunit 5626 "FA General Report"
 
     procedure CalcGLPostedAmount(FANo: Code[20]; PostingType: Integer; Period: Option " ",Disposal,"Bal. Disposal"; StartingDate: Date; EndingDate: Date; DeprBookCode: Code[10]): Decimal
     begin
-        ClearAll;
+        ClearAll();
         if PostingType = 0 then
             exit(0);
         if EndingDate = 0D then
@@ -257,9 +257,6 @@ codeunit 5626 "FA General Report"
         Window.Open(Text006);
         FA.LockTable();
         FA.Copy(FA2);
-        // NAVCZ
-        FA.SetCurrentKey("No.");
-        // NAVCZ
         FA.SetRange("FA Posting Group");
         if FA.Find('-') then
             repeat
@@ -270,91 +267,7 @@ codeunit 5626 "FA General Report"
                     end;
             until FA.Next() = 0;
         Commit();
-        Window.Close;
-    end;
-
-    [Obsolete('Moved to Fixed Asset Localization for Czech.', '18.0')]
-    procedure SetFATaxDeprGroup(var FA2: Record "Fixed Asset"; DeprBookCode: Code[10])
-    var
-        FA: Record "Fixed Asset";
-        FADeprBook: Record "FA Depreciation Book";
-        Window: Dialog;
-    begin
-        // NAVCZ
-        Window.Open(Text006);
-        FA.LockTable();
-        FA.Copy(FA2);
-        FA.SetCurrentKey("No.");
-        FA.SetRange("Tax Depreciation Group Code");
-        if FA.Find('-') then
-            repeat
-                if FADeprBook.Get(FA."No.", DeprBookCode) then
-                    if FA."Tax Depreciation Group Code" <> FADeprBook."Depreciation Group Code" then begin
-                        FA."Tax Depreciation Group Code" := FADeprBook."Depreciation Group Code";
-                        FA.Modify();
-                    end;
-            until FA.Next() = 0;
-        Commit();
-        Window.Close;
-        // NAVCZ
-    end;
-
-    [Obsolete('Moved to Fixed Asset Localization for Czech.', '18.0')]
-    [Scope('OnPrem')]
-    procedure xCalcGLPostedAmount(FANo: Code[20]; PostingType: Integer; Period: Option " ",Disposal,"Bal. Disposal"; StartingDate: Date; EndingDate: Date; DeprBookCode: Code[10]; var lreFAPostGroupBuffer: Record "FA Posting Group Buffer" temporary; var ldeTotAmount: Decimal): Decimal
-    begin
-        // NAVCZ
-        ldeTotAmount := 0;
-        ClearAll;
-        if PostingType = 0 then
-            exit(0);
-        if EndingDate = 0D then
-            EndingDate := DMY2Date(31, 12, 9999);
-        with FALedgEntry do begin
-            SetCurrentKey(
-              "FA No.", "Depreciation Book Code",
-              "FA Posting Category", "FA Posting Type", "Posting Date");
-            SetRange("FA No.", FANo);
-            SetRange("Depreciation Book Code", DeprBookCode);
-            SetRange("FA Posting Category", Period);
-            SetRange("Posting Date", StartingDate, EndingDate);
-            case PostingType of
-                FADeprBook.FieldNo("Acquisition Cost"):
-                    SetRange("FA Posting Type", "FA Posting Type"::"Acquisition Cost");
-                FADeprBook.FieldNo(Depreciation):
-                    SetRange("FA Posting Type", "FA Posting Type"::Depreciation);
-                FADeprBook.FieldNo("Write-Down"):
-                    SetRange("FA Posting Type", "FA Posting Type"::"Write-Down");
-                FADeprBook.FieldNo(Appreciation):
-                    SetRange("FA Posting Type", "FA Posting Type"::Appreciation);
-                FADeprBook.FieldNo("Custom 1"):
-                    SetRange("FA Posting Type", "FA Posting Type"::"Custom 1");
-                FADeprBook.FieldNo("Custom 2"):
-                    SetRange("FA Posting Type", "FA Posting Type"::"Custom 2");
-                FADeprBook.FieldNo("Proceeds on Disposal"):
-                    SetRange("FA Posting Type", "FA Posting Type"::"Proceeds on Disposal");
-                FADeprBook.FieldNo("Gain/Loss"):
-                    SetRange("FA Posting Type", "FA Posting Type"::"Gain/Loss");
-                FADeprBook.FieldNo("Book Value on Disposal"):
-                    SetRange("FA Posting Type", "FA Posting Type"::"Book Value on Disposal");
-            end;
-            if FindSet(false, false) then begin
-                repeat
-                    if "Reason Code" <> '' then begin
-                        lreFAPostGroupBuffer.SetRange("FA Posting Group", "Reason Code");
-                        if lreFAPostGroupBuffer.FindFirst() then begin
-                            ldeTotAmount := ldeTotAmount + Amount;
-                            lreFAPostGroupBuffer.Amount := lreFAPostGroupBuffer.Amount + Amount;
-                            lreFAPostGroupBuffer.Modify();
-                        end;
-                    end;
-                until Next() = 0;
-            end;
-            // CALCSUMS(Amount);
-            // EXIT(Amount);
-        end;
-        lreFAPostGroupBuffer.Reset();
-        // NAVCZ
+        Window.Close();
     end;
 
     [IntegrationEvent(false, false)]
@@ -378,4 +291,3 @@ codeunit 5626 "FA General Report"
     end;
 }
 
-#endif

@@ -292,7 +292,7 @@
         asserterror ReversalEntry.ReverseTransaction(VendorLedgerEntry."Transaction No.");
 
         // Verify: Verify Reversal Error for Fully Applied Entries.
-        Assert.ExpectedError(ReversalEntry.ReversalErrorForChangedEntry(VendorLedgerEntry.TableCaption, VendorLedgerEntry."Entry No."));
+        Assert.ExpectedError(ReversalEntry.ReversalErrorForChangedEntry(VendorLedgerEntry.TableCaption(), VendorLedgerEntry."Entry No."));
     end;
 
     [Test]
@@ -319,7 +319,7 @@
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandler,AdjustExchangeRatesReportHandler,StatisticsMessageHandler')]
+    [HandlerFunctions('ConfirmHandler,StatisticsMessageHandler')]
     [Scope('OnPrem')]
     procedure CurrencyAdjustEntryFrmLedger()
     var
@@ -342,10 +342,10 @@
         UpdateExchangeRate(GenJournalLine."Currency Code");
 #if not CLEAN20
         LibraryERM.RunAdjustExchangeRates(
-          GenJournalLine."Currency Code", 0D, WorkDate, 'Test', WorkDate, GenJournalLine."Document No.", false);
+          GenJournalLine."Currency Code", 0D, WorkDate(), 'Test', WorkDate(), GenJournalLine."Document No.", false);
 #else
         LibraryERM.RunExchRateAdjustment(
-          GenJournalLine."Currency Code", 0D, WorkDate, 'Test', WorkDate, GenJournalLine."Document No.", false);
+          GenJournalLine."Currency Code", 0D, WorkDate(), 'Test', WorkDate(), GenJournalLine."Document No.", false);
 #endif
 
         // Exercise: Reverse Posted Entry from Vendor Ledger.
@@ -354,7 +354,7 @@
         asserterror ReversalEntry.ReverseTransaction(VendorLedgerEntry."Transaction No.");
 
         // Verify: Verify Detailed Ledger Entry for Unrealized Loss/Gain entry.
-        Assert.ExpectedError(ReversalEntry.ReversalErrorForChangedEntry(VendorLedgerEntry.TableCaption, VendorLedgerEntry."Entry No."));
+        Assert.ExpectedError(ReversalEntry.ReversalErrorForChangedEntry(VendorLedgerEntry.TableCaption(), VendorLedgerEntry."Entry No."));
     end;
 
     [Test]
@@ -412,7 +412,7 @@
 
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.UpdateLocalData();
-        LibraryERM.SetJournalTemplateNameMandatory(false);
+        LibraryERMCountryData.UpdateJournalTemplMandatory(false);
 
         IsInitialized := true;
         Commit();
@@ -596,14 +596,6 @@
     procedure StatisticsMessageHandler(Message: Text[1024])
     begin
         Assert.ExpectedMessage(ExchRateWasAdjustedTxt, Message);
-    end;
-
-    [ReportHandler]
-    [Scope('OnPrem')]
-    procedure AdjustExchangeRatesReportHandler(var AdjustExchangeRates: Report "Adjust Exchange Rates")
-    begin
-        // NAVCZ
-        AdjustExchangeRates.SaveAsExcel(TemporaryPath + '.xlsx')
     end;
 }
 

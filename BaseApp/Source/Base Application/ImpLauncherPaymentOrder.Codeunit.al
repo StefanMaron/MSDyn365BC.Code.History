@@ -26,7 +26,7 @@ codeunit 11716 "Imp. Launcher Payment Order"
 
         if BankExportImportSetup."Data Exch. Def. Code" <> '' then
             Error(NotSupportedErr,
-              BankExportImportSetup.FieldCaption("Data Exch. Def. Code"), BankExportImportSetup.TableCaption);
+              BankExportImportSetup.FieldCaption("Data Exch. Def. Code"), BankExportImportSetup.TableCaption());
     end;
 
     var

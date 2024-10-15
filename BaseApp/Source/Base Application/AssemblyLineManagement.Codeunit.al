@@ -1,4 +1,3 @@
-﻿#if not CLEAN18
 codeunit 905 "Assembly Line Management"
 {
     Permissions = TableData "Assembly Line" = rimd;
@@ -111,7 +110,7 @@ codeunit 905 "Assembly Line Management"
                 AssemblyLine.CalcBOMQuantity(
                     BOMComponent.Type, BOMComponent."Quantity per", "Quantity to Assemble", QtyPerUoM, AssemblyLine."Resource Usage Type"));
             AssemblyLine.ValidateDueDate(AssemblyHeader, "Starting Date", ShowDueDateBeforeWorkDateMessage);
-            DueDateBeforeWorkDateMsgShown := (AssemblyLine."Due Date" < WorkDate) and ShowDueDateBeforeWorkDateMessage;
+            DueDateBeforeWorkDateMsgShown := (AssemblyLine."Due Date" < WorkDate()) and ShowDueDateBeforeWorkDateMessage;
             AssemblyLine.ValidateLeadTimeOffset(
                 AssemblyHeader, BOMComponent."Lead-Time Offset", not DueDateBeforeWorkDateMsgShown and ShowDueDateBeforeWorkDateMessage);
             if AssemblyLine.Type = AssemblyLine.Type::Item then
@@ -213,11 +212,11 @@ codeunit 905 "Assembly Line Management"
             ToAssemblyLine := TempAssemblyLine;
             ToAssemblyLine.Modify();
             OnExplodeAsmListOnAfterToAssemblyLineModify(TempAssemblyLine, ToAssemblyLine);
-            while TempAssemblyLine.Next <> 0 do begin
+            while TempAssemblyLine.Next() <> 0 do begin
                 ToAssemblyLine := TempAssemblyLine;
                 ToAssemblyLine.Insert();
                 OnExplodeAsmListOnAfterToAssemblyLineInsert(TempAssemblyLine, ToAssemblyLine);
-                if ToAssemblyLine."Due Date" < WorkDate then begin
+                if ToAssemblyLine."Due Date" < WorkDate() then begin
                     DueDateBeforeWorkDate := true;
                     NewLineDueDate := ToAssemblyLine."Due Date";
                 end;
@@ -278,7 +277,6 @@ codeunit 905 "Assembly Line Management"
         UpdateUOM: Boolean;
         UpdateQtyToConsume: Boolean;
         UpdateDimension: Boolean;
-        UpdateGenBusPostingGroup: Boolean;
         DueDateBeforeWorkDate: Boolean;
         NewLineDueDate: Date;
         IsHandled: Boolean;
@@ -296,7 +294,6 @@ codeunit 905 "Assembly Line Management"
                                AsmHeader.FieldNo(Quantity),
                                AsmHeader.FieldNo("Unit of Measure Code"),
                                AsmHeader.FieldNo("Quantity to Assemble"),
-                               AsmHeader.FieldNo("Gen. Bus. Posting Group"),
                                AsmHeader.FieldNo("Dimension Set ID")])) and (not ReplaceLinesFromBOM))
         then
             exit;
@@ -323,7 +320,7 @@ codeunit 905 "Assembly Line Management"
 
         // make pre-checks OR ask user to confirm
         if PreCheckAndConfirmUpdate(AsmHeader, OldAsmHeader, FieldNum, ReplaceLinesFromBOM, TempAssemblyLine,
-             UpdateDueDate, UpdateLocation, UpdateQuantity, UpdateUOM, UpdateQtyToConsume, UpdateDimension, UpdateGenBusPostingGroup) // NAVCZ
+             UpdateDueDate, UpdateLocation, UpdateQuantity, UpdateUOM, UpdateQtyToConsume, UpdateDimension)
         then
             exit;
 
@@ -335,12 +332,12 @@ codeunit 905 "Assembly Line Management"
                     TempAssemblyLine.SetSkipVerificationsThatChangeDatabase(true);
                     UpdateExistingLine(
                         AsmHeader, OldAsmHeader, CurrFieldNo, TempAssemblyLine,
-                        UpdateDueDate, UpdateLocation, UpdateQuantity, UpdateUOM, UpdateQtyToConsume, UpdateDimension, UpdateGenBusPostingGroup); // NAVCZ
+                        UpdateDueDate, UpdateLocation, UpdateQuantity, UpdateUOM, UpdateQtyToConsume, UpdateDimension);
                 until TempAssemblyLine.Next() = 0;
 
         if not (FieldNum in [AsmHeader.FieldNo("Quantity to Assemble"), AsmHeader.FieldNo("Dimension Set ID")]) then
             if ShowAvailability(false, TempAssemblyHeader, TempAssemblyLine) then
-                ItemCheckAvail.RaiseUpdateInterruptedError;
+                ItemCheckAvail.RaiseUpdateInterruptedError();
 
         DoVerificationsSkippedEarlier(
             ReplaceLinesFromBOM, TempAssemblyLine, TempCurrAsmLine, UpdateDimension, AsmHeader."Dimension Set ID",
@@ -363,7 +360,7 @@ codeunit 905 "Assembly Line Management"
                     AssemblyLine.Modify(true);
                 OnUpdateAssemblyLinesOnBeforeAutoReserveAsmLine(AssemblyLine, ReplaceLinesFromBOM);
                 AsmHeader.AutoReserveAsmLine(AssemblyLine);
-                if AssemblyLine."Due Date" < WorkDate then begin
+                if AssemblyLine."Due Date" < WorkDate() then begin
                     DueDateBeforeWorkDate := true;
                     NewLineDueDate := AssemblyLine."Due Date";
                 end;
@@ -374,7 +371,7 @@ codeunit 905 "Assembly Line Management"
                 ShowDueDateBeforeWorkDateMsg(NewLineDueDate);
     end;
 
-    local procedure PreCheckAndConfirmUpdate(AsmHeader: Record "Assembly Header"; OldAsmHeader: Record "Assembly Header"; FieldNum: Integer; var ReplaceLinesFromBOM: Boolean; var TempAssemblyLine: Record "Assembly Line" temporary; var UpdateDueDate: Boolean; var UpdateLocation: Boolean; var UpdateQuantity: Boolean; var UpdateUOM: Boolean; var UpdateQtyToConsume: Boolean; var UpdateDimension: Boolean; var UpdateGenBusPostingGroup: Boolean): Boolean
+    local procedure PreCheckAndConfirmUpdate(AsmHeader: Record "Assembly Header"; OldAsmHeader: Record "Assembly Header"; FieldNum: Integer; var ReplaceLinesFromBOM: Boolean; var TempAssemblyLine: Record "Assembly Line" temporary; var UpdateDueDate: Boolean; var UpdateLocation: Boolean; var UpdateQuantity: Boolean; var UpdateUOM: Boolean; var UpdateQtyToConsume: Boolean; var UpdateDimension: Boolean): Boolean
     begin
         UpdateDueDate := false;
         UpdateLocation := false;
@@ -382,18 +379,15 @@ codeunit 905 "Assembly Line Management"
         UpdateUOM := false;
         UpdateQtyToConsume := false;
         UpdateDimension := false;
-        UpdateGenBusPostingGroup := false; // NAVCZ
 
         with AsmHeader do
             case FieldNum of
                 FieldNo("Item No."):
-                    begin
-                        if "Item No." <> OldAsmHeader."Item No." then
-                            if LinesExist(AsmHeader) then
-                                if GuiAllowed then
-                                    if not Confirm(StrSubstNo(Text003, FieldCaption("Item No."), OldAsmHeader."Item No.", "Item No."), true) then
-                                        Error('');
-                    end;
+                    if "Item No." <> OldAsmHeader."Item No." then
+                        if LinesExist(AsmHeader) then
+                            if GuiAllowed then
+                                if not Confirm(StrSubstNo(Text003, FieldCaption("Item No."), OldAsmHeader."Item No.", "Item No."), true) then
+                                    Error('');
                 FieldNo("Variant Code"):
                     UpdateDueDate := true;
                 FieldNo("Location Code"):
@@ -430,18 +424,6 @@ codeunit 905 "Assembly Line Management"
                                 if not Confirm(Text002) then
                                     UpdateDimension := false;
                         end;
-                // NAVCZ
-                FieldNo("Gen. Bus. Posting Group"):
-                    begin
-                        if "Gen. Bus. Posting Group" <> OldAsmHeader."Gen. Bus. Posting Group" then
-                            if LinesExist(AsmHeader) then
-                                if GuiAllowed then
-                                    if Confirm(StrSubstNo(Text003, FieldCaption("Gen. Bus. Posting Group"),
-                                           OldAsmHeader."Gen. Bus. Posting Group", "Gen. Bus. Posting Group"), true)
-                                    then
-                                        UpdateGenBusPostingGroup := true;
-                    end;
-                // NAVCZ
                 else
                     if CalledFromRefreshBOM(ReplaceLinesFromBOM, FieldNum) then
                         if LinesExist(AsmHeader) then
@@ -450,15 +432,14 @@ codeunit 905 "Assembly Line Management"
                                     ReplaceLinesFromBOM := false;
             end;
 
-        if not (UpdateDueDate or UpdateLocation or UpdateQuantity or UpdateUOM or
-                UpdateQtyToConsume or UpdateDimension or UpdateGenBusPostingGroup) and // NAVCZ
-                                                                                       // nothing to update
+        if not (UpdateDueDate or UpdateLocation or UpdateQuantity or UpdateUOM or UpdateQtyToConsume or UpdateDimension) and
+           // nothing to update
            not ReplaceLinesFromBOM
         then
             exit(true);
     end;
 
-    local procedure UpdateExistingLine(var AsmHeader: Record "Assembly Header"; OldAsmHeader: Record "Assembly Header"; CurrFieldNo: Integer; var AssemblyLine: Record "Assembly Line"; UpdateDueDate: Boolean; UpdateLocation: Boolean; UpdateQuantity: Boolean; UpdateUOM: Boolean; UpdateQtyToConsume: Boolean; UpdateDimension: Boolean; UpdateGenBusPostingGroup: Boolean)
+    local procedure UpdateExistingLine(var AsmHeader: Record "Assembly Header"; OldAsmHeader: Record "Assembly Header"; CurrFieldNo: Integer; var AssemblyLine: Record "Assembly Line"; UpdateDueDate: Boolean; UpdateLocation: Boolean; UpdateQuantity: Boolean; UpdateUOM: Boolean; UpdateQtyToConsume: Boolean; UpdateDimension: Boolean)
     var
         QtyRatio: Decimal;
         QtyToConsume: Decimal;
@@ -472,7 +453,7 @@ codeunit 905 "Assembly Line Management"
             exit;
 
         with AsmHeader do begin
-            if IsStatusCheckSuspended then
+            if IsStatusCheckSuspended() then
                 AssemblyLine.SuspendStatusCheck(true);
 
             if UpdateLocation then
@@ -492,7 +473,7 @@ codeunit 905 "Assembly Line Management"
 
             if UpdateUOM then begin
                 QtyRatio := "Qty. per Unit of Measure" / OldAsmHeader."Qty. per Unit of Measure";
-                if AssemblyLine.FixedUsage then
+                if AssemblyLine.FixedUsage() then
                     AssemblyLine.Validate("Quantity per")
                 else
                     AssemblyLine.Validate("Quantity per", AssemblyLine."Quantity per" * QtyRatio);
@@ -500,7 +481,7 @@ codeunit 905 "Assembly Line Management"
             end;
 
             if UpdateQtyToConsume then
-                if not AssemblyLine.FixedUsage then begin
+                if not AssemblyLine.FixedUsage() then begin
                     AssemblyLine.InitQtyToConsume();
                     QtyToConsume := AssemblyLine.Quantity * "Quantity to Assemble" / Quantity;
                     AssemblyLine.RoundQty(QtyToConsume);
@@ -509,11 +490,6 @@ codeunit 905 "Assembly Line Management"
 
             if UpdateDimension then
                 AssemblyLine.UpdateDim("Dimension Set ID", OldAsmHeader."Dimension Set ID");
-
-            // NAVCZ
-            if UpdateGenBusPostingGroup then
-                AssemblyLine.Validate("Gen. Bus. Posting Group", "Gen. Bus. Posting Group");
-            // NAVCZ
 
             AssemblyLine.Modify(true);
         end;
@@ -528,7 +504,7 @@ codeunit 905 "Assembly Line Management"
         if IsHandled then
             exit;
 
-        if QtyToConsume <= AssemblyLine.MaxQtyToConsume then
+        if QtyToConsume <= AssemblyLine.MaxQtyToConsume() then
             AssemblyLine.Validate("Quantity to Consume", QtyToConsume);
     end;
 
@@ -542,7 +518,7 @@ codeunit 905 "Assembly Line Management"
         if IsHandled then
             exit;
 
-        if AssemblyLine.FixedUsage then
+        if AssemblyLine.FixedUsage() then
             AssemblyLine.Validate(Quantity)
         else begin
             RoundedQty := AssemblyLine.Quantity * QtyRatio;
@@ -555,7 +531,7 @@ codeunit 905 "Assembly Line Management"
     begin
         if GuiAllowed then
             if GetWarningMode() then
-                Message(Text005, ActualLineDueDate, WorkDate);
+                Message(Text005, ActualLineDueDate, WorkDate());
     end;
 
     procedure CopyAssemblyData(FromAssemblyHeader: Record "Assembly Header"; var ToAssemblyHeader: Record "Assembly Header"; var ToAssemblyLine: Record "Assembly Line") NoOfLinesInserted: Integer
@@ -621,7 +597,7 @@ codeunit 905 "Assembly Line Management"
             AssemblyAvailability.SetHeaderInventoryData(
               Inventory, GrossRequirement, ReservedRequirement, ScheduledReceipts, ReservedReceipts,
               EarliestAvailableDateX, QtyAvailToMake, QtyAvailTooLow);
-            Rollback := not (AssemblyAvailability.RunModal = ACTION::Yes);
+            Rollback := not (AssemblyAvailability.RunModal() = ACTION::Yes);
         end;
     end;
 
@@ -643,10 +619,9 @@ codeunit 905 "Assembly Line Management"
                         TempNewAsmLine.Type::Resource:
                             TempNewAsmLine.CreateDimFromDefaultDim(NewHeaderSetID);
                     end
-                else begin
+                else
                     if UpdateDimension then
                         TempNewAsmLine.UpdateDim(NewHeaderSetID, OldHeaderSetID);
-                end;
 
                 TempNewAsmLine.Modify();
                 OnDoVerificationsSkippedEarlierOnAfterTempNewAsmLineModify(TempNewAsmLine);
@@ -664,6 +639,7 @@ codeunit 905 "Assembly Line Management"
         AssemblyLine.SetFilter("No.", '<>%1', '');
         AssemblyLine.SetFilter("Quantity per", '<>%1', 0);
         OrderAbleToAssemble := AsmHeader."Remaining Quantity";
+        EarliestStartingDate := 0D;
         if AssemblyLine.FindSet() then
             repeat
                 LineAbleToAssemble := CalcAvailToAssemble(AssemblyLine, AsmHeader, LineAvailabilityDate);
@@ -901,4 +877,3 @@ codeunit 905 "Assembly Line Management"
     end;
 }
 
-#endif

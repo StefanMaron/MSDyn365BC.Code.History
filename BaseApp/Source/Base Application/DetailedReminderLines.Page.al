@@ -16,51 +16,51 @@ page 11789 "Detailed Reminder Lines"
             repeater(Control1220013)
             {
                 ShowCaption = false;
-                field("Reminder No."; "Reminder No.")
+                field("Reminder No."; Rec."Reminder No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of reminder.';
                     Visible = false;
                 }
-                field("Reminder Line No."; "Reminder Line No.")
+                field("Reminder Line No."; Rec."Reminder Line No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the line number of reminder.';
                     Visible = false;
                 }
-                field("Detailed Customer Entry No."; "Detailed Customer Entry No.")
+                field("Detailed Customer Entry No."; Rec."Detailed Customer Entry No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of detailed customer entry.';
                     Visible = false;
                 }
-                field("Line No."; "Line No.")
+                field("Line No."; Rec."Line No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the line number.';
                     Visible = false;
                 }
-                field("Entry Type"; "Entry Type")
+                field("Entry Type"; Rec."Entry Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the type of the entry.';
                 }
-                field("Posting Date"; "Posting Date")
+                field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the posting date for the entry.';
                 }
-                field("Document Type"; "Document Type")
+                field("Document Type"; Rec."Document Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the document type of the customer ledger entry this reminder line is for.';
                 }
-                field("Document No."; "Document No.")
+                field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the reminder number.';
                 }
-                field("Base Amount"; "Base Amount")
+                field("Base Amount"; Rec."Base Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the base amount of the reminder lines.';
@@ -71,17 +71,17 @@ page 11789 "Detailed Reminder Lines"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of finance charge memo days.';
                 }
-                field("Interest Rate"; "Interest Rate")
+                field("Interest Rate"; Rec."Interest Rate")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the percentage to use to calculate interest for this reminder.';
                 }
-                field("Interest Base Amount"; "Interest Base Amount")
+                field("Interest Base Amount"; Rec."Interest Base Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the interest base amount.';
                 }
-                field("Interest Amount"; "Interest Amount")
+                field("Interest Amount"; Rec."Interest Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the total of the interest amounts on the reminder lines.';

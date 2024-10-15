@@ -1,4 +1,3 @@
-#if not CLEAN18
 page 5619 "FA Depreciation Books"
 {
     Caption = 'FA Depreciation Books';
@@ -14,26 +13,17 @@ page 5619 "FA Depreciation Books"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("FA No."; "FA No.")
+                field("FA No."; Rec."FA No.")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the number of the related fixed asset. ';
                 }
-                field("Depreciation Book Code"; "Depreciation Book Code")
+                field("Depreciation Book Code"; Rec."Depreciation Book Code")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the code for the depreciation book to which the line will be posted if you have selected Fixed Asset in the Type field for this line.';
                 }
-                field("Depreciation Group Code"; "Depreciation Group Code")
-                {
-                    ApplicationArea = FixedAssets;
-                    ToolTip = 'Specifies a depreciation book that you have set up to assign it to the fixed asset you have entered in the FA No. field.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
-                    ObsoleteTag = '18.0';
-                }
-                field(AddCurrCode; GetACYCode)
+                field(AddCurrCode; GetACYCode())
                 {
                     ApplicationArea = Suite;
                     Caption = 'FA Add.-Currency Code';
@@ -42,177 +32,177 @@ page 5619 "FA Depreciation Books"
 
                     trigger OnAssistEdit()
                     begin
-                        ChangeExchangeRate.SetParameterFA("FA Add.-Currency Factor", GetACYCode, WorkDate);
-                        if ChangeExchangeRate.RunModal = ACTION::OK then
-                            "FA Add.-Currency Factor" := ChangeExchangeRate.GetParameter;
+                        ChangeExchangeRate.SetParameterFA("FA Add.-Currency Factor", GetACYCode(), WorkDate());
+                        if ChangeExchangeRate.RunModal() = ACTION::OK then
+                            "FA Add.-Currency Factor" := ChangeExchangeRate.GetParameter();
 
                         Clear(ChangeExchangeRate);
                     end;
                 }
-                field("FA Posting Group"; "FA Posting Group")
+                field("FA Posting Group"; Rec."FA Posting Group")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies which posting group is used for the depreciation book when posting fixed asset transactions.';
                 }
-                field("Depreciation Method"; "Depreciation Method")
+                field("Depreciation Method"; Rec."Depreciation Method")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies how depreciation is calculated for the depreciation book.';
                 }
-                field("No. of Depreciation Years"; "No. of Depreciation Years")
+                field("No. of Depreciation Years"; Rec."No. of Depreciation Years")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the length of the depreciation period, expressed in years.';
                 }
-                field("Depreciation Starting Date"; "Depreciation Starting Date")
+                field("Depreciation Starting Date"; Rec."Depreciation Starting Date")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the date on which depreciation of the fixed asset starts.';
                 }
-                field("No. of Depreciation Months"; "No. of Depreciation Months")
+                field("No. of Depreciation Months"; Rec."No. of Depreciation Months")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the length of the depreciation period, expressed in months.';
                     Visible = false;
                 }
-                field("Depreciation Ending Date"; "Depreciation Ending Date")
+                field("Depreciation Ending Date"; Rec."Depreciation Ending Date")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the date on which depreciation of the fixed asset ends.';
                 }
-                field("Straight-Line %"; "Straight-Line %")
+                field("Straight-Line %"; Rec."Straight-Line %")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the percentage to depreciate the fixed asset by the straight-line principle, but with a fixed yearly percentage.';
                     Visible = false;
                 }
-                field("Fixed Depr. Amount"; "Fixed Depr. Amount")
+                field("Fixed Depr. Amount"; Rec."Fixed Depr. Amount")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies an amount to depreciate the fixed asset, by a fixed yearly amount.';
                     Visible = false;
                 }
-                field("Declining-Balance %"; "Declining-Balance %")
+                field("Declining-Balance %"; Rec."Declining-Balance %")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the percentage to depreciate the fixed asset by the declining-balance principle, but with a fixed yearly percentage.';
                     Visible = false;
                 }
-                field("First User-Defined Depr. Date"; "First User-Defined Depr. Date")
+                field("First User-Defined Depr. Date"; Rec."First User-Defined Depr. Date")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the starting date for the user-defined depreciation table if you have entered a code in the Depreciation Table Code field.';
                     Visible = false;
                 }
-                field("Depreciation Table Code"; "Depreciation Table Code")
+                field("Depreciation Table Code"; Rec."Depreciation Table Code")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the code of the depreciation table to use if you have selected the User-Defined option in the Depreciation Method field.';
                     Visible = false;
                 }
-                field("Final Rounding Amount"; "Final Rounding Amount")
+                field("Final Rounding Amount"; Rec."Final Rounding Amount")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the final rounding amount to use.';
                     Visible = false;
                 }
-                field("Ending Book Value"; "Ending Book Value")
+                field("Ending Book Value"; Rec."Ending Book Value")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the amount to use as the ending book value.';
                     Visible = false;
                 }
-                field("Ignore Def. Ending Book Value"; "Ignore Def. Ending Book Value")
+                field("Ignore Def. Ending Book Value"; Rec."Ignore Def. Ending Book Value")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies that the default ending book value is ignored, and the value in the Ending Book Value is used.';
                     Visible = false;
                 }
-                field("FA Exchange Rate"; "FA Exchange Rate")
+                field("FA Exchange Rate"; Rec."FA Exchange Rate")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies a decimal number, which will be used as an exchange rate when duplicating journal lines to this depreciation book.';
                     Visible = false;
                 }
-                field("Use FA Ledger Check"; "Use FA Ledger Check")
+                field("Use FA Ledger Check"; Rec."Use FA Ledger Check")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies which checks to perform before posting a journal line.';
                     Visible = false;
                 }
-                field("Depr. below Zero %"; "Depr. below Zero %")
+                field("Depr. below Zero %"; Rec."Depr. below Zero %")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies a percentage if you have selected the Allow Depr. below Zero field in the depreciation book.';
                     Visible = false;
                 }
-                field("Fixed Depr. Amount below Zero"; "Fixed Depr. Amount below Zero")
+                field("Fixed Depr. Amount below Zero"; Rec."Fixed Depr. Amount below Zero")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies a positive amount if you have selected the Allow Depr. below Zero field in the depreciation book.';
                     Visible = false;
                 }
-                field("Projected Disposal Date"; "Projected Disposal Date")
+                field("Projected Disposal Date"; Rec."Projected Disposal Date")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the date on which you want to dispose of the fixed asset.';
                     Visible = false;
                 }
-                field("Projected Proceeds on Disposal"; "Projected Proceeds on Disposal")
+                field("Projected Proceeds on Disposal"; Rec."Projected Proceeds on Disposal")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the expected proceeds from disposal of the fixed asset.';
                     Visible = false;
                 }
-                field("Depr. Starting Date (Custom 1)"; "Depr. Starting Date (Custom 1)")
+                field("Depr. Starting Date (Custom 1)"; Rec."Depr. Starting Date (Custom 1)")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the starting date for depreciation of custom 1 entries.';
                     Visible = false;
                 }
-                field("Depr. Ending Date (Custom 1)"; "Depr. Ending Date (Custom 1)")
+                field("Depr. Ending Date (Custom 1)"; Rec."Depr. Ending Date (Custom 1)")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the ending date for depreciation of custom 1 entries.';
                     Visible = false;
                 }
-                field("Accum. Depr. % (Custom 1)"; "Accum. Depr. % (Custom 1)")
+                field("Accum. Depr. % (Custom 1)"; Rec."Accum. Depr. % (Custom 1)")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the total percentage for depreciation of custom 1 entries.';
                     Visible = false;
                 }
-                field("Depr. This Year % (Custom 1)"; "Depr. This Year % (Custom 1)")
+                field("Depr. This Year % (Custom 1)"; Rec."Depr. This Year % (Custom 1)")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the percentage for depreciation of custom 1 entries for the current year.';
                     Visible = false;
                 }
-                field("Property Class (Custom 1)"; "Property Class (Custom 1)")
+                field("Property Class (Custom 1)"; Rec."Property Class (Custom 1)")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the property class of the asset.';
                     Visible = false;
                 }
-                field("Use Half-Year Convention"; "Use Half-Year Convention")
+                field("Use Half-Year Convention"; Rec."Use Half-Year Convention")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies that the Half-Year Convention is to be applied to the selected depreciation method.';
                     Visible = false;
                 }
-                field("Use DB% First Fiscal Year"; "Use DB% First Fiscal Year")
+                field("Use DB% First Fiscal Year"; Rec."Use DB% First Fiscal Year")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies that the depreciation methods DB1/SL and DB2/SL use the declining balance depreciation amount in the first fiscal year.';
                     Visible = false;
                 }
-                field("Temp. Ending Date"; "Temp. Ending Date")
+                field("Temp. Ending Date"; Rec."Temp. Ending Date")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the ending date of the period during which a temporary fixed depreciation amount will be used.';
                     Visible = false;
                 }
-                field("Temp. Fixed Depr. Amount"; "Temp. Fixed Depr. Amount")
+                field("Temp. Fixed Depr. Amount"; Rec."Temp. Fixed Depr. Amount")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies a temporary fixed depreciation amount.';
@@ -247,7 +237,6 @@ page 5619 "FA Depreciation Books"
                     ApplicationArea = FixedAssets;
                     Caption = 'Ledger E&ntries';
                     Image = FixedAssetLedger;
-                    Promoted = false;
                     RunObject = Page "FA Ledger Entries";
                     RunPageLink = "FA No." = FIELD("FA No."),
                                   "Depreciation Book Code" = FIELD("Depreciation Book Code");
@@ -285,8 +274,6 @@ page 5619 "FA Depreciation Books"
                     ApplicationArea = FixedAssets;
                     Caption = 'Statistics';
                     Image = Statistics;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     RunObject = Page "Fixed Asset Statistics";
                     RunPageLink = "FA No." = FIELD("FA No."),
                                   "Depreciation Book Code" = FIELD("Depreciation Book Code");
@@ -313,6 +300,17 @@ page 5619 "FA Depreciation Books"
                 }
             }
         }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(Statistics_Promoted; Statistics)
+                {
+                }
+            }
+        }
     }
 
     var
@@ -328,4 +326,3 @@ page 5619 "FA Depreciation Books"
     end;
 }
 
-#endif

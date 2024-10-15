@@ -107,7 +107,8 @@ codeunit 134135 "ERM Reverse Fixed Assets"
         asserterror ReverseFALedgerEntry(DocumentNo, true);
 
         // Verify: Verify Reverse Error for Deprecated Fixed Asset.
-        Assert.ExpectedError(StrSubstNo(ReverseFALedgEntryErr)); // NAVCZ
+        Assert.ExpectedError(
+          StrSubstNo(ReverseFALedgEntryErr)); // NAVCZ
     end;
 
     local procedure CreateFixedAssetWithJournalLine(var GenJournalLine: Record "Gen. Journal Line"; FAPostingType: Enum "Gen. Journal Line FA Posting Type"; FAPostingType2: Enum "Gen. Journal Line FA Posting Type") DocumentNo: Code[20]
@@ -814,7 +815,7 @@ codeunit 134135 "ERM Reverse Fixed Assets"
 
         ReverseEntries.First;
         ReverseEntries.Description.SetValue(NewDescription);
-        while ReverseEntries.Next do
+        while ReverseEntries.Next() do
             ReverseEntries.Description.SetValue(NewDescription);
         ReverseEntries.Reverse.Invoke;
     end;

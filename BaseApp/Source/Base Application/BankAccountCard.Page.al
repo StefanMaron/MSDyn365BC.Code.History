@@ -3,7 +3,6 @@ page 370 "Bank Account Card"
 {
     Caption = 'Bank Account Card';
     PageType = Card;
-    PromotedActionCategories = 'New,Process,Report,Bank Statement Service,Bank Account,Navigate';
     SourceTable = "Bank Account";
 
     layout
@@ -13,7 +12,7 @@ page 370 "Bank Account Card"
             group(General)
             {
                 Caption = 'General';
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = All;
                     Importance = Standard;
@@ -32,20 +31,20 @@ page 370 "Bank Account Card"
                     Importance = Promoted;
                     ToolTip = 'Specifies the name of the bank where you have the bank account.';
                 }
-                field("Bank Branch No."; "Bank Branch No.")
+                field("Bank Branch No."; Rec."Bank Branch No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Bank Branch No.';
                     ToolTip = 'Specifies a number of the bank branch.';
                 }
-                field("Bank Account No."; "Bank Account No.")
+                field("Bank Account No."; Rec."Bank Account No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Bank Account No.';
                     Importance = Promoted;
                     ToolTip = 'Specifies the number used by the bank for the bank account.';
                 }
-                field("Search Name"; "Search Name")
+                field("Search Name"; Rec."Search Name")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies an alternate name that you can use to search for the record in question when you cannot remember the value in the Name field.';
@@ -57,19 +56,19 @@ page 370 "Bank Account Card"
                     Importance = Promoted;
                     ToolTip = 'Specifies the bank account''s current balance denominated in the applicable foreign currency.';
                 }
-                field("Balance (LCY)"; "Balance (LCY)")
+                field("Balance (LCY)"; Rec."Balance (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies the bank account''s current balance in LCY.';
                 }
-                field("Min. Balance"; "Min. Balance")
+                field("Min. Balance"; Rec."Min. Balance")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a minimum balance for the bank account.';
                     Visible = false;
                 }
-                field("Our Contact Code"; "Our Contact Code")
+                field("Our Contact Code"; Rec."Our Contact Code")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
@@ -80,31 +79,31 @@ page 370 "Bank Account Card"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies that the related record is blocked from being posted in transactions, for example a customer that is declared insolvent or an item that is placed in quarantine.';
                 }
-                field("SEPA Direct Debit Exp. Format"; "SEPA Direct Debit Exp. Format")
+                field("SEPA Direct Debit Exp. Format"; Rec."SEPA Direct Debit Exp. Format")
                 {
                     ApplicationArea = Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies the SEPA format of the bank file that will be exported when you choose the Create Direct Debit File button in the Direct Debit Collect. Entries window.';
                 }
-                field("Creditor No."; "Creditor No.")
+                field("Creditor No."; Rec."Creditor No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies your company as the creditor in connection with payment collection from customers using SEPA Direct Debit.';
                 }
-                field("Bank Clearing Standard"; "Bank Clearing Standard")
+                field("Bank Clearing Standard"; Rec."Bank Clearing Standard")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies the format standard to be used in bank transfers if you use the Bank Clearing Code field to identify you as the sender.';
                 }
-                field("Bank Clearing Code"; "Bank Clearing Code")
+                field("Bank Clearing Code"; Rec."Bank Clearing Code")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies the code for bank clearing that is required according to the format standard you selected in the Bank Clearing Standard field.';
                 }
-                field("Use as Default for Currency"; "Use as Default for Currency")
+                field("Use as Default for Currency"; Rec."Use as Default for Currency")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
@@ -124,13 +123,13 @@ page 370 "Bank Account Card"
                         trigger OnValidate()
                         begin
                             if not Linked then
-                                UnlinkStatementProvider
+                                UnlinkStatementProvider()
                             else
                                 Error(OnlineBankAccountLinkingErr);
                         end;
                     }
                 }
-                field("Last Date Modified"; "Last Date Modified")
+                field("Last Date Modified"; Rec."Last Date Modified")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
@@ -139,7 +138,7 @@ page 370 "Bank Account Card"
                 group("Payment Matching")
                 {
                     Caption = 'Payment Matching';
-                    field("Disable Automatic Pmt Matching"; "Disable Automatic Pmt Matching")
+                    field("Disable Automatic Pmt Matching"; Rec."Disable Automatic Pmt Matching")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Disable Automatic Payment Matching';
@@ -150,13 +149,13 @@ page 370 "Bank Account Card"
                 group("Payment Match Tolerance")
                 {
                     Caption = 'Payment Match Tolerance';
-                    field("Match Tolerance Type"; "Match Tolerance Type")
+                    field("Match Tolerance Type"; Rec."Match Tolerance Type")
                     {
                         ApplicationArea = Basic, Suite;
                         Importance = Additional;
                         ToolTip = 'Specifies by which tolerance the automatic payment application function will apply the Amount Incl. Tolerance Matched rule for this bank account.';
                     }
-                    field("Match Tolerance Value"; "Match Tolerance Value")
+                    field("Match Tolerance Value"; Rec."Match Tolerance Value")
                     {
                         ApplicationArea = Basic, Suite;
                         DecimalPlaces = 0 : 2;
@@ -173,12 +172,12 @@ page 370 "Bank Account Card"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the address of the bank where you have the bank account.';
                 }
-                field("Address 2"; "Address 2")
+                field("Address 2"; Rec."Address 2")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies additional address information.';
                 }
-                field("Post Code"; "Post Code")
+                field("Post Code"; Rec."Post Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the postal code.';
@@ -188,12 +187,12 @@ page 370 "Bank Account Card"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the city of the bank where you have the bank account.';
                 }
-                field("Country/Region Code"; "Country/Region Code")
+                field("Country/Region Code"; Rec."Country/Region Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the country/region of the address.';
                 }
-                field("Phone No."; "Phone No.")
+                field("Phone No."; Rec."Phone No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ExtendedDatatype = PhoneNo;
@@ -211,7 +210,7 @@ page 370 "Bank Account Card"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the bank employee regularly contacted in connection with this bank account.';
                 }
-                field("Phone No.2"; "Phone No.")
+                field("Phone No.2"; Rec."Phone No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Phone No.';
@@ -219,20 +218,20 @@ page 370 "Bank Account Card"
                     ToolTip = 'Specifies the telephone number of the bank where you have the bank account.';
                     Visible = false;
                 }
-                field("Fax No."; "Fax No.")
+                field("Fax No."; Rec."Fax No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies the fax number of the bank where you have the bank account.';
                 }
-                field("E-Mail"; "E-Mail")
+                field("E-Mail"; Rec."E-Mail")
                 {
                     ApplicationArea = Basic, Suite;
                     ExtendedDatatype = EMail;
                     Importance = Promoted;
                     ToolTip = 'Specifies the email address associated with the bank account.';
                 }
-                field("Home Page"; "Home Page")
+                field("Home Page"; Rec."Home Page")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the bank web site.';
@@ -241,34 +240,39 @@ page 370 "Bank Account Card"
             group(Posting)
             {
                 Caption = 'Posting';
-                field("Currency Code"; "Currency Code")
+                field("Currency Code"; Rec."Currency Code")
                 {
                     ApplicationArea = Suite;
                     Importance = Promoted;
                     ToolTip = 'Specifies the relevant currency code for the bank account.';
                 }
-                field("Last Check No."; "Last Check No.")
+                field("Last Check No."; Rec."Last Check No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the check number of the last check issued from the bank account.';
                 }
-                field("Transit No."; "Transit No.")
+                field("Transit No."; Rec."Transit No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a bank identification number of your own choice.';
                 }
-                field("Last Statement No."; "Last Statement No.")
+                field("Last Statement No."; Rec."Last Statement No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Promoted;
                     ToolTip = 'Specifies the number of the last bank account statement that was reconciled with this bank account.';
                 }
-                field("Last Payment Statement No."; "Last Payment Statement No.")
+                field("Last Payment Statement No."; Rec."Last Payment Statement No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the last bank statement that was imported.';
                 }
-                field("Balance Last Statement"; "Balance Last Statement")
+                field("Pmt. Rec. No. Series"; Rec."Pmt. Rec. No. Series")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the number series for payment reconciliation journals.';
+                }
+                field("Balance Last Statement"; Rec."Balance Last Statement")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Promoted;
@@ -281,17 +285,35 @@ page 370 "Bank Account Card"
                                 Error(Text002);
                     end;
                 }
-                field("Bank Acc. Posting Group"; "Bank Acc. Posting Group")
+                field("Bank Acc. Posting Group"; Rec."Bank Acc. Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Promoted;
                     ToolTip = 'Specifies a code for the bank account posting group for the bank account.';
+
+                    trigger OnValidate()
+                    var
+                        BankAccPostingGroup: Record "Bank Account Posting Group";
+                        GLAccount: Record "G/L Account";
+                    begin
+                        BankAccPostingGroup.SetRange(Code, Rec."Bank Acc. Posting Group");
+                        if (not BankAccPostingGroup.IsEmpty() and GuiAllowed()) then begin
+                            BankAccPostingGroup.Get("Bank Acc. Posting Group");
+                            GLAccount.SetRange("No.", BankAccPostingGroup."G/L Account No.");
+                            if not GLAccount.IsEmpty() then begin
+                                GLAccount.Get(BankAccPostingGroup."G/L Account No.");
+                                if GLAccount."Direct Posting" then
+                                    if Confirm(RisksOfDirectPostingOnGLAccountsLbl) then
+                                        HyperLink(RisksOfDirectPostingOnGLAccountsForwardLinkLbl);
+                            end;
+                        end;
+                    end;
                 }
             }
             group(Transfer)
             {
                 Caption = 'Transfer';
-                field("Bank Branch No.2"; "Bank Branch No.")
+                field("Bank Branch No.2"; Rec."Bank Branch No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Bank Branch No.';
@@ -299,7 +321,7 @@ page 370 "Bank Account Card"
                     ToolTip = 'Specifies a number of the bank branch.';
                     Visible = false;
                 }
-                field("Bank Account No.2"; "Bank Account No.")
+                field("Bank Account No.2"; Rec."Bank Account No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Bank Account No.';
@@ -307,13 +329,13 @@ page 370 "Bank Account Card"
                     ToolTip = 'Specifies the number used by the bank for the bank account.';
                     Visible = false;
                 }
-                field("Transit No.2"; "Transit No.")
+                field("Transit No.2"; Rec."Transit No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Transit No.';
                     ToolTip = 'Specifies a bank identification number of your own choice.';
                 }
-                field("SWIFT Code"; "SWIFT Code")
+                field("SWIFT Code"; Rec."SWIFT Code")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Promoted;
@@ -325,29 +347,18 @@ page 370 "Bank Account Card"
                     Importance = Promoted;
                     ToolTip = 'Specifies the bank account''s international bank account number.';
                 }
-#if not CLEAN18
-                field("Specific Symbol"; "Specific Symbol")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the additional symbol of bank payments.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Removed from Base Application.';
-                    ObsoleteTag = '18.0';
-                    Visible = false;
-                }
-#endif
-                field("Bank Statement Import Format"; "Bank Statement Import Format")
+                field("Bank Statement Import Format"; Rec."Bank Statement Import Format")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the format of the bank statement file that can be imported into this bank account.';
                 }
-                field("Payment Export Format"; "Payment Export Format")
+                field("Payment Export Format"; Rec."Payment Export Format")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the format of the bank file that will be exported when you choose the Export Payments to File button in the Payment Journal window.';
                 }
 #if not CLEAN19
-                field("Foreign Payment Export Format"; "Foreign Payment Export Format")
+                field("Foreign Payment Export Format"; Rec."Foreign Payment Export Format")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the export format for foreign payment.';
@@ -356,7 +367,7 @@ page 370 "Bank Account Card"
                     ObsoleteTag = '19.0';
                     Visible = false;
                 }
-                field("Payment Import Format"; "Payment Import Format")
+                field("Payment Import Format"; Rec."Payment Import Format")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the format of the bank file that will be imported when you choose the import Payments to File button in the Payment Journal window.';
@@ -365,7 +376,7 @@ page 370 "Bank Account Card"
                     ObsoleteTag = '19.0';
                     Visible = false;
                 }
-                field("Payment Jnl. Template Name"; "Payment Jnl. Template Name")
+                field("Payment Jnl. Template Name"; Rec."Payment Jnl. Template Name")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of payment journal template.';
@@ -374,7 +385,7 @@ page 370 "Bank Account Card"
                     ObsoleteTag = '19.0';
                     Visible = false;
                 }
-                field("Payment Jnl. Batch Name"; "Payment Jnl. Batch Name")
+                field("Payment Jnl. Batch Name"; Rec."Payment Jnl. Batch Name")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of payment journal batch.';
@@ -384,7 +395,7 @@ page 370 "Bank Account Card"
                     Visible = false;
                 }
 #endif
-                field("Positive Pay Export Code"; "Positive Pay Export Code")
+                field("Positive Pay Export Code"; Rec."Positive Pay Export Code")
                 {
                     ApplicationArea = Basic, Suite;
                     LookupPageID = "Bank Export/Import Setup";
@@ -399,7 +410,7 @@ page 370 "Bank Account Card"
                 ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
                 ObsoleteTag = '19.0';
                 Visible = false;
-                field("Payment Order Nos."; "Payment Order Nos.")
+                field("Payment Order Nos."; Rec."Payment Order Nos.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code for the number series that will be used to assign numbers to payment orders.';
@@ -408,7 +419,7 @@ page 370 "Bank Account Card"
                     ObsoleteTag = '19.0';
                     Visible = false;
                 }
-                field("Issued Payment Order Nos."; "Issued Payment Order Nos.")
+                field("Issued Payment Order Nos."; Rec."Issued Payment Order Nos.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code for the number series that will be used to assign numbers to issued payment order.';
@@ -417,7 +428,7 @@ page 370 "Bank Account Card"
                     ObsoleteTag = '19.0';
                     Visible = false;
                 }
-                field("Bank Statement Nos."; "Bank Statement Nos.")
+                field("Bank Statement Nos."; Rec."Bank Statement Nos.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code for the number series that will be used to assign numbers to bank statement.';
@@ -426,7 +437,7 @@ page 370 "Bank Account Card"
                     ObsoleteTag = '19.0';
                     Visible = false;
                 }
-                field("Issued Bank Statement Nos."; "Issued Bank Statement Nos.")
+                field("Issued Bank Statement Nos."; Rec."Issued Bank Statement Nos.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code for the number series that will be used to assign numbers to issued bank statement.';
@@ -435,12 +446,12 @@ page 370 "Bank Account Card"
                     ObsoleteTag = '19.0';
                     Visible = false;
                 }
-                field("Credit Transfer Msg. Nos."; "Credit Transfer Msg. Nos.")
+                field("Credit Transfer Msg. Nos."; Rec."Credit Transfer Msg. Nos.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code for the number series that will be used to assign numbers to credit transfer msg.';
                 }
-                field("Direct Debit Msg. Nos."; "Direct Debit Msg. Nos.")
+                field("Direct Debit Msg. Nos."; Rec."Direct Debit Msg. Nos.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code for the number series that will be used to assign numbers to direct debit msg.';
@@ -453,7 +464,7 @@ page 370 "Bank Account Card"
                 ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
                 ObsoleteTag = '19.0';
                 Visible = false;
-                field("Variable S. to Description"; "Variable S. to Description")
+                field("Variable S. to Description"; Rec."Variable S. to Description")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies copying variable symbol on the payment to the entries.';
@@ -462,7 +473,7 @@ page 370 "Bank Account Card"
                     ObsoleteTag = '19.0';
                     Visible = false;
                 }
-                field("Variable S. to Variable S."; "Variable S. to Variable S.")
+                field("Variable S. to Variable S."; Rec."Variable S. to Variable S.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies copying variable symbol of the payment to the variable symbol field in payment reconciliation journal.';
@@ -471,7 +482,7 @@ page 370 "Bank Account Card"
                     ObsoleteTag = '19.0';
                     Visible = false;
                 }
-                field("Variable S. to Ext. Doc.No."; "Variable S. to Ext. Doc.No.")
+                field("Variable S. to Ext. Doc.No."; Rec."Variable S. to Ext. Doc.No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies copying variable symbol of the payment to the external document number field in payment reconciliation journal.';
@@ -480,7 +491,7 @@ page 370 "Bank Account Card"
                     ObsoleteTag = '19.0';
                     Visible = false;
                 }
-                field("Dimension from Apply Entry"; "Dimension from Apply Entry")
+                field("Dimension from Apply Entry"; Rec."Dimension from Apply Entry")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the transfer the Dimension from Apply Entry.';
@@ -489,7 +500,7 @@ page 370 "Bank Account Card"
                     ObsoleteTag = '19.0';
                     Visible = false;
                 }
-                field("Post Per Line"; "Post Per Line")
+                field("Post Per Line"; Rec."Post Per Line")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the Bank account will be used as Balance Account number on each line.';
@@ -498,7 +509,7 @@ page 370 "Bank Account Card"
                     ObsoleteTag = '19.0';
                     Visible = false;
                 }
-                field("Non Associated Payment Account"; "Non Associated Payment Account")
+                field("Non Associated Payment Account"; Rec."Non Associated Payment Account")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the account for non associated payment.';
@@ -507,7 +518,7 @@ page 370 "Bank Account Card"
                     ObsoleteTag = '19.0';
                     Visible = false;
                 }
-                field("Bank Pmt. Appl. Rule Code"; "Bank Pmt. Appl. Rule Code")
+                field("Bank Pmt. Appl. Rule Code"; Rec."Bank Pmt. Appl. Rule Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies payment application rule code';
@@ -516,7 +527,7 @@ page 370 "Bank Account Card"
                     ObsoleteTag = '19.0';
                     Visible = false;
                 }
-                field("Text-to-Account Mapping Code"; "Text-to-Account Mapping Code")
+                field("Text-to-Account Mapping Code"; Rec."Text-to-Account Mapping Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code for text-to-account mapping.';
@@ -525,7 +536,7 @@ page 370 "Bank Account Card"
                     ObsoleteTag = '19.0';
                     Visible = false;
                 }
-                field("Run Apply Automatically"; "Run Apply Automatically")
+                field("Run Apply Automatically"; Rec."Run Apply Automatically")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if Apply Automatically function is started after Payment Recon.Journal creating.';
@@ -534,7 +545,7 @@ page 370 "Bank Account Card"
                     ObsoleteTag = '19.0';
                     Visible = false;
                 }
-                field("Not Apply Cust. Ledger Entries"; "Not Apply Cust. Ledger Entries")
+                field("Not Apply Cust. Ledger Entries"; Rec."Not Apply Cust. Ledger Entries")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if applying functions in Payment Recon.Journal applies to Customer Ledger Entries.';
@@ -543,7 +554,7 @@ page 370 "Bank Account Card"
                     ObsoleteTag = '19.0';
                     Visible = false;
                 }
-                field("Not Apply Vend. Ledger Entries"; "Not Apply Vend. Ledger Entries")
+                field("Not Apply Vend. Ledger Entries"; Rec."Not Apply Vend. Ledger Entries")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if applying functions in Payment Recon.Journal applies to Vendor Ledger Entries.';
@@ -552,7 +563,7 @@ page 370 "Bank Account Card"
                     ObsoleteTag = '19.0';
                     Visible = false;
                 }
-                field("Not Apply Sales Advances"; "Not Apply Sales Advances")
+                field("Not Apply Sales Advances"; Rec."Not Apply Sales Advances")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if applying functions in Payment Recon.Journal applies to Sales Advances.';
@@ -561,7 +572,7 @@ page 370 "Bank Account Card"
                     ObsoleteTag = '19.0';
                     Visible = false;
                 }
-                field("Not Apply Purchase Advances"; "Not Apply Purchase Advances")
+                field("Not Apply Purchase Advances"; Rec."Not Apply Purchase Advances")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if applying functions in Payment Recon.Journal applies to Purchase Advances.';
@@ -570,7 +581,7 @@ page 370 "Bank Account Card"
                     ObsoleteTag = '19.0';
                     Visible = false;
                 }
-                field("Not Apply Gen. Ledger Entries"; "Not Apply Gen. Ledger Entries")
+                field("Not Apply Gen. Ledger Entries"; Rec."Not Apply Gen. Ledger Entries")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if applying functions in Payment Recon.Journal applies to General Ledger Entries.';
@@ -579,7 +590,7 @@ page 370 "Bank Account Card"
                     ObsoleteTag = '19.0';
                     Visible = false;
                 }
-                field("Not Apl. Bank Acc.Ledg.Entries"; "Not Apl. Bank Acc.Ledg.Entries")
+                field("Not Apl. Bank Acc.Ledg.Entries"; Rec."Not Apl. Bank Acc.Ledg.Entries")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if applying functions in Payment Recon.Journal applies to Bank Account Ledger Entries.';
@@ -588,7 +599,7 @@ page 370 "Bank Account Card"
                     ObsoleteTag = '19.0';
                     Visible = false;
                 }
-                field("Copy VAT Setup to Jnl. Line"; "Copy VAT Setup to Jnl. Line")
+                field("Copy VAT Setup to Jnl. Line"; Rec."Copy VAT Setup to Jnl. Line")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether the program to calculate VAT for accounts and balancing accounts on the journal line of the selected bank account.';
@@ -605,7 +616,7 @@ page 370 "Bank Account Card"
                     ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
                     ObsoleteTag = '19.0';
                     Visible = false;
-                    field("Domestic Payment Order"; "Domestic Payment Order")
+                    field("Domestic Payment Order"; Rec."Domestic Payment Order")
                     {
                         ApplicationArea = Basic, Suite;
                         ToolTip = 'Specifies the report setup for domestic payment order.';
@@ -614,7 +625,7 @@ page 370 "Bank Account Card"
                         ObsoleteTag = '19.0';
                         Visible = false;
                     }
-                    field("Foreign Payment Order"; "Foreign Payment Order")
+                    field("Foreign Payment Order"; Rec."Foreign Payment Order")
                     {
                         ApplicationArea = Basic, Suite;
                         ToolTip = 'Specifies the foreign or domestic payment order.';
@@ -623,7 +634,7 @@ page 370 "Bank Account Card"
                         ObsoleteTag = '19.0';
                         Visible = false;
                     }
-                    field("Base Calendar Code"; "Base Calendar Code")
+                    field("Base Calendar Code"; Rec."Base Calendar Code")
                     {
                         ApplicationArea = Basic, Suite;
                         ToolTip = 'Specifies a customizable calendar for shipment planning that holds the customer''s working days and holidays.';
@@ -632,7 +643,7 @@ page 370 "Bank Account Card"
                         ObsoleteTag = '19.0';
                         Visible = false;
                     }
-                    field("Default Constant Symbol"; "Default Constant Symbol")
+                    field("Default Constant Symbol"; Rec."Default Constant Symbol")
                     {
                         ApplicationArea = Basic, Suite;
                         ToolTip = 'Specifies the default constant symbol for payment.';
@@ -641,7 +652,7 @@ page 370 "Bank Account Card"
                         ObsoleteTag = '19.0';
                         Visible = false;
                     }
-                    field("Default Specific Symbol"; "Default Specific Symbol")
+                    field("Default Specific Symbol"; Rec."Default Specific Symbol")
                     {
                         ApplicationArea = Basic, Suite;
                         ToolTip = 'Specifies the default specific symbol for payment.';
@@ -650,7 +661,7 @@ page 370 "Bank Account Card"
                         ObsoleteTag = '19.0';
                         Visible = false;
                     }
-                    field("Payment Order Line Description"; "Payment Order Line Description")
+                    field("Payment Order Line Description"; Rec."Payment Order Line Description")
                     {
                         ApplicationArea = Basic, Suite;
                         ToolTip = 'Specifies the Description which will be transfered into Payment Order Line';
@@ -659,7 +670,7 @@ page 370 "Bank Account Card"
                         ObsoleteTag = '19.0';
                         Visible = false;
                     }
-                    field("Payment Partial Suggestion"; "Payment Partial Suggestion")
+                    field("Payment Partial Suggestion"; Rec."Payment Partial Suggestion")
                     {
                         ApplicationArea = Basic, Suite;
                         ToolTip = 'Specifies if the Partial Suggestion of Payment have to be suggest.';
@@ -668,7 +679,7 @@ page 370 "Bank Account Card"
                         ObsoleteTag = '19.0';
                         Visible = false;
                     }
-                    field("Foreign Payment Orders"; "Foreign Payment Orders")
+                    field("Foreign Payment Orders"; Rec."Foreign Payment Orders")
                     {
                         ApplicationArea = Basic, Suite;
                         ToolTip = 'Specifies the foreign or domestic payment order.';
@@ -677,7 +688,7 @@ page 370 "Bank Account Card"
                         ObsoleteTag = '19.0';
                         Visible = false;
                     }
-                    field("Check Czech Format on Issue"; "Check Czech Format on Issue")
+                    field("Check Czech Format on Issue"; Rec."Check Czech Format on Issue")
                     {
                         ApplicationArea = Basic, Suite;
                         ToolTip = 'Specifies check the Bank account Format on Payment Order Issue for Domestic Payment Order';
@@ -686,7 +697,7 @@ page 370 "Bank Account Card"
                         ObsoleteTag = '19.0';
                         Visible = false;
                     }
-                    field("Check Ext. No. by Current Year"; "Check Ext. No. by Current Year")
+                    field("Check Ext. No. by Current Year"; Rec."Check Ext. No. by Current Year")
                     {
                         ApplicationArea = Basic, Suite;
                         ToolTip = 'Specifies check the external number of document by current year by Payment Order Apply';
@@ -725,9 +736,6 @@ page 370 "Bank Account Card"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Statistics';
                     Image = Statistics;
-                    Promoted = true;
-                    PromotedCategory = Category5;
-                    PromotedIsBig = true;
                     RunObject = Page "Bank Account Statistics";
                     RunPageLink = "No." = FIELD("No."),
                                   "Date Filter" = FIELD("Date Filter"),
@@ -741,8 +749,6 @@ page 370 "Bank Account Card"
                     ApplicationArea = Comments;
                     Caption = 'Co&mments';
                     Image = ViewComments;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     RunObject = Page "Comment Sheet";
                     RunPageLink = "Table Name" = CONST("Bank Account"),
                                   "No." = FIELD("No.");
@@ -753,9 +759,6 @@ page 370 "Bank Account Card"
                     ApplicationArea = Dimensions;
                     Caption = 'Dimensions';
                     Image = Dimensions;
-                    Promoted = true;
-                    PromotedCategory = Category5;
-                    PromotedIsBig = true;
                     RunObject = Page "Default Dimensions";
                     RunPageLink = "Table ID" = CONST(270),
                                   "No." = FIELD("No.");
@@ -767,8 +770,6 @@ page 370 "Bank Account Card"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Balance';
                     Image = Balance;
-                    Promoted = true;
-                    PromotedCategory = Category6;
                     RunObject = Page "Bank Account Balance";
                     RunPageLink = "No." = FIELD("No."),
                                   "Global Dimension 1 Filter" = FIELD("Global Dimension 1 Filter"),
@@ -780,10 +781,6 @@ page 370 "Bank Account Card"
                     ApplicationArea = Basic, Suite;
                     Caption = 'St&atements';
                     Image = "Report";
-                    Promoted = true;
-                    PromotedCategory = Category5;
-                    PromotedIsBig = true;
-                    PromotedOnly = true;
                     RunObject = Page "Bank Account Statement List";
                     RunPageLink = "Bank Account No." = FIELD("No.");
                     ToolTip = 'View posted bank statements and reconciliations.';
@@ -793,9 +790,6 @@ page 370 "Bank Account Card"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Ledger E&ntries';
                     Image = BankAccountLedger;
-                    Promoted = true;
-                    PromotedCategory = Category5;
-                    PromotedIsBig = true;
                     RunObject = Page "Bank Account Ledger Entries";
                     RunPageLink = "Bank Account No." = FIELD("No.");
                     RunPageView = SORTING("Bank Account No.")
@@ -808,8 +802,6 @@ page 370 "Bank Account Card"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Chec&k Ledger Entries';
                     Image = CheckLedger;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     RunObject = Page "Check Ledger Entries";
                     RunPageLink = "Bank Account No." = FIELD("No.");
                     RunPageView = SORTING("Bank Account No.")
@@ -821,14 +813,12 @@ page 370 "Bank Account Card"
                     ApplicationArea = All;
                     Caption = 'C&ontact';
                     Image = ContactPerson;
-                    Promoted = true;
-                    PromotedCategory = Category6;
                     ToolTip = 'View or edit detailed information about the contact person at the bank.';
                     Visible = ContactActionVisible;
 
                     trigger OnAction()
                     begin
-                        ShowContact;
+                        ShowContact();
                     end;
                 }
                 separator(Action81)
@@ -843,7 +833,7 @@ page 370 "Bank Account Card"
 
                     trigger OnAction()
                     begin
-                        DisplayMap;
+                        DisplayMap();
                     end;
                 }
                 action(PagePositivePayEntries)
@@ -893,8 +883,6 @@ page 370 "Bank Account Card"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Receivables-Payables';
                 Image = ReceivablesPayables;
-                Promoted = true;
-                PromotedCategory = Category6;
                 RunObject = Page "Receivables-Payables Lines";
                 ToolTip = 'View a summary of the receivables and payables for the account, including customer and vendor balance due amounts.';
             }
@@ -904,9 +892,6 @@ page 370 "Bank Account Card"
                 Caption = 'Link to Online Bank Account';
                 Enabled = NOT Linked;
                 Image = LinkAccount;
-                Promoted = true;
-                PromotedCategory = Category4;
-                PromotedIsBig = true;
                 ToolTip = 'Create a link to an online bank account from the selected bank account.';
                 Visible = ShowBankLinkingActions;
 
@@ -921,15 +906,12 @@ page 370 "Bank Account Card"
                 Caption = 'Unlink Online Bank Account';
                 Enabled = Linked;
                 Image = UnLinkAccount;
-                Promoted = true;
-                PromotedCategory = Category4;
-                PromotedIsBig = true;
                 ToolTip = 'Remove a link to an online bank account from the selected bank account.';
                 Visible = ShowBankLinkingActions;
 
                 trigger OnAction()
                 begin
-                    UnlinkStatementProvider;
+                    UnlinkStatementProvider();
                     CurrPage.Update(true);
                 end;
             }
@@ -939,9 +921,6 @@ page 370 "Bank Account Card"
                 Caption = 'Refresh Online Bank Account';
                 Enabled = Linked;
                 Image = RefreshRegister;
-                Promoted = true;
-                PromotedCategory = Category4;
-                PromotedIsBig = true;
                 ToolTip = 'Refresh the online bank account for the selected bank account.';
                 Visible = ShowBankLinkingActions;
 
@@ -956,9 +935,6 @@ page 370 "Bank Account Card"
                 Caption = 'Edit Online Bank Account Information';
                 Enabled = Linked;
                 Image = EditCustomer;
-                Promoted = true;
-                PromotedCategory = Category4;
-                PromotedIsBig = true;
                 ToolTip = 'Edit the information about the online bank account linked to the selected bank account.';
                 Visible = ShowBankLinkingActions;
 
@@ -973,9 +949,6 @@ page 370 "Bank Account Card"
                 Caption = 'Manage Access Consent for Online Bank Account';
                 Enabled = Linked;
                 Image = Approve;
-                Promoted = true;
-                PromotedCategory = Category4;
-                PromotedIsBig = true;
                 ToolTip = 'Manage access consent for the online bank account linked to the selected bank account.';
                 Visible = ShowBankLinkingActions;
 
@@ -990,9 +963,6 @@ page 370 "Bank Account Card"
                 Caption = 'Automatic Bank Statement Import Setup';
                 Enabled = Linked;
                 Image = ElectronicBanking;
-                Promoted = true;
-                PromotedCategory = Category4;
-                PromotedIsBig = true;
                 RunObject = Page "Auto. Bank Stmt. Import Setup";
                 RunPageOnRec = true;
                 ToolTip = 'Set up the information for importing bank statement files.';
@@ -1006,8 +976,6 @@ page 370 "Bank Account Card"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Cash Receipt Journals';
                 Image = Journals;
-                Promoted = true;
-                PromotedCategory = Category6;
                 RunObject = Page "Cash Receipt Journal";
                 ToolTip = 'Create a cash receipt journal line for the bank account, for example, to post a payment receipt.';
             }
@@ -1016,8 +984,6 @@ page 370 "Bank Account Card"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Payment Journals';
                 Image = Journals;
-                Promoted = true;
-                PromotedCategory = Category6;
                 RunObject = Page "Payment Journal";
                 ToolTip = 'Open the list of payment journals where you can register payments to vendors.';
             }
@@ -1026,8 +992,6 @@ page 370 "Bank Account Card"
                 ApplicationArea = Suite;
                 Caption = 'Positive Pay Export';
                 Image = Export;
-                Promoted = true;
-                PromotedCategory = Process;
                 RunObject = Page "Positive Pay Export";
                 RunPageLink = "No." = FIELD("No.");
                 ToolTip = 'Export a Positive Pay file with relevant payment information that you then send to the bank for reference when you process payments to make sure that your bank only clears validated checks and amounts.';
@@ -1070,9 +1034,6 @@ page 370 "Bank Account Card"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Detail Trial Balance';
                 Image = "Report";
-                Promoted = true;
-                PromotedCategory = "Report";
-                PromotedOnly = true;
                 ToolTip = 'View a detailed trial balance for selected checks.';
 
                 trigger OnAction()
@@ -1095,9 +1056,6 @@ page 370 "Bank Account Card"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Check Details';
                 Image = "Report";
-                Promoted = true;
-                PromotedCategory = "Report";
-                PromotedOnly = true;
                 ToolTip = 'View a detailed trial balance for selected checks.';
 
                 trigger OnAction()
@@ -1106,12 +1064,100 @@ page 370 "Bank Account Card"
                 end;
             }
         }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref(PagePosPayExport_Promoted; PagePosPayExport)
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+
+                actionref("Detail Trial Balance_Promoted"; "Detail Trial Balance")
+                {
+                }
+                actionref("Check Details_Promoted"; "Check Details")
+                {
+                }
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Bank Statement Service', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref(LinkToOnlineBankAccount_Promoted; LinkToOnlineBankAccount)
+                {
+                }
+                actionref(UnlinkOnlineBankAccount_Promoted; UnlinkOnlineBankAccount)
+                {
+                }
+                actionref(RefreshOnlineBankAccount_Promoted; RefreshOnlineBankAccount)
+                {
+                }
+                actionref(EditOnlineBankAccount_Promoted; EditOnlineBankAccount)
+                {
+                }
+                actionref(RenewAccessConsentOnlineBankAccount_Promoted; RenewAccessConsentOnlineBankAccount)
+                {
+                }
+                actionref(AutomaticBankStatementImportSetup_Promoted; AutomaticBankStatementImportSetup)
+                {
+                }
+            }
+            group(Category_Category5)
+            {
+                Caption = 'Bank Account', Comment = 'Generated from the PromotedActionCategories property index 4.';
+
+                actionref(Statistics_Promoted; Statistics)
+                {
+                }
+                actionref(Dimensions_Promoted; Dimensions)
+                {
+                }
+                actionref(Statements_Promoted; Statements)
+                {
+                }
+                actionref("Ledger E&ntries_Promoted"; "Ledger E&ntries")
+                {
+                }
+                actionref("Co&mments_Promoted"; "Co&mments")
+                {
+                }
+                actionref("Chec&k Ledger Entries_Promoted"; "Chec&k Ledger Entries")
+                {
+                }
+            }
+            group(Category_Category6)
+            {
+                Caption = 'Navigate', Comment = 'Generated from the PromotedActionCategories property index 5.';
+
+                actionref("Cash Receipt Journals_Promoted"; "Cash Receipt Journals")
+                {
+                }
+                actionref("Payment Journals_Promoted"; "Payment Journals")
+                {
+                }
+                actionref("Bank Account Balance_Promoted"; "Bank Account Balance")
+                {
+                }
+                actionref("C&ontact_Promoted"; "C&ontact")
+                {
+                }
+                actionref("Receivables-Payables_Promoted"; "Receivables-Payables")
+                {
+                }
+            }
+        }
     }
 
     trigger OnAfterGetCurrRecord()
     begin
         GetOnlineFeedStatementStatus(OnlineFeedStatementStatus, Linked);
-        ShowBankLinkingActions := StatementProvidersExist;
+        ShowBankLinkingActions := StatementProvidersExist();
     end;
 
     trigger OnAfterGetRecord()
@@ -1126,7 +1172,7 @@ page 370 "Bank Account Card"
     begin
         OnBeforeOnOpenPage();
         ContactActionVisible := Contact.ReadPermission;
-        SetNoFieldVisible;
+        SetNoFieldVisible();
     end;
 
     var
@@ -1139,12 +1185,14 @@ page 370 "Bank Account Card"
         ShowBankLinkingActions: Boolean;
         NoFieldVisible: Boolean;
         OnlineFeedStatementStatus: Option "Not Linked",Linked,"Linked and Auto. Bank Statement Enabled";
+        RisksOfDirectPostingOnGLAccountsLbl: Label 'The selected bank account posting group is linked to a general ledger account that allows direct posting. The bank account reconciliation process might become problematic if the instructions in the documentation are not followed. Do you want to know more?';
+        RisksOfDirectPostingOnGLAccountsForwardLinkLbl: Label 'https://go.microsoft.com/fwlink/?linkid=2197950';
 
     local procedure SetNoFieldVisible()
     var
         DocumentNoVisibility: Codeunit DocumentNoVisibility;
     begin
-        NoFieldVisible := DocumentNoVisibility.BankAccountNoIsVisible;
+        NoFieldVisible := DocumentNoVisibility.BankAccountNoIsVisible();
     end;
 
     local procedure RunReport(ReportNumber: Integer; BankActNumber: Code[20])

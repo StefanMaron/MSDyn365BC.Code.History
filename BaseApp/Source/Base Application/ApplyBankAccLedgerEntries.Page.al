@@ -21,20 +21,20 @@ page 381 "Apply Bank Acc. Ledger Entries"
                     Editable = false;
                     ToolTip = 'Specifies if the bank account ledger entry has been applied to its related bank transaction.';
                 }
-                field("Posting Date"; "Posting Date")
+                field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     StyleExpr = StyleTxt;
                     ToolTip = 'Specifies the posting date for the entry.';
                 }
-                field("Document Type"; "Document Type")
+                field("Document Type"; Rec."Document Type")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the document type on the bank account entry. The document type will be Payment, Refund, or the field will be blank.';
                 }
-                field("Document No."; "Document No.")
+                field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -54,7 +54,7 @@ page 381 "Apply Bank Acc. Ledger Entries"
                     ToolTip = 'Specifies the amount of the entry denominated in the applicable foreign currency.';
                     Visible = AmountVisible;
                 }
-                field("Amount (LCY)"; "Amount (LCY)")
+                field("Amount (LCY)"; Rec."Amount (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -64,19 +64,19 @@ page 381 "Apply Bank Acc. Ledger Entries"
                     ObsoleteReason = 'The functionality will be removed and this field should not be used.';
                     ObsoleteTag = '20.0';
                 }
-                field("Debit Amount"; "Debit Amount")
+                field("Debit Amount"; Rec."Debit Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the total of the ledger entries that represent debits.';
                     Visible = DebitCreditVisible;
                 }
-                field("Credit Amount"; "Credit Amount")
+                field("Credit Amount"; Rec."Credit Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the total of the ledger entries that represent credits.';
                     Visible = DebitCreditVisible;
                 }
-                field("Remaining Amount"; "Remaining Amount")
+                field("Remaining Amount"; Rec."Remaining Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -96,61 +96,61 @@ page 381 "Apply Bank Acc. Ledger Entries"
                     ToolTip = 'Specifies if the bank ledger entry is positive.';
                     Visible = false;
                 }
-                field("Bal. Account Type"; "Bal. Account Type")
+                field("Bal. Account Type"; Rec."Bal. Account Type")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the type of account that a balancing entry is posted to, such as BANK for a cash account.';
                     Visible = false;
                 }
-                field("Bal. Account No."; "Bal. Account No.")
+                field("Bal. Account No."; Rec."Bal. Account No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the number of the general ledger, customer, vendor, or bank account that the balancing entry is posted to, such as a cash account for cash purchases.';
                     Visible = false;
                 }
-                field("Statement Status"; "Statement Status")
+                field("Statement Status"; Rec."Statement Status")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the statement status of the bank account ledger entry.';
                     Visible = false;
                 }
-                field("Statement No."; "Statement No.")
+                field("Statement No."; Rec."Statement No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the bank account statement that the ledger entry has been applied to, if the Statement Status is Bank Account Ledger Applied.';
                     Visible = false;
                 }
-                field("Statement Line No."; "Statement Line No.")
+                field("Statement Line No."; Rec."Statement Line No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the number of the statement line that has been applied to by this ledger entry line.';
                     Visible = false;
                 }
-                field("Check Ledger Entries"; "Check Ledger Entries")
+                field("Check Ledger Entries"; Rec."Check Ledger Entries")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the check ledger entries that are associated with the bank account ledger entry.';
                 }
-                field("Global Dimension 1 Code"; "Global Dimension 1 Code")
+                field("Global Dimension 1 Code"; Rec."Global Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
                     Editable = false;
                     ToolTip = 'Specifies the code for the global dimension that is linked to the record or entry for analysis purposes. Two global dimensions, typically for the company''s most important activities, are available on all cards, documents, reports, and lists.';
                     Visible = false;
                 }
-                field("Global Dimension 2 Code"; "Global Dimension 2 Code")
+                field("Global Dimension 2 Code"; Rec."Global Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     Editable = false;
                     ToolTip = 'Specifies the code for the global dimension that is linked to the record or entry for analysis purposes. Two global dimensions, typically for the company''s most important activities, are available on all cards, documents, reports, and lists.';
                     Visible = false;
                 }
-                field("External Document No."; "External Document No.")
+                field("External Document No."; Rec."External Document No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a document number that refers to the customer''s or vendor''s numbering system.';
@@ -211,15 +211,15 @@ page 381 "Apply Bank Acc. Ledger Entries"
 
     trigger OnAfterGetCurrRecord()
     begin
-        LineApplied := IsApplied;
-        SetUserInteractions;
-        CalcBalance;
+        LineApplied := IsApplied();
+        SetUserInteractions();
+        CalcBalance();
     end;
 
     trigger OnAfterGetRecord()
     begin
-        LineApplied := IsApplied;
-        SetUserInteractions;
+        LineApplied := IsApplied();
+        SetUserInteractions();
     end;
 
     trigger OnInit()
@@ -229,12 +229,12 @@ page 381 "Apply Bank Acc. Ledger Entries"
 
     trigger OnModifyRecord(): Boolean
     begin
-        SetUserInteractions;
+        SetUserInteractions();
     end;
 
     trigger OnOpenPage()
     begin
-        SetControlVisibility;
+        SetControlVisibility();
     end;
 
     var
@@ -272,7 +272,7 @@ page 381 "Apply Bank Acc. Ledger Entries"
             BankAccount.CalcFields(Balance, "Total on Checks");
             Balance := BankAccount.Balance;
             CheckBalance := BankAccount."Total on Checks";
-            BalanceToReconcile := CalcBalanceToReconcile;
+            BalanceToReconcile := CalcBalanceToReconcile();
         end;
     end;
 
@@ -283,7 +283,7 @@ page 381 "Apply Bank Acc. Ledger Entries"
             SetRange("Statement No.", '');
             SetRange("Statement Line No.", 0);
         end else
-            Reset;
+            Reset();
         CurrPage.Update();
     end;
 

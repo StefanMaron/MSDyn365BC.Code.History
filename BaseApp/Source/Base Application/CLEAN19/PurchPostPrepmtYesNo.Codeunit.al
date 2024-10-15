@@ -75,7 +75,7 @@ codeunit 445 "Purch.-Post Prepmt. (Yes/No)"
         PurchPostPrepayments.SetDocumentType(PrepmtDocumentType.AsInteger());
         Commit();
         if not PurchPostPrepayments.Run(PurchHeader) then
-            ErrorMessageHandler.ShowErrors;
+            ErrorMessageHandler.ShowErrors();
     end;
 
     procedure Preview(var PurchHeader: Record "Purchase Header"; DocumentType: Option)
@@ -102,13 +102,13 @@ codeunit 445 "Purch.-Post Prepmt. (Yes/No)"
                 DocumentType::Invoice:
                     begin
                         PurchInvHeader."No." := "Last Prepayment No.";
-                        PurchInvHeader.SetRecFilter;
+                        PurchInvHeader.SetRecFilter();
                         PurchInvHeader.PrintRecords(false);
                     end;
                 DocumentType::"Credit Memo":
                     begin
                         PurchCrMemoHeader."No." := "Last Prepmt. Cr. Memo No.";
-                        PurchCrMemoHeader.SetRecFilter;
+                        PurchCrMemoHeader.SetRecFilter();
                         PurchCrMemoHeader.PrintRecords(false);
                     end;
             end;

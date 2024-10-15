@@ -25,7 +25,7 @@ page 1191 "Create Employee Payment"
                     var
                         GenJournalBatch: Record "Gen. Journal Batch";
                     begin
-                        SetJournalTemplate;
+                        SetJournalTemplate();
                         if JournalTemplateName <> '' then begin
                             GenJournalBatch.Get(JournalTemplateName, JournalBatchName);
                             SetNextNo(GenJournalBatch."No. Series");
@@ -78,12 +78,12 @@ page 1191 "Create Employee Payment"
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
-        SetJournalTemplate;
+        SetJournalTemplate();
         if GenJournalBatch.Get(JournalTemplateName, JournalBatchName) then
             SetNextNo(GenJournalBatch."No. Series")
         else
             Clear(JournalBatchName);
-        PostingDate := WorkDate;
+        PostingDate := WorkDate();
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
@@ -137,7 +137,7 @@ page 1191 "Create Employee Payment"
         TempEmplPaymentBuffer.DeleteAll();
 
         CopyEmployeeLedgerEntriesToTempEmplPaymentBuffer(EmployeeLedgerEntry);
-        CopyTempEmpPaymentBuffersToGenJnlLines;
+        CopyTempEmpPaymentBuffersToGenJnlLines();
     end;
 
     local procedure CopyEmployeeLedgerEntriesToTempEmplPaymentBuffer(var EmployeeLedgerEntry: Record "Employee Ledger Entry")
@@ -211,7 +211,7 @@ page 1191 "Create Employee Payment"
         if TempEmplPaymentBuffer.FindSet() then
             repeat
                 with GenJnlLine do begin
-                    Init;
+                    Init();
                     Validate("Journal Template Name", JournalTemplateName);
                     Validate("Journal Batch Name", JournalBatchName);
                     LastLineNo := LastLineNo + 10000;
@@ -236,7 +236,7 @@ page 1191 "Create Employee Payment"
 
                     "Bank Payment Type" := BankPaymentType;
                     "Applies-to ID" := "Document No.";
-                    Description := CopyStr(Employee.FullName, 1, MaxStrLen(Description));
+                    Description := CopyStr(Employee.FullName(), 1, MaxStrLen(Description));
                     "Source Line No." := TempEmplPaymentBuffer."Employee Ledg. Entry No.";
                     "Shortcut Dimension 1 Code" := TempEmplPaymentBuffer."Global Dimension 1 Code";
                     "Shortcut Dimension 2 Code" := TempEmplPaymentBuffer."Global Dimension 2 Code";
@@ -253,7 +253,7 @@ page 1191 "Create Employee Payment"
                     "Applies-to Ext. Doc. No." := TempEmplPaymentBuffer."Applies-to Ext. Doc. No.";
 
                     UpdateDimensions(GenJnlLine, TempEmplPaymentBuffer);
-                    Insert;
+                    Insert();
                 end;
             until TempEmplPaymentBuffer.Next() = 0;
     end;

@@ -20,7 +20,7 @@ report 11760 "Inventory Account to the date"
             column(PeriodGLDtFilter; StrSubstNo(Text000, ToDate))
             {
             }
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(PageGroupNo; PageGroupNo)
@@ -245,7 +245,7 @@ report 11760 "Inventory Account to the date"
 
     trigger OnPreReport()
     begin
-        GLFilter := "G/L Account".GetFilters;
+        GLFilter := "G/L Account".GetFilters();
     end;
 
     var

@@ -11,9 +11,6 @@ permissionset 8881 "Document Approvals - Admin"
                   tabledata "Overdue Approval Entry" = RIMD,
                   tabledata "Salesperson/Purchaser" = R,
                   tabledata "User Setup" = RIMD,
-#if not CLEAN18
-                  tabledata "User Setup Line" = RIMD,
-#endif
                   tabledata "User Task Group" = RIMD,
                   tabledata "User Task Group Member" = RIMD,
                   tabledata "WF Event/Response Combination" = RIMD,

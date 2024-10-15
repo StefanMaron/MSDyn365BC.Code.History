@@ -35,7 +35,7 @@ page 31032 "Purch. Adv. Letter Link. Card"
 
                     trigger OnDrillDown()
                     begin
-                        DrilldownLetterHeaders;
+                        DrilldownLetterHeaders();
                     end;
                 }
                 field(LetterLinesNo; LetterLinesNo)
@@ -48,7 +48,7 @@ page 31032 "Purch. Adv. Letter Link. Card"
 
                     trigger OnDrillDown()
                     begin
-                        DrilldownLetterLines;
+                        DrilldownLetterLines();
                     end;
                 }
                 field(NotLinkedLines; NotLinkedLines)
@@ -113,7 +113,7 @@ page 31032 "Purch. Adv. Letter Link. Card"
 
                     trigger OnValidate()
                     begin
-                        ChangeTypes;
+                        ChangeTypes();
                     end;
                 }
                 field(LinkingType; LinkingType)
@@ -125,7 +125,7 @@ page 31032 "Purch. Adv. Letter Link. Card"
 
                     trigger OnValidate()
                     begin
-                        ChangeTypes;
+                        ChangeTypes();
                     end;
                 }
             }
@@ -143,37 +143,37 @@ page 31032 "Purch. Adv. Letter Link. Card"
                         CurrPage.Update(false);
                     end;
                 }
-                field("Doc Line No."; "Doc Line No.")
+                field("Doc Line No."; Rec."Doc Line No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the number of line of purchase document (order, invoice).';
                 }
-                field("Doc. Line Description"; "Doc. Line Description")
+                field("Doc. Line Description"; Rec."Doc. Line Description")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the description of line of purchase document (order, invoice).';
                 }
-                field("Doc. Line VAT Prod. Post. Gr."; "Doc. Line VAT Prod. Post. Gr.")
+                field("Doc. Line VAT Prod. Post. Gr."; Rec."Doc. Line VAT Prod. Post. Gr.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the VAT posting group of line of purchase document (order, invoice).';
                 }
-                field("Doc. Line VAT %"; "Doc. Line VAT %")
+                field("Doc. Line VAT %"; Rec."Doc. Line VAT %")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the VAT % of line of purchase document (order, invoice).';
                 }
-                field("Letter No."; "Letter No.")
+                field("Letter No."; Rec."Letter No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the number of letter.';
                 }
-                field("Letter Line No."; "Letter Line No.")
+                field("Letter Line No."; Rec."Letter Line No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = true;
@@ -190,7 +190,7 @@ page 31032 "Purch. Adv. Letter Link. Card"
                             Error(Text001Err);
                     end;
                 }
-                field("Invoiced Amount"; "Invoiced Amount")
+                field("Invoiced Amount"; Rec."Invoiced Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount of line of purchase advance letter.';
@@ -201,26 +201,26 @@ page 31032 "Purch. Adv. Letter Link. Card"
                             Error(Text002Err);
                     end;
                 }
-                field("Doc. Line Amount"; "Doc. Line Amount")
+                field("Doc. Line Amount"; Rec."Doc. Line Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the amount of line of purchase document (order, invoice).';
                     Visible = false;
                 }
-                field("Let. Line VAT Prod. Post. Gr."; "Let. Line VAT Prod. Post. Gr.")
+                field("Let. Line VAT Prod. Post. Gr."; Rec."Let. Line VAT Prod. Post. Gr.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the VAT posting group of line of purchase advance letter.';
                 }
-                field("Let. Line VAT %"; "Let. Line VAT %")
+                field("Let. Line VAT %"; Rec."Let. Line VAT %")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the VAT % of line of purchase advance letter.';
                 }
-                field("Let. Line Description"; "Let. Line Description")
+                field("Let. Line Description"; Rec."Let. Line Description")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -247,7 +247,7 @@ page 31032 "Purch. Adv. Letter Link. Card"
                     trigger OnAction()
                     begin
                         PrepmtLinksMgtAdv.UnlinkCurrentLine(Rec, true);
-                        UpdateSubform;
+                        UpdateSubForm();
                     end;
                 }
                 action("Unlink All Lines")
@@ -259,8 +259,8 @@ page 31032 "Purch. Adv. Letter Link. Card"
 
                     trigger OnAction()
                     begin
-                        PrepmtLinksMgtAdv.UnlinkAll;
-                        UpdateSubform;
+                        PrepmtLinksMgtAdv.UnlinkAll();
+                        UpdateSubForm();
                     end;
                 }
             }
@@ -275,7 +275,7 @@ page 31032 "Purch. Adv. Letter Link. Card"
     trigger OnModifyRecord(): Boolean
     begin
         PrepmtLinksMgtAdv.OnModifyRecord(Rec);
-        UpdateSubform;
+        UpdateSubForm();
         exit(false);
     end;
 
@@ -289,7 +289,7 @@ page 31032 "Purch. Adv. Letter Link. Card"
         TempPurchAdvanceLetterHeader: Record "Purch. Advance Letter Header" temporary;
         TempPurchAdvanceLetterLine: Record "Purch. Advance Letter Line" temporary;
     begin
-        InitLinking;
+        InitLinking();
         PrepmtLinksMgtAdv.GetPurchLetters(TempPurchAdvanceLetterHeader, TempPurchAdvanceLetterLine);
         PurchLetHeadAdvLink.SetPurchHeader(TempPurchHeader, TempPurchAdvanceLetterHeader);
         PurchLetterLineAdvLink.SetPurchHeader(TempPurchHeader, TempPurchAdvanceLetterLine);
@@ -357,7 +357,7 @@ page 31032 "Purch. Adv. Letter Link. Card"
     [Scope('OnPrem')]
     procedure WriteChanges()
     begin
-        if PrepmtLinksMgtAdv.WriteChangesToDocument then
+        if PrepmtLinksMgtAdv.WriteChangesToDocument() then
             Message(Text101Msg);
     end;
 
@@ -370,9 +370,9 @@ page 31032 "Purch. Adv. Letter Link. Card"
         if not (QtyType in [QtyType::Invoicing, QtyType::Remaining]) then
             exit;
         PrepmtLinksMgtAdv.SetPurchDoc(TempPurchHeader);
-        PrepmtLinksMgtAdv.SetPurchLetters;
-        PrepmtLinksMgtAdv.SetAdvLetterLineRelations;
-        PrepmtLinksMgtAdv.CompleteAdvanceLetterRelations;
+        PrepmtLinksMgtAdv.SetPurchLetters();
+        PrepmtLinksMgtAdv.SetAdvLetterLineRelations();
+        PrepmtLinksMgtAdv.CompleteAdvanceLetterRelations();
         PrepmtLinksMgtAdv.UpdLetterSemiFinishedAmounts(false, '');
     end;
 
@@ -383,7 +383,7 @@ page 31032 "Purch. Adv. Letter Link. Card"
         TempAdvanceLinkBufferEntry: Record "Advance Link Buffer - Entry" temporary;
     begin
         PurchLetHeadAdvLink.RunModal();
-        if PurchLetHeadAdvLink.IsAssigned then begin
+        if PurchLetHeadAdvLink.IsAssigned() then begin
             PurchLetHeadAdvLink.GetSelectedRecords(TempPurchAdvanceLetterHeader);
             PrepmtLinksMgtAdv.FillAdvLnkBuffFromPurchLetHead(TempPurchAdvanceLetterHeader, TempAdvanceLinkBufferEntry);
             PrepmtLinksMgtAdv.SuggestAdvLetterLinking(TempAdvanceLinkBufferEntry,
@@ -391,7 +391,7 @@ page 31032 "Purch. Adv. Letter Link. Card"
               ApplyByVATPerc,
               ApplyAll);
         end;
-        UpdateSubform;
+        UpdateSubForm();
     end;
 
     [Scope('OnPrem')]
@@ -401,7 +401,7 @@ page 31032 "Purch. Adv. Letter Link. Card"
         TempAdvanceLinkBufferEntry: Record "Advance Link Buffer - Entry" temporary;
     begin
         PurchLetterLineAdvLink.RunModal();
-        if PurchLetterLineAdvLink.IsAssigned then begin
+        if PurchLetterLineAdvLink.IsAssigned() then begin
             PurchLetterLineAdvLink.GetSelectedRecords(TempPurchAdvanceLetterLine);
             PrepmtLinksMgtAdv.FillAdvLnkBuffFromPurchLetLine(TempPurchAdvanceLetterLine, TempAdvanceLinkBufferEntry);
             PrepmtLinksMgtAdv.SuggestAdvLetterLinking(TempAdvanceLinkBufferEntry,
@@ -409,13 +409,13 @@ page 31032 "Purch. Adv. Letter Link. Card"
               ApplyByVATPerc,
               ApplyAll);
         end;
-        UpdateSubform;
+        UpdateSubForm();
     end;
 
     local procedure ChangeTypes()
     begin
-        InitLinking;
-        UpdateSubform;
+        InitLinking();
+        UpdateSubForm();
     end;
 }
 #endif

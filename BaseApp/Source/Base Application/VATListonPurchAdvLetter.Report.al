@@ -17,7 +17,7 @@ report 31031 "VAT List on Purch. Adv. Letter"
             DataItemTableView = SORTING(Number);
             MaxIteration = 1;
             PrintOnlyIfDetail = true;
-            column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+            column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
             column(gteToDate; ToDateTxt)
@@ -148,7 +148,7 @@ report 31031 "VAT List on Purch. Adv. Letter"
                         TempVATAmountLine."VAT Base" := TempVATAmountLineAdvPmt."VAT Base (LCY)";
                         TempVATAmountLine."Amount Including VAT" := TempVATAmountLineAdvPmt."Amount Including VAT (LCY)";
                         TempVATAmountLine."Line Amount" := TempVATAmountLineAdvPmt."Amount Including VAT (LCY)";
-                        TempVATAmountLine.InsertLine;
+                        TempVATAmountLine.InsertLine();
                     end;
                 }
 
@@ -177,7 +177,7 @@ report 31031 "VAT List on Purch. Adv. Letter"
                                 TempVATAmountLineAdvPmt."VAT %" := lreVATPostSetup."VAT %";
                                 TempVATAmountLineAdvPmt."VAT Base (LCY)" := "Advance Base" + CalcVATBaseExchRateCorrect(lreVATEntry);
                                 TempVATAmountLineAdvPmt."VAT Amount (LCY)" := Amount + "Advance Exch. Rate Difference";
-                                TempVATAmountLineAdvPmt.InsertLine;
+                                TempVATAmountLineAdvPmt.InsertLine();
                             until Next() = 0;
                         end;
                     end;
@@ -246,9 +246,9 @@ report 31031 "VAT List on Purch. Adv. Letter"
                 trigger OnAfterGetRecord()
                 begin
                     if Number = 1 then
-                        TempVATAmountLine.FindSet
+                        TempVATAmountLine.FindSet()
                     else
-                        TempVATAmountLine.Next;
+                        TempVATAmountLine.Next();
                 end;
 
                 trigger OnPreDataItem()
@@ -303,7 +303,7 @@ report 31031 "VAT List on Purch. Adv. Letter"
 
     trigger OnPreReport()
     begin
-        ReportFilter := "Purch. Advance Letter Header".GetFilters;
+        ReportFilter := "Purch. Advance Letter Header".GetFilters();
 
         if ToDate <> 0D then
             ToDateTxt := StrSubstNo(TodateLbl, Format(ToDate));

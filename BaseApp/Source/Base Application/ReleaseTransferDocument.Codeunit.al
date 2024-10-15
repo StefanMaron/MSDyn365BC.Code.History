@@ -1,4 +1,3 @@
-#if not CLEAN18
 codeunit 5708 "Release Transfer Document"
 {
     TableNo = "Transfer Header";
@@ -7,8 +6,6 @@ codeunit 5708 "Release Transfer Document"
     trigger OnRun()
     var
         TransLine: Record "Transfer Line";
-        GLSetup: Record "General Ledger Setup";
-        UserSetupAdvMgt: Codeunit "User Setup Adv. Management";
         IsHandled: Boolean;
     begin
         if Rec.Status = Rec.Status::Released then
@@ -40,31 +37,6 @@ codeunit 5708 "Release Transfer Document"
         Rec.TestField(Status, Rec.Status::Open);
 
         CheckTransLines(TransLine, Rec);
-
-        // NAVCZ
-        GLSetup.Get();
-        if GLSetup."User Checks Allowed" then
-            repeat
-                case true of
-                    TransLine.Quantity > 0:
-                        begin
-                            UserSetupAdvMgt.SetItem(TransLine."Item No.");
-                            if not UserSetupAdvMgt.CheckReleasLocQuantityDecrease(TransLine."Transfer-from Code") then
-                                TransLine.FieldError("Transfer-from Code");
-                            if not UserSetupAdvMgt.CheckReleasLocQuantityIncrease(TransLine."Transfer-to Code") then
-                                TransLine.FieldError("Transfer-to Code");
-                        end;
-                    TransLine.Quantity < 0:
-                        begin
-                            UserSetupAdvMgt.SetItem(TransLine."Item No.");
-                            if not UserSetupAdvMgt.CheckReleasLocQuantityIncrease(TransLine."Transfer-from Code") then
-                                TransLine.FieldError("Transfer-from Code");
-                            if not UserSetupAdvMgt.CheckReleasLocQuantityDecrease(TransLine."Transfer-to Code") then
-                                TransLine.FieldError("Transfer-to Code");
-                        end;
-                end;
-            until TransLine.Next() = 0;
-        // NAVCZ
 
         OnRunOnBeforeSetStatusReleased(Rec);
         Rec.Validate(Status, Rec.Status::Released);
@@ -156,4 +128,3 @@ codeunit 5708 "Release Transfer Document"
     end;
 }
 
-#endif

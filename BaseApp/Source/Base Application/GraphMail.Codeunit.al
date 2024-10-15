@@ -1,6 +1,10 @@
+#if not CLEAN21
 codeunit 405 "Graph Mail"
 {
     Permissions = TableData "Calendar Event" = rimd;
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     trigger OnRun()
     var
@@ -104,7 +108,7 @@ codeunit 405 "Graph Mail"
         JSONManagement.AddJObjectToJObject(PayloadJsonObject, 'message', MessageJsonObject);
         JSONManagement.AddJPropertyToJObject(PayloadJsonObject, 'saveToSentItems', 'true');
 
-        exit(JSONManagement.WriteObjectToString);
+        exit(JSONManagement.WriteObjectToString());
     end;
 
     [Scope('OnPrem')]
@@ -116,7 +120,7 @@ codeunit 405 "Graph Mail"
         if ShowSetup then begin
             if PAGE.RunModal(PAGE::"Graph Mail Setup") = ACTION::LookupOK then;
         end else begin
-            if not GraphMailSetup.Get then
+            if not GraphMailSetup.Get() then
                 GraphMailSetup.Insert();
 
             IsSetupSuccessful := GraphMailSetup.Initialize(true);
@@ -125,7 +129,7 @@ codeunit 405 "Graph Mail"
             GraphMailSetup.Modify(true);
         end;
 
-        exit(IsEnabled);
+        exit(IsEnabled());
     end;
 
     [Scope('OnPrem')]
@@ -155,9 +159,9 @@ codeunit 405 "Graph Mail"
             exit;
         end;
 
-        if GraphMailSetup.Get then begin
+        if GraphMailSetup.Get() then begin
             GraphMailSetup.SetRefreshToken(TokenCacheState);
-            if GraphMailSetup.Modify then;
+            if GraphMailSetup.Modify() then;
         end;
     end;
 
@@ -205,7 +209,7 @@ codeunit 405 "Graph Mail"
     var
         User: Record User;
     begin
-        if User.Get(UserSecurityId) then;
+        if User.Get(UserSecurityId()) then;
 
         exit(StrSubstNo(TestMessageTxt, User."Full Name"));
     end;
@@ -255,7 +259,7 @@ codeunit 405 "Graph Mail"
     var
         TempGraphMailSetup: Record "Graph Mail Setup" temporary;
     begin
-        if not HasConfiguration then
+        if not HasConfiguration() then
             exit(false);
 
         TempGraphMailSetup.Insert();
@@ -267,8 +271,8 @@ codeunit 405 "Graph Mail"
         JSONManagement: Codeunit "JSON Management";
         EmailAddressJsonObject: DotNet JObject;
     begin
-        EmailJsonObject := EmailJsonObject.JObject;
-        EmailAddressJsonObject := EmailAddressJsonObject.JObject;
+        EmailJsonObject := EmailJsonObject.JObject();
+        EmailAddressJsonObject := EmailAddressJsonObject.JObject();
 
         JSONManagement.AddJPropertyToJObject(EmailAddressJsonObject, 'address', Address);
         if Name <> '' then
@@ -323,7 +327,7 @@ codeunit 405 "Graph Mail"
         if AttachmentContent = '' then
             exit;
 
-        AttachmentJsonObject := AttachmentJsonObject.JObject;
+        AttachmentJsonObject := AttachmentJsonObject.JObject();
         JSONManagement.AddJPropertyToJObject(AttachmentJsonObject, '@odata.type', '#microsoft.graph.fileAttachment');
         JSONManagement.AddJPropertyToJObject(AttachmentJsonObject, 'contentBytes', AttachmentContent);
         JSONManagement.AddJPropertyToJObject(AttachmentJsonObject, 'contentType', AttachmentType);
@@ -376,7 +380,7 @@ codeunit 405 "Graph Mail"
         end;
 
         if DocumentModified then
-            MessageContent := XmlDocument.OuterXml;
+            MessageContent := XmlDocument.OuterXml();
     end;
 
     local procedure HandleError(ErrorMessage: Text): Boolean
@@ -392,8 +396,8 @@ codeunit 405 "Graph Mail"
 
         // If the current email setup matches the current user
         // try resetting the setup with a new refresh token
-        if GraphMailSetup.Get then
-            if User.Get(UserSecurityId) then
+        if GraphMailSetup.Get() then
+            if User.Get(UserSecurityId()) then
                 if GraphMailSetup."Sender Email" = User."Contact Email" then
                     if GraphMailSetup.Delete(true) then
                         exit(SetupGraph(false));
@@ -409,16 +413,16 @@ codeunit 405 "Graph Mail"
         CalendarEventMangement: Codeunit "Calendar Event Mangement";
         ClientTypeManagement: Codeunit "Client Type Management";
     begin
-        if ClientTypeManagement.GetCurrentClientType = CLIENTTYPE::Background then
+        if ClientTypeManagement.GetCurrentClientType() = CLIENTTYPE::Background then
             exit;
 
         if not CalendarEvent.WritePermission then
             exit;
 
-        if not IsEnabled then
+        if not IsEnabled() then
             exit;
 
-        if not GraphMailSetup.Get then
+        if not GraphMailSetup.Get() then
             exit;
 
         if DT2Date(GraphMailSetup."Expires On") - 14 = Today then
@@ -432,4 +436,4 @@ codeunit 405 "Graph Mail"
     begin
     end;
 }
-
+#endif

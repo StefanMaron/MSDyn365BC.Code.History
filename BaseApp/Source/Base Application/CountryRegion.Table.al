@@ -1,4 +1,3 @@
-#if not CLEAN18
 table 9 "Country/Region"
 {
     Caption = 'Country/Region';
@@ -64,9 +63,9 @@ table 9 "Country/Region"
             begin
                 if xRec."Address Format" <> "Address Format" then begin
                     if "Address Format" = "Address Format"::Custom then
-                        InitAddressFormat;
+                        InitAddressFormat();
                     if xRec."Address Format" = xRec."Address Format"::Custom then
-                        ClearCustomAddressFormat;
+                        ClearCustomAddressFormat();
                 end;
             end;
         }
@@ -150,47 +149,12 @@ table 9 "Country/Region"
     end;
 
     var
+        TypeHelper: Codeunit "Type Helper";
+
         CountryRegionNotFilledErr: Label 'You must specify a country or region.';
         ISOCodeLengthErr: Label 'The length of the string is %1, but it must be equal to %2 characters. Value: %3.', Comment = '%1, %2 - numbers, %3 - actual value';
         ASCIILetterErr: Label 'must contain ASCII letters only';
-        TypeHelper: Codeunit "Type Helper";
         NumericErr: Label 'must contain numbers only';
-
-    [Scope('OnPrem')]
-    [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
-    procedure IsIntrastat(CountryRegionCode: Code[10]; ShipTo: Boolean): Boolean
-    var
-        CompanyInfo: Record "Company Information";
-    begin
-        // NAVCZ
-        if CountryRegionCode = '' then
-            exit(false);
-
-        Get(CountryRegionCode);
-        if "Intrastat Code" = '' then
-            exit(false);
-
-        CompanyInfo.Get();
-        if ShipTo then
-            exit(CountryRegionCode <> CompanyInfo."Ship-to Country/Region Code");
-        exit(CountryRegionCode <> CompanyInfo."Country/Region Code");
-    end;
-
-    [Scope('OnPrem')]
-    [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
-    procedure IsLocalCountry(CountryRegionCode: Code[10]; ShipTo: Boolean): Boolean
-    var
-        CompanyInfo: Record "Company Information";
-    begin
-        // NAVCZ
-        if CountryRegionCode = '' then
-            exit(true);
-
-        CompanyInfo.Get();
-        if ShipTo then
-            exit(CountryRegionCode = CompanyInfo."Ship-to Country/Region Code");
-        exit(CountryRegionCode = CompanyInfo."Country/Region Code");
-    end;
 
     procedure IsEUCountry(CountryRegionCode: Code[10]): Boolean
     var
@@ -210,7 +174,7 @@ table 9 "Country/Region"
         CountryRegionTranslation: Record "Country/Region Translation";
         Language: Codeunit Language;
     begin
-        if CountryRegionTranslation.Get(Code, Language.GetUserLanguageCode) then
+        if CountryRegionTranslation.Get(Code, Language.GetUserLanguageCode()) then
             exit(CountryRegionTranslation.Name);
         exit(Name);
     end;
@@ -228,7 +192,7 @@ table 9 "Country/Region"
         if FieldID <> 0 then
             CreateAddressFormatLine(CountryCode, 1, FieldID, CustomAddressFormat."Line No.");
 
-        CustomAddressFormat.BuildAddressFormat;
+        CustomAddressFormat.BuildAddressFormat();
         CustomAddressFormat.Modify();
 
         exit(CustomAddressFormat."Line No.");
@@ -287,7 +251,7 @@ table 9 "Country/Region"
         end;
         if LineNo <> 0 then begin
             CustomAddressFormat.Get(Code, LineNo);
-            CustomAddressFormat.BuildAddressFormat;
+            CustomAddressFormat.BuildAddressFormat();
             CustomAddressFormat.Modify();
         end;
     end;
@@ -306,4 +270,3 @@ table 9 "Country/Region"
     end;
 }
 
-#endif

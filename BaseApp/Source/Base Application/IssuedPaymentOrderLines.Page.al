@@ -22,7 +22,7 @@ page 11723 "Issued Payment Order Lines"
                     ToolTip = 'Specifies the status of issued payment order lines';
                     Visible = false;
                 }
-                field("Account No."; "Account No.")
+                field("Account No."; Rec."Account No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number used by the bank for the bank account.';
@@ -43,28 +43,28 @@ page 11723 "Issued Payment Order Lines"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies Amount on Issued Payment Order Line.';
                 }
-                field("Amount (LCY)"; "Amount (LCY)")
+                field("Amount (LCY)"; Rec."Amount (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount in the local currency for payment.';
                     Visible = false;
                 }
-                field("Variable Symbol"; "Variable Symbol")
+                field("Variable Symbol"; Rec."Variable Symbol")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the detail information for payment.';
                 }
-                field("Constant Symbol"; "Constant Symbol")
+                field("Constant Symbol"; Rec."Constant Symbol")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the additional symbol of bank payments.';
                 }
-                field("Specific Symbol"; "Specific Symbol")
+                field("Specific Symbol"; Rec."Specific Symbol")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the additional symbol of bank payments.';
                 }
-                field("Transit No."; "Transit No.")
+                field("Transit No."; Rec."Transit No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a bank identification number of your own choice.';
@@ -75,19 +75,19 @@ page 11723 "Issued Payment Order Lines"
                     ToolTip = 'Specifies the type of partner (customer, vendor, bank account, employee).';
                     Visible = false;
                 }
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of partner (customer, vendor, bank account, employee).';
                     Visible = false;
                 }
-                field("Cust./Vendor Bank Account Code"; "Cust./Vendor Bank Account Code")
+                field("Cust./Vendor Bank Account Code"; Rec."Cust./Vendor Bank Account Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the bank account code of the customer or vendor.';
                     Visible = false;
                 }
-                field("Payment Order No."; "Payment Order No.")
+                field("Payment Order No."; Rec."Payment Order No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the Issued Payment Order. The field is either filled automatically from a defined number series.';

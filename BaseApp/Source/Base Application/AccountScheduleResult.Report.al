@@ -31,7 +31,7 @@ report 31082 "Account Schedule Result"
                 column(AccScheduleName_Name; AccScheduleName.Name)
                 {
                 }
-                column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+                column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
                 {
                 }
                 column(Acc__Schedule_Result_Header__Description; "Acc. Schedule Result Header".Description)

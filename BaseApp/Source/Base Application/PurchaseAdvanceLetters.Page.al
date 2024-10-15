@@ -6,7 +6,6 @@ page 31022 "Purchase Advance Letters"
     CardPageID = "Purchase Advance Letter";
     Editable = false;
     PageType = List;
-    PromotedActionCategories = 'New,Process,Report,Approve,Request Approval';
     SourceTable = "Purch. Advance Letter Header";
     UsageCategory = Lists;
     ObsoleteState = Pending;
@@ -20,17 +19,17 @@ page 31022 "Purchase Advance Letters"
             repeater(Control1220012)
             {
                 ShowCaption = false;
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the purchase advance letter.';
                 }
-                field("Pay-to Vendor No."; "Pay-to Vendor No.")
+                field("Pay-to Vendor No."; Rec."Pay-to Vendor No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the vendor who is sending the invoice.';
                 }
-                field("Pay-to Name"; "Pay-to Name")
+                field("Pay-to Name"; Rec."Pay-to Name")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the vendor sending the invoice.';
@@ -40,53 +39,53 @@ page 31022 "Purchase Advance Letters"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the stage during advance process.';
                 }
-                field("Currency Code"; "Currency Code")
+                field("Currency Code"; Rec."Currency Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the currency of amounts on the document.';
                 }
-                field("Amount Including VAT"; "Amount Including VAT")
+                field("Amount Including VAT"; Rec."Amount Including VAT")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether the unit price on the line should be displayed including or excluding VAT.';
                 }
-                field("Amount on Payment Order (LCY)"; "Amount on Payment Order (LCY)")
+                field("Amount on Payment Order (LCY)"; Rec."Amount on Payment Order (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount on payment order.';
                     Visible = false;
                 }
-                field("Template Code"; "Template Code")
+                field("Template Code"; Rec."Template Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies an advance template code.';
                     Visible = false;
                 }
-                field("Amount To Link"; "Amount To Link")
+                field("Amount To Link"; Rec."Amount To Link")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount not yet paid by customer.';
                     Visible = false;
                 }
-                field("Amount To Invoice"; "Amount To Invoice")
+                field("Amount To Invoice"; Rec."Amount To Invoice")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the paid amount for advance VAT document.';
                     Visible = false;
                 }
-                field("Amount To Deduct"; "Amount To Deduct")
+                field("Amount To Deduct"; Rec."Amount To Deduct")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the maximum advance value for use in final sales invoice.';
                     Visible = false;
                 }
-                field("Document Linked Amount"; "Document Linked Amount")
+                field("Document Linked Amount"; Rec."Document Linked Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the document linked amount.';
                     Visible = false;
                 }
-                field("Vendor Adv. Payment No."; "Vendor Adv. Payment No.")
+                field("Vendor Adv. Payment No."; Rec."Vendor Adv. Payment No.")
                 {
                     ApplicationArea = Basic, Suite;
                 }
@@ -125,8 +124,6 @@ page 31022 "Purchase Advance Letters"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Statistics';
                     Image = Statistics;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ShortCutKey = 'F7';
                     ToolTip = 'View the statistics on the selected advance letter.';
 
@@ -144,7 +141,7 @@ page 31022 "Purchase Advance Letters"
 
                     trigger OnAction()
                     begin
-                        ShowDocDim;
+                        ShowDocDim();
                     end;
                 }
                 action("Co&mments")
@@ -185,7 +182,7 @@ page 31022 "Purchase Advance Letters"
 
                     trigger OnAction()
                     begin
-                        ShowDocs;
+                        ShowDocs();
                     end;
                 }
                 action("Assignment Documents - detail")
@@ -204,13 +201,11 @@ page 31022 "Purchase Advance Letters"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Li&nked Advance Payments';
                     Image = Payment;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Show the advance payments by vendor';
 
                     trigger OnAction()
                     begin
-                        ShowLinkedAdvances;
+                        ShowLinkedAdvances();
                     end;
                 }
                 action("Advance Invoices")
@@ -218,9 +213,6 @@ page 31022 "Purchase Advance Letters"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Advance Invoices';
                     Image = Invoice;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     RunObject = Page "Posted Purchase Invoices";
                     RunPageLink = "Letter No." = FIELD("No.");
                     RunPageView = SORTING("Letter No.");
@@ -231,9 +223,6 @@ page 31022 "Purchase Advance Letters"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Advance Credi&t Memos';
                     Image = CreditMemo;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     RunObject = Page "Posted Purchase Credit Memos";
                     RunPageLink = "Letter No." = FIELD("No.");
                     RunPageView = SORTING("Letter No.");
@@ -252,15 +241,12 @@ page 31022 "Purchase Advance Letters"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Release';
                     Image = ReleaseDoc;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     ShortCutKey = 'Ctrl+F9';
                     ToolTip = 'Release the purchase advance to indicate that it has been printed or exported. The status then changes to Released.';
 
                     trigger OnAction()
                     begin
-                        PerformManualRelease;
+                        PerformManualRelease();
                     end;
                 }
                 action("Re&open")
@@ -268,13 +254,11 @@ page 31022 "Purchase Advance Letters"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Re&open';
                     Image = ReOpen;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Reopen the document to change it after it has been approved. Approved documents have tha Released status and must be opened before they can be changed.';
 
                     trigger OnAction()
                     begin
-                        PerformManualReopen;
+                        PerformManualReopen();
                     end;
                 }
             }
@@ -288,9 +272,6 @@ page 31022 "Purchase Advance Letters"
                     Caption = 'Advance Letter';
                     Ellipsis = true;
                     Image = PrintReport;
-                    Promoted = true;
-                    PromotedCategory = "Report";
-                    PromotedIsBig = true;
                     ToolTip = 'Allows the print of advance letter.';
 
                     trigger OnAction()
@@ -311,8 +292,6 @@ page 31022 "Purchase Advance Letters"
                     Caption = 'Send A&pproval Request';
                     Enabled = NOT OpenApprovalEntriesExist;
                     Image = SendApprovalRequest;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     ToolTip = 'Relations to the workflow.';
 
                     trigger OnAction()
@@ -329,8 +308,6 @@ page 31022 "Purchase Advance Letters"
                     Caption = 'Cancel Approval Re&quest';
                     Enabled = OpenApprovalEntriesExist;
                     Image = CancelApprovalRequest;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     ToolTip = 'Relations to the workflow.';
 
                     trigger OnAction()
@@ -345,18 +322,67 @@ page 31022 "Purchase Advance Letters"
         area(reporting)
         {
         }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref(Action1220026_Promoted; Action1220026)
+                {
+                }
+                actionref("Advance Invoices_Promoted"; "Advance Invoices")
+                {
+                }
+                actionref("Advance Credi&t Memos_Promoted"; "Advance Credi&t Memos")
+                {
+                }
+                actionref("Re&open_Promoted"; "Re&open")
+                {
+                }
+                actionref(Statistics_Promoted; Statistics)
+                {
+                }
+                actionref("Li&nked Advance Payments_Promoted"; "Li&nked Advance Payments")
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+
+                actionref("Advance Letter_Promoted"; "Advance Letter")
+                {
+                }
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Approve', Comment = 'Generated from the PromotedActionCategories property index 3.';
+            }
+            group(Category_Category5)
+            {
+                Caption = 'Request Approval', Comment = 'Generated from the PromotedActionCategories property index 4.';
+
+                actionref(SendApprovalRequest_Promoted; SendApprovalRequest)
+                {
+                }
+                actionref(CancelApprovalRequest_Promoted; CancelApprovalRequest)
+                {
+                }
+            }
+        }
     }
 
     trigger OnAfterGetCurrRecord()
     begin
         CurrPage.IncomingDocAttachFactBox.PAGE.LoadDataFromRecord(Rec);
-        SetControlAppearance;
+        SetControlAppearance();
     end;
 
     trigger OnOpenPage()
     begin
-        TemplateSelection;
-        SetSecurityFilterOnRespCenter;
+        TemplateSelection();
+        SetSecurityFilterOnRespCenter();
     end;
 
     var

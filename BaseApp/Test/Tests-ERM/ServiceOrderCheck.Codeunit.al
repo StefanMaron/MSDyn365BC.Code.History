@@ -413,7 +413,7 @@ codeunit 136114 "Service Order Check"
         VerifyGetShipmentLines(OrderNo, ServiceHeader."No.");
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     [Test]
     [Scope('OnPrem')]
     procedure ServiceOrderDiscounts()
@@ -1545,7 +1545,7 @@ codeunit 136114 "Service Order Check"
         ServiceLine.Modify(true);
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     local procedure CreateCustomerLineDiscount(Item: Record Item; CustomerNo: Code[20])
     var
         SalesLineDiscount: Record "Sales Line Discount";

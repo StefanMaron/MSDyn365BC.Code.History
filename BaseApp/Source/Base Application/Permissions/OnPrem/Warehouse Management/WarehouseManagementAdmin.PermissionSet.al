@@ -18,9 +18,6 @@ permissionset 8917 "Warehouse Management - Admin"
                   tabledata "Shipping Agent Services" = RIMD,
                   tabledata "Special Equipment" = RIMD,
                   tabledata "User Setup" = RIMD,
-#if not CLEAN18
-                  tabledata "User Setup Line" = RIMD,
-#endif
                   tabledata "Warehouse Class" = RIMD,
                   tabledata "Warehouse Employee" = RIMD,
                   tabledata "Warehouse Journal Batch" = RIMD,

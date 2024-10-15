@@ -26,7 +26,7 @@ report 5193 "Create Conts. from Bank Accs."
                 Cont.TransferFields("Bank Account");
                 Cont."No." := '';
                 OnBeforeSetSkipDefaults("Bank Account", Cont);
-                Cont.SetSkipDefault;
+                Cont.SetSkipDefault();
                 Cont.Insert(true);
                 DuplMgt.MakeContIndex(Cont);
 
@@ -34,18 +34,18 @@ report 5193 "Create Conts. from Bank Accs."
                     DuplicateContactExist := DuplMgt.DuplicateExist(Cont);
 
                 with ContBusRel do begin
-                    Init;
+                    Init();
                     "Contact No." := Cont."No.";
                     "Business Relation Code" := RMSetup."Bus. Rel. Code for Bank Accs.";
                     "Link to Table" := "Link to Table"::"Bank Account";
                     "No." := "Bank Account"."No.";
-                    Insert;
+                    Insert();
                 end;
             end;
 
             trigger OnPostDataItem()
             begin
-                Window.Close;
+                Window.Close();
 
                 if DuplicateContactExist then
                     DuplMgt.Notify();
@@ -81,14 +81,15 @@ report 5193 "Create Conts. from Bank Accs."
     end;
 
     var
-        Text000: Label 'Processing vendors...\\';
-        Text001: Label 'Bank Account No.  #1##########';
         RMSetup: Record "Marketing Setup";
         Cont: Record Contact;
         ContBusRel: Record "Contact Business Relation";
         DuplMgt: Codeunit DuplicateManagement;
         Window: Dialog;
         DuplicateContactExist: Boolean;
+
+        Text000: Label 'Processing vendors...\\';
+        Text001: Label 'Bank Account No.  #1##########';
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetSkipDefaults(var BankAccount: Record "Bank Account"; var Contact: Record Contact)

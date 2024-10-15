@@ -5,34 +5,6 @@ permissionset 1001 "LOCAL"
     Assignable = true;
     Caption = 'Country/region-specific func.';
     Permissions =
-#if not CLEAN18
-                  tabledata "Certificate CZ Code" = RIMD,
-                  tabledata "Classification Code" = RIMD,
-                  tabledata "Constant Symbol" = RIMD,
-                  tabledata "Credit Header" = RIMD,
-                  tabledata "Credit Line" = RIMD,
-                  tabledata "Credit Report Selections" = RIMD,
-                  tabledata "Credits Setup" = RIMD,
-                  tabledata "Depreciation Group" = RIMD,
-                  tabledata "EET Business Premises" = RIMD,
-                  tabledata "EET Cash Register" = RIMD,
-                  tabledata "EET Entry" = RIMD,
-                  tabledata "EET Entry Status" = RIMD,
-                  tabledata "EET Service Setup" = RIMD,
-                  tabledata "FA Extended Posting Group" = RIMD,
-                  tabledata "FA History Entry" = RIMD,
-                  tabledata "Intrastat Currency Exch. Rate" = RIMD,
-                  tabledata "Intrastat Delivery Group" = RIMD,
-                  tabledata "Posted Credit Header" = RIMD,
-                  tabledata "Posted Credit Line" = RIMD,
-                  tabledata "Specific Movement" = RIMD,
-                  tabledata "Stat. Reporting Setup" = RIMD,
-                  tabledata "Subst. Customer Posting Group" = RIMD,
-                  tabledata "Subst. Vendor Posting Group" = RIMD,
-                  tabledata "User Setup Line" = RIMD,
-                  tabledata "VAT Amount Line Adv. Payment" = RIMD,
-                  tabledata "XML Export Buffer" = RIMD,
-#endif
 #if not CLEAN19
                   tabledata "Acc. Sched. Expression Buffer" = RIMD,
                   tabledata "Acc. Schedule Extension" = RIMD,
@@ -66,6 +38,7 @@ permissionset 1001 "LOCAL"
                   tabledata "Sales Advance Letter Header" = RIMD,
                   tabledata "Sales Advance Letter Line" = RIMD,
                   tabledata "Text-to-Account Mapping Code" = RIMD,
+                  tabledata "VAT Amount Line Adv. Payment" = RIMD,
 #endif
                   tabledata "Acc. Schedule Filter Line" = RIMD,
                   tabledata "Bank Acc. Adjustment Buffer" = RIMD,

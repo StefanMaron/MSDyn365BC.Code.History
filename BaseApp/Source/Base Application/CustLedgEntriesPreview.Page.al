@@ -15,20 +15,20 @@ page 126 "Cust. Ledg. Entries Preview"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Posting Date"; "Posting Date")
+                field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the customer entry''s posting date.';
                 }
-                field("Document Type"; "Document Type")
+                field("Document Type"; Rec."Document Type")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     StyleExpr = StyleTxt;
                     ToolTip = 'Specifies the document type that the customer entry belongs to.';
                 }
-                field("Document No."; "Document No.")
+                field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -45,7 +45,7 @@ page 126 "Cust. Ledg. Entries Preview"
                     ObsoleteTag = '19.0';
                     Visible = false;
                 }
-                field("Prepayment Type"; "Prepayment Type")
+                field("Prepayment Type"; Rec."Prepayment Type")
                 {
                     ApplicationArea = Prepayments;
                     Editable = false;
@@ -55,70 +55,58 @@ page 126 "Cust. Ledg. Entries Preview"
                     ObsoleteTag = '19.0';
                     Visible = false;
                 }
-                field("Customer No."; "Customer No.")
+                field("Customer No."; Rec."Customer No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the customer account number that the entry is linked to.';
                 }
-                field("Message to Recipient"; "Message to Recipient")
+                field("Message to Recipient"; Rec."Message to Recipient")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the message exported to the payment file when you use the Export Payments to File function in the Payment Journal window.';
                 }
-#if not CLEAN18
-                field("Customer Name"; "Customer Name")
-                {
-                    ApplicationArea = Basic, Suite;
-                    DrillDown = false;
-                    ToolTip = 'Specifies the name of customer that you shipped the items.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '18.0';
-                    Visible = false;
-                }
-#endif
                 field(Description; Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description of the customer entry.';
                 }
-                field("Global Dimension 1 Code"; "Global Dimension 1 Code")
+                field("Global Dimension 1 Code"; Rec."Global Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
                     Editable = false;
                     ToolTip = 'Specifies the code for the global dimension that is linked to the record or entry for analysis purposes. Two global dimensions, typically for the company''s most important activities, are available on all cards, documents, reports, and lists.';
                     Visible = Dim1Visible;
                 }
-                field("Global Dimension 2 Code"; "Global Dimension 2 Code")
+                field("Global Dimension 2 Code"; Rec."Global Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     Editable = false;
                     ToolTip = 'Specifies the code for the global dimension that is linked to the record or entry for analysis purposes. Two global dimensions, typically for the company''s most important activities, are available on all cards, documents, reports, and lists.';
                     Visible = Dim2Visible;
                 }
-                field("Customer Posting Group"; "Customer Posting Group")
+                field("Customer Posting Group"; Rec."Customer Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the customer''s market type to link business transactions to.';
                     Visible = false;
                 }
-                field("IC Partner Code"; "IC Partner Code")
+                field("IC Partner Code"; Rec."IC Partner Code")
                 {
                     ApplicationArea = Intercompany;
                     Editable = false;
                     ToolTip = 'Specifies the code of the intercompany partner that the transaction is related to if the entry was created from an intercompany transaction.';
                     Visible = false;
                 }
-                field("Salesperson Code"; "Salesperson Code")
+                field("Salesperson Code"; Rec."Salesperson Code")
                 {
                     ApplicationArea = Suite;
                     Editable = false;
                     ToolTip = 'Specifies the code for the salesperson whom the entry is linked to.';
                     Visible = false;
                 }
-                field("Currency Code"; "Currency Code")
+                field("Currency Code"; Rec."Currency Code")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the currency code for the amount on the line.';
@@ -179,25 +167,25 @@ page 126 "Cust. Ledg. Entries Preview"
                         DrilldownAmounts(0);
                     end;
                 }
-                field("Debit Amount"; "Debit Amount")
+                field("Debit Amount"; Rec."Debit Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the total of the ledger entries that represent debits.';
                     Visible = false;
                 }
-                field("Debit Amount (LCY)"; "Debit Amount (LCY)")
+                field("Debit Amount (LCY)"; Rec."Debit Amount (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the total of the ledger entries that represent debits, expressed in LCY.';
                     Visible = false;
                 }
-                field("Credit Amount"; "Credit Amount")
+                field("Credit Amount"; Rec."Credit Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the total of the ledger entries that represent credits.';
                     Visible = false;
                 }
-                field("Credit Amount (LCY)"; "Credit Amount (LCY)")
+                field("Credit Amount (LCY)"; Rec."Credit Amount (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the total of the ledger entries that represent credits, expressed in LCY.';
@@ -230,52 +218,52 @@ page 126 "Cust. Ledg. Entries Preview"
                         DrilldownAmounts(1);
                     end;
                 }
-                field("Bal. Account Type"; "Bal. Account Type")
+                field("Bal. Account Type"; Rec."Bal. Account Type")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the type of account that a balancing entry is posted to, such as BANK for a cash account.';
                     Visible = false;
                 }
-                field("Bal. Account No."; "Bal. Account No.")
+                field("Bal. Account No."; Rec."Bal. Account No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the number of the general ledger, customer, vendor, or bank account that the balancing entry is posted to, such as a cash account for cash purchases.';
                     Visible = false;
                 }
-                field("Due Date"; "Due Date")
+                field("Due Date"; Rec."Due Date")
                 {
                     ApplicationArea = Basic, Suite;
                     StyleExpr = StyleTxt;
                     ToolTip = 'Specifies the due date on the entry.';
                 }
-                field("Pmt. Discount Date"; "Pmt. Discount Date")
+                field("Pmt. Discount Date"; Rec."Pmt. Discount Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the date on which the amount in the entry must be paid for a payment discount to be granted.';
                 }
-                field("Pmt. Disc. Tolerance Date"; "Pmt. Disc. Tolerance Date")
+                field("Pmt. Disc. Tolerance Date"; Rec."Pmt. Disc. Tolerance Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the last date the amount in the entry must be paid in order for a payment discount tolerance to be granted.';
                 }
-                field("Original Pmt. Disc. Possible"; "Original Pmt. Disc. Possible")
+                field("Original Pmt. Disc. Possible"; Rec."Original Pmt. Disc. Possible")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the discount that the customer can obtain if the entry is applied to before the payment discount date.';
                 }
-                field("Remaining Pmt. Disc. Possible"; "Remaining Pmt. Disc. Possible")
+                field("Remaining Pmt. Disc. Possible"; Rec."Remaining Pmt. Disc. Possible")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the remaining payment discount which can be received if the payment is made before the payment discount date.';
                 }
-                field("Max. Payment Tolerance"; "Max. Payment Tolerance")
+                field("Max. Payment Tolerance"; Rec."Max. Payment Tolerance")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the maximum tolerated amount the entry can differ from the amount on the invoice or credit memo.';
                 }
-                field("Payment Method Code"; "Payment Method Code")
+                field("Payment Method Code"; Rec."Payment Method Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies how to make payment, such as with bank transfer, cash, or check.';
@@ -285,7 +273,7 @@ page 126 "Cust. Ledg. Entries Preview"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether the amount on the entry has been fully paid or there is still a remaining amount that must be applied to.';
                 }
-                field("Open For Advance Letter"; "Open For Advance Letter")
+                field("Open For Advance Letter"; Rec."Open For Advance Letter")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether the entry is open for advance letter.';
@@ -294,180 +282,79 @@ page 126 "Cust. Ledg. Entries Preview"
                     ObsoleteTag = '19.0';
                     Visible = false;
                 }
-                field("On Hold"; "On Hold")
+                field("On Hold"; Rec."On Hold")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies that the related entry represents an unpaid invoice for which either a payment suggestion, a reminder, or a finance charge memo exists.';
                 }
-                field("Exported to Payment File"; "Exported to Payment File")
+                field("Exported to Payment File"; Rec."Exported to Payment File")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies that the entry was created as a result of exporting a payment journal line.';
                 }
-                field("Source Code"; "Source Code")
+                field("Source Code"; Rec."Source Code")
                 {
                     ApplicationArea = Suite;
                     Editable = false;
                     ToolTip = 'Specifies the source code that specifies where the entry was created.';
                     Visible = false;
                 }
-                field("Reason Code"; "Reason Code")
+                field("Reason Code"; Rec."Reason Code")
                 {
                     ApplicationArea = Suite;
                     Editable = false;
                     ToolTip = 'Specifies the reason code, a supplementary source code that enables you to trace the entry.';
                     Visible = false;
                 }
-#if not CLEAN18
-                field("Bank Account Code"; "Bank Account Code")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the bank account used on the entry.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '18.0';
-                }
-                field("Bank Account No."; "Bank Account No.")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Editable = false;
-                    ToolTip = 'Specifies the number used by the bank for the bank account.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '18.0';
-
-                }
-                field("Specific Symbol"; "Specific Symbol")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Editable = false;
-                    ToolTip = 'Specifies the additional symbol of the bank payments.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '18.0';
-                }
-                field("Variable Symbol"; "Variable Symbol")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Editable = false;
-                    ToolTip = 'Specifies the additional symbol of the bank payments.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '18.0';
-                }
-                field("Constant Symbol"; "Constant Symbol")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Editable = false;
-                    ToolTip = 'Specifies the additional symbol of the bank payments.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '18.0';
-                }
-                field("Transit No."; "Transit No.")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Editable = false;
-                    ToolTip = 'Specifies a bank identification number of your own choice.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '18.0';
-                }
-                field(IBAN; IBAN)
-                {
-                    ApplicationArea = Basic, Suite;
-                    Editable = false;
-                    ToolTip = 'Specifies the bank account''s international bank account number.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '18.0';
-                }
-                field("SWIFT Code"; "SWIFT Code")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Editable = false;
-                    ToolTip = 'Specifies the international bank identifier code (SWIFT) of the bank where you have the account.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '18.0';
-                }
-                field("Amount on Credit (LCY)"; "Amount on Credit (LCY)")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the amount on credit in local currency.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Compensation Localization Pack for Czech.';
-                    ObsoleteTag = '18.0';
-                }
-                field(Compensation; Compensation)
-                {
-                    ApplicationArea = Basic, Suite;
-                    Editable = false;
-                    ToolTip = 'Specifies whether the entry is compensation''s entry.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Compensation Localization Pack for Czech.';
-                    ObsoleteTag = '18.0';
-                }
-#endif
                 field("Dimension Set ID"; "Dimension Set ID")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies a reference to a combination of dimension values. The actual values are stored in the Dimension Set Entry table.';
                     Visible = false;
                 }
-                field("External Document No."; "External Document No.")
+                field("External Document No."; Rec."External Document No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies a document number that refers to the customer''s or vendor''s numbering system.';
                     Visible = false;
                 }
-                field("Shortcut Dimension 3 Code"; "Shortcut Dimension 3 Code")
+                field("Shortcut Dimension 3 Code"; Rec."Shortcut Dimension 3 Code")
                 {
                     ApplicationArea = Dimensions;
                     Editable = false;
                     ToolTip = 'Specifies the code for Shortcut Dimension 3, which is one of dimension codes that you set up in the General Ledger Setup window.';
                     Visible = Dim3Visible;
                 }
-                field("Shortcut Dimension 4 Code"; "Shortcut Dimension 4 Code")
+                field("Shortcut Dimension 4 Code"; Rec."Shortcut Dimension 4 Code")
                 {
                     ApplicationArea = Dimensions;
                     Editable = false;
                     ToolTip = 'Specifies the code for Shortcut Dimension 4, which is one of dimension codes that you set up in the General Ledger Setup window.';
                     Visible = Dim4Visible;
                 }
-                field("Shortcut Dimension 5 Code"; "Shortcut Dimension 5 Code")
+                field("Shortcut Dimension 5 Code"; Rec."Shortcut Dimension 5 Code")
                 {
                     ApplicationArea = Dimensions;
                     Editable = false;
                     ToolTip = 'Specifies the code for Shortcut Dimension 5, which is one of dimension codes that you set up in the General Ledger Setup window.';
                     Visible = Dim5Visible;
                 }
-                field("Shortcut Dimension 6 Code"; "Shortcut Dimension 6 Code")
+                field("Shortcut Dimension 6 Code"; Rec."Shortcut Dimension 6 Code")
                 {
                     ApplicationArea = Dimensions;
                     Editable = false;
                     ToolTip = 'Specifies the code for Shortcut Dimension 6, which is one of dimension codes that you set up in the General Ledger Setup window.';
                     Visible = Dim6Visible;
                 }
-                field("Shortcut Dimension 7 Code"; "Shortcut Dimension 7 Code")
+                field("Shortcut Dimension 7 Code"; Rec."Shortcut Dimension 7 Code")
                 {
                     ApplicationArea = Dimensions;
                     Editable = false;
                     ToolTip = 'Specifies the code for Shortcut Dimension 7, which is one of dimension codes that you set up in the General Ledger Setup window.';
                     Visible = Dim7Visible;
                 }
-                field("Shortcut Dimension 8 Code"; "Shortcut Dimension 8 Code")
+                field("Shortcut Dimension 8 Code"; Rec."Shortcut Dimension 8 Code")
                 {
                     ApplicationArea = Dimensions;
                     Editable = false;
@@ -492,9 +379,6 @@ page 126 "Cust. Ledg. Entries Preview"
                     Caption = 'Dimensions';
                     Ellipsis = true;
                     Image = Dimensions;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     ShortCutKey = 'Alt+D';
                     ToolTip = 'View or edit dimensions, such as area, project, or department, that you can assign to sales and purchase documents to distribute costs and analyze transaction history.';
 
@@ -515,8 +399,19 @@ page 126 "Cust. Ledg. Entries Preview"
 
                     trigger OnAction()
                     begin
-                        SetFilter("Dimension Set ID", DimensionSetIDFilter.LookupFilter);
+                        SetFilter("Dimension Set ID", DimensionSetIDFilter.LookupFilter());
                     end;
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(Dimensions_Promoted; Dimensions)
+                {
                 }
             }
         }
@@ -524,8 +419,8 @@ page 126 "Cust. Ledg. Entries Preview"
 
     trigger OnAfterGetRecord()
     begin
-        StyleTxt := SetStyle;
-        CalcAmounts;
+        StyleTxt := SetStyle();
+        CalcAmounts();
     end;
 
     trigger OnOpenPage()
@@ -566,7 +461,7 @@ page 126 "Cust. Ledg. Entries Preview"
         if TempCustLedgerEntry.FindSet() then
             repeat
                 Rec := TempCustLedgerEntry;
-                Insert;
+                Insert();
             until TempCustLedgerEntry.Next() = 0;
 
         if TempDetailedCustLedgEntry2.Find('-') then

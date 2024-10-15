@@ -13,7 +13,7 @@
                   TableData "Service Contract Header" = rm,
                   TableData "Price List Header" = rd,
                   TableData "Price List Line" = rd,
-#if not CLEAN19
+#if not CLEAN21
                   TableData "Sales Price" = rd,
                   TableData "Sales Line Discount" = rd,
 #endif
@@ -80,10 +80,13 @@
             end;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
-                OnBeforeValidateCity(Rec, PostCode);
-
-                PostCode.ValidateCity(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
+                IsHandled := false;
+                OnBeforeValidateCity(Rec, PostCode, CurrFieldNo, IsHandled);
+                if not IsHandled then
+                    PostCode.ValidateCity(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
 
                 OnAfterValidateCity(Rec, xRec);
             end;
@@ -94,7 +97,7 @@
 
             trigger OnLookup()
             begin
-                LookupContactList;
+                LookupContactList();
             end;
 
             trigger OnValidate()
@@ -106,10 +109,10 @@
                 if IsHandled then
                     exit;
 
-                if RMSetup.Get then
+                if RMSetup.Get() then
                     if RMSetup."Bus. Rel. Code for Customers" <> '' then
                         if (xRec.Contact = '') and (xRec."Primary Contact No." = '') and (Contact <> '') then begin
-                            Modify;
+                            Modify();
                             UpdateContFromCust.OnModify(Rec);
                             UpdateContFromCust.InsertNewContactPerson(Rec, false);
                             Modify(true);
@@ -205,7 +208,7 @@
 
             trigger OnValidate()
             begin
-                UpdateCurrencyId;
+                UpdateCurrencyId();
             end;
         }
         field(23; "Customer Price Group"; Code[10])
@@ -229,7 +232,7 @@
 
             trigger OnValidate()
             begin
-                UpdatePaymentTermsId;
+                UpdatePaymentTermsId();
             end;
         }
         field(28; "Fin. Charge Terms Code"; Code[10])
@@ -244,7 +247,7 @@
 
             trigger OnValidate()
             begin
-                ValidateSalesPersonCode;
+                ValidateSalesPersonCode();
             end;
         }
         field(30; "Shipment Method Code"; Code[10])
@@ -254,7 +257,7 @@
 
             trigger OnValidate()
             begin
-                UpdateShipmentMethodId;
+                UpdateShipmentMethodId();
             end;
         }
         field(31; "Shipping Agent Code"; Code[10])
@@ -361,7 +364,7 @@
 
             trigger OnValidate()
             begin
-                UpdatePaymentMethodId;
+                UpdatePaymentMethodId();
 
                 if "Payment Method Code" = '' then
                     exit;
@@ -761,9 +764,12 @@
             end;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
-                OnBeforeValidatePostCode(Rec, PostCode);
-
+                IsHandled := false;
+                OnBeforeValidatePostCode(Rec, PostCode, CurrFieldNo, IsHandled);
+                if not IsHandled then;
                 PostCode.ValidatePostCode(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
 
                 OnAfterValidatePostCode(Rec, xRec);
@@ -902,7 +908,7 @@
 
             trigger OnValidate()
             begin
-                UpdateTaxAreaId;
+                UpdateTaxAreaId();
             end;
         }
         field(109; "Tax Liable"; Boolean)
@@ -916,7 +922,7 @@
 
             trigger OnValidate()
             begin
-                UpdateTaxAreaId;
+                UpdateTaxAreaId();
             end;
         }
         field(111; "Currency Filter"; Code[10])
@@ -1027,7 +1033,7 @@
                 if "IC Partner Code" <> '' then begin
                     ICPartner.Get("IC Partner Code");
                     if (ICPartner."Customer No." <> '') and (ICPartner."Customer No." <> "No.") then
-                        Error(Text010, FieldCaption("IC Partner Code"), "IC Partner Code", TableCaption, ICPartner."Customer No.");
+                        Error(Text010, FieldCaption("IC Partner Code"), "IC Partner Code", TableCaption(), ICPartner."Customer No.");
                     ICPartner."Customer No." := "No.";
                     ICPartner.Modify();
                 end;
@@ -1186,7 +1192,7 @@
 
             trigger OnLookup()
             begin
-                LookupContactList;
+                LookupContactList();
             end;
 
             trigger OnValidate()
@@ -1204,7 +1210,7 @@
                         exit;
                     end;
 
-                    if Cont.Image.HasValue then
+                    if Cont.Image.HasValue() then
                         CopyContactPicture(Cont);
 
                     if Cont."Phone No." <> '' then
@@ -1215,7 +1221,7 @@
                         "Mobile Phone No." := Cont."Mobile Phone No.";
 
                 end else
-                    if Image.HasValue then
+                    if Image.HasValue() then
                         Clear(Image);
             end;
         }
@@ -1537,7 +1543,7 @@
 
             trigger OnValidate()
             begin
-                UpdateCurrencyCode;
+                UpdateCurrencyCode();
             end;
         }
         field(8002; "Payment Terms Id"; Guid)
@@ -1547,7 +1553,7 @@
 
             trigger OnValidate()
             begin
-                UpdatePaymentTermsCode;
+                UpdatePaymentTermsCode();
             end;
         }
         field(8003; "Shipment Method Id"; Guid)
@@ -1557,7 +1563,7 @@
 
             trigger OnValidate()
             begin
-                UpdateShipmentMethodCode;
+                UpdateShipmentMethodCode();
             end;
         }
         field(8004; "Payment Method Id"; Guid)
@@ -1567,7 +1573,7 @@
 
             trigger OnValidate()
             begin
-                UpdatePaymentMethodCode;
+                UpdatePaymentMethodCode();
             end;
         }
         field(9003; "Tax Area ID"; Guid)
@@ -1576,7 +1582,7 @@
 
             trigger OnValidate()
             begin
-                UpdateTaxAreaCode;
+                UpdateTaxAreaCode();
             end;
         }
         field(9004; "Tax Area Display Name"; Text[100])
@@ -1725,37 +1731,25 @@
         {
             Caption = 'Transaction Type';
             TableRelation = "Transaction Type";
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(31061; "Transaction Specification"; Code[10])
         {
             Caption = 'Transaction Specification';
             TableRelation = "Transaction Specification";
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(31062; "Transport Method"; Code[10])
         {
             Caption = 'Transport Method';
             TableRelation = "Transport Method";
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(31063; "Industry Code"; Code[20])
         {
@@ -1808,16 +1802,16 @@
         key(Key13; Contact)
         {
         }
-        key(Key16; Blocked)
+        key(Key14; Blocked)
         {
         }
-        key(Key17; "Primary Contact No.")
+        key(Key15; "Primary Contact No.")
         {
         }
-        key(Key18; "Salesperson Code")
+        key(Key16; "Salesperson Code")
         {
         }
-        key(Key19; SystemModifiedAt)
+        key(Key17; SystemModifiedAt)
         {
         }
         key(Key20; "Partner Type", "Country/Region Code")
@@ -1833,8 +1827,17 @@
 
     fieldgroups
     {
+#if not CLEAN21
         fieldgroup(DropDown; "No.", Name, City, "Post Code", "Phone No.", Contact, "VAT Registration No.")
+#else
+        fieldgroup(DropDown; "No.", Name, City, "Post Code", "Phone No.", Contact)
+#endif
         {
+#if not CLEAN21            
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Merge to W1.';
+            ObsoleteTag = '21.0';
+#endif
         }
         fieldgroup(Brick; "No.", Name, "Balance (LCY)", Contact, "Balance Due (LCY)", Image)
         {
@@ -1866,7 +1869,7 @@
         ServiceItem.SetRange("Customer No.", "No.");
         if ServiceItem.FindFirst() then
             if ConfirmManagement.GetResponseOrDefault(
-                 StrSubstNo(Text008, TableCaption, "No.", ServiceItem.FieldCaption("Customer No.")), true)
+                 StrSubstNo(Text008, TableCaption(), "No.", ServiceItem.FieldCaption("Customer No.")), true)
             then
                 ServiceItem.ModifyAll("Customer No.", '')
             else
@@ -1874,7 +1877,7 @@
 
         Job.SetRange("Bill-to Customer No.", "No.");
         if not Job.IsEmpty() then
-            Error(Text015, TableCaption, "No.", Job.TableCaption);
+            Error(Text015, TableCaption(), "No.", Job.TableCaption());
 
         MoveEntries.MoveCustEntries(Rec);
 
@@ -1948,6 +1951,7 @@
         if IsHandled then
             exit;
 
+#if not CLEAN19
         if "No." = '' then
             if "No. Series" = '' then begin // NAVCZ
                 SalesSetup.Get();
@@ -1956,6 +1960,13 @@
             end else // NAVCZ
                 NoSeriesMgt.InitSeries("No. Series", xRec."No. Series", 0D, "No.", "No. Series");
         // NAVCZ
+#else
+        if "No." = '' then begin
+            SalesSetup.Get();
+            SalesSetup.TestField("Customer Nos.");
+            NoSeriesMgt.InitSeries(SalesSetup."Customer Nos.", xRec."No. Series", 0D, "No.", "No. Series");
+        end;
+#endif
 
         if "Invoice Disc. Code" = '' then
             "Invoice Disc. Code" := "No.";
@@ -1964,28 +1975,28 @@
             UpdateContFromCust.OnInsert(Rec);
 
         if "Salesperson Code" = '' then
-            SetDefaultSalesperson;
+            SetDefaultSalesperson();
 
         DimMgt.UpdateDefaultDim(
           DATABASE::Customer, "No.",
           "Global Dimension 1 Code", "Global Dimension 2 Code");
 
-        UpdateReferencedIds;
-        SetLastModifiedDateTime;
+        UpdateReferencedIds();
+        SetLastModifiedDateTime();
 
         OnAfterOnInsert(Rec, xRec);
     end;
 
     trigger OnModify()
     begin
-        UpdateReferencedIds;
-        SetLastModifiedDateTime;
-        if IsContactUpdateNeeded then begin
-            Modify;
+        UpdateReferencedIds();
+        SetLastModifiedDateTime();
+        if IsContactUpdateNeeded() then begin
+            Modify();
             UpdateContFromCust.OnModify(Rec);
-            if not Find then begin
-                Reset;
-                if Find then;
+            if not Find() then begin
+                Reset();
+                if Find() then;
             end;
         end;
     end;
@@ -2003,7 +2014,7 @@
         DimMgt.RenameDefaultDim(DATABASE::Customer, xRec."No.", "No.");
         CommentLine.RenameCommentLine(CommentLine."Table Name"::Customer, xRec."No.", "No.");
 
-        SetLastModifiedDateTime;
+        SetLastModifiedDateTime();
         if xRec."Invoice Disc. Code" = xRec."No." then
             "Invoice Disc. Code" := "No.";
         UpdateCustomerTemplateInvoiceDiscCodes();
@@ -2012,8 +2023,6 @@
     end;
 
     var
-        Text000: Label 'You cannot delete %1 %2 because there is at least one outstanding Sales %3 for this customer.';
-        Text002: Label 'Do you wish to create a contact for %1 %2?';
         SalesSetup: Record "Sales & Receivables Setup";
         CommentLine: Record "Comment Line";
         SalesOrderLine: Record "Sales Line";
@@ -2035,6 +2044,12 @@
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
         CalendarManagement: Codeunit "Calendar Management";
         InsertFromContact: Boolean;
+        InsertFromTemplate: Boolean;
+        LookupRequested: Boolean;
+        ForceUpdateContact: Boolean;
+
+        Text000: Label 'You cannot delete %1 %2 because there is at least one outstanding Sales %3 for this customer.';
+        Text002: Label 'Do you wish to create a contact for %1 %2?';
         Text003: Label 'Contact %1 %2 is not related to customer %3 %4.';
         Text004: Label 'post';
         Text005: Label 'create';
@@ -2053,15 +2068,12 @@
         SelectCustErr: Label 'You must select an existing customer.';
         CustNotRegisteredTxt: Label 'This customer is not registered. To continue, choose one of the following options:';
         SelectCustTxt: Label 'Select an existing customer';
-        InsertFromTemplate: Boolean;
-        LookupRequested: Boolean;
         OverrideImageQst: Label 'Override Image?';
         PrivacyBlockedActionErr: Label 'You cannot %1 this type of document when Customer %2 is blocked for privacy.', Comment = '%1 = action (create or post), %2 = customer code.';
         PrivacyBlockedGenericTxt: Label 'Privacy Blocked must not be true for customer %1.', Comment = '%1 = customer code';
         ConfirmBlockedPrivacyBlockedQst: Label 'If you change the Blocked field, the Privacy Blocked field is changed to No. Do you want to continue?';
         CanNotChangeBlockedDueToPrivacyBlockedErr: Label 'The Blocked field cannot be changed because the user is blocked for privacy reasons.';
         PhoneNoCannotContainLettersErr: Label 'must not contain letters';
-        ForceUpdateContact: Boolean;
 
     procedure AssistEdit(OldCust: Record Customer): Boolean
     var
@@ -2092,7 +2104,7 @@
         DimMgt.ValidateDimValueCode(FieldNumber, ShortcutDimCode);
         if not IsTemporary then begin
             DimMgt.SaveDefaultDim(DATABASE::Customer, "No.", FieldNumber, ShortcutDimCode);
-            Modify;
+            Modify();
         end;
 
         OnAfterValidateShortcutDimCode(Rec, xRec, FieldNumber, ShortcutDimCode);
@@ -2119,7 +2131,7 @@
             ContBusRel.SetRange("Link to Table", ContBusRel."Link to Table"::Customer);
             ContBusRel.SetRange("No.", "No.");
             if not ContBusRel.FindFirst() then begin
-                if not ConfirmManagement.GetResponseOrDefault(StrSubstNo(Text002, TableCaption, "No."), true) then
+                if not ConfirmManagement.GetResponseOrDefault(StrSubstNo(Text002, TableCaption(), "No."), true) then
                     exit;
                 UpdateContFromCust.InsertNewContact(Rec, false);
                 ContBusRel.FindFirst();
@@ -2160,7 +2172,7 @@
             if Cont.Get("Primary Contact No.") then;
         if PAGE.RunModal(0, Cont) = ACTION::LookupOK then begin
             TempCust.Copy(Rec);
-            Find;
+            Find();
             TransferFields(TempCust, false);
             Validate("Primary Contact No.", Cont."No.");
         end;
@@ -2276,7 +2288,7 @@
     begin
         OnlineMapSetup.SetRange(Enabled, true);
         if OnlineMapSetup.FindFirst() then
-            OnlineMapManagement.MakeSelection(DATABASE::Customer, GetPosition)
+            OnlineMapManagement.MakeSelection(DATABASE::Customer, GetPosition())
         else
             Message(OnLineMapMustBeFilledMsg);
     end;
@@ -2329,7 +2341,7 @@
         if SecurityFiltering <> xSecurityFilter then
             SecurityFiltering(xSecurityFilter);
 
-        exit(GetTotalAmountLCYCommon);
+        exit(GetTotalAmountLCYCommon());
     end;
 
     procedure GetTotalAmountLCYUI(): Decimal
@@ -2339,7 +2351,7 @@
         SetAutoCalcFields("Balance (LCY)", "Outstanding Orders (LCY)", "Shipped Not Invoiced (LCY)", "Outstanding Invoices (LCY)",
           "Outstanding Serv. Orders (LCY)", "Serv Shipped Not Invoiced(LCY)", "Outstanding Serv.Invoices(LCY)");
 
-        exit(GetTotalAmountLCYCommon);
+        exit(GetTotalAmountLCYCommon());
     end;
 
     local procedure GetTotalAmountLCYCommon(): Decimal
@@ -2362,8 +2374,8 @@
 
         SalesOutstandingAmountFromShipment := SalesLine.OutstandingInvoiceAmountFromShipment("No.");
         ServOutstandingAmountFromShipment := ServiceLine.OutstandingInvoiceAmountFromShipment("No.");
-        InvoicedPrepmtAmountLCY := GetInvoicedPrepmtAmountLCY;
-        RetRcdNotInvAmountLCY := GetReturnRcdNotInvAmountLCY;
+        InvoicedPrepmtAmountLCY := GetInvoicedPrepmtAmountLCY();
+        RetRcdNotInvAmountLCY := GetReturnRcdNotInvAmountLCY();
 
         exit("Balance (LCY)" + "Outstanding Orders (LCY)" + "Shipped Not Invoiced (LCY)" + "Outstanding Invoices (LCY)" +
           "Outstanding Serv. Orders (LCY)" + "Serv Shipped Not Invoiced(LCY)" + "Outstanding Serv.Invoices(LCY)" -
@@ -2384,8 +2396,8 @@
         if IsHandled then
             exit(SalesLCY);
 
-        StartDate := AccountingPeriod.GetFiscalYearStartDate(WorkDate);
-        EndDate := AccountingPeriod.GetFiscalYearEndDate(WorkDate);
+        StartDate := AccountingPeriod.GetFiscalYearStartDate(WorkDate());
+        EndDate := AccountingPeriod.GetFiscalYearEndDate(WorkDate());
         CustomerSalesYTD := Rec;
         CustomerSalesYTD."SecurityFiltering"("SecurityFiltering");
         CustomerSalesYTD.SetRange("Date Filter", StartDate, EndDate);
@@ -2438,9 +2450,9 @@
         CustLedgEntryRemainAmtQuery.SetRange(Customer_No, "No.");
         CustLedgEntryRemainAmtQuery.SetFilter(Due_Date, '<%1', Today);
         CustLedgEntryRemainAmtQuery.SetFilter(Date_Filter, '..%1', Today);
-        CustLedgEntryRemainAmtQuery.Open;
+        CustLedgEntryRemainAmtQuery.Open();
 
-        if CustLedgEntryRemainAmtQuery.Read then
+        if CustLedgEntryRemainAmtQuery.Read() then
             OverDueBalance := CustLedgEntryRemainAmtQuery.Sum_Remaining_Amt_LCY;
     end;
 
@@ -2456,7 +2468,7 @@
 
     procedure SetStyle(): Text
     begin
-        if CalcAvailableCredit < 0 then
+        if CalcAvailableCredit() < 0 then
             exit('Unfavorable');
         exit('');
     end;
@@ -2518,7 +2530,7 @@
     begin
         SalesHeader."Document Type" := SalesHeader."Document Type"::Invoice;
         SalesHeader.SetRange("Sell-to Customer No.", "No.");
-        SalesHeader.SetDefaultPaymentServices;
+        SalesHeader.SetDefaultPaymentServices();
         SalesHeader.Insert(true);
         Commit();
         PAGE.Run(PAGE::"Sales Invoice", SalesHeader)
@@ -2530,7 +2542,7 @@
     begin
         SalesHeader."Document Type" := SalesHeader."Document Type"::Order;
         SalesHeader.SetRange("Sell-to Customer No.", "No.");
-        SalesHeader.SetDefaultPaymentServices;
+        SalesHeader.SetDefaultPaymentServices();
         SalesHeader.Insert(true);
         Commit();
         PAGE.Run(PAGE::"Sales Order", SalesHeader)
@@ -2593,7 +2605,7 @@
 
     procedure HasAddress(): Boolean
     begin
-        exit(HasAddressIgnoreCountryCode or ("Country/Region Code" <> ''));
+        exit(HasAddressIgnoreCountryCode() or ("Country/Region Code" <> ''));
     end;
 
     procedure HasDifferentAddress(OtherCustomer: Record Customer) Result: Boolean
@@ -2760,7 +2772,7 @@
                 if Abs(CustomerTextLength - StrLen(Customer.Name)) <= Treshold then
                     if TypeHelper.TextDistance(UpperCase(CustomerText), UpperCase(Customer.Name)) <= Treshold then
                         Customer.Mark(true);
-            until Customer.Mark or (Customer.Next() = 0) or (CustomerCount > 1000);
+            until Customer.Mark() or (Customer.Next() = 0) or (CustomerCount > 1000);
         Customer.MarkedOnly(true);
     end;
 
@@ -2790,7 +2802,7 @@
             exit(Customer."No.");
         Customer.SetRange("No.", Customer."No.");
         CustomerCard.SetTableView(Customer);
-        if not (CustomerCard.RunModal = ACTION::OK) then
+        if not (CustomerCard.RunModal() = ACTION::OK) then
             Error(SelectCustErr);
 
         exit(Customer."No.");
@@ -2806,7 +2818,7 @@
         CustomerList.SetTableView(Customer);
         CustomerList.SetRecord(Customer);
         CustomerList.LookupMode := true;
-        if CustomerList.RunModal = ACTION::LookupOK then
+        if CustomerList.RunModal() = ACTION::LookupOK then
             CustomerList.GetRecord(Customer)
         else
             Clear(Customer);
@@ -2828,7 +2840,7 @@
         CustomerLookup.SetTableView(Customer);
         CustomerLookup.SetRecord(Customer);
         CustomerLookup.LookupMode := true;
-        Result := CustomerLookup.RunModal = ACTION::LookupOK;
+        Result := CustomerLookup.RunModal() = ACTION::LookupOK;
         if Result then
             CustomerLookup.GetRecord(Customer)
         else
@@ -2984,31 +2996,6 @@
         exit(HasAnyDocs);
     end;
 
-#if not CLEAN18
-    [Obsolete('Will be removed with other functionality related to "old" templates. Replaced by CopyFromNewCustomerTemplate(CustomerTemplate: Record "Customer Templ.")', '18.0')]
-    procedure CopyFromCustomerTemplate(CustomerTemplate: Record "Customer Template")
-    begin
-        "Territory Code" := CustomerTemplate."Territory Code";
-        "Global Dimension 1 Code" := CustomerTemplate."Global Dimension 1 Code";
-        "Global Dimension 2 Code" := CustomerTemplate."Global Dimension 2 Code";
-        "Customer Posting Group" := CustomerTemplate."Customer Posting Group";
-        "Currency Code" := CustomerTemplate."Currency Code";
-        "Invoice Disc. Code" := CustomerTemplate."Invoice Disc. Code";
-        "Customer Price Group" := CustomerTemplate."Customer Price Group";
-        "Customer Disc. Group" := CustomerTemplate."Customer Disc. Group";
-        "Country/Region Code" := CustomerTemplate."Country/Region Code";
-        "Allow Line Disc." := CustomerTemplate."Allow Line Disc.";
-        "Gen. Bus. Posting Group" := CustomerTemplate."Gen. Bus. Posting Group";
-        "VAT Bus. Posting Group" := CustomerTemplate."VAT Bus. Posting Group";
-        Validate("Payment Terms Code", CustomerTemplate."Payment Terms Code");
-        Validate("Payment Method Code", CustomerTemplate."Payment Method Code");
-        "Prices Including VAT" := CustomerTemplate."Prices Including VAT";
-        "Shipment Method Code" := CustomerTemplate."Shipment Method Code";
-
-        OnAfterCopyFromCustomerTemplate(Rec, CustomerTemplate);
-    end;
-#endif
-
     procedure CopyFromNewCustomerTemplate(CustomerTemplate: Record "Customer Templ.")
     begin
         "Territory Code" := CustomerTemplate."Territory Code";
@@ -3038,7 +3025,7 @@
         ConfirmManagement: Codeunit "Confirm Management";
         ExportPath: Text;
     begin
-        if Image.HasValue then
+        if Image.HasValue() then
             if not ConfirmManagement.GetResponseOrDefault(OverrideImageQst, true) then
                 exit;
 
@@ -3050,7 +3037,7 @@
 
         Clear(Image);
         Image.ImportFile(TempNameValueBuffer.Name, '');
-        Modify;
+        Modify();
         if FileManagement.DeleteServerFile(TempNameValueBuffer.Name) then;
     end;
 
@@ -3112,7 +3099,7 @@
             ApplicableCountryCode := "Country/Region Code";
             if ApplicableCountryCode = '' then
                 ApplicableCountryCode := VATRegistrationNoFormat."Country/Region Code";
-            if VATRegNoSrvConfig.VATRegNoSrvIsEnabled then begin
+            if VATRegNoSrvConfig.VATRegNoSrvIsEnabled() then begin
                 LogNotVerified := false;
                 VATRegistrationLogMgt.ValidateVATRegNoWithVIES(
                     ResultRecordRef, Rec, "No.", VATRegistrationLog."Account Type"::Customer.AsInteger(), ApplicableCountryCode);
@@ -3139,12 +3126,14 @@
         MailManagement.CheckValidEmailAddresses("E-Mail");
     end;
 
+#if not CLEAN21
+    [Obsolete('The function is not used anymore.', '21.0')]
     procedure VerifyAndUpdateFromVIES()
     begin
         // NAVCZ
-        VATRegistrationValidation;
+        VATRegistrationValidation();
     end;
-
+#endif
     procedure SetAddress(CustomerAddress: Text[100]; CustomerAddress2: Text[50]; CustomerPostCode: Code[20]; CustomerCity: Text[30]; CustomerCounty: Text[30]; CustomerCountryCode: Code[10]; CustomerContact: Text[100])
     begin
         Address := CustomerAddress;
@@ -3335,7 +3324,7 @@
         TaxArea: Record "Tax Area";
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        if GeneralLedgerSetup.UseVat then begin
+        if GeneralLedgerSetup.UseVat() then begin
             if "VAT Bus. Posting Group" = '' then begin
                 Clear("Tax Area ID");
                 exit;
@@ -3367,7 +3356,7 @@
         if IsNullGuid("Tax Area ID") then
             exit;
 
-        if GeneralLedgerSetup.UseVat then begin
+        if GeneralLedgerSetup.UseVat() then begin
             VATBusinessPostingGroup.GetBySystemId("Tax Area ID");
             "VAT Bus. Posting Group" := VATBusinessPostingGroup.Code;
         end else begin
@@ -3430,14 +3419,6 @@
     local procedure OnBeforeIsContactUpdateNeeded(Customer: Record Customer; xCustomer: Record Customer; var UpdateNeeded: Boolean; ForceUpdateContact: Boolean)
     begin
     end;
-
-#if not CLEAN18
-    [Obsolete('Will be removed with other functionality related to "old" templates. Replaced by OnAfterCopyFromNewCustomerTemplate()', '18.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterCopyFromCustomerTemplate(var Customer: Record Customer; CustomerTemplate: Record "Customer Template")
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyFromNewCustomerTemplate(var Customer: Record Customer; CustomerTemplate: Record "Customer Templ.")
@@ -3615,7 +3596,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeValidateCity(var Customer: Record Customer; var PostCodeRec: Record "Post Code")
+    local procedure OnBeforeValidateCity(var Customer: Record Customer; var PostCodeRec: Record "Post Code"; CurrentFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 
@@ -3625,7 +3606,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeValidatePostCode(var Customer: Record Customer; var PostCodeRec: Record "Post Code")
+    local procedure OnBeforeValidatePostCode(var Customer: Record Customer; var PostCodeRec: Record "Post Code"; CurrentFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 

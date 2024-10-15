@@ -8,7 +8,6 @@ page 11719 "Payment Order List"
     InsertAllowed = false;
     ModifyAllowed = false;
     PageType = List;
-    PromotedActionCategories = 'New,Process,Report,Approve,Request Approval';
     SourceTable = "Payment Order Header";
     UsageCategory = Lists;
     ObsoleteState = Pending;
@@ -23,32 +22,32 @@ page 11719 "Payment Order List"
             {
                 Editable = false;
                 ShowCaption = false;
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the payment order.';
                 }
-                field("Account No."; "Account No.")
+                field("Account No."; Rec."Account No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number used by the bank for the bank account.';
                 }
-                field("Document Date"; "Document Date")
+                field("Document Date"; Rec."Document Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the date on which you created the document.';
                 }
-                field("Bank Account No."; "Bank Account No.")
+                field("Bank Account No."; Rec."Bank Account No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of bank account.';
                 }
-                field("Bank Account Name"; "Bank Account Name")
+                field("Bank Account Name"; Rec."Bank Account Name")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of bank account.';
                 }
-                field("Currency Code"; "Currency Code")
+                field("Currency Code"; Rec."Currency Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the currency of amounts on the document.';
@@ -58,17 +57,17 @@ page 11719 "Payment Order List"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the total amount for payment order lines. The program calculates this amount from the sum of line amount fields on payment order lines.';
                 }
-                field("Amount (LCY)"; "Amount (LCY)")
+                field("Amount (LCY)"; Rec."Amount (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the total amount that the line consists of. The amount is in the local currency.';
                 }
-                field("No. of Lines"; "No. of Lines")
+                field("No. of Lines"; Rec."No. of Lines")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of lines in the payment order.';
                 }
-                field("File Name"; "File Name")
+                field("File Name"; Rec."File Name")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name and address of the payment order file created in the system.';
@@ -103,8 +102,6 @@ page 11719 "Payment Order List"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Statistics';
                     Image = Statistics;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     RunObject = Page "Payment Order Statistics";
                     RunPageLink = "No." = FIELD("No.");
                     ShortCutKey = 'F7';
@@ -158,7 +155,7 @@ page 11719 "Payment Order List"
 
                     trigger OnAction()
                     begin
-                        ImportPaymentOrder;
+                        ImportPaymentOrder();
                     end;
                 }
             }
@@ -175,7 +172,7 @@ page 11719 "Payment Order List"
 
                     trigger OnAction()
                     begin
-                        TestPrintPaymentOrder;
+                        TestPrintPaymentOrder();
                     end;
                 }
                 action(Release)
@@ -183,8 +180,6 @@ page 11719 "Payment Order List"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Release';
                     Image = ReleaseDoc;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     RunObject = Codeunit "Issue Payment Order (Yes/No)";
                     ShortCutKey = 'F9';
                     ToolTip = 'Release the payment order to indicate that it has been printed or exported. The status then changes to Released.';
@@ -209,8 +204,6 @@ page 11719 "Payment Order List"
                     Caption = 'Send A&pproval Request';
                     Enabled = NOT OpenApprovalEntriesExist;
                     Image = SendApprovalRequest;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     ToolTip = 'Relations to the workflow.';
 
                     trigger OnAction()
@@ -227,8 +220,6 @@ page 11719 "Payment Order List"
                     Caption = 'Cancel Approval Re&quest';
                     Enabled = OpenApprovalEntriesExist;
                     Image = CancelApprovalRequest;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     ToolTip = 'Relations to the workflow.';
 
                     trigger OnAction()
@@ -240,11 +231,44 @@ page 11719 "Payment Order List"
                 }
             }
         }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref(Release_Promoted; Release)
+                {
+                }
+                actionref(Statistics_Promoted; Statistics)
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Approve', Comment = 'Generated from the PromotedActionCategories property index 3.';
+            }
+            group(Category_Category5)
+            {
+                Caption = 'Request Approval', Comment = 'Generated from the PromotedActionCategories property index 4.';
+
+                actionref(SendApprovalRequest_Promoted; SendApprovalRequest)
+                {
+                }
+                actionref(CancelApprovalRequest_Promoted; CancelApprovalRequest)
+                {
+                }
+            }
+        }
     }
 
     trigger OnAfterGetCurrRecord()
     begin
-        SetControlAppearance;
+        SetControlAppearance();
     end;
 
     trigger OnOpenPage()

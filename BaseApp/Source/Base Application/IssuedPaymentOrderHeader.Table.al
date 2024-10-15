@@ -277,7 +277,7 @@ table 11710 "Issued Payment Order Header"
     procedure IncreaseNoExported()
     begin
         "No. exported" += 1;
-        Modify;
+        Modify();
     end;
 
     [Scope('OnPrem')]
@@ -296,17 +296,17 @@ table 11710 "Issued Payment Order Header"
 
         BankAcc.Get("Bank Account No.");
         if "Foreign Payment Order" then
-            CodeunitID := BankAcc.GetForeignPaymentExportCodeunitID
+            CodeunitID := BankAcc.GetForeignPaymentExportCodeunitID()
         else
-            CodeunitID := BankAcc.GetPaymentExportCodeunitID;
+            CodeunitID := BankAcc.GetPaymentExportCodeunitID();
 
         if CodeunitID > 0 then
             CODEUNIT.Run(CodeunitID, Rec)
         else
             CODEUNIT.Run(CODEUNIT::"Exp. Launcher Payment Order", Rec);
 
-        if Find then
-            IncreaseNoExported;
+        if Find() then
+            IncreaseNoExported();
     end;
 
     [Scope('OnPrem')]
@@ -361,7 +361,7 @@ table 11710 "Issued Payment Order Header"
                 end;
 
                 GenJnlLn."Document No." := "No.";
-                GenJnlLn.Validate("Account Type", IssuedPmtOrdLn.ConvertTypeToGenJnlLineType);
+                GenJnlLn.Validate("Account Type", IssuedPmtOrdLn.ConvertTypeToGenJnlLineType());
                 GenJnlLn.Validate("Account No.", IssuedPmtOrdLn."No.");
                 GenJnlLn.Validate("Recipient Bank Account", IssuedPmtOrdLn."Cust./Vendor Bank Account Code");
                 GenJnlLn.Validate(Amount, IssuedPmtOrdLn.Amount);
@@ -370,17 +370,6 @@ table 11710 "Issued Payment Order Header"
                 GenJnlLn.Validate("Bal. Account Type", GenJnlBatch."Bal. Account Type");
                 GenJnlLn.Validate("Bal. Account No.", GenJnlBatch."Bal. Account No.");
                 GenJnlLn.Validate("Payment Method Code", IssuedPmtOrdLn."Payment Method Code");
-#if not CLEAN18
-                if IssuedPmtOrdLn.Type = IssuedPmtOrdLn.Type::" " then begin
-                    GenJnlLn."Bank Account No." := IssuedPmtOrdLn."Account No.";
-                    GenJnlLn.IBAN := IssuedPmtOrdLn.IBAN;
-                    GenJnlLn."SWIFT Code" := IssuedPmtOrdLn."SWIFT Code";
-                end;
-
-                GenJnlLn."Variable Symbol" := IssuedPmtOrdLn."Variable Symbol";
-                GenJnlLn."Constant Symbol" := IssuedPmtOrdLn."Constant Symbol";
-                GenJnlLn."Specific Symbol" := IssuedPmtOrdLn."Specific Symbol";
-#endif
                 GenJnlLn.Modify();
             until IssuedPmtOrdLn.Next() = 0;
         end;

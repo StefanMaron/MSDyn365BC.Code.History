@@ -5,34 +5,6 @@ permissionset 1002 "LOCAL READ"
     Assignable = true;
     Caption = 'Country/region-specific read only access.';
     Permissions =
-#if not CLEAN18
-                  tabledata "Certificate CZ Code" = R,
-                  tabledata "Classification Code" = R,
-                  tabledata "Constant Symbol" = R,
-                  tabledata "Credit Header" = R,
-                  tabledata "Credit Line" = R,
-                  tabledata "Credit Report Selections" = R,
-                  tabledata "Credits Setup" = R,
-                  tabledata "Depreciation Group" = R,
-                  tabledata "EET Business Premises" = R,
-                  tabledata "EET Cash Register" = R,
-                  tabledata "EET Entry" = R,
-                  tabledata "EET Entry Status" = R,
-                  tabledata "EET Service Setup" = R,
-                  tabledata "FA Extended Posting Group" = R,
-                  tabledata "FA History Entry" = R,
-                  tabledata "Intrastat Currency Exch. Rate" = R,
-                  tabledata "Intrastat Delivery Group" = R,
-                  tabledata "Posted Credit Header" = R,
-                  tabledata "Posted Credit Line" = R,
-                  tabledata "Specific Movement" = R,
-                  tabledata "Stat. Reporting Setup" = R,
-                  tabledata "Subst. Customer Posting Group" = R,
-                  tabledata "Subst. Vendor Posting Group" = R,
-                  tabledata "User Setup Line" = R,
-                  tabledata "VAT Amount Line Adv. Payment" = R,
-                  tabledata "XML Export Buffer" = R,
-#endif
 #if not CLEAN19
                   tabledata "Acc. Sched. Expression Buffer" = R,
                   tabledata "Acc. Schedule Extension" = R,

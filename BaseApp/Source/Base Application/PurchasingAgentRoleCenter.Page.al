@@ -462,7 +462,7 @@ page 9007 "Purchasing Agent Role Center"
                                     Recurring = CONST(false));
                 ToolTip = 'Calculate a supply plan to fulfill item demand with purchases or transfers.';
             }
-#if not CLEAN19
+#if not CLEAN21
             action("Pur&chase Prices")
             {
                 ApplicationArea = Basic, Suite;

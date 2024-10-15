@@ -60,9 +60,9 @@ codeunit 134010 "ERM Application Customer"
                 CustomerInvPmtDisc("Document Type"::Refund, "Document Type"::"Credit Memo", -GetCustomerAmount(), Stepwise);
                 // The following two combinations do not generate discount ledger entries and will thus fail to close.
                 asserterror CustomerInvPmtDisc("Document Type"::Payment, "Document Type"::Refund, GetCustomerAmount(), Stepwise);
-                DeltaAssert.Reset;
+                DeltaAssert.Reset();
                 asserterror CustomerInvPmtDisc("Document Type"::Invoice, "Document Type"::"Credit Memo", -GetCustomerAmount(), Stepwise);
-                DeltaAssert.Reset;
+                DeltaAssert.Reset();
             end;
 
         TearDown;
@@ -226,7 +226,7 @@ codeunit 134010 "ERM Application Customer"
     end;
 
     [Test]
-    [HandlerFunctions('AdjustExchangeRatesReportHandler,StatisticsMessageHandler')]
+    [HandlerFunctions('StatisticsMessageHandler')]
     [Scope('OnPrem')]
     procedure CustomerUnrealizedGain()
     var
@@ -252,7 +252,7 @@ codeunit 134010 "ERM Application Customer"
     end;
 
     [Test]
-    [HandlerFunctions('AdjustExchangeRatesReportHandler,StatisticsMessageHandler')]
+    [HandlerFunctions('StatisticsMessageHandler')]
     [Scope('OnPrem')]
     procedure CustomerUnrealizedLoss()
     var
@@ -278,7 +278,7 @@ codeunit 134010 "ERM Application Customer"
     end;
 
     [Test]
-    [HandlerFunctions('AdjustExchangeRatesReportHandler,StatisticsMessageHandler')]
+    [HandlerFunctions('StatisticsMessageHandler')]
     [Scope('OnPrem')]
     procedure FutureCurrAdjTransaction()
     var
@@ -323,7 +323,7 @@ codeunit 134010 "ERM Application Customer"
                   Customer."No.", -InvAmount / (i + 1), '<0D>', CurrencyCode, LibraryUtility.GenerateGUID, '');
                 Validate("Applies-to Doc. Type", "Applies-to Doc. Type"::Invoice);
                 Validate("Applies-to Doc. No.", DocumentNo);
-                Modify;
+                Modify();
                 RunGenJnlPostLine(GenJournalLine);
 
                 // [GIVEN] Post 2nd partial Payment in "FCY" on (WorkDate + 2) with application to Invoice
@@ -332,7 +332,7 @@ codeunit 134010 "ERM Application Customer"
                   Customer."No.", -InvAmount - Amount, '<2D>', CurrencyCode, LibraryUtility.GenerateGUID, '');
                 Validate("Applies-to Doc. Type", "Applies-to Doc. Type"::Invoice);
                 Validate("Applies-to Doc. No.", DocumentNo);
-                Modify;
+                Modify();
                 RunGenJnlPostLine(GenJournalLine);
             end;
 
@@ -341,10 +341,10 @@ codeunit 134010 "ERM Application Customer"
         // [WHEN] Run the Adjust Exchange Rates Batch job on (Workdate + 1)
 #if not CLEAN20
         LibraryERM.RunAdjustExchangeRatesSimple(
-          CurrencyCode, CalcDate('<1D>', WorkDate), CalcDate('<1D>', WorkDate));
+          CurrencyCode, CalcDate('<1D>', WorkDate()), CalcDate('<1D>', WorkDate()));
 #else
         LibraryERM.RunExchRateAdjustmentSimple(
-          CurrencyCode, CalcDate('<1D>', WorkDate), CalcDate('<1D>', WorkDate));
+          CurrencyCode, CalcDate('<1D>', WorkDate()), CalcDate('<1D>', WorkDate()));
 #endif
 
         // [THEN] posted G/L Entries on different dates have different "Transaction No."
@@ -360,7 +360,7 @@ codeunit 134010 "ERM Application Customer"
             DtldCustLedgEntry.FindSet();
             repeat
                 TotalAmount += DtldCustLedgEntry."Amount (LCY)";
-            until DtldCustLedgEntry.Next = 0;
+            until DtldCustLedgEntry.Next() = 0;
             Assert.AreEqual(GLEntry.Amount, TotalAmount, WrongBalancePerTransNoErr);
         end;
     end;
@@ -1225,8 +1225,7 @@ codeunit 134010 "ERM Application Customer"
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
         LibraryERMCountryData.UpdateAccountInCustomerPostingGroup();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
-        LibraryERMCountryData.UpdateSalesReceivablesSetup(); // NAVCZ
-        LibraryERM.SetJournalTemplateNameMandatory(false);
+        LibraryERMCountryData.UpdateJournalTemplMandatory(false);
 
         isInitialized := true;
         Commit();
@@ -1271,7 +1270,7 @@ codeunit 134010 "ERM Application Customer"
 
         // Generate a document that triggers application dtld. ledger entries.
         InvAmount := Amount;
-        PmtAmount := LibraryERM.ConvertCurrency(InvAmount, Currency.Code, '', WorkDate) * CurrencyAdjustFactor;
+        PmtAmount := LibraryERM.ConvertCurrency(InvAmount, Currency.Code, '', WorkDate()) * CurrencyAdjustFactor;
 
         Desc := GenerateDocument(GenJournalBatch, Customer, PmtType, InvType, PmtAmount, InvAmount, '<0D>', '', Currency.Code);
 
@@ -1307,17 +1306,17 @@ codeunit 134010 "ERM Application Customer"
 
         // Generate a document that triggers application dtld. ledger entries.
         InvAmount := Amount;
-        PmtAmount := LibraryERM.ConvertCurrency(InvAmount, Currency.Code, '', WorkDate) * CurrencyAdjustFactor;
+        PmtAmount := LibraryERM.ConvertCurrency(InvAmount, Currency.Code, '', WorkDate()) * CurrencyAdjustFactor;
 
         Desc := GenerateDocument(GenJournalBatch, Customer, PmtType, InvType, PmtAmount, InvAmount, '<1D>', '', Currency.Code);
 
         // Run the Adjust Exchange Rates Batch job.
 #if not CLEAN20
         LibraryERM.RunAdjustExchangeRatesSimple(
-          Currency.Code, CalcDate('<1D>', WorkDate), CalcDate('<1D>', WorkDate));
+          Currency.Code, CalcDate('<1D>', WorkDate()), CalcDate('<1D>', WorkDate()));
 #else
         LibraryERM.RunExchRateAdjustmentSimple(
-          Currency.Code, CalcDate('<1D>', WorkDate), CalcDate('<1D>', WorkDate));
+          Currency.Code, CalcDate('<1D>', WorkDate()), CalcDate('<1D>', WorkDate()));
 #endif
 
         CustomerApplyUnapply(Desc, Stepwise);
@@ -1506,7 +1505,6 @@ codeunit 134010 "ERM Application Customer"
         Currency: Record Currency;
         CurrencyExchangeRate: Record "Currency Exchange Rate";
         DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
-        GenJournalLine: Record "Gen. Journal Line";
         GLAccount: Record "G/L Account";
         Desc: Text[30];
     begin
@@ -1522,7 +1520,7 @@ codeunit 134010 "ERM Application Customer"
         Currency.Validate("Realized Losses Acc.", GLAccount."No.");
         Currency.Modify(true);
         // NAVCZ
-        LibraryERM.CreateExchRate(CurrencyExchangeRate, Currency.Code, WorkDate);
+        LibraryERM.CreateExchRate(CurrencyExchangeRate, Currency.Code, WorkDate());
         CurrencyExchangeRate.Validate("Exchange Rate Amount", 64.580459);  // Magic exchange rate
         CurrencyExchangeRate.Validate("Relational Exch. Rate Amount", 100);
         CurrencyExchangeRate.Validate("Adjustment Exch. Rate Amount", CurrencyExchangeRate."Exchange Rate Amount");
@@ -1531,17 +1529,9 @@ codeunit 134010 "ERM Application Customer"
 
         // Watch for "Correction of Remaining Amount" detailed ledger entries.
         LibraryERMCustomerWatch.Init();
-        if Stepwise then // NAVCZ
+        if Stepwise then
             LibraryERMCustomerWatch.DtldEntriesGreaterThan(
-              Customer."No.", DtldCustLedgEntry."Entry Type"::"Correction of Remaining Amount", 0);
-        // NAVCZ
-        if InvType = GenJournalLine."Document Type"::"Credit Memo" then
-            LibraryERMCustomerWatch.DtldEntriesGreaterThan(
-              Customer."No.", DtldCustLedgEntry."Entry Type"::"Realized Gain", 0);
-        if PmtType = GenJournalLine."Document Type"::Payment then
-            LibraryERMCustomerWatch.DtldEntriesGreaterThan(
-              Customer."No.", DtldCustLedgEntry."Entry Type"::"Realized Loss", 0);
-        // NAVCZ
+                Customer."No.", DtldCustLedgEntry."Entry Type"::"Correction of Remaining Amount", 0);
 
         // Generate a document that triggers "Correction of Remaining Amount" dtld. ledger entries.
         Desc := GenerateDocument(GenJournalBatch, Customer, PmtType, InvType, Amount, Amount, '<0D>', Currency.Code, Currency.Code);
@@ -1615,7 +1605,7 @@ codeunit 134010 "ERM Application Customer"
     local procedure CreateCurrencyWithApplicationRoundingPrecision(var Currency: Record Currency; ApplicationRoundingPrecision: Decimal; ExchangeRate: Decimal)
     begin
         Clear(Currency);
-        Currency.Get(LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, ExchangeRate, ExchangeRate));
+        Currency.Get(LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), ExchangeRate, ExchangeRate));
         Currency.Validate("Appln. Rounding Precision", ApplicationRoundingPrecision);
         Currency.Modify(true);
     end;
@@ -1709,7 +1699,7 @@ codeunit 134010 "ERM Application Customer"
         Evaluate(DateOffset, PmtOffset);
 
         // Update journal line currency
-        GenJournalLine.Validate("Posting Date", CalcDate(DateOffset, WorkDate));
+        GenJournalLine.Validate("Posting Date", CalcDate(DateOffset, WorkDate()));
         GenJournalLine.Validate("Currency Code", CurrencyCode);
         GenJournalLine.Validate(Description, GenJournalLine."Document No.");
 
@@ -1756,7 +1746,7 @@ codeunit 134010 "ERM Application Customer"
     local procedure MockCustLedgEntry(var CustLedgerEntry: Record "Cust. Ledger Entry")
     begin
         with CustLedgerEntry do begin
-            Init;
+            Init();
             "Entry No." :=
               LibraryUtility.GetNewRecNo(CustLedgerEntry, FieldNo("Entry No."));
             Open := true;
@@ -1770,7 +1760,7 @@ codeunit 134010 "ERM Application Customer"
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
     begin
         with DetailedCustLedgEntry do begin
-            Init;
+            Init();
             "Entry No." :=
               LibraryUtility.GetNewRecNo(DetailedCustLedgEntry, FieldNo("Entry No."));
             "Cust. Ledger Entry No." := CustLedgEntryNo;
@@ -1788,7 +1778,7 @@ codeunit 134010 "ERM Application Customer"
             "Applies-to ID" := LibraryUtility.GenerateGUID();
             "Accepted Pmt. Disc. Tolerance" := true;
             "Accepted Payment Tolerance" := LibraryRandom.RandDec(100, 2);
-            Modify;
+            Modify();
         end;
     end;
 
@@ -1898,14 +1888,14 @@ codeunit 134010 "ERM Application Customer"
         Currency.Get(LibraryERM.CreateCurrencyWithGLAccountSetup);
 
         // Create new exchange rates
-        LibraryERM.CreateExchRate(CurrencyExchangeRate, Currency.Code, WorkDate);
+        LibraryERM.CreateExchRate(CurrencyExchangeRate, Currency.Code, WorkDate());
         CurrencyExchangeRate.Validate("Exchange Rate Amount", 100);
         CurrencyExchangeRate.Validate("Adjustment Exch. Rate Amount", 100);
         CurrencyExchangeRate.Validate("Relational Exch. Rate Amount", 100);
         CurrencyExchangeRate.Validate("Relational Adjmt Exch Rate Amt", 100);
         CurrencyExchangeRate.Modify(true);
 
-        LibraryERM.CreateExchRate(CurrencyExchangeRate, Currency.Code, CalcDate('<1D>', WorkDate));
+        LibraryERM.CreateExchRate(CurrencyExchangeRate, Currency.Code, CalcDate('<1D>', WorkDate()));
         CurrencyExchangeRate.Validate("Exchange Rate Amount", 100);
         CurrencyExchangeRate.Validate("Adjustment Exch. Rate Amount", 100);
         CurrencyExchangeRate.Validate("Relational Exch. Rate Amount", 100 * CurrencyAdjustFactor);
@@ -1927,7 +1917,7 @@ codeunit 134010 "ERM Application Customer"
             GLAccount.SetRange("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
             GLAccount.SetRange("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
             GLAccount.SetRange("Direct Posting", true);
-        until (VATPostingSetup.Next = 0) or GLAccount.FindFirst();
+        until (VATPostingSetup.Next() = 0) or GLAccount.FindFirst();
 
         VATPostingSetup.Get(GLAccount."VAT Bus. Posting Group", GLAccount."VAT Prod. Posting Group");
     end;
@@ -2090,7 +2080,7 @@ codeunit 134010 "ERM Application Customer"
             repeat
                 if (DtldCustLedgEntry."Entry No." > ApplicationEntryNo) and not DtldCustLedgEntry.Unapplied then
                     ApplicationEntryNo := DtldCustLedgEntry."Entry No.";
-            until DtldCustLedgEntry.Next = 0;
+            until DtldCustLedgEntry.Next() = 0;
         exit(ApplicationEntryNo);
     end;
 
@@ -2140,14 +2130,6 @@ codeunit 134010 "ERM Application Customer"
     [Scope('OnPrem')]
     procedure SimpleMessageHandler(Message: Text[1024])
     begin
-    end;
-
-    [ReportHandler]
-    [Scope('OnPrem')]
-    procedure AdjustExchangeRatesReportHandler(var AdjustExchangeRates: Report "Adjust Exchange Rates")
-    begin
-        // NAVCZ
-        AdjustExchangeRates.SaveAsExcel(TemporaryPath + '.xlsx')
     end;
 }
 

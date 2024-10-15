@@ -1,4 +1,4 @@
-﻿#if CLEAN19
+#if CLEAN19
 codeunit 57 "Document Totals"
 {
 
@@ -7,11 +7,6 @@ codeunit 57 "Document Totals"
     end;
 
     var
-        TotalVATLbl: Label 'Total VAT';
-        TotalAmountInclVatLbl: Label 'Total Incl. VAT';
-        TotalAmountExclVATLbl: Label 'Total Excl. VAT';
-        InvoiceDiscountAmountLbl: Label 'Invoice Discount Amount';
-        RefreshMsgTxt: Label 'Totals or discounts may not be up-to-date. Choose the link to update.';
         SalesSetup: Record "Sales & Receivables Setup";
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
         PreviousTotalSalesHeader: Record "Sales Header";
@@ -21,12 +16,18 @@ codeunit 57 "Document Totals"
         ForceTotalsRecalculation: Boolean;
         PreviousTotalSalesVATDifference: Decimal;
         PreviousTotalPurchVATDifference: Decimal;
-        TotalLineAmountLbl: Label 'Subtotal';
         SalesLinesExist: Boolean;
         PurchaseLinesExist: Boolean;
         TotalsUpToDate: Boolean;
         NeedRefreshSalesLine: Boolean;
         NeedRefreshPurchaseLine: Boolean;
+
+        TotalVATLbl: Label 'Total VAT';
+        TotalAmountInclVatLbl: Label 'Total Incl. VAT';
+        TotalAmountExclVATLbl: Label 'Total Excl. VAT';
+        InvoiceDiscountAmountLbl: Label 'Invoice Discount Amount';
+        RefreshMsgTxt: Label 'Totals or discounts may not be up-to-date. Choose the link to update.';
+        TotalLineAmountLbl: Label 'Subtotal';
 
     procedure CalculateSalesPageTotals(var TotalSalesLine: Record "Sales Line"; var VATAmount: Decimal; var SalesLine: Record "Sales Line")
     var
@@ -62,7 +63,7 @@ codeunit 57 "Document Totals"
         TotalsUpToDate := true;
         NeedRefreshSalesLine := false;
 
-        SalesSetup.GetRecordOnce;
+        SalesSetup.GetRecordOnce();
         TotalSalesLine2.Copy(TotalSalesLine);
         TotalSalesLine2.Reset();
         TotalSalesLine2.SetRange("Document Type", TotalSalesHeader."Document Type");
@@ -229,13 +230,13 @@ codeunit 57 "Document Totals"
     procedure RefreshSalesLine(var SalesLine: Record "Sales Line")
     begin
         if NeedRefreshSalesLine and (SalesLine."Line No." <> 0) then
-            if SalesLine.Find then;
+            if SalesLine.Find() then;
     end;
 
     procedure RefreshPurchaseLine(var PurchaseLine: Record "Purchase Line")
     begin
         if NeedRefreshPurchaseLine and (PurchaseLine."Line No." <> 0) then
-            if PurchaseLine.Find then;
+            if PurchaseLine.Find() then;
     end;
 
     procedure SalesUpdateTotalsControls(CurrentSalesLine: Record "Sales Line"; var TotalSalesHeader: Record "Sales Header"; var TotalsSalesLine: Record "Sales Line"; var RefreshMessageEnabled: Boolean; var ControlStyle: Text; var RefreshMessageText: Text; var InvDiscAmountEditable: Boolean; CurrPageEditable: Boolean; var VATAmount: Decimal)
@@ -263,7 +264,7 @@ codeunit 57 "Document Totals"
         SalesLine.SetRange("Document Type", CurrentSalesLine."Document Type");
         SalesLine.SetRange("Document No.", CurrentSalesLine."Document No.");
         if not IsHandled then
-            InvDiscAmountEditable := SalesLine.FindFirst and
+            InvDiscAmountEditable := (not SalesLine.IsEmpty()) and
               SalesCalcDiscountByType.InvoiceDiscIsAllowed(TotalSalesHeader."Invoice Disc. Code") and
               (not RefreshMessageEnabled) and CurrPageEditable;
 
@@ -626,7 +627,7 @@ codeunit 57 "Document Totals"
         TotalsUpToDate := true;
         NeedRefreshPurchaseLine := false;
 
-        PurchasesPayablesSetup.GetRecordOnce;
+        PurchasesPayablesSetup.GetRecordOnce();
         TotalPurchaseLine2.Copy(TotalPurchaseLine);
         TotalPurchaseLine2.Reset();
         TotalPurchaseLine2.SetRange("Document Type", TotalPurchaseHeader."Document Type");
@@ -779,7 +780,7 @@ codeunit 57 "Document Totals"
         SalesHeader: Record "Sales Header";
     begin
         if not SalesLinesExist then
-            SalesLinesExist := not SalesLine.IsEmpty;
+            SalesLinesExist := not SalesLine.IsEmpty();
         if not SalesLinesExist or
            (TotalSalesHeader."Document Type" <> SalesLine."Document Type") or (TotalSalesHeader."No." <> SalesLine."Document No.") or
            (TotalSalesHeader."Sell-to Customer No." <> SalesLine."Sell-to Customer No.") or
@@ -803,7 +804,7 @@ codeunit 57 "Document Totals"
         PurchaseHeader: Record "Purchase Header";
     begin
         if not PurchaseLinesExist then
-            PurchaseLinesExist := not PurchaseLine.IsEmpty;
+            PurchaseLinesExist := not PurchaseLine.IsEmpty();
         if not PurchaseLinesExist or
            (TotalPurchaseHeader."Document Type" <> PurchaseLine."Document Type") or
            (TotalPurchaseHeader."No." <> PurchaseLine."Document No.") or
@@ -875,7 +876,7 @@ codeunit 57 "Document Totals"
         TotalVATAmount: Decimal;
     begin
         if PurchaseHeader."Currency Code" = '' then
-            Currency.InitRoundingPrecision
+            Currency.InitRoundingPrecision()
         else
             Currency.Get(PurchaseHeader."Currency Code");
 

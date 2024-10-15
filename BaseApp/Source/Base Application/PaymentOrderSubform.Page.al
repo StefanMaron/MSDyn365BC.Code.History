@@ -22,12 +22,12 @@ page 11717 "Payment Order Subform"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the type of partner (customer, vendor, bank account, employee).';
                 }
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of partner (customer, vendor, bank account, employee).';
                 }
-                field("Cust./Vendor Bank Account Code"; "Cust./Vendor Bank Account Code")
+                field("Cust./Vendor Bank Account Code"; Rec."Cust./Vendor Bank Account Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the customer or vendor bank account code.';
@@ -43,7 +43,7 @@ page 11717 "Payment Order Subform"
                     ToolTip = 'Specifies the name of partner (customer, vendor, bank account).';
                     Visible = false;
                 }
-                field("Account No."; "Account No.")
+                field("Account No."; Rec."Account No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ShowMandatory = IBANMissing;
@@ -51,26 +51,26 @@ page 11717 "Payment Order Subform"
 
                     trigger OnValidate()
                     begin
-                        SetShowMandatoryConditions;
+                        SetShowMandatoryConditions();
                     end;
                 }
-                field("Variable Symbol"; "Variable Symbol")
+                field("Variable Symbol"; Rec."Variable Symbol")
                 {
                     ApplicationArea = Basic, Suite;
                     ShowMandatory = true;
                     ToolTip = 'Specifies the detail information for payment.';
                 }
-                field("Constant Symbol"; "Constant Symbol")
+                field("Constant Symbol"; Rec."Constant Symbol")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the additional symbol of bank payments.';
                 }
-                field("Specific Symbol"; "Specific Symbol")
+                field("Specific Symbol"; Rec."Specific Symbol")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the additional symbol of bank payments.';
                 }
-                field("Skip Payment"; "Skip Payment")
+                field("Skip Payment"; Rec."Skip Payment")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the amount must be skipped.';
@@ -81,7 +81,7 @@ page 11717 "Payment Order Subform"
                         CurrPage.Update();
                     end;
                 }
-                field("Amount to Pay"; "Amount to Pay")
+                field("Amount to Pay"; Rec."Amount to Pay")
                 {
                     ApplicationArea = Basic, Suite;
                     BlankZero = true;
@@ -93,14 +93,14 @@ page 11717 "Payment Order Subform"
                         CurrPage.Update();
                     end;
                 }
-                field("Original Amount"; "Original Amount")
+                field("Original Amount"; Rec."Original Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     BlankZero = true;
                     ToolTip = 'Specifies the amount of the original entry.';
                     Visible = false;
                 }
-                field("Amount (LCY) to Pay"; "Amount (LCY) to Pay")
+                field("Amount (LCY) to Pay"; Rec."Amount (LCY) to Pay")
                 {
                     ApplicationArea = Basic, Suite;
                     BlankZero = true;
@@ -112,7 +112,7 @@ page 11717 "Payment Order Subform"
                         CurrPage.Update();
                     end;
                 }
-                field("Amount(Pay.Order Curr.) to Pay"; "Amount(Pay.Order Curr.) to Pay")
+                field("Amount(Pay.Order Curr.) to Pay"; Rec."Amount(Pay.Order Curr.) to Pay")
                 {
                     ApplicationArea = Basic, Suite;
                     BlankZero = true;
@@ -124,7 +124,7 @@ page 11717 "Payment Order Subform"
                         CurrPage.Update();
                     end;
                 }
-                field("Payment Order Currency Code"; "Payment Order Currency Code")
+                field("Payment Order Currency Code"; Rec."Payment Order Currency Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the payment order currency code.';
@@ -138,43 +138,43 @@ page 11717 "Payment Order Subform"
                         PaymentOrderHeader.Get("Payment Order No.");
                         ChangeExchangeRate.SetParameter("Payment Order Currency Code",
                           "Payment Order Currency Factor", PaymentOrderHeader."Document Date");
-                        if ChangeExchangeRate.RunModal = ACTION::OK then begin
-                            Validate("Payment Order Currency Factor", ChangeExchangeRate.GetParameter);
+                        if ChangeExchangeRate.RunModal() = ACTION::OK then begin
+                            Validate("Payment Order Currency Factor", ChangeExchangeRate.GetParameter());
                             CurrPage.Update();
                         end;
                     end;
                 }
-                field("Due Date"; "Due Date")
+                field("Due Date"; Rec."Due Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the date when the payment is due.';
                     Visible = false;
                 }
-                field("Original Due Date"; "Original Due Date")
+                field("Original Due Date"; Rec."Original Due Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the date when the payment was due.';
                     Visible = false;
                 }
-                field("Pmt. Discount Date"; "Pmt. Discount Date")
+                field("Pmt. Discount Date"; Rec."Pmt. Discount Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies payment discount date.';
                     Visible = false;
                 }
-                field("Pmt. Discount Possible"; "Pmt. Discount Possible")
+                field("Pmt. Discount Possible"; Rec."Pmt. Discount Possible")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the discount is possible.';
                     Visible = false;
                 }
-                field("Remaining Pmt. Disc. Possible"; "Remaining Pmt. Disc. Possible")
+                field("Remaining Pmt. Disc. Possible"; Rec."Remaining Pmt. Disc. Possible")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies possible remaining payment discount.';
                     Visible = false;
                 }
-                field("Transit No."; "Transit No.")
+                field("Transit No."; Rec."Transit No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a bank identification number of your own choice.';
@@ -187,27 +187,27 @@ page 11717 "Payment Order Subform"
 
                     trigger OnValidate()
                     begin
-                        SetShowMandatoryConditions;
+                        SetShowMandatoryConditions();
                     end;
                 }
-                field("SWIFT Code"; "SWIFT Code")
+                field("SWIFT Code"; Rec."SWIFT Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the international bank identifier code (SWIFT) of the bank where you have the account.';
                 }
-                field("Applies-to Doc. Type"; "Applies-to Doc. Type")
+                field("Applies-to Doc. Type"; Rec."Applies-to Doc. Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the payment will be applied to an already-posted document. The field is used only if the account type is a customer or vendor account.';
                     Visible = false;
                 }
-                field("Applies-to Doc. No."; "Applies-to Doc. No.")
+                field("Applies-to Doc. No."; Rec."Applies-to Doc. No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the payment will be applied to an already-posted document.';
                     Visible = false;
                 }
-                field("Applies-to C/V/E Entry No."; "Applies-to C/V/E Entry No.")
+                field("Applies-to C/V/E Entry No."; Rec."Applies-to C/V/E Entry No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the payment will be applied to an already-posted document.';
@@ -264,32 +264,32 @@ page 11717 "Payment Order Subform"
                             FieldError(Type);
                     end;
                 }
-                field("Amount Must Be Checked"; "Amount Must Be Checked")
+                field("Amount Must Be Checked"; Rec."Amount Must Be Checked")
                 {
                     ApplicationArea = Basic, Suite;
                     BlankZero = true;
                     ToolTip = 'Specifies if the amount must be checked.';
                 }
-                field("Letter Type"; "Letter Type")
+                field("Letter Type"; Rec."Letter Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the letter type is a sales (Sales) or a purchase (Purchase).';
                     Visible = false;
                 }
-                field("Letter No."; "Letter No.")
+                field("Letter No."; Rec."Letter No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of letter.';
                     Visible = false;
                 }
-                field("Letter Line No."; "Letter Line No.")
+                field("Letter Line No."; Rec."Letter Line No.")
                 {
                     ApplicationArea = Basic, Suite;
                     BlankZero = true;
                     ToolTip = 'Specifies letter line number.';
                     Visible = false;
                 }
-                field("Payment Method Code"; "Payment Method Code")
+                field("Payment Method Code"; Rec."Payment Method Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies how the customer must advance pay.';
@@ -322,7 +322,7 @@ page 11717 "Payment Order Subform"
     trigger OnAfterGetCurrRecord()
     begin
         DocumentTotals.CalculatePaymentOrderTotals(TotalPaymentOrderHeader, Rec);
-        SetShowMandatoryConditions;
+        SetShowMandatoryConditions();
     end;
 
     trigger OnAfterGetRecord()
@@ -368,7 +368,7 @@ page 11717 "Payment Order Subform"
 
     trigger OnOpenPage()
     begin
-        OnActivateForm;
+        OnActivateForm();
     end;
 
     var

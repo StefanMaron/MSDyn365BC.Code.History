@@ -114,7 +114,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         Assert.AreEqual(
           PurchaseLine.Amount, PurchaseLine.Quantity * PurchaseLine."Direct Unit Cost" - NewInvDiscAmt,
           StrSubstNo(AmtMustBeErr, PurchaseLine.FieldCaption("Outstanding Amount"), PurchaseLine."Line Amount" - NewInvDiscAmt,
-            PurchaseLine.TableCaption));
+            PurchaseLine.TableCaption()));
     end;
 
     [Test]
@@ -145,7 +145,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
 
         ItemNo := CreateItem(true, VATPostingSetup."VAT Prod. Posting Group");
         VATPercent := VATPostingSetup."VAT %";
-        VATPostingSetup.Next;
+        VATPostingSetup.Next();
 
         ItemNo2 := CreateItem(true, VATPostingSetup."VAT Prod. Posting Group");
 
@@ -625,7 +625,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         UpdatePricesIncludingVATOnsalesHeader(SalesHeader, true);
 
         // Verify: Verify Amount Including VAT on Sales Line.
-        SalesLine.Find; // Update Prices Including VAT has changed amount on Sales Line.
+        SalesLine.Find(); // Update Prices Including VAT has changed amount on Sales Line.
         Assert.AreNearlyEqual(
           SalesLine.Amount * ((1 - SalesHeader."VAT Base Discount %" / 100) * SalesLine."VAT %" / 100 + 1),
           SalesLine."Amount Including VAT", LibraryERM.GetAmountRoundingPrecision, AmtInclVATErr);
@@ -650,7 +650,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         UpdatePricesIncludingVATOnPurchaseHeader(PurchaseHeader, true);
 
         // Verify: Verify Amount Including VAT on Purchase Line.
-        PurchaseLine.Find; // Update Prices Including VAT has changed amount on Purchase Line.
+        PurchaseLine.Find(); // Update Prices Including VAT has changed amount on Purchase Line.
         Assert.AreNearlyEqual(
           PurchaseLine.Amount * ((1 - PurchaseHeader."VAT Base Discount %" / 100) * PurchaseLine."VAT %" / 100 + 1),
           PurchaseLine."Amount Including VAT", LibraryERM.GetAmountRoundingPrecision, AmtInclVATErr);
@@ -684,7 +684,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         OpenSalesOrderStatistics(SalesHeader, InvDiscountAmount);
 
         // [THEN]: Get line invoiced and check that inv. discount amount was not changed
-        SalesLineInvoiced.Find;
+        SalesLineInvoiced.Find();
         Assert.AreEqual(
           InvDiscountAmount, SalesLineInvoiced."Inv. Discount Amount",
           StrSubstNo(WrongFieldValueErr, SalesLineInvoiced.FieldCaption("Inv. Discount Amount")));
@@ -718,7 +718,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         OpenPurchOrderStatistics(PurchHeader, InvDiscountAmount);
 
         // [THEN]: Get line invoiced and check that inv. discount amount was not changed
-        PurchLineInvoiced.Find;
+        PurchLineInvoiced.Find();
         Assert.AreEqual(
           InvDiscountAmount, PurchLineInvoiced."Inv. Discount Amount",
           StrSubstNo(WrongFieldValueErr, PurchLineInvoiced.FieldCaption("Inv. Discount Amount")));
@@ -1155,13 +1155,13 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         Customer[1].Rename(LibraryUtility.GenerateGUID());
 
         // [THEN] Customer Template "T1"."Invoice Disc. Code" = "X3"
-        CustomerTemplate[1].Find;
+        CustomerTemplate[1].Find();
         CustomerTemplate[1].TestField("Invoice Disc. Code", Customer[1]."No.");
         // [THEN] Customer Template "T2"."Invoice Disc. Code" = "X3"
-        CustomerTemplate[2].Find;
+        CustomerTemplate[2].Find();
         CustomerTemplate[2].TestField("Invoice Disc. Code", Customer[1]."No.");
         // [THEN] Customer Template "T3"."Invoice Disc. Code" = "X2"
-        CustomerTemplate[3].Find;
+        CustomerTemplate[3].Find();
         CustomerTemplate[3].TestField("Invoice Disc. Code", Customer[2]."No.");
     end;
 
@@ -1661,14 +1661,14 @@ codeunit 134027 "ERM Invoice Discount And VAT"
 
     local procedure CalculateInvoiceDiscountOnSalesInvoice(SalesHeader: Record "Sales Header")
     begin
-        SalesHeader.CalcInvDiscForHeader;
+        SalesHeader.CalcInvDiscForHeader();
         Commit();
         PAGE.RunModal(PAGE::"Sales Order Statistics", SalesHeader); // InvDiscountAmount will be set in handler
     end;
 
     local procedure CalculateInvoiceDiscountOnPurchaseInvoice(PurchaseHeader: Record "Purchase Header")
     begin
-        PurchaseHeader.CalcInvDiscForHeader;
+        PurchaseHeader.CalcInvDiscForHeader();
         Commit();
         PAGE.RunModal(PAGE::"Purchase Order Statistics", PurchaseHeader); // InvDiscountAmount will be set in handler
     end;
@@ -2281,7 +2281,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         FindFAPostingGroup(FAPostingGroup);
         LibraryFixedAsset.CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", LibraryFixedAsset.GetDefaultDeprBook);
         FADepreciationBook.Validate("FA Posting Group", FAPostingGroup.Code);
-        FADepreciationBook.Validate("Acquisition Date", WorkDate);  // Take WORKDATE because value is not important.
+        FADepreciationBook.Validate("Acquisition Date", WorkDate());  // Take WORKDATE because value is not important.
         FADepreciationBook.Modify(true);
         exit(FixedAsset."No.")
     end;
@@ -2525,8 +2525,6 @@ codeunit 134027 "ERM Invoice Discount And VAT"
             GeneralPostingSetup.Validate("Purch. Inv. Disc. Account", GLAccount."No.");
             GeneralPostingSetup.Modify(true);
         end;
-        GeneralPostingSetup.Validate("Purch. Inv. Disc. Account", LibraryERM.CreateGLAccountNo()); // NAVCZ
-        GeneralPostingSetup.Modify(true); // NAVCZ
     end;
 
     local procedure CreatePurchaseInvoiceHeader(var PurchaseHeader: Record "Purchase Header")
@@ -2573,7 +2571,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         with CustomerTemplate do begin
             Code := LibraryUtility.GenerateGUID();
             "Invoice Disc. Code" := InvoiceDiscCode;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -2803,11 +2801,11 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         // Verify the Invoice Discount Amount and Amount Including VAT.
         Assert.AreNearlyEqual(
           PurchaseLine."Inv. Discount Amount", InvDiscAmount, LibraryERM.GetInvoiceRoundingPrecisionLCY,
-          StrSubstNo(AmtMustBeErr, PurchaseLine.FieldCaption("Inv. Discount Amount"), InvDiscAmount, PurchaseLine.TableCaption));
+          StrSubstNo(AmtMustBeErr, PurchaseLine.FieldCaption("Inv. Discount Amount"), InvDiscAmount, PurchaseLine.TableCaption()));
 
         Assert.AreNearlyEqual(
           PurchaseLine."Amount Including VAT", AmtIncludingVAT, LibraryERM.GetInvoiceRoundingPrecisionLCY,
-          StrSubstNo(AmtMustBeErr, PurchaseLine.FieldCaption("Amount Including VAT"), AmtIncludingVAT, PurchaseLine.TableCaption));
+          StrSubstNo(AmtMustBeErr, PurchaseLine.FieldCaption("Amount Including VAT"), AmtIncludingVAT, PurchaseLine.TableCaption()));
     end;
 
     local procedure VerifyGLEntryForPostedPurchInv(Amount: Decimal; VATAmount: Decimal; DocumentNo: Code[20]; AccountNo: Code[20])
@@ -2820,11 +2818,11 @@ codeunit 134027 "ERM Invoice Discount And VAT"
 
         Assert.AreNearlyEqual(
           GLEntry.Amount, Amount, LibraryERM.GetInvoiceRoundingPrecisionLCY,
-          StrSubstNo(AmtMustBeErr, GLEntry.FieldCaption(Amount), Amount, GLEntry.TableCaption));
+          StrSubstNo(AmtMustBeErr, GLEntry.FieldCaption(Amount), Amount, GLEntry.TableCaption()));
 
         Assert.AreNearlyEqual(
           GLEntry."VAT Amount", VATAmount, LibraryERM.GetInvoiceRoundingPrecisionLCY,
-          StrSubstNo(AmtMustBeErr, GLEntry.FieldCaption("VAT Amount"), Amount, GLEntry.TableCaption));
+          StrSubstNo(AmtMustBeErr, GLEntry.FieldCaption("VAT Amount"), Amount, GLEntry.TableCaption()));
     end;
 
     local procedure UpdateDirectUnitCostOnPurchase(PurchaseLine: Record "Purchase Line"): Decimal
@@ -2865,7 +2863,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
             Assert.AreEqual(
               InvDiscountAmount,
               TotalInvDiscountAmount,
-              StrSubstNo(TotalInvDiscountAmountErr, TableCaption, InvDiscountAmount));
+              StrSubstNo(TotalInvDiscountAmountErr, TableCaption(), InvDiscountAmount));
         end;
     end;
 
@@ -2886,13 +2884,13 @@ codeunit 134027 "ERM Invoice Discount And VAT"
             Assert.AreEqual(
               InvDiscountAmount,
               TotalInvDiscountAmount,
-              StrSubstNo(TotalInvDiscountAmountErr, TableCaption, InvDiscountAmount));
+              StrSubstNo(TotalInvDiscountAmountErr, TableCaption(), InvDiscountAmount));
         end;
     end;
 
     local procedure VerifyAmountAndAmountIncludingVATOnSalesLine(SalesLine: Record "Sales Line")
     begin
-        SalesLine.Find; // Update Price Including VAT has changed amount on SalesLine
+        SalesLine.Find(); // Update Price Including VAT has changed amount on SalesLine
         Assert.AreNearlyEqual(
           (SalesLine."Line Amount" - SalesLine."Inv. Discount Amount") / (1 + SalesLine."VAT %" / 100),
           SalesLine.Amount, LibraryERM.GetAmountRoundingPrecision, IncorrectAmtErr);
@@ -2903,7 +2901,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
 
     local procedure VerifyAmountAndAmountIncludingVATOnPurchaseLine(PurchaseLine: Record "Purchase Line")
     begin
-        PurchaseLine.Find; // Update Price Including VAT has changed amount on PurchaseLine
+        PurchaseLine.Find(); // Update Price Including VAT has changed amount on PurchaseLine
         Assert.AreNearlyEqual(
           (PurchaseLine."Line Amount" - PurchaseLine."Inv. Discount Amount") / (1 + PurchaseLine."VAT %" / 100),
           PurchaseLine.Amount, LibraryERM.GetAmountRoundingPrecision, IncorrectAmtErr);

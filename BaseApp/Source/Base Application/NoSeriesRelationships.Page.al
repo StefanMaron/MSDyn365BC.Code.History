@@ -25,12 +25,12 @@ page 458 "No. Series Relationships"
                     ToolTip = 'Specifies the description of the number series represented by the code in the Code field.';
                     Visible = false;
                 }
-                field("Series Code"; "Series Code")
+                field("Series Code"; Rec."Series Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code for a number series that you want to include in the group of related number series.';
                 }
-                field("Series Description"; "Series Description")
+                field("Series Description"; Rec."Series Description")
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDown = false;

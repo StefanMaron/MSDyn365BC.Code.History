@@ -1,4 +1,3 @@
-#if not CLEAN18
 page 5748 "Transfer Route Specification"
 {
     Caption = 'Trans. Route Spec.';
@@ -12,38 +11,20 @@ page 5748 "Transfer Route Specification"
             group(General)
             {
                 Caption = 'General';
-                field("In-Transit Code"; "In-Transit Code")
+                field("In-Transit Code"; Rec."In-Transit Code")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the in-transit code for the transfer order, such as a shipping agent.';
                 }
-                field("Shipping Agent Code"; "Shipping Agent Code")
+                field("Shipping Agent Code"; Rec."Shipping Agent Code")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the code for the shipping agent who is transporting the items.';
                 }
-                field("Shipping Agent Service Code"; "Shipping Agent Service Code")
+                field("Shipping Agent Service Code"; Rec."Shipping Agent Service Code")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the code for the service, such as a one-day delivery, that is offered by the shipping agent.';
-                }
-                field("Gen. Bus. Post. Group Ship"; "Gen. Bus. Post. Group Ship")
-                {
-                    ApplicationArea = Location;
-                    ToolTip = 'Specifies general bussiness posting group for items ship.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
-                    ObsoleteTag = '18.0';
-                }
-                field("Gen. Bus. Post. Group Receive"; "Gen. Bus. Post. Group Receive")
-                {
-                    ApplicationArea = Location;
-                    ToolTip = 'Specifies general bussiness posting group for itemsreceive.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
-                    ObsoleteTag = '18.0';
                 }
             }
         }
@@ -78,7 +59,7 @@ page 5748 "Transfer Route Specification"
                    ("Shipping Agent Service Code" = '') and
                    ("In-Transit Code" = '')
                 then
-                    Delete;
+                    Delete();
     end;
 
     trigger OnInit()
@@ -92,4 +73,3 @@ page 5748 "Transfer Route Specification"
     end;
 }
 
-#endif

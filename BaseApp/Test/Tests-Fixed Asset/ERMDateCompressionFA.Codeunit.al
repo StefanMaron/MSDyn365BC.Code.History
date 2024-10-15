@@ -319,7 +319,7 @@ codeunit 134049 "ERM Date Compression FA"
     local procedure FindFARegister(var FARegister: Record "FA Register"; JournalBatchName: Code[10]): Boolean
     begin
         FARegister.SetRange("Journal Batch Name", JournalBatchName);
-        exit(FARegister.FindSet);
+        exit(FARegister.FindSet());
     end;
 
     local procedure GetLastFALedgerEntryNo(): Integer
@@ -338,7 +338,7 @@ codeunit 134049 "ERM Date Compression FA"
         repeat
             GenJournalLine.Validate("Posting Date", PostingDate);
             GenJournalLine.Modify(true);
-        until GenJournalLine.Next = 0;
+        until GenJournalLine.Next() = 0;
     end;
 
     local procedure PostingSetupFAGLJournalLine(var GenJournalLine: Record "Gen. Journal Line"; FAPostingType: Enum "Gen. Journal Line FA Posting Type")
@@ -398,10 +398,10 @@ codeunit 134049 "ERM Date Compression FA"
     local procedure UpdateDateFADepreciationBook(var FADepreciationBook: Record "FA Depreciation Book"; DepreciationBookCode: Code[10])
     begin
         FADepreciationBook.Validate("Depreciation Book Code", DepreciationBookCode);
-        FADepreciationBook.Validate("Depreciation Starting Date", WorkDate);
+        FADepreciationBook.Validate("Depreciation Starting Date", WorkDate());
 
         // Random Number Generator for Ending date.
-        FADepreciationBook.Validate("Depreciation Ending Date", CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'Y>', WorkDate));
+        FADepreciationBook.Validate("Depreciation Ending Date", CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'Y>', WorkDate()));
         FADepreciationBook.Modify(true);
     end;
 

@@ -1,4 +1,3 @@
-#if not CLEAN18
 page 5966 "Service Quote Lines"
 {
     AutoSplitKey = true;
@@ -22,30 +21,30 @@ page 5966 "Service Quote Lines"
 
                 trigger OnValidate()
                 begin
-                    SelectionFilterOnAfterValidate;
+                    SelectionFilterOnAfterValidate();
                 end;
             }
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Service Item Line No."; "Service Item Line No.")
+                field("Service Item Line No."; Rec."Service Item Line No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the service item line number linked to this service line.';
                     Visible = false;
                 }
-                field("Service Item No."; "Service Item No.")
+                field("Service Item No."; Rec."Service Item No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the service item number linked to this service line.';
                 }
-                field("Service Item Serial No."; "Service Item Serial No.")
+                field("Service Item Serial No."; Rec."Service Item Serial No.")
                 {
                     ApplicationArea = ItemTracking;
                     ToolTip = 'Specifies the service item serial number linked to this line.';
                     Visible = false;
                 }
-                field("Service Item Line Description"; "Service Item Line Description")
+                field("Service Item Line Description"; Rec."Service Item Line Description")
                 {
                     ApplicationArea = Service;
                     DrillDown = false;
@@ -62,7 +61,7 @@ page 5966 "Service Quote Lines"
                         NoOnAfterValidate();
                     end;
                 }
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
@@ -72,7 +71,7 @@ page 5966 "Service Quote Lines"
                         NoOnAfterValidate();
                     end;
                 }
-                field("Variant Code"; "Variant Code")
+                field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the variant of the item on the line.';
@@ -88,30 +87,30 @@ page 5966 "Service Quote Lines"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies that the item is a catalog item.';
                 }
-                field("Unit of Measure Code"; "Unit of Measure Code")
+                field("Unit of Measure Code"; Rec."Unit of Measure Code")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies how each unit of the item or resource is measured, such as in pieces or hours. By default, the value in the Base Unit of Measure field on the item or resource card is inserted.';
                 }
-                field("Description 2"; "Description 2")
+                field("Description 2"; Rec."Description 2")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies an additional description of the item, resource, or cost.';
                     Visible = false;
                 }
-                field("Substitution Available"; "Substitution Available")
+                field("Substitution Available"; Rec."Substitution Available")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies whether a substitute is available for the item.';
                     Visible = false;
                 }
-                field("Work Type Code"; "Work Type Code")
+                field("Work Type Code"; Rec."Work Type Code")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies a code for the type of work performed by the resource registered on this line.';
                     Visible = false;
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the inventory location from where the items on the line should be taken and where they should be registered.';
@@ -128,89 +127,89 @@ page 5966 "Service Quote Lines"
                         QuantityOnAfterValidate();
                     end;
                 }
-                field("Fault Reason Code"; "Fault Reason Code")
+                field("Fault Reason Code"; Rec."Fault Reason Code")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the code of the fault reason for this service line.';
                     Visible = false;
                 }
-                field("Fault Area Code"; "Fault Area Code")
+                field("Fault Area Code"; Rec."Fault Area Code")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the code of the fault area associated with this line.';
                     Visible = FaultAreaCodeVisible;
                 }
-                field("Symptom Code"; "Symptom Code")
+                field("Symptom Code"; Rec."Symptom Code")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the code of the symptom associated with this line.';
                     Visible = SymptomCodeVisible;
                 }
-                field("Fault Code"; "Fault Code")
+                field("Fault Code"; Rec."Fault Code")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the code of the fault associated with this line.';
                     Visible = FaultCodeVisible;
                 }
-                field("Resolution Code"; "Resolution Code")
+                field("Resolution Code"; Rec."Resolution Code")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the code of the resolution associated with this line.';
                     Visible = ResolutionCodeVisible;
                 }
-                field("Serv. Price Adjmt. Gr. Code"; "Serv. Price Adjmt. Gr. Code")
+                field("Serv. Price Adjmt. Gr. Code"; Rec."Serv. Price Adjmt. Gr. Code")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the service price adjustment group code that applies to this line.';
                     Visible = false;
                 }
-                field("Unit Price"; "Unit Price")
+                field("Unit Price"; Rec."Unit Price")
                 {
                     ApplicationArea = Service;
                     BlankZero = true;
                     ToolTip = 'Specifies the price of one unit of the item or resource. You can enter a price manually or have it entered according to the Price/Profit Calculation field on the related card.';
                 }
-                field("Line Discount %"; "Line Discount %")
+                field("Line Discount %"; Rec."Line Discount %")
                 {
                     ApplicationArea = Service;
                     BlankZero = true;
                     ToolTip = 'Specifies the discount percentage that is granted for the item on the line.';
                 }
-                field("Line Discount Amount"; "Line Discount Amount")
+                field("Line Discount Amount"; Rec."Line Discount Amount")
                 {
                     ApplicationArea = Service;
                     BlankZero = true;
                     ToolTip = 'Specifies the discount amount that is granted for the item on the line.';
                 }
-                field("Line Discount Type"; "Line Discount Type")
+                field("Line Discount Type"; Rec."Line Discount Type")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the type of the line discount assigned to this line.';
                 }
-                field("Allow Invoice Disc."; "Allow Invoice Disc.")
+                field("Allow Invoice Disc."; Rec."Allow Invoice Disc.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies if the invoice line is included when the invoice discount is calculated.';
                     Visible = false;
                 }
-                field("Inv. Discount Amount"; "Inv. Discount Amount")
+                field("Inv. Discount Amount"; Rec."Inv. Discount Amount")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the total calculated invoice discount amount for the line.';
                     Visible = false;
                 }
-                field("Line Amount"; "Line Amount")
+                field("Line Amount"; Rec."Line Amount")
                 {
                     ApplicationArea = Service;
                     BlankZero = true;
                     ToolTip = 'Specifies the net amount, excluding any invoice discount amount, that must be paid for products on the line.';
                 }
-                field("Exclude Warranty"; "Exclude Warranty")
+                field("Exclude Warranty"; Rec."Exclude Warranty")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies that the warranty discount is excluded on this line.';
                 }
-                field("Exclude Contract Discount"; "Exclude Contract Discount")
+                field("Exclude Contract Discount"; Rec."Exclude Contract Discount")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies that the contract discount is excluded for the item, resource, or cost on this line.';
@@ -220,83 +219,83 @@ page 5966 "Service Quote Lines"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies that a warranty discount is available on this line of type Item or Resource.';
                 }
-                field("Warranty Disc. %"; "Warranty Disc. %")
+                field("Warranty Disc. %"; Rec."Warranty Disc. %")
                 {
                     ApplicationArea = Service;
                     BlankZero = true;
                     ToolTip = 'Specifies the percentage of the warranty discount that is valid for the items or resources on this line.';
                     Visible = false;
                 }
-                field("Contract No."; "Contract No.")
+                field("Contract No."; Rec."Contract No.")
                 {
                     ApplicationArea = Service;
                     Editable = false;
                     ToolTip = 'Specifies the number of the contract, if the service order originated from a service contract.';
                 }
-                field("Contract Disc. %"; "Contract Disc. %")
+                field("Contract Disc. %"; Rec."Contract Disc. %")
                 {
                     ApplicationArea = Service;
                     BlankZero = true;
                     ToolTip = 'Specifies the contract discount percentage that is valid for the items, resources, and costs on this line.';
                     Visible = false;
                 }
-                field("VAT %"; "VAT %")
+                field("VAT %"; Rec."VAT %")
                 {
                     ApplicationArea = Service;
                     BlankZero = true;
                     ToolTip = 'Specifies the VAT percentage used to calculate Amount Including VAT on this line.';
                     Visible = false;
                 }
-                field("VAT Base Amount"; "VAT Base Amount")
+                field("VAT Base Amount"; Rec."VAT Base Amount")
                 {
                     ApplicationArea = Service;
                     BlankZero = true;
                     ToolTip = 'Specifies the amount that serves as a base for calculating the Amount Including VAT field.';
                     Visible = false;
                 }
-                field("Amount Including VAT"; "Amount Including VAT")
+                field("Amount Including VAT"; Rec."Amount Including VAT")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the net amount, including VAT, for this line.';
                     Visible = false;
                 }
-                field("Unit Cost (LCY)"; "Unit Cost (LCY)")
+                field("Unit Cost (LCY)"; Rec."Unit Cost (LCY)")
                 {
                     ApplicationArea = Service;
                     BlankZero = true;
                     ToolTip = 'Specifies the cost, in LCY, of one unit of the item or resource on the line.';
                     Visible = false;
                 }
-                field("Gen. Bus. Posting Group"; "Gen. Bus. Posting Group")
+                field("Gen. Bus. Posting Group"; Rec."Gen. Bus. Posting Group")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the vendor''s or customer''s trade type to link transactions made for this business partner with the appropriate general ledger account according to the general posting setup.';
                     Visible = false;
                 }
-                field("Gen. Prod. Posting Group"; "Gen. Prod. Posting Group")
+                field("Gen. Prod. Posting Group"; Rec."Gen. Prod. Posting Group")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the item''s product type to link transactions made for this item with the appropriate general ledger account according to the general posting setup.';
                     Visible = false;
                 }
-                field("Posting Group"; "Posting Group")
+                field("Posting Group"; Rec."Posting Group")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the inventory posting group assigned to the item.';
                     Visible = false;
                 }
-                field("Posting Date"; "Posting Date")
+                field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the date when the service line should be posted.';
                 }
-                field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
+                field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                     Visible = false;
                 }
-                field("Shortcut Dimension 2 Code"; "Shortcut Dimension 2 Code")
+                field("Shortcut Dimension 2 Code"; Rec."Shortcut Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
@@ -386,15 +385,6 @@ page 5966 "Service Quote Lines"
                         ValidateShortcutDimCode(8, ShortcutDimCode[8]);
                     end;
                 }
-                field("Country/Region of Origin Code"; "Country/Region of Origin Code")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the origin country/region code.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '18.0';
-                    Visible = false;
-                }
             }
         }
         area(factboxes)
@@ -440,7 +430,7 @@ page 5966 "Service Quote Lines"
                     trigger OnAction()
                     begin
                         ShowDimensions();
-                        CurrPage.SaveRecord;
+                        CurrPage.SaveRecord();
                     end;
                 }
                 group("Item Availability by")
@@ -456,7 +446,7 @@ page 5966 "Service Quote Lines"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromServLine(Rec, ItemAvailFormsMgt.ByEvent);
+                            ItemAvailFormsMgt.ShowItemAvailFromServLine(Rec, ItemAvailFormsMgt.ByEvent());
                         end;
                     }
                     action(Period)
@@ -468,7 +458,7 @@ page 5966 "Service Quote Lines"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromServLine(Rec, ItemAvailFormsMgt.ByPeriod);
+                            ItemAvailFormsMgt.ShowItemAvailFromServLine(Rec, ItemAvailFormsMgt.ByPeriod());
                         end;
                     }
                     action(Variant)
@@ -480,7 +470,7 @@ page 5966 "Service Quote Lines"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromServLine(Rec, ItemAvailFormsMgt.ByVariant);
+                            ItemAvailFormsMgt.ShowItemAvailFromServLine(Rec, ItemAvailFormsMgt.ByVariant());
                         end;
                     }
                     action(Location)
@@ -493,7 +483,7 @@ page 5966 "Service Quote Lines"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromServLine(Rec, ItemAvailFormsMgt.ByLocation);
+                            ItemAvailFormsMgt.ShowItemAvailFromServLine(Rec, ItemAvailFormsMgt.ByLocation());
                         end;
                     }
                     action(Lot)
@@ -516,7 +506,7 @@ page 5966 "Service Quote Lines"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromServLine(Rec, ItemAvailFormsMgt.ByBOM);
+                            ItemAvailFormsMgt.ShowItemAvailFromServLine(Rec, ItemAvailFormsMgt.ByBOM());
                         end;
                     }
                 }
@@ -525,7 +515,7 @@ page 5966 "Service Quote Lines"
                     ApplicationArea = ItemTracking;
                     Caption = 'Item &Tracking Lines';
                     Image = ItemTrackingLines;
-                    ShortCutKey = 'Ctrl+Alt+I'; 
+                    ShortCutKey = 'Ctrl+Alt+I';
                     ToolTip = 'View or edit serial numbers and lot numbers that are assigned to the item on the document or journal line.';
 
                     trigger OnAction()
@@ -542,7 +532,7 @@ page 5966 "Service Quote Lines"
 
                     trigger OnAction()
                     begin
-                        ShowItemSub;
+                        ShowItemSub();
                         CurrPage.Update(true);
                     end;
                 }
@@ -614,7 +604,7 @@ page 5966 "Service Quote Lines"
 
                     trigger OnAction()
                     begin
-                        InsertStartFee;
+                        InsertStartFee();
                     end;
                 }
                 action("Insert &Travel Fee")
@@ -626,7 +616,7 @@ page 5966 "Service Quote Lines"
 
                     trigger OnAction()
                     begin
-                        InsertTravelFee;
+                        InsertTravelFee();
                     end;
                 }
                 action("Split &Resource Line")
@@ -638,7 +628,7 @@ page 5966 "Service Quote Lines"
 
                     trigger OnAction()
                     begin
-                        SplitResourceLine;
+                        SplitResourceLine();
                     end;
                 }
                 action("Ca&talog Items")
@@ -651,7 +641,7 @@ page 5966 "Service Quote Lines"
 
                     trigger OnAction()
                     begin
-                        ShowNonstock;
+                        ShowNonstock();
                         CurrPage.Update();
                     end;
                 }
@@ -697,7 +687,7 @@ page 5966 "Service Quote Lines"
     trigger OnOpenPage()
     begin
         Clear(SelectionFilter);
-        SetSelectionFilter;
+        SetSelectionFilter();
 
         ServMgtSetup.Get();
         case ServMgtSetup."Fault Reporting Level" of
@@ -776,10 +766,10 @@ page 5966 "Service Quote Lines"
     begin
         OnBeforeInsertExtendedText(Rec);
         if TransferExtendedText.ServCheckIfAnyExtText(Rec, Unconditionally) then begin
-            CurrPage.SaveRecord;
+            CurrPage.SaveRecord();
             TransferExtendedText.InsertServExtText(Rec);
         end;
-        if TransferExtendedText.MakeUpdate then
+        if TransferExtendedText.MakeUpdate() then
             CurrPage.Update();
     end;
 
@@ -809,7 +799,7 @@ page 5966 "Service Quote Lines"
     protected procedure QuantityOnAfterValidate()
     begin
         if Reserve = Reserve::Always then begin
-            CurrPage.SaveRecord;
+            CurrPage.SaveRecord();
             AutoReserve();
         end;
     end;
@@ -817,7 +807,7 @@ page 5966 "Service Quote Lines"
     local procedure SelectionFilterOnAfterValidate()
     begin
         CurrPage.Update();
-        SetSelectionFilter;
+        SetSelectionFilter();
     end;
 
     [IntegrationEvent(true, false)]
@@ -831,4 +821,3 @@ page 5966 "Service Quote Lines"
     end;
 }
 
-#endif

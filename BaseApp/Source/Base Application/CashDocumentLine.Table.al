@@ -63,16 +63,6 @@ table 11731 "Cash Document Line"
             IF ("Account Type" = CONST(Customer)) "Customer Posting Group"
             ELSE
             IF ("Account Type" = CONST(Vendor)) "Vendor Posting Group";
-#if not CLEAN18
-
-            trigger OnValidate()
-            var
-                PostingGroupManagement: Codeunit "Posting Group Management";
-            begin
-                if CurrFieldNo = FieldNo("Posting Group") then
-                    PostingGroupManagement.CheckPostingGroupChange("Posting Group", xRec."Posting Group", Rec);
-            end;
-#endif            
         }
         field(14; "Applies-To Doc. Type"; Enum "Gen. Journal Document Type")
         {
@@ -365,13 +355,9 @@ table 11731 "Cash Document Line"
         {
             Caption = 'EET Transaction';
             Editable = false;
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
     }
 

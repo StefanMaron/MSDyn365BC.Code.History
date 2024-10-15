@@ -20,10 +20,6 @@ permissionset 4423 "General Ledger - Admin"
                   tabledata "Base Calendar Change" = RIMD,
                   tabledata "Company Information" = RIMD,
                   tabledata "Country/Region" = RIMD,
-#if not CLEAN18
-                  tabledata "Credit Report Selections" = RIMD,
-                  tabledata "Credits Setup" = RIMD,
-#endif
                   tabledata Currency = RIMD,
                   tabledata "Currency Exchange Rate" = RIMD,
                   tabledata "Customized Calendar Change" = RIMD,
@@ -35,6 +31,8 @@ permissionset 4423 "General Ledger - Admin"
                   tabledata "Data Exch. Field Mapping" = R,
                   tabledata "Data Exch. Line Def" = R,
                   tabledata "Data Exch. Mapping" = R,
+                  tabledata "Data Exch. Field Grouping" = R,
+                  tabledata "Data Exch. FlowField Gr. Buff." = R,
                   tabledata "Data Exchange Type" = Rimd,
                   tabledata "Default Dimension" = RIMD,
                   tabledata "Default Dimension Priority" = RIMD,
@@ -86,15 +84,9 @@ permissionset 4423 "General Ledger - Admin"
                   tabledata "Source Code" = RIMD,
                   tabledata "Source Code Setup" = RIMD,
                   tabledata "Standard Text" = RIMD,
-#if not CLEAN18
-                  tabledata "Stat. Reporting Setup" = RIMD,
-#endif
                   tabledata Territory = RIMD,
                   tabledata "Unlinked Attachment" = RIMD,
                   tabledata "User Setup" = RIMD,
-#if not CLEAN18
-                  tabledata "User Setup Line" = RIMD,
-#endif
                   tabledata "User Task Group" = RIMD,
                   tabledata "User Task Group Member" = RIMD,
                   tabledata "User Time Register" = RIMD,

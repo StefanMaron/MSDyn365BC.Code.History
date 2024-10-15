@@ -262,7 +262,7 @@ codeunit 137069 "SCM Production Orders"
         AssingTrackingOnProdOrderComponent(ProdOrderComponent);
 
         // Exercise: Calculate Regenerative Plan.
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, WorkDate);
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), WorkDate());
 
         // Verify: Verify Item Tracking on Requisition line.
         FindReservationEntry(ReservationEntry, Item."No.", DATABASE::"Prod. Order Component");
@@ -296,7 +296,7 @@ codeunit 137069 "SCM Production Orders"
         SalesLine.OpenItemTrackingLines();  // Select Item Tracking on Page handler - LotItemTrackingPageHandler.
 
         // Exercise: Calculate Regenerative Plan.
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, WorkDate);
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), WorkDate());
 
         // Verify: Verify Item Tracking on Requisition line.
         FindReservationEntry(ReservationEntry, Item."No.", DATABASE::"Sales Line");
@@ -333,7 +333,7 @@ codeunit 137069 "SCM Production Orders"
 
         // Calculate Regenerative Plan and Carry out action message.
         Item3.SetFilter("No.", '%1|%2', Item."No.", Item2."No.");
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item3, WorkDate, WorkDate);
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item3, WorkDate(), WorkDate());
         AcceptActionMessageAndCarryOutActionMessagePlan(Item."No.");
         FindPurchaseLine(PurchaseLine, Item."No.");
 
@@ -343,7 +343,7 @@ codeunit 137069 "SCM Production Orders"
         FindReservationEntry(ReservationEntry, Item."No.", DATABASE::"Purchase Line");
 
         // Exercise: Calculate Regenerative Plan.
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item3, WorkDate, WorkDate);
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item3, WorkDate(), WorkDate());
 
         // Verify: Verify Item Tracking line on Purchase Line.
         // Enqueue for Page Handler - LotItemTrackingPageHandler.
@@ -1565,7 +1565,7 @@ codeunit 137069 "SCM Production Orders"
         Item.Get(SalesLine."No.");
 
         // Exercise. Calculate Regenerative Plan.
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, WorkDate);
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), WorkDate());
 
         // Verify: Verify Tracking line on Production Order Line on Page Handler.
         ProdOrderLine.Get(ProdOrderLine.Status, ProdOrderLine."Prod. Order No.", ProdOrderLine."Line No.");
@@ -2350,8 +2350,8 @@ codeunit 137069 "SCM Production Orders"
 
         LibraryWarehouse.CreateBin(Bin, LocationSilver.Code, LibraryUtility.GenerateRandomCode(Bin.FieldNo(Code), DATABASE::Bin), '', '');
         FindProdOrderComponentItem(Item, ProductionOrder.Status, ProductionOrder."No.");
-        LibraryPatterns.POSTPositiveAdjustment(Item, LocationSilver.Code, '', Bin.Code, 1, WorkDate, 0);
-        PostConsumptionJournalLine(ProdOrderLine, Item, WorkDate, LocationSilver.Code, Bin.Code, 1);
+        LibraryPatterns.POSTPositiveAdjustment(Item, LocationSilver.Code, '', Bin.Code, 1, WorkDate(), 0);
+        PostConsumptionJournalLine(ProdOrderLine, Item, WorkDate(), LocationSilver.Code, Bin.Code, 1);
 
         VerifyItemLedgerEntryPosted(ProductionOrder."No.", Item."No.", '');
     end;
@@ -2406,7 +2406,7 @@ codeunit 137069 "SCM Production Orders"
         FindProductionOrderLine(ProdOrderLine, ProductionOrder.Status, ProductionOrder."No.");
         Assert.AreEqual(
           SalesLine."Bin Code", ProdOrderLine."Bin Code",
-          StrSubstNo(WrongFieldValueErr, ProdOrderLine.FieldCaption("Bin Code"), ProdOrderLine.TableCaption, SalesLine.TableCaption));
+          StrSubstNo(WrongFieldValueErr, ProdOrderLine.FieldCaption("Bin Code"), ProdOrderLine.TableCaption(), SalesLine.TableCaption()));
     end;
 
     [Test]
@@ -2440,7 +2440,7 @@ codeunit 137069 "SCM Production Orders"
         FindProductionOrderLine(ProdOrderLine, ProductionOrder.Status, ProductionOrder."No.");
         Assert.AreEqual(
           Location."From-Production Bin Code", ProdOrderLine."Bin Code",
-          StrSubstNo(WrongFieldValueErr, ProdOrderLine.FieldCaption("Bin Code"), ProdOrderLine.TableCaption, Location.TableCaption));
+          StrSubstNo(WrongFieldValueErr, ProdOrderLine.FieldCaption("Bin Code"), ProdOrderLine.TableCaption(), Location.TableCaption()));
     end;
 
     [Test]
@@ -2464,7 +2464,7 @@ codeunit 137069 "SCM Production Orders"
         // [THEN] "Low-Level Code" in Sales Planning Line is "X"
         Assert.AreEqual(
           Item."Low-Level Code", SalesPlanningLine."Low-Level Code",
-          StrSubstNo(WrongFieldValueErr, SalesPlanningLine.FieldCaption("Low-Level Code"), SalesPlanningLine.TableCaption, Item.TableCaption));
+          StrSubstNo(WrongFieldValueErr, SalesPlanningLine.FieldCaption("Low-Level Code"), SalesPlanningLine.TableCaption(), Item.TableCaption()));
     end;
 
     [Test]
@@ -2493,11 +2493,11 @@ codeunit 137069 "SCM Production Orders"
         Assert.AreEqual(
           ProdOrderLine."Routing No.", ItemJnlLine."Routing No.",
           StrSubstNo(
-            WrongFieldValueErr, ItemJnlLine.FieldCaption("Routing No."), ItemJnlLine.TableCaption, ProdOrderLine.TableCaption));
+            WrongFieldValueErr, ItemJnlLine.FieldCaption("Routing No."), ItemJnlLine.TableCaption(), ProdOrderLine.TableCaption()));
         Assert.AreEqual(
           ProdOrderLine."Routing Reference No.", ItemJnlLine."Routing Reference No.",
           StrSubstNo(
-            WrongFieldValueErr, ItemJnlLine.FieldCaption("Routing Reference No."), ItemJnlLine.TableCaption, ProdOrderLine.TableCaption));
+            WrongFieldValueErr, ItemJnlLine.FieldCaption("Routing Reference No."), ItemJnlLine.TableCaption(), ProdOrderLine.TableCaption()));
     end;
 
     [Test]
@@ -2518,11 +2518,11 @@ codeunit 137069 "SCM Production Orders"
         Initialize();
 
         // [GIVEN] Set WORKDATE to saturday
-        WorkDate(CalcDate('<WD6>', WorkDate)); // Saturday
+        WorkDate(CalcDate('<WD6>', WorkDate())); // Saturday
         CreateWorkCenter(WorkCenter1, 060000T, 220000T); // time values needed for test
-        LibraryManufacturing.CalculateWorkCenterCalendar(WorkCenter1, CalcDate('<-6M>', WorkDate), CalcDate('<6M>', WorkDate));
+        LibraryManufacturing.CalculateWorkCenterCalendar(WorkCenter1, CalcDate('<-6M>', WorkDate()), CalcDate('<6M>', WorkDate()));
         CreateWorkCenter(WorkCenter2, 000000T, 235959T); // time values needed for test
-        LibraryManufacturing.CalculateWorkCenterCalendar(WorkCenter2, CalcDate('<-6M>', WorkDate), CalcDate('<6M>', WorkDate));
+        LibraryManufacturing.CalculateWorkCenterCalendar(WorkCenter2, CalcDate('<-6M>', WorkDate()), CalcDate('<6M>', WorkDate()));
 
         // [GIVEN] Create Item "I" with routing, having three lines:
         LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
@@ -2593,7 +2593,7 @@ codeunit 137069 "SCM Production Orders"
         SetLotNoOnProdOrderComponent(ProdOrderComponent, LotNo);
 
         // [GIVEN] Calculate regenerative plan.
-        LibraryPlanning.CalcRegenPlanForPlanWksh(ParentItem, WorkDate, WorkDate);
+        LibraryPlanning.CalcRegenPlanForPlanWksh(ParentItem, WorkDate(), WorkDate());
 
         // [GIVEN] Post consumption of "Y" lot "Z" of small Quantity.
         FindProductionOrderLine(ProdOrderLine, ProductionOrder.Status, ProductionOrder."No.");
@@ -2705,9 +2705,9 @@ codeunit 137069 "SCM Production Orders"
         Initialize();
 
         // [GIVEN] Set WORKDATE to thursday
-        WorkDate(CalcDate('<WD4>', WorkDate)); // Thursday
+        WorkDate(CalcDate('<WD4>', WorkDate())); // Thursday
         CreateWorkCenter(WorkCenter, 060000T, 220000T); // time values needed for test
-        LibraryManufacturing.CalculateWorkCenterCalendar(WorkCenter, CalcDate('<-1M>', WorkDate), CalcDate('<1M>', WorkDate));
+        LibraryManufacturing.CalculateWorkCenterCalendar(WorkCenter, CalcDate('<-1M>', WorkDate()), CalcDate('<1M>', WorkDate()));
 
         // [GIVEN] Create Item "I" with routing, having two lines:
         LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
@@ -2836,12 +2836,12 @@ codeunit 137069 "SCM Production Orders"
 
         // [GIVEN] Line 1: "WC1", run time 1 minutes
         CreateWorkCenter(WorkCenter, 080000T, 160000T); // time values needed for test
-        LibraryManufacturing.CalculateWorkCenterCalendar(WorkCenter, CalcDate('<-1M>', WorkDate), CalcDate('<1M>', WorkDate));
+        LibraryManufacturing.CalculateWorkCenterCalendar(WorkCenter, CalcDate('<-1M>', WorkDate()), CalcDate('<1M>', WorkDate()));
         CreateWorkCenterRoutingLine(RoutingLine, RoutingHeader, WorkCenter."No.", 0, 0, 0, 0);
 
         // [GIVEN] Line 2: "WC2", wait time 1 day
         LibraryManufacturing.CreateWorkCenterFullWorkingWeek(WorkCenter, 080000T, 230000T); // time values needed for test
-        LibraryManufacturing.CalculateWorkCenterCalendar(WorkCenter, CalcDate('<-1M>', WorkDate), CalcDate('<1M>', WorkDate));
+        LibraryManufacturing.CalculateWorkCenterCalendar(WorkCenter, CalcDate('<-1M>', WorkDate()), CalcDate('<1M>', WorkDate()));
         CapacityUnitOfMeasure.SetRange(Type, CapacityUnitOfMeasure.Type::Days);
         CapacityUnitOfMeasure.FindFirst();
         WorkCenter.Validate("Queue Time", 1);
@@ -2859,7 +2859,7 @@ codeunit 137069 "SCM Production Orders"
           ProductionOrder, ProductionOrder.Status::Released, ProductionOrder."Source Type"::Item, Item."No.", 1);
 
         // [GIVEN] "PO"."Due Date" = 17/02/2017
-        ProductionOrder.Validate("Due Date", WorkDate);
+        ProductionOrder.Validate("Due Date", WorkDate());
         ProductionOrder.Validate("Location Code", LocationBlue.Code);
         ProductionOrder.Modify(true);
 
@@ -2912,7 +2912,7 @@ codeunit 137069 "SCM Production Orders"
         CreateItemWithRoutingAndWaitTime(Item, WaitTime);
 
         // [GIVEN] Released Production Order with "Due Date" = "30.09.2015", "Ending Time" = "0:00:00"
-        CreateRelProdOrderWithDateTime(ProductionOrder, Item."No.", WorkDate, WorkDate);
+        CreateRelProdOrderWithDateTime(ProductionOrder, Item."No.", WorkDate(), WorkDate());
 
         // [WHEN] Resfresh Production Order "Back"
         LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, false, false);
@@ -3200,7 +3200,7 @@ codeunit 137069 "SCM Production Orders"
         LibraryInventory.CreateItem(ParentItem);
         LibraryInventory.CreateItem(ComponentItem);
         UpdateFlushingMethodOnItem(ComponentItem, ComponentItem."Flushing Method"::Forward);
-        LibraryPatterns.POSTPositiveAdjustment(ComponentItem, '', '', '', 1, WorkDate, 0);
+        LibraryPatterns.POSTPositiveAdjustment(ComponentItem, '', '', '', 1, WorkDate(), 0);
 
         LibraryManufacturing.CreateRoutingLink(RoutingLink);
 
@@ -3500,7 +3500,7 @@ codeunit 137069 "SCM Production Orders"
         CreateRecordLink(ProductionOrder, RecordLink.Type::Note);
 
         // [WHEN] Change the status of the order "P" from "Planned" to "Firm Planned"
-        LibraryManufacturing.ChangeProdOrderStatus(ProductionOrder, ProductionOrder.Status::"Firm Planned", WorkDate, false);
+        LibraryManufacturing.ChangeProdOrderStatus(ProductionOrder, ProductionOrder.Status::"Firm Planned", WorkDate(), false);
 
         // [THEN] There is no record link pointing to the planned production order
         RecordLink.SetRange("Record ID", ProductionOrder.RecordId);
@@ -3548,7 +3548,7 @@ codeunit 137069 "SCM Production Orders"
             CreateRecordLink(ProductionOrder, RecordLink.Type::Note);
 
         // [WHEN] Change status of the production order "PO" from "Firm Planned" to "Released"
-        LibraryManufacturing.ChangeProdOrderStatus(ProductionOrder, ProductionOrder.Status::Released, WorkDate, false);
+        LibraryManufacturing.ChangeProdOrderStatus(ProductionOrder, ProductionOrder.Status::Released, WorkDate(), false);
 
         // [THEN] There are no links pointing to the firm planned production order
         RecordLink.SetRange("Record ID", ProductionOrder.RecordId);
@@ -3613,7 +3613,7 @@ codeunit 137069 "SCM Production Orders"
         FindProdOrderComponent(ProdOrderComponent, ProductionOrder.Status, ProductionOrder."No.", CompItem."No.");
 
         // [WHEN] Calculate consumption based on actual output, which is 0.
-        LibraryManufacturing.CalculateConsumptionForJournal(ProductionOrder, ProdOrderComponent, WorkDate, true);
+        LibraryManufacturing.CalculateConsumptionForJournal(ProductionOrder, ProdOrderComponent, WorkDate(), true);
 
         // [THEN] Lot "L1" has not been excessively consumed, so it has not been included into the item tracking.
         ItemJournalLine.SetRange("Item No.", CompItem."No.");
@@ -3963,7 +3963,7 @@ codeunit 137069 "SCM Production Orders"
         CreateRecordLink(ProductionOrder, RecordLink.Type::Note);
 
         // [WHEN] Change Status of the Production Order to Released
-        LibraryManufacturing.ChangeProdOrderStatus(ProductionOrder, ProductionOrder.Status::Released, WorkDate, false);
+        LibraryManufacturing.ChangeProdOrderStatus(ProductionOrder, ProductionOrder.Status::Released, WorkDate(), false);
 
         // [THEN] All 3 links point to Released Production Order
         // [THEN] Link Type Links URL1 is not changed
@@ -3974,7 +3974,7 @@ codeunit 137069 "SCM Production Orders"
         RecordLink.FindSet();
         for Index := 1 to NoOfLinkTypeLinks do begin
             RecordLink.TestField(URL1, RecordLinkURL1[Index]);
-            RecordLink.Next;
+            RecordLink.Next();
         end;
 
         RecordLink.TestField(Type, RecordLink.Type::Note);
@@ -4673,7 +4673,7 @@ codeunit 137069 "SCM Production Orders"
         RoutingLine: Record "Routing Line";
     begin
         LibraryManufacturing.CreateWorkCenter(WorkCenter);
-        LibraryManufacturing.CalculateWorkCenterCalendar(WorkCenter, CalcDate('<-2M>', WorkDate), CalcDate('<2M>', WorkDate));
+        LibraryManufacturing.CalculateWorkCenterCalendar(WorkCenter, CalcDate('<-2M>', WorkDate()), CalcDate('<2M>', WorkDate()));
 
         LibraryManufacturing.CreateRoutingLine(
           RoutingHeader, RoutingLine, '', OperationNo, RoutingLine.Type::"Work Center", WorkCenter."No.");
@@ -4860,7 +4860,7 @@ codeunit 137069 "SCM Production Orders"
         repeat
             RequisitionLine.Validate("Accept Action Message", true);
             RequisitionLine.Modify(true);
-        until RequisitionLine.Next = 0;
+        until RequisitionLine.Next() = 0;
     end;
 
     local procedure FindReservationEntry(var ReservationEntry: Record "Reservation Entry"; ItemNo: Code[20]; SourceType: Integer)
@@ -4882,7 +4882,7 @@ codeunit 137069 "SCM Production Orders"
     begin
         AcceptActionMessage(ItemNo);
         SelectRequisitionLine(RequisitionLine, ItemNo);
-        LibraryPlanning.CarryOutReqWksh(RequisitionLine, WorkDate, WorkDate, WorkDate, WorkDate, '');
+        LibraryPlanning.CarryOutReqWksh(RequisitionLine, WorkDate(), WorkDate, WorkDate(), WorkDate, '');
     end;
 
     local procedure CreateWorkCenter(var WorkCenter: Record "Work Center"; FromTime: Time; ToTime: Time)
@@ -4957,7 +4957,7 @@ codeunit 137069 "SCM Production Orders"
         WaitTime := LibraryRandom.RandInt(10);
         LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
         CreateWorkCenter(WorkCenter, 000000T, 160000T); // time values needed for test
-        LibraryManufacturing.CalculateWorkCenterCalendar(WorkCenter, CalcDate('<-2D>', WorkDate), CalcDate('<2D>', WorkDate));
+        LibraryManufacturing.CalculateWorkCenterCalendar(WorkCenter, CalcDate('<-2D>', WorkDate()), CalcDate('<2D>', WorkDate()));
         CreateWorkCenterRoutingLine(RoutingLine, RoutingHeader, WorkCenter."No.", 0, 0, WaitTime, 0);
         ChangeStatusOfProductionRoutingHeader(RoutingHeader, RoutingHeader.Status::Certified);
         CreateItem(Item, Item."Replenishment System"::"Prod. Order");
@@ -5312,7 +5312,7 @@ codeunit 137069 "SCM Production Orders"
 
     local procedure UpdateShipmentDateOnSalesLine(var SalesLine: Record "Sales Line")
     begin
-        SalesLine.Validate("Shipment Date", CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate));
+        SalesLine.Validate("Shipment Date", CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate()));
         SalesLine.Modify(true);
     end;
 
@@ -5464,7 +5464,7 @@ codeunit 137069 "SCM Production Orders"
     begin
         // Open Production BOM Where Used page.
         ProdBOMWhereUsed2.Trap;
-        ProdBOMWhereUsed.SetItem(Item, WorkDate);
+        ProdBOMWhereUsed.SetItem(Item, WorkDate());
         ProdBOMWhereUsed.Run();
     end;
 
@@ -5483,7 +5483,7 @@ codeunit 137069 "SCM Production Orders"
         with ProductionOrder do begin
             Status := Status::Released;
             "No." := LibraryUtility.GenerateGUID();
-            Insert;
+            Insert();
         end;
     end;
 
@@ -5504,7 +5504,7 @@ codeunit 137069 "SCM Production Orders"
             "Prod. Order No." := ProdOrderNo;
             "Completely Picked" := CompletelyPicked;
             "Supplied-by Line No." := SuppliedByLineNo;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -5528,7 +5528,7 @@ codeunit 137069 "SCM Production Orders"
         RoutingLine: Record "Routing Line";
     begin
         CreateWorkCenter(WorkCenter, 080000T, 160000T);
-        LibraryManufacturing.CalculateWorkCenterCalendar(WorkCenter, CalcDate('<-2M>', WorkDate), CalcDate('<2M>', WorkDate));
+        LibraryManufacturing.CalculateWorkCenterCalendar(WorkCenter, CalcDate('<-2M>', WorkDate()), CalcDate('<2M>', WorkDate()));
         LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
         CreateRoutingLine(RoutingLine, RoutingHeader, RoutingLine.Type::"Work Center", WorkCenter."No.", RoutingLinkCode);
         UpdateRoutingLineSetup(RoutingLine, LibraryRandom.RandInt(10), LibraryRandom.RandInt(10));
@@ -5542,9 +5542,9 @@ codeunit 137069 "SCM Production Orders"
     begin
         CreateWorkCenter(WorkCenter, 080000T, 160000T);
         LibraryManufacturing.CreateMachineCenter(MachineCenter1, WorkCenter."No.", LibraryRandom.RandInt(10));
-        LibraryManufacturing.CalculateMachCenterCalendar(MachineCenter1, CalcDate('<-6M>', WorkDate), CalcDate('<6M>', WorkDate));
+        LibraryManufacturing.CalculateMachCenterCalendar(MachineCenter1, CalcDate('<-6M>', WorkDate()), CalcDate('<6M>', WorkDate()));
         LibraryManufacturing.CreateMachineCenter(MachineCenter2, WorkCenter."No.", LibraryRandom.RandInt(10));
-        LibraryManufacturing.CalculateMachCenterCalendar(MachineCenter2, CalcDate('<-6M>', WorkDate), CalcDate('<6M>', WorkDate));
+        LibraryManufacturing.CalculateMachCenterCalendar(MachineCenter2, CalcDate('<-6M>', WorkDate()), CalcDate('<6M>', WorkDate()));
         with CapacityConstrainedResource do begin
             LibraryManufacturing.CreateCapacityConstrainedResource(
               CapacityConstrainedResource, "Capacity Type"::"Machine Center", MachineCenter2."No.");
@@ -6024,7 +6024,7 @@ codeunit 137069 "SCM Production Orders"
         if Format(ProdBOMWhereUsed."Item No.") <> '' then
             repeat
                 ActualLineCount += 1;
-            until not ProdBOMWhereUsed.Next;
+            until not ProdBOMWhereUsed.Next();
         Assert.AreEqual(ExpectedLineCount, ActualLineCount, NumberOfLineEqualErr);
     end;
 
@@ -6090,7 +6090,7 @@ codeunit 137069 "SCM Production Orders"
         ItemJournalLine.FindSet();
         repeat
             VerifyDimensionSetEntry(ItemJournalLine."Dimension Set ID", DimensionValue."Dimension Code", DimensionValue.Code);
-        until ItemJournalLine.Next = 0;
+        until ItemJournalLine.Next() = 0;
     end;
 
     local procedure VerifyItemLedgerEntry(ItemNo: Code[20]; UnitOfMeasureCode: Code[10])

@@ -78,8 +78,8 @@ page 831 "Workflow Webhook Subscriptions"
     begin
         // runs on get record
         // need to return encoded string
-        ConditionsTxt := GetConditions;
-        NotificationURLTxt := GetNotificationUrl;
+        ConditionsTxt := GetConditions();
+        NotificationURLTxt := GetNotificationUrl();
     end;
 
     var

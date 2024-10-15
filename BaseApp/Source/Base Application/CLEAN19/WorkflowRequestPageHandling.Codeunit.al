@@ -57,7 +57,7 @@ codeunit 1522 "Workflow Request Page Handling"
         DynamicRequestPageEntity.SetRange(Name, Name);
         DynamicRequestPageEntity.SetRange("Table ID", TableId);
         DynamicRequestPageEntity.SetRange("Related Table ID", RelatedTableId);
-        exit(DynamicRequestPageEntity.FindFirst);
+        exit(DynamicRequestPageEntity.FindFirst());
     end;
 
     local procedure CreateReqPageEntity(Name: Code[20]; Description: Text[100]; TableId: Integer; RelatedTableId: Integer)

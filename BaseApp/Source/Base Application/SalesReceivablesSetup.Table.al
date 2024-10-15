@@ -1,4 +1,4 @@
-﻿table 311 "Sales & Receivables Setup"
+table 311 "Sales & Receivables Setup"
 {
     Caption = 'Sales & Receivables Setup';
     DrillDownPageID = "Sales & Receivables Setup";
@@ -286,7 +286,7 @@
                 EnvironmentInformation: Codeunit "Environment Information";
             begin
                 if "Report Output Type" = "Report Output Type"::Print then
-                    if EnvironmentInformation.IsSaaS then
+                    if EnvironmentInformation.IsSaaS() then
                         TestField("Report Output Type", "Report Output Type"::PDF);
             end;
         }
@@ -311,6 +311,14 @@
         field(53; "Archive Orders"; Boolean)
         {
             Caption = 'Archive Orders';
+
+            trigger OnValidate()
+            var
+                CRMConnectionSetup: Record "CRM Connection Setup";
+            begin
+                if CRMConnectionSetup.IsBidirectionalSalesOrderIntEnabled() then
+                    Error(CRMBidirectionalSalesOrderIntEnabledErr);
+            end;
         }
         field(54; "Archive Blanket Orders"; Boolean)
         {
@@ -723,13 +731,9 @@
         field(11767; "Allow Alter Posting Groups"; Boolean)
         {
             Caption = 'Allow Alter Posting Groups';
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(11768; "Automatic Adv. Invoice Posting"; Boolean)
         {
@@ -856,12 +860,13 @@
         MultiplePostingGroupsNotAllowedErr: Label 'Use of multiple posting groups in production environment is currently not allowed.';
 #endif
         RecordHasBeenRead: Boolean;
+        CRMBidirectionalSalesOrderIntEnabledErr: Label 'You cannot disable Archive Orders when Dynamics 365 Sales connection and Bidirectional Sales Order Integration are enabled.';
 
     procedure GetRecordOnce()
     begin
         if RecordHasBeenRead then
             exit;
-        Get;
+        Get();
         RecordHasBeenRead := true;
     end;
 
@@ -872,7 +877,7 @@
 
     procedure JobQueueActive(): Boolean
     begin
-        Get;
+        Get();
         exit("Post with Job Queue" or "Post & Print with Job Queue");
     end;
 
@@ -882,8 +887,9 @@
     begin
         if AccNo <> '' then begin
             GLAcc.Get(AccNo);
-            GLAcc.CheckGLAcc;
+            GLAcc.CheckGLAcc();
             GLAcc.TestField("Gen. Prod. Posting Group");
         end;
     end;
 }
+

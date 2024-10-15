@@ -1,14 +1,8 @@
 table 31042 "FA Extended Posting Group"
 {
     Caption = 'FA Extended Posting Group';
-#if not CLEAN18
-    LookupPageID = "FA Extended Posting Groups";
-    ObsoleteState = Pending;
-    ObsoleteTag = '18.0';
-#else
     ObsoleteState = Removed;
     ObsoleteTag = '21.0';
-#endif
     ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
 
     fields
@@ -143,10 +137,9 @@ table 31042 "FA Extended Posting Group"
     begin
         if AccNo <> '' then begin
             GLAcc.Get(AccNo);
-            GLAcc.CheckGLAcc;
+            GLAcc.CheckGLAcc();
             if DirectPosting then
                 GLAcc.TestField("Direct Posting");
         end;
     end;
 }
-

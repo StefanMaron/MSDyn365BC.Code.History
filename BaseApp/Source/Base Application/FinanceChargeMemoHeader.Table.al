@@ -1,4 +1,4 @@
-﻿table 302 "Finance Charge Memo Header"
+table 302 "Finance Charge Memo Header"
 {
     Caption = 'Finance Charge Memo Header';
     DataCaptionFields = "No.", Name;
@@ -14,7 +14,7 @@
             trigger OnValidate()
             begin
                 if "No." <> xRec."No." then begin
-                    NoSeriesMgt.TestManual(GetNoSeriesCode);
+                    NoSeriesMgt.TestManual(GetNoSeriesCode());
                     "No. Series" := '';
                 end;
                 "Posting Description" := StrSubstNo(Text000, "No.");
@@ -29,7 +29,7 @@
             begin
                 OnBeforeValidateCustomerNo(Rec);
                 if CurrFieldNo = FieldNo("Customer No.") then
-                    if Undo then begin
+                    if Undo() then begin
                         "Customer No." := xRec."Customer No.";
                         exit;
                     end;
@@ -57,9 +57,6 @@
                 "Tax Area Code" := Cust."Tax Area Code";
                 "Tax Liable" := Cust."Tax Liable";
                 Validate("Fin. Charge Terms Code", Cust."Fin. Charge Terms Code");
-#if not CLEAN18
-                UpdateBankInfo; // NAVCZ
-#endif
                 OnValidateCustomerNoOnAfterAssignCustomerValues(Rec, Cust);
 
                 CreateDimFromDefaultDim();
@@ -97,8 +94,13 @@
             end;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
-                PostCode.ValidatePostCode(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
+                IsHandled := false;
+                OnBeforeValidatePostCode(Rec, PostCode, CurrFieldNo, IsHandled);
+                if not IsHandled then
+                    PostCode.ValidatePostCode(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
             end;
         }
         field(8; City; Text[30])
@@ -117,8 +119,13 @@
             end;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
-                PostCode.ValidateCity(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
+                IsHandled := false;
+                OnBeforeValidateCity(Rec, PostCode, CurrFieldNo, IsHandled);
+                if not IsHandled then
+                    PostCode.ValidateCity(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
             end;
         }
         field(9; County; Text[30])
@@ -149,7 +156,7 @@
             trigger OnValidate()
             begin
                 if CurrFieldNo = FieldNo("Currency Code") then
-                    if Undo then begin
+                    if Undo() then begin
                         "Currency Code" := xRec."Currency Code";
                         exit;
                     end;
@@ -192,18 +199,6 @@
         {
             Caption = 'Customer Posting Group';
             TableRelation = "Customer Posting Group";
-#if not CLEAN18
-
-            trigger OnValidate()
-            var
-                PostingGroupManagement: Codeunit "Posting Group Management";
-            begin
-                // NAVCZ
-                if CurrFieldNo = FieldNo("Customer Posting Group") then
-                    PostingGroupManagement.CheckPostingGroupChange("Customer Posting Group", xRec."Customer Posting Group", Rec);
-                // NAVCZ
-            end;
-#endif
         }
         field(18; "Gen. Bus. Posting Group"; Code[20])
         {
@@ -238,7 +233,7 @@
             trigger OnValidate()
             begin
                 if CurrFieldNo = FieldNo("Document Date") then
-                    if Undo then begin
+                    if Undo() then begin
                         "Document Date" := xRec."Document Date";
                         exit;
                     end;
@@ -257,7 +252,7 @@
             trigger OnValidate()
             begin
                 if CurrFieldNo = FieldNo("Fin. Charge Terms Code") then
-                    if Undo then begin
+                    if Undo() then begin
                         "Fin. Charge Terms Code" := xRec."Fin. Charge Terms Code";
                         exit;
                     end;
@@ -346,8 +341,8 @@
             begin
                 with FinChrgMemoHeader do begin
                     FinChrgMemoHeader := Rec;
-                    TestNoSeries;
-                    if NoSeriesMgt.LookupSeries(GetIssuingNoSeriesCode, "Issuing No. Series") then
+                    TestNoSeries();
+                    if NoSeriesMgt.LookupSeries(GetIssuingNoSeriesCode(), "Issuing No. Series") then
                         Validate("Issuing No. Series");
                     Rec := FinChrgMemoHeader;
                 end;
@@ -356,8 +351,8 @@
             trigger OnValidate()
             begin
                 if "Issuing No. Series" <> '' then begin
-                    TestNoSeries;
-                    NoSeriesMgt.TestSeries(GetIssuingNoSeriesCode, "Issuing No. Series");
+                    TestNoSeries();
+                    NoSeriesMgt.TestSeries(GetIssuingNoSeriesCode(), "Issuing No. Series");
                 end;
                 TestField("Issuing No.", '');
             end;
@@ -393,7 +388,7 @@
 
             trigger OnLookup()
             begin
-                ShowDocDim;
+                ShowDocDim();
             end;
 
             trigger OnValidate()
@@ -411,132 +406,77 @@
         {
             Caption = 'Bank No.';
             TableRelation = "Bank Account";
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
-#if not CLEAN18
-
-            trigger OnValidate()
-            begin
-                UpdateBankInfo;
-            end;
-#endif
+            ObsoleteTag = '21.0';
         }
         field(11701; "Bank Account No."; Text[30])
         {
             Caption = 'Bank Account No.';
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(11702; "Bank Branch No."; Text[20])
         {
             Caption = 'Bank Branch No.';
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(11703; "Specific Symbol"; Code[10])
         {
             Caption = 'Specific Symbol';
             CharAllowed = '09';
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(11704; "Variable Symbol"; Code[10])
         {
             Caption = 'Variable Symbol';
             CharAllowed = '09';
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(11705; "Constant Symbol"; Code[10])
         {
             Caption = 'Constant Symbol';
             CharAllowed = '09';
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            TableRelation = "Constant Symbol";
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(11706; "Transit No."; Text[20])
         {
             Caption = 'Transit No.';
             Editable = false;
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(11707; IBAN; Code[50])
         {
             Caption = 'IBAN';
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
-#if not CLEAN18
-
-            trigger OnValidate()
-            begin
-                CompanyInfo.CheckIBAN(IBAN);
-            end;
-#endif
+            ObsoleteTag = '21.0';
         }
         field(11708; "SWIFT Code"; Code[20])
         {
             Caption = 'SWIFT Code';
             Editable = false;
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(11709; "Bank Name"; Text[100])
         {
             Caption = 'Bank Name';
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(11761; "Multiple Interest Rates"; Boolean)
         {
@@ -609,12 +549,14 @@
 
         FinChrgMemoLine.SetRange("Finance Charge Memo No.", "No.");
         FinChrgMemoLine.DeleteAll();
+
 #if not CLEAN20
         // NAVCZ
         DtldFinChargeMemoLine.SetRange("Finance Charge Memo No.", "No.");
         DtldFinChargeMemoLine.DeleteAll();
         // NAVCZ
 #endif
+
         FinChrgMemoCommentLine.SetRange(Type, FinChrgMemoCommentLine.Type::"Finance Charge Memo");
         FinChrgMemoCommentLine.SetRange("No.", "No.");
         FinChrgMemoCommentLine.DeleteAll();
@@ -627,8 +569,8 @@
     begin
         SalesSetup.Get();
         if "No." = '' then begin
-            TestNoSeries;
-            NoSeriesMgt.InitSeries(GetNoSeriesCode, xRec."No. Series", "Posting Date", "No.", "No. Series");
+            TestNoSeries();
+            NoSeriesMgt.InitSeries(GetNoSeriesCode(), xRec."No. Series", "Posting Date", "No.", "No. Series");
         end;
 #if not CLEAN20
         "Multiple Interest Rates" := SalesSetup."Multiple Interest Rates"; // NAVCZ
@@ -642,9 +584,9 @@
             NoSeriesMgt.SetDefaultSeries("Issuing No. Series", GetIssuingNoSeriesCode());
 
         if "Posting Date" = 0D then
-            "Posting Date" := WorkDate;
-        "Document Date" := WorkDate;
-        "Due Date" := WorkDate;
+            "Posting Date" := WorkDate();
+        "Document Date" := WorkDate();
+        "Due Date" := WorkDate();
 
         if GetFilter("Customer No.") <> '' then
             if GetRangeMin("Customer No.") = GetRangeMax("Customer No.") then
@@ -652,16 +594,8 @@
     end;
 
     var
-        Text000: Label 'Finance Charge Memo %1';
-        Text001: Label 'Do you want to print finance charge memo %1?';
-        Text002: Label 'This change will cause the existing lines to be deleted for this finance charge memo.\\';
-        Text003: Label 'Do you want to continue?';
-        Text004: Label 'There is not enough space to insert the text.';
-        Text005: Label 'Deleting this document will cause a gap in the number series for finance charge memos.';
-        Text006: Label 'An empty finance charge memo %1 will be created to fill this gap in the number series.\\';
         Currency: Record Currency;
 #if not CLEAN20
-        CompanyInfo: Record "Company Information";
         DtldFinChargeMemoLine: Record "Detailed Fin. Charge Memo Line";
 #endif
         SalesSetup: Record "Sales & Receivables Setup";
@@ -688,13 +622,21 @@
         OK: Boolean;
         SelectNoSeriesAllowed: Boolean;
 
+        Text000: Label 'Finance Charge Memo %1';
+        Text001: Label 'Do you want to print finance charge memo %1?';
+        Text002: Label 'This change will cause the existing lines to be deleted for this finance charge memo.\\';
+        Text003: Label 'Do you want to continue?';
+        Text004: Label 'There is not enough space to insert the text.';
+        Text005: Label 'Deleting this document will cause a gap in the number series for finance charge memos.';
+        Text006: Label 'An empty finance charge memo %1 will be created to fill this gap in the number series.\\';
+
     procedure AssistEdit(OldFinChrgMemoHeader: Record "Finance Charge Memo Header"): Boolean
     begin
         with FinChrgMemoHeader do begin
             FinChrgMemoHeader := Rec;
-            TestNoSeries;
+            TestNoSeries();
             if NoSeriesMgt.SelectSeries(SalesSetup."Fin. Chrg. Memo Nos.", OldFinChrgMemoHeader."No. Series", "No. Series") then begin
-                TestNoSeries;
+                TestNoSeries();
                 NoSeriesMgt.SetSeries("No.");
                 Rec := FinChrgMemoHeader;
                 exit(true);
@@ -770,7 +712,7 @@
             then
                 exit(true);
             FinChrgMemoLine.DeleteAll();
-            Modify;
+            Modify();
         end;
     end;
 
@@ -800,7 +742,7 @@
             FinChrgMemoLine.Type := FinChrgMemoLine.Type::"G/L Account";
             TestField("Customer Posting Group");
             CustPostingGr.Get("Customer Posting Group");
-            FinChrgMemoLine.Validate("No.", CustPostingGr.GetAdditionalFeeAccount);
+            FinChrgMemoLine.Validate("No.", CustPostingGr.GetAdditionalFeeAccount());
             FinChrgMemoLine.Description :=
               CopyStr(
                 TranslationHelper.GetTranslatedFieldCaption(
@@ -826,7 +768,7 @@
         FinanceChargeRounding(Rec);
         InsertBeginTexts(Rec);
         InsertEndTexts(Rec);
-        Modify;
+        Modify();
     end;
 
     procedure UpdateLines(FinChrgMemoHeader2: Record "Finance Charge Memo Header")
@@ -840,7 +782,7 @@
               (FinChrgMemoLine."Attached to Line No." = 0);
             if OK then begin
                 FinChrgMemoLine.Delete(true);
-                OK := FinChrgMemoLine.Next <> 0;
+                OK := FinChrgMemoLine.Next() <> 0;
             end;
         end;
         OK := FinChrgMemoLine.Find('+');
@@ -1086,7 +1028,7 @@
                 Round(
                     TotalAmountInclVAT,
                     Currency."Invoice Rounding Precision",
-                    Currency.InvoiceRoundingDirection),
+                    Currency.InvoiceRoundingDirection()),
               Currency."Amount Rounding Precision"));
     end;
 
@@ -1099,10 +1041,10 @@
         if FinanceChargeRoundingAmount <> 0 then begin
             CustPostingGr.Get(FinanceChargeHeader."Customer Posting Group");
             with FinChrgMemoLine do begin
-                Init;
+                Init();
                 Validate(Type, Type::"G/L Account");
                 "System-Created Entry" := true;
-                Validate("No.", CustPostingGr.GetInvRoundingAccount);
+                Validate("No.", CustPostingGr.GetInvRoundingAccount());
                 Validate(
                   Amount,
                   Round(
@@ -1110,7 +1052,7 @@
                     Currency."Amount Rounding Precision"));
                 "VAT Amount" := FinanceChargeRoundingAmount - Amount;
                 "Line Type" := "Line Type"::Rounding;
-                Insert;
+                Insert();
             end;
         end;
     end;
@@ -1119,7 +1061,7 @@
     begin
         with FinanceChargeHeader do
             if "Currency Code" = '' then
-                Currency.InitRoundingPrecision
+                Currency.InitRoundingPrecision()
             else begin
                 Currency.Get("Currency Code");
                 Currency.TestField("Amount Rounding Precision");
@@ -1141,7 +1083,7 @@
         if FinChrgMemoLine.FindLast() then begin
             OldLineNo := FinChrgMemoLine."Line No.";
             FinChrgMemoLine.SetRange(Type);
-            if FinChrgMemoLine.Next <> 0 then
+            if FinChrgMemoLine.Next() <> 0 then
                 FinChrgMemoLine."Line No." := OldLineNo + ((FinChrgMemoLine."Line No." - OldLineNo) / 2)
             else
                 FinChrgMemoLine."Line No." := FinChrgMemoLine."Line No." + 10000;
@@ -1161,7 +1103,7 @@
     begin
         "Dimension Set ID" :=
           DimMgt.EditDimensionSet(
-            Rec, "Dimension Set ID", StrSubstNo('%1 %2', TableCaption, "No."),
+            Rec, "Dimension Set ID", StrSubstNo('%1 %2', TableCaption(), "No."),
             "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
 
         DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
@@ -1169,29 +1111,6 @@
         OnAfterShowDocDim(Rec);
     end;
 
-#if not CLEAN18
-    [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
-    [Scope('OnPrem')]
-    procedure UpdateBankInfo()
-    var
-        BankAcc: Record "Bank Account";
-    begin
-        // NAVCZ
-        if BankAcc.Get("Bank No.") then begin
-            "Bank Name" := BankAcc.Name;
-            "Bank Account No." := BankAcc."Bank Account No.";
-            "Bank Branch No." := BankAcc."Bank Branch No.";
-            IBAN := BankAcc.IBAN;
-        end else begin
-            CompanyInfo.Get();
-            "Bank Name" := CompanyInfo."Bank Name";
-            "Bank Account No." := CompanyInfo."Bank Account No.";
-            "Bank Branch No." := CompanyInfo."Bank Branch No.";
-            IBAN := CompanyInfo.IBAN;
-        end;
-    end;
-
-#endif
     local procedure GetFilterCustNo(): Code[20]
     begin
         if GetFilter("Customer No.") <> '' then
@@ -1201,8 +1120,8 @@
 
     procedure SetCustomerFromFilter()
     begin
-        if GetFilterCustNo <> '' then
-            Validate("Customer No.", GetFilterCustNo);
+        if GetFilterCustNo() <> '' then
+            Validate("Customer No.", GetFilterCustNo());
     end;
 
     procedure CreateDimFromDefaultDim()
@@ -1374,6 +1293,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateCustomerNoOnAfterAssignCustomerValues(var FinanceChargeMemoHeader: Record "Finance Charge Memo Header"; Customer: Record "Customer")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateCity(var FinanceChargeMemoHeader: Record "Finance Charge Memo Header"; var PostCode: Record "Post Code"; CurrentFieldNo: Integer; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidatePostCode(var FinanceChargeMemoHeader: Record "Finance Charge Memo Header"; var PostCode: Record "Post Code"; CurrentFieldNo: Integer; var IsHandled: Boolean);
     begin
     end;
 

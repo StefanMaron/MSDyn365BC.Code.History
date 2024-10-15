@@ -13,7 +13,7 @@ report 5802 "Inventory Valuation - WIP"
             DataItemTableView = WHERE(Status = FILTER(Released ..));
             PrintOnlyIfDetail = true;
             RequestFilterFields = Status, "No.";
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(TodayFormatted; Format(Today, 0, 4))
@@ -111,9 +111,6 @@ report 5802 "Inventory Valuation - WIP"
                 column(LastWIP; TotalLastWIP)
                 {
                 }
-                column(HideRow; HideRow)
-                {
-                }
 
                 trigger OnAfterGetRecord()
                 begin
@@ -121,19 +118,14 @@ report 5802 "Inventory Valuation - WIP"
                     LastOutput := 0;
                     AtLastDate := 0;
                     LastWIP := 0;
-                    HideRow := false; // NAVCZ
 
-                    if (CountRecord = LengthRecord) and IsNotWIP then begin
+                    if (CountRecord = LengthRecord) and IsNotWIP() then begin
                         ValueEntryOnPostDataItem("Value Entry");
 
                         AtLastDate := NcValueOfWIP + NcValueOfMatConsump + NcValueOfCap + NcValueOfOutput;
                         LastOutput := NcValueOfOutput;
                         LastWIP := NcValueOfWIP;
                         ValueOfCostPstdToGL := NcValueOfCostPstdToGL;
-                        // NAVCZ
-                        if SkipProdOrderWithoutMovement then
-                            HideRow := (LastWIP = 0) and (ValueOfMatConsump = 0) and (ValueOfCap = 0) and (LastOutput = 0) and (AtLastDate = 0);
-                        // NAVCZ
 
                         NcValueOfWIP := 0;
                         NcValueOfOutput := 0;
@@ -147,7 +139,7 @@ report 5802 "Inventory Valuation - WIP"
                         NcValueOfCostPstdToGL := 0;
                     end;
 
-                    if not IsNotWIP then begin
+                    if not IsNotWIP() then begin
                         ValueOfWIP := 0;
                         ValueOfMatConsump := 0;
                         ValueOfCap := 0;
@@ -218,11 +210,6 @@ report 5802 "Inventory Valuation - WIP"
                             LastOutput := NcValueOfOutput;
                             LastWIP := NcValueOfWIP;
 
-                            // NAVCZ
-                            if SkipProdOrderWithoutMovement then
-                                HideRow := (LastWIP = 0) and (ValueOfMatConsump = 0) and (ValueOfCap = 0) and (LastOutput = 0) and (AtLastDate = 0);
-                            // NAVCZ
-
                             NcValueOfWIP := 0;
                             NcValueOfOutput := 0;
                             NcValueOfMatConsump := 0;
@@ -284,7 +271,7 @@ report 5802 "Inventory Valuation - WIP"
 
             trigger OnAfterGetRecord()
             begin
-                if FinishedProdOrderIsCompletelyInvoiced then
+                if FinishedProdOrderIsCompletelyInvoiced() then
                     CurrReport.Skip();
                 EntryFound := ValueEntryExist("Production Order", StartDate, EndDate);
             end;
@@ -314,12 +301,6 @@ report 5802 "Inventory Valuation - WIP"
                         Caption = 'Ending Date';
                         ToolTip = 'Specifies the date to which the report or batch job processes information.';
                     }
-                    field(SkipItemWithoutMovement; SkipProdOrderWithoutMovement)
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Skip Prod. Orders without Movement';
-                        ToolTip = 'Specifies when the prod. orders without movement is to be skip';
-                    }
                 }
             }
         }
@@ -331,7 +312,7 @@ report 5802 "Inventory Valuation - WIP"
         trigger OnOpenPage()
         begin
             if (StartDate = 0D) and (EndDate = 0D) then
-                EndDate := WorkDate;
+                EndDate := WorkDate();
         end;
     }
 
@@ -341,9 +322,9 @@ report 5802 "Inventory Valuation - WIP"
 
     trigger OnPreReport()
     begin
-        ProdOrderFilter := "Production Order".GetFilters;
+        ProdOrderFilter := "Production Order".GetFilters();
         if (StartDate = 0D) and (EndDate = 0D) then
-            EndDate := WorkDate;
+            EndDate := WorkDate();
 
         if StartDate in [0D, 00000101D] then
             StartDateText := ''
@@ -403,8 +384,6 @@ report 5802 "Inventory Valuation - WIP"
         ProdOrderSourceNoCaptionLbl: Label 'Source No.';
         TotalCaptionLbl: Label 'Total';
         EntryFound: Boolean;
-        SkipProdOrderWithoutMovement: Boolean;
-        HideRow: Boolean;
 
     local procedure ValueEntryOnPostDataItem(ValueEntry: Record "Value Entry")
     begin

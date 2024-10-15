@@ -1,4 +1,4 @@
-#if not CLEAN20
+﻿#if not CLEAN20
 codeunit 1004 "Job Transfer Line"
 {
 
@@ -80,17 +80,6 @@ codeunit 1004 "Job Transfer Line"
         JobLedgEntry."Unit Price" := JobJnlLine2."Unit Price";
 
         JobLedgEntry."Line Discount %" := JobJnlLine2."Line Discount %";
-#if not CLEAN18
-        // NAVCZ
-        JobLedgEntry."Shipment Method Code" := JobJnlLine2."Shipment Method Code";
-        JobLedgEntry."Tariff No." := JobJnlLine2."Tariff No.";
-        JobLedgEntry."Statistic Indication" := JobJnlLine2."Statistic Indication";
-        JobLedgEntry."Net Weight" := JobJnlLine2."Net Weight";
-        JobLedgEntry."Country/Region of Origin Code" := JobJnlLine2."Country/Region of Origin Code";
-        JobLedgEntry."Intrastat Transaction" := JobJnlLine2."Intrastat Transaction";
-        JobLedgEntry.Correction := JobJnlLine2.Correction;
-        // NAVCZ
-#endif
 
         OnAfterFromJnlLineToLedgEntry(JobLedgEntry, JobJnlLine2);
     end;
@@ -205,15 +194,6 @@ codeunit 1004 "Job Transfer Line"
         JobJnlLine."Entry/Exit Point" := SalesLine."Exit Point";
         JobJnlLine.Area := SalesLine.Area;
         JobJnlLine."Country/Region Code" := JobPlanningLine."Country/Region Code";
-#if not CLEAN18
-        // NAVCZ
-        JobJnlLine."Shipment Method Code" := SalesHeader."Shipment Method Code";
-        JobJnlLine."Net Weight" := SalesLine."Net Weight";
-        JobJnlLine."Country/Region of Origin Code" := SalesLine."Country/Region of Origin Code";
-        JobJnlLine."Intrastat Transaction" := SalesHeader.IsIntrastatTransaction;
-        JobJnlLine.CheckIntrastat;
-        // NAVCZ
-#endif
 
         JobJnlLine."Shortcut Dimension 1 Code" := SalesLine."Shortcut Dimension 1 Code";
         JobJnlLine."Shortcut Dimension 2 Code" := SalesLine."Shortcut Dimension 2 Code";
@@ -235,9 +215,6 @@ codeunit 1004 "Job Transfer Line"
         end else
             ValidateUnitCostAndPrice(JobJnlLine, SalesLine, SalesLine."Unit Cost", JobPlanningLine."Unit Price");
         JobJnlLine.Validate("Line Discount %", SalesLine."Line Discount %");
-#if not CLEAN18
-        UpdateCorrectionIfNegQty(JobJnlLine); // NAVCZ
-#endif
         OnAfterFromPlanningSalesLineToJnlLine(JobJnlLine, JobPlanningLine, SalesHeader, SalesLine, EntryType);
     end;
 
@@ -255,9 +232,9 @@ codeunit 1004 "Job Transfer Line"
         JobPlanningLine.TestField("Qty. to Transfer to Journal");
 
         if not JobJournalTemplate.Get(JobJournalTemplateName) then
-            Error(Text001, JobJournalTemplate.TableCaption, JobJournalTemplateName);
+            Error(Text001, JobJournalTemplate.TableCaption(), JobJournalTemplateName);
         if not JobJournalBatch.Get(JobJournalTemplateName, JobJournalBatchName) then
-            Error(Text001, JobJournalBatch.TableCaption, JobJournalBatchName);
+            Error(Text001, JobJournalBatch.TableCaption(), JobJournalBatchName);
         if PostingDate = 0D then
             PostingDate := WorkDate();
 
@@ -319,9 +296,6 @@ codeunit 1004 "Job Transfer Line"
         JobJnlLine.Validate("Unit Cost", JobPlanningLine."Unit Cost");
         JobJnlLine.Validate("Unit Price", JobPlanningLine."Unit Price");
         JobJnlLine.Validate("Line Discount %", JobPlanningLine."Line Discount %");
-#if not CLEAN18
-        UpdateCorrectionIfNegQty(JobJnlLine); // NAVCZ
-#endif
         OnAfterFromPlanningLineToJnlLine(JobJnlLine, JobPlanningLine);
 
         JobJnlLine.UpdateDimensions();
@@ -349,9 +323,9 @@ codeunit 1004 "Job Transfer Line"
 
         if JobJournalTemplateName <> '' then begin
             if not JobJournalTemplate.Get(JobJournalTemplateName) then
-                Error(Text001, JobJournalTemplate.TableCaption, JobJournalTemplateName);
+                Error(Text001, JobJournalTemplate.TableCaption(), JobJournalTemplateName);
             if not JobJournalBatch.Get(JobJournalTemplateName, JobJournalBatchName) then
-                Error(Text001, JobJournalBatch.TableCaption, JobJournalBatchName);
+                Error(Text001, JobJournalBatch.TableCaption(), JobJournalBatchName);
         end;
         if PostingDate = 0D then
             PostingDate := WorkDate();
@@ -499,9 +473,6 @@ codeunit 1004 "Job Transfer Line"
         JobJnlLine."Line Discount Amount" := GenJnlLine."Job Line Discount Amount";
 
         JobJnlLine."Line Discount %" := GenJnlLine."Job Line Discount %";
-#if not CLEAN18
-        UpdateCorrectionIfNegQty(JobJnlLine); // NAVCZ
-#endif
 
         OnAfterFromGenJnlLineToJnlLine(JobJnlLine, GenJnlLine);
     end;
@@ -601,7 +572,7 @@ codeunit 1004 "Job Transfer Line"
         with PurchLine do begin
             Validate("Job Planning Line No.");
 
-            JobJnlLine.DontCheckStdCost;
+            JobJnlLine.DontCheckStdCost();
             JobJnlLine.Validate("Job No.", "Job No.");
             JobJnlLine.Validate("Job Task No.", "Job Task No.");
             JobTask.Get("Job No.", "Job Task No.");
@@ -637,25 +608,21 @@ codeunit 1004 "Job Transfer Line"
             JobJnlLine."Unit Cost (LCY)" := "Unit Cost (LCY)" / "Qty. per Unit of Measure";
             OnFromPurchaseLineToJnlLineOnAfterCalcUnitCostLCY(JobJnlLine, PurchLine);
 
-            if Type = Type::Item then begin
+            if Type = Type::Item then
                 if Item."Inventory Value Zero" then
                     JobJnlLine."Unit Cost (LCY)" := 0
                 else
                     if Item."Costing Method" = Item."Costing Method"::Standard then
                         JobJnlLine."Unit Cost (LCY)" := Item."Standard Cost";
-            end;
+
             JobJnlLine."Unit Cost (LCY)" := Round(JobJnlLine."Unit Cost (LCY)", LCYCurrency."Unit-Amount Rounding Precision");
 
-            if JobJnlLine."Currency Code" = '' then begin
-                JobJnlLine."Unit Cost" := JobJnlLine."Unit Cost (LCY)";
-                JobJnlLine."Total Cost" :=
-                  Round(JobJnlLine."Unit Cost (LCY)" * JobJnlLine.Quantity, LCYCurrency."Amount Rounding Precision");
-            end else
-                if JobJnlLine."Currency Code" = "Currency Code" then begin
-                    JobJnlLine."Unit Cost" := "Unit Cost";
-                    JobJnlLine."Total Cost" :=
-                      Round(JobJnlLine."Unit Cost" * JobJnlLine.Quantity, Currency."Amount Rounding Precision");
-                end else begin
+            if JobJnlLine."Currency Code" = '' then
+                JobJnlLine."Unit Cost" := JobJnlLine."Unit Cost (LCY)"
+            else
+                if JobJnlLine."Currency Code" = "Currency Code" then
+                    JobJnlLine."Unit Cost" := "Unit Cost"
+                else
                     JobJnlLine."Unit Cost" :=
                       Round(
                         CurrencyExchRate.ExchangeAmtLCYToFCY(
@@ -663,8 +630,8 @@ codeunit 1004 "Job Transfer Line"
                           JobJnlLine."Currency Code",
                           JobJnlLine."Unit Cost (LCY)",
                           JobJnlLine."Currency Factor"), Currency."Unit-Amount Rounding Precision");
-                    JobJnlLine."Total Cost" := Round(JobJnlLine."Unit Cost" * JobJnlLine.Quantity, Currency."Amount Rounding Precision");
-                end;
+
+            JobJnlLine."Total Cost" := Round(JobJnlLine."Unit Cost" * JobJnlLine.Quantity, Currency."Amount Rounding Precision");
 
             if (Type = Type::Item) and Item."Inventory Value Zero" then
                 JobJnlLine."Total Cost (LCY)" := 0
@@ -731,14 +698,6 @@ codeunit 1004 "Job Transfer Line"
             JobJnlLine.Area := Area;
             JobJnlLine."Country/Region Code" := PurchHeader."VAT Country/Region Code";
             JobJnlLine."Transaction Specification" := "Transaction Specification";
-#if not CLEAN18
-            JobJnlLine."Shipment Method Code" := PurchHeader."Shipment Method Code";
-#endif
-#if not CLEAN18
-            JobJnlLine."Net Weight" := "Net Weight";
-            JobJnlLine."Country/Region of Origin Code" := "Country/Region of Origin Code";
-            UpdateCorrectionIfNegQty(JobJnlLine);
-#endif
             // NAVCZ
         end;
 
@@ -791,12 +750,12 @@ codeunit 1004 "Job Transfer Line"
             exit;
         CurrencyRoundingRead := true;
         if CurrencyCode = '' then
-            Currency.InitRoundingPrecision
+            Currency.InitRoundingPrecision()
         else begin
             Currency.Get(CurrencyCode);
             Currency.TestField("Amount Rounding Precision");
         end;
-        LCYCurrency.InitRoundingPrecision;
+        LCYCurrency.InitRoundingPrecision();
     end;
 
     local procedure DoUpdateUnitCost(SalesLine: Record "Sales Line"): Boolean
@@ -819,20 +778,6 @@ codeunit 1004 "Job Transfer Line"
         JobJournalLine.Validate("Unit Price", UnitPrice);
     end;
 
-#if not CLEAN18
-    [Scope('OnPrem')]
-    [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
-    procedure UpdateCorrectionIfNegQty(JobJnlLine: Record "Job Journal Line")
-    var
-        GLSetup: Record "General Ledger Setup";
-    begin
-        // NAVCZ
-        GLSetup.Get();
-        if GLSetup."Mark Neg. Qty as Correction" then
-            JobJnlLine.Correction := JobJnlLine.Quantity < 0;
-    end;
-
-#endif
     local procedure UpdateBaseQtyForPurchLine(var Item: Record Item; PurchLine: Record "Purchase Line"): Boolean
     begin
         if PurchLine.Type = PurchLine.Type::Item then begin

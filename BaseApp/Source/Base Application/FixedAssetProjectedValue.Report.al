@@ -1,10 +1,9 @@
-#if not CLEAN18
-report 5607 "Fixed Asset - Projected Value"
+﻿report 5607 "Fixed Asset - Projected Value"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './FixedAssetProjectedValue.rdlc';
     ApplicationArea = FixedAssets;
-    Caption = 'Fixed Asset Projected Value (Obsolete)';
+    Caption = 'Fixed Asset Projected Value';
     UsageCategory = ReportsAndAnalysis;
     AllowScheduling = false;
 
@@ -14,7 +13,7 @@ report 5607 "Fixed Asset - Projected Value"
         {
             DataItemTableView = SORTING("No.");
             RequestFilterFields = "No.", "FA Class Code", "FA Subclass Code", "Budgeted Asset";
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(DeprBookText; DeprBookText)
@@ -119,9 +118,6 @@ report 5607 "Fixed Asset - Projected Value"
             {
             }
             column(BookValueCaption; BookValueLbl)
-            {
-            }
-            column(TaxDepreciationGroupCode_FixedAsset; "Tax Depreciation Group Code")
             {
             }
             dataitem("FA Ledger Entry"; "FA Ledger Entry")
@@ -264,13 +260,13 @@ report 5607 "Fixed Asset - Projected Value"
                     end else
                         CalculateSecondDeprAmount(Done);
                     if Done then
-                        UpdateTotals
+                        UpdateTotals()
                     else
-                        UpdateGroupTotals;
+                        UpdateGroupTotals();
 
                     if Done then
                         if DoProjectedDisposal then
-                            CalculateGainLoss;
+                            CalculateGainLoss();
                 end;
 
                 trigger OnPostDataItem()
@@ -299,31 +295,22 @@ report 5607 "Fixed Asset - Projected Value"
                         NewValue := "Global Dimension 2 Code";
                     GroupTotals::"FA Posting Group":
                         NewValue := "FA Posting Group";
-                    // NAVCZ
-                    GroupTotals::"Tax Depreciation Group Code":
-                        NewValue := "Tax Depreciation Group Code";
-                // NAVCZ
                 end;
 
                 if NewValue <> OldValue then begin
-                    MakeGroupHeadLine;
-                    InitGroupTotals;
+                    MakeGroupHeadLine();
+                    InitGroupTotals();
                     OldValue := NewValue;
                 end;
 
                 if not FADeprBook.Get("No.", DeprBookCode) then
                     CurrReport.Skip();
-                if SkipRecord then
+                if SkipRecord() then
                     CurrReport.Skip();
 
                 if GroupTotals = GroupTotals::"FA Posting Group" then
                     if "FA Posting Group" <> FADeprBook."FA Posting Group" then
                         Error(HasBeenModifiedInFAErr, FieldCaption("FA Posting Group"), "No.");
-                // NAVCZ
-                if GroupTotals = GroupTotals::"Tax Depreciation Group Code" then
-                    if "Tax Depreciation Group Code" <> FADeprBook."Depreciation Group Code" then
-                        Error(HasBeenModifiedInFAErr, FieldCaption("Tax Depreciation Group Code"), "No.");
-                // NAVCZ
 
                 StartingDate := StartingDate2;
                 EndingDate := EndingDate2;
@@ -339,7 +326,7 @@ report 5607 "Fixed Asset - Projected Value"
                     DoProjectedDisposal := true;
                 end;
 
-                TransferValues;
+                TransferValues();
             end;
 
             trigger OnPreDataItem()
@@ -359,15 +346,11 @@ report 5607 "Fixed Asset - Projected Value"
                         SetCurrentKey("Global Dimension 2 Code");
                     GroupTotals::"FA Posting Group":
                         SetCurrentKey("FA Posting Group");
-                    // NAVCZ
-                    GroupTotals::"Tax Depreciation Group Code":
-                        SetCurrentKey("Tax Depreciation Group Code");
-                // NAVCZ
                 end;
 
                 GroupTotalsInt := GroupTotals;
-                MakeGroupHeadLine;
-                InitGroupTotals;
+                MakeGroupHeadLine();
+                InitGroupTotals();
             end;
         }
         dataitem(ProjectionTotal; "Integer")
@@ -494,11 +477,11 @@ report 5607 "Fixed Asset - Projected Value"
                         ApplicationArea = FixedAssets;
                         Caption = 'Depreciation Book';
                         TableRelation = "Depreciation Book";
-                        ToolTip = 'Specifies the depreciation book for the printing of entries.';
+                        ToolTip = 'Specifies the code for the depreciation book to be included in the report or batch job.';
 
                         trigger OnValidate()
                         begin
-                            UpdateReqForm;
+                            UpdateReqForm();
                         end;
                     }
                     field(FirstDeprDate; StartingDate)
@@ -511,7 +494,7 @@ report 5607 "Fixed Asset - Projected Value"
                     {
                         ApplicationArea = FixedAssets;
                         Caption = 'Last Depreciation Date';
-                        ToolTip = 'Specifies the date to be used as the last date in the period for which you want to calculate projected depreciation. This date must be later than the date in the First Depreciation Date field.';
+                        ToolTip = 'Specifies the Fixed Asset posting date of the last posted depreciation.';
                     }
                     field(NumberOfDays; PeriodLength)
                     {
@@ -520,7 +503,7 @@ report 5607 "Fixed Asset - Projected Value"
                         Caption = 'Number of Days';
                         Editable = NumberOfDaysCtrlEditable;
                         MinValue = 0;
-                        ToolTip = 'Specifies the length of the periods between the first depreciation date and the last depreciation date.';
+                        ToolTip = 'Specifies the length of the periods between the first depreciation date and the last depreciation date. The program then calculates depreciation for each period. If you leave this field blank, the program automatically sets the contents of this field to equal the number of days in a fiscal year, normally 360.';
 
                         trigger OnValidate()
                         begin
@@ -534,20 +517,20 @@ report 5607 "Fixed Asset - Projected Value"
                         BlankZero = true;
                         Caption = 'No. of Days in First Period';
                         MinValue = 0;
-                        ToolTip = 'Specifies the number of days that must be used for calculating the depreciation as of the first depreciation date, regardless of the actual number of days from the last depreciation entry.';
+                        ToolTip = 'Specifies the number of days that must be used for calculating the depreciation as of the first depreciation date, regardless of the actual number of days from the last depreciation entry. The number you enter in this field does not affect the total number of days from the starting date to the ending date.';
                     }
                     field(IncludePostedFrom; IncludePostedFrom)
                     {
                         ApplicationArea = FixedAssets;
                         Caption = 'Posted Entries From';
-                        ToolTip = 'Specifies a date if you want the report to include posted entries.';
+                        ToolTip = 'Specifies the fixed asset posting date from which the report includes all types of posted entries.';
                     }
                     field(GroupTotals; GroupTotals)
                     {
                         ApplicationArea = FixedAssets;
                         Caption = 'Group Totals';
-                        OptionCaption = ' ,FA Class,FA Subclass,FA Location,Main Asset,Global Dimension 1,Global Dimension 2,FA Posting Group,Tax Depreciation Group Code';
-                        ToolTip = 'Specifies a group type if you want the report to group the fixed assets and print group totals.';
+                        OptionCaption = ' ,FA Class,FA Subclass,FA Location,Main Asset,Global Dimension 1,Global Dimension 2,FA Posting Group';
+                        ToolTip = 'Specifies if you want the report to group fixed assets and print totals using the category defined in this field. For example, maintenance expenses for fixed assets can be shown for each fixed asset class.';
                     }
                     field(CopyToGLBudgetName; BudgetNameCode)
                     {
@@ -566,13 +549,13 @@ report 5607 "Fixed Asset - Projected Value"
                     {
                         ApplicationArea = FixedAssets;
                         Caption = 'Insert Bal. Account';
-                        ToolTip = 'Specifies if you want the program to automatically insert budget entries with balancing accounts.';
+                        ToolTip = 'Specifies if you want the batch job to automatically insert fixed asset entries with balancing accounts.';
 
                         trigger OnValidate()
                         begin
                             if BalAccount then
                                 if BudgetNameCode = '' then
-                                    Error(YouMustSpecifyErr, GLBudgetName.TableCaption);
+                                    Error(YouMustSpecifyErr, GLBudgetName.TableCaption());
                         end;
                     }
                     field(PrintPerFixedAsset; PrintDetails)
@@ -585,7 +568,7 @@ report 5607 "Fixed Asset - Projected Value"
                     {
                         ApplicationArea = FixedAssets;
                         Caption = 'Projected Disposal';
-                        ToolTip = 'Specifies if you want the report to include projected disposals: the contents of the Projected Proceeds on Disposalfield and the Projected Disposal Date field on the fixed asset depreciation book.';
+                        ToolTip = 'Specifies if you want the report to include projected disposals: the contents of the Projected Proceeds on Disposal field and the Projected Disposal Date field on the FA depreciation book.';
                     }
                     field(PrintAmountsPerDate; PrintAmountsPerDate)
                     {
@@ -597,14 +580,14 @@ report 5607 "Fixed Asset - Projected Value"
                     {
                         ApplicationArea = FixedAssets;
                         Caption = 'Use Accounting Period';
-                        ToolTip = 'Specifies if the accounting period will be used for fixed asset report';
+                        ToolTip = 'Specifies if you want the periods between the starting date and the ending date to correspond to the accounting periods you have specified in the Accounting Period table. When you select this field, the Number of Days field is cleared.';
 
                         trigger OnValidate()
                         begin
                             if UseAccountingPeriod then
                                 PeriodLength := 0;
 
-                            UpdateReqForm;
+                            UpdateReqForm();
                         end;
                     }
                 }
@@ -622,7 +605,7 @@ report 5607 "Fixed Asset - Projected Value"
 
         trigger OnOpenPage()
         begin
-            GetFASetup;
+            GetFASetup();
         end;
     }
 
@@ -636,15 +619,11 @@ report 5607 "Fixed Asset - Projected Value"
         Year365Days := DeprBook."Fiscal Year 365 Days";
         if GroupTotals = GroupTotals::"FA Posting Group" then
             FAGenReport.SetFAPostingGroup("Fixed Asset", DeprBook.Code);
-        // NAVCZ
-        if GroupTotals = GroupTotals::"Tax Depreciation Group Code" then
-            FAGenReport.SetFATaxDeprGroup("Fixed Asset", DeprBook.Code);
-        // NAVCZ
         FAGenReport.AppendFAPostingFilter("Fixed Asset", StartingDate, EndingDate);
-        FAFilter := "Fixed Asset".GetFilters;
-        DeprBookText := StrSubstNo('%1%2 %3', DeprBook.TableCaption, ':', DeprBookCode);
-        MakeGroupTotalText;
-        ValidateDates;
+        FAFilter := "Fixed Asset".GetFilters();
+        DeprBookText := StrSubstNo('%1%2 %3', DeprBook.TableCaption(), ':', DeprBookCode);
+        MakeGroupTotalText();
+        ValidateDates();
         if PrintDetails then begin
             FANo := "Fixed Asset".FieldCaption("No.");
             FADescription := "Fixed Asset".FieldCaption(Description);
@@ -672,11 +651,6 @@ report 5607 "Fixed Asset - Projected Value"
     end;
 
     var
-        NumberOfDaysMustNotBeGreaterThanErr: Label 'Number of Days must not be greater than %1 or less than 5.', Comment = '1 - Number of days in fiscal year';
-        ProjectedGainLossTxt: Label 'Projected Gain/Loss';
-        GroupTotalTxt: Label 'Group Total';
-        GroupTotalsTxt: Label 'Group Totals';
-        HasBeenModifiedInFAErr: Label '%1 has been modified in fixed asset %2.', Comment = '1 - FA Posting Group caption; 2- FA No.';
         GLBudgetName: Record "G/L Budget Name";
         FASetup: Record "FA Setup";
         DeprBook: Record "Depreciation Book";
@@ -700,7 +674,7 @@ report 5607 "Fixed Asset - Projected Value"
         IncludePostedFrom: Date;
         FANo: Text[50];
         FADescription: Text[100];
-        GroupTotals: Option " ","FA Class","FA Subclass","FA Location","Main Asset","Global Dimension 1","Global Dimension 2","FA Posting Group","Tax Depreciation Group Code";
+        GroupTotals: Option " ","FA Class","FA Subclass","FA Location","Main Asset","Global Dimension 1","Global Dimension 2","FA Posting Group";
         BookValue: Decimal;
         NewFiscalYear: Date;
         EndFiscalYear: Date;
@@ -737,13 +711,19 @@ report 5607 "Fixed Asset - Projected Value"
         OldValue: Code[20];
         NewValue: Code[20];
         BalAccount: Boolean;
-        YouMustSpecifyErr: Label 'You must specify %1.', Comment = '1 - G/L Budget Name caption';
         TempDeprDate: Date;
         GroupTotalsInt: Integer;
         Year365Days: Boolean;
-        YouMustCreateAccPeriodsErr: Label 'You must create accounting periods until %1 to use 365 days depreciation and ''Use Accounting Periods''.', Comment = '1 - Date';
         [InDataSet]
         NumberOfDaysCtrlEditable: Boolean;
+
+        NumberOfDaysMustNotBeGreaterThanErr: Label 'Number of Days must not be greater than %1 or less than 5.', Comment = '1 - Number of days in fiscal year';
+        ProjectedGainLossTxt: Label 'Projected Gain/Loss';
+        GroupTotalTxt: Label 'Group Total';
+        GroupTotalsTxt: Label 'Group Totals';
+        HasBeenModifiedInFAErr: Label '%1 has been modified in fixed asset %2.', Comment = '1 - FA Posting Group caption; 2- FA No.';
+        YouMustSpecifyErr: Label 'You must specify %1.', Comment = '1 - G/L Budget Name caption';
+        YouMustCreateAccPeriodsErr: Label 'You must create accounting periods until %1 to use 365 days depreciation and ''Use Accounting Periods''.', Comment = '1 - Date';
         PageNoLbl: Label 'Page';
         FAProjectedValueLbl: Label 'Fixed Asset - Projected Value';
         FAPostingDateLbl: Label 'FA Posting Date';
@@ -792,7 +772,7 @@ report 5607 "Fixed Asset - Projected Value"
                 Custom1DeprUntil := 0D;
 
             if Custom1DeprUntil > 0D then
-                EntryAmounts[4] := GetDeprBasis;
+                EntryAmounts[4] := GetDeprBasis();
         end;
         UntilDate := 0D;
         AssetAmounts[1] := 0;
@@ -809,7 +789,7 @@ report 5607 "Fixed Asset - Projected Value"
         UntilDate := StartingDate;
         repeat
             if not FirstTime then
-                GetNextDate;
+                GetNextDate();
             FirstTime := false;
             CalculateDepr.Calculate(
               DeprAmount, Custom1Amount, NumberOfDays, Custom1NumberOfDays,
@@ -822,7 +802,7 @@ report 5607 "Fixed Asset - Projected Value"
 
     local procedure CalculateSecondDeprAmount(var Done: Boolean)
     begin
-        GetNextDate;
+        GetNextDate();
         CalculateDepr.Calculate(
           DeprAmount, Custom1Amount, NumberOfDays, Custom1NumberOfDays,
           "Fixed Asset"."No.", DeprBookCode, UntilDate, EntryAmounts, DateFromProjection, 0);
@@ -901,10 +881,6 @@ report 5607 "Fixed Asset - Projected Value"
                 GroupCodeName := "Fixed Asset".FieldCaption("Global Dimension 2 Code");
             GroupTotals::"FA Posting Group":
                 GroupCodeName := "Fixed Asset".FieldCaption("FA Posting Group");
-            // NAVCZ
-            GroupTotals::"Tax Depreciation Group Code":
-                GroupCodeName := "Fixed Asset".FieldCaption("Tax Depreciation Group Code");
-        // NAVCZ
         end;
         if GroupCodeName <> '' then begin
             GroupCodeName2 := GroupCodeName;
@@ -945,10 +921,6 @@ report 5607 "Fixed Asset - Projected Value"
                     GroupHeadLine := "Global Dimension 2 Code";
                 GroupTotals::"FA Posting Group":
                     GroupHeadLine := "FA Posting Group";
-                // NAVCZ
-                GroupTotals::"Tax Depreciation Group Code":
-                    GroupHeadLine := "Tax Depreciation Group Code";
-            // NAVCZ
             end;
         if GroupHeadLine = '' then
             GroupHeadLine := '*****';
@@ -981,7 +953,7 @@ report 5607 "Fixed Asset - Projected Value"
 
         if (UntilDate > 0D) or PrintAmountsPerDate then
             with TempFABufferProjection do begin
-                Reset;
+                Reset();
                 if Find('+') then
                     EntryNo := "Entry No." + 1
                 else
@@ -1003,25 +975,21 @@ report 5607 "Fixed Asset - Projected Value"
                             CodeName := "Fixed Asset"."Global Dimension 2 Code";
                         GroupTotals::"FA Posting Group":
                             CodeName := "Fixed Asset"."FA Posting Group";
-                        // NAVCZ
-                        GroupTotals::"Tax Depreciation Group Code":
-                            CodeName := "Fixed Asset"."Tax Depreciation Group Code";
-                    // NAVCZ
                     end;
                     SetRange("Code Name", CodeName);
                 end;
                 if not Find('=><') then begin
-                    Init;
+                    Init();
                     "Code Name" := CodeName;
                     "FA Posting Date" := UntilDate;
                     "Entry No." := EntryNo;
                     Depreciation := DeprAmount;
                     "Custom 1" := Custom1Amount;
-                    Insert;
+                    Insert();
                 end else begin
                     Depreciation := Depreciation + DeprAmount;
                     "Custom 1" := "Custom 1" + Custom1Amount;
-                    Modify;
+                    Modify();
                 end;
             end;
     end;
@@ -1093,7 +1061,7 @@ report 5607 "Fixed Asset - Projected Value"
 
     local procedure UpdateReqForm()
     begin
-        PageUpdateReqForm;
+        PageUpdateReqForm();
     end;
 
     local procedure PageUpdateReqForm()
@@ -1143,7 +1111,7 @@ report 5607 "Fixed Asset - Projected Value"
             FASetup.Get();
             DeprBookCode := FASetup."Default Depr. Book";
         end;
-        UpdateReqForm;
+        UpdateReqForm();
     end;
 
     local procedure UpdateGroupTotals()
@@ -1152,4 +1120,4 @@ report 5607 "Fixed Asset - Projected Value"
         TotalAmounts[1] := TotalAmounts[1] + DeprAmount;
     end;
 }
-#endif
+

@@ -79,13 +79,13 @@ table 1214 "Intermediate Data Import"
             SetValueWithoutModifying(NewValue);
             "Parent Record No." := ParentRecordNo;
             "Validate Only" := false;
-            Insert;
+            Insert();
         end;
     end;
 
     procedure FindEntry(EntryNo: Integer; TableID: Integer; FieldID: Integer; ParentRecordNo: Integer; RecordNo: Integer): Boolean
     begin
-        Reset;
+        Reset();
 
         SetRange("Data Exch. No.", EntryNo);
         SetRange("Table ID", TableID);
@@ -93,13 +93,13 @@ table 1214 "Intermediate Data Import"
         SetRange("Parent Record No.", ParentRecordNo);
         SetRange("Record No.", RecordNo);
 
-        exit(FindFirst);
+        exit(FindFirst());
     end;
 
     procedure GetEntryValue(EntryNo: Integer; TableID: Integer; FieldID: Integer; ParentRecordNo: Integer; RecordNo: Integer): Text[250]
     begin
         if FindEntry(EntryNo, TableID, FieldID, ParentRecordNo, RecordNo) then
-            exit(GetValue);
+            exit(GetValue());
 
         exit('');
     end;
@@ -109,17 +109,17 @@ table 1214 "Intermediate Data Import"
         TypeHelper: Codeunit "Type Helper";
         InStream: InStream;
     begin
-        if not "Value BLOB".HasValue then
+        if not "Value BLOB".HasValue() then
             exit(Value);
         CalcFields("Value BLOB");
         "Value BLOB".CreateInStream(InStream, TEXTENCODING::Windows);
-        exit(TypeHelper.ReadAsTextWithSeparator(InStream, TypeHelper.LFSeparator));
+        exit(TypeHelper.ReadAsTextWithSeparator(InStream, TypeHelper.LFSeparator()));
     end;
 
     procedure SetValue(NewValue: Text)
     begin
         SetValueWithoutModifying(NewValue);
-        Modify;
+        Modify();
     end;
 
     procedure SetValueWithoutModifying(NewValue: Text)

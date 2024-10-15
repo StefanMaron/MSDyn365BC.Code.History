@@ -28,10 +28,6 @@ codeunit 20 "Posting Preview Event Handler"
         TempExchRateAdjmtLedgEntry: Record "Exch. Rate Adjmt. Ledg. Entry" temporary;
         TempSalesAdvanceLetterEntry: Record "Sales Advance Letter Entry" temporary;
         TempPurchAdvanceLetterEntry: Record "Purch. Advance Letter Entry" temporary;
-#if not CLEAN18
-        TempEETEntry: Record "EET Entry" temporary;
-        TempEETEntryStatus: Record "EET Entry Status" temporary;
-#endif
         TempErrorMessage: Record "Error Message" temporary;
         CommitPrevented: Boolean;
         ShowDocNo: Boolean;
@@ -81,12 +77,6 @@ codeunit 20 "Posting Preview Event Handler"
                 RecRef.GETTABLE(TempSalesAdvanceLetterEntry);
             Database::"Purch. Advance Letter Entry":
                 RecRef.GETTABLE(TempPurchAdvanceLetterEntry);
-#if not CLEAN18
-            Database::"EET Entry":
-                RecRef.GETTABLE(TempEETEntry);
-            Database::"EET Entry Status":
-                RecRef.GETTABLE(TempEETEntryStatus);
-#endif
             Database::"Error Message":
                 RecRef.GETTABLE(TempErrorMessage);
             // NAVCZ
@@ -163,27 +153,12 @@ codeunit 20 "Posting Preview Event Handler"
                 Page.Run(Page::"Sales Advance Letter Entries", TempSalesAdvanceLetterEntry);
             Database::"Purch. Advance Letter Entry":
                 Page.Run(Page::"Purch. Advance Letter Entries", TempPurchAdvanceLetterEntry);
-#if not CLEAN18
-            Database::"EET Entry":
-                ShowEETEntries();
-#endif
             // NAVCZ
             else
                 OnAfterShowEntries(TableNo);
         end;
     end;
 
-#if not CLEAN18
-    [Obsolete('Moved to Cash Desk Localization for Czech.', '18.0')]
-    local procedure ShowEETEntries()
-    var
-        EETEntryPreviewCard: Page "EET Entry Preview Card";
-    begin
-        EETEntryPreviewCard.Set(TempEETEntry, TempEETEntryStatus, TempErrorMessage);
-        EETEntryPreviewCard.Run();
-        Clear(EETEntryPreviewCard);
-    end;
-#endif
 
     procedure FillDocumentEntry(var TempDocumentEntry: Record "Document Entry" temporary)
     begin
@@ -209,22 +184,11 @@ codeunit 20 "Posting Preview Event Handler"
         // NAVCZ
         InsertDocumentEntry(TempSalesAdvanceLetterEntry, TempDocumentEntry);
         InsertDocumentEntry(TempPurchAdvanceLetterEntry, TempDocumentEntry);
-#if not CLEAN18
-        InsertEETEntry(TempDocumentEntry);
-#endif
         // NAVCZ
 
         OnAfterFillDocumentEntry(TempDocumentEntry);
     end;
 
-#if not CLEAN18
-    [Obsolete('Moved to Cash Desk Localization for Czech.', '18.0')]
-    local procedure InsertEETEntry(var TempDocumentEntry: Record "Document Entry" temporary)
-    begin
-        InsertDocumentEntry(TempEETEntry, TempDocumentEntry);
-    end;
-
-#endif
     procedure InsertDocumentEntry(RecVar: Variant; var TempDocumentEntry: Record "Document Entry" temporary)
     var
         RecRef: RecordRef;
@@ -586,7 +550,7 @@ codeunit 20 "Posting Preview Event Handler"
         TempExchRateAdjmtLedgEntry.Insert();
     end;
 
-    [Obsolete('Replaced by Advanced Payments Localization for Czech.', '19.0')]    
+    [Obsolete('Replaced by Advanced Payments Localization for Czech.', '19.0')]
     [EventSubscriber(ObjectType::Table, Database::"Purch. Advance Letter Entry", 'OnAfterInsertEvent', '', false, false)]
     local procedure OnInsertPurchAdvanceLetterEntry(var Rec: Record "Purch. Advance Letter Entry"; RunTrigger: Boolean)
     begin
@@ -600,7 +564,7 @@ codeunit 20 "Posting Preview Event Handler"
         TempPurchAdvanceLetterEntry.Insert();
     end;
 
-    [Obsolete('Replaced by Advanced Payments Localization for Czech.', '19.0')]    
+    [Obsolete('Replaced by Advanced Payments Localization for Czech.', '19.0')]
     [EventSubscriber(ObjectType::Table, Database::"Sales Advance Letter Entry", 'OnAfterInsertEvent', '', false, false)]
     local procedure OnInsertSalesAdvanceLetterEntry(var Rec: Record "Sales Advance Letter Entry"; RunTrigger: Boolean)
     begin
@@ -614,64 +578,6 @@ codeunit 20 "Posting Preview Event Handler"
         TempSalesAdvanceLetterEntry.Insert();
     end;
 
-#if not CLEAN18
-    [Obsolete('Moved to Cash Desk Localization for Czech.', '18.0')]
-    [EventSubscriber(ObjectType::Table, Database::"EET Entry", 'OnAfterInsertEvent', '', false, false)]
-    local procedure OnInsertEETEntry(var Rec: Record "EET Entry"; RunTrigger: Boolean)
-    begin
-        // NAVCZ
-        if Rec.IsTemporary() then
-            exit;
-
-        PreventCommit();
-        TempEETEntry := Rec;
-        TempEETEntry."Document No." := '***';
-        TempEETEntry.Insert();
-    end;
-
-    [Obsolete('Moved to Cash Desk Localization for Czech.', '18.0')]
-    [EventSubscriber(ObjectType::Table, Database::"EET Entry", 'OnAfterModifyEvent', '', false, false)]
-    local procedure OnModifyEETEntry(var Rec: Record "EET Entry"; var xRec: Record "EET Entry"; RunTrigger: Boolean)
-    begin
-        // NAVCZ
-        if Rec.IsTemporary() then
-            exit;
-
-        PreventCommit();
-        Rec.CalcFields("Signature Code (PKP)");
-        TempEETEntry := Rec;
-        TempEETEntry."Document No." := '***';
-        TempEETEntry."Receipt Serial No." := '***';
-        TempEETEntry.Modify
-    end;
-
-    [Obsolete('Moved to Cash Desk Localization for Czech.', '18.0')]
-    [EventSubscriber(ObjectType::Table, Database::"EET Entry Status", 'OnAfterInsertEvent', '', false, false)]
-    local procedure OnInsertEETEntryStatus(var Rec: Record "EET Entry Status"; RunTrigger: Boolean)
-    begin
-        // NAVCZ
-        if Rec.IsTemporary() then
-            exit;
-
-        PreventCommit();
-        TempEETEntryStatus := Rec;
-        TempEETEntryStatus.Insert();
-    end;
-
-    [Obsolete('Moved to Cash Desk Localization for Czech.', '18.0')]
-    [EventSubscriber(ObjectType::Table, Database::"Error Message", 'OnAfterInsertEvent', '', false, false)]
-    local procedure OnInsertErrorMessage(var Rec: Record "Error Message"; RunTrigger: Boolean)
-    begin
-        // NAVCZ
-        if Rec.IsTemporary() then
-            exit;
-
-        PreventCommit();
-        TempErrorMessage := Rec;
-        TempErrorMessage.Insert();
-    end;
-
-#endif
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Gen. Jnl.-Post Line", 'OnAfterFinishPosting', '', false, false)]
     local procedure OnAfterGenJnlPostLineFinishPosting(var GlobalGLEntry: Record "G/L Entry"; var GLRegister: Record "G/L Register"; var IsTransactionConsistent: Boolean; var GenJournalLine: Record "Gen. Journal Line")
     begin

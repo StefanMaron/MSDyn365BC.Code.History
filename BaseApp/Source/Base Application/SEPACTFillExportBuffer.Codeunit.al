@@ -39,14 +39,14 @@ codeunit 1221 "SEPA CT-Fill Export Buffer"
         BankAccount.TestField(IBAN);
         BankAccount.GetBankExportImportSetup(BankExportImportSetup);
         BankExportImportSetup.TestField("Check Export Codeunit");
-        TempGenJnlLine.DeletePaymentFileBatchErrors;
+        TempGenJnlLine.DeletePaymentFileBatchErrors();
         repeat
             CODEUNIT.Run(BankExportImportSetup."Check Export Codeunit", TempGenJnlLine);
             if TempGenJnlLine."Bal. Account No." <> BankAccount."No." then
                 TempGenJnlLine.InsertPaymentFileError(SameBankErr);
         until TempGenJnlLine.Next() = 0;
 
-        if TempGenJnlLine.HasPaymentFileErrorsInBatch then begin
+        if TempGenJnlLine.HasPaymentFileErrorsInBatch() then begin
             Commit();
             Error(HasErrorsErr);
         end;
@@ -60,12 +60,12 @@ codeunit 1221 "SEPA CT-Fill Export Buffer"
         OnFillExportBufferOnAfterCreateNewRegister(CreditTransferRegister, BankExportImportSetup);
 
         with PaymentExportData do begin
-            Reset;
+            Reset();
             if FindLast() then;
 
             TempGenJnlLine.FindSet();
             repeat
-                Init;
+                Init();
                 "Entry No." += 1;
                 SetPreserveNonLatinCharacters(BankExportImportSetup."Preserve Non-Latin Characters");
                 SetBankAsSenderBank(BankAccount);
@@ -106,23 +106,6 @@ codeunit 1221 "SEPA CT-Fill Export Buffer"
                 Validate("SEPA Payment Method", "SEPA Payment Method"::TRF);
                 Validate("SEPA Charge Bearer", "SEPA Charge Bearer"::SLEV);
                 "SEPA Batch Booking" := false;
-#if not CLEAN18
-                // NAVCZ
-                if GenJnlLine."Account No." = '' then begin
-                    if TempGenJnlLine.IBAN <> '' then
-                        "Recipient Bank Acc. No." := TempGenJnlLine.IBAN
-                    else
-                        if TempGenJnlLine."Bank Account No." <> '' then
-                            "Recipient Bank Acc. No." := TempGenJnlLine."Bank Account No.";
-                    if TempGenJnlLine."SWIFT Code" <> '' then
-                        "Recipient Bank BIC" := TempGenJnlLine."SWIFT Code";
-                end;
-
-                "Variable Symbol" := TempGenJnlLine."Variable Symbol";
-                "Specific Symbol" := TempGenJnlLine."Specific Symbol";
-                "Constant Symbol" := TempGenJnlLine."Constant Symbol";
-                // NAVCZ
-#endif
                 SetCreditTransferIDs(MessageID);
 
                 if "Applies-to Ext. Doc. No." <> '' then
@@ -275,13 +258,12 @@ codeunit 1221 "SEPA CT-Fill Export Buffer"
     begin
         RecordRef.GetTable(RecVariant);
         FieldRef := RecordRef.FieldIndex(1);
-        with RecordRef do begin
+        with RecordRef do
             if FindSet() then
                 repeat
                     TempInteger.Number := FieldRef.Value;
                     TempInteger.Insert();
                 until Next() = 0;
-        end;
     end;
 
     local procedure ValidatePaymentExportData(var PaymentExportData: Record "Payment Export Data"; var GenJnlLine: Record "Gen. Journal Line")

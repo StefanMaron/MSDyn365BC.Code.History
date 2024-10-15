@@ -1,4 +1,4 @@
-﻿table 312 "Purchases & Payables Setup"
+table 312 "Purchases & Payables Setup"
 {
     Caption = 'Purchases & Payables Setup';
     DrillDownPageID = "Purchases & Payables Setup";
@@ -241,7 +241,7 @@
                 EnvironmentInformation: Codeunit "Environment Information";
             begin
                 if "Report Output Type" = "Report Output Type"::Print then
-                    if EnvironmentInformation.IsSaaS then
+                    if EnvironmentInformation.IsSaaS() then
                         TestField("Report Output Type", "Report Output Type"::PDF);
             end;
         }
@@ -554,13 +554,9 @@
         field(11767; "Allow Alter Posting Groups"; Boolean)
         {
             Caption = 'Allow Alter Posting Groups';
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(11768; "Automatic Adv. Invoice Posting"; Boolean)
         {
@@ -648,13 +644,14 @@
     begin
         if RecordHasBeenRead then
             exit;
-        Get;
+        Get();
         RecordHasBeenRead := true;
     end;
 
     procedure JobQueueActive(): Boolean
     begin
-        Get;
+        Get();
         exit("Post with Job Queue" or "Post & Print with Job Queue");
     end;
 }
+

@@ -165,7 +165,6 @@ codeunit 5704 "TransferOrder-Post Shipment"
     end;
 
     var
-        Text001: Label 'There is nothing to post.';
         Text002: Label 'Warehouse handling is required for Transfer order = %1, %2 = %3.';
         Text003: Label 'Posting transfer lines     #2######';
         Text004: Label 'Transfer Order %1';
@@ -193,6 +192,7 @@ codeunit 5704 "TransferOrder-Post Shipment"
         WhseTransferRelease: Codeunit "Whse.-Transfer Release";
         ReserveTransLine: Codeunit "Transfer Line-Reserve";
         WhsePostShpt: Codeunit "Whse.-Post Shipment";
+        DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
         WhseJnlRegisterLine: Codeunit "Whse. Jnl.-Register Line";
         SourceCode: Code[10];
         WhseShip: Boolean;
@@ -224,7 +224,7 @@ codeunit 5704 "TransferOrder-Post Shipment"
     local procedure CreateItemJnlLine(var ItemJnlLine: Record "Item Journal Line"; TransferLine: Record "Transfer Line"; TransShptHeader2: Record "Transfer Shipment Header"; TransShptLine2: Record "Transfer Shipment Line")
     begin
         with ItemJnlLine do begin
-            Init;
+            Init();
             CopyDocumentFields(
               "Document Type"::"Transfer Shipment", TransShptHeader2."No.", "External Document No.", SourceCode, '');
             "Posting Date" := TransShptHeader2."Posting Date";
@@ -313,12 +313,12 @@ codeunit 5704 "TransferOrder-Post Shipment"
             if not DimMgt.CheckDimIDComb(TransferHeader."Dimension Set ID") then
                 Error(
                   Text005,
-                  TransHeader."No.", DimMgt.GetDimCombErr);
+                  TransHeader."No.", DimMgt.GetDimCombErr());
         if TransferLine."Line No." <> 0 then
             if not DimMgt.CheckDimIDComb(TransferLine."Dimension Set ID") then
                 Error(
                   Text006,
-                  TransHeader."No.", TransferLine."Line No.", DimMgt.GetDimCombErr);
+                  TransHeader."No.", TransferLine."Line No.", DimMgt.GetDimCombErr());
 
         OnAfterCheckDimComb(TransferHeader, TransferLine);
     end;
@@ -337,11 +337,11 @@ codeunit 5704 "TransferOrder-Post Shipment"
         NumberArr[1] := TransferLine."Item No.";
         if TransferLine."Line No." = 0 then
             if not DimMgt.CheckDimValuePosting(TableIDArr, NumberArr, TransferHeader."Dimension Set ID") then
-                Error(Text007, TransHeader."No.", TransferLine."Line No.", DimMgt.GetDimValuePostingErr);
+                Error(Text007, TransHeader."No.", TransferLine."Line No.", DimMgt.GetDimValuePostingErr());
 
         if TransferLine."Line No." <> 0 then
             if not DimMgt.CheckDimValuePosting(TableIDArr, NumberArr, TransferLine."Dimension Set ID") then
-                Error(Text007, TransHeader."No.", TransferLine."Line No.", DimMgt.GetDimValuePostingErr);
+                Error(Text007, TransHeader."No.", TransferLine."Line No.", DimMgt.GetDimValuePostingErr());
     end;
 
     local procedure FinalizePosting(var TransHeader: Record "Transfer Header"; var TransLine: Record "Transfer Line")
@@ -672,7 +672,7 @@ codeunit 5704 "TransferOrder-Post Shipment"
             TransLine.SetFilter(Quantity, '<>0');
             TransLine.SetFilter("Qty. to Ship", '<>0');
             if TransLine.IsEmpty() then
-                Error(Text001);
+                Error(DocumentErrorsMgt.GetNothingToPostErrorMsg());
         end;
     end;
 
@@ -712,7 +712,7 @@ codeunit 5704 "TransferOrder-Post Shipment"
         NewTransferLine."Qty. to Ship (Base)" := NewTransferLine."Quantity (Base)";
         NewTransferLine."Qty. to Receive" := NewTransferLine.Quantity;
         NewTransferLine."Qty. to Receive (Base)" := NewTransferLine."Quantity (Base)";
-        NewTransferLine.ResetPostedQty;
+        NewTransferLine.ResetPostedQty();
         NewTransferLine."Outstanding Quantity" := NewTransferLine.Quantity;
         NewTransferLine."Outstanding Qty. (Base)" := NewTransferLine."Quantity (Base)";
         OnBeforeNewTransferLineInsert(NewTransferLine, TransferLine, NextLineNo);
@@ -901,7 +901,7 @@ codeunit 5704 "TransferOrder-Post Shipment"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeUpdateWithWarehouseShipReceive(TransferLine: Record "Transfer Line")
+    local procedure OnBeforeUpdateWithWarehouseShipReceive(var TransferLine: Record "Transfer Line")
     begin
     end;
 
@@ -965,4 +965,5 @@ codeunit 5704 "TransferOrder-Post Shipment"
     begin
     end;
 }
+
 #endif

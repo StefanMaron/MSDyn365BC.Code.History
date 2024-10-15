@@ -16,22 +16,22 @@ page 31090 "Acc. Schedule Result History"
             repeater(Control1220005)
             {
                 ShowCaption = false;
-                field("Variant No."; "Variant No.")
+                field("Variant No."; Rec."Variant No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the no. of the variant';
                 }
-                field("New Value"; "New Value")
+                field("New Value"; Rec."New Value")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies new code for the fixed asset location.';
                 }
-                field("Old Value"; "Old Value")
+                field("Old Value"; Rec."Old Value")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the old value of the acc. schedule result';
                 }
-                field("User ID"; "User ID")
+                field("User ID"; Rec."User ID")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the ID of the user associated with the entry.';
@@ -43,7 +43,7 @@ page 31090 "Acc. Schedule Result History"
                         UserMgt.DisplayUserInformation("User ID");
                     end;
                 }
-                field("Modified DateTime"; "Modified DateTime")
+                field("Modified DateTime"; Rec."Modified DateTime")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies modified date time';

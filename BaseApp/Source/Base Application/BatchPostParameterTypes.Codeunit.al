@@ -51,3 +51,4 @@ codeunit 1370 "Batch Post Parameter Types"
         exit(Parameter::"Posting Date".AsInteger());
     end;
 }
+

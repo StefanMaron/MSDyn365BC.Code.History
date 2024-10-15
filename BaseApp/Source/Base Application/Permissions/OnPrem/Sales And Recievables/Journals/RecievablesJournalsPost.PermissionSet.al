@@ -1,3 +1,4 @@
+#if not CLEAN19
 permissionset 6207 "Recievables Journals - Post"
 {
     Access = Public;
@@ -23,9 +24,7 @@ permissionset 6207 "Recievables Journals - Post"
                   tabledata "Customer Posting Group" = R,
                   tabledata "Date Compr. Register" = r,
                   tabledata "Detailed Cust. Ledg. Entry" = ri,
-#if not CLEAN19
                   tabledata "Detailed G/L Entry" = Ri,
-#endif
                   tabledata "Dimension Combination" = R,
                   tabledata "Dimension Value Combination" = R,
                   tabledata "G/L Account" = r,
@@ -46,9 +45,6 @@ permissionset 6207 "Recievables Journals - Post"
                   tabledata "Reminder Terms" = r,
                   tabledata "Reminder Terms Translation" = r,
                   tabledata "Reversal Entry" = RIMD,
-#if not CLEAN18
-                  tabledata "Subst. Customer Posting Group" = R,
-#endif
                   tabledata "Tax Area" = R,
                   tabledata "Tax Area Line" = R,
                   tabledata "Tax Detail" = R,
@@ -63,3 +59,5 @@ permissionset 6207 "Recievables Journals - Post"
                   tabledata "VAT Rate Change Setup" = R,
                   tabledata "VAT Setup Posting Groups" = R;
 }
+
+#endif

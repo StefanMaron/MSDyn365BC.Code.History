@@ -22,7 +22,7 @@ page 747 "VAT Clauses"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the descriptive text that is associated with a VAT clause.';
                 }
-                field("Description 2"; "Description 2")
+                field("Description 2"; Rec."Description 2")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies an additional description of a VAT clause.';
@@ -50,8 +50,6 @@ page 747 "VAT Clauses"
                 ApplicationArea = Basic, Suite;
                 Caption = '&Setup';
                 Image = Setup;
-                Promoted = true;
-                PromotedCategory = Process;
                 RunObject = Page "VAT Posting Setup";
                 RunPageLink = "VAT Clause Code" = FIELD(Code);
                 ToolTip = 'View or edit combinations of VAT business posting groups and VAT product posting groups.';
@@ -61,8 +59,6 @@ page 747 "VAT Clauses"
                 ApplicationArea = Basic, Suite;
                 Caption = 'T&ranslation';
                 Image = Translation;
-                Promoted = true;
-                PromotedCategory = Process;
                 RunObject = Page "VAT Clause Translations";
                 RunPageLink = "VAT Clause Code" = FIELD(Code);
                 ToolTip = 'View or edit translations for each VAT clause description in different languages.';
@@ -72,8 +68,6 @@ page 747 "VAT Clauses"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Description by document type';
                 Image = Invoice;
-                Promoted = true;
-                PromotedCategory = Process;
                 RunObject = Page "VAT Clauses by Doc. Type";
                 RunPageLink = "VAT Clause Code" = FIELD(Code);
                 ToolTip = 'View or edit VAT clause descriptions by document type.';
@@ -83,13 +77,31 @@ page 747 "VAT Clauses"
                 ApplicationArea = Basic, Suite;
                 Caption = 'E&xtended Texts';
                 Image = Text;
-                Promoted = true;
-                PromotedCategory = Process;
                 RunObject = Page "Extended Text List";
-                RunPageLink = "Table Name" = CONST ("VAT Clause"),
-                              "No." = FIELD (Code);
-                RunPageView = SORTING ("Table Name", "No.", "Language Code", "All Language Codes", "Starting Date", "Ending Date");
+                RunPageLink = "Table Name" = CONST("VAT Clause"),
+                              "No." = FIELD(Code);
+                RunPageView = SORTING("Table Name", "No.", "Language Code", "All Language Codes", "Starting Date", "Ending Date");
                 ToolTip = 'View additional information that has been added to the description for the VAT clause.';
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("&Setup_Promoted"; "&Setup")
+                {
+                }
+                actionref("T&ranslation_Promoted"; "T&ranslation")
+                {
+                }
+                actionref(DescriptionByDocumentType_Promoted; DescriptionByDocumentType)
+                {
+                }
+                actionref("E&xtended Texts_Promoted"; "E&xtended Texts")
+                {
+                }
             }
         }
     }

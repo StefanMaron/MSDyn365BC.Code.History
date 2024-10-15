@@ -13,7 +13,7 @@ report 320 "Vendor Item Catalog"
             DataItemTableView = SORTING("No.");
             PrintOnlyIfDetail = true;
             RequestFilterFields = "No.";
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(VendTblCapVendFltr; TableCaption + ': ' + VendFilter)
@@ -62,7 +62,7 @@ report 320 "Vendor Item Catalog"
             column(ExtendedPriceFeatureEnabled; ExtendedPriceEnabled)
             {
             }
-#if not CLEAN19
+#if not CLEAN21
             dataitem("Purchase Price"; "Purchase Price")
             {
                 DataItemLink = "Vendor No." = FIELD("No.");
@@ -185,8 +185,6 @@ report 320 "Vendor Item Catalog"
     end;
 
     var
-        Text000: Label 'Prices Include VAT';
-        Text001: Label 'Prices Exclude VAT';
         Item: Record Item;
         ItemVend: Record "Item Vendor";
         VendFilter: Text;
@@ -199,6 +197,9 @@ report 320 "Vendor Item Catalog"
         ItemVendLeadTimeCalcCaptnLbl: Label 'Lead Time Calculation';
         ItemVendorItemNoCaptionLbl: Label 'Vendor Item No.';
         Direct_Unit_Cost_CaptionLbl: Label 'Direct Unit Cost';
+
+        Text000: Label 'Prices Include VAT';
+        Text001: Label 'Prices Exclude VAT';
 
     local procedure InitGlobals(VendorNo: Code[20]; ItemNo: Code[20]; VariantCode: Code[10])
     begin

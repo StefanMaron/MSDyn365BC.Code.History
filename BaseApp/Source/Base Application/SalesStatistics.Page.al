@@ -1,4 +1,4 @@
-﻿#if not CLEAN19
+#if not CLEAN19
 page 160 "Sales Statistics"
 {
     Caption = 'Sales Statistics';
@@ -358,21 +358,22 @@ page 160 "Sales Statistics"
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
     begin
-        GetVATSpecification;
+        GetVATSpecification();
         if TempVATAmountLine.GetAnyLineModified() then
             UpdateVATOnSalesLines();
         exit(true);
     end;
 
     var
+        SalesSetup: Record "Sales & Receivables Setup";
+        VATAmountLines: Page "VAT Amount Lines";
+
         Text000: Label 'Sales %1 Statistics';
         Text001: Label 'Total';
         Text002: Label 'Amount';
         Text003: Label '%1 must not be 0.';
         Text004: Label '%1 must not be greater than %2.';
         Text005: Label 'You cannot change the invoice discount because there is a %1 record for %2 %3.', Comment = 'You cannot change the invoice discount because there is a Cust. Invoice Disc. record for Invoice Disc. Code 30000.';
-        VATAmountLines: Page "VAT Amount Lines";
-        SalesSetup: Record "Sales & Receivables Setup";
 
     protected var
         TotalSalesLine: Record "Sales Line";
@@ -402,21 +403,14 @@ page 160 "Sales Statistics"
     var
         CurrExchRate: Record "Currency Exchange Rate";
         Currency: Record Currency;
-#if not CLEAN18
-        GLSetup: Record "General Ledger Setup";
-#endif
         UseDate: Date;
-#if not CLEAN18
-        RoundingPrecisionLCY: Decimal;
-        RoundingDirectionLCY: Text[1];
-#endif    
     begin
-        TotalSalesLine."Inv. Discount Amount" := TempVATAmountLine.GetTotalInvDiscAmount;
+        TotalSalesLine."Inv. Discount Amount" := TempVATAmountLine.GetTotalInvDiscAmount();
         TotalAmount1 :=
           TotalSalesLine."Line Amount" - TotalSalesLine."Inv. Discount Amount";
-        VATAmount := TempVATAmountLine.GetTotalVATAmount;
+        VATAmount := TempVATAmountLine.GetTotalVATAmount();
         if Rec."Prices Including VAT" then begin
-            TotalAmount1 := TempVATAmountLine.GetTotalAmountInclVAT;
+            TotalAmount1 := TempVATAmountLine.GetTotalAmountInclVAT();
             TotalAmount2 := TotalAmount1 - VATAmount;
             TotalSalesLine."Line Amount" := TotalAmount1 + TotalSalesLine."Inv. Discount Amount";
         end else
@@ -442,24 +436,14 @@ page 160 "Sales Statistics"
             if (TotalSalesLineLCY."VAT Calculation Type" = TotalSalesLineLCY."VAT Calculation Type"::"Normal VAT") or
                (TotalSalesLineLCY."VAT Calculation Type" = TotalSalesLineLCY."VAT Calculation Type"::"Reverse Charge VAT")
             then begin
-#if CLEAN18
                 Currency.Get("Currency Code");
-#else                
-                GLSetup.Get();
-                Currency.Get("Currency Code");
-                GLSetup.GetRoundingParamentersLCY(Currency, RoundingPrecisionLCY, RoundingDirectionLCY);
-#endif
 
                 if "Prices Including VAT" then
                     TotalSalesLineLCY.Amount :=
                         Round(
                             (TotalSalesLineLCY."Line Amount" - TempVATAmountLine."Invoice Discount Amount") /
                             (1 + TempVATAmountLine."VAT %" / 100),
-#if CLEAN18
                             Currency."Amount Rounding Precision") - TempVATAmountLine."VAT Difference";
-#else
-                            RoundingPrecisionLCY) - TempVATAmountLine."VAT Difference";
-#endif
             end;
             // NAVCZ
         end;
@@ -491,9 +475,6 @@ page 160 "Sales Statistics"
         CurrPage.SubForm.PAGE.InitGlobals(
           Rec."Currency Code", AllowVATDifference, AllowVATDifference,
           Rec."Prices Including VAT", AllowInvDisc, Rec."VAT Base Discount %");
-#if not CLEAN18
-        CurrPage.SubForm.PAGE.SetCurrencyFactor(Rec."Currency Factor"); // NAVCZ
-#endif
     end;
 
     protected procedure UpdateTotalAmount()
@@ -527,9 +508,6 @@ page 160 "Sales Statistics"
 
         TempVATAmountLine.SetInvoiceDiscountAmount(
           TotalSalesLine."Inv. Discount Amount", Rec."Currency Code", Rec."Prices Including VAT", Rec."VAT Base Discount %");
-#if not CLEAN18
-        TempVATAmountLine.ModifyAll("Modified (LCY)", false); // NAVCZ
-#endif
         CurrPage.SubForm.PAGE.SetTempVATAmountLine(TempVATAmountLine);
         UpdateHeaderInfo();
 
@@ -551,7 +529,7 @@ page 160 "Sales Statistics"
     var
         SalesLine: Record "Sales Line";
     begin
-        GetVATSpecification;
+        GetVATSpecification();
         if TempVATAmountLine.GetAnyLineModified() then begin
             SalesLine.UpdateVATOnLines(0, Rec, SalesLine, TempVATAmountLine);
             SalesLine.UpdateVATOnLines(1, Rec, SalesLine, TempVATAmountLine);
@@ -564,7 +542,7 @@ page 160 "Sales Statistics"
         CustInvDisc: Record "Cust. Invoice Disc.";
     begin
         CustInvDisc.SetRange(Code, InvDiscCode);
-        exit(CustInvDisc.FindFirst);
+        exit(CustInvDisc.FindFirst());
     end;
 
     local procedure CheckAllowInvDisc()
@@ -574,7 +552,7 @@ page 160 "Sales Statistics"
         if not AllowInvDisc then
             Error(
               Text005,
-              CustInvDisc.TableCaption, Rec.FieldCaption("Invoice Disc. Code"), Rec."Invoice Disc. Code");
+              CustInvDisc.TableCaption(), Rec.FieldCaption("Invoice Disc. Code"), Rec."Invoice Disc. Code");
     end;
 
     local procedure CalculateTotals()
@@ -644,7 +622,7 @@ page 160 "Sales Statistics"
             Clear(TempVATAmountLinePrep);
             SalesPostAdvances.CalcVATCorrection(Rec, TempVATAmountLinePrep);
         end;
-        SumVATLinesAll;
+        SumVATLinesAll();
         SumTotalVATLines(
           TempVATAmountLinePrep, TempTotVATAmountLinePrep."Amount Including VAT",
           TempTotVATAmountLinePrep."VAT Amount", TempTotVATAmountLinePrep."VAT Base");
@@ -664,9 +642,6 @@ page 160 "Sales Statistics"
         VATAmountLines.InitGlobals(
           "Currency Code", AllowVATDifference, AllowVATDifference and ThisTabAllowsVATEditing,
           "Prices Including VAT", AllowInvDisc, "VAT Base Discount %");
-#if not CLEAN18
-        VATAmountLines.SetCurrencyFactor("Currency Factor");
-#endif
         VATAmountLines.RunModal();
         VATAmountLines.GetTempVATAmountLine(VATAmountLine);
         // NAVCZ
@@ -692,7 +667,7 @@ page 160 "Sales Statistics"
                 repeat
                     TempVATAmountLineTot := VATAmountLine;
                     TempVATAmountLineTot.Positive := true;
-                    if not TempVATAmountLineTot.Find then begin
+                    if not TempVATAmountLineTot.Find() then begin
                         TempVATAmountLineTot := VATAmountLine;
                         TempVATAmountLineTot.Positive := true;
                         TempVATAmountLineTot."Line Amount" := 0;
@@ -703,17 +678,6 @@ page 160 "Sales Statistics"
                         TempVATAmountLineTot."Amount Including VAT" += "Amount Including VAT";
                         TempVATAmountLineTot."Calculated VAT Amount" += "Calculated VAT Amount";
                         TempVATAmountLineTot."VAT Difference" += "VAT Difference";
-#if not CLEAN18
-                        TempVATAmountLineTot."Ext. VAT Base (LCY)" += "Ext. VAT Base (LCY)";
-                        TempVATAmountLineTot."Ext. VAT Amount (LCY)" += "Ext. VAT Amount (LCY)";
-                        TempVATAmountLineTot."Ext.Amount Including VAT (LCY)" += "Ext.Amount Including VAT (LCY)";
-                        TempVATAmountLineTot."Ext. VAT Difference (LCY)" += "Ext. VAT Difference (LCY)";
-                        TempVATAmountLineTot."Ext. Calc. VAT Amount (LCY)" += "Ext. Calc. VAT Amount (LCY)";
-                        TempVATAmountLineTot."VAT Base (LCY)" += "VAT Base (LCY)";
-                        TempVATAmountLineTot."VAT Amount (LCY)" += "VAT Amount (LCY)";
-                        TempVATAmountLineTot."Amount Including VAT (LCY)" += "Amount Including VAT (LCY)";
-                        TempVATAmountLineTot."Calculated VAT Amount (LCY)" += "Calculated VAT Amount (LCY)";
-#endif
                         TempVATAmountLineTot.Modify();
                     end;
                 until Next() = 0;

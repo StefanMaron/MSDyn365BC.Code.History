@@ -54,7 +54,7 @@ table 7602 "Customized Calendar Change"
                     TestField(Date)
                 else
                     TestField(Date, 0D);
-                UpdateDayName;
+                UpdateDayName();
             end;
         }
         field(7; Day; Option)
@@ -67,7 +67,7 @@ table 7602 "Customized Calendar Change"
             begin
                 if "Recurring System" = "Recurring System"::"Weekly Recurring" then
                     TestField(Day);
-                UpdateDayName;
+                UpdateDayName();
             end;
         }
         field(8; Description; Text[30])
@@ -105,17 +105,17 @@ table 7602 "Customized Calendar Change"
 
     trigger OnInsert()
     begin
-        CheckEntryLine;
+        CheckEntryLine();
     end;
 
     trigger OnModify()
     begin
-        CheckEntryLine;
+        CheckEntryLine();
     end;
 
     trigger OnRename()
     begin
-        CheckEntryLine;
+        CheckEntryLine();
     end;
 
     procedure GetCaption(): Text[250]
@@ -220,7 +220,7 @@ table 7602 "Customized Calendar Change"
     begin
         case "Source Type" of
             "Source Type"::Company:
-                if CompanyInfo.Get then
+                if CompanyInfo.Get() then
                     "Base Calendar Code" := CompanyInfo."Base Calendar Code";
             "Source Type"::Customer:
                 if Customer.Get("Source Code") then
@@ -229,23 +229,19 @@ table 7602 "Customized Calendar Change"
                 if Vendor.Get("Source Code") then
                     "Base Calendar Code" := Vendor."Base Calendar Code";
             "Source Type"::"Shipping Agent":
-                begin
-                    if ShippingAgentService.Get("Source Code", "Additional Source Code") then
-                        "Base Calendar Code" := ShippingAgentService."Base Calendar Code"
-                    else
-                        if CompanyInfo.Get then
-                            "Base Calendar Code" := CompanyInfo."Base Calendar Code";
-                end;
+                if ShippingAgentService.Get("Source Code", "Additional Source Code") then
+                    "Base Calendar Code" := ShippingAgentService."Base Calendar Code"
+                else
+                    if CompanyInfo.Get() then
+                        "Base Calendar Code" := CompanyInfo."Base Calendar Code";
             "Source Type"::Location:
-                begin
-                    if Location.Get("Source Code") and (Location."Base Calendar Code" <> '') then
-                        "Base Calendar Code" := Location."Base Calendar Code"
-                    else
-                        if CompanyInfo.Get then
-                            "Base Calendar Code" := CompanyInfo."Base Calendar Code";
-                end;
+                if Location.Get("Source Code") and (Location."Base Calendar Code" <> '') then
+                    "Base Calendar Code" := Location."Base Calendar Code"
+                else
+                    if CompanyInfo.Get() then
+                        "Base Calendar Code" := CompanyInfo."Base Calendar Code";
             "Source Type"::Service:
-                if ServMgtSetup.Get then
+                if ServMgtSetup.Get() then
                     "Base Calendar Code" := ServMgtSetup."Base Calendar Code";
         end;
     end;

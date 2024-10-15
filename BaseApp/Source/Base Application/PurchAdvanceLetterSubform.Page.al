@@ -18,24 +18,24 @@ page 31021 "Purch. Advance Letter Subform"
             repeater(Control1220019)
             {
                 ShowCaption = false;
-                field("Advance G/L Account No."; "Advance G/L Account No.")
+                field("Advance G/L Account No."; Rec."Advance G/L Account No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies G/L account number for advance. It is automatically setup from vendor posting group.';
                 }
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the purchase advance letter.';
                     Visible = false;
                 }
-                field("VAT Bus. Posting Group"; "VAT Bus. Posting Group")
+                field("VAT Bus. Posting Group"; Rec."VAT Bus. Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies a VAT business posting group code.';
                 }
-                field("VAT Prod. Posting Group"; "VAT Prod. Posting Group")
+                field("VAT Prod. Posting Group"; Rec."VAT Prod. Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
                     ShowMandatory = true;
@@ -46,7 +46,7 @@ page 31021 "Purch. Advance Letter Subform"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies description for purchase advance.';
                 }
-                field("VAT %"; "VAT %")
+                field("VAT %"; Rec."VAT %")
                 {
                     ApplicationArea = Basic, Suite;
                     BlankZero = true;
@@ -61,63 +61,63 @@ page 31021 "Purch. Advance Letter Subform"
                     ToolTip = 'Specifies the amount for the entry.';
                     Visible = false;
                 }
-                field("VAT Amount"; "VAT Amount")
+                field("VAT Amount"; Rec."VAT Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     BlankZero = true;
                     ToolTip = 'Specifies VAT amount of advance.';
                     Visible = false;
                 }
-                field("Amount Including VAT"; "Amount Including VAT")
+                field("Amount Including VAT"; Rec."Amount Including VAT")
                 {
                     ApplicationArea = Basic, Suite;
                     BlankZero = true;
                     ShowMandatory = AmountsIncludingVAT;
                     ToolTip = 'Specifies whether the unit price on the line should be displayed including or excluding VAT.';
                 }
-                field("Amount To Link"; "Amount To Link")
+                field("Amount To Link"; Rec."Amount To Link")
                 {
                     ApplicationArea = Basic, Suite;
                     BlankZero = true;
                     ToolTip = 'Specifies the amount not yet paid by customer.';
                 }
-                field("Amount Linked"; "Amount Linked")
+                field("Amount Linked"; Rec."Amount Linked")
                 {
                     ApplicationArea = Basic, Suite;
                     BlankZero = true;
                     ToolTip = 'Specifies the amount paid by customer.';
                 }
-                field("Amount To Invoice"; "Amount To Invoice")
+                field("Amount To Invoice"; Rec."Amount To Invoice")
                 {
                     ApplicationArea = Basic, Suite;
                     BlankZero = true;
                     ToolTip = 'Specifies the paid amount for advance VAT document.';
                 }
-                field("Amount Invoiced"; "Amount Invoiced")
+                field("Amount Invoiced"; Rec."Amount Invoiced")
                 {
                     ApplicationArea = Basic, Suite;
                     BlankZero = true;
                     ToolTip = 'Specifies the amount with advance VAT document.';
                 }
-                field("Amount To Deduct"; "Amount To Deduct")
+                field("Amount To Deduct"; Rec."Amount To Deduct")
                 {
                     ApplicationArea = Basic, Suite;
                     BlankZero = true;
                     ToolTip = 'Specifies the maximum advance value for use in final sales invoice.';
                 }
-                field("Amount Deducted"; "Amount Deducted")
+                field("Amount Deducted"; Rec."Amount Deducted")
                 {
                     ApplicationArea = Basic, Suite;
                     BlankZero = true;
                     ToolTip = 'Specifies the amount that was used in final sales invoice.';
                 }
-                field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
+                field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code of the Shortcut Dimension 1, which is defined in the Shortcut Dimension 1 Code field in the General Ledger Setup window.';
                     Visible = DimVisible1;
                 }
-                field("Shortcut Dimension 2 Code"; "Shortcut Dimension 2 Code")
+                field("Shortcut Dimension 2 Code"; Rec."Shortcut Dimension 2 Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code of the Shortcut Dimension 2, which is defined in the Shortcut Dimension 2 Code field in the General Ledger Setup window.';
@@ -213,14 +213,14 @@ page 31021 "Purch. Advance Letter Subform"
                         ValidateShortcutDimCode(8, ShortcutDimCode[8]);
                     end;
                 }
-                field("Advance Due Date"; "Advance Due Date")
+                field("Advance Due Date"; Rec."Advance Due Date")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = AdvDueDateFieldEditable;
                     ToolTip = 'Specifies when the advance must be paid.';
                     Visible = false;
                 }
-                field("Amount on Payment Order (LCY)"; "Amount on Payment Order (LCY)")
+                field("Amount on Payment Order (LCY)"; Rec."Amount on Payment Order (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     BlankZero = true;
@@ -284,7 +284,7 @@ page 31021 "Purch. Advance Letter Subform"
 
                     trigger OnAction()
                     begin
-                        SetLink;
+                        SetLink();
                     end;
                 }
                 action(Unlink)
@@ -297,7 +297,7 @@ page 31021 "Purch. Advance Letter Subform"
 
                     trigger OnAction()
                     begin
-                        RemoveLinks;
+                        RemoveLinks();
                     end;
                 }
                 action("Change VAT Prod. Posting Group")
@@ -308,7 +308,7 @@ page 31021 "Purch. Advance Letter Subform"
 
                     trigger OnAction()
                     begin
-                        ChangeVATProdPostingGr;
+                        ChangeVATProdPostingGr();
                     end;
                 }
                 action(Dimensions)
@@ -349,7 +349,7 @@ page 31021 "Purch. Advance Letter Subform"
     trigger OnAfterGetRecord()
     begin
         ShowShortcutDimCode(ShortcutDimCode);
-        GetAdvDueDateFieldEditable;
+        GetAdvDueDateFieldEditable();
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
@@ -365,7 +365,7 @@ page 31021 "Purch. Advance Letter Subform"
 
     trigger OnOpenPage()
     begin
-        SetDimensionsVisibility;
+        SetDimensionsVisibility();
     end;
 
     var
@@ -409,7 +409,7 @@ page 31021 "Purch. Advance Letter Subform"
         AdvanceLink.FilterGroup(2);
         LinksToAdvanceLetter.SetTableView(AdvanceLink);
         LinksToAdvanceLetter.LookupMode(true);
-        if LinksToAdvanceLetter.RunModal = ACTION::LookupOK then begin
+        if LinksToAdvanceLetter.RunModal() = ACTION::LookupOK then begin
             LinksToAdvanceLetter.GetSelection(AdvanceLink);
             PurchPostAdvances.RemoveLinks("Letter No.", AdvanceLink);
         end;
@@ -421,8 +421,8 @@ page 31021 "Purch. Advance Letter Subform"
         PurchAdvanceLetterLine: Record "Purch. Advance Letter Line";
     begin
         PurchAdvanceLetterLine := Rec;
-        PurchAdvanceLetterLine.Find;
-        PurchAdvanceLetterLine.ChangeVATProdPostingGroup;
+        PurchAdvanceLetterLine.Find();
+        PurchAdvanceLetterLine.ChangeVATProdPostingGroup();
         CurrPage.Update(false);
     end;
 

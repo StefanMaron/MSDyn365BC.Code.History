@@ -36,7 +36,7 @@ table 221 "Gen. Jnl. Allocation"
                     CreateDimFromDefaultDim();
                 end else begin
                     GLAcc.Get("Account No.");
-                    GLAcc.CheckGLAcc;
+                    GLAcc.CheckGLAcc();
                     GLAcc.TestField("Direct Posting", true);
                 end;
                 "Account Name" := GLAcc.Name;
@@ -63,7 +63,7 @@ table 221 "Gen. Jnl. Allocation"
             trigger OnValidate()
             begin
                 ValidateShortcutDimCode(1, "Shortcut Dimension 1 Code");
-                Modify;
+                Modify();
             end;
         }
         field(7; "Shortcut Dimension 2 Code"; Code[20])
@@ -76,7 +76,7 @@ table 221 "Gen. Jnl. Allocation"
             trigger OnValidate()
             begin
                 ValidateShortcutDimCode(2, "Shortcut Dimension 2 Code");
-                Modify;
+                Modify();
             end;
         }
         field(8; "Allocation Quantity"; Decimal)
@@ -120,7 +120,7 @@ table 221 "Gen. Jnl. Allocation"
                     UpdateAllocations(GenJnlLine);
                 end else begin
                     Validate("VAT Prod. Posting Group");
-                    Modify;
+                    Modify();
                     UpdateJnlBalance(GenJnlLine);
                 end;
             end;
@@ -296,12 +296,13 @@ table 221 "Gen. Jnl. Allocation"
     end;
 
     var
-        Text000: Label '%1 cannot be used in allocations when they are completed on the general journal line.';
         GLAcc: Record "G/L Account";
         GenJnlLine: Record "Gen. Journal Line";
         GenBusPostingGrp: Record "Gen. Business Posting Group";
         GenProdPostingGrp: Record "Gen. Product Posting Group";
         DimMgt: Codeunit DimensionManagement;
+
+        Text000: Label '%1 cannot be used in allocations when they are completed on the general journal line.';
 
     local procedure CopyVATSetupToJnlLines(): Boolean
     var
@@ -328,10 +329,16 @@ table 221 "Gen. Jnl. Allocation"
         TotalAmountLCYRnded2: Decimal;
         UpdateGenJnlLine: Boolean;
     begin
+        TotalQty := 0;
+        TotalPct := 0;
+        TotalPctRnded := 0;
+        TotalAmountLCYRnded := 0;
+        TotalAmountLCYRnded2 := 0;
+
         if "Line No." <> 0 then begin
             FromAllocations := true;
-            UpdateVAT(GenJnlLine); // NAVCZ
-            Modify;
+            GenJnlAlloc.UpdateVAT(GenJnlLine);
+            Modify();
             GenJnlLine.Get("Journal Template Name", "Journal Batch Name", "Journal Line No.");
             CheckVAT(GenJnlLine);
         end;
@@ -383,7 +390,7 @@ table 221 "Gen. Jnl. Allocation"
             UpdateJnlBalance(GenJnlLine);
 
         if FromAllocations then
-            Find;
+            Find();
     end;
 
     procedure UpdateAllocationsAddCurr(var GenJnlLine: Record "Gen. Journal Line"; AddCurrAmount: Decimal)
@@ -400,6 +407,14 @@ table 221 "Gen. Jnl. Allocation"
         TotalAmountAddCurrRnded: Decimal;
         TotalAmountAddCurrRnded2: Decimal;
     begin
+        TotalQty := 0;
+        TotalPct := 0;
+        TotalPctRnded := 0;
+        TotalAmountAddCurr := 0;
+        TotalAmountAddCurr2 := 0;
+        TotalAmountAddCurrRnded := 0;
+        TotalAmountAddCurrRnded2 := 0;
+
         GenJnlAlloc.SetRange("Journal Template Name", GenJnlLine."Journal Template Name");
         GenJnlAlloc.SetRange("Journal Batch Name", GenJnlLine."Journal Batch Name");
         GenJnlAlloc.SetRange("Journal Line No.", GenJnlLine."Line No.");

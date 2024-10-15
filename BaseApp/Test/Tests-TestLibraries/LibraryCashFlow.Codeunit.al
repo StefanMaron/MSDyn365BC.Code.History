@@ -25,7 +25,7 @@ codeunit 131331 "Library - Cash Flow"
     procedure FindCashFlowAnalysisView(var AnalysisView: Record "Analysis View")
     begin
         with AnalysisView do begin
-            Reset;
+            Reset();
             SetRange("Account Source", "Account Source"::"Cash Flow Account");
             FindFirst();
         end
@@ -41,7 +41,7 @@ codeunit 131331 "Library - Cash Flow"
         CFWorksheetLine.Insert(true);
         CFWorksheetLine.Validate("Cash Flow Forecast No.", CFNo);
         CFWorksheetLine.Validate("Cash Flow Account No.", CFAccountNo);
-        CFWorksheetLine.Validate("Cash Flow Date", WorkDate);  // Defaults to work date.
+        CFWorksheetLine.Validate("Cash Flow Date", WorkDate());  // Defaults to work date.
         CFWorksheetLine.Modify(true);
     end;
 
@@ -101,7 +101,7 @@ codeunit 131331 "Library - Cash Flow"
         CFManualExpense.Validate("Cash Flow Account No.", CFAccountNo);
         CFManualExpense.Validate(Code,
           LibraryUtility.GenerateRandomCode(CFManualExpense.FieldNo(Code), DATABASE::"Cash Flow Manual Expense"));
-        CFManualExpense.Validate("Starting Date", WorkDate);  // Required field to post
+        CFManualExpense.Validate("Starting Date", WorkDate());  // Required field to post
         CFManualExpense.Insert(true);
     end;
 
@@ -111,7 +111,7 @@ codeunit 131331 "Library - Cash Flow"
         CFManualRevenue.Validate("Cash Flow Account No.", CFAccountNo);
         CFManualRevenue.Validate(Code,
           LibraryUtility.GenerateRandomCode(CFManualRevenue.FieldNo(Code), DATABASE::"Cash Flow Manual Revenue"));
-        CFManualRevenue.Validate("Starting Date", WorkDate);  // Required field to post
+        CFManualRevenue.Validate("Starting Date", WorkDate());  // Required field to post
         CFManualRevenue.Insert(true);
     end;
 
@@ -127,7 +127,7 @@ codeunit 131331 "Library - Cash Flow"
         CashFlowForecast.Insert(true);
     end;
 
-    procedure CreateCashFlowAccount(var CashFlowAccount: Record "Cash Flow Account"; AccountType: Option)
+    procedure CreateCashFlowAccount(var CashFlowAccount: Record "Cash Flow Account"; AccountType: Enum "Cash Flow Account Type")
     begin
         CashFlowAccount.Init();
         CashFlowAccount.Validate("No.",

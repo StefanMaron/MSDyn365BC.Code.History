@@ -32,7 +32,7 @@ codeunit 143020 "Library - Tax"
     procedure CreateTariffNumber(var TariffNumber: Record "Tariff Number")
     begin
         with TariffNumber do begin
-            Init;
+            Init();
             "No." := LibraryUtility.GenerateRandomCode(FieldNo("No."), DATABASE::"Tariff Number");
             Description := "No.";
             Insert(true);
@@ -53,20 +53,8 @@ codeunit 143020 "Library - Tax"
     [Scope('OnPrem')]
     [Obsolete('Moved to "Library - Tax CZL" codeunit of "Core Localization Pack for Czech Tests" app.', '20.0')]
     procedure CreateStatReportingSetup()
-#if not CLEAN18
-    var
-        StatReportingSetup: Record "Stat. Reporting Setup";
-#endif
     begin
-#if not CLEAN18
-        StatReportingSetup.Reset();
-        if not StatReportingSetup.FindFirst() then begin
-            StatReportingSetup.Init();
-            StatReportingSetup.Insert();
-        end;
-#else
         exit;
-#endif
     end;
 
     [Scope('OnPrem')]

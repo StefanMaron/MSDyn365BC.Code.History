@@ -721,11 +721,9 @@ table 5110 "Purchase Line Archive"
         {
             Caption = 'FA Posting Date';
         }
-        field(5601; "FA Posting Type"; Option)
+        field(5601; "FA Posting Type"; Enum "Purchase FA Posting Type")
         {
             Caption = 'FA Posting Type';
-            OptionCaption = ' ,Acquisition Cost,Maintenance,Custom 2';
-            OptionMembers = " ","Acquisition Cost",Maintenance,"Custom 2";
         }
         field(5602; "Depreciation Book Code"; Code[10])
         {
@@ -778,7 +776,7 @@ table 5110 "Purchase Line Archive"
         {
             Caption = 'Cross-Reference No.';
             ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
-#if not CLEAN18
+#if not CLEAN19
             ObsoleteState = Pending;
             ObsoleteTag = '18.0';
 #else
@@ -979,24 +977,16 @@ table 5110 "Purchase Line Archive"
             AutoFormatType = 1;
             Caption = 'External VAT Amount (LCY)';
             Editable = false;
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(31060; "Physical Transfer"; Boolean)
         {
             Caption = 'Physical Transfer';
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(99000750; "Routing No."; Code[20])
         {
@@ -1072,6 +1062,9 @@ table 5110 "Purchase Line Archive"
 
     fieldgroups
     {
+        fieldgroup(DropDown; "Document No.", "Line No.", "Version No.", "Buy-from Vendor No.")
+        {
+        }
     }
 
     trigger OnDelete()
@@ -1146,4 +1139,3 @@ table 5110 "Purchase Line Archive"
             "Document Type".AsInteger(), "Document No.", "Doc. No. Occurrence", "Version No.", "Line No.");
     end;
 }
-

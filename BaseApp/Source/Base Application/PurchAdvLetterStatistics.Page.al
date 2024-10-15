@@ -205,7 +205,7 @@ page 31024 "Purch. Adv. Letter Statistics"
         Clear(PurchAdvanceLetterLineGre2);
 
         if "Posting Date" = 0D then
-            UseDate := WorkDate
+            UseDate := WorkDate()
         else
             UseDate := "Posting Date";
 
@@ -232,9 +232,9 @@ page 31024 "Purch. Adv. Letter Statistics"
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
     begin
-        GetVATSpecification;
-        if TempVATAmountLine1.GetAnyLineModified or TempVATAmountLine2.GetAnyLineModified then
-            UpdateVATOnPurchLines;
+        GetVATSpecification();
+        if TempVATAmountLine1.GetAnyLineModified() or TempVATAmountLine2.GetAnyLineModified() then
+            UpdateVATOnPurchLines();
         exit(true);
     end;
 
@@ -259,31 +259,24 @@ page 31024 "Purch. Adv. Letter Statistics"
         AmountInclVATLCY: Decimal;
 
     local procedure UpdateHeaderInfo(var VATAmountLine: Record "VAT Amount Line"; var VATAmountLineInv: Record "VAT Amount Line")
-#if CLEAN18
     var
         VALVATBaseLCY: Decimal;
         VALVATAmountLCY: Decimal;
-#endif
     begin
-        PurchAdvanceLetterLineGre."VAT Amount" := VATAmountLine.GetTotalVATAmount;
-        PurchAdvanceLetterLineGre."Amount Including VAT" := VATAmountLine.GetTotalAmountInclVAT;
+        PurchAdvanceLetterLineGre."VAT Amount" := VATAmountLine.GetTotalVATAmount();
+        PurchAdvanceLetterLineGre."Amount Including VAT" := VATAmountLine.GetTotalAmountInclVAT();
 
-        PurchAdvanceLetterLineGre2."VAT Amount" := VATAmountLineInv.GetTotalVATAmount;
-        PurchAdvanceLetterLineGre2."Amount Including VAT" := VATAmountLineInv.GetTotalAmountInclVAT;
+        PurchAdvanceLetterLineGre2."VAT Amount" := VATAmountLineInv.GetTotalVATAmount();
+        PurchAdvanceLetterLineGre2."Amount Including VAT" := VATAmountLineInv.GetTotalAmountInclVAT();
 
         Clear(VATAmtLCY);
         Clear(AmtIclVATLCY);
         if VATAmountLineInv.Find('-') then begin
             repeat
-#if CLEAN18
                 VALVATBaseLCY := VATAmountLine.GetBaseLCY(Rec."Posting Date", Rec."Currency Code", Rec."Currency Factor");
                 VALVATAmountLCY := VATAmountLine.GetAmountLCY(Rec."Posting Date", Rec."Currency Code", Rec."Currency Factor");
                 VATAmtLCY := VATAmtLCY + VALVATAmountLCY;
                 AmtIclVATLCY := AmtIclVATLCY + VALVATBaseLCY + VALVATAmountLCY;
-#else
-                VATAmtLCY := VATAmtLCY + VATAmountLineInv."VAT Amount (LCY)";
-                AmtIclVATLCY := AmtIclVATLCY + VATAmountLineInv."Amount Including VAT (LCY)";
-#endif
             until VATAmountLineInv.Next() = 0;
         end;
     end;
@@ -292,7 +285,7 @@ page 31024 "Purch. Adv. Letter Statistics"
     begin
         VATAmountLines.GetTempVATAmountLine(TempVATAmountLine1);
         VATAmountLines2.GetTempVATAmountLine(TempVATAmountLine2);
-        if TempVATAmountLine1.GetAnyLineModified or TempVATAmountLine2.GetAnyLineModified then
+        if TempVATAmountLine1.GetAnyLineModified() or TempVATAmountLine2.GetAnyLineModified() then
             UpdateHeaderInfo(TempVATAmountLine1, TempVATAmountLine2);
     end;
 
@@ -300,10 +293,10 @@ page 31024 "Purch. Adv. Letter Statistics"
     var
         PurchAdvanceLetterLine: Record "Purch. Advance Letter Line";
     begin
-        GetVATSpecification;
-        if TempVATAmountLine1.GetAnyLineModified then
+        GetVATSpecification();
+        if TempVATAmountLine1.GetAnyLineModified() then
             PurchAdvanceLetterLine.UpdateVATOnLines(Rec, PurchAdvanceLetterLine, TempVATAmountLine1);
-        if TempVATAmountLine2.GetAnyLineModified then
+        if TempVATAmountLine2.GetAnyLineModified() then
             PurchAdvanceLetterLine.UpdateVATOnLineInv(Rec, PurchAdvanceLetterLine, TempVATAmountLine2);
 
         PrevNo := '';
@@ -318,9 +311,6 @@ page 31024 "Purch. Adv. Letter Statistics"
                     Clear(VATAmountLines);
                     VATAmountLines.SetTempVATAmountLine(VATAmountLine);
                     VATAmountLines.InitGlobals("Currency Code", AllowVATDifference, false, true, false, 0);
-#if not CLEAN18
-                    VATAmountLines.SetCurrencyFactor("Currency Factor");
-#endif
                     VATAmountLines.RunModal();
                     VATAmountLines.GetTempVATAmountLine(VATAmountLine);
                 end;
@@ -329,9 +319,6 @@ page 31024 "Purch. Adv. Letter Statistics"
                     Clear(VATAmountLines2);
                     VATAmountLines2.SetTempVATAmountLine(VATAmountLine);
                     VATAmountLines2.InitGlobals("Currency Code", AllowVATDifference, AllowVATDifference, true, false, 0);
-#if not CLEAN18
-                    VATAmountLines2.SetCurrencyFactor("Currency Factor");
-#endif
                     VATAmountLines2.RunModal();
                     VATAmountLines2.GetTempVATAmountLine(VATAmountLine);
                 end;

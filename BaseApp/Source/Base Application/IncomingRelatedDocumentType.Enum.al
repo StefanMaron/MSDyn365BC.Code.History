@@ -24,14 +24,5 @@ enum 141 "Incoming Related Document Type"
         ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
         ObsoleteTag = '19.0';
     }
-#if not CLEAN18
-    value(8; "Credit")
-    {
-        Caption = 'Credit (Obsolete)';
-        ObsoleteState = Pending;
-        ObsoleteReason = 'Moved to Compensation Localization Pack for Czech.';
-        ObsoleteTag = '18.0';
-    }
-#endif
 }
 #endif

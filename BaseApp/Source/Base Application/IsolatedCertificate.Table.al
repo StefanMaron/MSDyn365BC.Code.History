@@ -92,14 +92,9 @@ table 1262 "Isolated Certificate"
             Caption = 'Certificate Code';
             Editable = false;
             DataClassification = CustomerContent;
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            TableRelation = "Certificate CZ Code";
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
     }
 
@@ -125,17 +120,18 @@ table 1262 "Isolated Certificate"
 
     trigger OnInsert()
     begin
-        Code := GetNextAvailableCode;
-        if ExistsInIsolatedStorage then
+        Code := GetNextAvailableCode();
+        if ExistsInIsolatedStorage() then
             Error(CertCodeExistsErr);
     end;
 
     var
+        CertificateManagement: Codeunit "Certificate Management";
+
         CertCodeTxt: Label 'CERT', Locked = true;
         CertStartCodeNumberTxt: Label '0000000000', Locked = true;
         CertCodeExistsErr: Label 'This Cert code is being already used in Isolated storage.';
         CertNoSeriesDescriptionTxt: Label 'Certificates No. Series';
-        CertificateManagement: Codeunit "Certificate Management";
 
     [Scope('OnPrem')]
     procedure IsCertificateExpired(): Boolean
@@ -152,7 +148,7 @@ table 1262 "Isolated Certificate"
             NoSeriesTenant.InitNoSeries(CertCodeTxt, CertNoSeriesDescriptionTxt, CertStartCodeNumberTxt);
             NoSeriesTenant.Get(CertCodeTxt);
         end;
-        exit(NoSeriesTenant.GetNextAvailableCode);
+        exit(NoSeriesTenant.GetNextAvailableCode());
     end;
 
     [Scope('OnPrem')]
@@ -160,7 +156,7 @@ table 1262 "Isolated Certificate"
     var
         User: Record User;
     begin
-        User.Get(UserSecurityId);
+        User.Get(UserSecurityId());
         case Scope of
             Scope::Company:
                 Validate("Company ID", CompanyName);
@@ -172,21 +168,12 @@ table 1262 "Isolated Certificate"
                     Validate("User ID", User."User Name");
                 end;
         end;
-        Modify;
+        Modify();
     end;
 
     local procedure ExistsInIsolatedStorage(): Boolean
     begin
         exit(ISOLATEDSTORAGE.Contains(Code, CertificateManagement.GetCertDataScope(Rec)));
     end;
-#if not CLEAN18
-
-    [Obsolete('This function will be removed.', '18.0')]
-    procedure GetDotNetX509Certificate2(var DotNetX509Certificate2: Codeunit DotNet_X509Certificate2)
-    begin
-        // NAVCZ
-        CertificateManagement.GetCertAsDotNetX509Certificate2(Rec, DotNetX509Certificate2);
-    end;
-#endif
 }
 

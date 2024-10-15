@@ -1,3 +1,4 @@
+#if not CLEAN19
 permissionset 3602 "Payables Journals - Post"
 {
     Access = Public;
@@ -16,9 +17,7 @@ permissionset 3602 "Payables Journals - Post"
                   tabledata Currency = r,
                   tabledata "Currency Exchange Rate" = r,
                   tabledata "Date Compr. Register" = r,
-#if not CLEAN19
                   tabledata "Detailed G/L Entry" = Ri,
-#endif
                   tabledata "Detailed Vendor Ledg. Entry" = ri,
                   tabledata "Dimension Combination" = R,
                   tabledata "Dimension Value Combination" = R,
@@ -44,9 +43,6 @@ permissionset 3602 "Payables Journals - Post"
                   tabledata "Reversal Entry" = RIMD,
                   tabledata "Sent Notification Entry" = Rimd,
                   tabledata "Source Code Setup" = R,
-#if not CLEAN18
-                  tabledata "Subst. Vendor Posting Group" = R,
-#endif
                   tabledata "Tax Area" = R,
                   tabledata "Tax Area Line" = R,
                   tabledata "Tax Detail" = R,
@@ -83,3 +79,5 @@ permissionset 3602 "Payables Journals - Post"
                   tabledata "Workflow User Group" = R,
                   tabledata "Workflow User Group Member" = R;
 }
+
+#endif

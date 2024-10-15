@@ -1,4 +1,4 @@
-#if not CLEAN20
+#if not CLEAN21
 page 5628 "Fixed Asset G/L Journal"
 {
     ApplicationArea = FixedAssets;
@@ -7,7 +7,6 @@ page 5628 "Fixed Asset G/L Journal"
     DataCaptionFields = "Journal Batch Name";
     DelayedInsert = true;
     PageType = Worksheet;
-    PromotedActionCategories = 'New,Process,Report,Page';
     SaveValues = true;
     SourceTable = "Gen. Journal Line";
     UsageCategory = Tasks;
@@ -25,7 +24,7 @@ page 5628 "Fixed Asset G/L Journal"
 
                 trigger OnLookup(var Text: Text): Boolean
                 begin
-                    CurrPage.SaveRecord;
+                    CurrPage.SaveRecord();
                     GenJnlManagement.LookupName(CurrentJnlBatchName, Rec);
                     SetControlAppearanceFromBatch();
                     CurrPage.Update(false);
@@ -34,41 +33,41 @@ page 5628 "Fixed Asset G/L Journal"
                 trigger OnValidate()
                 begin
                     GenJnlManagement.CheckName(CurrentJnlBatchName, Rec);
-                    CurrentJnlBatchNameOnAfterVali;
+                    CurrentJnlBatchNameOnAfterVali();
                 end;
             }
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Posting Date"; "Posting Date")
+                field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the same date as the FA Posting Date field when the line is posted.';
                 }
-                field("Document Date"; "Document Date")
+                field("Document Date"; Rec."Document Date")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the date when the related document was created.';
                     Visible = false;
                 }
-                field("Document Type"; "Document Type")
+                field("Document Type"; Rec."Document Type")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the appropriate document type for the amount you want to post.';
                 }
-                field("Document No."; "Document No.")
+                field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies a document number for the journal line.';
                     ShowMandatory = true;
                 }
-                field("External Document No."; "External Document No.")
+                field("External Document No."; Rec."External Document No.")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies a document number that refers to the customer''s or vendor''s numbering system.';
                     Visible = false;
                 }
-                field("Account Type"; "Account Type")
+                field("Account Type"; Rec."Account Type")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the type of account that the entry on the journal line will be posted to.';
@@ -76,11 +75,11 @@ page 5628 "Fixed Asset G/L Journal"
                     trigger OnValidate()
                     begin
                         GenJnlManagement.GetAccounts(Rec, AccName, BalAccountName);
-                        EnableApplyEntriesAction;
+                        EnableApplyEntriesAction();
                         CurrPage.SaveRecord();
                     end;
                 }
-                field("Account No."; "Account No.")
+                field("Account No."; Rec."Account No.")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the account that the entry on the journal line will be posted to.';
@@ -92,17 +91,17 @@ page 5628 "Fixed Asset G/L Journal"
                         CurrPage.SaveRecord();
                     end;
                 }
-                field("Depreciation Book Code"; "Depreciation Book Code")
+                field("Depreciation Book Code"; Rec."Depreciation Book Code")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the code for the depreciation book to which the line will be posted if you have selected Fixed Asset in the Type field for this line.';
                 }
-                field("FA Posting Type"; "FA Posting Type")
+                field("FA Posting Type"; Rec."FA Posting Type")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the posting type, if Account Type field contains Fixed Asset.';
                 }
-                field(AddCurrCode; GetACYCode)
+                field(AddCurrCode; GetACYCode())
                 {
                     ApplicationArea = Suite;
                     Caption = 'FA Add.-Currency Code';
@@ -112,9 +111,9 @@ page 5628 "Fixed Asset G/L Journal"
 
                     trigger OnAssistEdit()
                     begin
-                        ChangeExchangeRate.SetParameterFA("FA Add.-Currency Factor", GetACYCode, "Posting Date");
-                        if ChangeExchangeRate.RunModal = ACTION::OK then
-                            "FA Add.-Currency Factor" := ChangeExchangeRate.GetParameter;
+                        ChangeExchangeRate.SetParameterFA("FA Add.-Currency Factor", GetACYCode(), "Posting Date");
+                        if ChangeExchangeRate.RunModal() = ACTION::OK then
+                            "FA Add.-Currency Factor" := ChangeExchangeRate.GetParameter();
 
                         Clear(ChangeExchangeRate);
                     end;
@@ -124,25 +123,25 @@ page 5628 "Fixed Asset G/L Journal"
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the description from the fixed asset card when the FA No. field is filled in.';
                 }
-                field("Business Unit Code"; "Business Unit Code")
+                field("Business Unit Code"; Rec."Business Unit Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code for the business unit that the fixed asset entry is linked to.';
                     Visible = false;
                 }
-                field("Salespers./Purch. Code"; "Salespers./Purch. Code")
+                field("Salespers./Purch. Code"; Rec."Salespers./Purch. Code")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the code for the salesperson or purchaser who is linked to the sale or purchase on the journal line.';
                     Visible = false;
                 }
-                field("Campaign No."; "Campaign No.")
+                field("Campaign No."; Rec."Campaign No.")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the number of the campaign the journal line is linked to.';
                     Visible = false;
                 }
-                field("Currency Code"; "Currency Code")
+                field("Currency Code"; Rec."Currency Code")
                 {
                     ApplicationArea = Suite;
                     AssistEdit = true;
@@ -152,34 +151,34 @@ page 5628 "Fixed Asset G/L Journal"
                     trigger OnAssistEdit()
                     begin
                         ChangeExchangeRate.SetParameter("Currency Code", "Currency Factor", "Posting Date");
-                        if ChangeExchangeRate.RunModal = ACTION::OK then
-                            Validate("Currency Factor", ChangeExchangeRate.GetParameter);
+                        if ChangeExchangeRate.RunModal() = ACTION::OK then
+                            Validate("Currency Factor", ChangeExchangeRate.GetParameter());
 
                         Clear(ChangeExchangeRate);
                     end;
                 }
-                field("Gen. Posting Type"; "Gen. Posting Type")
+                field("Gen. Posting Type"; Rec."Gen. Posting Type")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the type of transaction.';
                 }
-                field("Gen. Bus. Posting Group"; "Gen. Bus. Posting Group")
+                field("Gen. Bus. Posting Group"; Rec."Gen. Bus. Posting Group")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the vendor''s or customer''s trade type to link transactions made for this business partner with the appropriate general ledger account according to the general posting setup.';
                 }
-                field("Gen. Prod. Posting Group"; "Gen. Prod. Posting Group")
+                field("Gen. Prod. Posting Group"; Rec."Gen. Prod. Posting Group")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the item''s product type to link transactions made for this item with the appropriate general ledger account according to the general posting setup.';
                 }
-                field("VAT Bus. Posting Group"; "VAT Bus. Posting Group")
+                field("VAT Bus. Posting Group"; Rec."VAT Bus. Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT specification of the involved customer or vendor to link transactions made for this record with the appropriate general ledger account according to the VAT posting setup.';
                     Visible = false;
                 }
-                field("VAT Prod. Posting Group"; "VAT Prod. Posting Group")
+                field("VAT Prod. Posting Group"; Rec."VAT Prod. Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT specification of the involved item or resource to link transactions made for this record with the appropriate general ledger account according to the VAT posting setup.';
@@ -196,12 +195,15 @@ page 5628 "Fixed Asset G/L Journal"
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the total amount the journal line consists of.';
                 }
-                field("Amount (LCY)"; "Amount (LCY)")
+                field("Amount (LCY)"; Rec."Amount (LCY)")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the total amount that the journal line consists of.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality will be removed and this field should not be used.';
+                    ObsoleteTag = '21.0';
                 }
-                field("VAT Amount (LCY)"; "VAT Amount (LCY)")
+                field("VAT Amount (LCY)"; Rec."VAT Amount (LCY)")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the amount of VAT included in the total amount, expressed in LCY.';
@@ -209,7 +211,7 @@ page 5628 "Fixed Asset G/L Journal"
                     ObsoleteReason = 'The functionality will be removed and this field should not be used.';
                     ObsoleteTag = '20.0';
                 }
-                field("Bal. VAT Amount (LCY)"; "Bal. VAT Amount (LCY)")
+                field("Bal. VAT Amount (LCY)"; Rec."Bal. VAT Amount (LCY)")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the amount of Bal. VAT included in the total amount.';
@@ -217,53 +219,53 @@ page 5628 "Fixed Asset G/L Journal"
                     ObsoleteReason = 'The functionality will be removed and this field should not be used.';
                     ObsoleteTag = '20.0';
                 }
-                field("Debit Amount"; "Debit Amount")
+                field("Debit Amount"; Rec."Debit Amount")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the total of the ledger entries that represent debits.';
                     Visible = false;
                 }
-                field("Credit Amount"; "Credit Amount")
+                field("Credit Amount"; Rec."Credit Amount")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the total of the ledger entries that represent credits.';
                     Visible = false;
                 }
-                field("VAT Amount"; "VAT Amount")
+                field("VAT Amount"; Rec."VAT Amount")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the amount of VAT that is included in the total amount.';
                     Visible = false;
                 }
-                field("VAT Difference"; "VAT Difference")
+                field("VAT Difference"; Rec."VAT Difference")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the difference between the calculated VAT amount and a VAT amount that you have entered manually.';
                     Visible = false;
                 }
-                field("Bal. VAT Amount"; "Bal. VAT Amount")
+                field("Bal. VAT Amount"; Rec."Bal. VAT Amount")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the amount of Bal. VAT included in the total amount.';
                     Visible = false;
                 }
-                field("Bal. VAT Difference"; "Bal. VAT Difference")
+                field("Bal. VAT Difference"; Rec."Bal. VAT Difference")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the difference between the calculate VAT amount and the VAT amount that you have entered manually.';
                     Visible = false;
                 }
-                field("Bal. Account Type"; "Bal. Account Type")
+                field("Bal. Account Type"; Rec."Bal. Account Type")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the type of account that a balancing entry is posted to, such as BANK for a cash account.';
 
                     trigger OnValidate()
                     begin
-                        EnableApplyEntriesAction;
+                        EnableApplyEntriesAction();
                     end;
                 }
-                field("Bal. Account No."; "Bal. Account No.")
+                field("Bal. Account No."; Rec."Bal. Account No.")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the number of the general ledger, customer, vendor, or bank account that the balancing entry is posted to, such as a cash account for cash purchases.';
@@ -274,103 +276,103 @@ page 5628 "Fixed Asset G/L Journal"
                         ShowShortcutDimCode(ShortcutDimCode);
                     end;
                 }
-                field("Bal. Gen. Posting Type"; "Bal. Gen. Posting Type")
+                field("Bal. Gen. Posting Type"; Rec."Bal. Gen. Posting Type")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the general posting type associated with the balancing account that will be used when you post the entry on the journal line.';
                 }
-                field("Bal. Gen. Prod. Posting Group"; "Bal. Gen. Prod. Posting Group")
+                field("Bal. Gen. Prod. Posting Group"; Rec."Bal. Gen. Prod. Posting Group")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the general product posting group code associated with the balancing account that will be used when you post the entry.';
                 }
-                field("Bal. VAT Bus. Posting Group"; "Bal. VAT Bus. Posting Group")
+                field("Bal. VAT Bus. Posting Group"; Rec."Bal. VAT Bus. Posting Group")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the code of the VAT business posting group that will be used when you post the entry on the journal line.';
                     Visible = false;
                 }
-                field("Bal. VAT Prod. Posting Group"; "Bal. VAT Prod. Posting Group")
+                field("Bal. VAT Prod. Posting Group"; Rec."Bal. VAT Prod. Posting Group")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the code of the VAT product posting group that will be used when you post the entry on the journal line.';
                     Visible = false;
                 }
-                field("Bal. Gen. Bus. Posting Group"; "Bal. Gen. Bus. Posting Group")
+                field("Bal. Gen. Bus. Posting Group"; Rec."Bal. Gen. Bus. Posting Group")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the general business posting group code associated with the balancing account that will be used when you post the entry.';
                 }
-                field("Payment Terms Code"; "Payment Terms Code")
+                field("Payment Terms Code"; Rec."Payment Terms Code")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies a formula that calculates the payment due date, payment discount date, and payment discount amount.';
                     Visible = false;
                 }
-                field("Applies-to Doc. Type"; "Applies-to Doc. Type")
+                field("Applies-to Doc. Type"; Rec."Applies-to Doc. Type")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the type of the posted document that this document or journal line will be applied to when you post, for example to register payment.';
                     Visible = false;
                 }
-                field("Applies-to Doc. No."; "Applies-to Doc. No.")
+                field("Applies-to Doc. No."; Rec."Applies-to Doc. No.")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the number of the posted document that this document or journal line will be applied to when you post, for example to register payment.';
                     Visible = false;
                 }
-                field("Applies-to ID"; "Applies-to ID")
+                field("Applies-to ID"; Rec."Applies-to ID")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the ID of entries that will be applied to when you choose the Apply Entries action.';
                     Visible = false;
                 }
-                field("On Hold"; "On Hold")
+                field("On Hold"; Rec."On Hold")
                 {
                     ApplicationArea = Suite, FixedAssets;
                     ToolTip = 'Specifies that the related entry represents an unpaid invoice for which either a payment suggestion, a reminder, or a finance charge memo exists.';
                     Visible = false;
                 }
-                field("Bank Payment Type"; "Bank Payment Type")
+                field("Bank Payment Type"; Rec."Bank Payment Type")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the code for the payment type to be used for the entry on the journal line.';
                     Visible = false;
                 }
-                field("Reason Code"; "Reason Code")
+                field("Reason Code"; Rec."Reason Code")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the reason code, a supplementary source code that enables you to trace the entry.';
                     Visible = false;
                 }
-                field("FA Posting Date"; "FA Posting Date")
+                field("FA Posting Date"; Rec."FA Posting Date")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the posting date of the related fixed asset transaction, such as a depreciation.';
                     Visible = false;
                 }
-                field("Salvage Value"; "Salvage Value")
+                field("Salvage Value"; Rec."Salvage Value")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the estimated residual value of a fixed asset when it can no longer be used.';
                     Visible = false;
                 }
-                field("No. of Depreciation Days"; "No. of Depreciation Days")
+                field("No. of Depreciation Days"; Rec."No. of Depreciation Days")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the number of depreciation days if you have selected the Depreciation or Custom 1 option in the FA Posting Type field.';
                 }
-                field("Depr. until FA Posting Date"; "Depr. until FA Posting Date")
+                field("Depr. until FA Posting Date"; Rec."Depr. until FA Posting Date")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies if depreciation was calculated until the FA posting date of the line.';
                 }
-                field("Depr. Acquisition Cost"; "Depr. Acquisition Cost")
+                field("Depr. Acquisition Cost"; Rec."Depr. Acquisition Cost")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies if, when this line was posted, the additional acquisition cost posted on the line was depreciated in proportion to the amount by which the fixed asset had already been depreciated.';
                 }
-                field("Maintenance Code"; "Maintenance Code")
+                field("Maintenance Code"; Rec."Maintenance Code")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies a maintenance code.';
@@ -381,7 +383,7 @@ page 5628 "Fixed Asset G/L Journal"
                         ShowShortcutDimCode(ShortcutDimCode);
                     end;
                 }
-                field("Insurance No."; "Insurance No.")
+                field("Insurance No."; Rec."Insurance No.")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies an insurance code if you have selected the Acquisition Cost option in the FA Posting Type field.';
@@ -392,35 +394,35 @@ page 5628 "Fixed Asset G/L Journal"
                         ShowShortcutDimCode(ShortcutDimCode);
                     end;
                 }
-                field("Budgeted FA No."; "Budgeted FA No.")
+                field("Budgeted FA No."; Rec."Budgeted FA No.")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the number of a fixed asset with the Budgeted Asset check box selected. When you post the journal or document line, an additional entry is created for the budgeted fixed asset where the amount has the opposite sign.';
                 }
-                field("Duplicate in Depreciation Book"; "Duplicate in Depreciation Book")
+                field("Duplicate in Depreciation Book"; Rec."Duplicate in Depreciation Book")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies a depreciation book code if you want the journal line to be posted to that depreciation book, as well as to the depreciation book in the Depreciation Book Code field.';
                     Visible = false;
                 }
-                field("Use Duplication List"; "Use Duplication List")
+                field("Use Duplication List"; Rec."Use Duplication List")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies whether the line is to be posted to all depreciation books, using different journal batches and with a check mark in the Part of Duplication List field.';
                     Visible = false;
                 }
-                field("FA Reclassification Entry"; "FA Reclassification Entry")
+                field("FA Reclassification Entry"; Rec."FA Reclassification Entry")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies if the entry was generated from a fixed asset reclassification journal.';
                 }
-                field("FA Error Entry No."; "FA Error Entry No.")
+                field("FA Error Entry No."; Rec."FA Error Entry No.")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the number of a posted FA ledger entry to mark as an error entry.';
                 }
 #if not CLEAN19
-                field("Prepayment Type"; "Prepayment Type")
+                field("Prepayment Type"; Rec."Prepayment Type")
                 {
                     ApplicationArea = Prepayments;
                     ToolTip = 'Specifies the general journal line prepayment type.';
@@ -439,13 +441,13 @@ page 5628 "Fixed Asset G/L Journal"
                     ObsoleteTag = '19.0';
                 }
 #endif
-                field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
+                field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                     Visible = DimVisible1;
                 }
-                field("Shortcut Dimension 2 Code"; "Shortcut Dimension 2 Code")
+                field("Shortcut Dimension 2 Code"; Rec."Shortcut Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
@@ -668,15 +670,13 @@ page 5628 "Fixed Asset G/L Journal"
                     ApplicationArea = Dimensions;
                     Caption = 'Dimensions';
                     Image = Dimensions;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ShortCutKey = 'Alt+D';
                     ToolTip = 'View or edit dimensions, such as area, project, or department, that you can assign to sales and purchase documents to distribute costs and analyze transaction history.';
 
                     trigger OnAction()
                     begin
                         ShowDimensions();
-                        CurrPage.SaveRecord;
+                        CurrPage.SaveRecord();
                     end;
                 }
             }
@@ -689,8 +689,6 @@ page 5628 "Fixed Asset G/L Journal"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Show Lines with Issues';
                     Image = Error;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     Visible = BackgroundErrorCheck;
                     Enabled = not ShowAllLinesEnabled;
                     ToolTip = 'View a list of journal lines that have issues before you post the journal.';
@@ -705,8 +703,6 @@ page 5628 "Fixed Asset G/L Journal"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Show All Lines';
                     Image = ExpandAll;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     Visible = BackgroundErrorCheck;
                     Enabled = ShowAllLinesEnabled;
                     ToolTip = 'View all journal lines, including lines with and without issues.';
@@ -735,7 +731,6 @@ page 5628 "Fixed Asset G/L Journal"
                     ApplicationArea = FixedAssets;
                     Caption = 'Ledger E&ntries';
                     Image = GLRegisters;
-                    Promoted = false;
                     //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                     //PromotedCategory = Process;
                     RunObject = Codeunit "Gen. Jnl.-Show Entries";
@@ -759,7 +754,7 @@ page 5628 "Fixed Asset G/L Journal"
 
                     trigger OnAction()
                     begin
-                        RenumberDocumentNo
+                        RenumberDocumentNo();
                     end;
                 }
                 action("Apply Entries")
@@ -769,8 +764,6 @@ page 5628 "Fixed Asset G/L Journal"
                     Ellipsis = true;
                     Enabled = ApplyEntriesActionEnabled;
                     Image = ApplyEntries;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     RunObject = Codeunit "Gen. Jnl.-Apply";
                     ShortCutKey = 'Shift+F11';
                     ToolTip = 'Apply the payment amount on a journal line to a sales or purchase document that was already posted for a customer or vendor. This updates the amount on the posted document, and the document can either be partially paid, or closed as paid or refunded.';
@@ -780,8 +773,6 @@ page 5628 "Fixed Asset G/L Journal"
                     ApplicationArea = FixedAssets;
                     Caption = 'Insert FA &Bal. Account';
                     Image = InsertBalanceAccount;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Insert the balancing account(s), on new journal lines, for the main account(s) on the journal line(s). This requires that balancing accounts are set up in the FA Posting Groups window for the related fixed asset transaction, such as acquisition cost, depreciation, write-down, or maintenance.';
 
                     trigger OnAction()
@@ -835,7 +826,7 @@ page 5628 "Fixed Asset G/L Journal"
 
                     trigger OnAction()
                     begin
-                        LinkWholeLetter; // NAVCZ
+                        LinkWholeLetter(); // NAVCZ
                     end;
                 }
                 action("UnLink Linked Advance Letters")
@@ -851,7 +842,7 @@ page 5628 "Fixed Asset G/L Journal"
 
                     trigger OnAction()
                     begin
-                        UnLinkWholeLetter; // NAVCZ
+                        UnLinkWholeLetter(); // NAVCZ
                     end;
                 }
 #endif
@@ -892,9 +883,6 @@ page 5628 "Fixed Asset G/L Journal"
                     ApplicationArea = FixedAssets;
                     Caption = 'P&ost';
                     Image = PostOrder;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     ShortCutKey = 'F9';
                     ToolTip = 'Finalize the document or journal by posting the amounts and quantities to the related accounts in your company books.';
 
@@ -925,9 +913,6 @@ page 5628 "Fixed Asset G/L Journal"
                     ApplicationArea = FixedAssets;
                     Caption = 'Post and &Print';
                     Image = PostPrint;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     ShortCutKey = 'Shift+F9';
                     ToolTip = 'Finalize and prepare to print the document or journal. The values and quantities are posted to the related accounts. A report request window where you can specify what to include on the print-out.';
 
@@ -947,10 +932,6 @@ page 5628 "Fixed Asset G/L Journal"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Edit in Excel';
                     Image = Excel;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
-                    PromotedOnly = true;
                     ToolTip = 'Send the data in the journal to an Excel file for analysis or editing.';
                     Visible = IsSaaSExcelAddinEnabled;
                     AccessByPermission = System "Allow Action Export To Excel" = X;
@@ -964,13 +945,74 @@ page 5628 "Fixed Asset G/L Journal"
                 }
             }
         }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                group(Category_Posting)
+                {
+                    Caption = 'Posting';
+                    ShowAs = SplitButton;
+
+                    actionref("P&ost_Promoted"; "P&ost")
+                    {
+                    }
+                    actionref(Preview_Promoted; Preview)
+                    {
+                    }
+                    actionref("Post and &Print_Promoted"; "Post and &Print")
+                    {
+                    }
+                    actionref("Test Report_Promoted"; "Test Report")
+                    {
+                    }
+                }
+                actionref("Insert FA &Bal. Account_Promoted"; "Insert FA &Bal. Account")
+                {
+                }
+                actionref(Reconcile_Promoted; Reconcile)
+                {
+                }
+                actionref("Apply Entries_Promoted"; "Apply Entries")
+                {
+                }
+            }
+            group(Category_Line)
+            {
+                Caption = 'Line';
+
+                actionref(Dimensions_Promoted; Dimensions)
+                {
+                }
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Page', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref(EditInExcel_Promoted; EditInExcel)
+                {
+                }
+                actionref(ShowLinesWithErrors_Promoted; ShowLinesWithErrors)
+                {
+                }
+                actionref(ShowAllLines_Promoted; ShowAllLines)
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+        }
     }
 
     trigger OnAfterGetCurrRecord()
     begin
         GenJnlManagement.GetAccounts(Rec, AccName, BalAccountName);
-        UpdateBalance;
-        EnableApplyEntriesAction;
+        UpdateBalance();
+        EnableApplyEntriesAction();
     end;
 
     trigger OnAfterGetRecord()
@@ -986,8 +1028,8 @@ page 5628 "Fixed Asset G/L Journal"
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        UpdateBalance;
-        EnableApplyEntriesAction;
+        UpdateBalance();
+        EnableApplyEntriesAction();
         SetUpNewLine(xRec, Balance, BelowxRec);
         Clear(ShortcutDimCode);
     end;
@@ -998,13 +1040,13 @@ page 5628 "Fixed Asset G/L Journal"
         JnlSelected: Boolean;
     begin
         IsSaaSExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled();
-        if ClientTypeManagement.GetCurrentClientType = CLIENTTYPE::ODataV4 then
+        if ClientTypeManagement.GetCurrentClientType() = CLIENTTYPE::ODataV4 then
             exit;
 
         BalAccountName := '';
-        SetDimensionsVisibility;
+        SetDimensionsVisibility();
 
-        if IsOpenedFromBatch then begin
+        if IsOpenedFromBatch() then begin
             CurrentJnlBatchName := "Journal Batch Name";
             GenJnlManagement.OpenJnl(CurrentJnlBatchName, Rec);
             SetControlAppearanceFromBatch();
@@ -1082,7 +1124,7 @@ page 5628 "Fixed Asset G/L Journal"
 
     local procedure CurrentJnlBatchNameOnAfterVali()
     begin
-        CurrPage.SaveRecord;
+        CurrPage.SaveRecord();
         GenJnlManagement.SetName(CurrentJnlBatchName, Rec);
         SetControlAppearanceFromBatch();
         CurrPage.Update(false);

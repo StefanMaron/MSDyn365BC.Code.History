@@ -50,7 +50,7 @@ codeunit 31030 "Prepmt Links Mgt. Adv."
     procedure GetCurrency(CurrencyCode: Code[10])
     begin
         if CurrencyCode = '' then
-            Currency.InitRoundingPrecision
+            Currency.InitRoundingPrecision()
         else
             Currency.Get(CurrencyCode);
     end;
@@ -628,7 +628,7 @@ codeunit 31030 "Prepmt Links Mgt. Adv."
                     TempAdvLetterLineRelBuf."Invoiced Amount" += InvDiference;
                     TempAdvLetterLineRelBuf.Amount += Diference;
                     if TempAdvLetterLineRelBuf.Amount = 0 then
-                        TempAdvLetterLineRelBuf.Delete
+                        TempAdvLetterLineRelBuf.Delete()
                     else
                         TempAdvLetterLineRelBuf.Modify();
                     if TempAdvLetterLineRelBuf.Get(AdvLetterLineRefBuf."Doc Line No.", '', 0) then begin
@@ -683,7 +683,7 @@ codeunit 31030 "Prepmt Links Mgt. Adv."
                     TempAdvLetterLineRelBuf."Invoiced Amount" += InvDiference;
                     TempAdvLetterLineRelBuf.Amount += Diference;
                     if TempAdvLetterLineRelBuf.Amount = 0 then
-                        TempAdvLetterLineRelBuf.Delete
+                        TempAdvLetterLineRelBuf.Delete()
                     else
                         TempAdvLetterLineRelBuf.Modify();
                     if TempAdvLetterLineRelBuf.Get(AdvLetterLineRefBuf."Doc Line No.", '', 0) then begin
@@ -769,7 +769,7 @@ codeunit 31030 "Prepmt Links Mgt. Adv."
                             then
                                 TempSalesAdvanceLetterLine.Get(TempAdvLetterLineRelBuf."Letter No.", TempAdvLetterLineRelBuf."Letter Line No.");
                             TempSalesAdvanceLetterLine."Semifinished Linked Amount" += TempAdvLetterLineRelBuf.Amount;
-                            TempSalesAdvanceLetterLine.Modify
+                            TempSalesAdvanceLetterLine.Modify();
                         until TempAdvLetterLineRelBuf.Next() = 0;
                     TempSalesAdvanceLetterHeader.Reset();
                     TempSalesAdvanceLetterLine.Reset();
@@ -806,7 +806,7 @@ codeunit 31030 "Prepmt Links Mgt. Adv."
                             then
                                 TempPurchAdvanceLetterLine.Get(TempAdvLetterLineRelBuf."Letter No.", TempAdvLetterLineRelBuf."Letter Line No.");
                             TempPurchAdvanceLetterLine."Semifinished Linked Amount" += TempAdvLetterLineRelBuf.Amount;
-                            TempPurchAdvanceLetterLine.Modify
+                            TempPurchAdvanceLetterLine.Modify();
                         until TempAdvLetterLineRelBuf.Next() = 0;
                     TempPurchAdvanceLetterHeader.Reset();
                     TempPurchAdvanceLetterLine.Reset();
@@ -1316,7 +1316,7 @@ codeunit 31030 "Prepmt Links Mgt. Adv."
             if not ("Document Type" in ["Document Type"::Order, "Document Type"::Invoice]) then
                 exit;
 
-            CancelAdvanceLetterRelations;
+            CancelAdvanceLetterRelations();
         end;
     end;
 
@@ -1327,7 +1327,7 @@ codeunit 31030 "Prepmt Links Mgt. Adv."
             if not ("Document Type" in ["Document Type"::Order, "Document Type"::Invoice]) then
                 exit;
 
-            CancelAdvanceLetterRelations;
+            CancelAdvanceLetterRelations();
         end;
     end;
 
@@ -1341,7 +1341,7 @@ codeunit 31030 "Prepmt Links Mgt. Adv."
             if not ("Document Type" in ["Document Type"::Order, "Document Type"::Invoice]) then
                 exit;
 
-            CancelAdvanceLetterRelations;
+            CancelAdvanceLetterRelations();
         end;
     end;
 
@@ -1352,7 +1352,7 @@ codeunit 31030 "Prepmt Links Mgt. Adv."
             if not ("Document Type" in ["Document Type"::Order, "Document Type"::Invoice]) then
                 exit;
 
-            CancelAdvanceLetterRelations;
+            CancelAdvanceLetterRelations();
         end;
     end;
 }

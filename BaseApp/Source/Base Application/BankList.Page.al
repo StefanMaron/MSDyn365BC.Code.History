@@ -7,7 +7,6 @@ page 11727 "Bank List"
     DataCaptionFields = "No.";
     Editable = false;
     PageType = List;
-    PromotedActionCategories = 'New,Process,Report,Bank Statement Service';
     SourceTable = "Bank Account";
     ObsoleteState = Pending;
     ObsoleteReason = 'Discontinued, use standard page Bank Account List instead.';
@@ -23,7 +22,7 @@ page 11727 "Bank List"
             repeater(Control1220021)
             {
                 ShowCaption = false;
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the bank account.';
@@ -41,24 +40,24 @@ page 11727 "Bank List"
                     ToolTip = 'Specifies if the bank account is linked to an online bank account through the bank statement service.';
                     Visible = ShowBankLinkingActions;
                 }
-                field("Post Code"; "Post Code")
+                field("Post Code"; Rec."Post Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the postal code of the address.';
                     Visible = false;
                 }
-                field("Country/Region Code"; "Country/Region Code")
+                field("Country/Region Code"; Rec."Country/Region Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the country/region code of the address.';
                     Visible = false;
                 }
-                field("Phone No."; "Phone No.")
+                field("Phone No."; Rec."Phone No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the telephone number of the bank where you have the bank account.';
                 }
-                field("Fax No."; "Fax No.")
+                field("Fax No."; Rec."Fax No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the fax number associated with the address.';
@@ -69,13 +68,13 @@ page 11727 "Bank List"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the bank employee regularly contacted in connection with this bank account.';
                 }
-                field("Bank Account No."; "Bank Account No.")
+                field("Bank Account No."; Rec."Bank Account No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number used by the bank for the bank account.';
                     Visible = false;
                 }
-                field("SWIFT Code"; "SWIFT Code")
+                field("SWIFT Code"; Rec."SWIFT Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the international bank identifier code (SWIFT) of the bank where you have the account.';
@@ -87,42 +86,31 @@ page 11727 "Bank List"
                     ToolTip = 'Specifies the bank account''s international bank account number.';
                     Visible = false;
                 }
-#if not CLEAN18
-                field("Specific Symbol"; "Specific Symbol")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the additional symbol of bank payments.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '18.0';
-                }
-#endif
-                field("Our Contact Code"; "Our Contact Code")
+                field("Our Contact Code"; Rec."Our Contact Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a code to specify the employee who is responsible for this bank account.';
                     Visible = false;
                 }
-                field("Bank Acc. Posting Group"; "Bank Acc. Posting Group")
+                field("Bank Acc. Posting Group"; Rec."Bank Acc. Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a code for the bank account posting group for the bank account.';
                     Visible = false;
                 }
-                field("Currency Code"; "Currency Code")
+                field("Currency Code"; Rec."Currency Code")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the relevant currency code for the bank account.';
                     Visible = false;
                 }
-                field("Language Code"; "Language Code")
+                field("Language Code"; Rec."Language Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a code that determines the language associated with this bank account.';
                     Visible = false;
                 }
-                field("Search Name"; "Search Name")
+                field("Search Name"; Rec."Search Name")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a search name for the bank account.';
@@ -163,8 +151,6 @@ page 11727 "Bank List"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Statistics';
                     Image = Statistics;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     RunObject = Page "Bank Account Statistics";
                     RunPageLink = "No." = FIELD("No."),
                                   "Date Filter" = FIELD("Date Filter"),
@@ -188,8 +174,6 @@ page 11727 "Bank List"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Positive Pay Export';
                     Image = Export;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     RunObject = Page "Positive Pay Export";
                     RunPageLink = "No." = FIELD("No.");
                     ToolTip = 'Export a positive pay file.';
@@ -234,8 +218,6 @@ page 11727 "Bank List"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Balance';
                     Image = Balance;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     RunObject = Page "Bank Account Balance";
                     RunPageLink = "No." = FIELD("No."),
                                   "Date Filter" = FIELD("Date Filter"),
@@ -257,7 +239,6 @@ page 11727 "Bank List"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Ledger E&ntries';
                     Image = BankAccountLedger;
-                    Promoted = false;
                     //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                     //PromotedCategory = Process;
                     RunObject = Page "Bank Account Ledger Entries";
@@ -287,7 +268,7 @@ page 11727 "Bank List"
 
                     trigger OnAction()
                     begin
-                        ShowContact;
+                        ShowContact();
                     end;
                 }
                 action(CreateNewLinkedBankAccount)
@@ -295,9 +276,6 @@ page 11727 "Bank List"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Create New Linked Bank Account';
                     Image = NewBank;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
                     ToolTip = 'Create a new online bank account to link to the selected bank account.';
                     Visible = ShowBankLinkingActions;
 
@@ -315,15 +293,12 @@ page 11727 "Bank List"
                     Caption = 'Link to Online Bank Account';
                     Enabled = NOT Linked;
                     Image = LinkAccount;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
                     ToolTip = 'Create a link to an online bank account from the selected bank account.';
                     Visible = ShowBankLinkingActions;
 
                     trigger OnAction()
                     begin
-                        VerifySingleSelection;
+                        VerifySingleSelection();
                         LinkStatementProvider(Rec);
                     end;
                 }
@@ -333,16 +308,13 @@ page 11727 "Bank List"
                     Caption = 'Unlink Online Bank Account';
                     Enabled = Linked;
                     Image = UnLinkAccount;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
                     ToolTip = 'Remove a link to an online bank account from the selected bank account.';
                     Visible = ShowBankLinkingActions;
 
                     trigger OnAction()
                     begin
-                        VerifySingleSelection;
-                        UnlinkStatementProvider;
+                        VerifySingleSelection();
+                        UnlinkStatementProvider();
                         CurrPage.Update(true);
                     end;
                 }
@@ -351,15 +323,12 @@ page 11727 "Bank List"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Update Bank Account Linking';
                     Image = MapAccounts;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
                     ToolTip = 'Update the online bank account links.';
                     Visible = ShowBankLinkingActions;
 
                     trigger OnAction()
                     begin
-                        UpdateBankAccountLinking;
+                        UpdateBankAccountLinking();
                     end;
                 }
                 action(AutomaticBankStatementImportSetup)
@@ -368,9 +337,6 @@ page 11727 "Bank List"
                     Caption = 'Automatic Bank Statement Import Setup';
                     Enabled = Linked;
                     Image = ElectronicBanking;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
                     RunObject = Page "Auto. Bank Stmt. Import Setup";
                     RunPageOnRec = true;
                     ToolTip = 'Set up the information for importing bank statement files.';
@@ -397,8 +363,6 @@ page 11727 "Bank List"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Detail Trial Balance';
                 Image = "Report";
-                Promoted = true;
-                PromotedCategory = "Report";
                 RunObject = Report "Bank Acc. - Detail Trial Bal.";
                 ToolTip = 'View, print, or save a detailed trial balance for selected checks.';
             }
@@ -407,7 +371,6 @@ page 11727 "Bank List"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Check Details';
                 Image = "Report";
-                Promoted = false;
                 //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                 //PromotedCategory = "Report";
                 RunObject = Report "Bank Account - Check Details";
@@ -418,8 +381,6 @@ page 11727 "Bank List"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Trial Balance by Period';
                 Image = "Report";
-                Promoted = true;
-                PromotedCategory = "Report";
                 RunObject = Report "Trial Balance by Period";
                 ToolTip = 'View, print, or save a detailed trial balance for selected checks within a selected period.';
             }
@@ -428,7 +389,6 @@ page 11727 "Bank List"
                 ApplicationArea = Suite;
                 Caption = 'Trial Balance';
                 Image = "Report";
-                Promoted = false;
                 //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                 //PromotedCategory = "Report";
                 RunObject = Report "Trial Balance";
@@ -443,23 +403,71 @@ page 11727 "Bank List"
                 ToolTip = 'View, print, or save statements for selected bank accounts. For each bank transaction, the report Specifies a description, an applied amount, a statement amount, and other information.';
             }
         }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref(Statistics_Promoted; Statistics)
+                {
+                }
+                actionref(PositivePayExport_Promoted; PositivePayExport)
+                {
+                }
+                actionref(Balance_Promoted; Balance)
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+
+                actionref("Detail Trial Balance_Promoted"; "Detail Trial Balance")
+                {
+                }
+                actionref("Trial Balance by Period_Promoted"; "Trial Balance by Period")
+                {
+                }
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Bank Statement Service', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref(CreateNewLinkedBankAccount_Promoted; CreateNewLinkedBankAccount)
+                {
+                }
+                actionref(LinkToOnlineBankAccount_Promoted; LinkToOnlineBankAccount)
+                {
+                }
+                actionref(UnlinkOnlineBankAccount_Promoted; UnlinkOnlineBankAccount)
+                {
+                }
+                actionref(UpdateBankAccountLinking_Promoted; UpdateBankAccountLinking)
+                {
+                }
+                actionref(AutomaticBankStatementImportSetup_Promoted; AutomaticBankStatementImportSetup)
+                {
+                }
+            }
+        }
     }
 
     trigger OnAfterGetCurrRecord()
     begin
-        Linked := IsLinkedToBankStatementServiceProvider;
-        ShowBankLinkingActions := StatementProvidersExist;
+        Linked := IsLinkedToBankStatementServiceProvider();
+        ShowBankLinkingActions := StatementProvidersExist();
     end;
 
     trigger OnAfterGetRecord()
     begin
         CalcFields("Check Report Name");
-        Linked := IsLinkedToBankStatementServiceProvider;
+        Linked := IsLinkedToBankStatementServiceProvider();
     end;
 
     trigger OnOpenPage()
     begin
-        ShowBankLinkingActions := StatementProvidersExist;
+        ShowBankLinkingActions := StatementProvidersExist();
     end;
 
     var

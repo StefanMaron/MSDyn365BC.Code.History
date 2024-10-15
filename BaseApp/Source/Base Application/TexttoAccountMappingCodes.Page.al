@@ -43,14 +43,22 @@ page 11705 "Text-to-Account Mapping Codes"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Rules';
                 Image = MapAccounts;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
 #if not CLEAN19
                 RunObject = Page "Text-to-Account Mapping";
                 RunPageLink = "Text-to-Account Mapping Code" = FIELD(Code);
 #endif
                 ToolTip = 'Specifies rules';
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(Rules_Promoted; Rules)
+                {
+                }
             }
         }
     }

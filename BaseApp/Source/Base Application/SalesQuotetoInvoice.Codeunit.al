@@ -48,7 +48,6 @@ codeunit 1305 "Sales-Quote to Invoice"
             SalesInvoiceHeader.Modify();
         end;
         UpdateEmailParameters(SalesInvoiceHeader);
-        UpdateCouponClaims(SalesInvoiceHeader);
 
         IsHandled := false;
         OnBeforeDeletionOfQuote(Rec, SalesInvoiceHeader, IsHandled, SalesQuoteLine);
@@ -111,7 +110,7 @@ codeunit 1305 "Sales-Quote to Invoice"
             if "Posting Date" <> 0D then
                 SalesInvoiceHeader."Posting Date" := "Posting Date"
             else
-                SalesInvoiceHeader."Posting Date" := WorkDate;
+                SalesInvoiceHeader."Posting Date" := WorkDate();
             SalesInvoiceHeader.InitFromSalesHeader(SalesQuoteHeader);
             OnBeforeInsertSalesInvoiceHeader(SalesInvoiceHeader, SalesQuoteHeader);
             SalesInvoiceHeader.Modify();
@@ -137,8 +136,8 @@ codeunit 1305 "Sales-Quote to Invoice"
                         SalesInvoiceLine."Document Type" := SalesInvoiceHeader."Document Type";
                         SalesInvoiceLine."Document No." := SalesInvoiceHeader."No.";
                         if SalesInvoiceLine."No." <> '' then
-                            SalesInvoiceLine.DefaultDeferralCode;
-                        SalesInvoiceLine.InitQtyToShip;
+                            SalesInvoiceLine.DefaultDeferralCode();
+                        SalesInvoiceLine.InitQtyToShip();
                         OnBeforeInsertSalesInvoiceLine(SalesQuoteLine, SalesQuoteHeader, SalesInvoiceLine, SalesInvoiceHeader);
                         SalesInvoiceLine.Insert();
                         OnAfterInsertSalesInvoiceLine(SalesQuoteLine, SalesQuoteHeader, SalesInvoiceLine, SalesInvoiceHeader);
@@ -168,19 +167,6 @@ codeunit 1305 "Sales-Quote to Invoice"
         EmailParameter.SetRange("Document No", SalesHeader."Quote No.");
         EmailParameter.SetRange("Document Type", SalesHeader."Document Type"::Quote);
         EmailParameter.DeleteAll();
-    end;
-
-    local procedure UpdateCouponClaims(SalesHeader: Record "Sales Header")
-    var
-        O365CouponClaimDocLink: Record "O365 Coupon Claim Doc. Link";
-    begin
-        O365CouponClaimDocLink.SetRange("Document No.", SalesHeader."Quote No.");
-        O365CouponClaimDocLink.SetRange("Document Type", SalesHeader."Document Type"::Quote);
-        if O365CouponClaimDocLink.FindSet(true, true) then
-            repeat
-                O365CouponClaimDocLink.Rename(
-                  O365CouponClaimDocLink."Claim ID", O365CouponClaimDocLink."Graph Contact ID", SalesHeader."Document Type", SalesHeader."No.");
-            until O365CouponClaimDocLink.Next() = 0;
     end;
 
     local procedure CheckForAssembleToOrderLines(QuoteSalesHeader: Record "Sales Header")
@@ -256,4 +242,3 @@ codeunit 1305 "Sales-Quote to Invoice"
     begin
     end;
 }
-

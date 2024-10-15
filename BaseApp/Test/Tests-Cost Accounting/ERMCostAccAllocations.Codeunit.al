@@ -51,11 +51,11 @@ codeunit 134813 "ERM Cost Acc. Allocations"
 
         CostAllocationTarget.SetFilter(Base, '<>%1', CostAllocationTarget.Base::Static);
         if CostAllocationTarget.IsEmpty() then
-            Error(StrSubstNo(NoRecordsInFilterErr, CostAllocationTarget.TableCaption, CostAllocationTarget.GetFilters));
+            Error(StrSubstNo(NoRecordsInFilterErr, CostAllocationTarget.TableCaption(), CostAllocationTarget.GetFilters));
         Expected := CostAllocationTarget.Count();
 
         // Exercise:
-        Actual := CostAccountAllocation.CalcAllocationKeys;
+        Actual := CostAccountAllocation.CalcAllocationKeys();
 
         // Verify:
         Assert.AreEqual(Expected, Actual, StrSubstNo(ProcessedDynAllocTargetsErr, Actual, Expected));
@@ -88,7 +88,7 @@ codeunit 134813 "ERM Cost Acc. Allocations"
         Clear(CostAllocationTarget);
         CostAllocationTarget.Get(ID, LineNo);
         CostAllocationTarget.TestField(Share, NewShare);
-        CostAccountAllocation.CalcAllocationKeys;
+        CostAccountAllocation.CalcAllocationKeys();
 
         // Verify:
         Clear(CostAllocationTarget);
@@ -265,7 +265,7 @@ codeunit 134813 "ERM Cost Acc. Allocations"
         CreateAllocSourceAndTargets(CostAllocationSource, MaxLevel, CostAllocationTarget.Base::Static);
 
         SelectCostJournalBatch(CostJournalBatch);
-        CreateCostJournalLineWithCC(CostJournalLine, CostJournalBatch, CostAllocationSource."Cost Center Code", WorkDate);
+        CreateCostJournalLineWithCC(CostJournalLine, CostJournalBatch, CostAllocationSource."Cost Center Code", WorkDate());
 
         // Exercise.
         LibraryCostAccounting.PostCostJournalLine(CostJournalLine);
@@ -308,7 +308,7 @@ codeunit 134813 "ERM Cost Acc. Allocations"
         RunCostAllocationReport;
 
         if not CostBudgetRegister.FindLast() then
-            Error(StrSubstNo(NoRecordsInFilterErr, CostBudgetRegister.TableCaption, CostBudgetRegister.GetFilters));
+            Error(StrSubstNo(NoRecordsInFilterErr, CostBudgetRegister.TableCaption(), CostBudgetRegister.GetFilters));
 
         CostBudgetEntry.SetRange("Allocated with Journal No.", CostBudgetRegister."No.");
         CostBudgetEntry.FindFirst();
@@ -492,7 +492,7 @@ codeunit 134813 "ERM Cost Acc. Allocations"
         asserterror LibraryCostAccounting.UpdateAllocSourceWithCObject(CostAllocationSource);
         Assert.IsTrue(StrPos(AllocSourceHasCCAndCOMsg, GetLastErrorText) > 0,
           StrSubstNo(UnexpectedMessageErr, GetLastErrorText, AllocSourceHasCCAndCOMsg));
-        ClearLastError;
+        ClearLastError();
     end;
 
     [Test]
@@ -515,7 +515,7 @@ codeunit 134813 "ERM Cost Acc. Allocations"
         asserterror LibraryCostAccounting.UpdateAllocTargetWithCObject(CostAllocationTarget);
         Assert.IsTrue(StrPos(AllocTargetHasCCAndCOMsg, GetLastErrorText) > 0,
           StrSubstNo(UnexpectedMessageErr, GetLastErrorText, AllocTargetHasCCAndCOMsg));
-        ClearLastError;
+        ClearLastError();
     end;
 
     [Test]
@@ -550,7 +550,7 @@ codeunit 134813 "ERM Cost Acc. Allocations"
         LibraryCostAccounting.CheckAllocTargetSharePercent(CostAllocationSource);
 
         if not CostBudgetRegister.FindLast() then
-            Error(StrSubstNo(NoRecordsInFilterErr, CostBudgetRegister.TableCaption, CostBudgetRegister.GetFilters));
+            Error(StrSubstNo(NoRecordsInFilterErr, CostBudgetRegister.TableCaption(), CostBudgetRegister.GetFilters));
 
         Clear(CostBudgetEntry);
         TotalAmount :=
@@ -579,7 +579,7 @@ codeunit 134813 "ERM Cost Acc. Allocations"
     begin
         // Setup.
         Initialize();
-        AllocToDate := CalcDate('<-1D>', WorkDate);
+        AllocToDate := CalcDate('<-1D>', WorkDate());
 
         ClearAllocSourceLevel(MaxLevel);
         CreateAllocSourceAndTargets(CostAllocationSource, MaxLevel, CostAllocationTarget.Base::Static);
@@ -597,7 +597,7 @@ codeunit 134813 "ERM Cost Acc. Allocations"
         LibraryCostAccounting.CheckAllocTargetSharePercent(CostAllocationSource);
 
         if not CostRegister.FindLast() then
-            Error(StrSubstNo(NoRecordsInFilterErr, CostRegister.TableCaption, CostRegister.GetFilters));
+            Error(StrSubstNo(NoRecordsInFilterErr, CostRegister.TableCaption(), CostRegister.GetFilters));
 
         TotalAmount :=
           GetTotalAmountOfSrcCostEntries(
@@ -628,7 +628,7 @@ codeunit 134813 "ERM Cost Acc. Allocations"
         CreateAllocSourceAndTargets(CostAllocationSource, MaxLevel, CostAllocationTarget.Base::Static);
 
         SelectCostJournalBatch(CostJournalBatch);
-        CreateCostJournalLineWithCC(CostJournalLine, CostJournalBatch, CostAllocationSource."Cost Center Code", WorkDate);
+        CreateCostJournalLineWithCC(CostJournalLine, CostJournalBatch, CostAllocationSource."Cost Center Code", WorkDate());
 
         // Exercise.
         LibraryCostAccounting.PostCostJournalLine(CostJournalLine);
@@ -638,7 +638,7 @@ codeunit 134813 "ERM Cost Acc. Allocations"
         LibraryCostAccounting.CheckAllocTargetSharePercent(CostAllocationSource);
 
         if not CostRegister.FindLast() then
-            Error(StrSubstNo(NoRecordsInFilterErr, CostRegister.TableCaption, CostRegister.GetFilters));
+            Error(StrSubstNo(NoRecordsInFilterErr, CostRegister.TableCaption(), CostRegister.GetFilters));
 
         TotalAmount :=
           GetTotalAmountOfSrcEntry(
@@ -716,7 +716,7 @@ codeunit 134813 "ERM Cost Acc. Allocations"
             CostAllocationTarget.Validate("Static Base", LibraryRandom.RandInt(10));
             CostAllocationTarget.Validate("Static Weighting", LibraryRandom.RandInt(10));
             CostAllocationTarget.Modify(true);
-        until CostAllocationTarget.Next = 0;
+        until CostAllocationTarget.Next() = 0;
 
         // Verify.
         Clear(CostAllocationTarget);
@@ -724,7 +724,7 @@ codeunit 134813 "ERM Cost Acc. Allocations"
 
         repeat
             CostAllocationTarget.TestField(Share, CostAllocationTarget."Static Base" * CostAllocationTarget."Static Weighting");
-        until CostAllocationTarget.Next = 0;
+        until CostAllocationTarget.Next() = 0;
     end;
 
     [Test]
@@ -797,12 +797,12 @@ codeunit 134813 "ERM Cost Acc. Allocations"
 
         // Verify: Verify that no error comes up and also verifies that Cost register and Cost allocation entries gets created.
         if not CostBudgetRegister.FindLast() then
-            Error(StrSubstNo(NoRecordsInFilterErr, CostBudgetRegister.TableCaption, CostBudgetRegister.GetFilters));
+            Error(StrSubstNo(NoRecordsInFilterErr, CostBudgetRegister.TableCaption(), CostBudgetRegister.GetFilters));
 
         CostBudgetEntry.SetRange(
           "Entry No.", CostBudgetRegister."From Cost Budget Entry No.", CostBudgetRegister."To Cost Budget Entry No.");
         if CostBudgetEntry.IsEmpty() then
-            Error(StrSubstNo(NoRecordsInFilterErr, CostBudgetEntry.TableCaption, CostBudgetEntry.GetFilters));
+            Error(StrSubstNo(NoRecordsInFilterErr, CostBudgetEntry.TableCaption(), CostBudgetEntry.GetFilters));
     end;
 
     [Test]
@@ -824,7 +824,7 @@ codeunit 134813 "ERM Cost Acc. Allocations"
 
         // Verify: Verify that no error comes up and verify that Cost budget register is empty.
         if CostBudgetRegister.FindLast() then
-            Error(StrSubstNo(NoRecordsInFilterErr, CostBudgetRegister.TableCaption, CostBudgetRegister.GetFilters));
+            Error(StrSubstNo(NoRecordsInFilterErr, CostBudgetRegister.TableCaption(), CostBudgetRegister.GetFilters));
     end;
 
     [Test]
@@ -917,7 +917,7 @@ codeunit 134813 "ERM Cost Acc. Allocations"
 
         SelectCostJournalBatch(CostJournalBatch);
         CreateCostJournalLineWithCC(
-          CostJournalLine, CostJournalBatch, CostAllocationSource."Cost Center Code", CalcDate('<-12M>', WorkDate));
+          CostJournalLine, CostJournalBatch, CostAllocationSource."Cost Center Code", CalcDate('<-12M>', WorkDate()));
         CostJournalLine.Validate(Amount, LibraryRandom.RandIntInRange(10, 100));
         CostJournalLine.Modify(true);
         LibraryCostAccounting.PostCostJournalLine(CostJournalLine);
@@ -939,7 +939,7 @@ codeunit 134813 "ERM Cost Acc. Allocations"
     [Scope('OnPrem')]
     procedure AllocateCostsForBudget(var CostAllocation: TestRequestPage "Cost Allocation")
     begin
-        LibraryCostAccounting.AllocateCostsFromTo(CostAllocation, MaxLevel, MaxLevel, WorkDate, '', SelectedCostBudget);
+        LibraryCostAccounting.AllocateCostsFromTo(CostAllocation, MaxLevel, MaxLevel, WorkDate(), '', SelectedCostBudget);
         CostAllocation.OK.Invoke;
     end;
 
@@ -955,7 +955,7 @@ codeunit 134813 "ERM Cost Acc. Allocations"
     [Scope('OnPrem')]
     procedure AllocateCostsForLevels(var CostAllocation: TestRequestPage "Cost Allocation")
     begin
-        LibraryCostAccounting.AllocateCostsFromTo(CostAllocation, MaxLevel, MaxLevel, WorkDate, '', '');
+        LibraryCostAccounting.AllocateCostsFromTo(CostAllocation, MaxLevel, MaxLevel, WorkDate(), '', '');
         CostAllocation.OK.Invoke;
     end;
 
@@ -963,7 +963,7 @@ codeunit 134813 "ERM Cost Acc. Allocations"
     [Scope('OnPrem')]
     procedure AllocateCostsForVariant(var CostAllocation: TestRequestPage "Cost Allocation")
     begin
-        LibraryCostAccounting.AllocateCostsFromTo(CostAllocation, MaxLevel, MaxLevel, WorkDate, VariantField, '');
+        LibraryCostAccounting.AllocateCostsFromTo(CostAllocation, MaxLevel, MaxLevel, WorkDate(), VariantField, '');
         CostAllocation.OK.Invoke;
     end;
 
@@ -979,7 +979,7 @@ codeunit 134813 "ERM Cost Acc. Allocations"
         CostAllocationTarget.SetFilter(Share, '>%1', 0);
         CostAllocationTarget.SetFilter(Base, '<>%1', CostAllocationTarget.Base::Static);
         if not CostAllocationTarget.FindFirst() then
-            Error(StrSubstNo(NoRecordsInFilterErr, CostAllocationTarget.TableCaption, CostAllocationTarget.GetFilters));
+            Error(StrSubstNo(NoRecordsInFilterErr, CostAllocationTarget.TableCaption(), CostAllocationTarget.GetFilters));
     end;
 
     local procedure CheckAllocationCostEntries(AllocSourceID: Code[10]; TotalAmount: Decimal; TableNumber: Integer; KeyFieldNumber: Integer; AmountFieldNumber: Integer; FromEntryNo: Integer; ToEntryNo: Integer)
@@ -1003,10 +1003,10 @@ codeunit 134813 "ERM Cost Acc. Allocations"
         case Status of
             Status::Exists:
                 if not CostAllocationSource.Get(AllocSourceID) then
-                    Error(StrSubstNo(NoRecordsInFilterErr, CostAllocationSource.TableCaption, CostAllocationSource.GetFilters));
+                    Error(StrSubstNo(NoRecordsInFilterErr, CostAllocationSource.TableCaption(), CostAllocationSource.GetFilters));
             Status::Deleted:
                 if CostAllocationSource.Get(AllocSourceID) then
-                    Error(StrSubstNo(RecordNotDeletedErr, AllocSourceID, CostAllocationSource.TableCaption, CostAllocationSource.GetFilters));
+                    Error(StrSubstNo(RecordNotDeletedErr, AllocSourceID, CostAllocationSource.TableCaption(), CostAllocationSource.GetFilters));
             else
                 Error(StrSubstNo(UnexpectedOptionValueErr, Format(Status)));
         end;
@@ -1021,13 +1021,13 @@ codeunit 134813 "ERM Cost Acc. Allocations"
                 begin
                     CostAllocationTarget.SetFilter(ID, AllocSourceID);
                     if CostAllocationTarget.IsEmpty() then
-                        Error(StrSubstNo(NoRecordsInFilterErr, CostAllocationTarget.TableCaption, CostAllocationTarget.GetFilters));
+                        Error(StrSubstNo(NoRecordsInFilterErr, CostAllocationTarget.TableCaption(), CostAllocationTarget.GetFilters));
                 end;
             Status::Deleted:
                 begin
                     CostAllocationTarget.SetFilter(ID, AllocSourceID);
                     if not CostAllocationTarget.IsEmpty() then
-                        Error(StrSubstNo(RecordNotDeletedErr, AllocSourceID, CostAllocationTarget.TableCaption, CostAllocationTarget.GetFilters));
+                        Error(StrSubstNo(RecordNotDeletedErr, AllocSourceID, CostAllocationTarget.TableCaption(), CostAllocationTarget.GetFilters));
                 end;
             else
                 Error(StrSubstNo(UnexpectedOptionValueErr, Format(Status)));
@@ -1043,16 +1043,16 @@ codeunit 134813 "ERM Cost Acc. Allocations"
         CostAllocationSource.SetFilter(Level, '%1', Level);
         CostAllocationSource.SetFilter(Variant, '%1', Variant);
         if not CostAllocationSource.FindFirst() then
-            Error(StrSubstNo(NoRecordsInFilterErr, CostAllocationSource.TableCaption, CostAllocationSource.GetFilters));
+            Error(StrSubstNo(NoRecordsInFilterErr, CostAllocationSource.TableCaption(), CostAllocationSource.GetFilters));
 
         if not CostRegister.FindLast() then
-            Error(StrSubstNo(NoRecordsInFilterErr, CostRegister.TableCaption, CostRegister.GetFilters));
+            Error(StrSubstNo(NoRecordsInFilterErr, CostRegister.TableCaption(), CostRegister.GetFilters));
 
         CostEntry.SetRange("Entry No.", CostRegister."From Cost Entry No.", CostRegister."To Cost Entry No.");
         CostEntry.SetFilter("Cost Center Code", '%1', CostAllocationSource."Cost Center Code");
         CostEntry.SetFilter("Allocation ID", '%1', CostAllocationSource.ID);
         if CostEntry.IsEmpty() then
-            Error(StrSubstNo(NoRecordsInFilterErr, CostEntry.TableCaption, CostEntry.GetFilters));
+            Error(StrSubstNo(NoRecordsInFilterErr, CostEntry.TableCaption(), CostEntry.GetFilters));
     end;
 
     local procedure ClearAllocSourceLevel(Level: Integer)
@@ -1110,7 +1110,7 @@ codeunit 134813 "ERM Cost Acc. Allocations"
     local procedure CreateCostBudgetEntry(var CostBudgetEntry: Record "Cost Budget Entry"; CostBudgetName: Code[10]; CostTypeNo: Code[20]; CostCenterCode: Code[20])
     begin
         CostBudgetEntry.Init();
-        CostBudgetEntry.Validate(Date, WorkDate);
+        CostBudgetEntry.Validate(Date, WorkDate());
         CostBudgetEntry.Validate("Budget Name", CostBudgetName);
         CostBudgetEntry.Validate("Cost Type No.", CostTypeNo);
         CostBudgetEntry.Validate("Cost Center Code", CostCenterCode);
@@ -1136,12 +1136,12 @@ codeunit 134813 "ERM Cost Acc. Allocations"
     begin
         CostAllocationSource.SetFilter(Level, '%1', Level);
         if not CostAllocationSource.FindSet() then
-            Error(StrSubstNo(NoRecordsInFilterErr, CostAllocationSource.TableCaption, CostAllocationSource.GetFilters));
+            Error(StrSubstNo(NoRecordsInFilterErr, CostAllocationSource.TableCaption(), CostAllocationSource.GetFilters));
 
         repeat
-            CreateCostJournalLineWithCC(CostJournalLine, CostJournalBatch, CostAllocationSource."Cost Center Code", WorkDate);
+            CreateCostJournalLineWithCC(CostJournalLine, CostJournalBatch, CostAllocationSource."Cost Center Code", WorkDate());
             Clear(CostJournalLine);
-        until CostAllocationSource.Next = 0;
+        until CostAllocationSource.Next() = 0;
     end;
 
     local procedure CreateCostJournalLineWithCC(var CostJournalLine: Record "Cost Journal Line"; CostJournalBatch: Record "Cost Journal Batch"; CostCenterCode: Code[20]; PostingDate: Date)
@@ -1206,7 +1206,7 @@ codeunit 134813 "ERM Cost Acc. Allocations"
         Clear(CostAllocationSource);
         CostAllocationSource.SetFilter(Level, '%1', Level);
         if not CostAllocationSource.FindSet() then
-            Error(StrSubstNo(NoRecordsInFilterErr, CostAllocationSource.TableCaption, CostAllocationSource.GetFilters));
+            Error(StrSubstNo(NoRecordsInFilterErr, CostAllocationSource.TableCaption(), CostAllocationSource.GetFilters));
     end;
 
     local procedure CreateMultipleCostJournalLines(var CostJournalBatch: Record "Cost Journal Batch"; CostCenterCode: Code[20])
@@ -1218,10 +1218,10 @@ codeunit 134813 "ERM Cost Acc. Allocations"
 
         for Index := LibraryRandom.RandInt(4) downto 1 do begin
             Clear(CostJournalLine);
-            CreateCostJournalLineWithCC(CostJournalLine, CostJournalBatch, CostCenterCode, CalcDate('<-' + Format(Index) + 'D>', WorkDate));
+            CreateCostJournalLineWithCC(CostJournalLine, CostJournalBatch, CostCenterCode, CalcDate('<-' + Format(Index) + 'D>', WorkDate()));
         end;
 
-        CreateCostJournalLineWithCC(CostJournalLine, CostJournalBatch, CostCenterCode, WorkDate);
+        CreateCostJournalLineWithCC(CostJournalLine, CostJournalBatch, CostCenterCode, WorkDate());
     end;
 
     local procedure CreateValueEntry(BaseInput: Option; DateFilterCode: Option)
@@ -1242,17 +1242,17 @@ codeunit 134813 "ERM Cost Acc. Allocations"
             case "Date Filter Code" of
                 "Date Filter Code"::"Last Month", "Date Filter Code"::"Last Period":
                     begin
-                        StartDate := CalcDate('<-CM-1M>', WorkDate);
+                        StartDate := CalcDate('<-CM-1M>', WorkDate());
                         EndDate := CalcDate('<CM>', StartDate);
                     end;
                 "Date Filter Code"::Period, "Date Filter Code"::Week:
                     begin
-                        StartDate := CalcDate('<-CW>', WorkDate);
-                        EndDate := CalcDate('<CW>', WorkDate);
+                        StartDate := CalcDate('<-CW>', WorkDate());
+                        EndDate := CalcDate('<CW>', WorkDate());
                     end;
                 "Date Filter Code"::"Last Year", "Date Filter Code"::"Last Fiscal Year":
                     begin
-                        StartDate := CalcDate('<-CY-1Y>', WorkDate);
+                        StartDate := CalcDate('<-CY-1Y>', WorkDate());
                         EndDate := CalcDate('<CY>', StartDate);
                     end;
                 else
@@ -1272,7 +1272,7 @@ codeunit 134813 "ERM Cost Acc. Allocations"
                 "Item Ledger Entry Type" := "Item Ledger Entry Type"::Purchase;
                 "Purchase Amount (Actual)" := LibraryRandom.RandInt(100);
             end;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -1281,7 +1281,7 @@ codeunit 134813 "ERM Cost Acc. Allocations"
         CostAllocationSource: Record "Cost Allocation Source";
     begin
         if not CostAllocationSource.Get(AllocSourceID) then
-            Error(StrSubstNo(NoRecordsInFilterErr, CostAllocationSource.TableCaption, CostAllocationSource.GetFilters));
+            Error(StrSubstNo(NoRecordsInFilterErr, CostAllocationSource.TableCaption(), CostAllocationSource.GetFilters));
         CostAllocationSource.Delete(true);
     end;
 
@@ -1291,7 +1291,7 @@ codeunit 134813 "ERM Cost Acc. Allocations"
     begin
         CostAllocationTarget.SetFilter(ID, AllocSourceID);
         if not CostAllocationTarget.FindFirst() then
-            Error(StrSubstNo(NoRecordsInFilterErr, CostAllocationTarget.TableCaption, CostAllocationTarget.GetFilters));
+            Error(StrSubstNo(NoRecordsInFilterErr, CostAllocationTarget.TableCaption(), CostAllocationTarget.GetFilters));
         CostAllocationTarget.Delete(true);
     end;
 
@@ -1338,7 +1338,7 @@ codeunit 134813 "ERM Cost Acc. Allocations"
         CostType.SetFilter("Cost Center Code", '<>%1&<>%2', '', CostCenterCode);
         CostType.SetFilter("Cost Object Code", '%1', '');
         if CostType.IsEmpty() then
-            Error(StrSubstNo(NoRecordsInFilterErr, CostType.TableCaption, CostType.GetFilters));
+            Error(StrSubstNo(NoRecordsInFilterErr, CostType.TableCaption(), CostType.GetFilters));
 
         CostType.Next(LibraryRandom.RandInt(CostType.Count));
     end;
@@ -1347,7 +1347,7 @@ codeunit 134813 "ERM Cost Acc. Allocations"
     begin
         CostAllocationSource.SetFilter(Level, '%1', Level);
         if not CostAllocationSource.FindSet() then
-            Error(StrSubstNo(NoRecordsInFilterErr, CostAllocationSource.TableCaption, CostAllocationSource.GetFilters));
+            Error(StrSubstNo(NoRecordsInFilterErr, CostAllocationSource.TableCaption(), CostAllocationSource.GetFilters));
     end;
 
     local procedure GetAllocTargets(var CostAllocationTarget: Record "Cost Allocation Target"; ID: Code[10])
@@ -1355,7 +1355,7 @@ codeunit 134813 "ERM Cost Acc. Allocations"
         CostAllocationTarget.Init();
         CostAllocationTarget.SetFilter(ID, '%1', ID);
         if not CostAllocationTarget.FindSet() then
-            Error(StrSubstNo(NoRecordsInFilterErr, CostAllocationTarget.TableCaption, CostAllocationTarget.GetFilters));
+            Error(StrSubstNo(NoRecordsInFilterErr, CostAllocationTarget.TableCaption(), CostAllocationTarget.GetFilters));
     end;
 
     local procedure GetCostJournalLineEntries(var CostJournalLine: Record "Cost Journal Line"; CostJournalTemplateName: Code[10]; CostJournalBatchName: Code[10])
@@ -1363,7 +1363,7 @@ codeunit 134813 "ERM Cost Acc. Allocations"
         CostJournalLine.SetFilter("Journal Template Name", '%1', CostJournalTemplateName);
         CostJournalLine.SetFilter("Journal Batch Name", '%1', CostJournalBatchName);
         if not CostJournalLine.FindSet() then
-            Error(StrSubstNo(NoRecordsInFilterErr, CostJournalLine.TableCaption, CostJournalLine.GetFilters));
+            Error(StrSubstNo(NoRecordsInFilterErr, CostJournalLine.TableCaption(), CostJournalLine.GetFilters));
     end;
 
     local procedure GetTotalAmountOfSrcEntry(TableNumber: Integer; KeyFieldNumber: Integer; KeyFieldValue: Integer; AmountFieldNumber: Integer): Decimal
@@ -1390,11 +1390,11 @@ codeunit 134813 "ERM Cost Acc. Allocations"
         CostEntry.SetRange("Posting Date", 0D, ToDate);
         CostEntry.SetFilter("Cost Center Code", '%1', CostCenterCode);
         if not CostEntry.FindSet() then
-            Error(StrSubstNo(NoRecordsInFilterErr, CostEntry.TableCaption, CostEntry.GetFilters));
+            Error(StrSubstNo(NoRecordsInFilterErr, CostEntry.TableCaption(), CostEntry.GetFilters));
 
         repeat
             TotalAmount := TotalAmount + CostEntry.Amount;
-        until CostEntry.Next = 0;
+        until CostEntry.Next() = 0;
 
         exit(TotalAmount);
     end;
@@ -1405,7 +1405,7 @@ codeunit 134813 "ERM Cost Acc. Allocations"
     begin
         with CostCenter do begin
             Get(CostCenterCode);
-            SetRange("Date Filter", WorkDate);
+            SetRange("Date Filter", WorkDate());
             CalcFields("Balance at Date");
             Assert.AreEqual(ExpectedBalance, "Balance at Date", StrSubstNo(WrongBalanceErr, CostCenterCode));
         end;
@@ -1421,7 +1421,7 @@ codeunit 134813 "ERM Cost Acc. Allocations"
     local procedure ResetGlobalVariables()
     begin
         MaxLevel := 99;
-        AllocToDateField := WorkDate;
+        AllocToDateField := WorkDate();
         VariantField := '';
         SelectedCostBudget := '';
     end;
@@ -1452,7 +1452,7 @@ codeunit 134813 "ERM Cost Acc. Allocations"
         CostJournalTemplate: Record "Cost Journal Template";
     begin
         if not CostJournalTemplate.FindLast() then
-            Error(StrSubstNo(NoRecordsInFilterErr, CostJournalTemplate.TableCaption, CostJournalTemplate.GetFilters));
+            Error(StrSubstNo(NoRecordsInFilterErr, CostJournalTemplate.TableCaption(), CostJournalTemplate.GetFilters));
         LibraryCostAccounting.FindCostJournalBatch(CostJournalBatch, CostJournalTemplate.Name);
         LibraryCostAccounting.ClearCostJournalLines(CostJournalBatch);
     end;
@@ -1542,7 +1542,7 @@ codeunit 134813 "ERM Cost Acc. Allocations"
         CostEntry: Record "Cost Entry";
     begin
         if not CostRegister.FindLast() then
-            Error(StrSubstNo(NoRecordsInFilterErr, CostRegister.TableCaption, CostRegister.GetFilters));
+            Error(StrSubstNo(NoRecordsInFilterErr, CostRegister.TableCaption(), CostRegister.GetFilters));
 
         CostEntry.SetRange("Allocated with Journal No.", CostRegister."No.");
         CostEntry.FindFirst();
@@ -1556,7 +1556,7 @@ codeunit 134813 "ERM Cost Acc. Allocations"
         CostAllocationSource: Record "Cost Allocation Source";
     begin
         CostAllocationSource.FindLast();
-        LibraryCostAccounting.AllocateCostsFromTo(CostAllocation, 1, CostAllocationSource.Level, WorkDate, '', '');
+        LibraryCostAccounting.AllocateCostsFromTo(CostAllocation, 1, CostAllocationSource.Level, WorkDate(), '', '');
         CostAllocation.OK.Invoke;
     end;
 

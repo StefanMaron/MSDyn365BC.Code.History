@@ -1,5 +1,7 @@
+#if not CLEAN21
 codeunit 31094 "Extension Fields Management"
 {
+    [Obsolete('The function is not used anymore.', '21.0')]
     procedure GetRecordExtensionFields(RecordID: RecordID; var FieldValueDictionary: Dictionary of [Text[30], Text])
     var
         FieldCaptionDictionary: Dictionary of [Text[30], Text];
@@ -7,6 +9,7 @@ codeunit 31094 "Extension Fields Management"
         GetRecordExtensionFields(RecordID, FieldValueDictionary, FieldCaptionDictionary);
     end;
 
+    [Obsolete('The function is not used anymore.', '21.0')]
     procedure GetRecordExtensionFields(RecordID: RecordID; var FieldValueDictionary: Dictionary of [Text[30], Text]; var FieldCaptionDictionary: Dictionary of [Text[30], Text])
     var
         "Field": Record "Field";
@@ -34,6 +37,7 @@ codeunit 31094 "Extension Fields Management"
         end;
     end;
 
+    [Obsolete('The function is not used anymore.', '21.0')]
     procedure CopyDictionaryKeys(FromDictionary: Dictionary of [Text[30], Text]; var ToDictionary: Dictionary of [Text[30], Text])
     var
         KeyName: Text[30];
@@ -42,3 +46,4 @@ codeunit 31094 "Extension Fields Management"
             ToDictionary.Set(KeyName, '');
     end;
 }
+#endif

@@ -69,10 +69,10 @@ codeunit 101 "Cust. Entry-SetAppl.ID"
                 // NAVCZ
                 if CustLedgerEntry."Document Type" = CustLedgerEntry."Document Type"::Payment then
                     if CustLedgerEntry.Prepayment then begin
-                        LinkedNotUsedAmt := CustLedgerEntry.CalcLinkAdvAmount;
+                        LinkedNotUsedAmt := CustLedgerEntry.CalcLinkAdvAmount();
                         CustLedgerEntry."Amount to Apply" := CustLedgerEntry."Amount to Apply" + LinkedNotUsedAmt;
                     end;
-                CustLedgerEntry.TestAdvLink;
+                CustLedgerEntry.TestAdvLink();
                 // NAVCZ
             end;
 

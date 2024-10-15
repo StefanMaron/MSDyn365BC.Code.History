@@ -1,4 +1,3 @@
-#if not CLEAN18
 codeunit 5606 "FA Check Consistency"
 {
     Permissions = TableData "FA Ledger Entry" = r,
@@ -15,7 +14,7 @@ codeunit 5606 "FA Check Consistency"
            ("FA Posting Type" = "FA Posting Type"::"Book Value on Disposal")
         then
             exit;
-        ClearAll;
+        ClearAll();
         FALedgEntry := Rec;
         // This record is not modified in the codeunit.
         FALedgEntry2 := Rec;
@@ -41,15 +40,30 @@ codeunit 5606 "FA Check Consistency"
                       DeprBookCode, FAPostingTypeSetup."FA Posting Type"::"Custom 2");
             end;
             if "FA Posting Type" = "FA Posting Type"::"Proceeds on Disposal" then
-                CheckSalesPosting
+                CheckSalesPosting()
             else
-                CheckNormalPosting;
+                CheckNormalPosting();
         end;
         SetFAPostingDate(FALedgEntry2, true);
-        CheckInsuranceIntegration;
+        CheckInsuranceIntegration();
     end;
 
     var
+        DeprBook: Record "Depreciation Book";
+        FA: Record "Fixed Asset";
+        FADeprBook: Record "FA Depreciation Book";
+        FAPostingTypeSetup: Record "FA Posting Type Setup";
+        FALedgEntry: Record "FA Ledger Entry";
+        FALedgEntry2: Record "FA Ledger Entry";
+        FAJnlLine: Record "FA Journal Line";
+        FANo: Code[20];
+        DeprBookCode: Code[10];
+        FAPostingDate: Date;
+        BookValue: Decimal;
+        DeprBasis: Decimal;
+        SalvageValue: Decimal;
+        NewAmount: Decimal;
+
         Text000: Label 'The first entry must be an %2 for %1.';
         Text001: Label '%1 is disposed.';
         InvalidDisposalDateErr: Label 'The disposal date of fixed asset code %1 must be the last date%2.', Comment = '%1=code value, e.g.E000140, %2=in depreciation book code x(x= a code value, e.g. COMPANY), remains empty when depr. book code is empty';
@@ -58,23 +72,6 @@ codeunit 5606 "FA Check Consistency"
         Text005: Label '%2%3 must not be negative on %4 for %1.';
         Text006: Label '%2 must not be negative or less than %3 on %4 for %1.';
         Text007: Label '%2 must not be negative on %3 for %1.';
-        DeprBook: Record "Depreciation Book";
-        FA: Record "Fixed Asset";
-        FADeprBook: Record "FA Depreciation Book";
-        FAPostingTypeSetup: Record "FA Posting Type Setup";
-        FALedgEntry: Record "FA Ledger Entry";
-        FALedgEntry2: Record "FA Ledger Entry";
-        FAJnlLine: Record "FA Journal Line";
-#if not CLEAN18
-        FASetup: Record "FA Setup";
-#endif
-        FANo: Code[20];
-        DeprBookCode: Code[10];
-        FAPostingDate: Date;
-        BookValue: Decimal;
-        DeprBasis: Decimal;
-        SalvageValue: Decimal;
-        NewAmount: Decimal;
         SalvageValueErr: Label 'There is a reclassification salvage amount that must be posted first. Open the FA Journal page, and then post the relevant reclassification entry.';
 
     local procedure CheckNormalPosting()
@@ -86,16 +83,11 @@ codeunit 5606 "FA Check Consistency"
             SetRange("Depreciation Book Code", DeprBookCode);
             OnCheckNormalPostingOnAfterSetFALedgerEntryFilters(FALedgEntry, FANo, DeprBookCode);
             if Find('-') then begin
-                // NAVCZ
-                FASetup.Get();
-                if ("FA Posting Type" <> "FA Posting Type"::"Acquisition Cost") and
-                   (not FASetup."FA Acquisition As Custom 2" or ("FA Posting Type" <> "FA Posting Type"::"Custom 2"))
-                then
-                // NAVCZ
-                    CreateAcquisitionCostError;
-                // NAVCZ
-                if FADeprBook."Use FA Ledger Check" then begin
-                    // NAVCZ
+                if not IsAcquisitionCost() then
+                    CreateAcquisitionCostError();
+                if not FADeprBook."Use FA Ledger Check" then
+                    DeprBook.TestField("Use FA Ledger Check", false)
+                else begin
                     SetCurrentKey("FA No.", "Depreciation Book Code", "Part of Book Value", "FA Posting Date");
                     SetRange("Part of Book Value", true);
                     SetRange("FA Posting Date", 0D, FAPostingDate - 1);
@@ -131,7 +123,7 @@ codeunit 5606 "FA Check Consistency"
                                 SalvageValue := SalvageValue + Amount;
                             if "FA Posting Type" = FALedgEntry2."FA Posting Type" then
                                 NewAmount := NewAmount + Amount;
-                            CheckForError;
+                            CheckForError();
                         until Next() = 0;
                 end;
             end;
@@ -142,7 +134,7 @@ codeunit 5606 "FA Check Consistency"
     begin
         with FALedgEntry do begin
             if FADeprBook."Acquisition Date" = 0D then
-                CreateAcquisitionCostError;
+                CreateAcquisitionCostError();
             SetCurrentKey("FA No.", "Depreciation Book Code", "Part of Book Value", "FA Posting Date");
             SetRange("FA No.", FANo);
             SetRange("Depreciation Book Code", DeprBookCode);
@@ -150,20 +142,17 @@ codeunit 5606 "FA Check Consistency"
             SetFilter("FA Posting Date", '%1..', FAPostingDate + 1);
             OnCheckSalesPostingOnBeforeFirstFind(FALedgEntry, FANo, DeprBookCode);
             if Find('-') then
-                CreateDisposalError;
+                CreateDisposalError();
             SetRange("Part of Book Value");
             SetCurrentKey("FA No.", "Depreciation Book Code", "Part of Depreciable Basis", "FA Posting Date");
             SetRange("Part of Depreciable Basis", true);
             OnCheckSalesPostingOnAfterSetFALedgerEntryFilters(FALedgEntry, FANo, DeprBookCode);
             if Find('-') then
-                CreateDisposalError;
+                CreateDisposalError();
             SetRange("Part of Depreciable Basis");
-            // NAVCZ
-            // IF NOT FADeprBook."Use FA Ledger Check" THEN
-            // DeprBook.TESTFIELD("Use FA Ledger Check",FALSE)
-            // ELSE BEGIN
-            if FADeprBook."Use FA Ledger Check" then begin
-                // NAVCZ
+            if not FADeprBook."Use FA Ledger Check" then
+                DeprBook.TestField("Use FA Ledger Check", false)
+            else begin
                 SetCurrentKey(
                   "FA No.", "Depreciation Book Code",
                   "FA Posting Category", "FA Posting Type", "FA Posting Date");
@@ -174,7 +163,7 @@ codeunit 5606 "FA Check Consistency"
                     repeat
                         NewAmount := NewAmount + Amount;
                         if NewAmount > 0 then
-                            CreatePostingTypeError;
+                            CreatePostingTypeError();
                     until Next() = 0;
             end;
         end;
@@ -193,7 +182,7 @@ codeunit 5606 "FA Check Consistency"
                 FADeprBook.Get(FANo, DeprBookCode);
             end;
         with FALedgEntry do begin
-            Reset;
+            Reset();
             SetCurrentKey(
               "FA No.", "Depreciation Book Code", "FA Posting Category", "FA Posting Type", "FA Posting Date");
             SetRange("Depreciation Book Code", DeprBookCode);
@@ -284,11 +273,11 @@ codeunit 5606 "FA Check Consistency"
             case "FA Posting Type" of
                 "FA Posting Type"::"Acquisition Cost":
                     if NewAmount < 0 then
-                        CreatePostingTypeError;
+                        CreatePostingTypeError();
                 "FA Posting Type"::Depreciation,
               "FA Posting Type"::"Salvage Value":
                     if NewAmount > 0 then
-                        CreatePostingTypeError;
+                        CreatePostingTypeError();
                 "FA Posting Type"::"Write-Down",
                 "FA Posting Type"::Appreciation,
                 "FA Posting Type"::"Custom 1",
@@ -296,10 +285,10 @@ codeunit 5606 "FA Check Consistency"
                     begin
                         if NewAmount > 0 then
                             if FAPostingTypeSetup.Sign = FAPostingTypeSetup.Sign::Credit then
-                                CreatePostingTypeError;
+                                CreatePostingTypeError();
                         if NewAmount < 0 then
                             if FAPostingTypeSetup.Sign = FAPostingTypeSetup.Sign::Debit then
-                                CreatePostingTypeError;
+                                CreatePostingTypeError();
                     end;
             end;
             if BookValue + SalvageValue < 0 then
@@ -312,10 +301,10 @@ codeunit 5606 "FA Check Consistency"
                     then begin
                         if "Reclassification Entry" and (SalvageValue <> 0) then
                             Error(SalvageValueErr);
-                        CreateBookValueError;
+                        CreateBookValueError();
                     end;
             if DeprBasis < 0 then
-                CreateDeprBasisError;
+                CreateDeprBasisError();
         end;
     end;
 
@@ -329,7 +318,7 @@ codeunit 5606 "FA Check Consistency"
     begin
         FAJnlLine."FA Posting Type" := FAJnlLine."FA Posting Type"::"Acquisition Cost";
         Error(Text000,
-          FAName, FAJnlLine."FA Posting Type");
+          FAName(), FAJnlLine."FA Posting Type");
     end;
 
     local procedure CreateDisposedError(FixedAsset: Record "Fixed Asset"; DeprBookCode: Code[10])
@@ -346,7 +335,7 @@ codeunit 5606 "FA Check Consistency"
     local procedure CreateDisposalError()
     begin
         FAJnlLine."FA Posting Type" := FAJnlLine."FA Posting Type"::Disposal;
-        Error(InvalidDisposalDateErr, FA."No.", FADeprBookName);
+        Error(InvalidDisposalDateErr, FA."No.", FADeprBookName());
     end;
 
     local procedure CreatePostingTypeError()
@@ -363,9 +352,9 @@ codeunit 5606 "FA Check Consistency"
         if FAJnlLine."FA Posting Type" = FAJnlLine."FA Posting Type"::Depreciation then
             AccumText := StrSubstNo('%1 %2', Text003, '');
         if NewAmount > 0 then
-            Error(Text004, FAName, AccumText, FAJnlLine."FA Posting Type", FALedgEntry."FA Posting Date");
+            Error(Text004, FAName(), AccumText, FAJnlLine."FA Posting Type", FALedgEntry."FA Posting Date");
         if NewAmount < 0 then
-            Error(Text005, FAName, AccumText, FAJnlLine."FA Posting Type", FALedgEntry."FA Posting Date");
+            Error(Text005, FAName(), AccumText, FAJnlLine."FA Posting Type", FALedgEntry."FA Posting Date");
     end;
 
     local procedure CreateBookValueError()
@@ -373,13 +362,13 @@ codeunit 5606 "FA Check Consistency"
         FAJnlLine."FA Posting Type" := FAJnlLine."FA Posting Type"::"Salvage Value";
         Error(
           Text006,
-          FAName, FADeprBook.FieldCaption("Book Value"), FAJnlLine."FA Posting Type", FALedgEntry."FA Posting Date");
+          FAName(), FADeprBook.FieldCaption("Book Value"), FAJnlLine."FA Posting Type", FALedgEntry."FA Posting Date");
     end;
 
     local procedure CreateDeprBasisError()
     begin
         Error(
-          Text007, FAName, FADeprBook.FieldCaption("Depreciable Basis"), FALedgEntry."FA Posting Date");
+          Text007, FAName(), FADeprBook.FieldCaption("Depreciable Basis"), FALedgEntry."FA Posting Date");
     end;
 
     local procedure FAName(): Text[200]
@@ -436,4 +425,3 @@ codeunit 5606 "FA Check Consistency"
     end;
 }
 
-#endif

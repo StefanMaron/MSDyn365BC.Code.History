@@ -1,3 +1,4 @@
+#if not CLEAN21
 codeunit 138901 "O365 Test Item Selection P2124"
 {
     Subtype = Test;
@@ -180,7 +181,7 @@ codeunit 138901 "O365 Test Item Selection P2124"
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"O365 Test Item Selection P2124");
 
-        if not O365C2GraphEventSettings.Get then
+        if not O365C2GraphEventSettings.Get() then
             O365C2GraphEventSettings.Insert(true);
 
         O365C2GraphEventSettings.SetEventsEnabled(false);
@@ -191,7 +192,7 @@ codeunit 138901 "O365 Test Item Selection P2124"
     [Scope('OnPrem')]
     procedure BasketPageHandlerNoChange(var O365ItemBasketPart: TestPage "O365 Item Basket Part")
     begin
-        O365ItemBasketPart.Close;
+        O365ItemBasketPart.Close();
     end;
 
     [PageHandler]
@@ -202,18 +203,18 @@ codeunit 138901 "O365 Test Item Selection P2124"
     begin
         O365ItemBasketPart.First;
         while Item1."No." <> O365ItemBasketPart."Item No.".Value do
-            O365ItemBasketPart.Next;
+            O365ItemBasketPart.Next();
         O365ItemBasketPart.AddToBasket.Invoke;
 
         O365ItemBasketPart.First;
         while Item2."No." <> O365ItemBasketPart."Item No.".Value do
-            O365ItemBasketPart.Next;
+            O365ItemBasketPart.Next();
         // Create net quantity of 4
         O365ItemBasketPart.ReduceBasket.Invoke; // Already 0, so should stay at zero
         for i := 1 to 5 do
             O365ItemBasketPart.AddToBasket.Invoke;
         O365ItemBasketPart.ReduceBasket.Invoke;
-        O365ItemBasketPart.Close;
+        O365ItemBasketPart.Close();
     end;
 
     [ConfirmHandler]
@@ -230,4 +231,4 @@ codeunit 138901 "O365 Test Item Selection P2124"
         Assert.Fail('No notification should be thrown.');
     end;
 }
-
+#endif

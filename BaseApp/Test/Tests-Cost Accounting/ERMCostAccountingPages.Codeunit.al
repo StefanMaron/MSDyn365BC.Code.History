@@ -396,7 +396,7 @@
         CostBudgetPerPeriodPage.OpenEdit();
         SetFieldsOnCostBudgetPerPeriodPage(CostBudgetPerPeriodPage, Format("Analysis Amount Type"::"Net Change"), Format("Analysis Period Type"::Day), '', '', '');
 
-        ExpectedDateFilter := Format(CalcDate('<11D>', WorkDate));  // 12 matrix columns
+        ExpectedDateFilter := Format(CalcDate('<11D>', WorkDate()));  // 12 matrix columns
         VerifyFiltersOnCostBudgetPerPeriodMatrixPage(CostBudgetPerPeriodPage, ExpectedDateFilter);
 
         CostBudgetPerPeriodPage.Close();
@@ -415,7 +415,7 @@
         SetFieldsOnCostBudgetPerPeriodPage(
           CostBudgetPerPeriodPage, Format("Analysis Amount Type"::"Balance at Date"), Format("Analysis Period Type"::Day), '', '', '');
 
-        VerifyFiltersOnCostBudgetPerPeriodMatrixPage(CostBudgetPerPeriodPage, StrSubstNo('''''..%1', CalcDate('<11D>', WorkDate))); // 12 matrix columns
+        VerifyFiltersOnCostBudgetPerPeriodMatrixPage(CostBudgetPerPeriodPage, StrSubstNo('''''..%1', CalcDate('<11D>', WorkDate()))); // 12 matrix columns
 
         CostBudgetPerPeriodPage.OK.Invoke;
     end;
@@ -502,7 +502,7 @@
         // Verify:
         VerifyCostBudgetEntry(
           CostBudgetName.Name, CostCenter.Code, '', CostBudgetPerPeriodPage.MatrixForm."No.".Value,
-          CalcDate(StrSubstNo('<%1 D>', ColumnNo - 1), WorkDate), Amount - PrevAmount);
+          CalcDate(StrSubstNo('<%1 D>', ColumnNo - 1), WorkDate()), Amount - PrevAmount);
 
         // Tear-down
         CostBudgetPerPeriodPage.Close();
@@ -652,7 +652,7 @@
         CostBudgetByCostObjectPage.NextSet.Invoke;
         // verify that the current set is the next one (check just 1 column)
         VerifyCostBudgetByCostObjectCaptionOffset(CostBudgetByCostObjectPage, 12, CostObject);
-        CostObject.Next;
+        CostObject.Next();
         // verify the full set
         for i := 2 to 12 do begin
             VerifyCostBudgetByCostObjectCaption(CostBudgetByCostObjectPage, i, CostObject.Code);
@@ -723,7 +723,7 @@
         CostBudgetByCostObjectPage.NextColumn.Invoke;
         // verify that the current set is the next one (check just 1 column)
         VerifyCostBudgetByCostObjectCaptionOffset(CostBudgetByCostObjectPage, 1, CostObject);
-        CostObject.Next;
+        CostObject.Next();
         // verify the full set
         for i := 2 to 12 do begin
             VerifyCostBudgetByCostObjectCaption(CostBudgetByCostObjectPage, i, CostObject.Code);
@@ -744,7 +744,7 @@
         CostBudgetByCostObjectPage.OpenEdit();
         SetFieldsOnCostBudgetByCostObjectPage(CostBudgetByCostObjectPage, Format("Analysis Amount Type"::"Net Change"), Format("Analysis Period Type"::Day), '');
 
-        Assert.AreEqual(Format(WorkDate), CostBudgetByCostObjectPage.FILTER.GetFilter("Date Filter"), DateFilterError);
+        Assert.AreEqual(Format(WorkDate()), CostBudgetByCostObjectPage.FILTER.GetFilter("Date Filter"), DateFilterError);
         CostBudgetByCostObjectPage.Close();
     end;
 
@@ -969,7 +969,7 @@
         CostBudgetByCostCenterPage.NextSet.Invoke;
         // verify that the current set is the next one (check just 1 column)
         VerifyCostBudgetByCostCenterCaptionOffset(CostBudgetByCostCenterPage, 12, CostCenter);
-        CostCenter.Next;
+        CostCenter.Next();
         // verify the full set
         for i := 2 to 12 do begin
             VerifyCostBudgetByCostCenterCaption(CostBudgetByCostCenterPage, i, CostCenter.Code);
@@ -1037,7 +1037,7 @@
         CostBudgetByCostCenterPage.NextColumn.Invoke;
         // verify that the current set is the next one (check just 1 column)
         VerifyCostBudgetByCostCenterCaptionOffset(CostBudgetByCostCenterPage, 1, CostCenter);
-        CostCenter.Next;
+        CostCenter.Next();
         // verify the full set
         for i := 2 to 12 do begin
             VerifyCostBudgetByCostCenterCaption(CostBudgetByCostCenterPage, i, CostCenter.Code);
@@ -1058,7 +1058,7 @@
         CostBudgetByCostCenterPage.OpenEdit();
         SetFieldsOnCostBudgetByCostCenterPage(CostBudgetByCostCenterPage, Format("Analysis Amount Type"::"Net Change"), Format("Analysis Period Type"::Day), '');
 
-        Assert.AreEqual(Format(WorkDate), CostBudgetByCostCenterPage.FILTER.GetFilter("Date Filter"), DateFilterError);
+        Assert.AreEqual(Format(WorkDate()), CostBudgetByCostCenterPage.FILTER.GetFilter("Date Filter"), DateFilterError);
         CostBudgetByCostCenterPage.Close();
     end;
 
@@ -1702,13 +1702,13 @@
         LibraryCostAccounting.GetAllCostTypes(CostType);
 
         // Pre-Setup
-        CostType.SetFilter("Date Filter", '%1', WorkDate);
+        CostType.SetFilter("Date Filter", '%1', WorkDate());
         CostType.CalcFields("Balance at Date");
         SelectedRoundingFactor := "Analysis Rounding Factor".FromInteger(LibraryRandom.RandInt(4) - 1);
 
         // Exercise
         CostTypeBalance.OpenEdit();
-        CostTypeBalance.FILTER.SetFilter("Date Filter", Format(WorkDate));
+        CostTypeBalance.FILTER.SetFilter("Date Filter", Format(WorkDate()));
         UpdateCostTypeBalanceFilters(
             CostTypeBalance, '', '', "Analysis Period Type"::Day, "Analysis Amount Type"::"Balance at Date", SelectedRoundingFactor);
 
@@ -1761,8 +1761,8 @@
         // Verify: Verify the Expected Amount with the column value of matrix page.
         Assert.AreEqual(Format(ExpectedAmount, 0, '<Precision,2><Standard Format,1>'), CostBudgetAmount,
           StrSubstNo(
-            CostBudgetAmountError, CostType.TableCaption, CostType."No.", CostBudgetPerPeriodPage.MatrixForm.Column1.Caption,
-            CostBudgetEntry.TableCaption, CostBudgetEntry."Entry No."));
+            CostBudgetAmountError, CostType.TableCaption(), CostType."No.", CostBudgetPerPeriodPage.MatrixForm.Column1.Caption,
+            CostBudgetEntry.TableCaption(), CostBudgetEntry."Entry No."));
 
         // Tear Down.
         CostBudgetPerPeriodPage.Close();
@@ -1806,8 +1806,8 @@
         // Verify: Verify the Expected Amount with the column value of matrix page.
         Assert.AreEqual(Format(ExpectedAmount, 0, '<Precision,2><Standard Format,1>'), CostBudgetAmount,
           StrSubstNo(
-            CostBudgetAmountError, CostType.TableCaption, CostType."No.", CostBudgetPerPeriodPage.MatrixForm.Column1.Caption,
-            CostBudgetEntry.TableCaption, CostBudgetEntry."Entry No."));
+            CostBudgetAmountError, CostType.TableCaption(), CostType."No.", CostBudgetPerPeriodPage.MatrixForm.Column1.Caption,
+            CostBudgetEntry.TableCaption(), CostBudgetEntry."Entry No."));
 
         // Tear Down.
         CostBudgetPerPeriodPage.Close();
@@ -1984,9 +1984,9 @@
         CostJournalPage.CostJnlBatchName.SetValue(CostJournalBatch.Name);
 
         // Verify: Verify that OnValidate of CostJnlBatchName field on Cost Journal Page works correctly."
-        while CostJournalPage.Next do
+        while CostJournalPage.Next() do
             i := i + 1;
-        Assert.AreEqual(1, i, StrSubstNo(CostJnlLineError, CostJournalLine.TableCaption));
+        Assert.AreEqual(1, i, StrSubstNo(CostJnlLineError, CostJournalLine.TableCaption()));
 
         // Tear Down.
         CostJournalPage.Close();
@@ -2113,7 +2113,7 @@
         LibraryLowerPermissions.SetCostAccountingEdit();
         // Exercise: Posting the Cost Journal Line and setting filters on Cost Type Balance Page.
         ColoumnNo := LibraryRandom.RandInt(11);
-        CostJournaLinePostingDate := CalcDate(StrSubstNo('<%1D>', ColoumnNo), WorkDate);
+        CostJournaLinePostingDate := CalcDate(StrSubstNo('<%1D>', ColoumnNo), WorkDate());
         CostJournalLineAmount := PostCostJournalLine(CostType."No.", CostCenter.Code, '', CostJournaLinePostingDate);
         CostTypeBalanceAmount :=
           OpenCostTypeBalancePage(
@@ -2123,7 +2123,7 @@
         // Verify: Verify Posted Amount with the value in the Matrix form.
         Assert.AreEqual(
           Format(CostJournalLineAmount, 0, '<Precision,2><Standard Format,1>'), CostTypeBalanceAmount,
-          StrSubstNo(CostJournalAmountError, CostJournalLine.TableCaption, CostEntry.TableCaption));
+          StrSubstNo(CostJournalAmountError, CostJournalLine.TableCaption(), CostEntry.TableCaption()));
 
         // Tear Down.
         CostTypeBalancePage.Close();
@@ -2153,7 +2153,7 @@
         LibraryLowerPermissions.SetCostAccountingEdit();
         // Exercise: Posting the Cost Journal Line and setting filters on Cost Type Balance Page.
         ColoumnNo := LibraryRandom.RandInt(11);
-        CostJournaLinePostingDate := CalcDate(StrSubstNo('<%1D>', ColoumnNo), WorkDate);
+        CostJournaLinePostingDate := CalcDate(StrSubstNo('<%1D>', ColoumnNo), WorkDate());
         CostJournalLineAmount := PostCostJournalLine(CostType."No.", '', CostObject.Code, CostJournaLinePostingDate);
         CostTypeBalanceAmount :=
           OpenCostTypeBalancePage(
@@ -2163,7 +2163,7 @@
         // Verify: Verify Posted Amount with the value in the Matrix form.
         Assert.AreEqual(
           Format(CostJournalLineAmount, 0, '<Precision,2><Standard Format,1>'), CostTypeBalanceAmount,
-          StrSubstNo(CostJournalAmountError, CostJournalLine.TableCaption, CostEntry.TableCaption));
+          StrSubstNo(CostJournalAmountError, CostJournalLine.TableCaption(), CostEntry.TableCaption()));
 
         // Tear Down.
         CostTypeBalancePage.Close();
@@ -2188,7 +2188,7 @@
         SetFieldsOnCostTypeBalancePage(CostTypeBalancePage, Format("Analysis Period Type"::Week), Format("Analysis Amount Type"::"Balance at Date"), '', '');
 
         // Verify: To Verify value of each column with respect to the ViewBy week filter.
-        ActualDate := WorkDate;
+        ActualDate := WorkDate();
         for i := 1 to 12 do begin
             VerifyFiltersOnCostTypeBalanceByViewMatrixPage(CostTypeBalancePage, "Analysis Period Type"::Week, ActualDate, i);
             ActualDate := CalcDate('<1W>', ActualDate);
@@ -2217,7 +2217,7 @@
         SetFieldsOnCostTypeBalancePage(CostTypeBalancePage, Format("Analysis Period Type"::Month), Format("Analysis Amount Type"::"Balance at Date"), '', '');
 
         // Verify: To Verify value of each column with respect to the ViewBy Month filter.
-        ActualDate := WorkDate;
+        ActualDate := WorkDate();
         for i := 1 to 12 do begin
             VerifyFiltersOnCostTypeBalanceByViewMatrixPage(CostTypeBalancePage, "Analysis Period Type"::Month, ActualDate, i);
             ActualDate := CalcDate('<1M>', ActualDate);
@@ -2246,7 +2246,7 @@
         SetFieldsOnCostTypeBalancePage(CostTypeBalancePage, Format("Analysis Period Type"::Year), Format("Analysis Amount Type"::"Balance at Date"), '', '');
 
         // Verify: To Verify value of each column with respect to the ViewBy Year filter.
-        ActualDate := WorkDate;
+        ActualDate := WorkDate();
         for i := 1 to 12 do begin
             VerifyFiltersOnCostTypeBalanceByViewMatrixPage(CostTypeBalancePage, "Analysis Period Type"::Year, ActualDate, i);
             ActualDate := CalcDate('<1Y>', ActualDate);
@@ -3153,7 +3153,7 @@
     begin
         FindCostJournalBatch(CostJournalBatch);
         LibraryCostAccounting.CreateCostJournalLineBasic(
-          CostJournalLine, CostJournalBatch."Journal Template Name", CostJournalBatch.Name, WorkDate, CostTypeNo, BalCostTypeNo);
+          CostJournalLine, CostJournalBatch."Journal Template Name", CostJournalBatch.Name, WorkDate(), CostTypeNo, BalCostTypeNo);
         Amount := CostJournalLine.Amount;
         LibraryCostAccounting.PostCostJournalLine(CostJournalLine);
     end;
@@ -3364,7 +3364,7 @@
 
         // Exercise
         CostTypeBalance.OpenEdit();
-        CostTypeBalance.FILTER.SetFilter("Date Filter", Format(WorkDate));
+        CostTypeBalance.FILTER.SetFilter("Date Filter", Format(WorkDate()));
         UpdateCostTypeBalanceFilters(CostTypeBalance, '', '', "Analysis Period Type"::Day, AmountType, "Analysis Rounding Factor"::None);
 
         // Verify
@@ -3508,8 +3508,8 @@
         CostBudgetAmount := GetColumnAmountOnCostBudgetPerPeriodChange(CostBudgetPerPeriodPage, CostBudgetEntry."Cost Type No.");
         Assert.AreEqual(Amount, CostBudgetAmount,
           StrSubstNo(
-            CostBudgetAmountError, CostType.TableCaption, CostBudgetEntry."Cost Type No.",
-            CostBudgetPerPeriodPage.MatrixForm.Column1.Caption, CostBudgetEntry.TableCaption, CostBudgetEntry."Entry No."));
+            CostBudgetAmountError, CostType.TableCaption(), CostBudgetEntry."Cost Type No.",
+            CostBudgetPerPeriodPage.MatrixForm.Column1.Caption, CostBudgetEntry.TableCaption(), CostBudgetEntry."Entry No."));
     end;
 
     local procedure VerifyCostJournalLineWithoutBalCostType(CostJournalPage: TestPage "Cost Journal")
@@ -3517,7 +3517,7 @@
         CostType: Record "Cost Type";
     begin
         CostType.Get(CostJournalPage."Cost Type No.");
-        CostJournalPage.Next;
+        CostJournalPage.Next();
         CostJournalPage.Previous;
         Assert.AreEqual(
           WorkDate, CostJournalPage."Posting Date".AsDate, StrSubstNo(PostingDateError, CostJournalPage."Posting Date".Caption));
@@ -3535,7 +3535,7 @@
         CostType: Record "Cost Type";
     begin
         CostType.Get(CostJournalPage."Cost Type No.");
-        CostJournalPage.Next;
+        CostJournalPage.Next();
         CostJournalPage.Previous;
         Assert.AreEqual(
           WorkDate, CostJournalPage."Posting Date".AsDate, StrSubstNo(PostingDateError, CostJournalPage."Posting Date".Caption));
@@ -3805,7 +3805,7 @@
                 ToCostCenter.Init();
                 ToCostCenter := FromCostCenter;
                 ToCostCenter.Insert();
-            until FromCostCenter.Next = 0;
+            until FromCostCenter.Next() = 0;
     end;
 
     local procedure CopyCostObjects(var FromCostObject: Record "Cost Object"; var ToCostObject: Record "Cost Object")
@@ -3816,7 +3816,7 @@
                 ToCostObject.Init();
                 ToCostObject := FromCostObject;
                 ToCostObject.Insert();
-            until FromCostObject.Next = 0;
+            until FromCostObject.Next() = 0;
     end;
 
     [ConfirmHandler]
@@ -3889,7 +3889,7 @@
             ActionFilter::Verify:
                 begin
                     CostBudgetEntries."Last Modified By User".AssertEquals(UpperCase(UserId));
-                    CostBudgetEntries.Date.AssertEquals(WorkDate);
+                    CostBudgetEntries.Date.AssertEquals(WorkDate());
                     CostBudgetEntries."Cost Type No.".AssertEquals(CostTypeNo);
                     CostBudgetEntries."Cost Center Code".AssertEquals(CostCenterFilter);
                     CostBudgetEntries."Cost Object Code".AssertEquals(CostObjectFilter);

@@ -1,5 +1,4 @@
-﻿#if not CLEAN18
-codeunit 415 "Release Purchase Document"
+﻿codeunit 415 "Release Purchase Document"
 {
     TableNo = "Purchase Header";
     Permissions = TableData "Purchase Header" = rm,
@@ -8,7 +7,7 @@ codeunit 415 "Release Purchase Document"
     trigger OnRun()
     begin
         PurchaseHeader.Copy(Rec);
-        Code;
+        Code();
         Rec := PurchaseHeader;
     end;
 
@@ -44,7 +43,7 @@ codeunit 415 "Release Purchase Document"
                 exit;
 
             if not (PreviewMode or SkipCheckReleaseRestrictions) then
-                CheckPurchaseReleaseRestrictions;
+                CheckPurchaseReleaseRestrictions();
 
             TestField("Buy-from Vendor No.");
 
@@ -53,7 +52,6 @@ codeunit 415 "Release Purchase Document"
             if IsHandled then
                 exit;
 
-            InvtSetup.Get();
             CheckPurchLines(PurchLine);
 
             OnCodeOnAfterCheck(PurchaseHeader, PurchLine, LinesWereModified);
@@ -129,8 +127,7 @@ codeunit 415 "Release Purchase Document"
 
     local procedure CheckMandatoryFields(var PurchaseLine: Record "Purchase Line")
     var
-        GLSetup: Record "General Ledger Setup";
-        UserSetupAdvManagement: Codeunit "User Setup Adv. Management";
+        Item: Record "Item";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -138,7 +135,6 @@ codeunit 415 "Release Purchase Document"
         if IsHandled then
             exit;
 
-        GLSetup.Get(); // NAVCZ
         InvtSetup.Get();
         PurchaseLine.SetRange(Type, "Purchase Line Type"::Item);
         if PurchaseLine.FindSet() then
@@ -150,18 +146,9 @@ codeunit 415 "Release Purchase Document"
                         if not IsHandled then
                             PurchaseLine.TestField("Location Code");
                     end;
-                // NAVCZ
-                if GLSetup."User Checks Allowed" then
-                    if PurchaseLine.Type = "Purchase Line Type"::Item then begin
-                        UserSetupAdvManagement.SetItem(PurchaseLine."No.");
-                        case true of
-                            PurchaseLine.Quantity < 0:
-                                UserSetupAdvManagement.CheckReleasLocQuantityDecrease(PurchaseLine."Location Code");
-                            PurchaseLine.Quantity > 0:
-                                UserSetupAdvManagement.CheckReleasLocQuantityIncrease(PurchaseLine."Location Code");
-                        end;
-                    end;
-                // NAVCZ
+                if Item.Get(PurchaseLine."No.") then
+                    if Item.IsVariantMandatory() then
+                        PurchaseLine.TestField("Variant Code");
             until PurchaseLine.Next() = 0;
         PurchaseLine.SetFilter(Type, '>0');
     end;
@@ -213,9 +200,9 @@ codeunit 415 "Release Purchase Document"
 
         with PurchHeader do
             if ("Document Type" = "Document Type"::Order) and PrepaymentMgt.TestPurchasePayment(PurchHeader) then begin
-                if TestStatusIsNotPendingPrepayment then begin
+                if TestStatusIsNotPendingPrepayment() then begin
                     Status := Status::"Pending Prepayment";
-                    Modify;
+                    Modify();
                     Commit();
                 end;
                 Error(Text005, "Document Type", "No.");
@@ -259,7 +246,7 @@ codeunit 415 "Release Purchase Document"
     begin
         PreviewMode := Preview;
         PurchaseHeader.Copy(PurchHdr);
-        LinesWereModified := Code;
+        LinesWereModified := Code();
         PurchHdr := PurchaseHeader;
     end;
 
@@ -397,4 +384,3 @@ codeunit 415 "Release Purchase Document"
     end;
 }
 
-#endif

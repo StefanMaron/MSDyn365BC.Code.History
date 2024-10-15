@@ -577,16 +577,17 @@ table 5991 "Service Shipment Line"
     }
 
     var
-        Text000: Label 'Shipment No. %1:';
-        Text001: Label 'The program cannot find this Service line.';
         Currency: Record Currency;
         DimMgt: Codeunit DimensionManagement;
         CurrencyRead: Boolean;
 
+        Text000: Label 'Shipment No. %1:';
+        Text001: Label 'The program cannot find this Service line.';
+
     procedure ShowDimensions()
     begin
         DimMgt.ShowDimensionSet("Dimension Set ID",
-          StrSubstNo('%1 %2 %3', TableCaption, "Document No.", "Line No."));
+          StrSubstNo('%1 %2 %3', TableCaption(), "Document No.", "Line No."));
     end;
 
     procedure ShowItemTrackingLines()
@@ -632,7 +633,7 @@ table 5991 "Service Shipment Line"
 
         OnBeforeInsertInvLineFromShptLineOnAfterInsertTextLine(ServiceLine, Rec, NextLineNo);
 
-        TransferOldExtLines.ClearLineNumbers;
+        TransferOldExtLines.ClearLineNumbers();
 
         repeat
             ExtTextLine := (TransferOldExtLines.GetNewLineNumber("Attached to Line No.") <> 0);
@@ -652,13 +653,12 @@ table 5991 "Service Shipment Line"
                           Round(
                             ServiceOrderLine."Unit Price" * (1 + ServiceOrderLine."VAT %" / 100),
                             Currency."Unit-Amount Rounding Precision");
-                end else begin
+                end else
                     if ServiceOrderHeader."Prices Including VAT" then
                         ServiceOrderLine."Unit Price" :=
                           Round(
                             ServiceOrderLine."Unit Price" / (1 + ServiceOrderLine."VAT %" / 100),
                             Currency."Unit-Amount Rounding Precision");
-                end;
             end else begin
                 ServiceOrderHeader.Init();
                 if ExtTextLine then begin
@@ -803,7 +803,7 @@ table 5991 "Service Shipment Line"
         if CurrencyCode <> '' then
             Currency.Get(CurrencyCode)
         else
-            Currency.InitRoundingPrecision;
+            Currency.InitRoundingPrecision();
         CurrencyRead := true;
     end;
 
@@ -854,3 +854,4 @@ table 5991 "Service Shipment Line"
     begin
     end;
 }
+

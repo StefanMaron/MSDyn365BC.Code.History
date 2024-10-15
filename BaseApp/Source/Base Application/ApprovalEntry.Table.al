@@ -248,7 +248,7 @@ table 454 "Approval Entry"
 
         if not RecRef.Get("Record ID to Approve") then
             exit;
-        RecRef.SetRecFilter;
+        RecRef.SetRecFilter();
         PageManagement.PageRun(RecRef);
     end;
 
@@ -278,9 +278,6 @@ table 454 "Approval Entry"
         SalesHeader: Record "Sales Header";
         PurchHeader: Record "Purchase Header";
         PaymentOrderHeader: Record "Payment Order Header";
-#if not CLEAN18
-        CreditHeader: Record "Credit Header";
-#endif
         SalesAdvanceLetterHeader: Record "Sales Advance Letter Header";
         PurchAdvanceLetterHeader: Record "Purch. Advance Letter Header";
         RecRef: RecordRef;
@@ -295,7 +292,7 @@ table 454 "Approval Entry"
         if not GetRecordToApprove(RecRef) then
             exit(RecNotExistTxt);
 
-        ChangeRecordDetails := GetChangeRecordDetails;
+        ChangeRecordDetails := GetChangeRecordDetails();
 
         case RecRef.Number of
             DATABASE::"Sales Header":
@@ -322,15 +319,6 @@ table 454 "Approval Entry"
                     exit(StrSubstNo('%1 ; %2: %3', PaymentOrderHeader."Bank Account Name",
                         PaymentOrderHeader.FieldCaption(Amount), PaymentOrderHeader.Amount));
                 end;
-#if not CLEAN18
-            DATABASE::"Credit Header":
-                begin
-                    RecRef.SetTable(CreditHeader);
-                    CreditHeader.CalcFields("Credit Balance (LCY)");
-                    exit(StrSubstNo('%1 ; %2: %3', CreditHeader."Company Name",
-                        CreditHeader.FieldCaption("Credit Balance (LCY)"), CreditHeader."Credit Balance (LCY)"));
-                end;
-#endif
             DATABASE::"Sales Advance Letter Header":
                 begin
                     RecRef.SetTable(SalesAdvanceLetterHeader);

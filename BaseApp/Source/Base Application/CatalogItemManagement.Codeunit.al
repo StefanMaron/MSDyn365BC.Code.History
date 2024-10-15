@@ -1,4 +1,3 @@
-﻿#if not CLEAN18
 codeunit 5703 "Catalog Item Management"
 {
 
@@ -7,14 +6,6 @@ codeunit 5703 "Catalog Item Management"
     end;
 
     var
-        Text000: Label 'Item %1 already exists.';
-        Text001: Label 'Item %1 is created.';
-        Text002: Label 'You cannot enter a catalog item on %1.', Comment = '%1=Sales Line document type';
-        Text003: Label 'Creating item card for catalog item\';
-        Text004: Label 'Manufacturer Code    #1####\';
-        Text005: Label 'Vendor               #2##################\';
-        Text006: Label 'Vendor Item          #3##################\';
-        Text007: Label 'Item No.             #4##################';
         NewItem: Record Item;
         ItemLedgEntry: Record "Item Ledger Entry";
         NonStock: Record "Nonstock Item";
@@ -26,6 +17,15 @@ codeunit 5703 "Catalog Item Management"
         ProdBOMLine: Record "Production BOM Line";
         ProdBOMHeader: Record "Production BOM Header";
         ProgWindow: Dialog;
+
+        Text000: Label 'Item %1 already exists.';
+        Text001: Label 'Item %1 is created.';
+        Text002: Label 'You cannot enter a catalog item on %1.', Comment = '%1=Sales Line document type';
+        Text003: Label 'Creating item card for catalog item\';
+        Text004: Label 'Manufacturer Code    #1####\';
+        Text005: Label 'Vendor               #2##################\';
+        Text006: Label 'Vendor Item          #3##################\';
+        Text007: Label 'Item No.             #4##################';
 
     procedure NonstockAutoItem(NonStock2: Record "Nonstock Item")
     var
@@ -368,7 +368,7 @@ codeunit 5703 "Catalog Item Management"
         LicensePermission.SetRange("Object Type", LicensePermission."Object Type"::TableData);
         LicensePermission.SetRange("Object Number", TableID);
         LicensePermission.SetFilter("Insert Permission", '<>%1', LicensePermission."Insert Permission"::" ");
-        exit(LicensePermission.FindFirst);
+        exit(LicensePermission.FindFirst());
     end;
 
     local procedure DelNonStockItem(var Item: Record Item)
@@ -495,16 +495,6 @@ codeunit 5703 "Catalog Item Management"
         else begin
 
             NonstockItemSetupMy.Get();
-            // NAVCZ
-            if NonstockItemSetupMy."No. From No. Series" then begin
-                NewItem.Init();
-                if not NewItem.AssistEdit() then
-                    Error(Text002, NewItemNo);
-                NewItemNo := NewItem."No.";
-                Clear(NewItem);
-                exit;
-            end;
-            // NAVCZ
             case NonstockItemSetupMy."No. Format" of
                 NonstockItemSetupMy."No. Format"::"Vendor Item No.":
                     NewItemNo := NonstockItem."Vendor Item No.";
@@ -514,32 +504,30 @@ codeunit 5703 "Catalog Item Management"
                             Evaluate(NewItemNo, NonstockItem."Manufacturer Code" + NonstockItem."Vendor Item No.")
                         else
                             Evaluate(NewItemNo, NonstockItem."Manufacturer Code" + NonstockItem."Entry No.");
-                    end else begin
+                    end else
                         if Length1 + Length2 < 20 then
                             Evaluate(
-                            NewItemNo,
-                            NonstockItem."Manufacturer Code" + NonstockItemSetupMy."No. Format Separator" + NonstockItem."Vendor Item No.")
+                              NewItemNo,
+                              NonstockItem."Manufacturer Code" + NonstockItemSetupMy."No. Format Separator" + NonstockItem."Vendor Item No.")
                         else
                             Evaluate(
-                            NewItemNo,
-                            NonstockItem."Manufacturer Code" + NonstockItemSetupMy."No. Format Separator" + NonstockItem."Entry No.");
-                    end;
+                              NewItemNo,
+                              NonstockItem."Manufacturer Code" + NonstockItemSetupMy."No. Format Separator" + NonstockItem."Entry No.");
                 NonstockItemSetupMy."No. Format"::"Vendor Item No. + Mfr.":
                     if NonstockItemSetupMy."No. Format Separator" = '' then begin
                         if Length1 + Length2 <= 20 then
                             Evaluate(NewItemNo, NonstockItem."Vendor Item No." + NonstockItem."Manufacturer Code")
                         else
                             Evaluate(NewItemNo, NonstockItem."Entry No." + NonstockItem."Manufacturer Code");
-                    end else begin
+                    end else
                         if Length1 + Length2 < 20 then
                             Evaluate(
-                            NewItemNo,
-                            NonstockItem."Vendor Item No." + NonstockItemSetupMy."No. Format Separator" + NonstockItem."Manufacturer Code")
+                              NewItemNo,
+                              NonstockItem."Vendor Item No." + NonstockItemSetupMy."No. Format Separator" + NonstockItem."Manufacturer Code")
                         else
                             Evaluate(
-                            NewItemNo,
-                            NonstockItem."Entry No." + NonstockItemSetupMy."No. Format Separator" + NonstockItem."Manufacturer Code");
-                    end;
+                              NewItemNo,
+                              NonstockItem."Entry No." + NonstockItemSetupMy."No. Format Separator" + NonstockItem."Manufacturer Code");
                 NonstockItemSetupMy."No. Format"::"Entry No.":
                     NewItemNo := NonstockItem."Entry No.";
             end;
@@ -602,7 +590,7 @@ codeunit 5703 "Catalog Item Management"
         end;
     end;
 
-    local procedure CheckItemTemplateCode(NonstockItem: Record "Nonstock Item")
+    procedure CheckItemTemplateCode(NonstockItem: Record "Nonstock Item")
     var
         IsHandled: Boolean;
     begin
@@ -683,14 +671,6 @@ codeunit 5703 "Catalog Item Management"
     procedure OnBeforeCheckItemAlreadyExists(var NonstockItem: Record "Nonstock Item"; var IsHandled: Boolean)
     begin
     end;
-
-#if not CLEAN18
-    [Obsolete('Event will be removed with other functionality related to "old" templates. Replaced by OnAfterInitItemFromTemplate()', '18.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeCreateNewItem(var Item: Record Item; ItemTemplate: Record "Item Template"; NonstockItem: Record "Nonstock Item")
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeDelNonStockItem(var Item: Record Item; var IsHandled: Boolean)
@@ -816,4 +796,3 @@ codeunit 5703 "Catalog Item Management"
     end;
 }
 
-#endif

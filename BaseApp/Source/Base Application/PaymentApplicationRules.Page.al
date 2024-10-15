@@ -1,11 +1,13 @@
-#if not CLEAN19
+#if not CLEAN21
 page 1252 "Payment Application Rules"
 {
     AdditionalSearchTerms = 'payment matching rules,automatic payment application';
+    ApplicationArea = Basic, Suite;
     Caption = 'Payment Application Rules';
     DelayedInsert = true;
-    PageType = List;
+    PageType = Worksheet;
     SourceTable = "Bank Pmt. Appl. Rule";
+    UsageCategory = Tasks;
 
     layout
     {
@@ -13,7 +15,7 @@ page 1252 "Payment Application Rules"
         {
             repeater(Rules)
             {
-                field("Match Confidence"; "Match Confidence")
+                field("Match Confidence"; Rec."Match Confidence")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies your confidence in the application rule that you defined by the values in the Related Party Matched, Doc. No./Ext. Doc. No. Matched, and Amount Incl. Tolerance Matched fields on the line in the Payment Application Rules window.';
@@ -23,29 +25,36 @@ page 1252 "Payment Application Rules"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the priority of the application rule in relation to other application rules that are defined as lines in the Payment Application Rules window. 1 represents the highest priority.';
                 }
-                field("Related Party Matched"; "Related Party Matched")
+                field("Related Party Matched"; Rec."Related Party Matched")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies how much information on the payment reconciliation journal line must match the open entry before the application rule will apply the payment to the open entry.';
                 }
-                field("Doc. No./Ext. Doc. No. Matched"; "Doc. No./Ext. Doc. No. Matched")
+                field("Doc. No./Ext. Doc. No. Matched"; Rec."Doc. No./Ext. Doc. No. Matched")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Document No./Ext. Document No. Matched';
                     ToolTip = 'Specifies if text on the payment reconciliation journal line must match with the value in the Document No. field or the External Document No. field on the open entry before the application rule will be used to automatically apply the payment to the open entry.';
                 }
-                field("Amount Incl. Tolerance Matched"; "Amount Incl. Tolerance Matched")
+                field("Amount Incl. Tolerance Matched"; Rec."Amount Incl. Tolerance Matched")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Number of Entries Within Amount Tolerance Found';
                     ToolTip = 'Specifies how many entries must match the amount including payment tolerance, before the application rule will be used to apply a payment to the open entry.';
                 }
-                field("Direct Debit Collect. Matched"; "Direct Debit Collect. Matched")
+                field("Direct Debit Collect. Matched"; Rec."Direct Debit Collect. Matched")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Direct Debit Collection Matched';
                     ToolTip = 'Specifies if the Transaction ID value on the payment reconciliation journal line must match with the value in the related Transaction ID field in the Direct Debit Collect. Entries window.';
                 }
+                field("Review Required"; Rec."Review Required")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Review Required';
+                    ToolTip = 'Specifies if bank statement lines matched with this rule will be shown as recommended for review.';
+                }
+
                 field("Apply Immediatelly"; Rec."Apply Immediatelly")
                 {
                     ApplicationArea = Basic, Suite;
@@ -53,7 +62,8 @@ page 1252 "Payment Application Rules"
                     ToolTip = 'Specifies whether to search for alternative ledger entries that this line can be applied to. If turned on, the value is applied to the first match and alternative ledger entries are not considered.';
                     Visible = ApplyAutomaticallyVisible;
                 }
-                field("Variable Symbol Matched"; "Variable Symbol Matched")
+#if not CLEAN19
+                field("Variable Symbol Matched"; Rec."Variable Symbol Matched")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the match rule for variable symbol';
@@ -62,7 +72,7 @@ page 1252 "Payment Application Rules"
                     ObsoleteTag = '19.0';
                     Visible = false;
                 }
-                field("Specific Symbol Matched"; "Specific Symbol Matched")
+                field("Specific Symbol Matched"; Rec."Specific Symbol Matched")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the match rule for specific symbol';
@@ -71,7 +81,7 @@ page 1252 "Payment Application Rules"
                     ObsoleteTag = '19.0';
                     Visible = false;
                 }
-                field("Constant Symbol Matched"; "Constant Symbol Matched")
+                field("Constant Symbol Matched"; Rec."Constant Symbol Matched")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the match rule for constant symbol';
@@ -80,7 +90,7 @@ page 1252 "Payment Application Rules"
                     ObsoleteTag = '19.0';
                     Visible = false;
                 }
-                field("Bank Transaction Type"; "Bank Transaction Type")
+                field("Bank Transaction Type"; Rec."Bank Transaction Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies bank transaction type for payment application rules ';
@@ -89,12 +99,7 @@ page 1252 "Payment Application Rules"
                     ObsoleteTag = '19.0';
                     Visible = false;
                 }
-                field("Review Required"; "Review Required")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Review Required';
-                    ToolTip = 'Specifies if bank statement lines matched with this rule will be shown as recommended for review.';
-                }
+#endif
             }
         }
     }
@@ -103,15 +108,15 @@ page 1252 "Payment Application Rules"
     {
         area(creation)
         {
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Merge to W1 where the area is called Processing';
+            ObsoleteTag = '21.0';
+
             action(RestoreDefaultRules)
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'Restore Default Rules';
                 Image = Restore;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'Delete the application rules and replace them with the default rules, which control whether payments are automatically applied to open ledger entries.';
 
                 trigger OnAction()
@@ -120,7 +125,7 @@ page 1252 "Payment Application Rules"
                         exit;
 
                     DeleteAll();
-                    InsertDefaultMatchingRules;
+                    InsertDefaultMatchingRules();
                 end;
             }
 
@@ -129,12 +134,19 @@ page 1252 "Payment Application Rules"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Advanced Settings';
                 Image = Setup;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'Opens advanced settings for configuring payment application matching.';
 
+#if CLEAN19
+                trigger OnAction()
+                var
+                    BankPmtApplSettings: Record "Bank Pmt. Appl. Settings";
+                    PaymentApplicationSettings: Page "Payment Application Settings";
+                begin
+                    BankPmtApplSettings.SetRange(PrimaryKey, GetDefaultCode());
+                    PaymentApplicationSettings.SetTableView(BankPmtApplSettings);
+                    PaymentApplicationSettings.Run();
+                end;
+#else
                 trigger OnAction()
                 var
                     PaymentApplicationSettings: Page "Payment Application Settings";
@@ -142,6 +154,21 @@ page 1252 "Payment Application Rules"
                     PaymentApplicationSettings.SetBankPmtApplRuleCode(Rec."Bank Pmt. Appl. Rule Code");
                     PaymentApplicationSettings.Run();
                 end;
+#endif
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(RestoreDefaultRules_Promoted; RestoreDefaultRules)
+                {
+                }
+                actionref(AdvancedSettings_Promoted; AdvancedSettings)
+                {
+                }
             }
         }
     }
@@ -152,8 +179,12 @@ page 1252 "Payment Application Rules"
     begin
         SetCurrentKey(Score);
         Ascending(false);
-        
+#if CLEAN19
+        SetRange("Bank Pmt. Appl. Rule Code", GetDefaultCode());
+        BankPmtApplSettings.GetOrInsert();
+#else
         BankPmtApplSettings.GetOrInsert(Rec."Bank Pmt. Appl. Rule Code");
+#endif
         ApplyAutomaticallyVisible := BankPmtApplSettings."Enable Apply Immediatelly";
     end;
 

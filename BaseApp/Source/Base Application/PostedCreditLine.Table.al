@@ -1,22 +1,15 @@
 table 31058 "Posted Credit Line"
 {
     Caption = 'Posted Credit Line';
-#if CLEAN18
     ObsoleteState = Removed;
-#else
-    ObsoleteState = Pending;
-#endif
     ObsoleteReason = 'Moved to Compensation Localization Pack for Czech.';
-    ObsoleteTag = '18.0';
+    ObsoleteTag = '21.0';
 
     fields
     {
         field(5; "Credit No."; Code[20])
         {
             Caption = 'Credit No.';
-#if not CLEAN18
-            TableRelation = "Posted Credit Header";
-#endif
         }
         field(10; "Line No."; Integer)
         {
@@ -193,7 +186,6 @@ table 31058 "Posted Credit Line"
     var
         DimMgt: Codeunit DimensionManagement;
     begin
-        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo(Text001Txt, TableCaption, "Credit No.", "Line No."));
+        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo(Text001Txt, TableCaption(), "Credit No.", "Line No."));
     end;
 }
-

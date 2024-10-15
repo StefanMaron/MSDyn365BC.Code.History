@@ -52,8 +52,9 @@ table 5928 "Service Status Priority Setup"
     }
 
     var
-        Text000: Label '%1 %2 is already used with %3 %4.\\Do you want to continue?';
         ServStatusPrioritySetup: Record "Service Status Priority Setup";
         RepairStatus: Record "Repair Status";
+
+        Text000: Label '%1 %2 is already used with %3 %4.\\Do you want to continue?';
 }
 

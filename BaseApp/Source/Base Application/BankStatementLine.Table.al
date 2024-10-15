@@ -22,7 +22,7 @@ table 11705 "Bank Statement Line"
             var
                 BankAccount: Record "Bank Account";
             begin
-                GetBankStmt;
+                GetBankStmt();
                 "Currency Code" := BankStmtHeader."Currency Code";
                 "Bank Statement Currency Code" := BankStmtHeader."Bank Statement Currency Code";
                 "Bank Statement Currency Factor" := BankStmtHeader."Bank Statement Currency Factor";
@@ -155,9 +155,6 @@ table 11705 "Bank Statement Line"
             Caption = 'Constant Symbol';
             CharAllowed = '09';
             Numeric = true;
-#if not CLEAN18
-            TableRelation = "Constant Symbol";
-#endif
         }
         field(10; "Specific Symbol"; Code[10])
         {
@@ -174,7 +171,7 @@ table 11705 "Bank Statement Line"
 
             trigger OnValidate()
             begin
-                GetBankStmt;
+                GetBankStmt();
                 if BankStmtHeader."Currency Code" <> '' then
                     "Amount (LCY)" :=
                       Round(CurrExchRate.ExchangeAmtFCYToLCY(BankStmtHeader."Document Date",
@@ -183,7 +180,7 @@ table 11705 "Bank Statement Line"
                     "Amount (LCY)" := Amount;
 
                 if "Bank Statement Currency Code" <> '' then begin
-                    GetOrderCurrency;
+                    GetOrderCurrency();
                     Currency2.TestField("Amount Rounding Precision");
                     "Amount (Bank Stat. Currency)" :=
                       Round(CurrExchRate.ExchangeAmtLCYToFCY(BankStmtHeader."Document Date",
@@ -204,7 +201,7 @@ table 11705 "Bank Statement Line"
 
             trigger OnValidate()
             begin
-                GetBankStmt;
+                GetBankStmt();
                 if BankStmtHeader."Currency Code" <> '' then begin
                     Currency.TestField("Amount Rounding Precision");
                     Amount :=
@@ -214,7 +211,7 @@ table 11705 "Bank Statement Line"
                     Amount := "Amount (LCY)";
 
                 if "Bank Statement Currency Code" <> '' then begin
-                    GetOrderCurrency;
+                    GetOrderCurrency();
                     Currency2.TestField("Amount Rounding Precision");
                     "Amount (Bank Stat. Currency)" :=
                       Round(CurrExchRate.ExchangeAmtLCYToFCY(BankStmtHeader."Document Date",
@@ -252,7 +249,7 @@ table 11705 "Bank Statement Line"
             var
                 CurrExchRate: Record "Currency Exchange Rate";
             begin
-                GetBankStmt;
+                GetBankStmt();
                 if "Bank Statement Currency Code" <> '' then
                     Validate("Bank Statement Currency Factor",
                       CurrExchRate.ExchangeRate(BankStmtHeader."Document Date", "Bank Statement Currency Code"))
@@ -272,11 +269,11 @@ table 11705 "Bank Statement Line"
 
             trigger OnValidate()
             begin
-                GetBankStmt;
+                GetBankStmt();
                 if "Bank Statement Currency Code" = '' then
                     "Amount (LCY)" := "Amount (Bank Stat. Currency)"
                 else begin
-                    GetOrderCurrency;
+                    GetOrderCurrency();
                     "Amount (LCY)" :=
                       Round(CurrExchRate.ExchangeAmtFCYToLCY(BankStmtHeader."Document Date",
                           "Bank Statement Currency Code", "Amount (Bank Stat. Currency)", "Bank Statement Currency Factor"));
@@ -284,7 +281,7 @@ table 11705 "Bank Statement Line"
 
                 if BankStmtHeader."Currency Code" <> '' then begin
                     Currency.TestField("Amount Rounding Precision");
-                    GetOrderCurrency;
+                    GetOrderCurrency();
                     Amount :=
                       Round(CurrExchRate.ExchangeAmtLCYToFCY(BankStmtHeader."Document Date",
                           BankStmtHeader."Currency Code", "Amount (LCY)", BankStmtHeader."Currency Factor"), Currency."Amount Rounding Precision")
@@ -362,7 +359,7 @@ table 11705 "Bank Statement Line"
         if "Bank Statement No." <> BankStmtHeader."No." then begin
             BankStmtHeader.Get("Bank Statement No.");
             if BankStmtHeader."Currency Code" = '' then
-                Currency.InitRoundingPrecision
+                Currency.InitRoundingPrecision()
             else begin
                 BankStmtHeader.TestField("Currency Factor");
                 Currency.Get(BankStmtHeader."Currency Code");
@@ -377,7 +374,7 @@ table 11705 "Bank Statement Line"
     begin
         if "Bank Statement Currency Code" <> Currency2.Code then
             if "Bank Statement Currency Code" = '' then
-                Currency2.InitRoundingPrecision
+                Currency2.InitRoundingPrecision()
             else begin
                 TestField("Bank Statement Currency Factor");
                 Currency2.Get("Bank Statement Currency Code");

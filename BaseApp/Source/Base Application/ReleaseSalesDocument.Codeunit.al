@@ -1,5 +1,4 @@
-﻿#if not CLEAN18
-codeunit 414 "Release Sales Document"
+﻿codeunit 414 "Release Sales Document"
 {
     TableNo = "Sales Header";
     Permissions = TableData "Sales Header" = rm,
@@ -8,7 +7,7 @@ codeunit 414 "Release Sales Document"
     trigger OnRun()
     begin
         SalesHeader.Copy(Rec);
-        Code;
+        Code();
         Rec := SalesHeader;
     end;
 
@@ -44,7 +43,7 @@ codeunit 414 "Release Sales Document"
             if IsHandled then
                 exit;
             if not (PreviewMode or SkipCheckReleaseRestrictions) then
-                CheckSalesReleaseRestrictions;
+                CheckSalesReleaseRestrictions();
 
             IsHandled := false;
             OnBeforeCheckCustomerCreated(SalesHeader, IsHandled);
@@ -144,6 +143,7 @@ codeunit 414 "Release Sales Document"
 
     local procedure CheckMandatoryFields(var SalesLine: Record "Sales Line")
     var
+        Item: Record "Item";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -162,6 +162,9 @@ codeunit 414 "Release Sales Document"
                         if not IsHandled then
                             SalesLine.TestField("Location Code");
                     end;
+                if Item.Get(SalesLine."No.") then
+                    if Item.IsVariantMandatory() then
+                        SalesLine.TestField("Variant Code");
                 OnCodeOnAfterSalesLineCheck(SalesLine);
             until SalesLine.Next() = 0;
         SalesLine.SetFilter(Type, '>0');
@@ -247,10 +250,10 @@ codeunit 414 "Release Sales Document"
 
         with SalesHeader do
             if ("Document Type" = "Document Type"::Order) and PrepaymentMgt.TestSalesPayment(SalesHeader) then begin
-                if TestStatusIsNotPendingPrepayment then begin
+                if TestStatusIsNotPendingPrepayment() then begin
                     Status := Status::"Pending Prepayment";
                     OnPerformManualCheckAndReleaseOnBeforeSalesHeaderModify(SalesHeader, PreviewMode);
-                    Modify;
+                    Modify();
                     Commit();
                 end;
                 Error(Text005, "Document Type", "No.");
@@ -337,7 +340,7 @@ codeunit 414 "Release Sales Document"
     begin
         PreviewMode := Preview;
         SalesHeader.Copy(SalesHdr);
-        LinesWereModified := Code;
+        LinesWereModified := Code();
         SalesHdr := SalesHeader;
     end;
 
@@ -526,4 +529,3 @@ codeunit 414 "Release Sales Document"
     end;
 }
 
-#endif

@@ -1,3 +1,4 @@
+﻿#if not CLEAN19
 codeunit 5611 "Calculate Normal Depreciation"
 {
     Permissions = TableData "FA Ledger Entry" = r,
@@ -8,19 +9,11 @@ codeunit 5611 "Calculate Normal Depreciation"
     end;
 
     var
-        Text000: Label 'Force No. of Days must only be specified if %1 %2 = %3.';
-        Text001: Label '%2 must not be 100 for %1.';
-        Text002: Label '%2 must be %3 if %4 %5 = %6 for %1.';
-        Text003: Label '%2 must not be later than %3 for %1.';
-        Text004: Label '%1 %2 must not be used together with the Half-Year Convention for %3.';
         FA: Record "Fixed Asset";
         FALedgEntry: Record "FA Ledger Entry";
         DeprBook: Record "Depreciation Book";
         FADeprBook: Record "FA Depreciation Book";
         DepreciationCalc: Codeunit "Depreciation Calculation";
-#if not CLEAN18
-        TempFALedgEntry3: Record "FA Ledger Entry" temporary;
-#endif
         DeprBookCode: Code[10];
         DaysInFiscalYear: Integer;
         EntryAmounts: array[4] of Decimal;
@@ -60,16 +53,17 @@ codeunit 5611 "Calculate Normal Depreciation"
         NewYearDate: Date;
         DeprInTwoFiscalYears: Boolean;
         TempDeprAmount: Decimal;
+        Year365Days: Boolean;
+
+        Text000: Label 'Force No. of Days must only be specified if %1 %2 = %3.';
+        Text001: Label '%2 must not be 100 for %1.';
+        Text002: Label '%2 must be %3 if %4 %5 = %6 for %1.';
+        Text003: Label '%2 must not be later than %3 for %1.';
+        Text004: Label '%1 %2 must not be used together with the Half-Year Convention for %3.';
         Text005: Label '%1 must not be used together with the Half-Year Convention for %2.';
         Text006: Label '%1 must be %2 or later for %3.';
         Text007: Label '%1 must not be used together with %2 for %3.';
         Text008: Label '%1 must not be used together with %2 = %3 for %4.';
-        Year365Days: Boolean;
-#if not CLEAN18
-        ProjValue: Boolean;
-        NoOfProjectedDays: Decimal;
-        AccountingPeriodErr: Label 'ENU=Accounting Period for %1 is missing.\Tax Depreciation for Fixed Asset %2 cannot be calculated correctly.\Create Accounting Periods for all life cycle of Fixed Asset %2 for correct Tax Depreciation calculation.', Comment = '@@@="%1 = date; %2 = number of fixed asset"';
-#endif
 
     procedure Calculate(var DeprAmount: Decimal; var NumberOfDays4: Integer; FANo: Code[20]; DeprBookCode2: Code[10]; UntilDate2: Date; EntryAmounts2: array[4] of Decimal; DateFromProjection2: Date; DaysInPeriod2: Integer)
     var
@@ -85,16 +79,7 @@ codeunit 5611 "Calculate Normal Depreciation"
         if IsHandled then
             exit;
 
-#if not CLEAN18
-        // NAVCZ
-        if ProjValue then begin
-            ClearAll;
-            ProjValue := true;
-        end else
-            // NAVCZ
-#endif
-            ClearAll;
-
+        ClearAll();
         DeprAmount := 0;
         NumberOfDays4 := 0;
         DeprBookCode := DeprBookCode2;
@@ -102,6 +87,8 @@ codeunit 5611 "Calculate Normal Depreciation"
         DeprBook.Get(DeprBookCode);
         if not FADeprBook.Get(FANo, DeprBookCode) then
             exit;
+        OnAfterGetDeprBooks(DeprBook, FADeprBook);
+
         UntilDate := UntilDate2;
         for i := 1 to 4 do
             EntryAmounts[i] := EntryAmounts2[i];
@@ -162,7 +149,7 @@ codeunit 5611 "Calculate Normal Depreciation"
                     if SkipOnZero then
                         DeprMethod := DeprMethod::"Below Zero";
 
-                DeprAmount := Sign * CalculateDeprAmount;
+                DeprAmount := Sign * CalculateDeprAmount();
 
                 IsHandled := false;
                 OnAfterCalcFinalDeprAmount(FANo, FADeprBook, DeprBook, Sign, BookValue, DeprAmount, IsHandled);
@@ -255,28 +242,19 @@ codeunit 5611 "Calculate Normal Depreciation"
                (DeprBook."Periodic Depr. Date Calc." = DeprBook."Periodic Depr. Date Calc."::"Last Entry")
             then begin
                 NumberOfDays2 := NumberOfDays;
-#if not CLEAN18
-                // NAVCZ
-                if (FADeprBook."Depreciation Group Code" <> '') or
-                   (FADeprBook."Summarize Depr. Entries From" <> '')
-                then
-                    Amount := CalcTaxAmount
-                else
-                    // NAVCZ
-#endif
                 if UseHalfYearConvention then
                     Amount := CalcHalfYearConventionDepr()
                 else
                     case DeprMethod of
                         DeprMethod::"Straight-Line":
-                            Amount := CalcSLAmount;
+                            Amount := CalcSLAmount();
                         DeprMethod::"Declining-Balance 1":
-                            Amount := CalcDB1Amount;
+                            Amount := CalcDB1Amount();
                         DeprMethod::"Declining-Balance 2":
-                            Amount := CalcDB2Amount;
+                            Amount := CalcDB2Amount();
                         DeprMethod::"DB1/SL",
                         DeprMethod::"DB2/SL":
-                            Amount := CalcDBSLAmount;
+                            Amount := CalcDBSLAmount();
                         DeprMethod::Manual:
                             Amount := 0;
                         DeprMethod::"User-Defined":
@@ -311,15 +289,6 @@ codeunit 5611 "Calculate Normal Depreciation"
                          BookValue, DeprBasis, SalvageValue, MinusBookValue) <> 1
                     then
                         exit(0);
-#if not CLEAN18
-                    // NAVCZ
-                    if (FADeprBook."Depreciation Group Code" <> '') or
-                       (FADeprBook."Summarize Depr. Entries From" <> '')
-                    then
-                        Amount := Amount + CalcTaxAmount
-                    else
-                        // NAVCZ
-#endif
                     case DeprMethod of
                         DeprMethod::"Straight-Line":
                             Amount := Amount + CalcSLAmount();
@@ -428,12 +397,6 @@ codeunit 5611 "Calculate Normal Depreciation"
               (DeprYears * DaysInFiscalYear) -
               DepreciationCalc.DeprDays(
                 DeprStartingDate, DepreciationCalc.Yesterday(FirstDeprDate, Year365Days), Year365Days);
-#if not CLEAN18
-            // NAVCZ
-            if not FADeprBook."Keep Depr. Ending Date" then
-                RemainingLife += CalcDeprBreakDays(0D, 0D, true);
-            // NAVCZ
-#endif
             if RemainingLife < 1 then begin
                 Result := -BookValue;
                 OnCalcSLAmountOnAfterCalcResultForRemainingLifeExpired(FA, FADeprBook, BookValue, Result);
@@ -487,7 +450,7 @@ codeunit 5611 "Calculate Normal Depreciation"
         DBAmount: Decimal;
     begin
         if DeprMethod = DeprMethod::"DB1/SL" then
-            DBAmount := CalcDB1Amount
+            DBAmount := CalcDB1Amount()
         else
             DBAmount := CalcDB2Amount();
         if FADeprBook."Use DB% First Fiscal Year" then
@@ -533,17 +496,10 @@ codeunit 5611 "Calculate Normal Depreciation"
     begin
         with FADeprBook do begin
             TestField("Depreciation Starting Date");
-            if "Depreciation Method" = "Depreciation Method"::"User-Defined" then
-#if not CLEAN18
-                // NAVCZ
-                if "Depreciation Group Code" = '' then begin
-                    // NAVCZ
-#endif
-                    TestField("Depreciation Table Code");
-                    TestField("First User-Defined Depr. Date");
-#if not CLEAN18
-                end;
-#endif
+            if "Depreciation Method" = "Depreciation Method"::"User-Defined" then begin
+                TestField("Depreciation Table Code");
+                TestField("First User-Defined Depr. Date");
+            end;
             case "Depreciation Method" of
                 "Depreciation Method"::"Declining-Balance 1",
               "Depreciation Method"::"Declining-Balance 2",
@@ -553,14 +509,7 @@ codeunit 5611 "Calculate Normal Depreciation"
                         Error(Text001, GetFAName(), FieldCaption("Declining-Balance %"));
             end;
             if (DeprBook."Periodic Depr. Date Calc." = DeprBook."Periodic Depr. Date Calc."::"Last Depr. Entry") and
-#if CLEAN18
                ("Depreciation Method" <> "Depreciation Method"::"Straight-Line")
-#else
-               ("Depreciation Method" <> "Depreciation Method"::"Straight-Line") and
-               // NAVCZ
-               ("Depreciation Group Code" = '')
-            // NAVCZ
-#endif
             then begin
                 "Depreciation Method" := "Depreciation Method"::"Straight-Line";
                 Error(
@@ -568,7 +517,7 @@ codeunit 5611 "Calculate Normal Depreciation"
                   GetFAName(),
                   FieldCaption("Depreciation Method"),
                   "Depreciation Method",
-                  DeprBook.TableCaption,
+                  DeprBook.TableCaption(),
                   DeprBook.FieldCaption("Periodic Depr. Date Calc."),
                   DeprBook."Periodic Depr. Date Calc.");
             end;
@@ -739,11 +688,11 @@ codeunit 5611 "Calculate Normal Depreciation"
             BookValue := BookValue + DeprAmount;
             case DeprMethod of
                 DeprMethod::"Straight-Line":
-                    DeprAmount := DeprAmount + CalcSLAmount;
+                    DeprAmount := DeprAmount + CalcSLAmount();
                 DeprMethod::"Declining-Balance 1":
-                    DeprAmount := DeprAmount + CalcDB1Amount;
+                    DeprAmount := DeprAmount + CalcDB1Amount();
                 DeprMethod::"DB1/SL":
-                    DeprAmount := DeprAmount + CalcDBSLAmount;
+                    DeprAmount := DeprAmount + CalcDBSLAmount();
                 DeprMethod::"Country Specific":
                     ; // Reserved for implementation of country specific
             end;
@@ -783,382 +732,6 @@ codeunit 5611 "Calculate Normal Depreciation"
     begin
         DeprMethod := FADeprBook."Depreciation Method";
     end;
-
-#if not CLEAN18
-    [Obsolete('Moved to Fixed Asset Localization for Czech.', '18.0')]
-    [Scope('OnPrem')]
-    procedure CalcTaxAmount(): Decimal
-    var
-        DepGroup: Record "Depreciation Group";
-        TempFADepBook: Record "FA Depreciation Book";
-        FALeEntry: Record "FA Ledger Entry";
-        DateLastAppr: Date;
-        DateLastDepr: Date;
-        TaxDeprAmount: Decimal;
-        TempNoDays: Integer;
-        TempFaktor: Decimal;
-        TempToDate: Date;
-        TempFromDate: Date;
-        TempDepBasis: Decimal;
-        TempBookValue: Decimal;
-        CounterDepr: Integer;
-        RemainingLife: Decimal;
-        DepreciatedDays: Decimal;
-        Denominator: Decimal;
-    begin
-        // NAVCZ
-        if BookValue = 0 then
-            exit(0);
-        DateLastAppr := AcquisitionDate;
-        DateLastDepr := FADeprBook."Last Depreciation Date";
-        if DateLastDepr = 0D then
-            DateLastDepr := CalcDate('<-1Y>', CalcEndOfFiscalYear(AcquisitionDate));
-        TempNoDays := NumberOfDays;
-        TempToDate := DateLastDepr;
-
-        if TempNoDays < DaysInFiscalYear then
-            TempFaktor := TempNoDays / DaysInFiscalYear
-        else
-            TempFaktor := 1;
-
-        TempFADepBook.Get(FADeprBook."FA No.", FADeprBook."Depreciation Book Code");
-
-        FALeEntry.SetCurrentKey("FA No.", "Depreciation Book Code", "FA Posting Category", "FA Posting Type", "FA Posting Date");
-        FALeEntry.SetRange("FA Posting Category", FALeEntry."FA Posting Category"::" ");
-        FALeEntry.SetRange("FA No.", FADeprBook."FA No.");
-        FALeEntry.SetRange("Depreciation Book Code", FADeprBook."Depreciation Book Code");
-        FALeEntry.SetRange("FA Posting Type", FALeEntry."FA Posting Type"::Appreciation);
-
-        if DateFromProjection <> 0D then
-            TempFromDate := DateFromProjection
-        else
-            TempFromDate := TempToDate + 1;
-        if TempNoDays >= DaysInFiscalYear then begin
-            TempToDate := CalcEndOfFiscalYear(TempFromDate);
-        end else
-            TempToDate := UntilDate;
-
-        DepGroup.SetRange(Code, FADeprBook."Depreciation Group Code");
-        DepGroup.SetRange("Starting Date", 0D, TempFromDate);
-        if not DepGroup.FindLast() then
-            if FADeprBook."Summarize Depr. Entries From" = '' then
-                exit(0);
-
-        TempFADepBook.SetFilter("FA Posting Date Filter", '..%1', UntilDate);
-        TempFADepBook.CalcFields("Depreciable Basis", "Book Value", "Salvage Value");
-        if BookValue < TempFADepBook."Book Value" then
-            TempFADepBook."Book Value" := BookValue;
-        TempDepBasis := TempFADepBook."Depreciable Basis";
-        TempBookValue := TempFADepBook."Book Value" - TaxDeprAmount + TempFADepBook."Salvage Value";
-        if FADeprBook.Prorated then begin
-            TempFADepBook.SetRange("FA Posting Date Filter", CalcStartOfFiscalYear(UntilDate), UntilDate);
-            TempFADepBook.CalcFields(Depreciation);
-            TempBookValue := TempBookValue - TempFADepBook.Depreciation;
-        end;
-
-        FALeEntry.SetFilter("FA Posting Date", '..%1', UntilDate);
-        if FALeEntry.FindLast() then
-            DateLastAppr := FALeEntry."FA Posting Date";
-        FALeEntry.SetRange("FA Posting Date", CalcEndOfFiscalYear(AcquisitionDate) + 1, UntilDate);
-        if FALeEntry.FindFirst() then;
-
-        if FADeprBook."Summarize Depr. Entries From" <> '' then begin
-            TaxDeprAmount :=
-              CalcDepreciatedAmount(FADeprBook."FA No.", FADeprBook."Summarize Depr. Entries From", TempFromDate, UntilDate);
-            NumberOfDays2 :=
-              CalcDepreciatedDays(FADeprBook."FA No.", FADeprBook."Summarize Depr. Entries From", TempFromDate, UntilDate);
-            exit(-Round(TaxDeprAmount, 1, '>'));
-        end;
-        with DepGroup do
-            case "Depreciation Type" of
-                "Depreciation Type"::"Straight-line":
-                    if not IsNonZeroDeprecation(FADeprBook."FA No.", FADeprBook."Depreciation Book Code", TempFromDate) then
-                        TaxDeprAmount := TaxDeprAmount + TempDepBasis * "Straight First Year" / 100
-                    else begin
-                        if CalcEndOfFiscalYear(DateLastAppr) = CalcEndOfFiscalYear(AcquisitionDate) then
-                            TaxDeprAmount := TaxDeprAmount + TempDepBasis * "Straight Next Years" / 100
-                        else
-                            TaxDeprAmount := TaxDeprAmount + TempDepBasis * "Straight Appreciation" / 100;
-                    end;
-                "Depreciation Type"::"Declining-Balance":
-                    begin
-                        CounterDepr := CalcDepr(CalcEndOfFiscalYear(DateLastAppr), CalcEndOfFiscalYear(UntilDate), FALeEntry);
-                        if not IsNonZeroDeprecation(FADeprBook."FA No.", FADeprBook."Depreciation Book Code", TempFromDate) then begin
-                            TaxDeprAmount := TaxDeprAmount + TempDepBasis / "Declining First Year";
-                            if "Declining Depr. Increase %" <> 0 then
-                                TaxDeprAmount := TaxDeprAmount + (TempDepBasis * "Declining Depr. Increase %" / 100);
-                        end else begin
-                            TempFADepBook.CalcFields(Depreciation);
-                            if ProjValue then
-                                if CounterDepr <> 0 then begin
-                                    CalculateProjectedValues(0D, CalcStartOfFiscalYear(UntilDate) - 1);
-                                    TempBookValue := TempBookValue + TempFALedgEntry3.Amount;
-                                end;
-                            if CalcEndOfFiscalYear(DateLastAppr) = CalcEndOfFiscalYear(AcquisitionDate) then
-                              // NAVCZ
-                              begin
-                                Denominator := "Declining Next Years" - CounterDepr;
-                                if Denominator < 2 then
-                                    Denominator := 2;
-                                // NAVCZ
-                                TaxDeprAmount :=
-                                  // NAVCZ
-                                  TaxDeprAmount + (2 * TempBookValue / Denominator)
-                            end
-                            // NAVCZ
-                            else
-                                if CounterDepr = 0 then
-                                    TaxDeprAmount := TaxDeprAmount + 2 * TempBookValue / "Declining Appreciation"
-                                else
-                                  // NAVCZ
-                                  begin
-                                    Denominator := "Declining Appreciation" - CounterDepr;
-                                    if Denominator < 2 then
-                                        Denominator := 2;
-                                    // NAVCZ
-                                    TaxDeprAmount :=
-                                      // NAVCZ
-                                      TaxDeprAmount + (2 * TempBookValue / Denominator);
-                                end;
-                            // NAVCZ
-                        end;
-                    end;
-                "Depreciation Type"::"Straight-line Intangible":
-                    begin
-                        RemainingLife := (DeprYears * DaysInFiscalYear) -
-                          DepreciationCalc.DeprDays(DeprStartingDate, DepreciationCalc.Yesterday(FirstDeprDate, Year365Days), Year365Days) +
-                          CalcDeprBreakDays(0D, 0D, true);
-                        if DateLastAppr <> AcquisitionDate then begin
-                            // NAVCZ
-                            DepreciatedDays := CalcDeprBreakDays(CalcDate('<CM+1D>', DateLastAppr), UntilDate, false);
-                            // NAVCZ
-                            if RemainingLife + DepreciatedDays < "Min. Months After Appreciation" * 30 then begin
-                                RemainingLife := "Min. Months After Appreciation" * 30 - DepreciatedDays;
-                                if ProjValue then begin
-                                    CalculateProjectedValues(0D, UntilDate);
-                                    RemainingLife := RemainingLife - NoOfProjectedDays;
-                                end;
-                            end else begin
-                                if ProjValue then
-                                    CalculateProjectedValues(0D, UntilDate);
-                            end;
-                        end else begin
-                            if ProjValue then
-                                CalculateProjectedValues(0D, UntilDate);
-                        end;
-                        if ProjValue then
-                            TempBookValue := TempBookValue + TempFALedgEntry3.Amount;
-                        if RemainingLife <> 0 then
-                            TaxDeprAmount := TempBookValue / RemainingLife * TempNoDays;
-                    end;
-            end;
-
-        if DepGroup."Depreciation Type" <> DepGroup."Depreciation Type"::"Straight-line Intangible" then
-            if FADeprBook.Prorated then begin
-                if DateFromProjection = 0D then begin
-                    TaxDeprAmount := TaxDeprAmount * DepreciationCalc.DeprDays(CalcStartOfFiscalYear(UntilDate), UntilDate, Year365Days) / 360 -
-                        CalcDepreciatedAmount(FADeprBook."FA No.", FADeprBook."Depreciation Book Code", 0D, UntilDate);
-                    NumberOfDays2 := DepreciationCalc.DeprDays(CalcStartOfFiscalYear(UntilDate), UntilDate, Year365Days) -
-                        CalcDepreciatedDays(FADeprBook."FA No.", FADeprBook."Depreciation Book Code", 0D, UntilDate);
-                end else begin
-                    TaxDeprAmount := TaxDeprAmount * DepreciationCalc.DeprDays(DateFromProjection, UntilDate, Year365Days) / 360;
-                    NumberOfDays2 := DepreciationCalc.DeprDays(DateFromProjection, UntilDate, Year365Days);
-                end;
-            end else
-                if TempFaktor < 1 then
-                    TaxDeprAmount := TaxDeprAmount * TempFaktor;
-        if DeprBook."Use Rounding in Periodic Depr." then
-            TaxDeprAmount := Round(Round(TaxDeprAmount), 1, '>');
-
-        exit(-TaxDeprAmount);
-    end;
-
-    [Obsolete('Moved to Fixed Asset Localization for Czech.', '18.0')]
-    [Scope('OnPrem')]
-    procedure CalcEndOfFiscalYear(StartingDate: Date) EndFiscYear: Date
-    var
-        AccountingPeriod: Record "Accounting Period";
-    begin
-        // NAVCZ
-        AccountingPeriod.SetRange("New Fiscal Year", true);
-        AccountingPeriod.SetFilter("Starting Date", '>%1', StartingDate);
-        if AccountingPeriod.FindFirst() then
-            EndFiscYear := CalcDate('<-1D>', AccountingPeriod."Starting Date")
-        else
-            EndFiscYear := CalcDate('<CY>', StartingDate);
-    end;
-
-    [Obsolete('Moved to Fixed Asset Localization for Czech.', '18.0')]
-    local procedure CalcDepr(LastAppr: Date; UntilDate: Date; var FALeEntry: Record "FA Ledger Entry"): Integer
-    var
-        TempFALeEntry: Record "FA Ledger Entry";
-        Year: Record "Integer" temporary;
-    begin
-        // NAVCZ
-        TempFALeEntry.CopyFilters(FALeEntry);
-        TempFALeEntry.SetRange("FA Posting Type", TempFALeEntry."FA Posting Type"::Depreciation);
-        TempFALeEntry.SetRange("FA Posting Date", LastAppr, UntilDate);
-        TempFALeEntry.SetRange(Amount, 0);
-        if TempFALeEntry.FindSet() then
-            repeat
-                Year.Number := Date2DMY(TempFALeEntry."FA Posting Date", 3);
-                if Year.Insert() then;
-            until TempFALeEntry.Next() = 0;
-        exit(FiscalYearCount(LastAppr, UntilDate, FALeEntry.GetFilter("FA No.")) - Year.Count); // NAVCZ
-    end;
-
-    [Obsolete('Moved to Fixed Asset Localization for Czech.', '18.0')]
-    [Scope('OnPrem')]
-    procedure CalcDeprBreakDays(StartDate: Date; EndDate: Date; DeprBreak: Boolean) DeprBreakDays: Decimal
-    var
-        FALedgEntry2: Record "FA Ledger Entry";
-    begin
-        // NAVCZ
-        Clear(DeprBreakDays);
-        FALedgEntry2.SetCurrentKey("FA No.", "Depreciation Book Code", "FA Posting Category", "FA Posting Type", "FA Posting Date");
-        FALedgEntry2.SetRange("FA Posting Category", FALedgEntry2."FA Posting Category"::" ");
-        FALedgEntry2.SetRange("FA No.", FADeprBook."FA No.");
-        FALedgEntry2.SetRange("Depreciation Book Code", FADeprBook."Depreciation Book Code");
-        FALedgEntry2.SetRange("FA Posting Type", FALedgEntry2."FA Posting Type"::Depreciation);
-        if (StartDate <> 0D) and (EndDate <> 0D) then
-            FALedgEntry2.SetRange("FA Posting Date", StartDate + 1, EndDate);
-        if DeprBreak then
-            FALedgEntry2.SetRange(Amount, 0)
-        else
-            FALedgEntry2.SetFilter(Amount, '<>%1', 0);
-        if FALedgEntry2.FindSet() then
-            repeat
-                DeprBreakDays += FALedgEntry2."No. of Depreciation Days";
-            until FALedgEntry2.Next() = 0;
-        exit(DeprBreakDays);
-    end;
-
-    [Obsolete('Moved to Fixed Asset Localization for Czech.', '18.0')]
-    [Scope('OnPrem')]
-    procedure CalcStartOfFiscalYear(StartingDate: Date) StartFiscYear: Date
-    var
-        AccountingPeriod: Record "Accounting Period";
-    begin
-        // NAVCZ
-        AccountingPeriod.SetRange("New Fiscal Year", true);
-        AccountingPeriod.SetFilter("Starting Date", '>%1', StartingDate);
-        if AccountingPeriod.FindFirst() then
-            StartFiscYear := CalcDate('<-1Y>', AccountingPeriod."Starting Date")
-        else
-            StartFiscYear := CalcDate('<-CY>', StartingDate);
-    end;
-
-    [Obsolete('Moved to Fixed Asset Localization for Czech.', '18.0')]
-    [Scope('OnPrem')]
-    procedure CalcDepreciatedAmount(FANo: Code[20]; FADeprBookCode: Code[10]; StartDate: Date; EndDate: Date): Decimal
-    var
-        FADeprBook2: Record "FA Depreciation Book";
-    begin
-        // NAVCZ
-        FADeprBook2.Get(FANo, FADeprBookCode);
-        if StartDate <> 0D then
-            FADeprBook2.SetRange("FA Posting Date Filter", StartDate, EndDate)
-        else
-            FADeprBook2.SetRange("FA Posting Date Filter", CalcStartOfFiscalYear(EndDate), EndDate);
-        FADeprBook2.CalcFields(Depreciation);
-        exit(-FADeprBook2.Depreciation);
-    end;
-
-    [Obsolete('Moved to Fixed Asset Localization for Czech.', '18.0')]
-    [Scope('OnPrem')]
-    procedure ProjectedValue(ProjValue2: Boolean)
-    begin
-        ProjValue := ProjValue2;
-    end;
-
-    [Obsolete('Moved to Fixed Asset Localization for Czech.', '18.0')]
-    [Scope('OnPrem')]
-    procedure CalcDepreciatedDays(FANo: Code[20]; FADeprBookCode: Code[10]; StartDate: Date; EndDate: Date): Integer
-    var
-        FALedgEntry2: Record "FA Ledger Entry";
-        NoOfDepreciatedDays: Integer;
-    begin
-        Clear(NoOfDepreciatedDays);
-        FALedgEntry2.SetCurrentKey("FA No.", "Depreciation Book Code", "FA Posting Category", "FA Posting Type", "FA Posting Date");
-        FALedgEntry2.SetRange("FA Posting Category", FALedgEntry2."FA Posting Category"::" ");
-        FALedgEntry2.SetRange("FA No.", FANo);
-        FALedgEntry2.SetRange("Depreciation Book Code", FADeprBookCode);
-        FALedgEntry2.SetRange("FA Posting Type", FALedgEntry2."FA Posting Type"::Depreciation);
-        if StartDate <> 0D then
-            FALedgEntry2.SetRange("FA Posting Date", StartDate, EndDate)
-        else
-            FALedgEntry2.SetRange("FA Posting Date", CalcStartOfFiscalYear(EndDate), EndDate);
-        if FALedgEntry2.FindSet() then
-            repeat
-                NoOfDepreciatedDays += FALedgEntry2."No. of Depreciation Days";
-            until FALedgEntry2.Next() = 0;
-        exit(NoOfDepreciatedDays);
-    end;
-
-    [Obsolete('Moved to Fixed Asset Localization for Czech.', '18.0')]
-    [Scope('OnPrem')]
-    procedure TransferProjectedValues(var FALedgEntry2: Record "FA Ledger Entry")
-    begin
-        TempFALedgEntry3.Reset();
-        TempFALedgEntry3.DeleteAll();
-        if FALedgEntry2.Find('-') then
-            repeat
-                TempFALedgEntry3.Init();
-                TempFALedgEntry3.TransferFields(FALedgEntry2);
-                TempFALedgEntry3.Insert();
-            until FALedgEntry2.Next() = 0;
-    end;
-
-    [Obsolete('Moved to Fixed Asset Localization for Czech.', '18.0')]
-    [Scope('OnPrem')]
-    procedure CalculateProjectedValues(StartDate: Date; EndDate: Date)
-    begin
-        NoOfProjectedDays := 0;
-        TempFALedgEntry3.Reset();
-        if StartDate <> 0D then
-            TempFALedgEntry3.SetRange("FA Posting Date", StartDate, EndDate)
-        else
-            TempFALedgEntry3.SetFilter("FA Posting Date", '..%1', EndDate);
-        if TempFALedgEntry3.Find('-') then
-            repeat
-                NoOfProjectedDays += TempFALedgEntry3."No. of Depreciation Days";
-            until TempFALedgEntry3.Next() = 0;
-        TempFALedgEntry3.CalcSums(Amount);
-    end;
-
-    [Obsolete('Moved to Fixed Asset Localization for Czech.', '18.0')]
-    local procedure IsNonZeroDeprecation(FANo: Code[20]; DeprBookCode: Code[10]; TempFromDate: Date): Boolean
-    var
-        FALedgerEntry: Record "FA Ledger Entry";
-    begin
-        // NAVCZ
-        if (DateFromProjection <> 0D) or FADeprBook.Prorated then
-            exit(TempFromDate >= CalcEndOfFiscalYear(AcquisitionDate));
-
-        DepreciationCalc.SetFAFilter(FALedgerEntry, FANo, DeprBookCode, true);
-        FALedgerEntry.SetRange("FA Posting Type", FALedgerEntry."FA Posting Type"::Depreciation);
-        FALedgerEntry.SetFilter(Amount, '<>%1', 0);
-        exit(not FALedgerEntry.IsEmpty);
-    end;
-
-    [Obsolete('Moved to Fixed Asset Localization for Czech.', '18.0')]
-    local procedure FiscalYearCount(LastAppr: Date; UntilDate: Date; FANo: Code[20]): Integer;
-    var
-        AccountingPeriod: Record "Accounting Period";
-    begin
-        // NAVCZ
-        AccountingPeriod.SetFilter("Starting Date", '%1..', UntilDate);
-        IF AccountingPeriod.IsEmpty() THEN
-            Error(AccountingPeriodErr, UntilDate, FANo);
-        AccountingPeriod.SetFilter("Starting Date", '..%1', LastAppr);
-        IF AccountingPeriod.IsEmpty() THEN
-            Error(AccountingPeriodErr, LastAppr, FANo);
-
-        AccountingPeriod.SetRange("Starting Date", LastAppr, UntilDate);
-        AccountingPeriod.SetRange("New Fiscal Year", true);
-        exit(AccountingPeriod.Count());
-    end;
-#endif
 
     local procedure AssignVariablesToStorage(
         var StorageDecimal: Dictionary of [Text, Decimal];
@@ -1306,6 +879,10 @@ codeunit 5611 "Calculate Normal Depreciation"
     begin
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetDeprBooks(var DepreciationBook: Record "Depreciation Book"; var FADepreciationBook: Record "FA Depreciation Book")
+    begin
+    end;
 #if not CLEAN19
     [Obsolete('Replaced by event OnCalculateOnBeforeTransferValue().', '19.0')]
     [IntegrationEvent(true, true)]
@@ -1528,3 +1105,4 @@ codeunit 5611 "Calculate Normal Depreciation"
     end;
 }
 
+#endif

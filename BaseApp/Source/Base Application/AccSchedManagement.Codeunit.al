@@ -1,4 +1,4 @@
-﻿#if not CLEAN19
+#if not CLEAN19
 codeunit 8 AccSchedManagement
 {
     TableNo = "Acc. Schedule Line";
@@ -13,15 +13,15 @@ codeunit 8 AccSchedManagement
         Text002: Label 'Default Columns';
         Text012: Label 'You have entered an illegal value or a nonexistent row number.';
         Text013: Label 'You have entered an illegal value or a nonexistent column number.';
-        Text016: Label '%1\\ %2 %3 %4.', Locked = true;
-        Text017: Label 'The error occurred when the program tried to calculate:\';
-        Text018: Label 'Acc. Sched. Line: Row No. = %1, Line No. = %2, Totaling = %3\', Comment = '%1 = Row No., %2= Line No., %3 = Totaling';
-        Text019: Label 'Acc. Sched. Column: Column No. = %1, Line No. = %2, Formula  = %3', Comment = '%1 = Column No., %2= Line No., %3 = Formula';
+        Text016Err: Label '%1\\ %2 %3 %4.', Locked = true;
+        Text017Txt: Label 'The error occurred when the program tried to calculate:\';
+        Text018Txt: Label 'Acc. Sched. Line: Row No. = %1, Line No. = %2, Totaling = %3\', Comment = '%1 = Row No., %2= Line No., %3 = Totaling';
+        Text019Txt: Label 'Acc. Sched. Column: Column No. = %1, Line No. = %2, Formula  = %3', Comment = '%1 = Column No., %2= Line No., %3 = Formula';
         Text020: Label 'Because of circular references, the program cannot calculate a formula.';
         AccSchedName: Record "Acc. Schedule Name";
         AccountScheduleLine: Record "Acc. Schedule Line";
         ColumnLayoutName: Record "Column Layout Name";
-        AccSchedCellValue: Record "Acc. Sched. Cell Value" temporary;
+        TempAccSchedCellValue: Record "Acc. Sched. Cell Value" temporary;
         CurrExchRate: Record "Currency Exchange Rate";
         GLSetup: Record "General Ledger Setup";
         AddRepCurrency: Record Currency;
@@ -79,16 +79,35 @@ codeunit 8 AccSchedManagement
         if AccSchedLine.IsEmpty() then
             exit;
         GeneralLedgerSetup.Get();
-        if CurrentSchedName in
-           [GeneralLedgerSetup."Acc. Sched. for Balance Sheet", GeneralLedgerSetup."Acc. Sched. for Cash Flow Stmt",
-            GeneralLedgerSetup."Acc. Sched. for Income Stmt.", GeneralLedgerSetup."Acc. Sched. for Retained Earn."]
-        then
+        if CurrentScheduleAlreadyDefinedInGLSetup(CurrentSchedName) then
             if ConfirmManagement.GetResponseOrDefault(SystemGeneratedAccSchedQst, true) then begin
                 AccScheduleName.SetRange(Name, CurrentSchedName);
                 CopyAccountSchedule.SetTableView(AccScheduleName);
                 CopyAccountSchedule.RunModal();
-                CurrentSchedName := CopyAccountSchedule.GetNewAccountScheduleName;
+                CurrentSchedName := CopyAccountSchedule.GetNewAccountScheduleName();
             end;
+    end;
+
+    local procedure CurrentScheduleAlreadyDefinedInGLSetup(ScheduleName: Code[10]): Boolean
+    var
+        FinancialReport: Record "Financial Report";
+        GeneralLedgerSetup: Record "General Ledger Setup";
+    begin
+        if not GeneralLedgerSetup.Get() then
+            exit(false);
+        FinancialReport.Get(GeneralLedgerSetup."Fin. Rep. for Balance Sheet");
+        if (FinancialReport."Financial Report Row Group" = ScheduleName) then
+            exit(true);
+        FinancialReport.Get(GeneralLedgerSetup."Fin. Rep. for Cash Flow Stmt");
+        if (FinancialReport."Financial Report Row Group" = ScheduleName) then
+            exit(true);
+        FinancialReport.Get(GeneralLedgerSetup."Fin. Rep. for Income Stmt.");
+        if (FinancialReport."Financial Report Row Group" = ScheduleName) then
+            exit(true);
+        FinancialReport.Get(GeneralLedgerSetup."Fin. Rep. for Retained Earn.");
+        if (FinancialReport."Financial Report Row Group" = ScheduleName) then
+            exit(true);
+        exit(false);
     end;
 
     local procedure CheckTemplateAndSetFilter(var CurrentSchedName: Code[10]; var AccSchedLine: Record "Acc. Schedule Line")
@@ -260,10 +279,10 @@ codeunit 8 AccSchedManagement
                     Error(
                       Text024,
                       AccSchedName.FieldCaption("Analysis View Name"),
-                      AccSchedName.TableCaption,
+                      AccSchedName.TableCaption(),
                       AccSchedName."Analysis View Name",
                       ColumnLayoutName.FieldCaption("Analysis View Name"),
-                      ColumnLayoutName.TableCaption,
+                      ColumnLayoutName.TableCaption(),
                       ColumnLayoutName."Analysis View Name");
             end;
         end;
@@ -271,7 +290,7 @@ codeunit 8 AccSchedManagement
         OnAfterCheckAnalysisView(AccSchedName, ColumnLayoutName);
     end;
 
-    local procedure AccPeriodStartEnd(ColumnLayout: Record "Column Layout"; Date: Date; var StartDate: Date; var EndDate: Date)
+    procedure AccPeriodStartEnd(ColumnLayout: Record "Column Layout"; Date: Date; var StartDate: Date; var EndDate: Date)
     var
         Steps: Integer;
         Type: Option " ",Period,"Fiscal Year";
@@ -375,11 +394,11 @@ codeunit 8 AccSchedManagement
                (OldCalcAddCurr <> CalcAddCurr) or
                Recalculate
             then begin
-                AccSchedCellValue.Reset();
-                AccSchedCellValue.DeleteAll();
+                TempAccSchedCellValue.Reset();
+                TempAccSchedCellValue.DeleteAll();
                 Clear(BasePercentLine);
-                OldAccSchedLineFilters := AccSchedLine.GetFilters;
-                OldColumnLayoutFilters := ColumnLayout.GetFilters;
+                OldAccSchedLineFilters := AccSchedLine.GetFilters();
+                OldColumnLayoutFilters := ColumnLayout.GetFilters();
                 OldAccSchedLineName := AccSchedLine."Schedule Name";
                 OldColumnLayoutName := ColumnLayout."Column Layout Name";
                 OldCalcAddCurr := CalcAddCurr;
@@ -400,7 +419,7 @@ codeunit 8 AccSchedManagement
         // NAVCZ
     end;
 
-    local procedure FormatCellResult(AccSchedLine: Record "Acc. Schedule Line"; ColumnLayout: Record "Column Layout"; CalcAddCurr: Boolean; var Result: Decimal)
+    procedure FormatCellResult(AccSchedLine: Record "Acc. Schedule Line"; ColumnLayout: Record "Column Layout"; CalcAddCurr: Boolean; var Result: Decimal)
     var
         IsHandled: Boolean;
     begin
@@ -446,15 +465,15 @@ codeunit 8 AccSchedManagement
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCalcCellValue(AccSchedLine, ColumnLayout, CalcAddCurr, Result, IsHandled, AccountScheduleLine, AccSchedCellValue);
+        OnBeforeCalcCellValue(AccSchedLine, ColumnLayout, CalcAddCurr, Result, IsHandled, AccountScheduleLine, TempAccSchedCellValue);
         if not IsHandled then begin
             if AccSchedLine.Totaling = '' then
                 exit(Result);
 
-        if AccSchedCellValue.Get(AccSchedLine."Schedule Name", AccSchedLine."Line No.", ColumnLayout."Line No.") then begin // NAVCZ
-                Result := AccSchedCellValue.Value;
-                DivisionError := DivisionError or AccSchedCellValue."Has Error";
-                PeriodError := PeriodError or AccSchedCellValue."Period Error";
+            if TempAccSchedCellValue.Get(AccSchedLine."Schedule Name", AccSchedLine."Line No.", ColumnLayout."Line No.") then begin // NAVCZ
+                Result := TempAccSchedCellValue.Value;
+                DivisionError := DivisionError or TempAccSchedCellValue."Has Error";
+                PeriodError := PeriodError or TempAccSchedCellValue."Period Error";
             end else begin
                 if ColumnLayout."Column Type" = ColumnLayout."Column Type"::Formula then
                     Result :=
@@ -582,13 +601,13 @@ codeunit 8 AccSchedManagement
 
                 OnAfterCalcCellValue(AccSchedLine, ColumnLayout, Result, AccountScheduleLine, GLAcc);
 
-            AccSchedCellValue."Row No." := AccSchedLine."Line No.";
-            AccSchedCellValue."Column No." := ColumnLayout."Line No.";
-            AccSchedCellValue.Value := Result;
-            AccSchedCellValue."Has Error" := DivisionError;
-            AccSchedCellValue."Period Error" := PeriodError;
-            AccSchedCellValue."Schedule Name" := AccSchedLine."Schedule Name"; // NAVCZ
-            AccSchedCellValue.Insert();
+                TempAccSchedCellValue."Row No." := AccSchedLine."Line No.";
+                TempAccSchedCellValue."Column No." := ColumnLayout."Line No.";
+                TempAccSchedCellValue.Value := Result;
+                TempAccSchedCellValue."Has Error" := DivisionError;
+                TempAccSchedCellValue."Period Error" := PeriodError;
+                TempAccSchedCellValue."Schedule Name" := AccSchedLine."Schedule Name"; // NAVCZ
+                TempAccSchedCellValue.Insert();
             end;
         end;
         OnCalcCellValueOnBeforeExit(AccSchedLine, ColumnLayout, CalcAddCurr, StartDate, EndDate, Result);
@@ -799,7 +818,7 @@ codeunit 8 AccSchedManagement
         exit(ColValue);
     end;
 
-    local procedure CalcCFAccount(var CFAccount: Record "Cash Flow Account"; var AccSchedLine: Record "Acc. Schedule Line"; var ColumnLayout: Record "Column Layout") ColValue: Decimal
+    procedure CalcCFAccount(var CFAccount: Record "Cash Flow Account"; var AccSchedLine: Record "Acc. Schedule Line"; var ColumnLayout: Record "Column Layout") ColValue: Decimal
     var
         CFForecastEntry: Record "Cash Flow Forecast Entry";
         AnalysisViewEntry: Record "Analysis View Entry";
@@ -883,9 +902,9 @@ codeunit 8 AccSchedManagement
                 until AccSchedLine.Next() = 0
             else begin
                 IsHandled := false;
-            OnCalcCellValueInAccSchedLinesOnBeforeShowError(
-                SourceAccSchedLine, AccSchedLine, ColumnLayout, CalcAddCurr, CellValue,
-                StartDate, EndDate, Result, IsHandled, Expression, DivisionError, PeriodError);
+                OnCalcCellValueInAccSchedLinesOnBeforeShowError(
+                    SourceAccSchedLine, AccSchedLine, ColumnLayout, CalcAddCurr, CellValue,
+                    StartDate, EndDate, Result, IsHandled, Expression, DivisionError, PeriodError);
                 if not IsHandled then
                     if IsFilter or (not Evaluate(Result, Expression)) then
                         ShowError(Text012, SourceAccSchedLine, ColumnLayout);
@@ -1364,7 +1383,7 @@ codeunit 8 AccSchedManagement
         until (OperatorNo > StrLen(Operators)) or IsExpression;
     end;
 
-    local procedure EvaluateExpression(IsAccSchedLineExpression: Boolean; Expression: Text; AccSchedLine: Record "Acc. Schedule Line"; ColumnLayout: Record "Column Layout"; CalcAddCurr: Boolean): Decimal
+    procedure EvaluateExpression(IsAccSchedLineExpression: Boolean; Expression: Text; AccSchedLine: Record "Acc. Schedule Line"; ColumnLayout: Record "Column Layout"; CalcAddCurr: Boolean): Decimal
     var
         AccSchedLine2: Record "Acc. Schedule Line";
         Result: Decimal;
@@ -1408,7 +1427,7 @@ codeunit 8 AccSchedManagement
                 then begin
                     AccSchedLine2.Copy(AccSchedLine);
                     AccSchedLine2."Line No." := GetBasePercentLine(AccSchedLine, ColumnLayout);
-                    AccSchedLine2.Find;
+                    AccSchedLine2.Find();
                     RightResult :=
                       EvaluateExpression(
                         IsAccSchedLineExpression, LeftOperand, AccSchedLine2, ColumnLayout, CalcAddCurr);
@@ -1474,7 +1493,7 @@ codeunit 8 AccSchedManagement
         exit(PeriodError);
     end;
 
-    local procedure ShowError(MessageLine: Text; var AccSchedLine: Record "Acc. Schedule Line"; var ColumnLayout: Record "Column Layout")
+    procedure ShowError(MessageLine: Text; var AccSchedLine: Record "Acc. Schedule Line"; var ColumnLayout: Record "Column Layout")
     begin
         AccSchedLine.SetRange("Schedule Name", AccSchedLine."Schedule Name");
         AccSchedLine.SetRange("Line No.", CallingAccSchedLineID);
@@ -1482,11 +1501,11 @@ codeunit 8 AccSchedManagement
         ColumnLayout.SetRange("Column Layout Name", ColumnLayout."Column Layout Name");
         ColumnLayout.SetRange("Line No.", CallingColumnLayoutID);
         if ColumnLayout.FindFirst() then;
-        Error(Text016,
+        Error(Text016Err,
           MessageLine,
-          Text017,
-          StrSubstNo(Text018, AccSchedLine."Row No.", AccSchedLine."Line No.", AccSchedLine.Totaling),
-          StrSubstNo(Text019, ColumnLayout."Column No.", ColumnLayout."Line No.", ColumnLayout.Formula));
+          Text017Txt,
+          StrSubstNo(Text018Txt, AccSchedLine."Row No.", AccSchedLine."Line No.", AccSchedLine.Totaling),
+          StrSubstNo(Text019Txt, ColumnLayout."Column No.", ColumnLayout."Line No.", ColumnLayout.Formula));
     end;
 
     procedure InsertGLAccounts(var AccSchedLine: Record "Acc. Schedule Line")
@@ -1503,7 +1522,7 @@ codeunit 8 AccSchedManagement
             exit;
 
         GLAccList.LookupMode(true);
-        if GLAccList.RunModal = ACTION::LookupOK then begin
+        if GLAccList.RunModal() = ACTION::LookupOK then begin
             GLAccList.SetSelection(GLAcc);
             AccCounter := GLAcc.Count();
             if AccCounter > 0 then begin
@@ -1546,7 +1565,7 @@ codeunit 8 AccSchedManagement
         AccSchedLineNo: Integer;
     begin
         CashFlowAccList.LookupMode(true);
-        if CashFlowAccList.RunModal = ACTION::LookupOK then begin
+        if CashFlowAccList.RunModal() = ACTION::LookupOK then begin
             CashFlowAccList.SetSelection(CashFlowAcc);
             AccCounter := CashFlowAcc.Count();
             if AccCounter > 0 then begin
@@ -1584,7 +1603,7 @@ codeunit 8 AccSchedManagement
         AccSchedLineNo: Integer;
     begin
         CostTypeList.LookupMode(true);
-        if CostTypeList.RunModal = ACTION::LookupOK then begin
+        if CostTypeList.RunModal() = ACTION::LookupOK then begin
             CostTypeList.SetSelection(CostType);
             AccCounter := CostType.Count();
             if AccCounter > 0 then begin
@@ -1637,8 +1656,8 @@ codeunit 8 AccSchedManagement
         GetGLSetup();
         exit(
           CurrExchRate.ExchangeAmtLCYToFCY(
-            WorkDate, GLSetup."Additional Reporting Currency", AmountLCY,
-            CurrExchRate.ExchangeRate(WorkDate, GLSetup."Additional Reporting Currency")));
+            WorkDate(), GLSetup."Additional Reporting Currency", AmountLCY,
+            CurrExchRate.ExchangeRate(WorkDate(), GLSetup."Additional Reporting Currency")));
     end;
 
     procedure SetAccSchedName(var NewAccSchedName: Record "Acc. Schedule Name")
@@ -1743,10 +1762,10 @@ codeunit 8 AccSchedManagement
         if IsHandled then
             exit;
 
-        if CostAccSetup.Get then;
+        if CostAccSetup.Get() then;
     end;
 
-    local procedure CalcCostType(var CostType: Record "Cost Type"; var AccSchedLine: Record "Acc. Schedule Line"; var ColumnLayout: Record "Column Layout"; CalcAddCurr: Boolean) ColValue: Decimal
+    procedure CalcCostType(var CostType: Record "Cost Type"; var AccSchedLine: Record "Acc. Schedule Line"; var ColumnLayout: Record "Column Layout"; CalcAddCurr: Boolean) ColValue: Decimal
     var
         CostEntry: Record "Cost Entry";
         CostBudgEntry: Record "Cost Budget Entry";
@@ -2081,7 +2100,7 @@ codeunit 8 AccSchedManagement
         OutputEndDate := EndDate;
     end;
 
-    local procedure ConflictAmountType(AccSchedLine: Record "Acc. Schedule Line"; ColumnLayoutAmtType: Enum "Account Schedule Amount Type"; var AmountType: Enum "Account Schedule Amount Type"): Boolean
+    procedure ConflictAmountType(AccSchedLine: Record "Acc. Schedule Line"; ColumnLayoutAmtType: Enum "Account Schedule Amount Type"; var AmountType: Enum "Account Schedule Amount Type"): Boolean
     begin
         if (ColumnLayoutAmtType = AccSchedLine."Amount Type") or
            (AccSchedLine."Amount Type" = AccSchedLine."Amount Type"::"Net Amount")
@@ -2118,8 +2137,10 @@ codeunit 8 AccSchedManagement
 
             if "Totaling Type" in ["Totaling Type"::Formula, "Totaling Type"::"Set Base For Percent"] then begin
                 AccScheduleOverview.SetAccSchedName("Schedule Name");
+                AccScheduleOverview.SetColumnDefinition(TempColumnLayout."Column Layout Name");
                 AccScheduleOverview.SetTableView(AccScheduleLine);
                 AccScheduleOverview.SetRecord(AccScheduleLine);
+                AccScheduleOverview.SetViewOnlyMode(true);
                 AccScheduleOverview.SetPeriodType(PeriodLength);
                 AccScheduleOverview.Run();
                 exit;
@@ -2316,12 +2337,12 @@ codeunit 8 AccSchedManagement
     end;
 
 
-    local procedure DrillDownOnGLAccount(TempColumnLayout: Record "Column Layout" temporary; var AccScheduleLine: Record "Acc. Schedule Line")
+    procedure DrillDownOnGLAccount(TempColumnLayout: Record "Column Layout" temporary; var AccScheduleLine: Record "Acc. Schedule Line")
     begin
         DrillDownOnGLAccCatFilter(TempColumnLayout, AccScheduleLine, '');
     end;
 
-    local procedure DrillDownOnCFAccount(TempColumnLayout: Record "Column Layout" temporary; var AccScheduleLine: Record "Acc. Schedule Line")
+    procedure DrillDownOnCFAccount(TempColumnLayout: Record "Column Layout" temporary; var AccScheduleLine: Record "Acc. Schedule Line")
     var
         CFAccount: Record "Cash Flow Account";
         GLAccAnalysisView: Record "G/L Account (Analysis View)";
@@ -2391,21 +2412,21 @@ codeunit 8 AccSchedManagement
 
     procedure CalcFieldError(var ErrorType: Option "None","Division by Zero","Period Error",Both; RowNo: Integer; ColumnNo: Integer)
     begin
-        AccSchedCellValue.SetRange("Row No.", RowNo);
-        AccSchedCellValue.SetRange("Column No.", ColumnNo);
+        TempAccSchedCellValue.SetRange("Row No.", RowNo);
+        TempAccSchedCellValue.SetRange("Column No.", ColumnNo);
         ErrorType := ErrorType::None;
-        if AccSchedCellValue.FindFirst() then
+        if TempAccSchedCellValue.FindFirst() then
             case true of
-                AccSchedCellValue."Has Error":
+                TempAccSchedCellValue."Has Error":
                     ErrorType := ErrorType::"Division by Zero";
-                AccSchedCellValue."Period Error":
+                TempAccSchedCellValue."Period Error":
                     ErrorType := ErrorType::"Period Error";
-                AccSchedCellValue."Has Error" and AccSchedCellValue."Period Error":
+                TempAccSchedCellValue."Has Error" and TempAccSchedCellValue."Period Error":
                     ErrorType := ErrorType::Both;
             end;
 
-        AccSchedCellValue.SetRange("Row No.");
-        AccSchedCellValue.SetRange("Column No.");
+        TempAccSchedCellValue.SetRange("Row No.");
+        TempAccSchedCellValue.SetRange("Column No.");
     end;
 
     [Obsolete('Moved to Core Localization Pack for Czech.', '19.0')]
@@ -2458,7 +2479,7 @@ codeunit 8 AccSchedManagement
                 end else
                     exit(StrSubstNo('%2..%1',
                         WorkDate,
-                        CalcDate('<CY+1D-1Y-1D>', WorkDate)));
+                        CalcDate('<CY+1D-1Y-1D>', WorkDate())));
             if CopyStr(DateFilter, 1, 4) = Text003 then
                 if not (StartDate = 0D) then begin
                     if LengthDateFilter > 4 then
@@ -2467,7 +2488,7 @@ codeunit 8 AccSchedManagement
 
                     exit(StrSubstNo('..%1', CalcDate('<-1D>', StartDate)))
                 end else
-                    exit(StrSubstNo('..%1', CalcDate('<-1D>', WorkDate)));
+                    exit(StrSubstNo('..%1', CalcDate('<-1D>', WorkDate())));
             if CopyStr(DateFilter, 1, 4) = Text004 then
                 if not (EndDate = 0D) then begin
                     if LengthDateFilter > 4 then
@@ -2475,7 +2496,7 @@ codeunit 8 AccSchedManagement
 
                     exit(StrSubstNo('..%1', EndDate));
                 end else
-                    exit(StrSubstNo('..%1', CalcDate('<-1D>', WorkDate)));
+                    exit(StrSubstNo('..%1', CalcDate('<-1D>', WorkDate())));
         end else
             if Position = 3
             then begin
@@ -2486,7 +2507,7 @@ codeunit 8 AccSchedManagement
 
                         exit(StrSubstNo('%1..', StartDate));
                     end else
-                        exit(StrSubstNo('%1..', WorkDate));
+                        exit(StrSubstNo('%1..', WorkDate()));
                 if CopyStr(DateFilter, 1, 4) = Text006 then
                     if not (EndDate = 0D) then begin
                         if LengthDateFilter > 4 then
@@ -2494,7 +2515,7 @@ codeunit 8 AccSchedManagement
 
                         exit(StrSubstNo('%1..', CalcDate('<+1D>', EndDate)));
                     end else
-                        exit(StrSubstNo('%1..', CalcDate('<+1D>', WorkDate)));
+                        exit(StrSubstNo('%1..', CalcDate('<+1D>', WorkDate())));
             end else
                 if Position = 0
                 then
@@ -2515,7 +2536,7 @@ codeunit 8 AccSchedManagement
                                         CalcDate(CopyStr(DateFilter, 3), StartDate)));
 
                                 exit(StrSubstNo('..%1',
-                                    CalcDate(CopyStr(DateFilter, 3), WorkDate)))
+                                    CalcDate(CopyStr(DateFilter, 3), WorkDate())))
                             end else begin
                                 if not (StartDate = 0D) and not (EndDate = 0D) then
                                     exit(StrSubstNo('%1..%2', StartDate, EndDate));
@@ -2526,7 +2547,7 @@ codeunit 8 AccSchedManagement
                                 if not (StartDate = 0D) then
                                     exit(StrSubstNo('%1', StartDate));
 
-                                exit(StrSubstNo('..%1', WorkDate));
+                                exit(StrSubstNo('..%1', WorkDate()));
                             end;
                         Text008:
                             if not (StartDate = 0D) then begin
@@ -2536,9 +2557,9 @@ codeunit 8 AccSchedManagement
                                 exit(StrSubstNo('%1', StartDate));
                             end else begin
                                 if LengthDateFilter > 2 then
-                                    exit(StrSubstNo('%1', CalcDate(CopyStr(DateFilter, 3), WorkDate)));
+                                    exit(StrSubstNo('%1', CalcDate(CopyStr(DateFilter, 3), WorkDate())));
 
-                                exit(StrSubstNo('%1', WorkDate));
+                                exit(StrSubstNo('%1', WorkDate()));
                             end;
                         Text009:
                             if not (EndDate = 0D) then begin
@@ -2548,9 +2569,9 @@ codeunit 8 AccSchedManagement
                                 exit(StrSubstNo('%1', EndDate));
                             end else begin
                                 if LengthDateFilter > 2 then
-                                    exit(StrSubstNo('%1', CalcDate(CopyStr(DateFilter, 3), WorkDate)));
+                                    exit(StrSubstNo('%1', CalcDate(CopyStr(DateFilter, 3), WorkDate())));
 
-                                exit(StrSubstNo('%1', WorkDate));
+                                exit(StrSubstNo('%1', WorkDate()));
                             end;
                     end;
         Error(ErrorDateFilter, DateFilter);
@@ -2614,11 +2635,11 @@ codeunit 8 AccSchedManagement
         AccSchedCellValue1: Record "Acc. Sched. Cell Value";
     begin
         // NAVCZ
-        if AccSchedCellValue.Find('-') then
+        if TempAccSchedCellValue.Find('-') then
             repeat
-                AccSchedCellValue1 := AccSchedCellValue;
+                AccSchedCellValue1 := TempAccSchedCellValue;
                 if AccSchedCellValue1.Insert() then;
-            until AccSchedCellValue.Next() = 0;
+            until TempAccSchedCellValue.Next() = 0;
     end;
 
     [Obsolete('This procedure will be removed.', '19.0')]
@@ -2626,11 +2647,11 @@ codeunit 8 AccSchedManagement
     procedure GetCellValuesBuffer(var Buffer: Record "Acc. Sched. Cell Value")
     begin
         // NAVCZ
-        if AccSchedCellValue.Find('-') then
+        if TempAccSchedCellValue.Find('-') then
             repeat
-                Buffer := AccSchedCellValue;
+                Buffer := TempAccSchedCellValue;
                 Buffer.Insert();
-            until AccSchedCellValue.Next() = 0;
+            until TempAccSchedCellValue.Next() = 0;
         // NAVCZ
     end;
 
@@ -2656,7 +2677,7 @@ codeunit 8 AccSchedManagement
         // NAVCZ
         SaveAccScheduleResults.SetParameters(AccSchedName, ColumnLayoutName, DateFilter, UseAmtsInAddCurr);
         SaveAccScheduleResults.LookupMode(true);
-        if SaveAccScheduleResults.RunModal = ACTION::LookupOK then begin
+        if SaveAccScheduleResults.RunModal() = ACTION::LookupOK then begin
             SaveAccScheduleResults.GetParameters(AccSchedName, ColumnLayoutName, DateFilter, Description, UseAmtsInAddCurr);
 
             if AccSchedName = '' then
@@ -2772,7 +2793,7 @@ codeunit 8 AccSchedManagement
         // NAVCZ
         if Show <> Show::" " then begin
             Line.MarkedOnly(false);
-            Line.ClearMarks;
+            Line.ClearMarks();
 
             OldLine := Line;
             Line.FindSet();
@@ -2795,11 +2816,11 @@ codeunit 8 AccSchedManagement
             Line.MarkedOnly(true);
             Line."Schedule Name" := OldLine."Schedule Name";
             Line."Line No." := OldLine."Line No.";
-            if not Line.Find then
+            if not Line.Find() then
                 if Line.FindFirst() then;
         end else begin
             Line.MarkedOnly(false);
-            Line.ClearMarks;
+            Line.ClearMarks();
         end;
     end;
 
@@ -2808,9 +2829,9 @@ codeunit 8 AccSchedManagement
         Recalculate := NewRecalculate;
     end;
 
-    local procedure CalcLCYToACY(ColValue: Decimal): Decimal
+    procedure CalcLCYToACY(ColValue: Decimal): Decimal
     begin
-        if GetGLSetup then
+        if GetGLSetup() then
             if GLSetup."Additional Reporting Currency" <> '' then
                 AddRepCurrency.Get(GLSetup."Additional Reporting Currency");
         if GLSetup."Additional Reporting Currency" <> '' then

@@ -13,7 +13,7 @@ report 11710 "Payment Order - Test"
         dataitem("Payment Order Header"; "Payment Order Header")
         {
             RequestFilterFields = "No.", "Bank Account No.";
-            column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+            column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
             column(Filters; Filters)

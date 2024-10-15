@@ -1,3 +1,4 @@
+#if not CLEAN19
 permissionset 2018 "Fixed Assets Journals - Post"
 {
     Access = Public;
@@ -17,20 +18,11 @@ permissionset 2018 "Fixed Assets Journals - Post"
                   tabledata "Currency Exchange Rate" = r,
                   tabledata Customer = r,
                   tabledata "Date Compr. Register" = r,
-#if not CLEAN18
-                  tabledata "Depreciation Group" = R,
-#endif
-#if not CLEAN19
                   tabledata "Detailed G/L Entry" = Ri,
-#endif
                   tabledata "Dimension Combination" = R,
                   tabledata "Dimension Value Combination" = R,
                   tabledata "FA Allocation" = R,
                   tabledata "FA Depreciation Book" = Rm,
-#if not CLEAN18
-                  tabledata "FA Extended Posting Group" = R,
-                  tabledata "FA History Entry" = Rim,
-#endif
                   tabledata "FA Journal Batch" = RID,
                   tabledata "FA Journal Line" = RIMD,
                   tabledata "FA Journal Setup" = R,
@@ -80,3 +72,4 @@ permissionset 2018 "Fixed Assets Journals - Post"
                   tabledata "VAT Setup Posting Groups" = r,
                   tabledata Vendor = r;
 }
+#endif

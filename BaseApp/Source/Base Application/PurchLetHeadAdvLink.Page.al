@@ -18,14 +18,14 @@ page 31033 "Purch.Let.Head. - Adv.Link."
             {
                 Editable = false;
                 ShowCaption = false;
-                field(MARK; Mark)
+                field(MARK; Mark())
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Mark';
                     Editable = false;
                     ToolTip = 'Specifies the funkction allows to mark the selected advance letters to link into invoice.';
                 }
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the purchase advance letter.';
@@ -35,62 +35,62 @@ page 31033 "Purch.Let.Head. - Adv.Link."
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the stage during advance process.';
                 }
-                field("Posting Date"; "Posting Date")
+                field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the posting date for the entry.';
                 }
-                field("Template Code"; "Template Code")
+                field("Template Code"; Rec."Template Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies an advance template code.';
                 }
-                field("Vendor Posting Group"; "Vendor Posting Group")
+                field("Vendor Posting Group"; Rec."Vendor Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the vendor''s market type to link business transactions made for the vendor with the appropriate account in the general ledger.';
                 }
-                field("Posting Description"; "Posting Description")
+                field("Posting Description"; Rec."Posting Description")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description of the document. The posting description also appers on vendor and G/L entries.';
                 }
-                field("Purchaser Code"; "Purchaser Code")
+                field("Purchaser Code"; Rec."Purchaser Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the salesperson who is addigned to the vendor.';
                     Visible = false;
                 }
-                field("Order No."; "Order No.")
+                field("Order No."; Rec."Order No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the purchase order that this advance was posted from.';
                     Visible = false;
                 }
-                field("Amount Including VAT"; "Amount Including VAT")
+                field("Amount Including VAT"; Rec."Amount Including VAT")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether the unit price on the line should be displayed including or excluding VAT.';
                     Visible = false;
                 }
-                field("Document Linked Amount"; "Document Linked Amount")
+                field("Document Linked Amount"; Rec."Document Linked Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Other Doc. Linked Amount';
                     ToolTip = 'Specifies other doc. linked amount';
                     Visible = false;
                 }
-                field("Amount Invoiced"; "Amount Invoiced")
+                field("Amount Invoiced"; Rec."Amount Invoiced")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount with advance VAT document.';
                 }
-                field("Document Linked Inv. Amount"; "Document Linked Inv. Amount")
+                field("Document Linked Inv. Amount"; Rec."Document Linked Inv. Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies document linked inv. amount';
                 }
-                field("Semifinished Linked Amount"; "Semifinished Linked Amount")
+                field("Semifinished Linked Amount"; Rec."Semifinished Linked Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the semifinished linked amount.';
@@ -115,8 +115,6 @@ page 31033 "Purch.Let.Head. - Adv.Link."
                 ApplicationArea = Basic, Suite;
                 Caption = 'Mark';
                 Image = CompleteLine;
-                Promoted = true;
-                PromotedCategory = Process;
                 ShortCutKey = 'Ctrl+F1';
                 ToolTip = 'The funkction allows to mark the selected advance letters to link into invoice.';
 
@@ -130,7 +128,7 @@ page 31033 "Purch.Let.Head. - Adv.Link."
                     if PurchAdvanceLetterHeader.FindSet() then
                         repeat
                             Rec := PurchAdvanceLetterHeader;
-                            Mark := not Mark;
+                            Mark := not Mark();
                         until PurchAdvanceLetterHeader.Next() = 0;
                     Rec := PurchAdvanceLetterHeader2;
                 end;
@@ -140,8 +138,6 @@ page 31033 "Purch.Let.Head. - Adv.Link."
                 ApplicationArea = Basic, Suite;
                 Caption = 'Marked only';
                 Image = FilterLines;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Specifies only the marked advance letters.';
 
                 trigger OnAction()
@@ -157,16 +153,31 @@ page 31033 "Purch.Let.Head. - Adv.Link."
                     ApplicationArea = Basic, Suite;
                     Caption = 'Link Selected Advance Letters';
                     Image = LinkWithExisting;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ShortCutKey = 'F7';
                     ToolTip = 'The funkction allows to link the selected advance letters into invoice.';
 
                     trigger OnAction()
                     begin
                         Action1 := Action1::Assigned;
-                        CurrPage.Close;
+                        CurrPage.Close();
                     end;
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(Mark_Promoted; Mark)
+                {
+                }
+                actionref("Marked only_Promoted"; "Marked only")
+                {
+                }
+                actionref("Link Selected Advance Letters_Promoted"; "Link Selected Advance Letters")
+                {
                 }
             }
         }

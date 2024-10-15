@@ -29,8 +29,8 @@ codeunit 31033 "Gen. Jnl.-Link Letters"
                     "Advance Letter Link Code" := "Document No." + ' ' + Format("Line No.");
                 SetAdvanceLink.SetGenJnlLine(GenJnlLine);
                 SetAdvanceLink.LookupMode(true);
-                OK := SetAdvanceLink.RunModal = ACTION::LookupOK;
-                OK := SetAdvanceLink.GetOK;
+                OK := SetAdvanceLink.RunModal() = ACTION::LookupOK;
+                OK := SetAdvanceLink.GetOK();
                 if OK then
                     SetAdvanceLink.SetPostingGroupToGenJnlLine(GenJnlLine);
                 Clear(SetAdvanceLink);
@@ -44,7 +44,7 @@ codeunit 31033 "Gen. Jnl.-Link Letters"
 
         Rec := GenJnlLine;
         if "Journal Template Name" <> '' then
-            Modify;
+            Modify();
     end;
 
     var

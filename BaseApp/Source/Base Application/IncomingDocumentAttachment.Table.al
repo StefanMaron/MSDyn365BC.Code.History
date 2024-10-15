@@ -1,3 +1,4 @@
+#if not CLEAN19
 table 133 "Incoming Document Attachment"
 {
     Caption = 'Incoming Document Attachment';
@@ -108,11 +109,11 @@ table 133 "Incoming Document Attachment"
             trigger OnValidate()
             begin
                 if Default and (not xRec.Default) then begin
-                    ClearDefaultAttachmentsFromIncomingDocument;
-                    FindDataExchType;
-                    UpdateIncomingDocumentHeaderFields;
+                    ClearDefaultAttachmentsFromIncomingDocument();
+                    FindDataExchType();
+                    UpdateIncomingDocumentHeaderFields();
                 end else
-                    CheckDefault;
+                    CheckDefault();
             end;
         }
         field(18; "Use for OCR"; Boolean)
@@ -145,7 +146,7 @@ table 133 "Incoming Document Attachment"
 
             trigger OnValidate()
             begin
-                CheckMainAttachment;
+                CheckMainAttachment();
             end;
         }
         field(8000; Id; Guid)
@@ -182,15 +183,13 @@ table 133 "Incoming Document Attachment"
         IncomingDocumentAttachment.SetRange("Incoming Document Entry No.", "Incoming Document Entry No.");
         IncomingDocumentAttachment.SetFilter("Line No.", '<>%1', "Line No.");
 
-        if Default then begin
+        if Default then
             if not IncomingDocumentAttachment.IsEmpty() then
                 Error(DefaultAttachErr);
-        end;
 
-        if "Main Attachment" then begin
+        if "Main Attachment" then
             if not IncomingDocumentAttachment.IsEmpty() then
                 Error(MainAttachErr);
-        end;
     end;
 
     trigger OnInsert()
@@ -234,7 +233,7 @@ table 133 "Incoming Document Attachment"
         SetRange("Journal Batch Name Filter", GenJournalLine."Journal Batch Name");
         SetRange("Journal Line No. Filter", GenJournalLine."Line No.");
 
-        NewAttachment;
+        NewAttachment();
     end;
 
     procedure NewAttachmentFromSalesDocument(SalesHeader: Record "Sales Header")
@@ -255,7 +254,6 @@ table 133 "Incoming Document Attachment"
           PurchaseHeader."No.");
     end;
 
-#if not CLEAN19
     [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure NewAttachmentFromSalesAdvLetterDocument(SalesAdvanceLetterHeader: Record "Sales Advance Letter Header")
@@ -264,7 +262,7 @@ table 133 "Incoming Document Attachment"
         SetRange("Incoming Document Entry No.", SalesAdvanceLetterHeader."Incoming Document Entry No.");
         SetRange("Document Table No. Filter", DATABASE::"Sales Advance Letter Header");
         SetRange("Document No. Filter", SalesAdvanceLetterHeader."No.");
-        NewAttachment;
+        NewAttachment();
     end;
 
     [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
@@ -275,23 +273,9 @@ table 133 "Incoming Document Attachment"
         SetRange("Incoming Document Entry No.", PurchAdvanceLetterHeader."Incoming Document Entry No.");
         SetRange("Document Table No. Filter", DATABASE::"Purch. Advance Letter Header");
         SetRange("Document No. Filter", PurchAdvanceLetterHeader."No.");
-        NewAttachment;
+        NewAttachment();
     end;
 
-#endif
-#if not CLEAN18
-    [Scope('OnPrem')]
-    [Obsolete('Moved to Compensation Localization Pack for Czech.', '18.0')]
-    procedure NewAttachmentFromCreditDocument(CreditHeader: Record "Credit Header")
-    begin
-        // NAVCZ
-        SetRange("Incoming Document Entry No.", CreditHeader."Incoming Document Entry No.");
-        SetRange("Document Table No. Filter", DATABASE::"Credit Header");
-        SetRange("Document No. Filter", CreditHeader."No.");
-        NewAttachment;
-    end;
-
-#endif
     procedure NewAttachmentFromDocument(EntryNo: Integer; TableID: Integer; DocumentType: Option; DocumentNo: Code[20])
     begin
         SetRange("Incoming Document Entry No.", EntryNo);
@@ -336,14 +320,14 @@ table 133 "Incoming Document Attachment"
         if "Incoming Document Entry No." = 0 then
             exit;
         CalcFields(Content);
-        if not Content.HasValue then
+        if not Content.HasValue() then
             exit;
 
         if DefaultFileName = '' then
             DefaultFileName := Name + '.' + "File Extension";
 
         OnGetBinaryContent(TempBlob, "Incoming Document Entry No.");
-        if not TempBlob.HasValue then
+        if not TempBlob.HasValue() then
             TempBlob.FromRecord(Rec, FieldNo(Content));
         exit(FileMgt.BLOBExport(TempBlob, DefaultFileName, ShowFileDialog));
     end;
@@ -361,7 +345,7 @@ table 133 "Incoming Document Attachment"
         IncomingDocument.Get("Incoming Document Entry No.");
         IncomingDocument.TestField(Posted, false);
         if Confirm(DeleteQst, false) then
-            Delete;
+            Delete();
     end;
 
     local procedure CheckDefault()
@@ -397,12 +381,12 @@ table 133 "Incoming Document Attachment"
     begin
         CalcFields(Content);
         OnGetBinaryContent(TempBlob, "Incoming Document Entry No.");
-        if not TempBlob.HasValue then
+        if not TempBlob.HasValue() then
             TempBlob.FromRecord(Rec, FieldNo(Content));
 
         if "External Document Reference" = '' then
-            "External Document Reference" := LowerCase(DelChr(Format(CreateGuid), '=', '{}-'));
-        Modify;
+            "External Document Reference" := LowerCase(DelChr(Format(CreateGuid()), '=', '{}-'));
+        Modify();
         IncomingDocument.Get("Incoming Document Entry No.");
         OCRServiceMgt.UploadAttachment(
           TempBlob,
@@ -447,7 +431,7 @@ table 133 "Incoming Document Attachment"
         if Type <> Type::XML then
             exit;
         OnGetBinaryContent(TempBlob, "Incoming Document Entry No.");
-        if not TempBlob.HasValue then
+        if not TempBlob.HasValue() then
             TempBlob.FromRecord(Rec, FieldNo(Content));
 
         TempBlob.CreateInStream(InStream);
@@ -504,7 +488,7 @@ table 133 "Incoming Document Attachment"
         XmlValue: Text;
         XPath: Text;
     begin
-        IncomingDocument.Find;
+        IncomingDocument.Find();
         XPath := IncomingDocument.GetDataExchangePath(FieldNo);
         if XPath = '' then
             exit;
@@ -548,7 +532,7 @@ table 133 "Incoming Document Attachment"
         IncomingDocumentAttachment.SetRange("Main Attachment", true);
 
         MoreThanOneMainAttachmentExist := "Main Attachment" and (not IncomingDocumentAttachment.IsEmpty);
-        NoMainAttachmentExist := (not "Main Attachment") and IncomingDocumentAttachment.IsEmpty;
+        NoMainAttachmentExist := (not "Main Attachment") and IncomingDocumentAttachment.IsEmpty();
 
         if MoreThanOneMainAttachmentExist or NoMainAttachmentExist then
             Error(MainAttachErr);
@@ -584,13 +568,8 @@ table 133 "Incoming Document Attachment"
         PurchaseHeader: Record "Purchase Header";
         GenJournalLine: Record "Gen. Journal Line";
         PurchInvHeader: Record "Purch. Inv. Header";
-#if not CLEAN19
         SalesAdvanceLetterHeader: Record "Sales Advance Letter Header";
         PurchAdvanceLetterHeader: Record "Purch. Advance Letter Header";
-#endif
-#if not CLEAN18
-        CreditHeader: Record "Credit Header";
-#endif
         DataTypeManagement: Codeunit "Data Type Management";
         EnumAssignmentMgt: Codeunit "Enum Assignment Management";
         DocumentNoFieldRef: FieldRef;
@@ -628,7 +607,6 @@ table 133 "Incoming Document Attachment"
                     IncomingDocumentAttachment.SetRange("Journal Batch Name Filter", GenJournalLine."Journal Batch Name");
                     IncomingDocumentAttachment.SetRange("Journal Line No. Filter", GenJournalLine."Line No.");
                 end;
-#if not CLEAN19
             // NAVCZ
             DATABASE::"Sales Advance Letter Header":
                 begin
@@ -642,26 +620,17 @@ table 133 "Incoming Document Attachment"
                     IncomingDocumentAttachment.SetRange("Document Table No. Filter", MainRecordRef.Number);
                     IncomingDocumentAttachment.SetRange("Document No. Filter", PurchAdvanceLetterHeader."No.");
                 end;
-#if not CLEAN18
-            DATABASE::"Credit Header":
-                begin
-                    MainRecordRef.SetTable(CreditHeader);
-                    IncomingDocumentAttachment.SetRange("Document Table No. Filter", MainRecordRef.Number);
-                    IncomingDocumentAttachment.SetRange("Document No. Filter", CreditHeader."No.");
-                end;
-#endif
             // NAVCZ
-#endif
             else begin
-                    if not DataTypeManagement.FindFieldByName(MainRecordRef, DocumentNoFieldRef, GenJournalLine.FieldName("Document No.")) then
-                        if not DataTypeManagement.FindFieldByName(MainRecordRef, DocumentNoFieldRef, PurchInvHeader.FieldName("No.")) then
-                            exit;
-                    if not DataTypeManagement.FindFieldByName(MainRecordRef, PostingDateFieldRef, GenJournalLine.FieldName("Posting Date")) then
+                if not DataTypeManagement.FindFieldByName(MainRecordRef, DocumentNoFieldRef, GenJournalLine.FieldName("Document No.")) then
+                    if not DataTypeManagement.FindFieldByName(MainRecordRef, DocumentNoFieldRef, PurchInvHeader.FieldName("No.")) then
                         exit;
-                    IncomingDocumentAttachment.SetRange("Document No.", Format(DocumentNoFieldRef.Value));
-                    Evaluate(PostingDate, Format(PostingDateFieldRef.Value));
-                    IncomingDocumentAttachment.SetRange("Posting Date", PostingDate);
-                end;
+                if not DataTypeManagement.FindFieldByName(MainRecordRef, PostingDateFieldRef, GenJournalLine.FieldName("Posting Date")) then
+                    exit;
+                IncomingDocumentAttachment.SetRange("Document No.", Format(DocumentNoFieldRef.Value));
+                Evaluate(PostingDate, Format(PostingDateFieldRef.Value));
+                IncomingDocumentAttachment.SetRange("Posting Date", PostingDate);
+            end;
         end;
     end;
 
@@ -678,10 +647,10 @@ table 133 "Incoming Document Attachment"
     var
         Notification: Notification;
     begin
-        Notification.Id := CreateGuid;
+        Notification.Id := CreateGuid();
         Notification.Message := NotifIncDocCompletedMsg;
         Notification.Scope := NOTIFICATIONSCOPE::LocalScope;
-        Notification.Send;
+        Notification.Send();
     end;
 
     procedure SetContentFromBlob(TempBlob: Codeunit "Temp Blob")
@@ -705,3 +674,5 @@ table 133 "Incoming Document Attachment"
     end;
 }
 
+
+#endif

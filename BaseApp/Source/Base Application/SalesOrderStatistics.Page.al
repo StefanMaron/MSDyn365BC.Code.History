@@ -72,7 +72,7 @@ page 402 "Sales Order Statistics"
 
                     trigger OnValidate()
                     begin
-                        TotalAmount21OnAfterValidate;
+                        TotalAmount21OnAfterValidate();
                     end;
                 }
                 field("TotalSalesLineLCY[1].Amount"; TotalSalesLineLCY[1].Amount)
@@ -402,9 +402,9 @@ page 402 "Sales Order Statistics"
                         VATLinesDrillDown(TempVATAmountLine2, true);
                         UpdateHeaderInfo(2, TempVATAmountLine2);
 
-                        if TempVATAmountLine2.GetAnyLineModified then begin
-                            UpdateVATOnSalesLines;
-                            RefreshOnAfterGetRecord;
+                        if TempVATAmountLine2.GetAnyLineModified() then begin
+                            UpdateVATOnSalesLines();
+                            RefreshOnAfterGetRecord();
                         end;
                     end;
                 }
@@ -642,7 +642,7 @@ page 402 "Sales Order Statistics"
                     ExtendedDatatype = Ratio;
                     ToolTip = 'Specifies the deducted percentage of the prepayment amount to deduct.';
                 }
-                field("Prepayment Type"; "Prepayment Type")
+                field("Prepayment Type"; Rec."Prepayment Type")
                 {
                     ApplicationArea = Prepayments;
                     Editable = false;
@@ -831,7 +831,7 @@ page 402 "Sales Order Statistics"
     trigger OnAfterGetRecord()
     begin
         CalcFields("Adv.Letter Link.Amt. to Deduct"); // NAVCZ
-        RefreshOnAfterGetRecord;
+        RefreshOnAfterGetRecord();
     end;
 
     trigger OnOpenPage()
@@ -857,12 +857,6 @@ page 402 "Sales Order Statistics"
     end;
 
     var
-        Text000: Label 'Sales %1 Statistics';
-        Text001: Label 'Total';
-        Text002: Label 'Amount';
-        Text003: Label '%1 must not be 0.';
-        Text004: Label '%1 must not be greater than %2.';
-        Text005: Label 'You cannot change the invoice discount because a customer invoice discount with the code %1 exists.';
         Cust: Record Customer;
         TempVATAmountLine1: Record "VAT Amount Line" temporary;
         TempVATAmountLine2: Record "VAT Amount Line" temporary;
@@ -889,6 +883,13 @@ page 402 "Sales Order Statistics"
         PrevTab: Option General,Invoicing,Shipping,Prepayment;
         AllowInvDisc: Boolean;
         AllowVATDifference: Boolean;
+
+        Text000: Label 'Sales %1 Statistics';
+        Text001: Label 'Total';
+        Text002: Label 'Amount';
+        Text003: Label '%1 must not be 0.';
+        Text004: Label '%1 must not be greater than %2.';
+        Text005: Label 'You cannot change the invoice discount because a customer invoice discount with the code %1 exists.';
         Text006: Label 'Prepmt. Amount';
         Text007: Label 'Prepmt. Amt. Invoiced';
         Text008: Label 'Prepmt. Amt. Deducted';
@@ -1083,16 +1084,11 @@ page 402 "Sales Order Statistics"
         UpdateHeaderInfo(2, TempVATAmountLine2);
     end;
 
-    local procedure UpdateHeaderInfo(IndexNo: Integer; var VATAmountLine: Record "VAT Amount Line")
+    procedure UpdateHeaderInfo(IndexNo: Integer; var VATAmountLine: Record "VAT Amount Line")
     var
         CurrExchRate: Record "Currency Exchange Rate";
         UseDate: Date;
         Currency: Record Currency;
-#if not CLEAN18
-        GLSetup: Record "General Ledger Setup";
-        RoundingPrecisionLCY: Decimal;
-        RoundingDirectionLCY: Text[1];
-#endif
     begin
         TotalSalesLine[IndexNo]."Inv. Discount Amount" := VATAmountLine.GetTotalInvDiscAmount();
         TotalAmount1[IndexNo] := TotalSalesLine[IndexNo]."Line Amount" - TotalSalesLine[IndexNo]."Inv. Discount Amount";
@@ -1112,7 +1108,7 @@ page 402 "Sales Order Statistics"
             TotalSalesLineLCY[IndexNo].Amount := TotalAmount1[IndexNo];
         if Rec."Currency Code" <> '' then
             if Rec."Posting Date" = 0D then
-                UseDate := WorkDate
+                UseDate := WorkDate()
             else
                 UseDate := "Posting Date";
 
@@ -1124,24 +1120,14 @@ page 402 "Sales Order Statistics"
             if (TotalSalesLineLCY[IndexNo]."VAT Calculation Type" = TotalSalesLineLCY[IndexNo]."VAT Calculation Type"::"Normal VAT") or
                (TotalSalesLineLCY[IndexNo]."VAT Calculation Type" = TotalSalesLineLCY[IndexNo]."VAT Calculation Type"::"Reverse Charge VAT")
             then begin
-#if CLEAN18
                 Currency.Get("Currency Code");
-#else
-                GLSetup.Get();
-                Currency.Get("Currency Code");
-                GLSetup.GetRoundingParamentersLCY(Currency, RoundingPrecisionLCY, RoundingDirectionLCY);
-#endif
 
                 if "Prices Including VAT" then
                     TotalSalesLineLCY[IndexNo].Amount :=
                         Round(
                             (TotalSalesLineLCY[IndexNo]."Line Amount" - VATAmountLine."Invoice Discount Amount") /
                             (1 + VATAmountLine."VAT %" / 100),
-#if CLEAN18
                             Currency."Amount Rounding Precision") - VATAmountLine."VAT Difference";
-#else
-                            RoundingPrecisionLCY) - VATAmountLine."VAT Difference";
-#endif
             end;
         // NAVCZ
         ProfitLCY[IndexNo] := TotalSalesLineLCY[IndexNo].Amount - TotalSalesLineLCY[IndexNo]."Unit Cost (LCY)";
@@ -1181,7 +1167,7 @@ page 402 "Sales Order Statistics"
     var
         SaveTotalAmount: Decimal;
     begin
-        CheckAllowInvDisc;
+        CheckAllowInvDisc();
         if Rec."Prices Including VAT" then begin
             SaveTotalAmount := TotalAmount1[IndexNo];
             UpdateInvDiscAmount(IndexNo);
@@ -1202,11 +1188,11 @@ page 402 "Sales Order Statistics"
         i: Integer;
         InvDiscBaseAmount: Decimal;
     begin
-        CheckAllowInvDisc;
+        CheckAllowInvDisc();
         if not (ModifiedIndexNo in [1, 2]) then
             exit;
 
-        if InvoicedLineExists then
+        if InvoicedLineExists() then
             if not ConfirmManagement.GetResponseOrDefault(UpdateInvDiscountQst, true) then
                 Error('');
 
@@ -1242,10 +1228,10 @@ page 402 "Sales Order Statistics"
         for i := 1 to MaxIndexNo do
             with TotalSalesLine[IndexNo[i]] do begin
                 if (i = 1) or not PartialInvoicing then
-                    if IndexNo[i] = 1 then begin
+                    if IndexNo[i] = 1 then
                         TempVATAmountLine1.SetInvoiceDiscountAmount(
-                          "Inv. Discount Amount", "Currency Code", "Prices Including VAT", "VAT Base Discount %");
-                    end else
+                          "Inv. Discount Amount", "Currency Code", "Prices Including VAT", "VAT Base Discount %")
+                    else
                         TempVATAmountLine2.SetInvoiceDiscountAmount(
                           "Inv. Discount Amount", "Currency Code", "Prices Including VAT", "VAT Base Discount %");
 
@@ -1257,7 +1243,7 @@ page 402 "Sales Order Statistics"
                               0, "Currency Code", "Prices Including VAT", false, "VAT Base Discount %")
                         else
                             TempVATAmountLine1.SetInvoiceDiscountPercent(
-                              100 * TempVATAmountLine2.GetTotalInvDiscAmount / InvDiscBaseAmount,
+                              100 * TempVATAmountLine2.GetTotalInvDiscAmount() / InvDiscBaseAmount,
                               "Currency Code", "Prices Including VAT", false, "VAT Base Discount %");
                     end else begin
                         InvDiscBaseAmount := TempVATAmountLine1.GetTotalInvDiscBaseAmount(false, "Currency Code");
@@ -1266,7 +1252,7 @@ page 402 "Sales Order Statistics"
                               0, "Currency Code", "Prices Including VAT", false, "VAT Base Discount %")
                         else
                             TempVATAmountLine2.SetInvoiceDiscountPercent(
-                              100 * TempVATAmountLine1.GetTotalInvDiscAmount / InvDiscBaseAmount,
+                              100 * TempVATAmountLine1.GetTotalInvDiscAmount() / InvDiscBaseAmount,
                               "Currency Code", "Prices Including VAT", false, "VAT Base Discount %");
                     end;
             end;
@@ -1276,21 +1262,14 @@ page 402 "Sales Order Statistics"
 
         if ModifiedIndexNo = 1 then
             VATLinesForm.SetTempVATAmountLine(TempVATAmountLine1)
-#if CLEAN18
         else
             VATLinesForm.SetTempVATAmountLine(TempVATAmountLine2);
-#else
-        else begin
-            TempVATAmountLine2.ModifyAll("Modified (LCY)", false); // NAVCZ
-            VATLinesForm.SetTempVATAmountLine(TempVATAmountLine2);
-        end;
-#endif
 
         "Invoice Discount Calculation" := "Invoice Discount Calculation"::Amount;
         "Invoice Discount Value" := TotalSalesLine[1]."Inv. Discount Amount";
-        Modify;
+        Modify();
 
-        UpdateVATOnSalesLines;
+        UpdateVATOnSalesLines();
     end;
 
     local procedure UpdatePrepmtAmount()
@@ -1311,7 +1290,7 @@ page 402 "Sales Order Statistics"
             PrepmtTotalAmount := PrepmtTotalAmount + PrepmtVATAmount;
         end else
             PrepmtTotalAmount2 := PrepmtTotalAmount + PrepmtVATAmount;
-        Modify;
+        Modify();
     end;
 
     protected procedure GetCaptionClass(FieldCaption: Text[100]; ReverseCaption: Boolean): Text[80]
@@ -1326,9 +1305,9 @@ page 402 "Sales Order Statistics"
         SalesLine: Record "Sales Line";
     begin
         GetVATSpecification(ActiveTab);
-        if TempVATAmountLine1.GetAnyLineModified then
+        if TempVATAmountLine1.GetAnyLineModified() then
             SalesLine.UpdateVATOnLines(0, Rec, SalesLine, TempVATAmountLine1);
-        if TempVATAmountLine2.GetAnyLineModified then
+        if TempVATAmountLine2.GetAnyLineModified() then
             SalesLine.UpdateVATOnLines(1, Rec, SalesLine, TempVATAmountLine2);
         PrevNo := '';
     end;
@@ -1338,7 +1317,7 @@ page 402 "Sales Order Statistics"
         CustInvDisc: Record "Cust. Invoice Disc.";
     begin
         CustInvDisc.SetRange(Code, InvDiscCode);
-        exit(CustInvDisc.FindFirst);
+        exit(CustInvDisc.FindFirst())
     end;
 
     local procedure CheckAllowInvDisc()
@@ -1356,7 +1335,7 @@ page 402 "Sales Order Statistics"
         exit(Round(Numerator / Denominator * 10000, 1));
     end;
 
-    local procedure VATLinesDrillDown(var VATLinesToDrillDown: Record "VAT Amount Line"; ThisTabAllowsVATEditing: Boolean)
+    protected procedure VATLinesDrillDown(var VATLinesToDrillDown: Record "VAT Amount Line"; ThisTabAllowsVATEditing: Boolean)
     begin
         Clear(VATLinesForm);
         VATLinesForm.SetTempVATAmountLine(VATLinesToDrillDown);
@@ -1445,7 +1424,7 @@ page 402 "Sales Order Statistics"
                 repeat
                     TempVATAmountLineTot := VATAmountLine;
                     TempVATAmountLineTot.Positive := true;
-                    if not TempVATAmountLineTot.Find then begin
+                    if not TempVATAmountLineTot.Find() then begin
                         TempVATAmountLineTot := VATAmountLine;
                         TempVATAmountLineTot.Positive := true;
                         TempVATAmountLineTot."Line Amount" := 0;
@@ -1456,17 +1435,6 @@ page 402 "Sales Order Statistics"
                         TempVATAmountLineTot."Amount Including VAT" += "Amount Including VAT";
                         TempVATAmountLineTot."Calculated VAT Amount" += "Calculated VAT Amount";
                         TempVATAmountLineTot."VAT Difference" += "VAT Difference";
-#if not CLEAN18
-                        TempVATAmountLineTot."Ext. VAT Base (LCY)" += "Ext. VAT Base (LCY)";
-                        TempVATAmountLineTot."Ext. VAT Amount (LCY)" += "Ext. VAT Amount (LCY)";
-                        TempVATAmountLineTot."Ext.Amount Including VAT (LCY)" += "Ext.Amount Including VAT (LCY)";
-                        TempVATAmountLineTot."Ext. VAT Difference (LCY)" += "Ext. VAT Difference (LCY)";
-                        TempVATAmountLineTot."Ext. Calc. VAT Amount (LCY)" += "Ext. Calc. VAT Amount (LCY)";
-                        TempVATAmountLineTot."VAT Base (LCY)" += "VAT Base (LCY)";
-                        TempVATAmountLineTot."VAT Amount (LCY)" += "VAT Amount (LCY)";
-                        TempVATAmountLineTot."Amount Including VAT (LCY)" += "Amount Including VAT (LCY)";
-                        TempVATAmountLineTot."Calculated VAT Amount (LCY)" += "Calculated VAT Amount (LCY)";
-#endif
                         TempVATAmountLineTot.Modify();
                     end;
                 until Next() = 0;

@@ -1,12 +1,8 @@
-#if not CLEAN18
-report 594 "Get Item Ledger Entries"
+﻿report 594 "Get Item Ledger Entries"
 {
-    Caption = 'Get Item Ledger Entries (Obsolete)';
+    Caption = 'Get Item Ledger Entries';
     Permissions = TableData "General Posting Setup" = imd;
     ProcessingOnly = true;
-    ObsoleteState = Pending;
-    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-    ObsoleteTag = '18.0';
 
     dataset
     {
@@ -15,7 +11,7 @@ report 594 "Get Item Ledger Entries"
             DataItemTableView = SORTING("Intrastat Code") WHERE("Intrastat Code" = FILTER(<> ''));
             dataitem("Item Ledger Entry"; "Item Ledger Entry")
             {
-                DataItemTableView = SORTING("Country/Region Code", "Entry Type", "Posting Date") WHERE("Entry Type" = FILTER(Purchase | Sale | Transfer), Correction = CONST(false), "Intrastat Transaction" = CONST(true));
+                DataItemTableView = SORTING("Country/Region Code", "Entry Type", "Posting Date") WHERE("Entry Type" = FILTER(Purchase | Sale | Transfer), Correction = CONST(false));
 
                 trigger OnAfterGetRecord()
                 var
@@ -51,7 +47,7 @@ report 594 "Get Item Ledger Entries"
                     if (TotalAmt = 0) and SkipZeroAmounts then
                         CurrReport.Skip();
 
-                    InsertItemJnlLine;
+                    InsertItemJnlLine();
                 end;
 
                 trigger OnPreDataItem()
@@ -89,13 +85,13 @@ report 594 "Get Item Ledger Entries"
                 trigger OnAfterGetRecord()
                 begin
                     IntrastatJnlLine2.SetRange("Source Entry No.", "Entry No.");
-                    if IntrastatJnlLine2.FindFirst or (CompanyInfo."Country/Region Code" = "Country/Region Code") then
+                    if IntrastatJnlLine2.FindFirst() or (CompanyInfo."Country/Region Code" = "Country/Region Code") then
                         CurrReport.Skip();
 
                     if IsJobService("Job Ledger Entry") then
                         CurrReport.Skip();
 
-                    InsertJobLedgerLine;
+                    InsertJobLedgerLine();
                 end;
 
                 trigger OnPreDataItem()
@@ -111,8 +107,6 @@ report 594 "Get Item Ledger Entries"
             DataItemTableView = SORTING("Entry No.");
 
             trigger OnAfterGetRecord()
-            var
-                ItemLedgEntry: Record "Item Ledger Entry";
             begin
                 if ShowItemCharges then begin
                     IntrastatJnlLine2.SetRange("Source Entry No.", "Item Ledger Entry No.");
@@ -124,56 +118,17 @@ report 594 "Get Item Ledger Entries"
                         if "Item Ledger Entry"."Posting Date" in [StartDate .. EndDate] then
                             CurrReport.Skip();
                         if "Country/Region".Get("Item Ledger Entry"."Country/Region Code") then
-                            if "Country/Region"."Intrastat Code" = '' then
+                            if "Country/Region"."EU Country/Region Code" = '' then
                                 CurrReport.Skip();
-                        // NAVCZ
-                        if "Item Ledger Entry".Correction or
-                           not "Item Ledger Entry"."Intrastat Transaction" or
-                           not ("Item Ledger Entry"."Entry Type" in
-                                ["Item Ledger Entry"."Entry Type"::Purchase,
-                                 "Item Ledger Entry"."Entry Type"::Sale,
-                                 "Item Ledger Entry"."Entry Type"::Transfer])
-                        then
+                        if not HasCrossedBorder("Item Ledger Entry") then
                             CurrReport.Skip();
-                        if "Item Ledger Entry"."Entry Type" in
-                           ["Item Ledger Entry"."Entry Type"::Sale,
-                            "Item Ledger Entry"."Entry Type"::Purchase]
-                        then begin
-                            ItemLedgEntry.Reset();
-                            ItemLedgEntry.SetCurrentKey("Document No.", "Document Type");
-                            ItemLedgEntry.SetRange("Document No.", "Item Ledger Entry"."Document No.");
-                            ItemLedgEntry.SetRange("Item No.", "Item Ledger Entry"."Item No.");
-                            ItemLedgEntry.SetRange(Correction, true);
-                            if "Item Ledger Entry"."Document Type" in
-                               ["Item Ledger Entry"."Document Type"::"Sales Shipment",
-                                "Item Ledger Entry"."Document Type"::"Sales Return Receipt",
-                                "Item Ledger Entry"."Document Type"::"Purchase Receipt",
-                                "Item Ledger Entry"."Document Type"::"Purchase Return Shipment"]
-                            then begin
-                                ItemLedgEntry.SetRange("Document Type", "Item Ledger Entry"."Document Type");
-                                if ItemLedgEntry.FindSet() then
-                                    repeat
-                                        if IsItemLedgerEntryCorrected(ItemLedgEntry, "Item Ledger Entry"."Entry No.") then
-                                            CurrReport.Skip();
-                                    until ItemLedgEntry.Next() = 0;
-                            end;
-                        end;
-                        // NAVCZ
-                        if not HasCrossedBorder("Item Ledger Entry") or IsService("Item Ledger Entry") then // NAVCZ
-                            CurrReport.Skip();
-                        CalculateTotals2("Value Entry");  // NAVCZ
-                        InsertValueEntryLine;
+                        InsertValueEntryLine();
                     end;
                 end;
             end;
 
             trigger OnPreDataItem()
             begin
-                // NAVCZ
-                if not StatReportingSetup."Include other Period add.Costs" then
-                    CurrReport.Break();
-                // NAVCZ
-
                 SetRange("Posting Date", StartDate, EndDate);
                 SetFilter("Item Charge No.", '<> %1', '');
                 "Item Ledger Entry".SetRange("Posting Date");
@@ -213,9 +168,7 @@ report 594 "Get Item Ledger Entries"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Cost Regulation %';
                         DecimalPlaces = 0 : 5;
-                        Enabled = false;
                         ToolTip = 'Specifies the cost regulation percentage to cover freight and insurance. The statistical value of every line in the journal is increased by this percentage.';
-                        Visible = false;
                     }
                 }
                 group(Additional)
@@ -251,7 +204,7 @@ report 594 "Get Item Ledger Entries"
         begin
             IntraJnlTemplate.Get(IntrastatJnlLine."Journal Template Name");
             IntrastatJnlBatch.Get(IntrastatJnlLine."Journal Template Name", IntrastatJnlLine."Journal Batch Name");
-            StartDate := IntrastatJnlBatch.GetStatisticsStartDate;
+            StartDate := IntrastatJnlBatch.GetStatisticsStartDate();
             EndDate := CalcDate('<+1M-1D>', StartDate);
         end;
     }
@@ -281,25 +234,9 @@ report 594 "Get Item Ledger Entries"
             AddCurrencyFactor :=
               CurrExchRate.ExchangeRate(EndDate, GLSetup."Additional Reporting Currency");
         end;
-
-        // NAVCZ
-        GetStatReportingSetup;
-        StatReportingSetup.TestField("Ignore Intrastat Ex.Rate From");
-        case StatReportingSetup."Intrastat Rounding Type" of
-            StatReportingSetup."Intrastat Rounding Type"::Nearest:
-                Direction := '=';
-            StatReportingSetup."Intrastat Rounding Type"::Up:
-                Direction := '>';
-            StatReportingSetup."Intrastat Rounding Type"::Down:
-                Direction := '<';
-        end;
-        IndirectCostPctReq := StatReportingSetup."Cost Regulation %";
-        IntrExchRateMandatory := StatReportingSetup."Intrastat Exch.Rate Mandatory";
-        // NAVCZ
     end;
 
     var
-        Text000: Label 'Prices including VAT cannot be calculated when %1 is %2.';
         IntraJnlTemplate: Record "Intrastat Jnl. Template";
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
         IntrastatJnlLine2: Record "Intrastat Jnl. Line";
@@ -309,21 +246,14 @@ report 594 "Get Item Ledger Entries"
         CurrExchRate: Record "Currency Exchange Rate";
         CompanyInfo: Record "Company Information";
         Currency: Record Currency;
-        StatReportingSetup: Record "Stat. Reporting Setup";
         UOMMgt: Codeunit "Unit of Measure Management";
         TotalAmt: Decimal;
         AddCurrencyFactor: Decimal;
         AverageCost: Decimal;
         AverageCostACY: Decimal;
         GLSetupRead: Boolean;
-        StatReportingSetupRead: Boolean;
-        Direction: Text[1];
-        IntrExchRateMandatory: Boolean;
-        TotalICAmt: array[2] of Decimal;
-        TotalICCostAmt: array[2] of Decimal;
-        TotalICAmtExpected: array[2] of Decimal;
-        TotalICCostAmtExpected: array[2] of Decimal;
-        TotalCostAmt2: Decimal;
+
+        Text000: Label 'Prices including VAT cannot be calculated when %1 is %2.';
 
     protected var
         IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
@@ -342,20 +272,11 @@ report 594 "Get Item Ledger Entries"
 
     local procedure InsertItemJnlLine()
     var
-        TempSalesHeader: Record "Sales Header" temporary;
-        DocumentCurrencyFactor: Decimal;
-        IntrastatCurrencyFactor: Decimal;
         IsHandled: Boolean;
     begin
         GetGLSetup();
-        // NAVCZ
-        GetDocumentFromItemLedgEntry("Item Ledger Entry", TempSalesHeader);
-        DocumentCurrencyFactor := TempSalesHeader."Currency Factor";
-        IntrastatCurrencyFactor := CalculateExchangeRateFromDocument(TempSalesHeader);
-        // NAVCZ
-
         with IntrastatJnlLine do begin
-            Init;
+            Init();
             "Line No." := "Line No." + 10000;
             Date := "Item Ledger Entry"."Posting Date";
             "Country/Region Code" := "Item Ledger Entry"."Country/Region Code";
@@ -364,69 +285,25 @@ report 594 "Get Item Ledger Entries"
             "Source Entry No." := "Item Ledger Entry"."Entry No.";
             Quantity := "Item Ledger Entry".Quantity;
             "Document No." := "Item Ledger Entry"."Document No.";
-            Validate("Item No.", "Item Ledger Entry"."Item No."); // NAVCZ
+            "Item No." := "Item Ledger Entry"."Item No.";
             "Entry/Exit Point" := "Item Ledger Entry"."Entry/Exit Point";
             Area := "Item Ledger Entry".Area;
             "Transaction Specification" := "Item Ledger Entry"."Transaction Specification";
             "Shpt. Method Code" := "Item Ledger Entry"."Shpt. Method Code";
             "Location Code" := "Item Ledger Entry"."Location Code";
+            Amount := Round(Abs(TotalAmt), 1);
 
-            // NAVCZ
-            CalcDataForItemJnlLine;
-            "Source Type" := "Source Type"::"Item Entry";
-            case "Item Ledger Entry"."Entry Type" of
-                "Item Ledger Entry"."Entry Type"::Purchase:
-                    if "Item Ledger Entry"."Physical Transfer" then begin
-                        Type := Type::Shipment;
-                        Amount := Round(Abs(TotalCostAmt2 + TotalICCostAmt[1]), 1, Direction);
-                        Validate(Quantity, Abs(Quantity));
-                    end else
-                        if "Item Ledger Entry".Quantity > 0 then begin
-                            Type := Type::Receipt;
-                            Amount := Round(Abs(TotalCostAmt2 + TotalICCostAmt[1]), 1, Direction);
-                            Validate(Quantity, Abs(Quantity));
-                        end else begin
-                            Type := Type::Receipt;
-                            Amount := -Round(Abs(TotalCostAmt2 + TotalICCostAmt[1]), 1, Direction);
-                            Validate(Quantity, -Abs(Quantity));
-                        end;
-                "Item Ledger Entry"."Entry Type"::Sale:
-                    if "Item Ledger Entry"."Physical Transfer" then begin
-                        Type := Type::Receipt;
-                        Amount := Round(Abs(TotalAmt + TotalICAmt[1]), 1, Direction);
-                        Validate(Quantity, RoundValue(Abs(Quantity)));
-                    end else
-                        if "Item Ledger Entry".Quantity < 0 then begin
-                            Type := Type::Shipment;
-                            Amount := Round(Abs(TotalAmt + TotalICAmt[1]), 1, Direction);
-                            Validate(Quantity, Abs(Quantity));
-                        end else begin
-                            Type := Type::Shipment;
-                            Amount := -Round(Abs(TotalAmt + TotalICAmt[1]), 1, Direction);
-                            Validate(Quantity, -Abs(Quantity));
-                        end;
-                "Item Ledger Entry"."Entry Type"::Transfer:
-                    if "Item Ledger Entry".Quantity < 0 then begin
-                        Type := Type::Shipment;
-                        Amount := Round(Abs(TotalCostAmt2 + TotalICCostAmt[1]), 1, Direction);
-                        Validate(Quantity, Abs(Quantity));
-                    end else begin
-                        Type := Type::Receipt;
-                        Amount := Round(Abs(TotalCostAmt2 + TotalICCostAmt[1]), 1, Direction);
-                        Validate(Quantity, Abs(Quantity));
-                    end;
-            end;
-            "Cost Regulation %" := IndirectCostPctReq;
-            CalcStatValue;
+            if Quantity < 0 then
+                Type := Type::Shipment
+            else
+                Type := Type::Receipt;
 
-            Amount := Round(CalculateExchangeAmount(Amount, DocumentCurrencyFactor, IntrastatCurrencyFactor), 1, Direction);
-            "Statistical Value" :=
-              Round(CalculateExchangeAmount("Statistical Value", DocumentCurrencyFactor, IntrastatCurrencyFactor), 1, Direction);
-            "Indirect Cost" :=
-              Round(CalculateExchangeAmount("Indirect Cost", DocumentCurrencyFactor, IntrastatCurrencyFactor), 1, Direction);
-            "Source Entry Date" := "Item Ledger Entry"."Posting Date";
+            SetCountryRegionCode(IntrastatJnlLine, "Item Ledger Entry");
+
+            Validate("Item No.");
             Validate("Source Type", "Source Type"::"Item Entry");
-            // NAVCZ
+            Validate(Quantity, Round(Abs(Quantity), UOMMgt.QtyRndPrecision()));
+            Validate("Cost Regulation %", IndirectCostPctReq);
 
             IsHandled := false;
             OnBeforeInsertItemJnlLine(IntrastatJnlLine, "Item Ledger Entry", IsHandled);
@@ -437,11 +314,10 @@ report 594 "Get Item Ledger Entries"
 
     local procedure InsertJobLedgerLine()
     var
-        IsCorrection: Boolean;
         IsHandled: Boolean;
     begin
         with IntrastatJnlLine do begin
-            Init;
+            Init();
             "Line No." := "Line No." + 10000;
 
             Date := "Job Ledger Entry"."Posting Date";
@@ -449,11 +325,7 @@ report 594 "Get Item Ledger Entries"
             "Transaction Type" := "Job Ledger Entry"."Transaction Type";
             "Transport Method" := "Job Ledger Entry"."Transport Method";
             Quantity := "Job Ledger Entry"."Quantity (Base)";
-
-            // NAVCZ
-            CalcDataForJobJnlLine;
-            IsCorrection := "Job Ledger Entry".Correction;
-            if (Quantity > 0) xor IsCorrection then
+            if Quantity > 0 then
                 Type := Type::Shipment
             else
                 Type := Type::Receipt;
@@ -471,23 +343,15 @@ report 594 "Get Item Ledger Entries"
             "Location Code" := "Job Ledger Entry"."Location Code";
 
             if IntrastatJnlBatch."Amounts in Add. Currency" then
-                Amount := Round(Abs(Amount), Currency."Amount Rounding Precision", Direction) // NAVCZ
+                Amount := Round(Abs(Amount), Currency."Amount Rounding Precision")
             else
-                Amount := Round(Abs(Amount), GLSetup."Amount Rounding Precision", Direction); // NAVCZ
+                Amount := Round(Abs(Amount), GLSetup."Amount Rounding Precision");
+
             Validate("Item No.");
             Validate("Source Type", "Source Type"::"Job Entry");
             Validate(Quantity, Round(Abs(Quantity), 0.00001));
 
             Validate("Cost Regulation %", IndirectCostPctReq);
-
-            // NAVCZ
-            if IsCorrection then begin
-                Quantity := -Quantity;
-                Amount := -Amount;
-                "Statistical Value" := -"Statistical Value";
-            end;
-            "Source Entry Date" := "Job Ledger Entry"."Posting Date";
-            // NAVCZ
 
             IsHandled := false;
             OnBeforeInsertJobLedgerLine(IntrastatJnlLine, "Job Ledger Entry", IsHandled);
@@ -504,14 +368,6 @@ report 594 "Get Item Ledger Entries"
                 Currency.Get(GLSetup."Additional Reporting Currency");
         end;
         GLSetupRead := true;
-    end;
-
-    local procedure GetStatReportingSetup()
-    begin
-        // NAVCZ
-        if not StatReportingSetupRead then
-            StatReportingSetup.Get();
-        StatReportingSetupRead := true;
     end;
 
     local procedure CalculateAverageCost(var AverageCost: Decimal; var AverageCostACY: Decimal): Boolean
@@ -651,19 +507,12 @@ report 594 "Get Item Ledger Entries"
 
     local procedure InsertValueEntryLine()
     var
-        TempSalesHeader: Record "Sales Header" temporary;
-        DocumentCurrencyFactor: Decimal;
-        IntrastatCurrencyFactor: Decimal;
+        Location: Record Location;
         IsHandled: Boolean;
     begin
         GetGLSetup();
-        GetDocumentFromValueEntry("Value Entry", TempSalesHeader);
-        DocumentCurrencyFactor := TempSalesHeader."Currency Factor";
-        IntrastatCurrencyFactor := CalculateExchangeRateFromDocument(TempSalesHeader);
-        // NAVCZ
-
         with IntrastatJnlLine do begin
-            Init;
+            Init();
             "Line No." := "Line No." + 10000;
             Date := "Value Entry"."Posting Date";
             "Country/Region Code" := "Item Ledger Entry"."Country/Region Code";
@@ -672,69 +521,29 @@ report 594 "Get Item Ledger Entries"
             "Source Entry No." := "Item Ledger Entry"."Entry No.";
             Quantity := "Item Ledger Entry".Quantity;
             "Document No." := "Value Entry"."Document No.";
-            Validate("Item No.", "Item Ledger Entry"."Item No."); // NAVCZ
+            "Item No." := "Item Ledger Entry"."Item No.";
             "Entry/Exit Point" := "Item Ledger Entry"."Entry/Exit Point";
             Area := "Item Ledger Entry".Area;
             "Transaction Specification" := "Item Ledger Entry"."Transaction Specification";
             "Location Code" := "Item Ledger Entry"."Location Code";
-            // NAVCZ
-            CalcDataForItemJnlLine;
-            "Source Type" := "Source Type"::"Item Entry";
-            case "Item Ledger Entry"."Entry Type" of
-                "Item Ledger Entry"."Entry Type"::Purchase:
-                    if "Item Ledger Entry"."Physical Transfer" then begin
-                        Type := Type::Shipment;
-                        Amount := Round(Abs(TotalICCostAmt[1]), 1, Direction);
-                        Validate(Quantity, Abs(Quantity));
-                    end else
-                        if "Item Ledger Entry".Quantity > 0 then begin
-                            Type := Type::Receipt;
-                            Amount := Round(Abs(TotalICCostAmt[1]), 1, Direction);
-                            Validate(Quantity, Abs(Quantity));
-                        end else begin
-                            Type := Type::Receipt;
-                            Amount := -Round(Abs(TotalICCostAmt[1]), 1, Direction);
-                            Validate(Quantity, -Abs(Quantity));
-                        end;
-                "Item Ledger Entry"."Entry Type"::Sale:
-                    if "Item Ledger Entry"."Physical Transfer" then begin
-                        Type := Type::Receipt;
-                        Amount := Round(Abs(TotalAmt + TotalICAmt[1]), 1, Direction);
-                        Validate(Quantity, RoundValue(Abs(Quantity)));
-                    end else
-                        if "Item Ledger Entry".Quantity < 0 then begin
-                            Type := Type::Shipment;
-                            Amount := Round(Abs(TotalICAmt[1]), 1, Direction);
-                            Validate(Quantity, Abs(Quantity));
-                        end else begin
-                            Type := Type::Shipment;
-                            Amount := -Round(Abs(TotalICAmt[1]), 1, Direction);
-                            Validate(Quantity, -Abs(Quantity));
-                        end;
-                "Item Ledger Entry"."Entry Type"::Transfer:
-                    if "Item Ledger Entry".Quantity < 0 then begin
-                        Type := Type::Shipment;
-                        Amount := Round(Abs(TotalICCostAmt[1]), 1, Direction);
-                        Validate(Quantity, Abs(Quantity));
-                    end else begin
-                        Type := Type::Receipt;
-                        Amount := Round(Abs(TotalICCostAmt[1]), 1, Direction);
-                        Validate(Quantity, Abs(Quantity));
-                    end;
-            end;
-            "Cost Regulation %" := IndirectCostPctReq;
-            CalcStatValue;
+            Amount := Round(Abs("Value Entry"."Sales Amount (Actual)"), 1);
 
-            Amount := Round(CalculateExchangeAmount(Amount, DocumentCurrencyFactor, IntrastatCurrencyFactor), 1, Direction);
-            "Statistical Value" :=
-              Round(CalculateExchangeAmount("Statistical Value", DocumentCurrencyFactor, IntrastatCurrencyFactor), 1, Direction);
-            "Indirect Cost" :=
-              Round(CalculateExchangeAmount("Indirect Cost", DocumentCurrencyFactor, IntrastatCurrencyFactor), 1, Direction);
+            SetJnlLineType(IntrastatJnlLine, "Value Entry"."Document Type");
 
-            "Additional Costs" := true;
-            "Source Entry Date" := "Item Ledger Entry"."Posting Date";
+            if ("Country/Region Code" = '') or
+               ("Country/Region Code" = CompanyInfo."Country/Region Code")
+            then
+                if "Item Ledger Entry"."Location Code" = '' then
+                    "Country/Region Code" := CompanyInfo."Ship-to Country/Region Code"
+                else begin
+                    Location.Get("Item Ledger Entry"."Location Code");
+                    "Country/Region Code" := Location."Country/Region Code"
+                end;
+
+            Validate("Item No.");
             Validate("Source Type", "Source Type"::"Item Entry");
-            // NAVCZ
+            Validate(Quantity, Round(Abs(Quantity), 0.00001));
+            Validate("Cost Regulation %", IndirectCostPctReq);
 
             IsHandled := false;
             OnBeforeInsertValueEntryLine(IntrastatJnlLine, "Item Ledger Entry", IsHandled);
@@ -794,7 +603,7 @@ report 594 "Get Item Ledger Entries"
                     if ServiceInvLine.Get("Document No.", "Document Line No.") then
                         if VATPostingSetup.Get(ServiceInvLine."VAT Bus. Posting Group", ServiceInvLine."VAT Prod. Posting Group") then;
             end;
-            exit(VATPostingSetup."Intrastat Service"); // NAVCZ
+            exit(VATPostingSetup."EU Service");
         end;
     end;
 
@@ -812,19 +621,12 @@ report 594 "Get Item Ledger Entries"
             TotalAmtExpected := 0;
             TotalCostAmt := 0;
             TotalCostAmtExpected := 0;
-            // NAVCZ
-            Clear(TotalICAmt);
-            Clear(TotalICCostAmt);
-            TotalCostAmt2 := 0;
-            // NAVCZ
 
             ValueEntry.SetRange("Item Ledger Entry No.", "Entry No.");
-            ValueEntry.SetRange("Posting Date", StartDate, EndDate); // NAVCZ
             if ValueEntry.Find('-') then
                 repeat
-                    // NAVCZ
-                    if ValueEntry."Item Charge No." = '' // Calculate item amount
-                                                         // NAVCZ
+                    if not ((ValueEntry."Item Charge No." <> '') and
+                            ((ValueEntry."Posting Date" > EndDate) or (ValueEntry."Posting Date" < StartDate)))
                     then begin
                         TotalInvoicedQty := TotalInvoicedQty + ValueEntry."Invoiced Quantity";
                         if not IntrastatJnlBatch."Amounts in Add. Currency" then begin
@@ -855,25 +657,12 @@ report 594 "Get Item Ledger Entries"
                                     ValueEntry."Sales Amount (Expected)", AddCurrencyFactor);
                             end;
                         end;
-                        // NAVCZ
-                    end else begin // Item charge processing
-                        if ValueEntry."Incl. in Intrastat Amount" then
-                            CalcTotalsForItemCharge(TotalICAmt[1], TotalICCostAmt[1], TotalICAmtExpected[1], TotalICCostAmtExpected[1]);
-                        if ValueEntry."Incl. in Intrastat Stat. Value" then
-                            CalcTotalsForItemCharge(TotalICAmt[2], TotalICCostAmt[2], TotalICAmtExpected[2], TotalICCostAmtExpected[2]);
                     end;
-                // NAVCZ
                 until ValueEntry.Next() = 0;
 
             if Quantity <> TotalInvoicedQty then begin
                 TotalAmt := TotalAmt + TotalAmtExpected;
                 TotalCostAmt := TotalCostAmt + TotalCostAmtExpected;
-                // NAVCZ
-                TotalICAmt[1] := TotalICAmtExpected[1];
-                TotalICCostAmt[1] := TotalICCostAmtExpected[1];
-                TotalICAmt[2] := TotalICAmtExpected[2];
-                TotalICCostAmt[2] := TotalICCostAmtExpected[2];
-                // NAVCZ
             end;
 
             OnCalculateTotalsOnAfterSumTotals(ItemLedgerEntry, IntrastatJnlBatch, TotalAmt, TotalCostAmt);
@@ -916,7 +705,6 @@ report 594 "Get Item Ledger Entries"
                 end else
                     TotalAmt := TotalAmt + Quantity * Item."Unit Price";
             end;
-            TotalCostAmt2 := TotalCostAmt; // NAVCZ
         end;
 
         OnAfterCalculateTotals(ItemLedgerEntry, IntrastatJnlBatch, TotalAmt, TotalCostAmt);
@@ -932,7 +720,7 @@ report 594 "Get Item Ledger Entries"
             if Customer.Get(Job."Bill-to Customer No.") then;
         if Item.Get(JobLedgEntry."No.") then
             if VATPostingSetup.Get(Customer."VAT Bus. Posting Group", Item."VAT Prod. Posting Group") then
-                if VATPostingSetup."Intrastat Service" then // NAVCZ
+                if VATPostingSetup."EU Service" then
                     exit(true);
         exit(false);
     end;
@@ -951,316 +739,6 @@ report 594 "Get Item Ledger Entries"
         IndirectCostPctReq := NewIndirectCostPctReq;
     end;
 
-    [Scope('OnPrem')]
-    [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
-    procedure CalcTotalsForItemCharge(var TotalICAmt1: Decimal; var TotalICCostAmt1: Decimal; var TotalICAmtExpected1: Decimal; var TotalICCostAmtExpected1: Decimal)
-    begin
-        // NAVCZ
-        if not IntrastatJnlBatch."Amounts in Add. Currency" then begin
-            TotalICAmt1 := TotalICAmt1 + ValueEntry."Sales Amount (Actual)";
-            TotalICCostAmt1 := TotalICCostAmt1 + ValueEntry."Cost Amount (Actual)";
-            TotalICAmtExpected1 := TotalICAmtExpected1 + ValueEntry."Sales Amount (Expected)";
-            TotalICCostAmtExpected1 := TotalICCostAmtExpected1 + ValueEntry."Cost Amount (Expected)";
-        end else begin
-            TotalICCostAmt1 := TotalICCostAmt1 + ValueEntry."Cost Amount (Actual) (ACY)";
-            TotalICCostAmtExpected1 := TotalICCostAmtExpected1 + ValueEntry."Cost Amount (Expected) (ACY)";
-            if ValueEntry."Cost per Unit" <> 0 then begin
-                TotalICAmt1 += ValueEntry."Sales Amount (Actual)" * ValueEntry."Cost per Unit (ACY)" / ValueEntry."Cost per Unit";
-                TotalICAmtExpected1 += ValueEntry."Sales Amount (Expected)" * ValueEntry."Cost per Unit (ACY)" / ValueEntry."Cost per Unit";
-            end else begin
-                TotalICAmt1 += CurrExchRate.ExchangeAmtLCYToFCY(
-                    ValueEntry."Posting Date", GLSetup."Additional Reporting Currency",
-                    ValueEntry."Sales Amount (Actual)", AddCurrencyFactor);
-                TotalICAmtExpected1 += CurrExchRate.ExchangeAmtLCYToFCY(
-                    ValueEntry."Posting Date", GLSetup."Additional Reporting Currency",
-                    ValueEntry."Sales Amount (Expected)", AddCurrencyFactor);
-            end;
-        end;
-    end;
-
-    [Scope('OnPrem')]
-    [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
-    procedure CalcDataForItemJnlLine()
-    begin
-        // NAVCZ
-        with IntrastatJnlLine do begin
-            "Shpt. Method Code" := "Item Ledger Entry"."Shpt. Method Code";
-            Item.Get("Item Ledger Entry"."Item No.");
-            Name := Item.Description;
-            if (StatReportingSetup."Get Net Weight From" = StatReportingSetup."Get Net Weight From"::"Item Card") and
-               (Item."Net Weight" <> 0)
-            then
-                Validate("Net Weight", Item."Net Weight")
-            else
-                Validate("Net Weight", "Item Ledger Entry"."Net Weight");
-            if (StatReportingSetup."Get Tariff No. From" = StatReportingSetup."Get Tariff No. From"::"Item Card") and
-               (Item."Tariff No." <> '')
-            then
-                Validate("Tariff No.", Item."Tariff No.")
-            else begin
-                Validate("Tariff No.", "Item Ledger Entry"."Tariff No.");
-                "Statistic Indication" := "Item Ledger Entry"."Statistic Indication";
-            end;
-            if (StatReportingSetup."Get Country/Region of Origin" = StatReportingSetup."Get Country/Region of Origin"::"Item Card") and
-               (Item."Country/Region of Origin Code" <> '')
-            then
-                Validate("Country/Region of Origin Code", Item."Country/Region of Origin Code")
-            else
-                Validate("Country/Region of Origin Code", "Item Ledger Entry"."Country/Region of Origin Code");
-
-            "Base Unit of Measure" := Item."Base Unit of Measure";
-            if "Supplementary Units" then begin
-                "Supplem. UoM Quantity" := Quantity /
-                  UOMMgt.GetQtyPerUnitOfMeasure(Item, "Supplem. UoM Code");
-                "Supplem. UoM Net Weight" := "Net Weight" *
-                  UOMMgt.GetQtyPerUnitOfMeasure(Item, "Supplem. UoM Code");
-            end;
-            TestField(Quantity);
-        end;
-    end;
-
-    [Scope('OnPrem')]
-    [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
-    procedure CalcDataForJobJnlLine()
-    begin
-        // NAVCZ
-        with IntrastatJnlLine do begin
-            "Shpt. Method Code" := "Job Ledger Entry"."Shipment Method Code";
-            Item.Get("Job Ledger Entry"."No.");
-            Name := Item.Description;
-            if (StatReportingSetup."Get Net Weight From" = StatReportingSetup."Get Net Weight From"::"Item Card") and
-               (Item."Net Weight" <> 0)
-            then
-                Validate("Net Weight", Item."Net Weight")
-            else
-                Validate("Net Weight", "Job Ledger Entry"."Net Weight");
-            if (StatReportingSetup."Get Tariff No. From" = StatReportingSetup."Get Tariff No. From"::"Item Card") and
-               (Item."Tariff No." <> '')
-            then
-                Validate("Tariff No.", Item."Tariff No.")
-            else begin
-                Validate("Tariff No.", "Job Ledger Entry"."Tariff No.");
-                "Statistic Indication" := "Job Ledger Entry"."Statistic Indication";
-            end;
-            if (StatReportingSetup."Get Country/Region of Origin" = StatReportingSetup."Get Country/Region of Origin"::"Item Card") and
-               (Item."Country/Region of Origin Code" <> '')
-            then
-                Validate("Country/Region of Origin Code", Item."Country/Region of Origin Code")
-            else
-                Validate("Country/Region of Origin Code", "Job Ledger Entry"."Country/Region of Origin Code");
-
-            "Base Unit of Measure" := Item."Base Unit of Measure";
-            if "Supplementary Units" then begin
-                "Supplem. UoM Quantity" := Quantity /
-                  UOMMgt.GetQtyPerUnitOfMeasure(Item, "Supplem. UoM Code");
-                "Supplem. UoM Net Weight" := "Net Weight" *
-                  UOMMgt.GetQtyPerUnitOfMeasure(Item, "Supplem. UoM Code");
-            end;
-            TestField(Quantity);
-        end;
-    end;
-
-    [Scope('OnPrem')]
-    [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
-    procedure CalcStatValue()
-    var
-        ShipmentMethod: Record "Shipment Method";
-    begin
-        // NAVCZ
-        with IntrastatJnlLine do begin
-            case StatReportingSetup."Stat. Value Reporting" of
-                StatReportingSetup."Stat. Value Reporting"::None:
-                    begin
-                        "Cost Regulation %" := 0;
-                        "Indirect Cost" := 0;
-                    end;
-                StatReportingSetup."Stat. Value Reporting"::Percentage:
-                    "Indirect Cost" := Round(Amount * "Cost Regulation %" / 100, 1, Direction);
-                StatReportingSetup."Stat. Value Reporting"::"Shipment Method":
-                    begin
-                        TestField("Shpt. Method Code");
-                        ShipmentMethod.Get("Shpt. Method Code");
-                        if ShipmentMethod."Incl. Item Charges (Stat.Val.)" then begin
-                            "Cost Regulation %" := 0;
-                            if Type = Type::Shipment then
-                                "Indirect Cost" := TotalICAmt[2];
-                            if Type = Type::Receipt then
-                                "Indirect Cost" := TotalICCostAmt[2];
-                        end else begin
-                            "Cost Regulation %" := ShipmentMethod."Adjustment %";
-                            "Indirect Cost" := Round(Amount * "Cost Regulation %" / 100, 1, Direction);
-                        end;
-                    end;
-            end;
-            "Statistical Value" := Round(Abs(Amount) + "Indirect Cost", 1, Direction);
-        end;
-    end;
-
-    local procedure GetDocument(DocumentType: Option " ","Sales Shipment","Sales Invoice","Sales Return Receipt","Sales Credit Memo","Purchase Receipt","Purchase Invoice","Purchase Return Shipment","Purchase Credit Memo","Transfer Shipment","Transfer Receipt","Service Shipment","Service Invoice","Service Credit Memo","Posted Assembly"; DocumentNo: Code[20]; var TempSalesHeader: Record "Sales Header" temporary): Boolean
-    var
-        SalesShptHeader: Record "Sales Shipment Header";
-        PurchRcptHeader: Record "Purch. Rcpt. Header";
-        ReturnShptHeader: Record "Return Shipment Header";
-        ReturnRcptHeader: Record "Return Receipt Header";
-        SalesInvoiceHeader: Record "Sales Invoice Header";
-        PurchInvHeader: Record "Purch. Inv. Header";
-        ServiceShptHeader: Record "Service Shipment Header";
-        ServiceInvHeader: Record "Service Invoice Header";
-        ServiceCrMemoHeader: Record "Service Cr.Memo Header";
-        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
-        PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
-    begin
-        // NAVCZ
-        Clear(TempSalesHeader);
-
-        case DocumentType of
-            DocumentType::"Sales Shipment":
-                if SalesShptHeader.Get(DocumentNo) then begin
-                    TempSalesHeader."Posting Date" := SalesShptHeader."Posting Date";
-                    TempSalesHeader."Currency Code" := SalesShptHeader."Currency Code";
-                    TempSalesHeader."Currency Factor" := SalesShptHeader."Currency Factor";
-                end;
-            DocumentType::"Sales Invoice":
-                if SalesInvoiceHeader.Get(DocumentNo) then begin
-                    TempSalesHeader."Posting Date" := SalesInvoiceHeader."Posting Date";
-                    TempSalesHeader."Currency Code" := SalesInvoiceHeader."Currency Code";
-                    TempSalesHeader."Currency Factor" := SalesInvoiceHeader."Currency Factor";
-                end;
-            DocumentType::"Sales Credit Memo":
-                if SalesCrMemoHeader.Get(DocumentNo) then begin
-                    TempSalesHeader."Posting Date" := SalesCrMemoHeader."Posting Date";
-                    TempSalesHeader."Currency Code" := SalesCrMemoHeader."Currency Code";
-                    TempSalesHeader."Currency Factor" := SalesCrMemoHeader."Currency Factor";
-                end;
-            DocumentType::"Sales Return Receipt":
-                if ReturnRcptHeader.Get(DocumentNo) then begin
-                    TempSalesHeader."Posting Date" := ReturnRcptHeader."Posting Date";
-                    TempSalesHeader."Currency Code" := ReturnRcptHeader."Currency Code";
-                    TempSalesHeader."Currency Factor" := ReturnRcptHeader."Currency Factor";
-                end;
-            DocumentType::"Service Shipment":
-                if ServiceShptHeader.Get(DocumentNo) then begin
-                    TempSalesHeader."Posting Date" := ServiceShptHeader."Posting Date";
-                    TempSalesHeader."Currency Code" := ServiceShptHeader."Currency Code";
-                    TempSalesHeader."Currency Factor" := ServiceShptHeader."Currency Factor";
-                end;
-            DocumentType::"Service Invoice":
-                if ServiceInvHeader.Get(DocumentNo) then begin
-                    TempSalesHeader."Posting Date" := ServiceInvHeader."Posting Date";
-                    TempSalesHeader."Currency Code" := ServiceInvHeader."Currency Code";
-                    TempSalesHeader."Currency Factor" := ServiceInvHeader."Currency Factor";
-                end;
-            DocumentType::"Service Credit Memo":
-                if ServiceCrMemoHeader.Get(DocumentNo) then begin
-                    TempSalesHeader."Posting Date" := ServiceCrMemoHeader."Posting Date";
-                    TempSalesHeader."Currency Code" := ServiceCrMemoHeader."Currency Code";
-                    TempSalesHeader."Currency Factor" := ServiceCrMemoHeader."Currency Factor";
-                end;
-            DocumentType::"Purchase Receipt":
-                if PurchRcptHeader.Get(DocumentNo) then begin
-                    TempSalesHeader."Posting Date" := PurchRcptHeader."Posting Date";
-                    TempSalesHeader."Currency Code" := PurchRcptHeader."Currency Code";
-                    TempSalesHeader."Currency Factor" := PurchRcptHeader."Currency Factor";
-                end;
-            DocumentType::"Purchase Invoice":
-                if PurchInvHeader.Get(DocumentNo) then begin
-                    TempSalesHeader."Posting Date" := PurchInvHeader."Posting Date";
-                    TempSalesHeader."Currency Code" := PurchInvHeader."Currency Code";
-                    TempSalesHeader."Currency Factor" := PurchInvHeader."Currency Factor";
-                end;
-            DocumentType::"Purchase Credit Memo":
-                if PurchCrMemoHdr.Get(DocumentNo) then begin
-                    TempSalesHeader."Posting Date" := PurchCrMemoHdr."Posting Date";
-                    TempSalesHeader."Currency Code" := PurchCrMemoHdr."Currency Code";
-                    TempSalesHeader."Currency Factor" := PurchCrMemoHdr."Currency Factor";
-                end;
-            DocumentType::"Purchase Return Shipment":
-                if ReturnShptHeader.Get(DocumentNo) then begin
-                    TempSalesHeader."Posting Date" := ReturnShptHeader."Posting Date";
-                    TempSalesHeader."Currency Code" := ReturnShptHeader."Currency Code";
-                    TempSalesHeader."Currency Factor" := ReturnShptHeader."Currency Factor";
-                end;
-            else
-                exit(false);
-        end;
-
-        exit(
-          (TempSalesHeader."Posting Date" <> 0D) or
-          (TempSalesHeader."Currency Code" <> '') or
-          (TempSalesHeader."Currency Factor" <> 0));
-    end;
-
-    local procedure GetDocumentFromItemLedgEntry(ItemLedgerEntry: Record "Item Ledger Entry"; var TempSalesHeader: Record "Sales Header" temporary): Boolean
-    var
-        ValueEntry: Record "Value Entry";
-    begin
-        // NAVCZ
-        with ItemLedgerEntry do begin
-            if FindValueEntryFromItemLedgEntry(ItemLedgerEntry, ValueEntry) then
-                exit(GetDocumentFromValueEntry(ValueEntry, TempSalesHeader));
-            exit(GetDocument("Document Type", "Document No.", TempSalesHeader));
-        end;
-    end;
-
-    local procedure GetDocumentFromValueEntry(ValueEntry: Record "Value Entry"; var TempSalesHeader: Record "Sales Header" temporary): Boolean
-    begin
-        // NAVCZ
-        with ValueEntry do
-            exit(GetDocument("Document Type", "Document No.", TempSalesHeader));
-    end;
-
-    local procedure CalculateExchangeRate(PostingDate: Date; CurrencyCode: Code[10]; VATCurrencyFactor: Decimal): Decimal
-    var
-        IntrastatCurrExchRate: Record "Intrastat Currency Exch. Rate";
-    begin
-        // NAVCZ
-        if not IgnoreInstrastatExchangeRate(PostingDate) then begin
-            if IntrExchRateMandatory then
-                exit(1 / IntrastatCurrExchRate.xExchangeRateMandatory(StartDate, PostingDate, CurrencyCode));
-            exit(1 / IntrastatCurrExchRate.ExchangeRate(PostingDate, CurrencyCode));
-        end;
-
-        if VATCurrencyFactor <> 0 then
-            exit(VATCurrencyFactor);
-
-        exit(0);
-    end;
-
-    local procedure CalculateExchangeRateFromDocument(TempSalesHeader: Record "Sales Header" temporary): Decimal
-    begin
-        // NAVCZ
-        with TempSalesHeader do
-            exit(CalculateExchangeRate("Posting Date", "Currency Code", "Currency Factor"));
-    end;
-
-    local procedure CalculateExchangeAmount(Amount: Decimal; DocumentCurrencyFactor: Decimal; IntrastatCurrencyFactor: Decimal): Decimal
-    begin
-        // NAVCZ
-        if (IntrastatCurrencyFactor <> 0) and (DocumentCurrencyFactor <> 0) then
-            exit(Amount * DocumentCurrencyFactor / IntrastatCurrencyFactor);
-        exit(Amount);
-    end;
-
-    [Scope('OnPrem')]
-    [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
-    procedure CalculateTotals2(ValueEntry2: Record "Value Entry")
-    begin
-        // NAVCZ
-        with ValueEntry2 do begin
-            Clear(TotalAmt);
-            Clear(TotalICAmt);
-            Clear(TotalICCostAmt);
-            Clear(TotalCostAmt2);
-
-            ValueEntry.Get("Entry No.");
-
-            if ValueEntry."Incl. in Intrastat Amount" then
-                CalcTotalsForItemCharge(TotalICAmt[1], TotalICCostAmt[1], TotalICAmtExpected[1], TotalICCostAmtExpected[1]);
-            if ValueEntry."Incl. in Intrastat Stat. Value" then
-                CalcTotalsForItemCharge(TotalICAmt[2], TotalICCostAmt[2], TotalICAmtExpected[2], TotalICCostAmtExpected[2]);
-        end;
-    end;
-
     local procedure IsItemLedgerEntryCorrected(ItemLedgerEntryCorrection: Record "Item Ledger Entry"; ItemLedgerEntryNo: Integer): Boolean
     var
         ItemApplicationEntry: Record "Item Application Entry";
@@ -1277,24 +755,35 @@ report 594 "Get Item Ledger Entries"
         exit(not ItemApplicationEntry.IsEmpty);
     end;
 
-    local procedure IgnoreInstrastatExchangeRate(PostingDate: Date): Boolean
+    local procedure SetCountryRegionCode(var IntrastatJnlLine: Record "Intrastat Jnl. Line"; ItemLedgerEntry: Record "Item Ledger Entry")
+    var
+        Location: Record Location;
     begin
-        // NAVCZ
-        GetStatReportingSetup;
-        exit(PostingDate >= StatReportingSetup."Ignore Intrastat Ex.Rate From")
+        with IntrastatJnlLine do
+            if ("Country/Region Code" = '') or
+               ("Country/Region Code" = CompanyInfo."Country/Region Code")
+            then
+                if ItemLedgerEntry."Location Code" = '' then
+                    "Country/Region Code" := CompanyInfo."Ship-to Country/Region Code"
+                else begin
+                    Location.Get(ItemLedgerEntry."Location Code");
+                    "Country/Region Code" := Location."Country/Region Code"
+                end;
     end;
 
-    local procedure FindValueEntryFromItemLedgEntry(ItemLedgerEntry: Record "Item Ledger Entry"; var ValueEntry: Record "Value Entry"): Boolean
+    local procedure SetJnlLineType(var IntrastatJnlLine: Record "Intrastat Jnl. Line"; ValueEntryDocumentType: Enum "Item Ledger Document Type")
     begin
-        // NAVCZ
-        if not ItemLedgerEntry."Completely Invoiced" then
-            exit(false);
-
-        ValueEntry.Reset();
-        ValueEntry.SetCurrentKey("Item Ledger Entry No.");
-        ValueEntry.SetRange("Item Ledger Entry No.", ItemLedgerEntry."Entry No.");
-        ValueEntry.SetFilter("Invoiced Quantity", '<>%1', 0);
-        exit(ValueEntry.FindFirst);
+        with IntrastatJnlLine do
+            if Quantity < 0 then begin
+                if ValueEntryDocumentType = "Value Entry"."Document Type"::"Sales Credit Memo" then
+                    Type := Type::Receipt
+                else
+                    Type := Type::Shipment
+            end else
+                if ValueEntryDocumentType = "Value Entry"."Document Type"::"Purchase Credit Memo" then
+                    Type := Type::Shipment
+                else
+                    Type := Type::Receipt;
     end;
 
     [IntegrationEvent(false, false)]
@@ -1332,4 +821,4 @@ report 594 "Get Item Ledger Entries"
     begin
     end;
 }
-#endif
+

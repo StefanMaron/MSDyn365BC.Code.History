@@ -56,7 +56,7 @@ page 5104 "Contact Picture"
                     TestField("No.");
                     TestField(Name);
 
-                    if Image.HasValue then
+                    if Image.HasValue() then
                         if not Confirm(OverrideImageQst) then
                             exit;
 
@@ -121,7 +121,7 @@ page 5104 "Contact Picture"
 
     trigger OnAfterGetCurrRecord()
     begin
-        SetEditableOnPictureActions;
+        SetEditableOnPictureActions();
     end;
 
     trigger OnOpenPage()

@@ -124,7 +124,7 @@ codeunit 134114 "ERM Apply Unapply Employee"
         DocumentNo: Code[20];
     begin
         // Setup: Create and post General Journal Lines.
-        CreatePostApplyGenJournalLine(GenJournalLine, DocumentType, DocumentType2, Amount, WorkDate);
+        CreatePostApplyGenJournalLine(GenJournalLine, DocumentType, DocumentType2, Amount, WorkDate());
         FindDetailedLedgerEntry(
           DetailedEmployeeLedgEntry, DetailedEmployeeLedgEntry."Entry Type"::Application, GenJournalLine."Document No.",
           GenJournalLine."Account No.");
@@ -174,7 +174,7 @@ codeunit 134114 "ERM Apply Unapply Employee"
     begin
         // Setup: Create Employee, Create and post General Journal  Line.
         CreateEmployee(Employee);
-        CreateAndPostGenJournalLine(GenJournalLine, Employee."No.", DocumentType, Amount, WorkDate);
+        CreateAndPostGenJournalLine(GenJournalLine, Employee."No.", DocumentType, Amount, WorkDate());
         LibraryERM.FindEmployeeLedgerEntry(EmployeeLedgerEntry, DocumentType, GenJournalLine."Document No.");
 
         // Exercise: Unapply Document from Employee Ledger Entry.
@@ -220,7 +220,7 @@ codeunit 134114 "ERM Apply Unapply Employee"
     begin
         // Setup: Create Employee, Create and post General Journal  Line.
         CreateEmployee(Employee);
-        CreateAndPostGenJournalLine(GenJournalLine, Employee."No.", DocumentType, Amount, WorkDate);
+        CreateAndPostGenJournalLine(GenJournalLine, Employee."No.", DocumentType, Amount, WorkDate());
         FindDetailedLedgerEntry(
           DetailedEmployeeLedgEntry, DetailedEmployeeLedgEntry."Entry Type"::"Initial Entry", GenJournalLine."Document No.",
           GenJournalLine."Account No.");
@@ -231,7 +231,7 @@ codeunit 134114 "ERM Apply Unapply Employee"
         // Verify: Verify error when Unapplying Document from Detailed Employee Ledger Entry.
         Assert.AreEqual(
           StrSubstNo(
-            UnapplyErr, DetailedEmployeeLedgEntry.FieldCaption("Entry Type"), DetailedEmployeeLedgEntry.TableCaption,
+            UnapplyErr, DetailedEmployeeLedgEntry.FieldCaption("Entry Type"), DetailedEmployeeLedgEntry.TableCaption(),
             DetailedEmployeeLedgEntry.FieldCaption("Entry No."), DetailedEmployeeLedgEntry."Entry No."), GetLastErrorText,
           MessageDoNotMatchErr);
     end;
@@ -328,7 +328,7 @@ codeunit 134114 "ERM Apply Unapply Employee"
         CreateAndPostEmplExpense(Employee, ExpenseAccNo, -LibraryRandom.RandIntInRange(100, 200));
 
         CreateGeneralJournalLine(GenJournalLine, 1, Employee."No.", GenJournalLine."Document Type"::Payment,
-          -GetTotalAppliedAmount(Employee."No.", WorkDate));
+          -GetTotalAppliedAmount(Employee."No.", WorkDate()));
         ModifyGenJournalLine(GenJournalLine);
         LibraryJournals.SetUserJournalPreference(Page::"General Journal", GenJournalLine."Journal Batch Name"); // NAVCZ
 
@@ -418,7 +418,7 @@ codeunit 134114 "ERM Apply Unapply Employee"
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
         LibraryERMCountryData.RemoveBlankGenJournalTemplate();
         LibraryERMCountryData.UpdateLocalData();
-        LibraryERM.SetJournalTemplateNameMandatory(false);
+        LibraryERMCountryData.UpdateJournalTemplMandatory(false);
 
         IsInitialized := true;
         Commit();
@@ -475,7 +475,7 @@ codeunit 134114 "ERM Apply Unapply Employee"
             EmployeeLedgerEntry2.CalcFields("Remaining Amount");
             EmployeeLedgerEntry2.Validate("Amount to Apply", EmployeeLedgerEntry2."Remaining Amount");
             EmployeeLedgerEntry2.Modify(true);
-        until EmployeeLedgerEntry2.Next = 0;
+        until EmployeeLedgerEntry2.Next() = 0;
         SetAppliesToIDAndPostEntry(EmployeeLedgerEntry2, EmployeeLedgerEntry);
     end;
 
@@ -568,7 +568,7 @@ codeunit 134114 "ERM Apply Unapply Employee"
         with GenJournalLine do begin
             Validate("Document No.", IncStr("Document No."));
             Validate("External Document No.", "Document No.");
-            Validate("Posting Date", CalcDate('<1Y>', WorkDate));
+            Validate("Posting Date", CalcDate('<1Y>', WorkDate()));
             Modify(true);
         end;
     end;
@@ -639,7 +639,7 @@ codeunit 134114 "ERM Apply Unapply Employee"
         repeat
             EmployeeLedgerEntry.CalcFields("Remaining Amount", Amount);
             EmployeeLedgerEntry.TestField("Remaining Amount", EmployeeLedgerEntry.Amount);
-        until EmployeeLedgerEntry.Next = 0;
+        until EmployeeLedgerEntry.Next() = 0;
     end;
 
     local procedure VerifyDetailedLedgerEntry(DocumentNo: Code[20]; EmployeeNo: Code[20])
@@ -650,11 +650,11 @@ codeunit 134114 "ERM Apply Unapply Employee"
         FindDetailedLedgerEntry(DetailedEmployeeLedgEntry, DetailedEmployeeLedgEntry."Entry Type"::Application, DocumentNo, EmployeeNo);
         repeat
             TotalAmount += DetailedEmployeeLedgEntry.Amount;
-        until DetailedEmployeeLedgEntry.Next = 0;
+        until DetailedEmployeeLedgEntry.Next() = 0;
         Assert.AreEqual(
           0, TotalAmount,
           StrSubstNo(
-            TotalAmountErr, 0, DetailedEmployeeLedgEntry.TableCaption, DetailedEmployeeLedgEntry.FieldCaption("Entry Type"),
+            TotalAmountErr, 0, DetailedEmployeeLedgEntry.TableCaption(), DetailedEmployeeLedgEntry.FieldCaption("Entry Type"),
             DetailedEmployeeLedgEntry."Entry Type"));
     end;
 
@@ -668,8 +668,8 @@ codeunit 134114 "ERM Apply Unapply Employee"
               DetailedEmployeeLedgEntry.Unapplied,
               StrSubstNo(
                 UnappliedErr, DetailedEmployeeLedgEntry.FieldCaption(Unapplied), DetailedEmployeeLedgEntry.Unapplied,
-                DetailedEmployeeLedgEntry.TableCaption));
-        until DetailedEmployeeLedgEntry.Next = 0;
+                DetailedEmployeeLedgEntry.TableCaption()));
+        until DetailedEmployeeLedgEntry.Next() = 0;
     end;
 
     local procedure VerifySourceCodeDtldCustLedger(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; SourceCode: Code[10])
@@ -690,9 +690,9 @@ codeunit 134114 "ERM Apply Unapply Employee"
         FindGLEntries(GLEntry, DocumentNo);
         repeat
             TotalAmount += GLEntry.Amount;
-        until GLEntry.Next = 0;
+        until GLEntry.Next() = 0;
         Assert.AreEqual(
-          0, TotalAmount, StrSubstNo(TotalAmountErr, 0, GLEntry.TableCaption, GLEntry.FieldCaption("Document No."), GLEntry."Document No."));
+          0, TotalAmount, StrSubstNo(TotalAmountErr, 0, GLEntry.TableCaption(), GLEntry.FieldCaption("Document No."), GLEntry."Document No."));
     end;
 
     [ModalPageHandler]

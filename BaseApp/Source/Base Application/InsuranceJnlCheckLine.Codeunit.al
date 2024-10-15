@@ -1,4 +1,3 @@
-#if not CLEAN18
 codeunit 5651 "Insurance Jnl.-Check Line"
 {
     TableNo = "Insurance Journal Line";
@@ -10,16 +9,16 @@ codeunit 5651 "Insurance Jnl.-Check Line"
     end;
 
     var
-        Text000: Label 'The combination of dimensions used in %1 %2, %3, %4 is blocked. %5';
-        Text001: Label 'A dimension used in %1 %2, %3, %4 has caused an error. %5';
         GLSetup: Record "General Ledger Setup";
         FASetup: Record "FA Setup";
         DimMgt: Codeunit DimensionManagement;
         CallNo: Integer;
 
+        Text000: Label 'The combination of dimensions used in %1 %2, %3, %4 is blocked. %5';
+        Text001: Label 'A dimension used in %1 %2, %3, %4 has caused an error. %5';
+
     procedure RunCheck(var InsuranceJnlLine: Record "Insurance Journal Line")
     var
-        UserChecksMgt: Codeunit "User Setup Adv. Management";
         TableID: array[10] of Integer;
         No: array[10] of Code[20];
     begin
@@ -41,7 +40,7 @@ codeunit 5651 "Insurance Jnl.-Check Line"
                 Error(
                   Text000,
                   TableCaption, "Journal Template Name", "Journal Batch Name", "Line No.",
-                  DimMgt.GetDimCombErr);
+                  DimMgt.GetDimCombErr());
 
             TableID[1] := DATABASE::Insurance;
             No[1] := "Insurance No.";
@@ -50,15 +49,9 @@ codeunit 5651 "Insurance Jnl.-Check Line"
                     Error(
                       Text001,
                       TableCaption, "Journal Template Name", "Journal Batch Name", "Line No.",
-                      DimMgt.GetDimValuePostingErr)
+                      DimMgt.GetDimValuePostingErr())
                 else
-                    Error(DimMgt.GetDimValuePostingErr);
-
-            // NAVCZ
-            GLSetup.Get();
-            if GLSetup."User Checks Allowed" then
-                UserChecksMgt.CheckInsuranceJournalLine(InsuranceJnlLine);
-            // NAVCZ
+                    Error(DimMgt.GetDimValuePostingErr());
         end;
     end;
 
@@ -69,4 +62,3 @@ codeunit 5651 "Insurance Jnl.-Check Line"
 
 }
 
-#endif

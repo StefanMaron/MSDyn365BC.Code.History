@@ -8,7 +8,7 @@ codeunit 11718 "Import Bank Statement CZ"
 
     trigger OnRun()
     begin
-        ImportBankStatement;
+        ImportBankStatement();
     end;
 }
 

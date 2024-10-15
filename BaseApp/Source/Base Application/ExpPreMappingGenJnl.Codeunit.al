@@ -1,4 +1,3 @@
-#if not CLEAN18
 codeunit 1273 "Exp. Pre-Mapping Gen. Jnl."
 {
     Permissions = TableData "Payment Export Data" = rimd;
@@ -22,7 +21,7 @@ codeunit 1273 "Exp. Pre-Mapping Gen. Jnl."
             PreparePaymentExportDataJnl(GenJnlLine, GenJnlLine."Data Exch. Entry No.", LineNo);
         until GenJnlLine.Next() = 0;
 
-        Window.Close;
+        Window.Close();
     end;
 
     var
@@ -55,23 +54,23 @@ codeunit 1273 "Exp. Pre-Mapping Gen. Jnl."
             BankAccount.GetBankExportImportSetup(BankExportImportSetup);
             SetPreserveNonLatinCharacters(BankExportImportSetup."Preserve Non-Latin Characters");
 
-            Init;
+            Init();
             "Data Exch Entry No." := DataExchEntryNo;
             "Sender Bank Account Code" := GenJnlLine."Bal. Account No.";
             BankAccount.Get("Sender Bank Account Code");
-            "Sender Bank Account No." := CopyStr(BankAccount.GetBankAccountNo, 1, MaxStrLen("Sender Bank Account No."));
+            "Sender Bank Account No." := CopyStr(BankAccount.GetBankAccountNo(), 1, MaxStrLen("Sender Bank Account No."));
 
             if IsEmployee then begin
-                "Recipient Name" := CopyStr(Employee.FullName, 1, MaxStrLen("Recipient Name"));
+                "Recipient Name" := CopyStr(Employee.FullName(), 1, MaxStrLen("Recipient Name"));
                 "Recipient Address" := Employee.Address;
                 "Recipient City" := CopyStr(Employee.City, 1, 35);
                 "Recipient County" := Employee.County;
                 "Recipient Post Code" := Employee."Post Code";
                 "Recipient Country/Region Code" := Employee."Country/Region Code";
                 "Recipient Email Address" := Employee."E-Mail";
-                if Employee.GetBankAccountNo = '' then
-                    Error(EmployeeMustHaveBankAccountNoErr, Employee.FullName);
-                "Recipient Bank Acc. No." := CopyStr(Employee.GetBankAccountNo, 1, MaxStrLen("Recipient Bank Acc. No."));
+                if Employee.GetBankAccountNo() = '' then
+                    Error(EmployeeMustHaveBankAccountNoErr, Employee.FullName());
+                "Recipient Bank Acc. No." := CopyStr(Employee.GetBankAccountNo(), 1, MaxStrLen("Recipient Bank Acc. No."));
                 "Recipient Reg. No." := Employee."Bank Branch No.";
                 "Recipient Acc. No." := Employee."Bank Account No.";
                 Amount := GenJnlLine.Amount;
@@ -81,7 +80,7 @@ codeunit 1273 "Exp. Pre-Mapping Gen. Jnl."
                     Amount := GenJnlLine.Amount;
                     "Currency Code" := GeneralLedgerSetup.GetCurrencyCode(GenJnlLine."Currency Code");
                     "Recipient Bank Acc. No." :=
-                      CopyStr(VendorBankAccount.GetBankAccountNo, 1, MaxStrLen("Recipient Bank Acc. No."));
+                      CopyStr(VendorBankAccount.GetBankAccountNo(), 1, MaxStrLen("Recipient Bank Acc. No."));
                     "Recipient Reg. No." := VendorBankAccount."Bank Branch No.";
                     "Recipient Acc. No." := VendorBankAccount."Bank Account No.";
                     "Recipient Bank Country/Region" := VendorBankAccount."Country/Region Code";
@@ -111,11 +110,6 @@ codeunit 1273 "Exp. Pre-Mapping Gen. Jnl."
             if PaymentMethod.Get(GenJnlLine."Payment Method Code") then
                 "Data Exch. Line Def Code" := PaymentMethod."Pmt. Export Line Definition";
             "Recipient Creditor No." := GenJnlLine."Creditor No.";
-            // NAVCZ
-            "Variable Symbol" := GenJnlLine."Variable Symbol";
-            "Constant Symbol" := GenJnlLine."Constant Symbol";
-            "Specific Symbol" := GenJnlLine."Specific Symbol";
-            // NAVCZ
 
             OnBeforeInsertPaymentExoprtData(PaymentExportData, GenJnlLine, GeneralLedgerSetup);
 
@@ -129,4 +123,3 @@ codeunit 1273 "Exp. Pre-Mapping Gen. Jnl."
     end;
 }
 
-#endif

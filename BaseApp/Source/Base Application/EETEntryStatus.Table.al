@@ -1,15 +1,9 @@
 table 31124 "EET Entry Status"
 {
     Caption = 'EET Entry Status';
-#if CLEAN18
     ObsoleteState = Removed;
-#else
-    DrillDownPageID = "EET Entry Status Log";
-    LookupPageID = "EET Entry Status Log";
-    ObsoleteState = Pending;
-#endif    
     ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
-    ObsoleteTag = '18.0';
+    ObsoleteTag = '21.0';
 
     fields
     {
@@ -20,9 +14,6 @@ table 31124 "EET Entry Status"
         field(5; "EET Entry No."; Integer)
         {
             Caption = 'EET Entry No.';
-#if not CLEAN18
-            TableRelation = "EET Entry";
-#endif
         }
         field(10; Description; Text[250])
         {
@@ -65,7 +56,7 @@ table 31124 "EET Entry Status"
 
     trigger OnDelete()
     begin
-        ClearErrorMessages;
+        ClearErrorMessages();
     end;
 
     procedure GetLastEntryNo(): Integer;
@@ -83,4 +74,3 @@ table 31124 "EET Entry Status"
         ErrorMessage.DeleteAll();
     end;
 }
-

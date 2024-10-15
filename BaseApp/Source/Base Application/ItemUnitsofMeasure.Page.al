@@ -1,4 +1,3 @@
-#if not CLEAN18
 page 5404 "Item Units of Measure"
 {
     Caption = 'Item Units of Measure';
@@ -14,7 +13,7 @@ page 5404 "Item Units of Measure"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Item No."; "Item No.")
+                field("Item No."; Rec."Item No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the item card from which you opened the Item Units of Measure window.';
@@ -26,7 +25,7 @@ page 5404 "Item Units of Measure"
                     StyleExpr = StyleName;
                     ToolTip = 'Specifies a unit of measure code that has been set up in the Unit of Measure table.';
                 }
-                field("Qty. per Unit of Measure"; "Qty. per Unit of Measure")
+                field("Qty. per Unit of Measure"; Rec."Qty. per Unit of Measure")
                 {
                     ApplicationArea = Basic, Suite;
                     StyleExpr = StyleName;
@@ -59,17 +58,8 @@ page 5404 "Item Units of Measure"
                 field(Weight; Weight)
                 {
                     ApplicationArea = Basic, Suite;
+                    StyleExpr = StyleName;
                     ToolTip = 'Specifies the weight of one item unit when measured in the specified unit of measure.';
-                    Visible = true;
-                }
-                field("Intrastat Default"; "Intrastat Default")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies to use the Intrastat default for the itemŒs unit of measure.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Unsupported functionality';
-                    ObsoleteTag = '18.0';
-                    Visible = false;
                 }
             }
             group("Current Base Unit of Measure")
@@ -87,7 +77,7 @@ page 5404 "Item Units of Measure"
                     begin
                         Item.TestField("No.");
                         Item.LockTable();
-                        Item.Find;
+                        Item.Find();
                         Item.Validate("Base Unit of Measure", ItemBaseUOM);
                         Item.Modify(true);
                         if ItemBaseUnitOfMeasure.Get(Item."No.", ItemBaseUOM) then
@@ -233,6 +223,36 @@ page 5404 "Item Units of Measure"
                 }
             }
         }
+        area(Promoted)
+        {
+            group(Category_Synchronize)
+            {
+                Caption = 'Synchronize';
+                Visible = CRMIntegrationEnabled;
+
+                group(Category_Coupling)
+                {
+                    Caption = 'Coupling';
+                    ShowAs = SplitButton;
+
+                    actionref(ManageCRMCoupling_Promoted; ManageCRMCoupling)
+                    {
+                    }
+                    actionref(DeleteCRMCoupling_Promoted; DeleteCRMCoupling)
+                    {
+                    }
+                }
+                actionref(CRMGotoUnitOfMeasure_Promoted; CRMGotoUnitOfMeasure)
+                {
+                }
+                actionref(CRMSynchronizeNow_Promoted; CRMSynchronizeNow)
+                {
+                }
+                actionref(ShowLog_Promoted; ShowLog)
+                {
+                }
+            }
+        }
     }
 
     trigger OnAfterGetCurrRecord()
@@ -246,14 +266,14 @@ page 5404 "Item Units of Measure"
 
     trigger OnAfterGetRecord()
     begin
-        SetStyle;
+        SetStyle();
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
         if "Item No." = '' then
             "Item No." := Item."No.";
-        SetStyle;
+        SetStyle();
     end;
 
     trigger OnOpenPage()
@@ -291,4 +311,3 @@ page 5404 "Item Units of Measure"
     end;
 }
 
-#endif

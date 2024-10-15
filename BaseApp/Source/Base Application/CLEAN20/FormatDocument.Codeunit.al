@@ -7,14 +7,15 @@ codeunit 368 "Format Document"
     end;
 
     var
+        GLSetup: Record "General Ledger Setup";
+        AutoFormat: Codeunit "Auto Format";
+
         PurchaserTxt: Label 'Purchaser';
         SalespersonTxt: Label 'Salesperson';
         TotalTxt: Label 'Total %1', Comment = '%1 = Currency Code';
         TotalInclVATTxt: Label 'Total %1 Incl. VAT', Comment = '%1 = Currency Code';
         TotalExclVATTxt: Label 'Total %1 Excl. VAT', Comment = '%1 = Currency Code';
-        GLSetup: Record "General Ledger Setup";
         COPYTxt: Label 'COPY', Comment = 'COPY';
-        AutoFormat: Codeunit "Auto Format";
 
     procedure GetRecordFiltersWithCaptions(RecVariant: Variant) Filters: Text
     var
@@ -34,7 +35,7 @@ codeunit 368 "Format Document"
         // <returns>Text representation of all field filter applied to a record</returns>
 
         RecRef.GetTable(RecVariant);
-        Filters := RecRef.GetFilters;
+        Filters := RecRef.GetFilters();
         if Filters = '' then
             exit;
 
@@ -124,7 +125,7 @@ codeunit 368 "Format Document"
     procedure SetPaymentMethod(var PaymentMethod: Record "Payment Method"; "Code": Code[10]; LanguageCode: Code[10])
     begin
         if Code = '' then
-            PaymentMethod.Init
+            PaymentMethod.Init()
         else begin
             PaymentMethod.Get(Code);
             PaymentMethod.TranslateDescription(LanguageCode);
@@ -134,7 +135,7 @@ codeunit 368 "Format Document"
     procedure SetPaymentTerms(var PaymentTerms: Record "Payment Terms"; "Code": Code[10]; LanguageCode: Code[10])
     begin
         if Code = '' then
-            PaymentTerms.Init
+            PaymentTerms.Init()
         else begin
             PaymentTerms.Get(Code);
             PaymentTerms.TranslateDescription(PaymentTerms, LanguageCode);
@@ -162,7 +163,7 @@ codeunit 368 "Format Document"
     procedure SetShipmentMethod(var ShipmentMethod: Record "Shipment Method"; "Code": Code[10]; LanguageCode: Code[10])
     begin
         if Code = '' then
-            ShipmentMethod.Init
+            ShipmentMethod.Init()
         else begin
             ShipmentMethod.Get(Code);
             ShipmentMethod.TranslateDescription(ShipmentMethod, LanguageCode);
@@ -198,12 +199,12 @@ codeunit 368 "Format Document"
     procedure SetSalesInvoiceLine(var SalesInvoiceLine: Record "Sales Invoice Line"; var FormattedQuantity: Text; var FormattedUnitPrice: Text; var FormattedVATPercentage: Text; var FormattedLineAmount: Text)
     begin
         OnBeforeSetSalesInvoiceLine(SalesInvoiceLine);
-        SetSalesPurchaseLine(not SalesInvoiceLine.HasTypeToFillMandatoryFields,
+        SetSalesPurchaseLine(not SalesInvoiceLine.HasTypeToFillMandatoryFields(),
           SalesInvoiceLine.Quantity,
           SalesInvoiceLine."Unit Price",
           SalesInvoiceLine."VAT %",
           SalesInvoiceLine."Line Amount",
-          SalesInvoiceLine.GetCurrencyCode,
+          SalesInvoiceLine.GetCurrencyCode(),
           FormattedQuantity,
           FormattedUnitPrice,
           FormattedVATPercentage,
@@ -214,7 +215,7 @@ codeunit 368 "Format Document"
     procedure SetSalesLine(var SalesLine: Record "Sales Line"; var FormattedQuantity: Text; var FormattedUnitPrice: Text; var FormattedVATPercentage: Text; var FormattedLineAmount: Text)
     begin
         OnBeforeSetSalesLine(SalesLine);
-        SetSalesPurchaseLine(not SalesLine.HasTypeToFillMandatoryFields,
+        SetSalesPurchaseLine(not SalesLine.HasTypeToFillMandatoryFields(),
           SalesLine.Quantity,
           SalesLine."Unit Price",
           SalesLine."VAT %",
@@ -230,12 +231,12 @@ codeunit 368 "Format Document"
     procedure SetSalesCrMemoLine(var SalesCrMemoLine: Record "Sales Cr.Memo Line"; var FormattedQuantity: Text; var FormattedUnitPrice: Text; var FormattedVATPercentage: Text; var FormattedLineAmount: Text)
     begin
         OnBeforeSetSalesCrMemoLine(SalesCrMemoLine);
-        SetSalesPurchaseLine(not SalesCrMemoLine.HasTypeToFillMandatoryFields,
+        SetSalesPurchaseLine(not SalesCrMemoLine.HasTypeToFillMandatoryFields(),
           SalesCrMemoLine.Quantity,
           SalesCrMemoLine."Unit Price",
           SalesCrMemoLine."VAT %",
           SalesCrMemoLine."Line Amount",
-          SalesCrMemoLine.GetCurrencyCode,
+          SalesCrMemoLine.GetCurrencyCode(),
           FormattedQuantity,
           FormattedUnitPrice,
           FormattedVATPercentage,
@@ -262,7 +263,7 @@ codeunit 368 "Format Document"
         TempVatPct: Text;
         TempLineAmount: Text;
     begin
-        SetSalesPurchaseLine(not PurchaseLine.HasTypeToFillMandatoryFields,
+        SetSalesPurchaseLine(not PurchaseLine.HasTypeToFillMandatoryFields(),
           PurchaseLine.Quantity,
           PurchaseLine."Direct Unit Cost",
           PurchaseLine."VAT %",

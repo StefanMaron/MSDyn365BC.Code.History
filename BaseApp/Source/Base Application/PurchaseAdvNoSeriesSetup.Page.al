@@ -18,7 +18,7 @@ page 31036 "Purchase Adv. No. Series Setup"
             {
                 Caption = 'Numbering';
                 InstructionalText = 'To fill the Document No. field automatically, you must set up a number series.';
-                field("Advance Letter Nos."; "Advance Letter Nos.")
+                field("Advance Letter Nos."; Rec."Advance Letter Nos.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code for the number series that will be used to assign numbers to advance letter.';
@@ -36,12 +36,20 @@ page 31036 "Purchase Adv. No. Series Setup"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Purchase Adv. Paym. Templates (Obsolete)';
                 Image = Setup;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 RunObject = Page "Purchase Adv. Paym. Templates";
                 RunPageLink = Code = FIELD(Code);
                 ToolTip = 'Specifies purchase adv. no. series setup';
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(Setup_Promoted; Setup)
+                {
+                }
             }
         }
     }

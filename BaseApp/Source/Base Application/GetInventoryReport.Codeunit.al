@@ -1,4 +1,3 @@
-#if not CLEAN18
 codeunit 5845 "Get Inventory Report"
 {
     TableNo = "Inventory Report Entry";
@@ -8,12 +7,12 @@ codeunit 5845 "Get Inventory Report"
         WindowUpdateDateTime := CurrentDateTime;
         WindowIsOpen := false;
 
-        Reset;
+        Reset();
         DeleteAll();
         Calculate(Rec);
 
         if WindowIsOpen then
-            Window.Close;
+            Window.Close();
     end;
 
     var
@@ -55,36 +54,36 @@ codeunit 5845 "Get Inventory Report"
     local procedure CalcInvtPostings(var InventoryReportLine: Record "Inventory Report Entry")
     begin
         with ValueEntry do begin
-            Reset;
+            Reset();
             Clear(InventoryReportLine);
             SetCurrentKey(
               "Item No.", "Posting Date", "Item Ledger Entry Type", "Entry Type", "Variance Type",
               "Item Charge No.", "Location Code", "Variant Code");
             SetFilter("Item No.", InvtReportHeader.GetFilter("Item Filter"));
             if Find('-') then
-                repeat
-                    UpDateWindow(Item.TableCaption, "Item No.", '');
-                    SetRange("Item No.", "Item No.");
-                    if not Item.Get("Item No.") then
-                        Clear(Item);
-                    if Item.Type = Item.Type::Inventory then
-                        InsertItemInvtReportEntry(InventoryReportLine);
+                    repeat
+                        UpDateWindow(Item.TableCaption(), "Item No.", '');
+                        SetRange("Item No.", "Item No.");
+                        if not Item.Get("Item No.") then
+                            Clear(Item);
+                        if Item.Type = Item.Type::Inventory then
+                            InsertItemInvtReportEntry(InventoryReportLine);
 
-                    SetFilter("Item No.", InvtReportHeader.GetFilter("Item Filter"));
-                until Next() = 0;
+                        SetFilter("Item No.", InvtReportHeader.GetFilter("Item Filter"));
+                    until Next() = 0;
         end
     end;
 
     local procedure InsertDiffReportEntry(var InventoryReportLine: Record "Inventory Report Entry")
     begin
         with InventoryReportLine do begin
-            Init;
+            Init();
             CalcDiff(InventoryReportLine);
             Type := Type::" ";
             "No." := '';
             Description := '';
             "Entry No." := "Entry No." + 1;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -120,96 +119,73 @@ codeunit 5845 "Get Inventory Report"
     begin
         with InvtPostingSetup do begin
             if Find('-') then
-                repeat
-                    TempInvtPostingSetup.Reset();
-                    TempInvtPostingSetup.SetRange("Inventory Account", "Inventory Account");
-                    if not TempInvtPostingSetup.FindFirst() then begin
-                        UpDateWindow(WindowType, WindowNo, FieldCaption("Inventory Account"));
-                        InsertGLInvtReportEntry(InventoryReportLine, "Inventory Account", InventoryReportLine.Inventory);
-                    end;
+                    repeat
+                        TempInvtPostingSetup.Reset();
+                        TempInvtPostingSetup.SetRange("Inventory Account", "Inventory Account");
+                        if not TempInvtPostingSetup.FindFirst() then begin
+                            UpDateWindow(WindowType, WindowNo, FieldCaption("Inventory Account"));
+                            InsertGLInvtReportEntry(InventoryReportLine, "Inventory Account", InventoryReportLine.Inventory);
+                        end;
 
-                    TempInvtPostingSetup.Reset();
-                    TempInvtPostingSetup.SetRange("Inventory Account (Interim)", "Inventory Account (Interim)");
-                    if not TempInvtPostingSetup.FindFirst() then begin
-                        UpDateWindow(WindowType, WindowNo, FieldCaption("Inventory Account (Interim)"));
-                        InsertGLInvtReportEntry(
-                          InventoryReportLine, "Inventory Account (Interim)", InventoryReportLine."Inventory (Interim)");
-                    end;
+                        TempInvtPostingSetup.Reset();
+                        TempInvtPostingSetup.SetRange("Inventory Account (Interim)", "Inventory Account (Interim)");
+                        if not TempInvtPostingSetup.FindFirst() then begin
+                            UpDateWindow(WindowType, WindowNo, FieldCaption("Inventory Account (Interim)"));
+                            InsertGLInvtReportEntry(
+                              InventoryReportLine, "Inventory Account (Interim)", InventoryReportLine."Inventory (Interim)");
+                        end;
 
-                    TempInvtPostingSetup.Reset();
-                    TempInvtPostingSetup.SetRange("Material Variance Account", "Material Variance Account");
-                    if not TempInvtPostingSetup.FindFirst() then begin
-                        UpDateWindow(WindowType, WindowNo, FieldCaption("Material Variance Account"));
-                        InsertGLInvtReportEntry(
-                          InventoryReportLine, "Material Variance Account", InventoryReportLine."Material Variance");
-                    end;
+                        TempInvtPostingSetup.Reset();
+                        TempInvtPostingSetup.SetRange("Material Variance Account", "Material Variance Account");
+                        if not TempInvtPostingSetup.FindFirst() then begin
+                            UpDateWindow(WindowType, WindowNo, FieldCaption("Material Variance Account"));
+                            InsertGLInvtReportEntry(
+                              InventoryReportLine, "Material Variance Account", InventoryReportLine."Material Variance");
+                        end;
 
-                    TempInvtPostingSetup.Reset();
-                    TempInvtPostingSetup.SetRange("Capacity Variance Account", "Capacity Variance Account");
-                    if not TempInvtPostingSetup.FindFirst() then begin
-                        UpDateWindow(WindowType, WindowNo, FieldCaption("Capacity Variance Account"));
-                        InsertGLInvtReportEntry(
-                          InventoryReportLine, "Capacity Variance Account", InventoryReportLine."Capacity Variance");
-                    end;
+                        TempInvtPostingSetup.Reset();
+                        TempInvtPostingSetup.SetRange("Capacity Variance Account", "Capacity Variance Account");
+                        if not TempInvtPostingSetup.FindFirst() then begin
+                            UpDateWindow(WindowType, WindowNo, FieldCaption("Capacity Variance Account"));
+                            InsertGLInvtReportEntry(
+                              InventoryReportLine, "Capacity Variance Account", InventoryReportLine."Capacity Variance");
+                        end;
 
-                    TempInvtPostingSetup.Reset();
-                    TempInvtPostingSetup.SetRange("Mfg. Overhead Variance Account", "Mfg. Overhead Variance Account");
-                    if not TempInvtPostingSetup.FindFirst() then begin
-                        UpDateWindow(WindowType, WindowNo, FieldCaption("Mfg. Overhead Variance Account"));
-                        InsertGLInvtReportEntry(
-                          InventoryReportLine, "Mfg. Overhead Variance Account", InventoryReportLine."Mfg. Overhead Variance");
-                    end;
+                        TempInvtPostingSetup.Reset();
+                        TempInvtPostingSetup.SetRange("Mfg. Overhead Variance Account", "Mfg. Overhead Variance Account");
+                        if not TempInvtPostingSetup.FindFirst() then begin
+                            UpDateWindow(WindowType, WindowNo, FieldCaption("Mfg. Overhead Variance Account"));
+                            InsertGLInvtReportEntry(
+                              InventoryReportLine, "Mfg. Overhead Variance Account", InventoryReportLine."Mfg. Overhead Variance");
+                        end;
 
-                    TempInvtPostingSetup.Reset();
-                    TempInvtPostingSetup.SetRange("Cap. Overhead Variance Account", "Cap. Overhead Variance Account");
-                    if not TempInvtPostingSetup.FindFirst() then begin
-                        UpDateWindow(WindowType, WindowNo, FieldCaption("Cap. Overhead Variance Account"));
-                        InsertGLInvtReportEntry(
-                          InventoryReportLine, "Cap. Overhead Variance Account", InventoryReportLine."Capacity Overhead Variance");
-                    end;
+                        TempInvtPostingSetup.Reset();
+                        TempInvtPostingSetup.SetRange("Cap. Overhead Variance Account", "Cap. Overhead Variance Account");
+                        if not TempInvtPostingSetup.FindFirst() then begin
+                            UpDateWindow(WindowType, WindowNo, FieldCaption("Cap. Overhead Variance Account"));
+                            InsertGLInvtReportEntry(
+                              InventoryReportLine, "Cap. Overhead Variance Account", InventoryReportLine."Capacity Overhead Variance");
+                        end;
 
-                    TempInvtPostingSetup.Reset();
-                    TempInvtPostingSetup.SetRange("Subcontracted Variance Account", "Subcontracted Variance Account");
-                    if not TempInvtPostingSetup.FindFirst() then begin
-                        UpDateWindow(WindowType, WindowNo, FieldCaption("Subcontracted Variance Account"));
-                        InsertGLInvtReportEntry(
-                          InventoryReportLine, "Subcontracted Variance Account", InventoryReportLine."Subcontracted Variance");
-                    end;
+                        TempInvtPostingSetup.Reset();
+                        TempInvtPostingSetup.SetRange("Subcontracted Variance Account", "Subcontracted Variance Account");
+                        if not TempInvtPostingSetup.FindFirst() then begin
+                            UpDateWindow(WindowType, WindowNo, FieldCaption("Subcontracted Variance Account"));
+                            InsertGLInvtReportEntry(
+                              InventoryReportLine, "Subcontracted Variance Account", InventoryReportLine."Subcontracted Variance");
+                        end;
 
-                    TempInvtPostingSetup.Reset();
-                    TempInvtPostingSetup.SetRange("WIP Account", "WIP Account");
-                    if not TempInvtPostingSetup.FindFirst() then begin
-                        UpDateWindow(WindowType, WindowNo, FieldCaption("WIP Account"));
-                        InsertGLInvtReportEntry(InventoryReportLine, "WIP Account", InventoryReportLine."WIP Inventory");
-                    end;
-                    // NAVCZ
-                    TempInvtPostingSetup.Reset();
-                    TempInvtPostingSetup.SetRange("Consumption Account", "Consumption Account");
-                    if not TempInvtPostingSetup.FindFirst() then begin
-                        UpDateWindow(WindowType, WindowNo, FieldCaption("Consumption Account"));
-                        InsertGLInvtReportEntry(InventoryReportLine, "Consumption Account", InventoryReportLine.Consumption);
-                    end;
+                        TempInvtPostingSetup.Reset();
+                        TempInvtPostingSetup.SetRange("WIP Account", "WIP Account");
+                        if not TempInvtPostingSetup.FindFirst() then begin
+                            UpDateWindow(WindowType, WindowNo, FieldCaption("WIP Account"));
+                            InsertGLInvtReportEntry(InventoryReportLine, "WIP Account", InventoryReportLine."WIP Inventory");
+                        end;
 
-                    TempInvtPostingSetup.Reset();
-                    TempInvtPostingSetup.SetRange("Change In Inv.Of WIP Acc.", "Change In Inv.Of WIP Acc.");
-                    if not TempInvtPostingSetup.FindFirst() then begin
-                        UpDateWindow(WindowType, WindowNo, FieldCaption("Change In Inv.Of WIP Acc."));
-                        InsertGLInvtReportEntry(InventoryReportLine, "Change In Inv.Of WIP Acc.", InventoryReportLine."Change In Inv.Of WIP");
-                    end;
-
-                    TempInvtPostingSetup.Reset();
-                    TempInvtPostingSetup.SetRange("Change In Inv.Of Product Acc.", "Change In Inv.Of Product Acc.");
-                    if not TempInvtPostingSetup.FindFirst() then begin
-                        UpDateWindow(WindowType, WindowNo, FieldCaption("Change In Inv.Of Product Acc."));
-                        InsertGLInvtReportEntry(
-                          InventoryReportLine, "Change In Inv.Of Product Acc.", InventoryReportLine."Change In Inv.Of Product");
-                    end;
-                    // NAVCZ
-
-                    OnCalcInvtPostingSetupOnBeforeAssignTempInvtPostingSetup(InventoryReportLine, TempInvtPostingSetup, InvtReportHeader, InvtPostingSetup);
-                    TempInvtPostingSetup := InvtPostingSetup;
-                    TempInvtPostingSetup.Insert();
-                until Next() = 0;
+                        OnCalcInvtPostingSetupOnBeforeAssignTempInvtPostingSetup(InventoryReportLine, TempInvtPostingSetup, InvtReportHeader, InvtPostingSetup);
+                        TempInvtPostingSetup := InvtPostingSetup;
+                        TempInvtPostingSetup.Insert();
+                    until Next() = 0;
         end;
     end;
 
@@ -220,75 +196,66 @@ codeunit 5845 "Get Inventory Report"
     begin
         with GenPostingSetup do begin
             if Find('-') then
-                repeat
-                    TempGenPostingSetup.Reset();
-                    TempGenPostingSetup.SetRange("COGS Account", "COGS Account");
-                    if not TempGenPostingSetup.FindFirst() then begin
-                        UpDateWindow(WindowType, WindowNo, FieldCaption("COGS Account"));
-                        InsertGLInvtReportEntry(InventoryReportLine, "COGS Account", InventoryReportLine.COGS);
-                    end;
+                    repeat
+                        TempGenPostingSetup.Reset();
+                        TempGenPostingSetup.SetRange("COGS Account", "COGS Account");
+                        if not TempGenPostingSetup.FindFirst() then begin
+                            UpDateWindow(WindowType, WindowNo, FieldCaption("COGS Account"));
+                            InsertGLInvtReportEntry(InventoryReportLine, "COGS Account", InventoryReportLine.COGS);
+                        end;
 
-                    TempGenPostingSetup.Reset();
-                    TempGenPostingSetup.SetRange("Inventory Adjmt. Account", "Inventory Adjmt. Account");
-                    if not TempGenPostingSetup.FindFirst() then begin
-                        UpDateWindow(WindowType, WindowNo, FieldCaption("Inventory Adjmt. Account"));
-                        InsertGLInvtReportEntry(
-                          InventoryReportLine, "Inventory Adjmt. Account", InventoryReportLine."Inventory Adjmt.");
-                    end;
+                        TempGenPostingSetup.Reset();
+                        TempGenPostingSetup.SetRange("Inventory Adjmt. Account", "Inventory Adjmt. Account");
+                        if not TempGenPostingSetup.FindFirst() then begin
+                            UpDateWindow(WindowType, WindowNo, FieldCaption("Inventory Adjmt. Account"));
+                            InsertGLInvtReportEntry(
+                              InventoryReportLine, "Inventory Adjmt. Account", InventoryReportLine."Inventory Adjmt.");
+                        end;
 
-                    // NAVCZ
-                    TempGenPostingSetup.Reset();
-                    TempGenPostingSetup.SetRange("Invt. Rounding Adj. Account", "Invt. Rounding Adj. Account");
-                    if not TempGenPostingSetup.FindFirst() then begin
-                        UpDateWindow(WindowType, WindowNo, FieldCaption("Invt. Rounding Adj. Account"));
-                        InsertGLInvtReportEntry(
-                          InventoryReportLine, "Invt. Rounding Adj. Account", InventoryReportLine."Inv. Rounding Adj.");
-                    end;
-                    // NAVCZ
-                    TempGenPostingSetup.Reset();
-                    TempGenPostingSetup.SetRange("Invt. Accrual Acc. (Interim)", "Invt. Accrual Acc. (Interim)");
-                    if not TempGenPostingSetup.FindFirst() then begin
-                        UpDateWindow(WindowType, WindowNo, FieldCaption("Invt. Accrual Acc. (Interim)"));
-                        InsertGLInvtReportEntry(
-                          InventoryReportLine, "Invt. Accrual Acc. (Interim)", InventoryReportLine."Invt. Accrual (Interim)");
-                    end;
+                        TempGenPostingSetup.Reset();
+                        TempGenPostingSetup.SetRange("Invt. Accrual Acc. (Interim)", "Invt. Accrual Acc. (Interim)");
+                        if not TempGenPostingSetup.FindFirst() then begin
+                            UpDateWindow(WindowType, WindowNo, FieldCaption("Invt. Accrual Acc. (Interim)"));
+                            InsertGLInvtReportEntry(
+                              InventoryReportLine, "Invt. Accrual Acc. (Interim)", InventoryReportLine."Invt. Accrual (Interim)");
+                        end;
 
-                    TempGenPostingSetup.Reset();
-                    TempGenPostingSetup.SetRange("COGS Account (Interim)", "COGS Account (Interim)");
-                    if not TempGenPostingSetup.FindFirst() then begin
-                        UpDateWindow(WindowType, WindowNo, FieldCaption("COGS Account (Interim)"));
-                        InsertGLInvtReportEntry(
-                          InventoryReportLine, "COGS Account (Interim)", InventoryReportLine."COGS (Interim)");
-                    end;
+                        TempGenPostingSetup.Reset();
+                        TempGenPostingSetup.SetRange("COGS Account (Interim)", "COGS Account (Interim)");
+                        if not TempGenPostingSetup.FindFirst() then begin
+                            UpDateWindow(WindowType, WindowNo, FieldCaption("COGS Account (Interim)"));
+                            InsertGLInvtReportEntry(
+                              InventoryReportLine, "COGS Account (Interim)", InventoryReportLine."COGS (Interim)");
+                        end;
 
-                    TempGenPostingSetup.Reset();
-                    TempGenPostingSetup.SetRange("Direct Cost Applied Account", "Direct Cost Applied Account");
-                    if not TempGenPostingSetup.FindFirst() then begin
-                        UpDateWindow(WindowType, WindowNo, FieldCaption("Direct Cost Applied Account"));
-                        InsertGLInvtReportEntry(
-                          InventoryReportLine, "Direct Cost Applied Account", InventoryReportLine."Direct Cost Applied");
-                    end;
+                        TempGenPostingSetup.Reset();
+                        TempGenPostingSetup.SetRange("Direct Cost Applied Account", "Direct Cost Applied Account");
+                        if not TempGenPostingSetup.FindFirst() then begin
+                            UpDateWindow(WindowType, WindowNo, FieldCaption("Direct Cost Applied Account"));
+                            InsertGLInvtReportEntry(
+                              InventoryReportLine, "Direct Cost Applied Account", InventoryReportLine."Direct Cost Applied");
+                        end;
 
-                    TempGenPostingSetup.Reset();
-                    TempGenPostingSetup.SetRange("Overhead Applied Account", "Overhead Applied Account");
-                    if not TempGenPostingSetup.FindFirst() then begin
-                        UpDateWindow(WindowType, WindowNo, FieldCaption("Overhead Applied Account"));
-                        InsertGLInvtReportEntry(
-                          InventoryReportLine, "Overhead Applied Account", InventoryReportLine."Overhead Applied");
-                    end;
+                        TempGenPostingSetup.Reset();
+                        TempGenPostingSetup.SetRange("Overhead Applied Account", "Overhead Applied Account");
+                        if not TempGenPostingSetup.FindFirst() then begin
+                            UpDateWindow(WindowType, WindowNo, FieldCaption("Overhead Applied Account"));
+                            InsertGLInvtReportEntry(
+                              InventoryReportLine, "Overhead Applied Account", InventoryReportLine."Overhead Applied");
+                        end;
 
-                    TempGenPostingSetup.Reset();
-                    TempGenPostingSetup.SetRange("Purchase Variance Account", "Purchase Variance Account");
-                    if not TempGenPostingSetup.FindFirst() then begin
-                        UpDateWindow(WindowType, WindowNo, FieldCaption("Purchase Variance Account"));
-                        InsertGLInvtReportEntry(
-                          InventoryReportLine, "Purchase Variance Account", InventoryReportLine."Purchase Variance");
-                    end;
+                        TempGenPostingSetup.Reset();
+                        TempGenPostingSetup.SetRange("Purchase Variance Account", "Purchase Variance Account");
+                        if not TempGenPostingSetup.FindFirst() then begin
+                            UpDateWindow(WindowType, WindowNo, FieldCaption("Purchase Variance Account"));
+                            InsertGLInvtReportEntry(
+                              InventoryReportLine, "Purchase Variance Account", InventoryReportLine."Purchase Variance");
+                        end;
 
-                    OnCalcGenPostingSetupOnBeforeAssignTempGenPostingSetup(InventoryReportLine, TempGenPostingSetup, InvtReportHeader, GenPostingSetup);
-                    TempGenPostingSetup := GenPostingSetup;
-                    TempGenPostingSetup.Insert();
-                until Next() = 0;
+                        OnCalcGenPostingSetupOnBeforeAssignTempGenPostingSetup(InventoryReportLine, TempGenPostingSetup, InvtReportHeader, GenPostingSetup);
+                        TempGenPostingSetup := GenPostingSetup;
+                        TempGenPostingSetup.Insert();
+                    until Next() = 0;
         end;
     end;
 
@@ -297,7 +264,7 @@ codeunit 5845 "Get Inventory Report"
         IsHandled: Boolean;
     begin
         with InventoryReportLine do begin
-            Init;
+            Init();
             if not GLAcc.Get(GLAccNo) then
                 exit;
             GLAcc.SetFilter("Date Filter", InvtReportHeader.GetFilter("Posting Date Filter"));
@@ -312,55 +279,55 @@ codeunit 5845 "Get Inventory Report"
             "No." := GLAcc."No.";
             Description := GLAcc.Name;
             "Entry No." := "Entry No." + 1;
-            Insert;
+            Insert();
         end;
     end;
 
     local procedure InsertItemInvtReportEntry(var InventoryReportLine: Record "Inventory Report Entry")
     begin
         with InventoryReportLine do begin
-            Init;
+            Init();
             CalcItem(InventoryReportLine);
             "No." := ValueEntry."Item No.";
             Description := Item.Description;
             Type := Type::Item;
             "Entry No." := "Entry No." + 1;
-            Insert;
+            Insert();
         end;
     end;
 
     local procedure CalcItem(var InventoryReportLine: Record "Inventory Report Entry")
     begin
         with ValueEntry do
-            repeat
-                SetRange("Posting Date", "Posting Date");
                 repeat
-                    if ValueEntryInFilteredSet(ValueEntry, InvtReportHeader, false) then begin
-                        if Item."No." <> "Item No." then
-                            if not Item.Get("Item No.") then
-                                Item.Init();
-                        SetRange("Entry Type", "Entry Type");
-                        SetRange("Item Ledger Entry Type", "Item Ledger Entry Type");
-                        SetRange("Location Code", "Location Code");
-                        SetRange("Variance Type", "Variance Type");
-                        SetRange("Item Charge No.", "Item Charge No.");
+                    SetRange("Posting Date", "Posting Date");
+                    repeat
+                            if ValueEntryInFilteredSet(ValueEntry, InvtReportHeader, false) then begin
+                                if Item."No." <> "Item No." then
+                                    if not Item.Get("Item No.") then
+                                        Item.Init();
+                                SetRange("Entry Type", "Entry Type");
+                                SetRange("Item Ledger Entry Type", "Item Ledger Entry Type");
+                                SetRange("Location Code", "Location Code");
+                                SetRange("Variance Type", "Variance Type");
+                                SetRange("Item Charge No.", "Item Charge No.");
 
-                        if ValueEntryInFilteredSet(ValueEntry, InvtReportHeader, true) then
-                            CalcValueEntries(InventoryReportLine);
+                                if ValueEntryInFilteredSet(ValueEntry, InvtReportHeader, true) then
+                                    CalcValueEntries(InventoryReportLine);
 
-                        FindLast();
-                        SetRange("Entry Type");
-                        SetRange("Item Ledger Entry Type");
-                        SetRange("Location Code");
-                        SetRange("Variance Type");
-                        SetRange("Item Charge No.");
-                    end else
-                        FindLast();
+                                FindLast();
+                                SetRange("Entry Type");
+                                SetRange("Item Ledger Entry Type");
+                                SetRange("Location Code");
+                                SetRange("Variance Type");
+                                SetRange("Item Charge No.");
+                            end else
+                                FindLast();
+                    until Next() = 0;
+
+                    FindLast();
+                    SetFilter("Posting Date", InvtReportHeader.GetFilter("Posting Date Filter"));
                 until Next() = 0;
-
-                FindLast();
-                SetFilter("Posting Date", InvtReportHeader.GetFilter("Posting Date Filter"));
-            until Next() = 0;
     end;
 
     local procedure ValueEntryInFilteredSet(var ValueEntry: Record "Value Entry"; var InvtReportHeader: Record "Inventory Report Header"; Detailed: Boolean): Boolean
@@ -374,7 +341,7 @@ codeunit 5845 "Get Inventory Report"
                 SetFilter("Location Code", InvtReportHeader.GetFilter("Location Filter"));
 
             TempValueEntry := ValueEntry;
-            Insert;
+            Insert();
             exit(not IsEmpty);
         end;
     end;
@@ -404,12 +371,6 @@ codeunit 5845 "Get Inventory Report"
             Inventory := Inventory + CalcInventory(ValueEntry);
             "Direct Cost Applied" := "Direct Cost Applied" + CalcDirectCostApplied(ValueEntry);
             "Overhead Applied" := "Overhead Applied" + CalcOverheadApplied(ValueEntry);
-            // NAVCZ
-            "Inv. Rounding Adj." := "Inv. Rounding Adj." + CalcInvRndAdjmt(ValueEntry);
-            Consumption := Consumption + CalcConsumption(ValueEntry);
-            "Change In Inv.Of WIP" := "Change In Inv.Of WIP" + CalcChInvWIP(ValueEntry);
-            "Change In Inv.Of Product" := "Change In Inv.Of Product" + CalcChInvProduct(ValueEntry);
-            // NAVCZ
 
             OnAfterCalcValueEntries(InventoryReportLine, ValueEntry);
         end;
@@ -430,7 +391,7 @@ codeunit 5845 "Get Inventory Report"
     begin
         with InventoryReportLine do begin
             CalcInventoryReportLine.Copy(InventoryReportLine);
-            Reset;
+            Reset();
 
             SetRange(Type, Type::"G/L Account");
             CalcSums(
@@ -442,9 +403,6 @@ codeunit 5845 "Get Inventory Report"
               "Capacity Variance", "Subcontracted Variance", "Capacity Overhead Variance",
               "Mfg. Overhead Variance", "Direct Cost Applied WIP", "Overhead Applied WIP",
               "Inventory To WIP", "WIP To Interim", "Direct Cost Applied", "Overhead Applied");
-            // NAVCZ
-            CalcSums(Consumption, "Change In Inv.Of WIP", "Change In Inv.Of Product", "Inv. Rounding Adj.");
-            // NAVCZ
 
             OnCalcDiffOnAfterCalcSumsTypeGLAccount(InventoryReportLine);
             CalcInventoryReportLine := InventoryReportLine;
@@ -459,9 +417,6 @@ codeunit 5845 "Get Inventory Report"
               "Capacity Variance", "Subcontracted Variance", "Capacity Overhead Variance",
               "Mfg. Overhead Variance", "Direct Cost Applied WIP", "Overhead Applied WIP",
               "Inventory To WIP", "WIP To Interim", "Direct Cost Applied", "Overhead Applied");
-            // NAVCZ
-            CalcSums(Consumption, "Change In Inv.Of WIP", "Change In Inv.Of Product", "Inv. Rounding Adj.");
-            // NAVCZ
 
             OnCalcDiffOnAfterCalcSumsTypeItem(InventoryReportLine);
         end;
@@ -488,12 +443,6 @@ codeunit 5845 "Get Inventory Report"
             "WIP To Interim" := "WIP To Interim" - InventoryReportLine."WIP To Interim";
             "Direct Cost Applied" := "Direct Cost Applied" - InventoryReportLine."Direct Cost Applied";
             "Overhead Applied" := "Overhead Applied" - InventoryReportLine."Overhead Applied";
-            // NAVCZ
-            "Inv. Rounding Adj." := "Inv. Rounding Adj." - InventoryReportLine."Inv. Rounding Adj.";
-            Consumption := Consumption - InventoryReportLine.Consumption;
-            "Change In Inv.Of WIP" := "Change In Inv.Of WIP" - InventoryReportLine."Change In Inv.Of WIP";
-            "Change In Inv.Of Product" := "Change In Inv.Of Product" - InventoryReportLine."Change In Inv.Of Product";
-            // NAVCZ
 
             OnCalcDiffOnBeforeCopytoInventoryReportEntry(CalcInventoryReportLine, InventoryReportLine);
             InventoryReportLine.Copy(CalcInventoryReportLine);
@@ -1403,9 +1352,9 @@ codeunit 5845 "Get Inventory Report"
         WindowNo := NewWindowNo;
         WindowPostingType := NewWindowPostingType;
 
-        if IsTimeForUpdate then begin
+        if IsTimeForUpdate() then begin
             if not WindowIsOpen then
-                OpenWindow;
+                OpenWindow();
             Window.Update(1, WindowType);
             Window.Update(2, WindowNo);
             Window.Update(3, WindowPostingType);
@@ -1433,7 +1382,7 @@ codeunit 5845 "Get Inventory Report"
             then begin
                 InvtSetup.Get();
                 "Expected Cost Posting Warning" := not InvtSetup."Expected Cost Posting to G/L";
-                Modify;
+                Modify();
                 exit(true);
             end;
             exit(false);
@@ -1479,32 +1428,32 @@ codeunit 5845 "Get Inventory Report"
             ValueEntry.SetCurrentKey("Item No.", "Posting Date");
             if ValueEntry.FindFirst() then
                 repeat
-                    ValueEntry.SetRange("Item No.", ValueEntry."Item No.");
+                        ValueEntry.SetRange("Item No.", ValueEntry."Item No.");
                     ValueEntry.SetRange("Posting Date", ValueEntry."Posting Date");
                     if ValueEntryInFilteredSet(ValueEntry, InvtReportHeader, false) then
-                        repeat
-                            ValueEntry.SetRange("Entry Type", ValueEntry."Entry Type");
-                            ValueEntry.SetRange("Item Ledger Entry Type", ValueEntry."Item Ledger Entry Type");
-                            ValueEntry.SetRange("Location Code", ValueEntry."Location Code");
-                            ValueEntry.SetRange("Variance Type", ValueEntry."Variance Type");
+                            repeat
+                                ValueEntry.SetRange("Entry Type", ValueEntry."Entry Type");
+                                ValueEntry.SetRange("Item Ledger Entry Type", ValueEntry."Item Ledger Entry Type");
+                                ValueEntry.SetRange("Location Code", ValueEntry."Location Code");
+                                ValueEntry.SetRange("Variance Type", ValueEntry."Variance Type");
 
-                            if ValueEntryInFilteredSet(ValueEntry, InvtReportHeader, true) then begin
-                                ValueEntry.SetRange("Cost Posted to G/L", 0);
-                                ValueEntry.SetFilter("Cost Amount (Actual)", '<>%1', 0);
-                                if ValueEntry.FindLast() then begin
-                                    "Cost is Posted to G/L Warning" := true;
-                                    Modify;
-                                    exit(true);
+                                if ValueEntryInFilteredSet(ValueEntry, InvtReportHeader, true) then begin
+                                    ValueEntry.SetRange("Cost Posted to G/L", 0);
+                                    ValueEntry.SetFilter("Cost Amount (Actual)", '<>%1', 0);
+                                    if ValueEntry.FindLast() then begin
+                                        "Cost is Posted to G/L Warning" := true;
+                                        Modify();
+                                        exit(true);
+                                    end;
+                                    ValueEntry.SetRange("Cost Posted to G/L");
+                                    ValueEntry.SetRange("Cost Amount (Actual)");
                                 end;
-                                ValueEntry.SetRange("Cost Posted to G/L");
-                                ValueEntry.SetRange("Cost Amount (Actual)");
-                            end;
-                            ValueEntry.FindLast();
-                            ValueEntry.SetRange("Entry Type");
-                            ValueEntry.SetRange("Item Ledger Entry Type");
-                            ValueEntry.SetRange("Location Code");
-                            ValueEntry.SetRange("Variance Type");
-                        until ValueEntry.Next() = 0;
+                                ValueEntry.FindLast();
+                                ValueEntry.SetRange("Entry Type");
+                                ValueEntry.SetRange("Item Ledger Entry Type");
+                                ValueEntry.SetRange("Location Code");
+                                ValueEntry.SetRange("Variance Type");
+                            until ValueEntry.Next() = 0;
 
                     if ValueEntry.FindLast() then;
                     ValueEntry.SetRange("Item No.");
@@ -1529,7 +1478,7 @@ codeunit 5845 "Get Inventory Report"
             InEndDateCompr := DateComprRegister.FindFirst();
             if InEndDateCompr or InStartDateCompr then begin
                 "Compression Warning" := true;
-                Modify;
+                Modify();
                 exit(true);
             end;
             exit(false);
@@ -1586,8 +1535,8 @@ codeunit 5845 "Get Inventory Report"
         end;
         if Found then
             repeat
-                repeat
-                until (AccountingPeriod.Next() = 0) or AccountingPeriod."New Fiscal Year";
+                    repeat
+                    until (AccountingPeriod.Next() = 0) or AccountingPeriod."New Fiscal Year";
                 if AccountingPeriod."New Fiscal Year" then
                     AccountingPeriod."Starting Date" := ClosingDate(CalcDate('<-1D>', AccountingPeriod."Starting Date"))
                 else
@@ -1616,7 +1565,7 @@ codeunit 5845 "Get Inventory Report"
             GLEntry.SetFilter("Posting Date", InvtReportHeader.GetFilter("Posting Date Filter"));
             if GLEntry.FindFirst() then begin
                 "Deleted G/L Accounts Warning" := true;
-                Modify;
+                Modify();
                 exit(true);
             end;
             exit(false);
@@ -1635,7 +1584,7 @@ codeunit 5845 "Get Inventory Report"
             ValueEntry.SetCurrentKey("Item No.");
             if ValueEntry.FindFirst() then
                 repeat
-                    ValueEntry.SetRange("Item No.", ValueEntry."Item No.");
+                        ValueEntry.SetRange("Item No.", ValueEntry."Item No.");
                     if ValueEntry."Item No." <> '' then
                         TotalInventory := TotalInventory + CalcInventory(ValueEntry);
                     ValueEntry.FindLast();
@@ -1643,19 +1592,19 @@ codeunit 5845 "Get Inventory Report"
                 until ValueEntry.Next() = 0;
 
             if InvtPostingSetup.Find('-') then
-                repeat
-                    TempInvtPostingSetup.Reset();
-                    TempInvtPostingSetup.SetRange("Inventory Account", InvtPostingSetup."Inventory Account");
-                    if not IsGLNotTheSameHandled(InventoryReportLine, InvtPostingSetup, TempInvtPostingSetup, TotalInventory) then
-                        if not TempInvtPostingSetup.FindFirst() then
-                            if GLAcc.Get(InvtPostingSetup."Inventory Account") then
-                                TotalInventory := TotalInventory - CalcGLAccount(GLAcc);
-                    TempInvtPostingSetup := InvtPostingSetup;
-                    TempInvtPostingSetup.Insert();
-                until InvtPostingSetup.Next() = 0;
+                    repeat
+                        TempInvtPostingSetup.Reset();
+                        TempInvtPostingSetup.SetRange("Inventory Account", InvtPostingSetup."Inventory Account");
+                        if not IsGLNotTheSameHandled(InventoryReportLine, InvtPostingSetup, TempInvtPostingSetup, TotalInventory) then
+                            if not TempInvtPostingSetup.FindFirst() then
+                                if GLAcc.Get(InvtPostingSetup."Inventory Account") then
+                                    TotalInventory := TotalInventory - CalcGLAccount(GLAcc);
+                        TempInvtPostingSetup := InvtPostingSetup;
+                        TempInvtPostingSetup.Insert();
+                    until InvtPostingSetup.Next() = 0;
             if TotalInventory = 0 then begin
                 "Posting Date Warning" := true;
-                Modify;
+                Modify();
                 exit(true);
             end;
             exit(false);
@@ -1694,183 +1643,10 @@ codeunit 5845 "Get Inventory Report"
                0
             then begin
                 "Direct Postings Warning" := true;
-                Modify;
+                Modify();
                 exit(true);
             end;
             exit(false);
-        end;
-    end;
-
-    [Scope('OnPrem')]
-    [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
-    procedure CalcInvRndAdjmt(var ValueEntry1: Record "Value Entry"): Decimal
-    begin
-        // NAVCZ
-        with ValueEntry1 do begin
-            if "Entry Type" = "Entry Type"::Rounding then begin
-                CalcSums("Cost Amount (Actual)");
-                exit(-"Cost Amount (Actual)");
-            end;
-            exit(0);
-        end;
-    end;
-
-    [Scope('OnPrem')]
-    [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
-    procedure CalcConsumption(var ValueEntry1: Record "Value Entry"): Decimal
-    begin
-        // NAVCZ
-        with ValueEntry1 do begin
-            if ("Entry Type" = "Entry Type"::"Direct Cost") and
-               ("Item Ledger Entry Type" = "Item Ledger Entry Type"::Consumption)
-            then begin
-                CalcSums("Cost Amount (Actual)");
-                exit("Cost Amount (Actual)");
-            end;
-            exit(0);
-        end;
-    end;
-
-    [Scope('OnPrem')]
-    [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
-    procedure CalcChInvWIP(var ValueEntry1: Record "Value Entry"): Decimal
-    begin
-        // NAVCZ
-        with ValueEntry1 do begin
-            case "Entry Type" of
-                "Entry Type"::"Direct Cost":
-                    case "Item Ledger Entry Type" of
-                        "Item Ledger Entry Type"::Consumption:
-                            begin
-                                CalcSums("Cost Amount (Actual)");
-                                exit(-"Cost Amount (Actual)");
-                            end;
-                        "Item Ledger Entry Type"::Output:
-                            begin
-                                CalcSums("Cost Amount (Actual)", "Cost Amount (Expected)");
-                                exit(-"Cost Amount (Actual)" - "Cost Amount (Expected)");
-                            end;
-                    end;
-                "Entry Type"::Revaluation:
-                    if "Item Ledger Entry Type" = "Item Ledger Entry Type"::Output then begin
-                        CalcSums("Cost Amount (Expected)");
-                        exit(-"Cost Amount (Expected)");
-                    end;
-            end;
-            exit(0);
-        end;
-    end;
-
-    [Scope('OnPrem')]
-    [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
-    procedure CalcChInvProduct(var ValueEntry1: Record "Value Entry"): Decimal
-    begin
-        // NAVCZ
-        with ValueEntry1 do begin
-            case "Entry Type" of
-                "Entry Type"::"Direct Cost":
-                    if "Item Ledger Entry Type" = "Item Ledger Entry Type"::Output then begin
-                        CalcSums("Cost Amount (Actual)", "Cost Amount (Expected)");
-                        exit("Cost Amount (Expected)" + "Cost Amount (Actual)");
-                    end;
-                "Entry Type"::Revaluation:
-                    if "Item Ledger Entry Type" = "Item Ledger Entry Type"::Output then begin
-                        CalcSums("Cost Amount (Expected)");
-                        exit("Cost Amount (Expected)");
-                    end
-            end;
-            exit(0);
-        end;
-    end;
-
-    [Scope('OnPrem')]
-    [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
-    procedure DrillDownInvAdjmtRnd(var InvtReportLine: Record "Inventory Report Entry")
-    var
-        ValueEntry1: Record "Value Entry";
-    begin
-        // NAVCZ
-        if InvtReportLine.Type = InvtReportLine.Type::"G/L Account" then begin
-            DrillDownGL(InvtReportLine);
-            exit;
-        end;
-
-        with ValueEntry1 do begin
-            SetCurrentKey("Item No.", "Posting Date", "Item Ledger Entry Type", "Entry Type");
-            SetRange("Item No.", InvtReportLine."No.");
-            SetFilter("Posting Date", InvtReportLine.GetFilter("Posting Date Filter"));
-            SetFilter("Location Code", InvtReportLine.GetFilter("Location Filter"));
-            SetRange("Entry Type", "Entry Type"::Rounding);
-            PAGE.Run(0, ValueEntry1, "Cost Amount (Actual)");
-        end;
-    end;
-
-    [Scope('OnPrem')]
-    [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
-    procedure DrillDownConsumption(var InvtReportLine: Record "Inventory Report Entry")
-    var
-        ValueEntry1: Record "Value Entry";
-    begin
-        // NAVCZ
-        if InvtReportLine.Type = InvtReportLine.Type::"G/L Account" then begin
-            DrillDownGL(InvtReportLine);
-            exit;
-        end;
-
-        with ValueEntry1 do begin
-            SetCurrentKey("Item No.", "Posting Date", "Item Ledger Entry Type", "Entry Type");
-            SetRange("Item No.", InvtReportLine."No.");
-            SetFilter("Posting Date", InvtReportLine.GetFilter("Posting Date Filter"));
-            SetFilter("Location Code", InvtReportLine.GetFilter("Location Filter"));
-            SetRange("Entry Type", "Entry Type"::"Direct Cost");
-            SetFilter("Item Ledger Entry Type", '%1|%2', "Item Ledger Entry Type"::Output, "Item Ledger Entry Type"::Consumption);
-            PAGE.Run(0, ValueEntry1, "Cost Amount (Actual)");
-        end;
-    end;
-
-    [Scope('OnPrem')]
-    [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
-    procedure DrillDownChInvWip(var InvtReportLine: Record "Inventory Report Entry")
-    var
-        ValueEntry1: Record "Value Entry";
-    begin
-        // NAVCZ
-        if InvtReportLine.Type = InvtReportLine.Type::"G/L Account" then begin
-            DrillDownGL(InvtReportLine);
-            exit;
-        end;
-
-        with ValueEntry1 do begin
-            SetCurrentKey("Item No.", "Posting Date", "Item Ledger Entry Type", "Entry Type");
-            SetRange("Item No.", InvtReportLine."No.");
-            SetFilter("Posting Date", InvtReportLine.GetFilter("Posting Date Filter"));
-            SetFilter("Location Code", InvtReportLine.GetFilter("Location Filter"));
-            SetFilter("Entry Type", '%1|%2', "Entry Type"::"Direct Cost", "Entry Type"::Revaluation);
-            SetFilter("Item Ledger Entry Type", '%1|%2', "Item Ledger Entry Type"::Output, "Item Ledger Entry Type"::Consumption);
-            PAGE.Run(0, ValueEntry1, "Cost Amount (Actual)");
-        end;
-    end;
-
-    [Scope('OnPrem')]
-    [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
-    procedure DrillDownChInvProd(var InvtReportLine: Record "Inventory Report Entry")
-    var
-        ValueEntry1: Record "Value Entry";
-    begin
-        // NAVCZ
-        if InvtReportLine.Type = InvtReportLine.Type::"G/L Account" then begin
-            DrillDownGL(InvtReportLine);
-            exit;
-        end;
-
-        with ValueEntry1 do begin
-            SetCurrentKey("Item No.", "Posting Date", "Item Ledger Entry Type", "Entry Type");
-            SetRange("Item No.", InvtReportLine."No.");
-            SetFilter("Posting Date", InvtReportLine.GetFilter("Posting Date Filter"));
-            SetFilter("Location Code", InvtReportLine.GetFilter("Location Filter"));
-            SetFilter("Entry Type", '%1|%2', "Entry Type"::"Direct Cost", "Entry Type"::Revaluation);
-            SetRange("Item Ledger Entry Type", "Item Ledger Entry Type"::Output);
-            PAGE.Run(0, ValueEntry1, "Cost Amount (Expected)");
         end;
     end;
 
@@ -1955,4 +1731,3 @@ codeunit 5845 "Get Inventory Report"
     end;
 }
 
-#endif

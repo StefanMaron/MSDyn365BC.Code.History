@@ -28,22 +28,22 @@ page 11712 "Issued Bank Statement Subform"
                     ToolTip = 'Specifies the name of partner (customer, vendor, bank account).';
                     Visible = false;
                 }
-                field("Account No."; "Account No.")
+                field("Account No."; Rec."Account No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number used by the bank for the bank account.';
                 }
-                field("Variable Symbol"; "Variable Symbol")
+                field("Variable Symbol"; Rec."Variable Symbol")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the detail information for payment.';
                 }
-                field("Constant Symbol"; "Constant Symbol")
+                field("Constant Symbol"; Rec."Constant Symbol")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the additional symbol of bank payments.';
                 }
-                field("Specific Symbol"; "Specific Symbol")
+                field("Specific Symbol"; Rec."Specific Symbol")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the additional symbol of bank payments.';
@@ -53,18 +53,18 @@ page 11712 "Issued Bank Statement Subform"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount that the bank statement line contains.';
                 }
-                field("Amount (LCY)"; "Amount (LCY)")
+                field("Amount (LCY)"; Rec."Amount (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount in the local currency for payment.';
                 }
-                field("Amount (Bank Stat. Currency)"; "Amount (Bank Stat. Currency)")
+                field("Amount (Bank Stat. Currency)"; Rec."Amount (Bank Stat. Currency)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount in bank statement currencythat the bank statement line contains.';
                     Visible = false;
                 }
-                field("Bank Statement Currency Code"; "Bank Statement Currency Code")
+                field("Bank Statement Currency Code"; Rec."Bank Statement Currency Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the bank statement currency code which is setup in the bank card.';
@@ -79,13 +79,13 @@ page 11712 "Issued Bank Statement Subform"
                         ChangeExchangeRate.Editable(false);
                         ChangeExchangeRate.SetParameter("Bank Statement Currency Code", "Bank Statement Currency Factor",
                           IssuedBankStatementHeader."Document Date");
-                        if ChangeExchangeRate.RunModal = ACTION::OK then begin
-                            Validate("Bank Statement Currency Factor", ChangeExchangeRate.GetParameter);
+                        if ChangeExchangeRate.RunModal() = ACTION::OK then begin
+                            Validate("Bank Statement Currency Factor", ChangeExchangeRate.GetParameter());
                             CurrPage.Update();
                         end;
                     end;
                 }
-                field("Transit No."; "Transit No.")
+                field("Transit No."; Rec."Transit No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a bank identification number of your own choice.';
@@ -95,7 +95,7 @@ page 11712 "Issued Bank Statement Subform"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the bank account''s international bank account number.';
                 }
-                field("SWIFT Code"; "SWIFT Code")
+                field("SWIFT Code"; Rec."SWIFT Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the international bank identifier code (SWIFT) of the bank where you have the account.';
@@ -106,7 +106,7 @@ page 11712 "Issued Bank Statement Subform"
                     ToolTip = 'Specifies the type of partner (customer, vendor, bank account).';
                     Visible = false;
                 }
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of partner (customer, vendor, bank account).';

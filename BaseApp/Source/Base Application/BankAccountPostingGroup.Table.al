@@ -1,3 +1,4 @@
+#if not CLEAN19
 table 277 "Bank Account Posting Group"
 {
     Caption = 'Bank Account Posting Group';
@@ -26,7 +27,7 @@ table 277 "Bank Account Posting Group"
             trigger OnValidate()
             begin
                 CheckGLAcc("G/L Account No.");
-                CheckBankAccountBalance; // NAVCZ
+                CheckBankAccountBalance(); // NAVCZ
             end;
         }
     }
@@ -58,7 +59,7 @@ table 277 "Bank Account Posting Group"
     begin
         if AccNo <> '' then begin
             GLAcc.Get(AccNo);
-            GLAcc.CheckGLAcc;
+            GLAcc.CheckGLAcc();
         end;
     end;
 
@@ -90,3 +91,4 @@ table 277 "Bank Account Posting Group"
     end;
 }
 
+#endif

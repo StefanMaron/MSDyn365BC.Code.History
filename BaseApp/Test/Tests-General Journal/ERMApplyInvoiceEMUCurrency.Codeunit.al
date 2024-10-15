@@ -42,8 +42,8 @@
         ModifyExchangeRate(CurrencyCode);
         PostedDocumentNo := CreateAndPostSalesInvoice(SalesHeader, CurrencyCode);
         FindSalesInvoiceHeaderAmt(SalesInvoiceHeader, PostedDocumentNo);
-        Amount := LibraryERM.ConvertCurrency(SalesInvoiceHeader."Amount Including VAT", SalesHeader."Currency Code", '', WorkDate);
-        Amount := LibraryERM.ConvertCurrency(Amount, SalesHeader."Currency Code", '', WorkDate);
+        Amount := LibraryERM.ConvertCurrency(SalesInvoiceHeader."Amount Including VAT", SalesHeader."Currency Code", '', WorkDate());
+        Amount := LibraryERM.ConvertCurrency(Amount, SalesHeader."Currency Code", '', WorkDate());
 
         // Exercise: Create General Lines and Apply Posted Invoice and Post with New Currency with Modification of Exchange Rate.
         CreateGeneralJournalLine(
@@ -59,7 +59,7 @@
     end;
 
     [Test]
-    [HandlerFunctions('AdjustExchangeRatesReportHandler,StatisticsMessageHandler')]
+    [HandlerFunctions('StatisticsMessageHandler')]
     [Scope('OnPrem')]
     procedure ApplyInvoiceEMUCurrAdjExchRate()
     var
@@ -81,12 +81,12 @@
         PostedDocumentNo := CreateAndPostSalesInvoice(SalesHeader, CreateCurrency);
         ModifyExchangeRate(SalesHeader."Currency Code");
 #if not CLEAN20
-        LibraryERM.RunAdjustExchangeRates(SalesHeader."Currency Code", 0D, WorkDate, 'Test', WorkDate, PostedDocumentNo, false);
+        LibraryERM.RunAdjustExchangeRates(SalesHeader."Currency Code", 0D, WorkDate(), 'Test', WorkDate(), PostedDocumentNo, false);
 #else
-        LibraryERM.RunExchRateAdjustment(SalesHeader."Currency Code", 0D, WorkDate, 'Test', WorkDate, PostedDocumentNo, false);
+        LibraryERM.RunExchRateAdjustment(SalesHeader."Currency Code", 0D, WorkDate(), 'Test', WorkDate(), PostedDocumentNo, false);
 #endif
         FindSalesInvoiceHeaderAmt(SalesInvoiceHeader, PostedDocumentNo);
-        Amount := LibraryERM.ConvertCurrency(SalesInvoiceHeader."Amount Including VAT", SalesHeader."Currency Code", '', WorkDate);
+        Amount := LibraryERM.ConvertCurrency(SalesInvoiceHeader."Amount Including VAT", SalesHeader."Currency Code", '', WorkDate());
 
         // Exercise: Create General Lines, Apply Posted Invoice and Post with New Currency.
         CreateGeneralJournalLine(
@@ -110,7 +110,7 @@
 
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
-        LibraryERM.SetJournalTemplateNameMandatory(false);
+        LibraryERMCountryData.UpdateJournalTemplMandatory(false);
 
         IsInitialized := true;
         Commit();
@@ -218,7 +218,7 @@
         Currency.Get(CurrencyCode);
         Assert.AreNearlyEqual(
           Amount, GLEntry.Amount, Currency."Amount Rounding Precision",
-          StrSubstNo(AmountError, GLEntry.FieldCaption(Amount), Amount, GLEntry.TableCaption,
+          StrSubstNo(AmountError, GLEntry.FieldCaption(Amount), Amount, GLEntry.TableCaption(),
             GLEntry.FieldCaption("Entry No."), GLEntry."Entry No."));
     end;
 
@@ -227,14 +227,6 @@
     procedure StatisticsMessageHandler(Message: Text[1024])
     begin
         Assert.ExpectedMessage(ExchRateWasAdjustedTxt, Message);
-    end;
-
-    [ReportHandler]
-    [Scope('OnPrem')]
-    procedure AdjustExchangeRatesReportHandler(var AdjustExchangeRates: Report "Adjust Exchange Rates")
-    begin
-        // NAVCZ
-        AdjustExchangeRates.SaveAsExcel(TemporaryPath + '.xlsx')
     end;
 }
 

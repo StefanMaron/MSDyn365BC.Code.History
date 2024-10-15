@@ -108,17 +108,17 @@ table 11799 "No. Series Link"
 
     trigger OnInsert()
     begin
-        NoSerieCheck;
+        NoSerieCheck();
     end;
 
     trigger OnModify()
     begin
-        NoSerieCheck;
+        NoSerieCheck();
     end;
 
     trigger OnRename()
     begin
-        NoSerieCheck;
+        NoSerieCheck();
     end;
 
     var

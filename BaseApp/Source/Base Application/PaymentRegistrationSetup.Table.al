@@ -141,3 +141,4 @@ table 980 "Payment Registration Setup"
         exit(true);
     end;
 }
+

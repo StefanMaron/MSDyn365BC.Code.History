@@ -43,16 +43,9 @@ codeunit 5704 "TransferOrder-Post Shipment"
                 InvtPickPutaway := WhseReference <> 0;
                 CheckItemInInventoryAndWarehouse(TransLine, not (WhseShip or InvtPickPutaway));
 
-                GetLocation("Transfer-from Code");
-                if Location."Bin Mandatory" and not (WhseShip or InvtPickPutaway) then
-                    WhsePosting := true;
-#if not CLEAN18
-                // NAVCZ
-                IntrastatTransaction := IsIntrastatTransaction;
-                if IntrastatTransaction and ShipOrReceiveInventoriableTypeItems() then
-                    CheckTransHeaderMandatoryFields(TransHeader);
-                // NAVCZ
-#endif
+            GetLocation("Transfer-from Code");
+            if Location."Bin Mandatory" and not (WhseShip or InvtPickPutaway) then
+                WhsePosting := true;
 
                 if GuiAllowed then begin
                     Window.Open(
@@ -112,19 +105,7 @@ codeunit 5704 "TransferOrder-Post Shipment"
                             CheckItemNotBlocked(Item);
                         end;
 
-#if not CLEAN18
-                        // NAVCZ
-                        if IntrastatTransaction then begin
-                            if StatReportingSetup."Tariff No. Mandatory" then
-                                TransLine.TestField("Tariff No.");
-                            if StatReportingSetup."Net Weight Mandatory" and (TransLine."Item No." <> '') and Item.IsInventoriableType() then
-                                TransLine.TestField("Net Weight");
-                            if StatReportingSetup."Country/Region of Origin Mand." then
-                                TransLine.TestField("Country/Region of Origin Code");
-                        end;
-                        // NAVCZ
-#endif
-                        OnCheckTransLine(TransLine, TransHeader, Location, WhseShip, TransShptLine, InvtPickPutaway, WhsePosting);
+                    OnCheckTransLine(TransLine, TransHeader, Location, WhseShip, TransShptLine, InvtPickPutaway, WhsePosting);
 
                         InsertTransShptLine(TransShptHeader);
                     until TransLine.Next() = 0;
@@ -185,7 +166,6 @@ codeunit 5704 "TransferOrder-Post Shipment"
     end;
 
     var
-        Text001: Label 'There is nothing to post.';
         Text002: Label 'Warehouse handling is required for Transfer order = %1, %2 = %3.';
         Text003: Label 'Posting transfer lines     #2######';
         Text004: Label 'Transfer Order %1';
@@ -213,6 +193,7 @@ codeunit 5704 "TransferOrder-Post Shipment"
         WhseTransferRelease: Codeunit "Whse.-Transfer Release";
         ReserveTransLine: Codeunit "Transfer Line-Reserve";
         WhsePostShpt: Codeunit "Whse.-Post Shipment";
+        DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
         WhseJnlRegisterLine: Codeunit "Whse. Jnl.-Register Line";
         SourceCode: Code[10];
         WhseShip: Boolean;
@@ -225,10 +206,6 @@ codeunit 5704 "TransferOrder-Post Shipment"
         Text009: Label 'Item %1 is not in inventory.';
         SuppressCommit: Boolean;
         HideValidationDialog: Boolean;
-#if not CLEAN18
-        IntrastatTransaction: Boolean;
-        StatReportingSetup: Record "Stat. Reporting Setup";
-#endif
 
     local procedure PostItem(var TransferLine: Record "Transfer Line"; TransShptHeader2: Record "Transfer Shipment Header"; TransShptLine2: Record "Transfer Shipment Line"; WhseShip: Boolean; WhseShptHeader2: Record "Warehouse Shipment Header")
     var
@@ -248,7 +225,7 @@ codeunit 5704 "TransferOrder-Post Shipment"
     local procedure CreateItemJnlLine(var ItemJnlLine: Record "Item Journal Line"; TransferLine: Record "Transfer Line"; TransShptHeader2: Record "Transfer Shipment Header"; TransShptLine2: Record "Transfer Shipment Line")
     begin
         with ItemJnlLine do begin
-            Init;
+            Init();
             CopyDocumentFields(
               "Document Type"::"Transfer Shipment", TransShptHeader2."No.", "External Document No.", SourceCode, '');
             "Posting Date" := TransShptHeader2."Posting Date";
@@ -288,20 +265,6 @@ codeunit 5704 "TransferOrder-Post Shipment"
             "Applies-to Entry" := TransferLine."Appl.-to Item Entry";
             "Shpt. Method Code" := TransShptHeader2."Shipment Method Code";
             "Direct Transfer" := TransferLine."Direct Transfer";
-#if not CLEAN18
-            // NAVCZ
-            Validate("Gen. Bus. Posting Group", TransShptLine2."Gen. Bus. Post. Group Ship");
-            "Tariff No." := TransferLine."Tariff No.";
-            "Statistic Indication" := TransferLine."Statistic Indication";
-            "Net Weight" := TransferLine."Net Weight";
-            "Country/Region of Origin Code" := TransferLine."Country/Region of Origin Code";
-            "Intrastat Transaction" := IntrastatTransaction;
-            // recalc to base UOM
-            if "Net Weight" <> 0 then
-                if TransferLine."Qty. per Unit of Measure" <> 0 then
-                    "Net Weight" := Round("Net Weight" / TransferLine."Qty. per Unit of Measure", 0.00001);
-            // NAVCZ
-#endif
         end;
 
         OnAfterCreateItemJnlLine(ItemJnlLine, TransferLine, TransShptHeader2, TransShptLine2);
@@ -351,12 +314,12 @@ codeunit 5704 "TransferOrder-Post Shipment"
             if not DimMgt.CheckDimIDComb(TransferHeader."Dimension Set ID") then
                 Error(
                   Text005,
-                  TransHeader."No.", DimMgt.GetDimCombErr);
+                  TransHeader."No.", DimMgt.GetDimCombErr());
         if TransferLine."Line No." <> 0 then
             if not DimMgt.CheckDimIDComb(TransferLine."Dimension Set ID") then
                 Error(
                   Text006,
-                  TransHeader."No.", TransferLine."Line No.", DimMgt.GetDimCombErr);
+                  TransHeader."No.", TransferLine."Line No.", DimMgt.GetDimCombErr());
 
         OnAfterCheckDimComb(TransferHeader, TransferLine);
     end;
@@ -375,11 +338,11 @@ codeunit 5704 "TransferOrder-Post Shipment"
         NumberArr[1] := TransferLine."Item No.";
         if TransferLine."Line No." = 0 then
             if not DimMgt.CheckDimValuePosting(TableIDArr, NumberArr, TransferHeader."Dimension Set ID") then
-                Error(Text007, TransHeader."No.", TransferLine."Line No.", DimMgt.GetDimValuePostingErr);
+                Error(Text007, TransHeader."No.", TransferLine."Line No.", DimMgt.GetDimValuePostingErr());
 
         if TransferLine."Line No." <> 0 then
             if not DimMgt.CheckDimValuePosting(TableIDArr, NumberArr, TransferLine."Dimension Set ID") then
-                Error(Text007, TransHeader."No.", TransferLine."Line No.", DimMgt.GetDimValuePostingErr);
+                Error(Text007, TransHeader."No.", TransferLine."Line No.", DimMgt.GetDimValuePostingErr());
     end;
 
     local procedure FinalizePosting(var TransHeader: Record "Transfer Header"; var TransLine: Record "Transfer Line")
@@ -473,12 +436,6 @@ codeunit 5704 "TransferOrder-Post Shipment"
         TransShptHeader.Init();
         TransShptHeader.CopyFromTransferHeader(TransHeader);
         TransShptHeader."No. Series" := NoSeries;
-#if not CLEAN18        
-        // NAVCZ
-        TransShptHeader."Gen. Bus. Post. Group Ship" := TransHeader."Gen. Bus. Post. Group Ship";
-        TransShptHeader."Gen. Bus. Post. Group Receive" := TransHeader."Gen. Bus. Post. Group Receive";
-        // NAVCZ
-#endif
         OnBeforeGenNextNo(TransShptHeader, TransHeader);
         if TransShptHeader."No." = '' then
             TransShptHeader."No." := NoSeriesMgt.GetNextNo(TransShptHeader."No. Series", TransHeader."Posting Date", true);
@@ -499,10 +456,6 @@ codeunit 5704 "TransferOrder-Post Shipment"
         TransShptLine."Document No." := TransShptHeader."No.";
         TransShptLine.CopyFromTransferLine(TransLine);
         // NAVCZ
-#if not CLEAN18        
-        TransShptLine."Gen. Bus. Post. Group Ship" := TransLine."Gen. Bus. Post. Group Ship";
-        TransShptLine."Gen. Bus. Post. Group Receive" := TransLine."Gen. Bus. Post. Group Receive";
-#endif        
         TransShptLine."Posting Date" := TransShptHeader."Posting Date";
         TransShptLine."Transfer Order Line No." := TransLine."Line No.";
         // NAVCZ
@@ -724,7 +677,7 @@ codeunit 5704 "TransferOrder-Post Shipment"
             TransLine.SetFilter(Quantity, '<>0');
             TransLine.SetFilter("Qty. to Ship", '<>0');
             if TransLine.IsEmpty() then
-                Error(Text001);
+                Error(DocumentErrorsMgt.GetNothingToPostErrorMsg());
         end;
     end;
 
@@ -764,7 +717,7 @@ codeunit 5704 "TransferOrder-Post Shipment"
         NewTransferLine."Qty. to Ship (Base)" := NewTransferLine."Quantity (Base)";
         NewTransferLine."Qty. to Receive" := NewTransferLine.Quantity;
         NewTransferLine."Qty. to Receive (Base)" := NewTransferLine."Quantity (Base)";
-        NewTransferLine.ResetPostedQty;
+        NewTransferLine.ResetPostedQty();
         NewTransferLine."Outstanding Quantity" := NewTransferLine.Quantity;
         NewTransferLine."Outstanding Qty. (Base)" := NewTransferLine."Quantity (Base)";
         OnBeforeNewTransferLineInsert(NewTransferLine, TransferLine, NextLineNo);
@@ -786,20 +739,6 @@ codeunit 5704 "TransferOrder-Post Shipment"
         end;
     end;
 
-#if not CLEAN18
-    local procedure CheckTransHeaderMandatoryFields(TransHeader: Record "Transfer Header")
-    begin
-        StatReportingSetup.Get();
-        if StatReportingSetup."Transaction Type Mandatory" then
-            TransHeader.TestField("Transaction Type");
-        if StatReportingSetup."Transaction Spec. Mandatory" then
-            TransHeader.TestField("Transaction Specification");
-        if StatReportingSetup."Transport Method Mandatory" then
-            TransHeader.TestField("Transport Method");
-        if StatReportingSetup."Shipment Method Mandatory" then
-            TransHeader.TestField("Shipment Method Code");
-    end;
-#endif
 
     local procedure MakeInventoryAdjustment()
     var

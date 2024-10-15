@@ -135,7 +135,7 @@ codeunit 1400 DocumentNoVisibility
             exit(TransferOrdNoVisible);
         IsTransferOrdNoInitialized := true;
 
-        NoSeriesCode := DetermineTransferOrderSeriesNo;
+        NoSeriesCode := DetermineTransferOrderSeriesNo();
         TransferOrdNoVisible := ForceShowNoSeriesForDocNo(NoSeriesCode);
         exit(TransferOrdNoVisible);
     end;
@@ -177,7 +177,7 @@ codeunit 1400 DocumentNoVisibility
             exit(VendNoVisible);
         IsVendNoInitialized := true;
 
-        NoSeriesCode := DetermineVendorSeriesNo;
+        NoSeriesCode := DetermineVendorSeriesNo();
         VendNoVisible := ForceShowNoSeriesForDocNo(NoSeriesCode);
         exit(VendNoVisible);
     end;
@@ -198,7 +198,7 @@ codeunit 1400 DocumentNoVisibility
             exit(ItemNoVisible);
         IsItemNoInitialized := true;
 
-        NoSeriesCode := DetermineItemSeriesNo;
+        NoSeriesCode := DetermineItemSeriesNo();
         ItemNoVisible := ForceShowNoSeriesForDocNo(NoSeriesCode);
         exit(ItemNoVisible);
     end;
@@ -219,7 +219,7 @@ codeunit 1400 DocumentNoVisibility
             exit(FANoVisible);
         IsFANoInitialized := true;
 
-        NoSeriesCode := DetermineFixedAssetSeriesNo;
+        NoSeriesCode := DetermineFixedAssetSeriesNo();
         FANoVisible := ForceShowNoSeriesForDocNo(NoSeriesCode);
         exit(FANoVisible);
     end;
@@ -240,7 +240,7 @@ codeunit 1400 DocumentNoVisibility
             exit(EmployeeNoVisible);
         IsEmployeeNoInitialized := true;
 
-        NoSeriesCode := DetermineEmployeeSeriesNo;
+        NoSeriesCode := DetermineEmployeeSeriesNo();
         EmployeeNoVisible := ForceShowNoSeriesForDocNo(NoSeriesCode);
         exit(EmployeeNoVisible);
     end;
@@ -261,7 +261,7 @@ codeunit 1400 DocumentNoVisibility
             exit(BankNoVisible);
         IsBankNoInitialized := true;
 
-        NoSeriesCode := DetermineBankAccountSeriesNo;
+        NoSeriesCode := DetermineBankAccountSeriesNo();
         BankNoVisible := ForceShowNoSeriesForDocNo(NoSeriesCode);
         exit(BankNoVisible);
     end;
@@ -282,7 +282,7 @@ codeunit 1400 DocumentNoVisibility
             exit(ResNoVisible);
         IsResNoInitialized := true;
 
-        NoSeriesCode := DetermineResourceSeriesNo;
+        NoSeriesCode := DetermineResourceSeriesNo();
         ResNoVisible := ForceShowNoSeriesForDocNo(NoSeriesCode);
         exit(ResNoVisible);
     end;
@@ -303,7 +303,7 @@ codeunit 1400 DocumentNoVisibility
             exit(JobNoVisible);
         IsJobNoInitialized := true;
 
-        NoSeriesCode := DetermineJobSeriesNo;
+        NoSeriesCode := DetermineJobSeriesNo();
         JobNoVisible := ForceShowNoSeriesForDocNo(NoSeriesCode);
         exit(JobNoVisible);
     end;
@@ -324,7 +324,7 @@ codeunit 1400 DocumentNoVisibility
             exit(ContactNoVisible);
         IsContactNoInitialized := true;
 
-        NoSeriesCode := DetermineContactSeriesNo;
+        NoSeriesCode := DetermineContactSeriesNo();
         ContactNoVisible := ForceShowNoSeriesForDocNo(NoSeriesCode);
         exit(ContactNoVisible);
     end;
@@ -591,7 +591,7 @@ codeunit 1400 DocumentNoVisibility
         if not NoSeries.Get(NoSeriesCode) then
             exit(true);
 
-        SeriesDate := WorkDate;
+        SeriesDate := WorkDate();
         NoSeriesRelationship.SetRange(Code, NoSeriesCode);
         if not NoSeriesRelationship.IsEmpty() then
             exit(true);
@@ -780,48 +780,6 @@ codeunit 1400 DocumentNoVisibility
         end;
     end;
 
-#if not CLEAN18
-    [Scope('OnPrem')]
-    [Obsolete('Moved to Compensation Localization Pack for Czech.', '18.0')]
-    procedure CreditCardNoIsVisible(DocNo: Code[20]): Boolean
-    var
-        NoSeries: Record "No. Series";
-        DocNoSeries: Code[20];
-        IsHandled: Boolean;
-        IsVisible: Boolean;
-    begin
-        // NAVCZ
-        IsHandled := false;
-        IsVisible := false;
-        OnBeforeCreditCardNoIsVisible(DocNo, IsVisible, IsHandled);
-        if IsHandled then
-            exit(IsVisible);
-
-        if DocNo <> '' then
-            exit(false);
-
-        DocNoSeries := DetermineCreditSeriesNo;
-
-        if not NoSeries.Get(DocNoSeries) then begin
-            PAGE.RunModal(PAGE::"Credits No. Series Setup");
-            DocNoSeries := DetermineCreditSeriesNo;
-        end;
-
-        exit(ForceShowNoSeriesForDocNo(DocNoSeries));
-    end;
-
-    local procedure DetermineCreditSeriesNo(): Code[20]
-    var
-        CreditsSetup: Record "Credits Setup";
-        CreditHeader: Record "Credit Header";
-    begin
-        // NAVCZ
-        CreditsSetup.Get();
-        CheckNumberSeries(CreditHeader, CreditsSetup."Credit Nos.", CreditHeader.FieldNo("No."));
-        exit(CreditsSetup."Credit Nos.");
-    end;
-
-#endif
     procedure CheckNumberSeries(RecVariant: Variant; NoSeriesCode: Code[20]; FieldNo: Integer)
     var
         NoSeries: Record "No. Series";
@@ -841,12 +799,12 @@ codeunit 1400 DocumentNoVisibility
                 RecRef.Open(RecVariant);
             FieldRef := RecRef.Field(FieldNo);
             FieldRef.SetRange(NewNo);
-            RecAlreadyExists := not RecRef.IsEmpty;
+            RecAlreadyExists := not RecRef.IsEmpty();
             while RecAlreadyExists do begin
                 RememberToSaveNoSeries := true;
                 NewNo := NoSeriesMgt.DoGetNextNo(NoSeriesCode, 0D, false, true);
                 FieldRef.SetRange(NewNo);
-                RecAlreadyExists := not RecRef.IsEmpty;
+                RecAlreadyExists := not RecRef.IsEmpty();
             end;
             if RememberToSaveNoSeries then
                 NoSeriesMgt.SaveNoSeries();
@@ -935,20 +893,6 @@ codeunit 1400 DocumentNoVisibility
     local procedure OnBeforeBankDocumentNoIsVisible(BankAccNo: Code[20]; DocType: Option; DocNo: Code[20]; var IsVisible: Boolean; var IsHandled: Boolean)
     begin
     end;
-#if not CLEAN18
-
-    [Obsolete('Moved to Compensation Localization Pack for Czech.', '18.2')]
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeCreditCardNoIsVisible(DocNo: Code[20]; var IsVisible: Boolean; var IsHandled: Boolean)
-    begin
-    end;
-
-    [Obsolete('Moved to Core Localization Pack for Czech.', '18.2')]
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeStatReportingDocumentNoIsVisible(DocType: Option; DocNo: Code[20]; var IsVisible: Boolean; var IsHandled: Boolean)
-    begin
-    end;
-#endif
 }
 
 #endif

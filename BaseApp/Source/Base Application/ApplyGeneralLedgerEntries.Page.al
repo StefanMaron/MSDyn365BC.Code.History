@@ -72,36 +72,36 @@ page 11775 "Apply General Ledger Entries"
             repeater(Control1220000)
             {
                 ShowCaption = false;
-                field("Applies-to ID"; "Applies-to ID")
+                field("Applies-to ID"; Rec."Applies-to ID")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the ID to apply to the general ledger entry.';
 
                     trigger OnValidate()
                     begin
-                        AppliestoIDOnAfterValidate;
+                        AppliestoIDOnAfterValidate();
                     end;
                 }
-                field("Posting Date"; "Posting Date")
+                field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the date when the posting of the apply general ledger entries will be recorded.';
                 }
-                field("Document Type"; "Document Type")
+                field("Document Type"; Rec."Document Type")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the original document type which will be applied.';
                     Visible = false;
                 }
-                field("Document No."; "Document No.")
+                field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the entry''s Document No.';
                 }
-                field("G/L Account No."; "G/L Account No.")
+                field("G/L Account No."; Rec."G/L Account No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -119,24 +119,24 @@ page 11775 "Apply General Ledger Entries"
                     Editable = false;
                     ToolTip = 'Specifies the amount of the entry.';
                 }
-                field("Amount to Apply"; "Amount to Apply")
+                field("Amount to Apply"; Rec."Amount to Apply")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount to apply.';
 
                     trigger OnValidate()
                     begin
-                        AmounttoApplyOnAfterValidate;
+                        AmounttoApplyOnAfterValidate();
                     end;
                 }
-                field("Applying Entry"; "Applying Entry")
+                field("Applying Entry"; Rec."Applying Entry")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies that the general ledger entry is an applying entry.';
                     Visible = false;
                 }
-                field("Applied Amount"; "Applied Amount")
+                field("Applied Amount"; Rec."Applied Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -149,28 +149,28 @@ page 11775 "Apply General Ledger Entries"
                     ToolTip = 'Specifies the remaining amount of general ledger entries';
                     Visible = false;
                 }
-                field("Gen. Bus. Posting Group"; "Gen. Bus. Posting Group")
+                field("Gen. Bus. Posting Group"; Rec."Gen. Bus. Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the code for the Gen. Bus. Posting Group that applies to the entry.';
                     Visible = false;
                 }
-                field("Gen. Prod. Posting Group"; "Gen. Prod. Posting Group")
+                field("Gen. Prod. Posting Group"; Rec."Gen. Prod. Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the code for the Gen. Prod. Posting Group that applies to the entry.';
                     Visible = false;
                 }
-                field("VAT Bus. Posting Group"; "VAT Bus. Posting Group")
+                field("VAT Bus. Posting Group"; Rec."VAT Bus. Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies a VAT business posting group code.';
                     Visible = false;
                 }
-                field("VAT Prod. Posting Group"; "VAT Prod. Posting Group")
+                field("VAT Prod. Posting Group"; Rec."VAT Prod. Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -287,7 +287,7 @@ page 11775 "Apply General Ledger Entries"
 
                         TEntryNo := "Entry No.";
                         if TempApplyingGLEntry."Entry No." <> 0 then
-                            RemoveApplyingGLEntry;
+                            RemoveApplyingGLEntry();
                         SetApplyingGLEntry(TEntryNo);
                     end;
                 }
@@ -304,7 +304,7 @@ page 11775 "Apply General Ledger Entries"
                         if GenJnlLineApply then
                             exit;
 
-                        RemoveApplyingGLEntry;
+                        RemoveApplyingGLEntry();
                     end;
                 }
                 action("Set Applies-to ID")
@@ -312,14 +312,12 @@ page 11775 "Apply General Ledger Entries"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Set Applies-to ID';
                     Image = SelectLineToApply;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ShortCutKey = 'F7';
                     ToolTip = 'Sets applies to id';
 
                     trigger OnAction()
                     begin
-                        SetAppliesToID;
+                        SetAppliesToID();
                     end;
                 }
                 action("Post Application")
@@ -328,8 +326,6 @@ page 11775 "Apply General Ledger Entries"
                     Caption = 'Post Application';
                     Ellipsis = true;
                     Image = PostApplication;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ShortCutKey = 'F9';
                     ToolTip = 'This batch job posts G/L entries application.';
 
@@ -348,7 +344,7 @@ page 11775 "Apply General Ledger Entries"
                                 GLEntry2.Get(TempApplyingGLEntry."Entry No.");
                                 GLEntry2.CalcFields("Applied Amount");
                                 if GLEntry3."Applied Amount" <> GLEntry2."Applied Amount" then
-                                    RemoveApplyingGLEntry;
+                                    RemoveApplyingGLEntry();
                             end else
                                 Error(AppEntryNeedErr);
                         end else
@@ -380,8 +376,6 @@ page 11775 "Apply General Ledger Entries"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Find entries...';
                 Image = Navigate;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Find all entries and documents that exist for the document number and posting date on the selected entry or document.';
 
                 trigger OnAction()
@@ -389,6 +383,23 @@ page 11775 "Apply General Ledger Entries"
                     Navigate.SetDoc("Posting Date", "Document No.");
                     Navigate.Run();
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("&Navigate_Promoted"; "&Navigate")
+                {
+                }
+                actionref("Set Applies-to ID_Promoted"; "Set Applies-to ID")
+                {
+                }
+                actionref("Post Application_Promoted"; "Post Application")
+                {
+                }
             }
         }
     }
@@ -406,7 +417,7 @@ page 11775 "Apply General Ledger Entries"
         ShowAppliedEntries := false;
         if not PostingDone then begin
             lreGLEntry := TempApplyingGLEntry;
-            if lreGLEntry.Find then
+            if lreGLEntry.Find() then
                 GLEntryPostApplication.SetApplyingGLEntry(lreGLEntry, false, '');
         end;
     end;
@@ -425,9 +436,9 @@ page 11775 "Apply General Ledger Entries"
                 ApplnType::"Applies-to ID":
                     GLApplID := GenJnlLine."Applies-to ID";
             end;
-            CalcApplnAmount;
+            CalcApplnAmount();
         end else
-            FindApplyingGLEntry;
+            FindApplyingGLEntry();
     end;
 
     var
@@ -468,7 +479,7 @@ page 11775 "Apply General Ledger Entries"
             if GLEntry.FindFirst() then
                 SetApplyingGLEntry(GLEntry."Entry No.");
         end;
-        CalcApplnAmount;
+        CalcApplnAmount();
     end;
 
     local procedure SetApplyingGLEntry(EntryNo: Integer)
@@ -480,14 +491,14 @@ page 11775 "Apply General Ledger Entries"
         else
             SetFilter(Amount, '>0');
         "Applying Entry" := true;
-        Modify;
+        Modify();
 
         TempApplyingGLEntry := Rec;
         SetCurrentKey("Entry No.");
         SetFilter("Entry No.", '<> %1', "Entry No.");
         AvailableAmount := Amount - "Applied Amount";
         ApplyingRemainingAmount := Amount - "Applied Amount";
-        CalcApplnAmount;
+        CalcApplnAmount();
         SetCurrentKey("G/L Account No.");
     end;
 
@@ -497,14 +508,14 @@ page 11775 "Apply General Ledger Entries"
             GLEntryPostApplication.SetApplyingGLEntry(Rec, false, '');
             SetRange(Amount);
             "Applying Entry" := false;
-            Modify;
+            Modify();
 
             Clear(TempApplyingGLEntry);
             SetCurrentKey("Entry No.");
             SetRange("Entry No.");
             AvailableAmount := 0;
             ApplyingRemainingAmount := 0;
-            CalcApplnAmount;
+            CalcApplnAmount();
         end;
     end;
 
@@ -518,7 +529,7 @@ page 11775 "Apply General Ledger Entries"
                 GLEntryPostApplication.SetApplyingGLEntry(GLEntry, false, GLApplID);
             until GLEntry.Next() = 0;
         Rec := GLEntry;
-        CalcApplnAmount;
+        CalcApplnAmount();
         CurrPage.Update(false);
     end;
 
@@ -548,12 +559,12 @@ page 11775 "Apply General Ledger Entries"
     local procedure AppliestoIDOnAfterValidate()
     begin
         if ("Applies-to ID" = GLApplID) and ("Amount to Apply" = 0) then
-            SetAppliesToID;
+            SetAppliesToID();
 
         if "Applies-to ID" = '' then begin
             "Applies-to ID" := '';
             "Amount to Apply" := 0;
-            Modify;
+            Modify();
         end;
     end;
 
@@ -563,8 +574,8 @@ page 11775 "Apply General Ledger Entries"
             "Applies-to ID" := GLApplID
         else
             "Applies-to ID" := '';
-        Modify;
-        CalcApplnAmount;
+        Modify();
+        CalcApplnAmount();
     end;
 
     [Scope('OnPrem')]
@@ -601,7 +612,7 @@ page 11775 "Apply General Ledger Entries"
         TempApplyingGLEntry.Description := GenJnlLine.Description;
         TempApplyingGLEntry.Amount := GenJnlLine.Amount;
         ApplyingRemainingAmount := GenJnlLine.Amount;
-        CalcApplnAmount;
+        CalcApplnAmount();
     end;
 }
 #endif

@@ -13,19 +13,19 @@ page 2845 "Data Upgrade Overview"
             repeater(Control16)
             {
                 ShowCaption = false;
-                field("Table ID"; "Table ID")
+                field("Table ID"; Rec."Table ID")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the table ID.';
                     Visible = false;
                 }
-                field("Table Name"; "Table Name")
+                field("Table Name"; Rec."Table Name")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Related Entries';
                     ToolTip = 'Specifies the name of the table.';
                 }
-                field("No. of Records"; "No. of Records")
+                field("No. of Records"; Rec."No. of Records")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'No. of Records';

@@ -1,4 +1,4 @@
-﻿codeunit 5802 "Inventory Posting To G/L"
+codeunit 5802 "Inventory Posting To G/L"
 {
     Permissions = TableData "G/L Account" = r,
                   TableData "Invt. Posting Buffer" = rimd,
@@ -36,7 +36,7 @@
         InvtSetup: Record "Inventory Setup";
         Currency: Record Currency;
         SourceCodeSetup: Record "Source Code Setup";
-        GlobalInvtPostBuf: Record "Invt. Posting Buffer" temporary;
+        TempGlobalInvtPostingBuffer: Record "Invt. Posting Buffer" temporary;
         TempInvtPostBuf: array[20] of Record "Invt. Posting Buffer" temporary;
         TempInvtPostToGLTestBuf: Record "Invt. Post to G/L Test Buffer" temporary;
         TempGLItemLedgRelation: Record "G/L - Item Ledger Relation" temporary;
@@ -77,7 +77,6 @@
         Text003: Label '%1 %2';
         GlobalJnlTemplName: Code[10];
         GlobalJnlBatchName: Code[10];
-        CorrectionForExpCost: Boolean;
 
     procedure Initialize(PostPerPostGroup: Boolean)
     begin
@@ -118,7 +117,7 @@
 
         with ValueEntry do begin
             GetGLSetup();
-            GetInvtSetup;
+            GetInvtSetup();
             if (not InvtSetup."Expected Cost Posting to G/L") and
                ("Expected Cost Posted to G/L" = 0) and
                "Expected Cost"
@@ -183,7 +182,7 @@
     var
         IsHandled: Boolean;
     begin
-        OnBeforeBufferPurchPosting(ValueEntry, GlobalInvtPostBuf, CostToPost, CostToPostACY, ExpCostToPost, ExpCostToPostACY, IsHandled);
+        OnBeforeBufferPurchPosting(ValueEntry, TempGlobalInvtPostingBuffer, CostToPost, CostToPostACY, ExpCostToPost, ExpCostToPostACY, IsHandled);
         if IsHandled then
             exit;
 
@@ -191,82 +190,54 @@
             case "Entry Type" of
                 "Entry Type"::"Direct Cost":
                     begin
-                        if (ExpCostToPost <> 0) or (ExpCostToPostACY <> 0) then begin
-#if not CLEAN18
-                            // NAVCZ
-                            SetCorrectionForExpCost(true, "Expected Cost");
-                            // NAVCZ
-#endif
+                        if (ExpCostToPost <> 0) or (ExpCostToPostACY <> 0) then
                             InitInvtPostBuf(
                               ValueEntry,
-                              GlobalInvtPostBuf."Account Type"::"Inventory (Interim)",
-                              GlobalInvtPostBuf."Account Type"::"Invt. Accrual (Interim)",
+                              TempGlobalInvtPostingBuffer."Account Type"::"Inventory (Interim)",
+                              TempGlobalInvtPostingBuffer."Account Type"::"Invt. Accrual (Interim)",
                               ExpCostToPost, ExpCostToPostACY, true);
-#if not CLEAN18
-                            // NAVCZ
-                            SetCorrectionForExpCost(false, "Expected Cost");
-                            // NAVCZ
-#endif
-                        end;
                         if (CostToPost <> 0) or (CostToPostACY <> 0) then
                             InitInvtPostBuf(
                               ValueEntry,
-                              GlobalInvtPostBuf."Account Type"::Inventory,
-                              GlobalInvtPostBuf."Account Type"::"Direct Cost Applied",
+                              TempGlobalInvtPostingBuffer."Account Type"::Inventory,
+                              TempGlobalInvtPostingBuffer."Account Type"::"Direct Cost Applied",
                               CostToPost, CostToPostACY, false);
                     end;
                 "Entry Type"::"Indirect Cost":
                     InitInvtPostBuf(
                       ValueEntry,
-                      GlobalInvtPostBuf."Account Type"::Inventory,
-                      GlobalInvtPostBuf."Account Type"::"Overhead Applied",
+                      TempGlobalInvtPostingBuffer."Account Type"::Inventory,
+                      TempGlobalInvtPostingBuffer."Account Type"::"Overhead Applied",
                       CostToPost, CostToPostACY, false);
                 "Entry Type"::Variance:
                     begin
                         TestField("Variance Type", "Variance Type"::Purchase);
                         InitInvtPostBuf(
                           ValueEntry,
-                          GlobalInvtPostBuf."Account Type"::Inventory,
-                          GlobalInvtPostBuf."Account Type"::"Purchase Variance",
+                          TempGlobalInvtPostingBuffer."Account Type"::Inventory,
+                          TempGlobalInvtPostingBuffer."Account Type"::"Purchase Variance",
                           CostToPost, CostToPostACY, false);
                     end;
                 "Entry Type"::Revaluation:
                     begin
-                        if (ExpCostToPost <> 0) or (ExpCostToPostACY <> 0) then begin
-#if not CLEAN18
-                            // NAVCZ
-                            SetCorrectionForExpCost(true, "Expected Cost");
-                            // NAVCZ
-#endif
+                        if (ExpCostToPost <> 0) or (ExpCostToPostACY <> 0) then
                             InitInvtPostBuf(
                               ValueEntry,
-                              GlobalInvtPostBuf."Account Type"::"Inventory (Interim)",
-                              GlobalInvtPostBuf."Account Type"::"Invt. Accrual (Interim)",
+                              TempGlobalInvtPostingBuffer."Account Type"::"Inventory (Interim)",
+                              TempGlobalInvtPostingBuffer."Account Type"::"Invt. Accrual (Interim)",
                               ExpCostToPost, ExpCostToPostACY, true);
-#if not CLEAN18
-                            // NAVCZ
-                            SetCorrectionForExpCost(false, "Expected Cost");
-                            // NAVCZ
-#endif
-                        end;
                         if (CostToPost <> 0) or (CostToPostACY <> 0) then
                             InitInvtPostBuf(
                               ValueEntry,
-                              GlobalInvtPostBuf."Account Type"::Inventory,
-                              GlobalInvtPostBuf."Account Type"::"Inventory Adjmt.",
+                              TempGlobalInvtPostingBuffer."Account Type"::Inventory,
+                              TempGlobalInvtPostingBuffer."Account Type"::"Inventory Adjmt.",
                               CostToPost, CostToPostACY, false);
                     end;
                 "Entry Type"::Rounding:
                     InitInvtPostBuf(
                       ValueEntry,
-                      GlobalInvtPostBuf."Account Type"::Inventory,
-#if not CLEAN18
-                      // NAVCZ
-                      GlobalInvtPostBuf."Account Type"::InvRoundingAdj,
-                      // NAVCZ
-#else
-                      GlobalInvtPostBuf."Account Type"::"Inventory Adjmt.",
-#endif
+                      TempGlobalInvtPostingBuffer."Account Type"::Inventory,
+                      TempGlobalInvtPostingBuffer."Account Type"::"Inventory Adjmt.",
                       CostToPost, CostToPostACY, false);
                 else
                     ErrorNonValidCombination(ValueEntry);
@@ -277,7 +248,7 @@
     var
         IsHandled: Boolean;
     begin
-        OnBeforeBufferSalesPosting(ValueEntry, GlobalInvtPostBuf, CostToPost, CostToPostACY, ExpCostToPost, ExpCostToPostACY, IsHandled);
+        OnBeforeBufferSalesPosting(ValueEntry, TempGlobalInvtPostingBuffer, CostToPost, CostToPostACY, ExpCostToPost, ExpCostToPostACY, IsHandled);
         if IsHandled then
             exit;
 
@@ -285,67 +256,39 @@
             case "Entry Type" of
                 "Entry Type"::"Direct Cost":
                     begin
-                        if (ExpCostToPost <> 0) or (ExpCostToPostACY <> 0) then begin
-#if not CLEAN18
-                            // NAVCZ
-                            SetCorrectionForExpCost(true, "Expected Cost");
-                            // NAVCZ
-#endif
+                        if (ExpCostToPost <> 0) or (ExpCostToPostACY <> 0) then
                             InitInvtPostBuf(
                               ValueEntry,
-                              GlobalInvtPostBuf."Account Type"::"Inventory (Interim)",
-                              GlobalInvtPostBuf."Account Type"::"COGS (Interim)",
+                              TempGlobalInvtPostingBuffer."Account Type"::"Inventory (Interim)",
+                              TempGlobalInvtPostingBuffer."Account Type"::"COGS (Interim)",
                               ExpCostToPost, ExpCostToPostACY, true);
-#if not CLEAN18
-                            // NAVCZ
-                            SetCorrectionForExpCost(false, "Expected Cost");
-                            // NAVCZ
-#endif
-                        end;
                         if (CostToPost <> 0) or (CostToPostACY <> 0) then
                             InitInvtPostBuf(
                               ValueEntry,
-                              GlobalInvtPostBuf."Account Type"::Inventory,
-                              GlobalInvtPostBuf."Account Type"::COGS,
+                              TempGlobalInvtPostingBuffer."Account Type"::Inventory,
+                              TempGlobalInvtPostingBuffer."Account Type"::COGS,
                               CostToPost, CostToPostACY, false);
                     end;
                 "Entry Type"::Revaluation:
                     begin
-                        if (ExpCostToPost <> 0) or (ExpCostToPostACY <> 0) then begin
-#if not CLEAN18
-                            // NAVCZ
-                            SetCorrectionForExpCost(true, "Expected Cost");
-                            // NAVCZ
-#endif
+                        if (ExpCostToPost <> 0) or (ExpCostToPostACY <> 0) then
                             InitInvtPostBuf(
                               ValueEntry,
-                              GlobalInvtPostBuf."Account Type"::"Inventory (Interim)",
-                              GlobalInvtPostBuf."Account Type"::"COGS (Interim)",
+                              TempGlobalInvtPostingBuffer."Account Type"::"Inventory (Interim)",
+                              TempGlobalInvtPostingBuffer."Account Type"::"COGS (Interim)",
                               ExpCostToPost, ExpCostToPostACY, true);
-#if not CLEAN18
-                            // NAVCZ
-                            SetCorrectionForExpCost(false, "Expected Cost");
-                            // NAVCZ
-#endif
-                        end;
                         if (CostToPost <> 0) or (CostToPostACY <> 0) then
                             InitInvtPostBuf(
                               ValueEntry,
-                              GlobalInvtPostBuf."Account Type"::Inventory,
-                              GlobalInvtPostBuf."Account Type"::"Inventory Adjmt.",
+                              TempGlobalInvtPostingBuffer."Account Type"::Inventory,
+                              TempGlobalInvtPostingBuffer."Account Type"::"Inventory Adjmt.",
                               CostToPost, CostToPostACY, false);
                     end;
                 "Entry Type"::Rounding:
                     InitInvtPostBuf(
                       ValueEntry,
-                      GlobalInvtPostBuf."Account Type"::Inventory,
-#if not CLEAN18
-                      // NAVCZ
-                      GlobalInvtPostBuf."Account Type"::InvRoundingAdj,
-                      // NAVCZ
-#else
-                      GlobalInvtPostBuf."Account Type"::"Inventory Adjmt.",
-#endif
+                      TempGlobalInvtPostingBuffer."Account Type"::Inventory,
+                      TempGlobalInvtPostingBuffer."Account Type"::"Inventory Adjmt.",
                       CostToPost, CostToPostACY, false);
                 else
                     ErrorNonValidCombination(ValueEntry);
@@ -358,7 +301,7 @@
     var
         IsHandled: Boolean;
     begin
-        OnBeforeBufferOutputPosting(ValueEntry, GlobalInvtPostBuf, CostToPost, CostToPostACY, ExpCostToPost, ExpCostToPostACY, IsHandled);
+        OnBeforeBufferOutputPosting(ValueEntry, TempGlobalInvtPostingBuffer, CostToPost, CostToPostACY, ExpCostToPost, ExpCostToPostACY, IsHandled);
         if IsHandled then
             exit;
 
@@ -366,127 +309,80 @@
             case "Entry Type" of
                 "Entry Type"::"Direct Cost":
                     begin
-                        if (ExpCostToPost <> 0) or (ExpCostToPostACY <> 0) then begin
-#if not CLEAN18
-                            // NAVCZ
-                            SetCorrectionForExpCost(true, "Expected Cost");
-                            // NAVCZ
-#endif
+                        if (ExpCostToPost <> 0) or (ExpCostToPostACY <> 0) then
                             InitInvtPostBuf(
                               ValueEntry,
-                              GlobalInvtPostBuf."Account Type"::"Inventory (Interim)",
-#if not CLEAN18
-                              // NAVCZ
-                              GlobalInvtPostBuf."Account Type"::AccProdChange,
-                              ExpCostToPost, ExpCostToPostACY, false);
-                            InitInvtPostBuf(
-                              ValueEntry,
-                              GlobalInvtPostBuf."Account Type"::AccWIPChange,
-                              // NAVCZ
-#endif
-                              GlobalInvtPostBuf."Account Type"::"WIP Inventory",
+                              TempGlobalInvtPostingBuffer."Account Type"::"Inventory (Interim)",
+                              TempGlobalInvtPostingBuffer."Account Type"::"WIP Inventory",
                               ExpCostToPost, ExpCostToPostACY, true);
-#if not CLEAN18
-                            // NAVCZ
-                            SetCorrectionForExpCost(false, "Expected Cost");
-                            // NAVCZ
-#endif
-                        end;
-                        if (CostToPost <> 0) or (CostToPostACY <> 0) then begin
+                        if (CostToPost <> 0) or (CostToPostACY <> 0) then
                             InitInvtPostBuf(
                               ValueEntry,
-                              GlobalInvtPostBuf."Account Type"::Inventory,
-#if not CLEAN18
-                              // NAVCZ
-                              GlobalInvtPostBuf."Account Type"::AccProdChange,
+                              TempGlobalInvtPostingBuffer."Account Type"::Inventory,
+                              TempGlobalInvtPostingBuffer."Account Type"::"WIP Inventory",
                               CostToPost, CostToPostACY, false);
-                            InitInvtPostBuf(
-                              ValueEntry,
-                              GlobalInvtPostBuf."Account Type"::AccWIPChange,
-                              // NAVCZ
-#endif
-                              GlobalInvtPostBuf."Account Type"::"WIP Inventory",
-                              CostToPost, CostToPostACY, false);
-                        end;
                     end;
                 "Entry Type"::"Indirect Cost":
                     InitInvtPostBuf(
                       ValueEntry,
-                      GlobalInvtPostBuf."Account Type"::Inventory,
-                      GlobalInvtPostBuf."Account Type"::"Overhead Applied",
+                      TempGlobalInvtPostingBuffer."Account Type"::Inventory,
+                      TempGlobalInvtPostingBuffer."Account Type"::"Overhead Applied",
                       CostToPost, CostToPostACY, false);
                 "Entry Type"::Variance:
                     case "Variance Type" of
                         "Variance Type"::Material:
                             InitInvtPostBuf(
                               ValueEntry,
-                              GlobalInvtPostBuf."Account Type"::Inventory,
-                              GlobalInvtPostBuf."Account Type"::"Material Variance",
+                              TempGlobalInvtPostingBuffer."Account Type"::Inventory,
+                              TempGlobalInvtPostingBuffer."Account Type"::"Material Variance",
                               CostToPost, CostToPostACY, false);
                         "Variance Type"::Capacity:
                             InitInvtPostBuf(
                               ValueEntry,
-                              GlobalInvtPostBuf."Account Type"::Inventory,
-                              GlobalInvtPostBuf."Account Type"::"Capacity Variance",
+                              TempGlobalInvtPostingBuffer."Account Type"::Inventory,
+                              TempGlobalInvtPostingBuffer."Account Type"::"Capacity Variance",
                               CostToPost, CostToPostACY, false);
                         "Variance Type"::Subcontracted:
                             InitInvtPostBuf(
                               ValueEntry,
-                              GlobalInvtPostBuf."Account Type"::Inventory,
-                              GlobalInvtPostBuf."Account Type"::"Subcontracted Variance",
+                              TempGlobalInvtPostingBuffer."Account Type"::Inventory,
+                              TempGlobalInvtPostingBuffer."Account Type"::"Subcontracted Variance",
                               CostToPost, CostToPostACY, false);
                         "Variance Type"::"Capacity Overhead":
                             InitInvtPostBuf(
                               ValueEntry,
-                              GlobalInvtPostBuf."Account Type"::Inventory,
-                              GlobalInvtPostBuf."Account Type"::"Cap. Overhead Variance",
+                              TempGlobalInvtPostingBuffer."Account Type"::Inventory,
+                              TempGlobalInvtPostingBuffer."Account Type"::"Cap. Overhead Variance",
                               CostToPost, CostToPostACY, false);
                         "Variance Type"::"Manufacturing Overhead":
                             InitInvtPostBuf(
                               ValueEntry,
-                              GlobalInvtPostBuf."Account Type"::Inventory,
-                              GlobalInvtPostBuf."Account Type"::"Mfg. Overhead Variance",
+                              TempGlobalInvtPostingBuffer."Account Type"::Inventory,
+                              TempGlobalInvtPostingBuffer."Account Type"::"Mfg. Overhead Variance",
                               CostToPost, CostToPostACY, false);
                         else
                             ErrorNonValidCombination(ValueEntry);
                     end;
                 "Entry Type"::Revaluation:
                     begin
-                        if (ExpCostToPost <> 0) or (ExpCostToPostACY <> 0) then begin
-#if not CLEAN18
-                            // NAVCZ
-                            SetCorrectionForExpCost(true, "Expected Cost");
-                            // NAVCZ
-#endif
+                        if (ExpCostToPost <> 0) or (ExpCostToPostACY <> 0) then
                             InitInvtPostBuf(
                               ValueEntry,
-                              GlobalInvtPostBuf."Account Type"::"Inventory (Interim)",
-                              GlobalInvtPostBuf."Account Type"::"WIP Inventory",
+                              TempGlobalInvtPostingBuffer."Account Type"::"Inventory (Interim)",
+                              TempGlobalInvtPostingBuffer."Account Type"::"WIP Inventory",
                               ExpCostToPost, ExpCostToPostACY, true);
-#if not CLEAN18
-                            // NAVCZ
-                            SetCorrectionForExpCost(false, "Expected Cost");
-                            // NAVCZ
-#endif
-                        end;
                         if (CostToPost <> 0) or (CostToPostACY <> 0) then
                             InitInvtPostBuf(
                               ValueEntry,
-                              GlobalInvtPostBuf."Account Type"::Inventory,
-                              GlobalInvtPostBuf."Account Type"::"Inventory Adjmt.",
+                              TempGlobalInvtPostingBuffer."Account Type"::Inventory,
+                              TempGlobalInvtPostingBuffer."Account Type"::"Inventory Adjmt.",
                               CostToPost, CostToPostACY, false);
                     end;
                 "Entry Type"::Rounding:
                     InitInvtPostBuf(
                       ValueEntry,
-                      GlobalInvtPostBuf."Account Type"::Inventory,
-#if not CLEAN18
-                      // NAVCZ
-                      GlobalInvtPostBuf."Account Type"::InvRoundingAdj,
-                      // NAVCZ
-#else
-                      GlobalInvtPostBuf."Account Type"::"Inventory Adjmt.",
-#endif
+                      TempGlobalInvtPostingBuffer."Account Type"::Inventory,
+                      TempGlobalInvtPostingBuffer."Account Type"::"Inventory Adjmt.",
                       CostToPost, CostToPostACY, false);
                 else
                     ErrorNonValidCombination(ValueEntry);
@@ -500,41 +396,24 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeBufferConsumpPosting(ValueEntry, GlobalInvtPostBuf, CostToPost, CostToPostACY, IsHandled);
+        OnBeforeBufferConsumpPosting(ValueEntry, TempGlobalInvtPostingBuffer, CostToPost, CostToPostACY, IsHandled);
         if IsHandled then
             exit;
 
         with ValueEntry do
             case "Entry Type" of
                 "Entry Type"::"Direct Cost":
-                    begin
-                        InitInvtPostBuf(
-                          ValueEntry,
-                          GlobalInvtPostBuf."Account Type"::Inventory,
-#if not CLEAN18
-                          // NAVCZ
-                          GlobalInvtPostBuf."Account Type"::AccConsumption,
-                          CostToPost, CostToPostACY, false);
-                        InitInvtPostBuf(
-                          ValueEntry,
-                          GlobalInvtPostBuf."Account Type"::AccWIPChange,
-                          // NAVCZ
-#endif
-                          GlobalInvtPostBuf."Account Type"::"WIP Inventory",
-                          CostToPost, CostToPostACY, false);
-                    end;
+                    InitInvtPostBuf(
+                      ValueEntry,
+                      TempGlobalInvtPostingBuffer."Account Type"::Inventory,
+                      TempGlobalInvtPostingBuffer."Account Type"::"WIP Inventory",
+                      CostToPost, CostToPostACY, false);
                 "Entry Type"::Revaluation,
               "Entry Type"::Rounding:
                     InitInvtPostBuf(
                       ValueEntry,
-                      GlobalInvtPostBuf."Account Type"::Inventory,
-#if not CLEAN18
-                      // NAVCZ
-                      GlobalInvtPostBuf."Account Type"::InvRoundingAdj,
-                      // NAVCZ
-#else
-                      GlobalInvtPostBuf."Account Type"::"Inventory Adjmt.",
-#endif
+                      TempGlobalInvtPostingBuffer."Account Type"::Inventory,
+                      TempGlobalInvtPostingBuffer."Account Type"::"Inventory Adjmt.",
                       CostToPost, CostToPostACY, false);
                 else
                     ErrorNonValidCombination(ValueEntry);
@@ -551,14 +430,14 @@
                     "Entry Type"::"Direct Cost":
                         InitInvtPostBuf(
                           ValueEntry,
-                          GlobalInvtPostBuf."Account Type"::"Inventory Adjmt.",
-                          GlobalInvtPostBuf."Account Type"::"Direct Cost Applied",
+                          TempGlobalInvtPostingBuffer."Account Type"::"Inventory Adjmt.",
+                          TempGlobalInvtPostingBuffer."Account Type"::"Direct Cost Applied",
                           CostToPost, CostToPostACY, false);
                     "Entry Type"::"Indirect Cost":
                         InitInvtPostBuf(
                           ValueEntry,
-                          GlobalInvtPostBuf."Account Type"::"Inventory Adjmt.",
-                          GlobalInvtPostBuf."Account Type"::"Overhead Applied",
+                          TempGlobalInvtPostingBuffer."Account Type"::"Inventory Adjmt.",
+                          TempGlobalInvtPostingBuffer."Account Type"::"Overhead Applied",
                           CostToPost, CostToPostACY, false);
                     else
                         ErrorNonValidCombination(ValueEntry);
@@ -568,14 +447,14 @@
                     "Entry Type"::"Direct Cost":
                         InitInvtPostBuf(
                           ValueEntry,
-                          GlobalInvtPostBuf."Account Type"::"WIP Inventory",
-                          GlobalInvtPostBuf."Account Type"::"Direct Cost Applied",
+                          TempGlobalInvtPostingBuffer."Account Type"::"WIP Inventory",
+                          TempGlobalInvtPostingBuffer."Account Type"::"Direct Cost Applied",
                           CostToPost, CostToPostACY, false);
                     "Entry Type"::"Indirect Cost":
                         InitInvtPostBuf(
                           ValueEntry,
-                          GlobalInvtPostBuf."Account Type"::"WIP Inventory",
-                          GlobalInvtPostBuf."Account Type"::"Overhead Applied",
+                          TempGlobalInvtPostingBuffer."Account Type"::"WIP Inventory",
+                          TempGlobalInvtPostingBuffer."Account Type"::"Overhead Applied",
                           CostToPost, CostToPostACY, false);
                     else
                         ErrorNonValidCombination(ValueEntry);
@@ -589,7 +468,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeBufferAsmOutputPosting(ValueEntry, GlobalInvtPostBuf, CostToPost, CostToPostACY, IsHandled);
+        OnBeforeBufferAsmOutputPosting(ValueEntry, TempGlobalInvtPostingBuffer, CostToPost, CostToPostACY, IsHandled);
         if IsHandled then
             exit;
 
@@ -598,46 +477,46 @@
                 "Entry Type"::"Direct Cost":
                     InitInvtPostBuf(
                       ValueEntry,
-                      GlobalInvtPostBuf."Account Type"::Inventory,
-                      GlobalInvtPostBuf."Account Type"::"Inventory Adjmt.",
+                      TempGlobalInvtPostingBuffer."Account Type"::Inventory,
+                      TempGlobalInvtPostingBuffer."Account Type"::"Inventory Adjmt.",
                       CostToPost, CostToPostACY, false);
                 "Entry Type"::"Indirect Cost":
                     InitInvtPostBuf(
                       ValueEntry,
-                      GlobalInvtPostBuf."Account Type"::Inventory,
-                      GlobalInvtPostBuf."Account Type"::"Overhead Applied",
+                      TempGlobalInvtPostingBuffer."Account Type"::Inventory,
+                      TempGlobalInvtPostingBuffer."Account Type"::"Overhead Applied",
                       CostToPost, CostToPostACY, false);
                 "Entry Type"::Variance:
                     case "Variance Type" of
                         "Variance Type"::Material:
                             InitInvtPostBuf(
                               ValueEntry,
-                              GlobalInvtPostBuf."Account Type"::Inventory,
-                              GlobalInvtPostBuf."Account Type"::"Material Variance",
+                              TempGlobalInvtPostingBuffer."Account Type"::Inventory,
+                              TempGlobalInvtPostingBuffer."Account Type"::"Material Variance",
                               CostToPost, CostToPostACY, false);
                         "Variance Type"::Capacity:
                             InitInvtPostBuf(
                               ValueEntry,
-                              GlobalInvtPostBuf."Account Type"::Inventory,
-                              GlobalInvtPostBuf."Account Type"::"Capacity Variance",
+                              TempGlobalInvtPostingBuffer."Account Type"::Inventory,
+                              TempGlobalInvtPostingBuffer."Account Type"::"Capacity Variance",
                               CostToPost, CostToPostACY, false);
                         "Variance Type"::Subcontracted:
                             InitInvtPostBuf(
                               ValueEntry,
-                              GlobalInvtPostBuf."Account Type"::Inventory,
-                              GlobalInvtPostBuf."Account Type"::"Subcontracted Variance",
+                              TempGlobalInvtPostingBuffer."Account Type"::Inventory,
+                              TempGlobalInvtPostingBuffer."Account Type"::"Subcontracted Variance",
                               CostToPost, CostToPostACY, false);
                         "Variance Type"::"Capacity Overhead":
                             InitInvtPostBuf(
                               ValueEntry,
-                              GlobalInvtPostBuf."Account Type"::Inventory,
-                              GlobalInvtPostBuf."Account Type"::"Cap. Overhead Variance",
+                              TempGlobalInvtPostingBuffer."Account Type"::Inventory,
+                              TempGlobalInvtPostingBuffer."Account Type"::"Cap. Overhead Variance",
                               CostToPost, CostToPostACY, false);
                         "Variance Type"::"Manufacturing Overhead":
                             InitInvtPostBuf(
                               ValueEntry,
-                              GlobalInvtPostBuf."Account Type"::Inventory,
-                              GlobalInvtPostBuf."Account Type"::"Mfg. Overhead Variance",
+                              TempGlobalInvtPostingBuffer."Account Type"::Inventory,
+                              TempGlobalInvtPostingBuffer."Account Type"::"Mfg. Overhead Variance",
                               CostToPost, CostToPostACY, false);
                         else
                             ErrorNonValidCombination(ValueEntry);
@@ -645,20 +524,14 @@
                 "Entry Type"::Revaluation:
                     InitInvtPostBuf(
                       ValueEntry,
-                      GlobalInvtPostBuf."Account Type"::Inventory,
-                      GlobalInvtPostBuf."Account Type"::"Inventory Adjmt.",
+                      TempGlobalInvtPostingBuffer."Account Type"::Inventory,
+                      TempGlobalInvtPostingBuffer."Account Type"::"Inventory Adjmt.",
                       CostToPost, CostToPostACY, false);
                 "Entry Type"::Rounding:
                     InitInvtPostBuf(
                       ValueEntry,
-                      GlobalInvtPostBuf."Account Type"::Inventory,
-#if not CLEAN18
-                      // NAVCZ
-                      GlobalInvtPostBuf."Account Type"::InvRoundingAdj,
-                      // NAVCZ
-#else
-                      GlobalInvtPostBuf."Account Type"::"Inventory Adjmt.",
-#endif
+                      TempGlobalInvtPostingBuffer."Account Type"::Inventory,
+                      TempGlobalInvtPostingBuffer."Account Type"::"Inventory Adjmt.",
                       CostToPost, CostToPostACY, false);
                 else
                     ErrorNonValidCombination(ValueEntry);
@@ -670,7 +543,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeBufferAsmConsumpPosting(ValueEntry, GlobalInvtPostBuf, CostToPost, CostToPostACY, IsHandled);
+        OnBeforeBufferAsmConsumpPosting(ValueEntry, TempGlobalInvtPostingBuffer, CostToPost, CostToPostACY, IsHandled);
         if IsHandled then
             exit;
 
@@ -679,21 +552,15 @@
                 "Entry Type"::"Direct Cost":
                     InitInvtPostBuf(
                       ValueEntry,
-                      GlobalInvtPostBuf."Account Type"::Inventory,
-                      GlobalInvtPostBuf."Account Type"::"Inventory Adjmt.",
+                      TempGlobalInvtPostingBuffer."Account Type"::Inventory,
+                      TempGlobalInvtPostingBuffer."Account Type"::"Inventory Adjmt.",
                       CostToPost, CostToPostACY, false);
                 "Entry Type"::Revaluation,
               "Entry Type"::Rounding:
                     InitInvtPostBuf(
                       ValueEntry,
-                      GlobalInvtPostBuf."Account Type"::Inventory,
-#if not CLEAN18
-                      // NAVCZ
-                      GlobalInvtPostBuf."Account Type"::InvRoundingAdj,
-                      // NAVCZ
-#else
-                      GlobalInvtPostBuf."Account Type"::"Inventory Adjmt.",
-#endif
+                      TempGlobalInvtPostingBuffer."Account Type"::Inventory,
+                      TempGlobalInvtPostingBuffer."Account Type"::"Inventory Adjmt.",
                       CostToPost, CostToPostACY, false);
                 else
                     ErrorNonValidCombination(ValueEntry);
@@ -704,7 +571,7 @@
     var
         IsHandled: Boolean;
     begin
-        OnBeforeBufferAdjmtPosting(ValueEntry, GlobalInvtPostBuf, CostToPost, CostToPostACY, ExpCostToPost, ExpCostToPostACY, IsHandled);
+        OnBeforeBufferAdjmtPosting(ValueEntry, TempGlobalInvtPostingBuffer, CostToPost, CostToPostACY, ExpCostToPost, ExpCostToPostACY, IsHandled);
         if IsHandled then
             exit;
 
@@ -716,28 +583,22 @@
                         if (ExpCostToPost <> 0) or (ExpCostToPostACY <> 0) then
                             InitInvtPostBuf(
                               ValueEntry,
-                              GlobalInvtPostBuf."Account Type"::"Inventory (Interim)",
-                              GlobalInvtPostBuf."Account Type"::"COGS (Interim)",
+                              TempGlobalInvtPostingBuffer."Account Type"::"Inventory (Interim)",
+                              TempGlobalInvtPostingBuffer."Account Type"::"COGS (Interim)",
                               ExpCostToPost, ExpCostToPostACY, true);
                         if (CostToPost <> 0) or (CostToPostACY <> 0) then
                             InitInvtPostBuf(
                               ValueEntry,
-                              GlobalInvtPostBuf."Account Type"::Inventory,
-                              GlobalInvtPostBuf."Account Type"::"Inventory Adjmt.",
+                              TempGlobalInvtPostingBuffer."Account Type"::Inventory,
+                              TempGlobalInvtPostingBuffer."Account Type"::"Inventory Adjmt.",
                               CostToPost, CostToPostACY, false);
                     end;
                 "Entry Type"::Revaluation,
               "Entry Type"::Rounding:
                     InitInvtPostBuf(
                       ValueEntry,
-                      GlobalInvtPostBuf."Account Type"::Inventory,
-#if not CLEAN18
-                      // NAVCZ
-                      GlobalInvtPostBuf."Account Type"::InvRoundingAdj,
-                      // NAVCZ
-#else
-                      GlobalInvtPostBuf."Account Type"::"Inventory Adjmt.",
-#endif
+                      TempGlobalInvtPostingBuffer."Account Type"::Inventory,
+                      TempGlobalInvtPostingBuffer."Account Type"::"Inventory Adjmt.",
                       CostToPost, CostToPostACY, false);
                 else
                     ErrorNonValidCombination(ValueEntry);
@@ -844,16 +705,11 @@
             "Gen. Bus. Posting Group" := ValueEntry."Gen. Bus. Posting Group";
             "Gen. Prod. Posting Group" := ValueEntry."Gen. Prod. Posting Group";
             "Posting Date" := ValueEntry."Posting Date";
-#if not CLEAN18
-            // NAVCZ
-            "G/L Correction" := GetCorrectionForExpCost xor ValueEntry."G/L Correction";
-            // NAVCZ
-#endif
 
             IsHandled := false;
             OnBeforeGetInvtPostSetup(InvtPostingSetup, "Location Code", "Inventory Posting Group", GenPostingSetup, IsHandled);
             if not IsHandled then
-                if UseInvtPostSetup then begin
+                if UseInvtPostSetup() then begin
                     if CalledFromItemPosting then
                         InvtPostingSetup.Get("Location Code", "Inventory Posting Group")
                     else
@@ -877,107 +733,79 @@
                 case "Account Type" of
                     "Account Type"::Inventory:
                         if CalledFromItemPosting then
-                            "Account No." := InvtPostingSetup.GetInventoryAccount
+                            "Account No." := InvtPostingSetup.GetInventoryAccount()
                         else
                             "Account No." := InvtPostingSetup."Inventory Account";
                     "Account Type"::"Inventory (Interim)":
                         if CalledFromItemPosting then
-                            "Account No." := InvtPostingSetup.GetInventoryAccountInterim
+                            "Account No." := InvtPostingSetup.GetInventoryAccountInterim()
                         else
                             "Account No." := InvtPostingSetup."Inventory Account (Interim)";
                     "Account Type"::"WIP Inventory":
                         if CalledFromItemPosting then
-                            "Account No." := InvtPostingSetup.GetWIPAccount
+                            "Account No." := InvtPostingSetup.GetWIPAccount()
                         else
                             "Account No." := InvtPostingSetup."WIP Account";
                     "Account Type"::"Material Variance":
                         if CalledFromItemPosting then
-                            "Account No." := InvtPostingSetup.GetMaterialVarianceAccount
+                            "Account No." := InvtPostingSetup.GetMaterialVarianceAccount()
                         else
                             "Account No." := InvtPostingSetup."Material Variance Account";
                     "Account Type"::"Capacity Variance":
                         if CalledFromItemPosting then
-                            "Account No." := InvtPostingSetup.GetCapacityVarianceAccount
+                            "Account No." := InvtPostingSetup.GetCapacityVarianceAccount()
                         else
                             "Account No." := InvtPostingSetup."Capacity Variance Account";
                     "Account Type"::"Subcontracted Variance":
                         if CalledFromItemPosting then
-                            "Account No." := InvtPostingSetup.GetSubcontractedVarianceAccount
+                            "Account No." := InvtPostingSetup.GetSubcontractedVarianceAccount()
                         else
                             "Account No." := InvtPostingSetup."Subcontracted Variance Account";
                     "Account Type"::"Cap. Overhead Variance":
                         if CalledFromItemPosting then
-                            "Account No." := InvtPostingSetup.GetCapOverheadVarianceAccount
+                            "Account No." := InvtPostingSetup.GetCapOverheadVarianceAccount()
                         else
                             "Account No." := InvtPostingSetup."Cap. Overhead Variance Account";
                     "Account Type"::"Mfg. Overhead Variance":
                         if CalledFromItemPosting then
-                            "Account No." := InvtPostingSetup.GetMfgOverheadVarianceAccount
+                            "Account No." := InvtPostingSetup.GetMfgOverheadVarianceAccount()
                         else
                             "Account No." := InvtPostingSetup."Mfg. Overhead Variance Account";
                     "Account Type"::"Inventory Adjmt.":
                         if CalledFromItemPosting then
-                            "Account No." := GenPostingSetup.GetInventoryAdjmtAccount
+                            "Account No." := GenPostingSetup.GetInventoryAdjmtAccount()
                         else
                             "Account No." := GenPostingSetup."Inventory Adjmt. Account";
                     "Account Type"::"Direct Cost Applied":
                         if CalledFromItemPosting then
-                            "Account No." := GenPostingSetup.GetDirectCostAppliedAccount
+                            "Account No." := GenPostingSetup.GetDirectCostAppliedAccount()
                         else
                             "Account No." := GenPostingSetup."Direct Cost Applied Account";
                     "Account Type"::"Overhead Applied":
                         if CalledFromItemPosting then
-                            "Account No." := GenPostingSetup.GetOverheadAppliedAccount
+                            "Account No." := GenPostingSetup.GetOverheadAppliedAccount()
                         else
                             "Account No." := GenPostingSetup."Overhead Applied Account";
                     "Account Type"::"Purchase Variance":
                         if CalledFromItemPosting then
-                            "Account No." := GenPostingSetup.GetPurchaseVarianceAccount
+                            "Account No." := GenPostingSetup.GetPurchaseVarianceAccount()
                         else
                             "Account No." := GenPostingSetup."Purchase Variance Account";
                     "Account Type"::COGS:
                         if CalledFromItemPosting then
-                            "Account No." := GenPostingSetup.GetCOGSAccount
+                            "Account No." := GenPostingSetup.GetCOGSAccount()
                         else
                             "Account No." := GenPostingSetup."COGS Account";
                     "Account Type"::"COGS (Interim)":
                         if CalledFromItemPosting then
-                            "Account No." := GenPostingSetup.GetCOGSInterimAccount
+                            "Account No." := GenPostingSetup.GetCOGSInterimAccount()
                         else
                             "Account No." := GenPostingSetup."COGS Account (Interim)";
                     "Account Type"::"Invt. Accrual (Interim)":
                         if CalledFromItemPosting then
-                            "Account No." := GenPostingSetup.GetInventoryAccrualAccount
+                            "Account No." := GenPostingSetup.GetInventoryAccrualAccount()
                         else
                             "Account No." := GenPostingSetup."Invt. Accrual Acc. (Interim)";
-#if not CLEAN18
-                    // NAVCZ
-                    "Account Type"::AccConsumption:
-                        begin
-                            if CalledFromItemPosting then
-                                InvtPostingSetup.TestField("Consumption Account");
-                            "Account No." := InvtPostingSetup."Consumption Account";
-                        end;
-                    "Account Type"::AccWIPChange:
-                        begin
-                            if CalledFromItemPosting then
-                                InvtPostingSetup.TestField("Change In Inv.Of WIP Acc.");
-                            "Account No." := InvtPostingSetup."Change In Inv.Of WIP Acc.";
-                        end;
-                    "Account Type"::AccProdChange:
-                        begin
-                            if CalledFromItemPosting then
-                                InvtPostingSetup.TestField("Change In Inv.Of Product Acc.");
-                            "Account No." := InvtPostingSetup."Change In Inv.Of Product Acc.";
-                        end;
-                    "Account Type"::InvRoundingAdj:
-                        begin
-                            if CalledFromItemPosting then
-                                GenPostingSetup.TestField("Invt. Rounding Adj. Account");
-                            "Account No." := GenPostingSetup."Invt. Rounding Adj. Account";
-                        end;
-                // NAVCZ
-#endif
                 end;
 
 
@@ -1000,10 +828,9 @@
     local procedure UpdateGlobalInvtPostBuf(ValueEntryNo: Integer): Boolean
     var
         i: Integer;
-        NewEntry: Boolean;
         ShouldInsertTempGLItemLedgRelation: Boolean;
     begin
-        with GlobalInvtPostBuf do begin
+        with TempGlobalInvtPostingBuffer do begin
             if not CalledFromTestReport then
                 for i := 1 to PostBufDimNo do
                     if TempInvtPostBuf[i]."Account No." = '' then begin
@@ -1011,32 +838,29 @@
                         exit(false);
                     end;
             for i := 1 to PostBufDimNo do begin
-                GlobalInvtPostBuf := TempInvtPostBuf[i];
+                TempGlobalInvtPostingBuffer := TempInvtPostBuf[i];
                 "Dimension Set ID" := TempInvtPostBuf[i]."Dimension Set ID";
                 Negative := (TempInvtPostBuf[i].Amount < 0) or (TempInvtPostBuf[i]."Amount (ACY)" < 0);
 
-                UpdateReportAmounts;
-                if Find then begin
+                UpdateReportAmounts();
+                if Find() then begin
                     Amount := Amount + TempInvtPostBuf[i].Amount;
                     "Amount (ACY)" := "Amount (ACY)" + TempInvtPostBuf[i]."Amount (ACY)";
-                    OnUpdateGlobalInvtPostBufOnBeforeModify(GlobalInvtPostBuf, TempInvtPostBuf[i]);
-                    Modify;
-                    NewEntry := false; // NAVCZ
+                    OnUpdateGlobalInvtPostBufOnBeforeModify(TempGlobalInvtPostingBuffer, TempInvtPostBuf[i]);
+                    Modify();
                 end else begin
                     GlobalInvtPostBufEntryNo := GlobalInvtPostBufEntryNo + 1;
                     "Entry No." := GlobalInvtPostBufEntryNo;
-                    Insert;
-                    NewEntry := true; // NAVCZ
+                    Insert();
                 end;
-
-
-                ShouldInsertTempGLItemLedgRelation := not (RunOnlyCheck or CalledFromTestReport) and NewEntry;
-                OnUpdateGlobalInvtPostBufOnAfterCalcShouldInsertTempGLItemLedgRelation(TempGLItemLedgRelation, GlobalInvtPostBuf, ValueEntryNo, RunOnlyCheck, CalledFromTestReport, ShouldInsertTempGLItemLedgRelation);
+                ShouldInsertTempGLItemLedgRelation := not (RunOnlyCheck or CalledFromTestReport);
+                OnUpdateGlobalInvtPostBufOnAfterCalcShouldInsertTempGLItemLedgRelation(TempGLItemLedgRelation, TempGlobalInvtPostingBuffer, ValueEntryNo, RunOnlyCheck, CalledFromTestReport, ShouldInsertTempGLItemLedgRelation);
                 if ShouldInsertTempGLItemLedgRelation then begin
                     TempGLItemLedgRelation.Init();
                     TempGLItemLedgRelation."G/L Entry No." := "Entry No.";
                     TempGLItemLedgRelation."Value Entry No." := ValueEntryNo;
                     TempGLItemLedgRelation.Insert();
+                    OnAfterBufferGLItemLedgRelation(TempGLItemLedgRelation, GlobalInvtPostBufEntryNo);
                 end;
             end;
         end;
@@ -1046,7 +870,7 @@
 
     local procedure UpdateReportAmounts()
     begin
-        with GlobalInvtPostBuf do
+        with TempGlobalInvtPostingBuffer do
             case "Account Type" of
                 "Account Type"::Inventory, "Account Type"::"Inventory (Interim)":
                     InvtAmt += Amount;
@@ -1073,7 +897,7 @@
                     VarMfgOvhdCostAmt += Amount;
             end;
 
-        OnAfteUpdateReportAmounts(GlobalInvtPostBuf, InvtAmt, InvtAdjmtAmt, VarMfgDirCostAmt);
+        OnAfteUpdateReportAmounts(TempGlobalInvtPostingBuffer, InvtAmt, InvtAdjmtAmt, VarMfgDirCostAmt);
     end;
 
     local procedure ErrorNonValidCombination(ValueEntry: Record "Value Entry")
@@ -1092,9 +916,9 @@
     local procedure InsertTempInvtPostToGLTestBuf(ValueEntry: Record "Value Entry")
     begin
         with ValueEntry do begin
-            TempInvtPostToGLTestBuf."Line No." := GetNextLineNo;
+            TempInvtPostToGLTestBuf."Line No." := GetNextLineNo();
             TempInvtPostToGLTestBuf."Posting Date" := "Posting Date";
-            TempInvtPostToGLTestBuf.Description := StrSubstNo(Text003, TableCaption, "Entry No.");
+            TempInvtPostToGLTestBuf.Description := StrSubstNo(Text003, TableCaption(), "Entry No.");
             TempInvtPostToGLTestBuf.Amount := "Cost Amount (Actual)";
             TempInvtPostToGLTestBuf."Value Entry No." := "Entry No.";
             TempInvtPostToGLTestBuf."Dimension Set ID" := "Dimension Set ID";
@@ -1143,9 +967,9 @@
     var
         GenJnlLine: Record "Gen. Journal Line";
     begin
-        with GlobalInvtPostBuf do begin
-            Reset;
-            OnPostInvtPostBufferOnBeforeFind(GlobalInvtPostBuf, TempGLItemLedgRelation, ValueEntry);
+        with TempGlobalInvtPostingBuffer do begin
+            Reset();
+            OnPostInvtPostBufferOnBeforeFind(TempGlobalInvtPostingBuffer, TempGLItemLedgRelation, ValueEntry);
             if not FindSet() then
                 exit;
 
@@ -1154,7 +978,7 @@
             PostInvtPostBufProcessGlobalInvtPostBuf(GenJnlLine, ValueEntry, PostPerPostGrp);
 
             RunOnlyCheck := RunOnlyCheckSaved;
-            OnPostInvtPostBufferOnAfterPostInvtPostBuf(GlobalInvtPostBuf, ValueEntry, CalledFromItemPosting, CalledFromTestReport, RunOnlyCheck, PostPerPostGrp);
+            OnPostInvtPostBufferOnAfterPostInvtPostBuf(TempGlobalInvtPostingBuffer, ValueEntry, CalledFromItemPosting, CalledFromTestReport, RunOnlyCheck, PostPerPostGrp);
 
             DeleteAll();
         end;
@@ -1166,17 +990,23 @@
         GenJnlLine."Document No." := DocNo;
         GenJnlLine."External Document No." := ExternalDocNo;
         GenJnlLine.Description := Desc;
-        GetSourceCodeSetup;
+        GetSourceCodeSetup();
         GenJnlLine."Source Code" := SourceCodeSetup."Inventory Post Cost";
         GenJnlLine."System-Created Entry" := true;
         GenJnlLine."Job No." := ValueEntry."Job No.";
         GenJnlLine."Reason Code" := ValueEntry."Reason Code";
         GenJnlLine."Prod. Order No." := ValueEntry."Order No.";
         GetGLSetup();
-        if GLSetup."Journal Templ. Name Mandatory" then begin
-            GenJnlLine."Journal Template Name" := GlobalJnlTemplName;
-            GenJnlLine."Journal Batch Name" := GlobalJnlBatchName;
-        end;
+        if GLSetup."Journal Templ. Name Mandatory" then
+            if GlobalJnlTemplName <> '' then begin
+                GenJnlLine."Journal Template Name" := GlobalJnlTemplName;
+                GenJnlLine."Journal Batch Name" := GlobalJnlBatchName;
+            end else begin
+                GetInvtSetup();
+                InvtSetup.TestField("Invt. Cost Jnl. Template Name");
+                GenJnlLine."Journal Template Name" := InvtSetup."Invt. Cost Jnl. Template Name";
+                GenJnlLine."Journal Batch Name" := InvtSetup."Invt. Cost Jnl. Batch Name";
+            end;
         OnPostInvtPostBufOnAfterInitGenJnlLine(GenJnlLine, ValueEntry);
     end;
 
@@ -1185,41 +1015,32 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforePostInvtPostBufProcessGlobalInvtPostBuf(GlobalInvtPostBuf, GenJnlLine, ValueEntry, GenJnlPostLine, CalledFromItemPosting, PostPerPostGrp, IsHandled);
+        OnBeforePostInvtPostBufProcessGlobalInvtPostBuf(TempGlobalInvtPostingBuffer, GenJnlLine, ValueEntry, GenJnlPostLine, CalledFromItemPosting, PostPerPostGrp, IsHandled);
         if IsHandled then
             exit;
 
-        with GlobalInvtPostBuf do
+        with TempGlobalInvtPostingBuffer do
             repeat
                 GenJnlLine.Validate("Posting Date", "Posting Date");
-                OnPostInvtPostBufOnBeforeSetAmt(GenJnlLine, ValueEntry, GlobalInvtPostBuf);
+                OnPostInvtPostBufOnBeforeSetAmt(GenJnlLine, ValueEntry, TempGlobalInvtPostingBuffer);
                 if SetAmt(GenJnlLine, Amount, "Amount (ACY)") then begin
-                    // NAVCZ
-                    GenJnlLine.Correction := "G/L Correction";
                     if PostPerPostGrp then
-                        // NAVCZ
-                        SetDesc(GenJnlLine, GlobalInvtPostBuf);
-                    OnPostInvtPostBufProcessGlobalInvtPostBufOnAfterSetDesc(GenJnlLine, GlobalInvtPostBuf);
+                        SetDesc(GenJnlLine, TempGlobalInvtPostingBuffer);
+                    OnPostInvtPostBufProcessGlobalInvtPostBufOnAfterSetDesc(GenJnlLine, TempGlobalInvtPostingBuffer);
                     GenJnlLine."Account No." := "Account No.";
                     GenJnlLine."Dimension Set ID" := "Dimension Set ID";
                     DimMgt.UpdateGlobalDimFromDimSetID(
                       "Dimension Set ID", GenJnlLine."Shortcut Dimension 1 Code",
                       GenJnlLine."Shortcut Dimension 2 Code");
-                    OnPostInvtPostBufOnAfterUpdateGlobalDimFromDimSetID(GenJnlLine, GlobalInvtPostBuf);
+                    OnPostInvtPostBufOnAfterUpdateGlobalDimFromDimSetID(GenJnlLine, TempGlobalInvtPostingBuffer);
                     if not CalledFromTestReport then
                         if not RunOnlyCheck then begin
                             if not CalledFromItemPosting then
-                                GenJnlPostLine.SetOverDimErr;
-                            OnBeforePostInvtPostBuf(GenJnlLine, GlobalInvtPostBuf, ValueEntry, GenJnlPostLine);
-#if not CLEAN18
-                            GenJnlPostLine.xSetCallFromAdjust(true); // NAVCZ
-#endif
+                                GenJnlPostLine.SetOverDimErr();
+                            OnBeforePostInvtPostBuf(GenJnlLine, TempGlobalInvtPostingBuffer, ValueEntry, GenJnlPostLine);
                             PostGenJnlLine(GenJnlLine);
                         end else begin
-                            OnBeforeCheckInvtPostBuf(GenJnlLine, GlobalInvtPostBuf, ValueEntry, GenJnlPostLine, GenJnlCheckLine);
-#if not CLEAN18
-                            GenJnlCheckLine.xSetCallFromAdjust(true); // NAVCZ
-#endif
+                            OnBeforeCheckInvtPostBuf(GenJnlLine, TempGlobalInvtPostingBuffer, ValueEntry, GenJnlPostLine, GenJnlCheckLine);
                             CheckGenJnlLine(GenJnlLine);
                         end
                     else
@@ -1281,7 +1102,7 @@
     begin
         with GenJnlLine do begin
             TempInvtPostToGLTestBuf.Init();
-            TempInvtPostToGLTestBuf."Line No." := GetNextLineNo;
+            TempInvtPostToGLTestBuf."Line No." := GetNextLineNo();
             TempInvtPostToGLTestBuf."Posting Date" := "Posting Date";
             TempInvtPostToGLTestBuf."Document No." := "Document No.";
             TempInvtPostToGLTestBuf.Description := Description;
@@ -1293,18 +1114,18 @@
             TempInvtPostToGLTestBuf."Additional-Currency Posting" := "Additional-Currency Posting";
             TempInvtPostToGLTestBuf."Source Currency Code" := "Source Currency Code";
             TempInvtPostToGLTestBuf."Source Currency Amount" := "Source Currency Amount";
-            TempInvtPostToGLTestBuf."Inventory Account Type" := GlobalInvtPostBuf."Account Type";
+            TempInvtPostToGLTestBuf."Inventory Account Type" := TempGlobalInvtPostingBuffer."Account Type";
             TempInvtPostToGLTestBuf."Dimension Set ID" := "Dimension Set ID";
-            if GlobalInvtPostBuf.UseInvtPostSetup then begin
-                TempInvtPostToGLTestBuf."Location Code" := GlobalInvtPostBuf."Location Code";
+            if TempGlobalInvtPostingBuffer.UseInvtPostSetup() then begin
+                TempInvtPostToGLTestBuf."Location Code" := TempGlobalInvtPostingBuffer."Location Code";
                 TempInvtPostToGLTestBuf."Invt. Posting Group Code" :=
                   GetInvPostingGroupCode(
                     ValueEntry,
                     TempInvtPostToGLTestBuf."Inventory Account Type" = TempInvtPostToGLTestBuf."Inventory Account Type"::"WIP Inventory",
-                    GlobalInvtPostBuf."Inventory Posting Group")
+                    TempGlobalInvtPostingBuffer."Inventory Posting Group")
             end else begin
-                TempInvtPostToGLTestBuf."Gen. Bus. Posting Group" := GlobalInvtPostBuf."Gen. Bus. Posting Group";
-                TempInvtPostToGLTestBuf."Gen. Prod. Posting Group" := GlobalInvtPostBuf."Gen. Prod. Posting Group";
+                TempInvtPostToGLTestBuf."Gen. Bus. Posting Group" := TempGlobalInvtPostingBuffer."Gen. Bus. Posting Group";
+                TempInvtPostToGLTestBuf."Gen. Prod. Posting Group" := TempGlobalInvtPostingBuffer."Gen. Prod. Posting Group";
             end;
             OnInsertTempInvtPostToGLTestBufOnBeforeTempInvtPostToGLTestBufInsert(TempInvtPostToGLTestBuf, GenJnlLine, ValueEntry);
             TempInvtPostToGLTestBuf.Insert();
@@ -1318,7 +1139,7 @@
         GenJnlPostLine.GetGLReg(GLReg);
         if GlobalPostPerPostGroup then begin
             TempGLItemLedgRelation.Reset();
-            TempGLItemLedgRelation.SetRange("G/L Entry No.", GlobalInvtPostBuf."Entry No.");
+            TempGLItemLedgRelation.SetRange("G/L Entry No.", TempGlobalInvtPostingBuffer."Entry No.");
             TempGLItemLedgRelation.FindSet();
             repeat
                 ValueEntry.Get(TempGLItemLedgRelation."Value Entry No.");
@@ -1339,26 +1160,26 @@
         GLItemLedgRelation."G/L Entry No." := GLReg."To Entry No.";
         GLItemLedgRelation."Value Entry No." := TempGLItemLedgRelation."Value Entry No.";
         GLItemLedgRelation."G/L Register No." := GLReg."No.";
-        OnBeforeGLItemLedgRelationInsert(GLItemLedgRelation, GlobalInvtPostBuf, GLReg, TempGLItemLedgRelation);
+        OnBeforeGLItemLedgRelationInsert(GLItemLedgRelation, TempGlobalInvtPostingBuffer, GLReg, TempGLItemLedgRelation);
         GLItemLedgRelation.Insert();
         OnAfterGLItemLedgRelationInsert();
-        TempGLItemLedgRelation."G/L Entry No." := GlobalInvtPostBuf."Entry No.";
+        TempGLItemLedgRelation."G/L Entry No." := TempGlobalInvtPostingBuffer."Entry No.";
         TempGLItemLedgRelation.Delete();
     end;
 
     local procedure UpdateValueEntry(var ValueEntry: Record "Value Entry")
     begin
         with ValueEntry do begin
-            if GlobalInvtPostBuf."Interim Account" then begin
+            if TempGlobalInvtPostingBuffer."Interim Account" then begin
                 "Expected Cost Posted to G/L" := "Cost Amount (Expected)";
                 "Exp. Cost Posted to G/L (ACY)" := "Cost Amount (Expected) (ACY)";
             end else begin
                 "Cost Posted to G/L" := "Cost Amount (Actual)";
                 "Cost Posted to G/L (ACY)" := "Cost Amount (Actual) (ACY)";
             end;
-            OnUpdateValueEntryOnBeforeModify(ValueEntry, GlobalInvtPostBuf);
+            OnUpdateValueEntryOnBeforeModify(ValueEntry, TempGlobalInvtPostingBuffer);
             if not CalledFromItemPosting then
-                Modify;
+                Modify();
         end;
     end;
 
@@ -1402,12 +1223,12 @@
     begin
         InvtPostBuf.DeleteAll();
 
-        GlobalInvtPostBuf.Reset();
-        if GlobalInvtPostBuf.FindSet() then
+        TempGlobalInvtPostingBuffer.Reset();
+        if TempGlobalInvtPostingBuffer.FindSet() then
             repeat
-                InvtPostBuf := GlobalInvtPostBuf;
+                InvtPostBuf := TempGlobalInvtPostingBuffer;
                 InvtPostBuf.Insert();
-            until GlobalInvtPostBuf.Next() = 0;
+            until TempGlobalInvtPostingBuffer.Next() = 0;
     end;
 
     local procedure GetInvPostingGroupCode(ValueEntry: Record "Value Entry"; WIPInventory: Boolean; InvPostingGroupCode: Code[20]): Code[20]
@@ -1424,37 +1245,6 @@
         exit(InvPostingGroupCode);
     end;
 
-#if not CLEAN18
-    [Obsolete('The functionality is moved to Core Localization Pack for Czech and this function should not be used.', '18.0')]
-    procedure SetCorrectionForExpCost(Value: Boolean; ExpectedCost: Boolean)
-    begin
-        // NAVCZ
-        if ExpectedCost then
-            exit;
-        if InvtSetup."Post Exp. Cost Conv. as Corr." then
-            CorrectionForExpCost := Value;
-    end;
-
-    [Obsolete('The functionality is moved to Core Localization Pack for Czech and this function should not be used.', '18.0')]
-    procedure GetCorrectionForExpCost(): Boolean
-    begin
-        // NAVCZ
-        exit(CorrectionForExpCost);
-    end;
-
-    [Scope('OnPrem')]
-    [Obsolete('The function is no longer used and will be discontinued.', '18.0')]
-    procedure PostGLSpec(var GenJnlLine: Record "Gen. Journal Line")
-    begin
-        // NAVCZ
-        // Maintenance adjustment;
-
-        GenJnlPostLine.xSetCallFromAdjust(true);
-        GenJnlPostLine.RunWithCheck(GenJnlLine);
-        // NAVCZ
-    end;
-
-#endif
     procedure CheckGenJnlLine(var GenJnlLine: Record "Gen. Journal Line")
     begin
         GenJnlCheckLine.RunCheck(GenJnlLine);
@@ -1681,6 +1471,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterBufferGLItemLedgRelation(var TempGLItemLedgRelation: Record "G/L - Item Ledger Relation" temporary; GlobalInvtPostBufEntryNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnUpdateValueEntryOnBeforeModify(var ValueEntry: Record "Value Entry"; InvtPostingBuffer: Record "Invt. Posting Buffer")
     begin
     end;
@@ -1705,3 +1500,4 @@
     begin
     end;
 }
+

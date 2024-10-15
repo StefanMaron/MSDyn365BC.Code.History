@@ -1,4 +1,4 @@
-#if not CLEAN19
+﻿#if not CLEAN19
 codeunit 1330 "Instruction Mgt."
 {
     Permissions = TableData "My Notifications" = rimd;
@@ -38,7 +38,7 @@ codeunit 1330 "Instruction Mgt."
 
     procedure ShowConfirmUnreleased(): Boolean
     begin
-        exit(ShowConfirm(ClosingUnreleasedOrdersConfirmQst, ClosingUnreleasedOrdersCode));
+        exit(ShowConfirm(ClosingUnreleasedOrdersConfirmQst, ClosingUnreleasedOrdersCode()));
     end;
 
     procedure DisableMessageForCurrentUser(InstructionType: Code[50])
@@ -72,7 +72,7 @@ codeunit 1330 "Instruction Mgt."
         IsHandled := false;
         OnBeforeIsUnpostedEnabledForRecord(RecVariant, Enabled, IsHandled);
         if not IsHandled then
-            Enabled := MyNotifications.IsEnabledForRecord(GetClosingUnpostedDocumentNotificationId, RecVariant);
+            Enabled := MyNotifications.IsEnabledForRecord(GetClosingUnpostedDocumentNotificationId(), RecVariant);
     end;
 
     procedure IsMyNotificationEnabled(NotificationID: Guid): Boolean
@@ -91,7 +91,7 @@ codeunit 1330 "Instruction Mgt."
         PageMyNotifications: Page "My Notifications";
     begin
         if not MyNotifications.Get(UserId, NotificationID) then
-            PageMyNotifications.InitializeNotificationsWithDefaultState;
+            PageMyNotifications.InitializeNotificationsWithDefaultState();
     end;
 
     procedure ShowPostedConfirmationMessageCode(): Code[50]
@@ -204,11 +204,11 @@ codeunit 1330 "Instruction Mgt."
     var
         MyNotifications: Record "My Notifications";
     begin
-        MyNotifications.InsertDefaultWithTableNumAndFilter(GetClosingUnpostedDocumentNotificationId,
+        MyNotifications.InsertDefaultWithTableNumAndFilter(GetClosingUnpostedDocumentNotificationId(),
           WarnUnpostedDocumentsTxt,
           WarnUnpostedDocumentsDescriptionTxt,
           DATABASE::"Sales Header",
-          GetDocumentTypeInvoiceFilter);
+          GetDocumentTypeInvoiceFilter());
     end;
 
     procedure ShowPostedDocument(RecVariant: Variant; CalledFromPageId: Integer)
@@ -243,74 +243,74 @@ codeunit 1330 "Instruction Mgt."
     var
         MyNotifications: Record "My Notifications";
     begin
-        InsertDefaultUnpostedDoucumentNotification;
-        MyNotifications.InsertDefault(GetOpeningPostedDocumentNotificationId,
+        InsertDefaultUnpostedDoucumentNotification();
+        MyNotifications.InsertDefault(GetOpeningPostedDocumentNotificationId(),
           ConfirmAfterPostingDocumentsTxt,
           ConfirmAfterPostingDocumentsDescriptionTxt,
-          IsEnabled(ShowPostedConfirmationMessageCode));
+          IsEnabled(ShowPostedConfirmationMessageCode()));
         MyNotifications.InsertDefault(GetPostingAfterWorkingDateNotificationId(),
           ConfirmPostingAfterWorkingDateTxt,
           ConfirmPostingAfterWorkingDateDescriptionTxt,
           IsEnabled(PostingAfterWorkingDateNotAllowedCode()));
-        MyNotifications.InsertDefault(GetMarkBookingAsInvoicedWarningNotificationId,
+        MyNotifications.InsertDefault(GetMarkBookingAsInvoicedWarningNotificationId(),
           MarkBookingAsInvoicedWarningTxt,
           MarkBookingAsInvoicedWarningDescriptionTxt,
-          IsEnabled(MarkBookingAsInvoicedWarningCode));
-        MyNotifications.InsertDefault(GetAutomaticLineItemsDialogNotificationId,
+          IsEnabled(MarkBookingAsInvoicedWarningCode()));
+        MyNotifications.InsertDefault(GetAutomaticLineItemsDialogNotificationId(),
           AutomaticLineItemsDialogNotificationTxt,
           AutomaticLineItemsDialogNotificationDescriptionTxt,
-          IsEnabled(AutomaticLineItemsDialogCode));
-        MyNotifications.InsertDefault(GetOfficeUpdateNotificationId,
+          IsEnabled(AutomaticLineItemsDialogCode()));
+        MyNotifications.InsertDefault(GetOfficeUpdateNotificationId(),
           OfficeUpdateNotificationTxt,
           OfficeUpdateNotificationDescriptionTxt,
-          IsEnabled(OfficeUpdateNotificationCode));
+          IsEnabled(OfficeUpdateNotificationCode()));
         // NAVCZ
-        MyNotifications.InsertDefault(GetOpeningIssuedDocumentNotificationId,
+        MyNotifications.InsertDefault(GetOpeningIssuedDocumentNotificationId(),
           ConfirmAfterIssuingDocumentsTxt,
           ConfirmAfterIssuingDocumentsDescriptionTxt,
-          IsEnabled(GetOpeningIssuedDocumentNotificationId));
+          IsEnabled(GetOpeningIssuedDocumentNotificationId()));
         // NAVCZ
-        MyNotifications.InsertDefault(GetClosingUnreleasedOrdersNotificationId,
+        MyNotifications.InsertDefault(GetClosingUnreleasedOrdersNotificationId(),
           ClosingUnreleasedOrdersNotificationTxt,
           ClosingUnreleasedOrdersNotificationDescriptionTxt,
-          IsEnabled(ClosingUnreleasedOrdersCode));
+          IsEnabled(ClosingUnreleasedOrdersCode()));
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"My Notifications", 'OnStateChanged', '', false, false)]
     local procedure OnStateChanged(NotificationId: Guid; NewEnabledState: Boolean)
     begin
         case NotificationId of
-            GetClosingUnpostedDocumentNotificationId:
+            GetClosingUnpostedDocumentNotificationId():
                 if NewEnabledState then
-                    EnableMessageForCurrentUser(QueryPostOnCloseCode)
+                    EnableMessageForCurrentUser(QueryPostOnCloseCode())
                 else
-                    DisableMessageForCurrentUser(QueryPostOnCloseCode);
-            GetOpeningPostedDocumentNotificationId:
+                    DisableMessageForCurrentUser(QueryPostOnCloseCode());
+            GetOpeningPostedDocumentNotificationId():
                 if NewEnabledState then
-                    EnableMessageForCurrentUser(ShowPostedConfirmationMessageCode)
+                    EnableMessageForCurrentUser(ShowPostedConfirmationMessageCode())
                 else
-                    DisableMessageForCurrentUser(ShowPostedConfirmationMessageCode);
-            GetAutomaticLineItemsDialogNotificationId:
+                    DisableMessageForCurrentUser(ShowPostedConfirmationMessageCode());
+            GetAutomaticLineItemsDialogNotificationId():
                 if NewEnabledState then
-                    EnableMessageForCurrentUser(AutomaticLineItemsDialogCode)
+                    EnableMessageForCurrentUser(AutomaticLineItemsDialogCode())
                 else
-                    DisableMessageForCurrentUser(AutomaticLineItemsDialogCode);
+                    DisableMessageForCurrentUser(AutomaticLineItemsDialogCode());
             GetPostingAfterWorkingDateNotificationId():
                 if NewEnabledState then
                     EnableMessageForCurrentUser(PostingAfterWorkingDateNotAllowedCode())
                 else
                     DisableMessageForCurrentUser(PostingAfterWorkingDateNotAllowedCode());
             // NAVCZ
-            GetOpeningIssuedDocumentNotificationId:
+            GetOpeningIssuedDocumentNotificationId():
                 if NewEnabledState then
-                    EnableMessageForCurrentUser(ShowIssuedConfirmationMessageCode)
+                    EnableMessageForCurrentUser(ShowIssuedConfirmationMessageCode())
                 else
-                    DisableMessageForCurrentUser(ShowIssuedConfirmationMessageCode);
-            GetClosingUnreleasedOrdersNotificationId:
+                    DisableMessageForCurrentUser(ShowIssuedConfirmationMessageCode());
+            GetClosingUnreleasedOrdersNotificationId():
                 if NewEnabledState then
-                    EnableMessageForCurrentUser(ClosingUnreleasedOrdersCode)
+                    EnableMessageForCurrentUser(ClosingUnreleasedOrdersCode())
                 else
-                    DisableMessageForCurrentUser(ClosingUnreleasedOrdersCode);
+                    DisableMessageForCurrentUser(ClosingUnreleasedOrdersCode());
         end;
     end;
 

@@ -77,7 +77,7 @@ table 134 "Posted Docs. With No Inc. Buf."
         NextNo: Integer;
         TableFilters: Text;
     begin
-        TableFilters := PostedDocsWithNoIncBuf.GetView;
+        TableFilters := PostedDocsWithNoIncBuf.GetView();
         PostedDocsWithNoIncBuf.Reset();
         PostedDocsWithNoIncBuf.DeleteAll();
         PostedDocsWithNoIncBuf.Init();
@@ -93,8 +93,8 @@ table 134 "Posted Docs. With No Inc. Buf."
         if ExternalDocNoFilter <> '' then
             PostedDocsWithNoIncDocQry.SetFilter(ExternalDocumentNo, ExternalDocNoFilter);
 
-        if PostedDocsWithNoIncDocQry.Open then
-            while PostedDocsWithNoIncDocQry.Read do begin
+        if PostedDocsWithNoIncDocQry.Open() then
+            while PostedDocsWithNoIncDocQry.Read() do begin
                 NextNo += 1;
                 if NextNo >= 1000 then begin
                     Message(OnlyFirst1000Msg);
@@ -128,7 +128,7 @@ table 134 "Posted Docs. With No Inc. Buf."
         IncomingDocument.SetRange(Posted, false);
         IncomingDocuments.SetTableView(IncomingDocument);
         IncomingDocuments.LookupMode(true);
-        if IncomingDocuments.RunModal = ACTION::LookupOK then begin
+        if IncomingDocuments.RunModal() = ACTION::LookupOK then begin
             IncomingDocuments.GetRecord(IncomingDocument);
             CheckIfAssignedToUnpostedDoc(IncomingDocument."Entry No.");
             CODEUNIT.Run(CODEUNIT::"Release Incoming Document", IncomingDocument);

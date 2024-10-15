@@ -585,26 +585,18 @@ table 113 "Sales Invoice Line"
         {
             Caption = 'Reason Code';
             TableRelation = "Reason Code";
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
-            ObsoleteTag = '15.3';
+            ObsoleteTag = '21.0';
         }
         field(11764; "VAT Difference (LCY)"; Decimal)
         {
             AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             Caption = 'VAT Difference (LCY)';
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(31010; "Prepayment Cancelled"; Boolean)
         {
@@ -658,13 +650,9 @@ table 113 "Sales Invoice Line"
         {
             Caption = 'Country/Region of Origin Code';
             TableRelation = "Country/Region";
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif        
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
     }
 
@@ -728,9 +716,6 @@ table 113 "Sales Invoice Line"
     end;
 
     var
-        TotalSalesInvLine: Record "Sales Invoice Line";
-        TotalSalesInvLineLCY: Record "Sales Invoice Line";
-        CurrExchRate: Record "Currency Exchange Rate";
         SalesInvoiceHeader: Record "Sales Invoice Header";
         Currency: Record Currency;
         DimMgt: Codeunit DimensionManagement;
@@ -741,20 +726,20 @@ table 113 "Sales Invoice Line"
 
     procedure GetCurrencyCode(): Code[10]
     begin
-        GetHeader;
+        GetHeader();
         exit(SalesInvoiceHeader."Currency Code");
     end;
 
     procedure ShowDimensions()
     begin
-        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2 %3', TableCaption, "Document No.", "Line No."));
+        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2 %3', TableCaption(), "Document No.", "Line No."));
     end;
 
     procedure ShowItemTrackingLines()
     var
         ItemTrackingDocMgt: Codeunit "Item Tracking Doc. Management";
     begin
-        ItemTrackingDocMgt.ShowItemTrackingForInvoiceLine(RowID1);
+        ItemTrackingDocMgt.ShowItemTrackingForInvoiceLine(RowID1());
     end;
 
     procedure CalcVATAmountLines(SalesInvHeader: Record "Sales Invoice Header"; var TempVATAmountLine: Record "VAT Amount Line" temporary)
@@ -772,26 +757,13 @@ table 113 "Sales Invoice Line"
             repeat
                 TempVATAmountLine.Init();
                 TempVATAmountLine.CopyFromSalesInvLine(Rec);
-#if not CLEAN18
-                // NAVCZ
-                TempVATAmountLine."Currency Code" := SalesInvHeader."Currency Code";
-                if SalesInvHeader."Currency Code" <> '' then
-                    RoundAmount(SalesInvHeader);
-                TempVATAmountLine."VAT Base (LCY)" := Amount;
-                TempVATAmountLine."VAT Amount (LCY)" := "Amount Including VAT" - Amount;
-                TempVATAmountLine."Amount Including VAT (LCY)" := "Amount Including VAT";
-                TempVATAmountLine."Calculated VAT Amount (LCY)" := "Amount Including VAT" - Amount - "VAT Difference (LCY)";
-                TempVATAmountLine.SetInsertLineWithoutVAT(
-                  ("VAT Doc. Letter No." = '') and "Prepayment Line" and ("Amount Including VAT" <> 0));
-                // NAVCZ
-#endif
-                TempVATAmountLine.InsertLine;
+                TempVATAmountLine.InsertLine();
             until Next() = 0;
     end;
 
     procedure GetLineAmountExclVAT(): Decimal
     begin
-        GetHeader;
+        GetHeader();
         if not SalesInvoiceHeader."Prices Including VAT" then
             exit("Line Amount");
 
@@ -800,7 +772,7 @@ table 113 "Sales Invoice Line"
 
     procedure GetLineAmountInclVAT(): Decimal
     begin
-        GetHeader;
+        GetHeader();
         if SalesInvoiceHeader."Prices Including VAT" then
             exit("Line Amount");
 
@@ -815,10 +787,10 @@ table 113 "Sales Invoice Line"
             SalesInvoiceHeader.Init();
 
         if SalesInvoiceHeader."Currency Code" = '' then
-            Currency.InitRoundingPrecision
+            Currency.InitRoundingPrecision()
         else
             if not Currency.Get(SalesInvoiceHeader."Currency Code") then
-                Currency.InitRoundingPrecision;
+                Currency.InitRoundingPrecision();
     end;
 
     local procedure GetFieldCaption(FieldNumber: Integer): Text[100]
@@ -831,15 +803,15 @@ table 113 "Sales Invoice Line"
 
     procedure GetCaptionClass(FieldNumber: Integer): Text[80]
     begin
-        GetHeader;
+        GetHeader();
         case FieldNumber of
             FieldNo("No."):
                 exit(StrSubstNo('3,%1', GetFieldCaption(FieldNumber)));
             else begin
-                    if SalesInvoiceHeader."Prices Including VAT" then
-                        exit('2,1,' + GetFieldCaption(FieldNumber));
-                    exit('2,0,' + GetFieldCaption(FieldNumber));
-                end
+                if SalesInvoiceHeader."Prices Including VAT" then
+                    exit('2,1,' + GetFieldCaption(FieldNumber));
+                exit('2,0,' + GetFieldCaption(FieldNumber));
+            end
         end;
     end;
 
@@ -915,7 +887,7 @@ table 113 "Sales Invoice Line"
     begin
         if "Qty. per Unit of Measure" = 0 then
             exit(QtyBase);
-        exit(Round(QtyBase / "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision));
+        exit(Round(QtyBase / "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision()));
     end;
 
     procedure GetItemLedgEntries(var TempItemLedgEntry: Record "Item Ledger Entry" temporary; SetQuantity: Boolean)
@@ -979,83 +951,6 @@ table 113 "Sales Invoice Line"
         SalesCommentLine.ShowComments(SalesCommentLine."Document Type"::"Posted Invoice".AsInteger(), "Document No.", "Line No.");
     end;
 
-    local procedure RoundAmount(SalesInvHeader: Record "Sales Invoice Header")
-    var
-        NoVAT: Boolean;
-    begin
-        // NAVCZ
-        IncrAmount(TotalSalesInvLine, SalesInvHeader);
-        if SalesInvHeader."Currency Code" <> '' then begin
-            NoVAT := Amount = "Amount Including VAT";
-            "Amount Including VAT" :=
-              Round(
-                CurrExchRate.ExchangeAmtFCYToLCY(
-                  SalesInvHeader."Posting Date", SalesInvHeader."Currency Code",
-                  TotalSalesInvLine."Amount Including VAT", SalesInvHeader."Currency Factor")) -
-              TotalSalesInvLineLCY."Amount Including VAT";
-            if NoVAT then
-                Amount := "Amount Including VAT"
-            else
-                Amount :=
-                  Round(
-                    CurrExchRate.ExchangeAmtFCYToLCY(
-                      SalesInvHeader."Posting Date", SalesInvHeader."Currency Code",
-                      TotalSalesInvLine.Amount, SalesInvHeader."Currency Factor")) -
-                  TotalSalesInvLineLCY.Amount;
-            "Line Amount" :=
-              Round(
-                CurrExchRate.ExchangeAmtFCYToLCY(
-                  SalesInvHeader."Posting Date", SalesInvHeader."Currency Code",
-                  TotalSalesInvLine."Line Amount", SalesInvHeader."Currency Factor")) -
-              TotalSalesInvLineLCY."Line Amount";
-            "Line Discount Amount" :=
-              Round(
-                CurrExchRate.ExchangeAmtFCYToLCY(
-                  SalesInvHeader."Posting Date", SalesInvHeader."Currency Code",
-                  TotalSalesInvLine."Line Discount Amount", SalesInvHeader."Currency Factor")) -
-              TotalSalesInvLineLCY."Line Discount Amount";
-            "Inv. Discount Amount" :=
-              Round(
-                CurrExchRate.ExchangeAmtFCYToLCY(
-                  SalesInvHeader."Posting Date", SalesInvHeader."Currency Code",
-                  TotalSalesInvLine."Inv. Discount Amount", SalesInvHeader."Currency Factor")) -
-              TotalSalesInvLineLCY."Inv. Discount Amount";
-            "VAT Difference" :=
-              Round(
-                CurrExchRate.ExchangeAmtFCYToLCY(
-                  SalesInvHeader."Posting Date", SalesInvHeader."Currency Code",
-                  TotalSalesInvLine."VAT Difference", SalesInvHeader."Currency Factor")) -
-              TotalSalesInvLineLCY."VAT Difference";
-        end;
-
-        IncrAmount(TotalSalesInvLineLCY, SalesInvHeader);
-    end;
-
-    local procedure IncrAmount(var TotalSalesInvLine: Record "Sales Invoice Line"; SalesInvHeader: Record "Sales Invoice Header")
-    begin
-        // NAVCZ
-        if SalesInvHeader."Prices Including VAT" or
-           ("VAT Calculation Type" <> "VAT Calculation Type"::"Full VAT")
-        then
-            Increment(TotalSalesInvLine."Line Amount", "Line Amount");
-
-        Increment(TotalSalesInvLine.Amount, Amount);
-        Increment(TotalSalesInvLine."VAT Base Amount", "VAT Base Amount");
-        Increment(TotalSalesInvLine."VAT Difference", "VAT Difference");
-#if not CLEAN18
-        Increment(TotalSalesInvLine."VAT Difference (LCY)", "VAT Difference (LCY)");
-#endif
-        Increment(TotalSalesInvLine."Amount Including VAT", "Amount Including VAT");
-        Increment(TotalSalesInvLine."Line Discount Amount", "Line Discount Amount");
-        Increment(TotalSalesInvLine."Inv. Discount Amount", "Inv. Discount Amount");
-    end;
-
-    local procedure Increment(var Number: Decimal; Number2: Decimal)
-    begin
-        // NAVCZ
-        Number := Number + Number2;
-    end;
-
     procedure ShowShortcutDimCode(var ShortcutDimCode: array[8] of Code[20])
     begin
         DimMgt.GetShortcutDimensions("Dimension Set ID", ShortcutDimCode);
@@ -1063,7 +958,7 @@ table 113 "Sales Invoice Line"
 
     procedure InitFromSalesLine(SalesInvHeader: Record "Sales Invoice Header"; SalesLine: Record "Sales Line")
     begin
-        Init;
+        Init();
         TransferFields(SalesLine);
         if ("No." = '') and HasTypeToFillMandatoryFields() then
             Type := Type::" ";
@@ -1079,7 +974,7 @@ table 113 "Sales Invoice Line"
     begin
         DeferralUtilities.OpenLineScheduleView(
             "Deferral Code", "Deferral Document Type"::Sales.AsInteger(), '', '',
-            GetDocumentType, "Document No.", "Line No.");
+            GetDocumentType(), "Document No.", "Line No.");
     end;
 
     procedure UpdatePriceDescription()
@@ -1087,16 +982,15 @@ table 113 "Sales Invoice Line"
         Currency: Record Currency;
     begin
         "Price description" := '';
-        if Type in [Type::"Charge (Item)", Type::"Fixed Asset", Type::Item, Type::Resource] then begin
+        if Type in [Type::"Charge (Item)", Type::"Fixed Asset", Type::Item, Type::Resource] then
             if "Line Discount %" = 0 then
                 "Price description" := StrSubstNo(
-                    PriceDescriptionTxt, Quantity, Currency.ResolveGLCurrencySymbol(GetCurrencyCode),
+                    PriceDescriptionTxt, Quantity, Currency.ResolveGLCurrencySymbol(GetCurrencyCode()),
                     "Unit Price", "Unit of Measure")
             else
                 "Price description" := StrSubstNo(
-                    PriceDescriptionWithLineDiscountTxt, Quantity, Currency.ResolveGLCurrencySymbol(GetCurrencyCode),
-                    "Unit Price", "Unit of Measure", "Line Discount %")
-        end;
+                    PriceDescriptionWithLineDiscountTxt, Quantity, Currency.ResolveGLCurrencySymbol(GetCurrencyCode()),
+                    "Unit Price", "Unit of Measure", "Line Discount %");
     end;
 
     procedure FormatType(): Text
@@ -1104,7 +998,7 @@ table 113 "Sales Invoice Line"
         SalesLine: Record "Sales Line";
     begin
         if Type = Type::" " then
-            exit(SalesLine.FormatType);
+            exit(SalesLine.FormatType());
 
         exit(Format(Type));
     end;
@@ -1146,3 +1040,4 @@ table 113 "Sales Invoice Line"
     begin
     end;
 }
+

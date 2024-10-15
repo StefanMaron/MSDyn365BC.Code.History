@@ -1,4 +1,3 @@
-#if not CLEAN18
 codeunit 350 IntraJnlManagement
 {
     Permissions = TableData "Intrastat Jnl. Template" = imd,
@@ -73,7 +72,6 @@ codeunit 350 IntraJnlManagement
     procedure OpenJnl(var CurrentJnlBatchName: Code[10]; var IntrastatJnlLine: Record "Intrastat Jnl. Line")
     begin
         OnBeforeOpenJnl(CurrentJnlBatchName, IntrastatJnlLine);
-        IntrastatJnlLine.CheckIntrastatJnlLineUserRestriction; // NAVCZ
 
         CheckTemplateName(IntrastatJnlLine.GetRangeMax("Journal Template Name"), CurrentJnlBatchName);
         IntrastatJnlLine.FilterGroup(2);
@@ -206,9 +204,9 @@ codeunit 350 IntraJnlManagement
             if TempIntrastatJnlLine.CalcSums("Statistical Value") then begin
                 TempIntrastatJnlLine2.CopyFilters(IntrastatJnlLine);
                 TempIntrastatJnlLine2 := LastIntrastatJnlLine;
-                if TempIntrastatJnlLine2.Next <> 0 then begin
-                    StatisticalValue := TempIntrastatJnlLine."Statistical Value";
-                end else
+                if TempIntrastatJnlLine2.Next() <> 0 then
+                    StatisticalValue := TempIntrastatJnlLine."Statistical Value"
+                else
                     StatisticalValue := TempIntrastatJnlLine."Statistical Value" + LastIntrastatJnlLine."Statistical Value";
 
                 ShowStatisticalValue := true;
@@ -426,4 +424,3 @@ codeunit 350 IntraJnlManagement
     end;
 }
 
-#endif

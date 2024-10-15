@@ -22,23 +22,23 @@ page 11709 "Bank Statement List"
             {
                 Editable = false;
                 ShowCaption = false;
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the bank statement.';
                 }
-                field("Document Date"; "Document Date")
+                field("Document Date"; Rec."Document Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the date on which you created the document.';
                 }
-                field("Bank Account No."; "Bank Account No.")
+                field("Bank Account No."; Rec."Bank Account No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of bank account.';
                     Visible = false;
                 }
-                field("Bank Account Name"; "Bank Account Name")
+                field("Bank Account Name"; Rec."Bank Account Name")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of bank account.';
@@ -48,17 +48,17 @@ page 11709 "Bank Statement List"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the total amount for bank statement lines. The program calculates this amount from the sum of line amount fields on bank statement lines.';
                 }
-                field("Amount (LCY)"; "Amount (LCY)")
+                field("Amount (LCY)"; Rec."Amount (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the total amount that the line consists of. The amount is in the local currency.';
                 }
-                field("No. of Lines"; "No. of Lines")
+                field("No. of Lines"; Rec."No. of Lines")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of lines in the bank statement.';
                 }
-                field("File Name"; "File Name")
+                field("File Name"; Rec."File Name")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name and address of bank statement file uploaded from bank.';
@@ -79,8 +79,6 @@ page 11709 "Bank Statement List"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Statistics';
                     Image = Statistics;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     RunObject = Page "Bank Statement Statistics";
                     RunPageLink = "No." = FIELD("No.");
                     ShortCutKey = 'F7';
@@ -103,7 +101,7 @@ page 11709 "Bank Statement List"
 
                     trigger OnAction()
                     begin
-                        ImportBankStatement;
+                        ImportBankStatement();
                     end;
                 }
                 action("Copy Payment Order")
@@ -116,7 +114,7 @@ page 11709 "Bank Statement List"
 
                     trigger OnAction()
                     begin
-                        CopyPaymentOrder;
+                        CopyPaymentOrder();
                     end;
                 }
             }
@@ -133,7 +131,7 @@ page 11709 "Bank Statement List"
 
                     trigger OnAction()
                     begin
-                        TestPrintBankStatement;
+                        TestPrintBankStatement();
                     end;
                 }
                 action(Release)
@@ -141,8 +139,6 @@ page 11709 "Bank Statement List"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Release';
                     Image = ReleaseDoc;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     RunObject = Codeunit "Issue Bank Statement (Yes/No)";
                     ShortCutKey = 'F9';
                     ToolTip = 'Release the bank statement to indicate that it has been printed or exported. The status then changes to Released.';
@@ -155,6 +151,20 @@ page 11709 "Bank Statement List"
                     RunObject = Codeunit "Issue Bank Statement + Print";
                     ShortCutKey = 'Shift+F9';
                     ToolTip = 'Release and print the bank statement. The status then changes to Released.';
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(Release_Promoted; Release)
+                {
+                }
+                actionref(Statistics_Promoted; Statistics)
+                {
                 }
             }
         }
@@ -176,7 +186,7 @@ page 11709 "Bank Statement List"
         CopyPaymentOrder: Report "Copy Payment Order";
     begin
         BankStmtHdr.Get("No.");
-        BankStmtHdr.SetRecFilter;
+        BankStmtHdr.SetRecFilter();
         CopyPaymentOrder.SetBankStmtHdr(BankStmtHdr);
         CopyPaymentOrder.RunModal();
         CurrPage.Update(false);

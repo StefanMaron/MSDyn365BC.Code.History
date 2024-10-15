@@ -1,9 +1,8 @@
-#if not CLEAN18
 page 5845 "Inventory - G/L Reconciliation"
 {
     AdditionalSearchTerms = 'general ledger reconcile inventory';
     ApplicationArea = Basic, Suite;
-    Caption = 'Inventory - G/L Reconciliation (Obsolete)';
+    Caption = 'Inventory - G/L Reconciliation';
     DataCaptionExpression = '';
     DeleteAllowed = false;
     InsertAllowed = false;
@@ -13,9 +12,6 @@ page 5845 "Inventory - G/L Reconciliation"
     SaveValues = true;
     SourceTable = "Dimension Code Buffer";
     UsageCategory = ReportsAndAnalysis;
-    ObsoleteState = Pending;
-    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-    ObsoleteTag = '18.0';
 
     layout
     {
@@ -34,7 +30,7 @@ page 5845 "Inventory - G/L Reconciliation"
                     begin
                         InvtReportHeader.SetFilter("Posting Date Filter", DateFilter);
                         DateFilter := InvtReportHeader.GetFilter("Posting Date Filter");
-                        DateFilterOnAfterValidate;
+                        DateFilterOnAfterValidate();
                     end;
                 }
                 field(ItemFilter; ItemFilter)
@@ -51,7 +47,7 @@ page 5845 "Inventory - G/L Reconciliation"
                         Item.SetRange(Type, Item.Type::Inventory);
                         ItemList.SetTableView(Item);
                         ItemList.LookupMode := true;
-                        if ItemList.RunModal = ACTION::LookupOK then begin
+                        if ItemList.RunModal() = ACTION::LookupOK then begin
                             ItemList.GetRecord(Item);
                             Text := Item."No.";
                             exit(true);
@@ -61,8 +57,8 @@ page 5845 "Inventory - G/L Reconciliation"
 
                     trigger OnValidate()
                     begin
-                        TestWarning;
-                        ItemFilterOnAfterValidate;
+                        TestWarning();
+                        ItemFilterOnAfterValidate();
                     end;
                 }
                 field(LocationFilter; LocationFilter)
@@ -78,7 +74,7 @@ page 5845 "Inventory - G/L Reconciliation"
                     begin
                         Locations.SetTableView(Location);
                         Locations.LookupMode := true;
-                        if Locations.RunModal = ACTION::LookupOK then begin
+                        if Locations.RunModal() = ACTION::LookupOK then begin
                             Locations.GetRecord(Location);
                             Text := Location.Code;
                             exit(true);
@@ -88,8 +84,8 @@ page 5845 "Inventory - G/L Reconciliation"
 
                     trigger OnValidate()
                     begin
-                        TestWarning;
-                        LocationFilterOnAfterValidate;
+                        TestWarning();
+                        LocationFilterOnAfterValidate();
                     end;
                 }
                 field(Show; ShowWarning)
@@ -101,7 +97,7 @@ page 5845 "Inventory - G/L Reconciliation"
 
                     trigger OnValidate()
                     begin
-                        ShowWarningOnAfterValidate;
+                        ShowWarningOnAfterValidate();
                     end;
                 }
             }
@@ -117,9 +113,6 @@ page 5845 "Inventory - G/L Reconciliation"
                 ApplicationArea = Basic, Suite;
                 Caption = '&Show Matrix';
                 Image = ShowMatrix;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedOnly = true;
                 ToolTip = 'View the data overview according to the selected filters and options.';
 
                 trigger OnAction()
@@ -135,38 +128,20 @@ page 5845 "Inventory - G/L Reconciliation"
                         if "Column Option" = "Line Option"::"Balance Sheet" then begin
                             if (ItemFilter = '') and (LocationFilter = '') then begin
                                 if ShowWarning then
-                                    // NAVCZ
-                                    // ColIntegerLine.SETRANGE(Number,1,7)
-                                    ColIntegerLine.SetRange(Number, 1, 10)
-                                // NAVCZ
+                                    ColIntegerLine.SetRange(Number, 1, 7)
                                 else
-                                    // NAVCZ
-                                    // ColIntegerLine.SETRANGE(Number,1,6)
-                                    ColIntegerLine.SetRange(Number, 1, 9)
-                                // NAVCZ
+                                    ColIntegerLine.SetRange(Number, 1, 6)
                             end else
-                                // NAVCZ
-                                //ColIntegerLine.SETRANGE(Number,1,4)
-                                ColIntegerLine.SetRange(Number, 1, 7)
-                            // NAVCZ
+                                ColIntegerLine.SetRange(Number, 1, 4)
                         end else
                             if "Column Option" = "Line Option"::"Income Statement" then
                                 if (ItemFilter = '') and (LocationFilter = '') then begin
                                     if ShowWarning then
-                                        // NAVCZ
-                                        // ColIntegerLine.SETRANGE(Number,1,18)
-                                        ColIntegerLine.SetRange(Number, 1, 19)
-                                    // NAVCZ
-                                    else
-                                        // NAVCZ
-                                        // ColIntegerLine.SETRANGE(Number,1,17)
                                         ColIntegerLine.SetRange(Number, 1, 18)
-                                    // NAVCZ
+                                    else
+                                        ColIntegerLine.SetRange(Number, 1, 17)
                                 end else
-                                    // NAVCZ
-                                    // ColIntegerLine.SETRANGE(Number,1,15);
-                                    ColIntegerLine.SetRange(Number, 1, 16);
-                        // NAVCZ
+                                    ColIntegerLine.SetRange(Number, 1, 15);
                         i := 1;
 
                         if FindRec("Column Option", MatrixRecords[i], '-', false) then begin
@@ -189,6 +164,17 @@ page 5845 "Inventory - G/L Reconciliation"
                 end;
             }
         }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("&Show Matrix_Promoted"; "&Show Matrix")
+                {
+                }
+            }
+        }
     }
 
     trigger OnFindRecord(Which: Text): Boolean
@@ -197,32 +183,20 @@ page 5845 "Inventory - G/L Reconciliation"
             if "Line Option" = "Line Option"::"Balance Sheet" then begin
                 if (ItemFilter = '') and (LocationFilter = '') then begin
                     if ShowWarning then
-                        // NAVCZ
-                        // RowIntegerLine.SETRANGE(Number,1,7)
-                        RowIntegerLine.SetRange(Number, 1, 10)
+                        RowIntegerLine.SetRange(Number, 1, 7)
                     else
-                        // NAVCZ
-                        // RowIntegerLine.SETRANGE(Number,1,6)
-                        RowIntegerLine.SetRange(Number, 1, 9)
+                        RowIntegerLine.SetRange(Number, 1, 6)
                 end else
-                    // NAVCZ
-                    // RowIntegerLine.SETRANGE(Number,1,4)
-                    RowIntegerLine.SetRange(Number, 1, 7)
+                    RowIntegerLine.SetRange(Number, 1, 4)
             end else
                 if "Line Option" = "Line Option"::"Income Statement" then
                     if (ItemFilter = '') and (LocationFilter = '') then begin
                         if ShowWarning then
-                            // NAVCZ
-                            // RowIntegerLine.SETRANGE(Number,1,18)
-                            RowIntegerLine.SetRange(Number, 1, 19)
-                        else
-                            // NAVCZ
-                            // RowIntegerLine.SETRANGE(Number,1,17)
                             RowIntegerLine.SetRange(Number, 1, 18)
+                        else
+                            RowIntegerLine.SetRange(Number, 1, 17)
                     end else
-                        // NAVCZ
-                        // RowIntegerLine.SETRANGE(Number,1,15);
-                        RowIntegerLine.SetRange(Number, 1, 16);
+                        RowIntegerLine.SetRange(Number, 1, 15);
             exit(FindRec("Line Option", Rec, Which, true));
         end;
     end;
@@ -240,7 +214,7 @@ page 5845 "Inventory - G/L Reconciliation"
     trigger OnOpenPage()
     begin
         GLSetup.Get();
-        TestWarning;
+        TestWarning();
         InvtReportHeader.SetFilter("Item Filter", ItemFilter);
         InvtReportHeader.SetFilter("Location Filter", LocationFilter);
         InvtReportHeader.SetFilter("Posting Date Filter", DateFilter);
@@ -258,7 +232,7 @@ page 5845 "Inventory - G/L Reconciliation"
         MatrixRecords: array[32] of Record "Dimension Code Buffer";
         GLSetup: Record "General Ledger Setup";
         InvtReportHeader: Record "Inventory Report Header";
-        InvtReportEntry: Record "Inventory Report Entry" temporary;
+        TempInventoryReportEntry: Record "Inventory Report Entry" temporary;
         RowIntegerLine: Record "Integer";
         ColIntegerLine: Record "Integer";
         MATRIX_CaptionSet: array[32] of Text[100];
@@ -334,7 +308,7 @@ page 5845 "Inventory - G/L Reconciliation"
 
     local procedure CopyDimValueToBuf(var TheDimValue: Record "Integer"; var TheDimCodeBuf: Record "Dimension Code Buffer"; IsRow: Boolean)
     begin
-        with InvtReportEntry do
+        with TempInventoryReportEntry do
             case true of
                 ((InvtReportHeader."Line Option" = InvtReportHeader."Line Option"::"Balance Sheet") and IsRow) or
               ((InvtReportHeader."Column Option" = InvtReportHeader."Column Option"::"Balance Sheet") and not IsRow):
@@ -345,31 +319,14 @@ page 5845 "Inventory - G/L Reconciliation"
                             InsertRow('2', FieldCaption("Inventory (Interim)"), 0, false, TheDimCodeBuf);
                         3:
                             InsertRow('3', FieldCaption("WIP Inventory"), 0, false, TheDimCodeBuf);
-                        // NAVCZ
                         4:
-                            InsertRow('4', FieldCaption(Consumption), 0, false, TheDimCodeBuf);
+                            InsertRow('4', FieldCaption(Total), 0, true, TheDimCodeBuf);
                         5:
-                            InsertRow('5', FieldCaption("Change In Inv.Of WIP"), 0, false, TheDimCodeBuf);
+                            InsertRow('5', FieldCaption("G/L Total"), 0, true, TheDimCodeBuf);
                         6:
-                            InsertRow('6', FieldCaption("Change In Inv.Of Product"), 0, false, TheDimCodeBuf);
+                            InsertRow('6', FieldCaption(Difference), 0, true, TheDimCodeBuf);
                         7:
-                            InsertRow('7', FieldCaption(Total), 0, true, TheDimCodeBuf);
-                        8:
-                            InsertRow('8', FieldCaption("G/L Total"), 0, true, TheDimCodeBuf);
-                        9:
-                            InsertRow('9', FieldCaption(Difference), 0, true, TheDimCodeBuf);
-                        10:
-                            InsertRow('10', FieldCaption(Warning), 0, true, TheDimCodeBuf);
-
-                    // 4:
-                    // InsertRow('4',FIELDCAPTION(Total),0,TRUE,TheDimCodeBuf);
-                    // 5:
-                    // InsertRow('5',FIELDCAPTION("G/L Total"),0,TRUE,TheDimCodeBuf);
-                    // 6:
-                    // InsertRow('6',FIELDCAPTION(Difference),0,TRUE,TheDimCodeBuf);
-                    // 7:
-                    // InsertRow('7',FIELDCAPTION(Warning),0,TRUE,TheDimCodeBuf);
-                    // NAVCZ
+                            InsertRow('7', FieldCaption(Warning), 0, true, TheDimCodeBuf);
                     end;
                 ((InvtReportHeader."Line Option" = InvtReportHeader."Line Option"::"Income Statement") and IsRow) or
               ((InvtReportHeader."Column Option" = InvtReportHeader."Column Option"::"Income Statement") and not IsRow):
@@ -390,51 +347,26 @@ page 5845 "Inventory - G/L Reconciliation"
                             InsertRow('7', FieldCaption("Invt. Accrual (Interim)"), 0, false, TheDimCodeBuf);
                         8:
                             InsertRow('8', FieldCaption(COGS), 0, false, TheDimCodeBuf);
-                        // NAVCZ
                         9:
-                            InsertRow('9', FieldCaption("Inv. Rounding Adj."), 0, false, TheDimCodeBuf);
+                            InsertRow('9', FieldCaption("Purchase Variance"), 0, false, TheDimCodeBuf);
                         10:
-                            InsertRow('10', FieldCaption("Purchase Variance"), 0, false, TheDimCodeBuf);
+                            InsertRow('10', FieldCaption("Material Variance"), 0, false, TheDimCodeBuf);
                         11:
-                            InsertRow('11', FieldCaption("Material Variance"), 0, false, TheDimCodeBuf);
+                            InsertRow('11', FieldCaption("Capacity Variance"), 0, false, TheDimCodeBuf);
                         12:
-                            InsertRow('12', FieldCaption("Capacity Variance"), 0, false, TheDimCodeBuf);
+                            InsertRow('12', FieldCaption("Subcontracted Variance"), 0, false, TheDimCodeBuf);
                         13:
-                            InsertRow('13', FieldCaption("Subcontracted Variance"), 0, false, TheDimCodeBuf);
+                            InsertRow('13', FieldCaption("Capacity Overhead Variance"), 0, false, TheDimCodeBuf);
                         14:
-                            InsertRow('14', FieldCaption("Capacity Overhead Variance"), 0, false, TheDimCodeBuf);
+                            InsertRow('14', FieldCaption("Mfg. Overhead Variance"), 0, false, TheDimCodeBuf);
                         15:
-                            InsertRow('15', FieldCaption("Mfg. Overhead Variance"), 0, false, TheDimCodeBuf);
+                            InsertRow('15', FieldCaption(Total), 0, true, TheDimCodeBuf);
                         16:
-                            InsertRow('16', FieldCaption(Total), 0, true, TheDimCodeBuf);
+                            InsertRow('16', FieldCaption("G/L Total"), 0, true, TheDimCodeBuf);
                         17:
-                            InsertRow('17', FieldCaption("G/L Total"), 0, true, TheDimCodeBuf);
+                            InsertRow('17', FieldCaption(Difference), 0, true, TheDimCodeBuf);
                         18:
-                            InsertRow('18', FieldCaption(Difference), 0, true, TheDimCodeBuf);
-                        19:
-                            InsertRow('19', FieldCaption(Warning), 0, true, TheDimCodeBuf);
-
-                    // 9:
-                    // InsertRow('9',FIELDCAPTION("Purchase Variance"),0,FALSE,TheDimCodeBuf);
-                    // 10:
-                    // InsertRow('10',FIELDCAPTION("Material Variance"),0,FALSE,TheDimCodeBuf);
-                    // 11:
-                    // InsertRow('11',FIELDCAPTION("Capacity Variance"),0,FALSE,TheDimCodeBuf);
-                    // 12:
-                    // InsertRow('12',FIELDCAPTION("Subcontracted Variance"),0,FALSE,TheDimCodeBuf);
-                    // 13:
-                    // InsertRow('13',FIELDCAPTION("Capacity Overhead Variance"),0,FALSE,TheDimCodeBuf);
-                    // 14:
-                    // InsertRow('14',FIELDCAPTION("Mfg. Overhead Variance"),0,FALSE,TheDimCodeBuf);
-                    // 15:
-                    // InsertRow('15',FIELDCAPTION(Total),0,TRUE,TheDimCodeBuf);
-                    // 16:
-                    // InsertRow('16',FIELDCAPTION("G/L Total"),0,TRUE,TheDimCodeBuf);
-                    // 17:
-                    // InsertRow('17',FIELDCAPTION(Difference),0,TRUE,TheDimCodeBuf);
-                    // 18:
-                    // InsertRow('18',FIELDCAPTION(Warning),0,TRUE,TheDimCodeBuf);
-                    // NAVCZ
+                            InsertRow('18', FieldCaption(Warning), 0, true, TheDimCodeBuf);
                     end;
             end
     end;
@@ -442,7 +374,7 @@ page 5845 "Inventory - G/L Reconciliation"
     local procedure InsertRow(Code1: Code[10]; Name1: Text[80]; Indentation1: Integer; Bold1: Boolean; var TheDimCodeBuf: Record "Dimension Code Buffer")
     begin
         with TheDimCodeBuf do begin
-            Init;
+            Init();
             Code := Code1;
             Name := CopyStr(Name1, 1, MaxStrLen(Name));
             Indentation := Indentation1;
@@ -488,4 +420,4 @@ page 5845 "Inventory - G/L Reconciliation"
         CurrPage.Update();
     end;
 }
-#endif
+

@@ -372,9 +372,9 @@ codeunit 139051 "Add-in Hyperlink Sales"
         // [THEN] Office document selection page is opened with the three documents in the list
         OfficeDocumentSelection.First;
         OfficeDocumentSelection."Document No.".AssertEquals(SalesHeader1."No.");
-        OfficeDocumentSelection.Next;
+        OfficeDocumentSelection.Next();
         OfficeDocumentSelection."Document No.".AssertEquals(SalesHeader2."No.");
-        OfficeDocumentSelection.Next;
+        OfficeDocumentSelection.Next();
         OfficeDocumentSelection."Document No.".AssertEquals(SalesHeader3."No.");
 
         SalesHeader1.Delete();
@@ -422,7 +422,7 @@ codeunit 139051 "Add-in Hyperlink Sales"
         OfficeDocumentSelection.First;
         for i := 1 to Count do begin
             OfficeDocumentSelection."Document No.".AssertEquals(SalesHeader[i]."No.");
-            OfficeDocumentSelection.Next;
+            OfficeDocumentSelection.Next();
             SalesHeader[i].Delete();
         end;
     end;
@@ -737,7 +737,7 @@ codeunit 139051 "Add-in Hyperlink Sales"
     begin
         if StrPos(UpperCase(SalesQuote.Caption), UpperCase(DocNo)) = 0 then
             Error(SalesQuoteErr);
-        SalesQuote.Close;
+        SalesQuote.Close();
     end;
 
     [PageHandler]
@@ -747,7 +747,7 @@ codeunit 139051 "Add-in Hyperlink Sales"
         Assert: Codeunit Assert;
     begin
         Assert.AreEqual(SalesOrder."No.".Value, DocNo, 'Unexpected document number opened on the sales order card.');
-        SalesOrder.Close;
+        SalesOrder.Close();
     end;
 
     [PageHandler]
@@ -756,7 +756,7 @@ codeunit 139051 "Add-in Hyperlink Sales"
     begin
         if StrPos(UpperCase(SalesInvoice.Caption), UpperCase(DocNo)) = 0 then
             Error(SalesInvErr);
-        SalesInvoice.Close;
+        SalesInvoice.Close();
     end;
 
     [PageHandler]
@@ -765,7 +765,7 @@ codeunit 139051 "Add-in Hyperlink Sales"
     begin
         if StrPos(UpperCase(SalesCreditMemo.Caption), UpperCase(DocNo)) = 0 then
             Error(SalesCrMemoErr);
-        SalesCreditMemo.Close;
+        SalesCreditMemo.Close();
     end;
 
     [PageHandler]
@@ -774,7 +774,7 @@ codeunit 139051 "Add-in Hyperlink Sales"
     begin
         if StrPos(UpperCase(PostedSalesInvoice.Caption), UpperCase(DocNo)) = 0 then
             Error(PostSalesInvErr);
-        PostedSalesInvoice.Close;
+        PostedSalesInvoice.Close();
     end;
 
     [PageHandler]
@@ -783,7 +783,7 @@ codeunit 139051 "Add-in Hyperlink Sales"
     begin
         if StrPos(UpperCase(PostedSalesCreditMemo.Caption), UpperCase(DocNo)) = 0 then
             Error(PostSalesCrMemoErr);
-        PostedSalesCreditMemo.Close;
+        PostedSalesCreditMemo.Close();
     end;
 
     [ConfirmHandler]
@@ -901,7 +901,7 @@ codeunit 139051 "Add-in Hyperlink Sales"
     begin
         CreateGLAccount(GLAccount);
         CreateSalesDocWithLine(SalesHeader, SalesLine,
-          SalesHeader."Document Type"::Invoice, SalesLine.Type::"G/L Account", GLAccount."No.", SetDateDay(1, WorkDate));
+          SalesHeader."Document Type"::Invoice, SalesLine.Type::"G/L Account", GLAccount."No.", SetDateDay(1, WorkDate()));
 
         DocNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
         SalesInvoiceHeader.Get(DocNo);
@@ -916,7 +916,7 @@ codeunit 139051 "Add-in Hyperlink Sales"
     begin
         CreateGLAccount(GLAccount);
         CreateSalesDocWithLine(SalesHeader, SalesLine,
-          SalesHeader."Document Type"::"Credit Memo", SalesLine.Type::"G/L Account", GLAccount."No.", SetDateDay(1, WorkDate));
+          SalesHeader."Document Type"::"Credit Memo", SalesLine.Type::"G/L Account", GLAccount."No.", SetDateDay(1, WorkDate()));
 
         DocNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
         SalesCrMemoHeader.Get(DocNo);

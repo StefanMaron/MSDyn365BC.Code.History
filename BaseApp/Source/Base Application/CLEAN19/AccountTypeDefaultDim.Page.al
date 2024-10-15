@@ -13,28 +13,28 @@ page 541 "Account Type Default Dim."
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Table ID"; "Table ID")
+                field("Table ID"; Rec."Table ID")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies a table ID for the account type if you are specifying default dimensions for an entire account type.';
 
                     trigger OnValidate()
                     begin
-                        TableIDOnAfterValidate;
+                        TableIDOnAfterValidate();
                     end;
                 }
-                field("Table Caption"; "Table Caption")
+                field("Table Caption"; Rec."Table Caption")
                 {
                     ApplicationArea = Dimensions;
                     DrillDown = false;
                     ToolTip = 'Specifies the table name for the account type you wish to define a default dimension for.';
                 }
-                field("Dimension Value Code"; "Dimension Value Code")
+                field("Dimension Value Code"; Rec."Dimension Value Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the dimension value code to suggest as the default dimension.';
                 }
-                field("Value Posting"; "Value Posting")
+                field("Value Posting"; Rec."Value Posting")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies how default dimensions and their values must be used.';

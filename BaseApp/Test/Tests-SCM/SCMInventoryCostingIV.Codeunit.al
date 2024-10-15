@@ -96,7 +96,7 @@ codeunit 137289 "SCM Inventory Costing IV"
         ValueEntry.TestField("Valued Quantity", -Quantity);
         Assert.AreNearlyEqual(
           CostPerUnit, ValueEntry."Cost per Unit", LibraryERM.GetAmountRoundingPrecision,
-          StrSubstNo(ValueEntryNotMatched, ValueEntry.FieldCaption("Cost per Unit"), CostPerUnit, ValueEntry.TableCaption));
+          StrSubstNo(ValueEntryNotMatched, ValueEntry.FieldCaption("Cost per Unit"), CostPerUnit, ValueEntry.TableCaption()));
     end;
 
     [Test]
@@ -233,7 +233,7 @@ codeunit 137289 "SCM Inventory Costing IV"
         CreateSalesDocument(
           SalesHeader, SalesHeader."Document Type"::Invoice, SalesLine.Type::Item, CreateCustomer, LibraryInventory.CreateItem(Item),
           Quantity);
-        DocumentNo := NoSeriesManagement.GetNextNo(SalesHeader."Shipping No. Series", WorkDate, false);
+        DocumentNo := NoSeriesManagement.GetNextNo(SalesHeader."Shipping No. Series", WorkDate(), false);
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         // Find Item Leger Entry for Posted Sales Invoice and Update Entry No. in Sales Credit Memo.
@@ -484,7 +484,7 @@ codeunit 137289 "SCM Inventory Costing IV"
 
         // Create Production Order.
         CreateAndRefreshProductionOrder(ProductionOrder, Item."No.");
-        CostAmountExpectedACY := LibraryERM.ConvertCurrency(Item."Unit Cost" * ProductionOrder.Quantity, '', Currency.Code, WorkDate);
+        CostAmountExpectedACY := LibraryERM.ConvertCurrency(Item."Unit Cost" * ProductionOrder.Quantity, '', Currency.Code, WorkDate());
 
         // Exercise: Post Output Journal.
         CreateAndPostOutputJournal(ItemJournalLine, Item."No.", ProductionOrder."No.");
@@ -1046,7 +1046,7 @@ codeunit 137289 "SCM Inventory Costing IV"
         CreateSalesDocument(
           SalesHeader, SalesHeader."Document Type"::Order, SalesLine.Type::Item, CreateAndUpdateCustomer(Currency.Code),
           CreateItem(0, Item."Costing Method"::FIFO), LibraryRandom.RandDec(10, 2));
-        UpdateSalesDocument(SalesLine, SalesHeader, WorkDate, Currency.Code, LibraryRandom.RandDec(10, 2));  // Random value for Unit Price.
+        UpdateSalesDocument(SalesLine, SalesHeader, WorkDate(), Currency.Code, LibraryRandom.RandDec(10, 2));  // Random value for Unit Price.
         UpdateCurrencyExchangeRateOnSalesOrder(CurrencyExchangeRate, Currency.Code, SalesLine."Document No.");
         SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
 
@@ -1079,7 +1079,7 @@ codeunit 137289 "SCM Inventory Costing IV"
         LibraryERM.SetWorkDate;
         CreateCurrencyWithExchangeRate(Currency);
         CreatePurchaseOrderWithCurrency(
-          PurchaseLine, CreateItem(0, Item."Costing Method"::FIFO), Currency.Code, WorkDate, LibraryRandom.RandDec(10, 2),
+          PurchaseLine, CreateItem(0, Item."Costing Method"::FIFO), Currency.Code, WorkDate(), LibraryRandom.RandDec(10, 2),
           LibraryRandom.RandDec(10, 2));  // Use random value for Direct Unit Cost and Quantity.
         UpdateCurrencyExchangeRateOnPurchOrder(CurrencyExchangeRate, Currency.Code, PurchaseLine."Document No.");
         PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
@@ -1121,7 +1121,7 @@ codeunit 137289 "SCM Inventory Costing IV"
         CreateAndPostItemJournalLine(ItemJournalLine, BomComponent."No.", Quantity * BomComponent."Quantity per", ''); // Increase inventory for components
         CreateAndPostItemJournalLine(ItemJournalLine, BomComponent2."No.", Quantity * BomComponent2."Quantity per", ''); // Increase inventory for components
 
-        LibraryVariableStorage.Enqueue(StrSubstNo(BeforeWorkDateErr, WorkDate)); // Enqueue variable for Message handler
+        LibraryVariableStorage.Enqueue(StrSubstNo(BeforeWorkDateErr, WorkDate())); // Enqueue variable for Message handler
 
         // Post Sales Order for Assembly Item
         CreateAndPostSalesDocument(CreateCustomer, AssemblyItem."No.", Quantity, true, true);
@@ -1179,21 +1179,21 @@ codeunit 137289 "SCM Inventory Costing IV"
         CreateAndPostItemJournalLine(ItemJournalLine, AssemblyItem."No.", Quantity, '');
 
         // Create Sales Order for Assembly BOM.
-        LibraryVariableStorage.Enqueue(StrSubstNo(BeforeWorkDateErr, WorkDate)); // Enqueue variable for Message handler.
+        LibraryVariableStorage.Enqueue(StrSubstNo(BeforeWorkDateErr, WorkDate())); // Enqueue variable for Message handler.
         CreateSalesDocument(
           SalesHeader, SalesHeader."Document Type"::Order, SalesLine.Type::Item, CreateCustomer, AssemblyItem."No.", 3 * Quantity);
 
         // Update "Qty. to Assemble to Order" on Sales Line.
-        LibraryVariableStorage.Enqueue(StrSubstNo(BeforeWorkDateErr, WorkDate)); // Enqueue variable for Message handler.
+        LibraryVariableStorage.Enqueue(StrSubstNo(BeforeWorkDateErr, WorkDate())); // Enqueue variable for Message handler.
         UpdateQtyToAssembleForSalesDocument(SalesHeader, Quantity);
 
         // Exercise: Calculate Regenerative Plan for Assembly BOM.
-        LibraryPlanning.CalcRegenPlanForPlanWksh(AssemblyItem, WorkDate, CalcDate('<CY>', WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(AssemblyItem, WorkDate(), CalcDate('<CY>', WorkDate()));
 
         if ReCalcRegenPlan then begin
             FindRequisitionLine(RequisitionLine, AssemblyItem."No.");
             RequisitionLine.Delete(true);
-            LibraryPlanning.CalcRegenPlanForPlanWksh(AssemblyItem, WorkDate, CalcDate('<CY>', WorkDate));
+            LibraryPlanning.CalcRegenPlanForPlanWksh(AssemblyItem, WorkDate(), CalcDate('<CY>', WorkDate()));
         end;
 
         // Verify: Verify Calculated Planning Lines.
@@ -1413,7 +1413,7 @@ codeunit 137289 "SCM Inventory Costing IV"
         // [THEN] No ERROR occurs.
 
         ReadItemNo := BOMCostShares."No.".Value;
-        BOMCostShares.Close;
+        BOMCostShares.Close();
 
         // [THEN] Read Item."No." from BOM Cost Shares Page is equal to Second Item."No."
         Assert.AreEqual(BOMItemNo, ReadItemNo, ItemNoIsUnexpectedErr);
@@ -1506,9 +1506,9 @@ codeunit 137289 "SCM Inventory Costing IV"
         // [THEN] Items "C1" and "C4" are in the report, items "C2" and "C3" are not shown in the report
         BOMCostShares.First;
         BOMCostShares.Expand(true);
-        BOMCostShares.Next;
+        BOMCostShares.Next();
         BOMCostShares."No.".AssertEquals(Item[1]."No.");
-        BOMCostShares.Next;
+        BOMCostShares.Next();
         BOMCostShares."No.".AssertEquals(Item[4]."No.");
         Assert.IsFalse(BOMCostShares.Next, ItemNoIsUnexpectedErr);
     end;
@@ -1542,9 +1542,9 @@ codeunit 137289 "SCM Inventory Costing IV"
         // [THEN] Items "C1" and "C4" are in the report, items "C2" and "C3" are not shown in the report
         BOMStructure.First;
         BOMStructure.Expand(true);
-        BOMStructure.Next;
+        BOMStructure.Next();
         BOMStructure."No.".AssertEquals(Item[1]."No.");
-        BOMStructure.Next;
+        BOMStructure.Next();
         BOMStructure."No.".AssertEquals(Item[4]."No.");
         Assert.IsFalse(BOMStructure.Next, ItemNoIsUnexpectedErr);
     end;
@@ -1596,7 +1596,7 @@ codeunit 137289 "SCM Inventory Costing IV"
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.UpdatePurchasesPayablesSetup();
         LibraryInventory.NoSeriesSetup(InventorySetup);
-        LibraryERM.SetJournalTemplateNameMandatory(false);
+        LibraryERMCountryData.UpdateJournalTemplMandatory(false);
 
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibrarySetupStorage.Save(DATABASE::"Inventory Setup");
@@ -1788,7 +1788,7 @@ codeunit 137289 "SCM Inventory Costing IV"
         Currency.Validate("Residual Gains Account", GLAccount."No.");
         Currency.Validate("Residual Losses Account", GLAccount."No.");
         Currency.Modify(true);
-        LibraryERM.CreateExchRate(CurrencyExchangeRate, Currency.Code, WorkDate);
+        LibraryERM.CreateExchRate(CurrencyExchangeRate, Currency.Code, WorkDate());
         CurrencyExchangeRate.Validate("Exchange Rate Amount", LibraryRandom.RandInt(100));
         CurrencyExchangeRate.Validate("Adjustment Exch. Rate Amount", CurrencyExchangeRate."Exchange Rate Amount");
         CurrencyExchangeRate.Validate("Relational Exch. Rate Amount", CurrencyExchangeRate."Exchange Rate Amount");
@@ -1799,11 +1799,11 @@ codeunit 137289 "SCM Inventory Costing IV"
     local procedure CreateCurrencyWithMultipleExchangeRates(var Currency: Record Currency; var CurrencyExchangeRate: Record "Currency Exchange Rate")
     begin
         CreateCurrencyWithExchangeRate1(Currency, CurrencyExchangeRate);
-        CreateExchangeRateForCurrency(Currency.Code, CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate));
+        CreateExchangeRateForCurrency(Currency.Code, CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate()));
 
         // Make sure report Adjust Add. Reporting Currency can be run successfully. Since there're some demo entries posted in earlier years.
         CreateExchangeRateForCurrency(
-          Currency.Code, CalcDate('<-' + Format(LibraryRandom.RandIntInRange(20, 25)) + 'Y>', WorkDate));
+          Currency.Code, CalcDate('<-' + Format(LibraryRandom.RandIntInRange(20, 25)) + 'Y>', WorkDate()));
     end;
 
     local procedure CreateCustomer(): Code[20]
@@ -1876,10 +1876,10 @@ codeunit 137289 "SCM Inventory Costing IV"
 
         LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, Item[5]."Base Unit of Measure");
         CreateProdBOMLineWithStartingEndingDates(ProductionBOMHeader, Item[1]."No.", LibraryRandom.RandInt(100), 0D, 0D);
-        CreateProdBOMLineWithStartingEndingDates(ProductionBOMHeader, Item[2]."No.", LibraryRandom.RandInt(100), 0D, WorkDate - 1);
+        CreateProdBOMLineWithStartingEndingDates(ProductionBOMHeader, Item[2]."No.", LibraryRandom.RandInt(100), 0D, WorkDate() - 1);
         CreateProdBOMLineWithStartingEndingDates(ProductionBOMHeader, Item[3]."No.", LibraryRandom.RandInt(100), WorkDate + 1, 0D);
         CreateProdBOMLineWithStartingEndingDates(
-          ProductionBOMHeader, Item[4]."No.", LibraryRandom.RandInt(100), WorkDate - 1, WorkDate + 1);
+          ProductionBOMHeader, Item[4]."No.", LibraryRandom.RandInt(100), WorkDate() - 1, WorkDate + 1);
 
         LibraryManufacturing.UpdateProductionBOMStatus(ProductionBOMHeader, ProductionBOMHeader.Status::Certified);
 
@@ -2009,7 +2009,7 @@ codeunit 137289 "SCM Inventory Costing IV"
         Item.Modify(true);
 
         with BomComponent do begin
-            Init;
+            Init();
             Validate("Parent Item No.", ParentItemNo);
             RecRef.GetTable(BomComponent);
             Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, FieldNo("Line No.")));
@@ -2242,7 +2242,7 @@ codeunit 137289 "SCM Inventory Costing IV"
         // Run Adjust Cost Item Entries. Create and post Revaluation Journal with new Unit Cost (Revalued).
         LibraryCosting.AdjustCostItemEntries(PurchaseLine."No.", '');
         UnitCostRevaluated := CreateAndPostRevaluationJournal(
-            PurchaseLine."No.", CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate),
+            PurchaseLine."No.", CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate()),
             CalculatePer::Item, RevaluedFactor);
     end;
 
@@ -2389,7 +2389,7 @@ codeunit 137289 "SCM Inventory Costing IV"
 
         // Calculate Inventory and post Revaluation Journal.
         LibraryCosting.AdjustCostItemEntries(ItemNo, '');
-        UnitCostRevaluated := CreateAndPostRevaluationJournal(ItemNo, WorkDate, CalculatePer, LibraryRandom.RandIntInRange(2, 5));
+        UnitCostRevaluated := CreateAndPostRevaluationJournal(ItemNo, WorkDate(), CalculatePer, LibraryRandom.RandIntInRange(2, 5));
         CostAmountActual := Round((PurchaseLine.Quantity / 2) * UnitCostRevaluated);
 
         // Create and Post another Sales Order. Invoice the remaining Quantity of first Sales Order.
@@ -2460,7 +2460,7 @@ codeunit 137289 "SCM Inventory Costing IV"
         LibraryInventory.SetAutomaticCostPosting(true);
         CreateAndPostItemJournalLine(ItemJournalLine, ItemNo, LibraryRandom.RandInt(10) + 10, '');
         CreatePurchaseOrderWithCurrency(
-          PurchaseLine, ItemNo, CurrencyCode, CalcDate('<1M + ' + Format(LibraryRandom.RandInt(3)) + 'D>', WorkDate),
+          PurchaseLine, ItemNo, CurrencyCode, CalcDate('<1M + ' + Format(LibraryRandom.RandInt(3)) + 'D>', WorkDate()),
           LibraryRandom.RandInt(50), ItemJournalLine.Quantity + LibraryRandom.RandInt(40));
         // Use random value for Direct Unit Cost.
         PostPurchaseDocument(PurchaseLine, true);
@@ -2471,7 +2471,7 @@ codeunit 137289 "SCM Inventory Costing IV"
         UnitPrice := PurchaseLine."Direct Unit Cost" + LibraryRandom.RandInt(50); // Required Unit Price more than Direct Unti Cost.
         LibraryVariableStorage.Enqueue(ChangeCurrCodeMessage);
         UpdateSalesDocument(
-          SalesLine, SalesHeader, CalcDate('<1M + ' + Format(LibraryRandom.RandInt(3)) + 'D>', WorkDate), CurrencyCode, UnitPrice);
+          SalesLine, SalesHeader, CalcDate('<1M + ' + Format(LibraryRandom.RandInt(3)) + 'D>', WorkDate()), CurrencyCode, UnitPrice);
         LibrarySales.PostSalesDocument(SalesHeader, true, false);
 
         // Undo Sale Shipment, update blank Currency in Sales Order and Post.
@@ -2699,10 +2699,10 @@ codeunit 137289 "SCM Inventory Costing IV"
         ValueEntry.TestField("Valued Quantity", Quantity);
         Assert.AreNearlyEqual(
           CostPerUnit, ValueEntry."Cost per Unit", LibraryERM.GetAmountRoundingPrecision,
-          StrSubstNo(ValueEntryNotMatched, ValueEntry.FieldCaption("Cost per Unit"), CostPerUnit, ValueEntry.TableCaption));
+          StrSubstNo(ValueEntryNotMatched, ValueEntry.FieldCaption("Cost per Unit"), CostPerUnit, ValueEntry.TableCaption()));
         Assert.AreNearlyEqual(
           CostAmountActual, ValueEntry."Cost Amount (Actual)", LibraryERM.GetAmountRoundingPrecision,
-          StrSubstNo(ValueEntryNotMatched, ValueEntry.FieldCaption("Cost Amount (Actual)"), CostPerUnit, ValueEntry.TableCaption));
+          StrSubstNo(ValueEntryNotMatched, ValueEntry.FieldCaption("Cost Amount (Actual)"), CostPerUnit, ValueEntry.TableCaption()));
     end;
 
     local procedure VerifyValueEntryAfterAdjustCostItemEntries(ItemNo: Code[20]; CostAmountActual: Decimal)
@@ -2715,12 +2715,12 @@ codeunit 137289 "SCM Inventory Costing IV"
         repeat
             AccumulatedInvdQty := AccumulatedInvdQty + ValueEntry."Invoiced Quantity";
             AccumulatedCostAmtActual := AccumulatedCostAmtActual + ValueEntry."Cost Amount (Actual)";
-        until ValueEntry.Next = 0;
+        until ValueEntry.Next() = 0;
         Assert.AreEqual(
-          0, AccumulatedInvdQty, StrSubstNo(ValueEntryNotMatched, ValueEntry.FieldCaption("Invoiced Quantity"), 0, ValueEntry.TableCaption));  // Sum of Invoiced Quantity must be zero.
+          0, AccumulatedInvdQty, StrSubstNo(ValueEntryNotMatched, ValueEntry.FieldCaption("Invoiced Quantity"), 0, ValueEntry.TableCaption()));  // Sum of Invoiced Quantity must be zero.
         Assert.AreNearlyEqual(
           CostAmountActual, AccumulatedCostAmtActual, LibraryERM.GetAmountRoundingPrecision,
-          StrSubstNo(ValueEntryNotMatched, ValueEntry.FieldCaption("Cost Amount (Actual)"), CostAmountActual, ValueEntry.TableCaption));
+          StrSubstNo(ValueEntryNotMatched, ValueEntry.FieldCaption("Cost Amount (Actual)"), CostAmountActual, ValueEntry.TableCaption()));
     end;
 
     local procedure VerifyValueEntryAmountsInACY(DocumentNo: Code[20]; ItemChargeNo: Code[20]; Delta: Decimal; CostAmountActualACY: Decimal; CostPerUnitACY: Decimal; CostAmountExpectedACY: Decimal)
@@ -2730,15 +2730,15 @@ codeunit 137289 "SCM Inventory Costing IV"
         FindValueEntry(ValueEntry, DocumentNo, ItemChargeNo, '', false);
         Assert.AreNearlyEqual(
           CostPerUnitACY, ValueEntry."Cost per Unit (ACY)", Delta,
-          StrSubstNo(ValueEntryNotMatched, ValueEntry.FieldCaption("Cost per Unit (ACY)"), CostPerUnitACY, ValueEntry.TableCaption));
+          StrSubstNo(ValueEntryNotMatched, ValueEntry.FieldCaption("Cost per Unit (ACY)"), CostPerUnitACY, ValueEntry.TableCaption()));
         Assert.AreNearlyEqual(
           CostAmountExpectedACY, ValueEntry."Cost Amount (Expected) (ACY)", Delta,
           StrSubstNo(
-            ValueEntryNotMatched, ValueEntry.FieldCaption("Cost Amount (Expected) (ACY)"), CostAmountExpectedACY, ValueEntry.TableCaption));
+            ValueEntryNotMatched, ValueEntry.FieldCaption("Cost Amount (Expected) (ACY)"), CostAmountExpectedACY, ValueEntry.TableCaption()));
         Assert.AreNearlyEqual(
           CostAmountActualACY, ValueEntry."Cost Amount (Actual) (ACY)", Delta,
           StrSubstNo(
-            ValueEntryNotMatched, ValueEntry.FieldCaption("Cost Amount (Actual) (ACY)"), CostAmountActualACY, ValueEntry.TableCaption));
+            ValueEntryNotMatched, ValueEntry.FieldCaption("Cost Amount (Actual) (ACY)"), CostAmountActualACY, ValueEntry.TableCaption()));
     end;
 
     local procedure VerifyCustomerStatementReport(CurrencyCode: Code[10]; AmountIncludingVAT: Decimal)
@@ -2882,7 +2882,7 @@ codeunit 137289 "SCM Inventory Costing IV"
         LibraryVariableStorage.Dequeue(RolledupMaterialCost);
         LibraryVariableStorage.Dequeue(ItemNo);
         BOMCostShares.Expand(true);
-        BOMCostShares.Next;
+        BOMCostShares.Next();
         BOMCostShares."No.".AssertEquals(ItemNo);
         BOMCostShares.HasWarning.AssertEquals(true);
         BOMCostShares."Rolled-up Material Cost".AssertEquals(RolledupMaterialCost);
@@ -2901,8 +2901,8 @@ codeunit 137289 "SCM Inventory Costing IV"
     begin
         LibraryVariableStorage.Dequeue(CustomerNo);
         Statement.Customer.SetFilter("No.", CustomerNo);
-        Statement."Start Date".SetValue(Format(CalcDate('<+1Y>', WorkDate)));
-        Statement."End Date".SetValue(Format(CalcDate('<+2Y>', WorkDate)));
+        Statement."Start Date".SetValue(Format(CalcDate('<+1Y>', WorkDate())));
+        Statement."End Date".SetValue(Format(CalcDate('<+2Y>', WorkDate())));
         Statement.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 

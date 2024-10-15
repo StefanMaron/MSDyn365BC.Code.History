@@ -1,4 +1,3 @@
-#if not CLEAN18
 page 6641 "Purchase Return Order Subform"
 {
     AutoSplitKey = true;
@@ -52,7 +51,7 @@ page 6641 "Purchase Return Order Subform"
                         DeltaUpdateTotals();
                     end;
                 }
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = PurchReturnOrder;
                     ShowMandatory = Type <> Type::" ";
@@ -69,11 +68,13 @@ page 6641 "Purchase Return Order Subform"
                         CurrPage.Update();
                     end;
                 }
-                field("Item Reference No."; "Item Reference No.")
+                field("Item Reference No."; Rec."Item Reference No.")
                 {
                     AccessByPermission = tabledata "Item Reference" = R;
                     ApplicationArea = Suite, ItemReferences;
+                    QuickEntry = false;
                     ToolTip = 'Specifies the referenced item number.';
+                    Visible = ItemReferenceVisible;
 
                     trigger OnLookup(var Text: Text): Boolean
                     var
@@ -96,27 +97,31 @@ page 6641 "Purchase Return Order Subform"
                         DeltaUpdateTotals();
                     end;
                 }
-                field("IC Partner Ref. Type"; "IC Partner Ref. Type")
+                field("IC Partner Ref. Type"; Rec."IC Partner Ref. Type")
                 {
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies the item or account in your IC partner''s company that corresponds to the item or account on the line.';
                     Visible = false;
                 }
-                field("IC Partner Reference"; "IC Partner Reference")
+                field("IC Partner Reference"; Rec."IC Partner Reference")
                 {
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies the IC partner. If the line is being sent to one of your intercompany partners, this field is used together with the IC Partner Ref. Type field to indicate the item or account in your partner''s company that corresponds to the line.';
                     Visible = false;
                 }
-                field("Variant Code"; "Variant Code")
+                field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the variant of the item on the line.';
                     Visible = false;
+                    ShowMandatory = VariantCodeMandatory;
 
                     trigger OnValidate()
+                    var
+                        Item: Record "Item";
                     begin
                         DeltaUpdateTotals();
+                        VariantCodeMandatory := Item.IsVariantMandatory("Type" = "Type"::Item, "No.");
                     end;
                 }
                 field(Nonstock; Nonstock)
@@ -125,7 +130,7 @@ page 6641 "Purchase Return Order Subform"
                     ToolTip = 'Specifies that this item is a catalog item.';
                     Visible = false;
                 }
-                field("VAT Prod. Posting Group"; "VAT Prod. Posting Group")
+                field("VAT Prod. Posting Group"; Rec."VAT Prod. Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT product posting group. Links business transactions made for the item, resource, or G/L account with the general ledger, to account for VAT amounts resulting from trade with that record.';
@@ -153,19 +158,19 @@ page 6641 "Purchase Return Order Subform"
                         Rec.SaveLookupSelection(Selected);
                     end;
                 }
-                field("Description 2"; "Description 2")
+                field("Description 2"; Rec."Description 2")
                 {
                     ApplicationArea = PurchReturnOrder;
                     Importance = Additional;
                     ToolTip = 'Specifies information in addition to the description.';
                     Visible = false;
                 }
-                field("Return Reason Code"; "Return Reason Code")
+                field("Return Reason Code"; Rec."Return Reason Code")
                 {
                     ApplicationArea = PurchReturnOrder;
                     ToolTip = 'Specifies the code explaining why the item was returned.';
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
                     Editable = NOT IsBlankNumber;
@@ -177,19 +182,10 @@ page 6641 "Purchase Return Order Subform"
                         DeltaUpdateTotals();
                     end;
                 }
-                field("Bin Code"; "Bin Code")
+                field("Bin Code"; Rec."Bin Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the bin where the items are picked or put away.';
-                    Visible = false;
-                }
-                field("Country/Region of Origin Code"; "Country/Region of Origin Code")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the origin country/region code.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '18.0';
                     Visible = false;
                 }
                 field(Quantity; Quantity)
@@ -208,7 +204,7 @@ page 6641 "Purchase Return Order Subform"
                             CurrPage.Update(false);
                     end;
                 }
-                field("Reserved Quantity"; ReverseReservedQtySign)
+                field("Reserved Quantity"; ReverseReservedQtySign())
                 {
                     ApplicationArea = Reservation;
                     BlankZero = true;
@@ -225,7 +221,7 @@ page 6641 "Purchase Return Order Subform"
                         UpdateForm(true);
                     end;
                 }
-                field("Unit of Measure Code"; "Unit of Measure Code")
+                field("Unit of Measure Code"; Rec."Unit of Measure Code")
                 {
                     ApplicationArea = PurchReturnOrder;
                     Editable = UnitofMeasureCodeIsChangeable;
@@ -238,13 +234,13 @@ page 6641 "Purchase Return Order Subform"
                         DeltaUpdateTotals();
                     end;
                 }
-                field("Unit of Measure"; "Unit of Measure")
+                field("Unit of Measure"; Rec."Unit of Measure")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the unit of measure.';
                     Visible = false;
                 }
-                field("Direct Unit Cost"; "Direct Unit Cost")
+                field("Direct Unit Cost"; Rec."Direct Unit Cost")
                 {
                     ApplicationArea = PurchReturnOrder;
                     BlankZero = true;
@@ -258,33 +254,33 @@ page 6641 "Purchase Return Order Subform"
                         DeltaUpdateTotals();
                     end;
                 }
-                field("Indirect Cost %"; "Indirect Cost %")
+                field("Indirect Cost %"; Rec."Indirect Cost %")
                 {
                     ApplicationArea = PurchReturnOrder;
                     ToolTip = 'Specifies the percentage of the item''s last purchase cost that includes indirect costs, such as freight that is associated with the purchase of the item.';
                     Visible = false;
                 }
-                field("Unit Cost (LCY)"; "Unit Cost (LCY)")
+                field("Unit Cost (LCY)"; Rec."Unit Cost (LCY)")
                 {
                     ApplicationArea = PurchReturnOrder;
                     ToolTip = 'Specifies the unit cost of the item on the line.';
                     Visible = false;
                 }
-                field("Unit Price (LCY)"; "Unit Price (LCY)")
+                field("Unit Price (LCY)"; Rec."Unit Price (LCY)")
                 {
                     ApplicationArea = PurchReturnOrder;
                     BlankZero = true;
                     ToolTip = 'Specifies the price, in LCY, for one unit of the item.';
                     Visible = false;
                 }
-                field("Tax Liable"; "Tax Liable")
+                field("Tax Liable"; Rec."Tax Liable")
                 {
                     ApplicationArea = SalesTax;
                     Editable = false;
                     ToolTip = 'Specifies that purchases from the vendor on the purchase header are liable for sales tax.';
                     Visible = false;
                 }
-                field("Tax Area Code"; "Tax Area Code")
+                field("Tax Area Code"; Rec."Tax Area Code")
                 {
                     ApplicationArea = SalesTax;
                     ToolTip = 'Specifies the tax area that is used to calculate and post sales tax.';
@@ -295,7 +291,7 @@ page 6641 "Purchase Return Order Subform"
                         DeltaUpdateTotals();
                     end;
                 }
-                field("Tax Group Code"; "Tax Group Code")
+                field("Tax Group Code"; Rec."Tax Group Code")
                 {
                     ApplicationArea = SalesTax;
                     ShowMandatory = "Tax Area Code" <> '';
@@ -306,13 +302,13 @@ page 6641 "Purchase Return Order Subform"
                         DeltaUpdateTotals();
                     end;
                 }
-                field("Use Tax"; "Use Tax")
+                field("Use Tax"; Rec."Use Tax")
                 {
                     ApplicationArea = SalesTax;
                     ToolTip = 'Specifies a U.S. sales tax that is paid on items purchased by a company that are used by the company, instead of being sold to a customer.';
                     Visible = false;
                 }
-                field("Line Discount %"; "Line Discount %")
+                field("Line Discount %"; Rec."Line Discount %")
                 {
                     ApplicationArea = PurchReturnOrder;
                     BlankZero = true;
@@ -325,7 +321,7 @@ page 6641 "Purchase Return Order Subform"
                         DeltaUpdateTotals();
                     end;
                 }
-                field("Line Amount"; "Line Amount")
+                field("Line Amount"; Rec."Line Amount")
                 {
                     ApplicationArea = PurchReturnOrder;
                     BlankZero = true;
@@ -338,7 +334,7 @@ page 6641 "Purchase Return Order Subform"
                         DeltaUpdateTotals();
                     end;
                 }
-                field("Line Discount Amount"; "Line Discount Amount")
+                field("Line Discount Amount"; Rec."Line Discount Amount")
                 {
                     ApplicationArea = PurchReturnOrder;
                     ToolTip = 'Specifies the discount amount that is granted for the item on the line.';
@@ -349,7 +345,7 @@ page 6641 "Purchase Return Order Subform"
                         DeltaUpdateTotals();
                     end;
                 }
-                field("Allow Invoice Disc."; "Allow Invoice Disc.")
+                field("Allow Invoice Disc."; Rec."Allow Invoice Disc.")
                 {
                     ApplicationArea = PurchReturnOrder;
                     ToolTip = 'Specifies if the invoice line is included when the invoice discount is calculated.';
@@ -360,7 +356,7 @@ page 6641 "Purchase Return Order Subform"
                         DeltaUpdateTotals();
                     end;
                 }
-                field("Inv. Discount Amount"; "Inv. Discount Amount")
+                field("Inv. Discount Amount"; Rec."Inv. Discount Amount")
                 {
                     ApplicationArea = PurchReturnOrder;
                     ToolTip = 'Specifies the invoice discount amount for the line.';
@@ -371,13 +367,7 @@ page 6641 "Purchase Return Order Subform"
                         DeltaUpdateTotals();
                     end;
                 }
-                field("Net Weight"; "Net Weight")
-                {
-                    ApplicationArea = PurchReturnOrder;
-                    ToolTip = 'Specifies the net weight of the item.';
-                    Visible = false;
-                }
-                field("Return Qty. to Ship"; "Return Qty. to Ship")
+                field("Return Qty. to Ship"; Rec."Return Qty. to Ship")
                 {
                     ApplicationArea = PurchReturnOrder;
                     BlankZero = true;
@@ -385,32 +375,32 @@ page 6641 "Purchase Return Order Subform"
                     Enabled = NOT IsBlankNumber;
                     ToolTip = 'Specifies the quantity of items that remains to be shipped.';
                 }
-                field("Return Qty. Shipped"; "Return Qty. Shipped")
+                field("Return Qty. Shipped"; Rec."Return Qty. Shipped")
                 {
                     ApplicationArea = PurchReturnOrder;
                     BlankZero = true;
                     Enabled = NOT IsBlankNumber;
                     ToolTip = 'Specifies how many units of the item on the line have been posted as shipped.';
                 }
-                field("Qty. to Invoice"; "Qty. to Invoice")
+                field("Qty. to Invoice"; Rec."Qty. to Invoice")
                 {
                     ApplicationArea = PurchReturnOrder;
                     BlankZero = true;
                     ToolTip = 'Specifies the quantity that remains to be invoiced. It is calculated as Quantity - Qty. Invoiced.';
                 }
-                field("Quantity Invoiced"; "Quantity Invoiced")
+                field("Quantity Invoiced"; Rec."Quantity Invoiced")
                 {
                     ApplicationArea = PurchReturnOrder;
                     BlankZero = true;
                     ToolTip = 'Specifies how many units of the item on the line have been posted as invoiced.';
                 }
-                field("Allow Item Charge Assignment"; "Allow Item Charge Assignment")
+                field("Allow Item Charge Assignment"; Rec."Allow Item Charge Assignment")
                 {
                     ApplicationArea = ItemCharges;
                     ToolTip = 'Specifies that you can assign item charges to this line.';
                     Visible = false;
                 }
-                field("Qty. to Assign"; "Qty. to Assign")
+                field("Qty. to Assign"; Rec."Qty. to Assign")
                 {
                     ApplicationArea = ItemCharges;
                     StyleExpr = ItemChargeStyleExpression;
@@ -423,7 +413,7 @@ page 6641 "Purchase Return Order Subform"
                         UpdateForm(false);
                     end;
                 }
-                field("Qty. Assigned"; "Qty. Assigned")
+                field("Qty. Assigned"; Rec."Qty. Assigned")
                 {
                     ApplicationArea = ItemCharges;
                     BlankZero = true;
@@ -436,67 +426,67 @@ page 6641 "Purchase Return Order Subform"
                         UpdateForm(false);
                     end;
                 }
-                field("Prod. Order No."; "Prod. Order No.")
+                field("Prod. Order No."; Rec."Prod. Order No.")
                 {
                     ApplicationArea = PurchReturnOrder;
                     ToolTip = 'Specifies the number of the related production order.';
                     Visible = false;
                 }
-                field("Insurance No."; "Insurance No.")
+                field("Insurance No."; Rec."Insurance No.")
                 {
                     ApplicationArea = PurchReturnOrder;
                     ToolTip = 'Specifies the insurance number to post an insurance coverage entry to.';
                     Visible = false;
                 }
-                field("Budgeted FA No."; "Budgeted FA No.")
+                field("Budgeted FA No."; Rec."Budgeted FA No.")
                 {
                     ApplicationArea = PurchReturnOrder;
                     ToolTip = 'Specifies the number of a fixed asset with the Budgeted Asset check box selected. When you post the journal or document line, an additional entry is created for the budgeted fixed asset where the amount has the opposite sign.';
                     Visible = false;
                 }
-                field("FA Posting Type"; "FA Posting Type")
+                field("FA Posting Type"; Rec."FA Posting Type")
                 {
                     ApplicationArea = PurchReturnOrder;
                     ToolTip = 'Specifies the date that will be used on related fixed asset ledger entries.';
                     Visible = false;
                 }
-                field("Depr. until FA Posting Date"; "Depr. until FA Posting Date")
+                field("Depr. until FA Posting Date"; Rec."Depr. until FA Posting Date")
                 {
                     ApplicationArea = PurchReturnOrder;
                     ToolTip = 'Specifies if depreciation was calculated until the FA posting date of the line.';
                     Visible = false;
                 }
-                field("Depreciation Book Code"; "Depreciation Book Code")
+                field("Depreciation Book Code"; Rec."Depreciation Book Code")
                 {
                     ApplicationArea = PurchReturnOrder;
                     ToolTip = 'Specifies the code for the depreciation book to which the line will be posted if you have selected Fixed Asset in the Type field for this line.';
                     Visible = false;
                 }
-                field("Depr. Acquisition Cost"; "Depr. Acquisition Cost")
+                field("Depr. Acquisition Cost"; Rec."Depr. Acquisition Cost")
                 {
                     ApplicationArea = PurchReturnOrder;
                     ToolTip = 'Specifies if, when this line was posted, the additional acquisition cost posted on the line was depreciated in proportion to the amount by which the fixed asset had already been depreciated.';
                     Visible = false;
                 }
-                field("Blanket Order No."; "Blanket Order No.")
+                field("Blanket Order No."; Rec."Blanket Order No.")
                 {
                     ApplicationArea = PurchReturnOrder;
                     ToolTip = 'Specifies the number of the blanket order that the record originates from.';
                     Visible = false;
                 }
-                field("Blanket Order Line No."; "Blanket Order Line No.")
+                field("Blanket Order Line No."; Rec."Blanket Order Line No.")
                 {
                     ApplicationArea = PurchReturnOrder;
                     ToolTip = 'Specifies the number of the blanket order line that the record originates from.';
                     Visible = false;
                 }
-                field("Appl.-to Item Entry"; "Appl.-to Item Entry")
+                field("Appl.-to Item Entry"; Rec."Appl.-to Item Entry")
                 {
                     ApplicationArea = PurchReturnOrder;
                     ToolTip = 'Specifies the number of the item ledger entry that the document or journal line is applied -to.';
                     Visible = false;
                 }
-                field("Job No."; "Job No.")
+                field("Job No."; Rec."Job No.")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the number of the related job.';
@@ -507,7 +497,7 @@ page 6641 "Purchase Return Order Subform"
                         ShowShortcutDimCode(ShortcutDimCode);
                     end;
                 }
-                field("Job Task No."; "Job Task No.")
+                field("Job Task No."; Rec."Job Task No.")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the number of the related job task.';
@@ -518,19 +508,19 @@ page 6641 "Purchase Return Order Subform"
                         ShowShortcutDimCode(ShortcutDimCode);
                     end;
                 }
-                field("Job Line Type"; "Job Line Type")
+                field("Job Line Type"; Rec."Job Line Type")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the type of journal line that is created in the Job Planning Line table from this line.';
                     Visible = false;
                 }
-                field("Job Planning Line No."; "Job Planning Line No.")
+                field("Job Planning Line No."; Rec."Job Planning Line No.")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the job planning line number to which the usage should be linked when the Job Journal is posted. You can only link to Job Planning Lines that have the Apply Usage Link option enabled.';
                     Visible = false;
                 }
-                field("Deferral Code"; "Deferral Code")
+                field("Deferral Code"; Rec."Deferral Code")
                 {
                     ApplicationArea = PurchReturnOrder;
                     Enabled = (Type <> Type::"Fixed Asset") AND (Type <> Type::" ");
@@ -545,20 +535,20 @@ page 6641 "Purchase Return Order Subform"
                         ShowDeferralSchedule();
                     end;
                 }
-                field("Returns Deferral Start Date"; "Returns Deferral Start Date")
+                field("Returns Deferral Start Date"; Rec."Returns Deferral Start Date")
                 {
                     ApplicationArea = PurchReturnOrder;
                     Enabled = (Type <> Type::"Fixed Asset") AND (Type <> Type::" ");
                     ToolTip = 'Specifies the starting date of the returns deferral period.';
                     Visible = false;
                 }
-                field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
+                field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                     Visible = DimVisible1;
                 }
-                field("Shortcut Dimension 2 Code"; "Shortcut Dimension 2 Code")
+                field("Shortcut Dimension 2 Code"; Rec."Shortcut Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
@@ -666,19 +656,27 @@ page 6641 "Purchase Return Order Subform"
                         OnAfterValidateShortcutDimCode(Rec, ShortcutDimCode, 8);
                     end;
                 }
-                field("Gross Weight"; "Gross Weight")
+                field("Gross Weight"; Rec."Gross Weight")
                 {
+                    Caption = 'Unit Gross Weight';
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the gross weight of one unit of the item. In the purchase statistics window, the gross weight on the line is included in the total gross weight of all the lines for the particular purchase document.';
+                    Visible = false;
+                }
+                field("Net Weight"; Rec."Net Weight")
+                {
+                    Caption = 'Unit Net Weight';
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the net weight of one unit of the item. In the purchase statistics window, the net weight on the line is included in the total net weight of all the lines for the particular purchase document.';
                     Visible = false;
                 }
-                field("Unit Volume"; "Unit Volume")
+                field("Unit Volume"; Rec."Unit Volume")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the volume of one unit of the item. In the purchase statistics window, the volume of one unit of the item on the line is included in the total volume of all the lines for the particular purchase document.';
                     Visible = false;
                 }
-                field("Units per Parcel"; "Units per Parcel")
+                field("Units per Parcel"; Rec."Units per Parcel")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of units per parcel of the item. In the purchase statistics window, the number of units per parcel on the line helps to determine the total number of units for all the lines for the particular purchase document.';
@@ -792,7 +790,7 @@ page 6641 "Purchase Return Order Subform"
 
                     trigger OnAction()
                     begin
-                        ExplodeBOM;
+                        ExplodeBOM();
                     end;
                 }
                 action("Insert &Ext. Texts")
@@ -853,7 +851,7 @@ page 6641 "Purchase Return Order Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromPurchLine(Rec, ItemAvailFormsMgt.ByEvent)
+                            ItemAvailFormsMgt.ShowItemAvailFromPurchLine(Rec, ItemAvailFormsMgt.ByEvent())
                         end;
                     }
                     action(Period)
@@ -865,7 +863,7 @@ page 6641 "Purchase Return Order Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromPurchLine(Rec, ItemAvailFormsMgt.ByPeriod)
+                            ItemAvailFormsMgt.ShowItemAvailFromPurchLine(Rec, ItemAvailFormsMgt.ByPeriod())
                         end;
                     }
                     action(Variant)
@@ -877,7 +875,7 @@ page 6641 "Purchase Return Order Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromPurchLine(Rec, ItemAvailFormsMgt.ByVariant)
+                            ItemAvailFormsMgt.ShowItemAvailFromPurchLine(Rec, ItemAvailFormsMgt.ByVariant())
                         end;
                     }
                     action(Location)
@@ -890,7 +888,7 @@ page 6641 "Purchase Return Order Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromPurchLine(Rec, ItemAvailFormsMgt.ByLocation)
+                            ItemAvailFormsMgt.ShowItemAvailFromPurchLine(Rec, ItemAvailFormsMgt.ByLocation())
                         end;
                     }
                     action(Lot)
@@ -913,7 +911,7 @@ page 6641 "Purchase Return Order Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromPurchLine(Rec, ItemAvailFormsMgt.ByBOM)
+                            ItemAvailFormsMgt.ShowItemAvailFromPurchLine(Rec, ItemAvailFormsMgt.ByBOM())
                         end;
                     }
                 }
@@ -1063,19 +1061,23 @@ page 6641 "Purchase Return Order Subform"
 
     trigger OnAfterGetCurrRecord()
     begin
-        GetTotalsPurchaseHeader;
-        CalculateTotals;
+        GetTotalsPurchaseHeader();
+        CalculateTotals();
         UpdateEditableOnRow();
-        UpdateCurrency;
+        UpdateCurrency();
         UpdateTypeText();
         SetItemChargeFieldsStyle();
     end;
 
     trigger OnAfterGetRecord()
+    var
+        Item: Record Item;
     begin
         ShowShortcutDimCode(ShortcutDimCode);
         UpdateTypeText();
         SetItemChargeFieldsStyle();
+        if "Variant Code" = '' then
+            VariantCodeMandatory := Item.IsVariantMandatory(Type = Type::Item, "No.");
     end;
 
     trigger OnDeleteRecord(): Boolean
@@ -1112,7 +1114,7 @@ page 6641 "Purchase Return Order Subform"
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        InitType;
+        InitType();
         SetDefaultType();
 
         Clear(ShortcutDimCode);
@@ -1123,7 +1125,9 @@ page 6641 "Purchase Return Order Subform"
     var
         DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
     begin
-        SetDimensionsVisibility;
+        SetDimensionsVisibility();
+        SetItemReferenceVisibility();
+
         BackgroundErrorCheck := DocumentErrorsMgt.BackgroundValidationEnabled();
     end;
 
@@ -1139,6 +1143,7 @@ page 6641 "Purchase Return Order Subform"
         PurchCalcDiscByType: Codeunit "Purch - Calc Disc. By Type";
         DocumentTotals: Codeunit "Document Totals";
         AmountWithDiscountAllowed: Decimal;
+        VariantCodeMandatory: Boolean;
         InvDiscAmountEditable: Boolean;
         BackgroundErrorCheck: Boolean;
         ShowAllLinesEnabled: Boolean;
@@ -1167,6 +1172,8 @@ page 6641 "Purchase Return Order Subform"
         [InDataSet]
         IsCommentLine: Boolean;
         UnitofMeasureCodeIsChangeable: Boolean;
+        [InDataSet]
+        ItemReferenceVisible: Boolean;
 
     procedure ApproveCalcInvDisc()
     begin
@@ -1180,7 +1187,7 @@ page 6641 "Purchase Return Order Subform"
         ConfirmManagement: Codeunit "Confirm Management";
     begin
         PurchaseHeader.Get("Document Type", "Document No.");
-        if PurchaseHeader.InvoicedLineExists then
+        if PurchaseHeader.InvoicedLineExists() then
             if not ConfirmManagement.GetResponseOrDefault(UpdateInvDiscountQst, true) then
                 exit;
 
@@ -1335,8 +1342,15 @@ page 6641 "Purchase Return Order Subform"
     local procedure SetItemChargeFieldsStyle()
     begin
         ItemChargeStyleExpression := '';
-        if AssignedItemCharge then
+        if AssignedItemCharge() then
             ItemChargeStyleExpression := 'Unfavorable';
+    end;
+
+    local procedure SetItemReferenceVisibility()
+    var
+        ItemReference: Record "Item Reference";
+    begin
+        ItemReferenceVisible := not ItemReference.IsEmpty();
     end;
 
     local procedure SetDimensionsVisibility()
@@ -1376,7 +1390,7 @@ page 6641 "Purchase Return Order Subform"
         if Currency.Code <> TotalPurchaseHeader."Currency Code" then
             if not Currency.Get(TotalPurchaseHeader."Currency Code") then begin
                 Clear(Currency);
-                Currency.InitRoundingPrecision;
+                Currency.InitRoundingPrecision();
             end
     end;
 
@@ -1424,4 +1438,3 @@ page 6641 "Purchase Return Order Subform"
     end;
 }
 
-#endif

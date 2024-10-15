@@ -633,129 +633,77 @@ table 114 "Sales Cr.Memo Header"
         {
             Caption = 'Bank Account Code';
             TableRelation = "Customer Bank Account".Code WHERE("Customer No." = FIELD("Bill-to Customer No."));
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(11701; "Bank Account No."; Text[30])
         {
             Caption = 'Bank Account No.';
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(11702; "Bank Branch No."; Text[20])
         {
             Caption = 'Bank Branch No.';
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(11703; "Specific Symbol"; Code[10])
         {
             Caption = 'Specific Symbol';
             CharAllowed = '09';
             Editable = false;
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(11704; "Variable Symbol"; Code[10])
         {
             Caption = 'Variable Symbol';
             CharAllowed = '09';
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(11705; "Constant Symbol"; Code[10])
         {
             Caption = 'Constant Symbol';
             CharAllowed = '09';
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            TableRelation = "Constant Symbol";
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(11706; "Transit No."; Text[20])
         {
             Caption = 'Transit No.';
             Editable = false;
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(11707; IBAN; Code[50])
         {
             Caption = 'IBAN';
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
-#if not CLEAN18
-
-            trigger OnValidate()
-            var
-                CompanyInfo: Record "Company Information";
-            begin
-                // NAVCZ
-                CompanyInfo.CheckIBAN(IBAN);
-                // NAVCZ
-            end;
-#endif
+            ObsoleteTag = '21.0';
         }
         field(11708; "SWIFT Code"; Code[20])
         {
             Caption = 'SWIFT Code';
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(11709; "Bank Name"; Text[100])
         {
             Caption = 'Bank Name';
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(11730; "Cash Desk Code"; Code[20])
         {
@@ -889,24 +837,16 @@ table 114 "Sales Cr.Memo Header"
         field(31063; "Physical Transfer"; Boolean)
         {
             Caption = 'Physical Transfer';
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(31064; "Intrastat Exclude"; Boolean)
         {
             Caption = 'Intrastat Exclude';
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(31065; "Industry Code"; Code[20])
         {
@@ -952,23 +892,23 @@ table 114 "Sales Cr.Memo Header"
         key(Key6; "Bill-to Customer No.")
         {
         }
+        key(Key7; "Posting Date")
+        {
+        }
+        key(Key8; "Document Exchange Status")
+        {
+        }
+        key(Key9; "Salesperson Code")
+        {
+        }
 #if not CLEAN19
-        key(Key7; "Letter No.")
+        key(Key10; "Letter No.")
         {
             ObsoleteState = Pending;
             ObsoleteReason = 'Field "Letter No." is removed and cannot be used in an active key.';
             ObsoleteTag = '19.0';
         }
 #endif
-        key(Key8; "Posting Date")
-        {
-        }
-        key(Key9; "Document Exchange Status")
-        {
-        }
-        key(Key10; "Salesperson Code")
-        {
-        }
     }
 
     fieldgroups
@@ -1155,12 +1095,12 @@ table 114 "Sales Cr.Memo Header"
         SalesSetup: Record "Sales & Receivables Setup";
     begin
         SalesSetup.Get();
-        exit(SalesSetup.GetLegalStatement);
+        exit(SalesSetup.GetLegalStatement());
     end;
 
     procedure ShowDimensions()
     begin
-        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', TableCaption, "No."));
+        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', TableCaption(), "No."));
     end;
 
     procedure SetSecurityFilterOnRespCenter()
@@ -1179,6 +1119,8 @@ table 114 "Sales Cr.Memo Header"
         end;
     end;
 
+#if not CLEAN21
+    [Obsolete('The function is not used anymore.', '21.0')]
     [Scope('OnPrem')]
     procedure FindCustLedgEntry(var CustLedgEntry: Record "Cust. Ledger Entry"): Boolean
     begin
@@ -1188,9 +1130,9 @@ table 114 "Sales Cr.Memo Header"
         CustLedgEntry.SetRange("Document No.", "No.");
         CustLedgEntry.SetRange("Document Type", CustLedgEntry."Document Type"::"Credit Memo");
         CustLedgEntry.SetRange("Posting Date", "Posting Date");
-        exit(CustLedgEntry.FindFirst);
+        exit(CustLedgEntry.FindFirst())
     end;
-
+#endif
     procedure GetDocExchStatusStyle(): Text
     begin
         case "Document Exchange Status" of
@@ -1222,9 +1164,9 @@ table 114 "Sales Cr.Memo Header"
         CalcFields(Cancelled, Corrective);
         case true of
             Cancelled:
-                ShowCorrectiveInvoice;
+                ShowCorrectiveInvoice();
             Corrective:
-                ShowCancelledInvoice;
+                ShowCancelledInvoice();
         end;
     end;
 
@@ -1265,7 +1207,7 @@ table 114 "Sales Cr.Memo Header"
     begin
         CalcFields("Work Description");
         "Work Description".CreateInStream(InStream, TEXTENCODING::UTF8);
-        exit(TypeHelper.ReadAsTextWithSeparator(InStream, TypeHelper.LFSeparator));
+        exit(TypeHelper.ReadAsTextWithSeparator(InStream, TypeHelper.LFSeparator()));
     end;
 
     [IntegrationEvent(false, false)]
@@ -1298,3 +1240,4 @@ table 114 "Sales Cr.Memo Header"
     begin
     end;
 }
+

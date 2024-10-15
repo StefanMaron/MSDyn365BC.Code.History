@@ -139,12 +139,12 @@ codeunit 139085 "Exchange Sync Credentials Test"
         AzureADMgtSetup.Modify();
 
         with AzureADAppSetup do
-            if not Get then begin
-                Init;
+            if not Get() then begin
+                Init();
                 "Redirect URL" := 'http://dummyurl:1234/Main_Instance1/WebClient/OAuthLanding.htm';
-                "App ID" := CreateGuid;
-                SetSecretKeyToIsolatedStorage(CreateGuid);
-                Insert;
+                "App ID" := CreateGuid();
+                SetSecretKeyToIsolatedStorage(CreateGuid());
+                Insert();
             end;
     end;
 }

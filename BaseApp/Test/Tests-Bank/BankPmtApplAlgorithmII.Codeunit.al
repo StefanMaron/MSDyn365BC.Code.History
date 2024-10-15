@@ -622,9 +622,8 @@ codeunit 134259 "Bank Pmt. Appl. Algorithm II"
         BankAccReconciliationLine.Validate("Transaction Text", TransactionText);
         BankAccReconciliationLine.Validate("Additional Transaction Info", AdditionalTransactionInfo);
         BankAccReconciliationLine.Validate("Transaction ID", TransactionID);
-        BankAccReconciliationLine.Validate("Transaction Date", WorkDate);
+        BankAccReconciliationLine.Validate("Transaction Date", WorkDate());
         BankAccReconciliationLine.Validate("Statement Amount", Amount);
-        BankAccReconciliationLine.Validate(Type, BankAccReconciliationLine.Type::"Bank Account Ledger Entry");
         BankAccReconciliationLine.Modify(true);
     end;
 
@@ -666,13 +665,13 @@ codeunit 134259 "Bank Pmt. Appl. Algorithm II"
         DirectDebitCollection.Insert();
 
         with DirectDebitCollectionEntry do begin
-            Init;
+            Init();
             "Direct Debit Collection No." := DirectDebitCollection."No.";
             "Entry No." := LibraryUtility.GetNewRecNo(DirectDebitCollectionEntry, FieldNo("Entry No."));
             "Applies-to Entry No." := CustLedgerEntryNo;
             "Transaction ID" := DirectDebitCollection.Identifier + '/' + Format("Entry No.");
             Status := DDCollectionEntryStatus;
-            Insert;
+            Insert();
         end;
     end;
 

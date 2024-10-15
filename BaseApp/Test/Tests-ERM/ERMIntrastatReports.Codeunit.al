@@ -90,10 +90,10 @@ codeunit 134063 "ERM Intrastat Reports"
         PostTwoPurchaseDocuments(PurchaseLine, PurchaseLine."Document Type"::"Credit Memo", Quantity);
 
         // Exercise: Generate Intrastat Checklist.
-        RunIntrastatChecklist(IntrastatJnlLine, IntrastatJnlLine.Type::Receipt, PurchaseLine."No.", GetTransactionType); // NAVCZ
+        RunIntrastatChecklist(IntrastatJnlLine, IntrastatJnlLine.Type::Shipment, PurchaseLine."No.", GetTransactionType);
 
         // Verify: Verify values on Intrastat Checklist.
-        VerifyValuesOnIntrastatChecklist(GetTariffNo(PurchaseLine."No."), -Quantity); // NAVCZ
+        VerifyValuesOnIntrastatChecklist(GetTariffNo(PurchaseLine."No."), Quantity);
     end;
 
     [Test]
@@ -111,7 +111,7 @@ codeunit 134063 "ERM Intrastat Reports"
         Initialize();
         PostTwoPurchaseDocuments(PurchaseLine, PurchaseLine."Document Type"::Order, Quantity);
         // [GIVEN] Two Intrastat Journal Batches: B1, B2
-        CreateIntrastatLineMultipleBatches(IntrastatJnlLine, WorkDate);
+        CreateIntrastatLineMultipleBatches(IntrastatJnlLine, WorkDate());
 
         // [WHEN] Run 'Intrastat - Checklist' on on the Batch B2.
         RunGetItemEntriesAndIntrastatChecklist(
@@ -159,10 +159,10 @@ codeunit 134063 "ERM Intrastat Reports"
         PostTwoSalesDocuments(SalesLine, SalesLine."Document Type"::"Credit Memo", Quantity);
 
         // Exercise: Generate Intrastat Checklist.
-        RunIntrastatChecklist(IntrastatJnlLine, IntrastatJnlLine.Type::Shipment, SalesLine."No.", GetTransactionType); // NAVCZ
+        RunIntrastatChecklist(IntrastatJnlLine, IntrastatJnlLine.Type::Receipt, SalesLine."No.", GetTransactionType);
 
         // Verify: Verify values on Intrastat Checklist.
-        VerifyValuesOnIntrastatChecklist(GetTariffNo(SalesLine."No."), -Quantity); // NAVCZ
+        VerifyValuesOnIntrastatChecklist(GetTariffNo(SalesLine."No."), Quantity);
     end;
 
     [Test]
@@ -180,7 +180,7 @@ codeunit 134063 "ERM Intrastat Reports"
         Initialize();
         PostTwoSalesDocuments(SalesLine, SalesLine."Document Type"::Order, Quantity);
         // [GIVEN] Two Intrastat Journal Batches: B1, B2
-        CreateIntrastatLineMultipleBatches(IntrastatJnlLine, WorkDate);
+        CreateIntrastatLineMultipleBatches(IntrastatJnlLine, WorkDate());
 
         // [WHEN] Run 'Intrastat - Checklist' on on the Batch B2.
         RunGetItemEntriesAndIntrastatChecklist(
@@ -254,10 +254,10 @@ codeunit 134063 "ERM Intrastat Reports"
         PostTwoPurchaseDocuments(PurchaseLine, PurchaseLine."Document Type"::"Credit Memo", Quantity);
 
         // Exercise: Generate Intrastat Form.
-        RunIntrastatForm(IntrastatJnlLine, IntrastatJnlLine.Type::Receipt, PurchaseLine."No.", GetTransactionType); // NAVCZ
+        RunIntrastatForm(IntrastatJnlLine, IntrastatJnlLine.Type::Shipment, PurchaseLine."No.", GetTransactionType);
 
         // Verify: Verify values on Intrastat Form.
-        VerifyValuesOnIntrastatForm(GetTariffNo(PurchaseLine."No."), -Quantity); // NAVCZ
+        VerifyValuesOnIntrastatForm(GetTariffNo(PurchaseLine."No."), Quantity);
     end;
 
     [Test]
@@ -298,10 +298,10 @@ codeunit 134063 "ERM Intrastat Reports"
         PostTwoSalesDocuments(SalesLine, SalesLine."Document Type"::"Credit Memo", Quantity);
 
         // Exercise: Generate Intrastat Form.
-        RunIntrastatForm(IntrastatJnlLine, IntrastatJnlLine.Type::Shipment, SalesLine."No.", GetTransactionType); // NAVCZ
+        RunIntrastatForm(IntrastatJnlLine, IntrastatJnlLine.Type::Receipt, SalesLine."No.", GetTransactionType);
 
         // Verify: Verify values on Intrastat Form.
-        VerifyValuesOnIntrastatForm(GetTariffNo(SalesLine."No."), -Quantity); // NAVCZ
+        VerifyValuesOnIntrastatForm(GetTariffNo(SalesLine."No."), Quantity);
     end;
 
     [Test]
@@ -329,8 +329,8 @@ codeunit 134063 "ERM Intrastat Reports"
         // Exercise.
         CreateIntrastatLine(IntrastatJnlLine, Today);
         RunGetItemEntries(
-          IntrastatJnlLine, WorkDate,
-          CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate), false);
+          IntrastatJnlLine, WorkDate(),
+          CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate()), false);
 
         // Verify.
         VerifyValuesOnIntrastatJournal(IntrastatJnlLine, SalesLine."No.", Quantity, Amount);
@@ -358,11 +358,11 @@ codeunit 134063 "ERM Intrastat Reports"
         CreateIntrastatLine(IntrastatJnlLine, Today);
         LibraryVariableStorage.Enqueue(true);
         LibraryVariableStorage.Enqueue(false);
-        LibraryVariableStorage.Enqueue(WorkDate);
-        LibraryVariableStorage.Enqueue(CalcDate('<6M>', WorkDate));
+        LibraryVariableStorage.Enqueue(WorkDate());
+        LibraryVariableStorage.Enqueue(CalcDate('<6M>', WorkDate()));
         RunGetItemEntries(
-          IntrastatJnlLine, WorkDate,
-          CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate), true);
+          IntrastatJnlLine, WorkDate(),
+          CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate()), true);
 
         // Verify.
         VerifyValuesOnIntrastatJournal(IntrastatJnlLine, SalesLine."No.", Quantity, 0);
@@ -388,11 +388,11 @@ codeunit 134063 "ERM Intrastat Reports"
         CreateIntrastatLine(IntrastatJnlLine, Today);
         LibraryVariableStorage.Enqueue(true);
         LibraryVariableStorage.Enqueue(true);
-        LibraryVariableStorage.Enqueue(WorkDate);
-        LibraryVariableStorage.Enqueue(CalcDate('<6M>', WorkDate));
+        LibraryVariableStorage.Enqueue(WorkDate());
+        LibraryVariableStorage.Enqueue(CalcDate('<6M>', WorkDate()));
         RunGetItemEntries(
-          IntrastatJnlLine, WorkDate,
-          CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate), true);
+          IntrastatJnlLine, WorkDate(),
+          CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate()), true);
 
         // Verify.
         VerifyEmptyIntrastatJournal(IntrastatJnlLine, SalesLine."No.");
@@ -430,7 +430,6 @@ codeunit 134063 "ERM Intrastat Reports"
         ItemJournalLine.Validate("Transaction Type", TransactionType);
         ItemJournalLine.Validate("Transport Method", TransportMethod);
         ItemJournalLine.Validate("Country/Region Code", CountryRegionCode);
-        ItemJournalLine.Validate("Intrastat Transaction", true); // NAVCZ
         ItemJournalLine.Modify(true);
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
     end;
@@ -617,7 +616,7 @@ codeunit 134063 "ERM Intrastat Reports"
 
     local procedure RunIntrastatChecklist(IntrastatJnlLine: Record "Intrastat Jnl. Line"; Type: Option; ItemNo: Code[20]; TransactionType: Code[10])
     begin
-        CreateIntrastatLine(IntrastatJnlLine, WorkDate);
+        CreateIntrastatLine(IntrastatJnlLine, WorkDate());
         RunGetItemEntriesAndIntrastatChecklist(IntrastatJnlLine, Type, ItemNo, TransactionType);
     end;
 
@@ -625,7 +624,7 @@ codeunit 134063 "ERM Intrastat Reports"
     var
         IntrastatChecklist: Report "Intrastat - Checklist";
     begin
-        RunGetItemEntries(IntrastatJnlLine, WorkDate, CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate), false);
+        RunGetItemEntries(IntrastatJnlLine, WorkDate(), CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate()), false);
 
         Commit();
         Clear(IntrastatChecklist);
@@ -641,7 +640,7 @@ codeunit 134063 "ERM Intrastat Reports"
         IntrastatForm: Report "Intrastat - Form";
     begin
         CreateIntrastatLine(IntrastatJnlLine, Today);
-        RunGetItemEntries(IntrastatJnlLine, WorkDate, CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate), false);
+        RunGetItemEntries(IntrastatJnlLine, WorkDate(), CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate()), false);
         IntrastatJnlLine.SetRange("Item No.", ItemNo);
         IntrastatJnlLine.SetRange("Transaction Type", TransactionType);
         IntrastatJnlLine.SetRange(Type, Type);

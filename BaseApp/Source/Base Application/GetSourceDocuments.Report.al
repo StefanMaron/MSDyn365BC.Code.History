@@ -1,5 +1,4 @@
-#if not CLEAN18
-report 5753 "Get Source Documents"
+﻿report 5753 "Get Source Documents"
 {
     Caption = 'Get Source Documents';
     ProcessingOnly = true;
@@ -73,8 +72,8 @@ report 5753 "Get Source Documents"
                     trigger OnPostDataItem()
                     begin
                         if OneHeaderCreated or WhseHeaderCreated then begin
-                            UpdateReceiptHeaderStatus;
-                            CheckFillQtyToHandle;
+                            UpdateReceiptHeaderStatus();
+                            CheckFillQtyToHandle();
                         end;
 
                         OnAfterProcessDocumentLine(WhseShptHeader, "Warehouse Request", LineCreated, WhseReceiptHeader);
@@ -182,8 +181,8 @@ report 5753 "Get Source Documents"
                     trigger OnPostDataItem()
                     begin
                         if OneHeaderCreated or WhseHeaderCreated then begin
-                            UpdateReceiptHeaderStatus;
-                            CheckFillQtyToHandle;
+                            UpdateReceiptHeaderStatus();
+                            CheckFillQtyToHandle();
                         end;
 
                         OnAfterProcessDocumentLine(WhseShptHeader, "Warehouse Request", LineCreated, WhseReceiptHeader);
@@ -277,8 +276,8 @@ report 5753 "Get Source Documents"
                     begin
                         OnBeforeOnPostDataItemTransferLine(WhseReceiptHeader, RequestType, OneHeaderCreated, WhseHeaderCreated, LineCreated, HideDialog);
                         if OneHeaderCreated or WhseHeaderCreated then begin
-                            UpdateReceiptHeaderStatus;
-                            CheckFillQtyToHandle;
+                            UpdateReceiptHeaderStatus();
+                            CheckFillQtyToHandle();
                         end;
 
                         OnAfterProcessDocumentLine(WhseShptHeader, "Warehouse Request", LineCreated, WhseReceiptHeader);
@@ -431,8 +430,8 @@ report 5753 "Get Source Documents"
                 OnBeforeCreateWhseDocuments(WhseReceiptHeader, WhseShptHeader, IsHandled, "Warehouse Request");
                 if not IsHandled then begin
                     OnAfterCreateWhseDocuments(WhseReceiptHeader, WhseShptHeader, WhseHeaderCreated, "Warehouse Request");
-                    WhseShptHeader.SortWhseDoc;
-                    WhseReceiptHeader.SortWhseDoc;
+                    WhseShptHeader.SortWhseDoc();
+                    WhseReceiptHeader.SortWhseDoc();
                 end;
 
                 OnWarehouseRequestOnAfterOnPostDataItem(WhseShptHeader);
@@ -490,9 +489,9 @@ report 5753 "Get Source Documents"
         if not HideDialog then
             case RequestType of
                 RequestType::Receive:
-                    ShowReceiptDialog;
+                    ShowReceiptDialog();
                 RequestType::Ship:
-                    ShowShipmentDialog;
+                    ShowShipmentDialog();
             end;
         if SkippedSourceDoc > 0 then
             Message(CustomerIsBlockedMsg, SkippedSourceDoc);
@@ -508,8 +507,6 @@ report 5753 "Get Source Documents"
     end;
 
     var
-        Text000: Label 'There are no Warehouse Receipt Lines created.';
-        Text001: Label '%1 %2 has been created.';
         WhseReceiptHeader: Record "Warehouse Receipt Header";
         WhseReceiptLine: Record "Warehouse Receipt Line";
         WhseShptHeader: Record "Warehouse Shipment Header";
@@ -529,13 +526,16 @@ report 5753 "Get Source Documents"
         RequestType: Option Receive,Ship;
         SalesHeaderCounted: Boolean;
         SkippedSourceDoc: Integer;
+        ErrorOccured: Boolean;
+        SuppressCommit: Boolean;
+
+        Text000: Label 'There are no Warehouse Receipt Lines created.';
+        Text001: Label '%1 %2 has been created.';
         Text002: Label '%1 Warehouse Receipts have been created.';
         Text003: Label 'There are no Warehouse Shipment Lines created.';
         Text004: Label '%1 Warehouse Shipments have been created.';
-        ErrorOccured: Boolean;
         Text005: Label 'One or more of the lines on this %1 require special warehouse handling. The %2 for such lines has been set to blank.';
         CustomerIsBlockedMsg: Label '%1 source documents were not included because the customer is blocked.';
-        SuppressCommit: Boolean;
 
     procedure SetHideDialog(NewHideDialog: Boolean)
     begin
@@ -546,7 +546,7 @@ report 5753 "Get Source Documents"
     begin
         RequestType := RequestType::Ship;
         WhseShptHeader := WhseShptHeader2;
-        if WhseShptHeader.Find then
+        if WhseShptHeader.Find() then
             OneHeaderCreated := true;
     end;
 
@@ -554,7 +554,7 @@ report 5753 "Get Source Documents"
     begin
         RequestType := RequestType::Receive;
         WhseReceiptHeader := WhseReceiptHeader2;
-        if WhseReceiptHeader.Find then
+        if WhseReceiptHeader.Find() then
             OneHeaderCreated := true;
     end;
 
@@ -646,12 +646,6 @@ report 5753 "Get Source Documents"
         WhseHeaderCreated := true;
 
         OnAfterCreateShptHeader(WhseShptHeader, "Warehouse Request", "Sales Line");
-    end;
-
-    [Obsolete('The functionality of No. Series Enhancements has been removed.', '18.0')]
-    procedure CreateReceiptHeader(NoSeries: Code[20])
-    begin
-        CreateReceiptHeader();
     end;
 
     procedure CreateReceiptHeader()
@@ -755,7 +749,7 @@ report 5753 "Get Source Documents"
 
         if ErrorOccured then
             SpecialHandlingMessage :=
-              ' ' + StrSubstNo(Text005, WhseReceiptHeader.TableCaption, WhseReceiptLine.FieldCaption("Bin Code"));
+              ' ' + StrSubstNo(Text005, WhseReceiptHeader.TableCaption(), WhseReceiptLine.FieldCaption("Bin Code"));
         if (ActivitiesCreated = 0) and LineCreated and ErrorOccured then
             Message(SpecialHandlingMessage);
         if ActivitiesCreated = 1 then
@@ -773,7 +767,7 @@ report 5753 "Get Source Documents"
 
         if ErrorOccured then
             SpecialHandlingMessage :=
-              ' ' + StrSubstNo(Text005, WhseShptHeader.TableCaption, WhseShptLine.FieldCaption("Bin Code"));
+              ' ' + StrSubstNo(Text005, WhseShptHeader.TableCaption(), WhseShptLine.FieldCaption("Bin Code"));
         if (ActivitiesCreated = 0) and LineCreated and ErrorOccured then
             Message(SpecialHandlingMessage);
         if ActivitiesCreated = 1 then
@@ -819,7 +813,7 @@ report 5753 "Get Source Documents"
         if IsHandled then
             exit;
 
-        Message(StrSubstNo(Text001, ActivitiesCreated, WhseReceiptHeader.TableCaption) + SpecialHandlingMessage);
+        Message(StrSubstNo(Text001, ActivitiesCreated, WhseReceiptHeader.TableCaption()) + SpecialHandlingMessage);
     end;
 
     local procedure ShowMultipleWhseReceiptHeaderCreatedMessage(SpecialHandlingMessage: Text[1024])
@@ -843,7 +837,7 @@ report 5753 "Get Source Documents"
         if IsHandled then
             exit;
 
-        Message(StrSubstNo(Text001, ActivitiesCreated, WhseShptHeader.TableCaption) + SpecialHandlingMessage);
+        Message(StrSubstNo(Text001, ActivitiesCreated, WhseShptHeader.TableCaption()) + SpecialHandlingMessage);
     end;
 
     local procedure ShowMultipleWhseShptHeaderCreatedMessage(SpecialHandlingMessage: Text[1024])
@@ -1144,4 +1138,3 @@ report 5753 "Get Source Documents"
     end;
 }
 
-#endif

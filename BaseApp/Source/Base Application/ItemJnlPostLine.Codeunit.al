@@ -1,4 +1,5 @@
-﻿codeunit 22 "Item Jnl.-Post Line"
+﻿#if not CLEAN21
+codeunit 22 "Item Jnl.-Post Line"
 {
     Permissions = TableData Item = imd,
                   TableData "Item Ledger Entry" = imd,
@@ -121,7 +122,6 @@
         Text031: Label 'You cannot invoice the item %1 with item tracking number %2 %3 in this purchase order before the associated sales order %4 has been invoiced.', Comment = '%2 = Lot No. %3 = Serial No. Both are tracking numbers.';
         Text032: Label 'You cannot invoice item %1 in this purchase order before the associated sales order %2 has been invoiced.';
         Text033: Label 'Quantity must be -1, 0 or 1 when Serial No. is stated.';
-        IlegalApptErr: Label 'Ilegal application.\\ %1 %2 in %3 %7 %4 must not be less then %1 %5 in %3 %7 %6.';
         SkipApplicationCheck: Boolean;
         CalledFromApplicationWorksheet: Boolean;
         SkipSerialNoQtyValidation: Boolean;
@@ -727,12 +727,7 @@
             if ("Inventory Posting Group" = '') and (Item.Type = Item.Type::Inventory) then begin
                 Item.TestField("Inventory Posting Group");
                 "Inventory Posting Group" := Item."Inventory Posting Group";
-                // NAVCZ
-            end
-            else
-                if not CalledFromAdjustment and (Item.Type = Item.Type::Inventory) then
-                    TestField("Inventory Posting Group", Item."Inventory Posting Group");
-            // NAVCZ
+            end;
 
             OnPostItemOnBeforeSetAverageTransfer(ItemJnlLine, CalledFromAdjustment);
             if ("Entry Type" = "Entry Type"::Transfer) and
@@ -1040,11 +1035,6 @@
             CapLedgEntry."Global Dimension 1 Code" := "Shortcut Dimension 1 Code";
             CapLedgEntry."Global Dimension 2 Code" := "Shortcut Dimension 2 Code";
             CapLedgEntry."Dimension Set ID" := "Dimension Set ID";
-#if not CLEAN18
-            // NAVCZ
-            CapLedgEntry."User ID" := UserId;
-            // NAVCZ
-#endif
 
             OnBeforeInsertCapLedgEntry(CapLedgEntry, ItemJnlLine);
 
@@ -1059,7 +1049,6 @@
     local procedure InsertCapValueEntry(var CapLedgEntry: Record "Capacity Ledger Entry"; ValueEntryType: Enum "Cost Entry Type"; ValuedQty: Decimal; InvdQty: Decimal; AdjdCost: Decimal)
     var
         ValueEntry: Record "Value Entry";
-        lreWorkCenter: Record "Work Center";
         IsHandled: Boolean;
     begin
         OnBeforeInsertCapValueEntryProcedure(ItemJnlLine, ValueEntryType, ValuedQty, InvdQty, AdjdCost);
@@ -1084,13 +1073,6 @@
             ValueEntry."Order Line No." := "Order Line No.";
             ValueEntry."Source Type" := "Source Type";
             ValueEntry."Source No." := GetSourceNo(ItemJnlLine);
-            // NAVCZ
-            ValueEntry."Source No." := "Source No.";
-#if not CLEAN18
-            ValueEntry."Source No. 2" := "Invoice-to Source No.";
-            ValueEntry."Source No. 3" := "Source No. 3";
-#endif
-            // NAVCZ
             ValueEntry."Invoiced Quantity" := InvdQty;
             ValueEntry."Valued Quantity" := ValuedQty;
 
@@ -1115,13 +1097,6 @@
             ValueEntry."Posting Date" := "Posting Date";
             ValueEntry."Valuation Date" := "Posting Date";
             ValueEntry."Source No." := GetSourceNo(ItemJnlLine);
-            // NAVCZ
-            ValueEntry."Source No." := "Source No.";
-#if not CLEAN18
-            ValueEntry."Source No. 2" := "Invoice-to Source No.";
-            ValueEntry."Source No. 3" := "Source No. 3";
-#endif
-            // NAVCZ
             ValueEntry."Document Type" := "Document Type";
             if ValueEntry."Expected Cost" or ("Invoice No." = '') then
                 ValueEntry."Document No." := "Document No."
@@ -1141,12 +1116,6 @@
             ValueEntry."Source Code" := "Source Code";
             ValueEntry."Reason Code" := "Reason Code";
             ValueEntry."Journal Batch Name" := "Journal Batch Name";
-            // NAVCZ
-#if not CLEAN18
-            ValueEntry."G/L Correction" := "G/L Correction";
-#endif
-            ValueEntry."Location Code" := "Location Code";
-            // NAVCZ
 
             ValueEntry."Global Dimension 1 Code" := "Shortcut Dimension 1 Code";
             ValueEntry."Global Dimension 2 Code" := "Shortcut Dimension 2 Code";
@@ -1179,24 +1148,10 @@
                (ValueEntryType = "Value Entry Type"::"Direct Cost")
             then begin
                 CapLedgEntry."Invoiced Quantity" := CapLedgEntry."Invoiced Quantity" + "Invoiced Quantity";
-                // NAVCZ
-                /*
-                IF Subcontracting THEN
-                  CapLedgEntry."Completely Invoiced" := CapLedgEntry."Invoiced Quantity" = CapLedgEntry."Output Quantity"
-                ELSE
-                  CapLedgEntry."Completely Invoiced" := CapLedgEntry."Invoiced Quantity" = CapLedgEntry.Quantity;
-                */
-                // NAVCZ
-                if CapLedgEntry.Subcontracting then begin
-                    if lreWorkCenter.Get(CapLedgEntry."Work Center No.") then
-                        lreWorkCenter.Init();
-                    if lreWorkCenter."Unit Cost Calculation" = lreWorkCenter."Unit Cost Calculation"::Units then
-                        CapLedgEntry."Completely Invoiced" := CapLedgEntry."Invoiced Quantity" = CapLedgEntry."Output Quantity"
-                    else
-                        CapLedgEntry."Completely Invoiced" := CapLedgEntry."Invoiced Quantity" = CapLedgEntry.Quantity;
-                end else
+                if Subcontracting then
+                    CapLedgEntry."Completely Invoiced" := CapLedgEntry."Invoiced Quantity" = CapLedgEntry."Output Quantity"
+                else
                     CapLedgEntry."Completely Invoiced" := CapLedgEntry."Invoiced Quantity" = CapLedgEntry.Quantity;
-                // NAVCZ
                 CapLedgEntry.Modify();
             end;
         end;
@@ -1516,10 +1471,7 @@
             "Bin Code" := ProdOrderComp."Bin Code";
             "Variant Code" := ProdOrderComp."Variant Code";
             "Source Code" := SourceCodeSetup.Flushing;
-            // NAVCZ
-            // "Gen. Bus. Posting Group" := ProdOrder."Gen. Bus. Posting Group";
-            "Gen. Bus. Posting Group" := OldItemJnlLine."Gen. Bus. Posting Group";
-            // NAVCZ
+            "Gen. Bus. Posting Group" := ProdOrder."Gen. Bus. Posting Group";
             "Gen. Prod. Posting Group" := CompItem."Gen. Prod. Posting Group";
             OnPostFlushedConsumpOnAfterCopyProdOrderFieldsToItemJnlLine(ItemJnlLine, OldItemJnlLine, ProdOrderLine, ProdOrderComp, CompItem);
 
@@ -1577,7 +1529,7 @@
         OnAfterPostFlushedConsump(ProdOrderComp, ProdOrderRoutingLine, OldItemJnlLine);
     end;
 
-    local procedure UpdateUnitCost(ValueEntry: Record "Value Entry")
+    procedure UpdateUnitCost(ValueEntry: Record "Value Entry")
     var
         ItemCostMgt: Codeunit ItemCostManagement;
         LastDirectCost: Decimal;
@@ -1618,12 +1570,6 @@
                     end;
                 end else begin
                     UpdateSKU := true;
-#if not CLEAN18                    
-                    // NAVCZ
-                    GetInvtSetup;
-                    UpdateSKU := not InvtSetup."Skip Update SKU on Posting";
-                    // NAVCZ
-#endif
                     OnUpdateUnitCostOnBeforeUpdateUnitCost(ItemJnlLine, ValueEntry, Item, UpdateSKU);
                     ItemCostMgt.SetProperties(false, "Invoiced Quantity");
                     ItemCostMgt.UpdateUnitCost(Item, "Location Code", "Variant Code", LastDirectCost, 0, UpdateSKU, true, false, 0);
@@ -1847,7 +1793,7 @@
         exit(not Application.IsEmpty);
     end;
 
-    local procedure ApplyItemLedgEntry(var ItemLedgEntry: Record "Item Ledger Entry"; var OldItemLedgEntry: Record "Item Ledger Entry"; var ValueEntry: Record "Value Entry"; CausedByTransfer: Boolean)
+    procedure ApplyItemLedgEntry(var ItemLedgEntry: Record "Item Ledger Entry"; var OldItemLedgEntry: Record "Item Ledger Entry"; var ValueEntry: Record "Value Entry"; CausedByTransfer: Boolean)
     var
         ItemLedgEntry2: Record "Item Ledger Entry";
         OldValueEntry: Record "Value Entry";
@@ -2075,8 +2021,9 @@
             end;
             OnApplyItemLedgEntryOnApplicationLoop(ItemLedgEntry);
         until false;
-
+#if not CLEAN21
         OnAfterApplyItemLedgEntry(GlobalItemLedgEntry, OldItemLedgEntry, ItemJnlLine);
+#endif        
     end;
 
     local procedure UpdateItemLedgerEntryRemainingQuantity(var ItemLedgerEntry: Record "Item Ledger Entry"; AppliedQty: Decimal; var OldItemLedgEntry: Record "Item Ledger Entry"; CausedByTransfer: Boolean)
@@ -2316,7 +2263,7 @@
         end;
     end;
 
-    local procedure InitItemLedgEntry(var ItemLedgEntry: Record "Item Ledger Entry")
+    procedure InitItemLedgEntry(var ItemLedgEntry: Record "Item Ledger Entry")
     begin
         ItemLedgEntryNo := ItemLedgEntryNo + 1;
 
@@ -2328,12 +2275,6 @@
             ItemLedgEntry."Document Date" := "Document Date";
             ItemLedgEntry."Entry Type" := "Entry Type";
             ItemLedgEntry."Source No." := "Source No.";
-#if not CLEAN18
-            // NAVCZ
-            ItemLedgEntry."Source No. 2" := "Invoice-to Source No.";
-            ItemLedgEntry."Source No. 3" := "Source No. 3";
-            // NAVCZ
-#endif
             ItemLedgEntry."Document No." := "Document No.";
             ItemLedgEntry."Document Type" := "Document Type";
             ItemLedgEntry."Document Line No." := "Document Line No.";
@@ -2384,20 +2325,6 @@
             ItemLedgEntry."Shpt. Method Code" := "Shpt. Method Code";
 
             ItemLedgEntry.Correction := Correction;
-#if not CLEAN18
-            // NAVCZ
-            ItemLedgEntry."Tariff No." := "Tariff No.";
-            ItemLedgEntry."Statistic Indication" := "Statistic Indication";
-            ItemLedgEntry."Net Weight" := "Net Weight";
-            ItemLedgEntry."Country/Region of Origin Code" := "Country/Region of Origin Code";
-            ItemLedgEntry."Intrastat Transaction" := "Intrastat Transaction";
-            ItemLedgEntry."Physical Transfer" := "Physical Transfer";
-            ItemLedgEntry."Currency Code" := "Currency Code";
-            ItemLedgEntry."Currency Factor" := "Currency Factor";
-
-            CheckIntrastat;
-            // NAVCZ
-#endif
 
             if "Entry Type" in
                ["Entry Type"::Sale,
@@ -2414,19 +2341,12 @@
             end;
             if (ItemLedgEntry.Quantity < 0) and ("Entry Type" <> "Entry Type"::Transfer) then
                 ItemLedgEntry."Shipped Qty. Not Returned" := ItemLedgEntry.Quantity;
-#if not CLEAN18
-            // NAVCZ
-            ItemLedgEntry."Source Code" := "Source Code";
-            ItemLedgEntry."Reason Code" := "Reason Code";
-            ItemLedgEntry."User ID" := UserId;
-            // NAVCZ
-#endif
         end;
 
         OnAfterInitItemLedgEntry(ItemLedgEntry, ItemJnlLine, ItemLedgEntryNo);
     end;
 
-    local procedure InsertItemLedgEntry(var ItemLedgEntry: Record "Item Ledger Entry"; TransferItem: Boolean)
+    procedure InsertItemLedgEntry(var ItemLedgEntry: Record "Item Ledger Entry"; TransferItem: Boolean)
     var
         IsHandled: Boolean;
     begin
@@ -2683,12 +2603,11 @@
         ValueEntry."Expected Cost" := ExpectedCost;
     end;
 
-    local procedure InsertApplEntry(ItemLedgEntryNo: Integer; InboundItemEntry: Integer; OutboundItemEntry: Integer; TransferedFromEntryNo: Integer; PostingDate: Date; Quantity: Decimal; CostToApply: Boolean)
+    procedure InsertApplEntry(ItemLedgEntryNo: Integer; InboundItemEntry: Integer; OutboundItemEntry: Integer; TransferedFromEntryNo: Integer; PostingDate: Date; Quantity: Decimal; CostToApply: Boolean)
     var
         ApplItemLedgEntry: Record "Item Ledger Entry";
         OldItemApplnEntry: Record "Item Application Entry";
         ItemApplHistoryEntry: Record "Item Application Entry History";
-        ItemLedgEntry2: Record "Item Ledger Entry";
         ItemApplnEntryExists: Boolean;
         IsHandled: Boolean;
     begin
@@ -2718,25 +2637,6 @@
         end;
 
         if Quantity < 0 then begin
-#if not CLEAN18
-            // NAVCZ
-            if InboundItemEntry <> 0 then begin
-                GetInvtSetup;
-                if InvtSetup."Date Order Inventory Change" then
-                    if ItemLedgEntry2.Get(InboundItemEntry) then begin
-                        if ItemLedgEntry2."Posting Date" > PostingDate then
-                            Error(IlegalApptErr, ItemLedgEntry2.FieldCaption("Posting Date"), PostingDate, ItemLedgEntry2.TableCaption,
-                              OutboundItemEntry, ItemLedgEntry2."Posting Date", InboundItemEntry, ItemLedgEntry2.FieldCaption("Entry No."));
-                    end else begin
-                        // for non chech issue (bellow zero quantity);
-                        ItemLedgEntry2.Get(OutboundItemEntry);
-                        if ItemLedgEntry2."Posting Date" < PostingDate then
-                            Error(IlegalApptErr, ItemLedgEntry2.FieldCaption("Posting Date"), ItemLedgEntry2."Posting Date", ItemLedgEntry2.TableCaption,
-                              OutboundItemEntry, PostingDate, InboundItemEntry, ItemLedgEntry2.FieldCaption("Entry No."));
-                    end;
-            end;
-            // NAVCZ
-#endif
             OldItemApplnEntry.SetCurrentKey("Inbound Item Entry No.", "Item Ledger Entry No.", "Outbound Item Entry No.");
             OldItemApplnEntry.SetRange("Inbound Item Entry No.", InboundItemEntry);
             OldItemApplnEntry.SetRange("Item Ledger Entry No.", ItemLedgEntryNo);
@@ -2846,12 +2746,6 @@
             ValueEntry."Item Ledger Entry Type" := "Entry Type";
             ValueEntry.Type := Type;
             ValueEntry."Posting Date" := "Posting Date";
-#if not CLEAN18
-            // NAVCZ
-            ValueEntry."Incl. in Intrastat Amount" := "Incl. in Intrastat Amount";
-            ValueEntry."Incl. in Intrastat Stat. Value" := "Incl. in Intrastat Stat. Value";
-            // NAVCZ
-#endif
             if "Partial Revaluation" then
                 ValueEntry."Partial Revaluation" := true;
 
@@ -2899,19 +2793,6 @@
                 ValueEntry.Description := Description;
 
             SetValueEntrySourceFieldsFromItemJnlLine(ValueEntry, ItemJnlLine);
-            // NAVCZ
-            ValueEntry."Source No." := "Source No.";
-#if not CLEAN18
-            if "Item Charge No." <> '' then begin
-                ValueEntry."Source No. 2" := "Invoice-to Source No.";
-                ValueEntry."Source No. 3" := "Source No. 3";
-            end else begin
-                // NAVCZ
-                ValueEntry."Source No. 2" := ItemLedgEntry."Source No. 2";
-                ValueEntry."Source No. 3" := ItemLedgEntry."Source No. 3";
-            end;
-#endif
-            // NAVCZ
             if ("Value Entry Type" = "Value Entry Type"::"Direct Cost") and ("Item Charge No." = '') then
                 ValueEntry."Inventory Posting Group" := "Inventory Posting Group"
             else
@@ -2935,12 +2816,6 @@
                 ValueEntry."Job No." := "Job No.";
                 ValueEntry."Job Task No." := "Job Task No.";
             end;
-#if not CLEAN18
-            // NAVCZ
-            ValueEntry."Currency Code" := "Currency Code";
-            ValueEntry."Currency Factor" := "Currency Factor";
-            // NAVCZ
-#endif
             InvoicedQuantityNotEmpty := "Invoiced Quantity" <> 0;
             OnInitValueEntryOnAfterCalcInvoicedQuantityNotEmpty(ItemJnlLine, InvoicedQuantityNotEmpty);
             if InvoicedQuantityNotEmpty then begin
@@ -3238,18 +3113,7 @@
                   ValueEntry."Purchase Amount (Expected)",
                   ItemLedgEntry.Quantity = ItemLedgEntry."Invoiced Quantity");
             end;
-#if not CLEAN18
-            // NAVCZ
-            if not IsFirstValueEntry(ValueEntry."Item Ledger Entry No.") then
-                ValueEntry."G/L Correction" := CalcGLCorrection(ValueEntry)
-            else
-                ValueEntry."G/L Correction" := "G/L Correction";
-            if ValueEntry."Item Ledger Entry Type" = ValueEntry."Item Ledger Entry Type"::Transfer then
-                if InvtSetup."Post Neg. Transfers as Corr." then
-                    ValueEntry."G/L Correction" := ValueEntry."Valued Quantity" < 0;
-            // NAVCZ
 
-#endif
             OnBeforeInsertValueEntry(ValueEntry, ItemJnlLine, ItemLedgEntry, ValueEntryNo, InventoryPostingToGL, CalledFromAdjustment,
                 OldItemLedgEntry, Item, TransferItem, GlobalValueEntry);
 
@@ -3499,7 +3363,7 @@
         end;
     end;
 
-    local procedure InitTransValueEntry(var ValueEntry: Record "Value Entry"; ItemLedgEntry: Record "Item Ledger Entry")
+    procedure InitTransValueEntry(var ValueEntry: Record "Value Entry"; ItemLedgEntry: Record "Item Ledger Entry")
     var
         AdjCostInvoicedLCY: Decimal;
         AdjCostInvoicedACY: Decimal;
@@ -4100,7 +3964,7 @@
         OnAfterMoveValEntryDimToValEntryDim(ToValueEntry, FromValueEntry);
     end;
 
-    local procedure AutoTrack(var ItemLedgEntryRec: Record "Item Ledger Entry"; IsReserved: Boolean)
+    procedure AutoTrack(var ItemLedgEntryRec: Record "Item Ledger Entry"; IsReserved: Boolean)
     var
         ReservMgt: Codeunit "Reservation Management";
     begin
@@ -4267,10 +4131,6 @@
         if IsHandled then
             exit;
 
-        // NAVCZ
-        if ExternalLotSN then
-            PostItemJnlLine := true;
-        // NAVCZ
         TempSplitItemJnlLine := ItemJnlLine2;
         TempSplitItemJnlLine.Insert();
 
@@ -4325,7 +4185,7 @@
                     OnSplitItemJnlLineOnBeforeInsertTempTrkgSpecification(TempTrackingSpecification, ItemJnlLine2, SignFactor);
                     InsertTempTrkgSpecification(FreeEntryNo);
                 end else
-                    if (ItemJnlLine2."Item Charge No." = '') and (ItemJnlLine2."Job No." = '') and (not ExternalLotSN) then // NAVCZ
+                    if (ItemJnlLine2."Item Charge No." = '') and (ItemJnlLine2."Job No." = '') then
                         if not ItemJnlLine2.Correction then begin // Undo quantity posting
                             IsHandled := false;
                             OnBeforeTrackingSpecificationMissingErr(ItemJnlLine2, IsHandled);
@@ -4761,11 +4621,6 @@
         NewValueEntry."Cost Posted to G/L (ACY)" := 0;
         NewValueEntry."Expected Cost Posted to G/L" := 0;
         NewValueEntry."Exp. Cost Posted to G/L (ACY)" := 0;
-#if not CLEAN18
-        // NAVCZ
-        NewValueEntry."G/L Correction" := not OldValueEntry."G/L Correction";
-        // NAVCZ
-#endif
 
         OnBeforeInsertCorrValueEntry(
           NewValueEntry, OldValueEntry, ItemJnlLine, Sign, CalledFromAdjustment, ItemLedgEntry, ValueEntryNo, InventoryPostingToGL);
@@ -5559,7 +5414,7 @@
         ProdOrderCompModified := ProdOrderCompIsModified;
     end;
 
-    local procedure InsertCountryCode(var NewItemLedgEntry: Record "Item Ledger Entry"; ItemLedgEntry: Record "Item Ledger Entry")
+    procedure InsertCountryCode(var NewItemLedgEntry: Record "Item Ledger Entry"; ItemLedgEntry: Record "Item Ledger Entry")
     begin
         if ItemLedgEntry."Location Code" = '' then
             exit;
@@ -5860,39 +5715,13 @@
         exit(PostItemJnlLine);
     end;
 
+    [Obsolete('Procedure is not used and will be removed.', '21.0')]
     procedure xSetExtLotSN(ExternalLotSNNew: Boolean)
     begin
         // NAVCZ
         ExternalLotSN := ExternalLotSNNew;
     end;
 
-#if not CLEAN18
-    local procedure CalcGLCorrection(NewValueEntry: Record "Value Entry"): Boolean
-    var
-        ValueEntry: Record "Value Entry";
-        NewGetCostAmt: Decimal;
-        GetCostAmt: Decimal;
-    begin
-        // NAVCZ
-
-        if NewValueEntry."Cost Amount (Actual)" = 0 then
-            NewGetCostAmt := NewValueEntry."Cost Amount (Expected)"
-        else
-            NewGetCostAmt := NewValueEntry."Cost Amount (Actual)";
-
-        ValueEntry.SetCurrentKey("Item Ledger Entry No.");
-        ValueEntry.SetRange("Item Ledger Entry No.", NewValueEntry."Item Ledger Entry No.");
-        ValueEntry.FindFirst();
-
-        if ValueEntry."Cost Amount (Actual)" = 0 then
-            GetCostAmt := ValueEntry."Cost Amount (Expected)"
-        else
-            GetCostAmt := ValueEntry."Cost Amount (Actual)";
-
-        exit(ValueEntry."G/L Correction" xor (GetCostAmt * NewGetCostAmt < 0));
-    end;
-
-#endif
     local procedure ReservationExists(ItemJnlLine: Record "Item Journal Line"): Boolean
     var
         ReservEntry: Record "Reservation Entry";
@@ -6406,6 +6235,7 @@
     begin
     end;
 
+    [Obsolete('Standard procedure from W1 will be used.', '21.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertTempSplitItemJnlLine(ItemJournalLine: Record "Item Journal Line"; IsServUndoConsumption: Boolean; PostponeReservationHandling: Boolean; var TempSplitItemJnlLine: Record "Item Journal Line"; var PostItemJnlLine: Boolean; var IsHandled: Boolean)
     begin
@@ -6521,11 +6351,13 @@
     begin
     end;
 
+#if not CLEAN21
+    [Obsolete('Event is never called', '21.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterApplyItemLedgEntry(var GlobalItemLedgerEntry: Record "Item Ledger Entry"; var OldItemLedgerEntry: Record "Item Ledger Entry"; ItemJournalLine: Record "Item Journal Line")
     begin
     end;
-
+#endif
     [IntegrationEvent(false, false)]
     local procedure OnAfterApplyItemLedgEntrySetFilters(var ItemLedgerEntry2: Record "Item Ledger Entry"; ItemLedgerEntry: Record "Item Ledger Entry"; ItemJournalLine: Record "Item Journal Line")
     begin
@@ -7711,3 +7543,4 @@
     end;
 }
 
+#endif

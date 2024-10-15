@@ -26,7 +26,7 @@ page 11704 "Bank Pmt. Appl. Rule Codes"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the description for a payment title.';
                 }
-                field("Match Related Party Only"; "Match Related Party Only")
+                field("Match Related Party Only"; Rec."Match Related Party Only")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the match related party only.';
@@ -44,12 +44,20 @@ page 11704 "Bank Pmt. Appl. Rule Codes"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Rules';
                 Image = MapAccounts;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 RunObject = Page "Payment Application Rules";
                 RunPageLink = "Bank Pmt. Appl. Rule Code" = FIELD(Code);
                 ToolTip = 'Specifies rules';
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(Rules_Promoted; Rules)
+                {
+                }
             }
         }
     }

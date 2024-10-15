@@ -1,13 +1,9 @@
 table 11798 "XML Export Buffer"
 {
     Caption = 'XML Export Buffer';
-#if CLEAN18
     ObsoleteState = Removed;
-#else
-    ObsoleteState = Pending;
-#endif
     ObsoleteReason = 'Became obsolete after refactoring. Use dictionary variable instead.';
-    ObsoleteTag = '18.0';
+    ObsoleteTag = '21.0';
 
     fields
     {

@@ -18,7 +18,7 @@ report 11781 "Open G/L Entries To Date"
             column(SkipEntriesDetail; SkipEntriesDetail)
             {
             }
-            column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+            column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
             column(BalanceToDate; BalanceToDate)
@@ -137,7 +137,7 @@ report 11781 "Open G/L Entries To Date"
                 GLAccount.Get("G/L Account No.");
 
                 GLEntry := "G/L Entry";
-                GLEntry.Find;
+                GLEntry.Find();
                 GLEntry.SetFilter("Date Filter", '..%1', BalanceToDate);
                 GLEntry.CalcFields("Applied Amount");
                 AppliedAmount := GLEntry."Applied Amount";
@@ -157,7 +157,7 @@ report 11781 "Open G/L Entries To Date"
             begin
                 SetCurrentKey("G/L Account No.", "Posting Date");
                 if BalanceToDate = 0D then
-                    BalanceToDate := WorkDate;
+                    BalanceToDate := WorkDate();
 
                 SetFilter("Posting Date", '..%1', BalanceToDate);
             end;
@@ -196,7 +196,7 @@ report 11781 "Open G/L Entries To Date"
 
         trigger OnOpenPage()
         begin
-            BalanceToDate := WorkDate;
+            BalanceToDate := WorkDate();
         end;
     }
 

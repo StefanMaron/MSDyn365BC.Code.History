@@ -23,7 +23,7 @@ codeunit 7316 "Whse. Int. Put-away Release"
             WhseInternalPutawayLine.SetRange("No.", "No.");
             WhseInternalPutawayLine.SetFilter(Quantity, '<>0');
             if not WhseInternalPutawayLine.Find('-') then
-                Error(Text000, TableCaption, "No.");
+                Error(Text000, TableCaption(), "No.");
 
             if "Location Code" <> '' then begin
                 Location.Get("Location Code");
@@ -41,7 +41,7 @@ codeunit 7316 "Whse. Int. Put-away Release"
             until WhseInternalPutawayLine.Next() = 0;
 
             Status := Status::Released;
-            Modify;
+            Modify();
 
             CreateWhsePutawayRqst(WhseInternalPutAwayHeader);
 
@@ -88,7 +88,7 @@ codeunit 7316 "Whse. Int. Put-away Release"
                 until WhsePutawayRqst.Next() = 0;
 
             Status := Status::Open;
-            Modify;
+            Modify();
         end;
     end;
 

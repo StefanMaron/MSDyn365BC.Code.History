@@ -14,11 +14,11 @@ page 130402 "CAL Test Codeunits"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Object ID"; "Object ID")
+                field("Object ID"; Rec."Object ID")
                 {
                     ApplicationArea = All;
                 }
-                field("Object Name"; "Object Name")
+                field("Object Name"; Rec."Object Name")
                 {
                     ApplicationArea = All;
                 }

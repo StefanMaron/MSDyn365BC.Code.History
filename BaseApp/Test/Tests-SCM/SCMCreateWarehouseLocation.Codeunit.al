@@ -215,7 +215,7 @@ codeunit 137220 "SCM CreateWarehouseLocation"
         asserterror CreateWarehouseLocation.RunModal();
         if StrPos(GetLastErrorText, ExpectedErrorMessage) = 0 then
             Assert.Fail(StrSubstNo(UnexpectedMessage, GetLastErrorText, ExpectedErrorMessage));
-        ClearLastError;
+        ClearLastError();
         Clear(CreateWarehouseLocation);
     end;
 

@@ -1,4 +1,4 @@
-﻿table 5405 "Production Order"
+table 5405 "Production Order"
 {
     Caption = 'Production Order';
     DataCaptionFields = "No.", Description;
@@ -22,7 +22,7 @@
             begin
                 if "No." <> xRec."No." then begin
                     MfgSetup.Get();
-                    NoSeriesMgt.TestManual(GetNoSeriesCode);
+                    NoSeriesMgt.TestManual(GetNoSeriesCode());
                     "No. Series" := '';
                 end;
             end;
@@ -125,8 +125,8 @@
                         OnValidateSourceNoOnSourceTypeEnumExtension(Rec);
                 end;
                 Validate(Description);
-                InitRecord;
-                UpdateDatetime;
+                InitRecord();
+                UpdateDatetime();
             end;
         }
         field(11; "Routing No."; Code[20])
@@ -241,16 +241,16 @@
                     ProdOrderLine.SetFilter("Planning Level Code", '>%1', 0);
                     if not ProdOrderLine.IsEmpty() then begin
                         ProdOrderLine.SetRange("Planning Level Code", 0);
-                        if "Source Type" = "Source Type"::Family then begin
-                            UpdateEndingDate(ProdOrderLine);
-                        end else begin
+                        if "Source Type" = "Source Type"::Family then
+                            UpdateEndingDate(ProdOrderLine)
+                        else begin
                             if ProdOrderLine.Find('-') then
                                 "Ending Date" :=
                                     LeadTimeMgt.PlannedEndingDate(ProdOrderLine."Item No.", "Location Code", '', "Due Date", '', 2)
                             else
                                 "Ending Date" := "Due Date";
                             "Ending Date-Time" := CreateDateTime("Ending Date", "Ending Time");
-                            MultiLevelMessage;
+                            MultiLevelMessage();
                             exit;
                         end;
                     end else begin
@@ -267,7 +267,7 @@
                             "Starting Date-Time" := CreateDateTime("Starting Date", "Starting Time");
                             "Ending Date-Time" := CreateDateTime("Ending Date", "Ending Time");
                         end;
-                        AdjustStartEndingDate;
+                        AdjustStartEndingDate();
                         Modify(true);
                     end;
                     OnValidateDueDateOnAfterModify(Rec);
@@ -314,7 +314,7 @@
 
             trigger OnValidate()
             begin
-                GetDefaultBin;
+                GetDefaultBin();
 
                 Validate("Due Date"); // Scheduling consider Calendar assigned to Location
                 CreateDimFromDefaultDim();
@@ -527,7 +527,7 @@
 
             trigger OnLookup()
             begin
-                ShowDocDim;
+                ShowDocDim();
             end;
 
             trigger OnValidate()
@@ -601,14 +601,14 @@
             if not ItemLedgEntry.IsEmpty() then
                 Error(
                   Text000,
-                  Status, TableCaption, "No.", ItemLedgEntry.TableCaption);
+                  Status, TableCaption(), "No.", ItemLedgEntry.TableCaption());
 
             CapLedgEntry.SetRange("Order Type", CapLedgEntry."Order Type"::Production);
             CapLedgEntry.SetRange("Order No.", "No.");
             if not CapLedgEntry.IsEmpty() then
                 Error(
                   Text000,
-                  Status, TableCaption, "No.", CapLedgEntry.TableCaption);
+                  Status, TableCaption(), "No.", CapLedgEntry.TableCaption());
         end;
 
         if Status in [Status::Released, Status::Finished] then begin
@@ -618,7 +618,7 @@
             if not PurchLine.IsEmpty() then
                 Error(
                   Text000,
-                  Status, TableCaption, "No.", PurchLine.TableCaption);
+                  Status, TableCaption(), "No.", PurchLine.TableCaption());
         end;
 
         if Status = Status::Finished then
@@ -644,8 +644,8 @@
 
         MfgSetup.Get();
         if "No." = '' then begin
-            TestNoSeries;
-            NoSeriesMgt.InitSeries(GetNoSeriesCode, xRec."No. Series", "Due Date", "No.", "No. Series");
+            TestNoSeries();
+            NoSeriesMgt.InitSeries(GetNoSeriesCode(), xRec."No. Series", "Due Date", "No.", "No. Series");
         end;
 
         IsHandled := false;
@@ -653,21 +653,21 @@
         if not IsHandled then
             if Status = Status::Released then begin
                 if ProdOrder.Get(Status::Finished, "No.") then
-                    Error(Text007, Status, TableCaption, ProdOrder."No.", ProdOrder.Status);
+                    Error(Text007, Status, TableCaption(), ProdOrder."No.", ProdOrder.Status);
                 InvtAdjmtEntryOrder.SetRange("Order Type", InvtAdjmtEntryOrder."Order Type"::Production);
                 InvtAdjmtEntryOrder.SetRange("Order No.", "No.");
                 if not InvtAdjmtEntryOrder.IsEmpty() then
-                    Error(Text007, Status, TableCaption, ProdOrder."No.", InvtAdjmtEntryOrder.TableCaption);
+                    Error(Text007, Status, TableCaption(), ProdOrder."No.", InvtAdjmtEntryOrder.TableCaption());
             end;
 
-        InitRecord;
+        InitRecord();
 
         if MfgSetup."Normal Starting Time" <> 0T then
             Rec."Starting Time" := MfgSetup."Normal Starting Time";
         if MfgSetup."Normal Ending Time" <> 0T then
             Rec."Ending Time" := MfgSetup."Normal Ending Time";
         "Creation Date" := Today;
-        UpdateDatetime;
+        UpdateDatetime();
         if MfgSetup."Normal Starting Time" = 0T then
             Rec."Starting Time" := DT2Time("Starting Date-Time");
         if MfgSetup."Normal Ending Time" = 0T then
@@ -714,7 +714,7 @@
         OnBeforeInitRecord(Rec);
 
         if "Due Date" = 0D then
-            Validate("Due Date", WorkDate);
+            Validate("Due Date", WorkDate());
         if ("Source Type" = "Source Type"::Item) and ("Source No." <> '') then
             "Ending Date" :=
               LeadTimeMgt.PlannedEndingDate(
@@ -724,12 +724,6 @@
         "Starting Date" := "Ending Date";
         "Starting Date-Time" := CreateDateTime("Starting Date", "Starting Time");
         "Ending Date-Time" := CreateDateTime("Ending Date", "Ending Time");
-#if not CLEAN18
-        // NAVCZ
-        MfgSetup.Get();
-        "Gen. Bus. Posting Group" := MfgSetup."Default Gen.Bus. Posting Group";
-        // NAVCZ
-#endif
 
         OnAfterInitRecord(Rec);
     end;
@@ -761,8 +755,8 @@
         with ProdOrder do begin
             ProdOrder := Rec;
             MfgSetup.Get();
-            TestNoSeries;
-            if NoSeriesMgt.SelectSeries(GetNoSeriesCode, OldProdOrder."No. Series", "No. Series") then begin
+            TestNoSeries();
+            if NoSeriesMgt.SelectSeries(GetNoSeriesCode(), OldProdOrder."No. Series", "No. Series") then begin
                 NoSeriesMgt.SetSeries("No.");
                 Rec := ProdOrder;
                 exit(true);
@@ -804,14 +798,14 @@
         if not ItemLedgEntry.IsEmpty() then
             Error(
               Text002,
-              Name, Status, TableCaption, "No.", ItemLedgEntry.TableCaption);
+              Name, Status, TableCaption(), "No.", ItemLedgEntry.TableCaption());
 
         CapLedgEntry.SetRange("Order Type", CapLedgEntry."Order Type"::Production);
         CapLedgEntry.SetRange("Order No.", "No.");
         if not CapLedgEntry.IsEmpty() then
             Error(
               Text002,
-              Name, Status, TableCaption, "No.", CapLedgEntry.TableCaption);
+              Name, Status, TableCaption(), "No.", CapLedgEntry.TableCaption());
     end;
 
     local procedure CheckStatusNotFinished()
@@ -941,7 +935,7 @@
         if not IsHandled then
             "Due Date" := EarliestLatestProdOrderLine."Due Date";
 
-        UpdateDatetime;
+        UpdateDatetime();
     end;
 
     local procedure MultiLevelMessage()
@@ -960,14 +954,14 @@
     begin
         if (Rec."Starting Date" <> 0D) and (Rec."Starting Time" <> 0T) then
             Rec."Starting Date-Time" := CreateDateTime(Rec."Starting Date", Rec."Starting Time")
-        else 
+        else
             if Rec."Starting Date" = 0D then
                 Rec."Starting Date-Time" := 0DT;
 
         if (Rec."Ending Date" <> 0D) and (Rec."Ending Time" <> 0T) then
             Rec."Ending Date-Time" := CreateDateTime(Rec."Ending Date", Rec."Ending Time")
-        else 
-            if "Ending Date" = 0D then
+        else
+            if Rec."Ending Date" = 0D then
                 Rec."Ending Date-Time" := 0DT;
 
         OnAfterUpdateDateTime(Rec, xRec, CurrFieldNo);
@@ -1026,8 +1020,8 @@
         if OldDimSetID <> "Dimension Set ID" then begin
             if Status = Status::Finished then
                 Error(Text011);
-            Modify;
-            if SalesLinesExist then
+            Modify();
+            if ProdOrderLineExist() then
                 UpdateAllLineDim("Dimension Set ID", OldDimSetID);
         end;
 
@@ -1196,8 +1190,8 @@
                 Direction::Backward:
                     "Ending Date-Time" := CreateDateTime("Ending Date", "Ending Time");
             end;
-            Modify;
-            MultiLevelMessage;
+            Modify();
+            MultiLevelMessage();
             exit;
         end;
         "Due Date" := 0D;
@@ -1259,8 +1253,8 @@
                     end;
             end;
 
-        AdjustStartEndingDate;
-        Modify;
+        AdjustStartEndingDate();
+        Modify();
     end;
 
     local procedure UpdateEndingDate(var ProdOrderLine: Record "Prod. Order Line")
@@ -1302,23 +1296,23 @@
         TestField("No.");
         "Dimension Set ID" :=
           DimMgt.EditDimensionSet(
-            Rec, "Dimension Set ID", StrSubstNo('%1 %2', TableCaption, "No."),
+            Rec, "Dimension Set ID", StrSubstNo('%1 %2', TableCaption(), "No."),
             "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
         if OldDimSetID <> "Dimension Set ID" then begin
             if Status = Status::Finished then
                 Error(Text011);
-            Modify;
-            if SalesLinesExist then
+            Modify();
+            if ProdOrderLineExist() then
                 UpdateAllLineDim("Dimension Set ID", OldDimSetID);
         end;
     end;
 
-    local procedure SalesLinesExist(): Boolean
+    procedure ProdOrderLineExist(): Boolean
     begin
         ProdOrderLine.Reset();
         ProdOrderLine.SetRange("Prod. Order No.", "No.");
         ProdOrderLine.SetRange(Status, Status);
-        exit(ProdOrderLine.FindFirst);
+        exit(not ProdOrderLine.IsEmpty());
     end;
 
     local procedure UpdateAllLineDim(NewParentDimSetID: Integer; OldParentDimSetID: Integer)

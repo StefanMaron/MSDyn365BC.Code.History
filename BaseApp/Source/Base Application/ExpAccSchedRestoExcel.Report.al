@@ -61,7 +61,7 @@ report 31083 "Exp. Acc. Sched. Res. to Excel"
                         EnterFilterInCell(
                           RowNo,
                           GLSetup."Additional Reporting Currency",
-                          Currency.TableCaption)
+                          Currency.TableCaption())
                     end;
                 end else
                     if GLSetup."LCY Code" <> '' then begin
@@ -69,7 +69,7 @@ report 31083 "Exp. Acc. Sched. Res. to Excel"
                         EnterFilterInCell(
                           RowNo,
                           GLSetup."LCY Code",
-                          Currency.TableCaption);
+                          Currency.TableCaption());
                     end;
 
                 RowNo := RowNo + 1;
@@ -129,18 +129,18 @@ report 31083 "Exp. Acc. Sched. Res. to Excel"
                     until AccScheduleResultLine.Next() = 0;
                 end;
 
-                Window.Close;
+                Window.Close();
                 AccSchedName.Get(AccScheduleResultHeader."Acc. Schedule Name");
                 if DoUpdateExistingWorksheet then begin
                     TempExcelBuffer.UpdateBook(ServerFileName, SheetName);
                     TempExcelBuffer.WriteSheet('', CompanyName, UserId);
-                    TempExcelBuffer.CloseBook;
-                    TempExcelBuffer.DownloadAndOpenExcel;
+                    TempExcelBuffer.CloseBook();
+                    TempExcelBuffer.DownloadAndOpenExcel();
                 end else begin
                     TempExcelBuffer.CreateBook('', AccSchedName.Name);
                     TempExcelBuffer.WriteSheet(AccSchedName.Description, CompanyName, UserId);
-                    TempExcelBuffer.CloseBook;
-                    TempExcelBuffer.OpenExcel;
+                    TempExcelBuffer.CloseBook();
+                    TempExcelBuffer.OpenExcel();
                 end;
             end;
         }

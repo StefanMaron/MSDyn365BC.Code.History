@@ -60,7 +60,7 @@ codeunit 11766 "G/L Entry -Post Application"
                 PostApplication.SetValues(DocumentNo, PostingDate);
                 PostApplication.LookupMode(true);
                 Commit();
-                if ACTION::LookupOK = PostApplication.RunModal then begin
+                if ACTION::LookupOK = PostApplication.RunModal() then begin
                     PostApplication.GetValues(DocumentNo, ApplicationDate);
                     if ApplicationDate < PostingDate then
                         Error(
@@ -84,7 +84,7 @@ codeunit 11766 "G/L Entry -Post Application"
                         "Applying Entry" := false;
                         "Amount to Apply" := 0;
                         "Applies-to ID" := '';
-                        Modify;
+                        Modify();
                     end;
                 until Next() = 0;
 
@@ -99,8 +99,8 @@ codeunit 11766 "G/L Entry -Post Application"
                         if (ApplyingAmount <> 0) and
                            (Amount = "Amount to Apply" + "Applied Amount")
                         then begin
-                            SetAmountToApply;
-                            Modify;
+                            SetAmountToApply();
+                            Modify();
                         end;
                     until Next(-1) = 0;
 
@@ -108,8 +108,8 @@ codeunit 11766 "G/L Entry -Post Application"
                     SetFilter("Amount to Apply", '<>0');
                     if Find('+') then
                         repeat
-                            SetAmountToApply;
-                            Modify;
+                            SetAmountToApply();
+                            Modify();
                         until Next(-1) = 0;
                 end;
 
@@ -118,26 +118,26 @@ codeunit 11766 "G/L Entry -Post Application"
                     if FindFirst() then begin
                         "Amount to Apply" := "Amount to Apply" - ApplyingAmount;
                         ApplyingAmount := 0;
-                        Modify;
+                        Modify();
                     end;
                 end;
             end;
 
-            Reset;
+            Reset();
             SetRange("Applies-to ID", ApplyingEntry."Applies-to ID");
             SetRange("G/L Account No.", ApplyingEntry."G/L Account No.");
             SetRange("Amount to Apply", 0);
             ModifyAll("Applies-to ID", '');
 
-            TransactionNo := FindLastTransactionNo + 1;
+            TransactionNo := FindLastTransactionNo() + 1;
 
-            Reset;
+            Reset();
             SetRange("Applies-to ID", ApplyingEntry."Applies-to ID");
             SetRange("G/L Account No.", ApplyingEntry."G/L Account No.");
             if FindSet(true, false) then begin
                 repeat
                     DtldGLEntry.Init();
-                    DtldGLEntry."Entry No." := FindLastDtldGLEntryNo + 1;
+                    DtldGLEntry."Entry No." := FindLastDtldGLEntryNo() + 1;
                     DtldGLEntry."G/L Entry No." := "Entry No.";
                     DtldGLEntry."Applied G/L Entry No." := ApplyingEntry."Entry No.";
                     DtldGLEntry."G/L Account No." := "G/L Account No.";
@@ -158,17 +158,17 @@ codeunit 11766 "G/L Entry -Post Application"
                     "Applying Entry" := false;
                     "Amount to Apply" := 0;
                     "Applies-to ID" := '';
-                    Modify;
+                    Modify();
                 until Next() = 0;
             end else
                 if not NotUseDialog then
                     if not lboIsZero then begin
-                        Window.Close;
+                        Window.Close();
                         Error(Text11703);
                     end;
             if not NotUseDialog then begin
                 Commit();
-                Window.Close;
+                Window.Close();
                 Message(Text11707);
             end;
         end;
@@ -196,7 +196,7 @@ codeunit 11766 "G/L Entry -Post Application"
                 repeat
                     ApplicationEntryNo := FindLastApplEntry("G/L Entry No.");
                     if (ApplicationEntryNo <> 0) and (ApplicationEntryNo <> "Entry No.") then
-                        Error(Text11705, GLEntry.TableCaption, "G/L Entry No.");
+                        Error(Text11705, GLEntry.TableCaption(), "G/L Entry No.");
                 until Next() = 0;
 
             if not NotUseDialog then begin
@@ -206,11 +206,11 @@ codeunit 11766 "G/L Entry -Post Application"
                     Error('');
             end;
 
-            TransactionNo := FindLastTransactionNo + 1;
+            TransactionNo := FindLastTransactionNo() + 1;
             if FindSet() then
                 repeat
                     DtldGLEntry3.Init();
-                    DtldGLEntry3."Entry No." := FindLastDtldGLEntryNo + 1;
+                    DtldGLEntry3."Entry No." := FindLastDtldGLEntryNo() + 1;
                     UnapplidedByEntryNo := DtldGLEntry3."Entry No.";
                     DtldGLEntry3."G/L Entry No." := "G/L Entry No.";
                     DtldGLEntry3."Applied G/L Entry No." := "Applied G/L Entry No.";
@@ -237,7 +237,7 @@ codeunit 11766 "G/L Entry -Post Application"
                 until Next() = 0;
             if not NotUseDialog then begin
                 Commit();
-                Window.Close;
+                Window.Close();
                 Message(Text11709);
             end;
         end;
@@ -261,7 +261,7 @@ codeunit 11766 "G/L Entry -Post Application"
 
         ApplicationEntryNo := FindLastApplEntry(GLEntryNo);
         if ApplicationEntryNo = 0 then
-            Error(Text11701, GLEntry.TableCaption, GLEntryNo);
+            Error(Text11701, GLEntry.TableCaption(), GLEntryNo);
         DtldGLEntry.Get(ApplicationEntryNo);
         UnApplyGL(DtldGLEntry);
     end;
@@ -340,7 +340,7 @@ codeunit 11766 "G/L Entry -Post Application"
                 "Applies-to ID" := '';
                 "Amount to Apply" := 0;
             end;
-            Modify;
+            Modify();
         end;
     end;
 
@@ -369,7 +369,7 @@ codeunit 11766 "G/L Entry -Post Application"
         GLEntries.SetRange(Closed, false);
         ApplGenLedgEntries.SetAplEntry(ApplGLEntry."Entry No.");
         ApplGenLedgEntries.SetTableView(GLEntries);
-        if ApplGenLedgEntries.RunModal = ACTION::LookupOK then;
+        if ApplGenLedgEntries.RunModal() = ACTION::LookupOK then;
         Clear(ApplGenLedgEntries);
     end;
 }

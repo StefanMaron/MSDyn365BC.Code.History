@@ -165,7 +165,7 @@ codeunit 134451 "ERM Fixed Assets"
         Assert.AreEqual(
           StrSubstNo(
             GLIntegrationDisposalError,
-            DepreciationBook.FieldCaption("G/L Integration - Disposal"), DepreciationBook.TableCaption,
+            DepreciationBook.FieldCaption("G/L Integration - Disposal"), DepreciationBook.TableCaption(),
             DepreciationBook.FieldCaption(Code), DepreciationBook.Code),
           GetLastErrorText, UnknownError);
     end;
@@ -294,7 +294,7 @@ codeunit 134451 "ERM Fixed Assets"
         FALedgerEntry.TestField(Amount, AppreciationAmount);
         // [THEN] G/L Entry, where G/L Account = 'AA', Amount = 100.
         FAPostingGroup.Get(FixedAsset."FA Posting Group");
-        GLEntry.SetRange("G/L Account No.", FAPostingGroup.GetAppreciationAccount);
+        GLEntry.SetRange("G/L Account No.", FAPostingGroup.GetAppreciationAccount());
         GLEntry.FindLast();
         GLEntry.TestField(Amount, AppreciationAmount);
         // [THEN] Posted Invoice Line, where "FA Posting Type" = Appreciation
@@ -364,7 +364,7 @@ codeunit 134451 "ERM Fixed Assets"
         FALedgerEntry.TestField(Amount, -AppreciationAmount);
         // [THEN] G/L Entry, where G/L Account = 'AA', Amount = -100.
         FAPostingGroup.Get(FixedAsset."FA Posting Group");
-        GLEntry.SetRange("G/L Account No.", FAPostingGroup.GetAppreciationAccount);
+        GLEntry.SetRange("G/L Account No.", FAPostingGroup.GetAppreciationAccount());
         GLEntry.FindLast();
         GLEntry.TestField(Amount, -AppreciationAmount);
         // [THEN] Posted Credit memo line, where "FA Posting Type" is 'Appreciation'
@@ -492,7 +492,7 @@ codeunit 134451 "ERM Fixed Assets"
         Assert.AreEqual(
           StrSubstNo(
             AllowCorrectionError,
-            DepreciationBook.FieldCaption("Allow Correction of Disposal"), DepreciationBook.TableCaption,
+            DepreciationBook.FieldCaption("Allow Correction of Disposal"), DepreciationBook.TableCaption(),
             DepreciationBook.FieldCaption(Code), DepreciationBook.Code),
           GetLastErrorText, UnknownError);
     end;
@@ -866,7 +866,7 @@ codeunit 134451 "ERM Fixed Assets"
         asserterror RunCreateFADepreciationBooks(FixedAsset, '', '');
 
         // 3. Verify: Verify error occurs on running Create FA Depreciation Books Report without Depreciation Book Code and Copy From FA No.
-        Assert.ExpectedError(StrSubstNo(DepreciationBookError, DepreciationBook.TableCaption));
+        Assert.ExpectedError(StrSubstNo(DepreciationBookError, DepreciationBook.TableCaption()));
     end;
 
     [Test]
@@ -1086,7 +1086,7 @@ codeunit 134451 "ERM Fixed Assets"
 
         // 3. Verify: Verify error occurs on running Copy Fixed Asset Report with Copy From FA No. as blank.
         with FixedAsset do
-            Assert.AreEqual(StrSubstNo(BlankCopyFromFANoError, TableCaption, FieldCaption("No.")), GetLastErrorText, UnknownError);
+            Assert.AreEqual(StrSubstNo(BlankCopyFromFANoError, TableCaption(), FieldCaption("No.")), GetLastErrorText, UnknownError);
     end;
 
     [Test]
@@ -1362,7 +1362,7 @@ codeunit 134451 "ERM Fixed Assets"
         LibraryLowerPermissions.SetO365FAEdit;
         MaintenanceRegistration.Trap;
         FixedAssetCard."Maintenance &Registration".Invoke;
-        MaintenanceRegistration."Service Date".SetValue(WorkDate);
+        MaintenanceRegistration."Service Date".SetValue(WorkDate());
         MaintenanceRegistration.Comment.SetValue(CopyStr(LibraryUtility.GenerateRandomText(5), 1, 5));
 
         // [THEN] The Maintenance Vendor should be preserved from Fixed Asset's Card
@@ -1472,7 +1472,7 @@ codeunit 134451 "ERM Fixed Assets"
         CreateAndPostFAJournalLine(FANo, GetFADeprBookCode(FANo));
 
         // [WHEN] Sale fixed asset (sales invoice "SI") on "Posting Date" = 01-02-2019 with "Depr. until FA Posting Date" = TRUE
-        DocumentNo := CreatePostFixedAssetSalesInvoice(CalcDate('<1M>', WorkDate), FANo, LibraryRandom.RandDecInRange(1000, 2000, 2));
+        DocumentNo := CreatePostFixedAssetSalesInvoice(CalcDate('<1M>', WorkDate()), FANo, LibraryRandom.RandDecInRange(1000, 2000, 2));
 
         // [THEN] There is a GLEntry "X" with "Document Type" = "Invoice", "Document No." = "SI", "Gen. Posting Type" = "Sale", "G/L Account No." = "DispLossGLAcc"
         GLAccountNo := GetFASalesAccOnDispLoss(FANo);
@@ -1588,7 +1588,7 @@ codeunit 134451 "ERM Fixed Assets"
         FAPostingGroup."Write-Down Account" := '';
 
         // [THEN] GetWriteDownAccount throws TestField error
-        asserterror FAPostingGroup.GetWriteDownAccount;
+        asserterror FAPostingGroup.GetWriteDownAccount();
         Assert.ExpectedErrorCode('Dialog');
         Assert.ExpectedError(
             LibraryErrorMessage.GetMissingAccountErrorMessage(FAPostingGroup.FieldCaption("Write-Down Account"), FAPostingGroup));
@@ -1696,7 +1696,7 @@ codeunit 134451 "ERM Fixed Assets"
         PurchaseOrder.FILTER.SetFilter("No.", PurchaseHeader."No.");
 
         // [THEN] Page opens without error
-        PurchaseOrder.Close;
+        PurchaseOrder.Close();
     end;
 
     [Test]
@@ -1729,7 +1729,7 @@ codeunit 134451 "ERM Fixed Assets"
         Assert.ExpectedError(
           StrSubstNo(
             TestFieldThreeArgsErr,
-            PurchaseLine.FieldCaption("Depreciation Book Code"), PurchaseLine.TableCaption,
+            PurchaseLine.FieldCaption("Depreciation Book Code"), PurchaseLine.TableCaption(),
             PurchaseLine.FieldCaption("Document Type"), PurchaseLine."Document Type",
             PurchaseLine.FieldCaption("Document No."), PurchaseLine."Document No.",
             PurchaseLine.FieldCaption("Line No."), PurchaseLine."Line No."));
@@ -2075,7 +2075,7 @@ codeunit 134451 "ERM Fixed Assets"
         PrepareFAForSalesDocument(FixedAsset, DepreciationBook);
 
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
-        SalesHeader.Validate("Posting Date", CalcDate('<1D>', WorkDate));
+        SalesHeader.Validate("Posting Date", CalcDate('<1D>', WorkDate()));
         SalesHeader.Modify(true);
         CreateSalesLine(SalesLine, SalesHeader, FixedAsset."No.", DepreciationBook.Code);
 
@@ -2109,7 +2109,7 @@ codeunit 134451 "ERM Fixed Assets"
         PrepareFAForSalesDocument(FixedAsset, DepreciationBook);
 
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Return Order", LibrarySales.CreateCustomerNo);
-        SalesHeader.Validate("Posting Date", CalcDate('<1D>', WorkDate));
+        SalesHeader.Validate("Posting Date", CalcDate('<1D>', WorkDate()));
         SalesHeader.Modify(true);
         CreateSalesLine(SalesLine, SalesHeader, FixedAsset."No.", DepreciationBook.Code);
 
@@ -2375,7 +2375,7 @@ codeunit 134451 "ERM Fixed Assets"
     begin
         FADepreciationBook.Validate("Depreciation Method", FADepreciationMethod);
         FADepreciationBook.Validate("FA Posting Group", FAPostingGroup.Code);
-        FADepreciationBook.Validate("Depreciation Starting Date", WorkDate);
+        FADepreciationBook.Validate("Depreciation Starting Date", WorkDate());
         FADepreciationBook.Modify(true);
     end;
 
@@ -2384,7 +2384,7 @@ codeunit 134451 "ERM Fixed Assets"
         SalesLine: Record "Sales Line";
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, LibrarySales.CreateCustomerNo);
-        SalesHeader.Validate("Posting Date", CalcDate('<1D>', WorkDate));
+        SalesHeader.Validate("Posting Date", CalcDate('<1D>', WorkDate()));
         SalesHeader.Modify(true);
         CreateSalesLine(SalesLine, SalesHeader, FANo, DepreciationBookCode);
     end;
@@ -2447,10 +2447,10 @@ codeunit 134451 "ERM Fixed Assets"
     begin
         LibraryFixedAsset.CreateFADepreciationBook(FADepreciationBook, FANo, DepreciationBookCode);
         FADepreciationBook.Validate("Depreciation Book Code", DepreciationBookCode);
-        FADepreciationBook.Validate("Depreciation Starting Date", WorkDate);
+        FADepreciationBook.Validate("Depreciation Starting Date", WorkDate());
 
         // Random Number Generator for Ending date.
-        FADepreciationBook.Validate("Depreciation Ending Date", CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'Y>', WorkDate));
+        FADepreciationBook.Validate("Depreciation Ending Date", CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'Y>', WorkDate()));
         FADepreciationBook.Validate("FA Posting Group", FAPostingGroup);
         FADepreciationBook.Modify(true);
     end;
@@ -2545,8 +2545,8 @@ codeunit 134451 "ERM Fixed Assets"
         LibraryFixedAsset.CreateFAJournalLine(FAJournalLine, FAJournalBatch."Journal Template Name", FAJournalBatch.Name);
         FAJournalLine.Validate("Document Type", FAJournalLine."Document Type"::" ");
         FAJournalLine.Validate("Document No.", FAJournalLine."Journal Batch Name" + Format(FAJournalLine."Line No."));
-        FAJournalLine.Validate("Posting Date", WorkDate);
-        FAJournalLine.Validate("FA Posting Date", WorkDate);
+        FAJournalLine.Validate("Posting Date", WorkDate());
+        FAJournalLine.Validate("FA Posting Date", WorkDate());
         FAJournalLine.Validate("FA Posting Type", FAPostingType);
         FAJournalLine.Validate("FA No.", FANo);
         FAJournalLine.Validate(Amount, Amount);
@@ -2607,7 +2607,7 @@ codeunit 134451 "ERM Fixed Assets"
 
         LibraryFixedAsset.CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", DepreciationBook.Code);
         FADepreciationBook.Validate("FA Posting Group", FixedAsset."FA Posting Group");
-        FADepreciationBook.Validate("Depreciation Starting Date", WorkDate);
+        FADepreciationBook.Validate("Depreciation Starting Date", WorkDate());
         FADepreciationBook.Validate("No. of Depreciation Years", LibraryRandom.RandInt(5));
         FADepreciationBook.Modify(true);
         exit(FixedAsset."No.");
@@ -2892,7 +2892,7 @@ codeunit 134451 "ERM Fixed Assets"
 
         CalculateDepreciation.SetTableView(FixedAsset);
         CalculateDepreciation.InitializeRequest(
-          DepreciationBookCode, CalcDate('<1D>', WorkDate), false, 0, CalcDate('<1D>', WorkDate), FixedAssetNo, FixedAsset.Description, BalAccount);
+          DepreciationBookCode, CalcDate('<1D>', WorkDate()), false, 0, CalcDate('<1D>', WorkDate()), FixedAssetNo, FixedAsset.Description, BalAccount);
         CalculateDepreciation.UseRequestPage(false);
         CalculateDepreciation.Run();
     end;
@@ -3194,7 +3194,7 @@ codeunit 134451 "ERM Fixed Assets"
     local procedure ExecuteUIHandler()
     begin
         // Generate Dummy Messages.
-        if Confirm(StrSubstNo(DateConfirmMessage, CalcDate('<1D>', WorkDate), WorkDate)) then;
+        if Confirm(StrSubstNo(DateConfirmMessage, CalcDate('<1D>', WorkDate()), WorkDate())) then;
     end;
 
     [RequestPageHandler]

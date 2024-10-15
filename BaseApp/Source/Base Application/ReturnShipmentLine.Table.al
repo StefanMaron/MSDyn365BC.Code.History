@@ -350,11 +350,9 @@ table 6651 "Return Shipment Line"
         {
             Caption = 'FA Posting Date';
         }
-        field(5601; "FA Posting Type"; Option)
+        field(5601; "FA Posting Type"; Enum "Purchase FA Posting Type")
         {
             Caption = 'FA Posting Type';
-            OptionCaption = ' ,Acquisition Cost,Maintenance,Custom 2';
-            OptionMembers = " ","Acquisition Cost",Maintenance,"Custom 2";
         }
         field(5602; "Depreciation Book Code"; Code[10])
         {
@@ -588,7 +586,7 @@ table 6651 "Return Shipment Line"
         DimMgt: Codeunit DimensionManagement;
     begin
         DimMgt.ShowDimensionSet("Dimension Set ID",
-          StrSubstNo('%1 %2 %3', TableCaption, "Document No.", "Line No."));
+          StrSubstNo('%1 %2 %3', TableCaption(), "Document No.", "Line No."));
     end;
 
     procedure ShowItemTrackingLines()
@@ -637,7 +635,7 @@ table 6651 "Return Shipment Line"
         end;
 
         OnInsertInvLineFromRetShptLineOnBeforeClearLineNumbers(Rec, PurchLine, NextLineNo, TempPurchLine);
-        TransferOldExtLines.ClearLineNumbers;
+        TransferOldExtLines.ClearLineNumbers();
         PurchSetup.Get();
         repeat
             ExtTextLine := (TransferOldExtLines.GetNewLineNumber("Attached to Line No.") <> 0);
@@ -666,13 +664,12 @@ table 6651 "Return Shipment Line"
                           Round(
                             PurchOrderLine."Direct Unit Cost" * (1 + PurchOrderLine."VAT %" / 100),
                             Currency."Unit-Amount Rounding Precision");
-                end else begin
+                end else
                     if PurchHeader2."Prices Including VAT" then
                         PurchOrderLine."Direct Unit Cost" :=
                           Round(
                             PurchOrderLine."Direct Unit Cost" / (1 + PurchOrderLine."VAT %" / 100),
                             Currency."Unit-Amount Rounding Precision");
-                end;
             end;
             PurchLine := PurchOrderLine;
             PurchLine."Line No." := NextLineNo;
@@ -810,7 +807,7 @@ table 6651 "Return Shipment Line"
         if CurrencyCode <> '' then
             Currency.Get(CurrencyCode)
         else
-            Currency.InitRoundingPrecision;
+            Currency.InitRoundingPrecision();
         CurrencyRead := true;
     end;
 
@@ -824,7 +821,7 @@ table 6651 "Return Shipment Line"
 
     procedure InitFromPurchLine(ReturnShptHeader: Record "Return Shipment Header"; PurchLine: Record "Purchase Line")
     begin
-        Init;
+        Init();
         TransferFields(PurchLine);
         if ("No." = '') and HasTypeToFillMandatoryFields() then
             Type := Type::" ";

@@ -1,75 +1,124 @@
 #if CLEAN19
 page 490 "Acc. Schedule Overview"
 {
-    Caption = 'Acc. Schedule Overview';
-    DataCaptionExpression = CurrentSchedName + ' - ' + CurrentColumnName;
+    Caption = 'Financial Report';
+    DataCaptionExpression = CurrentFinancialReportNameTxt;
     DeleteAllowed = false;
     InsertAllowed = false;
     LinksAllowed = false;
     ModifyAllowed = false;
     PageType = List;
-    PromotedActionCategories = 'New,Process,Report,Column,Period';
     SaveValues = true;
     ShowFilter = false;
     SourceTable = "Acc. Schedule Line";
-
+    AboutTitle = 'About financial report';
+    AboutText = 'On this page, you can build financial reports based on your choice of column and row definitions';
     layout
     {
         area(content)
         {
+            field(Title; FinancialReportSummaryTxt)
+            {
+                ApplicationArea = Basic, Suite;
+                Visible = ViewOnlyMode;
+                Caption = 'Financial Report';
+                Editable = false;
+                ShowCaption = false;
+                Style = Strong;
+                Tooltip = 'Financial report details.';
+            }
             group(General)
             {
-                Caption = 'General';
-                field(CurrentSchedName; CurrentSchedName)
+                Caption = 'Options';
+
+                field(FinancialReportName; TempFinancialReport.Name)
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Account Schedule Name';
+                    Visible = not ViewOnlyMode;
+                    Editable = false;
+                    Caption = 'Name';
+                    Tooltip = 'Specifies the name of the financial report.';
+                    trigger OnLookup(var Text: Text): Boolean
+                    begin
+                        Page.RunModal(Page::"Financial Reports");
+                        exit(true);
+                    end;
+                }
+
+                field(FinancialReportDesc; TempFinancialReport.Description)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Visible = not ViewOnlyMode;
+                    Caption = 'Description';
+                    Tooltip = 'Specifies a description for the financial report.';
+                }
+
+                field(CurrentSchedName; TempFinancialReport."Financial Report Row Group")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Visible = not ViewOnlyMode;
+                    Editable = not ViewOnlyMode;
+                    Caption = 'Row Definition';
                     Importance = Promoted;
                     Lookup = true;
                     LookupPageID = "Account Schedule Names";
-                    ToolTip = 'Specifies the name of the account schedule to be shown in the window.';
-
+                    ToolTip = 'Specifies the name of the row definition to be shown in the window.';
+                    AboutTitle = 'About row definition';
+                    AboutText = 'Change the row definition of the analysis. You can use the built-in row definitions, or create your own';
                     trigger OnLookup(var Text: Text): Boolean
                     var
+                        FinancialReportRowGroup: Text[10];
                         Result: Boolean;
                     begin
-                        Result := AccSchedManagement.LookupName(CurrentSchedName, Text);
-                        CurrentSchedName := Text;
-                        CurrentSchedNameOnAfterValidate;
+                        FinancialReportRowGroup := CopyStr(Text, 1, MaxStrLen(FinancialReportRowGroup));
+                        Result := AccSchedManagement.LookupName(TempFinancialReport."Financial Report Row Group", FinancialReportRowGroup);
+                        TempFinancialReport."Financial Report Row Group" := FinancialReportRowGroup;
+                        Text := TempFinancialReport."Financial Report Row Group";
+                        CurrentSchedNameOnAfterValidate();
                         exit(Result);
                     end;
 
                     trigger OnValidate()
                     begin
-                        AccSchedManagement.CheckName(CurrentSchedName);
-                        CurrentSchedNameOnAfterValidate;
+                        AccSchedManagement.CheckName(TempFinancialReport."Financial Report Row Group");
+                        CurrentSchedNameOnAfterValidate();
                     end;
                 }
-                field(CurrentColumnName; CurrentColumnName)
+                field(CurrentColumnName; TempFinancialReport."Financial Report Column Group")
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Column Layout Name';
+                    Visible = not ViewOnlyMode;
+                    Caption = 'Column Definition';
                     Lookup = true;
+                    LookupPageId = "Column Layout Names";
                     TableRelation = "Column Layout Name".Name;
-                    ToolTip = 'Specifies the name of the column layout that you want to use in the window.';
-
+                    ToolTip = 'Specifies the name of the column definition that you want to use in the window.';
+                    AboutTitle = 'About column definition';
+                    AboutText = 'Change the column definition of the analysis. You can use the built-in column definitions, or create your own.';
                     trigger OnLookup(var Text: Text): Boolean
                     var
+                        FinancialReportColumnGroup: Text[10];
                         Result: Boolean;
                     begin
-                        Result := AccSchedManagement.LookupColumnName(CurrentColumnName, Text);
-                        CurrentColumnName := Text;
-                        CurrentColumnNameOnAfterValidate;
+                        FinancialReportColumnGroup := CopyStr(Text, 1, MaxStrLen(FinancialReportColumnGroup));
+                        Result := AccSchedManagement.LookupColumnName(TempFinancialReport."Financial Report Column Group", FinancialReportColumnGroup);
+                        TempFinancialReport."Financial Report Column Group" := FinancialReportColumnGroup;
+                        // Every change to FinancialReportTemp."Financial Report Column Group" must be kept in sync with CurrentColumnName
+                        CurrentColumnName := TempFinancialReport."Financial Report Column Group";
+                        Text := TempFinancialReport."Financial Report Column Group";
+                        CurrentColumnNameOnAfterValidate();
                         exit(Result);
                     end;
 
                     trigger OnValidate()
                     begin
-                        AccSchedManagement.CheckColumnName(CurrentColumnName);
-                        CurrentColumnNameOnAfterValidate;
+                        AccSchedManagement.CheckColumnName(TempFinancialReport."Financial Report Column Group");
+                        // Every change to FinancialReportTemp."Financial Report Column Group" must be kept in sync with CurrentColumnName
+                        CurrentColumnName := TempFinancialReport."Financial Report Column Group";
+                        CurrentColumnNameOnAfterValidate();
                     end;
                 }
-                field(UseAmtsInAddCurr; UseAmtsInAddCurr)
+                field(UseAmtsInAddCurr; TempFinancialReport.UseAmountsInAddCurrency)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Show Amounts in Add. Reporting Currency';
@@ -79,10 +128,12 @@ page 490 "Acc. Schedule Overview"
 
                     trigger OnValidate()
                     begin
+                        // Every change to FinancialReportTemp.UseAmountsInAddCurrency must be kept in sync with UseAmtsInAddCurr
+                        UseAmtsInAddCurr := TempFinancialReport.UseAmountsInAddCurrency;
                         CurrPage.Update();
                     end;
                 }
-                field(PeriodType; PeriodType)
+                field(PeriodType; TempFinancialReport.PeriodType)
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'View by';
@@ -91,8 +142,8 @@ page 490 "Acc. Schedule Overview"
 
                     trigger OnValidate()
                     begin
-                        AccSchedManagement.FindPeriod(Rec, '', PeriodType);
-                        DateFilter := GetFilter("Date Filter");
+                        AccSchedManagement.FindPeriod(Rec, '', TempFinancialReport.PeriodType);
+                        DateFilter := Rec.GetFilter("Date Filter");
                         CurrPage.Update();
                     end;
                 }
@@ -113,7 +164,7 @@ page 490 "Acc. Schedule Overview"
                         CurrPage.Update();
                     end;
                 }
-                field(ShowLinesWithShowNo; ShowLinesWithShowNo)
+                field(ShowLinesWithShowNo; TempFinancialReport.ShowLinesWithShowNo)
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Show All Lines';
@@ -129,8 +180,8 @@ page 490 "Acc. Schedule Overview"
             }
             group("Dimension Filters")
             {
-                Caption = 'Dimension Filters';
-                field(Dim1Filter; Dim1Filter)
+                Caption = 'Dimensions';
+                field(Dim1Filter; TempFinancialReport.Dim1Filter)
                 {
                     ApplicationArea = Dimensions;
                     CaptionClass = FormGetCaptionClass(1);
@@ -146,17 +197,17 @@ page 490 "Acc. Schedule Overview"
                         Result: Boolean;
                     begin
                         Result := DimValue.LookUpDimFilter(AnalysisView."Dimension 1 Code", Text);
-                        SetDimFilters(1, Text);
-                        Dim1Filter := text;
+                        SetDimFilters(1, CopyStr(Text, 1, MaxStrLen(TempFinancialReport.Dim1Filter)));
+                        TempFinancialReport.Dim1Filter := CopyStr(Text, 1, MaxStrLen(TempFinancialReport.Dim1Filter));
                         Exit(Result);
                     end;
 
                     trigger OnValidate()
                     begin
-                        SetDimFilters(1, Dim1Filter);
+                        SetDimFilters(1, TempFinancialReport.Dim1Filter);
                     end;
                 }
-                field(Dim2Filter; Dim2Filter)
+                field(Dim2Filter; TempFinancialReport.Dim2Filter)
                 {
                     ApplicationArea = Dimensions;
                     CaptionClass = FormGetCaptionClass(2);
@@ -172,17 +223,17 @@ page 490 "Acc. Schedule Overview"
                         Result: Boolean;
                     begin
                         Result := DimValue.LookUpDimFilter(AnalysisView."Dimension 2 Code", Text);
-                        SetDimFilters(2, Text);
-                        Dim2Filter := text;
+                        SetDimFilters(2, CopyStr(Text, 1, MaxStrLen(TempFinancialReport.Dim2Filter)));
+                        TempFinancialReport.Dim2Filter := CopyStr(Text, 1, MaxStrLen(TempFinancialReport.Dim2Filter));
                         Exit(Result);
                     end;
 
                     trigger OnValidate()
                     begin
-                        SetDimFilters(2, Dim2Filter);
+                        SetDimFilters(2, TempFinancialReport.Dim2Filter);
                     end;
                 }
-                field(Dim3Filter; Dim3Filter)
+                field(Dim3Filter; TempFinancialReport.Dim3Filter)
                 {
                     ApplicationArea = Dimensions;
                     CaptionClass = FormGetCaptionClass(3);
@@ -198,17 +249,17 @@ page 490 "Acc. Schedule Overview"
                         Result: Boolean;
                     begin
                         Result := DimValue.LookUpDimFilter(AnalysisView."Dimension 3 Code", Text);
-                        SetDimFilters(3, CopyStr(Text, 1, MaxStrLen(Dim3Filter)));
-                        Dim3Filter := CopyStr(Text, 1, MaxStrLen(Dim3Filter));
+                        SetDimFilters(3, CopyStr(Text, 1, MaxStrLen(TempFinancialReport.Dim1Filter)));
+                        TempFinancialReport.Dim3Filter := CopyStr(Text, 1, MaxStrLen(TempFinancialReport.Dim3Filter));
                         Exit(Result);
                     end;
 
                     trigger OnValidate()
                     begin
-                        SetDimFilters(3, Dim3Filter);
+                        SetDimFilters(3, TempFinancialReport.Dim3Filter);
                     end;
                 }
-                field(Dim4Filter; Dim4Filter)
+                field(Dim4Filter; TempFinancialReport.Dim4Filter)
                 {
                     ApplicationArea = Dimensions;
                     CaptionClass = FormGetCaptionClass(4);
@@ -224,17 +275,17 @@ page 490 "Acc. Schedule Overview"
                         Result: Boolean;
                     begin
                         Result := DimValue.LookUpDimFilter(AnalysisView."Dimension 4 Code", Text);
-                        SetDimFilters(4, CopyStr(Text, 1, MaxStrLen(Dim4Filter)));
-                        Dim4Filter := CopyStr(Text, 1, MaxStrLen(Dim4Filter));
+                        SetDimFilters(4, CopyStr(Text, 1, MaxStrLen(TempFinancialReport.Dim1Filter)));
+                        TempFinancialReport.Dim4Filter := CopyStr(Text, 1, MaxStrLen(TempFinancialReport.Dim4Filter));
                         Exit(Result);
                     end;
 
                     trigger OnValidate()
                     begin
-                        SetDimFilters(4, Dim4Filter);
+                        SetDimFilters(4, TempFinancialReport.Dim4Filter);
                     end;
                 }
-                field(CostCenterFilter; CostCenterFilter)
+                field(CostCenterFilter; TempFinancialReport.CostCenterFilter)
                 {
                     ApplicationArea = CostAccounting;
                     Caption = 'Cost Center Filter';
@@ -247,28 +298,18 @@ page 490 "Acc. Schedule Overview"
                         Result: Boolean;
                     begin
                         Result := CostCenter.LookupCostCenterFilter(Text);
-                        CostCenterFilter := Text;
-                        if CostCenterFilter = '' then
-                            SetRange("Cost Center Filter")
-                        else
-                            SetFilter("Cost Center Filter", CostCenterFilter);
-
-                        OnAfterValidateCostCenterFilter(Rec, CostCenterFilter, Dim1Filter);
+                        TempFinancialReport.CostCenterFilter := CopyStr(Text, 1, MaxStrLen(TempFinancialReport.CostCenterFilter));
+                        ValidateCostCenterFilter();
                         Exit(Result);
                     end;
 
                     trigger OnValidate()
                     begin
-                        if CostCenterFilter = '' then
-                            SetRange("Cost Center Filter")
-                        else
-                            SetFilter("Cost Center Filter", CostCenterFilter);
-
-                        OnAfterValidateCostCenterFilter(Rec, CostCenterFilter, Dim1Filter);
+                        ValidateCostCenterFilter();
                         CurrPage.Update();
                     end;
                 }
-                field(CostObjectFilter; CostObjectFilter)
+                field(CostObjectFilter; TempFinancialReport.CostObjectFilter)
                 {
                     ApplicationArea = CostAccounting;
                     Caption = 'Cost Object Filter';
@@ -281,28 +322,18 @@ page 490 "Acc. Schedule Overview"
                         Result: Boolean;
                     begin
                         Result := CostObject.LookupCostObjectFilter(Text);
-                        CostObjectFilter := Text;
-                        if CostObjectFilter = '' then
-                            SetRange("Cost Object Filter")
-                        else
-                            SetFilter("Cost Object Filter", CostObjectFilter);
-
-                        OnAfterValidateCostObjectFilter(Rec, CostObjectFilter, Dim2Filter);
+                        TempFinancialReport.CostObjectFilter := CopyStr(Text, 1, MaxStrLen(TempFinancialReport.CostObjectFilter));
+                        ValidateCostObjectFilter();
                         Exit(Result);
                     end;
 
                     trigger OnValidate()
                     begin
-                        if CostObjectFilter = '' then
-                            SetRange("Cost Object Filter")
-                        else
-                            SetFilter("Cost Object Filter", CostObjectFilter);
-
-                        OnAfterValidateCostObjectFilter(Rec, CostObjectFilter, Dim2Filter);
+                        ValidateCostObjectFilter();
                         CurrPage.Update();
                     end;
                 }
-                field(CashFlowFilter; CashFlowFilter)
+                field(CashFlowFilter; TempFinancialReport.CashFlowFilter)
                 {
                     ApplicationArea = Dimensions;
                     Caption = 'Cash Flow Filter';
@@ -315,24 +346,18 @@ page 490 "Acc. Schedule Overview"
                         Result: Boolean;
                     begin
                         Result := CashFlowForecast.LookupCashFlowFilter(Text);
-                        CashFlowFilter := Text;
-                        if CashFlowFilter = '' then
-                            SetRange("Cash Flow Forecast Filter")
-                        else
-                            SetFilter("Cash Flow Forecast Filter", CashFlowFilter);
+                        TempFinancialReport.CashFlowFilter := CopyStr(Text, 1, MaxStrLen(TempFinancialReport.CashFlowFilter));
+                        ValidateCashFlowFilter();
                         exit(Result);
                     end;
 
                     trigger OnValidate()
                     begin
-                        if CashFlowFilter = '' then
-                            SetRange("Cash Flow Forecast Filter")
-                        else
-                            SetFilter("Cash Flow Forecast Filter", CashFlowFilter);
+                        ValidateCashFlowFilter();
                         CurrPage.Update();
                     end;
                 }
-                field("G/LBudgetFilter"; GLBudgetFilter)
+                field("G/LBudgetFilter"; TempFinancialReport.GLBudgetFilter)
                 {
                     ApplicationArea = Suite;
                     Caption = 'G/L Budget Filter';
@@ -344,24 +369,24 @@ page 490 "Acc. Schedule Overview"
                         Result: Boolean;
                     begin
                         Result := LookupGLBudgetFilter(Text);
-                        GLBudgetFilter := Text;
                         if Result then begin
-                            SetFilter("G/L Budget Filter", Text);
-                            Text := GetFilter("G/L Budget Filter");
+                            Rec.SetFilter("G/L Budget Filter", Text);
+                            Text := Rec.GetFilter("G/L Budget Filter");
                         end;
+                        TempFinancialReport.GLBudgetFilter := CopyStr(Text, 1, MaxStrLen(TempFinancialReport.GLBudgetFilter));
                         exit(Result);
                     end;
 
                     trigger OnValidate()
                     begin
-                        if GLBudgetFilter = '' then
-                            SetRange("G/L Budget Filter")
+                        if TempFinancialReport.GLBudgetFilter = '' then
+                            Rec.SetRange("G/L Budget Filter")
                         else
-                            SetFilter("G/L Budget Filter", GLBudgetFilter);
+                            Rec.SetFilter("G/L Budget Filter", TempFinancialReport.GLBudgetFilter);
                         CurrPage.Update();
                     end;
                 }
-                field(CostBudgetFilter; CostBudgetFilter)
+                field(CostBudgetFilter; TempFinancialReport.CostBudgetFilter)
                 {
                     ApplicationArea = CostAccounting;
                     Caption = 'Cost Budget Filter';
@@ -373,20 +398,20 @@ page 490 "Acc. Schedule Overview"
                         Result: Boolean;
                     begin
                         Result := LookupCostBudgetFilter(Text);
-                        CostBudgetFilter := Text;
                         if Result then begin
-                            SetFilter("Cost Budget Filter", Text);
-                            Text := GetFilter("Cost Budget Filter");
+                            Rec.SetFilter("Cost Budget Filter", Text);
+                            Text := Rec.GetFilter("Cost Budget Filter");
                         end;
+                        TempFinancialReport.CostBudgetFilter := CopyStr(Text, 1, MaxStrLen(TempFinancialReport.CostBudgetFilter));
                         exit(Result);
                     end;
 
                     trigger OnValidate()
                     begin
-                        if CostBudgetFilter = '' then
-                            SetRange("Cost Budget Filter")
+                        if TempFinancialReport.CostBudgetFilter = '' then
+                            Rec.SetRange("Cost Budget Filter")
                         else
-                            SetFilter("Cost Budget Filter", CostBudgetFilter);
+                            Rec.SetFilter("Cost Budget Filter", TempFinancialReport.CostBudgetFilter);
                         CurrPage.Update();
                     end;
                 }
@@ -397,7 +422,7 @@ page 490 "Acc. Schedule Overview"
                 IndentationColumn = Indentation;
                 IndentationControls = Description;
                 ShowCaption = false;
-                field("Row No."; "Row No.")
+                field("Row No."; Rec."Row No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a number that identifies the line.';
@@ -655,9 +680,6 @@ page 490 "Acc. Schedule Overview"
                 Caption = 'Print';
                 Ellipsis = true;
                 Image = Print;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedOnly = true;
                 ToolTip = 'Print the information in the window. A print request window opens where you can specify what to include on the print-out.';
 
                 trigger OnAction()
@@ -670,17 +692,20 @@ page 490 "Acc. Schedule Overview"
                     IsHandled: Boolean;
                 begin
                     IsHandled := false;
-                    OnBeforePrint(Rec, CurrentColumnName, IsHandled);
+                    OnBeforePrint(Rec, TempFinancialReport."Financial Report Column Group", IsHandled);
                     if IsHandled then
                         exit;
-
-                    AccSched.SetAccSchedName(CurrentSchedName);
-                    AccSched.SetColumnLayoutName(CurrentColumnName);
-                    DateFilter2 := GetFilter("Date Filter");
-                    GLBudgetFilter2 := GetFilter("G/L Budget Filter");
-                    CostBudgetFilter2 := GetFilter("Cost Budget Filter");
-                    BusUnitFilter := GetFilter("Business Unit Filter");
-                    AccSched.SetFilters(DateFilter2, GLBudgetFilter2, CostBudgetFilter2, BusUnitFilter, Dim1Filter, Dim2Filter, Dim3Filter, Dim4Filter, CashFlowFilter);
+                    if TempFinancialReport.Name <> '' then
+                        AccSched.SetFinancialReportName(TempFinancialReport.Name)
+                    else begin
+                        AccSched.SetAccSchedName(TempFinancialReport."Financial Report Row Group");
+                        AccSched.SetColumnLayoutName(TempFinancialReport."Financial Report Column Group");
+                    end;
+                    DateFilter2 := Rec.GetFilter("Date Filter");
+                    GLBudgetFilter2 := Rec.GetFilter("G/L Budget Filter");
+                    CostBudgetFilter2 := Rec.GetFilter("Cost Budget Filter");
+                    BusUnitFilter := Rec.GetFilter("Business Unit Filter");
+                    AccSched.SetFilters(DateFilter2, GLBudgetFilter2, CostBudgetFilter2, BusUnitFilter, TempFinancialReport.Dim1Filter, TempFinancialReport.Dim2Filter, TempFinancialReport.Dim3Filter, TempFinancialReport.Dim4Filter, TempFinancialReport.CashFlowFilter);
                     AccSched.Run();
                 end;
             }
@@ -689,10 +714,6 @@ page 490 "Acc. Schedule Overview"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Previous Column';
                 Image = PreviousRecord;
-                Promoted = true;
-                PromotedCategory = Category4;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'Go to the previous column.';
 
                 trigger OnAction()
@@ -705,14 +726,11 @@ page 490 "Acc. Schedule Overview"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Next Period';
                 Image = NextRecord;
-                Promoted = true;
-                PromotedCategory = Category5;
-                PromotedOnly = true;
                 ToolTip = 'Show the information based on the next period. If you set the View by field to Day, the date filter changes to the day before.';
 
                 trigger OnAction()
                 begin
-                    AccSchedManagement.FindPeriod(Rec, '>=', PeriodType);
+                    AccSchedManagement.FindPeriod(Rec, '>=', TempFinancialReport.PeriodType);
                     DateFilter := GetFilter("Date Filter");
                 end;
             }
@@ -721,15 +739,11 @@ page 490 "Acc. Schedule Overview"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Previous Period';
                 Image = PreviousRecord;
-                Promoted = true;
-                PromotedCategory = Category5;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'Show the information based on the previous period. If you set the View by field to Day, the date filter changes to the day before.';
 
                 trigger OnAction()
                 begin
-                    AccSchedManagement.FindPeriod(Rec, '<=', PeriodType);
+                    AccSchedManagement.FindPeriod(Rec, '<=', TempFinancialReport.PeriodType);
                     DateFilter := GetFilter("Date Filter");
                 end;
             }
@@ -738,9 +752,6 @@ page 490 "Acc. Schedule Overview"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Next Column';
                 Image = NextRecord;
-                Promoted = true;
-                PromotedCategory = Category4;
-                PromotedOnly = true;
                 ToolTip = 'Go to the next column.';
 
                 trigger OnAction()
@@ -753,17 +764,26 @@ page 490 "Acc. Schedule Overview"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Recalculate';
                 Image = Refresh;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
-                ToolTip = 'Update the account schedule overview based on recent changes.';
+                ToolTip = 'Update the financial report data based on recent changes.';
 
                 trigger OnAction()
                 begin
                     AccSchedManagement.ForceRecalculate(true);
                 end;
             }
+            action(RestoreFinRepFilters)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Restore to default filters';
+                Image = Restore;
+                ToolTip = 'Restore the user defined filters to the default filters stored on the financial report';
+
+                trigger OnAction()
+                begin
+                    RestoreFinancialReportUserFilters();
+                end;
+            }
+
             group(Excel)
             {
                 Caption = 'Excel';
@@ -776,13 +796,12 @@ page 490 "Acc. Schedule Overview"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Create New Document';
                         Image = ExportToExcel;
-                        ToolTip = 'Open the account schedule overview in a new Excel workbook. This creates an Excel workbook on your device.';
-
+                        ToolTip = 'Open the financial report in a new Excel workbook. This creates an Excel workbook on your device.';
                         trigger OnAction()
                         var
                             ExportAccSchedToExcel: Report "Export Acc. Sched. to Excel";
                         begin
-                            ExportAccSchedToExcel.SetOptions(Rec, CurrentColumnName, UseAmtsInAddCurr);
+                            ExportAccSchedToExcel.SetOptions(Rec, TempFinancialReport."Financial Report Column Group", TempFinancialReport.UseAmountsInAddCurrency);
                             ExportAccSchedToExcel.Run();
                         end;
                     }
@@ -792,12 +811,11 @@ page 490 "Acc. Schedule Overview"
                         Caption = 'Update Copy Of Existing Document';
                         Image = ExportToExcel;
                         ToolTip = 'Refresh the data in the copy of the existing Excel workbook, and download it to your device. You must specify the workbook that you want to update.';
-
                         trigger OnAction()
                         var
                             ExportAccSchedToExcel: Report "Export Acc. Sched. to Excel";
                         begin
-                            ExportAccSchedToExcel.SetOptions(Rec, CurrentColumnName, UseAmtsInAddCurr);
+                            ExportAccSchedToExcel.SetOptions(Rec, TempFinancialReport."Financial Report Column Group", TempFinancialReport.UseAmountsInAddCurrency);
                             ExportAccSchedToExcel.SetUpdateExistingWorksheet(true);
                             ExportAccSchedToExcel.Run();
                         end;
@@ -817,19 +835,9 @@ page 490 "Acc. Schedule Overview"
                 actionref(RestoreFinRepFilters_Promoted; RestoreFinRepFilters)
                 {
                 }
-                actionref("Create New Document_Promoted"; "Create New Document")
-                {
-                }
-                actionref("Update Existing Document_Promoted"; "Update Existing Document")
-                {
-                }
                 actionref(Print_Promoted; Print)
                 {
                 }
-            }
-            group(Category_Report)
-            {
-                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
             }
             group(Category_Category4)
             {
@@ -852,6 +860,21 @@ page 490 "Acc. Schedule Overview"
                 actionref(NextPeriod_Promoted; NextPeriod)
                 {
                 }
+            }
+            group("Category_Export to Excel")
+            {
+                Caption = 'Export to Excel';
+
+                actionref("Create New Document_Promoted"; "Create New Document")
+                {
+                }
+                actionref("Update Existing Document_Promoted"; "Update Existing Document")
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
             }
         }
     }
@@ -878,7 +901,7 @@ page 490 "Acc. Schedule Overview"
     begin
         Clear(ColumnValues);
 
-        if (Totaling = '') or (not TempColumnLayout.FindSet) or ("Schedule Name" <> CurrentSchedName) then
+        if (Totaling = '') or (not TempColumnLayout.FindSet()) or ("Schedule Name" <> TempFinancialReport."Financial Report Row Group") then
             exit;
 
         repeat
@@ -887,10 +910,10 @@ page 490 "Acc. Schedule Overview"
                 ColumnValues[ColumnNo - ColumnOffset] :=
                   RoundIfNotNone(
                     MatrixMgt.RoundAmount(
-                      AccSchedManagement.CalcCell(Rec, TempColumnLayout, UseAmtsInAddCurr),
+                      AccSchedManagement.CalcCell(Rec, TempColumnLayout, TempFinancialReport.UseAmountsInAddCurrency),
                       TempColumnLayout."Rounding Factor"),
                     TempColumnLayout."Rounding Factor");
-                OnOnAfterGetRecordOnAfterAssignColumnValue(ColumnValues, ColumnNo, ColumnOffset, TempColumnLayout, UseAmtsInAddCurr);
+                OnOnAfterGetRecordOnAfterAssignColumnValue(ColumnValues, ColumnNo, ColumnOffset, TempColumnLayout, TempFinancialReport.UseAmountsInAddCurrency);
                 ColumnLayoutArr[ColumnNo - ColumnOffset] := TempColumnLayout;
                 GetStyle(ColumnNo - ColumnOffset, "Line No.", TempColumnLayout."Line No.");
             end;
@@ -907,86 +930,43 @@ page 490 "Acc. Schedule Overview"
     end;
 
     trigger OnOpenPage()
-    var
-        CurrSchedNameChanged: Boolean;
     begin
-        UseAmtsInAddCurr := false;
-        GLSetup.Get();
-        UseAmtsInAddCurrVisible := GLSetup."Additional Reporting Currency" <> '';
-        if NewCurrentSchedName <> '' then begin
-            CurrSchedNameChanged := CurrentSchedName <> NewCurrentSchedName;
-            CurrentSchedName := NewCurrentSchedName;
-        end;
-        if CurrentSchedName = '' then
-            CurrentSchedName := Text000;
-        if NewCurrentColumnName <> '' then
-            CurrentColumnName := NewCurrentColumnName;
-        if (CurrentColumnName = '') or (CurrSchedNameChanged and (NewCurrentColumnName = '')) then
-            CurrentColumnName := Text000;
-        if NewPeriodTypeSet then
-            PeriodType := ModifiedPeriodType;
-
-        AccSchedManagement.CopyColumnsToTemp(CurrentColumnName, TempColumnLayout);
-        AccSchedManagement.OpenSchedule(CurrentSchedName, Rec);
-        AccSchedManagement.OpenColumns(CurrentColumnName, TempColumnLayout);
-        AccSchedManagement.CheckAnalysisView(CurrentSchedName, CurrentColumnName, true);
-        UpdateColumnCaptions;
-        if AccSchedName.Get(CurrentSchedName) then
-            if AccSchedName."Analysis View Name" <> '' then
-                AnalysisView.Get(AccSchedName."Analysis View Name")
-            else begin
-                Clear(AnalysisView);
-                AnalysisView."Dimension 1 Code" := GLSetup."Global Dimension 1 Code";
-                AnalysisView."Dimension 2 Code" := GLSetup."Global Dimension 2 Code";
-            end;
-
-        AccSchedManagement.FindPeriod(Rec, '', PeriodType);
-        ApplyShowFilter();
-        SetRange("Dimension 1 Filter");
-        SetRange("Dimension 2 Filter");
-        SetRange("Dimension 3 Filter");
-        SetRange("Dimension 4 Filter");
-        SetRange("Cost Center Filter");
-        SetRange("Cost Object Filter");
-        SetRange("Cash Flow Forecast Filter");
-        SetRange("Cost Budget Filter");
-        SetRange("G/L Budget Filter");
-        UpdateDimFilterControls;
-        DateFilter := GetFilter("Date Filter");
-
-        OnBeforeCurrentColumnNameOnAfterValidate(CurrentColumnName);
-
-        OnAfterOnOpenPage(Rec, CurrentColumnName);
+        if not ViewOnlyModeSet then
+            ViewOnlyMode := true;
+        LoadPageState();
     end;
 
     var
-        Text000: Label 'DEFAULT';
-        Text005: Label '1,6,,Dimension %1 Filter';
+        // Filters set in this page
+        TempFinancialReport: Record "Financial Report" temporary;
+        // Helper records keeping computed state of the page
         TempColumnLayout: Record "Column Layout" temporary;
-        ColumnLayoutArr: array[15] of Record "Column Layout";
         AccSchedName: Record "Acc. Schedule Name";
-        AnalysisView: Record "Analysis View";
         GLSetup: Record "General Ledger Setup";
-        AccSchedManagement: Codeunit AccSchedManagement;
+        // Helper codeunits
         MatrixMgt: Codeunit "Matrix Management";
         DimensionManagement: Codeunit DimensionManagement;
-        CurrentSchedName: Code[10];
+        // Filter set in this page
+        DateFilter: Text;
+        // Page setup variables: Set by the user through public procedures to alter the OnOpen of this page
         NewCurrentSchedName: Code[10];
         NewCurrentColumnName: Code[10];
+        ModifiedPeriodType: Enum "Analysis Period Type";
+        ViewOnlyMode: Boolean;
+        // Helper page state variables
+        ViewOnlyModeSet: Boolean;
+        FinancialReportSummaryTxt: Text;
+        CurrentFinancialReportNameTxt: Text;
+        ColumnLayoutArr: array[15] of Record "Column Layout";
         ColumnValues: array[15] of Decimal;
         ColumnCaptions: array[15] of Text[80];
-        PeriodType: Enum "Analysis Period Type";
         UseAmtsInAddCurrVisible: Boolean;
-        UseAmtsInAddCurr: Boolean;
-        Dim1Filter: Text;
-        Dim2Filter: Text;
-        Dim3Filter: Text;
-        Dim4Filter: Text;
-        CostCenterFilter: Text;
-        CostObjectFilter: Text;
-        CashFlowFilter: Text;
         NoOfColumns: Integer;
         ColumnOffset: Integer;
+        // Constants
+        Text000Tok: Label 'DEFAULT';
+        Text005Tok: Label '1,6,,Dimension %1 Filter';
+        // Other page state
         [InDataSet]
         Dim1FilterEnable: Boolean;
         [InDataSet]
@@ -995,12 +975,6 @@ page 490 "Acc. Schedule Overview"
         Dim3FilterEnable: Boolean;
         [InDataSet]
         Dim4FilterEnable: Boolean;
-        GLBudgetFilter: Text;
-        CostBudgetFilter: Text;
-        DateFilter: Text;
-        ModifiedPeriodType: Enum "Analysis Period Type";
-        NewPeriodTypeSet: Boolean;
-        ShowLinesWithShowNo: Boolean;
         [InDataSet]
         ColumnStyle1: Text;
         [InDataSet]
@@ -1032,61 +1006,295 @@ page 490 "Acc. Schedule Overview"
         [InDataSet]
         ColumnStyle15: Text;
 
-
-
     protected var
+        AnalysisView: Record "Analysis View";
+        AccSchedManagement: Codeunit AccSchedManagement;
+        // These variables are unused but kept in sync for retrocompatibility purposes
+        FinancialReportCode: Code[10];
         CurrentColumnName: Code[10];
+        UseAmtsInAddCurr: Boolean;
+
+    procedure SetFinancialReportName(NewFinancialReport: Code[10])
+    begin
+        FinancialReportCode := NewFinancialReport;
+    end;
+
+    procedure SetColumnDefinition(ColumnLayoutName: Code[10])
+    begin
+        NewCurrentColumnName := ColumnLayoutName;
+    end;
 
     procedure SetAccSchedName(NewAccSchedName: Code[10])
-    var
-        AccSchedName: Record "Acc. Schedule Name";
     begin
         NewCurrentSchedName := NewAccSchedName;
-        if AccSchedName.Get(NewCurrentSchedName) then
-            if AccSchedName."Default Column Layout" <> '' then
-                NewCurrentColumnName := AccSchedName."Default Column Layout";
     end;
 
     procedure SetPeriodType(NewPeriodType: Option)
     begin
         ModifiedPeriodType := "Analysis Period Type".FromInteger(NewPeriodType);
-        NewPeriodTypeSet := true;
+    end;
+
+    procedure SetViewOnlyMode(NewViewOnlyMode: Boolean)
+    begin
+        ViewOnlyMode := NewViewOnlyMode;
+        ViewOnlyModeSet := true;
+    end;
+
+    local procedure LoadPageState()
+    var
+        IsHandled: Boolean;
+    begin
+        GLSetup.Get();
+        UseAmtsInAddCurrVisible := GLSetup."Additional Reporting Currency" <> '';
+
+        // `FinancialReportTemp` contains the state of the filters the user interacts with
+        // `LoadFinancialReportFiltersOrDefault` loads this temporary record considering user overriden filters (if any).
+        LoadFinancialReportFiltersOrDefault(TempFinancialReport);
+
+        // Afterwards, we update all page state variables 
+        SetFinancialReportTxt();
+
+        IsHandled := false;
+        OnLoadPageStateOnBeforeCopyColumnsToTemp(CurrentColumnName, TempColumnLayout, TempFinancialReport."Financial Report Row Group", Rec, IsHandled);
+        if not IsHandled then begin
+            AccSchedManagement.CopyColumnsToTemp(TempFinancialReport."Financial Report Column Group", TempColumnLayout);
+            AccSchedManagement.OpenSchedule(TempFinancialReport."Financial Report Row Group", Rec);
+        end;
+        AccSchedManagement.OpenColumns(TempFinancialReport."Financial Report Column Group", TempColumnLayout);
+        AccSchedManagement.CheckAnalysisView(TempFinancialReport."Financial Report Row Group", TempFinancialReport."Financial Report Column Group", true);
+        SetLoadedDimFilters();
+        UpdateColumnCaptions();
+
+        if AccSchedName.Get(TempFinancialReport."Financial Report Row Group") then
+            if AccSchedName."Analysis View Name" <> '' then
+                AnalysisView.Get(AccSchedName."Analysis View Name")
+            else begin
+                Clear(AnalysisView);
+                AnalysisView."Dimension 1 Code" := GLSetup."Global Dimension 1 Code";
+                AnalysisView."Dimension 2 Code" := GLSetup."Global Dimension 2 Code";
+            end;
+
+        AccSchedManagement.FindPeriod(Rec, '', TempFinancialReport.PeriodType);
+        ApplyShowFilter();
+        UpdateDimFilterControls();
+        DateFilter := Rec.GetFilter("Date Filter");
+
+        OnBeforeCurrentColumnNameOnAfterValidate(TempFinancialReport."Financial Report Column Group");
+        OnAfterOnOpenPage(Rec, TempFinancialReport."Financial Report Column Group");
+    end;
+
+    local procedure LoadFinancialReportFilters(FinancialReportCode: Code[10]; var FinancialReportToLoadTemp: Record "Financial Report" temporary): Boolean
+    var
+        FinancialReport: Record "Financial Report";
+        FinancialReportUserFilters: Record "Financial Report User Filters";
+        Field: Record "Field";
+        RecordRefFinancialReport: RecordRef;
+        RecordRefUserFilters: RecordRef;
+        FieldRefFinancialReport: FieldRef;
+        FieldRefUserFilters: FieldRef;
+        UserIDCode: Code[50];
+    begin
+        if not FinancialReport.Get(FinancialReportCode) then
+            exit(false);
+        // Transfer filters from FinancialReport
+        FinancialReportToLoadTemp.Init();
+        FinancialReportToLoadTemp.TransferFields(FinancialReport);
+        if not ViewOnlyMode then
+            exit(true);
+        UserIDCode := CopyStr(UserId(), 1, MaxStrLen(UserIDCode));
+        if not FinancialReportUserFilters.Get(UserIDCode, FinancialReport.Name) then
+            exit(true);
+        // Override custom user filters
+        Field.SetRange(TableNo, Database::"Financial Report User Filters");
+        Field.SetFilter("No.", '<>%1', FinancialReportUserFilters.FieldNo("User ID"));
+        Field.SetFilter("No.", '<>%1 & <>%2 & < %3', FinancialReportUserFilters.FieldNo("User ID"), FinancialReportUserFilters.FieldNo("Financial Report Name"), 2000000000);
+        RecordRefUserFilters.GetTable(FinancialReportUserFilters);
+        if Field.FindSet() then
+            repeat
+                // We go through each of the user filter fields
+                FieldRefUserFilters := RecordRefUserFilters.Field(Field."No.");
+                if FieldRefNotBlank(FieldRefUserFilters) then begin
+                    // If it is not empty we set the corresponding value in FinancialReportToLoadTemp
+                    RecordRefFinancialReport.GetTable(FinancialReportToLoadTemp);
+                    FieldRefFinancialReport := RecordRefFinancialReport.Field(Field."No.");
+                    FieldRefFinancialReport.Value(FieldRefUserFilters.Value);
+                    RecordRefFinancialReport.SetTable(FinancialReportToLoadTemp);
+                end
+            until Field.Next() = 0;
+        RecordRefFinancialReport.Close();
+        RecordRefUserFilters.Close();
+        exit(true);
+    end;
+
+    local procedure LoadFinancialReportFiltersOrDefault(var FinancialReportToLoadTemp: Record "Financial Report" temporary)
+    begin
+        LoadFinancialReportFiltersOrDefault(FinancialReportCode, FinancialReportToLoadTemp);
+    end;
+
+    local procedure LoadFinancialReportFiltersOrDefault(FinancialReportToLoadCode: Code[10]; var FinancialReportToLoadTemp: Record "Financial Report" temporary)
+    var
+        FinancialReportLoaded: Boolean;
+    begin
+        // Every filter the user interacts with in this page is kept in FinancialReportTemp
+        FinancialReportLoaded := LoadFinancialReportFilters(FinancialReportToLoadCode, FinancialReportToLoadTemp);
+        if not FinancialReportLoaded then begin
+            // If no financial report is set, view mode is forced
+            ViewOnlyMode := true;
+            FinancialReportToLoadTemp.Init();
+            // We get values from the other page setup variables
+            if NewCurrentSchedName = '' then
+                NewCurrentSchedName := Text000Tok;
+            if NewCurrentColumnName = '' then
+                NewCurrentColumnName := Text000Tok;
+
+            FinancialReportToLoadTemp."Financial Report Row Group" := NewCurrentSchedName;
+            FinancialReportToLoadTemp."Financial Report Column Group" := NewCurrentColumnName;
+            // (Every change to FinancialReportTemp."Financial Report Column Group" must be kept in sync with CurrentColumnName)
+            CurrentColumnName := NewCurrentColumnName;
+
+            FinancialReportToLoadTemp.PeriodType := ModifiedPeriodType;
+            FinancialReportToLoadTemp.UseAmountsInAddCurrency := false;
+            // (Every change to FinancialReportTemp.UseAmountsInAddCurrency must be kept in sync with UseAmtsInAddCurr)
+            UseAmtsInAddCurr := false;
+        end;
+        // Default values
+        if FinancialReportToLoadTemp."Financial Report Column Group" = '' then begin
+            FinancialReportToLoadTemp."Financial Report Column Group" := Text000Tok;
+            // (Every change to FinancialReportTemp."Financial Report Column Group" must be kept in sync with CurrentColumnName)
+            CurrentColumnName := Text000Tok;
+        end;
+    end;
+
+    local procedure RestoreFinancialReportUserFilters()
+    var
+        FinancialReportUserFilters: Record "Financial Report User Filters";
+        UserIDCode: Code[50];
+    begin
+        UserIDCode := CopyStr(UserId(), 1, MaxStrLen(UserIDCode));
+        if not FinancialReportUserFilters.Get(UserIDCode, TempFinancialReport.Name) then
+            exit;
+        FinancialReportUserFilters.Delete();
+        LoadPageState();
+    end;
+
+    local procedure AddSummaryPart(var SummaryTxt: Text; PartTxt: Text)
+    begin
+        if PartTxt = '' then
+            exit;
+        if SummaryTxt <> '' then
+            SummaryTxt += ' - ';
+        SummaryTxt += PartTxt;
+    end;
+
+    local procedure SetFinancialReportTxt()
+    begin
+        FinancialReportSummaryTxt := '';
+        CurrentFinancialReportNameTxt := '';
+        AddSummaryPart(CurrentFinancialReportNameTxt, TempFinancialReport.Name);
+        if CurrentFinancialReportNameTxt = '' then begin
+            AddSummaryPart(CurrentFinancialReportNameTxt, TempFinancialReport."Financial Report Row Group");
+            AddSummaryPart(CurrentFinancialReportNameTxt, TempFinancialReport."Financial Report Column Group");
+        end;
+        AddSummaryPart(FinancialReportSummaryTxt, TempFinancialReport.Name);
+        AddSummaryPart(FinancialReportSummaryTxt, TempFinancialReport.Description);
+        AddSummaryPart(FinancialReportSummaryTxt, TempFinancialReport."Financial Report Row Group");
+        AddSummaryPart(FinancialReportSummaryTxt, TempFinancialReport."Financial Report Column Group");
+    end;
+
+    [TryFunction]
+    local procedure FieldRefNotBlank(FieldRef: FieldRef)
+    begin
+        FieldRef.TestField();
+    end;
+
+    local procedure ValidateCostCenterFilter()
+    var
+        CurrentCostCenterFilter: Text;
+        CurrentDim1Filter: Text;
+    begin
+        if TempFinancialReport.CostCenterFilter = '' then
+            Rec.SetRange("Cost Center Filter")
+        else
+            Rec.SetFilter("Cost Center Filter", TempFinancialReport.CostCenterFilter);
+        CurrentCostCenterFilter := TempFinancialReport.CostCenterFilter;
+        CurrentDim1Filter := TempFinancialReport.Dim1Filter;
+        OnAfterValidateCostCenterFilter(Rec, CurrentCostCenterFilter, CurrentDim1Filter);
+        TempFinancialReport.CostCenterFilter := CopyStr(CurrentCostCenterFilter, 1, MaxStrLen(TempFinancialReport.CostCenterFilter));
+        TempFinancialReport.Dim1Filter := CopyStr(CurrentDim1Filter, 1, MaxStrLen(TempFinancialReport.Dim1Filter));
+    end;
+
+    local procedure ValidateCostObjectFilter()
+    var
+        CurrentCostObjectFilter: Text;
+        CurrentDim2Filter: Text;
+    begin
+        if TempFinancialReport.CostObjectFilter = '' then
+            Rec.SetRange("Cost Object Filter")
+        else
+            Rec.SetFilter("Cost Object Filter", TempFinancialReport.CostObjectFilter);
+        CurrentCostObjectFilter := TempFinancialReport.CostObjectFilter;
+        CurrentDim2Filter := TempFinancialReport.Dim2Filter;
+        OnAfterValidateCostObjectFilter(Rec, CurrentCostObjectFilter, CurrentDim2Filter);
+        TempFinancialReport.CostObjectFilter := CopyStr(CurrentCostObjectFilter, 1, MaxStrLen(TempFinancialReport.CostObjectFilter));
+        TempFinancialReport.Dim2Filter := CopyStr(CurrentDim2Filter, 1, MaxStrLen(TempFinancialReport.Dim2Filter));
+    end;
+
+    local procedure ValidateCashFlowFilter()
+    begin
+        if TempFinancialReport.CashFlowFilter = '' then
+            Rec.SetRange("Cash Flow Forecast Filter")
+        else
+            Rec.SetFilter("Cash Flow Forecast Filter", TempFinancialReport.CashFlowFilter);
+    end;
+
+    local procedure SetLoadedDimFilters()
+    begin
+        SetDimFilters(1, TempFinancialReport.Dim1Filter);
+        SetDimFilters(2, TempFinancialReport.Dim2Filter);
+        SetDimFilters(3, TempFinancialReport.Dim3Filter);
+        SetDimFilters(4, TempFinancialReport.Dim4Filter);
     end;
 
     local procedure SetDimFilters(DimNo: Integer; DimValueFilter: Text)
+    var
+        CurrentCostCenterFilter: Text;
+        CurrentCostObjectFilter: Text;
     begin
         case DimNo of
             1:
                 if DimValueFilter = '' then
-                    SetRange("Dimension 1 Filter")
+                    Rec.SetRange("Dimension 1 Filter")
                 else begin
                     DimensionManagement.ResolveDimValueFilter(DimValueFilter, AnalysisView."Dimension 1 Code");
-                    SetFilter("Dimension 1 Filter", DimValueFilter);
+                    Rec.SetFilter("Dimension 1 Filter", DimValueFilter);
                 end;
             2:
                 if DimValueFilter = '' then
-                    SetRange("Dimension 2 Filter")
+                    Rec.SetRange("Dimension 2 Filter")
                 else begin
                     DimensionManagement.ResolveDimValueFilter(DimValueFilter, AnalysisView."Dimension 2 Code");
-                    SetFilter("Dimension 2 Filter", DimValueFilter);
+                    Rec.SetFilter("Dimension 2 Filter", DimValueFilter);
                 end;
             3:
                 if DimValueFilter = '' then
-                    SetRange("Dimension 3 Filter")
+                    Rec.SetRange("Dimension 3 Filter")
                 else begin
                     DimensionManagement.ResolveDimValueFilter(DimValueFilter, AnalysisView."Dimension 3 Code");
-                    SetFilter("Dimension 3 Filter", DimValueFilter);
+                    Rec.SetFilter("Dimension 3 Filter", DimValueFilter);
                 end;
             4:
                 if DimValueFilter = '' then
-                    SetRange("Dimension 4 Filter")
+                    Rec.SetRange("Dimension 4 Filter")
                 else begin
                     DimensionManagement.ResolveDimValueFilter(DimValueFilter, AnalysisView."Dimension 4 Code");
-                    SetFilter("Dimension 4 Filter", DimValueFilter);
+                    Rec.SetFilter("Dimension 4 Filter", DimValueFilter);
                 end;
         end;
-
-        OnAfterSetDimFilters(Rec, DimNo, DimValueFilter, CostCenterFilter, CostObjectFilter);
+        CurrentCostCenterFilter := TempFinancialReport.CostCenterFilter;
+        CurrentCostObjectFilter := TempFinancialReport.CostObjectFilter;
+        OnAfterSetDimFilters(Rec, DimNo, DimValueFilter, CurrentCostCenterFilter, CurrentCostObjectFilter);
+        TempFinancialReport.CostCenterFilter := CopyStr(CurrentCostCenterFilter, 1, MaxStrLen(TempFinancialReport.CostCenterFilter));
+        TempFinancialReport.CostObjectFilter := CopyStr(CurrentCostObjectFilter, 1, MaxStrLen(TempFinancialReport.CostObjectFilter));
         CurrPage.Update();
     end;
 
@@ -1105,28 +1313,28 @@ page 490 "Acc. Schedule Overview"
                     if AnalysisView."Dimension 1 Code" <> '' then
                         exit('1,6,' + AnalysisView."Dimension 1 Code");
 
-                    exit(StrSubstNo(Text005, DimNo));
+                    exit(StrSubstNo(Text005Tok, DimNo));
                 end;
             2:
                 begin
                     if AnalysisView."Dimension 2 Code" <> '' then
                         exit('1,6,' + AnalysisView."Dimension 2 Code");
 
-                    exit(StrSubstNo(Text005, DimNo));
+                    exit(StrSubstNo(Text005Tok, DimNo));
                 end;
             3:
                 begin
                     if AnalysisView."Dimension 3 Code" <> '' then
                         exit('1,6,' + AnalysisView."Dimension 3 Code");
 
-                    exit(StrSubstNo(Text005, DimNo));
+                    exit(StrSubstNo(Text005Tok, DimNo));
                 end;
             4:
                 begin
                     if AnalysisView."Dimension 4 Code" <> '' then
                         exit('1,6,' + AnalysisView."Dimension 4 Code");
 
-                    exit(StrSubstNo(Text005, DimNo));
+                    exit(StrSubstNo(Text005Tok, DimNo));
                 end;
             5:
                 exit(FieldCaption("Date Filter"));
@@ -1140,10 +1348,10 @@ page 490 "Acc. Schedule Overview"
         PeriodTypeOpt: Option;
     begin
         TempColumnLayout := ColumnLayoutArr[ColumnNo];
-        AccSchedManagement.DrillDownFromOverviewPage(TempColumnLayout, Rec, PeriodType.AsInteger());
-        PeriodTypeOpt := PeriodType.AsInteger();
+        AccSchedManagement.DrillDownFromOverviewPage(TempColumnLayout, Rec, TempFinancialReport.PeriodType.AsInteger());
+        PeriodTypeOpt := TempFinancialReport.PeriodType.AsInteger();
         OnAfterDrillDown(ColumnNo, TempColumnLayout, PeriodTypeOpt);
-        PeriodType := "Analysis Period Type".FromInteger(PeriodTypeOpt);
+        TempFinancialReport.PeriodType := "Analysis Period Type".FromInteger(PeriodTypeOpt);
     end;
 
     local procedure UpdateColumnCaptions()
@@ -1181,17 +1389,146 @@ page 490 "Acc. Schedule Overview"
         if ColumnOffset < 0 then
             ColumnOffset := 0;
         if ColumnOffset <> OldColumnOffset then begin
-            UpdateColumnCaptions;
+            UpdateColumnCaptions();
             CurrPage.Update(false);
         end;
     end;
 
+    local procedure SaveStateToFinancialReport()
+    var
+        FinancialReport: Record "Financial Report";
+    begin
+        if not FinancialReport.Get(TempFinancialReport.Name) then
+            exit;
+        FinancialReport.TransferFields(TempFinancialReport, false);
+        FinancialReport.Modify();
+    end;
+
+    local procedure RemoveUserFilters()
+    var
+        FinancialReportUserFilters: Record "Financial Report User Filters";
+        UserIDCode: Code[50];
+    begin
+        UserIDCode := CopyStr(UserId(), 1, MaxStrLen(UserIDCode));
+        if not FinancialReportUserFilters.Get(UserIDCode, TempFinancialReport.Name) then
+            exit;
+        FinancialReportUserFilters.Delete();
+    end;
+
+    local procedure BlankFieldRef(var TargetFieldRef: FieldRef)
+    begin
+        if (TargetFieldRef.Type = TargetFieldRef.Type::Code) or
+           (TargetFieldRef.Type = TargetFieldRef.Type::Text)
+        then begin
+            TargetFieldRef.Value('');
+            exit;
+        end;
+        if TargetFieldRef.Type = TargetFieldRef.Type::Boolean then begin
+            TargetFieldRef.Value(false);
+            exit;
+        end;
+        if TargetFieldRef.Type = TargetFieldRef.Type::Integer then begin
+            TargetFieldRef.Value(0);
+            exit;
+        end;
+
+    end;
+
+    local procedure SaveStateToUserFilters()
+    var
+        FinancialReportUserFilters: Record "Financial Report User Filters";
+        FinancialReport: Record "Financial Report";
+        Field: Record "Field";
+        RecordRefFinancialReport: RecordRef;
+        RecordRefUserFilters: RecordRef;
+        RecordRefFinancialReportTemp: RecordRef;
+        FieldRefFinancialReport: FieldRef;
+        FieldRefUserFilters: FieldRef;
+        FieldRefFinancialReportTemp: FieldRef;
+        UserIDCode: Code[50];
+        FiltersAreDifferent: Boolean;
+    begin
+        if not FinancialReport.Get(TempFinancialReport.Name) then
+            exit; // This condition should be unreachable through OnClose as the user is not able to modify Name
+        UserIDCode := CopyStr(UserId(), 1, MaxStrLen(UserIDCode));
+        if not FinancialReportUserFilters.Get(UserIDCode, TempFinancialReport.Name) then begin
+            FinancialReportUserFilters.Init();
+            FinancialReportUserFilters."Financial Report Name" := TempFinancialReport.Name;
+            FinancialReportUserFilters."User ID" := UserIDCode;
+            FinancialReportUserFilters.Insert();
+            Commit();
+        end;
+        // We only tranfer values to `FinancialReportUserFilters` if they differ from the
+        // value stored in the original definition of the corresponding `FinancialReport`.
+        // If they are the same, we blank them
+        RecordRefFinancialReport.GetTable(FinancialReport);
+        RecordRefUserFilters.GetTable(FinancialReportUserFilters);
+        RecordRefFinancialReportTemp.GetTable(TempFinancialReport);
+        Field.SetRange(TableNo, Database::"Financial Report User Filters");
+        Field.SetFilter("No.", '<>%1 & <>%2 & < %3', FinancialReportUserFilters.FieldNo("User ID"), FinancialReportUserFilters.FieldNo("Financial Report Name"), 2000000000);
+        FiltersAreDifferent := false;
+        if Field.FindSet() then
+            repeat
+                FieldRefFinancialReport := RecordRefFinancialReport.Field(Field."No.");
+                FieldRefUserFilters := RecordRefUserFilters.Field(Field."No.");
+                FieldRefFinancialReportTemp := RecordRefFinancialReportTemp.Field(Field."No.");
+                // If the values modified in the page are different to the ones stored in the financial report
+                // we store the modified value in the user filters
+                if FieldRefFinancialReportTemp.Value <> FieldRefFinancialReport.Value then begin
+                    FieldRefUserFilters.Value(FieldRefFinancialReportTemp.Value);
+                    FiltersAreDifferent := true;
+                end
+                else // if they are the same, we blank such field in the user filters
+                    BlankFieldRef(FieldRefUserFilters);
+            until Field.Next() = 0;
+        RecordRefUserFilters.Modify();
+        RecordRefFinancialReport.Close();
+        RecordRefUserFilters.Close();
+        RecordRefFinancialReportTemp.Close();
+        if FiltersAreDifferent then
+            exit;
+        Commit();
+        if FinancialReportUserFilters.Get(UserIDCode, TempFinancialReport.Name) then
+            FinancialReportUserFilters.Delete();
+    end;
+
+    local procedure StateHasUserChanges(): Boolean
+    var
+        TempOriginalFinancialReport: Record "Financial Report" temporary;
+        Field: Record "Field";
+        RecordRefFinancialReport: RecordRef;
+        RecordRefOriginalFinancialReport: RecordRef;
+        FieldRefFinancialReport: FieldRef;
+        FieldRefOriginalFinancialReport: FieldRef;
+    begin
+        // To determine whether changes were made, we load the original definition
+        LoadFinancialReportFiltersOrDefault(TempFinancialReport.Name, TempOriginalFinancialReport);
+        Field.SetRange(TableNo, Database::"Financial Report");
+        RecordRefOriginalFinancialReport.GetTable(TempOriginalFinancialReport);
+        RecordRefFinancialReport.GetTable(TempFinancialReport);
+        // And then we compare each field of the current `FinancialReportTemp`
+        if Field.FindSet() then
+            repeat
+                FieldRefOriginalFinancialReport := RecordRefOriginalFinancialReport.Field(Field."No.");
+                FieldRefFinancialReport := RecordRefFinancialReport.Field(Field."No.");
+                // If there is any of those different, the user made a change
+                if FieldRefFinancialReport.Value <> FieldRefOriginalFinancialReport.Value then begin
+                    RecordRefFinancialReport.Close();
+                    RecordRefOriginalFinancialReport.Close();
+                    exit(true);
+                end;
+            until Field.Next() = 0;
+        RecordRefFinancialReport.Close();
+        RecordRefOriginalFinancialReport.Close();
+        exit(false);
+    end;
+
     local procedure ApplyShowFilter()
     begin
-        if not ShowLinesWithShowNo then
-            SetFilter(Show, '<>%1', Show::No)
+        if not TempFinancialReport.ShowLinesWithShowNo then
+            Rec.SetFilter(Show, '<>%1', Rec.Show::No)
         else
-            SetRange(Show);
+            Rec.SetRange(Show);
     end;
 
     local procedure UpdateDimFilterControls()
@@ -1203,79 +1540,70 @@ page 490 "Acc. Schedule Overview"
         if IsHandled then
             exit;
 
-        Dim1Filter := GetFilter("Dimension 1 Filter");
-        Dim2Filter := GetFilter("Dimension 2 Filter");
-        Dim3Filter := GetFilter("Dimension 3 Filter");
-        Dim4Filter := GetFilter("Dimension 4 Filter");
-        CostCenterFilter := '';
-        CostObjectFilter := '';
-        CashFlowFilter := '';
+        TempFinancialReport.Dim1Filter := CopyStr(Rec.GetFilter("Dimension 1 Filter"), 1, MaxStrLen(TempFinancialReport.Dim1Filter));
+        TempFinancialReport.Dim2Filter := CopyStr(Rec.GetFilter("Dimension 2 Filter"), 1, MaxStrLen(TempFinancialReport.Dim2Filter));
+        TempFinancialReport.Dim3Filter := CopyStr(Rec.GetFilter("Dimension 3 Filter"), 1, MaxStrLen(TempFinancialReport.Dim3Filter));
+        TempFinancialReport.Dim4Filter := CopyStr(Rec.GetFilter("Dimension 4 Filter"), 1, MaxStrLen(TempFinancialReport.Dim4Filter));
         Dim1FilterEnable := AnalysisView."Dimension 1 Code" <> '';
         Dim2FilterEnable := AnalysisView."Dimension 2 Code" <> '';
         Dim3FilterEnable := AnalysisView."Dimension 3 Code" <> '';
         Dim4FilterEnable := AnalysisView."Dimension 4 Code" <> '';
-        GLBudgetFilter := '';
-        CostBudgetFilter := '';
-
         OnAfterUpdateDimFilterControls(Dim4FilterEnable);
     end;
 
     local procedure CurrentSchedNameOnAfterValidate()
     var
-        AccSchedName: Record "Acc. Schedule Name";
+        AccSchedName2: Record "Acc. Schedule Name";
         PrevAnalysisView: Record "Analysis View";
     begin
-        CurrPage.SaveRecord;
-        AccSchedManagement.SetName(CurrentSchedName, Rec);
-        if AccSchedName.Get(CurrentSchedName) then begin
-            if (AccSchedName."Default Column Layout" <> '') and
-               (CurrentColumnName <> AccSchedName."Default Column Layout")
-            then begin
-                CurrentColumnName := AccSchedName."Default Column Layout";
-                CurrentColumnNameOnAfterValidate();
-            end else begin
-                AccSchedManagement.CheckAnalysisView(CurrentSchedName, CurrentColumnName, true);
-                if (AccSchedName."Default Column Layout" = '') and (CurrentSchedName <> NewCurrentSchedName) then begin
-                    CurrentColumnName := Text000;
-                    CurrentColumnNameOnAfterValidate();
-                end;
-            end;
-        end else
-            AccSchedManagement.CheckAnalysisView(CurrentSchedName, CurrentColumnName, true);
+        AccSchedManagement.SetName(TempFinancialReport."Financial Report Row Group", Rec);
 
-        if AccSchedName."Analysis View Name" <> AnalysisView.Code then begin
+        AccSchedManagement.CheckAnalysisView(TempFinancialReport."Financial Report Row Group", TempFinancialReport."Financial Report Column Group", true);
+
+        if AccSchedName2."Analysis View Name" <> AnalysisView.Code then begin
             PrevAnalysisView := AnalysisView;
-            if AccSchedName."Analysis View Name" <> '' then
-                AnalysisView.Get(AccSchedName."Analysis View Name")
+            if AccSchedName2."Analysis View Name" <> '' then
+                AnalysisView.Get(AccSchedName2."Analysis View Name")
             else begin
                 Clear(AnalysisView);
                 AnalysisView."Dimension 1 Code" := GLSetup."Global Dimension 1 Code";
                 AnalysisView."Dimension 2 Code" := GLSetup."Global Dimension 2 Code";
             end;
             if PrevAnalysisView."Dimension 1 Code" <> AnalysisView."Dimension 1 Code" then
-                SetRange("Dimension 1 Filter");
+                Rec.SetRange("Dimension 1 Filter");
             if PrevAnalysisView."Dimension 2 Code" <> AnalysisView."Dimension 2 Code" then
-                SetRange("Dimension 2 Filter");
+                Rec.SetRange("Dimension 2 Filter");
             if PrevAnalysisView."Dimension 3 Code" <> AnalysisView."Dimension 3 Code" then
-                SetRange("Dimension 3 Filter");
+                Rec.SetRange("Dimension 3 Filter");
             if PrevAnalysisView."Dimension 4 Code" <> AnalysisView."Dimension 4 Code" then
-                SetRange("Dimension 4 Filter");
+                Rec.SetRange("Dimension 4 Filter");
         end;
-        UpdateDimFilterControls;
+        UpdateDimFilterControls();
+        TempFinancialReport.CostCenterFilter := '';
+        TempFinancialReport.CostObjectFilter := '';
+        TempFinancialReport.CashFlowFilter := '';
+        TempFinancialReport.GLBudgetFilter := '';
+        TempFinancialReport.CostBudgetFilter := '';
+
+        if not ViewOnlyMode then
+            SaveStateToFinancialReport();
 
         CurrPage.Update(false);
     end;
 
     local procedure CurrentColumnNameOnAfterValidate()
     begin
-        OnBeforeCurrentColumnNameOnAfterValidate(CurrentColumnName);
+        OnBeforeCurrentColumnNameOnAfterValidate(TempFinancialReport."Financial Report Column Group");
 
-        AccSchedManagement.CopyColumnsToTemp(CurrentColumnName, TempColumnLayout);
-        AccSchedManagement.SetColumnName(CurrentColumnName, TempColumnLayout);
-        AccSchedManagement.CheckAnalysisView(CurrentSchedName, CurrentColumnName, true);
+        AccSchedManagement.CopyColumnsToTemp(TempFinancialReport."Financial Report Column Group", TempColumnLayout);
+        AccSchedManagement.SetColumnName(TempFinancialReport."Financial Report Column Group", TempColumnLayout);
+        AccSchedManagement.CheckAnalysisView(TempFinancialReport."Financial Report Row Group", TempFinancialReport."Financial Report Column Group", true);
         ColumnOffset := 0;
-        UpdateColumnCaptions;
+        UpdateColumnCaptions();
         CurrPage.Update(false);
+
+        if not ViewOnlyMode then
+            SaveStateToFinancialReport();
     end;
 
     procedure FormatStr(ColumnNo: Integer): Text
@@ -1419,6 +1747,11 @@ page 490 "Acc. Schedule Overview"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterFormatStr(ColumnLayoutArr: array[15] of Record "Column Layout"; UseAmtsInAddCurr: Boolean; ColumnNo: Integer; var Result: Text; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLoadPageStateOnBeforeCopyColumnsToTemp(CurrentColumnName: Code[10]; var TempColumnLayout: Record "Column Layout" temporary; var CurrentSchedName: Code[10]; var AccScheduleLine: Record "Acc. Schedule Line"; var IsHandled: Boolean)
     begin
     end;
 }

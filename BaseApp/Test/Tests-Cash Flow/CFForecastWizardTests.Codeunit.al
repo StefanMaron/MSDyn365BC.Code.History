@@ -79,7 +79,7 @@ codeunit 139315 "CF Forecast Wizard Tests"
 
         // [WHEN] The cash flow forecast wizard is run to the end but not finished
         RunWizardToCompletion(CashFlowForecastWizard, UpdateFrequency::Never);
-        CashFlowForecastWizard.Close;
+        CashFlowForecastWizard.Close();
 
         // [THEN] Status of assisted setup remains Not Completed
         Assert.IsFalse(GuidedExperience.IsAssistedSetupComplete(ObjectType::Page, PAGE::"Cash Flow Forecast Wizard"), 'Set Up Cash Flow Forecast status should not be completed.');
@@ -100,7 +100,7 @@ codeunit 139315 "CF Forecast Wizard Tests"
         // [WHEN] The Cash Flow Forecast Wizard is exited right away
         CashFlowForecastWizard.Trap;
         PAGE.Run(PAGE::"Cash Flow Forecast Wizard");
-        CashFlowForecastWizard.Close;
+        CashFlowForecastWizard.Close();
 
         // [THEN] Status of Cash Flow Forecast remains Not Completed
         Assert.IsFalse(GuidedExperience.IsAssistedSetupComplete(ObjectType::Page, PAGE::"Cash Flow Forecast Wizard"), 'Set Up Cash Flow Forecast status should not be completed.');
@@ -139,7 +139,7 @@ codeunit 139315 "CF Forecast Wizard Tests"
         // [WHEN] The data migration wizard is closed but closing is not confirmed
         CashFlowForecastWizard.Trap;
         PAGE.Run(PAGE::"Cash Flow Forecast Wizard");
-        CashFlowForecastWizard.Close;
+        CashFlowForecastWizard.Close();
 
         // [THEN] Status of assisted setup remains Not Completed
         Assert.IsFalse(GuidedExperience.IsAssistedSetupComplete(ObjectType::Page, PAGE::"Cash Flow Forecast Wizard"), 'Set Up Cash Flow Forecast status should not be completed.');
@@ -236,9 +236,9 @@ codeunit 139315 "CF Forecast Wizard Tests"
         if not GLAccountCategory.FindSet() then
             exit;
 
-        CashAccountFilter := GLAccountCategory.GetTotaling;
-        while GLAccountCategory.Next <> 0 do
-            CashAccountFilter += '|' + GLAccountCategory.GetTotaling;
+        CashAccountFilter := GLAccountCategory.GetTotaling();
+        while GLAccountCategory.Next() <> 0 do
+            CashAccountFilter += '|' + GLAccountCategory.GetTotaling();
 
         CashAccountFilter := CashAccountFilter.TrimStart('|').TrimEnd('|');
     end;

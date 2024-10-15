@@ -311,13 +311,9 @@ table 5832 "Capacity Ledger Entry"
             //This property is currently not supported
             //TestTableRelation = false;
             ValidateTableRelation = false;
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
     }
 
@@ -374,7 +370,7 @@ table 5832 "Capacity Ledger Entry"
     var
         DimMgt: Codeunit DimensionManagement;
     begin
-        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', TableCaption, "Entry No."));
+        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', TableCaption(), "Entry No."));
     end;
 
     procedure SetFilterByProdOrderRoutingLine(ProdOrderNo: Code[20]; ProdOrderLineNo: Integer; ProdOrderRoutingNo: Code[20]; ProdOrderRoutingLineNo: Integer)
@@ -386,4 +382,3 @@ table 5832 "Capacity Ledger Entry"
         SetRange("Routing Reference No.", ProdOrderRoutingLineNo);
     end;
 }
-

@@ -21,9 +21,9 @@ codeunit 134061 "ERM VAT Tool - UT"
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         IsInitialized: Boolean;
-        ItemFilterIncorrectErr: Label 'The value in Item Filter is incorrect.';
-        ResourceFilterIncorrectErr: Label 'The value in Resource Filter is incorrect.';
-        AccountFilterIncorrectErr: Label 'The value in Account Filter is incorrect.';
+        ItemFilterIncorrectError: Label 'The value in Item Filter is incorrect.';
+        ResourceFilterIncorrectError: Label 'The value in Resource Filter is incorrect.';
+        AccountFilterIncorrectError: Label 'The value in Account Filter is incorrect.';
         FieldHideErr: Label 'The field should be hidden.';
         FieldShowErr: Label 'The field should be shown.';
         WrongVATUnrealizeVisibilityErr: Label 'Wrong value of UnrealizedVATVisible';
@@ -47,7 +47,7 @@ codeunit 134061 "ERM VAT Tool - UT"
         VATRateChangeSetup.LookUpItemFilter(Text);
 
         // Verify: Verify Item Filter field in VAT Rate Change setup.
-        Assert.AreEqual(Text, Item."No.", ItemFilterIncorrectErr);
+        Assert.AreEqual(Text, Item."No.", ItemFilterIncorrectError);
     end;
 
     [Test]
@@ -69,7 +69,7 @@ codeunit 134061 "ERM VAT Tool - UT"
         VATRateChangeSetup.LookUpResourceFilter(Text);
 
         // Verify: Verify Resource Filter field in VAT Rate Change setup.
-        Assert.AreEqual(Text, Resource."No.", ResourceFilterIncorrectErr);
+        Assert.AreEqual(Text, Resource."No.", ResourceFilterIncorrectError);
     end;
 
     [Test]
@@ -91,7 +91,7 @@ codeunit 134061 "ERM VAT Tool - UT"
         VATRateChangeSetup.LookUpGLAccountFilter(Text);
 
         // Verify: Verify Resource Filter field in VAT Rate Change setup.
-        Assert.AreEqual(Text, GLAccount."No.", AccountFilterIncorrectErr);
+        Assert.AreEqual(Text, GLAccount."No.", AccountFilterIncorrectError);
     end;
 
     [Test]
@@ -767,7 +767,7 @@ codeunit 134061 "ERM VAT Tool - UT"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM VAT Tool - UT");
         // Create VAT Rate Change setup if not created in the Database.
         VATRateChangeSetup.Reset();
-        if not VATRateChangeSetup.Get then begin
+        if not VATRateChangeSetup.Get() then begin
             VATRateChangeSetup.Init();
             VATRateChangeSetup.Insert(true);
         end;
@@ -851,7 +851,7 @@ codeunit 134061 "ERM VAT Tool - UT"
         Assert.IsTrue(VATPostingSetup."Sales VAT Unreal. Account".Visible, FieldShowErr);
         Assert.IsTrue(VATPostingSetup."Purch. VAT Unreal. Account".Visible, FieldShowErr);
         Assert.IsTrue(VATPostingSetup."Reverse Chrg. VAT Unreal. Acc.".Visible, FieldShowErr);
-        VATPostingSetup.Close;
+        VATPostingSetup.Close();
     end;
 
     local procedure VerifyHideUnrealizedVATFieldsVATPostingSetupPage()
@@ -864,7 +864,7 @@ codeunit 134061 "ERM VAT Tool - UT"
         Assert.IsFalse(VATPostingSetup."Sales VAT Unreal. Account".Visible, FieldHideErr);
         Assert.IsFalse(VATPostingSetup."Purch. VAT Unreal. Account".Visible, FieldHideErr);
         Assert.IsFalse(VATPostingSetup."Reverse Chrg. VAT Unreal. Acc.".Visible, FieldHideErr);
-        VATPostingSetup.Close;
+        VATPostingSetup.Close();
     end;
 
     local procedure VerifyShowUnrealizedVATFieldsVATPostingSetupCardPage()
@@ -877,7 +877,7 @@ codeunit 134061 "ERM VAT Tool - UT"
         Assert.IsTrue(VATPostingSetupCard."Sales VAT Unreal. Account".Visible, FieldShowErr);
         Assert.IsTrue(VATPostingSetupCard."Purch. VAT Unreal. Account".Visible, FieldShowErr);
         Assert.IsTrue(VATPostingSetupCard."Reverse Chrg. VAT Unreal. Acc.".Visible, FieldShowErr);
-        VATPostingSetupCard.Close;
+        VATPostingSetupCard.Close();
     end;
 
     local procedure VerifyHideUnrealizedVATFieldsVATPostingSetupCardPage()
@@ -890,7 +890,7 @@ codeunit 134061 "ERM VAT Tool - UT"
         Assert.IsFalse(VATPostingSetupCard."Sales VAT Unreal. Account".Visible, FieldHideErr);
         Assert.IsFalse(VATPostingSetupCard."Purch. VAT Unreal. Account".Visible, FieldHideErr);
         Assert.IsFalse(VATPostingSetupCard."Reverse Chrg. VAT Unreal. Acc.".Visible, FieldHideErr);
-        VATPostingSetupCard.Close;
+        VATPostingSetupCard.Close();
     end;
 
     [ModalPageHandler]
@@ -923,9 +923,9 @@ codeunit 134061 "ERM VAT Tool - UT"
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure ItemChargeHandler(var ItemChargeCard: TestPage "Item Charge Card")
+    procedure ItemChargeHandler(var ItemCharge: TestPage "Item Charges")
     begin
-        ItemChargeCard.OK.Invoke; // NAVCZ
+        ItemCharge.OK.Invoke;
     end;
 
     [ModalPageHandler]

@@ -14,7 +14,7 @@ page 99000820 "Prod. Order Capacity Need"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Prod. Order No."; "Prod. Order No.")
+                field("Prod. Order No."; Rec."Prod. Order No.")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the number of the related production order.';
@@ -25,7 +25,7 @@ page 99000820 "Prod. Order Capacity Need"
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the type of capacity need.';
                 }
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
@@ -43,7 +43,7 @@ page 99000820 "Prod. Order Capacity Need"
                         CurrPage.Update(true);
                     end;
                 }
-                field("Starting Date-Time"; "Starting Date-Time")
+                field("Starting Date-Time"; Rec."Starting Date-Time")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the date and the starting time, which are combined in a format called "starting date-time".';
@@ -66,7 +66,7 @@ page 99000820 "Prod. Order Capacity Need"
                         CurrPage.Update(true);
                     end;
                 }
-                field("Ending Date-Time"; "Ending Date-Time")
+                field("Ending Date-Time"; Rec."Ending Date-Time")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the date and the ending time, which are combined in a format called "ending date-time".';
@@ -88,17 +88,17 @@ page 99000820 "Prod. Order Capacity Need"
                         CurrPage.Update(true);
                     end;
                 }
-                field("Send-Ahead Type"; "Send-Ahead Type")
+                field("Send-Ahead Type"; Rec."Send-Ahead Type")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies if the send-ahead quantity is of type Input, Output, or Both.';
                 }
-                field("Time Type"; "Time Type")
+                field("Time Type"; Rec."Time Type")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the time type of the capacity need.';
                 }
-                field("Allocated Time"; "Allocated Time")
+                field("Allocated Time"; Rec."Allocated Time")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the capacity need of planned operations.';
@@ -145,4 +145,5 @@ page 99000820 "Prod. Order Capacity Need"
         CurrDate: Date;
         DateAndTimeFieldVisible: Boolean;
 }
+
 #endif

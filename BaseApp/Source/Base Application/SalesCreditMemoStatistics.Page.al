@@ -148,7 +148,7 @@ page 398 "Sales Credit Memo Statistics"
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        LookupAdjmtValueEntries;
+                        LookupAdjmtValueEntries();
                     end;
                 }
             }
@@ -193,7 +193,7 @@ page 398 "Sales Credit Memo Statistics"
     var
         CustLedgEntry: Record "Cust. Ledger Entry";
     begin
-        ClearAll;
+        ClearAll();
 
         Currency.Initialize("Currency Code");
 
@@ -212,7 +212,7 @@ page 398 "Sales Credit Memo Statistics"
         else
             AmountLCY :=
               CurrExchRate.ExchangeAmtFCYToLCY(
-                WorkDate, "Currency Code", CustAmount, "Currency Factor");
+                WorkDate(), "Currency Code", CustAmount, "Currency Factor");
 
         // NAVCZ
         CustLedgEntry.SetCurrentKey("Document No.");
@@ -257,8 +257,6 @@ page 398 "Sales Credit Memo Statistics"
     end;
 
     var
-        Text000: Label 'VAT Amount';
-        Text001: Label '%1% VAT';
         CurrExchRate: Record "Currency Exchange Rate";
         Cust: Record Customer;
         TempVATAmountLine: Record "VAT Amount Line" temporary;
@@ -278,6 +276,9 @@ page 398 "Sales Credit Memo Statistics"
         CreditLimitLCYExpendedPct: Decimal;
         VATpercentage: Decimal;
         VATAmountText: Text[30];
+
+        Text000: Label 'VAT Amount';
+        Text001: Label '%1% VAT';
 
     protected var
         Currency: Record Currency;

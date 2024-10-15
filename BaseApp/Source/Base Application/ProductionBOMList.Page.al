@@ -17,7 +17,7 @@ page 99000787 "Production BOM List"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
@@ -27,7 +27,7 @@ page 99000787 "Production BOM List"
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies a description for the production BOM.';
                 }
-                field("Description 2"; "Description 2")
+                field("Description 2"; Rec."Description 2")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies an extended description for the BOM if there is not enough space in the Description field.';
@@ -38,24 +38,24 @@ page 99000787 "Production BOM List"
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the status of the production BOM.';
                 }
-                field("Unit of Measure Code"; "Unit of Measure Code")
+                field("Unit of Measure Code"; Rec."Unit of Measure Code")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies how each unit of the item or resource is measured, such as in pieces or hours. By default, the value in the Base Unit of Measure field on the item or resource card is inserted.';
                 }
-                field("Search Name"; "Search Name")
+                field("Search Name"; Rec."Search Name")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies an alternate name that you can use to search for the record in question when you cannot remember the value in the Name field.';
                     Visible = false;
                 }
-                field("Version Nos."; "Version Nos.")
+                field("Version Nos."; Rec."Version Nos.")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the version number series that the production BOM versions refer to.';
                     Visible = false;
                 }
-                field("Last Date Modified"; "Last Date Modified")
+                field("Last Date Modified"; Rec."Last Date Modified")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the last date that was modified.';
@@ -101,7 +101,6 @@ page 99000787 "Production BOM List"
                     ApplicationArea = Manufacturing;
                     Caption = 'Versions';
                     Image = BOMVersions;
-                    Promoted = false;
                     //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                     //PromotedCategory = Process;
                     RunObject = Page "Prod. BOM Version List";
@@ -133,7 +132,7 @@ page 99000787 "Production BOM List"
 
                     trigger OnAction()
                     begin
-                        ProdBOMWhereUsed.SetProdBOM(Rec, WorkDate);
+                        ProdBOMWhereUsed.SetProdBOM(Rec, WorkDate());
 
                         ProdBOMWhereUsed.Run();
                     end;
@@ -147,8 +146,6 @@ page 99000787 "Production BOM List"
                 ApplicationArea = Manufacturing;
                 Caption = 'Exchange Production BOM Item';
                 Image = ExchProdBOMItem;
-                Promoted = true;
-                PromotedCategory = Process;
                 RunObject = Report "Exchange Production BOM Item";
                 ToolTip = 'Replace items that are no longer used in production BOMs. You can exchange an item, for example, with a new item or a new production BOM. You can create new versions while exchanging an item in the production BOMs.';
             }
@@ -157,8 +154,6 @@ page 99000787 "Production BOM List"
                 ApplicationArea = Manufacturing;
                 Caption = 'Delete Expired Components';
                 Image = DeleteExpiredComponents;
-                Promoted = true;
-                PromotedCategory = Process;
                 RunObject = Report "Delete Expired Components";
                 ToolTip = 'Remove BOM lines that have expired ending dates. The BOM header will not be changed.';
             }
@@ -170,8 +165,6 @@ page 99000787 "Production BOM List"
                 ApplicationArea = Manufacturing;
                 Caption = 'Where-Used (Top Level)';
                 Image = "Report";
-                Promoted = true;
-                PromotedCategory = "Report";
                 RunObject = Report "Where-Used (Top Level)";
                 ToolTip = 'View where and in what quantities the item is used in the product structure. The report only shows information for the top-level item. For example, if item "A" is used to produce item "B", and item "B" is used to produce item "C", the report will show item B if you run this report for item A. If you run this report for item B, then item C will be shown as where-used.';
             }
@@ -180,8 +173,6 @@ page 99000787 "Production BOM List"
                 ApplicationArea = Manufacturing;
                 Caption = 'Quantity Explosion of BOM';
                 Image = "Report";
-                Promoted = true;
-                PromotedCategory = "Report";
                 RunObject = Report "Quantity Explosion of BOM";
                 ToolTip = 'View an indented BOM listing for the item or items that you specify in the filters. The production BOM is completely exploded for all levels.';
             }
@@ -190,11 +181,35 @@ page 99000787 "Production BOM List"
                 ApplicationArea = Manufacturing;
                 Caption = 'Compare List';
                 Image = "Report";
-                Promoted = false;
                 //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                 //PromotedCategory = "Report";
                 RunObject = Report "Compare List";
                 ToolTip = 'View a comparison of components for two items. The printout compares the components, their unit cost, cost share and cost per component.';
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("Exchange Production BOM Item_Promoted"; "Exchange Production BOM Item")
+                {
+                }
+                actionref("Delete Expired Components_Promoted"; "Delete Expired Components")
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Reports';
+
+                actionref("Where-Used (Top Level)_Promoted"; "Where-Used (Top Level)")
+                {
+                }
+                actionref("Quantity Explosion of BOM_Promoted"; "Quantity Explosion of BOM")
+                {
+                }
             }
         }
     }

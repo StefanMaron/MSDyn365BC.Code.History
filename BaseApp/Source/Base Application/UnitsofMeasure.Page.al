@@ -1,4 +1,3 @@
-#if not CLEAN18
 page 209 "Units of Measure"
 {
     AdditionalSearchTerms = 'uom';
@@ -17,38 +16,20 @@ page 209 "Units of Measure"
                 ShowCaption = false;
                 field("Code"; Code)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     ToolTip = 'Specifies a code for the unit of measure, which you can select on item and resource cards from where it is copied to.';
                 }
                 field(Description; Description)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     ToolTip = 'Specifies a description of the unit of measure.';
                 }
-                field("Unspecified Intrastat"; "Unspecified Intrastat")
+                field("International Standard Code"; Rec."International Standard Code")
                 {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies to use an unspecified unit of measure.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Unsupported functionality';
-                    ObsoleteTag = '18.0';
-                    Visible = false;
-                }
-                field("Tariff Number UOM Code"; "Tariff Number UOM Code")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the name of units of measure for revers charge reporting.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '18.0';
-                    Visible = false;
-                }
-                field("International Standard Code"; "International Standard Code")
-                {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     ToolTip = 'Specifies the unit of measure code expressed according to the UNECERec20 standard in connection with electronic sending of sales documents. For example, when sending sales documents through the PEPPOL service, the value in this field is used to populate the UnitCode element in the Product group.';
                 }
-                field("Coupled to CRM"; "Coupled to CRM")
+                field("Coupled to CRM"; Rec."Coupled to CRM")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies that the unit of measure is coupled to a unit group in Dynamics 365 Sales.';
@@ -123,7 +104,7 @@ page 209 "Units of Measure"
                         UnitOfMeasureRecordRef: RecordRef;
                     begin
                         CurrPage.SetSelectionFilter(UnitOfMeasure);
-                        UnitOfMeasure.Next;
+                        UnitOfMeasure.Next();
 
                         if UnitOfMeasure.Count = 1 then
                             CRMIntegrationManagement.UpdateOneNow(UnitOfMeasure.RecordId)
@@ -232,4 +213,3 @@ page 209 "Units of Measure"
         CRMIsCoupledToRecord: Boolean;
 }
 
-#endif

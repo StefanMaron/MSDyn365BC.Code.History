@@ -1,4 +1,4 @@
-#if not CLEAN19
+﻿#if not CLEAN19
 xmlport 31071 "Sales Price Export"
 {
     Caption = 'Sales Price Export';

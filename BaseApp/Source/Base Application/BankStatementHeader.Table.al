@@ -77,9 +77,9 @@ table 11704 "Bank Statement Header"
             trigger OnValidate()
             begin
                 if "Currency Code" <> '' then begin
-                    UpdateCurrencyFactor;
+                    UpdateCurrencyFactor();
                     if "Currency Factor" <> xRec."Currency Factor" then
-                        ConfirmUpdateCurrencyFactor;
+                        ConfirmUpdateCurrencyFactor();
                 end;
             end;
 #endif
@@ -93,16 +93,16 @@ table 11704 "Bank Statement Header"
             trigger OnValidate()
             begin
                 if CurrFieldNo <> FieldNo("Currency Code") then
-                    UpdateCurrencyFactor
+                    UpdateCurrencyFactor()
                 else
                     if "Currency Code" <> xRec."Currency Code" then begin
-                        UpdateCurrencyFactor;
+                        UpdateCurrencyFactor();
                         UpdateBankStmtLine(FieldCaption("Currency Code"), false);
                     end else
                         if "Currency Code" <> '' then begin
-                            UpdateCurrencyFactor;
+                            UpdateCurrencyFactor();
                             if "Currency Factor" <> xRec."Currency Factor" then
-                                ConfirmUpdateCurrencyFactor;
+                                ConfirmUpdateCurrencyFactor();
                         end;
 
                 Validate("Bank Statement Currency Code", "Currency Code");
@@ -202,16 +202,16 @@ table 11704 "Bank Statement Header"
             trigger OnValidate()
             begin
                 if CurrFieldNo <> FieldNo("Bank Statement Currency Code") then
-                    UpdateOrderCurrencyFactor
+                    UpdateOrderCurrencyFactor()
                 else
                     if "Bank Statement Currency Code" <> xRec."Bank Statement Currency Code" then begin
-                        UpdateOrderCurrencyFactor;
+                        UpdateOrderCurrencyFactor();
                         UpdateBankStmtLine(FieldCaption("Bank Statement Currency Code"), CurrFieldNo <> 0);
                     end else
                         if "Bank Statement Currency Code" <> '' then begin
-                            UpdateOrderCurrencyFactor;
+                            UpdateOrderCurrencyFactor();
                             if "Bank Statement Currency Factor" <> xRec."Bank Statement Currency Factor" then
-                                ConfUpdateOrderCurrencyFactor;
+                                ConfUpdateOrderCurrencyFactor();
                         end;
             end;
 #endif
@@ -257,7 +257,7 @@ table 11704 "Bank Statement Header"
                     BankStmtHeader.SetRange("Document Date", CalcDate('<CY>-<1Y>+<1D>', "Document Date"), CalcDate('<CY>', "Document Date"));
                 end;
                 if BankStmtHeader.FindFirst() then begin
-                    Message(ExternalDocMsg, BankStmtHeader.FieldCaption("External Document No."), BankStmtHeader.TableCaption,
+                    Message(ExternalDocMsg, BankStmtHeader.FieldCaption("External Document No."), BankStmtHeader.TableCaption(),
                       BankStmtHeader.FieldCaption("No."), BankStmtHeader."No.");
                     exit;
                 end;
@@ -269,7 +269,7 @@ table 11704 "Bank Statement Header"
                     IssuedBankStmtHeader.SetRange("Document Date", CalcDate('<CY>-<1Y>+<1D>', "Document Date"), CalcDate('<CY>', "Document Date"));
                 end;
                 if IssuedBankStmtHeader.FindFirst() then begin
-                    Message(ExternalDocMsg, IssuedBankStmtHeader.FieldCaption("External Document No."), IssuedBankStmtHeader.TableCaption,
+                    Message(ExternalDocMsg, IssuedBankStmtHeader.FieldCaption("External Document No."), IssuedBankStmtHeader.TableCaption(),
                       IssuedBankStmtHeader.FieldCaption("No."), IssuedBankStmtHeader."No.");
                     exit;
                 end;
@@ -422,7 +422,7 @@ table 11704 "Bank Statement Header"
         BankStmtLine: Record "Bank Statement Line";
         Question: Text[250];
     begin
-        if not BankStmtLinesExist then
+        if not BankStmtLinesExist() then
             exit;
 
         if AskQuestion then begin
@@ -434,7 +434,7 @@ table 11704 "Bank Statement Header"
         BankStmtLine.LockTable();
         "Last Date Modified" := Today;
         "User ID" := UserId;
-        Modify;
+        Modify();
 
         BankStmtLine.Reset();
         BankStmtLine.SetRange("Bank Statement No.", "No.");
@@ -516,8 +516,8 @@ table 11704 "Bank Statement Header"
         BankAcc: Record "Bank Account";
     begin
         BankAcc.Get("Bank Account No.");
-        if BankAcc.GetBankStatementImportCodeunitID > 0 then
-            CODEUNIT.Run(BankAcc.GetBankStatementImportCodeunitID, Rec)
+        if BankAcc.GetBankStatementImportCodeunitID() > 0 then
+            CODEUNIT.Run(BankAcc.GetBankStatementImportCodeunitID(), Rec)
         else
             CODEUNIT.Run(CODEUNIT::"Imp. Launcher Bank Statement", Rec);
     end;

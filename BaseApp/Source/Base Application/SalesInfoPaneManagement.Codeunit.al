@@ -13,11 +13,11 @@ codeunit 7171 "Sales Info-Pane Management"
 
     procedure CalcAvailability(var SalesLine: Record "Sales Line"): Decimal
     var
+        LookaheadDateformula: DateFormula;
         GrossRequirement: Decimal;
         ScheduledReceipt: Decimal;
         AvailableQuantity: Decimal;
         PeriodType: Enum "Analysis Period Type";
-        LookaheadDateformula: DateFormula;
         IsHandled: Boolean;
     begin
         if GetItem(SalesLine) then begin
@@ -53,7 +53,7 @@ codeunit 7171 "Sales Info-Pane Management"
         if SalesLine."Shipment Date" <> 0D then
             exit(SalesLine."Shipment Date");
 
-        exit(WorkDate);
+        exit(WorkDate());
     end;
 
     procedure CalcAvailableInventory(var SalesLine: Record "Sales Line"): Decimal
@@ -143,7 +143,7 @@ codeunit 7171 "Sales Info-Pane Management"
     begin
         if PerUoMQty = 0 then
             PerUoMQty := 1;
-        Result := Round(Qty / PerUoMQty, UOMMgt.QtyRndPrecision);
+        Result := Round(Qty / PerUoMQty, UOMMgt.QtyRndPrecision());
         OnAfterConvertQty(Qty, PerUoMQty, Result);
     end;
 
@@ -163,7 +163,7 @@ codeunit 7171 "Sales Info-Pane Management"
 
     procedure ResetItemNo()
     begin
-        AvailableToPromise.ResetItemNo;
+        AvailableToPromise.ResetItemNo();
     end;
 
     procedure GetItem(var SalesLine: Record "Sales Line") Result: Boolean
@@ -204,7 +204,7 @@ codeunit 7171 "Sales Info-Pane Management"
     begin
         with Customer do
             if Get(CustNo) then begin
-                SetRange("Date Filter", 0D, WorkDate);
+                SetRange("Date Filter", 0D, WorkDate());
                 CalcFields("Balance (LCY)");
                 exit("Balance (LCY)");
             end;
@@ -220,7 +220,7 @@ codeunit 7171 "Sales Info-Pane Management"
     begin
         // NAVCZ
         DtldCustLedgEntry.SetRange("Customer No.", CustNo);
-        DtldCustLedgEntry.SetRange("Posting Date", 0D, WorkDate);
+        DtldCustLedgEntry.SetRange("Posting Date", 0D, WorkDate());
         CustLedgEntry.DrillDownOnEntries(DtldCustLedgEntry);
     end;
     

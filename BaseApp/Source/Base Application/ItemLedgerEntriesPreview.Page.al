@@ -244,7 +244,7 @@ page 167 "Item Ledger Entries Preview"
                     ToolTip = 'Specifies the line number of the production order component.';
                     Visible = false;
                 }
-                field("Source No."; "Source No.")
+                field("Source No."; Rec."Source No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the source number used on the entry.';
@@ -253,26 +253,6 @@ page 167 "Item Ledger Entries Preview"
                     ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
                     ObsoleteTag = '20.0';
                 }
-#if not CLEAN18
-                field("Source No. 2"; "Source No. 2")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the source number used on the entry.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
-                    ObsoleteTag = '18.0';
-                }
-                field("Source No. 3"; "Source No. 3")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the source number used on the entry.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
-                    ObsoleteTag = '18.0';
-                }
-#endif
                 field("Job No."; Rec."Job No.")
                 {
                     ApplicationArea = Jobs;
@@ -291,42 +271,42 @@ page 167 "Item Ledger Entries Preview"
                     ToolTip = 'Specifies a reference to a combination of dimension values. The actual values are stored in the Dimension Set Entry table.';
                     Visible = false;
                 }
-                field("Shortcut Dimension 3 Code"; "Shortcut Dimension 3 Code")
+                field("Shortcut Dimension 3 Code"; Rec."Shortcut Dimension 3 Code")
                 {
                     ApplicationArea = Dimensions;
                     Editable = false;
                     ToolTip = 'Specifies the code for Shortcut Dimension 3, which is one of dimension codes that you set up in the General Ledger Setup window.';
                     Visible = Dim3Visible;
                 }
-                field("Shortcut Dimension 4 Code"; "Shortcut Dimension 4 Code")
+                field("Shortcut Dimension 4 Code"; Rec."Shortcut Dimension 4 Code")
                 {
                     ApplicationArea = Dimensions;
                     Editable = false;
                     ToolTip = 'Specifies the code for Shortcut Dimension 4, which is one of dimension codes that you set up in the General Ledger Setup window.';
                     Visible = Dim4Visible;
                 }
-                field("Shortcut Dimension 5 Code"; "Shortcut Dimension 5 Code")
+                field("Shortcut Dimension 5 Code"; Rec."Shortcut Dimension 5 Code")
                 {
                     ApplicationArea = Dimensions;
                     Editable = false;
                     ToolTip = 'Specifies the code for Shortcut Dimension 5, which is one of dimension codes that you set up in the General Ledger Setup window.';
                     Visible = Dim5Visible;
                 }
-                field("Shortcut Dimension 6 Code"; "Shortcut Dimension 6 Code")
+                field("Shortcut Dimension 6 Code"; Rec."Shortcut Dimension 6 Code")
                 {
                     ApplicationArea = Dimensions;
                     Editable = false;
                     ToolTip = 'Specifies the code for Shortcut Dimension 6, which is one of dimension codes that you set up in the General Ledger Setup window.';
                     Visible = Dim6Visible;
                 }
-                field("Shortcut Dimension 7 Code"; "Shortcut Dimension 7 Code")
+                field("Shortcut Dimension 7 Code"; Rec."Shortcut Dimension 7 Code")
                 {
                     ApplicationArea = Dimensions;
                     Editable = false;
                     ToolTip = 'Specifies the code for Shortcut Dimension 7, which is one of dimension codes that you set up in the General Ledger Setup window.';
                     Visible = Dim7Visible;
                 }
-                field("Shortcut Dimension 8 Code"; "Shortcut Dimension 8 Code")
+                field("Shortcut Dimension 8 Code"; Rec."Shortcut Dimension 8 Code")
                 {
                     ApplicationArea = Dimensions;
                     Editable = false;

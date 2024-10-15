@@ -1,4 +1,4 @@
-﻿table 273 "Bank Acc. Reconciliation"
+table 273 "Bank Acc. Reconciliation"
 {
     Caption = 'Bank Acc. Reconciliation';
     DataCaptionFields = "Bank Account No.", "Statement No.";
@@ -19,12 +19,18 @@
                 if "Statement No." = '' then begin
                     BankAcc.Get("Bank Account No.");
 
-                    if "Statement Type" = "Statement Type"::"Payment Application" then begin
-                        SetLastPaymentStatementNo(BankAcc);
-                        "Statement No." := IncStr(BankAcc."Last Payment Statement No.");
-                    end else begin
-                        SetLastStatementNo(BankAcc);
-                        "Statement No." := IncStr(BankAcc."Last Statement No.");
+                    case "Statement Type" of
+                        "Statement Type"::"Payment Application":
+                            if BankAcc."Pmt. Rec. No. Series" = '' then begin
+                                SetLastPaymentStatementNo(BankAcc);
+                                "Statement No." := IncStr(BankAcc."Last Payment Statement No.");
+                            end else
+                                "Statement No." := NoSeriesManagement.GetNextNo(BankAcc."Pmt. Rec. No. Series", Today(), true);
+                        "Statement Type"::"Bank Reconciliation":
+                            begin
+                                SetLastStatementNo(BankAcc);
+                                "Statement No." := IncStr(BankAcc."Last Statement No.");
+                            end;
                     end;
 
                     "Balance Last Statement" := BankAcc."Balance Last Statement";
@@ -68,7 +74,7 @@
                        Confirm(
                          BalanceQst, false,
                          FieldCaption("Balance Last Statement"), BankAcc.FieldCaption("Balance Last Statement"),
-                         BankAcc.TableCaption)
+                         BankAcc.TableCaption())
                     then
                         "Balance Last Statement" := xRec."Balance Last Statement";
             end;
@@ -251,6 +257,14 @@
         field(27; "Total Applied Amount Payments"; Decimal)
         {
             AutoFormatExpression = GetCurrencyCode();
+            ObsoleteReason = 'Type is not used to determine if the bank rec. line is associated to a CLE, instead find explicitly CLEs with their corresponding BLE No. . See BankAccReconTest codeunit TotalOutstandingPayments for an example';
+#if not CLEAN21
+            ObsoleteState = Pending;
+            ObsoleteTag = '21.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '24.0';
+#endif
 #if CLEAN19
             CalcFormula = Sum("Bank Acc. Reconciliation Line"."Applied Amount" WHERE("Statement Type" = FIELD("Statement Type"),
                                                                                       "Bank Account No." = FIELD("Bank Account No."),
@@ -316,6 +330,14 @@
         field(31; "Total Positive Difference"; Decimal)
         {
             AutoFormatExpression = GetCurrencyCode();
+            ObsoleteReason = 'Difference is now tracked manually instead. Type field was redundant and error prone.';
+#if not CLEAN21
+            ObsoleteState = Pending;
+            ObsoleteTag = '21.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '24.0';
+#endif
 #if CLEAN19
             CalcFormula = Sum("Bank Acc. Reconciliation Line"."Applied Amount" WHERE("Statement Type" = FIELD("Statement Type"),
                                                                                       "Bank Account No." = FIELD("Bank Account No."),
@@ -336,6 +358,14 @@
         field(32; "Total Negative Difference"; Decimal)
         {
             AutoFormatExpression = GetCurrencyCode();
+            ObsoleteReason = 'Difference is now tracked manually instead. Type field was redundant and error prone.';
+#if not CLEAN21
+            ObsoleteState = Pending;
+            ObsoleteTag = '21.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '24.0';
+#endif
 #if CLEAN19
             CalcFormula = Sum("Bank Acc. Reconciliation Line"."Applied Amount" WHERE("Statement Type" = FIELD("Statement Type"),
                                                                                       "Bank Account No." = FIELD("Bank Account No."),
@@ -358,6 +388,11 @@
             Caption = 'Copy VAT Setup to Jnl. Line';
             InitValue = true;
         }
+        field(50; "Bank Account Name"; Text[100])
+        {
+            FieldClass = FlowField;
+            CalcFormula = lookup("Bank Account".Name where("No." = field("Bank Account No.")));
+        }
         field(480; "Dimension Set ID"; Integer)
         {
             Caption = 'Dimension Set ID';
@@ -366,7 +401,7 @@
 
             trigger OnLookup()
             begin
-                ShowDocDim;
+                ShowDocDim();
             end;
 
             trigger OnValidate()
@@ -422,7 +457,8 @@
                 begin
                     if PostedPaymentReconHdr.Get("Bank Account No.", "Statement No.") then
                         Error(DuplicateStatementErr, "Statement No.");
-                    BankAcc."Last Payment Statement No." := "Statement No.";
+                    if BankAcc."Pmt. Rec. No. Series" = '' then
+                        BankAcc."Last Payment Statement No." := "Statement No.";
                 end;
         end;
 
@@ -442,9 +478,7 @@
     end;
 
     var
-        DuplicateStatementErr: Label 'Statement %1 already exists.', Comment = '%1=Statement No. value';
-        RenameErr: Label 'You cannot rename a %1.', Comment = '%1=Table name caption';
-        BalanceQst: Label '%1 is different from %2 on the %3. Do you want to change the value?', Comment = '%1=Balance Last Statement field caption;%2=field caption;%3=table caption';
+        NoSeriesManagement: Codeunit NoSeriesManagement;
         BankAcc: Record "Bank Account";
         BankAccReconLine: Record "Bank Acc. Reconciliation Line";
         PostedBankAccStmt: Record "Bank Account Statement";
@@ -453,6 +487,10 @@
         IssuedBankStmtHdr: Record "Issued Bank Statement Header";
 #endif
         DimMgt: Codeunit DimensionManagement;
+
+        DuplicateStatementErr: Label 'Statement %1 already exists.', Comment = '%1=Statement No. value';
+        RenameErr: Label 'You cannot rename a %1.', Comment = '%1=Table name caption';
+        BalanceQst: Label '%1 is different from %2 on the %3. Do you want to change the value?', Comment = '%1=Balance Last Statement field caption;%2=field caption;%3=table caption';
         YouChangedDimQst: Label 'You may have changed a dimension.\\Do you want to update the lines?';
         NoBankAccountsMsg: Label 'You have not set up a bank account.\To use the payments import process, set up a bank account.';
         NoBankAccWithFileFormatMsg: Label 'No bank account exists that is ready for import of bank statement files.\Fill the Bank Statement Import Format field on the card of the bank account that you want to use.';
@@ -485,8 +523,8 @@
             Rec, CurrFieldNo, TableID, No, SourceCodeSetup."Payment Reconciliation Journal",
             "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
 
-        if (OldDimSetID <> "Dimension Set ID") and LinesExist then begin
-            Modify;
+        if (OldDimSetID <> "Dimension Set ID") and LinesExist() then begin
+            Modify();
             UpdateAllLineDim("Dimension Set ID", OldDimSetID);
         end;
     end;
@@ -541,7 +579,7 @@
         if IsHandled then
             exit;
 
-        MatchBankRecLines.MatchSingle(Rec, DateRange);
+        MatchBankRecLines.BankAccReconciliationAutoMatch(Rec, DateRange);
     end;
 
     procedure ImportBankStatement()
@@ -549,7 +587,7 @@
         DataExch: Record "Data Exch.";
         ProcessBankAccRecLines: Codeunit "Process Bank Acc. Rec Lines";
     begin
-        if BankAccountCouldBeUsedForImport then begin
+        if BankAccountCouldBeUsedForImport() then begin
             DataExch.Init();
             ProcessBankAccRecLines.ImportBankStatement(Rec, DataExch);
         end;
@@ -557,7 +595,6 @@
 
     procedure ValidateShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])
     var
-        DimMgt: Codeunit DimensionManagement;
         OldDimSetID: Integer;
     begin
         OnBeforeValidateShortcutDimCode(Rec, xRec, FieldNumber, ShortcutDimCode);
@@ -566,7 +603,7 @@
         DimMgt.ValidateShortcutDimValues(FieldNumber, ShortcutDimCode, "Dimension Set ID");
 
         if OldDimSetID <> "Dimension Set ID" then begin
-            Modify;
+            Modify();
             UpdateAllLineDim("Dimension Set ID", OldDimSetID);
         end;
 
@@ -580,11 +617,11 @@
         OldDimSetID := "Dimension Set ID";
         "Dimension Set ID" :=
           DimMgt.EditDimensionSet(
-            Rec, "Dimension Set ID", StrSubstNo('%1 %2', TableCaption, "Statement No."),
+            Rec, "Dimension Set ID", StrSubstNo('%1 %2', TableCaption(), "Statement No."),
             "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
 
         if OldDimSetID <> "Dimension Set ID" then begin
-            Modify;
+            Modify();
             UpdateAllLineDim("Dimension Set ID", OldDimSetID);
         end;
     end;
@@ -752,29 +789,27 @@
         case NoOfAccounts of
             0:
                 begin
-                    if not BankAccount.Get(CantFindBancAccToUseInPaymentFileImport) then
+                    if not BankAccount.Get(CantFindBancAccToUseInPaymentFileImport()) then
                         exit(false);
 
                     exit(true);
                 end;
             1:
-                begin
-                    if TempBankAccount.Count > 0 then begin
-                        TempBankAccount.FindFirst();
-                        BankAccount.Get(TempBankAccount."No.");
-                    end else
-                        BankAccount.FindFirst();
-                end;
+                if TempBankAccount.Count > 0 then begin
+                    TempBankAccount.FindFirst();
+                    BankAccount.Get(TempBankAccount."No.");
+                end else
+                    BankAccount.FindFirst();
             else begin
-                    if TempBankAccount.Count > 0 then begin
-                        if PAGE.RunModal(PAGE::"Payment Bank Account List", TempBankAccount) = ACTION::LookupOK then begin
-                            BankAccount.Get(TempBankAccount."No.");
-                            exit(true)
-                        end;
-                        exit(false);
+                if TempBankAccount.Count > 0 then begin
+                    if PAGE.RunModal(PAGE::"Payment Bank Account List", TempBankAccount) = ACTION::LookupOK then begin
+                        BankAccount.Get(TempBankAccount."No.");
+                        exit(true)
                     end;
-                    exit(PAGE.RunModal(PAGE::"Payment Bank Account List", BankAccount) = ACTION::LookupOK);
+                    exit(false);
                 end;
+                exit(PAGE.RunModal(PAGE::"Payment Bank Account List", BankAccount) = ACTION::LookupOK);
+            end;
         end;
 
         exit(true);
@@ -807,7 +842,7 @@
 
         if PAGE.RunModal(PAGE::"Payment Bank Account List", BankAccount) = ACTION::LookupOK then
             if (BankAccount."Bank Statement Import Format" <> '') or
-               BankAccount.IsLinkedToBankStatementServiceProvider
+               BankAccount.IsLinkedToBankStatementServiceProvider()
             then
                 exit(BankAccount."No.");
 
@@ -880,7 +915,7 @@
         if BankAccount."Bank Statement Import Format" <> '' then
             exit(true);
 
-        if BankAccount.IsLinkedToBankStatementServiceProvider then
+        if BankAccount.IsLinkedToBankStatementServiceProvider() then
             exit(true);
 
         if not Confirm(MustHaveValueQst, true, BankAccount.FieldCaption("Bank Statement Import Format")) then

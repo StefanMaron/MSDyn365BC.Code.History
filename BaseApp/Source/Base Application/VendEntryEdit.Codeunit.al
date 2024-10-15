@@ -1,4 +1,3 @@
-#if not CLEAN18
 codeunit 113 "Vend. Entry-Edit"
 {
     Permissions = TableData "Vendor Ledger Entry" = m,
@@ -9,7 +8,7 @@ codeunit 113 "Vend. Entry-Edit"
     begin
         VendLedgEntry := Rec;
         VendLedgEntry.LockTable();
-        VendLedgEntry.Find;
+        VendLedgEntry.Find();
         VendLedgEntry."On Hold" := "On Hold";
         if VendLedgEntry.Open then begin
             VendLedgEntry."Due Date" := "Due Date";
@@ -30,18 +29,11 @@ codeunit 113 "Vend. Entry-Edit"
             VendLedgEntry.Validate("Applies-to Ext. Doc. No.", "Applies-to Ext. Doc. No.");
             VendLedgEntry.Validate("Message to Recipient", "Message to Recipient");
             VendLedgEntry.Validate("Recipient Bank Account", "Recipient Bank Account");
+            VendLedgEntry.Validate("Remit-to Code", "Remit-to Code");
         end;
         VendLedgEntry.Validate("Exported to Payment File", "Exported to Payment File");
         VendLedgEntry.Validate("Creditor No.", "Creditor No.");
         VendLedgEntry.Validate("Payment Reference", "Payment Reference");
-        // NAVCZ
-        VendLedgEntry."Bank Account Code" := "Bank Account Code";
-        VendLedgEntry."Bank Account No." := "Bank Account No.";
-        VendLedgEntry."Specific Symbol" := "Specific Symbol";
-        VendLedgEntry."Transit No." := "Transit No.";
-        VendLedgEntry.IBAN := IBAN;
-        VendLedgEntry."SWIFT Code" := "SWIFT Code";
-        // NAVCZ
         OnBeforeVendLedgEntryModify(VendLedgEntry, Rec);
         VendLedgEntry.TestField("Entry No.", "Entry No.");
         VendLedgEntry.Modify();
@@ -79,4 +71,3 @@ codeunit 113 "Vend. Entry-Edit"
     end;
 }
 
-#endif

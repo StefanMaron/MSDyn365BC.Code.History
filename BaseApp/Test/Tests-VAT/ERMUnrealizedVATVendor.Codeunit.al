@@ -787,7 +787,7 @@
 
 #if not CLEAN20
     [Test]
-    [HandlerFunctions('MessageHandler,RunAdjExchRateReportHandler')]
+    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure FCYInvoiceAppliedWithSameExchRateAfterAdjustExchRate()
     var
@@ -810,7 +810,7 @@
 
         // [GIVEN] Currency with exch. rate 100/60 and adjustment exch. rate 100/65
         ExchangeRate := LibraryRandom.RandIntInRange(2, 5);
-        CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, ExchangeRate + 1, ExchangeRate);
+        CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), ExchangeRate + 1, ExchangeRate);
 
         // [GIVEN] Posted Purchase Invoice with Amount = 600, VAT Amount = 60 in LCY, 1000 and 100 in FCY respectively
         VendorNo := CreateVendorWithCurrency(VATPostingSetup."VAT Bus. Posting Group", CurrencyCode);
@@ -825,7 +825,7 @@
         Amount := Round(AmountInclVAT / (1 + VATPostingSetup."VAT %" / 100));
 
         // [GIVEN] Adjusted exchange rate changed total invoice amount = 715 (1100 * 65 / 100), adjustment amount = 55 (715 - 660)
-        LibraryERM.RunAdjustExchangeRatesSimple(CurrencyCode, WorkDate, WorkDate);
+        LibraryERM.RunAdjustExchangeRatesSimple(CurrencyCode, WorkDate(), WorkDate());
         VendorLedgerEntry.CalcFields(Amount, "Amount (LCY)");
         AdjustedAmtInclVAT := -VendorLedgerEntry."Amount (LCY)";
 
@@ -855,7 +855,6 @@
 #endif
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure FCYInvoiceAppliedWithSameExchRateAfterExchRateAdjustment()
     var
@@ -878,7 +877,7 @@
 
         // [GIVEN] Currency with exch. rate 100/60 and adjustment exch. rate 100/65
         ExchangeRate := LibraryRandom.RandIntInRange(2, 5);
-        CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, ExchangeRate + 1, ExchangeRate);
+        CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), ExchangeRate + 1, ExchangeRate);
 
         // [GIVEN] Posted Purchase Invoice with Amount = 600, VAT Amount = 60 in LCY, 1000 and 100 in FCY respectively
         VendorNo := CreateVendorWithCurrency(VATPostingSetup."VAT Bus. Posting Group", CurrencyCode);
@@ -940,7 +939,7 @@
         LibraryERMCountryData.UpdateAccountInVendorPostingGroups();
         LibraryERMCountryData.UpdatePurchasesPayablesSetup();
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
-        LibraryERM.SetJournalTemplateNameMandatory(false);
+        LibraryERMCountryData.UpdateJournalTemplMandatory(false);
 
         isInitialized := true;
         Commit();
@@ -976,7 +975,7 @@
         EnableUnrealVATSetupWithGivenPct(VATPostingSetup, VATPostingSetup."Unrealized VAT Type"::Percentage, VATPct);
         VendorNo := LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group");
         GLAccountNo := LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, "General Posting Type"::" ");
-        CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, ExchangeRate, 1);
+        CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), ExchangeRate, 1);
 
         InvoiceNo := CreatePostSalesInvoiceForGivenCustomer(VendorNo, GLAccountNo, CurrencyCode, InvoiceAmount);
         PaymentNo := CreateAndPostPaymentJnlLine(VendorNo, CurrencyCode, PaymentAmount);
@@ -1061,7 +1060,7 @@
     begin
         LibraryJournals.CreateGenJournalLineWithBatch(
           GenJournalLine, DocumentType, GenJournalLine."Account Type"::Vendor, AccountNo, Amount);
-        GenJournalLine.Validate("Posting Date", CalcDate('<' + Format(PostingDaysAdded) + 'M>', WorkDate));
+        GenJournalLine.Validate("Posting Date", CalcDate('<' + Format(PostingDaysAdded) + 'M>', WorkDate()));
         GenJournalLine.Validate("Currency Code", CurrencyCode);
         GenJournalLine.Modify(true);
     end;
@@ -1271,7 +1270,7 @@
         PurchInvLine.FindSet();
         repeat
             Amount += PurchInvLine.Amount;
-        until PurchInvLine.Next = 0;
+        until PurchInvLine.Next() = 0;
     end;
 
     local procedure FilterVATEntry(var VATEntry: Record "VAT Entry"; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; AmountFilter: Text)
@@ -1468,7 +1467,7 @@
         repeat
             VendorLedgerEntry.CalcFields("Remaining Amount");
             VendorLedgerEntry.TestField("Remaining Amount", 0);
-        until VendorLedgerEntry.Next = 0;
+        until VendorLedgerEntry.Next() = 0;
     end;
 
     local procedure VerifyVendorLedgerEntryAmounts(VendorNo: Code[20]; DocumentNo: Code[20]; ExpectedAmount: Decimal; ExpectedRemAmount: Decimal)
@@ -1656,13 +1655,6 @@
     procedure ConfirmHandler(Question: Text[1024]; var Reply: Boolean)
     begin
         Reply := true;
-    end;
-
-    [ReportHandler]
-    [Scope('OnPrem')]
-    procedure RunAdjExchRateReportHandler(var AdjustExchangeRates: Report "Adjust Exchange Rates")
-    begin
-        AdjustExchangeRates.SaveAsXml('');
     end;
 }
 

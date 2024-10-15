@@ -10,9 +10,10 @@ codeunit 7320 "Whse. Undo Quantity"
 
     var
         WMSMgmt: Codeunit "WMS Management";
+        WhseJnlRegisterLine: Codeunit "Whse. Jnl.-Register Line";
+
         Text000: Label 'Assertion failed, %1.';
         Text001: Label 'There is not enough space to insert correction lines.';
-        WhseJnlRegisterLine: Codeunit "Whse. Jnl.-Register Line";
 
     procedure InsertTempWhseJnlLine(ItemJnlLine: Record "Item Journal Line"; SourceType: Integer; SourceSubType: Integer; SourceNo: Code[20]; SourceLineNo: Integer; RefDoc: Integer; var TempWhseJnlLine: Record "Warehouse Journal Line" temporary; var NextLineNo: Integer)
     var
@@ -40,7 +41,7 @@ codeunit 7320 "Whse. Undo Quantity"
                     TempWhseJnlLine.SetSource(SourceType, SourceSubType, SourceNo, SourceLineNo, 0);
                     TempWhseJnlLine."Source Document" :=
                       WhseMgt.GetWhseJnlSourceDocument(TempWhseJnlLine."Source Type", TempWhseJnlLine."Source Subtype");
-                    TempWhseJnlLine."Reference Document" := RefDoc;
+                    TempWhseJnlLine."Reference Document" := "Whse. Reference Document Type".FromInteger(RefDoc);
                     TempWhseJnlLine."Reference No." := "Document No.";
                     TempWhseJnlLine."Location Code" := "Location Code";
                     TempWhseJnlLine."Zone Code" := WhseEntry."Zone Code";
@@ -126,7 +127,7 @@ codeunit 7320 "Whse. Undo Quantity"
         if not PostedWhseRcptLine.ReadPermission then
             exit;
         with PostedWhseRcptLine do begin
-            Reset;
+            Reset();
             case UndoType of
                 DATABASE::"Purch. Rcpt. Line":
                     SetRange("Posted Source Document", "Posted Source Document"::"Posted Receipt");
@@ -160,17 +161,15 @@ codeunit 7320 "Whse. Undo Quantity"
         if not PostedWhseShptLine.ReadPermission then
             exit;
         with PostedWhseShptLine do begin
-            Reset;
+            Reset();
             case UndoType of
                 DATABASE::"Sales Shipment Line",
               DATABASE::"Service Shipment Line":
                     SetRange("Posted Source Document", "Posted Source Document"::"Posted Shipment");
                 DATABASE::"Return Shipment Line":
                     SetRange("Posted Source Document", "Posted Source Document"::"Posted Return Shipment");
-                    // NAVCZ
                 DATABASE::"Transfer Shipment Line":
                     SetRange("Posted Source Document", "Posted Source Document"::"Posted Transfer Shipment");
-                // NAVCZ
                 else
                     exit;
             end;
@@ -181,7 +180,7 @@ codeunit 7320 "Whse. Undo Quantity"
                 PostedWhseShptLine2.CopyFilters(PostedWhseShptLine);
                 PostedWhseShptLine2.SetFilter("No.", '<>%1', "No.");
                 PostedWhseShptLine2.SetFilter("Line No.", '<>%1', "Line No.");
-                if not PostedWhseShptLine2.IsEmpty and not IsATO(UndoType, UndoID, SourceRefNo) then
+                if not PostedWhseShptLine2.IsEmpty() and not IsATO(UndoType, UndoID, SourceRefNo) then
                     Error(Text000, TableCaption); // Assert: only one posted line.
                 Ok := true;
             end;
@@ -197,7 +196,7 @@ codeunit 7320 "Whse. Undo Quantity"
             "Qty. Put Away" := Quantity;
             "Qty. Put Away (Base)" := "Qty. (Base)";
             OnBeforeOldPostedWhseRcptLineModify(OldPostedWhseRcptLine);
-            Modify;
+            Modify();
 
             NewPostedWhseRcptLine.SetRange("No.", "No.");
             NewPostedWhseRcptLine."No." := "No.";
@@ -219,7 +218,7 @@ codeunit 7320 "Whse. Undo Quantity"
             NewPostedWhseRcptLine.Insert();
 
             Status := Status::"Completely Put Away";
-            Modify;
+            Modify();
         end;
     end;
 
@@ -453,14 +452,12 @@ codeunit 7320 "Whse. Undo Quantity"
                         if not (PurchLine."Return Qty. Shipped" < PurchLine.Quantity) then
                             exit;
                     end;
-                // NAVCZ
                 DATABASE::"Transfer Line":
                     begin
                         TransferLine.Get("Source No.", "Source Line No.");
                         if not (TransferLine."Quantity Shipped" < TransferLine.Quantity) then
                             exit;
                     end;
-                    // NAVCZ
             end;
             UpdateWhseRequest("Source Type", "Source Subtype", "Source No.", "Location Code");
         end;
@@ -478,9 +475,9 @@ codeunit 7320 "Whse. Undo Quantity"
             SetRange("Source Subtype", SourceSubType);
             SetRange("Source No.", SourceNo);
             SetRange("Location Code", LocationCode);
-            if FindFirst and "Completely Handled" then begin
+            if FindFirst() and "Completely Handled" then begin
                 "Completely Handled" := false;
-                Modify;
+                Modify();
             end;
         end;
     end;

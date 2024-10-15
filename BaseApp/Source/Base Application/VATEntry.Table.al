@@ -514,13 +514,9 @@ table 254 "VAT Entry"
         {
             Caption = 'VAT Identifier';
             Editable = false;
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(11780; "Pmt.Disc. Tax Corr.Doc. No."; Code[20])
         {
@@ -604,14 +600,9 @@ table 254 "VAT Entry"
         {
             Caption = 'Perform. Country/Region Code';
             Editable = false;
-#if not CLEAN18
-            ObsoleteState = Pending;
-            ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this field should not be used.';
-#else
             ObsoleteState = Removed;
             ObsoleteReason = 'The functionality of VAT Registration in Other Countries has been removed and this field should not be used.';
-#endif
-            ObsoleteTag = '15.3';
+            ObsoleteTag = '21.0';
         }
         field(31061; "Currency Factor"; Decimal)
         {
@@ -680,8 +671,22 @@ table 254 "VAT Entry"
         {
             MaintainSQLIndex = false;
         }
+        key(Key9; Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Tax Jurisdiction Code", "Use Tax", "Posting Date", "G/L Acc. No.")
+        {
+            SumIndexFields = Base, Amount, "Unrealized Amount", "Unrealized Base", "Additional-Currency Base", "Additional-Currency Amount", "Add.-Currency Unrealized Amt.", "Add.-Currency Unrealized Base", "Remaining Unrealized Amount";
+        }
+        key(Key10; "Posting Date", Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group", Reversed, "G/L Acc. No.")
+        {
+            SumIndexFields = Base, Amount, "Unrealized Amount", "Unrealized Base", "Additional-Currency Base", "Additional-Currency Amount", "Add.-Currency Unrealized Amt.", "Add.-Currency Unrealized Base", "Remaining Unrealized Amount";
+        }
+        key(Key11; "Document Date")
+        {
+        }
+        key(Key12; "G/L Acc. No.")
+        {
+        }
 #if not CLEAN19
-        key(Key10; Type, "Advance Letter No.", "Advance Letter Line No.")
+        key(Key13; Type, "Advance Letter No.", "Advance Letter Line No.")
         {
             SumIndexFields = Amount, "Advance Base";
             ObsoleteState = Pending;
@@ -689,26 +694,20 @@ table 254 "VAT Entry"
             ObsoleteTag = '19.0';
         }
 #endif
-        key(Key12; "Unrealized VAT Entry No.")
+#if not CLEAN19
+        key(Key14; Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Country/Region Code")
         {
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The key is not needed anymore.';
+            ObsoleteTag = '21.0';
         }
-        key(Key15; Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Country/Region Code")
+        key(Key15; "Unrealized VAT Entry No.")
         {
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The key is not needed anymore.';
+            ObsoleteTag = '21.0';
         }
-        key(Key16; Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Tax Jurisdiction Code", "Use Tax", "Posting Date", "G/L Acc. No.")
-        {
-            SumIndexFields = Base, Amount, "Unrealized Amount", "Unrealized Base", "Additional-Currency Base", "Additional-Currency Amount", "Add.-Currency Unrealized Amt.", "Add.-Currency Unrealized Base", "Remaining Unrealized Amount";
-        }
-        key(Key17; "Posting Date", Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group", Reversed, "G/L Acc. No.")
-        {
-            SumIndexFields = Base, Amount, "Unrealized Amount", "Unrealized Base", "Additional-Currency Base", "Additional-Currency Amount", "Add.-Currency Unrealized Amt.", "Add.-Currency Unrealized Base", "Remaining Unrealized Amount";
-        }
-        key(Key18; "Document Date")
-        {
-        }
-        key(Key19; "G/L Acc. No.")
-        {
-        }
+#endif
     }
 
     fieldgroups
@@ -719,14 +718,15 @@ table 254 "VAT Entry"
     }
 
     var
+        Cust: Record Customer;
+        Vend: Record Vendor;
+        GLSetup: Record "General Ledger Setup";
+
         Text000: Label 'You cannot change the contents of this field when %1 is %2.';
         ConfirmAdjustQst: Label 'Do you want to fill the G/L Account No. field in VAT entries that are linked to G/L Entries?';
         ProgressMsg: Label 'Processed entries: @2@@@@@@@@@@@@@@@@@\';
         AdjustTitleMsg: Label 'Adjust G/L account number in VAT entries.\';
         NoGLAccNoOnVATEntriesErr: Label 'The VAT Entry table with filter <%1> must not contain records.', Comment = '%1 - the filter expression applied to VAT entry record.';
-        Cust: Record Customer;
-        Vend: Record Vendor;
-        GLSetup: Record "General Ledger Setup";
 
     procedure GetLastEntryNo(): Integer;
     var
@@ -741,14 +741,6 @@ table 254 "VAT Entry"
         exit(GLSetup."Additional Reporting Currency");
     end;
 
-#if not CLEAN18
-    [Obsolete('Procedure will be removed and standard W1 procedure with 5 parameters will be used.', '18.0')]
-    procedure GetUnrealizedVATPart(SettledAmount: Decimal; Paid: Decimal; Full: Decimal; TotalUnrealVATAmountFirst: Decimal; TotalUnrealVATAmountLast: Decimal; PostponedVAT: Boolean): Decimal
-    begin
-        exit(GetUnrealizedVATPart(SettledAmount, Paid, Full, TotalUnrealVATAmountFirst, TotalUnrealVATAmountLast));
-    end;
-
-#endif
     procedure GetUnrealizedVATPart(SettledAmount: Decimal; Paid: Decimal; Full: Decimal; TotalUnrealVATAmountFirst: Decimal; TotalUnrealVATAmountLast: Decimal): Decimal
     var
         UnrealizedVATType: Option " ",Percentage,First,Last,"First (Fully Paid)","Last (Fully Paid)";

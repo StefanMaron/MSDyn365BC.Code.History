@@ -2,14 +2,8 @@ table 31057 "Posted Credit Header"
 {
     Caption = 'Posted Credit Header';
     DataCaptionFields = "No.", Description;
-#if CLEAN18
     ObsoleteState = Removed;
     ObsoleteTag = '21.0';
-#else
-    LookupPageID = "Posted Credits List";
-    ObsoleteState = Pending;
-    ObsoleteTag = '18.0';
-#endif
     ObsoleteReason = 'Moved to Compensation Localization Pack for Czech.';
 
     fields
@@ -123,48 +117,4 @@ table 31057 "Posted Credit Header"
     fieldgroups
     {
     }
-#if not CLEAN18
-
-    trigger OnDelete()
-    var
-        PostedCreditLine: Record "Posted Credit Line";
-    begin
-        LockTable();
-
-        PostedCreditLine.SetRange("Credit No.", "No.");
-        PostedCreditLine.DeleteAll(true);
-    end;
-
-    var
-        PstdCreditHeader: Record "Posted Credit Header";
-
-    [Scope('OnPrem')]
-    [Obsolete('Moved to Compensation Localization Pack for Czech.', '18.0')]
-    procedure Navigate()
-    var
-        NavigateForm: Page Navigate;
-    begin
-        NavigateForm.SetDoc("Posting Date", "No.");
-        NavigateForm.Run();
-    end;
-
-    [Scope('OnPrem')]
-    [Obsolete('Moved to Compensation Localization Pack for Czech.', '18.0')]
-    procedure PrintRecords(ShowRequestForm: Boolean)
-    var
-        CreditReportSelections: Record "Credit Report Selections";
-    begin
-        with PstdCreditHeader do begin
-            Copy(Rec);
-            FindFirst();
-            CreditReportSelections.SetRange(Usage, CreditReportSelections.Usage::"Posted Credit");
-            CreditReportSelections.SetFilter("Report ID", '<>0');
-            CreditReportSelections.Find('-');
-            repeat
-                REPORT.RunModal(CreditReportSelections."Report ID", ShowRequestForm, false, PstdCreditHeader);
-            until CreditReportSelections.Next() = 0;
-        end;
-    end;
-#endif
 }
-

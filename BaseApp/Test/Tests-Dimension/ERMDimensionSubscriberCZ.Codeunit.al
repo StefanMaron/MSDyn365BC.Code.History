@@ -1,3 +1,4 @@
+#if not CLEAN19
 codeunit 143001 "ERM Dimension Subscriber - CZ"
 {
 
@@ -16,7 +17,6 @@ codeunit 143001 "ERM Dimension Subscriber - CZ"
         CountOfTablesIgnored += 4;
     end;
 
-#if not CLEAN19
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Library - Dimension", 'OnVerifyShorcutDimCodesUpdatedOnDimSetIDValidationLocal', '', false, false)]
     local procedure VerifyShorcutDimCodesUpdatedOnDimSetIDValidation(var TempAllObj: Record AllObj temporary; DimSetID: Integer; GlobalDim1ValueCode: Code[20]; GlobalDim2ValueCode: Code[20])
     var
@@ -24,9 +24,6 @@ codeunit 143001 "ERM Dimension Subscriber - CZ"
         SalesAdvanceLetterLine: Record "Sales Advance Letter Line";
         PurchAdvanceLetterHeader: Record "Purch. Advance Letter Header";
         PurchAdvanceLetterLine: Record "Purch. Advance Letter Line";
-#if not CLEAN18
-        CreditLine: Record "Credit Line";
-#endif
     begin
         // Verifies local tables with "Dimension Set ID" field related to "Dimension Set Entry" and OnValidate trigger which updates shortcut dimensions
 
@@ -46,29 +43,7 @@ codeunit 143001 "ERM Dimension Subscriber - CZ"
           TempAllObj, PurchAdvanceLetterLine, PurchAdvanceLetterLine.FieldNo("Dimension Set ID"),
           PurchAdvanceLetterLine.FieldNo("Shortcut Dimension 1 Code"), PurchAdvanceLetterLine.FieldNo("Shortcut Dimension 2 Code"),
           DimSetID, GlobalDim1ValueCode, GlobalDim2ValueCode);
-#if not CLEAN18
-        LibraryDim.VerifyShorcutDimCodesUpdatedOnDimSetIDValidation(
-          TempAllObj, CreditLine, CreditLine.FieldNo("Dimension Set ID"),
-          CreditLine.FieldNo("Global Dimension 1 Code"), CreditLine.FieldNo("Global Dimension 2 Code"),
-          DimSetID, GlobalDim1ValueCode, GlobalDim2ValueCode);
-#endif
-    end;
-#endif
-
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Library - Dimension", 'OnGetTableNosWithGlobalDimensionCode', '', false, false)]
-    local procedure AddingLocalTable(var TableBuffer: Record "Integer" temporary)
-    begin
-#if not CLEAN18
-        AddTable(TableBuffer, DATABASE::"Vendor Template");
-#endif
-    end;
-
-    local procedure AddTable(var TableBuffer: Record "Integer" temporary; TableID: Integer)
-    begin
-        if not TableBuffer.Get(TableID) then begin
-            TableBuffer.Number := TableID;
-            TableBuffer.Insert();
-        end;
     end;
 }
 
+#endif

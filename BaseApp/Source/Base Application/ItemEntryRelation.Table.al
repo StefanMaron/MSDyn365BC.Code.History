@@ -90,7 +90,7 @@
 
     procedure InitFromTrackingSpec(TrackingSpecification: Record "Tracking Specification")
     begin
-        Init;
+        Init();
         "Item Entry No." := TrackingSpecification."Entry No.";
         "Serial No." := TrackingSpecification."Serial No.";
         "Lot No." := TrackingSpecification."Lot No.";
@@ -156,7 +156,7 @@
         else
             //NAVCZ
 #endif
-            SetOrderInfo(TransShptLine."Transfer Order No.", TransShptLine."Line No.");
+        SetOrderInfo(TransShptLine."Transfer Order No.", TransShptLine."Line No.");
     end;
 
     procedure TransferFieldsTransRcptLine(var TransRcptLine: Record "Transfer Receipt Line")

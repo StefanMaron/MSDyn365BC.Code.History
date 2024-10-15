@@ -25,7 +25,7 @@ codeunit 31032 "Prepayment Links Management"
     procedure FillBuf(var AdvanceLinkBuf: Record "Advance Link Buffer"; CustMode: Boolean)
     begin
         with AdvanceLinkBuf do begin
-            Reset;
+            Reset();
             DeleteAll();
             Clear(TempAdvanceLinkBufCurrLn);
             Clear(TempAdvanceLinkBuf);
@@ -42,10 +42,10 @@ codeunit 31032 "Prepayment Links Management"
             SetFilters(AdvanceLinkBuf);
             if FindFirst() then
                 TempAdvanceLinkBufCurrLn := AdvanceLinkBuf;
-            Reset;
+            Reset();
             if not IsEmpty() then begin
                 AdvanceLinkBuf := AdvanceLinkBufDefEntry;
-                if not Find then
+                if not Find() then
                     FindFirst();
                 TempAdvanceLinkBuf := AdvanceLinkBuf;
                 SetLinkingEntry(AdvanceLinkBuf, false);
@@ -195,7 +195,7 @@ codeunit 31032 "Prepayment Links Management"
             if Manual then
                 TempAdvanceLinkBufCurrLn := AdvanceLinkBuf;
 
-            Reset;
+            Reset();
             if TempAdvanceLinkBuf."Linking Entry" then begin
                 UpdateLinkingEntry(AdvanceLinkBuf, false);
                 TempAdvanceLinkBuf := TempAdvanceLinkBufCurrLn;
@@ -217,13 +217,13 @@ codeunit 31032 "Prepayment Links Management"
     begin
         with AdvanceLinkBuf do begin
             AdvanceLinkBuf := TempAdvanceLinkBuf;
-            Find;
+            Find();
             "Linking Entry" := Set;
             if Set then begin
                 AdvanceLinkBufDefEntry := AdvanceLinkBuf;
                 "Amount To Link" := -CalcBalance(AdvanceLinkBuf);
             end;
-            Modify;
+            Modify();
             TempAdvanceLinkBuf := AdvanceLinkBuf;
         end;
     end;
@@ -235,7 +235,7 @@ codeunit 31032 "Prepayment Links Management"
         Diff: Decimal;
     begin
         with AdvanceLinkBuf do begin
-            Reset;
+            Reset();
 
             SetRange("Entry Type", AdvanceLinkBuf2."Entry Type");
             SetRange("Document No.", AdvanceLinkBuf2."Document No.");
@@ -246,7 +246,7 @@ codeunit 31032 "Prepayment Links Management"
 
             FindFirst();
             "Links-To ID" := TempAdvanceLinkBuf."Document No.";
-            Modify;
+            Modify();
 
             if AdvanceLinkBuf2."Amount To Link" <> 0 then begin
                 if AdvanceLinkBuf2."Amount To Link" * "Remaining Amount" < 0 then
@@ -272,7 +272,7 @@ codeunit 31032 "Prepayment Links Management"
                 exit;
             TempAdvanceLinkBufCurrLn := AdvanceLinkBuf;
             if AdvanceLinkBufDefEntry."Link Code" = '' then
-                GetLinkID;
+                GetLinkID();
 
             Limit := TempAdvanceLinkBuf."Remaining Amount" - TempAdvanceLinkBuf."Amount To Link";
             Manual := Difference <> 0;
@@ -315,7 +315,7 @@ codeunit 31032 "Prepayment Links Management"
             if Abs(Difference) > Abs(Limit) then
                 Difference := -Limit;
 
-            Reset;
+            Reset();
             UpdateAmount(AdvanceLinkBuf, TempAdvanceLinkBuf, -Difference);
             UpdateAmount(AdvanceLinkBuf, TempAdvanceLinkBufCurrLn, Difference - Adjustment);
             SetFilters(AdvanceLinkBuf);
@@ -330,8 +330,8 @@ codeunit 31032 "Prepayment Links Management"
     begin
         with AdvanceLinkBuf do begin
             AdvanceLinkBuf2 := AdvanceLinkBuf;
-            AdvanceLinkBuf2.SetView(GetView);
-            Reset;
+            AdvanceLinkBuf2.SetView(GetView());
+            Reset();
             if AdvanceLinkBufDefEntry."Link Code" <> '' then begin
                 SetCurrentKey("Link Code", "Linking Entry");
                 SetFilter("Link Code", TempAdvanceLinkBuf."Link Code");
@@ -344,9 +344,9 @@ codeunit 31032 "Prepayment Links Management"
                 repeat
                     Balance := Balance + "Amount To Link";
                 until Next() = 0;
-            SetView(AdvanceLinkBuf2.GetView);
+            SetView(AdvanceLinkBuf2.GetView());
             AdvanceLinkBuf := AdvanceLinkBuf2;
-            if Find then;
+            if Find() then;
         end;
     end;
 
@@ -355,7 +355,7 @@ codeunit 31032 "Prepayment Links Management"
     procedure LinkEntries(var AdvanceLinkBuf: Record "Advance Link Buffer"; CustMode: Boolean)
     begin
         with AdvanceLinkBuf do begin
-            Reset;
+            Reset();
             SetCurrentKey("Links-To ID", "Linking Entry");
             SetFilter("Links-To ID", TempAdvanceLinkBuf."Links-To ID");
             if CustMode then
@@ -370,7 +370,7 @@ codeunit 31032 "Prepayment Links Management"
     procedure SetFilters(var AdvanceLinkBuf: Record "Advance Link Buffer")
     begin
         with AdvanceLinkBuf do begin
-            Reset;
+            Reset();
             SetRange("Linking Entry", false);
             if TempAdvanceLinkBuf."Entry Type" = TempAdvanceLinkBuf."Entry Type"::"Letter Line" then
                 SetRange("Entry Type", "Entry Type"::Payment)
@@ -471,7 +471,7 @@ codeunit 31032 "Prepayment Links Management"
             OnCollectSalesLettersOnAfterSetSalesAdvanceLetterLineFilters(SalesAdvanceLetterLine);
             if SalesAdvanceLetterLine.FindSet() then
                 repeat
-                    Init;
+                    Init();
                     "Entry No." := SalesAdvanceLetterLine."Line No.";
                     if AdvanceLinkBufDefEntry."Entry No." = 0 then
                         if AdvanceLinkBufDefEntry."Document No." = "Document No." then
@@ -514,7 +514,7 @@ codeunit 31032 "Prepayment Links Management"
 
                     "Source Type" := "Source Type"::Customer;
 
-                    Insert;
+                    Insert();
                 until SalesAdvanceLetterLine.Next() = 0;
         end;
     end;
@@ -534,7 +534,7 @@ codeunit 31032 "Prepayment Links Management"
             OnCollectPurchLettersOnAfterSetPurchAdvanceLetterLineFilters(PurchAdvanceLetterLine);
             if PurchAdvanceLetterLine.FindSet() then
                 repeat
-                    Init;
+                    Init();
                     "Entry No." := PurchAdvanceLetterLine."Line No.";
                     if AdvanceLinkBufDefEntry."Entry No." = 0 then
                         if AdvanceLinkBufDefEntry."Document No." = "Document No." then
@@ -575,7 +575,7 @@ codeunit 31032 "Prepayment Links Management"
                             "Links-To ID" := PurchAdvanceLetterLine."Applies-to ID";
                     "Source Type" := "Source Type"::Vendor;
 
-                    Insert;
+                    Insert();
                 until PurchAdvanceLetterLine.Next() = 0;
         end;
     end;
@@ -589,10 +589,10 @@ codeunit 31032 "Prepayment Links Management"
     begin
         with AdvanceLinkBuf do
             if LinkType = LinkType::GenJnlLine then begin
-                Init;
+                Init();
                 TransferFields(AdvanceLinkBufDefEntry);
                 Type := Type::Customer;
-                Insert;
+                Insert();
             end else begin
                 CustLedgEntry.SetRange("Open For Advance Letter", true);
                 CustLedgEntry.SetRange("Customer No.", AdvanceLinkBufDefEntry."CV No.");
@@ -600,7 +600,7 @@ codeunit 31032 "Prepayment Links Management"
                 CustLedgEntry.SetRange(Positive, false);
                 if CustLedgEntry.FindSet() then
                     repeat
-                        Init;
+                        Init();
                         "Entry No." := CustLedgEntry."Entry No.";
                         "Document No." := CustLedgEntry."Document No.";
                         "Entry Type" := "Entry Type"::Payment;
@@ -612,7 +612,7 @@ codeunit 31032 "Prepayment Links Management"
                         "Remaining Amount" := CustLedgEntry."Remaining Amount to Link";
 
                         CustLedgEntry.CalcFields("Remaining Amount");
-                        LinkedNotUsedAmt := CustLedgEntry.CalcLinkAdvAmount;
+                        LinkedNotUsedAmt := CustLedgEntry.CalcLinkAdvAmount();
                         if Abs(CustLedgEntry."Remaining Amount" + LinkedNotUsedAmt) < Abs(CustLedgEntry."Remaining Amount to Link") then
                             "Remaining Amount" := CustLedgEntry."Remaining Amount" + LinkedNotUsedAmt;
 
@@ -624,7 +624,7 @@ codeunit 31032 "Prepayment Links Management"
 
                         "Source Type" := "Source Type"::Customer;
 
-                        Insert;
+                        Insert();
                     until CustLedgEntry.Next() = 0;
             end;
     end;
@@ -638,10 +638,10 @@ codeunit 31032 "Prepayment Links Management"
     begin
         with AdvanceLinkBuf do
             if LinkType = LinkType::GenJnlLine then begin
-                Init;
+                Init();
                 TransferFields(AdvanceLinkBufDefEntry);
                 Type := Type::Vendor;
-                Insert;
+                Insert();
             end else begin
                 VendLedgEntry.SetRange("Open For Advance Letter", true);
                 VendLedgEntry.SetRange("Vendor No.", AdvanceLinkBufDefEntry."CV No.");
@@ -649,7 +649,7 @@ codeunit 31032 "Prepayment Links Management"
                 VendLedgEntry.SetRange(Positive, true);
                 if VendLedgEntry.FindSet() then
                     repeat
-                        Init;
+                        Init();
                         "Entry No." := VendLedgEntry."Entry No.";
                         "Document No." := VendLedgEntry."Document No.";
                         "Entry Type" := "Entry Type"::Payment;
@@ -661,7 +661,7 @@ codeunit 31032 "Prepayment Links Management"
                         "Remaining Amount" := VendLedgEntry."Remaining Amount to Link";
 
                         VendLedgEntry.CalcFields("Remaining Amount");
-                        LinkedNotUsedAmt := VendLedgEntry.CalcLinkAdvAmount;
+                        LinkedNotUsedAmt := VendLedgEntry.CalcLinkAdvAmount();
                         if Abs(VendLedgEntry."Remaining Amount" + LinkedNotUsedAmt) <
                            Abs(VendLedgEntry."Remaining Amount to Link")
                         then
@@ -675,7 +675,7 @@ codeunit 31032 "Prepayment Links Management"
 
                         "Source Type" := "Source Type"::Vendor;
 
-                        Insert;
+                        Insert();
                     until VendLedgEntry.Next() = 0;
             end;
     end;
@@ -686,7 +686,7 @@ codeunit 31032 "Prepayment Links Management"
     begin
         with AdvanceLinkBuf do begin
             AdvanceLinkBuf := AdvanceLinkBuf2;
-            Find;
+            Find();
             "Amount To Link" := "Amount To Link" + Amount;
             if AdvanceLinkBufDefEntry."Link Code" <> '' then begin
                 if "Amount To Link" = 0 then
@@ -698,7 +698,7 @@ codeunit 31032 "Prepayment Links Management"
                     "Links-To ID" := ''
                 else
                     "Links-To ID" := LinkID;
-            Modify;
+            Modify();
             AdvanceLinkBuf2 := AdvanceLinkBuf;
         end;
     end;
@@ -712,7 +712,7 @@ codeunit 31032 "Prepayment Links Management"
     begin
         OnBeforeSaveLinkIDToLetterLines(AdvanceLinkBuf);
         with AdvanceLinkBuf do begin
-            Reset;
+            Reset();
             SetCurrentKey("Links-To ID", "Linking Entry");
             SetRange("Linking Entry", false);
             if FindSet() then

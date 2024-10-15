@@ -582,4 +582,5 @@ codeunit 20 "Posting Preview Event Handler"
         Result := true;
     end;
 }
+
 #endif

@@ -4,7 +4,6 @@ page 140 "Posted Purchase Credit Memo"
     Caption = 'Posted Purchase Credit Memo';
     InsertAllowed = false;
     PageType = Document;
-    PromotedActionCategories = 'New,Process,Report,Cancel,Navigate,Print/Send,Credit Memo';
     RefreshOnActivate = true;
     SourceTable = "Purch. Cr. Memo Hdr.";
 
@@ -15,14 +14,14 @@ page 140 "Posted Purchase Credit Memo"
             group(General)
             {
                 Caption = 'General';
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = All;
                     Editable = false;
                     Importance = Promoted;
                     ToolTip = 'Specifies the posted credit memo number.';
                 }
-                field("Buy-from Vendor Name"; "Buy-from Vendor Name")
+                field("Buy-from Vendor Name"; Rec."Buy-from Vendor Name")
                 {
                     ApplicationArea = All;
                     Caption = 'Vendor';
@@ -34,7 +33,7 @@ page 140 "Posted Purchase Credit Memo"
                 group("Buy-from")
                 {
                     Caption = 'Buy-from';
-                    field("Buy-from Address"; "Buy-from Address")
+                    field("Buy-from Address"; Rec."Buy-from Address")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Address';
@@ -42,7 +41,7 @@ page 140 "Posted Purchase Credit Memo"
                         Importance = Additional;
                         ToolTip = 'Specifies the address of the vendor who shipped the items.';
                     }
-                    field("Buy-from Address 2"; "Buy-from Address 2")
+                    field("Buy-from Address 2"; Rec."Buy-from Address 2")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Address 2';
@@ -50,7 +49,7 @@ page 140 "Posted Purchase Credit Memo"
                         Importance = Additional;
                         ToolTip = 'Specifies additional address information.';
                     }
-                    field("Buy-from City"; "Buy-from City")
+                    field("Buy-from City"; Rec."Buy-from City")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'City';
@@ -62,7 +61,7 @@ page 140 "Posted Purchase Credit Memo"
                     {
                         ShowCaption = false;
                         Visible = IsBuyFromCountyVisible;
-                        field("Buy-from County"; "Buy-from County")
+                        field("Buy-from County"; Rec."Buy-from County")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'County';
@@ -71,7 +70,7 @@ page 140 "Posted Purchase Credit Memo"
                             ToolTip = 'Specifies the state, province or county as a part of the address.';
                         }
                     }
-                    field("Buy-from Post Code"; "Buy-from Post Code")
+                    field("Buy-from Post Code"; Rec."Buy-from Post Code")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Post Code';
@@ -79,7 +78,7 @@ page 140 "Posted Purchase Credit Memo"
                         Importance = Additional;
                         ToolTip = 'Specifies the postal code.';
                     }
-                    field("Buy-from Country/Region Code"; "Buy-from Country/Region Code")
+                    field("Buy-from Country/Region Code"; Rec."Buy-from Country/Region Code")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Country/Region';
@@ -87,7 +86,7 @@ page 140 "Posted Purchase Credit Memo"
                         Importance = Additional;
                         ToolTip = 'Specifies the country or region of the ship-to address.';
                     }
-                    field("Buy-from Contact No."; "Buy-from Contact No.")
+                    field("Buy-from Contact No."; Rec."Buy-from Contact No.")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Contact No.';
@@ -123,14 +122,14 @@ page 140 "Posted Purchase Credit Memo"
                         ToolTip = 'Specifies the email address of the vendor contact person.';
                     }
                 }
-                field("Buy-from Contact"; "Buy-from Contact")
+                field("Buy-from Contact"; Rec."Buy-from Contact")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Contact';
                     Editable = false;
                     ToolTip = 'Specifies the name of the person to contact at the vendor who shipped the items.';
                 }
-                field("Posting Description"; "Posting Description")
+                field("Posting Description"; Rec."Posting Description")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -140,27 +139,27 @@ page 140 "Posted Purchase Credit Memo"
                     ObsoleteTag = '20.0';
                     Visible = false;
                 }
-                field("Posting Date"; "Posting Date")
+                field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     Importance = Promoted;
                     ToolTip = 'Specifies the date the credit memo was posted.';
                 }
-                field("Document Date"; "Document Date")
+                field("Document Date"; Rec."Document Date")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the date on which the purchase document was created.';
                 }
-                field("Pre-Assigned No."; "Pre-Assigned No.")
+                field("Pre-Assigned No."; Rec."Pre-Assigned No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     Importance = Additional;
                     ToolTip = 'Specifies the number of the credit memo that the posted credit memo was created from.';
                 }
-                field("Vendor Cr. Memo No."; "Vendor Cr. Memo No.")
+                field("Vendor Cr. Memo No."; Rec."Vendor Cr. Memo No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -177,20 +176,20 @@ page 140 "Posted Purchase Credit Memo"
                     ObsoleteTag = '20.0';
                     Visible = false;
                 }
-                field("Order Address Code"; "Order Address Code")
+                field("Order Address Code"; Rec."Order Address Code")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the order address of the related vendor.';
                 }
-                field("Purchaser Code"; "Purchaser Code")
+                field("Purchaser Code"; Rec."Purchaser Code")
                 {
                     ApplicationArea = Suite;
                     Editable = false;
                     Importance = Additional;
                     ToolTip = 'Specifies which purchaser is assigned to the vendor.';
                 }
-                field("Responsibility Center"; "Responsibility Center")
+                field("Responsibility Center"; Rec."Responsibility Center")
                 {
                     ApplicationArea = Suite;
                     Editable = false;
@@ -207,7 +206,7 @@ page 140 "Posted Purchase Credit Memo"
 
                     trigger OnDrillDown()
                     begin
-                        ShowCorrectiveInvoice;
+                        ShowCorrectiveInvoice();
                     end;
                 }
                 field(Corrective; Corrective)
@@ -220,10 +219,10 @@ page 140 "Posted Purchase Credit Memo"
 
                     trigger OnDrillDown()
                     begin
-                        ShowCancelledInvoice;
+                        ShowCancelledInvoice();
                     end;
                 }
-                field("No. Printed"; "No. Printed")
+                field("No. Printed"; Rec."No. Printed")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -239,7 +238,7 @@ page 140 "Posted Purchase Credit Memo"
             group("Invoice Details")
             {
                 Caption = 'Invoice Details';
-                field("Currency Code"; "Currency Code")
+                field("Currency Code"; Rec."Currency Code")
                 {
                     ApplicationArea = Suite;
                     Importance = Promoted;
@@ -251,14 +250,14 @@ page 140 "Posted Purchase Credit Memo"
                     begin
                         ChangeExchangeRate.SetParameter("Currency Code", "Currency Factor", "Posting Date");
                         ChangeExchangeRate.Editable(false);
-                        if ChangeExchangeRate.RunModal = ACTION::OK then begin
-                            "Currency Factor" := ChangeExchangeRate.GetParameter;
+                        if ChangeExchangeRate.RunModal() = ACTION::OK then begin
+                            "Currency Factor" := ChangeExchangeRate.GetParameter();
                             UpdateCurrencyFactor.ModifyPostedPurchaseCreditMemo(Rec);
                         end;
                         Clear(ChangeExchangeRate);
                     end;
                 }
-                field("Transaction Type"; "Transaction Type")
+                field("Transaction Type"; Rec."Transaction Type")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -268,7 +267,7 @@ page 140 "Posted Purchase Credit Memo"
                     ObsoleteTag = '20.0';
                     Visible = false;
                 }
-                field("Transaction Specification"; "Transaction Specification")
+                field("Transaction Specification"; Rec."Transaction Specification")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -278,7 +277,7 @@ page 140 "Posted Purchase Credit Memo"
                     ObsoleteTag = '20.0';
                     Visible = false;
                 }
-                field("Transport Method"; "Transport Method")
+                field("Transport Method"; Rec."Transport Method")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -288,7 +287,7 @@ page 140 "Posted Purchase Credit Memo"
                     ObsoleteTag = '20.0';
                     Visible = false;
                 }
-                field("Entry Point"; "Entry Point")
+                field("Entry Point"; Rec."Entry Point")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -308,7 +307,7 @@ page 140 "Posted Purchase Credit Memo"
                     ObsoleteTag = '20.0';
                     Visible = false;
                 }
-                field("VAT Registration No."; "VAT Registration No.")
+                field("VAT Registration No."; Rec."VAT Registration No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -318,7 +317,7 @@ page 140 "Posted Purchase Credit Memo"
                     ObsoleteTag = '20.0';
                     Visible = false;
                 }
-                field("Language Code"; "Language Code")
+                field("Language Code"; Rec."Language Code")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -328,7 +327,7 @@ page 140 "Posted Purchase Credit Memo"
                     ObsoleteTag = '20.0';
                     Visible = false;
                 }
-                field("VAT Country/Region Code"; "VAT Country/Region Code")
+                field("VAT Country/Region Code"; Rec."VAT Country/Region Code")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -338,124 +337,34 @@ page 140 "Posted Purchase Credit Memo"
                     ObsoleteTag = '20.0';
                     Visible = false;
                 }
-#if not CLEAN18
-            }
-            group(Payments)
-            {
-                Caption = 'Payments';
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                ObsoleteTag = '18.0';
-                Visible = false;
-                field("Bank Account Code"; "Bank Account Code")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Editable = false;
-                    ToolTip = 'Specifies a code to idenfity bank account of my company.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '18.0';
-                    Visible = false;
-                }
-                field("Bank Account No."; "Bank Account No.")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Editable = false;
-                    ToolTip = 'Specifies the number used by the bank for the bank account.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '18.0';
-                    Visible = false;
-                }
-                field("Transit No."; "Transit No.")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Editable = false;
-                    ToolTip = 'Specifies a bank identification number of your own choice.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '18.0';
-                    Visible = false;
-                }
-                field("SWIFT Code"; "SWIFT Code")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Editable = false;
-                    ToolTip = 'Specifies the international bank identifier code (SWIFT) of the bank where you have the account.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '18.0';
-                    Visible = false;
-                }
-                field(IBAN; IBAN)
-                {
-                    ApplicationArea = Basic, Suite;
-                    Editable = false;
-                    ToolTip = 'Specifies the bank account''s international bank account number.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '18.0';
-                    Visible = false;
-                }
-                field("Specific Symbol"; "Specific Symbol")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Editable = false;
-                    ToolTip = 'Specifies the additional symbol of bank payments.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '18.0';
-                    Visible = false;
-                }
-                field("Variable Symbol"; "Variable Symbol")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Editable = false;
-                    ToolTip = 'Specifies the detail information for payment.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '18.0';
-                    Visible = false;
-                }
-                field("Constant Symbol"; "Constant Symbol")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Editable = false;
-                    ToolTip = 'Specifies the additional symbol of bank payments.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '18.0';
-                    Visible = false;
-                }
-#endif
-                field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
+                field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
                     Editable = false;
                     Importance = Additional;
                     ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                 }
-                field("Shortcut Dimension 2 Code"; "Shortcut Dimension 2 Code")
+                field("Shortcut Dimension 2 Code"; Rec."Shortcut Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     Editable = false;
                     Importance = Additional;
                     ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
                     Editable = false;
                     ToolTip = 'Specifies the code for the location used when you posted the credit memo.';
                 }
-                field("Vendor Posting Group"; "Vendor Posting Group")
+                field("Vendor Posting Group"; Rec."Vendor Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the vendor''s market type to link business transactions made for the vendor with the appropriate account in the general ledger.';
                     Visible = false;
                 }
-                field("Shipment Method Code"; "Shipment Method Code")
+                field("Shipment Method Code"; Rec."Shipment Method Code")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -465,19 +374,19 @@ page 140 "Posted Purchase Credit Memo"
                     ObsoleteTag = '20.0';
                     Visible = false;
                 }
-                field("Applies-to Doc. Type"; "Applies-to Doc. Type")
+                field("Applies-to Doc. Type"; Rec."Applies-to Doc. Type")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the type of the posted document that this document or journal line will be applied to when you post, for example to register payment.';
                 }
-                field("Applies-to Doc. No."; "Applies-to Doc. No.")
+                field("Applies-to Doc. No."; Rec."Applies-to Doc. No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the number of the posted document that this document or journal line will be applied to when you post, for example to register payment.';
                 }
-                field("VAT Bus. Posting Group"; "VAT Bus. Posting Group")
+                field("VAT Bus. Posting Group"; Rec."VAT Bus. Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -494,28 +403,28 @@ page 140 "Posted Purchase Credit Memo"
                 group("Ship-to")
                 {
                     Caption = 'Ship-to';
-                    field("Ship-to Name"; "Ship-to Name")
+                    field("Ship-to Name"; Rec."Ship-to Name")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Name';
                         Editable = false;
                         ToolTip = 'Specifies the name of the company at the address to which the items in the purchase order were shipped.';
                     }
-                    field("Ship-to Address"; "Ship-to Address")
+                    field("Ship-to Address"; Rec."Ship-to Address")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Address';
                         Editable = false;
                         ToolTip = 'Specifies the address that the items in the purchase order were shipped to.';
                     }
-                    field("Ship-to Address 2"; "Ship-to Address 2")
+                    field("Ship-to Address 2"; Rec."Ship-to Address 2")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Address 2';
                         Editable = false;
                         ToolTip = 'Specifies additional address information.';
                     }
-                    field("Ship-to City"; "Ship-to City")
+                    field("Ship-to City"; Rec."Ship-to City")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'City';
@@ -526,7 +435,7 @@ page 140 "Posted Purchase Credit Memo"
                     {
                         ShowCaption = false;
                         Visible = IsShipToCountyVisible;
-                        field("Ship-to County"; "Ship-to County")
+                        field("Ship-to County"; Rec."Ship-to County")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'County';
@@ -534,21 +443,21 @@ page 140 "Posted Purchase Credit Memo"
                             ToolTip = 'Specifies the state, province or county as a part of the address.';
                         }
                     }
-                    field("Ship-to Post Code"; "Ship-to Post Code")
+                    field("Ship-to Post Code"; Rec."Ship-to Post Code")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Post Code';
                         Editable = false;
                         ToolTip = 'Specifies the postal code.';
                     }
-                    field("Ship-to Country/Region Code"; "Ship-to Country/Region Code")
+                    field("Ship-to Country/Region Code"; Rec."Ship-to Country/Region Code")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Country/Region';
                         Editable = false;
                         ToolTip = 'Specifies the country or region of the ship-to address.';
                     }
-                    field("Ship-to Contact"; "Ship-to Contact")
+                    field("Ship-to Contact"; Rec."Ship-to Contact")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Contact';
@@ -559,7 +468,7 @@ page 140 "Posted Purchase Credit Memo"
                 group("Pay-to")
                 {
                     Caption = 'Pay-to';
-                    field("Pay-to Name"; "Pay-to Name")
+                    field("Pay-to Name"; Rec."Pay-to Name")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Name';
@@ -567,7 +476,7 @@ page 140 "Posted Purchase Credit Memo"
                         Importance = Promoted;
                         ToolTip = 'Specifies the name of the vendor that you received the credit memo from.';
                     }
-                    field("Pay-to Address"; "Pay-to Address")
+                    field("Pay-to Address"; Rec."Pay-to Address")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Address';
@@ -575,7 +484,7 @@ page 140 "Posted Purchase Credit Memo"
                         Importance = Additional;
                         ToolTip = 'Specifies the address of the vendor that you received the credit memo from.';
                     }
-                    field("Pay-to Address 2"; "Pay-to Address 2")
+                    field("Pay-to Address 2"; Rec."Pay-to Address 2")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Address 2';
@@ -583,7 +492,7 @@ page 140 "Posted Purchase Credit Memo"
                         Importance = Additional;
                         ToolTip = 'Specifies additional address information.';
                     }
-                    field("Pay-to City"; "Pay-to City")
+                    field("Pay-to City"; Rec."Pay-to City")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'City';
@@ -595,7 +504,7 @@ page 140 "Posted Purchase Credit Memo"
                     {
                         ShowCaption = false;
                         Visible = IsPayToCountyVisible;
-                        field("Pay-to County"; "Pay-to County")
+                        field("Pay-to County"; Rec."Pay-to County")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'County';
@@ -604,7 +513,7 @@ page 140 "Posted Purchase Credit Memo"
                             ToolTip = 'Specifies the state, province or county as a part of the address.';
                         }
                     }
-                    field("Pay-to Post Code"; "Pay-to Post Code")
+                    field("Pay-to Post Code"; Rec."Pay-to Post Code")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Post Code';
@@ -612,7 +521,7 @@ page 140 "Posted Purchase Credit Memo"
                         Importance = Additional;
                         ToolTip = 'Specifies the postal code.';
                     }
-                    field("Pay-to Country/Region Code"; "Pay-to Country/Region Code")
+                    field("Pay-to Country/Region Code"; Rec."Pay-to Country/Region Code")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Country/Region';
@@ -620,7 +529,7 @@ page 140 "Posted Purchase Credit Memo"
                         Importance = Additional;
                         ToolTip = 'Specifies the country or region of the ship-to address.';
                     }
-                    field("Pay-to Contact No."; "Pay-to Contact No.")
+                    field("Pay-to Contact No."; Rec."Pay-to Contact No.")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Contact No.';
@@ -655,7 +564,7 @@ page 140 "Posted Purchase Credit Memo"
                         ExtendedDatatype = Email;
                         ToolTip = 'Specifies the email address of the vendor contact person..';
                     }
-                    field("Pay-to Contact"; "Pay-to Contact")
+                    field("Pay-to Contact"; Rec."Pay-to Contact")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Contact';
@@ -705,9 +614,6 @@ page 140 "Posted Purchase Credit Memo"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Statistics';
                     Image = Statistics;
-                    Promoted = true;
-                    PromotedCategory = Category7;
-                    PromotedIsBig = true;
                     RunObject = Page "Purch. Credit Memo Statistics";
                     RunPageLink = "No." = FIELD("No.");
                     ShortCutKey = 'F7';
@@ -718,8 +624,6 @@ page 140 "Posted Purchase Credit Memo"
                     ApplicationArea = Comments;
                     Caption = 'Co&mments';
                     Image = ViewComments;
-                    Promoted = true;
-                    PromotedCategory = Category7;
                     RunObject = Page "Purch. Comment Sheet";
                     RunPageLink = "Document Type" = CONST("Posted Credit Memo"),
                                   "No." = FIELD("No."),
@@ -732,9 +636,6 @@ page 140 "Posted Purchase Credit Memo"
                     ApplicationArea = Dimensions;
                     Caption = 'Dimensions';
                     Image = Dimensions;
-                    Promoted = true;
-                    PromotedCategory = Category7;
-                    PromotedIsBig = true;
                     ShortCutKey = 'Alt+D';
                     ToolTip = 'View or edit dimensions, such as area, project, or department, that you can assign to sales and purchase documents to distribute costs and analyze transaction history.';
 
@@ -749,8 +650,6 @@ page 140 "Posted Purchase Credit Memo"
                     ApplicationArea = Suite;
                     Caption = 'Approvals';
                     Image = Approvals;
-                    Promoted = true;
-                    PromotedCategory = Category7;
                     ToolTip = 'View a list of the records that are waiting to be approved. For example, you can see who requested the record to be approved, when it was sent, and when it is due to be approved.';
 
                     trigger OnAction()
@@ -765,8 +664,6 @@ page 140 "Posted Purchase Credit Memo"
                     ApplicationArea = All;
                     Caption = 'Attachments';
                     Image = Attach;
-                    Promoted = true;
-                    PromotedCategory = Category7;
                     ToolTip = 'Add a file as an attachment. You can attach images as well as documents.';
 
                     trigger OnAction()
@@ -788,8 +685,6 @@ page 140 "Posted Purchase Credit Memo"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Vendor';
                 Image = Vendor;
-                Promoted = true;
-                PromotedCategory = Category5;
                 RunObject = Page "Vendor Card";
                 RunPageLink = "No." = FIELD("Buy-from Vendor No.");
                 ShortCutKey = 'Shift+F7';
@@ -801,8 +696,6 @@ page 140 "Posted Purchase Credit Memo"
                 Caption = '&Print';
                 Ellipsis = true;
                 Image = Print;
-                Promoted = true;
-                PromotedCategory = Category6;
                 ToolTip = 'Prepare to print the document. A report request window for the document opens where you can specify what to include on the print-out.';
                 Visible = NOT IsOfficeAddin;
 
@@ -818,8 +711,6 @@ page 140 "Posted Purchase Credit Memo"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Attach as PDF';
                 Image = PrintAttachment;
-                Promoted = true;
-                PromotedCategory = Category6;
                 ToolTip = 'Create a PDF file and attach it to the document.';
 
                 trigger OnAction()
@@ -834,15 +725,13 @@ page 140 "Posted Purchase Credit Memo"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Find entries...';
                 Image = Navigate;
-                Promoted = true;
-                PromotedCategory = Category7;
                 ShortCutKey = 'Ctrl+Alt+Q';
                 ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
                 Visible = NOT IsOfficeAddin;
 
                 trigger OnAction()
                 begin
-                    Navigate;
+                    Navigate();
                 end;
             }
             group(Cancel)
@@ -853,9 +742,6 @@ page 140 "Posted Purchase Credit Memo"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Cancel';
                     Image = Cancel;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
                     ToolTip = 'Create and post a purchase invoice that reverses this posted purchase credit memo. This posted purchase credit memo will be canceled.';
                     Visible = not Cancelled and Corrective;
 
@@ -869,16 +755,13 @@ page 140 "Posted Purchase Credit Memo"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Show Canceled/Corrective Invoice';
                     Image = Invoice;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
                     Scope = Repeater;
                     ToolTip = 'Open the posted purchase invoice that was created when you canceled the posted purchase credit memo. If the posted purchase credit memo is the result of a canceled purchase invoice, then canceled invoice will open.';
                     Visible = Cancelled OR Corrective;
 
                     trigger OnAction()
                     begin
-                        ShowCanceledOrCorrInvoice;
+                        ShowCanceledOrCorrInvoice();
                     end;
                 }
             }
@@ -936,6 +819,66 @@ page 140 "Posted Purchase Credit Memo"
                 }
             }
         }
+        area(Promoted)
+        {
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Cancel', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref(CancelCrMemo_Promoted; CancelCrMemo)
+                {
+                }
+                actionref(ShowInvoice_Promoted; ShowInvoice)
+                {
+                }
+            }
+            group(Category_Category5)
+            {
+                Caption = 'Navigate', Comment = 'Generated from the PromotedActionCategories property index 4.';
+
+                actionref(Vendor_Promoted; Vendor)
+                {
+                }
+            }
+            group(Category_Category6)
+            {
+                Caption = 'Print/Send', Comment = 'Generated from the PromotedActionCategories property index 5.';
+
+                actionref("&Print_Promoted"; "&Print")
+                {
+                }
+                actionref(AttachAsPDF_Promoted; AttachAsPDF)
+                {
+                }
+            }
+            group(Category_Category7)
+            {
+                Caption = 'Credit Memo', Comment = 'Generated from the PromotedActionCategories property index 6.';
+
+                actionref(Statistics_Promoted; Statistics)
+                {
+                }
+                actionref(Dimensions_Promoted; Dimensions)
+                {
+                }
+                actionref("&Navigate_Promoted"; "&Navigate")
+                {
+                }
+                actionref("Co&mments_Promoted"; "Co&mments")
+                {
+                }
+                actionref(Approvals_Promoted; Approvals)
+                {
+                }
+                actionref(DocAttach_Promoted; DocAttach)
+                {
+                }
+            }
+        }
     }
 
     trigger OnAfterGetCurrRecord()
@@ -956,10 +899,10 @@ page 140 "Posted Purchase Credit Memo"
     var
         OfficeMgt: Codeunit "Office Management";
     begin
-        SetSecurityFilterOnRespCenter;
-        IsOfficeAddin := OfficeMgt.IsAvailable;
+        SetSecurityFilterOnRespCenter();
+        IsOfficeAddin := OfficeMgt.IsAvailable();
 
-        ActivateFields;
+        ActivateFields();
     end;
 
     var

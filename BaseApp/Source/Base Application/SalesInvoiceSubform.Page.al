@@ -1,4 +1,4 @@
-#if not CLEAN19
+﻿#if not CLEAN19
 page 47 "Sales Invoice Subform"
 {
     AutoSplitKey = true;
@@ -51,26 +51,32 @@ page 47 "Sales Invoice Subform"
                         DeltaUpdateTotals();
                     end;
                 }
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ShowMandatory = Type <> Type::" ";
-                    ToolTip = 'Specifies the number of a general ledger account, item, resource, additional cost, or fixed asset, depending on the contents of the Type field.';
+                    ToolTip = 'Specifies what you''re selling. The options vary, depending on what you choose in the Type field.';
 
                     trigger OnValidate()
+                    var
+                        Item: Record "Item";
                     begin
                         NoOnAfterValidate();
                         UpdateEditableOnRow();
                         ShowShortcutDimCode(ShortcutDimCode);
                         UpdateTypeText();
                         DeltaUpdateTotals();
+                        if "Variant Code" = '' then
+                            VariantCodeMandatory := Item.IsVariantMandatory(Type = Type::Item, "No.");
                     end;
                 }
-                field("Item Reference No."; "Item Reference No.")
+                field("Item Reference No."; Rec."Item Reference No.")
                 {
                     AccessByPermission = tabledata "Item Reference" = R;
                     ApplicationArea = Suite, ItemReferences;
-                    ToolTip = 'Specifies the referenced item number. If you enter a cross reference between yours and your vendor''s or customer''s item number, then this number will override the standard item number when you enter the cross-reference number on a sales or purchase document.';
+                    QuickEntry = false;
+                    ToolTip = 'Specifies the referenced item number. If you enter a cross reference between yours and your vendor''s or customer''s item number, then this number will override the standard item number when you enter the reference number on a sales or purchase document.';
+                    Visible = ItemReferenceVisible;
 
                     trigger OnLookup(var Text: Text): Boolean
                     var
@@ -90,33 +96,38 @@ page 47 "Sales Invoice Subform"
                         DeltaUpdateTotals();
                     end;
                 }
-                field("IC Partner Code"; "IC Partner Code")
+                field("IC Partner Code"; Rec."IC Partner Code")
                 {
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies the code of the intercompany partner that the transaction is related to if the entry was created from an intercompany transaction.';
                     Visible = false;
                 }
-                field("IC Partner Ref. Type"; "IC Partner Ref. Type")
+                field("IC Partner Ref. Type"; Rec."IC Partner Ref. Type")
                 {
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies the item or account in your IC partner''s company that corresponds to the item or account on the line.';
                     Visible = false;
                 }
-                field("IC Partner Reference"; "IC Partner Reference")
+                field("IC Partner Reference"; Rec."IC Partner Reference")
                 {
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies the IC partner. If the line is being sent to one of your intercompany partners, this field is used together with the IC Partner Ref. Type field to indicate the item or account in your partner''s company that corresponds to the line.';
                     Visible = false;
                 }
-                field("Variant Code"; "Variant Code")
+                field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the variant of the item on the line.';
                     Visible = false;
+                    ShowMandatory = VariantCodeMandatory;
 
                     trigger OnValidate()
+                    var
+                        Item: Record "Item";
                     begin
                         DeltaUpdateTotals();
+                        if "Variant Code" = '' then
+                            VariantCodeMandatory := Item.IsVariantMandatory(Type = Type::Item, "No.");
                     end;
                 }
                 field(Nonstock; Nonstock)
@@ -125,7 +136,7 @@ page 47 "Sales Invoice Subform"
                     ToolTip = 'Specifies that this item is a catalog item.';
                     Visible = false;
                 }
-                field("Gen. Prod. Posting Group"; "Gen. Prod. Posting Group")
+                field("Gen. Prod. Posting Group"; Rec."Gen. Prod. Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the item''s product type to link transactions made for this item with the appropriate general ledger account according to the general posting setup.';
@@ -136,7 +147,7 @@ page 47 "Sales Invoice Subform"
                         DeltaUpdateTotals();
                     end;
                 }
-                field("VAT Prod. Posting Group"; "VAT Prod. Posting Group")
+                field("VAT Prod. Posting Group"; Rec."VAT Prod. Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT product posting group. Links business transactions made for the item, resource, or G/L account with the general ledger, to account for VAT amounts resulting from trade with that record.';
@@ -151,7 +162,7 @@ page 47 "Sales Invoice Subform"
                 {
                     ApplicationArea = Basic, Suite;
                     ShowMandatory = Rec.Type <> Rec.Type::" ";
-                    ToolTip = 'Specifies a description of the entry, which is based on the contents of the Type and No. fields.';
+                    ToolTip = 'Specifies a description of what you’re selling. Based on your choices in the Type and No. fields, the field may show suggested text that you can change it for this document. To add a comment, set the Type field to Comment and write the comment itself here.';
 
                     trigger OnValidate()
                     begin
@@ -173,20 +184,20 @@ page 47 "Sales Invoice Subform"
                         Rec.SaveLookupSelection(Selected);
                     end;
                 }
-                field("Description 2"; "Description 2")
+                field("Description 2"; Rec."Description 2")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies information in addition to the description.';
                     Visible = false;
                 }
-                field("Return Reason Code"; "Return Reason Code")
+                field("Return Reason Code"; Rec."Return Reason Code")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the code explaining why the item was returned.';
                     Visible = false;
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
                     Editable = NOT IsBlankNumber;
@@ -199,23 +210,12 @@ page 47 "Sales Invoice Subform"
                         DeltaUpdateTotals();
                     end;
                 }
-                field("Bin Code"; "Bin Code")
+                field("Bin Code"; Rec."Bin Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the bin where the items are picked or put away.';
                     Visible = false;
                 }
-#if not CLEAN18
-                field("Country/Region of Origin Code"; "Country/Region of Origin Code")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the origin country/region code.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '18.0';
-                    Visible = false;
-                }
-#endif
                 field(Quantity; Quantity)
                 {
                     ApplicationArea = Basic, Suite;
@@ -229,11 +229,11 @@ page 47 "Sales Invoice Subform"
                     begin
                         ValidateAutoReserve();
                         DeltaUpdateTotals();
-                        if  SalesSetup."Calc. Inv. Discount" and (Quantity = 0) then
+                        if SalesSetup."Calc. Inv. Discount" and (Quantity = 0) then
                             CurrPage.Update(false);
                     end;
                 }
-                field("Unit of Measure Code"; "Unit of Measure Code")
+                field("Unit of Measure Code"; Rec."Unit of Measure Code")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = UnitofMeasureCodeIsChangeable;
@@ -246,19 +246,19 @@ page 47 "Sales Invoice Subform"
                         DeltaUpdateTotals();
                     end;
                 }
-                field("Unit of Measure"; "Unit of Measure")
+                field("Unit of Measure"; Rec."Unit of Measure")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the unit of measure for the item or resource on the sales line.';
                     Visible = false;
                 }
-                field("Unit Cost (LCY)"; "Unit Cost (LCY)")
+                field("Unit Cost (LCY)"; Rec."Unit Cost (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the unit cost of the item on the line.';
                     Visible = false;
                 }
-                field(PriceExists; PriceExists)
+                field(PriceExists; PriceExists())
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Sales Price Exists';
@@ -266,7 +266,7 @@ page 47 "Sales Invoice Subform"
                     ToolTip = 'Specifies that there is a specific price for this customer.';
                     Visible = false;
                 }
-                field("Unit Price"; "Unit Price")
+                field("Unit Price"; Rec."Unit Price")
                 {
                     ApplicationArea = Basic, Suite;
                     BlankZero = true;
@@ -280,14 +280,14 @@ page 47 "Sales Invoice Subform"
                         DeltaUpdateTotals();
                     end;
                 }
-                field("Tax Liable"; "Tax Liable")
+                field("Tax Liable"; Rec."Tax Liable")
                 {
                     ApplicationArea = SalesTax;
                     Editable = false;
                     ToolTip = 'Specifies if the customer or vendor is liable for sales tax.';
                     Visible = false;
                 }
-                field("Tax Area Code"; "Tax Area Code")
+                field("Tax Area Code"; Rec."Tax Area Code")
                 {
                     ApplicationArea = SalesTax;
                     ToolTip = 'Specifies the tax area that is used to calculate and post sales tax.';
@@ -298,7 +298,7 @@ page 47 "Sales Invoice Subform"
                         DeltaUpdateTotals();
                     end;
                 }
-                field("Tax Group Code"; "Tax Group Code")
+                field("Tax Group Code"; Rec."Tax Group Code")
                 {
                     ApplicationArea = SalesTax;
                     Editable = Type <> Type::" ";
@@ -311,7 +311,7 @@ page 47 "Sales Invoice Subform"
                         DeltaUpdateTotals();
                     end;
                 }
-                field("Line Discount %"; "Line Discount %")
+                field("Line Discount %"; Rec."Line Discount %")
                 {
                     ApplicationArea = Basic, Suite;
                     BlankZero = true;
@@ -324,7 +324,7 @@ page 47 "Sales Invoice Subform"
                         DeltaUpdateTotals();
                     end;
                 }
-                field("Line Amount"; "Line Amount")
+                field("Line Amount"; Rec."Line Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     BlankZero = true;
@@ -338,7 +338,7 @@ page 47 "Sales Invoice Subform"
                         DeltaUpdateTotals();
                     end;
                 }
-                field(LineDiscExists; LineDiscExists)
+                field(LineDiscExists; LineDiscExists())
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Sales Line Disc. Exists';
@@ -346,7 +346,7 @@ page 47 "Sales Invoice Subform"
                     ToolTip = 'Specifies that there is a specific discount for this customer.';
                     Visible = false;
                 }
-                field("Line Discount Amount"; "Line Discount Amount")
+                field("Line Discount Amount"; Rec."Line Discount Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the discount amount that is granted for the item on the line.';
@@ -357,7 +357,7 @@ page 47 "Sales Invoice Subform"
                         DeltaUpdateTotals();
                     end;
                 }
-                field("Allow Invoice Disc."; "Allow Invoice Disc.")
+                field("Allow Invoice Disc."; Rec."Allow Invoice Disc.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the invoice line is included when the invoice discount is calculated.';
@@ -371,7 +371,7 @@ page 47 "Sales Invoice Subform"
                         ValidateInvoiceDiscountAmount();
                     end;
                 }
-                field("Inv. Discount Amount"; "Inv. Discount Amount")
+                field("Inv. Discount Amount"; Rec."Inv. Discount Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the invoice discount amount for the line.';
@@ -382,7 +382,7 @@ page 47 "Sales Invoice Subform"
                         DeltaUpdateTotals();
                     end;
                 }
-                field("Prepayment %"; "Prepayment %")
+                field("Prepayment %"; Rec."Prepayment %")
                 {
                     ApplicationArea = Prepayments;
                     ToolTip = 'Specifies the prepayment percentage if you want to apply a prepayment to all lines on the sales invoice.';
@@ -391,7 +391,7 @@ page 47 "Sales Invoice Subform"
                     ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
                     ObsoleteTag = '19.0';
                 }
-                field("Prepmt. Line Amount"; "Prepmt. Line Amount")
+                field("Prepmt. Line Amount"; Rec."Prepmt. Line Amount")
                 {
                     ApplicationArea = Prepayments;
                     ToolTip = 'Specifies the prepayment amount of the line in the currency of the sales document if a prepayment percentage is specified for the sales line.';
@@ -400,7 +400,7 @@ page 47 "Sales Invoice Subform"
                     ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
                     ObsoleteTag = '19.0';
                 }
-                field("Prepmt. Amt. Inv."; "Prepmt. Amt. Inv.")
+                field("Prepmt. Amt. Inv."; Rec."Prepmt. Amt. Inv.")
                 {
                     ApplicationArea = Prepayments;
                     ToolTip = 'Specifies the prepayment amount that has already been invoiced to the customer for this sales line.';
@@ -409,7 +409,7 @@ page 47 "Sales Invoice Subform"
                     ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
                     ObsoleteTag = '19.0';
                 }
-                field("Prepmt Amt to Deduct"; "Prepmt Amt to Deduct")
+                field("Prepmt Amt to Deduct"; Rec."Prepmt Amt to Deduct")
                 {
                     ApplicationArea = Prepayments;
                     ToolTip = 'Specifies the prepayment amount that will be deducted from the next ordinary invoice for this line.';
@@ -418,18 +418,18 @@ page 47 "Sales Invoice Subform"
                     ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
                     ObsoleteTag = '19.0';
                 }
-                field("Net Weight"; "Net Weight")
+                field("Net Weight"; Rec."Net Weight")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the net weight of the item.';
                 }
-                field("Allow Item Charge Assignment"; "Allow Item Charge Assignment")
+                field("Allow Item Charge Assignment"; Rec."Allow Item Charge Assignment")
                 {
                     ApplicationArea = ItemCharges;
                     ToolTip = 'Specifies that you can assign item charges to this line.';
                     Visible = false;
                 }
-                field("Qty. to Assign"; "Qty. to Assign")
+                field("Qty. to Assign"; Rec."Qty. to Assign")
                 {
                     ApplicationArea = ItemCharges;
                     StyleExpr = ItemChargeStyleExpression;
@@ -442,7 +442,7 @@ page 47 "Sales Invoice Subform"
                         UpdatePage(false);
                     end;
                 }
-                field("Qty. Assigned"; "Qty. Assigned")
+                field("Qty. Assigned"; Rec."Qty. Assigned")
                 {
                     ApplicationArea = ItemCharges;
                     BlankZero = true;
@@ -456,7 +456,7 @@ page 47 "Sales Invoice Subform"
                         UpdatePage(false);
                     end;
                 }
-                field("Job No."; "Job No.")
+                field("Job No."; Rec."Job No.")
                 {
                     ApplicationArea = Jobs;
                     Editable = false;
@@ -468,110 +468,99 @@ page 47 "Sales Invoice Subform"
                         ShowShortcutDimCode(ShortcutDimCode);
                     end;
                 }
-                field("Job Task No."; "Job Task No.")
+                field("Job Task No."; Rec."Job Task No.")
                 {
                     ApplicationArea = Jobs;
                     Editable = false;
                     ToolTip = 'Specifies the number of the related job task.';
                     Visible = false;
                 }
-                field("Job Contract Entry No."; "Job Contract Entry No.")
+                field("Job Contract Entry No."; Rec."Job Contract Entry No.")
                 {
                     ApplicationArea = Jobs;
                     Editable = false;
                     ToolTip = 'Specifies the entry number of the job planning line that the sales line is linked to.';
                     Visible = false;
                 }
-                field("Tax Category"; "Tax Category")
+                field("Tax Category"; Rec."Tax Category")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT category in connection with electronic document sending. For example, when you send sales documents through the PEPPOL service, the value in this field is used to populate several fields, such as the ClassifiedTaxCategory element in the Item group. It is also used to populate the TaxCategory element in both the TaxSubtotal and AllowanceCharge group. The number is based on the UNCL5305 standard.';
                     Visible = false;
                 }
-                field("Shipping Agent Code"; "Shipping Agent Code")
+                field("Shipping Agent Code"; Rec."Shipping Agent Code")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the code for the shipping agent who is transporting the items.';
                     Visible = false;
                 }
-                field("Shipping Agent Service Code"; "Shipping Agent Service Code")
+                field("Shipping Agent Service Code"; Rec."Shipping Agent Service Code")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the code for the service, such as a one-day delivery, that is offered by the shipping agent.';
                     Visible = false;
                 }
-                field("Work Type Code"; "Work Type Code")
+                field("Work Type Code"; Rec."Work Type Code")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies which work type the resource applies to when the sale is related to a job.';
                     Visible = false;
                 }
-                field("Blanket Order No."; "Blanket Order No.")
+                field("Blanket Order No."; Rec."Blanket Order No.")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the number of the blanket order that the record originates from.';
                     Visible = false;
                 }
-                field("Blanket Order Line No."; "Blanket Order Line No.")
+                field("Blanket Order Line No."; Rec."Blanket Order Line No.")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the number of the blanket order line that the record originates from.';
                     Visible = false;
                 }
-                field("FA Posting Date"; "FA Posting Date")
+                field("FA Posting Date"; Rec."FA Posting Date")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the date that will be used on related fixed asset ledger entries.';
                     Visible = false;
                 }
-                field("Depr. until FA Posting Date"; "Depr. until FA Posting Date")
+                field("Depr. until FA Posting Date"; Rec."Depr. until FA Posting Date")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies if depreciation was calculated until the FA posting date of the line.';
                     Visible = false;
                 }
-                field("Depreciation Book Code"; "Depreciation Book Code")
+                field("Depreciation Book Code"; Rec."Depreciation Book Code")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the code for the depreciation book to which the line will be posted if you have selected Fixed Asset in the Type field for this line.';
                     Visible = false;
                 }
-                field("Use Duplication List"; "Use Duplication List")
+                field("Use Duplication List"; Rec."Use Duplication List")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies, if the type is Fixed Asset, that information on the line is to be posted to all the assets defined depreciation books. ';
                     Visible = false;
                 }
-                field("Duplicate in Depreciation Book"; "Duplicate in Depreciation Book")
+                field("Duplicate in Depreciation Book"; Rec."Duplicate in Depreciation Book")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies a depreciation book code if you want the journal line to be posted to that depreciation book, as well as to the depreciation book in the Depreciation Book Code field.';
                     Visible = false;
                 }
-                field("Appl.-from Item Entry"; "Appl.-from Item Entry")
+                field("Appl.-from Item Entry"; Rec."Appl.-from Item Entry")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the item ledger entry that the document or journal line is applied from.';
                     Visible = false;
                 }
-                field("Appl.-to Item Entry"; "Appl.-to Item Entry")
+                field("Appl.-to Item Entry"; Rec."Appl.-to Item Entry")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the item ledger entry that the document or journal line is applied -to.';
                     Visible = false;
                 }
-#if not CLEAN18
-                field("Reason Code"; "Reason Code")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the reason code on the entry.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
-                    ObsoleteTag = '15.3';
-                }
-#endif
-                field("Deferral Code"; "Deferral Code")
+                field("Deferral Code"; Rec."Deferral Code")
                 {
                     ApplicationArea = Suite;
                     Enabled = (Type <> Type::"Fixed Asset") AND (Type <> Type::" ");
@@ -585,13 +574,13 @@ page 47 "Sales Invoice Subform"
                         ShowDeferralSchedule();
                     end;
                 }
-                field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
+                field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                     Visible = DimVisible1;
                 }
-                field("Shortcut Dimension 2 Code"; "Shortcut Dimension 2 Code")
+                field("Shortcut Dimension 2 Code"; Rec."Shortcut Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
@@ -693,34 +682,34 @@ page 47 "Sales Invoice Subform"
                         OnAfterValidateShortcutDimCode(Rec, ShortcutDimCode, 8);
                     end;
                 }
-                field("Document No."; "Document No.")
+                field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the document number.';
                     Visible = false;
                 }
-                field("Line No."; "Line No.")
+                field("Line No."; Rec."Line No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the line number.';
                     Visible = false;
                 }
-                field("Gross Weight"; "Gross Weight")
+                field("Gross Weight"; Rec."Gross Weight")
                 {
                     Caption = 'Unit Gross Weight';
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the gross weight of one unit of the item. In the sales statistics window, the gross weight on the line is included in the total gross weight of all the lines for the particular sales document.';
                     Visible = false;
                 }
-                field("Unit Volume"; "Unit Volume")
+                field("Unit Volume"; Rec."Unit Volume")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the volume of one unit of the item. In the sales statistics window, the volume of one unit of the item on the line is included in the total volume of all the lines for the particular sales document.';
                     Visible = false;
                 }
-                field("Units per Parcel"; "Units per Parcel")
+                field("Units per Parcel"; Rec."Units per Parcel")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of units per parcel of the item. In the sales statistics window, the number of units per parcel on the line helps to determine the total number of units for all the lines for the particular sales document.';
@@ -830,7 +819,7 @@ page 47 "Sales Invoice Subform"
 
                 trigger OnAction()
                 begin
-                    SelectMultipleItems;
+                    SelectMultipleItems();
                 end;
             }
             group("&Line")
@@ -920,7 +909,7 @@ page 47 "Sales Invoice Subform"
 
                         trigger OnAction()
                         begin
-                            ExplodeBOM;
+                            ExplodeBOM();
                         end;
                     }
                     action(InsertExtTexts)
@@ -948,8 +937,8 @@ page 47 "Sales Invoice Subform"
 
                         trigger OnAction()
                         begin
-                            GetShipment;
-                            RedistributeTotalsOnAfterValidate;
+                            GetShipment();
+                            RedistributeTotalsOnAfterValidate();
                         end;
                     }
                 }
@@ -967,7 +956,7 @@ page 47 "Sales Invoice Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromSalesLine(Rec, ItemAvailFormsMgt.ByEvent)
+                            ItemAvailFormsMgt.ShowItemAvailFromSalesLine(Rec, ItemAvailFormsMgt.ByEvent())
                         end;
                     }
                     action(Period)
@@ -979,7 +968,7 @@ page 47 "Sales Invoice Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromSalesLine(Rec, ItemAvailFormsMgt.ByPeriod)
+                            ItemAvailFormsMgt.ShowItemAvailFromSalesLine(Rec, ItemAvailFormsMgt.ByPeriod())
                         end;
                     }
                     action(Variant)
@@ -991,7 +980,7 @@ page 47 "Sales Invoice Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromSalesLine(Rec, ItemAvailFormsMgt.ByVariant)
+                            ItemAvailFormsMgt.ShowItemAvailFromSalesLine(Rec, ItemAvailFormsMgt.ByVariant())
                         end;
                     }
                     action(Location)
@@ -1004,7 +993,7 @@ page 47 "Sales Invoice Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromSalesLine(Rec, ItemAvailFormsMgt.ByLocation)
+                            ItemAvailFormsMgt.ShowItemAvailFromSalesLine(Rec, ItemAvailFormsMgt.ByLocation())
                         end;
                     }
                     action(Lot)
@@ -1028,7 +1017,7 @@ page 47 "Sales Invoice Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromSalesLine(Rec, ItemAvailFormsMgt.ByBOM)
+                            ItemAvailFormsMgt.ShowItemAvailFromSalesLine(Rec, ItemAvailFormsMgt.ByBOM())
                         end;
                     }
                 }
@@ -1200,10 +1189,14 @@ page 47 "Sales Invoice Subform"
     end;
 
     trigger OnAfterGetRecord()
+    var
+        Item: Record Item;
     begin
         ShowShortcutDimCode(ShortcutDimCode);
         UpdateTypeText();
         SetItemChargeFieldsStyle();
+        if "Variant Code" = '' then
+            VariantCodeMandatory := Item.IsVariantMandatory(Type = Type::Item, "No.");
     end;
 
     trigger OnDeleteRecord(): Boolean
@@ -1257,9 +1250,7 @@ page 47 "Sales Invoice Subform"
         SetOpenPage();
 
         SetDimensionsVisibility();
-#if not CLEAN19
         SetItemReferenceVisibility();
-#endif
     end;
 
     var
@@ -1274,6 +1265,7 @@ page 47 "Sales Invoice Subform"
         AmountWithDiscountAllowed: Decimal;
         UpdateAllowedVar: Boolean;
         Text000: Label 'Unable to run this function while in View mode.';
+        VariantCodeMandatory: Boolean;
         IsFoundation: Boolean;
         CurrPageIsEditable: Boolean;
         IsSaaSExcelAddinEnabled: Boolean;
@@ -1303,10 +1295,8 @@ page 47 "Sales Invoice Subform"
         [InDataSet]
         IsCommentLine: Boolean;
         SuppressTotals: Boolean;
-#if not CLEAN19
         [InDataSet]
         ItemReferenceVisible: Boolean;
-#endif        
         LocationCodeVisible: Boolean;
         UnitofMeasureCodeIsChangeable: Boolean;
         VATAmount: Decimal;
@@ -1512,7 +1502,7 @@ page 47 "Sales Invoice Subform"
     local procedure SetItemChargeFieldsStyle()
     begin
         ItemChargeStyleExpression := '';
-        if AssignedItemCharge then
+        if AssignedItemCharge() then
             ItemChargeStyleExpression := 'Unfavorable';
     end;
 
@@ -1537,12 +1527,12 @@ page 47 "Sales Invoice Subform"
         OnAfterSetDimensionsVisibility();
     end;
 
-#if not CLEAN19
     local procedure SetItemReferenceVisibility()
+    var
+        ItemReference: Record "Item Reference";
     begin
-        ItemReferenceVisible := true;
+        ItemReferenceVisible := not ItemReference.IsEmpty();
     end;
-#endif
 
     local procedure SetDefaultType()
     var

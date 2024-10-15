@@ -250,27 +250,10 @@ table 11735 "Posted Cash Document Header"
         field(31123; "EET Entry No."; Integer)
         {
             Caption = 'EET Entry No.';
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            TableRelation = "EET Entry";
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
-#if not CLEAN18
-        field(31124; "Receipt Serial No."; Code[50])
-        {
-            CalcFormula = Lookup("EET Entry"."Receipt Serial No." WHERE("Entry No." = FIELD("EET Entry No.")));
-            Caption = 'Receipt Serial No.';
-            Editable = false;
-            FieldClass = FlowField;
-            ObsoleteState = Pending;
-            ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
-            ObsoleteTag = '18.0';
-        }
-#endif
     }
 
     keys

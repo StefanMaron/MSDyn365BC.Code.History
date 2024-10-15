@@ -3,7 +3,6 @@ page 31020 "Purchase Advance Letter"
 {
     Caption = 'Purchase Advance Letter (Obsolete)';
     PageType = Document;
-    PromotedActionCategories = 'New,Process,Report,Approve,Request Approval';
     RefreshOnActivate = true;
     SourceTable = "Purch. Advance Letter Header";
     ObsoleteState = Pending;
@@ -17,7 +16,7 @@ page 31020 "Purchase Advance Letter"
             group(General)
             {
                 Caption = 'General';
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = All;
                     Importance = Promoted;
@@ -30,7 +29,7 @@ page 31020 "Purchase Advance Letter"
                             CurrPage.Update();
                     end;
                 }
-                field("Pay-to Vendor No."; "Pay-to Vendor No.")
+                field("Pay-to Vendor No."; Rec."Pay-to Vendor No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
@@ -42,7 +41,7 @@ page 31020 "Purchase Advance Letter"
                         CurrPage.Update();
                     end;
                 }
-                field("Pay-to Name"; "Pay-to Name")
+                field("Pay-to Name"; Rec."Pay-to Name")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Promoted;
@@ -57,69 +56,69 @@ page 31020 "Purchase Advance Letter"
                 group("Pay-to")
                 {
                     Caption = 'Pay-to';
-                    field("Pay-to Address"; "Pay-to Address")
+                    field("Pay-to Address"; Rec."Pay-to Address")
                     {
                         ApplicationArea = Basic, Suite;
                         Importance = Additional;
                         ToolTip = 'Specifies the address of the payee that will appear on the check.';
                     }
-                    field("Pay-to Address 2"; "Pay-to Address 2")
+                    field("Pay-to Address 2"; Rec."Pay-to Address 2")
                     {
                         ApplicationArea = Basic, Suite;
                         Importance = Additional;
                         ToolTip = 'Specifies the extended address of the payee that will appear on the check.';
                     }
-                    field("Pay-to Post Code"; "Pay-to Post Code")
+                    field("Pay-to Post Code"; Rec."Pay-to Post Code")
                     {
                         ApplicationArea = Basic, Suite;
                         Importance = Additional;
                         ToolTip = 'Specifies the postal code of the address.';
                     }
-                    field("Pay-to City"; "Pay-to City")
+                    field("Pay-to City"; Rec."Pay-to City")
                     {
                         ApplicationArea = Basic, Suite;
                         Importance = Additional;
                         ToolTip = 'Specifies the post code and city of the payee that will appear on the check.';
                     }
                 }
-                field("Pay-to Contact"; "Pay-to Contact")
+                field("Pay-to Contact"; Rec."Pay-to Contact")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the contact sending the invoice.';
                 }
-                field("External Document No."; "External Document No.")
+                field("External Document No."; Rec."External Document No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Promoted;
                     ToolTip = 'Specifies external document no of purchase advance letter.';
                 }
-                field("Posting Date"; "Posting Date")
+                field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the posting date of puchase advance.';
                 }
-                field("Document Date"; "Document Date")
+                field("Document Date"; Rec."Document Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the date on which you created the document.';
                 }
-                field("VAT Date"; "VAT Date")
+                field("VAT Date"; Rec."VAT Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT date. This date must be shown on the VAT statement.';
                 }
-                field("Original Document VAT Date"; "Original Document VAT Date")
+                field("Original Document VAT Date"; Rec."Original Document VAT Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies original document vat date of purchase advance letter.';
                 }
-                field("Order No."; "Order No.")
+                field("Order No."; Rec."Order No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the number of the purchase order that this advance was posted from.';
                 }
-                field("Purchaser Code"; "Purchaser Code")
+                field("Purchaser Code"; Rec."Purchaser Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the salesperson who is addigned to the vendor.';
@@ -130,23 +129,23 @@ page 31020 "Purchase Advance Letter"
                     Importance = Promoted;
                     ToolTip = 'Specifies the stage during advance process.';
                 }
-                field("Amount Including VAT"; "Amount Including VAT")
+                field("Amount Including VAT"; Rec."Amount Including VAT")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether the unit price on the line should be displayed including or excluding VAT.';
                     Visible = false;
                 }
-                field("Vendor Adv. Payment No."; "Vendor Adv. Payment No.")
+                field("Vendor Adv. Payment No."; Rec."Vendor Adv. Payment No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of vendor advance payment.';
                 }
-                field("Post Advance VAT Option"; "Post Advance VAT Option")
+                field("Post Advance VAT Option"; Rec."Post Advance VAT Option")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the option for advance posting with or without VAT.';
                 }
-                field("Amounts Including VAT"; "Amounts Including VAT")
+                field("Amounts Including VAT"; Rec."Amounts Including VAT")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether the unit price on the line should be displayed including or excluding VAT.';
@@ -166,7 +165,7 @@ page 31020 "Purchase Advance Letter"
             group("Foreign Trade")
             {
                 Caption = 'Foreign Trade';
-                field("Currency Code"; "Currency Code")
+                field("Currency Code"; Rec."Currency Code")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Promoted;
@@ -180,10 +179,10 @@ page 31020 "Purchase Advance Letter"
                         Clear(ChangeExchangeRate);
                         PostingDate := "Posting Date";
                         if PostingDate = 0D then
-                            PostingDate := WorkDate;
+                            PostingDate := WorkDate();
                         ChangeExchangeRate.SetParameter("Currency Code", "Currency Factor", PostingDate);
-                        if ChangeExchangeRate.RunModal = ACTION::OK then begin
-                            Validate("Currency Factor", ChangeExchangeRate.GetParameter);
+                        if ChangeExchangeRate.RunModal() = ACTION::OK then begin
+                            Validate("Currency Factor", ChangeExchangeRate.GetParameter());
                             CurrPage.Update();
                         end;
                         Clear(ChangeExchangeRate);
@@ -191,25 +190,25 @@ page 31020 "Purchase Advance Letter"
 
                     trigger OnValidate()
                     begin
-                        CurrencyCodeOnAfterValidate;
+                        CurrencyCodeOnAfterValidate();
                     end;
                 }
-                field("Registration No."; "Registration No.")
+                field("Registration No."; Rec."Registration No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the registration number of vendor.';
                 }
-                field("VAT Registration No."; "VAT Registration No.")
+                field("VAT Registration No."; Rec."VAT Registration No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT registration number. The field will be used when you do business with partners from EU countries/regions.';
                 }
-                field("Language Code"; "Language Code")
+                field("Language Code"; Rec."Language Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the language to be used on printouts for this document.';
                 }
-                field("VAT Country/Region Code"; "VAT Country/Region Code")
+                field("VAT Country/Region Code"; Rec."VAT Country/Region Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT country/region code of vendor.';
@@ -223,22 +222,22 @@ page 31020 "Purchase Advance Letter"
                 ObsoleteTag = '18.0';
                 Visible = false;
 
-                field("Bank Account Code"; "Bank Account Code")
+                field("Bank Account Code"; Rec."Bank Account Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies companie''s bank account.';
                 }
-                field("Bank Account No."; "Bank Account No.")
+                field("Bank Account No."; Rec."Bank Account No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number used by the bank for the bank account.';
                 }
-                field("Transit No."; "Transit No.")
+                field("Transit No."; Rec."Transit No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a bank identification number of your own choice.';
                 }
-                field("SWIFT Code"; "SWIFT Code")
+                field("SWIFT Code"; Rec."SWIFT Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the international bank identifier code (SWIFT) of the bank where you have the account.';
@@ -248,48 +247,48 @@ page 31020 "Purchase Advance Letter"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the bank account''s international bank account number.';
                 }
-                field("Variable Symbol"; "Variable Symbol")
+                field("Variable Symbol"; Rec."Variable Symbol")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the detail information for advance payment.';
                 }
-                field("Specific Symbol"; "Specific Symbol")
+                field("Specific Symbol"; Rec."Specific Symbol")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the additional symbol of bank payments.';
                 }
-                field("Constant Symbol"; "Constant Symbol")
+                field("Constant Symbol"; Rec."Constant Symbol")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the additional symbol of bank payments.';
                 }
-                field("Payment Terms Code"; "Payment Terms Code")
+                field("Payment Terms Code"; Rec."Payment Terms Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a formula that calculates the payment due date, payment discount date and payment discount amount on the document.';
                 }
-                field("Payment Method Code"; "Payment Method Code")
+                field("Payment Method Code"; Rec."Payment Method Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies how the vendor must advance pay.';
                 }
-                field("Advance Due Date"; "Advance Due Date")
+                field("Advance Due Date"; Rec."Advance Due Date")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Promoted;
                     ToolTip = 'Specifies when the advance must be paid.';
                 }
-                field("On Hold"; "On Hold")
+                field("On Hold"; Rec."On Hold")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether the posted document will be included in the payment suggestion.';
                 }
-                field("Amount on Payment Order (LCY)"; "Amount on Payment Order (LCY)")
+                field("Amount on Payment Order (LCY)"; Rec."Amount on Payment Order (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount on payment order.';
                 }
-                field("Due Date from Line"; "Due Date from Line")
+                field("Due Date from Line"; Rec."Due Date from Line")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies due date from line of purchase advance letter.';
@@ -360,8 +359,6 @@ page 31020 "Purchase Advance Letter"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Statistics';
                     Image = Statistics;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ShortCutKey = 'F7';
                     ToolTip = 'View the statistics on the selected advance letter.';
 
@@ -400,7 +397,7 @@ page 31020 "Purchase Advance Letter"
 
                     trigger OnAction()
                     begin
-                        ShowDocDim;
+                        ShowDocDim();
                     end;
                 }
                 action("A&pprovals")
@@ -466,7 +463,7 @@ page 31020 "Purchase Advance Letter"
 
                     trigger OnAction()
                     begin
-                        ShowDocs;
+                        ShowDocs();
                     end;
                 }
                 action("Assignment Documents - detail")
@@ -485,13 +482,11 @@ page 31020 "Purchase Advance Letter"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Li&nked Advance Payments';
                     Image = Payment;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Show the advance payments by vendor';
 
                     trigger OnAction()
                     begin
-                        ShowLinkedAdvances;
+                        ShowLinkedAdvances();
                     end;
                 }
                 action("Advance Invoices")
@@ -499,9 +494,6 @@ page 31020 "Purchase Advance Letter"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Advance Invoices';
                     Image = Invoice;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     RunObject = Page "Posted Purchase Invoices";
                     RunPageLink = "Letter No." = FIELD("No.");
                     RunPageView = SORTING("Letter No.");
@@ -512,9 +504,6 @@ page 31020 "Purchase Advance Letter"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Advance Credi&t Memos';
                     Image = CreditMemo;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     RunObject = Page "Posted Purchase Credit Memos";
                     RunPageLink = "Letter No." = FIELD("No.");
                     RunPageView = SORTING("Letter No.");
@@ -532,9 +521,6 @@ page 31020 "Purchase Advance Letter"
                     ApplicationArea = All;
                     Caption = 'Approve';
                     Image = Approve;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
                     ToolTip = 'Relations to the workflow.';
                     Visible = OpenApprovalEntriesExistForCurrUser;
 
@@ -550,9 +536,6 @@ page 31020 "Purchase Advance Letter"
                     ApplicationArea = All;
                     Caption = 'Reject';
                     Image = Reject;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
                     ToolTip = 'Specifies enu reject of purchase advance letter.';
                     Visible = OpenApprovalEntriesExistForCurrUser;
 
@@ -568,8 +551,6 @@ page 31020 "Purchase Advance Letter"
                     ApplicationArea = All;
                     Caption = 'Delegate';
                     Image = Delegate;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     ToolTip = 'Specifies enu delegate of purchase advance letter.';
                     Visible = OpenApprovalEntriesExistForCurrUser;
 
@@ -585,8 +566,6 @@ page 31020 "Purchase Advance Letter"
                     ApplicationArea = All;
                     Caption = 'Comments';
                     Image = ViewComments;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     ToolTip = 'Specifies advance comments.';
                     Visible = OpenApprovalEntriesExistForCurrUser;
 
@@ -606,15 +585,12 @@ page 31020 "Purchase Advance Letter"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Release';
                     Image = ReleaseDoc;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     ShortCutKey = 'Ctrl+F9';
                     ToolTip = 'Release the purchase advance to indicate that it has been printed or exported. The status then changes to Released.';
 
                     trigger OnAction()
                     begin
-                        PerformManualRelease;
+                        PerformManualRelease();
                     end;
                 }
                 action(Reopen)
@@ -622,13 +598,11 @@ page 31020 "Purchase Advance Letter"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Reopen';
                     Image = ReOpen;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Specifies enu reopen of purchase advance letter.';
 
                     trigger OnAction()
                     begin
-                        PerformManualReopen;
+                        PerformManualReopen();
                     end;
                 }
             }
@@ -767,7 +741,7 @@ page 31020 "Purchase Advance Letter"
 
                     trigger OnAction()
                     begin
-                        ShowPreviewInvoice;
+                        ShowPreviewInvoice();
                     end;
                 }
                 action("Post Advance &Credit Memo")
@@ -805,7 +779,7 @@ page 31020 "Purchase Advance Letter"
 
                     trigger OnAction()
                     begin
-                        ShowPreviewCrMemo;
+                        ShowPreviewCrMemo();
                     end;
                 }
                 separator(Action1220055)
@@ -835,7 +809,7 @@ page 31020 "Purchase Advance Letter"
 
                     trigger OnAction()
                     begin
-                        ShowPreviewRefundAndCloseLetter;
+                        ShowPreviewRefundAndCloseLetter();
                     end;
                 }
             }
@@ -848,8 +822,6 @@ page 31020 "Purchase Advance Letter"
                     Caption = 'Advance Letter';
                     Ellipsis = true;
                     Image = PrintReport;
-                    Promoted = true;
-                    PromotedCategory = "Report";
                     ToolTip = 'Allows the print of advance letter.';
 
                     trigger OnAction()
@@ -870,8 +842,6 @@ page 31020 "Purchase Advance Letter"
                     Caption = 'Send A&pproval Request';
                     Enabled = NOT OpenApprovalEntriesExist;
                     Image = SendApprovalRequest;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     ToolTip = 'Relations to the workflow.';
 
                     trigger OnAction()
@@ -888,8 +858,6 @@ page 31020 "Purchase Advance Letter"
                     Caption = 'Cancel Approval Re&quest';
                     Enabled = OpenApprovalEntriesExist;
                     Image = CancelApprovalRequest;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     ToolTip = 'Relations to the workflow.';
 
                     trigger OnAction()
@@ -903,6 +871,68 @@ page 31020 "Purchase Advance Letter"
         }
         area(reporting)
         {
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref(Action1220062_Promoted; Action1220062)
+                {
+                }
+                actionref("Advance Invoices_Promoted"; "Advance Invoices")
+                {
+                }
+                actionref("Advance Credi&t Memos_Promoted"; "Advance Credi&t Memos")
+                {
+                }
+                actionref(Reopen_Promoted; Reopen)
+                {
+                }
+                actionref(Statistics_Promoted; Statistics)
+                {
+                }
+                actionref("Li&nked Advance Payments_Promoted"; "Li&nked Advance Payments")
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+
+                actionref("Advance Letter_Promoted"; "Advance Letter")
+                {
+                }
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Approve', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref(Approve_Promoted; Approve)
+                {
+                }
+                actionref(Reject_Promoted; Reject)
+                {
+                }
+                actionref(Delegate_Promoted; Delegate)
+                {
+                }
+                actionref(Comment_Promoted; Comment)
+                {
+                }
+            }
+            group(Category_Category5)
+            {
+                Caption = 'Request Approval', Comment = 'Generated from the PromotedActionCategories property index 4.';
+
+                actionref(SendApprovalRequest_Promoted; SendApprovalRequest)
+                {
+                }
+                actionref(CancelApprovalRequest_Promoted; CancelApprovalRequest)
+                {
+                }
+            }
         }
     }
 
@@ -922,18 +952,18 @@ page 31020 "Purchase Advance Letter"
         end;
         FilterGroup(0);
 
-        SetControlVisibility;
+        SetControlVisibility();
     end;
 
     trigger OnDeleteRecord(): Boolean
     begin
-        CurrPage.SaveRecord;
-        exit(ConfirmDeletion);
+        CurrPage.SaveRecord();
+        exit(ConfirmDeletion());
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        "Responsibility Center" := UserSetupManagement.GetPurchasesFilter;
+        "Responsibility Center" := UserSetupManagement.GetPurchasesFilter();
         FilterGroup(2);
         if GetFilter("Template Code") <> '' then
             "Template Code" := GetRangeMin("Template Code");
@@ -942,12 +972,12 @@ page 31020 "Purchase Advance Letter"
 
     trigger OnOpenPage()
     begin
-        if UserSetupManagement.GetSalesFilter <> '' then begin
+        if UserSetupManagement.GetSalesFilter() <> '' then begin
             FilterGroup(2);
-            SetRange("Responsibility Center", UserSetupManagement.GetPurchasesFilter);
+            SetRange("Responsibility Center", UserSetupManagement.GetPurchasesFilter());
             FilterGroup(0);
         end;
-        SetDocNoVisible;
+        SetDocNoVisible();
     end;
 
     var

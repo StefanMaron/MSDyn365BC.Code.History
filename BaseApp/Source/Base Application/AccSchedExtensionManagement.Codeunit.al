@@ -34,13 +34,13 @@ codeunit 31080 AccSchedExtensionManagement
             if FindFirst() then
                 case "Source Table" of
                     "Source Table"::"VAT Entry":
-                        Value := GetVATEntryValue;
+                        Value := GetVATEntryValue();
                     "Source Table"::"Value Entry":
-                        Value := GetValueEntry;
+                        Value := GetValueEntry();
                     "Source Table"::"Customer Entry":
-                        Value := GetCustEntryValue;
+                        Value := GetCustEntryValue();
                     "Source Table"::"Vendor Entry":
-                        Value := GetVendEntryValue;
+                        Value := GetVendEntryValue();
                 end;
         end;
     end;

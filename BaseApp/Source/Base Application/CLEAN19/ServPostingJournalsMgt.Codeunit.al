@@ -110,7 +110,7 @@ codeunit 5987 "Serv-Posting Journals Mgt."
         end;
 
         with ItemJnlLine do begin
-            Init;
+            Init();
             CopyFromServHeader(ServiceHeader);
             CopyFromServLine(ServiceLine);
 
@@ -504,7 +504,7 @@ codeunit 5987 "Serv-Posting Journals Mgt."
         ResJnlLine: Record "Res. Journal Line";
     begin
         with ResJnlLine do begin
-            Init;
+            Init();
             OnPostResJnlLineOnAfterResJnlLineInit(ResJnlLine, EntryType, Qty);
             CopyDocumentFields(DocNo, ExtDocNo, SrcCode, PostingNoSeries);
             CopyFromServHeader(ServiceHeader);
@@ -625,7 +625,7 @@ codeunit 5987 "Serv-Posting Journals Mgt."
             JobTask.Get("Job No.", "Job Task No.");
 
             JobJnlLine.Init();
-            JobJnlLine.DontCheckStdCost;
+            JobJnlLine.DontCheckStdCost();
             JobJnlLine.Validate("Job No.", "Job No.");
             JobJnlLine.Validate("Job Task No.", "Job Task No.");
             JobJnlLine.Validate("Line Type", "Job Line Type");

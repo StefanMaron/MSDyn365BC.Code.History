@@ -1,4 +1,4 @@
-﻿table 80 "Gen. Journal Template"
+table 80 "Gen. Journal Template"
 {
     Caption = 'Gen. Journal Template';
     LookupPageID = "General Journal Template List";
@@ -107,7 +107,7 @@
             begin
                 GenJnlLine.SetRange("Journal Template Name", Name);
                 GenJnlLine.ModifyAll("Source Code", "Source Code");
-                Modify;
+                Modify();
             end;
         }
         field(11; "Reason Code"; Code[10])
@@ -154,16 +154,6 @@
         {
             Caption = 'Force Doc. Balance';
             InitValue = true;
-#if not CLEAN18
-
-            trigger OnValidate()
-            begin
-                // NAVCZ
-                if not "Force Doc. Balance" then
-                    TestField("Not Check Doc. Type", false);
-                // NAVCZ
-            end;
-#endif
         }
         field(19; "Bal. Account Type"; Enum "Gen. Journal Account Type")
         {
@@ -311,20 +301,9 @@
         field(11760; "Not Check Doc. Type"; Boolean)
         {
             Caption = 'Not Check Doc. Type';
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif        
             ObsoleteReason = 'Field Not Check Doc. Type is discontinued. Use the standard field Force Doc. Balance instead.';
-            ObsoleteTag = '18.0';
-#if not CLEAN18
-
-            trigger OnValidate()
-            begin
-                TestField("Force Doc. Balance");
-            end;
-#endif
+            ObsoleteTag = '21.0';
         }
         field(11761; "Not Check Correction"; Boolean)
         {
@@ -366,12 +345,13 @@
     end;
 
     var
-        Text000: Label 'Only the %1 field can be filled in on recurring journals.';
-        Text001: Label 'must not be %1';
         GenJnlBatch: Record "Gen. Journal Batch";
         GenJnlLine: Record "Gen. Journal Line";
         GenJnlAlloc: Record "Gen. Jnl. Allocation";
         SourceCodeSetup: Record "Source Code Setup";
+
+        Text000: Label 'Only the %1 field can be filled in on recurring journals.';
+        Text001: Label 'must not be %1';
 
     local procedure CheckGLAcc(AccNo: Code[20])
     var
@@ -379,7 +359,7 @@
     begin
         if AccNo <> '' then begin
             GLAcc.Get(AccNo);
-            GLAcc.CheckGLAcc;
+            GLAcc.CheckGLAcc();
             GLAcc.TestField("Direct Posting", true);
         end;
     end;

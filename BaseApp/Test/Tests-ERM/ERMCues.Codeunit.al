@@ -111,8 +111,8 @@ codeunit 134924 "ERM Cues"
             CreateServDocument("Document Type"::Order, Status::"On Hold");
             CreateServDocument("Document Type"::Quote, Status::Pending);
         end;
-        CreateServContract(ServContractHeader."Contract Type"::Quote);
-        CreateServContract(ServContractHeader."Contract Type"::Contract);
+        CreateServContract("Service Contract Type"::Quote);
+        CreateServContract("Service Contract Type"::Contract);
 
         // [WHEN] Calculate flow fields in Service Cue.
         // [THEN] All cues display correct number of corresponding service documents and service contracts.
@@ -211,8 +211,8 @@ codeunit 134924 "ERM Cues"
 
         with SalesHeader do begin
             MockSalesHeader(SalesHeader, "Document Type"::Order, Status::Released);
-            MockSalesLine(SalesHeader, SalesLine, WorkDate, Qty, 0);
-            MockSalesLine(SalesHeader, SalesLine, WorkDate, Qty, Qty);
+            MockSalesLine(SalesHeader, SalesLine, WorkDate(), Qty, 0);
+            MockSalesLine(SalesHeader, SalesLine, WorkDate(), Qty, Qty);
 
             CalcFields(Shipped);
 
@@ -258,7 +258,7 @@ codeunit 134924 "ERM Cues"
         CreateTwoSalesOrdersWithVariedDateAndShipLines(SalesHeader, Delays);
 
         // [GIVEN] Number of delayed orders is counted and saved.
-        SalesCue.SetRange("Date Filter", 0D, WorkDate - 1);
+        SalesCue.SetRange("Date Filter", 0D, WorkDate() - 1);
         OldNumberOfDelayedOrders := SalesCue.CountOrders(SalesCue.FieldNo(Delayed));
 
         // [GIVEN] Sales Order "S2" is deleted.
@@ -294,7 +294,7 @@ codeunit 134924 "ERM Cues"
 
         // [WHEN] Show the list of delayed orders.
         SalesOrderList.Trap;
-        SalesCue.SetRange("Date Filter", 0D, WorkDate - 1);
+        SalesCue.SetRange("Date Filter", 0D, WorkDate() - 1);
         SalesCue.ShowOrders(SalesCue.FieldNo(Delayed));
 
         // [THEN] Sales Order "S1" is on the list.
@@ -328,7 +328,7 @@ codeunit 134924 "ERM Cues"
         CreateTwoSalesOrdersWithVariedDateAndShipLines(SalesHeader, SecondDelays);
 
         // [WHEN] Calculate "Average Days Delayed".
-        SalesCue.SetRange("Date Filter", 0D, WorkDate - 1);
+        SalesCue.SetRange("Date Filter", 0D, WorkDate() - 1);
         AverageDelayActual := SalesCue.CalculateAverageDaysDelayed;
 
         // [THEN] "Average Days Delayed" is equal to average delay of "X1" and "Y1"
@@ -357,7 +357,7 @@ codeunit 134924 "ERM Cues"
         MockSalesLine(SalesHeader, SalesLine, WorkDate - LibraryRandom.RandInt(10), Qty, Qty);
 
         // [WHEN] Calculate "Average Days Delayed".
-        SalesCue.SetRange("Date Filter", 0D, WorkDate - 1);
+        SalesCue.SetRange("Date Filter", 0D, WorkDate() - 1);
         AverageDaysDelayed := SalesCue.CalculateAverageDaysDelayed;
 
         // [THEN] "Average Days Delayed" = 0.
@@ -383,7 +383,7 @@ codeunit 134924 "ERM Cues"
           SalesHeader, SalesLine, 0D, LibraryRandom.RandIntInRange(11, 20), LibraryRandom.RandInt(10));
 
         // [WHEN] Calculate "Average Days Delayed".
-        SalesCue.SetRange("Date Filter", 0D, WorkDate - 1);
+        SalesCue.SetRange("Date Filter", 0D, WorkDate() - 1);
         AverageDaysDelayed := SalesCue.CalculateAverageDaysDelayed;
 
         // [THEN] "Average Days Delayed" = 0.
@@ -483,7 +483,7 @@ codeunit 134924 "ERM Cues"
         // [FEATURE] [UT] [Location]
         // [SCENARIO 338933] WarehouseWMSCue.GetEmployeeLocation returns Locations filter created using SelectionFilterManagement codeunit
         Initialize();
-        WarehouseEmployee[1].DeleteAll;
+        WarehouseEmployee[1].DeleteAll();
 
         // [GIVEN] 10 Locations "L001..L010" where "L001..L003" and "L007" and "L009" are assigned to a WarehouseEmployee
         for Index := 1 to ArrayLen(Location) do
@@ -518,7 +518,7 @@ codeunit 134924 "ERM Cues"
         // [FEATURE] [UT] [Location] [Warehouse Employee]
         // [SCENARIO 339308] WarehouseWMSCue.GetEmployeeLocation returns valid filter when a user is a warehouse employee only on blank location.
         Initialize();
-        WarehouseEmployee.DeleteAll;
+        WarehouseEmployee.DeleteAll();
 
         LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, '', false);
 
@@ -536,7 +536,7 @@ codeunit 134924 "ERM Cues"
         // [FEATURE] [UT] [Location] [Warehouse Employee]
         // [SCENARIO 339308] WarehouseWMSCue.GetEmployeeLocation returns valid filter when a user is a warehouse employee on several locations including blank.
         Initialize();
-        WarehouseEmployee.DeleteAll;
+        WarehouseEmployee.DeleteAll();
 
         LibraryWarehouse.CreateLocation(Location);
         LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
@@ -605,7 +605,7 @@ codeunit 134924 "ERM Cues"
         SalesHeader.DeleteAll();
 
         // [GIVEN] Three released Sales Orders "S1", "S2", "S3".
-        // [GIVEN] "S1" has Sales Line with "Shipment Date" = WorkDate - 1.
+        // [GIVEN] "S1" has Sales Line with "Shipment Date" = WorkDate() - 1.
         // [GIVEN] "S2" has Sales Line with "Shipment Date" = WorkDate.
         // [GIVEN] "S3" has Sales Line with "Shipment Date" = WorkDate + 1.
         ShipmentDates.AddRange(WorkDate() - 1, WorkDate(), WorkDate() + 1);
@@ -693,13 +693,13 @@ codeunit 134924 "ERM Cues"
         PurchLine: Record "Purchase Line";
     begin
         with PurchHeader do begin
-            Init;
+            Init();
             "Document Type" := DocType;
             Insert(true);
             Status := PassedStatus;
             Receive := PassedReceive;
             Invoice := PassedInvoice;
-            Modify;
+            Modify();
         end;
 
         with PurchLine do begin
@@ -710,7 +710,7 @@ codeunit 134924 "ERM Cues"
             Quantity := LibraryRandom.RandDecInRange(10, 20, 2);
             if PassedInvoice then
                 "Quantity Invoiced" := Quantity / 2;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -719,22 +719,22 @@ codeunit 134924 "ERM Cues"
         ServHeader: Record "Service Header";
     begin
         with ServHeader do begin
-            Init;
+            Init();
             "Document Type" := DocType;
             Insert(true);
             Status := PassedStatus;
-            Modify;
+            Modify();
         end;
     end;
 
-    local procedure CreateServContract(ContractType: Option)
+    local procedure CreateServContract(ContractType: Enum "Service Contract Type")
     var
         ServContractHeader: Record "Service Contract Header";
         UserSetup: Record "User Setup";
     begin
         UserSetup.Get(UserId);
         with ServContractHeader do begin
-            Init;
+            Init();
             "Contract Type" := ContractType;
             "Responsibility Center" := UserSetup."Service Resp. Ctr. Filter";
             Insert(true);
@@ -749,7 +749,7 @@ codeunit 134924 "ERM Cues"
         ShippedQty: Integer;
     begin
         Qty := LibraryRandom.RandIntInRange(10, 20);
-        ShipmentDate := CalcDate('<-4D>', WorkDate);
+        ShipmentDate := CalcDate('<-4D>', WorkDate());
 
         case OrderShipStatus of
             OrderShipStatus::Full:
@@ -766,7 +766,7 @@ codeunit 134924 "ERM Cues"
             "Shipment Date" := ShipmentDate;
             Ship := OrderShipStatus <> OrderShipStatus::Full;
             Status := Status::Released;
-            Modify;
+            Modify();
         end;
     end;
 
@@ -792,12 +792,12 @@ codeunit 134924 "ERM Cues"
     local procedure MockSalesHeader(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; NewStatus: Enum "Sales Document Status")
     begin
         with SalesHeader do begin
-            Init;
+            Init();
             "Document Type" := DocumentType;
             "No." := '';
             Insert(true);
             Status := NewStatus;
-            Modify;
+            Modify();
         end;
     end;
 
@@ -808,7 +808,7 @@ codeunit 134924 "ERM Cues"
             SetRange("Document No.", SalesHeader."No.");
             if FindLast() then;
 
-            Init;
+            Init();
             "Document Type" := SalesHeader."Document Type";
             "Document No." := SalesHeader."No.";
             "Line No." += 10000;
@@ -821,7 +821,7 @@ codeunit 134924 "ERM Cues"
             "Outstanding Quantity" := "Quantity (Base)" - "Qty. Shipped (Base)";
             "Completely Shipped" := ("Quantity (Base)" <> 0) and ("Outstanding Quantity" = 0);
             "Qty. Shipped Not Invoiced" := "Qty. Shipped (Base)" - "Qty. Invoiced (Base)";
-            Insert;
+            Insert();
         end;
     end;
 
@@ -830,11 +830,11 @@ codeunit 134924 "ERM Cues"
         PostedWhseShipmentHeader: Record "Posted Whse. Shipment Header";
     begin
         with PostedWhseShipmentHeader do begin
-            Init;
+            Init();
             "No." := '';
-            Insert;
-            "Posting Date" := WorkDate;
-            Modify;
+            Insert();
+            "Posting Date" := WorkDate();
+            Modify();
         end;
     end;
 
@@ -847,7 +847,7 @@ codeunit 134924 "ERM Cues"
             "Document Type" := "Document Type"::Invoice;
             "Due Date" := DueDate;
             Open := true;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -950,7 +950,7 @@ codeunit 134924 "ERM Cues"
         SalesHeader.SetRange("Shipped Not Invoiced", true);
         Assert.AreEqual(
           SalesHeader.Count, SBOwnerCue.CountSalesOrdersShippedNotInvoiced,
-          StrSubstNo(WrongValueErr, 'CountSOShippedNotInvoiced', SBOwnerCue.TableCaption));
+          StrSubstNo(WrongValueErr, 'CountSOShippedNotInvoiced', SBOwnerCue.TableCaption()));
     end;
 
     local procedure VerifyPurchCueFlowFields()
@@ -1021,14 +1021,14 @@ codeunit 134924 "ERM Cues"
         WarehouseWMSCue: Record "Warehouse WMS Cue";
     begin
         with WarehouseWMSCue do begin
-            SetFilter("Date Filter", '<%1', WorkDate);
-            SetFilter("Date Filter2", '>=%1', WorkDate);
+            SetFilter("Date Filter", '<%1', WorkDate());
+            SetFilter("Date Filter2", '>=%1', WorkDate());
             CalcFields("Posted Shipments - Today");
             Assert.AreEqual(
               1, "Posted Shipments - Today", StrSubstNo(WrongValueErr, FieldCaption("Posted Shipments - Today"), TableCaption));
 
-            SetFilter("Date Filter", '>=%1', WorkDate);
-            SetFilter("Date Filter2", '<%1', WorkDate);
+            SetFilter("Date Filter", '>=%1', WorkDate());
+            SetFilter("Date Filter2", '<%1', WorkDate());
             CalcFields("Posted Shipments - Today");
             Assert.AreEqual(
               0, "Posted Shipments - Today", StrSubstNo(WrongValueErr, FieldCaption("Posted Shipments - Today"), TableCaption));

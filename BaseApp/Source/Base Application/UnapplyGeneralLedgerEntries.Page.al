@@ -2,7 +2,7 @@
 page 11776 "Unapply General Ledger Entries"
 {
     Caption = 'Unapply General Ledger Entries (Obsolete)';
-    DataCaptionExpression = Caption;
+    DataCaptionExpression = Caption();
     DeleteAllowed = false;
     Editable = true;
     InsertAllowed = false;
@@ -38,22 +38,22 @@ page 11776 "Unapply General Ledger Entries"
             {
                 Editable = false;
                 ShowCaption = false;
-                field("G/L Entry No."; "G/L Entry No.")
+                field("G/L Entry No."; Rec."G/L Entry No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of G/L entry.';
                 }
-                field("Posting Date"; "Posting Date")
+                field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the date when the posting of the unapply general ledger entries will be recorded.';
                 }
-                field("Document No."; "Document No.")
+                field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the entry''s Document No.';
                 }
-                field("G/L Account No."; "G/L Account No.")
+                field("G/L Account No."; Rec."G/L Account No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the account that the entry has been posted to.';
@@ -63,12 +63,12 @@ page 11776 "Unapply General Ledger Entries"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount of G/L entries.';
                 }
-                field("Applied G/L Entry No."; "Applied G/L Entry No.")
+                field("Applied G/L Entry No."; Rec."Applied G/L Entry No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of applied G/L entry.';
                 }
-                field("User ID"; "User ID")
+                field("User ID"; Rec."User ID")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the ID of the user associated with the entry.';
@@ -80,7 +80,7 @@ page 11776 "Unapply General Ledger Entries"
                         UserMgt.DisplayUserInformation("User ID");
                     end;
                 }
-                field("Entry No."; "Entry No.")
+                field("Entry No."; Rec."Entry No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the entry number that is assigned to the entry.';
@@ -98,9 +98,6 @@ page 11776 "Unapply General Ledger Entries"
                 ApplicationArea = Basic, Suite;
                 Caption = '&Unapply';
                 Image = UnApply;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedOnly = true;
                 ToolTip = 'Unselect one or more ledger entries that you want to unapply this record.';
 
                 trigger OnAction()
@@ -110,15 +107,26 @@ page 11776 "Unapply General Ledger Entries"
                     if DtldGLEntry."Entry No." = 0 then
                         Error(NothingToUnapplyErr);
                     GLEntryPostApplication.PostUnApplyGLEntry(DtldGLEntry, DocNo, PostingDate);
-                    CurrPage.Close;
+                    CurrPage.Close();
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(Unapply_Promoted; Unapply)
+                {
+                }
             }
         }
     }
 
     trigger OnOpenPage()
     begin
-        InsertEntries;
+        InsertEntries();
     end;
 
     var
@@ -150,7 +158,7 @@ page 11776 "Unapply General Ledger Entries"
         if DtldGLEntry2.FindSet() then
             repeat
                 Rec := DtldGLEntry2;
-                Insert;
+                Insert();
             until DtldGLEntry2.Next() = 0;
         GLAccount.Get(DtldGLEntry."G/L Account No.");
     end;

@@ -156,9 +156,6 @@ page 9657 "Customer Report Selections"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Copy from Report Selection';
                 Image = Copy;
-                Promoted = true;
-                PromotedOnly = true;
-                PromotedCategory = Process;
                 ToolTip = 'Copy reports that are set up on the Report Selection page.';
 
                 trigger OnAction()
@@ -180,9 +177,6 @@ page 9657 "Customer Report Selections"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Select Email from Contacts';
                 Image = ContactFilter;
-                Promoted = true;
-                PromotedOnly = true;
-                PromotedCategory = Process;
                 ToolTip = 'Select an email address from the list of contacts.';
 
                 trigger OnAction()
@@ -191,6 +185,20 @@ page 9657 "Customer Report Selections"
                 begin
                     Rec.GetSendToEmailFromContactsSelection(ContBusRel."Link to Table"::Customer.AsInteger(), Rec.GetFilter("Source No."));
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(CopyFromReportSelectionsAction_Promoted; CopyFromReportSelectionsAction)
+                {
+                }
+                actionref(SelectFromContactsAction_Promoted; SelectFromContactsAction)
+                {
+                }
             }
         }
     }
@@ -214,9 +222,11 @@ page 9657 "Customer Report Selections"
         Usage2: Enum "Custom Report Selection Sales";
 
     local procedure MapTableUsageValueToPageValue()
+#if not CLEAN21
     var
         CustomReportSelection: Record "Custom Report Selection";
         UsageOpt: Option;
+#endif
     begin
         case Rec.Usage of
             "Report Selection Usage"::"S.Quote":
@@ -243,12 +253,16 @@ page 9657 "Customer Report Selections"
             CustomReportSelection.Usage::"S.Adv.CrM":
                 Usage2 := Usage2::"Adv. Cr.Memo";
             // NAVCZ
+#if not CLEAN21
             else begin
                     UsageOpt := Usage2.AsInteger();
                     OnMapTableUsageValueToPageValueOnCaseElse(CustomReportSelection, UsageOpt, Rec);
                     Usage2 := "Custom Report Selection Sales".FromInteger(UsageOpt);
                 end;
+#endif
         end;
+
+        OnAfterOnMapTableUsageValueToPageValue(Rec, Usage2);
     end;
 
     local procedure FilterCustomerUsageReportSelections(var ReportSelections: Record "Report Selections")
@@ -271,9 +285,17 @@ page 9657 "Customer Report Selections"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterOnMapTableUsageValueToPageValue(CustomReportSelection: Record "Custom Report Selection"; var Usage2: Enum "Custom Report Selection Sales")
+    begin
+    end;
+
+#if not CLEAN21
+    [Obsolete('Replaced by event OnAfterOnMapTableUsageValueToPageValue() with enum parameter', '21.0')]
+    [IntegrationEvent(false, false)]
     local procedure OnMapTableUsageValueToPageValueOnCaseElse(CustomReportSelection: Record "Custom Report Selection"; var ReportUsage: Option; Rec: Record "Custom Report Selection")
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateUsage2OnCaseElse(var CustomReportSelection: Record "Custom Report Selection"; ReportUsage: Option)

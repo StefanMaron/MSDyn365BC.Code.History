@@ -36,7 +36,7 @@ codeunit 137094 "SCM Kitting - D3 - Part 2"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Kitting - D3 - Part 2");
         // Initialize setup.
-        ClearLastError;
+        ClearLastError();
         LibraryAssembly.UpdateAssemblySetup(AssemblySetup, '', AssemblySetup."Copy Component Dimensions from"::"Item/Resource Card",
           LibraryUtility.GetGlobalNoSeriesCode);
 
@@ -52,7 +52,7 @@ codeunit 137094 "SCM Kitting - D3 - Part 2"
         LibraryERMCountryData.UpdateGeneralLedgerSetup(); // NAVCZ
 
         MfgSetup.Get();
-        WorkDate2 := CalcDate(MfgSetup."Default Safety Lead Time", WorkDate); // to avoid Due Date Before Work Date message.
+        WorkDate2 := CalcDate(MfgSetup."Default Safety Lead Time", WorkDate()); // to avoid Due Date Before Work Date message.
         LibraryCosting.AdjustCostItemEntries('', '');
         LibraryCosting.PostInvtCostToGL(false, WorkDate2, '');
         LibraryAssembly.UpdateAssemblySetup(AssemblySetup, '', AssemblySetup."Copy Component Dimensions from"::"Item/Resource Card",
@@ -63,7 +63,7 @@ codeunit 137094 "SCM Kitting - D3 - Part 2"
     end;
 
     [Normal]
-    local procedure Adjustment(ParentCostingMethod: Enum "Costing Method"; CompCostingMethod: Enum "Costing Method"; AutCostPosting: Boolean; AutCostAdj: Option; AdjustHeader: Boolean; AdjSource1: Option; AdjSource2: Option): Code[20]
+    local procedure Adjustment(ParentCostingMethod: Enum "Costing Method"; CompCostingMethod: Enum "Costing Method"; AutCostPosting: Boolean; AutCostAdj: Enum "Automatic Cost Adjustment Type"; AdjustHeader: Boolean; AdjSource1: Option; AdjSource2: Option): Code[20]
     var
         AssemblyHeader: Record "Assembly Header";
         TempAssemblyLine: Record "Assembly Line" temporary;
@@ -313,7 +313,7 @@ codeunit 137094 "SCM Kitting - D3 - Part 2"
     end;
 
     [Normal]
-    local procedure BatchAdjustment(var AssemblyHeaderNo1: Code[20]; var AssemblyHeaderNo2: Code[20]; ParentCostingMethod: Enum "Costing Method"; CompCostingMethod: Enum "Costing Method"; AutCostPosting: Boolean; AutCostAdj: Option; AdjustHeader: Boolean; AdjSource1: Option; AdjSource2: Option)
+    local procedure BatchAdjustment(var AssemblyHeaderNo1: Code[20]; var AssemblyHeaderNo2: Code[20]; ParentCostingMethod: Enum "Costing Method"; CompCostingMethod: Enum "Costing Method"; AutCostPosting: Boolean; AutCostAdj: Enum "Automatic Cost Adjustment Type"; AdjustHeader: Boolean; AdjSource1: Option; AdjSource2: Option)
     var
         AssemblyHeader: Record "Assembly Header";
         TempAssemblyLine: Record "Assembly Line" temporary;
@@ -407,7 +407,7 @@ codeunit 137094 "SCM Kitting - D3 - Part 2"
     end;
 
     [Normal]
-    local procedure BatchPostToGL(ParentCostingMethod: Enum "Costing Method"; CompCostingMethod: Enum "Costing Method"; AutCostPosting: Boolean; AutCostAdj: Option; AdjustHeader: Boolean; AdjSource: Option)
+    local procedure BatchPostToGL(ParentCostingMethod: Enum "Costing Method"; CompCostingMethod: Enum "Costing Method"; AutCostPosting: Boolean; AutCostAdj: Enum "Automatic Cost Adjustment Type"; AdjustHeader: Boolean; AdjSource: Option)
     var
         PostedAssemblyHeader: Record "Posted Assembly Header";
         AssemblyHeaderNo1: Code[20];
@@ -431,7 +431,7 @@ codeunit 137094 "SCM Kitting - D3 - Part 2"
         // Verify.
         repeat
             LibraryAssembly.VerifyGLEntries(PostedAssemblyHeader, false);
-        until PostedAssemblyHeader.Next = 0;
+        until PostedAssemblyHeader.Next() = 0;
 
         // Tear down.
         LibraryAssembly.UpdateInventorySetup(InventorySetup, false, false, InventorySetup."Automatic Cost Adjustment"::Never,

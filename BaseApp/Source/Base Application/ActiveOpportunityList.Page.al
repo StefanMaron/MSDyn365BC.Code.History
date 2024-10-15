@@ -13,7 +13,7 @@ page 5132 "Active Opportunity List"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
@@ -23,7 +23,7 @@ page 5132 "Active Opportunity List"
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies that the opportunity is closed.';
                 }
-                field("Creation Date"; "Creation Date")
+                field("Creation Date"; Rec."Creation Date")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the date that the opportunity was created.';
@@ -33,31 +33,31 @@ page 5132 "Active Opportunity List"
                     ApplicationArea = All;
                     ToolTip = 'Specifies the description of the opportunity.';
                 }
-                field("Contact No."; "Contact No.")
+                field("Contact No."; Rec."Contact No.")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the number of the contact that this opportunity is linked to.';
                 }
-                field("Contact Name"; "Contact Name")
+                field("Contact Name"; Rec."Contact Name")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Contact Name';
                     DrillDown = false;
                     ToolTip = 'Specifies the name of the contact to which this opportunity is linked. The program automatically fills in this field when you have entered a number in the No. field.';
                 }
-                field("Contact Company No."; "Contact Company No.")
+                field("Contact Company No."; Rec."Contact Company No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the company that is linked to this opportunity.';
                     Visible = false;
                 }
-                field("Contact Company Name"; "Contact Company Name")
+                field("Contact Company Name"; Rec."Contact Company Name")
                 {
                     ApplicationArea = RelationshipMgmt;
                     DrillDown = false;
                     ToolTip = 'Specifies the name of the company of the contact person to which this opportunity is linked. The program automatically fills in this field when you have entered a number in the Contact Company No. field.';
                 }
-                field("Salesperson Code"; "Salesperson Code")
+                field("Salesperson Code"; Rec."Salesperson Code")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the code of the salesperson that is responsible for the opportunity.';
@@ -67,44 +67,44 @@ page 5132 "Active Opportunity List"
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the status of the opportunity. There are four options:';
                 }
-                field("Sales Cycle Code"; "Sales Cycle Code")
+                field("Sales Cycle Code"; Rec."Sales Cycle Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code of the sales cycle that the opportunity is linked to.';
                     Visible = false;
                 }
-                field("Current Sales Cycle Stage"; "Current Sales Cycle Stage")
+                field("Current Sales Cycle Stage"; Rec."Current Sales Cycle Stage")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the current sales cycle stage of the opportunity.';
                 }
-                field("Campaign No."; "Campaign No.")
+                field("Campaign No."; Rec."Campaign No.")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the number of the campaign to which this opportunity is linked.';
                 }
-                field("Sales Document Type"; "Sales Document Type")
+                field("Sales Document Type"; Rec."Sales Document Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the type of the sales document (Quote, Order, Posted Invoice). The combination of Sales Document No. and Sales Document Type specifies which sales document is assigned to the opportunity.';
                 }
-                field("Sales Document No."; "Sales Document No.")
+                field("Sales Document No."; Rec."Sales Document No.")
                 {
                     ApplicationArea = Basic, Suite;
                     LookupPageID = "Sales Quote";
                     ToolTip = 'Specifies the number of the sales document that has been created for this opportunity.';
                 }
-                field("Estimated Closing Date"; "Estimated Closing Date")
+                field("Estimated Closing Date"; Rec."Estimated Closing Date")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the estimated closing date of the opportunity.';
                 }
-                field("Estimated Value (LCY)"; "Estimated Value (LCY)")
+                field("Estimated Value (LCY)"; Rec."Estimated Value (LCY)")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the estimated value of the opportunity.';
                 }
-                field("Calcd. Current Value (LCY)"; "Calcd. Current Value (LCY)")
+                field("Calcd. Current Value (LCY)"; Rec."Calcd. Current Value (LCY)")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the current calculated value of the opportunity.';
@@ -149,8 +149,6 @@ page 5132 "Active Opportunity List"
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Statistics';
                     Image = Statistics;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     RunObject = Page "Opportunity Statistics";
                     RunPageLink = "No." = FIELD("No.");
                     ShortCutKey = 'F7';
@@ -197,6 +195,17 @@ page 5132 "Active Opportunity List"
                     RunPageLink = "Table Name" = CONST(Opportunity),
                                   "No." = FIELD("No.");
                     ToolTip = 'View or add comments for the record.';
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(Statistics_Promoted; Statistics)
+                {
                 }
             }
         }

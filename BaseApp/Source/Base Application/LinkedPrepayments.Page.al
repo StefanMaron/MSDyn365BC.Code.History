@@ -17,13 +17,13 @@ page 31017 "Linked Prepayments"
             repeater(Control1220009)
             {
                 ShowCaption = false;
-                field("CV No."; "CV No.")
+                field("CV No."; Rec."CV No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of customer''s or vendor''s advance payment.';
                     Visible = false;
                 }
-                field("Posting Date"; "Posting Date")
+                field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the posting date for the entry.';
@@ -33,12 +33,12 @@ page 31017 "Linked Prepayments"
                     ApplicationArea = Basic, Suite, Prepayments;
                     ToolTip = 'Specifies if line of purchase journal is prepayment';
                 }
-                field("Document Type"; "Document Type")
+                field("Document Type"; Rec."Document Type")
                 {
                     ApplicationArea = Basic, Suite, Prepayments;
                     ToolTip = 'Specifies the document type of the customer or vendor ledger entry.';
                 }
-                field("Document No."; "Document No.")
+                field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = Basic, Suite, Prepayments;
                     ToolTip = 'Specifies linked prepayments to be viewed by using this window to. You can use this window to view document types, posting dates, descriptions, and amounts to apply for prepayments.';
@@ -48,22 +48,22 @@ page 31017 "Linked Prepayments"
                     ApplicationArea = Basic, Suite, Prepayments;
                     ToolTip = 'Specifies description for sales advance.';
                 }
-                field("Currency Code"; "Currency Code")
+                field("Currency Code"; Rec."Currency Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the currency of amounts on the document.';
                 }
-                field("Amount to Apply"; "Amount to Apply")
+                field("Amount to Apply"; Rec."Amount to Apply")
                 {
                     ApplicationArea = Basic, Suite, Prepayments;
                     ToolTip = 'Specifies the amount to apply.';
 
                     trigger OnDrillDown()
                     begin
-                        DrillDownLinks;
+                        DrillDownLinks();
                     end;
                 }
-                field("Entry No."; "Entry No.")
+                field("Entry No."; Rec."Entry No.")
                 {
                     ApplicationArea = Basic, Suite, Prepayments;
                     ToolTip = 'Specifies the entry number that is assigned to the entry.';
@@ -107,14 +107,23 @@ page 31017 "Linked Prepayments"
                 ApplicationArea = Basic, Suite, Prepayments;
                 Caption = 'Find entries...';
                 Image = Navigate;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Find all entries and documents that exist for the document number and posting date on the selected entry or document.';
 
                 trigger OnAction()
                 begin
-                    Navigate;
+                    Navigate();
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("&Navigate_Promoted"; "&Navigate")
+                {
+                }
             }
         }
     }
@@ -134,7 +143,7 @@ page 31017 "Linked Prepayments"
                 "Currency Code" := CustLedgEntry."Currency Code";
                 "Amount to Apply" := CustLedgEntry."Amount to Apply";
                 Positive := false;
-                Insert;
+                Insert();
             until CustLedgEntry.Next() = 0;
     end;
 
@@ -153,7 +162,7 @@ page 31017 "Linked Prepayments"
                 "Currency Code" := VendLedgEntry."Currency Code";
                 "Amount to Apply" := VendLedgEntry."Amount to Apply";
                 Positive := true;
-                Insert;
+                Insert();
             until VendLedgEntry.Next() = 0;
     end;
 

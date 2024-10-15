@@ -508,7 +508,7 @@ codeunit 134827 "UT Item Table"
         Item.Rename(ItemNoNew);
 
         // [THEN] Item in the Corresponding Transfer Line has new value
-        TransferLine.Find;
+        TransferLine.Find();
         TransferLine.TestField("Item No.", ItemNoNew);
     end;
 
@@ -586,7 +586,7 @@ codeunit 134827 "UT Item Table"
             repeat
                 Count += 1;
                 LibraryVariableStorage.Enqueue(ItemList."No.".Value);
-            until ItemList.Next = false;
+            until ItemList.Next() = false;
         exit(Count);
     end;
 
@@ -671,8 +671,8 @@ codeunit 134827 "UT Item Table"
         Item.FindSet();
         repeat
             ItemList."No.".AssertEquals(Item."No.");
-            ItemList.Next;
-        until Item.Next = 0;
+            ItemList.Next();
+        until Item.Next() = 0;
         ItemList.OK.Invoke;
     end;
 }

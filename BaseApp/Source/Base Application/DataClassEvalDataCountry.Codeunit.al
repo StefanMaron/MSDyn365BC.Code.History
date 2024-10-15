@@ -10,18 +10,15 @@ codeunit 1752 "Data Class. Eval. Data Country"
     var
         DataClassificationEvalData: Codeunit "Data Classification Eval. Data";
     begin
-        ClassifyEmployee;
-        ClassifyPayableEmployeeLedgerEntry;
-        ClassifyDetailedEmployeeLedgerEntry;
-        ClassifyEmployeeLedgerEntry;
-        ClassifyEmployeeRelative;
-        ClassifyEmployeeQualification;
-        ClassifyVATReportHeader;
+        ClassifyEmployee();
+        ClassifyPayableEmployeeLedgerEntry();
+        ClassifyDetailedEmployeeLedgerEntry();
+        ClassifyEmployeeLedgerEntry();
+        ClassifyEmployeeRelative();
+        ClassifyEmployeeQualification();
+        ClassifyVATReportHeader();
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Employee Posting Group");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Cause of Absence");
-#if not CLEAN18
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Constant Symbol");
-#endif
 #if not CLEAN19
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Bank Pmt. Appl. Rule Code");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Text-to-Account Mapping Code");
@@ -38,19 +35,11 @@ codeunit 1752 "Data Class. Eval. Data Country"
 #if not CLEAN19
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Detailed G/L Entry");
 #endif
-#if not CLEAN18
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Subst. Customer Posting Group");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Subst. Vendor Posting Group");
-#endif
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Multiple Interest Rate");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Detailed Fin. Charge Memo Line");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Detailed Iss.Fin.Ch. Memo Line");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Detailed Reminder Line");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Detailed Issued Reminder Line");
-#if not CLEAN18
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Vendor Template");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"User Setup Line");
-#endif
 #if not CLEAN19
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Sales Advance Letter Header");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Sales Advance Letter Line");
@@ -65,24 +54,6 @@ codeunit 1752 "Data Class. Eval. Data Country"
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Purchase Adv. Payment Template");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Advance Link Buffer - Entry");
 #endif
-#if not CLEAN18
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Classification Code");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Depreciation Group");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"FA Extended Posting Group");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"FA History Entry");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Credits Setup");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Credit Report Selections");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Credit Header");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Credit Line");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Posted Credit Header");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Posted Credit Line");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Intrastat Currency Exch. Rate");
-#endif
-#if not CLEAN18
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Specific Movement");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Intrastat Delivery Group");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Stat. Reporting Setup");
-#endif
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Export Acc. Schedule");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Acc. Schedule Filter Line");
 #if not CLEAN19
@@ -92,14 +63,6 @@ codeunit 1752 "Data Class. Eval. Data Country"
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Acc. Schedule Result Value");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Acc. Schedule Result History");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Acc. Schedule Extension");
-#endif
-#if not CLEAN18
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"EET Service Setup");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"EET Business Premises");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"EET Cash Register");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"EET Entry");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"EET Entry Status");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Certificate CZ Code");
 #endif
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Sales Header Archive");
         OnAfterClassifyCountrySpecificTables();

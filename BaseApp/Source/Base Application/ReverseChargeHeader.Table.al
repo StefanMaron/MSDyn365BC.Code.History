@@ -113,16 +113,6 @@ table 31093 "Reverse Charge Header"
             //This property is currently not supported
             //TestTableRelation = false;
             ValidateTableRelation = false;
-#if not CLEAN18
-
-            trigger OnValidate()
-            var
-                CountryCode: Code[10];
-            begin
-                TestField(Status, Status::Open);
-                PostCode.ValidateCity(City, "Post Code", County, CountryCode, (CurrFieldNo <> 0) and GuiAllowed);
-            end;
-#endif
         }
         field(27; "Post Code"; Code[20])
         {
@@ -131,16 +121,6 @@ table 31093 "Reverse Charge Header"
             //This property is currently not supported
             //TestTableRelation = false;
             ValidateTableRelation = false;
-#if not CLEAN18
-
-            trigger OnValidate()
-            var
-                CountryCode: Code[10];
-            begin
-                TestField(Status, Status::Open);
-                PostCode.ValidatePostCode(City, "Post Code", County, CountryCode, (CurrFieldNo <> 0) and GuiAllowed);
-            end;
-#endif
         }
         field(30; "Tax Office No."; Code[20])
         {
@@ -288,38 +268,4 @@ table 31093 "Reverse Charge Header"
         {
         }
     }
-#if not CLEAN18
-
-    trigger OnRename()
-    begin
-        Error(RenameErr, TableCaption);
-    end;
-
-    var
-        PostCode: Record "Post Code";
-        CompanyInfo: Record "Company Information";
-        RenameErr: Label 'You cannot rename a %1.', Comment = '%1=TABLECAPTION';
-
-    [Scope('OnPrem')]
-    [Obsolete('The functionality of Reverse Charge Statement will be removed and this function should not be used.', '18.0')]
-    procedure InitRecord()
-    var
-        StatReportingSetup: Record "Stat. Reporting Setup";
-        Country: Record "Country/Region";
-    begin
-        CompanyInfo.Get();
-        StatReportingSetup.Get();
-
-        "Document Date" := WorkDate;
-
-        Country.Get(CompanyInfo."Country/Region Code");
-        "Country/Region Name" := Country.Name;
-        "VAT Registration No." := CompanyInfo."VAT Registration No.";
-        County := CompanyInfo.County;
-        City := CompanyInfo.City;
-        "Post Code" := CompanyInfo."Post Code";
-
-    end;
-
-#endif
 }

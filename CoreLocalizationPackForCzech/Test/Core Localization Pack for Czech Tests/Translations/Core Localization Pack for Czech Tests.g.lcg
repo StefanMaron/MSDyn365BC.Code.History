@@ -149,15 +149,6 @@
       <Cmt Name="Dev"><![CDATA[%1 = dimension code]D;]A;(LookupHint=Codeunit Check User Setup Dim. CZL - NamedType MustEnterDimErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 4133549949 - NamedType 272352229" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[There is nothing to post.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Check User Setup Dim. CZL - NamedType NothingToPostErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 406312214 - Method 3142986221 - NamedType 1432205263" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Wrong Item Ledger Entry Application (Date Order)]]></Val>

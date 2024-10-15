@@ -17,7 +17,7 @@ page 31094 "Acc. Sch. Res. Subform Matrix"
             repeater(Control1220007)
             {
                 ShowCaption = false;
-                field("Row No."; "Row No.")
+                field("Row No."; Rec."Row No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -45,7 +45,7 @@ page 31094 "Acc. Sch. Res. Subform Matrix"
 
                     trigger OnValidate()
                     begin
-                        Value1OnAfterValidate;
+                        Value1OnAfterValidate();
                     end;
                 }
                 field(Field2; Value[2])
@@ -64,7 +64,7 @@ page 31094 "Acc. Sch. Res. Subform Matrix"
 
                     trigger OnValidate()
                     begin
-                        Value2OnAfterValidate;
+                        Value2OnAfterValidate();
                     end;
                 }
                 field(Field3; Value[3])
@@ -83,7 +83,7 @@ page 31094 "Acc. Sch. Res. Subform Matrix"
 
                     trigger OnValidate()
                     begin
-                        Value3OnAfterValidate;
+                        Value3OnAfterValidate();
                     end;
                 }
                 field(Field4; Value[4])
@@ -102,7 +102,7 @@ page 31094 "Acc. Sch. Res. Subform Matrix"
 
                     trigger OnValidate()
                     begin
-                        Value4OnAfterValidate;
+                        Value4OnAfterValidate();
                     end;
                 }
             }

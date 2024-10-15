@@ -1,4 +1,4 @@
-table 1293 "Payment Application Proposal"
+﻿table 1293 "Payment Application Proposal"
 {
     Caption = 'Payment Application Proposal';
 
@@ -31,7 +31,7 @@ table 1293 "Payment Application Proposal"
 
             trigger OnValidate()
             begin
-                VerifyLineIsNotApplied;
+                VerifyLineIsNotApplied();
             end;
         }
         field(22; "Account No."; Code[20])
@@ -52,7 +52,7 @@ table 1293 "Payment Application Proposal"
 
             trigger OnValidate()
             begin
-                VerifyLineIsNotApplied;
+                VerifyLineIsNotApplied();
             end;
         }
         field(23; "Applies-to Entry No."; Integer)
@@ -73,9 +73,9 @@ table 1293 "Payment Application Proposal"
             trigger OnValidate()
             begin
                 if ("Applied Amount" = 0) and (xRec."Applied Amount" <> 0) then
-                    Unapply
+                    Unapply()
                 else
-                    UpdateAppliedAmt;
+                    UpdateAppliedAmt();
             end;
         }
         field(25; Applied; Boolean)
@@ -90,18 +90,18 @@ table 1293 "Payment Application Proposal"
                     exit;
 
                 if not Applied then
-                    Unapply;
+                    Unapply();
 
                 if Applied then begin
                     if "Document Type" = "Document Type"::"Credit Memo" then
-                        CrMemoSelectedToApply
+                        CrMemoSelectedToApply()
                     else begin
                         BankAccReconLine.Get("Statement Type", "Bank Account No.", "Statement No.", "Statement Line No.");
                         if BankAccReconLine.Difference = 0 then
                             Error(PaymentAppliedErr);
                     end;
 
-                    Apply(GetRemainingAmountAfterPosting, "Applies-to Entry No." <> 0);
+                    Apply(GetRemainingAmountAfterPosting(), "Applies-to Entry No." <> 0);
                 end;
             end;
         }
@@ -159,7 +159,7 @@ table 1293 "Payment Application Proposal"
 
             trigger OnValidate()
             begin
-                ChangeDiscountAmounts;
+                ChangeDiscountAmounts();
             end;
         }
         field(52; "Remaining Pmt. Disc. Possible"; Decimal)
@@ -168,7 +168,7 @@ table 1293 "Payment Application Proposal"
 
             trigger OnValidate()
             begin
-                ChangeDiscountAmounts;
+                ChangeDiscountAmounts();
             end;
         }
         field(53; "Pmt. Disc. Tolerance Date"; Date)
@@ -177,7 +177,7 @@ table 1293 "Payment Application Proposal"
 
             trigger OnValidate()
             begin
-                ChangeDiscountAmounts;
+                ChangeDiscountAmounts();
             end;
         }
         field(60; "Applied Amt. Incl. Discount"; Decimal)
@@ -187,7 +187,7 @@ table 1293 "Payment Application Proposal"
             trigger OnValidate()
             begin
                 if ("Applied Amt. Incl. Discount" = 0) and Applied then
-                    Unapply
+                    Unapply()
                 else
                     Validate("Applied Amount", "Applied Amt. Incl. Discount");
             end;
@@ -246,9 +246,6 @@ table 1293 "Payment Application Proposal"
         {
             Caption = 'Constant Symbol';
             CharAllowed = '09';
-#if not CLEAN18
-            TableRelation = "Constant Symbol";
-#endif
 #if not CLEAN19
             ObsoleteState = Pending;
 #else
@@ -296,22 +293,22 @@ table 1293 "Payment Application Proposal"
     begin
         TestField("Applies-to Entry No.", 0);
         if Applied then
-            Unapply;
+            Unapply();
     end;
 
     trigger OnInsert()
     begin
-        UpdateSortingOrder;
+        UpdateSortingOrder();
     end;
 
     trigger OnModify()
     begin
-        UpdateSortingOrder;
+        UpdateSortingOrder();
     end;
 
     trigger OnRename()
     begin
-        VerifyLineIsNotApplied;
+        VerifyLineIsNotApplied();
     end;
 
     var
@@ -345,7 +342,7 @@ table 1293 "Payment Application Proposal"
     begin
         AmountToApply := "Applied Amount";
         if Applied then
-            Unapply;
+            Unapply();
 
         if AmountToApply = 0 then
             exit;
@@ -367,7 +364,7 @@ table 1293 "Payment Application Proposal"
         TempAppliedPmtEntry: Record "Applied Payment Entry" temporary;
     begin
         TempAppliedPmtEntry.TransferFields(Rec);
-        TempAppliedPmtEntry.GetLedgEntryInfo;
+        TempAppliedPmtEntry.GetLedgEntryInfo();
         TransferFields(TempAppliedPmtEntry);
     end;
 
@@ -383,18 +380,18 @@ table 1293 "Payment Application Proposal"
     var
         BankAccount: Record "Bank Account";
     begin
-        Init;
+        Init();
         TransferFields(AppliedPaymentEntry);
-        UpdatePaymentDiscInfo;
+        UpdatePaymentDiscInfo();
 
         if AppliedPaymentEntry."Applied Amount" <> 0 then
             Applied := true;
 
         BankAccount.Get(AppliedPaymentEntry."Bank Account No.");
 
-        UpdatePaymentDiscInfo;
+        UpdatePaymentDiscInfo();
         UpdateRemainingAmount(BankAccount);
-        UpdateRemainingAmountExclDiscount;
+        UpdateRemainingAmountExclDiscount();
         UpdateTypeOption(AppliedPaymentEntry."Applies-to Entry No.");
         "Applied Amt. Incl. Discount" := "Applied Amount" - "Applied Pmt. Discount";
         Insert(true);
@@ -404,7 +401,7 @@ table 1293 "Payment Application Proposal"
     var
         BankPmtApplRule: Record "Bank Pmt. Appl. Rule";
     begin
-        Init;
+        Init();
         "Account Type" := TempBankStmtMatchingBuffer."Account Type";
         "Account No." := TempBankStmtMatchingBuffer."Account No.";
 
@@ -413,7 +410,7 @@ table 1293 "Payment Application Proposal"
         else
             "Applies-to Entry No." := TempBankStmtMatchingBuffer."Entry No.";
 
-        GetLedgEntryInfo;
+        GetLedgEntryInfo();
         Quality := TempBankStmtMatchingBuffer.Quality;
 #if CLEAN19
         "Match Confidence" := BankPmtApplRule.GetMatchConfidence(TempBankStmtMatchingBuffer.Quality);
@@ -422,9 +419,9 @@ table 1293 "Payment Application Proposal"
             TempBankStmtMatchingBuffer.Quality, TempBankStmtMatchingBuffer."Entry No." < 0); // NAVCZ
 #endif
 
-        UpdatePaymentDiscInfo;
+        UpdatePaymentDiscInfo();
         UpdateRemainingAmount(BankAccount);
-        UpdateRemainingAmountExclDiscount;
+        UpdateRemainingAmountExclDiscount();
 
         if "Applies-to Entry No." > 0 then
             UpdateTypeOption("Applies-to Entry No.");
@@ -439,7 +436,7 @@ table 1293 "Payment Application Proposal"
     begin
         "Sorting Order" := -Quality;
         if Applied then
-            "Sorting Order" -= BankPmtApplRule.GetHighestPossibleScore;
+            "Sorting Order" -= BankPmtApplRule.GetHighestPossibleScore();
     end;
 
     local procedure Apply(AmtToApply: Decimal; SuggestDiscAmt: Boolean)
@@ -453,7 +450,7 @@ table 1293 "Payment Application Proposal"
           AppliedPaymentEntry."Statement Type", AppliedPaymentEntry."Bank Account No.",
           AppliedPaymentEntry."Statement No.", AppliedPaymentEntry."Statement Line No.");
         MatchBankPayments.SetApplicationDataInCVLedgEntry(
-          "Account Type", "Applies-to Entry No.", BankAccReconciliationLine.GetAppliesToID);
+          "Account Type", "Applies-to Entry No.", BankAccReconciliationLine.GetAppliesToID());
 
         if AmtToApply = 0 then
             Error(StmtAmtIsFullyAppliedErr);
@@ -467,7 +464,7 @@ table 1293 "Payment Application Proposal"
 
         TransferFields(AppliedPaymentEntry);
         Applied := true;
-        UpdateRemainingAmountExclDiscount;
+        UpdateRemainingAmountExclDiscount();
         "Applied Amt. Incl. Discount" := "Applied Amount" - "Applied Pmt. Discount";
         Modify(true);
 
@@ -480,7 +477,7 @@ table 1293 "Payment Application Proposal"
         if "Applies-to Entry No." = 0 then
             exit(0);
 
-        exit(GetRemainingAmountAfterPosting);
+        exit(GetRemainingAmountAfterPosting());
     end;
 
     local procedure GetRemainingAmountAfterPosting(): Decimal
@@ -489,17 +486,17 @@ table 1293 "Payment Application Proposal"
     begin
         TempAppliedPaymentEntry.TransferFields(Rec);
         exit(
-          TempAppliedPaymentEntry.GetRemAmt -
+          TempAppliedPaymentEntry.GetRemAmt() -
           TempAppliedPaymentEntry."Applied Amount" -
-          TempAppliedPaymentEntry.GetAmtAppliedToOtherStmtLines);
+          TempAppliedPaymentEntry.GetAmtAppliedToOtherStmtLines());
     end;
 
     procedure RemoveApplications()
     var
         AppliedPaymentEntry: Record "Applied Payment Entry";
-        CurrentTempPaymentApplicationProposal: Record "Payment Application Proposal" temporary;
+        TempPaymentApplicationProposal: Record "Payment Application Proposal" temporary;
     begin
-        CurrentTempPaymentApplicationProposal := Rec;
+        TempPaymentApplicationProposal := Rec;
 
         AddFilterOnAppliedPmtEntry(AppliedPaymentEntry);
 
@@ -510,10 +507,10 @@ table 1293 "Payment Application Proposal"
                   AppliedPaymentEntry."Statement No.", AppliedPaymentEntry."Statement Line No.",
                   AppliedPaymentEntry."Account Type", AppliedPaymentEntry."Account No.",
                   AppliedPaymentEntry."Applies-to Entry No.");
-                Unapply;
+                Unapply();
             until AppliedPaymentEntry.Next() = 0;
 
-        Rec := CurrentTempPaymentApplicationProposal;
+        Rec := TempPaymentApplicationProposal;
     end;
 
     procedure AccountNameDrillDown()
@@ -526,8 +523,8 @@ table 1293 "Payment Application Proposal"
         AccountType: Enum "Gen. Journal Account Type";
         AccountNo: Code[20];
     begin
-        AccountType := GetAppliedToAccountType;
-        AccountNo := GetAppliedToAccountNo;
+        AccountType := GetAppliedToAccountType();
+        AccountNo := GetAppliedToAccountNo();
         case AccountType of
             "Account Type"::Customer:
                 begin
@@ -568,8 +565,8 @@ table 1293 "Payment Application Proposal"
         AccountNo: Code[20];
         Name: Text;
     begin
-        AccountType := GetAppliedToAccountType;
-        AccountNo := GetAppliedToAccountNo;
+        AccountType := GetAppliedToAccountType();
+        AccountNo := GetAppliedToAccountNo();
         Name := '';
 
         case AccountType of
@@ -615,15 +612,15 @@ table 1293 "Payment Application Proposal"
 
     local procedure ChangeDiscountAmounts()
     begin
-        UpdateLedgEntryDisc;
-        UpdateRemainingAmountExclDiscount;
+        UpdateLedgEntryDisc();
+        UpdateRemainingAmountExclDiscount();
 
         if "Applied Pmt. Discount" <> 0 then begin
             "Applied Amount" -= "Applied Pmt. Discount";
             "Applied Pmt. Discount" := 0;
         end;
 
-        UpdateAppliedAmt;
+        UpdateAppliedAmt();
     end;
 
     local procedure UpdateLedgEntryDisc()
@@ -709,7 +706,7 @@ table 1293 "Payment Application Proposal"
                     SalesAdvanceLetterLine.FindSet();
                     repeat
                         RemainingAmount += SalesAdvanceLetterLine."Amount To Link";
-                        RemainingAmountLCY += SalesAdvanceLetterLine.GetAmountToLinkLCY;
+                        RemainingAmountLCY += SalesAdvanceLetterLine.GetAmountToLinkLCY();
                     until SalesAdvanceLetterLine.Next() = 0;
                 end else begin
                     // NAVCZ
@@ -733,7 +730,7 @@ table 1293 "Payment Application Proposal"
                     PurchAdvanceLetterLine.FindSet();
                     repeat
                         RemainingAmount -= PurchAdvanceLetterLine."Amount To Link";
-                        RemainingAmountLCY -= PurchAdvanceLetterLine.GetAmountToLinkLCY;
+                        RemainingAmountLCY -= PurchAdvanceLetterLine.GetAmountToLinkLCY();
                     until PurchAdvanceLetterLine.Next() = 0;
                 end else begin
                     // NAVCZ
@@ -764,7 +761,7 @@ table 1293 "Payment Application Proposal"
                 begin
                     GLEntry.Get("Applies-to Entry No.");
 
-                    "Remaining Amount" := GLEntry.RemainingAmount;
+                    "Remaining Amount" := GLEntry.RemainingAmount();
                     exit;
                 end;
         // NAVCZ
@@ -772,9 +769,9 @@ table 1293 "Payment Application Proposal"
         end;
 
 #if CLEAN19
-        if BankAccount.IsInLocalCurrency then
+        if BankAccount.IsInLocalCurrency() then
 #else
-        if BankAccReconLn.IsInLocalCurrency then // NAVCZ
+        if BankAccReconLn.IsInLocalCurrency() then // NAVCZ
 #endif
             "Remaining Amount" := RemainingAmountLCY
         else
@@ -878,3 +875,4 @@ table 1293 "Payment Application Proposal"
             Type := Type::"Bank Account Ledger Entry";
     end;
 }
+

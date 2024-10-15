@@ -18,59 +18,59 @@ page 11711 "Issued Bank Statement"
             group(General)
             {
                 Caption = 'General';
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the number of the bank statement.';
                 }
-                field("Bank Account No."; "Bank Account No.")
+                field("Bank Account No."; Rec."Bank Account No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the name of bank account.';
                 }
-                field("Bank Account Name"; "Bank Account Name")
+                field("Bank Account Name"; Rec."Bank Account Name")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of bank account.';
                 }
-                field("Account No."; "Account No.")
+                field("Account No."; Rec."Account No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the number used by the bank for the bank account.';
                 }
-                field("Document Date"; "Document Date")
+                field("Document Date"; Rec."Document Date")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the date on which you created the document.';
                 }
-                field("Currency Code"; "Currency Code")
+                field("Currency Code"; Rec."Currency Code")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the currency of amounts on the document.';
                 }
-                field("Bank Statement Currency Code"; "Bank Statement Currency Code")
+                field("Bank Statement Currency Code"; Rec."Bank Statement Currency Code")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the bank statement currency code which is setup in the bank card.';
                 }
-                field("External Document No."; "External Document No.")
+                field("External Document No."; Rec."External Document No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the external document number received from bank.';
                 }
-                field("No. of Lines"; "No. of Lines")
+                field("No. of Lines"; Rec."No. of Lines")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of lines in the bank statement.';
                 }
-                field("Payment Reconciliation Status"; "Payment Reconciliation Status")
+                field("Payment Reconciliation Status"; Rec."Payment Reconciliation Status")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies payment reconciliation status';
@@ -99,17 +99,17 @@ page 11711 "Issued Bank Statement"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the total amount that the line consists of, if it is a credit amount.';
                 }
-                field("Amount (LCY)"; "Amount (LCY)")
+                field("Amount (LCY)"; Rec."Amount (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the total amount that the line consists of. The amount is in the local currency.';
                 }
-                field("Debit (LCY)"; "Debit (LCY)")
+                field("Debit (LCY)"; Rec."Debit (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the total amount that the line consists of, if it is a debit amount. The amount is in the local currency.';
                 }
-                field("Credit (LCY)"; "Credit (LCY)")
+                field("Credit (LCY)"; Rec."Credit (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the total amount that the line consists of, if it is a credit amount. The amount is in the local currency.';
@@ -143,8 +143,6 @@ page 11711 "Issued Bank Statement"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Statistics';
                     Image = Statistics;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     RunObject = Page "Issued Bank Statement Stat.";
                     RunPageLink = "No." = FIELD("No.");
                     ShortCutKey = 'F7';
@@ -159,7 +157,7 @@ page 11711 "Issued Bank Statement"
 
                     trigger OnAction()
                     begin
-                        OpenPmtReconOrPostedPmtRecon;
+                        OpenPmtReconOrPostedPmtRecon();
                     end;
                 }
             }
@@ -179,7 +177,7 @@ page 11711 "Issued Bank Statement"
 
                     trigger OnAction()
                     begin
-                        CreatePaymentReconJournal;
+                        CreatePaymentReconJournal();
                     end;
                 }
             }
@@ -196,7 +194,7 @@ page 11711 "Issued Bank Statement"
 
                     trigger OnAction()
                     begin
-                        TestPrintBankStatement;
+                        TestPrintBankStatement();
                     end;
                 }
                 action("Bank Statement")
@@ -209,7 +207,7 @@ page 11711 "Issued Bank Statement"
 
                     trigger OnAction()
                     begin
-                        PrintBankStatement;
+                        PrintBankStatement();
                     end;
                 }
             }
@@ -218,14 +216,26 @@ page 11711 "Issued Bank Statement"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Find entries...';
                 Image = Navigate;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Find all entries and documents that exist for the document number and posting date on the selected entry or document.';
 
                 trigger OnAction()
                 begin
-                    Navigate;
+                    Navigate();
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("&Navigate_Promoted"; "&Navigate")
+                {
+                }
+                actionref(Statistics_Promoted; Statistics)
+                {
+                }
             }
         }
     }

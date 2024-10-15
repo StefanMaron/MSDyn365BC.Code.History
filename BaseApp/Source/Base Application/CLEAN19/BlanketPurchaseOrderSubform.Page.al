@@ -34,17 +34,23 @@ page 510 "Blanket Purchase Order Subform"
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
 
                     trigger OnValidate()
+                    var
+                        Item: Record "Item";
                     begin
                         Rec.ShowShortcutDimCode(ShortcutDimCode);
                         NoOnAfterValidate();
                         DeltaUpdateTotals();
+                        if "Variant Code" = '' then
+                            VariantCodeMandatory := Item.IsVariantMandatory(Type = Type::Item, "No.");
                     end;
                 }
                 field("Item Reference No."; Rec."Item Reference No.")
                 {
                     AccessByPermission = tabledata "Item Reference" = R;
                     ApplicationArea = Suite, ItemReferences;
+                    QuickEntry = false;
                     ToolTip = 'Specifies the referenced item number.';
+                    Visible = ItemReferenceVisible;
 
                     trigger OnLookup(var Text: Text): Boolean
                     var
@@ -67,10 +73,15 @@ page 510 "Blanket Purchase Order Subform"
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the variant of the item on the line.';
                     Visible = false;
+                    ShowMandatory = VariantCodeMandatory;
 
                     trigger OnValidate()
+                    var
+                        Item: Record "Item";
                     begin
                         DeltaUpdateTotals();
+                        if "Variant Code" = '' then
+                            VariantCodeMandatory := Item.IsVariantMandatory(Type = Type::Item, "No.");
                     end;
                 }
                 field("VAT Prod. Posting Group"; Rec."VAT Prod. Posting Group")
@@ -380,27 +391,27 @@ page 510 "Blanket Purchase Order Subform"
                         OnAfterValidateShortcutDimCode(Rec, ShortcutDimCode, 8);
                     end;
                 }
-                field("Gross Weight"; "Gross Weight")
+                field("Gross Weight"; Rec."Gross Weight")
                 {
                     Caption = 'Unit Gross Weight';
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the gross weight of one unit of the item. In the purchase statistics window, the gross weight on the line is included in the total gross weight of all the lines for the particular purchase document.';
                     Visible = false;
                 }
-                field("Net Weight"; "Net Weight")
+                field("Net Weight"; Rec."Net Weight")
                 {
                     Caption = 'Unit Net Weight';
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the net weight of one unit of the item. In the purchase statistics window, the net weight on the line is included in the total net weight of all the lines for the particular purchase document.';
                     Visible = false;
                 }
-                field("Unit Volume"; "Unit Volume")
+                field("Unit Volume"; Rec."Unit Volume")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the volume of one unit of the item. In the purchase statistics window, the volume of one unit of the item on the line is included in the total volume of all the lines for the particular purchase document.';
                     Visible = false;
                 }
-                field("Units per Parcel"; "Units per Parcel")
+                field("Units per Parcel"; Rec."Units per Parcel")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of units per parcel of the item. In the purchase statistics window, the number of units per parcel on the line helps to determine the total number of units for all the lines for the particular purchase document.';
@@ -454,7 +465,7 @@ page 510 "Blanket Purchase Order Subform"
 
                         trigger OnValidate()
                         begin
-                            DocumentTotals.PurchaseDocTotalsNotUpToDate;
+                            DocumentTotals.PurchaseDocTotalsNotUpToDate();
                             AmountWithDiscountAllowed := DocumentTotals.CalcTotalPurchAmountOnlyDiscountAllowed(Rec);
                             InvoiceDiscountAmount := Round(AmountWithDiscountAllowed * InvoiceDiscountPct / 100, Currency."Amount Rounding Precision");
                             ValidateInvoiceDiscountAmount();
@@ -554,7 +565,7 @@ page 510 "Blanket Purchase Order Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromPurchLine(Rec, ItemAvailFormsMgt.ByEvent)
+                            ItemAvailFormsMgt.ShowItemAvailFromPurchLine(Rec, ItemAvailFormsMgt.ByEvent())
                         end;
                     }
                     action(Period)
@@ -566,7 +577,7 @@ page 510 "Blanket Purchase Order Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromPurchLine(Rec, ItemAvailFormsMgt.ByPeriod)
+                            ItemAvailFormsMgt.ShowItemAvailFromPurchLine(Rec, ItemAvailFormsMgt.ByPeriod())
                         end;
                     }
                     action(Variant)
@@ -578,7 +589,7 @@ page 510 "Blanket Purchase Order Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromPurchLine(Rec, ItemAvailFormsMgt.ByVariant)
+                            ItemAvailFormsMgt.ShowItemAvailFromPurchLine(Rec, ItemAvailFormsMgt.ByVariant())
                         end;
                     }
                     action(Location)
@@ -591,7 +602,7 @@ page 510 "Blanket Purchase Order Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromPurchLine(Rec, ItemAvailFormsMgt.ByLocation)
+                            ItemAvailFormsMgt.ShowItemAvailFromPurchLine(Rec, ItemAvailFormsMgt.ByLocation())
                         end;
                     }
                     action(Lot)
@@ -614,7 +625,7 @@ page 510 "Blanket Purchase Order Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromPurchLine(Rec, ItemAvailFormsMgt.ByBOM)
+                            ItemAvailFormsMgt.ShowItemAvailFromPurchLine(Rec, ItemAvailFormsMgt.ByBOM())
                         end;
                     }
                 }
@@ -792,9 +803,13 @@ page 510 "Blanket Purchase Order Subform"
     end;
 
     trigger OnAfterGetRecord()
+    var
+        Item: Record Item;
     begin
         Rec.ShowShortcutDimCode(ShortcutDimCode);
         Clear(DocumentTotals);
+        if "Variant Code" = '' then
+                            VariantCodeMandatory := Item.IsVariantMandatory(Type = Type::Item, "No.");
     end;
 
     trigger OnDeleteRecord(): Boolean
@@ -830,9 +845,7 @@ page 510 "Blanket Purchase Order Subform"
     begin
         OnBeforeOnOpenPage();
         SetDimensionsVisibility();
-#if not CLEAN19
         SetItemReferenceVisibility();
-#endif
     end;
 
     var
@@ -844,6 +857,7 @@ page 510 "Blanket Purchase Order Subform"
         DocumentTotals: Codeunit "Document Totals";
         AmountWithDiscountAllowed: Decimal;
         UpdateInvDiscountQst: Label 'One or more lines have been invoiced. The discount distributed to invoiced lines will not be taken into account.\\Do you want to update the invoice discount?';
+        VariantCodeMandatory: Boolean;
 
     protected var
         TotalPurchaseHeader: Record "Purchase Header";
@@ -864,10 +878,8 @@ page 510 "Blanket Purchase Order Subform"
         IsBlankNumber: Boolean;
         [InDataSet]
         IsCommentLine: Boolean;
-#if not CLEAN19
         [InDataSet]
         ItemReferenceVisible: Boolean;
-#endif
 
     procedure ApproveCalcInvDisc()
     begin
@@ -881,7 +893,7 @@ page 510 "Blanket Purchase Order Subform"
         ConfirmManagement: Codeunit "Confirm Management";
     begin
         PurchaseHeader.Get(Rec."Document Type", Rec."Document No.");
-        if PurchaseHeader.InvoicedLineExists then
+        if PurchaseHeader.InvoicedLineExists() then
             if not ConfirmManagement.GetResponseOrDefault(UpdateInvDiscountQst, true) then
                 exit;
 
@@ -1015,12 +1027,12 @@ page 510 "Blanket Purchase Order Subform"
         Clear(DimMgt);
     end;
 
-#if not CLEAN19
     local procedure SetItemReferenceVisibility()
+    var
+        ItemReference: Record "Item Reference";
     begin
-        ItemReferenceVisible := true;
+        ItemReferenceVisible := not ItemReference.IsEmpty();
     end;
-#endif
 
     local procedure SetDefaultType()
     var
@@ -1062,8 +1074,8 @@ page 510 "Blanket Purchase Order Subform"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertExtendedText(var PurchaseLine: Record "Purchase Line")
-  
-  begin
+
+    begin
     end;
 
 #if not CLEAN19

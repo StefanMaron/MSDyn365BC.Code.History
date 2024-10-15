@@ -1,4 +1,3 @@
-﻿#if not CLEAN18
 codeunit 900 "Assembly-Post"
 {
     Permissions = TableData "Posted Assembly Header" = im,
@@ -23,7 +22,7 @@ codeunit 900 "Assembly-Post"
 
         AssemblyHeader := Rec;
 
-        if IsAsmToOrder then
+        if IsAsmToOrder() then
             TestField("Assemble to Order", false);
 
         OpenWindow("Document Type");
@@ -51,6 +50,7 @@ codeunit 900 "Assembly-Post"
         ResJnlPostLine: Codeunit "Res. Jnl.-Post Line";
         UndoPostingMgt: Codeunit "Undo Posting Management";
         UOMMgt: Codeunit "Unit of Measure Management";
+        DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
         Window: Dialog;
         PostingDate: Date;
         SourceCode: Code[10];
@@ -61,7 +61,6 @@ codeunit 900 "Assembly-Post"
         Text003: Label 'The combination of dimensions used in %1 %2, line no. %3 is blocked. %4.', Comment = '%1 = Document Type, %2 = Document No.';
         Text004: Label 'The dimensions that are used in %1 %2 are not valid. %3.', Comment = '%1 = Document Type, %2 = Document No.';
         Text005: Label 'The dimensions that are used in %1 %2, line no. %3, are not valid. %4.', Comment = '%1 = Document Type, %2 = Document No.';
-        Text006: Label 'There is nothing to post.';
         Text007: Label 'Posting lines              #2######';
         Text008: Label 'Posting %1';
         Text009: Label '%1 should be blank for comment text: %2.';
@@ -87,14 +86,14 @@ codeunit 900 "Assembly-Post"
             TestField("Item No.");
             CheckDim(AssemblyHeader);
             if not IsOrderPostable(AssemblyHeader) then
-                Error(Text006);
+                Error(DocumentErrorsMgt.GetNothingToPostErrorMsg());
 
             if "Posting No." = '' then
                 if "Document Type" = "Document Type"::Order then begin
                     TestField("Posting No. Series");
                     "Posting No." := NoSeriesMgt.GetNextNo("Posting No. Series", "Posting Date", true);
                     Modify();
-                    if not GenJnlPostPreview.IsActive and not SuppressCommit then
+                    if not GenJnlPostPreview.IsActive() and not SuppressCommit then
                         Commit();
                 end;
 
@@ -102,7 +101,7 @@ codeunit 900 "Assembly-Post"
                 CODEUNIT.Run(CODEUNIT::"Release Assembly Document", AssemblyHeader);
                 TestField(Status, Status::Released);
                 Status := Status::Open;
-                if not GenJnlPostPreview.IsActive then begin
+                if not GenJnlPostPreview.IsActive() then begin
                     Modify();
                     if not SuppressCommit then
                         Commit();
@@ -110,7 +109,7 @@ codeunit 900 "Assembly-Post"
                 Status := Status::Released;
             end;
 
-            GetSourceCode(IsAsmToOrder);
+            GetSourceCode(IsAsmToOrder());
         end;
 
         OnAfterInitPost(AssemblyHeader, SuppressCommit);
@@ -194,7 +193,7 @@ codeunit 900 "Assembly-Post"
                         DeleteLinks();
                     DeleteWhseRequest(AssemblyHeader);
                     OnDeleteAssemblyDocumentOnBeforeDeleteAssemblyHeader(AssemblyHeader, AssemblyLine);
-                    Delete;
+                    Delete();
                     OnDeleteAssemblyDocumentOnAfterDeleteAssemblyHeader(AssemblyHeader, AssemblyLine);
                     if AssemblyLine.Find('-') then
                         repeat
@@ -277,11 +276,11 @@ codeunit 900 "Assembly-Post"
     begin
         if AssemblyLine."Line No." = 0 then
             if not DimMgt.CheckDimIDComb(AssemblyHeader."Dimension Set ID") then
-                Error(Text002, AssemblyHeader."Document Type", AssemblyHeader."No.", DimMgt.GetDimCombErr);
+                Error(Text002, AssemblyHeader."Document Type", AssemblyHeader."No.", DimMgt.GetDimCombErr());
 
         if AssemblyLine."Line No." <> 0 then
             if not DimMgt.CheckDimIDComb(AssemblyLine."Dimension Set ID") then
-                Error(Text003, AssemblyHeader."Document Type", AssemblyHeader."No.", AssemblyLine."Line No.", DimMgt.GetDimCombErr);
+                Error(Text003, AssemblyHeader."Document Type", AssemblyHeader."No.", AssemblyLine."Line No.", DimMgt.GetDimCombErr());
     end;
 
     local procedure CheckDimValuePosting(AssemblyHeader: Record "Assembly Header"; var AssemblyLine: Record "Assembly Line")
@@ -295,14 +294,14 @@ codeunit 900 "Assembly-Post"
             if not DimMgt.CheckDimValuePosting(TableIDArr, NumberArr, AssemblyHeader."Dimension Set ID") then
                 Error(
                   Text004,
-                  AssemblyHeader."Document Type", AssemblyHeader."No.", DimMgt.GetDimValuePostingErr);
+                  AssemblyHeader."Document Type", AssemblyHeader."No.", DimMgt.GetDimValuePostingErr());
         end else begin
             TableIDArr[1] := DimMgt.TypeToTableID4(AssemblyLine.Type.AsInteger());
             NumberArr[1] := AssemblyLine."No.";
             if not DimMgt.CheckDimValuePosting(TableIDArr, NumberArr, AssemblyLine."Dimension Set ID") then
                 Error(
                   Text005,
-                  AssemblyHeader."Document Type", AssemblyHeader."No.", AssemblyLine."Line No.", DimMgt.GetDimValuePostingErr);
+                  AssemblyHeader."Document Type", AssemblyHeader."No.", AssemblyLine."Line No.", DimMgt.GetDimValuePostingErr());
         end;
     end;
 
@@ -491,8 +490,8 @@ codeunit 900 "Assembly-Post"
         with AssemblyHeader do begin
             GetHeaderQtys(QtyToOutput, QtyToOutputBase, AssemblyHeader);
             if NeedUpdateUnitCost then
-                if not IsStandardCostItem then
-                    UpdateUnitCost;
+                if not IsStandardCostItem() then
+                    UpdateUnitCost();
 
             OnPostHeaderOnBeforePostItemOutput(AssemblyHeader, QtyToOutput, QtyToOutputBase);
             ItemLedgEntryNo :=
@@ -560,7 +559,6 @@ codeunit 900 "Assembly-Post"
             ItemJnlLine."Posting No. Series" := PostingNoSeries;
             ItemJnlLine.Type := ItemJnlLine.Type::" ";
             ItemJnlLine."Item No." := "No.";
-            ItemJnlLine."Gen. Bus. Posting Group" := "Gen. Bus. Posting Group"; // NAVCZ
             ItemJnlLine."Gen. Prod. Posting Group" := "Gen. Prod. Posting Group";
             ItemJnlLine."Inventory Posting Group" := "Inventory Posting Group";
 
@@ -629,7 +627,6 @@ codeunit 900 "Assembly-Post"
             ItemJnlLine."Posting No. Series" := PostingNoSeries;
             ItemJnlLine.Type := ItemJnlLine.Type::" ";
             ItemJnlLine."Item No." := "Item No.";
-            ItemJnlLine."Gen. Bus. Posting Group" := "Gen. Bus. Posting Group"; // NAVCZ
             ItemJnlLine."Gen. Prod. Posting Group" := "Gen. Prod. Posting Group";
             ItemJnlLine."Inventory Posting Group" := "Inventory Posting Group";
 
@@ -700,13 +697,13 @@ codeunit 900 "Assembly-Post"
 
                 if ItemJnlLine."Entry Type" = ItemJnlLine."Entry Type"::"Assembly Consumption" then begin
                     ItemJnlLine.Quantity :=
-                      Round(TempItemLedgEntry.Quantity * TempItemLedgEntry."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision);
+                      Round(TempItemLedgEntry.Quantity * TempItemLedgEntry."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision());
                     ItemJnlLine."Quantity (Base)" := TempItemLedgEntry.Quantity;
 
                     ItemJnlLine."Applies-from Entry" := TempItemLedgEntry."Entry No.";
                 end else begin
                     ItemJnlLine.Quantity :=
-                      -Round(TempItemLedgEntry.Quantity * TempItemLedgEntry."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision);
+                      -Round(TempItemLedgEntry.Quantity * TempItemLedgEntry."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision());
                     ItemJnlLine."Quantity (Base)" := -TempItemLedgEntry.Quantity;
 
                     if (ItemJnlLine."Order Type" = ItemJnlLine."Order Type"::Assembly) and
@@ -738,7 +735,7 @@ codeunit 900 "Assembly-Post"
     local procedure FindAppliesToATOUndoEntry(var ItemLedgEntryInChain: Record "Item Ledger Entry"): Integer
     begin
         with ItemLedgEntryInChain do begin
-            Reset;
+            Reset();
             SetCurrentKey("Item No.", Positive);
             SetRange(Positive, true);
             SetRange(Open, true);
@@ -894,7 +891,6 @@ codeunit 900 "Assembly-Post"
             ItemJnlLine."Qty. per Unit of Measure" := AssemblyHeader."Qty. per Unit of Measure";
 
             ItemJnlLine.Validate("Location Code", "Location Code");
-            ItemJnlLine."Gen. Bus. Posting Group" := "Gen. Bus. Posting Group"; // NAVCZ
             ItemJnlLine."Gen. Prod. Posting Group" := "Gen. Prod. Posting Group";
             ItemJnlLine."Inventory Posting Group" := "Inventory Posting Group";
             ItemJnlLine."Unit Cost" := "Unit Cost";
@@ -979,7 +975,7 @@ codeunit 900 "Assembly-Post"
     var
         WhseJnlRegisterLine: Codeunit "Whse. Jnl.-Register Line";
     begin
-        ClearAll;
+        ClearAll();
 
         Window.Open(
           '#1#################################\\' +
@@ -987,9 +983,9 @@ codeunit 900 "Assembly-Post"
           StrSubstNo(Text010, PostedAsmHeader."No."));
 
         ShowProgress := true;
-        Window.Update(1, StrSubstNo('%1 %2', PostedAsmHeader.TableCaption, PostedAsmHeader."No."));
+        Window.Update(1, StrSubstNo('%1 %2', PostedAsmHeader.TableCaption(), PostedAsmHeader."No."));
 
-        PostedAsmHeader.CheckIsNotAsmToOrder;
+        PostedAsmHeader.CheckIsNotAsmToOrder();
 
         UndoInitPost(PostedAsmHeader);
         UndoPost(PostedAsmHeader, ItemJnlPostLine, ResJnlPostLine, WhseJnlRegisterLine);
@@ -998,7 +994,7 @@ codeunit 900 "Assembly-Post"
         if not SuppressCommit then
             Commit();
 
-        Window.Close;
+        Window.Close();
     end;
 
     local procedure UndoInitPost(var PostedAsmHeader: Record "Posted Assembly Header")
@@ -1008,7 +1004,7 @@ codeunit 900 "Assembly-Post"
 
             CheckPossibleToUndo(PostedAsmHeader);
 
-            GetSourceCode(IsAsmToOrder);
+            GetSourceCode(IsAsmToOrder());
 
             TempItemLedgEntry.Reset();
             TempItemLedgEntry.DeleteAll();
@@ -1021,7 +1017,7 @@ codeunit 900 "Assembly-Post"
     var
         AsmHeader: Record "Assembly Header";
     begin
-        MakeInvtAdjmt;
+        MakeInvtAdjmt();
 
         if AsmHeader.Get(AsmHeader."Document Type"::Order, PostedAsmHeader."Order No.") then
             UpdateAsmOrderWithUndo(PostedAsmHeader)
@@ -1051,7 +1047,7 @@ codeunit 900 "Assembly-Post"
         AsmHeader."No." := PostedAsmHeader."Order No.";
 
         with PostedAsmLine do begin
-            Reset;
+            Reset();
             SetRange("Document No.", PostedAsmHeader."No.");
             SortPostedLines(PostedAsmLine);
 
@@ -1197,7 +1193,7 @@ codeunit 900 "Assembly-Post"
             "No." := PostedAsmHeader."Order No.";
 
             "Assembled Quantity (Base)" := SumItemQtyPosted("No.", 0);
-            "Assembled Quantity" := Round("Assembled Quantity (Base)" / "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision);
+            "Assembled Quantity" := Round("Assembled Quantity (Base)" / "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision());
             Quantity := PostedAsmHeader.Quantity + "Assembled Quantity";
             "Quantity (Base)" := PostedAsmHeader."Quantity (Base)" + "Assembled Quantity (Base)";
             InitRemainingQty();
@@ -1230,7 +1226,7 @@ codeunit 900 "Assembly-Post"
                         else
                             "Consumed Quantity (Base)" := SumCapQtyPosted("Document No.", "Line No.");
 
-                        "Consumed Quantity" := Round("Consumed Quantity (Base)" / "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision);
+                        "Consumed Quantity" := Round("Consumed Quantity (Base)" / "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision());
                         Quantity := PostedAsmLine.Quantity + "Consumed Quantity";
                         "Quantity (Base)" := PostedAsmLine."Quantity (Base)" + "Consumed Quantity (Base)";
                         "Cost Amount" := CalcCostAmount(Quantity, "Unit Cost");
@@ -1350,15 +1346,15 @@ codeunit 900 "Assembly-Post"
     begin
         with ItemLedgEntry do begin
             AsmHeader.Get(AsmHeader."Document Type"::Order, OrderNo);
-            IsATOHeader := (OrderLineNo = 0) and AsmHeader.IsAsmToOrder;
+            IsATOHeader := (OrderLineNo = 0) and AsmHeader.IsAsmToOrder();
 
-            Reset;
+            Reset();
             SetRange("Order Type", "Order Type"::Assembly);
             SetRange("Order No.", OrderNo);
             SetRange("Order Line No.", OrderLineNo);
             if FindSet() then
                 repeat
-                    if TrackingExists then begin
+                    if TrackingExists() then begin
                         CreateReservEntry.SetDates("Warranty Date", "Expiration Date");
                         CreateReservEntry.SetQtyToHandleAndInvoice(Quantity, Quantity);
                         CreateReservEntry.SetItemLedgEntryNo("Entry No.");
@@ -1392,37 +1388,37 @@ codeunit 900 "Assembly-Post"
 
     procedure InitPostATO(var AssemblyHeader: Record "Assembly Header")
     begin
-        if AssemblyHeader.IsAsmToOrder then
+        if AssemblyHeader.IsAsmToOrder() then
             InitPost(AssemblyHeader);
     end;
 
     procedure PostATO(var AssemblyHeader: Record "Assembly Header"; var ItemJnlPostLine: Codeunit "Item Jnl.-Post Line"; var ResJnlPostLine: Codeunit "Res. Jnl.-Post Line"; var WhseJnlRegisterLine: Codeunit "Whse. Jnl.-Register Line")
     begin
-        if AssemblyHeader.IsAsmToOrder then
+        if AssemblyHeader.IsAsmToOrder() then
             Post(AssemblyHeader, ItemJnlPostLine, ResJnlPostLine, WhseJnlRegisterLine, true);
     end;
 
     procedure FinalizePostATO(var AssemblyHeader: Record "Assembly Header")
     begin
-        if AssemblyHeader.IsAsmToOrder then
+        if AssemblyHeader.IsAsmToOrder() then
             FinalizePost(AssemblyHeader);
     end;
 
     procedure UndoInitPostATO(var PostedAsmHeader: Record "Posted Assembly Header")
     begin
-        if PostedAsmHeader.IsAsmToOrder then
+        if PostedAsmHeader.IsAsmToOrder() then
             UndoInitPost(PostedAsmHeader);
     end;
 
     procedure UndoPostATO(var PostedAsmHeader: Record "Posted Assembly Header"; var ItemJnlPostLine: Codeunit "Item Jnl.-Post Line"; var ResJnlPostLine: Codeunit "Res. Jnl.-Post Line"; var WhseJnlRegisterLine: Codeunit "Whse. Jnl.-Register Line")
     begin
-        if PostedAsmHeader.IsAsmToOrder then
+        if PostedAsmHeader.IsAsmToOrder() then
             UndoPost(PostedAsmHeader, ItemJnlPostLine, ResJnlPostLine, WhseJnlRegisterLine);
     end;
 
     procedure UndoFinalizePostATO(var PostedAsmHeader: Record "Posted Assembly Header")
     begin
-        if PostedAsmHeader.IsAsmToOrder then
+        if PostedAsmHeader.IsAsmToOrder() then
             UndoFinalizePost(PostedAsmHeader, false);
     end;
 
@@ -1717,4 +1713,3 @@ codeunit 900 "Assembly-Post"
     end;
 }
 
-#endif

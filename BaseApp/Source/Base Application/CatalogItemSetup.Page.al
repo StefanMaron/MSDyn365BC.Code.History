@@ -1,4 +1,3 @@
-#if not CLEAN18
 page 5732 "Catalog Item Setup"
 {
     AdditionalSearchTerms = 'non-inventoriable setup,special order setup';
@@ -17,23 +16,15 @@ page 5732 "Catalog Item Setup"
             group(General)
             {
                 Caption = 'General';
-                field("No. Format"; "No. Format")
+                field("No. Format"; Rec."No. Format")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the format of the catalog item number that appears on the item card.';
                 }
-                field("No. Format Separator"; "No. Format Separator")
+                field("No. Format Separator"; Rec."No. Format Separator")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the character that separates the elements of your catalog item number format, if the format uses both a code and a number.';
-                }
-                field("No. From No. Series"; "No. From No. Series")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
-                    ObsoleteTag = '18.0';
-                    Visible = false;
                 }
             }
         }
@@ -58,12 +49,11 @@ page 5732 "Catalog Item Setup"
 
     trigger OnOpenPage()
     begin
-        Reset;
-        if not Get then begin
-            Init;
-            Insert;
+        Reset();
+        if not Get() then begin
+            Init();
+            Insert();
         end;
     end;
 }
 
-#endif

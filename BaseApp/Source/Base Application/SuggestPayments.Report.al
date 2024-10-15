@@ -12,12 +12,7 @@ report 11700 "Suggest Payments"
     {
         dataitem("Cust. Ledger Entry"; "Cust. Ledger Entry")
         {
-#if CLEAN18
             DataItemTableView = SORTING(Open, "Due Date") WHERE(Open = CONST(true), "On Hold" = CONST(''));
-#else
-            CalcFields = "Amount on Credit (LCY)";
-            DataItemTableView = SORTING(Open, "Due Date") WHERE(Open = CONST(true), "On Hold" = CONST(''), "Amount on Credit (LCY)" = CONST(0));
-#endif
 
             trigger OnAfterGetRecord()
             begin
@@ -40,7 +35,7 @@ report 11700 "Suggest Payments"
             begin
                 if DialogOpen then begin
                     Clear(DialogOpen);
-                    Window.Close;
+                    Window.Close();
                 end;
             end;
 
@@ -67,12 +62,7 @@ report 11700 "Suggest Payments"
         }
         dataitem("Vendor Ledger Entry"; "Vendor Ledger Entry")
         {
-#if CLEAN18
             DataItemTableView = SORTING(Open, "Due Date") WHERE(Open = CONST(true), "On Hold" = CONST(''));
-#else
-            CalcFields = "Amount on Credit (LCY)";
-            DataItemTableView = SORTING(Open, "Due Date") WHERE(Open = CONST(true), "On Hold" = CONST(''), "Amount on Credit (LCY)" = CONST(0));
-#endif
 
             trigger OnAfterGetRecord()
             begin
@@ -95,7 +85,7 @@ report 11700 "Suggest Payments"
             begin
                 if DialogOpen then begin
                     Clear(DialogOpen);
-                    Window.Close;
+                    Window.Close();
                 end;
             end;
 
@@ -124,12 +114,7 @@ report 11700 "Suggest Payments"
         }
         dataitem("Vendor Ledger Entry Disc"; "Vendor Ledger Entry")
         {
-#if CLEAN18
             DataItemTableView = SORTING(Open, "Due Date") WHERE(Open = CONST(true), "On Hold" = CONST(''));
-#else
-            CalcFields = "Amount on Credit (LCY)";
-            DataItemTableView = SORTING(Open, "Due Date") WHERE(Open = CONST(true), "On Hold" = CONST(''), "Amount on Credit (LCY)" = CONST(0));
-#endif
 
             trigger OnAfterGetRecord()
             begin
@@ -152,7 +137,7 @@ report 11700 "Suggest Payments"
             begin
                 if DialogOpen then begin
                     Clear(DialogOpen);
-                    Window.Close;
+                    Window.Close();
                 end;
             end;
 
@@ -200,7 +185,7 @@ report 11700 "Suggest Payments"
             begin
                 if DialogOpen then begin
                     Clear(DialogOpen);
-                    Window.Close;
+                    Window.Close();
                 end;
             end;
 
@@ -236,7 +221,7 @@ report 11700 "Suggest Payments"
                     CurrReport.Skip();
                 end;
 
-                RemAmount := GetRemAmount;
+                RemAmount := GetRemAmount();
                 if RemAmount <> 0 then
                     AddPurchaseLetter("Purch. Advance Letter Header");
 
@@ -250,7 +235,7 @@ report 11700 "Suggest Payments"
             begin
                 if DialogOpen then begin
                     Clear(DialogOpen);
-                    Window.Close;
+                    Window.Close();
                 end;
             end;
 
@@ -318,7 +303,7 @@ report 11700 "Suggest Payments"
             begin
                 if DialogOpen then begin
                     Clear(DialogOpen);
-                    Window.Close;
+                    Window.Close();
                 end;
             end;
 
@@ -407,11 +392,11 @@ report 11700 "Suggest Payments"
                         trigger OnValidate()
                         begin
                             if Currency = Currency::"Bank Account" then
-                                BankAccountCurrencyOnValida;
+                                BankAccountCurrencyOnValida();
                             if Currency = Currency::"Payment Order" then
-                                PaymentOrderCurrencyOnValid;
+                                PaymentOrderCurrencyOnValid();
                             if Currency = Currency::Entry then
-                                EntryCurrencyOnValidate;
+                                EntryCurrencyOnValidate();
                         end;
                     }
                     field(KeepCurrency; KeepCurrency)
@@ -477,8 +462,8 @@ report 11700 "Suggest Payments"
     begin
         PmtOrdHdr.Get(PmtOrdHdr."No.");
 
-        if UsePaymentDisc and (LastDueDateToPayReq < WorkDate) then
-            if not Confirm(EarlierDateQst, false, WorkDate) then
+        if UsePaymentDisc and (LastDueDateToPayReq < WorkDate()) then
+            if not Confirm(EarlierDateQst, false, WorkDate()) then
                 Error(InterruptedBatchErr);
 
         if LastDueDateToPayReq = 0D then
@@ -560,7 +545,7 @@ report 11700 "Suggest Payments"
     procedure AddCustLedgEntry(CustLedgEntry: Record "Cust. Ledger Entry")
     begin
         with PmtOrdLn do begin
-            Init;
+            Init();
             Validate("Payment Order No.", PmtOrdHdr."No.");
             "Line No." := LineNo;
             LineNo += 10000;
@@ -587,7 +572,7 @@ report 11700 "Suggest Payments"
                 "Original Amount (LCY)" := "Amount (LCY) to Pay";
                 "Orig. Amount(Pay.Order Curr.)" := "Amount(Pay.Order Curr.) to Pay";
             end;
-            AddPaymentLine;
+            AddPaymentLine();
         end;
     end;
 
@@ -595,7 +580,7 @@ report 11700 "Suggest Payments"
     procedure AddVendLedgEntry(VendLedgEntry: Record "Vendor Ledger Entry")
     begin
         with PmtOrdLn do begin
-            Init;
+            Init();
             Validate("Payment Order No.", PmtOrdHdr."No.");
             "Line No." := LineNo;
             LineNo += 10000;
@@ -623,7 +608,7 @@ report 11700 "Suggest Payments"
                 "Orig. Amount(Pay.Order Curr.)" := "Amount(Pay.Order Curr.) to Pay";
                 "Due Date" := VendLedgEntry."Due Date";
             end;
-            AddPaymentLine;
+            AddPaymentLine();
         end;
     end;
 
@@ -631,7 +616,7 @@ report 11700 "Suggest Payments"
     procedure AddEmplLedgEntry(EmplLedgEntry: Record "Employee Ledger Entry")
     begin
         with PmtOrdLn do begin
-            Init;
+            Init();
             Validate("Payment Order No.", PmtOrdHdr."No.");
             "Line No." := LineNo;
             LineNo += 10000;
@@ -639,7 +624,7 @@ report 11700 "Suggest Payments"
             if "Payment Order Currency Code" <> EmplLedgEntry."Currency Code" then
                 Validate("Payment Order Currency Code", EmplLedgEntry."Currency Code");
             Validate("Applies-to C/V/E Entry No.", EmplLedgEntry."Entry No.");
-            AddPaymentLine;
+            AddPaymentLine();
         end;
     end;
 
@@ -647,7 +632,7 @@ report 11700 "Suggest Payments"
     procedure AddPurchaseLetter(PurchAdvanceLetterHeader: Record "Purch. Advance Letter Header")
     begin
         with PmtOrdLn do begin
-            Init;
+            Init();
             Validate("Payment Order No.", PmtOrdHdr."No.");
             "Line No." := LineNo;
             LineNo += 10000;
@@ -666,7 +651,7 @@ report 11700 "Suggest Payments"
             "Letter Type" := "Letter Type"::Purchase;
 
             Validate("Letter No.", PurchAdvanceLetterHeader."No.");
-            AddPaymentLine;
+            AddPaymentLine();
         end;
     end;
 
@@ -772,7 +757,7 @@ report 11700 "Suggest Payments"
     procedure AddPurchaseLetterLine(PurchAdvLetterLine: Record "Purch. Advance Letter Line")
     begin
         with PmtOrdLn do begin
-            Init;
+            Init();
             Validate("Payment Order No.", PmtOrdHdr."No.");
             "Line No." := LineNo;
             LineNo += 10000;
@@ -791,7 +776,7 @@ report 11700 "Suggest Payments"
             "Letter Type" := "Letter Type"::Purchase;
             "Letter No." := PurchAdvLetterLine."Letter No.";
             Validate("Letter Line No.", PurchAdvLetterLine."Line No.");
-            AddPaymentLine;
+            AddPaymentLine();
         end;
     end;
 

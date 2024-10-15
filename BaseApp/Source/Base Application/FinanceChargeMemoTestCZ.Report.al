@@ -623,7 +623,7 @@ report 31037 "Finance Charge Memo - Test CZ"
                             AddError(
                               StrSubstNo(
                                 Text010Lbl,
-                                Cust.FieldCaption(Blocked), Cust.Blocked, Cust.TableCaption, "Customer No."));
+                                Cust.FieldCaption(Blocked), Cust.Blocked, Cust.TableCaption(), "Customer No."));
                         if Cust."Currency Code" <> "Currency Code" then
                             if Cust."Currency Code" <> '' then
                                 AddError(
@@ -639,7 +639,7 @@ report 31037 "Finance Charge Memo - Test CZ"
                         AddError(
                           StrSubstNo(
                             Text003Lbl,
-                            Cust.TableCaption, "Customer No."));
+                            Cust.TableCaption(), "Customer No."));
 
                 GLSetup.Get();
 
@@ -726,7 +726,7 @@ report 31037 "Finance Charge Memo - Test CZ"
 
     trigger OnPreReport()
     begin
-        FinChrgMemoHeaderFilter := "Finance Charge Memo Header".GetFilters;
+        FinChrgMemoHeaderFilter := "Finance Charge Memo Header".GetFilters();
     end;
 
     var

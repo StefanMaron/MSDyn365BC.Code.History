@@ -14,7 +14,7 @@ page 5883 "Posted Phys. Invt. Order"
             group(General)
             {
                 Caption = 'General';
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Warehouse;
                     Editable = false;
@@ -26,50 +26,50 @@ page 5883 "Posted Phys. Invt. Order"
                     Editable = false;
                     ToolTip = 'Specifies the Description of the table physical inventory order header.';
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Warehouse;
                     Editable = false;
                     Importance = Promoted;
                     ToolTip = 'Specifies the Location Code of the table physical inventory order header.';
                 }
-                field("Person Responsible"; "Person Responsible")
+                field("Person Responsible"; Rec."Person Responsible")
                 {
                     ApplicationArea = Warehouse;
                     Editable = false;
                     ToolTip = 'Specifies the Person Responsible of the table physical inventory order header.';
                 }
-                field("No. Finished Recordings"; "No. Finished Recordings")
+                field("No. Finished Recordings"; Rec."No. Finished Recordings")
                 {
                     ApplicationArea = Warehouse;
                     Editable = false;
                     ToolTip = 'Specifies the No. Finished Recordings.';
                 }
-                field("Order Date"; "Order Date")
+                field("Order Date"; Rec."Order Date")
                 {
                     ApplicationArea = Warehouse;
                     Editable = false;
                     ToolTip = 'Specifies the Order Date of the table physical inventory order header.';
                 }
-                field("Posting Date"; "Posting Date")
+                field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = Warehouse;
                     Editable = false;
                     ToolTip = 'Specifies the Posting Date of the table physical inventory order header.';
                 }
-                field("Pre-Assigned No."; "Pre-Assigned No.")
+                field("Pre-Assigned No."; Rec."Pre-Assigned No.")
                 {
                     ApplicationArea = Warehouse;
                     Editable = false;
                     ToolTip = 'Specifies the number of the physical inventory header, from which the posted physical inventory order was posted.';
                 }
-                field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
+                field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
                     Editable = false;
                     ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                 }
-                field("Shortcut Dimension 2 Code"; "Shortcut Dimension 2 Code")
+                field("Shortcut Dimension 2 Code"; Rec."Shortcut Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     Editable = false;
@@ -98,8 +98,6 @@ page 5883 "Posted Phys. Invt. Order"
                     ApplicationArea = Warehouse;
                     Caption = 'Statistics';
                     Image = Statistics;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     RunObject = Page "Posted Phys. Invt. Order Stat.";
                     RunPageLink = "No." = FIELD("No.");
                     ShortCutKey = 'F7';
@@ -148,8 +146,6 @@ page 5883 "Posted Phys. Invt. Order"
                 Caption = '&Print';
                 Ellipsis = true;
                 Image = Print;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Print order.';
 
                 trigger OnAction()
@@ -164,14 +160,12 @@ page 5883 "Posted Phys. Invt. Order"
                 ApplicationArea = Warehouse;
                 Caption = 'Find entries...';
                 Image = Navigate;
-                Promoted = true;
-                PromotedCategory = Process;
                 ShortCutKey = 'Ctrl+Alt+Q';
                 ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
 
                 trigger OnAction()
                 begin
-                    Navigate;
+                    Navigate();
                 end;
             }
         }
@@ -182,11 +176,27 @@ page 5883 "Posted Phys. Invt. Order"
                 ApplicationArea = Warehouse;
                 Caption = 'Posted Phys. Invt. Order Diff.';
                 Image = "Report";
-                Promoted = false;
                 //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                 //PromotedCategory = "Report";
                 RunObject = Report "Posted Phys. Invt. Order Diff.";
                 ToolTip = 'View or print the list of differences after counting.';
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(Print_Promoted; Print)
+                {
+                }
+                actionref("&Navigate_Promoted"; "&Navigate")
+                {
+                }
+                actionref(Statistics_Promoted; Statistics)
+                {
+                }
             }
         }
     }

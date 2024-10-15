@@ -16,7 +16,7 @@ page 31089 "Acc. Schedule Results Overview"
             group(General)
             {
                 Caption = 'General';
-                field("Result Code"; "Result Code")
+                field("Result Code"; Rec."Result Code")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -27,19 +27,19 @@ page 31089 "Acc. Schedule Results Overview"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of account schedule results.';
                 }
-                field("Date Filter"; "Date Filter")
+                field("Date Filter"; Rec."Date Filter")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the date filter of account schedule results.';
                 }
-                field("Acc. Schedule Name"; "Acc. Schedule Name")
+                field("Acc. Schedule Name"; Rec."Acc. Schedule Name")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the name of the account schedule.';
                 }
-                field("Column Layout Name"; "Column Layout Name")
+                field("Column Layout Name"; Rec."Column Layout Name")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -54,25 +54,25 @@ page 31089 "Acc. Schedule Results Overview"
             group("Dimension Filters")
             {
                 Caption = 'Dimension Filters';
-                field("Dimension 1 Filter"; "Dimension 1 Filter")
+                field("Dimension 1 Filter"; Rec."Dimension 1 Filter")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies dimensions which was used by account schedule results creating.';
                 }
-                field("Dimension 2 Filter"; "Dimension 2 Filter")
+                field("Dimension 2 Filter"; Rec."Dimension 2 Filter")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies dimensions which was used by account schedule results creating.';
                 }
-                field("Dimension 3 Filter"; "Dimension 3 Filter")
+                field("Dimension 3 Filter"; Rec."Dimension 3 Filter")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies dimensions which was used by account schedule results creating.';
                 }
-                field("Dimension 4 Filter"; "Dimension 4 Filter")
+                field("Dimension 4 Filter"; Rec."Dimension 4 Filter")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -82,7 +82,7 @@ page 31089 "Acc. Schedule Results Overview"
             group(Options)
             {
                 Caption = 'Options';
-                field("User ID"; "User ID")
+                field("User ID"; Rec."User ID")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the ID of the user associated with the entry.';
@@ -94,12 +94,12 @@ page 31089 "Acc. Schedule Results Overview"
                         UserMgt.DisplayUserInformation("User ID");
                     end;
                 }
-                field("Result Date"; "Result Date")
+                field("Result Date"; Rec."Result Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the created date of account schedule results.';
                 }
-                field("Result Time"; "Result Time")
+                field("Result Time"; Rec."Result Time")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the created time of account schedule results.';
@@ -112,7 +112,7 @@ page 31089 "Acc. Schedule Results Overview"
 
                     trigger OnValidate()
                     begin
-                        ShowOnlyChangedValuesOnAfterVa;
+                        ShowOnlyChangedValuesOnAfterVa();
                     end;
                 }
             }
@@ -139,7 +139,7 @@ page 31089 "Acc. Schedule Results Overview"
                         AccScheduleResultHeader: Record "Acc. Schedule Result Header";
                     begin
                         AccScheduleResultHeader := Rec;
-                        AccScheduleResultHeader.SetRecFilter;
+                        AccScheduleResultHeader.SetRecFilter();
                         REPORT.RunModal(REPORT::"Account Schedule Result", true, false, AccScheduleResultHeader);
                     end;
                 }
@@ -165,15 +165,12 @@ page 31089 "Acc. Schedule Results Overview"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Next Set';
                 Image = NextSet;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ToolTip = 'Go to the next set of the account schedule results.';
 
                 trigger OnAction()
                 begin
                     MATRIX_SetWanted := MATRIX_SetWanted::Next;
-                    UpdateColumnSet;
+                    UpdateColumnSet();
                     CurrPage.SubForm.PAGE.Load(MATRIX_ColumnSet, MATRIX_ColumnCaption);
                 end;
             }
@@ -182,17 +179,28 @@ page 31089 "Acc. Schedule Results Overview"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Previous Set';
                 Image = PreviousSet;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ToolTip = 'Previous Set';
 
                 trigger OnAction()
                 begin
                     MATRIX_SetWanted := MATRIX_SetWanted::Previous;
-                    UpdateColumnSet;
+                    UpdateColumnSet();
                     CurrPage.SubForm.PAGE.Load(MATRIX_ColumnSet, MATRIX_ColumnCaption);
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("Next Set_Promoted"; "Next Set")
+                {
+                }
+                actionref("Previous Set_Promoted"; "Previous Set")
+                {
+                }
             }
         }
     }
@@ -201,7 +209,7 @@ page 31089 "Acc. Schedule Results Overview"
     begin
         if xRec."Result Code" <> "Result Code" then
             MATRIX_SetWanted := MATRIX_SetWanted::Initial;
-        UpdateColumnSet;
+        UpdateColumnSet();
         CurrPage.SubForm.PAGE.Load(MATRIX_ColumnSet, MATRIX_ColumnCaption);
     end;
 
@@ -226,7 +234,7 @@ page 31089 "Acc. Schedule Results Overview"
                     MATRIX_SetWanted := MATRIX_SetWanted::Same;
                     if AccSchedResultColumn.FindFirst() then begin
                         Clear(MATRIX_ColumnSet);
-                        ClearMATRIX_ColumnCaption;
+                        ClearMATRIX_ColumnCaption();
                         for StackCounter := 1 to 4 do begin
                             MATRIX_ColumnSet[StackCounter] := AccSchedResultColumn."Line No.";
                             MATRIX_ColumnCaption[StackCounter] := GetColumnName(MATRIX_ColumnSet[StackCounter]);
@@ -248,7 +256,7 @@ page 31089 "Acc. Schedule Results Overview"
                                 exit;
                             if (StackCounter = 1) and (AccSchedResultColumn."Line No." <> MATRIX_ColumnSet[4]) then begin
                                 Clear(MATRIX_ColumnSet);
-                                ClearMATRIX_ColumnCaption
+                                ClearMATRIX_ColumnCaption();
                             end;
                             MATRIX_ColumnSet[StackCounter] := AccSchedResultColumn."Line No.";
                             MATRIX_ColumnCaption[StackCounter] := GetColumnName(MATRIX_ColumnSet[StackCounter]);
@@ -265,7 +273,7 @@ page 31089 "Acc. Schedule Results Overview"
                         AccSchedResultColumn.Next := -4;
                     if AccSchedResultColumn."Line No." <> MATRIX_ColumnSet[1] then begin
                         Clear(MATRIX_ColumnSet);
-                        ClearMATRIX_ColumnCaption;
+                        ClearMATRIX_ColumnCaption();
                         for StackCounter := 1 to 4 do begin
                             MATRIX_ColumnSet[StackCounter] := AccSchedResultColumn."Line No.";
                             MATRIX_ColumnCaption[StackCounter] := GetColumnName(MATRIX_ColumnSet[StackCounter]);

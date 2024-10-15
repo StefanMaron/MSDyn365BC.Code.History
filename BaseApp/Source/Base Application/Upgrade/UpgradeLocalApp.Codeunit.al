@@ -1,10 +1,22 @@
 codeunit 104150 "Upgrade - Local App"
 {
+#if not CLEAN21
+    ObsoleteState = Pending;
+    ObsoleteReason = 'The access of this codeunit will be changed to internal.';
+    ObsoleteTag = '21.0';
+#else
+    Access = internal;
+#endif
     Subtype = Upgrade;
 
     trigger OnRun()
     begin
     end;
+#if CLEAN19
+
+    var
+        DefaultCodeTxt: Label 'DEFAULT';
+#endif
 
     trigger OnUpgradePerDatabase()
     var
@@ -31,12 +43,11 @@ codeunit 104150 "Upgrade - Local App"
         UpdateItemJournalLine();
         UpdateItemLedgerEntry();
         UpdateCashDeskWorkflowTemplate();
-#if CLEAN18
         UpdateCreditWorkflowTemplate();
-#endif
 #if CLEAN19
         UpdatePaymentOrderWorkflowTemplate();
         UpdateAdvanceLetterWorkflowTemplate();
+        UpdateBankPaymentApplicationRule();
 #endif
     end;
 
@@ -255,7 +266,6 @@ codeunit 104150 "Upgrade - Local App"
         UpgradeTag.SetUpgradeTag(LocalUpgradeTagDefinitions.GetCashDeskWorkflowTemplatesCodeUpgradeTag());
     end;
 
-#if CLEAN18
     local procedure UpdateCreditWorkflowTemplate()
     var
         UpgradeTag: Codeunit "Upgrade Tag";
@@ -270,7 +280,6 @@ codeunit 104150 "Upgrade - Local App"
         UpgradeTag.SetUpgradeTag(LocalUpgradeTagDefinitions.GetCreditWorkflowTemplatesCodeUpgradeTag());
     end;
 
-#endif
 #if CLEAN19
     local procedure UpdatePaymentOrderWorkflowTemplate()
     var
@@ -300,6 +309,45 @@ codeunit 104150 "Upgrade - Local App"
         DeleteWorkflowTemplate(PurchAdvanceLetterApprWorkflowCodeTxt);
 
         UpgradeTag.SetUpgradeTag(LocalUpgradeTagDefinitions.GetAdvanceLetterWorkflowTemplatesCodeUpgradeTag());
+    end;
+
+    local procedure UpdateBankPaymentApplicationRule()
+    var
+        BankPmtApplRule: Record "Bank Pmt. Appl. Rule";
+        BankPmtApplRule2: Record "Bank Pmt. Appl. Rule";
+        BankPmtApplRuleCode: Record "Bank Pmt. Appl. Rule Code";
+        BankPmtApplSettings: Record "Bank Pmt. Appl. Settings";
+        BankPmtApplSettings2: Record "Bank Pmt. Appl. Settings";
+        UpgradeTag: Codeunit "Upgrade Tag";
+        LocalUpgradeTagDefinitions: Codeunit "Local Upgrade Tag Definitions";
+    begin
+        if UpgradeTag.HasUpgradeTag(LocalUpgradeTagDefinitions.GetBankPaymentApplicationWithoutCodeUpgradeTag()) then
+            exit;
+
+        BankPmtApplRule.SetRange("Bank Pmt. Appl. Rule Code", DefaultCodeTxt);
+        if BankPmtApplRule.FindSet(true) then begin
+            BankPmtApplRule2.SetRange("Bank Pmt. Appl. Rule Code", BankPmtApplRule2.GetDefaultCode());
+            BankPmtApplRule2.DeleteAll();
+            repeat
+                BankPmtApplRule2.Init();
+                BankPmtApplRule2 := BankPmtApplRule;
+                BankPmtApplRule2."Bank Pmt. Appl. Rule Code" := BankPmtApplRule2.GetDefaultCode();
+                BankPmtApplRule2.Insert();
+            until BankPmtApplRule.Next() = 0;
+            BankPmtApplRule.DeleteAll();
+        end;
+
+        if BankPmtApplSettings.Get(DefaultCodeTxt) then begin
+            if BankPmtApplSettings2.Get(BankPmtApplRule.GetDefaultCode()) then
+                BankPmtApplSettings2.Delete();
+            BankPmtApplSettings2.Init();
+            BankPmtApplSettings2 := BankPmtApplSettings;
+            BankPmtApplSettings2.PrimaryKey := BankPmtApplRule.GetDefaultCode();
+            BankPmtApplSettings2.Insert();
+            BankPmtApplSettings.Delete();
+        end;
+
+        UpgradeTag.SetUpgradeTag(LocalUpgradeTagDefinitions.GetBankPaymentApplicationWithoutCodeUpgradeTag());
     end;
 #endif
 

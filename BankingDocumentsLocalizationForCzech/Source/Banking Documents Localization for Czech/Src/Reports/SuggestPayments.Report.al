@@ -13,11 +13,7 @@ report 31280 "Suggest Payments CZB"
 
             dataitem("Cust. Ledger Entry"; "Cust. Ledger Entry")
             {
-#if not CLEAN18
-                DataItemTableView = sorting(Open, "Due Date") where(Open = const(true), "On Hold" = const(''), "Amount on Credit (LCY)" = const(0));
-#else
                 DataItemTableView = sorting(Open, "Due Date") where(Open = const(true), "On Hold" = const(''));
-#endif
 
                 trigger OnPreDataItem()
                 var
@@ -50,6 +46,8 @@ report 31280 "Suggest Payments CZB"
                         IsSkippedBlocked := true;
                         CurrReport.Skip();
                     end;
+                    if (CalcSuggestedAmountToApplyCZL() <> 0) and not BankAccount."Payment Partial Suggestion CZB" then
+                        CurrReport.Skip();
 
                     AddCustLedgEntry("Cust. Ledger Entry");
                     if StopPayments then
@@ -66,11 +64,7 @@ report 31280 "Suggest Payments CZB"
             }
             dataitem("Vendor Ledger Entry"; "Vendor Ledger Entry")
             {
-#if not CLEAN18
-                DataItemTableView = sorting(Open, "Due Date") where(Open = const(true), "On Hold" = const(''), "Amount on Credit (LCY)" = const(0));
-#else
                 DataItemTableView = sorting(Open, "Due Date") where(Open = const(true), "On Hold" = const(''));
-#endif
 
                 trigger OnPreDataItem()
                 var
@@ -105,6 +99,8 @@ report 31280 "Suggest Payments CZB"
                         IsSkippedBlocked := true;
                         CurrReport.Skip();
                     end;
+                    if (CalcSuggestedAmountToApplyCZL() <> 0) and not BankAccount."Payment Partial Suggestion CZB" then
+                        CurrReport.Skip();
 
                     AddVendLedgEntry("Vendor Ledger Entry");
                     if StopPayments then
@@ -121,11 +117,7 @@ report 31280 "Suggest Payments CZB"
             }
             dataitem("Vendor Ledger Entry Disc"; "Vendor Ledger Entry")
             {
-#if not CLEAN18
-                DataItemTableView = sorting(Open, "Due Date") where(Open = const(true), "On Hold" = const(''), "Amount on Credit (LCY)" = const(0));
-#else
                 DataItemTableView = sorting(Open, "Due Date") where(Open = const(true), "On Hold" = const(''));
-#endif
 
                 trigger OnPreDataItem()
                 var
@@ -164,6 +156,8 @@ report 31280 "Suggest Payments CZB"
                         IsSkippedBlocked := true;
                         CurrReport.Skip();
                     end;
+                    if (CalcSuggestedAmountToApplyCZL() <> 0) and not BankAccount."Payment Partial Suggestion CZB" then
+                        CurrReport.Skip();
 
                     AddVendLedgEntry("Vendor Ledger Entry Disc");
                     if StopPayments then
@@ -206,6 +200,8 @@ report 31280 "Suggest Payments CZB"
                         IsSkippedBlocked := true;
                         CurrReport.Skip();
                     end;
+                    if (CalcSuggestedAmountToApplyCZL() <> 0) and not BankAccount."Payment Partial Suggestion CZB" then
+                        CurrReport.Skip();
 
                     AddEmplLedgEntry("Employee Ledger Entry");
                     if StopPayments then

@@ -1,3 +1,4 @@
+#if not CLEAN21
 codeunit 138916 "O365 Translation Tests"
 {
     Subtype = Test;
@@ -40,7 +41,7 @@ codeunit 138916 "O365 Translation Tests"
         Customer: Record Customer;
         O365SalesCustomerCard: TestPage "O365 Sales Customer Card";
     begin
-        Init;
+        Init();
         GlobalLanguage := GetFRCLanguageID;
         LibrarySales.CreateCustomer(Customer);
         O365SalesCustomerCard.OpenEdit;
@@ -48,7 +49,7 @@ codeunit 138916 "O365 Translation Tests"
         LibraryVariableStorage.Enqueue(CountryRegion.Code);
         LibraryVariableStorage.Enqueue(TranslatedCountryName);
         O365SalesCustomerCard.FullAddress.AssistEdit;
-        O365SalesCustomerCard.Close;
+        O365SalesCustomerCard.Close();
         GlobalLanguage := OrigLang;
     end;
 
@@ -60,7 +61,7 @@ codeunit 138916 "O365 Translation Tests"
         Customer: Record Customer;
         O365SalesCustomerCard: TestPage "O365 Sales Customer Card";
     begin
-        Init;
+        Init();
         GlobalLanguage := GetFRCLanguageID;
         LibrarySales.CreateCustomer(Customer);
         O365SalesCustomerCard.OpenEdit;
@@ -69,7 +70,7 @@ codeunit 138916 "O365 Translation Tests"
         LibraryVariableStorage.Enqueue(TranslatedTaxAreaName);
         O365SalesCustomerCard.TaxAreaDescription.Lookup;
         Assert.AreEqual(TranslatedTaxAreaName, O365SalesCustomerCard.TaxAreaDescription.Value, '');
-        O365SalesCustomerCard.Close;
+        O365SalesCustomerCard.Close();
         GlobalLanguage := OrigLang;
     end;
 
@@ -82,7 +83,7 @@ codeunit 138916 "O365 Translation Tests"
         Customer: Record Customer;
         O365SalesInvoice: TestPage "O365 Sales Invoice";
     begin
-        Init;
+        Init();
         GlobalLanguage := GetFRCLanguageID;
         LibrarySales.CreateCustomer(Customer);
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
@@ -96,52 +97,6 @@ codeunit 138916 "O365 Translation Tests"
         GlobalLanguage := OrigLang;
     end;
 
-#if not CLEAN18
-    // [Test] The test fails with an invalid error message.
-    [HandlerFunctions('VerifyNoNotificationsAreSend,HandleO365UOMList')]
-    [Scope('OnPrem')]
-    procedure UOMInvoiceTest()
-    var
-        SalesHeader: Record "Sales Header";
-        Customer: Record Customer;
-        Item: Record Item;
-        TaxDetail: Record "Tax Detail";
-        BCO365SalesInvoice: TestPage "BC O365 Sales Invoice";
-        O365UnitsofMeasureList: TestPage "O365 Units of Measure List";
-    begin
-        // [GIVEN] A French-Canadian Invoicing user (taxes are set up to avoid notification when test is run in US)
-        Init;
-        TaxDetail.ModifyAll("Tax Below Maximum", 5.0);
-        GlobalLanguage := GetFRCLanguageID;
-        LibrarySales.CreateCustomer(Customer);
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
-        CreateItemWithUOM(Item, UnitOfMeasure);
-
-        // [WHEN] The user creates a new line for a sales invoice and inserts an item description that matches an existing item
-        BCO365SalesInvoice.OpenEdit;
-        BCO365SalesInvoice.GotoRecord(SalesHeader);
-        BCO365SalesInvoice.Lines.New;
-        BCO365SalesInvoice.Lines.Description.Value := Item.Description;
-
-        // [THEN] The unit of measure is populated in the correct language
-        Assert.AreEqual(BCO365SalesInvoice.Lines.UnitOfMeasure.Value, TranslatedUOMDescription, '');
-
-        // [WHEN] The user changes unit of measure again by looking up
-        LibraryVariableStorage.Enqueue(OtherUnitOfMeasure.Code);
-        BCO365SalesInvoice.Lines.UnitOfMeasure.Lookup;
-
-        // [THEN] The unit of measure is populated in the correct language and the lookup page is also in the current language
-        Assert.AreEqual(TranslatedOtherUOMDescription, BCO365SalesInvoice.Lines.UnitOfMeasure.Value, '');
-        BCO365SalesInvoice.Close;
-
-        O365UnitsofMeasureList.OpenView;
-        O365UnitsofMeasureList.GotoKey(OtherUnitOfMeasure.Code);
-        Assert.AreEqual(TranslatedOtherUOMDescription, O365UnitsofMeasureList.Description.Value, '');
-
-        GlobalLanguage := OrigLang;
-    end;
-#endif
-
     [Test]
     [HandlerFunctions('VerifyNoNotificationsAreSend,HandleO365PaymentTermsList,HandleO365PaymentMethodList')]
     [Scope('OnPrem')]
@@ -149,7 +104,7 @@ codeunit 138916 "O365 Translation Tests"
     var
         O365PaymentsSettings: TestPage "O365 Payments Settings";
     begin
-        Init;
+        Init();
         GlobalLanguage := GetFRCLanguageID;
         O365PaymentsSettings.OpenEdit;
         LibraryVariableStorage.Enqueue(PaymentTerms.Code);
@@ -160,7 +115,7 @@ codeunit 138916 "O365 Translation Tests"
         O365PaymentsSettings.PaymentMethodCode.Lookup;
         Assert.AreEqual(PaymentTerms.Code, O365PaymentsSettings.PaymentTermsCode.Value, '');
         Assert.AreEqual(PaymentMethod.Code, O365PaymentsSettings.PaymentMethodCode.Value, '');
-        O365PaymentsSettings.Close;
+        O365PaymentsSettings.Close();
         GlobalLanguage := OrigLang;
     end;
 
@@ -171,13 +126,13 @@ codeunit 138916 "O365 Translation Tests"
     var
         O365BusinessInfoSettings: TestPage "O365 Business Info Settings";
     begin
-        Init;
+        Init();
         GlobalLanguage := GetFRCLanguageID;
         O365BusinessInfoSettings.OpenEdit;
         LibraryVariableStorage.Enqueue(CountryRegion.Code);
         LibraryVariableStorage.Enqueue(TranslatedCountryName);
         O365BusinessInfoSettings.FullAddress.AssistEdit;
-        O365BusinessInfoSettings.Close;
+        O365BusinessInfoSettings.Close();
         GlobalLanguage := OrigLang;
     end;
 
@@ -204,22 +159,6 @@ codeunit 138916 "O365 Translation Tests"
         CountryRegion.Name := LibraryUtility.GenerateGUID();
         CountryRegion.Modify();
     end;
-
-#if not CLEAN18
-    local procedure CreateItemWithUOM(var Item: Record Item; LocalUnitOfMeasure: Record "Unit of Measure")
-    var
-        ItemTemplate: Record "Item Template";
-        O365SalesManagement: Codeunit "O365 Sales Management";
-    begin
-        ItemTemplate.NewItemFromTemplate(Item);
-        O365SalesManagement.SetItemDefaultValues(Item);
-
-        Item.Validate(Description, LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen(Item.Description), 1));
-        Item.Validate("Unit Price", LibraryUtility.GenerateRandomFraction);
-        Item.Validate("Base Unit of Measure", LocalUnitOfMeasure.Code);
-        Item.Modify(true);
-    end;
-#endif
 
     local procedure InsertCountryRegionTranslation(CRCode: Code[10]; LCode: Code[10]; TranslatedName: Text[50])
     var
@@ -394,7 +333,7 @@ codeunit 138916 "O365 Translation Tests"
             1, MaxStrLen(TranslatedOtherUOMDescription));
         InsertUOMTranslation(OtherUnitOfMeasure.Code, FRCTxt, TranslatedOtherUOMDescription);
 
-        if not O365C2GraphEventSettings.Get then
+        if not O365C2GraphEventSettings.Get() then
             O365C2GraphEventSettings.Insert(true);
 
         O365C2GraphEventSettings.SetEventsEnabled(false);
@@ -415,4 +354,4 @@ codeunit 138916 "O365 Translation Tests"
         Assert.Fail('No notification should be thrown.');
     end;
 }
-
+#endif

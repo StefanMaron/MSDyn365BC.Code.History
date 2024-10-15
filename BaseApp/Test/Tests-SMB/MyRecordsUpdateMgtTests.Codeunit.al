@@ -925,7 +925,7 @@ codeunit 138076 "My Records Update Mgt. Tests"
 
         repeat
             VerifyCustomerMatchesMyCustomerOnPage(Customer, MyCustomer);
-        until MyCustomer.Next = 0;
+        until MyCustomer.Next() = 0;
     end;
 
     local procedure VerifyVendorChangesPropagatedToMyVendors(var Vendor: Record Vendor)
@@ -938,7 +938,7 @@ codeunit 138076 "My Records Update Mgt. Tests"
 
         repeat
             VerifyVendorMatchesMyVendorOnPage(Vendor, MyVendor);
-        until MyVendor.Next = 0;
+        until MyVendor.Next() = 0;
     end;
 
     local procedure VerifyItemChangesPropagatedToMyItems(var Item: Record Item)
@@ -951,7 +951,7 @@ codeunit 138076 "My Records Update Mgt. Tests"
 
         repeat
             VerifyItemMatchesMyItemOnPage(Item, MyItem);
-        until MyItem.Next = 0;
+        until MyItem.Next() = 0;
     end;
 
     local procedure VerifyAccountChangesPropagatedToMyAccounts(var GLAccount: Record "G/L Account")
@@ -964,7 +964,7 @@ codeunit 138076 "My Records Update Mgt. Tests"
 
         repeat
             VerifyAccountMatchesMyAccountOnPage(GLAccount, MyAccount);
-        until MyAccount.Next = 0;
+        until MyAccount.Next() = 0;
     end;
 
     local procedure VerifyCustomerMatchesMyCustomer(var Customer: Record Customer; var MyCustomer: Record "My Customer")

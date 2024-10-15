@@ -86,10 +86,10 @@ report 29 "Export Acc. Sched. to Excel"
                 RowNo := RowNo + 1;
                 if UseAmtsInAddCurr then
                     EnterFilterInCell(
-                      RowNo, GLSetup."Additional Reporting Currency", Currency.TableCaption, '', TempExcelBuffer."Cell Type"::Text)
+                      RowNo, GLSetup."Additional Reporting Currency", Currency.TableCaption(), '', TempExcelBuffer."Cell Type"::Text)
                 else
                     EnterFilterInCell(
-                      RowNo, GLSetup."LCY Code", Currency.TableCaption, '', TempExcelBuffer."Cell Type"::Text);
+                      RowNo, GLSetup."LCY Code", Currency.TableCaption(), '', TempExcelBuffer."Cell Type"::Text);
 
                 RowNo := RowNo + 1;
                 if AccSchedLine.Find('-') then begin
@@ -116,7 +116,7 @@ report 29 "Export Acc. Sched. to Excel"
                           RowNo, ColumnNo, AccSchedLine.Description,
                           AccSchedLine.Bold, AccSchedLine.Italic, AccSchedLine.Underline, AccSchedLine."Double Underline",
                           '', TempExcelBuffer."Cell Type"::Text);
-                        if ColumnLayout.Find('-') then begin
+                        if ColumnLayout.Find('-') then
                             repeat
                                 CalcColumnValue();
                                 ColumnNo := ColumnNo + 1;
@@ -125,24 +125,23 @@ report 29 "Export Acc. Sched. to Excel"
                                   AccSchedLine.Bold, AccSchedLine.Italic, AccSchedLine.Underline, AccSchedLine."Double Underline",
                                   '', TempExcelBuffer."Cell Type"::Number)
                             until ColumnLayout.Next() = 0;
-                        end;
                     until AccSchedLine.Next() = 0;
                 end;
 
-                Window.Close;
+                Window.Close();
 
                 if DoUpdateExistingWorksheet then begin
                     TempExcelBuffer.UpdateBookExcel(ServerFileName, SheetName, false);
                     TempExcelBuffer.WriteSheet('', CompanyName, UserId);
-                    TempExcelBuffer.CloseBook;
+                    TempExcelBuffer.CloseBook();
                     if not TestMode then
                         TempExcelBuffer.OpenExcelWithName(ClientFileName);
                 end else begin
                     TempExcelBuffer.CreateBook(ServerFileName, AccSchedName.Name);
                     TempExcelBuffer.WriteSheet(AccSchedName.Description, CompanyName, UserId);
-                    TempExcelBuffer.CloseBook;
+                    TempExcelBuffer.CloseBook();
                     if not TestMode then
-                        TempExcelBuffer.OpenExcel;
+                        TempExcelBuffer.OpenExcel();
                 end;
             end;
         }
@@ -165,9 +164,6 @@ report 29 "Export Acc. Sched. to Excel"
     }
 
     var
-        Text000: Label 'Analyzing Data...\\';
-        Text001: Label 'Filters';
-        Text002: Label 'Update Workbook';
         AccSchedName: Record "Acc. Schedule Name";
         AccSchedLine: Record "Acc. Schedule Line";
         ColumnLayout: Record "Column Layout";
@@ -183,8 +179,12 @@ report 29 "Export Acc. Sched. to Excel"
         ServerFileName: Text;
         SheetName: Text[250];
         DoUpdateExistingWorksheet: Boolean;
-        ExcelFileExtensionTok: Label '.xlsx', Locked = true;
         TestMode: Boolean;
+
+        Text000: Label 'Analyzing Data...\\';
+        Text001: Label 'Filters';
+        Text002: Label 'Update Workbook';
+        ExcelFileExtensionTok: Label '.xlsx', Locked = true;
 
     procedure SetOptions(var AccSchedLine2: Record "Acc. Schedule Line"; ColumnLayoutName2: Code[10]; UseAmtsInAddCurr2: Boolean)
     begin
@@ -200,7 +200,7 @@ report 29 "Export Acc. Sched. to Excel"
             ColumnValue := 0
         else begin
             ColumnValue := AccSchedManagement.CalcCell(AccSchedLine, ColumnLayout, UseAmtsInAddCurr);
-            if AccSchedManagement.GetDivisionError then
+            if AccSchedManagement.GetDivisionError() then
                 ColumnValue := 0
         end;
         OnAferCalcColumnValue(UseAmtsInAddCurr, ColumnLayout);
@@ -300,4 +300,5 @@ report 29 "Export Acc. Sched. to Excel"
     begin
     end;
 }
+
 #endif

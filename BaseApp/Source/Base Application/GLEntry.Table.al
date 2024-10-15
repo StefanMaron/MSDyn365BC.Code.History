@@ -17,7 +17,7 @@ table 17 "G/L Entry"
 
             trigger OnValidate()
             begin
-                UpdateAccountID;
+                UpdateAccountID();
             end;
         }
         field(4; "Posting Date"; Date)
@@ -396,7 +396,7 @@ table 17 "G/L Entry"
 
             trigger OnValidate()
             begin
-                UpdateAccountNo;
+                UpdateAccountNo();
             end;
         }
         field(8005; "Last Modified DateTime"; DateTime)
@@ -408,13 +408,9 @@ table 17 "G/L Entry"
         {
             Caption = 'Variable Symbol';
             CharAllowed = '09';
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(11760; "VAT Date"; Date)
         {
@@ -547,33 +543,36 @@ table 17 "G/L Entry"
             Enabled = false;
             SumIndexFields = Amount, "Debit Amount", "Credit Amount", "Additional-Currency Amount", "Add.-Currency Debit Amount", "Add.-Currency Credit Amount";
         }
-        key(Key6; "G/L Account No.", "Business Unit Code", "Global Dimension 1 Code", "Global Dimension 2 Code", "Posting Date")
+        key(Key5; "G/L Account No.", "Business Unit Code", "Global Dimension 1 Code", "Global Dimension 2 Code", "Posting Date")
         {
             Enabled = false;
             SumIndexFields = Amount, "Debit Amount", "Credit Amount", "Additional-Currency Amount", "Add.-Currency Debit Amount", "Add.-Currency Credit Amount";
         }
-        key(Key7; "Document No.", "Posting Date")
+        key(Key6; "Document No.", "Posting Date")
         {
             SumIndexFields = Amount, "Debit Amount", "Credit Amount", "Additional-Currency Amount", "Add.-Currency Debit Amount", "Add.-Currency Credit Amount", "VAT Amount";
         }
-        key(Key8; "Transaction No.")
+        key(Key7; "Transaction No.")
         {
         }
-        key(Key9; "IC Partner Code")
+        key(Key8; "IC Partner Code")
         {
         }
-        key(Key10; "G/L Account No.", "Job No.", "Posting Date")
-        {
-            SumIndexFields = Amount;
-        }
-        key(Key11; "Posting Date", "G/L Account No.", "Dimension Set ID")
+        key(Key9; "G/L Account No.", "Job No.", "Posting Date")
         {
             SumIndexFields = Amount;
         }
-        key(Key12; "Gen. Bus. Posting Group", "Gen. Prod. Posting Group")
+        key(Key10; "Posting Date", "G/L Account No.", "Dimension Set ID")
+        {
+            SumIndexFields = Amount;
+        }
+        key(Key11; "Gen. Bus. Posting Group", "Gen. Prod. Posting Group")
         {
         }
-        key(Key13; "VAT Bus. Posting Group", "VAT Prod. Posting Group")
+        key(Key12; "VAT Bus. Posting Group", "VAT Prod. Posting Group")
+        {
+        }
+        key(Key13; "Dimension Set ID")
         {
         }
 #if not CLEAN19
@@ -590,9 +589,6 @@ table 17 "G/L Entry"
             ObsoleteTag = '19.0';
         }
 #endif
-        key(Key16; "Dimension Set ID")
-        {
-        }
     }
 
     fieldgroups
@@ -677,7 +673,7 @@ table 17 "G/L Entry"
     var
         DimMgt: Codeunit DimensionManagement;
     begin
-        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', TableCaption, "Entry No."));
+        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', TableCaption(), "Entry No."));
     end;
 
     procedure UpdateDebitCredit(Correction: Boolean)
@@ -744,12 +740,7 @@ table 17 "G/L Entry"
         "User ID" := UserId;
         "No. Series" := GenJnlLine."Posting No. Series";
         "IC Partner Code" := GenJnlLine."IC Partner Code";
-	    "Prod. Order No." := GenJnlLine."Prod. Order No.";
-        // NAVCZ
-#if not CLEAN18
-        "Variable Symbol" := GenJnlLine."Variable Symbol";
-#endif
-        // NAVCZ
+        "Prod. Order No." := GenJnlLine."Prod. Order No.";
 
         OnAfterCopyGLEntryFromGenJnlLine(Rec, GenJnlLine);
     end;
@@ -826,8 +817,8 @@ table 17 "G/L Entry"
         CalcFields("Applied Amount");
         exit(Amount - "Applied Amount");
     end;
-#endif
 
+#endif
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyGLEntryFromGenJnlLine(var GLEntry: Record "G/L Entry"; var GenJournalLine: Record "Gen. Journal Line")
     begin
@@ -912,3 +903,4 @@ table 17 "G/L Entry"
     begin
     end;
 }
+

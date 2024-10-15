@@ -1,13 +1,9 @@
 table 31048 "Credits Setup"
 {
     Caption = 'Credits Setup';
-#if CLEAN18
     ObsoleteState = Removed;
-#else
-    ObsoleteState = Pending;
-#endif
     ObsoleteReason = 'Moved to Compensation Localization Pack for Czech.';
-    ObsoleteTag = '18.0';
+    ObsoleteTag = '21.0';
 
     fields
     {
@@ -86,7 +82,7 @@ table 31048 "Credits Setup"
     begin
         if AccNo <> '' then begin
             GLAcc.Get(AccNo);
-            GLAcc.CheckGLAcc;
+            GLAcc.CheckGLAcc();
             if CheckProdPostingGroup then
                 GLAcc.TestField("Gen. Prod. Posting Group");
             if CheckDirectPosting then
@@ -94,4 +90,3 @@ table 31048 "Credits Setup"
         end;
     end;
 }
-

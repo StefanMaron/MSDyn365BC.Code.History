@@ -47,7 +47,7 @@ table 5700 "Stockkeeping Unit"
             begin
                 if "Location Code" = '' then
                     Validate("Replenishment System");
-                CheckTransferRoute;
+                CheckTransferRoute();
                 CalcFields(
                   Inventory, "Qty. on Purch. Order", "Qty. on Prod. Order", "Qty. in Transit",
                   "Qty. on Component Lines", "Qty. on Sales Order", "Qty. on Service Order", "Qty. on Job Order",
@@ -394,14 +394,14 @@ table 5700 "Stockkeeping Unit"
                             "Transfer-Level Code" := 0;
                             FromLocation := "Transfer-from Code";
                             if not UpdateTransferLevels(Rec) then
-                                ShowLoopError;
+                                ShowLoopError();
                         end;
                     "Replenishment System"::Transfer:
                         begin
                             if "Location Code" = '' then
                                 Error(
                                   Text004,
-                                  FieldCaption("Location Code"), TableCaption,
+                                  FieldCaption("Location Code"), TableCaption(),
                                   "Replenishment System", FieldCaption("Replenishment System"));
                             Validate("Transfer-from Code");
                         end;
@@ -534,7 +534,7 @@ table 5700 "Stockkeeping Unit"
                 FromLocation := "Transfer-from Code";
                 Modify(true);
 
-                CheckTransferRoute;
+                CheckTransferRoute();
             end;
         }
         field(5701; "Qty. in Transit"; Decimal)
@@ -850,7 +850,7 @@ table 5700 "Stockkeeping Unit"
               FieldCaption("Location Code"), FieldCaption("Variant Code"), TableCaption);
 
         "Last Date Modified" := Today;
-        PlanningAssignment.AssignOne("Item No.", "Variant Code", "Location Code", WorkDate);
+        PlanningAssignment.AssignOne("Item No.", "Variant Code", "Location Code", WorkDate());
     end;
 
     trigger OnModify()
@@ -872,13 +872,6 @@ table 5700 "Stockkeeping Unit"
     end;
 
     var
-        Text000: Label 'You must specify a %1 or a %2 for each %3.';
-        Text001: Label 'There may be orders and open ledger entries for the item. ';
-        Text002: Label 'If you change %1 it may affect new orders and entries.\\';
-        Text003: Label 'Do you want to change %1?';
-        Text004: Label 'You must specify a %1 for this %2 to use %3 as %4.';
-        Text005: Label 'You must specify a %1 from %2 %3 to %2 %4.';
-        Text006: Label 'A circular reference in %1 has been detected:\%2 ->%3 ->%4';
         TransferRoute: Record "Transfer Route";
         Item: Record Item;
         PlanningAssignment: Record "Planning Assignment";
@@ -888,9 +881,20 @@ table 5700 "Stockkeeping Unit"
         LeadTimeMgt: Codeunit "Lead-Time Management";
         FromLocation: Code[10];
         ErrorString: Text[80];
+
+        Text000: Label 'You must specify a %1 or a %2 for each %3.';
+        Text001: Label 'There may be orders and open ledger entries for the item. ';
+        Text002: Label 'If you change %1 it may affect new orders and entries.\\';
+        Text003: Label 'Do you want to change %1?';
+        Text004: Label 'You must specify a %1 for this %2 to use %3 as %4.';
+        Text005: Label 'You must specify a %1 from %2 %3 to %2 %4.';
+        Text006: Label 'A circular reference in %1 has been detected:\%2 ->%3 ->%4';
         Text008: Label 'You cannot change %1 because there are one or more ledger entries for this SKU.';
         Text7380: Label 'If you change the %1, the %2 and %3 are calculated.\Do you still want to change the %1?', Comment = 'If you change the Phys Invt Counting Period Code, the Next Counting Start Date and Next Counting End Date are calculated.\Do you still want to change the Phys Invt Counting Period Code?';
         Text7381: Label 'Cancelled.';
+#if not CLEAN21
+        DeprecatedFuncTxt: Label 'This function has been deprecated.';
+#endif
 
     protected var
         HideValidationDialog: Boolean;
@@ -899,7 +903,7 @@ table 5700 "Stockkeeping Unit"
     begin
         TransferRoute.SetRange("Transfer-from Code", TransferFromCode);
         TransferRoute.SetRange("Transfer-to Code", TransferToCode);
-        exit(TransferRoute.FindFirst);
+        exit(TransferRoute.FindFirst());
     end;
 
     local procedure UpdateTransferLevels(FromSKU: Record "Stockkeeping Unit"): Boolean
@@ -924,7 +928,7 @@ table 5700 "Stockkeeping Unit"
                        (MaxStrLen(ErrorString) - 9)
                     then begin
                         ErrorString := ErrorString + ' ->...';
-                        ShowLoopError;
+                        ShowLoopError();
                     end;
                     ErrorString := ErrorString + ' ->' + ToSKU."Location Code";
                     exit(false);
@@ -951,11 +955,13 @@ table 5700 "Stockkeeping Unit"
               CurrentFieldName);
     end;
 
+#if not CLEAN21
+    [Obsolete('This procedure is discontinued because the TimelineVisualizer control has been deprecated.', '21.0')]
     procedure ShowTimeline(SKU: Record "Stockkeeping Unit")
     begin
-        Item.ShowTimelineFromSKU(SKU."Item No.", SKU."Location Code", SKU."Variant Code");
+        Message(DeprecatedFuncTxt);
     end;
-
+#endif    
     procedure UpdateTempSKUTransferLevels(FromSKU: Record "Stockkeeping Unit"; var TempToSKU: Record "Stockkeeping Unit" temporary; FromLocationCode: Code[10]): Boolean
     var
         SavedPositionSKU: Record "Stockkeeping Unit";
@@ -998,13 +1004,13 @@ table 5700 "Stockkeeping Unit"
     local procedure CheckTransferRoute()
     begin
         if not UpdateTransferLevels(Rec) then
-            ShowLoopError;
+            ShowLoopError();
 
         if "Transfer-from Code" <> '' then
             if not TransferRouteExists("Transfer-from Code", "Location Code") then
                 Error(
                   Text005,
-                  TransferRoute.TableCaption,
+                  TransferRoute.TableCaption(),
                   FieldCaption("Location Code"),
                   "Transfer-from Code",
                   "Location Code");
@@ -1076,3 +1082,4 @@ table 5700 "Stockkeeping Unit"
     begin
     end;
 }
+

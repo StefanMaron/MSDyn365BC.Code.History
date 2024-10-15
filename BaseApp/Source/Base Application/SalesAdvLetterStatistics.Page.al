@@ -136,7 +136,7 @@ page 31004 "Sales Adv. Letter Statistics"
         SalesAdvanceLetterLine.CalcVATAmountLines(Rec, TempVATAmountLine1, SalesAdvanceLetterLineGre, TotalVATToInvoice, TotalVATInvoiced);
 
         if "Posting Date" = 0D then
-            UseDate := WorkDate
+            UseDate := WorkDate()
         else
             UseDate := "Posting Date";
 
@@ -145,7 +145,7 @@ page 31004 "Sales Adv. Letter Statistics"
             UseDate, "Currency Code", SalesAdvanceLetterLineGre."Amount Including VAT", "Currency Factor");
 
         SubformIsReady := true;
-        SetVATSpecification;
+        SetVATSpecification();
     end;
 
     trigger OnOpenPage()
@@ -158,9 +158,9 @@ page 31004 "Sales Adv. Letter Statistics"
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
     begin
-        GetVATSpecification;
-        if TempVATAmountLine1.GetAnyLineModified then
-            UpdateVATOnSalesLines;
+        GetVATSpecification();
+        if TempVATAmountLine1.GetAnyLineModified() then
+            UpdateVATOnSalesLines();
         exit(true);
     end;
 
@@ -179,8 +179,8 @@ page 31004 "Sales Adv. Letter Statistics"
 
     local procedure UpdateHeaderInfo(var VATAmountLine: Record "VAT Amount Line")
     begin
-        SalesAdvanceLetterLineGre."VAT Amount" := VATAmountLine.GetTotalVATAmount;
-        SalesAdvanceLetterLineGre."Amount Including VAT" := VATAmountLine.GetTotalAmountInclVAT;
+        SalesAdvanceLetterLineGre."VAT Amount" := VATAmountLine.GetTotalVATAmount();
+        SalesAdvanceLetterLineGre."Amount Including VAT" := VATAmountLine.GetTotalAmountInclVAT();
     end;
 
     local procedure GetVATSpecification()
@@ -201,8 +201,8 @@ page 31004 "Sales Adv. Letter Statistics"
     var
         SalesAdvanceLetterLine: Record "Sales Advance Letter Line";
     begin
-        GetVATSpecification;
-        if TempVATAmountLine1.GetAnyLineModified then
+        GetVATSpecification();
+        if TempVATAmountLine1.GetAnyLineModified() then
             SalesAdvanceLetterLine.UpdateVATOnLines(Rec, SalesAdvanceLetterLine, TempVATAmountLine1);
         PrevNo := '';
     end;

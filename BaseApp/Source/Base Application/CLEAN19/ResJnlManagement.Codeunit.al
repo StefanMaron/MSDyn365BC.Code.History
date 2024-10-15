@@ -148,7 +148,7 @@ codeunit 270 ResJnlManagement
             if not ResJnlBatch.FindFirst() then begin
                 ResJnlBatch.Init();
                 ResJnlBatch."Journal Template Name" := CurrentJnlTemplateName;
-                ResJnlBatch.SetupNewBatch;
+                ResJnlBatch.SetupNewBatch();
                 ResJnlBatch.Name := Text004;
                 ResJnlBatch.Description := Text005;
                 ResJnlBatch.Insert(true);

@@ -1,4 +1,4 @@
-table 270 "Bank Account"
+﻿table 270 "Bank Account"
 {
     Caption = 'Bank Account';
     DataCaptionFields = "No.", Name;
@@ -63,8 +63,13 @@ table 270 "Bank Account"
             end;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
-                PostCode.ValidateCity(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
+                IsHandled := false;
+                OnBeforeValidateCity(Rec, PostCode, CurrFieldNo, IsHandled);
+                if not IsHandled then
+                    PostCode.ValidateCity(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
             end;
         }
         field(8; Contact; Text[100])
@@ -157,8 +162,9 @@ table 270 "Bank Account"
                 BankAcc.TestField(Balance, 0);
                 BankAcc.TestField("Balance (LCY)", 0);
 #if not CLEAN19
-                BankAcc.TestZeroBalance; // NAVCZ
+                BankAcc.TestZeroBalance(); // NAVCZ
 #endif
+
                 if not BankAccLedgEntry.SetCurrentKey("Bank Account No.", Open) then
                     BankAccLedgEntry.SetCurrentKey("Bank Account No.");
                 BankAccLedgEntry.SetRange("Bank Account No.", "No.");
@@ -167,12 +173,6 @@ table 270 "Bank Account"
                     Error(
                       Text000,
                       FieldCaption("Currency Code"));
-#if not CLEAN18
-                // NAVCZ
-                if "Currency Code" = '' then
-                    "Exclude from Exch. Rate Adj." := false;
-                // NAVCZ
-#endif
             end;
         }
         field(24; "Language Code"; Code[10])
@@ -229,6 +229,23 @@ table 270 "Bank Account"
             begin
                 if IncStr("Last Payment Statement No.") = '' then
                     Error(StrSubstNo(UnincrementableStringErr, FieldCaption("Last Payment Statement No.")));
+            end;
+        }
+        field(43; "Pmt. Rec. No. Series"; Code[20])
+        {
+            Caption = 'Payment Reconciliation No. Series';
+            TableRelation = "No. Series";
+
+            trigger OnValidate()
+            var
+                BankAccReconciliation: Record "Bank Acc. Reconciliation";
+            begin
+                if "Pmt. Rec. No. Series" = '' then begin
+                    BankAccReconciliation.SetRange("Bank Account No.", "No.");
+                    BankAccReconciliation.SetRange("Statement Type", BankAccReconciliation."Statement Type"::"Payment Application");
+                    if BankAccReconciliation.FindLast() then
+                        "Last Payment Statement No." := BankAccReconciliation."Statement No.";
+                end;
             end;
         }
         field(54; "Last Date Modified"; Date)
@@ -353,8 +370,13 @@ table 270 "Bank Account"
             end;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
-                PostCode.ValidatePostCode(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
+                IsHandled := false;
+                OnBeforeValidatePostCode(Rec, PostCode, CurrFieldNo, IsHandled);
+                if not IsHandled then
+                    PostCode.ValidatePostCode(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
             end;
         }
         field(92; County; Text[30])
@@ -558,14 +580,14 @@ table 270 "Bank Account"
             trigger OnValidate()
             begin
                 if "Automatic Stmt. Import Enabled" then begin
-                    if not IsAutoLogonPossible then
+                    if not IsAutoLogonPossible() then
                         Error(MFANotSupportedErr);
 
                     if not ("Transaction Import Timespan" in [0 .. 9999]) then
                         Error(TransactionImportTimespanMustBePositiveErr);
-                    ScheduleBankStatementDownload
+                    ScheduleBankStatementDownload()
                 end else
-                    UnscheduleBankStatementDownload;
+                    UnscheduleBankStatementDownload();
             end;
         }
         field(140; Image; Media)
@@ -653,9 +675,6 @@ table 270 "Bank Account"
         {
             Caption = 'Default Constant Symbol';
             CharAllowed = '09';
-#if not CLEAN18
-            TableRelation = "Constant Symbol";
-#endif
 #if not CLEAN19
             ObsoleteState = Pending;
 #else
@@ -680,13 +699,9 @@ table 270 "Bank Account"
         {
             Caption = 'Specific Symbol';
             CharAllowed = '09';
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(11705; "Domestic Payment Order"; Integer)
         {
@@ -1156,24 +1171,9 @@ table 270 "Bank Account"
         field(11769; "Exclude from Exch. Rate Adj."; Boolean)
         {
             Caption = 'Exclude from Exch. Rate Adj.';
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
-#if not CLEAN18
-
-            trigger OnValidate()
-            begin
-                if "Exclude from Exch. Rate Adj." then begin
-                    TestField("Currency Code");
-                    if not Confirm(ExcludeEntriesQst) then
-                        "Exclude from Exch. Rate Adj." := xRec."Exclude from Exch. Rate Adj."
-                end;
-            end;
-#endif
+            ObsoleteTag = '21.0';
         }
         field(11770; "Cashier No."; Code[20])
         {
@@ -1297,19 +1297,6 @@ table 270 "Bank Account"
             ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
             ObsoleteTag = '19.0';
         }
-#if not CLEAN18
-        field(31120; "EET Cash Register"; Boolean)
-        {
-            CalcFormula = Exist("EET Cash Register" WHERE("Register Type" = CONST("Cash Desk"),
-                                                           "Register No." = FIELD("No.")));
-            Caption = 'EET Cash Register';
-            Editable = false;
-            FieldClass = FlowField;
-            ObsoleteState = Pending;
-            ObsoleteReason = 'The field is not used anywhere and will be deleted.';
-            ObsoleteTag = '18.0';
-        }
-#endif
     }
 
     keys
@@ -1344,7 +1331,7 @@ table 270 "Bank Account"
 
     trigger OnDelete()
     begin
-        CheckDeleteBalancingBankAccount;
+        CheckDeleteBalancingBankAccount();
 
         MoveEntries.MoveBankAccEntries(Rec);
 
@@ -1377,12 +1364,12 @@ table 270 "Bank Account"
     begin
         "Last Date Modified" := Today;
 
-        if IsContactUpdateNeeded then begin
-            Modify;
+        if IsContactUpdateNeeded() then begin
+            Modify();
             UpdateContFromBank.OnModify(Rec);
-            if not Find then begin
-                Reset;
-                if Find then;
+            if not Find() then begin
+                Reset();
+                if Find() then;
             end;
         end;
     end;
@@ -1395,8 +1382,6 @@ table 270 "Bank Account"
     end;
 
     var
-        Text000: Label 'You cannot change %1 because there are one or more open ledger entries for this bank account.';
-        Text003: Label 'Do you wish to create a contact for %1 %2?';
         GLSetup: Record "General Ledger Setup";
         BankAcc: Record "Bank Account";
         BankAccLedgEntry: Record "Bank Account Ledger Entry";
@@ -1407,9 +1392,11 @@ table 270 "Bank Account"
         UpdateContFromBank: Codeunit "BankCont-Update";
         DimMgt: Codeunit DimensionManagement;
         InsertFromContact: Boolean;
+
+        Text000: Label 'You cannot change %1 because there are one or more open ledger entries for this bank account.';
+        Text003: Label 'Do you wish to create a contact for %1 %2?';
         Text004: Label 'Before you can use Online Map, you must fill in the Online Map Setup window.\See Setting Up Online Map in Help.';
 #if not CLEAN19
-        ExcludeEntriesQst: Label 'All entries will be excluded from Exchange Rates Adjustment. Do you want to continue?';
         CurrExchRateIsEmptyErr: Label 'There is no Currency Exchange Rate within the filter. Filters: %1.', Comment = '%1 = filters';
 #endif
         BankAccIdentifierIsEmptyErr: Label 'You must specify either a %1 or an %2.';
@@ -1452,7 +1439,7 @@ table 270 "Bank Account"
         DimMgt.ValidateDimValueCode(FieldNumber, ShortcutDimCode);
         if not IsTemporary then begin
             DimMgt.SaveDefaultDim(DATABASE::"Bank Account", "No.", FieldNumber, ShortcutDimCode);
-            Modify;
+            Modify();
         end;
 
         OnAfterValidateShortcutDimCode(Rec, xRec, FieldNumber, ShortcutDimCode);
@@ -1470,7 +1457,7 @@ table 270 "Bank Account"
         ContBusRel.SetRange("Link to Table", ContBusRel."Link to Table"::"Bank Account");
         ContBusRel.SetRange("No.", "No.");
         if not ContBusRel.FindFirst() then begin
-            if not Confirm(Text003, false, TableCaption, "No.") then
+            if not Confirm(Text003, false, TableCaption(), "No.") then
                 exit;
             UpdateContFromBank.InsertNewContact(Rec, false);
             ContBusRel.FindFirst();
@@ -1576,7 +1563,7 @@ table 270 "Bank Account"
     begin
         OnlineMapSetup.SetRange(Enabled, true);
         if OnlineMapSetup.FindFirst() then
-            OnlineMapManagement.MakeSelection(DATABASE::"Bank Account", GetPosition)
+            OnlineMapManagement.MakeSelection(DATABASE::"Bank Account", GetPosition())
         else
             Message(Text004);
     end;
@@ -1639,7 +1626,7 @@ table 270 "Bank Account"
 #endif
     procedure GetBankAccountNoWithCheck() AccountNo: Text
     begin
-        AccountNo := GetBankAccountNo;
+        AccountNo := GetBankAccountNo();
         if AccountNo = '' then
             Error(BankAccIdentifierIsEmptyErr, FieldCaption("Bank Account No."), FieldCaption(IBAN));
     end;
@@ -1753,7 +1740,7 @@ table 270 "Bank Account"
     var
         StatementProvider: Text;
     begin
-        StatementProvider := SelectBankLinkingService;
+        StatementProvider := SelectBankLinkingService();
 
         if StatementProvider <> '' then
             OnLinkStatementProviderEvent(BankAccount, StatementProvider);
@@ -1763,7 +1750,7 @@ table 270 "Bank Account"
     var
         StatementProvider: Text;
     begin
-        StatementProvider := SelectBankLinkingService;
+        StatementProvider := SelectBankLinkingService();
 
         if StatementProvider <> '' then
             OnSimpleLinkStatementProviderEvent(OnlineBankAccLink, StatementProvider);
@@ -1780,7 +1767,7 @@ table 270 "Bank Account"
     var
         StatementProvider: Text;
     begin
-        StatementProvider := SelectBankLinkingService;
+        StatementProvider := SelectBankLinkingService();
 
         if StatementProvider <> '' then
             OnRefreshStatementProviderEvent(BankAccount, StatementProvider);
@@ -1790,7 +1777,7 @@ table 270 "Bank Account"
     var
         StatementProvider: Text;
     begin
-        StatementProvider := SelectBankLinkingService;
+        StatementProvider := SelectBankLinkingService();
 
         if StatementProvider <> '' then
             OnRenewAccessConsentStatementProviderEvent(BankAccount, StatementProvider);
@@ -1810,7 +1797,7 @@ table 270 "Bank Account"
     var
         StatementProvider: Text;
     begin
-        StatementProvider := SelectBankLinkingService;
+        StatementProvider := SelectBankLinkingService();
 
         if StatementProvider <> '' then
             OnUpdateBankAccountLinkingEvent(Rec, StatementProvider);
@@ -1822,7 +1809,7 @@ table 270 "Bank Account"
     begin
         if BankAccount.FindSet() then
             repeat
-                if not BankAccount.IsLinkedToBankStatementServiceProvider then begin
+                if not BankAccount.IsLinkedToBankStatementServiceProvider() then begin
                     TempUnlinkedBankAccount := BankAccount;
                     TempUnlinkedBankAccount.Insert();
                 end;
@@ -1835,7 +1822,7 @@ table 270 "Bank Account"
     begin
         if BankAccount.FindSet() then
             repeat
-                if BankAccount.IsLinkedToBankStatementServiceProvider then begin
+                if BankAccount.IsLinkedToBankStatementServiceProvider() then begin
                     TempUnlinkedBankAccount := BankAccount;
                     TempUnlinkedBankAccount.Insert();
                 end;
@@ -1897,9 +1884,9 @@ table 270 "Bank Account"
     var
         JobQueueEntry: Record "Job Queue Entry";
     begin
-        if not IsLinkedToBankStatementServiceProvider then
+        if not IsLinkedToBankStatementServiceProvider() then
             Error(BankAccNotLinkedErr);
-        if not IsAutoLogonPossible then
+        if not IsAutoLogonPossible() then
             Error(AutoLogonNotPossibleErr);
 
         JobQueueEntry.ScheduleRecurrentJobQueueEntry(JobQueueEntry."Object Type to Run"::Codeunit,
@@ -1912,7 +1899,7 @@ table 270 "Bank Account"
         JobQueueEntry."Rerun Delay (sec.)" := 25 * 60;
         JobQueueEntry.Modify();
         if Confirm(JobQEntriesCreatedQst) then
-            ShowBankStatementDownloadJobQueueEntry;
+            ShowBankStatementDownloadJobQueueEntry();
     end;
 
     local procedure UnscheduleBankStatementDownload()
@@ -1930,7 +1917,7 @@ table 270 "Bank Account"
         CurrencyCode: Code[10];
     begin
         GeneralLedgerSetup.Get();
-        Init;
+        Init();
         Validate("Bank Account No.", OnlineBankAccLink."Bank Account No.");
         Validate(Name, OnlineBankAccLink.Name);
         if OnlineBankAccLink."Currency Code" <> '' then
@@ -1975,10 +1962,10 @@ table 270 "Bank Account"
     begin
         Linked := false;
         OnlineFeedStatus := OnlineFeedStatementStatus::"Not Linked";
-        if IsLinkedToBankStatementServiceProvider then begin
+        if IsLinkedToBankStatementServiceProvider() then begin
             Linked := true;
             OnlineFeedStatus := OnlineFeedStatementStatus::Linked;
-            if IsScheduledBankStatement then
+            if IsScheduledBankStatement() then
                 OnlineFeedStatus := OnlineFeedStatementStatus::"Linked and Auto. Bank Statement Enabled";
         end;
     end;
@@ -1988,7 +1975,7 @@ table 270 "Bank Account"
         JobQueueEntry: Record "Job Queue Entry";
     begin
         JobQueueEntry.SetRange("Record ID to Process", RecordId);
-        exit(JobQueueEntry.FindFirst);
+        exit(JobQueueEntry.FindFirst());
     end;
 
     procedure DisableStatementProviders()
@@ -2160,4 +2147,15 @@ table 270 "Bank Account"
     local procedure OnGetBankAccount(var Handled: Boolean; BankAccount: Record "Bank Account"; var ResultBankAccountNo: Text)
     begin
     end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateCity(var BankAccount: Record "Bank Account"; var PostCode: Record "Post Code"; CurrentFieldNo: Integer; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidatePostCode(var BankAccount: Record "Bank Account"; var PostCode: Record "Post Code"; CurrentFieldNo: Integer; var IsHandled: Boolean);
+    begin
+    end;
 }
+

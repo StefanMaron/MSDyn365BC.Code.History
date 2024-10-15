@@ -1,4 +1,4 @@
-#if not CLEAN19
+﻿#if not CLEAN19
 codeunit 260 "Document-Mailing"
 {
     TableNo = "Job Queue Entry";
@@ -6,10 +6,13 @@ codeunit 260 "Document-Mailing"
     trigger OnRun()
     var
         ReportSelections: Record "Report Selections";
+#if not CLEAN21
         O365DocumentSentHistory: Record "O365 Document Sent History";
+#endif
     begin
+#if not CLEAN21
         O365DocumentSentHistory.NewInProgressFromJobQueue(Rec);
-
+#endif
         ReportSelections.SendEmailInBackground(Rec);
     end;
 
@@ -21,7 +24,9 @@ codeunit 260 "Document-Mailing"
         EmailSubjectPluralCapTxt: Label '%1 - %2', Comment = '%1 = Customer Name. %2 = Document Type in plural form';
         ReportAsPdfFileNamePluralMsg: Label 'Sales %1.pdf', Comment = '%1 = Document Type in plural form';
         PdfFileNamePluralMsg: Label '%1.pdf', Comment = '%1 = Document Type in plural form';
+#if not CLEAN21 
         TestInvoiceEmailSubjectTxt: Label 'Test invoice from %1', Comment = '%1 = name of the company';
+#endif
         CustomerLbl: Label '<Customer>';
 
     procedure EmailFile(AttachmentStream: Instream; AttachmentName: Text; HtmlBodyFilePath: Text; EmailSubject: Text; ToEmailAddress: Text; HideDialog: Boolean; EmailScenario: Enum "Email Scenario"): Boolean
@@ -494,7 +499,8 @@ codeunit 260 "Document-Mailing"
             Subject := CopyStr(
                 StrSubstNo(EmailSubjectCapTxt, CompanyInformation.Name, EmailDocumentName, PostedDocNo), 1, MaxStrLen(Subject))
     end;
-
+#if not CLEAN21 
+    [Obsolete('Microsoft Invoicing has been discontinued.', '21.0')]
     procedure GetTestInvoiceEmailBody(CustomerNo: Code[20]): Text
     var
         O365DefaultEmailMessage: Record "O365 Default Email Message";
@@ -506,6 +512,7 @@ codeunit 260 "Document-Mailing"
         exit(String.Replace(CustomerLbl, Customer.Name));
     end;
 
+    [Obsolete('Microsoft Invoicing has been discontinued.', '21.0')]
     procedure GetTestInvoiceEmailSubject(): Text[250]
     var
         CompanyInformation: Record "Company Information";
@@ -515,6 +522,7 @@ codeunit 260 "Document-Mailing"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Microsoft Invoicing has been discontinued.', '21.0')]
     procedure SendQuoteInForeground(SalesHeader: Record "Sales Header"): Boolean
     var
         O365DocumentSentHistory: Record "O365 Document Sent History";
@@ -539,6 +547,7 @@ codeunit 260 "Document-Mailing"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Microsoft Invoicing has been discontinued.', '21.0')]
     procedure SendPostedInvoiceInForeground(SalesInvoiceHeader: Record "Sales Invoice Header"): Boolean
     var
         O365DocumentSentHistory: Record "O365 Document Sent History";
@@ -561,7 +570,7 @@ codeunit 260 "Document-Mailing"
 
         exit(false);
     end;
-
+#endif
     // Email Item needs to be passed by var so the attachments are available
     local procedure EmailFileInternal(var TempEmailItem: Record "Email Item" temporary; HtmlBodyFilePath: Text[250]; EmailSubject: Text[250]; ToEmailAddress: Text[250]; PostedDocNo: Code[20]; EmailDocName: Text[250]; HideDialog: Boolean; ReportUsage: Integer; IsFromPostedDoc: Boolean; SenderUserID: Code[50]; EmailScenario: Enum "Email Scenario"): Boolean
     var
@@ -578,7 +587,9 @@ codeunit 260 "Document-Mailing"
         OnBeforeEmailFileInternal(TempEmailItem, HtmlBodyFilePath, EmailSubject, ToEmailAddress, PostedDocNo, EmailDocName, HideDialog, ReportUsage, IsFromPostedDoc, SenderUserID, EmailScenario);
 
         TempEmailItem."Send to" := ToEmailAddress;
+#if not CLEAN21
         TempEmailItem.AddCcBcc();
+#endif
 
         TempEmailItem.GetAttachments(Attachments, AttachmentNames);
         // If true, that means we came from "EmailFile" call and need to get data from the document

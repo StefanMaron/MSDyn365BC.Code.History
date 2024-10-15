@@ -450,9 +450,14 @@
         {
             Clustered = true;
         }
+#if not CLEAN21
         key(Key2; "Document Date", "Currency Code")
         {
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The key is not used anymore and will be removed.';
+            ObsoleteTag = '21.0';
         }
+#endif
     }
 
     fieldgroups

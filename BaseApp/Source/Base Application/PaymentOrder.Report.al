@@ -14,7 +14,7 @@ report 11709 "Payment Order"
         {
             CalcFields = Amount;
             RequestFilterFields = "No.", "Bank Account No.";
-            column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+            column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
             column(gteFiltr; Filtr)

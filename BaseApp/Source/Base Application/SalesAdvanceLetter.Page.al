@@ -3,7 +3,6 @@ page 31000 "Sales Advance Letter"
 {
     Caption = 'Sales Advance Letter (Obsolete)';
     PageType = Document;
-    PromotedActionCategories = 'New,Process,Report,Approve,Request Approval';
     RefreshOnActivate = true;
     SourceTable = "Sales Advance Letter Header";
     ObsoleteState = Pending;
@@ -17,7 +16,7 @@ page 31000 "Sales Advance Letter"
             group(General)
             {
                 Caption = 'General';
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = All;
                     Importance = Promoted;
@@ -30,7 +29,7 @@ page 31000 "Sales Advance Letter"
                             CurrPage.Update();
                     end;
                 }
-                field("Bill-to Customer No."; "Bill-to Customer No.")
+                field("Bill-to Customer No."; Rec."Bill-to Customer No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
@@ -42,7 +41,7 @@ page 31000 "Sales Advance Letter"
                         CurrPage.Update();
                     end;
                 }
-                field("Bill-to Name"; "Bill-to Name")
+                field("Bill-to Name"; Rec."Bill-to Name")
                 {
                     ApplicationArea = Basic, Suite;
                     ShowMandatory = true;
@@ -51,58 +50,58 @@ page 31000 "Sales Advance Letter"
                 group("Bill-to")
                 {
                     Caption = 'Bill-to';
-                    field("Bill-to Address"; "Bill-to Address")
+                    field("Bill-to Address"; Rec."Bill-to Address")
                     {
                         ApplicationArea = Basic, Suite;
                         Importance = Additional;
                         ToolTip = 'Specifies the address where the customer is located.';
                     }
-                    field("Bill-to Address 2"; "Bill-to Address 2")
+                    field("Bill-to Address 2"; Rec."Bill-to Address 2")
                     {
                         ApplicationArea = Basic, Suite;
                         Importance = Additional;
                         ToolTip = 'Specifies additional address information.';
                     }
-                    field("Bill-to Post Code"; "Bill-to Post Code")
+                    field("Bill-to Post Code"; Rec."Bill-to Post Code")
                     {
                         ApplicationArea = Basic, Suite;
                         Importance = Additional;
                         ToolTip = 'Specifies the postal code.';
                     }
-                    field("Bill-to City"; "Bill-to City")
+                    field("Bill-to City"; Rec."Bill-to City")
                     {
                         ApplicationArea = Basic, Suite;
                         Importance = Additional;
                         ToolTip = 'Specifies the city where the customer is located.';
                     }
                 }
-                field("Bill-to Contact"; "Bill-to Contact")
+                field("Bill-to Contact"; Rec."Bill-to Contact")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the contact that the document will be sent to.';
                 }
-                field("Document Date"; "Document Date")
+                field("Document Date"; Rec."Document Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the date on which you created the document.';
                 }
-                field("VAT Date"; "VAT Date")
+                field("VAT Date"; Rec."VAT Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT date. This date must be shown on the VAT statement.';
                 }
-                field("Order No."; "Order No.")
+                field("Order No."; Rec."Order No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the number of the sales order that this advance was posted from.';
                 }
-                field("Salesperson Code"; "Salesperson Code")
+                field("Salesperson Code"; Rec."Salesperson Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the salesperson who is addigned to the customes.';
                 }
-                field("Reason Code"; "Reason Code")
+                field("Reason Code"; Rec."Reason Code")
                 {
                     ApplicationArea = Basic, Suite;
                     Visible = false;
@@ -113,18 +112,18 @@ page 31000 "Sales Advance Letter"
                     Importance = Promoted;
                     ToolTip = 'Specifies the stage during advance process.';
                 }
-                field("Amount Including VAT"; "Amount Including VAT")
+                field("Amount Including VAT"; Rec."Amount Including VAT")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether the unit price on the line should be displayed including or excluding VAT.';
                     Visible = false;
                 }
-                field("Post Advance VAT Option"; "Post Advance VAT Option")
+                field("Post Advance VAT Option"; Rec."Post Advance VAT Option")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the option for advance posting with or without VAT.';
                 }
-                field("Amounts Including VAT"; "Amounts Including VAT")
+                field("Amounts Including VAT"; Rec."Amounts Including VAT")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether the unit price on the line should be displayed including or excluding VAT.';
@@ -144,7 +143,7 @@ page 31000 "Sales Advance Letter"
             group("Foreign Trade")
             {
                 Caption = 'Foreign Trade';
-                field("Currency Code"; "Currency Code")
+                field("Currency Code"; Rec."Currency Code")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Promoted;
@@ -158,10 +157,10 @@ page 31000 "Sales Advance Letter"
                         Clear(ChangeExchangeRate);
                         PostingDate := "Posting Date";
                         if PostingDate = 0D then
-                            PostingDate := WorkDate;
+                            PostingDate := WorkDate();
                         ChangeExchangeRate.SetParameter("Currency Code", "Currency Factor", PostingDate);
-                        if ChangeExchangeRate.RunModal = ACTION::OK then begin
-                            Validate("Currency Factor", ChangeExchangeRate.GetParameter);
+                        if ChangeExchangeRate.RunModal() = ACTION::OK then begin
+                            Validate("Currency Factor", ChangeExchangeRate.GetParameter());
                             CurrPage.Update();
                         end;
                         Clear(ChangeExchangeRate);
@@ -169,25 +168,25 @@ page 31000 "Sales Advance Letter"
 
                     trigger OnValidate()
                     begin
-                        CurrencyCodeOnAfterValidate;
+                        CurrencyCodeOnAfterValidate();
                     end;
                 }
-                field("Registration No."; "Registration No.")
+                field("Registration No."; Rec."Registration No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the registration number of customer.';
                 }
-                field("VAT Registration No."; "VAT Registration No.")
+                field("VAT Registration No."; Rec."VAT Registration No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT registration number. The field will be used when you do business with partners from EU countries/regions.';
                 }
-                field("Language Code"; "Language Code")
+                field("Language Code"; Rec."Language Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the language to be used on printouts for this document.';
                 }
-                field("VAT Country/Region Code"; "VAT Country/Region Code")
+                field("VAT Country/Region Code"; Rec."VAT Country/Region Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT country/region code of customer.';
@@ -201,22 +200,22 @@ page 31000 "Sales Advance Letter"
                 ObsoleteTag = '18.0';
                 Visible = false;
 
-                field("Bank Account Code"; "Bank Account Code")
+                field("Bank Account Code"; Rec."Bank Account Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies companie''s bank account.';
                 }
-                field("Bank Account No."; "Bank Account No.")
+                field("Bank Account No."; Rec."Bank Account No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number used by the bank for the bank account.';
                 }
-                field("Transit No."; "Transit No.")
+                field("Transit No."; Rec."Transit No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a bank identification number of your own choice.';
                 }
-                field("SWIFT Code"; "SWIFT Code")
+                field("SWIFT Code"; Rec."SWIFT Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the international bank identifier code (SWIFT) of the bank where you have the account.';
@@ -226,38 +225,38 @@ page 31000 "Sales Advance Letter"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the bank account''s international bank account number.';
                 }
-                field("Variable Symbol"; "Variable Symbol")
+                field("Variable Symbol"; Rec."Variable Symbol")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the detail information for advance payment.';
                 }
-                field("Specific Symbol"; "Specific Symbol")
+                field("Specific Symbol"; Rec."Specific Symbol")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the additional symbol of bank payments.';
                 }
-                field("Constant Symbol"; "Constant Symbol")
+                field("Constant Symbol"; Rec."Constant Symbol")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the additional symbol of bank payments.';
                 }
-                field("Payment Terms Code"; "Payment Terms Code")
+                field("Payment Terms Code"; Rec."Payment Terms Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a formula that calculates the payment due date, payment discount date and payment discount amount on the document.';
                 }
-                field("Payment Method Code"; "Payment Method Code")
+                field("Payment Method Code"; Rec."Payment Method Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies how the customer must advance pay.';
                 }
-                field("Advance Due Date"; "Advance Due Date")
+                field("Advance Due Date"; Rec."Advance Due Date")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Promoted;
                     ToolTip = 'Specifies when the advance must be paid.';
                 }
-                field("On Hold"; "On Hold")
+                field("On Hold"; Rec."On Hold")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether the posted document will be included in the payment suggestion.';
@@ -323,8 +322,6 @@ page 31000 "Sales Advance Letter"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Statistics';
                     Image = Statistics;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ShortCutKey = 'F7';
                     ToolTip = 'View the statistics on the selected advance letter.';
 
@@ -363,7 +360,7 @@ page 31000 "Sales Advance Letter"
 
                     trigger OnAction()
                     begin
-                        ShowDocDim;
+                        ShowDocDim();
                     end;
                 }
                 action("A&pprovals")
@@ -429,7 +426,7 @@ page 31000 "Sales Advance Letter"
 
                     trigger OnAction()
                     begin
-                        ShowDocs;
+                        ShowDocs();
                     end;
                 }
                 action("Assignment Documents - detail")
@@ -448,13 +445,11 @@ page 31000 "Sales Advance Letter"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Li&nked Advance Payments';
                     Image = Payment;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Show the advance payments by customer.';
 
                     trigger OnAction()
                     begin
-                        ShowLinkedAdvances;
+                        ShowLinkedAdvances();
                     end;
                 }
                 action("Advance Invoices")
@@ -462,9 +457,6 @@ page 31000 "Sales Advance Letter"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Advance Invoices';
                     Image = Invoice;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     RunObject = Page "Posted Sales Invoices";
                     RunPageLink = "Letter No." = FIELD("No.");
                     RunPageView = SORTING("Letter No.");
@@ -475,9 +467,6 @@ page 31000 "Sales Advance Letter"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Advance Credi&t Memos';
                     Image = CreditMemo;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     RunObject = Page "Posted Sales Credit Memos";
                     RunPageLink = "Letter No." = FIELD("No.");
                     RunPageView = SORTING("Letter No.");
@@ -495,9 +484,6 @@ page 31000 "Sales Advance Letter"
                     ApplicationArea = All;
                     Caption = 'Approve';
                     Image = Approve;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
                     ToolTip = 'Relations to the workflow.';
                     Visible = OpenApprovalEntriesExistForCurrUser;
 
@@ -513,9 +499,6 @@ page 31000 "Sales Advance Letter"
                     ApplicationArea = All;
                     Caption = 'Reject';
                     Image = Reject;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
                     ToolTip = 'Specifies enu reject of sales advance letter.';
                     Visible = OpenApprovalEntriesExistForCurrUser;
 
@@ -531,8 +514,6 @@ page 31000 "Sales Advance Letter"
                     ApplicationArea = All;
                     Caption = 'Delegate';
                     Image = Delegate;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     ToolTip = 'Specifies enu delegate of sales advance letter.';
                     Visible = OpenApprovalEntriesExistForCurrUser;
 
@@ -548,8 +529,6 @@ page 31000 "Sales Advance Letter"
                     ApplicationArea = All;
                     Caption = 'Comments';
                     Image = ViewComments;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     ToolTip = 'Specifies advance comments.';
                     Visible = OpenApprovalEntriesExistForCurrUser;
 
@@ -569,15 +548,12 @@ page 31000 "Sales Advance Letter"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Release';
                     Image = ReleaseDoc;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     ShortCutKey = 'Ctrl+F9';
                     ToolTip = 'Release the sales advance to indicate that it has been printed or exported. The status then changes to Released.';
 
                     trigger OnAction()
                     begin
-                        PerformManualRelease;
+                        PerformManualRelease();
                     end;
                 }
                 action("Re&open")
@@ -585,13 +561,11 @@ page 31000 "Sales Advance Letter"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Re&open';
                     Image = ReOpen;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Reopen the document to change it after it has been approved. Approved documents have tha Released status and must be opened before they can be changed.';
 
                     trigger OnAction()
                     begin
-                        PerformManualReopen;
+                        PerformManualReopen();
                     end;
                 }
             }
@@ -730,7 +704,7 @@ page 31000 "Sales Advance Letter"
 
                     trigger OnAction()
                     begin
-                        ShowPreviewInvoice;
+                        ShowPreviewInvoice();
                     end;
                 }
                 action("Post Advance &Credit Memo")
@@ -768,7 +742,7 @@ page 31000 "Sales Advance Letter"
 
                     trigger OnAction()
                     begin
-                        ShowPreviewCrMemo;
+                        ShowPreviewCrMemo();
                     end;
                 }
                 separator(Action1220017)
@@ -785,7 +759,7 @@ page 31000 "Sales Advance Letter"
                     var
                         SalesPostAdvances: Codeunit "Sales-Post Advances";
                     begin
-                        SalesPostAdvances.RefundAndCloseLetterYesNo('', Rec, WorkDate, WorkDate, false);
+                        SalesPostAdvances.RefundAndCloseLetterYesNo('', Rec, WorkDate(), WorkDate(), false);
                         CurrPage.Update(false);
                     end;
                 }
@@ -798,7 +772,7 @@ page 31000 "Sales Advance Letter"
 
                     trigger OnAction()
                     begin
-                        ShowPreviewRefundAndCloseLetter;
+                        ShowPreviewRefundAndCloseLetter();
                     end;
                 }
             }
@@ -811,9 +785,6 @@ page 31000 "Sales Advance Letter"
                     Caption = 'Advance Letter';
                     Ellipsis = true;
                     Image = PrintReport;
-                    Promoted = true;
-                    PromotedCategory = "Report";
-                    PromotedIsBig = true;
                     ToolTip = 'Allows the print of advance letter.';
 
                     trigger OnAction()
@@ -834,8 +805,6 @@ page 31000 "Sales Advance Letter"
                     Caption = 'Send A&pproval Request';
                     Enabled = NOT OpenApprovalEntriesExist;
                     Image = SendApprovalRequest;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     ToolTip = 'Relations to the workflow.';
 
                     trigger OnAction()
@@ -852,8 +821,6 @@ page 31000 "Sales Advance Letter"
                     Caption = 'Cancel Approval Re&quest';
                     Enabled = OpenApprovalEntriesExist;
                     Image = CancelApprovalRequest;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     ToolTip = 'Relations to the workflow.';
 
                     trigger OnAction()
@@ -884,6 +851,68 @@ page 31000 "Sales Advance Letter"
         area(reporting)
         {
         }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref(Action1220014_Promoted; Action1220014)
+                {
+                }
+                actionref("Advance Invoices_Promoted"; "Advance Invoices")
+                {
+                }
+                actionref("Advance Credi&t Memos_Promoted"; "Advance Credi&t Memos")
+                {
+                }
+                actionref("Re&open_Promoted"; "Re&open")
+                {
+                }
+                actionref(Statistics_Promoted; Statistics)
+                {
+                }
+                actionref("Li&nked Advance Payments_Promoted"; "Li&nked Advance Payments")
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+
+                actionref("Advance Letter_Promoted"; "Advance Letter")
+                {
+                }
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Approve', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref(Approve_Promoted; Approve)
+                {
+                }
+                actionref(Reject_Promoted; Reject)
+                {
+                }
+                actionref(Delegate_Promoted; Delegate)
+                {
+                }
+                actionref(Comment_Promoted; Comment)
+                {
+                }
+            }
+            group(Category_Category5)
+            {
+                Caption = 'Request Approval', Comment = 'Generated from the PromotedActionCategories property index 4.';
+
+                actionref(SendApprovalRequest_Promoted; SendApprovalRequest)
+                {
+                }
+                actionref(CancelApprovalRequest_Promoted; CancelApprovalRequest)
+                {
+                }
+            }
+        }
     }
 
     trigger OnAfterGetCurrRecord()
@@ -902,18 +931,18 @@ page 31000 "Sales Advance Letter"
         end;
         FilterGroup(0);
 
-        SetControlVisibility;
+        SetControlVisibility();
     end;
 
     trigger OnDeleteRecord(): Boolean
     begin
-        CurrPage.SaveRecord;
-        exit(ConfirmDeletion);
+        CurrPage.SaveRecord();
+        exit(ConfirmDeletion());
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        "Responsibility Center" := UserSetupManagement.GetSalesFilter;
+        "Responsibility Center" := UserSetupManagement.GetSalesFilter();
         FilterGroup(2);
         if GetFilter("Template Code") <> '' then
             "Template Code" := GetRangeMin("Template Code");
@@ -922,12 +951,12 @@ page 31000 "Sales Advance Letter"
 
     trigger OnOpenPage()
     begin
-        if UserSetupManagement.GetSalesFilter <> '' then begin
+        if UserSetupManagement.GetSalesFilter() <> '' then begin
             FilterGroup(2);
-            SetRange("Responsibility Center", UserSetupManagement.GetSalesFilter);
+            SetRange("Responsibility Center", UserSetupManagement.GetSalesFilter());
             FilterGroup(0);
         end;
-        SetDocNoVisible;
+        SetDocNoVisible();
     end;
 
     var
@@ -999,7 +1028,7 @@ page 31000 "Sales Advance Letter"
     var
         AdvLetterPostPrint: Codeunit "Adv.Letter-Post+Print";
     begin
-        AdvLetterPostPrint.PreviewSalesRefundAndCloseLetter(Rec, WorkDate, WorkDate);
+        AdvLetterPostPrint.PreviewSalesRefundAndCloseLetter(Rec, WorkDate(), WorkDate());
     end;
 }
 #endif

@@ -62,13 +62,26 @@ table 1253 "Bank Pmt. Appl. Settings"
     {
     }
 
-    [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
+    [Obsolete('The function will be replaced by standard function without parameters.', '19.0')]
     procedure GetOrInsert(BankPmtApplRuleCode: Code[10])
     begin
         if Get(BankPmtApplRuleCode) then
             exit;
 
         PrimaryKey := BankPmtApplRuleCode;
+        "Vendor Ledger Entries Matching" := true;
+        "Cust. Ledger Entries Matching" := true;
+        "Bank Ledger Entries Matching" := true;
+        "Empl. Ledger Entries Matching" := true;
+        "Bank Ledg Closing Doc No Match" := false;
+        Insert(true);
+    end;
+
+    procedure GetOrInsert()
+    begin
+        if Get('') then
+            exit;
+
         "Vendor Ledger Entries Matching" := true;
         "Cust. Ledger Entries Matching" := true;
         "Bank Ledger Entries Matching" := true;

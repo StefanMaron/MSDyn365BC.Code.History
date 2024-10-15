@@ -39,7 +39,7 @@ codeunit 1255 "Match Bank Payments"
         TextMapperRulesOverridenTxt: Label '%1 text mapper rules could be applied. They were overridden because a record with the %2 match confidence was found.';
         MultipleEntriesWithSilarConfidenceFoundTxt: Label 'There are %1 ledger entries that this statement line could be applied to with the same confidence.';
         MultipleStatementLinesWithSameConfidenceFoundTxt: Label 'There are %1 alternative statement lines that could be applied to the same ledger entry with the same confidence.';
-        OneToManyTempBankStatementMatchingBuffer: Record "Bank Statement Matching Buffer" temporary;
+        TempOneToManyTempBankStatementMatchingBuffer: Record "Bank Statement Matching Buffer" temporary;
         TempBankStmtMultipleMatchLine: Record "Bank Stmt Multiple Match Line" temporary;
         TempCustomerLedgerEntryMatchingBuffer: Record "Ledger Entry Matching Buffer" temporary;
         TempVendorLedgerEntryMatchingBuffer: Record "Ledger Entry Matching Buffer" temporary;
@@ -79,6 +79,8 @@ codeunit 1255 "Match Bank Payments"
         TotalTimeSummaryTxt: Label 'TimeSummary: Total Time: Customer Ledger Entries: %1, Vendor Ledger Entries: %2, Employee Ledger Entries: %3, Bank Ledger Entries: %4, TextMappings: %5.', Locked = true;
         SpecificTaskSummaryTxt: Label 'Specific Task Summary: TotalTimeDirectCollection: %1, TotalTimeRelatedPartyMatching: %2, TotalTimeDocumentNoMatching: %3, TotalTimeAmountMatching: %4, TotalTimeStringNearness: %5, TotalTimeDocumentNoMatchingForBankLedgerEntry: %6, TotalTimeSearchingDocumentNoInLedgerEntries: %7, HitCountClosingDocumentMatches: %8 out of %9', Locked = true;
         MissingRelatedPartyTelemetryMsg: Label 'The ledger entries contain the entries that do not exist in master data. This is indication of corrupted ledger entries. Master data type %1.', Locked = true, Comment = '%1 Master Data Type';
+        PmtRecNoSeriesNotificationNameLbl: Label 'Payment reconciliation journals need a number series.';
+        PmtRecNoSeriesNotificationDescriptionLbl: Label 'Notifies the user that payment reconciliation journals are not assigned to a number series.';
         TotalTimeMatchingCustomerLedgerEntriesPerLine: Duration;
         TotalTimeMatchingVendorLedgerEntriesPerLine: Duration;
         TotalTimeMatchingEmployeeLedgerEntriesPerLine: Duration;
@@ -148,7 +150,7 @@ codeunit 1255 "Match Bank Payments"
         )
     var
         ActualBankPmtApplRule: Record "Bank Pmt. Appl. Rule";
-        ThisLineTempEntry: Record "Ledger Entry Matching Buffer" temporary;
+        TempLedgerEntryMatchingBuffer: Record "Ledger Entry Matching Buffer" temporary;
         MinAmount: Decimal;
         MaxAmount: Decimal;
         RemainingAmount: Decimal;
@@ -165,7 +167,7 @@ codeunit 1255 "Match Bank Payments"
 
                     NoOfLedgerEntriesWithinAmountTolerance := TempCustomerLedgerEntryMatchingBuffer.GetNoOfLedgerEntriesWithinRange(MinAmount, MaxAmount, BankAccReconciliaitonLine."Transaction Date", UsePaymentDiscounts);
                     NoOfLedgerEntriesOutsideAmountTolerance := TempCustomerLedgerEntryMatchingBuffer.GetNoOfLedgerEntriesOutsideRange(MinAmount, MaxAmount, BankAccReconciliaitonLine."Transaction Date", UsePaymentDiscounts);
-                    ThisLineTempEntry.Copy(TempCustomerLedgerEntryMatchingBuffer, true);
+                    TempLedgerEntryMatchingBuffer.Copy(TempCustomerLedgerEntryMatchingBuffer, true);
                 end;
             BankAccReconciliaitonLine."Account Type"::Vendor:
                 begin
@@ -174,7 +176,7 @@ codeunit 1255 "Match Bank Payments"
 
                     NoOfLedgerEntriesWithinAmountTolerance := TempVendorLedgerEntryMatchingBuffer.GetNoOfLedgerEntriesWithinRange(MinAmount, MaxAmount, BankAccReconciliaitonLine."Transaction Date", UsePaymentDiscounts);
                     NoOfLedgerEntriesOutsideAmountTolerance := TempVendorLedgerEntryMatchingBuffer.GetNoOfLedgerEntriesOutsideRange(MinAmount, MaxAmount, BankAccReconciliaitonLine."Transaction Date", UsePaymentDiscounts);
-                    ThisLineTempEntry.Copy(TempVendorLedgerEntryMatchingBuffer, true);
+                    TempLedgerEntryMatchingBuffer.Copy(TempVendorLedgerEntryMatchingBuffer, true);
                 end;
             BankAccReconciliaitonLine."Account Type"::"Bank Account":
                 begin
@@ -183,7 +185,7 @@ codeunit 1255 "Match Bank Payments"
 
                     NoOfLedgerEntriesWithinAmountTolerance := TempBankAccLedgerEntryMatchingBuffer.GetNoOfLedgerEntriesWithinRange(MinAmount, MaxAmount, BankAccReconciliaitonLine."Transaction Date", UsePaymentDiscounts);
                     NoOfLedgerEntriesOutsideAmountTolerance := TempBankAccLedgerEntryMatchingBuffer.GetNoOfLedgerEntriesOutsideRange(MinAmount, MaxAmount, BankAccReconciliaitonLine."Transaction Date", UsePaymentDiscounts);
-                    ThisLineTempEntry.Copy(TempBankAccLedgerEntryMatchingBuffer, true);
+                    TempLedgerEntryMatchingBuffer.Copy(TempBankAccLedgerEntryMatchingBuffer, true);
                 end;
         end;
 
@@ -193,13 +195,13 @@ codeunit 1255 "Match Bank Payments"
         TempLedgerEntryFound := false;
         AppliesToEntriesFilter := BankAccReconciliaitonLine.GetAppliedToEntryFilter();
         if AppliesToEntriesFilter <> '' then begin
-            ThisLineTempEntry.SetFilter("Entry No.", StrSubstNo('=%1', AppliesToEntriesFilter));
-            TempLedgerEntryFound := ThisLineTempEntry.FindFirst();
+            TempLedgerEntryMatchingBuffer.SetFilter("Entry No.", StrSubstNo('=%1', AppliesToEntriesFilter));
+            TempLedgerEntryFound := TempLedgerEntryMatchingBuffer.FindFirst();
         end;
 
         LogInfoText := true;
         if TempLedgerEntryFound then
-            MatchEntries(ThisLineTempEntry, BankAccReconciliaitonLine, BankAccReconciliaitonLine."Account Type", ActualBankPmtApplRule, RemainingAmount)
+            MatchEntries(TempLedgerEntryMatchingBuffer, BankAccReconciliaitonLine, BankAccReconciliaitonLine."Account Type", ActualBankPmtApplRule, RemainingAmount)
         else begin
             Session.LogMessage('0000BN7', StrSubstNo(
                     'Could not find the Temp Ledger Entry - Filter %1, Account Type %2',
@@ -231,6 +233,36 @@ codeunit 1255 "Match Bank Payments"
     procedure "Code"(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line")
     begin
         Code(BankAccReconciliationLine, true);
+    end;
+
+    internal procedure DisableNotification(var MyNotification: Notification)
+    var
+        MyNotifications: Record "My Notifications";
+    begin
+        if MyNotification.Id <> GetNumberSeriesNotificationId() then
+            exit;
+
+        MyNotifications.InsertDefault(MyNotification.Id, PmtRecNoSeriesNotificationNameLbl, PmtRecNoSeriesNotificationDescriptionLbl, false);
+        MyNotifications.Disable(MyNotification.Id)
+    end;
+
+    internal procedure OpenBankAccountCard(var MyNotification: Notification)
+    var
+        LocalBankAccount: Record "Bank Account";
+        BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
+    begin
+        if MyNotification.Id <> GetNumberSeriesNotificationId() then
+            exit;
+
+        if not LocalBankAccount.Get(MyNotification.GetData(BankAccReconciliationLine.FieldName("Bank Account No."))) then
+            exit;
+
+        Page.Run(Page::"Bank Account Card", LocalBankAccount, LocalBankAccount."Pmt. Rec. No. Series");
+    end;
+
+    internal procedure GetNumberSeriesNotificationId(): Guid
+    begin
+        exit('76d60ad7-20a5-4b64-b160-f059e1c7ab2d');
     end;
 
     procedure OpenLinesForReviewPage(ReviewNotification: Notification)
@@ -484,7 +516,7 @@ codeunit 1255 "Match Bank Payments"
             repeat
                 SetFilterToBankAccReconciliation(AppliedPaymentEntry, BankAccReconciliationLine);
                 if FindTextMappings(BankAccReconciliationLine) then
-                    BankAccReconciliationLine.RejectAppliedPayment;
+                    BankAccReconciliationLine.RejectAppliedPayment();
             until BankAccReconciliationLine.Next() = 0;
 
             BankAccReconciliation.Get(
@@ -510,7 +542,7 @@ codeunit 1255 "Match Bank Payments"
         ParentLineNo: Integer;
         TransactionID: Text[50];
     begin
-        if BankAccReconciliationLine.IsEmpty or (BankAccReconciliationLine.Difference = 0) then
+        if BankAccReconciliationLine.IsEmpty() or (BankAccReconciliationLine.Difference = 0) then
             exit;
 
         TempGenJournalLine.Amount := BankAccReconciliationLine.Difference;
@@ -536,11 +568,10 @@ codeunit 1255 "Match Bank Payments"
                 BankAccReconciliationLine.Init();
                 BankAccReconciliationLine."Statement Line No." := GetAvailableSplitLineNo(BankAccReconciliationLine, ParentLineNo);
                 BankAccReconciliationLine."Parent Line No." := ParentLineNo;
-                BankAccReconciliationLine.Description := TempGenJournalLine.Description;
+                BankAccReconciliationLine.Description := TempGenJournalLine.Description; // TODO: since we are removing type, we may add something here...
                 BankAccReconciliationLine."Transaction Text" := TempGenJournalLine.Description;
                 BankAccReconciliationLine."Transaction Date" := TransactionDate;
                 BankAccReconciliationLine."Statement Amount" := Difference;
-                BankAccReconciliationLine.Type := BankAccReconciliationLine.Type::Difference;
                 BankAccReconciliationLine."Transaction ID" := TransactionID;
                 BankAccReconciliationLine.Insert();
             end;
@@ -555,7 +586,7 @@ codeunit 1255 "Match Bank Payments"
               Score, TempGenJournalLine."Account Type", TempGenJournalLine."Account No.");
             CreateAppliedEntries(BankAccReconciliation);
 
-            BankAccReconciliationLine.SetManualApplication;
+            BankAccReconciliationLine.SetManualApplication();
             BankAccReconciliationLine.SetRange("Statement Type", BankAccReconciliationLine."Statement Type"::"Payment Application");
             BankAccReconciliationLine.SetRange("Bank Account No.", BankAccReconciliationLine."Bank Account No.");
             BankAccReconciliationLine.SetRange("Statement No.", BankAccReconciliationLine."Statement No.");
@@ -751,8 +782,10 @@ codeunit 1255 "Match Bank Payments"
         if not IsHandled then
             if AccountType <> TempBankStatementMatchingBuffer."Account Type"::"Bank Account" then begin
                 StartTime := CurrentDateTime();
-                DocumentMatching(BankPmtApplRule, BankAccReconciliationLine,
-                TempLedgerEntryMatchingBuffer."Document No.", TempLedgerEntryMatchingBuffer."External Document No.", '');
+                DocumentMatching(
+                    BankPmtApplRule, BankAccReconciliationLine,
+                    TempLedgerEntryMatchingBuffer."Document No.",
+                    TempLedgerEntryMatchingBuffer."External Document No.", '');
                 TotalTimeDocumentNoMatching += CurrentDateTime() - StartTime;
             end else begin
                 StartTime := CurrentDateTime();
@@ -765,7 +798,7 @@ codeunit 1255 "Match Bank Payments"
             BankPmtApplRule, BankAccReconciliationLine, TempLedgerEntryMatchingBuffer,
             AccountType, TempBankStatementMatchingBuffer, TotalTimeRelatedPartyMatching,
             TotalTimeAmountMatching, RemainingAmount, RelatedPartyMatchedInfoText,
-            LogInfoText, TotalTimeStringNearness, UsePaymentDiscounts, OneToManyTempBankStatementMatchingBuffer,
+            LogInfoText, TotalTimeStringNearness, UsePaymentDiscounts, TempOneToManyTempBankStatementMatchingBuffer,
             TempCustomerLedgerEntryMatchingBuffer, TempVendorLedgerEntryMatchingBuffer,
             TempEmployeeLedgerEntryMatchingBuffer, TempBankAccLedgerEntryMatchingBuffer, IsHandled);
         if not IsHandled then begin
@@ -918,12 +951,11 @@ codeunit 1255 "Match Bank Payments"
     var
         DirectDebitCollectionEntry: Record "Direct Debit Collection Entry";
     begin
-        if DirectDebitCollectionEntry.FindSet() then begin
+        if DirectDebitCollectionEntry.FindSet() then
             repeat
                 TempDirectDebitCollectionEntryBuffer.TransferFields(DirectDebitCollectionEntry);
                 TempDirectDebitCollectionEntryBuffer.Insert();
             until DirectDebitCollectionEntry.Next() = 0;
-        end;
     end;
 
     procedure FindApplicableTextMappings(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; var TempTextToAccMapping: Record "Text-to-Account Mapping" temporary): Boolean
@@ -1003,7 +1035,6 @@ codeunit 1255 "Match Bank Payments"
     local procedure FindBankAccLedgerEntry(var BankAccLedgerEntry: Record "Bank Account Ledger Entry"; BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; TextToAccountMapping: Record "Text-to-Account Mapping"; BalAccountNo: Code[20]): Boolean
     var
         RecordMatchMgt: Codeunit "Record Match Mgt.";
-        BlankDate: Date;
         Nearness: Integer;
         Found: Boolean;
         Handled: Boolean;
@@ -1019,7 +1050,7 @@ codeunit 1255 "Match Bank Payments"
         BankAccLedgerEntry.SetRange("Bal. Account No.", BalAccountNo);
         BankAccLedgerEntry.SetRange("Remaining Amount", BankAccReconciliationLine."Statement Amount");
 
-        if BankAccReconciliationLine."Transaction Date" = BlankDate then
+        if BankAccReconciliationLine."Transaction Date" = 0D then
             exit(false);
 
         BankAccLedgerEntry.SetFilter("Posting Date", '>=%1&<=%2', CalcDate('<-2D>', BankAccReconciliationLine."Transaction Date"), CalcDate('<+2D>', BankAccReconciliationLine."Transaction Date"));
@@ -1094,7 +1125,7 @@ codeunit 1255 "Match Bank Payments"
 
         repeat
             AppliedPaymentEntry.TransferFromBankAccReconLine(BankAccReconciliationLine);
-            if AppliedPaymentEntry.GetStmtLineRemAmtToApply = 0 then
+            if AppliedPaymentEntry.GetStmtLineRemAmtToApply() = 0 then
                 PaymentMatchingDetails.CreatePaymentMatchingDetail(BankAccReconciliationLine,
                   StrSubstNo(CannotApplyDocumentNoOneToManyApplicationTxt, TempBankStmtMultipleMatchLine."Document No."))
             else begin
@@ -1116,10 +1147,9 @@ codeunit 1255 "Match Bank Payments"
         if BankAccReconciliationLine."Statement Amount" * Amount < 0 then
             exit(false);
 
-        if ApplyEntries then begin
+        if ApplyEntries then
             if BankAccReconciliationLine."Transaction Date" < EntryPostingDate then
                 exit(false);
-        end;
 
         exit(true);
     end;
@@ -1138,9 +1168,9 @@ codeunit 1255 "Match Bank Payments"
 
         // Not possible if positive and negative applications already exists
         AppliedPaymentEntry.SetFilter("Applied Amount", '>0');
-        HasPositiveApplications := not AppliedPaymentEntry.IsEmpty;
+        HasPositiveApplications := not AppliedPaymentEntry.IsEmpty();
         AppliedPaymentEntry.SetFilter("Applied Amount", '<0');
-        HasNegativeApplications := not AppliedPaymentEntry.IsEmpty;
+        HasNegativeApplications := not AppliedPaymentEntry.IsEmpty();
         if HasPositiveApplications and HasNegativeApplications then
             exit(false);
 
@@ -1435,12 +1465,12 @@ codeunit 1255 "Match Bank Payments"
                     exit(not IsAlphanumeric(SearchText[Position + StrLen(DocNo)]));
                 end;
             else begin
-                    if StrLen(SearchText) < Position + StrLen(DocNo) then
-                        exit(not IsAlphanumeric(SearchText[Position - 1]));
+                if StrLen(SearchText) < Position + StrLen(DocNo) then
+                    exit(not IsAlphanumeric(SearchText[Position - 1]));
 
-                    exit((not IsAlphanumeric(SearchText[Position - 1])) and
-                      (not IsAlphanumeric(SearchText[Position + StrLen(DocNo)])));
-                end;
+                exit((not IsAlphanumeric(SearchText[Position - 1])) and
+                  (not IsAlphanumeric(SearchText[Position + StrLen(DocNo)])));
+            end;
         end;
 
         exit(true);
@@ -1467,8 +1497,8 @@ codeunit 1255 "Match Bank Payments"
         if BankPmtApplRule."Doc. No./Ext. Doc. No. Matched" =
            BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::"Yes - Multiple"
         then begin
-            OneToManyTempBankStatementMatchingBuffer.SetFilter("Total Remaining Amount", '>=%1&<=%2', MinAmount, MaxAmount);
-            NoOfEntries += OneToManyTempBankStatementMatchingBuffer.Count();
+            TempOneToManyTempBankStatementMatchingBuffer.SetFilter("Total Remaining Amount", '>=%1&<=%2', MinAmount, MaxAmount);
+            NoOfEntries += TempOneToManyTempBankStatementMatchingBuffer.Count();
 
             if NoOfEntries > 1 then
                 exit;
@@ -1655,7 +1685,7 @@ codeunit 1255 "Match Bank Payments"
         VendorBankAccount.SetRange("Vendor No.", VendorNo);
         if VendorBankAccount.FindSet() then
             repeat
-                if BankAccountNoWithoutSpecialChars(VendorBankAccount.GetBankAccountNo) = ValueFromBankStatement then
+                if BankAccountNoWithoutSpecialChars(VendorBankAccount.GetBankAccountNo()) = ValueFromBankStatement then
                     exit(true);
             until VendorBankAccount.Next() = 0;
 
@@ -1724,7 +1754,7 @@ codeunit 1255 "Match Bank Payments"
         TempAppliedPaymentEntry."Account No." := TempBankStatementMatchingBuffer."Account No.";
         TempAppliedPaymentEntry."Applies-to Entry No." := TempBankStatementMatchingBuffer."Entry No.";
 
-        exit(TempAppliedPaymentEntry.GetRemAmt - TempAppliedPaymentEntry.GetAmtAppliedToOtherStmtLines);
+        exit(TempAppliedPaymentEntry.GetRemAmt() - TempAppliedPaymentEntry.GetAmtAppliedToOtherStmtLines());
     end;
 
     local procedure ShowMatchSummary(BankAccReconciliation: Record "Bank Acc. Reconciliation")
@@ -1758,8 +1788,8 @@ codeunit 1255 "Match Bank Payments"
 
     local procedure UpdateOneToManyMatches(BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line")
     begin
-        RemoveInvalidOneToManyMatches;
-        GetOneToManyMatches;
+        RemoveInvalidOneToManyMatches();
+        GetOneToManyMatches();
         ScoreOneToManyMatches(BankAccReconciliationLine);
     end;
 
@@ -1768,7 +1798,7 @@ codeunit 1255 "Match Bank Payments"
         BankPmtApplRule: Record "Bank Pmt. Appl. Rule";
         Score: Integer;
     begin
-        if TempBankStatementMatchingBuffer.FindSet() then begin
+        if TempBankStatementMatchingBuffer.FindSet() then
             repeat
                 BankPmtApplRule."Doc. No./Ext. Doc. No. Matched" := BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::"Yes - Multiple";
                 BankPmtApplRule."Related Party Matched" := TempBankStatementMatchingBuffer."Related Party Matched";
@@ -1783,7 +1813,6 @@ codeunit 1255 "Match Bank Payments"
                 TempBankStatementMatchingBuffer.Quality := Score;
                 TempBankStatementMatchingBuffer.Modify();
             until TempBankStatementMatchingBuffer.Next() = 0;
-        end;
 
         TempBankStatementMatchingBuffer.Reset();
     end;
@@ -1805,8 +1834,8 @@ codeunit 1255 "Match Bank Payments"
 
         if TempBankStatementMatchingBuffer.FindSet() then
             repeat
-                OneToManyTempBankStatementMatchingBuffer := TempBankStatementMatchingBuffer;
-                OneToManyTempBankStatementMatchingBuffer.Insert(true);
+                TempOneToManyTempBankStatementMatchingBuffer := TempBankStatementMatchingBuffer;
+                TempOneToManyTempBankStatementMatchingBuffer.Insert(true);
             until TempBankStatementMatchingBuffer.Next() = 0;
     end;
 
@@ -1955,8 +1984,6 @@ codeunit 1255 "Match Bank Payments"
                 AddWarningsForTextMapperOverriden(BankAccReconciliationLine2);
                 AddWarningsForStatementCanBeAppliedToMultipleEntries(BankAccReconciliationLine2);
                 AddWarningsForMultipleStatementLinesCouldBeAppliedToEntry(BankAccReconciliationLine2);
-                if BankAccReconciliationLine2.Type <> BankAccReconciliationLine2.Type::Difference then
-                    UpdateType(BankAccReconciliationLine2);
             until BankAccReconciliationLine2.Next() = 0;
     end;
 
@@ -2095,6 +2122,8 @@ codeunit 1255 "Match Bank Payments"
         exit(BankAccReconciliationLine."Statement Line No.");
     end;
 
+#if not CLEAN21
+    [Obsolete('Bank Rec Lines have no Type field anymore, this is a no-op', '21.0')]
     procedure UpdateType(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line")
     var
         AppliedPaymentEntry: Record "Applied Payment Entry";
@@ -2117,6 +2146,7 @@ codeunit 1255 "Match Bank Payments"
             BankAccReconciliationLine.Modify();
         end;
     end;
+#endif
 
     local procedure PrepareLedgerEntryForApplication(BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line")
     begin
@@ -2125,7 +2155,7 @@ codeunit 1255 "Match Bank Payments"
 
         SetApplicationDataInCVLedgEntry(
           TempBankStatementMatchingBuffer."Account Type", TempBankStatementMatchingBuffer."Entry No.",
-          BankAccReconciliationLine.GetAppliesToID);
+          BankAccReconciliationLine.GetAppliesToID());
     end;
 
     procedure SetApplicationDataInCVLedgEntry(AccountType: Enum "Gen. Journal Account Type"; EntryNo: Integer;

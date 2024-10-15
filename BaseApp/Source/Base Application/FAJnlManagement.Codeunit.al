@@ -84,7 +84,7 @@ codeunit 5638 FAJnlManagement
     begin
         OnBeforeOpenJournal(CurrentJnlBatchName, FAJnlLine);
 
-        FAJnlLine.CheckFAJournalLineUserRestriction; // NAVCZ
+        FAJnlLine.CheckFAJournalLineUserRestriction(); // NAVCZ
         CheckTemplateName(FAJnlLine.GetRangeMax("Journal Template Name"), CurrentJnlBatchName);
         FAJnlLine.FilterGroup := 2;
         FAJnlLine.SetRange("Journal Batch Name", CurrentJnlBatchName);
@@ -178,7 +178,7 @@ codeunit 5638 FAJnlManagement
             if not FAJnlBatch.FindFirst() then begin
                 FAJnlBatch.Init();
                 FAJnlBatch."Journal Template Name" := CurrentJnlTemplateName;
-                FAJnlBatch.SetupNewBatch;
+                FAJnlBatch.SetupNewBatch();
                 FAJnlBatch.Name := Text004;
                 FAJnlBatch.Description := Text005;
                 FAJnlBatch.Insert(true);
@@ -214,7 +214,7 @@ codeunit 5638 FAJnlManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeOpenJournal(var CurrentJnlBatchName: Code[10]; var FAJournalLine: Record "FA Journal Line")
-    begin        
+    begin
     end;
 }
 

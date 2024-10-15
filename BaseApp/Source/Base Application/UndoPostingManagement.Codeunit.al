@@ -1,7 +1,7 @@
-﻿codeunit 5817 "Undo Posting Management"
+﻿#if not CLEAN20
+codeunit 5817 "Undo Posting Management"
 {
-    Permissions = TableData "Reservation Entry" = rimd,
-                  TableData "Item Entry Relation" = rimd;
+    Permissions = TableData "Reservation Entry" = i;
 
     trigger OnRun()
     begin
@@ -24,7 +24,6 @@
         Text013: Label 'Item ledger entries are missing for line %1.';
         Text014: Label 'You cannot undo line %1, because a revaluation has already been posted.';
         Text015: Label 'You cannot undo posting of item %1 with variant ''%2'' and unit of measure %3 because it is not available at location %4, bin code %5. The required quantity is %6. The available quantity is %7.';
-        SerialNoOnInventoryErr: Label 'Serial No. %1 is already on inventory.';
 
     procedure TestSalesShptLine(SalesShptLine: Record "Sales Shipment Line")
     var
@@ -96,7 +95,6 @@
                 DATABASE::"Assembly Line", AsmLine."Document Type"::Order.AsInteger(), "Order No.", "Order Line No.");
     end;
 
-#if not CLEAN20
     [Obsolete('Moved to Advance Localization Pack for Czech.', '20.0')]
     [Scope('OnPrem')]
     procedure TestTransferShptLine(TransShptLine: Record "Transfer Shipment Line")
@@ -112,7 +110,6 @@
         // NAVCZ
     end;
 
-#endif
     procedure RunTestAllTransactions(UndoType: Integer; UndoID: Code[20]; UndoLineNo: Integer; SourceType: Integer; SourceSubtype: Integer; SourceID: Code[20]; SourceRefNo: Integer)
     begin
         TestAllTransactions(UndoType, UndoID, UndoLineNo, SourceType, SourceSubtype, SourceID, SourceRefNo);
@@ -158,7 +155,7 @@
             DATABASE::"Posted Assembly Header":
                 begin
                     PostedAsmHeader.Get(UndoID);
-                    if not PostedAsmHeader.IsAsmToOrder then
+                    if not PostedAsmHeader.IsAsmToOrder() then
                         TestWarehouseBinContent(SourceType, SourceSubtype, SourceID, SourceRefNo, PostedAsmHeader."Quantity (Base)");
                     exit(true);
                 end;
@@ -276,7 +273,7 @@
             SetRange("Whse. Document No.", PostedWhseReceiptLine."No.");
             SetRange("Whse. Document Line No.", PostedWhseReceiptLine."Line No.");
             if not IsEmpty() then
-                Error(Text004, TableCaption, UndoLineNo);
+                Error(Text004, TableCaption(), UndoLineNo);
         end;
     end;
 
@@ -512,7 +509,7 @@
         with TempItemLedgEntry do begin
             Find('-'); // Assertion: will fail if not found.
             ItemRec.Get("Item No.");
-            if ItemRec.IsNonInventoriableType then
+            if ItemRec.IsNonInventoriableType() then
                 exit;
 
             repeat
@@ -527,7 +524,7 @@
                         else
                             TestField("Remaining Quantity", Quantity);
                 end else
-                    if "Entry Type" <> "Entry Type"::Transfer then // NAVCZ
+                    if "Entry Type" <> "Entry Type"::Transfer then
                         if InvoicedEntry then
                             TestField("Shipped Qty. Not Returned", Quantity - "Invoiced Quantity")
                         else
@@ -573,7 +570,6 @@
     procedure PostItemJnlLineAppliedToList(ItemJnlLine: Record "Item Journal Line"; var TempApplyToItemLedgEntry: Record "Item Ledger Entry" temporary; UndoQty: Decimal; UndoQtyBase: Decimal; var TempItemLedgEntry: Record "Item Ledger Entry" temporary; var TempItemEntryRelation: Record "Item Entry Relation" temporary; InvoicedEntry: Boolean)
     var
         ItemApplicationEntry: Record "Item Application Entry";
-        ItemTrackingMgt: Codeunit "Item Tracking Management";
         NonDistrQuantity: Decimal;
         NonDistrQuantityBase: Decimal;
     begin
@@ -598,19 +594,6 @@
             ItemJnlLine."Item Shpt. Entry No." := 0;
             ItemJnlLine."Quantity (Base)" := -TempApplyToItemLedgEntry.Quantity;
             ItemJnlLine.CopyTrackingFromItemLedgEntry(TempApplyToItemLedgEntry);
-
-            // NAVCZ
-            if (TempApplyToItemLedgEntry.Quantity < 0) and
-               ((TempApplyToItemLedgEntry."Document Type" = TempApplyToItemLedgEntry."Document Type"::"Sales Shipment") or
-                (TempApplyToItemLedgEntry."Document Type" = TempApplyToItemLedgEntry."Document Type"::"Purchase Return Shipment") or
-                (TempApplyToItemLedgEntry."Document Type" = TempApplyToItemLedgEntry."Document Type"::"Service Shipment") or
-                (TempApplyToItemLedgEntry."Document Type" = TempApplyToItemLedgEntry."Document Type"::"Purchase Receipt") or
-                (TempApplyToItemLedgEntry."Document Type" = TempApplyToItemLedgEntry."Document Type"::"Sales Return Receipt"))
-            then
-                if (ItemJnlLine."Serial No." <> '') and IsSNRequired(ItemJnlLine) then
-                    if ItemTrackingMgt.FindInInventory(ItemJnlLine."Item No.", ItemJnlLine."Variant Code", ItemJnlLine."Serial No.") then
-                        Error(SerialNoOnInventoryErr, ItemJnlLine."Serial No.");
-            // NAVCZ
 
             // Quantity is filled in according to UOM:
             AdjustQuantityRounding(ItemJnlLine, NonDistrQuantity, NonDistrQuantityBase);
@@ -657,7 +640,6 @@
           NonDistrQuantityBase, ItemJnlLine."Quantity (Base)");
     end;
 
-#if not CLEAN20
     [Obsolete('Moved to Advance Localization Pack for Czech.', '20.0')]
     [Scope('OnPrem')]
     procedure PostItemJnlLineAppliedToListTr(ItemJnlLine: Record "Item Journal Line"; var TempApplyToItemLedgEntry: Record "Item Ledger Entry" temporary; UndoQty: Decimal; UndoQtyBase: Decimal; var TempItemLedgEntry: Record "Item Ledger Entry" temporary; var TempItemEntryRelation: Record "Item Entry Relation" temporary)
@@ -728,7 +710,6 @@
         // NAVCZ
     end;
 
-#endif
     procedure CollectItemLedgEntries(var TempItemLedgEntry: Record "Item Ledger Entry" temporary; SourceType: Integer; DocumentNo: Code[20]; LineNo: Integer; BaseQty: Decimal; EntryRef: Integer)
     var
         ItemLedgEntry: Record "Item Ledger Entry";
@@ -745,7 +726,7 @@
                               DATABASE::"Return Shipment Line",
                               DATABASE::"Service Shipment Line",
                               DATABASE::"Posted Assembly Line",
-                              DATABASE::"Transfer Shipment Line"] // NAVCZ
+                              DATABASE::"Transfer Shipment Line"]
             then
                 BaseQty := BaseQty * -1;
             CheckMissingItemLedgers(TempItemLedgEntry, SourceType, DocumentNo, LineNo, BaseQty);
@@ -803,31 +784,31 @@
                     begin
                         "Return Qty. Shipped" := "Return Qty. Shipped" - UndoQty;
                         "Return Qty. Shipped (Base)" := "Return Qty. Shipped (Base)" - UndoQtyBase;
-                        InitOutstanding;
+                        InitOutstanding();
                         if PurchSetup."Default Qty. to Receive" = PurchSetup."Default Qty. to Receive"::Blank then
                             "Qty. to Receive" := 0
                         else
-                            InitQtyToShip;
+                            InitQtyToShip();
                         OnUpdatePurchLineOnAfterSetQtyToShip(PurchLine);
-                        UpdateWithWarehouseReceive;
+                        UpdateWithWarehouseReceive();
                     end;
                 "Document Type"::Order:
                     begin
                         "Quantity Received" := "Quantity Received" - UndoQty;
                         "Qty. Received (Base)" := "Qty. Received (Base)" - UndoQtyBase;
-                        InitOutstanding;
+                        InitOutstanding();
                         if PurchSetup."Default Qty. to Receive" = PurchSetup."Default Qty. to Receive"::Blank then
                             "Qty. to Receive" := 0
                         else
-                            InitQtyToReceive;
+                            InitQtyToReceive();
                         OnUpdatePurchLineOnAfterSetQtyToReceive(PurchLine);
-                        UpdateWithWarehouseReceive;
+                        UpdateWithWarehouseReceive();
                     end;
                 else
                     FieldError("Document Type");
             end;
             OnUpdatePurchLineOnBeforePurchLineModify(PurchLine);
-            Modify;
+            Modify();
             RevertPostedItemTrackingFromPurchLine(PurchLine, TempUndoneItemLedgEntry);
             xPurchLine."Quantity (Base)" := 0;
             PurchLineReserveVerifyQuantity(PurchLine, xPurchLine);
@@ -883,30 +864,30 @@
                         "Return Qty. Received" := "Return Qty. Received" - UndoQty;
                         "Return Qty. Received (Base)" := "Return Qty. Received (Base)" - UndoQtyBase;
                         OnUpdateSalesLineOnBeforeInitOustanding(SalesLine, UndoQty, UndoQtyBase);
-                        InitOutstanding;
+                        InitOutstanding();
                         if SalesSetup."Default Quantity to Ship" = SalesSetup."Default Quantity to Ship"::Blank then
                             "Qty. to Ship" := 0
                         else
-                            InitQtyToReceive;
-                        UpdateWithWarehouseShip;
+                            InitQtyToReceive();
+                        UpdateWithWarehouseShip();
                     end;
                 "Document Type"::Order:
                     begin
                         "Quantity Shipped" := "Quantity Shipped" - UndoQty;
                         "Qty. Shipped (Base)" := "Qty. Shipped (Base)" - UndoQtyBase;
                         OnUpdateSalesLineOnBeforeInitOustanding(SalesLine, UndoQty, UndoQtyBase);
-                        InitOutstanding;
+                        InitOutstanding();
                         if SalesSetup."Default Quantity to Ship" = SalesSetup."Default Quantity to Ship"::Blank then
                             "Qty. to Ship" := 0
                         else
-                            InitQtyToShip;
-                        UpdateWithWarehouseShip;
+                            InitQtyToShip();
+                        UpdateWithWarehouseShip();
                     end;
                 else
                     FieldError("Document Type");
             end;
             OnUpdateSalesLineOnBeforeSalesLineModify(SalesLine);
-            Modify;
+            Modify();
             RevertPostedItemTrackingFromSalesLine(SalesLine, TempUndoneItemLedgEntry);
             xSalesLine."Quantity (Base)" := 0;
             SalesLineReserveVerifyQuantity(SalesLine, xSalesLine);
@@ -1020,11 +1001,11 @@
                         "Qty. Shipped (Base)" := "Qty. Shipped (Base)" - UndoQtyBase;
                         "Qty. to Invoice" := 0;
                         "Qty. to Invoice (Base)" := 0;
-                        InitOutstanding;
-                        InitQtyToShip;
+                        InitOutstanding();
+                        InitQtyToShip();
                         Validate("Line Discount %");
-                        ConfirmAdjPriceLineChange;
-                        Modify;
+                        ConfirmAdjPriceLineChange();
+                        Modify();
 
                         SalesSetup.Get();
                         if SalesSetup."Calc. Inv. Discount" then begin
@@ -1035,7 +1016,7 @@
                 else
                     FieldError("Document Type");
             end;
-            Modify;
+            Modify();
             RevertPostedItemTracking(TempUndoneItemLedgEntry, "Posting Date", false);
             xServLine."Quantity (Base)" := 0;
             ServiceLineCnsmReserveVerifyQuantity(ServLine, xServLine);
@@ -1152,7 +1133,7 @@
         ItemJnlLine2."Source No." := Job."Bill-to Customer No.";
         ItemJnlLine2."Source Type" := ItemJnlLine2."Source Type"::Customer;
         ItemJnlLine2."Discount Amount" := 0;
-        if ItemJnlLine2.IsPurchaseReturn then begin
+        if ItemJnlLine2.IsPurchaseReturn() then begin
             ItemJnlPostLine.Run(ItemJnlLine2);
             SetItemJnlLineAppliesToEntry(ItemJnlLine, ItemJnlLine2."Item Shpt. Entry No.");
             exit(true);
@@ -1188,7 +1169,6 @@
         end;
     end;
 
-#if not CLEAN20
     [Obsolete('Moved to Advance Localization Pack for Czech.', '20.0')]
     [Scope('OnPrem')]
     procedure UpdateTransferLine(TransferLine: Record "Transfer Line"; UndoQty: Decimal; UndoQtyBase: Decimal; var TempUndoneItemLedgEntry: Record "Item Ledger Entry" temporary)
@@ -1206,11 +1186,11 @@
             TransferLine1 := TransferLine;
             "Quantity Shipped" := "Quantity Shipped" - UndoQty;
             "Qty. Shipped (Base)" := "Qty. Shipped (Base)" - UndoQtyBase;
-            InitQtyInTransit;
-            InitOutstandingQty;
-            InitQtyToShip;
-            InitQtyToReceive;
-            Modify;
+            InitQtyInTransit();
+            InitOutstandingQty();
+            InitQtyToShip();
+            InitQtyToReceive();
+            Modify();
             TransferLine1."Quantity (Base)" := 0;
             TransferLineReserve.VerifyQuantity(TransferLine, TransferLine1);
 
@@ -1225,7 +1205,7 @@
                         ResEntry.SetRange("Source Prod. Order Line", "Line No.");
                         ResEntry.SetRange("Serial No.", TempUndoneItemLedgEntry."Serial No.");
                         ResEntry.SetRange("Lot No.", TempUndoneItemLedgEntry."Lot No.");
-                        while ResEntry.FindFirst do begin
+                        while ResEntry.FindFirst() do begin
                             if ResEntry."Source Ref. No." <> 0 then
                                 Line := ResEntry."Source Ref. No.";
                             ResEntry.Delete();
@@ -1288,18 +1268,6 @@
             TransferLine2.FindFirst();
             TransferLine2.Delete(true);
         end;
-    end;
-
-#endif
-    local procedure IsSNRequired(ItemJnlLine: Record "Item Journal Line"): Boolean
-    var
-        Item: Record Item;
-        ItemTrackingCode: Record "Item Tracking Code";
-    begin
-        // NAVCZ
-        if Item.Get(ItemJnlLine."Item No.") then
-            if ItemTrackingCode.Get(Item."Item Tracking Code") then
-                exit(ItemTrackingCode."SN Specific Tracking");
     end;
 
     procedure TransferSourceValues(var ItemJnlLine: Record "Item Journal Line"; EntryNo: Integer)
@@ -1609,3 +1577,4 @@
     begin
     end;
 }
+#endif

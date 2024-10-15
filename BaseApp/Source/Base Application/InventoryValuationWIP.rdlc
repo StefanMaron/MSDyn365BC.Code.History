@@ -2600,9 +2600,6 @@
                       <KeepTogether>true</KeepTogether>
                     </TablixMember>
                   </TablixMembers>
-                  <Visibility>
-                    <Hidden>=Fields!HideRow.Value</Hidden>
-                  </Visibility>
                 </TablixMember>
                 <TablixMember>
                   <KeepWithGroup>Before</KeepWithGroup>
@@ -3017,9 +3014,6 @@ End Function
         </Field>
         <Field Name="LastWIPFormat">
           <DataField>LastWIPFormat</DataField>
-        </Field>
-        <Field Name="HideRow">
-          <DataField>HideRow</DataField>
         </Field>
       </Fields>
       <Query>

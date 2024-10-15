@@ -1,4 +1,4 @@
-﻿table 900 "Assembly Header"
+table 900 "Assembly Header"
 {
     Caption = 'Assembly Header';
     DataCaptionFields = "No.", Description;
@@ -30,7 +30,7 @@
                 TestStatusOpen();
                 if "No." <> xRec."No." then begin
                     AssemblySetup.Get();
-                    NoSeriesMgt.TestManual(GetNoSeriesCode);
+                    NoSeriesMgt.TestManual(GetNoSeriesCode());
                     "No. Series" := '';
                 end;
             end;
@@ -75,9 +75,9 @@
                 TestStatusOpen();
                 SetCurrentFieldNum(FieldNo("Item No."));
                 if "Item No." <> '' then begin
-                    SetDescriptionsFromItem;
+                    SetDescriptionsFromItem();
                     Item.TestField(Blocked, false);
-                    "Unit Cost" := GetUnitCost;
+                    "Unit Cost" := GetUnitCost();
                     "Overhead Rate" := Item."Overhead Rate";
                     "Inventory Posting Group" := Item."Inventory Posting Group";
                     "Gen. Prod. Posting Group" := Item."Gen. Prod. Posting Group";
@@ -88,7 +88,7 @@
                     OnValidateItemNoOnBeforeValidateDates(Rec, xRec, IsHandled);
                     if not IsHandled then
                         ValidateDates(FieldNo("Due Date"), true);
-                    GetDefaultBin;
+                    GetDefaultBin();
                     OnValidateItemNoOnAfterGetDefaultBin(Rec, Item);
                 end;
                 AssemblyLineMgt.UpdateAssemblyLines(Rec, xRec, FieldNo("Item No."), true, CurrFieldNo, CurrentFieldNum);
@@ -111,7 +111,7 @@
                 TestStatusOpen();
                 SetCurrentFieldNum(FieldNo("Variant Code"));
                 if "Variant Code" = '' then
-                    SetDescriptionsFromItem
+                    SetDescriptionsFromItem()
                 else begin
                     ItemVariant.Get("Item No.", "Variant Code");
                     Description := ItemVariant.Description;
@@ -127,8 +127,8 @@
                 if not IsHandled then
                     AssemblyLineMgt.UpdateAssemblyLines(Rec, xRec, FieldNo("Variant Code"), false, CurrFieldNo, CurrentFieldNum);
                 AssemblyHeaderReserve.VerifyChange(Rec, xRec);
-                GetDefaultBin;
-                Validate("Unit Cost", GetUnitCost);
+                GetDefaultBin();
+                Validate("Unit Cost", GetUnitCost());
                 ClearCurrentFieldNum(FieldNo("Variant Code"));
             end;
         }
@@ -173,8 +173,8 @@
                     ValidateDates(FieldNo("Due Date"), true);
                 AssemblyLineMgt.UpdateAssemblyLines(Rec, xRec, FieldNo("Location Code"), false, CurrFieldNo, CurrentFieldNum);
                 AssemblyHeaderReserve.VerifyChange(Rec, xRec);
-                GetDefaultBin;
-                Validate("Unit Cost", GetUnitCost);
+                GetDefaultBin();
+                Validate("Unit Cost", GetUnitCost());
                 ClearCurrentFieldNum(FieldNo("Location Code"));
                 CreateDimFromDefaultDim();
             end;
@@ -296,8 +296,8 @@
 
                 "Quantity (Base)" := CalcBaseQty(Quantity, FieldCaption("Quantity (Base)"), FieldCaption(Quantity));
                 OnValiateQuantityOnAfterCalcBaseQty(Rec, CurrFieldNo);
-                InitRemainingQty;
-                InitQtyToAssemble;
+                InitRemainingQty();
+                InitQtyToAssemble();
                 Validate("Quantity to Assemble");
 
                 UpdateAssemblyLinesAndVerifyReserveQuantity();
@@ -455,10 +455,10 @@
                 SkuItemUnitCost: Decimal;
             begin
                 if "Item No." <> '' then begin
-                    GetItem;
+                    GetItem();
 
                     if Item."Costing Method" = Item."Costing Method"::Standard then begin
-                        SkuItemUnitCost := GetUnitCost;
+                        SkuItemUnitCost := GetUnitCost();
                         if "Unit Cost" <> SkuItemUnitCost then
                             Error(Text005,
                               FieldCaption("Unit Cost"),
@@ -509,14 +509,14 @@
                 TestStatusOpen();
                 SetCurrentFieldNum(FieldNo("Unit of Measure Code"));
 
-                GetItem;
+                GetItem();
                 "Qty. per Unit of Measure" := UOMMgt.GetQtyPerUnitOfMeasure(Item, "Unit of Measure Code");
                 "Qty. Rounding Precision" := UOMMgt.GetQtyRoundingPrecision(Item, "Unit of Measure Code");
                 "Qty. Rounding Precision (Base)" := UOMMgt.GetQtyRoundingPrecision(Item, Item."Base Unit of Measure");
-                "Unit Cost" := GetUnitCost;
+                "Unit Cost" := GetUnitCost();
                 "Overhead Rate" := Item."Overhead Rate";
 
-                AssemblyLineMgt.UpdateAssemblyLines(Rec, xRec, FieldNo("Unit of Measure Code"), ReplaceLinesFromBOM, CurrFieldNo, CurrentFieldNum);
+                AssemblyLineMgt.UpdateAssemblyLines(Rec, xRec, FieldNo("Unit of Measure Code"), ReplaceLinesFromBOM(), CurrFieldNo, CurrentFieldNum);
                 ClearCurrentFieldNum(FieldNo("Unit of Measure Code"));
 
                 Validate(Quantity);
@@ -575,8 +575,8 @@
             begin
                 AsmHeader := Rec;
                 AssemblySetup.Get();
-                TestNoSeries;
-                if NoSeriesMgt.LookupSeries(GetPostingNoSeriesCode, AsmHeader."Posting No. Series") then
+                TestNoSeries();
+                if NoSeriesMgt.LookupSeries(GetPostingNoSeriesCode(), AsmHeader."Posting No. Series") then
                     AsmHeader.Validate("Posting No. Series");
                 Rec := AsmHeader;
             end;
@@ -588,8 +588,8 @@
                 TestStatusOpen();
                 if "Posting No. Series" <> '' then begin
                     AssemblySetup.Get();
-                    TestNoSeries;
-                    NoSeriesMgt.TestSeries(GetPostingNoSeriesCode, "Posting No. Series");
+                    TestNoSeries();
+                    NoSeriesMgt.TestSeries(GetPostingNoSeriesCode(), "Posting No. Series");
                 end;
                 TestField("Posting No.", '');
             end;
@@ -635,23 +635,9 @@
         {
             Caption = 'Gen. Bus. Posting Group';
             TableRelation = "Gen. Business Posting Group";
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
-#if not CLEAN18
-            trigger OnValidate()
-            begin
-                // NAVCZ
-                SetCurrentFieldNum(FieldNo("Gen. Bus. Posting Group"));
-                AssemblyLineMgt.UpdateAssemblyLines(Rec, xRec, FieldNo("Gen. Bus. Posting Group"), false, CurrFieldNo, CurrentFieldNum);
-                ClearCurrentFieldNum(FieldNo("Gen. Bus. Posting Group"));
-                // NAVCZ
-            end;
-#endif
+            ObsoleteTag = '21.0';
         }
     }
 
@@ -679,7 +665,7 @@
         CalcFields("Reserved Qty. (Base)");
         TestField("Reserved Qty. (Base)", 0);
 
-        DeleteAssemblyLines;
+        DeleteAssemblyLines();
     end;
 
     trigger OnInsert()
@@ -692,8 +678,8 @@
         AssemblySetup.Get();
 
         if "No." = '' then begin
-            TestNoSeries;
-            NoSeriesMgt.InitSeries(GetNoSeriesCode, xRec."No. Series", "Posting Date", "No.", "No. Series");
+            TestNoSeries();
+            NoSeriesMgt.InitSeries(GetNoSeriesCode(), xRec."No. Series", "Posting Date", "No.", "No. Series");
         end;
 
         if "Document Type" = "Document Type"::Order then begin
@@ -703,15 +689,11 @@
                 Error(Text001, Format("Document Type"), "No.");
         end;
 
-        InitRecord;
+        InitRecord();
 
         if GetFilter("Item No.") <> '' then
             if GetRangeMin("Item No.") = GetRangeMax("Item No.") then
                 Validate("Item No.", GetRangeMin("Item No."));
-#if not CLEAN18
-
-        Validate("Gen. Bus. Posting Group", AssemblySetup."Gen. Bus. Posting Group"); // NAVCZ
-#endif
     end;
 
     trigger OnModify()
@@ -726,9 +708,6 @@
 
     var
         AssemblySetup: Record "Assembly Setup";
-        Text001: Label '%1 %2 cannot be created, because it already exists or has been posted.', Comment = '%1 = Document Type, %2 = No.';
-        Text002: Label '%1 cannot be lower than the %2, which is %3.';
-        Text003: Label '%1 cannot be higher than the %2, which is %3.';
         Item: Record Item;
         GLSetup: Record "General Ledger Setup";
         StockkeepingUnit: Record "Stockkeeping Unit";
@@ -736,18 +715,22 @@
         AssemblyLineMgt: Codeunit "Assembly Line Management";
         ConfirmManagement: Codeunit "Confirm Management";
         GLSetupRead: Boolean;
+        CurrentFieldNum: Integer;
+        PostingDateLaterErr: Label 'Posting Date on Assembly Order %1 must not be later than the Posting Date on Sales Order %2.';
+        RowIdx: Option ,MatCost,ResCost,ResOvhd,AsmOvhd,Total;
+
+        Text001: Label '%1 %2 cannot be created, because it already exists or has been posted.', Comment = '%1 = Document Type, %2 = No.';
+        Text002: Label '%1 cannot be lower than the %2, which is %3.';
+        Text003: Label '%1 cannot be higher than the %2, which is %3.';
         Text005: Label 'Changing %1 or %2 is not allowed when %3 is %4.';
         Text007: Label 'Nothing to handle.';
         Text009: Label 'You cannot rename an %1.';
-        CurrentFieldNum: Integer;
         Text010: Label 'You have modified %1.';
         Text011: Label 'the %1 from %2 to %3';
         Text012: Label '%1 %2', Locked = true;
         Text013: Label 'Do you want to update %1?';
         Text014: Label '%1 and %2';
         Text015: Label '%1 %2 is before %3 %4.', Comment = '%1 and %3 = Date Captions, %2 and %4 = Date Values';
-        PostingDateLaterErr: Label 'Posting Date on Assembly Order %1 must not be later than the Posting Date on Sales Order %2.';
-        RowIdx: Option ,MatCost,ResCost,ResOvhd,AsmOvhd,Total;
 
     protected var
         StatusCheckSuspended: Boolean;
@@ -769,26 +752,24 @@
             "Document Type"::Quote, "Document Type"::"Blanket Order":
                 NoSeriesMgt.SetDefaultSeries("Posting No. Series", AssemblySetup."Posted Assembly Order Nos.");
             "Document Type"::Order:
-                begin
-                    if ("No. Series" <> '') and
-                       (AssemblySetup."Assembly Order Nos." = AssemblySetup."Posted Assembly Order Nos.")
-                    then
-                        "Posting No. Series" := "No. Series"
-                    else
-                        NoSeriesMgt.SetDefaultSeries("Posting No. Series", AssemblySetup."Posted Assembly Order Nos.");
-                end;
+                if ("No. Series" <> '') and
+                    (AssemblySetup."Assembly Order Nos." = AssemblySetup."Posted Assembly Order Nos.")
+                then
+                    "Posting No. Series" := "No. Series"
+                else
+                    NoSeriesMgt.SetDefaultSeries("Posting No. Series", AssemblySetup."Posted Assembly Order Nos.");
         end;
 
-        "Creation Date" := WorkDate;
+        "Creation Date" := WorkDate();
         if "Due Date" = 0D then
-            "Due Date" := WorkDate;
-        "Posting Date" := WorkDate;
+            "Due Date" := WorkDate();
+        "Posting Date" := WorkDate();
         if "Starting Date" = 0D then
-            "Starting Date" := WorkDate;
+            "Starting Date" := WorkDate();
         if "Ending Date" = 0D then
-            "Ending Date" := WorkDate;
+            "Ending Date" := WorkDate();
 
-        SetDefaultLocation;
+        SetDefaultLocation();
 
         OnAfterInitRecord(Rec);
     end;
@@ -821,8 +802,8 @@
         with AssemblyHeader do begin
             Copy(Rec);
             AssemblySetup.Get();
-            TestNoSeries;
-            if NoSeriesMgt.SelectSeries(GetNoSeriesCode, OldAssemblyHeader."No. Series", "No. Series") then begin
+            TestNoSeries();
+            if NoSeriesMgt.SelectSeries(GetNoSeriesCode(), OldAssemblyHeader."No. Series", "No. Series") then begin
                 NoSeriesMgt.SetSeries("No.");
                 if AssemblyHeader2.Get("Document Type", "No.") then
                     Error(Text001, Format("Document Type"), "No.");
@@ -989,7 +970,7 @@
         DimMgt.ValidateShortcutDimValues(FieldNumber, ShortcutDimCode, "Dimension Set ID");
 
         if "No." <> '' then
-            Modify;
+            Modify();
 
         OnAfterValidateShortcutDimCode(Rec, xRec, FieldNumber, ShortcutDimCode);
     end;
@@ -1095,7 +1076,7 @@
 
     procedure FilterLinesForReservation(ReservationEntry: Record "Reservation Entry"; DocumentType: Option; AvailabilityFilter: Text; Positive: Boolean)
     begin
-        Reset;
+        Reset();
         SetCurrentKey(
           "Document Type", "Item No.", "Variant Code", "Location Code", "Due Date");
         SetRange("Document Type", DocumentType);
@@ -1150,7 +1131,7 @@
         RolledUpAsmUnitCost: Decimal;
         OverHeadAmt: Decimal;
     begin
-        RolledUpAsmUnitCost := CalcRolledUpAsmUnitCost;
+        RolledUpAsmUnitCost := CalcRolledUpAsmUnitCost();
         OverHeadAmt := CalculateStandardCost.CalcOverHeadAmt(RolledUpAsmUnitCost, "Indirect Cost %", "Overhead Rate");
         Validate("Unit Cost", RoundUnitAmount(RolledUpAsmUnitCost + OverHeadAmt));
         Modify(true);
@@ -1168,7 +1149,7 @@
     var
         AsmSetup: Record "Assembly Setup";
     begin
-        if AsmSetup.Get then
+        if AsmSetup.Get() then
             if AsmSetup."Default Location for Orders" <> '' then
                 if "Location Code" = '' then
                     Validate("Location Code", AsmSetup."Default Location for Orders");
@@ -1177,7 +1158,7 @@
     procedure SetItemFilter(var Item: Record Item)
     begin
         if "Due Date" = 0D then
-            "Due Date" := WorkDate;
+            "Due Date" := WorkDate();
         Item.SetRange("Date Filter", 0D, "Due Date");
         Item.SetRange("Location Filter", "Location Code");
         Item.SetRange("Variant Filter", "Variant Code");
@@ -1232,8 +1213,8 @@
         if "Item No." = '' then
             exit(0);
 
-        GetItem;
-        GetSKU;
+        GetItem();
+        GetSKU();
         SkuItemUnitCost := StockkeepingUnit."Unit Cost" * "Qty. per Unit of Measure";
 
         exit(RoundUnitAmount(SkuItemUnitCost));
@@ -1324,7 +1305,7 @@
         if IsHandled then
             exit;
 
-        AssemblyLineMgt.UpdateAssemblyLines(Rec, xRec, FieldNo(Quantity), ReplaceLinesFromBOM, CurrFieldNo, CurrentFieldNum);
+        AssemblyLineMgt.UpdateAssemblyLines(Rec, xRec, FieldNo(Quantity), ReplaceLinesFromBOM(), CurrFieldNo, CurrentFieldNum);
         AssemblyHeaderReserve.VerifyQuantity(Rec, xRec);
     end;
 
@@ -1389,7 +1370,7 @@
             FieldNo("Ending Date"):
                 begin
                     ValidateStartDate(NewStartDate, false);
-                    if not IsAsmToOrder then
+                    if not IsAsmToOrder() then
                         if "Due Date" <> NewDueDate then begin
                             if not ValidateConfirmed then
                                 ValidateConfirmed :=
@@ -1405,7 +1386,7 @@
                         end;
                 end;
             FieldNo("Starting Date"):
-                if IsAsmToOrder then begin
+                if IsAsmToOrder() then begin
                     if "Ending Date" <> NewEndDate then begin
                         if not ValidateConfirmed then
                             ValidateConfirmed :=
@@ -1569,7 +1550,7 @@
                   FieldCaption("Bin Code"),
                   "Location Code",
                   "Bin Code", 0);
-            CheckBin;
+            CheckBin();
         end;
     end;
 
@@ -1579,7 +1560,7 @@
         Commit();
 
         TestField(Status, Status::Released);
-        if CompletelyPicked then
+        if CompletelyPicked() then
             Error(Text007);
 
         RunWhseSourceCreateDocument(ShowRequestPage, AssignedUserID, SortingMethod, SetBreakBulkFilter, DoNotFillQtyToHandle, PrintDocument);
@@ -1649,7 +1630,6 @@
 
     procedure OpenItemTrackingLines()
     var
-        AssemblyHeaderReserve: Codeunit "Assembly Header-Reserve";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -1731,7 +1711,7 @@
     begin
         if "Item No." = '' then
             exit(false);
-        GetItem;
+        GetItem();
         exit(Item."Costing Method" = Item."Costing Method"::Standard);
     end;
 
@@ -1821,7 +1801,7 @@
 
     local procedure SetDescriptionsFromItem()
     begin
-        GetItem;
+        GetItem();
         Description := Item.Description;
         "Description 2" := Item."Description 2";
     end;
@@ -2092,4 +2072,3 @@
     begin
     end;
 }
-

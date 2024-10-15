@@ -26,7 +26,7 @@ codeunit 31070 "Undo Transfer Shipment Line"
                 exit;
 
         TransShptLineGlob.Copy(Rec);
-        Code;
+        Code();
         UpdateItemAnalysisView.UpdateAll(0, true);
         Rec := TransShptLineGlob;
     end;
@@ -75,7 +75,7 @@ codeunit 31070 "Undo Transfer Shipment Line"
             repeat
                 if not HideDialog then
                     Window.Open(CheckingLinesMsg);
-                CheckTransShptLine;
+                CheckTransShptLine();
             until Next() = 0;
 
             TransHeader.Get("Transfer Order No.");
@@ -106,7 +106,7 @@ codeunit 31070 "Undo Transfer Shipment Line"
                     "Transfer Order No.",
                     "Line No.");
 
-                ItemShptEntryNo := PostItemJnlLine;
+                ItemShptEntryNo := PostItemJnlLine();
 
                 InsertNewShipmentLine(TransShptLineGlob, ItemShptEntryNo);
 
@@ -122,7 +122,7 @@ codeunit 31070 "Undo Transfer Shipment Line"
                     WhseUndoQty.UpdateShptSourceDocLines(PostedWhseShptLine);
 
                 Correction := true;
-                Modify;
+                Modify();
 
             until Next() = 0;
 
@@ -132,11 +132,11 @@ codeunit 31070 "Undo Transfer Shipment Line"
             then begin
                 TransShptHdr.Get("Document No.");
                 InvtAdjmt.SetProperties(true, true);
-                InvtAdjmt.MakeMultiLevelAdjmt;
+                InvtAdjmt.MakeMultiLevelAdjmt();
             end;
 
             if Release then begin
-                TransHeader.Find;
+                TransHeader.Find();
                 ReleaseTransDoc.Run(TransHeader);
             end;
         end;
@@ -210,9 +210,6 @@ codeunit 31070 "Undo Transfer Shipment Line"
             ItemJnlLine.Area := TransShptHeader.Area;
             ItemJnlLine."Transaction Specification" := TransShptHeader."Transaction Specification";
             ItemJnlLine."Item Category Code" := "Item Category Code";
-#if not CLEAN18            
-            ItemJnlLine.Validate("Gen. Bus. Posting Group", "Gen. Bus. Post. Group Ship");
-#endif
             ItemJnlLine."Shpt. Method Code" := TransShptHeader."Shipment Method Code";
 
             OnAfterInitItemJnlLine(ItemJnlLine, TransShptLineGlob, TransShptHeader);

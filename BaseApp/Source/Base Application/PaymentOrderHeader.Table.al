@@ -46,7 +46,7 @@ table 11708 "Payment Order Header"
             var
                 BankAccount: Record "Bank Account";
             begin
-                TestStatusOpen;
+                TestStatusOpen();
                 if not BankAccount.Get("Bank Account No.") then
                     BankAccount.Init();
                 "Account No." := BankAccount."Bank Account No.";
@@ -77,7 +77,7 @@ table 11708 "Payment Order Header"
 
             trigger OnValidate()
             begin
-                TestStatusOpen;
+                TestStatusOpen();
             end;
 #endif
         }
@@ -88,11 +88,11 @@ table 11708 "Payment Order Header"
 
             trigger OnValidate()
             begin
-                TestStatusOpen;
+                TestStatusOpen();
                 if "Currency Code" <> '' then begin
-                    UpdateCurrencyFactor;
+                    UpdateCurrencyFactor();
                     if "Currency Factor" <> xRec."Currency Factor" then
-                        ConfirmUpdateCurrencyFactor;
+                        ConfirmUpdateCurrencyFactor();
                 end;
             end;
 #endif
@@ -105,18 +105,18 @@ table 11708 "Payment Order Header"
 
             trigger OnValidate()
             begin
-                TestStatusOpen;
+                TestStatusOpen();
                 if CurrFieldNo <> FieldNo("Currency Code") then
-                    UpdateCurrencyFactor
+                    UpdateCurrencyFactor()
                 else
                     if "Currency Code" <> xRec."Currency Code" then begin
-                        UpdateCurrencyFactor;
+                        UpdateCurrencyFactor();
                         UpdatePayOrderLine(FieldCaption("Currency Code"));
                     end else
                         if "Currency Code" <> '' then begin
-                            UpdateCurrencyFactor;
+                            UpdateCurrencyFactor();
                             if "Currency Factor" <> xRec."Currency Factor" then
-                                ConfirmUpdateCurrencyFactor;
+                                ConfirmUpdateCurrencyFactor();
                         end;
 
                 Validate("Payment Order Currency Code", "Currency Code");
@@ -221,18 +221,18 @@ table 11708 "Payment Order Header"
 
             trigger OnValidate()
             begin
-                TestStatusOpen;
+                TestStatusOpen();
                 if CurrFieldNo <> FieldNo("Payment Order Currency Code") then
-                    UpdateOrderCurrencyFactor
+                    UpdateOrderCurrencyFactor()
                 else
                     if "Payment Order Currency Code" <> xRec."Payment Order Currency Code" then begin
-                        UpdateOrderCurrencyFactor;
+                        UpdateOrderCurrencyFactor();
                         UpdatePayOrderLine(FieldCaption("Payment Order Currency Code"));
                     end else
                         if "Payment Order Currency Code" <> '' then begin
-                            UpdateOrderCurrencyFactor;
+                            UpdateOrderCurrencyFactor();
                             if "Payment Order Currency Factor" <> xRec."Payment Order Currency Factor" then
-                                ConfUpdateOrderCurrencyFactor;
+                                ConfUpdateOrderCurrencyFactor();
                         end;
             end;
 #endif
@@ -274,7 +274,7 @@ table 11708 "Payment Order Header"
 
             trigger OnValidate()
             begin
-                TestStatusOpen;
+                TestStatusOpen();
             end;
 #endif
         }
@@ -289,7 +289,7 @@ table 11708 "Payment Order Header"
 
             trigger OnValidate()
             begin
-                TestStatusOpen;
+                TestStatusOpen();
             end;
 #endif
         }
@@ -300,7 +300,7 @@ table 11708 "Payment Order Header"
 
             trigger OnValidate()
             begin
-                TestStatusOpen;
+                TestStatusOpen();
             end;
 #endif
         }
@@ -311,7 +311,7 @@ table 11708 "Payment Order Header"
 
             trigger OnValidate()
             begin
-                TestStatusOpen;
+                TestStatusOpen();
             end;
 #endif
         }
@@ -346,7 +346,7 @@ table 11708 "Payment Order Header"
     begin
         ApprovalsMgmt.DeleteApprovalEntryForRecord(Rec);
 
-        DeleteLines;
+        DeleteLines();
     end;
 
     trigger OnInsert()
@@ -425,12 +425,12 @@ table 11708 "Payment Order Header"
         PaymentOrderLine: Record "Payment Order Line";
         Question: Text[250];
     begin
-        Modify;
-        if PaymentOrderLinesExist then begin
+        Modify();
+        if PaymentOrderLinesExist() then begin
             Question := StrSubstNo(UpdateOrderLineQst, ChangedFieldName);
             if DIALOG.Confirm(Question, true) then begin
                 PaymentOrderLine.LockTable();
-                Modify;
+                Modify();
 
                 PaymentOrderLine.Reset();
                 PaymentOrderLine.SetRange("Payment Order No.", "No.");
@@ -485,7 +485,7 @@ table 11708 "Payment Order Header"
     begin
         PaymentOrderLine.Reset();
         PaymentOrderLine.SetRange("Payment Order No.", "No.");
-        exit(PaymentOrderLine.FindFirst);
+        exit(PaymentOrderLine.FindFirst())
     end;
 
     local procedure UpdateOrderCurrencyFactor()
@@ -514,8 +514,8 @@ table 11708 "Payment Order Header"
         BankAcc: Record "Bank Account";
     begin
         BankAcc.Get("Bank Account No.");
-        if BankAcc.GetPaymentImportCodeunitID > 0 then
-            CODEUNIT.Run(BankAcc.GetPaymentImportCodeunitID, Rec)
+        if BankAcc.GetPaymentImportCodeunitID() > 0 then
+            CODEUNIT.Run(BankAcc.GetPaymentImportCodeunitID(), Rec)
         else
             CODEUNIT.Run(CODEUNIT::"Imp. Launcher Payment Order", Rec);
     end;
@@ -554,7 +554,7 @@ table 11708 "Payment Order Header"
     [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
     procedure SendToIssuing(IssuingCodeunitID: Integer)
     begin
-        if not IsApprovedForIssuing then
+        if not IsApprovedForIssuing() then
             exit;
         CODEUNIT.Run(IssuingCodeunitID, Rec);
     end;

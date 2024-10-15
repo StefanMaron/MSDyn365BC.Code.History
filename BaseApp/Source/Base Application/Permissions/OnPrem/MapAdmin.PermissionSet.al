@@ -6,10 +6,5 @@ permissionset 2406 "Map - Admin"
 
     Permissions = tabledata "Online Map Parameter Setup" = RIMD,
                   tabledata "Online Map Setup" = RIMD,
-#if CLEAN18
                   tabledata "User Setup" = RIMD;
-#else
-                  tabledata "User Setup" = RIMD,
-                  tabledata "User Setup Line" = RIMD;
-#endif                  
 }

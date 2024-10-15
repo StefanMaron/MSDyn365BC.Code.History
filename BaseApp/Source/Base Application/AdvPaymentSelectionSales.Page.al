@@ -35,35 +35,35 @@ page 31019 "Adv. Payment Selection - Sales"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies sequence of sales advance payment';
                 }
-                field("Report ID"; "Report ID")
+                field("Report ID"; Rec."Report ID")
                 {
                     ApplicationArea = Basic, Suite;
                     LookupPageID = Objects;
                     ToolTip = 'Specifies the ID of the report that the program will print.';
                 }
-                field("Report Caption"; "Report Caption")
+                field("Report Caption"; Rec."Report Caption")
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDown = false;
                     LookupPageID = Objects;
                     ToolTip = 'Specifies the name of the object that is selected in the Object ID to Run field.';
                 }
-                field("Use for Email Body"; "Use for Email Body")
+                field("Use for Email Body"; Rec."Use for Email Body")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies that summarized information, such as invoice number, due date, and payment service link, will be inserted in the body of the email that you send.';
                 }
-                field("Use for Email Attachment"; "Use for Email Attachment")
+                field("Use for Email Attachment"; Rec."Use for Email Attachment")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies that the related document will be attached to the email.';
                 }
-                field("Email Body Layout Code"; "Email Body Layout Code")
+                field("Email Body Layout Code"; Rec."Email Body Layout Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the ID of the email body layout that is used.';
                 }
-                field("Email Body Layout Description"; "Email Body Layout Description")
+                field("Email Body Layout Description"; Rec."Email Body Layout Description")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description of the email body layout that is used.';
@@ -91,7 +91,7 @@ page 31019 "Adv. Payment Selection - Sales"
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        NewRecord;
+        NewRecord();
     end;
 
     trigger OnOpenPage()
@@ -105,7 +105,7 @@ page 31019 "Adv. Payment Selection - Sales"
     local procedure SetUsageFilter(ModifyRec: Boolean)
     begin
         if ModifyRec then
-            if Modify then;
+            if Modify() then;
         FilterGroup(2);
         case ReportUsage2 of
             ReportUsage2::"S.Adv.Let":

@@ -23,7 +23,7 @@ page 31088 "Acc. Schedule Extensions"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code of account schedule extensions.';
                 }
-                field("Source Table"; "Source Table")
+                field("Source Table"; Rec."Source Table")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the selected source table (VAT entry, Value entry, Customer or vendor entry).';
@@ -33,43 +33,43 @@ page 31088 "Acc. Schedule Extensions"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of account schedule extensions.';
                 }
-                field("Source Type"; "Source Type")
+                field("Source Type"; Rec."Source Type")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the source type of the selected document.';
                     Visible = "SrcTypeVisible";
                 }
-                field("Source Filter"; "Source Filter")
+                field("Source Filter"; Rec."Source Filter")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies filter setup of the source.';
                     Visible = "SrcFilterVisible";
                 }
-                field("G/L Account Filter"; "G/L Account Filter")
+                field("G/L Account Filter"; Rec."G/L Account Filter")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies filter setup of the account number.';
                     Visible = "GLAccFilterVisible";
                 }
-                field("Location Filter"; "Location Filter")
+                field("Location Filter"; Rec."Location Filter")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies filter setup of location filter.';
                     Visible = "LocFilterVisible";
                 }
-                field("Bin Filter"; "Bin Filter")
+                field("Bin Filter"; Rec."Bin Filter")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies filter setup of the bin filter.';
                     Visible = "BinFilterVisible";
                 }
-                field("G/L Amount Type"; "G/L Amount Type")
+                field("G/L Amount Type"; Rec."G/L Amount Type")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies filter setup of G/L account type.';
                     Visible = "GLAmtTypeVisible";
                 }
-                field("Entry Type"; "Entry Type")
+                field("Entry Type"; Rec."Entry Type")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the type of the entry.';
@@ -81,55 +81,55 @@ page 31088 "Acc. Schedule Extensions"
                     ToolTip = 'Specifies if line of sales journal is prepayment';
                     Visible = PrepaymentVisible;
                 }
-                field("VAT Amount Type"; "VAT Amount Type")
+                field("VAT Amount Type"; Rec."VAT Amount Type")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies filter setup of the VAT amount type (Base or amount.)';
                     Visible = "VATAmtTypeVisible";
                 }
-                field("VAT Bus. Post. Group Filter"; "VAT Bus. Post. Group Filter")
+                field("VAT Bus. Post. Group Filter"; Rec."VAT Bus. Post. Group Filter")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies filter setup of the VAT business posting group.';
                     Visible = VATBusPostGroupFilterVisible;
                 }
-                field("VAT Prod. Post. Group Filter"; "VAT Prod. Post. Group Filter")
+                field("VAT Prod. Post. Group Filter"; Rec."VAT Prod. Post. Group Filter")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies filter setup of the VAT product posting group.';
                     Visible = VATProdPostGroupFilterVisible;
                 }
-                field("Due Date Filter"; "Due Date Filter")
+                field("Due Date Filter"; Rec."Due Date Filter")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies filter setup of the document''s due date.';
                     Visible = "DueDateFilterVisible";
                 }
-                field("Amount Sign"; "Amount Sign")
+                field("Amount Sign"; Rec."Amount Sign")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the amount sign for the account schedule extension.';
                     Visible = "AmtSignVisible";
                 }
-                field("Document Type Filter"; "Document Type Filter")
+                field("Document Type Filter"; Rec."Document Type Filter")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies setup of documents type for filtr account schedule (invoice, payment).';
                     Visible = "DocumentTypeFilterVisible";
                 }
-                field("Posting Date Filter"; "Posting Date Filter")
+                field("Posting Date Filter"; Rec."Posting Date Filter")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies filter setup of the posting date.';
                     Visible = "PostingDateFilterVisible";
                 }
-                field("Reverse Sign"; "Reverse Sign")
+                field("Reverse Sign"; Rec."Reverse Sign")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies reverse sign';
                     Visible = "ReverseSignVisible";
                 }
-                field("Posting Group Filter"; "Posting Group Filter")
+                field("Posting Group Filter"; Rec."Posting Group Filter")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies filter setup of the posting group.';
@@ -168,7 +168,7 @@ page 31088 "Acc. Schedule Extensions"
     begin
         if HiddenParameters then
             LedgEntryType := HiddenLedgEntryType;
-        UpdateControls;
+        UpdateControls();
     end;
 
     var

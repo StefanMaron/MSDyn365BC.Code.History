@@ -100,9 +100,9 @@ table 31035 "Advance Letter Matching Buffer"
         "Posting Date" := SalesAdvanceLetterHdr."Posting Date";
 
         if UseLCYAmounts then
-            "Remaining Amount" := SalesAdvanceLetterHdr.GetRemAmountLCY
+            "Remaining Amount" := SalesAdvanceLetterHdr.GetRemAmountLCY()
         else
-            "Remaining Amount" := SalesAdvanceLetterHdr.GetRemAmount;
+            "Remaining Amount" := SalesAdvanceLetterHdr.GetRemAmount();
 
         "External Document No." := SalesAdvanceLetterHdr."External Document No.";
         "Specific Symbol" := SalesAdvanceLetterHdr."Specific Symbol";
@@ -124,9 +124,9 @@ table 31035 "Advance Letter Matching Buffer"
         "Posting Date" := PurchAdvanceLetterHdr."Posting Date";
 
         if UseLCYAmounts then
-            "Remaining Amount" := -PurchAdvanceLetterHdr.GetRemAmountLCY
+            "Remaining Amount" := -PurchAdvanceLetterHdr.GetRemAmountLCY()
         else
-            "Remaining Amount" := -PurchAdvanceLetterHdr.GetRemAmount;
+            "Remaining Amount" := -PurchAdvanceLetterHdr.GetRemAmount();
 
         "External Document No." := PurchAdvanceLetterHdr."External Document No.";
         "Specific Symbol" := PurchAdvanceLetterHdr."Specific Symbol";

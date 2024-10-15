@@ -1,3 +1,4 @@
+﻿#if not CLEAN19
 codeunit 11 "Gen. Jnl.-Check Line"
 {
     Permissions = TableData "General Posting Setup" = rimd;
@@ -9,6 +10,21 @@ codeunit 11 "Gen. Jnl.-Check Line"
     end;
 
     var
+        GLSetup: Record "General Ledger Setup";
+        GenJnlTemplate: Record "Gen. Journal Template";
+        GenJnlBatch: Record "Gen. Journal Batch";
+        CostAccSetup: Record "Cost Accounting Setup";
+        TempErrorMessage: Record "Error Message" temporary;
+        DimMgt: Codeunit DimensionManagement;
+        CostAccMgt: Codeunit "Cost Account Mgt";
+        ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
+        ErrorMessageMgt: Codeunit "Error Message Management";
+        SkipFiscalYearCheck: Boolean;
+        GenJnlTemplateFound: Boolean;
+        OverrideDimErr: Boolean;
+        LogErrorMode: Boolean;
+        IsBatchMode: Boolean;
+
         Text000: Label 'can only be a closing date for G/L entries';
         Text001: Label 'is not within your range of allowed posting dates';
         Text002: Label '%1 or %2 must be G/L Account or Bank Account.';
@@ -23,28 +39,9 @@ codeunit 11 "Gen. Jnl.-Check Line"
         Text011: Label 'The combination of dimensions used in %1 %2, %3, %4 is blocked. %5';
         Text012: Label 'A dimension used in %1 %2, %3, %4 has caused an error. %5';
         SpecifyGenPostingTypeErr: Label 'Posting to Account %1 must either be of type Purchase or Sale (see %2), because there are specified values in one of the following fields: %3, %4 , %5, or %6', comment = '%1 an G/L Account number;%2 = Gen. Posting Type; %3 = Gen. Bus. Posting Group; %4 = Gen. Prod. Posting Group; %5 = VAT Bus. Posting Group, %6 = VAT Prod. Posting Group';
-        GLSetup: Record "General Ledger Setup";
-        GenJnlTemplate: Record "Gen. Journal Template";
-        GenJnlBatch: Record "Gen. Journal Batch";
-        CostAccSetup: Record "Cost Accounting Setup";
-        TempErrorMessage: Record "Error Message" temporary;
-        DimMgt: Codeunit DimensionManagement;
-        CostAccMgt: Codeunit "Cost Account Mgt";
-        ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
-        ErrorMessageMgt: Codeunit "Error Message Management";
-        SkipFiscalYearCheck: Boolean;
-        GenJnlTemplateFound: Boolean;
-        OverrideDimErr: Boolean;
-        LogErrorMode: Boolean;
         SalesDocAlreadyExistsErr: Label 'Sales %1 %2 already exists.', Comment = '%1 = Document Type; %2 = Document No.';
         PurchDocAlreadyExistsErr: Label 'Purchase %1 %2 already exists.', Comment = '%1 = Document Type; %2 = Document No.';
-#if not CLEAN18
-        FromAdjustment: Boolean;
-#endif
-#if not CLEAN19
         InconsistenAppErr: Label 'You cannot apply these entries because unapplication could create inconsistent entries.';
-#endif
-        IsBatchMode: Boolean;
         EmployeeBalancingDocTypeErr: Label 'must be empty or set to Payment when Balancing Account Type field is set to Employee';
         EmployeeAccountDocTypeErr: Label 'must be empty or set to Payment when Account Type field is set to Employee';
 
@@ -53,9 +50,6 @@ codeunit 11 "Gen. Jnl.-Check Line"
         ICGLAcount: Record "IC G/L Account";
         ErrorMessageHandler: Codeunit "Error Message Handler";
         ErrorContextElement: Codeunit "Error Context Element";
-#if not CLEAN18
-        UserSetupAdvMgt: Codeunit "User Setup Adv. Management";
-#endif
     begin
         OnBeforeRunCheck(GenJnlLine);
 
@@ -66,34 +60,22 @@ codeunit 11 "Gen. Jnl.-Check Line"
 
         GLSetup.Get();
         with GenJnlLine do begin
-            if EmptyLine then
+            if EmptyLine() then
                 exit;
 
             if not GenJnlTemplateFound then begin
                 if GenJnlTemplate.Get("Journal Template Name") then;
                 GenJnlTemplateFound := true;
             end;
-#if not CLEAN19
             CheckVAT(GenJnlLine); // NAVCZ
 
-#endif
             CheckDates(GenJnlLine);
             ValidateSalesPersonPurchaserCode(GenJnlLine);
 
-            // NAVCZ
-            GLSetup.Get();
-#if not CLEAN19
             if not "System-Created Entry" and ("Prepayment Type" <> "Prepayment Type"::" ") then begin
                 TestField(Prepayment, true, ErrorInfo.Create());
                 TestField("Document Type", ErrorInfo.Create());
             end;
-#endif
-#if not CLEAN18
-            if GLSetup."User Checks Allowed" then
-                if not FromAdjustment then
-                    UserSetupAdvMgt.CheckGeneralJournalLine(GenJnlLine);
-            // NAVCZ
-#endif
             TestDocumentNo(GenJnlLine);
 
             if ("Account Type" in
@@ -109,7 +91,7 @@ codeunit 11 "Gen. Jnl.-Check Line"
             then
                 Error(
                     ErrorInfo.Create(
-                    StrSubstNo(
+                        StrSubstNo(
                         Text002,
                         FieldCaption("Account Type"), FieldCaption("Bal. Account Type")),
                     true,
@@ -120,7 +102,6 @@ codeunit 11 "Gen. Jnl.-Check Line"
                 TestField("Account No.", ErrorInfo.Create());
 
             CheckZeroAmount(GenJnlLine);
-#if not CLEAN19
             // NAVCZ
             if "Advance Letter Link Code" <> '' then begin
                 TestField(Prepayment, true, ErrorInfo.Create());
@@ -132,7 +113,6 @@ codeunit 11 "Gen. Jnl.-Check Line"
             then
                 FieldError("Document Type", ErrorInfo.Create());
             // NAVCZ
-#endif
 
             if ((Amount < 0) xor ("Amount (LCY)" < 0)) and (Amount <> 0) and ("Amount (LCY)" <> 0) then
                 FieldError("Amount (LCY)", ErrorInfo.Create(StrSubstNo(Text003, FieldCaption(Amount)), true));
@@ -148,8 +128,8 @@ codeunit 11 "Gen. Jnl.-Check Line"
             then
                 Error(
                     ErrorInfo.Create(
-                    StrSubstNo(
-                        Text004,
+                        StrSubstNo(
+                            Text004,
                             FieldCaption("Currency Code"), FieldCaption("Recurring Method"), "Recurring Method"),
                         true,
                         GenJnlLine,
@@ -176,8 +156,7 @@ codeunit 11 "Gen. Jnl.-Check Line"
                 TestField("Payment Discount %", 0, ErrorInfo.Create());
             end;
 
-            if "Applies-to Doc. No." <> '' // NAVCZ
-            then
+            if "Applies-to Doc. No." <> '' then
                 TestField("Applies-to ID", '', ErrorInfo.Create());
 
             if ("Account Type" <> "Account Type"::"Bank Account") and
@@ -201,7 +180,7 @@ codeunit 11 "Gen. Jnl.-Check Line"
                 CheckDimensions(GenJnlLine);
         end;
 
-        if CostAccSetup.Get then
+        if CostAccSetup.Get() then
             CostAccMgt.CheckValidCCAndCOInGLEntry(GenJnlLine."Dimension Set ID");
 
         OnAfterCheckGenJnlLine(GenJnlLine, ErrorMessageMgt);
@@ -396,9 +375,9 @@ codeunit 11 "Gen. Jnl.-Check Line"
                         then
                             Error(
                                 ErrorInfo.Create(
-                                StrSubstNo(
-                                    SpecifyGenPostingTypeErr, "Account No.", FieldCaption("Gen. Posting Type"),
-                                    FieldCaption("Gen. Bus. Posting Group"), FieldCaption("Gen. Prod. Posting Group"),
+                                    StrSubstNo(
+                                        SpecifyGenPostingTypeErr, "Account No.", FieldCaption("Gen. Posting Type"),
+                                        FieldCaption("Gen. Bus. Posting Group"), FieldCaption("Gen. Prod. Posting Group"),
                                         FieldCaption("VAT Bus. Posting Group"), FieldCaption("VAT Prod. Posting Group")),
                                     true,
                                     GenJnlLine,
@@ -412,8 +391,8 @@ codeunit 11 "Gen. Jnl.-Check Line"
                             if "VAT Amount" + "VAT Base Amount" <> Amount then
                                 Error(
                                     ErrorInfo.Create(
-                                    StrSubstNo(
-                                        Text005, FieldCaption("VAT Amount"), FieldCaption("VAT Base Amount"),
+                                        StrSubstNo(
+                                            Text005, FieldCaption("VAT Amount"), FieldCaption("VAT Base Amount"),
                                             FieldCaption(Amount)),
                                         true,
                                         GenJnlLine,
@@ -422,8 +401,8 @@ codeunit 11 "Gen. Jnl.-Check Line"
                                 if "VAT Amount (LCY)" + "VAT Base Amount (LCY)" <> "Amount (LCY)" then
                                     Error(
                                         ErrorInfo.Create(
-                                        StrSubstNo(
-                                            Text005, FieldCaption("VAT Amount (LCY)"),
+                                            StrSubstNo(
+                                                Text005, FieldCaption("VAT Amount (LCY)"),
                                                 FieldCaption("VAT Base Amount (LCY)"), FieldCaption("Amount (LCY)")),
                                             true,
                                             GenJnlLine,
@@ -448,11 +427,7 @@ codeunit 11 "Gen. Jnl.-Check Line"
                             FieldError("Sales/Purch. (LCY)", ErrorInfo.Create(StrSubstNo(Text003, FieldCaption(Amount)), true));
                         CheckJobNoIsEmpty(GenJnlLine);
 
-#if CLEAN18
-                        CheckICPartner("Account Type", "Account No.", "Document Type", Prepayment); // NAVCZ
-#else
-                        CheckICPartner("Account Type", "Account No.", "Document Type", Prepayment, Compensation); // NAVCZ
-#endif
+                        CheckICPartner("Account Type", "Account No.", "Document Type");
                     end;
                 "Account Type"::"Bank Account":
                     begin
@@ -469,7 +444,7 @@ codeunit 11 "Gen. Jnl.-Check Line"
                 "Account Type"::"IC Partner":
                     begin
                         ICPartner.Get("Account No.");
-                        ICPartner.CheckICPartner;
+                        ICPartner.CheckICPartner();
                         if "Journal Template Name" <> '' then begin
                             GenJournalTemplate.Get("Journal Template Name");
                             if GenJnlTemplate.Type <> GenJnlTemplate.Type::Intercompany then
@@ -496,7 +471,7 @@ codeunit 11 "Gen. Jnl.-Check Line"
                     begin
                         if (("Bal. Gen. Bus. Posting Group" <> '') or ("Bal. Gen. Prod. Posting Group" <> '') or
                             ("Bal. VAT Bus. Posting Group" <> '') or ("Bal. VAT Prod. Posting Group" <> '')) and
-                           not ApplicationAreaMgmt.IsSalesTaxEnabled
+                           not ApplicationAreaMgmt.IsSalesTaxEnabled()
                         then
                             TestField("Bal. Gen. Posting Type", ErrorInfo.Create());
 
@@ -508,8 +483,8 @@ codeunit 11 "Gen. Jnl.-Check Line"
                             if "Bal. VAT Amount" + "Bal. VAT Base Amount" <> -Amount then
                                 Error(
                                     ErrorInfo.Create(
-                                    StrSubstNo(
-                                        Text006, FieldCaption("Bal. VAT Amount"), FieldCaption("Bal. VAT Base Amount"),
+                                        StrSubstNo(
+                                            Text006, FieldCaption("Bal. VAT Amount"), FieldCaption("Bal. VAT Base Amount"),
                                             FieldCaption(Amount)),
                                         true,
                                         GenJnlLine,
@@ -518,8 +493,8 @@ codeunit 11 "Gen. Jnl.-Check Line"
                                 if "Bal. VAT Amount (LCY)" + "Bal. VAT Base Amount (LCY)" <> -"Amount (LCY)" then
                                     Error(
                                         ErrorInfo.Create(
-                                        StrSubstNo(
-                                            Text006, FieldCaption("Bal. VAT Amount (LCY)"),
+                                            StrSubstNo(
+                                                Text006, FieldCaption("Bal. VAT Amount (LCY)"),
                                                 FieldCaption("Bal. VAT Base Amount (LCY)"), FieldCaption("Amount (LCY)")),
                                                                 true,
                                         GenJnlLine,
@@ -542,11 +517,7 @@ codeunit 11 "Gen. Jnl.-Check Line"
                             FieldError("Sales/Purch. (LCY)", ErrorInfo.Create(StrSubstNo(Text009, FieldCaption(Amount)), true));
                         CheckJobNoIsEmpty(GenJnlLine);
 
-#if CLEAN18
-                        CheckICPartner("Bal. Account Type", "Bal. Account No.", "Document Type", Prepayment); // NAVCZ
-#else
-                        CheckICPartner("Bal. Account Type", "Bal. Account No.", "Document Type", Prepayment, Compensation); // NAVCZ
-#endif
+                        CheckICPartner("Bal. Account Type", "Bal. Account No.", "Document Type");
                     end;
                 "Bal. Account Type"::"Bank Account":
                     begin
@@ -562,7 +533,7 @@ codeunit 11 "Gen. Jnl.-Check Line"
                 "Bal. Account Type"::"IC Partner":
                     begin
                         ICPartner.Get("Bal. Account No.");
-                        ICPartner.CheckICPartner;
+                        ICPartner.CheckICPartner();
                         if GenJnlTemplate.Type <> GenJnlTemplate.Type::Intercompany then
                             FieldError("Bal. Account Type", ErrorInfo.Create());
                     end;
@@ -691,11 +662,7 @@ codeunit 11 "Gen. Jnl.-Check Line"
             end;
     end;
 
-#if CLEAN18
-    local procedure CheckICPartner(AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; Prepayment: Boolean)
-#else
-    local procedure CheckICPartner(AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; Prepayment: Boolean; Compensation: Boolean)
-#endif
+    local procedure CheckICPartner(AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type")
     var
         Customer: Record Customer;
         Vendor: Record Vendor;
@@ -710,16 +677,7 @@ codeunit 11 "Gen. Jnl.-Check Line"
         case AccountType of
             AccountType::Customer:
                 if Customer.Get(AccountNo) then begin
-#if CLEAN18
-                    if Customer.Blocked <> Customer.Blocked::Invoice then // NAVCZ
-#else
-                    if not Compensation or (Customer.Blocked <> Customer.Blocked::Invoice) then // NAVCZ
-#endif
                     Customer.CheckBlockedCustOnJnls(Customer, DocumentType, true);
-                    // NAVCZ
-                    if Prepayment then
-                        Customer.TestField("Application Method", Customer."Application Method"::Manual, ErrorInfo.Create());
-                    // NAVCZ
                     if (Customer."IC Partner Code" <> '') and (GenJnlTemplate.Type = GenJnlTemplate.Type::Intercompany) and
                        ICPartner.Get(Customer."IC Partner Code")
                     then
@@ -728,10 +686,6 @@ codeunit 11 "Gen. Jnl.-Check Line"
             AccountType::Vendor:
                 if Vendor.Get(AccountNo) then begin
                     Vendor.CheckBlockedVendOnJnls(Vendor, DocumentType, true);
-                    // NAVCZ
-                    if Prepayment then
-                        Vendor.TestField("Application Method", Vendor."Application Method"::Manual, ErrorInfo.Create());
-                    // NAVCZ
                     if (Vendor."IC Partner Code" <> '') and (GenJnlTemplate.Type = GenJnlTemplate.Type::Intercompany) and
                        ICPartner.Get(Vendor."IC Partner Code")
                     then
@@ -755,7 +709,7 @@ codeunit 11 "Gen. Jnl.-Check Line"
 
         with GenJnlLine do begin
             if not DimMgt.CheckDimIDComb("Dimension Set ID") then
-                ThrowGenJnlLineError(GenJnlLine, Text011, DimMgt.GetDimCombErr);
+                ThrowGenJnlLineError(GenJnlLine, Text011, DimMgt.GetDimCombErr());
 
             TableID[1] := DimMgt.TypeToTableID1("Account Type".AsInteger());
             No[1] := "Account No.";
@@ -773,20 +727,10 @@ codeunit 11 "Gen. Jnl.-Check Line"
 
             if not CheckDone then
                 if not DimMgt.CheckDimValuePosting(TableID, No, "Dimension Set ID") then
-                    ThrowGenJnlLineError(GenJnlLine, Text012, DimMgt.GetDimValuePostingErr);
+                    ThrowGenJnlLineError(GenJnlLine, Text012, DimMgt.GetDimValuePostingErr());
         end;
     end;
 
-#if not CLEAN18
-    [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
-    [Scope('OnPrem')]
-    procedure xSetCallFromAdjust(NewFromAdjustment: Boolean)
-    begin
-        // NAVCZ
-        FromAdjustment := NewFromAdjustment;
-    end;
-#endif
-#if not CLEAN19
     [Scope('OnPrem')]
     [Obsolete('Discontinued check function.', '19.0')]
     procedure CheckVAT(GenJnlLine: Record "Gen. Journal Line")
@@ -799,7 +743,6 @@ codeunit 11 "Gen. Jnl.-Check Line"
             Error(ErrorInfo.Create(InconsistenAppErr, true, GenJnlLine));
     end;
 
-#endif
     local procedure CheckZeroAmount(var GenJnlLine: Record "Gen. Journal Line")
     var
         IsHandled: Boolean;
@@ -809,7 +752,7 @@ codeunit 11 "Gen. Jnl.-Check Line"
         if IsHandled then
             exit;
 
-        if GenJnlLine.NeedCheckZeroAmount and not (GenJnlLine.IsRecurring and IsBatchMode) then
+        if GenJnlLine.NeedCheckZeroAmount() and not (GenJnlLine.IsRecurring() and IsBatchMode) then
             GenJnlLine.TestField(Amount, ErrorInfo.Create());
     end;
 
@@ -845,9 +788,9 @@ codeunit 11 "Gen. Jnl.-Check Line"
             if "Line No." <> 0 then
                 Error(
                     ErrorInfo.Create(
-                    StrSubstNo(
-                        ErrorTemplate,
-                        TableCaption, "Journal Template Name", "Journal Batch Name", "Line No.",
+                        StrSubstNo(
+                            ErrorTemplate,
+                            TableCaption, "Journal Template Name", "Journal Batch Name", "Line No.",
                             ErrorText),
                         true,
                         GenJournalLine));
@@ -913,9 +856,9 @@ codeunit 11 "Gen. Jnl.-Check Line"
         then
             Error(
                 ErrorInfo.Create(
-                StrSubstNo(
-                    Text010,
-                    GenJnlLine.FieldCaption("Account Type"), GenJnlLine."Account Type",
+                    StrSubstNo(
+                        Text010,
+                        GenJnlLine.FieldCaption("Account Type"), GenJnlLine."Account Type",
                         GenJnlLine.FieldCaption("Bal. Gen. Posting Type"), GenJnlLine."Bal. Gen. Posting Type"),
                     true,
                     GenJnlLine));
@@ -937,9 +880,9 @@ codeunit 11 "Gen. Jnl.-Check Line"
         then
             Error(
                 ErrorInfo.Create(
-                StrSubstNo(
-                    Text010,
-                    GenJnlLine.FieldCaption("Bal. Account Type"), GenJnlLine."Bal. Account Type",
+                    StrSubstNo(
+                        Text010,
+                        GenJnlLine.FieldCaption("Bal. Account Type"), GenJnlLine."Bal. Account Type",
                         GenJnlLine.FieldCaption("Gen. Posting Type"), GenJnlLine."Gen. Posting Type"),
                     true,
                     GenJnlLine));
@@ -1027,6 +970,7 @@ codeunit 11 "Gen. Jnl.-Check Line"
             exit;
 
         GenJnlLine.TestField("Applies-to Doc. No.", '', ErrorInfo.Create());
+        GenJnlLine.TestField("Applies-to ID", '', ErrorInfo.Create());
     end;
 
     [IntegrationEvent(true, false)]
@@ -1182,3 +1126,5 @@ codeunit 11 "Gen. Jnl.-Check Line"
     end;
 #endif
 }
+
+#endif

@@ -320,16 +320,16 @@
                "Invoice Rounding", Adjustment, "Line No.", "Dimension Set ID")
         then begin
             IncrAmounts(PrepmtInvLineBuf2);
-            Modify;
+            Modify();
         end else
-            Insert;
+            Insert();
     end;
 
     procedure CopyWithLineNo(PrepmtInvLineBuf: Record "Prepayment Inv. Line Buffer"; LineNo: Integer)
     begin
         Rec := PrepmtInvLineBuf;
         "Line No." := LineNo;
-        Insert;
+        Insert();
     end;
 
     procedure CopyFromPurchLine(PurchLine: Record "Purchase Line")
@@ -374,7 +374,7 @@
 
     procedure SetFilterOnPKey(PrepmtInvLineBuf: Record "Prepayment Inv. Line Buffer")
     begin
-        Reset;
+        Reset();
         SetRange("G/L Account No.", PrepmtInvLineBuf."G/L Account No.");
         SetRange("Dimension Set ID", PrepmtInvLineBuf."Dimension Set ID");
         SetRange("Job No.", PrepmtInvLineBuf."Job No.");
@@ -389,7 +389,7 @@
 
     procedure FillAdjInvLineBuffer(PrepmtInvLineBuf: Record "Prepayment Inv. Line Buffer"; GLAccountNo: Code[20]; CorrAmount: Decimal; CorrAmountACY: Decimal)
     begin
-        Init;
+        Init();
         Adjustment := true;
         "G/L Account No." := GLAccountNo;
         Amount := CorrAmount;
@@ -451,7 +451,7 @@
         repeat
             TempPrepmtInvLineBuffer2 := Rec;
             TempPrepmtInvLineBuffer2."Line No." := 0;
-            if TempPrepmtInvLineBuffer2.Find then begin
+            if TempPrepmtInvLineBuffer2.Find() then begin
                 TempPrepmtInvLineBuffer2.IncrAmounts(Rec);
                 TempPrepmtInvLineBuffer2.Modify();
             end else
@@ -463,7 +463,7 @@
         TempPrepmtInvLineBuffer2.Find('-');
         repeat
             Rec := TempPrepmtInvLineBuffer2;
-            Insert;
+            Insert();
         until TempPrepmtInvLineBuffer2.Next() = 0;
     end;
 

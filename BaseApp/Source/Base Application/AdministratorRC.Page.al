@@ -140,18 +140,6 @@ page 8900 "Administrator Main Role Center"
                         Caption = 'Image Analysis Setup';
                         RunObject = page "Image Analysis Setup";
                     }
-#if not CLEAN18
-                    action("Certificates Codes")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Certificate Codes';
-                        RunObject = page "Certificate Code List";
-                        ObsoleteState = Pending;
-                        ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                        ObsoleteTag = '18.0';
-                        Visible = false;
-                    }
-#endif
                     action("Certificates")
                     {
                         ApplicationArea = Basic, Suite;
@@ -162,18 +150,6 @@ page 8900 "Administrator Main Role Center"
                         ObsoleteTag = '19.0';
                         Visible = false;
                     }
-#if not CLEAN18
-                    action("No. Series Mask Generator")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'No. Series';
-                        RunObject = page "No. Series";
-                        ObsoleteState = Pending;
-                        ObsoleteReason = 'The functionality of No. Series Enhancements has been removed.';
-                        ObsoleteTag = '18.0';
-                        Visible = false;
-                    }
-#endif
                 }
 #if not CLEAN19
                 group("Group3")
@@ -312,18 +288,6 @@ page 8900 "Administrator Main Role Center"
                         Caption = 'Report Selections Prod. Order';
                         RunObject = page "Report Selection - Prod. Order";
                     }
-#if not CLEAN18
-                    action("Report Selection - Credit")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Report Selection - Credit';
-                        RunObject = page "Report Selection - Credit";
-                        ObsoleteState = Pending;
-                        ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                        ObsoleteTag = '18.0';
-                        Visible = false;
-                    }
-#endif
                 }
                 group("Group7")
                 {
@@ -445,6 +409,13 @@ page 8900 "Administrator Main Role Center"
                         Caption = 'Data Classification Worksheet';
                         RunObject = page "Data Classification Worksheet";
                         AccessByPermission = TableData "Data Sensitivity" = R;
+                    }
+                    action("Privacy for App Integrations")
+                    {
+                        ApplicationArea = All;
+                        Caption = 'Privacy for App Integrations';
+                        RunObject = page "Privacy Notices";
+                        AccessByPermission = TableData "Privacy Notice" = IM;
                     }
                     action("XML Schemas")
                     {
@@ -763,22 +734,35 @@ page 8900 "Administrator Main Role Center"
                         RunObject = page "Archived WF Step Instances";
                     }
                 }
+#if not CLEAN21
                 group("Group25")
                 {
                     Caption = 'Power Automate';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'This group has been removed as all actions are in the tab dedicated to Power Automate';
+                    ObsoleteTag = '21.0';
                     action("Workflows1")
                     {
                         ApplicationArea = Suite;
                         Caption = 'Manage flows';
                         RunObject = page "Flow Selector";
+                        Visible = false;
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'This action has been moved to the tab dedicated to Power Automate';
+                        ObsoleteTag = '21.0';
                     }
                     action("Workflows2")
                     {
                         ApplicationArea = Suite;
                         Caption = 'Flow Entries';
                         RunObject = page "Workflow Webhook Entries";
+                        Visible = false;
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'This action has been moved to the tab dedicated to Power Automate';
+                        ObsoleteTag = '21.0';
                     }
                 }
+#endif
                 group("Group26")
                 {
                     Caption = 'Dynamic Request Pages';
@@ -938,19 +922,6 @@ page 8900 "Administrator Main Role Center"
                     Caption = 'Account Schedule KPI Web Service';
                     RunObject = page "Acc. Sched. KPI Web Service";
                 }
-#if not CLEAN18
-                action("EET Service Setup")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'EET Service Setup (Obsolete)';
-                    RunObject = page "EET Service Setup";
-                    ToolTip = 'Open the EET Service Setup page.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
-                    ObsoleteTag = '18.0';
-                }
-#endif
             }
             group("Group27A")
             {
@@ -997,6 +968,16 @@ page 8900 "Administrator Main Role Center"
                         RunObject = page "Exchange Sync. Setup";
                     }
                 }
+                group("GroupOneDrive")
+                {
+                    Caption = 'OneDrive for Business';
+                    action("OneDrive Setup")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'OneDrive Setup';
+                        RunObject = page "Document Service Setup";
+                    }
+                }
             }
             group("Group28")
             {
@@ -1015,7 +996,7 @@ page 8900 "Administrator Main Role Center"
                 }
                 action("Setup Master Templates")
                 {
-                    ApplicationArea = Suite, Basic;
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Configuration Templates';
                     RunObject = page "Config. Template List";
                 }

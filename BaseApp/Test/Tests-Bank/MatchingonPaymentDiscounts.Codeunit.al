@@ -563,7 +563,7 @@ codeunit 134269 "Matching on Payment Discounts"
         VerifyAppliedEntries(
           AppliedPaymentEntry, BankPmtApplRule, Amount, CustLedgerEntry."Remaining Pmt. Disc. Possible", CustLedgerEntry."Entry No.");
 
-        AppliedPaymentEntry.Next;
+        AppliedPaymentEntry.Next();
         VerifyAppliedEntries(
           AppliedPaymentEntry, BankPmtApplRule, Amount2, CustLedgerEntry2."Remaining Pmt. Disc. Possible", CustLedgerEntry2."Entry No.");
 
@@ -634,7 +634,7 @@ codeunit 134269 "Matching on Payment Discounts"
         VerifyAppliedEntries(
           AppliedPaymentEntry, BankPmtApplRule, Amount, CustLedgerEntry."Remaining Pmt. Disc. Possible", CustLedgerEntry."Entry No.");
 
-        AppliedPaymentEntry.Next;
+        AppliedPaymentEntry.Next();
         VerifyAppliedEntries(AppliedPaymentEntry, BankPmtApplRule, Amount2, 0, CustLedgerEntry2."Entry No.");
 
         NoOfEntriesWithinRange := 0;
@@ -705,7 +705,7 @@ codeunit 134269 "Matching on Payment Discounts"
         GetAppliedPaymentEntries(AppliedPaymentEntry, BankAccReconciliationLine);
         VerifyAppliedEntries(AppliedPaymentEntry, BankPmtApplRule, Amount, 0, CustLedgerEntry."Entry No.");
 
-        AppliedPaymentEntry.Next;
+        AppliedPaymentEntry.Next();
         VerifyAppliedEntries(
           AppliedPaymentEntry, BankPmtApplRule, DiscountedAmount2 - Amount + DiscountedAmount, 0, CustLedgerEntry2."Entry No.");
 
@@ -772,7 +772,7 @@ codeunit 134269 "Matching on Payment Discounts"
         GetAppliedPaymentEntries(AppliedPaymentEntry, BankAccReconciliationLine);
         VerifyAppliedEntries(AppliedPaymentEntry, BankPmtApplRule, Amount, 0, CustLedgerEntry."Entry No.");
 
-        AppliedPaymentEntry.Next;
+        AppliedPaymentEntry.Next();
         VerifyAppliedEntries(AppliedPaymentEntry, BankPmtApplRule, Amount2, 0, CustLedgerEntry2."Entry No.");
 
         NoOfEntriesWithinRange := 0;
@@ -854,10 +854,10 @@ codeunit 134269 "Matching on Payment Discounts"
         VerifyAppliedEntries(
           AppliedPaymentEntry, BankPmtApplRule, Amount, CustLedgerEntry."Remaining Pmt. Disc. Possible", CustLedgerEntry."Entry No.");
 
-        AppliedPaymentEntry.Next;
+        AppliedPaymentEntry.Next();
         VerifyAppliedEntries(AppliedPaymentEntry, BankPmtApplRule, Amount2, 0, CustLedgerEntry2."Entry No.");
 
-        AppliedPaymentEntry.Next;
+        AppliedPaymentEntry.Next();
         VerifyAppliedEntries(AppliedPaymentEntry, BankPmtApplRule, Amount3, 0, CustLedgerEntry3."Entry No.");
 
         NoOfEntriesWithinRange := 0;
@@ -1539,7 +1539,7 @@ codeunit 134269 "Matching on Payment Discounts"
         VerifyAppliedEntries(
           AppliedPaymentEntry, BankPmtApplRule, -Amount, VendorLedgerEntry."Remaining Pmt. Disc. Possible", VendorLedgerEntry."Entry No.");
 
-        AppliedPaymentEntry.Next;
+        AppliedPaymentEntry.Next();
         VerifyAppliedEntries(
           AppliedPaymentEntry, BankPmtApplRule, -Amount2, VendorLedgerEntry2."Remaining Pmt. Disc. Possible",
           VendorLedgerEntry2."Entry No.");
@@ -1611,7 +1611,7 @@ codeunit 134269 "Matching on Payment Discounts"
         VerifyAppliedEntries(
           AppliedPaymentEntry, BankPmtApplRule, -Amount, VendorLedgerEntry."Remaining Pmt. Disc. Possible", VendorLedgerEntry."Entry No.");
 
-        AppliedPaymentEntry.Next;
+        AppliedPaymentEntry.Next();
         VerifyAppliedEntries(AppliedPaymentEntry, BankPmtApplRule, -Amount2, 0, VendorLedgerEntry2."Entry No.");
 
         NoOfEntriesWithinRange := 0;
@@ -1682,7 +1682,7 @@ codeunit 134269 "Matching on Payment Discounts"
         GetAppliedPaymentEntries(AppliedPaymentEntry, BankAccReconciliationLine);
         VerifyAppliedEntries(AppliedPaymentEntry, BankPmtApplRule, -Amount, 0, VendorLedgerEntry."Entry No.");
 
-        AppliedPaymentEntry.Next;
+        AppliedPaymentEntry.Next();
         VerifyAppliedEntries(
           AppliedPaymentEntry, BankPmtApplRule, DiscountedAmount2 + Amount + DiscountedAmount, 0, VendorLedgerEntry2."Entry No.");
 
@@ -1749,7 +1749,7 @@ codeunit 134269 "Matching on Payment Discounts"
         GetAppliedPaymentEntries(AppliedPaymentEntry, BankAccReconciliationLine);
         VerifyAppliedEntries(AppliedPaymentEntry, BankPmtApplRule, -Amount, 0, VendorLedgerEntry."Entry No.");
 
-        AppliedPaymentEntry.Next;
+        AppliedPaymentEntry.Next();
         VerifyAppliedEntries(AppliedPaymentEntry, BankPmtApplRule, -Amount2, 0, VendorLedgerEntry2."Entry No.");
 
         NoOfEntriesWithinRange := 0;
@@ -1831,10 +1831,10 @@ codeunit 134269 "Matching on Payment Discounts"
         VerifyAppliedEntries(
           AppliedPaymentEntry, BankPmtApplRule, -Amount, VendorLedgerEntry."Remaining Pmt. Disc. Possible", VendorLedgerEntry."Entry No.");
 
-        AppliedPaymentEntry.Next;
+        AppliedPaymentEntry.Next();
         VerifyAppliedEntries(AppliedPaymentEntry, BankPmtApplRule, -Amount2, 0, VendorLedgerEntry2."Entry No.");
 
-        AppliedPaymentEntry.Next;
+        AppliedPaymentEntry.Next();
         VerifyAppliedEntries(AppliedPaymentEntry, BankPmtApplRule, -Amount3, 0, VendorLedgerEntry3."Entry No.");
 
         NoOfEntriesWithinRange := 0;
@@ -2050,7 +2050,6 @@ codeunit 134269 "Matching on Payment Discounts"
         BankAccReconciliationLine.Validate("Transaction Text", TransactionText);
         BankAccReconciliationLine.Validate("Transaction Date", TransactionDate);
         BankAccReconciliationLine.Validate("Statement Amount", Amount);
-        BankAccReconciliationLine.Validate(Type, BankAccReconciliationLine.Type::"Bank Account Ledger Entry");
         BankAccReconciliationLine.Modify(true);
     end;
 

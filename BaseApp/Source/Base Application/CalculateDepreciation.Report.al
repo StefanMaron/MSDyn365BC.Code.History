@@ -1,9 +1,8 @@
-#if not CLEAN18
-report 5692 "Calculate Depreciation"
+﻿report 5692 "Calculate Depreciation"
 {
     AdditionalSearchTerms = 'write down fixed asset';
     ApplicationArea = FixedAssets;
-    Caption = 'Calculate Depreciation (Obsolete)';
+    Caption = 'Calculate Depreciation';
     ProcessingOnly = true;
     UsageCategory = Tasks;
 
@@ -14,32 +13,9 @@ report 5692 "Calculate Depreciation"
             RequestFilterFields = "No.", "FA Class Code", "FA Subclass Code", "Budgeted Asset";
 
             trigger OnAfterGetRecord()
-            var
-                FADeprBook: Record "FA Depreciation Book";
             begin
                 if Inactive or Blocked then
                     CurrReport.Skip();
-
-                // NAVCZ
-                if not FADeprBook.Get("No.", DeprBookCode) then
-                    CurrReport.Skip();
-                if FADeprBook."Depreciation Starting Date" = 0D then
-                    CurrReport.Skip();
-                if (FADeprBook."Straight-Line %" = 0) and (FADeprBook."Fixed Depr. Amount" = 0) and
-                   (FADeprBook."Declining-Balance %" = 0) and (FADeprBook."Depreciation Ending Date" = 0D) and
-                   (FADeprBook."Depreciation Group Code" = '') and
-                   (FADeprBook."Depreciation Method" = FADeprBook."Depreciation Method"::"Straight-Line")
-                then
-                    CurrReport.Skip();
-
-                DiscontinueDepr := false;
-
-                if FADeprBook."Depreciation Interupt" then begin
-                    FADeprBook.TestField("Depreciation Interupt up to");
-                    if FADeprBook."Depreciation Interupt up to" >= DeprUntilDate then
-                        DiscontinueDepr := true;
-                end;
-                // NAVCZ
 
                 OnBeforeCalculateDepreciation(
                     "No.", TempGenJnlLine, TempFAJnlLine, DeprAmount, NumberOfDays, DeprBookCode, DeprUntilDate, EntryAmounts, DaysInPeriod);
@@ -52,8 +28,8 @@ report 5692 "Calculate Depreciation"
                 else
                     Window.Update(2, "No.");
 
-                Custom1Amount := round(Custom1Amount, GeneralLedgerSetup."Amount Rounding Precision");
-                DeprAmount := round(DeprAmount, GeneralLedgerSetup."Amount Rounding Precision");
+                Custom1Amount := Round(Custom1Amount, GeneralLedgerSetup."Amount Rounding Precision");
+                DeprAmount := Round(DeprAmount, GeneralLedgerSetup."Amount Rounding Precision");
 
                 OnAfterCalculateDepreciation(
                     "No.", TempGenJnlLine, TempFAJnlLine, DeprAmount, NumberOfDays, DeprBookCode, DeprUntilDate, EntryAmounts, DaysInPeriod);
@@ -77,18 +53,11 @@ report 5692 "Calculate Depreciation"
                         TempGenJnlLine.Insert();
                     end;
 
-                // NAVCZ
-                if (DeprAmount <> 0) or DiscontinueDepr then
-                    // NAVCZ
+                if DeprAmount <> 0 then
                     if not DeprBook."G/L Integration - Depreciation" or "Budgeted Asset" then begin
                         TempFAJnlLine."FA No." := "No.";
                         TempFAJnlLine."FA Posting Type" := TempFAJnlLine."FA Posting Type"::Depreciation;
-                        if not DiscontinueDepr then // NAVCZ
-                            TempFAJnlLine.Amount := DeprAmount
-                        // NAVCZ
-                        else
-                            TempFAJnlLine.Amount := 0;
-                        // NAVCZ
+                        TempFAJnlLine.Amount := DeprAmount;
                         TempFAJnlLine."No. of Depreciation Days" := NumberOfDays;
                         TempFAJnlLine."FA Error Entry No." := ErrorNo;
                         TempFAJnlLine."Line No." := TempFAJnlLine."Line No." + 1;
@@ -96,12 +65,7 @@ report 5692 "Calculate Depreciation"
                     end else begin
                         TempGenJnlLine."Account No." := "No.";
                         TempGenJnlLine."FA Posting Type" := TempGenJnlLine."FA Posting Type"::Depreciation;
-                        if not DiscontinueDepr then // NAVCZ
-                            TempGenJnlLine.Amount := DeprAmount
-                        // NAVCZ
-                        else
-                            TempGenJnlLine.Amount := 0;
-                        // NAVCZ
+                        TempGenJnlLine.Amount := DeprAmount;
                         TempGenJnlLine."No. of Depreciation Days" := NumberOfDays;
                         TempGenJnlLine."FA Error Entry No." := ErrorNo;
                         TempGenJnlLine."Line No." := TempGenJnlLine."Line No." + 1;
@@ -129,7 +93,7 @@ report 5692 "Calculate Depreciation"
                     end;
                     if TempFAJnlLine.Find('-') then
                         repeat
-                            Init;
+                            Init();
                             "Line No." := 0;
                             FAJnlSetup.SetFAJnlTrailCodes(FAJnlLine);
                             LineNo := LineNo + 1;
@@ -171,7 +135,7 @@ report 5692 "Calculate Depreciation"
                     end;
                     if TempGenJnlLine.Find('-') then
                         repeat
-                            Init;
+                            Init();
                             "Line No." := 0;
                             FAJnlSetup.SetGenJnlTrailCodes(GenJnlLine);
                             LineNo := LineNo + 1;
@@ -310,8 +274,8 @@ report 5692 "Calculate Depreciation"
         begin
             BalAccount := true;
             if ClientTypeManagement.GetCurrentClientType() <> CLIENTTYPE::Background then begin
-                PostingDate := WorkDate;
-                DeprUntilDate := WorkDate;
+                PostingDate := WorkDate();
+                DeprUntilDate := WorkDate();
             end;
             if DeprBookCode = '' then begin
                 FASetup.Get();
@@ -340,7 +304,7 @@ report 5692 "Calculate Depreciation"
             if ErrorMessageHandler.ShowErrors() then
                 Error('');
 
-        Window.Close;
+        Window.Close();
         if (FAJnlLineCreatedCount = 0) and (GenJnlLineCreatedCount = 0) then begin
             Message(CompletionStatsMsg);
             exit;
@@ -392,7 +356,7 @@ report 5692 "Calculate Depreciation"
               FAJnlLine.FieldCaption("Posting Date"),
               DeprBook.FieldCaption("Use Same FA+G/L Posting Dates"),
               false,
-              DeprBook.TableCaption,
+              DeprBook.TableCaption(),
               DeprBook.FieldCaption(Code),
               DeprBook.Code);
 
@@ -403,13 +367,6 @@ report 5692 "Calculate Depreciation"
     end;
 
     var
-        Text000: Label 'You must specify %1.';
-        Text001: Label 'Force No. of Days must be activated.';
-        Text002: Label '%1 and %2 must be identical. %3 must be %4 in %5 %6 = %7.';
-        Text003: Label 'Depreciating fixed asset      #1##########\';
-        Text004: Label 'Not depreciating fixed asset  #2##########\';
-        Text005: Label 'Inserting journal lines       #3##########';
-        Text006: Label 'Use Force No. of Days must be activated.';
         GenJnlLine: Record "Gen. Journal Line";
         TempGenJnlLine: Record "Gen. Journal Line" temporary;
         FASetup: Record "FA Setup";
@@ -436,13 +393,20 @@ report 5692 "Calculate Depreciation"
         GenJnlNextLineNo: Integer;
         EntryAmounts: array[4] of Decimal;
         LineNo: Integer;
-        DiscontinueDepr: Boolean;
-        CompletionStatsMsg: Label 'The depreciation has been calculated.\\No journal lines were created.';
         FAJnlLineCreatedCount: Integer;
         GenJnlLineCreatedCount: Integer;
+        DeprUntilDateModified: Boolean;
+
+        Text000: Label 'You must specify %1.';
+        Text001: Label 'Force No. of Days must be activated.';
+        Text002: Label '%1 and %2 must be identical. %3 must be %4 in %5 %6 = %7.';
+        Text003: Label 'Depreciating fixed asset      #1##########\';
+        Text004: Label 'Not depreciating fixed asset  #2##########\';
+        Text005: Label 'Inserting journal lines       #3##########';
+        Text006: Label 'Use Force No. of Days must be activated.';
+        CompletionStatsMsg: Label 'The depreciation has been calculated.\\No journal lines were created.';
         CompletionStatsFAJnlQst: Label 'The depreciation has been calculated.\\%1 fixed asset journal lines were created.\\Do you want to open the Fixed Asset Journal window?', Comment = 'The depreciation has been calculated.\\5 fixed asset journal lines were created.\\Do you want to open the Fixed Asset Journal window?';
         CompletionStatsGenJnlQst: Label 'The depreciation has been calculated.\\%1 fixed asset G/L journal lines were created.\\Do you want to open the Fixed Asset G/L Journal window?', Comment = 'The depreciation has been calculated.\\2 fixed asset G/L  journal lines were created.\\Do you want to open the Fixed Asset G/L Journal window?';
-        DeprUntilDateModified: Boolean;
 
     protected var
         DeprBookCode: Code[10];
@@ -534,4 +498,4 @@ report 5692 "Calculate Depreciation"
     begin
     end;
 }
-#endif
+

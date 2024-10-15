@@ -499,13 +499,9 @@
             ELSE
             IF ("Source Type" = CONST(Vendor)) Vendor;
 
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(11791; "Source No. 3"; Code[20])
         {
@@ -513,37 +509,25 @@
             TableRelation = IF ("Source Type" = CONST(Customer)) "Ship-to Address".Code WHERE("Customer No." = FIELD("Source No."))
             ELSE
             IF ("Source Type" = CONST(Vendor)) "Order Address".Code WHERE("Vendor No." = FIELD("Source No."));
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(11793; "Source Code"; Code[10])
         {
             Caption = 'Source Code';
             TableRelation = "Source Code";
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(11794; "Reason Code"; Code[10])
         {
             Caption = 'Reason Code';
             TableRelation = "Reason Code";
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(11795; "User ID"; Code[50])
         {
@@ -553,13 +537,9 @@
             //This property is currently not supported
             //TestTableRelation = false;
             ValidateTableRelation = false;
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(31043; "FA No."; Code[20])
         {
@@ -588,35 +568,23 @@
         {
             Caption = 'Tariff No.';
             TableRelation = "Tariff Number";
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(31062; "Statistic Indication"; Code[10])
         {
             Caption = 'Statistic Indication';
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(31063; "Physical Transfer"; Boolean)
         {
             Caption = 'Physical Transfer';
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(31065; "Shipment Method Code"; Code[10])
         {
@@ -630,37 +598,25 @@
         {
             Caption = 'Net Weight';
             DecimalPlaces = 0 : 5;
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(31068; "Country/Region of Origin Code"; Code[10])
         {
             Caption = 'Country/Region of Origin Code';
             TableRelation = "Country/Region";
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(31074; "Currency Code"; Code[10])
         {
             Caption = 'Currency Code';
             TableRelation = Currency;
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(31075; "Currency Factor"; Decimal)
         {
@@ -668,24 +624,16 @@
             DecimalPlaces = 0 : 15;
             Editable = false;
             MinValue = 0;
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(31076; "Intrastat Transaction"; Boolean)
         {
             Caption = 'Intrastat Transaction';
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
     }
 
@@ -831,7 +779,7 @@
     begin
         if "Applied Entry to Adjust" <> AppliedEntryToAdjust then begin
             "Applied Entry to Adjust" := AppliedEntryToAdjust;
-            Modify;
+            Modify();
         end;
     end;
 
@@ -856,7 +804,7 @@
             until ItemApplnEntry.Next() = 0;
 
             if CompletelyInvoiced then begin
-                SetCompletelyInvoiced;
+                SetCompletelyInvoiced();
                 exit(true);
             end;
         end;
@@ -867,13 +815,13 @@
     begin
         if not "Completely Invoiced" then begin
             "Completely Invoiced" := true;
-            Modify;
+            Modify();
         end;
     end;
 
     procedure AppliedEntryToAdjustExists(ItemNo: Code[20]): Boolean
     begin
-        Reset;
+        Reset();
         SetCurrentKey("Item No.", "Applied Entry to Adjust");
         SetRange("Item No.", ItemNo);
         SetRange("Applied Entry to Adjust", true);
@@ -911,7 +859,7 @@
 
     procedure GetSourceCaption(): Text
     begin
-        exit(StrSubstNo('%1 %2', TableCaption, "Entry No."));
+        exit(StrSubstNo('%1 %2', TableCaption(), "Entry No."));
     end;
 
     procedure GetUnitCostLCY(): Decimal
@@ -924,7 +872,7 @@
 
     procedure FilterLinesWithItemToPlan(var Item: Record Item; NetChange: Boolean)
     begin
-        Reset;
+        Reset();
         SetCurrentKey("Item No.", Open, "Variant Code", Positive, "Location Code", "Posting Date");
         SetRange("Item No.", Item."No.");
         SetRange(Open, true);
@@ -955,7 +903,7 @@
     var
         IsHandled: Boolean;
     begin
-        Reset;
+        Reset();
         SetCurrentKey("Item No.", Open, "Variant Code", Positive, "Location Code");
         SetRange("Item No.", ReservationEntry."Item No.");
         SetRange(Open, true);
@@ -989,7 +937,7 @@
     var
         DimMgt: Codeunit DimensionManagement;
     begin
-        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', TableCaption, "Entry No."));
+        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', TableCaption(), "Entry No."));
     end;
 
     procedure CalculateRemQuantity(ItemLedgEntryNo: Integer; PostingDate: Date): Decimal
@@ -1076,21 +1024,6 @@
         exit(AdjustedCost);
     end;
 
-#if not CLEAN18
-    [Scope('OnPrem')]
-    [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
-    procedure IsGLCorrection(): Boolean
-    var
-        ValueEntry: Record "Value Entry";
-    begin
-        // NAVCZ
-        ValueEntry.SetCurrentKey("Item Ledger Entry No.");
-        ValueEntry.SetRange("Item Ledger Entry No.", "Entry No.");
-        if ValueEntry.FindFirst() then
-            exit(ValueEntry."G/L Correction");
-    end;
-
-#endif
     procedure TrackingExists() IsTrackingExist: Boolean
     begin
         IsTrackingExist := ("Serial No." <> '') or ("Lot No." <> '');
@@ -1170,7 +1103,7 @@
 
     procedure SetItemVariantLocationFilters(ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; PostingDate: Date)
     begin
-        Reset;
+        Reset();
         SetCurrentKey("Item No.", Open, "Variant Code", Positive, "Location Code", "Posting Date");
         SetRange("Item No.", ItemNo);
         SetRange("Variant Code", VariantCode);
@@ -1381,3 +1314,4 @@
     begin
     end;
 }
+

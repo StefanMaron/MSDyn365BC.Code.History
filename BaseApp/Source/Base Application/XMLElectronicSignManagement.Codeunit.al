@@ -34,7 +34,7 @@ codeunit 31132 "XML Electronic Sign Management"
             Error(KeyNotDefinedErr);
 
         StreamReader := StreamReader.StreamReader("Key");
-        RSACryptoServiceProvider := RSACryptoServiceProvider.RSACryptoServiceProvider;
+        RSACryptoServiceProvider := RSACryptoServiceProvider.RSACryptoServiceProvider();
         RSACryptoServiceProvider.FromXmlString(StreamReader.ReadToEnd());
 
         SignedXml := SignedXml.SignedXml(XmlDocument);
@@ -56,8 +56,8 @@ codeunit 31132 "XML Electronic Sign Management"
             foreach Reference in References do
                 SignedXml.AddReference(Reference);
 
-        SignedXml.ComputeSignature;
-        Signature := SignedXml.GetXml;
+        SignedXml.ComputeSignature();
+        Signature := SignedXml.GetXml();
     end;
 
     [Scope('OnPrem')]
@@ -70,7 +70,7 @@ codeunit 31132 "XML Electronic Sign Management"
             SignedXml := SignedXml.SignedXml(GlobalSignedXmlElement);
 
         if IsNull(SignedXml) then
-            SignedXml := SignedXml.SignedXml;
+            SignedXml := SignedXml.SignedXml();
 
         SignedXml.LoadXml(Signature);
         exit(SignedXml.CheckSignature(X509Certificate2, true));
@@ -81,7 +81,7 @@ codeunit 31132 "XML Electronic Sign Management"
     var
         Reference: DotNet Reference;
     begin
-        Reference := Reference.Reference;
+        Reference := Reference.Reference();
         Reference.Uri := '';
 
         if URI <> '' then
@@ -100,7 +100,7 @@ codeunit 31132 "XML Electronic Sign Management"
             exit;
 
         if IsNull(References) then
-            References := References.List;
+            References := References.List();
 
         References.Add(Reference);
         ReferenceIndex := References.Count - 1;
@@ -140,7 +140,7 @@ codeunit 31132 "XML Electronic Sign Management"
         KeyInfo: DotNet KeyInfo;
     begin
         if IsNull(GlobalKeyInfo) then begin
-            KeyInfo := KeyInfo.KeyInfo;
+            KeyInfo := KeyInfo.KeyInfo();
             SetKeyInfoObject(KeyInfo);
         end;
 
@@ -157,7 +157,7 @@ codeunit 31132 "XML Electronic Sign Management"
         ReferenceXmlNode: DotNet XmlNode;
         XmlDoc: DotNet XmlDocument;
     begin
-        XmlDoc := XmlDoc.XmlDocument;
+        XmlDoc := XmlDoc.XmlDocument();
         with XMLDOMMgt do begin
             AddRootElementWithPrefix(
               XmlDoc, 'SecurityTokenReference', 'wsse', SecurityExtensionNamespaceTxt, SecurityTokenReferenceXmlNode);
@@ -197,7 +197,7 @@ codeunit 31132 "XML Electronic Sign Management"
         if IsNull(Transform) then
             exit;
 
-        Type := Transform.GetType;
+        Type := Transform.GetType();
         PropertyInfo := Type.GetProperty('InclusiveNamespacesPrefixList');
         if not IsNull(PropertyInfo) then
             PropertyInfo.SetValue(Transform, InclusiveNamespacesPrefixList);
@@ -240,21 +240,21 @@ codeunit 31132 "XML Electronic Sign Management"
     begin
         case Transform of
             'XmlDecryptionTransform':
-                TransformObject := XmlDecryptionTransform.XmlDecryptionTransform;
+                TransformObject := XmlDecryptionTransform.XmlDecryptionTransform();
             'XmlDsigBase64Transform':
-                TransformObject := XmlDsigBase64Transform.XmlDsigBase64Transform;
+                TransformObject := XmlDsigBase64Transform.XmlDsigBase64Transform();
             'XmlDsigC14NTransform':
-                TransformObject := XmlDsigC14NTransform.XmlDsigC14NTransform;
+                TransformObject := XmlDsigC14NTransform.XmlDsigC14NTransform();
             'XmlDsigEnvelopedSignatureTransform':
-                TransformObject := XmlDsigEnvelopedSignatureTransform.XmlDsigEnvelopedSignatureTransform;
+                TransformObject := XmlDsigEnvelopedSignatureTransform.XmlDsigEnvelopedSignatureTransform();
             'XmlDsigExcC14NTransform':
-                TransformObject := XmlDsigExcC14NTransform.XmlDsigExcC14NTransform;
+                TransformObject := XmlDsigExcC14NTransform.XmlDsigExcC14NTransform();
             'XmlDsigXPathTransform':
-                TransformObject := XmlDsigXPathTransform.XmlDsigXPathTransform;
+                TransformObject := XmlDsigXPathTransform.XmlDsigXPathTransform();
             'XmlDsigXsltTransform':
-                TransformObject := XmlDsigXsltTransform.XmlDsigXsltTransform;
+                TransformObject := XmlDsigXsltTransform.XmlDsigXsltTransform();
             'XmlLicenseTransform':
-                TransformObject := XmlLicenseTransform.XmlLicenseTransform;
+                TransformObject := XmlLicenseTransform.XmlLicenseTransform();
             else
                 exit(false);
         end;

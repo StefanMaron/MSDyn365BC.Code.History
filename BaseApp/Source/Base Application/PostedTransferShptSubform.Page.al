@@ -14,12 +14,12 @@ page 5744 "Posted Transfer Shpt. Subform"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Item No."; "Item No.")
+                field("Item No."; Rec."Item No.")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the number of the item that will be transferred.';
                 }
-                field("Variant Code"; "Variant Code")
+                field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the variant of the item on the line.';
@@ -30,7 +30,7 @@ page 5744 "Posted Transfer Shpt. Subform"
                     ApplicationArea = Location;
                     ToolTip = 'Specifies a description of the item.';
                 }
-                field("Transfer-from Bin Code"; "Transfer-from Bin Code")
+                field("Transfer-from Bin Code"; Rec."Transfer-from Bin Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the code for the bin that the items are transferred from.';
@@ -42,29 +42,29 @@ page 5744 "Posted Transfer Shpt. Subform"
                     BlankZero = true;
                     ToolTip = 'Specifies the quantity of the item that is transferred.';
                 }
-                field("Unit of Measure Code"; "Unit of Measure Code")
+                field("Unit of Measure Code"; Rec."Unit of Measure Code")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies how each unit of the item or resource is measured, such as in pieces or hours. By default, the value in the Base Unit of Measure field on the item or resource card is inserted.';
                 }
-                field("Unit of Measure"; "Unit of Measure")
+                field("Unit of Measure"; Rec."Unit of Measure")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the name of the item or resource''s unit of measure, such as piece or hour.';
                     Visible = false;
                 }
-                field("Shipping Time"; "Shipping Time")
+                field("Shipping Time"; Rec."Shipping Time")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies how long it takes from when the items are shipped from the warehouse to when they are delivered.';
                 }
-                field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
+                field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                     Visible = false;
                 }
-                field("Shortcut Dimension 2 Code"; "Shortcut Dimension 2 Code")
+                field("Shortcut Dimension 2 Code"; Rec."Shortcut Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
@@ -160,7 +160,7 @@ page 5744 "Posted Transfer Shpt. Subform"
 
                     trigger OnAction()
                     begin
-                        ShowItemTrackingLines;
+                        ShowItemTrackingLines();
                     end;
                 }
                 action(UndoShipment)
@@ -185,7 +185,7 @@ page 5744 "Posted Transfer Shpt. Subform"
 
     trigger OnOpenPage()
     begin
-        SetDimensionsVisibility;
+        SetDimensionsVisibility();
     end;
 
     protected var

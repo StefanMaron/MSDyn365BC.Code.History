@@ -1,4 +1,3 @@
-#if not CLEAN18
 codeunit 1720 "Deferral Utilities"
 {
 
@@ -566,20 +565,12 @@ codeunit 1720 "Deferral Utilities"
                 GenJournalLine."Account Type"::Customer:
                     begin
                         CustPostingGr.Get(GenJournalLine."Posting Group");
-                        // NAVCZ
-                        // Account := CustPostingGr.GetReceivablesAccount;
-                        Account := CustPostingGr.GetReceivablesAccNo(
-                                     GenJournalLine."Posting Group",
-                                     GenJournalLine.Prepayment and (GenJournalLine."Prepayment Type" = GenJournalLine."Prepayment Type"::Advance));
+                        Account := CustPostingGr.GetReceivablesAccount();
                     end;
                 GenJournalLine."Account Type"::Vendor:
                     begin
                         VendPostingGr.Get(GenJournalLine."Posting Group");
-                        // NAVCZ
-                        // Account := VendPostingGr.GetPayablesAccount;
-                        Account := VendPostingGr.GetPayablesAccNo(
-                                     GenJournalLine."Posting Group",
-                                     GenJournalLine.Prepayment and (GenJournalLine."Prepayment Type" = GenJournalLine."Prepayment Type"::Advance));
+                        Account := VendPostingGr.GetPayablesAccount();
                     end;
                 GenJournalLine."Account Type"::"Bank Account":
                     begin
@@ -611,7 +602,7 @@ codeunit 1720 "Deferral Utilities"
               DeferralLine, DeferralHeader."Deferral Doc. Type"::"G/L".AsInteger(),
               GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name",
               0, '', GenJournalLine."Line No.");
-            if DeferralLine.FindSet() then begin
+            if DeferralLine.FindSet() then
                 repeat
                     PostedDeferralLine.Init();
                     PostedDeferralLine.TransferFields(DeferralLine);
@@ -626,7 +617,6 @@ codeunit 1720 "Deferral Utilities"
                     OnBeforePostedDeferralLineInsert(PostedDeferralLine, GenJournalLine);
                     PostedDeferralLine.Insert(true);
                 until DeferralLine.Next() = 0;
-            end;
         end;
 
         OnAfterCreateScheduleFromGL(GenJournalLine, PostedDeferralHeader);
@@ -689,7 +679,7 @@ codeunit 1720 "Deferral Utilities"
                 if DeferralHeader.Get(DeferralDocType, GenJnlTemplateName, GenJnlBatchName, DocumentType, DocumentNo, LineNo) then begin
                     DeferralSchedule.SetParameter(DeferralDocType, GenJnlTemplateName, GenJnlBatchName, DocumentType, DocumentNo, LineNo);
                     DeferralSchedule.RunModal();
-                    Changed := DeferralSchedule.GetParameter;
+                    Changed := DeferralSchedule.GetParameter();
                     Clear(DeferralSchedule);
                 end else begin
                     CreateDeferralSchedule(DeferralCode, DeferralDocType,
@@ -700,7 +690,7 @@ codeunit 1720 "Deferral Utilities"
                     if DeferralHeader.Get(DeferralDocType, GenJnlTemplateName, GenJnlBatchName, DocumentType, DocumentNo, LineNo) then begin
                         DeferralSchedule.SetParameter(DeferralDocType, GenJnlTemplateName, GenJnlBatchName, DocumentType, DocumentNo, LineNo);
                         DeferralSchedule.RunModal();
-                        Changed := DeferralSchedule.GetParameter;
+                        Changed := DeferralSchedule.GetParameter();
                         Clear(DeferralSchedule);
                     end;
                 end;
@@ -714,10 +704,9 @@ codeunit 1720 "Deferral Utilities"
     begin
         // On view nothing will happen if the record does not exist
         if DeferralCode <> '' then
-            if DeferralTemplate.Get(DeferralCode) then begin
+            if DeferralTemplate.Get(DeferralCode) then
                 if PostedDeferralHeader.Get(DeferralDocType, GenJnlTemplateName, GenJnlBatchName, DocumentType, DocumentNo, LineNo) then
                     PAGE.RunModal(PAGE::"Deferral Schedule View", PostedDeferralHeader);
-            end;
     end;
 
     procedure OpenLineScheduleArchive(DeferralCode: Code[10]; DeferralDocType: Integer; DocumentType: Integer; DocumentNo: Code[20]; DocNoOccurence: Integer; VersionNo: Integer; LineNo: Integer)
@@ -763,7 +752,7 @@ codeunit 1720 "Deferral Utilities"
     begin
         // Calculate the LCY amounts for posting
         if PostingDate = 0D then
-            UseDate := WorkDate
+            UseDate := WorkDate()
         else
             UseDate := PostingDate;
 
@@ -772,6 +761,7 @@ codeunit 1720 "Deferral Utilities"
         DeferralHeader.Modify();
         AmtToDefer := DeferralHeader."Amount to Defer";
         AmtToDeferLCY := DeferralHeader."Amount to Defer (LCY)";
+        TotalAmountLCY := 0;
         FilterDeferralLines(
           DeferralLine, DeferralHeader."Deferral Doc. Type".AsInteger(),
           DeferralHeader."Gen. Jnl. Template Name", DeferralHeader."Gen. Jnl. Batch Name",
@@ -798,7 +788,7 @@ codeunit 1720 "Deferral Utilities"
         Currency: Record Currency;
     begin
         if CurrencyCode = '' then
-            Currency.InitRoundingPrecision
+            Currency.InitRoundingPrecision()
         else begin
             Currency.Get(CurrencyCode);
             Currency.TestField("Amount Rounding Precision");
@@ -1097,4 +1087,3 @@ codeunit 1720 "Deferral Utilities"
     end;
 }
 
-#endif

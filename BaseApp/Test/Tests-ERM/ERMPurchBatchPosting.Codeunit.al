@@ -23,7 +23,7 @@ codeunit 134337 "ERM Purch. Batch Posting"
         LibraryWorkflow: Codeunit "Library - Workflow";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         isInitialized: Boolean;
-        BatchCompletedMsg: Label 'All the documents were processed.';
+        BatchCompletedMsg: Label 'All of your selections were processed.';
         NotificationMsg: Label 'An error or warning occured during operation Batch processing of Purchase Header records.';
         DefaultCategoryCodeLbl: Label 'PURCHBCKGR';
 
@@ -70,11 +70,11 @@ codeunit 134337 "ERM Purch. Batch Posting"
         CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, false);
 
         // Batch Post Purchase Invoice.
-        RunBatchPostPurchase(PurchaseHeader."Document Type", PurchaseHeader."No.", CalcDate('<1D>', WorkDate), false);
+        RunBatchPostPurchase(PurchaseHeader."Document Type", PurchaseHeader."No.", CalcDate('<1D>', WorkDate()), false);
         LibraryJobQueue.FindAndRunJobQueueEntryByRecordId(PurchaseHeader.RecordId);
 
         // Verify that Posted Purchase Invoice Exists.
-        VerifyPostedPurchaseInvoice(PurchaseHeader."No.", CalcDate('<1D>', WorkDate), false);
+        VerifyPostedPurchaseInvoice(PurchaseHeader."No.", CalcDate('<1D>', WorkDate()), false);
 
         Assert.TableIsEmpty(DATABASE::"Batch Processing Parameter");
     end;
@@ -209,11 +209,11 @@ codeunit 134337 "ERM Purch. Batch Posting"
         CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", false);
 
         // Batch Post Purchase Invoice.
-        RunBatchPostPurchase(PurchaseHeader."Document Type", PurchaseHeader."No.", CalcDate('<1D>', WorkDate), false);
+        RunBatchPostPurchase(PurchaseHeader."Document Type", PurchaseHeader."No.", CalcDate('<1D>', WorkDate()), false);
         LibraryJobQueue.FindAndRunJobQueueEntryByRecordId(PurchaseHeader.RecordId);
 
         // Verify that Posted Purchase Credit Memo Exists.
-        VerifyPostedPurchaseCrMemo(PurchaseHeader."No.", CalcDate('<1D>', WorkDate), false);
+        VerifyPostedPurchaseCrMemo(PurchaseHeader."No.", CalcDate('<1D>', WorkDate()), false);
 
         Assert.TableIsEmpty(DATABASE::"Batch Processing Parameter");
     end;
@@ -294,7 +294,7 @@ codeunit 134337 "ERM Purch. Batch Posting"
         CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, false);
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
 
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseInvoiceApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseInvoiceApprovalWorkflowCode());
 
         // Create Purchase Invoice.
         CreatePurchaseDocument(PurchaseHeader2, PurchaseHeader."Document Type"::Invoice, false);
@@ -449,7 +449,7 @@ codeunit 134337 "ERM Purch. Batch Posting"
         LibraryPurchase.SetPostWithJobQueue(true);
 
         // [GIVEN] Purchase setup with enabled "Calc. Invoice Discount" and "Post with Job Queue"
-        LibraryVariableStorageCounter.Clear;
+        LibraryVariableStorageCounter.Clear();
         LibraryWorkflow.DisableAllWorkflows;
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
         BindSubscription(LibraryJobQueue);
@@ -499,7 +499,7 @@ codeunit 134337 "ERM Purch. Batch Posting"
         LibraryPurchase.SetPostWithJobQueue(true);
 
         // [GIVEN] Purchase setup with enabled "Calc. Invoice Discount" and "Post with Job Queue"
-        LibraryVariableStorageCounter.Clear;
+        LibraryVariableStorageCounter.Clear();
         LibraryWorkflow.DisableAllWorkflows;
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
         BindSubscription(LibraryJobQueue);
@@ -523,9 +523,9 @@ codeunit 134337 "ERM Purch. Batch Posting"
             LibraryNotificationMgt.RecallNotificationsForRecordID(PurchaseHeader[1].RecordId);
             // Bug: 306600
             ErrorMessages.Source.AssertEquals(Format(PurchaseHeader[1].RecordId));
-            ErrorMessages.Next;
+            ErrorMessages.Next();
             ErrorMessages.Source.AssertEquals(Format(PurchaseHeader[2].RecordId));
-            ErrorMessages.Close;
+            ErrorMessages.Close();
         end;
 
         // [THEN] Job Queue Entries are not created.
@@ -559,11 +559,11 @@ codeunit 134337 "ERM Purch. Batch Posting"
         BatchSessionID[1] := SessionId;
         BatchSessionID[2] := SessionId - 1;
 
-        PostingDate[1] := WorkDate - 1;
-        PostingDate[2] := WorkDate;
+        PostingDate[1] := WorkDate() - 1;
+        PostingDate[2] := WorkDate();
 
-        BatchID[1] := CreateGuid;
-        BatchID[2] := CreateGuid;
+        BatchID[1] := CreateGuid();
+        BatchID[2] := CreateGuid();
 
         // [GIVEN] Purchase invoice "I" to be posted via batch
         CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, false);
@@ -759,7 +759,7 @@ codeunit 134337 "ERM Purch. Batch Posting"
         RunBatchPostPurchase(PurchaseHeader[2]."Document Type", PurchaseHeader[2]."No.", PostingDate[2] + 2, true);
 
         // [GIVEN] Job Queue Entries created for Invoice 'A'. 
-        PurchaseHeader[1].Find;
+        PurchaseHeader[1].Find();
         JobQueueEntry.Get(PurchaseHeader[1]."Job Queue Entry ID");
 
         // [WHEN] Run Job Queue Entries for Invoice "A"

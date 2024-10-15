@@ -119,7 +119,7 @@ table 1249 "Bank Stmt Multiple Match Line"
         "Constant Symbol" := TempLedgerEntryMatchingBuffer."Constant Symbol";
         // NAVCZ
 #endif
-        Insert;
+        Insert();
     end;
 #if not CLEAN19
 
@@ -131,7 +131,7 @@ table 1249 "Bank Stmt Multiple Match Line"
         "Line No." := LineNo;
         "Account Type" := AccountType;
         "Account No." := AdvanceLetterMatchingBuffer."Account No.";
-        "Entry No." := GetNextEntryNo;
+        "Entry No." := GetNextEntryNo();
         "Due Date" := AdvanceLetterMatchingBuffer."Due Date";
         "Document No." := AdvanceLetterMatchingBuffer."Letter No.";
         "Letter Type" := AdvanceLetterMatchingBuffer."Letter Type";
@@ -139,7 +139,7 @@ table 1249 "Bank Stmt Multiple Match Line"
         "Variable Symbol" := AdvanceLetterMatchingBuffer."Variable Symbol";
         "Specific Symbol" := AdvanceLetterMatchingBuffer."Specific Symbol";
         "Constant Symbol" := AdvanceLetterMatchingBuffer."Constant Symbol";
-        Insert;
+        Insert();
     end;
 
     local procedure GetNextEntryNo(): Integer
@@ -149,7 +149,7 @@ table 1249 "Bank Stmt Multiple Match Line"
     begin
         // NAVCZ
         BankStmtMultipleMatchLine.Copy(Rec);
-        Reset;
+        Reset();
         SetRange("Line No.", "Line No.");
         SetRange("Account Type", "Account Type");
         SetRange("Account No.", "Account No.");

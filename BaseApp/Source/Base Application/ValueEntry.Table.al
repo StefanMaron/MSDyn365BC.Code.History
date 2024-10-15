@@ -1,4 +1,4 @@
-﻿table 5802 "Value Entry"
+table 5802 "Value Entry"
 {
     Caption = 'Value Entry';
     DrillDownPageID = "Value Entries";
@@ -426,13 +426,9 @@
         field(11763; "G/L Correction"; Boolean)
         {
             Caption = 'G/L Correction';
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(11790; "Source No. 2"; Code[20])
         {
@@ -440,13 +436,9 @@
             TableRelation = IF ("Source Type" = CONST(Customer)) Customer
             ELSE
             IF ("Source Type" = CONST(Vendor)) Vendor;
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(11791; "Source No. 3"; Code[20])
         {
@@ -454,59 +446,39 @@
             TableRelation = IF ("Source Type" = CONST(Customer)) "Ship-to Address".Code WHERE("Customer No." = FIELD("Source No."))
             ELSE
             IF ("Source Type" = CONST(Vendor)) "Order Address".Code WHERE("Vendor No." = FIELD("Source No."));
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(31060; "Currency Code"; Code[10])
         {
             Caption = 'Currency Code';
             TableRelation = Currency;
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(31061; "Currency Factor"; Decimal)
         {
             Caption = 'Currency Factor';
             DecimalPlaces = 0 : 15;
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(31062; "Incl. in Intrastat Amount"; Boolean)
         {
             Caption = 'Incl. in Intrastat Amount';
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(31063; "Incl. in Intrastat Stat. Value"; Boolean)
         {
             Caption = 'Incl. in Intrastat Stat. Value';
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
     }
 
@@ -646,7 +618,7 @@
                 FromDate := 0D;
 
             QtyFactor := 1;
-            Reset;
+            Reset();
             SetCurrentKey("Item No.", "Valuation Date", "Location Code", "Variant Code");
             SetRange("Item No.", ValueEntry."Item No.");
             SetRange("Valuation Date", FromDate, ToDate);
@@ -660,9 +632,9 @@
             OnSumCostsTillValuationDateOnAfterCalcSums(Rec);
 
             "Item Ledger Entry Quantity" :=
-              Round("Item Ledger Entry Quantity" * QtyFactor, UOMMgt.QtyRndPrecision) + PrevValueEntrySum."Item Ledger Entry Quantity";
+              Round("Item Ledger Entry Quantity" * QtyFactor, UOMMgt.QtyRndPrecision()) + PrevValueEntrySum."Item Ledger Entry Quantity";
             "Invoiced Quantity" :=
-              Round("Invoiced Quantity" * QtyFactor, UOMMgt.QtyRndPrecision) + PrevValueEntrySum."Invoiced Quantity";
+              Round("Invoiced Quantity" * QtyFactor, UOMMgt.QtyRndPrecision()) + PrevValueEntrySum."Invoiced Quantity";
             "Cost Amount (Actual)" :=
               "Cost Amount (Actual)" * QtyFactor + PrevValueEntrySum."Cost Amount (Actual)";
             "Cost Amount (Expected)" :=
@@ -707,7 +679,7 @@
         CostAmtExpected: Decimal;
         CostAmtExpectedACY: Decimal;
     begin
-        Reset;
+        Reset();
         SetCurrentKey("Item Ledger Entry No.");
         SetRange("Item Ledger Entry No.", ItemLedgEntryNo);
         if Find('-') then
@@ -730,12 +702,12 @@
 
     procedure NotInvdRevaluationExists(ItemLedgEntryNo: Integer): Boolean
     begin
-        Reset;
+        Reset();
         SetCurrentKey("Item Ledger Entry No.", "Entry Type");
         SetRange("Item Ledger Entry No.", ItemLedgEntryNo);
         SetRange("Entry Type", "Entry Type"::Revaluation);
         SetRange("Applies-to Entry", 0);
-        exit(FindSet);
+        exit(FindSet());
     end;
 
     procedure CalcQtyFactor(FromDate: Date; ToDate: Date) QtyFactor: Decimal
@@ -809,7 +781,7 @@
     var
         DimMgt: Codeunit DimensionManagement;
     begin
-        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', TableCaption, "Entry No."));
+        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', TableCaption(), "Entry No."));
     end;
 
     procedure GetAvgToDate(ToDate: Date): Date
@@ -862,7 +834,7 @@
 
     procedure FindFirstValueEntryByItemLedgerEntryNo(ItemLedgerEntryNo: Integer)
     begin
-        Reset;
+        Reset();
         SetCurrentKey("Item Ledger Entry No.");
         SetRange("Item Ledger Entry No.", ItemLedgerEntryNo);
         FindFirst();

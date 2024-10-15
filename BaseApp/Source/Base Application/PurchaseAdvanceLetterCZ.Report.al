@@ -236,11 +236,8 @@ report 31020 "Purchase - Advance Letter CZ"
                     DataItemTableView = SORTING("User ID");
                     dataitem(Employee; Employee)
                     {
-#if not CLEAN18
-                        DataItemLink = "No." = FIELD("Employee No.");
-#endif
                         DataItemTableView = SORTING("No.");
-                        column(FullName_Employee; Employee.FullName)
+                        column(FullName_Employee; Employee.FullName())
                         {
                         }
                         column(PhoneNo_Employee; Employee."Phone No.")

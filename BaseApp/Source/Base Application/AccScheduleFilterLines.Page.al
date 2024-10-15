@@ -22,7 +22,7 @@ page 31085 "Acc. Schedule Filter Lines"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if vat statement line will be show';
                 }
-                field("Empty Column"; "Empty Column")
+                field("Empty Column"; Rec."Empty Column")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the empty column';
@@ -151,9 +151,9 @@ page 31085 "Acc. Schedule Filter Lines"
         DimValList.LookupMode(true);
         DimVal.SetRange("Dimension Code", Dim);
         DimValList.SetTableView(DimVal);
-        if DimValList.RunModal = ACTION::LookupOK then begin
+        if DimValList.RunModal() = ACTION::LookupOK then begin
             DimValList.GetRecord(DimVal);
-            Text := DimValList.GetSelectionFilter;
+            Text := DimValList.GetSelectionFilter();
             exit(true);
         end;
         exit(false);

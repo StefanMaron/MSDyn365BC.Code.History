@@ -81,7 +81,7 @@ report 19 "VAT- VIES Declaration Tax Auth"
                 EU3PartyItemTradeAmt := 0;
                 EU3PartyServiceTradeAmt := 0;
                 with VATEntriesBaseAmtSum do begin
-                    if not Read then
+                    if not Read() then
                         CurrReport.Break();
 
                     if EU_Service then begin
@@ -128,7 +128,7 @@ report 19 "VAT- VIES Declaration Tax Auth"
 
                 VATEntriesBaseAmtSum.SetFilter(VAT_Registration_No, VATRegistrationNoFilter);
                 VATEntriesBaseAmtSum.SetFilter(Posting_Date, '%1..%2', StartDate, EndDate);
-                VATEntriesBaseAmtSum.Open;
+                VATEntriesBaseAmtSum.Open();
             end;
         }
     }
@@ -271,8 +271,6 @@ report 19 "VAT- VIES Declaration Tax Auth"
     end;
 
     var
-        Text000: Label 'All amounts are in %1.';
-        Text001: Label 'The VAT Registration No. is not filled in for all VAT entries where for Customer %1 on one or more entries.';
         GLSetup: Record "General Ledger Setup";
         CompanyInfo: Record "Company Information";
         FormatAddr: Codeunit "Format Address";
@@ -289,6 +287,9 @@ report 19 "VAT- VIES Declaration Tax Auth"
         HeaderText: Text[50];
         CountryBlank: Boolean;
         ShowError: Boolean;
+
+        Text000: Label 'All amounts are in %1.';
+        Text001: Label 'The VAT Registration No. is not filled in for all VAT entries where for Customer %1 on one or more entries.';
         Text002: Label 'Start and end date must be filled in.';
         VATRegistrationNoFilter: Text[250];
 

@@ -2,6 +2,13 @@ table 48 "Invt. Posting Buffer"
 {
     Caption = 'Invt. Posting Buffer';
     ReplicateData = false;
+#if CLEAN21
+    TableType = Temporary;
+#else
+    ObsoleteReason = 'This table will be marked as temporary. Make sure you are not using this table to store records.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
+#endif
 
     fields
     {
@@ -91,18 +98,39 @@ table 48 "Invt. Posting Buffer"
         {
             Caption = 'G/L Correction';
             DataClassification = SystemMetadata;
+#if CLEAN21
+            ObsoleteState = Removed;
+#else
+            ObsoleteState = Pending;
+#endif
+            ObsoleteReason = 'The field is not used anymore.';
+            ObsoleteTag = '21.0';
         }
     }
 
     keys
     {
+#if CLEAN21
+        key(Key1; "Posting Date", "Account Type", "Location Code", "Inventory Posting Group", "Gen. Bus. Posting Group", "Gen. Prod. Posting Group", "Dimension Set ID", Negative, "Bal. Account Type")
+#else
         key(Key1; "Posting Date", "Account Type", "Location Code", "Inventory Posting Group", "Gen. Bus. Posting Group", "Gen. Prod. Posting Group", "Dimension Set ID", Negative, "Bal. Account Type", "G/L Correction")
+#endif
         {
             Clustered = true;
+#if not CLEAN21
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The obsoleted fields will be removed from primary key.';
+            ObsoleteTag = '21.0';
+#endif
         }
+#if not CLEAN21
         key(Key2; "Interim Account")
         {
+            ObsoleteReason = 'The key is not used anymore.';
+            ObsoleteState = Pending;
+            ObsoleteTag = '21.0';
         }
+#endif
     }
 
     fieldgroups
@@ -122,27 +150,47 @@ table 48 "Invt. Posting Buffer"
            "Account Type"::"Capacity Variance",
            "Account Type"::"Subcontracted Variance",
            "Account Type"::"Cap. Overhead Variance",
-           "Account Type"::"Mfg. Overhead Variance",
-#if not CLEAN18
+#if not CLEAN21
            // NAVCZ
-           "Account Type"::AccConsumption,
-           "Account Type"::AccWIPChange,
-           "Account Type"::AccProdChange,
-#endif
            "Account Type"::AccWIP,
            "Account Type"::"WIP Inventory (Interim)",
            "Account Type"::"AccWIPChange (Interim)",
-           "Account Type"::"AccProdChange (Interim)"];
+           "Account Type"::"AccProdChange (Interim)",
         // NAVCZ
+#endif
+            "Account Type"::"Mfg. Overhead Variance"];
 
         OnUseInvtPostSetup(Rec, UseInventoryPostingSetup);
 
         exit(UseInventoryPostingSetup);
     end;
 
+#if not CLEAN21
+    [Obsolete('Use the Get function without the "G/L Correction" parameter instead. This field is obsolete and will be removed from primary key.', '21.0')]
+    procedure Get(PostingDate: Date; AccountType: Enum "Invt. Posting Buffer Account Type"; LocationCode: Code[10]; InventoryPostingGroup: Code[20]; GenBusPostingGroup: Code[20]; GenProdPostingGroup: Code[20]; DimensionSetID: Integer; Negative2: Boolean; BalAccountType: Enum "Invt. Posting Buffer Account Type"; GLCorrection: Boolean) Result: Boolean
+    var
+        TempInvtPostingBuffer: Record "Invt. Posting Buffer" temporary;
+    begin
+        TempInvtPostingBuffer.CopyFilters(Rec);
+        Reset();
+        SetRange("Posting Date", PostingDate);
+        SetRange("Account Type", AccountType);
+        SetRange("Location Code", LocationCode);
+        SetRange("Inventory Posting Group", InventoryPostingGroup);
+        SetRange("Gen. Bus. Posting Group", GenBusPostingGroup);
+        SetRange("Gen. Prod. Posting Group", GenProdPostingGroup);
+        SetRange("Dimension Set ID", DimensionSetID);
+        SetRange(Negative, Negative2);
+        SetRange("Bal. Account Type", BalAccountType);
+        if Count() > 1 then
+            SetRange("G/L Correction", GLCorrection);
+        Result := FindFirst();
+        CopyFilters(TempInvtPostingBuffer);
+    end;
+#endif
+
     [IntegrationEvent(false, false)]
     local procedure OnUseInvtPostSetup(var InvtPostingBuffer: Record "Invt. Posting Buffer"; var UseInventoryPostingSetup: Boolean)
     begin
     end;
 }
-

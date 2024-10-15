@@ -16,7 +16,7 @@ report 5752 "Picking List"
             dataitem("Integer"; "Integer")
             {
                 DataItemTableView = SORTING(Number) WHERE(Number = CONST(1));
-                column(CompanyName; COMPANYPROPERTY.DisplayName)
+                column(CompanyName; COMPANYPROPERTY.DisplayName())
                 {
                 }
                 column(TodayFormatted; Format(Today, 0, 4))
@@ -308,7 +308,7 @@ report 5752 "Picking List"
                 else
                     BreakbulkFilter := "Breakbulk Filter";
 
-                if not IsReportInPreviewMode then
+                if not IsReportInPreviewMode() then
                     CODEUNIT.Run(CODEUNIT::"Whse.-Printed", "Warehouse Activity Header");
             end;
         }
@@ -374,33 +374,35 @@ report 5752 "Picking List"
 
     trigger OnPreReport()
     begin
-        PickFilter := "Warehouse Activity Header".GetFilters;
+        PickFilter := "Warehouse Activity Header".GetFilters();
     end;
 
     var
         Location: Record Location;
         TempWhseActivLine: Record "Warehouse Activity Line" temporary;
         PickFilter: Text;
-        BreakbulkFilter: Boolean;
-        SumUpLines: Boolean;
-        HideOptions: Boolean;
         InvtPick: Boolean;
-        ShowLotSN: Boolean;
         Counter: Integer;
-        [InDataSet]
-        BreakbulkEditable: Boolean;
-        [InDataSet]
-        SumUpLinesEditable: Boolean;
         CurrReportPageNoCaptionLbl: Label 'Page';
         PickingListCaptionLbl: Label 'Picking List';
         WhseActLineDueDateCaptionLbl: Label 'Due Date';
         QtyHandledCaptionLbl: Label 'Qty. Handled';
         EmptyStringCaptionLbl: Label '____________';
 
+    protected var
+        BreakbulkFilter: Boolean;
+        HideOptions: Boolean;
+        ShowLotSN: Boolean;
+        SumUpLines: Boolean;
+        [InDataSet]
+        BreakbulkEditable: Boolean;
+        [InDataSet]
+        SumUpLinesEditable: Boolean;
+
     local procedure GetLocation(LocationCode: Code[10])
     begin
         if LocationCode = '' then
-            Location.Init
+            Location.Init()
         else
             if Location.Code <> LocationCode then
                 Location.Get(LocationCode);
@@ -410,7 +412,7 @@ report 5752 "Picking List"
     var
         MailManagement: Codeunit "Mail Management";
     begin
-        exit(CurrReport.Preview or MailManagement.IsHandlingGetEmailBody);
+        exit(CurrReport.Preview or MailManagement.IsHandlingGetEmailBody());
     end;
 
     procedure SetBreakbulkFilter(BreakbulkFilter2: Boolean)

@@ -508,7 +508,7 @@ codeunit 134251 "Match General Jnl Lines Test"
     var
         Name: Text[50];
     begin
-        Name := CreateGuid;
+        Name := CreateGuid();
         MatchCustNamePartially(CopyStr(Name, 1, 8), PadStr(CopyStr(Name, 1, 4), 8, '-'), Name);
     end;
 
@@ -519,7 +519,7 @@ codeunit 134251 "Match General Jnl Lines Test"
     var
         Name: Text[50];
     begin
-        Name := CreateGuid;
+        Name := CreateGuid();
         MatchCustNamePartially(CopyStr(Name, 1, 8), '', Name);
     end;
 
@@ -988,7 +988,7 @@ codeunit 134251 "Match General Jnl Lines Test"
 
         // Setup.
         Amount := LibraryRandom.RandDec(100, 2);
-        Keyword := CreateGuid;
+        Keyword := CreateGuid();
         CreateAccountMapping(TextToAccMapping, CopyStr(Keyword, 1, 5), TextToAccMapping."Bal. Source Type"::"G/L Account", '', '');
         CreateAccountMapping(TextToAccMapping2, CopyStr(Keyword, 1, 10), TextToAccMapping."Bal. Source Type"::"G/L Account", '', '');
 
@@ -1202,7 +1202,7 @@ codeunit 134251 "Match General Jnl Lines Test"
             if FindLast() then
                 LastLineNo := "Line No.";
 
-            Init;
+            Init();
             Validate("Line No.", LastLineNo + 1);
             Validate("Mapping Text", Keyword);
             LibraryERM.CreateGLAccount(GLAccount);
@@ -1239,7 +1239,7 @@ codeunit 134251 "Match General Jnl Lines Test"
 
     local procedure VerifyGenJnlLine(var GenJnlLine: Record "Gen. Journal Line"; DocType: Enum "Gen. Journal Document Type"; DocNo: Code[50]; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Applied: Boolean)
     begin
-        GenJnlLine.Find;
+        GenJnlLine.Find();
         GenJnlLine.TestField("Document Type", DocType);
         GenJnlLine.TestField("Applies-to ID", DocNo);
         GenJnlLine.TestField("Account Type", AccountType);
@@ -1265,7 +1265,7 @@ codeunit 134251 "Match General Jnl Lines Test"
 
     local procedure VerifyCustLedgerEntry(CustLedgerEntry: Record "Cust. Ledger Entry"; Open: Boolean; AppliesToID: Code[50]; AmountToApply: Decimal)
     begin
-        CustLedgerEntry.Find;
+        CustLedgerEntry.Find();
         CustLedgerEntry.TestField(Open, Open);
         CustLedgerEntry.TestField("Applies-to ID", AppliesToID);
         CustLedgerEntry.TestField("Amount to Apply", AmountToApply);
@@ -1273,7 +1273,7 @@ codeunit 134251 "Match General Jnl Lines Test"
 
     local procedure VerifyVendorLedgerEntry(VendorLedgerEntry: Record "Vendor Ledger Entry"; Open: Boolean; AppliesToID: Code[50]; AmountToApply: Decimal)
     begin
-        VendorLedgerEntry.Find;
+        VendorLedgerEntry.Find();
         VendorLedgerEntry.TestField(Open, Open);
         VendorLedgerEntry.TestField("Applies-to ID", AppliesToID);
         VendorLedgerEntry.TestField("Amount to Apply", AmountToApply);
@@ -1402,8 +1402,8 @@ codeunit 134251 "Match General Jnl Lines Test"
         MappingTxt: Text[50];
         LineTxt: Text;
     begin
-        MappingTxt := CreateGuid;
-        LineTxt := CopyStr(StrSubstNo('%1,%2', MappingTxt, Format(CreateGuid)), 1, 50);
+        MappingTxt := CreateGuid();
+        LineTxt := CopyStr(StrSubstNo('%1,%2', MappingTxt, Format(CreateGuid())), 1, 50);
 
         LibrarySmallBusiness.CreateVendor(Vendor);
         CreateAccountMapping(TextToAccMapping, MappingTxt, TextToAccMapping."Bal. Source Type"::"G/L Account", '', Vendor."No.");

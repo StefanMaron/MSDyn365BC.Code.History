@@ -36,8 +36,8 @@ table 1060 "Payment Service Setup"
                     SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Invoice);
                     if SalesHeader.FindSet(true, false) then
                         repeat
-                            SalesHeader.SetDefaultPaymentServices;
-                            SalesHeader.Modify
+                            SalesHeader.SetDefaultPaymentServices();
+                            SalesHeader.Modify();
                         until SalesHeader.Next() = 0;
                 end;
             end;
@@ -202,7 +202,7 @@ table 1060 "Payment Service Setup"
         TempPaymentServiceSetup.DeleteAll();
         OnRegisterPaymentServices(TempPaymentServiceSetup);
         TempPaymentServiceSetup.SetRange(Enabled, true);
-        exit(TempPaymentServiceSetup.FindSet);
+        exit(TempPaymentServiceSetup.FindSet());
     end;
 
     local procedure TransferToRecordSetBuffer(var TempPaymentServiceSetup: Record "Payment Service Setup" temporary; var TempRecordSetBuffer: Record "Record Set Buffer" temporary)
@@ -293,13 +293,12 @@ table 1060 "Payment Service Setup"
                     if SalesInvoiceHeader.Closed or (SalesInvoiceHeader."Remaining Amount" = 0) then
                         exit(false);
                 end
-            else begin
-                    if DataTypeManagement.FindFieldByName(
-                         DocumentRecordRef, PaymentMethodCodeFieldRef, SalesInvoiceHeader.FieldName("Payment Method Code"))
-                    then
-                        if not CanUsePaymentMethod(Format(PaymentMethodCodeFieldRef.Value)) then
-                            exit(false);
-                end
+            else
+                if DataTypeManagement.FindFieldByName(
+                        DocumentRecordRef, PaymentMethodCodeFieldRef, SalesInvoiceHeader.FieldName("Payment Method Code"))
+                then
+                    if not CanUsePaymentMethod(Format(PaymentMethodCodeFieldRef.Value)) then
+                        exit(false);
         end;
 
         exit(true);
@@ -354,7 +353,7 @@ table 1060 "Payment Service Setup"
                 SetupOrCreatePaymentService::"Setup Payment Services":
                     PAGE.RunModal(PAGE::"Payment Services");
                 SetupOrCreatePaymentService::"Create New":
-                    NewPaymentService;
+                    NewPaymentService();
                 else
                     exit(false);
             end;
@@ -363,7 +362,7 @@ table 1060 "Payment Service Setup"
 
         // Ask to create a new service
         if Confirm(SetupPaymentServicesQst) then begin
-            NewPaymentService;
+            NewPaymentService();
             exit(GetEnabledPaymentServices(TempPaymentServiceSetup));
         end;
 
@@ -394,13 +393,13 @@ table 1060 "Payment Service Setup"
                     exit(true);
                 end;
             else begin
-                    Commit();
-                    if PAGE.RunModal(PAGE::"Select Payment Service Type", TempPaymentServiceSetup) = ACTION::LookupOK then begin
-                        OnCreatePaymentService(TempPaymentServiceSetup);
-                        exit(true);
-                    end;
-                    exit(false);
+                Commit();
+                if PAGE.RunModal(PAGE::"Select Payment Service Type", TempPaymentServiceSetup) = ACTION::LookupOK then begin
+                    OnCreatePaymentService(TempPaymentServiceSetup);
+                    exit(true);
                 end;
+                exit(false);
+            end;
         end;
     end;
 

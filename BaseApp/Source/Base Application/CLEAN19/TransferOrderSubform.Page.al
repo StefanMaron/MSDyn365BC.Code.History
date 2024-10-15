@@ -16,7 +16,7 @@ page 5741 "Transfer Order Subform"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Item No."; "Item No.")
+                field("Item No."; Rec."Item No.")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the number of the item that will be transferred.';
@@ -26,13 +26,13 @@ page 5741 "Transfer Order Subform"
                         UpdateForm(true);
                     end;
                 }
-                field("Variant Code"; "Variant Code")
+                field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the variant of the item on the line.';
                     Visible = false;
                 }
-                field("Planning Flexibility"; "Planning Flexibility")
+                field("Planning Flexibility"; Rec."Planning Flexibility")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies whether the supply represented by this line is considered by the planning system when calculating action messages.';
@@ -43,13 +43,13 @@ page 5741 "Transfer Order Subform"
                     ApplicationArea = Location;
                     ToolTip = 'Specifies a description of the entry.';
                 }
-                field("Transfer-from Bin Code"; "Transfer-from Bin Code")
+                field("Transfer-from Bin Code"; Rec."Transfer-from Bin Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the code for the bin that the items are transferred from.';
                     Visible = false;
                 }
-                field("Transfer-To Bin Code"; "Transfer-To Bin Code")
+                field("Transfer-To Bin Code"; Rec."Transfer-To Bin Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the code for the bin that the items are transferred to.';
@@ -61,42 +61,42 @@ page 5741 "Transfer Order Subform"
                     BlankZero = true;
                     ToolTip = 'Specifies the quantity of the item that will be processed as the document stipulates.';
                 }
-                field("Reserved Quantity Inbnd."; "Reserved Quantity Inbnd.")
+                field("Reserved Quantity Inbnd."; Rec."Reserved Quantity Inbnd.")
                 {
                     ApplicationArea = Reservation;
                     BlankZero = true;
                     ToolTip = 'Specifies the quantity of the item reserved at the transfer-to location.';
                 }
-                field("Reserved Quantity Shipped"; "Reserved Quantity Shipped")
+                field("Reserved Quantity Shipped"; Rec."Reserved Quantity Shipped")
                 {
                     ApplicationArea = Reservation;
                     BlankZero = true;
                     ToolTip = 'Specifies how many units on the shipped transfer order are reserved.';
                 }
-                field("Reserved Quantity Outbnd."; "Reserved Quantity Outbnd.")
+                field("Reserved Quantity Outbnd."; Rec."Reserved Quantity Outbnd.")
                 {
                     ApplicationArea = Reservation;
                     BlankZero = true;
                     ToolTip = 'Specifies the quantity of the item reserved at the transfer-from location.';
                 }
-                field("Unit of Measure Code"; "Unit of Measure Code")
+                field("Unit of Measure Code"; Rec."Unit of Measure Code")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies how each unit of the item or resource is measured, such as in pieces or hours. By default, the value in the Base Unit of Measure field on the item or resource card is inserted.';
                 }
-                field("Unit of Measure"; "Unit of Measure")
+                field("Unit of Measure"; Rec."Unit of Measure")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the name of the item or resource''s unit of measure, such as piece or hour.';
                     Visible = false;
                 }
-                field("Qty. to Ship"; "Qty. to Ship")
+                field("Qty. to Ship"; Rec."Qty. to Ship")
                 {
                     ApplicationArea = Location;
                     BlankZero = true;
                     ToolTip = 'Specifies the quantity of items that remain to be shipped.';
                 }
-                field("Quantity Shipped"; "Quantity Shipped")
+                field("Quantity Shipped"; Rec."Quantity Shipped")
                 {
                     ApplicationArea = Location;
                     BlankZero = true;
@@ -114,14 +114,14 @@ page 5741 "Transfer Order Subform"
                         PAGE.RunModal(0, TransShptLine);
                     end;
                 }
-                field("Qty. to Receive"; "Qty. to Receive")
+                field("Qty. to Receive"; Rec."Qty. to Receive")
                 {
                     ApplicationArea = Location;
                     BlankZero = true;
                     Editable = NOT "Direct Transfer";
                     ToolTip = 'Specifies the quantity of items that remains to be received.';
                 }
-                field("Quantity Received"; "Quantity Received")
+                field("Quantity Received"; Rec."Quantity Received")
                 {
                     ApplicationArea = Location;
                     BlankZero = true;
@@ -139,59 +139,59 @@ page 5741 "Transfer Order Subform"
                         PAGE.RunModal(0, TransRcptLine);
                     end;
                 }
-                field("Shipment Date"; "Shipment Date")
+                field("Shipment Date"; Rec."Shipment Date")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies when items on the document are shipped or were shipped. A shipment date is usually calculated from a requested delivery date plus lead time.';
                 }
-                field("Receipt Date"; "Receipt Date")
+                field("Receipt Date"; Rec."Receipt Date")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the date that you expect the transfer-to location to receive the shipment.';
                 }
-                field("Shipping Agent Code"; "Shipping Agent Code")
+                field("Shipping Agent Code"; Rec."Shipping Agent Code")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the code for the shipping agent who is transporting the items.';
                     Visible = false;
                 }
-                field("Shipping Agent Service Code"; "Shipping Agent Service Code")
+                field("Shipping Agent Service Code"; Rec."Shipping Agent Service Code")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the code for the service, such as a one-day delivery, that is offered by the shipping agent.';
                     Visible = false;
                 }
-                field("Shipping Time"; "Shipping Time")
+                field("Shipping Time"; Rec."Shipping Time")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies how long it takes from when the items are shipped from the warehouse to when they are delivered.';
                     Visible = false;
                 }
-                field("Outbound Whse. Handling Time"; "Outbound Whse. Handling Time")
+                field("Outbound Whse. Handling Time"; Rec."Outbound Whse. Handling Time")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies a date formula for the time it takes to get items ready to ship from this location. The time element is used in the calculation of the delivery date as follows: Shipment Date + Outbound Warehouse Handling Time = Planned Shipment Date + Shipping Time = Planned Delivery Date.';
                     Visible = false;
                 }
-                field("Inbound Whse. Handling Time"; "Inbound Whse. Handling Time")
+                field("Inbound Whse. Handling Time"; Rec."Inbound Whse. Handling Time")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the time it takes to make items part of available inventory, after the items have been posted as received.';
                     Visible = false;
                 }
-                field("Appl.-to Item Entry"; "Appl.-to Item Entry")
+                field("Appl.-to Item Entry"; Rec."Appl.-to Item Entry")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the number of the item ledger entry that the document or journal line is applied to.';
                     Visible = false;
                 }
-                field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
+                field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                     Visible = false;
                 }
-                field("Shortcut Dimension 2 Code"; "Shortcut Dimension 2 Code")
+                field("Shortcut Dimension 2 Code"; Rec."Shortcut Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
@@ -336,7 +336,7 @@ page 5741 "Transfer Order Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromTransLine(Rec, ItemAvailFormsMgt.ByEvent);
+                            ItemAvailFormsMgt.ShowItemAvailFromTransLine(Rec, ItemAvailFormsMgt.ByEvent());
                         end;
                     }
                     action(Period)
@@ -348,7 +348,7 @@ page 5741 "Transfer Order Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromTransLine(Rec, ItemAvailFormsMgt.ByPeriod);
+                            ItemAvailFormsMgt.ShowItemAvailFromTransLine(Rec, ItemAvailFormsMgt.ByPeriod());
                         end;
                     }
                     action(Variant)
@@ -360,7 +360,7 @@ page 5741 "Transfer Order Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromTransLine(Rec, ItemAvailFormsMgt.ByVariant);
+                            ItemAvailFormsMgt.ShowItemAvailFromTransLine(Rec, ItemAvailFormsMgt.ByVariant());
                         end;
                     }
                     action(Location)
@@ -373,7 +373,7 @@ page 5741 "Transfer Order Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromTransLine(Rec, ItemAvailFormsMgt.ByLocation);
+                            ItemAvailFormsMgt.ShowItemAvailFromTransLine(Rec, ItemAvailFormsMgt.ByLocation());
                         end;
                     }
                     action(Lot)
@@ -395,7 +395,7 @@ page 5741 "Transfer Order Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromTransLine(Rec, ItemAvailFormsMgt.ByBOM);
+                            ItemAvailFormsMgt.ShowItemAvailFromTransLine(Rec, ItemAvailFormsMgt.ByBOM());
                         end;
                     }
                 }
@@ -470,7 +470,7 @@ page 5741 "Transfer Order Subform"
 
     trigger OnOpenPage()
     begin
-        SetDimensionsVisibility;
+        SetDimensionsVisibility();
     end;
 
     var

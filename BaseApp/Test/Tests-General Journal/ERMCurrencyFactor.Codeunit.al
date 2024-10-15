@@ -225,7 +225,7 @@ codeunit 134077 "ERM Currency Factor"
             PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup(), 1);
 
         Assert.ExpectedError(
-          StrSubstNo(CurrencyFactoMustHaveValueErr, PurchaseHeader.TableCaption, PurchaseHeader."Document Type", PurchaseHeader."No."));
+          StrSubstNo(CurrencyFactoMustHaveValueErr, PurchaseHeader.TableCaption(), PurchaseHeader."Document Type", PurchaseHeader."No."));
 
         LibraryVariableStorage.AssertEmpty();
     end;
@@ -258,7 +258,7 @@ codeunit 134077 "ERM Currency Factor"
             SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(), 1);
 
         Assert.ExpectedError(
-          StrSubstNo(CurrencyFactoMustHaveValueErr, SalesHeader.TableCaption, SalesHeader."Document Type", SalesHeader."No."));
+          StrSubstNo(CurrencyFactoMustHaveValueErr, SalesHeader.TableCaption(), SalesHeader."Document Type", SalesHeader."No."));
 
         LibraryVariableStorage.AssertEmpty();
     end;
@@ -407,7 +407,7 @@ codeunit 134077 "ERM Currency Factor"
     begin
         Assert.AreEqual(CurrencyFactor, GenJournalLine."Currency Factor", StrSubstNo(CurrencyFactorError, CurrencyFactor));
         Currency.Get(GenJournalLine."Currency Code");
-        Currency.InitRoundingPrecision;
+        Currency.InitRoundingPrecision();
         AmountLCY := GenJournalLine.Amount / GenJournalLine."Currency Factor";
         Assert.AreNearlyEqual(
           AmountLCY, GenJournalLine."Amount (LCY)", Currency."Amount Rounding Precision", StrSubstNo(AmountLCYError, AmountLCY));

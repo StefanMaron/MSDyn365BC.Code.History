@@ -22,7 +22,7 @@ table 197 "Acc. Sched. KPI Buffer"
         }
         field(4; "Account Schedule Name"; Code[10])
         {
-            Caption = 'Account Schedule Name';
+            Caption = 'Row Definition Name';
             DataClassification = SystemMetadata;
         }
         field(5; "KPI Code"; Code[10])

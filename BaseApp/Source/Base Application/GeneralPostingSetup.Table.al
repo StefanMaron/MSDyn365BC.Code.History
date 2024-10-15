@@ -1,4 +1,4 @@
-table 252 "General Posting Setup"
+﻿table 252 "General Posting Setup"
 {
     Caption = 'General Posting Setup';
     DrillDownPageID = "General Posting Setup";
@@ -36,7 +36,7 @@ table 252 "General Posting Setup"
                         GLAccountCategoryMgt.GetIII1RevenuesFromSalesOfFixedAssets(),
                         GLAccountCategoryMgt.GetIII2RevenuesOfMaterialSold())); // NAVCZ
 #else
-                      StrSubstNo('%1|%2', GLAccountCategoryMgt.GetIncomeProdSales, GLAccountCategoryMgt.GetIncomeService));
+                      StrSubstNo('%1|%2', GLAccountCategoryMgt.GetIncomeProdSales(), GLAccountCategoryMgt.GetIncomeService()));
 #endif
             end;
 
@@ -60,7 +60,7 @@ table 252 "General Posting Setup"
 #if not CLEAN19
                       GLAccountCategoryMgt.GetIII3AnotherOperatingRevenues()); // NAVCZ
 #else
-                      GLAccountCategoryMgt.GetIncomeSalesDiscounts);
+                      GLAccountCategoryMgt.GetIncomeSalesDiscounts());
 #endif
             end;
 
@@ -84,7 +84,7 @@ table 252 "General Posting Setup"
 #if not CLEAN19
                       GLAccountCategoryMgt.GetIII3AnotherOperatingRevenues()); // NAVCZ
 #else
-                      GLAccountCategoryMgt.GetIncomeSalesDiscounts);
+                      GLAccountCategoryMgt.GetIncomeSalesDiscounts());
 #endif
             end;
 
@@ -112,19 +112,16 @@ table 252 "General Posting Setup"
             Caption = 'Purch. Account';
             TableRelation = "G/L Account";
 
-#if CLEAN19
             trigger OnLookup()
-            var
-                TwoPlaceholdersTok: Label '%1|%2', Locked = true;
             begin
                 if "View All Accounts on Lookup" then
                     GLAccountCategoryMgt.LookupGLAccountWithoutCategory("Purch. Account")
                 else
                     LookupGLAccount(
                       "Purch. Account", GLAccountCategory."Account Category"::"Cost of Goods Sold",
-                      StrSubstNo(TwoPlaceholdersTok, GLAccountCategoryMgt.GetCOGSMaterials(), GLAccountCategoryMgt.GetCOGSLabor()));
+                      StrSubstNo(AccountSubcategoryFilterTxt, GLAccountCategoryMgt.GetCOGSMaterials(), GLAccountCategoryMgt.GetCOGSLabor()));
             end;
-#endif
+
             trigger OnValidate()
             begin
                 CheckGLAcc("Purch. Account");
@@ -143,9 +140,10 @@ table 252 "General Posting Setup"
                 else
                     LookupGLAccount(
                       "Purch. Line Disc. Account", GLAccountCategory."Account Category"::"Cost of Goods Sold",
-                      GLAccountCategoryMgt.GetCOGSDiscountsGranted);
+                      GLAccountCategoryMgt.GetCOGSDiscountsGranted());
             end;
 #endif
+
             trigger OnValidate()
             begin
                 CheckGLAcc("Purch. Line Disc. Account");
@@ -167,6 +165,7 @@ table 252 "General Posting Setup"
                       GLAccountCategoryMgt.GetCOGSDiscountsGranted());
             end;
 #endif
+
             trigger OnValidate()
             begin
                 CheckGLAcc("Purch. Inv. Disc. Account");
@@ -203,7 +202,7 @@ table 252 "General Posting Setup"
                         GLAccountCategoryMgt.GetF2NetBookValueofMaterialSold())); // NAVCZ
 #else
                       "COGS Account", GLAccountCategory."Account Category"::"Cost of Goods Sold",
-                      StrSubstNo('%1|%2', GLAccountCategoryMgt.GetCOGSMaterials, GLAccountCategoryMgt.GetCOGSLabor));
+                      StrSubstNo('%1|%2', GLAccountCategoryMgt.GetCOGSMaterials(), GLAccountCategoryMgt.GetCOGSLabor()));
 #endif
             end;
 
@@ -217,19 +216,16 @@ table 252 "General Posting Setup"
             Caption = 'Inventory Adjmt. Account';
             TableRelation = "G/L Account";
 
-#if CLEAN19
             trigger OnLookup()
-            var
-                TwoPlaceholdersTok: Label '%1|%2', Locked = true;
             begin
                 if "View All Accounts on Lookup" then
                     GLAccountCategoryMgt.LookupGLAccountWithoutCategory("Inventory Adjmt. Account")
                 else
                     LookupGLAccount(
                       "Inventory Adjmt. Account", GLAccountCategory."Account Category"::"Cost of Goods Sold",
-                      StrSubstNo(TwoPlaceholdersTok, GLAccountCategoryMgt.GetCOGSMaterials(), GLAccountCategoryMgt.GetCOGSLabor()));
+                      StrSubstNo(AccountSubcategoryFilterTxt, GLAccountCategoryMgt.GetCOGSMaterials(), GLAccountCategoryMgt.GetCOGSLabor()));
             end;
-#endif
+
             trigger OnValidate()
             begin
                 CheckGLAcc("Inventory Adjmt. Account");
@@ -421,7 +417,7 @@ table 252 "General Posting Setup"
                       GLAccountCategoryMgt.GetCI32Goods()); // NAVCZ
 #else
                       "Invt. Accrual Acc. (Interim)", GLAccountCategory."Account Category"::"Cost of Goods Sold",
-                      StrSubstNo('%1|%2', GLAccountCategoryMgt.GetCOGSMaterials, GLAccountCategoryMgt.GetCOGSLabor));
+                      StrSubstNo('%1|%2', GLAccountCategoryMgt.GetCOGSMaterials(), GLAccountCategoryMgt.GetCOGSLabor()));
 #endif
             end;
 
@@ -447,7 +443,7 @@ table 252 "General Posting Setup"
                         GLAccountCategoryMgt.GetF2NetBookValueofMaterialSold())); // NAVCZ
 #else
                       "COGS Account (Interim)", GLAccountCategory."Account Category"::"Cost of Goods Sold",
-                      StrSubstNo('%1|%2', GLAccountCategoryMgt.GetCOGSMaterials, GLAccountCategoryMgt.GetCOGSLabor));
+                      StrSubstNo('%1|%2', GLAccountCategoryMgt.GetCOGSMaterials(), GLAccountCategoryMgt.GetCOGSLabor()));
 #endif
             end;
 
@@ -460,20 +456,10 @@ table 252 "General Posting Setup"
         {
             Caption = 'Invt. Rounding Adj. Account';
             TableRelation = "G/L Account";
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
 
-#if not CLEAN18
-            trigger OnValidate()
-            begin
-                CheckGLAcc("Invt. Rounding Adj. Account");
-            end;
-#endif
         }
         field(99000752; "Direct Cost Applied Account"; Code[20])
         {
@@ -524,17 +510,18 @@ table 252 "General Posting Setup"
 
     trigger OnDelete()
     begin
-        CheckSetupUsage;
+        CheckSetupUsage();
     end;
 
     var
         GLSetup: Record "General Ledger Setup";
         GLAccountCategory: Record "G/L Account Category";
         GLAccountCategoryMgt: Codeunit "G/L Account Category Mgt.";
+        PostingSetupMgt: Codeunit PostingSetupManagement;
+
         YouCannotDeleteErr: Label 'You cannot delete %1 %2.', Comment = '%1 = Location Code; %2 = Posting Group';
         AccountSubcategoryFilterTxt: Label '%1|%2', Comment = '%1 = Account Subcategory; %2 = Account Subcategory2', Locked = true;
         CannotChangePrepmtAccErr: Label 'You cannot change %2 while %1 is pending prepayment.', Comment = '%2- field caption, %1 -recordId - "Sales Header: Order, 1001".';
-        PostingSetupMgt: Codeunit PostingSetupManagement;
 
     procedure CheckGLAcc(AccNo: Code[20])
     var
@@ -542,7 +529,7 @@ table 252 "General Posting Setup"
     begin
         if AccNo <> '' then begin
             GLAcc.Get(AccNo);
-            GLAcc.CheckGLAcc;
+            GLAcc.CheckGLAcc();
         end;
     end;
 
@@ -633,16 +620,16 @@ table 252 "General Posting Setup"
     procedure FindSetupMissingSalesDiscountAccount(DiscountPosting: Option; var FieldNumber: Integer): Boolean
     begin
         if FilterBlankSalesDiscountAccounts(DiscountPosting, FieldNumber) then begin
-            MarkRecords;
-            exit(FindSet);
+            MarkRecords();
+            exit(FindSet());
         end;
     end;
 
     procedure FindSetupMissingPurchDiscountAccount(DiscountPosting: Option; var FieldNumber: Integer): Boolean
     begin
         if FilterBlankPurchDiscountAccounts(DiscountPosting, FieldNumber) then begin
-            MarkRecords;
-            exit(FindSet);
+            MarkRecords();
+            exit(FindSet());
         end;
     end;
 
@@ -887,7 +874,7 @@ table 252 "General Posting Setup"
         GLSetup.Get();
         PmtToleranceVisible := (GLSetup."Payment Tolerance %" > 0) or (GLSetup."Max. Payment Tolerance Amount" <> 0);
 
-        PmtDiscountVisible := PaymentTerms.UsePaymentDiscount;
+        PmtDiscountVisible := PaymentTerms.UsePaymentDiscount();
 
         SalesSetup.Get();
         SalesLineDiscVisible :=
@@ -1008,7 +995,7 @@ table 252 "General Posting Setup"
         GenPostingSetupFieldRef.SetRange("Gen. Prod. Posting Group");
         TempAccountUseBuffer.UpdateBuffer(GenPostingSetupRecRef, AccountFieldNo);
 
-        GenPostingSetupRecRef.Close;
+        GenPostingSetupRecRef.Close();
 
         TempAccountUseBuffer.Reset();
         TempAccountUseBuffer.SetCurrentKey("No. of Use");

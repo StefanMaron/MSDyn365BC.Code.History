@@ -1,8 +1,12 @@
+#if not CLEAN21
 page 2338 "BC O365 Payments Settings"
 {
     Caption = ' ';
     Editable = false;
     PageType = CardPart;
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     layout
     {
@@ -18,7 +22,7 @@ page 2338 "BC O365 Payments Settings"
                 ShowCaption = false;
                 field(PaymentTermsCode; PaymentTermsCode)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Payment terms';
                     Editable = false;
                     Importance = Promoted;
@@ -28,11 +32,11 @@ page 2338 "BC O365 Payments Settings"
                     var
                         TempO365PaymentTerms: Record "O365 Payment Terms" temporary;
                     begin
-                        TempO365PaymentTerms.RefreshRecords;
+                        TempO365PaymentTerms.RefreshRecords();
                         if TempO365PaymentTerms.Get(PaymentTermsCode) then;
                         if PAGE.RunModal(PAGE::"O365 Payment Terms List", TempO365PaymentTerms) = ACTION::LookupOK then
                             O365SalesInitialSetup.UpdateDefaultPaymentTerms(TempO365PaymentTerms.Code);
-                        UpdateFields;
+                        UpdateFields();
                     end;
                 }
             }
@@ -41,7 +45,7 @@ page 2338 "BC O365 Payments Settings"
                 ShowCaption = false;
                 field(PaymentInstructionsShortName; PaymentInstructionsShortName)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Payment instructions';
                     Importance = Promoted;
 
@@ -58,7 +62,7 @@ page 2338 "BC O365 Payments Settings"
                             O365PaymentInstructions.Validate(Default, true);
                             O365PaymentInstructions.Modify(true);
                         end;
-                        UpdateFields;
+                        UpdateFields();
                     end;
                 }
             }
@@ -71,7 +75,7 @@ page 2338 "BC O365 Payments Settings"
 
     trigger OnInit()
     begin
-        UpdateFields;
+        UpdateFields();
     end;
 
     var
@@ -88,7 +92,7 @@ page 2338 "BC O365 Payments Settings"
 
         O365PaymentInstructions.SetRange(Default, true);
         if O365PaymentInstructions.FindFirst() then
-            PaymentInstructionsShortName := O365PaymentInstructions.GetNameInCurrentLanguage;
+            PaymentInstructionsShortName := O365PaymentInstructions.GetNameInCurrentLanguage();
     end;
 }
-
+#endif

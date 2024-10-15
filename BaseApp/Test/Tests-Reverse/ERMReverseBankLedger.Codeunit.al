@@ -58,7 +58,7 @@
         end;
         // Verify: Verify Reversal Process for Blocked Bank Account Ledger Entry.
         Assert.AreEqual(
-          StrSubstNo(BlockedErr, false, BankAccount.TableCaption, BankAccountLedgerEntry."Bank Account No.", true),
+          StrSubstNo(BlockedErr, false, BankAccount.TableCaption(), BankAccountLedgerEntry."Bank Account No.", true),
           GetLastErrorText, VerifyErr);
     end;
 
@@ -84,7 +84,7 @@
         end;
         // Verify: Verify Reversing Error.
         Assert.AreEqual(
-          StrSubstNo(CheckLedgerEntryErr, BankAccountLedgerEntry.TableCaption, BankAccountLedgerEntry."Entry No."),
+          StrSubstNo(CheckLedgerEntryErr, BankAccountLedgerEntry.TableCaption(), BankAccountLedgerEntry."Entry No."),
           GetLastErrorText, VerifyErr);
     end;
 
@@ -112,12 +112,12 @@
         end;
         // Verify: Verify Reversing Error on Bank Account Ledger Entry.
         Assert.AreEqual(
-          StrSubstNo(VoidCheckErr, BankAccountLedgerEntry.TableCaption, BankAccountLedgerEntry."Entry No."),
+          StrSubstNo(VoidCheckErr, BankAccountLedgerEntry.TableCaption(), BankAccountLedgerEntry."Entry No."),
           GetLastErrorText, VerifyErr);
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandler,AdjustExchangeRatesReportHandler,StatisticsMessageHandler')]
+    [HandlerFunctions('ConfirmHandler,StatisticsMessageHandler')]
     [Scope('OnPrem')]
     procedure ReverseAdjustExchangeRate()
     var
@@ -145,7 +145,7 @@
         end;
         // Verify: Verify Reversing Error for Customer Ledger Entry After Updation of Currency.
         Assert.AreEqual(
-          ReversalEntry.ReversalErrorForChangedEntry(CustLedgerEntry.TableCaption, EntryNo),
+          ReversalEntry.ReversalErrorForChangedEntry(CustLedgerEntry.TableCaption(), EntryNo),
           GetLastErrorText, VerifyErr);
     end;
 
@@ -173,7 +173,7 @@
         end;
         // Verify: Verify Reversing Error for Bank Account Ledger Entry After creating Bank Reconciliation.
         Assert.AreEqual(
-          StrSubstNo(ReconciliationErr, BankAccountLedgerEntry.TableCaption, BankAccountLedgerEntry."Entry No."),
+          StrSubstNo(ReconciliationErr, BankAccountLedgerEntry.TableCaption(), BankAccountLedgerEntry."Entry No."),
           GetLastErrorText, VerifyErr);
     end;
 
@@ -225,7 +225,7 @@
         ReverseBankAccountLedgerEntry(BankAccountLedgerEntry, DocumentNo);
 
         // Verify: Verify Reverse Error on Bank Account Ledger Entry After Run Data Compress.
-        Assert.AreEqual(StrSubstNo(CompressErr, BankAccountLedgerEntry.TableCaption), GetLastErrorText, VerifyErr);
+        Assert.AreEqual(StrSubstNo(CompressErr, BankAccountLedgerEntry.TableCaption()), GetLastErrorText, VerifyErr);
     end;
 
     [Test]
@@ -247,7 +247,7 @@
         ReverseCustomerLedgerEntry(DocumentNo);
 
         // Verify: Verify Reverse Error on Customer Ledger Entry After Run Data Compress.
-        Assert.AreEqual(StrSubstNo(CompressErr, BankAccountLedgerEntry.TableCaption), GetLastErrorText, VerifyErr);
+        Assert.AreEqual(StrSubstNo(CompressErr, BankAccountLedgerEntry.TableCaption()), GetLastErrorText, VerifyErr);
     end;
 
     [Test]
@@ -269,7 +269,7 @@
         ReverseVendorLedgerEntry(DocumentNo);
 
         // Verify: Verify Reverse Error on Vendor Ledger Entry After Run Data Compress.
-        Assert.AreEqual(StrSubstNo(CompressErr, BankAccountLedgerEntry.TableCaption), GetLastErrorText, VerifyErr);
+        Assert.AreEqual(StrSubstNo(CompressErr, BankAccountLedgerEntry.TableCaption()), GetLastErrorText, VerifyErr);
     end;
 
     [Test]
@@ -324,7 +324,7 @@
 
             // Verify: Verify that Document type is not empty in the bank account ledger entry.
             VerifyRefundBankAccLedgerEntry("Bal. Account No.", "Posting Date", "Document No.", -Amount, GetGenJnlSourceCode);
-            VerifyBankAccLedgerEntry("Bal. Account No.", WorkDate, "Document No.", Amount, GetFinVoidedSourceCode);
+            VerifyBankAccLedgerEntry("Bal. Account No.", WorkDate(), "Document No.", Amount, GetFinVoidedSourceCode);
         end;
     end;
 
@@ -468,7 +468,6 @@
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandler')]
     [Scope('OnPrem')]
     procedure ApplyVendorCheckLedgerEntries()
     var
@@ -485,18 +484,13 @@
               "Bank Payment Type"::"Manual Check", '', CreateBankAccount, LibraryRandom.RandDec(100, 2), '');
             CreateAndSuggestBankReconcltn(BankAccReconciliation, "Bal. Account No.", "Posting Date");
         end;
-        ModifyTypeOnBankAccReconciliationLine(BankAccReconciliation);
         // Exercise: Open Apply Entries from Bank Acc. Reconciliation Page.
         BankAccReconciliationPage.OpenEdit;
         BankAccReconciliationPage.FILTER.SetFilter("Bank Account No.", GenJournalLine."Bal. Account No.");
         BankAccReconciliationPage.MatchManually.Invoke;
 
         // Verify:
-        // ApplyCheckLedgerEntries.LineApplied.ASSERTEQUALS(FALSE);
-        BankAccReconciliationPage.StmtLine."Applied Amount".AssertEquals(0);
-        // Also Verifies no error message appears when apply or unapply Ledger Entry.
-        // ApplyCheckLedgerEntries.LineApplied.SETVALUE(TRUE);
-        // BankAccReconciliationPage.StmtLine."Applied Amount".ASSERTEQUALS(-GenJournalLine.Amount);
+        BankAccReconciliationPage.StmtLine."Applied Amount".ASSERTEQUALS(-GenJournalLine.Amount);
     end;
 
     [Test]
@@ -515,7 +509,7 @@
         // [FEATURE] [Bank Account Reconcilation]
         // [SCENARIO 379442] On reversal, Bank Account Ledger entry is closed along with reversal entry
         Initialize();
-        PostingDate := WorkDate;
+        PostingDate := WorkDate();
 
         // [GIVEN] Posted payment "P1" to vendor "V" from bank "X" with amount 100
         // [GIVEN] Payment "P1" reversed
@@ -531,7 +525,7 @@
         repeat
             BankAccReconciliationLine.Validate("Statement Amount", 0);
             BankAccReconciliationLine.Modify(true);
-        until BankAccReconciliationLine.Next = 0;
+        until BankAccReconciliationLine.Next() = 0;
         BankAccReconciliationLine.SetRange("Document No.");
         BankAccReconciliationLine.CalcSums("Statement Amount");
         BankAccReconciliation.Validate("Statement Ending Balance", BankAccReconciliationLine."Statement Amount");
@@ -593,7 +587,7 @@
         VerifyPaymentBankAccLedgerEntry(
           BankAccountNo, GenJournalLine."Posting Date", DocumentNo, -(InvoiceAmount - CrMemoAmount), GetPmtJnlSourceCode);
         VerifyBankAccLedgerEntry(
-          BankAccountNo, WorkDate, DocumentNo, InvoiceAmount - CrMemoAmount, GetFinVoidedSourceCode);
+          BankAccountNo, WorkDate(), DocumentNo, InvoiceAmount - CrMemoAmount, GetFinVoidedSourceCode);
         // [THEN] There are two voided Vendor Ledger Entries with empty "Document Type" related to Void Check
         VerifyVoidedVendorLedgerEntries(VendorNo, DocumentNo, 2);
     end;
@@ -617,7 +611,7 @@
         Initialize();
 
         // [GIVEN] Currency "C" having exchange Rate[1] = 2 at Date[1] = 01/01/2017 and Rate[2] = 3 at Date[2] = 01/02/2017
-        StartDate := WorkDate;
+        StartDate := WorkDate();
         ExchangeRate[1] := LibraryRandom.RandDecInRange(30, 40, 2);
         ExchangeRate[2] := LibraryRandom.RandDecInRange(10, 20, 2);
         Currency.Get(LibraryERM.CreateCurrencyWithExchangeRate(StartDate, ExchangeRate[1], 1));
@@ -693,7 +687,7 @@
         // [GIVEN] Bank Account Reconciliation for the Bank Account
         LibraryERM.CreateBankAccReconciliation(
           BankAccReconciliation, GenJournalLine."Bal. Account No.", BankAccReconciliation."Statement Type"::"Bank Reconciliation");
-        BankAccReconciliation.Validate("Statement Date", WorkDate);
+        BankAccReconciliation.Validate("Statement Date", WorkDate());
         BankAccReconciliation.Modify(true);
 
         // [GIVEN] Bank Account Reconciliation is opened for the Bank Account
@@ -783,10 +777,10 @@
         Initialize();
 
         // [GIVEN] Bank account with 3 ledger entries: two reversed and one normal
-        CreatePostTwoPmtWithOneReversed(BankAccountNo, ReversedDocumentNo, DocumentNo, WorkDate);
+        CreatePostTwoPmtWithOneReversed(BankAccountNo, ReversedDocumentNo, DocumentNo, WorkDate());
 
         // [WHEN] Run REP 1496 "Suggest Bank Acc. Recon. Lines" for the given bank account using "Exclude Reversed Entries" = FALSE
-        CreateAndSuggestBankReconcltn(BankAccReconciliation, BankAccountNo, WorkDate);
+        CreateAndSuggestBankReconcltn(BankAccReconciliation, BankAccountNo, WorkDate());
 
         // [THEN] Three lines have been suggested
         FindBankAccReconciliationLines(BankAccReconciliationLine, BankAccReconciliation);
@@ -816,11 +810,11 @@
         Initialize();
 
         // [GIVEN] Bank account with 3 ledger entries: two reversed and one normal
-        CreatePostTwoPmtWithOneReversed(BankAccountNo, ReversedDocumentNo, DocumentNo, WorkDate);
+        CreatePostTwoPmtWithOneReversed(BankAccountNo, ReversedDocumentNo, DocumentNo, WorkDate());
 
         // [WHEN] Run REP 1496 "Suggest Bank Acc. Recon. Lines" for the given bank account using "Exclude Reversed Entries" = TRUE
         BindSubscription(ERMReverseBankLedger);
-        CreateAndSuggestBankReconcltn(BankAccReconciliation, BankAccountNo, WorkDate);
+        CreateAndSuggestBankReconcltn(BankAccReconciliation, BankAccountNo, WorkDate());
 
         // [THEN] One line ("normal") has been suggested
         FindBankAccReconciliationLines(BankAccReconciliationLine, BankAccReconciliation);
@@ -840,13 +834,12 @@
 
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Reverse Bank Ledger");
         LibraryFiscalYear.CreateClosedAccountingPeriods();
-        LibraryFiscalYear.CreateFiscalYear();
         LibraryERMCountryData.DisableActivateChequeNoOnGeneralLedgerSetup();
         LibraryERMCountryData.UpdateLocalPostingSetup();
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.UpdateLocalData();
-        LibraryERM.SetJournalTemplateNameMandatory(false);
+        LibraryERMCountryData.UpdateJournalTemplMandatory(false);
 
         isInitialized := true;
         Commit();
@@ -1088,16 +1081,7 @@
         DateComprRegister.SetRange("Table ID", DATABASE::"Bank Account Ledger Entry");
         if DateComprRegister.FindLast() then
             exit(DateComprRegister."Ending Date");
-        exit(WorkDate);
-    end;
-
-    local procedure ModifyTypeOnBankAccReconciliationLine(BankAccReconciliation: Record "Bank Acc. Reconciliation")
-    var
-        BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
-    begin
-        FindBankAccReconciliationLines(BankAccReconciliationLine, BankAccReconciliation);
-        BankAccReconciliationLine.Validate(Type, BankAccReconciliationLine.Type::"Check Ledger Entry");
-        BankAccReconciliationLine.Modify(true);
+        exit(WorkDate());
     end;
 
     local procedure ModifyCurrencyAndExchangeRate("Code": Code[10]): Code[10]
@@ -1154,7 +1138,7 @@
         BankAccountLedgerEntry.FindFirst();
         ReversalEntry.SetHideDialog(true);
         ReversalEntry.ReverseTransaction(BankAccountLedgerEntry."Transaction No.");
-        BankAccountLedgerEntry.Find;
+        BankAccountLedgerEntry.Find();
     end;
 
     local procedure ReverseCustomerLedgerEntry(DocumentNo: Code[20]): Integer
@@ -1200,7 +1184,7 @@
         SuggestVendorPayments.SetTableView(Vendor);
         SuggestVendorPayments.SetGenJnlLine(GenJournalLine);
         SuggestVendorPayments.InitializeRequest(
-          CalcDate('<2M>', WorkDate), false, 0, false, CalcDate('<2M>', WorkDate), LibraryUtility.GenerateGUID, false,
+          CalcDate('<2M>', WorkDate()), false, 0, false, CalcDate('<2M>', WorkDate()), LibraryUtility.GenerateGUID, false,
           GenJournalLine."Bal. Account Type"::"Bank Account", BankAccountNo, GenJournalLine."Bank Payment Type"::"Computer Check");
         SuggestVendorPayments.UseRequestPage(false);
         SuggestVendorPayments.RunModal();
@@ -1215,7 +1199,6 @@
         Check.InitializeRequest(BankAccountNo, GetBankAccountLastCheckNo(BankAccountNo), true, false, false, false);
         Check.UseRequestPage(false);
         Check.SaveAsXml(LibraryReportDataset.GetParametersFileName);
-        GenJournalLine.ModifyAll("Bal. Account Type", GenJournalLine."Bal. Account Type"::"G/L Account", false);
     end;
 
     local procedure VoidCheck(BankAccountNo: Code[20]; DocumentNo: Code[20]; NewVoidType: Option)
@@ -1279,7 +1262,7 @@
     begin
         with DummyVendorLedgerEntry do begin
             SetRange("Vendor No.", VendorNo);
-            SetRange("Posting Date", WorkDate);
+            SetRange("Posting Date", WorkDate());
             SetRange("Document Type", "Document Type"::" ");
             SetRange("Document No.", DocumentNo);
             SetRange("Source Code", GetFinVoidedSourceCode);
@@ -1291,7 +1274,7 @@
     [Scope('OnPrem')]
     procedure VoidCheckPageHandler(var ConfirmFinancialVoid: Page "Confirm Financial Void"; var Response: Action)
     begin
-        ConfirmFinancialVoid.InitializeRequest(WorkDate, LibraryVariableStorage.DequeueInteger);
+        ConfirmFinancialVoid.InitializeRequest(WorkDate(), LibraryVariableStorage.DequeueInteger);
         Response := ACTION::Yes;
     end;
 
@@ -1322,14 +1305,6 @@
         LibraryVariableStorage.Enqueue(SuggestBankAccReconLines.ExcludeReversedEntries.Visible);
         LibraryVariableStorage.Enqueue(SuggestBankAccReconLines.ExcludeReversedEntries.Enabled);
         SuggestBankAccReconLines.Cancel.Invoke;
-    end;
-
-    [ReportHandler]
-    [Scope('OnPrem')]
-    procedure AdjustExchangeRatesReportHandler(var AdjustExchangeRates: Report "Adjust Exchange Rates")
-    begin
-        // NAVCZ
-        AdjustExchangeRates.SaveAsExcel(TemporaryPath + '.xlsx')
     end;
 
     [EventSubscriber(ObjectType::Report, Report::"Suggest Bank Acc. Recon. Lines", 'OnPreDataItemBankAccount', '', false, false)]

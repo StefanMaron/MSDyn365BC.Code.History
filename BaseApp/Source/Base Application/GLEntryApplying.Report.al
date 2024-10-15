@@ -22,7 +22,7 @@ report 11767 "G/L Entry Applying"
             column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
             {
             }
-            column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+            column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
             column(gteAccFilter; AccFilter)
@@ -98,7 +98,7 @@ report 11767 "G/L Entry Applying"
                                 "Amount to Apply" := "Amount to Apply" - (TotalAmount + OriginalAmount);
                                 TotalAmount := -OriginalAmount;
                             end;
-                            Modify;
+                            Modify();
                             Apply := true;
                             if TotalAmount = -OriginalAmount then
                                 CurrReport.Break();
@@ -139,7 +139,7 @@ report 11767 "G/L Entry Applying"
                             if DetailedGLEntry.FindLast() then
                                 LastEntry := DetailedGLEntry."Entry No.";
 
-                            ApplyGLEntry.NotUseRequestForm;
+                            ApplyGLEntry.NotUseRequestForm();
                             ApplyGLEntry.PostApplyGLEntry(OriginalEntry);
                             Clear(ApplyGLEntry);
 
@@ -247,9 +247,9 @@ report 11767 "G/L Entry Applying"
                     trigger OnAfterGetRecord()
                     begin
                         if Number = 1 then
-                            TDetailedGLEntry.FindSet
+                            TDetailedGLEntry.FindSet()
                         else
-                            TDetailedGLEntry.Next;
+                            TDetailedGLEntry.Next();
 
                         GLEntry.Get(TDetailedGLEntry."G/L Entry No.");
                     end;
@@ -346,8 +346,8 @@ report 11767 "G/L Entry Applying"
 
     trigger OnPreReport()
     begin
-        AccFilter := "G/L Account".GetFilters;
-        GLEntryFilter := OriginalEntry.GetFilters;
+        AccFilter := "G/L Account".GetFilters();
+        GLEntryFilter := OriginalEntry.GetFilters();
     end;
 
     var

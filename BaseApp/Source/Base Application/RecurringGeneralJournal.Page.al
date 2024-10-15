@@ -5,10 +5,9 @@ page 283 "Recurring General Journal"
     ApplicationArea = Suite, FixedAssets;
     AutoSplitKey = true;
     Caption = 'Recurring General Journals';
-    DataCaptionExpression = DataCaption;
+    DataCaptionExpression = DataCaption();
     DelayedInsert = true;
     PageType = Worksheet;
-    PromotedActionCategories = 'New,Process,Report,Post/Print,Line,Account,Page';
     SaveValues = true;
     SourceTable = "Gen. Journal Line";
     UsageCategory = Tasks;
@@ -26,7 +25,7 @@ page 283 "Recurring General Journal"
 
                 trigger OnLookup(var Text: Text): Boolean
                 begin
-                    CurrPage.SaveRecord;
+                    CurrPage.SaveRecord();
                     GenJnlManagement.LookupName(CurrentJnlBatchName, Rec);
                     CurrPage.Update(false);
                 end;
@@ -34,13 +33,13 @@ page 283 "Recurring General Journal"
                 trigger OnValidate()
                 begin
                     GenJnlManagement.CheckName(CurrentJnlBatchName, Rec);
-                    CurrentJnlBatchNameOnAfterVali;
+                    CurrentJnlBatchNameOnAfterVali();
                 end;
             }
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Recurring Method"; "Recurring Method")
+                field("Recurring Method"; Rec."Recurring Method")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies a recurring method if the Recurring field of the General Journal Template table indicates the journal is recurring.';
@@ -50,33 +49,33 @@ page 283 "Recurring General Journal"
                         IsDimensionBalanceLine();
                     end;
                 }
-                field("Recurring Frequency"; "Recurring Frequency")
+                field("Recurring Frequency"; Rec."Recurring Frequency")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies a recurring frequency if the Recurring field of the General Journal Template table indicates the journal is recurring.';
                 }
-                field("Posting Date"; "Posting Date")
+                field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the posting date for the entry.';
                 }
-                field("Document Date"; "Document Date")
+                field("Document Date"; Rec."Document Date")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the date when the related document was created.';
                     Visible = false;
                 }
-                field("Document Type"; "Document Type")
+                field("Document Type"; Rec."Document Type")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the type of document that the entry on the journal line is.';
                 }
-                field("Document No."; "Document No.")
+                field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies a document number for the journal line.';
                 }
-                field("Account Type"; "Account Type")
+                field("Account Type"; Rec."Account Type")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the type of account that the entry on the journal line will be posted to.';
@@ -87,7 +86,7 @@ page 283 "Recurring General Journal"
                         CurrPage.SaveRecord();
                     end;
                 }
-                field("Account No."; "Account No.")
+                field("Account No."; Rec."Account No.")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the account number that the entry on the journal line will be posted to.';
@@ -99,24 +98,13 @@ page 283 "Recurring General Journal"
                         CurrPage.SaveRecord();
                     end;
                 }
-#if not CLEAN18
-                field("Posting Group"; "Posting Group")
-                {
-                    ApplicationArea = Suite;
-                    ToolTip = 'Specifies the posting group that will be used in posting the journal line.The field is used only if the account type is either customer or vendor.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '18.0';
-                    Visible = false;
-                }
-#endif
-                field("Depreciation Book Code"; "Depreciation Book Code")
+                field("Depreciation Book Code"; Rec."Depreciation Book Code")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the code for the depreciation book to which the line will be posted if you have selected Fixed Asset in the Type field for this line.';
                     Visible = false;
                 }
-                field("FA Posting Type"; "FA Posting Type")
+                field("FA Posting Type"; Rec."FA Posting Type")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the posting type, if Account Type field contains Fixed Asset.';
@@ -127,25 +115,25 @@ page 283 "Recurring General Journal"
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies a description of the entry.';
                 }
-                field("Business Unit Code"; "Business Unit Code")
+                field("Business Unit Code"; Rec."Business Unit Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code of the business unit that the entry derives from in a consolidated company.';
                     Visible = false;
                 }
-                field("Salespers./Purch. Code"; "Salespers./Purch. Code")
+                field("Salespers./Purch. Code"; Rec."Salespers./Purch. Code")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the salesperson or purchaser who is linked to the journal line.';
                     Visible = false;
                 }
-                field("Campaign No."; "Campaign No.")
+                field("Campaign No."; Rec."Campaign No.")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the number of the campaign that the journal line is linked to.';
                     Visible = false;
                 }
-                field("Currency Code"; "Currency Code")
+                field("Currency Code"; Rec."Currency Code")
                 {
                     ApplicationArea = Suite;
                     AssistEdit = true;
@@ -155,28 +143,28 @@ page 283 "Recurring General Journal"
                     trigger OnAssistEdit()
                     begin
                         ChangeExchangeRate.SetParameter("Currency Code", "Currency Factor", "Posting Date");
-                        if ChangeExchangeRate.RunModal = ACTION::OK then
-                            Validate("Currency Factor", ChangeExchangeRate.GetParameter);
+                        if ChangeExchangeRate.RunModal() = ACTION::OK then
+                            Validate("Currency Factor", ChangeExchangeRate.GetParameter());
 
                         Clear(ChangeExchangeRate);
                     end;
                 }
-                field("Gen. Posting Type"; "Gen. Posting Type")
+                field("Gen. Posting Type"; Rec."Gen. Posting Type")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the type of transaction.';
                 }
-                field("Gen. Bus. Posting Group"; "Gen. Bus. Posting Group")
+                field("Gen. Bus. Posting Group"; Rec."Gen. Bus. Posting Group")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the vendor''s or customer''s trade type to link transactions made for this vendor with the appropriate general ledger account according to the general posting setup.';
                 }
-                field("Gen. Prod. Posting Group"; "Gen. Prod. Posting Group")
+                field("Gen. Prod. Posting Group"; Rec."Gen. Prod. Posting Group")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the item''s product type to link transactions made for this item with the appropriate general ledger account according to the general posting setup.';
                 }
-                field("VAT Bus. Posting Group"; "VAT Bus. Posting Group")
+                field("VAT Bus. Posting Group"; Rec."VAT Bus. Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT specification of the involved customer or vendor to link transactions made for this record with the appropriate general ledger account according to the VAT posting setup.';
@@ -191,7 +179,7 @@ page 283 "Recurring General Journal"
                     ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
                     ObsoleteTag = '20.0';
                 }
-                field("VAT Prod. Posting Group"; "VAT Prod. Posting Group")
+                field("VAT Prod. Posting Group"; Rec."VAT Prod. Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT specification of the involved item or resource to link transactions made for this record with the appropriate general ledger account according to the VAT posting setup.';
@@ -203,26 +191,26 @@ page 283 "Recurring General Journal"
                     ToolTip = 'Specifies the total amount (including VAT) that the journal line consists of.';
                     Visible = AmountVisible;
                 }
-                field("Amount (LCY)"; "Amount (LCY)")
+                field("Amount (LCY)"; Rec."Amount (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the total amount in local currency (including VAT) that the journal line consists of.';
                     Visible = AmountVisible;
                 }
-                field("Debit Amount"; "Debit Amount")
+                field("Debit Amount"; Rec."Debit Amount")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the total of the ledger entries that represent debits.';
                     Visible = DebitCreditVisible;
                 }
-                field("Credit Amount"; "Credit Amount")
+                field("Credit Amount"; Rec."Credit Amount")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the total of the ledger entries that represent credits.';
                     Visible = DebitCreditVisible;
                 }
 #if not CLEAN20
-                field("VAT Amount (LCY)"; "VAT Amount (LCY)")
+                field("VAT Amount (LCY)"; Rec."VAT Amount (LCY)")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the amount of VAT included in the total amount, expressed in LCY.';
@@ -231,7 +219,7 @@ page 283 "Recurring General Journal"
                     ObsoleteReason = 'The functionality will be removed and this field should not be used.';
                     ObsoleteTag = '20.0';
                 }
-                field("Bal. VAT Amount (LCY)"; "Bal. VAT Amount (LCY)")
+                field("Bal. VAT Amount (LCY)"; Rec."Bal. VAT Amount (LCY)")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the amount of Bal. VAT included in the total amount.';
@@ -241,25 +229,25 @@ page 283 "Recurring General Journal"
                     ObsoleteTag = '20.0';
                 }
 #endif
-                field("VAT Amount"; "VAT Amount")
+                field("VAT Amount"; Rec."VAT Amount")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the amount of VAT that is included in the total amount.';
                     Visible = false;
                 }
-                field("VAT Difference"; "VAT Difference")
+                field("VAT Difference"; Rec."VAT Difference")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the difference between the calculated VAT amount and a VAT amount that you have entered manually.';
                     Visible = false;
                 }
-                field("Payment Terms Code"; "Payment Terms Code")
+                field("Payment Terms Code"; Rec."Payment Terms Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a formula that calculates the payment due date, payment discount date, and payment discount amount.';
                     Visible = false;
                 }
-                field("Due Date"; "Due Date")
+                field("Due Date"; Rec."Due Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the due date on the entry.';
@@ -268,50 +256,50 @@ page 283 "Recurring General Journal"
                     ObsoleteReason = 'The functionality will be removed and this field should not be used.';
                     ObsoleteTag = '20.0';
                 }
-                field("Applies-to Doc. Type"; "Applies-to Doc. Type")
+                field("Applies-to Doc. Type"; Rec."Applies-to Doc. Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the type of the posted document that this document or journal line will be applied to when you post, for example to register payment.';
                     Visible = false;
                 }
-                field("Applies-to Doc. No."; "Applies-to Doc. No.")
+                field("Applies-to Doc. No."; Rec."Applies-to Doc. No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the posted document that this document or journal line will be applied to when you post, for example to register payment.';
                     Visible = false;
                 }
-                field("Applies-to ID"; "Applies-to ID")
+                field("Applies-to ID"; Rec."Applies-to ID")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the ID of entries that will be applied to when you choose the Apply Entries action.';
                     Visible = false;
                 }
-                field("On Hold"; "On Hold")
+                field("On Hold"; Rec."On Hold")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies that the related entry represents an unpaid invoice for which either a payment suggestion, a reminder, or a finance charge memo exists.';
                     Visible = false;
                 }
-                field("Bank Payment Type"; "Bank Payment Type")
+                field("Bank Payment Type"; Rec."Bank Payment Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code for the payment type to be used for the entry on the journal line.';
                     Visible = false;
                 }
-                field("Reason Code"; "Reason Code")
+                field("Reason Code"; Rec."Reason Code")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the reason code, a supplementary source code that enables you to trace the entry.';
                     Visible = false;
                 }
-                field("Allocated Amt. (LCY)"; "Allocated Amt. (LCY)")
+                field("Allocated Amt. (LCY)"; Rec."Allocated Amt. (LCY)")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the amount that has been allocated when you have used the Allocations function in the Gen. Jnl. Allocation table.';
 
                     trigger OnDrillDown()
                     begin
-                        CurrPage.SaveRecord;
+                        CurrPage.SaveRecord();
                         Commit();
                         GenJnlAlloc.Reset();
                         GenJnlAlloc.SetRange("Journal Template Name", "Journal Template Name");
@@ -321,63 +309,25 @@ page 283 "Recurring General Journal"
                         CurrPage.Update(false);
                     end;
                 }
-                field("Bill-to/Pay-to No."; "Bill-to/Pay-to No.")
+                field("Bill-to/Pay-to No."; Rec."Bill-to/Pay-to No.")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the number of the bill-to customer or pay-to vendor that the entry is linked to.';
                     Visible = false;
                 }
-                field("Ship-to/Order Address Code"; "Ship-to/Order Address Code")
+                field("Ship-to/Order Address Code"; Rec."Ship-to/Order Address Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the address code of the ship-to customer or order-from vendor that the entry is linked to.';
                     Visible = false;
                 }
-#if not CLEAN18
-                field("Bank Account Code"; "Bank Account Code")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies a code to idenfity bank account.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '18.0';
-                }
-                field("Variable Symbol"; "Variable Symbol")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the detail information for payment.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '18.0';
-                }
-                field("Constant Symbol"; "Constant Symbol")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the additional symbol of bank payments.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '18.0';
-                }
-                field("Specific Symbol"; "Specific Symbol")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the additional symbol of bank payments.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '18.0';
-                }
-#endif
-                field("Expiration Date"; "Expiration Date")
+                field("Expiration Date"; Rec."Expiration Date")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the last date the recurring journal will be posted, if you have indicated in the journal is recurring.';
                 }
 #if not CLEAN20
-                field("Job No."; "Job No.")
+                field("Job No."; Rec."Job No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the Job No. It is a required field and must be filled in. When you fill in this field and the Job Task No. field, a job ledger entry will be posted together with the journal line.';
@@ -386,7 +336,7 @@ page 283 "Recurring General Journal"
                     ObsoleteReason = 'The functionality will be removed and this field should not be used.';
                     ObsoleteTag = '20.0';
                 }
-                field("Job Task No."; "Job Task No.")
+                field("Job Task No."; Rec."Job Task No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the Job Task No. It is a required field and must be filled in. When you fill in this field and the Job No. field, a job ledger entry will be posted together with the journal line.';
@@ -395,7 +345,7 @@ page 283 "Recurring General Journal"
                     ObsoleteReason = 'The functionality will be removed and this field should not be used.';
                     ObsoleteTag = '20.0';
                 }
-                field("Job Line Type"; "Job Line Type")
+                field("Job Line Type"; Rec."Job Line Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a Job Planning Line together with the posting of a job ledger entry.';
@@ -404,7 +354,7 @@ page 283 "Recurring General Journal"
                     ObsoleteReason = 'The functionality will be removed and this field should not be used.';
                     ObsoleteTag = '20.0';
                 }
-                field("Job Unit Of Measure Code"; "Job Unit Of Measure Code")
+                field("Job Unit Of Measure Code"; Rec."Job Unit Of Measure Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the unit of measure code the program uses when it determines the unit price. This code specifies how the quantity is measured, for example, by the box or by the piece.';
@@ -413,7 +363,7 @@ page 283 "Recurring General Journal"
                     ObsoleteReason = 'The functionality will be removed and this field should not be used.';
                     ObsoleteTag = '20.0';
                 }
-                field("Job Quantity"; "Job Quantity")
+                field("Job Quantity"; Rec."Job Quantity")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the quantity for the job ledger entry that is derived from posting the journal line. If the Job Quantity is 0, the total amount on the job ledger entry will also be 0.';
@@ -422,7 +372,7 @@ page 283 "Recurring General Journal"
                     ObsoleteReason = 'The functionality will be removed and this field should not be used.';
                     ObsoleteTag = '20.0';
                 }
-                field("Job Unit Cost"; "Job Unit Cost")
+                field("Job Unit Cost"; Rec."Job Unit Cost")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if you have assigned a job number, a job task number, and a job quantity to the journal line. It Specifies the Total Job Cost divided by Job Quantity for the journal line. The amount is shown in the currency specified for the job.';
@@ -431,7 +381,7 @@ page 283 "Recurring General Journal"
                     ObsoleteReason = 'The functionality will be removed and this field should not be used.';
                     ObsoleteTag = '20.0';
                 }
-                field("Job Unit Cost (LCY)"; "Job Unit Cost (LCY)")
+                field("Job Unit Cost (LCY)"; Rec."Job Unit Cost (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if you have assigned a job number, a job task number, and a Job Quantity on the journal line. The field is calculated based on the Job Total Cost (LCY) divided by Job Quantity for the journal line.';
@@ -440,7 +390,7 @@ page 283 "Recurring General Journal"
                     ObsoleteReason = 'The functionality will be removed and this field should not be used.';
                     ObsoleteTag = '20.0';
                 }
-                field("Job Total Cost"; "Job Total Cost")
+                field("Job Total Cost"; Rec."Job Total Cost")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if you have assigned a job number and a job task number to the journal line. It Specifies the Amount excluding VAT divided by Job Quantity for the journal line. The amount is shown in the currency specified for the job.';
@@ -449,7 +399,7 @@ page 283 "Recurring General Journal"
                     ObsoleteReason = 'The functionality will be removed and this field should not be used.';
                     ObsoleteTag = '20.0';
                 }
-                field("Job Total Cost (LCY)"; "Job Total Cost (LCY)")
+                field("Job Total Cost (LCY)"; Rec."Job Total Cost (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the job total cost if you have assigned a job number and a job task number to the journal line. It Specifies the Amount (LCY) excluding VAT Amount (LCY)for the journal line.';
@@ -458,7 +408,7 @@ page 283 "Recurring General Journal"
                     ObsoleteReason = 'The functionality will be removed and this field should not be used.';
                     ObsoleteTag = '20.0';
                 }
-                field("Job Unit Price"; "Job Unit Price")
+                field("Job Unit Price"; Rec."Job Unit Price")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the unit price for the selected Account Type and Account No. on the journal line. The unit price is in the job currency, derived from the currency code field in the Job Card.';
@@ -467,7 +417,7 @@ page 283 "Recurring General Journal"
                     ObsoleteReason = 'The functionality will be removed and this field should not be used.';
                     ObsoleteTag = '20.0';
                 }
-                field("Job Unit Price (LCY)"; "Job Unit Price (LCY)")
+                field("Job Unit Price (LCY)"; Rec."Job Unit Price (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the unit price for the selected Account Type and Account No. on the journal line. The unit price is in the local currency.';
@@ -476,7 +426,7 @@ page 283 "Recurring General Journal"
                     ObsoleteReason = 'The functionality will be removed and this field should not be used.';
                     ObsoleteTag = '20.0';
                 }
-                field("Job Line Amount"; "Job Line Amount")
+                field("Job Line Amount"; Rec."Job Line Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the net amount (excluding the Job Line Discount Amount) of the journal line. The amount shown is in the job currency, which is derived from the Currency Code field in the Job Card.';
@@ -485,7 +435,7 @@ page 283 "Recurring General Journal"
                     ObsoleteReason = 'The functionality will be removed and this field should not be used.';
                     ObsoleteTag = '20.0';
                 }
-                field("Job Line Amount (LCY)"; "Job Line Amount (LCY)")
+                field("Job Line Amount (LCY)"; Rec."Job Line Amount (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the net amount (excluding the Job Line Discount (LCY) Amount) of the journal line, in the local currency that will be used for the job ledger entry.';
@@ -494,7 +444,7 @@ page 283 "Recurring General Journal"
                     ObsoleteReason = 'The functionality will be removed and this field should not be used.';
                     ObsoleteTag = '20.0';
                 }
-                field("Job Line Discount Amount"; "Job Line Discount Amount")
+                field("Job Line Discount Amount"; Rec."Job Line Discount Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount of the discount that will be used for the job ledger entry.';
@@ -503,7 +453,7 @@ page 283 "Recurring General Journal"
                     ObsoleteReason = 'The functionality will be removed and this field should not be used.';
                     ObsoleteTag = '20.0';
                 }
-                field("Job Line Discount %"; "Job Line Discount %")
+                field("Job Line Discount %"; Rec."Job Line Discount %")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the job line discount percentage that will be used for the job ledger entry.';
@@ -512,7 +462,7 @@ page 283 "Recurring General Journal"
                     ObsoleteReason = 'The functionality will be removed and this field should not be used.';
                     ObsoleteTag = '20.0';
                 }
-                field("Job Total Price"; "Job Total Price")
+                field("Job Total Price"; Rec."Job Total Price")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the job total price in the job currency on the journal line.';
@@ -521,7 +471,7 @@ page 283 "Recurring General Journal"
                     ObsoleteReason = 'The functionality will be removed and this field should not be used.';
                     ObsoleteTag = '20.0';
                 }
-                field("Job Total Price (LCY)"; "Job Total Price (LCY)")
+                field("Job Total Price (LCY)"; Rec."Job Total Price (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the total price for the journal line. The total price is in the local currency.';
@@ -537,7 +487,7 @@ page 283 "Recurring General Journal"
                     ToolTip = 'Specifies a comment about the activity on the journal line. Note that the comment is not carried forward to posted entries.';
                     Visible = false;
                 }
-                field("Job Queue Status"; "Job Queue Status")
+                field("Job Queue Status"; Rec."Job Queue Status")
                 {
                     ApplicationArea = All;
                     Importance = Additional;
@@ -553,7 +503,7 @@ page 283 "Recurring General Journal"
                         JobQueueEntry.ShowStatusMsg("Job Queue Entry ID");
                     end;
                 }
-                field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
+                field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
@@ -564,7 +514,7 @@ page 283 "Recurring General Journal"
                         CheckShortcutDimCodeRecurringMethod("Shortcut Dimension 1 Code");
                     end;
                 }
-                field("Shortcut Dimension 2 Code"; "Shortcut Dimension 2 Code")
+                field("Shortcut Dimension 2 Code"; Rec."Shortcut Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
@@ -677,13 +627,13 @@ page 283 "Recurring General Journal"
                         OnAfterValidateShortcutDimCode(Rec, ShortcutDimCode, 8);
                     end;
                 }
-                field("Reverse Date Calculation"; "Reverse Date Calculation")
+                field("Reverse Date Calculation"; Rec."Reverse Date Calculation")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies posting date calculation formula for reverse recurring methods.';
                     Visible = false;
                 }
-                field("External Document No."; "External Document No.")
+                field("External Document No."; Rec."External Document No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a document number that refers to the customer''s or vendor''s numbering system.';
@@ -785,8 +735,6 @@ page 283 "Recurring General Journal"
                     ApplicationArea = Suite;
                     Caption = 'Allocations';
                     Image = Allocations;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     RunObject = Page Allocations;
                     RunPageLink = "Journal Template Name" = FIELD("Journal Template Name"),
                                   "Journal Batch Name" = FIELD("Journal Batch Name"),
@@ -799,8 +747,6 @@ page 283 "Recurring General Journal"
                     ApplicationArea = Dimensions;
                     Caption = 'Dimensions';
                     Image = Dimensions;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     ShortCutKey = 'Alt+D';
                     Enabled = not DimensionBalanceLine;
                     ToolTip = 'View or edit dimensions, such as area, project, or department, that you can assign to sales and purchase documents to distribute costs and analyze transaction history. The action is disabled for BD Balance by Dimension and RBD Reversing Balance by Dimension recurring methods.';
@@ -808,7 +754,7 @@ page 283 "Recurring General Journal"
                     trigger OnAction()
                     begin
                         ShowDimensions();
-                        CurrPage.SaveRecord;
+                        CurrPage.SaveRecord();
                     end;
                 }
             }
@@ -821,8 +767,6 @@ page 283 "Recurring General Journal"
                     ApplicationArea = Suite;
                     Caption = 'Card';
                     Image = EditLines;
-                    Promoted = true;
-                    PromotedCategory = Category6;
                     RunObject = Codeunit "Gen. Jnl.-Show Card";
                     ShortCutKey = 'Shift+F7';
                     ToolTip = 'View or change detailed information about the record on the document or journal line.';
@@ -832,8 +776,6 @@ page 283 "Recurring General Journal"
                     ApplicationArea = Suite;
                     Caption = 'Ledger E&ntries';
                     Image = GLRegisters;
-                    Promoted = true;
-                    PromotedCategory = Category6;
                     RunObject = Codeunit "Gen. Jnl.-Show Entries";
                     ShortCutKey = 'Ctrl+F7';
                     ToolTip = 'View the history of transactions that have been posted for the selected record.';
@@ -859,8 +801,6 @@ page 283 "Recurring General Journal"
                     ApplicationArea = Dimensions;
                     Caption = 'Set Dimension Filter';
                     Image = Filter;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     Enabled = DimensionBalanceLine;
                     ToolTip = 'Set a filter that can be used with the BD Balance by Dimension or RBD Reversing Balance by Dimension recurring methods. When applied, it will get the balance by dimensions from general ledger entries. The action is disabled for all recurring methods except BD Balance by Dimension and RBD Reversing Balance by Dimension options.';
 
@@ -912,9 +852,6 @@ page 283 "Recurring General Journal"
                     ApplicationArea = Suite;
                     Caption = 'P&ost';
                     Image = PostOrder;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
                     ShortCutKey = 'F9';
                     ToolTip = 'Finalize the document or journal by posting the amounts and quantities to the related accounts in your company books.';
 
@@ -930,8 +867,6 @@ page 283 "Recurring General Journal"
                     ApplicationArea = Suite;
                     Caption = 'Preview Posting';
                     Image = ViewPostedOrder;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     ShortCutKey = 'Ctrl+Alt+F9';
                     ToolTip = 'Review the different types of entries that will be created when you post the document or journal.';
 
@@ -947,9 +882,6 @@ page 283 "Recurring General Journal"
                     ApplicationArea = Suite;
                     Caption = 'Post and &Print';
                     Image = PostPrint;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
                     RunObject = Codeunit "Gen. Jnl.-Post+Print";
                     ShortCutKey = 'Shift+F9';
                     ToolTip = 'Finalize and prepare to print the document or journal. The values and quantities are posted to the related accounts. A report request window where you can specify what to include on the print-out.';
@@ -959,15 +891,12 @@ page 283 "Recurring General Journal"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Remove From Job Queue';
                     Image = RemoveLine;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
                     ToolTip = 'Remove the scheduled processing of this record from the job queue.';
                     Visible = JobQueueVisible;
 
                     trigger OnAction()
                     begin
-                        CancelBackgroundPosting;
+                        CancelBackgroundPosting();
                         SetJobQueueVisibility();
                         CurrPage.Update(false);
                     end;
@@ -981,10 +910,6 @@ page 283 "Recurring General Journal"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Edit in Excel';
                     Image = Excel;
-                    Promoted = true;
-                    PromotedCategory = Category7;
-                    PromotedIsBig = true;
-                    PromotedOnly = true;
                     ToolTip = 'Send the data in the journal to an Excel file for analysis or editing.';
                     Visible = IsSaaSExcelAddinEnabled;
                     AccessByPermission = System "Allow Action Export To Excel" = X;
@@ -998,12 +923,96 @@ page 283 "Recurring General Journal"
                 }
             }
         }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                group(Category_Category4)
+                {
+                    Caption = 'Post/Print', Comment = 'Generated from the PromotedActionCategories property index 3.';
+                    ShowAs = SplitButton;
+
+#if not CLEAN21
+                    actionref("Remove From Job Queue_Promoted"; "Remove From Job Queue")
+                    {
+                        Visible = false;
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Action is being demoted based on overall low usage.';
+                        ObsoleteTag = '21.0';
+                    }
+#endif
+                    actionref(Post_Promoted; Post)
+                    {
+                    }
+                    actionref(Preview_Promoted; Preview)
+                    {
+                    }
+                    actionref("Test Report_Promoted"; "Test Report")
+                    {
+                    }
+                    actionref("Post and &Print_Promoted"; "Post and &Print")
+                    {
+                    }
+                }
+                actionref(Allocations_Promoted; Allocations)
+                {
+                }
+            }
+            group(Category_Category5)
+            {
+                Caption = 'Line', Comment = 'Generated from the PromotedActionCategories property index 4.';
+
+                actionref(Dimensions_Promoted; Dimensions)
+                {
+                }
+                actionref(SetDimFilters_Promoted; SetDimFilters)
+                {
+                }
+            }
+            group(Category_Category6)
+            {
+                Caption = 'Account', Comment = 'Generated from the PromotedActionCategories property index 5.';
+
+#if not CLEAN21
+                actionref(Card_Promoted; Card)
+                {
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
+                    ObsoleteTag = '21.0';
+                }
+#endif
+#if not CLEAN21
+                actionref("Ledger E&ntries_Promoted"; "Ledger E&ntries")
+                {
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
+                    ObsoleteTag = '21.0';
+                }
+#endif
+            }
+            group(Category_Category7)
+            {
+                Caption = 'Page', Comment = 'Generated from the PromotedActionCategories property index 6.';
+
+                actionref(EditInExcel_Promoted; EditInExcel)
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+        }
     }
 
     trigger OnAfterGetCurrRecord()
     begin
         GenJnlManagement.GetAccounts(Rec, AccName, BalAccName);
-        UpdateBalance;
+        UpdateBalance();
         SetJobQueueVisibility();
         IsDimensionBalanceLine();
     end;
@@ -1024,7 +1033,7 @@ page 283 "Recurring General Journal"
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        UpdateBalance;
+        UpdateBalance();
         SetUpNewLine(xRec, Balance, BelowxRec);
         Clear(ShortcutDimCode);
     end;
@@ -1040,10 +1049,10 @@ page 283 "Recurring General Journal"
         if ClientTypeManagement.GetCurrentClientType() = CLIENTTYPE::ODataV4 then
             exit;
 
-        SetControlVisibility;
-        SetDimensionsVisibility;
+        SetControlVisibility();
+        SetDimensionsVisibility();
 
-        if IsOpenedFromBatch then begin
+        if IsOpenedFromBatch() then begin
             CurrentJnlBatchName := "Journal Batch Name";
             GenJnlManagement.OpenJnl(CurrentJnlBatchName, Rec);
             exit;
@@ -1061,7 +1070,6 @@ page 283 "Recurring General Journal"
         ClientTypeManagement: Codeunit "Client Type Management";
         Recon: Page Reconciliation;
         ChangeExchangeRate: Page "Change Exchange Rate";
-        CurrentJnlBatchName: Code[10];
         AccName: Text[100];
         BalAccName: Text[100];
         Balance: Decimal;
@@ -1081,6 +1089,7 @@ page 283 "Recurring General Journal"
         IsSaaSExcelAddinEnabled: Boolean;
 
     protected var
+        CurrentJnlBatchName: Code[10];
         ShortcutDimCode: array[8] of Code[20];
         DimVisible1: Boolean;
         DimVisible2: Boolean;
@@ -1118,7 +1127,7 @@ page 283 "Recurring General Journal"
 
     local procedure CurrentJnlBatchNameOnAfterVali()
     begin
-        CurrPage.SaveRecord;
+        CurrPage.SaveRecord();
         GenJnlManagement.SetName(CurrentJnlBatchName, Rec);
         CurrPage.Update(false);
     end;
@@ -1154,7 +1163,7 @@ page 283 "Recurring General Journal"
     local procedure SetJobQueueVisibility()
     begin
         JobQueueVisible := "Job Queue Status" = "Job Queue Status"::"Scheduled for Posting";
-        JobQueuesUsed := GeneralLedgerSetup.JobQueueActive;
+        JobQueuesUsed := GeneralLedgerSetup.JobQueueActive();
     end;
 
     local procedure IsDimensionBalanceLine()

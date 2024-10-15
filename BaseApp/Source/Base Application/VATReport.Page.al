@@ -16,7 +16,7 @@ page 740 "VAT Report"
             {
                 Caption = 'General';
                 Editable = IsEditable;
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
@@ -27,7 +27,7 @@ page 740 "VAT Report"
                             CurrPage.Update();
                     end;
                 }
-                field("VAT Report Version"; "VAT Report Version")
+                field("VAT Report Version"; Rec."VAT Report Version")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Version';
@@ -48,23 +48,23 @@ page 740 "VAT Report"
 
                     trigger OnValidate()
                     begin
-                        InitPageControllers;
+                        InitPageControllers();
                     end;
                 }
-                field("Amounts in Add. Rep. Currency"; "Amounts in Add. Rep. Currency")
+                field("Amounts in Add. Rep. Currency"; Rec."Amounts in Add. Rep. Currency")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies whether the amounts are in the additional reporting currency.';
                 }
-                field("Additional Information"; "Additional Information")
+                field("Additional Information"; Rec."Additional Information")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies the additional information must be added to VAT report.';
                     Visible = false;
                 }
-                field("Created Date-Time"; "Created Date-Time")
+                field("Created Date-Time"; Rec."Created Date-Time")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
@@ -75,29 +75,29 @@ page 740 "VAT Report"
                 {
                     Editable = false;
                     ShowCaption = false;
-                    field("Period Year"; "Period Year")
+                    field("Period Year"; Rec."Period Year")
                     {
                         ApplicationArea = Basic, Suite;
                         LookupPageID = "Date Lookup";
                         ToolTip = 'Specifies the year of the reporting period.';
                     }
-                    field("Period Type"; "Period Type")
+                    field("Period Type"; Rec."Period Type")
                     {
                         ApplicationArea = Basic, Suite;
                         ToolTip = 'Specifies the length of the reporting period. The field is empty if a custom period is defined.';
                     }
-                    field("Period No."; "Period No.")
+                    field("Period No."; Rec."Period No.")
                     {
                         ApplicationArea = Basic, Suite;
                         ToolTip = 'Specifies the specific reporting period to use. The field is empty if a custom period is defined.';
                     }
-                    field("Start Date"; "Start Date")
+                    field("Start Date"; Rec."Start Date")
                     {
                         ApplicationArea = Basic, Suite;
                         Importance = Additional;
                         ToolTip = 'Specifies the first date of the reporting period.';
                     }
-                    field("End Date"; "End Date")
+                    field("End Date"; Rec."End Date")
                     {
                         ApplicationArea = Basic, Suite;
                         Importance = Additional;
@@ -171,8 +171,8 @@ page 740 "VAT Report"
                     trigger OnAction()
                     begin
                         VATReportMediator.GetLines(Rec);
-                        CurrPage.VATReportLines.PAGE.SelectFirst;
-                        CheckForErrors;
+                        CurrPage.VATReportLines.PAGE.SelectFirst();
+                        CheckForErrors();
                     end;
                 }
                 action(Release)
@@ -190,7 +190,7 @@ page 740 "VAT Report"
                     trigger OnAction()
                     begin
                         VATReportMediator.Release(Rec);
-                        CheckForErrors;
+                        CheckForErrors();
                     end;
                 }
                 action(Generate)
@@ -227,7 +227,7 @@ page 740 "VAT Report"
                     trigger OnAction()
                     begin
                         VATReportMediator.Export(Rec);
-                        if not CheckForErrors then
+                        if not CheckForErrors() then
                             Message(ReportSubmittedMsg);
                     end;
                 }
@@ -262,7 +262,7 @@ page 740 "VAT Report"
                     trigger OnAction()
                     begin
                         VATReportMediator.Submit(Rec);
-                        if not CheckForErrors then
+                        if not CheckForErrors() then
                             Message(MarkAsSubmittedMsg);
                     end;
                 }
@@ -345,7 +345,7 @@ page 740 "VAT Report"
                     var
                         CalcAndPostVATSettlement: Report "Calc. and Post VAT Settlement";
                     begin
-                        CalcAndPostVATSettlement.InitializeRequest("Start Date", "End Date", WorkDate, "No.", '', false, false);
+                        CalcAndPostVATSettlement.InitializeRequest("Start Date", "End Date", WorkDate(), "No.", '', false, false);
                         CalcAndPostVATSettlement.Run();
                     end;
                 }
@@ -397,18 +397,18 @@ page 740 "VAT Report"
 
     trigger OnAfterGetRecord()
     begin
-        InitPageControllers;
+        InitPageControllers();
     end;
 
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean
     begin
-        InitPageControllers;
+        InitPageControllers();
     end;
 
     trigger OnOpenPage()
     begin
         if "No." <> '' then
-            InitPageControllers;
+            InitPageControllers();
         IsEditable := Status = Status::Open;
     end;
 
@@ -456,7 +456,7 @@ page 740 "VAT Report"
           (Status = Status::Closed);
         CalcAndPostVATStatus := Status = Status::Accepted;
         ReopenControllerStatus := Status = Status::Released;
-        InitReturnPeriodGroup;
+        InitReturnPeriodGroup();
         OnAfterInitPageControllers(Rec, SubmitControllerStatus, MarkAsSubmitControllerStatus, CalcAndPostVATStatus);
     end;
 
@@ -477,8 +477,8 @@ page 740 "VAT Report"
     begin
         TempErrorMessage.CopyFromContext(Rec);
         CurrPage.ErrorMessagesPart.PAGE.SetRecords(TempErrorMessage);
-        CurrPage.ErrorMessagesPart.PAGE.Update;
-        ErrorsExist := not TempErrorMessage.IsEmpty;
+        CurrPage.ErrorMessagesPart.PAGE.Update();
+        ErrorsExist := not TempErrorMessage.IsEmpty();
 
         exit(ErrorsExist);
     end;

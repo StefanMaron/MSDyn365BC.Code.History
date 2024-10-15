@@ -121,7 +121,7 @@ codeunit 137404 "SCM Manufacturing"
             Assert.IsTrue(ItemLedgerEntryNegative.IsEmpty,
               StrSubstNo('Expected ILE within filter %1 after posting/reverse posting to output journal',
                 ItemLedgerEntryNegative.GetFilters));
-        until ItemLedgerEntryPositive.Next = 0;
+        until ItemLedgerEntryPositive.Next() = 0;
     end;
 
     [Test]
@@ -220,8 +220,8 @@ codeunit 137404 "SCM Manufacturing"
         Initialize();
         CreateWorkCenterWithWorkCenterGroup(WorkCenter, '');
         LibraryManufacturing.CreateRegisteredAbsence(
-          RegisteredAbsence, RegisteredAbsence."Capacity Type"::"Work Center", WorkCenter."No.", WorkDate, GetRoundedTime(WorkDate),
-          GetRoundedTime(WorkDate));
+          RegisteredAbsence, RegisteredAbsence."Capacity Type"::"Work Center", WorkCenter."No.", WorkDate(), GetRoundedTime(WorkDate()),
+          GetRoundedTime(WorkDate()));
         RegisteredAbsence.Validate(Capacity, LibraryRandom.RandDec(10, 2));  // Taking Random value for Capacity.
         RegisteredAbsence.Modify(true);
 
@@ -283,7 +283,7 @@ codeunit 137404 "SCM Manufacturing"
 
         // Generating Random value for StartingTime and EndingTime as their value is not important for the test.Taking Random value for Capacity.
         LibraryManufacturing.CreateCalendarAbsenceEntry(
-          CalendarAbsenceEntry, CalendarAbsenceEntry."Capacity Type"::"Work Center", WorkCenter."No.", WorkDate, Time, Time,
+          CalendarAbsenceEntry, CalendarAbsenceEntry."Capacity Type"::"Work Center", WorkCenter."No.", WorkDate(), Time, Time,
           LibraryRandom.RandDec(10, 2));
 
         // [WHEN] Perform action Update for the Calendar Absence entry created.
@@ -311,7 +311,7 @@ codeunit 137404 "SCM Manufacturing"
         Initialize();
         CreateWorkCenterWithWorkCenterGroup(WorkCenter, CreateShopCalendarCodeWithAllDaysWorking(ShopCalendarWorkingDays));
         LibraryManufacturing.CreateCalendarAbsenceEntry(
-          CalendarAbsenceEntry, CalendarAbsenceEntry."Capacity Type"::"Work Center", WorkCenter."No.", WorkDate,
+          CalendarAbsenceEntry, CalendarAbsenceEntry."Capacity Type"::"Work Center", WorkCenter."No.", WorkDate(),
           ShopCalendarWorkingDays."Starting Time",
           ShopCalendarWorkingDays."Ending Time", LibraryRandom.RandDec(10, 2));  // Taking Random value for Capacity.
         CalendarAbsenceManagement.UpdateAbsence(CalendarAbsenceEntry);
@@ -349,11 +349,11 @@ codeunit 137404 "SCM Manufacturing"
         Initialize();
         CreateWorkCenterWithWorkCenterGroup(WorkCenter, CreateShopCalendarCodeWithAllDaysWorking(ShopCalendarWorkingDays));
         LibraryManufacturing.CreateCalendarAbsenceEntry(
-          CalendarAbsenceEntry, CalendarAbsenceEntry."Capacity Type"::"Work Center", WorkCenter."No.", WorkDate,
+          CalendarAbsenceEntry, CalendarAbsenceEntry."Capacity Type"::"Work Center", WorkCenter."No.", WorkDate(),
           ShopCalendarWorkingDays."Starting Time", ShopCalendarWorkingDays."Ending Time",
           LibraryRandom.RandDec(10, 2));  // Taking Random value for Capacity.
         LibraryManufacturing.CreateCalendarAbsenceEntry(
-          CalendarAbsenceEntry2, CalendarAbsenceEntry."Capacity Type"::"Work Center", WorkCenter."No.", WorkDate, 0T,
+          CalendarAbsenceEntry2, CalendarAbsenceEntry."Capacity Type"::"Work Center", WorkCenter."No.", WorkDate(), 0T,
           ShopCalendarWorkingDays."Ending Time",
           LibraryRandom.RandDec(10, 2));  // Taking Random value for Capacity.
 
@@ -416,7 +416,7 @@ codeunit 137404 "SCM Manufacturing"
         StartingTime := CalculateRandomTime;
         EndingTime := CalculateEndingTime(WorkCenter, StartingTime);
         CapacityValue := LibraryRandom.RandDec(10, 2);  // Taking Random value for Capacity.
-        Date := CalcDate('<' + Format(LibraryRandom.RandInt(-10)) + 'D>', WorkDate);
+        Date := CalcDate('<' + Format(LibraryRandom.RandInt(-10)) + 'D>', WorkDate());
         Capacity := CreateRegisteredAbsence(RegisteredAbsence."Capacity Type"::"Work Center", WorkCenter."No.", Date);
 
         // [WHEN] Run Registered Absence From Work Center Report with Overwrite as False.
@@ -424,7 +424,7 @@ codeunit 137404 "SCM Manufacturing"
 
         // [THEN] Verify that the previous Registered Absence does not gets Overwritten with the new Absence created by running the Report.
         VerifyEntryInRegisteredAbsence(WorkCenter."No.", Date, Capacity);
-        VerifyEntryInRegisteredAbsence(WorkCenter."No.", WorkDate, CapacityValue);
+        VerifyEntryInRegisteredAbsence(WorkCenter."No.", WorkDate(), CapacityValue);
     end;
 
     [Test]
@@ -448,14 +448,14 @@ codeunit 137404 "SCM Manufacturing"
         StartingTime := CalculateRandomTime;
         EndingTime := CalculateEndingTime(WorkCenter, StartingTime);
         CapacityValue := LibraryRandom.RandDec(10, 2);  // Taking Random value for Capacity.
-        Date := CalcDate('<' + Format(LibraryRandom.RandInt(-10)) + 'D>', WorkDate);
+        Date := CalcDate('<' + Format(LibraryRandom.RandInt(-10)) + 'D>', WorkDate());
         CreateRegisteredAbsence(RegisteredAbsence."Capacity Type"::"Work Center", WorkCenter."No.", Date);
 
         // [WHEN] Run Registered Absence From Work Center Report with Overwrite as True.
         RunRegAbsFromWorkCenterReport(WorkCenter."No.");
 
         // [THEN] Verify that the previous Registered Absence gets Overwritten with the new Absence created by running the Report.
-        VerifyEntryInRegisteredAbsence(WorkCenter."No.", WorkDate, CapacityValue);
+        VerifyEntryInRegisteredAbsence(WorkCenter."No.", WorkDate(), CapacityValue);
     end;
 
     [Test]
@@ -534,7 +534,7 @@ codeunit 137404 "SCM Manufacturing"
         StartingTime := CalculateRandomTime;
         EndingTime := CalculateEndingTime(WorkCenter, StartingTime);
         CapacityValue := LibraryRandom.RandDec(10, 2);  // Taking Random value for Capacity.
-        Date := CalcDate('<' + Format(LibraryRandom.RandInt(-10)) + 'D>', WorkDate);
+        Date := CalcDate('<' + Format(LibraryRandom.RandInt(-10)) + 'D>', WorkDate());
         Capacity := CreateRegisteredAbsence(RegisteredAbsence."Capacity Type"::"Machine Center", MachineCenterNo, Date);
 
         // [WHEN] Run Registered Absence From Machine Center Report with Overwrite as False.
@@ -542,7 +542,7 @@ codeunit 137404 "SCM Manufacturing"
 
         // [THEN] Verify that the previous Registered Absence does not gets Overwritten with the new Absence created by running the Report.
         VerifyEntryInRegisteredAbsence(MachineCenterNo, Date, Capacity);
-        VerifyEntryInRegisteredAbsence(MachineCenterNo, WorkDate, CapacityValue);
+        VerifyEntryInRegisteredAbsence(MachineCenterNo, WorkDate(), CapacityValue);
     end;
 
     [Test]
@@ -568,14 +568,14 @@ codeunit 137404 "SCM Manufacturing"
         StartingTime := CalculateRandomTime;
         EndingTime := CalculateEndingTime(WorkCenter, StartingTime);
         CapacityValue := LibraryRandom.RandDec(10, 2);  // Taking Random value for Capacity.
-        Date := CalcDate('<' + Format(LibraryRandom.RandInt(-10)) + 'D>', WorkDate);
+        Date := CalcDate('<' + Format(LibraryRandom.RandInt(-10)) + 'D>', WorkDate());
         CreateRegisteredAbsence(RegisteredAbsence."Capacity Type"::"Machine Center", MachineCenterNo, Date);
 
         // [WHEN] Run Registered Absence From Machine Center Report with Overwrite as True.
         RunRegAbsFromMachineCenterReport(MachineCenterNo);
 
         // [THEN] Verify that the previous Registered Absence gets Overwritten with the new Absence created by running the Report.
-        VerifyEntryInRegisteredAbsence(MachineCenterNo, WorkDate, CapacityValue);
+        VerifyEntryInRegisteredAbsence(MachineCenterNo, WorkDate(), CapacityValue);
     end;
 
     [Test]
@@ -600,7 +600,7 @@ codeunit 137404 "SCM Manufacturing"
         MachineCenter.Get(CreateMachineCenter(WorkCenter."No."));
         Capacity := ModifyCapacityOfMachineCenter(MachineCenter."No.");
         LibraryManufacturing.CalculateMachCenterCalendar(
-          MachineCenter, WorkDate, CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'Y>', WorkDate));
+          MachineCenter, WorkDate(), CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'Y>', WorkDate()));
 
         // [WHEN] Run Report Recalculate Calendar for the new Machine Center.
         GetCalendarEntry(CalendarEntry, CalendarEntry."Capacity Type"::"Machine Center", MachineCenter."No.");
@@ -632,7 +632,7 @@ codeunit 137404 "SCM Manufacturing"
         CreateWorkCenterWithWorkCenterGroup(WorkCenter, CreateShopCalendarCodeWithAllDaysWorking(ShopCalendarWorkingDays));
 
         // [WHEN] Calculate Work Center Calendar.
-        LibraryManufacturing.CalculateWorkCenterCalendar(WorkCenter, WorkDate, WorkDate);
+        LibraryManufacturing.CalculateWorkCenterCalendar(WorkCenter, WorkDate(), WorkDate());
         WorkCenterNo2 := WorkCenter."No.";  // Use WorkCenterNo2 as global for Handler.
 
         // [THEN] Verify Calculated Capacity on WorkCenterCalendarMatrixHandler function and verification is done in Handler.
@@ -1060,7 +1060,7 @@ codeunit 137404 "SCM Manufacturing"
         CreateWorkCenterWithWorkCenterGroup(WorkCenter, CreateShopCalendarCodeWithAllDaysWorking(ShopCalendarWorkingDays));
 
         // [WHEN] Run Calculate Work Center Calendar Report with blank Starting date.
-        asserterror LibraryManufacturing.CalculateWorkCenterCalendar(WorkCenter, 0D, WorkDate);
+        asserterror LibraryManufacturing.CalculateWorkCenterCalendar(WorkCenter, 0D, WorkDate());
 
         // [THEN] Error message that Starting Date must have a value.
         Assert.AreEqual(StrSubstNo(StartingDateError3), GetLastErrorText, UnknownError);
@@ -1084,7 +1084,7 @@ codeunit 137404 "SCM Manufacturing"
         ModifyCapacityOfWorkCenter(WorkCenter);
 
         // [WHEN] Calculate Work Center Calendar. Store the expected value for Capacity Total in a variable.
-        LibraryManufacturing.CalculateWorkCenterCalendar(WorkCenter, WorkDate, WorkDate);
+        LibraryManufacturing.CalculateWorkCenterCalendar(WorkCenter, WorkDate(), WorkDate());
         GetCalendarEntry(CalendarEntry, CalendarEntry."Capacity Type"::"Work Center", WorkCenter."No.");
         ExpectedCapacityTotal :=
           ((CalendarEntry."Ending Time" - CalendarEntry."Starting Time") /
@@ -1135,7 +1135,7 @@ codeunit 137404 "SCM Manufacturing"
 
         // [THEN] Verify expired component must not exist.
         Assert.IsFalse(
-          FindProductionBOMLine(ProductionBOMLine, ProductionBOMHeader."No."), StrSubstNo(MustNotExistError, ProductionBOMLine.TableCaption));
+          FindProductionBOMLine(ProductionBOMLine, ProductionBOMHeader."No."), StrSubstNo(MustNotExistError, ProductionBOMLine.TableCaption()));
     end;
 
     [Test]
@@ -1156,9 +1156,9 @@ codeunit 137404 "SCM Manufacturing"
         LibraryPlanning.RefreshPlanningLine(RequisitionLine, Direction::Backward, true, true);
 
         // [THEN] Verify Starting Date and Ending Date after refreshing Planning Line.
-        RequisitionLine.Find;
-        RequisitionLine.TestField("Starting Date", WorkDate);
-        RequisitionLine.TestField("Ending Date", WorkDate);
+        RequisitionLine.Find();
+        RequisitionLine.TestField("Starting Date", WorkDate());
+        RequisitionLine.TestField("Ending Date", WorkDate());
     end;
 
     [Test]
@@ -1174,7 +1174,7 @@ codeunit 137404 "SCM Manufacturing"
         // [GIVEN] Create Item with Lot for Lot Reordering Policy and Safety Stock Quantity.
         Initialize();
         CreateItemWithLotForLotReorderingPolicyAndSafetyStockQuantity(Item);
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, WorkDate);
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), WorkDate());
         RequisitionLine.SetRange("No.", Item."No.");
         RequisitionLine.FindFirst();
 
@@ -1182,7 +1182,7 @@ codeunit 137404 "SCM Manufacturing"
         RequisitionLine.DeleteAll(true);
 
         // [THEN] Verify all Planning Worksheet Lines must be deleted.
-        Assert.AreEqual(0, RequisitionLine.Count, StrSubstNo(MustNotExistError, RequisitionLine.TableCaption));
+        Assert.AreEqual(0, RequisitionLine.Count, StrSubstNo(MustNotExistError, RequisitionLine.TableCaption()));
     end;
 
     [Test]
@@ -1329,7 +1329,7 @@ codeunit 137404 "SCM Manufacturing"
         Quantity := LibraryRandom.RandDec(10, 2);
         CreateMultipleItemsWithReorderingPolicy(Item, Item2, Quantity);
         CreateAndPostItemJournalLine(
-          ItemJournalLine, ItemJournalLine."Entry Type"::"Positive Adjmt.", Item."No.", LibraryRandom.RandDec(1000, 2), WorkDate, '');
+          ItemJournalLine, ItemJournalLine."Entry Type"::"Positive Adjmt.", Item."No.", LibraryRandom.RandDec(1000, 2), WorkDate(), '');
         LibraryManufacturing.CreateProductionOrder(
           ProductionOrder, ProductionOrder.Status::Released, ProductionOrder."Source Type"::Item, Item2."No.", Quantity);
         LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
@@ -1769,7 +1769,7 @@ codeunit 137404 "SCM Manufacturing"
 
         // Exercise: Find the 1st Prod. Order Routing Line and modify the Starting Date to Friday
         FindProdOrderRoutingLine(ProdOrderRoutingLine, RoutingLine."Work Center No.", RoutingLine."Operation No.");
-        ModifyStartingDateOnProdOrderRtngLn(ProdOrderRoutingLine, CalcDate('<WD5>', WorkDate));
+        ModifyStartingDateOnProdOrderRtngLn(ProdOrderRoutingLine, CalcDate('<WD5>', WorkDate()));
 
         // Verify: Verify Ending Date Time on the 1st Prod. Order Routing Line
         ProdOrderRoutingLine.TestField(
@@ -1807,7 +1807,7 @@ codeunit 137404 "SCM Manufacturing"
 
         // Exercise: Find the 1st Planning Routing Line and modify the starting Date to Friday
         FindPlanningRoutingLine(PlanningRoutingLine, RoutingLine."Work Center No.", RoutingLine."Operation No.");
-        ModifyStartingDateOnPlanningRtngLn(PlanningRoutingLine, CalcDate('<WD5>', WorkDate));
+        ModifyStartingDateOnPlanningRtngLn(PlanningRoutingLine, CalcDate('<WD5>', WorkDate()));
 
         // Verify: Verify Ending Date Time on the 1st Planning Routing Line
         PlanningRoutingLine.TestField(
@@ -1845,7 +1845,7 @@ codeunit 137404 "SCM Manufacturing"
         FindProdOrderRoutingLine(ProdOrderRoutingLine2, RoutingLine2."Work Center No.", RoutingLine2."Operation No."); // Find the 2nd Prod. Order Routing Line
 
         // Exercise: Modify the Ending Date to Monday
-        ModifyEndingDateOnProdOrderRtngLn(ProdOrderRoutingLine2, CalcDate('<WD1>', WorkDate));
+        ModifyEndingDateOnProdOrderRtngLn(ProdOrderRoutingLine2, CalcDate('<WD1>', WorkDate()));
 
         // Verify: Verify Starting Date Time on the 2nd Prod. Order Routing Line, the Starting Date is weekend since the Wait Time is 1 ~ 2 days
         ProdOrderRoutingLine2.TestField(
@@ -1883,7 +1883,7 @@ codeunit 137404 "SCM Manufacturing"
         FindPlanningRoutingLine(PlanningRoutingLine2, RoutingLine2."Work Center No.", RoutingLine2."Operation No."); // Find the 2nd Planning Routing Line
 
         // Exercise: Modify the Ending Date to Monday
-        ModifyEndingDateOnPlanningRtngLn(PlanningRoutingLine2, CalcDate('<WD1>', WorkDate));
+        ModifyEndingDateOnPlanningRtngLn(PlanningRoutingLine2, CalcDate('<WD1>', WorkDate()));
 
         // Verify: Verify Starting Date on the 2nd Planning Routing Line, the Starting Date is weekend since the Wait Time is 1 ~ 2 days
         PlanningRoutingLine2.TestField(
@@ -2208,7 +2208,7 @@ codeunit 137404 "SCM Manufacturing"
         ItemNo := CreateItemWithRoutingAndTwoWorkCenters(WorkCenter, WorkCenter2, RoutingNo);
         // [GIVEN] Calculate Calendar for Work Center in last Routing Line and Reset Time in first Routing Line
         LibraryManufacturing.CalculateWorkCenterCalendar(
-          WorkCenter2, CalcDate('<-1D>', WorkDate), CalcDate('<1D>', WorkDate));
+          WorkCenter2, CalcDate('<-1D>', WorkDate()), CalcDate('<1D>', WorkDate()));
         ResetRunTimeOnRoutingLine(RoutingNo, WorkCenter."No.");
 
         // [GIVEN] Released Production Order
@@ -2247,7 +2247,7 @@ codeunit 137404 "SCM Manufacturing"
         ItemNo := CreateItemWithRoutingAndTwoWorkCenters(WorkCenter, WorkCenter2, RoutingNo);
         // [GIVEN] Calculate Calendar for Work Center in First Routing Line and Reset Time in last Routing Line
         LibraryManufacturing.CalculateWorkCenterCalendar(
-          WorkCenter, CalcDate('<-1D>', WorkDate), CalcDate('<1D>', WorkDate));
+          WorkCenter, CalcDate('<-1D>', WorkDate()), CalcDate('<1D>', WorkDate()));
         ResetRunTimeOnRoutingLine(RoutingNo, WorkCenter2."No.");
 
         // [GIVEN] Released Production Order
@@ -2374,7 +2374,7 @@ codeunit 137404 "SCM Manufacturing"
         // [GIVEN] BOM version structiure: BOM -> Phantom BOM -> Component I1
         PhantomBOMNo := CreateProductionBOMForSingleItem(ChildItemNo, UnitOfMeasure.Code);
         CreateProductionBOMVersion(
-          ParentProdBOMVersion, ParentBOMNo, UnitOfMeasure.Code, WorkDate, ProdBOMLine.Type::"Production BOM", PhantomBOMNo, 1);
+          ParentProdBOMVersion, ParentBOMNo, UnitOfMeasure.Code, WorkDate(), ProdBOMLine.Type::"Production BOM", PhantomBOMNo, 1);
         ModifyProductionBOMVersionStatus(ParentProdBOMVersion, ParentProdBOMVersion.Status::Certified);
 
         // [GIVEN] Item "I2"
@@ -2412,7 +2412,7 @@ codeunit 137404 "SCM Manufacturing"
 
         // Production BOM version with 2 components: "I1" and "I2", active on the WORKDATE
         CreateProductionBOMVersionWithTwoComponents(
-          ProdBomVersion, ProdBOMHeader, ProdBOMHeader."Unit of Measure Code", WorkDate, Components[1], Components[2]);
+          ProdBomVersion, ProdBOMHeader, ProdBOMHeader."Unit of Measure Code", WorkDate(), Components[1], Components[2]);
 
         // [GIVEN] Item "I3"
         Components[3] := LibraryInventory.CreateItemNo();
@@ -2448,7 +2448,7 @@ codeunit 137404 "SCM Manufacturing"
 
         // Production BOM version with 2 components: "I1" and "I2", active on WORKDATE + 1 day
         CreateProductionBOMVersionWithTwoComponents(
-          ProdBomVersion, ProdBOMHeader, ProdBOMHeader."Unit of Measure Code", CalcDate('<1D>', WorkDate), Components[1], Components[2]);
+          ProdBomVersion, ProdBOMHeader, ProdBOMHeader."Unit of Measure Code", CalcDate('<1D>', WorkDate()), Components[1], Components[2]);
 
         // [GIVEN] Item "I3"
         Components[3] := LibraryInventory.CreateItemNo();
@@ -2502,7 +2502,7 @@ codeunit 137404 "SCM Manufacturing"
 
         // [WHEN] Open prod. order routing for the low-level line
         ProdOrderLine[2].ShowRouting;
-        ProdOrderLine[2].Find;
+        ProdOrderLine[2].Find();
 
         // [THEN] Bin code in production order line is "B1"
         ProdOrderLine[2].TestField("Bin Code", ProdOrderComponent."Bin Code");
@@ -2595,13 +2595,13 @@ codeunit 137404 "SCM Manufacturing"
 
         ApplicationWorksheet.First;
         while ApplicationWorksheet."Entry Type".AsInteger <> TempItemLedgEntry."Entry Type"::Consumption.AsInteger() do
-            if not ApplicationWorksheet.Next then
+            if not ApplicationWorksheet.Next() then
                 Error(StrSubstNo(EntryOfTypeNotFoundErr, TempItemLedgEntry."Entry Type"::Consumption));
         ApplicationWorksheet.AppliedEntries.Invoke;
 
         ApplicationWorksheet.First;
         while ApplicationWorksheet."Entry Type".AsInteger <> TempItemLedgEntry."Entry Type"::Sale.AsInteger() do
-            if not ApplicationWorksheet.Next then
+            if not ApplicationWorksheet.Next() then
                 Error(StrSubstNo(EntryOfTypeNotFoundErr, TempItemLedgEntry."Entry Type"::Sale));
         ApplicationWorksheet.UnappliedEntries.Invoke;
 
@@ -2645,7 +2645,7 @@ codeunit 137404 "SCM Manufacturing"
         ItemJnlPostLine.LogApply(PositiveItemLedgEntry, NegativeItemLedgEntry);
 
         // [WHEN] Undo applications.
-        ItemJnlPostLine.UndoApplications;
+        ItemJnlPostLine.UndoApplications();
 
         // [THEN] "P" and "N" are reverted to previous state.
         VerifyExistingILEs(TempItemLedgEntry, ItemNo);
@@ -2679,7 +2679,7 @@ codeunit 137404 "SCM Manufacturing"
         ItemJnlPostLine.LogApply(NegativeItemLedgEntry, PositiveItemLedgEntry);
 
         // [WHEN] Undo applications.
-        ItemJnlPostLine.UndoApplications;
+        ItemJnlPostLine.UndoApplications();
 
         // [THEN] "P" and "N" are reverted to previous state.
         VerifyExistingILEs(TempItemLedgEntry, ItemNo);
@@ -2717,7 +2717,7 @@ codeunit 137404 "SCM Manufacturing"
         ItemJnlPostLine.LogUnapply(ItemApplnEntry);
 
         // [WHEN] Undo unapplication.
-        ItemJnlPostLine.UndoApplications;
+        ItemJnlPostLine.UndoApplications();
 
         // [THEN] "P" and "N" are reverted to previous state.
         VerifyExistingILEs(TempItemLedgEntry, ItemNo);
@@ -2742,7 +2742,7 @@ codeunit 137404 "SCM Manufacturing"
         asserterror Item.Delete(true);
 
         // [THEN] Error raised that you cannot delete Item because it exists in certified Production BOM Version
-        Assert.ExpectedError(StrSubstNo(CannotDeleteItemIfProdBOMVersionExistsErr, Item.TableCaption, Item."No."));
+        Assert.ExpectedError(StrSubstNo(CannotDeleteItemIfProdBOMVersionExistsErr, Item.TableCaption(), Item."No."));
     end;
 
     [Test]
@@ -3081,7 +3081,7 @@ codeunit 137404 "SCM Manufacturing"
         LibraryManufacturing.RefreshProdOrder(ProductionOrder[3], true, true, true, true, false);
 
         // [THEN] The last order consumes available capacity between the first two orders. Starting time = 08:00, Ending time = 08:20
-        ProductionOrder[3].Find;
+        ProductionOrder[3].Find();
         ProductionOrder[3].CalcFields("Allocated Capacity Need");
         ProductionOrder[3].TestField("Starting Date", ProductionOrder[2]."Starting Date");
         ProductionOrder[3].TestField("Ending Date", ProductionOrder[2]."Ending Date");
@@ -3309,7 +3309,7 @@ codeunit 137404 "SCM Manufacturing"
 
         // [GIVEN] Created Production BOM version with 2 components
         CreateProductionBOMVersionWithTwoComponents(
-          ProdBomVersion, ProdBOMHeader, ProdBOMHeader."Unit of Measure Code", WorkDate, Components[1], Components[2]);
+          ProdBomVersion, ProdBOMHeader, ProdBOMHeader."Unit of Measure Code", WorkDate(), Components[1], Components[2]);
 
         // [GIVEN] Set Position fields on the initial Producion BOM Line
         FindProductionBOMLineByNo(ProductionBOMLine, ProdBomVersion."Production BOM No.",
@@ -3962,10 +3962,10 @@ codeunit 137404 "SCM Manufacturing"
 
         CreateAndPostItemJournalLine(
           ItemJournalLine, ItemJournalLine."Entry Type"::Purchase, Item."No.",
-          Quantity, WorkDate, '');
+          Quantity, WorkDate(), '');
         CreateAndPostItemJournalLine(
           ItemJournalLine, ItemJournalLine."Entry Type"::Sale, Item."No.",
-          Quantity, WorkDate, '');
+          Quantity, WorkDate(), '');
 
         exit(Item."No.");
     end;
@@ -4040,7 +4040,7 @@ codeunit 137404 "SCM Manufacturing"
         ProductionBOMHeader.Get(CreateProductionBOM(UnitOfMeasure.Code));
         ModifyStatusInProductionBOM(ProductionBOMHeader, ProductionBOMHeader.Status::New);
         FindProductionBOMLine(ProductionBOMLine, ProductionBOMHeader."No.");
-        ProductionBOMLine.Validate("Ending Date", CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate));  // Use random Ending Date.
+        ProductionBOMLine.Validate("Ending Date", CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate()));  // Use random Ending Date.
         ProductionBOMLine.Modify(true);
     end;
 
@@ -4093,7 +4093,7 @@ codeunit 137404 "SCM Manufacturing"
     begin
         LibraryManufacturing.CreateProductionOrder(ProductionOrder, Status, ProductionOrder."Source Type"::Item, ItemNo, Quantity);
         LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
-        ProductionOrder.Find;
+        ProductionOrder.Find();
     end;
 
     local procedure CreateAndRefreshProdOrderWithSpecificDueDate(var ProductionOrder: Record "Production Order"; ItemNo: Code[20]; DueDate: Date; Qty: Decimal; Forward: Boolean)
@@ -4190,7 +4190,7 @@ codeunit 137404 "SCM Manufacturing"
         FindProductionOrderComponent(ProdOrderComponent, ProductionOrder.Status, ProductionOrder."No.");
         CreateAndPostItemJournalLine(
           ItemJournalLine, ItemJournalLine."Entry Type"::"Positive Adjmt.", ProdOrderComponent."Item No.",
-          ProdOrderComponent."Expected Quantity", WorkDate, '');
+          ProdOrderComponent."Expected Quantity", WorkDate(), '');
     end;
 
     local procedure CreateItemAndItemComponent(var ItemNo: Code[20]; var ComponentNo: Code[20])
@@ -4253,7 +4253,7 @@ codeunit 137404 "SCM Manufacturing"
         with Item do begin
             Validate("Replenishment System", "Replenishment System"::"Prod. Order");
             Validate("Routing No.", RoutingNo);
-            Modify;
+            Modify();
             exit("No.");
         end;
     end;
@@ -4416,7 +4416,7 @@ codeunit 137404 "SCM Manufacturing"
         Item: Record Item;
     begin
         LibraryManufacturing.CreateProductionForecastEntry(
-          ProductionForecastEntry, ProductionForecastName, LibraryInventory.CreateItem(Item), CreateLocation, WorkDate, true);
+          ProductionForecastEntry, ProductionForecastName, LibraryInventory.CreateItem(Item), CreateLocation, WorkDate(), true);
         ProductionForecastEntry.Validate("Forecast Quantity (Base)", LibraryRandom.RandDec(100, 2));  // Use random value for Forecast Quantity Base.
         ProductionForecastEntry.Modify(true);
     end;
@@ -4453,8 +4453,8 @@ codeunit 137404 "SCM Manufacturing"
         Item.Validate("Replenishment System", Item."Replenishment System"::"Prod. Order");
         Item.Modify();
         RequisitionLine.Validate("No.", Item."No.");
-        RequisitionLine.Validate("Ending Date", WorkDate);
-        RequisitionLine.Validate("Due Date", CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate));  // Use random Due Date.
+        RequisitionLine.Validate("Ending Date", WorkDate());
+        RequisitionLine.Validate("Due Date", CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate()));  // Use random Due Date.
         RequisitionLine.Validate(Quantity, LibraryRandom.RandDec(10, 2));  // Use random Quantity.
         RequisitionLine.Modify(true);
     end;
@@ -4464,7 +4464,7 @@ codeunit 137404 "SCM Manufacturing"
         CreateRequisitionLine(RequisitionLine);
         with RequisitionLine do begin
             Validate("Action Message", "Action Message"::New);
-            Validate("Starting Date", WorkDate);
+            Validate("Starting Date", WorkDate());
             Validate("Starting Time", Time);
             Validate("Ending Date", WorkDate + 1);
             Validate("Ending Time", Time + 1);
@@ -4520,7 +4520,7 @@ codeunit 137404 "SCM Manufacturing"
             repeat
                 LibraryManufacturing.CreateProductionBOMLine(
                   ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, Item."No.", LibraryRandom.RandIntInRange(10, 20));
-            until Item.Next = 0;
+            until Item.Next() = 0;
         ModifyStatusInProductionBOM(ProductionBOMHeader, ProductionBOMHeader.Status::Certified);
         exit(ProductionBOMHeader."No.");
     end;
@@ -4726,7 +4726,7 @@ codeunit 137404 "SCM Manufacturing"
         end;
 
         LibraryManufacturing.CalculateWorkCenterCalendar(
-          WorkCenter, CalcDate('<-1M>', WorkDate), CalcDate('<+1M>', WorkDate));
+          WorkCenter, CalcDate('<-1M>', WorkDate()), CalcDate('<+1M>', WorkDate()));
     end;
 
     local procedure CreateWorkCenterWithCalendarCode(var WorkCenter: Record "Work Center"; ShopCalendarCode: Code[10])
@@ -4741,7 +4741,7 @@ codeunit 137404 "SCM Manufacturing"
         CreateWorkCenterWithCalendarCode(WorkCenter, ShopCalendarCode);
         WorkCenter.Validate("Calendar Rounding Precision", Precision);
         WorkCenter.Modify(true);
-        LibraryManufacturing.CalculateWorkCenterCalendar(WorkCenter, CalcDate('<-1M>', WorkDate), CalcDate('<+1M>', WorkDate));
+        LibraryManufacturing.CalculateWorkCenterCalendar(WorkCenter, CalcDate('<-1M>', WorkDate()), CalcDate('<+1M>', WorkDate()));
     end;
 
     local procedure CreateMachineCenterAndUpdateProdOderRtngLine(var MachineCenter: Record "Machine Center"; var ProdOrderRtngLine: Record "Prod. Order Routing Line"; WorkCenter: Record "Work Center"; ProdOrderLine: Record "Prod. Order Line"; RoutingRefNo: Integer)
@@ -4754,7 +4754,7 @@ codeunit 137404 "SCM Manufacturing"
         with MachineCenter do begin
             LibraryManufacturing.CreateMachineCenter(MachineCenter, WorkCenter."No.", LibraryRandom.RandDec(10, 2));
             Validate("From-Production Bin Code", Bin.Code);
-            Modify;
+            Modify();
         end;
 
         with ProdOrderRtngLine do begin
@@ -5006,7 +5006,7 @@ codeunit 137404 "SCM Manufacturing"
         OperationNo: Integer;
     begin
         CreateWorkCenterWithCalendarCode(WorkCenter, LibraryManufacturing.UpdateShopCalendarWorkingDays);
-        LibraryManufacturing.CalculateWorkCenterCalendar(WorkCenter, CalcDate('<-1M>', WorkDate), CalcDate('<+1M>', WorkDate));
+        LibraryManufacturing.CalculateWorkCenterCalendar(WorkCenter, CalcDate('<-1M>', WorkDate()), CalcDate('<+1M>', WorkDate()));
 
         // Create Production Item with Routing, use the work center created above in routing line
         CreateProductionItemWithRouting(Item, RoutingLine, WorkCenter."No.");
@@ -5066,7 +5066,7 @@ codeunit 137404 "SCM Manufacturing"
     begin
         // Create Production Item with two Routing Lines, the 1st one contains only run time, the second one contains only wait time
         CreateWorkCenterWithCalendarCode(WorkCenter, LibraryManufacturing.UpdateShopCalendarWorkingDays);
-        LibraryManufacturing.CalculateWorkCenterCalendar(WorkCenter, CalcDate('<-1M>', WorkDate), CalcDate('<+1M>', WorkDate));
+        LibraryManufacturing.CalculateWorkCenterCalendar(WorkCenter, CalcDate('<-1M>', WorkDate()), CalcDate('<+1M>', WorkDate()));
 
         // Create Production Item with Routing, use the work center created above in routing line
         CreateProductionItemWithRouting(Item, RoutingLine, WorkCenter."No.");
@@ -5081,7 +5081,7 @@ codeunit 137404 "SCM Manufacturing"
         ShopCalendarWorkingDays: Record "Shop Calendar Working Days";
     begin
         CreateWorkCenterWithWorkCenterGroup(WorkCenter, CreateShopCalendarCodeWithAllDaysWorking(ShopCalendarWorkingDays));
-        LibraryManufacturing.CalculateWorkCenterCalendar(WorkCenter, CalcDate('<-1W>', WorkDate), CalcDate('<1W>', WorkDate));
+        LibraryManufacturing.CalculateWorkCenterCalendar(WorkCenter, CalcDate('<-1W>', WorkDate()), CalcDate('<1W>', WorkDate()));
         LibraryManufacturing.CreateCapacityConstrainedResource(
           CapacityConstrainedResource, CapacityConstrainedResource."Capacity Type"::"Work Center", WorkCenter."No.");
     end;
@@ -5156,7 +5156,7 @@ codeunit 137404 "SCM Manufacturing"
             repeat
                 ProductionBOMLineBuf := ProductionBOMLine;
                 ProductionBOMLineBuf.Insert();
-            until ProductionBOMLine.Next = 0;
+            until ProductionBOMLine.Next() = 0;
     end;
 
     local procedure FindProductionBOMComponent(ProductionBOMNo: Code[20]): Code[20]
@@ -5171,7 +5171,7 @@ codeunit 137404 "SCM Manufacturing"
     local procedure FindProductionBOMLine(var ProductionBOMLine: Record "Production BOM Line"; ProductionBOMNo: Code[20]): Boolean
     begin
         ProductionBOMLine.SetRange("Production BOM No.", ProductionBOMNo);
-        exit(ProductionBOMLine.FindFirst);
+        exit(ProductionBOMLine.FindFirst())
     end;
 
     local procedure FindProductionBOMLineByNo(var ProductionBOMLine: Record "Production BOM Line"; ProdBOMHeaderNo: Code[20]; ProdBomVersion: Code[20]; Component: Code[20]): Boolean
@@ -5194,7 +5194,7 @@ codeunit 137404 "SCM Manufacturing"
         ProdOrdRtngLn.SetRange(Status, ProdOrdLn.Status);
         ProdOrdRtngLn.SetRange("Prod. Order No.", ProdOrdLn."Prod. Order No.");
         ProdOrdRtngLn.SetRange("Routing Reference No.", ProdOrdLn."Line No.");
-        exit(ProdOrdRtngLn.FindFirst);
+        exit(ProdOrdRtngLn.FindFirst())
     end;
 
     local procedure FindProdOrderComponent(var ProdOrderComponent: Record "Prod. Order Component"; ProdOrderStatus: Enum "Production Order Status"; ProdOrderNo: Code[20])
@@ -5331,7 +5331,7 @@ codeunit 137404 "SCM Manufacturing"
     begin
         WorkCenter.Validate(Capacity, AbsenceCapacity + LibraryRandom.RandDec(10, 2));  // Adding Random value to Absence Capacity as Work Center Capacity should be greater than it.
         WorkCenter.Modify(true);
-        LibraryManufacturing.CalculateWorkCenterCalendar(WorkCenter, WorkDate, WorkDate);
+        LibraryManufacturing.CalculateWorkCenterCalendar(WorkCenter, WorkDate(), WorkDate());
     end;
 
     local procedure ModifyRoutingStatus(var RoutingHeader: Record "Routing Header"; Status: Enum "Routing Status")
@@ -5484,7 +5484,7 @@ codeunit 137404 "SCM Manufacturing"
             SetRange("Work Center No.", WorkCenterNo);
             FindFirst();
             "Run Time" := 0;
-            Modify;
+            Modify();
         end;
     end;
 
@@ -5696,7 +5696,7 @@ codeunit 137404 "SCM Manufacturing"
         // otherwise the issue mentioned in TFS48588 can not be reproed. It is not easy to set proper random value
         // for starting time and ending time, so use 11:00PM as ending time, and 8:00AM as starting time
         CreateWorkCenterWithCalendarCode(WorkCenter, CreateShopCalendar(080000T, 230000T));
-        StartingDate := CalcDate('<WD6>', WorkDate); // Get a Weekend Date, this will be the starting date for the routing line with weekend work day calendar
+        StartingDate := CalcDate('<WD6>', WorkDate()); // Get a Weekend Date, this will be the starting date for the routing line with weekend work day calendar
         LibraryManufacturing.CalculateWorkCenterCalendar(
           AllDaysWorkingWorkCenter, CalcDate('<-1M>', StartingDate), CalcDate('<+1M>', StartingDate)); // Calculate working days needed by the test
         LibraryManufacturing.CalculateWorkCenterCalendar(
@@ -5718,7 +5718,7 @@ codeunit 137404 "SCM Manufacturing"
         RoutingLine2.SetRange("Routing No.", RoutingHeader."No.");
         RoutingLine2.FindSet();
         ModifyWorkCenterAndWaitTimeOnRoutingLine(RoutingLine2, WorkCenter."No.", CapacityUnitOfMeasure.Code, WaitTime);
-        RoutingLine2.Next;
+        RoutingLine2.Next();
         ModifyWorkCenterAndWaitTimeOnRoutingLine(RoutingLine2, AllDaysWorkingWorkCenter."No.", CapacityUnitOfMeasure.Code, WaitTime);
 
         // Create Production Item
@@ -5873,7 +5873,7 @@ codeunit 137404 "SCM Manufacturing"
     begin
         WorkCenter.Get(WorkCenterNo2);
         ShopCalendarWorkingDays.SetRange("Shop Calendar Code", WorkCenter."Shop Calendar Code");
-        ShopCalendarWorkingDays.SetRange(Day, Date2DWY(WorkDate, 1) - 1);  // Indexing for Days start from 0-6.
+        ShopCalendarWorkingDays.SetRange(Day, Date2DWY(WorkDate(), 1) - 1);  // Indexing for Days start from 0-6.
         if ShopCalendarWorkingDays.FindFirst() then
             Capacity2 :=
               (ShopCalendarWorkingDays."Ending Time" - ShopCalendarWorkingDays."Starting Time") /
@@ -6003,7 +6003,7 @@ codeunit 137404 "SCM Manufacturing"
         ProductionForecastEntry2.SetRange("Production Forecast Name", ProductionForecastName2);
         ProductionForecastEntry2.FindFirst();
         ProductionForecastEntry2.TestField("Item No.", ProductionForecastEntry."Item No.");
-        ProductionForecastEntry2.TestField("Forecast Date", CalcDate(DateChangeFormula, WorkDate));
+        ProductionForecastEntry2.TestField("Forecast Date", CalcDate(DateChangeFormula, WorkDate()));
         ProductionForecastEntry2.TestField("Forecast Quantity", ProductionForecastEntry."Forecast Quantity");
         ProductionForecastEntry2.TestField("Location Code", ProductionForecastEntry."Location Code");
         ProductionForecastEntry2.TestField("Variant Code", ProductionForecastEntry."Variant Code");
@@ -6037,7 +6037,7 @@ codeunit 137404 "SCM Manufacturing"
 
     local procedure VerifyProdOrderLineBinCode(var ProdOrderLine: Record "Prod. Order Line"; WorkCenterBinCode: Code[20])
     begin
-        ProdOrderLine.Find;
+        ProdOrderLine.Find();
         Assert.AreEqual(WorkCenterBinCode, ProdOrderLine."Bin Code", ProdOrderLineBinCodeErr);
     end;
 
@@ -6258,8 +6258,8 @@ codeunit 137404 "SCM Manufacturing"
         if not ShowError then begin
             RegAbsFromWorkCenter.StartingTime.SetValue(Format(StartingTime));
             RegAbsFromWorkCenter.EndingTime.SetValue(Format(EndingTime));
-            RegAbsFromWorkCenter.StartingDate.SetValue(Format(WorkDate));
-            RegAbsFromWorkCenter.EndingDate.SetValue(Format(WorkDate));
+            RegAbsFromWorkCenter.StartingDate.SetValue(Format(WorkDate()));
+            RegAbsFromWorkCenter.EndingDate.SetValue(Format(WorkDate()));
             RegAbsFromWorkCenter.Capacity.SetValue(CapacityValue);
             RegAbsFromWorkCenter.Overwrite.SetValue(OverWrite);
         end;
@@ -6277,8 +6277,8 @@ codeunit 137404 "SCM Manufacturing"
             RegAbsFromMachineCenter.EndingTime.SetValue(Format(EndingTime));
         end;
         if not EndingTimeError then begin
-            RegAbsFromMachineCenter.StartingDate.SetValue(Format(WorkDate));
-            RegAbsFromMachineCenter.EndingDate.SetValue(Format(WorkDate));
+            RegAbsFromMachineCenter.StartingDate.SetValue(Format(WorkDate()));
+            RegAbsFromMachineCenter.EndingDate.SetValue(Format(WorkDate()));
             RegAbsFromMachineCenter.Capacity.SetValue(CapacityValue);
             RegAbsFromMachineCenter.Overwrite.SetValue(OverWrite);
         end;
@@ -6327,7 +6327,7 @@ codeunit 137404 "SCM Manufacturing"
             ExchangeProductionBOMItem.WithType.SetValue(1);   // Use 1 for Item.
             ExchangeProductionBOMItem.WithNo.SetValue(WithNo);
             ExchangeProductionBOMItem."Create New Version".SetValue(CreateNewVersion);
-            ExchangeProductionBOMItem.StartingDate.SetValue(Format(WorkDate));
+            ExchangeProductionBOMItem.StartingDate.SetValue(Format(WorkDate()));
             ExchangeProductionBOMItem.Recertify.SetValue(true);
             ExchangeProductionBOMItem.CopyRoutingLink.SetValue(true);
             ExchangeProductionBOMItem."Delete Exchanged Component".SetValue(DeleteExchangedComponent);
@@ -6340,7 +6340,7 @@ codeunit 137404 "SCM Manufacturing"
     procedure DeleteExpiredComponentsHandler(var DeleteExpiredComponents: TestRequestPage "Delete Expired Components")
     begin
         if not ShowError then
-            DeleteExpiredComponents.DeleteBefore.SetValue(Format(WorkDate));
+            DeleteExpiredComponents.DeleteBefore.SetValue(Format(WorkDate()));
         DeleteExpiredComponents.OK.Invoke;
     end;
 
@@ -6385,7 +6385,7 @@ codeunit 137404 "SCM Manufacturing"
         for i := 1 to Abs(GLB_ItemTrackingQty) do begin
             ItemTrackingLines."Serial No.".SetValue(GLB_SerialNo);
             ItemTrackingLines."Quantity (Base)".SetValue(GLB_ItemTrackingQty / Abs(GLB_ItemTrackingQty));
-            ItemTrackingLines.Next;
+            ItemTrackingLines.Next();
             Commit();
             GLB_SerialNo := IncStr(GLB_SerialNo);
         end;

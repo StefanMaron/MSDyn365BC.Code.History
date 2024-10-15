@@ -31,7 +31,6 @@ codeunit 137308 "SCM Planning Reports"
         ScheduledReceiptsErr: Label 'Wrong scheduled receipts qty.';
         ErrMsgRequisition: Label 'Requisition Line must not exist.';
         ErrMsgDocument: Label 'Document must not exist.';
-        MsgWorksheetNo: Label 'You are now in worksheet';
         OutputMissingConfirmMessage: Label 'Some output is still missing. Do you still want to finish the order?';
         RecordShould: Option Exist,"Not Exist";
         ConsumptionMissingConfirmQst: Label 'Some consumption is still missing. Do you still want to finish the order?';
@@ -211,9 +210,9 @@ codeunit 137308 "SCM Planning Reports"
 
         // Planning Worksheet -> Calculate Regenerative plan Or Calculate Net Change plan.
         if Regenerative then
-            LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, WorkDate)
+            LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), WorkDate())
         else
-            LibraryPlanning.CalcNetChangePlanForPlanWksh(Item, WorkDate, WorkDate, false);
+            LibraryPlanning.CalcNetChangePlanForPlanWksh(Item, WorkDate(), WorkDate, false);
 
         // Exercise: Generate the Planning Availability report.
         RunPlanningAvailabilityReport(Item."No.", 0D);
@@ -259,7 +258,7 @@ codeunit 137308 "SCM Planning Reports"
         CreateSalesOrder(SalesLine, Item."No.");
 
         // Planning Worksheet -> Calculate Regenerative plan.
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, WorkDate);
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), WorkDate());
 
         // Exercise: Generate the Planning Availability report.
         RunPlanningAvailabilityReport(Item."No.", 0D);
@@ -304,7 +303,7 @@ codeunit 137308 "SCM Planning Reports"
         CreateSalesOrder(SalesLine, Item."No.");
 
         // Planning Worksheet -> Calculate Regenerative plan.
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, WorkDate);
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), WorkDate());
 
         // Carry-Out Action Message.
         CarryOutActionMessageForRegenPlan(Item."No.");
@@ -353,7 +352,7 @@ codeunit 137308 "SCM Planning Reports"
         CreateSalesOrder(SalesLine, Item."No.");
 
         // Planning Worksheet -> Calculate Regenerative plan.
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, WorkDate);
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), WorkDate());
 
         // Carry-Out Action Message.
         CarryOutActionMessageForRegenPlan(Item."No.");
@@ -437,7 +436,7 @@ codeunit 137308 "SCM Planning Reports"
         CreateSalesOrder(SalesLine2, Item."No.");
 
         // Planning Worksheet -> Calculate Regenerative plan.
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, WorkDate);
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), WorkDate());
 
         // Carry-Out Action Message.
         CarryOutActionMessageForRegenPlan(Item."No.");
@@ -470,7 +469,7 @@ codeunit 137308 "SCM Planning Reports"
         CreateAndRefreshProdOrder(ProductionOrder, ProductionOrder.Status::"Firm Planned", Item."No.");
 
         // Planning Worksheet -> Calculate Regenerative plan. Cancels Production Order.
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, WorkDate);
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), WorkDate());
 
         // Exercise: Generate the Planning Availability Report.
         RunPlanningAvailabilityReport(Item."No.", 0D);
@@ -560,7 +559,7 @@ codeunit 137308 "SCM Planning Reports"
 
         // Exercise: Generate the Planning Availability Report with Calculated Regenerative plan as required.
         if CalculateRegenerativePlan then
-            LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, WorkDate);
+            LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), WorkDate());
         RunPlanningAvailabilityReport(ItemNo, 0D);
 
         // Verify: Check values- Scheduled Receipts from Production Order and Projected Balance in the Planning Availability Report.
@@ -587,7 +586,7 @@ codeunit 137308 "SCM Planning Reports"
         CreateSalesOrder(SalesLine, ProductionOrder."Source No.");
 
         // Exercise: Generate the Planning Availability Report after Calculate Regenerative plan.
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, WorkDate);
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), WorkDate());
         RunPlanningAvailabilityReport(Item."No.", 0D);
 
         // Verify: Check value - Gross Requirement, Projected Balance and Planned receipts from Requisition Line in the Planning Availability Report.
@@ -632,7 +631,7 @@ codeunit 137308 "SCM Planning Reports"
         CreateSalesOrder(SalesLine, Item."No.");
 
         // Planning Worksheet -> Calculate Net Change Plan.
-        LibraryPlanning.CalcNetChangePlanForPlanWksh(Item, WorkDate, WorkDate, false);
+        LibraryPlanning.CalcNetChangePlanForPlanWksh(Item, WorkDate(), WorkDate, false);
 
         // Exercise: Generate the Planning Availability report.
         RunPlanningAvailabilityReport(Item."No.", 0D);
@@ -726,7 +725,7 @@ codeunit 137308 "SCM Planning Reports"
 
         // Exercise: Generate the Planning Availability Report with Calculate Net Change plan as required.
         if CalculateNetChangePlan then
-            LibraryPlanning.CalcNetChangePlanForPlanWksh(Item, WorkDate, WorkDate, false);
+            LibraryPlanning.CalcNetChangePlanForPlanWksh(Item, WorkDate(), WorkDate, false);
         RunPlanningAvailabilityReport(ItemNo, 0D);
 
         // Verify: Check values- Scheduled Receipts from Production Order and Projected Balance in the Planning Availability Report.
@@ -819,7 +818,7 @@ codeunit 137308 "SCM Planning Reports"
             UpdateItemMinMaxOrderQty(Item, 0, LibraryRandom.RandDec(5, 2) + 100);  // Value required.
 
         // Planning Worksheet -> Calculate Regenerative plan.
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, WorkDate);
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), WorkDate());
 
         // Exercise: Generate the Planning Availability report.
         RunPlanningAvailabilityReport(Item."No.", 0D);
@@ -871,7 +870,7 @@ codeunit 137308 "SCM Planning Reports"
             UpdateItemMinMaxOrderQty(Item, 0, LibraryRandom.RandDec(5, 2) + 100);  // Value required.
 
         // Planning Worksheet -> Calculate Regenerative plan. Carry-Out Action Message.
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, WorkDate);
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), WorkDate());
         CarryOutActionMessageForRegenPlan(Item."No.");
 
         // Exercise: Generate the Planning Availability report.
@@ -990,7 +989,7 @@ codeunit 137308 "SCM Planning Reports"
 
         // Planning Worksheet -> Calculate Regenerative plan
         LibraryPlanning.CalcRegenPlanForPlanWksh(
-          Item, WorkDate, CalcDate('<' + Format(LibraryRandom.RandInt(5) + 30) + 'D>', WorkDate));
+          Item, WorkDate(), CalcDate('<' + Format(LibraryRandom.RandInt(5) + 30) + 'D>', WorkDate()));
 
         // Exercise: Generate the Planning Availability report.
         RunPlanningAvailabilityReport(Item."No.", 0D);
@@ -1035,7 +1034,7 @@ codeunit 137308 "SCM Planning Reports"
 
         // Planning Worksheet -> Calculate Regenerative plan. Carry-Out Action Message.
         LibraryPlanning.CalcRegenPlanForPlanWksh(
-          Item, WorkDate, CalcDate('<' + Format(LibraryRandom.RandInt(5) + 30) + 'D>', WorkDate));
+          Item, WorkDate(), CalcDate('<' + Format(LibraryRandom.RandInt(5) + 30) + 'D>', WorkDate()));
         CarryOutActionMessageForRegenPlan(Item."No.");
 
         // Exercise: Generate the Planning Availability report.
@@ -1077,7 +1076,7 @@ codeunit 137308 "SCM Planning Reports"
         CreateItem(Item, '', '', Item."Reordering Policy"::"Fixed Reorder Qty.", Item."Replenishment System"::Purchase);
         UpdateItemReorderQty(Item);
         CreateAndPostSalesOrder(SalesLine, Item."No.");
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, WorkDate);
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), WorkDate());
         if CarryOutActionMessage then
             CarryOutActionMessageForRegenPlan(Item."No.");
 
@@ -1100,7 +1099,7 @@ codeunit 137308 "SCM Planning Reports"
     end;
 
     [Test]
-    [HandlerFunctions('MsgHandler,PlanningAvailabilityRequestPageHandler')]
+    [HandlerFunctions('PlanningAvailabilityRequestPageHandler')]
     [Scope('OnPrem')]
     procedure PlanningAvailabilityAfterSalesPostReqWkhstCarryOutActionMsgReorderPolicyFRQ()
     begin
@@ -1129,8 +1128,8 @@ codeunit 137308 "SCM Planning Reports"
             repeat
                 RequisitionLine.Validate("Vendor No.", LibraryPurchase.CreateVendorNo);
                 UpdateActionMessageRequisitionLine(RequisitionLine);
-            until RequisitionLine.Next = 0;
-            LibraryPlanning.CarryOutReqWksh(RequisitionLine, WorkDate, WorkDate, WorkDate, WorkDate, '');
+            until RequisitionLine.Next() = 0;
+            LibraryPlanning.CarryOutReqWksh(RequisitionLine, WorkDate(), WorkDate, WorkDate(), WorkDate, '');
         end;
 
         // Exercise: Generate the Planning Availability report.
@@ -1245,7 +1244,7 @@ codeunit 137308 "SCM Planning Reports"
         // Planning Worksheet -> Calculate Regenerative plan
         Item.Get(ProductionOrder."Source No.");
         LibraryPlanning.CalcRegenPlanForPlanWksh(
-          Item, WorkDate, CalcDate('<' + Format(LibraryRandom.RandInt(5) + 30) + 'D>', WorkDate));
+          Item, WorkDate(), CalcDate('<' + Format(LibraryRandom.RandInt(5) + 30) + 'D>', WorkDate()));
 
         // Exercise: Generate the Planning Availability report.
         RunPlanningAvailabilityReport(ProductionOrder."Source No.", 0D);
@@ -1276,17 +1275,17 @@ codeunit 137308 "SCM Planning Reports"
         Initialize();
         CreateItemAndSKU(Item);
         CreateProductionOrderWithComponent(Item."No.", Item.GetFilter("Location Filter"));
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, WorkDate);
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), WorkDate());
         // [GIVEN] Calc supply, carry out.
         CarryOutActionMessageForRegenPlan(Item."No.");
         // [GIVEN] Partly post supply, then cancel reservation.
         PurchReceiptAndCancelReservation(Item."No.");
         // [GIVEN] Calc supply, carry out, but not post.
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, WorkDate);
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), WorkDate());
         CarryOutActionMessageForRegenPlan(Item."No.");
 
         // [WHEN] Calculating regenerative plan.
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, WorkDate);
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), WorkDate());
 
         // [THEN] No requisition worksheet suggested.
         VerifyActionLinesExists(Item."No.", RecordShould::"Not Exist");
@@ -1621,7 +1620,7 @@ codeunit 137308 "SCM Planning Reports"
             if RequisitionLine."Ref. Order Type" = RequisitionLine."Ref. Order Type"::Purchase then
                 RequisitionLine.Validate("Vendor No.", LibraryPurchase.CreateVendorNo);
             UpdateActionMessageRequisitionLine(RequisitionLine);
-        until RequisitionLine.Next = 0;
+        until RequisitionLine.Next() = 0;
     end;
 
     local procedure SelectRequisitionLineForItem(var RequisitionLine: Record "Requisition Line"; ItemNo: Code[20])
@@ -1766,7 +1765,7 @@ codeunit 137308 "SCM Planning Reports"
         ReqWkshTemplate: Record "Req. Wksh. Template";
     begin
         CreateRequisitionWorksheetName(ReqWkshTemplate, RequisitionWkshName);
-        LibraryPlanning.CalculatePlanForReqWksh(Item, ReqWkshTemplate.Name, RequisitionWkshName.Name, WorkDate, WorkDate);
+        LibraryPlanning.CalculatePlanForReqWksh(Item, ReqWkshTemplate.Name, RequisitionWkshName.Name, WorkDate(), WorkDate());
     end;
 
     [Normal]
@@ -1802,7 +1801,7 @@ codeunit 137308 "SCM Planning Reports"
         SelectPurchaseLine(PurchaseLine, ItemNo);
         with PurchaseLine do begin
             Validate("Qty. to Receive", Quantity / 2);
-            Modify;
+            Modify();
             PurchaseHeader.Get("Document Type", "Document No.");
             LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
         end;
@@ -1941,15 +1940,8 @@ codeunit 137308 "SCM Planning Reports"
             SetRange(Type, Type::Item);
             SetRange("No.", ItemNo);
             Assert.AreEqual(IsEmpty, RecordShould = RecordShould::"Not Exist",
-              StrSubstNo(RecordExistenceErr, TableCaption, RecordShould));
+              StrSubstNo(RecordExistenceErr, TableCaption(), RecordShould));
         end;
-    end;
-
-    [MessageHandler]
-    [Scope('OnPrem')]
-    procedure MsgHandler(Message: Text[1024])
-    begin
-        Assert.ExpectedMessage(MsgWorksheetNo, Message);
     end;
 
     [ConfirmHandler]
@@ -1979,7 +1971,7 @@ codeunit 137308 "SCM Planning Reports"
 
     local procedure GenerateRandomDateNextYear(): Date
     begin
-        exit(CalcDate('<-CY + 1Y>', WorkDate) + LibraryRandom.RandInt(365) - 1);
+        exit(CalcDate('<-CY + 1Y>', WorkDate()) + LibraryRandom.RandInt(365) - 1);
     end;
 
     [Normal]

@@ -36,9 +36,6 @@ page 5229 "Confidential Info. Overview"
                 ApplicationArea = BasicHR;
                 Caption = '&Show Matrix';
                 Image = ShowMatrix;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ToolTip = 'View the data overview according to the selected filters and options.';
 
                 trigger OnAction()
@@ -55,9 +52,6 @@ page 5229 "Confidential Info. Overview"
                 ApplicationArea = BasicHR;
                 Caption = 'Previous Set';
                 Image = PreviousSet;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ToolTip = 'Go to the previous set of data.';
 
                 trigger OnAction()
@@ -70,15 +64,29 @@ page 5229 "Confidential Info. Overview"
                 ApplicationArea = BasicHR;
                 Caption = 'Next Set';
                 Image = NextSet;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ToolTip = 'Go to the next set of data.';
 
                 trigger OnAction()
                 begin
                     GenerateColumnCaptions("Matrix Page Step Type"::Next);
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(ShowMatrix_Promoted; ShowMatrix)
+                {
+                }
+                actionref("Previous Set_Promoted"; "Previous Set")
+                {
+                }
+                actionref("Next Set_Promoted"; "Next Set")
+                {
+                }
             }
         }
     }
@@ -117,7 +125,7 @@ page 5229 "Confidential Info. Overview"
         repeat
             MatrixRecords[CurrentMatrixRecordOrdinal].Copy(MATRIX_MatrixRecord);
             CurrentMatrixRecordOrdinal := CurrentMatrixRecordOrdinal + 1;
-        until (CurrentMatrixRecordOrdinal > MATRIX_CurrSetLength) or (MATRIX_MatrixRecord.Next <> 1);
+        until (CurrentMatrixRecordOrdinal > MATRIX_CurrSetLength) or (MATRIX_MatrixRecord.Next() <> 1);
     end;
 }
 

@@ -11,7 +11,7 @@ codeunit 11706 "Issue Payment Order"
     trigger OnRun()
     begin
         PmtOrdHdr.Copy(Rec);
-        Code;
+        Code();
         Rec := PmtOrdHdr;
     end;
 
@@ -19,7 +19,7 @@ codeunit 11706 "Issue Payment Order"
         BankAccount: Record "Bank Account";
         PmtOrdHdr: Record "Payment Order Header";
         PaymentOrderManagement: Codeunit "Payment Order Management";
-        EmptyPostErr: Label 'There is nothing to post.';
+        DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
         ApprovalProcessReopenErr: Label 'The approval process must be cancelled or completed to reopen this document.';
 
     local procedure "Code"()
@@ -31,7 +31,7 @@ codeunit 11706 "Issue Payment Order"
     begin
         with PmtOrdHdr do begin
             OnBeforeIssuePaymentOrder(PmtOrdHdr);
-            OnCheckPaymentOrderIssueRestrictions;
+            OnCheckPaymentOrderIssueRestrictions();
 
             TestField("Bank Account No.");
             TestField("Document Date");
@@ -41,7 +41,7 @@ codeunit 11706 "Issue Payment Order"
             SetPaymentOrderLineFilters(PmtOrdLn, PmtOrdHdr);
 
             if PmtOrdLn.IsEmpty() then
-                Error(EmptyPostErr);
+                Error(DocumentErrorsMgt.GetNothingToPostErrorMsg());
 
             CheckPaymentOrderLines(PmtOrdHdr);
 
@@ -97,7 +97,7 @@ codeunit 11706 "Issue Payment Order"
             exit;
 
         with PmtOrdLn do begin
-            PaymentOrderManagement.ClearErrorMessageLog;
+            PaymentOrderManagement.ClearErrorMessageLog();
             SetPaymentOrderLineFilters(PmtOrdLn, PmtOrdHdr);
             FindSet();
             repeat

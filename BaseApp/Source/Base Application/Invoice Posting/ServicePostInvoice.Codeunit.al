@@ -1,4 +1,4 @@
-﻿codeunit 817 "Service Post Invoice" implements "Invoice Posting"
+codeunit 817 "Service Post Invoice" implements "Invoice Posting"
 {
     var
         SalesSetup: Record "Sales & Receivables Setup";

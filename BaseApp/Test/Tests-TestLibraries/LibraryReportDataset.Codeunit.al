@@ -74,7 +74,11 @@ codeunit 131007 "Library - Report Dataset"
     var
         Row: XmlNode;
         SearchPattern: Text;
+        ErrorMessageTxt: Text;
+        ActualValue: Variant;
+        FoundValue: Variant;
     begin
+        FoundValue := false;
         foreach Row in Rows do
             if ElementName <> '' then begin
                 case XMLSchemaType of
@@ -83,17 +87,22 @@ codeunit 131007 "Library - Report Dataset"
                     XMLSchemaType::XML:
                         SearchPattern := StrSubstNo(SearchPatternColumnByNameTxt, ElementName)
                 end;
-                if CheckingInRow(SearchPattern, Row, ExpectedValue) then
+                ActualValue := false;
+                if CheckingInRow(SearchPattern, Row, ExpectedValue, ActualValue) then
                     exit;
+                if not ActualValue.IsBoolean() then
+                    FoundValue := ActualValue
             end;
-        Assert.Fail(StrSubstNo(RowNotFoundErr, ElementName, ExpectedValue));
+        ErrorMessageTxt := StrSubstNo(RowNotFoundErr, ElementName, ExpectedValue);
+        if not FoundValue.IsBoolean() then
+            ErrorMessageTxt += StrSubstNo(RowFoundErr, ElementName, FoundValue);
+        Assert.Fail(ErrorMessageTxt);
     end;
 
-    local procedure CheckingInRow(SearchPattern: Text; Row: XmlNode; ExpectedValue: Variant): Boolean
+    local procedure CheckingInRow(SearchPattern: Text; Row: XmlNode; ExpectedValue: Variant; var ActualValue: Variant): Boolean
     var
         SearchResults: XmlNodeList;
         Result: XmlNode;
-        ActualValue: Variant;
     begin
         if Row.SelectNodes(SearchPattern, SearchResults) then
             foreach Result in SearchResults do begin

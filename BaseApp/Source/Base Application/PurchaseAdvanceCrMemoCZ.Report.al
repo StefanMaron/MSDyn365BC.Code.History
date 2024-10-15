@@ -129,7 +129,6 @@ report 31022 "Purchase - Advance Cr. Memo CZ"
             column(RegistrationNo_PurchCrMemoHdr; FieldValueDictionary.Get(RegistrationNoFldTok))
             {
             }
-#if CLEAN18
             column(BankAccountNo_PurchCrMemoHdrCaption; FieldCaptionDictionary.Get(BankAccountNoFldTok))
             {
             }
@@ -148,26 +147,6 @@ report 31022 "Purchase - Advance Cr. Memo CZ"
             column(BIC_PurchCrMemoHdr; FieldValueDictionary.Get(SWIFTCodeFldTok))
             {
             }
-#else
-            column(BankAccountNo_PurchCrMemoHdrCaption; FieldCaption("Bank Account No."))
-            {
-            }
-            column(BankAccountNo_PurchCrMemoHdr; "Bank Account No.")
-            {
-            }
-            column(IBAN_PurchCrMemoHdrCaption; FieldCaption(IBAN))
-            {
-            }
-            column(IBAN_PurchCrMemoHdr; IBAN)
-            {
-            }
-            column(BIC_PurchCrMemoHdrCaption; FieldCaption("SWIFT Code"))
-            {
-            }
-            column(BIC_PurchCrMemoHdr; "SWIFT Code")
-            {
-            }
-#endif
             column(DocumentDate_PurchCrMemoHdrCaption; FieldCaption("Document Date"))
             {
             }
@@ -252,17 +231,13 @@ report 31022 "Purchase - Advance Cr. Memo CZ"
                             VATPostingSetup.Init();
 
                         TempVATAmountLine.Init();
-#if CLEAN18
                         TempVATAmountLine."VAT Identifier" := VATPostingSetup."VAT Identifier";
-#else
-                        TempVATAmountLine."VAT Identifier" := "VAT Identifier";
-#endif
                         TempVATAmountLine."VAT Calculation Type" := "VAT Calculation Type";
                         TempVATAmountLine."Tax Group Code" := "Tax Group Code";
                         TempVATAmountLine."VAT %" := VATPostingSetup."VAT %";
                         TempVATAmountLine."VAT Base" := -"Advance Base";
                         TempVATAmountLine."Amount Including VAT" := -"Advance Base" - Amount;
-                        TempVATAmountLine.InsertLine;
+                        TempVATAmountLine.InsertLine();
                     end;
 
                     trigger OnPreDataItem()
@@ -290,20 +265,12 @@ report 31022 "Purchase - Advance Cr. Memo CZ"
                         AutoFormatExpression = "Purch. Cr. Memo Hdr."."Currency Code";
                         AutoFormatType = 1;
                     }
-#if CLEAN18
                     column(VATAmtLineVATBaseLCY; VATAmountLineVATBaseLCY)
-#else
-                    column(VATAmtLineVATBaseLCY; TempVATAmountLine."VAT Base (LCY)")
-#endif
                     {
                         AutoFormatExpression = "Purch. Cr. Memo Hdr."."Currency Code";
                         AutoFormatType = 1;
                     }
-#if CLEAN18
                     column(VATAmtLineVATAmtLCY; VATAmountLineVATAmountLCY)
-#else
-                    column(VATAmtLineVATAmtLCY; TempVATAmountLine."VAT Amount (LCY)")
-#endif                    
                     {
                         AutoFormatExpression = "Purch. Cr. Memo Hdr."."Currency Code";
                         AutoFormatType = 1;
@@ -314,19 +281,10 @@ report 31022 "Purchase - Advance Cr. Memo CZ"
                         TempVATAmountLine.GetLine(Number);
 
                         if CalculatedExchRate <> 1 then begin
-#if CLEAN18
                             VATAmountLineVATBaseLCY := TempVATAmountLine."VAT Base";
                             VATAmountLineVATAmountLCY := TempVATAmountLine."VAT Amount";
                             TempVATAmountLine."VAT Base" := Round(VATAmountLineVATBaseLCY / CalculatedExchRate * CurrExchRate."Exchange Rate Amount");
                             TempVATAmountLine."VAT Amount" := Round(VATAmountLineVATBaseLCY / CalculatedExchRate * CurrExchRate."Exchange Rate Amount");
-#else
-                            TempVATAmountLine."VAT Base (LCY)" := TempVATAmountLine."VAT Base";
-                            TempVATAmountLine."VAT Amount (LCY)" := TempVATAmountLine."VAT Amount";
-                            TempVATAmountLine."VAT Base" :=
-                              Round(TempVATAmountLine."VAT Base (LCY)" / CalculatedExchRate * CurrExchRate."Exchange Rate Amount");
-                            TempVATAmountLine."VAT Amount" :=
-                              Round(TempVATAmountLine."VAT Amount (LCY)" / CalculatedExchRate * CurrExchRate."Exchange Rate Amount");
-#endif
                         end;
                     end;
 
@@ -342,11 +300,8 @@ report 31022 "Purchase - Advance Cr. Memo CZ"
                     DataItemTableView = SORTING("User ID");
                     dataitem(Employee; Employee)
                     {
-#if not CLEAN18
-                        DataItemLink = "No." = FIELD("Employee No.");
-#endif
                         DataItemTableView = SORTING("No.");
-                        column(FullName_Employee; Employee.FullName)
+                        column(FullName_Employee; Employee.FullName())
                         {
                         }
                         column(PhoneNo_Employee; Employee."Phone No.")
@@ -368,7 +323,7 @@ report 31022 "Purchase - Advance Cr. Memo CZ"
 
                 trigger OnPostDataItem()
                 begin
-                    if not IsReportInPreviewMode then
+                    if not IsReportInPreviewMode() then
                         CODEUNIT.Run(CODEUNIT::"PurchCrMemo-Printed", "Purch. Cr. Memo Hdr.");
                 end;
 
@@ -402,13 +357,13 @@ report 31022 "Purchase - Advance Cr. Memo CZ"
                 FormatAddr.PurchCrMemoPayTo(VendAddr, "Purch. Cr. Memo Hdr.");   // /???
 
                 if "Payment Terms Code" = '' then
-                    PaymentTerms.Init
+                    PaymentTerms.Init()
                 else begin
                     PaymentTerms.Get("Payment Terms Code");
                     PaymentTerms.TranslateDescription(PaymentTerms, "Language Code");
                 end;
                 if "Payment Method Code" = '' then
-                    PaymentMethod.Init
+                    PaymentMethod.Init()
                 else
                     PaymentMethod.Get("Payment Method Code");
 
@@ -462,20 +417,16 @@ report 31022 "Purchase - Advance Cr. Memo CZ"
         FieldCaptionDictionary: Dictionary of [Text[30], Text];
         RegistrationNoFldTok: Label 'Registration No. CZL', Locked = true;
         VATDateFldTok: Label 'VAT Date CZL', Locked = true;
-#if CLEAN18
         BankAccountNoFldTok: Label 'Bank Account No. CZL', Locked = true;
         IBANFldTok: Label 'IBAN CZL', Locked = true;
         SWIFTCodeFldTok: Label 'SWIFT Code CZL', Locked = true;
-#endif
         ExchRateText: Text[50];
         CompanyAddr: array[8] of Text[100];
         VendAddr: array[8] of Text[100];
         DocFooterText: Text[250];
         CalculatedExchRate: Decimal;
-#if CLEAN18
         VATAmountLineVATBaseLCY: Decimal;
         VATAmountLineVATAmountLCY: Decimal;
-#endif
         NoOfCopies: Integer;
         CopyNo: Integer;
         NoOfLoops: Integer;
@@ -499,18 +450,16 @@ report 31022 "Purchase - Advance Cr. Memo CZ"
     var
         MailManagement: Codeunit "Mail Management";
     begin
-        exit(CurrReport.Preview or MailManagement.IsHandlingGetEmailBody);
+        exit(CurrReport.Preview or MailManagement.IsHandlingGetEmailBody());
     end;
 
     local procedure EnlistExtensionFields(var FieldValueDictionary: Dictionary of [Text[30], Text]; var FieldCaptionDictionary: Dictionary of [Text[30], Text])
     begin
         FieldValueDictionary.Add(RegistrationNoFldTok, '');
         FieldValueDictionary.Add(VATDateFldTok, '');
-#if CLEAN18
         FieldValueDictionary.Add(BankAccountNoFldTok, '');
         FieldValueDictionary.Add(IBANFldTok, '');
         FieldValueDictionary.Add(SWIFTCodeFldTok, '');
-#endif
 
         ExtensionFieldsManagement.CopyDictionaryKeys(FieldValueDictionary, FieldCaptionDictionary);
     end;

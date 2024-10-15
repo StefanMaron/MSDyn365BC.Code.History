@@ -3,7 +3,6 @@ page 7209 "CDS Couple Salespersons"
     Caption = 'Couple Dataverse Users with Salespersons', Comment = 'Dataverse is the name of a Microsoft Service and should not be translated.';
     DeleteAllowed = false;
     InsertAllowed = false;
-    PromotedActionCategories = 'Create';
     PageType = List;
     SourceTable = "CRM Systemuser";
     SourceTableView = SORTING(FullName) WHERE(IsIntegrationUser = CONST(false), IsDisabled = CONST(false), IsLicensed = CONST(true));
@@ -94,10 +93,6 @@ page 7209 "CDS Couple Salespersons"
                     Caption = 'Create Salesperson';
                     Image = NewCustomer;
                     Enabled = HasPermissions;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
-                    PromotedOnly = true;
                     ToolTip = 'Create the Dataverse user as a salesperson in Business Central.';
 
                     trigger OnAction()
@@ -119,10 +114,6 @@ page 7209 "CDS Couple Salespersons"
                     AccessByPermission = TableData "CRM Integration Record" = D;
                     ApplicationArea = Suite;
                     Enabled = HasPermissions;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
-                    PromotedOnly = true;
                     Caption = 'Delete Coupling';
                     Image = UnLinkAccount;
                     ToolTip = 'Delete the coupling between the user in Dataverse and salesperson in Business Central.';
@@ -151,8 +142,6 @@ page 7209 "CDS Couple Salespersons"
                     Caption = 'Match-Based Coupling';
                     Enabled = HasPermissions;
                     Image = LinkAccount;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Couple salespersons to users in Dataverse based on criteria.';
 
                     trigger OnAction()
@@ -181,6 +170,27 @@ page 7209 "CDS Couple Salespersons"
                         CRMIntegrationManagement.MatchBasedCoupling(IntegrationTableMapping."Table ID", false, false, true);
                         CurrPage.Update(false);
                     end;
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_New)
+            {
+                Caption = 'Create', Comment = 'Generated from the PromotedActionCategories property index 0.';
+            }
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref(CreateFromCDS_Promoted; CreateFromCDS)
+                {
+                }
+                actionref(DeleteCDSCoupling_Promoted; DeleteCDSCoupling)
+                {
+                }
+                actionref(MatchBasedCoupling_Promoted; MatchBasedCoupling)
+                {
                 }
             }
         }

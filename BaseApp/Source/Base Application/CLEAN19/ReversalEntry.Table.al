@@ -329,7 +329,7 @@ table 179 "Reversal Entry"
         OnBeforeCheckEntries(Rec, DATABASE::"G/L Entry", SkipCheck);
         if not SkipCheck then begin
             if GLEntry.IsEmpty() then
-                Error(CannotReverseDeletedErr, GLEntry.TableCaption, GLAcc.TableCaption);
+                Error(CannotReverseDeletedErr, GLEntry.TableCaption(), GLAcc.TableCaption());
             if GLEntry.Find('-') then begin
                 CheckGLEntry();
                 repeat
@@ -418,7 +418,7 @@ table 179 "Reversal Entry"
             exit;
 
         if GLEntry."Journal Batch Name" = '' then
-            TestFieldError;
+            TestFieldError();
     end;
 
     local procedure CheckGLAcc(GLEntry: Record "G/L Entry"; var BalanceCheckAmount: Decimal; var BalanceCheckAddCurrAmount: Decimal)
@@ -429,7 +429,7 @@ table 179 "Reversal Entry"
         OnBeforeCheckGLAcc(GLEntry);
 
         GLAcc.Get(GLEntry."G/L Account No.");
-        CheckPostingDate(GLEntry."Posting Date", GLEntry.TableCaption, GLEntry."Entry No.");
+        CheckPostingDate(GLEntry."Posting Date", GLEntry.TableCaption(), GLEntry."Entry No.");
         IsHandled := false;
         OnCheckGLAccOnBeforeTestFields(GLAcc, GLEntry, IsHandled);
         if not IsHandled then begin
@@ -437,7 +437,7 @@ table 179 "Reversal Entry"
             GLEntry.TestField("Job No.", '');
         end;
         if GLEntry.Reversed then
-            AlreadyReversedEntry(GLEntry.TableCaption, GLEntry."Entry No.");
+            AlreadyReversedEntry(GLEntry.TableCaption(), GLEntry."Entry No.");
         BalanceCheckAmount := BalanceCheckAmount + GLEntry.Amount;
         if GLSetup."Additional Reporting Currency" <> '' then
             BalanceCheckAddCurrAmount := BalanceCheckAddCurrAmount + GLEntry."Additional-Currency Amount";
@@ -453,10 +453,10 @@ table 179 "Reversal Entry"
 
         Cust.Get(CustLedgEntry."Customer No.");
         CheckPostingDate(
-          CustLedgEntry."Posting Date", CustLedgEntry.TableCaption, CustLedgEntry."Entry No.");
+          CustLedgEntry."Posting Date", CustLedgEntry.TableCaption(), CustLedgEntry."Entry No.");
         Cust.CheckBlockedCustOnJnls(Cust, CustLedgEntry."Document Type", false);
         if CustLedgEntry.Reversed then
-            AlreadyReversedEntry(CustLedgEntry.TableCaption, CustLedgEntry."Entry No.");
+            AlreadyReversedEntry(CustLedgEntry.TableCaption(), CustLedgEntry."Entry No.");
         CheckDtldCustLedgEntry(CustLedgEntry);
 
         OnAfterCheckCust(Cust, CustLedgEntry);
@@ -470,10 +470,10 @@ table 179 "Reversal Entry"
 
         Vend.Get(VendLedgEntry."Vendor No.");
         CheckPostingDate(
-          VendLedgEntry."Posting Date", VendLedgEntry.TableCaption, VendLedgEntry."Entry No.");
+          VendLedgEntry."Posting Date", VendLedgEntry.TableCaption(), VendLedgEntry."Entry No.");
         Vend.CheckBlockedVendOnJnls(Vend, VendLedgEntry."Document Type", false);
         if VendLedgEntry.Reversed then
-            AlreadyReversedEntry(VendLedgEntry.TableCaption, VendLedgEntry."Entry No.");
+            AlreadyReversedEntry(VendLedgEntry.TableCaption(), VendLedgEntry."Entry No.");
         CheckDtldVendLedgEntry(VendLedgEntry);
 
         OnAfterCheckVend(Vend, VendLedgEntry);
@@ -486,10 +486,10 @@ table 179 "Reversal Entry"
         OnBeforeCheckEmpl(EmployeeLedgerEntry);
         Employee.Get(EmployeeLedgerEntry."Employee No.");
         CheckPostingDate(
-          EmployeeLedgerEntry."Posting Date", EmployeeLedgerEntry.TableCaption, EmployeeLedgerEntry."Entry No.");
+          EmployeeLedgerEntry."Posting Date", EmployeeLedgerEntry.TableCaption(), EmployeeLedgerEntry."Entry No.");
         Employee.CheckBlockedEmployeeOnJnls(false);
         if EmployeeLedgerEntry.Reversed then
-            AlreadyReversedEntry(EmployeeLedgerEntry.TableCaption, EmployeeLedgerEntry."Entry No.");
+            AlreadyReversedEntry(EmployeeLedgerEntry.TableCaption(), EmployeeLedgerEntry."Entry No.");
         CheckDtldEmplLedgEntry(EmployeeLedgerEntry);
 
         OnAfterCheckEmpl(Employee, EmployeeLedgerEntry);
@@ -504,20 +504,20 @@ table 179 "Reversal Entry"
 
         BankAcc.Get(BankAccLedgEntry."Bank Account No.");
         CheckPostingDate(
-          BankAccLedgEntry."Posting Date", BankAccLedgEntry.TableCaption, BankAccLedgEntry."Entry No.");
+          BankAccLedgEntry."Posting Date", BankAccLedgEntry.TableCaption(), BankAccLedgEntry."Entry No.");
         BankAcc.TestField(Blocked, false);
         if BankAccLedgEntry.Reversed then
-            AlreadyReversedEntry(BankAccLedgEntry.TableCaption, BankAccLedgEntry."Entry No.");
+            AlreadyReversedEntry(BankAccLedgEntry.TableCaption(), BankAccLedgEntry."Entry No.");
         if not BankAccLedgEntry.Open then
             Error(
-              Text006, BankAccLedgEntry.TableCaption, BankAccLedgEntry."Entry No.");
+              Text006, BankAccLedgEntry.TableCaption(), BankAccLedgEntry."Entry No.");
         if BankAccLedgEntry."Statement No." <> '' then
             Error(
-              Text007, BankAccLedgEntry.TableCaption, BankAccLedgEntry."Entry No.");
+              Text007, BankAccLedgEntry.TableCaption(), BankAccLedgEntry."Entry No.");
         CheckLedgEntry.SetRange("Bank Account Ledger Entry No.", BankAccLedgEntry."Entry No.");
         if not CheckLedgEntry.IsEmpty() then
             Error(
-              Text003, BankAccLedgEntry.TableCaption, BankAccLedgEntry."Entry No.");
+              Text003, BankAccLedgEntry.TableCaption(), BankAccLedgEntry."Entry No.");
 
         OnAfterCheckBankAcc(BankAcc, BankAccLedgEntry);
     end;
@@ -531,13 +531,13 @@ table 179 "Reversal Entry"
         OnBeforeCheckFA(FALedgEntry);
         FA.Get(FALedgEntry."FA No.");
         CheckPostingDate(
-          FALedgEntry."Posting Date", FALedgEntry.TableCaption, FALedgEntry."Entry No.");
+          FALedgEntry."Posting Date", FALedgEntry.TableCaption(), FALedgEntry."Entry No.");
         CheckFAPostingDate(
-          FALedgEntry."FA Posting Date", FALedgEntry.TableCaption, FALedgEntry."Entry No.");
+          FALedgEntry."FA Posting Date", FALedgEntry.TableCaption(), FALedgEntry."Entry No.");
         FA.TestField(Blocked, false);
         FA.TestField(Inactive, false);
         if FALedgEntry.Reversed then
-            AlreadyReversedEntry(FALedgEntry.TableCaption, FALedgEntry."Entry No.");
+            AlreadyReversedEntry(FALedgEntry.TableCaption(), FALedgEntry."Entry No.");
         FALedgEntry.TestField("Depreciation Book Code");
         FADeprBook.Get(FA."No.", FALedgEntry."Depreciation Book Code");
         if FADeprBook."Disposal Date" <> 0D then
@@ -555,14 +555,14 @@ table 179 "Reversal Entry"
         OnBeforeCheckMaintenance(MaintenanceLedgEntry);
         FA.Get(MaintenanceLedgEntry."FA No.");
         CheckPostingDate(
-          MaintenanceLedgEntry."Posting Date", MaintenanceLedgEntry.TableCaption, MaintenanceLedgEntry."Entry No.");
+          MaintenanceLedgEntry."Posting Date", MaintenanceLedgEntry.TableCaption(), MaintenanceLedgEntry."Entry No.");
         CheckFAPostingDate(
-          MaintenanceLedgEntry."FA Posting Date", MaintenanceLedgEntry.TableCaption, MaintenanceLedgEntry."Entry No.");
+          MaintenanceLedgEntry."FA Posting Date", MaintenanceLedgEntry.TableCaption(), MaintenanceLedgEntry."Entry No.");
         FA.TestField(Blocked, false);
         FA.TestField(Inactive, false);
         MaintenanceLedgEntry.TestField("Depreciation Book Code");
         if MaintenanceLedgEntry.Reversed then
-            AlreadyReversedEntry(MaintenanceLedgEntry.TableCaption, MaintenanceLedgEntry."Entry No.");
+            AlreadyReversedEntry(MaintenanceLedgEntry.TableCaption(), MaintenanceLedgEntry."Entry No.");
         FADeprBook.Get(FA."No.", MaintenanceLedgEntry."Depreciation Book Code");
         MaintenanceLedgEntry.TestField("G/L Entry No.");
 
@@ -573,14 +573,14 @@ table 179 "Reversal Entry"
     begin
         OnBeforeCheckVAT(VATEntry);
 
-        CheckPostingDate(VATEntry."Posting Date", VATEntry.TableCaption, VATEntry."Entry No.");
+        CheckPostingDate(VATEntry."Posting Date", VATEntry.TableCaption(), VATEntry."Entry No.");
         if VATEntry.Closed then
             Error(
-              Text006, VATEntry.TableCaption, VATEntry."Entry No.");
+              Text006, VATEntry.TableCaption(), VATEntry."Entry No.");
         if VATEntry.Reversed then
-            AlreadyReversedEntry(VATEntry.TableCaption, VATEntry."Entry No.");
+            AlreadyReversedEntry(VATEntry.TableCaption(), VATEntry."Entry No.");
         if VATEntry."Unrealized VAT Entry No." <> 0 then
-            Error(UnrealizedVATReverseError(VATEntry.TableCaption, VATEntry."Entry No."));
+            Error(UnrealizedVATReverseError(VATEntry.TableCaption(), VATEntry."Entry No."));
 
         OnAfterCheckVAT(VATEntry);
     end;
@@ -600,7 +600,7 @@ table 179 "Reversal Entry"
         DtldCustLedgEntry.SetFilter("Entry Type", '<>%1', DtldCustLedgEntry."Entry Type"::"Initial Entry");
         DtldCustLedgEntry.SetRange(Unapplied, false);
         if not DtldCustLedgEntry.IsEmpty() then
-            Error(ReversalErrorForChangedEntry(CustLedgEntry.TableCaption, CustLedgEntry."Entry No."));
+            Error(ReversalErrorForChangedEntry(CustLedgEntry.TableCaption(), CustLedgEntry."Entry No."));
 
         DtldCustLedgEntry.Reset();
         DtldCustLedgEntry.SetCurrentKey("Transaction No.", "Customer No.", "Entry Type");
@@ -609,7 +609,7 @@ table 179 "Reversal Entry"
         DtldCustLedgEntry.SetFilter("Entry Type", '%1|%2',
           DtldCustLedgEntry."Entry Type"::"Realized Gain", DtldCustLedgEntry."Entry Type"::"Realized Loss");
         if not DtldCustLedgEntry.IsEmpty() then
-            Error(Text013, CustLedgEntry.TableCaption, CustLedgEntry."Entry No.");
+            Error(Text013, CustLedgEntry.TableCaption(), CustLedgEntry."Entry No.");
 
         OnAfterCheckDtldCustLedgEntry(DtldCustLedgEntry, CustLedgEntry);
     end;
@@ -629,7 +629,7 @@ table 179 "Reversal Entry"
         DtldVendLedgEntry.SetFilter("Entry Type", '<>%1', DtldVendLedgEntry."Entry Type"::"Initial Entry");
         DtldVendLedgEntry.SetRange(Unapplied, false);
         if not DtldVendLedgEntry.IsEmpty() then
-            Error(ReversalErrorForChangedEntry(VendLedgEntry.TableCaption, VendLedgEntry."Entry No."));
+            Error(ReversalErrorForChangedEntry(VendLedgEntry.TableCaption(), VendLedgEntry."Entry No."));
 
         DtldVendLedgEntry.Reset();
         DtldVendLedgEntry.SetCurrentKey("Transaction No.", "Vendor No.", "Entry Type");
@@ -638,7 +638,7 @@ table 179 "Reversal Entry"
         DtldVendLedgEntry.SetFilter("Entry Type", '%1|%2',
           DtldVendLedgEntry."Entry Type"::"Realized Gain", DtldVendLedgEntry."Entry Type"::"Realized Loss");
         if not DtldVendLedgEntry.IsEmpty() then
-            Error(Text013, VendLedgEntry.TableCaption, VendLedgEntry."Entry No.");
+            Error(Text013, VendLedgEntry.TableCaption(), VendLedgEntry."Entry No.");
 
         OnAfterCheckDtldVendLedgEntry(DtldVendLedgEntry, VendLedgEntry);
     end;
@@ -651,7 +651,7 @@ table 179 "Reversal Entry"
         DetailedEmployeeLedgerEntry.SetFilter("Entry Type", '<>%1', DetailedEmployeeLedgerEntry."Entry Type"::"Initial Entry");
         DetailedEmployeeLedgerEntry.SetRange(Unapplied, false);
         if not DetailedEmployeeLedgerEntry.IsEmpty() then
-            Error(ReversalErrorForChangedEntry(EmployeeLedgerEntry.TableCaption, EmployeeLedgerEntry."Entry No."));
+            Error(ReversalErrorForChangedEntry(EmployeeLedgerEntry.TableCaption(), EmployeeLedgerEntry."Entry No."));
 
         OnAfterCheckDtldEmplLedgEntry(DetailedEmployeeLedgerEntry, EmployeeLedgerEntry);
     end;
@@ -668,9 +668,9 @@ table 179 "Reversal Entry"
 
         GLReg.Get(RegisterNo);
         if GLReg.Reversed then
-            Error(Text010, GLReg.TableCaption, GLReg."No.");
+            Error(Text010, GLReg.TableCaption(), GLReg."No.");
         if GLReg."Journal Batch Name" = '' then
-            TempReversalEntry.TestFieldError;
+            TempReversalEntry.TestFieldError();
     end;
 
     procedure SetReverseFilter(Number: Integer; RevType: Option Transaction,Register)
@@ -780,46 +780,46 @@ table 179 "Reversal Entry"
                 begin
                     if GLEntry.Get("Entry No.") then;
                     if GLAcc.Get(GLEntry."G/L Account No.") then;
-                    exit(StrSubstNo('%1 %2 %3', GLAcc.TableCaption, GLAcc."No.", GLAcc.Name));
+                    exit(StrSubstNo('%1 %2 %3', GLAcc.TableCaption(), GLAcc."No.", GLAcc.Name));
                 end;
             "Entry Type"::Customer:
                 begin
                     if CustLedgEntry.Get("Entry No.") then;
                     if Cust.Get(CustLedgEntry."Customer No.") then;
-                    exit(StrSubstNo('%1 %2 %3', Cust.TableCaption, Cust."No.", Cust.Name));
+                    exit(StrSubstNo('%1 %2 %3', Cust.TableCaption(), Cust."No.", Cust.Name));
                 end;
             "Entry Type"::Vendor:
                 begin
                     if VendLedgEntry.Get("Entry No.") then;
                     if Vend.Get(VendLedgEntry."Vendor No.") then;
-                    exit(StrSubstNo('%1 %2 %3', Vend.TableCaption, Vend."No.", Vend.Name));
+                    exit(StrSubstNo('%1 %2 %3', Vend.TableCaption(), Vend."No.", Vend.Name));
                 end;
             "Entry Type"::Employee:
                 begin
                     if EmployeeLedgerEntry.Get("Entry No.") then;
                     if Employee.Get(EmployeeLedgerEntry."Employee No.") then;
-                    exit(StrSubstNo('%1 %2 %3', Employee.TableCaption, Employee."No.", Employee.FullName));
+                    exit(StrSubstNo('%1 %2 %3', Employee.TableCaption(), Employee."No.", Employee.FullName()));
                 end;
             "Entry Type"::"Bank Account":
                 begin
                     if BankAccLedgEntry.Get("Entry No.") then;
                     if BankAcc.Get(BankAccLedgEntry."Bank Account No.") then;
-                    exit(StrSubstNo('%1 %2 %3', BankAcc.TableCaption, BankAcc."No.", BankAcc.Name));
+                    exit(StrSubstNo('%1 %2 %3', BankAcc.TableCaption(), BankAcc."No.", BankAcc.Name));
                 end;
             "Entry Type"::"Fixed Asset":
                 begin
                     if FALedgEntry.Get("Entry No.") then;
                     if FA.Get(FALedgEntry."FA No.") then;
-                    exit(StrSubstNo('%1 %2 %3', FA.TableCaption, FA."No.", FA.Description));
+                    exit(StrSubstNo('%1 %2 %3', FA.TableCaption(), FA."No.", FA.Description));
                 end;
             "Entry Type"::Maintenance:
                 begin
                     if MaintenanceLedgEntry.Get("Entry No.") then;
                     if FA.Get(MaintenanceLedgEntry."FA No.") then;
-                    exit(StrSubstNo('%1 %2 %3', FA.TableCaption, FA."No.", FA.Description));
+                    exit(StrSubstNo('%1 %2 %3', FA.TableCaption(), FA."No.", FA.Description));
                 end;
             "Entry Type"::VAT:
-                exit(StrSubstNo('%1', VATEntry.TableCaption));
+                exit(StrSubstNo('%1', VATEntry.TableCaption()));
             else begin
                     OnAfterCaption(Rec, NewCaption);
                     exit(NewCaption);
@@ -1142,7 +1142,7 @@ table 179 "Reversal Entry"
                     TempReversalEntry."Reversal Type" := RevType;
                     TempReversalEntry."Entry Type" := TempReversalEntry."Entry Type"::"G/L Account";
                     if not GLAcc.Get(GLEntry."G/L Account No.") then
-                        Error(CannotReverseDeletedErr, GLEntry.TableCaption, GLAcc.TableCaption);
+                        Error(CannotReverseDeletedErr, GLEntry.TableCaption(), GLAcc.TableCaption());
                     TempReversalEntry."Account No." := GLAcc."No.";
                     TempReversalEntry."Account Name" := GLAcc.Name;
                     TempReversalEntry.CopyFromGLEntry(GLEntry);
@@ -1167,7 +1167,7 @@ table 179 "Reversal Entry"
         TempReversalEntry."Entry Type" := TempReversalEntry."Entry Type"::Employee;
         Employee.Get(EmployeeLedgerEntry."Employee No.");
         TempReversalEntry."Account No." := Employee."No.";
-        TempReversalEntry."Account Name" := CopyStr(Employee.FullName, 1, MaxStrLen(TempReversalEntry."Account Name"));
+        TempReversalEntry."Account Name" := CopyStr(Employee.FullName(), 1, MaxStrLen(TempReversalEntry."Account Name"));
         TempReversalEntry.CopyFromEmployeeLedgerEntry(EmployeeLedgerEntry);
         TempReversalEntry."Line No." := NextLineNo;
         TempReversalEntry.Insert();
@@ -1662,4 +1662,5 @@ table 179 "Reversal Entry"
     begin
     end;
 }
+
 #endif

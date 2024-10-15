@@ -408,11 +408,11 @@ codeunit 134230 "ERM - Dimensions 7.0 Test"
     local procedure CreateDimensionSelectionBuffer(var TempDimensionSelectionBuffer: Record "Dimension Selection Buffer" temporary; LevelValue: Option; CodeValue: Code[20])
     begin
         with TempDimensionSelectionBuffer do begin
-            Init;
+            Init();
             Level := LevelValue;
             Code := CodeValue;
             Selected := true;
-            Insert;
+            Insert();
         end;
     end;
 

@@ -1,4 +1,4 @@
-﻿table 1294 "Applied Payment Entry"
+table 1294 "Applied Payment Entry"
 {
     Caption = 'Applied Payment Entry';
     LookupPageID = "Payment Application";
@@ -54,9 +54,9 @@
             trigger OnValidate()
             begin
                 if "Account No." = '' then
-                    CheckApplnIsSameAcc;
+                    CheckApplnIsSameAcc();
 
-                GetAccInfo;
+                GetAccInfo();
                 Validate("Applies-to Entry No.", 0);
             end;
         }
@@ -118,10 +118,10 @@
                     exit;
                 end;
 
-                CheckCurrencyCombination;
-                GetLedgEntryInfo;
+                CheckCurrencyCombination();
+                GetLedgEntryInfo();
                 UpdatePaymentDiscount(SuggestDiscToApply(false));
-                Validate("Applied Amount", SuggestAmtToApply);
+                Validate("Applied Amount", SuggestAmtToApply());
             end;
         }
         field(24; "Applied Amount"; Decimal)
@@ -132,10 +132,10 @@
             begin
                 if "Applies-to Entry No." <> 0 then
                     TestField("Applied Amount");
-                CheckEntryAmt;
+                CheckEntryAmt();
                 UpdatePaymentDiscount(SuggestDiscToApply(true));
                 if "Applied Pmt. Discount" <> 0 then
-                    "Applied Amount" := SuggestAmtToApply;
+                    "Applied Amount" := SuggestAmtToApply();
 
                 UpdateParentBankAccReconLine(false);
             end;
@@ -215,9 +215,6 @@
         {
             Caption = 'Constant Symbol';
             CharAllowed = '09';
-#if not CLEAN18
-            TableRelation = "Constant Symbol";
-#endif
 #if not CLEAN19
             ObsoleteState = Pending;
 #else
@@ -257,7 +254,7 @@
         "Applied Amount" := 0;
         "Applied Pmt. Discount" := 0;
         UpdateParentBankAccReconLine(true);
-        ClearCustVendEntryApplicationData;
+        ClearCustVendEntryApplicationData();
     end;
 
     trigger OnInsert()
@@ -265,13 +262,13 @@
         if "Applies-to Entry No." <> 0 then
             TestField("Applied Amount");
 
-        CheckApplnIsSameAcc;
+        CheckApplnIsSameAcc();
     end;
 
     trigger OnModify()
     begin
         TestField("Applied Amount");
-        CheckApplnIsSameAcc;
+        CheckApplnIsSameAcc();
     end;
 
     var
@@ -319,14 +316,14 @@
 
         BankAccReconLine.Get("Statement Type", "Bank Account No.", "Statement No.", "Statement Line No.");
         // Amount should not exceed Remaining Amount
-        AmtAvailableToApply := GetRemAmt - GetAmtAppliedToOtherStmtLines;
+        AmtAvailableToApply := GetRemAmt() - GetAmtAppliedToOtherStmtLines();
         if "Applies-to Entry No." <> 0 then
             if "Applied Amount" > 0 then begin
                 if not ("Applied Amount" in [0 .. AmtAvailableToApply]) then
-                    Error(AmtCannotExceedErr, AmtAvailableToApply, GetRemAmt, GetAmtAppliedToOtherStmtLines);
+                    Error(AmtCannotExceedErr, AmtAvailableToApply, GetRemAmt(), GetAmtAppliedToOtherStmtLines());
             end else
                 if not ("Applied Amount" in [AmtAvailableToApply .. 0]) then
-                    Error(AmtCannotExceedErr, AmtAvailableToApply, GetRemAmt, GetAmtAppliedToOtherStmtLines);
+                    Error(AmtCannotExceedErr, AmtAvailableToApply, GetRemAmt(), GetAmtAppliedToOtherStmtLines());
     end;
 
     local procedure UpdateParentBankAccReconLine(IsDelete: Boolean)
@@ -362,7 +359,7 @@
                 BankAccReconLine.Validate("Account Type", "Account Type");
                 BankAccReconLine.Validate("Account No.", "Account No.");
             end else
-                CheckApplnIsSameAcc;
+                CheckApplnIsSameAcc();
 
 #if not CLEAN19
         // NAVCZ
@@ -376,7 +373,7 @@
             end;
 
             if "Applies-to Entry No." = -1 then
-                BankAccReconLine.UnlinkWholeLetters;
+                BankAccReconLine.UnlinkWholeLetters();
         end else
             if BankAcc."Dimension from Apply Entry" and ("Applies-to Entry No." <> 0) then
                 case "Account Type" of
@@ -430,7 +427,7 @@
             exit(false);
 
         SalesAdvanceLetterLine.SetRange("Link Code", BankAccReconLine."Advance Letter Link Code");
-        exit(SalesAdvanceLetterLine.FindSet);
+        exit(SalesAdvanceLetterLine.FindSet());
     end;
 
     [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
@@ -441,7 +438,7 @@
             exit(false);
 
         PurchAdvanceLetterLine.SetRange("Link Code", BankAccReconLine."Advance Letter Link Code");
-        exit(PurchAdvanceLetterLine.FindSet);
+        exit(PurchAdvanceLetterLine.FindSet());
     end;
 
 #endif
@@ -455,9 +452,9 @@
 #endif        
     begin
 #if CLEAN19
-        if IsBankLCY then
+        if IsBankLCY() then
 #else
-        if IsBankAccReconciliationLineLCY then // NAVCZ
+        if IsBankAccReconciliationLineLCY() then // NAVCZ
 #endif
             exit;
 
@@ -472,19 +469,19 @@
             "Account Type"::Customer:
                 begin
                     CustLedgEntry.Get("Applies-to Entry No.");
-                    if not CurrencyMatches("Bank Account No.", CustLedgEntry."Currency Code", GetLCYCode) then
+                    if not CurrencyMatches("Bank Account No.", CustLedgEntry."Currency Code", GetLCYCode()) then
                         Error(CurrencyMismatchErr, "Bank Account No.", "Applies-to Entry No.");
                 end;
             "Account Type"::Vendor:
                 begin
                     VendorLedgEntry.Get("Applies-to Entry No.");
-                    if not CurrencyMatches("Bank Account No.", VendorLedgEntry."Currency Code", GetLCYCode) then
+                    if not CurrencyMatches("Bank Account No.", VendorLedgEntry."Currency Code", GetLCYCode()) then
                         Error(CurrencyMismatchErr, "Bank Account No.", "Applies-to Entry No.");
                 end;
             "Account Type"::"Bank Account":
                 begin
                     BankAccLedgEntry.Get("Applies-to Entry No.");
-                    if not CurrencyMatches("Bank Account No.", BankAccLedgEntry."Currency Code", GetLCYCode) then
+                    if not CurrencyMatches("Bank Account No.", BankAccLedgEntry."Currency Code", GetLCYCode()) then
                         Error(CurrencyMismatchErr, "Bank Account No.", "Applies-to Entry No.");
                 end;
 #if not CLEAN19
@@ -492,7 +489,7 @@
             "Account Type"::"G/L Account":
                 begin
                     GLEntry.Get("Applies-to Entry No.");
-                    if not CurrencyMatches("Bank Account No.", GetLCYCode, GetLCYCode) then
+                    if not CurrencyMatches("Bank Account No.", GetLCYCode(), GetLCYCode()) then
                         Error(CurrencyMismatchErr, "Bank Account No.", "Applies-to Entry No.");
                 end;
         // NAVCZ
@@ -538,7 +535,7 @@
         BankAcc: Record "Bank Account";
     begin
         BankAcc.Get("Bank Account No.");
-        exit(BankAcc.IsInLocalCurrency);
+        exit(BankAcc.IsInLocalCurrency());
     end;
 
     local procedure GetLCYCode(): Code[10]
@@ -554,8 +551,8 @@
         RemAmtToApply: Decimal;
         LineRemAmtToApply: Decimal;
     begin
-        RemAmtToApply := GetRemAmt - GetAmtAppliedToOtherStmtLines;
-        LineRemAmtToApply := GetStmtLineRemAmtToApply + "Applied Pmt. Discount";
+        RemAmtToApply := GetRemAmt() - GetAmtAppliedToOtherStmtLines();
+        LineRemAmtToApply := GetStmtLineRemAmtToApply() + "Applied Pmt. Discount";
 
         if "Account Type" = "Account Type"::Customer then
             if (LineRemAmtToApply >= 0) and ("Document Type" = "Document Type"::"Credit Memo") then
@@ -578,9 +575,9 @@
     begin
         if InclPmtDisc(UseAppliedAmt) then begin
             GetDiscInfo(PmtDiscDueDate, PmtDiscToleranceDate, RemPmtDiscPossible);
-            exit(RemPmtDiscPossible + GetAcceptedPmtTolerance);
+            exit(RemPmtDiscPossible + GetAcceptedPmtTolerance());
         end;
-        exit(GetAcceptedPmtTolerance);
+        exit(GetAcceptedPmtTolerance());
     end;
 
     procedure GetDiscInfo(var PmtDiscDueDate: Date; var PmtDiscToleranceDate: Date; var RemPmtDiscPossible: Decimal)
@@ -615,7 +612,7 @@
         PmtDiscDueDate := CustLedgEntry."Pmt. Discount Date";
         PmtDiscToleranceDate := CustLedgEntry."Pmt. Disc. Tolerance Date";
 #if CLEAN19
-        if IsBankLCY and (CustLedgEntry."Currency Code" <> '') then
+        if IsBankLCY() and (CustLedgEntry."Currency Code" <> '') then
 #else
         if IsBankAccReconciliationLineLCY and (CustLedgEntry."Currency Code" <> '') then // NAVCZ
 #endif
@@ -634,7 +631,7 @@
         PmtDiscToleranceDate := VendLedgEntry."Pmt. Disc. Tolerance Date";
         VendLedgEntry.CalcFields("Amount (LCY)", Amount);
 #if CLEAN19
-        if IsBankLCY and (VendLedgEntry."Currency Code" <> '') then
+        if IsBankLCY() and (VendLedgEntry."Currency Code" <> '') then
 #else
         if IsBankAccReconciliationLineLCY and (VendLedgEntry."Currency Code" <> '') then // NAVCZ
 #endif
@@ -649,7 +646,8 @@
         if "Account No." = '' then
             exit(0);
         if "Applies-to Entry No." = 0 then
-            exit(GetStmtLineRemAmtToApply);
+            exit(GetStmtLineRemAmtToApply());
+
 #if not CLEAN19
         // NAVCZ
         if "Applies-to Entry No." = -1 then
@@ -658,13 +656,13 @@
 #endif
         case "Account Type" of
             "Account Type"::Customer:
-                exit(GetCustLedgEntryRemAmt);
+                exit(GetCustLedgEntryRemAmt());
             "Account Type"::Vendor:
-                exit(GetVendLedgEntryRemAmt);
+                exit(GetVendLedgEntryRemAmt());
             "Account Type"::Employee:
                 exit(GetEmployeeLedgEntryRemAmt());
             "Account Type"::"Bank Account":
-                exit(GetBankAccLedgEntryRemAmt);
+                exit(GetBankAccLedgEntryRemAmt());
 #if not CLEAN19
             // NAVCZ
             "Account Type"::"G/L Account":
@@ -686,9 +684,9 @@
             exit(0);
         case "Account Type" of
             "Account Type"::Customer:
-                exit(GetCustLedgEntryPmtTolAmt);
+                exit(GetCustLedgEntryPmtTolAmt());
             "Account Type"::Vendor:
-                exit(GetVendLedgEntryPmtTolAmt);
+                exit(GetVendLedgEntryPmtTolAmt());
         end;
 
         OnAfterGetAcceptedPmtTolerance(Rec, Result);
@@ -701,7 +699,7 @@
     begin
         CustLedgEntry.Get("Applies-to Entry No.");
 #if CLEAN19
-        if IsBankLCY and (CustLedgEntry."Currency Code" <> '') then begin
+        if IsBankLCY() and (CustLedgEntry."Currency Code" <> '') then begin
 #else
         if IsBankAccReconciliationLineLCY and (CustLedgEntry."Currency Code" <> '') then begin // NAVCZ
 #endif
@@ -722,7 +720,7 @@
     begin
         VendLedgEntry.Get("Applies-to Entry No.");
 #if CLEAN19
-        if IsBankLCY and (VendLedgEntry."Currency Code" <> '') then begin
+        if IsBankLCY() and (VendLedgEntry."Currency Code" <> '') then begin
 #else
         if IsBankAccReconciliationLineLCY and (VendLedgEntry."Currency Code" <> '') then begin // NAVCZ
 #endif
@@ -741,7 +739,7 @@
         EmployeeLedgEntry: Record "Employee Ledger Entry";
     begin
         EmployeeLedgEntry.Get("Applies-to Entry No.");
-        if IsBankLCY and (EmployeeLedgEntry."Currency Code" <> '') then begin
+        if IsBankLCY() and (EmployeeLedgEntry."Currency Code" <> '') then begin
             EmployeeLedgEntry.CalcFields("Remaining Amt. (LCY)");
             exit(EmployeeLedgEntry."Remaining Amt. (LCY)");
         end;
@@ -755,7 +753,7 @@
     begin
         BankAccLedgEntry.Get("Applies-to Entry No.");
 #if CLEAN19
-        if IsBankLCY then
+        if IsBankLCY() then
 #else
         if IsBankAccReconciliationLineLCY then // NAVCZ
 #endif
@@ -848,7 +846,7 @@
         if BankAccReconLine.Difference = 0 then
             exit(0);
 
-        exit(BankAccReconLine.Difference + GetOldAppliedAmtInclDisc);
+        exit(BankAccReconLine.Difference + GetOldAppliedAmtInclDisc());
     end;
 
     local procedure GetOldAppliedAmtInclDisc(): Decimal
@@ -856,7 +854,7 @@
         OldAppliedPmtEntry: Record "Applied Payment Entry";
     begin
         OldAppliedPmtEntry := Rec;
-        if not OldAppliedPmtEntry.Find then
+        if not OldAppliedPmtEntry.Find() then
             exit(0);
         exit(OldAppliedPmtEntry."Applied Amount" - OldAppliedPmtEntry."Applied Pmt. Discount");
     end;
@@ -871,9 +869,9 @@
             exit(false);
         case "Account Type" of
             "Account Type"::Customer:
-                exit(IsCustLedgEntryPmtDiscTol);
+                exit(IsCustLedgEntryPmtDiscTol());
             "Account Type"::Vendor:
-                exit(IsVendLedgEntryPmtDiscTol);
+                exit(IsVendLedgEntryPmtDiscTol());
         end;
 
         OnAfterIsAcceptedPmtDiscTolerance(rec, Result);
@@ -1006,11 +1004,6 @@
 #if not CLEAN19
         // NAVCZ
         "Currency Factor" := CustLedgEntry."Adjusted Currency Factor";
-#if not CLEAN18
-        "Specific Symbol" := CustLedgEntry."Specific Symbol";
-        "Variable Symbol" := CustLedgEntry."Variable Symbol";
-        "Constant Symbol" := CustLedgEntry."Constant Symbol";
-#endif
         // NAVCZ
 #endif
     end;
@@ -1030,11 +1023,6 @@
 #if not CLEAN19
         // NAVCZ
         "Currency Factor" := VendLedgEntry."Adjusted Currency Factor";
-#if not CLEAN18
-        "Specific Symbol" := VendLedgEntry."Specific Symbol";
-        "Variable Symbol" := VendLedgEntry."Variable Symbol";
-        "Constant Symbol" := VendLedgEntry."Constant Symbol";
-#endif
         // NAVCZ
 #endif
     end;
@@ -1077,9 +1065,6 @@
         "Document Type" := GLEntry."Document Type";
         "Document No." := GLEntry."Document No.";
         "External Document No." := GLEntry."External Document No.";
-#if not CLEAN18
-        "Variable Symbol" := GLEntry."Variable Symbol";
-#endif
     end;
 
 #endif
@@ -1095,14 +1080,14 @@
             exit(0);
 
         AppliedPmtEntry := Rec;
-        AppliedPmtEntry.FilterEntryAppliedToOtherStmtLines;
+        AppliedPmtEntry.FilterEntryAppliedToOtherStmtLines();
         AppliedPmtEntry.CalcSums("Applied Amount");
         exit(AppliedPmtEntry."Applied Amount");
     end;
 
     procedure FilterEntryAppliedToOtherStmtLines()
     begin
-        Reset;
+        Reset();
         SetRange("Statement Type", "Statement Type");
         SetRange("Bank Account No.", "Bank Account No.");
         SetRange("Statement No.", "Statement No.");
@@ -1114,7 +1099,7 @@
 
     procedure FilterAppliedPmtEntry(BankAccReconLine: Record "Bank Acc. Reconciliation Line")
     begin
-        Reset;
+        Reset();
         SetRange("Statement Type", BankAccReconLine."Statement Type");
         SetRange("Bank Account No.", BankAccReconLine."Bank Account No.");
         SetRange("Statement No.", BankAccReconLine."Statement No.");
@@ -1124,7 +1109,7 @@
     procedure AppliedPmtEntryLinesExist(BankAccReconLine: Record "Bank Acc. Reconciliation Line"): Boolean
     begin
         FilterAppliedPmtEntry(BankAccReconLine);
-        exit(FindSet);
+        exit(FindSet());
     end;
 
     procedure TransferFromBankAccReconLine(BankAccReconLine: Record "Bank Acc. Reconciliation Line")
@@ -1145,7 +1130,7 @@
     var
         BankPmtApplRule: Record "Bank Pmt. Appl. Rule";
     begin
-        Init;
+        Init();
         TransferFromBankAccReconLine(BankAccReconLine);
         Validate("Account Type", BankStmtMatchingBuffer."Account Type");
         Validate("Account No.", BankStmtMatchingBuffer."Account No.");
@@ -1184,15 +1169,15 @@
         UsePmtDisc := (BankAccReconLine."Transaction Date" <= PmtDiscDueDate) and (RemPmtDiscPossible <> 0);
         if UseAppliedAmt then
             PaymentToleranceManagement.PmtTolPmtReconJnl(BankAccReconLine);
-        if (not UsePmtDisc) and (not IsAcceptedPmtDiscTolerance) then
+        if (not UsePmtDisc) and (not IsAcceptedPmtDiscTolerance()) then
             exit(false);
 
         if UseAppliedAmt then
-            AmtApplied := "Applied Amount" + GetAmtAppliedToOtherStmtLines
+            AmtApplied := "Applied Amount" + GetAmtAppliedToOtherStmtLines()
         else
-            AmtApplied := BankAccReconLine.Difference + GetOldAppliedAmtInclDisc + GetAmtAppliedToOtherStmtLines;
+            AmtApplied := BankAccReconLine.Difference + GetOldAppliedAmtInclDisc() + GetAmtAppliedToOtherStmtLines();
 
-        exit(Abs(AmtApplied) >= Abs(GetRemAmt - RemPmtDiscPossible - GetAcceptedPmtTolerance));
+        exit(Abs(AmtApplied) >= Abs(GetRemAmt() - RemPmtDiscPossible - GetAcceptedPmtTolerance()));
     end;
 
     procedure GetTotalAppliedAmountInclPmtDisc(IsDelete: Boolean): Decimal
@@ -1293,7 +1278,7 @@
         AppliedPaymentEntry.SetFilter("Applied Pmt. Discount", '<>0');
 
         if AppliedPaymentEntry.FindFirst() then
-            AppliedPaymentEntry.RemovePaymentDiscount;
+            AppliedPaymentEntry.RemovePaymentDiscount();
 
         if PaymentDiscountAmount = 0 then
             exit;
@@ -1336,7 +1321,7 @@
         // NAVCZ
         IsBankLCY; // PreCAL
         BankAccReconLn.Get("Statement Type", "Bank Account No.", "Statement No.", "Statement Line No.");
-        exit(BankAccReconLn.IsInLocalCurrency);
+        exit(BankAccReconLn.IsInLocalCurrency());
     end;
 
 #endif
@@ -1412,7 +1397,7 @@
 
 #if CLEAN19
         BankAccount.Get("Bank Account No.");
-        if BankAccount.IsInLocalCurrency then begin
+        if BankAccount.IsInLocalCurrency() then begin
 #else
         if IsBankAccReconciliationLineLCY then begin
 #endif

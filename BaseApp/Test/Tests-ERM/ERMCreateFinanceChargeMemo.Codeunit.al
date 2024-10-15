@@ -90,7 +90,7 @@ codeunit 134911 "ERM Create Finance Charge Memo"
         Initialize();
         Customer.Get(CreateCustomer);
         MIRHelperFunctions.CreateAndPostSalesInvoiceBySalesJournal(Customer."No.");
-        CreationDate := CalcDate('<' + Format(2 * LibraryRandom.RandInt(5)) + 'M>', WorkDate);
+        CreationDate := CalcDate('<' + Format(2 * LibraryRandom.RandInt(5)) + 'M>', WorkDate());
 
         // 2. Exercise: Run Create Finance Charge Memos Report.
         CreateFinanceChargeMemos.SetTableView(Customer);
@@ -118,7 +118,7 @@ codeunit 134911 "ERM Create Finance Charge Memo"
 
         // 2. Exercise: Create Finance Charge Memo using suggest line.
         CreateSuggestFinanceChargeMemo(
-          FinanceChargeMemoHeader, CustomerNo, CalcDate('<' + Format(2 * LibraryRandom.RandInt(5)) + 'M>', WorkDate));
+          FinanceChargeMemoHeader, CustomerNo, CalcDate('<' + Format(2 * LibraryRandom.RandInt(5)) + 'M>', WorkDate()));
 
         // 3. Verify: Check Finance Charge Memo Document.
         VerifyFinanceChargeMemoDocument(CustomerNo);
@@ -199,10 +199,10 @@ codeunit 134911 "ERM Create Finance Charge Memo"
         Initialize();
         DueDateMonths := LibraryRandom.RandInt(5);
         Customer.Get(CreateCustomerWithFinanceChargeTerms(CreateFinanceChargeTerms(DueDateMonths)));
-        CreateAndPostSalesInvoiceWithCustomerAtDate(SalesHeader, '', Customer."No.", WorkDate);
+        CreateAndPostSalesInvoiceWithCustomerAtDate(SalesHeader, '', Customer."No.", WorkDate());
         WorkDate(CalcDate('<1M>', SalesHeader."Posting Date"));
         CreateAndPostSalesInvoiceWithCustomerAtDate(
-          SalesHeader, CreateCurrencyAndUpdateExcRate, Customer."No.", WorkDate);
+          SalesHeader, CreateCurrencyAndUpdateExcRate, Customer."No.", WorkDate());
 
         // 2. Exercise: Run Create Finance Charge Memos Report.
         with CreateFinanceChargeMemos do begin
@@ -233,16 +233,16 @@ codeunit 134911 "ERM Create Finance Charge Memo"
         Customer.Get(CreateCustomerWithFinanceChargeTerms(CreateFinanceChargeTerms(1)));
         LibraryVariableStorage.Enqueue(PrintDocRef::Print);
         LibraryVariableStorage.Enqueue(false);
-        LibraryVariableStorage.Enqueue(CreateFinChargeMemoAtDate(Customer, CalcDate('<-1D>', WorkDate)));
+        LibraryVariableStorage.Enqueue(CreateFinChargeMemoAtDate(Customer, CalcDate('<-1D>', WorkDate())));
         LibraryVariableStorage.Enqueue(0); // Initial no of prints
         Commit();
         IssueAndPrintFinChargeMemo;
 
-        LibraryERM.SetAllowPostingFromTo(CalcDate('<-1M>', WorkDate), WorkDate);
+        LibraryERM.SetAllowPostingFromTo(CalcDate('<-1M>', WorkDate()), WorkDate());
 
         // 2. Exercise: Run report "Issue Finance Charge Memos".
-        FinChargeMemoHeaderFilter := Format(CreateFinChargeMemoAtDate(Customer, CalcDate('<+1M-1D>', WorkDate)));
-        FinChargeMemoHeaderFilter += '..' + Format(CreateFinChargeMemoAtDate(Customer, CalcDate('<+1M>', WorkDate)));
+        FinChargeMemoHeaderFilter := Format(CreateFinChargeMemoAtDate(Customer, CalcDate('<+1M-1D>', WorkDate())));
+        FinChargeMemoHeaderFilter += '..' + Format(CreateFinChargeMemoAtDate(Customer, CalcDate('<+1M>', WorkDate())));
         Commit();
         LibraryVariableStorage.Enqueue(PrintDocRef::Print);
         LibraryVariableStorage.Enqueue(false);
@@ -279,7 +279,7 @@ codeunit 134911 "ERM Create Finance Charge Memo"
         Customer.Get(CreateCustomerWithFinanceChargeTerms(CreateFinanceChargeTerms(1)));
         LibraryVariableStorage.Enqueue(PrintDocRef::Email);
         LibraryVariableStorage.Enqueue(false);
-        LibraryVariableStorage.Enqueue(CreateFinChargeMemoAtDate(Customer, CalcDate('<-1D>', WorkDate)));
+        LibraryVariableStorage.Enqueue(CreateFinChargeMemoAtDate(Customer, CalcDate('<-1D>', WorkDate())));
         Commit();
 
         // [WHEN] Issue Finance Charge Memo Print = E-Mail and Hide Email-Dialog = No
@@ -430,7 +430,7 @@ codeunit 134911 "ERM Create Finance Charge Memo"
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.CreateGeneralPostingSetupData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
-        LibraryERM.SetJournalTemplNameMandatory(false);
+        LibraryERMCountryData.UpdateJournalTemplMandatory(false);
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         IsInitialized := true;
         Commit();
@@ -492,14 +492,14 @@ codeunit 134911 "ERM Create Finance Charge Memo"
             Validate("Post Additional Fee", true);
             Evaluate(VarDateFormula, '<+' + Format(DueDateMonths) + 'M>');
             Validate("Due Date Calculation", VarDateFormula);
-            Modify;
+            Modify();
             exit(Code);
         end;
     end;
 
     local procedure CreateAndPostSalesInvoice(var SalesHeader: Record "Sales Header"; CurrencyCode: Code[10]): Decimal
     begin
-        exit(CreateAndPostSalesInvoiceWithCustomerAtDate(SalesHeader, CurrencyCode, CreateCustomer, WorkDate));
+        exit(CreateAndPostSalesInvoiceWithCustomerAtDate(SalesHeader, CurrencyCode, CreateCustomer, WorkDate()));
     end;
 
     local procedure CreateAndPostSalesInvoiceWithCustomerAtDate(var SalesHeader: Record "Sales Header"; CurrencyCode: Code[10]; CustomerNo: Code[20]; PostingDate: Date): Decimal
@@ -539,7 +539,7 @@ codeunit 134911 "ERM Create Finance Charge Memo"
     begin
         Customer.SetRange("No.", No);
         CreateFinanceChargeMemos.SetTableView(Customer);
-        CreateFinanceChargeMemos.InitializeRequest(WorkDate, DocumentDate);
+        CreateFinanceChargeMemos.InitializeRequest(WorkDate(), DocumentDate);
         CreateFinanceChargeMemos.UseRequestPage(false);
         CreateFinanceChargeMemos.Run();
     end;

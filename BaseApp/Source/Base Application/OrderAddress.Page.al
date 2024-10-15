@@ -1,7 +1,7 @@
 page 368 "Order Address"
 {
     Caption = 'Order Address';
-    DataCaptionExpression = Caption;
+    DataCaptionExpression = Caption();
     PageType = Card;
     SourceTable = "Order Address";
 
@@ -27,12 +27,12 @@ page 368 "Order Address"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the street address.';
                 }
-                field("Address 2"; "Address 2")
+                field("Address 2"; Rec."Address 2")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies additional address information.';
                 }
-                field("Post Code"; "Post Code")
+                field("Post Code"; Rec."Post Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the postal code.';
@@ -52,7 +52,7 @@ page 368 "Order Address"
                         ToolTip = 'Specifies the county of the address.';
                     }
                 }
-                field("Country/Region Code"; "Country/Region Code")
+                field("Country/Region Code"; Rec."Country/Region Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the country/region of the address.';
@@ -67,7 +67,7 @@ page 368 "Order Address"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the person you regularly contact when you do business with this vendor at this address.';
                 }
-                field("Last Date Modified"; "Last Date Modified")
+                field("Last Date Modified"; Rec."Last Date Modified")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies when this order address was last modified.';
@@ -76,24 +76,24 @@ page 368 "Order Address"
             group(Communication)
             {
                 Caption = 'Communication';
-                field("Phone No."; "Phone No.")
+                field("Phone No."; Rec."Phone No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the telephone number that is associated with the order address.';
                 }
-                field("Fax No."; "Fax No.")
+                field("Fax No."; Rec."Fax No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies the fax number associated with the order address.';
                 }
-                field("E-Mail"; "E-Mail")
+                field("E-Mail"; Rec."E-Mail")
                 {
                     ApplicationArea = Basic, Suite;
                     ExtendedDatatype = EMail;
                     ToolTip = 'Specifies the email address associated with the order address.';
                 }
-                field("Home Page"; "Home Page")
+                field("Home Page"; Rec."Home Page")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the recipient''s web site.';
@@ -135,7 +135,7 @@ page 368 "Order Address"
 
                     trigger OnAction()
                     begin
-                        DisplayMap;
+                        DisplayMap();
                     end;
                 }
             }

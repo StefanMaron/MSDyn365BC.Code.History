@@ -94,13 +94,13 @@ codeunit 137296 "SCM Inventory Misc. IV"
         ItemNo := CreateItem;
         CreatePurchaseDocument(
           PurchaseLine, DocumentType, ItemNo, LibraryInventory.CreateItemVariant(ItemVariant, ItemNo), CreateVendor,
-          LibraryRandom.RandInt(10), WorkDate); // Used Random for Quantity.
+          LibraryRandom.RandInt(10), WorkDate()); // Used Random for Quantity.
 
         // Exercise.
         asserterror ItemVariant.Delete(true);
 
         // [THEN] Verify Error while Delete Item Variant.
-        Assert.ExpectedError(StrSubstNo(ItemVariantError, PurchaseLine."Variant Code", PurchaseLine.TableCaption));
+        Assert.ExpectedError(StrSubstNo(ItemVariantError, PurchaseLine."Variant Code", PurchaseLine.TableCaption()));
     end;
 
     [Test]
@@ -139,7 +139,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
         asserterror ItemVariant.Delete(true);
 
         // [THEN] Verify Error while Delete Item Variant.
-        Assert.ExpectedError(StrSubstNo(ItemVariantError, SalesLine."Variant Code", SalesLine.TableCaption));
+        Assert.ExpectedError(StrSubstNo(ItemVariantError, SalesLine."Variant Code", SalesLine.TableCaption()));
     end;
 
     [Test]
@@ -163,7 +163,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
         asserterror ItemVariant.Delete(true);
 
         // [THEN] Verify Error while Delete Item Variant.
-        Assert.ExpectedError(StrSubstNo(ItemVariantError, ServiceLine."Variant Code", ServiceLine.TableCaption));
+        Assert.ExpectedError(StrSubstNo(ItemVariantError, ServiceLine."Variant Code", ServiceLine.TableCaption()));
     end;
 
     [Test]
@@ -185,7 +185,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
         asserterror ItemVariant.Delete(true);
 
         // [THEN] Verify Error while Delete Item Variant.
-        Assert.ExpectedError(StrSubstNo(ItemVariantError, ItemJournalLine."Variant Code", ItemJournalLine.TableCaption));
+        Assert.ExpectedError(StrSubstNo(ItemVariantError, ItemJournalLine."Variant Code", ItemJournalLine.TableCaption()));
     end;
 
     [Test]
@@ -209,7 +209,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
         asserterror ItemVariant.Delete(true);
 
         // [THEN] Verify Error while Delete Item Variant.
-        Assert.ExpectedError(StrSubstNo(ItemVariantError, ItemJournalLine."Variant Code", ItemLedgerEntry.TableCaption));
+        Assert.ExpectedError(StrSubstNo(ItemVariantError, ItemJournalLine."Variant Code", ItemLedgerEntry.TableCaption()));
     end;
 
     [Test]
@@ -235,7 +235,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
         asserterror ItemVariant.Delete(true);
 
         // [THEN] Verify Error while Delete Item Variant.
-        Assert.ExpectedError(StrSubstNo(ItemVariantError, ProductionBOMLine."Variant Code", ProductionBOMLine.TableCaption));
+        Assert.ExpectedError(StrSubstNo(ItemVariantError, ProductionBOMLine."Variant Code", ProductionBOMLine.TableCaption()));
     end;
 
     [Test]
@@ -269,7 +269,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
         asserterror ItemVariant.Delete(true);
 
         // [THEN] Verify Error while Delete Item Variant.
-        Assert.ExpectedError(StrSubstNo(ItemVariantError, ItemVariant.Code, ProdOrderComponent.TableCaption));
+        Assert.ExpectedError(StrSubstNo(ItemVariantError, ItemVariant.Code, ProdOrderComponent.TableCaption()));
     end;
 
     [Test]
@@ -377,7 +377,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
         CountFrequency := 52;
 
         // [GIVEN] The current counting period is 0..6 days from WORKDATE.
-        NextCountingStartDate := WorkDate;
+        NextCountingStartDate := WorkDate();
         NextCountingEndDate := WorkDate + 6;
 
         // [GIVEN] The next counting periods will be as follows: 7..13, 14..20, 21..27, ...
@@ -388,7 +388,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
 
         // [GIVEN] Last phys. inventory is carried out within the period of 8..15 days.
         i := LibraryRandom.RandInt(ArrayLen(CountPeriodBounds, 1) - 1);
-        PhysInvtDate := LibraryRandom.RandDateFromInRange(WorkDate, CountPeriodBounds[i] [1], CountPeriodBounds[i] [2]);
+        PhysInvtDate := LibraryRandom.RandDateFromInRange(WorkDate(), CountPeriodBounds[i] [1], CountPeriodBounds[i] [2]);
 
         // [WHEN] Calculate the next counting period.
         PhysInvtCountManagement.CalcPeriod(
@@ -425,8 +425,8 @@ codeunit 137296 "SCM Inventory Misc. IV"
 
         // [GIVEN] Last counting date = empty, so the calculation of the next counting period will be based on WORKDATE.
         // [GIVEN] WORKDATE = 25/01/YY.
-        StartDateOfMonth := CalcDate('<-CM>', WorkDate); // month begin date = 01/01/YY
-        EndDateOfMonth := CalcDate('<CM>', WorkDate); // month end date = 31/01/YY
+        StartDateOfMonth := CalcDate('<-CM>', WorkDate()); // month begin date = 01/01/YY
+        EndDateOfMonth := CalcDate('<CM>', WorkDate()); // month end date = 31/01/YY
         DaysInMonth := Date2DMY(EndDateOfMonth, 1); // days in month = 31
         MiddleDateOfMonth := StartDateOfMonth + DaysInMonth div 2; // first day of second half of month = 16/01/YY
 
@@ -435,9 +435,9 @@ codeunit 137296 "SCM Inventory Misc. IV"
 
         // [GIVEN] First and last day of the half a month into which WORKDATE falls into is defined.
         HalfMonthStartDate :=
-          StartDateOfMonth + (Date2DMY(WorkDate, 1) div MiddleDayOfMonth) * (MiddleDayOfMonth - 1); // 16/01/YY
+          StartDateOfMonth + (Date2DMY(WorkDate(), 1) div MiddleDayOfMonth) * (MiddleDayOfMonth - 1); // 16/01/YY
         HalfMonthEndDate :=
-          EndDateOfMonth - ((LastDayOfMonth - Date2DMY(WorkDate, 1)) div MiddleDayOfMonth) * MiddleDayOfMonth; // 31/01/YY
+          EndDateOfMonth - ((LastDayOfMonth - Date2DMY(WorkDate(), 1)) div MiddleDayOfMonth) * MiddleDayOfMonth; // 31/01/YY
 
         // [WHEN] Run CalcPeriod function in Phys. Invt. Count.-Management to get next counting start and end dates.
         PhysInvtCountManagement.CalcPeriod(0D, NextCountingStartDate, NextCountingEndDate, CountFrequency);
@@ -516,13 +516,13 @@ codeunit 137296 "SCM Inventory Misc. IV"
 
         // [GIVEN]
         Initialize(false);
-        CreatePurchasePrice(PurchasePrice, '', CreateVendor, WorkDate);
+        CreatePurchasePrice(PurchasePrice, '', CreateVendor, WorkDate());
         CopyAllPurchPriceToPriceListLine();
 
         // [WHEN] Create Purchase Order.
         CreatePurchaseDocument(
           PurchaseLine, PurchaseLine."Document Type"::Order, PurchasePrice."Item No.", '', PurchasePrice."Vendor No.",
-          PurchasePrice."Minimum Quantity", WorkDate);
+          PurchasePrice."Minimum Quantity", WorkDate());
 
         // [THEN] Verify Direct Unit Cost on Purchase Line.
         PurchaseLine.TestField("Direct Unit Cost", PurchasePrice."Direct Unit Cost");
@@ -551,13 +551,13 @@ codeunit 137296 "SCM Inventory Misc. IV"
 
         // [GIVEN]
         Initialize(false);
-        CreatePurchasePrice(PurchasePrice, '', CreateVendor, WorkDate);
+        CreatePurchasePrice(PurchasePrice, '', CreateVendor, WorkDate());
         Item.Get(PurchasePrice."Item No.");
 
         // [WHEN] Create Purchase Order.
         CreatePurchaseDocument(
           PurchaseLine, PurchaseLine."Document Type"::Order, PurchasePrice."Item No.", '', PurchasePrice."Vendor No.",
-          PurchasePrice."Minimum Quantity", CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate));
+          PurchasePrice."Minimum Quantity", CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate()));
 
         // [THEN] Verify Direct Unit Cost on Purchase Line.
         PurchaseLine.TestField("Direct Unit Cost", Item."Last Direct Cost");
@@ -576,13 +576,13 @@ codeunit 137296 "SCM Inventory Misc. IV"
         // [GIVEN]
         Initialize(false);
         Currency.Get(CreateCurrency);
-        CreatePurchasePrice(PurchasePrice, Currency.Code, CreateAndModifyVendor(Currency.Code), WorkDate);
+        CreatePurchasePrice(PurchasePrice, Currency.Code, CreateAndModifyVendor(Currency.Code), WorkDate());
         CopyAllPurchPriceToPriceListLine();
 
         // [WHEN] Create Purchase Order.
         CreatePurchaseDocument(
           PurchaseLine, PurchaseLine."Document Type"::Order, PurchasePrice."Item No.", '', PurchasePrice."Vendor No.",
-          PurchasePrice."Minimum Quantity", WorkDate);
+          PurchasePrice."Minimum Quantity", WorkDate());
 
         // [THEN] Verify Direct Unit Cost on Purchase Line.
         PurchaseLine.TestField("Direct Unit Cost", PurchasePrice."Direct Unit Cost");
@@ -600,11 +600,11 @@ codeunit 137296 "SCM Inventory Misc. IV"
 
         // [GIVEN]
         Initialize(false);
-        CreatePurchasePrice(PurchasePrice, '', CreateVendor, WorkDate);
+        CreatePurchasePrice(PurchasePrice, '', CreateVendor, WorkDate());
         CopyAllPurchPriceToPriceListLine();
         CreatePurchaseDocument(
           PurchaseLine, PurchaseLine."Document Type"::Order, PurchasePrice."Item No.", '', PurchasePrice."Vendor No.",
-          PurchasePrice."Minimum Quantity", WorkDate);
+          PurchasePrice."Minimum Quantity", WorkDate());
         UpdateUnitCostOnPurchasePrice(PurchasePrice);
         CopyAllPurchPriceToPriceListLine();
         UpdatePurchLineQtyForPartialPost(PurchaseLine);
@@ -630,11 +630,11 @@ codeunit 137296 "SCM Inventory Misc. IV"
 
         // [GIVEN] Create Purchase Price, create and Receive Purchase order.
         Initialize(false);
-        CreatePurchasePrice(PurchasePrice, '', CreateVendor, WorkDate);
+        CreatePurchasePrice(PurchasePrice, '', CreateVendor, WorkDate());
         CopyAllPurchPriceToPriceListLine();
         CreatePurchaseDocument(
           PurchaseLine, PurchaseLine."Document Type"::Order, PurchasePrice."Item No.", '', PurchasePrice."Vendor No.",
-          PurchasePrice."Minimum Quantity", WorkDate);
+          PurchasePrice."Minimum Quantity", WorkDate());
         DocumentNo := PostPurchaseDocument(PurchaseLine, false);
 
         // Update Unit Cost on Purchase Price, create Purchase Invoice using Copy Document.
@@ -662,7 +662,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
 
         // [GIVEN] Create Item, create Purchase Price, create Sales order.
         Initialize(false);
-        CreatePurchasePrice(PurchasePrice, '', CreateVendor, CalcDate('<-1D>', WorkDate));
+        CreatePurchasePrice(PurchasePrice, '', CreateVendor, CalcDate('<-1D>', WorkDate()));
         CopyAllPurchPriceToPriceListLine();
         CreateSalesDocument(SalesLine, SalesLine."Document Type"::Order, PurchasePrice."Item No.", '', PurchasePrice."Minimum Quantity");
 
@@ -693,7 +693,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
         // [WHEN] Create Purchase Order.
         CreatePurchaseDocument(
           PurchaseLine, PurchaseLine."Document Type"::Order, PurchaseLineDiscount."Item No.", '', PurchaseLineDiscount."Vendor No.",
-          PurchaseLineDiscount."Minimum Quantity", WorkDate);
+          PurchaseLineDiscount."Minimum Quantity", WorkDate());
 
         // [THEN] Verify Line Discount on Purchase Line.
         PurchaseLine.TestField("Line Discount %", PurchaseLineDiscount."Line Discount %");
@@ -717,7 +717,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
         // [WHEN] Create Purchase Order.
         CreatePurchaseDocument(
           PurchaseLine, PurchaseLine."Document Type"::Order, PurchaseLineDiscount."Item No.", '', PurchaseLineDiscount."Vendor No.",
-          PurchaseLineDiscount."Minimum Quantity", CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate))
+          PurchaseLineDiscount."Minimum Quantity", CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate()))
         ;
 
         // [THEN] Verify Line Discount on Purchase Line.
@@ -743,7 +743,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
         Item.Get(PurchaseLineDiscount."Item No.");
         CreatePurchaseDocument(
           PurchaseLine, PurchaseLine."Document Type"::Order, PurchaseLineDiscount."Item No.", '', PurchaseLineDiscount."Vendor No.",
-          PurchaseLineDiscount."Minimum Quantity", WorkDate);
+          PurchaseLineDiscount."Minimum Quantity", WorkDate());
         UpdateLineDiscOnPurchLineDisc(PurchaseLineDiscount);
         UpdatePurchLineQtyForPartialPost(PurchaseLine);
 
@@ -773,7 +773,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
         CreatePurchaseLineDiscount(PurchaseLineDiscount);
         CreatePurchaseDocument(
           PurchaseLine, PurchaseLine."Document Type"::Order, PurchaseLineDiscount."Item No.", '', PurchaseLineDiscount."Vendor No.",
-          PurchaseLineDiscount."Minimum Quantity", WorkDate);
+          PurchaseLineDiscount."Minimum Quantity", WorkDate());
         DocumentNo := PostPurchaseDocument(PurchaseLine, false);
         Item.Get(PurchaseLine."No.");
 
@@ -897,7 +897,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
         CreatePurchaseDocument(
           PurchaseLine, PurchaseLine."Document Type"::Order,
           CreateAndModifyItem('', Item."Flushing Method"::Backward, Item."Replenishment System"::Purchase), '', CreateVendor,
-          LibraryRandom.RandInt(10), WorkDate);
+          LibraryRandom.RandInt(10), WorkDate());
 
         // Exercise
         PostedReceiptNo := PostPurchaseDocument(PurchaseLine, false);
@@ -1045,7 +1045,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
         ReqWkshTemplateName := LibraryPlanning.SelectRequisitionTemplateName;
         LibraryPlanning.CreateRequisitionWkshName(RequisitionWkshName, ReqWkshTemplateName);
         LibraryPlanning.CreateRequisitionLine(RequisitionLine, ReqWkshTemplateName, RequisitionWkshName.Name);
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, WorkDate);
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), WorkDate());
 
         // [THEN] New requisition line is created with "Description" = "D"
         VerifyDescriptionsOnRequisitionLine(Item."No.", ItemReference.Description, '');
@@ -1878,7 +1878,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
     begin
         LibraryPurchase.CreatePurchaseDocumentWithItem(
           PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, VendorNo,
-          ItemVariant."Item No.", LibraryRandom.RandIntInRange(10, 20), '', WorkDate);
+          ItemVariant."Item No.", LibraryRandom.RandIntInRange(10, 20), '', WorkDate());
         PurchaseLine.Validate("Variant Code", ItemVariant.Code);
         PurchaseLine.Modify(true);
     end;
@@ -1889,7 +1889,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
     begin
         LibrarySales.CreateSalesDocumentWithItem(
           SalesHeader, SalesLine, SalesHeader."Document Type"::Order, CustomerNo,
-          ItemVariant."Item No.", LibraryRandom.RandIntInRange(10, 20), '', WorkDate);
+          ItemVariant."Item No.", LibraryRandom.RandIntInRange(10, 20), '', WorkDate());
         SalesLine.Validate("Variant Code", ItemVariant.Code);
         SalesLine.Modify(true);
     end;
@@ -1930,11 +1930,11 @@ codeunit 137296 "SCM Inventory Misc. IV"
         ItemWithVariantPurchaseLineDiscount: Record "Purchase Line Discount";
     begin
         LibraryERM.CreateLineDiscForVendor(
-          ItemBlankVariantPurchaseLineDiscount, ItemVariant."Item No.", VendorNo, WorkDate, '', '', '', 0);
+          ItemBlankVariantPurchaseLineDiscount, ItemVariant."Item No.", VendorNo, WorkDate(), '', '', '', 0);
         ItemBlankVariantPurchaseLineDiscount.Validate("Line Discount %", LibraryRandom.RandIntInRange(10, 20));
         ItemBlankVariantPurchaseLineDiscount.Modify(true);
         LibraryERM.CreateLineDiscForVendor(
-          ItemWithVariantPurchaseLineDiscount, ItemVariant."Item No.", VendorNo, WorkDate, '', ItemVariant.Code, '', 0);
+          ItemWithVariantPurchaseLineDiscount, ItemVariant."Item No.", VendorNo, WorkDate(), '', ItemVariant.Code, '', 0);
     end;
 
     local procedure CreateZeroForVariantSalesLineDiscount(ItemVariant: Record "Item Variant"; CustomerNo: Code[20])
@@ -1944,13 +1944,13 @@ codeunit 137296 "SCM Inventory Misc. IV"
     begin
         LibraryERM.CreateLineDiscForCustomer(
           ItemBlankVariantSalesLineDiscount, ItemBlankVariantSalesLineDiscount.Type::Item, ItemVariant."Item No.",
-          ItemBlankVariantSalesLineDiscount."Sales Type"::Customer, CustomerNo, WorkDate, '', '', '', 0);
+          ItemBlankVariantSalesLineDiscount."Sales Type"::Customer, CustomerNo, WorkDate(), '', '', '', 0);
         ItemBlankVariantSalesLineDiscount.Validate("Line Discount %", LibraryRandom.RandIntInRange(10, 20));
         ItemBlankVariantSalesLineDiscount.Modify(true);
 
         LibraryERM.CreateLineDiscForCustomer(
           ItemWithVariantSalesLineDiscount, ItemWithVariantSalesLineDiscount.Type::Item, ItemVariant."Item No.",
-          ItemWithVariantSalesLineDiscount."Sales Type"::Customer, CustomerNo, WorkDate, '', ItemVariant.Code, '', 0);
+          ItemWithVariantSalesLineDiscount."Sales Type"::Customer, CustomerNo, WorkDate(), '', ItemVariant.Code, '', 0);
     end;
 #endif
 
@@ -1979,7 +1979,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
     local procedure CreateAndPostPurchaseOrder(var PurchaseLine: Record "Purchase Line"; ItemNo: Code[20]; Invoice: Boolean): Code[20]
     begin
         CreatePurchaseDocument(
-          PurchaseLine, PurchaseLine."Document Type"::Order, ItemNo, '', CreateVendor, LibraryRandom.RandInt(10), WorkDate);
+          PurchaseLine, PurchaseLine."Document Type"::Order, ItemNo, '', CreateVendor, LibraryRandom.RandInt(10), WorkDate());
         exit(PostPurchaseDocument(PurchaseLine, Invoice));
     end;
 
@@ -1995,7 +1995,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
         ReqWkshTemplate.FindFirst();
         LibraryPlanning.CreateRequisitionWkshName(RequisitionWkshName, ReqWkshTemplate.Name);
         LibraryPlanning.CreateRequisitionLine(RequisitionLine, ReqWkshTemplate.Name, RequisitionWkshName.Name);
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, WorkDate);
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), WorkDate());
         AcceptAndCarryOutActionMessage(ItemNo);
     end;
 
@@ -2208,7 +2208,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
     local procedure CreatePurchaseLineDiscount(var PurchaseLineDiscount: Record "Purchase Line Discount")
     begin
         LibraryERM.CreateLineDiscForVendor(
-          PurchaseLineDiscount, CreateItem, CreateVendor, WorkDate, '', '', '', LibraryRandom.RandDec(10, 2));  // Take random for Quantity.
+          PurchaseLineDiscount, CreateItem, CreateVendor, WorkDate(), '', '', '', LibraryRandom.RandDec(10, 2));  // Take random for Quantity.
         PurchaseLineDiscount.Validate("Line Discount %", LibraryRandom.RandDec(10, 2));  // Take random for Line Discount Pct.
         PurchaseLineDiscount.Modify(true);
     end;
@@ -2288,7 +2288,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
     begin
         LibraryWarehouse.CreateTransferHeader(TransferHeader, FromLocationCode, ToLocationCode, TransitLocationCode);
         LibraryWarehouse.CreateTransferLine(TransferHeader, TransferLine, ItemNo, Quantity);
-        TransferLine.Validate("Receipt Date", WorkDate);
+        TransferLine.Validate("Receipt Date", WorkDate());
         TransferLine.Modify(true);
     end;
 
@@ -2306,7 +2306,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
         ItemAvailabilityFormsMgt: Codeunit "Item Availability Forms Mgt";
     begin
         Item.Init();
-        Item.SetRange("Date Filter", WorkDate);
+        Item.SetRange("Date Filter", WorkDate());
         Item.SetFilter("Location Filter", LocationFilter);
         ItemAvailabilityFormsMgt.ShowItemAvailLineList(Item, 4);
     end;
@@ -2524,7 +2524,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
 
     local procedure UpdateTransferLineQtyToReceive(var TransferLine: Record "Transfer Line"; ToReceiveQuantity: Decimal)
     begin
-        TransferLine.Find;
+        TransferLine.Find();
         TransferLine.Validate("Qty. to Receive", ToReceiveQuantity);
         TransferLine.Modify(true);
     end;
@@ -2553,7 +2553,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
         GLEntry.FindSet();
         repeat
             ActualAmount := GLEntry.Amount;
-        until GLEntry.Next = 0;
+        until GLEntry.Next() = 0;
         Assert.AreNearlyEqual(Amount, ActualAmount, LibraryERM.GetAmountRoundingPrecision, AmountError);
     end;
 

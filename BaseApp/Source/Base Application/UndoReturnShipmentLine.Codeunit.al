@@ -1,4 +1,4 @@
-﻿codeunit 5814 "Undo Return Shipment Line"
+codeunit 5814 "Undo Return Shipment Line"
 {
     Permissions = TableData "Purchase Line" = imd,
                   TableData "Item Entry Relation" = ri,
@@ -21,25 +21,26 @@
                 exit;
 
         ReturnShptLine.Copy(Rec);
-        Code;
+        Code();
         Rec := ReturnShptLine;
     end;
 
     var
-        Text000: Label 'Do you really want to undo the selected Return Shipment lines?';
         ReturnShptLine: Record "Return Shipment Line";
         TempWhseJnlLine: Record "Warehouse Journal Line" temporary;
         TempGlobalItemLedgEntry: Record "Item Ledger Entry" temporary;
         TempGlobalItemEntryRelation: Record "Item Entry Relation" temporary;
         UndoPostingMgt: Codeunit "Undo Posting Management";
         ItemJnlPostLine: Codeunit "Item Jnl.-Post Line";
-        Text001: Label 'Undo quantity posting...';
-        Text002: Label 'There is not enough space to insert correction lines.';
         WhseUndoQty: Codeunit "Whse. Undo Quantity";
         HideDialog: Boolean;
-        Text003: Label 'Checking lines...';
         JobItem: Boolean;
         NextLineNo: Integer;
+
+        Text000: Label 'Do you really want to undo the selected Return Shipment lines?';
+        Text001: Label 'Undo quantity posting...';
+        Text002: Label 'There is not enough space to insert correction lines.';
+        Text003: Label 'Checking lines...';
         Text004: Label 'This shipment has already been invoiced. Undo Return Shipment can be applied only to posted, but not invoiced shipments.';
         AlreadyReversedErr: Label 'This return shipment has already been reversed.';
 
@@ -190,7 +191,6 @@
         ReturnShptHeader: Record "Return Shipment Header";
         SourceCodeSetup: Record "Source Code Setup";
         TempApplyToEntryList: Record "Item Ledger Entry" temporary;
-        Item: Record Item;
         ItemLedgEntryNo: Integer;
         IsHandled: Boolean;
     begin
@@ -233,18 +233,14 @@
             ItemJnlLine.Quantity := "Quantity (Base)";
             ItemJnlLine."Quantity (Base)" := "Quantity (Base)";
             ItemJnlLine."Document Date" := ReturnShptHeader."Document Date";
-
-            // NAVCZ
-            if Item.Get("No.") then
-                ItemJnlLine."Unit of Measure Code" := Item."Base Unit of Measure";
-            // NAVCZ
+            ItemJnlLine."Unit of Measure Code" := "Unit of Measure Code";
 
             OnAfterCopyItemJnlLineFromReturnShpt(ItemJnlLine, ReturnShptHeader, ReturnShptLine, WhseUndoQty);
 
             WhseUndoQty.InsertTempWhseJnlLine(
                 ItemJnlLine,
                 DATABASE::"Purchase Line", PurchLine."Document Type"::"Return Order".AsInteger(), "Return Order No.", "Return Order Line No.",
-                TempWhseJnlLine."Reference Document"::"Posted Rtrn. Shipment", TempWhseJnlLine, NextLineNo);
+                TempWhseJnlLine."Reference Document"::"Posted Rtrn. Shipment".AsInteger(), TempWhseJnlLine, NextLineNo);
 
             if "Item Shpt. Entry No." <> 0 then begin
                 if "Job No." <> '' then

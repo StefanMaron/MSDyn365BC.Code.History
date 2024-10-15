@@ -52,7 +52,7 @@ codeunit 134811 "ERM CA Cost Journal"
           UnexpectedErrorMessage);
 
         // Teardown.
-        ClearLastError;
+        ClearLastError();
         ClearCostAccountingSetup;
     end;
 
@@ -83,7 +83,7 @@ codeunit 134811 "ERM CA Cost Journal"
         Assert.IsTrue(StrPos(GetLastErrorText, CCAndCOErrorMsg) > 0, UnexpectedErrorMessage);
 
         // Teardown.
-        ClearLastError;
+        ClearLastError();
         ClearCostAccountingSetup;
     end;
 
@@ -110,7 +110,7 @@ codeunit 134811 "ERM CA Cost Journal"
         Assert.IsTrue(StrPos(GetLastErrorText, NoCCOrCOErrorMsg) > 0, UnexpectedErrorMessage);
 
         // Teardown.
-        ClearLastError;
+        ClearLastError();
         ClearCostAccountingSetup;
     end;
 
@@ -142,7 +142,7 @@ codeunit 134811 "ERM CA Cost Journal"
         Assert.IsTrue(StrPos(GetLastErrorText, BalCCAndCOErrorMsg) > 0, UnexpectedErrorMessage);
 
         // Teardown.
-        ClearLastError;
+        ClearLastError();
         ClearCostAccountingSetup;
     end;
 
@@ -170,7 +170,7 @@ codeunit 134811 "ERM CA Cost Journal"
         Assert.IsTrue(StrPos(GetLastErrorText, NoBalCCOrCOErrorMsg) > 0, UnexpectedErrorMessage);
 
         // Teardown.
-        ClearLastError;
+        ClearLastError();
         ClearCostAccountingSetup;
     end;
 
@@ -198,7 +198,7 @@ codeunit 134811 "ERM CA Cost Journal"
         Assert.IsTrue(StrPos(GetLastErrorText, BlockedErrorMsg) > 0, UnexpectedErrorMessage);
 
         // Teardown.
-        ClearLastError;
+        ClearLastError();
         ClearCostAccountingSetup;
     end;
 
@@ -226,7 +226,7 @@ codeunit 134811 "ERM CA Cost Journal"
         Assert.IsTrue(StrPos(GetLastErrorText, BlockedErrorMsg) > 0, UnexpectedErrorMessage);
 
         // Teardown.
-        ClearLastError;
+        ClearLastError();
         ClearCostAccountingSetup;
     end;
 
@@ -255,7 +255,7 @@ codeunit 134811 "ERM CA Cost Journal"
         Assert.IsTrue(StrPos(GetLastErrorText, BlockedErrorMsg) > 0, UnexpectedErrorMessage);
 
         // Teardown.
-        ClearLastError;
+        ClearLastError();
         ClearCostAccountingSetup;
     end;
 
@@ -282,7 +282,7 @@ codeunit 134811 "ERM CA Cost Journal"
           UnexpectedErrorMessage);
 
         // Teardown.
-        ClearLastError;
+        ClearLastError();
         ClearCostAccountingSetup;
     end;
 
@@ -315,7 +315,7 @@ codeunit 134811 "ERM CA Cost Journal"
         // active bug (TO DO: validate error msg)
 
         // Teardown.
-        ClearLastError;
+        ClearLastError();
         ClearCostAccountingSetup;
     end;
 
@@ -343,7 +343,7 @@ codeunit 134811 "ERM CA Cost Journal"
           UnexpectedErrorMessage);
 
         // Teardown.
-        ClearLastError;
+        ClearLastError();
         ClearCostAccountingSetup;
     end;
 
@@ -364,7 +364,7 @@ codeunit 134811 "ERM CA Cost Journal"
         CostJnlBatchPage."Edit Journal".Invoke;
 
         // Clean-up
-        CostJnlBatchPage.Close;
+        CostJnlBatchPage.Close();
         ClearCostAccountingSetup;
     end;
 
@@ -467,7 +467,7 @@ codeunit 134811 "ERM CA Cost Journal"
         Assert.AreEqual(GlobalBatchName, CostJournalPage.CostJnlBatchName.Value, CostJournalBatchNameError);
 
         // Clean-up
-        CostJournalPage.Close;
+        CostJournalPage.Close();
         ClearCostAccountingSetup;
     end;
 
@@ -491,7 +491,7 @@ codeunit 134811 "ERM CA Cost Journal"
         Assert.AreEqual(CostJournalBatch.Name, CostJournalPage.CostJnlBatchName.Value, CostJournalBatchNameError);
 
         // Clean-up
-        CostJournalPage.Close;
+        CostJournalPage.Close();
         ClearCostAccountingSetup;
     end;
 
@@ -594,7 +594,7 @@ codeunit 134811 "ERM CA Cost Journal"
           CostJournalLine."Cost Object Code", CostJournalLine.Amount);
 
         // Second entry is the balancing entry
-        CostEntry.Next;
+        CostEntry.Next();
         VerifyCostEntryCommonFields(CostEntry);
         VerifyCostEntrySpecificFields(CostEntry, CostJournalLine."Bal. Cost Type No.", CostJournalLine."Bal. Cost Center Code",
           CostJournalLine."Bal. Cost Object Code", -CostJournalLine.Amount);
@@ -648,7 +648,7 @@ codeunit 134811 "ERM CA Cost Journal"
             repeat
                 CostJnlTemplateTo.Copy(CostJnlTemplateFrom);
                 CostJnlTemplateTo.Insert();
-            until CostJnlTemplateFrom.Next = 0;
+            until CostJnlTemplateFrom.Next() = 0;
     end;
 }
 

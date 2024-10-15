@@ -9,7 +9,7 @@ page 9082 "Customer Statistics FactBox"
     {
         area(content)
         {
-            field("No."; "No.")
+            field("No."; Rec."No.")
             {
                 ApplicationArea = All;
                 Caption = 'Customer No.';
@@ -17,10 +17,10 @@ page 9082 "Customer Statistics FactBox"
 
                 trigger OnDrillDown()
                 begin
-                    ShowDetails;
+                    ShowDetails();
                 end;
             }
-            field("Balance (LCY)"; "Balance (LCY)")
+            field("Balance (LCY)"; Rec."Balance (LCY)")
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies the payment amount that the customer owes for completed sales. This value is also known as the customer''s balance.';
@@ -62,18 +62,18 @@ page 9082 "Customer Statistics FactBox"
             group(Sales)
             {
                 Caption = 'Sales';
-                field("Outstanding Orders (LCY)"; "Outstanding Orders (LCY)")
+                field("Outstanding Orders (LCY)"; Rec."Outstanding Orders (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies your expected sales income from the customer in LCY based on ongoing sales orders.';
                 }
-                field("Shipped Not Invoiced (LCY)"; "Shipped Not Invoiced (LCY)")
+                field("Shipped Not Invoiced (LCY)"; Rec."Shipped Not Invoiced (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Shipped Not Invd. (LCY)';
                     ToolTip = 'Specifies your expected sales income from the customer in LCY based on ongoing sales orders where items have been shipped.';
                 }
-                field("Outstanding Invoices (LCY)"; "Outstanding Invoices (LCY)")
+                field("Outstanding Invoices (LCY)"; Rec."Outstanding Invoices (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies your expected sales income from the customer in LCY based on unpaid sales invoices.';
@@ -82,17 +82,17 @@ page 9082 "Customer Statistics FactBox"
             group(Service)
             {
                 Caption = 'Service';
-                field("Outstanding Serv. Orders (LCY)"; "Outstanding Serv. Orders (LCY)")
+                field("Outstanding Serv. Orders (LCY)"; Rec."Outstanding Serv. Orders (LCY)")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies your expected service income from the customer in LCY based on ongoing service orders.';
                 }
-                field("Serv Shipped Not Invoiced(LCY)"; "Serv Shipped Not Invoiced(LCY)")
+                field("Serv Shipped Not Invoiced(LCY)"; Rec."Serv Shipped Not Invoiced(LCY)")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies your expected service income from the customer in LCY based on service orders that are shipped but not invoiced.';
                 }
-                field("Outstanding Serv.Invoices(LCY)"; "Outstanding Serv.Invoices(LCY)")
+                field("Outstanding Serv.Invoices(LCY)"; Rec."Outstanding Serv.Invoices(LCY)")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies your expected service income from the customer in LCY based on unpaid service invoices.';
@@ -101,7 +101,7 @@ page 9082 "Customer Statistics FactBox"
             group(Payments)
             {
                 Caption = 'Payments';
-                field("Payments (LCY)"; "Payments (LCY)")
+                field("Payments (LCY)"; Rec."Payments (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the sum of payments received from the customer.';
@@ -118,7 +118,7 @@ page 9082 "Customer Statistics FactBox"
                         CustomerLedgerEntries.Run();
                     end;
                 }
-                field("Refunds (LCY)"; "Refunds (LCY)")
+                field("Refunds (LCY)"; Rec."Refunds (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the sum of refunds received from the customer.';
@@ -167,7 +167,7 @@ page 9082 "Customer Statistics FactBox"
                 StyleExpr = TRUE;
                 ToolTip = 'Specifies the payment amount that the customer owes for completed sales plus sales that are still ongoing.';
             }
-            field("Credit Limit (LCY)"; "Credit Limit (LCY)")
+            field("Credit Limit (LCY)"; Rec."Credit Limit (LCY)")
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies the maximum amount you allow the customer to exceed the payment balance before warnings are issued.';
@@ -204,7 +204,7 @@ page 9082 "Customer Statistics FactBox"
                     CustLedgEntry.Reset();
                     CustLedgEntry.SetRange("Customer No.", "No.");
                     CustLedgEntry.SetRange(
-                      "Posting Date", AccountingPeriod.GetFiscalYearStartDate(WorkDate), AccountingPeriod.GetFiscalYearEndDate(WorkDate));
+                      "Posting Date", AccountingPeriod.GetFiscalYearStartDate(WorkDate()), AccountingPeriod.GetFiscalYearEndDate(WorkDate()));
                     PAGE.RunModal(PAGE::"Customer Ledger Entries", CustLedgEntry);
                 end;
             }

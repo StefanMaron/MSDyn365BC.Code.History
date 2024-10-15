@@ -194,13 +194,9 @@ table 910 "Posted Assembly Header"
         {
             Caption = 'Gen. Bus. Posting Group';
             TableRelation = "Gen. Business Posting Group";
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
     }
 
@@ -227,7 +223,7 @@ table 910 "Posted Assembly Header"
         AssemblyCommentLine: Record "Assembly Comment Line";
         PostedAssemblyLinesDelete: Codeunit "PostedAssemblyLines-Delete";
     begin
-        CheckIsNotAsmToOrder;
+        CheckIsNotAsmToOrder();
 
         PostedAssemblyLinesDelete.DeleteLines(Rec);
 
@@ -244,7 +240,7 @@ table 910 "Posted Assembly Header"
     var
         DimMgt: Codeunit DimensionManagement;
     begin
-        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', TableCaption, "No."));
+        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', TableCaption(), "No."));
     end;
 
     procedure ShowStatistics()

@@ -94,37 +94,37 @@ report 1306 "Standard Sales - Invoice"
             column(CompanyLogoPosition; CompanyLogoPosition)
             {
             }
-            column(CompanyRegistrationNumber; CompanyInfo.GetRegistrationNumber)
+            column(CompanyRegistrationNumber; CompanyInfo.GetRegistrationNumber())
             {
             }
-            column(CompanyRegistrationNumber_Lbl; CompanyInfo.GetRegistrationNumberLbl)
+            column(CompanyRegistrationNumber_Lbl; CompanyInfo.GetRegistrationNumberLbl())
             {
             }
-            column(CompanyVATRegNo; CompanyInfo.GetVATRegistrationNumber)
+            column(CompanyVATRegNo; CompanyInfo.GetVATRegistrationNumber())
             {
             }
-            column(CompanyVATRegNo_Lbl; CompanyInfo.GetVATRegistrationNumberLbl)
+            column(CompanyVATRegNo_Lbl; CompanyInfo.GetVATRegistrationNumberLbl())
             {
             }
-            column(CompanyVATRegistrationNo; CompanyInfo.GetVATRegistrationNumber)
+            column(CompanyVATRegistrationNo; CompanyInfo.GetVATRegistrationNumber())
             {
             }
-            column(CompanyVATRegistrationNo_Lbl; CompanyInfo.GetVATRegistrationNumberLbl)
+            column(CompanyVATRegistrationNo_Lbl; CompanyInfo.GetVATRegistrationNumberLbl())
             {
             }
-            column(CompanyLegalOffice; CompanyInfo.GetLegalOffice)
+            column(CompanyLegalOffice; CompanyInfo.GetLegalOffice())
             {
             }
-            column(CompanyLegalOffice_Lbl; CompanyInfo.GetLegalOfficeLbl)
+            column(CompanyLegalOffice_Lbl; CompanyInfo.GetLegalOfficeLbl())
             {
             }
-            column(CompanyCustomGiro; CompanyInfo.GetCustomGiro)
+            column(CompanyCustomGiro; CompanyInfo.GetCustomGiro())
             {
             }
-            column(CompanyCustomGiro_Lbl; CompanyInfo.GetCustomGiroLbl)
+            column(CompanyCustomGiro_Lbl; CompanyInfo.GetCustomGiroLbl())
             {
             }
-            column(CompanyLegalStatement; GetLegalStatement)
+            column(CompanyLegalStatement; GetLegalStatement())
             {
             }
             column(DisplayAdditionalFeeNote; DisplayAdditionalFeeNote)
@@ -310,25 +310,25 @@ report 1306 "Standard Sales - Invoice"
             column(SelltoCustomerNo_Lbl; FieldCaption("Sell-to Customer No."))
             {
             }
-            column(VATRegistrationNo; GetCustomerVATRegistrationNumber)
+            column(VATRegistrationNo; GetCustomerVATRegistrationNumber())
             {
             }
-            column(VATRegistrationNo_Lbl; GetCustomerVATRegistrationNumberLbl)
+            column(VATRegistrationNo_Lbl; GetCustomerVATRegistrationNumberLbl())
             {
             }
-            column(GlobalLocationNumber; GetCustomerGlobalLocationNumber)
+            column(GlobalLocationNumber; GetCustomerGlobalLocationNumber())
             {
             }
-            column(GlobalLocationNumber_Lbl; GetCustomerGlobalLocationNumberLbl)
+            column(GlobalLocationNumber_Lbl; GetCustomerGlobalLocationNumberLbl())
             {
             }
-            column(SellToFaxNo; GetSellToCustomerFaxNo)
+            column(SellToFaxNo; GetSellToCustomerFaxNo())
             {
             }
             column(SellToPhoneNo; "Sell-to Phone No.")
             {
             }
-            column(PaymentReference; GetPaymentReference)
+            column(PaymentReference; GetPaymentReference())
             {
             }
             column(From_Lbl; FromLbl)
@@ -340,13 +340,13 @@ report 1306 "Standard Sales - Invoice"
             column(ChecksPayable_Lbl; ChecksPayableText)
             {
             }
-            column(PaymentReference_Lbl; GetPaymentReferenceLbl)
+            column(PaymentReference_Lbl; GetPaymentReferenceLbl())
             {
             }
-            column(LegalEntityType; Cust.GetLegalEntityType)
+            column(LegalEntityType; Cust.GetLegalEntityType())
             {
             }
-            column(LegalEntityType_Lbl; Cust.GetLegalEntityTypeLbl)
+            column(LegalEntityType_Lbl; Cust.GetLegalEntityTypeLbl())
             {
             }
             column(Copy_Lbl; CopyLbl)
@@ -382,10 +382,10 @@ report 1306 "Standard Sales - Invoice"
             column(Questions_Lbl; QuestionsLbl)
             {
             }
-            column(Contact_Lbl; CompanyInfo.GetContactUsText)
+            column(Contact_Lbl; CompanyInfo.GetContactUsText())
             {
             }
-            column(DocumentTitle_Lbl; DocumentCaption)
+            column(DocumentTitle_Lbl; DocumentCaption())
             {
             }
             column(YourDocumentTitle_Lbl; YourSalesInvoiceLbl)
@@ -427,7 +427,7 @@ report 1306 "Standard Sales - Invoice"
             column(VATPercentage_Lbl; VATPercentageLbl)
             {
             }
-            column(VATClause_Lbl; VATClause.TableCaption)
+            column(VATClause_Lbl; VATClause.TableCaption())
             {
             }
             column(PackageTrackingNo; "Package Tracking No.")
@@ -646,7 +646,7 @@ report 1306 "Standard Sales - Invoice"
 
                 trigger OnAfterGetRecord()
                 begin
-                    InitializeShipmentLine;
+                    InitializeShipmentLine();
                     if Type = Type::"G/L Account" then
                         "No." := '';
 
@@ -739,7 +739,7 @@ report 1306 "Standard Sales - Invoice"
                 begin
                     if WorkDescriptionInstream.EOS then
                         CurrReport.Break();
-                    WorkDescriptionLine := TypeHelper.ReadAsTextWithSeparator(WorkDescriptionInstream, TypeHelper.LFSeparator);
+                    WorkDescriptionLine := TypeHelper.ReadAsTextWithSeparator(WorkDescriptionInstream, TypeHelper.LFSeparator());
                 end;
 
                 trigger OnPostDataItem()
@@ -931,7 +931,7 @@ report 1306 "Standard Sales - Invoice"
 
                 trigger OnPreDataItem()
                 begin
-                    CreateReportTotalLines;
+                    CreateReportTotalLines();
                 end;
             }
             dataitem(LineFee; "Integer")
@@ -948,7 +948,7 @@ report 1306 "Standard Sales - Invoice"
 
                     if Number = 1 then begin
                         if not TempLineFeeNoteOnReportHist.FindSet() then
-                            CurrReport.Break
+                            CurrReport.Break()
                     end else
                         if TempLineFeeNoteOnReportHist.Next() = 0 then
                             CurrReport.Break();
@@ -964,13 +964,13 @@ report 1306 "Standard Sales - Invoice"
                 column(PaymentServiceLogo_UrlText; "URL Caption")
                 {
                 }
-                column(PaymentServiceLogo_Url; GetTargetURL)
+                column(PaymentServiceLogo_Url; GetTargetURL())
                 {
                 }
                 column(PaymentServiceText_UrlText; "URL Caption")
                 {
                 }
-                column(PaymentServiceText_Url; GetTargetURL)
+                column(PaymentServiceText_Url; GetTargetURL())
                 {
                 }
             }
@@ -1043,7 +1043,7 @@ report 1306 "Standard Sales - Invoice"
                 column(TotalPaymentDiscountOnVAT; TotalPaymentDiscOnVAT)
                 {
                 }
-                column(TotalVATAmountText; VATAmountLine.VATAmountText)
+                column(TotalVATAmountText; VATAmountLine.VATAmountText())
                 {
                 }
                 column(TotalExcludingVATText; TotalExclVATText)
@@ -1101,7 +1101,7 @@ report 1306 "Standard Sales - Invoice"
             begin
                 CurrReport.Language := Language.GetLanguageIdOrDefault("Language Code");
 
-                if not IsReportInPreviewMode then
+                if not IsReportInPreviewMode() then
                     CODEUNIT.Run(CODEUNIT::"Sales Inv.-Printed", Header);
 
                 CalcFields("Work Description");
@@ -1117,8 +1117,8 @@ report 1306 "Standard Sales - Invoice"
                 if not CompanyBankAccount.Get(Header."Company Bank Account Code") then
                     CompanyBankAccount.CopyBankFieldsFromCompanyInfo(CompanyInfo);
 
-                FillLeftHeader;
-                FillRightHeader;
+                FillLeftHeader();
+                FillRightHeader();
 
                 if not Cust.Get("Bill-to Customer No.") then
                     Clear(Cust);
@@ -1142,7 +1142,7 @@ report 1306 "Standard Sales - Invoice"
                 PaymentServiceSetup.CreateReportingArgs(PaymentReportingArgument, Header);
 
                 CalcFields("Amount Including VAT");
-                RemainingAmount := GetRemainingAmount;
+                RemainingAmount := GetRemainingAmount();
                 if RemainingAmount = 0 then
                     RemainingAmountTxt := AlreadyPaidLbl
                 else
@@ -1221,7 +1221,7 @@ report 1306 "Standard Sales - Invoice"
 
         trigger OnOpenPage()
         begin
-            InitLogInteraction;
+            InitLogInteraction();
             LogInteractionEnable := LogInteraction;
         end;
     }
@@ -1236,12 +1236,12 @@ report 1306 "Standard Sales - Invoice"
         CompanyInfo.SetAutoCalcFields(Picture);
         CompanyInfo.Get();
         SalesSetup.Get();
-        CompanyInfo.VerifyAndSetPaymentInfo;
+        CompanyInfo.VerifyAndSetPaymentInfo();
     end;
 
     trigger OnPostReport()
     begin
-        if LogInteraction and not IsReportInPreviewMode then
+        if LogInteraction and not IsReportInPreviewMode() then
             if Header.FindSet() then
                 repeat
                     if Header."Bill-to Contact No." <> '' then
@@ -1261,54 +1261,13 @@ report 1306 "Standard Sales - Invoice"
             Error(NoFilterSetErr);
 
         if not CurrReport.UseRequestPage then
-            InitLogInteraction;
+            InitLogInteraction();
 
         CompanyLogoPosition := SalesSetup."Logo Position on Documents";
     end;
 
     var
-        SalespersonLbl: Label 'Salesperson';
-        CompanyInfoBankAccNoLbl: Label 'Account No.';
-        CompanyInfoBankNameLbl: Label 'Bank';
-        CompanyInfoGiroNoLbl: Label 'Giro No.';
-        CompanyInfoPhoneNoLbl: Label 'Phone No.';
-        CopyLbl: Label 'Copy';
-        EMailLbl: Label 'Email';
-        HomePageLbl: Label 'Home Page';
-        InvDiscBaseAmtLbl: Label 'Invoice Discount Base Amount';
-        InvDiscountAmtLbl: Label 'Invoice Discount';
-        InvNoLbl: Label 'Invoice No.';
-        LineAmtAfterInvDiscLbl: Label 'Payment Discount on VAT';
-        LocalCurrencyLbl: Label 'Local Currency';
-        PageLbl: Label 'Page';
-        PaymentTermsDescLbl: Label 'Payment Terms';
-        PaymentMethodDescLbl: Label 'Payment Method';
-        PostedShipmentDateLbl: Label 'Shipment Date';
-        SalesInvLineDiscLbl: Label 'Discount %';
-        SalesInvoiceLbl: Label 'Invoice';
-        YourSalesInvoiceLbl: Label 'Your Invoice';
-        ShipmentLbl: Label 'Shipment';
-        ShiptoAddrLbl: Label 'Ship-to Address';
-        ShptMethodDescLbl: Label 'Shipment Method';
-        SubtotalLbl: Label 'Subtotal';
-        TotalLbl: Label 'Total';
-        VATAmtSpecificationLbl: Label 'VAT Amount Specification';
-        VATAmtLbl: Label 'VAT Amount';
-        VATAmountLCYLbl: Label 'VAT Amount (LCY)';
-        VATBaseLbl: Label 'VAT Base';
-        VATBaseLCYLbl: Label 'VAT Base (LCY)';
-        VATClausesLbl: Label 'VAT Clause';
-        VATIdentifierLbl: Label 'VAT Identifier';
-        VATPercentageLbl: Label 'VAT %';
-        SellToContactPhoneNoLbl: Label 'Sell-to Contact Phone No.';
-        SellToContactMobilePhoneNoLbl: Label 'Sell-to Contact Mobile Phone No.';
-        SellToContactEmailLbl: Label 'Sell-to Contact E-Mail';
-        BillToContactPhoneNoLbl: Label 'Bill-to Contact Phone No.';
-        BillToContactMobilePhoneNoLbl: Label 'Bill-to Contact Mobile Phone No.';
-        BillToContactEmailLbl: Label 'Bill-to Contact E-Mail';
         GLSetup: Record "General Ledger Setup";
-        ShipmentMethod: Record "Shipment Method";
-        PaymentTerms: Record "Payment Terms";
         PaymentMethod: Record "Payment Method";
         SalespersonPurchaser: Record "Salesperson/Purchaser";
         CompanyBankAccount: Record "Bank Account";
@@ -1330,29 +1289,17 @@ report 1306 "Standard Sales - Invoice"
         JobNo: Code[20];
         JobTaskNo: Code[20];
         WorkDescriptionLine: Text;
-        CustAddr: array[8] of Text[100];
         ChecksPayableText: Text;
-        ShipToAddr: array[8] of Text[100];
         CompanyAddr: array[8] of Text[100];
-        SalesPersonText: Text[30];
+        SalesPersonText: Text[50];
         TotalText: Text[50];
-        TotalExclVATText: Text[50];
-        TotalInclVATText: Text[50];
-        LineDiscountPctText: Text;
-        PmtDiscText: Text;
         RemainingAmountTxt: Text;
         JobNoLbl: Text;
         JobTaskNoLbl: Text;
-        FormattedVATPct: Text;
-        FormattedUnitPrice: Text;
-        FormattedQuantity: Text;
-        FormattedLineAmount: Text;
         TotalAmountExclInclVATTextValue: Text;
         MoreLines: Boolean;
         ShowWorkDescription: Boolean;
-        ShowShippingAddr: Boolean;
         LogInteraction: Boolean;
-        TotalSubTotal: Decimal;
         TotalAmount: Decimal;
         TotalAmountInclVAT: Decimal;
         TotalAmountVAT: Decimal;
@@ -1362,24 +1309,57 @@ report 1306 "Standard Sales - Invoice"
         TransHeaderAmount: Decimal;
         [InDataSet]
         LogInteractionEnable: Boolean;
-        DisplayAssemblyInformation: Boolean;
-        DisplayShipmentInformation: Boolean;
         CompanyLogoPosition: Integer;
-        FirstLineHasBeenOutput: Boolean;
         CalculatedExchRate: Decimal;
         PaymentInstructionsTxt: Text;
         ExchangeRateText: Text;
-        ExchangeRateTxt: Label 'Exchange rate: %1/%2', Comment = '%1 and %2 are both amounts.';
-        VATBaseLCY: Decimal;
-        VATAmountLCY: Decimal;
         TotalVATBaseLCY: Decimal;
         TotalVATAmountLCY: Decimal;
         TotalVATBaseOnVATAmtLine: Decimal;
         TotalVATAmountOnVATAmtLine: Decimal;
         PrevLineAmount: Decimal;
-        NoFilterSetErr: Label 'You must specify one or more filters to avoid accidently printing all documents.';
         TotalAmountExclInclVATValue: Decimal;
-        DisplayAdditionalFeeNote: Boolean;
+        CurrCode: Text[10];
+        CurrSymbol: Text[10];
+
+        SalespersonLbl: Label 'Salesperson';
+        CompanyInfoBankAccNoLbl: Label 'Account No.';
+        CompanyInfoBankNameLbl: Label 'Bank';
+        CompanyInfoGiroNoLbl: Label 'Giro No.';
+        CompanyInfoPhoneNoLbl: Label 'Phone No.';
+        CopyLbl: Label 'Copy';
+        EMailLbl: Label 'Email';
+        HomePageLbl: Label 'Home Page';
+        InvDiscBaseAmtLbl: Label 'Invoice Discount Base Amount';
+        InvDiscountAmtLbl: Label 'Invoice Discount';
+        InvNoLbl: Label 'Invoice No.';
+        LineAmtAfterInvDiscLbl: Label 'Payment Discount on VAT';
+        LocalCurrencyLbl: Label 'Local Currency';
+        PageLbl: Label 'Page';
+        PaymentMethodDescLbl: Label 'Payment Method';
+        PostedShipmentDateLbl: Label 'Shipment Date';
+        SalesInvLineDiscLbl: Label 'Discount %';
+        SalesInvoiceLbl: Label 'Invoice';
+        YourSalesInvoiceLbl: Label 'Your Invoice';
+        ShipmentLbl: Label 'Shipment';
+        SubtotalLbl: Label 'Subtotal';
+        TotalLbl: Label 'Total';
+        VATAmtSpecificationLbl: Label 'VAT Amount Specification';
+        VATAmtLbl: Label 'VAT Amount';
+        VATAmountLCYLbl: Label 'VAT Amount (LCY)';
+        VATBaseLbl: Label 'VAT Base';
+        VATBaseLCYLbl: Label 'VAT Base (LCY)';
+        VATClausesLbl: Label 'VAT Clause';
+        VATIdentifierLbl: Label 'VAT Identifier';
+        VATPercentageLbl: Label 'VAT %';
+        SellToContactPhoneNoLbl: Label 'Sell-to Contact Phone No.';
+        SellToContactMobilePhoneNoLbl: Label 'Sell-to Contact Mobile Phone No.';
+        SellToContactEmailLbl: Label 'Sell-to Contact E-Mail';
+        BillToContactPhoneNoLbl: Label 'Bill-to Contact Phone No.';
+        BillToContactMobilePhoneNoLbl: Label 'Bill-to Contact Mobile Phone No.';
+        BillToContactEmailLbl: Label 'Bill-to Contact E-Mail';
+        ExchangeRateTxt: Label 'Exchange rate: %1/%2', Comment = '%1 and %2 are both amounts.';
+        NoFilterSetErr: Label 'You must specify one or more filters to avoid accidently printing all documents.';
         GreetingLbl: Label 'Hello';
         ClosingLbl: Label 'Sincerely';
         PmtDiscTxt: Label 'If we receive the payment before %1, you are eligible for a %2% payment discount.', Comment = '%1 Discount Due Date %2 = value of Payment Discount % ';
@@ -1401,8 +1381,32 @@ report 1306 "Standard Sales - Invoice"
         PriceLbl: Label 'Price';
         PricePerLbl: Label 'Price per';
         VATClauseText: Text;
-        CurrCode: Text[10];
-        CurrSymbol: Text[10];
+
+    protected var
+        ShipmentMethod: Record "Shipment Method";
+        PaymentTerms: Record "Payment Terms";
+        CustAddr: array[8] of Text[100];
+        ShipToAddr: array[8] of Text[100];
+        FormattedLineAmount: Text;
+        FormattedQuantity: Text;
+        FormattedUnitPrice: Text;
+        FormattedVATPct: Text;
+        LineDiscountPctText: Text;
+        PmtDiscText: Text;
+        TotalExclVATText: Text[50];
+        TotalInclVATText: Text[50];
+        TotalSubTotal: Decimal;
+        VATBaseLCY: Decimal;
+        VATAmountLCY: Decimal;
+        DisplayAssemblyInformation: Boolean;
+        DisplayShipmentInformation: Boolean;
+        DisplayAdditionalFeeNote: Boolean;
+        FirstLineHasBeenOutput: Boolean;
+        ShowShippingAddr: Boolean;
+
+        PaymentTermsDescLbl: Label 'Payment Terms';
+        ShptMethodDescLbl: Label 'Shipment Method';
+        ShiptoAddrLbl: Label 'Ship-to Address';
 
     local procedure InitLogInteraction()
     begin
@@ -1461,7 +1465,7 @@ report 1306 "Standard Sales - Invoice"
     var
         MailManagement: Codeunit "Mail Management";
     begin
-        exit(CurrReport.Preview or MailManagement.IsHandlingGetEmailBody);
+        exit(CurrReport.Preview or MailManagement.IsHandlingGetEmailBody());
     end;
 
     local procedure GetUOMText(UOMCode: Code[10]): Text[50]
@@ -1487,7 +1491,7 @@ report 1306 "Standard Sales - Invoice"
                     ReportTotalsLine.Add(TotalExclVATText, TotalAmount, true, false, false);
         end;
         if TotalAmountVAT <> 0 then
-            ReportTotalsLine.Add(VATAmountLine.VATAmountText, TotalAmountVAT, false, true, false);
+            ReportTotalsLine.Add(VATAmountLine.VATAmountText(), TotalAmountVAT, false, true, false);
     end;
 
     local procedure GetLineFeeNoteOnReportHist(SalesInvoiceHeaderNo: Code[20])
@@ -1507,14 +1511,14 @@ report 1306 "Standard Sales - Invoice"
 
         LineFeeNoteOnReportHist.SetRange("Cust. Ledger Entry No", CustLedgerEntry."Entry No.");
         LineFeeNoteOnReportHist.SetRange("Language Code", Customer."Language Code");
-        if LineFeeNoteOnReportHist.FindSet() then begin
+        if LineFeeNoteOnReportHist.FindSet() then
             repeat
                 TempLineFeeNoteOnReportHist.Init();
                 TempLineFeeNoteOnReportHist.Copy(LineFeeNoteOnReportHist);
                 TempLineFeeNoteOnReportHist.Insert();
-            until LineFeeNoteOnReportHist.Next() = 0;
-        end else begin
-            LineFeeNoteOnReportHist.SetRange("Language Code", Language.GetUserLanguageCode);
+            until LineFeeNoteOnReportHist.Next() = 0
+        else begin
+            LineFeeNoteOnReportHist.SetRange("Language Code", Language.GetUserLanguageCode());
             if LineFeeNoteOnReportHist.FindSet() then
                 repeat
                     TempLineFeeNoteOnReportHist.Init();
@@ -1530,15 +1534,15 @@ report 1306 "Standard Sales - Invoice"
 
         FillNameValueTable(LeftHeader, Header.FieldCaption("External Document No."), Header."External Document No.");
         FillNameValueTable(LeftHeader, Header.FieldCaption("Bill-to Customer No."), Header."Bill-to Customer No.");
-        FillNameValueTable(LeftHeader, Header.GetCustomerVATRegistrationNumberLbl, Header.GetCustomerVATRegistrationNumber);
-        FillNameValueTable(LeftHeader, Header.GetCustomerGlobalLocationNumberLbl, Header.GetCustomerGlobalLocationNumber);
+        FillNameValueTable(LeftHeader, Header.GetCustomerVATRegistrationNumberLbl(), Header.GetCustomerVATRegistrationNumber());
+        FillNameValueTable(LeftHeader, Header.GetCustomerGlobalLocationNumberLbl(), Header.GetCustomerGlobalLocationNumber());
         FillNameValueTable(LeftHeader, InvNoLbl, Header."No.");
         FillNameValueTable(LeftHeader, Header.FieldCaption("Order No."), Header."Order No.");
         FillNameValueTable(LeftHeader, Header.FieldCaption("Document Date"), Format(Header."Document Date", 0, 4));
         FillNameValueTable(LeftHeader, Header.FieldCaption("Due Date"), Format(Header."Due Date", 0, 4));
         FillNameValueTable(LeftHeader, PaymentTermsDescLbl, PaymentTerms.Description);
         FillNameValueTable(LeftHeader, PaymentMethodDescLbl, PaymentMethod.Description);
-        FillNameValueTable(LeftHeader, Cust.GetLegalEntityTypeLbl, Cust.GetLegalEntityType);
+        FillNameValueTable(LeftHeader, Cust.GetLegalEntityTypeLbl(), Cust.GetLegalEntityType());
         FillNameValueTable(LeftHeader, ShptMethodDescLbl, ShipmentMethod.Description);
 
         OnAfterFillLeftHeader(LeftHeader, Header);
@@ -1551,12 +1555,12 @@ report 1306 "Standard Sales - Invoice"
         FillNameValueTable(RightHeader, EMailLbl, CompanyInfo."E-Mail");
         FillNameValueTable(RightHeader, HomePageLbl, CompanyInfo."Home Page");
         FillNameValueTable(RightHeader, CompanyInfoPhoneNoLbl, CompanyInfo."Phone No.");
-        FillNameValueTable(RightHeader, CompanyInfo.GetRegistrationNumberLbl, CompanyInfo.GetRegistrationNumber);
+        FillNameValueTable(RightHeader, CompanyInfo.GetRegistrationNumberLbl(), CompanyInfo.GetRegistrationNumber());
         FillNameValueTable(RightHeader, CompanyInfoBankNameLbl, CompanyBankAccount.Name);
         FillNameValueTable(RightHeader, CompanyInfoGiroNoLbl, CompanyInfo."Giro No.");
         FillNameValueTable(RightHeader, CompanyBankAccount.FieldCaption(IBAN), CompanyBankAccount.IBAN);
         FillNameValueTable(RightHeader, CompanyBankAccount.FieldCaption("SWIFT Code"), CompanyBankAccount."SWIFT Code");
-        FillNameValueTable(RightHeader, Header.GetPaymentReferenceLbl, Header.GetPaymentReference);
+        FillNameValueTable(RightHeader, Header.GetPaymentReferenceLbl(), Header.GetPaymentReference());
 
         OnAfterFillRightHeader(RightHeader, Header);
     end;
@@ -1588,7 +1592,7 @@ report 1306 "Standard Sales - Invoice"
     local procedure FormatDocumentFields(SalesInvoiceHeader: Record "Sales Invoice Header")
     begin
         with SalesInvoiceHeader do begin
-            FormatDocument.SetTotalLabels(GetCurrencySymbol, TotalText, TotalInclVATText, TotalExclVATText);
+            FormatDocument.SetTotalLabels(GetCurrencySymbol(), TotalText, TotalInclVATText, TotalExclVATText);
             FormatDocument.SetSalesPerson(SalespersonPurchaser, "Salesperson Code", SalesPersonText);
             FormatDocument.SetPaymentTerms(PaymentTerms, "Payment Terms Code", "Language Code");
             FormatDocument.SetPaymentMethod(PaymentMethod, "Payment Method Code", "Language Code");

@@ -215,13 +215,9 @@ table 379 "Detailed Cust. Ledg. Entry"
         {
             Caption = 'Customer Posting Group';
             TableRelation = "Customer Posting Group";
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(31000; Advance; Boolean)
         {
@@ -248,17 +244,6 @@ table 379 "Detailed Cust. Ledg. Entry"
         key(Key3; "Cust. Ledger Entry No.", "Entry Type", "Posting Date")
         {
         }
-#if not CLEAN18
-        key(Key4; "Ledger Entry Amount", "Cust. Ledger Entry No.", "Posting Date")
-        {
-            MaintainSQLIndex = false;
-            MaintainSiftIndex = false;
-            SumIndexFields = Amount, "Amount (LCY)", "Debit Amount", "Debit Amount (LCY)", "Credit Amount", "Credit Amount (LCY)";
-            ObsoleteState = Pending;
-            ObsoleteReason = 'Replaced with "Key17" for better peformance.';
-            ObsoleteTag = '18.0';
-        }
-#endif
         key(Key5; "Initial Document Type", "Entry Type", "Customer No.", "Currency Code", "Initial Entry Global Dim. 1", "Initial Entry Global Dim. 2", "Posting Date")
         {
             SumIndexFields = Amount, "Amount (LCY)";
@@ -279,28 +264,19 @@ table 379 "Detailed Cust. Ledg. Entry"
         key(Key10; "Application No.", "Customer No.", "Entry Type")
         {
         }
-#if not CLEAN18
-        key(Key11; "Customer No.", "Posting Date", "Entry Type", "Document Type", "Customer Posting Group", Advance)
-        {
-            SumIndexFields = "Amount (LCY)", "Debit Amount (LCY)", "Credit Amount (LCY)";
-            ObsoleteState = Pending;
-            ObsoleteReason = 'Field "Customer Posting Group" is removed and cannot be used in an active key.';
-            ObsoleteTag = '18.0';
-        }
-#endif
-        key(Key12; "Customer No.", "Entry Type", "Posting Date", "Initial Document Type")
+        key(Key11; "Customer No.", "Entry Type", "Posting Date", "Initial Document Type")
         {
             SumIndexFields = Amount, "Amount (LCY)";
         }
-        key(Key13; "Document Type")
+        key(Key12; "Document Type")
         {
             SumIndexFields = "Amount (LCY)";
         }
-        key(Key14; "Initial Document Type", "Initial Entry Due Date")
+        key(Key13; "Initial Document Type", "Initial Entry Due Date")
         {
             SumIndexFields = "Amount (LCY)";
         }
-        key(Key15; "Customer No.", "Initial Entry Due Date")
+        key(Key14; "Customer No.", "Initial Entry Due Date")
         {
             SumIndexFields = Amount, "Amount (LCY)";
         }
@@ -320,7 +296,7 @@ table 379 "Detailed Cust. Ledg. Entry"
 
     trigger OnInsert()
     begin
-        SetLedgerEntryAmount;
+        SetLedgerEntryAmount();
     end;
 
     procedure GetLastEntryNo(): Integer;

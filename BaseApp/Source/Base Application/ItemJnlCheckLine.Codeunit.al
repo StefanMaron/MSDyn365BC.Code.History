@@ -8,6 +8,17 @@
     end;
 
     var
+        Location: Record Location;
+        InvtSetup: Record "Inventory Setup";
+        GLSetup: Record "General Ledger Setup";
+        ItemLedgEntry: Record "Item Ledger Entry";
+        ItemJnlLine2: Record "Item Journal Line";
+        ItemJnlLine3: Record "Item Journal Line";
+        ProdOrderLine: Record "Prod. Order Line";
+        DimMgt: Codeunit DimensionManagement;
+        CalledFromInvtPutawayPick: Boolean;
+        CalledFromAdjustment: Boolean;
+
         Text000: Label 'cannot be a closing date';
         Text003: Label 'must not be negative when %1 is %2';
         Text004: Label 'must have the same value as %1';
@@ -17,38 +28,14 @@
         DimCombBlockedErr: Label 'The combination of dimensions used in item journal line %1, %2, %3 is blocked. %4.', Comment = '%1 = Journal Template Name; %2 = Journal Batch Name; %3 = Line No.';
         DimCausedErr: Label 'A dimension used in item journal line %1, %2, %3 has caused an error. %4.', Comment = '%1 = Journal Template Name; %2 = Journal Batch Name; %3 = Line No.';
         Text011: Label '%1 must not be equal to %2';
-        Location: Record Location;
-        InvtSetup: Record "Inventory Setup";
-        GLSetup: Record "General Ledger Setup";
-        ItemLedgEntry: Record "Item Ledger Entry";
-        ItemJnlLine2: Record "Item Journal Line";
-        ItemJnlLine3: Record "Item Journal Line";
-        ProdOrderLine: Record "Prod. Order Line";
-        DimMgt: Codeunit DimensionManagement;
         Text012: Label 'Warehouse handling is required for %1 = %2, %3 = %4, %5 = %6.';
-        CalledFromInvtPutawayPick: Boolean;
-        CalledFromAdjustment: Boolean;
         UseInTransitLocationErr: Label 'You can use In-Transit location %1 for transfer orders only.';
 
     procedure RunCheck(var ItemJnlLine: Record "Item Journal Line")
     var
-        InvtPeriod: Record "Inventory Period";
         WorkCenter: Record "Work Center";
         Item: Record Item;
-#if not CLEAN19
-        Item2: Record Item;
-        ManufSetup: Record "Manufacturing Setup";
-        ReservEntry: Record "Reservation Entry";
-        ItemTrackingCode2: Record "Item Tracking Code";
-        ItemTrackingSetup: Record "Item Tracking Setup";
-#endif
         GenJnlPostPreview: Codeunit "Gen. Jnl.-Post Preview";
-#if not CLEAN18
-        UserChecksMgt: Codeunit "User Setup Adv. Management";
-#endif
-#if not CLEAN19
-        ItemTrackingMgt: Codeunit "Item Tracking Management";
-#endif
         IsHandled: Boolean;
         ShouldCheckDiscountAmount: Boolean;
         ShouldCheckLocationCode: Boolean;
@@ -57,11 +44,11 @@
         InvtSetup.Get();
 
         with ItemJnlLine do begin
-            if EmptyLine then begin
-                if not IsValueEntryForDeletedItem then
+            if EmptyLine() then begin
+                if not IsValueEntryForDeletedItem() then
                     exit;
             end else
-                if not OnlyStopTime then
+                if not OnlyStopTime() then
                     TestField("Item No.", ErrorInfo.Create());
 
             if Item.Get("Item No.") then
@@ -76,13 +63,7 @@
             TestField("Gen. Prod. Posting Group", ErrorInfo.Create());
 
             CheckDates(ItemJnlLine);
-#if not CLEAN18
-            // NAVCZ
-            GLSetup.Get();
-            if GLSetup."User Checks Allowed" and not CalledFromAdjustment then
-                UserChecksMgt.CheckItemJournalLine(ItemJnlLine);
-            // NAVCZ
-#endif
+
             IsHandled := false;
             OnBeforeCheckLocation(ItemJnlLine, IsHandled);
             if not IsHandled then
@@ -109,6 +90,9 @@
                         InvtSetup.TestField("Invt. Cost Jnl. Batch Name", ErrorInfo.Create());
                     end;
                 end;
+
+            if Item.IsVariantMandatory(InvtSetup."Variant Mandatory if Exists") then
+                TestField("Variant Code");
 
             CheckInTransitLocations(ItemJnlLine);
 
@@ -167,7 +151,7 @@
 
             if ("Entry Type" in ["Entry Type"::Consumption, "Entry Type"::Output]) and
                not ("Value Entry Type" = "Value Entry Type"::Revaluation) and
-               not OnlyStopTime
+               not OnlyStopTime()
             then begin
                 TestField("Source No.", ErrorInfo.Create());
                 TestField("Order Type", "Order Type"::Production, ErrorInfo.Create());
@@ -192,76 +176,17 @@
             if "Entry Type" = "Entry Type"::"Assembly Consumption" then
                 CheckWarehouse(ItemJnlLine);
 
-#if not CLEAN19
-            // NAVCZ
-            if (not Adjustment) and ("Value Entry Type" = "Value Entry Type"::"Direct Cost") then
-                case "Entry Type" of
-                    "Entry Type"::Consumption:
-                        if Quantity < 0 then begin
-                            ManufSetup.Get();
-                            if ManufSetup."Exact Cost Rev.Manda. (Cons.)" then begin
-                                Item2.Get("Item No.");
-                                ItemTrackingCode2.Code := Item2."Item Tracking Code";
-                                ItemTrackingMgt.GetItemTrackingSetup(
-                                  ItemTrackingCode2, ItemJnlLine."Entry Type",
-                                  ItemJnlLine.Signed(ItemJnlLine."Quantity (Base)") > 0, ItemTrackingSetup);
-
-                                if ItemTrackingSetup.TrackingRequired() then begin
-                                    ReservEntry.SetSourceFilter(DATABASE::"Item Journal Line", "Entry Type".AsInteger(), "Journal Template Name", "Line No.", true);
-                                    ReservEntry.SetSourceFilter("Journal Batch Name", 0);
-                                    ReservEntry.SetRange("Reservation Status", "Reservation Status"::Prospect);
-                                    if ReservEntry.FindSet(false, false) then begin
-                                        repeat
-                                            ReservEntry.TestField("Appl.-from Item Entry", ErrorInfo.Create());
-                                        until ReservEntry.Next() = 0;
-                                    end;
-                                end else
-                                    TestField("Applies-from Entry", ErrorInfo.Create());
-                            end;
-                        end;
-                    "Entry Type"::"Negative Adjmt.":
-                        if InvtSetup."Exact Cost Reversing Mandatory" then
-                            if Quantity < 0 then begin
-                                Item2.Get("Item No.");
-                                ItemTrackingCode2.Code := Item2."Item Tracking Code";
-                                ItemTrackingMgt.GetItemTrackingSetup(
-                                  ItemTrackingCode2, "Entry Type", Signed("Quantity (Base)") > 0, ItemTrackingSetup);
-
-                                if ItemTrackingSetup.TrackingRequired() then begin
-                                    ReservEntry.SetSourceFilter(DATABASE::"Item Journal Line", "Entry Type".AsInteger(), "Journal Template Name", "Line No.", true);
-                                    ReservEntry.SetSourceFilter("Journal Batch Name", 0);
-                                    ReservEntry.SetRange("Reservation Status", ReservEntry."Reservation Status"::Prospect);
-                                    if ReservEntry.FindSet(false, false) then begin
-                                        repeat
-                                            ReservEntry.TestField("Appl.-from Item Entry", ErrorInfo.Create());
-                                        until ReservEntry.Next() = 0;
-                                    end;
-                                end else
-                                    TestField("Applies-from Entry", ErrorInfo.Create());
-                            end;
-                end;
-            // NAVCZ
-#endif
             if ("Value Entry Type" <> "Value Entry Type"::"Direct Cost") or ("Item Charge No." <> '') then
                 if "Inventory Value Per" = "Inventory Value Per"::" " then
                     TestField("Applies-to Entry", ErrorInfo.Create());
 
             CheckDimensions(ItemJnlLine);
 
-            // NAVCZ
-            if (Quantity <> 0) and
-               ("Item Charge No." = '') and
-               not ("Value Entry Type" in ["Value Entry Type"::Revaluation, "Value Entry Type"::Rounding]) and
-               not Adjustment
-            then
-                TestField("Unit of Measure Code", ErrorInfo.Create());
-            // NAVCZ
-
             if ("Entry Type" in
                 ["Entry Type"::Purchase, "Entry Type"::Sale, "Entry Type"::"Positive Adjmt.", "Entry Type"::"Negative Adjmt."]) and
-               (not GenJnlPostPreview.IsActive)
+               (not GenJnlPostPreview.IsActive())
             then
-                CheckItemJournalLineRestriction;
+                CheckItemJournalLineRestriction();
         end;
 
         OnAfterCheckItemJnlLine(ItemJnlLine, CalledFromInvtPutawayPick, CalledFromAdjustment);
@@ -279,13 +204,12 @@
         with ItemJnlLine do
             if "Entry Type" = "Entry Type"::Output then begin
                 if ("Output Quantity (Base)" = 0) and ("Scrap Quantity (Base)" = 0) and
-                   TimeIsEmpty and ("Invoiced Qty. (Base)" = 0)
+                   TimeIsEmpty() and ("Invoiced Qty. (Base)" = 0)
                 then
                     Error(ErrorInfo.Create(Text007, true))
-            end else begin
+            end else
                 if ("Quantity (Base)" = 0) and ("Invoiced Qty. (Base)" = 0) then
                     Error(ErrorInfo.Create(Text007, true));
-            end;
     end;
 
     local procedure GetLocation(LocationCode: Code[10])
@@ -303,7 +227,7 @@
             SetFilter(Status, '>=%1', Status::Released);
             SetRange("Prod. Order No.", ProdOrderNo);
             SetRange("Line No.", LineNo);
-            exit(FindFirst);
+            exit(FindFirst());
         end;
     end;
 
@@ -343,7 +267,7 @@
                     if (ItemJnlLine.Quantity < 0) and (ItemJnlLine."Applies-to Entry" = 0) then begin
                         ReservationEntry.InitSortingAndFilters(false);
                         ItemJnlLine.SetReservationFilters(ReservationEntry);
-                        ReservationEntry.ClearTrackingFilter;
+                        ReservationEntry.ClearTrackingFilter();
                         if ReservationEntry.FindSet() then
                             repeat
                                 if ReservationEntry."Appl.-to Item Entry" = 0 then
@@ -469,7 +393,7 @@
                     exit;
             end;
 
-            if "Drop Shipment" or OnlyStopTime or ("Quantity (Base)" = 0) or Adjustment or CalledFromAdjustment then
+            if "Drop Shipment" or OnlyStopTime() or ("Quantity (Base)" = 0) or Adjustment or CalledFromAdjustment then
                 exit;
 
             if ("Entry Type" = "Entry Type"::Output) and not LastOutputOperation(ItemJnlLine) then
@@ -531,12 +455,10 @@
             if not DateCheckDone then
                 UserSetupManagement.CheckAllowedPostingDate("Posting Date");
 
-            if not CalledFromAdjustment then begin // NAVCZ
-                ShouldShowError := not InvtPeriod.IsValidDate("Posting Date");
-                OnCheckDatesOnAfterCalcShouldShowError(ItemJnlLine, ShouldShowError);
-                if ShouldShowError then
-                    InvtPeriod.ShowError("Posting Date");
-            end;
+            ShouldShowError := not InvtPeriod.IsValidDate("Posting Date");
+            OnCheckDatesOnAfterCalcShouldShowError(ItemJnlLine, ShouldShowError, CalledFromAdjustment);
+            if ShouldShowError then
+                InvtPeriod.ShowError("Posting Date");
 
             if "Document Date" <> 0D then
                 if "Document Date" <> NormalDate("Document Date") then
@@ -556,12 +478,12 @@
             exit;
 
         with ItemJnlLine do
-            if not IsValueEntryForDeletedItem and not Correction and not CalledFromAdjustment then begin
+            if not IsValueEntryForDeletedItem() and not Correction and not CalledFromAdjustment then begin
                 if not DimMgt.CheckDimIDComb("Dimension Set ID") then
                     Error(
                         ErrorInfo.Create(
                             StrSubstNo(
-                                DimCombBlockedErr, "Journal Template Name", "Journal Batch Name", "Line No.", DimMgt.GetDimCombErr),
+                                DimCombBlockedErr, "Journal Template Name", "Journal Batch Name", "Line No.", DimMgt.GetDimCombErr()),
                             true));
                 if "Item Charge No." = '' then begin
                     TableID[1] := DATABASE::Item;
@@ -579,9 +501,9 @@
                     if "Line No." <> 0 then
                         Error(
                             ErrorInfo.Create(
-                                StrSubstNo(DimCausedErr, "Journal Template Name", "Journal Batch Name", "Line No.", DimMgt.GetDimValuePostingErr),
+                                StrSubstNo(DimCausedErr, "Journal Template Name", "Journal Batch Name", "Line No.", DimMgt.GetDimValuePostingErr()),
                             true));
-                    Error(ErrorInfo.Create(StrSubstNo(DimMgt.GetDimValuePostingErr), true));
+                    Error(ErrorInfo.Create(StrSubstNo(DimMgt.GetDimValuePostingErr()), true));
                 end;
                 if ("Entry Type" = "Entry Type"::Transfer) and
                    ("Value Entry Type" <> "Value Entry Type"::Revaluation)
@@ -590,9 +512,9 @@
                         if "Line No." <> 0 then
                             Error(
                                 ErrorInfo.Create(
-                                    StrSubstNo(DimCausedErr, "Journal Template Name", "Journal Batch Name", "Line No.", DimMgt.GetDimValuePostingErr),
+                                    StrSubstNo(DimCausedErr, "Journal Template Name", "Journal Batch Name", "Line No.", DimMgt.GetDimValuePostingErr()),
                                 true));
-                        Error(ErrorInfo.Create(StrSubstNo(DimMgt.GetDimValuePostingErr), true));
+                        Error(ErrorInfo.Create(StrSubstNo(DimMgt.GetDimValuePostingErr()), true));
                     end;
             end;
     end;
@@ -753,7 +675,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCheckDatesOnAfterCalcShouldShowError(var ItemJournalLine: Record "Item Journal Line"; var ShouldShowError: Boolean)
+    local procedure OnCheckDatesOnAfterCalcShouldShowError(var ItemJournalLine: Record "Item Journal Line"; var ShouldShowError: Boolean; CalledFromAdjustment: Boolean)
     begin
     end;
 

@@ -30,7 +30,7 @@ table 5615 "FA Allocation"
                 if "Account No." = '' then
                     exit;
                 GLAcc.Get("Account No.");
-                GLAcc.CheckGLAcc;
+                GLAcc.CheckGLAcc();
                 if "Allocation Type" < "Allocation Type"::Gain then
                     GLAcc.TestField("Direct Posting");
                 Description := GLAcc.Name;
@@ -67,11 +67,9 @@ table 5615 "FA Allocation"
             MaxValue = 100;
             MinValue = 0;
         }
-        field(8; "Allocation Type"; Option)
+        field(8; "Allocation Type"; Enum "FA Allocation Type")
         {
             Caption = 'Allocation Type';
-            OptionCaption = 'Acquisition,Depreciation,Write-Down,Appreciation,Custom 1,Custom 2,Disposal,Maintenance,Gain,Loss,Book Value (Gain),Book Value (Loss)';
-            OptionMembers = Acquisition,Depreciation,"Write-Down",Appreciation,"Custom 1","Custom 2",Disposal,Maintenance,Gain,Loss,"Book Value (Gain)","Book Value (Loss)";
         }
         field(9; "Account Name"; Text[100])
         {
@@ -99,18 +97,9 @@ table 5615 "FA Allocation"
         field(11760; "Reason/Maintenance Code"; Code[10])
         {
             Caption = 'Reason/Maintenance Code';
-#if not CLEAN18
-            TableRelation = IF ("Allocation Type" = CONST(Maintenance)) "FA Extended Posting Group".Code WHERE("FA Posting Group Code" = FIELD(Code), "FA Posting Type" = CONST(Maintenance))
-            ELSE
-            IF ("Allocation Type" = CONST("Book Value (Gain)")) "FA Extended Posting Group".Code WHERE("FA Posting Group Code" = FIELD(Code), "FA Posting Type" = CONST(Disposal))
-            ELSE
-            IF ("Allocation Type" = CONST("Book Value (Loss)")) "FA Extended Posting Group".Code WHERE("FA Posting Group Code" = FIELD(Code), "FA Posting Type" = CONST(Disposal));
-            ObsoleteState = Pending;
-#else
             ObsoleteState = Removed;
-#endif
             ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
     }
 
@@ -124,12 +113,6 @@ table 5615 "FA Allocation"
         {
             SumIndexFields = "Allocation %";
         }
-#if not CLEAN18
-        key(Key3; "Code", "Allocation Type", "Reason/Maintenance Code")
-        {
-            SumIndexFields = "Allocation %";
-        }
-#endif
     }
 
     fieldgroups
@@ -149,9 +132,10 @@ table 5615 "FA Allocation"
     end;
 
     var
-        Text000: Label 'You cannot rename a %1.';
         GLAcc: Record "G/L Account";
         DimMgt: Codeunit DimensionManagement;
+
+        Text000: Label 'You cannot rename a %1.';
 
     procedure ValidateShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])
     begin

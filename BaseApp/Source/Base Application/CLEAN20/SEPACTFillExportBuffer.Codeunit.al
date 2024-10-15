@@ -39,14 +39,14 @@ codeunit 1221 "SEPA CT-Fill Export Buffer"
         BankAccount.TestField(IBAN);
         BankAccount.GetBankExportImportSetup(BankExportImportSetup);
         BankExportImportSetup.TestField("Check Export Codeunit");
-        TempGenJnlLine.DeletePaymentFileBatchErrors;
+        TempGenJnlLine.DeletePaymentFileBatchErrors();
         repeat
             CODEUNIT.Run(BankExportImportSetup."Check Export Codeunit", TempGenJnlLine);
             if TempGenJnlLine."Bal. Account No." <> BankAccount."No." then
                 TempGenJnlLine.InsertPaymentFileError(SameBankErr);
         until TempGenJnlLine.Next() = 0;
 
-        if TempGenJnlLine.HasPaymentFileErrorsInBatch then begin
+        if TempGenJnlLine.HasPaymentFileErrorsInBatch() then begin
             Commit();
             Error(HasErrorsErr);
         end;
@@ -54,17 +54,18 @@ codeunit 1221 "SEPA CT-Fill Export Buffer"
         GeneralLedgerSetup.Get();
         GeneralLedgerSetup.TestField("LCY Code");
 
-        MessageID := BankAccount.GetCreditTransferMessageNo;
+        MessageID := BankAccount.GetCreditTransferMessageNo();
         OnFillExportBufferOnAfterGetMessageID(TempGenJnlLine, MessageID);
         CreditTransferRegister.CreateNew(MessageID, BankAccount."No.");
+        OnFillExportBufferOnAfterCreateNewRegister(CreditTransferRegister, BankExportImportSetup);
 
         with PaymentExportData do begin
-            Reset;
+            Reset();
             if FindLast() then;
 
             TempGenJnlLine.FindSet();
             repeat
-                Init;
+                Init();
                 "Entry No." += 1;
                 SetPreserveNonLatinCharacters(BankExportImportSetup."Preserve Non-Latin Characters");
                 SetBankAsSenderBank(BankAccount);
@@ -98,7 +99,7 @@ codeunit 1221 "SEPA CT-Fill Export Buffer"
                             SetEmployeeAsRecipient(Employee);
                         end;
                     else
-                        OnFillExportBufferOnSetAsRecipient(GenJnlLine, PaymentExportData, TempGenJnlLine);
+                        OnFillExportBufferOnSetAsRecipient(GenJnlLine, PaymentExportData, TempGenJnlLine, CreditTransferRegister);
                 end;
 
                 Validate("SEPA Instruction Priority", "SEPA Instruction Priority"::NORMAL);
@@ -167,6 +168,8 @@ codeunit 1221 "SEPA CT-Fill Export Buffer"
                 GetAppliesToDocVendLedgEntries(GenJournalLine, TempInteger, AccNo);
             GenJournalLine."Account Type"::Employee:
                 GetAppliesToDocEmplLedgEntries(GenJournalLine, TempInteger, AccNo);
+            else
+                OnGetAppliesToDocEntryNumbersCaseElse(GenJournalLine, TempInteger, AccNo);
         end;
     end;
 
@@ -255,13 +258,12 @@ codeunit 1221 "SEPA CT-Fill Export Buffer"
     begin
         RecordRef.GetTable(RecVariant);
         FieldRef := RecordRef.FieldIndex(1);
-        with RecordRef do begin
+        with RecordRef do
             if FindSet() then
                 repeat
                     TempInteger.Number := FieldRef.Value;
                     TempInteger.Insert();
                 until Next() = 0;
-        end;
     end;
 
     local procedure ValidatePaymentExportData(var PaymentExportData: Record "Payment Export Data"; var GenJnlLine: Record "Gen. Journal Line")
@@ -315,6 +317,11 @@ codeunit 1221 "SEPA CT-Fill Export Buffer"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnFillExportBufferOnAfterCreateNewRegister(var CreditTransferRegister: Record "Credit Transfer Register"; var BankExportImportSetup: Record "Bank Export/Import Setup")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnFillExportBufferOnAfterSetCustomerAsRecipient(var PaymentExportData: Record "Payment Export Data"; var TempGenJnlLine: Record "Gen. Journal Line" temporary; Customer: Record Customer; CustomerBankAccount: Record "Customer Bank Account")
     begin
     end;
@@ -335,8 +342,14 @@ codeunit 1221 "SEPA CT-Fill Export Buffer"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnFillExportBufferOnSetAsRecipient(var GenJnlLine: Record "Gen. Journal Line"; var PaymentExportData: Record "Payment Export Data"; var TempGenJnlLine: Record "Gen. Journal Line" temporary)
+    local procedure OnFillExportBufferOnSetAsRecipient(var GenJnlLine: Record "Gen. Journal Line"; var PaymentExportData: Record "Payment Export Data"; var TempGenJnlLine: Record "Gen. Journal Line" temporary; var CreditTransferRegister: Record "Credit Transfer Register")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetAppliesToDocEntryNumbersCaseElse(var GenJournalLine: Record "Gen. Journal Line"; var TempInteger: Record Integer temporary; AccNo: Code[20])
     begin
     end;
 }
+
 #endif

@@ -1,3 +1,4 @@
+#if not CLEAN19
 permissionset 4123 "General Ledger Accounts - View"
 {
     Access = Public;
@@ -12,9 +13,7 @@ permissionset 4123 "General Ledger Accounts - View"
                   tabledata Currency = R,
                   tabledata "Customer Posting Group" = R,
                   tabledata "Default Dimension" = R,
-#if not CLEAN19
                   tabledata "Detailed G/L Entry" = R,
-#endif
                   tabledata "Employee Posting Group" = R,
                   tabledata "Extended Text Header" = R,
                   tabledata "Extended Text Line" = R,
@@ -32,10 +31,6 @@ permissionset 4123 "General Ledger Accounts - View"
                   tabledata "Inventory Posting Setup" = R,
                   tabledata "Job Posting Group" = R,
                   tabledata "Service Contract Account Group" = R,
-#if not CLEAN18
-                  tabledata "Subst. Customer Posting Group" = R,
-                  tabledata "Subst. Vendor Posting Group" = R,
-#endif
                   tabledata "VAT Assisted Setup Bus. Grp." = R,
                   tabledata "VAT Assisted Setup Templates" = R,
                   tabledata "VAT Entry" = R,
@@ -45,3 +40,5 @@ permissionset 4123 "General Ledger Accounts - View"
                   tabledata "VAT Setup Posting Groups" = R,
                   tabledata "Vendor Posting Group" = R;
 }
+
+#endif

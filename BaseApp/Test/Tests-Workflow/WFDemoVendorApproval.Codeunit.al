@@ -192,7 +192,7 @@ codeunit 134211 "WF Demo Vendor Approval"
         Assert.ExpectedError(NoWorkflowEnabledErr);
 
         // Cleanup
-        VendorCard.Close;
+        VendorCard.Close();
 
         // [GIVEN] Vendor approval enabled.
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.VendorWorkflowCode);
@@ -207,7 +207,7 @@ codeunit 134211 "WF Demo Vendor Approval"
         Assert.IsFalse(VendorCard.Approve.Visible, 'Approve should NOT be visible');
         Assert.IsFalse(VendorCard.Reject.Visible, 'Reject should NOT be visible');
         Assert.IsFalse(VendorCard.Delegate.Visible, 'Delegate should NOT be visible');
-        VendorCard.Close;
+        VendorCard.Close();
 
         // [GIVEN] Approval exist on Vendor.
         LibraryDocumentApprovals.SetupUsersForApprovals(ApprovalUserSetup);
@@ -223,7 +223,7 @@ codeunit 134211 "WF Demo Vendor Approval"
         Assert.IsTrue(VendorCard.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be enabled');
 
         // Clenup
-        VendorCard.Close;
+        VendorCard.Close();
 
         // Setup the approval so it can be approve by current user
         LibraryDocumentApprovals.UpdateApprovalEntryWithCurrUser(Vendor.RecordId);
@@ -270,7 +270,7 @@ codeunit 134211 "WF Demo Vendor Approval"
         Assert.ExpectedError(NoWorkflowEnabledErr);
 
         // Cleanup
-        VendorList.Close;
+        VendorList.Close();
 
         // [GIVEN] Vendor approval enabled.
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.VendorWorkflowCode);
@@ -282,7 +282,7 @@ codeunit 134211 "WF Demo Vendor Approval"
         // [THEN] Only Send is enabled.
         Assert.IsTrue(VendorList.SendApprovalRequest.Enabled, 'SendApprovalRequest should be enabled');
         Assert.IsFalse(VendorList.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be disabled');
-        VendorList.Close;
+        VendorList.Close();
 
         // [GIVEN] Approval exist on Vendor.
         LibraryDocumentApprovals.SetupUsersForApprovals(ApprovalUserSetup);
@@ -325,7 +325,7 @@ codeunit 134211 "WF Demo Vendor Approval"
         Initialize();
 
         SendVendorForApproval(Workflow, Vendor, VendorCard);
-        VendorCard.Close;
+        VendorCard.Close();
 
         LibraryDocumentApprovals.UpdateApprovalEntryWithCurrUser(Vendor.RecordId);
 
@@ -356,7 +356,7 @@ codeunit 134211 "WF Demo Vendor Approval"
         Initialize();
 
         SendVendorForApproval(Workflow, Vendor, VendorCard);
-        VendorCard.Close;
+        VendorCard.Close();
 
         LibraryDocumentApprovals.UpdateApprovalEntryWithCurrUser(Vendor.RecordId);
 
@@ -400,7 +400,7 @@ codeunit 134211 "WF Demo Vendor Approval"
         VendorCard.OpenEdit;
         VendorCard.GotoRecord(Vendor);
         VendorCard.SendApprovalRequest.Invoke;
-        VendorCard.Close;
+        VendorCard.Close();
 
         LibraryDocumentApprovals.UpdateApprovalEntryWithCurrUser(Vendor.RecordId);
 
@@ -448,7 +448,7 @@ codeunit 134211 "WF Demo Vendor Approval"
         VendorCard.OpenEdit;
         VendorCard.GotoRecord(Vendor);
         VendorCard.SendApprovalRequest.Invoke;
-        VendorCard.Close;
+        VendorCard.Close();
 
         LibraryDocumentApprovals.UpdateApprovalEntryWithCurrUser(Vendor.RecordId);
 
@@ -457,7 +457,7 @@ codeunit 134211 "WF Demo Vendor Approval"
             VendorCard.OpenEdit;
             VendorCard.GotoRecord(Vendor);
             VendorCard.Approve.Invoke;
-            VendorCard.Close;
+            VendorCard.Close();
         end;
 
         // [THEN] "W" completes successfully, no Workflow Step Instances left
@@ -568,7 +568,7 @@ codeunit 134211 "WF Demo Vendor Approval"
     begin
         ApprovalCommentLine.SetRange("Table ID", ApprovalEntry."Table ID");
         ApprovalCommentLine.SetRange("Record ID to Approve", ApprovalEntry."Record ID to Approve");
-        exit(ApprovalCommentLine.FindFirst);
+        exit(ApprovalCommentLine.FindFirst())
     end;
 
     local procedure Initialize()
@@ -611,7 +611,7 @@ codeunit 134211 "WF Demo Vendor Approval"
             WorkflowStepID := ID;
             LibraryWorkflow.InsertNotificationArgument(WorkflowStepID, UserID, 0, '');
 
-            Reset;
+            Reset();
             SetFilter(ID, StrSubstNo('<>%1', WorkflowStepID));
             SetRange("Workflow Code", WorkflowCode);
             SetRange("Previous Workflow Step ID", PreviousWorkflowStep.ID);

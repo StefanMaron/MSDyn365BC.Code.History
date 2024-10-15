@@ -39,7 +39,7 @@ codeunit 1250 "Match General Journal Lines"
         FillTempGenJournalLine(GenJournalBatch, TempGenJournalLine);
         FindAccountMappings(TempGenJournalLine);
 
-        Window.Close;
+        Window.Close();
         ShowMatchSummary(GenJournalBatch);
     end;
 
@@ -346,7 +346,7 @@ codeunit 1250 "Match General Journal Lines"
         MatchedCount := GenJournalLine.Count();
 
         if MatchedCount < TotalCount then
-            AdditionalText := StrSubstNo(MissingMatchMsg, Format(GetMatchLengthTreshold));
+            AdditionalText := StrSubstNo(MissingMatchMsg, Format(GetMatchLengthTreshold()));
         FinalText := StrSubstNo(MatchSummaryMsg, MatchedCount, TotalCount) + AdditionalText;
         Message(FinalText);
     end;
@@ -385,8 +385,8 @@ codeunit 1250 "Match General Journal Lines"
         NormalizingFactor: Integer;
     begin
         Description := RecordMatchMgt.Trim(Description);
-        MatchLengthTreshold := GetMatchLengthTreshold;
-        NormalizingFactor := GetNormalizingFactor;
+        MatchLengthTreshold := GetMatchLengthTreshold();
+        NormalizingFactor := GetNormalizingFactor();
         Score := 0;
 
         Nearness := RecordMatchMgt.CalculateStringNearness(DocumentNo, Description, MatchLengthTreshold, NormalizingFactor);

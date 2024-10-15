@@ -1,14 +1,9 @@
 table 31063 "Specific Movement"
 {
     Caption = 'Specific Movement';
-#if CLEAN18
     ObsoleteState = Removed;
-#else
-    LookupPageID = "Specific Movements";
-    ObsoleteState = Pending;
-#endif
     ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-    ObsoleteTag = '18.0';
+    ObsoleteTag = '21.0';
 
     fields
     {
@@ -35,4 +30,3 @@ table 31063 "Specific Movement"
     {
     }
 }
-

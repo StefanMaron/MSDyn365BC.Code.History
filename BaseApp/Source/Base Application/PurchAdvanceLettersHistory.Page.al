@@ -33,15 +33,15 @@ page 31026 "Purch. Advance Letters History"
                     trigger OnValidate()
                     begin
                         if CurrentMenuTypeOpt = CurrentMenuTypeOpt::x5 then
-                            x5CurrentMenuTypeOptOnValidate;
+                            x5CurrentMenuTypeOptOnValidate();
                         if CurrentMenuTypeOpt = CurrentMenuTypeOpt::x4 then
-                            x4CurrentMenuTypeOptOnValidate;
+                            x4CurrentMenuTypeOptOnValidate();
                         if CurrentMenuTypeOpt = CurrentMenuTypeOpt::x3 then
-                            x3CurrentMenuTypeOptOnValidate;
+                            x3CurrentMenuTypeOptOnValidate();
                         if CurrentMenuTypeOpt = CurrentMenuTypeOpt::x2 then
-                            x2CurrentMenuTypeOptOnValidate;
+                            x2CurrentMenuTypeOptOnValidate();
                         if CurrentMenuTypeOpt = CurrentMenuTypeOpt::x1 then
-                            x1CurrentMenuTypeOptOnValidate;
+                            x1CurrentMenuTypeOptOnValidate();
                     end;
                 }
                 field("STRSUBSTNO(Text001Lbl,QtyOfDocs[1])"; StrSubstNo(Text001Lbl, QtyOfDocs[1]))
@@ -121,7 +121,7 @@ page 31026 "Purch. Advance Letters History"
             PurchAdvanceLetterLine.SetRange("Pay-to Vendor No.", "No.");
             PurchAdvanceLetterLine.SetRange(Status, CurrentMenuType - 1);
             CurrPage.SubForm.PAGE.SetTableView(PurchAdvanceLetterLine);
-            CurrPage.SubForm.PAGE.SetCurrSubPageUpdate;
+            CurrPage.SubForm.PAGE.SetCurrSubPageUpdate();
         end;
     end;
 
@@ -132,7 +132,7 @@ page 31026 "Purch. Advance Letters History"
 
     local procedure x1CurrentMenuTypeOptOnValidate()
     begin
-        x1CurrentMenuTypeOptOnPush;
+        x1CurrentMenuTypeOptOnPush();
     end;
 
     local procedure x2CurrentMenuTypeOptOnPush()
@@ -142,7 +142,7 @@ page 31026 "Purch. Advance Letters History"
 
     local procedure x2CurrentMenuTypeOptOnValidate()
     begin
-        x2CurrentMenuTypeOptOnPush;
+        x2CurrentMenuTypeOptOnPush();
     end;
 
     local procedure x3CurrentMenuTypeOptOnPush()
@@ -152,7 +152,7 @@ page 31026 "Purch. Advance Letters History"
 
     local procedure x3CurrentMenuTypeOptOnValidate()
     begin
-        x3CurrentMenuTypeOptOnPush;
+        x3CurrentMenuTypeOptOnPush();
     end;
 
     local procedure x4CurrentMenuTypeOptOnPush()
@@ -162,7 +162,7 @@ page 31026 "Purch. Advance Letters History"
 
     local procedure x4CurrentMenuTypeOptOnValidate()
     begin
-        x4CurrentMenuTypeOptOnPush;
+        x4CurrentMenuTypeOptOnPush();
     end;
 
     local procedure x5CurrentMenuTypeOptOnPush()
@@ -172,7 +172,7 @@ page 31026 "Purch. Advance Letters History"
 
     local procedure x5CurrentMenuTypeOptOnValidate()
     begin
-        x5CurrentMenuTypeOptOnPush;
+        x5CurrentMenuTypeOptOnPush();
     end;
 }
 #endif

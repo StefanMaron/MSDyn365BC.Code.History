@@ -31,7 +31,7 @@ codeunit 1295 "Get Bank Stmt. Line Candidates"
         BankAccount: Record "Bank Account";
         MatchBankPayments: Codeunit "Match Bank Payments";
     begin
-        BankAccReconLine.SetRecFilter;
+        BankAccReconLine.SetRecFilter();
         MatchBankPayments.SetApplyEntries(false);
         SetAddParamToAddApply(BankAccReconLine, MatchBankPayments); // NAVCZ
         MatchBankPayments.Run(BankAccReconLine);
@@ -80,7 +80,7 @@ codeunit 1295 "Get Bank Stmt. Line Candidates"
             repeat
                 PaymentApplicationProposal.CreateFromBankStmtMacthingBuffer(TempBankStmtMatchingBuffer, BankAccReconLine, BankAccount);
                 if not PaymentApplicationProposal.Insert(true) then begin
-                    PaymentApplicationProposal.Find;
+                    PaymentApplicationProposal.Find();
                     PaymentApplicationProposal."Match Confidence" :=
                       BankPmtApplRule.GetMatchConfidence(PaymentApplicationProposal.Quality, TempBankStmtMatchingBuffer."Entry No." < 0); // NAVCZ
                     PaymentApplicationProposal.Modify(true);
@@ -113,7 +113,7 @@ codeunit 1295 "Get Bank Stmt. Line Candidates"
         BankAccount.Get(BankAccReconLine."Bank Account No.");
         SpecificationApplParametrs.SetBankAccount(BankAccount);
         SpecificationApplParametrs.SetIsManual(true);
-        if SpecificationApplParametrs.RunModal <> ACTION::Yes then
+        if SpecificationApplParametrs.RunModal() <> ACTION::Yes then
             Error('');
 
         SpecificationApplParametrs.GetValuesForApp(

@@ -1,4 +1,3 @@
-#if not CLEAN18
 report 502 "Intrastat - Checklist"
 {
     DefaultLayout = RDLC;
@@ -30,7 +29,7 @@ report 502 "Intrastat - Checklist"
                 column(IntrastatJnlBatStatPeriod; StrSubstNo(Text001, "Intrastat Jnl. Batch"."Statistics Period"))
                 {
                 }
-                column(CompanyName; COMPANYPROPERTY.DisplayName)
+                column(CompanyName; COMPANYPROPERTY.DisplayName())
                 {
                 }
                 column(CompanyInfoVATRegNo; CompanyInfo."VAT Registration No.")
@@ -144,9 +143,6 @@ report 502 "Intrastat - Checklist"
                 }
 
                 trigger OnAfterGetRecord()
-                var
-                    Item: Record Item;
-                    ItemIsInventoriable: Boolean;
                 begin
                     if ("Tariff No." = '') and
                        ("Country/Region Code" = '') and
@@ -160,41 +156,23 @@ report 502 "Intrastat - Checklist"
                     IntraJnlManagement.ValidateReportWithAdvancedChecklist("Intrastat Jnl. Line", Report::"Intrastat - Checklist", false);
 #else
                     if IntrastatSetup."Use Advanced Checklist" then
-                        IntraJnlManagement.ValidateReportWithAdvancedChecklist("Intrastat Jnl. Line", Report::"Intrastat - Checklist", false);
+                        IntraJnlManagement.ValidateReportWithAdvancedChecklist("Intrastat Jnl. Line", Report::"Intrastat - Checklist", false)
+                    else
+                        IntraJnlManagement.ValidateChecklistReport("Intrastat Jnl. Line");
 #endif
-                    // NAVCZ
-                    ItemIsInventoriable := false;
-                    if Item.Get("Item No.") then
-                        ItemIsInventoriable := Item.IsInventoriableType();
-                    if StatReportingSetup."Tariff No. Mandatory" then
-                        ErrorMessage.LogIfEmpty("Intrastat Jnl. Line", FieldNo("Tariff No."), ErrorMessage."Message Type"::Error);
-                    if StatReportingSetup."Country/Region of Origin Mand." and (Type <> Type::Shipment) then
-                        ErrorMessage.LogIfEmpty("Intrastat Jnl. Line", FieldNo("Country/Region Code"), ErrorMessage."Message Type"::Error);
-                    if StatReportingSetup."Transaction Type Mandatory" and ItemIsInventoriable then
-                        ErrorMessage.LogIfEmpty("Intrastat Jnl. Line", FieldNo("Transaction Type"), ErrorMessage."Message Type"::Error);
-                    if StatReportingSetup."Transport Method Mandatory" and ItemIsInventoriable then
-                        ErrorMessage.LogIfEmpty("Intrastat Jnl. Line", FieldNo("Transport Method"), ErrorMessage."Message Type"::Error);
-                    if StatReportingSetup."Net Weight Mandatory" and ItemIsInventoriable then
-                        ErrorMessage.LogIfEmpty("Intrastat Jnl. Line", FieldNo("Total Weight"), ErrorMessage."Message Type"::Error);
-                    if not CountryOfOrigin.Get("Country/Region of Origin Code") then
-                        Clear(CountryOfOrigin);
-                    // NAVCZ
-
-                    if "Supplementary Units" then
-                        ErrorMessage.LogIfEmpty("Intrastat Jnl. Line", FieldNo(Quantity), ErrorMessage."Message Type"::Error);
 
                     if Country.Get("Country/Region Code") then;
-                    IntrastatJnlLineTemp.Reset();
-                    IntrastatJnlLineTemp.SetRange(Type, Type);
-                    IntrastatJnlLineTemp.SetRange("Tariff No.", "Tariff No.");
-                    IntrastatJnlLineTemp.SetRange("Country/Region Code", "Country/Region Code");
-                    IntrastatJnlLineTemp.SetRange("Transaction Type", "Transaction Type");
-                    IntrastatJnlLineTemp.SetRange("Transport Method", "Transport Method");
-                    IntrastatJnlLineTemp.SetRange("Country/Region of Origin Code", "Country/Region of Origin Code");
-                    IntrastatJnlLineTemp.SetRange("Partner VAT ID", "Partner VAT ID");
-                    if not IntrastatJnlLineTemp.FindFirst() then begin
-                        IntrastatJnlLineTemp := "Intrastat Jnl. Line";
-                        IntrastatJnlLineTemp.Insert();
+                    TempIntrastatJnlLine.Reset();
+                    TempIntrastatJnlLine.SetRange(Type, Type);
+                    TempIntrastatJnlLine.SetRange("Tariff No.", "Tariff No.");
+                    TempIntrastatJnlLine.SetRange("Country/Region Code", "Country/Region Code");
+                    TempIntrastatJnlLine.SetRange("Transaction Type", "Transaction Type");
+                    TempIntrastatJnlLine.SetRange("Transport Method", "Transport Method");
+                    TempIntrastatJnlLine.SetRange("Country/Region of Origin Code", "Country/Region of Origin Code");
+                    TempIntrastatJnlLine.SetRange("Partner VAT ID", "Partner VAT ID");
+                    if not TempIntrastatJnlLine.FindFirst() then begin
+                        TempIntrastatJnlLine := "Intrastat Jnl. Line";
+                        TempIntrastatJnlLine.Insert();
                         NoOfRecordsRTC += 1;
                     end;
                     if (PrevIntrastatJnlLine.Type <> Type) or
@@ -219,21 +197,19 @@ report 502 "Intrastat - Checklist"
                         PrevIntrastatJnlLine.FindFirst();
                     end;
 
-                    // NAVCZ
-                    SubTotalWeight := SubTotalWeight + RoundValue("Total Weight");
-                    TotalWeight := TotalWeight + RoundValue("Total Weight");
-                    // NAVCZ
+                    SubTotalWeight := SubTotalWeight + Round("Total Weight", 1);
+                    TotalWeight := TotalWeight + Round("Total Weight", 1);
                 end;
 
                 trigger OnPreDataItem()
                 begin
-                    IntrastatJnlLineTemp.DeleteAll();
+                    TempIntrastatJnlLine.DeleteAll();
                     NoOfRecordsRTC := 0;
 
                     if GetFilter(Type) <> '' then
                         exit;
 
-                    if not IntrastatSetup.Get then
+                    if not IntrastatSetup.Get() then
                         exit;
 
                     if IntrastatSetup."Report Receipts" and IntrastatSetup."Report Shipments" then
@@ -251,8 +227,7 @@ report 502 "Intrastat - Checklist"
 
             trigger OnAfterGetRecord()
             begin
-                ErrorMessage.SetContext("Intrastat Jnl. Batch");
-                ErrorMessage.ClearLog;
+                IntraJnlManagement.ChecklistClearBatchErrors("Intrastat Jnl. Batch");
 
                 GLSetup.Get();
                 if "Amounts in Add. Currency" then begin
@@ -262,6 +237,14 @@ report 502 "Intrastat - Checklist"
                     GLSetup.TestField("LCY Code");
                     HeaderLine := StrSubstNo(Text002, GLSetup."LCY Code");
                 end;
+            end;
+
+            trigger OnPreDataItem()
+            begin
+                if "Intrastat Jnl. Line".GetFilter("Journal Template Name") <> '' then
+                    SetFilter("Journal Template Name", "Intrastat Jnl. Line".GetFilter("Journal Template Name"));
+                if "Intrastat Jnl. Line".GetFilter("Journal Batch Name") <> '' then
+                    SetFilter(Name, "Intrastat Jnl. Line".GetFilter("Journal Batch Name"));
             end;
         }
     }
@@ -279,7 +262,7 @@ report 502 "Intrastat - Checklist"
                     Caption = 'Options';
                     field(ShowIntrastatJournalLines; PrintJnlLines)
                     {
-                        ApplicationArea = Basic, Suite;
+                        ApplicationArea = BasicEU;
                         Caption = 'Show Intrastat Journal Lines';
                         MultiLine = true;
                         ToolTip = 'Specifies if the report will show detailed information from the journal lines. If you do not select this field, it shows only the information that must be reported to the tax authorities and not the lines in the journal.';
@@ -302,19 +285,14 @@ report 502 "Intrastat - Checklist"
     begin
         CompanyInfo.Get();
         CompanyInfo."VAT Registration No." := ConvertStr(CompanyInfo."VAT Registration No.", Text000, '    ');
-        StatReportingSetup.Get(); // NAVCZ
     end;
 
     var
-        Text000: Label 'WwWw';
-        Text001: Label 'Statistics Period: %1';
-        Text002: Label 'All amounts are in %1.';
         CompanyInfo: Record "Company Information";
         Country: Record "Country/Region";
         GLSetup: Record "General Ledger Setup";
-        IntrastatJnlLineTemp: Record "Intrastat Jnl. Line" temporary;
+        TempIntrastatJnlLine: Record "Intrastat Jnl. Line" temporary;
         PrevIntrastatJnlLine: Record "Intrastat Jnl. Line";
-        ErrorMessage: Record "Error Message";
         IntrastatSetup: Record "Intrastat Setup";
         IntraJnlManagement: Codeunit IntraJnlManagement;
         NoOfRecords: Integer;
@@ -324,6 +302,10 @@ report 502 "Intrastat - Checklist"
         HeaderLine: Text;
         SubTotalWeight: Decimal;
         TotalWeight: Decimal;
+
+        Text000: Label 'WwWw';
+        Text001: Label 'Statistics Period: %1';
+        Text002: Label 'All amounts are in %1.';
         IntrastatChecklistCaptionLbl: Label 'Intrastat - Checklist';
         PageNoCaptionLbl: Label 'Page';
         VATRegNoCaptionLbl: Label 'VAT Registration No.';
@@ -333,9 +315,6 @@ report 502 "Intrastat - Checklist"
         TransactionMethodCaptionLbl: Label 'Transport Method';
         NoOfEntriesCaptionLbl: Label 'No. of Combined Entries';
         TotalCaptionLbl: Label 'Total';
-        StatReportingSetup: Record "Stat. Reporting Setup";
-        CountryOfOrigin: Record "Country/Region";
         NoValuesErr: Label 'There are no values to report as per Intrastat Setup.';
 }
 
-#endif

@@ -592,13 +592,9 @@ table 5993 "Service Invoice Line"
         {
             Caption = 'Country/Region of Origin Code';
             TableRelation = "Country/Region";
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
     }
 
@@ -653,15 +649,17 @@ table 5993 "Service Invoice Line"
 
     var
         DimMgt: Codeunit DimensionManagement;
+#if not CLEAN20
         TotalServInvLine: Record "Service Invoice Line";
         TotalServInvLineLCY: Record "Service Invoice Line";
         CurrExchRate: Record "Currency Exchange Rate";
+#endif
 
     procedure ShowItemTrackingLines()
     var
         ItemTrackingDocMgt: Codeunit "Item Tracking Doc. Management";
     begin
-        ItemTrackingDocMgt.ShowItemTrackingForInvoiceLine(RowID1);
+        ItemTrackingDocMgt.ShowItemTrackingForInvoiceLine(RowID1());
     end;
 
     procedure CalcVATAmountLines(ServInvHeader: Record "Service Invoice Header"; var TempVATAmountLine: Record "VAT Amount Line" temporary)
@@ -672,19 +670,8 @@ table 5993 "Service Invoice Line"
             repeat
                 TempVATAmountLine.Init();
                 TempVATAmountLine.CopyFromServInvLine(Rec);
-#if not CLEAN18
-                // NAVCZ
-                TempVATAmountLine."Currency Code" := ServInvHeader."Currency Code";
-                if ServInvHeader."Currency Code" <> '' then
-                    RoundAmount(ServInvHeader);
-                TempVATAmountLine."VAT Base (LCY)" := Amount;
-                TempVATAmountLine."VAT Amount (LCY)" := "Amount Including VAT" - Amount;
-                TempVATAmountLine."Amount Including VAT (LCY)" := "Amount Including VAT";
-                TempVATAmountLine."Calculated VAT Amount (LCY)" := "Amount Including VAT" - Amount - "VAT Difference (LCY)";
-                // NAVCZ
-#endif
                 OnCalcVATAmountLinesOnBeforeInsertLine(ServInvHeader, TempVATAmountLine);
-                TempVATAmountLine.InsertLine;
+                TempVATAmountLine.InsertLine();
             until Next() = 0;
     end;
 
@@ -717,7 +704,7 @@ table 5993 "Service Invoice Line"
     procedure ShowDimensions()
     begin
         DimMgt.ShowDimensionSet("Dimension Set ID",
-          StrSubstNo('%1 %2 %3', TableCaption, "Document No.", "Line No."));
+          StrSubstNo('%1 %2 %3', TableCaption(), "Document No.", "Line No."));
     end;
 
     procedure ShowShortcutDimCode(var ShortcutDimCode: array[8] of Code[20])
@@ -865,3 +852,4 @@ table 5993 "Service Invoice Line"
     begin
     end;
 }
+

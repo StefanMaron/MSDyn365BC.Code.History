@@ -1,15 +1,9 @@
 table 31123 "EET Entry"
 {
     Caption = 'EET Entry';
-#if CLEAN18
     ObsoleteState = Removed;
-#else
-    DrillDownPageID = "EET Entries";
-    LookupPageID = "EET Entries";
-    ObsoleteState = Pending;
-#endif
     ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
-    ObsoleteTag = '18.0';
+    ObsoleteTag = '21.0';
 
     fields
     {
@@ -31,17 +25,11 @@ table 31123 "EET Entry"
         {
             Caption = 'Business Premises Code';
             NotBlank = true;
-#if not CLEAN18
-            TableRelation = "EET Business Premises";
-#endif            
         }
         field(25; "Cash Register Code"; Code[10])
         {
             Caption = 'Cash Register Code';
             NotBlank = true;
-#if not CLEAN18
-            TableRelation = "EET Cash Register".Code WHERE("Business Premises Code" = FIELD("Business Premises Code"));
-#endif
         }
         field(30; "Document No."; Code[20])
         {
@@ -180,9 +168,6 @@ table 31123 "EET Entry"
         field(200; "Canceled By Entry No."; Integer)
         {
             Caption = 'Canceled By Entry No.';
-#if not CLEAN18
-            TableRelation = "EET Entry";
-#endif
         }
         field(210; "Simple Registration"; Boolean)
         {
@@ -211,258 +196,10 @@ table 31123 "EET Entry"
     {
     }
 
-    var
-#if not CLEAN18
-        EETEntryMgt: Codeunit "EET Entry Management";
-#endif
-        RegSalesRegimeTxt: Label 'Regular Record Of Sale';
-        SimpleSalesRegimeTxt: Label 'Simplified Record Of Sale';
-        SendToServiceQst: Label 'Do you want to send %1 %2 to EET service?', Comment = '%1 = Table Caption;%2 = Entry No.';
-
     procedure GetLastEntryNo(): Integer;
     var
         FindRecordManagement: Codeunit "Find Record Management";
     begin
         exit(FindRecordManagement.GetLastEntryIntFieldValue(Rec, FieldNo("Entry No.")))
     end;
-
-#if not CLEAN18
-    [Scope('OnPrem')]
-    [Obsolete('Moved to Cash Desk Localization for Czech.', '18.0')]
-    procedure ShowStatusLog()
-    var
-        EETEntryStatus: Record "EET Entry Status";
-    begin
-        EETEntryStatus.SetCurrentKey("EET Entry No.");
-        EETEntryStatus.SetRange("EET Entry No.", "Entry No.");
-        PAGE.Run(0, EETEntryStatus);
-    end;
-
-#endif
-#if not CLEAN18
-    [Scope('OnPrem')]
-    [Obsolete('Moved to Cash Desk Localization for Czech.', '18.0')]
-    procedure GetCertificateCode(): Code[10]
-    var
-        EETCashRegister: Record "EET Cash Register";
-        EETBusinessPremises: Record "EET Business Premises";
-        EETServiceSetup: Record "EET Service Setup";
-    begin
-        EETCashRegister.Get("Business Premises Code", "Cash Register Code");
-        if EETCashRegister."Certificate Code" <> '' then
-            exit(EETCashRegister."Certificate Code");
-
-        EETBusinessPremises.Get("Business Premises Code");
-        if EETBusinessPremises."Certificate Code" <> '' then
-            exit(EETBusinessPremises."Certificate Code");
-
-        EETServiceSetup.Get();
-        EETServiceSetup.TestField("Certificate Code");
-        exit(EETServiceSetup."Certificate Code");
-    end;
-
-    [Scope('OnPrem')]
-    [Obsolete('Moved to Cash Desk Localization for Czech.', '18.0')]
-    procedure GetBusinessPremisesId(): Code[6]
-    var
-        EETBusinessPremises: Record "EET Business Premises";
-    begin
-        EETBusinessPremises.Get("Business Premises Code");
-        exit(EETBusinessPremises.Identification);
-    end;
-
-    [Scope('OnPrem')]
-    [Obsolete('Moved to Cash Desk Localization for Czech.', '18.0')]
-    procedure GetCashRegisterNo(): Code[20]
-    var
-        EETCashRegister: Record "EET Cash Register";
-    begin
-        EETCashRegister.Get("Business Premises Code", "Cash Register Code");
-        exit(EETCashRegister.Code);
-    end;
-
-    [Scope('OnPrem')]
-    [Obsolete('Moved to Cash Desk Localization for Czech.', '18.0')]
-    procedure SaveSignatureCode(SignatureCode: Text)
-    var
-        OutStream: OutStream;
-    begin
-        if SignatureCode = '' then
-            exit;
-
-        "Signature Code (PKP)".CreateOutStream(OutStream);
-        OutStream.Write(SignatureCode);
-    end;
-
-    [Scope('OnPrem')]
-    [Obsolete('Moved to Cash Desk Localization for Czech.', '18.0')]
-    procedure GetSignatureCode(): Text
-    var
-        InStream: InStream;
-        SignatureCode: Text;
-    begin
-        CalcFields("Signature Code (PKP)");
-        "Signature Code (PKP)".CreateInStream(InStream);
-        InStream.Read(SignatureCode);
-        exit(SignatureCode);
-    end;
-
-    [Scope('OnPrem')]
-    [Obsolete('Moved to Cash Desk Localization for Czech.', '18.0')]
-    procedure GenerateSignatureCode(): Text
-    begin
-        exit(EETEntryMgt.GenerateSignatureCode(Rec));
-    end;
-
-    [Scope('OnPrem')]
-    [Obsolete('Moved to Cash Desk Localization for Czech.', '18.0')]
-    procedure GenerateSecurityCode(): Text[44]
-    var
-        SignatureCode: Text;
-    begin
-        SignatureCode := GetSignatureCode;
-        if SignatureCode = '' then
-            SignatureCode := GenerateSignatureCode;
-
-        exit(EETEntryMgt.GenerateSecurityCode(SignatureCode));
-    end;
-
-    [Scope('OnPrem')]
-    [Obsolete('Moved to Cash Desk Localization for Czech.', '18.0')]
-    procedure GetSalesRegimeText(): Text
-    var
-        EETServiceSetup: Record "EET Service Setup";
-    begin
-        EETServiceSetup.Get();
-        case EETServiceSetup."Sales Regime" of
-            EETServiceSetup."Sales Regime"::Regular:
-                exit(RegSalesRegimeTxt);
-            EETServiceSetup."Sales Regime"::Simplified:
-                exit(SimpleSalesRegimeTxt);
-        end;
-    end;
-
-    [Scope('OnPrem')]
-    [Obsolete('Moved to Cash Desk Localization for Czech.', '18.0')]
-    procedure IsFirstSending(): Boolean
-    var
-        EETEntryStatus: Record "EET Entry Status";
-    begin
-        EETEntryStatus.SetRange("EET Entry No.", "Entry No.");
-        EETEntryStatus.SetRange(Status, EETEntryStatus.Status::Sent);
-        exit(EETEntryStatus.Count = 1);
-    end;
-
-    [Scope('OnPrem')]
-    [Obsolete('Moved to Cash Desk Localization for Czech.', '18.0')]
-    procedure SendToService(VerificationMode: Boolean)
-    begin
-        if not VerificationMode then
-            if not Confirm(SendToServiceQst, false, TableCaption, "Entry No.") then
-                exit;
-
-        EETEntryMgt.SendEntryToService(Rec, VerificationMode);
-    end;
-
-    [Scope('OnPrem')]
-    [Obsolete('Moved to Cash Desk Localization for Czech.', '18.0')]
-    procedure ReverseAmounts()
-    begin
-        "Total Sales Amount" := -"Total Sales Amount";
-        "Amount Exempted From VAT" := -"Amount Exempted From VAT";
-        "VAT Base (Basic)" := -"VAT Base (Basic)";
-        "VAT Amount (Basic)" := -"VAT Amount (Basic)";
-        "VAT Base (Reduced)" := -"VAT Base (Reduced)";
-        "VAT Amount (Reduced)" := -"VAT Amount (Reduced)";
-        "VAT Base (Reduced 2)" := -"VAT Base (Reduced 2)";
-        "VAT Amount (Reduced 2)" := -"VAT Amount (Reduced 2)";
-        "Amount - Art.89" := -"Amount - Art.89";
-        "Amount (Basic) - Art.90" := -"Amount (Basic) - Art.90";
-        "Amount (Reduced) - Art.90" := -"Amount (Reduced) - Art.90";
-        "Amount (Reduced 2) - Art.90" := -"Amount (Reduced 2) - Art.90";
-        "Amt. For Subseq. Draw/Settle" := -"Amt. For Subseq. Draw/Settle";
-        "Amt. Subseq. Drawn/Settled" := -"Amt. Subseq. Drawn/Settled";
-    end;
-
-    [Scope('OnPrem')]
-    [Obsolete('Moved to Cash Desk Localization for Czech.', '18.0')]
-    procedure CopySourceInfoFromEntry(EETEntry: Record "EET Entry"; InitializeSerialNo: Boolean)
-    var
-        EETBusinessPremises: Record "EET Business Premises";
-        EETCashRegister: Record "EET Cash Register";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
-        ReceiptSerialNo: Code[50];
-    begin
-        ReceiptSerialNo := EETEntry."Receipt Serial No.";
-        if InitializeSerialNo then begin
-            EETBusinessPremises.Get(EETEntry."Business Premises Code");
-            EETCashRegister.Get(EETEntry."Business Premises Code", EETEntry."Cash Register Code");
-            EETCashRegister.TestField("Receipt Serial Nos.");
-            ReceiptSerialNo := NoSeriesManagement.GetNextNo(EETCashRegister."Receipt Serial Nos.", Today, true);
-        end;
-
-        "Source Type" := EETEntry."Source Type";
-        "Source No." := EETEntry."Source No.";
-        "Business Premises Code" := EETEntry."Business Premises Code";
-        "Cash Register Code" := EETEntry."Cash Register Code";
-        "Document No." := EETEntry."Document No.";
-        "Receipt Serial No." := ReceiptSerialNo;
-        Description := EETEntry.Description;
-        "Applied Document Type" := EETEntry."Applied Document Type";
-        "Applied Document No." := EETEntry."Applied Document No.";
-    end;
-
-    [Scope('OnPrem')]
-    [Obsolete('Moved to Cash Desk Localization for Czech.', '18.0')]
-    procedure CopyAmountsFromEntry(EETEntry: Record "EET Entry")
-    begin
-        "Total Sales Amount" := EETEntry."Total Sales Amount";
-        "Amount Exempted From VAT" := EETEntry."Amount Exempted From VAT";
-        "VAT Base (Basic)" := EETEntry."VAT Base (Basic)";
-        "VAT Amount (Basic)" := EETEntry."VAT Amount (Basic)";
-        "VAT Base (Reduced)" := EETEntry."VAT Base (Reduced)";
-        "VAT Amount (Reduced)" := EETEntry."VAT Amount (Reduced)";
-        "VAT Base (Reduced 2)" := EETEntry."VAT Base (Reduced 2)";
-        "VAT Amount (Reduced 2)" := EETEntry."VAT Amount (Reduced 2)";
-        "Amount - Art.89" := EETEntry."Amount - Art.89";
-        "Amount (Basic) - Art.90" := EETEntry."Amount (Basic) - Art.90";
-        "Amount (Reduced) - Art.90" := EETEntry."Amount (Reduced) - Art.90";
-        "Amount (Reduced 2) - Art.90" := EETEntry."Amount (Reduced 2) - Art.90";
-        "Amt. For Subseq. Draw/Settle" := EETEntry."Amt. For Subseq. Draw/Settle";
-        "Amt. Subseq. Drawn/Settled" := EETEntry."Amt. Subseq. Drawn/Settled";
-    end;
-
-    [Scope('OnPrem')]
-    [Obsolete('Moved to Cash Desk Localization for Czech.', '18.0')]
-    procedure SumPartialAmounts(): Decimal
-    begin
-        exit(
-          "Amount Exempted From VAT" +
-          "VAT Base (Basic)" + "VAT Amount (Basic)" +
-          "VAT Base (Reduced)" + "VAT Amount (Reduced)" +
-          "VAT Base (Reduced 2)" + "VAT Amount (Reduced 2)" +
-          "Amount - Art.89" +
-          "Amount (Basic) - Art.90" + "Amount (Reduced) - Art.90" + "Amount (Reduced 2) - Art.90" +
-          "Amt. For Subseq. Draw/Settle" + "Amt. Subseq. Drawn/Settled");
-    end;
-
-    local procedure FormatDateTime(dt: DateTime): Text
-    begin
-        exit(Format(dt, 0, 3));
-    end;
-
-    [Scope('OnPrem')]
-    [Obsolete('Moved to Cash Desk Localization for Czech.', '18.0')]
-    procedure GetFormattedCreationDatetime(): Text
-    begin
-        exit(FormatDateTime("Creation Datetime"));
-    end;
-
-    [Scope('OnPrem')]
-    [Obsolete('Moved to Cash Desk Localization for Czech.', '18.0')]
-    procedure GetFormattedEETStatusLastChanged(): Text
-    begin
-        exit(FormatDateTime("EET Status Last Changed"));
-    end;
-#endif
 }

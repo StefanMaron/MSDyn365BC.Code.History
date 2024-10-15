@@ -37,7 +37,7 @@ table 1431 "Named Forward Link"
 
     procedure Load()
     begin
-        OnLoad;
+        OnLoad();
     end;
 
     [IntegrationEvent(false, false)]

@@ -4,7 +4,7 @@ report 25 "Account Schedule"
     RDLCLayout = './AccountSchedule.rdlc';
     AdditionalSearchTerms = 'financial reporting,income statement,balance sheet';
     ApplicationArea = Basic, Suite;
-    Caption = 'Account Schedule';
+    Caption = 'Financial Report';
     PreviewMode = PrintLayout;
     UsageCategory = ReportsAndAnalysis;
 
@@ -31,10 +31,10 @@ report 25 "Account Schedule"
                 column(PeriodText; PeriodText)
                 {
                 }
-                column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+                column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
                 {
                 }
-                column(AccScheduleName_Description; AccScheduleName.Description)
+                column(AccScheduleName_Description; FinancialReportDescription)
                 {
                 }
                 column(AnalysisView_Code; AnalysisView.Code)
@@ -275,9 +275,9 @@ report 25 "Account Schedule"
             trigger OnAfterGetRecord()
             begin
                 GLSetup.Get();
-                if "Analysis View Name" <> '' then begin
-                    AnalysisView.Get("Analysis View Name");
-                end else begin
+                if "Analysis View Name" <> '' then
+                    AnalysisView.Get("Analysis View Name")
+                else begin
                     AnalysisView.Init();
                     AnalysisView."Dimension 1 Code" := GLSetup."Global Dimension 1 Code";
                     AnalysisView."Dimension 2 Code" := GLSetup."Global Dimension 2 Code";
@@ -317,16 +317,57 @@ report 25 "Account Schedule"
                     {
                         Caption = 'Layout';
                         Visible = AccSchedNameEditable;
+
+                        field(FinancialReport; FinancialReportName)
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Caption = 'Financial Report';
+                            Editable = AccSchedNameEditable;
+                            Importance = Promoted;
+                            Lookup = true;
+                            ShowMandatory = true;
+                            TableRelation = "Financial Report";
+                            ToolTip = 'Specifies the name of the financial report.';
+
+                            trigger OnLookup(var Text: Text): Boolean
+                            var
+                                LookupText: Text[10];
+                                Result: Boolean;
+                            begin
+                                LookupText := CopyStr(Text, 1, 10);
+                                Result := FinancialReportMgt.LookupName(FinancialReportName, LookupText);
+                                Text := LookupText;
+                                exit(Result);
+                            end;
+
+                            trigger OnValidate()
+                            var
+                                FinancialReport: Record "Financial Report";
+                            begin
+                                FinancialReport.Get(FinancialReportName);
+                                AccSchedName := FinancialReport."Financial Report Row Group";
+                                if FinancialReport."Financial Report Column Group" <> '' then
+                                    ColumnLayoutName := FinancialReport."Financial Report Column Group"
+                                else
+                                    ColumnLayoutName := '';
+                                FinancialReportDescription := FinancialReport.Description;
+                                ValidateAccSchedName(FinancialReport);
+                                AccSchedNameHidden := '';
+                                SetBudgetFilterEnable();
+                                RequestOptionsPage.Update(false);
+                            end;
+                        }
+
                         field(AccSchedNam; AccSchedName)
                         {
                             ApplicationArea = Basic, Suite;
-                            Caption = 'Acc. Schedule Name';
+                            Caption = 'Row Definition';
                             Editable = AccSchedNameEditable;
                             Importance = Promoted;
                             Lookup = true;
                             ShowMandatory = true;
                             TableRelation = "Acc. Schedule Name";
-                            ToolTip = 'Specifies the name of the account schedule.';
+                            ToolTip = 'Specifies the name of the row definition.';
 
                             trigger OnLookup(var Text: Text): Boolean
                             begin
@@ -335,16 +376,16 @@ report 25 "Account Schedule"
 
                             trigger OnValidate()
                             begin
-                                ValidateAccSchedName;
+                                ValidateAccSchedName();
                                 AccSchedNameHidden := '';
-                                SetBudgetFilterEnable;
+                                SetBudgetFilterEnable();
                                 RequestOptionsPage.Update(false);
                             end;
                         }
                         field(ColumnLayoutNames; ColumnLayoutName)
                         {
                             ApplicationArea = Basic, Suite;
-                            Caption = 'Column Layout Name';
+                            Caption = 'Column Definition';
                             Editable = AccSchedNameEditable;
                             Importance = Promoted;
                             Lookup = true;
@@ -357,9 +398,9 @@ report 25 "Account Schedule"
                                 if not AccSchedManagement.LookupColumnName(ColumnLayoutName, Text) then
                                     exit(false);
                                 ColumnLayoutName := CopyStr(Text, 1, MaxStrLen(ColumnLayoutName));
-                                SetBudgetFilterEnable;
+                                SetBudgetFilterEnable();
                                 ColumnLayoutNameHidden := '';
-                                RequestOptionsPage.Update;
+                                RequestOptionsPage.Update();
                                 exit(true);
                             end;
 
@@ -368,9 +409,9 @@ report 25 "Account Schedule"
                                 if ColumnLayoutName = '' then
                                     Error(Text006);
                                 AccSchedManagement.CheckColumnName(ColumnLayoutName);
-                                SetBudgetFilterEnable;
+                                SetBudgetFilterEnable();
                                 ColumnLayoutNameHidden := '';
-                                RequestOptionsPage.Update;
+                                RequestOptionsPage.Update();
                             end;
                         }
                     }
@@ -668,16 +709,19 @@ report 25 "Account Schedule"
         end;
 
         trigger OnOpenPage()
+        var
+            FinancialReportMgt: Codeunit "Financial Report Mgt.";
         begin
+            FinancialReportMgt.Initialize();
             GLSetup.Get();
-            TransferValues;
-            UpdateFilters; // NAVCZ
-            RequestPageOpen := true; // NAVCZ
+            AccSchedName := '';
+            ColumnLayoutName := '';
+            TransferValues();
             ContextInitialized := true;
             if AccSchedName <> '' then
                 if (ColumnLayoutName = '') or not AccSchedNameEditable then
-                    ValidateAccSchedName;
-            SetBudgetFilterEnable;
+                    ValidateAccSchedName();
+            SetBudgetFilterEnable();
         end;
     }
 
@@ -687,27 +731,25 @@ report 25 "Account Schedule"
     }
 
     trigger OnPreReport()
+    var
+        FinancialReportMgt: Codeunit "Financial Report Mgt.";
     begin
-        // NAVCZ
-        if not RequestPageOpen then begin
-            TransferValues;
-            UpdateFilters;
-        end;
-        // NAVCZ
-        InitAccSched;
+        FinancialReportMgt.Initialize();
+        TransferValues();
+        UpdateFilters();
+        InitAccSched();
     end;
 
     var
-        Text000: Label '(Thousands)';
-        Text001: Label '(Millions)';
-        Text002: Label '* ERROR *';
-        Text003: Label 'All amounts are in %1.';
         AnalysisView: Record "Analysis View";
         GLSetup: Record "General Ledger Setup";
         AccSchedManagement: Codeunit AccSchedManagement;
+        FinancialReportMgt: Codeunit "Financial Report Mgt.";
         TypeHelper: Codeunit "Type Helper";
         AccSchedName: Code[10];
         AccSchedNameHidden: Code[10];
+        FinancialReportName: Code[10];
+        FinancialReportDescription: Text;
         ColumnLayoutName: Code[10];
         ColumnLayoutNameHidden: Code[10];
         GLBudgetName: Code[10];
@@ -759,15 +801,12 @@ report 25 "Account Schedule"
         ShowRowNo: Boolean;
         RowNoCaption: Text;
         HeaderText: Text[100];
-        Text004: Label 'Not Available';
-        Text005: Label '1,6,,Dimension %1 Filter';
         Bold_control: Boolean;
         Italic_control: Boolean;
         Underline_control: Boolean;
         DoubleUnderline_control: Boolean;
         PageGroupNo: Integer;
         NextPageGroupNo: Integer;
-        Text006: Label 'Enter the Column Layout Name.';
         [InDataSet]
         Dim1FilterEnable: Boolean;
         [InDataSet]
@@ -783,35 +822,42 @@ report 25 "Account Schedule"
         SkipEmptyLines: Boolean;
         ShowCurrencySymbol: Boolean;
         ShowEmptyAmountType: Enum "Show Empty Amount Type";
-        ColumnLayoutNameCaptionLbl: Label 'Column Layout';
-        AccScheduleName_Name_CaptionLbl: Label 'Account Schedule';
+        PadChar: Char;
+        PadString: Text;
+
+        Text000: Label '(Thousands)';
+        Text001: Label '(Millions)';
+        Text002: Label '* ERROR *';
+        Text003: Label 'All amounts are in %1.';
+        Text004: Label 'Not Available';
+        Text005: Label '1,6,,Dimension %1 Filter';
+        Text006: Label 'Enter the Column Definition Name.';
+        ColumnLayoutNameCaptionLbl: Label 'Column Definition';
+        AccScheduleName_Name_CaptionLbl: Label 'Financial Report';
         FiscalStartDateCaptionLbl: Label 'Fiscal Start Date';
         PeriodTextCaptionLbl: Label 'Period';
         PeriodEndingTextCaptionLbl: Label 'Period Ending';
         CurrReport_PAGENOCaptionLbl: Label 'Page';
-        Account_ScheduleCaptionLbl: Label 'Account Schedule';
+        Account_ScheduleCaptionLbl: Label 'Financial Report';
         AnalysisView_CodeCaptionLbl: Label 'Analysis View';
-        PadChar: Char;
-        PadString: Text;
-        RequestPageOpen: Boolean;
         ContextInitialized: Boolean;
 
     local procedure CalcColumnValueAsText(var AccScheduleLine: Record "Acc. Schedule Line"; var ColumnLayout: Record "Column Layout"; var ValueIsEmpty: Boolean): Text[30]
     var
-        ColumnValuesAsText: Text[30];
+        ColumnValuesAsText2: Text[30];
     begin
-        ColumnValuesAsText := '';
+        ColumnValuesAsText2 := '';
 
         ColumnValuesDisplayed := AccSchedManagement.CalcCell(AccScheduleLine, ColumnLayout, UseAmtsInAddCurr);
-        if AccSchedManagement.GetDivisionError then begin
+        if AccSchedManagement.GetDivisionError() then begin
             if ShowError in [ShowError::"Division by Zero", ShowError::Both] then
-                ColumnValuesAsText := Text002
+                ColumnValuesAsText2 := Text002
             else
                 ValueIsEmpty := true;
         end else
-            if AccSchedManagement.GetPeriodError then begin
+            if AccSchedManagement.GetPeriodError() then begin
                 if ShowError in [ShowError::"Period Error", ShowError::Both] then
-                    ColumnValuesAsText := Text004
+                    ColumnValuesAsText2 := Text004
                 else
                     ValueIsEmpty := true;
             end else begin
@@ -832,14 +878,14 @@ report 25 "Account Schedule"
                     end;
 
                 if ValueIsEmpty then
-                    ColumnValuesAsText := FormatZeroAmount(AccScheduleLine, ColumnLayout)
+                    ColumnValuesAsText2 := FormatZeroAmount(AccScheduleLine, ColumnLayout)
                 else
-                    ColumnValuesAsText :=
+                    ColumnValuesAsText2 :=
                         AccSchedManagement.FormatCellAsText(ColumnLayout, ColumnValuesDisplayed, UseAmtsInAddCurr);
 
-                FormatCurrencySymbol(AccScheduleLine, ColumnLayout, ColumnValuesAsText);
+                FormatCurrencySymbol(AccScheduleLine, ColumnLayout, ColumnValuesAsText2);
             end;
-        exit(ColumnValuesAsText);
+        exit(ColumnValuesAsText2);
     end;
 
     local procedure GetCurrencySymbol(): Text[10]
@@ -861,6 +907,7 @@ report 25 "Account Schedule"
         if (AccScheduleLine.Totaling = '') and (AccScheduleLine.Show = AccScheduleLine.Show::Yes) then
             exit('');
 
+        ZeroDecimal := 0;
         case ShowEmptyAmountType of
             "Show Empty Amount Type"::Blank:
                 exit('');
@@ -923,7 +970,7 @@ report 25 "Account Schedule"
 
         AccScheduleLine.CopyFilters("Acc. Schedule Line");
         AccScheduleLine.SetRange("Date Filter");
-        AccSchedLineFilter := AccScheduleLine.GetFilters;
+        AccSchedLineFilter := AccScheduleLine.GetFilters();
 
         if StartDateEnabled then
             PeriodText := PeriodTextCaptionLbl + ': ' + "Acc. Schedule Line".GetFilter("Date Filter")
@@ -935,7 +982,7 @@ report 25 "Account Schedule"
 
         ColumnLayout.SetRange("Column Layout Name", ColumnLayoutName);
         ColumnLayout.SetFilter("Rounding Factor", '<>%1&<>%2', ColumnLayout."Rounding Factor"::None, ColumnLayout."Rounding Factor"::"1");
-        ShowRoundingHeader := not ColumnLayout.IsEmpty;
+        ShowRoundingHeader := not ColumnLayout.IsEmpty();
     end;
 
     procedure SetAccSchedName(NewAccSchedName: Code[10])
@@ -948,6 +995,24 @@ report 25 "Account Schedule"
     begin
         SetAccSchedName(NewAccSchedName);
         AccSchedNameEditable := false;
+    end;
+
+    procedure SetFinancialReportNameNonEditable(NewAccSchedName: Code[10])
+    begin
+        SetFinancialReportName(NewAccSchedName);
+        AccSchedNameEditable := false;
+    end;
+
+
+    procedure SetFinancialReportName(NewFinancialReportName: Code[10])
+    var
+        FinancialReportLocal: Record "Financial Report";
+    begin
+        FinancialReportName := NewFinancialReportName;
+        if FinancialReportLocal.Get(FinancialReportName) then begin
+            AccSchedNameHidden := FinancialReportLocal."Financial Report Row Group";
+            AccSchedNameEditable := false;
+        end;
     end;
 
     procedure SetColumnLayoutName(ColLayoutName: Code[10])
@@ -1009,7 +1074,7 @@ report 25 "Account Schedule"
         DimValList.LookupMode(true);
         DimVal.SetRange("Dimension Code", Dim);
         DimValList.SetTableView(DimVal);
-        if DimValList.RunModal = ACTION::LookupOK then begin
+        if DimValList.RunModal() = ACTION::LookupOK then begin
             DimValList.GetRecord(DimVal);
             Text := DimValList.GetSelectionFilter();
             UseHiddenFilters := false;
@@ -1052,12 +1117,13 @@ report 25 "Account Schedule"
     var
         ColumnLayoutName2: Record "Column Layout Name";
         BusinessUnit: Record "Business Unit";
+        FinancialReportLocal: Record "Financial Report";
     begin
         if GLBudgetName <> '' then
             GLBudgetFilter := GLBudgetName;
         GLSetup.Get();
         UseAmtsInAddCurrVisible := GLSetup."Additional Reporting Currency" <> '';
-        BusinessUnitFilterVisible := not BusinessUnit.IsEmpty;
+        BusinessUnitFilterVisible := not BusinessUnit.IsEmpty();
         if not UseAmtsInAddCurrVisible then
             UseAmtsInAddCurr := false;
         if not ContextInitialized then begin
@@ -1082,8 +1148,17 @@ report 25 "Account Schedule"
             if Dim4FilterHidden <> '' then
                 Dim4Filter := Dim4FilterHidden;
             if CashFlowFilterHidden <> '' then
-                CashFlowFilter := CashFlowFilterHidden;                
+                CashFlowFilter := CashFlowFilterHidden;
         end;
+
+        if FinancialReportName <> '' then
+            if not FinancialReportLocal.Get(FinancialReportName) then
+                FinancialReportName := '';
+
+        if AccSchedName = '' then
+            AccSchedName := FinancialReportLocal."Financial Report Row Group";
+        if ColumnLayoutName = '' then
+            ColumnLayoutName := FinancialReportLocal."Financial Report Column Group";
 
         if AccSchedName <> '' then
             if not AccScheduleName.Get(AccSchedName) then
@@ -1092,8 +1167,14 @@ report 25 "Account Schedule"
             if AccScheduleName.FindFirst() then
                 AccSchedName := AccScheduleName.Name;
 
+        if FinancialReportLocal.Name <> '' then
+            FinancialReportDescription := FinancialReportLocal.Description
+        else
+            FinancialReportDescription := AccScheduleName.Description;
+
         if not ColumnLayoutName2.Get(ColumnLayoutName) then
-            ColumnLayoutName := AccScheduleName."Default Column Layout";
+            if ColumnLayoutName2.FindFirst() then
+                ColumnLayoutName := ColumnLayoutName2.Name;
 
         if AccScheduleName."Analysis View Name" <> '' then
             AnalysisView.Get(AccScheduleName."Analysis View Name")
@@ -1119,15 +1200,11 @@ report 25 "Account Schedule"
             CashFlowFilter := CashFlowFilterHidden;
         end else begin
             if EndDate = 0D then
-                EndDate := WorkDate;
+                EndDate := WorkDate();
             if StartDate = 0D then
                 StartDate := CalcDate('<-CM>', EndDate);
-            ValidateStartEndDate;
+            ValidateStartEndDate();
         end;
-
-        if ColumnLayoutName = '' then
-            if AccScheduleName.Get(AccSchedName) then
-                ColumnLayoutName := AccScheduleName."Default Column Layout";
     end;
 
     local procedure SetBudgetFilterEnable()
@@ -1142,13 +1219,13 @@ report 25 "Account Schedule"
             exit;
         ColumnLayout.SetRange("Column Layout Name", ColumnLayoutName);
         ColumnLayout.SetRange("Ledger Entry Type", ColumnLayout."Ledger Entry Type"::"Budget Entries");
-        BudgetFilterEnable := not ColumnLayout.IsEmpty;
+        BudgetFilterEnable := not ColumnLayout.IsEmpty();
         if not BudgetFilterEnable then
             GLBudgetFilter := '';
         GLBudgetName := CopyStr(GLBudgetFilter, 1, MaxStrLen(GLBudgetName));
         ColumnLayout.SetRange("Ledger Entry Type");
         ColumnLayout.SetFilter("Column Type", '<>%1', ColumnLayout."Column Type"::"Balance at Date");
-        StartDateEnabled := not ColumnLayout.IsEmpty;
+        StartDateEnabled := not ColumnLayout.IsEmpty();
         if not StartDateEnabled then
             StartDate := 0D;
     end;
@@ -1170,12 +1247,23 @@ report 25 "Account Schedule"
         DateFilter := CopyStr("Acc. Schedule Line".GetFilter("Date Filter"), 1, MaxStrLen(DateFilter));
     end;
 
+
     local procedure ValidateAccSchedName()
+    var
+        FinancialReportToValidate: Record "Financial Report";
+    begin
+        if FinancialReportName <> '' then
+            FinancialReportToValidate.Get(FinancialReportName);
+        ValidateAccSchedName(FinancialReportToValidate);
+    end;
+
+    local procedure ValidateAccSchedName(var FinancialReport: Record "Financial Report")
+    var
+        AccScheduleName: Record "Acc. Schedule Name";
     begin
         AccSchedManagement.CheckName(AccSchedName);
         AccScheduleName.Get(AccSchedName);
-        if AccScheduleName."Default Column Layout" <> '' then
-            ColumnLayoutName := AccScheduleName."Default Column Layout";
+
         if AccScheduleName."Analysis View Name" <> '' then
             AnalysisView.Get(AccScheduleName."Analysis View Name")
         else begin
@@ -1187,7 +1275,8 @@ report 25 "Account Schedule"
         Dim2FilterEnable := AnalysisView."Dimension 2 Code" <> '';
         Dim3FilterEnable := AnalysisView."Dimension 3 Code" <> '';
         Dim4FilterEnable := AnalysisView."Dimension 4 Code" <> '';
-        RequestOptionsPage.Caption := AccScheduleName.Description;
+        if FinancialReport.Name <> '' then
+            RequestOptionsPage.Caption := FinancialReport.Description;
         RequestOptionsPage.Update(false);
     end;
 

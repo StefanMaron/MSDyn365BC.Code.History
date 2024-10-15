@@ -34,7 +34,7 @@ page 6030 "Service Statistics"
 
                     trigger OnValidate()
                     begin
-                        UpdateInvDiscAmount;
+                        UpdateInvDiscAmount();
                     end;
                 }
                 field("TotalAmount1[1]"; TotalAmount1[1])
@@ -601,7 +601,7 @@ page 6030 "Service Statistics"
         CurrPage.Caption(StrSubstNo(Text000, "Document Type"));
 
         if PrevNo = "No." then begin
-            GetVATSpecification;
+            GetVATSpecification();
             exit;
         end;
         PrevNo := "No.";
@@ -667,7 +667,7 @@ page 6030 "Service Statistics"
         ServLine.CalcVATAmountLines(0, Rec, TempServLine, TempVATAmountLine, false);
         TempVATAmountLine.ModifyAll(Modified, false);
 
-        SetVATSpecification;
+        SetVATSpecification();
     end;
 
     trigger OnOpenPage()
@@ -680,25 +680,19 @@ page 6030 "Service Statistics"
           ("Document Type" <> "Document Type"::Quote);
         CurrPage.Editable :=
           AllowVATDifference or AllowInvDisc;
-        SetVATSpecification;
+        SetVATSpecification();
         CurrPage.SubForm.PAGE.SetParentControl := PAGE::"Service Statistics";
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
     begin
-        GetVATSpecification;
-        if TempVATAmountLine.GetAnyLineModified then
-            UpdateVATOnServLines;
+        GetVATSpecification();
+        if TempVATAmountLine.GetAnyLineModified() then
+            UpdateVATOnServLines();
         exit(true);
     end;
 
     var
-        Text000: Label 'Service %1 Statistics';
-        Text001: Label 'Total';
-        Text002: Label 'Amount';
-        Text003: Label '%1 must not be 0.';
-        Text004: Label '%1 must not be greater than %2.';
-        Text005: Label 'You cannot change the invoice discount because there is a %1 record for %2 %3.', Comment = 'You cannot change the invoice discount because there is a Cust. Invoice Disc. record for Invoice Disc. Code 10000.';
         TotalServLine: array[7] of Record "Service Line";
         TotalServLineLCY: array[7] of Record "Service Line";
         Cust: Record Customer;
@@ -719,27 +713,26 @@ page 6030 "Service Statistics"
         PrevNo: Code[20];
         AllowInvDisc: Boolean;
         AllowVATDifference: Boolean;
+
+        Text000: Label 'Service %1 Statistics';
+        Text001: Label 'Total';
+        Text002: Label 'Amount';
+        Text003: Label '%1 must not be 0.';
+        Text004: Label '%1 must not be greater than %2.';
+        Text005: Label 'You cannot change the invoice discount because there is a %1 record for %2 %3.', Comment = 'You cannot change the invoice discount because there is a Cust. Invoice Disc. record for Invoice Disc. Code 10000.';
         Text006: Label 'Placeholder';
 
     local procedure UpdateHeaderInfo(IndexNo: Integer; var VATAmountLine: Record "VAT Amount Line")
     var
         CurrExchRate: Record "Currency Exchange Rate";
-#if not CLEAN18
-        GLSetup: Record "General Ledger Setup";
-#endif
-        Currency: Record Currency;
         UseDate: Date;
-#if not CLEAN18
-        RoundingPrecisionLCY: Decimal;
-        RoundingDirectionLCY: Text[1];
-#endif
     begin
-        TotalServLine[IndexNo]."Inv. Discount Amount" := VATAmountLine.GetTotalInvDiscAmount;
+        TotalServLine[IndexNo]."Inv. Discount Amount" := VATAmountLine.GetTotalInvDiscAmount();
         TotalAmount1[IndexNo] :=
           TotalServLine[IndexNo]."Line Amount" - TotalServLine[IndexNo]."Inv. Discount Amount";
-        VATAmount[IndexNo] := VATAmountLine.GetTotalVATAmount;
+        VATAmount[IndexNo] := VATAmountLine.GetTotalVATAmount();
         if "Prices Including VAT" then begin
-            TotalAmount1[IndexNo] := VATAmountLine.GetTotalAmountInclVAT;
+            TotalAmount1[IndexNo] := VATAmountLine.GetTotalAmountInclVAT();
             TotalAmount2[IndexNo] := TotalAmount1[IndexNo] - VATAmount[IndexNo];
             TotalServLine[IndexNo]."Line Amount" :=
               TotalAmount1[IndexNo] + TotalServLine[IndexNo]."Inv. Discount Amount";
@@ -752,42 +745,17 @@ page 6030 "Service Statistics"
             TotalServLineLCY[IndexNo].Amount := TotalAmount2[IndexNo]
         else
             TotalServLineLCY[IndexNo].Amount := TotalAmount1[IndexNo];
-        if "Currency Code" <> '' then begin
+        if "Currency Code" <> '' then
             if ("Document Type" = "Document Type"::Quote) and
                ("Posting Date" = 0D)
             then
-                UseDate := WorkDate
+                UseDate := WorkDate()
             else
                 UseDate := "Posting Date";
 
-            TotalServLineLCY[IndexNo].Amount :=
-              CurrExchRate.ExchangeAmtFCYToLCY(
-                UseDate, "Currency Code", TotalServLineLCY[IndexNo].Amount, "Currency Factor");
-            // NAVCZ
-            if (TotalServLineLCY[IndexNo]."VAT Calculation Type" = TotalServLineLCY[IndexNo]."VAT Calculation Type"::"Normal VAT") or
-               (TotalServLineLCY[IndexNo]."VAT Calculation Type" = TotalServLineLCY[IndexNo]."VAT Calculation Type"::"Reverse Charge VAT")
-            then begin
-#if CLEAN18
-                Currency.Get("Currency Code");
-#else                
-                GLSetup.Get();
-                Currency.Get("Currency Code");
-                GLSetup.GetRoundingParamentersLCY(Currency, RoundingPrecisionLCY, RoundingDirectionLCY);
-#endif
-
-                if "Prices Including VAT" then
-                    TotalServLineLCY[IndexNo].Amount :=
-                        Round(
-                            (TotalServLineLCY[IndexNo]."Line Amount" - TempVATAmountLine."Invoice Discount Amount") /
-                            (1 + TempVATAmountLine."VAT %" / 100),
-#if CLEAN18
-                            Currency."Amount Rounding Precision") - TempVATAmountLine."VAT Difference";
-#else
-                            RoundingPrecisionLCY) - TempVATAmountLine."VAT Difference";
-#endif                        
-            end;
-        end;
-        // NAVCZ
+        TotalServLineLCY[IndexNo].Amount :=
+          CurrExchRate.ExchangeAmtFCYToLCY(
+            UseDate, "Currency Code", TotalServLineLCY[IndexNo].Amount, "Currency Factor");
         ProfitLCY[IndexNo] := TotalServLineLCY[IndexNo].Amount - TotalServLineLCY[IndexNo]."Unit Cost (LCY)";
         if TotalServLineLCY[IndexNo].Amount = 0 then
             ProfitPct[IndexNo] := 0
@@ -822,23 +790,23 @@ page 6030 "Service Statistics"
     var
         SaveTotalAmount: Decimal;
     begin
-        CheckAllowInvDisc;
+        CheckAllowInvDisc();
         if "Prices Including VAT" then begin
             SaveTotalAmount := TotalAmount1[IndexNo];
-            UpdateInvDiscAmount;
+            UpdateInvDiscAmount();
             TotalAmount1[IndexNo] := SaveTotalAmount;
         end;
 
         with TotalServLine[IndexNo] do
             "Inv. Discount Amount" := "Line Amount" - TotalAmount1[IndexNo];
-        UpdateInvDiscAmount;
+        UpdateInvDiscAmount();
     end;
 
     local procedure UpdateInvDiscAmount()
     var
         InvDiscBaseAmount: Decimal;
     begin
-        CheckAllowInvDisc;
+        CheckAllowInvDisc();
         InvDiscBaseAmount := TempVATAmountLine.GetTotalInvDiscBaseAmount(false, "Currency Code");
         if InvDiscBaseAmount = 0 then
             Error(Text003, TempVATAmountLine.FieldCaption("Inv. Disc. Base Amount"));
@@ -851,16 +819,13 @@ page 6030 "Service Statistics"
 
         TempVATAmountLine.SetInvoiceDiscountAmount(
           TotalServLine[1]."Inv. Discount Amount", "Currency Code", "Prices Including VAT", "VAT Base Discount %");
-#if not CLEAN18
-        TempVATAmountLine.ModifyAll("Modified (LCY)", false);// NAVCZ
-#endif
         UpdateHeaderInfo(1, TempVATAmountLine);
         CurrPage.SubForm.PAGE.SetTempVATAmountLine(TempVATAmountLine);
 
         "Invoice Discount Calculation" := "Invoice Discount Calculation"::Amount;
         "Invoice Discount Value" := TotalServLine[1]."Inv. Discount Amount";
-        Modify;
-        UpdateVATOnServLines;
+        Modify();
+        UpdateVATOnServLines();
     end;
 
     local procedure GetCaptionClass(FieldCaption: Text[100]; ReverseCaption: Boolean): Text[80]
@@ -874,8 +839,8 @@ page 6030 "Service Statistics"
     var
         ServLine: Record "Service Line";
     begin
-        GetVATSpecification;
-        if TempVATAmountLine.GetAnyLineModified then begin
+        GetVATSpecification();
+        if TempVATAmountLine.GetAnyLineModified() then begin
             ServLine.UpdateVATOnLines(0, Rec, ServLine, TempVATAmountLine);
             ServLine.UpdateVATOnLines(1, Rec, ServLine, TempVATAmountLine);
         end;
@@ -887,7 +852,7 @@ page 6030 "Service Statistics"
         CustInvDisc: Record "Cust. Invoice Disc.";
     begin
         CustInvDisc.SetRange(Code, InvDiscCode);
-        exit(CustInvDisc.FindFirst);
+        exit(CustInvDisc.FindFirst())
     end;
 
     local procedure CheckAllowInvDisc()
@@ -897,7 +862,7 @@ page 6030 "Service Statistics"
         if not AllowInvDisc then
             Error(
               Text005,
-              CustInvDisc.TableCaption, FieldCaption("Invoice Disc. Code"), "Invoice Disc. Code");
+              CustInvDisc.TableCaption(), FieldCaption("Invoice Disc. Code"), "Invoice Disc. Code");
     end;
 
     [IntegrationEvent(true, false)]

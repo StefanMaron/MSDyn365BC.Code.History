@@ -342,13 +342,9 @@ table 11736 "Posted Cash Document Line"
         {
             Caption = 'EET Transaction';
             Editable = false;
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
     }
 

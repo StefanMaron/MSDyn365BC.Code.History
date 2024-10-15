@@ -126,7 +126,7 @@ report 840 "Suggest Worksheet Lines"
                     if not ReadPermission then
                         CurrReport.Break();
 
-                    if not ApplicationAreaMgmtFacade.IsSuiteEnabled and not ApplicationAreaMgmtFacade.IsAllDisabled then
+                    if not ApplicationAreaMgmtFacade.IsSuiteEnabled() and not ApplicationAreaMgmtFacade.IsAllDisabled() then
                         CurrReport.Break();
                 end;
             }
@@ -394,7 +394,7 @@ report 840 "Suggest Worksheet Lines"
                     if not ReadPermission then
                         CurrReport.Break();
 
-                    if not ApplicationAreaMgmtFacade.IsJobsEnabled and not ApplicationAreaMgmtFacade.IsAllDisabled then
+                    if not ApplicationAreaMgmtFacade.IsJobsEnabled() and not ApplicationAreaMgmtFacade.IsAllDisabled() then
                         CurrReport.Break();
                 end;
             }
@@ -420,7 +420,7 @@ report 840 "Suggest Worksheet Lines"
                     if not ReadPermission then
                         CurrReport.Break();
 
-                    if not ApplicationAreaMgmtFacade.IsSuiteEnabled and not ApplicationAreaMgmtFacade.IsAllDisabled then
+                    if not ApplicationAreaMgmtFacade.IsSuiteEnabled() and not ApplicationAreaMgmtFacade.IsAllDisabled() then
                         CurrReport.Break();
 
                     CashFlowManagement.SetViewOnPurchaseHeaderForTaxCalc("Purchase Header", DummyDate);
@@ -493,7 +493,7 @@ report 840 "Suggest Worksheet Lines"
                     if not ReadPermission then
                         CurrReport.Break();
 
-                    if not CashFlowForecastHandler.CalculateForecast then
+                    if not CashFlowForecastHandler.CalculateForecast() then
                         CurrReport.Break();
 
                     SetRange(Type, Type::Forecast, Type::Correction);
@@ -727,7 +727,7 @@ report 840 "Suggest Worksheet Lines"
         if not SelectionCashFlowForecast.Get(CashFlowNo) then
             Error(Text001);
 
-        if NoOptionsChosen then
+        if NoOptionsChosen() then
             Error(Text002, CashFlowNo);
 
         CFSetup.Get();
@@ -742,6 +742,29 @@ report 840 "Suggest Worksheet Lines"
     end;
 
     var
+        FASetup: Record "FA Setup";
+        FADeprBook: Record "FA Depreciation Book";
+        GLBudgEntry: Record "G/L Budget Entry";
+        GLSetup: Record "General Ledger Setup";
+        SalesAdvanceLetterHeader: Record "Sales Advance Letter Header";
+        PurchAdvanceLetterHeader: Record "Purch. Advance Letter Header";
+        ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
+        CashFlowManagement: Codeunit "Cash Flow Management";
+        TotalAccounts: List of [Code[20]];
+        TotalAccountPairs: List of [Code[50]];
+        LastTotalAccount: Code[20];
+        CashFlowNo: Code[20];
+        LineNo: Integer;
+        DateLastExecution: Date;
+        ExecutionDate: Date;
+        GLBudgName: Code[10];
+        MultiSalesLines: Boolean;
+        Summarized: Boolean;
+        NeedsManualPmtUpdate: Boolean;
+        DummyDate: Date;
+        TaxLastSourceTableNumProcessed: Integer;
+        TaxLastPayableDateProcessed: Date;
+
         Text000: Label 'You must choose a cash flow forecast.';
         Text001: Label 'Choose a valid cash flow forecast.';
         Text002: Label 'Choose one option for filling the cash flow forecast no. %1.';
@@ -765,26 +788,6 @@ report 840 "Suggest Worksheet Lines"
         Text032: Label 'Service Orders';
         Text033: Label 'Search for          #2####################\';
         Text034: Label 'Record found        #3####################';
-        FASetup: Record "FA Setup";
-        FADeprBook: Record "FA Depreciation Book";
-        GLBudgEntry: Record "G/L Budget Entry";
-        GLSetup: Record "General Ledger Setup";
-        SalesAdvanceLetterHeader: Record "Sales Advance Letter Header";
-        PurchAdvanceLetterHeader: Record "Purch. Advance Letter Header";
-        ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
-        CashFlowManagement: Codeunit "Cash Flow Management";
-        TotalAccounts: List of [Code[20]];
-        TotalAccountPairs: List of [Code[50]];
-        LastTotalAccount: Code[20];
-        CashFlowNo: Code[20];
-        LineNo: Integer;
-        DateLastExecution: Date;
-        ExecutionDate: Date;
-        GLBudgName: Code[10];
-        TotalAmt: Decimal;
-        MultiSalesLines: Boolean;
-        Summarized: Boolean;
-        NeedsManualPmtUpdate: Boolean;
         ManualPmtRevExpNeedsUpdateMsg: Label 'There are one or more Cash Flow Manual Revenues/Expenses with a Recurring Frequency.\But the Recurring Frequency cannot be applied because the Manual Payments To date in Cash Flow Forecast %1 is empty.\Fill in this date in order to get multiple lines.';
         SalesAdvancesMsg: Label 'Sales Advances';
         PurchaseAdvancesMsg: Label 'Purchase Advances';
@@ -795,9 +798,6 @@ report 840 "Suggest Worksheet Lines"
         PurchaseDocumentDescriptionTxt: Label 'Purchase %1 - %2 %3', Comment = '%1 = Source Document Type (e.g. Invoice), %2 = Due Date, %3 = Source Name (e.g. Vendor Name). Example: Purchase Invoice - 04-05-18 The Cannon Group PLC';
         ServiceDocumentDescriptionTxt: Label 'Service %1 - %2 %3', Comment = '%1 = Source Document Type (e.g. Invoice), %2 = Due Date, %3 = Source Name (e.g. Customer Name). Example: Service Invoice - 04-05-18 The Cannon Group PLC';
         TaxForMsg: Label 'Taxes from %1', Comment = '%1 = The description of the source tyoe based on which taxes are calculated.';
-        DummyDate: Date;
-        TaxLastSourceTableNumProcessed: Integer;
-        TaxLastPayableDateProcessed: Date;
         AzureAIForecastDescriptionTxt: Label 'Predicted %1 in the period starting on %2 with precision of +/-  %3.', Comment = '%1 =RECEIVABLES or PAYABLES or PAYABLES TAX or RECEIVABLES TAX, %2 = Date; %3 Percentage';
         AzureAIForecastTaxDescriptionTxt: Label 'Predicted tax on %1 in the period starting on %2 with precision of +/-  %3.', Comment = '%1 =RECEIVABLES or PAYABLES, %2 = Date; %3 Percentage';
         AzureAICorrectionDescriptionTxt: Label 'Correction due to posted %1', Comment = '%1 = SALES ORDERS or PURCHASE ORDERS';
@@ -833,6 +833,7 @@ report 840 "Suggest Worksheet Lines"
         ServiceHeader: Record "Service Header";
         Window: Dialog;
         ConsiderSource: array[16] of Boolean;
+        TotalAmt: Decimal;
 
     local procedure InsertConditionMet(): Boolean
     begin
@@ -847,7 +848,7 @@ report 840 "Suggest Worksheet Lines"
             "Cash Flow Forecast No." := "Cash Flow Forecast"."No.";
             "Line No." := LineNo;
 
-            CalculateCFAmountAndCFDate;
+            CalculateCFAmountAndCFDate();
             SetCashFlowDate(TempCFWorksheetLine, "Cash Flow Date");
 
             if Abs("Amount (LCY)") < Abs(MaxPmtTolerance) then
@@ -870,6 +871,7 @@ report 840 "Suggest Worksheet Lines"
         CFWorksheetLine.Reset();
         CFWorksheetLine.DeleteAll();
 
+        LastCFForecastNo := '';
         TempCFWorksheetLine.Reset();
         TempCFWorksheetLine.SetCurrentKey("Cash Flow Forecast No.");
         if TempCFWorksheetLine.FindSet() then
@@ -915,7 +917,7 @@ report 840 "Suggest Worksheet Lines"
               CopyStr(
                 StrSubstNo(Text013, GLAcc.Name, Format(GLAcc.Balance)),
                 1, MaxStrLen(Description));
-            SetCashFlowDate(CFWorksheetLine2, WorkDate);
+            SetCashFlowDate(CFWorksheetLine2, WorkDate());
             "Amount (LCY)" := GLAcc.Balance;
             "Shortcut Dimension 2 Code" := GLAcc."Global Dimension 2 Code";
             "Shortcut Dimension 1 Code" := GLAcc."Global Dimension 1 Code";
@@ -953,7 +955,7 @@ report 840 "Suggest Worksheet Lines"
             if "Cust. Ledger Entry"."Currency Code" <> '' then
                 Currency.Get("Cust. Ledger Entry"."Currency Code")
             else
-                Currency.InitRoundingPrecision;
+                Currency.InitRoundingPrecision();
 
             "Payment Discount" := Round("Cust. Ledger Entry"."Remaining Pmt. Disc. Possible" /
                 "Cust. Ledger Entry"."Adjusted Currency Factor", Currency."Amount Rounding Precision");
@@ -1002,7 +1004,7 @@ report 840 "Suggest Worksheet Lines"
             if "Vendor Ledger Entry"."Currency Code" <> '' then
                 Currency.Get("Vendor Ledger Entry"."Currency Code")
             else
-                Currency.InitRoundingPrecision;
+                Currency.InitRoundingPrecision();
 
             "Payment Discount" := Round("Vendor Ledger Entry"."Remaining Pmt. Disc. Possible" /
                 "Vendor Ledger Entry"."Adjusted Currency Factor", Currency."Amount Rounding Precision");
@@ -1027,7 +1029,7 @@ report 840 "Suggest Worksheet Lines"
         PurchLine2: Record "Purchase Line";
     begin
         PurchLine2 := "Purchase Line";
-        if Summarized and (PurchLine2.Next <> 0) and (PurchLine2."Buy-from Vendor No." <> '') and
+        if Summarized and (PurchLine2.Next() <> 0) and (PurchLine2."Buy-from Vendor No." <> '') and
            (PurchLine2."Document No." = "Purchase Line"."Document No.")
         then begin
             TotalAmt += CalculateLineAmountForPurchaseLine(PurchHeader, "Purchase Line");
@@ -1076,7 +1078,7 @@ report 840 "Suggest Worksheet Lines"
         SalesLine2: Record "Sales Line";
     begin
         SalesLine2 := "Sales Line";
-        if Summarized and (SalesLine2.Next <> 0) and (SalesLine2."Sell-to Customer No." <> '') and
+        if Summarized and (SalesLine2.Next() <> 0) and (SalesLine2."Sell-to Customer No." <> '') and
            (SalesLine2."Document No." = "Sales Line"."Document No.")
         then begin
             TotalAmt += CalculateLineAmountForSalesLine(SalesHeader, "Sales Line");
@@ -1268,7 +1270,7 @@ report 840 "Suggest Worksheet Lines"
         ServiceLine2: Record "Service Line";
     begin
         ServiceLine2 := "Service Line";
-        if Summarized and (ServiceLine2.Next <> 0) and (ServiceLine2."Customer No." <> '') and
+        if Summarized and (ServiceLine2.Next() <> 0) and (ServiceLine2."Customer No." <> '') and
            (ServiceLine2."Document No." = "Service Line"."Document No.")
         then begin
             TotalAmt += CalculateLineAmountForServiceLine("Service Line");
@@ -1321,7 +1323,7 @@ report 840 "Suggest Worksheet Lines"
     begin
         // NAVCZ
         SalesAdvanceLetterLine2 := "Sales Advance Letter Line";
-        if Summarized and (SalesAdvanceLetterLine2.Next <> 0) and (SalesAdvanceLetterLine2."Bill-to Customer No." <> '') and
+        if Summarized and (SalesAdvanceLetterLine2.Next() <> 0) and (SalesAdvanceLetterLine2."Bill-to Customer No." <> '') and
            (SalesAdvanceLetterLine2."Letter No." = "Sales Advance Letter Line"."Letter No.")
         then begin
             TotalAmt += CalculateLineAmountForSalesAdvanceLetterLine(SalesAdvanceLetterHeader, "Sales Advance Letter Line");
@@ -1343,7 +1345,7 @@ report 840 "Suggest Worksheet Lines"
               CopyStr(
                 StrSubstNo(
                   Text025,
-                  SalesAdvanceLetterHeader.TableCaption,
+                  SalesAdvanceLetterHeader.TableCaption(),
                   SalesAdvanceLetterHeader."Bill-to Name",
                   Format(SalesAdvanceLetterHeader."Document Date")),
                 1, MaxStrLen(CFWorksheetLine2.Description)),
@@ -1362,7 +1364,7 @@ report 840 "Suggest Worksheet Lines"
     begin
         // NAVCZ
         PurchAdvanceLetterLine2 := "Purch. Advance Letter Line";
-        if Summarized and (PurchAdvanceLetterLine2.Next <> 0) and (PurchAdvanceLetterLine2."Pay-to Vendor No." <> '') and
+        if Summarized and (PurchAdvanceLetterLine2.Next() <> 0) and (PurchAdvanceLetterLine2."Pay-to Vendor No." <> '') and
            (PurchAdvanceLetterLine2."Letter No." = "Purch. Advance Letter Line"."Letter No.")
         then begin
             TotalAmt += CalculateLineAmountForPurchAdvanceLetterLine(PurchAdvanceLetterHeader, "Purch. Advance Letter Line");
@@ -1384,7 +1386,7 @@ report 840 "Suggest Worksheet Lines"
               CopyStr(
                 StrSubstNo(
                   Text025,
-                  PurchAdvanceLetterHeader.TableCaption,
+                  PurchAdvanceLetterHeader.TableCaption(),
                   PurchAdvanceLetterHeader."Pay-to Name",
                   Format(PurchAdvanceLetterHeader."Document Date")),
                 1, MaxStrLen(CFWorksheetLine2.Description)),
@@ -1399,7 +1401,7 @@ report 840 "Suggest Worksheet Lines"
     local procedure InsertCFLineForAdvanceLetterLine(DocumentDate: Date; SourceType: Option; SourceNo: Code[20]; ShortcutDimension1Code: Code[20]; ShortcutDimension2Code: Code[20]; DimensionSetID: Integer; CashFlowAccountNo: Code[20]; Description2: Text[250]; CashFlowDate: Date; DocumentNo: Code[20]; AmountLCY: Decimal; PaymentTermsCode: Code[10])
     begin
         with CFWorksheetLine2 do begin
-            Init;
+            Init();
             "Document Type" := "Document Type"::Invoice;
             "Document Date" := DocumentDate;
             "Source Type" := SourceType;
@@ -1434,7 +1436,7 @@ report 840 "Suggest Worksheet Lines"
            ("Job Planning Line"."Planning Date" = TempCFWorksheetLine."Document Date") and
            ("Job Planning Line"."Document No." = TempCFWorksheetLine."Document No.")
         then begin
-            InsertConditionHasBeenMetAlready := InsertConditionMet;
+            InsertConditionHasBeenMetAlready := InsertConditionMet();
             TempCFWorksheetLine."Amount (LCY)" += GetJobPlanningAmountForCFLine("Job Planning Line");
             InsertOrModifyCFLine(InsertConditionHasBeenMetAlready);
         end else
@@ -1453,7 +1455,7 @@ report 840 "Suggest Worksheet Lines"
                   CopyStr(
                     StrSubstNo(
                       Text025,
-                      Job.TableCaption,
+                      Job.TableCaption(),
                       Job.Description,
                       Format("Job Planning Line"."Document Date")),
                     1, MaxStrLen(Description));
@@ -1490,7 +1492,7 @@ report 840 "Suggest Worksheet Lines"
                (TempCFWorksheetLine."Source No." = SourceNo) and
                (TempCFWorksheetLine."Document Date" = TaxPayableDate)
             then begin
-                InsertConditionHasBeenMetAlready := InsertConditionMet;
+                InsertConditionHasBeenMetAlready := InsertConditionMet();
                 TempCFWorksheetLine."Amount (LCY)" += GetTaxAmountFromSource(SourceTableNum);
                 InsertOrModifyCFLine(InsertConditionHasBeenMetAlready);
             end else
@@ -1674,9 +1676,9 @@ report 840 "Suggest Worksheet Lines"
             exit;
 
         CashFlowWorksheetLine."Cash Flow Date" := CashFlowDate;
-        if CashFlowDate < WorkDate then begin
+        if CashFlowDate < WorkDate() then begin
             if SelectionCashFlowForecast."Overdue CF Dates to Work Date" then
-                CashFlowWorksheetLine."Cash Flow Date" := WorkDate;
+                CashFlowWorksheetLine."Cash Flow Date" := WorkDate();
             CashFlowWorksheetLine.Overdue := true;
         end
     end;
@@ -1696,13 +1698,13 @@ report 840 "Suggest Worksheet Lines"
         end else
             PrepmtAmtInvLCY := PurchaseLine."Prepmt. Amt. Inv.";
 
-        Currency.InitRoundingPrecision;
+        Currency.InitRoundingPrecision();
         if PurchHeader2."Prices Including VAT" then
             exit(-(GetPurchaseAmountForCFLine(PurchaseLine) - PrepmtAmtInvLCY));
         exit(
           -(GetPurchaseAmountForCFLine(PurchaseLine) -
             (PrepmtAmtInvLCY +
-             Round(PrepmtAmtInvLCY * PurchaseLine."VAT %" / 100, Currency."Amount Rounding Precision", Currency.VATRoundingDirection))));
+             Round(PrepmtAmtInvLCY * PurchaseLine."VAT %" / 100, Currency."Amount Rounding Precision", Currency.VATRoundingDirection()))));
     end;
 
     local procedure CalculateLineAmountForSalesLine(SalesHeader2: Record "Sales Header"; SalesLine: Record "Sales Line"): Decimal
@@ -1720,13 +1722,13 @@ report 840 "Suggest Worksheet Lines"
         end else
             PrepmtAmtInvLCY := SalesLine."Prepmt. Amt. Inv.";
 
-        Currency.InitRoundingPrecision;
+        Currency.InitRoundingPrecision();
         if SalesHeader2."Prices Including VAT" then
             exit(GetSalesAmountForCFLine(SalesLine) - PrepmtAmtInvLCY);
         exit(
           GetSalesAmountForCFLine(SalesLine) -
           (PrepmtAmtInvLCY +
-           Round(PrepmtAmtInvLCY * SalesLine."VAT %" / 100, Currency."Amount Rounding Precision", Currency.VATRoundingDirection)));
+           Round(PrepmtAmtInvLCY * SalesLine."VAT %" / 100, Currency."Amount Rounding Precision", Currency.VATRoundingDirection())));
     end;
 
     local procedure CalculateLineAmountForServiceLine(ServiceLine: Record "Service Line"): Decimal
@@ -1832,6 +1834,7 @@ report 840 "Suggest Worksheet Lines"
         CashFlowNo := CFNo;
         GLBudgName := NewGLBudgetName;
         Summarized := GroupByDocumentType;
+        OnAfterInitializeRequest(ConsiderSource, CashFlowNo, GLBudgName, Summarized)
     end;
 
     local procedure InsertManualData(ExecutionDate: Date; CashFlowForecast: Record "Cash Flow Forecast"; ManualAmount: Decimal)
@@ -1945,7 +1948,7 @@ report 840 "Suggest Worksheet Lines"
     var
         CashFlowSetup: Record "Cash Flow Setup";
     begin
-        exit(Date < CashFlowSetup.GetCurrentPeriodStartDate);
+        exit(Date < CashFlowSetup.GetCurrentPeriodStartDate());
     end;
 
     local procedure CheckCircularRefs(var GLAccount: Record "G/L Account")
@@ -1953,8 +1956,7 @@ report 840 "Suggest Worksheet Lines"
         AccountPair: Code[50];
         RecursiveLimit: Integer;
     begin
-        if RecursiveLimit = 0 then
-            RecursiveLimit := GetRecursiveLimit();
+        RecursiveLimit := GetRecursiveLimit();
         AccountPair := StrSubstNo(ThreePlaceHoldersLbl, LastTotalAccount, '|', GLAccount."No.");
         TotalAccountPairs.Add(AccountPair);
         TotalAccounts.Add(GLAccount."No.");
@@ -2045,6 +2047,11 @@ report 840 "Suggest Worksheet Lines"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetRecursiveLimit(var Limit: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitializeRequest(var ConsiderSource: array[16] of Boolean; var CashFlowNo: Code[20]; var GLBudgName: Code[10]; var Summarized: Boolean)
     begin
     end;
 

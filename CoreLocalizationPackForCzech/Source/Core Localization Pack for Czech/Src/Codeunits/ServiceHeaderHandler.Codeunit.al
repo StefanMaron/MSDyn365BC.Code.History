@@ -57,6 +57,7 @@ codeunit 11745 "Service Header Handler CZL"
             ServiceHeader.Validate("Bank Account Code CZL", Customer."Preferred Bank Account Code");
         ServiceHeader."Registration No. CZL" := Customer."Registration No. CZL";
         ServiceHeader."Tax Registration No. CZL" := Customer."Tax Registration No. CZL";
+        ServiceHeader."VAT Registration No." := Customer."VAT Registration No.";
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Service Header", 'OnBeforeValidateEvent', 'EU 3-Party Trade', false, false)]
@@ -106,6 +107,17 @@ codeunit 11745 "Service Header Handler CZL"
                     ServiceLine."Physical Transfer CZL" := ServiceHeader."Physical Transfer CZL";
                     ServiceLine.Modify(true);
                 end;
+        end;
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Service Header", 'OnAfterValidateEvent', 'VAT Country/Region Code', false, false)]
+    local procedure UpdateVATRegistrationNoCodeOnAfterVATCountryRegionCodeValidate(var Rec: Record "Service Header")
+    var
+        BillToCustomer: Record Customer;
+    begin
+        if Rec."Bill-to Customer No." <> '' then begin
+            BillToCustomer.Get(Rec."Bill-to Customer No.");
+            Rec."VAT Registration No." := BillToCustomer."VAT Registration No.";
         end;
     end;
 }

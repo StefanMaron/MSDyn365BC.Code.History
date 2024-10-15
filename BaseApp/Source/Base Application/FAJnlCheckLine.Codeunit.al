@@ -1,12 +1,8 @@
-#if not CLEAN18
 codeunit 5631 "FA Jnl.-Check Line"
 {
     TableNo = "Gen. Journal Line";
 
     trigger OnRun()
-    var
-        GLSetup: Record "General Ledger Setup";
-        UserSetupAdvMgt: Codeunit "User Setup Adv. Management";
     begin
         CheckJobNo(Rec);
         TestField("FA Posting Type");
@@ -19,10 +15,6 @@ codeunit 5631 "FA Jnl.-Check Line"
             Error(
               Text001,
               FieldCaption("Account Type"), FieldCaption("Bal. Account Type"), "Account Type");
-
-        // NAVCZ
-        FASetup.Get();
-        // NAVCZ
         if "Account No." <> '' then
             CheckAccountNo(Rec);
 
@@ -39,11 +31,6 @@ codeunit 5631 "FA Jnl.-Check Line"
                 FieldCaption("Bal. Account Type"),
                 GenJnlline2."Account Type"));
         end;
-        // NAVCZ
-        GLSetup.Get();
-        if GLSetup."User Checks Allowed" then
-            UserSetupAdvMgt.CheckGeneralJournalLine(Rec);
-        // NAVCZ
         DeprBookCode := "Depreciation Book Code";
         if "FA Posting Date" = 0D then
             "FA Posting Date" := "Posting Date";
@@ -52,13 +39,32 @@ codeunit 5631 "FA Jnl.-Check Line"
         FAPostingType := "FA Journal Line FA Posting Type".FromInteger("FA Posting Type".AsInteger() - 1);
         GenJnlPosting := true;
         GenJnlLine := Rec;
-        CheckJnlLine;
-        CheckFADepAcrossFiscalYear;
+        CheckJnlLine();
+        CheckFADepAcrossFiscalYear();
 
         OnAfterCheckGenJnlLine(Rec);
     end;
 
     var
+        UserSetup: Record "User Setup";
+        FASetup: Record "FA Setup";
+        FA: Record "Fixed Asset";
+        FADeprBook: Record "FA Depreciation Book";
+        DeprBook: Record "Depreciation Book";
+        GenJnlLine: Record "Gen. Journal Line";
+        GenJnlline2: Record "Gen. Journal Line";
+        FAJnlLine: Record "FA Journal Line";
+        DimMgt: Codeunit DimensionManagement;
+        AllowPostingFrom: Date;
+        AllowPostingTo: Date;
+        GenJnlPosting: Boolean;
+        FANo: Code[20];
+        DeprBookCode: Code[10];
+        PostingDate: Date;
+        FAPostingDate: Date;
+        FAPostingType: Enum "FA Journal Line FA Posting Type";
+        FieldErrorText: Text[250];
+
         Text000: Label 'is not different than %1';
         Text001: Label '%1 and %2 must not both be %3.';
         Text002: Label 'must not be %1 when %2 or %3 are %4';
@@ -75,32 +81,10 @@ codeunit 5631 "FA Jnl.-Check Line"
         Text013: Label 'is a %1';
         Text014: Label 'The combination of dimensions used in %1 %2, %3, %4 is blocked. %5';
         Text015: Label 'A dimension used in %1 %2, %3, %4 has caused an error. %5';
-        UserSetup: Record "User Setup";
-        FASetup: Record "FA Setup";
-        FA: Record "Fixed Asset";
-        FADeprBook: Record "FA Depreciation Book";
-        DeprBook: Record "Depreciation Book";
-        GenJnlLine: Record "Gen. Journal Line";
-        GenJnlline2: Record "Gen. Journal Line";
-        FAJnlLine: Record "FA Journal Line";
-        ReasonCode: Record "Reason Code";
-        Maintenance: Record Maintenance;
-        DimMgt: Codeunit DimensionManagement;
-        AllowPostingFrom: Date;
-        AllowPostingTo: Date;
-        GenJnlPosting: Boolean;
-        FANo: Code[20];
-        DeprBookCode: Code[10];
-        PostingDate: Date;
-        FAPostingDate: Date;
-        FAPostingType: Enum "FA Journal Line FA Posting Type";
-        FieldErrorText: Text[250];
         Text016: Label '%1 + %2 must be %3.';
         Text017: Label '%1 + %2 must be -%3.';
         Text018: Label 'You cannot dispose Main Asset %1 until Components are disposed.';
         Text019Err: Label 'You cannot post depreciation, because the calculation is across different fiscal year periods, which is not supported.';
-        PostAfterErr: Label '%1 type %2 or %3 must be posted after %4 for %5.';
-        PostInSameYearFirstErr: Label '%1 must be post in same year as first %1.';
 
     procedure CheckFAJnlLine(var FAJnlLine2: Record "FA Journal Line")
     var
@@ -127,7 +111,7 @@ codeunit 5631 "FA Jnl.-Check Line"
                 Error(
                   Text014,
                   TableCaption, "Journal Template Name", "Journal Batch Name", "Line No.",
-                  DimMgt.GetDimCombErr);
+                  DimMgt.GetDimCombErr());
 
             TableID[1] := DATABASE::"Fixed Asset";
             No[1] := "FA No.";
@@ -136,13 +120,13 @@ codeunit 5631 "FA Jnl.-Check Line"
                     Error(
                       Text015,
                       TableCaption, "Journal Template Name", "Journal Batch Name", "Line No.",
-                      DimMgt.GetDimValuePostingErr)
+                      DimMgt.GetDimValuePostingErr())
                 else
-                    Error(DimMgt.GetDimValuePostingErr);
+                    Error(DimMgt.GetDimValuePostingErr());
         end;
         GenJnlPosting := false;
         FAJnlLine := FAJnlLine2;
-        CheckJnlLine;
+        CheckJnlLine();
 
         OnAfterCheckFAJnlLine(FAJnlLine2);
     end;
@@ -158,14 +142,11 @@ codeunit 5631 "FA Jnl.-Check Line"
 
         with GenJournalLine do
             if "Account Type" = "Account Type"::"Fixed Asset" then begin
-                if ("FA Posting Type" in
+                if "FA Posting Type" in
                    ["FA Posting Type"::"Acquisition Cost",
                     "FA Posting Type"::Appreciation,
                     "FA Posting Type"::Disposal,
-                    "FA Posting Type"::Maintenance]) or
-                   // NAVCZ
-                   (("FA Posting Type" = "FA Posting Type"::"Custom 2") and FASetup."FA Acquisition As Custom 2")
-                // NAVCZ
+                    "FA Posting Type"::Maintenance]
                 then begin
                     if ("Gen. Bus. Posting Group" <> '') or ("Gen. Prod. Posting Group" <> '') or
                        ("VAT Bus. Posting Group" <> '') or ("VAT Prod. Posting Group" <> '')
@@ -206,13 +187,10 @@ codeunit 5631 "FA Jnl.-Check Line"
 
         with GenJournalLine do
             if "Bal. Account Type" = "Bal. Account Type"::"Fixed Asset" then begin
-                if ("FA Posting Type" in
-                    ["FA Posting Type"::"Acquisition Cost",
-                     "FA Posting Type"::Disposal,
-                     "FA Posting Type"::Maintenance]) or
-                   // NAVCZ
-                   (("FA Posting Type" = "FA Posting Type"::"Custom 2") and FASetup."FA Acquisition As Custom 2")
-                // NAVCZ
+                if "FA Posting Type" in
+                   ["FA Posting Type"::"Acquisition Cost",
+                    "FA Posting Type"::Disposal,
+                    "FA Posting Type"::Maintenance]
                 then begin
                     if ("Bal. Gen. Bus. Posting Group" <> '') or ("Bal. Gen. Prod. Posting Group" <> '') or
                        ("Bal. VAT Bus. Posting Group" <> '') or ("Bal. VAT Prod. Posting Group" <> '')
@@ -248,11 +226,11 @@ codeunit 5631 "FA Jnl.-Check Line"
         FASetup.Get();
         DeprBook.Get(DeprBookCode);
         FADeprBook.Get(FANo, DeprBookCode);
-        CheckFAPostingDate;
-        CheckFAIntegration;
-        CheckConsistency;
-        CheckErrorNo;
-        CheckMainAsset;
+        CheckFAPostingDate();
+        CheckFAIntegration();
+        CheckConsistency();
+        CheckErrorNo();
+        CheckMainAsset();
     end;
 
     local procedure CheckJobNo(var GenJournalLine: Record "Gen. Journal Line")
@@ -313,21 +291,14 @@ codeunit 5631 "FA Jnl.-Check Line"
                 FAJnlLine.FieldError("FA Posting Date", Text004);
 
         if DeprBook."Use Same FA+G/L Posting Dates" and (PostingDate <> FAPostingDate) then begin
-            // NAVCZ
-            if GenJnlPosting then begin
-                if not GenJnlLine."FA Reclassification Entry" then
-                    // IF GenJnlPosting THEN
-                    GenJnlLine.FieldError(
-                "FA Posting Date", StrSubstNo(Text005,
-                  GenJnlLine.FieldCaption("Posting Date")));
+            if GenJnlPosting then
+                GenJnlLine.FieldError(
+                  "FA Posting Date", StrSubstNo(Text005,
+                    GenJnlLine.FieldCaption("Posting Date")));
 
-                // NAVCZ
-            end else
-                if not FAJnlLine."FA Reclassification Entry" then
-                    // NAVCZ
-                    FAJnlLine.FieldError(
-                "Posting Date", StrSubstNo(Text005,
-                  FAJnlLine.FieldCaption("FA Posting Date")))
+            FAJnlLine.FieldError(
+              "Posting Date", StrSubstNo(Text005,
+                FAJnlLine.FieldCaption("FA Posting Date")))
         end;
     end;
 
@@ -377,22 +348,22 @@ codeunit 5631 "FA Jnl.-Check Line"
                 if "Depr. until FA Posting Date" and not GLIntegration then
                     FieldError(
                       "Depr. until FA Posting Date", StrSubstNo(Text009,
-                        DeprBook.FieldCaption("G/L Integration - Depreciation"), false, DeprBook.TableCaption));
+                        DeprBook.FieldCaption("G/L Integration - Depreciation"), false, DeprBook.TableCaption()));
                 if "Depr. Acquisition Cost" and not GLIntegration then
                     FieldError(
                       "Depr. Acquisition Cost", StrSubstNo(Text009,
-                        DeprBook.FieldCaption("G/L Integration - Depreciation"), false, DeprBook.TableCaption));
+                        DeprBook.FieldCaption("G/L Integration - Depreciation"), false, DeprBook.TableCaption()));
             end;
         if not GenJnlPosting then
             with FAJnlLine do begin
                 if "Depr. until FA Posting Date" and GLIntegration then
                     FieldError(
                       "Depr. until FA Posting Date", StrSubstNo(Text009,
-                        DeprBook.FieldCaption("G/L Integration - Depreciation"), true, DeprBook.TableCaption));
+                        DeprBook.FieldCaption("G/L Integration - Depreciation"), true, DeprBook.TableCaption()));
                 if "Depr. Acquisition Cost" and GLIntegration then
                     FieldError(
                       "Depr. Acquisition Cost", StrSubstNo(Text009,
-                        DeprBook.FieldCaption("G/L Integration - Depreciation"), true, DeprBook.TableCaption));
+                        DeprBook.FieldCaption("G/L Integration - Depreciation"), true, DeprBook.TableCaption()));
             end;
     end;
 
@@ -453,9 +424,6 @@ codeunit 5631 "FA Jnl.-Check Line"
         IsHandled: Boolean;
         ShouldCheckNoOfDepreciationDays: Boolean;
     begin
-        // NAVCZ
-        FASetup.Get();
-        // NAVCZ
         if GenJnlPosting then
             with GenJnlLine do begin
                 if "Journal Template Name" = '' then
@@ -465,11 +433,7 @@ codeunit 5631 "FA Jnl.-Check Line"
                     FieldCaption("FA Posting Type"), "FA Posting Type");
                 if ("FA Error Entry No." > 0) and ("FA Posting Type" = "FA Posting Type"::Maintenance) then
                     FieldError("FA Error Entry No.", FieldErrorText);
-                if ("FA Posting Type" <> "FA Posting Type"::"Acquisition Cost") and
-                   // NAVCZ
-                   (("FA Posting Type" <> "FA Posting Type"::"Custom 2") and FASetup."FA Acquisition As Custom 2")
-                then
-                    // NAVCZ
+                if not IsAcquisitionCost() then
                     case true of
                         "Depr. Acquisition Cost":
                             FieldError("Depr. Acquisition Cost", FieldErrorText);
@@ -490,10 +454,9 @@ codeunit 5631 "FA Jnl.-Check Line"
                    ("Maintenance Code" <> '')
                 then
                     FieldError("Maintenance Code", FieldErrorText);
-                if "FA Posting Type" = "FA Posting Type"::Maintenance then begin
+                if "FA Posting Type" = "FA Posting Type"::Maintenance then
                     if "Depr. until FA Posting Date" then
                         FieldError("Depr. until FA Posting Date", FieldErrorText);
-                end;
 
                 ShouldCheckNoOfDepreciationDays := ("FA Posting Type" <> "FA Posting Type"::Depreciation) and ("FA Posting Type" <> "FA Posting Type"::"Custom 1") and ("No. of Depreciation Days" <> 0);
                 OnCheckConsistencyOnAfterCalcShouldCheckNoOfDepreciationDays(GenJnlLine, FieldErrorText, ShouldCheckNoOfDepreciationDays);
@@ -513,10 +476,7 @@ codeunit 5631 "FA Jnl.-Check Line"
                 if FA."Budgeted Asset" and ("Budgeted FA No." <> '') then
                     FieldError("Budgeted FA No.", FieldErrorText);
 
-                if ("FA Posting Type" = "FA Posting Type"::"Acquisition Cost") and
-                   // NAVCZ
-                   FASetup."FA Acquisition As Custom 2" and
-                   // NAVCZ
+                if IsAcquisitionCost() and
                    ("Insurance No." <> '') and
                    (DeprBook.Code <> FASetup."Insurance Depr. Book")
                 then
@@ -524,14 +484,6 @@ codeunit 5631 "FA Jnl.-Check Line"
 
                 if FA."Budgeted Asset" then
                     FieldError("Account No.", StrSubstNo(Text013, FA.FieldCaption("Budgeted Asset")));
-
-                // NAVCZ
-                ControlingCheck("FA Posting Type" - 1);
-                if ("FA Posting Type" = "FA Posting Type"::Maintenance) and ("Maintenance Code" <> '') then
-                    Maintenance.Get("Maintenance Code");
-                if ("FA Posting Type" = "FA Posting Type"::Disposal) and ("Reason Code" <> '') then
-                    ReasonCode.Get("Reason Code");
-                // NAVCZ
             end;
 
         if not GenJnlPosting then
@@ -543,11 +495,7 @@ codeunit 5631 "FA Jnl.-Check Line"
                 if ("FA Error Entry No." > 0) and ("FA Posting Type" = "FA Posting Type"::Maintenance) then
                     FieldError("FA Error Entry No.", FieldErrorText);
 
-                if ("FA Posting Type" <> "FA Posting Type"::"Acquisition Cost") and
-                   // NAVCZ
-                   (("FA Posting Type" <> "FA Posting Type"::"Custom 2") and FASetup."FA Acquisition As Custom 2")
-                then
-                    // NAVCZ
+                if not IsAcquisitionCost() then
                     case true of
                         "Depr. Acquisition Cost":
                             FieldError("Depr. Acquisition Cost", FieldErrorText);
@@ -592,18 +540,11 @@ codeunit 5631 "FA Jnl.-Check Line"
                 if FA."Budgeted Asset" and ("Budgeted FA No." <> '') then
                     FieldError("Budgeted FA No.", FieldErrorText);
 
-                if ("FA Posting Type" = "FA Posting Type"::"Acquisition Cost") and
-                   // NAVCZ
-                   FASetup."FA Acquisition As Custom 2" and
-                   // NAVCZ
+                if IsAcquisitionCost() and
                    ("Insurance No." <> '') and
                    (DeprBook.Code <> FASetup."Insurance Depr. Book")
                 then
                     TestField("Insurance No.", '');
-
-                // NAVCZ
-                ControlingCheck("FA Posting Type");
-                // NAVCZ
             end;
     end;
 
@@ -618,7 +559,7 @@ codeunit 5631 "FA Jnl.-Check Line"
             exit;
 
         with MainAssetComponent do begin
-            Reset;
+            Reset();
             SetRange("Main Asset No.", FA."No.");
             if FindSet() then
                 repeat
@@ -653,110 +594,6 @@ codeunit 5631 "FA Jnl.-Check Line"
             if not AccPeriod.IsEmpty() then
                 Error(Text019Err);
         end;
-    end;
-
-    [Obsolete('Moved to Fixed Asset Localization for Czech.', '18.0')]
-    [Scope('OnPrem')]
-    procedure CalcEndPrevFiscYear(StartingDate: Date) EndFiscYear: Date
-    var
-        AccountingPeriod: Record "Accounting Period";
-    begin
-        // NAVCZ
-        AccountingPeriod.SetRange("New Fiscal Year", true);
-        AccountingPeriod.SetFilter("Starting Date", '..%1', StartingDate);
-        if AccountingPeriod.FindLast() then
-            EndFiscYear := CalcDate('<-1D>', AccountingPeriod."Starting Date")
-        else
-            EndFiscYear := CalcDate('<CY>-<1Y>', StartingDate);
-    end;
-
-    [Obsolete('Moved to Fixed Asset Localization for Czech.', '18.0')]
-    [Scope('OnPrem')]
-    procedure FindFiscalYear2(DatePosting: Date): Date
-    var
-        AccountingPeriodMgt: Codeunit "Accounting Period Mgt.";
-    begin
-        // NAVCZ
-        exit(AccountingPeriodMgt.FindFiscalYear(DatePosting));
-    end;
-
-    [Obsolete('Moved to Fixed Asset Localization for Czech.', '18.0')]
-    [Scope('OnPrem')]
-    procedure ControlingCheck(PostingType: Option "Acquisition Cost",Depreciation,"Write-Down",Appreciation,"Custom 1","Custom 2",Disposal,Maintenance,"Salvage Value")
-    var
-        FALedgEntry: Record "FA Ledger Entry";
-        FALedgEntry1: Record "FA Ledger Entry";
-        FALedgEntry2: Record "FA Ledger Entry";
-        FALedgEntry3: Record "FA Ledger Entry";
-        AccountingPeriodMgt: Codeunit "Accounting Period Mgt.";
-        IsTest: Boolean;
-    begin
-        FASetup.Get();
-        // NAVCZ
-        if (PostingType = PostingType::Disposal) and
-           DeprBook."Check Deprication on Disposal"
-        then begin
-            IsTest := true;
-            if FASetup."Tax Depr. Book" = FADeprBook."Depreciation Book Code" then begin
-                FALedgEntry.Reset();
-                FALedgEntry.SetCurrentKey("FA No.", "Depreciation Book Code", "FA Posting Date");
-                FALedgEntry.SetRange("FA No.", FANo);
-                FALedgEntry.SetRange("Depreciation Book Code", DeprBookCode);
-                FALedgEntry.SetRange("FA Posting Type", FALedgEntry."FA Posting Type"::"Acquisition Cost");
-                if FALedgEntry.FindFirst() then
-                    IsTest :=
-                      AccountingPeriodMgt.FindFiscalYear(FALedgEntry."FA Posting Date") <> AccountingPeriodMgt.FindFiscalYear(FAPostingDate);
-            end;
-
-            if IsTest then begin
-                FADeprBook.CalcFields("Book Value");
-                if FADeprBook."Book Value" <> 0 then begin
-                    FALedgEntry.Reset();
-                    FALedgEntry.SetCurrentKey("FA No.", "Depreciation Book Code", "FA Posting Date");
-                    FALedgEntry.SetRange("FA No.", FANo);
-                    FALedgEntry.SetRange("Depreciation Book Code", DeprBookCode);
-                    // lreFALedgEntry.SETRANGE("FA Posting Date",CalcEndPrevFiscYear(FAPostingDate));
-                    FALedgEntry.SetRange("FA Posting Date", FAPostingDate);
-                    FALedgEntry.SetRange("FA Posting Type", FALedgEntry."FA Posting Type"::Depreciation);
-                    FALedgEntry.FindFirst();
-                end;
-            end;
-        end;
-        if ((PostingType = PostingType::"Acquisition Cost") or
-            (PostingType = PostingType::Appreciation)) and
-           DeprBook."Acqui.,Appr.before Depr. Check"
-        then begin
-            FALedgEntry.Reset();
-            FALedgEntry.SetCurrentKey("FA No.", "Depreciation Book Code", "FA Posting Date");
-            FALedgEntry.SetRange("FA No.", FANo);
-            FALedgEntry.SetRange("Depreciation Book Code", DeprBookCode);
-            FALedgEntry.SetFilter("FA Posting Date", '%1..', FAPostingDate + 1);
-            FALedgEntry.SetRange("FA Posting Type", FALedgEntry."FA Posting Type"::Depreciation);
-            if not FALedgEntry.IsEmpty() then begin
-                FALedgEntry1."FA Posting Type" := FALedgEntry1."FA Posting Type"::"Acquisition Cost";
-                FALedgEntry2."FA Posting Type" := FALedgEntry2."FA Posting Type"::Appreciation;
-                FALedgEntry3."FA Posting Type" := FALedgEntry3."FA Posting Type"::Depreciation;
-                Error(PostAfterErr, FALedgEntry3.TableCaption, FALedgEntry1."FA Posting Type", FALedgEntry2."FA Posting Type",
-                  FALedgEntry3."FA Posting Type", FANo);
-            end;
-        end;
-        if (PostingType = PostingType::"Acquisition Cost") and
-           DeprBook."All Acquil. in same Year"
-        then begin
-            FALedgEntry.Reset();
-            FALedgEntry.SetCurrentKey("FA No.", "Depreciation Book Code", "FA Posting Date");
-            FALedgEntry.SetRange("FA No.", FANo);
-            FALedgEntry.SetRange("Depreciation Book Code", DeprBookCode);
-            FALedgEntry.SetRange("FA Posting Type", FALedgEntry."FA Posting Type"::"Acquisition Cost");
-            if FALedgEntry.FindFirst() then
-                if AccountingPeriodMgt.FindFiscalYear(FALedgEntry."FA Posting Date") <>
-                   AccountingPeriodMgt.FindFiscalYear(FAPostingDate)
-                then begin
-                    FALedgEntry1."FA Posting Type" := FALedgEntry1."FA Posting Type"::"Acquisition Cost";
-                    Error(PostInSameYearFirstErr, FALedgEntry1."FA Posting Type");
-                end;
-        end;
-        // NAVCZ
     end;
 
     [IntegrationEvent(false, false)]
@@ -805,4 +642,3 @@ codeunit 5631 "FA Jnl.-Check Line"
     end;
 }
 
-#endif

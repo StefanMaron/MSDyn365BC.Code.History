@@ -20,7 +20,7 @@ report 36 "Fiscal Year Balance"
             column(STRSUBSTNO_Text002_FYStartingDate_; StrSubstNo(Text002, FYStartingDate))
             {
             }
-            column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+            column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
             column(STRSUBSTNO_Text015_Indent_; StrSubstNo(Text015, SelectStr(Indent + 1, IndentTxt)))
@@ -328,7 +328,7 @@ report 36 "Fiscal Year Balance"
                     else
                         SummProfit[I] := SummTotals[I - 1] - SummTotals[I];
 
-                FillTotals;
+                FillTotals();
                 GLAccountTypePosting := "Account Type" = "Account Type"::Posting;
             end;
 
@@ -376,10 +376,8 @@ report 36 "Fiscal Year Balance"
                             SetRange(Indentation, 5);
                         end;
                     Indent::None:
-                        begin
-                            if ShowResults = true then
-                                SetFilter("Account Type", '%1', "Account Type"::Posting);
-                        end;
+                        if ShowResults = true then
+                            SetFilter("Account Type", '%1', "Account Type"::Posting);
                 end;
 
                 if PeriodStartingDate = 0D then
@@ -423,7 +421,7 @@ report 36 "Fiscal Year Balance"
 
                         trigger OnValidate()
                         begin
-                            SetEndingDate;
+                            SetEndingDate();
                         end;
                     }
                     field(EndingDate; PeriodEndingDate)
@@ -447,7 +445,7 @@ report 36 "Fiscal Year Balance"
 
                         trigger OnValidate()
                         begin
-                            CheckIndentationLevel;
+                            CheckIndentationLevel();
                         end;
                     }
                     field(ShowResults; ShowResults)
@@ -472,12 +470,12 @@ report 36 "Fiscal Year Balance"
 
         trigger OnOpenPage()
         begin
-            AccountingPeriod.SetFilter("Starting Date", '<=%1', WorkDate);
+            AccountingPeriod.SetFilter("Starting Date", '<=%1', WorkDate());
             AccountingPeriod.SetRange("New Fiscal Year", true);
             if AccountingPeriod.FindLast() then
                 PeriodStartingDate := AccountingPeriod."Starting Date";
 
-            SetEndingDate;
+            SetEndingDate();
         end;
     }
 
@@ -487,7 +485,7 @@ report 36 "Fiscal Year Balance"
 
     trigger OnPreReport()
     begin
-        GLFilter := "G/L Account".GetFilters;
+        GLFilter := "G/L Account".GetFilters();
     end;
 
     var
@@ -558,7 +556,7 @@ report 36 "Fiscal Year Balance"
         PeriodEndingDate := NewPeriodEndingDate;
         RoundingFactor := "Analysis Rounding Factor".FromInteger(NewRoundingFactor);
         Indent := NewIndent;
-        CheckIndentationLevel;
+        CheckIndentationLevel();
         ShowResults := NewShowResults;
     end;
 
@@ -572,10 +570,9 @@ report 36 "Fiscal Year Balance"
                     MaxIndent := Format(GLIndent.Indentation);
             until GLIndent.Next() = 0;
 
-        if Format(Indent) > MaxIndent then begin
+        if Format(Indent) > MaxIndent then
             if Indent <> Indent::None then
                 Error(Text014, SelectStr(Indent + 1, IndentTxt), MaxIndent);
-        end;
     end;
 
     local procedure FillTotals()

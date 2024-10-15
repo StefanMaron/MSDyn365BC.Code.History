@@ -1,12 +1,6 @@
 table 269 "G/L Account Net Change"
 {
-#if CLEAN18
     Tabletype = temporary;
-#else
-    ObsoleteState = Pending;
-    ObsoleteTag = '18.0';
-    ObsoleteReason = 'This table will be marked as temporary. Please ensure you do not store any data in the table.';
-#endif
     Caption = 'G/L Account Net Change';
     ReplicateData = false;
 
@@ -35,23 +29,15 @@ table 269 "G/L Account Net Change"
             Caption = 'Type';
             OptionCaption = 'G/L Account,Customer,Vendor,Bank Account,Fixed Asset,IC Partner,Employee';
             OptionMembers = "G/L Account",Customer,Vendor,"Bank Account","Fixed Asset","IC Partner",Employee;
-#if CLEAN18
-            ObsoleteState = Removed; 
-#else 
-            ObsoleteState = Pending;
-#endif
-            ObsoleteReason = 'The functionality of GL Journal reconciliation by type will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '15.3';
+            ObsoleteState = Removed;
+            ObsoleteReason = 'The functionality of GL Journal reconciliation by type has been removed.';
+            ObsoleteTag = '21.0';
         }
     }
 
     keys
     {
-#if CLEAN18
         key(Key1; "No.")
-#else 
-        key(Key1; "No.", Type)
-#endif         
         {
             Clustered = true;
         }

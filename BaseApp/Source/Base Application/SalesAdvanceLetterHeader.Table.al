@@ -32,7 +32,7 @@ table 31000 "Sales Advance Letter Header"
                 TaxRegistrationNoFldTok: Label 'Tax Registration No. CZL', Locked = true;
             begin
                 if "No." = '' then
-                    InitRecord;
+                    InitRecord();
                 TestField(Status, Status::Open);
                 if xRec."Bill-to Customer No." <> "Bill-to Customer No." then begin
                     if not HideValidationDialog and GuiAllowed then
@@ -42,7 +42,7 @@ table 31000 "Sales Advance Letter Header"
                                 if Confirm(Text012Qst, true, "Bill-to Customer No.", Cust."Bill-to Customer No.") then
                                     "Bill-to Customer No." := Cust."Bill-to Customer No.";
                         end;
-                    if LetterLinesExist then
+                    if LetterLinesExist() then
                         Error(Text006Err, FieldCaption("Bill-to Customer No."));
                 end;
 
@@ -104,17 +104,13 @@ table 31000 "Sales Advance Letter Header"
                   DATABASE::"Salesperson/Purchaser", "Salesperson Code",
                   DATABASE::Campaign, "Campaign No.",
                   DATABASE::"Responsibility Center", "Responsibility Center",
-#if CLEAN18
                   DATABASE::"Customer Templ.", "Bill-to Customer Template Code");
-#else
-                  DATABASE::"Customer Template", "Bill-to Customer Template Code");
-#endif
 
                 Validate("Currency Code");
                 Validate("Payment Terms Code");
 
                 if (xRec."Bill-to Customer No." <> '') AND (xRec."Bill-to Customer No." <> "Bill-to Customer No.") then
-                    RecallModifyAddressNotification(GetModifyBillToCustomerAddressNotificationId);
+                    RecallModifyAddressNotification(GetModifyBillToCustomerAddressNotificationId());
             end;
 #endif
         }
@@ -260,16 +256,6 @@ table 31000 "Sales Advance Letter Header"
             Caption = 'Customer Posting Group';
             Editable = false;
             TableRelation = "Customer Posting Group";
-#if not CLEAN18
-
-            trigger OnValidate()
-            var
-                PostingGroupManagement: Codeunit "Posting Group Management";
-            begin
-                if CurrFieldNo = FieldNo("Customer Posting Group") then
-                    PostingGroupManagement.CheckPostingGroupChange("Customer Posting Group", xRec."Customer Posting Group", Rec);
-            end;
-#endif
         }
         field(32; "Currency Code"; Code[10])
         {
@@ -281,19 +267,19 @@ table 31000 "Sales Advance Letter Header"
             begin
                 case true of
                     CurrFieldNo <> FieldNo("Currency Code"):
-                        UpdateCurrencyFactor;
+                        UpdateCurrencyFactor();
                     "Currency Code" <> xRec."Currency Code":
                         begin
-                            if LetterLinesExist then
+                            if LetterLinesExist() then
                                 Error(Text006Err, FieldCaption("Currency Code"));
-                            UpdateCurrencyFactor;
+                            UpdateCurrencyFactor();
                             RecreateLines(FieldCaption("Currency Code"));
                         end;
                     "Currency Code" <> '':
                         begin
-                            UpdateCurrencyFactor;
+                            UpdateCurrencyFactor();
                             if "Currency Factor" <> xRec."Currency Factor" then
-                                ConfirmUpdateCurrencyFactor;
+                                ConfirmUpdateCurrencyFactor();
                         end;
                 end;
             end;
@@ -324,11 +310,7 @@ table 31000 "Sales Advance Letter Header"
                   DATABASE::Customer, "Bill-to Customer No.",
                   DATABASE::Campaign, "Campaign No.",
                   DATABASE::"Responsibility Center", "Responsibility Center",
-#if CLEAN18
                   DATABASE::"Customer Templ.", "Bill-to Customer Template Code");
-#else
-                  DATABASE::"Customer Template", "Bill-to Customer Template Code");
-#endif
             end;
 #endif
         }
@@ -360,7 +342,7 @@ table 31000 "Sales Advance Letter Header"
             begin
                 CalcFields(Status);
                 if Status = Status::Open then
-                    Release;
+                    Release();
             end;
 #endif
         }
@@ -593,7 +575,7 @@ table 31000 "Sales Advance Letter Header"
 
             trigger OnLookup()
             begin
-                ShowDocDim;
+                ShowDocDim();
             end;
 
             trigger OnValidate()
@@ -615,32 +597,20 @@ table 31000 "Sales Advance Letter Header"
                   DATABASE::Customer, "Bill-to Customer No.",
                   DATABASE::"Salesperson/Purchaser", "Salesperson Code",
                   DATABASE::"Responsibility Center", "Responsibility Center",
-#if CLEAN18
                   DATABASE::"Customer Templ.", "Bill-to Customer Template Code");
-#else
-                  DATABASE::"Customer Template", "Bill-to Customer Template Code");
-#endif
             end;
 #endif
         }
         field(5054; "Bill-to Customer Template Code"; Code[10])
         {
             Caption = 'Bill-to Customer Template Code';
-#if CLEAN18
             TableRelation = "Customer Templ.";
-#else
-            TableRelation = "Customer Template";
-#endif
 #if not CLEAN19
 
             trigger OnValidate()
             begin
                 CreateDim(
-#if CLEAN18
                   DATABASE::"Customer Templ.", "Bill-to Customer Template Code",
-#else
-                  DATABASE::"Customer Template", "Bill-to Customer Template Code",
-#endif
                   DATABASE::"Salesperson/Purchaser", "Salesperson Code",
                   DATABASE::Customer, "Bill-to Customer No.",
                   DATABASE::Campaign, "Campaign No.",
@@ -659,32 +629,16 @@ table 31000 "Sales Advance Letter Header"
                 if not UserSetupMgt.CheckRespCenter(0, "Responsibility Center") then
                     Error(
                       RespCenterErr,
-                      RespCenter.TableCaption, UserSetupMgt.GetSalesFilter);
+                      RespCenter.TableCaption(), UserSetupMgt.GetSalesFilter());
 
-#if CLEAN18
                 GetBankInfoFromRespCenter();
-#else
-                if RespCenter.Get("Responsibility Center") then begin
-                    "Bank Account Code" := RespCenter."Bank Account Code";
-                    "Bank Account No." := RespCenter."Bank Account No.";
-                    "Bank Branch No." := RespCenter."Bank Branch No.";
-                    "Bank Name" := RespCenter."Bank Name";
-                    "Transit No." := RespCenter."Transit No.";
-                    IBAN := RespCenter.IBAN;
-                    "SWIFT Code" := RespCenter."SWIFT Code";
-                end;
-#endif
 
                 CreateDim(
                   DATABASE::"Responsibility Center", "Responsibility Center",
                   DATABASE::Customer, "Bill-to Customer No.",
                   DATABASE::"Salesperson/Purchaser", "Salesperson Code",
                   DATABASE::Campaign, "Campaign No.",
-#if CLEAN18
                   DATABASE::"Customer Templ.", "Bill-to Customer Template Code");
-#else
-                  DATABASE::"Customer Template", "Bill-to Customer Template Code");
-#endif
             end;
 #endif
         }
@@ -714,9 +668,6 @@ table 31000 "Sales Advance Letter Header"
                 "Bank Account No." := BankAcc."Bank Account No.";
                 "Bank Branch No." := BankAcc."Bank Branch No.";
                 "Bank Name" := BankAcc.Name;
-#if not CLEAN18
-                "Specific Symbol" := BankAcc."Specific Symbol";
-#endif
                 "Transit No." := BankAcc."Transit No.";
                 IBAN := BankAcc.IBAN;
                 "SWIFT Code" := BankAcc."SWIFT Code";
@@ -746,9 +697,6 @@ table 31000 "Sales Advance Letter Header"
         {
             Caption = 'Constant Symbol';
             CharAllowed = '09';
-#if not CLEAN18
-            TableRelation = "Constant Symbol";
-#endif
         }
         field(11706; "Transit No."; Text[20])
         {
@@ -821,7 +769,7 @@ table 31000 "Sales Advance Letter Header"
                 if "Amounts Including VAT" <> xRec."Amounts Including VAT" then begin
                     CalcFields(Status);
                     TestField(Status, Status::Open);
-                    if LetterLinesExist then
+                    if LetterLinesExist() then
                         Error(Text006Err, FieldCaption("Amounts Including VAT"));
                 end;
             end;
@@ -978,7 +926,7 @@ table 31000 "Sales Advance Letter Header"
         if not UserSetupMgt.CheckRespCenter(0, "Responsibility Center") then
             Error(
               RespCenterDeleteErr,
-              RespCenter.TableCaption, UserSetupMgt.GetSalesFilter);
+              RespCenter.TableCaption(), UserSetupMgt.GetSalesFilter());
 
         Validate("Incoming Document Entry No.", 0);
 
@@ -1003,7 +951,7 @@ table 31000 "Sales Advance Letter Header"
             until AdvanceLetterLineRelation.Next() = 0;
         end;
 
-        DeleteLetterLines;
+        DeleteLetterLines();
 
         SalesCommentLine.SetRange("Document Type", SalesCommentLine."Document Type"::"Advance Letter");
         SalesCommentLine.SetRange("No.", "No.");
@@ -1018,7 +966,7 @@ table 31000 "Sales Advance Letter Header"
         if "Template Code" <> '' then
             SalesAdvPmtTemplate.Get("Template Code");
         if "Document Date" = 0D then
-            "Document Date" := WorkDate;
+            "Document Date" := WorkDate();
 
         if "No." = '' then
             if "Template Code" <> '' then begin
@@ -1031,7 +979,7 @@ table 31000 "Sales Advance Letter Header"
                 NoSeriesMgt.InitSeries(SalesSetup."Advance Letter Nos.", xRec."No. Series", "Document Date", "No.", "No. Series");
             end;
 
-        InitRecord;
+        InitRecord();
 
         if GetFilter("Bill-to Customer No.") <> '' then
             if GetRangeMin("Bill-to Customer No.") = GetRangeMax("Bill-to Customer No.") then
@@ -1138,11 +1086,11 @@ table 31000 "Sales Advance Letter Header"
         OldDimSetID := "Dimension Set ID";
         DimMgt.ValidateShortcutDimValues(FieldNo, ShortcutDimCode, "Dimension Set ID");
         if "No." <> '' then
-            Modify;
+            Modify();
 
         if OldDimSetID <> "Dimension Set ID" then begin
-            Modify;
-            if LetterLinesExist then
+            Modify();
+            if LetterLinesExist() then
                 UpdateAllLineDim("Dimension Set ID", OldDimSetID);
         end;
     end;
@@ -1158,8 +1106,8 @@ table 31000 "Sales Advance Letter Header"
             "Dimension Set ID", StrSubstNo('%1', "No."),
             "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
         if OldDimSetID <> "Dimension Set ID" then begin
-            Modify;
-            if LetterLinesExist then
+            Modify();
+            if LetterLinesExist() then
                 UpdateAllLineDim("Dimension Set ID", OldDimSetID);
         end;
     end;
@@ -1195,10 +1143,10 @@ table 31000 "Sales Advance Letter Header"
     procedure InitRecord()
     begin
         if "Document Date" = 0D then
-            "Document Date" := WorkDate;
+            "Document Date" := WorkDate();
         SalesSetup.Get();
         if "Posting Date" = 0D then
-            "Posting Date" := WorkDate;
+            "Posting Date" := WorkDate();
         if SalesSetup."Default Posting Date" = SalesSetup."Default Posting Date"::"No Date" then
             "Posting Date" := 0D;
         "Posting Description" := TableCaption + ' ' + "No.";
@@ -1213,7 +1161,7 @@ table 31000 "Sales Advance Letter Header"
         end;
         "Responsibility Center" := UserSetupMgt.GetRespCenter(0, "Responsibility Center");
 
-        UpdateBankInfo;
+        UpdateBankInfo();
         OnAfterInitRecord(Rec);
     end;
 
@@ -1267,8 +1215,8 @@ table 31000 "Sales Advance Letter Header"
               Rec, CurrFieldNo, TableID, No, SourceCodeSetup.Sales,
               "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
 
-        if (OldDimSetID <> "Dimension Set ID") and LetterLinesExist then begin
-            Modify;
+        if (OldDimSetID <> "Dimension Set ID") and LetterLinesExist() then begin
+            Modify();
             UpdateAllLineDim("Dimension Set ID", OldDimSetID);
         end;
     end;
@@ -1280,7 +1228,7 @@ table 31000 "Sales Advance Letter Header"
     begin
         SalesAdvanceLetterLine.Reset();
         SalesAdvanceLetterLine.SetRange("Letter No.", "No.");
-        exit(SalesAdvanceLetterLine.FindFirst);
+        exit(SalesAdvanceLetterLine.FindFirst())
     end;
 
     [Scope('OnPrem')]
@@ -1310,11 +1258,11 @@ table 31000 "Sales Advance Letter Header"
         BankOperationsFunctions: Codeunit "Bank Operations Functions";
     begin
         OnBeforeReleaseSalesAdvanceLetter(Rec);
-        OnCheckSalesAdvanceLetterReleaseRestrictions;
+        OnCheckSalesAdvanceLetterReleaseRestrictions();
 
         if ("Variable Symbol" = '') and (not BankAccount.IsEmpty) then begin
             "Variable Symbol" := BankOperationsFunctions.CreateVariableSymbol("No.");
-            Modify;
+            Modify();
         end;
 
         TestField("Post Advance VAT Option");
@@ -1373,7 +1321,7 @@ table 31000 "Sales Advance Letter Header"
         then
             Error(ApprovalProcessReleaseErr);
 
-        Release;
+        Release();
     end;
 
     [Scope('OnPrem')]
@@ -1382,7 +1330,7 @@ table 31000 "Sales Advance Letter Header"
         if Status = Status::"Pending Approval" then
             Error(ApprovalProcessReopenErr);
 
-        Reopen;
+        Reopen();
     end;
 
     [Scope('OnPrem')]
@@ -1429,7 +1377,7 @@ table 31000 "Sales Advance Letter Header"
     begin
         Date := "Document Date";
         if Date = 0D then
-            Date := WorkDate;
+            Date := WorkDate();
 
         CalcFields("Amount To Link");
         exit(Round(CurrExchRate.ExchangeAmtFCYToLCY(Date,
@@ -1449,7 +1397,7 @@ table 31000 "Sales Advance Letter Header"
         if IsClosed <> Closed then begin
             Closed := IsClosed;
             if ToModify then
-                Modify;
+                Modify();
         end;
     end;
 
@@ -1458,7 +1406,7 @@ table 31000 "Sales Advance Letter Header"
         if "Currency Code" <> '' then begin
             CurrencyDate := "Posting Date";
             if CurrencyDate = 0D then
-                CurrencyDate := WorkDate;
+                CurrencyDate := WorkDate();
             "Currency Factor" := CurrExchRate.ExchangeRate(CurrencyDate, "Currency Code");
         end else
             "Currency Factor" := 0;
@@ -1521,7 +1469,7 @@ table 31000 "Sales Advance Letter Header"
         RecRef: RecordRef;
         xRecRef: RecordRef;
     begin
-        if LetterLinesExist then begin
+        if LetterLinesExist() then begin
             if HideValidationDialog or not GuiAllowed then
                 Confirmed := true
             else
@@ -1531,7 +1479,7 @@ table 31000 "Sales Advance Letter Header"
             if Confirmed then begin
                 SalesAdvanceLetterLinegre.LockTable();
                 xRecRef.GetTable(xRec);
-                Modify;
+                Modify();
                 RecRef.GetTable(Rec);
 
                 SalesAdvanceLetterLinegre.Reset();
@@ -1569,30 +1517,15 @@ table 31000 "Sales Advance Letter Header"
     [Scope('OnPrem')]
     procedure UpdateBankInfo()
     begin
-#if CLEAN18
-        if GetBankInfoFromRespCenter() then begin
-#else
-        if RespCenter.Get("Responsibility Center") then begin
-            "Bank Account Code" := RespCenter."Bank Account Code";
-            "Bank Account No." := RespCenter."Bank Account No.";
-            "Bank Branch No." := RespCenter."Bank Branch No.";
-            "Bank Name" := RespCenter."Bank Name";
-            "Transit No." := RespCenter."Transit No.";
-            IBAN := RespCenter.IBAN;
-            "SWIFT Code" := RespCenter."SWIFT Code";
-#endif
-        end else begin
-            CompanyInfo.Get();
-            "Bank Account Code" := CompanyInfo."Default Bank Account Code";
-            "Bank Account No." := CompanyInfo."Bank Account No.";
-            "Bank Branch No." := CompanyInfo."Bank Branch No.";
-            "Bank Name" := CompanyInfo."Bank Name";
-            IBAN := CompanyInfo.IBAN;
-            "SWIFT Code" := CompanyInfo."SWIFT Code";
-        end;
+        CompanyInfo.Get();
+        "Bank Account Code" := CompanyInfo."Default Bank Account Code";
+        "Bank Account No." := CompanyInfo."Bank Account No.";
+        "Bank Branch No." := CompanyInfo."Bank Branch No.";
+        "Bank Name" := CompanyInfo."Bank Name";
+        IBAN := CompanyInfo.IBAN;
+        "SWIFT Code" := CompanyInfo."SWIFT Code";
     end;
 
-#if CLEAN18
     local procedure GetBankInfoFromRespCenter(): Boolean
     var
         BankAcc: Record "Bank Account";
@@ -1619,7 +1552,6 @@ table 31000 "Sales Advance Letter Header"
         exit(true);
     end;
 
-#endif
     [Scope('OnPrem')]
     procedure CancelAllRelations()
     var
@@ -1646,9 +1578,9 @@ table 31000 "Sales Advance Letter Header"
     [Scope('OnPrem')]
     procedure SetSecurityFilterOnRespCenter()
     begin
-        if UserSetupMgt.GetSalesFilter <> '' then begin
+        if UserSetupMgt.GetSalesFilter() <> '' then begin
             FilterGroup(2);
-            SetRange("Responsibility Center", UserSetupMgt.GetSalesFilter);
+            SetRange("Responsibility Center", UserSetupMgt.GetSalesFilter());
             FilterGroup(0);
         end;
     end;
@@ -1675,8 +1607,8 @@ table 31000 "Sales Advance Letter Header"
             exit;
 
         if Customer.Get("Bill-to Customer No.") then
-            if HasBillToAddress and HasDifferentBillToAddress(Customer) then
-                ShowModifyAddressNotification(GetModifyBillToCustomerAddressNotificationId,
+            if HasBillToAddress() and HasDifferentBillToAddress(Customer) then
+                ShowModifyAddressNotification(GetModifyBillToCustomerAddressNotificationId(),
                     ModifyCustomerAddressNotificationLbl, ModifyCustomerAddressNotificationMsg,
                     'CopyBillToCustomerAddressFieldsFromSalesAdvDocument', "Bill-to Customer No.",
                     "Bill-to Name", FieldName("Bill-to Customer No."));
@@ -1712,7 +1644,7 @@ table 31000 "Sales Advance Letter Header"
         ModifyCustomerAddressNotification: Notification;
     begin
         if not MyNotifications.Get(UserId, NotificationID) then
-            PageMyNotifications.InitializeNotificationsWithDefaultState;
+            PageMyNotifications.InitializeNotificationsWithDefaultState();
 
         if not MyNotifications.IsEnabled(NotificationID) then
             exit;

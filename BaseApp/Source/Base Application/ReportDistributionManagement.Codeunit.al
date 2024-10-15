@@ -47,7 +47,7 @@ codeunit 452 "Report Distribution Management"
             repeat
                 OnVANDocumentReportOnBeforeLoopIteration(RecordRef, HeaderDoc);
                 SpecificRecordRef.Get(RecordRef.RecordId);
-                SpecificRecordRef.SetRecFilter;
+                SpecificRecordRef.SetRecFilter();
                 ElectronicDocumentFormat.SendElectronically(
                     TempBlob, ClientFileName, SpecificRecordRef, TempDocumentSendingProfile."Electronic Format");
                 if ElectronicDocumentFormat."Delivery Codeunit ID" = 0 then
@@ -560,7 +560,7 @@ codeunit 452 "Report Distribution Management"
             DataCompression.OpenZipArchive(FileContentInStream, true);
             ClientZipFileName := ClientFileName;
         end else begin
-            DataCompression.CreateZipArchive;
+            DataCompression.CreateZipArchive();
             DataCompression.AddEntry(FileContentInStream, ClientFileName);
             ClientZipFileName := CopyStr(FileManagement.GetFileNameWithoutExtension(ClientFileName) + '.zip', 1, 250);
         end;
@@ -584,13 +584,13 @@ codeunit 452 "Report Distribution Management"
             DataCompression.OpenZipArchive(ServerFileInStream, true);
             ClientZipFileName := ClientFileName;
         end else begin
-            DataCompression.CreateZipArchive;
+            DataCompression.CreateZipArchive();
             FileManagement.BLOBImportFromServerFile(ServerTempBlob, ServerFilePath);
             ServerTempBlob.CreateInStream(ServerFileInStream);
             DataCompression.AddEntry(ServerFileInStream, ClientFileName);
             ClientZipFileName := CopyStr(FileManagement.GetFileNameWithoutExtension(ClientFileName) + '.zip', 1, 250);
         end;
-        ServerFile.Close;
+        ServerFile.Close();
     end;
 #endif
     [IntegrationEvent(false, false)]

@@ -605,7 +605,7 @@ codeunit 134984 "ERM Sales Report III"
             true, false, CreateCurrencyAndExchangeRate);
         Currency.Get(SalesLine."Currency Code");
         VATAmount := Round(VATAmount, Currency."Invoice Rounding Precision");
-        VATAmountLCY := LibraryERM.ConvertCurrency(Round(VATAmount, Currency."Invoice Rounding Precision"), Currency.Code, '', WorkDate);
+        VATAmountLCY := LibraryERM.ConvertCurrency(Round(VATAmount, Currency."Invoice Rounding Precision"), Currency.Code, '', WorkDate());
 
         // Verify: Verify Saved Report Data with Print Amount LCY FALSE.
         VerifyAgedAccountsRecReport(PostedDocNo, SalesLine."Sell-to Customer No.", VATAmount, VATAmount,
@@ -702,8 +702,8 @@ codeunit 134984 "ERM Sales Report III"
         Initialize();
         InvoiceAmount := LibraryRandom.RandDec(100, 2);
         CreateAndPostGenJournalLines(GenJournalLine, InvoiceAmount, -InvoiceAmount / 2, CreateCustomerWithCurrency, '');
-        InvAmountLCY := LibraryERM.ConvertCurrency(InvoiceAmount, GenJournalLine."Currency Code", '', WorkDate);
-        PmtAmountLCY := LibraryERM.ConvertCurrency(GenJournalLine.Amount, GenJournalLine."Currency Code", '', WorkDate);
+        InvAmountLCY := LibraryERM.ConvertCurrency(InvoiceAmount, GenJournalLine."Currency Code", '', WorkDate());
+        PmtAmountLCY := LibraryERM.ConvertCurrency(GenJournalLine.Amount, GenJournalLine."Currency Code", '', WorkDate());
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, GenJournalLine."Document Type"::Invoice, GenJournalLine."Document No.");
 
         // Exercise: Save Customer Balance To Date Report with Show Amount in LCY Option Checked.
@@ -838,7 +838,7 @@ codeunit 134984 "ERM Sales Report III"
           GenJournalLine."Account Type"::Customer, Customer."No.", LibraryRandom.RandDec(100, 2)); // Take Random Amount.
 
         // In Bug 215283,Invoice should be made before the Payment is posted.Hence, taking Random Date before the workdate.
-        GenJournalLine.Validate("Posting Date", CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate));
+        GenJournalLine.Validate("Posting Date", CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate()));
         GenJournalLine.Modify(true);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
@@ -853,7 +853,7 @@ codeunit 134984 "ERM Sales Report III"
 
         // Exercise: Save Aged Accounts Receivables Report.
         Evaluate(PeriodLength, '<' + Format(LibraryRandom.RandInt(5)) + 'M>'); // Take Random value for Period length.
-        Customer.SetRecFilter;
+        Customer.SetRecFilter();
         Commit();
         SaveAgedAccountsReceivable(
           Customer, AgingBy::"Due Date", HeadingType::"Date Interval", PeriodLength, false, false);
@@ -917,7 +917,7 @@ codeunit 134984 "ERM Sales Report III"
         repeat
             UpdateSalesPrepmtAccount(GLAccount."No.", SalesLine."Gen. Bus. Posting Group", SalesLine."Gen. Prod. Posting Group");
             PrepaymentTotalAmount += SalesLine."Prepmt. Line Amount";
-        until SalesLine.Next = 0;
+        until SalesLine.Next() = 0;
 
         VATAmount := PrepaymentTotalAmount * VATPercent / 100;
         SalesPostPrepayments.Invoice(SalesHeader);
@@ -953,7 +953,7 @@ codeunit 134984 "ERM Sales Report III"
         Statement.SetTableView(Customer);
         Statement.InitializeRequest(
           false, false, true, false, false, false, '<' + Format(LibraryRandom.RandInt(5)) + 'M>',
-          DateChoice::"Due Date", true, WorkDate, WorkDate);
+          DateChoice::"Due Date", true, WorkDate(), WorkDate());
         Commit();
         Statement.Run();
 
@@ -1295,15 +1295,15 @@ codeunit 134984 "ERM Sales Report III"
         Initialize();
 
         // [GIVEN] Customer with payment of Amount = -150
-        MockCustLedgerEntry(CustLedgerEntry, LibrarySales.CreateCustomerNo, -LibraryRandom.RandDec(100, 2), WorkDate);
+        MockCustLedgerEntry(CustLedgerEntry, LibrarySales.CreateCustomerNo, -LibraryRandom.RandDec(100, 2), WorkDate());
 
         // [GIVEN] Closed Customer Ledger Entry on 31.12.15 with Amount = 100
         // [GIVEN] Application dtld. cust. ledger entries of Amount = -100 applied on 31.12.15 and unapplied on 01.01.16
         // [GIVEN] Application dtld. cust. ledger entry with Amount = -100 on 01.01.16
-        Amount := MockApplyUnapplyScenario(CustLedgerEntry."Customer No.", WorkDate, WorkDate + 1, WorkDate + 1);
+        Amount := MockApplyUnapplyScenario(CustLedgerEntry."Customer No.", WorkDate(), WorkDate + 1, WorkDate + 1);
 
         // [WHEN] Save Customer Balance To Data report on 31.12.15 with Include Unapplied Entries = No
-        RunCustomerBalanceToDateWithCustomer(CustLedgerEntry."Customer No.", false, WorkDate);
+        RunCustomerBalanceToDateWithCustomer(CustLedgerEntry."Customer No.", false, WorkDate());
 
         // [THEN] Payment Entry of -150 is printed, 100 is not printed, Total Amount = -150
         // [THEN] Applied Entry (01.01.16) of 100 is not printed. Initial TFSID 231621
@@ -1322,22 +1322,22 @@ codeunit 134984 "ERM Sales Report III"
         Initialize();
 
         // [GIVEN] Customer with payment of Amount = -150
-        MockCustLedgerEntry(CustLedgerEntry, LibrarySales.CreateCustomerNo, -LibraryRandom.RandDec(100, 2), WorkDate);
+        MockCustLedgerEntry(CustLedgerEntry, LibrarySales.CreateCustomerNo, -LibraryRandom.RandDec(100, 2), WorkDate());
 
         // [GIVEN] Closed Customer Ledger Entry on 31.12.15 with Amount = 100
         // [GIVEN] Application dtld. cust. ledger entries of Amount = -100 applied on 31.12.15 and unapplied on 01.01.16
         // [GIVEN] Application dtld. cust. ledger entry with Amount = -100 on 01.01.16
-        Amount := MockApplyUnapplyScenario(CustLedgerEntry."Customer No.", WorkDate, WorkDate + 1, WorkDate + 1);
+        Amount := MockApplyUnapplyScenario(CustLedgerEntry."Customer No.", WorkDate(), WorkDate + 1, WorkDate + 1);
 
         // [WHEN] Save Customer Balance To Data report on 31.12.15 with Include Unapplied Entries = Yes
-        RunCustomerBalanceToDateWithCustomer(CustLedgerEntry."Customer No.", true, WorkDate);
+        RunCustomerBalanceToDateWithCustomer(CustLedgerEntry."Customer No.", true, WorkDate());
 
         // [THEN] Payment Entry of -150 is printed, 100 is printed with 0 balance, Total Amount = -150
         // [THEN] Applied Entry (01.01.16) of 100 is not printed. Initial TFSID 231621
         VerifyCustomerBalanceToDateTwoEntriesExist(
           CustLedgerEntry."Customer No.", CustLedgerEntry.Amount, Amount, CustLedgerEntry.Amount);
         // [THEN] Applied Entry (31.12.15) is printed. Initial TFSID 231621
-        LibraryReportDataset.AssertElementWithValueExists('postDt_DtldCustLedgEntry', Format(WorkDate));
+        LibraryReportDataset.AssertElementWithValueExists('postDt_DtldCustLedgEntry', Format(WorkDate()));
     end;
 
     [Test]
@@ -1352,15 +1352,15 @@ codeunit 134984 "ERM Sales Report III"
         Initialize();
 
         // [GIVEN] Customer with payment of Amount = -150
-        MockCustLedgerEntry(CustLedgerEntry, LibrarySales.CreateCustomerNo, -LibraryRandom.RandDec(100, 2), WorkDate);
+        MockCustLedgerEntry(CustLedgerEntry, LibrarySales.CreateCustomerNo, -LibraryRandom.RandDec(100, 2), WorkDate());
 
         // [GIVEN] Closed Customer Ledger Entry on 31.12.15 with Amount = 100
         // [GIVEN] Application dtld. cust. ledger entries of Amount = -100 applied on 31.12.15 and unapplied on 31.12.15
         // [GIVEN] Application dtld. cust. ledger entry with Amount = -100 on 01.01.16
-        Amount := MockApplyUnapplyScenario(CustLedgerEntry."Customer No.", WorkDate, WorkDate, WorkDate + 1);
+        Amount := MockApplyUnapplyScenario(CustLedgerEntry."Customer No.", WorkDate(), WorkDate, WorkDate + 1);
 
         // [WHEN] Save Customer Balance To Data report on 31.12.15 with Include Unapplied Entries = No
-        RunCustomerBalanceToDateWithCustomer(CustLedgerEntry."Customer No.", false, WorkDate);
+        RunCustomerBalanceToDateWithCustomer(CustLedgerEntry."Customer No.", false, WorkDate());
 
         // [THEN] Payment Entry of -150 is printed, 100 is printed, Total Amount = -50
         // [THEN] Applied Entry (01.01.16) of 100 is not printed. Initial TFSID 231621
@@ -1381,17 +1381,17 @@ codeunit 134984 "ERM Sales Report III"
 
         // [GIVEN] Customer with payment of Amount = -150
         PmtAmount := -LibraryRandom.RandDec(100, 2);
-        MockCustLedgerEntry(CustLedgerEntry, LibrarySales.CreateCustomerNo, PmtAmount, WorkDate);
+        MockCustLedgerEntry(CustLedgerEntry, LibrarySales.CreateCustomerNo, PmtAmount, WorkDate());
 
         // [GIVEN] Closed Customer Ledger Entry on 30.12.15 with Amount = 100
-        MockCustLedgerEntry(CustLedgerEntry, CustLedgerEntry."Customer No.", LibraryRandom.RandDec(100, 2), WorkDate - 1);
+        MockCustLedgerEntry(CustLedgerEntry, CustLedgerEntry."Customer No.", LibraryRandom.RandDec(100, 2), WorkDate() - 1);
 
         // [GIVEN] Application dtld. cust. ledger entry with Amount = -100 on 31.12.15
-        MockDtldCustLedgEntry(CustLedgerEntry."Customer No.", CustLedgerEntry."Entry No.", -CustLedgerEntry.Amount, false, WorkDate);
+        MockDtldCustLedgEntry(CustLedgerEntry."Customer No.", CustLedgerEntry."Entry No.", -CustLedgerEntry.Amount, false, WorkDate());
         UpdateOpenOnCustLedgerEntry(CustLedgerEntry."Entry No.");
 
         // [WHEN] Save Customer Balance To Data report on 31.12.15 with Include Unapplied Entries = No
-        RunCustomerBalanceToDateWithCustomer(CustLedgerEntry."Customer No.", false, WorkDate);
+        RunCustomerBalanceToDateWithCustomer(CustLedgerEntry."Customer No.", false, WorkDate());
 
         // [THEN] Payment Entry of -150 is printed, 100 is not printed, Total Amount = -150
         VerifyCustomerBalanceToDateDoesNotExist(CustLedgerEntry."Customer No.", PmtAmount, CustLedgerEntry.Amount);
@@ -1504,7 +1504,7 @@ codeunit 134984 "ERM Sales Report III"
         // [GIVEN] Report 130 "EC Sales List" request page
         // [GIVEN] Type filter for VAT Entry "Posting Date"  = "01-01-2120" (on a date with no data)
         // [WHEN] Run the report
-        DummyVATEntry.SetRange("Posting Date", DMY2Date(1, 1, Date2DMY(WorkDate, 3) + 10), DMY2Date(31, 1, Date2DMY(WorkDate, 3) + 10));
+        DummyVATEntry.SetRange("Posting Date", DMY2Date(1, 1, Date2DMY(WorkDate(), 3) + 10), DMY2Date(31, 1, Date2DMY(WorkDate(), 3) + 10));
         REPORT.SaveAsExcel(REPORT::"EC Sales List", LibraryReportValidation.GetFileName, DummyVATEntry);
 
         // [THEN] The report has been printed
@@ -1590,7 +1590,7 @@ codeunit 134984 "ERM Sales Report III"
         I: Integer;
     begin
         // [FEATURE] [Performance] [Aged Accounts Receivable] [Date-Time] [Time Zone]
-        // [SCENARIO 235531] TypeHelper.GetFormattedCurrentDateTimeInUserTimeZone and COMPANYPROPERTY.DISPLAYNAME are called once for Aged Accounts Receivable report when multiple entries are processed
+        // [SCENARIO 235531] TypeHelper.GetFormattedCurrentDateTimeInUserTimeZone and COMPANYPROPERTY.DisplayName() are called once for Aged Accounts Receivable report when multiple entries are processed
         Initialize();
 
         // [GIVEN] Post 2 Sales Invoices
@@ -1604,13 +1604,13 @@ codeunit 134984 "ERM Sales Report III"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // [WHEN] Run Aged Accounts Receivable
-        Customer.SetRecFilter;
+        Customer.SetRecFilter();
         Evaluate(PeriodLength, '<1M>');
         CodeCoverageMgt.StartApplicationCoverage;
         SaveAgedAccountsReceivable(Customer, AgingBy::"Posting Date", HeadingType::"Date Interval", PeriodLength, false, false);
         CodeCoverageMgt.StopApplicationCoverage;
 
-        // [THEN] COMPANYPROPERTY.DISPLAYNAME is called once
+        // [THEN] COMPANYPROPERTY.DisplayName() is called once
         VerifyAgedAccountsReceivableNoOfHitsCodeCoverage('COMPANYPROPERTY.DISPLAYNAME', 1);
     end;
 
@@ -1684,7 +1684,7 @@ codeunit 134984 "ERM Sales Report III"
         Commit();
         AnalysisReport.SetParameters(
           AnalysisLine[1]."Analysis Area"::Sales, AnalysisReportName.Name, AnalysisLineTemplate.Name, AnalysisColumnTemplate.Name);
-        AnalysisReport.SetFilters(Format(WorkDate), '', '', '', '', '', 0, '');
+        AnalysisReport.SetFilters(Format(WorkDate()), '', '', '', '', '', 0, '');
         AnalysisReport.Run();
 
         // [THEN] Each line is printed only once and has its own format.
@@ -1720,7 +1720,7 @@ codeunit 134984 "ERM Sales Report III"
         LibraryInventory.CreateAnalysisLine(AnalysisLine, AnalysisLine."Analysis Area"::Sales, AnalysisLineTemplate.Name);
 
         // [GIVEN] Set "Date Filter" = '01/01/20..31/12/20' on the analysis line.
-        DateFilter := StrSubstNo('%1..%2', CalcDate('<-CY>', WorkDate), CalcDate('<CY>', WorkDate));
+        DateFilter := StrSubstNo('%1..%2', CalcDate('<-CY>', WorkDate()), CalcDate('<CY>', WorkDate()));
         AnalysisLine.SetFilter("Date Filter", DateFilter);
 
         // [WHEN] Export the analysis report to Excel.
@@ -1826,7 +1826,7 @@ codeunit 134984 "ERM Sales Report III"
         LibrarySales.CreateCustomer(Customer);
         with GenJournalLine[1] do begin
             CreateGenJournalLine(
-              GenJournalLine[1], WorkDate, Customer."No.",
+              GenJournalLine[1], WorkDate(), Customer."No.",
               "Document Type"::Invoice, "Document Type"::" ", '', LibraryRandom.RandIntInRange(500, 1000));
             LibraryERM.PostGeneralJnlLine(GenJournalLine[1]);
 
@@ -1842,7 +1842,7 @@ codeunit 134984 "ERM Sales Report III"
         end;
 
         // [WHEN] "Customer - Balance to Date" report is run
-        Customer.SetRecFilter;
+        Customer.SetRecFilter();
         CustomerBalanceToDate.SetTableView(Customer);
         CustomerBalanceToDate.InitializeRequest(false, false, false, WorkDate + 1);
         Commit();
@@ -2019,10 +2019,10 @@ codeunit 134984 "ERM Sales Report III"
         Customer.Modify();
 
         // [GIVEN] Create and post invoice for Customer "CUST", "Posting Date" = "01.01.2019" and "Due Date" = "01.02.2019"
-        CreatePostSalesInvoiceWithDueDateCalc(Customer."No.", CalcDate('<1M>', WorkDate));
+        CreatePostSalesInvoiceWithDueDateCalc(Customer."No.", CalcDate('<1M>', WorkDate()));
 
         // [WHEN] Run report Aged Accounts Receivable with "Print Details" = "Yes"
-        RunAgedAccountsReceivableWithParameters(Customer, CalcDate('<2M>', WorkDate));
+        RunAgedAccountsReceivableWithParameters(Customer, CalcDate('<2M>', WorkDate()));
 
         // [THEN] Customer "CUST" is printed with Phone No. = "12345", Contact = "CONT"
         LibraryReportDataset.LoadDataSetFile;
@@ -2435,7 +2435,7 @@ codeunit 134984 "ERM Sales Report III"
         // [GIVEN] Sales order at the WMS location, quantity = 10.
         LibrarySales.CreateSalesDocumentWithItem(
           SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', LibraryInventory.CreateItemNo(),
-          LibraryRandom.RandInt(10), Location.Code, WorkDate);
+          LibraryRandom.RandInt(10), Location.Code, WorkDate());
 
         // [WHEN] Print Pro forma invoice.
         RunStandardSalesProformaInvFromOrderPage(SalesHeader);
@@ -2468,7 +2468,7 @@ codeunit 134984 "ERM Sales Report III"
         // [GIVEN] Sales order at the WMS location, quantity = 10.
         LibrarySales.CreateSalesDocumentWithItem(
           SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', LibraryInventory.CreateItemNo(),
-          LibraryRandom.RandInt(10), Location.Code, WorkDate);
+          LibraryRandom.RandInt(10), Location.Code, WorkDate());
         LibrarySales.ReleaseSalesDocument(SalesHeader);
 
         // [GIVEN] Create and post warehouse shipment.
@@ -2562,7 +2562,7 @@ codeunit 134984 "ERM Sales Report III"
         // [GIVEN] Customer "C" with Customer Ledger Entry
         LibrarySales.CreateCustomer(Customer);
         LibraryVariableStorage.Enqueue(Customer."No.");
-        MockCustLedgerEntry(CustLedgerEntry, Customer."No.", -LibraryRandom.RandInt(100), WorkDate);
+        MockCustLedgerEntry(CustLedgerEntry, Customer."No.", -LibraryRandom.RandInt(100), WorkDate());
         Customer.SetRecFilter();
         Commit();
 
@@ -2740,7 +2740,7 @@ codeunit 134984 "ERM Sales Report III"
         // Exercise: Run and save Aged Account Receivable Report with Print Amount LCY = False.
         Evaluate(PeriodLength, '<' + Format(LibraryRandom.RandInt(5)) + 'M>');
         Customer.Get(CustomerNo);
-        Customer.SetRecFilter;
+        Customer.SetRecFilter();
         SaveAgedAccountsReceivable(Customer, AgingBy::"Due Date", HeadingType::"Date Interval", PeriodLength, false, false);
 
         // Verify: Verify the Balance in the report.
@@ -3156,7 +3156,7 @@ codeunit 134984 "ERM Sales Report III"
             "Amount Decimal Places" := AmountDecimalPlaces;
             "Unit-Amount Rounding Precision" := UnitAmountRoundingPrecision;
             "Unit-Amount Decimal Places" := UnitAmountDecimalPlaces;
-            Modify;
+            Modify();
             exit(Code);
         end;
     end;
@@ -3192,7 +3192,7 @@ codeunit 134984 "ERM Sales Report III"
         ShipmentMethod: Record "Shipment Method";
     begin
         with ShipmentMethod do begin
-            Init;
+            Init();
             Code := LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::"Shipment Method");
             Description := LibraryUtility.GenerateGUID();
             Insert(true);
@@ -3379,7 +3379,7 @@ codeunit 134984 "ERM Sales Report III"
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
         Amount := LibraryRandom.RandDec(100, 2);
-        MockCustLedgerEntry(CustLedgerEntry, CustomerNo, Amount, WorkDate);
+        MockCustLedgerEntry(CustLedgerEntry, CustomerNo, Amount, WorkDate());
         MockDtldCustLedgEntry(CustomerNo, CustLedgerEntry."Entry No.", -Amount, true, ApplnDate1);
         MockDtldCustLedgEntry(CustomerNo, CustLedgerEntry."Entry No.", Amount, true, UnapplDate);
         MockDtldCustLedgEntry(CustomerNo, CustLedgerEntry."Entry No.", -Amount, false, ApplnDate2);
@@ -3389,13 +3389,13 @@ codeunit 134984 "ERM Sales Report III"
     local procedure MockCustLedgerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; CustomerNo: Code[20]; EntryAmount: Decimal; PostingDate: Date)
     begin
         with CustLedgerEntry do begin
-            Init;
+            Init();
             "Entry No." := LibraryUtility.GetNewRecNo(CustLedgerEntry, FieldNo("Entry No."));
             "Customer No." := CustomerNo;
             "Posting Date" := PostingDate;
             Amount := EntryAmount;
             Open := true;
-            Insert;
+            Insert();
             MockInitialDtldCustLedgEntry(CustomerNo, "Entry No.", EntryAmount, PostingDate);
         end;
     end;
@@ -3421,7 +3421,7 @@ codeunit 134984 "ERM Sales Report III"
     local procedure MockDtldCLE(var DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; CustomerNo: Code[20]; CustLedgEntryNo: Integer; EntryType: Enum "Detailed CV Ledger Entry Type"; EntryAmount: Decimal; UnappliedEntry: Boolean; PostingDate: Date)
     begin
         with DetailedCustLedgEntry do begin
-            Init;
+            Init();
             "Entry No." := LibraryUtility.GetNewRecNo(DetailedCustLedgEntry, FieldNo("Entry No."));
             "Customer No." := CustomerNo;
             "Entry Type" := EntryType;
@@ -3429,7 +3429,7 @@ codeunit 134984 "ERM Sales Report III"
             "Cust. Ledger Entry No." := CustLedgEntryNo;
             Amount := EntryAmount;
             Unapplied := UnappliedEntry;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -3439,7 +3439,7 @@ codeunit 134984 "ERM Sales Report III"
     begin
         Clear(AgedAccountsReceivable);
         AgedAccountsReceivable.SetTableView(Customer);
-        AgedAccountsReceivable.InitializeRequest(WorkDate, AgingBy, PeriodLength, AmountLCY, PrintDetails, HeadingType, false);
+        AgedAccountsReceivable.InitializeRequest(WorkDate(), AgingBy, PeriodLength, AmountLCY, PrintDetails, HeadingType, false);
         AgedAccountsReceivable.Run();
     end;
 
@@ -3464,7 +3464,7 @@ codeunit 134984 "ERM Sales Report III"
         Clear(CustomerBalanceToDate);
         Customer.SetRange("No.", No);
         CustomerBalanceToDate.SetTableView(Customer);
-        CustomerBalanceToDate.InitializeRequest(AmountInLCY, false, UnappliedEntries, WorkDate);  // Setting False for New Page Per Customer Option.
+        CustomerBalanceToDate.InitializeRequest(AmountInLCY, false, UnappliedEntries, WorkDate());  // Setting False for New Page Per Customer Option.
         Commit();
         CustomerBalanceToDate.Run();
     end;
@@ -3489,7 +3489,7 @@ codeunit 134984 "ERM Sales Report III"
         Clear(AgedAccountsReceivable);
         LibraryVariableStorage.Enqueue(AgedAsOfDate);
 
-        Customer.SetRecFilter;
+        Customer.SetRecFilter();
         AgedAccountsReceivable.SetTableView(Customer);
         AgedAccountsReceivable.Run();
     end;
@@ -3647,7 +3647,7 @@ codeunit 134984 "ERM Sales Report III"
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
         with GeneralLedgerSetup do begin
-            Get;
+            Get();
             Validate("LCY Code", CurrencyCode);
             Modify(true);
         end;
@@ -3673,7 +3673,7 @@ codeunit 134984 "ERM Sales Report III"
             Get(EntryNo);
             CalcFields(Amount);
             Open := Amount <> 0;
-            Modify;
+            Modify();
         end;
     end;
 
@@ -3692,7 +3692,7 @@ codeunit 134984 "ERM Sales Report III"
         CompanyInformation: Record "Company Information";
     begin
         with CompanyInformation do begin
-            Get;
+            Get();
             Validate(Name, LibraryUtility.GenerateGUID());
             Validate("Name 2", LibraryUtility.GenerateGUID());
             Validate(Address, LibraryUtility.GenerateGUID());
@@ -3712,10 +3712,10 @@ codeunit 134984 "ERM Sales Report III"
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
         with GeneralLedgerSetup do begin
-            Get;
+            Get();
             "Unit-Amount Rounding Precision" := 0.00001;
             "Unit-Amount Decimal Places" := '2:5';
-            Modify;
+            Modify();
         end;
     end;
 
@@ -3750,7 +3750,7 @@ codeunit 134984 "ERM Sales Report III"
         Customer.SetRange("Global Dimension 2 Filter", GlobalDimension2Filter);
         Customer.SetRange("Currency Filter", CurrencyFilter);
         CustomerBalanceToDate.SetTableView(Customer);
-        CustomerBalanceToDate.InitializeRequest(false, false, false, WorkDate);
+        CustomerBalanceToDate.InitializeRequest(false, false, false, WorkDate());
         Commit();
         CustomerBalanceToDate.Run();
     end;
@@ -3776,7 +3776,7 @@ codeunit 134984 "ERM Sales Report III"
         SalesOrder.Trap;
         PAGE.Run(PAGE::"Sales Order", SalesHeader);
         SalesOrder.ProformaInvoice.Invoke;
-        SalesOrder.Close;
+        SalesOrder.Close();
     end;
 
     local procedure RunStandardSalesProFormaInv(DocumentNo: Code[20])
@@ -3831,7 +3831,7 @@ codeunit 134984 "ERM Sales Report III"
         Evaluate(PeriodLength, '<' + Format(LibraryRandom.RandInt(5)) + 'M>');
         Customer.SetFilter("Global Dimension 1 Filter", ShortcutDimension1Code);
         Customer.SetFilter("Global Dimension 2 Filter", ShortcutDimension2Code);
-        Customer.SetRecFilter;
+        Customer.SetRecFilter();
     end;
 
     local procedure SetReportSelection(ReportSelectionUsage: Enum "Report Selection Usage"; ReportId: Integer)
@@ -3903,7 +3903,7 @@ codeunit 134984 "ERM Sales Report III"
     begin
         InteractionLogEntry.SetRange("Document Type", DocumentType);
         InteractionLogEntry.SetRange("Document No.", DocumentNo);
-        Assert.IsFalse(InteractionLogEntry.IsEmpty, StrSubstNo(RecordErr, InteractionLogEntry.TableCaption));
+        Assert.IsFalse(InteractionLogEntry.IsEmpty, StrSubstNo(RecordErr, InteractionLogEntry.TableCaption()));
     end;
 
     local procedure VerifyUndoneQuantityInReport(DocumentNo: Code[20])
@@ -3941,7 +3941,7 @@ codeunit 134984 "ERM Sales Report III"
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        LibraryReportDataset.SetRange('PostingDt_CustLedgEntry', Format(WorkDate));
+        LibraryReportDataset.SetRange('PostingDt_CustLedgEntry', Format(WorkDate()));
         LibraryReportDataset.SetRange('DocType_CustLedgEntry', Format(GenJournalLine."Document Type"::Invoice));
         LibraryReportDataset.SetRange('DocType_DtldCustLedgEntry', Format(GenJournalLine."Document Type"::Payment));
         LibraryReportDataset.GetNextRow;
@@ -3961,7 +3961,7 @@ codeunit 134984 "ERM Sales Report III"
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
         AutoFormat: Codeunit "Auto Format";
     begin
-        LibraryReportDataset.SetRange('PostingDt_CustLedgEntry', Format(WorkDate));
+        LibraryReportDataset.SetRange('PostingDt_CustLedgEntry', Format(WorkDate()));
         LibraryReportDataset.SetRange('DocType_CustLedgEntry', Format(GenJournalLine."Document Type"::Payment));
         LibraryReportDataset.SetRange('EntType_DtldCustLedgEnt', Format(DetailedCustLedgEntry."Entry Type"::"Payment Discount"));
         LibraryReportDataset.GetNextRow;
@@ -4057,7 +4057,7 @@ codeunit 134984 "ERM Sales Report III"
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
         ItemLedgerEntry.SetRange("Document No.", DocumentNo);
-        VerifyDocumentEntries(ItemLedgerEntry.TableCaption, ItemLedgerEntry.Count);
+        VerifyDocumentEntries(ItemLedgerEntry.TableCaption(), ItemLedgerEntry.Count);
         VerifyValueEntry(DocumentNo);
     end;
 
@@ -4069,13 +4069,13 @@ codeunit 134984 "ERM Sales Report III"
         VATEntry: Record "VAT Entry";
     begin
         GLEntry.SetRange("Document No.", DocumentNo);
-        VerifyDocumentEntries(GLEntry.TableCaption, GLEntry.Count);
+        VerifyDocumentEntries(GLEntry.TableCaption(), GLEntry.Count);
         CustLedgerEntry.SetRange("Document No.", DocumentNo);
-        VerifyDocumentEntries(CustLedgerEntry.TableCaption, CustLedgerEntry.Count);
+        VerifyDocumentEntries(CustLedgerEntry.TableCaption(), CustLedgerEntry.Count);
         DetailedCustLedgEntry.SetRange("Document No.", DocumentNo);
-        VerifyDocumentEntries(DetailedCustLedgEntry.TableCaption, DetailedCustLedgEntry.Count);
+        VerifyDocumentEntries(DetailedCustLedgEntry.TableCaption(), DetailedCustLedgEntry.Count);
         VATEntry.SetRange("Document No.", DocumentNo);
-        VerifyDocumentEntries(VATEntry.TableCaption, VATEntry.Count);
+        VerifyDocumentEntries(VATEntry.TableCaption(), VATEntry.Count);
         VerifyValueEntry(DocumentNo);
     end;
 
@@ -4134,7 +4134,7 @@ codeunit 134984 "ERM Sales Report III"
         ValueEntry: Record "Value Entry";
     begin
         ValueEntry.SetRange("Document No.", DocumentNo);
-        VerifyDocumentEntries(ValueEntry.TableCaption, ValueEntry.Count);
+        VerifyDocumentEntries(ValueEntry.TableCaption(), ValueEntry.Count);
     end;
 
     local procedure VerifyXMLReport(XmlElementCaption: Text; XmlValue: Text; ValidateCaption: Text; ValidateValue: Decimal)
@@ -4160,7 +4160,7 @@ codeunit 134984 "ERM Sales Report III"
         CustLedgerEntry.FindFirst();
         CustLedgerEntry.CalcFields(Amount);
 
-        LibraryReportDataset.SetRange('PostingDt_CustLedgEntry', Format(WorkDate));
+        LibraryReportDataset.SetRange('PostingDt_CustLedgEntry', Format(WorkDate()));
         LibraryReportDataset.SetRange('DocType_CustLedgEntry', Format(GenJournalLine."Document Type"::Invoice));
         LibraryReportDataset.GetNextRow;
         LibraryReportDataset.AssertCurrentRowValueEquals('OriginalAmt', Format(CustLedgerEntry.Amount));
@@ -4280,10 +4280,10 @@ codeunit 134984 "ERM Sales Report III"
             LibraryReportDataset.AssertCurrentRowValueEquals('YourReference', "Your Reference");
             LibraryReportDataset.AssertCurrentRowValueEquals('ExternalDocumentNo', "External Document No.");
             LibraryReportDataset.AssertCurrentRowValueEquals('DocumentNo', "No.");
-            LibraryReportDataset.AssertCurrentRowValueEquals('CompanyLegalOffice', CompanyInformation.GetLegalOffice);
+            LibraryReportDataset.AssertCurrentRowValueEquals('CompanyLegalOffice', CompanyInformation.GetLegalOffice());
             LibraryReportDataset.AssertCurrentRowValueEquals('SalesPersonName', "Salesperson Code");
             LibraryReportDataset.AssertCurrentRowValueEquals('ShipmentMethodDescription', ShipmentMethod.Description);
-            LibraryReportDataset.AssertCurrentRowValueEquals('Currency', LibraryERM.GetLCYCode);
+            LibraryReportDataset.AssertCurrentRowValueEquals('Currency', LibraryERM.GetLCYCode());
             LibraryReportDataset.AssertCurrentRowValueEquals('CustomerVATRegNo', Customer."VAT Registration No.");
         end;
 
@@ -4580,8 +4580,8 @@ codeunit 134984 "ERM Sales Report III"
     [Scope('OnPrem')]
     procedure StatementRequestPageHandler(var StatementRequestPage: TestRequestPage Statement)
     begin
-        StatementRequestPage."Start Date".SetValue(WorkDate);
-        StatementRequestPage."End Date".SetValue(WorkDate);
+        StatementRequestPage."Start Date".SetValue(WorkDate());
+        StatementRequestPage."End Date".SetValue(WorkDate());
         StatementRequestPage.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 
@@ -4604,8 +4604,8 @@ codeunit 134984 "ERM Sales Report III"
     [Scope('OnPrem')]
     procedure StandardStatementRequestPageHandler(var StandardStatement: TestRequestPage "Standard Statement")
     begin
-        StandardStatement."Start Date".SetValue(WorkDate);
-        StandardStatement."End Date".SetValue(WorkDate);
+        StandardStatement."Start Date".SetValue(WorkDate());
+        StandardStatement."End Date".SetValue(WorkDate());
         StandardStatement.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 
@@ -4614,8 +4614,8 @@ codeunit 134984 "ERM Sales Report III"
     procedure StandardStatementNoLogInteractionRequestPageHandler(var StandardStatement: TestRequestPage "Standard Statement")
     begin
         LibraryVariableStorage.Enqueue(StandardStatement.LogInteraction.Enabled);
-        StandardStatement."Start Date".SetValue(WorkDate);
-        StandardStatement."End Date".SetValue(WorkDate);
+        StandardStatement."Start Date".SetValue(WorkDate());
+        StandardStatement."End Date".SetValue(WorkDate());
         StandardStatement.Customer.SetFilter("No.", LibraryVariableStorage.DequeueText);
         StandardStatement.LogInteraction.SetValue(LibraryVariableStorage.DequeueBoolean());
         StandardStatement.ReportOutput.SetValue('Preview');

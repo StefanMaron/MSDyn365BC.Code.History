@@ -1,15 +1,9 @@
 table 31044 "FA History Entry"
 {
     Caption = 'FA History Entry';
-#if CLEAN18
     ObsoleteState = Removed;
-#else
-    LookupPageID = "FA History Entries";
-    Permissions = TableData "FA History Entry" = rimd;
-    ObsoleteState = Pending;
-#endif
     ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
-    ObsoleteTag = '18.0';
+    ObsoleteTag = '21.0';
 
     fields
     {
@@ -101,85 +95,4 @@ table 31044 "FA History Entry"
     begin
         exit(FindRecordManagement.GetLastEntryIntFieldValue(Rec, FieldNo("Entry No.")))
     end;
-#if not CLEAN18
-
-    [Scope('OnPrem')]
-    [Obsolete('Moved to Fixed Asset Localization for Czech.', '18.0')]
-    procedure InsertEntry(FAHType: Option Location,"Responsible Employee"; FANo: Code[20]; OldValue: Code[20]; NewValue: Code[20]; ClosedByEntryNo: Integer; Disp: Boolean): Integer
-    var
-        FAHistoryEntry: Record "FA History Entry";
-    begin
-        FAHistoryEntry.Init();
-        FAHistoryEntry.Type := FAHType;
-        FAHistoryEntry."FA No." := FANo;
-        FAHistoryEntry."Old Value" := OldValue;
-        FAHistoryEntry."New Value" := NewValue;
-        FAHistoryEntry."Closed by Entry No." := ClosedByEntryNo;
-        FAHistoryEntry.Disposal := Disp;
-        FAHistoryEntry."Creation Date" := Today;
-        FAHistoryEntry."User ID" := UserId;
-        FAHistoryEntry."Creation Time" := Time;
-        FAHistoryEntry.Insert();
-
-        exit(FAHistoryEntry."Entry No.");
-    end;
-
-    [Scope('OnPrem')]
-    [Obsolete('Moved to Fixed Asset Localization for Czech.', '18.0')]
-    procedure InitializeFAHistory(FixedAsset: Record "Fixed Asset"; CreationDate: Date)
-    var
-        FAHistoryEntry: Record "FA History Entry";
-        FASetup: Record "FA Setup";
-        FADeprBook: Record "FA Depreciation Book";
-        NextEntryNo: Integer;
-        Counter: Integer;
-    begin
-        with FixedAsset do begin
-            FAHistoryEntry.SetRange("FA No.", "No.");
-            if FAHistoryEntry.FindFirst or (("FA Location Code" = '') and ("Responsible Employee" = '')) then
-                exit;
-
-            Counter := 0;
-            NextEntryNo := 0;
-
-            FASetup.Get();
-            FADeprBook.SetRange("FA No.", "No.");
-            FADeprBook.SetRange("Depreciation Book Code", FASetup."Default Depr. Book");
-
-            FAHistoryEntry.Reset();
-            while Counter < 2 do begin
-                if NextEntryNo = 0 then
-                    NextEntryNo := FAHistoryEntry.GetLastEntryNo();
-                FAHistoryEntry."FA No." := "No.";
-                FAHistoryEntry."Creation Date" := CreationDate;
-                FAHistoryEntry."User ID" := UserId;
-                FAHistoryEntry."Creation Time" := Time;
-                FAHistoryEntry."Closed by Entry No." := 0;
-                if FADeprBook.FindLast() then
-                    if FADeprBook."Disposal Date" > 0D then
-                        FAHistoryEntry.Disposal := true
-                    else
-                        FAHistoryEntry.Disposal := false;
-                if (Counter = 0) and ("FA Location Code" <> '') then begin
-                    NextEntryNo := NextEntryNo + 1;
-                    FAHistoryEntry."Entry No." := NextEntryNo;
-                    FAHistoryEntry.Type := FAHistoryEntry.Type::Location;
-                    FAHistoryEntry."Old Value" := '';
-                    FAHistoryEntry."New Value" := "FA Location Code";
-                    FAHistoryEntry.Insert();
-                end else
-                    if (Counter = 1) and ("Responsible Employee" <> '') then begin
-                        NextEntryNo := NextEntryNo + 1;
-                        FAHistoryEntry."Entry No." := NextEntryNo;
-                        FAHistoryEntry.Type := FAHistoryEntry.Type::"Responsible Employee";
-                        FAHistoryEntry."Old Value" := '';
-                        FAHistoryEntry."New Value" := "Responsible Employee";
-                        FAHistoryEntry.Insert();
-                    end;
-                Counter := Counter + 1;
-            end;
-        end;
-    end;
-#endif
 }
-

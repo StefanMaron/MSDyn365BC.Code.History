@@ -17,16 +17,16 @@ codeunit 1317 "Aged Inventory Chart Mgt."
     procedure UpdateChart(var BusChartBuf: Record "Business Chart Buffer")
     var
         ColumnIndex: Integer;
-        PeriodStartDate: array[6] of Date;
+        PeriodStartDate2: array[6] of Date;
         InvtValue: array[5] of Decimal;
     begin
         with BusChartBuf do begin
             Initialize();
             AddDecimalMeasure(YCaptionTxt, 1, "Chart Type"::StackedColumn);
             SetXAxis(XCaptionTxt, "Data Type"::String);
-            CalcPeriodStartDates(PeriodStartDate, GetPeriodLengthInDays(BusChartBuf));
+            CalcPeriodStartDates(PeriodStartDate2, GetPeriodLengthInDays(BusChartBuf));
             AddChartColumns(BusChartBuf);
-            CalcInventoryValuePerAge(InvtValue, PeriodStartDate);
+            CalcInventoryValuePerAge(InvtValue, PeriodStartDate2);
             for ColumnIndex := 1 to 5 do
                 SetValueByIndex(0, ColumnIndex - 1, InvtValue[6 - ColumnIndex]);
         end;
@@ -94,7 +94,7 @@ codeunit 1317 "Aged Inventory Chart Mgt."
     var
         I: Integer;
     begin
-        PeriodStartDate[6] := WorkDate;
+        PeriodStartDate[6] := WorkDate();
         PeriodStartDate[1] := 0D;
         for I := 2 to 5 do
             PeriodStartDate[I] := CalcDate('<-' + Format((6 - I) * PeriodLength) + 'D>', PeriodStartDate[6]);

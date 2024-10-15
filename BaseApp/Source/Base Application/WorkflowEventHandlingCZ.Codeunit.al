@@ -16,11 +16,6 @@ codeunit 31110 "Workflow Event Handling CZ"
         WorkflowEventHandling: Codeunit "Workflow Event Handling";
         WorkflowManagement: Codeunit "Workflow Management";
         WorkflowSetup: Codeunit "Workflow Setup";
-#if not CLEAN18
-        CreditDocSendForApprovalEventDescTxt: Label 'Approval of a credit is requested. (Obsolete)';
-        CreditDocApprReqCancelledEventDescTxt: Label 'An approval request for a credit is canceled. (Obsolete)';
-        CreditDocReleasedEventDescTxt: Label 'A credit is released. (Obsolete)';
-#endif
         SalesAdvanceLetterSendForApprovalEventDescTxt: Label 'Approval of a sales advance letter is requested. (Obsolete)';
         SalesAdvanceLetterApprReqCancelledEventDescTxt: Label 'An approval request for a sales advance letter is canceled. (Obsolete)';
         SalesAdvanceLetterReleasedEventDescTxt: Label 'A sales advance letter is released. (Obsolete)';
@@ -34,48 +29,36 @@ codeunit 31110 "Workflow Event Handling CZ"
 #if not CLEAN19
         // Payment Order
         WorkflowEventHandling.AddEventToLibrary(
-          RunWorkflowOnSendPaymentOrderForApprovalCode, DATABASE::"Payment Order Header",
+          RunWorkflowOnSendPaymentOrderForApprovalCode(), DATABASE::"Payment Order Header",
           PmtOrderSendForApprovalEventDescTxt, 0, false);
         WorkflowEventHandling.AddEventToLibrary(
-          RunWorkflowOnCancelPaymentOrderApprovalRequestCode, DATABASE::"Payment Order Header",
+          RunWorkflowOnCancelPaymentOrderApprovalRequestCode(), DATABASE::"Payment Order Header",
           PmtOrderApprReqCancelledEventDescTxt, 0, false);
         WorkflowEventHandling.AddEventToLibrary(
-          RunWorkflowOnAfterIssuePaymentOrderCode, DATABASE::"Payment Order Header",
+          RunWorkflowOnAfterIssuePaymentOrderCode(), DATABASE::"Payment Order Header",
           PmtOrderIssuedEventDescTxt, 0, false);
-#endif
-#if not CLEAN18
-        // Credit
-        WorkflowEventHandling.AddEventToLibrary(
-          RunWorkflowOnSendCreditDocForApprovalCode, DATABASE::"Credit Header",
-          CreditDocSendForApprovalEventDescTxt, 0, false);
-        WorkflowEventHandling.AddEventToLibrary(
-          RunWorkflowOnCancelCreditApprovalRequestCode, DATABASE::"Credit Header",
-          CreditDocApprReqCancelledEventDescTxt, 0, false);
-        WorkflowEventHandling.AddEventToLibrary(
-          RunWorkflowOnAfterReleaseCreditDocCode, DATABASE::"Credit Header",
-          CreditDocReleasedEventDescTxt, 0, false);
 #endif
 
         // Sales Advance Letter
         WorkflowEventHandling.AddEventToLibrary(
-          RunWorkflowOnSendSalesAdvanceLetterForApprovalCode, DATABASE::"Sales Advance Letter Header",
+          RunWorkflowOnSendSalesAdvanceLetterForApprovalCode(), DATABASE::"Sales Advance Letter Header",
           SalesAdvanceLetterSendForApprovalEventDescTxt, 0, false);
         WorkflowEventHandling.AddEventToLibrary(
-          RunWorkflowOnCancelSalesAdvanceLetterApprovalRequestCode, DATABASE::"Sales Advance Letter Header",
+          RunWorkflowOnCancelSalesAdvanceLetterApprovalRequestCode(), DATABASE::"Sales Advance Letter Header",
           SalesAdvanceLetterApprReqCancelledEventDescTxt, 0, false);
         WorkflowEventHandling.AddEventToLibrary(
-          RunWorkflowOnAfterReleaseSalesAdvanceLetterCode, DATABASE::"Sales Advance Letter Header",
+          RunWorkflowOnAfterReleaseSalesAdvanceLetterCode(), DATABASE::"Sales Advance Letter Header",
           SalesAdvanceLetterReleasedEventDescTxt, 0, false);
 
         // Purchase Advance Letter
         WorkflowEventHandling.AddEventToLibrary(
-          RunWorkflowOnSendPurchaseAdvanceLetterForApprovalCode, DATABASE::"Purch. Advance Letter Header",
+          RunWorkflowOnSendPurchaseAdvanceLetterForApprovalCode(), DATABASE::"Purch. Advance Letter Header",
           PurchAdvanceLetterSendForApprovalEventDescTxt, 0, false);
         WorkflowEventHandling.AddEventToLibrary(
-          RunWorkflowOnCancelPurchaseAdvanceLetterApprovalRequestCode, DATABASE::"Purch. Advance Letter Header",
+          RunWorkflowOnCancelPurchaseAdvanceLetterApprovalRequestCode(), DATABASE::"Purch. Advance Letter Header",
           PurchAdvanceLetterApprReqCancelledEventDescTxt, 0, false);
         WorkflowEventHandling.AddEventToLibrary(
-          RunWorkflowOnAfterReleasePurchaseAdvanceLetterCode, DATABASE::"Purch. Advance Letter Header",
+          RunWorkflowOnAfterReleasePurchaseAdvanceLetterCode(), DATABASE::"Purch. Advance Letter Header",
           PurchAdvanceLetterReleasedEventDescTxt, 0, false);
     end;
 
@@ -84,81 +67,60 @@ codeunit 31110 "Workflow Event Handling CZ"
     begin
         case EventFunctionName of
 #if not CLEAN19
-            RunWorkflowOnCancelPaymentOrderApprovalRequestCode:
+            RunWorkflowOnCancelPaymentOrderApprovalRequestCode():
                 WorkflowEventHandling.AddEventPredecessor(
-                  RunWorkflowOnCancelPaymentOrderApprovalRequestCode,
-                  RunWorkflowOnSendPaymentOrderForApprovalCode);
+                  RunWorkflowOnCancelPaymentOrderApprovalRequestCode(),
+                  RunWorkflowOnSendPaymentOrderForApprovalCode());
 #endif
-#if not CLEAN18
-            RunWorkflowOnCancelCreditApprovalRequestCode:
+            RunWorkflowOnCancelSalesAdvanceLetterApprovalRequestCode():
                 WorkflowEventHandling.AddEventPredecessor(
-                  RunWorkflowOnCancelCreditApprovalRequestCode,
-                  RunWorkflowOnSendCreditDocForApprovalCode);
-#endif
-            RunWorkflowOnCancelSalesAdvanceLetterApprovalRequestCode:
+                  RunWorkflowOnCancelSalesAdvanceLetterApprovalRequestCode(),
+                  RunWorkflowOnSendSalesAdvanceLetterForApprovalCode());
+            RunWorkflowOnCancelPurchaseAdvanceLetterApprovalRequestCode():
                 WorkflowEventHandling.AddEventPredecessor(
-                  RunWorkflowOnCancelSalesAdvanceLetterApprovalRequestCode,
-                  RunWorkflowOnSendSalesAdvanceLetterForApprovalCode);
-            RunWorkflowOnCancelPurchaseAdvanceLetterApprovalRequestCode:
-                WorkflowEventHandling.AddEventPredecessor(
-                  RunWorkflowOnCancelPurchaseAdvanceLetterApprovalRequestCode,
-                  RunWorkflowOnSendPurchaseAdvanceLetterForApprovalCode);
-            WorkflowEventHandling.RunWorkflowOnApproveApprovalRequestCode:
+                  RunWorkflowOnCancelPurchaseAdvanceLetterApprovalRequestCode(),
+                  RunWorkflowOnSendPurchaseAdvanceLetterForApprovalCode());
+            WorkflowEventHandling.RunWorkflowOnApproveApprovalRequestCode():
                 begin
 #if not CLEAN19
                     WorkflowEventHandling.AddEventPredecessor(
-                      WorkflowEventHandling.RunWorkflowOnApproveApprovalRequestCode,
-                      RunWorkflowOnSendPaymentOrderForApprovalCode);
-#endif
-#if not CLEAN18
-                    WorkflowEventHandling.AddEventPredecessor(
-                      WorkflowEventHandling.RunWorkflowOnApproveApprovalRequestCode,
-                      RunWorkflowOnSendCreditDocForApprovalCode);
+                      WorkflowEventHandling.RunWorkflowOnApproveApprovalRequestCode(),
+                      RunWorkflowOnSendPaymentOrderForApprovalCode());
 #endif
                     WorkflowEventHandling.AddEventPredecessor(
-                      WorkflowEventHandling.RunWorkflowOnApproveApprovalRequestCode,
-                      RunWorkflowOnSendSalesAdvanceLetterForApprovalCode);
+                      WorkflowEventHandling.RunWorkflowOnApproveApprovalRequestCode(),
+                      RunWorkflowOnSendSalesAdvanceLetterForApprovalCode());
                     WorkflowEventHandling.AddEventPredecessor(
-                      WorkflowEventHandling.RunWorkflowOnApproveApprovalRequestCode,
-                      RunWorkflowOnSendPurchaseAdvanceLetterForApprovalCode);
+                      WorkflowEventHandling.RunWorkflowOnApproveApprovalRequestCode(),
+                      RunWorkflowOnSendPurchaseAdvanceLetterForApprovalCode());
                 end;
-            WorkflowEventHandling.RunWorkflowOnRejectApprovalRequestCode:
+            WorkflowEventHandling.RunWorkflowOnRejectApprovalRequestCode():
                 begin
 #if not CLEAN19
                     WorkflowEventHandling.AddEventPredecessor(
-                      WorkflowEventHandling.RunWorkflowOnRejectApprovalRequestCode,
-                      RunWorkflowOnSendPaymentOrderForApprovalCode);
-#endif
-#if not CLEAN18
-                    WorkflowEventHandling.AddEventPredecessor(
-                      WorkflowEventHandling.RunWorkflowOnRejectApprovalRequestCode,
-                      RunWorkflowOnSendCreditDocForApprovalCode);
+                      WorkflowEventHandling.RunWorkflowOnRejectApprovalRequestCode(),
+                      RunWorkflowOnSendPaymentOrderForApprovalCode());
 #endif
                     WorkflowEventHandling.AddEventPredecessor(
-                      WorkflowEventHandling.RunWorkflowOnRejectApprovalRequestCode,
-                      RunWorkflowOnSendSalesAdvanceLetterForApprovalCode);
+                      WorkflowEventHandling.RunWorkflowOnRejectApprovalRequestCode(),
+                      RunWorkflowOnSendSalesAdvanceLetterForApprovalCode());
                     WorkflowEventHandling.AddEventPredecessor(
-                      WorkflowEventHandling.RunWorkflowOnRejectApprovalRequestCode,
-                      RunWorkflowOnSendPurchaseAdvanceLetterForApprovalCode);
+                      WorkflowEventHandling.RunWorkflowOnRejectApprovalRequestCode(),
+                      RunWorkflowOnSendPurchaseAdvanceLetterForApprovalCode());
                 end;
-            WorkflowEventHandling.RunWorkflowOnDelegateApprovalRequestCode:
+            WorkflowEventHandling.RunWorkflowOnDelegateApprovalRequestCode():
                 begin
 #if not CLEAN19
                     WorkflowEventHandling.AddEventPredecessor(
-                      WorkflowEventHandling.RunWorkflowOnDelegateApprovalRequestCode,
-                      RunWorkflowOnSendPaymentOrderForApprovalCode);
-#endif
-#if not CLEAN18
-                    WorkflowEventHandling.AddEventPredecessor(
-                      WorkflowEventHandling.RunWorkflowOnDelegateApprovalRequestCode,
-                      RunWorkflowOnSendCreditDocForApprovalCode);
+                      WorkflowEventHandling.RunWorkflowOnDelegateApprovalRequestCode(),
+                      RunWorkflowOnSendPaymentOrderForApprovalCode());
 #endif
                     WorkflowEventHandling.AddEventPredecessor(
-                      WorkflowEventHandling.RunWorkflowOnDelegateApprovalRequestCode,
-                      RunWorkflowOnSendSalesAdvanceLetterForApprovalCode);
+                      WorkflowEventHandling.RunWorkflowOnDelegateApprovalRequestCode(),
+                      RunWorkflowOnSendSalesAdvanceLetterForApprovalCode());
                     WorkflowEventHandling.AddEventPredecessor(
-                      WorkflowEventHandling.RunWorkflowOnDelegateApprovalRequestCode,
-                      RunWorkflowOnSendPurchaseAdvanceLetterForApprovalCode);
+                      WorkflowEventHandling.RunWorkflowOnDelegateApprovalRequestCode(),
+                      RunWorkflowOnSendPurchaseAdvanceLetterForApprovalCode());
                 end;
         end;
     end;
@@ -170,10 +132,6 @@ codeunit 31110 "Workflow Event Handling CZ"
     begin
 #if not CLEAN19
         WorkflowSetup.InsertTableRelation(DATABASE::"Payment Order Header", 0,
-          DATABASE::"Approval Entry", ApprovalEntry.FieldNo("Record ID to Approve"));
-#endif
-#if not CLEAN18
-        WorkflowSetup.InsertTableRelation(DATABASE::"Credit Header", 0,
           DATABASE::"Approval Entry", ApprovalEntry.FieldNo("Record ID to Approve"));
 #endif
         WorkflowSetup.InsertTableRelation(DATABASE::"Sales Advance Letter Header", 0,
@@ -202,29 +160,6 @@ codeunit 31110 "Workflow Event Handling CZ"
     procedure RunWorkflowOnAfterIssuePaymentOrderCode(): Code[128]
     begin
         exit('RUNWORKFLOWONAFTERISSUEPAYMENTORDER');
-    end;
-
-#endif
-#if not CLEAN18
-    [Obsolete('Moved to Compensation Localization Pack for Czech.', '18.1')]
-    [Scope('OnPrem')]
-    procedure RunWorkflowOnSendCreditDocForApprovalCode(): Code[128]
-    begin
-        exit('RUNWORKFLOWONSENDCREDITDOCFORAPPROVAL');
-    end;
-
-    [Obsolete('Moved to Compensation Localization Pack for Czech.', '18.1')]
-    [Scope('OnPrem')]
-    procedure RunWorkflowOnCancelCreditApprovalRequestCode(): Code[128]
-    begin
-        exit('RUNWORKFLOWONCANCELCREDITAPPROVALREQUEST');
-    end;
-
-    [Obsolete('Moved to Compensation Localization Pack for Czech.', '18.1')]
-    [Scope('OnPrem')]
-    procedure RunWorkflowOnAfterReleaseCreditDocCode(): Code[128]
-    begin
-        exit('RUNWORKFLOWONAFTERRELEASECREDITDOC');
     end;
 
 #endif
@@ -270,7 +205,7 @@ codeunit 31110 "Workflow Event Handling CZ"
     [Scope('OnPrem')]
     procedure RunWorkflowOnSendPaymentOrderForApproval(var PaymentOrderHeader: Record "Payment Order Header")
     begin
-        WorkflowManagement.HandleEvent(RunWorkflowOnSendPaymentOrderForApprovalCode, PaymentOrderHeader);
+        WorkflowManagement.HandleEvent(RunWorkflowOnSendPaymentOrderForApprovalCode(), PaymentOrderHeader);
     end;
 
     [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
@@ -278,38 +213,13 @@ codeunit 31110 "Workflow Event Handling CZ"
     [Scope('OnPrem')]
     procedure RunWorkflowOnCancelPaymentOrderApprovalRequest(var PaymentOrderHeader: Record "Payment Order Header")
     begin
-        WorkflowManagement.HandleEvent(RunWorkflowOnCancelPaymentOrderApprovalRequestCode, PaymentOrderHeader);
+        WorkflowManagement.HandleEvent(RunWorkflowOnCancelPaymentOrderApprovalRequestCode(), PaymentOrderHeader);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Issue Payment Order", 'OnAfterIssuePaymentOrder', '', false, false)]
     local procedure RunWorkflowOnAfterIssuePaymentOrder(var PaymentOrderHeader: Record "Payment Order Header")
     begin
-        WorkflowManagement.HandleEvent(RunWorkflowOnAfterIssuePaymentOrderCode, PaymentOrderHeader);
-    end;
-
-#endif
-#if not CLEAN18
-    [Obsolete('Moved to Compensation Localization Pack for Czech.', '18.1')]
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Approvals Mgmt.", 'OnSendCreditDocForApproval', '', false, false)]
-    [Scope('OnPrem')]
-    procedure RunWorkflowOnSendCreditDocForApproval(var CreditHdr: Record "Credit Header")
-    begin
-        WorkflowManagement.HandleEvent(RunWorkflowOnSendCreditDocForApprovalCode, CreditHdr);
-    end;
-
-    [Obsolete('Moved to Compensation Localization Pack for Czech.', '18.1')]
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Approvals Mgmt.", 'OnCancelCreditApprovalRequest', '', false, false)]
-    [Scope('OnPrem')]
-    procedure RunWorkflowOnCancelCreditApprovalRequest(var CreditHdr: Record "Credit Header")
-    begin
-        WorkflowManagement.HandleEvent(RunWorkflowOnCancelCreditApprovalRequestCode, CreditHdr);
-    end;
-
-    [Obsolete('Moved to Compensation Localization Pack for Czech.', '18.1')]
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Release Credit Document", 'OnAfterReleaseCreditDoc', '', false, false)]
-    local procedure RunWorkflowOnAfterReleaseCreditDoc(var CreditHdr: Record "Credit Header")
-    begin
-        WorkflowManagement.HandleEvent(RunWorkflowOnAfterReleaseCreditDocCode, CreditHdr);
+        WorkflowManagement.HandleEvent(RunWorkflowOnAfterIssuePaymentOrderCode(), PaymentOrderHeader);
     end;
 
 #endif
@@ -317,40 +227,40 @@ codeunit 31110 "Workflow Event Handling CZ"
     [Scope('OnPrem')]
     procedure RunWorkflowOnSendSalesAdvanceLetterForApproval(var SalesAdvanceLetterHeader: Record "Sales Advance Letter Header")
     begin
-        WorkflowManagement.HandleEvent(RunWorkflowOnSendSalesAdvanceLetterForApprovalCode, SalesAdvanceLetterHeader);
+        WorkflowManagement.HandleEvent(RunWorkflowOnSendSalesAdvanceLetterForApprovalCode(), SalesAdvanceLetterHeader);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Approvals Mgmt.", 'OnCancelSalesAdvanceLetterApprovalRequest', '', false, false)]
     [Scope('OnPrem')]
     procedure RunWorkflowOnCancelSalesAdvanceLetterApprovalRequest(var SalesAdvanceLetterHeader: Record "Sales Advance Letter Header")
     begin
-        WorkflowManagement.HandleEvent(RunWorkflowOnCancelSalesAdvanceLetterApprovalRequestCode, SalesAdvanceLetterHeader);
+        WorkflowManagement.HandleEvent(RunWorkflowOnCancelSalesAdvanceLetterApprovalRequestCode(), SalesAdvanceLetterHeader);
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Sales Advance Letter Header", 'OnAfterReleaseSalesAdvanceLetter', '', false, false)]
     local procedure RunWorkflowOnAfterReleaseSalesAdvanceLetter(var SalesAdvanceLetterHeader: Record "Sales Advance Letter Header")
     begin
-        WorkflowManagement.HandleEvent(RunWorkflowOnAfterReleaseSalesAdvanceLetterCode, SalesAdvanceLetterHeader);
+        WorkflowManagement.HandleEvent(RunWorkflowOnAfterReleaseSalesAdvanceLetterCode(), SalesAdvanceLetterHeader);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Approvals Mgmt.", 'OnSendPurchaseAdvanceLetterForApproval', '', false, false)]
     [Scope('OnPrem')]
     procedure RunWorkflowOnSendPurchaseAdvanceLetterForApproval(var PurchAdvanceLetterHeader: Record "Purch. Advance Letter Header")
     begin
-        WorkflowManagement.HandleEvent(RunWorkflowOnSendPurchaseAdvanceLetterForApprovalCode, PurchAdvanceLetterHeader);
+        WorkflowManagement.HandleEvent(RunWorkflowOnSendPurchaseAdvanceLetterForApprovalCode(), PurchAdvanceLetterHeader);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Approvals Mgmt.", 'OnCancelPurchaseAdvanceLetterApprovalRequest', '', false, false)]
     [Scope('OnPrem')]
     procedure RunWorkflowOnCancelPurchaseAdvanceLetterApprovalRequest(var PurchAdvanceLetterHeader: Record "Purch. Advance Letter Header")
     begin
-        WorkflowManagement.HandleEvent(RunWorkflowOnCancelPurchaseAdvanceLetterApprovalRequestCode, PurchAdvanceLetterHeader);
+        WorkflowManagement.HandleEvent(RunWorkflowOnCancelPurchaseAdvanceLetterApprovalRequestCode(), PurchAdvanceLetterHeader);
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Purch. Advance Letter Header", 'OnAfterReleasePurchaseAdvanceLetter', '', false, false)]
     local procedure RunWorkflowOnAfterReleasePurchaseAdvanceLetter(var PurchAdvanceLetterHeader: Record "Purch. Advance Letter Header")
     begin
-        WorkflowManagement.HandleEvent(RunWorkflowOnAfterReleasePurchaseAdvanceLetterCode, PurchAdvanceLetterHeader);
+        WorkflowManagement.HandleEvent(RunWorkflowOnAfterReleasePurchaseAdvanceLetterCode(), PurchAdvanceLetterHeader);
     end;
 }
 #endif

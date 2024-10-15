@@ -1,3 +1,4 @@
+#if not CLEAN19
 permissionset 862 "Payables Documents - Post"
 {
     Access = Public;
@@ -17,9 +18,7 @@ permissionset 862 "Payables Documents - Post"
                   tabledata Currency = r,
                   tabledata "Currency Exchange Rate" = r,
                   tabledata "Customer Bank Account" = R,
-#if not CLEAN19
                   tabledata "Detailed G/L Entry" = Ri,
-#endif
                   tabledata "Detailed Vendor Ledg. Entry" = ri,
                   tabledata "Dimension Combination" = R,
                   tabledata "Dimension Value Combination" = R,
@@ -44,9 +43,6 @@ permissionset 862 "Payables Documents - Post"
                   tabledata "IC Outbox Transaction" = RIMD,
                   tabledata "IC Partner" = R,
                   tabledata "IC Setup" = R,
-#if not CLEAN18
-                  tabledata "Intrastat Delivery Group" = R,
-#endif
                   tabledata "Inventory Posting Group" = r,
                   tabledata "Inventory Posting Setup" = r,
                   tabledata Item = Rm,
@@ -91,9 +87,6 @@ permissionset 862 "Payables Documents - Post"
                   tabledata "Sales Shipment Line" = i,
                   tabledata "Serial No. Information" = R,
                   tabledata "Source Code Setup" = R,
-#if not CLEAN18
-                  tabledata "Subst. Vendor Posting Group" = R,
-#endif
                   tabledata "Tax Area" = R,
                   tabledata "Tax Area Line" = R,
                   tabledata "Tax Detail" = R,
@@ -116,3 +109,5 @@ permissionset 862 "Payables Documents - Post"
                   tabledata "Warehouse Request" = RIMD,
                   tabledata "Whse. Put-away Request" = RIMD;
 }
+
+#endif

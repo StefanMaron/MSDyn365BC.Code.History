@@ -277,10 +277,10 @@ table 11706 "Issued Bank Statement Header"
         BankAccRecon: Record "Bank Acc. Reconciliation";
         PostedPmtReconHdr: Record "Posted Payment Recon. Hdr";
     begin
-        if PmtReconExist then
-            Error(ExistErr, BankAccRecon.TableCaption, "No.");
-        if PostedPmtReconExist then
-            Error(ExistErr, PostedPmtReconHdr.TableCaption, "No.");
+        if PmtReconExist() then
+            Error(ExistErr, BankAccRecon.TableCaption(), "No.");
+        if PostedPmtReconExist() then
+            Error(ExistErr, PostedPmtReconHdr.TableCaption(), "No.");
     end;
 
     [Scope('OnPrem')]
@@ -362,10 +362,10 @@ table 11706 "Issued Bank Statement Header"
     procedure OpenPmtReconOrPostedPmtRecon()
     begin
         case true of
-            PmtReconExist:
-                OpenPmtRecon;
-            PostedPmtReconExist:
-                OpenPostedPmtRecon;
+            PmtReconExist():
+                OpenPmtRecon();
+            PostedPmtReconExist():
+                OpenPostedPmtRecon();
             else
                 Error(NotExistErr, "No.");
         end;
@@ -391,7 +391,7 @@ table 11706 "Issued Bank Statement Header"
     procedure UpdatePaymentReconciliationStatus(PaymentReconciliationStatus: Option)
     begin
         Validate("Payment Reconciliation Status", PaymentReconciliationStatus);
-        Modify;
+        Modify();
     end;
 
     local procedure RunPaymentReconJournalCreation(ShowRequestForm: Boolean; HideMessages: Boolean)

@@ -3,7 +3,6 @@ page 600 "IC Dimensions"
     ApplicationArea = Dimensions;
     Caption = 'Intercompany Dimensions';
     PageType = List;
-    PromotedActionCategories = 'New,Process,Report,Dimensions,Import/Export';
     SourceTable = "IC Dimension";
     UsageCategory = Administration;
 
@@ -29,7 +28,7 @@ page 600 "IC Dimensions"
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies that the related record is blocked from being posted in transactions, for example a customer that is declared insolvent or an item that is placed in quarantine.';
                 }
-                field("Map-to Dimension Code"; "Map-to Dimension Code")
+                field("Map-to Dimension Code"; Rec."Map-to Dimension Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code of the dimension in your company that this intercompany dimension corresponds to.';
@@ -63,9 +62,6 @@ page 600 "IC Dimensions"
                     ApplicationArea = Dimensions;
                     Caption = 'IC Dimension &Values';
                     Image = ChangeDimensions;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedOnly = true;
                     RunObject = Page "IC Dimension Values";
                     RunPageLink = "Dimension Code" = FIELD(Code);
                     ToolTip = 'View or edit how your company''s dimension values correspond to the dimension values of your intercompany partners.';
@@ -83,9 +79,6 @@ page 600 "IC Dimensions"
                     ApplicationArea = Dimensions;
                     Caption = 'Map to Dim. with Same Code';
                     Image = MapDimensions;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedOnly = true;
                     ToolTip = 'Map the selected intercompany dimensions to dimensions with the same code.';
 
                     trigger OnAction()
@@ -106,14 +99,11 @@ page 600 "IC Dimensions"
                     ApplicationArea = Dimensions;
                     Caption = 'Copy from Dimensions';
                     Image = CopyDimensions;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedOnly = true;
                     ToolTip = 'Creates intercompany dimensions for existing dimensions.';
 
                     trigger OnAction()
                     begin
-                        CopyFromDimensionsToICDim;
+                        CopyFromDimensionsToICDim();
                     end;
                 }
                 separator(Action14)
@@ -125,14 +115,11 @@ page 600 "IC Dimensions"
                     Caption = 'Import';
                     Ellipsis = true;
                     Image = Import;
-                    Promoted = true;
-                    PromotedCategory = Category5;
-                    PromotedOnly = true;
                     ToolTip = 'Import intercompany dimensions from a file.';
 
                     trigger OnAction()
                     begin
-                        ImportFromXML;
+                        ImportFromXML();
                     end;
                 }
                 action("E&xport")
@@ -141,15 +128,44 @@ page 600 "IC Dimensions"
                     Caption = 'E&xport';
                     Ellipsis = true;
                     Image = Export;
-                    Promoted = true;
-                    PromotedCategory = Category5;
-                    PromotedOnly = true;
                     ToolTip = 'Export intercompany dimensions to a file.';
 
                     trigger OnAction()
                     begin
-                        ExportToXML;
+                        ExportToXML();
                     end;
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Dimensions', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref("Map to Dim. with Same Code_Promoted"; "Map to Dim. with Same Code")
+                {
+                }
+                actionref(CopyFromDimensions_Promoted; CopyFromDimensions)
+                {
+                }
+                actionref("IC Dimension &Values_Promoted"; "IC Dimension &Values")
+                {
+                }
+            }
+            group(Category_Category5)
+            {
+                Caption = 'Import/Export', Comment = 'Generated from the PromotedActionCategories property index 4.';
+
+                actionref(Import_Promoted; Import)
+                {
+                }
+                actionref("E&xport_Promoted"; "E&xport")
+                {
                 }
             }
         }
@@ -239,7 +255,7 @@ page 600 "IC Dimensions"
         IFile.Open(FileName);
         IFile.CreateInStream(IStr);
         ICDimIO.SetSource(IStr);
-        ICDimIO.Import;
+        ICDimIO.Import();
     end;
 
     local procedure ExportToXML()
@@ -267,8 +283,8 @@ page 600 "IC Dimensions"
         OFile.Create(FileName);
         OFile.CreateOutStream(OStr);
         ICDimIO.SetDestination(OStr);
-        ICDimIO.Export;
-        OFile.Close;
+        ICDimIO.Export();
+        OFile.Close();
         Clear(OStr);
 
         Download(FileName, 'Export', TemporaryPath, '', DefaultFileName);

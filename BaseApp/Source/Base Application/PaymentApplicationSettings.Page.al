@@ -88,6 +88,7 @@ page 1253 "Payment Application Settings"
     trigger OnOpenPage()
     begin
         Rec.GetOrInsert(BankPmtApplRuleCode);
+        Rec.SetRange(PrimaryKey, BankPmtApplRuleCode);
     end;
 
     [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]

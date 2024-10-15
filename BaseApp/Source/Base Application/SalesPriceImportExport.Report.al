@@ -43,7 +43,7 @@ report 31072 "Sales Price Import/Export"
 
                         trigger OnValidate()
                         begin
-                            SetRequestPage;
+                            SetRequestPage();
                         end;
                     }
                     field(RadioDataportExport; ActionDirection)
@@ -55,7 +55,7 @@ report 31072 "Sales Price Import/Export"
 
                         trigger OnValidate()
                         begin
-                            SetRequestPage;
+                            SetRequestPage();
                         end;
                     }
                     field(DoUpdateExistingWorksheet; DoUpdateExistingWorksheet)
@@ -75,7 +75,7 @@ report 31072 "Sales Price Import/Export"
 
         trigger OnOpenPage()
         begin
-            SetRequestPage;
+            SetRequestPage();
         end;
     }
 
@@ -85,7 +85,7 @@ report 31072 "Sales Price Import/Export"
 
     trigger OnPreReport()
     begin
-        WorkFile;
+        WorkFile();
     end;
 
     var
@@ -167,20 +167,20 @@ report 31072 "Sales Price Import/Export"
         if DoUpdateExistingWorksheet then begin
             TempExcelBuffer.UpdateBook(ServerFileName, SheetName);
             TempExcelBuffer.WriteSheet('', CompanyName, UserId);
-            TempExcelBuffer.CloseBook;
-            TempExcelBuffer.DownloadAndOpenExcel;
+            TempExcelBuffer.CloseBook();
+            TempExcelBuffer.DownloadAndOpenExcel();
         end else begin
             TempExcelBuffer.CreateBook('', "Sales Price".TableName);
             TempExcelBuffer.WriteSheet("Sales Price".TableName, CompanyName, UserId);
-            TempExcelBuffer.CloseBook;
-            TempExcelBuffer.OpenExcel;
+            TempExcelBuffer.CloseBook();
+            TempExcelBuffer.OpenExcel();
         end;
     end;
 
     local procedure EnterCell(RowNo: Integer; ColumnNo: Integer; CellValueText: Text[250]; IsBold: Boolean; NumberFormatText: Text[30])
     begin
         with TempExcelBuffer do begin
-            Init;
+            Init();
             Validate("Row No.", RowNo);
             Validate("Column No.", ColumnNo);
             "Cell Value as Text" := CellValueText;
@@ -190,7 +190,7 @@ report 31072 "Sales Price Import/Export"
             Bold := IsBold;
             Underline := false;
             NumberFormat := NumberFormatText;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -211,7 +211,7 @@ report 31072 "Sales Price Import/Export"
     begin
         with TempExcelBuffer do begin
             OpenBook(ServerFileName, SheetName);
-            ReadSheet;
+            ReadSheet();
 
             NoOfColumns := 14;
             if FindLast() then
@@ -324,7 +324,7 @@ report 31072 "Sales Price Import/Export"
                                 Error(FileNameErr);
                             TempBlob.CreateInStream(ReadInStream);
                             XmlSalesPriceImport.SetSource(ReadInStream);
-                            XmlSalesPriceImport.Import;
+                            XmlSalesPriceImport.Import();
                             Message(ImportFinishedMsg);
                         end;
                     ActionDirection::Export:
@@ -335,8 +335,8 @@ report 31072 "Sales Price Import/Export"
                             WorkLFile.CreateOutStream(ExpOutStream);
                             XmlSalesPriceExport.SetDestination(ExpOutStream);
                             XmlSalesPriceExport.SetTableView("Sales Price");
-                            XmlSalesPriceExport.Export;
-                            WorkLFile.Close;
+                            XmlSalesPriceExport.Export();
+                            WorkLFile.Close();
                             Download(ServerFileName, ExpXmlFileTxt, '', FileManagement.GetToFilterText('', '.xml'), ClientFileName);
                             Erase(ServerFileName);
                         end;
@@ -356,7 +356,7 @@ report 31072 "Sales Price Import/Export"
                                 ImpLine(TempSalesPrice, TextLine);
                             end;
                             InsertSalesPriceLine(TempSalesPrice);
-                            WorkLFile.Close;
+                            WorkLFile.Close();
                             Erase(ServerFileName);
                             Message(ImportFinishedMsg);
                         end;
@@ -371,7 +371,7 @@ report 31072 "Sales Price Import/Export"
                                 repeat
                                     WorkLFile.Write(ExpLine("Sales Price"));
                                 until "Sales Price".Next() = 0;
-                            WorkLFile.Close;
+                            WorkLFile.Close();
                             Download(ServerFileName, ExpTxtFileTxt, '', FileManagement.GetToFilterText('', '.txt'), ClientFileName);
                             Erase(ServerFileName);
                         end;
@@ -386,7 +386,7 @@ report 31072 "Sales Price Import/Export"
                             SheetName := TempExcelBuffer.SelectSheetsName(ServerFileName);
                             if SheetName = '' then
                                 exit;
-                            FExcelImport;
+                            FExcelImport();
                             Message(ImportFinishedMsg);
                         end;
                     ActionDirection::Export:
@@ -467,7 +467,7 @@ report 31072 "Sales Price Import/Export"
                             if Evaluate("Allow Line Disc.", TextField[j]) then
                                 ;
                     end;
-            Insert;
+            Insert();
         end;
     end;
 

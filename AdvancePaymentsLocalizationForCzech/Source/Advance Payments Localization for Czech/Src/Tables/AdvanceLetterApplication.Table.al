@@ -14,7 +14,8 @@ table 31007 "Advance Letter Application CZZ"
         {
             Caption = 'Advance Letter No.';
             DataClassification = CustomerContent;
-            TableRelation = if ("Advance Letter Type" = const(Sales)) "Sales Adv. Letter Header CZZ"."No.";
+            TableRelation = if ("Advance Letter Type" = const(Sales)) "Sales Adv. Letter Header CZZ"."No." else
+            if ("Advance Letter Type" = const(Purchase)) "Purch. Adv. Letter Header CZZ"."No.";
 
             trigger OnValidate()
             var

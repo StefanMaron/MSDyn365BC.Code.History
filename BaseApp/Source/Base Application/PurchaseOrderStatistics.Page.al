@@ -475,7 +475,7 @@ page 403 "Purchase Order Statistics"
                     ExtendedDatatype = Ratio;
                     ToolTip = 'Specifies the deducted percentage of the prepayment amount to deduct.';
                 }
-                field("Prepayment Type"; "Prepayment Type")
+                field("Prepayment Type"; Rec."Prepayment Type")
                 {
                     ApplicationArea = Prepayments;
                     Editable = false;
@@ -784,7 +784,6 @@ page 403 "Purchase Order Statistics"
         end;
         TempPurchLine.DeleteAll();
         Clear(TempPurchLine);
-
         if "Prepayment Type" = "Prepayment Type"::Prepayment then begin // NAVCZ
             PurchPostPrepayments.GetPurchLines(Rec, 0, TempPurchLine);
             PurchPostPrepayments.SumPrepmt(
@@ -851,20 +850,13 @@ page 403 "Purchase Order Statistics"
     var
         CurrExchRate: Record "Currency Exchange Rate";
         Currency: Record Currency;
-#if not CLEAN18
-        GLSetup: Record "General Ledger Setup";
-#endif
         UseDate: Date;
-#if not CLEAN18
-        RoundingPrecisionLCY: Decimal;
-        RoundingDirectionLCY: Text[1];
-#endif
     begin
-        TotalPurchLine[IndexNo]."Inv. Discount Amount" := VATAmountLine.GetTotalInvDiscAmount;
+        TotalPurchLine[IndexNo]."Inv. Discount Amount" := VATAmountLine.GetTotalInvDiscAmount();
         TotalAmount1[IndexNo] := TotalPurchLine[IndexNo]."Line Amount" - TotalPurchLine[IndexNo]."Inv. Discount Amount";
         VATAmount[IndexNo] := VATAmountLine.GetTotalVATAmount();
         if Rec."Prices Including VAT" then begin
-            TotalAmount1[IndexNo] := VATAmountLine.GetTotalAmountInclVAT;
+            TotalAmount1[IndexNo] := VATAmountLine.GetTotalAmountInclVAT();
             TotalAmount2[IndexNo] := TotalAmount1[IndexNo] - VATAmount[IndexNo];
             TotalPurchLine[IndexNo]."Line Amount" := TotalAmount1[IndexNo] + TotalPurchLine[IndexNo]."Inv. Discount Amount";
         end else
@@ -878,7 +870,7 @@ page 403 "Purchase Order Statistics"
             TotalPurchLineLCY[IndexNo].Amount := TotalAmount1[IndexNo];
         if Rec."Currency Code" <> '' then begin
             if Rec."Posting Date" = 0D then
-                UseDate := WorkDate
+                UseDate := WorkDate()
             else
                 UseDate := Rec."Posting Date";
 
@@ -889,24 +881,14 @@ page 403 "Purchase Order Statistics"
             if (TotalPurchLineLCY[IndexNo]."VAT Calculation Type" = TotalPurchLineLCY[IndexNo]."VAT Calculation Type"::"Normal VAT") or
                (TotalPurchLineLCY[IndexNo]."VAT Calculation Type" = TotalPurchLineLCY[IndexNo]."VAT Calculation Type"::"Reverse Charge VAT")
             then begin
-#if CLEAN18
                 Currency.Get("Currency Code");
-#else
-                GLSetup.Get();
-                Currency.Get("Currency Code");
-                GLSetup.GetRoundingParamentersLCY(Currency, RoundingPrecisionLCY, RoundingDirectionLCY);
-#endif
 
                 if "Prices Including VAT" then
                     TotalPurchLineLCY[IndexNo].Amount :=
                         Round(
                         (TotalPurchLineLCY[IndexNo]."Line Amount" - VATAmountLine."Invoice Discount Amount") /
                         (1 + VATAmountLine."VAT %" / 100),
-#if CLEAN18
                         Currency."Amount Rounding Precision") - VATAmountLine."VAT Difference";
-#else
-                        RoundingPrecisionLCY) - VATAmountLine."VAT Difference";
-#endif
             end;
             // NAVCZ
         end;
@@ -918,13 +900,13 @@ page 403 "Purchase Order Statistics"
             QtyType::General:
                 begin
                     VATLinesForm.GetTempVATAmountLine(TempVATAmountLine1);
-                    if TempVATAmountLine1.GetAnyLineModified then
+                    if TempVATAmountLine1.GetAnyLineModified() then
                         UpdateHeaderInfo(1, TempVATAmountLine1);
                 end;
             QtyType::Invoicing:
                 begin
                     VATLinesForm.GetTempVATAmountLine(TempVATAmountLine2);
-                    if TempVATAmountLine2.GetAnyLineModified then
+                    if TempVATAmountLine2.GetAnyLineModified() then
                         UpdateHeaderInfo(2, TempVATAmountLine2);
                 end;
             QtyType::Shipping:
@@ -956,11 +938,11 @@ page 403 "Purchase Order Statistics"
         i: Integer;
         InvDiscBaseAmount: Decimal;
     begin
-        CheckAllowInvDisc;
+        CheckAllowInvDisc();
         if not (ModifiedIndexNo in [1, 2]) then
             exit;
 
-        if InvoicedLineExists then
+        if InvoicedLineExists() then
             if not ConfirmManagement.GetResponseOrDefault(UpdateInvDiscountQst, true) then
                 Error('');
 
@@ -996,10 +978,10 @@ page 403 "Purchase Order Statistics"
         for i := 1 to MaxIndexNo do
             with TotalPurchLine[IndexNo[i]] do begin
                 if (i = 1) or not PartialInvoicing then
-                    if IndexNo[i] = 1 then begin
+                    if IndexNo[i] = 1 then
                         TempVATAmountLine1.SetInvoiceDiscountAmount(
-                          "Inv. Discount Amount", "Currency Code", Rec."Prices Including VAT", Rec."VAT Base Discount %");
-                    end else
+                          "Inv. Discount Amount", "Currency Code", Rec."Prices Including VAT", Rec."VAT Base Discount %")
+                    else
                         TempVATAmountLine2.SetInvoiceDiscountAmount(
                           "Inv. Discount Amount", "Currency Code", Rec."Prices Including VAT", Rec."VAT Base Discount %");
 
@@ -1011,7 +993,7 @@ page 403 "Purchase Order Statistics"
                               0, "Currency Code", Rec."Prices Including VAT", false, Rec."VAT Base Discount %")
                         else
                             TempVATAmountLine1.SetInvoiceDiscountPercent(
-                              100 * TempVATAmountLine2.GetTotalInvDiscAmount / InvDiscBaseAmount,
+                              100 * TempVATAmountLine2.GetTotalInvDiscAmount() / InvDiscBaseAmount,
                               "Currency Code", Rec."Prices Including VAT", false, Rec."VAT Base Discount %");
                     end else begin
                         InvDiscBaseAmount := TempVATAmountLine1.GetTotalInvDiscBaseAmount(false, "Currency Code");
@@ -1020,7 +1002,7 @@ page 403 "Purchase Order Statistics"
                               0, "Currency Code", Rec."Prices Including VAT", false, Rec."VAT Base Discount %")
                         else
                             TempVATAmountLine2.SetInvoiceDiscountPercent(
-                              100 * TempVATAmountLine1.GetTotalInvDiscAmount / InvDiscBaseAmount,
+                              100 * TempVATAmountLine1.GetTotalInvDiscAmount() / InvDiscBaseAmount,
                               "Currency Code", Rec."Prices Including VAT", false, Rec."VAT Base Discount %");
                     end;
             end;
@@ -1030,12 +1012,8 @@ page 403 "Purchase Order Statistics"
 
         if ModifiedIndexNo = 1 then
             VATLinesForm.SetTempVATAmountLine(TempVATAmountLine1)
-        else begin
-#if not CLEAN18
-            TempVATAmountLine2.ModifyAll("Modified (LCY)", false); // NAVCZ
-#endif
+        else
             VATLinesForm.SetTempVATAmountLine(TempVATAmountLine2);
-        end;
 
         Rec."Invoice Discount Calculation" := Rec."Invoice Discount Calculation"::Amount;
         Rec."Invoice Discount Value" := TotalPurchLine[1]."Inv. Discount Amount";
@@ -1074,11 +1052,11 @@ page 403 "Purchase Order Statistics"
         PurchLine: Record "Purchase Line";
     begin
         GetVATSpecification(ActiveTab);
-        if TempVATAmountLine1.GetAnyLineModified then begin
+        if TempVATAmountLine1.GetAnyLineModified() then begin
             PurchLine.SetPurchHeader(Rec); // NAVCZ
             PurchLine.UpdateVATOnLines(0, Rec, PurchLine, TempVATAmountLine1);
         end;
-        if TempVATAmountLine2.GetAnyLineModified then
+        if TempVATAmountLine2.GetAnyLineModified() then
             PurchLine.UpdateVATOnLines(1, Rec, PurchLine, TempVATAmountLine2);
         PrevNo := '';
     end;
@@ -1088,7 +1066,7 @@ page 403 "Purchase Order Statistics"
         VendInvDisc: Record "Vendor Invoice Disc.";
     begin
         VendInvDisc.SetRange(Code, InvDiscCode);
-        exit(VendInvDisc.FindFirst);
+        exit(VendInvDisc.FindFirst());
     end;
 
     local procedure CheckAllowInvDisc()
@@ -1098,7 +1076,7 @@ page 403 "Purchase Order Statistics"
         if not AllowInvDisc then
             Error(
               Text005,
-              VendInvDisc.TableCaption, FieldCaption("Invoice Disc. Code"), "Invoice Disc. Code");
+              VendInvDisc.TableCaption(), FieldCaption("Invoice Disc. Code"), "Invoice Disc. Code");
     end;
 
     local procedure Pct(Numerator: Decimal; Denominator: Decimal): Decimal
@@ -1115,11 +1093,6 @@ page 403 "Purchase Order Statistics"
         VATLinesForm.InitGlobals(
           "Currency Code", AllowVATDifference, AllowVATDifference and ThisTabAllowsVATEditing,
           "Prices Including VAT", AllowInvDisc, "VAT Base Discount %");
-#if not CLEAN18
-        // NAVCZ
-        VATLinesForm.SetCurrencyFactor("Currency Factor");
-        // NAVCZ
-#endif
         VATLinesForm.RunModal();
         VATLinesForm.GetTempVATAmountLine(VATLinesToDrillDown);
     end;
@@ -1191,7 +1164,7 @@ page 403 "Purchase Order Statistics"
                 repeat
                     TempVATAmountLineTot := VATAmountLine;
                     TempVATAmountLineTot.Positive := true;
-                    if not TempVATAmountLineTot.Find then begin
+                    if not TempVATAmountLineTot.Find() then begin
                         TempVATAmountLineTot := VATAmountLine;
                         TempVATAmountLineTot.Positive := true;
                         TempVATAmountLineTot."Line Amount" := 0;
@@ -1202,17 +1175,6 @@ page 403 "Purchase Order Statistics"
                         TempVATAmountLineTot."Amount Including VAT" += "Amount Including VAT";
                         TempVATAmountLineTot."Calculated VAT Amount" += "Calculated VAT Amount";
                         TempVATAmountLineTot."VAT Difference" += "VAT Difference";
-#if not CLEAN18
-                        TempVATAmountLineTot."Ext. VAT Base (LCY)" += "Ext. VAT Base (LCY)";
-                        TempVATAmountLineTot."Ext. VAT Amount (LCY)" += "Ext. VAT Amount (LCY)";
-                        TempVATAmountLineTot."Ext.Amount Including VAT (LCY)" += "Ext.Amount Including VAT (LCY)";
-                        TempVATAmountLineTot."Ext. VAT Difference (LCY)" += "Ext. VAT Difference (LCY)";
-                        TempVATAmountLineTot."Ext. Calc. VAT Amount (LCY)" += "Ext. Calc. VAT Amount (LCY)";
-                        TempVATAmountLineTot."VAT Base (LCY)" += "VAT Base (LCY)";
-                        TempVATAmountLineTot."VAT Amount (LCY)" += "VAT Amount (LCY)";
-                        TempVATAmountLineTot."Amount Including VAT (LCY)" += "Amount Including VAT (LCY)";
-                        TempVATAmountLineTot."Calculated VAT Amount (LCY)" += "Calculated VAT Amount (LCY)";
-#endif
                         TempVATAmountLineTot.Modify();
                     end;
                 until Next() = 0;

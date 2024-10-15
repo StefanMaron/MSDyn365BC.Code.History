@@ -88,7 +88,7 @@ codeunit 137266 "SCM Package Tracking Transfer"
             LibraryItemTracking.CreatePackageNoInformation(PackageNoInfo, Item."No.", PackageNo[i]);
         end;
 
-        LibraryInventory.CreateItemJnlLine(ItemJnlLine, "Item Ledger Entry Type"::"Positive Adjmt.", WorkDate, Item."No.", 10, LocationFrom.Code);
+        LibraryInventory.CreateItemJnlLine(ItemJnlLine, "Item Ledger Entry Type"::"Positive Adjmt.", WorkDate(), Item."No.", 10, LocationFrom.Code);
         LibraryItemTracking.CreateItemJournalLineItemTracking(ReservationEntry, ItemJnlLine, '', '', PackageNo[1], 6);
         LibraryItemTracking.CreateItemJournalLineItemTracking(ReservationEntry, ItemJnlLine, '', '', PackageNo[2], 4);
         LibraryInventory.PostItemJnlLineWithCheck(ItemJnlLine);
@@ -133,7 +133,7 @@ codeunit 137266 "SCM Package Tracking Transfer"
         LibraryItemTracking.CreateItemWithItemTrackingCode(Item, ItemTrackingCode);
         PackageNo := LibraryUtility.GenerateGUID();
 
-        LibraryInventory.CreateItemJnlLine(ItemJnlLine, "Item Ledger Entry Type"::"Positive Adjmt.", WorkDate, Item."No.", 5, LocationFrom.Code);
+        LibraryInventory.CreateItemJnlLine(ItemJnlLine, "Item Ledger Entry Type"::"Positive Adjmt.", WorkDate(), Item."No.", 5, LocationFrom.Code);
         for i := 1 to 5 do begin
             Serial := 'SN0' + Format(i);
             LibraryItemTracking.CreateItemJournalLineItemTracking(ReservationEntry, ItemJnlLine, Serial, '', PackageNo, 1);
@@ -199,7 +199,7 @@ codeunit 137266 "SCM Package Tracking Transfer"
         LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCode, false, false, true);
         LibraryItemTracking.CreateItemWithItemTrackingCode(Item, ItemTrackingCode);
 
-        LibraryInventory.CreateItemJnlLine(ItemJnlLine, "Item Ledger Entry Type"::"Positive Adjmt.", WorkDate, Item."No.", 10, LocationFrom.Code);
+        LibraryInventory.CreateItemJnlLine(ItemJnlLine, "Item Ledger Entry Type"::"Positive Adjmt.", WorkDate(), Item."No.", 10, LocationFrom.Code);
         LibraryItemTracking.CreateItemJournalLineItemTracking(ReservationEntry, ItemJnlLine, '', '', PackageNo, 10);
         LibraryInventory.PostItemJnlLineWithCheck(ItemJnlLine);
 
@@ -253,7 +253,7 @@ codeunit 137266 "SCM Package Tracking Transfer"
         LibraryItemTracking.CreateItemWithItemTrackingCode(Item, ItemTrackingCode);
         PackageNo := LibraryUtility.GenerateGUID();
 
-        LibraryInventory.CreateItemJnlLine(ItemJnlLine, "Item Ledger Entry Type"::"Positive Adjmt.", WorkDate, Item."No.", 10, LocationFrom.Code);
+        LibraryInventory.CreateItemJnlLine(ItemJnlLine, "Item Ledger Entry Type"::"Positive Adjmt.", WorkDate(), Item."No.", 10, LocationFrom.Code);
         LibraryItemTracking.CreateItemJournalLineItemTracking(ReservationEntry, ItemJnlLine, '', '', PackageNo, 10);
         LibraryInventory.PostItemJnlLineWithCheck(ItemJnlLine);
 
@@ -306,7 +306,7 @@ codeunit 137266 "SCM Package Tracking Transfer"
             LibraryItemTracking.CreatePackageNoInformation(PackageNoInfo[i], Item."No.", NewPackageNo[i]);
         end;
 
-        LibraryInventory.CreateItemJnlLine(ItemJnlLine, "Item Ledger Entry Type"::"Positive Adjmt.", WorkDate, Item."No.", 10, LocationFrom.Code);
+        LibraryInventory.CreateItemJnlLine(ItemJnlLine, "Item Ledger Entry Type"::"Positive Adjmt.", WorkDate(), Item."No.", 10, LocationFrom.Code);
         for i := 1 to ArrayLen(LotNo) do
             LibraryItemTracking.CreateItemJournalLineItemTracking(ReservationEntry, ItemJnlLine, '', LotNo[i], PackageNo, 5);
         LibraryInventory.PostItemJnlLineWithCheck(ItemJnlLine);
@@ -358,7 +358,7 @@ codeunit 137266 "SCM Package Tracking Transfer"
         PackageNo := LibraryUtility.GenerateGUID();
         NewPackageNo := LibraryUtility.GenerateGUID();
 
-        LibraryInventory.CreateItemJnlLine(ItemJnlLine, "Item Ledger Entry Type"::"Positive Adjmt.", WorkDate, Item."No.", 10, LocationFrom.Code);
+        LibraryInventory.CreateItemJnlLine(ItemJnlLine, "Item Ledger Entry Type"::"Positive Adjmt.", WorkDate(), Item."No.", 10, LocationFrom.Code);
         LibraryItemTracking.CreateItemJournalLineItemTracking(ReservationEntry, ItemJnlLine, '', '', PackageNo, 10);
         LibraryInventory.PostItemJnlLineWithCheck(ItemJnlLine);
 
@@ -455,7 +455,7 @@ codeunit 137266 "SCM Package Tracking Transfer"
             LibraryItemTracking.CreatePackageNoInformation(PackageNoInfo, Item."No.", PackageNo[i]);
         end;
 
-        LibraryInventory.CreateItemJnlLine(ItemJnlLine, "Item Ledger Entry Type"::"Positive Adjmt.", WorkDate, Item."No.", 2, LocationFrom.Code);
+        LibraryInventory.CreateItemJnlLine(ItemJnlLine, "Item Ledger Entry Type"::"Positive Adjmt.", WorkDate(), Item."No.", 2, LocationFrom.Code);
         for i := 1 to ArrayLen(SerialNo) do
             LibraryItemTracking.CreateItemJournalLineItemTracking(ReservationEntry, ItemJnlLine, SerialNo[i], '', PackageNo[i], 1);
         LibraryInventory.PostItemJnlLineWithCheck(ItemJnlLine);
@@ -512,7 +512,7 @@ codeunit 137266 "SCM Package Tracking Transfer"
         for i := 1 to ArrayLen(LotNo) do
             LotNo[i] := LibraryUtility.GenerateGUID();
 
-        LibraryInventory.CreateItemJnlLine(ItemJnlLine, "Item Ledger Entry Type"::"Positive Adjmt.", WorkDate, Item."No.", 10, LocationFrom.Code);
+        LibraryInventory.CreateItemJnlLine(ItemJnlLine, "Item Ledger Entry Type"::"Positive Adjmt.", WorkDate(), Item."No.", 10, LocationFrom.Code);
         LibraryItemTracking.CreateItemJournalLineItemTracking(ReservationEntry, ItemJnlLine, '', LotNo[1], PackageNo[1], 5);
         LibraryItemTracking.CreateItemJournalLineItemTracking(ReservationEntry, ItemJnlLine, '', LotNo[2], PackageNo[2], 3);
         LibraryItemTracking.CreateItemJournalLineItemTracking(ReservationEntry, ItemJnlLine, '', LotNo[3], PackageNo[2], 2);
@@ -579,7 +579,7 @@ codeunit 137266 "SCM Package Tracking Transfer"
             LibraryItemTracking.CreatePackageNoInformation(PackageNoInfo[i], Item."No.", PackageNo[i]);
         end;
 
-        LibraryInventory.CreateItemJnlLine(ItemJnlLine, "Item Ledger Entry Type"::"Positive Adjmt.", WorkDate, Item."No.", 10, LocationFrom.Code);
+        LibraryInventory.CreateItemJnlLine(ItemJnlLine, "Item Ledger Entry Type"::"Positive Adjmt.", WorkDate(), Item."No.", 10, LocationFrom.Code);
         LibraryItemTracking.CreateItemJournalLineItemTracking(ReservationEntry, ItemJnlLine, '', '', PackageNo[1], 3);
         LibraryItemTracking.CreateItemJournalLineItemTracking(ReservationEntry, ItemJnlLine, '', '', PackageNo[2], 7);
         LibraryInventory.PostItemJnlLineWithCheck(ItemJnlLine);
@@ -688,7 +688,7 @@ codeunit 137266 "SCM Package Tracking Transfer"
         for i := 1 to ArrayLen(LotNo) do
             LotNo[i] := LibraryUtility.GenerateGUID();
 
-        LibraryInventory.CreateItemJnlLine(ItemJnlLine, "Item Ledger Entry Type"::"Positive Adjmt.", WorkDate, Item."No.", 10, LocationFrom.Code);
+        LibraryInventory.CreateItemJnlLine(ItemJnlLine, "Item Ledger Entry Type"::"Positive Adjmt.", WorkDate(), Item."No.", 10, LocationFrom.Code);
         LibraryItemTracking.CreateItemJournalLineItemTracking(ReservationEntry, ItemJnlLine, '', LotNo[1], PackageNo, 4);
         LibraryItemTracking.CreateItemJournalLineItemTracking(ReservationEntry, ItemJnlLine, '', LotNo[2], PackageNo, 3);
         LibraryItemTracking.CreateItemJournalLineItemTracking(ReservationEntry, ItemJnlLine, '', LotNo[3], PackageNo, 3);
@@ -808,7 +808,7 @@ codeunit 137266 "SCM Package Tracking Transfer"
         PackageNo := LibraryUtility.GenerateGUID();
         LibraryItemTracking.CreatePackageNoInformation(PackageNoInfo, Item."No.", PackageNo);
 
-        LibraryInventory.CreateItemJnlLine(ItemJnlLine, "Item Ledger Entry Type"::"Positive Adjmt.", WorkDate, Item."No.", 7, LocationFrom.Code);
+        LibraryInventory.CreateItemJnlLine(ItemJnlLine, "Item Ledger Entry Type"::"Positive Adjmt.", WorkDate(), Item."No.", 7, LocationFrom.Code);
         for i := 1 to ArrayLen(SerialNo) do begin
             SerialNo[i] := LibraryUtility.GenerateGUID();
             LibraryItemTracking.CreateItemJournalLineItemTracking(ReservationEntry, ItemJnlLine, SerialNo[i], '', PackageNo, 1);
@@ -864,11 +864,11 @@ codeunit 137266 "SCM Package Tracking Transfer"
         LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCode[2], false, false, false);
         LibraryItemTracking.CreateItemWithItemTrackingCode(Item[2], ItemTrackingCode[2]);
 
-        LibraryInventory.CreateItemJnlLine(ItemJnlLine, "Item Ledger Entry Type"::"Positive Adjmt.", WorkDate, Item[1]."No.", 60, LocationFrom.Code);
+        LibraryInventory.CreateItemJnlLine(ItemJnlLine, "Item Ledger Entry Type"::"Positive Adjmt.", WorkDate(), Item[1]."No.", 60, LocationFrom.Code);
         LibraryItemTracking.CreateItemJournalLineItemTracking(ReservationEntry, ItemJnlLine, '', '', PackageNo, 60);
         LibraryInventory.PostItemJnlLineWithCheck(ItemJnlLine);
 
-        LibraryInventory.CreateItemJnlLine(ItemJnlLine, "Item Ledger Entry Type"::"Positive Adjmt.", WorkDate, Item[2]."No.", 60, LocationFrom.Code);
+        LibraryInventory.CreateItemJnlLine(ItemJnlLine, "Item Ledger Entry Type"::"Positive Adjmt.", WorkDate(), Item[2]."No.", 60, LocationFrom.Code);
         LibraryInventory.PostItemJnlLineWithCheck(ItemJnlLine);
 
         LibraryInventory.CreateTransferHeader(TransferHeader, LocationFrom.Code, LocationTo.Code, LocationTransit.Code);
@@ -920,7 +920,7 @@ codeunit 137266 "SCM Package Tracking Transfer"
         for i := 1 to ArrayLen(SerialNo) do
             SerialNo[i] := LibraryUtility.GenerateGUID();
 
-        LibraryInventory.CreateItemJnlLine(ItemJnlLine, "Item Ledger Entry Type"::"Positive Adjmt.", WorkDate, Item."No.", 1, LocationFrom.Code);
+        LibraryInventory.CreateItemJnlLine(ItemJnlLine, "Item Ledger Entry Type"::"Positive Adjmt.", WorkDate(), Item."No.", 1, LocationFrom.Code);
         LibraryItemTracking.CreateItemJournalLineItemTracking(ReservationEntry, ItemJnlLine, SerialNo[1], '', PackageNo, 1);
         LibraryInventory.PostItemJnlLineWithCheck(ItemJnlLine);
 
@@ -961,7 +961,7 @@ codeunit 137266 "SCM Package Tracking Transfer"
             LibraryItemTracking.CreatePackageNoInformation(PackageNoInfo, Item."No.", PackageNo[i]);
         end;
 
-        LibraryInventory.CreateItemJnlLine(ItemJnlLine, "Item Ledger Entry Type"::"Positive Adjmt.", WorkDate, Item."No.", 4, LocationFrom.Code);
+        LibraryInventory.CreateItemJnlLine(ItemJnlLine, "Item Ledger Entry Type"::"Positive Adjmt.", WorkDate(), Item."No.", 4, LocationFrom.Code);
         for i := 1 to ArrayLen(SerialNo) do begin
             SerialNo[i] := LibraryUtility.GenerateGUID();
             LibraryItemTracking.CreateItemJournalLineItemTracking(ReservationEntry, ItemJnlLine, SerialNo[i], '', PackageNo[1], 1);
@@ -1007,7 +1007,7 @@ codeunit 137266 "SCM Package Tracking Transfer"
             LibraryItemTracking.CreatePackageNoInformation(PackageNoInfo, Item."No.", PackageNo[i]);
         end;
 
-        LibraryInventory.CreateItemJnlLine(ItemJnlLine, "Item Ledger Entry Type"::"Positive Adjmt.", WorkDate, Item."No.", 4, LocationFrom.Code);
+        LibraryInventory.CreateItemJnlLine(ItemJnlLine, "Item Ledger Entry Type"::"Positive Adjmt.", WorkDate(), Item."No.", 4, LocationFrom.Code);
         LibraryItemTracking.CreateItemJournalLineItemTracking(ReservationEntry, ItemJnlLine, '', '', PackageNo[1], 4);
         LibraryInventory.PostItemJnlLineWithCheck(ItemJnlLine);
 
@@ -1041,7 +1041,7 @@ codeunit 137266 "SCM Package Tracking Transfer"
         LibraryItemTracking.CreateItemWithItemTrackingCode(Item, ItemTrackingCode);
 
         LibraryInventory.CreateItemJnlLine(
-            ItemJnlLine, "Item Ledger Entry Type"::"Positive Adjmt.", WorkDate, Item."No.", 20, LocationTo.Code);
+            ItemJnlLine, "Item Ledger Entry Type"::"Positive Adjmt.", WorkDate(), Item."No.", 20, LocationTo.Code);
         for i := 1 to ArrayLen(PackageNo) do begin
             PackageNo[i] := LibraryUtility.GenerateGUID();
             LibraryItemTracking.CreatePackageNoInformation(PackageNoInfo, Item."No.", PackageNo[i]);
@@ -1050,7 +1050,7 @@ codeunit 137266 "SCM Package Tracking Transfer"
         LibraryItemTracking.CreateItemJournalLineItemTracking(ReservationEntry, ItemJnlLine, '', '', PackageNo[1], 20);
         LibraryInventory.PostItemJnlLineWithCheck(ItemJnlLine);
 
-        CreateItemReclassJnlLine(ItemJnlLine, "Item Ledger Entry Type"::Transfer, WorkDate, Item."No.", 15, LocationTo.Code, LocationTo.Code);
+        CreateItemReclassJnlLine(ItemJnlLine, "Item Ledger Entry Type"::Transfer, WorkDate(), Item."No.", 15, LocationTo.Code, LocationTo.Code);
         LibraryItemTracking.CreateItemReclassJnLineItemTracking(ReservationEntry, ItemJnlLine, '', '', PackageNo[1], 15);
         ReservationEntry.Validate("New Package No.", PackageNo[2]);
         ReservationEntry.Modify();
@@ -1108,7 +1108,7 @@ codeunit 137266 "SCM Package Tracking Transfer"
 
         LibraryItemTracking.CreatePackageNoInformation(PackageNoInfo, Item."No.", PackageNo[3]);
 
-        CreateItemReclassJnlLine(ItemJnlLine, "Item Ledger Entry Type"::Transfer, WorkDate, Item."No.", 4, LocationFrom.Code, LocationTo.Code);
+        CreateItemReclassJnlLine(ItemJnlLine, "Item Ledger Entry Type"::Transfer, WorkDate(), Item."No.", 4, LocationFrom.Code, LocationTo.Code);
 
         LibraryItemTracking.CreateItemReclassJnLineItemTracking(ReservationEntry, ItemJnlLine, SerialNo[1], '', PackageNo[1], 1);
         ReservationEntry.Validate("New Package No.", PackageNo[1]);
@@ -1171,7 +1171,7 @@ codeunit 137266 "SCM Package Tracking Transfer"
         for i := 1 to ArrayLen(PackageNo) do
             PackageNo[i] := LibraryUtility.GenerateGUID();
 
-        LibraryInventory.CreateItemJnlLine(ItemJnlLine, "Item Ledger Entry Type"::"Positive Adjmt.", WorkDate, Item."No.", 5, LocationFrom.Code);
+        LibraryInventory.CreateItemJnlLine(ItemJnlLine, "Item Ledger Entry Type"::"Positive Adjmt.", WorkDate(), Item."No.", 5, LocationFrom.Code);
         LibraryItemTracking.CreateItemJournalLineItemTracking(ReservationEntry, ItemJnlLine, '', '', PackageNo[1], 2);
         LibraryItemTracking.CreateItemJournalLineItemTracking(ReservationEntry, ItemJnlLine, '', '', PackageNo[2], 3);
         LibraryInventory.PostItemJnlLineWithCheck(ItemJnlLine);
@@ -1223,12 +1223,12 @@ codeunit 137266 "SCM Package Tracking Transfer"
         for i := 1 to ArrayLen(PackageNo) do
             PackageNo[i] := LibraryUtility.GenerateGUID();
 
-        LibraryInventory.CreateItemJnlLine(ItemJnlLine, "Item Ledger Entry Type"::"Positive Adjmt.", WorkDate, Item."No.", 5, LocationFrom.Code);
+        LibraryInventory.CreateItemJnlLine(ItemJnlLine, "Item Ledger Entry Type"::"Positive Adjmt.", WorkDate(), Item."No.", 5, LocationFrom.Code);
         for i := 1 to 5 do
             LibraryItemTracking.CreateItemJournalLineItemTracking(ReservationEntry, ItemJnlLine, 'S' + Format(i), '', PackageNo[1], 1);
         LibraryInventory.PostItemJnlLineWithCheck(ItemJnlLine);
 
-        CreateItemReclassJnlLine(ItemJnlLine, "Item Ledger Entry Type"::Transfer, WorkDate, Item."No.", 5, LocationFrom.Code, LocationTo.Code);
+        CreateItemReclassJnlLine(ItemJnlLine, "Item Ledger Entry Type"::Transfer, WorkDate(), Item."No.", 5, LocationFrom.Code, LocationTo.Code);
         for i := 1 to 4 do begin
             LibraryItemTracking.CreateItemReclassJnLineItemTracking(ReservationEntry, ItemJnlLine, 'S' + Format(i), '', PackageNo[1], 1);
             ReservationEntry.Validate("New Serial No.", 'S00' + Format(i));
@@ -1287,11 +1287,11 @@ codeunit 137266 "SCM Package Tracking Transfer"
         PackageNo := LibraryUtility.GenerateGUID();
         NewPackageNo := LibraryUtility.GenerateGUID();
         LibraryItemTracking.CreatePackageNoInformation(PackageNoInfo, Item."No.", PackageNo);
-        LibraryInventory.CreateItemJnlLine(ItemJnlLine, "Item Ledger Entry Type"::"Positive Adjmt.", WorkDate, Item."No.", 5, LocationFrom.Code);
+        LibraryInventory.CreateItemJnlLine(ItemJnlLine, "Item Ledger Entry Type"::"Positive Adjmt.", WorkDate(), Item."No.", 5, LocationFrom.Code);
         LibraryItemTracking.CreateItemJournalLineItemTracking(ReservationEntry, ItemJnlLine, '', '', PackageNo, 5);
         LibraryInventory.PostItemJnlLineWithCheck(ItemJnlLine);
 
-        CreateItemReclassJnlLine(ItemJnlLine, "Item Ledger Entry Type"::Transfer, WorkDate, Item."No.", 5, LocationFrom.Code, LocationTo.Code);
+        CreateItemReclassJnlLine(ItemJnlLine, "Item Ledger Entry Type"::Transfer, WorkDate(), Item."No.", 5, LocationFrom.Code, LocationTo.Code);
         LibraryItemTracking.CreateItemReclassJnLineItemTracking(ReservationEntry, ItemJnlLine, '', '', NewPackageNo, 5);
 
         ReservationEntry.Validate("New Package No.", NewPackageNo);
@@ -1328,7 +1328,7 @@ codeunit 137266 "SCM Package Tracking Transfer"
 
         for i := 1 to ArrayLen(LotNo) do
             LotNo[i] := LibraryUtility.GenerateGUID();
-        LibraryInventory.CreateItemJnlLine(ItemJnlLine, "Item Ledger Entry Type"::"Positive Adjmt.", WorkDate, Item."No.", 10, LocationFrom.Code);
+        LibraryInventory.CreateItemJnlLine(ItemJnlLine, "Item Ledger Entry Type"::"Positive Adjmt.", WorkDate(), Item."No.", 10, LocationFrom.Code);
         CreateJnlLineSNTracking(ReservationEntry, ItemJnlLine, 'S0', LotNo[1], 5);
         CreateJnlLineSNTracking(ReservationEntry, ItemJnlLine, 'S1', LotNo[2], 5);
         LibraryInventory.PostItemJnlLineWithCheck(ItemJnlLine);
@@ -1374,7 +1374,7 @@ codeunit 137266 "SCM Package Tracking Transfer"
 
         for i := 1 to ArrayLen(LotNo) do
             LotNo[i] := LibraryUtility.GenerateGUID();
-        LibraryInventory.CreateItemJnlLine(ItemJnlLine, "Item Ledger Entry Type"::"Positive Adjmt.", WorkDate, Item."No.", 10, LocationFrom.Code);
+        LibraryInventory.CreateItemJnlLine(ItemJnlLine, "Item Ledger Entry Type"::"Positive Adjmt.", WorkDate(), Item."No.", 10, LocationFrom.Code);
         CreateJnlLineSNTracking(ReservationEntry, ItemJnlLine, 'S0', LotNo[1], 5);
         CreateJnlLineSNTracking(ReservationEntry, ItemJnlLine, 'S1', LotNo[2], 5);
         LibraryInventory.PostItemJnlLineWithCheck(ItemJnlLine);
@@ -1415,11 +1415,11 @@ codeunit 137266 "SCM Package Tracking Transfer"
             LibraryItemTracking.CreateItemWithItemTrackingCode(Item[i], ItemTrackingCode[i]);
         PackageNo := LibraryUtility.GenerateGUID();
 
-        LibraryInventory.CreateItemJnlLine(ItemJnlLine, "Item Ledger Entry Type"::"Positive Adjmt.", WorkDate, Item[1]."No.", 5, LocationFrom.Code);
+        LibraryInventory.CreateItemJnlLine(ItemJnlLine, "Item Ledger Entry Type"::"Positive Adjmt.", WorkDate(), Item[1]."No.", 5, LocationFrom.Code);
         LibraryItemTracking.CreateItemJournalLineItemTracking(ReservationEntry, ItemJnlLine, '', '', PackageNo, 5);
         LibraryInventory.PostItemJnlLineWithCheck(ItemJnlLine);
 
-        LibraryInventory.CreateItemJnlLine(ItemJnlLine, "Item Ledger Entry Type"::"Positive Adjmt.", WorkDate, Item[2]."No.", 5, LocationFrom.Code);
+        LibraryInventory.CreateItemJnlLine(ItemJnlLine, "Item Ledger Entry Type"::"Positive Adjmt.", WorkDate(), Item[2]."No.", 5, LocationFrom.Code);
         CreateJnlLineSNTracking(ReservationEntry, ItemJnlLine, SerTxt, '', 5);
         LibraryInventory.PostItemJnlLineWithCheck(ItemJnlLine);
 
@@ -1464,7 +1464,7 @@ codeunit 137266 "SCM Package Tracking Transfer"
         LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
         LibraryInventory.CreateItemUnitOfMeasure(ItemUnitOfMeasure, Item."No.", UnitOfMeasure.Code, 9);
 
-        LibraryInventory.CreateItemJnlLine(ItemJnlLine, "Item Ledger Entry Type"::"Positive Adjmt.", WorkDate, Item."No.", 20, LocationFrom.Code);
+        LibraryInventory.CreateItemJnlLine(ItemJnlLine, "Item Ledger Entry Type"::"Positive Adjmt.", WorkDate(), Item."No.", 20, LocationFrom.Code);
         PackageNo := LibraryUtility.GenerateGUID();
         for i := 1 to 20 do begin
             SerialNo[i] := LibraryUtility.GenerateGUID();
@@ -1523,11 +1523,11 @@ codeunit 137266 "SCM Package Tracking Transfer"
             LibraryItemTracking.CreatePackageNoInformation(PackageNoInfo[i], Item."No.", PackageNo[i]);
         end;
 
-        LibraryInventory.CreateItemJnlLine(ItemJnlLine, "Item Ledger Entry Type"::"Positive Adjmt.", WorkDate, Item."No.", 10, LocationFrom.Code);
+        LibraryInventory.CreateItemJnlLine(ItemJnlLine, "Item Ledger Entry Type"::"Positive Adjmt.", WorkDate(), Item."No.", 10, LocationFrom.Code);
         LibraryItemTracking.CreateItemJournalLineItemTracking(ReservationEntry, ItemJnlLine, '', '', PackageNo[1], 10);
         LibraryInventory.PostItemJnlLineWithCheck(ItemJnlLine);
 
-        LibraryInventory.CreateItemJnlLine(ItemJnlLine, "Item Ledger Entry Type"::"Positive Adjmt.", WorkDate, Item."No.", 2, LocationFrom.Code);
+        LibraryInventory.CreateItemJnlLine(ItemJnlLine, "Item Ledger Entry Type"::"Positive Adjmt.", WorkDate(), Item."No.", 2, LocationFrom.Code);
         LibraryItemTracking.CreateItemJournalLineItemTracking(ReservationEntry, ItemJnlLine, '', '', PackageNo[2], 2);
         LibraryInventory.PostItemJnlLineWithCheck(ItemJnlLine);
 
@@ -1570,7 +1570,7 @@ codeunit 137266 "SCM Package Tracking Transfer"
         for i := 1 to ArrayLen(Item) do
             LibraryItemTracking.CreateItemWithItemTrackingCode(Item[i], ItemTrackingCode);
         PackageNo := LibraryUtility.GenerateGUID();
-        LibraryInventory.CreateItemJnlLine(ItemJnlLine, "Item Ledger Entry Type"::"Positive Adjmt.", WorkDate, Item[1]."No.", 51, LocationFrom.Code);
+        LibraryInventory.CreateItemJnlLine(ItemJnlLine, "Item Ledger Entry Type"::"Positive Adjmt.", WorkDate(), Item[1]."No.", 51, LocationFrom.Code);
         LibraryItemTracking.CreateItemJournalLineItemTracking(ReservationEntry, ItemJnlLine, '', '', PackageNo, 51);
         LibraryInventory.PostItemJnlLineWithCheck(ItemJnlLine);
         for i := 1 to ArrayLen(NewPackageNo) do begin
@@ -1578,7 +1578,7 @@ codeunit 137266 "SCM Package Tracking Transfer"
             LibraryItemTracking.CreatePackageNoInformation(PackageNoInfo[i], Item[i]."No.", NewPackageNo[i]);
         end;
 
-        LibraryInventory.CreateItemJnlLine(ItemJnlLine, "Item Ledger Entry Type"::"Positive Adjmt.", WorkDate, Item[2]."No.", 51, LocationFrom.Code);
+        LibraryInventory.CreateItemJnlLine(ItemJnlLine, "Item Ledger Entry Type"::"Positive Adjmt.", WorkDate(), Item[2]."No.", 51, LocationFrom.Code);
         i := 1;
         while i < 52 do begin
             LibraryItemTracking.CreateItemJournalLineItemTracking(ReservationEntry, ItemJnlLine, 'SN' + Format(i), '', NewPackageNo[2], 1);
@@ -1770,7 +1770,7 @@ codeunit 137266 "SCM Package Tracking Transfer"
             if FindLast() then;
             LineNo := "Line No." + 10000;
 
-            Init;
+            Init();
             "Journal Template Name" := ItemJnlTemplate.Name;
             "Journal Batch Name" := ItemJnlBatch.Name;
             "Line No." := LineNo;
@@ -1879,7 +1879,7 @@ codeunit 137266 "SCM Package Tracking Transfer"
         ItemJournalLine.Init();
         ItemJournalLine.Validate("Journal Template Name", ItemJournalBatch."Journal Template Name");
         ItemJournalLine.Validate("Journal Batch Name", ItemJournalBatch.Name);
-        ItemJournalLine.Validate("Posting Date", WorkDate);
+        ItemJournalLine.Validate("Posting Date", WorkDate());
         BinContent.SetRange("Location Code", LocationCode);
         BinContent.SetRange("Bin Code", BinCode);
         BinContent.SetRange("Item No.", ItemNo);
@@ -1905,7 +1905,7 @@ codeunit 137266 "SCM Package Tracking Transfer"
         if NoSeries.FindFirst() then begin
             ind := NoSeries.Code;
             NoSeriesLine.SetRange("Series Code", ind);
-            if (not NoSeriesLine.FindFirst) then begin
+            if (not NoSeriesLine.FindFirst()) then begin
                 NoSeriesLine.Init();
                 NoSeriesLine.Validate("Series Code", ind);
                 NoSeriesLine.Validate("Starting No.", StartNo);

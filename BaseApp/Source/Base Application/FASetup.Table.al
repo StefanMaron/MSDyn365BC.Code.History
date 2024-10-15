@@ -69,57 +69,16 @@ table 5603 "FA Setup"
         {
             Caption = 'Tax Depr. Book';
             TableRelation = "Depreciation Book";
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
-            ObsoleteTag = '18.0';
-#if not CLEAN18
-
-            trigger OnValidate()
-            var
-                FixedAsset: Record "Fixed Asset";
-                FADeprBook: Record "FA Depreciation Book";
-            begin
-                if "Tax Depr. Book" <> xRec."Tax Depr. Book" then begin
-                    if FixedAsset.FindSet(true) then
-                        repeat
-                            if FADeprBook.Get(FixedAsset."No.", "Tax Depr. Book") then begin
-                                FixedAsset."Tax Depreciation Group Code" := FADeprBook."Depreciation Group Code";
-                                FixedAsset.Modify();
-                            end else begin
-                                FixedAsset."Tax Depreciation Group Code" := '';
-                                FixedAsset.Modify();
-                            end;
-                        until FixedAsset.Next() = 0;
-                end;
-            end;
-#endif
+            ObsoleteTag = '21.0';
         }
         field(31042; "Fixed Asset History"; Boolean)
         {
             Caption = 'Fixed Asset History';
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
-            ObsoleteTag = '18.0';
-#if not CLEAN18
-
-            trigger OnValidate()
-            var
-                InitFAHistory: Report "Initialize FA History";
-            begin
-                if "Fixed Asset History" then begin
-                    Clear(InitFAHistory);
-                    InitFAHistory.RunModal();
-                end;
-            end;
-#endif
+            ObsoleteTag = '21.0';
         }
         field(31043; "FA Maintenance By Maint. Code"; Boolean)
         {
@@ -131,13 +90,9 @@ table 5603 "FA Setup"
         field(31044; "FA Acquisition As Custom 2"; Boolean)
         {
             Caption = 'FA Acquisition As Custom 2';
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(31045; "FA Disposal By Reason Code"; Boolean)
         {

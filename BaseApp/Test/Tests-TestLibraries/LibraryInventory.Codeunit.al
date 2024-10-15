@@ -172,7 +172,7 @@ codeunit 132201 "Library - Inventory"
     procedure CreatePhysInvtOrderHeader(var PhysInvtOrderHeader: Record "Phys. Invt. Order Header")
     begin
         with PhysInvtOrderHeader do begin
-            Init;
+            Init();
             Insert(true);
         end;
     end;
@@ -420,27 +420,6 @@ codeunit 132201 "Library - Inventory"
             end;
     end;
 
-#if not CLEAN18
-    procedure CreateItemTemplate(var ItemTemplate: Record "Item Template")
-    var
-        GeneralPostingSetup: Record "General Posting Setup";
-        InventoryPostingGroup: Record "Inventory Posting Group";
-        VATPostingSetup: Record "VAT Posting Setup";
-    begin
-        LibraryERM.FindGeneralPostingSetupInvtFull(GeneralPostingSetup);
-        LibraryERM.FindVATPostingSetupInvt(VATPostingSetup);
-        InventoryPostingGroup.FindFirst();
-
-        ItemTemplate.Init();
-        ItemTemplate.Validate(Code, LibraryUtility.GenerateRandomCode(ItemTemplate.FieldNo(Code), DATABASE::"Item Template"));
-        ItemTemplate.Validate("Template Name", LibraryUtility.GenerateGUID());
-        ItemTemplate.Insert(true);
-        ItemTemplate.Validate("Gen. Prod. Posting Group", GeneralPostingSetup."Gen. Prod. Posting Group");
-        ItemTemplate.Validate("Inventory Posting Group", InventoryPostingGroup.Code);
-        ItemTemplate.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
-        ItemTemplate.Modify(true);
-    end;
-#endif
     procedure CreateItemChargeWithoutVAT(var ItemCharge: Record "Item Charge")
     var
         GeneralPostingSetup: Record "General Posting Setup";
@@ -503,7 +482,7 @@ codeunit 132201 "Library - Inventory"
         RecRef.GetTable(ItemChargeAssignmentSales);
         LineNo := LibraryUtility.GetNewLineNo(RecRef, ItemChargeAssignmentSales.FieldNo("Line No."));
         ItemChargeAssgntSales.InsertItemChargeAssignment(ItemChargeAssignmentSales, DocType,
-          DocNo, DocLineNo, ItemNo, '', LineNo, false, false); // NAVCZ
+          DocNo, DocLineNo, ItemNo, '', LineNo);
 
         ItemChargeAssignmentSales.Get(SalesLine."Document Type", SalesLine."Document No.",
           SalesLine."Line No.", LineNo);
@@ -530,7 +509,7 @@ codeunit 132201 "Library - Inventory"
         RecRef.GetTable(ItemChargeAssignmentPurch);
         LineNo := LibraryUtility.GetNewLineNo(RecRef, ItemChargeAssignmentPurch.FieldNo("Line No."));
         ItemChargeAssgntPurch.InsertItemChargeAssignment(
-            ItemChargeAssignmentPurch, DocType, DocNo, DocLineNo, ItemNo, '', LineNo, false, false); // NAVCZ
+            ItemChargeAssignmentPurch, DocType, DocNo, DocLineNo, ItemNo, '', LineNo);
 
         ItemChargeAssignmentPurch.Get(PurchaseLine."Document Type", PurchaseLine."Document No.", PurchaseLine."Line No.", LineNo);
         ItemChargeAssignmentPurch.Validate("Qty. to Assign", PurchaseLine.Quantity);
@@ -604,7 +583,7 @@ codeunit 132201 "Library - Inventory"
         if not ItemJournalBatch.Get(JournalTemplateName, JournalBatchName) then begin
             ItemJournalBatch.Init();
             ItemJournalBatch.Validate("Journal Template Name", JournalTemplateName);
-            ItemJournalBatch.SetupNewBatch;
+            ItemJournalBatch.SetupNewBatch();
             ItemJournalBatch.Validate(Name, JournalBatchName);
             ItemJournalBatch.Validate(Description, JournalBatchName + JOURNAL);
             ItemJournalBatch.Insert(true);
@@ -656,7 +635,7 @@ codeunit 132201 "Library - Inventory"
         RecRef.GetTable(ItemJournalLine);
         ItemJournalLine.Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, ItemJournalLine.FieldNo("Line No.")));
         ItemJournalLine.Insert(true);
-        ItemJournalLine.Validate("Posting Date", WorkDate);
+        ItemJournalLine.Validate("Posting Date", WorkDate());
         ItemJournalLine.Validate("Entry Type", EntryType);
         if NoSeries.Get(ItemJournalBatch."No. Series") then
             DocumentNo := NoSeriesManagement.GetNextNo(ItemJournalBatch."No. Series", ItemJournalLine."Posting Date", false)
@@ -900,7 +879,7 @@ codeunit 132201 "Library - Inventory"
         ShippingAgentServicesPage.Code.SetValue(ShippingAgentServiceCode);
         ShippingAgentServicesPage."Shipping Time".SetValue(ShippingTime);
 
-        ShippingAgentServicesPage.Close;
+        ShippingAgentServicesPage.Close();
     end;
 
     procedure CreateStandardCostWorksheetName(var StandardCostWorksheetName: Record "Standard Cost Worksheet Name")
@@ -1204,7 +1183,7 @@ codeunit 132201 "Library - Inventory"
         ItemJournalBatch.CalcFields("Template Type");
         if ItemJournalBatch."Template Type" = ItemJournalBatch."Template Type"::Revaluation then
             ItemJournalLine."Value Entry Type" := ItemJournalLine."Value Entry Type"::Revaluation;
-        if Item.IsNonInventoriableType then
+        if Item.IsNonInventoriableType() then
             ItemJournalLine."Order Type" := ItemJournalLine."Order Type"::Production;
         ItemJournalLine.Validate("Item No.", Item."No.");
         ItemJournalLine.Validate(Quantity, Quantity);
@@ -1425,7 +1404,7 @@ codeunit 132201 "Library - Inventory"
                 if GeneralPostingSetup."Purch. Prepayments Account" = '' then
                     GeneralPostingSetup.Validate("Purch. Prepayments Account", LibraryERM.CreateGLAccountWithPurchSetup);
                 GeneralPostingSetup.Modify(true);
-            until GeneralPostingSetup.Next = 0;
+            until GeneralPostingSetup.Next() = 0;
     end;
 
     procedure UpdateInventorySetup(var InventorySetup: Record "Inventory Setup"; AutomaticCostPosting: Boolean; ExpectedCostPostingtoGL: Boolean; AutomaticCostAdjustment: Enum "Automatic Cost Adjustment Type"; AverageCostCalcType: Enum "Average Cost Calculation Type"; AverageCostPeriod: Option)
@@ -1446,24 +1425,25 @@ codeunit 132201 "Library - Inventory"
     begin
         if InventoryPostingGroup.FindSet() then
             repeat
-                InventoryPostingSetup.SetRange("Location Code", Location.Code);
-                InventoryPostingSetup.SetRange("Invt. Posting Group Code", InventoryPostingGroup.Code);
-                if not InventoryPostingSetup.FindFirst() then
-                    CreateInventoryPostingSetup(InventoryPostingSetup, Location.Code, InventoryPostingGroup.Code);
-                InventoryPostingSetup.Validate("Inventory Account", LibraryERM.CreateGLAccountNo);
-                InventoryPostingSetup.Validate("Inventory Account (Interim)", LibraryERM.CreateGLAccountNo);
-                InventoryPostingSetup.Validate("WIP Account", LibraryERM.CreateGLAccountNo);
-                InventoryPostingSetup.Validate("Material Variance Account", LibraryERM.CreateGLAccountNo);
-                InventoryPostingSetup.Validate("Capacity Variance Account", LibraryERM.CreateGLAccountNo);
-#if not CLEAN18
-                // NAVCZ
-                InventoryPostingSetup.Validate("Consumption Account", LibraryERM.CreateGLAccountNo);
-                InventoryPostingSetup.Validate("Change In Inv.Of WIP Acc.", LibraryERM.CreateGLAccountNo);
-                InventoryPostingSetup.Validate("Change In Inv.Of Product Acc.", LibraryERM.CreateGLAccountNo);
-                // NAVCZ
-#endif
-                InventoryPostingSetup.Modify(true);
-            until InventoryPostingGroup.Next = 0;
+                UpdateInventoryPostingSetup(Location, InventoryPostingGroup.Code);
+            until InventoryPostingGroup.Next() = 0;
+    end;
+
+    procedure UpdateInventoryPostingSetup(Location: Record Location; InventoryPostingGroupCode: Code[20])
+    var
+        InventoryPostingSetup: Record "Inventory Posting Setup";
+    begin
+        InventoryPostingSetup.SetRange("Location Code", Location.Code);
+        InventoryPostingSetup.SetRange("Invt. Posting Group Code", InventoryPostingGroupCode);
+        if not InventoryPostingSetup.FindFirst() then
+            CreateInventoryPostingSetup(InventoryPostingSetup, Location.Code, InventoryPostingGroupCode);
+        InventoryPostingSetup.Validate("Inventory Account", LibraryERM.CreateGLAccountNo());
+        InventoryPostingSetup.Validate("Inventory Account (Interim)", LibraryERM.CreateGLAccountNo());
+        InventoryPostingSetup.Validate("WIP Account", LibraryERM.CreateGLAccountNo());
+        InventoryPostingSetup.Validate("Material Variance Account", LibraryERM.CreateGLAccountNo());
+        InventoryPostingSetup.Validate("Capacity Variance Account", LibraryERM.CreateGLAccountNo());
+        OnBeforeModifyInventoryPostingSetup(InventoryPostingSetup);
+        InventoryPostingSetup.Modify(true);
     end;
 
     procedure UpdateSalesLine(var SalesLine: Record "Sales Line"; FieldNo: Integer; Value: Variant)
@@ -1520,23 +1500,6 @@ codeunit 132201 "Library - Inventory"
         ReservationEntry.TestField("Lot No.");
     end;
 
-#if not CLEAN18
-    [Scope('OnPrem')]
-    procedure UpdateInventoryPostingSetupAll()
-    var
-        InventoryPostingSetup: Record "Inventory Posting Setup";
-    begin
-        // NAVCZ
-        if InventoryPostingSetup.FindSet() then
-            repeat
-                InventoryPostingSetup."Consumption Account" := LibraryERM.CreateGLAccountNo();
-                InventoryPostingSetup."Change In Inv.Of WIP Acc." := LibraryERM.CreateGLAccountNo();
-                InventoryPostingSetup."Change In Inv.Of Product Acc." := LibraryERM.CreateGLAccountNo();
-                InventoryPostingSetup.Modify(true);
-            until InventoryPostingSetup.Next = 0;
-    end;
-#endif
-
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateItem(var Item: Record Item)
     begin
@@ -1579,6 +1542,11 @@ codeunit 132201 "Library - Inventory"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateVariant(var ItemVariant: Record "Item Variant"; Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeModifyInventoryPostingSetup(var InventoryPostingSetup: Record "Inventory Posting Setup")
     begin
     end;
 }

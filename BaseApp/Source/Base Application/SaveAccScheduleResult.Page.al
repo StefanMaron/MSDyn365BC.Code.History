@@ -29,7 +29,7 @@ page 31087 "Save Acc. Schedule Result"
 
                     trigger OnValidate()
                     begin
-                        UpdateColumnLayoutName;
+                        UpdateColumnLayoutName();
                     end;
                 }
                 field(ColumnLayoutName; ColumnLayoutName)
@@ -110,7 +110,7 @@ page 31087 "Save Acc. Schedule Result"
     begin
         AccSchedName := NewAccSchedName;
         if NewColumnLayoutName = '' then
-            UpdateColumnLayoutName
+            UpdateColumnLayoutName()
         else
             ColumnLayoutName := NewColumnLayoutName;
         DateFilter := NewDateFilter;

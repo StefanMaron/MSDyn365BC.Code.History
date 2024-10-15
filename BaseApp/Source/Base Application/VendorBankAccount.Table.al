@@ -55,8 +55,13 @@ table 288 "Vendor Bank Account"
             end;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
-                PostCode.ValidateCity(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
+                IsHandled := false;
+                OnBeforeValidateCity(Rec, PostCode, CurrFieldNo, IsHandled);
+                if not IsHandled then
+                    PostCode.ValidateCity(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
             end;
         }
         field(9; "Post Code"; Code[20])
@@ -75,8 +80,13 @@ table 288 "Vendor Bank Account"
             end;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
-                PostCode.ValidatePostCode(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
+                IsHandled := false;
+                OnBeforeValidatePostCode(Rec, PostCode, CurrFieldNo, IsHandled);
+                if not IsHandled then
+                    PostCode.ValidatePostCode(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
             end;
         }
         field(10; Contact; Text[100])
@@ -200,41 +210,17 @@ table 288 "Vendor Bank Account"
         {
             BlankZero = true;
             Caption = 'Priority';
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Removed from Base Application, use Preferred Bank Account Code instead.';
-            ObsoleteTag = '18.0';
-#if not CLEAN18
-
-            trigger OnValidate()
-            var
-                VendBankAcc: Record "Vendor Bank Account";
-                POEText: Label '%1 %2 for %3 %4 allready exists!';
-            begin
-                if Priority <> 0 then begin
-                    VendBankAcc.SetCurrentKey("Vendor No.", Priority);
-                    VendBankAcc.SetRange("Vendor No.", "Vendor No.");
-                    VendBankAcc.SetRange(Priority, Priority);
-                    if not VendBankAcc.IsEmpty() then
-                        Error(POEText, FieldCaption(Priority), Priority, FieldCaption("Vendor No."), "Vendor No.");
-                end;
-            end;
-#endif
+            ObsoleteTag = '21.0';
         }
         field(11703; "Specific Symbol"; Code[10])
         {
             Caption = 'Specific Symbol';
             CharAllowed = '09';
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Removed from Base Application.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
 #if not CLEAN20        
         field(11791; "Vendor VAT Registration No."; Text[20])
@@ -263,14 +249,6 @@ table 288 "Vendor Bank Account"
         {
             Clustered = true;
         }
-#if not CLEAN18
-        key(Key2; "Vendor No.", Priority)
-        {
-            ObsoleteState = Pending;
-            ObsoleteReason = 'Field "Priority" is removed and cannot be used in an active key.';
-            ObsoleteTag = '18.0';
-        }
-#endif
     }
 
     fieldgroups
@@ -299,6 +277,10 @@ table 288 "Vendor Bank Account"
         end;
     end;
 
+    trigger OnRename()
+    begin
+    end;
+
     var
         PostCode: Record "Post Code";
         BankAccIdentifierIsEmptyErr: Label 'You must specify either a Bank Account No. or an IBAN.';
@@ -306,7 +288,7 @@ table 288 "Vendor Bank Account"
 
     procedure GetBankAccountNoWithCheck() AccountNo: Text
     begin
-        AccountNo := GetBankAccountNo;
+        AccountNo := GetBankAccountNo();
         if AccountNo = '' then
             Error(BankAccIdentifierIsEmptyErr);
     end;
@@ -346,4 +328,15 @@ table 288 "Vendor Bank Account"
     local procedure OnGetBankAccount(var Handled: Boolean; VendorBankAccount: Record "Vendor Bank Account"; var ResultBankAccountNo: Text)
     begin
     end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateCity(var VendorBankAccount: Record "Vendor Bank Account"; var PostCodeRec: Record "Post Code"; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidatePostCode(var VendorBankAccount: Record "Vendor Bank Account"; var PostCodeRec: Record "Post Code"; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
 }
+

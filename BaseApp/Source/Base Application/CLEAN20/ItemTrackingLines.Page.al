@@ -6,7 +6,6 @@ page 6510 "Item Tracking Lines"
     DelayedInsert = true;
     PageType = Worksheet;
     PopulateAllFields = true;
-    PromotedActionCategories = 'New,Process,Report,Line';
     SourceTable = "Tracking Specification";
     SourceTableTemporary = true;
 
@@ -387,6 +386,8 @@ page 6510 "Item Tracking Lines"
                     ApplicationArea = ItemTracking;
                     Editable = QuantityBaseEditable;
                     ToolTip = 'Specifies the quantity on the line expressed in base units of measure.';
+                    BlankZero = true;
+                    ShowMandatory = true;
 
                     trigger OnValidate()
                     begin
@@ -415,7 +416,7 @@ page 6510 "Item Tracking Lines"
 
                     trigger OnValidate()
                     begin
-                        QtytoInvoiceBaseOnAfterValidat;
+                        QtytoInvoiceBaseOnAfterValidat();
                     end;
                 }
                 field("Quantity Handled (Base)"; Rec."Quantity Handled (Base)")
@@ -461,8 +462,6 @@ page 6510 "Item Tracking Lines"
                     Caption = 'Serial No. Information Card';
                     Visible = ButtonLineReclassVisible;
                     Image = SNInfo;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     ToolTip = 'View or edit detailed information about the serial number.';
 
                     trigger OnAction()
@@ -479,8 +478,6 @@ page 6510 "Item Tracking Lines"
                     Caption = 'Lot No. Information Card';
                     Visible = ButtonLineReclassVisible;
                     Image = LotInfo;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     ToolTip = 'View or edit detailed information about the lot number.';
 
                     trigger OnAction()
@@ -500,8 +497,6 @@ page 6510 "Item Tracking Lines"
                     Caption = 'New S&erial No. Information';
                     Visible = ButtonLineReclassVisible;
                     Image = NewSerialNoProperties;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     ToolTip = 'Create a record with detailed information about the serial number.';
 
                     trigger OnAction()
@@ -518,8 +513,6 @@ page 6510 "Item Tracking Lines"
                     Caption = 'New L&ot No. Information';
                     Visible = ButtonLineReclassVisible;
                     Image = NewLotProperties;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     RunPageOnRec = false;
                     ToolTip = 'Create a record with detailed information about the lot number.';
 
@@ -543,8 +536,6 @@ page 6510 "Item Tracking Lines"
                     Caption = 'Serial No. Information Card';
                     Visible = ButtonLineVisible;
                     Image = SNInfo;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     ToolTip = 'View or edit detailed information about the serial number.';
 
                     trigger OnAction()
@@ -561,8 +552,6 @@ page 6510 "Item Tracking Lines"
                     Caption = 'Lot No. Information Card';
                     Visible = ButtonLineVisible;
                     Image = LotInfo;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     ToolTip = 'View or edit detailed information about the lot number.';
 
                     trigger OnAction()
@@ -579,8 +568,6 @@ page 6510 "Item Tracking Lines"
                     Caption = 'Package No. Information Card';
                     Visible = ButtonLineVisible;
                     Image = LotInfo;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     ToolTip = 'View or edit detailed information about the package number.';
 
                     trigger OnAction()
@@ -606,8 +593,6 @@ page 6510 "Item Tracking Lines"
                     Caption = 'Assign &Serial No.';
                     Visible = FunctionsSupplyVisible;
                     Image = SerialNo;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Automatically assign the required serial numbers from predefined number series.';
 
                     trigger OnAction()
@@ -623,8 +608,6 @@ page 6510 "Item Tracking Lines"
                     Caption = 'Assign &Lot No.';
                     Visible = FunctionsSupplyVisible;
                     Image = Lot;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Automatically assign the required lot numbers from predefined number series.';
 
                     trigger OnAction()
@@ -640,8 +623,6 @@ page 6510 "Item Tracking Lines"
                     Caption = 'Assign &Package No.';
                     Visible = FunctionsSupplyVisible and PackageNoVisible;
                     Image = Lot;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Automatically assign the required package numbers from predefined number series.';
 
                     trigger OnAction()
@@ -657,8 +638,6 @@ page 6510 "Item Tracking Lines"
                     Caption = 'Create Customized SN';
                     Visible = FunctionsSupplyVisible;
                     Image = CreateSerialNo;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Automatically assign the required serial numbers based on a number series that you define.';
 
                     trigger OnAction()
@@ -673,8 +652,6 @@ page 6510 "Item Tracking Lines"
                     ApplicationArea = ItemTracking;
                     Caption = 'Refresh Availability';
                     Visible = FunctionsSupplyVisible;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     Image = Refresh;
                     ToolTip = 'Update the availability information according to changes made by other users since you opened the window. ';
 
@@ -695,8 +672,6 @@ page 6510 "Item Tracking Lines"
                     Caption = 'Assign &Serial No.';
                     Visible = FunctionsDemandVisible;
                     Image = SerialNo;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Automatically assign the required serial numbers from predefined number series.';
 
                     trigger OnAction()
@@ -712,8 +687,6 @@ page 6510 "Item Tracking Lines"
                     Caption = 'Assign &Lot No.';
                     Visible = FunctionsDemandVisible;
                     Image = Lot;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Automatically assign the required lot numbers from predefined number series.';
 
                     trigger OnAction()
@@ -729,8 +702,6 @@ page 6510 "Item Tracking Lines"
                     Caption = 'Assign &Package No.';
                     Visible = FunctionsDemandVisible AND PackageNoVisible;
                     Image = Lot;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Automatically assign the required package numbers from predefined number series.';
 
                     trigger OnAction()
@@ -746,8 +717,6 @@ page 6510 "Item Tracking Lines"
                     Caption = 'Create Customized SN';
                     Visible = FunctionsDemandVisible;
                     Image = CreateSerialNo;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Automatically assign the required serial numbers based on a number series that you define.';
 
                     trigger OnAction()
@@ -763,9 +732,6 @@ page 6510 "Item Tracking Lines"
                     Caption = 'Select &Entries';
                     Visible = FunctionsDemandVisible;
                     Image = SelectEntries;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     ToolTip = 'Select from existing, available serial or lot numbers.';
 
                     trigger OnAction()
@@ -782,9 +748,6 @@ page 6510 "Item Tracking Lines"
                     Caption = 'Refresh Availability';
                     Visible = FunctionsDemandVisible;
                     Image = Refresh;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     ToolTip = 'Update the availability information according to changes made by other users since you opened the window. ';
 
                     trigger OnAction()
@@ -792,6 +755,77 @@ page 6510 "Item Tracking Lines"
                         ItemTrackingDataCollection.RefreshTrackingAvailability(Rec, true);
                     end;
                 }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref("Select Entries_Promoted"; "Select Entries")
+                {
+                }
+                actionref(Action64_Promoted; Action64)
+                {
+                }
+                actionref("Assign Lot No._Promoted"; "Assign Lot No.")
+                {
+                }
+                actionref("Assign Serial No._Promoted"; "Assign Serial No.")
+                {
+                }
+                actionref("Create Customized SN_Promoted"; "Create Customized SN")
+                {
+                }
+                actionref("Assign &Serial No._Promoted"; "Assign &Serial No.")
+                {
+                }
+                actionref("Assign &Lot No._Promoted"; "Assign &Lot No.")
+                {
+                }
+                actionref(CreateCustomizedSN_Promoted; CreateCustomizedSN)
+                {
+                }
+                actionref("Refresh Availability_Promoted"; "Refresh Availability")
+                {
+                }
+                actionref("Assign Package No._Promoted"; "Assign Package No.")
+                {
+                }
+                actionref("Assign &Package No._Promoted"; "Assign &Package No.")
+                {
+                }
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Line', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref(Line_LotNoInfoCard_Promoted; Line_LotNoInfoCard)
+                {
+                }
+                actionref(Line_SerialNoInfoCard_Promoted; Line_SerialNoInfoCard)
+                {
+                }
+                actionref(NewLotNoInformation_Promoted; NewLotNoInformation)
+                {
+                }
+                actionref(Reclass_LotNoInfoCard_Promoted; Reclass_LotNoInfoCard)
+                {
+                }
+                actionref(Line_PackageNoInfoCard_Promoted; Line_PackageNoInfoCard)
+                {
+                }
+                actionref(Reclass_SerialNoInfoCard_Promoted; Reclass_SerialNoInfoCard)
+                {
+                }
+                actionref(NewSerialNoInformation_Promoted; NewSerialNoInformation)
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
             }
         }
     }
@@ -812,7 +846,7 @@ page 6510 "Item Tracking Lines"
     begin
         SkipWriteToDatabase := false;
         OnBeforeClosePage(Rec, SkipWriteToDatabase, CurrentRunMode, CurrentSourceType);
-        if UpdateUndefinedQty and not SkipWriteToDatabase then
+        if UpdateUndefinedQty() and not SkipWriteToDatabase then
             WriteToDatabase();
         if CurrentRunMode = CurrentRunMode::"Drop Shipment" then
             case CurrentSourceType of
@@ -822,7 +856,7 @@ page 6510 "Item Tracking Lines"
                     SynchronizeLinkedSources(StrSubstNo(Text015, Text017));
             end;
 
-        if (CurrentRunMode = CurrentRunMode::Transfer) or IsOrderToOrderBindingToTransfer then
+        if (CurrentRunMode = CurrentRunMode::Transfer) or IsOrderToOrderBindingToTransfer() then
             SynchronizeLinkedSources('');
         SynchronizeWarehouseItemTracking();
 
@@ -931,7 +965,7 @@ page 6510 "Item Tracking Lines"
                 exit(false);
 
         UpdateTrackingData();
-        CalculateSums;
+        CalculateSums();
 
         exit(false);
     end;
@@ -964,7 +998,7 @@ page 6510 "Item Tracking Lines"
     var
         IsHandled: Boolean;
     begin
-        if not UpdateUndefinedQty then
+        if not UpdateUndefinedQty() then
             exit(Confirm(Text006));
 
         if not ItemTrackingDataCollection.RefreshTrackingAvailability(Rec, false) then begin
@@ -983,7 +1017,7 @@ page 6510 "Item Tracking Lines"
     end;
 
     var
-        xTempTrackingSpecification: Record "Tracking Specification" temporary;
+        TempTrackingSpecification2: Record "Tracking Specification" temporary;
         TempReservEntry: Record "Reservation Entry" temporary;
         NoSeriesMgt: Codeunit NoSeriesManagement;
         ItemTrackingMgt: Codeunit "Item Tracking Management";
@@ -993,7 +1027,6 @@ page 6510 "Item Tracking Lines"
         Text002: Label 'Quantity must be %1.';
         Text003: Label 'negative';
         Text004: Label 'positive';
-        LastEntryNo: Integer;
         SecondSourceID: Integer;
         IsAssembleToOrder: Boolean;
         ExpectedReceiptDate: Date;
@@ -1013,7 +1046,6 @@ page 6510 "Item Tracking Lines"
         IsCorrection: Boolean;
         CurrentPageIsOpen: Boolean;
         CalledFromSynchWhseItemTrkg: Boolean;
-        Inbound: Boolean;
         CurrentSourceCaption: Text[255];
         CurrentSourceRowID: Text[250];
         SecondSourceRowID: Text[250];
@@ -1042,7 +1074,9 @@ page 6510 "Item Tracking Lines"
         CurrentRunMode: Enum "Item Tracking Run Mode";
         CurrentSignFactor: Integer;
         ForBinCode: Code[20];
+        Inbound: Boolean;
         InsertIsBlocked: Boolean;
+        LastEntryNo: Integer;
         QtyPerUOM: Decimal;
         UndefinedQtyArray: array[3] of Decimal;
         SourceQuantityArray: array[5] of Decimal;
@@ -1133,8 +1167,8 @@ page 6510 "Item Tracking Lines"
 
     procedure InsertRecord(var TempTrackingSpecification: Record "Tracking Specification" temporary)
     begin
-        TempTrackingSpecification."Entry No." := NextEntryNo;
-        if (not InsertIsBlocked) and (not ZeroLineExists) then
+        TempTrackingSpecification."Entry No." := NextEntryNo();
+        if (not InsertIsBlocked) and (not ZeroLineExists()) then
             if not TestTempSpecificationExists() then begin
                 TempItemTrackLineInsert.TransferFields(TempTrackingSpecification);
                 OnInsertRecordOnBeforeTempItemTrackLineInsert(TempItemTrackLineInsert, TempTrackingSpecification);
@@ -1173,11 +1207,11 @@ page 6510 "Item Tracking Lines"
 
     protected procedure UpdateTrackingData()
     var
-        xTempTrackingSpec: Record "Tracking Specification" temporary;
+        TempTrackingSpec: Record "Tracking Specification" temporary;
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeUpdateTrackingData(Rec, xRec, xTempTrackingSpec, CurrentSignFactor, SourceQuantityArray, IsHandled);
+        OnBeforeUpdateTrackingData(Rec, xRec, TempTrackingSpec, CurrentSignFactor, SourceQuantityArray, IsHandled);
         if IsHandled then
             exit;
 
@@ -1185,9 +1219,9 @@ page 6510 "Item Tracking Lines"
             Rec.Modify();
 
             if not Rec.HasSameTracking(xRec) then begin
-                xTempTrackingSpec := xRec;
+                TempTrackingSpec := xRec;
                 ItemTrackingDataCollection.UpdateTrackingDataSetWithChange(
-                  xTempTrackingSpec, CurrentSignFactor * SourceQuantityArray[1] < 0, CurrentSignFactor, 2);
+                  TempTrackingSpec, CurrentSignFactor * SourceQuantityArray[1] < 0, CurrentSignFactor, 2);
             end;
 
             if TempItemTrackLineModify.Get(Rec."Entry No.") then
@@ -1416,7 +1450,7 @@ page 6510 "Item Tracking Lines"
                     TempReservEntry := ReservEntry;
                     TempReservEntry.Insert();
                 end;
-                if ReservEntry.TrackingExists then begin
+                if ReservEntry.TrackingExists() then begin
                     AddTracking := true;
                     if SecondSourceID = DATABASE::"Warehouse Shipment Line" then
                         if FromReservEntry.Get(ReservEntry."Entry No.", not ReservEntry.Positive) then
@@ -1471,7 +1505,7 @@ page 6510 "Item Tracking Lines"
                     Rec."Quantity Invoiced (Base)" *= CurrentSignFactor;
                     Rec."Qty. to Handle" := Rec.CalcQty(Rec."Qty. to Handle (Base)");
                     Rec."Qty. to Invoice" := Rec.CalcQty(Rec."Qty. to Invoice (Base)");
-                    Rec."Entry No." := NextEntryNo;
+                    Rec."Entry No." := NextEntryNo();
 
                     // skip expiration date check for performance
                     // item tracking code is cached at the beginning of the caller method
@@ -1489,8 +1523,8 @@ page 6510 "Item Tracking Lines"
                     Rec.Insert();
 
                     if Rec."Buffer Status" = 0 then begin
-                        xTempTrackingSpecification := Rec;
-                        xTempTrackingSpecification.Insert();
+                        TempTrackingSpecification2 := Rec;
+                        TempTrackingSpecification2.Insert();
                     end;
                 end;
 
@@ -1664,7 +1698,7 @@ page 6510 "Item Tracking Lines"
         if IsHandled then
             exit(ReturnValue);
 
-        UpdateUndefinedQtyArray;
+        UpdateUndefinedQtyArray();
         if ProdOrderLineHandling then // Avoid check for prod.journal lines
             exit(true);
         exit(Abs(SourceQuantityArray[1]) >= Abs(TotalTrackingSpecification."Quantity (Base)"));
@@ -1803,19 +1837,19 @@ page 6510 "Item Tracking Lines"
             for ModifyLoop := 1 to 2 do begin
                 if TempItemTrackLineModify.Find('-') then
                     repeat
-                        if xTempTrackingSpecification.Get(TempItemTrackLineModify."Entry No.") then begin
+                        if TempTrackingSpecification2.Get(TempItemTrackLineModify."Entry No.") then begin
                             // Process decreases before increases
                             OnWriteToDatabaseOnBeforeRegisterDecrease(TempItemTrackLineModify);
-                            Decrease := (xTempTrackingSpecification."Quantity (Base)" > TempItemTrackLineModify."Quantity (Base)");
+                            Decrease := (TempTrackingSpecification2."Quantity (Base)" > TempItemTrackLineModify."Quantity (Base)");
                             if ((ModifyLoop = 1) and Decrease) or ((ModifyLoop = 2) and not Decrease) then begin
                                 i := i + 1;
-                                if ShouldModifyTrackingSpecification(xTempTrackingSpecification, TempItemTrackLineModify) then begin
-                                    RegisterChange(xTempTrackingSpecification, xTempTrackingSpecification, ChangeType::Delete, false);
+                                if ShouldModifyTrackingSpecification(TempTrackingSpecification2, TempItemTrackLineModify) then begin
+                                    RegisterChange(TempTrackingSpecification2, TempTrackingSpecification2, ChangeType::Delete, false);
                                     RegisterChange(TempItemTrackLineModify, TempItemTrackLineModify, ChangeType::Insert, false);
                                     if QtyToHandleOrInvoiceDifferFromQuantity(TempItemTrackLineModify) then
                                         SetQtyToHandleAndInvoice(TempItemTrackLineModify);
                                 end else begin
-                                    RegisterChange(xTempTrackingSpecification, TempItemTrackLineModify, ChangeType::Modify, false);
+                                    RegisterChange(TempTrackingSpecification2, TempItemTrackLineModify, ChangeType::Modify, false);
                                     SetQtyToHandleAndInvoice(TempItemTrackLineModify);
                                 end;
                                 TempItemTrackLineModify.Delete();
@@ -1859,34 +1893,34 @@ page 6510 "Item Tracking Lines"
             Rec.DeleteAll();
             Rec.Reset();
 
-            xTempTrackingSpecification.Reset();
+            TempTrackingSpecification2.Reset();
             Rec.SetCurrentKey("Entry No.");
-            xTempTrackingSpecification.SetCurrentKey("Entry No.");
-            if xTempTrackingSpecification.Find('-') then
+            TempTrackingSpecification2.SetCurrentKey("Entry No.");
+            if TempTrackingSpecification2.Find('-') then
                 repeat
-                    Rec.SetTrackingFilterFromSpec(xTempTrackingSpecification);
+                    Rec.SetTrackingFilterFromSpec(TempTrackingSpecification2);
                     if Rec.Find('-') then begin
-                        if RegisterChange(xTempTrackingSpecification, Rec, ChangeType::Modify, false) then begin
-                            EntryNo := xTempTrackingSpecification."Entry No.";
-                            xTempTrackingSpecification := Rec;
-                            xTempTrackingSpecification."Entry No." := EntryNo;
-                            xTempTrackingSpecification.Modify();
+                        if RegisterChange(TempTrackingSpecification2, Rec, ChangeType::Modify, false) then begin
+                            EntryNo := TempTrackingSpecification2."Entry No.";
+                            TempTrackingSpecification2 := Rec;
+                            TempTrackingSpecification2."Entry No." := EntryNo;
+                            TempTrackingSpecification2.Modify();
                         end;
                         SetQtyToHandleAndInvoice(Rec);
                         Rec.Delete();
                     end else begin
-                        RegisterChange(xTempTrackingSpecification, xTempTrackingSpecification, ChangeType::Delete, false);
-                        xTempTrackingSpecification.Delete();
+                        RegisterChange(TempTrackingSpecification2, TempTrackingSpecification2, ChangeType::Delete, false);
+                        TempTrackingSpecification2.Delete();
                     end;
-                until xTempTrackingSpecification.Next() = 0;
+                until TempTrackingSpecification2.Next() = 0;
 
             Rec.Reset();
 
             if Rec.Find('-') then
                 repeat
                     if RegisterChange(Rec, Rec, ChangeType::Insert, false) then begin
-                        xTempTrackingSpecification := Rec;
-                        xTempTrackingSpecification.Insert();
+                        TempTrackingSpecification2 := Rec;
+                        TempTrackingSpecification2.Insert();
                     end else
                         Error(Text005);
                     SetQtyToHandleAndInvoice(Rec);
@@ -1953,7 +1987,7 @@ page 6510 "Item Tracking Lines"
                     if IsHandled then
                         exit(true);
 
-                    if (OldTrackingSpecification."Quantity (Base)" = 0) or not OldTrackingSpecification.TrackingExists then
+                    if (OldTrackingSpecification."Quantity (Base)" = 0) or not OldTrackingSpecification.TrackingExists() then
                         exit(true);
                     TempReservEntry.SetTrackingFilterBlank();
                     OldTrackingSpecification."Quantity (Base)" :=
@@ -2059,7 +2093,7 @@ page 6510 "Item Tracking Lines"
                             OldTrackingSpecification, OldTrackingSpecification, ChangeType::Insert, not IdenticalArray[2]);
                     end else begin
                         TempReservEntry.SetTrackingFilterFromSpec(OldTrackingSpecification);
-                        OldTrackingSpecification.ClearTracking;
+                        OldTrackingSpecification.ClearTracking();
                         OnAfterClearTrackingSpec(OldTrackingSpecification);
 
                         OnRegisterChangeOnBeforeAddItemTrackingToTempRecSet(
@@ -2087,7 +2121,7 @@ page 6510 "Item Tracking Lines"
                     ReservEntry1.SetTrackingFilterFromReservEntry(ReservEntry1);
                     if ChangeType = ChangeType::FullDelete then begin
                         TempReservEntry.SetTrackingFilterFromSpec(OldTrackingSpecification);
-                        OldTrackingSpecification.ClearTracking;
+                        OldTrackingSpecification.ClearTracking();
                         OnAfterClearTrackingSpec(OldTrackingSpecification);
                         QtyToAdd :=
                           CurrentSignFactor *
@@ -2394,12 +2428,12 @@ page 6510 "Item Tracking Lines"
     var
         xTrackingSpec: Record "Tracking Specification";
     begin
-        if (Rec."Quantity (Base)" <> 0) or Rec.TrackingExists then
+        if (Rec."Quantity (Base)" <> 0) or Rec.TrackingExists() then
             exit(false);
         xTrackingSpec.Copy(Rec);
         Rec.Reset();
         Rec.SetRange("Quantity (Base)", 0);
-        Rec.SetTrackingFilterBlank;
+        Rec.SetTrackingFilterBlank();
         OK := not Rec.IsEmpty();
         Rec.Copy(xTrackingSpec);
     end;
@@ -2412,7 +2446,7 @@ page 6510 "Item Tracking Lines"
         CreateLotNo: Boolean;
         CreateSNInfo: Boolean;
     begin
-        if ZeroLineExists then
+        if ZeroLineExists() then
             Rec.Delete();
 
         QtyToCreate := UndefinedQtyArray[1] * QtySignFactor();
@@ -2427,7 +2461,7 @@ page 6510 "Item Tracking Lines"
 
         Clear(EnterQuantityToCreate);
         EnterQuantityToCreate.SetFields(Rec."Item No.", Rec."Variant Code", QtyToCreate, false, false);
-        if EnterQuantityToCreate.RunModal = ACTION::OK then begin
+        if EnterQuantityToCreate.RunModal() = ACTION::OK then begin
             EnterQuantityToCreate.GetFields(QtyToCreateInt, CreateLotNo, CreateSNInfo);
             AssignSerialNoBatch(QtyToCreateInt, CreateLotNo, CreateSNInfo);
         end;
@@ -2458,8 +2492,8 @@ page 6510 "Item Tracking Lines"
             AssignNewSerialNo();
             OnAfterAssignNewTrackingNo(Rec, xRec, Rec.FieldNo("Serial No."));
             Rec.Validate("Quantity (Base)", QtySignFactor());
-            Rec."Entry No." := NextEntryNo;
-            if TestTempSpecificationExists then
+            Rec."Entry No." := NextEntryNo();
+            if TestTempSpecificationExists() then
                 Error('');
             Rec.Insert();
 
@@ -2491,7 +2525,7 @@ page 6510 "Item Tracking Lines"
             exit;
         end;
 
-        if ZeroLineExists then
+        if ZeroLineExists() then
             Rec.Delete();
 
         if (SourceQuantityArray[1] * UndefinedQtyArray[1] <= 0) or
@@ -2605,7 +2639,7 @@ page 6510 "Item Tracking Lines"
             exit;
 
         Item.TestField("Lot Nos.");
-        Rec.Validate("Lot No.", NoSeriesMgt.GetNextNo(Item."Lot Nos.", WorkDate, true));
+        Rec.Validate("Lot No.", NoSeriesMgt.GetNextNo(Item."Lot Nos.", WorkDate(), true));
     end;
 
     local procedure CreateCustomizedSNByPage()
@@ -2633,7 +2667,7 @@ page 6510 "Item Tracking Lines"
 
         Clear(EnterCustomizedSN);
         EnterCustomizedSN.SetFields(Rec."Item No.", Rec."Variant Code", QtyToCreate, false, false);
-        if EnterCustomizedSN.RunModal = ACTION::OK then begin
+        if EnterCustomizedSN.RunModal() = ACTION::OK then begin
             EnterCustomizedSN.GetFields(QtyToCreateInt, CreateLotNo, CustomizedSN, Increment, CreateSNInfo);
             CreateCustomizedSNBatch(QtyToCreateInt, CreateLotNo, CustomizedSN, Increment, CreateSNInfo);
         end;
@@ -2895,7 +2929,7 @@ page 6510 "Item Tracking Lines"
                         end;
                 end;
                 Rec."Buffer Status" := 0;
-                Rec.Modify;
+                Rec.Modify();
             until Rec.Next() = 0;
         LastEntryNo := Rec."Entry No.";
         CalculateSums();

@@ -32,12 +32,11 @@ table 5965 "Service Contract Header"
         {
             Caption = 'Description 2';
         }
-        field(5; Status; Option)
+#pragma warning disable AS0070
+        field(5; Status; Enum "Service Contract Status")
         {
             Caption = 'Status';
             Editable = true;
-            OptionCaption = ' ,Signed,Canceled';
-            OptionMembers = " ",Signed,Canceled;
 
             trigger OnValidate()
             var
@@ -50,7 +49,7 @@ table 5965 "Service Contract Header"
                     case "Contract Type" of
                         "Contract Type"::Contract:
                             begin
-                                if Status <> Status::Canceled then
+                                if Status <> Status::Cancelled then
                                     Error(Text006, FieldCaption(Status));
 
                                 CalcFields("No. of Unposted Invoices", "No. of Unposted Credit Memos");
@@ -94,7 +93,7 @@ table 5965 "Service Contract Header"
                         "Contract Type"::Quote:
                             case Status of
                                 Status::" ":
-                                    if xRec.Status = xRec.Status::Canceled then begin
+                                    if xRec.Status = xRec.Status::Cancelled then begin
                                         ServContractLine.Reset();
                                         ServContractLine.SetRange("Contract Type", "Contract Type");
                                         ServContractLine.SetRange("Contract No.", "Contract No.");
@@ -124,14 +123,14 @@ table 5965 "Service Contract Header"
                                     Error(
                                       Text009,
                                       FieldCaption(Status), Status, FieldCaption("Contract Type"), "Contract Type");
-                                Status::Canceled:
+                                Status::Cancelled:
                                     if not ConfirmManagement.GetResponseOrDefault(StrSubstNo(Text010, "Contract No."), true) then begin
                                         Status := xRec.Status;
                                         exit;
                                     end;
                             end;
                     end;
-                    if Status = Status::Canceled then
+                    if Status = Status::Cancelled then
                         "Change Status" := "Change Status"::Locked;
                     ServContractLine.Reset();
                     ServContractLine.SetRange("Contract Type", "Contract Type");
@@ -140,12 +139,11 @@ table 5965 "Service Contract Header"
                 end;
             end;
         }
-        field(6; "Change Status"; Option)
+#pragma warning restore AS0070
+        field(6; "Change Status"; Enum "Service Contract Change Status")
         {
             Caption = 'Change Status';
             Editable = false;
-            OptionCaption = 'Open,Locked';
-            OptionMembers = Open,Locked;
         }
         field(7; "Customer No."; Code[20])
         {
@@ -157,7 +155,7 @@ table 5965 "Service Contract Header"
             begin
                 Cust.Get("Customer No.");
                 if "Customer No." <> xRec."Customer No." then begin
-                    if ContractLinesExist then
+                    if ContractLinesExist() then
                         case "Contract Type" of
                             "Contract Type"::Contract:
                                 Error(Text011 + Text012, FieldCaption("Customer No."));
@@ -198,7 +196,7 @@ table 5965 "Service Contract Header"
                     CalcFields(
                       "Bill-to Name", "Bill-to Name 2", "Bill-to Address", "Bill-to Address 2",
                       "Bill-to Post Code", "Bill-to City", "Bill-to County", "Bill-to Country/Region Code");
-                    UpdateShiptoCode;
+                    UpdateShiptoCode();
                 end;
 
                 if not SkipContact then
@@ -257,8 +255,8 @@ table 5965 "Service Contract Header"
             begin
                 ValidateSalesPersonOnServiceContractHeader(Rec, false, false);
 
-                CheckChangeStatus;
-                Modify;
+                CheckChangeStatus();
+                Modify();
 
                 CreateDimFromDefaultDim(Rec.FieldNo("Salesperson Code"));
             end;
@@ -273,7 +271,7 @@ table 5965 "Service Contract Header"
                 CustCheckCrLimit: Codeunit "Cust-Check Cr. Limit";
                 ConfirmManagement: Codeunit "Confirm Management";
             begin
-                CheckChangeStatus;
+                CheckChangeStatus();
                 if xRec."Bill-to Customer No." <> "Bill-to Customer No." then
                     if xRec."Bill-to Customer No." <> '' then begin
                         if HideValidationDialog then
@@ -374,9 +372,9 @@ table 5965 "Service Contract Header"
                 if ("Customer No." <> xRec."Customer No.") or
                    ("Ship-to Code" <> xRec."Ship-to Code")
                 then begin
-                    if ContractLinesExist then
+                    if ContractLinesExist() then
                         Error(Text011, FieldCaption("Ship-to Code"));
-                    UpdateServZone;
+                    UpdateServZone();
                 end;
             end;
         }
@@ -438,7 +436,7 @@ table 5965 "Service Contract Header"
                 if IsHandled then
                     exit;
 
-                CalcInvPeriodDuration;
+                CalcInvPeriodDuration();
                 if (Format("Price Update Period") <> '') and
                    (CalcDate("Price Update Period", "Starting Date") < CalcDate(InvPeriodDuration, "Starting Date"))
                 then
@@ -459,7 +457,7 @@ table 5965 "Service Contract Header"
                     "Next Invoice Period Start" := 0D;
                     "Next Invoice Period End" := 0D;
                 end else
-                    if IsInvoicePeriodInTimeSegment then
+                    if IsInvoicePeriodInTimeSegment() then
                         if Prepaid then begin
                             if "Next Invoice Date" = 0D then begin
                                 if "Last Invoice Date" = 0D then begin
@@ -609,7 +607,7 @@ table 5965 "Service Contract Header"
                 end;
 
                 OnValidateNextInvoiceDateOnBeforeValidateNextInvoicePeriod(Rec);
-                ValidateNextInvoicePeriod;
+                ValidateNextInvoicePeriod();
             end;
         }
         field(35; "Starting Date"; Date)
@@ -618,7 +616,7 @@ table 5965 "Service Contract Header"
 
             trigger OnValidate()
             begin
-                CheckChangeStatus;
+                CheckChangeStatus();
 
                 if "Last Invoice Date" <> 0D then
                     Error(
@@ -659,7 +657,7 @@ table 5965 "Service Contract Header"
                     end;
                     if "Next Price Update Date" = 0D then
                         "Next Price Update Date" := CalcDate("Price Update Period", "Starting Date");
-                    if IsInvoicePeriodInTimeSegment then
+                    if IsInvoicePeriodInTimeSegment() then
                         if Prepaid then begin
                             if "Starting Date" = CalcDate('<-CM>', "Starting Date") then
                                 Validate("Next Invoice Date", "Starting Date")
@@ -679,7 +677,7 @@ table 5965 "Service Contract Header"
             var
                 ConfirmManagement: Codeunit "Confirm Management";
             begin
-                CheckChangeStatus;
+                CheckChangeStatus();
 
                 if "Expiration Date" <> xRec."Expiration Date" then begin
                     CheckExpirationDate();
@@ -700,7 +698,7 @@ table 5965 "Service Contract Header"
                                 else
                                     Confirmed :=
                                         ConfirmManagement.GetResponseOrDefault(
-                                            StrSubstNo(Text056, FieldCaption("Expiration Date"), TableCaption, "Expiration Date"), true);
+                                            StrSubstNo(Text056, FieldCaption("Expiration Date"), TableCaption(), "Expiration Date"), true);
                                 if not Confirmed then
                                     Error('');
                             end;
@@ -741,7 +739,7 @@ table 5965 "Service Contract Header"
                           FieldCaption("Starting Date"));
 
                     if "Contract Type" = "Contract Type"::Quote then begin
-                        if ContractLinesExist then
+                        if ContractLinesExist() then
                             Message(
                               Text031, FieldCaption("First Service Date"));
                     end;
@@ -775,7 +773,7 @@ table 5965 "Service Contract Header"
             begin
                 CheckChangeStatus();
                 ServMgtSetup.Get();
-                DistributeAmounts;
+                DistributeAmounts();
                 Validate("Invoice Period");
             end;
         }
@@ -811,7 +809,7 @@ table 5965 "Service Contract Header"
                         if not ServLedgEntry.IsEmpty() then
                             Error(
                               Text032,
-                              FieldCaption(Prepaid), TableCaption, "Contract No.");
+                              FieldCaption(Prepaid), TableCaption(), "Contract No.");
                     end;
                     TestField("Starting Date");
                     if Prepaid then begin
@@ -823,7 +821,7 @@ table 5965 "Service Contract Header"
                         if "Invoice Period" = "Invoice Period"::None then
                             Validate("Next Invoice Date", 0D)
                         else
-                            if IsInvoicePeriodInTimeSegment then
+                            if IsInvoicePeriodInTimeSegment() then
                                 if "Starting Date" = CalcDate('<-CM>', "Starting Date") then
                                     Validate("Next Invoice Date", "Starting Date")
                                 else
@@ -884,7 +882,7 @@ table 5965 "Service Contract Header"
             var
                 ConfirmManagement: Codeunit "Confirm Management";
             begin
-                CheckChangeStatus;
+                CheckChangeStatus();
 
                 if "Response Time (Hours)" <> xRec."Response Time (Hours)" then begin
                     ServContractLine.Reset();
@@ -935,12 +933,12 @@ table 5965 "Service Contract Header"
                           Text030,
                           FieldCaption("Service Period"));
                     if "Contract Type" = "Contract Type"::Quote then begin
-                        if ContractLinesExist then
+                        if ContractLinesExist() then
                             Message(
                               Text031,
                               FieldCaption("Service Period"));
                     end;
-                    if ContractLinesExist and (Format("Service Period") <> '') then begin
+                    if ContractLinesExist() and (Format("Service Period") <> '') then begin
                         ServContractLine.Reset();
                         ServContractLine.SetRange("Contract Type", "Contract Type");
                         ServContractLine.SetRange("Contract No.", "Contract No.");
@@ -981,11 +979,9 @@ table 5965 "Service Contract Header"
                       FieldCaption(Prepaid));
             end;
         }
-        field(63; "Quote Type"; Option)
+        field(63; "Quote Type"; Enum "Service Contract Quote Type")
         {
             Caption = 'Quote Type';
-            OptionCaption = 'Quote 1,Quote 2,Quote 3,Quote 4,Quote 5,Quote 6,Quote 7,Quote 8';
-            OptionMembers = "Quote 1","Quote 2","Quote 3","Quote 4","Quote 5","Quote 6","Quote 7","Quote 8";
         }
         field(64; "Allow Unbalanced Amounts"; Boolean)
         {
@@ -996,7 +992,7 @@ table 5965 "Service Contract Header"
                 CheckChangeStatus();
                 ServMgtSetup.Get();
                 if "Allow Unbalanced Amounts" <> xRec."Allow Unbalanced Amounts" then
-                    DistributeAmounts;
+                    DistributeAmounts();
             end;
         }
         field(65; "Contract Group Code"; Code[10])
@@ -1023,9 +1019,9 @@ table 5965 "Service Contract Header"
 
             trigger OnValidate()
             begin
-                CheckChangeStatus;
+                CheckChangeStatus();
                 ValidateShortcutDimCode(1, "Shortcut Dimension 1 Code");
-                Modify;
+                Modify();
             end;
         }
         field(68; "Shortcut Dimension 2 Code"; Code[20])
@@ -1037,9 +1033,9 @@ table 5965 "Service Contract Header"
 
             trigger OnValidate()
             begin
-                CheckChangeStatus;
+                CheckChangeStatus();
                 ValidateShortcutDimCode(2, "Shortcut Dimension 2 Code");
-                Modify;
+                Modify();
             end;
         }
         field(69; "Accept Before"; Date)
@@ -1066,7 +1062,7 @@ table 5965 "Service Contract Header"
 
             trigger OnValidate()
             begin
-                CalcInvPeriodDuration;
+                CalcInvPeriodDuration();
                 if (Format("Price Update Period") <> '') and
                    (CalcDate("Price Update Period", "Starting Date") < CalcDate(InvPeriodDuration, "Starting Date"))
                 then
@@ -1132,7 +1128,7 @@ table 5965 "Service Contract Header"
                 if not UserMgt.CheckRespCenter(2, "Responsibility Center") then
                     Error(
                       Text040,
-                      RespCenter.TableCaption, UserMgt.GetSalesFilter);
+                      RespCenter.TableCaption(), UserMgt.GetSalesFilter());
 
                 CreateDimFromDefaultDim(Rec.FieldNo("Responsibility Center"));
             end;
@@ -1374,7 +1370,7 @@ table 5965 "Service Contract Header"
 
             trigger OnLookup()
             begin
-                ShowDocDim;
+                ShowDocDim();
             end;
 
             trigger OnValidate()
@@ -1569,7 +1565,7 @@ table 5965 "Service Contract Header"
         if not UserMgt.CheckRespCenter(2, "Responsibility Center") then
             Error(
               Text002,
-              RespCenter.TableCaption, UserMgt.GetSalesFilter);
+              RespCenter.TableCaption(), UserMgt.GetSalesFilter());
 
         if "Contract Type" = "Contract Type"::Contract then begin
             MoveEntries.MoveServContractLedgerEntries(Rec);
@@ -1623,8 +1619,8 @@ table 5965 "Service Contract Header"
     begin
         ServMgtSetup.Get();
         InitNoSeries();
-        "Starting Date" := WorkDate;
-        "First Service Date" := WorkDate;
+        "Starting Date" := WorkDate();
+        "First Service Date" := WorkDate();
 
         IsHandled := false;
         OnBeforeApplyServiceContractQuoteTemplate(Rec, IsHandled);
@@ -1643,14 +1639,14 @@ table 5965 "Service Contract Header"
 
     trigger OnModify()
     begin
-        CheckChangeStatus;
+        CheckChangeStatus();
         if ("Contract Type" = "Contract Type"::Contract) and ("Contract No." <> '') then begin
             ServMgtSetup.Get();
             if ServMgtSetup."Register Contract Changes" then
                 UpdContractChangeLog(xRec);
 
             if (Status <> xRec.Status) and
-               (Status = Status::Canceled)
+               (Status = Status::Cancelled)
             then
                 ContractGainLossEntry.CreateEntry(
                     "Service Contract Change Type"::"Contract Canceled", "Contract Type", "Contract No.",
@@ -2165,11 +2161,11 @@ table 5965 "Service Contract Header"
         if IsHandled then
             exit;
 
-        if NextInvoicePeriod = '' then begin
+        if NextInvoicePeriod() = '' then begin
             "Amount per Period" := 0;
             exit;
         end;
-        Currency.InitRoundingPrecision;
+        Currency.InitRoundingPrecision();
         InvFrom := "Next Invoice Period Start";
         InvTo := "Next Invoice Period End";
 
@@ -2496,12 +2492,12 @@ table 5965 "Service Contract Header"
                 if ServContractLine.Find('-') then
                     ServContractLine.TestField("Line Value");
                 ServContractLine.SetRange("Line Value");
-                if ServContractLine.Next <> 0 then begin
+                if ServContractLine.Next() <> 0 then begin
                     Clear(ContractAmountDistribution);
                     ContractAmountDistribution.SetValues("Annual Amount", "Calcd. Annual Amount");
-                    if ContractAmountDistribution.RunModal = ACTION::Yes then begin
-                        Result := ContractAmountDistribution.GetResult;
-                        Currency.InitRoundingPrecision;
+                    if ContractAmountDistribution.RunModal() = ACTION::Yes then begin
+                        Result := ContractAmountDistribution.GetResult();
+                        Currency.InitRoundingPrecision();
                         case Result of
                             0:
                                 EvenDistribution(ServContractLine);
@@ -2547,13 +2543,13 @@ table 5965 "Service Contract Header"
         if IsHandled then
             exit;
 
-        if UserMgt.GetServiceFilter <> '' then begin
+        if UserMgt.GetServiceFilter() <> '' then begin
             FilterGroup(2);
-            SetRange("Responsibility Center", UserMgt.GetServiceFilter);
+            SetRange("Responsibility Center", UserMgt.GetServiceFilter());
             FilterGroup(0);
         end;
 
-        SetRange("Date Filter", 0D, WorkDate - 1);
+        SetRange("Date Filter", 0D, WorkDate() - 1);
     end;
 
     procedure ShowDocDim()
@@ -2585,7 +2581,7 @@ table 5965 "Service Contract Header"
 
     local procedure CheckChangeStatus()
     begin
-        if (Status <> Status::Canceled) and
+        if (Status <> Status::Cancelled) and
            not SuspendChangeStatus
         then
             TestField("Change Status", "Change Status"::Open);

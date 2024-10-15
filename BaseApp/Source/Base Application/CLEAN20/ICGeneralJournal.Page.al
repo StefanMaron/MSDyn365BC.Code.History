@@ -7,7 +7,6 @@ page 610 "IC General Journal"
     DataCaptionFields = "Journal Batch Name";
     DelayedInsert = true;
     PageType = Worksheet;
-    PromotedActionCategories = 'New,Process,Report,Prepare,Posting,Post/Print,Line,Account,Page';
     SaveValues = true;
     SourceTable = "Gen. Journal Line";
     UsageCategory = Tasks;
@@ -25,7 +24,7 @@ page 610 "IC General Journal"
 
                 trigger OnLookup(var Text: Text): Boolean
                 begin
-                    CurrPage.SaveRecord;
+                    CurrPage.SaveRecord();
                     GenJnlManagement.LookupName(CurrentJnlBatchName, Rec);
                     SetControlAppearanceFromBatch();
                     CurrPage.Update(false);
@@ -34,41 +33,41 @@ page 610 "IC General Journal"
                 trigger OnValidate()
                 begin
                     GenJnlManagement.CheckName(CurrentJnlBatchName, Rec);
-                    CurrentJnlBatchNameOnAfterVali;
+                    CurrentJnlBatchNameOnAfterVali();
                 end;
             }
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Posting Date"; "Posting Date")
+                field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies the entry''s posting date.';
                 }
-                field("Document Date"; "Document Date")
+                field("Document Date"; Rec."Document Date")
                 {
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies the date when the related document was created.';
                     Visible = false;
                 }
-                field("Document Type"; "Document Type")
+                field("Document Type"; Rec."Document Type")
                 {
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies the type of the related document.';
                 }
-                field("Document No."; "Document No.")
+                field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies the number of the related document.';
                     ShowMandatory = true;
                 }
-                field("External Document No."; "External Document No.")
+                field("External Document No."; Rec."External Document No.")
                 {
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies a document number that refers to the customer''s or vendor''s numbering system.';
                     Visible = false;
                 }
-                field("Account Type"; "Account Type")
+                field("Account Type"; Rec."Account Type")
                 {
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies the purpose of the account. Newly created accounts are automatically assigned the Posting account type, but you can change this.';
@@ -76,11 +75,11 @@ page 610 "IC General Journal"
                     trigger OnValidate()
                     begin
                         GenJnlManagement.GetAccounts(Rec, AccName, BalAccName);
-                        EnableApplyEntriesAction;
+                        EnableApplyEntriesAction();
                         CurrPage.SaveRecord();
                     end;
                 }
-                field("Account No."; "Account No.")
+                field("Account No."; Rec."Account No.")
                 {
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies the account number that the entry on the journal line will be posted to.';
@@ -97,19 +96,19 @@ page 610 "IC General Journal"
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies a description of the entry.';
                 }
-                field("Salespers./Purch. Code"; "Salespers./Purch. Code")
+                field("Salespers./Purch. Code"; Rec."Salespers./Purch. Code")
                 {
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies the salesperson or purchaser who is linked to the journal line.';
                     Visible = false;
                 }
-                field("Campaign No."; "Campaign No.")
+                field("Campaign No."; Rec."Campaign No.")
                 {
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies the campaign number the document is linked to.';
                     Visible = false;
                 }
-                field("Currency Code"; "Currency Code")
+                field("Currency Code"; Rec."Currency Code")
                 {
                     ApplicationArea = Intercompany;
                     AssistEdit = true;
@@ -119,34 +118,34 @@ page 610 "IC General Journal"
                     trigger OnAssistEdit()
                     begin
                         ChangeExchangeRate.SetParameter("Currency Code", "Currency Factor", "Posting Date");
-                        if ChangeExchangeRate.RunModal = ACTION::OK then
-                            Validate("Currency Factor", ChangeExchangeRate.GetParameter);
+                        if ChangeExchangeRate.RunModal() = ACTION::OK then
+                            Validate("Currency Factor", ChangeExchangeRate.GetParameter());
 
                         Clear(ChangeExchangeRate);
                     end;
                 }
-                field("Gen. Posting Type"; "Gen. Posting Type")
+                field("Gen. Posting Type"; Rec."Gen. Posting Type")
                 {
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies the type of transaction.';
                 }
-                field("Gen. Bus. Posting Group"; "Gen. Bus. Posting Group")
+                field("Gen. Bus. Posting Group"; Rec."Gen. Bus. Posting Group")
                 {
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies the vendor''s or customer''s trade type to link transactions made for this business partner with the appropriate general ledger account according to the general posting setup.';
                 }
-                field("Gen. Prod. Posting Group"; "Gen. Prod. Posting Group")
+                field("Gen. Prod. Posting Group"; Rec."Gen. Prod. Posting Group")
                 {
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies the item''s product type to link transactions made for this item with the appropriate general ledger account according to the general posting setup.';
                 }
-                field("VAT Bus. Posting Group"; "VAT Bus. Posting Group")
+                field("VAT Bus. Posting Group"; Rec."VAT Bus. Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT specification of the involved customer or vendor to link transactions made for this record with the appropriate general ledger account according to the VAT posting setup.';
                     Visible = false;
                 }
-                field("VAT Prod. Posting Group"; "VAT Prod. Posting Group")
+                field("VAT Prod. Posting Group"; Rec."VAT Prod. Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT specification of the involved item or resource to link transactions made for this record with the appropriate general ledger account according to the VAT posting setup.';
@@ -157,53 +156,53 @@ page 610 "IC General Journal"
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies the total amount (including VAT) that the journal line consists of.';
                 }
-                field("Debit Amount"; "Debit Amount")
+                field("Debit Amount"; Rec."Debit Amount")
                 {
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies the total of the ledger entries that represent debits.';
                     Visible = false;
                 }
-                field("Credit Amount"; "Credit Amount")
+                field("Credit Amount"; Rec."Credit Amount")
                 {
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies the total of the ledger entries that represent credits.';
                     Visible = false;
                 }
-                field("VAT Amount"; "VAT Amount")
+                field("VAT Amount"; Rec."VAT Amount")
                 {
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies the amount of VAT that is included in the total amount.';
                     Visible = false;
                 }
-                field("VAT Difference"; "VAT Difference")
+                field("VAT Difference"; Rec."VAT Difference")
                 {
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies the difference between the calculated VAT amount and a VAT amount that you have entered manually.';
                     Visible = false;
                 }
-                field("Bal. VAT Amount"; "Bal. VAT Amount")
+                field("Bal. VAT Amount"; Rec."Bal. VAT Amount")
                 {
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies the amount of Bal. VAT included in the total amount.';
                     Visible = false;
                 }
-                field("Bal. VAT Difference"; "Bal. VAT Difference")
+                field("Bal. VAT Difference"; Rec."Bal. VAT Difference")
                 {
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies the difference between the calculate VAT amount and the VAT amount that you have entered manually.';
                     Visible = false;
                 }
-                field("Bal. Account Type"; "Bal. Account Type")
+                field("Bal. Account Type"; Rec."Bal. Account Type")
                 {
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies the type of account that a balancing entry is posted to, such as BANK for a cash account.';
 
                     trigger OnValidate()
                     begin
-                        EnableApplyEntriesAction;
+                        EnableApplyEntriesAction();
                     end;
                 }
-                field("Bal. Account No."; "Bal. Account No.")
+                field("Bal. Account No."; Rec."Bal. Account No.")
                 {
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies the number of the general ledger, customer, vendor, or bank account that the balancing entry is posted to, such as a cash account for cash purchases.';
@@ -214,87 +213,87 @@ page 610 "IC General Journal"
                         ShowShortcutDimCode(ShortcutDimCode);
                     end;
                 }
-                field("Bal. Gen. Posting Type"; "Bal. Gen. Posting Type")
+                field("Bal. Gen. Posting Type"; Rec."Bal. Gen. Posting Type")
                 {
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies the general posting type associated with the balancing account that will be used when you post the entry on the journal line.';
                 }
-                field("Bal. Gen. Bus. Posting Group"; "Bal. Gen. Bus. Posting Group")
+                field("Bal. Gen. Bus. Posting Group"; Rec."Bal. Gen. Bus. Posting Group")
                 {
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies the general business posting group code associated with the balancing account that will be used when you post the entry.';
                 }
-                field("Bal. Gen. Prod. Posting Group"; "Bal. Gen. Prod. Posting Group")
+                field("Bal. Gen. Prod. Posting Group"; Rec."Bal. Gen. Prod. Posting Group")
                 {
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies the general product posting group code associated with the balancing account that will be used when you post the entry.';
                 }
-                field("IC Partner G/L Acc. No."; "IC Partner G/L Acc. No.")
+                field("IC Partner G/L Acc. No."; Rec."IC Partner G/L Acc. No.")
                 {
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies the account in your IC partner''s company that corresponds to the G/L account on the line.';
                 }
-                field("Bal. VAT Prod. Posting Group"; "Bal. VAT Prod. Posting Group")
+                field("Bal. VAT Prod. Posting Group"; Rec."Bal. VAT Prod. Posting Group")
                 {
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies the code of the VAT product posting group that will be used when you post the entry on the journal line.';
                     Visible = false;
                 }
-                field("Bal. VAT Bus. Posting Group"; "Bal. VAT Bus. Posting Group")
+                field("Bal. VAT Bus. Posting Group"; Rec."Bal. VAT Bus. Posting Group")
                 {
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies the code of the VAT business posting group that will be used when you post the entry on the journal line.';
                     Visible = false;
                 }
-                field("Bill-to/Pay-to No."; "Bill-to/Pay-to No.")
+                field("Bill-to/Pay-to No."; Rec."Bill-to/Pay-to No.")
                 {
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies the number of the bill-to customer or pay-to vendor that the entry is linked to.';
                     Visible = false;
                 }
-                field("Ship-to/Order Address Code"; "Ship-to/Order Address Code")
+                field("Ship-to/Order Address Code"; Rec."Ship-to/Order Address Code")
                 {
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies the address code of the ship-to customer or order-from vendor that the entry is linked to.';
                     Visible = false;
                 }
-                field("Payment Terms Code"; "Payment Terms Code")
+                field("Payment Terms Code"; Rec."Payment Terms Code")
                 {
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies a formula that calculates the payment due date, payment discount date, and payment discount amount.';
                     Visible = false;
                 }
-                field("Applies-to Doc. Type"; "Applies-to Doc. Type")
+                field("Applies-to Doc. Type"; Rec."Applies-to Doc. Type")
                 {
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies the type of the posted document that this document or journal line will be applied to when you post, for example to register payment.';
                     Visible = false;
                 }
-                field("Applies-to Doc. No."; "Applies-to Doc. No.")
+                field("Applies-to Doc. No."; Rec."Applies-to Doc. No.")
                 {
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies the number of the posted document that this document or journal line will be applied to when you post, for example to register payment.';
                     Visible = false;
                 }
-                field("Applies-to ID"; "Applies-to ID")
+                field("Applies-to ID"; Rec."Applies-to ID")
                 {
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies the ID of entries that will be applied to when you choose the Apply Entries action.';
                     Visible = false;
                 }
-                field("On Hold"; "On Hold")
+                field("On Hold"; Rec."On Hold")
                 {
                     ApplicationArea = Suite, Intercompany;
                     ToolTip = 'Specifies that the related entry represents an unpaid invoice for which either a payment suggestion, a reminder, or a finance charge memo exists.';
                     Visible = false;
                 }
-                field("Bank Payment Type"; "Bank Payment Type")
+                field("Bank Payment Type"; Rec."Bank Payment Type")
                 {
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies the code for the payment type to be used for the entry on the journal line.';
                     Visible = false;
                 }
-                field("Reason Code"; "Reason Code")
+                field("Reason Code"; Rec."Reason Code")
                 {
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies the reason code, a supplementary source code that enables you to trace the entry.';
@@ -306,7 +305,7 @@ page 610 "IC General Journal"
                     ToolTip = 'Specifies a comment about the activity on the journal line. Note that the comment is not carried forward to posted entries.';
                     Visible = false;
                 }
-                field("Job Queue Status"; "Job Queue Status")
+                field("Job Queue Status"; Rec."Job Queue Status")
                 {
                     ApplicationArea = All;
                     Importance = Additional;
@@ -322,13 +321,13 @@ page 610 "IC General Journal"
                         JobQueueEntry.ShowStatusMsg("Job Queue Entry ID");
                     end;
                 }
-                field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
+                field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                     Visible = DimVisible1;
                 }
-                field("Shortcut Dimension 2 Code"; "Shortcut Dimension 2 Code")
+                field("Shortcut Dimension 2 Code"; Rec."Shortcut Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
@@ -552,15 +551,13 @@ page 610 "IC General Journal"
                     ApplicationArea = Dimensions;
                     Caption = 'Dimensions';
                     Image = Dimensions;
-                    Promoted = true;
-                    PromotedCategory = Category7;
                     ShortCutKey = 'Alt+D';
                     ToolTip = 'View or edit dimensions, such as area, project, or department, that you can assign to sales and purchase documents to distribute costs and analyze transaction history.';
 
                     trigger OnAction()
                     begin
                         ShowDimensions();
-                        CurrPage.SaveRecord;
+                        CurrPage.SaveRecord();
                     end;
                 }
             }
@@ -573,8 +570,6 @@ page 610 "IC General Journal"
                     ApplicationArea = Intercompany;
                     Caption = 'Card';
                     Image = EditLines;
-                    Promoted = true;
-                    PromotedCategory = Category8;
                     RunObject = Codeunit "Gen. Jnl.-Show Card";
                     ShortCutKey = 'Shift+F7';
                     ToolTip = 'View or change detailed information about the record on the document or journal line.';
@@ -584,8 +579,6 @@ page 610 "IC General Journal"
                     ApplicationArea = Intercompany;
                     Caption = 'Ledger E&ntries';
                     Image = GLRegisters;
-                    Promoted = true;
-                    PromotedCategory = Category8;
                     RunObject = Codeunit "Gen. Jnl.-Show Entries";
                     ShortCutKey = 'Ctrl+F7';
                     ToolTip = 'View the history of transactions that have been posted for the selected record.';
@@ -603,14 +596,11 @@ page 610 "IC General Journal"
                     ApplicationArea = Intercompany;
                     Caption = 'Renumber Document Numbers';
                     Image = EditLines;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedOnly = true;
                     ToolTip = 'Resort the numbers in the Document No. column to avoid posting errors because the document numbers are not in sequence. Entry applications and line groupings are preserved.';
 
                     trigger OnAction()
                     begin
-                        RenumberDocumentNo
+                        RenumberDocumentNo();
                     end;
                 }
                 action("Apply Entries")
@@ -620,8 +610,6 @@ page 610 "IC General Journal"
                     Ellipsis = true;
                     Enabled = ApplyEntriesActionEnabled;
                     Image = ApplyEntries;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     RunObject = Codeunit "Gen. Jnl.-Apply";
                     ShortCutKey = 'Shift+F11';
                     ToolTip = 'Apply the payment amount on a journal line to a sales or purchase document that was already posted for a customer or vendor. This updates the amount on the posted document, and the document can either be partially paid, or closed as paid or refunded.';
@@ -631,9 +619,6 @@ page 610 "IC General Journal"
                     ApplicationArea = Intercompany;
                     Caption = 'Insert Conv. LCY Rndg. Lines';
                     Image = InsertCurrency;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedOnly = true;
                     RunObject = Codeunit "Adjust Gen. Journal Balance";
                     ToolTip = 'Insert a rounding correction line in the journal. This rounding correction line will balance in LCY when amounts in the foreign currency also balance. You can then post the journal.';
                 }
@@ -647,9 +632,6 @@ page 610 "IC General Journal"
                     ApplicationArea = Intercompany;
                     Caption = 'Reconcile';
                     Image = Reconcile;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     ShortCutKey = 'Ctrl+F11';
                     ToolTip = 'View the balances on bank accounts that are marked for reconciliation, usually liquid accounts.';
 
@@ -677,9 +659,6 @@ page 610 "IC General Journal"
                     ApplicationArea = Intercompany;
                     Caption = 'P&ost';
                     Image = PostOrder;
-                    Promoted = true;
-                    PromotedCategory = Category6;
-                    PromotedIsBig = true;
                     ShortCutKey = 'F9';
                     ToolTip = 'Finalize the document or journal by posting the amounts and quantities to the related accounts in your company books.';
 
@@ -696,8 +675,6 @@ page 610 "IC General Journal"
                     ApplicationArea = Intercompany;
                     Caption = 'Preview Posting';
                     Image = ViewPostedOrder;
-                    Promoted = true;
-                    PromotedCategory = Category6;
                     ShortCutKey = 'Ctrl+Alt+F9';
                     ToolTip = 'Review the different types of entries that will be created when you post the document or journal.';
 
@@ -713,9 +690,6 @@ page 610 "IC General Journal"
                     ApplicationArea = Intercompany;
                     Caption = 'Post and &Print';
                     Image = PostPrint;
-                    Promoted = true;
-                    PromotedCategory = Category6;
-                    PromotedIsBig = true;
                     ShortCutKey = 'Shift+F9';
                     ToolTip = 'Finalize and prepare to print the document or journal. The values and quantities are posted to the related accounts. A report request window where you can specify what to include on the print-out.';
 
@@ -732,15 +706,12 @@ page 610 "IC General Journal"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Remove From Job Queue';
                     Image = RemoveLine;
-                    Promoted = true;
-                    PromotedCategory = Category6;
-                    PromotedIsBig = true;
                     ToolTip = 'Remove the scheduled processing of this record from the job queue.';
                     Visible = JobQueueVisible;
 
                     trigger OnAction()
                     begin
-                        CancelBackgroundPosting;
+                        CancelBackgroundPosting();
                         SetJobQueueVisibility();
                         CurrPage.Update(false);
                     end;
@@ -755,8 +726,6 @@ page 610 "IC General Journal"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Show Lines with Issues';
                     Image = Error;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     Visible = BackgroundErrorCheck;
                     Enabled = not ShowAllLinesEnabled;
                     ToolTip = 'View a list of journal lines that have issues before you post the journal.';
@@ -771,8 +740,6 @@ page 610 "IC General Journal"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Show All Lines';
                     Image = ExpandAll;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     Visible = BackgroundErrorCheck;
                     Enabled = ShowAllLinesEnabled;
                     ToolTip = 'View all journal lines, including lines with and without issues.';
@@ -791,10 +758,6 @@ page 610 "IC General Journal"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Edit in Excel';
                     Image = Excel;
-                    Promoted = true;
-                    PromotedCategory = Category9;
-                    PromotedIsBig = true;
-                    PromotedOnly = true;
                     ToolTip = 'Send the data in the journal to an Excel file for analysis or editing.';
                     Visible = IsSaaSExcelAddinEnabled;
                     AccessByPermission = System "Allow Action Export To Excel" = X;
@@ -808,13 +771,118 @@ page 610 "IC General Journal"
                 }
             }
         }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                group(Category_Category6)
+                {
+                    Caption = 'Post/Print', Comment = 'Generated from the PromotedActionCategories property index 5.';
+                    ShowAs = SplitButton;
+
+#if not CLEAN21
+                    actionref("Remove From Job Queue_Promoted"; "Remove From Job Queue")
+                    {
+                        Visible = false;
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Action is being demoted based on overall low usage.';
+                        ObsoleteTag = '21.0';
+                    }
+#endif
+                    actionref("P&ost_Promoted"; "P&ost")
+                    {
+                    }
+                    actionref(Preview_Promoted; Preview)
+                    {
+                    }
+                    actionref("Post and &Print_Promoted"; "Post and &Print")
+                    {
+                    }
+                    actionref("Test Report_Promoted"; "Test Report")
+                    {
+                    }
+                }
+                actionref(Reconcile_Promoted; Reconcile)
+                {
+                }
+                actionref("Apply Entries_Promoted"; "Apply Entries")
+                {
+                }
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Prepare', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref("Renumber Document Numbers_Promoted"; "Renumber Document Numbers")
+                {
+                }
+                actionref("Insert Conv. LCY Rndg. Lines_Promoted"; "Insert Conv. LCY Rndg. Lines")
+                {
+                }
+            }
+            group(Category_Category5)
+            {
+                Caption = 'Posting', Comment = 'Generated from the PromotedActionCategories property index 4.';
+            }
+            group(Category_Category7)
+            {
+                Caption = 'Line', Comment = 'Generated from the PromotedActionCategories property index 6.';
+
+                actionref(Dimensions_Promoted; Dimensions)
+                {
+                }
+            }
+            group(Category_Category8)
+            {
+                Caption = 'Account', Comment = 'Generated from the PromotedActionCategories property index 7.';
+
+#if not CLEAN21
+                actionref(Card_Promoted; Card)
+                {
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
+                    ObsoleteTag = '21.0';
+                }
+#endif
+#if not CLEAN21
+                actionref("Ledger E&ntries_Promoted"; "Ledger E&ntries")
+                {
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
+                    ObsoleteTag = '21.0';
+                }
+#endif
+            }
+            group(Category_Category9)
+            {
+                Caption = 'Page', Comment = 'Generated from the PromotedActionCategories property index 8.';
+
+                actionref(EditInExcel_Promoted; EditInExcel)
+                {
+                }
+                actionref(ShowLinesWithErrors_Promoted; ShowLinesWithErrors)
+                {
+                }
+                actionref(ShowAllLines_Promoted; ShowAllLines)
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+        }
     }
 
     trigger OnAfterGetCurrRecord()
     begin
         GenJnlManagement.GetAccounts(Rec, AccName, BalAccName);
-        UpdateBalance;
-        EnableApplyEntriesAction;
+        UpdateBalance();
+        EnableApplyEntriesAction();
         SetJobQueueVisibility();
     end;
 
@@ -833,8 +901,8 @@ page 610 "IC General Journal"
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        UpdateBalance;
-        EnableApplyEntriesAction;
+        UpdateBalance();
+        EnableApplyEntriesAction();
         SetUpNewLine(xRec, Balance, BelowxRec);
         Clear(ShortcutDimCode);
         Clear(AccName);
@@ -845,10 +913,10 @@ page 610 "IC General Journal"
         ServerSetting: Codeunit "Server Setting";
         JnlSelected: Boolean;
     begin
-        SetDimensionsVisibility;
+        SetDimensionsVisibility();
         IsSaaSExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled();
 
-        if IsOpenedFromBatch then begin
+        if IsOpenedFromBatch() then begin
             CurrentJnlBatchName := "Journal Batch Name";
             GenJnlManagement.OpenJnl(CurrentJnlBatchName, Rec);
             SetControlAppearanceFromBatch();
@@ -917,7 +985,7 @@ page 610 "IC General Journal"
 
     local procedure CurrentJnlBatchNameOnAfterVali()
     begin
-        CurrPage.SaveRecord;
+        CurrPage.SaveRecord();
         GenJnlManagement.SetName(CurrentJnlBatchName, Rec);
         SetControlAppearanceFromBatch();
         CurrPage.Update(false);
@@ -957,7 +1025,7 @@ page 610 "IC General Journal"
     local procedure SetJobQueueVisibility()
     begin
         JobQueueVisible := "Job Queue Status" = "Job Queue Status"::"Scheduled for Posting";
-        JobQueuesUsed := GeneralLedgerSetup.JobQueueActive;
+        JobQueuesUsed := GeneralLedgerSetup.JobQueueActive();
     end;
 
     [IntegrationEvent(false, false)]
@@ -965,4 +1033,5 @@ page 610 "IC General Journal"
     begin
     end;
 }
+
 #endif

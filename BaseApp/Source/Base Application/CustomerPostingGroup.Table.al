@@ -25,7 +25,7 @@ table 92 "Customer Posting Group"
                       "Receivables Account", GLAccountCategory."Account Category"::Assets,
                       GLAccountCategoryMgt.GetCII21TradeReceivables()); // NAVCZ
 #else
-                      "Receivables Account", GLAccountCategory."Account Category"::Assets, GLAccountCategoryMgt.GetAR);
+                      "Receivables Account", GLAccountCategory."Account Category"::Assets, GLAccountCategoryMgt.GetAR());
 #endif
 
                 Validate("Receivables Account");
@@ -41,10 +41,7 @@ table 92 "Customer Posting Group"
                       FieldNo("Receivables Account"), "Receivables Account", false, false, GLAccountCategory."Account Category"::Assets,
                       GLAccountCategoryMgt.GetCII21TradeReceivables()); // NAVCZ
 #else
-                      FieldNo("Receivables Account"), "Receivables Account", false, false, GLAccountCategory."Account Category"::Assets, GLAccountCategoryMgt.GetAR);
-#endif
-#if not CLEAN18
-                CheckOpenCustLedgEntries(false); // NAVCZ
+                      FieldNo("Receivables Account"), "Receivables Account", false, false, GLAccountCategory."Account Category"::Assets, GLAccountCategoryMgt.GetAR());
 #endif
             end;
         }
@@ -63,7 +60,7 @@ table 92 "Customer Posting Group"
                       "Service Charge Acc.", GLAccountCategory."Account Category"::Income,
                       GLAccountCategoryMgt.GetVIIOtherFinancialRevenues()); // NAVCZ
 #else
-                      "Service Charge Acc.", GLAccountCategory."Account Category"::Income, GLAccountCategoryMgt.GetIncomeService);
+                      "Service Charge Acc.", GLAccountCategory."Account Category"::Income, GLAccountCategoryMgt.GetIncomeService());
 #endif
 
                 Validate("Service Charge Acc.");
@@ -79,7 +76,7 @@ table 92 "Customer Posting Group"
                       FieldNo("Service Charge Acc."), "Service Charge Acc.", true, true, GLAccountCategory."Account Category"::Income,
                       GLAccountCategoryMgt.GetVIIOtherFinancialRevenues()); // NAVCZ
 #else
-                      FieldNo("Service Charge Acc."), "Service Charge Acc.", true, true, GLAccountCategory."Account Category"::Income, GLAccountCategoryMgt.GetIncomeService);
+                      FieldNo("Service Charge Acc."), "Service Charge Acc.", true, true, GLAccountCategory."Account Category"::Income, GLAccountCategoryMgt.GetIncomeService());
 #endif
             end;
         }
@@ -330,7 +327,7 @@ table 92 "Customer Posting Group"
 #if not CLEAN19
                       "Payment Tolerance Credit Acc.", GLAccountCategory."Account Category"::Expense, ''); // NAVCZ
 #else
-                      "Payment Tolerance Credit Acc.", GLAccountCategory."Account Category"::Expense, GLAccountCategoryMgt.GetInterestExpense);
+                      "Payment Tolerance Credit Acc.", GLAccountCategory."Account Category"::Expense, GLAccountCategoryMgt.GetInterestExpense());
 #endif
 
                 Validate("Payment Tolerance Credit Acc.");
@@ -346,7 +343,7 @@ table 92 "Customer Posting Group"
 #if not CLEAN19
                       GLAccountCategory."Account Category"::Expense, ''); // NAVCZ
 #else
-                      GLAccountCategory."Account Category"::Expense, GLAccountCategoryMgt.GetInterestExpense);
+                      GLAccountCategory."Account Category"::Expense, GLAccountCategoryMgt.GetInterestExpense());
 #endif
             end;
         }
@@ -412,10 +409,6 @@ table 92 "Customer Posting Group"
                 else
                     CheckGLAccount(FieldNo("Advance Account"), "Advance Account", false, false, GLAccountCategory."Account Category"::Liabilities,
                         GLAccountCategoryMgt.GetCII3ShorttermAdvancePaymentsReceived());
-#if not CLEAN18
-
-                CheckOpenCustLedgEntries(true);
-#endif
             end;
 #endif
         }
@@ -438,10 +431,7 @@ table 92 "Customer Posting Group"
 
     trigger OnDelete()
     begin
-        CheckCustEntries;
-#if not CLEAN18
-        DeleteSubstPostingGroups; // NAVCZ
-#endif
+        CheckCustEntries();
     end;
 
     var
@@ -581,82 +571,13 @@ table 92 "Customer Posting Group"
         PaymentTerms: Record "Payment Terms";
     begin
         GLSetup.Get();
-        PmtToleranceVisible := GLSetup.GetPmtToleranceVisible;
-        PmtDiscountVisible := PaymentTerms.UsePaymentDiscount;
+        PmtToleranceVisible := GLSetup.GetPmtToleranceVisible();
+        PmtDiscountVisible := PaymentTerms.UsePaymentDiscount();
 
         SalesSetup.Get();
         InvRoundingVisible := SalesSetup."Invoice Rounding";
         ApplnRoundingVisible := SalesSetup."Appln. between Currencies" <> SalesSetup."Appln. between Currencies"::None;
     end;
-
-#if not CLEAN18
-    [Scope('OnPrem')]
-    [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
-    procedure GetReceivablesAccNo(PostingGroupCode: Code[20]; Advance: Boolean): Code[20]
-    begin
-        // NAVCZ
-        Get(PostingGroupCode);
-        if Advance then begin
-            if "Advance Account" = '' then
-                PostingSetupMgt.SendCustPostingGroupNotification(Rec, FieldCaption("Advance Account"));
-            TestField("Advance Account");
-            exit("Advance Account");
-        end;
-        if "Receivables Account" = '' then
-            PostingSetupMgt.SendCustPostingGroupNotification(Rec, FieldCaption("Receivables Account"));
-        TestField("Receivables Account");
-        exit("Receivables Account");
-    end;
-
-    [Scope('OnPrem')]
-    [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
-    procedure DeleteSubstPostingGroups()
-    var
-        SubstCustPostingGroup: Record "Subst. Customer Posting Group";
-    begin
-        // NAVCZ
-        SubstCustPostingGroup.SetRange("Parent Cust. Posting Group", Code);
-        SubstCustPostingGroup.DeleteAll();
-        SubstCustPostingGroup.Reset();
-        SubstCustPostingGroup.SetRange("Customer Posting Group", Code);
-        SubstCustPostingGroup.DeleteAll();
-    end;
-
-    [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
-    local procedure CheckOpenCustLedgEntries(Prepayment1: Boolean)
-    var
-        CustLedgerEntry: Record "Cust. Ledger Entry";
-        ConfirmManagement: Codeunit "Confirm Management";
-        Caption1: Text[250];
-        ChangeText: Label 'Do you really want to change %1 although open entries exist?';
-        IsHandled: Boolean;
-    begin
-        // NAVCZ
-        IsHandled := false;
-        OnBeforeCheckOpenCustLedgEntries(Prepayment1, IsHandled);
-        if IsHandled then
-            exit;
-
-        CustLedgerEntry.SetCurrentKey(Open);
-        CustLedgerEntry.SetRange(Open, true);
-        CustLedgerEntry.SetRange("Customer Posting Group", Code);
-        CustLedgerEntry.SetRange(Prepayment, Prepayment1);
-        if not CustLedgerEntry.IsEmpty() then begin
-            if Prepayment1 then
-                Caption1 := FieldCaption("Advance Account")
-            else
-                Caption1 := FieldCaption("Receivables Account");
-            if not ConfirmManagement.GetResponse(StrSubstNo(ChangeText, Caption1), false) then
-                Error('');
-        end;
-    end;
-
-    [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
-    [IntegrationEvent(true, false)]
-    local procedure OnBeforeCheckOpenCustLedgEntries(var Prepayment1: Boolean; var IsHandled: Boolean);
-    begin
-    end;
-#endif
 
     local procedure CheckGLAccount(ChangedFieldNo: Integer; AccNo: Code[20]; CheckProdPostingGroup: Boolean; CheckDirectPosting: Boolean; AccountCategory: Option; AccountSubcategory: Text)
     begin

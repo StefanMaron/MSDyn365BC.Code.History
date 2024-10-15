@@ -16,7 +16,7 @@ page 31029 "P.Adv. Letters History Subform"
             repeater(Control1220011)
             {
                 ShowCaption = false;
-                field("Letter No."; "Letter No.")
+                field("Letter No."; Rec."Letter No.")
                 {
                     ApplicationArea = Basic, Suite;
                     HideValue = "LetterNoHideValue";
@@ -24,12 +24,12 @@ page 31029 "P.Adv. Letters History Subform"
                     StyleExpr = TRUE;
                     ToolTip = 'Specifies the number of letter.';
                 }
-                field("Advance Due Date"; "Advance Due Date")
+                field("Advance Due Date"; Rec."Advance Due Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies when the advance must be paid.';
                 }
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the purchase advance letter.';
@@ -39,40 +39,40 @@ page 31029 "P.Adv. Letters History Subform"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies description for purchase advance.';
                 }
-                field("Currency Code"; "Currency Code")
+                field("Currency Code"; Rec."Currency Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the currency of amounts on the document.';
                     Visible = false;
                 }
-                field("Amount Including VAT"; "Amount Including VAT")
+                field("Amount Including VAT"; Rec."Amount Including VAT")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether the unit price on the line should be displayed including or excluding VAT.';
                 }
-                field("VAT %"; "VAT %")
+                field("VAT %"; Rec."VAT %")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT percentage used to calculate Amount Including VAT on this line.';
                     Visible = false;
                 }
-                field("VAT Amount"; "VAT Amount")
+                field("VAT Amount"; Rec."VAT Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies VAT amount of advance.';
                     Visible = false;
                 }
-                field("Amount Linked"; "Amount Linked")
+                field("Amount Linked"; Rec."Amount Linked")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount paid by customer.';
                 }
-                field("Amount Invoiced"; "Amount Invoiced")
+                field("Amount Invoiced"; Rec."Amount Invoiced")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount with advance VAT document.';
                 }
-                field("Amount Deducted"; "Amount Deducted")
+                field("Amount Deducted"; Rec."Amount Deducted")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount that was used in final sales invoice.';
@@ -98,7 +98,7 @@ page 31029 "P.Adv. Letters History Subform"
 
                     trigger OnAction()
                     begin
-                        ShowDoc;
+                        ShowDoc();
                     end;
                 }
             }
@@ -108,7 +108,7 @@ page 31029 "P.Adv. Letters History Subform"
     trigger OnAfterGetRecord()
     begin
         LetterNoHideValue := false;
-        LetterNoOnFormat;
+        LetterNoOnFormat();
     end;
 
     var
@@ -141,7 +141,7 @@ page 31029 "P.Adv. Letters History Subform"
 
     local procedure LetterNoOnFormat()
     begin
-        if not IsFirstDocLine then
+        if not IsFirstDocLine() then
             LetterNoHideValue := true;
     end;
 

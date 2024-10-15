@@ -9,7 +9,7 @@ codeunit 11707 "Issue Payment Order (Yes/No)"
     trigger OnRun()
     begin
         PmtOrdHdr.Copy(Rec);
-        Code;
+        Code();
         Rec := PmtOrdHdr;
     end;
 
@@ -31,7 +31,7 @@ codeunit 11707 "Issue Payment Order (Yes/No)"
 
         if Selection = 2 then begin
             IssuedPmtOrdHdr.Get(PmtOrdHdr."Last Issuing No.");
-            IssuedPmtOrdHdr.ExportPmtOrd;
+            IssuedPmtOrdHdr.ExportPmtOrd();
         end;
     end;
 }

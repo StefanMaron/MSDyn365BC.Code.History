@@ -1,7 +1,7 @@
 permissionset 6092 "Payables - Admin"
 {
     Access = Public;
-    Assignable = true;
+    Assignable = false;
     Caption = 'P&P setup';
 
     Permissions = tabledata "Base Calendar" = RIMD,
@@ -36,17 +36,9 @@ permissionset 6092 "Payables - Admin"
                   tabledata "Standard Purchase Code" = RIMD,
                   tabledata "Standard Purchase Line" = RIMD,
                   tabledata "Standard Vendor Purchase Code" = RIMD,
-#if not CLEAN18
-                  tabledata "Subst. Vendor Posting Group" = RIMD,
-#endif
                   tabledata "Tax Area" = R,
                   tabledata "VAT Business Posting Group" = R,
                   tabledata "VAT Rate Change Log Entry" = Ri,
                   tabledata "Vendor Invoice Disc." = RIMD,
-#if CLEAN18
                   tabledata "Vendor Posting Group" = RIMD;
-#else
-                  tabledata "Vendor Posting Group" = RIMD,
-                  tabledata "Vendor Template" = RIMD;
-#endif
 }

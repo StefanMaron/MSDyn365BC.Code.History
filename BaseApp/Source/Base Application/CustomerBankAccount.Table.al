@@ -50,8 +50,13 @@ table 287 "Customer Bank Account"
             end;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
-                PostCode.ValidateCity(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
+                IsHandled := false;
+                OnBeforeValidateCity(Rec, PostCode, CurrFieldNo, IsHandled);
+                if not IsHandled then
+                    PostCode.ValidateCity(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
             end;
         }
         field(9; "Post Code"; Code[20])
@@ -70,8 +75,13 @@ table 287 "Customer Bank Account"
             end;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
-                PostCode.ValidatePostCode(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
+                IsHandled := false;
+                OnBeforeValidatePostCode(Rec, PostCode, CurrFieldNo, IsHandled);
+                if not IsHandled then
+                    PostCode.ValidatePostCode(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
             end;
         }
         field(10; Contact; Text[100])
@@ -102,7 +112,7 @@ table 287 "Customer Bank Account"
 
             trigger OnValidate()
             begin
-		        OnValidateBankAccount(Rec, 'Bank Account No.');
+                OnValidateBankAccount(Rec, 'Bank Account No.');
             end;
         }
         field(15; "Transit No."; Text[20])
@@ -195,41 +205,17 @@ table 287 "Customer Bank Account"
         {
             BlankZero = true;
             Caption = 'Priority';
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Removed from Base Application, use Preferred Bank Account Code instead.';
-            ObsoleteTag = '18.0';
-#if not CLEAN18
-
-            trigger OnValidate()
-            var
-                CustBankAcc: Record "Customer Bank Account";
-                POEText: Label '%1 %2 for %3 %4 allready exists!';
-            begin
-                if Priority <> 0 then begin
-                    CustBankAcc.SetCurrentKey("Customer No.", Priority);
-                    CustBankAcc.SetRange("Customer No.", "Customer No.");
-                    CustBankAcc.SetRange(Priority, Priority);
-                    if not CustBankAcc.IsEmpty() then
-                        Error(POEText, FieldCaption(Priority), Priority, FieldCaption("Customer No."), "Customer No.");
-                end;
-            end;
-#endif
+            ObsoleteTag = '21.0';
         }
         field(11703; "Specific Symbol"; Code[10])
         {
             Caption = 'Specific Symbol';
             CharAllowed = '09';
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Removed from Base Application.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
     }
 
@@ -239,14 +225,6 @@ table 287 "Customer Bank Account"
         {
             Clustered = true;
         }
-#if not CLEAN18
-        key(Key2; "Customer No.", Priority)
-        {
-            ObsoleteState = Pending;
-            ObsoleteReason = 'Field "Priority" is removed and cannot be used in an active key.';
-            ObsoleteTag = '18.0';
-        }
-#endif
     }
 
     fieldgroups
@@ -275,6 +253,10 @@ table 287 "Customer Bank Account"
         end;
     end;
 
+    trigger OnRename()
+    begin
+    end;
+
     var
         PostCode: Record "Post Code";
         BankAccIdentifierIsEmptyErr: Label 'You must specify either a Bank Account No. or an IBAN.';
@@ -282,7 +264,7 @@ table 287 "Customer Bank Account"
 
     procedure GetBankAccountNoWithCheck() AccountNo: Text
     begin
-        AccountNo := GetBankAccountNo;
+        AccountNo := GetBankAccountNo();
         if AccountNo = '' then
             Error(BankAccIdentifierIsEmptyErr);
     end;
@@ -317,4 +299,15 @@ table 287 "Customer Bank Account"
     local procedure OnGetBankAccount(var Handled: Boolean; CustomerBankAccount: Record "Customer Bank Account"; var ResultBankAccountNo: Text)
     begin
     end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateCity(var CustomerBankAccount: Record "Customer Bank Account"; var PostCodeRec: Record "Post Code"; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidatePostCode(var CustomerBankAccount: Record "Customer Bank Account"; var PostCodeRec: Record "Post Code"; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
 }
+

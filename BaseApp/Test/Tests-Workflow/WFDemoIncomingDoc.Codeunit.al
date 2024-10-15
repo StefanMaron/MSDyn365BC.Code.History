@@ -37,11 +37,11 @@ codeunit 134178 "WF Demo Incoming Doc"
         WorkflowResponse.DeleteAll();
 
         // Exercise.
-        WorkflowSetup.InitWorkflow;
+        WorkflowSetup.InitWorkflow();
 
         // Verify
-        Assert.AreEqual(32, Workflow.Count, StrSubstNo(RecordNotFoundErr, Workflow.TableCaption)); // NAVCZ
-        Assert.AreEqual(531, WorkflowStep.Count, StrSubstNo(RecordNotFoundErr, WorkflowStep.TableCaption)); // NAVCZ
+        Assert.AreEqual(31, Workflow.Count, StrSubstNo(RecordNotFoundErr, Workflow.TableCaption())); // NAVCZ
+        Assert.AreEqual(511, WorkflowStep.Count, StrSubstNo(RecordNotFoundErr, WorkflowStep.TableCaption())); // NAVCZ
 
         WorkflowStep.SetFilter(Argument, '<>%1', Guid);
         Assert.AreEqual(WorkflowStep.Count, WorkflowStepArgument.Count, 'There should not be more arguments than steps.');
@@ -129,7 +129,7 @@ codeunit 134178 "WF Demo Incoming Doc"
         NotificationSetup.DeleteAll();
         LibraryIncomingDocuments.InitIncomingDocuments;
         LibraryWorkflow.DeleteAllExistingWorkflows;
-        WorkflowSetup.InitWorkflow;
+        WorkflowSetup.InitWorkflow();
         if IsInitialized then
             exit;
 

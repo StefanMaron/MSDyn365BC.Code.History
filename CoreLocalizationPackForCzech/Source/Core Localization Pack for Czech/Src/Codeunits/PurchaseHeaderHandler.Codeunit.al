@@ -125,9 +125,41 @@ codeunit 11744 "Purchase Header Handler CZL"
         end;
     end;
 
+#if not CLEAN19
     [EventSubscriber(ObjectType::Table, Database::"Purchase Header", 'OnGetVATCurrencyFactor', '', false, false)]
     local procedure ReturnVATCurrencyFactorCZLOnGetVATCurrencyFactor(Rec: Record "Purchase Header"; var VATCurrencyFactor: Decimal)
     begin
         VATCurrencyFactor := Rec."VAT Currency Factor CZL";
+    end;
+
+#endif
+    [EventSubscriber(ObjectType::Table, Database::"Purchase Header", 'OnAfterValidateEvent', 'VAT Country/Region Code', false, false)]
+    local procedure UpdateVATRegistrationNoCodeOnAfterVATCountryRegionCodeValidate(var Rec: Record "Purchase Header")
+    var
+        PayToVendor: Record Vendor;
+    begin
+        if Rec."Pay-to Vendor No." <> '' then begin
+            PayToVendor.Get(Rec."Pay-to Vendor No.");
+            Rec."VAT Registration No." := PayToVendor."VAT Registration No.";
+        end;
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Purchase Header", 'OnAfterValidateEvent', 'Buy-from Country/Region Code', false, false)]
+    local procedure UpdateVATCountryRegionCodeOnAfterBuyFromCountryRegionCodeValidate(var Rec: Record "Purchase Header"; var xRec: Record "Purchase Header")
+    begin
+        if (Rec."Buy-from Country/Region Code" <> xRec."Buy-from Country/Region Code") and (xRec."Buy-from Country/Region Code" <> '') then
+            Rec.Validate("VAT Country/Region Code", Rec."Buy-from Country/Region Code");
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Purchase Header", 'OnValidateOrderAddressCodeOnAfterCopyBuyFromVendorAddressFieldsFromVendor', '', false, false)]
+    local procedure UpdateVATCountryRegionCodeOnValidateOrderAddressCodeOnAfterCopyBuyFromVendorAddressFieldsFromVendor(var PurchaseHeader: Record "Purchase Header"; Vend: Record Vendor)
+    begin
+        PurchaseHeader.Validate("VAT Country/Region Code", Vend."Country/Region Code");
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Purchase Header", 'OnAfterCopyAddressInfoFromOrderAddress', '', false, false)]
+    local procedure UpdateVATCountryRegionCodeOnAfterCopyAddressInfoFromOrderAddress(var OrderAddress: Record "Order Address"; var PurchHeader: Record "Purchase Header")
+    begin
+        PurchHeader.Validate("VAT Country/Region Code", OrderAddress."Country/Region Code");
     end;
 }

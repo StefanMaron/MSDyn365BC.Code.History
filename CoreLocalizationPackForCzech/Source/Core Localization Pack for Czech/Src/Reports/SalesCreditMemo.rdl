@@ -4087,7 +4087,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Fields!VATClauseDescription.Value &amp; " " &amp; Fields!VATClauseDescription2.Value</Value>
+                                                    <Value>=Fields!VATClauseDescription.Value</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                     </Style>
@@ -5080,7 +5080,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
             </Style>
           </Tablix>
         </ReportItems>
-        <Height>17.3724cm</Height>
+        <Height>17.37241cm</Height>
         <Style>
           <Border />
         </Style>
@@ -5267,7 +5267,6 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>0in</Top>
               <Height>0.5cm</Height>
               <Width>12cm</Width>
               <Style>
@@ -5296,7 +5295,6 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>0in</Top>
               <Left>12cm</Left>
               <Height>0.5cm</Height>
               <Width>6cm</Width>
@@ -5555,6 +5553,18 @@ End Function</Code>
         </Field>
         <Field Name="Type3Text">
           <DataField>Type3Text</DataField>
+        </Field>
+        <Field Name="GreetingLbl">
+          <DataField>GreetingLbl</DataField>
+        </Field>
+        <Field Name="BodyLbl">
+          <DataField>BodyLbl</DataField>
+        </Field>
+        <Field Name="ClosingLbl">
+          <DataField>ClosingLbl</DataField>
+        </Field>
+        <Field Name="DocumentNoLbl">
+          <DataField>DocumentNoLbl</DataField>
         </Field>
         <Field Name="No_SalesCrMemoHeader">
           <DataField>No_SalesCrMemoHeader</DataField>
@@ -5840,9 +5850,6 @@ End Function</Code>
         </Field>
         <Field Name="VATClauseDescription">
           <DataField>VATClauseDescription</DataField>
-        </Field>
-        <Field Name="VATClauseDescription2">
-          <DataField>VATClauseDescription2</DataField>
         </Field>
         <Field Name="FullName_Employee">
           <DataField>FullName_Employee</DataField>

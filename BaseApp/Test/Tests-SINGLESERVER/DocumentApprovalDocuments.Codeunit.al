@@ -453,7 +453,7 @@ codeunit 134203 "Document Approval - Documents"
         ApprovalsMgmt.ApproveRecordApprovalRequest(PurchaseHeader.RecordId);
 
         // [THEN] The Purchase Order status is changed to "Pending Prepayment"
-        PurchaseHeader.Find;
+        PurchaseHeader.Find();
         asserterror PurchaseHeader.TestField(Status, PurchaseHeader.Status::"Pending Prepayment"); // Pending Prepayment status is not supported in CZ
     end;
 
@@ -487,10 +487,8 @@ codeunit 134203 "Document Approval - Documents"
         ApprovalsMgmt.ApproveRecordApprovalRequest(SalesHeader.RecordId);
 
         // [THEN] The Sales Order status is changed to "Pending Prepayment"
-        SalesHeader.Find;
+        SalesHeader.Find();
         asserterror SalesHeader.TestField(Status, SalesHeader.Status::"Pending Prepayment"); // Pending Prepayment status is not supported in CZ
-
-        DeleteSalesVATSetup(SalesHeader."No.");
     end;
 
     [Test]
@@ -510,7 +508,7 @@ codeunit 134203 "Document Approval - Documents"
         // [GIVEN] Sales Order with Approval Entry and Comment
         LibrarySales.CreateSalesDocumentWithItem(
           SalesHeader, SalesLine, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo,
-          LibraryInventory.CreateItemNo, LibraryRandom.RandDec(10, 2), '', WorkDate);
+          LibraryInventory.CreateItemNo, LibraryRandom.RandDec(10, 2), '', WorkDate());
         SalesRecordID := SalesHeader.RecordId;
         MockApprovalEntryWithComment(ApprovalCommentLine, SalesRecordID);
 
@@ -537,7 +535,7 @@ codeunit 134203 "Document Approval - Documents"
         // [GIVEN] Purchase Order with Approval Entry and Comment
         LibraryPurchase.CreatePurchaseDocumentWithItem(
           PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo,
-          LibraryInventory.CreateItemNo, LibraryRandom.RandDec(10, 2), '', WorkDate);
+          LibraryInventory.CreateItemNo, LibraryRandom.RandDec(10, 2), '', WorkDate());
         PurchaseRecordID := PurchaseHeader.RecordId;
         MockApprovalEntryWithComment(ApprovalCommentLine, PurchaseRecordID);
 
@@ -942,7 +940,7 @@ codeunit 134203 "Document Approval - Documents"
 
         // [THEN] Approval FactBox subpage has no records
         ApprovalFactBox.GetRecord(ApprovalEntry);
-        asserterror ApprovalEntry.Find;
+        asserterror ApprovalEntry.Find();
         Assert.AssertRecordNotFound;
     end;
 
@@ -972,7 +970,7 @@ codeunit 134203 "Document Approval - Documents"
 
         // [THEN] Approval FactBox subpage has no records
         ApprovalFactBox.GetRecord(ApprovalEntry);
-        asserterror ApprovalEntry.Find;
+        asserterror ApprovalEntry.Find();
         Assert.AssertRecordNotFound;
     end;
 
@@ -1188,7 +1186,7 @@ codeunit 134203 "Document Approval - Documents"
               CopyStr(LibraryUtility.GenerateRandomCode(User.FieldNo("User Name"), DATABASE::User),
                 1, LibraryUtility.GetFieldLength(DATABASE::User, User.FieldNo("User Name")));
             User.SetRange("User Name", UserName);
-        until User.IsEmpty;
+        until User.IsEmpty();
     end;
 
     local procedure GetApprovalEntries(var ApprovalEntry: Record "Approval Entry"; TableID: Integer; DocumentType: Enum "Approval Document Type"; DocumentNo: Code[20])
@@ -1402,7 +1400,7 @@ codeunit 134203 "Document Approval - Documents"
             AddUserForNotifications(ActualWorkflow.Code, UserSetup."User ID");
             ActualWorkflow.Validate(Enabled, true);
             ActualWorkflow.Modify(true);
-        until Workflow.Next = 0;
+        until Workflow.Next() = 0;
     end;
 
     local procedure AddUserForNotifications(WorkflowCode: Code[20]; UserID: Code[50])

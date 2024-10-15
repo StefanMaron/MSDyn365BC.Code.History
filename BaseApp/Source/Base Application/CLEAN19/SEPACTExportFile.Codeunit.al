@@ -11,7 +11,7 @@ codeunit 1220 "SEPA CT-Export File"
     begin
         LockTable();
         BankAccount.Get("Bal. Account No.");
-        if Export(Rec, BankAccount.GetPaymentExportXMLPortID) then
+        if Export(Rec, BankAccount.GetPaymentExportXMLPortID()) then
             ExpUserFeedbackGenJnl.SetExportFlagOnGenJnlLine(Rec);
     end;
 
@@ -41,7 +41,7 @@ codeunit 1220 "SEPA CT-Export File"
         OnBeforeBLOBExport(TempBlob, CreditTransferRegister, UseCommonDialog, FileCreated, IsHandled);
         if not IsHandled then
             FileCreated :=
-              FileManagement.BLOBExport(TempBlob, StrSubstNo('%1.XML', CreditTransferRegister.Identifier), UseCommonDialog) <> '';
+                FileManagement.BLOBExport(TempBlob, StrSubstNo('%1.XML', CreditTransferRegister.Identifier), UseCommonDialog) <> '';
         if FileCreated then
             SetCreditTransferRegisterToFileCreated(CreditTransferRegister, TempBlob);
 

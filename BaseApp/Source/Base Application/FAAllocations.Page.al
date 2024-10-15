@@ -1,4 +1,3 @@
-#if not CLEAN18
 page 5623 "FA Allocations"
 {
     AutoSplitKey = true;
@@ -14,30 +13,21 @@ page 5623 "FA Allocations"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Account No."; "Account No.")
+                field("Account No."; Rec."Account No.")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the account number to allocate to for the fixed asset allocation type on this line.';
                 }
-                field("Account Name"; "Account Name")
+                field("Account Name"; Rec."Account Name")
                 {
                     ApplicationArea = FixedAssets;
                     DrillDown = false;
                     ToolTip = 'Specifies the name of the account on this allocation line.';
                 }
-                field("Allocation %"; "Allocation %")
+                field("Allocation %"; Rec."Allocation %")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the percentage to use when allocating the amount for the allocation type.';
-                }
-                field("Reason/Maintenance Code"; "Reason/Maintenance Code")
-                {
-                    ApplicationArea = FixedAssets;
-                    ToolTip = 'Specifies the reason code on the entry.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
-                    ObsoleteTag = '18.0';
-                    Visible = false;
                 }
             }
             group(Control18)
@@ -98,7 +88,7 @@ page 5623 "FA Allocations"
                     trigger OnAction()
                     begin
                         ShowDimensions();
-                        CurrPage.SaveRecord;
+                        CurrPage.SaveRecord();
                     end;
                 }
             }
@@ -107,7 +97,7 @@ page 5623 "FA Allocations"
 
     trigger OnAfterGetCurrRecord()
     begin
-        UpdateAllocationPct;
+        UpdateAllocationPct();
     end;
 
     trigger OnInit()
@@ -118,7 +108,7 @@ page 5623 "FA Allocations"
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        UpdateAllocationPct;
+        UpdateAllocationPct();
     end;
 
     var
@@ -165,4 +155,3 @@ page 5623 "FA Allocations"
     end;
 }
 
-#endif

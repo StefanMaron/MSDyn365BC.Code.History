@@ -13,7 +13,7 @@ report 8 Budget
         {
             DataItemTableView = SORTING("No.");
             RequestFilterFields = "No.", "Account Type", "Budget Filter", "Global Dimension 1 Filter", "Global Dimension 2 Filter";
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(GLBudgetFilter; GLBudgetFilter)
@@ -37,76 +37,76 @@ report 8 Budget
             column(AccountTypePosting; GLAccountTypePosting)
             {
             }
-            column(PeriodStartDate1; PeriodStartDateCaption[1])
+            column(PeriodStartDate1; Format(PeriodStartDate[1], 0, '<Month Text,3>'))
             {
             }
-            column(PeriodStartDate2; PeriodStartDateCaption[2])
+            column(PeriodStartDate2; Format(PeriodStartDate[2], 0, '<Month Text,3>'))
             {
             }
-            column(PeriodStartDate3; PeriodStartDateCaption[3])
+            column(PeriodStartDate3; Format(PeriodStartDate[3], 0, '<Month Text,3>'))
             {
             }
-            column(PeriodStartDate4; PeriodStartDateCaption[4])
+            column(PeriodStartDate4; Format(PeriodStartDate[4], 0, '<Month Text,3>'))
             {
             }
-            column(PeriodStartDate5; PeriodStartDateCaption[5])
+            column(PeriodStartDate5; Format(PeriodStartDate[5], 0, '<Month Text,3>'))
             {
             }
-            column(PeriodStartDate6; PeriodStartDateCaption[6])
+            column(PeriodStartDate6; Format(PeriodStartDate[6], 0, '<Month Text,3>'))
             {
             }
-            column(PeriodStartDate7; PeriodStartDateCaption[7])
+            column(PeriodStartDate7; Format(PeriodStartDate[7], 0, '<Month Text,3>'))
             {
             }
-            column(PeriodStartDate8; PeriodStartDateCaption[8])
+            column(PeriodStartDate8; Format(PeriodStartDate[8], 0, '<Month Text,3>'))
             {
             }
-            column(PeriodStartDate9; PeriodStartDateCaption[9])
+            column(PeriodStartDate9; Format(PeriodStartDate[9], 0, '<Month Text,3>'))
             {
             }
-            column(PeriodStartDate10; PeriodStartDateCaption[10])
+            column(PeriodStartDate10; Format(PeriodStartDate[10], 0, '<Month Text,3>'))
             {
             }
-            column(PeriodStartDate11; PeriodStartDateCaption[11])
+            column(PeriodStartDate11; Format(PeriodStartDate[11], 0, '<Month Text,3>'))
             {
             }
-            column(PeriodStartDate12; PeriodStartDateCaption[12])
+            column(PeriodStartDate12; Format(PeriodStartDate[12], 0, '<Month Text,3>'))
             {
             }
-            column(PeriodStartDate21; PeriodStartDateCaption[13])
+            column(PeriodStartDate21; Format(PeriodStartDate[2] - 1, 0, '<Month Text,3>'))
             {
             }
-            column(PeriodStartDate31; PeriodStartDateCaption[14])
+            column(PeriodStartDate31; Format(PeriodStartDate[3] - 1, 0, '<Month Text,3>'))
             {
             }
-            column(PeriodStartDate41; PeriodStartDateCaption[15])
+            column(PeriodStartDate41; Format(PeriodStartDate[4] - 1, 0, '<Month Text,3>'))
             {
             }
-            column(PeriodStartDate51; PeriodStartDateCaption[16])
+            column(PeriodStartDate51; Format(PeriodStartDate[5] - 1, 0, '<Month Text,3>'))
             {
             }
-            column(PeriodStartDate61; PeriodStartDateCaption[17])
+            column(PeriodStartDate61; Format(PeriodStartDate[6] - 1, 0, '<Month Text,3>'))
             {
             }
-            column(PeriodStartDate71; PeriodStartDateCaption[18])
+            column(PeriodStartDate71; Format(PeriodStartDate[7] - 1, 0, '<Month Text,3>'))
             {
             }
-            column(PeriodStartDate81; PeriodStartDateCaption[19])
+            column(PeriodStartDate81; Format(PeriodStartDate[8] - 1, 0, '<Month Text,3>'))
             {
             }
-            column(PeriodStartDate91; PeriodStartDateCaption[20])
+            column(PeriodStartDate91; Format(PeriodStartDate[9] - 1, 0, '<Month Text,3>'))
             {
             }
-            column(PeriodStartDate101; PeriodStartDateCaption[21])
+            column(PeriodStartDate101; Format(PeriodStartDate[10] - 1, 0, '<Month Text,3>'))
             {
             }
-            column(PeriodStartDate111; PeriodStartDateCaption[22])
+            column(PeriodStartDate111; Format(PeriodStartDate[11] - 1, 0, '<Month Text,3>'))
             {
             }
-            column(PeriodStartDate121; PeriodStartDateCaption[23])
+            column(PeriodStartDate121; Format(PeriodStartDate[12] - 1, 0, '<Month Text,3>'))
             {
             }
-            column(PeriodStartDate131; PeriodStartDateCaption[24])
+            column(PeriodStartDate131; Format(PeriodStartDate[13] - 1, 0, '<Month Text,3>'))
             {
             }
             column(No_GLAcc; "No.")
@@ -277,7 +277,7 @@ report 8 Budget
         trigger OnOpenPage()
         begin
             if PeriodStartDate[1] = 0D then
-                PeriodStartDate[1] := CalcDate('<-CY+1D>', WorkDate);
+                PeriodStartDate[1] := CalcDate('<-CY+1D>', WorkDate());
             if Format(PeriodLength) = '' then
                 Evaluate(PeriodLength, '<1M>');
         end;
@@ -289,19 +289,12 @@ report 8 Budget
 
     trigger OnPreReport()
     begin
-        GLFilter := "G/L Account".GetFilters;
+        GLFilter := "G/L Account".GetFilters();
         GLBudgetFilter := "G/L Account".GetFilter("Budget Filter");
         if PeriodStartDate[1] = 0D then
-            PeriodStartDate[1] := WorkDate;
+            PeriodStartDate[1] := WorkDate();
         for i := 2 to ArrayLen(PeriodStartDate) do
             PeriodStartDate[i] := CalcDate(PeriodLength, PeriodStartDate[i - 1]);
-
-        // NAVCZ
-        for i := 1 to ArrayLen(PeriodStartDate) - 1 do begin
-            PeriodStartDateCaption[i] := CreatePeriodFormat(PeriodStartDate[i]);
-            PeriodStartDateCaption[i + 12] := CreatePeriodFormat(PeriodStartDate[i + 1] - 1);
-        end;
-        // NAVCZ
 
         BudgetCaptionTxt := StrSubstNo(BudgetCaptionTok, Format(PeriodStartDate[1], 0, '<Year4>'));
         StartingDateAsText := StrSubstNo(StartingDateTok, PeriodStartDate[1]);
@@ -309,59 +302,35 @@ report 8 Budget
 
     var
         MatrixMgt: Codeunit "Matrix Management";
+        PeriodLength: DateFormula;
         InThousands: Boolean;
-        GLFilter: Text;
         GLBudgetFilter: Text[250];
         BudgetCaptionTxt: Text;
-        PeriodStartDateCaption: array[24] of Text;
-        GlobalLanguageCode: Code[10];
-        PeriodLength: DateFormula;
         GLBudgetedAmount: array[12] of Decimal;
         TotalBudgetAmount: Decimal;
         PeriodStartDate: array[13] of Date;
         i: Integer;
+        RowNumber: Integer;
+        GLAccountTypePosting: Boolean;
+        RndFactor: Enum "Analysis Rounding Factor";
+        StartingDateAsText: Text;
+
         BudgetCaptionTok: Label 'Budget for %1', Comment = '%1 - year';
         PageCaptionLbl: Label 'Page';
         BudgetFilterCaptionLbl: Label 'Budget Filter';
         AmtsAreInwhole1000sCaptnLbl: Label 'Amounts are in whole 1000s.';
         GLAccNameCaptionLbl: Label 'Name';
-        RowNumber: Integer;
-        GLAccountTypePosting: Boolean;
-        RndFactor: Enum "Analysis Rounding Factor";
         TotalLbl: Label 'Total';
-        StartingDateAsText: Text;
         StartingDateTok: Label 'Starting Date: %1', Comment = '%1 - date';
+
+    protected var
+        GLFilter: Text;
 
     procedure InitializeRequest(NewPeriodStartDate: Date; NewPeriodLength: Text[30]; NewInThousands: Boolean)
     begin
         PeriodStartDate[1] := NewPeriodStartDate;
         Evaluate(PeriodLength, NewPeriodLength);
         InThousands := NewInThousands;
-    end;
-
-    local procedure CreatePeriodFormat(Date: Date): Text[10]
-    begin
-        // NAVCZ
-        if GetGlobalLanguageCode = 'CSY' then
-            case Date2DMY(Date, 2) of
-                6:
-                    exit('©vn');
-                7:
-                    exit('©vc');
-            end;
-
-        exit(Format(Date, 0, '<Month Text,3>'));
-    end;
-
-    local procedure GetGlobalLanguageCode(): Code[10]
-    var
-        Language: Codeunit Language;
-    begin
-        // NAVCZ
-        if GlobalLanguageCode = '' then
-            GlobalLanguageCode := Language.GetLanguageCode(GlobalLanguage);
-
-        exit(GlobalLanguageCode);
     end;
 
 #if not CLEAN19

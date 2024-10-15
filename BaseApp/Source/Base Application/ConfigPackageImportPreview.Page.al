@@ -32,25 +32,25 @@ page 8617 "Config. Package Import Preview"
             }
             repeater(Group)
             {
-                field("Package Code"; "Package Code")
+                field("Package Code"; Rec."Package Code")
                 {
                     ApplicationArea = Basic, Suite;
                     StyleExpr = PackageStyleExpr;
                     ToolTip = 'Specifies the code for the package that data will be imported to.';
                 }
-                field("New Package"; "Delayed Insert")
+                field("New Package"; Rec."Delayed Insert")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'New Package';
                     ToolTip = 'Specifies if a package with this code does not exist already.';
                 }
-                field("Table ID"; "Table ID")
+                field("Table ID"; Rec."Table ID")
                 {
                     ApplicationArea = Basic, Suite;
                     StyleExpr = TableStyleExpr;
                     ToolTip = 'Specifies the table ID.';
                 }
-                field("Table Name"; "Table Name")
+                field("Table Name"; Rec."Table Name")
                 {
                     ApplicationArea = Basic, Suite;
                     StyleExpr = TableStyleExpr;
@@ -74,18 +74,25 @@ page 8617 "Config. Package Import Preview"
                 ApplicationArea = Basic, Suite;
                 Enabled = IsImportEnabled;
                 Image = ImportExcel;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'Import the selected sheets with configuration package data from an Excel file.';
 
                 trigger OnAction()
                 begin
-                    VerifyPackageCode;
+                    VerifyPackageCode();
                     ImportConfirmed := true;
-                    CurrPage.Close;
+                    CurrPage.Close();
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(Import_Promoted; Import)
+                {
+                }
             }
         }
     }
@@ -98,7 +105,7 @@ page 8617 "Config. Package Import Preview"
 
     trigger OnOpenPage()
     begin
-        IsImportEnabled := not IsEmpty;
+        IsImportEnabled := not IsEmpty();
     end;
 
     var

@@ -1,4 +1,4 @@
-table 256 "VAT Statement Line"
+﻿table 256 "VAT Statement Line"
 {
     Caption = 'VAT Statement Line';
 
@@ -246,9 +246,10 @@ table 256 "VAT Statement Line"
     }
 
     var
-        Text000: Label 'must not be %1';
         GLAcc: Record "G/L Account";
         TempType: Enum "VAT Statement Line Type";
+
+        Text000: Label 'must not be %1';
 
 #if not CLEAN19
     [Obsolete('This procedure is discontinued. Use VATStmtManagement event OnBeforeOpenStmt.', '19.0')]
@@ -265,3 +266,4 @@ table 256 "VAT Statement Line"
     end;
 #endif
 }
+

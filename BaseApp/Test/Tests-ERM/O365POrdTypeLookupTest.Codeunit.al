@@ -79,7 +79,7 @@ codeunit 134649 "O365 P. Ord. Type Lookup Test"
 
             // [THEN] The Subtype is set to service
             PurchaseOrder.PurchLines.FilteredTypeField.AssertEquals(TempOptionLookupBuffer."Option Caption");
-        until TempOptionLookupBuffer.Next = 0;
+        until TempOptionLookupBuffer.Next() = 0;
     end;
 
     [Test]
@@ -108,7 +108,7 @@ codeunit 134649 "O365 P. Ord. Type Lookup Test"
         // [WHEN] Setting the Subtype on the Purchase Line to co
         PurchaseOrder.PurchLines.FilteredTypeField.SetValue(CopyStr(PurchaseLine.FormatType, 1, 2));
         // [THEN] The Subtype is set to Comment
-        PurchaseOrder.PurchLines.FilteredTypeField.AssertEquals(PurchaseLine.FormatType);
+        PurchaseOrder.PurchLines.FilteredTypeField.AssertEquals(PurchaseLine.FormatType());
     end;
 
     [Test]
@@ -127,12 +127,12 @@ codeunit 134649 "O365 P. Ord. Type Lookup Test"
         // [WHEN] Setting the Subtype on the Purchase Line to ' '
         PurchaseOrder.PurchLines.FilteredTypeField.SetValue(' ');
         // [THEN] The Subtype is set to Blank
-        PurchaseOrder.PurchLines.FilteredTypeField.AssertEquals(PurchaseLine.FormatType);
+        PurchaseOrder.PurchLines.FilteredTypeField.AssertEquals(PurchaseLine.FormatType());
 
         // [WHEN] Setting the Subtype on the Purchase Line to ''
         PurchaseOrder.PurchLines.FilteredTypeField.SetValue('');
         // [THEN] The Subtype is set to Blank
-        PurchaseOrder.PurchLines.FilteredTypeField.AssertEquals(PurchaseLine.FormatType);
+        PurchaseOrder.PurchLines.FilteredTypeField.AssertEquals(PurchaseLine.FormatType());
     end;
 
     [Test]
@@ -210,7 +210,7 @@ codeunit 134649 "O365 P. Ord. Type Lookup Test"
         TempOptionLookupBuffer.FindSet();
         repeat
             OptionLookupList.GotoKey(TempOptionLookupBuffer."Option Caption");
-        until TempOptionLookupBuffer.Next = 0;
+        until TempOptionLookupBuffer.Next() = 0;
 
         OptionLookupList.GotoKey(LibraryVariableStorage.DequeueText);
         OptionLookupList.OK.Invoke;

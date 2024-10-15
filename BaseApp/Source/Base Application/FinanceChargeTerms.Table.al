@@ -153,7 +153,9 @@ table 5 "Finance Charge Terms"
         FinChrgText: Record "Finance Charge Text";
         CurrForFinChrgTerms: Record "Currency for Fin. Charge Terms";
         FinChrgInterestRate: Record "Finance Charge Interest Rate";
+
         InterestRateNotificationMsg: Label 'This interest rate will only be used if no relevant interest rate per date has been entered.';
+
 #if not CLEAN20
     [Obsolete('Replaced by Finance Charge Interest Rate', '20.0')]
     [Scope('OnPrem')]
@@ -213,7 +215,7 @@ table 5 "Finance Charge Terms"
             "Interest Rate" := LineRate;
             Days := LineDays;
             "Rate Factor" := LineRateFactor;
-            Insert;
+            Insert();
         end;
     end;
 

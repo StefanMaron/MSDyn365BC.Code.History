@@ -67,7 +67,7 @@ codeunit 137811 "SCM - Costing UT"
             "No." := LibraryUtility.GenerateRandomCode(FieldNo("No."), DATABASE::Item);
             "Costing Method" := "Costing Method"::Average;
             "Unit Cost" := 99.99999;
-            Insert;  // function which is tested later requires Item in table (GET method is called)
+            Insert();  // function which is tested later requires Item in table (GET method is called)
         end;
     end;
 
@@ -78,7 +78,7 @@ codeunit 137811 "SCM - Costing UT"
             "Item No." := Item."No.";
             "Variant Code" := '';
             "Unit Cost" := Item."Unit Cost";
-            Insert;  // function which is tested later requires SKU in table due to MODIFY command
+            Insert();  // function which is tested later requires SKU in table due to MODIFY command
         end;
     end;
 
@@ -86,17 +86,17 @@ codeunit 137811 "SCM - Costing UT"
     begin
         with ValueEntry do begin
             if FindLast() then begin
-                Init;
+                Init();
                 "Entry No." += 1;
             end else
                 "Entry No." := 1;
             "Item No." := SKU."Item No.";
             "Location Code" := SKU."Location Code";
             "Variant Code" := SKU."Variant Code";
-            "Valuation Date" := WorkDate;
+            "Valuation Date" := WorkDate();
             "Item Ledger Entry Quantity" := 1;
             "Cost Amount (Actual)" := CostAmountActual;
-            Insert;  // function which is tested later requires Value Entry in table
+            Insert();  // function which is tested later requires Value Entry in table
         end;
     end;
 

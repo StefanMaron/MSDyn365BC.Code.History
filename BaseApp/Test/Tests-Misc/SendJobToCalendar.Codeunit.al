@@ -201,7 +201,7 @@ codeunit 136315 "Send Job To Calendar"
 
         // [THEN] Description contains the details of the job.
         Job.Get(JobPlanningLine."Job No.");
-        ExpectedText := StrSubstNo('%1: \n%2: hello', DummyContact.TableCaption, DummyContact.FieldCaption("Phone No."));
+        ExpectedText := StrSubstNo('%1: \n%2: hello', DummyContact.TableCaption(), DummyContact.FieldCaption("Phone No."));
         if StrPos(Description, ExpectedText) < 1 then
             Error(CouldNotFindValueErr, ExpectedText);
     end;
@@ -279,7 +279,7 @@ codeunit 136315 "Send Job To Calendar"
         TempEmailItem.GetAttachments(Attachments, AttachmentNames);
 
         // [THEN] Name of attachment is set to "Job Task.ics"
-        Assert.AreEqual(StrSubstNo('%1.ics', DummyJobTask.TableCaption), AttachmentNames.Get(1), 'Unexpected file attachment name.');
+        Assert.AreEqual(StrSubstNo('%1.ics', DummyJobTask.TableCaption()), AttachmentNames.Get(1), 'Unexpected file attachment name.');
     end;
 
     [Test]
@@ -433,7 +433,7 @@ codeunit 136315 "Send Job To Calendar"
 
         // [THEN] Description contains the details of the job.
         Job.Get(JobPlanningLine."Job No.");
-        ExpectedText := StrSubstNo('%1: %2 - %3', Job.TableCaption, Job."No.", Job.Description);
+        ExpectedText := StrSubstNo('%1: %2 - %3', Job.TableCaption(), Job."No.", Job.Description);
         if StrPos(Description, ExpectedText) < 1 then
             Error(CouldNotFindValueErr, ExpectedText);
     end;
@@ -463,7 +463,7 @@ codeunit 136315 "Send Job To Calendar"
 
         // [THEN] Description contains the details of the job task.
         JobTask.Get(JobPlanningLine."Job No.", JobPlanningLine."Job Task No.");
-        ExpectedText := StrSubstNo('%1: %2 - %3', JobTask.TableCaption, JobTask."Job Task No.", JobTask.Description);
+        ExpectedText := StrSubstNo('%1: %2 - %3', JobTask.TableCaption(), JobTask."Job Task No.", JobTask.Description);
         if StrPos(Description, ExpectedText) < 1 then
             Error(CouldNotFindValueErr, ExpectedText);
     end;

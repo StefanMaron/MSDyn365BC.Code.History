@@ -839,7 +839,7 @@ codeunit 134052 "ERM VAT Tool - Purch. Doc"
         ERMVATToolHelper.RunVATRateChangeTool();
 
         ExpectedUnitPrice := CalcChangedUnitPriceGivenDiffVATPostingSetup(PurchaseLine);
-        PurchaseLine.Find;
+        PurchaseLine.Find();
         PurchaseLine.TestField("Direct Unit Cost", ExpectedUnitPrice);
 
         ERMVATToolHelper.DeleteGroups();
@@ -1312,7 +1312,7 @@ codeunit 134052 "ERM VAT Tool - Purch. Doc"
         ERMVATToolHelper.RunVATRateChangeTool;
 
         // Verify: Make Order is Successful
-        PurchaseHeader.Find;
+        PurchaseHeader.Find();
         // SETUP: Update Qty. To Receive
         ERMVATToolHelper.UpdateQtyToReceive(PurchaseHeader);
 
@@ -1396,7 +1396,7 @@ codeunit 134052 "ERM VAT Tool - Purch. Doc"
         ERMVATToolHelper.RunVATRateChangeTool;
 
         // Verify: Purchase Order is Posted Successfully.
-        PurchaseOrderHeader.Find;
+        PurchaseOrderHeader.Find();
         LibraryPurchase.PostPurchaseDocument(PurchaseOrderHeader, true, true);
 
         // Cleanup: Delete groups.
@@ -1679,7 +1679,7 @@ codeunit 134052 "ERM VAT Tool - Purch. Doc"
                 DimensionSetID := LibraryDimension.CreateDimSet(DimensionSetID, DimensionValue."Dimension Code", DimensionValue.Code);
                 PurchaseLine.Validate("Dimension Set ID", DimensionSetID);
                 PurchaseLine.Modify(true);
-            until PurchaseLine.Next = 0;
+            until PurchaseLine.Next() = 0;
     end;
 
     local procedure AddLineWithNegativeQty(PurchaseHeader: Record "Purchase Header")
@@ -1700,7 +1700,7 @@ codeunit 134052 "ERM VAT Tool - Purch. Doc"
         PurchaseLine3.FindLast();
 
         with PurchaseLine do begin
-            Init;
+            Init();
             Validate("Document Type", PurchaseHeader."Document Type");
             Validate("Document No.", PurchaseHeader."No.");
             Validate("Line No.", PurchaseLine3."Line No." + 1);
@@ -1765,7 +1765,7 @@ codeunit 134052 "ERM VAT Tool - Purch. Doc"
 
     local procedure GetPurchaseLine(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line")
     begin
-        PurchaseHeader.Find;
+        PurchaseHeader.Find();
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
         PurchaseLine.FindSet();
@@ -1897,7 +1897,7 @@ codeunit 134052 "ERM VAT Tool - Purch. Doc"
             LibraryInventory.CreateItemChargeAssignPurchase(ItemChargeAssignmentPurch,
               PurchaseLine, ItemChargeAssignmentPurch."Applies-to Doc. Type"::Order, "Document No.", "Line No.", "No.");
 
-        PurchaseLine.Find;
+        PurchaseLine.Find();
         RecRef.GetTable(PurchaseLine);
         ERMVATToolHelper.CopyRecordRef(RecRef, TempRecRef);
 
@@ -1905,7 +1905,7 @@ codeunit 134052 "ERM VAT Tool - Purch. Doc"
 
         // If Item Charge should not be received, change Qty. to Receive to 0.
         if not Receive then begin
-            PurchaseLine.Find;
+            PurchaseLine.Find();
             PurchaseLine.Validate("Qty. to Receive", 0);
             PurchaseLine.Modify(true);
         end;
@@ -1976,7 +1976,7 @@ codeunit 134052 "ERM VAT Tool - Purch. Doc"
         ERMVATToolHelper.CreatePurchaseHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order,
           ERMVATToolHelper.CreateVendor);
         ERMVATToolHelper.CreatePurchaseLine(PurchaseLine, PurchaseHeader, '', Item."No.", Qty);
-        PurchaseLine.Validate("Expected Receipt Date", WorkDate);
+        PurchaseLine.Validate("Expected Receipt Date", WorkDate());
         PurchaseLine.Modify(true);
         ERMVATToolHelper.UpdateQtyToReceive(PurchaseHeader);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
@@ -1984,7 +1984,7 @@ codeunit 134052 "ERM VAT Tool - Purch. Doc"
         // Create Sales Order with Shipment Date after Expected Receipt Date or Purchase Order
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, ERMVATToolHelper.CreateCustomer);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", Qty);
-        SalesLine.Validate("Shipment Date", CalcDate('<' + Format(LibraryRandom.RandInt(2) + 1) + 'D>', WorkDate));
+        SalesLine.Validate("Shipment Date", CalcDate('<' + Format(LibraryRandom.RandInt(2) + 1) + 'D>', WorkDate()));
         SalesLine.Modify(true);
 
         // Reserve items from Purchase Order
@@ -2001,7 +2001,7 @@ codeunit 134052 "ERM VAT Tool - Purch. Doc"
 
         repeat
             ERMVATToolHelper.UpdateLineQtyToReceive(PurchaseLine);
-        until PurchaseLine.Next = 0;
+        until PurchaseLine.Next() = 0;
 
         ERMVATToolHelper.CreateLinesRefPurchase(TempRecRef, PurchaseHeader);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
@@ -2012,13 +2012,13 @@ codeunit 134052 "ERM VAT Tool - Purch. Doc"
         PurchaseLine: Record "Purchase Line";
     begin
         // Mandatory field for IT
-        PurchaseHeader.Validate("Prepayment Due Date", WorkDate);
+        PurchaseHeader.Validate("Prepayment Due Date", WorkDate());
         PurchaseHeader.Modify(true);
         GetPurchaseLine(PurchaseHeader, PurchaseLine);
 
         repeat
             UpdatePurchaseLinePrepayment(PurchaseLine);
-        until PurchaseLine.Next = 0;
+        until PurchaseLine.Next() = 0;
 
         ERMVATToolHelper.PostPurchasePrepaymentInvoice(PurchaseHeader);
     end;
@@ -2028,11 +2028,11 @@ codeunit 134052 "ERM VAT Tool - Purch. Doc"
         // SETTABLE call required for each record of the temporary table.
         TempRecRef.Reset();
         if TempRecRef.FindSet() then begin
-            TempPurchLn.SetView(TempRecRef.GetView);
+            TempPurchLn.SetView(TempRecRef.GetView());
             repeat
                 TempRecRef.SetTable(TempPurchLn);
                 TempPurchLn.Insert(false);
-            until TempRecRef.Next = 0;
+            until TempRecRef.Next() = 0;
         end;
     end;
 
@@ -2058,7 +2058,7 @@ codeunit 134052 "ERM VAT Tool - Purch. Doc"
     begin
         GetPurchaseLine(PurchaseHeader, PurchaseLine);
         QtyReceived := PurchaseLine."Qty. Rcd. Not Invoiced";
-        PurchaseLine.Next;
+        PurchaseLine.Next();
         PurchaseLine.Validate("Qty. to Receive", PurchaseLine.Quantity - QtyReceived);
         PurchaseLine.Modify(true);
     end;
@@ -2089,7 +2089,7 @@ codeunit 134052 "ERM VAT Tool - Purch. Doc"
         TempPurchLn.FindSet();
         QtyItem := TempPurchLn.Quantity;
         QtyReceivedItem := TempPurchLn."Qty. to Receive";
-        TempPurchLn.Next;
+        TempPurchLn.Next();
         QtyItem += TempPurchLn.Quantity;
 
         with ItemChargeAssignmentPurch do begin
@@ -2124,7 +2124,7 @@ codeunit 134052 "ERM VAT Tool - Purch. Doc"
                 Assert.AreEqual(PurchaseLine.Quantity, ReservationEntry.Count, ERMVATToolHelper.GetConversionErrorUpdate)
             else
                 Assert.AreEqual(1, ReservationEntry.Count, ERMVATToolHelper.GetConversionErrorUpdate);
-        until PurchaseLine.Next = 0;
+        until PurchaseLine.Next() = 0;
 
         ERMVATToolHelper.GetGroupsBefore(VATProdPostingGroup, GenProdPostingGroup);
 
@@ -2135,7 +2135,7 @@ codeunit 134052 "ERM VAT Tool - Purch. Doc"
         repeat
             ERMVATToolHelper.GetReservationEntryPurchase(ReservationEntry, PurchaseLine);
             Assert.AreEqual(0, ReservationEntry.Count, ERMVATToolHelper.GetConversionErrorUpdate);
-        until PurchaseLine.Next = 0;
+        until PurchaseLine.Next() = 0;
     end;
 
     local procedure VerifyPurchaseLnPartReceived(TempRecRef: RecordRef)
@@ -2169,8 +2169,8 @@ codeunit 134052 "ERM VAT Tool - Purch. Doc"
                 VerifySplitNewLinePurch(TempPurchLn, PurchLn, VATProdPostingGroupNew, GenProdPostingGroupNew)
             else
                 VerifySplitOldLinePurch(TempPurchLn, PurchLn);
-            PurchLn.Next;
-        until TempPurchLn.Next = 0;
+            PurchLn.Next();
+        until TempPurchLn.Next() = 0;
     end;
 
     local procedure VerifyPurchaseDocAmount(PurchaseHeader: Record "Purchase Header")
@@ -2187,7 +2187,7 @@ codeunit 134052 "ERM VAT Tool - Purch. Doc"
         repeat
             CopyPurchaseLine(PurchaseHeader3, PurchaseLine3, PurchaseLine);
             VerifyPurchaseLineAmount(PurchaseLine, PurchaseLine3);
-        until PurchaseLine.Next = 0;
+        until PurchaseLine.Next() = 0;
     end;
 
     local procedure VerifyPurchaseLineAmount(PurchaseLine: Record "Purchase Line"; PurchaseLine3: Record "Purchase Line")

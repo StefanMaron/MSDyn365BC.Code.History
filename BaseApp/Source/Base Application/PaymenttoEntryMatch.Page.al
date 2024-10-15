@@ -1,3 +1,4 @@
+﻿#if not CLEAN21
 page 1288 "Payment-to-Entry Match"
 {
     Caption = 'Payment-to-Entry Match';
@@ -89,7 +90,7 @@ page 1288 "Payment-to-Entry Match"
 
                     trigger OnDrillDown()
                     begin
-                        BankAccReconciliationLine.DrillDownOnNoOfLedgerEntriesWithinAmountTolerance;
+                        BankAccReconciliationLine.DrillDownOnNoOfLedgerEntriesWithinAmountTolerance();
                     end;
                 }
                 field(NoOfLedgerEntriesOutsideAmount; NoOfLedgerEntriesOutsideAmountTolerance)
@@ -101,7 +102,7 @@ page 1288 "Payment-to-Entry Match"
 
                     trigger OnDrillDown()
                     begin
-                        BankAccReconciliationLine.DrillDownOnNoOfLedgerEntriesOutsideOfAmountTolerance;
+                        BankAccReconciliationLine.DrillDownOnNoOfLedgerEntriesOutsideOfAmountTolerance();
                     end;
                 }
             }
@@ -114,7 +115,7 @@ page 1288 "Payment-to-Entry Match"
 
     trigger OnAfterGetCurrRecord()
     begin
-        FetchData;
+        FetchData();
     end;
 
     var
@@ -193,9 +194,9 @@ page 1288 "Payment-to-Entry Match"
 
             Evaluate(Quality, GetFilter(Quality));
 #if CLEAN19
-            BankPmtApplRule.SetRange("Bank Pmt. Appl. Rule Code", ''); // NAVCZ
+            BankPmtApplRule.SetRange("Bank Pmt. Appl. Rule Code", BankPmtApplRule.GetDefaultCode()); // NAVCZ
 #else
-            BankPmtApplRule.SetRange("Bank Pmt. Appl. Rule Code", BankAccReconciliationLine.GetBankPmtApplRuleCode); // NAVCZ
+            BankPmtApplRule.SetRange("Bank Pmt. Appl. Rule Code", BankAccReconciliationLine.GetBankPmtApplRuleCode()); // NAVCZ
 #endif
             BankPmtApplRule.SetRange(Score, Quality);
             if not BankPmtApplRule.FindFirst() then
@@ -218,3 +219,4 @@ page 1288 "Payment-to-Entry Match"
     end;
 }
 
+#endif

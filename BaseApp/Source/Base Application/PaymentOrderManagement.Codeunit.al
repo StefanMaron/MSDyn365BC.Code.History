@@ -26,12 +26,7 @@ codeunit 11709 "Payment Order Management"
     [Scope('OnPrem')]
     procedure PaymentOrderSelection(var PmtOrdHdr: Record "Payment Order Header"; var BankSelected: Boolean)
     var
-        GLSetup: Record "General Ledger Setup";
         BankAcc: Record "Bank Account";
-#if not CLEAN18
-        UserSetupLine: Record "User Setup Line";
-        UserSetupAdvMgt: Codeunit "User Setup Adv. Management";
-#endif
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -53,11 +48,6 @@ codeunit 11709 "Payment Order Management"
         end;
 
         if BankSelected then begin
-#if not CLEAN18
-            GLSetup.Get();
-            if GLSetup."User Checks Allowed" then
-                UserSetupAdvMgt.CheckBankAccountNo(UserSetupLine.Type::"Paym. Order", BankAcc."No.");
-#endif
             PmtOrdHdr.FilterGroup := 2;
             PmtOrdHdr.SetRange("Bank Account No.", BankAcc."No.");
             PmtOrdHdr.FilterGroup := 0;
@@ -67,12 +57,7 @@ codeunit 11709 "Payment Order Management"
     [Scope('OnPrem')]
     procedure IssuedPaymentOrderSelection(var IssuedPmtOrdHdr: Record "Issued Payment Order Header"; var BankSelected: Boolean)
     var
-        GLSetup: Record "General Ledger Setup";
         BankAcc: Record "Bank Account";
-#if not CLEAN18
-        UserSetupLine: Record "User Setup Line";
-        UserSetupAdvMgt: Codeunit "User Setup Adv. Management";
-#endif
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -94,11 +79,6 @@ codeunit 11709 "Payment Order Management"
         end;
 
         if BankSelected then begin
-            GLSetup.Get();
-#if not CLEAN18
-            if GLSetup."User Checks Allowed" then
-                UserSetupAdvMgt.CheckBankAccountNo(UserSetupLine.Type::"Paym. Order", BankAcc."No.");
-#endif
             IssuedPmtOrdHdr.FilterGroup := 2;
             IssuedPmtOrdHdr.SetRange("Bank Account No.", BankAcc."No.");
             IssuedPmtOrdHdr.FilterGroup := 0;
@@ -196,12 +176,12 @@ codeunit 11709 "Payment Order Management"
                             if Customer."Privacy Blocked" then
                                 TempErrorMessage2.LogMessage(
                                     PmtOrdLn, FieldNo("No."), TempErrorMessage2."Message Type"::Warning,
-                                    StrSubstNo(PrivacyBlockedErr, Customer.TableCaption, Customer."No.", RecordId));
+                                    StrSubstNo(PrivacyBlockedErr, Customer.TableCaption(), Customer."No.", RecordId));
 
                             if Customer.Blocked in [Customer.Blocked::All] then
                                 TempErrorMessage2.LogMessage(
                                     PmtOrdLn, FieldNo("No."), TempErrorMessage2."Message Type"::Warning,
-                                    StrSubstNo(CustVendBlockedErr, Customer.TableCaption, Customer."No.", RecordId));
+                                    StrSubstNo(CustVendBlockedErr, Customer.TableCaption(), Customer."No.", RecordId));
                         end;
                     Type::Vendor:
                         begin
@@ -209,12 +189,12 @@ codeunit 11709 "Payment Order Management"
                             if Vendor."Privacy Blocked" then
                                 TempErrorMessage2.LogMessage(
                                     PmtOrdLn, FieldNo("No."), TempErrorMessage2."Message Type"::Warning,
-                                    StrSubstNo(PrivacyBlockedErr, Vendor.TableCaption, Vendor."No.", RecordId));
+                                    StrSubstNo(PrivacyBlockedErr, Vendor.TableCaption(), Vendor."No.", RecordId));
 
                             if Vendor.Blocked in [Vendor.Blocked::All] then
                                 TempErrorMessage2.LogMessage(
                                     PmtOrdLn, FieldNo("No."), TempErrorMessage2."Message Type"::Warning,
-                                    StrSubstNo(CustVendBlockedErr, Vendor.TableCaption, Vendor."No.", RecordId));
+                                    StrSubstNo(CustVendBlockedErr, Vendor.TableCaption(), Vendor."No.", RecordId));
                         end;
                 end;
 
@@ -405,7 +385,7 @@ codeunit 11709 "Payment Order Management"
     [Scope('OnPrem')]
     procedure ClearErrorMessageLog()
     begin
-        TempErrorMessage.ClearLog;
+        TempErrorMessage.ClearLog();
     end;
 
     [Scope('OnPrem')]

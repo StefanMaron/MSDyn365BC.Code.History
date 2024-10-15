@@ -13,7 +13,7 @@ table 5404 "Item Unit of Measure"
 
             trigger OnValidate()
             begin
-                CalcWeight;
+                CalcWeight();
             end;
         }
         field(2; "Code"; Code[10])
@@ -42,7 +42,7 @@ table 5404 "Item Unit of Measure"
                 else
                     if BaseItemUoM.Get(Rec."Item No.", Item."Base Unit of Measure") then
                         CheckQtyPerUoMPrecision(Rec, BaseItemUoM."Qty. Rounding Precision");
-                CalcWeight;
+                CalcWeight();
             end;
         }
         field(4; "Qty. Rounding Precision"; Decimal)
@@ -78,7 +78,7 @@ table 5404 "Item Unit of Measure"
 
             trigger OnValidate()
             begin
-                CalcCubage;
+                CalcCubage();
             end;
         }
         field(7301; Width; Decimal)
@@ -89,7 +89,7 @@ table 5404 "Item Unit of Measure"
 
             trigger OnValidate()
             begin
-                CalcCubage;
+                CalcCubage();
             end;
         }
         field(7302; Height; Decimal)
@@ -100,7 +100,7 @@ table 5404 "Item Unit of Measure"
 
             trigger OnValidate()
             begin
-                CalcCubage;
+                CalcCubage();
             end;
         }
         field(7303; Cubage; Decimal)
@@ -118,13 +118,9 @@ table 5404 "Item Unit of Measure"
         field(31060; "Intrastat Default"; Boolean)
         {
             Caption = 'Intrastat Default';
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Unsupported functionality';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(31070; "Indivisible Unit"; Boolean)
         {
@@ -158,18 +154,19 @@ table 5404 "Item Unit of Measure"
 
     trigger OnDelete()
     begin
-        TestItemUOM;
+        TestItemUOM();
         CheckNoEntriesWithUoM();
     end;
 
     trigger OnRename()
     begin
-        TestItemUOM;
+        TestItemUOM();
     end;
 
     var
-        Text000: Label 'must be greater than 0';
         Item: Record Item;
+
+        Text000: Label 'must be greater than 0';
         Text001: Label 'You cannot rename %1 %2 for item %3 because it is the item''s %4 and there are one or more open ledger entries for the item.';
         CannotModifyBaseUnitOfMeasureErr: Label 'You cannot modify item unit of measure %1 for item %2 because it is the item''s base unit of measure.', Comment = '%1 Value of Measure (KG, PCS...), %2 Item ID';
         CannotModifySalesUnitOfMeasureErr: Label 'You cannot modify item unit of measure %1 for item %2 because it is the item''s sales unit of measure.', Comment = '%1 Value of Measure (KG, PCS...), %2 Item ID';
@@ -216,7 +213,7 @@ table 5404 "Item Unit of Measure"
                 ItemLedgEntry.SetRange("Item No.", "Item No.");
                 ItemLedgEntry.SetRange(Open, true);
                 if not ItemLedgEntry.IsEmpty() then
-                    Error(Text001, TableCaption, xRec.Code, "Item No.", Item.FieldCaption("Base Unit of Measure"));
+                    Error(Text001, TableCaption(), xRec.Code, "Item No.", Item.FieldCaption("Base Unit of Measure"));
             end;
     end;
 
@@ -233,7 +230,7 @@ table 5404 "Item Unit of Measure"
                 if Bin.Get(Location.Code, Location."Adjustment Bin Code") then begin
                     WhseEntry.SetRange("Zone Code", Bin."Zone Code");
                     if not WhseEntry.IsEmpty() then
-                        Error(CannotModifyUOMWithWhseEntriesErr, TableCaption, xRec.Code, "Item No.");
+                        Error(CannotModifyUOMWithWhseEntriesErr, TableCaption(), xRec.Code, "Item No.");
                 end;
             until Location.Next() = 0;
     end;
@@ -255,9 +252,9 @@ table 5404 "Item Unit of Measure"
 
     local procedure TestItemUOM()
     begin
-        TestItemSetup;
-        TestNoOpenEntriesExist;
-        TestNoWhseAdjmtEntriesExist;
+        TestItemSetup();
+        TestNoOpenEntriesExist();
+        TestNoWhseAdjmtEntriesExist();
     end;
 
     procedure CheckNoEntriesWithUoM()
@@ -269,22 +266,22 @@ table 5404 "Item Unit of Measure"
         WarehouseEntry.CalcSums("Qty. (Base)", Quantity);
         if (WarehouseEntry."Qty. (Base)" <> 0) or (WarehouseEntry.Quantity <> 0) then
             Error(
-              CannotModifyUnitOfMeasureErr, TableCaption, xRec.Code, "Item No.", WarehouseEntry.TableCaption,
+              CannotModifyUnitOfMeasureErr, TableCaption(), xRec.Code, "Item No.", WarehouseEntry.TableCaption(),
               WarehouseEntry.FieldCaption(Quantity));
 
-        CheckNoOutstandingQty;
+        CheckNoOutstandingQty();
     end;
 
     local procedure CheckNoOutstandingQty()
     begin
-        CheckNoOutstandingQtyPurchLine;
-        CheckNoOutstandingQtySalesLine;
-        CheckNoOutstandingQtyTransferLine;
-        CheckNoRemQtyProdOrderLine;
-        CheckNoRemQtyProdOrderComponent;
-        CheckNoOutstandingQtyServiceLine;
-        CheckNoRemQtyAssemblyHeader;
-        CheckNoRemQtyAssemblyLine;
+        CheckNoOutstandingQtyPurchLine();
+        CheckNoOutstandingQtySalesLine();
+        CheckNoOutstandingQtyTransferLine();
+        CheckNoRemQtyProdOrderLine();
+        CheckNoRemQtyProdOrderComponent();
+        CheckNoOutstandingQtyServiceLine();
+        CheckNoRemQtyAssemblyHeader();
+        CheckNoRemQtyAssemblyLine();
     end;
 
     local procedure CheckNoOutstandingQtyPurchLine()
@@ -303,8 +300,8 @@ table 5404 "Item Unit of Measure"
         PurchLine.SetFilter("Outstanding Quantity", '<>%1', 0);
         if not PurchLine.IsEmpty() then
             Error(
-              CannotModifyUnitOfMeasureErr, TableCaption, xRec.Code, "Item No.",
-              PurchLine.TableCaption, PurchLine.FieldCaption("Qty. to Receive"));
+              CannotModifyUnitOfMeasureErr, TableCaption(), xRec.Code, "Item No.",
+              PurchLine.TableCaption(), PurchLine.FieldCaption("Qty. to Receive"));
     end;
 
     local procedure CheckNoOutstandingQtySalesLine()
@@ -323,8 +320,8 @@ table 5404 "Item Unit of Measure"
         SalesLine.SetFilter("Outstanding Quantity", '<>%1', 0);
         if not SalesLine.IsEmpty() then
             Error(
-              CannotModifyUnitOfMeasureErr, TableCaption, xRec.Code, "Item No.",
-              SalesLine.TableCaption, SalesLine.FieldCaption("Qty. to Ship"));
+              CannotModifyUnitOfMeasureErr, TableCaption(), xRec.Code, "Item No.",
+              SalesLine.TableCaption(), SalesLine.FieldCaption("Qty. to Ship"));
     end;
 
     local procedure CheckNoOutstandingQtyTransferLine()
@@ -342,8 +339,8 @@ table 5404 "Item Unit of Measure"
         TransferLine.SetFilter("Outstanding Quantity", '<>%1', 0);
         if not TransferLine.IsEmpty() then
             Error(
-              CannotModifyUnitOfMeasureErr, TableCaption, xRec.Code, "Item No.",
-              TransferLine.TableCaption, TransferLine.FieldCaption("Qty. to Ship"));
+              CannotModifyUnitOfMeasureErr, TableCaption(), xRec.Code, "Item No.",
+              TransferLine.TableCaption(), TransferLine.FieldCaption("Qty. to Ship"));
     end;
 
     local procedure CheckNoRemQtyProdOrderLine()
@@ -362,8 +359,8 @@ table 5404 "Item Unit of Measure"
         ProdOrderLine.SetFilter(Status, '<>%1', ProdOrderLine.Status::Finished);
         if not ProdOrderLine.IsEmpty() then
             Error(
-              CannotModifyUnitOfMeasureErr, TableCaption, xRec.Code, "Item No.",
-              ProdOrderLine.TableCaption, ProdOrderLine.FieldCaption("Remaining Quantity"));
+              CannotModifyUnitOfMeasureErr, TableCaption(), xRec.Code, "Item No.",
+              ProdOrderLine.TableCaption(), ProdOrderLine.FieldCaption("Remaining Quantity"));
     end;
 
     local procedure CheckNoRemQtyProdOrderComponent()
@@ -382,8 +379,8 @@ table 5404 "Item Unit of Measure"
         ProdOrderComponent.SetFilter(Status, '<>%1', ProdOrderComponent.Status::Finished);
         if not ProdOrderComponent.IsEmpty() then
             Error(
-              CannotModifyUnitOfMeasureErr, TableCaption, xRec.Code, "Item No.",
-              ProdOrderComponent.TableCaption, ProdOrderComponent.FieldCaption("Remaining Quantity"));
+              CannotModifyUnitOfMeasureErr, TableCaption(), xRec.Code, "Item No.",
+              ProdOrderComponent.TableCaption(), ProdOrderComponent.FieldCaption("Remaining Quantity"));
     end;
 
     local procedure CheckNoOutstandingQtyServiceLine()
@@ -402,8 +399,8 @@ table 5404 "Item Unit of Measure"
         ServiceLine.SetFilter("Outstanding Quantity", '<>%1', 0);
         if not ServiceLine.IsEmpty() then
             Error(
-              CannotModifyUnitOfMeasureErr, TableCaption, xRec.Code, "Item No.",
-              ServiceLine.TableCaption, ServiceLine.FieldCaption("Qty. to Ship"));
+              CannotModifyUnitOfMeasureErr, TableCaption(), xRec.Code, "Item No.",
+              ServiceLine.TableCaption(), ServiceLine.FieldCaption("Qty. to Ship"));
     end;
 
     local procedure CheckNoRemQtyAssemblyHeader()
@@ -421,8 +418,8 @@ table 5404 "Item Unit of Measure"
         AssemblyHeader.SetFilter("Remaining Quantity", '<>%1', 0);
         if not AssemblyHeader.IsEmpty() then
             Error(
-              CannotModifyUnitOfMeasureErr, TableCaption, xRec.Code, "Item No.",
-              AssemblyHeader.TableCaption, AssemblyHeader.FieldCaption("Remaining Quantity"));
+              CannotModifyUnitOfMeasureErr, TableCaption(), xRec.Code, "Item No.",
+              AssemblyHeader.TableCaption(), AssemblyHeader.FieldCaption("Remaining Quantity"));
     end;
 
     local procedure CheckNoRemQtyAssemblyLine()
@@ -441,8 +438,8 @@ table 5404 "Item Unit of Measure"
         AssemblyLine.SetFilter("Remaining Quantity", '<>%1', 0);
         if not AssemblyLine.IsEmpty() then
             Error(
-              CannotModifyUnitOfMeasureErr, TableCaption, xRec.Code, "Item No.",
-              AssemblyLine.TableCaption, AssemblyLine.FieldCaption("Remaining Quantity"));
+              CannotModifyUnitOfMeasureErr, TableCaption(), xRec.Code, "Item No.",
+              AssemblyLine.TableCaption(), AssemblyLine.FieldCaption("Remaining Quantity"));
     end;
 
     local procedure CheckQtyPerUoMPrecision(ItemUoM: Record "Item Unit of Measure"; BaseRoundingPrecision: Decimal)

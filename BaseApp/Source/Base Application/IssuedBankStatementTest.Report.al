@@ -14,7 +14,7 @@ report 11708 "Issued Bank Statement - Test"
         {
             CalcFields = Amount;
             RequestFilterFields = "No.", "Bank Account No.";
-            column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+            column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
             column(Filters; GetFilters)

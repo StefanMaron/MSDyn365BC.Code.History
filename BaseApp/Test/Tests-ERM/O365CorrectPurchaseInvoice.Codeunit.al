@@ -95,7 +95,7 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         LibraryVariableStorage.Enqueue(true); // for the confirm handler
         PurchaseInvoice.Trap;
         PostedPurchaseInvoices.CorrectInvoice.Invoke;
-        PurchaseInvoice.Close;
+        PurchaseInvoice.Close();
 
         // VERIFY
         CheckEverythingIsReverted(Item, Vendor, GLEntry);
@@ -123,7 +123,7 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         LibraryVariableStorage.Enqueue(true); // for the confirm handler
         PurchaseInvoice.Trap;
         PostedPurchaseInvoice.CorrectInvoice.Invoke;
-        PurchaseInvoice.Close;
+        PurchaseInvoice.Close();
 
         // VERIFY
         CheckEverythingIsReverted(Item, Vendor, GLEntry);
@@ -192,7 +192,7 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         LibraryVariableStorage.Enqueue(true); // for the open credit memo confirm handler
         PostedPurchaseCreditMemo.Trap;
         PostedPurchaseInvoices.CancelInvoice.Invoke;
-        PostedPurchaseCreditMemo.Close;
+        PostedPurchaseCreditMemo.Close();
 
         // VERIFY
         CheckEverythingIsReverted(Item, Vendor, GLEntry);
@@ -221,7 +221,7 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         LibraryVariableStorage.Enqueue(true); // for the open credit memo confirm handler
         PostedPurchaseCreditMemo.Trap;
         PostedPurchaseInvoice.CancelInvoice.Invoke;
-        PostedPurchaseCreditMemo.Close;
+        PostedPurchaseCreditMemo.Close();
 
         // VERIFY
         CheckEverythingIsReverted(Item, Vendor, GLEntry);
@@ -253,7 +253,7 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         CorrectPostedPurchInvoice.CancelPostedInvoiceStartNewInvoice(PurchInvHeader, PurchHeaderCorrection);
 
         // VERIFY: The correction must use Exact Cost reversing
-        LastItemLedgEntry.Find;
+        LastItemLedgEntry.Find();
         Assert.AreEqual(
           0, LastItemLedgEntry."Remaining Quantity",
           'The quantity on the receipt item ledger should appear as returned');
@@ -354,7 +354,7 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         PostedPurchaseInvoices.GotoRecord(PurchInvHeader);
         PostedPurchaseInvoices.CreateCreditMemo.Invoke;
 
-        PurchaseCreditMemo.Close;
+        PurchaseCreditMemo.Close();
 
         // VERIFY: New Purchase Credit Memo must match Posted Purchase Invoice
         PurchaseHeaderCorrection.SetRange("Applies-to Doc. No.", PurchInvHeader."No.");
@@ -497,7 +497,7 @@ codeunit 138025 "O365 Correct Purchase Invoice"
                 CheckEverythingIsReverted(Item, Vendor, GLEntry);
             end else begin
                 if GLEntry.FindLast() then;
-                PurchInvHeader.Find;
+                PurchInvHeader.Find();
                 // VERIFY : It should not be possible to cancel a posted invoice twice
                 asserterror CorrectPostedPurchInvoice.CancelPostedInvoiceStartNewInvoice(PurchInvHeader, PurchaseHeaderCorrection);
                 CheckNothingIsCreated(Vendor."No.", GLEntry);
@@ -579,7 +579,7 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         BuyItem(BuyFromVendor, Item, 1, PurchInvHeader);
         CheckSomethingIsPosted(Item, PayToVendor);
 
-        PayToVendor.Find;
+        PayToVendor.Find();
         CurrencyExchangeRate.FindFirst();
         PayToVendor.Validate("Currency Code", CurrencyExchangeRate."Currency Code");
         PayToVendor.Modify(true);
@@ -753,7 +753,7 @@ codeunit 138025 "O365 Correct Purchase Invoice"
 
         CreateAndPostPurchaseInvForNewItemAndVendor(Item, Item.Type::Inventory, Vendor, 1, 1, PurchInvHeader);
 
-        Item.Find;
+        Item.Find();
         Item.Validate(Blocked, true);
         Item.Modify(true);
         Commit();
@@ -889,7 +889,7 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         repeat
             VerifyCorrectionFailsOnBlockedGLAcc(TempGLAcc, PayToVendor, PurchInvHeader);
             VerifyCorrectionFailsOnMandatoryDimGLAcc(TempGLAcc, PayToVendor, PurchInvHeader);
-        until TempGLAcc.Next = 0;
+        until TempGLAcc.Next() = 0;
     end;
 
     [Test]
@@ -1018,7 +1018,7 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         CreateAndPostPurchaseInvForNewItemAndVendor(Item, Item.Type::Inventory, Vendor, 1, 1, PurchInvHeader);
 
         GLSetup.Get();
-        GLSetup."Allow Posting To" := CalcDate('<-1D>', WorkDate);
+        GLSetup."Allow Posting To" := CalcDate('<-1D>', WorkDate());
         GLSetup.Modify(true);
         Commit();
 
@@ -1059,7 +1059,7 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         LibraryCosting.AdjustCostItemEntries('', '');
 
         InvtPeriod.Init();
-        InvtPeriod."Ending Date" := CalcDate('<+1D>', WorkDate);
+        InvtPeriod."Ending Date" := CalcDate('<+1D>', WorkDate());
         InvtPeriod.Closed := true;
         InvtPeriod.Insert();
         Commit();
@@ -1187,7 +1187,7 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         PurchLine.Modify(true);
         LibraryPurch.PostPurchaseDocument(PurchHeader, true, true);
 
-        LastItemLedgEntry.Find;
+        LastItemLedgEntry.Find();
         Assert.AreEqual(0, LastItemLedgEntry."Remaining Quantity", '');
 
         GLEntry.FindLast();
@@ -1786,12 +1786,12 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         repeat
             ToGLAcc := FromGLAcc;
             if ToGLAcc.Insert() then;
-        until FromGLAcc.Next = 0;
+        until FromGLAcc.Next() = 0;
     end;
 
     local procedure BlockGLAcc(var GLAcc: Record "G/L Account")
     begin
-        GLAcc.Find;
+        GLAcc.Find();
         GLAcc.Validate(Blocked, true);
         GLAcc.Modify(true);
         Commit();
@@ -1799,7 +1799,7 @@ codeunit 138025 "O365 Correct Purchase Invoice"
 
     local procedure UnblockGLAcc(var GLAcc: Record "G/L Account")
     begin
-        GLAcc.Find;
+        GLAcc.Find();
         GLAcc.Validate(Blocked, false);
         GLAcc.Modify(true);
         Commit();
@@ -1965,12 +1965,12 @@ codeunit 138025 "O365 Correct Purchase Invoice"
     begin
         LibraryCosting.AdjustCostItemEntries(Item."No.", '');
         ValueEntry.SetRange("Source Type", ValueEntry."Source Type"::Vendor);
-        ValueEntry.SETRANGE("Source No. 2", Vendor."No."); // NAVCZ
+        ValueEntry.SetRange("Source No.", Vendor."No.");
         ValueEntry.FindSet();
         repeat
             TotalQty += ValueEntry."Item Ledger Entry Quantity";
             TotalCost += ValueEntry."Cost Amount (Actual)";
-        until ValueEntry.Next = 0;
+        until ValueEntry.Next() = 0;
         Assert.AreEqual(0, TotalQty, '');
         Assert.AreEqual(0, TotalCost, '');
 
@@ -1984,7 +1984,7 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         repeat
             TotalDebit += GLEntry."Credit Amount";
             TotalCredit += GLEntry."Debit Amount";
-        until GLEntry.Next = 0;
+        until GLEntry.Next() = 0;
 
         Assert.AreEqual(TotalDebit, TotalCredit, '');
     end;
@@ -1993,7 +1993,7 @@ codeunit 138025 "O365 Correct Purchase Invoice"
     var
         PurchaseHeader: Record "Purchase Header";
     begin
-        Assert.IsTrue(LastGLEntry.Next = 0, 'No new G/L entries are created');
+        Assert.IsTrue(LastGLEntry.Next() = 0, 'No new G/L entries are created');
         PurchaseHeader.SetRange("Document Type", PurchaseHeader."Document Type"::"Credit Memo");
         PurchaseHeader.SetRange("Pay-to Vendor No.", VendorNo);
         Assert.IsTrue(PurchaseHeader.IsEmpty, 'The Credit Memo should not have been created');
@@ -2068,20 +2068,13 @@ codeunit 138025 "O365 Correct Purchase Invoice"
 
     local procedure ClearTable(TableID: Integer)
     var
-        CostType: Record "Cost Type";
-        ProductionBOMLine: Record "Production BOM Line";
-        Resource: Record Resource;
+        RecRef: RecordRef;
     begin
         LibraryLowerPermissions.SetOutsideO365Scope();
-        case TableID of
-            DATABASE::"Cost Type":
-                CostType.DeleteAll();
-            DATABASE::"Production BOM Line":
-                ProductionBOMLine.DeleteAll();
-            DATABASE::Resource:
-                Resource.DeleteAll();
-        end;
-        LibraryLowerPermissions.SetO365Full;
+        RecRef.Open(TableID);
+        RecRef.DeleteAll();
+        RecRef.Close();
+        LibraryLowerPermissions.SetO365Full();
     end;
 }
 

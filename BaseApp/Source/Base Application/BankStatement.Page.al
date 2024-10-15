@@ -16,7 +16,7 @@ page 11706 "Bank Statement"
             group(General)
             {
                 Caption = 'General';
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the number of the bank statement.';
@@ -28,24 +28,24 @@ page 11706 "Bank Statement"
                             CurrPage.Update();
                     end;
                 }
-                field("Bank Account No."; "Bank Account No.")
+                field("Bank Account No."; Rec."Bank Account No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the name of bank account.';
                 }
-                field("Bank Account Name"; "Bank Account Name")
+                field("Bank Account Name"; Rec."Bank Account Name")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of bank account.';
                 }
-                field("Account No."; "Account No.")
+                field("Account No."; Rec."Account No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the number used by the bank for the bank account.';
                 }
-                field("Document Date"; "Document Date")
+                field("Document Date"; Rec."Document Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ShowMandatory = true;
@@ -56,7 +56,7 @@ page 11706 "Bank Statement"
                         CurrPage.Update();
                     end;
                 }
-                field("Currency Code"; "Currency Code")
+                field("Currency Code"; Rec."Currency Code")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -67,14 +67,14 @@ page 11706 "Bank Statement"
                         ChangeExchangeRate: Page "Change Exchange Rate";
                     begin
                         ChangeExchangeRate.SetParameter("Currency Code", "Currency Factor", "Document Date");
-                        if ChangeExchangeRate.RunModal = ACTION::OK then begin
-                            Validate("Currency Factor", ChangeExchangeRate.GetParameter);
+                        if ChangeExchangeRate.RunModal() = ACTION::OK then begin
+                            Validate("Currency Factor", ChangeExchangeRate.GetParameter());
                             CurrPage.Update();
                         end;
                         Clear(ChangeExchangeRate);
                     end;
                 }
-                field("Bank Statement Currency Code"; "Bank Statement Currency Code")
+                field("Bank Statement Currency Code"; Rec."Bank Statement Currency Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the bank statement currency code in the bank statement.';
@@ -84,20 +84,20 @@ page 11706 "Bank Statement"
                         ChangeExchangeRate: Page "Change Exchange Rate";
                     begin
                         ChangeExchangeRate.SetParameter("Bank Statement Currency Code", "Bank Statement Currency Factor", "Document Date");
-                        if ChangeExchangeRate.RunModal = ACTION::OK then begin
-                            Validate("Bank Statement Currency Factor", ChangeExchangeRate.GetParameter);
+                        if ChangeExchangeRate.RunModal() = ACTION::OK then begin
+                            Validate("Bank Statement Currency Factor", ChangeExchangeRate.GetParameter());
                             CurrPage.Update();
                         end;
                         Clear(ChangeExchangeRate);
                     end;
                 }
-                field("External Document No."; "External Document No.")
+                field("External Document No."; Rec."External Document No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ShowMandatory = true;
                     ToolTip = 'Specifies the external document number received from bank.';
                 }
-                field("No. of Lines"; "No. of Lines")
+                field("No. of Lines"; Rec."No. of Lines")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of lines in the bank statement.';
@@ -127,17 +127,17 @@ page 11706 "Bank Statement"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the total amount that the line consists of, if it is a credit amount.';
                 }
-                field("Amount (LCY)"; "Amount (LCY)")
+                field("Amount (LCY)"; Rec."Amount (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the total amount that the line consists of. The amount is in the local currency.';
                 }
-                field("Debit (LCY)"; "Debit (LCY)")
+                field("Debit (LCY)"; Rec."Debit (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the total amount that the line consists of, if it is a debit amount. The amount is in the local currency.';
                 }
-                field("Credit (LCY)"; "Credit (LCY)")
+                field("Credit (LCY)"; Rec."Credit (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the total amount that the line consists of, if it is a credit amount. The amount is in the local currency.';
@@ -158,8 +158,6 @@ page 11706 "Bank Statement"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Statistics';
                     Image = Statistics;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     RunObject = Page "Bank Statement Statistics";
                     RunPageLink = "No." = FIELD("No.");
                     ShortCutKey = 'F7';
@@ -178,13 +176,11 @@ page 11706 "Bank Statement"
                     Caption = 'Bank Statement Import';
                     Ellipsis = true;
                     Image = ImportChartOfAccounts;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Allows import bank statement in the system.';
 
                     trigger OnAction()
                     begin
-                        ImportBankStatement;
+                        ImportBankStatement();
                     end;
                 }
                 action("Copy Payment Order")
@@ -197,7 +193,7 @@ page 11706 "Bank Statement"
 
                     trigger OnAction()
                     begin
-                        CopyPaymentOrder;
+                        CopyPaymentOrder();
                     end;
                 }
             }
@@ -214,7 +210,7 @@ page 11706 "Bank Statement"
 
                     trigger OnAction()
                     begin
-                        TestPrintBankStatement;
+                        TestPrintBankStatement();
                     end;
                 }
                 action(Issue)
@@ -222,8 +218,6 @@ page 11706 "Bank Statement"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Issue';
                     Image = ReleaseDoc;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ShortCutKey = 'F9';
                     ToolTip = 'Issue the bank statement to indicate that it has been printed or exported. Bank statement will be moved to issued bank statemet.';
 
@@ -247,6 +241,23 @@ page 11706 "Bank Statement"
                 }
             }
         }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("Bank Statement Import_Promoted"; "Bank Statement Import")
+                {
+                }
+                actionref(Issue_Promoted; Issue)
+                {
+                }
+                actionref(Statistics_Promoted; Statistics)
+                {
+                }
+            }
+        }
     }
 
     trigger OnAfterGetRecord()
@@ -264,7 +275,7 @@ page 11706 "Bank Statement"
         BankAccount: Record "Bank Account";
     begin
         FilterGroup := 2;
-        "Document Date" := WorkDate;
+        "Document Date" := WorkDate();
         "Bank Account No." := CopyStr(GetFilter("Bank Account No."), 1, MaxStrLen("Bank Account No."));
         FilterGroup := 0;
         CurrPage.Lines.PAGE.SetParameters("Bank Account No.");
@@ -277,7 +288,7 @@ page 11706 "Bank Statement"
 
     trigger OnOpenPage()
     begin
-        SetDocNoVisible;
+        SetDocNoVisible();
     end;
 
     var
@@ -294,7 +305,7 @@ page 11706 "Bank Statement"
         if IssuingCodeunitId <> CODEUNIT::"Issue Bank Statement (Yes/No)" then
             exit;
 
-        if InstructionMgt.IsEnabled(InstructionMgt.GetOpeningIssuedDocumentNotificationId) then
+        if InstructionMgt.IsEnabled(InstructionMgt.GetOpeningIssuedDocumentNotificationId()) then
             ShowIssuedConfirmationMessage("No.");
     end;
 
@@ -305,7 +316,7 @@ page 11706 "Bank Statement"
     begin
         IssuedBankStatementHeader.SetRange("Pre-Assigned No.", PreAssignedNo);
         if IssuedBankStatementHeader.FindFirst() then
-            if InstructionMgt.ShowConfirm(OpenIssuedBankStmtQst, InstructionMgt.ShowIssuedConfirmationMessageCode) then
+            if InstructionMgt.ShowConfirm(OpenIssuedBankStmtQst, InstructionMgt.ShowIssuedConfirmationMessageCode()) then
                 PAGE.Run(PAGE::"Issued Bank Statement", IssuedBankStatementHeader);
     end;
 
@@ -323,7 +334,7 @@ page 11706 "Bank Statement"
         CopyPaymentOrder: Report "Copy Payment Order";
     begin
         BankStmtHdr.Get("No.");
-        BankStmtHdr.SetRecFilter;
+        BankStmtHdr.SetRecFilter();
         CopyPaymentOrder.SetBankStmtHdr(BankStmtHdr);
         CopyPaymentOrder.RunModal();
         CurrPage.Update(false);

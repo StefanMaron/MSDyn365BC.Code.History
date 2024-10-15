@@ -240,7 +240,7 @@ codeunit 134407 "SEPA CT Gen. Jnl Line Errors"
 
         // Verify
         LibraryPaymentExport.VerifyGenJnlLineErr(GenJnlLine,
-          StrSubstNo(FieldKeyBlankErr, BankAccount.TableCaption, GenJnlLine."Bal. Account No.", BankAccount.FieldCaption(IBAN)));
+          StrSubstNo(FieldKeyBlankErr, BankAccount.TableCaption(), GenJnlLine."Bal. Account No.", BankAccount.FieldCaption(IBAN)));
     end;
 
     [Test]
@@ -284,7 +284,7 @@ codeunit 134407 "SEPA CT Gen. Jnl Line Errors"
 
         // Verify.
         LibraryPaymentExport.VerifyGenJnlLineErr(GenJnlLine,
-          StrSubstNo(FieldKeyBlankErr, Customer.TableCaption, GenJnlLine."Account No.", Customer.FieldCaption(Name)));
+          StrSubstNo(FieldKeyBlankErr, Customer.TableCaption(), GenJnlLine."Account No.", Customer.FieldCaption(Name)));
     end;
 
     [Test]
@@ -307,7 +307,7 @@ codeunit 134407 "SEPA CT Gen. Jnl Line Errors"
 
         // Verify.
         LibraryPaymentExport.VerifyGenJnlLineErr(GenJnlLine,
-          StrSubstNo(FieldKeyBlankErr, CustomerBankAccount.TableCaption,
+          StrSubstNo(FieldKeyBlankErr, CustomerBankAccount.TableCaption(),
             GenJnlLine."Recipient Bank Account", CustomerBankAccount.FieldCaption(IBAN)));
     end;
 
@@ -331,7 +331,7 @@ codeunit 134407 "SEPA CT Gen. Jnl Line Errors"
 
         // Verify.
         LibraryPaymentExport.VerifyGenJnlLineErr(GenJnlLine,
-          StrSubstNo(FieldKeyBlankErr, Vendor.TableCaption, GenJnlLine."Account No.", Vendor.FieldCaption(Name)));
+          StrSubstNo(FieldKeyBlankErr, Vendor.TableCaption(), GenJnlLine."Account No.", Vendor.FieldCaption(Name)));
     end;
 
     [Test]
@@ -354,7 +354,7 @@ codeunit 134407 "SEPA CT Gen. Jnl Line Errors"
 
         // Verify.
         LibraryPaymentExport.VerifyGenJnlLineErr(GenJnlLine,
-          StrSubstNo(FieldKeyBlankErr, VendorBankAccount.TableCaption,
+          StrSubstNo(FieldKeyBlankErr, VendorBankAccount.TableCaption(),
             GenJnlLine."Recipient Bank Account", VendorBankAccount.FieldCaption(IBAN)));
     end;
 

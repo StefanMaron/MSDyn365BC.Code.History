@@ -1,7 +1,6 @@
 codeunit 31435 "Incoming Document Handler CZZ"
 {
     var
-        AdvancePaymentsMgtCZZ: Codeunit "Advance Payments Mgt. CZZ";
         TwoPlaceholderTok: Label '%1 - %2', Locked = true;
 
     [EventSubscriber(ObjectType::Table, Database::"Incoming Document", 'OnAfterSetCreatedDocumentType', '', false, false)]
@@ -11,10 +10,6 @@ codeunit 31435 "Incoming Document Handler CZZ"
         PurchAdvanceTxt: Label 'Purchase Advance';
         SalesAdvanceTxt: Label 'Sales Advance';
     begin
-#if not CLEAN19
-        if not AdvancePaymentsMgtCZZ.IsEnabled() then
-            exit;
-#endif
         NumberOfTypes := CreatedDocumentType.Count();
         CreatedDocumentType.Add(NumberOfTypes + 1, "Incoming Related Document Type"::"Purchase Advance CZZ".AsInteger());
         CreatedDocumentStrMenu += ',' + PurchAdvanceTxt;
@@ -41,11 +36,6 @@ codeunit 31435 "Incoming Document Handler CZZ"
         AlreadyUsedInPurchaseAdvanceErr: Label 'The incoming document has already been assigned to purchase advance %1.', Comment = '%1 = Document Number';
         AlreadyUsedInSalesAdvanceErr: Label 'The incoming document has already been assigned to sales advance %1.', Comment = '%1 = Document Number';
     begin
-#if not CLEAN19
-        if not AdvancePaymentsMgtCZZ.IsEnabled() then
-            exit;
-#endif
-
         case IncomingRelatedDocumentType of
             IncomingRelatedDocumentType::"Purchase Advance CZZ":
                 begin

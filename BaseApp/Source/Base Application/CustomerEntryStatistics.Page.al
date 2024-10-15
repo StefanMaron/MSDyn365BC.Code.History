@@ -497,7 +497,7 @@ page 302 "Customer Entry Statistics"
 
     trigger OnAfterGetRecord()
     begin
-        ClearAll;
+        ClearAll();
 
         for j := 1 to 6 do begin
             CustLedgEntry[j].SetCurrentKey("Document Type", "Customer No.", "Posting Date");
@@ -521,9 +521,9 @@ page 302 "Customer Entry Statistics"
                 end;
             until CustLedgEntry2.Next(-1) = 0;
 
-        DateFilterCalc.CreateAccountingPeriodFilter(CustDateFilter[1], CustDateName[1], WorkDate, 0);
-        DateFilterCalc.CreateFiscalYearFilter(CustDateFilter[2], CustDateName[2], WorkDate, 0);
-        DateFilterCalc.CreateFiscalYearFilter(CustDateFilter[3], CustDateName[3], WorkDate, -1);
+        DateFilterCalc.CreateAccountingPeriodFilter(CustDateFilter[1], CustDateName[1], WorkDate(), 0);
+        DateFilterCalc.CreateFiscalYearFilter(CustDateFilter[2], CustDateName[2], WorkDate(), 0);
+        DateFilterCalc.CreateFiscalYearFilter(CustDateFilter[3], CustDateName[3], WorkDate(), -1);
 
         for i := 1 to 3 do begin
             CustLedgEntry2.Reset();

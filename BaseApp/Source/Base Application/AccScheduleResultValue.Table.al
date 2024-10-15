@@ -32,7 +32,7 @@ table 31087 "Acc. Schedule Result Value"
 #if not CLEAN19
             trigger OnValidate()
             begin
-                AddChangeHistoryEntry;
+                AddChangeHistoryEntry();
             end;
 #endif
         }

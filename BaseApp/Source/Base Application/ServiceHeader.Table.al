@@ -33,12 +33,12 @@
                     if HideValidationDialog or not GuiAllowed then
                         Confirmed := true
                     else
-                        if ServItemLineExists then
+                        if ServItemLineExists() then
                             Confirmed :=
                               ConfirmManagement.GetResponseOrDefault(
                                 StrSubstNo(Text004, FieldCaption("Customer No.")), true)
                         else
-                            if ServLineExists then
+                            if ServLineExists() then
                                 Confirmed :=
                                   ConfirmManagement.GetResponseOrDefault(
                                     StrSubstNo(Text057, FieldCaption("Customer No.")), true)
@@ -84,11 +84,11 @@
 
                         Get("Document Type", "No.");
                         if "Customer No." = '' then begin
-                            Init;
+                            Init();
                             OnValidateCustomerNoAfterInit(Rec, xRec);
                             GetServiceMgtSetup();
                             "No. Series" := xRec."No. Series";
-                            InitRecord;
+                            InitRecord();
                             if xRec."Shipping No." <> '' then begin
                                 "Shipping No. Series" := xRec."Shipping No. Series";
                                 "Shipping No." := xRec."Shipping No.";
@@ -116,8 +116,8 @@
                 end;
 
                 if "Customer No." = xRec."Customer No." then
-                    if ShippedServLinesExist then
-                        if not ApplicationAreaMgmt.IsSalesTaxEnabled then begin
+                    if ShippedServLinesExist() then
+                        if not ApplicationAreaMgmt.IsSalesTaxEnabled() then begin
                             TestField("VAT Bus. Posting Group", xRec."VAT Bus. Posting Group");
                             TestField("Gen. Bus. Posting Group", xRec."Gen. Bus. Posting Group");
                         end;
@@ -146,7 +146,7 @@
             begin
                 if "No." <> xRec."No." then begin
                     GetServiceMgtSetup();
-                    TestNoSeriesManual;
+                    TestNoSeriesManual();
                     "No. Series" := '';
                 end;
             end;
@@ -202,17 +202,15 @@
 
                 if GuiAllowed and not HideValidationDialog and
                    ("Document Type" in ["Document Type"::Quote, "Document Type"::Order, "Document Type"::Invoice])
-                then begin
-                    Commit(); // NAVCZ
+                then
                     CustCheckCrLimit.ServiceHeaderCheck(Rec);
-                end;
 
                 CopyBillToCustomerFields(Cust);
 
-                ValidateServPriceGrOnServItem;
+                ValidateServPriceGrOnServItem();
 
                 if "Bill-to Customer No." = xRec."Bill-to Customer No." then
-                    if ShippedServLinesExist then begin
+                    if ShippedServLinesExist() then begin
                         TestField("Customer Disc. Group", xRec."Customer Disc. Group");
                         TestField("Currency Code", xRec."Currency Code");
                     end;
@@ -264,9 +262,14 @@
             end;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
-                PostCode.ValidateCity(
-                  "Bill-to City", "Bill-to Post Code", "Bill-to County", "Bill-to Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
+                IsHandled := false;
+                OnBeforeValidateBillToCity(Rec, PostCode, CurrFieldNo, IsHandled);
+                if not IsHandled then
+                    PostCode.ValidateCity(
+                        "Bill-to City", "Bill-to Post Code", "Bill-to County", "Bill-to Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
             end;
         }
         field(10; "Bill-to Contact"; Text[100])
@@ -298,7 +301,7 @@
                           FieldCaption("Ship-to Code"),
                           "Document Type", FieldCaption("No."), "No.",
                           FieldCaption("Contract No."), "Contract No.");
-                    if ServItemLineExists then begin
+                    if ServItemLineExists() then begin
                         if not ConfirmManagement.GetResponseOrDefault(
                              StrSubstNo(Text004, FieldCaption("Ship-to Code")), true)
                         then begin
@@ -306,7 +309,7 @@
                             exit;
                         end;
                     end else
-                        if ServLineExists then
+                        if ServLineExists() then
                             if not ConfirmManagement.GetResponseOrDefault(
                                  StrSubstNo(Text057, FieldCaption("Ship-to Code")), true)
                             then begin
@@ -348,9 +351,6 @@
                 Validate("Service Zone Code");
 
                 IsHandled := false;
-#if not CLEAN18
-                OnValidateShipToCodeOnBeforeDleereLines(Rec, IsHandled);
-#endif
                 OnValidateShipToCodeOnBeforeDeleteLines(Rec, IsHandled);
                 if not IsHandled then
                     if ("Ship-to Code" <> xRec."Ship-to Code") and
@@ -403,9 +403,14 @@
             end;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
-                PostCode.ValidateCity(
-                  "Ship-to City", "Ship-to Post Code", "Ship-to County", "Ship-to Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
+                IsHandled := false;
+                OnBeforeValidateShipToCity(Rec, PostCode, CurrFieldNo, IsHandled);
+                if not IsHandled then
+                    PostCode.ValidateCity(
+                        "Ship-to City", "Ship-to Post Code", "Ship-to County", "Ship-to Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
             end;
         }
         field(18; "Ship-to Contact"; Text[100])
@@ -585,7 +590,7 @@
                 then
                     MessageIfServLinesExist(FieldCaption("Location Code"));
 
-                UpdateShipToAddress;
+                UpdateShipToAddress();
                 CreateDimFromDefaultDim(Rec.FieldNo("Location Code"));
             end;
         }
@@ -619,15 +624,6 @@
         {
             Caption = 'Customer Posting Group';
             TableRelation = "Customer Posting Group";
-#if not CLEAN18
-
-            trigger OnValidate()
-            begin
-                // NAVCZ
-                CheckPostingGroupChange();
-                // NAVCZ
-            end;
-#endif
         }
         field(32; "Currency Code"; Code[10])
         {
@@ -640,7 +636,7 @@
                     UpdateCurrencyFactor()
                 else
                     if "Currency Code" <> xRec."Currency Code" then begin
-                        if ServLineExists and ("Contract No." <> '') and
+                        if ServLineExists() and ("Contract No." <> '') and
                            ("Document Type" in ["Document Type"::Invoice, "Document Type"::"Credit Memo"])
                         then
                             Error(Text058, FieldCaption("Currency Code"), "Document Type", "No.", "Contract No.");
@@ -714,7 +710,7 @@
                         ServLine.SetServHeader(Rec);
 
                         if "Currency Code" = '' then
-                            Currency.InitRoundingPrecision
+                            Currency.InitRoundingPrecision()
                         else
                             Currency.Get("Currency Code");
 
@@ -732,7 +728,7 @@
                                     if ServLine.Quantity <> 0 then begin
                                         ServLine."Line Discount Amount" :=
                                           Round(
-                                            ServLine.CalcChargeableQty * ServLine."Unit Price" * ServLine."Line Discount %" / 100,
+                                            ServLine.CalcChargeableQty() * ServLine."Unit Price" * ServLine."Line Discount %" / 100,
                                             Currency."Amount Rounding Precision");
                                         ServLine.Validate("Inv. Discount Amount",
                                           Round(
@@ -747,7 +743,7 @@
                                     if ServLine.Quantity <> 0 then begin
                                         ServLine."Line Discount Amount" :=
                                           Round(
-                                            ServLine.CalcChargeableQty * ServLine."Unit Price" * ServLine."Line Discount %" / 100,
+                                            ServLine.CalcChargeableQty() * ServLine."Unit Price" * ServLine."Line Discount %" / 100,
                                             Currency."Amount Rounding Precision");
                                         ServLine.Validate("Inv. Discount Amount",
                                           Round(
@@ -847,7 +843,7 @@
                 ApplyCustEntries.SetTableView(CustLedgEntry);
                 ApplyCustEntries.SetRecord(CustLedgEntry);
                 ApplyCustEntries.LookupMode(true);
-                if ApplyCustEntries.RunModal = ACTION::LookupOK then begin
+                if ApplyCustEntries.RunModal() = ACTION::LookupOK then begin
                     ApplyCustEntries.GetCustLedgEntry(CustLedgEntry);
                     GenJnlApply.CheckAgainstApplnCurrency(
                       "Currency Code", CustLedgEntry."Currency Code", GenJnlLine."Account Type"::Customer, true);
@@ -900,7 +896,7 @@
                         "Bal. Account Type"::"G/L Account":
                             begin
                                 GLAcc.Get("Bal. Account No.");
-                                GLAcc.CheckGLAcc;
+                                GLAcc.CheckGLAcc();
                                 GLAcc.TestField("Direct Posting", true);
                             end;
                         "Bal. Account Type"::"Bank Account":
@@ -985,19 +981,6 @@
         {
             Caption = 'VAT Country/Region Code';
             TableRelation = "Country/Region";
-
-            trigger OnValidate()
-            var
-                NewVATRegNo: Text[20];
-            begin
-                // NAVCZ
-                if "Bill-to Customer No." <> '' then begin
-                    GetCust("Bill-to Customer No.");
-                    NewVATRegNo := Cust."VAT Registration No.";
-                end;
-                "VAT Registration No." := NewVATRegNo;
-                // NAVCZ
-            end;
         }
         field(79; Name; Text[100])
         {
@@ -1041,8 +1024,13 @@
             end;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
-                PostCode.ValidateCity(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
+                IsHandled := false;
+                OnBeforeValidateCity(Rec, PostCode, CurrFieldNo, IsHandled);
+                if not IsHandled then
+                    PostCode.ValidateCity(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
                 UpdateShipToAddressFromGeneralAddress(FieldNo("Ship-to City"));
             end;
         }
@@ -1066,9 +1054,14 @@
             end;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
-                PostCode.ValidatePostCode(
-                  "Bill-to City", "Bill-to Post Code", "Bill-to County", "Bill-to Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
+                IsHandled := false;
+                OnBeforeValidateBillToPostCode(Rec, PostCode, CurrFieldNo, IsHandled);
+                if not IsHandled then
+                    PostCode.ValidatePostCode(
+                        "Bill-to City", "Bill-to Post Code", "Bill-to County", "Bill-to Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
             end;
         }
         field(86; "Bill-to County"; Text[30])
@@ -1105,8 +1098,13 @@
             end;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
-                PostCode.ValidatePostCode(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
+                IsHandled := false;
+                OnBeforeValidatePostCode(Rec, PostCode, CurrFieldNo, IsHandled);
+                if not IsHandled then
+                    PostCode.ValidatePostCode(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
                 UpdateShipToAddressFromGeneralAddress(FieldNo("Ship-to Post Code"));
             end;
         }
@@ -1152,9 +1150,14 @@
             end;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
-                PostCode.ValidatePostCode(
-                  "Ship-to City", "Ship-to Post Code", "Ship-to County", "Ship-to Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
+                IsHandled := false;
+                OnBeforeValidateShipToPostCode(Rec, PostCode, CurrFieldNo, IsHandled);
+                if not IsHandled then
+                    PostCode.ValidatePostCode(
+                        "Ship-to City", "Ship-to Post Code", "Ship-to County", "Ship-to Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
             end;
         }
         field(92; "Ship-to County"; Text[30])
@@ -1274,8 +1277,8 @@
                 with ServHeader do begin
                     ServHeader := Rec;
                     GetServiceMgtSetup();
-                    TestNoSeries;
-                    if NoSeriesMgt.LookupSeries(GetPostingNoSeriesCode, "Posting No. Series") then
+                    TestNoSeries();
+                    if NoSeriesMgt.LookupSeries(GetPostingNoSeriesCode(), "Posting No. Series") then
                         Validate("Posting No. Series");
                     Rec := ServHeader;
                 end;
@@ -1285,8 +1288,8 @@
             begin
                 if "Posting No. Series" <> '' then begin
                     GetServiceMgtSetup();
-                    TestNoSeries;
-                    NoSeriesMgt.TestSeries(GetPostingNoSeriesCode, "Posting No. Series");
+                    TestNoSeries();
+                    NoSeriesMgt.TestSeries(GetPostingNoSeriesCode(), "Posting No. Series");
                 end;
                 TestField("Posting No.", '');
             end;
@@ -1380,7 +1383,7 @@
                       Text011,
                       FieldCaption("VAT Base Discount %"),
                       GLSetup.FieldCaption("VAT Tolerance %"),
-                      GLSetup.TableCaption);
+                      GLSetup.TableCaption());
 
                 if ("VAT Base Discount %" = xRec."VAT Base Discount %") and
                    (CurrFieldNo <> 0)
@@ -1398,13 +1401,13 @@
                     ServLine.LockTable();
                     LockTable();
                     if ServLine.FindSet() then begin
-                        Modify;
+                        Modify();
                         repeat
                             if (ServLine."Quantity Invoiced" <> ServLine.Quantity) or
                             ("Shipping Advice" = "Shipping Advice"::Complete) or
                             (CurrFieldNo <> 0)
                             then begin
-                                ServLine.UpdateAmounts;
+                                ServLine.UpdateAmounts();
                                 ServLine.Modify();
                             end;
                         until ServLine.Next() = 0;
@@ -1437,8 +1440,8 @@
                             then
                                 Error(
                                   Text031,
-                                  FieldCaption(Status), Format(Status), TableCaption, "No.", ServItemLine.FieldCaption("Repair Status Code"),
-                                  ServItemLine."Repair Status Code", ServItemLine.TableCaption, ServItemLine."Line No.")
+                                  FieldCaption(Status), Format(Status), TableCaption(), "No.", ServItemLine.FieldCaption("Repair Status Code"),
+                                  ServItemLine."Repair Status Code", ServItemLine.TableCaption(), ServItemLine."Line No.")
                         end;
                     until ServItemLine.Next() = 0
                 else
@@ -1448,10 +1451,10 @@
                     Status::"In Process":
                         begin
                             if not LinesExist then begin
-                                "Starting Date" := WorkDate;
+                                "Starting Date" := WorkDate();
                                 Validate("Starting Time", Time);
                             end else
-                                UpdateStartingDateTime;
+                                UpdateStartingDateTime();
                         end;
                     Status::Finished:
                         begin
@@ -1464,11 +1467,11 @@
                                 end;
                             if not LinesExist then begin
                                 if ("Finishing Date" = 0D) and ("Finishing Time" = 0T) then begin
-                                    "Finishing Date" := WorkDate;
+                                    "Finishing Date" := WorkDate();
                                     "Finishing Time" := Time;
                                 end;
                             end else
-                                UpdateFinishingDateTime;
+                                UpdateFinishingDateTime();
                         end;
                 end;
 
@@ -1547,7 +1550,7 @@
 
             trigger OnLookup()
             begin
-                ShowDocDim;
+                ShowDocDim();
             end;
 
             trigger OnValidate()
@@ -1614,7 +1617,7 @@
                         if ("Contact No." = '') and ("Customer No." = '') then begin
                             if not ServLine.IsEmpty() then
                                 Error(Text050, FieldCaption("Contact No."));
-                            InitRecordFromContact;
+                            InitRecordFromContact();
                             exit;
                         end;
                     end else begin
@@ -1685,7 +1688,7 @@
                         if ("Bill-to Contact No." = '') and ("Bill-to Customer No." = '') then begin
                             if not ServLine.IsEmpty() then
                                 Error(Text050, FieldCaption("Bill-to Contact No."));
-                            InitRecordFromContact;
+                            InitRecordFromContact();
                             exit;
                         end;
                     end else begin
@@ -1717,9 +1720,9 @@
                 if not UserSetupMgt.CheckRespCenter(2, "Responsibility Center") then
                     Error(
                       Text010,
-                      RespCenter.TableCaption, UserSetupMgt.GetServiceFilter);
+                      RespCenter.TableCaption(), UserSetupMgt.GetServiceFilter());
 
-                UpdateShipToAddress;
+                UpdateShipToAddress();
 
                 CreateDimFromDefaultDim(Rec.FieldNo("Responsibility Center"));
 
@@ -2147,7 +2150,7 @@
 
             trigger OnValidate()
             begin
-                if ServLineExists then
+                if ServLineExists() then
                     Message(
                       Text001,
                       FieldCaption("Max. Labor Unit Price"),
@@ -2204,7 +2207,7 @@
                 Clear(ServContractList);
                 ServContractList.SetTableView(ServContractHeader);
                 ServContractList.LookupMode(true);
-                if ServContractList.RunModal = ACTION::LookupOK then begin
+                if ServContractList.RunModal() = ACTION::LookupOK then begin
                     ServContractList.GetRecord(ServContractHeader);
                     Validate("Contract No.", ServContractHeader."Contract No.");
                 end;
@@ -2232,9 +2235,9 @@
                     ServItemLine.SetRange("Document No.", "No.");
                     if ServItemLine.Find('-') then
                         Error(Text028,
-                          FieldCaption("Contract No."), ServItemLine.TableCaption);
+                          FieldCaption("Contract No."), ServItemLine.TableCaption());
 
-                    if not ConfirmChangeContractNo then begin
+                    if not ConfirmChangeContractNo() then begin
                         "Contract No." := xRec."Contract No.";
                         exit;
                     end;
@@ -2383,175 +2386,79 @@
             TableRelation = IF ("Document Type" = FILTER(Quote | Order | Invoice)) "Bank Account"
             ELSE
             IF ("Document Type" = FILTER("Credit Memo")) "Customer Bank Account".Code WHERE("Customer No." = FIELD("Bill-to Customer No."));
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
-#if not CLEAN18
-
-            trigger OnValidate()
-            var
-                BankAcc: Record "Bank Account";
-                CustBankAcc: Record "Customer Bank Account";
-            begin
-                // NAVCZ
-                if "Bank Account Code" = '' then begin
-                    "Bank Account No." := '';
-                    "Bank Branch No." := '';
-                    "Bank Name" := '';
-                    "Transit No." := '';
-                    IBAN := '';
-                    "SWIFT Code" := '';
-                    exit;
-                end;
-                TestField("Bill-to Customer No.");
-                case "Document Type" of
-                    "Document Type"::Quote, "Document Type"::Order,
-                    "Document Type"::Invoice:
-                        begin
-                            BankAcc.Get("Bank Account Code");
-                            "Bank Account No." := BankAcc."Bank Account No.";
-                            "Bank Branch No." := BankAcc."Bank Branch No.";
-                            "Bank Name" := BankAcc.Name;
-                            "Transit No." := BankAcc."Transit No.";
-                            IBAN := BankAcc.IBAN;
-                            "SWIFT Code" := BankAcc."SWIFT Code";
-                        end;
-                    "Document Type"::"Credit Memo":
-                        begin
-                            CustBankAcc.Get("Bill-to Customer No.", "Bank Account Code");
-                            "Bank Account No." := CustBankAcc."Bank Account No.";
-                            "Bank Branch No." := CustBankAcc."Bank Branch No.";
-                            "Bank Name" := CustBankAcc.Name;
-                            "Transit No." := CustBankAcc."Transit No.";
-                            IBAN := CustBankAcc.IBAN;
-                            "SWIFT Code" := CustBankAcc."SWIFT Code";
-                        end;
-                end;
-                // NAVCZ
-            end;
-#endif
+            ObsoleteTag = '21.0';
         }
         field(11701; "Bank Account No."; Text[30])
         {
             Caption = 'Bank Account No.';
             Editable = false;
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(11702; "Bank Branch No."; Text[20])
         {
             Caption = 'Bank Branch No.';
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(11703; "Specific Symbol"; Code[10])
         {
             Caption = 'Specific Symbol';
             CharAllowed = '09';
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(11704; "Variable Symbol"; Code[10])
         {
             Caption = 'Variable Symbol';
             CharAllowed = '09';
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(11705; "Constant Symbol"; Code[10])
         {
             Caption = 'Constant Symbol';
             CharAllowed = '09';
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            TableRelation = "Constant Symbol";
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(11706; "Transit No."; Text[20])
         {
             Caption = 'Transit No.';
             Editable = false;
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(11707; IBAN; Code[50])
         {
             Caption = 'IBAN';
             Editable = false;
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
-#if not CLEAN18
-
-            trigger OnValidate()
-            var
-                CompanyInfo: Record "Company Information";
-            begin
-                // NAVCZ
-                CompanyInfo.CheckIBAN(IBAN);
-                // NAVCZ
-            end;
-#endif
+            ObsoleteTag = '21.0';
         }
         field(11708; "SWIFT Code"; Code[20])
         {
             Caption = 'SWIFT Code';
             Editable = false;
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(11709; "Bank Name"; Text[100])
         {
             Caption = 'Bank Name';
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(11730; "Cash Desk Code"; Code[20])
         {
@@ -2591,13 +2498,6 @@
             ObsoleteState = Removed;
             ObsoleteReason = 'The functionality of Tax corrective documents for VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
             ObsoleteTag = '18.0';
-
-            trigger OnValidate()
-            begin
-                // NAVCZ
-                Validate("Posting No. Series", GetPostingNoSeriesCode);
-                // NAVCZ
-            end;
         }
         field(11763; "Postponed VAT"; Boolean)
         {
@@ -2666,34 +2566,16 @@
         field(31063; "Physical Transfer"; Boolean)
         {
             Caption = 'Physical Transfer';
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
-#if not CLEAN18
-
-            trigger OnValidate()
-            begin
-                if "Physical Transfer" then
-                    if "Document Type" <> "Document Type"::"Credit Memo" then
-                        FieldError("Document Type");
-                UpdateServLinesByFieldNo(FieldNo("Physical Transfer"), false);
-            end;
-#endif
+            ObsoleteTag = '21.0';
         }
         field(31064; "Intrastat Exclude"; Boolean)
         {
             Caption = 'Intrastat Exclude';
-#if CLEAN18
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
+            ObsoleteTag = '21.0';
         }
         field(31065; "Industry Code"; Code[20])
         {
@@ -2736,9 +2618,14 @@
         {
             MaintainSQLIndex = false;
         }
+#if not CLEAN21
         key(Key8; "Document Type", Status, "Response Date", "Responsibility Center")
         {
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Key is not used and will be removed.';
+            ObsoleteTag = '21.0';
         }
+#endif
     }
 
     fieldgroups
@@ -2762,7 +2649,7 @@
         ShowPostedDocsToPrint: Boolean;
     begin
         if not UserSetupMgt.CheckRespCenter(2, "Responsibility Center") then
-            Error(Text000, UserSetupMgt.GetServiceFilter);
+            Error(Text000, UserSetupMgt.GetServiceFilter());
 
         if "Document Type" = "Document Type"::Invoice then begin
             ServLine.Reset();
@@ -2882,7 +2769,7 @@
         ServLogMgt.ServHeaderCreate(Rec);
 
         if "Salesperson Code" = '' then
-            SetDefaultSalesperson;
+            SetDefaultSalesperson();
 
         if GetFilter("Customer No.") <> '' then begin
             Clear(xRec."Ship-to Code");
@@ -3006,8 +2893,8 @@
         with ServHeader do begin
             Copy(Rec);
             GetServiceMgtSetup();
-            TestNoSeries;
-            if NoSeriesMgt.SelectSeries(GetNoSeriesCode, OldServHeader."No. Series", "No. Series") then begin
+            TestNoSeries();
+            if NoSeriesMgt.SelectSeries(GetNoSeriesCode(), OldServHeader."No. Series", "No. Series") then begin
                 if ("Customer No." = '') and ("Contact No." = '') then
                     CheckCreditMaxBeforeInsert(false);
 
@@ -3071,8 +2958,8 @@
 
         if "Dimension Set ID" <> OldDimSetID then begin
             DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
-            if ServItemLineExists or ServLineExists then begin
-                Modify;
+            if ServItemLineExists() or ServLineExists() then begin
+                Modify();
                 UpdateAllLineDim("Dimension Set ID", OldDimSetID);
             end;
         end;
@@ -3115,8 +3002,8 @@
 
         if "Dimension Set ID" <> OldDimSetID then begin
             DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
-            if ServItemLineExists or ServLineExists then begin
-                Modify;
+            if ServItemLineExists() or ServLineExists() then begin
+                Modify();
                 UpdateAllLineDim("Dimension Set ID", OldDimSetID);
             end;
         end;
@@ -3184,7 +3071,7 @@
         OldDimSetID := "Dimension Set ID";
         DimMgt.ValidateShortcutDimValues(FieldNumber, ShortcutDimCode, "Dimension Set ID");
 
-        if ServItemLineExists or ServLineExists then
+        if ServItemLineExists() or ServLineExists() then
             UpdateAllLineDim("Dimension Set ID", OldDimSetID);
 
         OnAfterValidateShortcutDimCode(Rec, xRec, FieldNumber, ShortcutDimCode);
@@ -3358,7 +3245,7 @@
     begin
         Field.Get(DATABASE::"Service Header", ChangedFieldNo);
 
-        if ServLineExists and AskQuestion then begin
+        if ServLineExists() and AskQuestion then begin
             Question := StrSubstNo(
                 Text016,
                 Field."Field Caption");
@@ -3366,22 +3253,16 @@
                 exit
         end;
 
-        if ServLineExists then begin
+        if ServLineExists() then begin
             ServLine.LockTable();
             ServLine.Reset();
             ServLine.SetRange("Document Type", "Document Type");
             ServLine.SetRange("Document No.", "No.");
 
-#if not CLEAN18
-            if Field."Field Caption" <> FieldCaption("Intrastat Exclude") then begin // NAVCZ
-#endif
-                ServLine.SetRange("Quantity Shipped", 0);
-                ServLine.SetRange("Quantity Invoiced", 0);
-                ServLine.SetRange("Quantity Consumed", 0);
-                ServLine.SetRange("Shipment No.", '');
-#if not CLEAN18
-            end; // NAVCZ
-#endif
+            ServLine.SetRange("Quantity Shipped", 0);
+            ServLine.SetRange("Quantity Invoiced", 0);
+            ServLine.SetRange("Quantity Consumed", 0);
+            ServLine.SetRange("Shipment No.", '');
             OnUpdateServLinesByFieldNoOnAfterServLineSetFilters(ServLine, Rec, xRec, ChangedFieldNo);
 
             if ServLine.Find('-') then
@@ -3390,13 +3271,6 @@
                         FieldNo("Currency Factor"):
                             if (ServLine."Posting Date" = "Posting Date") and (ServLine.Type <> ServLine.Type::" ") then begin
                                 ServLine.Validate("Unit Price");
-                                // NAVCZ
-                                ServLine."VAT Difference" := 0;
-#if not CLEAN18
-                                ServLine."VAT Difference (LCY)" := 0;
-                                ServLine."VAT Correction" := false;
-#endif
-                                // NAVCZ
                                 ServLine.Modify(true);
                             end;
                         FieldNo("Posting Date"):
@@ -3462,15 +3336,6 @@
                                 ServLine.Validate("Shipping Agent Service Code", "Shipping Agent Service Code");
                                 ServLine.Modify(true);
                             end;
-#if not CLEAN18
-                        // NAVCZ
-                        FieldNo("Physical Transfer"):
-                            if (ServLine.Type = ServLine.Type::Item) and (ServLine."No." <> '') then begin
-                                ServLine."Physical Transfer" := "Physical Transfer";
-                                ServLine.Modify(true);
-                            end;
-                        // NAVCZ
-#endif
                         else
                             OnUpdateServLineByChangedFieldName(Rec, ServLine, Field."Field Caption");
                     end;
@@ -3625,7 +3490,7 @@
 
     local procedure PriceMsgIfServLinesExist(ChangedFieldName: Text[100])
     begin
-        if ServLineExists then
+        if ServLineExists() then
             Message(
               Text019,
               ChangedFieldName);
@@ -3651,7 +3516,7 @@
 
     procedure MessageIfServLinesExist(ChangedFieldName: Text[100])
     begin
-        if ServLineExists and not HideValidationDialog then
+        if ServLineExists() and not HideValidationDialog then
             Message(
               Text021,
               ChangedFieldName, TableCaption);
@@ -4009,13 +3874,8 @@
         OnInitInsertOnBeforeInitSeries(Rec, xRec, IsHandled);
         if not IsHandled then
             if "No." = '' then begin
-                TestNoSeries;
-                // NAVCZ
-                if "No. Series" <> '' then
-                    NoSeriesMgt.InitSeries("No. Series", xRec."No. Series", "Posting Date", "No.", "No. Series")
-                else
-                    // NAVCZ
-                    NoSeriesMgt.InitSeries(GetNoSeriesCode, xRec."No. Series", 0D, "No.", "No. Series");
+                TestNoSeries();
+                NoSeriesMgt.InitSeries(GetNoSeriesCode(), xRec."No. Series", 0D, "No.", "No. Series");
             end;
 
         CheckDocumentTypeAlreadyUsed();
@@ -4030,12 +3890,12 @@
         SetDefaultNoSeries();
 
         if "Document Type" in ["Document Type"::Order, "Document Type"::Invoice, "Document Type"::Quote] then begin
-            "Order Date" := WorkDate;
+            "Order Date" := WorkDate();
             "Order Time" := Time;
         end;
 
-        "Posting Date" := WorkDate;
-        "Document Date" := WorkDate;
+        "Posting Date" := WorkDate();
+        "Document Date" := WorkDate();
         "Default Response Time (Hours)" := ServiceMgtSetup."Default Response Time (Hours)";
         "Link Service to Service Item" := ServiceMgtSetup."Link Service to Service Item";
 
@@ -4053,15 +3913,6 @@
         Reserve := Reserve::Optional;
 
         SetResponsibilityCenter();
-#if not CLEAN18
-
-        // NAVCZ
-        if "Document Type" in ["Document Type"::Quote, "Document Type"::Order,
-                               "Document Type"::Invoice]
-        then
-            UpdateBankInfo;
-        // NAVCZ
-#endif
 
         OnAfterInitRecord(Rec);
     end;
@@ -4081,7 +3932,7 @@
             else
                 "Responsibility Center" := UserSetupMgt.GetRespCenter(2, "Responsibility Center")
         else
-            "Responsibility Center" := UserSetupMgt.GetServiceFilter;
+            "Responsibility Center" := UserSetupMgt.GetServiceFilter();
     end;
 
     local procedure SetDefaultNoSeries()
@@ -4137,9 +3988,9 @@
 
     local procedure InitRecordFromContact()
     begin
-        Init;
+        Init();
         GetServiceMgtSetup();
-        InitRecord;
+        InitRecord();
         "No. Series" := xRec."No. Series";
         if xRec."Shipping No." <> '' then begin
             "Shipping No. Series" := xRec."Shipping No. Series";
@@ -4303,8 +4154,8 @@
             "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
         OnShowDocDimOnBeforeUpdateAllLineDim(Rec, OldDimSetID, CurrFieldNo);
         if OldDimSetID <> "Dimension Set ID" then begin
-            Modify;
-            if ServItemLineExists or ServLineExists then
+            Modify();
+            if ServItemLineExists() or ServLineExists() then
                 UpdateAllLineDim("Dimension Set ID", OldDimSetID);
         end;
     end;
@@ -4442,7 +4293,7 @@
                     ErrorInfo.Create(
                         StrSubstNo(
                             Text018,
-                            FieldCaption("Service Order Type"), TableCaption,
+                            FieldCaption("Service Order Type"), TableCaption(),
                             FieldCaption("Document Type"), Format("Document Type"),
                             FieldCaption("No."), Format("No.")),
                         true,
@@ -4477,8 +4328,8 @@
             exit;
 
         SetShipToAddress(
-          ShipToAddr.Name, ShipToAddr."Name 2", ShipToAddr.Address, ShipToAddr."Address 2",
-          ShipToAddr.City, ShipToAddr."Post Code", ShipToAddr.County, ShipToAddr."Country/Region Code");
+            ShipToAddr.Name, ShipToAddr."Name 2", ShipToAddr.Address, ShipToAddr."Address 2",
+            ShipToAddr.City, ShipToAddr."Post Code", ShipToAddr.County, ShipToAddr."Country/Region Code");
         "Ship-to Contact" := ShipToAddr.Contact;
         "Ship-to Phone" := ShipToAddr."Phone No.";
         if ShipToAddr."Location Code" <> '' then
@@ -4517,14 +4368,6 @@
         OnAfterCopyShipToCustomerAddressFieldsFromCustomer(Rec, SellToCustomer);
     end;
 
-#if not CLEAN18
-    [Obsolete('Replaced by WhsePickConflict().', '18.0')]
-    procedure InventoryPickConflict(DocType: Option Quote,"Order",Invoice,"Credit Memo"; DocNo: Code[20]; ShippingAdvice: Option Partial,Complete): Boolean
-    begin
-        exit(WhsePickConflict("Service Document Type".FromInteger(DocType), DocNo, "Sales Header Shipping Advice".FromInteger(ShippingAdvice)));
-    end;
-#endif
-
     procedure WhsePickConflict(DocType: Enum "Service Document Type"; DocNo: Code[20]; ShippingAdvice: Enum "Sales Header Shipping Advice"): Boolean
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";
@@ -4548,16 +4391,8 @@
 
     procedure InvPickConflictResolutionTxt(): Text[500]
     begin
-        exit(StrSubstNo(Text062, TableCaption, FieldCaption("Shipping Advice"), Format("Shipping Advice")));
+        exit(StrSubstNo(Text062, TableCaption(), FieldCaption("Shipping Advice"), Format("Shipping Advice")));
     end;
-
-#if not CLEAN18
-    [Obsolete('Replaced by WhseShipmentConflict().', '18.0')]
-    procedure WhseShpmntConflict(DocType: Option Quote,"Order",Invoice,"Credit Memo"; DocNo: Code[20]; ShippingAdvice: Option Partial,Complete): Boolean
-    begin
-        exit(WhseShipmentConflict("Service Document Type".FromInteger(DocType), DocNo, "Sales Header Shipping Advice".FromInteger(ShippingAdvice)));
-    end;
-#endif
 
     procedure WhseShipmentConflict(DocType: Enum "Service Document Type"; DocNo: Code[20]; ShippingAdvice: Enum "Sales Header Shipping Advice"): Boolean
     var
@@ -4576,7 +4411,7 @@
 
     procedure WhseShpmtConflictResolutionTxt(): Text[500]
     begin
-        exit(StrSubstNo(Text063, TableCaption, FieldCaption("Shipping Advice"), Format("Shipping Advice")));
+        exit(StrSubstNo(Text063, TableCaption(), FieldCaption("Shipping Advice"), Format("Shipping Advice")));
     end;
 
     local procedure GetShippingTime(CalledByFieldNo: Integer)
@@ -4602,35 +4437,6 @@
             Error(Text066);
     end;
 
-#if not CLEAN18
-    [Obsolete('This procedure will be removed after removing feature from Base Application.', '18.0')]
-    [Scope('OnPrem')]
-    procedure UpdateBankInfo()
-    var
-        CompanyInfo: Record "Company Information";
-        RespCenter: Record "Responsibility Center";
-    begin
-        // NAVCZ
-        if RespCenter.Get("Responsibility Center") then begin
-            "Bank Account Code" := RespCenter."Bank Account Code";
-            "Bank Account No." := RespCenter."Bank Account No.";
-            "Bank Branch No." := RespCenter."Bank Branch No.";
-            "Bank Name" := RespCenter."Bank Name";
-            "Transit No." := RespCenter."Transit No.";
-            IBAN := RespCenter.IBAN;
-            "SWIFT Code" := RespCenter."SWIFT Code";
-        end else begin
-            CompanyInfo.Get();
-            "Bank Account Code" := '';
-            "Bank Account No." := CompanyInfo."Bank Account No.";
-            "Bank Branch No." := CompanyInfo."Bank Branch No.";
-            "Bank Name" := CompanyInfo."Bank Name";
-            IBAN := CompanyInfo.IBAN;
-            "SWIFT Code" := CompanyInfo."SWIFT Code";
-        end;
-    end;
-
-#endif
     local procedure CreateServiceLines(var TempServLine: Record "Service Line" temporary; var ExtendedTextAdded: Boolean; var TempServiceCommentLine: Record "Service Comment Line" temporary)
     var
         TransferExtendedText: Codeunit "Transfer Extended Text";
@@ -4719,10 +4525,10 @@
     var
         CustomerNo: Code[20];
     begin
-        CustomerNo := GetFilterCustNo;
+        CustomerNo := GetFilterCustNo();
         if CustomerNo = '' then begin
             FilterGroup(2);
-            CustomerNo := GetFilterCustNo;
+            CustomerNo := GetFilterCustNo();
             FilterGroup(0);
         end;
         if CustomerNo <> '' then
@@ -4738,7 +4544,7 @@
 
     local procedure UpdateShipToAddressFromGeneralAddress(FieldNumber: Integer)
     begin
-        if ("Ship-to Code" = '') and (not ShipToAddressModified) then
+        if ("Ship-to Code" = '') and (not ShipToAddressModified()) then
             case FieldNumber of
                 FieldNo("Ship-to Address"):
                     if xRec.Address = "Ship-to Address" then
@@ -4808,7 +4614,6 @@
     local procedure CopyBillToCustomerFields(Cust: Record Customer)
     var
         PaymentTerms: Record "Payment Terms";
-        CustBankAcc: Record "Customer Bank Account";
     begin
         "Bill-to Name" := Cust.Name;
         "Bill-to Name 2" := Cust."Name 2";
@@ -4844,25 +4649,8 @@
         "Invoice Disc. Code" := Cust."Invoice Disc. Code";
         "Customer Disc. Group" := Cust."Customer Disc. Group";
         "Language Code" := Cust."Language Code";
-#if not CLEAN18
-        // NAVCZ
-        if "Document Type" in ["Document Type"::"Credit Memo"] then begin
-            CustBankAcc.SetRange("Customer No.", "Bill-to Customer No.");
-            if CustBankAcc.SetCurrentKey("Customer No.", Priority) then
-                CustBankAcc.SetFilter(Priority, '%1..', 1);
-            if not CustBankAcc.FindFirst() then begin
-                CustBankAcc.SetRange(Priority);
-                if CustBankAcc.FindFirst() then;
-            end;
-            Validate("Bank Account Code", CustBankAcc.Code)
-        end;
-#endif
-        // NAVCZ
         SetSalespersonCode(Cust."Salesperson Code", "Salesperson Code");
         Reserve := Cust.Reserve;
-        // NAVCZ
-        "VAT Registration No." := Cust."VAT Registration No.";
-        // NAVCZ
 
         OnAfterCopyBillToCustomerFields(Rec, Cust, SkipBillToContact);
     end;
@@ -4884,28 +4672,12 @@
     var
         InstructionMgt: Codeunit "Instruction Mgt.";
     begin
-        if ServLineExists or ServItemLineExists then
+        if ServLineExists() or ServItemLineExists() then
             if InstructionMgt.IsUnpostedEnabledForRecord(Rec) then
-                exit(InstructionMgt.ShowConfirm(DocumentNotPostedClosePageQst, InstructionMgt.QueryPostOnCloseCode));
+                exit(InstructionMgt.ShowConfirm(DocumentNotPostedClosePageQst, InstructionMgt.QueryPostOnCloseCode()));
         exit(true)
     end;
 
-#if not CLEAN18
-    [Scope('OnPrem')]
-    [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
-    procedure IsIntrastatTransaction(): Boolean
-    var
-        CountryRegion: Record "Country/Region";
-    begin
-        // NAVCZ
-        if "EU 3-Party Trade" then
-            exit(false);
-        if "Intrastat Exclude" then
-            exit(false);
-        exit(CountryRegion.IsIntrastat("VAT Country/Region Code", false));
-    end;
-
-#endif
     local procedure ConfirmChangeContractNo(): Boolean
     var
         ServContractLine: Record "Service Contract Line";
@@ -4922,7 +4694,7 @@
           ConfirmManagement.GetResponseOrDefault(
             StrSubstNo(
               Text029, ServContractLine.FieldCaption("Next Planned Service Date"),
-              ServContractLine.TableCaption, FieldCaption("Contract No.")), true);
+              ServContractLine.TableCaption(), FieldCaption("Contract No.")), true);
 
         exit(Confirmed);
     end;
@@ -4987,7 +4759,7 @@
     begin
         "Currency Code" := xRec."Currency Code";
         "Posting Date" := xRec."Posting Date";
-        Modify;
+        Modify();
     end;
 
     procedure GetHideValidationDialog(): Boolean
@@ -5036,19 +4808,6 @@
             Result := ConfirmManagement.GetResponseOrDefault(StrSubstNo(Text012, ChangedFieldName), true);
     end;
 
-#if not CLEAN18
-    [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
-    local procedure CheckPostingGroupChange()
-    var
-        PostingGroupManagement: Codeunit "Posting Group Management";
-    begin
-        // NAVCZ
-        if CurrFieldNo = FieldNo("Customer Posting Group") then
-            PostingGroupManagement.CheckPostingGroupChange("Customer Posting Group", xRec."Customer Posting Group", Rec);
-        // NAVCZ
-    end;
-
-#endif
     procedure GetServiceMgtSetup()
     begin
         ServiceMgtSetup.Get();
@@ -5079,6 +4838,13 @@
         DimMgt.AddDimSource(DefaultDimSource, Database::Location, Rec."Location Code", FieldNo = Rec.FieldNo("Location Code"));
 
         OnAfterInitDefaultDimensionSources(Rec, DefaultDimSource, FieldNo);
+    end;
+
+    procedure ServiceLinesEditable() IsEditable: Boolean;
+    begin
+        IsEditable := Rec."Customer No." <> '';
+
+        OnAfterServiceLinesEditable(Rec, IsEditable);
     end;
 
 #if not CLEAN20
@@ -5125,6 +4891,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitDefaultDimensionSources(var ServiceHeader: Record "Service Header"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; FieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterServiceLinesEditable(ServiceHeader: Record "Service Header"; var IsEditable: Boolean)
     begin
     end;
 
@@ -5415,14 +5186,6 @@
     begin
     end;
 
-#if not CLEAN18 
-    [Obsolete('replaced by OnValidateShipToCodeOnBeforeDeleteLines', '18.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnValidateShipToCodeOnBeforeDleereLines(var ServiceHeader: Record "Service Header"; var IsHandled: Boolean)
-    begin
-    end;
-#endif
-
     [IntegrationEvent(false, false)]
     local procedure OnValidateShipToCodeOnBeforeDeleteLines(var ServiceHeader: Record "Service Header"; var IsHandled: Boolean)
     begin
@@ -5547,4 +5310,35 @@
     local procedure OnValidateCustomerNoAfterInit(var ServiceHeader: Record "Service Header"; xServiceHeader: Record "Service Header")
     begin
     end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateCity(var ServiceHeader: Record "Service Header"; var PostCodeRec: Record "Post Code"; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidatePostCode(var ServiceHeader: Record "Service Header"; var PostCodeRec: Record "Post Code"; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateBillToCity(var ServiceHeader: Record "Service Header"; var PostCodeRec: Record "Post Code"; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateBillToPostCode(var ServiceHeader: Record "Service Header"; var PostCodeRec: Record "Post Code"; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateShipToCity(var ServiceHeader: Record "Service Header"; var PostCodeRec: Record "Post Code"; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateShipToPostCode(var ServiceHeader: Record "Service Header"; var PostCodeRec: Record "Post Code"; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
 }
+

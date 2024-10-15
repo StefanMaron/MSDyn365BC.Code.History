@@ -7,17 +7,10 @@ permissionset 8689 "Fixed Assets - View"
     Permissions = tabledata "Accounting Period" = r,
                   tabledata "Date Compr. Register" = RimD,
                   tabledata "Depreciation Book" = R,
-#if not CLEAN18
-                  tabledata "Depreciation Group" = R,
-#endif
                   tabledata "Depreciation Table Header" = R,
                   tabledata "Depreciation Table Line" = R,
                   tabledata "FA Allocation" = R,
                   tabledata "FA Depreciation Book" = Rm,
-#if not CLEAN18
-                  tabledata "FA Extended Posting Group" = R,
-                  tabledata "FA History Entry" = Rim,
-#endif
                   tabledata "FA Journal Batch" = R,
                   tabledata "FA Journal Line" = Ri,
                   tabledata "FA Journal Setup" = R,

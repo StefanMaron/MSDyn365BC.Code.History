@@ -31,12 +31,12 @@ report 31081 "Filtered Acc. Schedule Export"
                 if ExportAccSched."Show Amts. in Add. Curr." then
                     if GLSetup."Additional Reporting Currency" <> '' then begin
                         RowNo += 1;
-                        EnterFilterInCell(RowNo, GLSetup."Additional Reporting Currency", Currency.TableCaption);
+                        EnterFilterInCell(RowNo, GLSetup."Additional Reporting Currency", Currency.TableCaption());
                     end
                     else
                         if GLSetup."LCY Code" <> '' then begin
                             RowNo += 1;
-                            EnterFilterInCell(RowNo, GLSetup."LCY Code", Currency.TableCaption);
+                            EnterFilterInCell(RowNo, GLSetup."LCY Code", Currency.TableCaption());
                         end;
 
                 RowNo += 3;
@@ -97,7 +97,7 @@ report 31081 "Filtered Acc. Schedule Export"
                                                 else begin
                                                     ColumnValue := AccSchedManagement.CalcCell(AccSchedLine, ColumnLayout,
                                                                      ExportAccSched."Show Amts. in Add. Curr.");
-                                                    if AccSchedManagement.GetDivisionError then
+                                                    if AccSchedManagement.GetDivisionError() then
                                                         ColumnValue := 0
                                                 end;
                                                 if ColumnValue <> 0 then
@@ -115,7 +115,7 @@ report 31081 "Filtered Acc. Schedule Export"
 
             trigger OnPostDataItem()
             begin
-                Window.Close;
+                Window.Close();
             end;
 
             trigger OnPreDataItem()
@@ -180,7 +180,7 @@ report 31081 "Filtered Acc. Schedule Export"
 
                         trigger OnValidate()
                         begin
-                            UpdateRequestForm;
+                            UpdateRequestForm();
                         end;
                     }
                     field(FileName; FileName)
@@ -213,7 +213,7 @@ report 31081 "Filtered Acc. Schedule Export"
 
         trigger OnOpenPage()
         begin
-            UpdateRequestForm;
+            UpdateRequestForm();
         end;
     }
 
@@ -252,7 +252,7 @@ report 31081 "Filtered Acc. Schedule Export"
     [Scope('OnPrem')]
     procedure UpdateRequestForm()
     begin
-        PageUpdateRequestForm;
+        PageUpdateRequestForm();
     end;
 
     [Scope('OnPrem')]

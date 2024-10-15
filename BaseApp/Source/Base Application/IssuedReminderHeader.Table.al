@@ -368,10 +368,6 @@ table 297 "Issued Reminder Header"
             ObsoleteState = Removed;
             ObsoleteTag = '23.0';
 #endif
-#if not CLEAN18
-
-            TableRelation = "Constant Symbol";
-#endif
         }
         field(11706; "Transit No."; Text[20])
         {
@@ -510,7 +506,7 @@ table 297 "Issued Reminder Header"
             if IssuedReminderHeader.FindSet() then
                 repeat
                     IssuedReminderHeaderToSend.Copy(IssuedReminderHeader);
-                    IssuedReminderHeaderToSend.SetRecFilter;
+                    IssuedReminderHeaderToSend.SetRecFilter();
                     DocumentSendingProfile.TrySendToEMail(
                       DummyReportSelections.Usage::Reminder.AsInteger(), IssuedReminderHeaderToSend, IssuedReminderHeaderToSend.FieldNo("No."),
                       ReportDistributionMgt.GetFullDocumentTypeText(Rec), IssuedReminderHeaderToSend.FieldNo("Customer No."), not HideDialog)
@@ -539,7 +535,7 @@ table 297 "Issued Reminder Header"
 
     procedure ShowDimensions()
     begin
-        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', TableCaption, "No."));
+        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', TableCaption(), "No."));
     end;
 
     procedure GetCustomerVATRegistrationNumber(): Text

@@ -19,102 +19,77 @@ codeunit 31111 "Workflow Response Handling CZ"
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Workflow Response Handling", 'OnAddWorkflowResponsesToLibrary', '', false, false)]
     local procedure AddWorkflowResponsesToLibrary()
     begin
-        WorkflowResponseHandling.AddResponseToLibrary(SetStatusToApprovedCode, 0, SetStatusToApprovedTxt, 'GROUP 0');
-        WorkflowResponseHandling.AddResponseToLibrary(CheckReleaseDocumentCode, 0, CheckReleaseDocumentTxt, 'GROUP 0');
+        WorkflowResponseHandling.AddResponseToLibrary(SetStatusToApprovedCode(), 0, SetStatusToApprovedTxt, 'GROUP 0');
+        WorkflowResponseHandling.AddResponseToLibrary(CheckReleaseDocumentCode(), 0, CheckReleaseDocumentTxt, 'GROUP 0');
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Workflow Response Handling", 'OnAddWorkflowResponsePredecessorsToLibrary', '', false, false)]
     local procedure AddWorkflowResponsePredecessorsToLibrary(ResponseFunctionName: Code[128])
     begin
         case ResponseFunctionName of
-            SetStatusToApprovedCode:
+            SetStatusToApprovedCode():
                 WorkflowResponseHandling.AddResponsePredecessor(
-                  SetStatusToApprovedCode,
-                  WorkflowEventHandling.RunWorkflowOnApproveApprovalRequestCode);
-            WorkflowResponseHandling.SetStatusToPendingApprovalCode:
+                  SetStatusToApprovedCode(),
+                  WorkflowEventHandling.RunWorkflowOnApproveApprovalRequestCode());
+            WorkflowResponseHandling.SetStatusToPendingApprovalCode():
                 begin
                     WorkflowResponseHandling.AddResponsePredecessor(
-                      WorkflowResponseHandling.SetStatusToPendingApprovalCode,
-                      WorkflowEventHandlingCZ.RunWorkflowOnSendPaymentOrderForApprovalCode);
-#if not CLEAN18
+                      WorkflowResponseHandling.SetStatusToPendingApprovalCode(),
+                      WorkflowEventHandlingCZ.RunWorkflowOnSendPaymentOrderForApprovalCode());
                     WorkflowResponseHandling.AddResponsePredecessor(
-                      WorkflowResponseHandling.SetStatusToPendingApprovalCode,
-                      WorkflowEventHandlingCZ.RunWorkflowOnSendCreditDocForApprovalCode);
-#endif
+                      WorkflowResponseHandling.SetStatusToPendingApprovalCode(),
+                      WorkflowEventHandlingCZ.RunWorkflowOnSendSalesAdvanceLetterForApprovalCode());
                     WorkflowResponseHandling.AddResponsePredecessor(
-                      WorkflowResponseHandling.SetStatusToPendingApprovalCode,
-                      WorkflowEventHandlingCZ.RunWorkflowOnSendSalesAdvanceLetterForApprovalCode);
-                    WorkflowResponseHandling.AddResponsePredecessor(
-                      WorkflowResponseHandling.SetStatusToPendingApprovalCode,
-                      WorkflowEventHandlingCZ.RunWorkflowOnSendPurchaseAdvanceLetterForApprovalCode);
+                      WorkflowResponseHandling.SetStatusToPendingApprovalCode(),
+                      WorkflowEventHandlingCZ.RunWorkflowOnSendPurchaseAdvanceLetterForApprovalCode());
                 end;
-            WorkflowResponseHandling.CreateApprovalRequestsCode:
+            WorkflowResponseHandling.CreateApprovalRequestsCode():
                 begin
                     WorkflowResponseHandling.AddResponsePredecessor(
-                      WorkflowResponseHandling.CreateApprovalRequestsCode,
-                      WorkflowEventHandlingCZ.RunWorkflowOnSendPaymentOrderForApprovalCode);
-#if not CLEAN18
+                      WorkflowResponseHandling.CreateApprovalRequestsCode(),
+                      WorkflowEventHandlingCZ.RunWorkflowOnSendPaymentOrderForApprovalCode());
                     WorkflowResponseHandling.AddResponsePredecessor(
-                      WorkflowResponseHandling.CreateApprovalRequestsCode,
-                      WorkflowEventHandlingCZ.RunWorkflowOnSendCreditDocForApprovalCode);
-#endif
+                      WorkflowResponseHandling.CreateApprovalRequestsCode(),
+                      WorkflowEventHandlingCZ.RunWorkflowOnSendSalesAdvanceLetterForApprovalCode());
                     WorkflowResponseHandling.AddResponsePredecessor(
-                      WorkflowResponseHandling.CreateApprovalRequestsCode,
-                      WorkflowEventHandlingCZ.RunWorkflowOnSendSalesAdvanceLetterForApprovalCode);
-                    WorkflowResponseHandling.AddResponsePredecessor(
-                      WorkflowResponseHandling.CreateApprovalRequestsCode,
-                      WorkflowEventHandlingCZ.RunWorkflowOnSendPurchaseAdvanceLetterForApprovalCode);
+                      WorkflowResponseHandling.CreateApprovalRequestsCode(),
+                      WorkflowEventHandlingCZ.RunWorkflowOnSendPurchaseAdvanceLetterForApprovalCode());
                 end;
-            WorkflowResponseHandling.SendApprovalRequestForApprovalCode:
+            WorkflowResponseHandling.SendApprovalRequestForApprovalCode():
                 begin
                     WorkflowResponseHandling.AddResponsePredecessor(
-                      WorkflowResponseHandling.SendApprovalRequestForApprovalCode,
-                      WorkflowEventHandlingCZ.RunWorkflowOnSendPaymentOrderForApprovalCode);
-#if not CLEAN18
+                      WorkflowResponseHandling.SendApprovalRequestForApprovalCode(),
+                      WorkflowEventHandlingCZ.RunWorkflowOnSendPaymentOrderForApprovalCode());
                     WorkflowResponseHandling.AddResponsePredecessor(
-                      WorkflowResponseHandling.SendApprovalRequestForApprovalCode,
-                      WorkflowEventHandlingCZ.RunWorkflowOnSendCreditDocForApprovalCode);
-#endif
+                      WorkflowResponseHandling.SendApprovalRequestForApprovalCode(),
+                      WorkflowEventHandlingCZ.RunWorkflowOnSendSalesAdvanceLetterForApprovalCode());
                     WorkflowResponseHandling.AddResponsePredecessor(
-                      WorkflowResponseHandling.SendApprovalRequestForApprovalCode,
-                      WorkflowEventHandlingCZ.RunWorkflowOnSendSalesAdvanceLetterForApprovalCode);
-                    WorkflowResponseHandling.AddResponsePredecessor(
-                      WorkflowResponseHandling.SendApprovalRequestForApprovalCode,
-                      WorkflowEventHandlingCZ.RunWorkflowOnSendPurchaseAdvanceLetterForApprovalCode);
+                      WorkflowResponseHandling.SendApprovalRequestForApprovalCode(),
+                      WorkflowEventHandlingCZ.RunWorkflowOnSendPurchaseAdvanceLetterForApprovalCode());
                 end;
-            WorkflowResponseHandling.OpenDocumentCode:
+            WorkflowResponseHandling.OpenDocumentCode():
                 begin
                     WorkflowResponseHandling.AddResponsePredecessor(
-                      WorkflowResponseHandling.OpenDocumentCode,
-                      WorkflowEventHandlingCZ.RunWorkflowOnCancelPaymentOrderApprovalRequestCode);
-#if not CLEAN18
+                      WorkflowResponseHandling.OpenDocumentCode(),
+                      WorkflowEventHandlingCZ.RunWorkflowOnCancelPaymentOrderApprovalRequestCode());
                     WorkflowResponseHandling.AddResponsePredecessor(
-                      WorkflowResponseHandling.OpenDocumentCode,
-                      WorkflowEventHandlingCZ.RunWorkflowOnCancelCreditApprovalRequestCode);
-#endif
+                      WorkflowResponseHandling.OpenDocumentCode(),
+                      WorkflowEventHandlingCZ.RunWorkflowOnCancelSalesAdvanceLetterApprovalRequestCode());
                     WorkflowResponseHandling.AddResponsePredecessor(
-                      WorkflowResponseHandling.OpenDocumentCode,
-                      WorkflowEventHandlingCZ.RunWorkflowOnCancelSalesAdvanceLetterApprovalRequestCode);
-                    WorkflowResponseHandling.AddResponsePredecessor(
-                      WorkflowResponseHandling.OpenDocumentCode,
-                      WorkflowEventHandlingCZ.RunWorkflowOnCancelPurchaseAdvanceLetterApprovalRequestCode);
+                      WorkflowResponseHandling.OpenDocumentCode(),
+                      WorkflowEventHandlingCZ.RunWorkflowOnCancelPurchaseAdvanceLetterApprovalRequestCode());
                 end;
-            WorkflowResponseHandling.CancelAllApprovalRequestsCode:
+            WorkflowResponseHandling.CancelAllApprovalRequestsCode():
                 begin
                     WorkflowResponseHandling.AddResponsePredecessor(
-                      WorkflowResponseHandling.CancelAllApprovalRequestsCode,
-                      WorkflowEventHandlingCZ.RunWorkflowOnCancelPaymentOrderApprovalRequestCode);
-#if not CLEAN18
+                      WorkflowResponseHandling.CancelAllApprovalRequestsCode(),
+                      WorkflowEventHandlingCZ.RunWorkflowOnCancelPaymentOrderApprovalRequestCode());
                     WorkflowResponseHandling.AddResponsePredecessor(
-                      WorkflowResponseHandling.CancelAllApprovalRequestsCode,
-                      WorkflowEventHandlingCZ.RunWorkflowOnCancelCreditApprovalRequestCode);
-#endif
+                      WorkflowResponseHandling.CancelAllApprovalRequestsCode(),
+                      WorkflowEventHandlingCZ.RunWorkflowOnCancelSalesAdvanceLetterApprovalRequestCode());
                     WorkflowResponseHandling.AddResponsePredecessor(
-                      WorkflowResponseHandling.CancelAllApprovalRequestsCode,
-                      WorkflowEventHandlingCZ.RunWorkflowOnCancelSalesAdvanceLetterApprovalRequestCode);
-                    WorkflowResponseHandling.AddResponsePredecessor(
-                      WorkflowResponseHandling.CancelAllApprovalRequestsCode,
-                      WorkflowEventHandlingCZ.RunWorkflowOnCancelPurchaseAdvanceLetterApprovalRequestCode);
+                      WorkflowResponseHandling.CancelAllApprovalRequestsCode(),
+                      WorkflowEventHandlingCZ.RunWorkflowOnCancelPurchaseAdvanceLetterApprovalRequestCode());
                 end;
         end;
     end;
@@ -123,7 +98,7 @@ codeunit 31111 "Workflow Response Handling CZ"
     local procedure ExecuteWorkflowResponse(var ResponseExecuted: Boolean; Variant: Variant; xVariant: Variant; ResponseWorkflowStepInstance: Record "Workflow Step Instance")
     begin
         case ResponseWorkflowStepInstance."Function Name" of
-            SetStatusToApprovedCode:
+            SetStatusToApprovedCode():
                 begin
                     SetStatusToApproved(Variant);
                     ResponseExecuted := true;

@@ -17,7 +17,7 @@ page 9179 "Application Area"
         {
             repeater(Group)
             {
-                field("Application Area"; "Application Area")
+                field("Application Area"; Rec."Application Area")
                 {
                     ApplicationArea = All;
                     Editable = false;
@@ -57,7 +57,7 @@ page 9179 "Application Area"
     trigger OnQueryClosePage(CloseAction: Action): Boolean
     begin
         if Modified then
-            if TrySave then
+            if TrySave() then
                 Message(ReSignInMsg);
     end;
 

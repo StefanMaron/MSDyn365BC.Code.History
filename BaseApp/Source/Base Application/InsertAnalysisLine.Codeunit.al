@@ -13,7 +13,7 @@ codeunit 7111 "Insert Analysis Line"
         AnalysisLineNo: Integer;
     begin
         ItemList.LookupMode(true);
-        if ItemList.RunModal = ACTION::LookupOK then begin
+        if ItemList.RunModal() = ACTION::LookupOK then begin
             ItemList.SetSelection(Item);
             ItemCount := Item.Count();
             if ItemCount > 0 then begin
@@ -37,7 +37,7 @@ codeunit 7111 "Insert Analysis Line"
         AnalysisLineNo: Integer;
     begin
         CustList.LookupMode(true);
-        if CustList.RunModal = ACTION::LookupOK then begin
+        if CustList.RunModal() = ACTION::LookupOK then begin
             CustList.SetSelection(Cust);
             CustCount := Cust.Count();
             if CustCount > 0 then begin
@@ -61,7 +61,7 @@ codeunit 7111 "Insert Analysis Line"
         AnalysisLineNo: Integer;
     begin
         VendList.LookupMode(true);
-        if VendList.RunModal = ACTION::LookupOK then begin
+        if VendList.RunModal() = ACTION::LookupOK then begin
             VendList.SetSelection(Vend);
             VendCount := Vend.Count();
             if VendCount > 0 then begin
@@ -125,7 +125,7 @@ codeunit 7111 "Insert Analysis Line"
         DimVal.FilterGroup := 0;
         DimValList.SetTableView(DimVal);
         DimValList.LookupMode(true);
-        if DimValList.RunModal = ACTION::LookupOK then begin
+        if DimValList.RunModal() = ACTION::LookupOK then begin
             DimValList.SetSelection(DimVal);
             DimValCount := DimVal.Count();
             if DimValCount > 0 then begin
@@ -155,7 +155,7 @@ codeunit 7111 "Insert Analysis Line"
                 repeat
                     i := "Line No.";
                     if i >= AnalysisLineNo then begin
-                        Delete;
+                        Delete();
                         "Line No." := i + 10000 * NewLineCount;
                         Insert(true);
                     end;
@@ -176,7 +176,7 @@ codeunit 7111 "Insert Analysis Line"
             exit;
 
         with AnalysisLine do begin
-            Init;
+            Init();
             "Line No." := AnalysisLineNo;
             AnalysisLineNo := AnalysisLineNo + 10000;
             Description := Text;
