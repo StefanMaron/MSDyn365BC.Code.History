@@ -2583,6 +2583,380 @@ codeunit 134150 "ERM Intrastat Journal"
         // Verification done in the IntrastatMakeDiskTaxAuthVerifyExportFormat2022RPH
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('MessageHandlerEmpty')]
+    procedure VerifyIntrastatShptInDirectTransfer()
+    var
+        ToCountryRegion: Record "Country/Region";
+        FromLocation, ToLocation : Record Location;
+        InventorySetup: Record "Inventory Setup";
+        TransferHeader: Record "Transfer Header";
+        TransferLine: Record "Transfer Line";
+        IntrastatJnlLine: Record "Intrastat Jnl. Line";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        TransferOrder: TestPage "Transfer Order";
+        ItemNo: Code[20];
+    begin
+        // [SCENARIO 465378] Verify shipment transaction in Intrastat Journal when transferring items from company country to EU country as Direct Transfer
+        Initialize();
+
+        // [GIVEN] Source Location and Country, set in Company Information, with Intrastat Code. Location: "L1". Country "C1"
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(FromLocation);
+        FromLocation."Country/Region Code" := GetCompanyInfoCountryRegionCode();
+        FromLocation.Modify();
+
+        // [GIVEN] Item on inventory for L1 
+        ItemNo := CreateItem();
+        CreateAndPostPurchaseItemJournalLine(FromLocation.Code, ItemNo);
+
+        // [GIVEN] Destination Location and Country with Intrastat Code. Location: "L2". Country "C2"
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(ToLocation);
+        CreateCountryRegion(ToCountryRegion, true);
+        ToLocation."Country/Region Code" := ToCountryRegion.Code;
+        ToLocation.Modify();
+
+        // [GIVEN] Inventory Setup with "Direct Transfer" as "Direct Transfer Posting"
+        InventorySetup.Get();
+        InventorySetup."Direct Transfer Posting" := InventorySetup."Direct Transfer Posting"::"Direct Transfer";
+        InventorySetup.Modify();
+
+        // [GIVEN] Create Transfer Order
+        LibraryWarehouse.CreateTransferHeader(TransferHeader, FromLocation.Code, ToLocation.Code, '');
+        TransferHeader.Validate("Direct Transfer", true);
+        LibraryWarehouse.CreateTransferLine(TransferHeader, TransferLine, ItemNo, 1);
+
+        // [GIVEN] Post Transfer Order
+        TransferOrder.OpenEdit();
+        TransferOrder.GoToRecord(TransferHeader);
+        TransferOrder.Post.Invoke();
+
+        // [WHEN] Invoke Get Entries from Intrastat journal
+        CreateIntrastatJnlLineAndGetEntries(IntrastatJnlLine, CalcDate('<CM-1M+1D>', WorkDate()), CalcDate('<CM>', WorkDate()));
+
+        // [THEN] Verify Shipment Intrastat Journal is created on source location and destination country
+        ItemLedgerEntry.SetCurrentKey("Item No.", "Posting Date");
+        ItemLedgerEntry.SetRange("Item No.", ItemNo);
+        ItemLedgerEntry.SetRange("Posting Date", WorkDate());
+        ItemLedgerEntry.SetRange("Document Type", ItemLedgerEntry."Document Type"::"Direct Transfer");
+        ItemLedgerEntry.SetLoadFields("Document No.");
+        ItemLedgerEntry.FindFirst();
+
+        VerifyIntrastatLine(ItemLedgerEntry."Document No.", ItemNo, IntrastatJnlLine.Type::Shipment, ToCountryRegion.Code, 1, FromLocation.Code);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('MessageHandlerEmpty')]
+    procedure VerifyIntrastatRcptInDirectTransfer()
+    var
+        FromCountryRegion: Record "Country/Region";
+        FromLocation, ToLocation : Record Location;
+        InventorySetup: Record "Inventory Setup";
+        TransferHeader: Record "Transfer Header";
+        TransferLine: Record "Transfer Line";
+        IntrastatJnlLine: Record "Intrastat Jnl. Line";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        TransferOrder: TestPage "Transfer Order";
+        ItemNo: Code[20];
+    begin
+        // [SCENARIO 465378] Verify receipt transaction in Intrastat Journal when transferring items from EU country to company country as Direct Transfer    
+
+        // [GIVEN]
+        // Source Location and Country with Intrastat Code. Location: "L1". Country "C1"
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(FromLocation);
+        CreateCountryRegion(FromCountryRegion, true);
+        FromLocation."Country/Region Code" := FromCountryRegion.Code;
+        FromLocation.Modify();
+
+        // [GIVEN] Item on inventory for L1 
+        ItemNo := CreateItem();
+        CreateAndPostPurchaseItemJournalLine(FromLocation.Code, ItemNo);
+
+        // Destination Country, set in Company Information, with Intrastat Code. Location: "L2". Country "C2"
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(ToLocation);
+        ToLocation."Country/Region Code" := GetCompanyInfoCountryRegionCode();
+        ToLocation.Modify();
+
+        // [GIVEN] Inventory Setup with "Direct Transfer" as "Direct Transfer Posting"
+        InventorySetup.Get();
+        InventorySetup."Direct Transfer Posting" := InventorySetup."Direct Transfer Posting"::"Direct Transfer";
+        InventorySetup.Modify();
+
+        // [GIVEN] Create Transfer Order
+        LibraryWarehouse.CreateTransferHeader(TransferHeader, FromLocation.Code, ToLocation.Code, '');
+        TransferHeader.Validate("Direct Transfer", true);
+        LibraryWarehouse.CreateTransferLine(TransferHeader, TransferLine, ItemNo, 1);
+
+        // [GIVEN] Post Transfer Order
+        TransferOrder.OpenEdit();
+        TransferOrder.GoToRecord(TransferHeader);
+        TransferOrder.Post.Invoke();
+
+        // [WHEN] Invoke Get Entries from Intrastat journal
+        CreateIntrastatJnlLineAndGetEntries(IntrastatJnlLine, CalcDate('<CM-1M+1D>', WorkDate()), CalcDate('<CM>', WorkDate()));
+
+        // [THEN] Verify Receipt Intrastat Journal is created on destination location and source country
+        ItemLedgerEntry.SetCurrentKey("Item No.", "Posting Date");
+        ItemLedgerEntry.SetRange("Item No.", ItemNo);
+        ItemLedgerEntry.SetRange("Posting Date", WorkDate());
+        ItemLedgerEntry.SetRange("Document Type", ItemLedgerEntry."Document Type"::"Direct Transfer");
+        ItemLedgerEntry.SetLoadFields("Document No.");
+        ItemLedgerEntry.FindFirst();
+
+        VerifyIntrastatLine(ItemLedgerEntry."Document No.", ItemNo, IntrastatJnlLine.Type::Receipt, FromCountryRegion.Code, 1, ToLocation.Code);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('MessageHandlerEmpty')]
+    procedure VerifyIntrastatShptInDirectTransferRcptAndShpt()
+    var
+        ToCountryRegion: Record "Country/Region";
+        FromLocation, ToLocation : Record Location;
+        InventorySetup: Record "Inventory Setup";
+        TransferHeader: Record "Transfer Header";
+        TransferLine: Record "Transfer Line";
+        IntrastatJnlLine: Record "Intrastat Jnl. Line";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        TransferOrder: TestPage "Transfer Order";
+        ItemNo, OrderNo : Code[20];
+    begin
+        // [SCENARIO 465378] Verify shipment transaction in Intrastat Journal when transferring items from company country to EU country as Direct Transfer Ship and Receive
+
+        // [GIVEN] Source Location and Country, set in Company Information, with Intrastat Code. Location: "L1". Country "C1"
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(FromLocation);
+        FromLocation."Country/Region Code" := GetCompanyInfoCountryRegionCode();
+        FromLocation.Modify();
+
+        // [GIVEN] Item on inventory for L1 
+        ItemNo := CreateItem();
+        CreateAndPostPurchaseItemJournalLine(FromLocation.Code, ItemNo);
+
+        // [GIVEN] Destination Location and Country with Intrastat Code. Location: "L2". Country "C2"
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(ToLocation);
+        CreateCountryRegion(ToCountryRegion, true);
+        ToLocation."Country/Region Code" := ToCountryRegion.Code;
+        ToLocation.Modify();
+
+        // [GIVEN] Inventory Setup with "Receipt and Shipment" as "Direct Transfer Posting"
+        InventorySetup.Get();
+        InventorySetup."Direct Transfer Posting" := InventorySetup."Direct Transfer Posting"::"Receipt and Shipment";
+        InventorySetup.Modify();
+
+        // [GIVEN] Create Transfer Order
+        LibraryWarehouse.CreateTransferHeader(TransferHeader, FromLocation.Code, ToLocation.Code, '');
+        TransferHeader.Validate("Direct Transfer", true);
+        LibraryWarehouse.CreateTransferLine(TransferHeader, TransferLine, ItemNo, 1);
+        OrderNo := TransferHeader."No.";
+
+        // [GIVEN] Post Transfer Order
+        TransferOrder.OpenEdit();
+        TransferOrder.GoToRecord(TransferHeader);
+        TransferOrder.Post.Invoke();
+
+        // [WHEN] Invoke Get Entries from Intrastat journal
+        CreateIntrastatJnlLineAndGetEntries(IntrastatJnlLine, CalcDate('<CM-1M+1D>', WorkDate()), CalcDate('<CM>', WorkDate()));
+
+        // [THEN] Verify Shipment Intrastat Journal is created on unknown location and destination country
+        ItemLedgerEntry.SetCurrentKey("Item No.", "Posting Date");
+        ItemLedgerEntry.SetRange("Item No.", ItemNo);
+        ItemLedgerEntry.SetRange("Posting Date", WorkDate());
+        ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Transfer);
+        ItemLedgerEntry.SetRange("Order No.", OrderNo);
+        ItemLedgerEntry.SetLoadFields("Document No.");
+        ItemLedgerEntry.FindLast();
+
+        VerifyIntrastatLine(ItemLedgerEntry."Document No.", ItemNo, IntrastatJnlLine.Type::Shipment, ToCountryRegion.Code, 1, '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('MessageHandlerEmpty')]
+    procedure VerifyIntrastatRcptInDirectTransferRcptAndShpt()
+    var
+        FromCountryRegion: Record "Country/Region";
+        FromLocation, ToLocation : Record Location;
+        InventorySetup: Record "Inventory Setup";
+        TransferHeader: Record "Transfer Header";
+        TransferLine: Record "Transfer Line";
+        IntrastatJnlLine: Record "Intrastat Jnl. Line";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        TransferOrder: TestPage "Transfer Order";
+        ItemNo, OrderNo : Code[20];
+    begin
+        // [SCENARIO 465378] Verify receipt transaction in Intrastat Journal when transferring items from EU country to company country as Direct Transfer Ship and Receive    
+
+        // [GIVEN]
+        // Source Location and Country with Intrastat Code. Location: "L1". Country "C1"
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(FromLocation);
+        CreateCountryRegion(FromCountryRegion, true);
+        FromLocation."Country/Region Code" := FromCountryRegion.Code;
+        FromLocation.Modify();
+
+        // [GIVEN] Item on inventory for L1 
+        ItemNo := CreateItem();
+        CreateAndPostPurchaseItemJournalLine(FromLocation.Code, ItemNo);
+
+        // Destination Country, set in Company Information, with Intrastat Code. Location: "L2". Country "C2"
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(ToLocation);
+        ToLocation."Country/Region Code" := GetCompanyInfoCountryRegionCode();
+        ToLocation.Modify();
+
+        // [GIVEN] Inventory Setup with "Receipt and Shipment" as "Direct Transfer Posting"
+        InventorySetup.Get();
+        InventorySetup."Direct Transfer Posting" := InventorySetup."Direct Transfer Posting"::"Receipt and Shipment";
+        InventorySetup.Modify();
+
+        // [GIVEN] Create Transfer Order
+        LibraryWarehouse.CreateTransferHeader(TransferHeader, FromLocation.Code, ToLocation.Code, '');
+        TransferHeader.Validate("Direct Transfer", true);
+        LibraryWarehouse.CreateTransferLine(TransferHeader, TransferLine, ItemNo, 1);
+        OrderNo := TransferHeader."No.";
+
+        // [GIVEN] Post Transfer Order
+        TransferOrder.OpenEdit();
+        TransferOrder.GoToRecord(TransferHeader);
+        TransferOrder.Post.Invoke();
+
+        // [WHEN] Invoke Get Entries from Intrastat journal
+        CreateIntrastatJnlLineAndGetEntries(IntrastatJnlLine, CalcDate('<CM-1M+1D>', WorkDate()), CalcDate('<CM>', WorkDate()));
+
+        // [THEN] Verify Receipt Intrastat Journal is created on unknown location and source country
+        ItemLedgerEntry.SetCurrentKey("Item No.", "Posting Date");
+        ItemLedgerEntry.SetRange("Item No.", ItemNo);
+        ItemLedgerEntry.SetRange("Posting Date", WorkDate());
+        ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Transfer);
+        ItemLedgerEntry.SetRange("Order No.", OrderNo);
+        ItemLedgerEntry.SetLoadFields("Document No.");
+        ItemLedgerEntry.FindFirst();
+
+        VerifyIntrastatLine(ItemLedgerEntry."Document No.", ItemNo, IntrastatJnlLine.Type::Receipt, FromCountryRegion.Code, 1, '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifyIntrastatShptInTransferRcptAndShpt()
+    var
+        ToCountryRegion: Record "Country/Region";
+        InTransitLocation, FromLocation, ToLocation : Record Location;
+        InventorySetup: Record "Inventory Setup";
+        TransferHeader: Record "Transfer Header";
+        TransferLine: Record "Transfer Line";
+        IntrastatJnlLine: Record "Intrastat Jnl. Line";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        ItemNo, OrderNo : Code[20];
+    begin
+        // [SCENARIO 465378] Verify shipment transaction in Intrastat Journal when transferring items from company country to EU country as Ship and Receive
+
+        // [GIVEN] Source Location and Country, set in Company Information, with Intrastat Code. Location: "L1". Country "C1"
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(FromLocation);
+        FromLocation."Country/Region Code" := GetCompanyInfoCountryRegionCode();
+        FromLocation.Modify();
+
+        // [GIVEN] Item on inventory for L1 
+        ItemNo := CreateItem();
+        CreateAndPostPurchaseItemJournalLine(FromLocation.Code, ItemNo);
+
+        // [GIVEN] Destination Location and Country with Intrastat Code. Location: "L2". Country "C2"
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(ToLocation);
+        CreateCountryRegion(ToCountryRegion, true);
+        ToLocation."Country/Region Code" := ToCountryRegion.Code;
+        ToLocation.Modify();
+
+        // [GIVEN] In Transit Location
+        LibraryWarehouse.CreateInTransitLocation(InTransitLocation);
+
+        // [GIVEN] Inventory Setup with "Receipt and Shipment" as "Direct Transfer Posting"
+        InventorySetup.Get();
+        InventorySetup."Direct Transfer Posting" := InventorySetup."Direct Transfer Posting"::"Receipt and Shipment";
+        InventorySetup.Modify();
+
+        // [GIVEN] Create Transfer Order
+        LibraryWarehouse.CreateTransferHeader(TransferHeader, FromLocation.Code, ToLocation.Code, InTransitLocation.Code);
+        LibraryWarehouse.CreateTransferLine(TransferHeader, TransferLine, ItemNo, 1);
+        OrderNo := TransferHeader."No.";
+
+        // [GIVEN] Post Transfer Order
+        LibraryWarehouse.PostTransferOrder(TransferHeader, true, true);
+
+        // [WHEN] Invoke Get Entries from Intrastat journal
+        CreateIntrastatJnlLineAndGetEntries(IntrastatJnlLine, CalcDate('<CM-1M+1D>', WorkDate()), CalcDate('<CM>', WorkDate()));
+
+        // [THEN] Verify Shipment Intrastat Journal is created on transit location and destination country
+        ItemLedgerEntry.SetCurrentKey("Item No.", "Posting Date");
+        ItemLedgerEntry.SetRange("Item No.", ItemNo);
+        ItemLedgerEntry.SetRange("Posting Date", WorkDate());
+        ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Transfer);
+        ItemLedgerEntry.SetRange("Order No.", OrderNo);
+        ItemLedgerEntry.SetLoadFields("Document No.");
+        ItemLedgerEntry.FindLast();
+
+        VerifyIntrastatLine(ItemLedgerEntry."Document No.", ItemNo, IntrastatJnlLine.Type::Shipment, ToCountryRegion.Code, 1, InTransitLocation.Code);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifyIntrastatRcptInTransferRcptAndShpt()
+    var
+        FromCountryRegion: Record "Country/Region";
+        InTransitLocation, FromLocation, ToLocation : Record Location;
+        InventorySetup: Record "Inventory Setup";
+        TransferHeader: Record "Transfer Header";
+        TransferLine: Record "Transfer Line";
+        IntrastatJnlLine: Record "Intrastat Jnl. Line";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        ItemNo, OrderNo : Code[20];
+    begin
+        // [SCENARIO 465378] Verify receipt transaction in Intrastat Journal when transferring items from EU country to company country as Ship and Receive 
+
+        // [GIVEN]
+        // Source Location and Country with Intrastat Code. Location: "L1". Country "C1"
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(FromLocation);
+        CreateCountryRegion(FromCountryRegion, true);
+        FromLocation."Country/Region Code" := FromCountryRegion.Code;
+        FromLocation.Modify();
+
+        // [GIVEN] Item on inventory for L1 
+        ItemNo := CreateItem();
+        CreateAndPostPurchaseItemJournalLine(FromLocation.Code, ItemNo);
+
+        // Destination Country, set in Company Information, with Intrastat Code. Location: "L2". Country "C2"
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(ToLocation);
+        ToLocation."Country/Region Code" := GetCompanyInfoCountryRegionCode();
+        ToLocation.Modify();
+
+        // [GIVEN] In Transit Location
+        LibraryWarehouse.CreateInTransitLocation(InTransitLocation);
+
+        // [GIVEN] Inventory Setup with "Receipt and Shipment" as "Direct Transfer Posting"
+        InventorySetup.Get();
+        InventorySetup."Direct Transfer Posting" := InventorySetup."Direct Transfer Posting"::"Receipt and Shipment";
+        InventorySetup.Modify();
+
+        // [GIVEN] Create Transfer Order
+        LibraryWarehouse.CreateTransferHeader(TransferHeader, FromLocation.Code, ToLocation.Code, InTransitLocation.Code);
+        LibraryWarehouse.CreateTransferLine(TransferHeader, TransferLine, ItemNo, 1);
+        OrderNo := TransferHeader."No.";
+
+        // [GIVEN] Post Transfer Order
+        LibraryWarehouse.PostTransferOrder(TransferHeader, true, true);
+
+        // [WHEN] Invoke Get Entries from Intrastat journal
+        CreateIntrastatJnlLineAndGetEntries(IntrastatJnlLine, CalcDate('<CM-1M+1D>', WorkDate()), CalcDate('<CM>', WorkDate()));
+
+        // [THEN] Verify Receipt Intrastat Journal is created on transit location and source country
+        ItemLedgerEntry.SetCurrentKey("Item No.", "Posting Date");
+        ItemLedgerEntry.SetRange("Item No.", ItemNo);
+        ItemLedgerEntry.SetRange("Posting Date", WorkDate());
+        ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Transfer);
+        ItemLedgerEntry.SetRange("Order No.", OrderNo);
+        ItemLedgerEntry.SetLoadFields("Document No.");
+        ItemLedgerEntry.FindFirst();
+
+        VerifyIntrastatLine(ItemLedgerEntry."Document No.", ItemNo, IntrastatJnlLine.Type::Receipt, FromCountryRegion.Code, 1, InTransitLocation.Code);
+    end;
+
     local procedure Initialize()
     var
         IntrastatSetup: Record "Intrastat Setup";
@@ -3158,6 +3532,14 @@ codeunit 134150 "ERM Intrastat Journal"
         exit(CountryRegion.Code);
     end;
 
+    local procedure GetCompanyInfoCountryRegionCode(): Code[10]
+    var
+        CompanyInformation: Record "Company Information";
+    begin
+        CompanyInformation.Get();
+        exit(CompanyInformation."Country/Region Code");
+    end;
+
     local procedure GetDefaultPartnerID(): Text[50]
     begin
         exit('QV999999999999');
@@ -3407,6 +3789,31 @@ codeunit 134150 "ERM Intrastat Journal"
         Assert.AreEqual(
           CountryRegionCode, IntrastatJnlLine."Country/Region Code", StrSubstNo(ValidationErr,
             IntrastatJnlLine.FieldCaption("Country/Region Code"), CountryRegionCode, IntrastatJnlLine.TableCaption()));
+    end;
+
+    local procedure VerifyIntrastatLine(DocumentNo: Code[20]; ItemNo: Code[20]; Type: Option; CountryRegionCode: Code[10]; Quantity: Decimal; LocationCode: Code[10])
+    var
+        IntrastatJnlLine: Record "Intrastat Jnl. Line";
+    begin
+        IntrastatJnlLine.SetRange("Document No.", DocumentNo);
+        IntrastatJnlLine.SetRange("Item No.", ItemNo);
+        IntrastatJnlLine.FindFirst();
+
+        Assert.AreEqual(
+          Type, IntrastatJnlLine.Type,
+          StrSubstNo(ValidationErr, IntrastatJnlLine.FieldCaption(Type), Type, IntrastatJnlLine.TableCaption()));
+
+        Assert.AreEqual(
+          Quantity, IntrastatJnlLine.Quantity,
+          StrSubstNo(ValidationErr, IntrastatJnlLine.FieldCaption(Quantity), Quantity, IntrastatJnlLine.TableCaption()));
+
+        Assert.AreEqual(
+          CountryRegionCode, IntrastatJnlLine."Country/Region Code", StrSubstNo(ValidationErr,
+            IntrastatJnlLine.FieldCaption("Country/Region Code"), CountryRegionCode, IntrastatJnlLine.TableCaption()));
+
+        Assert.AreEqual(
+          LocationCode, IntrastatJnlLine."Location Code", StrSubstNo(ValidationErr,
+            IntrastatJnlLine.FieldCaption("Location Code"), LocationCode, IntrastatJnlLine.TableCaption()));
     end;
 
     local procedure VerifyItemLedgerEntry(DocumentType: Enum "Item Ledger Document Type"; DocumentNo: Code[20];

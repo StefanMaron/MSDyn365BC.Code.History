@@ -471,16 +471,22 @@ codeunit 5340 "CRM Integration Table Synch."
         end;
     end;
 
-    procedure SynchRecordsToIntegrationTable(RecordsToSynchRecordRef: RecordRef; IgnoreChanges: Boolean; IgnoreSynchOnlyCoupledRecords: Boolean) JobID: Guid
+    procedure SynchRecordsToIntegrationTable(var RecordsToSynchRecordRef: RecordRef; IgnoreChanges: Boolean; IgnoreSynchOnlyCoupledRecords: Boolean) JobID: Guid
     var
         IntegrationTableMapping: Record "Integration Table Mapping";
         IntegrationTableSynch: Codeunit "Integration Table Synch.";
         IntegrationRecordRef: RecordRef;
+        IsHandled: Boolean;
     begin
+        OnBeforeSynchRecordsToIntegrationTable(RecordsToSynchRecordRef, IgnoreChanges, IgnoreSynchOnlyCoupledRecords, IsHandled);
+        if IsHandled then
+            exit;
+
         if not IntegrationTableMapping.FindMappingForTable(RecordsToSynchRecordRef.Number) then
             Error(NoMappingErr, RecordsToSynchRecordRef.Name);
 
-        if not RecordsToSynchRecordRef.FindLast() then
+        RecordsToSynchRecordRef.Ascending(false);
+        if not RecordsToSynchRecordRef.FindSet() then
             Error(SynchronizeEmptySetErr);
 
         JobID :=
@@ -489,21 +495,27 @@ codeunit 5340 "CRM Integration Table Synch."
         if not IsNullGuid(JobID) then begin
             repeat
                 IntegrationTableSynch.Synchronize(RecordsToSynchRecordRef, IntegrationRecordRef, IgnoreChanges, IgnoreSynchOnlyCoupledRecords)
-            until RecordsToSynchRecordRef.Next(-1) = 0;
+            until RecordsToSynchRecordRef.Next() = 0;
             IntegrationTableSynch.EndIntegrationSynchJob();
         end;
     end;
 
-    procedure SynchRecordsFromIntegrationTable(RecordsToSynchRecordRef: RecordRef; SourceTableNo: Integer; IgnoreChanges: Boolean; IgnoreSynchOnlyCoupledRecords: Boolean) JobID: Guid
+    procedure SynchRecordsFromIntegrationTable(var RecordsToSynchRecordRef: RecordRef; SourceTableNo: Integer; IgnoreChanges: Boolean; IgnoreSynchOnlyCoupledRecords: Boolean) JobID: Guid
     var
         IntegrationTableMapping: Record "Integration Table Mapping";
         IntegrationTableSynch: Codeunit "Integration Table Synch.";
         IntegrationRecordRef: RecordRef;
+        IsHandled: Boolean;
     begin
+        OnBeforeSynchRecordsFromIntegrationTable(RecordsToSynchRecordRef, SourceTableNo, IgnoreChanges, IgnoreSynchOnlyCoupledRecords, IsHandled);
+        if IsHandled then
+            exit;
+
         if not IntegrationTableMapping.FindMapping(SourceTableNo, RecordsToSynchRecordRef.Number) then
             Error(NoMappingErr, RecordsToSynchRecordRef.Name);
 
-        if not RecordsToSynchRecordRef.FindLast() then
+        RecordsToSynchRecordRef.Ascending(false);
+        if not RecordsToSynchRecordRef.FindSet() then
             Error(SynchronizeEmptySetErr);
 
         JobID :=
@@ -512,7 +524,7 @@ codeunit 5340 "CRM Integration Table Synch."
         if not IsNullGuid(JobID) then begin
             repeat
                 IntegrationTableSynch.Synchronize(RecordsToSynchRecordRef, IntegrationRecordRef, IgnoreChanges, IgnoreSynchOnlyCoupledRecords)
-            until RecordsToSynchRecordRef.Next(-1) = 0;
+            until RecordsToSynchRecordRef.Next() = 0;
             IntegrationTableSynch.EndIntegrationSynchJob;
         end;
     end;
@@ -937,6 +949,16 @@ codeunit 5340 "CRM Integration Table Synch."
 
     [IntegrationEvent(false, false)]
     local procedure OnIsModifiedByFilterNeeded(var IntegrationTableMapping: Record "Integration Table Mapping"; var IsHandled: Boolean; var IsNeeded: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSynchRecordsFromIntegrationTable(var RecordsToSynchRecordRef: RecordRef; SourceTableNo: Integer; IgnoreChanges: Boolean; IgnoreSynchOnlyCoupledRecords: Boolean; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSynchRecordsToIntegrationTable(var RecordsToSynchRecordRef: RecordRef; IgnoreChanges: Boolean; IgnoreSynchOnlyCoupledRecords: Boolean; var IsHandled: Boolean);
     begin
     end;
 

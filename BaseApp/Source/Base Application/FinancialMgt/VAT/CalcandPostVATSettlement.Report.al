@@ -28,6 +28,9 @@ report 20 "Calc. and Post VAT Settlement"
             }
             column(PostingDate; Format(PostingDate))
             {
+            }            
+            column(VATDate; Format(VATDate))
+            {
             }
             column(DocNo; DocNo)
             {

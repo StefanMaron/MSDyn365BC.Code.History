@@ -322,6 +322,11 @@ page 7336 "Whse. Shipment Subform"
             QtyCrossDockedUOM := Round(QtyCrossDockedUOMBase / "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision());
     end;
 
+    trigger OnDeleteRecord(): Boolean
+    begin
+        Rec.CheckDirectTransfer(false, true);
+    end;
+
     var
         WMSMgt: Codeunit "WMS Management";
         CrossDockMgt: Codeunit "Whse. Cross-Dock Management";

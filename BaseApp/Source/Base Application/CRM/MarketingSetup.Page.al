@@ -441,6 +441,11 @@ page 5094 "Marketing Setup"
                 group(Control5)
                 {
                     ShowCaption = false;
+                    ObsoleteReason = 'Feature EmailLoggingUsingGraphApi will be enabled by default in version 22.0';
+                    ObsoleteState = Pending;
+#pragma warning disable AS0072
+                    ObsoleteTag = '22.0';
+#pragma warning restore AS0072
                     field("Queue Folder Path"; Rec."Queue Folder Path")
                     {
                         ApplicationArea = RelationshipMgmt;

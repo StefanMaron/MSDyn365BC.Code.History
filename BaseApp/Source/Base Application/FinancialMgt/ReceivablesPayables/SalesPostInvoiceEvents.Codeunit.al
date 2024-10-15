@@ -256,6 +256,17 @@
     begin
     end;
 
+    procedure RunOnPostBalancingEntryOnAfterInitNewLine(SalesHeader: Record "Sales Header"; var GenJournalLine: Record "Gen. Journal Line")
+    begin
+        OnPostBalancingEntryOnAfterInitNewLine(SalesHeader, GenJournalLine);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostBalancingEntryOnAfterInitNewLine(SalesHeader: Record "Sales Header"; var GenJournalLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+
     // Post Ledger Entry
 
     procedure RunOnPostLedgerEntryOnAfterGenJnlPostLine(var GenJnlLine: Record "Gen. Journal Line"; var SalesHeader: Record "Sales Header"; var TotalSalesLine: Record "Sales Line"; var TotalSalesLineLCY: Record "Sales Line"; PreviewMode: Boolean; SuppressCommit: Boolean; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")

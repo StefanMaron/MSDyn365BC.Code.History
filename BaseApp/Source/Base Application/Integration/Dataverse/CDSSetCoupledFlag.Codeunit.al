@@ -1,7 +1,11 @@
+#if not CLEAN23
 codeunit 5363 "CDS Set Coupled Flag"
 {
     TableNo = "Job Queue Entry";
     Permissions = TableData "Sales Invoice Header" = m;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced by flow fields Coupled to Dataverse';
+    ObsoleteTag = '23.0';
 
     trigger OnRun()
     var
@@ -89,3 +93,4 @@ codeunit 5363 "CDS Set Coupled Flag"
         JobQueueCategoryLbl: Label 'BCI CPLFLG', Locked = true;
 
 }
+#endif
