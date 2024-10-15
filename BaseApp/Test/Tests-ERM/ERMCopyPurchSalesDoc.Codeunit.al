@@ -3138,6 +3138,80 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         PurchaseLine[1].TestField("No.", Item[1]."No.");
     end;
 
+    [Test]
+    procedure PurchaseForeignTradeFieldsAreNotCopied()
+    var
+        SourcePurchaseHeader: Record "Purchase Header";
+        TargetPurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        // [FEATURE] [Purchase] [Intrastat]
+        // [SCENARIO 416656] Foreign trade fields (Intrastat) are not copied for purchase documents
+        Initialize();
+
+        // [GIVEN] Purchase Order "PO1" with "Transaction Specification" = "TS1"
+        LibraryPurchase.CreatePurchHeader(
+            SourcePurchaseHeader, SourcePurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
+        UpdatePurchaseHeaderWithRandomForeignTradeDetails(SourcePurchaseHeader);
+        LibraryPurchase.CreatePurchaseLine(
+            PurchaseLine, SourcePurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), 1);
+
+        // [GIVEN] Purchase Order "PO2" with "Transaction Specification" = "TS2"
+        LibraryPurchase.CreatePurchHeader(
+            TargetPurchaseHeader, TargetPurchaseHeader."Document Type"::Order, SourcePurchaseHeader."Buy-from Vendor No.");
+        UpdatePurchaseHeaderWithRandomForeignTradeDetails(TargetPurchaseHeader);
+
+        // [WHEN] Invoke from order "PO2" Get Document Lines action and use order "PO1" lines
+        RunCopyPurchaseDoc(
+            SourcePurchaseHeader."No.", TargetPurchaseHeader,
+            MapperPurchaseHeaders(SourcePurchaseHeader."Document Type"), false, false);
+
+        // [THEN] A new line has been created in order "PO2" with "Transaction Specification" = "TS2"
+        FindFirstLineOfPurchaseDocument(TargetPurchaseHeader, PurchaseLine);
+        PurchaseLine.TestField(Area, TargetPurchaseHeader.Area);
+        PurchaseLine.TestField("Entry Point", TargetPurchaseHeader."Entry Point");
+        PurchaseLine.TestField("Transaction Specification", TargetPurchaseHeader."Transaction Specification");
+        PurchaseLine.TestField("Transaction Type", TargetPurchaseHeader."Transaction Type");
+        PurchaseLine.TestField("Transport Method", TargetPurchaseHeader."Transport Method");
+    end;
+
+    [Test]
+    procedure SalesForeignTradeFieldsAreNotCopied()
+    var
+        SourceSalesHeader: Record "Sales Header";
+        TargetSalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        // [FEATURE] [Sales] [Intrastat]
+        // [SCENARIO 416656] Foreign trade fields (Intrastat) are not copied for sales documents
+        Initialize();
+
+        // [GIVEN] Sales Order "SO1" with "Transaction Specification" = "TS1"
+        LibrarySales.CreateSalesHeader(
+            SourceSalesHeader, SourceSalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
+        UpdateSalesHeaderWithRandomForeignTradeDetails(SourceSalesHeader);
+        LibrarySales.CreateSalesLine(
+            SalesLine, SourceSalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), 1);
+
+        // [GIVEN] Sales Order "SO2" with "Transaction Specification" = "TS2"
+        LibrarySales.CreateSalesHeader(
+            TargetSalesHeader, TargetSalesHeader."Document Type"::Order, SourceSalesHeader."Sell-to Customer No.");
+        UpdateSalesHeaderWithRandomForeignTradeDetails(TargetSalesHeader);
+
+        // [WHEN] Invoke from order "SO2" Get Document Lines action and use order "SO1" lines
+        RunCopySalesDoc(
+            SourceSalesHeader."No.", TargetSalesHeader,
+            MapperSalesHeaders(SourceSalesHeader."Document Type"), false, false);
+
+        // [THEN] A new line has been created in order "SO2" with "Transaction Specification" = "TS2"
+        FindFirstLineOfSalesDocument(TargetSalesHeader, SalesLine);
+        SalesLine.TestField(Area, TargetSalesHeader.Area);
+        SalesLine.TestField("Exit Point", TargetSalesHeader."Exit Point");
+        SalesLine.TestField("Transaction Specification", TargetSalesHeader."Transaction Specification");
+        SalesLine.TestField("Transaction Type", TargetSalesHeader."Transaction Type");
+        SalesLine.TestField("Transport Method", TargetSalesHeader."Transport Method");
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -3971,6 +4045,26 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         PurchasesPayablesSetup.Validate("Receipt on Invoice", ReceiptOnInvoice);
         PurchasesPayablesSetup.Validate("Exact Cost Reversing Mandatory", ExactCostReversingMandatory);
         PurchasesPayablesSetup.Modify(true);
+    end;
+
+    local procedure UpdatePurchaseHeaderWithRandomForeignTradeDetails(var PurchaseHeader: Record "Purchase Header")
+    begin
+        PurchaseHeader.Area := LibraryUtility.GenerateGUID();
+        PurchaseHeader."Entry Point" := LibraryUtility.GenerateGUID();
+        PurchaseHeader."Transaction Specification" := LibraryUtility.GenerateGUID();
+        PurchaseHeader."Transaction Type" := LibraryUtility.GenerateGUID();
+        PurchaseHeader."Transport Method" := LibraryUtility.GenerateGUID();
+        PurchaseHeader.Modify();
+    end;
+
+    local procedure UpdateSalesHeaderWithRandomForeignTradeDetails(var SalesHeader: Record "Sales Header")
+    begin
+        SalesHeader.Area := LibraryUtility.GenerateGUID();
+        SalesHeader."Exit Point" := LibraryUtility.GenerateGUID();
+        SalesHeader."Transaction Specification" := LibraryUtility.GenerateGUID();
+        SalesHeader."Transaction Type" := LibraryUtility.GenerateGUID();
+        SalesHeader."Transport Method" := LibraryUtility.GenerateGUID();
+        SalesHeader.Modify();
     end;
 
     local procedure FindFirstLineOfPurchaseDocument(PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line")

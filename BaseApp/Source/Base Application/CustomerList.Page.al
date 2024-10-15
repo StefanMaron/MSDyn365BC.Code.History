@@ -672,7 +672,7 @@ page 22 "Customer List"
                 Image = History;
                 action(CustomerLedgerEntries)
                 {
-                    ApplicationArea = Advanced;
+                    ApplicationArea = Suite;
                     Caption = 'Ledger E&ntries';
                     Image = CustomerLedger;
                     Promoted = true;

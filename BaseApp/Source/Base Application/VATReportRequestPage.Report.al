@@ -20,7 +20,8 @@ report 742 "VAT Report Request Page"
                 VATStatementReportLine: Record "VAT Statement Report Line";
                 VATStatementName: Record "VAT Statement Name";
                 VATStatement: Report "VAT Statement";
-                ColumnValue: Decimal;
+                Base: Decimal;
+                Amount: Decimal;
             begin
                 Copy(Rec);
 
@@ -41,11 +42,12 @@ report 742 "VAT Report Request Page"
                 VATStatementReportLine.SetRange("VAT Report No.", "No.");
                 VATStatementReportLine.SetRange("VAT Report Config. Code", "VAT Report Config. Code");
                 VATStatementReportLine.DeleteAll();
-
                 repeat
-                    VATStatement.CalcLineTotal(VATStatementLine, ColumnValue, 0);
-                    if VATStatementLine."Print with" = VATStatementLine."Print with"::"Opposite Sign" then
-                        ColumnValue := -ColumnValue;
+                    VATStatement.CalcLineTotalWithBase(VATStatementLine, Amount, Base, 0);
+                    if VATStatementLine."Print with" = VATStatementLine."Print with"::"Opposite Sign" then begin
+                        Amount := -Amount;
+                        Base := -Base;
+                    end;
                     VATStatementReportLine.Init();
                     VATStatementReportLine.Validate("VAT Report No.", "No.");
                     VATStatementReportLine.Validate("VAT Report Config. Code", "VAT Report Config. Code");
@@ -53,7 +55,8 @@ report 742 "VAT Report Request Page"
                     VATStatementReportLine.Validate("Row No.", VATStatementLine."Row No.");
                     VATStatementReportLine.Validate(Description, VATStatementLine.Description);
                     VATStatementReportLine.Validate("Box No.", VATStatementLine."Box No.");
-                    VATStatementReportLine.Validate(Amount, ColumnValue);
+                    VATStatementReportLine.Validate(Amount, Amount);
+                    VATStatementReportLine.Validate(Base, Base);
                     VATStatementReportLine.Insert();
                 until VATStatementLine.Next() = 0;
             end;

@@ -1113,8 +1113,10 @@
                     if Cont."Company No." <> ContBusRel."Contact No." then
                         Error(Text004, Cont."No.", Cont.Name, "No.", Name);
 
-                    if Cont.Type = Cont.Type::Person then
+                    if Cont.Type = Cont.Type::Person then begin
                         Contact := Cont.Name;
+                        exit;
+                    end;
 
                     if Cont."Phone No." <> '' then
                         "Phone No." := Cont."Phone No.";
