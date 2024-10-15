@@ -790,6 +790,39 @@ codeunit 144117 "ERM Make 349 Declaration"
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmHandler,MessageHandler,Make349DeclarationRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure Test349DeclarationForeignSalesNoVATSameVatRegNo()
+    var
+        Customer: Record Customer;
+        CustomerNo: Code[20];
+        PostingDate: Date;
+        FileName: Text[1024];
+        SalesAmount: Decimal;
+    begin
+        // [FEATURE] [Sales] [Non Taxable VAT]
+        // [SCENARIO 448833] Foreign Sales Invoice with Non-Taxable VAT when two customers have same VAT Registration No.
+        Initialize();
+
+        // [GIVEN] Sales Document for Foreing Customer with NoTaxable Amount = "X"  and "EU Service" = FALSE
+        CreateAndPostSalesInvoiceNoTax(CreateCountryRegion, false, CustomerNo, SalesAmount, PostingDate);
+        // [GIVEN] One more customer with same VAT Registration No. exists
+        Customer.GET(CustomerNo);
+        Customer.GET(
+          CreateCustomer(
+            Customer."Country/Region Code", Customer."VAT Bus. Posting Group",
+            Customer."VAT Registration No."));
+
+        // [WHEN] Run 349 Declaration
+        FileName := RunMake349DeclarationWithDate(PostingDate);
+
+        // [THEN] Invoice's data is exported with NoTaxable Amount = "X"
+        ValidateFormat349FileRecord(FileName, PostingDate, Customer."No.", Customer."No.", 'E', SalesAmount);
+
+        TearDownSalesInvLine(CustomerNo);
+    end;
+
+    [Test]
     [HandlerFunctions('MessageHandler,Make349DeclarationRequestPageHandler')]
     [Scope('OnPrem')]
     procedure Test349DeclarationForeignSalesNormalVAT_LocalNonEUContry()
@@ -879,6 +912,39 @@ codeunit 144117 "ERM Make 349 Declaration"
 
         // [THEN] Invoice's data is exported with NoTaxable Amount = "X"
         ValidateFormat349FileRecord(FileName, PostingDate, CustomerNo, CustomerNo, 'S', SalesAmount);
+
+        TearDownSalesInvLine(CustomerNo);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler,MessageHandler,Make349DeclarationRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure Test349DeclarationForeignSalesNoVATEUServiceSameVATRegNo()
+    var
+        Customer: Record Customer;
+        CustomerNo: Code[20];
+        PostingDate: Date;
+        FileName: Text[1024];
+        SalesAmount: Decimal;
+    begin
+        // [FEATURE] [Sales] [Non Taxable VAT]
+        // [SCENARIO 448833] Foreign Sales Invoice with Non-Taxable VAT and EU Service is TRUE when two customers have same VAT Registration No.
+        Initialize();
+
+        // [GIVEN] Sales Document for Foreing Customer with NoTaxable Amount = "X" and "EU Service" = TRUE
+        CreateAndPostSalesInvoiceNoTax(CreateCountryRegion, true, CustomerNo, SalesAmount, PostingDate);
+        // [GIVEN] One more customer with same VAT Registration No. exists
+        Customer.GET(CustomerNo);
+        Customer.GET(
+          CreateCustomer(
+            Customer."Country/Region Code", Customer."VAT Bus. Posting Group",
+            Customer."VAT Registration No."));
+
+        // [WHEN] Run 349 Declaration
+        FileName := RunMake349DeclarationWithDate(PostingDate);
+
+        // [THEN] Invoice's data is exported with NoTaxable Amount = "X"
+        ValidateFormat349FileRecord(FileName, PostingDate, Customer."No.", Customer."No.", 'S', SalesAmount);
 
         TearDownSalesInvLine(CustomerNo);
     end;
@@ -1770,6 +1836,40 @@ codeunit 144117 "ERM Make 349 Declaration"
 
         // [THEN] Purchase Invoice's data is exported with NoTaxable Amount = "X"
         ValidateFormat349FileRecord(FileName, PostingDate, VendorNo, VendorNo, 'A', InvAmount);
+
+        // tear down
+        PurchInvLine.SetRange("Pay-to Vendor No.", VendorNo);
+        PurchInvLine.DeleteAll();
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler,Make349DeclarationRequestPageHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure Test349DeclarationForeignPurchNoVATEUCountrySameVATRegNo()
+    var
+        PurchInvLine: Record "Purch. Inv. Line";
+        Vendor: Record Vendor;
+        FileName: Text[1024];
+        VendorNo: Code[20];
+        PostingDate: Date;
+        InvAmount: Decimal;
+    begin
+        // [FEATURE] [Purchase] [Non Taxable VAT]
+        // [SCENARIO 448833] Foreign Purchase Invoice with Non-Taxable VAT and EU Country when two vendors have same VAT Registration No.
+        Initialize();
+
+        // [GIVEN] Create and Post Purchase Invoice for Foreign EU Vendor with No Taxable VAT Posting Setup with Amount = "X"
+        CreateAndPostPurchInvoiceNoTax(CreateCountryRegion, VendorNo, InvAmount, PostingDate);
+        // [GIVEN] One more vendor with same VAT Registration No. exists
+        Vendor.GET(VendorNo);
+        Vendor.GET(
+          CreateVendor(Vendor."Country/Region Code", Vendor."VAT Bus. Posting Group", Vendor."VAT Registration No."));
+
+        // [WHEN] Run Make 349 Declaration
+        FileName := RunMake349DeclarationWithDate(PostingDate);
+
+        // [THEN] Purchase Invoice's data is exported with NoTaxable Amount = "X"
+        ValidateFormat349FileRecord(FileName, PostingDate, Vendor."No.", Vendor."No.", 'A', InvAmount);
 
         // tear down
         PurchInvLine.SetRange("Pay-to Vendor No.", VendorNo);

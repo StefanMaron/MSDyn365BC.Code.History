@@ -200,8 +200,6 @@ report 10710 "Make 349 Declaration"
                     AccumOrigDeclAmountEUService := 0;
                     AccumPrevDeclAmountTri := 0;
                     AccumOrigDeclAmountTri := 0;
-                    NoTaxableAmountOpTri := 0;
-                    NoTaxableAmountEUService := 0;
                     Customer2.Reset();
                     Customer2.SetRange("VAT Registration No.", "VAT Registration No.");
                     if Customer2.FindSet() then begin
@@ -259,6 +257,9 @@ report 10710 "Make 349 Declaration"
                                     end;
                                 until VATInvSales.Next() = 0;
 
+                            NoTaxableAmountOpTri := 0;
+                            NoTaxableAmountEUService := 0;
+                            Clear(NoTaxableNormalAmountSales);
                             CalcNoTaxableAmountCustomer(NoTaxableNormalAmountSales);
 
                             for i := 1 to 3 do

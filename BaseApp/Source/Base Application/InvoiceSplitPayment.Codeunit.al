@@ -628,14 +628,11 @@ codeunit 7000005 "Invoice-Split Payment"
     [Scope('OnPrem')]
     procedure FindVendVATSetup(var VATSetup: Record "VAT Posting Setup"; PurchHeader2: Record "Purchase Header")
     var
-        Vendor: Record Vendor;
         PostingGroup: Code[20];
         PurchLine2: Record "Purchase Line";
     begin
-        Vendor.Get(PurchHeader2."Buy-from Vendor No.");
-
         VATSetup.SetCurrentKey("VAT Bus. Posting Group", "VAT Prod. Posting Group");
-        VATSetup.SetRange("VAT Bus. Posting Group", Vendor."VAT Bus. Posting Group");
+        VATSetup.SetRange("VAT Bus. Posting Group", PurchHeader2."VAT Bus. Posting Group");
 
         PurchLine2.SetCurrentKey("Document Type", "Document No.", "Line No.");
         PurchLine2.SetRange("Document Type", PurchHeader2."Document Type");

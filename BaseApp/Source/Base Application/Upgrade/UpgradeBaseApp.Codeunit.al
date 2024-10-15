@@ -91,6 +91,7 @@ codeunit 104000 "Upgrade - BaseApp"
         UpgradeDataExchFieldMapping();
         UpgradeJobReportSelection();
         UpgradeICSetup();
+        UpdatePurchaserOnRequisitionLines();
     end;
 
     local procedure ClearTemporaryTables()
@@ -2312,8 +2313,8 @@ codeunit 104000 "Upgrade - BaseApp"
         MediaRepository: Record "Media Repository";
         UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
         UpgradeTag: Codeunit "Upgrade Tag";
-        PowerBIReportSpinnerPart: Page "Power BI Report Spinner Part";
-        TargetClientType: ClientType;
+                                      PowerBIReportSpinnerPart: Page "Power BI Report Spinner Part";
+                                      TargetClientType: ClientType;
         ImageName: Text[250];
     begin
         if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetUpgradePowerBIOptinImageUpgradeTag()) THEN
@@ -2340,7 +2341,7 @@ codeunit 104000 "Upgrade - BaseApp"
     var
         MediaRepository: Record "Media Repository";
         TargetMediaRepository: Record "Media Repository";
-        PowerBIReportSpinnerPart: Page "Power BI Report Spinner Part";
+                                      PowerBIReportSpinnerPart: Page "Power BI Report Spinner Part";
         ImageName: Text[250];
     begin
         Session.LogMessage('0000EH4', STRSUBSTNO(AttemptingPowerBIUpdateTxt, targetClientType), Verbosity::Normal, DataClassification::SystemMetadata,
@@ -2569,6 +2570,44 @@ codeunit 104000 "Upgrade - BaseApp"
             end;
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetUseCustomLookupUpgradeTag());
+    end;
+
+    local procedure UpdatePurchaserOnRequisitionLines()
+    var
+        RequisitionLine: Record "Requisition Line";
+        Vendor: Record Vendor;
+        UpgradeTag: Codeunit "Upgrade Tag";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+        PurchaserCodeToAssign: Code[20];
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetPurchaserOnRequisitionLineUpdateTag()) then
+            exit;
+
+        RequisitionLine.SetFilter("Vendor No.", '<>%1', '');
+        if RequisitionLine.FindSet(true) then
+            repeat
+                if Vendor.Get(RequisitionLine."Vendor No.") and (Vendor."Purchaser Code" <> '') then
+                    if ReturnPurchaserCode(Vendor."Purchaser Code", PurchaserCodeToAssign) then begin
+                        RequisitionLine.Validate("Purchaser Code", PurchaserCodeToAssign);
+                        RequisitionLine.Modify();
+                    end;
+            until RequisitionLine.Next() = 0;
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetPurchaserOnRequisitionLineUpdateTag());
+    end;
+
+    local procedure ReturnPurchaserCode(PurchaserCodeToCheck: Code[20]; var PurchaserCodeToAssign: Code[20]): Boolean
+    var
+        SalespersonPurchaser: Record "Salesperson/Purchaser";
+    begin
+        if SalespersonPurchaser.Get(PurchaserCodeToCheck) then begin
+            if SalespersonPurchaser.VerifySalesPersonPurchaserPrivacyBlocked(SalespersonPurchaser) then
+                PurchaserCodeToAssign := ''
+            else
+                PurchaserCodeToAssign := PurchaserCodeToCheck;
+        end else
+            PurchaserCodeToAssign := '';
+        exit(PurchaserCodeToAssign <> '');
     end;
 }
 

@@ -872,7 +872,7 @@
         field(43; "Salesperson Code"; Code[20])
         {
             Caption = 'Salesperson Code';
-            TableRelation = "Salesperson/Purchaser";
+            TableRelation = "Salesperson/Purchaser" where(Blocked = const(false));
 
             trigger OnValidate()
             var
@@ -1829,6 +1829,11 @@
             Editable = false;
             TableRelation = "IC Partner";
         }
+        field(127; "IC Reference Document No."; Code[20])
+        {
+            Caption = 'IC Reference Document No.';
+            Editable = false;
+        }
         field(129; "IC Direction"; Option)
         {
             Caption = 'IC Direction';
@@ -2386,6 +2391,7 @@
                     UpdateSellToCust("Sell-to Contact No.");
                 UpdateSellToCustTemplateCode();
                 UpdateShipToContact();
+                GetShippingTime(FieldNo("Sell-to Contact No."));
             end;
         }
         field(5053; "Bill-to Contact No."; Code[20])
@@ -7303,6 +7309,8 @@
                 InteractionLogEntry.SetRange("Document Type", InteractionLogEntry."Document Type"::"Sales Ord. Cnfrmn.");
             "Document Type"::Quote:
                 InteractionLogEntry.SetRange("Document Type", InteractionLogEntry."Document Type"::"Sales Qte.");
+            "Document Type"::Invoice:
+                InteractionLogEntry.SetRange("Document Type", InteractionLogEntry."Document Type"::"Sales Draft Invoice");
         end;
 
         InteractionLogEntry.SetRange("Document No.", "No.");

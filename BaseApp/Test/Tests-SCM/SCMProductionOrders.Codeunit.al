@@ -3933,6 +3933,60 @@ codeunit 137069 "SCM Production Orders"
 
     [Test]
     [Scope('OnPrem')]
+    procedure ProdOrderLineHasItemBaseUnitOfMeasure_ItemWithSKU()
+    var
+        Item: Record Item;
+        ItemUnitOfMeasure: array[2] of Record "Item Unit of Measure";
+        StockkeepingUnit: Record "Stockkeeping Unit";
+        ItemForProductionBOMLine: Record Item;
+        ProductionBOMHeader: array[2] of Record "Production BOM Header";
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        SKULocationCode: Code[10];
+    begin
+        // [FEATURE] [Item] [Item Unit of Measure] [SKU] [Production BOM] [Production Order] [Refresh Production Order]
+        // [SCENARIO 448920] "Base Unit of Measure" from Item is used in Production Order Line with SKU set to use different Unit of Measure in "Production BOM No.".
+        Initialize();
+
+        // [GIVEN] Create Item "PARENT" with "Replenishment System" = "Prod. Order" and "Manufacturing Policy" = "Make-to-Stock".
+        CreateItemWithMakeToStock(Item);
+
+        // [GIVEN] Create 1st additional Item Unit of Measure for Item "PARENT".
+        CreateItemUnitOfMeasure(ItemUnitOfMeasure[1], Item."No.");
+
+        // [GIVEN] Create 2nd additional Item Unit of Measure for Item "PARENT".
+        CreateItemUnitOfMeasure(ItemUnitOfMeasure[2], Item."No.");
+
+        // [GIVEN] Item for "CHILD" with "Replenishment System" = "Purchase".
+        CreateItem(ItemForProductionBOMLine, "Replenishment System"::Purchase);
+
+        // [GIVEN] Create 1st Production BOM with 1st additional Item Unit of Measure from Item "PARENT".
+        CreateAndCertifyProductionBOM(ProductionBOMHeader[1], ItemForProductionBOMLine."No.", ItemUnitOfMeasure[1].Code);
+
+        // [GIVEN] Set 1t Production BOM to Item "PARENT".
+        UpdateProductionBOMOnItem(Item, ProductionBOMHeader[1]."No.");
+
+        // [GIVEN] Create SKU for Item "PARENT" in Location "BLUE" with "Replenishment System" = "Prod. Order".
+        SKULocationCode := LocationBlue.Code;
+        CreateStockkeepingUnit(StockkeepingUnit, SKULocationCode, Item."No.", "Replenishment System"::"Prod. Order");
+
+        // [GIVEN] Create 2nd Production BOM with 2nd additional Item Unit of Measure from Item "PARENT".
+        CreateAndCertifyProductionBOM(ProductionBOMHeader[2], ItemForProductionBOMLine."No.", ItemUnitOfMeasure[2].Code);
+
+        // [GIVEN] Set 2nd Production BOM to SKU.
+        UpdateProductionBOMOnSKU(StockkeepingUnit, ProductionBOMHeader[2]."No.");
+
+        // [WHEN] Create and Refresh Production Order for Item "PARENT" and Location "BLUE".
+        CreateAndRefreshReleasedProductionOrderWithLocation(ProductionOrder, Item."No.", SKULocationCode);
+
+        // [THEN] "Unit of Measure Code" = "Base Unit of Measure" of Item "PARENT".
+        ProdOrderLine.SetRange("Item No.", Item."No.");
+        FindProductionOrderLine(ProdOrderLine, ProductionOrder.Status, ProductionOrder."No.");
+        ProdOrderLine.TestField("Unit of Measure Code", Item."Base Unit of Measure");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure ChangeProdOrderStatusLinkTypeRecordLinksNotUpdated()
     var
         Item: Record Item;
@@ -4546,6 +4600,13 @@ codeunit 137069 "SCM Production Orders"
         StockkeepingUnit.Modify(true);
     end;
 
+    local procedure CreateStockkeepingUnit(var StockkeepingUnit: Record "Stockkeeping Unit"; LocationCode: Code[10]; ItemNo: Code[20]; ReplenishmentSystem: Enum "Replenishment System")
+    begin
+        LibraryInventory.CreateStockkeepingUnitForLocationAndVariant(StockkeepingUnit, LocationCode, ItemNo, '');
+        StockkeepingUnit.Validate("Replenishment System", ReplenishmentSystem);
+        StockkeepingUnit.Modify(true);
+    end;
+
     local procedure CreateAndRefreshReleasedProductionOrder(var ProductionOrder: Record "Production Order"; SourceNo: Code[20]; Quantity: Decimal)
     begin
         // Create and Refresh Released Production Order.
@@ -4758,6 +4819,13 @@ codeunit 137069 "SCM Production Orders"
         Item.Get(Item."No.");  // Get updated instance of Item Record for avoid another user modified error.
         Item.Validate("Production BOM No.", ProductionBOMNo);
         Item.Modify(true);
+    end;
+
+    local procedure UpdateProductionBOMOnSKU(var StockkeepingUnit: Record "Stockkeeping Unit"; ProductionBOMNo: Code[20])
+    begin
+        StockkeepingUnit.Get(StockkeepingUnit."Location Code", StockkeepingUnit."Item No.", StockkeepingUnit."Variant Code");  // Get updated instance of Stockkeeping Unit Record for avoid another user modified error.
+        StockkeepingUnit.Validate("Production BOM No.", ProductionBOMNo);
+        StockkeepingUnit.Modify(true);
     end;
 
     local procedure UpdateProductionBOMAndRecertify(ProductionBOMNo: Code[20]; BaseUnitofMeasure: Code[10]; ItemNo: Code[20])
@@ -4986,6 +5054,13 @@ codeunit 137069 "SCM Production Orders"
         CreateItem(Item, Item."Replenishment System"::"Prod. Order");
         Item.Validate("Manufacturing Policy", Item."Manufacturing Policy"::"Make-to-Order");
         Item.Validate("Description 2", Description2);
+        Item.Modify(true);
+    end;
+
+    local procedure CreateItemWithMakeToStock(var Item: Record Item)
+    begin
+        CreateItem(Item, Item."Replenishment System"::"Prod. Order");
+        Item.Validate("Manufacturing Policy", Item."Manufacturing Policy"::"Make-to-Stock");
         Item.Modify(true);
     end;
 

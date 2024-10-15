@@ -1828,8 +1828,13 @@
                         PreciseTotalChargeAmtACY += OriginalAmtACY * Factor;
                         ItemJnlLine2."Amount (ACY)" := PreciseTotalChargeAmtACY - RoundedPrevTotalChargeAmtACY;
 
-                        RoundedPrevTotalChargeAmt += Round(ItemJnlLine2.Amount, GLSetup."Amount Rounding Precision");
-                        RoundedPrevTotalChargeAmtACY += Round(ItemJnlLine2."Amount (ACY)", Currency."Amount Rounding Precision");
+                        ItemJnlLine2.Amount :=
+                            Round(ItemJnlLine2.Amount, GLSetup."Amount Rounding Precision");
+                        ItemJnlLine2."Amount (ACY)" :=
+                            Round(ItemJnlLine2."Amount (ACY)", Currency."Amount Rounding Precision");
+
+                        RoundedPrevTotalChargeAmt += ItemJnlLine2.Amount;
+                        RoundedPrevTotalChargeAmtACY += ItemJnlLine2."Amount (ACY)";
 
                         ItemJnlLine2."Unit Cost (ACY)" :=
                           Round(ItemJnlLine2.Amount / ItemJnlLine2."Invoiced Qty. (Base)",
@@ -7742,7 +7747,8 @@
             ModifyHeader := true;
         end;
 
-        if PostingDateExists and (ReplaceDocumentDate or (PurchaseHeader."Document Date" = 0D)) then begin
+        if PostingDateExists and ReplaceDocumentDate and (PurchaseHeader."Document Date" <> PostingDate) then begin
+            PurchaseHeader.SetReplaceDocumentDate();
             PurchaseHeader.Validate("Document Date", PostingDate);
             ModifyHeader := true;
         end;

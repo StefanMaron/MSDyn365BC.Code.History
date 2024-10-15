@@ -1,4 +1,4 @@
-codeunit 134761 "Test Custom Reports"
+﻿codeunit 134761 "Test Custom Reports"
 {
     EventSubscriberInstance = Manual;
     Subtype = Test;
@@ -1151,6 +1151,36 @@ codeunit 134761 "Test Custom Reports"
         CurrencySymbol := SalesHeader.GetCurrencySymbol;
         FormatDocument.SetTotalLabels(CurrencySymbol, TotalText, TotalInclVATText, TotalExclVATText);
         VerifyStdSalesInvoiceReportTotalsLines(SalesLine, TotalInclVATText, SalesLine."Amount Including VAT");
+    end;
+
+    [Test]
+    procedure EntriesExcludedFromCalculationShouldntShowInStandardStatement()
+    var
+        Customer: Record Customer;
+        DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
+        XMLNodeList: DotNet XmlNodeList;
+        LineAmount: Decimal;
+        OutputPath: Text;
+        Lines: Integer;
+    begin
+        Initialize();
+        // [GIVEN] A customer
+        LibrarySales.CreateCustomer(Customer);
+        // [GIVEN] Two customer ledger entries
+        LineAmount := LibraryRandom.RandDec(99, 2);
+        CreateTwoCustomerLedgerEntries(Customer."No.", LineAmount, LibraryRandom.RandDec(99, 2));
+        // [GIVEN] One of the corresponding Detailed Cust. Ledg. Entry is marked as "Excluded from calculation"
+        DetailedCustLedgEntry.SetRange("Customer No.", Customer."No.");
+        DetailedCustLedgEntry.FindFirst();
+        DetailedCustLedgEntry."Excluded from calculation" := true;
+        DetailedCustLedgEntry.Modify();
+        // [WHEN] Executing Standard Statement Report
+        SaveStandardStatementAsXML(Customer, OutputPath, 0, CalcDate('<-CM-1M>', GetDate), GetDate);
+        // [THEN] Only one line should show on the report
+        LibraryXPathXMLReader.SetDefaultNamespaceUsage(false);
+        LibraryXPathXMLReader.Initialize(OutputPath, '');
+        Lines := LibraryXPathXMLReader.GetNodeListByElementName('//Column[@name=''DocNo_DtldCustLedgEntries'']', XMLNodeList);
+        Assert.AreEqual(1, Lines, 'The report should only show the entry that was not excluded from calculation');
     end;
 
     [Test]

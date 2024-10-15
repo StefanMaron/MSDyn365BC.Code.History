@@ -2224,6 +2224,45 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         Assert.RecordIsNotEmpty(VATEntry);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifyUnrealizedVATEntryMustBePercentage()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        PaymentMethod: Record "Payment Method";
+        UnrealizedVATErr: Label 'Unrealized VAT Type must be "Percentage" in VAT Posting Setup.';
+    begin
+        // [SCENARIO 452933] "Unrealized VAT Type must be "Percentage" in VAT Posting Setup" message is not applied consistently depending on the VAT Bus. Posting Group being the same in the document and the Vendor card or not in the Spanish version.
+
+        // [GIVEN] Setup Demonstration Data, Update Unrealized VAT Setup
+        EnableUnrealizedSetup(VATPostingSetup, VATPostingSetup."Unrealized VAT Type"::First);
+
+        // [GIVEN] Create Purchase Header with document type as invoice
+        LibraryPurchase.CreatePurchHeader(
+            PurchaseHeader, PurchaseHeader."Document Type"::Invoice, CreateVendor(VATPostingSetup."VAT Bus. Posting Group"));
+        PurchaseHeader.Validate("Vendor Invoice No.", PurchaseHeader."No.");
+
+        // [GIVEN] Create Payment Method
+        LibraryERM.CreatePaymentMethod(PaymentMethod);
+        PaymentMethod.Validate("Create Bills", true);
+        PaymentMethod.Modify(true);
+        PurchaseHeader."Payment Method Code" := PaymentMethod.Code;
+        PurchaseHeader.Modify(true);
+
+        // [GIVEN] Create Purchase Line
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, "General Posting Type"::" "), LibraryRandom.RandDec(10, 2));
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));  // Use Random Unit Price between 1 and 100.
+        PurchaseLine.Modify(true);
+
+        // [WHEN] Post Purchase Invoice
+        asserterror LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [THEN] Verify Error "Unrealized VAT Type must be "Percentage" in VAT Posting Setup."
+        Assert.ExpectedError(UnrealizedVATErr);
+    end;
+
     local procedure Initialize()
     var
         PurchaseHeader: Record "Purchase Header";
@@ -3083,6 +3122,36 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         VATAmountLine.TestField("Line Amount", VATBase);
         VATAmountLine.TestField("VAT Base", VATBase);
         VATAmountLine.TestField("VAT Amount", VATAmount);
+    end;
+
+    local procedure CreateVendor(VATBusPostingGroup: Code[20]): Code[20]
+    var
+        Vendor: Record Vendor;
+        PaymentTerms: Record "Payment Terms";
+        PaymentMethod: Record "Payment Method";
+    begin
+        // Create new Vendor and Update VAT Bus. Posting Group.
+        LibraryERM.FindPaymentMethod(PaymentMethod);
+        LibraryERM.GetDiscountPaymentTerm(PaymentTerms);
+        LibraryPurchase.CreateVendor(Vendor);
+        Vendor.Validate("VAT Bus. Posting Group", VATBusPostingGroup);
+        Vendor.Validate("Payment Terms Code", PaymentTerms.Code);
+        Vendor.Validate("Payment Method Code", PaymentMethod.Code);
+        Vendor.Modify(true);
+        exit(Vendor."No.");
+    end;
+
+    local procedure EnableUnrealizedSetup(var VATPostingSetup: Record "VAT Posting Setup"; UnrealizedVATType: Option)
+    begin
+        Initialize();
+        LibraryERM.SetUnrealizedVAT(true);
+        LibraryERM.CreateVATPostingSetupWithAccounts(
+          VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", LibraryRandom.RandIntInRange(10, 30));
+        with VATPostingSetup do begin
+            Validate("Unrealized VAT Type", UnrealizedVATType);
+            Validate("Purch. VAT Unreal. Account", LibraryERM.CreateGLAccountNo);
+            Modify(true);
+        end;
     end;
 
     [ConfirmHandler]

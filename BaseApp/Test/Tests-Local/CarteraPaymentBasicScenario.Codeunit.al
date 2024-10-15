@@ -1585,6 +1585,37 @@ codeunit 147500 "Cartera Payment Basic Scenario"
     end;
 
     [Test]
+    [HandlerFunctions('CarteraDocumentsModalHandler')]
+    procedure InsertCarteraDocForAppliedVendorEntryErrors()
+    var
+        Vendor: Record Vendor;
+        GenJournalTemplate: Record "Gen. Journal Template";
+        CarteraDoc: Record "Cartera Doc.";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        PaymentOrders: TestPage "Payment Orders";
+        DocumentNo: Code[20];
+    begin
+        Initialize();
+        CarteraDoc.DeleteAll();
+        // [GIVEN] Posted purchase invoice with Cartera Doc created
+        PrepareVendorRelatedRecords(Vendor, '');
+        DocumentNo := LibraryCarteraPayables.CreateCarteraPayableDocument(Vendor);
+        // [GIVEN] A Gen. Journal Line 
+        LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
+        LibraryERM.CreateGeneralJnlLine(GenJournalLine, GenJournalTemplate.Name, GenJournalBatch.Name, GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Vendor, Vendor."No.", 0);
+        // [GIVEN] The line is set it's Applies-to Doc. No
+        GenJournalLine.Validate("Applies-to Doc. No.", DocumentNo);
+        GenJournalLine.Modify();
+        // [WHEN] Attempting toinsert a PaymentOrder line
+        PaymentOrders.OpenNew();
+        LibraryVariableStorage.Enqueue(DocumentNo);
+        // [THEN] It should fail
+        Assert.IsFalse(TryToInsertPaymentOrder(PaymentOrders), 'Inserting the applied line should fail');
+    end;
+
+    [Test]
     procedure CrMemoTryApplyInvoiceAlreadyIncludedIntoPaymentOrder()
     var
         Vendor: Record Vendor;
@@ -2422,6 +2453,28 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         PDFFileName := LibraryReportDataset.GetFileName() + '.pdf';
         LibraryVariableStorage.Enqueue(PDFFileName);
         PaymentOrderListing.SaveAsPdf(PDFFileName);
+    end;
+
+    [TryFunction]
+    local procedure TryToInsertPaymentOrder(PaymentOrders: TestPage "Payment Orders")
+    begin
+        PaymentOrders.Docs.Insert.Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure CarteraDocumentsModalHandler(var CarteraDocuments: TestPage "Cartera Documents")
+    var
+        CarteraDoc: Record "Cartera Doc.";
+    begin
+        CarteraDoc.SetRange("Document No.", LibraryVariableStorage.DequeueText());
+        CarteraDoc.FindFirst();
+        if CarteraDocuments.First() then
+        repeat
+            if CarteraDocuments."Document No.".Value = CarteraDoc."Document No." then begin
+                CarteraDocuments.OK().Invoke();
+                exit;
+            end;
+        until CarteraDocuments.Next();
     end;
 }
 
