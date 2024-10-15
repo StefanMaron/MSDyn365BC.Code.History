@@ -86,6 +86,8 @@ using System.Telemetry;
 using System.Threading;
 using System.Upgrade;
 using System.Utilities;
+using Microsoft.FixedAssets.FixedAsset;
+using Microsoft.FixedAssets.Setup;
 
 codeunit 104000 "Upgrade - BaseApp"
 {
@@ -686,7 +688,8 @@ codeunit 104000 "Upgrade - BaseApp"
         APIDataUpgrade: Codeunit "API Data Upgrade";
     begin
         if UpgradeTag.HasUpgradeTag(APIDataUpgrade.GetDisableAPIDataUpgradesTag()) then
-            exit;
+            if UpgradeTag.HasUpgradeTagSkipped(APIDataUpgrade.GetDisableAPIDataUpgradesTag(), CopyStr(CompanyName(), 1, 30)) then
+                exit;
 
         UpgradeSalesInvoiceEntityAggregate();
         UpgradePurchInvEntityAggregate();
@@ -712,6 +715,8 @@ codeunit 104000 "Upgrade - BaseApp"
         UpgradePurchaseOrderShortcutDimension();
         UpgradePurchInvoiceShortcutDimension();
         UpgradeItemPostingGroups();
+        UpgradeFixedAssetLocationId();
+        UpgradeFixedAssetResponsibleEmployeeId();
     end;
 
     procedure UpgradeItemPostingGroups()
@@ -762,6 +767,54 @@ codeunit 104000 "Upgrade - BaseApp"
         APIDataUpgrade.UpgradeSalesShipmentLineDocumentId(true);
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetNewSalesShipmentLineUpgradeTag());
+    end;
+
+    local procedure UpgradeFixedAssetLocationId()
+    var
+        FixedAsset: Record "Fixed Asset";
+        FALocation: Record "FA Location";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+        UpgradeTag: Codeunit "Upgrade Tag";
+        BlankGuid: Guid;
+        LocationIdDataTransfer: DataTransfer;
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetFixedAssetLocationIdUpgradeTag()) then
+            exit;
+
+        FixedAsset.SetFilter("FA Location Id", '<>%1', BlankGuid);
+        if FixedAsset.IsEmpty() then begin
+            LocationIdDataTransfer.SetTables(Database::"FA Location", Database::"Fixed Asset");
+            LocationIdDataTransfer.AddFieldValue(FALocation.FieldNo("SystemId"), FixedAsset.FieldNo("FA Location Id"));
+            LocationIdDataTransfer.AddJoin(FALocation.FieldNo(Code), FixedAsset.FieldNo("Location Code"));
+            LocationIdDataTransfer.UpdateAuditFields := false;
+            LocationIdDataTransfer.CopyFields();
+        end;
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetFixedAssetLocationIdUpgradeTag());
+    end;
+
+    local procedure UpgradeFixedAssetResponsibleEmployeeId()
+    var
+        FixedAsset: Record "Fixed Asset";
+        Employee: Record Employee;
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+        UpgradeTag: Codeunit "Upgrade Tag";
+        BlankGuid: Guid;
+        EmployeeIdDataTransfer: DataTransfer;
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetFixedAssetResponsibleEmployeeIdUpgradeTag()) then
+            exit;
+
+        FixedAsset.SetFilter("Responsible Employee Id", '<>%1', BlankGuid);
+        if FixedAsset.IsEmpty() then begin
+            EmployeeIdDataTransfer.SetTables(Database::Employee, Database::"Fixed Asset");
+            EmployeeIdDataTransfer.AddFieldValue(Employee.FieldNo("SystemId"), FixedAsset.FieldNo("Responsible Employee Id"));
+            EmployeeIdDataTransfer.AddJoin(Employee.FieldNo("No."), FixedAsset.FieldNo("Responsible Employee"));
+            EmployeeIdDataTransfer.UpdateAuditFields := false;
+            EmployeeIdDataTransfer.CopyFields();
+        end;
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetFixedAssetResponsibleEmployeeIdUpgradeTag());
     end;
 
     local procedure UpgradeSalesInvoiceEntityAggregate()
@@ -1466,19 +1519,21 @@ codeunit 104000 "Upgrade - BaseApp"
 
         if PowerBIReportConfiguration.FindSet() then
             repeat
-                Clear(PowerBIDisplayedElement);
-                PowerBIDisplayedElement.Context := PowerBIReportConfiguration.Context;
-                PowerBIDisplayedElement.UserSID := PowerBIReportConfiguration."User Security ID";
-                PowerBIDisplayedElement.ElementId := Format(PowerBIReportConfiguration."Report ID");
-                PowerBIDisplayedElement.ElementType := PowerBIDisplayedElement.ElementType::Report;
-                PowerBIDisplayedElement.ElementName := PowerBIReportConfiguration.ReportName;
-                PowerBIDisplayedElement.ElementEmbedUrl := PowerBIReportConfiguration.ReportEmbedUrl;
-                PowerBIDisplayedElement.WorkspaceID := PowerBIReportConfiguration."Workspace ID";
-                PowerBIDisplayedElement.WorkspaceName := PowerBIReportConfiguration."Workspace Name";
-                PowerBIDisplayedElement.ShowPanesInNormalMode := PowerBIReportConfiguration."Show Panes";
-                PowerBIDisplayedElement.ShowPanesInExpandedMode := true;
-                PowerBIDisplayedElement.ReportPage := PowerBIReportConfiguration."Report Page";
-                PowerBIDisplayedElement.Insert();
+                if not PowerBIDisplayedElement.Get(PowerBIReportConfiguration."User Security ID", PowerBIReportConfiguration.Context, Format(PowerBIReportConfiguration."Report ID"), PowerBIDisplayedElement.ElementType::Report) then begin
+                    Clear(PowerBIDisplayedElement);
+                    PowerBIDisplayedElement.Context := PowerBIReportConfiguration.Context;
+                    PowerBIDisplayedElement.UserSID := PowerBIReportConfiguration."User Security ID";
+                    PowerBIDisplayedElement.ElementId := Format(PowerBIReportConfiguration."Report ID");
+                    PowerBIDisplayedElement.ElementType := PowerBIDisplayedElement.ElementType::Report;
+                    PowerBIDisplayedElement.ElementName := PowerBIReportConfiguration.ReportName;
+                    PowerBIDisplayedElement.ElementEmbedUrl := PowerBIReportConfiguration.ReportEmbedUrl;
+                    PowerBIDisplayedElement.WorkspaceID := PowerBIReportConfiguration."Workspace ID";
+                    PowerBIDisplayedElement.WorkspaceName := PowerBIReportConfiguration."Workspace Name";
+                    PowerBIDisplayedElement.ShowPanesInNormalMode := PowerBIReportConfiguration."Show Panes";
+                    PowerBIDisplayedElement.ShowPanesInExpandedMode := true;
+                    PowerBIDisplayedElement.ReportPage := PowerBIReportConfiguration."Report Page";
+                    PowerBIDisplayedElement.Insert();
+                end;
             until PowerBIReportConfiguration.Next() = 0;
 
         if PowerBIUserConfiguration.FindSet() then
@@ -3688,15 +3743,23 @@ codeunit 104000 "Upgrade - BaseApp"
         VATSetup: Record "VAT Setup";
         UserSetup: Record "User Setup";
         UpgradeTag: Codeunit "Upgrade Tag";
+        EnvironmentInfo: Codeunit "Environment Information";
         UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
         DataTransfer: DataTransfer;
+        CountryCode: Text;
     begin
         if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetVATSetupAllowVATDateTag()) then
             exit;
 
+        CountryCode := EnvironmentInfo.GetApplicationFamily();
+        if CountryCode in ['US', 'CA'] then begin
+            UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetVATSetupAllowVATDateTag());
+            exit;
+        end;
+
         if not GeneralLedgerSetup.Get() then
             exit;
-        
+
         if not VATSetup.Get() then
             VATSetup.Insert();
 
@@ -3706,9 +3769,9 @@ codeunit 104000 "Upgrade - BaseApp"
         if (UserSetup."Allow VAT Date From" <> 0D) or (UserSetup."Allow VAT Date To" <> 0D) then
             exit;
 
-        if (VATSetup."Allow VAT Date From" <> 0D) or (VATSetup."Allow VAT Date To" <> 0D) then 
+        if (VATSetup."Allow VAT Date From" <> 0D) or (VATSetup."Allow VAT Date To" <> 0D) then
             exit;
-        
+
         VATSetup."Allow VAT Date From" := GeneralLedgerSetup."Allow Posting From";
         VATSetup."Allow VAT Date To" := GeneralLedgerSetup."Allow Posting To";
         VATSetup.Modify();
@@ -3720,7 +3783,6 @@ codeunit 104000 "Upgrade - BaseApp"
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetVATSetupAllowVATDateTag());
     end;
-
 
     local procedure CreatePowerPagesAAdApplications()
     var

@@ -622,17 +622,9 @@ table 5077 "Segment Line"
         TempInterLogEntryCommentLine: Record "Inter. Log Entry Comment Line" temporary;
 
     procedure InitLine()
-    var
-        Attachment: Record Attachment;
     begin
         if not SegmentHeaderGlobal.Get(Rec."Segment No.") then
             exit;
-
-        // Delete old attachment if changed
-        if (Rec."Attachment No." <> 0) and (Rec."Contact No." <> xRec."Contact No.") then begin
-            Attachment.Get(Rec."Attachment No.");
-            Attachment.Delete();
-        end;
 
         Rec.Description := SegmentHeaderGlobal.Description;
         Rec."Campaign No." := SegmentHeaderGlobal."Campaign No.";
@@ -642,6 +634,7 @@ table 5077 "Segment Line"
         Rec."Interaction Group Code" := SegmentHeaderGlobal."Interaction Group Code";
         Rec."Cost (LCY)" := SegmentHeaderGlobal."Unit Cost (LCY)";
         Rec."Duration (Min.)" := SegmentHeaderGlobal."Unit Duration (Min.)";
+        SegmentHeaderGlobal.CalcFields("Attachment No.");
         Rec."Attachment No." := SegmentHeaderGlobal."Attachment No.";
         Rec.Date := SegmentHeaderGlobal.Date;
         Rec."Campaign Target" := SegmentHeaderGlobal."Campaign Target";

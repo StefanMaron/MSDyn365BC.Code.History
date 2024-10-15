@@ -192,6 +192,8 @@ report 90 "Import Consolidation from DB"
                 CheckConsolidDates(ConsolidStartDate, ConsolidEndDate);
                 if BusinessUnitCode <> '' then
                     "Business Unit".SetRange(Code, BusinessUnitCode);
+                "Business Unit".SetRange("Default Data Import Method", "Business Unit"."Default Data Import Method"::Database);
+                "Business Unit".SetFilter("Company Name", '<>%1', '');
 
                 if GLDocNo = '' then
                     Error(Text000);

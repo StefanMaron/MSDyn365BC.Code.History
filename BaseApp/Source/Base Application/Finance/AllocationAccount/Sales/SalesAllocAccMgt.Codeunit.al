@@ -95,9 +95,13 @@ codeunit 2678 "Sales Alloc. Acc. Mgt."
     local procedure HandlePostDocument(var SalesHeader: Record "Sales Header"; CommitIsSuppressed: Boolean; PreviewMode: Boolean; var HideProgressWindow: Boolean; var IsHandled: Boolean)
     var
         AllocAccTelemetry: Codeunit "Alloc. Acc. Telemetry";
+        ContainsAllocationLines: Boolean;
     begin
+        VerifyLinesFromDocument(SalesHeader, ContainsAllocationLines);
+        if not ContainsAllocationLines then
+            exit;
+
         AllocAccTelemetry.LogSalesInvoicePostingUsage();
-        VerifyLinesFromDocument(SalesHeader);
         CreateLinesFromDocument(SalesHeader)
     end;
 
@@ -275,7 +279,7 @@ codeunit 2678 "Sales Alloc. Acc. Mgt."
             AllocAccManualOverride.DeleteAll();
     end;
 
-    local procedure VerifyLinesFromDocument(var SalesHeader: Record "Sales Header")
+    local procedure VerifyLinesFromDocument(var SalesHeader: Record "Sales Header"; var ContainsAllocationLines: Boolean)
     var
         AllocationAccountSalesLine: Record "Sales Line";
     begin
@@ -283,24 +287,24 @@ codeunit 2678 "Sales Alloc. Acc. Mgt."
         AllocationAccountSalesLine.SetRange("Document Type", SalesHeader."Document Type");
         AllocationAccountSalesLine.SetRange("Type", AllocationAccountSalesLine."Type"::"Allocation Account");
         AllocationAccountSalesLine.ReadIsolation := IsolationLevel::ReadUncommitted;
-        if not AllocationAccountSalesLine.FindSet() then
-            exit;
-
-        repeat
-            VerifySalesLines(AllocationAccountSalesLine);
-        until AllocationAccountSalesLine.Next() = 0;
+        if AllocationAccountSalesLine.FindSet() then begin
+            ContainsAllocationLines := true;
+            repeat
+                VerifySalesLines(AllocationAccountSalesLine);
+            until AllocationAccountSalesLine.Next() = 0;
+        end;
 
         AllocationAccountSalesLine.Reset();
         AllocationAccountSalesLine.SetRange("Document No.", SalesHeader."No.");
         AllocationAccountSalesLine.SetRange("Document Type", SalesHeader."Document Type");
         AllocationAccountSalesLine.SetFilter("Selected Alloc. Account No.", '<>%1', '');
         AllocationAccountSalesLine.ReadIsolation := IsolationLevel::ReadUncommitted;
-        if not AllocationAccountSalesLine.FindSet() then
-            exit;
-
-        repeat
-            VerifySalesLines(AllocationAccountSalesLine);
-        until AllocationAccountSalesLine.Next() = 0;
+        if AllocationAccountSalesLine.FindSet() then begin
+            ContainsAllocationLines := true;
+            repeat
+                VerifySalesLines(AllocationAccountSalesLine);
+            until AllocationAccountSalesLine.Next() = 0;
+        end;
     end;
 
     local procedure CreateSalesLine(var AllocationSalesLine: Record "Sales Line"; var AllocationLine: Record "Allocation Line"; var LastLineNo: Integer; Increment: Integer)
@@ -312,7 +316,7 @@ codeunit 2678 "Sales Alloc. Acc. Mgt."
         SalesLine."Type" := SalesLine."Type"::"G/L Account";
         SalesLine.Validate("No.", AllocationLine."Destination Account Number");
         SalesLine.Quantity := AllocationSalesLine.Quantity;
-        SalesLine."Unit Price" := AllocationSalesLine."Unit Price";
+        SalesLine.Validate("Unit Price", AllocationLine.Amount);
         SalesLine.Validate("Line Amount", AllocationLine.Amount);
 
         TransferDimensionSetID(SalesLine, AllocationLine, AllocationSalesLine."Alloc. Acc. Modified by User");

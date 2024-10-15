@@ -228,6 +228,7 @@ codeunit 7130 "Item Budget Management"
                     Cust."No." := DimCodeBuf.Code;
                     if SourceNoFilter <> '' then
                         Cust.SetFilter("No.", SourceNoFilter);
+                    OnNextRecOnBeforeCustomerFindNext(Cust);
                     ResultSteps := Cust.Next(Steps);
                     if ResultSteps <> 0 then
                         CopyCustToBuf(Cust, DimCodeBuf);
@@ -237,6 +238,7 @@ codeunit 7130 "Item Budget Management"
                     Vend."No." := DimCodeBuf.Code;
                     if SourceNoFilter <> '' then
                         Vend.SetFilter("No.", SourceNoFilter);
+                    OnNextRecOnBeforeVendorFindNext(Vend);
                     ResultSteps := Vend.Next(Steps);
                     if ResultSteps <> 0 then
                         CopyVendToBuf(Vend, DimCodeBuf);
@@ -730,6 +732,16 @@ codeunit 7130 "Item Budget Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnNextRecOnBeforeItemFind(var Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnNextRecOnBeforeCustomerFindNext(var Customer: Record Customer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnNextRecOnBeforeVendorFindNext(var Vendor: Record Vendor)
     begin
     end;
 }

@@ -201,6 +201,9 @@ table 18 Customer
                 for i := 1 to StrLen("Phone No.") do
                     if Char.IsLetter("Phone No."[i]) then
                         FieldError("Phone No.", PhoneNoCannotContainLettersErr);
+
+                if (Rec."Phone No." <> xRec."Phone No.") then
+                    SetForceUpdateContact(true);
             end;
         }
         field(10; "Telex No."; Text[20])
@@ -2371,12 +2374,16 @@ table 18 Customer
         exit(CalcAvailableCreditCommon(true));
     end;
 
-    local procedure CalcAvailableCreditCommon(CalledFromUI: Boolean): Decimal
+    local procedure CalcAvailableCreditCommon(CalledFromUI: Boolean) Result: Decimal
     var
         CreditLimitLCY: Decimal;
+        IsHandled: Boolean;
     begin
         CreditLimitLCY := "Credit Limit (LCY)";
-        OnBeforeCalcAvailableCreditCommon(Rec, CalledFromUI, CreditLimitLCY);
+        IsHandled := false;
+        OnBeforeCalcAvailableCreditCommon(Rec, CalledFromUI, CreditLimitLCY, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
 
         if CreditLimitLCY = 0 then
             exit(0);
@@ -2717,7 +2724,6 @@ table 18 Customer
 
         Customer.Reset();
         Customer.Ascending(false); // most likely to search for newest customers
-        Customer.SetRange(Blocked, Customer.Blocked::" ");
         OnMarkCustomersWithSimilarNameOnBeforeCustomerFindSet(Customer);
         if Customer.FindSet() then
             repeat
@@ -3652,7 +3658,7 @@ table 18 Customer
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCalcAvailableCreditCommon(var Rec: Record Customer; CalledFromUI: Boolean; var CreditLimitLCY: Decimal)
+    local procedure OnBeforeCalcAvailableCreditCommon(var Rec: Record Customer; CalledFromUI: Boolean; var CreditLimitLCY: Decimal; var Result: Decimal; var IsHandled: Boolean)
     begin
     end;
 

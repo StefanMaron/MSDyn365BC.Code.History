@@ -231,6 +231,12 @@
       "path": "./ImportNOPayroll/Test/Payroll Data Import Definition (NO) Tests"
     },
     {
+      "path": "./EnforcedDigitalVouchers/Test Library/Enforced Digital Vouchers Test Library"
+    },
+    {
+      "path": "./EnforcedDigitalVouchers/Test/Enforced Digital Vouchers Tests"
+    },
+    {
       "path": "./paypalpaymentsstandard/test/PayPal Payments Standard Tests"
     },
     {
