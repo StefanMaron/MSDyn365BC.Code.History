@@ -277,6 +277,8 @@ codeunit 99000838 "Prod. Order Comp.-Reserve"
 
         NewItemJnlLine.TestItemFields(OldProdOrderComp."Item No.", OldProdOrderComp."Variant Code", OldProdOrderComp."Location Code");
 
+        OnTransferPOCompToItemJnlLineCheckILEOnBeforeCheckTransferQty(OldProdOrderComp, NewItemJnlLine, OldReservEntry, TransferQty, TrackedQty);
+
         if TransferQty = 0 then
             exit;
 
@@ -711,6 +713,11 @@ codeunit 99000838 "Prod. Order Comp.-Reserve"
 
     [IntegrationEvent(false, false)]
     local procedure OnTransferPOCompToItemJnlLineCheckILEOnAfterTransferReservEntry(NewItemJnlLine: Record "Item Journal Line"; OldReservEntry: Record "Reservation Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTransferPOCompToItemJnlLineCheckILEOnBeforeCheckTransferQty(var OldProdOrderComponent: Record "Prod. Order Component"; var NewItemJournalLine: Record "Item Journal Line"; var OldReservationEntry: Record "Reservation Entry"; var TransferQty: Decimal; var TrackedQty: Decimal)
     begin
     end;
 

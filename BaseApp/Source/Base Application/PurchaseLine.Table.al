@@ -3,6 +3,7 @@
     Caption = 'Purchase Line';
     DrillDownPageID = "Purchase Lines";
     LookupPageID = "Purchase Lines";
+    Permissions = TableData "Purchase Line" = m;
 
     fields
     {
@@ -608,20 +609,22 @@
                 OnValidateQtyToReceiveOnAfterCalcShouldCheckLocationRequireReceive(Rec, ShouldCheckLocationRequireReceive);
                 if ShouldCheckLocationRequireReceive then
                     CheckLocationRequireReceive();
-                OnValidateQtyToReceiveOnAfterCheck(Rec, CurrFieldNo);
 
-                if "Qty. to Receive" = Quantity - "Quantity Received" then begin
-                    IsHandled := false;
-                    OnValidateQtyToReceiveOnBeforeInitQtyToReceive(Rec, CurrFieldNo, IsHandled);
-                    if not IsHandled then
-                        InitQtyToReceive();
-                end else begin
-                    "Qty. to Receive (Base)" := CalcBaseQty("Qty. to Receive", FieldCaption("Qty. to Receive"), FieldCaption("Qty. to Receive (Base)"));
-                    if "Qty. per Unit of Measure" <> 0 then
-                        ValidateQuantityReceiveIsBalanced();
-                    OnValidateQtyToReceiveOnAfterCalcQtyToReceiveBase(Rec, CurrFieldNo);
-                    InitQtyToInvoice();
-                end;
+                IsHandled := false;
+                OnValidateQtyToReceiveOnAfterCheck(Rec, CurrFieldNo, IsHandled);
+                if not IsHandled then
+                    if "Qty. to Receive" = Quantity - "Quantity Received" then begin
+                        IsHandled := false;
+                        OnValidateQtyToReceiveOnBeforeInitQtyToReceive(Rec, CurrFieldNo, IsHandled);
+                        if not IsHandled then
+                            InitQtyToReceive();
+                    end else begin
+                        "Qty. to Receive (Base)" := CalcBaseQty("Qty. to Receive", FieldCaption("Qty. to Receive"), FieldCaption("Qty. to Receive (Base)"));
+                        if "Qty. per Unit of Measure" <> 0 then
+                            ValidateQuantityReceiveIsBalanced();
+                        OnValidateQtyToReceiveOnAfterCalcQtyToReceiveBase(Rec, CurrFieldNo);
+                        InitQtyToInvoice();
+                    end;
 
                 IsHandled := false;
                 OnValidateQtyToReceiveOnAfterInitQty(Rec, xRec, CurrFieldNo, IsHandled);
@@ -1626,7 +1629,14 @@
             MinValue = 0;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidatePrepmtLineAmount(Rec, PrePaymentLineAmountEntered, IsHandled);
+                if IsHandled then
+                    exit;
+
                 TestStatusOpen();
                 PrePaymentLineAmountEntered := true;
                 TestField("Line Amount");
@@ -2330,7 +2340,13 @@
             var
                 WMSManagement: Codeunit "WMS Management";
                 BinCode: Code[20];
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeLookupBinCode(Rec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if not IsInbound and ("Quantity (Base)" <> 0) then
                     BinCode := WMSManagement.BinContentLookUp("Location Code", "No.", "Variant Code", '', "Bin Code")
                 else
@@ -4008,24 +4024,29 @@
     procedure CalcInvDiscToInvoice()
     var
         OldInvDiscAmtToInv: Decimal;
+        IsHandled: Boolean;
     begin
-        GetPurchHeader();
-        OldInvDiscAmtToInv := "Inv. Disc. Amount to Invoice";
-        if Quantity = 0 then
-            Validate("Inv. Disc. Amount to Invoice", 0)
-        else
-            Validate(
-              "Inv. Disc. Amount to Invoice",
-              Round(
-                "Inv. Discount Amount" * "Qty. to Invoice" / Quantity,
-                Currency."Amount Rounding Precision"));
+        IsHandled := false;
+        OnBeforeCalcInvDiscToInvoiceProcedure(Rec, Currency, IsHandled);
+        if not IsHandled then begin
+            GetPurchHeader();
+            OldInvDiscAmtToInv := "Inv. Disc. Amount to Invoice";
+            if Quantity = 0 then
+                Validate("Inv. Disc. Amount to Invoice", 0)
+            else
+                Validate(
+                  "Inv. Disc. Amount to Invoice",
+                  Round(
+                    "Inv. Discount Amount" * "Qty. to Invoice" / Quantity,
+                    Currency."Amount Rounding Precision"));
 
-        if OldInvDiscAmtToInv <> "Inv. Disc. Amount to Invoice" then begin
-            "Amount Including VAT" := "Amount Including VAT" - "VAT Difference";
-            "VAT Difference" := 0;
+            if OldInvDiscAmtToInv <> "Inv. Disc. Amount to Invoice" then begin
+                "Amount Including VAT" := "Amount Including VAT" - "VAT Difference";
+                "VAT Difference" := 0;
+            end;
+            NotifyOnMissingSetup(FieldNo("Inv. Discount Amount"));
+
         end;
-        NotifyOnMissingSetup(FieldNo("Inv. Discount Amount"));
-
         OnAfterCalcInvDiscToInvoice(Rec, OldInvDiscAmtToInv);
     end;
 
@@ -4462,7 +4483,14 @@
     end;
 
     procedure UpdateDirectUnitCost(CalledByFieldNo: Integer)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateDirectUnitCostProcedure(Rec, CalledByFieldNo, IsHandled);
+        if IsHandled then
+            exit;
+
         ClearFieldCausedPriceCalculation();
         PlanPriceCalcByField(CalledByFieldNo);
         UpdateDirectUnitCostByField(CalledByFieldNo);
@@ -5037,14 +5065,18 @@
         FADeprBook.Get("No.", "Depreciation Book Code");
         FADeprBook.TestField("FA Posting Group");
         FAPostingGr.GetPostingGroup(FADeprBook."FA Posting Group", FADeprBook."Depreciation Book Code");
-        case "FA Posting Type" of
-            "FA Posting Type"::"Acquisition Cost":
-                LocalGLAcc.Get(FAPostingGr.GetAcquisitionCostAccount);
-            "FA Posting Type"::Appreciation:
-                LocalGLAcc.Get(FAPostingGr.GetAppreciationAccount);
-            "FA Posting Type"::Maintenance:
-                LocalGLAcc.Get(FAPostingGr.GetMaintenanceExpenseAccount);
-        end;
+        IsHandled := false;
+        OnGetFAPostingGroupOnBeforeLocalGLAccGet(Rec, FAPostingGr, LocalGLAcc, IsHandled);
+        if not IsHandled then
+            case "FA Posting Type" of
+                "FA Posting Type"::"Acquisition Cost":
+                    LocalGLAcc.Get(FAPostingGr.GetAcquisitionCostAccount);
+                "FA Posting Type"::Appreciation:
+                    LocalGLAcc.Get(FAPostingGr.GetAppreciationAccount);
+                "FA Posting Type"::Maintenance:
+                    LocalGLAcc.Get(FAPostingGr.GetMaintenanceExpenseAccount);
+            end;
+
         LocalGLAcc.CheckGLAcc;
         if not ApplicationAreaMgmt.IsSalesTaxEnabled then
             LocalGLAcc.TestField("Gen. Prod. Posting Group");
@@ -5388,6 +5420,7 @@
           DimMgt.GetRecDefaultDimID(
             Rec, CurrFieldNo, DefaultDimSource, SourceCodeSetup.Purchases,
             "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", PurchHeader."Dimension Set ID", DATABASE::Vendor);
+        OnCreateDimOnBeforeUpdateGlobalDimFromDimSetID(Rec);
         DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
 
         OnAfterCreateDim(Rec, CurrFieldNo, xRec);
@@ -5584,8 +5617,7 @@
         IsHandled: Boolean;
     begin
         Get("Document Type", "Document No.", "Line No.");
-        TestField("No.");
-        TestField(Quantity);
+        CheckNoAndQuantityForItemChargeAssgnt();
 
         if Type <> Type::"Charge (Item)" then begin
             Message(ItemChargeAssignmentErr);
@@ -5794,6 +5826,19 @@
 
         TestField("Return Qty. Shipped Not Invd.", 0);
         TestField("Return Shipment No.", '');
+    end;
+
+    local procedure CheckNoAndQuantityForItemChargeAssgnt()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckNoAndQuantityForItemChargeAssgnt(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        TestField("No.");
+        TestField(Quantity);
     end;
 
     procedure GetCaptionClass(FieldNumber: Integer): Text[80]
@@ -7489,6 +7534,8 @@
             TotalAmtToAssign := TotalAmtToAssign / (1 + "VAT %" / 100) - "VAT Difference";
 
         TotalAmtToAssign := Round(TotalAmtToAssign, Currency."Amount Rounding Precision");
+
+        OnAfterCalcTotalAmtToAssign(Rec, PurchHeader, Currency, TotalQtyToAssign, TotalAmtToAssign);
     end;
 
     procedure HasTypeToFillMandatoryFields() ReturnValue: Boolean
@@ -7567,7 +7614,13 @@
         Item: Record Item;
         Resource: Record Resource;
         GLAccount: Record "G/L Account";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeInitDeferralCode(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if "Document Type" in
            ["Document Type"::Order, "Document Type"::Invoice, "Document Type"::"Credit Memo", "Document Type"::"Return Order"]
         then
@@ -8041,7 +8094,7 @@
         DimMgt.AddDimSource(DefaultDimSource, Database::"Work Center", Rec."Work Center No.", FieldNo = Rec.FieldNo("Work Center No."));
         DimMgt.AddDimSource(DefaultDimSource, Database::Location, Rec."Location Code", FieldNo = Rec.FieldNo("Location Code"));
 
-        OnAfterInitDefaultDimensionSources(Rec, DefaultDimSource);
+        OnAfterInitDefaultDimensionSources(Rec, DefaultDimSource, FieldNo);
     end;
 
 #if not CLEAN20
@@ -8087,7 +8140,7 @@
 #endif
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterInitDefaultDimensionSources(var PurchaseLine: Record "Purchase Line"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    local procedure OnAfterInitDefaultDimensionSources(var PurchaseLine: Record "Purchase Line"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; FieldNo: Integer)
     begin
     end;
 
@@ -8242,6 +8295,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateDirectUnitCostProcedure(var PurchLine: Record "Purchase Line"; CalledByFieldNo: Integer; var Handled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateOrderDateFromPlannedReceiptDate(var PurchaseLine: Record "Purchase Line"; CustomCalendarChange: Array[2] of Record "Customized Calendar Change"; var IsHandled: Boolean)
     begin
     end;
@@ -8323,6 +8381,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalcQtyPerUnitOfMeasure(var PurchaseLine: Record "Purchase Line"; Item: Record Item; CallingFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcTotalAmtToAssign(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; Currency: Record Currency; TotalQtyToAssign: Decimal; var TotalAmtToAssign: Decimal)
     begin
     end;
 
@@ -8474,6 +8537,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcInvDiscToInvoiceProcedure(var PurchaseLine: Record "Purchase Line"; Currency: Record Currency; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcIndirectCostPercent(var PurchaseLine: Record "Purchase Line"; UnitCostCurrency: Decimal; var IsHandled: Boolean);
     begin
     end;
@@ -8515,6 +8583,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckLocationOnWMS(var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckNoAndQuantityForItemChargeAssgnt(var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
     begin
     end;
 
@@ -8609,6 +8682,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeInitDeferralCode(var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeInitQtyToInvoice(var PurchaseLine: Record "Purchase Line"; CurrFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
@@ -8635,6 +8713,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeJobTaskIsSet(PurchLine: Record "Purchase Line"; var IsJobLine: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeLookupBinCode(var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
     begin
     end;
 
@@ -8839,6 +8922,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidatePrepmtLineAmount(var PurchaseLine: Record "Purchase Line"; PrePaymentLineAmountEntered: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeValidatePromisedReceiptDate(var PurchaseLine: Record "Purchase Line"; CallingFieldNo: Integer; var IsHandled: Boolean; xPurchaseLine: Record "Purchase Line")
     begin
     end;
@@ -8964,6 +9052,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCreateDimOnBeforeUpdateGlobalDimFromDimSetID(var PurchaseLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCreateTempJobJnlLineOnBeforeTempJobJnlLineValidateNo(var TempJobJnlLine: Record "Job Journal Line" temporary; PurchaseLine: Record "Purchase Line")
     begin
     end;
@@ -8980,6 +9073,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnDeleteOnBeforeTestStatusOpen(var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetFAPostingGroupOnBeforeLocalGLAccGet(PurchaseLine: Record "Purchase Line"; FAPostingGroup: Record "FA Posting Group"; var GLAccount: Record "G/L Account"; var IsHandled: Boolean)
     begin
     end;
 
@@ -9149,7 +9247,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnValidateQtyToReceiveOnAfterCheck(var PurchaseLine: Record "Purchase Line"; CallingFieldNo: Integer)
+    local procedure OnValidateQtyToReceiveOnAfterCheck(var PurchaseLine: Record "Purchase Line"; CallingFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 

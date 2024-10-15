@@ -113,12 +113,19 @@ report 11015 "Export Business Data"
         GLSetup.Get();
     end;
 
+    trigger OnPostReport()
+    begin
+        FeatureTelemetry.LogUptake('0001Q0O', DataTok, Enum::"Feature Uptake Status"::"Used");
+        FeatureTelemetry.LogUsage('0001Q0P', DataTok, 'DACH data export');
+    end;
+
     var
         GLSetup: Record "General Ledger Setup";
         TempDataExportRecordSource: Record "Data Export Record Source" temporary;
         TempBlobArray: array[100] of Codeunit "Temp Blob";
         DataCompression: Codeunit "Data Compression";
         DotNet_StreamWriterArr: array[100] of Codeunit DotNet_StreamWriter;
+        FeatureTelemetry: Codeunit "Feature Telemetry";
         StartDate: Date;
         EndDate: Date;
         Window: Dialog;
@@ -128,6 +135,7 @@ report 11015 "Export Business Data"
         StepValue: Integer;
         NextStep: Integer;
         CloseDate: Boolean;
+        DataTok: Label 'DACH Data Export', Locked = true;
         ValueWithQuotesTxt: Label '"%1"', Locked = true;
         CreatingXMLFileMsg: Label 'Creating XML File...';
         StartDateErr: Label 'You must enter a starting date.';

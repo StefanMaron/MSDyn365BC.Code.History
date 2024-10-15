@@ -10,7 +10,7 @@ codeunit 1542 "Workflow Webhook Responses"
 
     procedure SendNotificationToWebhookCode(): Code[128]
     begin
-        exit(UpperCase('SendNotificationToWebhook'));
+        exit('SENDNOTIFICATIONTOWEBHOOK');
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Workflow Response Handling", 'OnAddWorkflowResponsePredecessorsToLibrary', '', false, false)]

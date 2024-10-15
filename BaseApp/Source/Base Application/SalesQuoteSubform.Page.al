@@ -1098,6 +1098,7 @@
     begin
         DescriptionIndent := 0;
         ShowShortcutDimCode(ShortcutDimCode);
+        UpdateEditableOnRow();
         UpdateTypeText();
         SetItemChargeFieldsStyle();
         DescriptionOnFormat;

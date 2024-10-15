@@ -19,9 +19,9 @@ codeunit 98 "Purchase Post via Job Queue"
         BatchProcessingMgt.GetBatchFromSession("Record ID to Process", "User Session ID");
 
         SavedLockTimeout := LockTimeout;
-        SetJobQueueStatus(PurchHeader, PurchHeader."Job Queue Status"::Posting);
+        SetJobQueueStatus(PurchHeader, PurchHeader."Job Queue Status"::Posting, Rec);
         if not Codeunit.Run(Codeunit::"Purch.-Post", PurchHeader) then begin
-            SetJobQueueStatus(PurchHeader, PurchHeader."Job Queue Status"::Error);
+            SetJobQueueStatus(PurchHeader, PurchHeader."Job Queue Status"::Error, Rec);
             BatchProcessingMgt.ResetBatchID;
             Error(GetLastErrorText);
         end;
@@ -32,7 +32,7 @@ codeunit 98 "Purchase Post via Job Queue"
         if not AreOtherJobQueueEntriesScheduled(Rec) then
             BatchProcessingMgt.ResetBatchID;
         BatchProcessingMgt.DeleteBatchProcessingSessionMapForRecordId(PurchHeader.RecordId);
-        SetJobQueueStatus(PurchHeader, PurchHeader."Job Queue Status"::" ");
+        SetJobQueueStatus(PurchHeader, PurchHeader."Job Queue Status"::" ", Rec);
     end;
 
     var
@@ -43,9 +43,9 @@ codeunit 98 "Purchase Post via Job Queue"
         DefaultCategoryCodeLbl: Label 'PURCHBCKGR', Locked = true;
         DefaultCategoryDescLbl: Label 'Def. Background Purch. Posting', Locked = true;
 
-    local procedure SetJobQueueStatus(var PurchHeader: Record "Purchase Header"; NewStatus: Option)
+    local procedure SetJobQueueStatus(var PurchHeader: Record "Purchase Header"; NewStatus: Option; JobQueueEntry: Record "Job Queue Entry")
     begin
-        OnBeforeSetJobQueueStatus(PurchHeader, NewStatus);
+        OnBeforeSetJobQueueStatus(PurchHeader, NewStatus, JobQueueEntry);
         PurchHeader.LockTable();
         if PurchHeader.Find then begin
             PurchHeader."Job Queue Status" := NewStatus;
@@ -199,7 +199,7 @@ codeunit 98 "Purchase Post via Job Queue"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeSetJobQueueStatus(PurchaseHeader: Record "Purchase Header"; NewJobQueueStatus: Option " ","Scheduled for Posting",Error,Posting)
+    local procedure OnBeforeSetJobQueueStatus(PurchaseHeader: Record "Purchase Header"; NewJobQueueStatus: Option " ","Scheduled for Posting",Error,Posting; JobQueueEntry: Record "Job Queue Entry")
     begin
     end;
 }

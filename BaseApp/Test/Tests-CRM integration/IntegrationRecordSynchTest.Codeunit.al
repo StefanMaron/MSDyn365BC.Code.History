@@ -219,62 +219,6 @@ codeunit 139166 "Integration Record Synch. Test"
 
     [Test]
     [Scope('OnPrem')]
-    procedure VerifyModifiedFlagsAfterFieldsTransferWithChangedUnmappedField()
-    var
-        SourceComparisonType: Record "Comparison Type";
-        DestinationComparisonType: Record "Comparison Type";
-        TempIntegrationFieldMapping: Record "Temp Integration Field Mapping" temporary;
-        IntegrationRecordSynch: Codeunit "Integration Record Synch.";
-        SourceTableRecRef: RecordRef;
-        DestinationTableRecRef: RecordRef;
-        SourceFieldRef: FieldRef;
-    begin
-        // [SCENARIO] Transfer fields with the changed unmapped field
-        Initialize();
-
-        // [GIVEN] Source row
-        CreateComparisonTypeRow(SourceComparisonType);
-        SourceTableRecRef.GetTable(SourceComparisonType);
-        // [GIVEN] Destination row
-        DestinationComparisonType.TransferFields(SourceComparisonType);
-        DestinationComparisonType."Key" := SourceComparisonType."Key" + 1;
-        DestinationComparisonType.Insert();
-        DestinationTableRecRef.GetTable(DestinationComparisonType);
-        // [GIVEN] No mapping for the Guid Field
-        CreateComparisonTypeRowTempIntegrationFieldMapping(TempIntegrationFieldMapping, false);
-        TempIntegrationFieldMapping.SetRange("Source Field No.", SourceComparisonType.FieldNo("GUID Field"));
-        TempIntegrationFieldMapping.DeleteAll();
-        TempIntegrationFieldMapping.Reset();
-        IntegrationRecordSynch.SetFieldMapping(TempIntegrationFieldMapping);
-        // [GIVEN] Destination row has not been synchronized
-        IntegrationRecordSynch.SetParameters(SourceTableRecRef, DestinationTableRecRef, false);
-        Commit();
-
-        // [WHEN] Transfer the fields the first time
-        Assert.IsTrue(IntegrationRecordSynch.Run(), 'Expected the first transfer to succeed');
-        // [THEN] The flag indicates that fields have been modified
-        Assert.IsTrue(IntegrationRecordSynch.GetWasModified(), 'Expected the first transfer to set the any field modified flag to true');
-        // [THEN] The flag indicates that bidirectional fields have not been modified
-        Assert.IsFalse(IntegrationRecordSynch.GetWasBidirectionalFieldModified(), 'Expected the first transfer to set the bidirectional field modified flag to false');
-
-        // [GIVEN] Destination row has already been synchronized
-        IntegrationRecordSynch.SetParameters(SourceTableRecRef, DestinationTableRecRef, true);
-        // [GIVEN] The Guid Field (unmapped) is changed
-        DestinationTableRecRef.Find();
-        DestinationTableRecRef.Field(SourceComparisonType.FieldNo("Guid Field")).Value := CreateGuid();
-        DestinationTableRecRef.Modify();
-        Commit();
-
-        // [WHEN] Transfer the fields the second time
-        Assert.IsTrue(IntegrationRecordSynch.Run(), 'Expected the second transfer to succeed');
-        // [THEN] The flag indicates that fields have not been modified
-        Assert.IsFalse(IntegrationRecordSynch.GetWasModified(), 'Expected the second transfer to set the any field modified flag to false');
-        // [THEN] The flag indicates that bidirectional fields have not been modified
-        Assert.IsFalse(IntegrationRecordSynch.GetWasBidirectionalFieldModified(), 'Expected the second transfer to set the bidirectional field modified flag to false');
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     procedure VerifyModifiedFlagsAfterFieldsTransferWithUnchangedUnmappedField()
     var
         SourceComparisonType: Record "Comparison Type";

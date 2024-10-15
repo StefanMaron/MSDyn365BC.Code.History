@@ -1,4 +1,4 @@
-codeunit 333 "Req. Wksh.-Make Order"
+﻿codeunit 333 "Req. Wksh.-Make Order"
 {
     Permissions = TableData "Sales Line" = m;
     TableNo = "Requisition Line";
@@ -163,10 +163,7 @@ codeunit 333 "Req. Wksh.-Make Order"
                 if PurchOrderHeader."Buy-from Vendor No." <> '' then
                     FinalizeOrderHeader(PurchOrderHeader, ReqLine);
 
-            if PrintPurchOrders then begin
-                PrintTransOrder(TransHeader);
-                PrintMultiplePurchaseOrders();
-            end;
+            CheckRunPrintPurchOrders();
 
             if PrevChangedDocOrderNo <> '' then
                 PrintChangedDocument(PrevChangedDocOrderType, PrevChangedDocOrderNo);
@@ -211,6 +208,21 @@ codeunit 333 "Req. Wksh.-Make Order"
         end;
 
         OnAfterCode(ReqLine, OrderLineCounter, OrderCounter);
+    end;
+
+    local procedure CheckRunPrintPurchOrders()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckRunPrintPurchOrders(TransHeader, PurchOrderHeader, TempPurchaseOrderToPrint, PrintPurchOrders, IsHandled);
+        if IsHandled then
+            exit;
+
+        if PrintPurchOrders then begin
+            PrintTransOrder(TransHeader);
+            PrintMultiplePurchaseOrders();
+        end;
     end;
 
     local procedure CheckRequisitionLines(var ReqLine: Record "Requisition Line")
@@ -305,19 +317,22 @@ codeunit 333 "Req. Wksh.-Make Order"
                 else
                     Error(DimMgt.GetDimValuePostingErr);
 
-            if SalesLine.Get(SalesLine."Document Type"::Order, "Sales Order No.", "Sales Order Line No.") and
-               (SalesLine."Unit of Measure Code" <> "Unit of Measure Code")
-            then
-                if SalesLine."Drop Shipment" or
-                   (PurchasingCode.Get("Purchasing Code") and PurchasingCode."Drop Shipment")
+            IsHandled := false;
+            OnCheckRequisitionLineOnNonCancelActionMessageOnBeforeCheckUOM(ReqLine2, PurchasingCode, IsHandled);
+            if not IsHandled then
+                if SalesLine.Get(SalesLine."Document Type"::Order, "Sales Order No.", "Sales Order Line No.") and
+                   (SalesLine."Unit of Measure Code" <> "Unit of Measure Code")
                 then
-                    FieldError(
-                      "Unit of Measure Code",
-                      StrSubstNo(
-                        Text010,
-                        SalesLine.FieldCaption("Unit of Measure Code"),
-                        SalesLine."Document No.",
-                        SalesLine."Line No."));
+                    if SalesLine."Drop Shipment" or
+                       (PurchasingCode.Get("Purchasing Code") and PurchasingCode."Drop Shipment")
+                    then
+                        FieldError(
+                          "Unit of Measure Code",
+                          StrSubstNo(
+                            Text010,
+                            SalesLine.FieldCaption("Unit of Measure Code"),
+                            SalesLine."Document No.",
+                            SalesLine."Line No."));
 
             if IsDropShipment() then
                 CheckLocation(ReqLine2);
@@ -488,7 +503,11 @@ codeunit 333 "Req. Wksh.-Make Order"
 
     procedure InitPurchOrderLine(var PurchOrderLine: Record "Purchase Line"; PurchOrderHeader: Record "Purchase Header"; RequisitionLine: Record "Requisition Line")
     begin
+        OnBeforeInitPurchOrderLine(
+            RequisitionLine, PurchasingCode, PurchOrderHeader, LineCount, NextLineNo, PrevPurchCode, PrevShipToCode, PlanningResiliency,
+            TempDocumentEntry, SuppressCommit, PostingDateReq, ReferenceReq, OrderDateReq, ReceiveDateReq, OrderCounter, HideProgressWindow);
         with RequisitionLine do begin
+            Clear(PurchOrderLine);
             PurchOrderLine.Init();
             PurchOrderLine.BlockDynamicTracking(true);
             PurchOrderLine."Document Type" := PurchOrderLine."Document Type"::Order;
@@ -572,7 +591,8 @@ codeunit 333 "Req. Wksh.-Make Order"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeInsertPurchOrderLine(ReqLine2, PurchOrderHeader, NextLineNo, IsHandled);
+        OnBeforeInsertPurchOrderLine(ReqLine2, PurchOrderHeader, NextLineNo, IsHandled, PrevPurchCode, PrevShipToCode, PlanningResiliency, TempDocumentEntry, SuppressCommit,
+            PostingDateReq, ReferenceReq, OrderDateReq, ReceiveDateReq, OrderCounter, HideProgressWindow, PrevLocationCode, LineCount, PurchOrderHeader, PurchasingCode, PurchOrderLine);
         if IsHandled then
             exit;
 
@@ -620,6 +640,8 @@ codeunit 333 "Req. Wksh.-Make Order"
                     PurchOrderLine."Special Order" := true;
                     PurchOrderLine.UpdateUnitCost;
                 end;
+
+            UpdateJobLink(PurchOrderLine, ReqLine2);
 
             ReqLineReserve.TransferReqLineToPurchLine(ReqLine2, PurchOrderLine, "Quantity (Base)", false);
 
@@ -919,6 +941,7 @@ codeunit 333 "Req. Wksh.-Make Order"
 
     local procedure MakeRecurringTexts(var ReqLine2: Record "Requisition Line")
     begin
+        OnBeforeMakeRecurringTexts(ReqLine2, PurchOrderLine);
         with ReqLine2 do
             if ("No." <> '') and ("Recurring Method" <> 0) and ("Order Date" <> 0D) then begin
                 Day := Date2DMY("Order Date", 1);
@@ -1124,6 +1147,7 @@ codeunit 333 "Req. Wksh.-Make Order"
         with ReqLine do
             if Find('-') then
                 repeat
+                    OnProcessReqLineActionsOnBeforeReqLineLoop(ReqLine);
                     if not PlanningResiliency then
                         CarryOutReqLineAction(ReqLine)
                     else
@@ -1335,6 +1359,22 @@ codeunit 333 "Req. Wksh.-Make Order"
               Text005);
     end;
 
+    local procedure UpdateJobLink(var PurchaseLine: Record "Purchase Line"; RequisitionLine: Record "Requisition Line")
+    var
+        JobPlanningLine: Record "Job Planning Line";
+    begin
+        if (RequisitionLine."Planning Line Origin" = RequisitionLine."Planning Line Origin"::"Order Planning") and
+           (RequisitionLine."Demand Type" = DATABASE::"Job Planning Line")
+        then begin
+            JobPlanningLine.SetRange("Job Contract Entry No.", RequisitionLine."Demand Line No.");
+            JobPlanningLine.FindFirst();
+
+            PurchaseLine.Validate("Job No.", JobPlanningLine."Job No.");
+            PurchaseLine.Validate("Job Task No.", JobPlanningLine."Job Task No.");
+            PurchaseLine.Validate("Job Planning Line No.", JobPlanningLine."Line No.");
+        end;
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCode(var ReqLine: Record "Requisition Line"; PlanningResiliency: Boolean; SuppressCommit: Boolean; PrintPurchOrders: Boolean)
     begin
@@ -1376,7 +1416,7 @@ codeunit 333 "Req. Wksh.-Make Order"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeInsertPurchOrderLine(var RequisitionLine: Record "Requisition Line"; var PurchaseHeader: Record "Purchase Header"; var NextLineNo: Integer; var IsHandled: Boolean)
+    local procedure OnBeforeInsertPurchOrderLine(var RequisitionLine: Record "Requisition Line"; var PurchaseHeader: Record "Purchase Header"; var NextLineNo: Integer; var IsHandled: Boolean; var PrevPurchCode: code[10]; var PrevShipToCode: code[10]; var PlanningResiliency: boolean; TempDocumentEntry: Record "Document Entry" temporary; var SuppressCommit: Boolean; var PostingDateReq: date; var ReferenceReq: text[35]; var OrderDateReq: date; var ReceiveDateReq: date; var OrderCounter: integer; var HideProgressWindow: Boolean; var PrevLocationCode: code[10]; var LineCount: Integer; var PurchOrderHeader: Record "Purchase Header"; PurchasingCode: record Purchasing; var PurchOrderLine: Record "Purchase Line")
     begin
     end;
 
@@ -1495,8 +1535,23 @@ codeunit 333 "Req. Wksh.-Make Order"
     begin
     end;
 
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeCheckRunPrintPurchOrders(var TransHeader: Record "Transfer Header"; var PurchOrderHeader: Record "Purchase Header"; var TempPurchaseOrderToPrint: Record "Purchase Header" temporary; var PrintPurchOrders: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInitPurchOrderLineUpdateQuantity(var PurchOrderLine: Record "Purchase Line"; var RequisitionLine: Record "Requisition Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInitPurchOrderLine(var ReqLine: record "Requisition Line"; var PurchasingCode: Record Purchasing; var PurchOrderHeader: Record "Purchase Header"; var LineCount: Integer; var NextLineNo: Integer; var PrevPurchCode: code[10]; var PrevShipToCode: code[10]; var PlanningResiliency: boolean; TempDocumentEntry: Record "Document Entry" temporary; var SuppressCommit: Boolean; var PostingDateReq: date; var ReferenceReq: text[35]; var OrderDateReq: date; var ReceiveDateReq: date; var OrderCounter: integer; var HideProgressWindow: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeMakeRecurringTexts(var RequisitionLine: Record "Requisition Line"; var PurchOrderLine: Record "Purchase Line")
     begin
     end;
 
@@ -1596,6 +1651,11 @@ codeunit 333 "Req. Wksh.-Make Order"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnProcessReqLineActionsOnBeforeReqLineLoop(var RequisitionLine: Record "Requisition Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCodeOnBeforeInitProgressWindow(ReqTemplate: Record "Req. Wksh. Template"; var HideProgressWindow: Boolean)
     begin
     end;
@@ -1622,6 +1682,11 @@ codeunit 333 "Req. Wksh.-Make Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnCheckRequisitionLineOnNonCancelActionMessageOnBeforeCheckQuantity(var ReqLine2: Record "Requisition Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckRequisitionLineOnNonCancelActionMessageOnBeforeCheckUOM(var ReqLine2: Record "Requisition Line"; var PurchasingCode: Record Purchasing; var IsHandled: Boolean)
     begin
     end;
 

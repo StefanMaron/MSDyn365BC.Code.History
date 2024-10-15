@@ -120,6 +120,14 @@ table 79 "Company Information"
         field(20; "Registration No."; Text[20])
         {
             Caption = 'Registration No.';
+
+            trigger OnValidate()
+            var
+                FeatureTelemetry: Codeunit "Feature Telemetry";
+                RegTok: Label 'DACH Include Company Reg. Number On Reports', Locked = true;
+            begin
+                FeatureTelemetry.LogUptake('0001Q0V', RegTok, Enum::"Feature Uptake Status"::"Set up");
+            end;
         }
         field(21; "Telex Answer Back"; Text[20])
         {

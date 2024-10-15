@@ -119,6 +119,8 @@ codeunit 1280 "Map Currency Exchange Rate"
         DataExchField: Record "Data Exch. Field";
         CurrencyExchangeRate: Record "Currency Exchange Rate";
         DataExchFieldMapping: Record "Data Exch. Field Mapping";
+        TransformationRule: Record "Transformation Rule";
+        TransformedCurrencyCode: Text;
     begin
         if not GetFieldValue(CurrencyExchangeRecordRef, DataExchField, DefinitionDataExchField, DataExchFieldMapping, CurrencyExchangeRate.FieldNo("Currency Code")) then
             exit(false);
@@ -126,8 +128,17 @@ codeunit 1280 "Map Currency Exchange Rate"
         if DataExchField.Value = '' then
             exit(false);
 
-        if not Currency.Get(DataExchField.Value) then
-            exit(false);
+        if not Currency.Get(DataExchField.Value) then begin
+            if DataExchFieldMapping."Transformation Rule" = '' then
+                exit(false);
+
+            if not TransformationRule.Get(DataExchFieldMapping."Transformation Rule") then
+                exit(false);
+
+            TransformedCurrencyCode := TransformationRule.TransformText(DataExchField.Value);
+            if not Currency.Get(CopyStr(TransformedCurrencyCode, 1, MaxStrLen(Currency.Code))) then
+                exit(false);
+        end;
 
         exit(AssignValue(CurrencyExchangeRecordRef, DataExchField, DataExchFieldMapping, false, '', CurrencyExchangeRate.FieldNo("Currency Code")));
     end;

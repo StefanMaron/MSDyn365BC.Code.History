@@ -6,7 +6,8 @@
     LookupPageID = "Item Lookup";
     Permissions = TableData "Service Item" = rm,
                   TableData "Service Item Component" = rm,
-                  TableData "Bin Content" = d;
+                  TableData "Bin Content" = d,
+                  TableData "Planning Assignment" = d;
 
     fields
     {
@@ -3101,6 +3102,9 @@
 
     local procedure CheckItemJnlLine(CurrFieldNo: Integer)
     begin
+        if "No." = '' then
+            exit;
+
         ItemJnlLine.SetRange("Item No.", "No.");
         if not ItemJnlLine.IsEmpty() then begin
             if CurrFieldNo = 0 then
@@ -3124,6 +3128,9 @@
 
     local procedure CheckReqLine(CurrFieldNo: Integer)
     begin
+        if "No." = '' then
+            exit;
+
         RequisitionLine.SetCurrentKey(Type, "No.");
         RequisitionLine.SetRange(Type, RequisitionLine.Type::Item);
         RequisitionLine.SetRange("No.", "No.");
@@ -3443,9 +3450,10 @@
         exit(CopyStr(ItemNo, 1, MaxStrLen("No.")));
     end;
 
-    local procedure AsPriceAsset(var PriceAsset: Record "Price Asset")
+    local procedure AsPriceAsset(var PriceAsset: Record "Price Asset"; PriceType: Enum "Price Type")
     begin
         PriceAsset.Init();
+        PriceAsset."Price Type" := PriceType;
         PriceAsset."Asset Type" := PriceAsset."Asset Type"::Item;
         PriceAsset."Asset No." := "No.";
     end;
@@ -3455,7 +3463,7 @@
         PriceAsset: Record "Price Asset";
         PriceUXManagement: Codeunit "Price UX Management";
     begin
-        AsPriceAsset(PriceAsset);
+        AsPriceAsset(PriceAsset, PriceType);
         PriceUXManagement.ShowPriceListLines(PriceAsset, PriceType, AmountType);
     end;
 
@@ -3948,6 +3956,9 @@
     var
         ItemLedgEntry: Record "Item Ledger Entry";
     begin
+        if "No." = '' then
+            exit;
+
         ItemLedgEntry.Reset();
         ItemLedgEntry.SetCurrentKey("Item No.");
         ItemLedgEntry.SetRange("Item No.", "No.");
