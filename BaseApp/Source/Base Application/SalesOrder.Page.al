@@ -392,6 +392,16 @@
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies if the transaction is related to trade with a third party within the EU.';
                 }
+                field("Fattura Project Code"; "Fattura Project Code")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the code for the Fattura project.';
+                }
+                field("Fattura Tender Code"; "Fattura Tender Code")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the code for the Fattura tender.';
+                }
                 field("Fattura Document Type"; "Fattura Document Type")
                 {
                     ApplicationArea = Basic, Suite;
@@ -516,6 +526,8 @@
                                             IsShipToCountyVisible := FormatAddress.UseCounty("Ship-to Country/Region Code");
                                         end;
                                 end;
+
+                                OnAfterValidateShippingOptions(Rec, ShipToOptions);
                             end;
                         }
                         group(Control4)
@@ -2520,6 +2532,11 @@
             exit(LocationsQuery.Read);
         end;
         exit(false);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterValidateShippingOptions(var SalesHeader: Record "Sales Header"; ShipToOptions: Option "Default (Sell-to Address)","Alternate Shipping Address","Custom Address")
+    begin
     end;
 
     [IntegrationEvent(false, false)]

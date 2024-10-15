@@ -1,4 +1,4 @@
-codeunit 90 "Purch.-Post"
+﻿codeunit 90 "Purch.-Post"
 {
     Permissions = TableData "Sales Header" = m,
                   TableData "Sales Line" = m,
@@ -1948,6 +1948,8 @@ codeunit 90 "Purch.-Post"
         FixedAsset: Record "Fixed Asset";
         DeprBook: Record "Depreciation Book";
         FASetup: Record "FA Setup";
+        FADepreciationBook: Record "FA Depreciation Book";
+        FACheckConsistency:	Codeunit "FA Check Consistency";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -1962,6 +1964,8 @@ codeunit 90 "Purch.-Post"
             FixedAsset.Get("No.");
             FixedAsset.TestField("Budgeted Asset", false);
             DeprBook.Get("Depreciation Book Code");
+            if FADepreciationBook.Get("No.", "Depreciation Book Code") then
+                FACheckConsistency.CheckDisposalDate(FADepreciationBook, FixedAsset);
             if "Budgeted FA No." <> '' then begin
                 FixedAsset.Get("Budgeted FA No.");
                 FixedAsset.TestField("Budgeted Asset", true);
@@ -4602,10 +4606,10 @@ codeunit 90 "Purch.-Post"
               GetAmountRoundingPrecisionInLCY("Document Type", "Document No.", "Currency Code");
 
             if (Abs(TotalRoundingAmount[1]) <= AmountRoundingPrecision) and
-               (Abs(TotalRoundingAmount[2]) <= AmountRoundingPrecision)
+               (Abs(TotalRoundingAmount[2]) <= AmountRoundingPrecision) and
+               ("Prepayment %" = 100)
             then begin
-                if "Prepayment %" = 100 then
-                    Prepmt100PctVATRoundingAmt := TotalRoundingAmount[1];
+                Prepmt100PctVATRoundingAmt := TotalRoundingAmount[1];
                 TotalRoundingAmount[1] := 0;
             end;
             "Prepmt. Amount Inv. (LCY)" := -TotalRoundingAmount[1];
@@ -5426,9 +5430,11 @@ codeunit 90 "Purch.-Post"
     var
         ItemUnitOfMeasure: Record "Item Unit of Measure";
     begin
+        if (PurchLine.Type = PurchLine.Type::Item) and (PurchLine."No." <> '') then
+            PurchLine.TestField("Unit of Measure Code");
+
         if PurchLine."Qty. per Unit of Measure" = 0 then
             if (PurchLine.Type = PurchLine.Type::Item) and
-               (PurchLine."Unit of Measure Code" <> '') and
                ItemUnitOfMeasure.Get(PurchLine."No.", PurchLine."Unit of Measure Code")
             then
                 PurchLine."Qty. per Unit of Measure" := ItemUnitOfMeasure."Qty. per Unit of Measure"
@@ -7115,6 +7121,8 @@ codeunit 90 "Purch.-Post"
                     OnPostUpdateInvoiceLineOnAfterPurchOrderLineModify(PurchOrderLine, TempPurchLine);
                 until Next() = 0;
         end;
+
+        OnAfterPostUpdateInvoiceLine(TempPurchLine);
     end;
 
     local procedure PostUpdateCreditMemoLine()
@@ -7538,6 +7546,11 @@ codeunit 90 "Purch.-Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterPostItemTrackingLine(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; WhseReceive: Boolean; WhseShip: Boolean; InvtPickPutaway: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterPostUpdateInvoiceLine(var PurchaseLine: Record "Purchase Line" temporary)
     begin
     end;
 

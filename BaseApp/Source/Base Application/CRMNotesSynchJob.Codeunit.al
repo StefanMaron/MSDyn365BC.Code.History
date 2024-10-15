@@ -103,7 +103,7 @@ codeunit 5355 "CRM Notes Synch Job"
         CRMAnnotation.AnnotationId := CreateGuid;
         CRMAnnotation.ObjectTypeCode := CRMAnnotation.ObjectTypeCode::salesorder;
         CRMAnnotation.ObjectId := CRMSalesorder.SalesOrderId;
-        CRMAnnotation.IsDocument := true;
+        CRMAnnotation.IsDocument := false;
         CRMAnnotation.FileSize := 0;
         CRMAnnotation.Subject := RecordLink.Description;
         CRMAnnotation.NoteText.CreateOutStream(OutStream, TEXTENCODING::UTF16);
@@ -237,7 +237,7 @@ codeunit 5355 "CRM Notes Synch Job"
         end;
         InStream.Read(AnnotationText);
         if AnnotationText <> RecordLinkManagement.ReadNote(RecordLink) then begin
-            RecordLinkManagement.WriteNote(RecordLink, AnnotationText);
+            RecordLinkManagement.WriteNote(RecordLink, CRMAnnotationCoupling.ExtractNoteText(AnnotationText));
             RecordLink.Modify(true);
             CRMAnnotationCoupling."CRM Modified On" := CRMAnnotation.ModifiedOn;
             CRMAnnotationCoupling."Last Synch. DateTime" := CurrentDateTime;

@@ -1,4 +1,4 @@
-codeunit 12101 "Withholding - Contribution"
+﻿codeunit 12101 "Withholding - Contribution"
 {
 
     trigger OnRun()
@@ -303,7 +303,7 @@ codeunit 12101 "Withholding - Contribution"
             if (PurchWithSoc."Total Amount" = 0) or
                Recalculate
             then begin
-                OnCalculateWithholdingTaxOnRecalculate(PurchWithSoc, PurchHeader);
+                OnCalculateWithholdingTaxOnRecalculate(PurchWithSoc, PurchHeader, TotalAmount);
                 PurchWithSoc."Currency Code" := PurchHeader."Currency Code";
                 PurchWithSoc.Validate("Total Amount", TotalAmount);
                 PurchWithSoc.Modify();
@@ -670,7 +670,7 @@ codeunit 12101 "Withholding - Contribution"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCalculateWithholdingTaxOnRecalculate(var PurchWithhContribution: Record "Purch. Withh. Contribution"; PurchaseHeader: Record "Purchase Header")
+    local procedure OnCalculateWithholdingTaxOnRecalculate(var PurchWithhContribution: Record "Purch. Withh. Contribution"; PurchaseHeader: Record "Purchase Header"; var TotAmount : Decimal)
     begin
     end;
 }

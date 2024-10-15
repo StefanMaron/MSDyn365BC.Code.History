@@ -39,6 +39,8 @@ codeunit 5979 "Service-Post and Send"
         Commit();
 
         ServicePost.SendPostedDocumentRecord(ServiceHeader, TempDocumentSendingProfile);
+
+        OnAfterCode(ServiceHeader);
     end;
 
     local procedure ConfirmPostAndSend(ServiceHeader: Record "Service Header"; var TempDocumentSendingProfile: Record "Document Sending Profile" temporary): Boolean
@@ -91,6 +93,11 @@ codeunit 5979 "Service-Post and Send"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCode(var ServiceHeader: Record "Service Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCode(var ServiceHeader: Record "Service Header")
     begin
     end;
 }

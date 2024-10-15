@@ -152,7 +152,7 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
             if Find('+') then begin
                 PrevTransactionNo := "Transaction No.";
                 repeat
-                    OnReverseGLEntryOnBeforeLoop(GLEntry2, GenJnlLine);
+                    OnReverseGLEntryOnBeforeLoop(GLEntry2, GenJnlLine, GenJnlPostLine);
                     if "Reversed by Entry No." <> 0 then
                         Error(CannotReverseErr);
                     CheckDimComb("Entry No.", "Dimension Set ID", DATABASE::"G/L Account", "G/L Account No.", 0, '');
@@ -288,7 +288,7 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
             CustLedgEntry."Reversed by Entry No." := "Entry No.";
             CustLedgEntry.Reversed := true;
             CustLedgEntry.Modify();
-            OnReverseCustLedgEntryOnBeforeInsertCustLedgEntry(NewCustLedgEntry, CustLedgEntry);
+            OnReverseCustLedgEntryOnBeforeInsertCustLedgEntry(NewCustLedgEntry, CustLedgEntry, GenJnlPostLine);
             Insert;
 
             if NextDtldCustLedgEntryEntryNo = 0 then begin
@@ -363,7 +363,7 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
             VendLedgEntry."Reversed by Entry No." := "Entry No.";
             VendLedgEntry.Reversed := true;
             VendLedgEntry.Modify();
-            OnReverseVendLedgEntryOnBeforeInsertVendLedgEntry(NewVendLedgEntry, VendLedgEntry);
+            OnReverseVendLedgEntryOnBeforeInsertVendLedgEntry(NewVendLedgEntry, VendLedgEntry, GenJnlPostLine);
             Insert;
 
             if NextDtldVendLedgEntryEntryNo = 0 then begin
@@ -835,17 +835,17 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnReverseGLEntryOnBeforeLoop(var GLEntry: Record "G/L Entry"; var GenJournalLine: Record "Gen. Journal Line")
+    local procedure OnReverseGLEntryOnBeforeLoop(var GLEntry: Record "G/L Entry"; var GenJournalLine: Record "Gen. Journal Line"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnReverseCustLedgEntryOnBeforeInsertCustLedgEntry(var NewCustLedgerEntry: Record "Cust. Ledger Entry"; CustLedgerEntry: Record "Cust. Ledger Entry")
+    local procedure OnReverseCustLedgEntryOnBeforeInsertCustLedgEntry(var NewCustLedgerEntry: Record "Cust. Ledger Entry"; CustLedgerEntry: Record "Cust. Ledger Entry"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnReverseVendLedgEntryOnBeforeInsertVendLedgEntry(var NewVendLedgEntry: Record "Vendor Ledger Entry"; VendLedgEntry: Record "Vendor Ledger Entry")
+    local procedure OnReverseVendLedgEntryOnBeforeInsertVendLedgEntry(var NewVendLedgEntry: Record "Vendor Ledger Entry"; VendLedgEntry: Record "Vendor Ledger Entry"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
     begin
     end;
 

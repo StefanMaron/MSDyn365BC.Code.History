@@ -3,6 +3,7 @@
     Caption = 'Sales Header';
     DataCaptionFields = "No.", "Sell-to Customer Name";
     LookupPageID = "Sales List";
+    Permissions = tabledata "Assemble-to-Order Link" = rmid;
 
     fields
     {
@@ -841,7 +842,7 @@
         }
         field(46; Comment; Boolean)
         {
-            CalcFormula = Exist("Sales Comment Line" WHERE("Document Type" = FIELD("Document Type"),
+            CalcFormula = Exist ("Sales Comment Line" WHERE("Document Type" = FIELD("Document Type"),
                                                             "No." = FIELD("No."),
                                                             "Document Line No." = CONST(0)));
             Caption = 'Comment';
@@ -945,7 +946,7 @@
         }
         field(56; "Recalculate Invoice Disc."; Boolean)
         {
-            CalcFormula = Exist("Sales Line" WHERE("Document Type" = FIELD("Document Type"),
+            CalcFormula = Exist ("Sales Line" WHERE("Document Type" = FIELD("Document Type"),
                                                     "Document No." = FIELD("No."),
                                                     "Recalculate Invoice Disc." = CONST(true)));
             Caption = 'Recalculate Invoice Disc.';
@@ -969,7 +970,7 @@
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum("Sales Line".Amount WHERE("Document Type" = FIELD("Document Type"),
+            CalcFormula = Sum ("Sales Line".Amount WHERE("Document Type" = FIELD("Document Type"),
                                                          "Document No." = FIELD("No.")));
             Caption = 'Amount';
             Editable = false;
@@ -979,7 +980,7 @@
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum("Sales Line"."Amount Including VAT" WHERE("Document Type" = FIELD("Document Type"),
+            CalcFormula = Sum ("Sales Line"."Amount Including VAT" WHERE("Document Type" = FIELD("Document Type"),
                                                                          "Document No." = FIELD("No.")));
             Caption = 'Amount Including VAT';
             Editable = false;
@@ -1948,7 +1949,7 @@
         }
         field(166; "Last Email Sent Time"; DateTime)
         {
-            CalcFormula = Max("O365 Document Sent History"."Created Date-Time" WHERE("Document Type" = FIELD("Document Type"),
+            CalcFormula = Max ("O365 Document Sent History"."Created Date-Time" WHERE("Document Type" = FIELD("Document Type"),
                                                                                       "Document No." = FIELD("No."),
                                                                                       Posted = CONST(false)));
             Caption = 'Last Email Sent Time';
@@ -1956,7 +1957,7 @@
         }
         field(167; "Last Email Sent Status"; Option)
         {
-            CalcFormula = Lookup("O365 Document Sent History"."Job Last Status" WHERE("Document Type" = FIELD("Document Type"),
+            CalcFormula = Lookup ("O365 Document Sent History"."Job Last Status" WHERE("Document Type" = FIELD("Document Type"),
                                                                                        "Document No." = FIELD("No."),
                                                                                        Posted = CONST(false),
                                                                                        "Created Date-Time" = FIELD("Last Email Sent Time")));
@@ -1967,7 +1968,7 @@
         }
         field(168; "Sent as Email"; Boolean)
         {
-            CalcFormula = Exist("O365 Document Sent History" WHERE("Document Type" = FIELD("Document Type"),
+            CalcFormula = Exist ("O365 Document Sent History" WHERE("Document Type" = FIELD("Document Type"),
                                                                     "Document No." = FIELD("No."),
                                                                     Posted = CONST(false),
                                                                     "Job Last Status" = CONST(Finished)));
@@ -1976,7 +1977,7 @@
         }
         field(169; "Last Email Notif Cleared"; Boolean)
         {
-            CalcFormula = Lookup("O365 Document Sent History".NotificationCleared WHERE("Document Type" = FIELD("Document Type"),
+            CalcFormula = Lookup ("O365 Document Sent History".NotificationCleared WHERE("Document Type" = FIELD("Document Type"),
                                                                                          "Document No." = FIELD("No."),
                                                                                          Posted = CONST(false),
                                                                                          "Created Date-Time" = FIELD("Last Email Sent Time")));
@@ -2028,7 +2029,7 @@
         }
         field(300; "Amt. Ship. Not Inv. (LCY)"; Decimal)
         {
-            CalcFormula = Sum("Sales Line"."Shipped Not Invoiced (LCY)" WHERE("Document Type" = FIELD("Document Type"),
+            CalcFormula = Sum ("Sales Line"."Shipped Not Invoiced (LCY)" WHERE("Document Type" = FIELD("Document Type"),
                                                                                "Document No." = FIELD("No.")));
             Caption = 'Amount Shipped Not Invoiced (LCY) Incl. VAT';
             Editable = false;
@@ -2036,7 +2037,7 @@
         }
         field(301; "Amt. Ship. Not Inv. (LCY) Base"; Decimal)
         {
-            CalcFormula = Sum("Sales Line"."Shipped Not Inv. (LCY) No VAT" WHERE("Document Type" = FIELD("Document Type"),
+            CalcFormula = Sum ("Sales Line"."Shipped Not Inv. (LCY) No VAT" WHERE("Document Type" = FIELD("Document Type"),
                                                                                   "Document No." = FIELD("No.")));
             Caption = 'Amount Shipped Not Invoiced (LCY)';
             Editable = false;
@@ -2072,7 +2073,7 @@
         field(1305; "Invoice Discount Amount"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum("Sales Line"."Inv. Discount Amount" WHERE("Document No." = FIELD("No."),
+            CalcFormula = Sum ("Sales Line"."Inv. Discount Amount" WHERE("Document No." = FIELD("No."),
                                                                          "Document Type" = FIELD("Document Type")));
             Caption = 'Invoice Discount Amount';
             Editable = false;
@@ -2080,7 +2081,7 @@
         }
         field(5043; "No. of Archived Versions"; Integer)
         {
-            CalcFormula = Max("Sales Header Archive"."Version No." WHERE("Document Type" = FIELD("Document Type"),
+            CalcFormula = Max ("Sales Header Archive"."Version No." WHERE("Document Type" = FIELD("Document Type"),
                                                                           "No." = FIELD("No."),
                                                                           "Doc. No. Occurrence" = FIELD("Doc. No. Occurrence")));
             Caption = 'No. of Archived Versions';
@@ -2412,7 +2413,7 @@
         field(5751; "Shipped Not Invoiced"; Boolean)
         {
             AccessByPermission = TableData "Sales Shipment Header" = R;
-            CalcFormula = Exist("Sales Line" WHERE("Document Type" = FIELD("Document Type"),
+            CalcFormula = Exist ("Sales Line" WHERE("Document Type" = FIELD("Document Type"),
                                                     "Document No." = FIELD("No."),
                                                     "Qty. Shipped Not Invoiced" = FILTER(<> 0)));
             Caption = 'Shipped Not Invoiced';
@@ -2421,7 +2422,7 @@
         }
         field(5752; "Completely Shipped"; Boolean)
         {
-            CalcFormula = Min("Sales Line"."Completely Shipped" WHERE("Document Type" = FIELD("Document Type"),
+            CalcFormula = Min ("Sales Line"."Completely Shipped" WHERE("Document Type" = FIELD("Document Type"),
                                                                        "Document No." = FIELD("No."),
                                                                        Type = FILTER(<> " "),
                                                                        "Location Code" = FIELD("Location Filter")));
@@ -2443,7 +2444,7 @@
         field(5755; Shipped; Boolean)
         {
             AccessByPermission = TableData "Sales Shipment Header" = R;
-            CalcFormula = Exist("Sales Line" WHERE("Document Type" = FIELD("Document Type"),
+            CalcFormula = Exist ("Sales Line" WHERE("Document Type" = FIELD("Document Type"),
                                                     "Document No." = FIELD("No."),
                                                     "Qty. Shipped (Base)" = FILTER(<> 0)));
             Caption = 'Shipped';
@@ -2452,7 +2453,7 @@
         }
         field(5756; "Last Shipment Date"; Date)
         {
-            CalcFormula = Lookup("Sales Shipment Header"."Shipment Date" WHERE("No." = FIELD("Last Shipping No.")));
+            CalcFormula = Lookup ("Sales Shipment Header"."Shipment Date" WHERE("No." = FIELD("Last Shipping No.")));
             Caption = 'Last Shipment Date';
             FieldClass = FlowField;
         }
@@ -2526,7 +2527,7 @@
         field(5795; "Late Order Shipping"; Boolean)
         {
             AccessByPermission = TableData "Sales Shipment Header" = R;
-            CalcFormula = Exist("Sales Line" WHERE("Document Type" = FIELD("Document Type"),
+            CalcFormula = Exist ("Sales Line" WHERE("Document Type" = FIELD("Document Type"),
                                                     "Sell-to Customer No." = FIELD("Sell-to Customer No."),
                                                     "Document No." = FIELD("No."),
                                                     "Shipment Date" = FIELD("Date Filter"),
@@ -3533,6 +3534,7 @@
         TempItemChargeAssgntSales: Record "Item Charge Assignment (Sales)" temporary;
         TempInteger: Record "Integer" temporary;
         TempATOLink: Record "Assemble-to-Order Link" temporary;
+        SalesCommentLine: Record "Sales Comment Line";
         TempSalesCommentLine: Record "Sales Comment Line" temporary;
         ATOLink: Record "Assemble-to-Order Link";
         TransferExtendedText: Codeunit "Transfer Extended Text";
@@ -3573,6 +3575,7 @@
                 TempReservEntry.DeleteAll();
                 RecreateReservEntryReqLine(TempSalesLine, TempATOLink, ATOLink);
                 StoreSalesCommentLineToTemp(TempSalesCommentLine);
+                SalesCommentLine.DeleteComments("Document Type", "No.");
                 TransferItemChargeAssgntSalesToTemp(ItemChargeAssgntSales, TempItemChargeAssgntSales);
                 IsHandled := false;
                 OnRecreateSalesLinesOnBeforeSalesLineDeleteAll(Rec, SalesLine, CurrFieldNo, IsHandled);
@@ -3683,7 +3686,13 @@
     procedure MessageIfSalesLinesExist(ChangedFieldName: Text[100])
     var
         MessageText: Text;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeMessageIfSalesLinesExist(Rec, ChangedFieldName, IsHandled);
+        if IsHandled then
+            exit;
+
         if SalesLinesExist and not GetHideValidationDialog then begin
             MessageText := StrSubstNo(LinesNotUpdatedMsg, ChangedFieldName);
             MessageText := StrSubstNo(SplitMessageTxt, MessageText, Text019);
@@ -3990,7 +3999,7 @@
           DimMgt.GetRecDefaultDimID(
             Rec, CurrFieldNo, TableID, No, SourceCodeSetup.Sales, "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
 
-        OnCreateDimOnBeforeUpdateLines(Rec, xRec, CurrFieldNo);
+        OnCreateDimOnBeforeUpdateLines(Rec, xRec, CurrFieldNo, OldDimSetID);
 
         if (OldDimSetID <> "Dimension Set ID") and SalesLinesExist then begin
             Modify;
@@ -4167,29 +4176,30 @@
         ReqLine: Record "Requisition Line";
         TempReqLine: Record "Requisition Line" temporary;
     begin
-        if ToTemp then begin
-            ReqLine.SetCurrentKey("Order Promising ID", "Order Promising Line ID", "Order Promising Line No.");
-            ReqLine.SetRange("Order Promising ID", OldSalesLine."Document No.");
-            ReqLine.SetRange("Order Promising Line ID", OldSalesLine."Line No.");
-            if ReqLine.FindSet then
-                repeat
-                    TempReqLine := ReqLine;
-                    TempReqLine.Insert();
-                until ReqLine.Next = 0;
-            ReqLine.DeleteAll();
-        end else begin
-            Clear(TempReqLine);
-            TempReqLine.SetCurrentKey("Order Promising ID", "Order Promising Line ID", "Order Promising Line No.");
-            TempReqLine.SetRange("Order Promising ID", OldSalesLine."Document No.");
-            TempReqLine.SetRange("Order Promising Line ID", OldSalesLine."Line No.");
-            if TempReqLine.FindSet then
-                repeat
-                    ReqLine := TempReqLine;
-                    ReqLine."Order Promising Line ID" := NewSourceRefNo;
-                    ReqLine.Insert();
-                until TempReqLine.Next = 0;
-            TempReqLine.DeleteAll();
-        end;
+        if ("Document Type" = "Document Type"::Order) then
+            if ToTemp then begin
+                ReqLine.SetCurrentKey("Order Promising ID", "Order Promising Line ID", "Order Promising Line No.");
+                ReqLine.SetRange("Order Promising ID", OldSalesLine."Document No.");
+                ReqLine.SetRange("Order Promising Line ID", OldSalesLine."Line No.");
+                if ReqLine.FindSet then
+                    repeat
+                        TempReqLine := ReqLine;
+                        TempReqLine.Insert();
+                    until ReqLine.Next = 0;
+                ReqLine.DeleteAll();
+            end else begin
+                Clear(TempReqLine);
+                TempReqLine.SetCurrentKey("Order Promising ID", "Order Promising Line ID", "Order Promising Line No.");
+                TempReqLine.SetRange("Order Promising ID", OldSalesLine."Document No.");
+                TempReqLine.SetRange("Order Promising Line ID", OldSalesLine."Line No.");
+                if TempReqLine.FindSet then
+                    repeat
+                        ReqLine := TempReqLine;
+                        ReqLine."Order Promising Line ID" := NewSourceRefNo;
+                        ReqLine.Insert();
+                    until TempReqLine.Next = 0;
+                TempReqLine.DeleteAll();
+            end;
     end;
 
     local procedure UpdateSellToCont(CustomerNo: Code[20])
@@ -4605,6 +4615,7 @@
           DimMgt.EditDimensionSet(
             "Dimension Set ID", StrSubstNo('%1 %2', "Document Type", "No."),
             "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
+        OnShowDocDimOnBeforeUpdateSalesLines(Rec, xRec);
         if OldDimSetID <> "Dimension Set ID" then begin
             Modify;
             if SalesLinesExist then
@@ -5433,11 +5444,17 @@
         end;
     end;
 
-    procedure CheckAvailableCreditLimit(): Decimal
+    procedure CheckAvailableCreditLimit() ReturnValue: Decimal
     var
         Customer: Record Customer;
         AvailableCreditLimit: Decimal;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckAvailableCreditLimit(Rec, ReturnValue, IsHandled);
+        if IsHandled then
+            exit(ReturnValue);
+
         if ("Bill-to Customer No." = '') and ("Sell-to Customer No." = '') then
             exit(0);
 
@@ -6597,7 +6614,13 @@
         NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
         PageMyNotifications: Page "My Notifications";
         ModifyCustomerAddressNotification: Notification;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeShowModifyAddressNotification(IsHandled);
+        if IsHandled then
+            exit;
+
         if not MyNotifications.Get(UserId, NotificationID) then
             PageMyNotifications.InitializeNotificationsWithDefaultState;
 
@@ -7127,6 +7150,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckAvailableCreditLimit(var SalesHeader: Record "Sales Header"; var ReturnValue: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckCreditLimit(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
     end;
@@ -7202,7 +7230,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeGetShippingTime(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header"; CalledByFieldNo: Integer; var IsHandled: Boolean)
+    local procedure OnBeforeGetShippingTime(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header"; var CalledByFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 
@@ -7302,6 +7330,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeMessageIfSalesLinesExist(SalesHeader: Record "Sales Header"; ChangedFieldCaption: Text; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforePriceMessageIfSalesLinesExist(SalesHeader: Record "Sales Header"; ChangedFieldCaption: Text; var IsHandled: Boolean)
     begin
     end;
@@ -7387,7 +7420,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCreateDimOnBeforeUpdateLines(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header"; CurrentFieldNo: Integer)
+    local procedure OnCreateDimOnBeforeUpdateLines(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header"; CurrentFieldNo: Integer; OldDimSetID: Integer)
     begin
     end;
 
@@ -7648,6 +7681,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckContactRelatedToCustomerCompany(SalesHeader: Record "Sales Header"; CurrFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowModifyAddressNotification(var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnShowDocDimOnBeforeUpdateSalesLines(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header")
     begin
     end;
 }

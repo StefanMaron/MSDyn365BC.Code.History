@@ -1,6 +1,7 @@
 codeunit 5708 "Release Transfer Document"
 {
     TableNo = "Transfer Header";
+    Permissions = TableData "Transfer Header" = rm;
 
     trigger OnRun()
     var

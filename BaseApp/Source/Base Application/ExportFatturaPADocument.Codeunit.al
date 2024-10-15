@@ -11,6 +11,8 @@ codeunit 12179 "Export FatturaPA Document"
         HeaderRecRef: RecordRef;
         XMLServerPath: Text[250];
     begin
+        SendTraceTag('0000CQ6', FatturaTok, VERBOSITY::Normal, ExportFatturaMsg, DATACLASSIFICATION::SystemMetadata);
+
         HeaderRecRef.Get(RecordID);
         FatturaDocHelper.InitializeErrorLog(Rec);
         FatturaDocHelper.CollectDocumentInformation(TempFatturaHeader, TempFatturaLine, HeaderRecRef);
@@ -26,10 +28,14 @@ codeunit 12179 "Export FatturaPA Document"
             ClientFileName := FatturaDocHelper.GetFileName(TempFatturaHeader."Progressive No.") + '.xml';
         end;
         if not FatturaDocHelper.HasErrors then
-            XMLServerPath := GenerateXMLFile(TempFatturaLine, TempFatturaHeader, ClientFileName);
+            XMLServerPath := GenerateXMLFile(TempFatturaLine, TempFatturaHeader, ClientFileName)
+        else
+            SendTraceTag('0000CQ7', FatturaTok, VERBOSITY::Error, DocumentValidationErrMsg, DATACLASSIFICATION::SystemMetadata);
 
         ServerFilePath := XMLServerPath;
         Modify;
+
+        SendTraceTag('0000CQ8', FatturaTok, VERBOSITY::Normal, ExportFatturaSuccMsg, DATACLASSIFICATION::SystemMetadata);
     end;
 
     var
@@ -37,6 +43,15 @@ codeunit 12179 "Export FatturaPA Document"
         TempXMLBuffer: Record "XML Buffer" temporary;
         FatturaDocHelper: Codeunit "Fattura Doc. Helper";
         YesTok: Label 'SI', Locked = true;
+        // fault model labels
+        FatturaTok: Label 'FatturaTelemetryCategoryTok', Locked = true;
+        ExportFatturaMsg: Label 'Exporting FatturaPA document', Locked = true;
+        ExportFatturaSuccMsg: Label 'FatturaPA document successfully exported', Locked = true;
+        DocumentValidationErrMsg: Label 'The document did not pass the validation before the export', Locked = true;
+        GenerateXMLMsg: Label 'Generating XML file', Locked = true;
+        GenerateXMLSuccMsg: Label 'XML file successfully generated', Locked = true;
+        HeaderErrMsg: Label 'Cannot create XML header: %1', Locked = true;
+        BodyErrMsg: Label 'Cannot create XML body: %1', Locked = true;
 
     [Scope('OnPrem')]
     procedure GenerateXMLFile(var TempFatturaLine: Record "Fattura Line" temporary; TempFatturaHeader: Record "Fattura Header" temporary; ClientFileName: Text[250]): Text[250]
@@ -47,6 +62,8 @@ codeunit 12179 "Export FatturaPA Document"
         ServerFileName: Text[250];
         FileName: Text;
     begin
+        SendTraceTag('0000CQ9', FatturaTok, VERBOSITY::Normal, GenerateXMLMsg, DATACLASSIFICATION::SystemMetadata);
+
         CompanyInformation.Get();
         BindSubscription(ExportFatturaPADocument);
         // prepare files
@@ -55,16 +72,26 @@ codeunit 12179 "Export FatturaPA Document"
         FileName := DirectoryName + '\' + ClientFileName;
 
         // create file
-        CreateFatturaElettronicaHeader(TempFatturaHeader);
-        CreateFatturaElettronicaBody(TempFatturaLine, TempFatturaHeader);
+        if not TryCreateFatturaElettronicaHeader(TempFatturaHeader) then begin
+            SendTraceTag('0000CQA', FatturaTok, VERBOSITY::Error, StrSubstNo(HeaderErrMsg, GetLastErrorText()), DATACLASSIFICATION::SystemMetadata);
+            Error(GetLastErrorText());
+        end;
+
+        if not TryCreateFatturaElettronicaBody(TempFatturaLine, TempFatturaHeader) then begin
+            SendTraceTag('0000CQB', FatturaTok, VERBOSITY::Error, StrSubstNo(BodyErrMsg, GetLastErrorText()), DATACLASSIFICATION::SystemMetadata);
+            Error(GetLastErrorText());
+        end;
 
         // update Buffer
         TempXMLBuffer.FindFirst;
         TempXMLBuffer.Save(FileName);
+
+        SendTraceTag('0000CQC', FatturaTok, VERBOSITY::Normal, GenerateXMLSuccMsg, DATACLASSIFICATION::SystemMetadata);
         exit(CopyStr(FileName, 1, 250))
     end;
 
-    local procedure CreateFatturaElettronicaHeader(TempFatturaHeader: Record "Fattura Header" temporary)
+    [TryFunction]
+    local procedure TryCreateFatturaElettronicaHeader(TempFatturaHeader: Record "Fattura Header" temporary)
     var
         Customer: Record Customer;
     begin
@@ -79,7 +106,8 @@ codeunit 12179 "Export FatturaPA Document"
         PopulateCustomerData(Customer);
     end;
 
-    local procedure CreateFatturaElettronicaBody(var TempFatturaLine: Record "Fattura Line" temporary; TempFatturaHeader: Record "Fattura Header" temporary)
+    [TryFunction]
+    local procedure TryCreateFatturaElettronicaBody(var TempFatturaLine: Record "Fattura Line" temporary; TempFatturaHeader: Record "Fattura Header" temporary)
     begin
         PopulateDocGeneralData(TempFatturaHeader);
         PopulateDocDiscountData(TempFatturaHeader);

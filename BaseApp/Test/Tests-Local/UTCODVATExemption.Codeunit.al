@@ -304,6 +304,7 @@ codeunit 144072 "UT COD VAT Exemption"
         Item.Get(CreateItem);
         CreateVATIdentifier(Item."VAT Prod. Posting Group");
         PurchaseLine."No." := Item."No.";
+        PurchaseLine."Unit of Measure Code" := Item."Base Unit of Measure";
         PurchaseLine."Document Type" := PurchaseHeader."Document Type";
         PurchaseLine."Document No." := PurchaseHeader."No.";
         PurchaseLine."VAT Identifier" := Item."VAT Prod. Posting Group";  // VAT Identifier code as VAT Product Posting Group of Item.
@@ -349,12 +350,15 @@ codeunit 144072 "UT COD VAT Exemption"
 
     local procedure CreateServiceLine(DocumentNo: Code[20]; DocumentType: Option)
     var
+        Item: Record Item;
         ServiceLine: Record "Service Line";
     begin
+        Item.Get(CreateItem());
         ServiceLine."Document Type" := DocumentType;
         ServiceLine."Document No." := DocumentNo;
         ServiceLine.Type := ServiceLine.Type::Item;
-        ServiceLine."No." := CreateItem;
+        ServiceLine."No." := Item."No.";
+        ServiceLine."Unit of Measure Code" := Item."Base Unit of Measure";
         ServiceLine.Quantity := LibraryRandom.RandInt(10);
         ServiceLine."Qty. to Invoice" := ServiceLine.Quantity;
         ServiceLine."Shipment No." := LibraryUTUtility.GetNewCode;

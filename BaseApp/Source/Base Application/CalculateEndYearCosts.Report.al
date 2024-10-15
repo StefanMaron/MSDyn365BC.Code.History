@@ -89,15 +89,14 @@ report 12115 "Calculate End Year Costs"
         LIFOBand: Record "Lifo Band";
         LIFOBand2: Record "Lifo Band";
         LIFOBand3: Record "Lifo Band";
+        CalcLowLevelCode: Codeunit "Calc. Low-level code";
         LastFiscalYearEndDate: Date;
         FiscalYearStartDate: Date;
         FiscalYearEndDate: Date;
     begin
         ItemCostingSetup.Get();
-        if Item.FindFirst then
-            repeat
-                CODEUNIT.Run(CODEUNIT::"Calculate Low-Level Code", Item);
-            until Item.Next = 0;
+        CalcLowLevelCode.SetHideDialogs(true);
+        CalcLowLevelCode.Run();
 
         if ReferenceDate = 0D then
             Error(Text005);

@@ -2700,6 +2700,8 @@ table 246 "Requisition Line"
 
     procedure CalcEndingDate(LeadTime: Code[20])
     begin
+        OnBeforeCalcEndingDate(Rec);
+
         case "Ref. Order Type" of
             "Ref. Order Type"::Purchase:
                 if LeadTime = '' then
@@ -2726,6 +2728,8 @@ table 246 "Requisition Line"
 
     procedure CalcStartingDate(LeadTime: Code[20])
     begin
+        OnBeforeCalcStartingDate(Rec);
+
         case "Ref. Order Type" of
             "Ref. Order Type"::Purchase:
                 if LeadTime = '' then
@@ -2826,6 +2830,7 @@ table 246 "Requisition Line"
     procedure TransferFromUnplannedDemand(var UnplannedDemand: Record "Unplanned Demand")
     begin
         Init;
+        "Journal Batch Name" := GetJnlBatchNameForOrderPlanning();
         "Line No." := "Line No." + 10000;
         "Planning Line Origin" := "Planning Line Origin"::"Order Planning";
 
@@ -3354,6 +3359,8 @@ table 246 "Requisition Line"
         Validate("Vendor No.", '');
 
         if not Subcontracting then begin
+            OnSetReplenishmentSystemFromProdOrderOnBeforeSetProdFields(
+                Rec, Item, Subcontracting, PlanningResiliency, TempPlanningErrorLog);
             Validate("Production BOM No.", Item."Production BOM No.");
             Validate("Routing No.", Item."Routing No.");
         end else begin
@@ -3435,6 +3442,23 @@ table 246 "Requisition Line"
         Validate("Replenishment System", StockkeepingUnit."Replenishment System");
     end;
 
+    procedure GetJnlBatchNameForOrderPlanning(): Code[10]
+    var
+        RequisitionLine: Record "Requisition Line";
+    begin
+        RequisitionLine.SetRange("Worksheet Template Name", '');
+        RequisitionLine.SetFilter("Journal Batch Name", '<>%1', '');
+        RequisitionLine.SetRange("User ID", UserId());
+        if RequisitionLine.FindFirst() then
+            exit(RequisitionLine."Journal Batch Name");
+
+        RequisitionLine.SetRange("User ID");
+        if RequisitionLine.FindLast() then
+            exit(IncStr(RequisitionLine."Journal Batch Name"));
+
+        exit('0');
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyFromItem(var RequisitionLine: Record "Requisition Line"; Item: Record Item)
     begin
@@ -3482,6 +3506,11 @@ table 246 "Requisition Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnSetReplenishmentSystemFromProdOrderOnAfterSetProdFields(var RequisitionLine: Record "Requisition Line"; Item: Record Item; Subcontracting: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetReplenishmentSystemFromProdOrderOnBeforeSetProdFields(var RequisitionLine: Record "Requisition Line"; Item: Record Item; Subcontracting: Boolean; PlanningResiliency: Boolean; var TempPlanningErrorLog: Record "Planning Error Log")
     begin
     end;
 
@@ -3544,10 +3573,12 @@ table 246 "Requisition Line"
     local procedure OnBeforeCheckEndingDate(var RequisitionLine: Record "Requisition Line"; var ShowWarning: Boolean; var IsHandled: Boolean);
     begin
     end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeDeleteMultiLevel(var RequisitionLine: Record "Requisition Line")
     begin
     end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetDefaultBin(var RequisitionLine: Record "Requisition Line"; var ShouldGetDefaultBin: Boolean)
     begin
@@ -3645,6 +3676,16 @@ table 246 "Requisition Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateReplenishmentSystemCaseElse(var RequisitionLine: Record "Requisition Line");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcStartingDate(var RequisitionLine: Record "Requisition Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcEndingDate(var RequisitionLine: Record "Requisition Line")
     begin
     end;
 }

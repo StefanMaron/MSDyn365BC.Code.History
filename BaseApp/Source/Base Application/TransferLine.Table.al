@@ -1,4 +1,4 @@
-table 5741 "Transfer Line"
+﻿table 5741 "Transfer Line"
 {
     Caption = 'Transfer Line';
     DrillDownPageID = "Transfer Lines";
@@ -1780,12 +1780,12 @@ table 5741 "Transfer Line"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnValidateReceiptDateOnBeforeCalcShipmentDate(var IsHandled: Boolean)
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnValidateShipmentDateOnBeforeCalcReceiptDate(var IsHandled: Boolean)
     begin
     end;

@@ -349,7 +349,13 @@
     local procedure UpdateDocNos(var PurchHeader: Record "Purchase Header"; DocumentType: Option Invoice,"Credit Memo"; var DocNo: Code[20]; var NoSeriesCode: Code[20]; var ModifyHeader: Boolean)
     var
         NoSeriesMgt: Codeunit NoSeriesManagement;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateDocNos(PurchHeader, DocumentType, DocNo, NoSeriesCode, ModifyHeader, PreviewMode, IsHandled);
+        if IsHandled then
+            exit;
+
         with PurchHeader do begin
             case DocumentType of
                 DocumentType::Invoice:
@@ -434,6 +440,7 @@
                     "VAT Base Amount" := Amount;
             end;
 
+        OnRoundAmountsOnBeforeIncrAmoutns(PurchHeader, PrepmtInvLineBuf, TotalPrepmtInvLineBuf, TotalPrepmtInvLineBufLCY);
         TotalPrepmtInvLineBufLCY.IncrAmounts(PrepmtInvLineBuf);
 
         OnAfterRoundAmounts(PurchHeader, PrepmtInvLineBuf, TotalPrepmtInvLineBuf, TotalPrepmtInvLineBufLCY);
@@ -705,6 +712,7 @@
                                       PrepmtAmtToInvTotal;
                             "Prepayment VAT Difference" := Round(VATDifference, Currency."Amount Rounding Precision");
 
+                            OnUpdateVATOnLinesOnBeforePurchLineModify(PurchHeader, PurchLine, TempVATAmountLineRemainder, NewAmount, NewAmountIncludingVAT, NewVATBaseAmount);
                             Modify;
 
                             TempVATAmountLineRemainder."Amount Including VAT" :=
@@ -1792,12 +1800,27 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateDocNos(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option Invoice,"Credit Memo"; var DocNo: Code[20]; var NoSeriesCode: Code[20]; var ModifyHeader: Boolean; var PreviewMode: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRoundAmountsOnBeforeIncrAmoutns(PurchaseHeader: Record "Purchase Header"; var PrepmtInvLineBuf: Record "Prepayment Inv. Line Buffer"; var TotalPrepmtInvLineBuf: Record "Prepayment Inv. Line Buffer"; var TotalPrepmtInvLineBufLCY: Record "Prepayment Inv. Line Buffer")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnUpdateVATOnLinesOnAfterGetRemainder(var VATAmountLineRemainder: Record "VAT Amount Line"; var RemainderExists: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateVATOnLinesOnAfterVATAmountLineGet(var VATAmountLine: Record "VAT Amount Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateVATOnLinesOnBeforePurchLineModify(PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; var TempVATAmountLineRemainder: Record "VAT Amount Line"; NewAmount: Decimal; NewAmountIncludingVAT: Decimal; NewVATBaseAmount: Decimal)
     begin
     end;
 }

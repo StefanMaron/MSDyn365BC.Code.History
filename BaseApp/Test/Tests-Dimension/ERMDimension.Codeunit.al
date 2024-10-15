@@ -823,7 +823,7 @@ codeunit 134380 "ERM Dimension"
         // Calls LibraryDim.VerifyShorcutDimCodesUpdatedOnDimSetIDValidation for local tables through an exposed event OnVerifyShorcutDimCodesUpdatedOnDimSetIDValidationLocal and adds local tables to TempAllObj variable
         LibraryDim.VerifyShorcutDimCodesUpdatedOnDimSetIDValidationLocal(
           TempAllObj, DimSetID, DimensionValue[1].Code, DimensionValue[2].Code);
-        
+
         // [THEN] "Shortcut Dimension 1 Code" is "ADM" and "Shortcut Dimension 2 Code" is "TOYOTA" in 35 tables (120 total - 69 W1 ignored - 16 local ignored)
         TempAllObj.Reset();
         Assert.RecordCount(

@@ -23,7 +23,10 @@ codeunit 1101 "CA Jnl.-Check Line"
         GenJnlCheckLine: Codeunit "Gen. Jnl.-Check Line";
         IsHandled: Boolean;
     begin
-        OnBeforeRunCheck(CostJnlLine);
+        IsHandled := false;
+        OnBeforeRunCheck(CostJnlLine, IsHandled);
+        if IsHandled then
+            exit;
 
         with CostJnlLine do begin
             TestField("Posting Date");
@@ -74,7 +77,7 @@ codeunit 1101 "CA Jnl.-Check Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeRunCheck(var CostJnlLine: Record "Cost Journal Line")
+    local procedure OnBeforeRunCheck(var CostJnlLine: Record "Cost Journal Line"; var IsHandled: Boolean)
     begin
     end;
 

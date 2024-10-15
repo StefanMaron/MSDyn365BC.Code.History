@@ -427,6 +427,16 @@ page 5900 "Service Order"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the customer''s purchase order.';
                 }
+                field("Fattura Project Code"; "Fattura Project Code")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the code for the Fattura project.';
+                }
+                field("Fattura Tender Code"; "Fattura Tender Code")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the code for the Fattura tender.';
+                }
                 field("Fattura Document Type"; "Fattura Document Type")
                 {
                     ApplicationArea = Basic, Suite;
