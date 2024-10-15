@@ -370,7 +370,6 @@ codeunit 139187 "CRM Full Synchronization"
     var
         CRMFullSynchReviewLine: Record "CRM Full Synch. Review Line";
         Customer: array[2] of Record Customer;
-        CRMAccount: array[2] of Record "CRM Account";
         IntegrationTableMapping: Record "Integration Table Mapping";
         CRMFullSynchronization: Codeunit "CRM Full Synchronization";
         JobQueueEntryID: Guid;
@@ -571,7 +570,6 @@ codeunit 139187 "CRM Full Synchronization"
     procedure T151_CRMFullSynchReviewPageShowsAllCRMIntegrMappingRecs()
     var
         CRMFullSynchReviewLine: Record "CRM Full Synch. Review Line";
-        "Field": Record "Field";
         IntegrationTableMapping: Record "Integration Table Mapping";
         CRMFullSynchReview: TestPage "CRM Full Synch. Review";
         MapCount: Integer;

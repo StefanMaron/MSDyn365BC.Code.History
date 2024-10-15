@@ -12,6 +12,7 @@ report 307 "Vendor - Order Summary"
     ApplicationArea = Basic, Suite;
     Caption = 'Vendor - Order Summary';
     UsageCategory = ReportsAndAnalysis;
+    WordMergeDataItem = Vendor;
 
     dataset
     {

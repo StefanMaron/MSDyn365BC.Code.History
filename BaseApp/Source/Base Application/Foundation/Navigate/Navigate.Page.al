@@ -664,7 +664,6 @@ page 344 Navigate
         SourceType: Text[30];
         SourceNo: Code[20];
         SourceName: Text[100];
-        DocExists: Boolean;
         Text12470: Label 'Posted FA Writeoff';
         Text12471: Label 'Posted FA Release';
         Text12472: Label 'Posted FA Movement';
@@ -721,6 +720,7 @@ page 344 Navigate
         ContactNo: Code[250];
         ContactType: Enum "Navigate Contact Type";
         SearchBasedOn: Enum "Navigate Search Type";
+        DocExists: Boolean;
         DocNoFilter: Text;
         PostingDateFilter: Text;
         ExtDocNo: Code[250];
@@ -1617,7 +1617,7 @@ page 344 Navigate
         end;
     end;
 
-    local procedure UpdateFormAfterFindRecords()
+    protected procedure UpdateFormAfterFindRecords()
     begin
         OnBeforeUpdateFormAfterFindRecords(PostingDateFilter);
 

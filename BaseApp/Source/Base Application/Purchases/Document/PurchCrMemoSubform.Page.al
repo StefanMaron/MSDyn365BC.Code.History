@@ -944,7 +944,7 @@ page 98 "Purch. Cr. Memo Subform"
 
                 trigger OnAction()
                 var
-                    AllocAccManualOverride: Page Microsoft.Finance.AllocationAccount."Redistribute Acc. Allocations";
+                    AllocAccManualOverride: Page "Redistribute Acc. Allocations";
                 begin
                     if ((Rec."Type" <> Rec."Type"::"Allocation Account") and (Rec."Selected Alloc. Account No." = '')) then
                         Error(ActionOnlyAllowedForAllocationAccountsErr);

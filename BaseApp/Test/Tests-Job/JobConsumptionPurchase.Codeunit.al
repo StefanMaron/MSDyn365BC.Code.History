@@ -968,6 +968,44 @@ codeunit 136302 "Job Consumption Purchase"
     end;
 
     [Test]
+    [Scope('OnPrem')]
+    procedure PostFCYPurchaseInvoiceWithLCYJob()
+    var
+        JobTask: Record "Job Task";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        JobLedgerEntry: Record "Job Ledger Entry";
+        GLEntry: Record "G/L Entry";
+        Vendor: Record Vendor;
+        DocumentNo: Code[20];
+        PurchaseOrderCurrency: Code[10];
+    begin
+        // [SCENARIO] Test integration of Jobs with posting of Purchase Invoice with foreign currency on Purchase Order.
+        // [SCENARIO] Verifying "G/L Entry","Job Ledger Entry" values and compare then
+        Initialize();
+        // [GIVEN] created Job with local currency
+        PurchaseOrderCurrency := FindFCY();
+        CreateJobWithCurrecy(JobTask, '');
+        // [GIVEN] created Purchase Invoice with foreign currency
+        LibraryPurchase.CreateVendor(Vendor);
+        CreatePurchaseHeader(PurchaseHeader."Document Type"::Invoice, Vendor."No.", PurchaseHeader);
+        PurchaseHeader.Validate("Currency Code", PurchaseOrderCurrency);
+        PurchaseHeader.Modify(true);
+        // [GIVEN] created Purchase Invoice with GL Account
+        CreateGLPurchaseLine(PurchaseHeader);
+        // [GIVEN] update Purchase Invoice Lines with Job info
+        AttachJobTaskToPurchaseDoc(JobTask, PurchaseHeader);
+        GetPurchaseLines(PurchaseHeader, PurchaseLine);
+        // [WHEN] Post Purchase Invoice
+        DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+        // [THEN] Verify Job Ledger Entry Amount and G/L Entry Amount should be the same
+        FindJobLedgerEntry(JobLedgerEntry, DocumentNo, JobTask."Job No.");
+        GLEntry.SetRange("G/L Account No.", PurchaseLine."No.");
+        FindGLEntry(GLEntry, DocumentNo, GLEntry."Document Type"::Invoice);
+        Assert.AreEqual(JobLedgerEntry."Total Cost (LCY)", GLEntry.Amount, 'Job Ledger Entry Total Cost and G/L Entry Amount should be equal');
+    end;
+
+    [Test]
     [HandlerFunctions('ReserveFromCurrentLineHandler')]
     [Scope('OnPrem')]
     procedure ReserveItemFromJobOrderToPurchaseOrder()
@@ -3965,6 +4003,7 @@ codeunit 136302 "Job Consumption Purchase"
         CurrencyExchRate: Record "Currency Exchange Rate";
         PurchaseHeader: Record "Purchase Header";
         JobTotalCostLCY: Decimal;
+        JobTotalCost2: Decimal;
         JobUnitCost: Decimal;
         AmountRoundingPrecision: Decimal;
     begin
@@ -3989,7 +4028,23 @@ codeunit 136302 "Job Consumption Purchase"
               PurchaseLine."Qty. to Invoice" * Round(PurchaseLine."Unit Cost (LCY)", LibraryERM.GetUnitAmountRoundingPrecision);
             TotalCostLCY += Round(JobTotalCostLCY, AmountRoundingPrecision);
             TotalCost += Round(JobUnitCost * PurchaseLine."Qty. to Invoice", AmountRoundingPrecision);
+
+            if (PurchaseLine."Currency Code" <> '') and (CurrencyCode = '') then begin
+                Currency.Get(PurchaseLine."Currency Code");
+                JobTotalCost2 += Round(CurrencyExchRate.ExchangeAmtFCYToLCY(
+                                    PurchaseHeader."Posting Date",
+                                    PurchaseHeader."Currency Code",
+                                    Round(PurchaseLine."Unit Cost" * PurchaseLine."Qty. to Invoice", Currency."Amount Rounding Precision"),
+                                    PurchaseHeader."Currency Factor"),
+                                Currency."Amount Rounding Precision");
+
+            end;
         until PurchaseLine.Next() = 0;
+
+        if (PurchaseHeader."Currency Code" <> '') and (CurrencyCode = '') then begin
+            TotalCostLCY := JobTotalCost2;
+            TotalCost := JobTotalCost2;
+        end;
     end;
 
     local procedure CalculatePurchaseLineAmountValueGL(var PurchaseLine: Record "Purchase Line"; CurrencyFactor: Decimal) Total: Decimal

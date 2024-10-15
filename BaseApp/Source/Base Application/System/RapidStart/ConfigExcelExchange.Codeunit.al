@@ -178,6 +178,9 @@ codeunit 8618 "Config. Excel Exchange"
                     OpenXMLManagement.CopyDataToExcelTable(WrkShtWriter, DataTable, HideDialog);
 
                 DataTableCounter += 2;
+
+                OnExportExcelOnBeforeWrkShtWriterCreateTableParts(ConfigPackageTable, DataTableCounter);
+
                 TableParts := WrkShtWriter.CreateTableParts(1);
                 WrkShtHelper.AppendElementToOpenXmlElement(Worksheet, TableParts);
                 TablePart := WrkShtWriter.CreateTablePart(Worksheet.WorksheetPart.GetIdOfPart(TableDefinitionPart));
@@ -256,7 +259,6 @@ codeunit 8618 "Config. Excel Exchange"
         exit(false)
     end;
 
-    [Scope('OnPrem')]
     procedure SetSelectedTables(var ConfigPackageTable: Record "Config. Package Table")
     begin
         if ConfigPackageTable.FindSet() then
@@ -448,8 +450,10 @@ codeunit 8618 "Config. Excel Exchange"
                     CellValueText := CellData.Value;
                     RowChanged := CurrentRowIndex <> CellData.RowNumber;
                     if not SheetHeaderRead then begin // Read config and table information
-                        if (CellData.RowNumber = 1) and (CellData.ColumnNumber = 1) then
+                        if (CellData.RowNumber = 1) and (CellData.ColumnNumber = 1) then begin
                             DataRow.Item(1, CellValueText);
+                            OnReadWorksheetDataOnAfterPackageCodeRead(CellValueText, FirstDataRow);
+                        end;
                         if (CellData.RowNumber = 1) and (CellData.ColumnNumber = 3) then begin
                             DataColumn := DataTable.Columns.Item(0);
                             DataRow.Item(0, CellValueText);
@@ -580,9 +584,11 @@ codeunit 8618 "Config. Excel Exchange"
         IsHandled: Boolean;
         ShouldRunIteration: Boolean;
         ShouldSetCellComment: Boolean;
+        ColumnNamesRowNo: Integer;
     begin
+        ColumnNamesRowNo := 3;
         IsHandled := false;
-        OnBeforeCreateTableColumnNames(ConfigPackageField, ConfigPackageTable, TypeHelper, ConfigXMLExchange, OpenXMLManagement, IsHandled);
+        OnBeforeCreateTableColumnNames(ConfigPackageField, ConfigPackageTable, TypeHelper, ConfigXMLExchange, OpenXMLManagement, IsHandled, ColumnNamesRowNo);
         if IsHandled then
             exit;
 
@@ -610,14 +616,14 @@ codeunit 8618 "Config. Excel Exchange"
                     WrkShtHelper.AppendElementToOpenXmlElement(TableColumn, XmlColumnProperties);
                     WrkShtHelper.AppendElementToOpenXmlElement(TableColumns, TableColumn);
                     WrkShtWriter.SetCellValueText(
-                      3, OpenXMLManagement.GetXLColumnID(ColumnID), TableColumnName, WrkShtWriter.DefaultCellDecorator);
+                      ColumnNamesRowNo, OpenXMLManagement.GetXLColumnID(ColumnID), TableColumnName, WrkShtWriter.DefaultCellDecorator);
                     ShouldSetCellComment := not ConfigPackageField.Dimension;
                     OnCreateTableColumnNamesOnAfterCalcShouldSetCellComment(ConfigPackageField, ConfigPackageTable, ShouldSetCellComment);
                     if ShouldSetCellComment then begin
                         FieldRef := RecRef.Field(ConfigPackageField."Field ID");
                         OpenXMLManagement.SetCellComment(
-                          WrkShtWriter, OpenXMLManagement.GetXLColumnID(ColumnID) + '3', ConfigValidateMgt.AddComment(FieldRef));
-                        StringBld.Append(OpenXMLManagement.CreateCommentVmlShapeXml(ColumnID, 3));
+                          WrkShtWriter, OpenXMLManagement.GetXLColumnID(ColumnID) + Format(ColumnNamesRowNo), ConfigValidateMgt.AddComment(FieldRef));
+                        StringBld.Append(OpenXMLManagement.CreateCommentVmlShapeXml(ColumnID, ColumnNamesRowNo));
                     end;
                 end;
                 ColumnID += 1;
@@ -693,12 +699,16 @@ codeunit 8618 "Config. Excel Exchange"
         BooleanValue: DotNet BooleanValue;
         StringValue: DotNet StringValue;
         RowsCount: Integer;
+        ColumnNameAndRowNo: Code[10];
     begin
         TableDefinitionPart := WrkShtWriter.CreateTableDefinitionPart();
         ConfigPackageField.Reset();
         ConfigPackageField.SetRange("Package Code", ConfigPackageTable."Package Code");
         ConfigPackageField.SetRange("Table ID", ConfigPackageTable."Table ID");
         ConfigPackageField.SetRange("Include Field", true);
+
+        ColumnNameAndRowNo := 'A3:';
+        OnAddAndInitializeTableDefinitionPartOnBeforeGetDataTable(ConfigPackageTable, DataTableCounter, ColumnNameAndRowNo);
 
         DataTable := DataSet.Tables.Item(DataTableCounter);
 
@@ -711,7 +721,7 @@ codeunit 8618 "Config. Excel Exchange"
         Table.TotalsRowShown := BooleanValue.BooleanValue(false);
         Table.Reference :=
           StringValue.StringValue(
-            'A3:' + OpenXMLManagement.GetXLColumnID(ConfigPackageField.Count) + Format(RowsCount + 3));
+            ColumnNameAndRowNo + OpenXMLManagement.GetXLColumnID(ConfigPackageField.Count) + Format(RowsCount + 3));
         Table.Name := StringValue.StringValue('Table' + Format(id));
         Table.DisplayName := StringValue.StringValue('Table' + Format(id));
         OpenXMLManagement.AppendAutoFilter(Table);
@@ -825,7 +835,7 @@ codeunit 8618 "Config. Excel Exchange"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCreateTableColumnNames(var ConfigPackageField: Record "Config. Package Field"; var ConfigPackageTable: Record "Config. Package Table"; var TypeHelper: Codeunit "Type Helper"; var ConfigXMLExchange: Codeunit "Config. XML Exchange"; var OpenXMLManagement: Codeunit "OpenXML Management"; var IsHandled: Boolean)
+    local procedure OnBeforeCreateTableColumnNames(var ConfigPackageField: Record "Config. Package Field"; var ConfigPackageTable: Record "Config. Package Table"; var TypeHelper: Codeunit "Type Helper"; var ConfigXMLExchange: Codeunit "Config. XML Exchange"; var OpenXMLManagement: Codeunit "OpenXML Management"; var IsHandled: Boolean; var ColumnNamesRowNo: Integer)
     begin
     end;
 
@@ -861,6 +871,21 @@ codeunit 8618 "Config. Excel Exchange"
 
     [IntegrationEvent(false, false)]
     local procedure OnIsImportFromExcelConfirmedOnAfterReadFromExcel(var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAddAndInitializeTableDefinitionPartOnBeforeGetDataTable(var ConfigPackageTable: Record "Config. Package Table"; var DataTableCounter: Integer; var ColumnNameAndRowNo: Code[10])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnExportExcelOnBeforeWrkShtWriterCreateTableParts(var ConfigPackageTable: Record "Config. Package Table"; var DataTableCounter: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnReadWorksheetDataOnAfterPackageCodeRead(CellValueText: Text; var FirstDataRow: Integer)
     begin
     end;
 }

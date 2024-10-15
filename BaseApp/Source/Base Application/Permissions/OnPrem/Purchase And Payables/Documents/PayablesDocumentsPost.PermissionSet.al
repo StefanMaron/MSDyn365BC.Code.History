@@ -1,6 +1,5 @@
 namespace System.Security.AccessControl;
 
-using Microsoft.Intercompany.Comment;
 using Microsoft.Foundation.Period;
 using Microsoft.Finance.Analysis;
 using Microsoft.Inventory.Costing;
@@ -20,6 +19,7 @@ using Microsoft.Finance.GeneralLedger.Ledger;
 using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Intercompany.BankAccount;
+using Microsoft.Intercompany.Comment;
 using Microsoft.Intercompany.Dimension;
 using Microsoft.Intercompany.GLAccount;
 using Microsoft.Intercompany.Outbox;

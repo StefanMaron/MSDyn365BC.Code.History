@@ -1,5 +1,7 @@
 namespace System.Security.User;
 
+using Microsoft.Finance.VAT.Calculation;
+
 page 119 "User Setup"
 {
     ApplicationArea = Basic, Suite;
@@ -30,6 +32,18 @@ page 119 "User Setup"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the last date on which the user is allowed to post to the company.';
+                }
+                field("Allow VAT From"; Rec."Allow VAT Date From")
+                {
+                    ApplicationArea = VAT;
+                    ToolTip = 'Specifies the earliest date on which the user is allowed to post VAT to the company books is allowed.';
+                    Visible = IsVATDateEnabled;
+                }
+                field("Allow VAT To"; Rec."Allow VAT Date To")
+                {
+                    ApplicationArea = VAT;
+                    ToolTip = 'Specifies the last date on which the user is allowed to post VAT to the company books is allowed.';
+                    Visible = IsVATDateEnabled;
                 }
                 field("Allow Deferral Posting From"; Rec."Allow Deferral Posting From")
                 {
@@ -129,8 +143,14 @@ page 119 "User Setup"
     }
 
     trigger OnOpenPage()
+    var
+        VATReportingDateMgt: Codeunit "VAT Reporting Date Mgt";
     begin
+        IsVATDateEnabled := VATReportingDateMgt.IsVATDateEnabled();
         Rec.HideExternalUsers();
     end;
+
+    var
+        IsVATDateEnabled: Boolean;
 }
 

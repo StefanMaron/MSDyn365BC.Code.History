@@ -5,7 +5,6 @@ using Microsoft.Bank.Ledger;
 using Microsoft.Warehouse.Structure;
 using Microsoft.Bank.Check;
 using Microsoft.Foundation.Comment;
-using System.IO;
 using Microsoft.CRM.Duplicates;
 using Microsoft.CRM.Contact;
 using Microsoft.CRM.BusinessRelation;
@@ -69,6 +68,7 @@ using Microsoft.Inventory.Intrastat;
 using Microsoft.Finance.VAT.Setup;
 using Microsoft.Finance.VAT.Registration;
 using Microsoft.API;
+using System.IO;
 
 permissionset 9221 "Customer - Edit"
 {

@@ -52,6 +52,7 @@ codeunit 134451 "ERM Fixed Assets"
         FirstMustBeAcquisitionCostErr: Label 'The first entry must be an Acquisition Cost';
         OnlyOneDefaultDeprBookErr: Label 'Only one fixed asset depreciation book can be marked as the default book';
         TestFieldThreeArgsErr: Label '%1 must have a value in %2: %3=%4, %5=%6, %7=%8. It cannot be zero or empty.';
+        DepreciationBookCodeMustMatchErr: Label 'Depreciation Book Code must match.';
 
     [Test]
     [Scope('OnPrem')]
@@ -2325,6 +2326,954 @@ codeunit 134451 "ERM Fixed Assets"
                 FAPostingGroup));
     end;
 
+    [Test]
+    procedure InPurchaseLineValidateDepreciationBookCodeIfOnlyOne()
+    var
+        Vendor: Record Vendor;
+        FASetup: Record "FA Setup";
+        DepreciationBook1: Record "Depreciation Book";
+        DepreciationBook2: Record "Depreciation Book";
+        DepreciationBook3: Record "Depreciation Book";
+        DepreciationBook4: Record "Depreciation Book";
+        DepreciationBook5: Record "Depreciation Book";
+        FixedAsset1: Record "Fixed Asset";
+        FixedAsset2: Record "Fixed Asset";
+        FixedAsset3: Record "Fixed Asset";
+        FAClass: Record "FA Class";
+        FASubClass: Record "FA Subclass";
+        FAPostingGroup: Record "FA Posting Group";
+        FADepreciationBook1: Record "FA Depreciation Book";
+        FADepreciationBook2: Record "FA Depreciation Book";
+        FADepreciationBook3: Record "FA Depreciation Book";
+        FADepreciationBook4: Record "FA Depreciation Book";
+        FADepreciationBook5: Record "FA Depreciation Book";
+        PurchaseHeader1: Record "Purchase Header";
+        PurchaseHeader2: Record "Purchase Header";
+        PurchaseHeader3: Record "Purchase Header";
+        PurchaseLine1: Record "Purchase Line";
+        PurchaseLine2: Record "Purchase Line";
+        PurchaseLine3: Record "Purchase Line";
+        PurchInvLine1: Record "Purch. Inv. Line";
+        PurchInvLine2: Record "Purch. Inv. Line";
+        PurchInvLine3: Record "Purch. Inv. Line";
+    begin
+        // [SCENARIO 475619] "Depreciation Book Code must have a value in Purchase Line" error message appears if "Default Depr. Book" is blank in Fixed Asset Setup
+        Initialize();
+
+        // [GIVEN] Create Depreciation Book 1.
+        CreateDepreciationBookwithGLIntegrationAcqCost(DepreciationBook1, true);
+
+        // [GIVEN] Create Depreciation Book 2.
+        CreateDepreciationBookwithGLIntegrationAcqCost(DepreciationBook2, true);
+
+        // [GIVEN] Create Depreciation Book 3.
+        CreateDepreciationBookwithGLIntegrationAcqCost(DepreciationBook3, true);
+
+        // [GIVEN] Create Depreciation Book 4.
+        CreateDepreciationBookwithGLIntegrationAcqCost(DepreciationBook4, true);
+
+        // [GIVEN] Create Depreciation Book 5.
+        CreateDepreciationBookwithGLIntegrationAcqCost(DepreciationBook5, true);
+
+        // [GIVEN] Validate Default Depr. Book as Blank in Fixed Asset Setup.
+        FASetup.Get();
+        FASetup.Validate("Default Depr. Book", '');
+        FASetup.Modify(true);
+
+        // [GIVEN] Create a FA Class.
+        LibraryFixedAsset.CreateFAClass(FAClass);
+
+        // [GIVEN] Create a FA Subclass.
+        LibraryFixedAsset.CreateFASubclass(FASubClass);
+
+        // [GIVEN] Create a FA Posting Group.
+        LibraryFixedAsset.CreateFAPostingGroup(FAPostingGroup);
+
+        // [GIVEN] Create Fixed Asset 1 with FA Class Code, FA Subclass Code & FA Posting Group.
+        CreateFixedAssetWithFAClassFASubclassFAPostingGroup(FixedAsset1, FAClass.Code, FASubClass.Code, FAPostingGroup.Code);
+
+        // [GIVEN] Create FA Depreciation Book 1 for Depreciation Book 1.
+        CreateFADepreciationBookWithFAPostingGroupDeprMethodStartDateNoOfYears(
+            FADepreciationBook1,
+            FixedAsset1,
+            DepreciationBook1,
+            FixedAsset1."FA Posting Group",
+            "FA Depreciation Method"::"Straight-Line",
+            WorkDate(),
+            LibraryRandom.RandInt(3));
+
+        // [GIVEN] Create a Vendor.
+        LibraryPurchase.CreateVendor(Vendor);
+
+        // [GIVEN] Create Purchase Header 1 with Vendor Invoice No. & Posting Date.
+        CreatePurchHeaderWithVendorInvNoAndPostingDate(PurchaseHeader1, Vendor."No.", Format(LibraryRandom.RandInt(50)), WorkDate());
+
+        // [GIVEN] Create Purchase Line 1 with Direct Unit Cost.
+        CreatePurchLineWithDirectUnitCost(
+            PurchaseHeader1,
+            PurchaseLine1,
+            "Purchase Line Type"::"Fixed Asset",
+            FixedAsset1."No.",
+            LibraryRandom.RandInt(0),
+            LibraryRandom.RandDec(1000, 0));
+
+        // [GIVEN] Post Purchase Order.
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader1, true, true);
+
+        // [WHEN] Find Posted Purchase Invoice Line 1.
+        PurchInvLine1.SetRange("Order No.", PurchaseHeader1."No.");
+        PurchInvLine1.SetRange("Line No.", PurchaseLine1."Line No.");
+        PurchInvLine1.FindFirst();
+
+        // [VERIFY] Verify Purchase Order Depreciation Book Code & Posted Purchase Inv Depreciation Book Code are same.
+        Assert.AreEqual(PurchaseLine1."Depreciation Book Code", PurchInvLine1."Depreciation Book Code", DepreciationBookCodeMustMatchErr);
+
+        // [GIVEN] Create Fixed Asset 2 with FA Class Code, FA Subclass Code & FA Posting Group.
+        CreateFixedAssetWithFAClassFASubclassFAPostingGroup(FixedAsset2, FAClass.Code, FASubClass.Code, FAPostingGroup.Code);
+
+        // [GIVEN] Create FA Depreciation Book 2 for Depreciation Book 2.
+        CreateFADepreciationBookWithFAPostingGroupDeprMethodStartDateNoOfYears(
+            FADepreciationBook2,
+            FixedAsset2,
+            DepreciationBook2,
+            FixedAsset2."FA Posting Group",
+            "FA Depreciation Method"::"Straight-Line",
+            WorkDate(),
+            LibraryRandom.RandInt(3));
+
+        // [GIVEN] Create Default FA Depreciation Book for Depreciation Book 3.
+        CreateDefaultFADepreciationBookWithFAPostingGroupDeprMethodStartDateNoOfYears(
+            FADepreciationBook3,
+            FixedAsset2,
+            DepreciationBook3,
+            FixedAsset2."FA Posting Group",
+            "FA Depreciation Method"::"Straight-Line",
+            WorkDate(),
+            LibraryRandom.RandInt(3));
+
+        // [GIVEN] Create Purchase Header 2 with Vendor Invoice No. & Posting Date.
+        CreatePurchHeaderWithVendorInvNoAndPostingDate(PurchaseHeader2, Vendor."No.", Format(LibraryRandom.RandInt(50)), WorkDate());
+
+        // [GIVEN] Create Purchase Line 2 with Direct Unit Cost.
+        CreatePurchLineWithDirectUnitCost(
+            PurchaseHeader2,
+            PurchaseLine2,
+            "Purchase Line Type"::"Fixed Asset",
+            FixedAsset2."No.",
+            LibraryRandom.RandInt(0),
+            LibraryRandom.RandDec(1000, 0));
+
+        // [GIVEN] Post Purchase Order.
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader2, true, true);
+
+        // [WHEN] Find Posted Purchase Invoice Line 2.
+        PurchInvLine2.SetRange("Order No.", PurchaseHeader2."No.");
+        PurchInvLine2.SetRange("Line No.", PurchaseLine2."Line No.");
+        PurchInvLine2.FindFirst();
+
+        // [VERIFY] Verify Purchase Order Depreciation Book Code & Posted Purchase Inv Depreciation Book Code are same.
+        Assert.AreEqual(PurchaseLine2."Depreciation Book Code", PurchInvLine2."Depreciation Book Code", DepreciationBookCodeMustMatchErr);
+
+        // [GIVEN] Validate Default Depr. Book in Fixed Asset Setup.
+        FASetup.Get();
+        FASetup.Validate("Default Depr. Book", DepreciationBook5.Code);
+        FASetup.Modify(true);
+
+        // [GIVEN] Create Fixed Asset 3 with FA Class Code, FA Subclass Code & FA Posting Group.
+        CreateFixedAssetWithFAClassFASubclassFAPostingGroup(FixedAsset3, FAClass.Code, FASubClass.Code, FAPostingGroup.Code);
+
+        // [GIVEN] Create FA Depreciation Book 4 for Depreciation Book 4.
+        CreateFADepreciationBookWithFAPostingGroupDeprMethodStartDateNoOfYears(
+            FADepreciationBook4,
+            FixedAsset3,
+            DepreciationBook4,
+            FixedAsset3."FA Posting Group",
+            "FA Depreciation Method"::"Straight-Line",
+            WorkDate(),
+            LibraryRandom.RandInt(3));
+
+        // [GIVEN] Create FA Depreciation Book 5 for Depreciation Book 5.
+        CreateFADepreciationBookWithFAPostingGroupDeprMethodStartDateNoOfYears(
+            FADepreciationBook5,
+            FixedAsset3,
+            DepreciationBook5,
+            FixedAsset2."FA Posting Group",
+            "FA Depreciation Method"::"Straight-Line",
+            WorkDate(),
+            LibraryRandom.RandInt(3));
+
+        // [GIVEN] Create Purchase Header 3 with Vendor Invoice No. & Posting Date.
+        CreatePurchHeaderWithVendorInvNoAndPostingDate(PurchaseHeader3, Vendor."No.", Format(LibraryRandom.RandInt(50)), WorkDate());
+
+        // [GIVEN] Create Purchase Line 3 with Direct Unit Cost.
+        CreatePurchLineWithDirectUnitCost(
+            PurchaseHeader3,
+            PurchaseLine3,
+            "Purchase Line Type"::"Fixed Asset",
+            FixedAsset3."No.",
+            LibraryRandom.RandInt(0),
+            LibraryRandom.RandDec(1000, 0));
+
+        // [GIVEN] Post Purchase Order.
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader3, true, true);
+
+        // [WHEN] Find Posted Purchase Invoice Line 3.
+        PurchInvLine3.SetRange("Order No.", PurchaseHeader3."No.");
+        PurchInvLine3.SetRange("Line No.", PurchaseLine3."Line No.");
+        PurchInvLine3.FindFirst();
+
+        // [VERIFY] Verify Purchase Order Depreciation Book Code & FA Setup Default Depreciation Book Code are same.
+        Assert.AreEqual(PurchInvLine3."Depreciation Book Code", FASetup."Default Depr. Book", DepreciationBookCodeMustMatchErr);
+    end;
+
+    [Test]
+    procedure InSalesLineValidateDepreciationBookCodeIfOnlyOne()
+    var
+        Customer: Record Customer;
+        FASetup: Record "FA Setup";
+        DepreciationBook1: Record "Depreciation Book";
+        DepreciationBook2: Record "Depreciation Book";
+        DepreciationBook3: Record "Depreciation Book";
+        DepreciationBook4: Record "Depreciation Book";
+        DepreciationBook5: Record "Depreciation Book";
+        FixedAsset1: Record "Fixed Asset";
+        FixedAsset2: Record "Fixed Asset";
+        FixedAsset3: Record "Fixed Asset";
+        FAClass: Record "FA Class";
+        FASubClass: Record "FA Subclass";
+        FAPostingGroup: Record "FA Posting Group";
+        FADepreciationBook1: Record "FA Depreciation Book";
+        FADepreciationBook2: Record "FA Depreciation Book";
+        FADepreciationBook3: Record "FA Depreciation Book";
+        FADepreciationBook4: Record "FA Depreciation Book";
+        FADepreciationBook5: Record "FA Depreciation Book";
+        SalesHeader1: Record "Sales Header";
+        SalesHeader2: Record "Sales Header";
+        SalesHeader3: Record "Sales Header";
+        SalesLine1: Record "Sales Line";
+        SalesLine2: Record "Sales Line";
+        SalesLine3: Record "Sales Line";
+        SalesInvoiceLine1: Record "Sales Invoice Line";
+        SalesInvoiceLine2: Record "Sales Invoice Line";
+        SalesInvoiceLine3: Record "Sales Invoice Line";
+    begin
+        // [SCENARIO 475619] "Depreciation Book Code must have a value in Purchase Line" error message appears if "Default Depr. Book" is blank in Fixed Asset Setup
+        Initialize();
+
+        // [GIVEN] Create Depreciation Book 1 & Validate GL Integration - Disposal.
+        CreateDepreciationBookwithGLIntegrationAcqCost(DepreciationBook1, true);
+        DepreciationBook1.Validate("G/L Integration - Disposal", true);
+        DepreciationBook1.Modify(true);
+
+        // [GIVEN] Create Depreciation Book 2 & Validate GL Integration - Disposal.
+        CreateDepreciationBookwithGLIntegrationAcqCost(DepreciationBook2, true);
+        DepreciationBook2.Validate("G/L Integration - Disposal", true);
+        DepreciationBook2.Modify(true);
+
+        // [GIVEN] Create Depreciation Book 3 & Validate GL Integration - Disposal.
+        CreateDepreciationBookwithGLIntegrationAcqCost(DepreciationBook3, true);
+        DepreciationBook3.Validate("G/L Integration - Disposal", true);
+        DepreciationBook3.Modify(true);
+
+        // [GIVEN] Create Depreciation Book 4 & Validate GL Integration - Disposal.
+        CreateDepreciationBookwithGLIntegrationAcqCost(DepreciationBook4, true);
+        DepreciationBook4.Validate("G/L Integration - Disposal", true);
+        DepreciationBook4.Modify(true);
+
+        // [GIVEN] Create Depreciation Book 5 & Validate GL Integration - Disposal.
+        CreateDepreciationBookwithGLIntegrationAcqCost(DepreciationBook5, true);
+        DepreciationBook5.Validate("G/L Integration - Disposal", true);
+        DepreciationBook5.Modify(true);
+
+        // [GIVEN] Validate Default Depr. Book as Blank in Fixed Asset Setup.
+        FASetup.Get();
+        FASetup.Validate("Default Depr. Book", DepreciationBook5.Code);
+        FASetup.Modify(true);
+
+        // [GIVEN] Create a FA Class.
+        LibraryFixedAsset.CreateFAClass(FAClass);
+
+        // [GIVEN] Create a FA Subclass.
+        LibraryFixedAsset.CreateFASubclass(FASubClass);
+
+        // [GIVEN] Create a FA Posting Group.
+        LibraryFixedAsset.CreateFAPostingGroup(FAPostingGroup);
+
+        // [GIVEN] Create Fixed Asset 1 with FA Class Code, FA Subclass Code & FA Posting Group.
+        CreateFixedAssetWithFAClassFASubclassFAPostingGroup(FixedAsset1, FAClass.Code, FASubClass.Code, FAPostingGroup.Code);
+
+        // [GIVEN] Create FA Depreciation Book 1 for Depreciation Book 1.
+        CreateFADepreciationBookWithFAPostingGroupDeprMethodStartDateNoOfYears(
+            FADepreciationBook1,
+            FixedAsset1,
+            DepreciationBook1,
+            FixedAsset1."FA Posting Group",
+            "FA Depreciation Method"::"Straight-Line",
+            WorkDate(),
+            LibraryRandom.RandInt(3));
+
+        // [GIVEN] Create a Customer.
+        LibrarySales.CreateCustomer(Customer);
+
+        // [GIVEN] Create Sales Header 1 with Customer No. & Posting Date.
+        CreateSalesHeaderWithCustomerNoAndPostingDate(SalesHeader1, Customer."No.", WorkDate());
+
+        // [GIVEN] Create Sales Line 1 with Direct Unit Cost.
+        CreateSalesLineWithDirectUnitCost(
+            SalesHeader1,
+            SalesLine1,
+            "Sales Line Type"::"Fixed Asset",
+            FixedAsset1."No.",
+            LibraryRandom.RandInt(0),
+            LibraryRandom.RandDec(1000, 0));
+
+        // [GIVEN] Post Sales Order.
+        LibrarySales.PostSalesDocument(SalesHeader1, true, true);
+
+        // [WHEN] Find Posted Sales Invoice Line 1.
+        SalesInvoiceLine1.SetRange("Order No.", SalesHeader1."No.");
+        SalesInvoiceLine1.SetRange("Line No.", SalesLine1."Line No.");
+        SalesInvoiceLine1.FindFirst();
+
+        // [VERIFY] Verify Sales Order Depreciation Book Code & Posted Sales Inv Depreciation Book Code are same.
+        Assert.AreEqual(SalesLine1."Depreciation Book Code", SalesInvoiceLine1."Depreciation Book Code", DepreciationBookCodeMustMatchErr);
+
+        // [GIVEN] Create Fixed Asset 2 with FA Class Code, FA Subclass Code & FA Posting Group.
+        CreateFixedAssetWithFAClassFASubclassFAPostingGroup(FixedAsset2, FAClass.Code, FASubClass.Code, FAPostingGroup.Code);
+
+        // [GIVEN] Create FA Depreciation Book 2 for Depreciation Book 2.
+        CreateFADepreciationBookWithFAPostingGroupDeprMethodStartDateNoOfYears(
+            FADepreciationBook2,
+            FixedAsset2,
+            DepreciationBook2,
+            FixedAsset2."FA Posting Group",
+            "FA Depreciation Method"::"Straight-Line",
+            WorkDate(),
+            LibraryRandom.RandInt(3));
+
+        // [GIVEN] Create Default FA Depreciation Book for Depreciation Book 3.
+        CreateDefaultFADepreciationBookWithFAPostingGroupDeprMethodStartDateNoOfYears(
+            FADepreciationBook3,
+            FixedAsset2,
+            DepreciationBook3,
+            FixedAsset2."FA Posting Group",
+            "FA Depreciation Method"::"Straight-Line",
+            WorkDate(),
+            LibraryRandom.RandInt(3));
+
+        // [GIVEN] Create Sales Header 2 with Customer No. & Posting Date.
+        CreateSalesHeaderWithCustomerNoAndPostingDate(SalesHeader2, Customer."No.", WorkDate());
+
+        // [GIVEN] Create Sales Line 2 with Direct Unit Cost.
+        CreateSalesLineWithDirectUnitCost(
+            SalesHeader2,
+            SalesLine2,
+            "Sales Line Type"::"Fixed Asset",
+            FixedAsset2."No.",
+            LibraryRandom.RandInt(0),
+            LibraryRandom.RandDec(1000, 0));
+
+        // [GIVEN] Post Sales Order.
+        LibrarySales.PostSalesDocument(SalesHeader2, true, true);
+
+        // [WHEN] Find Posted Sales Invoice Line 2.
+        SalesInvoiceLine2.SetRange("Order No.", SalesHeader2."No.");
+        SalesInvoiceLine2.SetRange("Line No.", SalesLine2."Line No.");
+        SalesInvoiceLine2.FindFirst();
+
+        // [VERIFY] Verify Sales Order Depreciation Book Code & Posted Sales Inv Depreciation Book Code are same.
+        Assert.AreEqual(SalesLine2."Depreciation Book Code", SalesInvoiceLine2."Depreciation Book Code", DepreciationBookCodeMustMatchErr);
+
+        // [GIVEN] Create Fixed Asset 3 with FA Class Code, FA Subclass Code & FA Posting Group.
+        CreateFixedAssetWithFAClassFASubclassFAPostingGroup(FixedAsset3, FAClass.Code, FASubClass.Code, FAPostingGroup.Code);
+
+        // [GIVEN] Create FA Depreciation Book 4 for Depreciation Book 4.
+        CreateFADepreciationBookWithFAPostingGroupDeprMethodStartDateNoOfYears(
+            FADepreciationBook4,
+            FixedAsset3,
+            DepreciationBook4,
+            FixedAsset3."FA Posting Group",
+            "FA Depreciation Method"::"Straight-Line",
+            WorkDate(),
+            LibraryRandom.RandInt(3));
+
+        // [GIVEN] Create FA Depreciation Book 5 for Depreciation Book 5.
+        CreateFADepreciationBookWithFAPostingGroupDeprMethodStartDateNoOfYears(
+            FADepreciationBook5,
+            FixedAsset3,
+            DepreciationBook5,
+            FixedAsset2."FA Posting Group",
+            "FA Depreciation Method"::"Straight-Line",
+            WorkDate(),
+            LibraryRandom.RandInt(3));
+
+        // [GIVEN] Create Sales Header 3 with Customer No. & Posting Date.
+        CreateSalesHeaderWithCustomerNoAndPostingDate(SalesHeader3, Customer."No.", WorkDate());
+
+        // [GIVEN] Create Sales Line 3 with Direct Unit Cost.
+        CreateSalesLineWithDirectUnitCost(
+            SalesHeader3,
+            SalesLine3,
+            "Sales Line Type"::"Fixed Asset",
+            FixedAsset3."No.",
+            LibraryRandom.RandInt(0),
+            LibraryRandom.RandDec(1000, 0));
+
+        // [GIVEN] Post Sales Order.
+        LibrarySales.PostSalesDocument(SalesHeader3, true, true);
+
+        // [WHEN] Find Posted Sales Invoice Line 3.
+        SalesInvoiceLine3.SetRange("Order No.", SalesHeader3."No.");
+        SalesInvoiceLine3.SetRange("Line No.", SalesLine3."Line No.");
+        SalesInvoiceLine3.FindFirst();
+
+        // [VERIFY] Verify Sales Order Depreciation Book Code & FA Setup Default Depreciation Book Code are same.
+        Assert.AreEqual(SalesInvoiceLine3."Depreciation Book Code", FASetup."Default Depr. Book", DepreciationBookCodeMustMatchErr);
+    end;
+
+    [Test]
+    procedure InGenJnlLineValidateDepreciationBookCodeIfOnlyOne()
+    var
+        FASetup: Record "FA Setup";
+        DepreciationBook1: Record "Depreciation Book";
+        DepreciationBook2: Record "Depreciation Book";
+        DepreciationBook3: Record "Depreciation Book";
+        DepreciationBook4: Record "Depreciation Book";
+        DepreciationBook5: Record "Depreciation Book";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine1: Record "Gen. Journal Line";
+        GenJournalLine2: Record "Gen. Journal Line";
+        GenJournalLine3: Record "Gen. Journal Line";
+        FixedAsset1: Record "Fixed Asset";
+        FixedAsset2: Record "Fixed Asset";
+        FixedAsset3: Record "Fixed Asset";
+        FAClass: Record "FA Class";
+        FASubClass: Record "FA Subclass";
+        FAPostingGroup: Record "FA Posting Group";
+        FADepreciationBook1: Record "FA Depreciation Book";
+        FADepreciationBook2: Record "FA Depreciation Book";
+        FADepreciationBook3: Record "FA Depreciation Book";
+        FADepreciationBook4: Record "FA Depreciation Book";
+        FADepreciationBook5: Record "FA Depreciation Book";
+        FALedgerEntry1: Record "FA Ledger Entry";
+        FALedgerEntry2: Record "FA Ledger Entry";
+        FALedgerEntry3: Record "FA Ledger Entry";
+    begin
+        // [SCENARIO 475619] "Depreciation Book Code must have a value in Purchase Line" error message appears if "Default Depr. Book" is blank in Fixed Asset Setup
+        Initialize();
+
+        // [GIVEN] Create Depreciation Book 1.
+        CreateDepreciationBookwithGLIntegrationAcqCost(DepreciationBook1, true);
+
+        // [GIVEN] Create Depreciation Book 2.
+        CreateDepreciationBookwithGLIntegrationAcqCost(DepreciationBook2, true);
+
+        // [GIVEN] Create Depreciation Book 3.
+        CreateDepreciationBookwithGLIntegrationAcqCost(DepreciationBook3, true);
+
+        // [GIVEN] Create Depreciation Book 4.
+        CreateDepreciationBookwithGLIntegrationAcqCost(DepreciationBook4, true);
+
+        // [GIVEN] Create Depreciation Book 5.
+        CreateDepreciationBookwithGLIntegrationAcqCost(DepreciationBook5, true);
+
+        // [GIVEN] Validate Default Depr. Book as Blank in Fixed Asset Setup.
+        FASetup.Get();
+        FASetup.Validate("Default Depr. Book", DepreciationBook5.Code);
+        FASetup.Modify(true);
+
+        // [GIVEN] Create a FA Class.
+        LibraryFixedAsset.CreateFAClass(FAClass);
+
+        // [GIVEN] Create a FA Subclass.
+        LibraryFixedAsset.CreateFASubclass(FASubClass);
+
+        // [GIVEN] Create a FA Posting Group.
+        LibraryFixedAsset.CreateFAPostingGroup(FAPostingGroup);
+
+        // [GIVEN] Create Fixed Asset 1 with FA Class Code, FA Subclass Code & FA Posting Group.
+        CreateFixedAssetWithFAClassFASubclassFAPostingGroup(FixedAsset1, FAClass.Code, FASubClass.Code, FAPostingGroup.Code);
+
+        // [GIVEN] Create FA Depreciation Book 1 for Depreciation Book 1.
+        CreateFADepreciationBookWithFAPostingGroupDeprMethodStartDateNoOfYears(
+            FADepreciationBook1,
+            FixedAsset1,
+            DepreciationBook1,
+            FixedAsset1."FA Posting Group",
+            "FA Depreciation Method"::"Straight-Line",
+            WorkDate(),
+            LibraryRandom.RandInt(3));
+
+        // [GIVEN] Create Gen Journal Batch.
+        CreateGeneralJournalBatch(GenJournalBatch);
+
+        // [GIVEN] Create Gen Journal Line 1.
+        LibraryERM.CreateGeneralJnlLine(
+            GenJournalLine1,
+            GenJournalBatch."Journal Template Name",
+            GenJournalBatch.Name,
+            GenJournalLine1."Document Type"::Payment,
+            GenJournalLine1."Account Type"::"Fixed Asset",
+            FixedAsset1."No.",
+            LibraryRandom.RandInt(20));
+
+        // [GIVEN] Validate FA Posting Type.
+        GenJournalLine1.Validate("FA Posting Type", GenJournalLine1."FA Posting Type"::"Acquisition Cost");
+        GenJournalLine1.Modify(true);
+
+        // [GIVEN] Post Gen Journal Line 1.
+        LibraryERM.PostGeneralJnlLine(GenJournalLine1);
+
+        // [WHEN] Find FA Ledger Entry 1.
+        FALedgerEntry1.SetRange("FA No.", GenJournalLine1."Account No.");
+        FALedgerEntry1.FindFirst();
+
+        // [VERIFY] Verify Gen Jorunal Line 1 Depreciation Book Code & FA ledger Entry 1 Depreciation Book Code are same.
+        Assert.AreEqual(GenJournalLine1."Depreciation Book Code", FALedgerEntry1."Depreciation Book Code", DepreciationBookCodeMustMatchErr);
+
+        // [GIVEN] Create Fixed Asset 2 with FA Class Code, FA Subclass Code & FA Posting Group.
+        CreateFixedAssetWithFAClassFASubclassFAPostingGroup(FixedAsset2, FAClass.Code, FASubClass.Code, FAPostingGroup.Code);
+
+        // [GIVEN] Create FA Depreciation Book 2 for Depreciation Book 2.
+        CreateFADepreciationBookWithFAPostingGroupDeprMethodStartDateNoOfYears(
+            FADepreciationBook2,
+            FixedAsset2,
+            DepreciationBook2,
+            FixedAsset2."FA Posting Group",
+            "FA Depreciation Method"::"Straight-Line",
+            WorkDate(),
+            LibraryRandom.RandInt(3));
+
+        // [GIVEN] Create Default FA Depreciation Book for Depreciation Book 3.
+        CreateDefaultFADepreciationBookWithFAPostingGroupDeprMethodStartDateNoOfYears(
+            FADepreciationBook3,
+            FixedAsset2,
+            DepreciationBook3,
+            FixedAsset2."FA Posting Group",
+            "FA Depreciation Method"::"Straight-Line",
+            WorkDate(),
+            LibraryRandom.RandInt(3));
+
+        // [GIVEN] Create Gen Journal Line 2.
+        LibraryERM.CreateGeneralJnlLine(
+            GenJournalLine2,
+            GenJournalBatch."Journal Template Name",
+            GenJournalBatch.Name,
+            GenJournalLine2."Document Type"::Payment,
+            GenJournalLine2."Account Type"::"Fixed Asset",
+            FixedAsset2."No.",
+            LibraryRandom.RandInt(20));
+
+        // [GIVEN] Validate FA Posting Type.
+        GenJournalLine2.Validate("FA Posting Type", GenJournalLine2."FA Posting Type"::"Acquisition Cost");
+        GenJournalLine2.Modify(true);
+
+        // [GIVEN] Post Gen Journal Line 2.
+        LibraryERM.PostGeneralJnlLine(GenJournalLine2);
+
+        // [WHEN] Find FA Ledger Entry 2.
+        FALedgerEntry2.SetRange("FA No.", GenJournalLine2."Account No.");
+        FALedgerEntry2.FindFirst();
+
+        // [VERIFY] Verify Gen Jorunal Line 2 Depreciation Book Code & FA ledger Entry 2 Depreciation Book Code are same.
+        Assert.AreEqual(GenJournalLine2."Depreciation Book Code", FALedgerEntry2."Depreciation Book Code", DepreciationBookCodeMustMatchErr);
+
+        // [GIVEN] Create Fixed Asset 3 with FA Class Code, FA Subclass Code & FA Posting Group.
+        CreateFixedAssetWithFAClassFASubclassFAPostingGroup(FixedAsset3, FAClass.Code, FASubClass.Code, FAPostingGroup.Code);
+
+        // [GIVEN] Create FA Depreciation Book 4 for Depreciation Book 4.
+        CreateFADepreciationBookWithFAPostingGroupDeprMethodStartDateNoOfYears(
+            FADepreciationBook4,
+            FixedAsset3,
+            DepreciationBook4,
+            FixedAsset3."FA Posting Group",
+            "FA Depreciation Method"::"Straight-Line",
+            WorkDate(),
+            LibraryRandom.RandInt(3));
+
+        // [GIVEN] Create FA Depreciation Book 5 for Depreciation Book 5.
+        CreateFADepreciationBookWithFAPostingGroupDeprMethodStartDateNoOfYears(
+            FADepreciationBook5,
+            FixedAsset3,
+            DepreciationBook5,
+            FixedAsset2."FA Posting Group",
+            "FA Depreciation Method"::"Straight-Line",
+            WorkDate(),
+            LibraryRandom.RandInt(3));
+
+        // [GIVEN] Create Gen Journal Line 3.
+        LibraryERM.CreateGeneralJnlLine(
+            GenJournalLine3,
+            GenJournalBatch."Journal Template Name",
+            GenJournalBatch.Name,
+            GenJournalLine3."Document Type"::Payment,
+            GenJournalLine3."Account Type"::"Fixed Asset",
+            FixedAsset3."No.",
+            LibraryRandom.RandInt(20));
+
+        // [GIVEN] Validate FA Posting Type.
+        GenJournalLine3.Validate("FA Posting Type", GenJournalLine3."FA Posting Type"::"Acquisition Cost");
+        GenJournalLine3.Modify(true);
+
+        // [GIVEN] Post Gen Journal Line 3.
+        LibraryERM.PostGeneralJnlLine(GenJournalLine3);
+
+        // [WHEN] Find FA Ledger Entry 3.
+        FALedgerEntry3.SetRange("FA No.", GenJournalLine3."Account No.");
+        FALedgerEntry3.FindFirst();
+
+        // [VERIFY] Verify Gen Jorunal Line 3 Depreciation Book Code & FA Setup Default Depreciation Book Code are same.
+        Assert.AreEqual(FALedgerEntry3."Depreciation Book Code", FASetup."Default Depr. Book", DepreciationBookCodeMustMatchErr);
+    end;
+
+    [Test]
+    procedure InFAJournalLineValidateDepreciationBookCodeIfOnlyOne()
+    var
+        Vendor: Record Vendor;
+        FASetup: Record "FA Setup";
+        DepreciationBook1: Record "Depreciation Book";
+        DepreciationBook2: Record "Depreciation Book";
+        DepreciationBook3: Record "Depreciation Book";
+        DepreciationBook4: Record "Depreciation Book";
+        DepreciationBook5: Record "Depreciation Book";
+        FAJournalBatch: Record "FA Journal Batch";
+        FAJournalLine1: Record "FA Journal Line";
+        FAJournalLine2: Record "FA Journal Line";
+        FAJournalLine3: Record "FA Journal Line";
+        FixedAsset1: Record "Fixed Asset";
+        FixedAsset2: Record "Fixed Asset";
+        FixedAsset3: Record "Fixed Asset";
+        FAClass: Record "FA Class";
+        FASubClass: Record "FA Subclass";
+        FAPostingGroup: Record "FA Posting Group";
+        FADepreciationBook1: Record "FA Depreciation Book";
+        FADepreciationBook2: Record "FA Depreciation Book";
+        FADepreciationBook3: Record "FA Depreciation Book";
+        FADepreciationBook4: Record "FA Depreciation Book";
+        FADepreciationBook5: Record "FA Depreciation Book";
+        FALedgerEntry1: Record "FA Ledger Entry";
+        FALedgerEntry2: Record "FA Ledger Entry";
+        FALedgerEntry3: Record "FA Ledger Entry";
+    begin
+        // [SCENARIO 475619] "Depreciation Book Code must have a value in Purchase Line" error message appears if "Default Depr. Book" is blank in Fixed Asset Setup
+        Initialize();
+
+        // [GIVEN] Create Depreciation Book 1.
+        LibraryFixedAsset.CreateDepreciationBook(DepreciationBook1);
+
+        // [GIVEN] Create Depreciation Book 2.
+        LibraryFixedAsset.CreateDepreciationBook(DepreciationBook2);
+
+        // [GIVEN] Create Depreciation Book 3.
+        LibraryFixedAsset.CreateDepreciationBook(DepreciationBook3);
+
+        // [GIVEN] Create Depreciation Book 4.
+        LibraryFixedAsset.CreateDepreciationBook(DepreciationBook4);
+
+        // [GIVEN] Create Depreciation Book 5.
+        LibraryFixedAsset.CreateDepreciationBook(DepreciationBook5);
+
+        // [GIVEN] Validate Default Depr. Book as Blank in Fixed Asset Setup.
+        FASetup.Get();
+        FASetup.Validate("Default Depr. Book", DepreciationBook5.Code);
+        FASetup.Modify(true);
+
+        // [GIVEN] Create a FA Class.
+        LibraryFixedAsset.CreateFAClass(FAClass);
+
+        // [GIVEN] Create a FA Subclass.
+        LibraryFixedAsset.CreateFASubclass(FASubClass);
+
+        // [GIVEN] Create a FA Posting Group.
+        LibraryFixedAsset.CreateFAPostingGroup(FAPostingGroup);
+
+        // [GIVEN] Create Fixed Asset 1 with FA Class Code, FA Subclass Code & FA Posting Group.
+        CreateFixedAssetWithFAClassFASubclassFAPostingGroup(FixedAsset1, FAClass.Code, FASubClass.Code, FAPostingGroup.Code);
+
+        // [GIVEN] Create FA Depreciation Book 1 for Depreciation Book 1.
+        CreateFADepreciationBookWithFAPostingGroupDeprMethodStartDateNoOfYears(
+            FADepreciationBook1,
+            FixedAsset1,
+            DepreciationBook1,
+            FixedAsset1."FA Posting Group",
+            "FA Depreciation Method"::"Straight-Line",
+            WorkDate(),
+            LibraryRandom.RandInt(3));
+
+        // [GIVEN] Create a Vendor.
+        LibraryPurchase.CreateVendor(Vendor);
+
+        // [GIVEN] Create Gen Journal Batch.
+        CreateFAJournalBatch(FAJournalBatch);
+
+        // [GIVEN] Create FA Journal Line 1.
+        CreateFAJournalLineWithoutDepreciationBook(
+            FAJournalLine1,
+            FAJournalBatch,
+            FAJournalLine1."FA Posting Type"::"Acquisition Cost",
+            FixedAsset1."No.",
+            LibraryRandom.RandDec(10, 0));
+
+        // [GIVEN] Post FA Journal Line 1.
+        LibraryFixedAsset.PostFAJournalLine(FAJournalLine1);
+
+        // [WHEN] Find FA Ledger Entry 1.
+        FALedgerEntry1.SetRange("FA No.", FixedAsset1."No.");
+        FALedgerEntry1.FindFirst();
+
+        // [VERIFY] Verify Depreciation Book Code 1 & FA ledger Entry 1 Depreciation Book Code are same.
+        Assert.AreEqual(DepreciationBook1.Code, FALedgerEntry1."Depreciation Book Code", DepreciationBookCodeMustMatchErr);
+
+        // [GIVEN] Create Fixed Asset 2 with FA Class Code, FA Subclass Code & FA Posting Group.
+        CreateFixedAssetWithFAClassFASubclassFAPostingGroup(FixedAsset2, FAClass.Code, FASubClass.Code, FAPostingGroup.Code);
+
+        // [GIVEN] Create FA Depreciation Book 2 for Depreciation Book 2.
+        CreateFADepreciationBookWithFAPostingGroupDeprMethodStartDateNoOfYears(
+            FADepreciationBook2,
+            FixedAsset2,
+            DepreciationBook2,
+            FixedAsset2."FA Posting Group",
+            "FA Depreciation Method"::"Straight-Line",
+            WorkDate(),
+            LibraryRandom.RandInt(3));
+
+        // [GIVEN] Create Default FA Depreciation Book for Depreciation Book 3.
+        CreateDefaultFADepreciationBookWithFAPostingGroupDeprMethodStartDateNoOfYears(
+            FADepreciationBook3,
+            FixedAsset2,
+            DepreciationBook3,
+            FixedAsset2."FA Posting Group",
+            "FA Depreciation Method"::"Straight-Line",
+            WorkDate(),
+            LibraryRandom.RandInt(3));
+
+        // [GIVEN] Create FA Journal Line 2.
+        CreateFAJournalLineWithoutDepreciationBook(
+            FAJournalLine2,
+            FAJournalBatch,
+            FAJournalLine2."FA Posting Type"::"Acquisition Cost",
+            FixedAsset2."No.",
+            LibraryRandom.RandDec(10, 0));
+
+        // [GIVEN] Post FA Journal Line 2.
+        LibraryFixedAsset.PostFAJournalLine(FAJournalLine2);
+
+        // [WHEN] Find FA Ledger Entry 2.
+        FALedgerEntry2.SetRange("FA No.", FixedAsset2."No.");
+        FALedgerEntry2.FindFirst();
+
+        // [VERIFY] Verify Depreciation Book Code 3 & FA ledger Entry 2 Depreciation Book Code are same.
+        Assert.AreEqual(DepreciationBook3.Code, FALedgerEntry2."Depreciation Book Code", DepreciationBookCodeMustMatchErr);
+
+        // [GIVEN] Create Fixed Asset 3 with FA Class Code, FA Subclass Code & FA Posting Group.
+        CreateFixedAssetWithFAClassFASubclassFAPostingGroup(FixedAsset3, FAClass.Code, FASubClass.Code, FAPostingGroup.Code);
+
+        // [GIVEN] Create FA Depreciation Book 4 for Depreciation Book 4.
+        CreateFADepreciationBookWithFAPostingGroupDeprMethodStartDateNoOfYears(
+            FADepreciationBook4,
+            FixedAsset3,
+            DepreciationBook4,
+            FixedAsset3."FA Posting Group",
+            "FA Depreciation Method"::"Straight-Line",
+            WorkDate(),
+            LibraryRandom.RandInt(3));
+
+        // [GIVEN] Create FA Depreciation Book 5 for Depreciation Book 5.
+        CreateFADepreciationBookWithFAPostingGroupDeprMethodStartDateNoOfYears(
+            FADepreciationBook5,
+            FixedAsset3,
+            DepreciationBook5,
+            FixedAsset2."FA Posting Group",
+            "FA Depreciation Method"::"Straight-Line",
+            WorkDate(),
+            LibraryRandom.RandInt(3));
+
+        // [GIVEN] Create FA Journal Line 3.
+        CreateFAJournalLineWithoutDepreciationBook(
+            FAJournalLine3,
+            FAJournalBatch,
+            FAJournalLine3."FA Posting Type"::"Acquisition Cost",
+            FixedAsset3."No.",
+            LibraryRandom.RandDec(10, 0));
+
+        // [GIVEN] Post FA Journal Line 3.
+        LibraryFixedAsset.PostFAJournalLine(FAJournalLine3);
+
+        // [WHEN] Find FA Ledger Entry 3.
+        FALedgerEntry3.SetRange("FA No.", FixedAsset3."No.");
+        FALedgerEntry3.FindFirst();
+
+        // [VERIFY] Verify FA Setup Default Depreciation Book Code & FA ledger Entry 3 Depreciation Book Code are same.
+        Assert.AreEqual(FASetup."Default Depr. Book", FALedgerEntry3."Depreciation Book Code", DepreciationBookCodeMustMatchErr);
+    end;
+
+    [Test]
+    procedure InFAReclassJournalLineValidateDepreciationBookCodeIfOnlyOne()
+    var
+        FASetup: Record "FA Setup";
+        DepreciationBook1: Record "Depreciation Book";
+        DepreciationBook2: Record "Depreciation Book";
+        DepreciationBook3: Record "Depreciation Book";
+        DepreciationBook4: Record "Depreciation Book";
+        DepreciationBook5: Record "Depreciation Book";
+        NewDepreciationBook: Record "Depreciation Book";
+        FAReclassJournalLine1: Record "FA Reclass. Journal Line";
+        FAReclassJournalLine2: Record "FA Reclass. Journal Line";
+        FAReclassJournalLine3: Record "FA Reclass. Journal Line";
+        FixedAsset1: Record "Fixed Asset";
+        FixedAsset2: Record "Fixed Asset";
+        FixedAsset3: Record "Fixed Asset";
+        FAClass: Record "FA Class";
+        FASubClass: Record "FA Subclass";
+        FAPostingGroup: Record "FA Posting Group";
+        FADepreciationBook1: Record "FA Depreciation Book";
+        FADepreciationBook2: Record "FA Depreciation Book";
+        FADepreciationBook3: Record "FA Depreciation Book";
+        FADepreciationBook4: Record "FA Depreciation Book";
+        FADepreciationBook5: Record "FA Depreciation Book";
+        FAReclassJournalBatch: Record "FA Reclass. Journal Batch";
+        FAReclassJournalTemplate: Record "FA Reclass. Journal Template";
+    begin
+        // [SCENARIO 475619] "Depreciation Book Code must have a value in Purchase Line" error message appears if "Default Depr. Book" is blank in Fixed Asset Setup
+        Initialize();
+
+        // [GIVEN] Create Depreciation Book 1.
+        LibraryFixedAsset.CreateDepreciationBook(DepreciationBook1);
+
+        // [GIVEN] Create Depreciation Book 2.
+        LibraryFixedAsset.CreateDepreciationBook(DepreciationBook2);
+
+        // [GIVEN] Create Depreciation Book 3.
+        LibraryFixedAsset.CreateDepreciationBook(DepreciationBook3);
+
+        // [GIVEN] Create Depreciation Book 4.
+        LibraryFixedAsset.CreateDepreciationBook(DepreciationBook4);
+
+        // [GIVEN] Create Depreciation Book 5.
+        LibraryFixedAsset.CreateDepreciationBook(DepreciationBook5);
+
+        // [GIVEN] Create New Depreciation Book.
+        LibraryFixedAsset.CreateDepreciationBook(NewDepreciationBook);
+
+        // [GIVEN] Validate Default Depr. Book as Blank in Fixed Asset Setup.
+        FASetup.Get();
+        FASetup.Validate("Default Depr. Book", DepreciationBook5.Code);
+        FASetup.Modify(true);
+
+        // [GIVEN] Create a FA Class.
+        LibraryFixedAsset.CreateFAClass(FAClass);
+
+        // [GIVEN] Create a FA Subclass.
+        LibraryFixedAsset.CreateFASubclass(FASubClass);
+
+        // [GIVEN] Create a FA Posting Group.
+        LibraryFixedAsset.CreateFAPostingGroup(FAPostingGroup);
+
+        // [GIVEN] Create Fixed Asset 1 with FA Class Code, FA Subclass Code & FA Posting Group.
+        CreateFixedAssetWithFAClassFASubclassFAPostingGroup(FixedAsset1, FAClass.Code, FASubClass.Code, FAPostingGroup.Code);
+
+        // [GIVEN] Create FA Depreciation Book 1 for Depreciation Book 1.
+        CreateFADepreciationBookWithFAPostingGroupDeprMethodStartDateNoOfYears(
+            FADepreciationBook1,
+            FixedAsset1,
+            DepreciationBook1,
+            FixedAsset1."FA Posting Group",
+            "FA Depreciation Method"::"Straight-Line",
+            WorkDate(),
+            LibraryRandom.RandInt(3));
+
+        // [GIVEN] Create FA Reclass Journal Template.
+        LibraryFixedAsset.CreateFAReclassJournalTemplate(FAReclassJournalTemplate);
+
+        // [GIVEN] Create FA Reclass Journal Batch.
+        LibraryFixedAsset.CreateFAReclassJournalBatch(FAReclassJournalBatch, FAReclassJournalTemplate.Name);
+
+        // [GIVEn] Create FA Reclass Journal Line 1.
+        LibraryFixedAsset.CreateFAReclassJournal(
+            FAReclassJournalLine1,
+            FAReclassJournalBatch."Journal Template Name",
+            FAReclassJournalBatch.Name);
+
+        // [WHEN] Validate FA No.
+        FAReclassJournalLine1.Validate("FA No.", FixedAsset1."No.");
+        FAReclassJournalLine1.Modify(true);
+
+        // [VERIFY] Verify Depreciation Book Code 1 & FA Reclass Journal Line 1 Depreciation Book Code are same.
+        Assert.AreEqual(DepreciationBook1.Code, FAReclassJournalLine1."Depreciation Book Code", DepreciationBookCodeMustMatchErr);
+
+        // [GIVEN] Create Fixed Asset 2 with FA Class Code, FA Subclass Code & FA Posting Group.
+        CreateFixedAssetWithFAClassFASubclassFAPostingGroup(FixedAsset2, FAClass.Code, FASubClass.Code, FAPostingGroup.Code);
+
+        // [GIVEN] Create FA Depreciation Book 2 for Depreciation Book 2.
+        CreateFADepreciationBookWithFAPostingGroupDeprMethodStartDateNoOfYears(
+            FADepreciationBook2,
+            FixedAsset2,
+            DepreciationBook2,
+            FixedAsset2."FA Posting Group",
+            "FA Depreciation Method"::"Straight-Line",
+            WorkDate(),
+            LibraryRandom.RandInt(3));
+
+        // [GIVEN] Create Default FA Depreciation Book for Depreciation Book 3.
+        CreateDefaultFADepreciationBookWithFAPostingGroupDeprMethodStartDateNoOfYears(
+            FADepreciationBook3,
+            FixedAsset2,
+            DepreciationBook3,
+            FixedAsset2."FA Posting Group",
+            "FA Depreciation Method"::"Straight-Line",
+            WorkDate(),
+            LibraryRandom.RandInt(3));
+
+        // [GIVEN] Create FA Reclass Journal Line 2.
+        LibraryFixedAsset.CreateFAReclassJournal(
+            FAReclassJournalLine2,
+            FAReclassJournalBatch."Journal Template Name",
+            FAReclassJournalBatch.Name);
+
+        // [WHEN] Validate FA No.
+        FAReclassJournalLine2.Validate("FA No.", FixedAsset2."No.");
+        FAReclassJournalLine2.Modify(true);
+
+        // [VERIFY] Verify Depreciation Book Code 3 & FA Reclass Journal Line 2 Depreciation Book Code are same.
+        Assert.AreEqual(DepreciationBook3.Code, FAReclassJournalLine2."Depreciation Book Code", DepreciationBookCodeMustMatchErr);
+
+        // [GIVEN] Create Fixed Asset 3 with FA Class Code, FA Subclass Code & FA Posting Group.
+        CreateFixedAssetWithFAClassFASubclassFAPostingGroup(FixedAsset3, FAClass.Code, FASubClass.Code, FAPostingGroup.Code);
+
+        // [GIVEN] Create FA Depreciation Book 4 for Depreciation Book 4.
+        CreateFADepreciationBookWithFAPostingGroupDeprMethodStartDateNoOfYears(
+            FADepreciationBook4,
+            FixedAsset3,
+            DepreciationBook4,
+            FixedAsset3."FA Posting Group",
+            "FA Depreciation Method"::"Straight-Line",
+            WorkDate(),
+            LibraryRandom.RandInt(3));
+
+        // [GIVEN] Create FA Depreciation Book 5 for Depreciation Book 5.
+        CreateFADepreciationBookWithFAPostingGroupDeprMethodStartDateNoOfYears(
+            FADepreciationBook5,
+            FixedAsset3,
+            DepreciationBook5,
+            FixedAsset2."FA Posting Group",
+            "FA Depreciation Method"::"Straight-Line",
+            WorkDate(),
+            LibraryRandom.RandInt(3));
+
+        // [GIVEN] Create FA Reclass Journal Line 3.
+        LibraryFixedAsset.CreateFAReclassJournal(
+            FAReclassJournalLine3,
+            FAReclassJournalBatch."Journal Template Name",
+            FAReclassJournalBatch.Name);
+
+        // [WHEN] Validate FA No.
+        FAReclassJournalLine3.Validate("FA No.", FixedAsset3."No.");
+        FAReclassJournalLine3.Modify(true);
+
+        // [VERIFY] Verify FA Setup Default Depreciation Book Code & FA Reclass Journal Line 3 Depreciation Book Code are same.
+        Assert.AreEqual(FASetup."Default Depr. Book", FAReclassJournalLine3."Depreciation Book Code", DepreciationBookCodeMustMatchErr);
+    end;
+
     local procedure Initialize()
     var
         DimValue: Record "Dimension Value";
@@ -3168,6 +4117,101 @@ codeunit 134451 "ERM Fixed Assets"
         FALedgerEntries.FILTER.SetFilter("Entry No.", Format(FALedgerEntry."Entry No."));
         FALedgerEntries.CancelEntries.Invoke();  // Open handler - CancelFAEntriesRequestPageHandler.
         FALedgerEntries.OK.Invoke();
+    end;
+
+    local procedure CreateFixedAssetWithFAClassFASubclassFAPostingGroup(var FixedAsset: Record "Fixed Asset"; FAClass: Code[10]; FASubclass: Code[10]; FAPostingGroup: Code[20])
+    begin
+        LibraryFixedAsset.CreateFixedAsset(FixedAsset);
+        FixedAsset.Validate("FA Class Code", FAClass);
+        FixedAsset.Validate("FA Subclass Code", FASubClass);
+        FixedAsset.Validate("FA Posting Group", FAPostingGroup);
+        FixedAsset.Modify(true);
+    end;
+
+    local procedure CreateFADepreciationBookWithFAPostingGroupDeprMethodStartDateNoOfYears(var FADepreciationBook: Record "FA Depreciation Book"; var FixedAsset: Record "Fixed Asset"; var DepreciationBook: Record "Depreciation Book"; FAPostingGroup: Code[20]; DepreciationMethod: Enum "FA Depreciation Method"; DepreciationStartingDate: Date; NoOfDepreciationyears: Decimal)
+    begin
+        LibraryFixedAsset.CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", DepreciationBook.Code);
+        FADepreciationBook.Validate("FA Posting Group", FAPostingGroup);
+        FADepreciationBook.Validate("Acquisition Date", WorkDate());
+        FADepreciationBook.Validate("Depreciation Method", DepreciationMethod);
+        FADepreciationBook.Validate("Depreciation Starting Date", DepreciationStartingDate);
+        FADepreciationBook.Validate("No. of Depreciation Years", NoOfDepreciationyears);
+        FADepreciationBook.Modify(true);
+    end;
+
+    local procedure CreateDepreciationBookwithGLIntegrationAcqCost(var DepreciationBook: Record "Depreciation Book"; GLIntegrationAcqCost: Boolean)
+    begin
+        LibraryFixedAsset.CreateDepreciationBook(DepreciationBook);
+        DepreciationBook.Validate("G/L Integration - Acq. Cost", GLIntegrationAcqCost);
+        DepreciationBook.Modify(true);
+    end;
+
+    local procedure CreatePurchHeaderWithVendorInvNoAndPostingDate(var PurchaseHeader: Record "Purchase Header"; BuyfromVendorNo: Code[20]; VendorInvNo: Code[35]; PostingDate: Date)
+    begin
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, "Purchase Document Type"::Order, BuyfromVendorNo);
+        PurchaseHeader.Validate("Vendor Invoice No.", VendorInvNo);
+        PurchaseHeader.Validate("Posting Date", PostingDate);
+        PurchaseHeader.Modify(true);
+    end;
+
+    local procedure CreatePurchLineWithDirectUnitCost(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; PurchaseLineType: Enum "Purchase Line Type"; No: Code[20]; Qty: Decimal; DirectUnitCost: Decimal)
+    begin
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLineType, No, Qty);
+        PurchaseLine.Validate("Direct Unit Cost", DirectUnitCost);
+        PurchaseLine.Modify(true);
+    end;
+
+    local procedure CreateDefaultFADepreciationBookWithFAPostingGroupDeprMethodStartDateNoOfYears(var FADepreciationBook: Record "FA Depreciation Book"; var FixedAsset: Record "Fixed Asset"; var DepreciationBook: Record "Depreciation Book"; FAPostingGroup: Code[20]; DepreciationMethod: Enum "FA Depreciation Method"; DepreciationStartingDate: Date; NoOfDepreciationyears: Decimal)
+    begin
+        LibraryFixedAsset.CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", DepreciationBook.Code);
+        FADepreciationBook.Validate("FA Posting Group", FAPostingGroup);
+        FADepreciationBook.Validate("Acquisition Date", WorkDate());
+        FADepreciationBook.Validate("Depreciation Method", DepreciationMethod);
+        FADepreciationBook.Validate("Depreciation Starting Date", DepreciationStartingDate);
+        FADepreciationBook.Validate("No. of Depreciation Years", NoOfDepreciationyears);
+        FADepreciationBook.Validate("Default FA Depreciation Book", true);
+        FADepreciationBook.Modify(true);
+    end;
+
+    local procedure CreateSalesHeaderWithCustomerNoAndPostingDate(var SalesHeader: Record "Sales Header"; CustomerNo: Code[20]; PostingDate: Date)
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, "Sales Document Type"::Order, CustomerNo);
+        SalesHeader.Validate("Posting Date", PostingDate);
+        SalesHeader.Modify(true);
+    end;
+
+    local procedure CreateSalesLineWithDirectUnitCost(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; SalesLineType: Enum "Sales Line Type"; No: Code[20]; Qty: Decimal; UnitPrice: Decimal)
+    begin
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLineType, No, Qty);
+        SalesLine.Validate("Unit Price", UnitPrice);
+        SalesLine.Modify(true);
+    end;
+
+    local procedure CreateGeneralJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch")
+    var
+        GenJournalTemplate: Record "Gen. Journal Template";
+        GLAccount: Record "G/L Account";
+    begin
+        LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
+        LibraryERM.CreateGLAccount(GLAccount);
+        GLAccount."Income/Balance" := GLAccount."Income/Balance"::"Income Statement";
+        GLAccount.Modify(true);
+        GenJournalBatch.Validate("Bal. Account No.", GLAccount."No.");
+        GenJournalBatch.Modify(true);
+    end;
+
+    local procedure CreateFAJournalLineWithoutDepreciationBook(var FAJournalLine: Record "FA Journal Line"; FAJournalBatch: Record "FA Journal Batch"; FAPostingType: Enum "FA Journal Line FA Posting Type"; FANo: Code[20]; Amount: Decimal)
+    begin
+        LibraryFixedAsset.CreateFAJournalLine(FAJournalLine, FAJournalBatch."Journal Template Name", FAJournalBatch.Name);
+        FAJournalLine.Validate("Document Type", FAJournalLine."Document Type"::" ");
+        FAJournalLine.Validate("Document No.", FAJournalLine."Journal Batch Name" + Format(FAJournalLine."Line No."));
+        FAJournalLine.Validate("Posting Date", WorkDate());
+        FAJournalLine.Validate("FA Posting Date", WorkDate());
+        FAJournalLine.Validate("FA Posting Type", FAPostingType);
+        FAJournalLine.Validate("FA No.", FANo);
+        FAJournalLine.Validate(Amount, Amount);
+        FAJournalLine.Modify(true);
     end;
 
     [RequestPageHandler]

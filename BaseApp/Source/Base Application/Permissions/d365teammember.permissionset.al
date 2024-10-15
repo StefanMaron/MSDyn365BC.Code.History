@@ -2,7 +2,7 @@ namespace System.Security.AccessControl;
 
 using Microsoft;
 using Microsoft.AccountantPortal;
-using Microsoft.API; 
+using Microsoft.API;
 using Microsoft.API.Upgrade;
 using Microsoft.Assembly.Comment;
 using Microsoft.Assembly.Document;

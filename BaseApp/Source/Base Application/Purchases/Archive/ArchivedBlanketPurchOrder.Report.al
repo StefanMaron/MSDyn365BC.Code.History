@@ -20,6 +20,7 @@ report 5174 "Archived Blanket Purch. Order"
     DefaultLayout = RDLC;
     RDLCLayout = './Purchases/Archive/ArchivedBlanketPurchOrder.rdlc';
     Caption = 'Archived Blanket Purch. Order';
+    WordMergeDataItem = "Purchase Header Archive";
 
     dataset
     {

@@ -263,30 +263,36 @@ codeunit 86 "Sales-Quote to Order"
     var
         Opp: Record Opportunity;
         OpportunityEntry: Record "Opportunity Entry";
+        IsHandled: Boolean;
     begin
-        FilterOpportunityForQuote(Opp, SalesQuoteHeader, false);
-        if Opp.FindFirst() then
-            if Opp.Status = Opp.Status::Won then begin
-                Opp."Sales Document Type" := Opp."Sales Document Type"::Order;
-                Opp."Sales Document No." := SalesOrderHeader."No.";
-                Opp.Modify();
-                OpportunityEntry.Reset();
-                OpportunityEntry.SetCurrentKey(Active, "Opportunity No.");
-                OpportunityEntry.SetRange(Active, true);
-                OpportunityEntry.SetRange("Opportunity No.", Opp."No.");
-                if OpportunityEntry.FindFirst() then begin
-                    OpportunityEntry."Calcd. Current Value (LCY)" := OpportunityEntry.GetSalesDocValue(SalesOrderHeader);
-                    OpportunityEntry.Modify();
-                end;
-            end else
-                if Opp.Status = Opp.Status::Lost then begin
-                    Opp."Sales Document Type" := Opp."Sales Document Type"::" ";
-                    Opp."Sales Document No." := '';
+        IsHandled := false;
+        OnBeforeMoveWonLostOpportunites(SalesQuoteHeader, SalesOrderHeader, IsHandled);
+        if not IsHandled then begin
+            FilterOpportunityForQuote(Opp, SalesQuoteHeader, false);
+            if Opp.FindFirst() then
+                if Opp.Status = Opp.Status::Won then begin
+                    Opp."Sales Document Type" := Opp."Sales Document Type"::Order;
+                    Opp."Sales Document No." := SalesOrderHeader."No.";
                     Opp.Modify();
-                end;
+                    OpportunityEntry.Reset();
+                    OpportunityEntry.SetCurrentKey(Active, "Opportunity No.");
+                    OpportunityEntry.SetRange(Active, true);
+                    OpportunityEntry.SetRange("Opportunity No.", Opp."No.");
+                    if OpportunityEntry.FindFirst() then begin
+                        OpportunityEntry."Calcd. Current Value (LCY)" := OpportunityEntry.GetSalesDocValue(SalesOrderHeader);
+                        OpportunityEntry.Modify();
+                    end;
+                end else
+                    if Opp.Status = Opp.Status::Lost then begin
+                        Opp."Sales Document Type" := Opp."Sales Document Type"::" ";
+                        Opp."Sales Document No." := '';
+                        Opp.Modify();
+                    end;
 #if not CLEAN23
-        OnAfterMoveWonLostOpportunites(SalesQuoteHeader, SalesOrderHeader);
+            OnAfterMoveWonLostOpportunites(SalesQuoteHeader, SalesOrderHeader);
 #endif
+        end;
+
         OnAfterMoveWonLostOpportunity(SalesQuoteHeader, SalesOrderHeader, Opp);
     end;
 
@@ -493,6 +499,11 @@ codeunit 86 "Sales-Quote to Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateSalesHeaderOnBeforeSalesOrderLineLockTable(var SalesHeaderOrder: Record "Sales Header"; var SalesHeaderQuote: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeMoveWonLostOpportunites(var QuoteSalesHeader: Record "Sales Header"; var OrderSalesHeader: Record "Sales Header"; var IsHandled: Boolean);
     begin
     end;
 }

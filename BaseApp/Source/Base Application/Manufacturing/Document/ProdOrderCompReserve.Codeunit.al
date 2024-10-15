@@ -428,6 +428,7 @@ codeunit 99000838 "Prod. Order Comp.-Reserve"
             TrackingSpecification.InitFromProdOrderComp(ProdOrderComponent);
             ItemTrackingLines.SetSourceSpec(TrackingSpecification, ProdOrderComponent."Due Date");
             ItemTrackingLines.SetInbound(ProdOrderComponent.IsInbound());
+            OnCallItemTrackingOnBeforeItemTrackingLinesRunModal(ProdOrderComponent, ItemTrackingLines);
             ItemTrackingLines.RunModal();
         end;
 
@@ -805,6 +806,11 @@ codeunit 99000838 "Prod. Order Comp.-Reserve"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetSourceValue(ReservEntry: Record "Reservation Entry"; var SourceRecRef: RecordRef; ReturnOption: Option "Net Qty. (Base)","Gross Qty. (Base)"; var ReturnValue: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCallItemTrackingOnBeforeItemTrackingLinesRunModal(var ProdOrderComponent: Record "Prod. Order Component"; var ItemTrackingLines: Page "Item Tracking Lines")
     begin
     end;
 }

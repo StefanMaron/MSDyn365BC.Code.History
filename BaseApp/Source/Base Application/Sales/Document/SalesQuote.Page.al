@@ -1842,6 +1842,7 @@ page 41 "Sales Quote"
         EnvironmentInfo: Codeunit "Environment Information";
     begin
         Rec.SetSecurityFilterOnRespCenter();
+        OnOpenPageOnAfterSetSecurityFilterOnRespCenter(Rec);
 
         Rec.SetRange("Date Filter", 0D, WorkDate());
 
@@ -2017,6 +2018,11 @@ page 41 "Sales Quote"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidateShipToOptions(var SalesHeader: Record "Sales Header"; ShipToOptions: Option)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnOpenPageOnAfterSetSecurityFilterOnRespCenter(var SalesHeader: Record "Sales Header")
     begin
     end;
 }

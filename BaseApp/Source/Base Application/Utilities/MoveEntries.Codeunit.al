@@ -403,6 +403,7 @@ codeunit 361 MoveEntries
         InvtAdjmtEntryOrder.ModifyAll("Item No.", NewItemNo);
 
         ServLedgEntry.Reset();
+        OnMoveItemEntriesOnAfterResetServLedgEntry(ServLedgEntry);
         ServLedgEntry.SetRange("Item No. (Serviced)", Item."No.");
         AccountingPeriod.SetRange(Closed, false);
         if AccountingPeriod.FindFirst() then
@@ -1025,6 +1026,11 @@ codeunit 361 MoveEntries
 
     [IntegrationEvent(false, false)]
     local procedure OnMoveCustEntriesOnBeforeError(var Cust: Record Customer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnMoveItemEntriesOnAfterResetServLedgEntry(var ServiceLedgerEntry: Record "Service Ledger Entry")
     begin
     end;
 }

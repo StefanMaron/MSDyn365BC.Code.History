@@ -850,7 +850,7 @@ codeunit 99000832 "Sales Line-Reserve"
         end;
 
         IsHandled := false;
-        OnTestSalesLineModificationOnBeforeTestVariantCode(NewSalesLine, OldSalesLine, IsHandled, HasError);
+        OnTestSalesLineModificationOnBeforeTestVariantCode(NewSalesLine, OldSalesLine, IsHandled, HasError, ThrowError);
         if not IsHandled then
             if NewSalesLine."Variant Code" <> OldSalesLine."Variant Code" then begin
                 if ThrowError then
@@ -1243,7 +1243,7 @@ codeunit 99000832 "Sales Line-Reserve"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnTestSalesLineModificationOnBeforeTestVariantCode(var NewSalesLine: Record "Sales Line"; var OldSalesLine: Record "Sales Line"; var IsHandled: Boolean; var HasError: Boolean)
+    local procedure OnTestSalesLineModificationOnBeforeTestVariantCode(var NewSalesLine: Record "Sales Line"; var OldSalesLine: Record "Sales Line"; var IsHandled: Boolean; var HasError: Boolean; ThrowError: Boolean)
     begin
     end;
 

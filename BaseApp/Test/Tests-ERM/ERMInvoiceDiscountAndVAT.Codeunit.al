@@ -24,6 +24,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryTemplates: Codeunit "Library - Templates";
+        ItemTrackingMode: Option "Assign Lot No.","Select Entries";
         IsInitialized: Boolean;
         AmtMustBeErr: Label 'The %1 must be %2 in %3.', Comment = '%1 = Field Caption. %2 = Amount, %3 = Table Caption';
         InvDiscCodeErr: Label '%1 must be filled in. Enter a value. (Select Refresh to discard errors)', Comment = '%1 = Invoice Discount Code';
@@ -43,6 +44,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         CalcTotalSalesAmountOnlyDiscountAllowedErr: Label 'Total Amount of Sales lines with allowed discount is incorrect.';
         GetInvoiceDiscountPctErr: Label 'Discount % is incorrect';
         MissingDiscountAccountMsg: Label 'G/L accounts for discounts are missing on one or more lines on the General Posting Setup page.';
+        ValueMustBeEqualErr: Label '%1 must be equal to %2 in the %3.', Comment = '%1 = Field Caption , %2 = Expected Value, %3 = Table Caption';
 
     [Test]
     [Scope('OnPrem')]
@@ -1498,6 +1500,63 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         ServiceOrder.Statistics.Invoke();
 
         // [THEN] No notification "G/L accounts for discounts are missing" (checked in VerifyNoNotificationsAreSend)
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemTrackingPageHandler')]
+    [Scope('OnPrem')]
+    procedure VerifyInvDiscountAmountOnCorrectiveCreditMemoIsSameAsPostedPurchInvInCaseOfLotTracking()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        GeneralPostingSetup: Record "General Posting Setup";
+        PurchInvHeader: Record "Purch. Inv. Header";
+        PurchHeaderCorrection: Record "Purchase Header";
+        PurchaseLineCorrection: Record "Purchase Line";
+        PurchCalcDiscount: Codeunit "Purch.-Calc.Discount";
+        CorrectPostedPurchInvoice: Codeunit "Correct Posted Purch. Invoice";
+        PstdInvoiceNo: Code[20];
+    begin
+        // [SCENARIO 487786] When Posted Purchase Invoice includes Invoice Discount and line that is lot-tracked, then Credit Memo from Create Corrective Credit Memo incorrectly has negative Invoice Discount Amount.
+        Initialize();
+
+        // [GIVEN] Find VAT Posting Setup.
+        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+
+        // [GIVEN] Create Purchase Invoice, Purchase Line, Item with Lot Specific Tracking
+        CreatePurchaseInvoiceHeader(PurchaseHeader);
+        LibraryPurchase.CreatePurchaseLine(
+            PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item,
+            CreateItemWithTracking(true, VATPostingSetup."VAT Prod. Posting Group"),
+            LibraryRandom.RandInt(10));
+
+        // [THEN Calculate Invoice Discount on Purchase Invoice and set Item Tracking Line
+        PurchCalcDiscount.CalculateInvoiceDiscount(PurchaseHeader, PurchaseLine);
+        LibraryVariableStorage.Enqueue(ItemTrackingMode::"Assign Lot No.");
+        PurchaseLine.OpenItemTrackingLines();
+
+        // [WHEN] Release and Post the Purchase Invoice 
+        LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
+        UpdateGeneralPostingSetup(GeneralPostingSetup, PurchaseLine);
+        PstdInvoiceNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+        PurchInvHeader.Get(PstdInvoiceNo);
+
+        // [WHEN] Create Corrective Credit Memo for Posted Purchase Invoice and find the Item Line
+        CorrectPostedPurchInvoice.CreateCreditMemoCopyDocument(PurchInvHeader, PurchHeaderCorrection);
+        PurchaseLineCorrection.SetRange("Document No.", PurchHeaderCorrection."No.");
+        PurchaseLineCorrection.SetRange("No.", PurchaseLine."No.");
+        PurchaseLineCorrection.FindFirst();
+
+        // Verify: Verify Invoice Discount on newly created Purchase Credit Memo
+        Assert.AreEqual(
+            PurchaseLine."Inv. Discount Amount",
+            PurchaseLineCorrection."Inv. Discount Amount",
+            StrSubstNo(
+                ValueMustBeEqualErr,
+                PurchaseLineCorrection.FieldCaption("Inv. Discount Amount"),
+                PurchaseLine."Inv. Discount Amount",
+                PurchaseLineCorrection.TableCaption()));
     end;
 
     local procedure Initialize()
@@ -3065,6 +3124,27 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         GLEntry.TestField(Amount, ExpectedAmount);
     end;
 
+    local procedure CreateItemWithTracking(AllowInvDisc: Boolean; VATProdPostingGroup: Code[20]): Code[20]
+    var
+        Item: Record Item;
+        ItemTrackingCode: Record "Item Tracking Code";
+    begin
+        // Create Item Tracking Code with Lot Specific Tracking
+        LibraryInventory.CreateItemTrackingCode(ItemTrackingCode);
+        ItemTrackingCode.Validate("Lot Specific Tracking", true);
+        ItemTrackingCode.Modify(true);
+
+        // Create Item with Item Tracking Code
+        LibraryInventory.CreateTrackedItem(Item, LibraryUtility.GetGlobalNoSeriesCode, '', ItemTrackingCode.Code);
+        Item.Validate("Allow Invoice Disc.", AllowInvDisc);
+        Item.Validate("VAT Prod. Posting Group", VATProdPostingGroup);
+        Item.Validate("Unit Price", 10 + LibraryRandom.RandInt(100));
+        Item.Validate("Last Direct Cost", Item."Unit Price");
+        Item.Modify(true);
+
+        exit(Item."No.");
+    end;
+
     [SendNotificationHandler(true)]
     [Scope('OnPrem')]
     procedure VerifyNoNotificationsAreSend(var TheNotification: Notification): Boolean
@@ -3077,6 +3157,19 @@ codeunit 134027 "ERM Invoice Discount And VAT"
     [Scope('OnPrem')]
     procedure ServiceOrderStatisticsHandler(var ServiceOrderStatistics: TestPage "Service Order Statistics")
     begin
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ItemTrackingPageHandler(var ItemTrackingLines: TestPage "Item Tracking Lines")
+    begin
+        case LibraryVariableStorage.DequeueInteger of
+            ItemTrackingMode::"Assign Lot No.":
+                ItemTrackingLines."Assign Lot No.".Invoke();
+            ItemTrackingMode::"Select Entries":
+                ItemTrackingLines."Select Entries".Invoke();
+        end;
+        ItemTrackingLines.OK().Invoke();
     end;
 }
 

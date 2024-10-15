@@ -87,7 +87,7 @@ table 5621 "FA Journal Line"
                     FASetup.Get();
                     "Depreciation Book Code" := GetDeprBookCode();
                     if not FADeprBook.Get("FA No.", "Depreciation Book Code") then
-                        "Depreciation Book Code" := '';
+                        "Depreciation Book Code" := GetFADeprBook("FA No.");
                 end;
                 if "Depreciation Book Code" <> '' then begin
                     FADeprBook.Get("FA No.", "Depreciation Book Code");
@@ -605,7 +605,7 @@ table 5621 "FA Journal Line"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCreateDim(Rec, IsHandled);
+        OnBeforeCreateDim(Rec, IsHandled, DefaultDimSource);
         if IsHandled then
             exit;
 
@@ -615,6 +615,33 @@ table 5621 "FA Journal Line"
           DimMgt.GetRecDefaultDimID(
             Rec, CurrFieldNo, DefaultDimSource, "Source Code", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
         OnAfterCreateDim(Rec, CurrFieldNo);
+    end;
+
+    local procedure GetFADeprBook(FANo: Code[20]) DepreciationBookCode: Code[10]
+    var
+        DefaultFADeprBook: Record "FA Depreciation Book";
+        SetFADeprBook: Record "FA Depreciation Book";
+    begin
+        FASetup.Get();
+
+        DefaultFADeprBook.SetRange("FA No.", FANo);
+        DefaultFADeprBook.SetRange("Default FA Depreciation Book", true);
+
+        SetFADeprBook.SetRange("FA No.", FANo);
+
+        case true of
+            SetFADeprBook.Count = 1:
+                begin
+                    SetFADeprBook.FindFirst();
+                    DepreciationBookCode := SetFADeprBook."Depreciation Book Code";
+                end;
+            DefaultFADeprBook.FindFirst():
+                DepreciationBookCode := DefaultFADeprBook."Depreciation Book Code";
+            FADeprBook.Get("FA No.", FASetup."Default Depr. Book"):
+                DepreciationBookCode := FASetup."Default Depr. Book"
+            else
+                DepreciationBookCode := '';
+        end;
     end;
 
     procedure ValidateShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])
@@ -758,7 +785,7 @@ table 5621 "FA Journal Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCreateDim(var FAJournalLine: Record "FA Journal Line"; var IsHandled: Boolean)
+    local procedure OnBeforeCreateDim(var FAJournalLine: Record "FA Journal Line"; var IsHandled: Boolean; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
     begin
     end;
 

@@ -484,10 +484,9 @@ codeunit 137452 "Phys. Invt. Order Line TAB UT"
         ItemReference.Modify(true);
 
         // [WHEN] Validate item reference no using existing refernce no that has non-base unit of measure
-        asserterror PhysInvtRecordLine.Validate("Item Reference No.", ItemReference."Reference No.");
+        PhysInvtRecordLine.Validate("Item Reference No.", ItemReference."Reference No.");
 
-        // [THEN] Verify error
-        Assert.ExpectedError(ItemReference.FieldCaption("Unit of Measure") + ' must not be ' + ItemReference."Unit of Measure" + ' in ' + ItemReference.TableCaption());
+        // [THEN] No error is thrown
     end;
 
     local procedure Initialize()

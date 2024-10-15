@@ -266,8 +266,6 @@ page 398 "Sales Credit Memo Statistics"
         Cust: Record Customer;
         TempVATAmountLine: Record "VAT Amount Line" temporary;
         TotalAdjCostLCY: Decimal;
-        CustAmount: Decimal;
-        InvDiscAmount: Decimal;
         VATAmount: Decimal;
         ProfitLCY: Decimal;
         ProfitPct: Decimal;
@@ -291,6 +289,8 @@ page 398 "Sales Credit Memo Statistics"
         AmountInclVAT: Decimal;
         AmountLCY: Decimal;
         CostLCY: Decimal;
+        CustAmount: Decimal;
+        InvDiscAmount: Decimal;
 
     local procedure CalculateTotals()
     var
