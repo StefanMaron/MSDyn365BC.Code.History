@@ -166,8 +166,15 @@ codeunit 5700 "User Setup Management"
         exit(true);
     end;
 
-    procedure GetLocation(DocType: Option Sales,Purchase,Service; AccLocation: Code[10]; RespCenterCode: Code[10]): Code[10]
+    procedure GetLocation(DocType: Option Sales,Purchase,Service; AccLocation: Code[10]; RespCenterCode: Code[10]) LocationCode: Code[10]
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetLocation(DocType, AccLocation, RespCenterCode, LocationCode, IsHandled);
+        if IsHandled then
+            exit(LocationCode);
+
         case DocType of
             DocType::Sales:
                 UserRespCenter := GetSalesFilter;
@@ -287,6 +294,11 @@ codeunit 5700 "User Setup Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckRespCenter2(DocType: Option Sales,Purchase,Service; AccRespCenter: Code[10]; UserCode: Code[50]; var IsHandled: Boolean; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetLocation(DocType: Option Sales,Purchase,Service; AccLocation: Code[10]; RespCenterCode: Code[10]; var LocationCode: Code[10]; var IsHandled: Boolean)
     begin
     end;
 

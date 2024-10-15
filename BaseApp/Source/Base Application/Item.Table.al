@@ -94,16 +94,9 @@
                             "Base Unit of Measure" := UnitOfMeasure.Code;
                         end;
 
-                        if not ItemUnitOfMeasure.Get("No.", "Base Unit of Measure") then begin
-                            ItemUnitOfMeasure.Init();
-                            if IsTemporary then
-                                ItemUnitOfMeasure."Item No." := "No."
-                            else
-                                ItemUnitOfMeasure.Validate("Item No.", "No.");
-                            ItemUnitOfMeasure.Validate(Code, "Base Unit of Measure");
-                            ItemUnitOfMeasure."Qty. per Unit of Measure" := 1;
-                            ItemUnitOfMeasure.Insert();
-                        end else begin
+                        if not ItemUnitOfMeasure.Get("No.", "Base Unit of Measure") then
+                            CreateItemUnitOfMeasure()
+                        else begin
                             if ItemUnitOfMeasure."Qty. per Unit of Measure" <> 1 then
                                 Error(BaseUnitOfMeasureQtyMustBeOneErr, "Base Unit of Measure", ItemUnitOfMeasure."Qty. per Unit of Measure");
                         end;
@@ -3402,6 +3395,25 @@
         exit(Item."No.");
     end;
 
+    local procedure CreateItemUnitOfMeasure()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCreateItemUnitOfMeasure(Rec, ItemUnitOfMeasure, IsHandled);
+        if IsHandled then
+            exit;
+
+        ItemUnitOfMeasure.Init();
+        if IsTemporary then
+            ItemUnitOfMeasure."Item No." := "No."
+        else
+            ItemUnitOfMeasure.Validate("Item No.", "No.");
+        ItemUnitOfMeasure.Validate(Code, "Base Unit of Measure");
+        ItemUnitOfMeasure."Qty. per Unit of Measure" := 1;
+        ItemUnitOfMeasure.Insert();
+    end;
+
     procedure PickItem(var Item: Record Item): Code[20]
     var
         ItemList: Page "Item List";
@@ -3610,6 +3622,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckUpdateFieldsForNonInventoriableItem(var Item: Record Item; xItem: Record Item; CallingFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateItemUnitOfMeasure(var Item: Record Item; var ItemUnitOfMeasure: Record "Item Unit of Measure"; var IsHandled: Boolean)
     begin
     end;
 

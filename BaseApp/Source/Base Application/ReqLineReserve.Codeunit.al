@@ -188,7 +188,13 @@ codeunit 99000833 "Req. Line-Reserve"
     procedure VerifyQuantity(var NewReqLine: Record "Requisition Line"; var OldReqLine: Record "Requisition Line")
     var
         ReqLine: Record "Requisition Line";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeVerifyQuantity(NewReqLine, OldReqLine, IsHandled);
+        if IsHandled then
+            exit;
+
         if Blocked then
             exit;
 
@@ -702,6 +708,11 @@ codeunit 99000833 "Req. Line-Reserve"
     begin
         if MatchThisTable(ReservEntry."Source Type") then
             ReturnQty := GetSourceValue(ReservEntry, SourceRecRef, ReturnOption);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeVerifyQuantity(var NewReqLine: Record "Requisition Line"; var OldReqLine: Record "Requisition Line"; var IsHandled: Boolean)
+    begin
     end;
 
     [IntegrationEvent(false, false)]
