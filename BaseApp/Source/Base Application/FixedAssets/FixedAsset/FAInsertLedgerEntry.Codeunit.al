@@ -418,7 +418,7 @@ codeunit 5600 "FA Insert Ledger Entry"
         DimMgt: Codeunit DimensionManagement;
         TableID: array[10] of Integer;
         AccNo: array[10] of Code[20];
-        IsHandled: Boolean;
+        IsHandled, SkipInsertOfMaintenanceLedgerEntry : Boolean;
     begin
         if FAEntryType = FAEntryType::"Fixed Asset" then begin
             FALedgEntry3.Get(FAEntryNo);
@@ -507,8 +507,10 @@ codeunit 5600 "FA Insert Ledger Entry"
             if not DimMgt.CheckDimValuePosting(TableID, AccNo, MaintenanceLedgEntry3."Dimension Set ID") then
                 Error(DimMgt.GetDimValuePostingErr());
 
+            OnInsertReverseEntryOnBeforeInsertMaintenanceLedgerEntryBuffer(MaintenanceLedgEntry3, SkipInsertOfMaintenanceLedgerEntry);
             DeprBook.Get(MaintenanceLedgEntry3."Depreciation Book Code");
-            if DeprBook."Derogatory Calculation" = '' then begin
+            SkipInsertOfMaintenanceLedgerEntry := SkipInsertOfMaintenanceLedgerEntry or (DeprBook."Derogatory Calculation" <> '');
+            if not SkipInsertOfMaintenanceLedgerEntry then begin
                 TempMaintenanceLedgEntry := MaintenanceLedgEntry3;
                 TempMaintenanceLedgEntry.Insert();
             end;
@@ -528,6 +530,7 @@ codeunit 5600 "FA Insert Ledger Entry"
             MaintenanceLedgEntry3."No. Series" := '';
             MaintenanceLedgEntry3."Journal Batch Name" := '';
             MaintenanceLedgEntry3."FA No./Budgeted FA No." := '';
+            OnInsertReverseEntryOnBeforeInsertMaintenanceLedgerEntry(MaintenanceLedgEntry3);
             MaintenanceLedgEntry3.Insert();
             InsertRegister("FA Register Called From"::Maintenance, NextMaintenanceEntryNo);
         end;
@@ -777,5 +780,16 @@ codeunit 5600 "FA Insert Ledger Entry"
     local procedure OnInsertReverseEntryOnBeforeCheckIfDisposalIsAllowed(var FALedgerEntry3: Record "FA Ledger Entry"; var IsHandled: Boolean)
     begin
     end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertReverseEntryOnBeforeInsertMaintenanceLedgerEntryBuffer(var MaintenanceKedgerEntry: Record "Maintenance Ledger Entry"; var SkipInsertOfMaintenanceLedgerEntry: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertReverseEntryOnBeforeInsertMaintenanceLedgerEntry(var MaintenanceKedgerEntry: Record "Maintenance Ledger Entry")
+    begin
+    end;
+
 }
 

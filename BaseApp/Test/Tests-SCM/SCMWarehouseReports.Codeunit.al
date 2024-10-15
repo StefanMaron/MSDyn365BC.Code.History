@@ -48,6 +48,7 @@ codeunit 137305 "SCM Warehouse Reports"
         NumberOfDocPrintedMsg: Label 'Number of put-away activities printed: 1.';
         ReportExecutedErr: Label 'Report Executed should be true';
         WhseEntryItemNoElementName: Label 'WarehouseEntryItemNo';
+        LocationErr: Label 'Location %1 should be %2 in %3.', comment = '%1= acutal location, %2= Location defined, %3 =table name';
 
     [Test]
     [HandlerFunctions('PickingListRequestPageHandler')]
@@ -2459,6 +2460,110 @@ codeunit 137305 "SCM Warehouse Reports"
 
         // [VERIFY] Verify Last Row has Item 2.
         LibraryReportDataset.AssertCurrentRowValueEquals(WhseEntryItemNoElementName, Item2."No.");
+    end;
+
+    [Test]
+    procedure CreateWarehouseShipmentUsingAmpersandInLocation()
+    var
+        Location: Record Location;
+        WarehouseEmployee: Record "Warehouse Employee";
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        WarehouseShipmentLine: Record "Warehouse Shipment Line";
+    begin
+        // [SCENARIO 502849] Error during direct creation of a warehouse receipt and warehouse shipment while using Ampersand (&) in the Location Code.
+        Initialize();
+
+        // [GIVEN] Warehouse setup ,Location and Warehouse Employee Created.
+        CreateWarehouseSetup(Location, WarehouseEmployee, false);
+
+        // [GIVEN] Location Code is renamed using & symbol.
+        Location.Rename(LibraryRandom.RandText(2) + '&' + LibraryRandom.RandText(2));
+
+        // [GIVEN] Create Item for Sales Order.
+        CreateItem(Item);
+
+        // [GIVEN] Create  Sales Order using Location and Item.
+        CreateAndReleaseSalesOrder(SalesHeader, Location.Code, Item."No.", LibraryRandom.RandDec(10, 2));
+
+        // [GIVEN] Create Warehouse Shipment from sales Order.
+        LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
+
+        // [THEN] Verify Warehouse shipment is created with Location.
+        WarehouseShipmentLine.SetRange("Source No.", SalesHeader."No.");
+        WarehouseShipmentLine.SetRange("Item No.", Item."No.");
+        WarehouseShipmentLine.FindFirst();
+        Assert.AreEqual(
+            WarehouseShipmentLine."Location Code",
+            Location.Code,
+            StrSubstNo(
+                LocationErr,
+                WarehouseShipmentLine."Location Code",
+                Location.Code,
+                WarehouseShipmentLine.TableCaption()));
+    end;
+
+    [Test]
+    procedure CreateWarehouseReceiptUsingAmpersandInLocation()
+    var
+        Location: Record Location;
+        WarehouseEmployee: Record "Warehouse Employee";
+        Item: Record Item;
+        Vendor: Record Vendor;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        WarehouseReceiptLine: Record "Warehouse Receipt Line";
+    begin
+        // [SCENARIO 502849] Error during direct creation of a warehouse receipt and warehouse shipment while using Ampersand (&) in the Location Code.
+        Initialize();
+
+        // [GIVEN] Warehouse setup ,Location and Warehouse Employee Created.
+        CreateWarehouseSetup(Location, WarehouseEmployee, false);
+
+        // [GIVEN] Location Code is renamed using & symbol.
+        Location.Rename(LibraryRandom.RandText(2) + '&' + LibraryRandom.RandText(2));
+
+        // [GIVEN] Create Item for Purchase Order.
+        CreateItem(Item);
+
+        // [GIVEN] Create Vendor and Purchase Order using Vendor.
+        LibraryPurchase.CreateVendor(Vendor);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, Vendor."No.");
+
+        // [GIVEN] Create Purchase Line with Item.
+        LibraryPurchase.CreatePurchaseLine(
+            PurchaseLine,
+            PurchaseHeader,
+            PurchaseLine.Type::Item,
+            Item."No.",
+            LibraryRandom.RandInt(10));
+
+        // [GIVEN] Validate Direct Unit Cost and Location in Purchase Line.
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(50, 2));
+        PurchaseLine.Validate("Location Code", Location.Code);
+        PurchaseLine.Validate(PurchaseLine."Qty. to Receive", PurchaseLine.Quantity);
+        PurchaseLine.Modify(true);
+
+        // [GIVEN] Validate Venodr Invocie No. and Release the Purchase Order.
+        PurchaseHeader.Validate("Vendor Invoice No.", PurchaseHeader."No.");
+        PurchaseHeader.Modify(true);
+        LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
+
+        // [GIVEN] Create Warehouse Recipt from Purchase Order.
+        LibraryWarehouse.CreateWhseReceiptFromPO(PurchaseHeader);
+
+        // [THEN] Verify Warehouse Recipt is created with Location.
+        WarehouseReceiptLine.SetRange("Source No.", PurchaseHeader."No.");
+        WarehouseReceiptLine.SetRange("Item No.", Item."No.");
+        WarehouseReceiptLine.FindFirst();
+        Assert.AreEqual(
+            WarehouseReceiptLine."Location Code",
+            Location.Code,
+            StrSubstNo(
+                LocationErr,
+                WarehouseReceiptLine."Location Code",
+                Location.Code,
+                WarehouseReceiptLine.TableCaption()));
     end;
 
     local procedure Initialize()

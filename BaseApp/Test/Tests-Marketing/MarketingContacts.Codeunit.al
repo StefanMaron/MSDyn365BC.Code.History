@@ -53,6 +53,7 @@ codeunit 136201 "Marketing Contacts"
         ContactNotRelatedToCustomerErr: Label 'Contact %1 %2 is not related to customer %3 %4.';
         ExpectedToFindRecErr: Label 'Expected to find Contact Business Relation record.';
         DuplicateContactsMsg: Label 'There are duplicate contacts.';
+        ItemDimensionAllowedFilter: Label 'Allowed Dimension filter must match in both Item template and Item.';
 
     [Test]
     procedure ContactBusinessRelationCompatibility()
@@ -5867,6 +5868,58 @@ codeunit 136201 "Marketing Contacts"
         // [THEN] Verify Item is reserved        
         ReservationEntry.SetRange("Item No.", Item."No.");
         Assert.RecordCount(ReservationEntry, 2);
+    end;
+
+    [Test]
+    procedure CreateItemFromItemTemplateWithDefaultDimensions()
+    var
+        ItemTempl: Record "Item Templ.";
+        Item: Record Item;
+        Dimension: Record Dimension;
+        DimensionValue: Record "Dimension Value";
+        DefaultDimension: Record "Default Dimension";
+        ItemTemplMgt: Codeunit "Item Templ. Mgt.";
+    begin
+        // [SCENARIO 525355] Value filters of dimensions in a Item Template are being transferred to new Item created using the template.
+        Initialize();
+
+        // [GIVEN] Create Item Template to set Dimension.
+        LibraryTemplates.CreateItemTemplate(ItemTempl);
+
+        // [GIVEN] Create a Dimension.
+        LibraryDimension.CreateDimension(Dimension);
+
+        // [GIVEN] Create Dimension Value with the Dimension.
+        LibraryDimension.CreateDimensionValue(DimensionValue, Dimension.Code);
+
+        // [GIVEN] Create Default Dimension for Item Template.
+        LibraryDimension.CreateDefaultDimension(
+            DefaultDimension,
+            DATABASE::"Item Templ.",
+            ItemTempl.Code,
+            DimensionValue."Dimension Code",
+            DimensionValue.Code);
+
+        // [GIVEN] Validate Value Posting and Allowed Values Filter in Default Dimension.
+        DefaultDimension.Validate("Value Posting", DefaultDimension."Value Posting"::"Code Mandatory");
+        DefaultDimension.Validate("Allowed Values Filter", DimensionValue.Code);
+        DefaultDimension.Modify();
+
+        // [WHEN] Create a new Item from the Item Template.
+        Item.Init();
+        Item.Insert(true);
+        ItemTemplMgt.ApplyItemTemplate(Item, ItemTempl);
+
+        // [THEN] Find and check Default Dimensions are copied to the new Item with Allowed Value Filter.
+        DefaultDimension.Reset();
+        DefaultDimension.SetRange("Table ID", DATABASE::Item);
+        DefaultDimension.SetRange("No.", Item."No.");
+        DefaultDimension.SetRange("Dimension Code", DimensionValue."Dimension Code");
+        DefaultDimension.FindFirst();
+        Assert.AreEqual(
+            DefaultDimension."Allowed Values Filter",
+            DefaultDimension."Dimension Value Code",
+            ItemDimensionAllowedFilter);
     end;
 
     local procedure Initialize()

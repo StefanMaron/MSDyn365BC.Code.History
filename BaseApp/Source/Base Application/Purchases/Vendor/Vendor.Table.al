@@ -1211,6 +1211,7 @@ table 23 Vendor
                 ContBusRel: Record "Contact Business Relation";
                 TempVend: Record Vendor temporary;
             begin
+                Cont.FilterGroup(2);
                 ContBusRel.SetCurrentKey("Link to Table", "No.");
                 ContBusRel.SetRange("Link to Table", ContBusRel."Link to Table"::Vendor);
                 ContBusRel.SetRange("No.", "No.");

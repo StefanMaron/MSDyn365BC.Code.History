@@ -5,6 +5,8 @@ using Microsoft.Inventory.Transfer;
 using Microsoft.Purchases.Document;
 using Microsoft.Sales.Document;
 using Microsoft.Warehouse.Document;
+using System.Text;
+using System.Reflection;
 
 codeunit 5751 "Get Source Doc. Inbound"
 {
@@ -212,8 +214,10 @@ codeunit 5751 "Get Source Doc. Inbound"
     procedure GetRequireReceiveRqst(var WhseRqst: Record "Warehouse Request")
     var
         Location: Record Location;
-        LocationCode: Text;
+        LocationList: List of [Code[20]];
+        LocationCodeFilter: Text;
         IsHandled: Boolean;
+        BlankLocationExists: Boolean;
     begin
         IsHandled := false;
         OnBeforeGetRequireReceiveRqst(WhseRqst, IsHandled);
@@ -222,15 +226,17 @@ codeunit 5751 "Get Source Doc. Inbound"
 
         if WhseRqst.FindSet() then begin
             repeat
-                if Location.RequireReceive(WhseRqst."Location Code") then
-                    LocationCode += WhseRqst."Location Code" + '|';
+                if Location.RequireReceive(WhseRqst."Location Code") then begin
+                    if WhseRqst."Location Code" = '' then
+                        BlankLocationExists := true;
+                    if not LocationList.Contains(WhseRqst."Location Code") then
+                        LocationList.Add(WhseRqst."Location Code");
+                end;
             until WhseRqst.Next() = 0;
-            if LocationCode <> '' then begin
-                LocationCode := CopyStr(LocationCode, 1, StrLen(LocationCode) - 1);
-                if LocationCode[1] = '|' then
-                    LocationCode := '''''' + LocationCode;
-            end;
-            WhseRqst.SetFilter("Location Code", LocationCode);
+
+            GenerateLocationCodeFilter(LocationList, LocationCodeFilter, BlankLocationExists);
+
+            WhseRqst.SetFilter("Location Code", LocationCodeFilter);
         end;
     end;
 
@@ -304,6 +310,34 @@ codeunit 5751 "Get Source Doc. Inbound"
         GetSourceDocuments.ShowReceiptDialog();
         if WhseReceiptCreated then
             OpenWarehouseReceiptPage();
+    end;
+
+    local procedure GenerateLocationCodeFilter(LocationList: List of [Code[20]]; var LocationCodeFilter: Text; BlankLocationExists: Boolean)
+    var
+        TypeHelper: Codeunit "Type Helper";
+        SelectionFilterManagement: Codeunit SelectionFilterManagement;
+        LocationFilter: Code[20];
+        WarehouseLocationAddToFilter: TextBuilder;
+    begin
+        if LocationList.Count() >= (TypeHelper.GetMaxNumberOfParametersInSQLQuery() - 100) then
+            exit;
+
+        if LocationList.Count() = 0 then
+            exit;
+
+        foreach LocationFilter in LocationList do begin
+            if WarehouseLocationAddToFilter.Length() > 0 then
+                WarehouseLocationAddToFilter.Append('|');
+            WarehouseLocationAddToFilter.Append(SelectionFilterManagement.AddQuotes(LocationFilter));
+        end;
+
+        LocationCodeFilter := WarehouseLocationAddToFilter.ToText();
+
+        if BlankLocationExists then
+            if LocationCodeFilter = '' then
+                LocationCodeFilter := ''''''
+            else
+                LocationCodeFilter += '|' + '''''';
     end;
 
     [IntegrationEvent(false, false)]
@@ -387,7 +421,7 @@ codeunit 5751 "Get Source Doc. Inbound"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnGetSingleWhsePutAwayDocOnAfterGetResultWhsePutAwayRqst(WhsePutAwayRequest: Record "Whse. Put-away Request")
+    local procedure OnGetSingleWhsePutAwayDocOnAfterGetResultWhsePutAwayRqst(var WhsePutAwayRequest: Record "Whse. Put-away Request")
     begin
     end;
 

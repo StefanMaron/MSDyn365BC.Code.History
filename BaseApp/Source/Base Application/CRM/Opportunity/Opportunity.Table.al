@@ -190,7 +190,13 @@ table 5092 Opportunity
                 Window: Dialog;
                 TotalRecordsNumber: Integer;
                 Counter: Integer;
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateContactNo(Rec, CurrFieldNo, IsHandled);
+                if IsHandled then
+                    exit;
+
                 TestField("Contact No.");
                 Cont.Get("Contact No.");
 
@@ -970,6 +976,7 @@ table 5092 Opportunity
         if SegHeader.Get(GetFilter("Segment No.")) then
             "Segment Description" := SegHeader.Description;
 
+        OnStartWizardBeforeInsert(Rec);
         Insert();
         RunPageForRec(PAGE::"Create Opportunity");
 
@@ -1316,12 +1323,12 @@ table 5092 Opportunity
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCreateQuoteOnAfterSalesHeaderInsert(var SalesHeader: Record "Sales Header"; Opportunity: Record Opportunity)
+    local procedure OnCreateQuoteOnAfterSalesHeaderInsert(var SalesHeader: Record "Sales Header"; var Opportunity: Record Opportunity)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCreateQuoteOnBeforeSalesHeaderInsert(var SalesHeader: Record "Sales Header"; Opportunity: Record Opportunity)
+    local procedure OnCreateQuoteOnBeforeSalesHeaderInsert(var SalesHeader: Record "Sales Header"; var Opportunity: Record Opportunity)
     begin
     end;
 
@@ -1362,6 +1369,16 @@ table 5092 Opportunity
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterProcessFirstStage(var OpportunityEntry: Record "Opportunity Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateContactNo(var Opportunity: Record Opportunity; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnStartWizardBeforeInsert(var Opportunity: Record Opportunity)
     begin
     end;
 }

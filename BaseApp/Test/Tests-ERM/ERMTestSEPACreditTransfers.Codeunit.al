@@ -38,7 +38,7 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         PostingDocNoWithGapOnNoSeriesErr: Label 'You have one or more documents that must be posted before you post document no. %1 according to your company''s No. Series setup.', Comment = '%1 = Document number to be posted.';
         ExtDocNoTxt: Label 'A123', Locked = true;
         InvalidLengthErr: Label 'The lengths are not identical';
-        NamespaceTxt: Label 'urn:iso:std:iso:20022:tech:xsd:pain.001.001.09';
+        NamespaceTxt: Label 'urn:iso:std:iso:20022:tech:xsd:pain.001.001.03';
         MessageToRecipientNotFoundErr: Label 'The Message To Recipient was not found in the XML file.';
         MessageExceedsLimitErr: Label 'The length of the string is %1, but it must be less than or equal to', Comment = '.';
         TransferDateErr: Label 'The earliest possible transfer date is today.';
@@ -677,7 +677,7 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         InStr.ReadText(s);
         Assert.AreEqual('<?xml version="1.0" encoding="UTF-8" standalone="no"?>', s, 'Wrong XML header.');
         InStr.ReadText(s);
-        Assert.IsTrue(StrPos(s, 'xmlns="urn:iso:std:iso:20022:tech:xsd:pain.001.001.09"') > 0, 'Wrong XML Instruction.');
+        Assert.IsTrue(StrPos(s, 'xmlns="urn:iso:std:iso:20022:tech:xsd:pain.001.001.03"') > 0, 'Wrong XML Instruction.');
         InStr.ReadText(s);
         Assert.AreEqual('  <CstmrCdtTrfInitn>', s, 'Wrong XML root.');
     end;
@@ -2057,8 +2057,6 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
     var
         XMLNodes: DotNet XmlNodeList;
         XMLNode: DotNet XmlNode;
-        ReqdExctnDtXMLNodes: DotNet XmlNodeList;
-        DtXMLNode: DotNet XMLNode;
         ActualDate: Date;
         NoOfCdtTrfTxInf: Integer;
         i: Integer;
@@ -2087,10 +2085,8 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
                     end;
                 'ReqdExctnDt':
                     begin
-                        ReqdExctnDtXMLNodes := XmlNode.ChildNodes;
-                        DtXMLNode := ReqdExctnDtXMLNodes.ItemOf(0);
-                        Evaluate(ActualDate, DtXMLNode.InnerXml, 9);
-                        Assert.AreEqual(ExpectedDate, ActualDate, 'ReqdExctnDt/Dt');
+                        Evaluate(ActualDate, XMLNode.InnerXml, 9);
+                        Assert.AreEqual(ExpectedDate, ActualDate, 'ReqdExctnDt');
                     end;
                 'CdtTrfTxInf':
                     NoOfCdtTrfTxInf += 1;

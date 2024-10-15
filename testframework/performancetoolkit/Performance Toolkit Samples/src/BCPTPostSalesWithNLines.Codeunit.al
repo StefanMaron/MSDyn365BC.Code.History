@@ -15,7 +15,9 @@ codeunit 149118 "BCPT Post Sales with N Lines" implements "BCPT Test Param. Prov
     trigger OnRun();
     var
         SalesHeader: Record "Sales Header";
+        SalesSetup: Record "Sales & Receivables Setup";
         SalesPost: Codeunit "Sales-Post";
+        SalesPostViaJobQueue: Codeunit "Sales Post via Job Queue";
         SalesHeaderId: Guid;
     begin
         if not IsInitialized then begin
@@ -26,7 +28,12 @@ codeunit 149118 "BCPT Post Sales with N Lines" implements "BCPT Test Param. Prov
         SalesHeader.GetBySystemId(SalesHeaderId);
         SalesHeader.Validate(Ship, true);
         SalesHeader.Validate(Invoice, true);
-        SalesPost.Run(SalesHeader);
+
+        SalesSetup.Get();
+        if SalesSetup."Post with Job Queue" then
+            SalesPostViaJobQueue.EnqueueSalesDoc(SalesHeader)
+        else
+            SalesPost.Run(SalesHeader);
     end;
 
     var

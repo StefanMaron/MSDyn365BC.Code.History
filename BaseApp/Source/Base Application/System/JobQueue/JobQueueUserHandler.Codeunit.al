@@ -1,7 +1,6 @@
 ﻿namespace System.Threading;
 
 using System.Environment;
-using System.Environment.Configuration;
 using System.Security.AccessControl;
 using System.Telemetry;
 
@@ -18,26 +17,24 @@ codeunit 455 "Job Queue User Handler"
     local procedure RescheduleJobQueueEntries()
     var
         JobQueueEntry: Record "Job Queue Entry";
-        User: Record User;
-        UserExists: Boolean;
+        Company: Record Company;
+        NeedsRescheduling: Boolean;
     begin
-        User.SetRange("User Name", UserId());
-        UserExists := not User.IsEmpty();
+        Company.SetLoadFields("Evaluation Company");
+        if Company.Get(CompanyName()) then;
 
-        JobQueueEntry.SetFilter(Status, '%1|%2', JobQueueEntry.Status::Ready, JobQueueEntry.Status::"In Process");
+        JobQueueEntry.SetFilter(Status, '%1|%2|%3', JobQueueEntry.Status::Ready, JobQueueEntry.Status::"In Process", JobQueueEntry.Status::"On Hold with Inactivity Timeout");
+        if not Company."Evaluation Company" then  // because demo data is usually created by other users, e.g. a Microsoft machine agent.
+            JobQueueEntry.SetRange("User ID", UserId());
         JobQueueEntry.SetRange("Recurring Job", true);
         JobQueueEntry.SetRange(Scheduled, false);
         if JobQueueEntry.FindSet(true) then
             repeat
-                if JobShouldBeRescheduled(JobQueueEntry, UserExists) then
-                    Reschedule(JobQueueEntry);
-            until JobQueueEntry.Next() = 0;
-
-        JobQueueEntry.FilterInactiveOnHoldEntries();
-        JobQueueEntry.SetRange(Scheduled, false);
-        if JobQueueEntry.FindSet(true) then
-            repeat
-                if JobQueueEntry.DoesJobNeedToBeRun() then
+                if JobQueueEntry.Status = JobQueueEntry.Status::"On Hold with Inactivity Timeout" then
+                    NeedsRescheduling := JobQueueEntry.DoesJobNeedToBeRun()
+                else
+                    NeedsRescheduling := JobShouldBeRescheduled(JobQueueEntry);
+                if NeedsRescheduling then
                     Reschedule(JobQueueEntry);
             until JobQueueEntry.Next() = 0;
     end;
@@ -48,14 +45,21 @@ codeunit 455 "Job Queue User Handler"
         TelemetrySubscribers: Codeunit "Telemetry Subscribers";
         Dimensions: Dictionary of [Text, Text];
     begin
-        if TaskScheduler.SetTaskReady(JobQueueEntry."System Task ID", JobQueueEntry."Earliest Start Date/Time") then begin
+        if TaskScheduler.TaskExists(JobQueueEntry."System Task ID") then
+            if TaskScheduler.SetTaskReady(JobQueueEntry."System Task ID", JobQueueEntry."Earliest Start Date/Time") then begin
+                JobQueueEntry.Status := JobQueueEntry.Status::Ready;
+                JobQueueEntry.Modify();
+                Dimensions.Add('JobQueueRescheduledNewTask', Format(false, 9));
+            end else begin
+                JobQueueEntry.Restart();
+                Dimensions.Add('JobQueueRescheduledNewTask', Format(true, 9));
+            end
+        else begin
+            JobQueueEntry."System Task ID" := JobQueueEntry.ScheduleTask();
+            JobQueueEntry."User ID" := CopyStr(UserId(), 1, MaxStrLen(JobQueueEntry."User ID"));
             JobQueueEntry.Status := JobQueueEntry.Status::Ready;
-            JobQueueEntry."Earliest Start Date/Time" := CurrentDateTime();
             JobQueueEntry.Modify();
-            Dimensions.Add('JobQueueRescheduledNewTask', Format(false));
-        end else begin
-            JobQueueEntry.Restart();
-            Dimensions.Add('JobQueueRescheduledNewTask', Format(true));
+            Dimensions.Add('JobQueueRescheduledNewTask', Format(true, 9));
         end;
         TelemetrySubscribers.SetJobQueueTelemetryDimensions(JobQueueEntry, Dimensions);
 
@@ -66,25 +70,22 @@ codeunit 455 "Job Queue User Handler"
                                 Dimensions)
     end;
 
-    local procedure JobShouldBeRescheduled(JobQueueEntry: Record "Job Queue Entry"; UserExists: Boolean) Result: Boolean
+    local procedure JobShouldBeRescheduled(var JobQueueEntry: Record "Job Queue Entry") Result: Boolean
     var
+        User: Record User;
         IsHandled: Boolean;
     begin
-        if not UserExists then
+        User.SetRange("User Security ID", UserSecurityId());
+        if User.IsEmpty() then
             exit(false);
-
         IsHandled := false;
         OnBeforeJobShouldBeRescheduled(JobQueueEntry, Result, IsHandled);
         if IsHandled then
             exit(Result);
-
-        if UserExists then
-            exit(true);
-
-        exit(false);
+        exit(true);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"System Initialization", 'OnAfterLogin', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::LogInManagement, 'OnAfterCompanyClose', '', true, true)]
     local procedure RescheduleJobQueueEntriesOnCompanyOpen()
     var
         JobQueueEntry: Record "Job Queue Entry";
@@ -93,12 +94,13 @@ codeunit 455 "Job Queue User Handler"
     begin
         if not GuiAllowed then
             exit;
-        if not (JobQueueEntry.WritePermission and JobQueueEntry.ReadPermission) then
+        if not (JobQueueEntry.WritePermission() and JobQueueEntry.ReadPermission()) then
             exit;
-        if not (JobQueueEntry.HasRequiredPermissions()) then
+        if not JobQueueEntry.HasRequiredPermissions() then
             exit;
         if not TaskScheduler.CanCreateTask() then
             exit;
+        User.SetLoadFields("License Type");
         if not User.Get(UserSecurityId()) then
             exit;
         if User."License Type" = User."License Type"::"Limited User" then

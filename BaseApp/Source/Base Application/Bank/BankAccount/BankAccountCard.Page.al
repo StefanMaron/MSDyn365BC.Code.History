@@ -434,6 +434,12 @@ page 370 "Bank Account Card"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the format of the bank file that will be exported when you choose the Export Payments to File button in the Payment Journal window.';
                 }
+                field(CheckTransmitted; Rec."Check Transmitted")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Visible = false;
+                }
+
                 field("Positive Pay Export Code"; Rec."Positive Pay Export Code")
                 {
                     ApplicationArea = Basic, Suite;

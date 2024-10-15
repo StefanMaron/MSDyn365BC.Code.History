@@ -822,6 +822,7 @@ page 5600 "Fixed Asset Card"
     procedure UpdateDepreciationBook(FixedAssetNo: Code[20])
     var
         FixedAsset: Record "Fixed Asset";
+        LocalFADepreciationBook: Record "FA Depreciation Book";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -835,6 +836,13 @@ page 5600 "Fixed Asset Card"
                     FADepreciationBook.Validate("FA No.", FixedAssetNo);
                     FADepreciationBook.Insert(true)
                 end else begin
+                    if LocalFADepreciationBook.Get(FADepreciationBook."FA No.", FADepreciationBook."Depreciation Book Code") then
+                        if LocalFADepreciationBook."Acquisition Date" <> 0D then begin
+                            FADepreciationBook."Acquisition Date" := LocalFADepreciationBook."Acquisition Date";
+                            FADepreciationBook."Acquisition Cost" := LocalFADepreciationBook."Acquisition Cost";
+                            FADepreciationBook."G/L Acquisition Date" := LocalFADepreciationBook."G/L Acquisition Date";
+                            FADepreciationBook."Last Acquisition Cost Date" := LocalFADepreciationBook."Last Acquisition Cost Date";
+                        end;
                     FADepreciationBook.Description := Rec.Description;
                     FADepreciationBook.Modify(true);
                 end;
