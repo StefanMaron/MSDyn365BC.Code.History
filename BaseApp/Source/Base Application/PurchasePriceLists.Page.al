@@ -101,7 +101,6 @@ page 7017 "Purchase Price Lists"
             }
         }
     }
-
 #if not CLEAN19
     trigger OnInit()
     var

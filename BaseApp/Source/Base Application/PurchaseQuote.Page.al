@@ -736,7 +736,8 @@ page 49 "Purchase Quote"
                 ApplicationArea = Suite;
                 SubPageLink = "Table ID" = CONST(38),
                               "Document Type" = FIELD("Document Type"),
-                              "Document No." = FIELD("No.");
+                              "Document No." = FIELD("No."),
+                              Status = const(Open);
                 Visible = OpenApprovalEntriesExistForCurrUser;
             }
             part(Control1901138007; "Vendor Details FactBox")

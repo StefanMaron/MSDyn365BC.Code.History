@@ -21,6 +21,10 @@ codeunit 134658 "Edit Posted Documents"
         Assert: Codeunit Assert;
         LibraryRandom: Codeunit "Library - Random";
         isInitialized: Boolean;
+        UnexpectedQtyErr: Label 'Unexpected Quantity shown.';
+        UnexpectedNetWeightErr: Label 'Unexpected Net Weight shown.';
+        UnexpectedGrossWeightErr: Label 'Unexpected Gross Weight shown.';
+        UnexpectedVolumeErr: Label 'Unexpected Volume shown.';
 
     [Test]
     [HandlerFunctions('PostedSalesShipmentUpdateGetEditablelModalPageHandler')]
@@ -526,6 +530,38 @@ codeunit 134658 "Edit Posted Documents"
         SalesCrMemoHeader.TestField("Package Tracking No.", PostedSalesCrediMemo."Package Tracking No.".Value);
 
         LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifyPostedReturnReceiptStatistics()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        PostedReturnReceipt: TestPage "Posted Return Receipt";
+        ReturnReceiptStatistics: TestPage "Return Receipt Statistics";
+        DocumentNo: Code[20];
+    begin
+        // [SCENARIO 433838] The Return Receipt Statistics are reported in the Posted Return Receipt document.
+        Initialize();
+
+        // [GIVEN] Create and post sales return order.
+        LibrarySales.CreateSalesDocumentWithItem(
+                    SalesHeader, SalesLine, SalesHeader."Document Type"::"Return Order", LibrarySales.CreateCustomerNo(),
+                    LibraryInventory.CreateItemNo(), LibraryRandom.RandDecInRange(10, 20, 2), '', WorkDate());
+        DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, false);
+
+        // [WHEN] Click on statistics from opened "Posted Return Receipt" page.
+        PostedReturnReceipt.OpenView;
+        PostedReturnReceipt.Filter.SetFilter("No.", DocumentNo);
+        ReturnReceiptStatistics.Trap;
+        PostedReturnReceipt.Statistics.Invoke();
+
+        // [THEN] Verify data available on "Return Receipt Statistics" page
+        Assert.AreEqual(ReturnReceiptStatistics.LineQty.AsDecimal(), SalesLine.Quantity, UnexpectedQtyErr);
+        Assert.AreEqual(ReturnReceiptStatistics.TotalNetWeight.AsDecimal(), SalesLine.Quantity * SalesLine."Net Weight", UnexpectedNetWeightErr);
+        Assert.AreEqual(ReturnReceiptStatistics.TotalGrossWeight.AsDecimal(), SalesLine.Quantity * SalesLine."Gross Weight", UnexpectedGrossWeightErr);
+        Assert.AreEqual(ReturnReceiptStatistics.TotalVolume.AsDecimal(), SalesLine.Quantity * SalesLine."Unit Volume", UnexpectedVolumeErr);
     end;
 
     local procedure Initialize()

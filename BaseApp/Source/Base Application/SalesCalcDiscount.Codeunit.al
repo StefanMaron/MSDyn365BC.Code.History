@@ -1,16 +1,22 @@
-codeunit 60 "Sales-Calc. Discount"
+﻿codeunit 60 "Sales-Calc. Discount"
 {
     Permissions = tabledata "Sales Header" = rm,
                   tabledata "Sales Line" = rm;
     TableNo = "Sales Line";
 
     trigger OnRun()
+    var
+        IsHandled: Boolean;
     begin
         SalesLine.Copy(Rec);
 
         TempSalesHeader.Get("Document Type", "Document No.");
         UpdateHeader := true;
-        CalculateInvoiceDiscount(TempSalesHeader, TempSalesLine);
+
+        IsHandled := false;
+        OnRunOnBeforeCalculateInvoiceDiscount(SalesLine, TempSalesHeader, TempSalesLine, UpdateHeader, IsHandled);
+        if not IsHandled then
+            CalculateInvoiceDiscount(TempSalesHeader, TempSalesLine);
 
         if Get(SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.") then;
     end;
@@ -110,31 +116,35 @@ codeunit 60 "Sales-Calc. Discount"
                     SetSalesLineServiceCharge(SalesHeader, SalesLine2);
                     SalesLine2.Modify();
                 end else begin
-                    SalesLine2.Reset();
-                    SalesLine2.SetRange("Document Type", "Document Type");
-                    SalesLine2.SetRange("Document No.", "Document No.");
-                    SalesLine2.FindLast();
-                    SalesLine2.Init();
-                    if not UpdateHeader then
-                        SalesLine2.SetSalesHeader(SalesHeader);
-                    SalesLine2."Line No." := SalesLine2."Line No." + 10000;
-                    SalesLine2."System-Created Entry" := true;
-                    SalesLine2.Type := SalesLine2.Type::"G/L Account";
-                    SalesLine2.Validate("No.", CustPostingGr.GetServiceChargeAccount);
-                    SalesLine2.Description := Text000;
-                    SalesLine2.Validate(Quantity, 1);
+                    IsHandled := false;
+                    OnCalculateInvoiceDiscountOnBeforeUpdateSalesLine2(SalesHeader, SalesLine2, UpdateHeader, CustInvDisc, IsHandled);
+                    if not IsHandled then begin
+                        SalesLine2.Reset();
+                        SalesLine2.SetRange("Document Type", "Document Type");
+                        SalesLine2.SetRange("Document No.", "Document No.");
+                        SalesLine2.FindLast();
+                        SalesLine2.Init();
+                        if not UpdateHeader then
+                            SalesLine2.SetSalesHeader(SalesHeader);
+                        SalesLine2."Line No." := SalesLine2."Line No." + 10000;
+                        SalesLine2."System-Created Entry" := true;
+                        SalesLine2.Type := SalesLine2.Type::"G/L Account";
+                        SalesLine2.Validate("No.", CustPostingGr.GetServiceChargeAccount());
+                        SalesLine2.Description := Text000;
+                        SalesLine2.Validate(Quantity, 1);
 
-                    OnAfterValidateSalesLine2Quantity(SalesHeader, SalesLine2, CustInvDisc);
+                        OnAfterValidateSalesLine2Quantity(SalesHeader, SalesLine2, CustInvDisc);
 
-                    if SalesLine2."Document Type" in
-                       [SalesLine2."Document Type"::"Return Order", SalesLine2."Document Type"::"Credit Memo"]
-                    then
-                        SalesLine2.Validate("Return Qty. to Receive", SalesLine2.Quantity)
-                    else
-                        SalesLine2.Validate("Qty. to Ship", SalesLine2.Quantity);
-                    SetSalesLineServiceCharge(SalesHeader, SalesLine2);
-                    OnCalculateInvoiceDiscountOnBeforeSalesLineInsert(SalesLine2, SalesHeader);
-                    SalesLine2.Insert();
+                        if SalesLine2."Document Type" in
+                            [SalesLine2."Document Type"::"Return Order", SalesLine2."Document Type"::"Credit Memo"]
+                        then
+                            SalesLine2.Validate("Return Qty. to Receive", SalesLine2.Quantity)
+                        else
+                            SalesLine2.Validate("Qty. to Ship", SalesLine2.Quantity);
+                        SetSalesLineServiceCharge(SalesHeader, SalesLine2);
+                        OnCalculateInvoiceDiscountOnBeforeSalesLineInsert(SalesLine2, SalesHeader);
+                        SalesLine2.Insert();
+                    end;
                 end;
                 SalesLine2.CalcVATAmountLines(0, SalesHeader, SalesLine2, TempVATAmountLine);
             end else
@@ -142,7 +152,10 @@ codeunit 60 "Sales-Calc. Discount"
                     repeat
                         if (TempServiceChargeLine."Shipment No." = '') and (TempServiceChargeLine."Qty. Shipped Not Invoiced" = 0) then begin
                             SalesLine2 := TempServiceChargeLine;
-                            SalesLine2.Delete(true);
+                            IsHandled := false;
+                            OnCalculateInvoiceDiscountOnBeforeSalesLine2DeleteTrue(UpdateHeader, SalesLine2, IsHandled);
+                            if not IsHandled then
+                                SalesLine2.Delete(true);
                         end;
                     until TempServiceChargeLine.Next() = 0;
 
@@ -320,7 +333,13 @@ codeunit 60 "Sales-Calc. Discount"
     procedure CalculateWithSalesHeader(var TempSalesHeader: Record "Sales Header"; var TempSalesLine: Record "Sales Line")
     var
         FilterSalesLine: Record "Sales Line";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCalculateWithSalesHeader(SalesLine, TempSalesHeader, TempSalesLine, UpdateHeader, IsHandled); // <-- NEW EVENT
+        if IsHandled then
+            exit;
+
         FilterSalesLine.Copy(TempSalesLine);
         SalesLine := TempSalesLine;
 
@@ -347,19 +366,18 @@ codeunit 60 "Sales-Calc. Discount"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCalculateIncDiscForHeader(TempSalesHeader, IsHandled);
+        OnBeforeCalculateIncDiscForHeader(TempSalesHeader, IsHandled, SalesLine, TempSalesLine, UpdateHeader);
         if IsHandled then
             exit;
 
         SalesSetup.Get();
         if not SalesSetup."Calc. Inv. Discount" then
             exit;
-        with TempSalesHeader do begin
-            SalesLine."Document Type" := "Document Type";
-            SalesLine."Document No." := "No.";
-            UpdateHeader := true;
-            CalculateInvoiceDiscount(TempSalesHeader, TempSalesLine);
-        end;
+
+        SalesLine."Document Type" := TempSalesHeader."Document Type";
+        SalesLine."Document No." := TempSalesHeader."No.";
+        UpdateHeader := true;
+        CalculateInvoiceDiscount(TempSalesHeader, TempSalesLine);
     end;
 
     procedure UpdatePrepmtLineAmount(SalesHeader: Record "Sales Header")
@@ -404,7 +422,7 @@ codeunit 60 "Sales-Calc. Discount"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCalculateIncDiscForHeader(var TempSalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    local procedure OnBeforeCalculateIncDiscForHeader(var TempSalesHeader: Record "Sales Header" temporary; var IsHandled: Boolean; var SalesLine: Record "Sales Line"; var TempSalesLine: Record "Sales Line" temporary; var UpdateHeader: Boolean)
     begin
     end;
 
@@ -440,6 +458,26 @@ codeunit 60 "Sales-Calc. Discount"
 
     [IntegrationEvent(false, false)]
     local procedure OnCalculateInvoiceDiscountOnBeforeSalesLineInsert(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalculateWithSalesHeader(var SalesLine: Record "Sales Line"; var TempSalesHeader: Record "Sales Header" temporary; var TempSalesLine: Record "Sales Line"; var UpdateHeader: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculateInvoiceDiscountOnBeforeSalesLine2DeleteTrue(UpdateHeader: Boolean; var SalesLine2: Record "Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnBeforeCalculateInvoiceDiscount(var SalesLine: Record "Sales Line"; var TempSalesHeader: Record "Sales Header" temporary; var TempSalesLine: Record "Sales Line" temporary; var UpdateHeader: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculateInvoiceDiscountOnBeforeUpdateSalesLine2(var SalesHeader: Record "Sales Header"; var SalesLine2: Record "Sales Line"; UpdateHeader: Boolean; CustInvDisc: Record "Cust. Invoice Disc."; var IsHandled: Boolean)
     begin
     end;
 }

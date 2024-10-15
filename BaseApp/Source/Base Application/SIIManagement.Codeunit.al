@@ -1,4 +1,4 @@
-codeunit 10756 "SII Management"
+﻿codeunit 10756 "SII Management"
 {
 
     trigger OnRun()
@@ -236,8 +236,18 @@ codeunit 10756 "SII Management"
     procedure GetNoTaxableSalesAmount(var NoTaxableAmount: Decimal; SourceNo: Code[20]; DocumentType: Option; DocumentNo: Code[20]; PostingDate: Date; IsService: Boolean; UseNoTaxableType: Boolean; IsLocalRule: Boolean): Boolean
     var
         NoTaxableEntry: Record "No Taxable Entry";
+        IsHandled: Boolean;
+        Result: Boolean;
     begin
         NoTaxableAmount := 0;
+
+        IsHandled := false;
+        OnBeforeGetNoTaxableSalesAmount(
+            NoTaxableEntry, SourceNo, DocumentType, DocumentNo, PostingDate, IsService,
+            UseNoTaxableType, IsLocalRule, NoTaxableAmount, Result, IsHandled);
+        if IsHandled then
+            exit(false);
+
         if NoTaxableEntriesExistSales(NoTaxableEntry, SourceNo, DocumentType, DocumentNo, PostingDate, IsService, UseNoTaxableType, IsLocalRule) then begin
             NoTaxableEntry.CalcSums("Amount (LCY)");
             if DoNotReportNegativeLines() then
@@ -884,6 +894,11 @@ codeunit 10756 "SII Management"
         if not SIISetup.Get() then
             exit(false);
         exit(SIISetup."Do Not Export Negative Lines");
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetNoTaxableSalesAmount(var NoTaxableEntry: Record "No Taxable Entry"; SourceNo: Code[20]; DocumentType: Option; DocumentNo: Code[20]; PostingDate: Date; IsService: Boolean; UseNoTaxableType: Boolean; IsLocalRule: Boolean; var NoTaxableAmount: Decimal; var Result: Boolean; var IsHandled: Boolean)
+    begin
     end;
 }
 

@@ -1380,6 +1380,31 @@
         Assert.AreEqual(JobJournalLine."Bin Code", '', 'Expected default bin to be cleared. ');
     end;
 
+    [Test]
+
+    procedure TestJobAttachmentonJobListPage()
+    var
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        DocumentAttachment: Record "Document Attachment";
+        RecRef: RecordRef;
+    begin
+        // [SCENARIO 443560] Check Attachments are visible in Jobs List page.
+        Initialize();
+
+        //[GIVEN] Create Job and Job task 
+        LibraryJob.CreateJob(Job);
+        LibraryJob.CreateJobTask(Job, JobTask);
+
+        //[GIVEN] Create Document Attachment
+        DocumentAttachment.Init();
+        RecRef.GetTable(Job);
+        CreateDocumentAttachment(DocumentAttachment, RecRef, 'foo.jpeg');
+
+        //[VERIFY] Check Document attachment count will be 1 on Job list page.
+        OpenJobListToAttachDocument(Job."No.");
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2573,6 +2598,44 @@
         // A job with an item journal line.
         CreateJobAndJobTask(JobTask);
         CreateJobJournalLine(JobJournalLine, JobTask, '');
+    end;
+
+    local procedure CreateDocumentAttachment(var DocumentAttachment: Record "Document Attachment"; RecRef: RecordRef; FileName: Text)
+    var
+        TempBlob: Codeunit "Temp Blob";
+    begin
+        DocumentAttachment.Init();
+        CreateTempBLOBWithImageOfType(TempBlob, 'jpeg');
+        DocumentAttachment.SaveAttachment(RecRef, FileName, TempBlob);
+        Clear(DocumentAttachment);
+    end;
+
+    local procedure CreateTempBLOBWithImageOfType(var TempBlob: Codeunit "Temp Blob"; ImageType: Text)
+    var
+        ImageFormat: DotNet ImageFormat;
+        Bitmap: DotNet Bitmap;
+        InStr: InStream;
+    begin
+        TempBlob.CreateInStream(InStr);
+        Bitmap := Bitmap.Bitmap(1, 1);
+        case ImageType of
+            'png':
+                Bitmap.Save(InStr, ImageFormat.Png);
+            'jpeg':
+                Bitmap.Save(InStr, ImageFormat.Jpeg);
+            else
+                Bitmap.Save(InStr, ImageFormat.Bmp);
+        end;
+        Bitmap.Dispose();
+    end;
+
+    local procedure OpenJobListToAttachDocument(JobNo: Code[20])
+    var
+        JobList: TestPage "Job List";
+    begin
+        JobList.OpenEdit;
+        JobList.FILTER.SetFilter("No.", JobNo);
+        JobList."Attached Documents".Documents.AssertEquals(1);
     end;
 }
 

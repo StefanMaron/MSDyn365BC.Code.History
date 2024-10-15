@@ -80,6 +80,20 @@ page 2591 "Dimension Correction Draft"
                     Tooltip = 'Specifies if the Analysis views should be updated at the end of correction.';
                 }
 
+                group(AnalysisViewSelection)
+                {
+                    ShowCaption = false;
+                    Visible = Rec."Update Analysis Views";
+
+                    field(AnalysisViewUpdateType; Rec."Analysis View Update Type")
+                    {
+                        ApplicationArea = All;
+                        Editable = Rec."Update Analysis Views";
+                        Caption = 'Selection';
+                        Tooltip = 'Specifies the analysis views to update when you correct the dimension.';
+                    }
+                }
+
                 group(UserInfo)
                 {
                     ShowCaption = false;

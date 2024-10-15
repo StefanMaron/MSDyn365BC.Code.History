@@ -457,12 +457,9 @@
     }
 
     trigger OnAfterGetCurrRecord()
-    var
-        RoleCenterNotificationMgt: Codeunit "Role Center Notification Mgt.";
     begin
         if UserTours.IsAvailable and O365GettingStartedMgt.AreUserToursEnabled then
             O365GettingStartedMgt.UpdateGettingStartedVisible(TileGettingStartedVisible, ReplayGettingStartedVisible);
-        RoleCenterNotificationMgt.HideEvaluationNotificationAfterStartingTrial;
     end;
 
     trigger OnAfterGetRecord()

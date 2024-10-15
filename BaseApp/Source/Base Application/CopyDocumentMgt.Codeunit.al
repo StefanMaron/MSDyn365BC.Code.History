@@ -1941,7 +1941,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeValidatePurchLineDiscountFields(FromPurchHeader, ToPurchHeader, ToPurchLine, InvDiscountAmount, IsHandled);
+        OnBeforeValidatePurchLineDiscountFields(FromPurchHeader, ToPurchHeader, ToPurchLine, InvDiscountAmount, IsHandled, RecalculateLines);
         if IsHandled then
             exit;
 
@@ -3315,7 +3315,7 @@
                         end;
                         // copy item tracking
                         ShouldCopyItemTracking := (Type = Type::Item) and (Quantity <> 0);
-                        OnCopySalesCrMemoLinesToDocOnAfterCalcShouldCopyItemTracking(ToSalesHeader, ShouldCopyItemTracking);
+                        OnCopySalesCrMemoLinesToDocOnAfterCalcShouldCopyItemTracking(ToSalesHeader, ShouldCopyItemTracking, ToSalesLine);
                         if ShouldCopyItemTracking then begin
                             FromSalesCrMemoLine."Document No." := OldCrMemoDocNo;
                             FromSalesCrMemoLine."Line No." := "Return Receipt Line No.";
@@ -6372,7 +6372,7 @@
         ToPurchLine."Transaction Type" := ToPurchHeader."Transaction Type";
         ToPurchLine."Transport Method" := ToPurchHeader."Transport Method";
 
-        OnAfterSetDefaultValuesToPurchLine(ToPurchLine, ToPurchHeader, CreateToHeader);
+        OnAfterSetDefaultValuesToPurchLine(ToPurchLine, ToPurchHeader, CreateToHeader, RecalculateLines);
     end;
 
     local procedure ClearPurchaseBlanketOrderFields(var ToPurchLine: Record "Purchase Line"; ToPurchHeader: Record "Purchase Header")
@@ -8286,7 +8286,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeValidatePurchLineDiscountFields(FromPurchHeader: Record "Purchase Header"; ToPurchHeader: Record "Purchase Header"; var ToPurchLine: Record "Purchase Line"; var InvDiscountAmount: Decimal; var IsHandled: Boolean)
+    local procedure OnBeforeValidatePurchLineDiscountFields(FromPurchHeader: Record "Purchase Header"; ToPurchHeader: Record "Purchase Header"; var ToPurchLine: Record "Purchase Line"; var InvDiscountAmount: Decimal; var IsHandled: Boolean; RecalculateLines: Boolean)
     begin
     end;
 
@@ -8556,7 +8556,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterSetDefaultValuesToPurchLine(var ToPurchaseLine: Record "Purchase Line"; ToPurchHeader: Record "Purchase Header"; CreateToHeader: Boolean)
+    local procedure OnAfterSetDefaultValuesToPurchLine(var ToPurchaseLine: Record "Purchase Line"; ToPurchHeader: Record "Purchase Header"; CreateToHeader: Boolean; RecalculateLines: Boolean)
     begin
     end;
 
@@ -9506,7 +9506,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCopySalesCrMemoLinesToDocOnAfterCalcShouldCopyItemTracking(ToSalesHeader: Record "Sales Header"; var ShouldCopyItemTracking: Boolean)
+    local procedure OnCopySalesCrMemoLinesToDocOnAfterCalcShouldCopyItemTracking(ToSalesHeader: Record "Sales Header"; var ShouldCopyItemTracking: Boolean; var ToSalesLine: Record "Sales Line")
     begin
     end;
 
