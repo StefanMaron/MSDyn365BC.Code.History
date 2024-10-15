@@ -309,6 +309,7 @@ table 7320 "Warehouse Shipment Header"
 
     trigger OnInsert()
     var
+        [Obsolete('The functionality of No. Series Enhancements will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)')]
         NoSeriesLink: Record "No. Series Link";
     begin
         WhseSetup.Get;

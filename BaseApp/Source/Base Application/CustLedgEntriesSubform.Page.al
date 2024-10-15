@@ -56,18 +56,21 @@ page 31055 "Cust. Ledg. Entries Subform"
                 }
                 field("Global Dimension 1 Code"; "Global Dimension 1 Code")
                 {
+                    ApplicationArea = Dimensions;
                     Editable = false;
                     ToolTip = 'Specifies the dimension value code associated with the customer ledger entries.';
                     Visible = false;
                 }
                 field("Global Dimension 2 Code"; "Global Dimension 2 Code")
                 {
+                    ApplicationArea = Dimensions;
                     Editable = false;
                     ToolTip = 'Specifies the dimension value code associated with the customer ledger entries.';
                     Visible = false;
                 }
                 field("Salesperson Code"; "Salesperson Code")
                 {
+                    ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the name of the salesperson who is addigned to the customes.';
                     Visible = false;
@@ -86,6 +89,7 @@ page 31055 "Cust. Ledg. Entries Subform"
                 }
                 field("Original Amt. (LCY)"; "Original Amt. (LCY)")
                 {
+                    ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the amount that the entry originally consisted of, in LCY.';
                     Visible = false;
@@ -98,6 +102,7 @@ page 31055 "Cust. Ledg. Entries Subform"
                 }
                 field("Amount (LCY)"; "Amount (LCY)")
                 {
+                    ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the amount of the entry in LCY.';
                     Visible = false;
@@ -110,23 +115,27 @@ page 31055 "Cust. Ledg. Entries Subform"
                 }
                 field("Remaining Amt. (LCY)"; "Remaining Amt. (LCY)")
                 {
+                    ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the amount that remains to be applied to before the entry is totally applied to. The amount is shown in LCY.';
                     Visible = false;
                 }
                 field("Amount on Payment Order (LCY)"; "Amount on Payment Order (LCY)")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount on payment order.';
                     Visible = false;
                 }
                 field("Bal. Account Type"; "Bal. Account Type")
                 {
+                    ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the type of balancing account used on the entry.';
                     Visible = false;
                 }
                 field("Bal. Account No."; "Bal. Account No.")
                 {
+                    ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the balancing account number used on the entry.';
                     Visible = false;
@@ -174,47 +183,55 @@ page 31055 "Cust. Ledg. Entries Subform"
                 }
                 field("User ID"; "User ID")
                 {
+                    ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the ID of the user associated with the entry.';
                     Visible = false;
                 }
                 field("Source Code"; "Source Code")
                 {
+                    ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the source code that is linked to the entry.';
                     Visible = false;
                 }
                 field("Reason Code"; "Reason Code")
                 {
+                    ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the reason code on the entry.';
                     Visible = false;
                 }
                 field("Bank Account Code"; "Bank Account Code")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the bank account code for payment order.';
                     Visible = false;
                 }
                 field("Bank Account No."; "Bank Account No.")
                 {
+                    ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the number used by the bank for the bank account.';
                     Visible = false;
                 }
                 field("Specific Symbol"; "Specific Symbol")
                 {
+                    ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the additional symbol of bank payments.';
                     Visible = false;
                 }
                 field("Variable Symbol"; "Variable Symbol")
                 {
+                    ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the detail information for advance payment.';
                     Visible = false;
                 }
                 field("Constant Symbol"; "Constant Symbol")
                 {
+                    ApplicationArea = Basic, Suite;
                     Editable = false;
                     TableRelation = "Constant Symbol";
                     ToolTip = 'Specifies the additional symbol of bank payments.';

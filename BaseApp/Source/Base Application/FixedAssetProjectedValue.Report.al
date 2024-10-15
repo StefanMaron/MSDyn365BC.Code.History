@@ -300,7 +300,7 @@ report 5607 "Fixed Asset - Projected Value"
                     // NAVCZ
                     GroupTotals::"Tax Depreciation Group Code":
                         NewValue := "Tax Depreciation Group Code";
-                        // NAVCZ
+                // NAVCZ
                 end;
 
                 if NewValue <> OldValue then begin
@@ -360,7 +360,7 @@ report 5607 "Fixed Asset - Projected Value"
                     // NAVCZ
                     GroupTotals::"Tax Depreciation Group Code":
                         SetCurrentKey("Tax Depreciation Group Code");
-                        // NAVCZ
+                // NAVCZ
                 end;
 
                 GroupTotalsInt := GroupTotals;
@@ -807,6 +807,7 @@ report 5607 "Fixed Asset - Projected Value"
             if not FirstTime then
                 GetNextDate;
             FirstTime := false;
+            CalculateDepr.ProjectedValue(TRUE); // NAVCZ
             CalculateDepr.Calculate(
               DeprAmount, Custom1Amount, NumberOfDays, Custom1NumberOfDays,
               "Fixed Asset"."No.", DeprBookCode, UntilDate, EntryAmounts, 0D, DaysInFirstPeriod);
@@ -819,6 +820,7 @@ report 5607 "Fixed Asset - Projected Value"
     local procedure CalculateSecondDeprAmount(var Done: Boolean)
     begin
         GetNextDate;
+        CalculateDepr.ProjectedValue(TRUE); // NAVCZ
         CalculateDepr.Calculate(
           DeprAmount, Custom1Amount, NumberOfDays, Custom1NumberOfDays,
           "Fixed Asset"."No.", DeprBookCode, UntilDate, EntryAmounts, DateFromProjection, 0);
@@ -897,10 +899,10 @@ report 5607 "Fixed Asset - Projected Value"
                 GroupCodeName := "Fixed Asset".FieldCaption("Global Dimension 2 Code");
             GroupTotals::"FA Posting Group":
                 GroupCodeName := "Fixed Asset".FieldCaption("FA Posting Group");
-                // NAVCZ
+            // NAVCZ
             GroupTotals::"Tax Depreciation Group Code":
                 GroupCodeName := "Fixed Asset".FieldCaption("Tax Depreciation Group Code");
-                // NAVCZ
+        // NAVCZ
         end;
         if GroupCodeName <> '' then begin
             GroupCodeName2 := GroupCodeName;
@@ -944,7 +946,7 @@ report 5607 "Fixed Asset - Projected Value"
                 // NAVCZ
                 GroupTotals::"Tax Depreciation Group Code":
                     GroupHeadLine := "Tax Depreciation Group Code";
-                    // NAVCZ
+            // NAVCZ
             end;
         if GroupHeadLine = '' then
             GroupHeadLine := '*****';
@@ -999,10 +1001,10 @@ report 5607 "Fixed Asset - Projected Value"
                             CodeName := "Fixed Asset"."Global Dimension 2 Code";
                         GroupTotals::"FA Posting Group":
                             CodeName := "Fixed Asset"."FA Posting Group";
-                            // NAVCZ
+                        // NAVCZ
                         GroupTotals::"Tax Depreciation Group Code":
                             CodeName := "Fixed Asset"."Tax Depreciation Group Code";
-                            // NAVCZ
+                    // NAVCZ
                     end;
                     SetRange("Code Name", CodeName);
                 end;

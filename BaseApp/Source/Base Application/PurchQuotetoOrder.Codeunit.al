@@ -76,6 +76,7 @@ codeunit 96 "Purch.-Quote to Order"
 
     local procedure CreatePurchHeader(PurchHeader: Record "Purchase Header"; PrepmtPercent: Decimal)
     var
+        [Obsolete('The functionality of No. Series Enhancements will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)')]
         NoSeriesLink: Record "No. Series Link";
     begin
         OnBeforeCreatePurchHeader(PurchHeader);
@@ -87,7 +88,9 @@ codeunit 96 "Purch.-Quote to Order"
             PurchOrderHeader.Status := PurchOrderHeader.Status::Open;
             PurchOrderHeader."No." := '';
             PurchOrderHeader."Quote No." := "No.";
-            PurchOrderHeader.InitRecord;
+
+            OnCreatePurchHeaderOnBeforeInitRecord(PurchOrderHeader, PurchHeader);
+            PurchOrderHeader.InitRecord();
             // NAVCZ
             PurchOrderHeader."No. Series" := '';
             if NoSeriesLink.Get("No. Series") then
@@ -95,7 +98,7 @@ codeunit 96 "Purch.-Quote to Order"
                     PurchOrderHeader."No. Series" := NoSeriesLink."Linked No. Series";
             // NAVCZ
 
-            PurchOrderLine.LockTable;
+            PurchOrderLine.LockTable();
             PurchOrderHeader.Insert(true);
 
             PurchOrderHeader."Order Date" := "Order Date";
@@ -218,6 +221,11 @@ codeunit 96 "Purch.-Quote to Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeTransferQuoteLineToOrderLineLoop(var PurchQuoteLine: Record "Purchase Line"; var PurchQuoteHeader: Record "Purchase Header"; var PurchOrderHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreatePurchHeaderOnBeforeInitRecord(var PurchOrderHeader: Record "Purchase Header"; var PurchHeader: Record "Purchase Header")
     begin
     end;
 }

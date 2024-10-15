@@ -72,6 +72,7 @@ page 426 "Vendor Bank Account List"
                 }
                 field("Specific Symbol"; "Specific Symbol")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the additional symbol of bank payments.';
                     Visible = false;
                 }

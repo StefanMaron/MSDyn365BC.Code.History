@@ -49,6 +49,9 @@
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the registered name of company.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of Fields for Full Description will be removed and this field should not be used. Standard fields for Name are now 100. (Obsolete::Removed in release 01.2021)';
                 }
                 field("Search Name"; "Search Name")
                 {
@@ -229,6 +232,9 @@
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the industry code for the customer.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of Industry Classification will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
                 }
                 field("Last Date Modified"; "Last Date Modified")
                 {
@@ -1402,6 +1408,9 @@
                     RunPageLink = "Account Type" = CONST(Customer),
                                   "Account No." = FIELD("No.");
                     ToolTip = 'Opens registration country page';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this action should not be used. (Obsolete::Removed in release 01.2021)';
                 }
             }
             group(Documents)
@@ -2203,12 +2212,6 @@
 
         WorkflowWebhookManagement.GetCanRequestAndCanCancel(RecordId, CanRequestApprovalForFlow, CanCancelApprovalForFlow);
 
-        if "No." <> '' then begin
-            if ShowCharts then
-                CurrPage.AgedAccReceivableChart.PAGE.UpdateChartForCustomer("No.");
-            if IsOfficeAddin then
-                CurrPage.AgedAccReceivableChart2.PAGE.UpdateChartForCustomer("No.");
-        end;
 
         ExpectedMoneyOwed := GetMoneyOwedExpected;
 
@@ -2222,12 +2225,6 @@
             BalanceOfVendEnable := false;
         end;
         // NAVCZ
-    end;
-
-    trigger OnAfterGetRecord()
-    begin
-        ActivateFields;
-        StyleTxt := SetStyle;
     end;
 
     trigger OnInit()
@@ -2260,21 +2257,16 @@
 
     trigger OnOpenPage()
     var
-        OfficeManagement: Codeunit "Office Management";
         EnvironmentInfo: Codeunit "Environment Information";
     begin
-        ActivateFields;
-
         CRMIntegrationEnabled := CRMIntegrationManagement.IsCRMIntegrationEnabled;
 
         SetNoFieldVisible;
-        IsOfficeAddin := OfficeManagement.IsAvailable;
         IsSaaS := EnvironmentInfo.IsSaaS;
 
         if FoundationOnly then
             CurrPage.PriceAndLineDisc.PAGE.InitPage(false);
 
-        ShowCharts := "No." <> '';
     end;
 
     var
@@ -2408,10 +2400,14 @@
     end;
 
     local procedure ActivateFields()
+    var
+        OfficeManagement: Codeunit "Office Management";
     begin
         SetSocialListeningFactboxVisibility;
         ContactEditable := "Primary Contact No." = '';
         IsCountyVisible := FormatAddress.UseCounty("Country/Region Code");
+        ShowCharts := "No." <> '';
+        IsOfficeAddin := OfficeManagement.IsAvailable;
     end;
 
     local procedure ContactOnAfterValidate()

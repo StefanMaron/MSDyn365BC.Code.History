@@ -867,6 +867,8 @@ table 11731 "Cash Document Line"
             Caption = 'VAT % (Non Deductible)';
             MaxValue = 100;
             MinValue = 0;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The functionality of Non-deductible VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
 
             trigger OnValidate()
             begin
@@ -884,12 +886,16 @@ table 11731 "Cash Document Line"
             AutoFormatExpression = "Currency Code";
             Caption = 'VAT Base (Non Deductible)';
             Editable = false;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The functionality of Non-deductible VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
         }
         field(604; "VAT Amount (Non Deductible)"; Decimal)
         {
             AutoFormatExpression = "Currency Code";
             Caption = 'VAT Amount (Non Deductible)';
             Editable = false;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The functionality of Non-deductible VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
         }
         field(31001; "Advance Letter Link Code"; Code[30])
         {
@@ -1552,6 +1558,7 @@ table 11731 "Cash Document Line"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('The functionality of Non-deductible VAT will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)')]
     procedure GetVATDeduction(): Decimal
     var
         NonDeductVATSetup: Record "Non Deductible VAT Setup";
@@ -1589,6 +1596,7 @@ table 11731 "Cash Document Line"
         end;
     end;
 
+    [Obsolete('The functionality of VAT Coefficient will be removed and this function should not be used. (Obsolete::Removed in release 01.2021')]
     local procedure CalcVATCoefficient(): Decimal
     begin
         GLSetup.Get;

@@ -73,7 +73,7 @@ table 85 "Acc. Schedule Line"
                     "Totaling Type"::Constant:
                         if Totaling <> '' then
                             Evaluate(Value, Totaling);
-                        // NAVCZ
+                // NAVCZ
                 end;
                 // NAVCZ
                 Clear(AccSchedManagement);
@@ -284,7 +284,6 @@ table 85 "Acc. Schedule Line"
         {
             Caption = 'Calc';
             InitValue = Always;
-            NotBlank = true;
             OptionCaption = 'Always,Never,When Positive,When Negative';
             OptionMembers = Always,Never,"When Positive","When Negative";
         }

@@ -105,6 +105,7 @@ page 9002 "Acc. Payables Coordinator RC"
             }
             action("V&endor - Bal. Reconciliation")
             {
+                ApplicationArea = Basic, Suite;
                 Caption = 'V&endor - Bal. Reconciliation';
                 RunObject = Report "Vendor - Bal. Reconciliation";
                 ToolTip = 'Opens vendor - bal. reconciliation report';

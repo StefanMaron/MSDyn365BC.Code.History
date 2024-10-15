@@ -35,6 +35,7 @@ page 11717 "Payment Order Subform"
                 }
                 field(Name; Name)
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies name of partner (customer, vendor, bank account).';
                     Visible = false;
                 }
@@ -67,6 +68,7 @@ page 11717 "Payment Order Subform"
                 }
                 field("Skip Payment"; "Skip Payment")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the amount must be skipped.';
                     Visible = false;
 
@@ -77,6 +79,7 @@ page 11717 "Payment Order Subform"
                 }
                 field("Amount to Pay"; "Amount to Pay")
                 {
+                    ApplicationArea = Basic, Suite;
                     BlankZero = true;
                     ToolTip = 'Specifies payment order amount.';
                     Visible = false;
@@ -88,6 +91,7 @@ page 11717 "Payment Order Subform"
                 }
                 field("Original Amount"; "Original Amount")
                 {
+                    ApplicationArea = Basic, Suite;
                     BlankZero = true;
                     ToolTip = 'Specifies the amount of the original entry.';
                     Visible = false;
@@ -118,6 +122,7 @@ page 11717 "Payment Order Subform"
                 }
                 field("Payment Order Currency Code"; "Payment Order Currency Code")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the payment order currency code.';
                     Visible = false;
 
@@ -137,26 +142,31 @@ page 11717 "Payment Order Subform"
                 }
                 field("Due Date"; "Due Date")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the date when the payment is due.';
                     Visible = false;
                 }
                 field("Original Due Date"; "Original Due Date")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the date when the payment was due.';
                     Visible = false;
                 }
                 field("Pmt. Discount Date"; "Pmt. Discount Date")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies payment discount date.';
                     Visible = false;
                 }
                 field("Pmt. Discount Possible"; "Pmt. Discount Possible")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the discount is possible.';
                     Visible = false;
                 }
                 field("Remaining Pmt. Disc. Possible"; "Remaining Pmt. Disc. Possible")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies possible remaining payment discount.';
                     Visible = false;
                 }
@@ -183,11 +193,13 @@ page 11717 "Payment Order Subform"
                 }
                 field("Applies-to Doc. Type"; "Applies-to Doc. Type")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the payment will be applied to an already-posted document. The field is used only if the account type is a customer or vendor account.';
                     Visible = false;
                 }
                 field("Applies-to Doc. No."; "Applies-to Doc. No.")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the payment will be applied to an already-posted document.';
                     Visible = false;
                 }
@@ -198,6 +210,7 @@ page 11717 "Payment Order Subform"
                 }
                 field("Amt. on Issued Payment Orders"; IssuedPaymentOrderLine.Amount)
                 {
+                    ApplicationArea = Basic, Suite;
                     BlankZero = true;
                     Caption = 'Amt. on Issued Payment Orders';
                     Editable = false;
@@ -223,6 +236,7 @@ page 11717 "Payment Order Subform"
                 }
                 field("Amt. on Iss. Pay. Orders (LCY)"; IssuedPaymentOrderLine."Amount (LCY)")
                 {
+                    ApplicationArea = Basic, Suite;
                     BlankZero = true;
                     Caption = 'Amt. on Issued Payment Orders (LCY)';
                     Editable = false;
@@ -254,16 +268,19 @@ page 11717 "Payment Order Subform"
                 }
                 field("Letter Type"; "Letter Type")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the letter type is a sales (Sales) or a purchase (Purchase).';
                     Visible = false;
                 }
                 field("Letter No."; "Letter No.")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of letter.';
                     Visible = false;
                 }
                 field("Letter Line No."; "Letter Line No.")
                 {
+                    ApplicationArea = Basic, Suite;
                     BlankZero = true;
                     ToolTip = 'Specifies letter line number.';
                     Visible = false;
@@ -285,6 +302,7 @@ page 11717 "Payment Order Subform"
                 }
                 field("Payment Method Code"; "Payment Method Code")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies how the customer must advance pay.';
                     Visible = false;
                 }

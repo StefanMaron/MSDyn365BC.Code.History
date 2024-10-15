@@ -114,6 +114,7 @@ report 6665 "Batch Post Purch. Ret. Orders"
                     field(PrintDoc; PrintDoc)
                     {
                         ApplicationArea = Basic, Suite;
+                        Visible = PrintDocVisible;
                         Caption = 'Print';
                         ToolTip = 'Specifies if you want to print the return order after posting. In the Report Output Type field on the Purchases and Payables page, you define if the report will be printed or output as a PDF.';
 
@@ -143,7 +144,7 @@ report 6665 "Batch Post Purch. Ret. Orders"
             PurchasesPayablesSetup.Get;
             CalcInvDisc := PurchasesPayablesSetup."Calc. Inv. Discount";
             PrintDoc := false;
-
+            PrintDocVisible := PurchasesPayablesSetup."Post & Print with Job Queue";
             SetControlVisibility; // NAVCZ
         end;
     }
@@ -165,6 +166,8 @@ report 6665 "Batch Post Purch. Ret. Orders"
         CalcInvDisc: Boolean;
         Text003: Label 'The exchange rate associated with the new posting date on the purchase header will not apply to the purchase lines.';
         PrintDoc: Boolean;
+        [InDataSet]
+        PrintDocVisible: Boolean;
         EnterVATDateErr: Label 'Enter the VAT date.';
 
     local procedure SetControlVisibility()

@@ -224,6 +224,8 @@ table 5718 "Nonstock Item"
         field(11792; "Full Description"; Text[250])
         {
             Caption = 'Full Description';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The functionality of Fields for Full Description will be removed and this field should not be used. Standard fields for Name are now 100. (Obsolete::Removed in release 01.2021)';
 
             trigger OnValidate()
             begin

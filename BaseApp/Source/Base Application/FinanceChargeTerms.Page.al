@@ -71,11 +71,13 @@ page 6 "Finance Charge Terms"
                 }
                 field("Grace Tax Period"; "Grace Tax Period")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the grace period for tax.';
                 }
                 field("Detailed Line Description"; "Detailed Line Description")
                 {
-                    ToolTip = 'Specifies the detailed line description.';
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies a description to be used in the Description field on the finance charge memo lines if multiple interest rates are set up for different payment delay periods and the description must show the sum of these.';
                 }
                 field("Post Interest"; "Post Interest")
                 {
@@ -151,6 +153,7 @@ page 6 "Finance Charge Terms"
                 }
                 action("&Interest Rates")
                 {
+                    ApplicationArea = Basic, Suite;
                     Caption = '&Interest Rates';
                     RunObject = Page "Multiple Interest Rates";
                     RunPageLink = "Finance Charge Code" = FIELD(Code);

@@ -362,10 +362,12 @@
                 }
                 field("EU 3-Party Trade"; "EU 3-Party Trade")
                 {
+                    ApplicationArea = BasicEU;
                     ToolTip = 'Specifies whether the document is part of a three-party trade.';
                 }
                 field("EU 3-Party Intermediate Role"; "EU 3-Party Intermediate Role")
                 {
+                    ApplicationArea = BasicEU;
                     ToolTip = 'Specifies when the sales haeder will use European Union third-party intermediate trade rules. This option complies with VAT accounting standards for EU third-party trade.';
                 }
             }

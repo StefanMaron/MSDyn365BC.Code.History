@@ -24,7 +24,7 @@
                     trigger OnAssistEdit()
                     begin
                         if AssistEdit(xRec) then
-                            CurrPage.Update;
+                            CurrPage.Update();
                     end;
                 }
                 field("Sell-to Customer No."; "Sell-to Customer No.")
@@ -34,12 +34,11 @@
                     Importance = Additional;
                     NotBlank = true;
                     ToolTip = 'Specifies the number of the customer who will receive the products and be billed by default.';
-                    Visible = NOT IsSaaS;
 
                     trigger OnValidate()
                     begin
                         SelltoCustomerNoOnAfterValidate(Rec, xRec);
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 field("Sell-to Customer Name"; "Sell-to Customer Name")
@@ -60,7 +59,7 @@
                         if ApplicationAreaMgmtFacade.IsFoundationEnabled then
                             SalesCalcDiscountByType.ApplyDefaultInvoiceDiscount(0, Rec);
 
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 group("Sell-to")
@@ -151,6 +150,9 @@
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the posting description code for the sales header.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of posting description will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
                 }
                 field("Posting Description"; "Posting Description")
                 {
@@ -334,7 +336,7 @@
 
                     trigger OnValidate()
                     begin
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 field("VAT Bus. Posting Group"; "VAT Bus. Posting Group")
@@ -349,7 +351,7 @@
                         if ApplicationAreaMgmtFacade.IsFoundationEnabled then
                             SalesCalcDiscountByType.ApplyDefaultInvoiceDiscount(0, Rec);
 
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 field("Payment Terms Code"; "Payment Terms Code")
@@ -400,7 +402,7 @@
 
                     trigger OnValidate()
                     begin
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 field("Shortcut Dimension 2 Code"; "Shortcut Dimension 2 Code")
@@ -410,7 +412,7 @@
 
                     trigger OnValidate()
                     begin
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 field("Payment Discount %"; "Payment Discount %")
@@ -438,6 +440,9 @@
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the tax corrective document.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of Tax corrective documents for VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
                 }
                 field("Location Code"; "Location Code")
                 {
@@ -848,6 +853,9 @@
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the industry code for the customer record.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of Industry Classification will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
                 }
                 field("Language Code"; "Language Code")
                 {
@@ -858,6 +866,9 @@
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the country/region code. It is mandatory field by creating documents with VAT registration number for other countries.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
                 }
                 field("VAT Country/Region Code"; "VAT Country/Region Code")
                 {
@@ -1723,13 +1734,11 @@
         ShowWorkflowStatus := CurrPage.WorkflowStatus.PAGE.SetFilterOnWorkflowRecord(RecordId);
 
         UpdatePaymentService;
+        SetControlAppearance;
     end;
 
     trigger OnAfterGetRecord()
     begin
-        ShowQuoteNo := "Quote No." <> '';
-
-        SetControlAppearance;
         WorkDescription := GetWorkDescription;
         UpdateShipToBillToGroupVisibility
     end;
@@ -1783,10 +1792,6 @@
         ActivateFields;
 
         SetDocNoVisible;
-        SetControlAppearance;
-
-        if "Quote No." <> '' then
-            ShowQuoteNo := true;
 
         if "No." = '' then
             if OfficeMgt.CheckForExistingInvoice("Sell-to Customer No.") then
@@ -2002,6 +2007,7 @@
         WorkflowWebhookMgt: Codeunit "Workflow Webhook Management";
     begin
         HasIncomingDocument := "Incoming Document Entry No." <> 0;
+        ShowQuoteNo := "Quote No." <> '';
         SetExtDocNoMandatoryCondition;
 
         OpenApprovalEntriesExistForCurrUser := ApprovalsMgmt.HasOpenApprovalEntriesForCurrentUser(RecordId);

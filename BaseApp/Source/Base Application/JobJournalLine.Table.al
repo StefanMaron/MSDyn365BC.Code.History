@@ -60,7 +60,8 @@ table 210 "Job Journal Line"
 
             trigger OnValidate()
             begin
-                TestField("Posting Date");
+                if not IsTemporary then
+                    TestField("Posting Date");
                 Validate("Document Date", "Posting Date");
                 if "Currency Code" <> '' then begin
                     UpdateCurrencyFactor;
@@ -1016,7 +1017,9 @@ table 210 "Job Journal Line"
         {
             Caption = 'FA No.';
             TableRelation = "Fixed Asset";
-
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The functionality of Item consumption for FA maintenance will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            
             trigger OnValidate()
             begin
                 if "FA No." = '' then
@@ -1034,6 +1037,8 @@ table 210 "Job Journal Line"
         {
             Caption = 'Maintenance Code';
             TableRelation = Maintenance;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The functionality of Item consumption for FA maintenance will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
 
             trigger OnValidate()
             begin

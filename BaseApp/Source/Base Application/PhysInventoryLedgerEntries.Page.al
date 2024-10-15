@@ -222,6 +222,7 @@
         {
             action("&Print")
             {
+                ApplicationArea = Basic, Suite;
                 Caption = '&Print';
                 Image = Print;
                 Promoted = true;

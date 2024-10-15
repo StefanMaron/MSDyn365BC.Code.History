@@ -3160,6 +3160,8 @@ table 39 "Purchase Line"
             Caption = 'VAT % (Non Deductible)';
             MaxValue = 100;
             MinValue = 0;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The functionality of Non-deductible VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
 
             trigger OnValidate()
             begin
@@ -3175,12 +3177,16 @@ table 39 "Purchase Line"
             AutoFormatExpression = "Currency Code";
             Caption = 'VAT Base (Non Deductible)';
             Editable = false;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The functionality of Non-deductible VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
         }
         field(11767; "VAT Amount (Non Deductible)"; Decimal)
         {
             AutoFormatExpression = "Currency Code";
             Caption = 'VAT Amount (Non Deductible)';
             Editable = false;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The functionality of Non-deductible VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
         }
         field(11768; Negative; Boolean)
         {
@@ -3548,6 +3554,9 @@ table 39 "Purchase Line"
 
     fieldgroups
     {
+        fieldgroup(DropDown; "No.", Description, "Line Amount", Quantity, "Unit of Measure Code")
+        {
+        }
     }
 
     trigger OnDelete()
@@ -3599,6 +3608,7 @@ table 39 "Purchase Line"
             PurchLine2.SetCurrentKey("Document Type", "Blanket Order No.", "Blanket Order Line No.");
             PurchLine2.SetRange("Blanket Order No.", "Document No.");
             PurchLine2.SetRange("Blanket Order Line No.", "Line No.");
+            OnDeleteOnAfterSetPurchLineFilters(PurchLine2);
             if PurchLine2.FindFirst then
                 PurchLine2.TestField("Blanket Order Line No.", 0);
         end;
@@ -3632,6 +3642,8 @@ table 39 "Purchase Line"
         then begin
             Quantity := 0;
             "Quantity (Base)" := 0;
+            "Qty. to Invoice" := 0;
+            "Qty. to Invoice (Base)" := 0;
             "Line Discount Amount" := 0;
             "Inv. Discount Amount" := 0;
             "Inv. Disc. Amount to Invoice" := 0;
@@ -4321,8 +4333,6 @@ table 39 "Purchase Line"
 
     procedure UpdateAmounts()
     var
-        RemLineAmountToInvoice: Decimal;
-        VendPostGr: Record "Vendor Posting Group";
         VATBaseAmount: Decimal;
         VATAmountNonDeductible: Decimal;
         LineAmountChanged: Boolean;
@@ -4361,44 +4371,8 @@ table 39 "Purchase Line"
             // NAVCZ
         end;
 
-        if not "Prepayment Line" then begin
-            if "Prepayment %" <> 0 then begin
-                // NAVCZ
-                if not VendPostGr.Get(PurchHeader."Vendor Posting Group") then
-                    VendPostGr.Init;
-                if not ((Type = Type::"G/L Account") and ("No." = VendPostGr."Invoice Rounding Account")) then begin
-                    // NAVCZ
-                    if Quantity < 0 then
-                        FieldError(Quantity, StrSubstNo(Text043, FieldCaption("Prepayment %")));
-                    if "Direct Unit Cost" < 0 then
-                        FieldError("Direct Unit Cost", StrSubstNo(Text043, FieldCaption("Prepayment %")));
-                end;  // NAVCZ
-            end;
-            // IF PurchHeader."Document Type" <> PurchHeader."Document Type"::Invoice THEN BEGIN // NAVCZ
-            if true then begin // NAVCZ
-                "Prepayment VAT Difference" := 0;
-                if not PrePaymentLineAmountEntered then
-                    "Prepmt. Line Amount" := Round("Line Amount" * "Prepayment %" / 100, Currency."Amount Rounding Precision");
-                if "Adjust Prepmt. Relation" and not IsServiceCharge then begin
-                    if "Prepmt. Line Amount" + Currency."Amount Rounding Precision" < "Prepmt. Amt. Inv." then
-                        FieldError("Prepmt. Line Amount", StrSubstNo(Text044, "Prepmt. Amt. Inv."));
-                    if "Prepmt. Amt. Inv." + Currency."Amount Rounding Precision" < "Prepmt Amt Deducted" then
-                        FieldError("Prepmt. Amt. Inv.", StrSubstNo(Text044, "Prepmt Amt Deducted"));
-                end else
-                    if "Prepmt. Line Amount" < "Prepmt. Amt. Inv." then begin
-                        if IsServiceCharge then
-                            Error(CannotChangePrepaidServiceChargeErr);
-                        FieldError("Prepmt. Line Amount", StrSubstNo(Text037, "Prepmt. Amt. Inv."));
-                    end;
-                PrePaymentLineAmountEntered := false;
-                if "Prepmt. Line Amount" <> 0 then begin
-                    RemLineAmountToInvoice :=
-                      Round("Line Amount" * (Quantity - "Quantity Invoiced") / Quantity, Currency."Amount Rounding Precision");
-                    if RemLineAmountToInvoice < ("Prepmt. Line Amount" - "Prepmt Amt Deducted") then
-                        FieldError("Prepmt. Line Amount", StrSubstNo(Text039, RemLineAmountToInvoice + "Prepmt Amt Deducted"));
-                end;
-            end;
-        end;
+        if not "Prepayment Line" then
+            UpdatePrepmtAmounts();
 
         OnAfterUpdateAmounts(Rec, xRec, CurrFieldNo);
 
@@ -4442,6 +4416,7 @@ table 39 "Purchase Line"
         PurchLine2.SetFilter("Line No.", '<>%1', "Line No.");
         PurchLine2.SetRange("VAT Identifier", "VAT Identifier");
         PurchLine2.SetRange("Tax Group Code", "Tax Group Code");
+        PurchLine2.SetRange("Tax Area Code", "Tax Area Code");
 
         if "Line Amount" = "Inv. Discount Amount" then begin
             Amount := 0;
@@ -4807,6 +4782,7 @@ table 39 "Purchase Line"
                     TransferExtendedText.InsertPurchExtTextRetLast(PurchLine, DummyPurchLine);
                     PurchLine."Line No." := LastPurchLine."Line No."
                 end;
+                OnAfterAddItem(PurchLine, LastPurchLine);
             until Item.Next = 0;
     end;
 
@@ -4972,6 +4948,8 @@ table 39 "Purchase Line"
             Rec, CurrFieldNo, TableID, No, SourceCodeSetup.Purchases,
             "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", PurchHeader."Dimension Set ID", DATABASE::Vendor);
         DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
+
+        OnAfterCreateDim(Rec, CurrFieldNo);
     end;
 
     procedure ValidateShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])
@@ -5190,11 +5168,11 @@ table 39 "Purchase Line"
 
     procedure TestStatusOpen()
     begin
-        if StatusCheckSuspended then
-            exit;
-
         GetPurchHeader;
         OnBeforeTestStatusOpen(Rec, PurchHeader);
+
+        if StatusCheckSuspended then
+            exit;
 
         if not "System-Created Entry" then
             if HasTypeToFillMandatoryFields then
@@ -5354,11 +5332,13 @@ table 39 "Purchase Line"
                                 end;
                                 if QtyType = QtyType::General then begin
                                     "Inv. Discount Amount" := InvDiscAmount;
-                                    CalcInvDiscToInvoice;
+                                    CalcInvDiscToInvoice();
                                 end else
                                     "Inv. Disc. Amount to Invoice" := InvDiscAmount;
                             end else
                                 InvDiscAmount := 0;
+
+                            OnUpdateVATOnLinesOnBeforeCalculateAmounts(PurchLine, PurchHeader);
                             if QtyType = QtyType::General then
                                 if PurchHeader."Prices Including VAT" then begin
                                     if (VATAmountLine.CalcLineAmount = 0) or ("Line Amount" = 0) then begin
@@ -5381,11 +5361,11 @@ table 39 "Purchase Line"
                                         Currency."Amount Rounding Precision");
                                 end else begin
                                     if "VAT Calculation Type" = "VAT Calculation Type"::"Full VAT" then begin
-                                        VATAmount := CalcLineAmount;
+                                        VATAmount := CalcLineAmount();
                                         NewAmount := 0;
                                         NewVATBaseAmount := 0;
                                     end else begin
-                                        NewAmount := CalcLineAmount;
+                                        NewAmount := CalcLineAmount();
                                         NewVATBaseAmount :=
                                           Round(
                                             NewAmount * (1 - PurchHeader."VAT Base Discount %" / 100),
@@ -5411,8 +5391,11 @@ table 39 "Purchase Line"
                                 else
                                     "VAT Difference" := Round(VATDifference, Currency."Amount Rounding Precision");
                             end;
+                            OnUpdateVATOnLinesOnAfterCalculateAmounts(PurchLine, PurchHeader);
 
                             if QtyType = QtyType::General then begin
+                                if not "Prepayment Line" then
+                                    UpdatePrepmtAmounts();
                                 UpdateBaseAmounts(NewAmount, Round(NewAmountIncludingVAT, Currency."Amount Rounding Precision"), NewVATBaseAmount);
                                 // NAVCZ
                                 "VAT Base (Non Deductible)" :=
@@ -5457,13 +5440,14 @@ table 39 "Purchase Line"
                                 end;
                             end;
                             // NAVCZ
-                            InitOutstanding;
+
+                            InitOutstanding();
                             if not ((Type = Type::"Charge (Item)") and ("Quantity Invoiced" <> "Qty. Assigned")) then begin
                                 SetUpdateFromVAT(true);
-                                UpdateUnitCost;
+                                UpdateUnitCost();
                             end;
                             if Type = Type::"Charge (Item)" then
-                                UpdateItemChargeAssgnt;
+                                UpdateItemChargeAssgnt();
                             // NAVCZ
                             if QtyType = QtyType::Invoicing then
                                 "VAT Correction" := VATAmountLine."Modified (LCY)";
@@ -5472,7 +5456,7 @@ table 39 "Purchase Line"
                             LineWasModified := true;
 
                             if ("Deferral Code" <> '') and (DeferralAmount <> GetDeferralAmount) then
-                                UpdateDeferralAmounts;
+                                UpdateDeferralAmounts();
 
                             TempVATAmountLineRemainder."Amount Including VAT" :=
                               NewAmountIncludingVAT - Round(NewAmountIncludingVAT, Currency."Amount Rounding Precision");
@@ -6098,7 +6082,13 @@ table 39 "Purchase Line"
     var
         GrossAmount: Decimal;
         MaxAmount: Decimal;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCalcPrepaymentToDeduct(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         // NAVCZ
         if ((Quantity - "Quantity Invoiced") <> 0) and (("Prepmt. Amt. Inv." - "Prepmt Amt Deducted") > 0) then begin
             GetPurchHeader;
@@ -6159,16 +6149,19 @@ table 39 "Purchase Line"
     end;
 
     procedure GetLineAmountToHandleInclPrepmt(QtyToHandle: Decimal): Decimal
+    var
+        PurchasePostPrepayments: Codeunit "Purchase-Post Prepayments";
+        DocType: Option Invoice,"Credit Memo",Statistic,Advance;
     begin
         GetPurchHeader(); // NAVCZ
         if "Line Discount %" = 100 then
             exit(0);
         // NAVCZ
         if ("Prepayment %" = 100) and not "Prepayment Line" and ("Prepmt Amt to Deduct" <> 0) and
-           (PurchHeader."Prepayment Type" = PurchHeader."Prepayment Type"::Prepayment)
+           (PurchHeader."Prepayment Type" = PurchHeader."Prepayment Type"::Prepayment) // NAVCZ
         then
-            // NAVCZ
-            exit("Prepmt Amt to Deduct");
+            if PurchasePostPrepayments.PrepmtAmount(Rec, DocType) <= 0 then
+                exit("Prepmt Amt to Deduct");
         exit(GetLineAmountToHandle(QtyToHandle));
     end;
 
@@ -6176,12 +6169,9 @@ table 39 "Purchase Line"
     var
         JobTaskSet: Boolean;
     begin
-        JobTaskSet := false;
+        JobTaskSet := ("Job No." <> '') AND ("Job Task No." <> '') AND (Type IN [Type::"G/L Account", Type::Item]);
         OnBeforeJobTaskIsSet(Rec, JobTaskSet);
-
-        exit(
-          (("Job No." <> '') and ("Job Task No." <> '') and (Type in [Type::"G/L Account", Type::Item])) or
-          JobTaskSet);
+        exit(JobTaskSet);
     end;
 
     procedure CreateTempJobJnlLine(GetPrices: Boolean)
@@ -6627,7 +6617,13 @@ table 39 "Purchase Line"
     local procedure ValidateReturnReasonCode(CallingFieldNo: Integer)
     var
         ReturnReason: Record "Return Reason";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeValidateReturnReasonCode(Rec, CallingFieldNo, IsHandled);
+        if IsHandled then
+            exit;
+
         if CallingFieldNo = 0 then
             exit;
         if "Return Reason Code" = '' then
@@ -6677,6 +6673,7 @@ table 39 "Purchase Line"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('The functionality of Non-deductible VAT will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)')]
     procedure GetVATDeduction(): Decimal
     var
         NonDeductVATSetup: Record "Non Deductible VAT Setup";
@@ -7482,11 +7479,54 @@ table 39 "Purchase Line"
             until AdvanceLetterLineRelation.Next = 0;
     end;
 
+    local procedure UpdatePrepmtAmounts()
+    var
+        VendPostGr: Record "Vendor Posting Group";
+        RemLineAmountToInvoice: Decimal;
+    begin
+        if "Prepayment %" <> 0 then begin
+            if not VendPostGr.Get(PurchHeader."Vendor Posting Group") then
+                VendPostGr.Init();
+            if not ((Type = Type::"G/L Account") and ("No." = VendPostGr."Invoice Rounding Account")) then begin
+                if Quantity < 0 then
+                    FieldError(Quantity, StrSubstNo(Text043, FieldCaption("Prepayment %")));
+                if "Direct Unit Cost" < 0 then
+                    FieldError("Direct Unit Cost", StrSubstNo(Text043, FieldCaption("Prepayment %")));
+            end;
+        end;
+        "Prepayment VAT Difference" := 0;
+        if not PrePaymentLineAmountEntered then
+            "Prepmt. Line Amount" := Round("Line Amount" * "Prepayment %" / 100, Currency."Amount Rounding Precision");
+        if "Adjust Prepmt. Relation" and not IsServiceCharge() then begin
+            if "Prepmt. Line Amount" + Currency."Amount Rounding Precision" < "Prepmt. Amt. Inv." then
+                FieldError("Prepmt. Line Amount", StrSubstNo(Text044, "Prepmt. Amt. Inv."));
+            if "Prepmt. Amt. Inv." + Currency."Amount Rounding Precision" < "Prepmt Amt Deducted" then
+                FieldError("Prepmt. Amt. Inv.", StrSubstNo(Text044, "Prepmt Amt Deducted"));
+        end else
+            if "Prepmt. Line Amount" < "Prepmt. Amt. Inv." then begin
+                if IsServiceCharge() then
+                    Error(CannotChangePrepaidServiceChargeErr);
+                FieldError("Prepmt. Line Amount", StrSubstNo(Text037, "Prepmt. Amt. Inv."));
+            end;
+        PrePaymentLineAmountEntered := false;
+        if "Prepmt. Line Amount" <> 0 then begin
+            RemLineAmountToInvoice :=
+              Round("Line Amount" * (Quantity - "Quantity Invoiced") / Quantity, Currency."Amount Rounding Precision");
+            if RemLineAmountToInvoice < ("Prepmt. Line Amount" - "Prepmt Amt Deducted") then
+                FieldError("Prepmt. Line Amount", StrSubstNo(Text039, RemLineAmountToInvoice + "Prepmt Amt Deducted"));
+        end;
+    end;
+
     local procedure IsCalcVATAmountLinesHandled(PurchHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line"; var VATAmountLine: Record "VAT Amount Line") IsHandled: Boolean
     begin
         IsHandled := false;
         OnBeforeCalcVATAmountLines(PurchHeader, PurchLine, VATAmountLine, IsHandled);
         exit(IsHandled);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterAddItem(var PurchaseLine: Record "Purchase Line"; LastPurchaseLine: Record "Purchase Line")
+    begin
     end;
 
     [IntegrationEvent(false, false)]
@@ -7660,6 +7700,11 @@ table 39 "Purchase Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateDim(var PurchLine: Record "Purchase Line"; CallingFieldNo: Integer);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterCreateDimTableIDs(var PurchLine: Record "Purchase Line"; CallingFieldNo: Integer; var TableID: array[10] of Integer; var No: array[10] of Code[20])
     begin
     end;
@@ -7751,6 +7796,11 @@ table 39 "Purchase Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeAddItems(var PurchaseLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcPrepaymentToDeduct(var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
     begin
     end;
 
@@ -7925,6 +7975,11 @@ table 39 "Purchase Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateReturnReasonCode(var PurchaseLine: Record "Purchase Line"; CallingFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterCreateTempJobJnlLine(var JobJournalLine: Record "Job Journal Line"; PurchLine: Record "Purchase Line"; xPurchLine: Record "Purchase Line"; GetPrices: Boolean; CurrFieldNo: Integer)
     begin
     end;
@@ -7965,6 +8020,11 @@ table 39 "Purchase Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnDeleteOnAfterSetPurchLineFilters(var PurchaseLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnInitQtyToReceive2OnBeforeCalcInvDiscToInvoice(var PurchaseLine: Record "Purchase Line"; var xPurchaseLine: Record "Purchase Line")
     begin
     end;
@@ -7981,6 +8041,16 @@ table 39 "Purchase Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateVATOnLinesOnAfterSetFilters(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateVATOnLinesOnAfterCalculateAmounts(var PurchaseLine: Record "Purchase Line"; var PurchaseHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateVATOnLinesOnBeforeCalculateAmounts(var PurchaseLine: Record "Purchase Line"; var PurchaseHeader: Record "Purchase Header")
     begin
     end;
 

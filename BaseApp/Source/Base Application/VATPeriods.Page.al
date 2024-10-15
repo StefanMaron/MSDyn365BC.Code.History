@@ -81,6 +81,7 @@ page 11780 "VAT Periods"
                 Caption = 'F&unctions';
                 action("Calc. and Post VAT Settlement")
                 {
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Calc. and Post VAT Settlement';
                     Image = CalculateSalesTax;
                     Promoted = true;

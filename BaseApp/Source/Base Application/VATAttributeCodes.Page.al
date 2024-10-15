@@ -2,7 +2,7 @@ page 11779 "VAT Attribute Codes"
 {
     Caption = 'VAT Attribute Codes';
     DelayedInsert = true;
-    PageType = Card;
+    PageType = List;
     SourceTable = "VAT Attribute Code";
 
     layout

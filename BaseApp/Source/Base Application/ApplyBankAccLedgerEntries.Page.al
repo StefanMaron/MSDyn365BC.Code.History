@@ -55,6 +55,7 @@ page 381 "Apply Bank Acc. Ledger Entries"
                 }
                 field("Amount (LCY)"; "Amount (LCY)")
                 {
+                    ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the amount of the entry denominated in the applicable foreign currency.';
                     Visible = false;

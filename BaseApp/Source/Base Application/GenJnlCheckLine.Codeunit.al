@@ -461,7 +461,6 @@ codeunit 11 "Gen. Jnl.-Check Line"
                         TestField("Bal. Gen. Prod. Posting Group", '');
                         TestField("Bal. VAT Bus. Posting Group", '');
                         TestField("Bal. VAT Prod. Posting Group", '');
-                        TestField("Job No.", ''); // NAVCZ
                         if (Amount > 0) and ("Bank Payment Type" = "Bank Payment Type"::"Computer Check") then
                             TestField("Check Printed", true);
                         if ("Bank Payment Type" = "Bank Payment Type"::"Electronic Payment") or

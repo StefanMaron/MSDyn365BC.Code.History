@@ -89,8 +89,12 @@ page 5050 "Contact Card"
                 }
                 field("Registered Name"; "Registered Name")
                 {
+                    ApplicationArea = All;
                     Enabled = RegisteredNameEnable;
                     ToolTip = 'Specifies the registered name of company.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of Fields for Full Description will be removed and this field should not be used. Standard fields for Name are now 100. (Obsolete::Removed in release 01.2021)';
                 }
                 field(IntegrationCustomerNo; IntegrationCustomerNo)
                 {
@@ -307,6 +311,7 @@ page 5050 "Contact Card"
                     }
                     field("Instant Messaging"; "Instant Messaging")
                     {
+                        ApplicationArea = Basic, Suite;
                         ToolTip = 'Specifies the instant messaging address of the contact';
                     }
                     field("Language Code"; "Language Code")
@@ -349,6 +354,7 @@ page 5050 "Contact Card"
                 }
                 field("Registration No."; "Registration No.")
                 {
+                    ApplicationArea = Suite;
                     Enabled = RegistrationNoEnable;
                     ToolTip = 'Specifies the registration number of contact (customer, vendor, bank).';
 
@@ -365,6 +371,7 @@ page 5050 "Contact Card"
                 }
                 field("Tax Registration No."; "Tax Registration No.")
                 {
+                    ApplicationArea = Suite;
                     ToolTip = 'Specifies the secondary VAT registration number for the partner.';
                 }
             }

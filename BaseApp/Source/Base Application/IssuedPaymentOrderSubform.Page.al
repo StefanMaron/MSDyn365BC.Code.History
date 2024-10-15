@@ -37,6 +37,7 @@ page 11722 "Issued Payment Order Subform"
                 }
                 field(Name; Name)
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies name of partner (customer, vendor, bank account).';
                     Visible = false;
                 }
@@ -62,6 +63,7 @@ page 11722 "Issued Payment Order Subform"
                 }
                 field(Amount; Amount)
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies Amount on Issued Payment Order Line.';
                     Visible = false;
                 }
@@ -77,6 +79,7 @@ page 11722 "Issued Payment Order Subform"
                 }
                 field("Payment Order Currency Code"; "Payment Order Currency Code")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the payment order currency code.';
                     Visible = false;
 
@@ -97,6 +100,7 @@ page 11722 "Issued Payment Order Subform"
                 }
                 field("Due Date"; "Due Date")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the date when the payment is due.';
                     Visible = false;
                 }
@@ -117,11 +121,13 @@ page 11722 "Issued Payment Order Subform"
                 }
                 field("Applies-to Doc. Type"; "Applies-to Doc. Type")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the payment will be applied to an already-posted document. The field is used only if the account type is a customer or vendor account.';
                     Visible = false;
                 }
                 field("Applies-to Doc. No."; "Applies-to Doc. No.")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the payment will be applied to an already-posted document.';
                     Visible = false;
                 }
@@ -132,6 +138,7 @@ page 11722 "Issued Payment Order Subform"
                 }
                 field(Status; Status)
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the status of credits lines';
                     Visible = false;
                 }

@@ -325,12 +325,16 @@
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the number of fixed asset in the job journal.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of Item consumption for FA maintenance will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
                 }
                 field("Maintenance Code"; "Maintenance Code")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies a maintenance code.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of Item consumption for FA maintenance will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
                 }
                 field("Time Sheet No."; "Time Sheet No.")
                 {
@@ -468,7 +472,7 @@
                     group("Number of Lines")
                     {
                         Caption = 'Number of Lines';
-                        field(NumberOfJournalRecords; Count)
+                        field(NumberOfJournalRecords; NumberOfRecords)
                         {
                             ApplicationArea = All;
                             AutoFormatType = 1;
@@ -736,6 +740,8 @@
     trigger OnAfterGetCurrRecord()
     begin
         JobJnlManagement.GetNames(Rec, JobDescription, AccName);
+        if not (ClientTypeManagement.GetCurrentClientType() in [CLIENTTYPE::SOAP, CLIENTTYPE::OData, CLIENTTYPE::ODataV4, CLIENTTYPE::Api]) then
+            NumberOfRecords := Count();
     end;
 
     trigger OnAfterGetRecord()
@@ -790,6 +796,7 @@
         JobJnlReconcile: Page "Job Journal Reconcile";
         JobDescription: Text[100];
         AccName: Text[100];
+        NumberOfRecords: Integer;
         CurrentJnlBatchName: Code[10];
         ShortcutDimCode: array[8] of Code[20];
         IsSaasExcelAddinEnabled: Boolean;

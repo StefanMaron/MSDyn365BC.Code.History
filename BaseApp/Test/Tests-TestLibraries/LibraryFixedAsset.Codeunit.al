@@ -119,7 +119,6 @@ codeunit 131330 "Library - Fixed Asset"
         FAPostingGroup.Validate("Book Val. Acc. on Disp. (Loss)", LibraryERM.CreateGLAccountNo);
         FAPostingGroup.Validate("Acq. Cost Bal. Acc. on Disp.", LibraryERM.CreateGLAccountNo);
         FAPostingGroup.Validate("Book Value Bal. Acc. on Disp.", LibraryERM.CreateGLAccountNo);
-        FAPostingGroup."Use Standard Disposal" := true;
         FAPostingGroup.Insert(true);
     end;
 

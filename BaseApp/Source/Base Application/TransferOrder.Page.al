@@ -61,6 +61,7 @@
                 }
                 field("Gen. Bus. Post. Group Ship"; "Gen. Bus. Post. Group Ship")
                 {
+                    ApplicationArea = Location;
                     ToolTip = 'Specifies general bussiness posting group for items ship.';
 
                     trigger OnValidate()
@@ -70,6 +71,7 @@
                 }
                 field("Gen. Bus. Post. Group Receive"; "Gen. Bus. Post. Group Receive")
                 {
+                    ApplicationArea = Location;
                     ToolTip = 'Specifies general bussiness posting group for items receive.';
 
                     trigger OnValidate()
@@ -388,6 +390,7 @@
                 Editable = (Status = Status::Open) AND EnableTransferFields;
                 field(IsIntrastatTransaction; IsIntrastatTransaction)
                 {
+                    ApplicationArea = BasicEU;
                     Caption = 'Intrastat Transaction';
                     Editable = false;
                     ToolTip = 'Specifies if the entry an Intrastat transaction is.';
@@ -421,6 +424,7 @@
                 }
                 field("Intrastat Exclude"; "Intrastat Exclude")
                 {
+                    ApplicationArea = BasicEU;
                     ToolTip = 'Specifies that entry will be excluded from intrastat.';
                 }
             }

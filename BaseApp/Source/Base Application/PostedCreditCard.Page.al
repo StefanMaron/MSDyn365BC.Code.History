@@ -165,6 +165,7 @@ page 31057 "Posted Credit Card"
                 Image = Documents;
                 action(IncomingDocCard)
                 {
+                    ApplicationArea = Basic, Suite;
                     Caption = 'View Incoming Document';
                     Enabled = HasIncomingDocument;
                     Image = ViewOrder;
@@ -180,6 +181,7 @@ page 31057 "Posted Credit Card"
                 action(SelectIncomingDoc)
                 {
                     AccessByPermission = TableData "Incoming Document" = R;
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Select Incoming Document';
                     Enabled = NOT HasIncomingDocument;
                     Image = SelectLineToApply;
@@ -194,6 +196,7 @@ page 31057 "Posted Credit Card"
                 }
                 action(IncomingDocAttachFile)
                 {
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Create Incoming Document from File';
                     Ellipsis = true;
                     Enabled = NOT HasIncomingDocument;

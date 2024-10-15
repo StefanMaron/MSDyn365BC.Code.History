@@ -866,13 +866,13 @@ report 595 "Adjust Exchange Rates"
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Starting Date';
-                            ToolTip = 'Specifies the starting date';
+                            ToolTip = 'Specifies the beginning of the period for which entries are adjusted. This field is usually left blank, but you can enter a date.';
                         }
                         field(EndingDate; EndDateReq)
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Ending Date';
-                            ToolTip = 'Specifies the last date in the period.';
+                            ToolTip = 'Specifies the last date for which entries are adjusted. This date is usually the same as the posting date in the Posting Date field.';
 
                             trigger OnValidate()
                             begin
@@ -884,7 +884,7 @@ report 595 "Adjust Exchange Rates"
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Posting Description';
-                        ToolTip = 'Specifies a text for the general ledger entries that are created by the batch job.';
+                        ToolTip = 'Specifies text for the general ledger entries that are created by the batch job. The default text is Exchange Rate Adjmt. of %1 %2, in which %1 is replaced by the currency code and %2 is replaced by the currency amount that is adjusted. For example, Exchange Rate Adjmt. of DEM 38,000.';
                     }
                     field(PostingDate; PostingDate)
                     {
@@ -901,28 +901,31 @@ report 595 "Adjust Exchange Rates"
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Document No.';
-                        ToolTip = 'Specifies if you want the report to print information separately for each fixed asset.';
+                        ToolTip = 'Specifies the document number that will appear on the general ledger entries that are created by the batch job.';
                     }
                     field(AdjCustVendBank; AdjCustVendBank)
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Adjust Customer, Vendor and Bank Accounts';
                         MultiLine = true;
-                        ToolTip = 'Specifies if the bank accounts, customer''entries and vendor''s entries have to be adjusted.';
+                        ToolTip = 'Specifies if you want to adjust customer, vendor, and bank accounts for currency fluctuations.';
                         Visible = false;
                     }
                     field(AdjCust; AdjCust)
                     {
+                        ApplicationArea = Basic, Suite;
                         Caption = 'Adjust Customer';
                         ToolTip = 'Specifies if customer''s entries have to be adjusted.';
                     }
                     field(AdjVend; AdjVend)
                     {
+                        ApplicationArea = Basic, Suite;
                         Caption = 'Adjust Vendor';
                         ToolTip = 'Specifies if vendor''s entries have to be adjusted.';
                     }
                     field(AdjBank; AdjBank)
                     {
+                        ApplicationArea = Basic, Suite;
                         Caption = 'Adjust Bank Accounts';
                         ToolTip = 'Specifies if bank accounts has to be adjusted.';
                     }
@@ -931,15 +934,17 @@ report 595 "Adjust Exchange Rates"
                         ApplicationArea = Suite;
                         Caption = 'Adjust G/L Accounts for Add.-Reporting Currency';
                         MultiLine = true;
-                        ToolTip = 'Specifies if the G/L accounts have be adjusted for add. reporting currency.';
+                        ToolTip = 'Specifies if you want to post in an additional reporting currency and adjust general ledger accounts for currency fluctuations between LCY and the additional reporting currency.';
                     }
                     field(TestMode; TestMode)
                     {
+                        ApplicationArea = Basic, Suite;
                         Caption = 'Only test run';
                         ToolTip = 'Specifies only for test run. The Entries will not be posted.';
                     }
                     field(SummarizeEntries; SummarizeEntries)
                     {
+                        ApplicationArea = Basic, Suite;
                         Caption = 'Sumarize Entries';
                         ToolTip = 'Specifies if the etries will be summarized';
 
@@ -956,6 +961,7 @@ report 595 "Adjust Exchange Rates"
                         Caption = 'Dimension';
                         field(DimMoveType; DimMoveType)
                         {
+                            ApplicationArea = Dimensions;
                             Caption = 'Dimension Move';
                             OptionCaption = 'No move,Source Entry,By G/L Account';
                             ToolTip = 'Specifies dimension move into new entries - no move, move for source entry or move by G/L account.';
@@ -973,10 +979,7 @@ report 595 "Adjust Exchange Rates"
         begin
             if PostingDescription = '' then
                 // NAVCZ
-                // PostingDescription := Text016;
                 PostingDescription := TextCZ002;
-            // IF NOT (AdjCustVendBank OR AdjGLAcc) THEN
-            // AdjCustVendBank := TRUE;
             if not (AdjCust or AdjVend or AdjBank or AdjGLAcc) then begin
                 AdjCust := true;
                 AdjVend := true;

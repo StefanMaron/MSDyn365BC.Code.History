@@ -1,6 +1,8 @@
 table 31094 "Reverse Charge Line"
 {
     Caption = 'Reverse Charge Line';
+    ObsoleteState = Pending;
+    ObsoleteReason = 'The functionality of Reverse Charge Statement will be removed and this table should not be used. (Obsolete::Removed in release 01.2021)';
 
     fields
     {

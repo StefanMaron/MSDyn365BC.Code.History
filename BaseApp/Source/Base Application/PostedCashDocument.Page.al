@@ -78,24 +78,28 @@ page 11735 "Posted Cash Document"
                 }
                 field("VAT Base Amount"; "VAT Base Amount")
                 {
+                    ApplicationArea = Basic, Suite;
                     DrillDown = false;
                     ToolTip = 'Specifies the total VAT base amount for lines. The program calculates this amount from the sum of line VAT base amount fields.';
                     Visible = false;
                 }
                 field("Amount Including VAT"; "Amount Including VAT")
                 {
+                    ApplicationArea = Basic, Suite;
                     DrillDown = false;
                     ToolTip = 'Specifies whether the unit price on the line should be displayed including or excluding VAT.';
                     Visible = false;
                 }
                 field("VAT Base Amount (LCY)"; "VAT Base Amount (LCY)")
                 {
+                    ApplicationArea = Basic, Suite;
                     DrillDown = false;
                     ToolTip = 'Specifies the VAT base amount for cash desk document line.';
                     Visible = false;
                 }
                 field("Amount Including VAT (LCY)"; "Amount Including VAT (LCY)")
                 {
+                    ApplicationArea = Basic, Suite;
                     DrillDown = false;
                     ToolTip = 'Specifies whether the unit price on the line should be displayed including or excluding VAT.';
                     Visible = false;

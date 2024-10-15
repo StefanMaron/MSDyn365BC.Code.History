@@ -61,14 +61,14 @@
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
-                                          <Textbox Name="Úƒetn__doklad_Caption">
+                                          <Textbox Name="Sales_Invoice_Header__No_Caption">
                                             <CanGrow>true</CanGrow>
                                             <KeepTogether>true</KeepTogether>
                                             <Paragraphs>
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Fields!Úƒetn__doklad_Caption.Value</Value>
+                                                    <Value>=Fields!Sales_Invoice_Header__No_Caption.Value</Value>
                                                     <Style>
                                                       <FontSize>8pt</FontSize>
                                                     </Style>
@@ -77,7 +77,7 @@
                                                 <Style />
                                               </Paragraph>
                                             </Paragraphs>
-                                            <rd:DefaultName>Úƒetn__doklad_Caption</rd:DefaultName>
+                                            <rd:DefaultName>Sales_Invoice_Header__No_Caption</rd:DefaultName>
                                             <Style>
                                               <Border>
                                                 <Color>LightGrey</Color>
@@ -93,14 +93,14 @@
                                       </TablixCell>
                                       <TablixCell>
                                         <CellContents>
-                                          <Textbox Name="Úƒetn__doklad_">
+                                          <Textbox Name="Sales_Invoice_Header__No">
                                             <CanGrow>true</CanGrow>
                                             <KeepTogether>true</KeepTogether>
                                             <Paragraphs>
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Fields!Úƒetn__doklad_.Value</Value>
+                                                    <Value>=Fields!Sales_Invoice_Header__No.Value</Value>
                                                     <Style>
                                                       <FontSize>8pt</FontSize>
                                                       <FontWeight>Bold</FontWeight>
@@ -110,7 +110,7 @@
                                                 <Style />
                                               </Paragraph>
                                             </Paragraphs>
-                                            <rd:DefaultName>Úƒetn__doklad_</rd:DefaultName>
+                                            <rd:DefaultName>Sales_Invoice_Header__No</rd:DefaultName>
                                             <Style>
                                               <Border>
                                                 <Color>LightGrey</Color>
@@ -126,14 +126,14 @@
                                       </TablixCell>
                                       <TablixCell>
                                         <CellContents>
-                                          <Textbox Name="Sales_Invoice_Caption">
+                                          <Textbox Name="SalesInvoiceCaption">
                                             <CanGrow>true</CanGrow>
                                             <KeepTogether>true</KeepTogether>
                                             <Paragraphs>
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Fields!Sales_Invoice_Caption.Value</Value>
+                                                    <Value>=First(Fields!SalesInvoiceCaption.Value, "DataSet_Result")</Value>
                                                     <Style>
                                                       <FontSize>7pt</FontSize>
                                                     </Style>
@@ -142,7 +142,7 @@
                                                 <Style />
                                               </Paragraph>
                                             </Paragraphs>
-                                            <rd:DefaultName>Sales_Invoice_Caption</rd:DefaultName>
+                                            <rd:DefaultName>SalesInvoiceCaption</rd:DefaultName>
                                             <Style>
                                               <Border>
                                                 <Color>LightGrey</Color>
@@ -266,14 +266,14 @@
                                       </TablixCell>
                                       <TablixCell>
                                         <CellContents>
-                                          <Textbox Name="Sales_Invoice_Header__Sell_to_Customer_Name_Caption">
+                                          <Textbox Name="CustomerCaption">
                                             <CanGrow>true</CanGrow>
                                             <KeepTogether>true</KeepTogether>
                                             <Paragraphs>
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Fields!Sales_Invoice_Header__Sell_to_Customer_Name_Caption.Value</Value>
+                                                    <Value>=First(Fields!CustomerCaption.Value, "DataSet_Result")</Value>
                                                     <Style>
                                                       <FontSize>7pt</FontSize>
                                                       <FontWeight>Bold</FontWeight>
@@ -283,7 +283,7 @@
                                                 <Style />
                                               </Paragraph>
                                             </Paragraphs>
-                                            <rd:DefaultName>Sales_Invoice_Header__Sell_to_Customer_Name_Caption</rd:DefaultName>
+                                            <rd:DefaultName>CustomerCaption</rd:DefaultName>
                                             <Style>
                                               <Border>
                                                 <Color>LightGrey</Color>
@@ -470,14 +470,14 @@
                                       </TablixCell>
                                       <TablixCell>
                                         <CellContents>
-                                          <Textbox Name="Sales_Invoice_Header__Due_Date_Caption">
+                                          <Textbox Name="DueDateCaption">
                                             <CanGrow>true</CanGrow>
                                             <KeepTogether>true</KeepTogether>
                                             <Paragraphs>
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Fields!Sales_Invoice_Header__Due_Date_Caption.Value</Value>
+                                                    <Value>=First(Fields!DueDateCaption.Value, "DataSet_Result")</Value>
                                                     <Style>
                                                       <FontSize>7pt</FontSize>
                                                       <FontWeight>Bold</FontWeight>
@@ -487,7 +487,7 @@
                                                 <Style />
                                               </Paragraph>
                                             </Paragraphs>
-                                            <rd:DefaultName>Sales_Invoice_Header__Due_Date_Caption</rd:DefaultName>
+                                            <rd:DefaultName>DueDateCaption</rd:DefaultName>
                                             <Style>
                                               <Border>
                                                 <Color>LightGrey</Color>
@@ -940,14 +940,14 @@
                                       </TablixCell>
                                       <TablixCell>
                                         <CellContents>
-                                          <Textbox Name="gdeFCYRateCaption">
+                                          <Textbox Name="RateCaption">
                                             <CanGrow>true</CanGrow>
                                             <KeepTogether>true</KeepTogether>
                                             <Paragraphs>
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Fields!gdeFCYRateCaption.Value</Value>
+                                                    <Value>=First(Fields!RateCaption.Value, "DataSet_Result")</Value>
                                                     <Style>
                                                       <FontSize>7pt</FontSize>
                                                       <FontWeight>Bold</FontWeight>
@@ -957,7 +957,7 @@
                                                 <Style />
                                               </Paragraph>
                                             </Paragraphs>
-                                            <rd:DefaultName>gdeFCYRateCaption</rd:DefaultName>
+                                            <rd:DefaultName>RateCaption</rd:DefaultName>
                                             <Style>
                                               <Border>
                                                 <Color>LightGrey</Color>
@@ -1176,7 +1176,7 @@
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Fields!G_L_AccountCaption.Value</Value>
+                                                    <Value>=First(Fields!GLAccountCaption.Value, "DataSet_Result")</Value>
                                                     <Style>
                                                       <FontSize>7pt</FontSize>
                                                       <FontWeight>Bold</FontWeight>
@@ -1318,7 +1318,7 @@
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Fields!Debit_AmountCaption.Value</Value>
+                                                    <Value>=First(Fields!DebitAmountCaption.Value, "DataSet_Result")</Value>
                                                     <Style>
                                                       <FontSize>7pt</FontSize>
                                                       <FontWeight>Bold</FontWeight>
@@ -1358,7 +1358,7 @@
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Fields!Credit_AmountCaption.Value</Value>
+                                                    <Value>=First(Fields!CreditAmountCaption.Value, "DataSet_Result")</Value>
                                                     <Style>
                                                       <FontSize>7pt</FontSize>
                                                       <FontWeight>Bold</FontWeight>
@@ -1425,7 +1425,7 @@
                                       </TablixCell>
                                       <TablixCell>
                                         <CellContents>
-                                          <Textbox Name="N_zev__ƒtu">
+                                          <Textbox Name="AccountName">
                                             <CanGrow>true</CanGrow>
                                             <KeepTogether>true</KeepTogether>
                                             <Paragraphs>
@@ -1441,7 +1441,7 @@
                                                 <Style />
                                               </Paragraph>
                                             </Paragraphs>
-                                            <rd:DefaultName>N_zev__ƒtu</rd:DefaultName>
+                                            <rd:DefaultName>AccountName</rd:DefaultName>
                                             <Style>
                                               <Border>
                                                 <Color>LightGrey</Color>
@@ -1602,14 +1602,14 @@
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
-                                          <Textbox Name="EmptyStringCaption">
+                                          <Textbox Name="FactualCorrectnessVerifiedByCaption">
                                             <CanGrow>true</CanGrow>
                                             <KeepTogether>true</KeepTogether>
                                             <Paragraphs>
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Fields!EmptyStringCaption.Value</Value>
+                                                    <Value>=First(Fields!FactualCorrectnessVerifiedByCaption.Value, "DataSet_Result")</Value>
                                                     <Style>
                                                       <FontSize>7pt</FontSize>
                                                     </Style>
@@ -1618,7 +1618,7 @@
                                                 <Style />
                                               </Paragraph>
                                             </Paragraphs>
-                                            <rd:DefaultName>EmptyStringCaption</rd:DefaultName>
+                                            <rd:DefaultName>FactualCorrectnessVerifiedByCaption</rd:DefaultName>
                                             <Style>
                                               <Border>
                                                 <Style>None</Style>
@@ -1679,7 +1679,7 @@
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Fields!Date_Caption.Value</Value>
+                                                    <Value>=First(Fields!DateCaption.Value, "DataSet_Result")</Value>
                                                     <Style>
                                                       <FontSize>7pt</FontSize>
                                                     </Style>
@@ -1784,14 +1784,14 @@
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
-                                          <Textbox Name="EmptyStringCaption_Control305">
+                                          <Textbox Name="ApprovedByCaption">
                                             <CanGrow>true</CanGrow>
                                             <KeepTogether>true</KeepTogether>
                                             <Paragraphs>
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Fields!EmptyStringCaption_Control305.Value</Value>
+                                                    <Value>=First(Fields!ApprovedByCaption.Value, "DataSet_Result")</Value>
                                                     <Style>
                                                       <FontSize>7pt</FontSize>
                                                     </Style>
@@ -1800,7 +1800,7 @@
                                                 <Style />
                                               </Paragraph>
                                             </Paragraphs>
-                                            <rd:DefaultName>EmptyStringCaption_Control305</rd:DefaultName>
+                                            <rd:DefaultName>ApprovedByCaption</rd:DefaultName>
                                             <Style>
                                               <Border>
                                                 <Style>None</Style>
@@ -1864,7 +1864,7 @@
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Fields!Date_Caption.Value</Value>
+                                                    <Value>=First(Fields!DateCaption.Value, "DataSet_Result")</Value>
                                                     <Style>
                                                       <FontSize>7pt</FontSize>
                                                     </Style>
@@ -1969,14 +1969,14 @@
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
-                                          <Textbox Name="EmptyStringCaption_Control306">
+                                          <Textbox Name="PostedByCaption">
                                             <CanGrow>true</CanGrow>
                                             <KeepTogether>true</KeepTogether>
                                             <Paragraphs>
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Fields!EmptyStringCaption_Control304.Value</Value>
+                                                    <Value>=First(Fields!PostedByCaption.Value, "DataSet_Result")</Value>
                                                     <Style>
                                                       <FontSize>7pt</FontSize>
                                                     </Style>
@@ -1985,7 +1985,7 @@
                                                 <Style />
                                               </Paragraph>
                                             </Paragraphs>
-                                            <rd:DefaultName>EmptyStringCaption_Control306</rd:DefaultName>
+                                            <rd:DefaultName>PostedByCaption</rd:DefaultName>
                                             <Style>
                                               <Border>
                                                 <Style>Solid</Style>
@@ -2046,7 +2046,7 @@
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Fields!Date_Caption.Value</Value>
+                                                    <Value>=First(Fields!DateCaption.Value, "DataSet_Result")</Value>
                                                     <Style>
                                                       <FontSize>7pt</FontSize>
                                                     </Style>
@@ -2158,7 +2158,7 @@
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Fields!EmptyStringCaption_Control306.Value</Value>
+                                                    <Value>=First(Fields!FormalCorrectnessVerifiedByCaption.Value, "DataSet_Result")</Value>
                                                     <Style>
                                                       <FontSize>7pt</FontSize>
                                                     </Style>
@@ -2228,7 +2228,7 @@
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Fields!Date_Caption.Value</Value>
+                                                    <Value>=First(Fields!DateCaption.Value, "DataSet_Result")</Value>
                                                     <Style>
                                                       <FontSize>7pt</FontSize>
                                                     </Style>
@@ -2408,7 +2408,7 @@
                 <TablixMember>
                   <Group Name="Details">
                     <GroupExpressions>
-                      <GroupExpression>=Fields!Úƒetn__doklad_.Value</GroupExpression>
+                      <GroupExpression>=Fields!Sales_Invoice_Header__No.Value</GroupExpression>
                     </GroupExpressions>
                     <PageBreak>
                       <BreakLocation>Between</BreakLocation>
@@ -2416,7 +2416,7 @@
                   </Group>
                   <SortExpressions>
                     <SortExpression>
-                      <Value>=Fields!Úƒetn__doklad_.Value</Value>
+                      <Value>=Fields!Sales_Invoice_Header__No.Value</Value>
                     </SortExpression>
                   </SortExpressions>
                 </TablixMember>
@@ -2429,7 +2429,7 @@
             </PageBreak>
             <Filters>
               <Filter>
-                <FilterExpression>=Fields!Úƒetn__doklad_.Value</FilterExpression>
+                <FilterExpression>=Fields!Sales_Invoice_Header__No.Value</FilterExpression>
                 <Operator>GreaterThan</Operator>
                 <FilterValues>
                   <FilterValue>""</FilterValue>
@@ -2492,14 +2492,14 @@
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
-                                          <Textbox Name="Úƒetn__doklad_Caption2">
+                                          <Textbox Name="Sales_Cr_Memo_Header__No_Caption">
                                             <CanGrow>true</CanGrow>
                                             <KeepTogether>true</KeepTogether>
                                             <Paragraphs>
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Fields!Úƒetn__doklad__Control3Caption.Value</Value>
+                                                    <Value>=Fields!Sales_Cr_Memo_Header__No_Caption.Value</Value>
                                                     <Style>
                                                       <FontSize>8pt</FontSize>
                                                     </Style>
@@ -2508,7 +2508,7 @@
                                                 <Style />
                                               </Paragraph>
                                             </Paragraphs>
-                                            <rd:DefaultName>Úƒetn__doklad_Caption</rd:DefaultName>
+                                            <rd:DefaultName>Sales_Cr_Memo_Header__No_Caption</rd:DefaultName>
                                             <Style>
                                               <Border>
                                                 <Color>LightGrey</Color>
@@ -2524,14 +2524,14 @@
                                       </TablixCell>
                                       <TablixCell>
                                         <CellContents>
-                                          <Textbox Name="Úƒetn__doklad_2">
+                                          <Textbox Name="Sales_Cr_Memo_Header__No">
                                             <CanGrow>true</CanGrow>
                                             <KeepTogether>true</KeepTogether>
                                             <Paragraphs>
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Fields!Úƒetn__doklad__Control3.Value</Value>
+                                                    <Value>=Fields!Sales_Cr_Memo_Header__No.Value</Value>
                                                     <Style>
                                                       <FontSize>8pt</FontSize>
                                                       <FontWeight>Bold</FontWeight>
@@ -2541,7 +2541,7 @@
                                                 <Style />
                                               </Paragraph>
                                             </Paragraphs>
-                                            <rd:DefaultName>Úƒetn__doklad_</rd:DefaultName>
+                                            <rd:DefaultName>Sales_Cr_Memo_Header__No</rd:DefaultName>
                                             <Style>
                                               <Border>
                                                 <Color>LightGrey</Color>
@@ -2557,14 +2557,14 @@
                                       </TablixCell>
                                       <TablixCell>
                                         <CellContents>
-                                          <Textbox Name="Sales_Invoice_Caption2">
+                                          <Textbox Name="SalesCreditMemoCaption">
                                             <CanGrow>true</CanGrow>
                                             <KeepTogether>true</KeepTogether>
                                             <Paragraphs>
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Fields!Sales_Credit_Memo_Caption.Value</Value>
+                                                    <Value>=First(Fields!SalesCreditMemoCaption.Value, "DataSet_Result")</Value>
                                                     <Style>
                                                       <FontSize>7pt</FontSize>
                                                     </Style>
@@ -2573,7 +2573,7 @@
                                                 <Style />
                                               </Paragraph>
                                             </Paragraphs>
-                                            <rd:DefaultName>Sales_Invoice_Caption</rd:DefaultName>
+                                            <rd:DefaultName>SalesCreditMemoCaption</rd:DefaultName>
                                             <Style>
                                               <Border>
                                                 <Color>LightGrey</Color>
@@ -2697,14 +2697,14 @@
                                       </TablixCell>
                                       <TablixCell>
                                         <CellContents>
-                                          <Textbox Name="Sales_Invoice_Header__Sell_to_Customer_Name_Caption2">
+                                          <Textbox Name="CustomerCaption2">
                                             <CanGrow>true</CanGrow>
                                             <KeepTogether>true</KeepTogether>
                                             <Paragraphs>
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Fields!Sales_Cr_Memo_Header__Sell_to_Customer_Name_Caption.Value</Value>
+                                                    <Value>=First(Fields!CustomerCaption.Value, "DataSet_Result")</Value>
                                                     <Style>
                                                       <FontSize>7pt</FontSize>
                                                       <FontWeight>Bold</FontWeight>
@@ -2714,7 +2714,7 @@
                                                 <Style />
                                               </Paragraph>
                                             </Paragraphs>
-                                            <rd:DefaultName>Sales_Invoice_Header__Sell_to_Customer_Name_Caption</rd:DefaultName>
+                                            <rd:DefaultName>CustomerCaption</rd:DefaultName>
                                             <Style>
                                               <Border>
                                                 <Color>LightGrey</Color>
@@ -2901,14 +2901,14 @@
                                       </TablixCell>
                                       <TablixCell>
                                         <CellContents>
-                                          <Textbox Name="Sales_Invoice_Header__Due_Date_Caption2">
+                                          <Textbox Name="DueDateCaption2">
                                             <CanGrow>true</CanGrow>
                                             <KeepTogether>true</KeepTogether>
                                             <Paragraphs>
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Fields!Sales_Cr_Memo_Header__Due_Date_Caption.Value</Value>
+                                                    <Value>=First(Fields!DueDateCaption.Value, "DataSet_Result")</Value>
                                                     <Style>
                                                       <FontSize>7pt</FontSize>
                                                       <FontWeight>Bold</FontWeight>
@@ -2918,7 +2918,7 @@
                                                 <Style />
                                               </Paragraph>
                                             </Paragraphs>
-                                            <rd:DefaultName>Sales_Invoice_Header__Due_Date_Caption</rd:DefaultName>
+                                            <rd:DefaultName>DueDateCaption</rd:DefaultName>
                                             <Style>
                                               <Border>
                                                 <Color>LightGrey</Color>
@@ -3371,14 +3371,14 @@
                                       </TablixCell>
                                       <TablixCell>
                                         <CellContents>
-                                          <Textbox Name="gdeFCYRateCaption2">
+                                          <Textbox Name="RateCaption2">
                                             <CanGrow>true</CanGrow>
                                             <KeepTogether>true</KeepTogether>
                                             <Paragraphs>
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Fields!gdeFCYRate_Control1100162004Caption.Value</Value>
+                                                    <Value>=First(Fields!RateCaption.Value, "DataSet_Result")</Value>
                                                     <Style>
                                                       <FontSize>7pt</FontSize>
                                                       <FontWeight>Bold</FontWeight>
@@ -3388,7 +3388,7 @@
                                                 <Style />
                                               </Paragraph>
                                             </Paragraphs>
-                                            <rd:DefaultName>gdeFCYRateCaption</rd:DefaultName>
+                                            <rd:DefaultName>RateCaption</rd:DefaultName>
                                             <Style>
                                               <Border>
                                                 <Color>LightGrey</Color>
@@ -3607,7 +3607,7 @@
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Fields!G_L_AccountCaption_Control29.Value</Value>
+                                                    <Value>=First(Fields!GLAccountCaption.Value, "DataSet_Result")</Value>
                                                     <Style>
                                                       <FontSize>7pt</FontSize>
                                                       <FontWeight>Bold</FontWeight>
@@ -3749,7 +3749,7 @@
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Fields!Debit_AmountCaption_Control24.Value</Value>
+                                                    <Value>=First(Fields!DebitAmountCaption.Value, "DataSet_Result")</Value>
                                                     <Style>
                                                       <FontSize>7pt</FontSize>
                                                       <FontWeight>Bold</FontWeight>
@@ -3789,7 +3789,7 @@
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Fields!Credit_AmountCaption_Control20.Value</Value>
+                                                    <Value>=First(Fields!CreditAmountCaption.Value, "DataSet_Result")</Value>
                                                     <Style>
                                                       <FontSize>7pt</FontSize>
                                                       <FontWeight>Bold</FontWeight>
@@ -3856,7 +3856,7 @@
                                       </TablixCell>
                                       <TablixCell>
                                         <CellContents>
-                                          <Textbox Name="N_zev__ƒtu2">
+                                          <Textbox Name="AccountName2">
                                             <CanGrow>true</CanGrow>
                                             <KeepTogether>true</KeepTogether>
                                             <Paragraphs>
@@ -3872,7 +3872,7 @@
                                                 <Style />
                                               </Paragraph>
                                             </Paragraphs>
-                                            <rd:DefaultName>N_zev__ƒtu</rd:DefaultName>
+                                            <rd:DefaultName>AccountName2</rd:DefaultName>
                                             <Style>
                                               <Border>
                                                 <Color>LightGrey</Color>
@@ -4033,14 +4033,14 @@
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
-                                          <Textbox Name="EmptyStringCaption2">
+                                          <Textbox Name="FactualCorrectnessVerifiedByCaption2">
                                             <CanGrow>true</CanGrow>
                                             <KeepTogether>true</KeepTogether>
                                             <Paragraphs>
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Fields!EmptyStringCaption_Control314.Value</Value>
+                                                    <Value>=First(Fields!FactualCorrectnessVerifiedByCaption.Value, "DataSet_Result")</Value>
                                                     <Style>
                                                       <FontSize>7pt</FontSize>
                                                     </Style>
@@ -4049,7 +4049,7 @@
                                                 <Style />
                                               </Paragraph>
                                             </Paragraphs>
-                                            <rd:DefaultName>EmptyStringCaption</rd:DefaultName>
+                                            <rd:DefaultName>FactualCorrectnessVerifiedByCaption</rd:DefaultName>
                                             <Style>
                                               <Border>
                                                 <Style>None</Style>
@@ -4110,7 +4110,7 @@
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Fields!Date_Caption_Control313.Value</Value>
+                                                    <Value>=First(Fields!DateCaption.Value, "DataSet_Result")</Value>
                                                     <Style>
                                                       <FontSize>7pt</FontSize>
                                                     </Style>
@@ -4215,14 +4215,14 @@
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
-                                          <Textbox Name="EmptyStringCaption_Control307">
+                                          <Textbox Name="PostedByCaption2">
                                             <CanGrow>true</CanGrow>
                                             <KeepTogether>true</KeepTogether>
                                             <Paragraphs>
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Fields!EmptyStringCaption_Control315.Value</Value>
+                                                    <Value>=First(Fields!PostedByCaption.Value, "DataSet_Result")</Value>
                                                     <Style>
                                                       <FontSize>7pt</FontSize>
                                                     </Style>
@@ -4231,7 +4231,7 @@
                                                 <Style />
                                               </Paragraph>
                                             </Paragraphs>
-                                            <rd:DefaultName>EmptyStringCaption_Control305</rd:DefaultName>
+                                            <rd:DefaultName>PostedByCaption</rd:DefaultName>
                                             <Style>
                                               <Border>
                                                 <Style>None</Style>
@@ -4295,7 +4295,7 @@
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Fields!Date_Caption_Control313.Value</Value>
+                                                    <Value>=First(Fields!DateCaption.Value, "DataSet_Result")</Value>
                                                     <Style>
                                                       <FontSize>7pt</FontSize>
                                                     </Style>
@@ -4400,14 +4400,14 @@
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
-                                          <Textbox Name="EmptyStringCaption_Control308">
+                                          <Textbox Name="ApprovedByCaption2">
                                             <CanGrow>true</CanGrow>
                                             <KeepTogether>true</KeepTogether>
                                             <Paragraphs>
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Fields!EmptyStringCaption_Control316.Value</Value>
+                                                    <Value>=First(Fields!ApprovedByCaption.Value, "DataSet_Result")</Value>
                                                     <Style>
                                                       <FontSize>7pt</FontSize>
                                                     </Style>
@@ -4416,7 +4416,7 @@
                                                 <Style />
                                               </Paragraph>
                                             </Paragraphs>
-                                            <rd:DefaultName>EmptyStringCaption_Control306</rd:DefaultName>
+                                            <rd:DefaultName>ApprovedByCaption</rd:DefaultName>
                                             <Style>
                                               <Border>
                                                 <Style>Solid</Style>
@@ -4477,7 +4477,7 @@
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Fields!Date_Caption_Control313.Value</Value>
+                                                    <Value>=First(Fields!DateCaption.Value, "DataSet_Result")</Value>
                                                     <Style>
                                                       <FontSize>7pt</FontSize>
                                                     </Style>
@@ -4589,7 +4589,7 @@
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Fields!EmptyStringCaption_Control317.Value</Value>
+                                                    <Value>=First(Fields!FormalCorrectnessVerifiedByCaption.Value, "DataSet_Result")</Value>
                                                     <Style>
                                                       <FontSize>7pt</FontSize>
                                                     </Style>
@@ -4659,7 +4659,7 @@
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Fields!Date_Caption_Control313.Value</Value>
+                                                    <Value>=First(Fields!DateCaption.Value, "DataSet_Result")</Value>
                                                     <Style>
                                                       <FontSize>7pt</FontSize>
                                                     </Style>
@@ -4839,7 +4839,7 @@
                 <TablixMember>
                   <Group Name="Details2">
                     <GroupExpressions>
-                      <GroupExpression>=Fields!Úƒetn__doklad__Control3.Value</GroupExpression>
+                      <GroupExpression>=Fields!Sales_Cr_Memo_Header__No.Value</GroupExpression>
                     </GroupExpressions>
                     <PageBreak>
                       <BreakLocation>Between</BreakLocation>
@@ -4847,7 +4847,7 @@
                   </Group>
                   <SortExpressions>
                     <SortExpression>
-                      <Value>=Fields!Úƒetn__doklad__Control3.Value</Value>
+                      <Value>=Fields!Sales_Cr_Memo_Header__No.Value</Value>
                     </SortExpression>
                   </SortExpressions>
                 </TablixMember>
@@ -4860,7 +4860,7 @@
             </PageBreak>
             <Filters>
               <Filter>
-                <FilterExpression>=Fields!Úƒetn__doklad__Control3.Value</FilterExpression>
+                <FilterExpression>=Fields!Sales_Cr_Memo_Header__No.Value</FilterExpression>
                 <Operator>GreaterThan</Operator>
                 <FilterValues>
                   <FilterValue>""</FilterValue>
@@ -4924,14 +4924,14 @@
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
-                                          <Textbox Name="Úƒetn__doklad_Caption3">
+                                          <Textbox Name="Purch__Inv__Header__No_Caption">
                                             <CanGrow>true</CanGrow>
                                             <KeepTogether>true</KeepTogether>
                                             <Paragraphs>
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Fields!Úƒetn__doklad__Control6Caption.Value</Value>
+                                                    <Value>=Fields!Purch__Inv__Header__No_Caption.Value</Value>
                                                     <Style>
                                                       <FontSize>8pt</FontSize>
                                                     </Style>
@@ -4940,7 +4940,7 @@
                                                 <Style />
                                               </Paragraph>
                                             </Paragraphs>
-                                            <rd:DefaultName>Úƒetn__doklad_Caption</rd:DefaultName>
+                                            <rd:DefaultName>Purch__Inv__Header__No_Caption</rd:DefaultName>
                                             <Style>
                                               <Border>
                                                 <Color>LightGrey</Color>
@@ -4956,14 +4956,14 @@
                                       </TablixCell>
                                       <TablixCell>
                                         <CellContents>
-                                          <Textbox Name="Úƒetn__doklad_3">
+                                          <Textbox Name="Purch__Inv__Header__No">
                                             <CanGrow>true</CanGrow>
                                             <KeepTogether>true</KeepTogether>
                                             <Paragraphs>
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Fields!Úƒetn__doklad__Control6.Value</Value>
+                                                    <Value>=Fields!Purch__Inv__Header__No.Value</Value>
                                                     <Style>
                                                       <FontSize>8pt</FontSize>
                                                       <FontWeight>Bold</FontWeight>
@@ -4973,7 +4973,7 @@
                                                 <Style />
                                               </Paragraph>
                                             </Paragraphs>
-                                            <rd:DefaultName>Úƒetn__doklad_</rd:DefaultName>
+                                            <rd:DefaultName>Purch__Inv__Header__No</rd:DefaultName>
                                             <Style>
                                               <Border>
                                                 <Color>LightGrey</Color>
@@ -4989,14 +4989,14 @@
                                       </TablixCell>
                                       <TablixCell>
                                         <CellContents>
-                                          <Textbox Name="Sales_Invoice_Caption3">
+                                          <Textbox Name="PurchaseInvoiceCaption">
                                             <CanGrow>true</CanGrow>
                                             <KeepTogether>true</KeepTogether>
                                             <Paragraphs>
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Fields!Purchase_Invoice_Caption.Value</Value>
+                                                    <Value>=First(Fields!PurchaseInvoiceCaption.Value, "DataSet_Result")</Value>
                                                     <Style>
                                                       <FontSize>7pt</FontSize>
                                                     </Style>
@@ -5005,7 +5005,7 @@
                                                 <Style />
                                               </Paragraph>
                                             </Paragraphs>
-                                            <rd:DefaultName>Sales_Invoice_Caption</rd:DefaultName>
+                                            <rd:DefaultName>PurchaseInvoiceCaption</rd:DefaultName>
                                             <Style>
                                               <Border>
                                                 <Color>LightGrey</Color>
@@ -5129,14 +5129,14 @@
                                       </TablixCell>
                                       <TablixCell>
                                         <CellContents>
-                                          <Textbox Name="Sales_Invoice_Header__Sell_to_Customer_Name_Caption3">
+                                          <Textbox Name="ExternalNoCaption">
                                             <CanGrow>true</CanGrow>
                                             <KeepTogether>true</KeepTogether>
                                             <Paragraphs>
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Fields!Purch__Inv__Header__Vendor_Invoice_No__Caption.Value</Value>
+                                                    <Value>=First(Fields!ExternalNoCaption.Value, "DataSet_Result")</Value>
                                                     <Style>
                                                       <FontSize>7pt</FontSize>
                                                       <FontWeight>Bold</FontWeight>
@@ -5146,7 +5146,7 @@
                                                 <Style />
                                               </Paragraph>
                                             </Paragraphs>
-                                            <rd:DefaultName>Sales_Invoice_Header__Sell_to_Customer_Name_Caption</rd:DefaultName>
+                                            <rd:DefaultName>ExternalNoCaption</rd:DefaultName>
                                             <Style>
                                               <Border>
                                                 <Color>LightGrey</Color>
@@ -5363,14 +5363,14 @@
                                       </TablixCell>
                                       <TablixCell>
                                         <CellContents>
-                                          <Textbox Name="Purch__Inv__Header__Buy_from_Vendor_Name_Caption">
+                                          <Textbox Name="VendorCaption">
                                             <CanGrow>true</CanGrow>
                                             <KeepTogether>true</KeepTogether>
                                             <Paragraphs>
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Fields!Purch__Inv__Header__Buy_from_Vendor_Name_Caption.Value</Value>
+                                                    <Value>=First(Fields!VendorCaption.Value, "DataSet_Result")</Value>
                                                     <Style>
                                                       <FontSize>7pt</FontSize>
                                                       <FontWeight>Bold</FontWeight>
@@ -5380,7 +5380,7 @@
                                                 <Style />
                                               </Paragraph>
                                             </Paragraphs>
-                                            <rd:DefaultName>Purch__Inv__Header__Buy_from_Vendor_Name_Caption</rd:DefaultName>
+                                            <rd:DefaultName>VendorCaption</rd:DefaultName>
                                             <Style>
                                               <Border>
                                                 <Color>LightGrey</Color>
@@ -5568,14 +5568,14 @@
                                       </TablixCell>
                                       <TablixCell>
                                         <CellContents>
-                                          <Textbox Name="Sales_Invoice_Header__Due_Date_Caption3">
+                                          <Textbox Name="DueDateCaption3">
                                             <CanGrow>true</CanGrow>
                                             <KeepTogether>true</KeepTogether>
                                             <Paragraphs>
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Fields!Purch__Inv__Header__Due_Date_Caption.Value</Value>
+                                                    <Value>=First(Fields!DueDateCaption.Value, "DataSet_Result")</Value>
                                                     <Style>
                                                       <FontSize>7pt</FontSize>
                                                       <FontWeight>Bold</FontWeight>
@@ -5585,7 +5585,7 @@
                                                 <Style />
                                               </Paragraph>
                                             </Paragraphs>
-                                            <rd:DefaultName>Sales_Invoice_Header__Due_Date_Caption</rd:DefaultName>
+                                            <rd:DefaultName>DueDateCaption</rd:DefaultName>
                                             <Style>
                                               <Border>
                                                 <Color>LightGrey</Color>
@@ -6035,14 +6035,14 @@
                                       </TablixCell>
                                       <TablixCell>
                                         <CellContents>
-                                          <Textbox Name="gdeFCYRateCaption3">
+                                          <Textbox Name="RateCaption3">
                                             <CanGrow>true</CanGrow>
                                             <KeepTogether>true</KeepTogether>
                                             <Paragraphs>
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Fields!gdeFCYRate_Control1100162009Caption.Value</Value>
+                                                    <Value>=First(Fields!RateCaption.Value, "DataSet_Result")</Value>
                                                     <Style>
                                                       <FontSize>7pt</FontSize>
                                                       <FontWeight>Bold</FontWeight>
@@ -6052,7 +6052,7 @@
                                                 <Style />
                                               </Paragraph>
                                             </Paragraphs>
-                                            <rd:DefaultName>gdeFCYRateCaption</rd:DefaultName>
+                                            <rd:DefaultName>RateCaption</rd:DefaultName>
                                             <Style>
                                               <Border>
                                                 <Color>LightGrey</Color>
@@ -6271,7 +6271,7 @@
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Fields!G_L_AccountCaption_Control324.Value</Value>
+                                                    <Value>=First(Fields!GLAccountCaption.Value, "DataSet_Result")</Value>
                                                     <Style>
                                                       <FontSize>7pt</FontSize>
                                                       <FontWeight>Bold</FontWeight>
@@ -6413,7 +6413,7 @@
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Fields!Debit_AmountCaption_Control320.Value</Value>
+                                                    <Value>=First(Fields!DebitAmountCaption.Value, "DataSet_Result")</Value>
                                                     <Style>
                                                       <FontSize>7pt</FontSize>
                                                       <FontWeight>Bold</FontWeight>
@@ -6453,7 +6453,7 @@
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Fields!Credit_AmountCaption_Control319.Value</Value>
+                                                    <Value>=First(Fields!CreditAmountCaption.Value, "DataSet_Result")</Value>
                                                     <Style>
                                                       <FontSize>7pt</FontSize>
                                                       <FontWeight>Bold</FontWeight>
@@ -6520,7 +6520,7 @@
                                       </TablixCell>
                                       <TablixCell>
                                         <CellContents>
-                                          <Textbox Name="N_zev__ƒtu3">
+                                          <Textbox Name="AccontName3">
                                             <CanGrow>true</CanGrow>
                                             <KeepTogether>true</KeepTogether>
                                             <Paragraphs>
@@ -6536,7 +6536,7 @@
                                                 <Style />
                                               </Paragraph>
                                             </Paragraphs>
-                                            <rd:DefaultName>N_zev__ƒtu</rd:DefaultName>
+                                            <rd:DefaultName>AccountName3</rd:DefaultName>
                                             <Style>
                                               <Border>
                                                 <Color>LightGrey</Color>
@@ -6697,14 +6697,14 @@
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
-                                          <Textbox Name="EmptyStringCaption3">
+                                          <Textbox Name="FactualCorrectnessVerifiedByCaption3">
                                             <CanGrow>true</CanGrow>
                                             <KeepTogether>true</KeepTogether>
                                             <Paragraphs>
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Fields!EmptyStringCaption_Control357.Value</Value>
+                                                    <Value>=First(Fields!FactualCorrectnessVerifiedByCaption.Value, "DataSet_Result")</Value>
                                                     <Style>
                                                       <FontSize>7pt</FontSize>
                                                     </Style>
@@ -6713,7 +6713,7 @@
                                                 <Style />
                                               </Paragraph>
                                             </Paragraphs>
-                                            <rd:DefaultName>EmptyStringCaption</rd:DefaultName>
+                                            <rd:DefaultName>FactualCorrectnessVerifiedByCaption</rd:DefaultName>
                                             <Style>
                                               <Border>
                                                 <Style>None</Style>
@@ -6774,7 +6774,7 @@
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Fields!Date_Caption_Control359.Value</Value>
+                                                    <Value>=First(Fields!DateCaption.Value, "DataSet_Result")</Value>
                                                     <Style>
                                                       <FontSize>7pt</FontSize>
                                                     </Style>
@@ -6879,14 +6879,14 @@
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
-                                          <Textbox Name="EmptyStringCaption_Control309">
+                                          <Textbox Name="PostedByCaption3">
                                             <CanGrow>true</CanGrow>
                                             <KeepTogether>true</KeepTogether>
                                             <Paragraphs>
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Fields!EmptyStringCaption_Control353.Value</Value>
+                                                    <Value>=First(Fields!PostedByCaption.Value, "DataSet_Result")</Value>
                                                     <Style>
                                                       <FontSize>7pt</FontSize>
                                                     </Style>
@@ -6895,7 +6895,7 @@
                                                 <Style />
                                               </Paragraph>
                                             </Paragraphs>
-                                            <rd:DefaultName>EmptyStringCaption_Control305</rd:DefaultName>
+                                            <rd:DefaultName>PostedByCaption</rd:DefaultName>
                                             <Style>
                                               <Border>
                                                 <Style>None</Style>
@@ -6959,7 +6959,7 @@
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Fields!Date_Caption_Control359.Value</Value>
+                                                    <Value>=First(Fields!DateCaption.Value, "DataSet_Result")</Value>
                                                     <Style>
                                                       <FontSize>7pt</FontSize>
                                                     </Style>
@@ -7064,14 +7064,14 @@
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
-                                          <Textbox Name="EmptyStringCaption_Control310">
+                                          <Textbox Name="ApprovedByCaption3">
                                             <CanGrow>true</CanGrow>
                                             <KeepTogether>true</KeepTogether>
                                             <Paragraphs>
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Fields!EmptyStringCaption_Control354.Value</Value>
+                                                    <Value>=First(Fields!ApprovedByCaption.Value, "DataSet_Result")</Value>
                                                     <Style>
                                                       <FontSize>7pt</FontSize>
                                                     </Style>
@@ -7080,7 +7080,7 @@
                                                 <Style />
                                               </Paragraph>
                                             </Paragraphs>
-                                            <rd:DefaultName>EmptyStringCaption_Control306</rd:DefaultName>
+                                            <rd:DefaultName>ApprovedByCaption</rd:DefaultName>
                                             <Style>
                                               <Border>
                                                 <Style>Solid</Style>
@@ -7141,7 +7141,7 @@
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Fields!Date_Caption_Control359.Value</Value>
+                                                    <Value>=First(Fields!DateCaption.Value, "DataSet_Result")</Value>
                                                     <Style>
                                                       <FontSize>7pt</FontSize>
                                                     </Style>
@@ -7253,7 +7253,7 @@
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Fields!EmptyStringCaption_Control355.Value</Value>
+                                                    <Value>=First(Fields!FormalCorrectnessVerifiedByCaption.Value, "DataSet_Result")</Value>
                                                     <Style>
                                                       <FontSize>7pt</FontSize>
                                                     </Style>
@@ -7323,7 +7323,7 @@
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Fields!Date_Caption_Control359.Value</Value>
+                                                    <Value>=First(Fields!DateCaption.Value, "DataSet_Result")</Value>
                                                     <Style>
                                                       <FontSize>7pt</FontSize>
                                                     </Style>
@@ -7503,7 +7503,7 @@
                 <TablixMember>
                   <Group Name="Details4">
                     <GroupExpressions>
-                      <GroupExpression>=Fields!Úƒetn__doklad__Control6.Value</GroupExpression>
+                      <GroupExpression>=Fields!Purch__Inv__Header__No.Value</GroupExpression>
                     </GroupExpressions>
                     <PageBreak>
                       <BreakLocation>Between</BreakLocation>
@@ -7511,7 +7511,7 @@
                   </Group>
                   <SortExpressions>
                     <SortExpression>
-                      <Value>=Fields!Úƒetn__doklad__Control6.Value</Value>
+                      <Value>=Fields!Purch__Inv__Header__No.Value</Value>
                     </SortExpression>
                   </SortExpressions>
                 </TablixMember>
@@ -7524,7 +7524,7 @@
             </PageBreak>
             <Filters>
               <Filter>
-                <FilterExpression>=Fields!Úƒetn__doklad__Control6.Value</FilterExpression>
+                <FilterExpression>=Fields!Purch__Inv__Header__No.Value</FilterExpression>
                 <Operator>GreaterThan</Operator>
                 <FilterValues>
                   <FilterValue>""</FilterValue>
@@ -7588,14 +7588,14 @@
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
-                                          <Textbox Name="Úƒetn__doklad_Caption4">
+                                          <Textbox Name="Purch__Cr__Memo_Hdr__No_Caption">
                                             <CanGrow>true</CanGrow>
                                             <KeepTogether>true</KeepTogether>
                                             <Paragraphs>
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Fields!Úƒetn__doklad__Control34Caption.Value</Value>
+                                                    <Value>=Fields!Purch__Cr__Memo_Hdr__No_Caption.Value</Value>
                                                     <Style>
                                                       <FontSize>8pt</FontSize>
                                                     </Style>
@@ -7604,7 +7604,7 @@
                                                 <Style />
                                               </Paragraph>
                                             </Paragraphs>
-                                            <rd:DefaultName>Úƒetn__doklad_Caption</rd:DefaultName>
+                                            <rd:DefaultName>Purch__Cr__Memo_Hdr__No_Caption</rd:DefaultName>
                                             <Style>
                                               <Border>
                                                 <Color>LightGrey</Color>
@@ -7620,14 +7620,14 @@
                                       </TablixCell>
                                       <TablixCell>
                                         <CellContents>
-                                          <Textbox Name="Úƒetn__doklad_4">
+                                          <Textbox Name="Purch__Cr__Memo_Hdr__No">
                                             <CanGrow>true</CanGrow>
                                             <KeepTogether>true</KeepTogether>
                                             <Paragraphs>
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Fields!Úƒetn__doklad__Control34.Value</Value>
+                                                    <Value>=Fields!Purch__Cr__Memo_Hdr__No.Value</Value>
                                                     <Style>
                                                       <FontSize>8pt</FontSize>
                                                       <FontWeight>Bold</FontWeight>
@@ -7637,7 +7637,7 @@
                                                 <Style />
                                               </Paragraph>
                                             </Paragraphs>
-                                            <rd:DefaultName>Úƒetn__doklad_</rd:DefaultName>
+                                            <rd:DefaultName>Purch__Cr__Memo_Hdr__No</rd:DefaultName>
                                             <Style>
                                               <Border>
                                                 <Color>LightGrey</Color>
@@ -7653,14 +7653,14 @@
                                       </TablixCell>
                                       <TablixCell>
                                         <CellContents>
-                                          <Textbox Name="Sales_Invoice_Caption4">
+                                          <Textbox Name="PurchaseCreditMemoCaption">
                                             <CanGrow>true</CanGrow>
                                             <KeepTogether>true</KeepTogether>
                                             <Paragraphs>
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Fields!Purchase_Credit_Memo_Caption.Value</Value>
+                                                    <Value>=First(Fields!PurchaseCreditMemoCaption.Value, "DataSet_Result")</Value>
                                                     <Style>
                                                       <FontSize>7pt</FontSize>
                                                     </Style>
@@ -7669,7 +7669,7 @@
                                                 <Style />
                                               </Paragraph>
                                             </Paragraphs>
-                                            <rd:DefaultName>Sales_Invoice_Caption</rd:DefaultName>
+                                            <rd:DefaultName>PurchaseCreditMemoCaption</rd:DefaultName>
                                             <Style>
                                               <Border>
                                                 <Color>LightGrey</Color>
@@ -7793,14 +7793,14 @@
                                       </TablixCell>
                                       <TablixCell>
                                         <CellContents>
-                                          <Textbox Name="Sales_Invoice_Header__Sell_to_Customer_Name_Caption4">
+                                          <Textbox Name="ExternalNoCaption2">
                                             <CanGrow>true</CanGrow>
                                             <KeepTogether>true</KeepTogether>
                                             <Paragraphs>
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Fields!Purch__Cr__Memo_Hdr___Vendor_Cr__Memo_No__Caption.Value</Value>
+                                                    <Value>=First(Fields!ExternalNoCaption.Value, "DataSet_Result")</Value>
                                                     <Style>
                                                       <FontSize>7pt</FontSize>
                                                       <FontWeight>Bold</FontWeight>
@@ -7810,7 +7810,7 @@
                                                 <Style />
                                               </Paragraph>
                                             </Paragraphs>
-                                            <rd:DefaultName>Sales_Invoice_Header__Sell_to_Customer_Name_Caption</rd:DefaultName>
+                                            <rd:DefaultName>ExternalNoCaption</rd:DefaultName>
                                             <Style>
                                               <Border>
                                                 <Color>LightGrey</Color>
@@ -8028,14 +8028,14 @@
                                       </TablixCell>
                                       <TablixCell>
                                         <CellContents>
-                                          <Textbox Name="Purch__Inv__Header__Buy_from_Vendor_Name_Caption2">
+                                          <Textbox Name="VendorCaption2">
                                             <CanGrow>true</CanGrow>
                                             <KeepTogether>true</KeepTogether>
                                             <Paragraphs>
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Fields!Purch__Cr__Memo_Hdr___Buy_from_Vendor_Name_Caption.Value</Value>
+                                                    <Value>=First(Fields!VendorCaption.Value, "DataSet_Result")</Value>
                                                     <Style>
                                                       <FontSize>7pt</FontSize>
                                                       <FontWeight>Bold</FontWeight>
@@ -8045,7 +8045,7 @@
                                                 <Style />
                                               </Paragraph>
                                             </Paragraphs>
-                                            <rd:DefaultName>Purch__Inv__Header__Buy_from_Vendor_Name_Caption</rd:DefaultName>
+                                            <rd:DefaultName>VendorCaption</rd:DefaultName>
                                             <Style>
                                               <Border>
                                                 <Color>LightGrey</Color>
@@ -8263,14 +8263,14 @@
                                       </TablixCell>
                                       <TablixCell>
                                         <CellContents>
-                                          <Textbox Name="Sales_Invoice_Header__Due_Date_Caption4">
+                                          <Textbox Name="DueDateCaption4">
                                             <CanGrow>true</CanGrow>
                                             <KeepTogether>true</KeepTogether>
                                             <Paragraphs>
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Fields!Purch__Cr__Memo_Hdr___Due_Date_Caption.Value</Value>
+                                                    <Value>=First(Fields!DueDateCaption.Value, "DataSet_Result")</Value>
                                                     <Style>
                                                       <FontSize>7pt</FontSize>
                                                       <FontWeight>Bold</FontWeight>
@@ -8280,7 +8280,7 @@
                                                 <Style />
                                               </Paragraph>
                                             </Paragraphs>
-                                            <rd:DefaultName>Sales_Invoice_Header__Due_Date_Caption</rd:DefaultName>
+                                            <rd:DefaultName>DueDateCaption</rd:DefaultName>
                                             <Style>
                                               <Border>
                                                 <Color>LightGrey</Color>
@@ -8730,14 +8730,14 @@
                                       </TablixCell>
                                       <TablixCell>
                                         <CellContents>
-                                          <Textbox Name="gdeFCYRateCaption4">
+                                          <Textbox Name="RateCaption4">
                                             <CanGrow>true</CanGrow>
                                             <KeepTogether>true</KeepTogether>
                                             <Paragraphs>
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Fields!gdeFCYRate_Control1100162011Caption.Value</Value>
+                                                    <Value>=First(Fields!RateCaption.Value, "DataSet_Result")</Value>
                                                     <Style>
                                                       <FontSize>7pt</FontSize>
                                                       <FontWeight>Bold</FontWeight>
@@ -8747,7 +8747,7 @@
                                                 <Style />
                                               </Paragraph>
                                             </Paragraphs>
-                                            <rd:DefaultName>gdeFCYRateCaption</rd:DefaultName>
+                                            <rd:DefaultName>RateCaption</rd:DefaultName>
                                             <Style>
                                               <Border>
                                                 <Color>LightGrey</Color>
@@ -8966,7 +8966,7 @@
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Fields!G_L_AccountCaption_Control366.Value</Value>
+                                                    <Value>=First(Fields!GLAccountCaption.Value, "DataSet_Result")</Value>
                                                     <Style>
                                                       <FontSize>7pt</FontSize>
                                                       <FontWeight>Bold</FontWeight>
@@ -9108,7 +9108,7 @@
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Fields!Debit_AmountCaption_Control362.Value</Value>
+                                                    <Value>=First(Fields!DebitAmountCaption.Value, "DataSet_Result")</Value>
                                                     <Style>
                                                       <FontSize>7pt</FontSize>
                                                       <FontWeight>Bold</FontWeight>
@@ -9148,7 +9148,7 @@
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Fields!Credit_AmountCaption_Control360.Value</Value>
+                                                    <Value>=First(Fields!CreditAmountCaption.Value, "DataSet_Result")</Value>
                                                     <Style>
                                                       <FontSize>7pt</FontSize>
                                                       <FontWeight>Bold</FontWeight>
@@ -9215,7 +9215,7 @@
                                       </TablixCell>
                                       <TablixCell>
                                         <CellContents>
-                                          <Textbox Name="N_zev__ƒtu4">
+                                          <Textbox Name="AccountName4">
                                             <CanGrow>true</CanGrow>
                                             <KeepTogether>true</KeepTogether>
                                             <Paragraphs>
@@ -9231,7 +9231,7 @@
                                                 <Style />
                                               </Paragraph>
                                             </Paragraphs>
-                                            <rd:DefaultName>N_zev__ƒtu</rd:DefaultName>
+                                            <rd:DefaultName>AccountName4</rd:DefaultName>
                                             <Style>
                                               <Border>
                                                 <Color>LightGrey</Color>
@@ -9391,14 +9391,14 @@
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
-                                          <Textbox Name="EmptyStringCaption4">
+                                          <Textbox Name="FactualCorrectnessVerifiedByCaption4">
                                             <CanGrow>true</CanGrow>
                                             <KeepTogether>true</KeepTogether>
                                             <Paragraphs>
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Fields!EmptyStringCaption_Control398.Value</Value>
+                                                    <Value>=First(Fields!FactualCorrectnessVerifiedByCaption.Value, "DataSet_Result")</Value>
                                                     <Style>
                                                       <FontSize>7pt</FontSize>
                                                     </Style>
@@ -9407,7 +9407,7 @@
                                                 <Style />
                                               </Paragraph>
                                             </Paragraphs>
-                                            <rd:DefaultName>EmptyStringCaption</rd:DefaultName>
+                                            <rd:DefaultName>FactualCorrectnessVerifiedByCaption</rd:DefaultName>
                                             <Style>
                                               <Border>
                                                 <Style>None</Style>
@@ -9468,7 +9468,7 @@
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Fields!Date_Caption_Control397.Value</Value>
+                                                    <Value>=First(Fields!DateCaption.Value, "DataSet_Result")</Value>
                                                     <Style>
                                                       <FontSize>7pt</FontSize>
                                                     </Style>
@@ -9573,14 +9573,14 @@
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
-                                          <Textbox Name="EmptyStringCaption_Control311">
+                                          <Textbox Name="PostedByCaption4">
                                             <CanGrow>true</CanGrow>
                                             <KeepTogether>true</KeepTogether>
                                             <Paragraphs>
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Fields!EmptyStringCaption_Control399.Value</Value>
+                                                    <Value>=First(Fields!PostedByCaption.Value, "DataSet_Result")</Value>
                                                     <Style>
                                                       <FontSize>7pt</FontSize>
                                                     </Style>
@@ -9589,7 +9589,7 @@
                                                 <Style />
                                               </Paragraph>
                                             </Paragraphs>
-                                            <rd:DefaultName>EmptyStringCaption_Control305</rd:DefaultName>
+                                            <rd:DefaultName>PostedByCaption</rd:DefaultName>
                                             <Style>
                                               <Border>
                                                 <Style>None</Style>
@@ -9653,7 +9653,7 @@
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Fields!Date_Caption_Control397.Value</Value>
+                                                    <Value>=First(Fields!DateCaption.Value, "DataSet_Result")</Value>
                                                     <Style>
                                                       <FontSize>7pt</FontSize>
                                                     </Style>
@@ -9758,14 +9758,14 @@
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
-                                          <Textbox Name="EmptyStringCaption_Control312">
+                                          <Textbox Name="ApprovedByCaption4">
                                             <CanGrow>true</CanGrow>
                                             <KeepTogether>true</KeepTogether>
                                             <Paragraphs>
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Fields!EmptyStringCaption_Control400.Value</Value>
+                                                    <Value>=First(Fields!ApprovedByCaption.Value, "DataSet_Result")</Value>
                                                     <Style>
                                                       <FontSize>7pt</FontSize>
                                                     </Style>
@@ -9774,7 +9774,7 @@
                                                 <Style />
                                               </Paragraph>
                                             </Paragraphs>
-                                            <rd:DefaultName>EmptyStringCaption_Control306</rd:DefaultName>
+                                            <rd:DefaultName>ApprovedByCaption</rd:DefaultName>
                                             <Style>
                                               <Border>
                                                 <Style>Solid</Style>
@@ -9835,7 +9835,7 @@
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Fields!Date_Caption_Control397.Value</Value>
+                                                    <Value>=First(Fields!DateCaption.Value, "DataSet_Result")</Value>
                                                     <Style>
                                                       <FontSize>7pt</FontSize>
                                                     </Style>
@@ -9947,7 +9947,7 @@
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Fields!EmptyStringCaption_Control401.Value</Value>
+                                                    <Value>=First(Fields!FormalCorrectnessVerifiedByCaption.Value, "DataSet_Result")</Value>
                                                     <Style>
                                                       <FontSize>7pt</FontSize>
                                                     </Style>
@@ -10017,7 +10017,7 @@
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Fields!Date_Caption_Control397.Value</Value>
+                                                    <Value>=First(Fields!DateCaption.Value, "DataSet_Result")</Value>
                                                     <Style>
                                                       <FontSize>7pt</FontSize>
                                                     </Style>
@@ -10197,7 +10197,7 @@
                 <TablixMember>
                   <Group Name="Details6">
                     <GroupExpressions>
-                      <GroupExpression>=Fields!Úƒetn__doklad__Control34.Value</GroupExpression>
+                      <GroupExpression>=Fields!Purch__Cr__Memo_Hdr__No.Value</GroupExpression>
                     </GroupExpressions>
                     <PageBreak>
                       <BreakLocation>Between</BreakLocation>
@@ -10205,7 +10205,7 @@
                   </Group>
                   <SortExpressions>
                     <SortExpression>
-                      <Value>=Fields!Úƒetn__doklad__Control6.Value</Value>
+                      <Value>=Fields!Purch__Cr__Memo_Hdr__No.Value</Value>
                     </SortExpression>
                   </SortExpressions>
                 </TablixMember>
@@ -10218,7 +10218,7 @@
             </PageBreak>
             <Filters>
               <Filter>
-                <FilterExpression>=Fields!Úƒetn__doklad__Control34.Value</FilterExpression>
+                <FilterExpression>=Fields!Purch__Cr__Memo_Hdr__No.Value</FilterExpression>
                 <Operator>GreaterThan</Operator>
                 <FilterValues>
                   <FilterValue>""</FilterValue>
@@ -10282,14 +10282,14 @@
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
-                                          <Textbox Name="Úƒetn__doklad_Caption5">
+                                          <Textbox Name="GeneralDoc__Document_No_Caption">
                                             <CanGrow>true</CanGrow>
                                             <KeepTogether>true</KeepTogether>
                                             <Paragraphs>
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Fields!Úƒetn__doklad__Control1100170022Caption.Value</Value>
+                                                    <Value>=Fields!GeneralDoc__Document_No_Caption.Value</Value>
                                                     <Style>
                                                       <FontSize>8pt</FontSize>
                                                     </Style>
@@ -10298,7 +10298,7 @@
                                                 <Style />
                                               </Paragraph>
                                             </Paragraphs>
-                                            <rd:DefaultName>Úƒetn__doklad_Caption</rd:DefaultName>
+                                            <rd:DefaultName>GeneralDoc__Document_No_Caption</rd:DefaultName>
                                             <Style>
                                               <Border>
                                                 <Color>LightGrey</Color>
@@ -10314,14 +10314,14 @@
                                       </TablixCell>
                                       <TablixCell>
                                         <CellContents>
-                                          <Textbox Name="Úƒetn__doklad_5">
+                                          <Textbox Name="GeneralDoc__Document_No">
                                             <CanGrow>true</CanGrow>
                                             <KeepTogether>true</KeepTogether>
                                             <Paragraphs>
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Fields!Úƒetn__doklad__Control22.Value</Value>
+                                                    <Value>=Fields!GeneralDoc__Document_No.Value</Value>
                                                     <Style>
                                                       <FontSize>8pt</FontSize>
                                                       <FontWeight>Bold</FontWeight>
@@ -10331,7 +10331,7 @@
                                                 <Style />
                                               </Paragraph>
                                             </Paragraphs>
-                                            <rd:DefaultName>Úƒetn__doklad_</rd:DefaultName>
+                                            <rd:DefaultName>GeneralDoc__Document_No</rd:DefaultName>
                                             <Style>
                                               <Border>
                                                 <Color>LightGrey</Color>
@@ -10347,14 +10347,14 @@
                                       </TablixCell>
                                       <TablixCell>
                                         <CellContents>
-                                          <Textbox Name="Sales_Invoice_Caption5">
+                                          <Textbox Name="GeneralDocumentCaption">
                                             <CanGrow>true</CanGrow>
                                             <KeepTogether>true</KeepTogether>
                                             <Paragraphs>
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Fields!General_Document_Caption.Value</Value>
+                                                    <Value>=First(Fields!GeneralDocumentCaption.Value, "DataSet_Result")</Value>
                                                     <Style>
                                                       <FontSize>7pt</FontSize>
                                                     </Style>
@@ -10363,7 +10363,7 @@
                                                 <Style />
                                               </Paragraph>
                                             </Paragraphs>
-                                            <rd:DefaultName>Sales_Invoice_Caption</rd:DefaultName>
+                                            <rd:DefaultName>GeneralDocumentCaption</rd:DefaultName>
                                             <Style>
                                               <Border>
                                                 <Color>LightGrey</Color>
@@ -10485,7 +10485,7 @@
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Fields!G_L_AccountCaption_Control28.Value</Value>
+                                                    <Value>=First(Fields!GLAccountCaption.Value, "DataSet_Result")</Value>
                                                     <Style>
                                                       <FontSize>7pt</FontSize>
                                                       <FontWeight>Bold</FontWeight>
@@ -10627,7 +10627,7 @@
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Fields!Debit_AmountCaption_Control15.Value</Value>
+                                                    <Value>=First(Fields!DebitAmountCaption.Value, "DataSet_Result")</Value>
                                                     <Style>
                                                       <FontSize>7pt</FontSize>
                                                       <FontWeight>Bold</FontWeight>
@@ -10667,7 +10667,7 @@
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Fields!Credit_AmountCaption_Control13.Value</Value>
+                                                    <Value>=First(Fields!CreditAmountCaption.Value, "DataSet_Result")</Value>
                                                     <Style>
                                                       <FontSize>7pt</FontSize>
                                                       <FontWeight>Bold</FontWeight>
@@ -10734,7 +10734,7 @@
                                       </TablixCell>
                                       <TablixCell>
                                         <CellContents>
-                                          <Textbox Name="N_zev__ƒtu5">
+                                          <Textbox Name="AccountName5">
                                             <CanGrow>true</CanGrow>
                                             <KeepTogether>true</KeepTogether>
                                             <Paragraphs>
@@ -10750,7 +10750,7 @@
                                                 <Style />
                                               </Paragraph>
                                             </Paragraphs>
-                                            <rd:DefaultName>N_zev__ƒtu</rd:DefaultName>
+                                            <rd:DefaultName>AccountName5</rd:DefaultName>
                                             <Style>
                                               <Border>
                                                 <Color>LightGrey</Color>
@@ -10911,14 +10911,14 @@
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
-                                          <Textbox Name="EmptyStringCaption5">
+                                          <Textbox Name="FactualCorrectnessVerifiedByCaption5">
                                             <CanGrow>true</CanGrow>
                                             <KeepTogether>true</KeepTogether>
                                             <Paragraphs>
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Fields!EmptyStringCaption_Control57.Value</Value>
+                                                    <Value>=First(Fields!FactualCorrectnessVerifiedByCaption.Value, "DataSet_Result")</Value>
                                                     <Style>
                                                       <FontSize>7pt</FontSize>
                                                     </Style>
@@ -10927,7 +10927,7 @@
                                                 <Style />
                                               </Paragraph>
                                             </Paragraphs>
-                                            <rd:DefaultName>EmptyStringCaption</rd:DefaultName>
+                                            <rd:DefaultName>FactualCorrectnessVerifiedByCaption</rd:DefaultName>
                                             <Style>
                                               <Border>
                                                 <Style>None</Style>
@@ -10988,7 +10988,7 @@
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Fields!Date_Caption_Control59.Value</Value>
+                                                    <Value>=First(Fields!DateCaption.Value, "DataSet_Result")</Value>
                                                     <Style>
                                                       <FontSize>7pt</FontSize>
                                                     </Style>
@@ -11093,14 +11093,14 @@
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
-                                          <Textbox Name="EmptyStringCaption_Control313">
+                                          <Textbox Name="FormalCorrectnessVerifiedByCaption5">
                                             <CanGrow>true</CanGrow>
                                             <KeepTogether>true</KeepTogether>
                                             <Paragraphs>
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Fields!EmptyStringCaption_Control51.Value</Value>
+                                                    <Value>=First(Fields!FormalCorrectnessVerifiedByCaption.Value, "DataSet_Result")</Value>
                                                     <Style>
                                                       <FontSize>7pt</FontSize>
                                                     </Style>
@@ -11109,7 +11109,7 @@
                                                 <Style />
                                               </Paragraph>
                                             </Paragraphs>
-                                            <rd:DefaultName>EmptyStringCaption_Control305</rd:DefaultName>
+                                            <rd:DefaultName>FormalCorrectnessVerifiedByCaption</rd:DefaultName>
                                             <Style>
                                               <Border>
                                                 <Style>None</Style>
@@ -11173,7 +11173,7 @@
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Fields!Date_Caption_Control59.Value</Value>
+                                                    <Value>=First(Fields!DateCaption.Value, "DataSet_Result")</Value>
                                                     <Style>
                                                       <FontSize>7pt</FontSize>
                                                     </Style>
@@ -11278,14 +11278,14 @@
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
-                                          <Textbox Name="EmptyStringCaption_Control314">
+                                          <Textbox Name="PostedByCaption5">
                                             <CanGrow>true</CanGrow>
                                             <KeepTogether>true</KeepTogether>
                                             <Paragraphs>
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Fields!EmptyStringCaption_Control48.Value</Value>
+                                                    <Value>=First(Fields!PostedByCaption.Value, "DataSet_Result")</Value>
                                                     <Style>
                                                       <FontSize>7pt</FontSize>
                                                     </Style>
@@ -11294,7 +11294,7 @@
                                                 <Style />
                                               </Paragraph>
                                             </Paragraphs>
-                                            <rd:DefaultName>EmptyStringCaption_Control306</rd:DefaultName>
+                                            <rd:DefaultName>PostedByCaption</rd:DefaultName>
                                             <Style>
                                               <Border>
                                                 <Style>Solid</Style>
@@ -11355,7 +11355,7 @@
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Fields!Date_Caption_Control59.Value</Value>
+                                                    <Value>=First(Fields!DateCaption.Value, "DataSet_Result")</Value>
                                                     <Style>
                                                       <FontSize>7pt</FontSize>
                                                     </Style>
@@ -11467,7 +11467,7 @@
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Fields!EmptyStringCaption_Control49.Value</Value>
+                                                    <Value>=First(Fields!ApprovedByCaption.Value, "DataSet_Result")</Value>
                                                     <Style>
                                                       <FontSize>7pt</FontSize>
                                                     </Style>
@@ -11537,7 +11537,7 @@
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Fields!Date_Caption_Control59.Value</Value>
+                                                    <Value>=First(Fields!DateCaption.Value, "DataSet_Result")</Value>
                                                     <Style>
                                                       <FontSize>7pt</FontSize>
                                                     </Style>
@@ -11717,7 +11717,7 @@
                 <TablixMember>
                   <Group Name="Details8">
                     <GroupExpressions>
-                      <GroupExpression>=Fields!Úƒetn__doklad__Control22.Value</GroupExpression>
+                      <GroupExpression>=Fields!GeneralDoc__Document_No.Value</GroupExpression>
                     </GroupExpressions>
                     <PageBreak>
                       <BreakLocation>Between</BreakLocation>
@@ -11725,7 +11725,7 @@
                   </Group>
                   <SortExpressions>
                     <SortExpression>
-                      <Value>=Fields!Úƒetn__doklad__Control6.Value</Value>
+                      <Value>=Fields!Purch__Inv__Header__No.Value</Value>
                     </SortExpression>
                   </SortExpressions>
                 </TablixMember>
@@ -11734,7 +11734,7 @@
             <DataSetName>DataSet_Result</DataSetName>
             <Filters>
               <Filter>
-                <FilterExpression>=Fields!Úƒetn__doklad__Control22.Value</FilterExpression>
+                <FilterExpression>=Fields!GeneralDoc__Document_No.Value</FilterExpression>
                 <Operator>GreaterThan</Operator>
                 <FilterValues>
                   <FilterValue>""</FilterValue>
@@ -11822,6 +11822,60 @@ End Function
         <Field Name="DocumentDateCaption">
           <DataField>DocumentDateCaption</DataField>
         </Field>
+        <Field Name="DueDateCaption">
+          <DataField>DueDateCaption</DataField>
+        </Field>
+        <Field Name="SalesInvoiceCaption">
+          <DataField>SalesInvoiceCaption</DataField>
+        </Field>
+        <Field Name="CustomerCaption">
+          <DataField>CustomerCaption</DataField>
+        </Field>
+        <Field Name="RateCaption">
+          <DataField>RateCaption</DataField>
+        </Field>
+        <Field Name="CreditAmountCaption">
+          <DataField>CreditAmountCaption</DataField>
+        </Field>
+        <Field Name="DebitAmountCaption">
+          <DataField>DebitAmountCaption</DataField>
+        </Field>
+        <Field Name="GLAccountCaption">
+          <DataField>GLAccountCaption</DataField>
+        </Field>
+        <Field Name="DateCaption">
+          <DataField>DateCaption</DataField>
+        </Field>
+        <Field Name="SalesCreditMemoCaption">
+          <DataField>SalesCreditMemoCaption</DataField>
+        </Field>
+        <Field Name="PurchaseInvoiceCaption">
+          <DataField>PurchaseInvoiceCaption</DataField>
+        </Field>
+        <Field Name="VendorCaption">
+          <DataField>VendorCaption</DataField>
+        </Field>
+        <Field Name="ExternalNoCaption">
+          <DataField>ExternalNoCaption</DataField>
+        </Field>
+        <Field Name="PurchaseCreditMemoCaption">
+          <DataField>PurchaseCreditMemoCaption</DataField>
+        </Field>
+        <Field Name="GeneralDocumentCaption">
+          <DataField>GeneralDocumentCaption</DataField>
+        </Field>
+        <Field Name="FactualCorrectnessVerifiedByCaption">
+          <DataField>FactualCorrectnessVerifiedByCaption</DataField>
+        </Field>
+        <Field Name="PostedByCaption">
+          <DataField>PostedByCaption</DataField>
+        </Field>
+        <Field Name="ApprovedByCaption">
+          <DataField>ApprovedByCaption</DataField>
+        </Field>
+        <Field Name="FormalCorrectnessVerifiedByCaption">
+          <DataField>FormalCorrectnessVerifiedByCaption</DataField>
+        </Field>
         <Field Name="LastDataItem">
           <DataField>LastDataItem</DataField>
         </Field>
@@ -11843,8 +11897,8 @@ End Function
         <Field Name="greCompanyInfo_Name">
           <DataField>greCompanyInfo_Name</DataField>
         </Field>
-        <Field Name="Úƒetn__doklad_">
-          <DataField>Úƒetn__doklad_</DataField>
+        <Field Name="Sales_Invoice_Header__No">
+          <DataField>Sales_Invoice_Header__No</DataField>
         </Field>
         <Field Name="Sales_Invoice_Header__Sell_to_Customer_Name_">
           <DataField>Sales_Invoice_Header__Sell_to_Customer_Name_</DataField>
@@ -11873,26 +11927,11 @@ End Function
         <Field Name="Sales_Invoice_Header__Currency_Code_">
           <DataField>Sales_Invoice_Header__Currency_Code_</DataField>
         </Field>
-        <Field Name="Úƒetn__doklad_Caption">
-          <DataField>Úƒetn__doklad_Caption</DataField>
-        </Field>
-        <Field Name="Sales_Invoice_Caption">
-          <DataField>Sales_Invoice_Caption</DataField>
-        </Field>
-        <Field Name="Sales_Invoice_Header__Sell_to_Customer_Name_Caption">
-          <DataField>Sales_Invoice_Header__Sell_to_Customer_Name_Caption</DataField>
-        </Field>
-        <Field Name="Sales_Invoice_Header__Due_Date_Caption">
-          <DataField>Sales_Invoice_Header__Due_Date_Caption</DataField>
+        <Field Name="Sales_Invoice_Header__No_Caption">
+          <DataField>Sales_Invoice_Header__No_Caption</DataField>
         </Field>
         <Field Name="Sales_Invoice_Header_AmountCaption">
           <DataField>Sales_Invoice_Header_AmountCaption</DataField>
-        </Field>
-        <Field Name="Amount_Including_VAT__AmountCaption">
-          <DataField>Amount_Including_VAT__AmountCaption</DataField>
-        </Field>
-        <Field Name="gdeFCYRateCaption">
-          <DataField>gdeFCYRateCaption</DataField>
         </Field>
         <Field Name="Sales_Invoice_Header__Currency_Code_Caption">
           <DataField>Sales_Invoice_Header__Currency_Code_Caption</DataField>
@@ -11905,15 +11944,6 @@ End Function
         </Field>
         <Field Name="SalesInvoiceHeader_DocumentDate">
           <DataField>SalesInvoiceHeader_DocumentDate</DataField>
-        </Field>
-        <Field Name="CurrReport_PAGENO">
-          <DataField>CurrReport_PAGENO</DataField>
-        </Field>
-        <Field Name="Úƒetn__doklad__Control285">
-          <DataField>Úƒetn__doklad__Control285</DataField>
-        </Field>
-        <Field Name="Úƒetn__doklad__Control1100170003">
-          <DataField>Úƒetn__doklad__Control1100170003</DataField>
         </Field>
         <Field Name="greTGLEntry__Credit_Amount_">
           <DataField>greTGLEntry__Credit_Amount_</DataField>
@@ -11945,65 +11975,17 @@ End Function
         <Field Name="greUserSetup__User_Name_">
           <DataField>greUserSetup__User_Name_</DataField>
         </Field>
-        <Field Name="Credit_AmountCaption">
-          <DataField>Credit_AmountCaption</DataField>
-        </Field>
-        <Field Name="Debit_AmountCaption">
-          <DataField>Debit_AmountCaption</DataField>
-        </Field>
         <Field Name="greTGLEntry__Global_Dimension_2_Code_Caption">
           <DataField>greTGLEntry__Global_Dimension_2_Code_Caption</DataField>
         </Field>
         <Field Name="greTGLEntry__Global_Dimension_1_Code_Caption">
           <DataField>greTGLEntry__Global_Dimension_1_Code_Caption</DataField>
         </Field>
-        <Field Name="G_L_AccountCaption">
-          <DataField>G_L_AccountCaption</DataField>
-        </Field>
-        <Field Name="CurrReport_PAGENOCaption">
-          <DataField>CurrReport_PAGENOCaption</DataField>
-        </Field>
-        <Field Name="Úƒetn__doklad__Control285Caption">
-          <DataField>Úƒetn__doklad__Control285Caption</DataField>
-        </Field>
-        <Field Name="Úƒetn__doklad__Control1100170003Caption">
-          <DataField>Úƒetn__doklad__Control1100170003Caption</DataField>
-        </Field>
-        <Field Name="ContinuedCaption">
-          <DataField>ContinuedCaption</DataField>
-        </Field>
-        <Field Name="ContinuedCaption_Control288">
-          <DataField>ContinuedCaption_Control288</DataField>
-        </Field>
-        <Field Name="Date_Caption">
-          <DataField>Date_Caption</DataField>
-        </Field>
-        <Field Name="Date_Caption_Control292">
-          <DataField>Date_Caption_Control292</DataField>
-        </Field>
-        <Field Name="Date_Caption_Control297">
-          <DataField>Date_Caption_Control297</DataField>
-        </Field>
-        <Field Name="Date_Caption_Control302">
-          <DataField>Date_Caption_Control302</DataField>
-        </Field>
-        <Field Name="EmptyStringCaption">
-          <DataField>EmptyStringCaption</DataField>
-        </Field>
-        <Field Name="EmptyStringCaption_Control304">
-          <DataField>EmptyStringCaption_Control304</DataField>
-        </Field>
-        <Field Name="EmptyStringCaption_Control305">
-          <DataField>EmptyStringCaption_Control305</DataField>
-        </Field>
-        <Field Name="EmptyStringCaption_Control306">
-          <DataField>EmptyStringCaption_Control306</DataField>
-        </Field>
         <Field Name="Integer_Number">
           <DataField>Integer_Number</DataField>
         </Field>
-        <Field Name="Úƒetn__doklad__Control3">
-          <DataField>Úƒetn__doklad__Control3</DataField>
+        <Field Name="Sales_Cr_Memo_Header__No">
+          <DataField>Sales_Cr_Memo_Header__No</DataField>
         </Field>
         <Field Name="greCompanyInfo_Name_Control4">
           <DataField>greCompanyInfo_Name_Control4</DataField>
@@ -12035,29 +12017,14 @@ End Function
         <Field Name="gdeFCYRate_Control1100162004Format">
           <DataField>gdeFCYRate_Control1100162004Format</DataField>
         </Field>
-        <Field Name="Úƒetn__doklad__Control3Caption">
-          <DataField>Úƒetn__doklad__Control3Caption</DataField>
-        </Field>
-        <Field Name="Sales_Credit_Memo_Caption">
-          <DataField>Sales_Credit_Memo_Caption</DataField>
-        </Field>
-        <Field Name="Sales_Cr_Memo_Header__Due_Date_Caption">
-          <DataField>Sales_Cr_Memo_Header__Due_Date_Caption</DataField>
-        </Field>
-        <Field Name="Sales_Cr_Memo_Header__Sell_to_Customer_Name_Caption">
-          <DataField>Sales_Cr_Memo_Header__Sell_to_Customer_Name_Caption</DataField>
-        </Field>
-        <Field Name="Amount_Including_VAT__Amount_Control235Caption">
-          <DataField>Amount_Including_VAT__Amount_Control235Caption</DataField>
+        <Field Name="Sales_Cr_Memo_Header__No_Caption">
+          <DataField>Sales_Cr_Memo_Header__No_Caption</DataField>
         </Field>
         <Field Name="Sales_Cr_Memo_Header_AmountCaption">
           <DataField>Sales_Cr_Memo_Header_AmountCaption</DataField>
         </Field>
         <Field Name="Sales_Cr_Memo_Header__Currency_Code_Caption">
           <DataField>Sales_Cr_Memo_Header__Currency_Code_Caption</DataField>
-        </Field>
-        <Field Name="gdeFCYRate_Control1100162004Caption">
-          <DataField>gdeFCYRate_Control1100162004Caption</DataField>
         </Field>
         <Field Name="SalesCrMemoHeader_PostingDate">
           <DataField>SalesCrMemoHeader_PostingDate</DataField>
@@ -12067,15 +12034,6 @@ End Function
         </Field>
         <Field Name="SalesCrMemoHeader_DocumentDate">
           <DataField>SalesCrMemoHeader_DocumentDate</DataField>
-        </Field>
-        <Field Name="CurrReport_PAGENO_Control41">
-          <DataField>CurrReport_PAGENO_Control41</DataField>
-        </Field>
-        <Field Name="Úƒetn__doklad__Control43">
-          <DataField>Úƒetn__doklad__Control43</DataField>
-        </Field>
-        <Field Name="Úƒetn__doklad__Control1100170007">
-          <DataField>Úƒetn__doklad__Control1100170007</DataField>
         </Field>
         <Field Name="greTGLEntry__Credit_Amount__Control90">
           <DataField>greTGLEntry__Credit_Amount__Control90</DataField>
@@ -12107,65 +12065,17 @@ End Function
         <Field Name="greUserSetup__User_Name__Control310">
           <DataField>greUserSetup__User_Name__Control310</DataField>
         </Field>
-        <Field Name="Credit_AmountCaption_Control20">
-          <DataField>Credit_AmountCaption_Control20</DataField>
-        </Field>
-        <Field Name="Debit_AmountCaption_Control24">
-          <DataField>Debit_AmountCaption_Control24</DataField>
-        </Field>
         <Field Name="greTGLEntry__Global_Dimension_2_Code__Control106Caption">
           <DataField>greTGLEntry__Global_Dimension_2_Code__Control106Caption</DataField>
         </Field>
         <Field Name="greTGLEntry__Global_Dimension_1_Code__Control112Caption">
           <DataField>greTGLEntry__Global_Dimension_1_Code__Control112Caption</DataField>
         </Field>
-        <Field Name="G_L_AccountCaption_Control29">
-          <DataField>G_L_AccountCaption_Control29</DataField>
-        </Field>
-        <Field Name="CurrReport_PAGENO_Control41Caption">
-          <DataField>CurrReport_PAGENO_Control41Caption</DataField>
-        </Field>
-        <Field Name="Úƒetn__doklad__Control43Caption">
-          <DataField>Úƒetn__doklad__Control43Caption</DataField>
-        </Field>
-        <Field Name="Úƒetn__doklad__Control1100170007Caption">
-          <DataField>Úƒetn__doklad__Control1100170007Caption</DataField>
-        </Field>
-        <Field Name="ContinuedCaption_Control1100170024">
-          <DataField>ContinuedCaption_Control1100170024</DataField>
-        </Field>
-        <Field Name="ContinuedCaption_Control118">
-          <DataField>ContinuedCaption_Control118</DataField>
-        </Field>
-        <Field Name="Date_Caption_Control121">
-          <DataField>Date_Caption_Control121</DataField>
-        </Field>
-        <Field Name="Date_Caption_Control122">
-          <DataField>Date_Caption_Control122</DataField>
-        </Field>
-        <Field Name="Date_Caption_Control247">
-          <DataField>Date_Caption_Control247</DataField>
-        </Field>
-        <Field Name="Date_Caption_Control313">
-          <DataField>Date_Caption_Control313</DataField>
-        </Field>
-        <Field Name="EmptyStringCaption_Control314">
-          <DataField>EmptyStringCaption_Control314</DataField>
-        </Field>
-        <Field Name="EmptyStringCaption_Control315">
-          <DataField>EmptyStringCaption_Control315</DataField>
-        </Field>
-        <Field Name="EmptyStringCaption_Control316">
-          <DataField>EmptyStringCaption_Control316</DataField>
-        </Field>
-        <Field Name="EmptyStringCaption_Control317">
-          <DataField>EmptyStringCaption_Control317</DataField>
-        </Field>
         <Field Name="Integer2_Number">
           <DataField>Integer2_Number</DataField>
         </Field>
-        <Field Name="Úƒetn__doklad__Control6">
-          <DataField>Úƒetn__doklad__Control6</DataField>
+        <Field Name="Purch__Inv__Header__No">
+          <DataField>Purch__Inv__Header__No</DataField>
         </Field>
         <Field Name="greCompanyInfo_Name_Control32">
           <DataField>greCompanyInfo_Name_Control32</DataField>
@@ -12200,32 +12110,14 @@ End Function
         <Field Name="gdeFCYRate_Control1100162009Format">
           <DataField>gdeFCYRate_Control1100162009Format</DataField>
         </Field>
-        <Field Name="Úƒetn__doklad__Control6Caption">
-          <DataField>Úƒetn__doklad__Control6Caption</DataField>
-        </Field>
-        <Field Name="Purchase_Invoice_Caption">
-          <DataField>Purchase_Invoice_Caption</DataField>
-        </Field>
-        <Field Name="Purch__Inv__Header__Due_Date_Caption">
-          <DataField>Purch__Inv__Header__Due_Date_Caption</DataField>
-        </Field>
-        <Field Name="Purch__Inv__Header__Buy_from_Vendor_Name_Caption">
-          <DataField>Purch__Inv__Header__Buy_from_Vendor_Name_Caption</DataField>
-        </Field>
-        <Field Name="Purch__Inv__Header__Vendor_Invoice_No__Caption">
-          <DataField>Purch__Inv__Header__Vendor_Invoice_No__Caption</DataField>
-        </Field>
-        <Field Name="Amount_Including_VAT__Amount_Control241Caption">
-          <DataField>Amount_Including_VAT__Amount_Control241Caption</DataField>
+        <Field Name="Purch__Inv__Header__No_Caption">
+          <DataField>Purch__Inv__Header__No_Caption</DataField>
         </Field>
         <Field Name="Purch__Inv__Header_AmountCaption">
           <DataField>Purch__Inv__Header_AmountCaption</DataField>
         </Field>
         <Field Name="Purch__Inv__Header__Currency_Code_Caption">
           <DataField>Purch__Inv__Header__Currency_Code_Caption</DataField>
-        </Field>
-        <Field Name="gdeFCYRate_Control1100162009Caption">
-          <DataField>gdeFCYRate_Control1100162009Caption</DataField>
         </Field>
         <Field Name="PurchInvoiceHeader_PostingDate">
           <DataField>PurchInvoiceHeader_PostingDate</DataField>
@@ -12235,15 +12127,6 @@ End Function
         </Field>
         <Field Name="PurchInvoiceHeader_DocumentDate">
           <DataField>PurchInvoiceHeader_DocumentDate</DataField>
-        </Field>
-        <Field Name="CurrReport_PAGENO_Control326">
-          <DataField>CurrReport_PAGENO_Control326</DataField>
-        </Field>
-        <Field Name="Úƒetn__doklad__Control328">
-          <DataField>Úƒetn__doklad__Control328</DataField>
-        </Field>
-        <Field Name="Úƒetn__doklad__Control1100170012">
-          <DataField>Úƒetn__doklad__Control1100170012</DataField>
         </Field>
         <Field Name="greTGLEntry__Credit_Amount__Control331">
           <DataField>greTGLEntry__Credit_Amount__Control331</DataField>
@@ -12275,65 +12158,17 @@ End Function
         <Field Name="greUserSetup__User_Name__Control352">
           <DataField>greUserSetup__User_Name__Control352</DataField>
         </Field>
-        <Field Name="Credit_AmountCaption_Control319">
-          <DataField>Credit_AmountCaption_Control319</DataField>
-        </Field>
-        <Field Name="Debit_AmountCaption_Control320">
-          <DataField>Debit_AmountCaption_Control320</DataField>
-        </Field>
         <Field Name="greTGLEntry__Global_Dimension_2_Code__Control334Caption">
           <DataField>greTGLEntry__Global_Dimension_2_Code__Control334Caption</DataField>
         </Field>
         <Field Name="greTGLEntry__Global_Dimension_1_Code__Control335Caption">
           <DataField>greTGLEntry__Global_Dimension_1_Code__Control335Caption</DataField>
         </Field>
-        <Field Name="G_L_AccountCaption_Control324">
-          <DataField>G_L_AccountCaption_Control324</DataField>
-        </Field>
-        <Field Name="CurrReport_PAGENO_Control326Caption">
-          <DataField>CurrReport_PAGENO_Control326Caption</DataField>
-        </Field>
-        <Field Name="Úƒetn__doklad__Control328Caption">
-          <DataField>Úƒetn__doklad__Control328Caption</DataField>
-        </Field>
-        <Field Name="Úƒetn__doklad__Control1100170012Caption">
-          <DataField>Úƒetn__doklad__Control1100170012Caption</DataField>
-        </Field>
-        <Field Name="ContinuedCaption_Control1100170025">
-          <DataField>ContinuedCaption_Control1100170025</DataField>
-        </Field>
-        <Field Name="ContinuedCaption_Control341">
-          <DataField>ContinuedCaption_Control341</DataField>
-        </Field>
-        <Field Name="Date_Caption_Control343">
-          <DataField>Date_Caption_Control343</DataField>
-        </Field>
-        <Field Name="Date_Caption_Control347">
-          <DataField>Date_Caption_Control347</DataField>
-        </Field>
-        <Field Name="Date_Caption_Control350">
-          <DataField>Date_Caption_Control350</DataField>
-        </Field>
-        <Field Name="EmptyStringCaption_Control353">
-          <DataField>EmptyStringCaption_Control353</DataField>
-        </Field>
-        <Field Name="EmptyStringCaption_Control354">
-          <DataField>EmptyStringCaption_Control354</DataField>
-        </Field>
-        <Field Name="EmptyStringCaption_Control355">
-          <DataField>EmptyStringCaption_Control355</DataField>
-        </Field>
-        <Field Name="EmptyStringCaption_Control357">
-          <DataField>EmptyStringCaption_Control357</DataField>
-        </Field>
-        <Field Name="Date_Caption_Control359">
-          <DataField>Date_Caption_Control359</DataField>
-        </Field>
         <Field Name="Integer3_Number">
           <DataField>Integer3_Number</DataField>
         </Field>
-        <Field Name="Úƒetn__doklad__Control34">
-          <DataField>Úƒetn__doklad__Control34</DataField>
+        <Field Name="Purch__Cr__Memo_Hdr__No">
+          <DataField>Purch__Cr__Memo_Hdr__No</DataField>
         </Field>
         <Field Name="greCompanyInfo_Name_Control35">
           <DataField>greCompanyInfo_Name_Control35</DataField>
@@ -12368,32 +12203,14 @@ End Function
         <Field Name="Purch__Cr__Memo_Hdr___Currency_Code_">
           <DataField>Purch__Cr__Memo_Hdr___Currency_Code_</DataField>
         </Field>
-        <Field Name="Úƒetn__doklad__Control34Caption">
-          <DataField>Úƒetn__doklad__Control34Caption</DataField>
-        </Field>
-        <Field Name="Purchase_Credit_Memo_Caption">
-          <DataField>Purchase_Credit_Memo_Caption</DataField>
-        </Field>
-        <Field Name="Purch__Cr__Memo_Hdr___Due_Date_Caption">
-          <DataField>Purch__Cr__Memo_Hdr___Due_Date_Caption</DataField>
-        </Field>
-        <Field Name="Purch__Cr__Memo_Hdr___Buy_from_Vendor_Name_Caption">
-          <DataField>Purch__Cr__Memo_Hdr___Buy_from_Vendor_Name_Caption</DataField>
-        </Field>
-        <Field Name="Purch__Cr__Memo_Hdr___Vendor_Cr__Memo_No__Caption">
-          <DataField>Purch__Cr__Memo_Hdr___Vendor_Cr__Memo_No__Caption</DataField>
-        </Field>
-        <Field Name="Amount_Including_VAT__Amount_Control245Caption">
-          <DataField>Amount_Including_VAT__Amount_Control245Caption</DataField>
+        <Field Name="Purch__Cr__Memo_Hdr__No_Caption">
+          <DataField>Purch__Cr__Memo_Hdr__No_Caption</DataField>
         </Field>
         <Field Name="Purch__Cr__Memo_Hdr__AmountCaption">
           <DataField>Purch__Cr__Memo_Hdr__AmountCaption</DataField>
         </Field>
         <Field Name="Purch__Cr__Memo_Hdr___Currency_Code_Caption">
           <DataField>Purch__Cr__Memo_Hdr___Currency_Code_Caption</DataField>
-        </Field>
-        <Field Name="gdeFCYRate_Control1100162011Caption">
-          <DataField>gdeFCYRate_Control1100162011Caption</DataField>
         </Field>
         <Field Name="PurchCrMemoHeader_PostingDate">
           <DataField>PurchCrMemoHeader_PostingDate</DataField>
@@ -12403,15 +12220,6 @@ End Function
         </Field>
         <Field Name="PurchCrMemoHeader_DocumentDate">
           <DataField>PurchCrMemoHeader_DocumentDate</DataField>
-        </Field>
-        <Field Name="CurrReport_PAGENO_Control368">
-          <DataField>CurrReport_PAGENO_Control368</DataField>
-        </Field>
-        <Field Name="Úƒetn__doklad__Control370">
-          <DataField>Úƒetn__doklad__Control370</DataField>
-        </Field>
-        <Field Name="Úƒetn__doklad__Control1100170017">
-          <DataField>Úƒetn__doklad__Control1100170017</DataField>
         </Field>
         <Field Name="greTGLEntry__Credit_Amount__Control373">
           <DataField>greTGLEntry__Credit_Amount__Control373</DataField>
@@ -12443,59 +12251,11 @@ End Function
         <Field Name="greUserSetup__User_Name__Control394">
           <DataField>greUserSetup__User_Name__Control394</DataField>
         </Field>
-        <Field Name="Credit_AmountCaption_Control360">
-          <DataField>Credit_AmountCaption_Control360</DataField>
-        </Field>
-        <Field Name="Debit_AmountCaption_Control362">
-          <DataField>Debit_AmountCaption_Control362</DataField>
-        </Field>
         <Field Name="greTGLEntry__Global_Dimension_2_Code__Control376Caption">
           <DataField>greTGLEntry__Global_Dimension_2_Code__Control376Caption</DataField>
         </Field>
         <Field Name="greTGLEntry__Global_Dimension_1_Code__Control377Caption">
           <DataField>greTGLEntry__Global_Dimension_1_Code__Control377Caption</DataField>
-        </Field>
-        <Field Name="G_L_AccountCaption_Control366">
-          <DataField>G_L_AccountCaption_Control366</DataField>
-        </Field>
-        <Field Name="CurrReport_PAGENO_Control368Caption">
-          <DataField>CurrReport_PAGENO_Control368Caption</DataField>
-        </Field>
-        <Field Name="Úƒetn__doklad__Control370Caption">
-          <DataField>Úƒetn__doklad__Control370Caption</DataField>
-        </Field>
-        <Field Name="Úƒetn__doklad__Control1100170017Caption">
-          <DataField>Úƒetn__doklad__Control1100170017Caption</DataField>
-        </Field>
-        <Field Name="ContinuedCaption_Control1100170026">
-          <DataField>ContinuedCaption_Control1100170026</DataField>
-        </Field>
-        <Field Name="ContinuedCaption_Control383">
-          <DataField>ContinuedCaption_Control383</DataField>
-        </Field>
-        <Field Name="Date_Caption_Control385">
-          <DataField>Date_Caption_Control385</DataField>
-        </Field>
-        <Field Name="Date_Caption_Control387">
-          <DataField>Date_Caption_Control387</DataField>
-        </Field>
-        <Field Name="Date_Caption_Control392">
-          <DataField>Date_Caption_Control392</DataField>
-        </Field>
-        <Field Name="Date_Caption_Control397">
-          <DataField>Date_Caption_Control397</DataField>
-        </Field>
-        <Field Name="EmptyStringCaption_Control398">
-          <DataField>EmptyStringCaption_Control398</DataField>
-        </Field>
-        <Field Name="EmptyStringCaption_Control399">
-          <DataField>EmptyStringCaption_Control399</DataField>
-        </Field>
-        <Field Name="EmptyStringCaption_Control400">
-          <DataField>EmptyStringCaption_Control400</DataField>
-        </Field>
-        <Field Name="EmptyStringCaption_Control401">
-          <DataField>EmptyStringCaption_Control401</DataField>
         </Field>
         <Field Name="Integer4_Number">
           <DataField>Integer4_Number</DataField>
@@ -12503,47 +12263,20 @@ End Function
         <Field Name="greCompanyInfo_Name_Control14">
           <DataField>greCompanyInfo_Name_Control14</DataField>
         </Field>
-        <Field Name="Úƒetn__doklad__Control22">
-          <DataField>Úƒetn__doklad__Control22</DataField>
-        </Field>
-        <Field Name="Credit_AmountCaption_Control13">
-          <DataField>Credit_AmountCaption_Control13</DataField>
-        </Field>
-        <Field Name="Debit_AmountCaption_Control15">
-          <DataField>Debit_AmountCaption_Control15</DataField>
+        <Field Name="GeneralDoc__Document_No">
+          <DataField>GeneralDoc__Document_No</DataField>
         </Field>
         <Field Name="greTGLEntry__Global_Dimension_2_Code__Control104Caption">
           <DataField>greTGLEntry__Global_Dimension_2_Code__Control104Caption</DataField>
         </Field>
-        <Field Name="General_Document_Caption">
-          <DataField>General_Document_Caption</DataField>
-        </Field>
         <Field Name="greTGLEntry__Global_Dimension_1_Code__Control107Caption">
           <DataField>greTGLEntry__Global_Dimension_1_Code__Control107Caption</DataField>
         </Field>
-        <Field Name="EmptyStringCaption_Control19">
-          <DataField>EmptyStringCaption_Control19</DataField>
-        </Field>
-        <Field Name="G_L_Account_NameCaption_Control21">
-          <DataField>G_L_Account_NameCaption_Control21</DataField>
-        </Field>
-        <Field Name="Úƒetn__doklad__Control22Caption">
-          <DataField>Úƒetn__doklad__Control22Caption</DataField>
-        </Field>
-        <Field Name="G_L_AccountCaption_Control28">
-          <DataField>G_L_AccountCaption_Control28</DataField>
+        <Field Name="GeneralDoc__Document_No_Caption">
+          <DataField>GeneralDoc__Document_No_Caption</DataField>
         </Field>
         <Field Name="GeneralDoc_Entry_No_">
           <DataField>GeneralDoc_Entry_No_</DataField>
-        </Field>
-        <Field Name="CurrReport_PAGENO_Control142">
-          <DataField>CurrReport_PAGENO_Control142</DataField>
-        </Field>
-        <Field Name="Úƒetn__doklad__Control144">
-          <DataField>Úƒetn__doklad__Control144</DataField>
-        </Field>
-        <Field Name="Úƒetn__doklad__Control1100170022">
-          <DataField>Úƒetn__doklad__Control1100170022</DataField>
         </Field>
         <Field Name="greTGLEntry__Credit_Amount__Control98">
           <DataField>greTGLEntry__Credit_Amount__Control98</DataField>
@@ -12577,45 +12310,6 @@ End Function
         </Field>
         <Field Name="greUserSetup__User_Name__Control55">
           <DataField>greUserSetup__User_Name__Control55</DataField>
-        </Field>
-        <Field Name="CurrReport_PAGENO_Control142Caption">
-          <DataField>CurrReport_PAGENO_Control142Caption</DataField>
-        </Field>
-        <Field Name="Úƒetn__doklad__Control144Caption">
-          <DataField>Úƒetn__doklad__Control144Caption</DataField>
-        </Field>
-        <Field Name="Úƒetn__doklad__Control1100170022Caption">
-          <DataField>Úƒetn__doklad__Control1100170022Caption</DataField>
-        </Field>
-        <Field Name="ContinuedCaption_Control1100170027">
-          <DataField>ContinuedCaption_Control1100170027</DataField>
-        </Field>
-        <Field Name="ContinuedCaption_Control61">
-          <DataField>ContinuedCaption_Control61</DataField>
-        </Field>
-        <Field Name="Date_Caption_Control44">
-          <DataField>Date_Caption_Control44</DataField>
-        </Field>
-        <Field Name="Date_Caption_Control45">
-          <DataField>Date_Caption_Control45</DataField>
-        </Field>
-        <Field Name="EmptyStringCaption_Control48">
-          <DataField>EmptyStringCaption_Control48</DataField>
-        </Field>
-        <Field Name="EmptyStringCaption_Control49">
-          <DataField>EmptyStringCaption_Control49</DataField>
-        </Field>
-        <Field Name="EmptyStringCaption_Control51">
-          <DataField>EmptyStringCaption_Control51</DataField>
-        </Field>
-        <Field Name="Date_Caption_Control53">
-          <DataField>Date_Caption_Control53</DataField>
-        </Field>
-        <Field Name="EmptyStringCaption_Control57">
-          <DataField>EmptyStringCaption_Control57</DataField>
-        </Field>
-        <Field Name="Date_Caption_Control59">
-          <DataField>Date_Caption_Control59</DataField>
         </Field>
         <Field Name="Integer5_Number">
           <DataField>Integer5_Number</DataField>

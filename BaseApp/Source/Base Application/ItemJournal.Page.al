@@ -52,6 +52,7 @@
                 }
                 field("Whse. Net Change Template"; "Whse. Net Change Template")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the template for item''s whse. net change.';
                     Visible = false;
                 }
@@ -136,6 +137,7 @@
                 }
                 field("G/L Correction"; "G/L Correction")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies to include general ledger corrections on the item journal line.';
                     Visible = false;
                 }
@@ -177,6 +179,7 @@
                 }
                 field("Net Weight"; "Net Weight")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the net weight of the item.';
                     Visible = false;
                 }
@@ -193,11 +196,13 @@
                 }
                 field("Intrastat Transaction"; "Intrastat Transaction")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the entry an Intrastat transaction is.';
                     Visible = false;
                 }
                 field("Shpt. Method Code"; "Shpt. Method Code")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the item''s shipment method.';
                     Visible = false;
                 }
@@ -220,6 +225,7 @@
                 }
                 field("Tariff No."; "Tariff No.")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a code for the item''s tariff number.';
                     Visible = false;
                 }
@@ -231,6 +237,7 @@
                 }
                 field("Country/Region of Origin Code"; "Country/Region of Origin Code")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the origin country/region code.';
                     Visible = false;
                 }
@@ -242,13 +249,19 @@
                 }
                 field("FA No."; "FA No.")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of fixed asset in the item journal.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of Item consumption for FA maintenance will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
                 }
                 field("Maintenance Code"; "Maintenance Code")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a maintenance code.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of Item consumption for FA maintenance will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
                 }
                 field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
                 {

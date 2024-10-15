@@ -37,6 +37,7 @@ page 11731 "Cash Document Subform"
                 }
                 field("External Document No."; "External Document No.")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number that the vendor uses on the invoice they sent to you or number of receipt.';
                     Visible = false;
                 }
@@ -69,21 +70,25 @@ page 11731 "Cash Document Subform"
                 }
                 field("Description 2"; "Description 2")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the another line for description if description is longer.';
                     Visible = false;
                 }
                 field("Gen. Posting Type"; "Gen. Posting Type")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the general posting type is purchase (Purchase) or sale (Sale).';
                     Visible = false;
                 }
                 field("VAT Bus. Posting Group"; "VAT Bus. Posting Group")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a VAT business posting group code.';
                     Visible = false;
                 }
                 field("VAT Prod. Posting Group"; "VAT Prod. Posting Group")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a VAT product posting group code for the VAT Statement.';
                     Visible = false;
                 }
@@ -96,6 +101,7 @@ page 11731 "Cash Document Subform"
                 }
                 field("Amount (LCY)"; "Amount (LCY)")
                 {
+                    ApplicationArea = Basic, Suite;
                     BlankZero = true;
                     ToolTip = 'Specifies the amount in the cash document line.';
                     Visible = false;
@@ -120,6 +126,7 @@ page 11731 "Cash Document Subform"
                 }
                 field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
                 {
+                    ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code of the Shortcut Dimension 1, which is defined in the Shortcut Dimension 1 Code field in the General Ledger Setup window.';
                     Visible = DimVisible1;
 
@@ -135,6 +142,7 @@ page 11731 "Cash Document Subform"
                 }
                 field("Shortcut Dimension 2 Code"; "Shortcut Dimension 2 Code")
                 {
+                    ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code of the Shortcut Dimension 2, which is defined in the Shortcut Dimension 2 Code field in the General Ledger Setup window.';
                     Visible = DimVisible2;
 
@@ -150,6 +158,7 @@ page 11731 "Cash Document Subform"
                 }
                 field("ShortcutDimCode[3]"; ShortcutDimCode[3])
                 {
+                    ApplicationArea = Dimensions;
                     CaptionClass = '1,2,3';
                     TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(3),
                                                                   "Dimension Value Type" = CONST(Standard),
@@ -164,6 +173,7 @@ page 11731 "Cash Document Subform"
                 }
                 field("ShortcutDimCode[4]"; ShortcutDimCode[4])
                 {
+                    ApplicationArea = Dimensions;
                     CaptionClass = '1,2,4';
                     TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(4),
                                                                   "Dimension Value Type" = CONST(Standard),
@@ -178,6 +188,7 @@ page 11731 "Cash Document Subform"
                 }
                 field("ShortcutDimCode[5]"; ShortcutDimCode[5])
                 {
+                    ApplicationArea = Dimensions;
                     CaptionClass = '1,2,5';
                     TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(5),
                                                                   "Dimension Value Type" = CONST(Standard),
@@ -192,6 +203,7 @@ page 11731 "Cash Document Subform"
                 }
                 field("ShortcutDimCode[6]"; ShortcutDimCode[6])
                 {
+                    ApplicationArea = Dimensions;
                     CaptionClass = '1,2,6';
                     TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(6),
                                                                   "Dimension Value Type" = CONST(Standard),
@@ -206,6 +218,7 @@ page 11731 "Cash Document Subform"
                 }
                 field("ShortcutDimCode[7]"; ShortcutDimCode[7])
                 {
+                    ApplicationArea = Dimensions;
                     CaptionClass = '1,2,7';
                     TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(7),
                                                                   "Dimension Value Type" = CONST(Standard),
@@ -220,6 +233,7 @@ page 11731 "Cash Document Subform"
                 }
                 field("ShortcutDimCode[8]"; ShortcutDimCode[8])
                 {
+                    ApplicationArea = Dimensions;
                     CaptionClass = '1,2,8';
                     TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(8),
                                                                   "Dimension Value Type" = CONST(Standard),
@@ -239,6 +253,7 @@ page 11731 "Cash Document Subform"
                 }
                 field("Posting Group"; "Posting Group")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the posting group that will be used in posting the journal line.The field is used only if the account type is either customer or vendor.';
                     Visible = false;
                 }
@@ -254,6 +269,7 @@ page 11731 "Cash Document Subform"
                 }
                 field("Applies-to ID"; "Applies-to ID")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the ID to apply to the general ledger entry.';
                     Visible = false;
                 }
@@ -265,32 +281,38 @@ page 11731 "Cash Document Subform"
                 }
                 field("Depreciation Book Code"; "Depreciation Book Code")
                 {
+                    ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the code for the depreciation book to which the line will be posted if you have selected Fixed Asset in the Type field for this line.';
                     Visible = false;
                 }
                 field("FA Posting Type"; "FA Posting Type")
                 {
+                    ApplicationArea = FixedAssets;
                     OptionCaption = ' ,Acquisition Cost,,,,,Custom 2,,Maintenance';
                     ToolTip = 'Specifies if the cash document line amount represents a acquisition cost (Acquisition Cost) or a depreciation (Depreciation) or a write down (Write-Down) or an appreciation (Appreciation) or a custom 1 (Custom 1) or a custom 2 (Custom 2) or a disposal (Disposal) or a maintenance (Maintenance).';
                     Visible = false;
                 }
                 field("Duplicate in Depreciation Book"; "Duplicate in Depreciation Book")
                 {
+                    ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies if you have selected Fixed Asset in the Account Type field for this line.';
                     Visible = false;
                 }
                 field("Use Duplication List"; "Use Duplication List")
                 {
+                    ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies if you have selected Fixed Asset in the Account Type field for this line.';
                     Visible = false;
                 }
                 field("Maintenance Code"; "Maintenance Code")
                 {
+                    ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies a maintenance code.';
                     Visible = false;
                 }
                 field("Reason Code"; "Reason Code")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the reason code on the entry.';
                     Visible = false;
                 }

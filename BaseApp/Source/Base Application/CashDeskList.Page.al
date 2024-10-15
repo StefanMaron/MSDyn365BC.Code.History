@@ -29,11 +29,13 @@ page 11744 "Cash Desk List"
                 }
                 field("Phone No."; "Phone No.")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the phone number associated with the cash desk card.';
                     Visible = false;
                 }
                 field(Contact; Contact)
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the employee contacted with cash desk.';
                     Visible = false;
                 }
@@ -98,6 +100,7 @@ page 11744 "Cash Desk List"
                 }
                 action("Co&mments")
                 {
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Co&mments';
                     Image = ViewComments;
                     RunObject = Page "Comment Sheet";

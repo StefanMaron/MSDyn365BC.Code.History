@@ -4,6 +4,8 @@ report 31071 "Adj. Maintenance-Item Entries"
     Caption = 'Maintenance Adjustments - Item Entries';
     ProcessingOnly = true;
     UsageCategory = Tasks;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'The functionality of Item consumption for FA maintenance will be removed and this report should not be used. (Obsolete::Removed in release 01.2021)';
 
     dataset
     {

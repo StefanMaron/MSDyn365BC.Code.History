@@ -173,6 +173,7 @@ report 85 "Copy - VAT Posting Setup"
                     }
                     field(VIES; VIES)
                     {
+                        ApplicationArea = Basic, Suite;
                         Caption = 'VIES';
                         ToolTip = 'Specifies if vies fields will be copied';
 
@@ -183,6 +184,7 @@ report 85 "Copy - VAT Posting Setup"
                     }
                     field(Adv; Adv)
                     {
+                        ApplicationArea = Basic, Suite;
                         Caption = 'Advance';
                         ToolTip = 'Specifies if the advance G/L accounts have to be copied.';
 

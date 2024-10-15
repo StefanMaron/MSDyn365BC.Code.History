@@ -63,11 +63,15 @@ page 5404 "Item Units of Measure"
                 }
                 field("Indivisible Unit"; "Indivisible Unit")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies indivisible unit';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of Indivisible unit of measure will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
                 }
                 field("Intrastat Default"; "Intrastat Default")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies to use the Intrastat default for the itemŒs unit of measure.';
                     Visible = false;
                 }

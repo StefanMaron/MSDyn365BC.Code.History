@@ -106,12 +106,6 @@ page 8900 "Administrator Main Role Center"
                         Caption = 'Customer/Vendor/Item Templates';
                         RunObject = page "Config Templates";
                     }
-                    // action("Setup and Help Resources")
-                    // {
-                    //     ApplicationArea =;
-                    //     Caption = 'Setup and Help Resources';
-                    //     RunObject = page 1822;
-                    // }
                     action("Transformation Rules")
                     {
                         ApplicationArea = Basic, Suite;
@@ -135,19 +129,19 @@ page 8900 "Administrator Main Role Center"
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Excel Templates';
-                        RunObject = page 31080;
+                        RunObject = page "Excel Template";
                     }
                     action("Electronically Govern. Setup")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Electronically Govern. Setup';
-                        RunObject = page 11761;
+                        RunObject = page "Electronically Govern. Setup";
                     }
                     action("Certificates Codes")
                     {
                         ApplicationArea = Basic, Suite;
-                        Caption = 'Certificates Codes';
-                        RunObject = page 31130;
+                        Caption = 'Certificate Codes';
+                        RunObject = page "Certificate Code List";
                     }
                     action("Certificates")
                     {
@@ -290,13 +284,13 @@ page 8900 "Administrator Main Role Center"
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Report Selection - Credit';
-                        RunObject = page 31049;
+                        RunObject = page "Report Selection - Credit";
                     }
                     action("Report Selection-Cash Desk")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Report Selection-Cash Desk';
-                        RunObject = page 11759;
+                        RunObject = page "Report Selection - Cash Desk";
                     }
                 }
                 group("Group7")
@@ -328,9 +322,9 @@ page 8900 "Administrator Main Role Center"
                     }
                     // action("Sessions")
                     // {
-                    //     ApplicationArea = All;
-                    //     Caption = 'Sessions';
-                    //     RunObject = codeunit 9500;
+                    //	 ApplicationArea = All;
+                    //	 Caption = 'Sessions';
+                    //	 RunObject = codeunit 9500;
                     // }
                 }
             }
@@ -398,19 +392,25 @@ page 8900 "Administrator Main Role Center"
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Company Officials';
-                        RunObject = page 11792;
+                        RunObject = page "Company Officials";
                     }
                     action("Industry Codes")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Industry Codes';
-                        RunObject = page 11791;
+                        RunObject = page "Industry Codes";
+                        Visible = false;
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'The functionality of Industry Classification will be removed and this action should not be used. (Obsolete::Removed in release 01.2021)';
                     }
                     action("Registration Country/Region Routes")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Registration Country/Region Routes';
-                        RunObject = page 11763;
+                        RunObject = page "Registr. Country/Region Routes";
+                        Visible = false;
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this action should not be used. (Obsolete::Removed in release 01.2021)';
                     }
                 }
                 group("Group10")
@@ -421,7 +421,7 @@ page 8900 "Administrator Main Role Center"
                         ApplicationArea = All;
                         Caption = 'Data Encryption Management';
                         RunObject = page "Data Encryption Management";
-                        // AccessByPermission = system 5420 = X;
+                        //AccessByPermission = System 5420=X;
                     }
                     action("Data Classification Worksheet")
                     {
@@ -555,7 +555,7 @@ page 8900 "Administrator Main Role Center"
                         action("User Page Personalizations")
                         {
                             ApplicationArea = Basic, Suite;
-                            Caption = 'Delete User Personalization';
+                            Caption = 'User Page Personalizations';
                             RunObject = page "User Page Personalization List";
                         }
                     }
@@ -592,7 +592,7 @@ page 8900 "Administrator Main Role Center"
                 // {
                 //     ApplicationArea = Basic, Suite;
                 //     Caption = 'Change Password';
-                //     RunObject = page 9809;
+                //     RunObject = page ;
                 // }
                 action("User Security Status")
                 {
@@ -775,14 +775,14 @@ page 8900 "Administrator Main Role Center"
                     action("Dynamic Request page Entities")
                     {
                         ApplicationArea = Basic, Suite;
-                        Caption = 'Dynamic Request Page Entities';
-                        RunObject = page "Dynamic Request Page Entities";
+                        Caption = 'Dynamic Request page Entities';
+                        RunObject = page "Dynamic Request page Entities";
                     }
                     action("Dynamic Request page Fields")
                     {
                         ApplicationArea = Basic, Suite;
-                        Caption = 'Dynamic Request Page Fields';
-                        RunObject = page "Dynamic Request Page Fields";
+                        Caption = 'Dynamic Request page Fields';
+                        RunObject = page "Dynamic Request page Fields";
                     }
                 }
             }
@@ -795,12 +795,6 @@ page 8900 "Administrator Main Role Center"
                     Caption = 'Web Services';
                     RunObject = page "Web Services";
                 }
-                // action("Bank Data Conv. Service Setup")
-                // {
-                //     ApplicationArea = Basic, Suite;
-                //     Caption = 'Bank Data Conv. Service Setup';
-                //     RunObject = page 1260;
-                // }
                 action("Microsoft Dynamics 365 Connection Setup")
                 {
                     ApplicationArea = Suite;
@@ -896,7 +890,7 @@ page 8900 "Administrator Main Role Center"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Reg. No. Validation Service (ARES) Setting';
-                    RunObject = page 11757;
+                    RunObject = page "Registration Config";
                 }
                 action("API Setup")
                 {
@@ -920,7 +914,7 @@ page 8900 "Administrator Main Role Center"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'EET Service Setup';
-                    RunObject = page 31120;
+                    RunObject = page "EET Service Setup";
                 }
             }
             group("Group28")
@@ -942,7 +936,7 @@ page 8900 "Administrator Main Role Center"
                 {
                     ApplicationArea = Suite, Basic;
                     Caption = 'Configuration Templates';
-                    RunObject = page "Config Templates";
+                    RunObject = page "Config. Template List";
                 }
                 action("Create G/L acc. Journal Lines")
                 {

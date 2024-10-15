@@ -55,13 +55,19 @@ page 310 "Tariff Numbers"
                 }
                 field("Full Name"; "Full Name")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies full name of tariff number.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of Fields for Full Description will be removed and this field should not be used. Standard fields for Name are now 100. (Obsolete::Removed in release 01.2021)';
                 }
                 field("Full Name ENG"; "Full Name ENG")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies full name of tariff number.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of Fields for Full Description will be removed and this field should not be used. Standard fields for Name are now 100. (Obsolete::Removed in release 01.2021)';
                 }
             }
         }

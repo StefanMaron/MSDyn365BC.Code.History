@@ -84,6 +84,7 @@ codeunit 5923 "Service-Quote to Order"
 
     local procedure MakeOrder(ServiceHeader: Record "Service Header")
     var
+        [Obsolete('The functionality of No. Series Enhancements will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)')]
         NoSeriesLink: Record "No. Series Link";
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
         RecordLinkManagement: Codeunit "Record Link Management";

@@ -116,6 +116,12 @@
                     Importance = Promoted;
                     ToolTip = 'Specifies the date on which the credit memo was posted.';
                 }
+                field("Your Reference"; "Your Reference")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies the customer''s reference. The contents will be printed on sales documents.';
+                }
                 field("Document Date"; "Document Date")
                 {
                     ApplicationArea = Basic, Suite;
@@ -129,17 +135,29 @@
                     Importance = Promoted;
                     ToolTip = 'Specifies the VAT date. This date must be shown on the VAT statement.';
                 }
+                field("Original Document VAT Date"; "Original Document VAT Date")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Editable = false;
+                    ToolTip = 'Specifies the VAT date of the original document.';
+                }
                 field("Postponed VAT"; "Postponed VAT")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies to postpone VAT for the VAT entry.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of Postponing VAT on Sales Cr.Memo will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
                 }
                 field("Postponed VAT Realized"; "Postponed VAT Realized")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies when postponed VAT was realized.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of Postponing VAT on Sales Cr.Memo will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
                 }
                 field(Correction; Correction)
                 {
@@ -329,7 +347,7 @@
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
-                    ToolTip = 'Specifies the customerÍs market type to link business transakcions to.';
+                    ToolTip = 'Specifies the customer''s market type to link business transactions to.';
                 }
                 field("Reason Code"; "Reason Code")
                 {
@@ -408,6 +426,9 @@
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the industry code for the customer record.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of Industry Classification will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
                 }
                 field("Language Code"; "Language Code")
                 {
@@ -766,6 +787,9 @@
                     PromotedCategory = Process;
                     PromotedIsBig = true;
                     ToolTip = 'This batch job allows postponed VAT post or correct.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of Postponing VAT on Sales Cr.Memo will be removed and this action should not be used. (Obsolete::Removed in release 01.2021)';
 
                     trigger OnAction()
                     var

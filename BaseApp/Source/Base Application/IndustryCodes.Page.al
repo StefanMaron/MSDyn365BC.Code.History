@@ -5,6 +5,8 @@ page 11791 "Industry Codes"
     PageType = List;
     SourceTable = "Industry Code";
     UsageCategory = Administration;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'The functionality of Industry Classification will be removed and this page should not be used. (Obsolete::Removed in release 01.2021)';
 
     layout
     {

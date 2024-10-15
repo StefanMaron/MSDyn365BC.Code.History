@@ -2778,18 +2778,6 @@ End Function
         <Field Name="GLBudgetFormat">
           <DataField>GLBudgetFormat</DataField>
         </Field>
-        <Field Name="SalesAdvances">
-          <DataField>SalesAdvances</DataField>
-        </Field>
-        <Field Name="SalesAdvancesFormat">
-          <DataField>SalesAdvancesFormat</DataField>
-        </Field>
-        <Field Name="PurchaseAdvances">
-          <DataField>PurchaseAdvances</DataField>
-        </Field>
-        <Field Name="PurchaseAdvancesFormat">
-          <DataField>PurchaseAdvancesFormat</DataField>
-        </Field>
         <Field Name="EditionPeriod_Number">
           <DataField>EditionPeriod_Number</DataField>
         </Field>
@@ -2915,12 +2903,6 @@ End Function
         </Field>
         <Field Name="SaleFixedAssets_Control51Caption">
           <DataField>SaleFixedAssets_Control51Caption</DataField>
-        </Field>
-        <Field Name="SalesAdvances_CaptionLbl">
-          <DataField>SalesAdvances_CaptionLbl</DataField>
-        </Field>
-        <Field Name="PurchaseAdvances_CaptionLbl">
-          <DataField>PurchaseAdvances_CaptionLbl</DataField>
         </Field>
         <Field Name="before_Caption">
           <DataField>before_Caption</DataField>

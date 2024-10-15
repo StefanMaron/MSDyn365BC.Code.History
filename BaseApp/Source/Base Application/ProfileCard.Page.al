@@ -13,7 +13,7 @@
             group(General)
             {
                 Caption = 'General';
-                Editable = true;
+                Editable = IsProfileEditable;
 
                 field(ScopeField; Scope)
                 {
@@ -27,7 +27,7 @@
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Profile ID';
-                    Editable = CanEditProfileId;
+                    Editable = IsUserCreatedProfile;
                     ToolTip = 'Specifies an ID that is used to identify the profile (role). There can be more than one profile with the same ID if they come from different extensions. Avoid using spaces in the profile ID to make it easier to create URLs linking to a specific profile.';
                     NotBlank = true;
 
@@ -42,6 +42,10 @@
 
                         if not AllProfile.IsEmpty() then
                             Error(ProfileIdAlreadyExistErr, "Profile ID");
+
+                        if xRec."Profile ID" <> '' then
+                            if not Confirm(RenamingWillDisruptExistingSessionsQst) then
+                                Error('');
                     end;
                 }
                 field(AppNameField; AppName)
@@ -121,6 +125,7 @@
             group(ProfileSettings)
             {
                 Caption = 'Profile Settings';
+                Editable = IsProfileEditable;
 
                 field(DefaultRoleCenterField; "Default Role Center")
                 {
@@ -222,6 +227,7 @@
                     Caption = 'Customize pages';
                     Image = SetupColumns;
                     Visible = IsWebClient;
+                    Enabled = IsProfileEditable;
                     Promoted = true;
                     PromotedOnly = true;
                     PromotedCategory = Process;
@@ -271,6 +277,8 @@
         UpdateHasCustomizedPages();
 
         RefreshEditability();
+
+        ShowOrRecallDuplicateProfileIDNotification();
     end;
 
     local procedure UpdateHasCustomizedPages()
@@ -349,19 +357,41 @@
 
     local procedure RefreshEditability()
     begin
-        CanEditProfileId := IsNullGuid("App ID");
+        IsUserCreatedProfile := IsNullGuid("App ID");
+
+        IsProfileEditable := not ConfPersonalizationMgt.IsProfileIdAmbiguous(Rec);
+    end;
+
+    local procedure ShowOrRecallDuplicateProfileIDNotification()
+    var
+        DummyAllProfile: Record "All Profile";
+        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
+        NotificationToShow: Notification;
+    begin
+        NotificationToShow.Id := DuplicateIDNotificationID;
+        NotificationToShow.Message := ThereAreProfilesWithDuplicateIdMsg;
+
+        if ConfPersonalizationMgt.IsProfileIdAmbiguous(Rec) then
+            // This will send a generic notification for the table and not for the record, and hence make the recall logic easier
+            NotificationLifecycleMgt.SendNotification(NotificationToShow, DummyAllProfile.RecordId)
+        else
+            NotificationLifecycleMgt.RecallNotificationsForRecord(DummyAllProfile.RecordId, true);
     end;
 
     var
         ConfPersonalizationMgt: Codeunit "Conf./Personalization Mgt.";
         ClientTypeManagement: Codeunit "Client Type Management";
         RoleCenterSubtypeTxt: Label 'RoleCenter', Locked = true;
+        DuplicateIDNotificationID: Label 'ffbf8d52-e612-4e2e-9adc-d15b863d94ff', Locked = true;
+        RenamingWillDisruptExistingSessionsQst: Label 'If any user is logged in with this profile, they will need to log in again. Do you want to continue?';
         CannotDeleteProfileMarkAsDisabledQst: Label 'The profile "%1" is provided by the extension %2 . You cannot delete the profile, unless you uninstall the extension. Do you want to mark the profile as Disabled instead?', Comment = '%1 = the ID of the profile the user is trying to delete; %2 = the extension (app) that owns the profile.';
         CannotDeleteProfileAlreadyMarkedAsDisabledMsg: Label 'The profile "%1" is provided by the extension %2 . You cannot delete the profile, unless you uninstall the extension. The profile has already been marked as disabled.', Comment = '%1 = the ID of the profile the user is trying to delete; %2 = the extension (app) that owns the profile.';
         AvailableRoleCentersPageCaption: Label 'Available Role Centers', Comment = 'When the user triggers LookUp of the Role Center ID field, this will be the caption of the lookup page';
         ProfileIdAlreadyExistErr: Label 'A profile with Profile ID "%1" already exist, please provide another Profile ID.';
         ProfileMustBeEnabledInOrderToSetItAsDefaultErr: Label 'The profile must be enabled in order to set it as the default profile.';
-        CanEditProfileId: Boolean;
+        ThereAreProfilesWithDuplicateIdMsg: Label 'Another profile has the same ID as this one. This can cause ambiguity in the system. Give this or the other profile another ID before you customize them. Contact your Microsoft partner for further assistance.';
+        IsUserCreatedProfile: Boolean;
+        IsProfileEditable: Boolean;
         IsWebClient: Boolean;
         HasCustomizedPages: Boolean;
         AppName: Text;

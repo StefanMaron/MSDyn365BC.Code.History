@@ -144,6 +144,7 @@ page 9020 "Small Business Owner RC"
             }
             action("Phys. Invt. Counting Document")
             {
+                ApplicationArea = Basic, Suite;
                 Caption = 'Phys. Invt. Counting Document';
                 Image = PhysicalInventory;
                 RunObject = Report "Phys. Invt. Counting Document";
@@ -154,6 +155,7 @@ page 9020 "Small Business Owner RC"
             }
             action("Balance Sheet")
             {
+                ApplicationArea = Basic, Suite;
                 Caption = 'Balance Sheet';
                 Image = Balance;
                 RunObject = Report "Balance Sheet";
@@ -161,6 +163,7 @@ page 9020 "Small Business Owner RC"
             }
             action("Income Statement")
             {
+                ApplicationArea = Basic, Suite;
                 Caption = 'Income Statement';
                 Image = VATStatement;
                 RunObject = Report "Income Statement";
@@ -171,6 +174,7 @@ page 9020 "Small Business Owner RC"
             }
             action("FA Phys. Inventory List")
             {
+                ApplicationArea = FixedAssets;
                 Caption = 'FA Phys. Inventory List';
                 Image = FixedAssets;
                 RunObject = Report "FA Phys. Inventory List";
@@ -178,6 +182,7 @@ page 9020 "Small Business Owner RC"
             }
             action("FA Receipt")
             {
+                ApplicationArea = FixedAssets;
                 Caption = 'FA Receipt';
                 Image = ReceiptLines;
                 RunObject = Report "FA Receipt Report";
@@ -185,6 +190,7 @@ page 9020 "Small Business Owner RC"
             }
             action("FA Disposal")
             {
+                ApplicationArea = FixedAssets;
                 Caption = 'FA Disposal';
                 Image = ShipmentLines;
                 RunObject = Report "FA Disposal Report";
@@ -615,6 +621,7 @@ page 9020 "Small Business Owner RC"
                 }
                 action("Cash Desk Accounts")
                 {
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Cash Desk Accounts';
                     RunObject = Page "Bank Account List";
                     RunPageView = WHERE("Account Type" = CONST("Cash Desk"));
@@ -929,6 +936,7 @@ page 9020 "Small Business Owner RC"
             }
             action("VIES Declaration")
             {
+                ApplicationArea = Basic, Suite;
                 Caption = 'VIES Declaration';
                 Image = PrintVAT;
                 RunObject = Page "VIES Declaration";

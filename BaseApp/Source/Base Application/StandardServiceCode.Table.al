@@ -164,22 +164,13 @@ table 5996 "Standard Service Code"
                         end;
                     ServLine."Dimension Set ID" := StdServLine."Dimension Set ID";
                     if StdServLine.InsertLine then begin
-                        ServLine."Line No." := GetNextLineNo(ServLine);
+                        ServLine."Line No." := ServLine.GetLineNo();
                         OnBeforeInsertServLine(ServLine);
                         ServLine.Insert(true);
                         InsertExtendedText(ServLine);
                     end;
                 until StdServLine.Next = 0;
         end;
-    end;
-
-    local procedure GetNextLineNo(ServLine: Record "Service Line"): Integer
-    begin
-        ServLine.SetRange("Document Type", ServLine."Document Type");
-        ServLine.SetRange("Document No.", ServLine."Document No.");
-        if ServLine.FindLast then
-            exit(ServLine."Line No." + 10000);
-        exit(10000);
     end;
 
     local procedure InsertExtendedText(ServLine: Record "Service Line")

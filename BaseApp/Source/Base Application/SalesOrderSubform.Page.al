@@ -433,16 +433,19 @@
                 }
                 field("Tariff No."; "Tariff No.")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a code for the item''s tariff number.';
                     Visible = false;
                 }
                 field("Statistic Indication"; "Statistic Indication")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the statistic indication code.';
                     Visible = false;
                 }
                 field("Net Weight"; "Net Weight")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the net weight of the item.';
                     Visible = false;
                 }
@@ -1650,6 +1653,8 @@
                 CurrPage.Update(false);
             end;
         end;
+
+        OnAfterNoOnAfterValidate(Rec, xRec);
     end;
 
     local procedure VariantCodeOnAfterValidate()
@@ -1762,11 +1767,8 @@
     procedure DeltaUpdateTotals()
     begin
         DocumentTotals.SalesDeltaUpdateTotals(Rec, xRec, TotalSalesLine, VATAmount, InvoiceDiscountAmount, InvoiceDiscountPct);
-        if "Line Amount" <> xRec."Line Amount" then begin
-            CurrPage.SaveRecord;
+        if "Line Amount" <> xRec."Line Amount" then
             SendLineInvoiceDiscountResetNotification;
-            CurrPage.Update(false);
-        end;
     end;
 
     procedure RedistributeTotalsOnAfterValidate()
@@ -1851,6 +1853,11 @@
         AssembleToOrderLink.UpdateAsmDimFromSalesLine(Rec);
 
         OnAfterValidateShortcutDimCode(Rec, ShortcutDimCode, DimIndex);
+    end;
+
+    [IntegrationEvent(TRUE, false)]
+    local procedure OnAfterNoOnAfterValidate(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line")
+    begin
     end;
 
     [IntegrationEvent(TRUE, false)]

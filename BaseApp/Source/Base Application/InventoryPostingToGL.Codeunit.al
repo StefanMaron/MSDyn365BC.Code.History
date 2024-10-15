@@ -145,8 +145,8 @@ codeunit 5802 "Inventory Posting To G/L"
                 "Item Ledger Entry Type"::Sale:
                     BufferSalesPosting(ValueEntry, CostToPost, CostToPostACY, ExpCostToPost, ExpCostToPostACY);
                 "Item Ledger Entry Type"::"Positive Adjmt.",
-              "Item Ledger Entry Type"::"Negative Adjmt.",
-              "Item Ledger Entry Type"::Transfer:
+                "Item Ledger Entry Type"::"Negative Adjmt.",
+                "Item Ledger Entry Type"::Transfer:
                     BufferAdjmtPosting(ValueEntry, CostToPost, CostToPostACY, ExpCostToPost, ExpCostToPostACY);
                 "Item Ledger Entry Type"::Consumption:
                     BufferConsumpPosting(ValueEntry, CostToPost, CostToPostACY);
@@ -157,7 +157,7 @@ codeunit 5802 "Inventory Posting To G/L"
                 "Item Ledger Entry Type"::"Assembly Output":
                     BufferAsmOutputPosting(ValueEntry, CostToPost, CostToPostACY);
                 "Item Ledger Entry Type"::" ":
-                    BufferCapPosting(ValueEntry, CostToPost, CostToPostACY);
+                    BufferCapacityPosting(ValueEntry, CostToPost, CostToPostACY);
                 else
                     ErrorNonValidCombination(ValueEntry);
             end;
@@ -442,6 +442,8 @@ codeunit 5802 "Inventory Posting To G/L"
                 else
                     ErrorNonValidCombination(ValueEntry);
             end;
+
+        OnAfterBufferOutputPosting(ValueEntry, CostToPost, CostToPostACY, ExpCostToPost, ExpCostToPostACY);
     end;
 
     local procedure BufferConsumpPosting(ValueEntry: Record "Value Entry"; CostToPost: Decimal; CostToPostACY: Decimal)
@@ -476,10 +478,10 @@ codeunit 5802 "Inventory Posting To G/L"
                     ErrorNonValidCombination(ValueEntry);
             end;
 
-        OnAfterBufferConsumpPosting(TempInvtPostBuf, ValueEntry, PostBufDimNo);
+        OnAfterBufferConsumpPosting(TempInvtPostBuf, ValueEntry, PostBufDimNo, CostToPost, CostToPostACY);
     end;
 
-    local procedure BufferCapPosting(ValueEntry: Record "Value Entry"; CostToPost: Decimal; CostToPostACY: Decimal)
+    local procedure BufferCapacityPosting(ValueEntry: Record "Value Entry"; CostToPost: Decimal; CostToPostACY: Decimal)
     begin
         with ValueEntry do
             if "Order Type" = "Order Type"::Assembly then
@@ -516,6 +518,8 @@ codeunit 5802 "Inventory Posting To G/L"
                     else
                         ErrorNonValidCombination(ValueEntry);
                 end;
+
+        OnAfterBufferCapacityPosting(ValueEntry, CostToPost, CostToPostACY);
     end;
 
     local procedure BufferAsmOutputPosting(ValueEntry: Record "Value Entry"; CostToPost: Decimal; CostToPostACY: Decimal)
@@ -723,7 +727,7 @@ codeunit 5802 "Inventory Posting To G/L"
 
     local procedure SetAccNo(var InvtPostBuf: Record "Invt. Posting Buffer"; ValueEntry: Record "Value Entry"; AccType: Option; BalAccType: Option)
     var
-        InvtPostSetup: Record "Inventory Posting Setup";
+        InvtPostingSetup: Record "Inventory Posting Setup";
         GenPostingSetup: Record "General Posting Setup";
         IsHandled: Boolean;
     begin
@@ -733,7 +737,7 @@ codeunit 5802 "Inventory Posting To G/L"
             "Bal. Account Type" := BalAccType;
             "Location Code" := ValueEntry."Location Code";
             "Inventory Posting Group" :=
-              GetInvPostingGroupCode(ValueEntry, AccType = "Account Type"::"WIP Inventory", ValueEntry."Inventory Posting Group");
+                GetInvPostingGroupCode(ValueEntry, AccType = "Account Type"::"WIP Inventory", ValueEntry."Inventory Posting Group");
             "Gen. Bus. Posting Group" := ValueEntry."Gen. Bus. Posting Group";
             "Gen. Prod. Posting Group" := ValueEntry."Gen. Prod. Posting Group";
             "Posting Date" := ValueEntry."Posting Date";
@@ -741,21 +745,24 @@ codeunit 5802 "Inventory Posting To G/L"
             "G/L Correction" := GetCorrectionForExpCost xor ValueEntry."G/L Correction";
             // NAVCZ
 
-            OnBeforeGetInvtPostSetup(InvtPostSetup, "Location Code", "Inventory Posting Group");
+            IsHandled := false;
+            OnBeforeGetInvtPostSetup(InvtPostingSetup, "Location Code", "Inventory Posting Group", GenPostingSetup, IsHandled);
+            if not IsHandled then
+                if UseInvtPostSetup then begin
+                    if CalledFromItemPosting then
+                        InvtPostingSetup.Get("Location Code", "Inventory Posting Group")
+                    else
+                        if not InvtPostingSetup.Get("Location Code", "Inventory Posting Group") then
+                            exit;
+                end else begin
+                    if CalledFromItemPosting then
+                        GenPostingSetup.Get("Gen. Bus. Posting Group", "Gen. Prod. Posting Group")
+                    else
+                        if not GenPostingSetup.Get("Gen. Bus. Posting Group", "Gen. Prod. Posting Group") then
+                            exit;
+                end;
 
-            if UseInvtPostSetup then begin
-                if CalledFromItemPosting then
-                    InvtPostSetup.Get("Location Code", "Inventory Posting Group")
-                else
-                    if not InvtPostSetup.Get("Location Code", "Inventory Posting Group") then
-                        exit;
-            end else begin
-                if CalledFromItemPosting then
-                    GenPostingSetup.Get("Gen. Bus. Posting Group", "Gen. Prod. Posting Group")
-                else
-                    if not GenPostingSetup.Get("Gen. Bus. Posting Group", "Gen. Prod. Posting Group") then
-                        exit;
-            end;
+            OnSetAccNoOnAfterGetPostingSetup(InvtPostBuf, InvtPostingSetup, GenPostingSetup, ValueEntry, UseInvtPostSetup());
 
             IsHandled := false;
             OnBeforeSetAccNo(InvtPostBuf, ValueEntry, AccType, BalAccType, CalledFromItemPosting, IsHandled);
@@ -763,44 +770,44 @@ codeunit 5802 "Inventory Posting To G/L"
                 case "Account Type" of
                     "Account Type"::Inventory:
                         if CalledFromItemPosting then
-                            "Account No." := InvtPostSetup.GetInventoryAccount
+                            "Account No." := InvtPostingSetup.GetInventoryAccount
                         else
-                            "Account No." := InvtPostSetup."Inventory Account";
+                            "Account No." := InvtPostingSetup."Inventory Account";
                     "Account Type"::"Inventory (Interim)":
                         if CalledFromItemPosting then
-                            "Account No." := InvtPostSetup.GetInventoryAccountInterim
+                            "Account No." := InvtPostingSetup.GetInventoryAccountInterim
                         else
-                            "Account No." := InvtPostSetup."Inventory Account (Interim)";
+                            "Account No." := InvtPostingSetup."Inventory Account (Interim)";
                     "Account Type"::"WIP Inventory":
                         if CalledFromItemPosting then
-                            "Account No." := InvtPostSetup.GetWIPAccount
+                            "Account No." := InvtPostingSetup.GetWIPAccount
                         else
-                            "Account No." := InvtPostSetup."WIP Account";
+                            "Account No." := InvtPostingSetup."WIP Account";
                     "Account Type"::"Material Variance":
                         if CalledFromItemPosting then
-                            "Account No." := InvtPostSetup.GetMaterialVarianceAccount
+                            "Account No." := InvtPostingSetup.GetMaterialVarianceAccount
                         else
-                            "Account No." := InvtPostSetup."Material Variance Account";
+                            "Account No." := InvtPostingSetup."Material Variance Account";
                     "Account Type"::"Capacity Variance":
                         if CalledFromItemPosting then
-                            "Account No." := InvtPostSetup.GetCapacityVarianceAccount
+                            "Account No." := InvtPostingSetup.GetCapacityVarianceAccount
                         else
-                            "Account No." := InvtPostSetup."Capacity Variance Account";
+                            "Account No." := InvtPostingSetup."Capacity Variance Account";
                     "Account Type"::"Subcontracted Variance":
                         if CalledFromItemPosting then
-                            "Account No." := InvtPostSetup.GetSubcontractedVarianceAccount
+                            "Account No." := InvtPostingSetup.GetSubcontractedVarianceAccount
                         else
-                            "Account No." := InvtPostSetup."Subcontracted Variance Account";
+                            "Account No." := InvtPostingSetup."Subcontracted Variance Account";
                     "Account Type"::"Cap. Overhead Variance":
                         if CalledFromItemPosting then
-                            "Account No." := InvtPostSetup.GetCapOverheadVarianceAccount
+                            "Account No." := InvtPostingSetup.GetCapOverheadVarianceAccount
                         else
-                            "Account No." := InvtPostSetup."Cap. Overhead Variance Account";
+                            "Account No." := InvtPostingSetup."Cap. Overhead Variance Account";
                     "Account Type"::"Mfg. Overhead Variance":
                         if CalledFromItemPosting then
-                            "Account No." := InvtPostSetup.GetMfgOverheadVarianceAccount
+                            "Account No." := InvtPostingSetup.GetMfgOverheadVarianceAccount
                         else
-                            "Account No." := InvtPostSetup."Mfg. Overhead Variance Account";
+                            "Account No." := InvtPostingSetup."Mfg. Overhead Variance Account";
                     "Account Type"::"Inventory Adjmt.":
                         if CalledFromItemPosting then
                             "Account No." := GenPostingSetup.GetInventoryAdjmtAccount
@@ -840,20 +847,20 @@ codeunit 5802 "Inventory Posting To G/L"
                     "Account Type"::AccConsumption:
                         begin
                             if CalledFromItemPosting then
-                                InvtPostSetup.TestField("Consumption Account");
-                            "Account No." := InvtPostSetup."Consumption Account";
+                                InvtPostingSetup.TestField("Consumption Account");
+                            "Account No." := InvtPostingSetup."Consumption Account";
                         end;
                     "Account Type"::AccWIPChange:
                         begin
                             if CalledFromItemPosting then
-                                InvtPostSetup.TestField("Change In Inv.Of WIP Acc.");
-                            "Account No." := InvtPostSetup."Change In Inv.Of WIP Acc.";
+                                InvtPostingSetup.TestField("Change In Inv.Of WIP Acc.");
+                            "Account No." := InvtPostingSetup."Change In Inv.Of WIP Acc.";
                         end;
                     "Account Type"::AccProdChange:
                         begin
                             if CalledFromItemPosting then
-                                InvtPostSetup.TestField("Change In Inv.Of Product Acc.");
-                            "Account No." := InvtPostSetup."Change In Inv.Of Product Acc.";
+                                InvtPostingSetup.TestField("Change In Inv.Of Product Acc.");
+                            "Account No." := InvtPostingSetup."Change In Inv.Of Product Acc.";
                         end;
                     "Account Type"::InvRoundingAdj:
                         begin
@@ -864,6 +871,8 @@ codeunit 5802 "Inventory Posting To G/L"
                 // NAVCZ
                 end;
 
+
+            OnSetAccNoOnBeforeCheckAccNo(InvtPostBuf, InvtPostingSetup, GenPostingSetup, CalledFromItemPosting);
             CheckAccNo("Account No.");
 
             OnAfterSetAccNo(InvtPostBuf, ValueEntry, CalledFromItemPosting);
@@ -882,6 +891,7 @@ codeunit 5802 "Inventory Posting To G/L"
     local procedure UpdateGlobalInvtPostBuf(ValueEntryNo: Integer): Boolean
     var
         i: Integer;
+        NewEntry: Boolean;
     begin
         with GlobalInvtPostBuf do begin
             if not CalledFromTestReport then
@@ -901,13 +911,15 @@ codeunit 5802 "Inventory Posting To G/L"
                     "Amount (ACY)" := "Amount (ACY)" + TempInvtPostBuf[i]."Amount (ACY)";
                     OnUpdateGlobalInvtPostBufOnBeforeModify(GlobalInvtPostBuf, TempInvtPostBuf[i]);
                     Modify;
+                    NewEntry := false; // NAVCZ
                 end else begin
                     GlobalInvtPostBufEntryNo := GlobalInvtPostBufEntryNo + 1;
                     "Entry No." := GlobalInvtPostBufEntryNo;
                     Insert;
+                    NewEntry := true; // NAVCZ
                 end;
 
-                if not (RunOnlyCheck or CalledFromTestReport) then begin
+                if not (RunOnlyCheck or CalledFromTestReport) and NewEntry then begin // NAVCZ
                     TempGLItemLedgRelation.Init;
                     TempGLItemLedgRelation."G/L Entry No." := "Entry No.";
                     TempGLItemLedgRelation."Value Entry No." := ValueEntryNo;
@@ -1121,6 +1133,8 @@ codeunit 5802 "Inventory Posting To G/L"
                   "Location Code", "Inventory Posting Group",
                   "Gen. Bus. Posting Group", "Gen. Prod. Posting Group"),
                 1, MaxStrLen(GenJnlLine.Description));
+
+        OnAfterSetDesc(GenJnlLine, InvtPostBuf);
     end;
 
     local procedure InsertTempInvtPostToGLTestBuf(GenJnlLine: Record "Gen. Journal Line"; ValueEntry: Record "Value Entry")
@@ -1185,7 +1199,8 @@ codeunit 5802 "Inventory Posting To G/L"
         GLItemLedgRelation."Value Entry No." := TempGLItemLedgRelation."Value Entry No.";
         GLItemLedgRelation."G/L Register No." := GLReg."No.";
         OnBeforeGLItemLedgRelationInsert(GLItemLedgRelation, GlobalInvtPostBuf, GLReg, TempGLItemLedgRelation);
-        GLItemLedgRelation.Insert;
+        GLItemLedgRelation.Insert();
+        OnAfterGLItemLedgRelationInsert();
         TempGLItemLedgRelation."G/L Entry No." := GlobalInvtPostBuf."Entry No.";
         TempGLItemLedgRelation.Delete;
     end;
@@ -1286,6 +1301,7 @@ codeunit 5802 "Inventory Posting To G/L"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('The functionality of posting description will be removed and this function should not be used. (Removed in release 01.2021)')]
     procedure SetPostingDesc(DescriptionString: Text[100])
     begin
         // NAVCZ
@@ -1303,7 +1319,17 @@ codeunit 5802 "Inventory Posting To G/L"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterBufferConsumpPosting(var TempInvtPostingBuffer: array[4] of Record "Invt. Posting Buffer" temporary; ValueEntry: Record "Value Entry"; PostBufDimNo: Integer);
+    local procedure OnAfterBufferCapacityPosting(var ValueEntry: Record "Value Entry"; var CostToPost: Decimal; var CostToPostACY: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterBufferConsumpPosting(var TempInvtPostingBuffer: array[4] of Record "Invt. Posting Buffer" temporary; ValueEntry: Record "Value Entry"; var PostBufDimNo: Integer; var CostToPost: Decimal; var CostToPostACY: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterBufferOutputPosting(var ValueEntry: Record "Value Entry"; var CostToPost: Decimal; var CostToPostACY: Decimal; var ExpCostToPost: Decimal; var ExpCostToPostACY: Decimal)
     begin
     end;
 
@@ -1322,6 +1348,11 @@ codeunit 5802 "Inventory Posting To G/L"
     begin
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGLItemLedgRelationInsert()
+    begin
+    end;
+
     [IntegrationEvent(TRUE, false)]
     local procedure OnAfterInitInvtPostBuf(var ValueEntry: Record "Value Entry")
     begin
@@ -1334,6 +1365,11 @@ codeunit 5802 "Inventory Posting To G/L"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetAccNo(var InvtPostingBuffer: Record "Invt. Posting Buffer"; ValueEntry: Record "Value Entry"; CalledFromItemPosting: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetDesc(var GenJnlLine: Record "Gen. Journal Line"; var InvtPostBuf: Record "Invt. Posting Buffer")
     begin
     end;
 
@@ -1398,7 +1434,7 @@ codeunit 5802 "Inventory Posting To G/L"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeGetInvtPostSetup(var InventoryPostingSetup: Record "Inventory Posting Setup"; LocationCode: Code[10]; InventoryPostingGroup: Code[20])
+    local procedure OnBeforeGetInvtPostSetup(var InventoryPostingSetup: Record "Inventory Posting Setup"; LocationCode: Code[10]; InventoryPostingGroup: Code[20]; var GenPostingSetup: Record "General Posting Setup"; var IsHandled: Boolean)
     begin
     end;
 
@@ -1434,6 +1470,16 @@ codeunit 5802 "Inventory Posting To G/L"
 
     [IntegrationEvent(false, false)]
     local procedure OnPostInvtPostBufOnBeforeSetAmt(var GenJournalLine: Record "Gen. Journal Line"; var ValueEntry: Record "Value Entry"; var GlobalInvtPostingBuffer: Record "Invt. Posting Buffer")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetAccNoOnAfterGetPostingSetup(var InvtPostBuf: Record "Invt. Posting Buffer"; var InvtPostingSetup: Record "Inventory Posting Setup"; var GenPostingSetup: Record "General Posting Setup"; ValueEntry: Record "Value Entry"; UseInvtPostSetup: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetAccNoOnBeforeCheckAccNo(var InvtPostBuf: Record "Invt. Posting Buffer"; InvtPostingSetup: Record "Inventory Posting Setup"; GenPostingSetup: Record "General Posting Setup"; CalledFromItemPosting: Boolean)
     begin
     end;
 

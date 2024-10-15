@@ -59,6 +59,7 @@ page 5846 "Inventory Report Entry"
                 }
                 field(Consumption; Consumption)
                 {
+                    ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the consumption value.';
 
                     trigger OnDrillDown()
@@ -68,6 +69,7 @@ page 5846 "Inventory Report Entry"
                 }
                 field("Change In Inv.Of WIP"; "Change In Inv.Of WIP")
                 {
+                    ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the change in inventory for the work in process (WIP) value.';
 
                     trigger OnDrillDown()
@@ -77,6 +79,7 @@ page 5846 "Inventory Report Entry"
                 }
                 field("Change In Inv.Of Product"; "Change In Inv.Of Product")
                 {
+                    ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the change in the inventory product value.';
 
                     trigger OnDrillDown()
@@ -266,6 +269,7 @@ page 5846 "Inventory Report Entry"
                 }
                 field("Inv. Rounding Adj."; "Inv. Rounding Adj.")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the inventory rounding adjustment value.';
 
                     trigger OnDrillDown()

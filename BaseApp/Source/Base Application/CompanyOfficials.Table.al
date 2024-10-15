@@ -62,8 +62,6 @@ table 11792 "Company Officials"
         {
             Caption = 'City';
             TableRelation = "Post Code".City;
-            //This property is currently not supported
-            //TestTableRelation = false;
             ValidateTableRelation = false;
 
             trigger OnValidate()
@@ -75,8 +73,6 @@ table 11792 "Company Officials"
         {
             Caption = 'Post Code';
             TableRelation = "Post Code";
-            //This property is currently not supported
-            //TestTableRelation = false;
             ValidateTableRelation = false;
 
             trigger OnValidate()
@@ -87,6 +83,7 @@ table 11792 "Company Officials"
         field(12; County; Text[30])
         {
             Caption = 'County';
+            CaptionClass = '5,1,' + "Country/Region Code";
         }
         field(13; "Phone No."; Text[30])
         {
@@ -102,6 +99,13 @@ table 11792 "Company Officials"
         {
             Caption = 'E-Mail';
             ExtendedDatatype = EMail;
+
+            trigger OnValidate()
+            var
+                MailManagement: Codeunit "Mail Management";
+            begin
+                MailManagement.ValidateEmailAddressField("E-Mail");
+            end;
         }
         field(19; Picture; BLOB)
         {
@@ -146,6 +150,7 @@ table 11792 "Company Officials"
                 if Employee.Get("Employee No.") then begin
                     TransferFields(Employee);
                     "No." := xRec."No.";
+                    "Employee No." := Employee."No.";
                 end;
             end;
         }

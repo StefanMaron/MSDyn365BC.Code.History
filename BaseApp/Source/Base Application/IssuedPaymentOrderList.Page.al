@@ -65,6 +65,7 @@ page 11724 "Issued Payment Order List"
                 }
                 field("File Name"; "File Name")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies internally field.';
                     Visible = false;
                 }

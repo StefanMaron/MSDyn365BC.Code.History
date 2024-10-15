@@ -274,13 +274,13 @@ page 8905 "Purchasing Manager Role Center"
                     }
                     action("Purch. Advance Letter List")
                     {
-                        ApplicationArea =;
+                        ApplicationArea = Basic, Suite;
                         Caption = 'Purch. Advance Letter List';
                         RunObject = report "Purch. Advance Letter List";
                     }
                     action("Quantity Received Check")
                     {
-                        ApplicationArea =;
+                        ApplicationArea = Basic, Suite;
                         Caption = 'Quantity Received Check';
                         RunObject = report "Quantity Received Check";
                     }
@@ -705,7 +705,7 @@ page 8905 "Purchasing Manager Role Center"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Adv. Payment Selection-Purch';
-                    RunObject = page 31039;
+                    RunObject = page "Adv. Payment Selection - Purch";
                 }
                 action("Req. Worksheet")
                 {

@@ -63,6 +63,7 @@ codeunit 249 "VAT Registration Log Mgt."
           Contact."VAT Registration No.", CountryCode, VATRegistrationLog."Account Type"::Contact, Contact."No.");
     end;
 
+    [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)')]
     procedure LogRegistrationCountryRegion(RegistrationCountryRegion: Record "Registration Country/Region")
     var
         CountryCode: Code[10];
@@ -245,6 +246,7 @@ codeunit 249 "VAT Registration Log Mgt."
         end;
     end;
 
+    [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)')]
     procedure AssistEditRegCountryRegionVATReg(RegistrationCountryRegion: Record "Registration Country/Region")
     var
         VATRegistrationLog: Record "VAT Registration Log";

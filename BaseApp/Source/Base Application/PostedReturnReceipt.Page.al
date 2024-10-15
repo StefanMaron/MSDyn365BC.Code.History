@@ -99,6 +99,7 @@
                 }
                 field("Posting Description"; "Posting Description")
                 {
+                    ApplicationArea = SalesReturnOrder;
                     Editable = false;
                     ToolTip = 'Specifies a description of the document. The posting description also appers on vendor and G/L entries.';
                 }
@@ -143,6 +144,7 @@
                 }
                 field(Correction; Correction)
                 {
+                    ApplicationArea = SalesReturnOrder;
                     Editable = false;
                     ToolTip = 'Specifies the entry as a corrective entry.';
                 }
@@ -251,16 +253,19 @@
                 }
                 field("VAT Bus. Posting Group"; "VAT Bus. Posting Group")
                 {
+                    ApplicationArea = SalesReturnOrder;
                     Editable = false;
                     ToolTip = 'Specifies a VAT business posting group code.';
                 }
                 field("Customer Posting Group"; "Customer Posting Group")
                 {
+                    ApplicationArea = SalesReturnOrder;
                     Editable = false;
                     ToolTip = 'Specifies the customerÍs market type to link business transakcions to.';
                 }
                 field("Reason Code"; "Reason Code")
                 {
+                    ApplicationArea = SalesReturnOrder;
                     Editable = false;
                     ToolTip = 'Specifies the reason code on the entry.';
                 }
@@ -496,6 +501,7 @@
                 trigger OnAction()
                 begin
                     ReturnRcptHeader := Rec;
+                    OnBeforePrintRecords(Rec, ReturnRcptHeader);
                     CurrPage.SetSelectionFilter(ReturnRcptHeader);
                     ReturnRcptHeader.PrintRecords(true);
                 end;
@@ -556,6 +562,11 @@
         IsSellToCountyVisible := FormatAddress.UseCounty("Sell-to Country/Region Code");
         IsShipToCountyVisible := FormatAddress.UseCounty("Ship-to Country/Region Code");
         IsBillToCountyVisible := FormatAddress.UseCounty("Bill-to Country/Region Code");
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePrintRecords(ReturnReceiptHeaderRec: Record "Return Receipt Header"; var ReturnReceiptHeaderToPrint: Record "Return Receipt Header")
+    begin
     end;
 }
 

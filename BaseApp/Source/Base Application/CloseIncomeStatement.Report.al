@@ -626,7 +626,7 @@ report 94 "Close Income Statement"
         PrevAcc: Code[20];
         Handled: Boolean;
     begin
-        OnBeforeCheckDimPostingRules(SelectedDim, ErrorText, Handled);
+        OnBeforeCheckDimPostingRules(SelectedDim, ErrorText, Handled, GenJnlLine);
         if Handled then
             exit(ErrorText);
 
@@ -687,7 +687,7 @@ report 94 "Close Income Statement"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckDimPostingRules(var SelectedDimension: Record "Selected Dimension"; var ErrorText: Text[1024]; var Handled: Boolean)
+    local procedure OnBeforeCheckDimPostingRules(var SelectedDimension: Record "Selected Dimension"; var ErrorText: Text[1024]; var Handled: Boolean; GenJnlLine: Record "Gen. Journal Line")
     begin
     end;
 

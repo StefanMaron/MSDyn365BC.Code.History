@@ -21,6 +21,7 @@ page 119 "User Setup"
                 }
                 field("Employee No."; "Employee No.")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the connectivity between User ID and employee number.';
                     Visible = false;
                 }
@@ -76,6 +77,7 @@ page 119 "User Setup"
                 }
                 field("Allow Item Unapply"; "Allow Item Unapply")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the possibillity to allow or not allow item apply.';
                     Visible = false;
                 }

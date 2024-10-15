@@ -796,6 +796,8 @@
         field(11792; "Registered Name"; Text[250])
         {
             Caption = 'Registered Name';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The functionality of Fields for Full Description will be removed and this field should not be used. Standard fields for Name are now 100. (Obsolete::Removed in release 01.2021)';
 
             trigger OnValidate()
             begin
@@ -1085,6 +1087,7 @@
         Text021: Label 'You have to set up formal and informal salutation formulas in %1  language for the %2 contact.';
         Text022: Label 'The creation of the customer has been aborted.';
         Text033: Label 'Before you can use Online Map, you must fill in the Online Map Setup window.\See Setting Up Online Map in Help.';
+        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)')]
         RegCountry: Record "Registration Country/Region";
         UseVendTemplateQst: Label 'Do you want to create contact as a vendor using a vendor template?';
         CreationAbortedErr: Label 'The Creation of the Vendor has been aborted.';
@@ -1249,7 +1252,7 @@
             OnBeforeDuplicateCheck(Rec, xRec, IsDuplicateCheckNeeded);
 
             if IsDuplicateCheckNeeded then
-                CheckDupl;
+                CheckDuplicates;
         end;
 
         OnAfterOnModify(Rec, xRec);
@@ -1331,7 +1334,7 @@
 
         if Cont.Get("No.") then begin
             if Type = Type::Company then
-                CheckDupl
+                CheckDuplicates
             else
                 DuplMgt.RemoveContIndex(Rec, false);
         end;
@@ -1340,7 +1343,13 @@
     procedure AssistEdit(OldCont: Record Contact): Boolean
     var
         Cont: Record Contact;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeAssistEdit(Rec, OldCont, IsHandled);
+        if IsHandled then
+            exit(true);
+
         with Cont do begin
             Cont := Rec;
             RMSetup.Get;
@@ -1503,6 +1512,8 @@
         OnAfterVendorInsert(Vend, Rec);
 
         UpdateCustVendBank.UpdateVendor(ContComp, ContBusRel);
+
+        OnCreateVendorOnAfterUpdateVendor(Vend, Rec);
 
         // NAVCZ
         Vend.Get(ContBusRel."No.");
@@ -1826,11 +1837,19 @@
             "Search Name" := Name;
     end;
 
-    local procedure CheckDupl()
+    local procedure CheckDuplicates()
+    var
+        IsHandled: Boolean;
     begin
         if RMSetup."Maintain Dupl. Search Strings" then
             DuplMgt.MakeContIndex(Rec);
-        if GuiAllowed then
+
+        if not GuiAllowed then
+            exit;
+
+        IsHandled := false;
+        OnBeforeLaunchDuplicateForm(Rec, IsHandled);
+        if not IsHandled then
             if DuplMgt.DuplicateExist(Rec) then begin
                 Modify;
                 Commit;
@@ -2231,6 +2250,7 @@
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('The functionality of Vendor templates will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)')]
     procedure ChooseVendorTemplate(): Code[10]
     var
         VendTemplate: Record "Vendor Template";
@@ -2827,6 +2847,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeAssistEdit(var Contact: record Contact; OldContact: Record Contact; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeBankAccountInsert(var BankAccount: Record "Bank Account");
     begin
     end;
@@ -2882,12 +2907,22 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeLaunchDuplicateForm(var Contact: Record Contact; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeValidatePostCode(var Contact: Record Contact; var PostCode: Record "Post Code");
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateCustomerOnBeforeUpdateQuotes(var Customer: Record Customer; Contact: Record Contact)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateVendorOnAfterUpdateVendor(var Vendor: Record Vendor; Contact: Record Contact)
     begin
     end;
 

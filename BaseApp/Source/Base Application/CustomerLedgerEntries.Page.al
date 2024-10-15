@@ -67,6 +67,7 @@
                 }
                 field("Customer Posting Group"; "Customer Posting Group")
                 {
+                    ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the customer''s market type to link business transakcions to.';
                     Visible = false;
@@ -176,6 +177,7 @@
                 }
                 field("Amount on Payment Order (LCY)"; "Amount on Payment Order (LCY)")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount on payment order.';
                     Visible = false;
                 }
@@ -187,6 +189,7 @@
                 }
                 field("Remaining Amount to Link (LCY)"; "Remaining Amount to Link (LCY)")
                 {
+                    ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the remaining amount that you want to link to the customer ledger entry.';
                     Visible = false;
@@ -294,53 +297,62 @@
                 }
                 field("Bank Account Code"; "Bank Account Code")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a code to idenfity bank account.';
                     Visible = false;
                 }
                 field("Bank Account No."; "Bank Account No.")
                 {
+                    ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the number used by the bank for the bank account.';
                     Visible = false;
                 }
                 field("Specific Symbol"; "Specific Symbol")
                 {
+                    ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the additional symbol of bank payments.';
                     Visible = false;
                 }
                 field("Variable Symbol"; "Variable Symbol")
                 {
+                    ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the detail information for payment.';
                     Visible = false;
                 }
                 field("Constant Symbol"; "Constant Symbol")
                 {
+                    ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the additional symbol of bank payments.';
                     Visible = false;
                 }
                 field("Transit No."; "Transit No.")
                 {
+                    ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies a bank identification number of your own choice.';
                     Visible = false;
                 }
                 field(IBAN; IBAN)
                 {
+                    ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the bank account''s international bank account number.';
                     Visible = false;
                 }
                 field("SWIFT Code"; "SWIFT Code")
                 {
+                    ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the international bank identifier code (SWIFT) of the bank where you have the account.';
                     Visible = false;
                 }
                 field("Amount on Credit (LCY)"; "Amount on Credit (LCY)")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount on credit card. The amount is in the local currency.';
                     Visible = false;
                 }
@@ -390,6 +402,7 @@
                 }
                 field(Compensation; Compensation)
                 {
+                    ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies to suggest compensation of entries in the same currency as the customer ledger entry.';
                     Visible = false;
@@ -536,12 +549,19 @@
             group("&Tax Corrective Documents for Sales")
             {
                 Caption = '&Tax Corrective Documents for Sales';
+                Visible = false;
+                ObsoleteState = Pending;
+                ObsoleteReason = 'The functionality of Tax corrective documents for VAT will be removed. (Obsolete::Removed in release 01.2021)';
+
                 action("Tax Corrective Sales &Invoices")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Tax Corrective Sales &Invoices';
                     Image = Invoice;
                     ToolTip = 'Specifies posted sales invoices';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of Tax corrective documents for VAT will be removed and this action should not be used. (Obsolete::Removed in release 01.2021)';
 
                     trigger OnAction()
                     var
@@ -556,6 +576,9 @@
                     Caption = 'Tax Corrective Sales &Cr. Memos';
                     Image = CreditMemo;
                     ToolTip = 'Specifies posted sales credit memos';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of Tax corrective documents for VAT will be removed and this action should not be used. (Obsolete::Removed in release 01.2021)';
 
                     trigger OnAction()
                     var
@@ -568,12 +591,19 @@
             group("T&ax Corrective Documents for Service")
             {
                 Caption = 'T&ax Corrective Documents for Service';
+                Visible = false;
+                ObsoleteState = Pending;
+                ObsoleteReason = 'The functionality of Tax corrective documents for VAT will be removed. (Obsolete::Removed in release 01.2021)';
+
                 action("Tax Corrective Service &Invoices")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Tax Corrective Service &Invoices';
                     Image = Invoice;
                     ToolTip = 'Specifies posted service invoices';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of Tax corrective documents for VAT will be removed and this action should not be used. (Obsolete::Removed in release 01.2021)';
 
                     trigger OnAction()
                     var
@@ -588,6 +618,9 @@
                     Caption = 'Tax Corrective Service &Cr. Memos';
                     Image = CreditMemo;
                     ToolTip = 'Specifies posted service credit memos';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of Tax corrective documents for VAT will be removed and this action should not be used. (Obsolete::Removed in release 01.2021)';
 
                     trigger OnAction()
                     var

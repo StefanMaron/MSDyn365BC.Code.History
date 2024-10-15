@@ -137,6 +137,7 @@ codeunit 420 "XBRL Management"
                         GLEntry.CopyFilter("Global Dimension 1 Code", "Global Dimension 1 Filter");
                         GLEntry.CopyFilter("Global Dimension 2 Code", "Global Dimension 2 Filter");
                         GLEntry.CopyFilter("Business Unit Code", "Business Unit Filter");
+                        OnCalcAmountOnAfterGLEntrySetFilters(GLAcc, GLEntry);
                         if Find('-') then
                             repeat
                                 case "Amount Type" of
@@ -303,6 +304,11 @@ codeunit 420 "XBRL Management"
         else
             PeriodStartDate := StartingDate;
         XBRLTaxonomyLine.SetRange("Date Filter", PeriodStartDate, PeriodEndDate);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcAmountOnAfterGLEntrySetFilters(var GLAccount: Record "G/L Account"; var GLEntry: Record "G/L Entry")
+    begin
     end;
 }
 

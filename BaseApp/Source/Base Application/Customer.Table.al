@@ -69,11 +69,15 @@ table 18 Customer
 
             trigger OnLookup()
             begin
+                OnBeforeLookupCity(Rec, PostCode);
+
                 PostCode.LookupPostCode(City, "Post Code", County, "Country/Region Code");
             end;
 
             trigger OnValidate()
             begin
+                OnBeforeValidateCity(Rec, PostCode);
+
                 PostCode.ValidateCity(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
 
                 OnAfterValidateCity(Rec, xRec);
@@ -740,11 +744,15 @@ table 18 Customer
 
             trigger OnLookup()
             begin
+                OnBeforeLookupPostCode(Rec, PostCode);
+
                 PostCode.LookupPostCode(City, "Post Code", County, "Country/Region Code");
             end;
 
             trigger OnValidate()
             begin
+                OnBeforeValidatePostCode(Rec, PostCode);
+
                 PostCode.ValidatePostCode(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
 
                 OnAfterValidatePostCode(Rec, xRec);
@@ -1586,6 +1594,8 @@ table 18 Customer
         field(11792; "Registered Name"; Text[250])
         {
             Caption = 'Registered Name';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The functionality of Fields for Full Description will be removed and this field should not be used. Standard fields for Name are now 100. (Obsolete::Removed in release 01.2021)';
 
             trigger OnValidate()
             begin
@@ -1679,6 +1689,8 @@ table 18 Customer
         {
             Caption = 'Industry Code';
             TableRelation = "Industry Code";
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The functionality of Industry Classification will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
         }
     }
 
@@ -1729,6 +1741,8 @@ table 18 Customer
         }
         key(Key15; "Industry Code")
         {
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The functionality of Industry Classification will be removed and this key should not be used. (Obsolete::Removed in release 01.2021)';
         }
         key(Key16; Blocked)
         {
@@ -1737,7 +1751,7 @@ table 18 Customer
         {
         }
         key(Key18; "Salesperson Code")
-        {            
+        {
         }
     }
 
@@ -1901,7 +1915,14 @@ table 18 Customer
     end;
 
     trigger OnInsert()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeInsert(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if "No." = '' then
             if "No. Series" = '' then begin // NAVCZ
                 SalesSetup.Get;
@@ -1978,6 +1999,7 @@ table 18 Customer
         ServiceItem: Record "Service Item";
         SalespersonPurchaser: Record "Salesperson/Purchaser";
         CustomizedCalendarChange: Record "Customized Calendar Change";
+        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)')]
         RegCountry: Record "Registration Country/Region";
         PaymentToleranceMgt: Codeunit "Payment Tolerance Management";
         NoSeriesMgt: Codeunit NoSeriesManagement;
@@ -2193,9 +2215,14 @@ table 18 Customer
             Message(Text014);
     end;
 
-    procedure GetTotalAmountLCY(): Decimal
+    procedure GetTotalAmountLCY() TotalAmountLCY: Decimal
+    var
+        IsHandled: Boolean;
     begin
-        OnBeforeGetTotalAmountLCY(Rec);
+        IsHandled := false;
+        OnBeforeGetTotalAmountLCY(Rec, TotalAmountLCY, IsHandled);
+        if IsHandled then
+            exit(TotalAmountLCY);
 
         CalcFields("Balance (LCY)", "Outstanding Orders (LCY)", "Shipped Not Invoiced (LCY)", "Outstanding Invoices (LCY)",
           "Outstanding Serv. Orders (LCY)", "Serv Shipped Not Invoiced(LCY)", "Outstanding Serv.Invoices(LCY)");
@@ -2236,13 +2263,19 @@ table 18 Customer
           AdditionalAmountLCY);
     end;
 
-    procedure GetSalesLCY(): Decimal
+    procedure GetSalesLCY() SalesLCY: Decimal
     var
         CustomerSalesYTD: Record Customer;
         AccountingPeriod: Record "Accounting Period";
         StartDate: Date;
         EndDate: Date;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetSalesLCY(Rec, CustomerSalesYTD, SalesLCY, IsHandled);
+        if IsHandled then
+            exit(SalesLCY);
+
         StartDate := AccountingPeriod.GetFiscalYearStartDate(WorkDate);
         EndDate := AccountingPeriod.GetFiscalYearEndDate(WorkDate);
         CustomerSalesYTD := Rec;
@@ -2275,7 +2308,13 @@ table 18 Customer
     var
         [SecurityFiltering(SecurityFilter::Filtered)]
         CustLedgEntryRemainAmtQuery: Query "Cust. Ledg. Entry Remain. Amt.";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCalcOverdueBalance(Rec, OverDueBalance, IsHandled);
+        if IsHandled then
+            exit(OverDueBalance);
+
         CustLedgEntryRemainAmtQuery.SetRange(Customer_No, "No.");
         CustLedgEntryRemainAmtQuery.SetRange(IsOpen, true);
         CustLedgEntryRemainAmtQuery.SetFilter(Due_Date, '<%1', WorkDate);
@@ -2320,10 +2359,16 @@ table 18 Customer
         exit(SalesLine."Return Rcd. Not Invd. (LCY)");
     end;
 
-    procedure GetInvoicedPrepmtAmountLCY(): Decimal
+    procedure GetInvoicedPrepmtAmountLCY() InvoicedPrepmtAmountLCY: Decimal
     var
         SalesLine: Record "Sales Line";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetInvoicedPrepmtAmountLCY(Rec, InvoicedPrepmtAmountLCY, IsHandled);
+        if IsHandled then
+            exit(InvoicedPrepmtAmountLCY);
+
         SalesLine.SetCurrentKey("Document Type", "Bill-to Customer No.");
         SalesLine.SetRange("Document Type", SalesLine."Document Type"::Order);
         SalesLine.SetRange("Bill-to Customer No.", "No.");
@@ -2501,7 +2546,13 @@ table 18 Customer
         CustomerWithoutQuote: Text;
         CustomerFilterFromStart: Text;
         CustomerFilterContains: Text;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetCustNoOpenCard(CustomerText, ShowCustomerCard, ShowCreateCustomerOption, CustomerNo, IsHandled);
+        If IsHandled then
+            exit(CustomerNo);
+
         if CustomerText = '' then
             exit('');
 
@@ -2518,6 +2569,7 @@ table 18 Customer
 
         CustomerWithoutQuote := ConvertStr(CustomerText, '''', '?');
         Customer.SetFilter(Name, '''@' + CustomerWithoutQuote + '''');
+        OnGetCustNoOpenCardOnBeforeCustomerFindSet(Customer);
         if Customer.FindFirst then
             exit(Customer."No.");
         Customer.SetRange(Name);
@@ -2602,6 +2654,7 @@ table 18 Customer
         Customer.Reset;
         Customer.Ascending(false); // most likely to search for newest customers
         Customer.SetRange(Blocked, Customer.Blocked::" ");
+        OnMarkCustomersWithSimilarNameOnBeforeCustomerFindSet(Customer);
         if Customer.FindSet then
             repeat
                 CustomerCount += 1;
@@ -2612,12 +2665,18 @@ table 18 Customer
         Customer.MarkedOnly(true);
     end;
 
-    procedure CreateNewCustomer(CustomerName: Text[100]; ShowCustomerCard: Boolean): Code[20]
+    procedure CreateNewCustomer(CustomerName: Text[100]; ShowCustomerCard: Boolean) NewCustomerCode: Code[20]
     var
         Customer: Record Customer;
         MiniCustomerTemplate: Record "Mini Customer Template";
         CustomerCard: Page "Customer Card";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCreateNewCustomer(CustomerName, ShowCustomerCard, NewCustomerCode, IsHandled);
+        IF IsHandled then
+            exit(NewCustomerCode);
+
         Customer.Name := CustomerName;
         if not MiniCustomerTemplate.NewCustomerFromTemplate(Customer) then
             Customer.Insert(true)
@@ -3200,7 +3259,27 @@ table 18 Customer
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeGetTotalAmountLCY(var Customer: Record Customer)
+    local procedure OnBeforeCreateNewCustomer(CustomerName: Text[100]; ShowCustomerCard: Boolean; var NewCustomerCode: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetCustNoOpenCard(CustomerText: Text; ShowCustomerCard: Boolean; ShowCreateCustomerOption: Boolean; var CustomerNo: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcOverdueBalance(var Customer: Record Customer; var OverdueBalance: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetInvoicedPrepmtAmountLCY(var Customer: Record Customer; var InvoicedPrepmtAmountLCY: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetTotalAmountLCY(var Customer: Record Customer; var TotalAmountLCY: Decimal; var IsHandled: Boolean)
     begin
     end;
 
@@ -3215,6 +3294,36 @@ table 18 Customer
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetSalesLCY(var Customer: Record Customer; var CustomerSalesYTD: Record Customer; var SalesLCY: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsert(var Customer: Record Customer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeLookupCity(var Customer: Record Customer; var PostCodeRec: Record "Post Code")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeLookupPostCode(var Customer: Record Customer; var PostCodeRec: Record "Post Code")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateCity(var Customer: Record Customer; var PostCodeRec: Record "Post Code")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidatePostCode(var Customer: Record Customer; var PostCodeRec: Record "Post Code")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateShortcutDimCode(var Customer: Record Customer; var xCustomer: Record Customer; FieldNumber: Integer; var ShortcutDimCode: Code[20]; var IsHandled: Boolean)
     begin
     end;
@@ -3225,8 +3334,17 @@ table 18 Customer
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnGetCustNoOpenCardOnBeforeCustomerFindSet(var Customer: Record Customer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnGetCustNoOpenCardOnAfterSetCustomerFilters(var Customer: Record Customer; var CustomerFilterContains: Text);
     begin
     end;
-}
 
+    [IntegrationEvent(false, false)]
+    local procedure OnMarkCustomersWithSimilarNameOnBeforeCustomerFindSet(var Customer: Record Customer)
+    begin
+    end;
+}

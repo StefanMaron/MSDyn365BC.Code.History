@@ -167,6 +167,7 @@ page 317 "VAT Statement"
                 }
                 field("Ignore Simpl. Tax Doc. Limit"; "Ignore Simpl. Tax Doc. Limit")
                 {
+                    ApplicationArea = VAT;
                     ToolTip = 'Specifies whether the system will or will not check the Simpl. Tax document limit for VAT statement depending on whether the field is checked.';
                 }
             }

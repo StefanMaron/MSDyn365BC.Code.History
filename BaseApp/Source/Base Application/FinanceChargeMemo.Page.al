@@ -68,10 +68,15 @@
                 }
                 field("Posting Desc. Code"; "Posting Desc. Code")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the posting description code for the finance charge memo.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of posting description will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
                 }
                 field("Posting Description"; "Posting Description")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description of the document. The posting description also appers on customer and G/L entries.';
                 }
                 field("Posting Date"; "Posting Date")
@@ -142,6 +147,7 @@
                 }
                 field("Customer Posting Group"; "Customer Posting Group")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the customerÍs market type to link business transakcions to.';
                 }
             }
@@ -150,44 +156,54 @@
                 Caption = 'Payments';
                 field("Bank No."; "Bank No.")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a code to idenfity bank account.';
                 }
                 field("Bank Name"; "Bank Name")
                 {
+                    ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the name of the bank.';
                 }
                 field("Bank Branch No."; "Bank Branch No.")
                 {
+                    ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the number of the bank branch.';
                 }
                 field("Bank Account No."; "Bank Account No.")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number used by the bank for the bank account.';
                 }
                 field("Transit No."; "Transit No.")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a bank identification number of your own choice.';
                 }
                 field("SWIFT Code"; "SWIFT Code")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the international bank identifier code (SWIFT) of the bank where you have the account.';
                 }
                 field(IBAN; IBAN)
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the bank account''s international bank account number.';
                 }
                 field("Specific Symbol"; "Specific Symbol")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the additional symbol of bank payments.';
                 }
                 field("Variable Symbol"; "Variable Symbol")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the detail information for payment.';
                 }
                 field("Constant Symbol"; "Constant Symbol")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the additional symbol of bank payments.';
                 }
             }

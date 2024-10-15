@@ -2,6 +2,8 @@ table 31043 "SKP Code"
 {
     Caption = 'SKP Code';
     LookupPageID = "SKP Codes";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'The functionality of Fixed Assets Clasification by SKP codes will be removed and this table should not be used. (Obsolete::Removed in release 01.2021)';
 
     fields
     {

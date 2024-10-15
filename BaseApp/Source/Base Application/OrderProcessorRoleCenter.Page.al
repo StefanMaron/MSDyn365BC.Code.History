@@ -87,6 +87,7 @@ page 9006 "Order Processor Role Center"
             }
             action("Sales Advance Letters")
             {
+                ApplicationArea = Basic, Suite;
                 Caption = 'Sales Advance Letters';
                 RunObject = Page "Sales Advance Letters";
                 ToolTip = 'Specifies sales advance letter';

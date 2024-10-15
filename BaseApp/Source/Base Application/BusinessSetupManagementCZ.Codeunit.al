@@ -60,9 +60,6 @@ codeunit 31071 "Business Setup Management CZ"
         ElectronicallyGovernSetupNameTxt: Label 'Electronically Communication Setup';
         ElectronicallyGovernSetupDescriptionTxt: Label 'Set up and enable the Check of Unreliable Payers service. Define the Proxy Server.';
         ElectronicallyGovernSetupKeywordsTxt: Label 'Proxy, Unreliable Payer';
-        IndustryCodesNameTxt: Label 'Industry Codes';
-        IndustryCodesDescriptionTxt: Label 'Set up or update Industry Classification codes.';
-        IndustryCodesKeywordsTxt: Label 'Customer';
         SalesAdvancedPaymTemplatesNameTxt: Label 'Sales Advanced Payment Templates';
         SalesAdvancedPaymTemplatesDescriptionTxt: Label 'Set up Sales Adv. Paym. Templates (document groups) with predefined accounting and number series of related documents. Define whether or not you are obliged to post VAT.';
         SalesAdvancedPaymTemplatesKeywordsTxt: Label 'Advance, Sales';
@@ -76,83 +73,80 @@ codeunit 31071 "Business Setup Management CZ"
         Info: ModuleInfo;
         ManualSetupCategory: Enum "Manual Setup Category";
     begin
-      NavApp.GetCurrentModuleInfo(Info);
+        NavApp.GetCurrentModuleInfo(Info);
 
-      // Finance
-      Sender.Insert(ConstantSymbolsNameTxt,ConstantSymbolsDescriptionTxt,
-        ConstantSymbolsKeywordsTxt,PAGE::"Constant Symbols",
-        Info.Id(), ManualSetupCategory::Finance);
-      Sender.Insert(CashDeskEventsSetupNameTxt,CashDeskEventsSetupDescriptionTxt,
-        CashDeskEventsSetupKeywordsTxt,PAGE::"Cash Desk Events Setup",
-        Info.Id(), ManualSetupCategory::Finance);
-      Sender.Insert(CurrencyNominalValuesNameTxt,CurrencyNominalValuesDescriptionTxt,
-        CurrencyNominalValuesKeywordsTxt,PAGE::"Currency Nominal Values",
-        Info.Id(), ManualSetupCategory::Finance);
-      Sender.Insert(CashDeskSetupNameTxt,CashDeskSetupDescriptionTxt,
-        CashDeskSetupKeywordsTxt,PAGE::"Cash Desk Setup",
-        Info.Id(), ManualSetupCategory::Finance);
-      Sender.Insert(VATPeriodsNameTxt,VATPeriodsDescriptionTxt,
-        VATPeriodsKeywordsTxt,PAGE::"VAT Periods",
-        Info.Id(), ManualSetupCategory::Finance);
-      Sender.Insert(CreditsSetupNameTxt,CreditsSetupDescriptionTxt,
-        CreditsSetupKeywordsTxt,PAGE::"Credits Setup",
-        Info.Id(), ManualSetupCategory::Finance);
-      Sender.Insert(StatisticIndicationsNameTxt,StatisticIndicationsDescriptionTxt,
-        StatisticIndicationsKeywordsTxt,PAGE::"Statistic Indications",
-        Info.Id(), ManualSetupCategory::Finance);
-      Sender.Insert(SpecificMovementsNameTxt,SpecificMovementsDescriptionTxt,
-        SpecificMovementsKeywordsTxt,PAGE::"Specific Movements",
-        Info.Id(), ManualSetupCategory::Finance);
-      Sender.Insert(IntrastatDeliveryGroupNameTxt,IntrastatDeliveryGroupDescriptionTxt,
-        IntrastatDeliveryGroupKeywordsTxt,PAGE::"Intrastat Delivery Group",
-        Info.Id(), ManualSetupCategory::Finance);
-      Sender.Insert(StatReportingSetupNameTxt,StatReportingSetupDescriptionTxt,
-        StatReportingSetupKeywordsTxt,PAGE::"Stat. Reporting Setup",
-        Info.Id(), ManualSetupCategory::Finance);
-      Sender.Insert(ExcelTemplateNameTxt,ExcelTemplateDescriptionTxt,
-        ExcelTemplateKeywordsTxt,PAGE::"Excel Template",
-        Info.Id(), ManualSetupCategory::Finance);
-      Sender.Insert(VATControlReportSectionsNameTxt,VATControlReportSectionsDescriptionTxt,
-        VATControlReportSectionsKeywordsTxt,PAGE::"VAT Control Report Sections",
-        Info.Id(), ManualSetupCategory::Finance);
-      Sender.Insert(EETServiceSetupNameTxt,EETServiceSetupDescriptionTxt,
-        EETServiceSetupKeywordsTxt,PAGE::"EET Service Setup",
-        Info.Id(), ManualSetupCategory::Finance);
+        // Finance
+        Sender.Insert(ConstantSymbolsNameTxt, ConstantSymbolsDescriptionTxt,
+          ConstantSymbolsKeywordsTxt, PAGE::"Constant Symbols",
+          Info.Id(), ManualSetupCategory::Finance);
+        Sender.Insert(CashDeskEventsSetupNameTxt, CashDeskEventsSetupDescriptionTxt,
+          CashDeskEventsSetupKeywordsTxt, PAGE::"Cash Desk Events Setup",
+          Info.Id(), ManualSetupCategory::Finance);
+        Sender.Insert(CurrencyNominalValuesNameTxt, CurrencyNominalValuesDescriptionTxt,
+          CurrencyNominalValuesKeywordsTxt, PAGE::"Currency Nominal Values",
+          Info.Id(), ManualSetupCategory::Finance);
+        Sender.Insert(CashDeskSetupNameTxt, CashDeskSetupDescriptionTxt,
+          CashDeskSetupKeywordsTxt, PAGE::"Cash Desk Setup",
+          Info.Id(), ManualSetupCategory::Finance);
+        Sender.Insert(VATPeriodsNameTxt, VATPeriodsDescriptionTxt,
+          VATPeriodsKeywordsTxt, PAGE::"VAT Periods",
+          Info.Id(), ManualSetupCategory::Finance);
+        Sender.Insert(CreditsSetupNameTxt, CreditsSetupDescriptionTxt,
+          CreditsSetupKeywordsTxt, PAGE::"Credits Setup",
+          Info.Id(), ManualSetupCategory::Finance);
+        Sender.Insert(StatisticIndicationsNameTxt, StatisticIndicationsDescriptionTxt,
+          StatisticIndicationsKeywordsTxt, PAGE::"Statistic Indications",
+          Info.Id(), ManualSetupCategory::Finance);
+        Sender.Insert(SpecificMovementsNameTxt, SpecificMovementsDescriptionTxt,
+          SpecificMovementsKeywordsTxt, PAGE::"Specific Movements",
+          Info.Id(), ManualSetupCategory::Finance);
+        Sender.Insert(IntrastatDeliveryGroupNameTxt, IntrastatDeliveryGroupDescriptionTxt,
+          IntrastatDeliveryGroupKeywordsTxt, PAGE::"Intrastat Delivery Group",
+          Info.Id(), ManualSetupCategory::Finance);
+        Sender.Insert(StatReportingSetupNameTxt, StatReportingSetupDescriptionTxt,
+          StatReportingSetupKeywordsTxt, PAGE::"Stat. Reporting Setup",
+          Info.Id(), ManualSetupCategory::Finance);
+        Sender.Insert(ExcelTemplateNameTxt, ExcelTemplateDescriptionTxt,
+          ExcelTemplateKeywordsTxt, PAGE::"Excel Template",
+          Info.Id(), ManualSetupCategory::Finance);
+        Sender.Insert(VATControlReportSectionsNameTxt, VATControlReportSectionsDescriptionTxt,
+          VATControlReportSectionsKeywordsTxt, PAGE::"VAT Control Report Sections",
+          Info.Id(), ManualSetupCategory::Finance);
+        Sender.Insert(EETServiceSetupNameTxt, EETServiceSetupDescriptionTxt,
+          EETServiceSetupKeywordsTxt, PAGE::"EET Service Setup",
+          Info.Id(), ManualSetupCategory::Finance);
 
-      // Fixed Assests
-      Sender.Insert(ClassificationCodesNameTxt,ClassificationCodesDescriptionTxt,
-        ClassificationCodesKeywordsTxt,PAGE::"Classification Codes",
-        Info.Id(), ManualSetupCategory::"Fixed Assets");
-      Sender.Insert(DepreciationGroupsNameTxt,DepreciationGroupsDescriptionTxt,
-        DepreciationGroupsKeywordsTxt,PAGE::"Depreciation Groups",
-        Info.Id(), ManualSetupCategory::"Fixed Assets");
-      Sender.Insert(SKPCodesNameTxt,SKPCodesDescriptionTxt,
-        SKPCodesKeywordsTxt,PAGE::"SKP Codes",
-        Info.Id(), ManualSetupCategory::"Fixed Assets");
+        // Fixed Assests
+        Sender.Insert(ClassificationCodesNameTxt, ClassificationCodesDescriptionTxt,
+          ClassificationCodesKeywordsTxt, PAGE::"Classification Codes",
+          Info.Id(), ManualSetupCategory::"Fixed Assets");
+        Sender.Insert(DepreciationGroupsNameTxt, DepreciationGroupsDescriptionTxt,
+          DepreciationGroupsKeywordsTxt, PAGE::"Depreciation Groups",
+          Info.Id(), ManualSetupCategory::"Fixed Assets");
+        Sender.Insert(SKPCodesNameTxt, SKPCodesDescriptionTxt,
+          SKPCodesKeywordsTxt, PAGE::"SKP Codes",
+          Info.Id(), ManualSetupCategory::"Fixed Assets");
 
-      // Inventory
-      Sender.Insert(StockkeepingUnitTemplatesNameTxt,StockkeepingUnitTemplatesDescriptionTxt,
-        StockkeepingUnitTemplatesKeywordsTxt,PAGE::"Stockkeeping Unit Templates",
-        Info.Id(), ManualSetupCategory::Inventory);
+        // Inventory
+        Sender.Insert(StockkeepingUnitTemplatesNameTxt, StockkeepingUnitTemplatesDescriptionTxt,
+          StockkeepingUnitTemplatesKeywordsTxt, PAGE::"Stockkeeping Unit Templates",
+          Info.Id(), ManualSetupCategory::Inventory);
 
-      // Service
-      Sender.Insert(ElectronicallyGovernSetupNameTxt,ElectronicallyGovernSetupDescriptionTxt,
-        ElectronicallyGovernSetupKeywordsTxt,PAGE::"Electronically Govern. Setup",
-        Info.Id(), ManualSetupCategory::Service);
+        // Service
+        Sender.Insert(ElectronicallyGovernSetupNameTxt, ElectronicallyGovernSetupDescriptionTxt,
+          ElectronicallyGovernSetupKeywordsTxt, PAGE::"Electronically Govern. Setup",
+          Info.Id(), ManualSetupCategory::Service);
 
-      // Sales
-      Sender.Insert(IndustryCodesNameTxt,IndustryCodesDescriptionTxt,
-        IndustryCodesKeywordsTxt,PAGE::"Industry Codes",
-        Info.Id(), ManualSetupCategory::Sales);
-      Sender.Insert(
-        SalesAdvancedPaymTemplatesNameTxt,SalesAdvancedPaymTemplatesDescriptionTxt,
-        SalesAdvancedPaymTemplatesKeywordsTxt,PAGE::"Sales Advanced Paym. Templates",
-        Info.Id(), ManualSetupCategory::Sales);
+        // Sales
+        Sender.Insert(
+          SalesAdvancedPaymTemplatesNameTxt, SalesAdvancedPaymTemplatesDescriptionTxt,
+          SalesAdvancedPaymTemplatesKeywordsTxt, PAGE::"Sales Advanced Paym. Templates",
+          Info.Id(), ManualSetupCategory::Sales);
 
-      // Purchase
-      Sender.Insert(PurchaseAdvPaymTemplatesNameTxt,PurchaseAdvPaymTemplatesDescriptionTxt,
-        PurchaseAdvPaymTemplatesKeywordsTxt,PAGE::"Purchase Adv. Paym. Templates",
-        Info.Id(), ManualSetupCategory::Purchasing);
+        // Purchase
+        Sender.Insert(PurchaseAdvPaymTemplatesNameTxt, PurchaseAdvPaymTemplatesDescriptionTxt,
+          PurchaseAdvPaymTemplatesKeywordsTxt, PAGE::"Purchase Adv. Paym. Templates",
+          Info.Id(), ManualSetupCategory::Purchasing);
     end;
 }
 

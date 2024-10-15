@@ -73,6 +73,16 @@
     </Permission>
     <Permission>
       <ObjectType>TableData</ObjectType>
+      <ObjectID>4010</ObjectID>
+      <ReadPermission>Yes</ReadPermission>
+      <InsertPermission>Yes</InsertPermission>
+      <ModifyPermission>Yes</ModifyPermission>
+      <DeletePermission>Yes</DeletePermission>
+      <ExecutePermission>Yes</ExecutePermission>
+      <SecurityFilter />
+    </Permission>
+    <Permission>
+      <ObjectType>TableData</ObjectType>
       <ObjectID>4019</ObjectID>
       <ReadPermission>Yes</ReadPermission>
       <InsertPermission>Yes</InsertPermission>

@@ -41,8 +41,6 @@ table 31057 "Posted Credit Header"
         {
             Caption = 'Company City';
             TableRelation = "Post Code".City;
-            //This property is currently not supported
-            //TestTableRelation = false;
             ValidateTableRelation = false;
         }
         field(45; "Company Contact"; Text[100])
@@ -52,6 +50,7 @@ table 31057 "Posted Credit Header"
         field(46; "Company County"; Text[30])
         {
             Caption = 'Company County';
+            CaptionClass = '5,1,' + "Company Country/Region Code";
         }
         field(47; "Company Country/Region Code"; Code[10])
         {
@@ -62,8 +61,6 @@ table 31057 "Posted Credit Header"
         {
             Caption = 'Company Post Code';
             TableRelation = "Post Code";
-            //This property is currently not supported
-            //TestTableRelation = false;
             ValidateTableRelation = false;
         }
         field(55; "User ID"; Code[50])
@@ -72,8 +69,6 @@ table 31057 "Posted Credit Header"
             DataClassification = EndUserIdentifiableInformation;
             Editable = false;
             TableRelation = User."User Name";
-            //This property is currently not supported
-            //TestTableRelation = false;
             ValidateTableRelation = false;
         }
         field(65; "Salesperson Code"; Code[20])

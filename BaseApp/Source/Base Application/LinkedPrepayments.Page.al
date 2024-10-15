@@ -15,6 +15,7 @@ page 31017 "Linked Prepayments"
                 ShowCaption = false;
                 field("CV No."; "CV No.")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of customer''s or vendor''s advance payment.';
                     Visible = false;
                 }

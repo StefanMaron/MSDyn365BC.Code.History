@@ -62,7 +62,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Fields!AccountNo.Value</Value>
+                                  <Value EvaluationMode="Auto">=Fields!AccountNo.Value</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                   </Style>
@@ -92,7 +92,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Fields!AccDescription.Value</Value>
+                                  <Value EvaluationMode="Auto">=Fields!AccDescription.Value</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                   </Style>
@@ -121,7 +121,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Code.BlankZero(Fields!Col1TotalInitialAmt.Value)</Value>
+                                  <Value EvaluationMode="Auto">=Code.BlankZero(Fields!Col1TotalInitialAmt.Value)</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <Format>=Fields!Col1TotalInitialAmtFormat.Value</Format>
@@ -155,7 +155,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Code.BlankZero(Fields!Col2InitialAmt.Value)</Value>
+                                  <Value EvaluationMode="Auto">=Code.BlankZero(Fields!Col2InitialAmt.Value)</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <Format>=Fields!Col2InitialAmtFormat.Value</Format>
@@ -189,7 +189,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Code.BlankZero(Fields!Col3Debit.Value)</Value>
+                                  <Value EvaluationMode="Auto">=Code.BlankZero(Fields!Col3Debit.Value)</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <Format>=Fields!Col3DebitFormat.Value</Format>
@@ -223,7 +223,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Code.BlankZero(Fields!Col4Credit.Value)</Value>
+                                  <Value EvaluationMode="Auto">=Code.BlankZero(Fields!Col4Credit.Value)</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <Format>=Fields!Col4CreditFormat.Value</Format>
@@ -257,7 +257,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Code.BlankZero(Fields!Col5DebitTotal.Value)</Value>
+                                  <Value EvaluationMode="Auto">=Code.BlankZero(Fields!Col5DebitTotal.Value)</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <Format>=Fields!Col5DebitTotalFormat.Value</Format>
@@ -291,7 +291,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Code.BlankZero(Fields!Col6CreditTotal.Value)</Value>
+                                  <Value EvaluationMode="Auto">=Code.BlankZero(Fields!Col6CreditTotal.Value)</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <Format>=Fields!Col6CreditTotalFormat.Value</Format>
@@ -325,7 +325,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Code.BlankZero(Fields!Col7EndAmt.Value)</Value>
+                                  <Value EvaluationMode="Auto">=Code.BlankZero(Fields!Col7EndAmt.Value)</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <Format>=Fields!Col7EndAmtFormat.Value</Format>
@@ -401,7 +401,7 @@
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Fields!DimCodeText.Value</Value>
+                                                    <Value EvaluationMode="Auto">=Fields!DimCodeText.Value</Value>
                                                     <Style>
                                                       <FontSize>7pt</FontSize>
                                                     </Style>
@@ -433,7 +433,7 @@
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Code.BlankZero(Fields!DimCol1TotalInitialAmt.Value)</Value>
+                                                    <Value EvaluationMode="Auto">=Code.BlankZero(Fields!DimCol1TotalInitialAmt.Value)</Value>
                                                     <Style>
                                                       <FontSize>7pt</FontSize>
                                                       <Format>=Fields!DimCol1TotalInitialAmtFormat.Value</Format>
@@ -466,7 +466,7 @@
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Code.BlankZero(Fields!DimCol2InitialAmt.Value)</Value>
+                                                    <Value EvaluationMode="Auto">=Code.BlankZero(Fields!DimCol2InitialAmt.Value)</Value>
                                                     <Style>
                                                       <FontSize>7pt</FontSize>
                                                       <Format>=Fields!DimCol2InitialAmtFormat.Value</Format>
@@ -499,7 +499,7 @@
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Code.BlankZero(Fields!DimCol3Debit.Value)</Value>
+                                                    <Value EvaluationMode="Auto">=Code.BlankZero(Fields!DimCol3Debit.Value)</Value>
                                                     <Style>
                                                       <FontSize>7pt</FontSize>
                                                       <Format>=Fields!DimCol3DebitFormat.Value</Format>
@@ -532,7 +532,7 @@
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Code.BlankZero(Fields!DimCol4Credit.Value)</Value>
+                                                    <Value EvaluationMode="Auto">=Code.BlankZero(Fields!DimCol4Credit.Value)</Value>
                                                     <Style>
                                                       <FontSize>7pt</FontSize>
                                                       <Format>=Fields!DimCol4CreditFormat.Value</Format>
@@ -565,7 +565,7 @@
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Code.BlankZero(Fields!DimCol5DebitTotal.Value)</Value>
+                                                    <Value EvaluationMode="Auto">=Code.BlankZero(Fields!DimCol5DebitTotal.Value)</Value>
                                                     <Style>
                                                       <FontSize>7pt</FontSize>
                                                       <Format>=Fields!DimCol5DebitTotalFormat.Value</Format>
@@ -598,7 +598,7 @@
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Code.BlankZero(Fields!DimCol6CreditTotal.Value)</Value>
+                                                    <Value EvaluationMode="Auto">=Code.BlankZero(Fields!DimCol6CreditTotal.Value)</Value>
                                                     <Style>
                                                       <FontSize>7pt</FontSize>
                                                       <Format>=Fields!DimCol6CreditTotalFormat.Value</Format>
@@ -631,7 +631,7 @@
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Code.BlankZero(Fields!DimCol7EndAmt.Value)</Value>
+                                                    <Value EvaluationMode="Auto">=Code.BlankZero(Fields!DimCol7EndAmt.Value)</Value>
                                                     <Style>
                                                       <FontSize>7pt</FontSize>
                                                       <Format>=Fields!DimCol7EndAmtFormat.Value</Format>
@@ -670,7 +670,7 @@
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=First(Fields!TotalCaption.Value)</Value>
+                                                    <Value EvaluationMode="Auto">=First(Fields!TotalCaption.Value)</Value>
                                                     <Style>
                                                       <FontSize>7pt</FontSize>
                                                     </Style>
@@ -702,7 +702,7 @@
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Code.BlankZero(sum(Fields!DimCol1TotalInitialAmt.Value))</Value>
+                                                    <Value EvaluationMode="Auto">=Code.BlankZero(sum(Fields!DimCol1TotalInitialAmt.Value))</Value>
                                                     <Style>
                                                       <FontSize>7pt</FontSize>
                                                       <Format>=Fields!DimCol1TotalInitialAmtFormat.Value</Format>
@@ -735,7 +735,7 @@
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Code.BlankZero(SUM(Fields!DimCol2InitialAmt.Value))</Value>
+                                                    <Value EvaluationMode="Auto">=Code.BlankZero(SUM(Fields!DimCol2InitialAmt.Value))</Value>
                                                     <Style>
                                                       <FontSize>7pt</FontSize>
                                                       <Format>=Fields!DimCol2InitialAmtFormat.Value</Format>
@@ -768,7 +768,7 @@
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Code.BlankZero(SUM(Fields!DimCol3Debit.Value))</Value>
+                                                    <Value EvaluationMode="Auto">=Code.BlankZero(SUM(Fields!DimCol3Debit.Value))</Value>
                                                     <Style>
                                                       <FontSize>7pt</FontSize>
                                                       <Format>=Fields!DimCol3DebitFormat.Value</Format>
@@ -801,7 +801,7 @@
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Code.BlankZero(SUM(Fields!DimCol4Credit.Value))</Value>
+                                                    <Value EvaluationMode="Auto">=Code.BlankZero(SUM(Fields!DimCol4Credit.Value))</Value>
                                                     <Style>
                                                       <FontSize>7pt</FontSize>
                                                       <Format>=Fields!DimCol4CreditFormat.Value</Format>
@@ -834,7 +834,7 @@
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Code.BlankZero(SUM(Fields!DimCol5DebitTotal.Value))</Value>
+                                                    <Value EvaluationMode="Auto">=Code.BlankZero(SUM(Fields!DimCol5DebitTotal.Value))</Value>
                                                     <Style>
                                                       <FontSize>7pt</FontSize>
                                                       <Format>=Fields!DimCol5DebitTotalFormat.Value</Format>
@@ -867,7 +867,7 @@
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Code.BlankZero(SUM(Fields!DimCol6CreditTotal.Value))</Value>
+                                                    <Value EvaluationMode="Auto">=Code.BlankZero(SUM(Fields!DimCol6CreditTotal.Value))</Value>
                                                     <Style>
                                                       <FontSize>7pt</FontSize>
                                                       <Format>=Fields!DimCol6CreditTotalFormat.Value</Format>
@@ -900,7 +900,7 @@
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Code.BlankZero(SUM(Fields!DimCol7EndAmt.Value))</Value>
+                                                    <Value EvaluationMode="Auto">=Code.BlankZero(SUM(Fields!DimCol7EndAmt.Value))</Value>
                                                     <Style>
                                                       <FontSize>7pt</FontSize>
                                                       <Format>=Fields!DimCol7EndAmtFormat.Value</Format>
@@ -994,7 +994,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Fields!SynthesisTotalText.Value</Value>
+                                  <Value EvaluationMode="Auto">=Fields!SynthesisTotalText.Value</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <FontWeight>Bold</FontWeight>
@@ -1028,7 +1028,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value />
+                                  <Value EvaluationMode="Auto" />
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                   </Style>
@@ -1056,7 +1056,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Code.BlankZero(SUM(Fields!Col1TotalInitialAmt.Value))</Value>
+                                  <Value EvaluationMode="Auto">=Code.BlankZero(SUM(Fields!Col1TotalInitialAmt.Value))</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <FontWeight>Bold</FontWeight>
@@ -1087,7 +1087,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Code.BlankZero(SUM(Fields!Col2InitialAmt.Value))</Value>
+                                  <Value EvaluationMode="Auto">=Code.BlankZero(SUM(Fields!Col2InitialAmt.Value))</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <FontWeight>Bold</FontWeight>
@@ -1118,7 +1118,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Code.BlankZero(SUM(Fields!Col3Debit.Value))</Value>
+                                  <Value EvaluationMode="Auto">=Code.BlankZero(SUM(Fields!Col3Debit.Value))</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <FontWeight>Bold</FontWeight>
@@ -1149,7 +1149,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Code.BlankZero(sum(Fields!Col4Credit.Value))</Value>
+                                  <Value EvaluationMode="Auto">=Code.BlankZero(sum(Fields!Col4Credit.Value))</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <FontWeight>Bold</FontWeight>
@@ -1180,7 +1180,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Code.BlankZero(sum(Fields!Col5DebitTotal.Value))</Value>
+                                  <Value EvaluationMode="Auto">=Code.BlankZero(sum(Fields!Col5DebitTotal.Value))</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <FontWeight>Bold</FontWeight>
@@ -1211,7 +1211,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Code.BlankZero(sum(Fields!Col6CreditTotal.Value))</Value>
+                                  <Value EvaluationMode="Auto">=Code.BlankZero(sum(Fields!Col6CreditTotal.Value))</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <FontWeight>Bold</FontWeight>
@@ -1242,7 +1242,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Code.BlankZero(sum(Fields!Col7EndAmt.Value))</Value>
+                                  <Value EvaluationMode="Auto">=Code.BlankZero(sum(Fields!Col7EndAmt.Value))</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <FontWeight>Bold</FontWeight>
@@ -1279,7 +1279,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Fields!GroupTotalText.Value</Value>
+                                  <Value EvaluationMode="Auto">=Fields!GroupTotalText.Value</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <FontWeight>Bold</FontWeight>
@@ -1313,7 +1313,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value />
+                                  <Value EvaluationMode="Auto" />
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                   </Style>
@@ -1341,7 +1341,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Code.BlankZero(SUM(Fields!Col1TotalInitialAmt.Value))</Value>
+                                  <Value EvaluationMode="Auto">=Code.BlankZero(SUM(Fields!Col1TotalInitialAmt.Value))</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <FontWeight>Bold</FontWeight>
@@ -1372,7 +1372,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Code.BlankZero(SUM(Fields!Col2InitialAmt.Value))</Value>
+                                  <Value EvaluationMode="Auto">=Code.BlankZero(SUM(Fields!Col2InitialAmt.Value))</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <FontWeight>Bold</FontWeight>
@@ -1403,7 +1403,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Code.BlankZero(SUM(Fields!Col3Debit.Value))</Value>
+                                  <Value EvaluationMode="Auto">=Code.BlankZero(SUM(Fields!Col3Debit.Value))</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <FontWeight>Bold</FontWeight>
@@ -1434,7 +1434,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Code.BlankZero(sum(Fields!Col4Credit.Value))</Value>
+                                  <Value EvaluationMode="Auto">=Code.BlankZero(sum(Fields!Col4Credit.Value))</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <FontWeight>Bold</FontWeight>
@@ -1465,7 +1465,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Code.BlankZero(sum(Fields!Col5DebitTotal.Value))</Value>
+                                  <Value EvaluationMode="Auto">=Code.BlankZero(sum(Fields!Col5DebitTotal.Value))</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <FontWeight>Bold</FontWeight>
@@ -1496,7 +1496,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Code.BlankZero(sum(Fields!Col6CreditTotal.Value))</Value>
+                                  <Value EvaluationMode="Auto">=Code.BlankZero(sum(Fields!Col6CreditTotal.Value))</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <FontWeight>Bold</FontWeight>
@@ -1527,7 +1527,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Code.BlankZero(sum(Fields!Col7EndAmt.Value))</Value>
+                                  <Value EvaluationMode="Auto">=Code.BlankZero(sum(Fields!Col7EndAmt.Value))</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <FontWeight>Bold</FontWeight>
@@ -1564,7 +1564,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Fields!ClassTotalText.Value</Value>
+                                  <Value EvaluationMode="Auto">=Fields!ClassTotalText.Value</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <FontWeight>Bold</FontWeight>
@@ -1598,7 +1598,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value />
+                                  <Value EvaluationMode="Auto" />
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                   </Style>
@@ -1626,7 +1626,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Code.BlankZero(SUM(Fields!Col1TotalInitialAmt.Value))</Value>
+                                  <Value EvaluationMode="Auto">=Code.BlankZero(SUM(Fields!Col1TotalInitialAmt.Value))</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <FontWeight>Bold</FontWeight>
@@ -1657,7 +1657,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Code.BlankZero(SUM(Fields!Col2InitialAmt.Value))</Value>
+                                  <Value EvaluationMode="Auto">=Code.BlankZero(SUM(Fields!Col2InitialAmt.Value))</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <FontWeight>Bold</FontWeight>
@@ -1688,7 +1688,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Code.BlankZero(SUM(Fields!Col3Debit.Value))</Value>
+                                  <Value EvaluationMode="Auto">=Code.BlankZero(SUM(Fields!Col3Debit.Value))</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <FontWeight>Bold</FontWeight>
@@ -1719,7 +1719,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Code.BlankZero(sum(Fields!Col4Credit.Value))</Value>
+                                  <Value EvaluationMode="Auto">=Code.BlankZero(sum(Fields!Col4Credit.Value))</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <FontWeight>Bold</FontWeight>
@@ -1750,7 +1750,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Code.BlankZero(sum(Fields!Col5DebitTotal.Value))</Value>
+                                  <Value EvaluationMode="Auto">=Code.BlankZero(sum(Fields!Col5DebitTotal.Value))</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <FontWeight>Bold</FontWeight>
@@ -1781,7 +1781,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Code.BlankZero(sum(Fields!Col6CreditTotal.Value))</Value>
+                                  <Value EvaluationMode="Auto">=Code.BlankZero(sum(Fields!Col6CreditTotal.Value))</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <FontWeight>Bold</FontWeight>
@@ -1812,7 +1812,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Code.BlankZero(sum(Fields!Col7EndAmt.Value))</Value>
+                                  <Value EvaluationMode="Auto">=Code.BlankZero(sum(Fields!Col7EndAmt.Value))</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <FontWeight>Bold</FontWeight>
@@ -1849,7 +1849,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value />
+                                  <Value EvaluationMode="Auto" />
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                   </Style>
@@ -1880,7 +1880,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value />
+                                  <Value EvaluationMode="Auto" />
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                   </Style>
@@ -1911,7 +1911,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value />
+                                  <Value EvaluationMode="Auto" />
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                   </Style>
@@ -1939,7 +1939,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Code.BlankZero(SUM(Fields!Col1TotalInitialAmt.Value))</Value>
+                                  <Value EvaluationMode="Auto">=Code.BlankZero(SUM(Fields!Col1TotalInitialAmt.Value))</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <FontWeight>Bold</FontWeight>
@@ -1976,7 +1976,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Code.BlankZero(SUM(Fields!Col2InitialAmt.Value))</Value>
+                                  <Value EvaluationMode="Auto">=Code.BlankZero(SUM(Fields!Col2InitialAmt.Value))</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <FontWeight>Bold</FontWeight>
@@ -2013,7 +2013,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Code.BlankZero(SUM(Fields!Col3Debit.Value))</Value>
+                                  <Value EvaluationMode="Auto">=Code.BlankZero(SUM(Fields!Col3Debit.Value))</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <FontWeight>Bold</FontWeight>
@@ -2050,7 +2050,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Code.BlankZero(sum(Fields!Col4Credit.Value))</Value>
+                                  <Value EvaluationMode="Auto">=Code.BlankZero(sum(Fields!Col4Credit.Value))</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <FontWeight>Bold</FontWeight>
@@ -2087,7 +2087,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Code.BlankZero(sum(Fields!Col5DebitTotal.Value))</Value>
+                                  <Value EvaluationMode="Auto">=Code.BlankZero(sum(Fields!Col5DebitTotal.Value))</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <FontWeight>Bold</FontWeight>
@@ -2124,7 +2124,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Code.BlankZero(sum(Fields!Col6CreditTotal.Value))</Value>
+                                  <Value EvaluationMode="Auto">=Code.BlankZero(sum(Fields!Col6CreditTotal.Value))</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <FontWeight>Bold</FontWeight>
@@ -2161,7 +2161,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Code.BlankZero(sum(Fields!Col7EndAmt.Value))</Value>
+                                  <Value EvaluationMode="Auto">=Code.BlankZero(sum(Fields!Col7EndAmt.Value))</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <FontWeight>Bold</FontWeight>
@@ -2316,7 +2316,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value>=Globals!PageNumber</Value>
+                      <Value EvaluationMode="Auto">=Globals!PageNumber</Value>
                       <Style>
                         <FontSize>7pt</FontSize>
                       </Style>
@@ -2341,7 +2341,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value>=User!UserID</Value>
+                      <Value EvaluationMode="Auto">=User!UserID</Value>
                       <Style>
                         <FontSize>7pt</FontSize>
                       </Style>
@@ -2367,7 +2367,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value>=Globals!ExecutionTime</Value>
+                      <Value EvaluationMode="Auto">=Globals!ExecutionTime</Value>
                       <Style>
                         <FontSize>7pt</FontSize>
                         <Format>g</Format>
@@ -2393,7 +2393,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value>=First(Fields!COMPANYNAME.Value, "DataSet_Result")</Value>
+                      <Value EvaluationMode="Auto">=First(Fields!COMPANYNAME.Value, "DataSet_Result")</Value>
                       <Style>
                         <FontSize>7pt</FontSize>
                       </Style>
@@ -2416,7 +2416,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value>=First(Fields!tcText002___gtePeriodText.Value, "DataSet_Result")</Value>
+                      <Value EvaluationMode="Auto">=First(Fields!tcText002___gtePeriodText.Value, "DataSet_Result")</Value>
                       <Style>
                         <FontSize>7pt</FontSize>
                       </Style>
@@ -2439,7 +2439,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value>=First(Fields!CurrReport_PAGENOCaption.Value, "DataSet_Result")</Value>
+                      <Value EvaluationMode="Auto">=First(Fields!CurrReport_PAGENOCaption.Value, "DataSet_Result")</Value>
                       <Style>
                         <FontSize>7pt</FontSize>
                       </Style>
@@ -2463,7 +2463,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value>=First(Fields!ReportCaption.Value, "DataSet_Result")</Value>
+                      <Value EvaluationMode="Auto">=First(Fields!ReportCaption.Value, "DataSet_Result")</Value>
                       <Style>
                         <FontSize>9pt</FontSize>
                         <FontWeight>Bold</FontWeight>
@@ -2487,7 +2487,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value>=First(Fields!AccNoCaption.Value, "DataSet_Result")</Value>
+                      <Value EvaluationMode="Auto">=First(Fields!AccNoCaption.Value, "DataSet_Result")</Value>
                       <Style>
                         <FontSize>7pt</FontSize>
                         <FontWeight>Bold</FontWeight>
@@ -2518,7 +2518,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value>=First(Fields!gteDimCaption.Value, "DataSet_Result")</Value>
+                      <Value EvaluationMode="Auto">=First(Fields!gteDimCaption.Value, "DataSet_Result")</Value>
                       <Style>
                         <FontSize>7pt</FontSize>
                         <FontWeight>Bold</FontWeight>
@@ -2550,7 +2550,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value>=First(Fields!Col1TotalInitialAmtCaption.Value, "DataSet_Result")</Value>
+                      <Value EvaluationMode="Auto">=First(Fields!Col1TotalInitialAmtCaption.Value, "DataSet_Result")</Value>
                       <Style>
                         <FontSize>7pt</FontSize>
                         <FontWeight>Bold</FontWeight>
@@ -2582,7 +2582,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value>=First(Fields!Col2InitialAmtCaption.Value, "DataSet_Result")</Value>
+                      <Value EvaluationMode="Auto">=First(Fields!Col2InitialAmtCaption.Value, "DataSet_Result")</Value>
                       <Style>
                         <FontSize>7pt</FontSize>
                         <FontWeight>Bold</FontWeight>
@@ -2614,7 +2614,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value>=First(Fields!Col3DebitCaption.Value, "DataSet_Result")</Value>
+                      <Value EvaluationMode="Auto">=First(Fields!Col3DebitCaption.Value, "DataSet_Result")</Value>
                       <Style>
                         <FontSize>7pt</FontSize>
                         <FontWeight>Bold</FontWeight>
@@ -2646,7 +2646,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value>=First(Fields!Col4CreditCaption.Value, "DataSet_Result")</Value>
+                      <Value EvaluationMode="Auto">=First(Fields!Col4CreditCaption.Value, "DataSet_Result")</Value>
                       <Style>
                         <FontSize>7pt</FontSize>
                         <FontWeight>Bold</FontWeight>
@@ -2678,7 +2678,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value>=First(Fields!Col5DebitTotalCaption.Value, "DataSet_Result")</Value>
+                      <Value EvaluationMode="Auto">=First(Fields!Col5DebitTotalCaption.Value, "DataSet_Result")</Value>
                       <Style>
                         <FontSize>7pt</FontSize>
                         <FontWeight>Bold</FontWeight>
@@ -2710,7 +2710,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value>=First(Fields!Col6CreditTotalCaption.Value, "DataSet_Result")</Value>
+                      <Value EvaluationMode="Auto">=First(Fields!Col6CreditTotalCaption.Value, "DataSet_Result")</Value>
                       <Style>
                         <FontSize>7pt</FontSize>
                         <FontWeight>Bold</FontWeight>
@@ -2742,7 +2742,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value>=First(Fields!Col7EndAmtCaption.Value, "DataSet_Result")</Value>
+                      <Value EvaluationMode="Auto">=First(Fields!Col7EndAmtCaption.Value, "DataSet_Result")</Value>
                       <Style>
                         <FontSize>7pt</FontSize>
                         <FontWeight>Bold</FontWeight>
@@ -2774,7 +2774,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value>=First(Fields!gdaDateStartFisk.Value, "DataSet_Result")</Value>
+                      <Value EvaluationMode="Auto">=First(Fields!gdaDateStartFisk.Value, "DataSet_Result")</Value>
                       <Style>
                         <FontSize>7pt</FontSize>
                         <Format>d</Format>
@@ -2809,7 +2809,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value>=First(Fields!gdaDateFrom.Value, "DataSet_Result")</Value>
+                      <Value EvaluationMode="Auto">=First(Fields!gdaDateFrom.Value, "DataSet_Result")</Value>
                       <Style>
                         <FontSize>7pt</FontSize>
                         <Format>d</Format>
@@ -2844,7 +2844,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value>=First(Fields!gdaDateTo.Value, "DataSet_Result")</Value>
+                      <Value EvaluationMode="Auto">=First(Fields!gdaDateTo.Value, "DataSet_Result")</Value>
                       <Style>
                         <FontSize>7pt</FontSize>
                         <Format>d</Format>
@@ -2900,7 +2900,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value>=First(Fields!Filters.Value, "DataSet_Result")</Value>
+                      <Value EvaluationMode="Auto">=First(Fields!Filters.Value, "DataSet_Result")</Value>
                       <Style>
                         <FontSize>7pt</FontSize>
                       </Style>
@@ -2928,7 +2928,8 @@
         <PageWidth>29.7cm</PageWidth>
         <LeftMargin>2cm</LeftMargin>
         <RightMargin>2cm</RightMargin>
-        <TopMargin>2cm</TopMargin>
+        <TopMargin>1cm</TopMargin>
+        <BottomMargin>1cm</BottomMargin>
         <Style />
       </Page>
     </ReportSection>

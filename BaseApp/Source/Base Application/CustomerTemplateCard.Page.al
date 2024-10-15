@@ -98,11 +98,19 @@
                 }
                 field("No. Series"; "No. Series")
                 {
+                    ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies series number for new customer''s card.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of Customer Template extension will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
                 }
                 field("Language Code"; "Language Code")
                 {
+                    ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the language to be used on printouts for this document.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of Customer Template extension will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
                 }
             }
         }

@@ -184,6 +184,9 @@ page 571 "No. Series List"
                     RunObject = Page "No. Series Links";
                     RunPageLink = "Initial No. Series" = FIELD(Code);
                     ToolTip = 'Allow the connection to the no. series.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of No. Series Enhancements will be removed and this action should not be used. (Obsolete::Removed in release 01.2021)';
                 }
             }
         }
@@ -196,6 +199,9 @@ page 571 "No. Series List"
                 Image = CreateSerialNo;
                 RunObject = Report "No. Series Mask Generator";
                 ToolTip = 'Generates No. Series Line according to selected Mask';
+                Visible = false;
+                ObsoleteState = Pending;
+                ObsoleteReason = 'The functionality of No. Series Enhancements will be removed and this action should not be used. (Obsolete::Removed in release 01.2021)';
             }
         }
     }

@@ -38,11 +38,13 @@ page 11727 "Bank List"
                 }
                 field("Post Code"; "Post Code")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the postal code of the address.';
                     Visible = false;
                 }
                 field("Country/Region Code"; "Country/Region Code")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the country/region code of the address.';
                     Visible = false;
                 }
@@ -53,6 +55,7 @@ page 11727 "Bank List"
                 }
                 field("Fax No."; "Fax No.")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the fax number associated with the address.';
                     Visible = false;
                 }
@@ -69,26 +72,31 @@ page 11727 "Bank List"
                 }
                 field("SWIFT Code"; "SWIFT Code")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the international bank identifier code (SWIFT) of the bank where you have the account.';
                     Visible = false;
                 }
                 field(IBAN; IBAN)
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the bank account''s international bank account number.';
                     Visible = false;
                 }
                 field("Specific Symbol"; "Specific Symbol")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the additional symbol of bank payments.';
                     Visible = false;
                 }
                 field("Our Contact Code"; "Our Contact Code")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a code to specify the employee who is responsible for this bank account.';
                     Visible = false;
                 }
                 field("Bank Acc. Posting Group"; "Bank Acc. Posting Group")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a code for the bank account posting group for the bank account.';
                     Visible = false;
                 }
@@ -115,6 +123,7 @@ page 11727 "Bank List"
         {
             part(Control1220002; "Dimensions FactBox")
             {
+                ApplicationArea = Dimensions;
                 SubPageLink = "Table ID" = CONST(270),
                               "No." = FIELD("No.");
                 Visible = false;
@@ -156,6 +165,7 @@ page 11727 "Bank List"
                 }
                 action("Co&mments")
                 {
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Co&mments';
                     Image = ViewComments;
                     RunObject = Page "Comment Sheet";
@@ -165,7 +175,7 @@ page 11727 "Bank List"
                 }
                 action(PositivePayExport)
                 {
-                    ApplicationArea = Suite;
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Positive Pay Export';
                     Image = Export;
                     Promoted = true;
@@ -249,6 +259,7 @@ page 11727 "Bank List"
                 }
                 action("Chec&k Ledger Entries")
                 {
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Chec&k Ledger Entries';
                     Image = CheckLedger;
                     RunObject = Page "Check Ledger Entries";
@@ -343,6 +354,7 @@ page 11727 "Bank List"
                 }
                 action(AutomaticBankStatementImportSetup)
                 {
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Automatic Bank Statement Import Setup';
                     Enabled = Linked;
                     Image = ElectronicBanking;

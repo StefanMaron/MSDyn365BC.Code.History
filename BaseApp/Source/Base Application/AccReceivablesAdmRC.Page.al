@@ -98,6 +98,7 @@ page 9003 "Acc. Receivables Adm. RC"
             }
             action("Customer - Bal. Reconciliation")
             {
+                ApplicationArea = Basic, Suite;
                 Caption = 'Customer - Bal. Reconciliation';
                 Image = Reconcile;
                 RunObject = Report "Customer - Bal. Reconciliation";

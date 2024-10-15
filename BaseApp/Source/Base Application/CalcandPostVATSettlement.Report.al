@@ -660,6 +660,9 @@ report 20 "Calc. and Post VAT Settlement"
                         Caption = 'Performance Country';
                         TableRelation = "Country/Region";
                         ToolTip = 'Specifies performance country code for VAT entries filtr.';
+                        Visible = false;
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
                     }
                 }
             }
@@ -769,6 +772,7 @@ report 20 "Calc. and Post VAT Settlement"
         UserIDCaptionLbl: Label 'User ID';
         TotalCaptionLbl: Label 'Total';
         SettlementCaptionLbl: Label 'Settlement';
+        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)')]
         CountryCodeFillFiter: Code[10];
         PrintCountrySubTotal: Integer;
         CountrySubTotalAmt: array[4] of Decimal;

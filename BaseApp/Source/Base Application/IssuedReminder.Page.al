@@ -144,42 +144,52 @@
                 Caption = 'Payments';
                 field("Bank No."; "Bank No.")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a code to idenfity bank account.';
                 }
                 field("Bank Name"; "Bank Name")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the bank.';
                 }
                 field("Bank Branch No."; "Bank Branch No.")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the bank branch.';
                 }
                 field("Bank Account No."; "Bank Account No.")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number used by the bank for the bank account.';
                 }
                 field("Transit No."; "Transit No.")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a bank identification number of your own choice.';
                 }
                 field("SWIFT Code"; "SWIFT Code")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the international bank identifier code (SWIFT) of the bank where you have the account.';
                 }
                 field(IBAN; IBAN)
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the bank account''s international bank account number.';
                 }
                 field("Specific Symbol"; "Specific Symbol")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the additional symbol of bank payments.';
                 }
                 field("Variable Symbol"; "Variable Symbol")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the detail information for payment.';
                 }
                 field("Constant Symbol"; "Constant Symbol")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the additional symbol of bank payments.';
                 }
             }
@@ -298,6 +308,8 @@
 
                 trigger OnAction()
                 begin
+                    IssuedReminderHeader := Rec;
+                    OnBeforePrintRecords(Rec, IssuedReminderHeader);
                     CurrPage.SetSelectionFilter(IssuedReminderHeader);
                     IssuedReminderHeader.PrintRecords(true, false, false);
                 end;
@@ -356,5 +368,10 @@
         IssuedReminderHeader: Record "Issued Reminder Header";
         CurrExchRate: Record "Currency Exchange Rate";
         ChangeExchangeRate: Page "Change Exchange Rate";
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePrintRecords(IssuedReminderHeaderRec: Record "Issued Reminder Header"; var IssuedReminderHeaderToPrint: Record "Issued Reminder Header")
+    begin
+    end;
 }
 

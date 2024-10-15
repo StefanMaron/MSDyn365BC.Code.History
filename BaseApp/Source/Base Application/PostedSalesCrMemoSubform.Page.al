@@ -153,8 +153,11 @@
                 }
                 field("Reason Code"; "Reason Code")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the reason code on the entry.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of Tax corrective documents for VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
                 }
                 field("Deferral Code"; "Deferral Code")
                 {

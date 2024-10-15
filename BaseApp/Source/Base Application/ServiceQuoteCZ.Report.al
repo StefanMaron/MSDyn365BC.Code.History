@@ -87,7 +87,7 @@ report 31110 "Service Quote CZ"
             column(SalespersonLbl; SalespersonLbl)
             {
             }
-            column(CreatorLbl; CreatorLbl)
+            column(PrintedByLbl; PrintedByLbl)
             {
             }
             column(No_ServiceHeader; "No.")
@@ -387,7 +387,6 @@ report 31110 "Service Quote CZ"
                 }
                 dataitem("User Setup"; "User Setup")
                 {
-                    DataItemLink = "User ID" = FIELD("Original User ID");
                     DataItemLinkReference = "Service Header";
                     DataItemTableView = SORTING("User ID");
                     dataitem(Employee; Employee)
@@ -404,6 +403,11 @@ report 31110 "Service Quote CZ"
                         {
                         }
                     }
+
+                    trigger OnPreDataItem()
+                    begin
+                        "User Setup".SetRange("User ID", UserId());
+                    end;
                 }
 
                 trigger OnPostDataItem()
@@ -547,7 +551,7 @@ report 31110 "Service Quote CZ"
         PaymentMethodLbl: Label 'Payment Method';
         ShipmentMethodLbl: Label 'Shipment Method';
         SalespersonLbl: Label 'Salesperson';
-        CreatorLbl: Label 'Posted by';
+        PrintedByLbl: Label 'Printed by';
         ServiceItemLinesLbl: Label 'Service Item Lines';
         ServiceLineLbl: Label 'Service Line';
         FaultCommentsLbl: Label 'Fault Comments';

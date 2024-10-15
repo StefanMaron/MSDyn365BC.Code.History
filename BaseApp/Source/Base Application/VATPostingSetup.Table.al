@@ -212,6 +212,8 @@ table 325 "VAT Posting Setup"
         {
             Caption = 'Non Deduct. VAT Corr. Account';
             TableRelation = "G/L Account";
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The functionality of Non-deductible VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
 
             trigger OnValidate()
             begin
@@ -222,6 +224,8 @@ table 325 "VAT Posting Setup"
         {
             Caption = 'Sales VAT Postponed Account';
             TableRelation = "G/L Account";
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The functionality of Postponing VAT on Sales Cr.Memo will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
 
             trigger OnValidate()
             begin
@@ -237,6 +241,8 @@ table 325 "VAT Posting Setup"
         field(11766; "Allow Non Deductible VAT"; Boolean)
         {
             Caption = 'Allow Non Deductible VAT';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The functionality of Non-deductible VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
 
             trigger OnValidate()
             begin

@@ -214,6 +214,9 @@ codeunit 5611 "Calculate Normal Depreciation"
                                 Amount := CalcUserDefinedAmount(UntilDate);
                             DeprMethod::BelowZero:
                                 Amount := DepreciationCalc.CalcRounding(DeprBookCode, CalcBelowZeroAmount);
+                            else
+                                OnCalculateDeprAmountOnDeprMethodCaseLastEntry(
+                                    FADeprBook, BookValue, DeprBasis, DeprYears, DaysInFiscalYear, NumberOfDays, Amount);
                         end;
             end
             // Method Last Depreciation Entry
@@ -254,6 +257,9 @@ codeunit 5611 "Calculate Normal Depreciation"
                                 Amount := 0;
                             DeprMethod::"User-Defined":
                                 Amount := Amount + CalcUserDefinedAmount(EndingDate);
+                            else
+                                OnCalculateDeprAmountOnDeprMethodCaseLastDeprEntry(
+                                    FADeprBook, BookValue, DeprBasis, DeprYears, DaysInFiscalYear, NumberOfDays, Amount);
                         end;
                     DepreciationCalc.GetDeprPeriod(
                       "No.", DeprBookCode, UntilDate, StartingDate, EndingDate, NumberOfDays, Year365Days);
@@ -1003,7 +1009,7 @@ codeunit 5611 "Calculate Normal Depreciation"
         FALedgerEntry: Record "FA Ledger Entry";
     begin
         // NAVCZ
-        IF FADeprBook.Prorated THEN
+        IF ProjValue THEN
             EXIT(TempFromDate >= CalcEndOfFiscalYear(AcquisitionDate));
 
         DepreciationCalc.SetFAFilter(FALedgerEntry, FANo, DeprBookCode, true);
@@ -1041,6 +1047,16 @@ codeunit 5611 "Calculate Normal Depreciation"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterTransferValues(FixedAsset: Record "Fixed Asset"; FADepreciationBook: Record "FA Depreciation Book"; Year365Days: Boolean; var DeprYears: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculateDeprAmountOnDeprMethodCaseLastEntry(FADepreciationBook: Record "FA Depreciation Book"; BookValue: Decimal; DeprBasis: Decimal; DeprYears: Decimal; DaysInFiscalYear: Integer; NumberOfDays: Integer; var Amount: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculateDeprAmountOnDeprMethodCaseLastDeprEntry(FADepreciationBook: Record "FA Depreciation Book"; BookValue: Decimal; DeprBasis: Decimal; DeprYears: Decimal; DaysInFiscalYear: Integer; NumberOfDays: Integer; var Amount: Decimal)
     begin
     end;
 }

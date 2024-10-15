@@ -13,7 +13,7 @@ table 11704 "Bank Statement Header"
 
             trigger OnValidate()
             begin
-                if "No." <> xRec."No." then begin
+                if ("No." <> xRec."No.") and ("Bank Account No." <> '') then begin
                     BankAccount.Get("Bank Account No.");
                     NoSeriesMgt.TestManual(BankAccount."Bank Statement Nos.");
                     "No. Series" := '';

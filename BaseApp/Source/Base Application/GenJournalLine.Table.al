@@ -1032,8 +1032,14 @@
                             if ("Payment Terms Code" <> '') and ("Document Date" <> 0D) then begin
                                 PaymentTerms.Get("Payment Terms Code");
                                 if PaymentTerms."Calc. Pmt. Disc. on Cr. Memos" then begin
-                                    "Due Date" := CalcDate(PaymentTerms."Due Date Calculation", "Document Date");
-                                    "Pmt. Discount Date" := CalcDate(PaymentTerms."Discount Date Calculation", "Document Date");
+                                    IsHandled := false;
+                                    OnValidatePaymentTermsCodeOnBeforeCalculateDueDate(Rec, PaymentTerms, IsHandled);
+                                    if not IsHandled then
+                                        "Due Date" := CalcDate(PaymentTerms."Due Date Calculation", "Document Date");
+                                    IsHandled := false;
+                                    OnValidatePaymentTermsCodeOnBeforeCalculatePmtDiscountDate(Rec, PaymentTerms, IsHandled);
+                                    if not IsHandled then
+                                        "Pmt. Discount Date" := CalcDate(PaymentTerms."Discount Date Calculation", "Document Date");
                                     "Payment Discount %" := PaymentTerms."Discount %";
                                 end else
                                     "Due Date" := "Document Date";
@@ -3068,6 +3074,8 @@
         field(11763; "Postponed VAT"; Boolean)
         {
             Caption = 'Postponed VAT';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The functionality of Postponing VAT on Sales Cr.Memo will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
         }
         field(11764; "VAT Delay"; Boolean)
         {
@@ -3079,6 +3087,8 @@
             Caption = 'VAT % (Non Deductible)';
             MaxValue = 100;
             MinValue = 0;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The functionality of Non-deductible VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
 
             trigger OnValidate()
             begin
@@ -3120,6 +3130,8 @@
             AutoFormatExpression = "Currency Code";
             Caption = 'VAT Base (Non Deductible)';
             Editable = false;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The functionality of Non-deductible VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
 
             trigger OnValidate()
             begin
@@ -3138,6 +3150,8 @@
             AutoFormatExpression = "Currency Code";
             Caption = 'VAT Amount (Non Deductible)';
             Editable = false;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The functionality of Non-deductible VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
 
             trigger OnValidate()
             begin
@@ -3171,11 +3185,15 @@
             AutoFormatType = 1;
             Caption = 'VAT Base LCY (Non Deduct.)';
             Editable = false;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The functionality of Non-deductible VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
         }
         field(11773; "VAT Amount LCY (Non Deduct.)"; Decimal)
         {
             AutoFormatType = 1;
             Caption = 'VAT Amount LCY (Non Deduct.)';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The functionality of Non-deductible VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
         }
         field(11774; "VAT Difference (LCY)"; Decimal)
         {
@@ -3238,6 +3256,8 @@
             Caption = 'Perform. Country/Region Code';
             TableRelation = "Registration Country/Region"."Country/Region Code" WHERE("Account Type" = CONST("Company Information"),
                                                                                        "Account No." = FILTER(''));
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
 
             trigger OnValidate()
             begin
@@ -3266,6 +3286,8 @@
         {
             Caption = 'Item Ledger Entry No.';
             TableRelation = "Item Ledger Entry";
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The functionality of Item consumption for FA maintenance will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
         }
         field(31100; "Original Document VAT Date"; Date)
         {
@@ -3470,6 +3492,7 @@
         Text012: Label '%1 must be positive.';
         Text013: Label 'The %1 must not be more than %2.';
         WrongJobQueueStatus: Label 'Journal line cannot be modified because it has been scheduled for posting.';
+        RenumberDocNoQst: Label 'If you have many documents it can take time to sort them, and %1 might perform slowly during the process. In those cases we suggest that you sort them during non-working hours. Do you want to continue?', Comment = '%1= Business Central';
         GenJnlTemplate: Record "Gen. Journal Template";
         GenJnlBatch: Record "Gen. Journal Batch";
         GenJnlLine: Record "Gen. Journal Line";
@@ -3696,6 +3719,8 @@
         FirstTempDocNo: Code[20];
         LastTempDocNo: Code[20];
     begin
+        if GuiAllowed() and not DIALOG.Confirm(StrSubstNo(RenumberDocNoQst, ProductName.Short()), true) then
+            exit;
         TestField("Check Printed", false);
 
         GenJnlBatch.Get("Journal Template Name", "Journal Batch Name");
@@ -4689,6 +4714,8 @@
         Cust: Record Customer;
         Vend: Record Vendor;
     begin
+        OnBeforeUpdateCountryCodeAndVATRegNo(Rec, xRec);
+
         if No = '' then begin
             "Country/Region Code" := '';
             "VAT Registration No." := '';
@@ -4713,6 +4740,8 @@
                     "Registration No." := Vend."Registration No."; // NAVCZ
                 end;
         end;
+
+        OnAfterUpdateCountryCodeAndVATRegNo(Rec, xRec);
     end;
 
     procedure JobTaskIsSet(): Boolean
@@ -5308,6 +5337,7 @@
             AccType::Customer:
                 if "Applies-to ID" <> '' then begin
                     if FindFirstCustLedgEntryWithAppliesToID(AccNo, "Applies-to ID") then begin
+                        OnSetJournalLineFieldsFromApplicationOnAfterFindFirstCustLedgEntryWithAppliesToID(Rec, CustLedgEntry);
                         CustLedgEntry.SetRange("Exported to Payment File", true);
                         "Exported to Payment File" := CustLedgEntry.FindFirst;
                     end
@@ -5320,6 +5350,7 @@
             AccType::Vendor:
                 if "Applies-to ID" <> '' then begin
                     if FindFirstVendLedgEntryWithAppliesToID(AccNo, "Applies-to ID") then begin
+                        OnSetJournalLineFieldsFromApplicationOnAfterFindFirstVendLedgEntryWithAppliesToID(Rec, VendLedgEntry);
                         VendLedgEntry.SetRange("Exported to Payment File", true);
                         "Exported to Payment File" := VendLedgEntry.FindFirst;
                     end
@@ -5332,6 +5363,7 @@
             AccType::Employee:
                 if "Applies-to ID" <> '' then begin
                     if FindFirstEmplLedgEntryWithAppliesToID(AccNo, "Applies-to ID") then begin
+                        OnSetJournalLineFieldsFromApplicationOnAfterFindFirstEmplLedgEntryWithAppliesToID(Rec, EmplLedgEntry);
                         EmplLedgEntry.SetRange("Exported to Payment File", true);
                         "Exported to Payment File" := EmplLedgEntry.FindFirst;
                     end
@@ -5647,6 +5679,7 @@
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('The functionality of Non-deductible VAT will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)')]
     procedure GetVATDeduction(): Decimal
     var
         NonDeductibleVATSetup: Record "Non Deductible VAT Setup";
@@ -5666,6 +5699,7 @@
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('The functionality of Non-deductible VAT will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)')]
     procedure GetVATPostingSetupWithNonDedVAT(var VATPostingSetup2: Record "VAT Posting Setup"): Boolean
     var
         VATPostingSetup3: Record "VAT Posting Setup";
@@ -5694,6 +5728,7 @@
         exit("Bal. Gen. Posting Type" = "Bal. Gen. Posting Type"::Purchase);
     end;
 
+    [Obsolete('The functionality of Non-deductible VAT will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)')]
     local procedure IsAllowNonDeductibleVAT(VATPostingSetup2: Record "VAT Posting Setup"): Boolean
     begin
         // NAVCZ
@@ -6042,6 +6077,8 @@
         "Original Document VAT Date" := PurchHeader."Original Document VAT Date";
         "EU 3-Party Trade" := PurchHeader."EU 3-Party Trade";
         "EU 3-Party Intermediate Role" := PurchHeader."EU 3-Party Intermediate Role";
+        "Registration No." := PurchHeader."Registration No.";
+        "Tax Registration No." := PurchHeader."Tax Registration No.";
         // NAVCZ
 
         OnAfterCopyGenJnlLineFromPurchHeader(PurchHeader, Rec);
@@ -6135,6 +6172,8 @@
         "VAT Date" := SalesHeader."VAT Date";
         "Original Document VAT Date" := SalesHeader."Original Document VAT Date";
         "EU 3-Party Intermediate Role" := SalesHeader."EU 3-Party Intermediate Role";
+        "Registration No." := SalesHeader."Registration No.";
+        "Tax Registration No." := SalesHeader."Tax Registration No.";
         // NAVCZ
 
         OnAfterCopyGenJnlLineFromSalesHeader(SalesHeader, Rec);
@@ -6222,6 +6261,8 @@
         // NAVCZ
         "VAT Date" := ServiceHeader."VAT Date";
         "EU 3-Party Intermediate Role" := ServiceHeader."EU 3-Party Intermediate Role";
+        "Registration No." := ServiceHeader."Registration No.";
+        "Tax Registration No." := ServiceHeader."Tax Registration No.";
         // NAVCZ
 
         OnAfterCopyGenJnlLineFromServHeader(ServiceHeader, Rec);
@@ -7434,6 +7475,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateCountryCodeAndVATRegNo(var GenJournalLine: Record "Gen. Journal Line"; xGenJournalLine: Record "Gen. Journal Line");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterValidateApplyRequirements(TempGenJnlLine: Record "Gen. Journal Line" temporary)
     begin
     end;
@@ -7510,6 +7556,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnLookUpAppliesToDocCustOnAfterSetFilters(var CustLedgerEntry: Record "Cust. Ledger Entry"; var GenJournalLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateCountryCodeAndVATRegNo(var GenJournalLine: Record "Gen. Journal Line"; xGenJournalLine: Record "Gen. Journal Line");
     begin
     end;
 
@@ -7600,6 +7651,21 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnSetUpNewLineOnBeforeIncrDocNo(var GenJournalLine: Record "Gen. Journal Line"; LastGenJournalLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetJournalLineFieldsFromApplicationOnAfterFindFirstCustLedgEntryWithAppliesToID(var GenJournalLine: Record "Gen. Journal Line"; CustLedgEntry: Record "Cust. Ledger Entry");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetJournalLineFieldsFromApplicationOnAfterFindFirstVendLedgEntryWithAppliesToID(var GenJournalLine: Record "Gen. Journal Line"; VendLedgEntry: Record "Vendor Ledger Entry");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetJournalLineFieldsFromApplicationOnAfterFindFirstEmplLedgEntryWithAppliesToID(var GenJournalLine: Record "Gen. Journal Line"; CustLedgEntry: Record "Employee Ledger Entry");
     begin
     end;
 

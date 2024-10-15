@@ -133,18 +133,28 @@ page 576 "VAT Specification Subform"
                 }
                 field("VAT % (Non Deductible)"; "VAT % (Non Deductible)")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies VAT percentage for the VAT entry. This value is non-deductible.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of Non-deductible VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
                 }
                 field("VAT Base (Non Deductible)"; "VAT Base (Non Deductible)")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT base for the VAT entry. This value is non-deductible.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of Non-deductible VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
                 }
                 field("VAT Amount (Non Deductible)"; "VAT Amount (Non Deductible)")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT amount for the purchase VAT entry. This value is non-deductible.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of Non-deductible VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
                 }
                 field("VAT Amount (LCY)"; "VAT Amount (LCY)")
                 {
+                    ApplicationArea = Basic, Suite;
                     Editable = VATAmountLCYEditable;
                     ToolTip = 'Specifies the amount of VAT included in the total amount, expressed in LCY.';
 
@@ -176,11 +186,13 @@ page 576 "VAT Specification Subform"
                 }
                 field("VAT Difference (LCY)"; "VAT Difference (LCY)")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies difference amount of VAT.';
                     Visible = false;
                 }
                 field("Ext. VAT Amount (LCY)"; "Ext. VAT Amount (LCY)")
                 {
+                    ApplicationArea = Basic, Suite;
                     Editable = ExtVATAmountLCYEditable;
                     ToolTip = 'Specifies ext. vat amount in LCY';
 
@@ -204,6 +216,7 @@ page 576 "VAT Specification Subform"
                 }
                 field("Ext. VAT Difference (LCY)"; "Ext. VAT Difference (LCY)")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies ext. vat difference in LCY';
                 }
             }

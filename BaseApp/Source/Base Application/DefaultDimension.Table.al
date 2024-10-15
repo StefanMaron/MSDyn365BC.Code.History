@@ -667,6 +667,7 @@ table 352 "Default Dimension"
         end;
     end;
 
+    [Obsolete('The functionality of Vendor templates will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)')]
     local procedure UpdateVendorTempGlobalDimCode(GlobalDimCodeNo: Integer; VendTemplateNo: Code[20]; NewDimValue: Code[20])
     var
         VendorTemplate: Record "Vendor Template";

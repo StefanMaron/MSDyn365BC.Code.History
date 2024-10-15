@@ -37,6 +37,7 @@ page 31014 "Sales Letter Line - Adv.Link."
                 }
                 field(Description; Description)
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies description for sales advance.';
                     Visible = false;
                 }
@@ -57,6 +58,7 @@ page 31014 "Sales Letter Line - Adv.Link."
                 }
                 field("Amount Including VAT"; "Amount Including VAT")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether the unit price on the line should be displayed including or excluding VAT.';
                     Visible = false;
                 }

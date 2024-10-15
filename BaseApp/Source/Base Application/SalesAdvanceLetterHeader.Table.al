@@ -92,6 +92,9 @@ table 31000 "Sales Advance Letter Header"
 
                 Validate("Currency Code");
                 Validate("Payment Terms Code");
+
+                if (xRec."Bill-to Customer No." <> '') AND (xRec."Bill-to Customer No." <> "Bill-to Customer No.") then
+                    RecallModifyAddressNotification(GetModifyBillToCustomerAddressNotificationId);
             end;
         }
         field(5; "Bill-to Name"; Text[100])
@@ -104,8 +107,9 @@ table 31000 "Sales Advance Letter Header"
             var
                 Customer: Record Customer;
                 EnvInfoProxy: Codeunit "Env. Info Proxy";
+                id: Codeunit "Identity Management";
             begin
-                if not EnvInfoProxy.IsInvoicing then
+                if not EnvInfoProxy.IsInvoicing and ShouldLookForCustomerByName("Bill-to Customer No.") then
                     Validate("Bill-to Customer No.", Customer.GetCustNo("Bill-to Name"));
             end;
         }
@@ -116,28 +120,47 @@ table 31000 "Sales Advance Letter Header"
         field(7; "Bill-to Address"; Text[100])
         {
             Caption = 'Bill-to Address';
+
+            trigger OnValidate()
+            begin
+                ModifyBillToCustomerAddress();
+            end;
         }
         field(8; "Bill-to Address 2"; Text[50])
         {
             Caption = 'Bill-to Address 2';
+
+            trigger OnValidate()
+            begin
+                ModifyBillToCustomerAddress();
+            end;
         }
         field(9; "Bill-to City"; Text[30])
         {
             Caption = 'Bill-to City';
             TableRelation = "Post Code".City;
-            //This property is currently not supported
-            //TestTableRelation = false;
             ValidateTableRelation = false;
+
+            trigger OnLookup()
+            begin
+                PostCode.LookupPostCode("Bill-to City", "Bill-to Post Code", "Bill-to County", "Bill-to Country/Region Code");
+            end;
 
             trigger OnValidate()
             begin
                 PostCode.ValidateCity(
                   "Bill-to City", "Bill-to Post Code", "Bill-to County", "Bill-to Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
+                ModifyBillToCustomerAddress();
             end;
         }
         field(10; "Bill-to Contact"; Text[100])
         {
             Caption = 'Bill-to Contact';
+
+            trigger OnValidate()
+            begin
+                ModifyBillToCustomerAddress();
+            end;
         }
         field(11; "Your Reference"; Text[35])
         {
@@ -301,6 +324,43 @@ table 31000 "Sales Advance Letter Header"
         field(70; "VAT Registration No."; Text[20])
         {
             Caption = 'VAT Registration No.';
+
+            trigger OnValidate()
+            var
+                Customer: Record Customer;
+                VATRegistrationLog: Record "VAT Registration Log";
+                VATRegistrationNoFormat: Record "VAT Registration No. Format";
+                VATRegistrationLogMgt: Codeunit "VAT Registration Log Mgt.";
+                ResultRecRef: RecordRef;
+                ApplicableCountryCode: Code[10];
+            begin
+                "VAT Registration No." := UpperCase("VAT Registration No.");
+                if "VAT Registration No." = xRec."VAT Registration No." then
+                    exit;
+
+                if not Customer.Get("Bill-to Customer No.") then
+                    exit;
+
+                if "VAT Registration No." = Customer."VAT Registration No." then
+                    exit;
+
+                if not VATRegistrationNoFormat.Test("VAT Registration No.", Customer."Country/Region Code", Customer."No.", Database::Customer) then
+                    exit;
+
+                Customer."VAT Registration No." := "VAT Registration No.";
+                ApplicableCountryCode := Customer."Country/Region Code";
+                if ApplicableCountryCode = '' then
+                    ApplicableCountryCode := VATRegistrationNoFormat."Country/Region Code";
+
+                VATRegistrationLogMgt.CheckVIESForVATNo(ResultRecRef, VATRegistrationLog, Customer, Customer."No.",
+                ApplicableCountryCode, VATRegistrationLog."Account Type"::Customer);
+
+                if VATRegistrationLog.Status = VATRegistrationLog.Status::Valid then begin
+                    Message(ValidVATNoMsg);
+                    Customer.Modify(true);
+                end else
+                    Message(InvalidVatRegNoMsg);
+            end;
         }
         field(73; "Reason Code"; Code[10])
         {
@@ -342,24 +402,39 @@ table 31000 "Sales Advance Letter Header"
         {
             Caption = 'Bill-to Post Code';
             TableRelation = "Post Code";
-            //This property is currently not supported
-            //TestTableRelation = false;
             ValidateTableRelation = false;
+
+            trigger OnLookup()
+            begin
+                PostCode.LookupPostCode("Bill-to City", "Bill-to Post Code", "Bill-to County", "Bill-to Country/Region Code");
+            end;
 
             trigger OnValidate()
             begin
                 PostCode.ValidatePostCode(
                   "Bill-to City", "Bill-to Post Code", "Bill-to County", "Bill-to Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
+                ModifyBillToCustomerAddress();
             end;
         }
         field(86; "Bill-to County"; Text[30])
         {
             Caption = 'Bill-to County';
+            CaptionClass = '5,1,' + "Bill-to Country/Region Code";
+
+            trigger OnValidate()
+            begin
+                ModifyBillToCustomerAddress();
+            end;
         }
         field(87; "Bill-to Country/Region Code"; Code[10])
         {
             Caption = 'Bill-to Country/Region Code';
             TableRelation = "Country/Region";
+
+            trigger OnValidate()
+            begin
+                ModifyBillToCustomerAddress();
+            end;
         }
         field(99; "Document Date"; Date)
         {
@@ -746,6 +821,8 @@ table 31000 "Sales Advance Letter Header"
             Caption = 'Perform. Country/Region Code';
             TableRelation = "Registration Country/Region"."Country/Region Code" WHERE("Account Type" = CONST("Company Information"),
                                                                                        "Account No." = FILTER(''));
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
 
             trigger OnValidate()
             var
@@ -790,6 +867,8 @@ table 31000 "Sales Advance Letter Header"
             DecimalPlaces = 0 : 15;
             Editable = false;
             MinValue = 0;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
         }
     }
 
@@ -903,7 +982,9 @@ table 31000 "Sales Advance Letter Header"
         CompanyInfo: Record "Company Information";
         SalesAdvanceLetterLinegre: Record "Sales Advance Letter Line";
         PostCode: Record "Post Code";
+        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)')]
         RegistrationCountry: Record "Registration Country/Region";
+        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)')]
         PerfCountryCurrExchRate: Record "Perf. Country Curr. Exch. Rate";
         NoSeriesMgt: Codeunit NoSeriesManagement;
         DimMgt: Codeunit DimensionManagement;
@@ -927,6 +1008,11 @@ table 31000 "Sales Advance Letter Header"
         PositiveAmountErr: Label 'must be positive';
         RespCenterErr: Label 'Your identification is set up to process from %1 %2 only.', Comment = '%1 = fieldcaption of Responsibility Center; %2 = Responsibility Center';
         RespCenterDeleteErr: Label 'You cannot delete this document. Your identification is set up to process from %1 %2 only.', Comment = '%1 = fieldcaption of Responsibility Center; %2 = Responsibility Center';
+        ModifyCustomerAddressNotificationLbl: Label 'Update the address';
+        ModifyCustomerAddressNotificationMsg: Label 'The address you entered for %1 is different from the customer''s existing address.', Comment = '%1 = customer name';
+        DontShowAgainActionLbl: Label 'Don''t show again';
+        ValidVATNoMsg: Label 'The VAT registration number is valid.';
+        InvalidVatRegNoMsg: Label 'The VAT registration number is not valid. Try entering the number again.';
 
     [Scope('OnPrem')]
     procedure AssistEdit(SalesAdvanceLetterHeaderOld: Record "Sales Advance Letter Header"): Boolean
@@ -1443,6 +1529,7 @@ table 31000 "Sales Advance Letter Header"
             until AdvanceLetterLineRelation.Next = 0;
     end;
 
+    [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)')]
     local procedure UpdatePerformCountryCurrFactor()
     begin
         if "Perform. Country/Region Code" <> '' then begin
@@ -1476,13 +1563,107 @@ table 31000 "Sales Advance Letter Header"
         end;
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    local procedure ShouldLookForCustomerByName(CustomerNo: Code[20]): Boolean
+    var
+        Customer: Record Customer;
+    begin
+        if CustomerNo = '' then
+            exit(true);
+
+        if not Customer.Get(CustomerNo) then
+            exit(true);
+
+        exit(not Customer."Disable Search by Name");
+    end;
+
+    local procedure ModifyBillToCustomerAddress()
+    var
+        Customer: Record Customer;
+    begin
+        SalesSetup.Get;
+        if SalesSetup."Ignore Updated Addresses" then
+            exit;
+
+        if Customer.Get("Bill-to Customer No.") then
+            if HasBillToAddress and HasDifferentBillToAddress(Customer) then
+                ShowModifyAddressNotification(GetModifyBillToCustomerAddressNotificationId,
+                    ModifyCustomerAddressNotificationLbl, ModifyCustomerAddressNotificationMsg,
+                    'CopyBillToCustomerAddressFieldsFromSalesAdvDocument', "Bill-to Customer No.",
+                    "Bill-to Name", FieldName("Bill-to Customer No."));
+    end;
+
+    procedure HasBillToAddress(): Boolean
+    begin
+        exit(("Bill-to Address" <> '') or
+            ("Bill-to Address 2" <> '') or
+            ("Bill-to City" <> '') or
+            ("Bill-to Country/Region Code" <> '') or
+            ("Bill-to County" <> '') or
+            ("Bill-to Post Code" <> '') or
+            ("Bill-to Contact" <> ''));
+    end;
+
+    procedure HasDifferentBillToAddress(Customer: Record Customer): Boolean
+    begin
+        exit(("Bill-to Address" <> Customer.Address) or
+            ("Bill-to Address 2" <> Customer."Address 2") or
+            ("Bill-to City" <> Customer.City) or
+            ("Bill-to Country/Region Code" <> Customer."Country/Region Code") or
+            ("Bill-to County" <> Customer.County) or
+            ("Bill-to Post Code" <> Customer."Post Code") or
+            ("Bill-to Contact" <> Customer.Contact));
+    end;
+
+    local procedure ShowModifyAddressNotification(NotificationID: Guid; NotificationLbl: Text; NotificationMsg: Text; NotificationFunctionTok: Text; CustomerNumber: Code[20]; CustomerName: Text[50]; CustomerNumberFieldName: Text)
+    var
+        MyNotifications: Record "My Notifications";
+        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
+        PageMyNotifications: Page "My Notifications";
+        ModifyCustomerAddressNotification: Notification;
+    begin
+        if not MyNotifications.Get(UserId, NotificationID) then
+            PageMyNotifications.InitializeNotificationsWithDefaultState;
+
+        if not MyNotifications.IsEnabled(NotificationID) then
+            exit;
+
+        ModifyCustomerAddressNotification.Id := NotificationID;
+        ModifyCustomerAddressNotification.Message := StrSubstNo(NotificationMsg, CustomerName);
+        ModifyCustomerAddressNotification.AddAction(NotificationLbl, Codeunit::"Document Notifications", NotificationFunctionTok);
+        ModifyCustomerAddressNotification.AddAction(
+            DontShowAgainActionLbl, Codeunit::"Document Notifications", 'HideNotificationForCurrentUser');
+        ModifyCustomerAddressNotification.Scope := NotificationScope::LocalScope;
+        ModifyCustomerAddressNotification.SetData(FieldName("No."), "No.");
+        ModifyCustomerAddressNotification.SetData(CustomerNumberFieldName, CustomerNumber);
+        NotificationLifecycleMgt.SendNotification(ModifyCustomerAddressNotification, RecordId);
+    end;
+
+    procedure RecallModifyAddressNotification(NotificationID: Guid)
+    var
+        MyNotifications: Record "My Notifications";
+        ModifyCustomerAddressNotification: Notification;
+    begin
+        if (not MyNotifications.IsEnabled(NotificationID)) then
+            exit;
+
+        ModifyCustomerAddressNotification.Id := NotificationID;
+        ModifyCustomerAddressNotification.Recall();
+    end;
+
+    procedure GetModifyBillToCustomerAddressNotificationId(): Guid
+    var
+        SalesHeader: Record "Sales Header";
+    begin
+        exit(SalesHeader.GetModifyBillToCustomerAddressNotificationId());
+    end;
+
+    [IntegrationEvent(true, false)]
     [Scope('OnPrem')]
     procedure OnCheckSalesAdvanceLetterReleaseRestrictions()
     begin
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     [Scope('OnPrem')]
     procedure OnCheckSalesAdvanceLetterPostRestrictions()
     begin

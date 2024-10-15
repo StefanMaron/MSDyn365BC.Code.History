@@ -308,6 +308,7 @@ page 11745 "Cash Desk Card"
                 }
                 action("Co&mments")
                 {
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Co&mments';
                     Image = ViewComments;
                     RunObject = Page "Comment Sheet";

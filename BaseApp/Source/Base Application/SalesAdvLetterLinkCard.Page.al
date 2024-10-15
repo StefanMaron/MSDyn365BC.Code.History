@@ -199,6 +199,7 @@ page 31012 "Sales Adv. Letter Link. Card"
                 }
                 field("Doc. Line Amount"; "Doc. Line Amount")
                 {
+                    ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the amount of line of sales document (order, invoice).';
                     Visible = false;

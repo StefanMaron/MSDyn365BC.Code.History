@@ -154,6 +154,7 @@ page 866 "Cash Flow Availability Lines"
                 }
                 field(SalesAdvances; GetAmount(CashFlowForecastEntry."Source Type"::"Sales Advance Letters"))
                 {
+                    ApplicationArea = Basic, Suite;
                     AutoFormatExpression = FormatStr;
                     AutoFormatType = 11;
                     Caption = 'Sales Advances';
@@ -166,6 +167,7 @@ page 866 "Cash Flow Availability Lines"
                 }
                 field(PurchaseAdvances; GetAmount(CashFlowForecastEntry."Source Type"::"Purchase Advance Letters"))
                 {
+                    ApplicationArea = Basic, Suite;
                     AutoFormatExpression = FormatStr;
                     AutoFormatType = 11;
                     Caption = 'Purchase Advances';

@@ -265,6 +265,8 @@ report 1002 "Post Inventory Cost to G/L"
                             GLEntry.LockTable;
                             if GLEntry.FindLast then;
                         end;
+
+                        OnAfterOnPreDataItem(PostValueEntryToGL, CompanyName());
                     end;
                 }
                 dataitem(CapValueEntryLoop; "Integer")
@@ -586,9 +588,13 @@ report 1002 "Post Inventory Cost to G/L"
                     }
                     field("Posting Desc. Code"; PostDescCode)
                     {
+                        ApplicationArea = Basic, Suite;
                         Caption = 'Posting Desc. Code';
                         TableRelation = "Posting Description" WHERE(Type = CONST("Post Inventory Cost"));
                         ToolTip = 'Specifies a posting description.';
+                        Visible = false;
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'The functionality of posting description will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
                     }
                 }
             }
@@ -627,7 +633,7 @@ report 1002 "Post Inventory Cost to G/L"
 
     trigger OnPreReport()
     begin
-        OnBeforePreReport;
+        OnBeforePreReport(Item, ItemValueEntry, PostValueEntryToGL);
 
         ValueEntryFilter := PostValueEntryToGL.GetFilters;
         InvtSetup.Get;
@@ -792,8 +798,13 @@ report 1002 "Post Inventory Cost to G/L"
                 Message(NothingToPostMsg);
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterOnPreDataItem(var PostValueEntryToGL: Record "Post Value Entry to G/L"; CompanyName: Text)
+    begin
+    end;
+
     [IntegrationEvent(TRUE, false)]
-    local procedure OnBeforePreReport()
+    local procedure OnBeforePreReport(var Item: Record Item; var ItemValueEntry: Record "Value Entry"; var PostValueEntryToGL: Record "Post Value Entry to G/L")
     begin
     end;
 }

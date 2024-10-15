@@ -50,6 +50,8 @@ report 11775 "VAT Documents List"
             }
             column(gtePerfCountryFilter; PerfCountryFilter)
             {
+                ObsoleteState = Pending;
+                ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
             }
             column(gteTextVATUnreal; TextVATUnreal)
             {
@@ -650,6 +652,9 @@ report 11775 "VAT Documents List"
                         Caption = 'Performance Country';
                         TableRelation = "Country/Region";
                         ToolTip = 'Specifies performance country code for VAT entries filtr.';
+                        Visible = false;
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
                     }
                 }
             }
@@ -711,15 +716,18 @@ report 11775 "VAT Documents List"
         TUnrealDocVATAmtLine: Record "VAT Amount Line" temporary;
         TUnrealTotVATAmtLine: Record "VAT Amount Line" temporary;
         VATPostingSetup: Record "VAT Posting Setup";
+        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)')]
         PerfCountryCurrExchRate: Record "Perf. Country Curr. Exch. Rate";
         EntryTypeFilter: Option Purchase,Sale,All;
         PrintDetail: Boolean;
         PrintSummary: Boolean;
         PrintTotal: Boolean;
         PrintUnreal: Boolean;
+        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)')]
         PerfCountryCodeFiter: Code[10];
         Filters: Text[250];
         EntryTypeText: Text[60];
+        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)')]
         PerfCountryFilter: Text[50];
         TextBaseUnreal: Text[30];
         TextVATUnreal: Text[30];
@@ -745,6 +753,7 @@ report 11775 "VAT Documents List"
         VATEntryDocumentNo: Code[20];
         VATEntryDocumentType: Text;
 
+    [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)')]
     local procedure ExchangeAmount(VATEntry: Record "VAT Entry"; Amount2: Decimal): Decimal
     begin
         with VATEntry do

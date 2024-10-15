@@ -63,10 +63,12 @@ page 846 "Cash Flow Setup"
                 }
                 field("S. Adv. Letter CF Account No."; "S. Adv. Letter CF Account No.")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the cash flow account for sales adv. letters';
                 }
                 field("P. Adv. Letter CF Account No."; "P. Adv. Letter CF Account No.")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the cash flow account for purchase adv. letters ';
                 }
                 field("Job CF Account No."; "Job CF Account No.")

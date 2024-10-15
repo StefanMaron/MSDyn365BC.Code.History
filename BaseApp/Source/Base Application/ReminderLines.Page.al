@@ -110,6 +110,7 @@ page 435 "Reminder Lines"
                 }
                 field("Interest Amount"; "Interest Amount")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the total of the interest amounts on the reminder lines.';
                 }
                 field("No. of Reminders"; "No. of Reminders")

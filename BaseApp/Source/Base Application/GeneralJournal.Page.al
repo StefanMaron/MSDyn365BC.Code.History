@@ -119,6 +119,7 @@
                 }
                 field("Original Document VAT Date"; "Original Document VAT Date")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT date of the original document.';
                     Visible = false;
                 }
@@ -316,8 +317,11 @@
                 }
                 field("Perform. Country/Region Code"; "Perform. Country/Region Code")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the country/region code. It is mandatory field by creating documents with VAT registration number for other countries.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
                 }
                 field(Quantity; Quantity)
                 {
@@ -340,11 +344,13 @@
                 }
                 field("VAT Amount (LCY)"; "VAT Amount (LCY)")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount of VAT included in the total amount, expressed in LCY.';
                     Visible = false;
                 }
                 field("Bal. VAT Amount (LCY)"; "Bal. VAT Amount (LCY)")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount of Bal. VAT included in the total amount.';
                     Visible = false;
                 }
@@ -542,21 +548,25 @@
                 }
                 field("Bank Account Code"; "Bank Account Code")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the bank account code of the company.';
                     Visible = false;
                 }
                 field("Variable Symbol"; "Variable Symbol")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the detail information for payment.';
                     Visible = false;
                 }
                 field("Constant Symbol"; "Constant Symbol")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the additional symbol of bank payments.';
                     Visible = false;
                 }
                 field("Specific Symbol"; "Specific Symbol")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the additional symbol of bank payments.';
                     Visible = false;
                 }
@@ -574,10 +584,12 @@
                 }
                 field("Original Document Partner Type"; "Original Document Partner Type")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the typ of partner (customer or vendor). It''s possible for VAT control report.';
                 }
                 field("Original Document Partner No."; "Original Document Partner No.")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of partner (customer or vendor). It''s possible for VAT control report.';
                 }
                 field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
@@ -698,7 +710,7 @@
                     group("Number of Lines")
                     {
                         Caption = 'Number of Lines';
-                        field(NumberOfJournalRecords; Count)
+                        field(NumberOfJournalRecords; NumberOfRecords)
                         {
                             ApplicationArea = All;
                             AutoFormatType = 1;
@@ -1034,6 +1046,9 @@
                     Image = Reconcile;
                     ShortCutKey = 'Ctrl+F11';
                     ToolTip = 'Specifies reconcile page';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'This action is duplicated with the action in the bank action group. (Obsolete::Remove in release 01.2021)';
 
                     trigger OnAction()
                     begin
@@ -1872,6 +1887,7 @@
         BalAccName: Text[100];
         Balance: Decimal;
         TotalBalance: Decimal;
+        NumberOfRecords: Integer;
         ShowBalance: Boolean;
         ShowTotalBalance: Boolean;
         ShortcutDimCode: array[8] of Code[20];
@@ -1927,6 +1943,8 @@
         GenJnlManagement.CalcBalance(Rec, xRec, Balance, TotalBalance, ShowBalance, ShowTotalBalance);
         BalanceVisible := ShowBalance;
         TotalBalanceVisible := ShowTotalBalance;
+        if ShowTotalBalance then
+            NumberOfRecords := Count();
     end;
 
     local procedure EnableApplyEntriesAction()

@@ -173,6 +173,7 @@ page 31103 "VAT Control Report Subform"
                 }
                 action("Change Section")
                 {
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Change Section';
                     Image = Change;
                     ToolTip = 'Function for changing the section code.';

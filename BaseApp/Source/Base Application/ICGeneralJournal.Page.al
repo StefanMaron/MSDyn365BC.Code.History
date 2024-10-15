@@ -154,14 +154,17 @@
                 }
                 field("Amount (LCY)"; "Amount (LCY)")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the total amount (including VAT) that the journal line consists of.';
                 }
                 field("VAT Amount (LCY)"; "VAT Amount (LCY)")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount of VAT included in the total amount, expressed in LCY.';
                 }
                 field("Bal. VAT Amount (LCY)"; "Bal. VAT Amount (LCY)")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount of Bal. VAT included in the total amount.';
                 }
                 field("Debit Amount"; "Debit Amount")
@@ -465,7 +468,7 @@
                     group("Number of Lines")
                     {
                         Caption = 'Number of Lines';
-                        field(NumberOfJournalRecords; Count)
+                        field(NumberOfJournalRecords; NumberOfRecords)
                         {
                             ApplicationArea = All;
                             AutoFormatType = 1;
@@ -645,6 +648,7 @@
                 }
                 action("Link Advance Letters")
                 {
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Link Advance Letters';
                     Image = LinkWithExisting;
                     RunObject = Codeunit "Gen. Jnl.-Link Letters";
@@ -652,6 +656,7 @@
                 }
                 action("Link Whole Advance Letter")
                 {
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Link Whole Advance Letter';
                     Image = LinkAccount;
                     ToolTip = 'Allow to link whole advance letters.';
@@ -663,6 +668,7 @@
                 }
                 action("UnLink Linked Advance Letters")
                 {
+                    ApplicationArea = Basic, Suite;
                     Caption = 'UnLink Linked Advance Letters';
                     Image = UnLinkAccount;
                     ToolTip = 'Unlinks linked advance letters';
@@ -841,6 +847,7 @@
         BalAccName: Text[100];
         Balance: Decimal;
         TotalBalance: Decimal;
+        NumberOfRecords: Integer;
         ShowBalance: Boolean;
         ShowTotalBalance: Boolean;
         ShortcutDimCode: array[8] of Code[20];
@@ -865,6 +872,8 @@
         GenJnlManagement.CalcBalance(Rec, xRec, Balance, TotalBalance, ShowBalance, ShowTotalBalance);
         BalanceVisible := ShowBalance;
         TotalBalanceVisible := ShowTotalBalance;
+        if ShowTotalBalance then
+            NumberOfRecords := Count();
     end;
 
     local procedure EnableApplyEntriesAction()

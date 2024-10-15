@@ -695,21 +695,29 @@
         {
             Caption = 'Receiving Wh. No. Series';
             TableRelation = "No. Series";
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The functionality of No. Series Enhancements will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
         }
         field(11797; "Shipping No. Series"; Code[20])
         {
             Caption = 'Shipping No. Series';
             TableRelation = "No. Series";
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The functionality of No. Series Enhancements will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
         }
         field(11798; "Receiving No. Series"; Code[20])
         {
             Caption = 'Receiving No. Series';
             TableRelation = "No. Series";
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The functionality of No. Series Enhancements will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
         }
         field(11799; "Shipping Wh. No. Series"; Code[20])
         {
             Caption = 'Shipping Wh. No. Series';
             TableRelation = "No. Series";
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The functionality of No. Series Enhancements will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
         }
         field(31064; "Intrastat Exclude"; Boolean)
         {
@@ -820,6 +828,7 @@
 
     procedure InitRecord()
     var
+        [Obsolete('The functionality of No. Series Enhancements will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)')]
         NoSeriesLink: Record "No. Series Link";
         WarehouseSetup: Record "Warehouse Setup";
     begin

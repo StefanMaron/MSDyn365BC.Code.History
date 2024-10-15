@@ -185,6 +185,8 @@ page 5666 "FA Depreciation Books Subform"
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the depreciation book or books that must be used for each fixed asset. Here you also specify the way depreciation must be calculated.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality will be removed and this field should not be used. (Obsolete::Removed in release 01.2021))';
                 }
                 field("Projected Disposal Date"; "Projected Disposal Date")
                 {

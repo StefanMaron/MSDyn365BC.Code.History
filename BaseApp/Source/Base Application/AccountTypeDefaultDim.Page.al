@@ -40,26 +40,31 @@ page 541 "Account Type Default Dim."
                 }
                 field("Automatic Create"; "Automatic Create")
                 {
+                    ApplicationArea = Dimensions;
                     ToolTip = 'Specifies if a value will be created automatic';
                     Visible = false;
                 }
                 field("Dimension Description Field ID"; "Dimension Description Field ID")
                 {
+                    ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the id of dimension description field';
                     Visible = false;
                 }
                 field("Dimension Description Update"; "Dimension Description Update")
                 {
+                    ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the rule for dimension description update';
                     Visible = false;
                 }
                 field("Dimension Description Format"; "Dimension Description Format")
                 {
+                    ApplicationArea = Dimensions;
                     ToolTip = 'Specifies a description format for the dimension';
                     Visible = false;
                 }
                 field("Automatic Cr. Value Posting"; "Automatic Cr. Value Posting")
                 {
+                    ApplicationArea = Dimensions;
                     ToolTip = 'Specifies rule for automatic create';
                     Visible = false;
                 }
@@ -99,7 +104,7 @@ page 541 "Account Type Default Dim."
                 }
                 action("Update aut. def. dimensions")
                 {
-                    ApplicationArea = Suite;
+                    ApplicationArea = Dimensions;
                     Caption = 'Update aut. def. dimensions';
                     Image = MapDimensions;
                     ToolTip = 'Update default dimensions.';

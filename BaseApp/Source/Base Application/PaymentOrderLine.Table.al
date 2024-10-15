@@ -1250,6 +1250,8 @@ table 11709 "Payment Order Line"
                     "Pmt. Discount Date" := VendorLedgEntry."Pmt. Discount Date";
                     "Pmt. Discount Possible" := true;
                     "Remaining Pmt. Disc. Possible" := VendorLedgEntry."Original Pmt. Disc. Possible";
+                    if ("Remaining Pmt. Disc. Possible" <> 0) and ("Pmt. Discount Date" <> 0D) then
+                        "Due Date" := "Pmt. Discount Date";
                 end else
                     "Amount(Pay.Order Curr.) to Pay" := -VendorLedgEntry."Remaining Amount";
                 Validate("Amount(Pay.Order Curr.) to Pay");
@@ -1264,6 +1266,8 @@ table 11709 "Payment Order Line"
                     "Pmt. Discount Date" := VendorLedgEntry."Pmt. Discount Date";
                     "Pmt. Discount Possible" := true;
                     "Remaining Pmt. Disc. Possible" := VendorLedgEntry."Original Pmt. Disc. Possible";
+                    if ("Remaining Pmt. Disc. Possible" <> 0) and ("Pmt. Discount Date" <> 0D) then
+                        "Due Date" := "Pmt. Discount Date";
                 end else
                     "Amount (LCY) to Pay" := -VendorLedgEntry."Remaining Amt. (LCY)";
                 Validate("Amount (LCY) to Pay");

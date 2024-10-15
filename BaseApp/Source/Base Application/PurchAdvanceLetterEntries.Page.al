@@ -30,6 +30,7 @@ page 31035 "Purch. Advance Letter Entries"
                 }
                 field("Entry Type"; "Entry Type")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the type of the entry.';
                     Visible = false;
                 }

@@ -643,7 +643,7 @@ table 274 "Bank Acc. Reconciliation Line"
         ExcessiveAmountErr: Label 'The remaining amount to apply is %1.', Comment = '%1 is the amount that is not applied (there is filed on the page named Remaining Amount To Apply)';
         ImportPostedTransactionsQst: Label 'The bank statement contains payments that are already applied, but the related bank account ledger entries are not closed.\\Do you want to include these payments in the import?';
         AdvanceTxt: Label 'Advance';
-	ICPartnerAccountTypeQst: Label 'The resulting entry will be of type IC Transaction, but no Intercompany Outbox transaction will be created. \\Do you want to use the IC Partner account type anyway?';
+        ICPartnerAccountTypeQst: Label 'The resulting entry will be of type IC Transaction, but no Intercompany Outbox transaction will be created. \\Do you want to use the IC Partner account type anyway?';
 
     procedure DisplayApplication()
     var
@@ -1101,7 +1101,7 @@ table 274 "Bank Acc. Reconciliation Line"
                     GetGeneralLedgerEntriesInAmountRange(GLEntry, "Account No.", AmountFilter, MinAmount, MaxAmount);
                     PAGE.Run(PAGE::"General Ledger Entries", GLEntry);
                 end;
-                // NAVCZ
+        // NAVCZ
         end;
     end;
 
@@ -1611,6 +1611,7 @@ table 274 "Bank Acc. Reconciliation Line"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('The functionality of GL Journal reconciliation by type will be removed and this function should not be used. (Removed in release 01.2021)')]
     procedure Reconcile()
     var
         GLReconcile: Page Reconciliation;

@@ -6,7 +6,7 @@ codeunit 11771 "Sending Document Handler"
     end;
 
     [EventSubscriber(ObjectType::Table, 112, 'OnBeforeSendRecords', '', false, false)]
-    local procedure SendSalesInvoiceHeaderOnBeforeSendRecords(ReportSelections: Record "Report Selections"; SalesInvoiceHeader: Record "Sales Invoice Header"; DocTxt: Text; var IsHandled: Boolean)
+    local procedure SendSalesInvoiceHeaderOnBeforeSendRecords(var ReportSelections: Record "Report Selections"; var SalesInvoiceHeader: Record "Sales Invoice Header"; DocTxt: Text; var IsHandled: Boolean)
     var
         DocumentSendingProfile: Record "Document Sending Profile";
     begin
@@ -26,7 +26,7 @@ codeunit 11771 "Sending Document Handler"
     end;
 
     [EventSubscriber(ObjectType::Table, 112, 'OnBeforeSendProfile', '', false, false)]
-    local procedure SendSalesInvoiceHeaderOnBeforeSendProfile(ReportSelections: Record "Report Selections"; SalesInvoiceHeader: Record "Sales Invoice Header"; DocTxt: Text; var IsHandled: Boolean; var DocumentSendingProfile: Record "Document Sending Profile")
+    local procedure SendSalesInvoiceHeaderOnBeforeSendProfile(var ReportSelections: Record "Report Selections"; var SalesInvoiceHeader: Record "Sales Invoice Header"; DocTxt: Text; var IsHandled: Boolean; var DocumentSendingProfile: Record "Document Sending Profile")
     begin
         if IsHandled then
             exit;
@@ -44,7 +44,7 @@ codeunit 11771 "Sending Document Handler"
     end;
 
     [EventSubscriber(ObjectType::Table, 112, 'OnBeforePrintRecords', '', false, false)]
-    local procedure PrintSalesInvoiceHeaderOnBeforePrintRecords(ReportSelections: Record "Report Selections"; SalesInvoiceHeader: Record "Sales Invoice Header"; ShowRequestPage: Boolean; var IsHandled: Boolean)
+    local procedure PrintSalesInvoiceHeaderOnBeforePrintRecords(var ReportSelections: Record "Report Selections"; var SalesInvoiceHeader: Record "Sales Invoice Header"; ShowRequestPage: Boolean; var IsHandled: Boolean)
     var
         DocumentSendingProfile: Record "Document Sending Profile";
     begin
@@ -63,7 +63,7 @@ codeunit 11771 "Sending Document Handler"
     end;
 
     [EventSubscriber(ObjectType::Table, 112, 'OnBeforeEmailRecords', '', false, false)]
-    local procedure EmailSalesInvoiceHeaderOnBeforeEmailRecords(ReportSelections: Record "Report Selections"; SalesInvoiceHeader: Record "Sales Invoice Header"; DocTxt: Text; ShowDialog: Boolean; var IsHandled: Boolean)
+    local procedure EmailSalesInvoiceHeaderOnBeforeEmailRecords(var ReportSelections: Record "Report Selections"; var SalesInvoiceHeader: Record "Sales Invoice Header"; DocTxt: Text; ShowDialog: Boolean; var IsHandled: Boolean)
     var
         DocumentSendingProfile: Record "Document Sending Profile";
     begin
@@ -83,7 +83,7 @@ codeunit 11771 "Sending Document Handler"
     end;
 
     [EventSubscriber(ObjectType::Table, 114, 'OnBeforeSendRecords', '', false, false)]
-    local procedure SendSalesCrMemoHeaderOnBeforeSendRecords(ReportSelections: Record "Report Selections"; SalesCrMemoHeader: Record "Sales Cr.Memo Header"; DocTxt: Text; var IsHandled: Boolean)
+    local procedure SendSalesCrMemoHeaderOnBeforeSendRecords(var ReportSelections: Record "Report Selections"; var SalesCrMemoHeader: Record "Sales Cr.Memo Header"; DocTxt: Text; var IsHandled: Boolean)
     var
         DocumentSendingProfile: Record "Document Sending Profile";
     begin
@@ -103,7 +103,7 @@ codeunit 11771 "Sending Document Handler"
     end;
 
     [EventSubscriber(ObjectType::Table, 114, 'OnBeforeSendProfile', '', false, false)]
-    local procedure SendSalesCrMemoHeaderOnBeforeSendProfile(ReportSelections: Record "Report Selections"; SalesCrMemoHeader: Record "Sales Cr.Memo Header"; DocTxt: Text; var IsHandled: Boolean; var DocumentSendingProfile: Record "Document Sending Profile")
+    local procedure SendSalesCrMemoHeaderOnBeforeSendProfile(var ReportSelections: Record "Report Selections"; var SalesCrMemoHeader: Record "Sales Cr.Memo Header"; DocTxt: Text; var IsHandled: Boolean; var DocumentSendingProfile: Record "Document Sending Profile")
     begin
         if IsHandled then
             exit;
@@ -121,7 +121,7 @@ codeunit 11771 "Sending Document Handler"
     end;
 
     [EventSubscriber(ObjectType::Table, 114, 'OnBeforePrintRecords', '', false, false)]
-    local procedure PrintSalesCrMemoHeaderOnBeforePrintRecords(ReportSelections: Record "Report Selections"; SalesCrMemoHeader: Record "Sales Cr.Memo Header"; ShowRequestPage: Boolean; var IsHandled: Boolean)
+    local procedure PrintSalesCrMemoHeaderOnBeforePrintRecords(var ReportSelections: Record "Report Selections"; var SalesCrMemoHeader: Record "Sales Cr.Memo Header"; ShowRequestPage: Boolean; var IsHandled: Boolean)
     var
         DocumentSendingProfile: Record "Document Sending Profile";
     begin
@@ -140,7 +140,7 @@ codeunit 11771 "Sending Document Handler"
     end;
 
     [EventSubscriber(ObjectType::Table, 114, 'OnBeforeEmailRecords', '', false, false)]
-    local procedure EmailSalesCrMemoHeaderOnBeforeEmailRecords(ReportSelections: Record "Report Selections"; SalesCrMemoHeader: Record "Sales Cr.Memo Header"; DocTxt: Text; ShowDialog: Boolean; var IsHandled: Boolean)
+    local procedure EmailSalesCrMemoHeaderOnBeforeEmailRecords(var ReportSelections: Record "Report Selections"; var SalesCrMemoHeader: Record "Sales Cr.Memo Header"; DocTxt: Text; ShowDialog: Boolean; var IsHandled: Boolean)
     var
         DocumentSendingProfile: Record "Document Sending Profile";
     begin
@@ -160,7 +160,7 @@ codeunit 11771 "Sending Document Handler"
     end;
 
     [EventSubscriber(ObjectType::Table, 122, 'OnBeforePrintRecords', '', false, false)]
-    local procedure PrintPurchInvoiceHeaderOnBeforePrintRecords(PurchInvHeader: Record "Purch. Inv. Header"; ShowRequestPage: Boolean; var IsHandled: Boolean)
+    local procedure PrintPurchInvoiceHeaderOnBeforePrintRecords(var PurchInvHeader: Record "Purch. Inv. Header"; ShowRequestPage: Boolean; var IsHandled: Boolean)
     var
         ReportSelections: Record "Report Selections";
     begin

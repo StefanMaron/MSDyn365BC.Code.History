@@ -393,6 +393,8 @@ table 312 "Purchases & Payables Setup"
         {
             Caption = 'Posting Desc. Code';
             TableRelation = "Posting Description" WHERE(Type = CONST("Purchase Document"));
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The functionality of posting description will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
         }
         field(11766; "Default VAT Date"; Option)
         {

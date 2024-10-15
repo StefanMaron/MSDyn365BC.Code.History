@@ -2,6 +2,8 @@ table 11762 "Registration Country/Region"
 {
     Caption = 'Registration Country/Region';
     LookupPageID = "Registration Country/Region";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this table should not be used. (Obsolete::Removed in release 01.2021)';
 
     fields
     {
@@ -100,24 +102,9 @@ table 11762 "Registration Country/Region"
             TableRelation = AllObjWithCaption."Object ID" WHERE("Object Type" = FIELD("Intrastat Export Object Type"));
 
             trigger OnLookup()
-            var
-                AllObjWithCaption: Record AllObjWithCaption;
-                ObjectsPage: Page Objects;
             begin
-                if AllObjWithCaption.Get("Intrastat Export Object Type", "Intrastat Export Object No.") then
-                    ObjectsPage.SetRecord(AllObjWithCaption);
-                AllObjWithCaption.FilterGroup(2);
-                AllObjWithCaption.SetRange("Object Type", "Intrastat Export Object Type");
-                ObjectsPage.SetTableView(AllObjWithCaption);
-                ObjectsPage.LookupMode(true);
-                if ObjectsPage.RunModal = ACTION::LookupOK then begin
-                    ObjectsPage.GetRecord(AllObjWithCaption);
-                    "Intrastat Export Object No." := AllObjWithCaption."Object ID";
-                end else
-                    Error('');
-
-                if "Intrastat Export Object No." <> 0 then
-                    TestField("Account Type", "Account Type"::"Company Information");
+                LookupObjectNo("Intrastat Export Object Type", "Intrastat Export Object No.");
+                Validate("Intrastat Export Object No.");
             end;
 
             trigger OnValidate()
@@ -129,6 +116,65 @@ table 11762 "Registration Country/Region"
         field(60; "Intrastat Exch.Rate Mandatory"; Boolean)
         {
             Caption = 'Intrastat Exch.Rate Mandatory';
+        }
+        field(80; "VIES Decl. Exp. Obj. Type"; Option)
+        {
+            BlankZero = true;
+            Caption = 'VIES Decl. Exp. Obj. Type';
+            InitValue = "Report";
+            OptionCaption = ',,,Report,,Codeunit';
+            OptionMembers = ,,,"Report",,"Codeunit";
+
+            trigger OnValidate()
+            begin
+                if xRec."VIES Decl. Exp. Obj. Type" <> "VIES Decl. Exp. Obj. Type" then
+                    Validate("VIES Decl. Exp. Obj. No.", 0);
+            end;
+        }
+        field(82; "VIES Decl. Exp. Obj. No."; Integer)
+        {
+            BlankZero = true;
+            Caption = 'VIES Decl. Exp. Obj. No.';
+            TableRelation = AllObjWithCaption."Object ID" where("Object Type" = field("VIES Decl. Exp. Obj. Type"));
+
+            trigger OnLookup()
+            begin
+                LookupObjectNo("VIES Decl. Exp. Obj. Type", "VIES Decl. Exp. Obj. No.");
+                Validate("VIES Decl. Exp. Obj. No.");
+            end;
+
+            trigger OnValidate()
+            begin
+                CalcFields("VIES Decl. Exp. Obj. Name");
+            end;
+        }
+        field(84; "VIES Decl. Exp. Obj. Name"; Text[250])
+        {
+            CalcFormula = lookup (AllObjWithCaption."Object Caption" where(
+                "Object Type" = field("VIES Decl. Exp. Obj. Type"),
+                "Object ID" = field("VIES Decl. Exp. Obj. No.")));
+            Caption = 'VIES Decl. Exp. Obj. Name';
+            Editable = false;
+            FieldClass = FlowField;
+        }
+        field(86; "VIES Declaration Report No."; Integer)
+        {
+            Caption = 'VIES Declaration Report No.';
+            TableRelation = AllObjWithCaption."Object ID" where("Object Type" = const(Report));
+
+            trigger OnValidate()
+            begin
+                CalcFields("VIES Declaration Report Name");
+            end;
+        }
+        field(87; "VIES Declaration Report Name"; Text[250])
+        {
+            CalcFormula = lookup (AllObjWithCaption."Object Caption" where(
+                "Object Type" = const(Report),
+                "Object ID" = field("VIES Decl. Exp. Obj. No.")));
+            Caption = 'VIES Declaration Report Name';
+            Editable = false;
+            FieldClass = FlowField;
         }
     }
 
@@ -146,6 +192,25 @@ table 11762 "Registration Country/Region"
     fieldgroups
     {
     }
+
+    local procedure LookupObjectNo(ObjectType: Option; var ObjectNo: Integer)
+    var
+        AllObjWithCaption: Record AllObjWithCaption;
+        Objects: Page Objects;
+    begin
+        if AllObjWithCaption.Get(ObjectType, ObjectNo) then
+            Objects.SetRecord(AllObjWithCaption);
+
+        AllObjWithCaption.FilterGroup(2);
+        AllObjWithCaption.SetRange("Object Type", ObjectType);
+        Objects.SetTableView(AllObjWithCaption);
+        Objects.LookupMode(true);
+        if Objects.RunModal() = Action::LookupOK then begin
+            Objects.GetRecord(AllObjWithCaption);
+            ObjectNo := AllObjWithCaption."Object ID";
+        end else
+            Error('');
+    end;
 
     local procedure VATRegistrationValidation()
     var

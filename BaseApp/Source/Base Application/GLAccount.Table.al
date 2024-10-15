@@ -714,6 +714,8 @@ table 15 "G/L Account"
         field(11792; "Full Name"; Text[100])
         {
             Caption = 'Full Name';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The functionality of Fields for Full Description will be removed and this field should not be used. Standard fields for Name are now 100. (Obsolete::Removed in release 01.2021)';
 
             trigger OnValidate()
             begin
@@ -965,7 +967,7 @@ table 15 "G/L Account"
             DimMgt.SaveDefaultDim(DATABASE::"G/L Account", "No.", FieldNumber, ShortcutDimCode);
             Modify;
         end;
-	
+
         OnAfterValidateShortcutDimCode(Rec, xRec, FieldNumber, ShortcutDimCode);
     end;
 

@@ -19,11 +19,13 @@ page 31082 "File Mapping"
                 }
                 field(Split; Split)
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if line splits';
                     Visible = false;
                 }
                 field(Offset; Offset)
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies offset of line';
                     Visible = false;
                 }

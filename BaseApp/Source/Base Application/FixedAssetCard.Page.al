@@ -35,6 +35,9 @@
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies full description of the fixed asset.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of Fields for Full Description will be removed and this field should not be used. Standard fields for Name are now 100. (Obsolete::Removed in release 01.2021)';
                 }
                 field(Description; Description)
                 {
@@ -157,6 +160,9 @@
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the standard classification of production (SKP) code.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of Fixed Assets Clasification by SKP codes will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
                 }
                 field("Clasification Code"; "Clasification Code")
                 {
@@ -361,6 +367,9 @@
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the depreciation book for maintenance.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of Item consumption for FA maintenance will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
                 }
                 field("Warranty Date"; "Warranty Date")
                 {

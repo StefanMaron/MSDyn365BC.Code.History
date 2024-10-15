@@ -30,6 +30,7 @@ page 11709 "Bank Statement List"
                 }
                 field("Bank Account No."; "Bank Account No.")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of bank account.';
                     Visible = false;
                 }

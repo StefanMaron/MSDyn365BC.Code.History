@@ -23,13 +23,16 @@ page 11774 "Export VAT Statement"
                     Editable = false;
                     ToolTip = 'Specifies the name of VAT statement.';
                 }
-                field("VATStatementTemplate.""XML Format"""; VATStatementTemplate."XML Format")
+                field(XMLFormat; VATStatementTemplate."XML Format")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'XML Format';
                     Editable = false;
                     OptionCaption = 'DPHDP2,DPHDP3';
                     ToolTip = 'Specifies XML format in which vat statement will be exported';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The file format DPHDP2 is deprecated. Only the DPHDP3 format will be supported. This field will be removed and should not be used. (Obsolete::Removed in release 01.2021)';
                 }
                 field(StartDate; StartDate)
                 {
@@ -84,6 +87,7 @@ page 11774 "Export VAT Statement"
                     Visible = RoundingDirectionCtrlVisible;
                     field(RoundingDirection; RoundingDirection)
                     {
+                        ApplicationArea = Basic, Suite;
                         Caption = 'Rounding Direction';
                         OptionCaption = 'Nearest,Down,Up';
                         ToolTip = 'Specifies rounding direction';
@@ -91,12 +95,14 @@ page 11774 "Export VAT Statement"
                 }
                 field(UseAmtsInAddCurr; UseAmtsInAddCurr)
                 {
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Amounts in Add. Reporting Currency';
                     MultiLine = true;
                     ToolTip = 'Specifies whether to show the reported amounts in the additional reporting currency.';
                 }
                 field(DeclarationType; DeclarationType)
                 {
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Declaration Type';
                     OptionCaption = 'Recapitulative,Corrective,Supplementary';
                     ToolTip = 'Specifies the declaration type (recapitulative, corrective, supplementary).';
@@ -110,6 +116,7 @@ page 11774 "Export VAT Statement"
                 }
                 field(Month; Month)
                 {
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Month';
                     ToolTip = 'Specifies the number of monat for VAT statement reporting.';
 
@@ -122,6 +129,7 @@ page 11774 "Export VAT Statement"
                 }
                 field(Quarter; Quarter)
                 {
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Quarter';
                     ToolTip = 'Specifies vat control report quarter';
 
@@ -134,57 +142,67 @@ page 11774 "Export VAT Statement"
                 }
                 field(Year; Year)
                 {
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Year';
                     ToolTip = 'Specifies year of vat control report';
                 }
                 field(ReasonsObservedOn; ReasonsObservedOn)
                 {
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Reasons Find';
                     Editable = ReasonsObservedOnCtrlEditable;
                     ToolTip = 'Specifies the date of finding reasons of supplementary vat statement';
                 }
                 field(VATStatDate; VATStatDate)
                 {
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Statement Date';
                     ToolTip = 'Specifies the statement starting date';
                 }
                 field(FilledByEmployeeNo; FilledByEmployeeNo)
                 {
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Filled By Employee No.';
                     TableRelation = "Company Officials";
                     ToolTip = 'Specifies the number of employee, who filled VAT statement.';
                 }
                 field(ZoCode; ZoCode)
                 {
+                    ApplicationArea = Basic, Suite;
                     Caption = 'VAT Settlement Next Year Code';
                     OptionCaption = ',Q2,M10,Q,M';
                     ToolTip = 'Specifies vat settlement next year code';
                 }
                 field(CountryCodeFillFiter; CountryCodeFillFiter)
                 {
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Performance Country';
                     TableRelation = "Country/Region";
                     ToolTip = 'Specifies performance country code for VAT entries filtr.';
                 }
                 field(SettlementNoFilter; SettlementNoFilter)
                 {
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Filter VAT Settlement No.';
                     ToolTip = 'Specifies the filter setup of document number which the VAT entries were closed.';
                 }
                 field(Comments; Comments)
                 {
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Comments';
                     Editable = false;
                     ToolTip = 'Specifies cash document comments.';
                 }
                 field(Attachments; Attachments)
                 {
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Attachments';
                     Editable = false;
                     ToolTip = 'Specifies the number of attachments.';
                 }
                 field(NoTax; NoTax)
                 {
+                    ApplicationArea = Basic, Suite;
                     Caption = 'No Tax reliability or Right to deduction';
                     MultiLine = true;
                     ToolTip = 'Specifies if it is no tax reliability or right to deduction.';
@@ -209,7 +227,7 @@ page 11774 "Export VAT Statement"
                 trigger OnAction()
                 begin
                     FileName := ExportToXML();
-                    CurrPage.Close;
+                    CurrPage.Close();
                 end;
             }
         }
@@ -244,10 +262,12 @@ page 11774 "Export VAT Statement"
         MonthZeroIfQuarterErr: Label 'Month must be 0 if Quarter is filled in.';
         MonthDontEmptyIfQuarErr: Label 'Quarter must be 0 if Month is filled in.';
         MonthOrQuarterErr: Label 'Month or Quarter must be filled in.';
+        [Obsolete('The file format DPHDP2 is deprecated. Only the DPHDP3 format will be supported. This variable will be removed and should not be used. (Obsolete::Removed in release 01.2021)')]
         FileFormatErr: Label '%1 file format requires %2 to be added to Supplementary or Supplementary/Corrective VAT Statement.', Comment = '%1=Xml Format, %2=FIELDCAPTION';
         ReasonObserverReqErr: Label 'You must specify Reasons Observed On date in Supplementary or Supplementary/Corrective VAT Statement.';
         VATStatementTemplate: Record "VAT Statement Template";
         FileMgt: Codeunit "File Management";
+        [Obsolete('The file format DPHDP2 is deprecated. Only the DPHDP3 format will be supported. This variable will be removed and should not be used. (Obsolete::Removed in release 01.2021)')]
         VATStatementXML2010: XMLport "VAT Statement";
         VATStatementXML2011: XMLport "VAT Statement 2011";
         FileName: Text;
@@ -328,7 +348,7 @@ page 11774 "Export VAT Statement"
             end;
         end;
 
-        ClearXMLPortVariables;
+        ClearXMLPortVariables();
 
         VATStatementLine.Reset;
         VATStatementLine.SetRange("Statement Template Name", "Statement Template Name");
@@ -359,7 +379,7 @@ page 11774 "Export VAT Statement"
                     VATStatementXML2010.SetParameters(
                       Month, Quarter, Year, DeclarationType, ReasonsObservedOn, FilledByEmployeeNo, NoTax);
                     VATStatementXML2010.SetDestination(OutputStream);
-                    VATStatementXML2010.Export;
+                    VATStatementXML2010.Export();
                 end;
             VATStatementTemplate."XML Format"::DPHDP3:
                 begin
@@ -371,7 +391,7 @@ page 11774 "Export VAT Statement"
                         Date.SetRange("Period Type", Date."Period Type"::Month);
                         Date.SetRange("Period Start", DMY2Date(1, Month, Year));
                         Date.SetRange("Period No.", Month);
-                        if Date.FindLast then begin
+                        if Date.FindLast() then begin
                             StartDateLoc := NormalDate(Date."Period Start");
                             StopDateLoc := NormalDate(Date."Period End");
                         end;
@@ -379,7 +399,7 @@ page 11774 "Export VAT Statement"
                         Date.SetRange("Period Type", Date."Period Type"::Quarter);
                         Date.SetRange("Period Start", DMY2Date(1, 1, Year), DMY2Date(31, 12, Year));
                         Date.SetRange("Period No.", Quarter);
-                        if Date.FindLast then begin
+                        if Date.FindLast() then begin
                             StartDateLoc := NormalDate(Date."Period Start");
                             StopDateLoc := NormalDate(Date."Period End");
                         end;
@@ -395,7 +415,7 @@ page 11774 "Export VAT Statement"
 
                     VATStatementXML2011.SetParam2(ZoCode, StartDateLoc, StopDateLoc);
                     VATStatementXML2011.SetDestination(OutputStream);
-                    VATStatementXML2011.Export;
+                    VATStatementXML2011.Export();
                 end;
         end;
     end;
@@ -404,9 +424,9 @@ page 11774 "Export VAT Statement"
     begin
         case VATStatementTemplate."XML Format" of
             VATStatementTemplate."XML Format"::DPHDP2:
-                VATStatementXML2010.ClearVariables;
+                VATStatementXML2010.ClearVariables();
             VATStatementTemplate."XML Format"::DPHDP3:
-                VATStatementXML2011.ClearVariables;
+                VATStatementXML2011.ClearVariables();
         end;
     end;
 

@@ -118,12 +118,14 @@ page 9004 "Bookkeeper Role Center"
             }
             action("Balance Sheet")
             {
+                ApplicationArea = Basic, Suite;
                 Caption = 'Balance Sheet';
                 RunObject = Report "Balance Sheet";
                 ToolTip = 'Open the report for balance sheet.';
             }
             action("Income Statement")
             {
+                ApplicationArea = Basic, Suite;
                 Caption = 'Income Statement';
                 RunObject = Report "Income Statement";
                 ToolTip = 'Open the report for income statement.';
@@ -133,12 +135,14 @@ page 9004 "Bookkeeper Role Center"
             }
             action("Customer - Bal. Reconciliation")
             {
+                ApplicationArea = Basic, Suite;
                 Caption = 'Customer - Bal. Reconciliation';
                 RunObject = Report "Customer - Bal. Reconciliation";
                 ToolTip = 'Open the report for customer''s balance reconciliation.';
             }
             action("Vendor - Bal. Reconciliation")
             {
+                ApplicationArea = Basic, Suite;
                 Caption = 'Vendor - Bal. Reconciliation';
                 RunObject = Report "Vendor - Bal. Reconciliation";
                 ToolTip = 'Opens vendor - bal. reconciliation report';
@@ -175,18 +179,21 @@ page 9004 "Bookkeeper Role Center"
             }
             action("FA Phys. Inventory List")
             {
+                ApplicationArea = FixedAssets;
                 Caption = 'FA Phys. Inventory List';
                 RunObject = Report "FA Phys. Inventory List";
                 ToolTip = 'Open the report for fixed asset physical inventory.';
             }
             action("FA Receipt")
             {
+                ApplicationArea = FixedAssets;
                 Caption = 'FA Receipt';
                 RunObject = Report "FA Receipt Report";
                 ToolTip = 'Open the report for fixed asset receipt.';
             }
             action("FA Disposal")
             {
+                ApplicationArea = FixedAssets;
                 Caption = 'FA Disposal';
                 RunObject = Report "FA Disposal Report";
                 ToolTip = 'Open the report for fixed asset disposal.';
@@ -252,9 +259,13 @@ page 9004 "Bookkeeper Role Center"
             }
             action("Package Tax Calculation")
             {
+                ApplicationArea = VAT;
                 Caption = 'Package Tax Calculation';
                 RunObject = Report "Package Tax Calculation";
                 ToolTip = 'The report for package tax calculation.';
+                Visible = false;
+                ObsoleteState = Pending;
+                ObsoleteReason = 'The functionality of Packaging Material will be removed and this action should not be used. (Obsolete::Removed in release 01.2021)';
             }
         }
         area(embedding)
@@ -327,6 +338,7 @@ page 9004 "Bookkeeper Role Center"
             }
             action("VIES Declarations")
             {
+                ApplicationArea = Basic, Suite;
                 Caption = 'VIES Declarations';
                 RunObject = Page "VIES Declarations";
                 ToolTip = 'Specifies vies declarations list';
@@ -347,6 +359,7 @@ page 9004 "Bookkeeper Role Center"
             }
             action("Purchase Advance Letters")
             {
+                ApplicationArea = Basic, Suite;
                 Caption = 'Purchase Advance Letters';
                 RunObject = Page "Purchase Advance Letters";
                 ToolTip = 'Specifies purchase advance letters';
@@ -369,6 +382,7 @@ page 9004 "Bookkeeper Role Center"
             }
             action("Sales Advance Letters")
             {
+                ApplicationArea = Basic, Suite;
                 Caption = 'Sales Advance Letters';
                 RunObject = Page "Sales Advance Letters";
                 ToolTip = 'Specifies sales advance letter';
@@ -700,6 +714,7 @@ page 9004 "Bookkeeper Role Center"
             }
             action("VIES Declaration")
             {
+                ApplicationArea = Basic, Suite;
                 Caption = 'VIES Declaration';
                 Image = PrintVAT;
                 RunObject = Page "VIES Declaration";
@@ -742,6 +757,7 @@ page 9004 "Bookkeeper Role Center"
             }
             action("Phys. Invt. Counting Document")
             {
+                ApplicationArea = Basic, Suite;
                 Caption = 'Phys. Invt. Counting Document';
                 Image = PhysicalInventory;
                 RunObject = Report "Phys. Invt. Counting Document";
@@ -796,6 +812,7 @@ page 9004 "Bookkeeper Role Center"
             }
             action(Action1220019)
             {
+                ApplicationArea = Basic, Suite;
                 Caption = 'VIES Declarations';
                 Image = PrintVAT;
                 RunObject = Page "VIES Declarations";
@@ -816,6 +833,7 @@ page 9004 "Bookkeeper Role Center"
             }
             action("Statutory Reporting Setup")
             {
+                ApplicationArea = Basic, Suite;
                 Caption = 'Statutory Reporting Setup';
                 Image = HumanResources;
                 RunObject = Page "Company Officials Card";

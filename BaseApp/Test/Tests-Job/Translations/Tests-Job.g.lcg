@@ -536,15 +536,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Job Journal - NamedType ControlNotFoundErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1703860994 - NamedType 1973263797" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Job No. must be equal to ''  in Gen. Journal Line: Journal Template Name=%1, Journal Batch Name=%2, Line No.=%3. Current value is '%4'.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1=Journal Template Name,%2=Journal Batch Name,%3=Line No.,%4=Job No.]D;]A;(LookupHint=Codeunit Job Journal - NamedType JobNoErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 948787226 - NamedType 1513728296" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA['Document No is incorrect in Order Tracking: %1 does not contain %2\'.]]></Val>

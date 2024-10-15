@@ -776,6 +776,8 @@ table 901 "Assembly Line"
                 UnitCost := Resource."Unit Cost" * "Qty. per Unit of Measure";
         end;
 
+        OnAfterGetUnitCost(Rec, UnitCost);
+
         exit(RoundUnitAmount(UnitCost));
     end;
 
@@ -941,7 +943,13 @@ table 901 "Assembly Line"
     var
         ReservMgt: Codeunit "Reservation Management";
         FullAutoReservation: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeAutoReserve(Rec, IsHandled);
+        if Ishandled then
+            exit;
+
         if Type <> Type::Item then
             exit;
 
@@ -1644,6 +1652,11 @@ table 901 "Assembly Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterGetUnitCost(var AssemblyLine: Record "Assembly Line"; var UnitCost: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterInitRemainingQty(var AssemblyLine: Record "Assembly Line"; xAssemblyLine: Record "Assembly Line"; CurrentFieldNo: Integer);
     begin
     end;
@@ -1655,6 +1668,11 @@ table 901 "Assembly Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidateShortcutDimCode(var AssemblyLine: Record "Assembly Line"; var xAssemblyLine: Record "Assembly Line"; FieldNumber: Integer; var ShortcutDimCode: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeAutoReserve(var AssemblyLine: Record "Assembly Line"; var IsHandled: Boolean)
     begin
     end;
 

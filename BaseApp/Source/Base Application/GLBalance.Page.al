@@ -145,6 +145,7 @@
                 }
                 field("Net Change (VAT Date)"; "Net Change (VAT Date)")
                 {
+                    ApplicationArea = Basic, Suite;
                     BlankZero = true;
                     ToolTip = 'Specifies the VAT date on which the net charge was made for the general ledger entry.';
                     Visible = false;

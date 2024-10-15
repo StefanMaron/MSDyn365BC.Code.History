@@ -164,6 +164,7 @@
                 }
                 action(UndoShipment)
                 {
+                    ApplicationArea = Basic, Suite;
                     Caption = '&Undo Shipment';
                     Image = UndoShipment;
                     ToolTip = 'Withdraw the line from the shipment. This is useful for making corrections, because the line is not deleted. You can make changes and post it again.';

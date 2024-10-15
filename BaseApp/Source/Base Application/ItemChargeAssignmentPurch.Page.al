@@ -127,10 +127,12 @@ page 5805 "Item Charge Assignment (Purch)"
                 }
                 field("Incl. in Intrastat Amount"; "Incl. in Intrastat Amount")
                 {
+                    ApplicationArea = ItemCharges;
                     ToolTip = 'Specifies to include Intrastat amounts for value entries.';
                 }
                 field("Incl. in Intrastat Stat. Value"; "Incl. in Intrastat Stat. Value")
                 {
+                    ApplicationArea = ItemCharges;
                     ToolTip = 'Specifies to include Intrastat amounts for value entries.';
                 }
             }
@@ -291,6 +293,11 @@ page 5805 "Item Charge Assignment (Purch)"
                         ItemChargeAssgntPurch.SetRange("Document No.", "Document No.");
                         ItemChargeAssgntPurch.SetRange("Document Line No.", "Document Line No.");
 
+                        TransferRcptLine.FilterGroup(2);
+                        TransferRcptLine.SetFilter("Item No.", '<>%1', '');
+                        TransferRcptLine.SetFilter(Quantity, '<>0');
+                        TransferRcptLine.FilterGroup(0);
+
                         PostedTransferReceiptLines.SetTableView(TransferRcptLine);
                         if ItemChargeAssgntPurch.FindLast then
                             PostedTransferReceiptLines.Initialize(ItemChargeAssgntPurch, PurchLine2."Unit Cost")
@@ -402,6 +409,7 @@ page 5805 "Item Charge Assignment (Purch)"
                 }
                 action("Get Pos. Adj. Ledger Entry")
                 {
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Get Pos. Adj. Ledger Entry';
                     Image = ReceiveLoaner;
                     ToolTip = 'Open the page for the selection of the posting item ledger entries.';

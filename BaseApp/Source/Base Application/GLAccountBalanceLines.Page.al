@@ -77,6 +77,7 @@ page 416 "G/L Account Balance Lines"
                 }
                 field("GLAcc.""Net Change (VAT Date)"""; GLAcc."Net Change (VAT Date)")
                 {
+                    ApplicationArea = Basic, Suite;
                     BlankZero = true;
                     Caption = 'Net Change (VAT Date)';
                     Editable = false;

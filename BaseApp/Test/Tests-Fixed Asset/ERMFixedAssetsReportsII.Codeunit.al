@@ -1082,9 +1082,9 @@ codeunit 134981 "ERM Fixed Assets Reports - II"
         CreateNegativeFAGeneralLine(GenJournalLine, FADepreciationBook."Depreciation Book Code", FAPostingType);
 
         // NAVCZ
-        if FAPostingType = GenJournalLine."FA Posting Type"::"Custom 1" then begin
+        if FAPostingType = GenJournalLine."FA Posting Type"::"Custom 2" then begin
             GenJournalLine.Validate(Amount, -GenJournalLine.Amount);
-            GenJournalLine.Modify;
+            GenJournalLine.Modify();
         end;
         // NAVCZ
 
@@ -1669,7 +1669,6 @@ codeunit 134981 "ERM Fixed Assets Reports - II"
         DepreciationBook: Record "Depreciation Book";
     begin
         DepreciationBook.Get(LibraryFixedAsset.GetDefaultDeprBook);
-        UpdateFAPostingTypeSetup(DepreciationBook.Code); // NAVCZ
         LibraryFixedAsset.CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", DepreciationBook.Code);
         with FADepreciationBook do begin
             Validate("Depreciation Starting Date", WorkDate);
@@ -2562,16 +2561,6 @@ codeunit 134981 "ERM Fixed Assets Reports - II"
     begin
         Assert.ExpectedMessage(CompletionStatsTok, Question);
         Reply := false;
-    end;
-
-    local procedure UpdateFAPostingTypeSetup(DepreciationBookCode: Code[10])
-    var
-        FAPostingTypeSetup: Record "FA Posting Type Setup";
-    begin
-        // NAVCZ
-        FAPostingTypeSetup.SetCurrentKey("Depreciation Book Code", "FA Posting Type");
-        FAPostingTypeSetup.SetRange("Depreciation Book Code", DepreciationBookCode);
-        FAPostingTypeSetup.ModifyAll("Include in Gain/Loss Calc.", true);
     end;
 }
 

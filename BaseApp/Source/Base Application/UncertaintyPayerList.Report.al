@@ -45,9 +45,6 @@ report 11762 "Uncertainty Payer List"
             column(WarningText_Vendor_var; WarningText)
             {
             }
-            column(PageNoFooterText_Vendor_fld; StrSubstNo(Text003, CurrReport.PageNo))
-            {
-            }
             dataitem("Vendor Bank Account"; "Vendor Bank Account")
             {
                 DataItemLink = "Vendor No." = FIELD("No.");
@@ -215,6 +212,8 @@ report 11762 "Uncertainty Payer List"
         BankAccType_VBA_Lbl = 'Bank Acc. Type';
         PublicDate_VBA_Lbl = 'Public Date';
         UnPublicDate_VBA_Lbl = 'End public Date';
+        Printed_Lbl = 'Printed';
+        Pages_Of_Report_Lbl = 'Page Of Report';
     }
 
     var
@@ -229,7 +228,6 @@ report 11762 "Uncertainty Payer List"
         RecCount: Integer;
         Text001: Label 'Payer uncertainty doesn£ check.';
         Text002: Label 'VAT payer is uncertainty!';
-        Text003: Label 'Printed %1 Pages Of Report.';
         Text004: Label 'VAT Reg. No. not use!';
         Text005: Label 'Contains non public bank accounts.';
 }

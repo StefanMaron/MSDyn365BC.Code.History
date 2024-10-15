@@ -181,6 +181,7 @@ page 9007 "Purchasing Agent Role Center"
             }
             action("Purchase Advance Letters")
             {
+                ApplicationArea = Basic, Suite;
                 Caption = 'Purchase Advance Letters';
                 RunObject = Page "Purchase Advance Letters";
                 ToolTip = 'Specifies purchase advance letters';

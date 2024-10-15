@@ -90,6 +90,7 @@
                 }
                 field("Applied Amount (LCY)"; "Applied Amount (LCY)")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the applied amount (in LCY) in the bank statement beside customer''s or vendor''s entries.';
                     Visible = false;
                 }
@@ -102,6 +103,7 @@
                 }
                 field("Difference (LCY)"; "Difference (LCY)")
                 {
+                    ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the difference amount which it is not conected to customer''s or vendor''s entries.';
                     Visible = false;
@@ -280,16 +282,19 @@
                 }
                 field("Document Type"; "Document Type")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the type of payment (payment or refund).';
                     Visible = false;
                 }
                 field("Statement No."; "Statement No.")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the statement number from which is created payment reconciliation journal.';
                     Visible = false;
                 }
                 field("Posting Group"; "Posting Group")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies posting group for the payment reconciliation journal line';
                 }
                 field(Prepayment; Prepayment)
@@ -662,6 +667,9 @@
                         Image = Reconcile;
                         ShortCutKey = 'Ctrl+F11';
                         ToolTip = 'Specifies reconcile page';
+                        Visible = false;
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'The functionality of GL Journal reconciliation by type will be removed and this action should not be used. (Obsolete::Removed in release 01.2021)';
 
                         trigger OnAction()
                         begin

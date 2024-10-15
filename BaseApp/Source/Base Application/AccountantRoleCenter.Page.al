@@ -220,7 +220,7 @@ page 9027 "Accountant Role Center"
                 }
                 action("VAT - VIES Declaration Tax Aut&h")
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = BasicEU;
                     Caption = 'VAT - VIES Declaration Tax Aut&h';
                     Image = "Report";
                     RunObject = Report "VAT- VIES Declaration Tax Auth";
@@ -228,7 +228,7 @@ page 9027 "Accountant Role Center"
                 }
                 action("VAT - VIES Declaration Dis&k")
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = BasicEU;
                     Caption = 'VAT - VIES Declaration Dis&k';
                     Image = "Report";
                     RunObject = Report "VAT- VIES Declaration Disk";
@@ -236,7 +236,7 @@ page 9027 "Accountant Role Center"
                 }
                 action("EC Sales &List")
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = BasicEU;
                     Caption = 'EC Sales &List';
                     Image = "Report";
                     RunObject = Report "EC Sales List";

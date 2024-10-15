@@ -76,7 +76,7 @@ table 31058 "Posted Credit Line"
         {
             Caption = 'Document No.';
         }
-        field(45; Description; Text[50])
+        field(45; Description; Text[100])
         {
             Caption = 'Description';
         }

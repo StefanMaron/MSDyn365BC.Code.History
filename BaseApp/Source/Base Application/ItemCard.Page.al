@@ -30,6 +30,9 @@
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies full description of the item.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of Fields for Full Description will be removed and this field should not be used. Standard fields for Name are now 100. (Obsolete::Removed in release 01.2021)';
                 }
                 field(Description; Description)
                 {
@@ -665,7 +668,7 @@
 
                     trigger OnValidate()
                     begin
-                        EnablePlanningControls
+                        EnablePlanningControls();
                     end;
                 }
                 field(Reserve; Reserve)
@@ -1910,11 +1913,15 @@
                 }
                 action("Package Materials")
                 {
+                    ApplicationArea = Suite;
                     Caption = 'Package Materials';
                     Image = ItemGroup;
                     RunObject = Page "Item Package Materials";
                     RunPageLink = "Item No." = FIELD("No.");
                     ToolTip = 'Open the page for item package materials settings.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of Packaging Material will be removed and this action should not be used. (Obsolete::Removed in release 01.2021)';
                 }
                 action(Orders)
                 {
@@ -2502,6 +2509,8 @@
         DampenerPeriodEnable := DampenerPeriodEnabled;
         DampenerQtyEnable := DampenerQtyEnabled;
         OverflowLevelEnable := OverflowLevelEnabled;
+
+        OnAfterEnablePlanningControls();
     end;
 
     local procedure EnableCostingControls()
@@ -2538,6 +2547,8 @@
         TimeBucketEnable := true;
         "Costing Method" := "Costing Method"::FIFO;
         UnitCostEditable := true;
+
+        OnAfterInitControls();
     end;
 
     local procedure UpdateSpecialPricesAndDiscountsTxt()
@@ -2601,7 +2612,17 @@
     end;
 
     [IntegrationEvent(TRUE, false)]
+    local procedure OnAfterInitControls()
+    begin
+    end;
+
+    [IntegrationEvent(TRUE, false)]
     local procedure OnAfterOnOpenPage()
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterEnablePlanningControls()
     begin
     end;
 

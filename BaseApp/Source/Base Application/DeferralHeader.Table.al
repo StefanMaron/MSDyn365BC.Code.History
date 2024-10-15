@@ -176,6 +176,7 @@ table 1701 "Deferral Header"
         DeferralUtilities: Codeunit "Deferral Utilities";
         NumberofPeriodsErr: Label 'You must specify one or more periods.';
         ZeroAmountToDeferErr: Label 'The Amount to Defer cannot be 0.';
+        [Obsolete('The functionality of Non-deductible VAT will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)')]
         AmountToDeferNonDeductVATErr: Label 'The deferred amount cannot be less than the document line amount if non-deductible VAT is permitted.';
 
     procedure CalculateSchedule(): Boolean
@@ -193,6 +194,7 @@ table 1701 "Deferral Header"
         exit(true);
     end;
 
+    [Obsolete('The functionality of Non-deductible VAT will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)')]
     local procedure IsNonDeductibleVATAllowed(): Boolean
     var
         PurchaseLine: Record "Purchase Line";

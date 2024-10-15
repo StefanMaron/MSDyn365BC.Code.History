@@ -64,6 +64,8 @@ page 327 "Intrastat Jnl. Batches"
                     ApplicationArea = VAT;
                     ToolTip = 'Specifies the country/region code. It is mandatory field by creating documents with VAT registration number for other countries.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
                 }
             }
         }

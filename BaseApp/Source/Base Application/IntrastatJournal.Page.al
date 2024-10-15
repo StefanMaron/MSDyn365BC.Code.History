@@ -19,7 +19,7 @@ page 311 "Intrastat Journal"
                 ApplicationArea = BasicEU;
                 Caption = 'Batch Name';
                 Lookup = true;
-                ToolTip = 'Specifies the name of the journal batch.';
+                ToolTip = 'Specifies the name of the journal batch, a personalized journal layout, that the journal is based on.';
 
                 trigger OnLookup(var Text: Text): Boolean
                 begin
@@ -72,10 +72,12 @@ page 311 "Intrastat Journal"
                 }
                 field("Statistic Indication"; "Statistic Indication")
                 {
+                    ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the statistic indication code for the item.';
                 }
                 field("Specific Movement"; "Specific Movement")
                 {
+                    ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the specific movement code for the item.';
                 }
                 field("Item Description"; "Item Description")
@@ -86,27 +88,28 @@ page 311 "Intrastat Journal"
                 field("Country/Region Code"; "Country/Region Code")
                 {
                     ApplicationArea = BasicEU;
-                    ToolTip = 'Specifies the country/region code for the item entry.';
+                    ToolTip = 'Specifies the country/region of the address.';
                 }
                 field("Country/Region of Origin Code"; "Country/Region of Origin Code")
                 {
+                    ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the origin country/region code.';
                 }
                 field("Transaction Type"; "Transaction Type")
                 {
                     ApplicationArea = BasicEU;
-                    ToolTip = 'Specifies the transaction type for the item entry.';
+                    ToolTip = 'Specifies the type of transaction that the document represents, for the purpose of reporting to INTRASTAT.';
                 }
                 field("Transaction Specification"; "Transaction Specification")
                 {
                     ApplicationArea = BasicEU;
-                    ToolTip = 'Specifies the transaction specification code for the item transaction on this journal line.';
+                    ToolTip = 'Specifies a specification of the document''s transaction, for the purpose of reporting to INTRASTAT.';
                     Visible = false;
                 }
                 field("Transport Method"; "Transport Method")
                 {
                     ApplicationArea = BasicEU;
-                    ToolTip = 'Specifies the transport method for the item entry.';
+                    ToolTip = 'Specifies the transport method, for the purpose of reporting to INTRASTAT.';
                 }
                 field("Entry/Exit Point"; "Entry/Exit Point")
                 {
@@ -117,7 +120,7 @@ page 311 "Intrastat Journal"
                 field("Area"; Area)
                 {
                     ApplicationArea = BasicEU;
-                    ToolTip = 'Specifies the code for the area of the customer or vendor with which you traded the items on this journal line.';
+                    ToolTip = 'Specifies the area of the customer or vendor, for the purpose of reporting to INTRASTAT.';
                     Visible = false;
                 }
                 field("Shpt. Method Code"; "Shpt. Method Code")
@@ -132,18 +135,22 @@ page 311 "Intrastat Journal"
                 }
                 field("Supplem. UoM Code"; "Supplem. UoM Code")
                 {
+                    ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the supplementary unit of measure code for the Intrastat journal line. This number is assigned to an item.';
                 }
                 field("Supplem. UoM Quantity"; "Supplem. UoM Quantity")
                 {
+                    ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the supplementary unit of measure quantity for the Intrastat journal line.';
                 }
                 field("Supplem. UoM Net Weight"; "Supplem. UoM Net Weight")
                 {
+                    ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the supplementary unit of measure net weight for the Intrastat journal line.';
                 }
                 field("Base Unit of Measure"; "Base Unit of Measure")
                 {
+                    ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the unit in which the item is held in inventory.';
                 }
                 field(Quantity; Quantity)
@@ -200,19 +207,23 @@ page 311 "Intrastat Journal"
                 }
                 field("Prev. Declaration No."; "Prev. Declaration No.")
                 {
+                    ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the previous declaration number for the Intrastat journal line.';
                 }
                 field("Prev. Declaration Line No."; "Prev. Declaration Line No.")
                 {
+                    ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the declaration line number for the previous declaration for the Intrastat journal line.';
                 }
                 field("Additional Costs"; "Additional Costs")
                 {
+                    ApplicationArea = BasicEU;
                     ToolTip = 'Specifies aditional costs';
                     Visible = false;
                 }
                 field("Source Entry Date"; "Source Entry Date")
                 {
+                    ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the source entry date of the intrastat journal line';
                     Visible = false;
                 }
@@ -316,6 +327,7 @@ page 311 "Intrastat Journal"
         {
             action("Test Report")
             {
+                ApplicationArea = BasicEU;
                 Caption = 'Test Report';
                 Ellipsis = true;
                 Image = TestReport;
@@ -413,6 +425,7 @@ page 311 "Intrastat Journal"
             }
             action(Export)
             {
+                ApplicationArea = BasicEU;
                 Caption = 'Export';
                 Ellipsis = true;
                 Image = Export;
@@ -462,6 +475,7 @@ page 311 "Intrastat Journal"
             }
             action("Intrastat - Invoice Checklist")
             {
+                ApplicationArea = BasicEU;
                 Caption = 'Intrastat - Invoice Checklist';
                 Ellipsis = true;
                 Image = PrintChecklistReport;

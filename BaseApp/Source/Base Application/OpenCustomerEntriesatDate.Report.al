@@ -555,6 +555,7 @@ report 11778 "Open Customer Entries at Date"
                     }
                     field(CustPerPage; CustPerPage)
                     {
+                        ApplicationArea = Basic, Suite;
                         Caption = 'Customer Per Page';
                         ToolTip = 'Specifies if each customer has to be printed on new page.';
                         Visible = false;

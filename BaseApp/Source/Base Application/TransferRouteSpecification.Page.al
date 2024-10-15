@@ -28,10 +28,12 @@ page 5748 "Transfer Route Specification"
                 }
                 field("Gen. Bus. Post. Group Ship"; "Gen. Bus. Post. Group Ship")
                 {
+                    ApplicationArea = Location;
                     ToolTip = 'Specifies general bussiness posting group for items ship.';
                 }
                 field("Gen. Bus. Post. Group Receive"; "Gen. Bus. Post. Group Receive")
                 {
+                    ApplicationArea = Location;
                     ToolTip = 'Specifies general bussiness posting group for itemsreceive.';
                 }
             }

@@ -136,6 +136,7 @@ page 868 "Cash Flow Forecast Statistics"
                 }
                 field(SalesAdvances; CalcAmountFromSource(CashFlowForecastEntry."Source Type"::"Sales Advance Letters"))
                 {
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Sales Advances';
                     ToolTip = 'Specifies an amount of sales advances';
 
@@ -146,6 +147,7 @@ page 868 "Cash Flow Forecast Statistics"
                 }
                 field(PurchaseAdvances; CalcAmountFromSource(CashFlowForecastEntry."Source Type"::"Purchase Advance Letters"))
                 {
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Purchase Advances';
                     ToolTip = 'Specifies an amount of purchase advances';
 

@@ -586,44 +586,54 @@
                 Caption = 'Payments';
                 field("Bank Account Code"; "Bank Account Code")
                 {
+                    ApplicationArea = Suite;
                     ToolTip = 'Specifies a code to idenfity bank account of my company.';
                 }
                 field("Bank Name"; "Bank Name")
                 {
+                    ApplicationArea = Suite;
                     Editable = false;
                     ToolTip = 'Specifies the name of the bank.';
                 }
                 field("Bank Branch No."; "Bank Branch No.")
                 {
+                    ApplicationArea = Suite;
                     Editable = false;
                     ToolTip = 'Specifies the number of the bank branch.';
                 }
                 field("Bank Account No."; "Bank Account No.")
                 {
+                    ApplicationArea = Suite;
                     ToolTip = 'Specifies the number used by the bank for the bank account.';
                 }
                 field("Transit No."; "Transit No.")
                 {
+                    ApplicationArea = Suite;
                     ToolTip = 'Specifies a bank identification number of your own choice.';
                 }
                 field("SWIFT Code"; "SWIFT Code")
                 {
+                    ApplicationArea = Suite;
                     ToolTip = 'Specifies the international bank identifier code (SWIFT) of the bank where you have the account.';
                 }
                 field(IBAN; IBAN)
                 {
+                    ApplicationArea = Suite;
                     ToolTip = 'Specifies the bank account''s international bank account number.';
                 }
                 field("Specific Symbol"; "Specific Symbol")
                 {
+                    ApplicationArea = Suite;
                     ToolTip = 'Specifies the additional symbol of bank payments.';
                 }
                 field("Variable Symbol"; "Variable Symbol")
                 {
+                    ApplicationArea = Suite;
                     ToolTip = 'Specifies the detail information for payment.';
                 }
                 field("Constant Symbol"; "Constant Symbol")
                 {
+                    ApplicationArea = Suite;
                     ToolTip = 'Specifies the additional symbol of bank payments.';
                 }
             }

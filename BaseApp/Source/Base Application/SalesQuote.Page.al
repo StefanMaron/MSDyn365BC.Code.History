@@ -185,6 +185,9 @@
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the posting description code for the sales header.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of posting description will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
                 }
                 field("Posting Description"; "Posting Description")
                 {
@@ -818,6 +821,9 @@
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the industry code for the customer record.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of Industry Classification will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
                 }
                 field("Language Code"; "Language Code")
                 {

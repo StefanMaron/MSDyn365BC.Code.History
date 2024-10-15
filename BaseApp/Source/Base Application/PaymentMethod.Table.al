@@ -180,6 +180,9 @@ table 289 "Payment Method"
 
     fieldgroups
     {
+        fieldgroup(DropDown; "Code", Description)
+        {
+        }
         fieldgroup(Brick; "Code", Description)
         {
         }

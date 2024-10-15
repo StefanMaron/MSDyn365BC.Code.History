@@ -101,6 +101,7 @@ report 298 "Batch Post Sales Credit Memos"
                     field(PrintDoc; PrintDoc)
                     {
                         ApplicationArea = Basic, Suite;
+                        Visible = PrintDocVisible;
                         Caption = 'Print';
                         ToolTip = 'Specifies if you want to print the credit memo after posting. In the Report Output Type field on the Sales and Receivables page, you define if the report will be printed or output as a PDF.';
 
@@ -132,7 +133,7 @@ report 298 "Batch Post Sales Credit Memos"
             ReplacePostingDate := false;
             ReplaceDocumentDate := false;
             PrintDoc := false;
-
+            PrintDocVisible := SalesReceivablesSetup."Post & Print with Job Queue";
             SetControlVisibility; // NAVCZ
         end;
     }
@@ -152,6 +153,8 @@ report 298 "Batch Post Sales Credit Memos"
         UseVATDate: Boolean;
         PostingDateReq: Date;
         PrintDoc: Boolean;
+        [InDataSet]
+        PrintDocVisible: Boolean;
         VATDateReq: Date;
 
     local procedure SetControlVisibility()

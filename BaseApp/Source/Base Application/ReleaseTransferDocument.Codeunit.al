@@ -34,6 +34,7 @@ codeunit 5708 "Release Transfer Document"
                 case true of
                     TransLine.Quantity > 0:
                         begin
+                            UserSetupAdvMgt.SetItem(TransLine."Item No.");
                             if not UserSetupAdvMgt.CheckReleasLocQuantityDecrease(TransLine."Transfer-from Code") then
                                 TransLine.FieldError("Transfer-from Code");
                             if not UserSetupAdvMgt.CheckReleasLocQuantityIncrease(TransLine."Transfer-to Code") then
@@ -41,6 +42,7 @@ codeunit 5708 "Release Transfer Document"
                         end;
                     TransLine.Quantity < 0:
                         begin
+                            UserSetupAdvMgt.SetItem(TransLine."Item No.");
                             if not UserSetupAdvMgt.CheckReleasLocQuantityIncrease(TransLine."Transfer-from Code") then
                                 TransLine.FieldError("Transfer-from Code");
                             if not UserSetupAdvMgt.CheckReleasLocQuantityDecrease(TransLine."Transfer-to Code") then

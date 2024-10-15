@@ -13,6 +13,7 @@ page 31096 "Commodity Setup"
             {
                 field("Commodity Code"; "Commodity Code")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies code from reverse charge and control report.';
                     Visible = false;
                 }

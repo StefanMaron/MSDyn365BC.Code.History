@@ -148,6 +148,7 @@ report 11701 "Create Payment Recon. Journal"
             "Statement No." := IssuedBankStmtHdr."No.";
             "Statement Date" := IssuedBankStmtHdr."Document Date";
             "Statement Ending Balance" := IssuedBankStmtHdr.Amount;
+            "Created From Iss. Bank Stat." := true;
             Insert(true);
         end;
     end;

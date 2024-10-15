@@ -316,6 +316,7 @@ report 5802 "Inventory Valuation - WIP"
                     }
                     field(SkipItemWithoutMovement; SkipProdOrderWithoutMovement)
                     {
+                        ApplicationArea = Basic, Suite;
                         Caption = 'Skip Prod. Orders without Movement';
                         ToolTip = 'Specifies when the prod. orders without movement is to be skip';
                     }

@@ -14,6 +14,7 @@ page 11723 "Issued Payment Order Lines"
                 ShowCaption = false;
                 field(Status; Status)
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the status of issued payment order lines';
                     Visible = false;
                 }
@@ -29,6 +30,7 @@ page 11723 "Issued Payment Order Lines"
                 }
                 field(Name; Name)
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies name of partner (customer, vendor, bank account).';
                     Visible = false;
                 }
@@ -39,6 +41,7 @@ page 11723 "Issued Payment Order Lines"
                 }
                 field("Amount (LCY)"; "Amount (LCY)")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount in the local currency for payment.';
                     Visible = false;
                 }
@@ -64,16 +67,19 @@ page 11723 "Issued Payment Order Lines"
                 }
                 field(Type; Type)
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the type of issude bank statement';
                     Visible = false;
                 }
                 field("No."; "No.")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the payment order.';
                     Visible = false;
                 }
                 field("Cust./Vendor Bank Account Code"; "Cust./Vendor Bank Account Code")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the bank account code of the customer or vendor.';
                     Visible = false;
                 }
@@ -113,10 +119,27 @@ page 11723 "Issued Payment Order Lines"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Cancel';
                     ToolTip = 'This function deletes the payment order line.';
+                    Image = CancelLine;
 
                     trigger OnAction()
                     begin
-                        LineCancel;
+                        LineCancel();
+                    end;
+                }
+                action(ShowDocument)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Show Document';
+                    Image = View;
+                    ShortCutKey = 'Shift+F7';
+                    ToolTip = 'Open the document that the selected line exists on.';
+
+                    trigger OnAction()
+                    var
+                        IssuedPaymentOrderHeader: Record "Issued Payment Order Header";
+                    begin
+                        IssuedPaymentOrderHeader."No." := "Payment Order No.";
+                        Page.Run(Page::"Issued Payment Order", IssuedPaymentOrderHeader);
                     end;
                 }
             }

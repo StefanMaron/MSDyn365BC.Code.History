@@ -345,16 +345,19 @@
                 }
                 field("Tariff No."; "Tariff No.")
                 {
+                    ApplicationArea = PurchReturnOrder;
                     ToolTip = 'Specifies a code for the item''s tariff number.';
                     Visible = false;
                 }
                 field("Statistic Indication"; "Statistic Indication")
                 {
+                    ApplicationArea = PurchReturnOrder;
                     ToolTip = 'Specifies the statistic indication code.';
                     Visible = false;
                 }
                 field("Net Weight"; "Net Weight")
                 {
+                    ApplicationArea = PurchReturnOrder;
                     ToolTip = 'Specifies the net weight of the item.';
                     Visible = false;
                 }
@@ -482,12 +485,22 @@
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the number of the related job.';
                     Visible = false;
+
+                    trigger OnValidate()
+                    begin
+                        ShowShortcutDimCode(ShortcutDimCode);
+                    end;
                 }
                 field("Job Task No."; "Job Task No.")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the number of the related job task.';
                     Visible = false;
+
+                    trigger OnValidate()
+                    begin
+                        ShowShortcutDimCode(ShortcutDimCode);
+                    end;
                 }
                 field("Job Line Type"; "Job Line Type")
                 {
@@ -1134,6 +1147,8 @@
            (xRec."No." <> '')
         then
             CurrPage.SaveRecord;
+
+        OnAfterNoOnAfterValidate(Rec, xRec);
     end;
 
     local procedure CrossReferenceNoOnAfterValidat()
@@ -1171,11 +1186,8 @@
     procedure DeltaUpdateTotals()
     begin
         DocumentTotals.PurchaseDeltaUpdateTotals(Rec, xRec, TotalPurchaseLine, VATAmount, InvoiceDiscountAmount, InvoiceDiscountPct);
-        if "Line Amount" <> xRec."Line Amount" then begin
-            CurrPage.SaveRecord;
+        if "Line Amount" <> xRec."Line Amount" then
             SendLineInvoiceDiscountResetNotification;
-            CurrPage.Update(false);
-        end;
     end;
 
     procedure UpdateEditableOnRow()
@@ -1242,6 +1254,11 @@
                 Clear(Currency);
                 Currency.InitRoundingPrecision;
             end
+    end;
+
+    [IntegrationEvent(TRUE, false)]
+    local procedure OnAfterNoOnAfterValidate(var PurchaseLine: Record "Purchase Line"; var xPurchaseLine: Record "Purchase Line")
+    begin
     end;
 
     [IntegrationEvent(false, false)]

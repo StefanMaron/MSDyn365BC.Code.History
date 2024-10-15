@@ -17,6 +17,7 @@
                 ShowCaption = false;
                 field("Whse. Net Change Template"; "Whse. Net Change Template")
                 {
+                    ApplicationArea = Suite;
                     ToolTip = 'Specifies the template for item''s whse. net change.';
                     Visible = false;
                 }
@@ -48,6 +49,7 @@
                 }
                 field("New Location Code"; "New Location Code")
                 {
+                    ApplicationArea = Location;
                     ToolTip = 'Specifies the code of the location that you are transferring items to.';
                     Visible = false;
                 }

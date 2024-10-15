@@ -7,6 +7,8 @@ page 31091 "Reverse Charges"
     PageType = List;
     SourceTable = "Reverse Charge Header";
     UsageCategory = Tasks;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'The functionality of Reverse Charge Statement will be removed and this page should not be used. (Obsolete::Removed in release 01.2021)';
 
     layout
     {

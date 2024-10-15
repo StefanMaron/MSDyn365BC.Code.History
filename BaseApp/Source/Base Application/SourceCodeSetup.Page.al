@@ -342,6 +342,10 @@ page 279 "Source Code Setup"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the source code for maintenance adjustment.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of Item consumption for FA maintenance will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+
                 }
                 field("Compress FA Ledger"; "Compress FA Ledger")
                 {

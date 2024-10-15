@@ -23,6 +23,9 @@
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies full name of the G/L account.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of Fields for Full Description will be removed and this field should not be used. Standard fields for Name are now 100. (Obsolete::Removed in release 01.2021)';
                 }
                 field(Name; Name)
                 {

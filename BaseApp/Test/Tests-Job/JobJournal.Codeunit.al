@@ -38,7 +38,6 @@ codeunit 136305 "Job Journal"
         AmountErr: Label 'Amount must be right';
         CurrencyDateConfirmTxt: Label 'The currency dates on all planning lines will be updated based on the invoice posting date because there is a difference in currency exchange rates. Recalculations will be based on the Exch. Calculation setup for the Cost and Price values for the job. Do you want to continue?';
         ControlNotFoundErr: Label 'Expected control not found on the page';
-        JobNoErr: Label 'Job No. must be equal to ''''  in Gen. Journal Line: Journal Template Name=%1, Journal Batch Name=%2, Line No.=%3. Current value is ''%4''.', Comment = '%1=Journal Template Name,%2=Journal Batch Name,%3=Line No.,%4=Job No.';
 
     [Test]
     [Scope('OnPrem')]
@@ -1635,7 +1634,7 @@ codeunit 136305 "Job Journal"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerTrue')]
+    [HandlerFunctions('ConfirmHandlerTrue,MessageHandler')]
     [Scope('OnPrem')]
     procedure PostJobsGLJournalWithBankAccount()
     var
@@ -1654,14 +1653,10 @@ codeunit 136305 "Job Journal"
           LibraryERM.CreateGLAccountWithSalesSetup, BankAccount."No.", JobTask."Job No.", JobTask."Job Task No.", '');
 
         // [WHEN] Posting Job G/L Journal.
-        asserterror PostGeneralJournalLine(GenJournalLine); // NAVCZ
+        PostGeneralJournalLine(GenJournalLine);
 
-        // NAVCZ
-        // [THEN] Verify that error occurs
-        Assert.ExpectedError(StrSubstNo(JobNoErr,
-          GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name",
-          GenJournalLine."Line No.", GenJournalLine."Job No."));
-        // NAVCZ
+        // [THEN] Verify Bank Account No. of Bank Account Ledger Entries.
+        VerifyBankAccNoOnBankAccountLedgerEntries(BankAccount."No.", -GenJournalLine.Amount);
     end;
 
     [Test]

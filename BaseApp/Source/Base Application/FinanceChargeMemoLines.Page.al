@@ -114,6 +114,7 @@ page 447 "Finance Charge Memo Lines"
                 }
                 field("Interests Amount"; "Interests Amount")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the total of the interest amounts on the finance charge memo lines.';
                 }
             }

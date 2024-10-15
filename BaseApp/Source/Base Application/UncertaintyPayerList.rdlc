@@ -19,33 +19,33 @@
             <TablixBody>
               <TablixColumns>
                 <TablixColumn>
-                  <Width>0.75925in</Width>
+                  <Width>1.9285cm</Width>
                 </TablixColumn>
                 <TablixColumn>
-                  <Width>0.98425in</Width>
+                  <Width>2.49999cm</Width>
                 </TablixColumn>
                 <TablixColumn>
-                  <Width>0.31759in</Width>
+                  <Width>0.80668cm</Width>
                 </TablixColumn>
                 <TablixColumn>
-                  <Width>0.98425in</Width>
+                  <Width>2.49999cm</Width>
                 </TablixColumn>
                 <TablixColumn>
-                  <Width>0.7087in</Width>
+                  <Width>1.8001cm</Width>
                 </TablixColumn>
                 <TablixColumn>
-                  <Width>0.84259in</Width>
+                  <Width>2.14018cm</Width>
                 </TablixColumn>
                 <TablixColumn>
-                  <Width>0.78424in</Width>
+                  <Width>1.99197cm</Width>
                 </TablixColumn>
                 <TablixColumn>
-                  <Width>1.78646in</Width>
+                  <Width>4.53761cm</Width>
                 </TablixColumn>
               </TablixColumns>
               <TablixRows>
                 <TablixRow>
-                  <Height>0.1633in</Height>
+                  <Height>0.41478cm</Height>
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
@@ -307,7 +307,7 @@
                   </TablixCells>
                 </TablixRow>
                 <TablixRow>
-                  <Height>0.06955in</Height>
+                  <Height>0.17666cm</Height>
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
@@ -355,7 +355,7 @@
                   </TablixCells>
                 </TablixRow>
                 <TablixRow>
-                  <Height>0.05289in</Height>
+                  <Height>0.13434cm</Height>
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
@@ -400,7 +400,7 @@
                   </TablixCells>
                 </TablixRow>
                 <TablixRow>
-                  <Height>0.14455in</Height>
+                  <Height>0.36716cm</Height>
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
@@ -656,7 +656,7 @@
                   </TablixCells>
                 </TablixRow>
                 <TablixRow>
-                  <Height>0.13622in</Height>
+                  <Height>0.346cm</Height>
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
@@ -859,7 +859,7 @@
                   </TablixCells>
                 </TablixRow>
                 <TablixRow>
-                  <Height>0.14456in</Height>
+                  <Height>0.36718cm</Height>
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
@@ -1107,7 +1107,7 @@
             <Top>0.09173cm</Top>
             <Left>0.01551cm</Left>
             <Height>1.80612cm</Height>
-            <Width>18.20503cm</Width>
+            <Width>18.20502cm</Width>
             <Style>
               <Border>
                 <Style>None</Style>
@@ -1314,7 +1314,7 @@
           </Style>
         </PageHeader>
         <PageFooter>
-          <Height>0.76717cm</Height>
+          <Height>0.79539cm</Height>
           <PrintOnLastPage>true</PrintOnLastPage>
           <ReportItems>
             <Line Name="Line1">
@@ -1335,7 +1335,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value>=Last(Fields!PageNoFooterText_Vendor_fld.Value, "DataSet_Result")</Value>
+                      <Value>=Parameters!Printed_Lbl.Value &amp; " " &amp; Globals!TotalPages &amp; " " &amp; Parameters!Pages_Of_Report_Lbl.Value</Value>
                       <Style>
                         <FontSize>8pt</FontSize>
                       </Style>
@@ -1345,7 +1345,7 @@
                 </Paragraph>
               </Paragraphs>
               <rd:DefaultName>PageNoFooterText_Vendor_fld</rd:DefaultName>
-              <Top>0.31054cm</Top>
+              <Top>0.33876cm</Top>
               <Left>0.01551cm</Left>
               <Height>0.45663cm</Height>
               <Width>9.16695cm</Width>
@@ -1532,11 +1532,29 @@
       </DefaultValue>
       <Prompt>UnPublicDate_VBA_Lbl</Prompt>
     </ReportParameter>
+    <ReportParameter Name="Printed_Lbl">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>Printed_Lbl</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>Printed_Lbl</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="Pages_Of_Report_Lbl">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>Pages_Of_Report_Lbl</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>Pages_Of_Report_Lbl</Prompt>
+    </ReportParameter>
   </ReportParameters>
   <ReportParametersLayout>
     <GridLayoutDefinition>
       <NumberOfColumns>1</NumberOfColumns>
-      <NumberOfRows>17</NumberOfRows>
+      <NumberOfRows>19</NumberOfRows>
       <CellDefinitions>
         <CellDefinition>
           <ColumnIndex>0</ColumnIndex>
@@ -1622,6 +1640,16 @@
           <ColumnIndex>0</ColumnIndex>
           <RowIndex>16</RowIndex>
           <ParameterName>UnPublicDate_VBA_Lbl</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>17</RowIndex>
+          <ParameterName>Printed_Lbl</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>18</RowIndex>
+          <ParameterName>Pages_Of_Report_Lbl</ParameterName>
         </CellDefinition>
       </CellDefinitions>
     </GridLayoutDefinition>
@@ -1780,9 +1808,6 @@ End Function
         </Field>
         <Field Name="WarningText_Vendor_var">
           <DataField>WarningText_Vendor_var</DataField>
-        </Field>
-        <Field Name="PageNoFooterText_Vendor_fld">
-          <DataField>PageNoFooterText_Vendor_fld</DataField>
         </Field>
         <Field Name="BankAccNo_VBA_fld">
           <DataField>BankAccNo_VBA_fld</DataField>

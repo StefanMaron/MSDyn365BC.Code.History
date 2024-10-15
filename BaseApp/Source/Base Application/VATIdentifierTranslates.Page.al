@@ -4,6 +4,8 @@ page 11768 "VAT Identifier Translates"
     DataCaptionFields = "VAT Identifier Code";
     PageType = List;
     SourceTable = "VAT Identifier Translate";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'The enhanced functionality of VAT Identifier will be removed and this page should not be used. (Obsolete::Removed in release 01.2021)';
 
     layout
     {
@@ -14,6 +16,7 @@ page 11768 "VAT Identifier Translates"
                 ShowCaption = false;
                 field("VAT Identifier Code"; "VAT Identifier Code")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code for a VAT Identifier.You can enter a maximum of 10 characters, both numbers and letters.';
                     Visible = false;
                 }

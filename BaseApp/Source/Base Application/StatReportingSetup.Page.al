@@ -208,6 +208,7 @@ page 31065 "Stat. Reporting Setup"
                 }
                 field("Ignore Intrastat Ex.Rate From"; "Ignore Intrastat Ex.Rate From")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the date from which changed the method of converting amounts in foreign currency. Amounts of invoices and credit memos will be converted by currency factor of related VAT entry. For amounts of receipts and shipments will be used amounts from related value entry without conversion.';
                 }
                 field("Get Tariff No. From"; "Get Tariff No. From")
@@ -298,20 +299,33 @@ page 31065 "Stat. Reporting Setup"
             group("RC Statement")
             {
                 Caption = 'RC Statement';
+                Visible = false;
+                ObsoleteState = Pending;
+                ObsoleteReason = 'The functionality of Reverse Charge Statement will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+
                 field("Reverse Charge Nos."; "Reverse Charge Nos.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies number series of reverse charge report.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of Reverse Charge Statement will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
                 }
                 field("Reverse Charge Auth. Emp. No."; "Reverse Charge Auth. Emp. No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the employee number for reverse charge report.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of Reverse Charge Statement will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
                 }
                 field("Rvrs. Chrg. Filled by Emp. No."; "Rvrs. Chrg. Filled by Emp. No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the employee number for reverse charge report.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of Reverse Charge Statement will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
                 }
             }
             group("Company Official")
@@ -319,34 +333,42 @@ page 31065 "Stat. Reporting Setup"
                 Caption = 'Company Official';
                 field("Official Code"; "Official Code")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code of official company for reporting.';
                 }
                 field("Official Type"; "Official Type")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the type of official company for reporting.';
                 }
                 field("Official Name"; "Official Name")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of official company for reporting.';
                 }
                 field("Official First Name"; "Official First Name")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the first name of official company for reporting.';
                 }
                 field("Official Surname"; "Official Surname")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the surname of official company for reporting.';
                 }
                 field("Official Birth Date"; "Official Birth Date")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the birth date of official company for reporting.';
                 }
                 field("Official Reg.No.of Tax Adviser"; "Official Reg.No.of Tax Adviser")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the registration number of official company for reporting.';
                 }
                 field("Official Registration No."; "Official Registration No.")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the registration number of official company for reporting.';
                 }
             }

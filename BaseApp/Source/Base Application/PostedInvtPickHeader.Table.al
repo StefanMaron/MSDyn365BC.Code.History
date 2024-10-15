@@ -154,8 +154,19 @@ table 7342 "Posted Invt. Pick Header"
     }
 
     trigger OnDelete()
+    var
+        PostedInvtPickLine: Record "Posted Invt. Pick Line";
+        WhseCommentLine: Record "Warehouse Comment Line";
     begin
-        Error(DeleteErr); // NAVCZ
+        CheckLocation();
+
+        PostedInvtPickLine.SetRange("No.", "No.");
+        PostedInvtPickLine.DeleteAll;
+
+        WhseCommentLine.SetRange("Table Name", WhseCommentLine."Table Name"::"Posted Invt. Pick");
+        WhseCommentLine.SetRange(Type, WhseCommentLine.Type::" ");
+        WhseCommentLine.SetRange("No.", "No.");
+        WhseCommentLine.DeleteAll;
     end;
 
     trigger OnInsert()
@@ -171,7 +182,14 @@ table 7342 "Posted Invt. Pick Header"
     var
         InvtSetup: Record "Inventory Setup";
         NoSeriesMgt: Codeunit NoSeriesManagement;
-        DeleteErr: Label 'Posted document cannot be deleted.';
+
+    local procedure CheckLocation()
+    var
+        Location: Record Location;
+    begin
+        Location.Get("Location Code");
+        Location.TestField("Bin Mandatory", false);
+    end;
 
     local procedure GetNoSeriesCode(): Code[20]
     begin

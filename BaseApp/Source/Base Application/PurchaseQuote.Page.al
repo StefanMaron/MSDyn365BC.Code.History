@@ -156,10 +156,15 @@
                 }
                 field("Posting Desc. Code"; "Posting Desc. Code")
                 {
+                    ApplicationArea = Suite;
                     ToolTip = 'Specifies the posting description code for the purchase header.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of posting description will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
                 }
                 field("Posting Description"; "Posting Description")
                 {
+                    ApplicationArea = Suite;
                     ToolTip = 'Specifies a description of the document. The posting description also appers on vendor and G/L entries.';
                 }
                 field("Requested Receipt Date"; "Requested Receipt Date")
@@ -258,6 +263,7 @@
                 }
                 field(IsIntrastatTransaction; IsIntrastatTransaction)
                 {
+                    ApplicationArea = Suite;
                     Caption = 'Intrastat Transaction';
                     Editable = false;
                     ToolTip = 'Specifies if the entry an Intrastat transaction is.';
@@ -285,10 +291,12 @@
                 }
                 field("Last Uncertainty Check Date"; "Last Uncertainty Check Date")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the date of the last check of uncertainty.';
                 }
                 field("VAT Uncertainty Payer"; "VAT Uncertainty Payer")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the vendor is uncertainty payer.';
                 }
                 field("Payment Terms Code"; "Payment Terms Code")
@@ -647,34 +655,45 @@
                 }
                 field("EU 3-Party Trade"; "EU 3-Party Trade")
                 {
+                    ApplicationArea = BasicEU;
                     ToolTip = 'Specifies whether the document is part of a three-party trade.';
                 }
                 field("EU 3-Party Intermediate Role"; "EU 3-Party Intermediate Role")
                 {
+                    ApplicationArea = BasicEU;
                     ToolTip = 'Specifies when the sales haeder will use European Union third-party intermediate trade rules. This option complies with VAT accounting standards for EU third-party trade.';
                 }
                 field("VAT Registration No."; "VAT Registration No.")
                 {
+                    ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the VAT registration number. The field will be used when you do business with partners from EU countries/regions.';
                 }
                 field("Registration No."; "Registration No.")
                 {
+                    ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the registration number of vendor.';
                 }
                 field("Tax Registration No."; "Tax Registration No.")
                 {
+                    ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the secondary VAT registration number for the vendor.';
                 }
                 field("Industry Code"; "Industry Code")
                 {
+                    ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the industry code for the vendor record.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of Industry Classification will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
                 }
                 field("Language Code"; "Language Code")
                 {
+                    ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the language to be used on printouts for this document.';
                 }
                 field("VAT Country/Region Code"; "VAT Country/Region Code")
                 {
+                    ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the VAT country/region code of vendor.';
                 }
             }
@@ -683,6 +702,7 @@
                 Caption = 'Payments';
                 field("Bank Account Code"; "Bank Account Code")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a code to idenfity bank account of my company.';
 
                     trigger OnValidate()
@@ -692,40 +712,49 @@
                 }
                 field("Bank Account No."; "Bank Account No.")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number used by the bank for the bank account.';
                 }
                 field("Transit No."; "Transit No.")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a bank identification number of your own choice.';
                 }
                 field("SWIFT Code"; "SWIFT Code")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the international bank identifier code (SWIFT) of the bank where you have the account.';
                 }
                 field(IBAN; IBAN)
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the bank account''s international bank account number.';
                 }
                 field("Specific Symbol"; "Specific Symbol")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the additional symbol of bank payments.';
                 }
                 field("Variable Symbol"; "Variable Symbol")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the detail information for payment.';
                 }
                 field("Constant Symbol"; "Constant Symbol")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the additional symbol of bank payments.';
                 }
                 field("UncertPayerMgt.IsPublicBankAccount(""Pay-to Vendor No."",""VAT Registration No."",""Bank Account No."",IBAN)"; UncertPayerMgt.IsPublicBankAccount("Pay-to Vendor No.", "VAT Registration No.", "Bank Account No.", IBAN))
                 {
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Public Bank Account';
                     Editable = false;
                     ToolTip = 'Specifies if the vendor''s bank account is public.';
                 }
                 field("Third Party Bank Account"; "Third Party Bank Account")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the account is third party bank account.';
                 }
             }
@@ -952,7 +981,7 @@
                     PromotedCategory = Category4;
                     PromotedIsBig = true;
                     PromotedOnly = true;
-                    ToolTip = 'Reject to approve the incoming document. Note that this is not related to approval workflows.';
+                    ToolTip = 'Reject to approve the incoming document.';
                     Visible = OpenApprovalEntriesExistForCurrUser;
 
                     trigger OnAction()

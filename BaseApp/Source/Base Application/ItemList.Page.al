@@ -26,8 +26,11 @@
                 }
                 field("Full Description"; "Full Description")
                 {
+                    ApplicationArea = All;
                     ToolTip = 'Specifies full description of the item.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of Fields for Full Description will be removed and this field should not be used. Standard fields for Name are now 100. (Obsolete::Removed in release 01.2021)';
                 }
                 field(Description; Description)
                 {
@@ -178,11 +181,13 @@
                 }
                 field("Statistic Indication"; "Statistic Indication")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the statistic indication code for the item.';
                     Visible = false;
                 }
                 field("Specific Movement"; "Specific Movement")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the specific movement code for the item.';
                     Visible = false;
                 }
@@ -932,6 +937,9 @@
                     Image = TaxPayment;
                     RunObject = Report "Package Tax Calculation";
                     ToolTip = 'The report for package tax calculation.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of Packaging Material will be removed and this action should not be used. (Obsolete::Removed in release 01.2021)';
                 }
             }
             action("Requisition Worksheet")
@@ -1475,11 +1483,11 @@
                         Caption = 'Unit of Measure';
                         Image = UnitOfMeasure;
                         RunObject = Page "Item Availability by UOM";
-                        RunPageLink = "No." = FIELD ("No."),
-                                      "Global Dimension 1 Filter" = FIELD ("Global Dimension 1 Filter"),
-                                      "Global Dimension 2 Filter" = FIELD ("Global Dimension 2 Filter"),
-                                      "Location Filter" = FIELD ("Location Filter"),
-                                      "Drop Shipment Filter" = FIELD ("Drop Shipment Filter"),
+                        RunPageLink = "No." = FIELD("No."),
+                                      "Global Dimension 1 Filter" = FIELD("Global Dimension 1 Filter"),
+                                      "Global Dimension 2 Filter" = FIELD("Global Dimension 2 Filter"),
+                                      "Location Filter" = FIELD("Location Filter"),
+                                      "Drop Shipment Filter" = FIELD("Drop Shipment Filter"),
                                       "Variant Filter" = FIELD("Variant Filter");
                         ToolTip = 'View the item''s availability by a unit of measure.';
                     }

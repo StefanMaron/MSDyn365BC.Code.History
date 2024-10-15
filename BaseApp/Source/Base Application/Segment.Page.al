@@ -690,6 +690,8 @@ page 5091 Segment
         UnitCostLCYEnable := "Interaction Template Code" <> '';
         UnitDurationMinEnable := "Interaction Template Code" <> '';
         LanguageCodeDefaultEnable := "Interaction Template Code" <> '';
+
+        OnAfterUpdateEditable();
     end;
 
     local procedure DateOnAfterValidate()
@@ -788,6 +790,11 @@ page 5091 Segment
     begin
         if Confirm(CreateOppQst) then
             CreateOpportunities;
+    end;
+
+    [IntegrationEvent(TRUE, false)]
+    local procedure OnAfterUpdateEditable()
+    begin
     end;
 }
 

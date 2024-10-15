@@ -251,16 +251,19 @@
                 }
                 field("Source No."; "Source No.")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies where the entry originated.';
                     Visible = false;
                 }
                 field("Source No. 2"; "Source No. 2")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies where the entry originated';
                     Visible = false;
                 }
                 field("Source No. 3"; "Source No. 3")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies where the entry originated';
                     Visible = false;
                 }

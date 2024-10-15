@@ -37,19 +37,19 @@ page 8901 "Finance Manager Role Center"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Open Balance Sheet';
-                    RunObject = report 11785;
+                    RunObject = report "Open Balance Sheet";
                 }
                 action("Close Balance Sheet")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Close Balance Sheet';
-                    RunObject = report 11784;
+                    RunObject = report "Close Balance Sheet";
                 }
                 action("G/L Entry Applying")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'G/L Entry Applying';
-                    RunObject = report 11767;
+                    RunObject = report "G/L Entry Applying";
                 }
                 group("Group1")
                 {
@@ -66,47 +66,47 @@ page 8901 "Finance Manager Role Center"
                         Caption = 'VAT Returns';
                         RunObject = page "VAT Report List";
                     }
-                    action("ECSL Report")
-                    {
-                        ApplicationArea =;
-                        Caption = 'EC Sales List Reports';
-                        RunObject = page "EC Sales List Reports";
-                    }
+                    // action("ECSL Report")
+                    // {
+                    //     ApplicationArea = Basic, Suite;
+                    //     Caption = 'EC Sales List Reports';
+                    //     RunObject = page "EC Sales List Reports"
+                    // }
                     action("VIES Declarations")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'VIES Declarations';
-                        RunObject = page 31068;
+                        RunObject = page "VIES Declarations";
                     }
                     action("Reverse Charges")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Reverse Charges';
-                        RunObject = page 31091;
+                        RunObject = page "Reverse Charges";
                     }
                     action("Mass Uncertainty Payer Get")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Mass Uncertainty Payer Get';
-                        RunObject = report 11761;
+                        RunObject = report "Mass Uncertainty Payer Get";
                     }
                     action("Non-Deductible VAT Correction")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Non-Deductible VAT Correction';
-                        RunObject = report 11765;
+                        RunObject = report "Non Deductible VAT Correction";
                     }
                     action("VAT Control Reports")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'VAT Control Reports';
-                        RunObject = page 31100;
+                        RunObject = page "VAT Control Report List";
                     }
                     action("VAT Control Report Sections")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'VAT Control Report Sections';
-                        RunObject = page 31102;
+                        RunObject = page "VAT Control Report Sections";
                     }
                     group("Group2")
                     {
@@ -151,31 +151,31 @@ page 8901 "Finance Manager Role Center"
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'G/L VAT Reconciliation';
-                            RunObject = report 11789;
+                            RunObject = report "G/L VAT Reconciliation CZ";
                         }
                         action("VAT Documents List")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'VAT Documents List';
-                            RunObject = report 11775;
+                            RunObject = report "VAT Documents List";
                         }
                         action("Documentation for VAT")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Documentation for VAT';
-                            RunObject = report 11764;
+                            RunObject = report "Documentation for VAT";
                         }
                         action("VAT List on Sales Adv. Letter")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'VAT List on Sales Adv. Letter';
-                            RunObject = report 31011;
+                            RunObject = report "VAT List on Sales Adv. Letter";
                         }
                         action("VAT List on Purch. Adv. Letter")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'VAT List on Purch. Adv. Letter';
-                            RunObject = report 31031;
+                            RunObject = report "VAT List on Purch. Adv. Letter";
                         }
                         action("Day Book VAT Entry")
                         {
@@ -379,19 +379,19 @@ page 8901 "Finance Manager Role Center"
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Accounting Sheets';
-                            RunObject = report 11770;
+                            RunObject = report "Accounting Sheets";
                         }
                         action("General Journal")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'General Journal';
-                            RunObject = report 11777;
+                            RunObject = report "General Journal";
                         }
                         action("General Ledger Document")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'General Ledger Document';
-                            RunObject = report 11763;
+                            RunObject = report "General Ledger Document";
                         }
                     }
                     group("Group9")
@@ -467,13 +467,13 @@ page 8901 "Finance Manager Role Center"
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Balance Sheet';
-                            RunObject = report 11782;
+                            RunObject = report "Balance Sheet";
                         }
                         action("Income Statement")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Income Statement';
-                            RunObject = report 11783;
+                            RunObject = report "Income Statement";
                         }
                         action("Statement of Cashflows")
                         {
@@ -493,13 +493,13 @@ page 8901 "Finance Manager Role Center"
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'General Ledger';
-                            RunObject = report 11771;
+                            RunObject = report "General Ledger";
                         }
                         action("Turnover report by Glob. Dim.")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Turnover report by Glob. Dim.';
-                            RunObject = report 11772;
+                            RunObject = report "Turnover report by Glob. Dim.";
                         }
                     }
                     group("Group10")
@@ -545,31 +545,31 @@ page 8901 "Finance Manager Role Center"
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Reconcile Bank Account Entry';
-                            RunObject = report 11711;
+                            RunObject = report "Reconcile Bank Account Entry";
                         }
                         action("Open G/L Entries To Date")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Open G/L Entries To Date';
-                            RunObject = report 11781;
+                            RunObject = report "Open G/L Entries To Date";
                         }
                         action("Inventory Account to the date")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Inventory Account to the date';
-                            RunObject = report 11760;
+                            RunObject = report "Inventory Account to the date";
                         }
                         action("Joining Bank. Acc. Adjustment")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Joining Bank. Acc. Adjustment';
-                            RunObject = report 11773;
+                            RunObject = report "Joining Bank. Acc. Adjustment";
                         }
                         action("Joining G/L Account Adjustment")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Joining G/L Account Adjustment';
-                            RunObject = report 11774;
+                            RunObject = report "Joining G/L Account Adjustment";
                         }
                         action("G/L Deferral Summary")
                         {
@@ -639,13 +639,13 @@ page 8901 "Finance Manager Role Center"
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Tariff Number Import (XML)';
-                        RunObject = report 31062;
+                        RunObject = report "Tariff Number Import (XML)";
                     }
                     action("Test Tariff Numbers")
                     {
-                        ApplicationArea =;
+                        ApplicationArea = Basic, Suite;
                         Caption = 'Test Tariff Numbers';
-                        RunObject = report 31063;
+                        RunObject = report "Test Tariff Numbers";
                     }
                 }
             }
@@ -662,7 +662,7 @@ page 8901 "Finance Manager Role Center"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Banks';
-                    RunObject = page 11727;
+                    RunObject = page "Bank List";
                 }
                 action("Receivables-Payables")
                 {
@@ -680,25 +680,25 @@ page 8901 "Finance Manager Role Center"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Payment Orders';
-                    RunObject = page 11719;
+                    RunObject = page "Payment Order List";
                 }
                 action("Issued Payment Orders")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Issued Payment Orders';
-                    RunObject = page 11724;
+                    RunObject = page "Issued Payment Order List";
                 }
                 action("Bank Statements")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Bank Statements';
-                    RunObject = page 11709;
+                    RunObject = page "Bank Statement List";
                 }
                 action("Issued Bank Statements")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Issued Bank Statements';
-                    RunObject = page 11714;
+                    RunObject = page "Issued Bank Statement List";
                 }
                 group("Group14")
                 {
@@ -902,19 +902,19 @@ page 8901 "Finance Manager Role Center"
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Constant Symbols';
-                        RunObject = page 11703;
+                        RunObject = page "Constant Symbols";
                     }
                     action("Bank Pmt. Appl. Rule Codes")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Bank Pmt. Appl. Rule Codes';
-                        RunObject = page 11704;
+                        RunObject = page "Bank Pmt. Appl. Rule Codes";
                     }
                     action("Text-to-Account Mapping Codes")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Text-to-Account Mapping Codes';
-                        RunObject = page 11705;
+                        RunObject = page "Text-to-Account Mapping Codes";
                     }
                     action("Bank Export/Import Setup")
                     {
@@ -924,32 +924,32 @@ page 8901 "Finance Manager Role Center"
                     }
                 }
             }
-            group("Group62")
+            group("Cash Desk")
             {
                 Caption = 'Cash Desk';
                 action("Cash Desks")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Cash Desks';
-                    RunObject = page 11744;
+                    RunObject = page "Cash Desk List";
                 }
                 action("Cash Documents")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Cash Documents';
-                    RunObject = page 11732;
+                    RunObject = page "Cash Document List";
                 }
                 action("Posted Cash Documents")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Posted Cash Documents';
-                    RunObject = page 11737;
+                    RunObject = page "Posted Cash Document List";
                 }
                 action("EET Entries")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'EET Entries';
-                    RunObject = page 31123;
+                    RunObject = page "EET Entries";
                 }
                 group("Group63")
                 {
@@ -958,19 +958,19 @@ page 8901 "Finance Manager Role Center"
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Cash Desk Book';
-                        RunObject = report 11742;
+                        RunObject = report "Cash Desk Book";
                     }
                     action("Cash Desk Account Book")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Cash Desk Account Book';
-                        RunObject = report 11741;
+                        RunObject = report "Cash Desk Account Book";
                     }
                     action("Cash Inventory")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Cash Inventory';
-                        RunObject = report 11740;
+                        RunObject = report "Cash Inventory";
                     }
                 }
                 group("Group64")
@@ -980,19 +980,19 @@ page 8901 "Finance Manager Role Center"
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Cash Desks Setup';
-                        RunObject = page 11746;
+                        RunObject = page "Cash Desk Setup";
                     }
                     action("Cash Desk Events Setup")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Cash Desk Events Setup';
-                        RunObject = page 11742;
+                        RunObject = page "Cash Desk Events Setup";
                     }
                     action("Currency Nominal Values")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Currency Nominal Values';
-                        RunObject = page 11743;
+                        RunObject = page "Currency Nominal Values";
                     }
                 }
             }
@@ -1179,13 +1179,13 @@ page 8901 "Finance Manager Role Center"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Sales Advance Letters';
-                    RunObject = page 31002;
+                    RunObject = page "Sales Advance Letters";
                 }
                 action("Credits")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Credits';
-                    RunObject = page 31052;
+                    RunObject = page "Credits List";
                 }
                 group("Group29")
                 {
@@ -1278,7 +1278,7 @@ page 8901 "Finance Manager Role Center"
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Posted Credits';
-                        RunObject = page 31059;
+                        RunObject = page "Posted Credits List";
                     }
                 }
                 group("Group33")
@@ -1324,12 +1324,6 @@ page 8901 "Finance Manager Role Center"
                         Caption = 'Customer Statement';
                         RunObject = codeunit "Customer Layout - Statement";
                     }
-                    // action("Compensation Statement")
-                    // {
-                    //     ApplicationArea =;
-                    //     Caption = 'Compensation Statement';
-                    //     RunObject = report 31053;
-                    // }
                     action("Customer Register")
                     {
                         ApplicationArea = Basic, Suite;
@@ -1442,19 +1436,19 @@ page 8901 "Finance Manager Role Center"
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Customer - Bal. Reconciliation';
-                        RunObject = report 11786;
+                        RunObject = report "Customer - Bal. Reconciliation";
                     }
                     action("Open Customer Entries at Date")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Open Customer Entries at Date';
-                        RunObject = report 11778;
+                        RunObject = report "Open Customer Entries at Date";
                     }
                     action("Sales Advance Letter List")
                     {
-                        ApplicationArea =;
+                        ApplicationArea = Basic, Suite;
                         Caption = 'Sales Advance Letter List';
-                        RunObject = report 31010;
+                        RunObject = report "Sales Advance Letter List";
                     }
                 }
                 group("Group35")
@@ -1494,13 +1488,13 @@ page 8901 "Finance Manager Role Center"
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Credits Setup';
-                        RunObject = page 31048;
+                        RunObject = page "Credits Setup";
                     }
                     action("Sales Advanced Paym. Templates")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Sales Advanced Paym. Templates';
-                        RunObject = page 31010;
+                        RunObject = page "Sales Advanced Paym. Templates";
                     }
                 }
             }
@@ -1535,13 +1529,13 @@ page 8901 "Finance Manager Role Center"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Purchase Advance Letters';
-                    RunObject = page 31022;
+                    RunObject = page "Purchase Advance Letters";
                 }
                 action("Credits1")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Credits';
-                    RunObject = page 31052;
+                    RunObject = page "Credits List";
                 }
                 group("Group37")
                 {
@@ -1590,7 +1584,7 @@ page 8901 "Finance Manager Role Center"
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Posted Credits';
-                        RunObject = page 31059;
+                        RunObject = page "Posted Credits List";
                     }
                 }
                 group("Group39")
@@ -1626,17 +1620,17 @@ page 8901 "Finance Manager Role Center"
                         Caption = 'Employee Ledger Entries';
                         RunObject = page "Employee Ledger Entries";
                     }
-                    action("Detailed Employee Ledger Entries")
-                    {
-                        ApplicationArea = BasicHR;
-                        Caption = 'Detailed Employee Ledger Entries';
-                        RunObject = page "Detailed Empl. Ledger Entries";
-                    }
+                    // action("Detailed Employee Ledger Entries")
+                    // {
+                    //     ApplicationArea = BasicHR;
+                    //     Caption = 'Detailed Employee Ledger Entries';
+                    //     RunObject = page "Detailed Empl. Ledger Entries";
+                    // }
                     action("Uncertainty Payer Entries")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Uncertainty Payer Entries';
-                        RunObject = page 11760;
+                        RunObject = page "Uncertainty Payer Entries";
                     }
                 }
                 group("Group40")
@@ -1742,31 +1736,31 @@ page 8901 "Finance Manager Role Center"
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Vendor - Bal. Reconciliation';
-                        RunObject = report 11787;
+                        RunObject = report "Vendor - Bal. Reconciliation";
                     }
                     action("All Payments on Hold")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'All Payments on Hold';
-                        RunObject = report 11780;
+                        RunObject = report "All Payments on Hold";
                     }
                     action("Open Vendor Entries at Date")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Open Vendor Entries at Date';
-                        RunObject = report 11779;
+                        RunObject = report "Open Vendor Entries at Date";
                     }
                     action("Purch. Advance Letter List")
                     {
-                        ApplicationArea =;
+                        ApplicationArea = Basic, Suite;
                         Caption = 'Purch. Advance Letter List';
-                        RunObject = report 31030;
+                        RunObject = report "Purch. Advance Letter List";
                     }
                     action("Uncertainty VAT Payer List")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Uncertainty VAT Payer List';
-                        RunObject = report 11762;
+                        RunObject = report "Uncertainty Payer List";
                     }
                 }
                 group("Group41")
@@ -1782,7 +1776,7 @@ page 8901 "Finance Manager Role Center"
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Purchase Adv. Paym. Templates';
-                        RunObject = page 31030;
+                        RunObject = page "Purchase Adv. Paym. Templates";
                     }
                 }
             }
@@ -1823,7 +1817,7 @@ page 8901 "Finance Manager Role Center"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Adj. Maintenance-Item Entries';
-                    RunObject = report 31071;
+                    RunObject = report "Adj. Maintenance-Item Entries";
                 }
                 group("Group43")
                 {
@@ -1933,57 +1927,57 @@ page 8901 "Finance Manager Role Center"
                         }
                         action("Fixed Asset Card")
                         {
-                            ApplicationArea = Basic, Suite;
+                            ApplicationArea = FixedAssets;
                             Caption = 'Fixed Asset Card';
-                            RunObject = report 31048;
+                            RunObject = report "Fixed Asset Card";
                         }
                         action("Fixed Asset - Analysis 2")
                         {
-                            ApplicationArea = Basic, Suite;
+                            ApplicationArea = FixedAssets;
                             Caption = 'Fixed Asset - Analysis 2';
-                            RunObject = report 31042;
+                            RunObject = report "Fixed Asset - Analysis 2";
                         }
                         action("FA Receipt Report")
                         {
-                            ApplicationArea = Basic, Suite;
+                            ApplicationArea = FixedAssets;
                             Caption = 'FA Receipt Report';
-                            RunObject = report 31046;
+                            RunObject = report "FA Receipt Report";
                         }
                         action("FA Disposal Report")
                         {
-                            ApplicationArea = Basic, Suite;
+                            ApplicationArea = FixedAssets;
                             Caption = 'FA Disposal Report';
-                            RunObject = report 31047;
+                            RunObject = report "FA Disposal Report";
                         }
                         action("FA Phys. Inventory List")
                         {
-                            ApplicationArea = Basic, Suite;
+                            ApplicationArea = FixedAssets;
                             Caption = 'FA Phys. Inventory List';
-                            RunObject = report 31045;
+                            RunObject = report "FA Phys. Inventory List";
                         }
                         action("FA History")
                         {
-                            ApplicationArea = Basic, Suite;
+                            ApplicationArea = FixedAssets;
                             Caption = 'FA History';
-                            RunObject = report 31049;
+                            RunObject = report "FA History";
                         }
                         action("FA Assignment/Discharge")
                         {
-                            ApplicationArea =;
+                            ApplicationArea = FixedAssets;
                             Caption = 'FA Assignment/Discharge';
-                            RunObject = report 31039;
+                            RunObject = report "FA Assignment/Discharge";
                         }
                         action("FA - Analysis G/L Account")
                         {
-                            ApplicationArea =;
+                            ApplicationArea = FixedAssets;
                             Caption = 'FA - Analysis G/L Account';
-                            RunObject = report 31041;
+                            RunObject = report "FA - Analysis G/L Account";
                         }
                         action("Fixed Asset - Analys. Dep.Book")
                         {
-                            ApplicationArea = Basic, Suite;
+                            ApplicationArea = FixedAssets;
                             Caption = 'Fixed Asset - Analys. Dep.Book';
-                            RunObject = report 31043;
+                            RunObject = report "Fixed Asset - Analys. Dep.Book";
                         }
                     }
                     group("Group46")
@@ -2142,21 +2136,21 @@ page 8901 "Finance Manager Role Center"
                     }
                     action("Depreciation Groups")
                     {
-                        ApplicationArea = Basic, Suite;
+                        ApplicationArea = FixedAssets;
                         Caption = 'Depreciation Groups';
-                        RunObject = page 31041;
+                        RunObject = page "Depreciation Groups";
                     }
                     action("SKP Codes")
                     {
-                        ApplicationArea =;
+                        ApplicationArea = FixedAssets;
                         Caption = 'SKP Codes';
-                        RunObject = page 31043;
+                        RunObject = page "SKP Codes";
                     }
                     action("Classification Codes")
                     {
-                        ApplicationArea = Basic, Suite;
+                        ApplicationArea = FixedAssets;
                         Caption = 'Classification Codes';
-                        RunObject = page 31040;
+                        RunObject = page "Classification Codes";
                     }
                     action("FA Journal Templates")
                     {
@@ -2310,19 +2304,22 @@ page 8901 "Finance Manager Role Center"
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Posted Inventory Document';
-                        RunObject = report 31078;
+                        RunObject = report "Posted Inventory Document";
                     }
                     action("Phys. Invt. Counting Document")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Phys. Invt. Counting Document';
-                        RunObject = report 31074;
+                        RunObject = report "Phys. Invt. Counting Document";
                     }
                     action("Package Tax Calculation")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Package Tax Calculation';
-                        RunObject = report 31070;
+                        RunObject = report "Package Tax Calculation";
+                        Visible = false;
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'The functionality of Packaging Material will be removed and this action should not be used. (Obsolete::Removed in release 01.2021)';
                     }
                     action("Cost Shares Breakdown")
                     {
@@ -2391,9 +2388,12 @@ page 8901 "Finance Manager Role Center"
                     }
                     action("Package Materials")
                     {
-                        ApplicationArea =;
+                        ApplicationArea = Basic, Suite;
                         Caption = 'Package Materials';
-                        RunObject = page 31070;
+                        RunObject = page "Package Materials";
+                        Visible = false;
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'The functionality of Packaging Material will be removed and this action should not be used. (Obsolete::Removed in release 01.2021)';
                     }
                     action("Analysis Types")
                     {
@@ -2464,15 +2464,18 @@ page 8901 "Finance Manager Role Center"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Stat. Reporting Setup';
-                    RunObject = page 31065;
+                    RunObject = page "Stat. Reporting Setup";
                 }
                 action("Posting Descriptions")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Posting Descriptions';
-                    RunObject = page 11785;
+                    RunObject = page "Posting Descriptions";
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of posting description will be removed and this action should not be used. (Obsolete::Removed in release 01.2021)';
                 }
-                group("Group56")
+                group("VAT")
                 {
                     Caption = 'VAT';
                     action("Posting Setup")
@@ -2509,16 +2512,16 @@ page 8901 "Finance Manager Role Center"
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'VAT Periods';
-                        RunObject = page 11780;
+                        RunObject = page "VAT Periods";
                     }
                     action("Comodities")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Commodities';
-                        RunObject = page 31095;
+                        RunObject = page "Commodities";
                     }
                 }
-                group("Group57")
+                group("Intrastat")
                 {
                     Caption = 'Intrastat';
                     action("Intrastat Setup")
@@ -2573,28 +2576,28 @@ page 8901 "Finance Manager Role Center"
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Intrastat Currency Exch. Rate';
-                        RunObject = page 31061;
+                        RunObject = page "Intrastat Currency Exch. Rate";
                     }
                     action("Statistic Indications")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Statistic Indications';
-                        RunObject = page 31062;
+                        RunObject = page "Statistic Indications";
                     }
                     action("Specific Movements")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Specific Movements';
-                        RunObject = page 31063;
+                        RunObject = page "Specific Movements";
                     }
                     action("Intrastat Delivery Group")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Intrastat Delivery Group';
-                        RunObject = page 31064;
+                        RunObject = page "Intrastat Delivery Group";
                     }
                 }
-                group("Group58")
+                group("Intercompany")
                 {
                     Caption = 'Intercompany';
                     action("Intercompany Setup")
@@ -2622,7 +2625,7 @@ page 8901 "Finance Manager Role Center"
                         RunObject = page "IC Dimensions";
                     }
                 }
-                group("Group59")
+                group("Dimensions Group")
                 {
                     Caption = 'Dimensions';
                     action("Dimensions1")
@@ -2650,7 +2653,7 @@ page 8901 "Finance Manager Role Center"
                         RunObject = page "Default Dimension Priorities";
                     }
                 }
-                group("Group60")
+                group("Trail Codes")
                 {
                     Caption = 'Trail Codes';
                     action("Source Codes")
@@ -2672,7 +2675,7 @@ page 8901 "Finance Manager Role Center"
                         RunObject = page "Source Code Setup";
                     }
                 }
-                group("Group61")
+                group("Posting Groups")
                 {
                     Caption = 'Posting Groups';
                     action("General Business")

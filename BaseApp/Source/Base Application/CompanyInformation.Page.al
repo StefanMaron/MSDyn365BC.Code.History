@@ -89,6 +89,9 @@ Page 1 "Company Information"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the industry code for the company.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of Industry Classification will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
                 }
                 field("Primary Business Activity"; "Primary Business Activity")
                 {
@@ -610,7 +613,7 @@ Page 1 "Company Information"
                     Caption = 'SMTP Mail Setup';
                     Image = MailSetup;
                     RunObject = Page "SMTP Mail Setup";
-                    ToolTip = 'Set up the integration and security of the mail server at your site that handles email.';              
+                    ToolTip = 'Set up the integration and security of the mail server at your site that handles email.';
                 }
             }
             group("O&ther")
@@ -640,6 +643,9 @@ Page 1 "Company Information"
                     RunObject = Page "Registration Country/Region";
                     RunPageLink = "Account Type" = CONST("Company Information");
                     ToolTip = 'Contains the information for VAT registration in other countries.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this action should not be used. (Obsolete::Removed in release 01.2021)';
                 }
             }
             group(Currencies)

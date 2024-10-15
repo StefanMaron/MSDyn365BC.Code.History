@@ -5,6 +5,8 @@ report 31070 "Package Tax Calculation"
     ApplicationArea = Basic, Suite;
     Caption = 'Package Tax Calculation';
     UsageCategory = ReportsAndAnalysis;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'The functionality of Packaging Material will be removed and this report should not be used. (Obsolete::Removed in release 01.2021)';
 
     dataset
     {

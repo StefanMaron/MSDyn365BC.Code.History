@@ -12,7 +12,7 @@ table 11708 "Payment Order Header"
 
             trigger OnValidate()
             begin
-                if "No." <> xRec."No." then begin
+                if ("No." <> xRec."No.") and ("Bank Account No." <> '') then begin
                     BankAccount.Get("Bank Account No.");
                     NoSeriesMgt.TestManual(BankAccount."Payment Order Nos.");
                     "No. Series" := '';

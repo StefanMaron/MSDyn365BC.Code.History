@@ -44,10 +44,14 @@ table 260 "Tariff Number"
         field(11792; "Full Name"; Text[250])
         {
             Caption = 'Full Name';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The functionality of Fields for Full Description will be removed and this field should not be used. Standard fields for Name are now 100. (Obsolete::Removed in release 01.2021)';
         }
         field(11793; "Full Name ENG"; Text[250])
         {
             Caption = 'Full Name ENG';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The functionality of Fields for Full Description will be removed and this field should not be used. Standard fields for Name are now 100. (Obsolete::Removed in release 01.2021)';
         }
         field(31060; "Supplem. Unit of Measure Code"; Code[10])
         {

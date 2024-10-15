@@ -3,6 +3,8 @@ page 11795 "Vendor Template Card CZ"
     Caption = 'Vendor Template Card CZ';
     PageType = Card;
     SourceTable = "Vendor Template";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'The functionality of Vendor templates will be removed and this page should not be used. (Obsolete::Removed in release 01.2021)';
 
     layout
     {

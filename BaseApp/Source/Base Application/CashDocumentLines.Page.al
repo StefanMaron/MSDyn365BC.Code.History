@@ -14,6 +14,7 @@ page 11733 "Cash Document Lines"
                 ShowCaption = false;
                 field("Cash Desk No."; "Cash Desk No.")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of cash desk.';
                     Visible = false;
                 }
@@ -64,11 +65,13 @@ page 11733 "Cash Document Lines"
                 }
                 field("Amount Including VAT"; "Amount Including VAT")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether the unit price on the line should be displayed including or excluding VAT.';
                     Visible = false;
                 }
                 field("Amount Including VAT (LCY)"; "Amount Including VAT (LCY)")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether the unit price on the line should be displayed including or excluding VAT.';
                     Visible = false;
                 }

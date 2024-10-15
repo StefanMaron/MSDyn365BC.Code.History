@@ -134,11 +134,16 @@ table 5105 "Customer Template"
         {
             Caption = 'No. Series';
             TableRelation = "No. Series";
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The functionality of Customer Template extension will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+
         }
         field(11791; "Language Code"; Code[10])
         {
             Caption = 'Language Code';
             TableRelation = Language;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The functionality of Customer Template extension will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
         }
     }
 
@@ -189,7 +194,7 @@ table 5105 "Customer Template"
             DimMgt.SaveDefaultDim(DATABASE::"Customer Template", Code, FieldNumber, ShortcutDimCode);
             Modify;
         end;
-	
+
         OnAfterValidateShortcutDimCode(Rec, xRec, FieldNumber, ShortcutDimCode);
     end;
 
@@ -201,6 +206,7 @@ table 5105 "Customer Template"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('The functionality of Customer Template extension will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)')]
     procedure AssistEdit(): Boolean
     var
         SalesSetup: Record "Sales & Receivables Setup";

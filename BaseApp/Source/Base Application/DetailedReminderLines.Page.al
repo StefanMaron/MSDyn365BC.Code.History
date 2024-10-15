@@ -14,21 +14,25 @@ page 11789 "Detailed Reminder Lines"
                 ShowCaption = false;
                 field("Reminder No."; "Reminder No.")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of reminder.';
                     Visible = false;
                 }
                 field("Reminder Line No."; "Reminder Line No.")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the line number of reminder.';
                     Visible = false;
                 }
                 field("Detailed Customer Entry No."; "Detailed Customer Entry No.")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of detailed customer entry.';
                     Visible = false;
                 }
                 field("Line No."; "Line No.")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the line number.';
                     Visible = false;
                 }
@@ -54,6 +58,7 @@ page 11789 "Detailed Reminder Lines"
                 }
                 field("Base Amount"; "Base Amount")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the base amount of the reminder lines.';
                     Visible = false;
                 }

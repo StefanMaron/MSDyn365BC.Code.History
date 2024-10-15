@@ -25,21 +25,25 @@ page 31030 "Purchase Adv. Paym. Templates"
                 }
                 field("Vendor Posting Group"; "Vendor Posting Group")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the vendor''s market type to link business transactions made for the vendor with the appropriate account in the general ledger.';
                     Visible = false;
                 }
                 field("VAT Bus. Posting Group"; "VAT Bus. Posting Group")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a VAT business posting group code.';
                     Visible = false;
                 }
                 field("Amounts Including VAT"; "Amounts Including VAT")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether the unit price on the line should be displayed including or excluding VAT.';
                     Visible = false;
                 }
                 field("Automatic Adv. Invoice Posting"; "Automatic Adv. Invoice Posting")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies this option for automatic advance invoice posting.';
                     Visible = false;
                 }
@@ -50,21 +54,25 @@ page 31030 "Purchase Adv. Paym. Templates"
                 }
                 field("Advance Invoice Nos."; "Advance Invoice Nos.")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code for the number series that will be used to assign numbers to advance invoice.';
                     Visible = false;
                 }
                 field("Advance Credit Memo Nos."; "Advance Credit Memo Nos.")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code for the number series that will be used to assign numbers to credit memo.';
                     Visible = false;
                 }
                 field("Post Advance VAT Option"; "Post Advance VAT Option")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the option setup for post advance VAT option (never, optional, always).';
                     Visible = false;
                 }
                 field("Check Posting Group on Link"; "Check Posting Group on Link")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies checking the posting group on invoice and advance.';
                     Visible = false;
                 }

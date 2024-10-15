@@ -2,6 +2,8 @@ table 31071 "Item Package Material"
 {
     Caption = 'Item Package Material';
     LookupPageID = "Item Package Materials";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'The functionality of Packaging Material will be removed and this table should not be used. (Obsolete::Removed in release 01.2021)';
 
     fields
     {

@@ -30,11 +30,13 @@ page 31062 "Statistic Indications"
                 }
                 field("Full Name"; "Full Name")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies full name of tariff number.';
                     Visible = false;
                 }
                 field("Full Name ENG"; "Full Name ENG")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies full name of tariff number.';
                     Visible = false;
                 }

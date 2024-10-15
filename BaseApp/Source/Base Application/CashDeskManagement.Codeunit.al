@@ -508,7 +508,11 @@ codeunit 11730 CashDeskManagement
         BankAcc.Get(CashDeskNo);
 
         CashDeskUser.SetRange("Cash Desk No.", CashDeskNo);
+        if CashDeskUser.IsEmpty then
+            exit;
         CashDeskUser.SetRange("User ID", UserId);
+        if CashDeskUser.IsEmpty then
+            CashDeskUser.SetRange("User ID", '');
         case ActionType of
             ActionType::Create:
                 CashDeskUser.SetRange(Create, true);
@@ -645,15 +649,28 @@ codeunit 11730 CashDeskManagement
         BankAcc: Record "Bank Account";
         CashDeskUser: Record "Cash Desk User";
     begin
+        TempBankAcc.DeleteAll();
+
+        if CashDeskUser.IsEmpty then begin
+            BankAcc.SetRange("Account Type", BankAcc."Account Type"::"Cash Desk");
+            if BankAcc.FindSet() then
+                repeat
+                    TempBankAcc.Init();
+                    TempBankAcc := BankAcc;
+                    TempBankAcc.Insert();
+                until BankAcc.Next() = 0;
+            exit;
+        end;
+
         CashDeskUser.SetCurrentKey("User ID");
-        CashDeskUser.SetRange("User ID", UserCode);
-        if CashDeskUser.FindSet then
+        CashDeskUser.SetFilter("User ID", '%1|%2', UserCode, '');
+        if CashDeskUser.FindSet() then
             repeat
                 BankAcc.Get(CashDeskUser."Cash Desk No.");
-                TempBankAcc.Init;
+                TempBankAcc.Init();
                 TempBankAcc := BankAcc;
-                TempBankAcc.Insert;
-            until CashDeskUser.Next = 0;
+                TempBankAcc.Insert();
+            until CashDeskUser.Next() = 0;
     end;
 
     local procedure GetCashDesksFilterFromBuffer(var TempBankAcc: Record "Bank Account" temporary) CashDesksFilter: Text

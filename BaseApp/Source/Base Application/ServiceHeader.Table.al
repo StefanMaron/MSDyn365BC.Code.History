@@ -2571,6 +2571,8 @@ table 5900 "Service Header"
         field(11762; "Tax Corrective Document"; Boolean)
         {
             Caption = 'Tax Corrective Document';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The functionality of Tax corrective documents for VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
 
             trigger OnValidate()
             begin
@@ -2582,11 +2584,15 @@ table 5900 "Service Header"
         field(11763; "Postponed VAT"; Boolean)
         {
             Caption = 'Postponed VAT';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The functionality of Postponing VAT on Sales Cr.Memo will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
         }
         field(11765; "Posting Desc. Code"; Code[10])
         {
             Caption = 'Posting Desc. Code';
             TableRelation = "Posting Description" WHERE(Type = CONST("Service Document"));
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The functionality of posting description will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
 
             trigger OnValidate()
             begin
@@ -2630,15 +2636,17 @@ table 5900 "Service Header"
             Caption = 'Original User ID';
             DataClassification = EndUserIdentifiableInformation;
             TableRelation = User."User Name";
-            //This property is currently not supported
-            //TestTableRelation = false;
             ValidateTableRelation = false;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'This field is not needed and it should not be used.';
         }
         field(31060; "Perform. Country/Region Code"; Code[10])
         {
             Caption = 'Perform. Country/Region Code';
             TableRelation = "Registration Country/Region"."Country/Region Code" WHERE("Account Type" = CONST("Company Information"),
                                                                                        "Account No." = FILTER(''));
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
 
             trigger OnValidate()
             var
@@ -2677,6 +2685,8 @@ table 5900 "Service Header"
             DecimalPlaces = 0 : 15;
             Editable = false;
             MinValue = 0;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
         }
         field(31063; "Physical Transfer"; Boolean)
         {
@@ -2698,6 +2708,8 @@ table 5900 "Service Header"
         {
             Caption = 'Industry Code';
             TableRelation = "Industry Code";
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The functionality of Industry Classification will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
         }
         field(31066; "EU 3-Party Intermediate Role"; Boolean)
         {
@@ -2887,7 +2899,6 @@ table 5900 "Service Header"
         end;
 
         InitRecord;
-        "Original User ID" := UserId; // NAVCZ
 
         Clear(ServLogMgt);
         ServLogMgt.ServHeaderCreate(Rec);
@@ -2951,6 +2962,7 @@ table 5900 "Service Header"
         TempReservEntry: Record "Reservation Entry" temporary;
         CompanyInfo: Record "Company Information";
         Salesperson: Record "Salesperson/Purchaser";
+        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)')]
         PerfCountryCurrExchRate: Record "Perf. Country Curr. Exch. Rate";
         ServOrderMgt: Codeunit ServOrderManagement;
         DimMgt: Codeunit DimensionManagement;
@@ -3001,6 +3013,7 @@ table 5900 "Service Header"
         Text064: Label 'You cannot change %1 to %2 because an open inventory pick on the %3.';
         Text065: Label 'You cannot change %1  to %2 because an open warehouse shipment exists for the %3.';
         Text066: Label 'You cannot change the dimension because there are service entries connected to this line.';
+        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)')]
         RegistrationCountry: Record "Registration Country/Region";
         PostedDocsToPrintCreatedMsg: Label 'One or more related posted documents have been generated during deletion to fill gaps in the posting number series. You can view or print the documents from the respective document archive.';
         DocumentNotPostedClosePageQst: Label 'The document has been saved but is not yet posted.\\Are you sure you want to exit?';
@@ -3350,7 +3363,7 @@ table 5900 "Service Header"
                                 ServLine.Validate("Shipping Agent Service Code", "Shipping Agent Service Code");
                                 ServLine.Modify(true);
                             end;
-                            // NAVCZ
+                        // NAVCZ
                         FieldNo("Physical Transfer"):
                             if (ServLine.Type = ServLine.Type::Item) and (ServLine."No." <> '') then begin
                                 ServLine."Physical Transfer" := "Physical Transfer";
@@ -3810,6 +3823,7 @@ table 5900 "Service Header"
 
     procedure InitRecord()
     var
+        [Obsolete('The functionality of No. Series Enhancements will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)')]
         NoSeriesLink: Record "No. Series Link";
         PostingNoSeries: Boolean;
         ShippingNoSeries: Boolean;
@@ -4255,6 +4269,7 @@ table 5900 "Service Header"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('The functionality of posting description will be removed and this function should not be used. (Removed in release 01.2021)')]
     procedure GetPostingDescription(PostingDescCode: Code[10]; var PostingDescription: Text[100])
     var
         PostingDesc: Record "Posting Description";
@@ -4269,6 +4284,7 @@ table 5900 "Service Header"
         end;
     end;
 
+    [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)')]
     local procedure UpdatePerformCountryCurrFactor()
     begin
         // NAVCZ

@@ -5,7 +5,6 @@ codeunit 1270 "Exp. Launcher Gen. Jnl."
 
     trigger OnRun()
     var
-        BankAccount: Record "Bank Account";
         CreditTransferRegister: Record "Credit Transfer Register";
         GenJnlLine: Record "Gen. Journal Line";
         GenJnlLine2: Record "Gen. Journal Line";
@@ -17,11 +16,10 @@ codeunit 1270 "Exp. Launcher Gen. Jnl."
         GenJnlLine.CopyFilters(Rec);
         GenJnlLine.FindFirst;
 
-        BankAccount.Get(GenJnlLine."Bal. Account No.");
-        BankAccount.GetDataExchDefPaymentExport(DataExchDef);
+        GetDataExchDefinition(GenJnlLine, DataExchDef); //  NAVCZ
 
         CreditTransferRegister.CreateNew(DataExchDef.Code, GenJnlLine."Bal. Account No.");
-        Commit;
+        Commit();
 
         if DataExchDef."Data Handling Codeunit" > 0 then
             CODEUNIT.Run(DataExchDef."Data Handling Codeunit", GenJnlLine);
@@ -38,6 +36,22 @@ codeunit 1270 "Exp. Launcher Gen. Jnl."
         DataExchMapping.FindFirst;
 
         DataExch.ExportFromDataExch(DataExchMapping);
+    end;
+
+    local procedure GetDataExchDefinition(GenJnlLine: Record "Gen. Journal Line"; var DataExchDef: Record "Data Exch. Def")
+    var
+        BankAccount: Record "Bank Account";
+        IssuedPaymentOrderHeader: Record "Issued Payment Order Header";
+    begin
+        // NAVCZ
+        BankAccount.Get(GenJnlLine."Bal. Account No.");
+        if IssuedPaymentOrderHeader.Get(GenJnlLine."Document No.") then
+            if IssuedPaymentOrderHeader."Foreign Payment Order" then begin
+                BankAccount.GetDataExchDefForeignPaymentExport(DataExchDef);
+                exit;
+            end;
+
+        BankAccount.GetDataExchDefPaymentExport(DataExchDef);
     end;
 }
 

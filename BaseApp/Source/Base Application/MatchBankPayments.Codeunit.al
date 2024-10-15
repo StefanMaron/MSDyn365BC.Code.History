@@ -1,4 +1,4 @@
-codeunit 1255 "Match Bank Payments"
+﻿codeunit 1255 "Match Bank Payments"
 {
     Permissions = TableData "Cust. Ledger Entry" = rm,
                   TableData "Vendor Ledger Entry" = rm;
@@ -918,10 +918,16 @@ codeunit 1255 "Match Bank Payments"
         // NAVCZ
         if TextToAccMapping.FindSet then
             repeat
-                Nearness := GetExactMatchTreshold; // NAVCZ
-                if TextToAccMapping."Mapping Text" <> '' then // NAVCZ
-                    Nearness := RecordMatchMgt.CalculateStringNearness(RecordMatchMgt.Trim(TextToAccMapping."Mapping Text"),
-                        BankAccReconciliationLine."Transaction Text", StrLen(TextToAccMapping."Mapping Text"), GetNormalizingFactor);
+                Nearness := 0;
+                OnFindTextMappingsOnBeforeCalculateStringNearness(BankAccReconciliationLine, TextToAccMapping, Nearness);
+                if Nearness = 0 then begin
+                    Nearness := GetExactMatchTreshold; // NAVCZ
+                    if TextToAccMapping."Mapping Text" <> '' then // NAVCZ
+                        Nearness :=
+                            RecordMatchMgt.CalculateStringNearness(
+                                RecordMatchMgt.Trim(TextToAccMapping."Mapping Text"),
+                                BankAccReconciliationLine."Transaction Text", StrLen(TextToAccMapping."Mapping Text"), GetNormalizingFactor);
+                end;
 
                 ExtendedTextMapperMatched := TextToAccMapping.ExtendedMatching(BankAccReconciliationLine); // NAVCZ
 
@@ -2383,6 +2389,11 @@ codeunit 1255 "Match Bank Payments"
 
     [IntegrationEvent(false, false)]
     local procedure OnFindMatchingEntryOnBeforeDocumentMatching(var BankPmtApplRule: Record "Bank Pmt. Appl. Rule"; BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; TempLedgerEntryMatchingBuffer: Record "Ledger Entry Matching Buffer" temporary; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindTextMappingsOnBeforeCalculateStringNearness(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; var TextToAccountMapping: Record "Text-to-Account Mapping"; var Nearness: Integer);
     begin
     end;
 

@@ -20,6 +20,7 @@ codeunit 134267 "Payment Proposal UT"
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         Assert: Codeunit Assert;
         IsInitialized: Boolean;
         CannotChangeAppliedLineErr: Label 'You cannot change the line because the entry is applied. Remove the applied entry first.';
@@ -35,6 +36,8 @@ codeunit 134267 "Payment Proposal UT"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibraryInventory: Codeunit "Library - Inventory";
     begin
+        LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Payment Proposal UT");
+
         LibraryVariableStorage.Clear;
         BankAccReconciliation.DeleteAll(true);
         BankAccReconciliationLine.DeleteAll(true);
@@ -42,22 +45,22 @@ codeunit 134267 "Payment Proposal UT"
         CloseExistingEntries;
 
         GeneralLedgerSetup.Get;
+
         Evaluate(GeneralLedgerSetup."Payment Discount Grace Period", '<0D>');
         GeneralLedgerSetup.Modify;
-
         if IsInitialized then
             exit;
 
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Payment Proposal UT");
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralLedgerSetup;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.UpdatePurchasesPayablesSetup;
         LibraryInventory.NoSeriesSetup(InventorySetup);
         LibraryERM.FindZeroVATPostingSetup(ZeroVATPostingSetup, ZeroVATPostingSetup."VAT Calculation Type"::"Normal VAT");
-
         Commit;
-
         IsInitialized := true;
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Payment Proposal UT");
     end;
 
     [Test]

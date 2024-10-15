@@ -10,15 +10,6 @@ report 31101 "VAT Control Report - Test"
         {
             DataItemTableView = SORTING("No.");
             RequestFilterFields = "No.", "Closed by Document No. Filter";
-            column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
-            {
-            }
-            column(USERID; UserId)
-            {
-            }
-            column(CurrReport_PAGENO; CurrReport.PageNo)
-            {
-            }
             column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
             {
             }
@@ -39,6 +30,8 @@ report 31101 "VAT Control Report - Test"
             }
             column(VATControlReportHeader_PerformCountryRegionCode; "Perform. Country/Region Code")
             {
+                ObsoleteState = Pending;
+                ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
             }
             column(VATControlReportHeader_VATStatementTemplateName; "VAT Statement Template Name")
             {
@@ -72,6 +65,8 @@ report 31101 "VAT Control Report - Test"
             }
             column(VATControlReportHeader_PerformCountryRegionCode_Caption; FieldCaption("Perform. Country/Region Code"))
             {
+                ObsoleteState = Pending;
+                ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
             }
             column(VATControlReportHeader_VATStatementTemplateName_Caption; FieldCaption("VAT Statement Template Name"))
             {

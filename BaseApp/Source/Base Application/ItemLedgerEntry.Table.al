@@ -429,14 +429,14 @@ table 32 "Item Ledger Entry"
         }
         field(11790; "Source No. 2"; Code[20])
         {
-            Caption = 'Source No. 2';
+            Caption = 'Invoice-to Source No.';
             TableRelation = IF ("Source Type" = CONST(Customer)) Customer
             ELSE
             IF ("Source Type" = CONST(Vendor)) Vendor;
         }
         field(11791; "Source No. 3"; Code[20])
         {
-            Caption = 'Source No. 3';
+            Caption = 'Delivery-to Source No.';
             TableRelation = IF ("Source Type" = CONST(Customer)) "Ship-to Address".Code WHERE("Customer No." = FIELD("Source No."))
             ELSE
             IF ("Source Type" = CONST(Vendor)) "Order Address".Code WHERE("Vendor No." = FIELD("Source No."));
@@ -464,11 +464,15 @@ table 32 "Item Ledger Entry"
         {
             Caption = 'FA No.';
             TableRelation = "Fixed Asset";
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The functionality of Item consumption for FA maintenance will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
         }
         field(31044; "Maintenance Code"; Code[10])
         {
             Caption = 'Maintenance Code';
             TableRelation = Maintenance;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The functionality of Item consumption for FA maintenance will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
         }
         field(31045; "Maintenance Amount"; Decimal)
         {
@@ -476,12 +480,16 @@ table 32 "Item Ledger Entry"
             Caption = 'Maintenance Amount';
             Editable = false;
             FieldClass = FlowField;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The functionality of Item consumption for FA maintenance will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
         }
         field(31060; "Perform. Country/Region Code"; Code[10])
         {
             Caption = 'Perform. Country/Region Code';
             TableRelation = "Registration Country/Region"."Country/Region Code" WHERE("Account Type" = CONST("Company Information"),
                                                                                        "Account No." = FILTER(''));
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
         }
         field(31061; "Tariff No."; Code[20])
         {

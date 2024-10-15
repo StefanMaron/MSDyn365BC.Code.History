@@ -625,6 +625,7 @@ report 118 "Finance Charge Memo"
                     }
                     field(PrintDetailedIssFinChMemoLine; PrintDetailedIssFinChMemoLine)
                     {
+                        ApplicationArea = Basic, Suite;
                         Caption = 'Print Interest Details';
                         ToolTip = 'Specifies if the interest details has to be printed.';
                     }

@@ -109,6 +109,12 @@
                     Editable = false;
                     ToolTip = 'Specifies a description of the sales invoice The posting description also appers on customer and G/L entries.';
                 }
+                field("Your Reference"; "Your Reference")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies the customer''s reference. The contents will be printed on sales documents.';
+                }
                 field("Document Date"; "Document Date")
                 {
                     ApplicationArea = Basic, Suite;
@@ -375,6 +381,9 @@
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the tax corrective document.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of Tax corrective documents for VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
                 }
                 field("Tax Liable"; "Tax Liable")
                 {
@@ -624,6 +633,9 @@
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the industry code for the customer record.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of Industry Classification will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
                 }
                 field("Language Code"; "Language Code")
                 {

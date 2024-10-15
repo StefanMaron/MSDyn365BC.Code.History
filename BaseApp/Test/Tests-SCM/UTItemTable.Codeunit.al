@@ -262,7 +262,7 @@ codeunit 134827 "UT Item Table"
         // Setup
         NoneExixtingItemNo := LibraryInventory.CreateItemNo;
         Item.Get(NoneExixtingItemNo);
-        Item.Delete;
+        Item.Delete();
 
         // Exercise and Verify None Existing Item
         asserterror Item.TryGetItemNo(ReturnValue, NoneExixtingItemNo, true);
@@ -283,7 +283,7 @@ codeunit 134827 "UT Item Table"
         // Setup
         NoneExixtingItemNo := LibraryInventory.CreateItemNo;
         Item.Get(NoneExixtingItemNo);
-        Item.Delete;
+        Item.Delete();
 
         // Exercise and Verify None Existing Item
         Item.TryGetItemNo(ReturnValue, NoneExixtingItemNo, false);
@@ -527,7 +527,7 @@ codeunit 134827 "UT Item Table"
         CreateItemFromNameAndBlocked(Item[4], RandomText2, false);
 
         Assert.AreEqual(Item[2]."No.", Item[1].GetItemNo(RandomText1), '');
-        Assert.AreEqual(Item[4]."No.", Item[1].GetItemNo(RandomText2), '');
+        Assert.AreEqual(Item[2]."No.", Item[1].GetItemNo(RandomText2), '');
     end;
 
     local procedure Initialize()
@@ -536,15 +536,15 @@ codeunit 134827 "UT Item Table"
         ObjectOptions: Record "Object Options";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"UT Item Table");
-        Item.DeleteAll;
-        ObjectOptions.DeleteAll;
+        Item.DeleteAll();
+        ObjectOptions.DeleteAll();
 
         LibrarySetupStorage.Restore;
         if isInitialized then
             exit;
 
         isInitialized := true;
-        Commit;
+        Commit();
 
         LibrarySetupStorage.Save(DATABASE::"Inventory Setup");
     end;
@@ -552,7 +552,7 @@ codeunit 134827 "UT Item Table"
     local procedure CreateItemSimple(var Item: Record Item)
     begin
         Item."No." := LibraryUtility.GenerateGUID;
-        Item.Insert;
+        Item.Insert();
     end;
 
     local procedure CreateItemFromNo(var Item: Record Item; No: Text)
@@ -624,7 +624,7 @@ codeunit 134827 "UT Item Table"
     var
         InventorySetup: Record "Inventory Setup";
     begin
-        InventorySetup.Get;
+        InventorySetup.Get();
         InventorySetup.Validate("Skip Prompt to Create Item", true);
         InventorySetup.Modify(true);
     end;

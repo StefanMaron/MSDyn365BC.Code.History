@@ -176,7 +176,7 @@ report 25 "Account Schedule"
                             if ColumnValuesArrayIndex <= ArrayLen(ColumnValuesArrayText) then
                                 ColumnValuesArrayText[ColumnValuesArrayIndex] := ColumnValuesAsText;
 
-                            if (ColumnValuesAsText <> '') or ("Acc. Schedule Line".Show = "Acc. Schedule Line".Show::Yes) then
+                            if (ColumnValuesAsText <> '') or (("Acc. Schedule Line".Show = "Acc. Schedule Line".Show::Yes) and not SkipEmptyLines) then
                                 LineSkipped := false;
                         end;
 
@@ -212,11 +212,6 @@ report 25 "Account Schedule"
                         if (Show = Show::No) or not ShowLine(Bold, Italic) then
                             CurrReport.Skip;
 
-                        // NAVCZ
-                        if SkipEmptyLines then
-                            if AccSchedManagement.EmptyLine("Acc. Schedule Line", ColumnLayoutName, UseAmtsInAddCurr) then
-                                CurrReport.Skip;
-                        // NAVCZ
                         PadChar := 160; // whitespace
                         PadString[1] := PadChar;
                         Bold_control := Bold;
@@ -591,8 +586,9 @@ report 25 "Account Schedule"
                         field(SkipEmptyLines; SkipEmptyLines)
                         {
                             ApplicationArea = Basic, Suite;
-                            Caption = 'Skip Empty Lines';
-                            ToolTip = 'Specifies when the empty lines are to be skip';
+                            Caption = 'Skip Zero Balance Lines';
+                            Importance = Additional;
+                            ToolTip = 'Specifies if you want the report to skip lines that have a balance equal to zero.';
                         }
                     }
                 }
@@ -723,6 +719,7 @@ report 25 "Account Schedule"
         AccSchedNameEditable: Boolean;
         LineShadowed: Boolean;
         LineSkipped: Boolean;
+        SkipEmptyLines: Boolean;
         ColumnLayoutNameCaptionLbl: Label 'Column Layout';
         AccScheduleName_Name_CaptionLbl: Label 'Account Schedule';
         FiscalStartDateCaptionLbl: Label 'Fiscal Start Date';
@@ -733,7 +730,6 @@ report 25 "Account Schedule"
         AnalysisView_CodeCaptionLbl: Label 'Analysis View';
         PadChar: Char;
         PadString: Text;
-        SkipEmptyLines: Boolean;
         RequestPageOpen: Boolean;
 
     local procedure CalcColumnValueAsText(var AccScheduleLine: Record "Acc. Schedule Line"; var ColumnLayout: Record "Column Layout"): Text[30]

@@ -37,6 +37,7 @@ page 31029 "P.Adv. Letters History Subform"
                 }
                 field("Currency Code"; "Currency Code")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the currency of amounts on the document.';
                     Visible = false;
                 }
@@ -47,11 +48,13 @@ page 31029 "P.Adv. Letters History Subform"
                 }
                 field("VAT %"; "VAT %")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT percentage used to calculate Amount Including VAT on this line.';
                     Visible = false;
                 }
                 field("VAT Amount"; "VAT Amount")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies VAT amount of advance.';
                     Visible = false;
                 }

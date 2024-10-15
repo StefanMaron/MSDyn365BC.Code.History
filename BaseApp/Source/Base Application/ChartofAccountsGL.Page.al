@@ -86,11 +86,13 @@
                 }
                 field("Debit Amount"; "Debit Amount")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the total of the debit entries that have been posted to the account.';
                     Visible = false;
                 }
                 field("Credit Amount"; "Credit Amount")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the total of the credit entries that have been posted to the account.';
                     Visible = false;
                 }

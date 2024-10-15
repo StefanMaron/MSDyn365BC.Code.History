@@ -285,6 +285,7 @@ report 11767 "G/L Entry Applying"
                         }
                         field(ColumnDim; ColumnDim)
                         {
+                            ApplicationArea = Dimensions;
                             Caption = 'Dimensions';
                             Editable = false;
                             ToolTip = 'Specifies if the G/L entries have to be according to the dimensions applied.';

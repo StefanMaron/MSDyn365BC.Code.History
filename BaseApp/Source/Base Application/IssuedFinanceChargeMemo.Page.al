@@ -60,6 +60,7 @@
                 }
                 field("Posting Description"; "Posting Description")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description of the document. The posting description also appers on customer and G/L entries.';
                 }
                 field("Posting Date"; "Posting Date")
@@ -138,10 +139,12 @@
                 }
                 field("VAT Bus. Posting Group"; "VAT Bus. Posting Group")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a VAT business posting group code.';
                 }
                 field("Customer Posting Group"; "Customer Posting Group")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the customerÍs market type to link business transakcions to.';
                 }
             }
@@ -150,42 +153,52 @@
                 Caption = 'Payments';
                 field("Bank No."; "Bank No.")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a code to idenfity bank account.';
                 }
                 field("Bank Name"; "Bank Name")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the bank.';
                 }
                 field("Bank Branch No."; "Bank Branch No.")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the bank branch.';
                 }
                 field("Bank Account No."; "Bank Account No.")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number used by the bank for the bank account.';
                 }
                 field("Transit No."; "Transit No.")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a bank identification number of your own choice.';
                 }
                 field("SWIFT Code"; "SWIFT Code")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the international bank identifier code (SWIFT) of the bank where you have the account.';
                 }
                 field(IBAN; IBAN)
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the bank account''s international bank account number.';
                 }
                 field("Variable Symbol"; "Variable Symbol")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the detail information for payment.';
                 }
                 field("Constant Symbol"; "Constant Symbol")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the additional symbol of bank payments.';
                 }
                 field("Specific Symbol"; "Specific Symbol")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the additional symbol of bank payments.';
                 }
             }

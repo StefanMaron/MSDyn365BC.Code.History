@@ -29,12 +29,14 @@ page 11758 "Registration Log"
                 }
                 field("Account Type"; "Account Type")
                 {
+                    ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies typ of account';
                     Visible = false;
                 }
                 field("Account No."; "Account No.")
                 {
+                    ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies No of account';
                     Visible = false;
@@ -94,6 +96,7 @@ page 11758 "Registration Log"
                 }
                 field("Verified Result"; "Verified Result")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies verified result';
                     Visible = false;
                 }

@@ -18,6 +18,7 @@
                 ShowCaption = false;
                 field("Account Type"; "Account Type")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies type of accounte';
                 }
                 field("No."; "No.")
@@ -86,6 +87,7 @@
                 }
                 field("Specific Symbol"; "Specific Symbol")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the additional symbol of bank payments.';
                     Visible = false;
                 }

@@ -90,6 +90,8 @@ page 11734 "Cash Document Statistics"
                     DrillDown = false;
                     Editable = false;
                     ToolTip = 'Specifies non deductible vat base of cash document';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of Non-deductible VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
                 }
                 field(VATAmountDeduct; VATAmountDeduct)
                 {
@@ -99,6 +101,8 @@ page 11734 "Cash Document Statistics"
                     Caption = 'VAT Amount (Non Deductible)';
                     Editable = false;
                     ToolTip = 'Specifies non deductible vat amount of cash document';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of Non-deductible VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
                 }
             }
         }

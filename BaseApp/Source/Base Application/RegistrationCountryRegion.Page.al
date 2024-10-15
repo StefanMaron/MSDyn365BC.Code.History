@@ -5,6 +5,8 @@ page 11762 "Registration Country/Region"
     DelayedInsert = true;
     PageType = List;
     SourceTable = "Registration Country/Region";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this page should not be used. (Obsolete::Removed in release 01.2021)';
 
     layout
     {
@@ -15,12 +17,14 @@ page 11762 "Registration Country/Region"
                 ShowCaption = false;
                 field("Account Type"; "Account Type")
                 {
+                    ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the type of issued payment order lines';
                     Visible = false;
                 }
                 field("Account No."; "Account No.")
                 {
+                    ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the number of the customer or vendor.';
                     Visible = false;
@@ -68,11 +72,13 @@ page 11762 "Registration Country/Region"
                 }
                 field("Intrastat Export Object Type"; "Intrastat Export Object Type")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the type of intrastat export object.';
                     Visible = false;
                 }
                 field("Intrastat Export Object No."; "Intrastat Export Object No.")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of intrastat export object.';
                     Visible = false;
                 }
@@ -80,6 +86,36 @@ page 11762 "Registration Country/Region"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the possibility to select intrastat exchange rate.';
+                }
+                field("VIES Decl. Exp. Obj. Type"; "VIES Decl. Exp. Obj. Type")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the object type for VIES declaration export.';
+                    Visible = false;
+                }
+                field("VIES Decl. Exp. Obj. No."; "VIES Decl. Exp. Obj. No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the object number for VIES declaration export.';
+                    Visible = false;
+                }
+                field("VIES Decl. Exp. Obj. Name"; "VIES Decl. Exp. Obj. Name")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the object name for VIES declaration export.';
+                    Visible = false;
+                }
+                field("VIES Declaration Report No."; "VIES Declaration Report No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the object number for VIES declaration report.';
+                    Visible = false;
+                }
+                field("VIES Declaration Report Name"; "VIES Declaration Report Name")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the object name for VIES declaration report.';
+                    Visible = false;
                 }
             }
         }
@@ -128,6 +164,9 @@ page 11762 "Registration Country/Region"
                     RunObject = Page "Registr. Country/Region Routes";
                     RunPageLink = "Perform. Country/Region Code" = FIELD("Country/Region Code");
                     ToolTip = 'Specifies registration country routes for the registration country';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this action should not be used. (Obsolete::Removed in release 01.2021)';
                 }
             }
         }

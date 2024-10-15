@@ -33,21 +33,25 @@ page 11792 "Company Officials"
                 }
                 field("First Name"; "First Name")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the employee''s first name.';
                     Visible = false;
                 }
                 field("Middle Name"; "Middle Name")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the employee''s middle name.';
                     Visible = false;
                 }
                 field("Last Name"; "Last Name")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the employee''s last name.';
                     Visible = false;
                 }
                 field(Initials; Initials)
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies initials';
                     Visible = false;
                 }
@@ -58,11 +62,13 @@ page 11792 "Company Officials"
                 }
                 field("Post Code"; "Post Code")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the postal code.';
                     Visible = false;
                 }
                 field("Country/Region Code"; "Country/Region Code")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the country/region code.';
                     Visible = false;
                 }
@@ -73,16 +79,19 @@ page 11792 "Company Officials"
                 }
                 field("Phone No."; "Phone No.")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the employee''s phone number.';
                     Visible = false;
                 }
                 field("Mobile Phone No."; "Mobile Phone No.")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the employee''s mobile phone number.';
                     Visible = false;
                 }
                 field("E-Mail"; "E-Mail")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the e-mail address for the company official.';
                     Visible = false;
                 }

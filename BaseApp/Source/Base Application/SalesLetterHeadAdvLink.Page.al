@@ -53,16 +53,19 @@ page 31013 "Sales Letter Head. - Adv.Link."
                 }
                 field("Salesperson Code"; "Salesperson Code")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the salesperson who is addigned to the customes.';
                     Visible = false;
                 }
                 field("Order No."; "Order No.")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the sales order that this advance was posted from.';
                     Visible = false;
                 }
                 field("Amount Including VAT"; "Amount Including VAT")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether the unit price on the line should be displayed including or excluding VAT.';
                     Visible = false;
                 }

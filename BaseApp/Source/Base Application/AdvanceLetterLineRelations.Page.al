@@ -52,16 +52,19 @@ page 31018 "Advance Letter Line Relations"
                 }
                 field("Invoiced Amount"; "Invoiced Amount")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the advance letter line invoiced amount.';
                     Visible = false;
                 }
                 field("Deducted Amount"; "Deducted Amount")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the advance letter line deducted amount.';
                     Visible = false;
                 }
                 field("Amount To Deduct"; "Amount To Deduct")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the maximum advance value for use in final sales invoice.';
                     Visible = false;
                 }

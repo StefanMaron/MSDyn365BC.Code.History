@@ -495,6 +495,8 @@ table 311 "Sales & Receivables Setup"
         {
             Caption = 'Posting Desc. Code';
             TableRelation = "Posting Description" WHERE(Type = CONST("Sales Document"));
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The functionality of posting description will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
         }
         field(11766; "Default VAT Date"; Option)
         {
@@ -513,24 +515,34 @@ table 311 "Sales & Receivables Setup"
         field(11772; "Reas.Cd. on Tax Corr.Doc.Mand."; Boolean)
         {
             Caption = 'Reas.Cd. on Tax Corr.Doc.Mand.';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The functionality of Tax corrective documents for VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
         }
         field(11773; "Pmt.Disc.Tax Corr.Doc. Nos."; Code[20])
         {
             Caption = 'Pmt.Disc.Tax Corr.Doc. Nos.';
             TableRelation = "No. Series";
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The functionality of Tax corrective documents for VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
         }
         field(11774; "Copy As Tax Corr. Document"; Boolean)
         {
             Caption = 'Copy As Tax Corr. Document';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The functionality of Tax corrective documents for VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
         }
         field(11775; "Reason Code For Payment Disc."; Code[10])
         {
             Caption = 'Reason Code For Payment Disc.';
             TableRelation = "Reason Code".Code;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The functionality of Tax corrective documents for VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
         }
         field(11777; "Credit Memo Confirmation"; Boolean)
         {
             Caption = 'Credit Memo Confirmation';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The functionality of Postponing VAT on Sales Cr.Memo will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
 
             trigger OnValidate()
             var
@@ -548,6 +560,8 @@ table 311 "Sales & Receivables Setup"
         {
             Caption = 'Fin. Charge Posting Desc. Code';
             TableRelation = "Posting Description" WHERE(Type = CONST("Finance Charge"));
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The functionality of posting description will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
         }
         field(31000; "Advance Letter Nos."; Code[20])
         {

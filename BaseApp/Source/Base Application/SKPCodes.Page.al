@@ -4,6 +4,8 @@ page 31043 "SKP Codes"
     PageType = List;
     SourceTable = "SKP Code";
     UsageCategory = Administration;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'The functionality of Fixed Assets Clasification by SKP codes will be removed and this page should not be used. (Obsolete::Removed in release 01.2021)';
 
     layout
     {

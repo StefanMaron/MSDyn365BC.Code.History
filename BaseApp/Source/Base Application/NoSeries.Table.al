@@ -56,6 +56,8 @@ table 308 "No. Series"
         field(11790; Mask; Text[20])
         {
             Caption = 'Mask';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The functionality of No. Series Enhancements will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
         }
         field(11791; "No. Series Link Exists"; Boolean)
         {
@@ -63,6 +65,8 @@ table 308 "No. Series"
             Caption = 'No. Series Link Exists';
             Editable = false;
             FieldClass = FlowField;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The functionality of No. Series Enhancements will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
         }
     }
 
@@ -80,6 +84,7 @@ table 308 "No. Series"
 
     trigger OnDelete()
     var
+        [Obsolete('The functionality of No. Series Enhancements will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)')]
         NoSeriesLink: Record "No. Series Link";
     begin
         NoSeriesLine.SetRange("Series Code", Code);

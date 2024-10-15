@@ -4,6 +4,8 @@ page 11799 "No. Series Links"
     DataCaptionFields = "Initial No. Series";
     PageType = List;
     SourceTable = "No. Series Link";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'The functionality of No. Series Enhancements will be removed and this page should not be used. (Obsolete::Removed in release 01.2021)';
 
     layout
     {
@@ -14,11 +16,13 @@ page 11799 "No. Series Links"
                 ShowCaption = false;
                 field("Initial No. Series"; "Initial No. Series")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code of initial number series, to which are setup the related number series.';
                     Visible = false;
                 }
                 field("Initial No. Series Desc."; "Initial No. Series Desc.")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the description of initial number series.';
                     Visible = false;
                 }

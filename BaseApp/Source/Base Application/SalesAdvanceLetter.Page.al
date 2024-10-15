@@ -187,6 +187,9 @@ page 31000 "Sales Advance Letter"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the country/region code. It is mandatory field by creating documents with VAT registration number for other countries.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
                 }
                 field("VAT Country/Region Code"; "VAT Country/Region Code")
                 {
@@ -295,11 +298,13 @@ page 31000 "Sales Advance Letter"
             }
             part(Control1220090; "Customer Statistics FactBox")
             {
+                ApplicationArea = Basic, Suite;
                 SubPageLink = "No." = FIELD("Bill-to Customer No.");
                 Visible = false;
             }
             part(Control1220089; "Customer Details FactBox")
             {
+                ApplicationArea = Basic, Suite;
                 SubPageLink = "No." = FIELD("Bill-to Customer No.");
             }
         }

@@ -108,6 +108,7 @@
                 }
                 field("Posting Description"; "Posting Description")
                 {
+                    ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies a description of the sales shipment. The posting description also appers on customer and G/L entries.';
                 }
@@ -412,26 +413,31 @@
                 }
                 field("Bank Account Code"; "Bank Account Code")
                 {
+                    ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies a code to idenfity bank account of my company.';
                 }
                 field("Bank Name"; "Bank Name")
                 {
+                    ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the name of the bank where the customer has the bank account.';
                 }
                 field("Bank Branch No."; "Bank Branch No.")
                 {
+                    ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the number of the bank branch.';
                 }
                 field("Bank Account No."; "Bank Account No.")
                 {
+                    ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the number used by the bank for the bank account.';
                 }
                 field(IBAN; IBAN)
                 {
+                    ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the International Bank Account Number (IBAN) for the sales invoice header.';
                 }
@@ -449,11 +455,13 @@
                 }
                 field("VAT Bus. Posting Group"; "VAT Bus. Posting Group")
                 {
+                    ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies a VAT business posting group code.';
                 }
                 field("Customer Posting Group"; "Customer Posting Group")
                 {
+                    ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the customerÍs market type to link business transakcions to.';
                 }
@@ -604,6 +612,7 @@
                 trigger OnAction()
                 begin
                     SalesShptHeader := Rec;
+                    OnBeforePrintRecords(Rec, SalesShptHeader);
                     CurrPage.SetSelectionFilter(SalesShptHeader);
                     SalesShptHeader.PrintRecords(true);
                 end;
@@ -659,5 +668,10 @@
         IsBillToCountyVisible: Boolean;
         IsSellToCountyVisible: Boolean;
         IsShipToCountyVisible: Boolean;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePrintRecords(SalesShptHeaderRec: Record "Sales Shipment Header"; var SalesShptHeaderToPrint: Record "Sales Shipment Header")
+    begin
+    end;
 }
 

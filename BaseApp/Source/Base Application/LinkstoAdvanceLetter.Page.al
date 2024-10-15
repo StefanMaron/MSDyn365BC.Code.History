@@ -40,6 +40,7 @@ page 31007 "Links to Advance Letter"
                 }
                 field("Amount (LCY)"; "Amount (LCY)")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount of connection advance and invoice.';
                     Visible = false;
                 }
@@ -55,6 +56,7 @@ page 31007 "Links to Advance Letter"
                 }
                 field("Entry No."; "Entry No.")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the entry number that is assigned to the entry.';
                     Visible = false;
                 }

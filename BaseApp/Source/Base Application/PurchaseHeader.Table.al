@@ -189,14 +189,7 @@ table 38 "Purchase Header"
                     "Pay-to Contact" := Vend.Contact;
                 "Payment Terms Code" := Vend."Payment Terms Code";
                 "Prepmt. Payment Terms Code" := Vend."Payment Terms Code";
-
-                if IsCreditDocType then begin
-                    "Payment Method Code" := '';
-                    if PaymentTerms.Get("Payment Terms Code") then
-                        if PaymentTerms."Calc. Pmt. Disc. on Cr. Memos" then
-                            "Payment Method Code" := Vend."Payment Method Code"
-                end else
-                    "Payment Method Code" := Vend."Payment Method Code";
+                "Payment Method Code" := Vend."Payment Method Code";
 
                 if "Buy-from Vendor No." = Vend."No." then
                     "Shipment Method Code" := Vend."Shipment Method Code";
@@ -1394,6 +1387,8 @@ table 38 "Purchase Header"
             TableRelation = "Order Address".Code WHERE("Vendor No." = FIELD("Buy-from Vendor No."));
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
                 if "Order Address Code" <> '' then begin
                     OrderAddr.Get("Buy-from Vendor No.", "Order Address Code");
@@ -1427,8 +1422,11 @@ table 38 "Purchase Header"
                         CopyShipToVendorAddressFieldsFromVendor(Vend, true);
                         "Ship-to Contact" := Vend.Contact;
                         "Shipment Method Code" := Vend."Shipment Method Code";
-                        if Vend."Location Code" <> '' then
-                            Validate("Location Code", Vend."Location Code");
+                        IsHandled := false;
+                        OnValidateOrderAddressCodeOnBeforeUpdateLocationCode(Rec, xRec, CurrFieldNo, IsHandled);
+                        if not IsHandled then
+                            if Vend."Location Code" <> '' then
+                                Validate("Location Code", Vend."Location Code");
                     end
                 end;
             end;
@@ -1547,7 +1545,14 @@ table 38 "Purchase Header"
             TableRelation = "No. Series";
 
             trigger OnLookup()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeLookupReceivingNoSeries(rec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 with PurchHeader do begin
                     PurchHeader := Rec;
                     GetPurchSetup;
@@ -1633,6 +1638,8 @@ table 38 "Purchase Header"
             MinValue = 0;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
                 GLSetup.Get;
                 if "VAT Base Discount %" > GLSetup."VAT Tolerance %" then begin
@@ -1653,7 +1660,10 @@ table 38 "Purchase Header"
                 if ("VAT Base Discount %" = xRec."VAT Base Discount %") and (CurrFieldNo <> 0) then
                     exit;
 
-                UpdatePurchAmountLines;
+                IsHandled := false;
+                OnValidateVATBaseAmountPercOnBeforeUpdatePurchAmountLines(Rec, xRec, CurrFieldNo, IsHandled);
+                if not IsHandled then
+                    UpdatePurchAmountLines;
             end;
         }
         field(120; Status; Option)
@@ -2288,7 +2298,14 @@ table 38 "Purchase Header"
             TableRelation = "No. Series";
 
             trigger OnLookup()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeLookupReturnShipmentNoSeries(Rec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 with PurchHeader do begin
                     PurchHeader := Rec;
                     GetPurchSetup;
@@ -2533,6 +2550,8 @@ table 38 "Purchase Header"
         {
             Caption = 'Posting Desc. Code';
             TableRelation = "Posting Description" WHERE(Type = CONST("Purchase Document"));
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The functionality of posting description will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
 
             trigger OnValidate()
             begin
@@ -2579,13 +2598,16 @@ table 38 "Purchase Header"
         {
             Caption = 'Original User ID';
             DataClassification = EndUserIdentifiableInformation;
-            TableRelation = User;
-            //This property is currently not supported
-            //TestTableRelation = false;
+            TableRelation = User."User Name";
+            ValidateTableRelation = false;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'This field is not needed and it should not be used.';
         }
         field(11793; "Quote Validity"; Date)
         {
             Caption = 'Quote Validity';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The functionality of Quote Validity moved to W1 solution and this field should not be used. (Obsolete::Removed in release 01.2021)';
         }
         field(31000; "Prepayment Type"; Option)
         {
@@ -2688,6 +2710,8 @@ table 38 "Purchase Header"
             Caption = 'Perform. Country/Region Code';
             TableRelation = "Registration Country/Region"."Country/Region Code" WHERE("Account Type" = CONST("Company Information"),
                                                                                        "Account No." = FILTER(''));
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
 
             trigger OnValidate()
             var
@@ -2725,6 +2749,8 @@ table 38 "Purchase Header"
             DecimalPlaces = 0 : 15;
             Editable = false;
             MinValue = 0;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
         }
         field(31063; "Physical Transfer"; Boolean)
         {
@@ -2746,6 +2772,8 @@ table 38 "Purchase Header"
         {
             Caption = 'Industry Code';
             TableRelation = "Industry Code";
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The functionality of Industry Classification will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
         }
         field(31066; "EU 3-Party Intermediate Role"; Boolean)
         {
@@ -2807,6 +2835,9 @@ table 38 "Purchase Header"
 
     fieldgroups
     {
+        fieldgroup(DropDown; "No.", "Buy-from Vendor Name", "Amount Including VAT")
+        {
+        }
     }
 
     trigger OnDelete()
@@ -2860,7 +2891,6 @@ table 38 "Purchase Header"
     begin
         InitInsert;
 
-        "Original User ID" := UserId; // NAVCZ
         if GetFilter("Buy-from Vendor No.") <> '' then
             if GetRangeMin("Buy-from Vendor No.") = GetRangeMax("Buy-from Vendor No.") then
                 Validate("Buy-from Vendor No.", GetRangeMin("Buy-from Vendor No."));
@@ -2941,7 +2971,9 @@ table 38 "Purchase Header"
         Location: Record Location;
         WhseRequest: Record "Warehouse Request";
         InvtSetup: Record "Inventory Setup";
+        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)')]
         RegistrationCountry: Record "Registration Country/Region";
+        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)')]
         PerfCountryCurrExchRate: Record "Perf. Country Curr. Exch. Rate";
         SalespersonPurchaser: Record "Salesperson/Purchaser";
         NoSeriesMgt: Codeunit NoSeriesManagement;
@@ -3021,6 +3053,7 @@ table 38 "Purchase Header"
 
     procedure InitRecord()
     var
+        [Obsolete('The functionality of No. Series Enhancements will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)')]
         NoSeriesLink: Record "No. Series Link";
         ArchiveManagement: Codeunit ArchiveManagement;
         IsHandled: Boolean;
@@ -3042,7 +3075,7 @@ table 38 "Purchase Header"
         // NAVCZ
 
         IsHandled := false;
-        OnBeforeInitRecord(Rec, IsHandled);
+        OnBeforeInitRecord(Rec, IsHandled, xRec);
         if not IsHandled then
             case "Document Type" of
                 "Document Type"::Quote, "Document Type"::Order:
@@ -3192,7 +3225,7 @@ table 38 "Purchase Header"
             "Prepmt. Cr. Memo No." := xRec."Prepmt. Cr. Memo No.";
         end;
 
-        OnAfterInitNoSeries(Rec);
+        OnAfterInitNoSeries(Rec, xRec);
     end;
 
     local procedure InitVATDate(DefaultVATDate: Option)
@@ -3475,7 +3508,7 @@ table 38 "Purchase Header"
                                 end;
                         end;
 
-                        OnRecreatePurchLinesOnBeforeInsertPurchLine(PurchLine, TempPurchLine);
+                        OnRecreatePurchLinesOnBeforeInsertPurchLine(PurchLine, TempPurchLine, ChangedFieldName);
                         PurchLine.Insert;
                         ExtendedTextAdded := false;
 
@@ -3497,6 +3530,7 @@ table 38 "Purchase Header"
                             PurchLine.FindLast;
                             ExtendedTextAdded := true;
                         end;
+                    OnRecreatePurchLineOnAfterProcessAttachedToLineNo(TempPurchLine, PurchLine);
                 until TempPurchLine.Next = 0;
 
                 RecreateItemChargeAssgntPurch(TempItemChargeAssgntPurch, TempPurchLine, TempInteger);
@@ -3588,10 +3622,17 @@ table 38 "Purchase Header"
     var
         SalesLine: Record "Sales Line";
         CopyDocMgt: Codeunit "Copy Document Mgt.";
+        IsHandled: Boolean;
     begin
-        SalesLine.Get(SalesLine."Document Type"::Order,
-          SourcePurchaseLine."Sales Order No.",
-          SourcePurchaseLine."Sales Order Line No.");
+        IsHandled := false;
+        OnBeforeTransferSavedFieldsDropShipment(DestinationPurchaseLine, SourcePurchaseLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        SalesLine.Get(
+            SalesLine."Document Type"::Order,
+            SourcePurchaseLine."Sales Order No.",
+            SourcePurchaseLine."Sales Order Line No.");
         CopyDocMgt.TransfldsFromSalesToPurchLine(SalesLine, DestinationPurchaseLine);
         DestinationPurchaseLine."Drop Shipment" := SourcePurchaseLine."Drop Shipment";
         DestinationPurchaseLine."Purchasing Code" := SalesLine."Purchasing Code";
@@ -3609,10 +3650,17 @@ table 38 "Purchase Header"
     var
         SalesLine: Record "Sales Line";
         CopyDocMgt: Codeunit "Copy Document Mgt.";
+        IsHandled: Boolean;
     begin
-        SalesLine.Get(SalesLine."Document Type"::Order,
-          SourcePurchaseLine."Special Order Sales No.",
-          SourcePurchaseLine."Special Order Sales Line No.");
+        IsHandled := false;
+        OnBeforeTransferSavedFieldsSpecialOrder(DestinationPurchaseLine, SourcePurchaseLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        SalesLine.Get(
+            SalesLine."Document Type"::Order,
+            SourcePurchaseLine."Special Order Sales No.",
+            SourcePurchaseLine."Special Order Sales Line No.");
         CopyDocMgt.TransfldsFromSalesToPurchLine(SalesLine, DestinationPurchaseLine);
         DestinationPurchaseLine."Special Order" := SourcePurchaseLine."Special Order";
         DestinationPurchaseLine."Purchasing Code" := SalesLine."Purchasing Code";
@@ -3846,7 +3894,7 @@ table 38 "Purchase Header"
                     PurchLine.FieldNo("Deferral Code"):
                         if PurchLine."No." <> '' then
                             PurchLine.Validate("Deferral Code");
-                        // NAVCZ
+                    // NAVCZ
                     FieldNo("Prepayment Type"):
                         if PurchLine."No." <> '' then
                             PurchLine.Validate("Prepayment %", PurchLine."Prepayment %");
@@ -4651,6 +4699,7 @@ table 38 "Purchase Header"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('The functionality of posting description will be removed and this function should not be used. (Removed in release 01.2021)')]
     procedure GetPostingDescription(PurchHeader: Record "Purchase Header"): Text[100]
     var
         PostingDesc: Record "Posting Description";
@@ -4678,6 +4727,7 @@ table 38 "Purchase Header"
         exit(false);
     end;
 
+    [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)')]
     local procedure UpdatePerformCountryCurrFactor()
     begin
         // NAVCZ
@@ -5797,6 +5847,8 @@ table 38 "Purchase Header"
                     DocTxt := PurchQuoteDocTxt;
                 end;
         end;
+
+        OnAfterGetReportSelectionsUsageFromDocumentType(Rec, ReportSelectionsUsage, DocTxt);
     end;
 
     local procedure RevertCurrencyCodeAndPostingDate()
@@ -5897,7 +5949,7 @@ table 38 "Purchase Header"
 
         OnAfterUpdateInboundWhseHandlingTime(Rec, CurrFieldNo);
     end;
-    
+
     procedure GetFullDocTypeTxt() FullDocTypeTxt: Text
     var
         IsHandled: Boolean;
@@ -5909,7 +5961,7 @@ table 38 "Purchase Header"
 
         FullDocTypeTxt := SelectStr("Document Type" + 1, FullPurchaseTypesTxt);
     end;
-    
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeIsUncertaintyPayerCheckPossible(var PurchaseHeader: Record "Purchase Header"; var CheckPossible: Boolean)
     begin
@@ -5931,7 +5983,7 @@ table 38 "Purchase Header"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterInitNoSeries(var PurchHeader: Record "Purchase Header")
+    local procedure OnAfterInitNoSeries(var PurchHeader: Record "Purchase Header"; xPurchHeader: Record "Purchase Header")
     begin
     end;
 
@@ -6007,6 +6059,11 @@ table 38 "Purchase Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetPurchSetup(PurchaseHeader: Record "Purchase Header"; var PurchasesPayablesSetup: Record "Purchases & Payables Setup"; CalledByFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetReportSelectionsUsageFromDocumentType(PurchaseHeader: Record "Purchase Header"; var ReportSelectionsUsage: Option; var DocTxt: Text[150]);
     begin
     end;
 
@@ -6111,7 +6168,7 @@ table 38 "Purchase Header"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeInitRecord(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    local procedure OnBeforeInitRecord(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean; xPurchaseHeader: Record "Purchase Header")
     begin
     end;
 
@@ -6122,6 +6179,16 @@ table 38 "Purchase Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeIsTotalValid(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeLookupReceivingNoSeries(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeLookupReturnShipmentNoSeries(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
     begin
     end;
 
@@ -6147,6 +6214,16 @@ table 38 "Purchase Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeTestNoSeries(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTransferSavedFieldsDropShipment(var DestinationPurchaseLine: Record "Purchase Line"; var SourcePurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTransferSavedFieldsSpecialOrder(var DestinationPurchaseLine: Record "Purchase Line"; var SourcePurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
     begin
     end;
 
@@ -6201,7 +6278,7 @@ table 38 "Purchase Header"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnRecreatePurchLinesOnBeforeInsertPurchLine(var PurchaseLine: Record "Purchase Line"; var TempPurchaseLine: Record "Purchase Line" temporary)
+    local procedure OnRecreatePurchLinesOnBeforeInsertPurchLine(var PurchaseLine: Record "Purchase Line"; var TempPurchaseLine: Record "Purchase Line" temporary; ChangedFieldName: Text[100])
     begin
     end;
 
@@ -6209,6 +6286,12 @@ table 38 "Purchase Header"
     local procedure OnRecreatePurchLinesOnBeforeTempPurchLineInsert(var TempPurchaseLine: Record "Purchase Line" temporary; PurchaseLine: Record "Purchase Line")
     begin
     end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRecreatePurchLineOnAfterProcessAttachedToLineNo(var TempPurchaseLine: Record "Purchase Line" temporary; PurchaseLine: Record "Purchase Line")
+    begin
+    end;
+
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateBuyFromVendorNoOnAfterRecreateLines(var PurchaseHeader: Record "Purchase Header"; xPurchaseHeader: Record "Purchase Header"; CallingFieldNo: Integer)
@@ -6281,6 +6364,11 @@ table 38 "Purchase Header"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnValidateOrderAddressCodeOnBeforeUpdateLocationCode(var PurchaseHeader: Record "Purchase Header"; var xPurchaseHeader: Record "Purchase Header"; CurrentFieldNo: Integer; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnValidatePaymentTermsCodeOnBeforeCalcDueDate(var PurchaseHeader: Record "Purchase Header"; var xPurchaseHeader: Record "Purchase Header"; CalledByFieldNo: Integer; CallingFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
@@ -6307,6 +6395,11 @@ table 38 "Purchase Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnValidatePricesIncludingVATOnBeforePurchLineModify(var PurchaseHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line"; Currency: Record Currency; RecalculatePrice: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateVATBaseAmountPercOnBeforeUpdatePurchAmountLines(var PurchaseHeader: Record "Purchase Header"; xPurchaseHeader: Record "Purchase Header"; CurrentFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 }

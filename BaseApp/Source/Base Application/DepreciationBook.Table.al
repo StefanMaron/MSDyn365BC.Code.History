@@ -262,7 +262,7 @@ table 5611 "Depreciation Book"
         }
         field(31040; "Deprication from 1st Month Day"; Boolean)
         {
-            Caption = 'Deprication from 1st Month Day';
+            Caption = 'Depreciation from 1st Month Day';
         }
         field(31041; "Acqui.,Appr.before Depr. Check"; Boolean)
         {
@@ -274,11 +274,11 @@ table 5611 "Depreciation Book"
         }
         field(31043; "Check Deprication on Disposal"; Boolean)
         {
-            Caption = 'Check Deprication on Disposal';
+            Caption = 'Check Depreciation on Disposal';
         }
         field(31044; "Deprication from 1st Year Day"; Boolean)
         {
-            Caption = 'Deprication from 1st Year Day';
+            Caption = 'Depreciation from 1st Year Day';
         }
         field(31045; "Mark Reclass. as Corrections"; Boolean)
         {
@@ -366,10 +366,12 @@ table 5611 "Depreciation Book"
             Init; // NAVCZ
             "Depreciation Book Code" := Code; // NAVCZ
             "FA Posting Type" := "FA Posting Type"::"Custom 1";
-            Sign := Sign::Debit; // NAVCZ
+            "Include in Gain/Loss Calc." := true; // NAVCZ
+            Sign := Sign::Credit; // NAVCZ
             Insert;
             "FA Posting Type" := "FA Posting Type"::"Custom 2";
-            Sign := Sign::" "; // NAVCZ
+            "Acquisition Type" := true; // NAVCZ
+            Sign := Sign::Debit; // NAVCZ
             Insert;
         end;
     end;

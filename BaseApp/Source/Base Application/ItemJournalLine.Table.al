@@ -2125,13 +2125,15 @@ table 83 "Item Journal Line"
         field(11790; "Source No. 2"; Code[20])
         {
             Caption = 'Source No. 2';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'This field is replaced by "Invoice-to Source No." field.';
             TableRelation = IF ("Source Type" = CONST(Customer)) Customer
             ELSE
             IF ("Source Type" = CONST(Vendor)) Vendor;
         }
         field(11791; "Source No. 3"; Code[20])
         {
-            Caption = 'Source No. 3';
+            Caption = 'Delivery-to Source No.';
             TableRelation = IF ("Source Type" = CONST(Customer)) "Ship-to Address".Code WHERE("Customer No." = FIELD("Source No."))
             ELSE
             IF ("Source Type" = CONST(Vendor)) "Order Address".Code WHERE("Vendor No." = FIELD("Source No."));
@@ -2140,6 +2142,8 @@ table 83 "Item Journal Line"
         {
             Caption = 'FA No.';
             TableRelation = "Fixed Asset";
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The functionality of Item consumption for FA maintenance will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
 
             trigger OnValidate()
             begin
@@ -2157,6 +2161,8 @@ table 83 "Item Journal Line"
         {
             Caption = 'Maintenance Code';
             TableRelation = Maintenance;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The functionality of Item consumption for FA maintenance will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
 
             trigger OnValidate()
             begin
@@ -2169,6 +2175,8 @@ table 83 "Item Journal Line"
             Caption = 'Perform. Country/Region Code';
             TableRelation = "Registration Country/Region"."Country/Region Code" WHERE("Account Type" = CONST("Company Information"),
                                                                                        "Account No." = FILTER(''));
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
         }
         field(31061; "Tariff No."; Code[20])
         {
@@ -2475,6 +2483,7 @@ table 83 "Item Journal Line"
     var
         ItemLedgEntry: Record "Item Ledger Entry";
         ItemJnlLine2: Record "Item Journal Line";
+        PositiveFilterValue: Boolean;
         ManufSetup: Record "Manufacturing Setup";
     begin
         OnBeforeSelectItemEntry(Rec, xRec, CurrentFieldNo);
@@ -2515,7 +2524,11 @@ table 83 "Item Journal Line"
             ItemLedgEntry.SetRange("Location Code", "Location Code");
 
         if CurrentFieldNo = FieldNo("Applies-to Entry") then begin
-            ItemLedgEntry.SetRange(Positive, (Signed(Quantity) < 0) or ("Value Entry Type" = "Value Entry Type"::Revaluation));
+            if Quantity <> 0 then begin
+                PositiveFilterValue := (Signed(Quantity) < 0) or ("Value Entry Type" = "Value Entry Type"::Revaluation);
+                ItemLedgEntry.SetRange(Positive, PositiveFilterValue);
+            end;
+            
             if "Value Entry Type" <> "Value Entry Type"::Revaluation then begin
                 ItemLedgEntry.SetCurrentKey("Item No.", Open);
                 ItemLedgEntry.SetRange(Open, true);
@@ -2945,8 +2958,10 @@ table 83 "Item Journal Line"
         "Source Currency Code" := SalesHeader."Currency Code";
         "Shpt. Method Code" := SalesHeader."Shipment Method Code";
         // NAVCZ
+        "Source No. 3" := SalesHeader."Ship-to Code";
         "Currency Code" := SalesHeader."Currency Code";
         "Currency Factor" := SalesHeader."Currency Factor";
+        "Physical Transfer" := SalesHeader."Physical Transfer";
         // NAVCZ
 
         OnAfterCopyItemJnlLineFromSalesHeader(Rec, SalesHeader);
@@ -2992,6 +3007,7 @@ table 83 "Item Journal Line"
         "Source No." := SalesLine."Sell-to Customer No.";
         "Invoice-to Source No." := SalesLine."Bill-to Customer No.";
         // NAVCZ
+        "Source No. 2" := SalesLine."Bill-to Customer No.";
         "Tariff No." := SalesLine."Tariff No.";
         "Statistic Indication" := SalesLine."Statistic Indication";
         "Net Weight" := SalesLine."Net Weight";
@@ -3016,6 +3032,7 @@ table 83 "Item Journal Line"
         "Source Currency Code" := PurchHeader."Currency Code";
         "Shpt. Method Code" := PurchHeader."Shipment Method Code";
         // NAVCZ
+        "Source No. 3" := PurchHeader."Order Address Code";
         "Currency Code" := PurchHeader."Currency Code";
         "Currency Factor" := PurchHeader."Currency Factor";
         "Physical Transfer" := PurchHeader."Physical Transfer";
@@ -3070,10 +3087,12 @@ table 83 "Item Journal Line"
         "Overhead Rate" := PurchLine."Overhead Rate";
         "Return Reason Code" := PurchLine."Return Reason Code";
         // NAVCZ
+        "Source No. 2" := PurchLine."Pay-to Vendor No.";
         "Country/Region of Origin Code" := PurchLine."Country/Region of Origin Code";
         "Tariff No." := PurchLine."Tariff No.";
         "Statistic Indication" := PurchLine."Statistic Indication";
         "Net Weight" := PurchLine."Net Weight";
+        "Physical Transfer" := PurchLine."Physical Transfer";
         if "Net Weight" <> 0 then
             if "Qty. per Unit of Measure" <> 0 then
                 "Net Weight" := Round("Net Weight" / "Qty. per Unit of Measure", 0.00001);
@@ -3094,8 +3113,10 @@ table 83 "Item Journal Line"
         "Source No." := ServiceHeader."Customer No.";
         "Shpt. Method Code" := ServiceHeader."Shipment Method Code";
         // NAVCZ
+        "Source No. 3" := ServiceHeader."Ship-to Code";
         "Currency Code" := ServiceHeader."Currency Code";
         "Currency Factor" := ServiceHeader."Currency Factor";
+        "Physical Transfer" := ServiceHeader."Physical Transfer";
         "Intrastat Transaction" := ServiceHeader.IsIntrastatTransaction;
         // NAVCZ
 
@@ -3135,6 +3156,7 @@ table 83 "Item Journal Line"
         "Job No." := ServiceLine."Job No.";
         "Job Task No." := ServiceLine."Job Task No.";
         // NAVCZ
+        "Source No. 2" := ServiceLine."Bill-to Customer No.";
         "Tariff No." := ServiceLine."Tariff No.";
         "Statistic Indication" := ServiceLine."Statistic Indication";
         "Net Weight" := ServiceLine."Net Weight";
@@ -3369,6 +3391,8 @@ table 83 "Item Journal Line"
                 UnitCost := SKU."Unit Cost"
             else
                 UnitCost := Item."Unit Cost";
+
+        OnRetrieveCostsOnAfterSetUnitCost(Rec, UnitCost);
 
         if "Entry Type" = "Entry Type"::Transfer then
             UnitCost := 0
@@ -3904,6 +3928,7 @@ table 83 "Item Journal Line"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('The functionality of Item charges enhancements will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)')]
     procedure SetItemChargeDimensions(ItemChargeNo: Code[20]; ItemLedgShptEntryNo: Integer)
     var
         ItemCharge: Record "Item Charge";
@@ -4203,6 +4228,11 @@ table 83 "Item Journal Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateScrapCode(var ItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRetrieveCostsOnAfterSetUnitCost(var ItemJournalLine: Record "Item Journal Line"; var UnitCost: Decimal)
     begin
     end;
 }

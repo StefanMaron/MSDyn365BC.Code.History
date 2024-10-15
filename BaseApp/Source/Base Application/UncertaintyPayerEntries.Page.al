@@ -21,6 +21,7 @@ page 11760 "Uncertainty Payer Entries"
                 }
                 field("Vendor Name"; "Vendor Name")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of vendor.';
                     Visible = false;
                 }
@@ -71,6 +72,7 @@ page 11760 "Uncertainty Payer Entries"
                 }
                 field("Entry No."; "Entry No.")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the entry number that is assigned to the entry.';
                     Visible = false;
                 }

@@ -18,10 +18,6 @@ codeunit 143060 "Test Initialize Handler"
     begin
         PurchSetup.Get();
         PurchSetup."Invoice Rounding" := true;
-        PurchSetup."G/L Entry as Doc. Lines (Acc.)" := false;
-        PurchSetup."G/L Entry as Doc. Lines (Char)" := false;
-        PurchSetup."G/L Entry as Doc. Lines (FA)" := false;
-        PurchSetup."G/L Entry as Doc. Lines (Item)" := false;
         PurchSetup.Modify();
     end;
 
@@ -32,11 +28,6 @@ codeunit 143060 "Test Initialize Handler"
         SalesSetup.Get();
         SalesSetup."Credit Memo Confirmation" := false;
         SalesSetup."Invoice Rounding" := true;
-        SalesSetup."G/L Entry as Doc. Lines (Acc.)" := false;
-        SalesSetup."G/L Entry as Doc. Lines (Char)" := false;
-        SalesSetup."G/L Entry as Doc. Lines (FA)" := false;
-        SalesSetup."G/L Entry as Doc. Lines (Item)" := false;
-        SalesSetup."G/L Entry as Doc. Lines (Res.)" := false;
         SalesSetup.Modify();
     end;
 

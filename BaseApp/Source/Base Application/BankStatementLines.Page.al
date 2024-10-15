@@ -24,6 +24,7 @@ page 11708 "Bank Statement Lines"
                 }
                 field(Name; Name)
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies name of partner (customer, vendor, bank account).';
                     Visible = false;
                 }
@@ -69,21 +70,25 @@ page 11708 "Bank Statement Lines"
                 }
                 field(Type; Type)
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the type of advance letter line relations';
                     Visible = false;
                 }
                 field("No."; "No.")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the bank statement.';
                     Visible = false;
                 }
                 field("Cust./Vendor Bank Account Code"; "Cust./Vendor Bank Account Code")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the bank account code of the customer or vendor.';
                     Visible = false;
                 }
                 field("Bank Statement No."; "Bank Statement No.")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of bank statement.';
                     Visible = false;
                 }

@@ -609,6 +609,7 @@ report 11700 "Suggest Payments"
                 "Original Amount" := "Amount to Pay";
                 "Original Amount (LCY)" := "Amount (LCY) to Pay";
                 "Orig. Amount(Pay.Order Curr.)" := "Amount(Pay.Order Curr.) to Pay";
+                "Due Date" := VendLedgEntry."Due Date";
             end;
             AddPaymentLine;
         end;

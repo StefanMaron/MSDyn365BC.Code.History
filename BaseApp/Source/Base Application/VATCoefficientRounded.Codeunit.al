@@ -1,5 +1,7 @@
 codeunit 31095 "VAT Coefficient Rounded"
 {
+    ObsoleteState = Pending;
+    ObsoleteReason = 'The functionality of VAT Coefficient will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
 
     trigger OnRun()
     begin

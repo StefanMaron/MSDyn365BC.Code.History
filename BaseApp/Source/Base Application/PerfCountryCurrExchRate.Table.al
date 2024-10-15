@@ -4,6 +4,8 @@ table 11764 "Perf. Country Curr. Exch. Rate"
     DataCaptionFields = "Currency Code";
     DrillDownPageID = "Perf. Country Curr. Exch. Rate";
     LookupPageID = "Perf. Country Curr. Exch. Rate";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this table should not be used. (Obsolete::Removed in release 01.2021)';
 
     fields
     {

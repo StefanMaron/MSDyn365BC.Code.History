@@ -30,6 +30,7 @@ page 11714 "Issued Bank Statement List"
                 }
                 field("Bank Account No."; "Bank Account No.")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of bank account.';
                     Visible = false;
                 }
@@ -55,6 +56,7 @@ page 11714 "Issued Bank Statement List"
                 }
                 field("File Name"; "File Name")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name and address of bank statement file uploaded from bank.';
                     Visible = false;
                 }

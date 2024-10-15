@@ -250,6 +250,8 @@ report 31097 "Sales - Credit Memo CZ"
             }
             column(PostponedVAT_SalesCrMemoHeader; "Postponed VAT")
             {
+                ObsoleteState = Pending;
+                ObsoleteReason = 'The functionality of Postponing VAT on Sales Cr.Memo will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
             }
             column(PerformCountryRegionCode; RegCountryRegion."Country/Region Code")
             {
@@ -607,6 +609,7 @@ report 31097 "Sales - Credit Memo CZ"
         ReasonCode: Record "Reason Code";
         CurrExchRate: Record "Currency Exchange Rate";
         VATClause: Record "VAT Clause";
+        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)')]
         RegCountryRegion: Record "Registration Country/Region";
         Language: Codeunit Language;
         FormatAddr: Codeunit "Format Address";
@@ -653,7 +656,7 @@ report 31097 "Sales - Credit Memo CZ"
         Type2Text2Lbl: Label 'Delivery Date';
         Type2Text3Lbl: Label 'Signature and Stamp of the Customer';
         Type2Text4Lbl: Label 'Confirmed Corrective Tax Document indicating the Date of Receipt sent back please.';
-        Type3TextLbl: Label 'Tax Certificate when performing Correction the Duties of Receivables from Debtors in Bankruptcy Proceedings';
+        Type3TextLbl: Label 'Correction of tax base in case of bad debt';
         [InDataSet]
         LogInteractionEnable: Boolean;
 

@@ -74,12 +74,6 @@ report 846 "Cash Flow Date List"
                 column(GLBudget; Values[CFForecastEntry."Source Type"::"G/L Budget"])
                 {
                 }
-                column(SalesAdvances; Values[CFForecastEntry."Source Type"::"Sales Advance Letters"])
-                {
-                }
-                column(PurchaseAdvances; Values[CFForecastEntry."Source Type"::"Purchase Advance Letters"])
-                {
-                }
                 column(EditionPeriod_Number; Number)
                 {
                 }
@@ -168,12 +162,6 @@ report 846 "Cash Flow Date List"
                 {
                 }
                 column(SaleFixedAssets_Control51Caption; SaleFixedAssets_Control51CaptionLbl)
-                {
-                }
-                column(SalesAdvances_CaptionLbl; SalesAdvances_CaptionLbl)
-                {
-                }
-                column(PurchaseAdvances_CaptionLbl; PurchaseAdvances_CaptionLbl)
                 {
                 }
                 column(before_Caption; before_CaptionLbl)
@@ -290,8 +278,6 @@ report 846 "Cash Flow Date List"
         FORMAT_DateTo_CaptionLbl: Label 'To';
         InvFixedAssets_Control49CaptionLbl: Label 'Fixed Assets Budget';
         SaleFixedAssets_Control51CaptionLbl: Label 'Fixed Assets Disposal';
-        SalesAdvances_CaptionLbl: Label 'Sales Advances';
-        PurchaseAdvances_CaptionLbl: Label 'Purchase Advances';
         before_CaptionLbl: Label 'Before:';
         after_CaptionLbl: Label 'After:';
         JobsLbl: Label 'Jobs';

@@ -15,15 +15,24 @@ page 11761 "Electronically Govern. Setup"
             group("Proxy Setup")
             {
                 Caption = 'Proxy Setup';
+                Visible = false;
+                ObsoleteState = Pending;
+                ObsoleteReason = 'The functionality of Communication using Proxy server will be removed and this group should not be used. (Obsolete::Removed in release 01.2021)';
                 field("Proxy Server"; "Proxy Server")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies proxy server for electronically communication.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of Communication using Proxy server will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
                 }
                 field("Proxy User"; "Proxy User")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies proxy user for electronically communication.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of Communication using Proxy server will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
                 }
                 field(ProxyPassword; ProxyPassword)
                 {
@@ -31,6 +40,9 @@ page 11761 "Electronically Govern. Setup"
                     Caption = 'Proxy Password';
                     ExtendedDatatype = Masked;
                     ToolTip = 'Specifies proxy password for electronically communication.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of Communication using Proxy server will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
 
                     trigger OnValidate()
                     begin
@@ -116,10 +128,14 @@ page 11761 "Electronically Govern. Setup"
     end;
 
     var
+        [Obsolete('The functionality of Communication using Proxy server will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021')]
         ProxyPassword: Text[50];
+        [Obsolete('The functionality of Communication using Proxy server will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021')]
         CheckedEncryption: Boolean;
+        [Obsolete('The functionality of Communication using Proxy server will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021')]
         EncryptionIsNotActivatedQst: Label 'Data encryption is not activated. It is recommended that you encrypt data. \Do you want to open the Data Encryption Management window?';
 
+    [Obsolete('The functionality of Communication using Proxy server will be removed and this function should not be used. (Obsolete::Removed in release 01.2021')]
     local procedure UpdateEncryptedField(InputGUID: Guid; var Text: Text[50])
     begin
         if IsNullGuid(InputGUID) then
@@ -128,6 +144,7 @@ page 11761 "Electronically Govern. Setup"
             Text := '*************';
     end;
 
+    [Obsolete('The functionality of Communication using Proxy server will be removed and this function should not be used. (Obsolete::Removed in release 01.2021')]
     local procedure CheckEncryption()
     begin
         if not CheckedEncryption and not EncryptionEnabled then begin

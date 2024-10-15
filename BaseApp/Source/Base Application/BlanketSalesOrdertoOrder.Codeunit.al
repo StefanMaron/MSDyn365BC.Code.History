@@ -96,7 +96,7 @@ codeunit 87 "Blanket Sales Order to Order"
                         if SalesOrderLine.Quantity <> 0 then
                             SalesOrderLine.Validate("Inv. Discount Amount", BlanketOrderSalesLine."Inv. Discount Amount");
                         SalesLineReserve.TransferSaleLineToSalesLine(
-                          BlanketOrderSalesLine, SalesOrderLine, BlanketOrderSalesLine."Outstanding Qty. (Base)");
+                          BlanketOrderSalesLine, SalesOrderLine, BlanketOrderSalesLine."Qty. to Ship (Base)");
                     end;
 
                     if Cust."Prepayment %" <> 0 then
@@ -186,6 +186,7 @@ codeunit 87 "Blanket Sales Order to Order"
 
     local procedure CreateSalesHeader(SalesHeader: Record "Sales Header"; PrepmtPercent: Decimal) CreditLimitExceeded: Boolean
     var
+        [Obsolete('The functionality of No. Series Enhancements will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)')]
         NoSeriesLink: Record "No. Series Link";
     begin
         OnBeforeCreateSalesHeader(SalesHeader);

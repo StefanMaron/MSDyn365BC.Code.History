@@ -3,6 +3,8 @@ table 11785 "Posting Description"
     Caption = 'Posting Description';
     DrillDownPageID = "Posting Descriptions";
     LookupPageID = "Posting Descriptions";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'The functionality of posting description will be removed and this table should not be used. (Obsolete::Removed in release 01.2021)';
 
     fields
     {
@@ -63,6 +65,7 @@ table 11785 "Posting Description"
         PostDescParameter: Record "Posting Desc. Parameter";
 
     [Scope('OnPrem')]
+    [Obsolete('The functionality of posting description will be removed and this function should not be used. (Removed in release 01.2021)')]
     procedure ParsePostDescString(PostDescription: Record "Posting Description"; RecRef: RecordRef): Text[100]
     var
         "Field": Record "Field";
@@ -114,6 +117,7 @@ table 11785 "Posting Description"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('The functionality of posting description will be removed and this function should not be used. (Removed in release 01.2021)')]
     procedure GetSelectedOption(FldRef: FieldRef): Text[50]
     var
         SelectedOptionNo: Option;

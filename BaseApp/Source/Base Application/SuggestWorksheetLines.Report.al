@@ -610,11 +610,13 @@ report 840 "Suggest Worksheet Lines"
                         }
                         field("ConsiderSource[SourceType::""Sales Advance Letters""]"; ConsiderSource[SourceType::"Sales Advance Letters"])
                         {
+                            ApplicationArea = Basic, Suite;
                             Caption = 'Sales Advances';
                             ToolTip = 'Specifies if sales advances will be sugested';
                         }
                         field("ConsiderSource[SourceType::""Purchase Advance Letters""]"; ConsiderSource[SourceType::"Purchase Advance Letters"])
                         {
+                            ApplicationArea = Basic, Suite;
                             Caption = 'Purchase Advances';
                             ToolTip = 'Specifies if purchase advances will be sugested';
                         }

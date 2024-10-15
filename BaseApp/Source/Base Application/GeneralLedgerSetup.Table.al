@@ -667,6 +667,14 @@ table 98 "General Ledger Setup"
             OptionCaption = 'Amount Only,Debit/Credit Only,All Amounts';
             OptionMembers = "Amount Only","Debit/Credit Only","All Amounts";
         }
+        field(170; "SEPA Non-Euro Export"; Boolean)
+        {
+            Caption = 'SEPA Non-Euro Export';
+        }
+        field(171; "SEPA Export w/o Bank Acc. Data"; Boolean)
+        {
+            Caption = 'SEPA Export w/o Bank Acc. Data';
+        }
         field(11730; "Cash Desk Nos."; Code[20])
         {
             Caption = 'Cash Desk Nos.';
@@ -690,6 +698,8 @@ table 98 "General Ledger Setup"
         {
             Caption = 'Statement Templ. Name Coeff.';
             TableRelation = "VAT Statement Template";
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The functionality of Non-deductible VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
 
             trigger OnValidate()
             begin
@@ -701,6 +711,8 @@ table 98 "General Ledger Setup"
         {
             Caption = 'Statement Name Coeff.';
             TableRelation = "VAT Statement Name".Name WHERE("Statement Template Name" = FIELD("Statement Templ. Name Coeff."));
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The functionality of Non-deductible VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
 
             trigger OnValidate()
             begin
@@ -714,15 +726,21 @@ table 98 "General Ledger Setup"
             TableRelation = "VAT Statement Line"."Line No." WHERE("Statement Template Name" = FIELD("Statement Templ. Name Coeff."),
                                                                    "Statement Name" = FIELD("Statement Name Coeff."),
                                                                    "Line No." = FIELD("Statement Line No. Coeff."));
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The functionality of Non-deductible VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
         }
         field(11765; "Round VAT Coeff."; Boolean)
         {
             Caption = 'Round VAT Coeff.';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The functionality will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
         }
         field(11766; "VAT Coeff. Rounding Precision"; Decimal)
         {
             Caption = 'VAT Coeff. Rounding Precision';
             DecimalPlaces = 2 : 4;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The functionality will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
         }
         field(11768; "Allow VAT Posting From"; Date)
         {
@@ -751,11 +769,15 @@ table 98 "General Ledger Setup"
                 SalesSetup: Record "Sales & Receivables Setup";
                 ServiceSetup: Record "Service Mgt. Setup";
                 PurchSetup: Record "Purchases & Payables Setup";
+                ConfirmManagement: Codeunit "Confirm Management";
             begin
                 case "Use VAT Date" of
                     true:
-                        if Confirm(InitVATDateQst, true, FieldCaption("Use VAT Date"),
-                             GLEntry.FieldCaption("VAT Date"), GLEntry.FieldCaption("Posting Date"))
+                        if ConfirmManagement.GetResponseOrDefault(
+                            StrSubstNo(InitVATDateQst,
+                                FieldCaption("Use VAT Date"),
+                                GLEntry.FieldCaption("VAT Date"),
+                                GLEntry.FieldCaption("Posting Date")), true)
                         then
                             InitVATDate
                         else
@@ -766,7 +788,7 @@ table 98 "General Ledger Setup"
                             GLEntry.SetFilter("VAT Date", '>%1', 0D);
                             if GLEntry.FindFirst then
                                 Error(Text018, FieldCaption("Use VAT Date"));
-                            if Confirm(DisableVATDateQst, false) then begin
+                            if ConfirmManagement.GetResponseOrDefault(DisableVATDateQst, false) then begin
                                 "Allow VAT Posting From" := 0D;
                                 "Allow VAT Posting To" := 0D;
                                 if PurchSetup.Get then
@@ -788,6 +810,8 @@ table 98 "General Ledger Setup"
         field(11771; "Check VAT Identifier"; Boolean)
         {
             Caption = 'Check VAT Identifier';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The enhanced functionality of VAT Identifier will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
         }
         field(11772; "Check Posting Debit/Credit"; Boolean)
         {
@@ -833,6 +857,8 @@ table 98 "General Ledger Setup"
         field(11792; "Delete Card with Entries"; Boolean)
         {
             Caption = 'Delete Card with Entries';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The functionality of Disable Cards Deleting will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
         }
         field(11793; "Reg. No. Validation URL"; Text[250])
         {

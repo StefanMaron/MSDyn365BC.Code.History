@@ -144,10 +144,12 @@
                 }
                 field("VAT Date"; "VAT Date")
                 {
+                    ApplicationArea = PurchReturnOrder;
                     ToolTip = 'Specifies the VAT date. This date must be shown on the VAT statement.';
                 }
                 field("Original Document VAT Date"; "Original Document VAT Date")
                 {
+                    ApplicationArea = PurchReturnOrder;
                     ToolTip = 'Specifies the VAT date of the original document.';
                 }
                 field("No. of Archived Versions"; "No. of Archived Versions")
@@ -158,10 +160,15 @@
                 }
                 field("Posting Desc. Code"; "Posting Desc. Code")
                 {
+                    ApplicationArea = PurchReturnOrder;
                     ToolTip = 'Specifies the posting description code for the purchase header.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of posting description will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
                 }
                 field("Posting Description"; "Posting Description")
                 {
+                    ApplicationArea = PurchReturnOrder;
                     ToolTip = 'Specifies a description of the document. The posting description also appers on vendor and G/L entries.';
                 }
                 field("Order Date"; "Order Date")
@@ -185,6 +192,7 @@
                 }
                 field(Correction; Correction)
                 {
+                    ApplicationArea = PurchReturnOrder;
                     ToolTip = 'Specifies the entry as a corrective entry. You can use the field if you need to post a corrective entry to a vendor account.';
                 }
                 field("Purchaser Code"; "Purchaser Code")
@@ -267,12 +275,14 @@
                 }
                 field(IsIntrastatTransaction; IsIntrastatTransaction)
                 {
+                    ApplicationArea = PurchReturnOrder;
                     Caption = 'Intrastat Transaction';
                     Editable = false;
                     ToolTip = 'Specifies if the entry an Intrastat transaction is.';
                 }
                 field("EU 3-Party Trade"; "EU 3-Party Trade")
                 {
+                    ApplicationArea = PurchReturnOrder;
                     ToolTip = 'Specifies whether the document is part of a three-party trade.';
                 }
                 field("Expected Receipt Date"; "Expected Receipt Date")
@@ -283,6 +293,7 @@
                 }
                 field("Shipment Method Code"; "Shipment Method Code")
                 {
+                    ApplicationArea = PurchReturnOrder;
                     ToolTip = 'Specifies the code that represents the shipment method for this purchase.';
                 }
                 field("Prices Including VAT"; "Prices Including VAT")
@@ -302,6 +313,7 @@
                 }
                 field("Vendor Posting Group"; "Vendor Posting Group")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the vendor''s market type to link business transactions made for the vendor with the appropriate account in the general ledger.';
                 }
                 field("Payment Terms Code"; "Payment Terms Code")
@@ -485,6 +497,7 @@
                 }
                 field("Physical Transfer"; "Physical Transfer")
                 {
+                    ApplicationArea = PurchReturnOrder;
                     ToolTip = 'Specifies if there is physical transfer of the item.';
                 }
                 group("Pay-to")
@@ -620,42 +633,58 @@
                 }
                 field("EU 3-Party Intermediate Role"; "EU 3-Party Intermediate Role")
                 {
+                    ApplicationArea = BasicEU;
                     ToolTip = 'Specifies when the sales haeder will use European Union third-party intermediate trade rules. This option complies with VAT accounting standards for EU third-party trade.';
                 }
                 field("Intrastat Exclude"; "Intrastat Exclude")
                 {
+                    ApplicationArea = BasicEU;
                     ToolTip = 'Specifies that entry will be excluded from intrastat.';
                 }
                 field("VAT Registration No."; "VAT Registration No.")
                 {
+                    ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the VAT registration number. The field will be used when you do business with partners from EU countries/regions.';
                 }
                 field("Registration No."; "Registration No.")
                 {
+                    ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the registration number of vendor.';
                 }
                 field("Tax Registration No."; "Tax Registration No.")
                 {
+                    ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the secondary VAT registration number for the vendor.';
                 }
                 field("Industry Code"; "Industry Code")
                 {
+                    ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the industry code for the vendor record.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of Industry Classification will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
                 }
                 field("Language Code"; "Language Code")
                 {
+                    ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the language to be used on printouts for this document.';
                 }
                 field("Perform. Country/Region Code"; "Perform. Country/Region Code")
                 {
+                    ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the country/region code. It is mandatory field by creating documents with VAT registration number for other countries.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
                 }
                 field("VAT Country/Region Code"; "VAT Country/Region Code")
                 {
+                    ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the VAT country/region code of vendor.';
                 }
                 field(VATCurrencyCode; "Currency Code")
                 {
+                    ApplicationArea = BasicEU;
                     Caption = 'VAT Currency Code';
                     Editable = false;
                     ToolTip = 'Specifies vat currency code of purchase return order';
@@ -688,34 +717,42 @@
                 Caption = 'Payments';
                 field("Bank Account Code"; "Bank Account Code")
                 {
+                    ApplicationArea = PurchReturnOrder;
                     ToolTip = 'Specifies the bank account code of the company.';
                 }
                 field("Bank Account No."; "Bank Account No.")
                 {
+                    ApplicationArea = PurchReturnOrder;
                     ToolTip = 'Specifies the number used by the bank for the bank account.';
                 }
                 field("Transit No."; "Transit No.")
                 {
+                    ApplicationArea = PurchReturnOrder;
                     ToolTip = 'Specifies a bank identification number of your own choice.';
                 }
                 field("SWIFT Code"; "SWIFT Code")
                 {
+                    ApplicationArea = PurchReturnOrder;
                     ToolTip = 'Specifies the international bank identifier code (SWIFT) of the bank where you have the account.';
                 }
                 field(IBAN; IBAN)
                 {
+                    ApplicationArea = PurchReturnOrder;
                     ToolTip = 'Specifies the bank account''s international bank account number.';
                 }
                 field("Specific Symbol"; "Specific Symbol")
                 {
+                    ApplicationArea = PurchReturnOrder;
                     ToolTip = 'Specifies the additional symbol of bank payments.';
                 }
                 field("Variable Symbol"; "Variable Symbol")
                 {
+                    ApplicationArea = PurchReturnOrder;
                     ToolTip = 'Specifies the detail information for payment.';
                 }
                 field("Constant Symbol"; "Constant Symbol")
                 {
+                    ApplicationArea = PurchReturnOrder;
                     ToolTip = 'Specifies the additional symbol of bank payments.';
                 }
             }

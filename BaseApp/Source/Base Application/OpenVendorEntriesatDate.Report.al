@@ -561,6 +561,7 @@ report 11779 "Open Vendor Entries at Date"
                     }
                     field(VendPerPage; VendPerPage)
                     {
+                        ApplicationArea = Basic, Suite;
                         Caption = 'Vendor Per Page';
                         ToolTip = 'Specifies if vendor will be per page on the report';
                         Visible = false;

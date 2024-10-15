@@ -384,7 +384,7 @@ report 5753 "Get Source Documents"
             begin
                 WhseHeaderCreated := false;
                 OnBeforeWarehouseRequestOnAfterGetRecord(
-                  "Warehouse Request", WhseHeaderCreated, SkipRecord, BreakReport, RequestType, WhseReceiptHeader, WhseShptHeader);
+                  "Warehouse Request", WhseHeaderCreated, SkipRecord, BreakReport, RequestType, WhseReceiptHeader, WhseShptHeader, OneHeaderCreated);
                 if BreakReport then
                     CurrReport.Break;
                 if SkipRecord then
@@ -570,6 +570,7 @@ report 5753 "Get Source Documents"
 
     local procedure CreateShptHeader(NoSeries: Code[20])
     var
+        [Obsolete('The functionality of No. Series Enhancements will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)')]
         NoSeriesLink: Record "No. Series Link";
         IsHandled: Boolean;
     begin
@@ -601,6 +602,7 @@ report 5753 "Get Source Documents"
 
     local procedure CreateReceiptHeader(NoSeries: Code[20])
     var
+        [Obsolete('The functionality of No. Series Enhancements will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)')]
         NoSeriesLink: Record "No. Series Link";
         IsHandled: Boolean;
     begin
@@ -816,7 +818,7 @@ report 5753 "Get Source Documents"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeWarehouseRequestOnAfterGetRecord(var WarehouseRequest: Record "Warehouse Request"; var WhseHeaderCreated: Boolean; var SkipRecord: Boolean; var BreakReport: Boolean; RequestType: Option Receive,Ship; var WhseReceiptHeader: Record "Warehouse Receipt Header"; var WhseShptHeader: Record "Warehouse Shipment Header")
+    local procedure OnBeforeWarehouseRequestOnAfterGetRecord(var WarehouseRequest: Record "Warehouse Request"; var WhseHeaderCreated: Boolean; var SkipRecord: Boolean; var BreakReport: Boolean; RequestType: Option Receive,Ship; var WhseReceiptHeader: Record "Warehouse Receipt Header"; var WhseShptHeader: Record "Warehouse Shipment Header"; OneHeaderCreated: Boolean)
     begin
     end;
 

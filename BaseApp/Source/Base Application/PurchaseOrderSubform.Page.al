@@ -378,11 +378,13 @@
                 }
                 field("Country/Region of Origin Code"; "Country/Region of Origin Code")
                 {
+                    ApplicationArea = Suite;
                     ToolTip = 'Specifies the origin country/region code.';
                     Visible = false;
                 }
                 field("Net Weight"; "Net Weight")
                 {
+                    ApplicationArea = Suite;
                     ToolTip = 'Specifies the net weight of the item.';
                     Visible = false;
                 }
@@ -465,12 +467,22 @@
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the number of the related job. If you fill in this field and the Job Task No. field, then a job ledger entry will be posted together with the purchase line.';
                     Visible = false;
+
+                    trigger OnValidate()
+                    begin
+                        ShowShortcutDimCode(ShortcutDimCode);
+                    end;
                 }
                 field("Job Task No."; "Job Task No.")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the number of the related job task.';
                     Visible = false;
+
+                    trigger OnValidate()
+                    begin
+                        ShowShortcutDimCode(ShortcutDimCode);
+                    end;
                 }
                 field("Job Planning Line No."; "Job Planning Line No.")
                 {
@@ -761,6 +773,7 @@
                 }
                 field("Maintenance Code"; "Maintenance Code")
                 {
+                    ApplicationArea = Suite;
                     ToolTip = 'Specifies a maintenance code.';
                     Visible = false;
                 }
@@ -1402,6 +1415,8 @@
            (xRec."No." <> '')
         then
             CurrPage.SaveRecord;
+
+        OnAfterNoOnAfterValidate(Rec, xRec);
     end;
 
     local procedure CrossReferenceNoOnAfterValidat()
@@ -1442,11 +1457,8 @@
     procedure DeltaUpdateTotals()
     begin
         DocumentTotals.PurchaseDeltaUpdateTotals(Rec, xRec, TotalPurchaseLine, VATAmount, InvoiceDiscountAmount, InvoiceDiscountPct);
-        if "Line Amount" <> xRec."Line Amount" then begin
-            CurrPage.SaveRecord;
+        if "Line Amount" <> xRec."Line Amount" then
             SendLineInvoiceDiscountResetNotification;
-            CurrPage.Update(false);
-        end;
     end;
 
     procedure UpdateEditableOnRow()
@@ -1508,6 +1520,11 @@
             if ApplicationAreaMgmtFacade.IsFoundationEnabled then
                 if xRec."Document No." = '' then
                     Type := Type::Item;
+    end;
+
+    [IntegrationEvent(TRUE, false)]
+    local procedure OnAfterNoOnAfterValidate(var PurchaseLine: Record "Purchase Line"; var xPurchaseLine: Record "Purchase Line")
+    begin
     end;
 
     [IntegrationEvent(false, false)]

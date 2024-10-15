@@ -1,6 +1,8 @@
 table 11763 "Registr. Country/Region Route"
 {
     Caption = 'Registr. Country/Region Route';
+    ObsoleteState = Pending;
+    ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this table should not be used. (Obsolete::Removed in release 01.2021)';
 
     fields
     {

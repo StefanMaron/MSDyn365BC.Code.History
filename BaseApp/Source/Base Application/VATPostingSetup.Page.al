@@ -90,8 +90,11 @@ page 472 "VAT Posting Setup"
                 }
                 field("Sales VAT Postponed Account"; "Sales VAT Postponed Account")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the sales VAT postponed account for VAT posting setup.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of Postponing VAT on Sales Cr.Memo will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
                 }
                 field("Purchase VAT Account"; "Purchase VAT Account")
                 {
@@ -153,11 +156,13 @@ page 472 "VAT Posting Setup"
                 }
                 field("VIES Purchases"; "VIES Purchases")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies this option to include the posting group in VAT purchase declarations.';
                     Visible = false;
                 }
                 field("VIES Sales"; "VIES Sales")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies this option to include the posting group in VAT sales declarations.';
                     Visible = false;
                 }
@@ -173,21 +178,25 @@ page 472 "VAT Posting Setup"
                 }
                 field("Reverse Charge Check"; "Reverse Charge Check")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if and how reverse charge will be checked depending on Commodity Limit Amount';
                     Visible = false;
                 }
                 field("Non Deduct. VAT Corr. Account"; "Non Deduct. VAT Corr. Account")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the G/L account for correction non deductible VAT entries.';
                     Visible = false;
                 }
                 field("Purchase VAT Delay Account"; "Purchase VAT Delay Account")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the auxiliary account which will be used for posting date and VAT date by posting the different exchange rate.';
                     Visible = false;
                 }
                 field("Sales VAT Delay Account"; "Sales VAT Delay Account")
                 {
+                    ApplicationArea = VAT;
                     ToolTip = 'Specifies the auxiliary account which will be used for posting date and VAT date by posting the different exchange rate.';
                     Visible = false;
                 }
@@ -203,6 +212,7 @@ page 472 "VAT Posting Setup"
                 }
                 field("Ratio Coefficient"; "Ratio Coefficient")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies ratio coefficient';
                 }
             }

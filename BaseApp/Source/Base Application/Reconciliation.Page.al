@@ -18,6 +18,8 @@ page 345 Reconciliation
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the type of vat control report lines';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of GL Journal reconciliation by type will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
                 }
                 field("No."; "No.")
                 {
@@ -87,6 +89,7 @@ page 345 Reconciliation
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('The functionality of GL Journal reconciliation by type will be removed and this function should not be used. (Removed in release 01.2021)')]
     procedure SetBankAccReconLine(var NewBankAccReconLn: Record "Bank Acc. Reconciliation Line")
     begin
         // NAVCZ
@@ -116,6 +119,8 @@ page 345 Reconciliation
         Employee: Record Employee;
         Value: Decimal;
     begin
+        OnBeforeSaveNetChange(Rec, GenJnlLine, AccType, AccNo, NetChange);
+
         if AccNo = '' then
             exit;
         // NAVCZ
@@ -209,6 +214,7 @@ page 345 Reconciliation
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('This function is not used anywhere. (Removed in release 01.2021)')]
     procedure SwapGenJnlLine(var SrcGenJnlLine: Record "Gen. Journal Line"; var NewGenJnlLine: Record "Gen. Journal Line")
     begin
         // NAVCZ
@@ -233,6 +239,11 @@ page 345 Reconciliation
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGLAccountNetChange(var GLAccountNetChange: Record "G/L Account Net Change")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSaveNetChange(var GLAccountNetChange: Record "G/L Account Net Change"; GenJnlLine: Record "Gen. Journal Line"; AccType: Integer; AccNo: Code[20]; var NetChange: Decimal)
     begin
     end;
 }

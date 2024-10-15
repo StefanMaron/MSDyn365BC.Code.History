@@ -98,6 +98,7 @@
                 }
                 field("Posting Description"; "Posting Description")
                 {
+                    ApplicationArea = PurchReturnOrder;
                     Editable = false;
                     ToolTip = 'Specifies a description of the document. The posting description also appers on customer and G/L entries.';
                 }
@@ -148,6 +149,7 @@
                 }
                 field(Correction; Correction)
                 {
+                    ApplicationArea = PurchReturnOrder;
                     Editable = false;
                     ToolTip = 'Specifies the entry as a corrective entry.';
                 }
@@ -270,11 +272,13 @@
                 }
                 field("VAT Bus. Posting Group"; "VAT Bus. Posting Group")
                 {
+                    ApplicationArea = PurchReturnOrder;
                     Editable = false;
                     ToolTip = 'Specifies a VAT business posting group code.';
                 }
                 field("Vendor Posting Group"; "Vendor Posting Group")
                 {
+                    ApplicationArea = PurchReturnOrder;
                     Editable = false;
                     ToolTip = 'Specifies the vendor''s market type to link business transactions made for the vendor with the appropriate account in the general ledger.';
                 }
@@ -375,61 +379,76 @@
                 }
                 field("EU 3-Party Trade"; "EU 3-Party Trade")
                 {
+                    ApplicationArea = PurchReturnOrder;
                     Editable = false;
                     ToolTip = 'Specifies whether the document is part of a three-party trade.';
                 }
                 field("Transaction Type"; "Transaction Type")
                 {
+                    ApplicationArea = PurchReturnOrder;
                     Editable = false;
                     ToolTip = 'Specifies the transaction type for the partner record. This information is used for Intrastat reporting.';
                 }
                 field("Transaction Specification"; "Transaction Specification")
                 {
+                    ApplicationArea = PurchReturnOrder;
                     Editable = false;
                     ToolTip = 'Specifies a code for the transaction specification, for the purpose of reporting to INTRASTAT.';
                 }
                 field("Transport Method"; "Transport Method")
                 {
+                    ApplicationArea = PurchReturnOrder;
                     Editable = false;
                     ToolTip = 'Specifies the transport method, for the purpose of reporting to INTRASTAT.';
                 }
                 field("Entry Point"; "Entry Point")
                 {
+                    ApplicationArea = PurchReturnOrder;
                     Editable = false;
                     ToolTip = 'Specifies the code of the port of entry where the items pass into your country/region.';
                 }
                 field("Area"; Area)
                 {
+                    ApplicationArea = PurchReturnOrder;
                     Editable = false;
                     ToolTip = 'Specifies the area code used in the return shipment.';
                 }
                 field("VAT Registration No."; "VAT Registration No.")
                 {
+                    ApplicationArea = PurchReturnOrder;
                     Editable = false;
                     ToolTip = 'Specifies the VAT registration number. The field will be used when you do business with partners from EU countries/regions.';
                 }
                 field("Registration No."; "Registration No.")
                 {
+                    ApplicationArea = PurchReturnOrder;
                     Editable = false;
                     ToolTip = 'Specifies the registration number of customer.';
                 }
                 field("Tax Registration No."; "Tax Registration No.")
                 {
+                    ApplicationArea = PurchReturnOrder;
                     Editable = false;
                     ToolTip = 'Specifies the secondary VAT registration number for the partner.';
                 }
                 field("Industry Code"; "Industry Code")
                 {
+                    ApplicationArea = PurchReturnOrder;
                     Editable = false;
                     ToolTip = 'Specifies the industry code for the vendor record.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of Industry Classification will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
                 }
                 field("Language Code"; "Language Code")
                 {
+                    ApplicationArea = PurchReturnOrder;
                     Editable = false;
                     ToolTip = 'Specifies the language to be used on printouts for this document.';
                 }
                 field("VAT Country/Region Code"; "VAT Country/Region Code")
                 {
+                    ApplicationArea = PurchReturnOrder;
                     Editable = false;
                     ToolTip = 'Specifies the VAT country/region code of vendor.';
                 }
@@ -574,6 +593,7 @@
                 trigger OnAction()
                 begin
                     ReturnShptHeader := Rec;
+                    OnBeforePrintRecords(Rec, ReturnShptHeader);
                     CurrPage.SetSelectionFilter(ReturnShptHeader);
                     ReturnShptHeader.PrintRecords(true);
                 end;
@@ -635,6 +655,11 @@
         IsBuyFromCountyVisible := FormatAddress.UseCounty("Buy-from Country/Region Code");
         IsPayFromCountyVisible := FormatAddress.UseCounty("Pay-to Country/Region Code");
         IsShipToCountyVisible := FormatAddress.UseCounty("Ship-to Country/Region Code");
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePrintRecords(var ReturnShipmentHeaderRec: Record "Return Shipment Header"; var ReturnShipmentHeaderToPrint: Record "Return Shipment Header")
+    begin
     end;
 }
 

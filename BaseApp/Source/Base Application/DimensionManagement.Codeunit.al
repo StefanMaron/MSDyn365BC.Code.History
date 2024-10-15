@@ -566,6 +566,8 @@ codeunit 408 DimensionManagement
                         until DefaultDim.Next = 0;
                 end;
             end;
+
+        OnAfterCheckDimValuePosting(TableID, No, TempDefaultDim);
     end;
 
     local procedure GetMissedMandatoryDimErr(DefaultDim: Record "Default Dimension"): Text
@@ -1148,6 +1150,7 @@ codeunit 408 DimensionManagement
         FillNormalFieldBuffer(TempDimField);
         TempDimSetIDField.SetRange(RelationTableNo, DATABASE::"Dimension Set Entry");
         FillNormalFieldBuffer(TempDimSetIDField);
+        OnBeforeSetupObjectNoList(TempDimField);
         if TempDimField.FindSet then
             repeat
                 TempDimSetIDField.SetRange(TableNo, TempDimField.TableNo);
@@ -2487,6 +2490,11 @@ codeunit 408 DimensionManagement
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCheckDimValuePosting(TableID: array[10] of Integer; No: array[10] of Code[20]; var TempDefaultDim: Record "Default Dimension" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterConvertDimtoICDim(FromDim: Code[20]; var ICDimCode: Code[20])
     begin
     end;
@@ -2588,6 +2596,11 @@ codeunit 408 DimensionManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSaveDefaultDim(TableID: Integer; No: Code[20]; FieldNumber: Integer; ShortcutDimCode: Code[20]; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetupObjectNoList(var TempDimField: Record Field temporary)
     begin
     end;
 

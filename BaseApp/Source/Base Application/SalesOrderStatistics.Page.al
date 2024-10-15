@@ -560,7 +560,7 @@ page 402 "Sales Order Statistics"
                     trigger OnValidate()
                     begin
                         ActiveTab := ActiveTab::Prepayment;
-                        UpdatePrepmtAmount;
+                        UpdatePrepmtAmount();
                     end;
                 }
                 field(PrepmtVATAmount; PrepmtVATAmount)
@@ -580,6 +580,12 @@ page 402 "Sales Order Statistics"
                     AutoFormatType = 1;
                     CaptionClass = GetCaptionClass(Text006, true);
                     Editable = false;
+
+                    trigger OnValidate()
+                    begin
+                        OnBeforeValidatePrepmtTotalAmount2(Rec, PrepmtTotalAmount, PrepmtTotalAmount2);
+                        UpdatePrepmtAmount();
+                    end;
                 }
                 field(PrepmtAmtRequested; PrepmtAmtRequested)
                 {
@@ -879,6 +885,26 @@ page 402 "Sales Order Statistics"
         Clear(SalesLine);
         Clear(TotalSalesLine);
         Clear(TotalSalesLineLCY);
+        Clear(TotalAmount1);
+        Clear(TotalAmount2);
+        Clear(VATAmount);
+        Clear(ProfitLCY);
+        Clear(ProfitPct);
+        Clear(AdjProfitLCY);
+        Clear(AdjProfitPct);
+        Clear(TotalAdjCostLCY);
+        Clear(TempVATAmountLine1);
+        Clear(TempVATAmountLine2);
+        Clear(TempVATAmountLine3);
+        Clear(TempVATAmountLine4);
+        Clear(PrepmtTotalAmount);
+        Clear(PrepmtVATAmount);
+        Clear(PrepmtTotalAmount2);
+        Clear(VATAmountText);
+        Clear(PrepmtVATAmountText);
+        Clear(CreditLimitLCYExpendedPct);
+        Clear(PrepmtInvPct);
+        Clear(PrepmtDeductedPct);
         // NAVCZ
         TempVATAmountLinePrep.Reset;
         TempVATAmountLinePrep.DeleteAll;
@@ -890,11 +916,12 @@ page 402 "Sales Order Statistics"
         Clear(TempTotVATAmountLineTot);
         // NAVCZ
 
+        // 1 to 3, so that it does calculations for all 3 tabs, General,Invoicing,Shipping
         for i := 1 to 3 do begin
             TempSalesLine.DeleteAll;
             Clear(TempSalesLine);
             Clear(SalesPost);
-            SalesPost.GetSalesLines(Rec, TempSalesLine, i - 1);
+            SalesPost.GetSalesLines(Rec, TempSalesLine, i - 1, false);
             Clear(SalesPost);
             case i of
                 1:
@@ -907,7 +934,7 @@ page 402 "Sales Order Statistics"
 
             SalesPost.SumSalesLinesTemp(
               Rec, TempSalesLine, i - 1, TotalSalesLine[i], TotalSalesLineLCY[i],
-              VATAmount[i], VATAmountText[i], ProfitLCY[i], ProfitPct[i], TotalAdjCostLCY[i]);
+              VATAmount[i], VATAmountText[i], ProfitLCY[i], ProfitPct[i], TotalAdjCostLCY[i], false);
 
             if i = 3 then
                 TotalAdjCostLCY[i] := TotalSalesLineLCY[i]."Unit Cost (LCY)";
@@ -925,6 +952,9 @@ page 402 "Sales Order Statistics"
                 TotalAmount2[i] := TotalSalesLine[i]."Amount Including VAT";
             end;
         end;
+
+        OnAfterCalculateTotalAmounts();
+
         TempSalesLine.DeleteAll;
         Clear(TempSalesLine);
         if "Prepayment Type" = "Prepayment Type"::Prepayment then begin // NAVCZ
@@ -1078,6 +1108,8 @@ page 402 "Sales Order Statistics"
             AdjProfitPct[IndexNo] := 0
         else
             AdjProfitPct[IndexNo] := Round(100 * AdjProfitLCY[IndexNo] / TotalSalesLineLCY[IndexNo].Amount, 0.01);
+
+        OnAfterUpdateHeaderInfo();
     end;
 
     local procedure GetVATSpecification(QtyType: Option General,Invoicing,Shipping)
@@ -1407,6 +1439,21 @@ page 402 "Sales Order Statistics"
 
     [IntegrationEvent(false, false)]
     local procedure OnOpenPageOnBeforeSetEditable(var AllowInvDisc: Boolean; var AllowVATDifference: Boolean; SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterCalculateTotalAmounts()
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterUpdateHeaderInfo()
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidatePrepmtTotalAmount2(SalesHeader: Record "Sales Header"; var PrepmtTotalAmount: Decimal; var PrepmtTotalAmount2: Decimal)
     begin
     end;
 }

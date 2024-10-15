@@ -200,6 +200,12 @@ table 370 "Excel Buffer"
         EndXmlTokenTxt: Label '</xml>', Locked = true;
         ErrorMessage: Text;
         CellNotFoundErr: Label 'Cell %1 not found.', Comment='%1 - cell name';
+        ReadDateTimeInUtcDate: Boolean;
+
+    procedure SetReadDateTimeInUtcDate(NewValue: Boolean)
+    begin
+        ReadDateTimeInUtcDate := NewValue;
+    end;
 
     [Scope('OnPrem')]
     procedure CopySheet(SheetName: Text;ClonedSheetName: Text;ReferenceSheetName: Text;PasteBefore: Boolean)
@@ -1176,12 +1182,15 @@ table 370 "Excel Buffer"
     procedure ConvertDateTimeDecimalToDateTime(DateTimeAsOADate: Decimal): DateTime
     var
         DotNetDateTime: DotNet DateTime;
-        DotNetDateTimeWithKind: DotNet DateTime;
+        DateTimeResult: DateTime;
         DotNetDateTimeKind: DotNet DateTimeKind;
     begin
         DotNetDateTime := DotNetDateTime.FromOADate(DateTimeAsOADate);
-        DotNetDateTimeWithKind := DotNetDateTime.DateTime(DotNetDateTime.Ticks, DotNetDateTimeKind.Local);
-        exit(DotNetDateTimeWithKind);
+        if ReadDateTimeInUtcDate then
+            DateTimeResult := CreateDateTime(DMY2Date(DotNetDateTime.Day, DotNetDateTime.Month, DotNetDateTime.Year), 0T)
+        else
+            DateTimeResult := DotNetDateTime.DateTime(DotNetDateTime.Ticks, DotNetDateTimeKind.Local);
+        exit(DateTimeResult);
     end;
 
     local procedure GetCustomCellDecorator(IsBold: Boolean; IsItalic: Boolean; IsUnderlined: Boolean; IsDoubleUnderlined: Boolean; FontColor: Integer; ForegroundColor: Integer; FontName: Text[80]; var Decorator: DotNet CellDecorator)

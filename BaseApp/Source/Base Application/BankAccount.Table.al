@@ -16,7 +16,7 @@ table 270 "Bank Account"
             begin
                 if "No." <> xRec."No." then begin
                     GLSetup.Get;
-                    NoSeriesMgt.TestManual(GetAccountNos); // NAVCZ
+                    NoSeriesMgt.TestManual(GetNoSeriesCode()); // NAVCZ
                     "No. Series" := '';
                 end;
             end;
@@ -1014,8 +1014,12 @@ table 270 "Bank Account"
 
     trigger OnInsert()
     begin
-        if "No." = '' then
-            NoSeriesMgt.InitSeries(GetAccountNos, xRec."No. Series", 0D, "No.", "No. Series"); // NAVCZ
+        if "No." = '' then begin
+            // NAVCZ
+            TestNoSeries();
+            NoSeriesMgt.InitSeries(GetNoSeriesCode(), xRec."No. Series", 0D, "No.", "No. Series"); 
+            // NAVCZ
+        end;
 
         if "Account Type" <> "Account Type"::"Cash Desk" then // NAVCZ
             if not InsertFromContact then
@@ -1083,7 +1087,8 @@ table 270 "Bank Account"
     begin
         with BankAcc do begin
             BankAcc := Rec;
-            if NoSeriesMgt.SelectSeries(GetAccountNos, OldBankAcc."No. Series", "No. Series") then begin // NAVCZ
+            TestNoSeries(); // NAVCZ
+            if NoSeriesMgt.SelectSeries(GetNoSeriesCode(), OldBankAcc."No. Series", "No. Series") then begin // NAVCZ
                 NoSeriesMgt.SetSeries("No.");
                 Rec := BankAcc;
                 exit(true);
@@ -1100,7 +1105,7 @@ table 270 "Bank Account"
             DimMgt.SaveDefaultDim(DATABASE::"Bank Account", "No.", FieldNumber, ShortcutDimCode);
             Modify;
         end;
-	
+
         OnAfterValidateShortcutDimCode(Rec, xRec, FieldNumber, ShortcutDimCode);
     end;
 
@@ -1241,6 +1246,18 @@ table 270 "Bank Account"
         DataExchDef.TestField(Type, DataExchDef.Type::"Payment Export");
     end;
 
+    procedure GetDataExchDefForeignPaymentExport(var DataExchDef: Record "Data Exch. Def")
+    var
+        BankExportImportSetup: Record "Bank Export/Import Setup";
+    begin
+        // NAVCZ
+        TestField("Foreign Payment Export Format");
+        BankExportImportSetup.Get("Foreign Payment Export Format");
+        BankExportImportSetup.TestField("Data Exch. Def. Code");
+        DataExchDef.Get(BankExportImportSetup."Data Exch. Def. Code");
+        DataExchDef.TestField(Type, DataExchDef.Type::"Payment Export");
+    end;
+
     [Scope('OnPrem')]
     procedure TestZeroBalance()
     begin
@@ -1261,21 +1278,35 @@ table 270 "Bank Account"
     end;
 
     [Scope('OnPrem')]
-    procedure GetAccountNos(): Code[10]
+    [Obsolete('Replaced by functions TestNoSeries and GetNoSeriesCode')]
+    procedure GetAccountNos(): Code[20]
+    begin
+        // NAVCZ
+        TestNoSeries();
+        exit(GetNoSeriesCode());
+    end;
+
+    procedure TestNoSeries()
     begin
         // NAVCZ
         GLSetup.Get;
         case "Account Type" of
             "Account Type"::"Bank Account":
-                begin
-                    GLSetup.TestField("Bank Account Nos.");
-                    exit(GLSetup."Bank Account Nos.");
-                end;
+                GLSetup.TestField("Bank Account Nos.");
             "Account Type"::"Cash Desk":
-                begin
-                    GLSetup.TestField("Cash Desk Nos.");
-                    exit(GLSetup."Cash Desk Nos.");
-                end;
+                GLSetup.TestField("Cash Desk Nos.");
+        end;
+    end;
+
+    procedure GetNoSeriesCode(): Code[20]
+    begin
+        // NAVCZ
+        GLSetup.Get;
+        case "Account Type" of
+            "Account Type"::"Bank Account":
+                exit(GLSetup."Bank Account Nos.");
+            "Account Type"::"Cash Desk":
+                exit(GLSetup."Cash Desk Nos.");
         end;
     end;
 

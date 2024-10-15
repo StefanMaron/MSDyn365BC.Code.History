@@ -275,6 +275,8 @@ table 5625 "Maintenance Ledger Entry"
         {
             Caption = 'Item Ledger Entry No.';
             TableRelation = "Item Ledger Entry";
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The functionality of Item consumption for FA maintenance will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
         }
     }
 
@@ -315,6 +317,8 @@ table 5625 "Maintenance Ledger Entry"
         key(Key10; "Item Ledger Entry No.")
         {
             SumIndexFields = Amount;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The functionality of Item consumption for FA maintenance will be removed and this key should not be used. (Obsolete::Removed in release 01.2021)';
         }
     }
 

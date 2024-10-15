@@ -452,6 +452,8 @@ table 5606 "FA Posting Group"
         field(31042; "Use Standard Disposal"; Boolean)
         {
             Caption = 'Use Standard Disposal';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The functionality of Disposal Posting was changed and this field should not be used. This field is replaced by a UseStandardDisposal function. (Obsolete::Removed in release 01.2021)';
         }
     }
 
@@ -698,6 +700,15 @@ table 5606 "FA Posting Group"
     begin
         TestField("Write-Down Expense Acc.");
         exit("Write-Down Expense Acc.");
+    end;
+
+    procedure UseStandardDisposal(): Boolean
+    var
+        FAExtendedPostingGroup: Record "FA Extended Posting Group";
+    begin
+        // NAVCZ
+        FAExtendedPostingGroup.SetRange("FA Posting Group Code", Code);
+        exit(FAExtendedPostingGroup.IsEmpty);
     end;
 }
 

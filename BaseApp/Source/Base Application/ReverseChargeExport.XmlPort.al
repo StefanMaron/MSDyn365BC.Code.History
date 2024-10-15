@@ -3,6 +3,8 @@ xmlport 11763 "Reverse Charge Export"
     Caption = 'Reverse Charge Export';
     Direction = Export;
     Encoding = UTF8;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'The functionality of Reverse Charge Statement will be removed and this xmlport should not be used. (Obsolete::Removed in release 01.2021)';
 
     schema
     {
@@ -355,11 +357,13 @@ xmlport 11763 "Reverse Charge Export"
                     Caption = 'Attachments';
                     field(AttachType; AttachType)
                     {
+                        ApplicationArea = Basic, Suite;
                         Caption = 'Type';
                         OptionCaption = ' ,Default,Supplementary';
                     }
                     field(TextAttach; TextAttach)
                     {
+                        ApplicationArea = Basic, Suite;
                         Caption = 'Text';
                         Editable = EditableTextAttachments;
                         MultiLine = true;

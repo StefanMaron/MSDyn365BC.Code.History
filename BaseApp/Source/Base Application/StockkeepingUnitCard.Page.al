@@ -1,4 +1,4 @@
-﻿page 5700 "Stockkeeping Unit Card"
+page 5700 "Stockkeeping Unit Card"
 {
     Caption = 'Stockkeeping Unit Card';
     PageType = Card;
@@ -100,6 +100,11 @@
                 {
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies how many item units are allocated as assembly components, which is how many units are on outstanding assembly order lines.';
+                }
+                field("Gen. Prod. Posting Group"; "Gen. Prod. Posting Group")
+                {
+                    ApplicationArea = Planning;
+                    ToolTip = 'Specifies the item''s product type to link transactions made for this item with the appropriate general ledger account according to the general posting setup.';
                 }
             }
             group(Invoicing)
@@ -809,8 +814,8 @@
 
     trigger OnAfterGetRecord()
     begin
-        InvtSetup.Get;
-        Item.Reset;
+        InvtSetup.Get();
+        Item.Reset();
         if Item.Get("Item No.") then begin
             if InvtSetup."Average Cost Calc. Type" = InvtSetup."Average Cost Calc. Type"::"Item & Location & Variant" then begin
                 Item.SetRange("Location Filter", "Location Code");

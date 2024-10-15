@@ -69,11 +69,13 @@ page 11732 "Cash Document List"
                 }
                 field("Received From"; "Received From")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies who recieved amount.';
                     Visible = false;
                 }
                 field("Paid To"; "Paid To")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whom is paid.';
                     Visible = false;
                 }

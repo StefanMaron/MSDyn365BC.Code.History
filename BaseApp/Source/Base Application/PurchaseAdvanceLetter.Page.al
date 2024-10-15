@@ -128,6 +128,7 @@ page 31020 "Purchase Advance Letter"
                 }
                 field("Amount Including VAT"; "Amount Including VAT")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether the unit price on the line should be displayed including or excluding VAT.';
                     Visible = false;
                 }
@@ -208,6 +209,9 @@ page 31020 "Purchase Advance Letter"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the country/region code. It is mandatory field by creating documents with VAT registration number for other countries.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
                 }
                 field("VAT Country/Region Code"; "VAT Country/Region Code")
                 {
@@ -331,11 +335,13 @@ page 31020 "Purchase Advance Letter"
             }
             part(Control1220094; "Vendor Details FactBox")
             {
+                ApplicationArea = Basic, Suite;
                 SubPageLink = "No." = FIELD("Pay-to Vendor No.");
                 Visible = false;
             }
             part(Control1220093; "Vendor Statistics FactBox")
             {
+                ApplicationArea = Basic, Suite;
                 SubPageLink = "No." = FIELD("Pay-to Vendor No.");
             }
         }
@@ -375,6 +381,7 @@ page 31020 "Purchase Advance Letter"
                 }
                 action("Co&mments")
                 {
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Co&mments';
                     Image = ViewComments;
                     RunObject = Page "Purch. Comment Sheet";

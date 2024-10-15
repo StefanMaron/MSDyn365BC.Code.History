@@ -20,6 +20,7 @@ page 11712 "Issued Bank Statement Subform"
                 }
                 field(Name; Name)
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies name of partner (customer, vendor, bank account).';
                     Visible = false;
                 }
@@ -55,11 +56,13 @@ page 11712 "Issued Bank Statement Subform"
                 }
                 field("Amount (Bank Stat. Currency)"; "Amount (Bank Stat. Currency)")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount in bank statement currencythat the bank statement line contains.';
                     Visible = false;
                 }
                 field("Bank Statement Currency Code"; "Bank Statement Currency Code")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the bank statement currency code which is setup in the bank card.';
                     Visible = false;
 
@@ -95,11 +98,13 @@ page 11712 "Issued Bank Statement Subform"
                 }
                 field(Type; Type)
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the type of bank statement lines';
                     Visible = false;
                 }
                 field("No."; "No.")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the bank statement.';
                     Visible = false;
                 }

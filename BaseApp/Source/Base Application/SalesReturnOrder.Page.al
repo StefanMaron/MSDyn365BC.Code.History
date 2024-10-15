@@ -142,15 +142,21 @@
                 }
                 field("Credit Memo Type"; "Credit Memo Type")
                 {
+                    ApplicationArea = SalesReturnOrder;
                     BlankZero = true;
                     ToolTip = 'Specifies the typ of credit memo (corrective tax document, internal correction, insolvency tax document).';
                 }
                 field("Postponed VAT"; "Postponed VAT")
                 {
+                    ApplicationArea = SalesReturnOrder;
                     ToolTip = 'Specifies to postpone VAT for the VAT entry.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of Postponing VAT on Sales Cr.Memo will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
                 }
                 field(Correction; Correction)
                 {
+                    ApplicationArea = SalesReturnOrder;
                     ToolTip = 'Specifies the entry as a corrective entry. You can use the field if you need to post a corrective entry to a customer account.';
                 }
                 field("Posting Date"; "Posting Date")
@@ -166,6 +172,7 @@
                 }
                 field("VAT Date"; "VAT Date")
                 {
+                    ApplicationArea = SalesReturnOrder;
                     ToolTip = 'Specifies the VAT date. This date must be shown on the VAT statement.';
                 }
                 field("Order Date"; "Order Date")
@@ -188,11 +195,16 @@
                 }
                 field("Posting Description"; "Posting Description")
                 {
+                    ApplicationArea = SalesReturnOrder;
                     ToolTip = 'Specifies a description of the document. The posting description also appers on customer and G/L entries.';
                 }
                 field("Posting Desc. Code"; "Posting Desc. Code")
                 {
+                    ApplicationArea = SalesReturnOrder;
                     ToolTip = 'Specifies the posting description code for the sales header.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of posting description will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
                 }
                 field("Salesperson Code"; "Salesperson Code")
                 {
@@ -275,6 +287,7 @@
                 }
                 field(IsIntrastatTransaction; IsIntrastatTransaction)
                 {
+                    ApplicationArea = SalesReturnOrder;
                     Caption = 'Intrastat Transaction';
                     Editable = false;
                     ToolTip = 'Specifies if the entry an Intrastat transaction is.';
@@ -296,10 +309,12 @@
                 }
                 field("Customer Posting Group"; "Customer Posting Group")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the customer s market type to link business transakcions to.';
                 }
                 field("Reason Code"; "Reason Code")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the reason code on the entry.';
                 }
                 field("Payment Terms Code"; "Payment Terms Code")
@@ -347,6 +362,7 @@
                 }
                 field("Shipment Method Code"; "Shipment Method Code")
                 {
+                    ApplicationArea = SalesReturnOrder;
                     ToolTip = 'Specifies how items on the sales document are shipped to the customer.';
                 }
                 field("Applies-to Doc. Type"; "Applies-to Doc. Type")
@@ -480,6 +496,7 @@
                 }
                 field("Physical Transfer"; "Physical Transfer")
                 {
+                    ApplicationArea = SalesReturnOrder;
                     ToolTip = 'Specifies if there is physical transfer of the item.';
                 }
                 group("Bill-to")
@@ -621,38 +638,53 @@
                 }
                 field("EU 3-Party Intermediate Role"; "EU 3-Party Intermediate Role")
                 {
+                    ApplicationArea = BasicEU;
                     ToolTip = 'Specifies when the sales haeder will use European Union third-party intermediate trade rules. This option complies with VAT accounting standards for EU third-party trade.';
                 }
                 field("Intrastat Exclude"; "Intrastat Exclude")
                 {
+                    ApplicationArea = BasicEU;
                     ToolTip = 'Specifies that entry will be excluded from intrastat.';
                 }
                 field("VAT Registration No."; "VAT Registration No.")
                 {
+                    ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the VAT registration number. The field will be used when you do business with partners from EU countries/regions.';
                 }
                 field("Registration No."; "Registration No.")
                 {
+                    ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the registration number of customer.';
                 }
                 field("Tax Registration No."; "Tax Registration No.")
                 {
+                    ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the secondary VAT registration number for the customer.';
                 }
                 field("Industry Code"; "Industry Code")
                 {
+                    ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the industry code for the customer record.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of Industry Classification will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
                 }
                 field("Language Code"; "Language Code")
                 {
+                    ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the language to be used on printouts for this document.';
                 }
                 field("Perform. Country/Region Code"; "Perform. Country/Region Code")
                 {
+                    ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the country/region code. It is mandatory field by creating documents with VAT registration number for other countries.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
                 }
                 field("VAT Country/Region Code"; "VAT Country/Region Code")
                 {
+                    ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the VAT country/region code of customer.';
                 }
             }
@@ -661,44 +693,54 @@
                 Caption = 'Payments';
                 field("Bank Account Code"; "Bank Account Code")
                 {
+                    ApplicationArea = SalesReturnOrder;
                     ToolTip = 'Specifies the bank account code of the company.';
                 }
                 field("Bank Name"; "Bank Name")
                 {
+                    ApplicationArea = SalesReturnOrder;
                     Editable = false;
                     ToolTip = 'Specifies the name of the bank.';
                 }
                 field("Bank Branch No."; "Bank Branch No.")
                 {
+                    ApplicationArea = SalesReturnOrder;
                     Editable = false;
                     ToolTip = 'Specifies the number of the bank branch.';
                 }
                 field("Bank Account No."; "Bank Account No.")
                 {
+                    ApplicationArea = SalesReturnOrder;
                     ToolTip = 'Specifies the number used by the bank for the bank account.';
                 }
                 field("Transit No."; "Transit No.")
                 {
+                    ApplicationArea = SalesReturnOrder;
                     ToolTip = 'Specifies a bank identification number of your own choice.';
                 }
                 field("SWIFT Code"; "SWIFT Code")
                 {
+                    ApplicationArea = SalesReturnOrder;
                     ToolTip = 'Specifies the international bank identifier code (SWIFT) of the bank where you have the account.';
                 }
                 field(IBAN; IBAN)
                 {
+                    ApplicationArea = SalesReturnOrder;
                     ToolTip = 'Specifies the bank account''s international bank account number.';
                 }
                 field("Specific Symbol"; "Specific Symbol")
                 {
+                    ApplicationArea = SalesReturnOrder;
                     ToolTip = 'Specifies the additional symbol of bank payments.';
                 }
                 field("Variable Symbol"; "Variable Symbol")
                 {
+                    ApplicationArea = SalesReturnOrder;
                     ToolTip = 'Specifies the detail information for payment.';
                 }
                 field("Constant Symbol"; "Constant Symbol")
                 {
+                    ApplicationArea = SalesReturnOrder;
                     ToolTip = 'Specifies the additional symbol of bank payments.';
                 }
             }

@@ -1643,6 +1643,84 @@ codeunit 570 "G/L Account Category Mgt."
         exit(V1_RevenuesfromOtherLongtermFinancialAssetsControlledorControllingTxt);
     end;
 
+    procedure GetD1PrepaidExpenses(): Text
+    begin
+        // NAVCZ
+        exit(D1_PrepaidExpensesTxt); 
+    end;
+
+    procedure GetD2ComplexPrepaidExpenses(): Text
+    begin
+        // NAVCZ
+        exit(D2_ComplexPrepaidExpensesTxt); 
+    end;
+
+    procedure GetD3AccruedIncomes(): Text
+    begin
+        // NAVCZ
+        exit(D3_AccruedIncomesTxt); 
+    end;
+
+    procedure GetD1AccruedExpenses(): Text
+    begin
+        // NAVCZ
+        exit(D1_AccruedExpensesTxt); 
+    end;
+
+    procedure GetD2DeferredRevenues(): Text
+    begin
+        // NAVCZ
+        exit(D2_DeferredRevenuesTxt); 
+    end;
+
+    procedure GetBI1IntangibleResultsofResearchandDevelopment(): Text
+    begin
+        // NAVCZ
+        exit(BI1_IntangibleResultsofResearchandDevelopmentTxt); 
+    end;
+
+    procedure GetBI22OtherValuableRights(): Text
+    begin
+        // NAVCZ
+        exit(BI22_OtherValuableRightsTxt); 
+    end;
+
+    procedure GetBI3Goodwill(): Text
+    begin
+        // NAVCZ
+        exit(BI3_GoodwillTxt); 
+    end;
+
+    procedure GetBI4OtherIntangibleFixedAssets(): Text
+    begin
+        // NAVCZ
+        exit(BI4_OtherIntangibleFixedAssetsTxt); 
+    end;
+
+    procedure GetBII11Lands(): Text
+    begin
+        // NAVCZ
+        exit(BII11_LandsTxt); 
+    end;
+
+    procedure GetB2IncomeTaxProvision(): Text
+    begin
+        // NAVCZ
+        exit(B2_IncomeTaxProvisionTxt); 
+    end;
+
+    procedure GetB4OtherProvisions(): Text
+    begin
+        // NAVCZ
+        exit(B4_OtherProvisionsTxt); 
+    end;
+
+    procedure GetCI3LongtermAdvancePaymentsReceived(): Text
+    begin
+        // NAVCZ
+        exit(CI3_LongtermAdvancePaymentsReceivedTxt); 
+    end;
+
     procedure GetAccountCategory(var GLAccountCategory: Record "G/L Account Category"; Category: Option): Boolean
     begin
         GLAccountCategory.SetRange("Account Category", Category);

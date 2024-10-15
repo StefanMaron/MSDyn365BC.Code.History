@@ -881,15 +881,15 @@ page 8909 "Warehouse Manager Role Center"
                     }
                     action("Stockkeeping Unit Templates")
                     {
-                        ApplicationArea =;
+                        ApplicationArea = Warehouse;
                         Caption = 'Stockkeeping Unit Templates';
-                        RunObject = page 31072;
+                        RunObject = page "Stockkeeping Unit Templates";
                     }
                     action("Whse. Net Change Template List")
                     {
-                        ApplicationArea =;
+                        ApplicationArea = Warehouse;
                         Caption = 'Whse. Net Change Templates';
-                        RunObject = page 31073;
+                        RunObject = page "Whse. Net Change Template List";
                     }
                 }
                 group("Group22")

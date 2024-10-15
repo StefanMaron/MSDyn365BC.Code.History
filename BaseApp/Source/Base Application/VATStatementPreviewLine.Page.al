@@ -242,6 +242,7 @@ page 475 "VAT Statement Preview Line"
         PeriodSelection: Option "Before and Within Period","Within Period";
         UseAmtsInAddCurr: Boolean;
         SettlementNoFilter: Text[50];
+        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)')]
         CountryCodeFillFilter: Code[10];
 
     procedure UpdateForm(var VATStmtName: Record "VAT Statement Name"; NewSelection: Option Open,Closed,"Open and Closed"; NewPeriodSelection: Option "Before and Within Period","Within Period"; NewUseAmtsInAddCurr: Boolean; SettlementNoFilter2: Text[50]; CountryCodeFillFilter2: Code[10])
@@ -261,7 +262,7 @@ page 475 "VAT Statement Preview Line"
         CurrPage.Update;
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeOpenPageVATEntryTotaling(var VATEntry: Record "VAT Entry"; var VATStatementLine: Record "VAT Statement Line")
     begin
     end;

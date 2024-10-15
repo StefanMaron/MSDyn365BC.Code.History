@@ -59,14 +59,16 @@ codeunit 415 "Release Purchase Document"
                             PurchLine.TestField("Location Code");
                         // NAVCZ
                         if GLSetup."User Checks Allowed" then
-                            if PurchLine.Type = PurchLine.Type::Item then
+                            if PurchLine.Type = PurchLine.Type::Item then begin
+                                UserCheck.SetItem(PurchLine."No.");
                                 case true of
                                     PurchLine.Quantity < 0:
                                         UserCheck.CheckReleasLocQuantityDecrease(PurchLine."Location Code");
                                     PurchLine.Quantity > 0:
                                         UserCheck.CheckReleasLocQuantityIncrease(PurchLine."Location Code");
                                 end;
-                        // NAVCZ
+                            end;
+                    // NAVCZ
                     until PurchLine.Next = 0;
                 PurchLine.SetFilter(Type, '>0');
             end;

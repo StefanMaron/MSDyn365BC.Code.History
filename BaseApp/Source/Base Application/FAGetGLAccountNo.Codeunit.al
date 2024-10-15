@@ -57,7 +57,7 @@ codeunit 5602 "FA Get G/L Account No."
                     "FA Posting Type"::Depreciation:
                         begin
                             // NAVCZ
-                            if FAPostingGr."Use Standard Disposal" then
+                            if FAPostingGr.UseStandardDisposal() then
                                 // NAVCZ
                                 FAPostingGr.TestField("Accum. Depr. Acc. on Disposal");
                             GLAccNo := FAPostingGr."Accum. Depr. Acc. on Disposal";

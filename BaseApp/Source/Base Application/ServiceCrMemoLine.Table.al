@@ -522,6 +522,8 @@ table 5995 "Service Cr.Memo Line"
         {
             Caption = 'Reason Code';
             TableRelation = "Reason Code";
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The functionality of Tax corrective documents for VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
         }
         field(11764; "VAT Difference (LCY)"; Decimal)
         {

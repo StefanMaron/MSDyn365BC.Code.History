@@ -99,38 +99,56 @@ table 5800 "Item Charge"
         field(31070; "Use Ledger Entry Dimensions"; Boolean)
         {
             Caption = 'Use Ledger Entry Dimensions';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The functionality of Item charges enhancements will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
         }
         field(31071; "Sales Only"; Boolean)
         {
             Caption = 'Sales Only';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The functionality of Item charges enhancements will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
         }
         field(31072; "Purchase Only"; Boolean)
         {
             Caption = 'Purchase Only';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The functionality of Item charges enhancements will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
         }
         field(31073; "Disable Receipt Lines"; Boolean)
         {
             Caption = 'Disable Receipt Lines';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The functionality of Item charges enhancements will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
         }
         field(31074; "Disable Transfer Receipt Lines"; Boolean)
         {
             Caption = 'Disable Transfer Receipt Lines';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The functionality of Item charges enhancements will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
         }
         field(31075; "Disable Return Schipment Lines"; Boolean)
         {
             Caption = 'Disable Return Schipment Lines';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The functionality of Item charges enhancements will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
         }
         field(31076; "Disable Sales Schipment Lines"; Boolean)
         {
             Caption = 'Disable Sales Schipment Lines';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The functionality of Item charges enhancements will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
         }
         field(31077; "Disable Return Receipt Lines"; Boolean)
         {
             Caption = 'Disable Return Receipt Lines';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The functionality of Item charges enhancements will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
         }
         field(31078; "Assigment on Receive/Shipment"; Boolean)
         {
             Caption = 'Assigment on Receive/Shipment';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The functionality of Item charges enhancements will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
         }
     }
 

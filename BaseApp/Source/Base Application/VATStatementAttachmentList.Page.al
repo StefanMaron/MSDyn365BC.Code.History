@@ -16,6 +16,7 @@ page 11773 "VAT Statement Attachment List"
                 ShowCaption = false;
                 field("VAT Statement Name"; "VAT Statement Name")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of VAT statement.';
                     Visible = false;
                 }

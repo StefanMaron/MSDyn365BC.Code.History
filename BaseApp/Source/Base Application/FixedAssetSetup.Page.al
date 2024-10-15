@@ -63,6 +63,9 @@ page 5607 "Fixed Asset Setup"
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies to allow a fixed asset disposal by reason code.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of Disposal Posting was changed and this field should not be used. (Obsolete::Removed in release 01.2021))';
                 }
                 field("FA Acquisition As Custom 2"; "FA Acquisition As Custom 2")
                 {
@@ -73,6 +76,9 @@ page 5607 "Fixed Asset Setup"
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies to allow a fixed asset maintenance by reason code.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of Maintenance Posting was changed and this field should not be used. (Obsolete::Removed in release 01.2021)';
                 }
             }
             group(Numbering)

@@ -265,7 +265,7 @@ codeunit 5632 "FA Jnl.-Post Line"
                             SetResultOnDisposal(FALedgEntry);
                         // NAVCZ
                         if (DeprBook."Disposal Calculation Method" <> DeprBook."Disposal Calculation Method"::Net) and
-                           not FAPostingGroup."Use Standard Disposal"
+                           not FAPostingGroup.UseStandardDisposal()
                         then begin
                             if not DeprBook."Corresp. G/L Entries on Disp." then
                                 FAInsertLedgEntry.InsertFA(FALedgEntry)
@@ -348,7 +348,7 @@ codeunit 5632 "FA Jnl.-Post Line"
                             "Result on Disposal" := ResultOnDisposal;
                         // NAVCZ
                         if (DeprBook."Disposal Calculation Method" <> DeprBook."Disposal Calculation Method"::Net) and
-                           not FAPostingGroup."Use Standard Disposal"
+                           not FAPostingGroup.UseStandardDisposal()
                         then begin
                             if not DeprBook."Corresp. G/L Entries on Disp." then
                                 FAInsertLedgEntry.InsertFA(FALedgEntry)

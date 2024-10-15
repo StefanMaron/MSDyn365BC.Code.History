@@ -113,12 +113,14 @@ page 31008 "Set Advance Link"
                 }
                 field("External Document No."; "External Document No.")
                 {
+                    ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the external document number from vendor.';
                     Visible = false;
                 }
                 field(Type; Type)
                 {
+                    ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the type of posted credit card';
                     Visible = false;
@@ -166,6 +168,7 @@ page 31008 "Set Advance Link"
                 }
                 field("Entry No."; "Entry No.")
                 {
+                    ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the entry number that is assigned to the entry.';
                     Visible = false;
@@ -212,6 +215,7 @@ page 31008 "Set Advance Link"
                 Caption = '&Link';
                 action("Set Linking &Entry")
                 {
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Set Linking &Entry';
                     Image = LinkWithExisting;
                     ShortCutKey = 'Shift+F11';

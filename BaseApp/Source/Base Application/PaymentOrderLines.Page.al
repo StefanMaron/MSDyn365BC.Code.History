@@ -24,6 +24,7 @@ page 11718 "Payment Order Lines"
                 }
                 field(Name; Name)
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies name of partner (customer, vendor, bank account).';
                     Visible = false;
                 }
@@ -69,16 +70,19 @@ page 11718 "Payment Order Lines"
                 }
                 field(Type; Type)
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the the type of intrastat journal lines';
                     Visible = false;
                 }
                 field("No."; "No.")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the payment order.';
                     Visible = false;
                 }
                 field("Cust./Vendor Bank Account Code"; "Cust./Vendor Bank Account Code")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the bank account code of the customer or vendor.';
                     Visible = false;
 

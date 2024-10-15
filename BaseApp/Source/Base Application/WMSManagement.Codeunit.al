@@ -1075,6 +1075,7 @@ codeunit 7302 "WMS Management"
         ProdOrderComp: Record "Prod. Order Component";
         AssemblyLine: Record "Assembly Line";
         ServiceLine: Record "Service Line";
+        IsHandled: Boolean;
     begin
         case SourceType of
             DATABASE::"Sales Line":
@@ -1083,7 +1084,10 @@ codeunit 7302 "WMS Management"
                     SalesLine.SetRange("Document Type", SourceSubType);
                     SalesLine.SetRange("Document No.", SourceNo);
                     SalesLine.SetRange("Line No.", SourceLineNo);
-                    PAGE.RunModal(PAGE::"Sales Lines", SalesLine);
+                    IsHandled := false;
+                    OnShowSourceDocLineOnBeforeShowSalesLines(SalesLine, SourceSubType, SourceNo, SourceLineNo, IsHandled);
+                    if not IsHandled then
+                        PAGE.RunModal(PAGE::"Sales Lines", SalesLine);
                 end;
             DATABASE::"Purchase Line":
                 begin
@@ -1091,14 +1095,20 @@ codeunit 7302 "WMS Management"
                     PurchLine.SetRange("Document Type", SourceSubType);
                     PurchLine.SetRange("Document No.", SourceNo);
                     PurchLine.SetRange("Line No.", SourceLineNo);
-                    PAGE.RunModal(PAGE::"Purchase Lines", PurchLine);
+                    IsHandled := false;
+                    OnShowSourceDocLineOnBeforeShowPurchLines(PurchLine, SourceSubType, SourceNo, SourceLineNo, IsHandled);
+                    if not IsHandled then
+                        PAGE.RunModal(PAGE::"Purchase Lines", PurchLine);
                 end;
             DATABASE::"Transfer Line":
                 begin
                     TransLine.Reset;
                     TransLine.SetRange("Document No.", SourceNo);
                     TransLine.SetRange("Line No.", SourceLineNo);
-                    PAGE.RunModal(PAGE::"Transfer Lines", TransLine);
+                    IsHandled := false;
+                    OnShowSourceDocLineOnBeforeShowTransLines(TransLine, SourceNo, SourceLineNo, IsHandled);
+                    if not IsHandled then
+                        PAGE.RunModal(PAGE::"Transfer Lines", TransLine);
                 end;
             DATABASE::"Prod. Order Component":
                 begin
@@ -1107,24 +1117,33 @@ codeunit 7302 "WMS Management"
                     ProdOrderComp.SetRange("Prod. Order No.", SourceNo);
                     ProdOrderComp.SetRange("Prod. Order Line No.", SourceLineNo);
                     ProdOrderComp.SetRange("Line No.", SourceSubLineNo);
-                    case SourceSubType of
-                        3: // Released
-                            PAGE.RunModal(PAGE::"Prod. Order Comp. Line List", ProdOrderComp);
-                    end;
+                    IsHandled := false;
+                    OnShowSourceDocLineOnBeforeShowProdOrderComp(ProdOrderComp, SourceSubType, SourceNo, SourceLineNo, SourceSubLineNo, IsHandled);
+                    if not IsHandled then
+                        case SourceSubType of
+                            3: // Released
+                                PAGE.RunModal(PAGE::"Prod. Order Comp. Line List", ProdOrderComp);
+                        end;
                 end;
             DATABASE::"Assembly Line":
                 begin
                     AssemblyLine.SetRange("Document Type", SourceSubType);
                     AssemblyLine.SetRange("Document No.", SourceNo);
                     AssemblyLine.SetRange("Line No.", SourceLineNo);
-                    PAGE.RunModal(PAGE::"Assembly Lines", AssemblyLine);
+                    IsHandled := false;
+                    OnShowSourceDocLineOnBeforeShowAssemblyLines(AssemblyLine, SourceSubType, SourceNo, SourceLineNo, IsHandled);
+                    if not IsHandled then
+                        PAGE.RunModal(PAGE::"Assembly Lines", AssemblyLine);
                 end;
             DATABASE::"Service Line":
                 begin
                     ServiceLine.SetRange("Document Type", SourceSubType);
                     ServiceLine.SetRange("Document No.", SourceNo);
                     ServiceLine.SetRange("Line No.", SourceLineNo);
-                    PAGE.Run(PAGE::"Service Line List", ServiceLine);
+                    IsHandled := false;
+                    OnShowSourceDocLineOnBeforeShowServiceLines(ServiceLine, SourceSubType, SourceNo, SourceLineNo, IsHandled);
+                    if not IsHandled then
+                        PAGE.Run(PAGE::"Service Line List", ServiceLine);
                 end;
             else
                 OnShowSourceDocLine(SourceType, SourceSubType, SourceNo, SourceLineNo, SourceSubLineNo);
@@ -1954,6 +1973,36 @@ codeunit 7302 "WMS Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnShowSourceDocCard(SourceType: Integer; SourceSubType: Option; SourceNo: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnShowSourceDocLineOnBeforeShowSalesLines(var SalesLine: Record "Sales Line"; SourceSubType: Integer; SourceNo: Code[20]; SourceLineNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnShowSourceDocLineOnBeforeShowPurchLines(var PurchLine: Record "Purchase Line"; SourceSubType: Integer; SourceNo: Code[20]; SourceLineNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnShowSourceDocLineOnBeforeShowServiceLines(var ServiceLine: Record "Service Line"; SourceSubType: Integer; SourceNo: Code[20]; SourceLineNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnShowSourceDocLineOnBeforeShowTransLines(var TransferLine: Record "Transfer Line"; SourceNo: Code[20]; SourceLineNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnShowSourceDocLineOnBeforeShowAssemblyLines(var AssemblyLine: Record "Assembly Line"; SourceSubType: Integer; SourceNo: Code[20]; SourceLineNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnShowSourceDocLineOnBeforeShowProdOrderComp(var ProdOrderComp: Record "Prod. Order Component"; SourceSubType: Integer; SourceNo: Code[20]; SourceLineNo: Integer; SourceSubLineNo: Integer; var IsHandled: Boolean)
     begin
     end;
 

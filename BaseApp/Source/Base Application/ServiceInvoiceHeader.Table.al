@@ -856,6 +856,8 @@ table 5992 "Service Invoice Header"
         field(11762; "Tax Corrective Document"; Boolean)
         {
             Caption = 'Tax Corrective Document';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The functionality of Tax corrective documents for VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
         }
         field(11790; "Registration No."; Text[20])
         {
@@ -870,15 +872,17 @@ table 5992 "Service Invoice Header"
             Caption = 'Original User ID';
             DataClassification = EndUserIdentifiableInformation;
             TableRelation = User."User Name";
-            //This property is currently not supported
-            //TestTableRelation = false;
             ValidateTableRelation = false;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'This field is not needed and it should not be used.';
         }
         field(31060; "Perform. Country/Region Code"; Code[10])
         {
             Caption = 'Perform. Country/Region Code';
             TableRelation = "Registration Country/Region"."Country/Region Code" WHERE("Account Type" = CONST("Company Information"),
                                                                                        "Account No." = FILTER(''));
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
         }
         field(31061; "Curr. Factor Perf. Country/Reg"; Decimal)
         {
@@ -886,6 +890,8 @@ table 5992 "Service Invoice Header"
             DecimalPlaces = 0 : 15;
             Editable = false;
             MinValue = 0;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
         }
         field(31063; "Physical Transfer"; Boolean)
         {
@@ -899,6 +905,8 @@ table 5992 "Service Invoice Header"
         {
             Caption = 'Industry Code';
             TableRelation = "Industry Code";
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The functionality of Industry Classification will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
         }
         field(31066; "EU 3-Party Intermediate Role"; Boolean)
         {

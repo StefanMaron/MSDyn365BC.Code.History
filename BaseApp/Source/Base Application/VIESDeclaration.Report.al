@@ -10,9 +10,6 @@ report 31060 "VIES Declaration"
         {
             DataItemTableView = SORTING("No.");
             RequestFilterFields = "No.";
-            column(STRSUBSTNO_Text000_CurrReport_PAGENO_; StrSubstNo(Text000, CurrReport.PageNo))
-            {
-            }
             column(CompanyInfo__VAT_Registration_No__; CompanyInfo."VAT Registration No.")
             {
             }
@@ -215,6 +212,7 @@ report 31060 "VIES Declaration"
 
     labels
     {
+        PageLbl = 'Page';
     }
 
     trigger OnPreReport()
@@ -223,7 +221,6 @@ report 31060 "VIES Declaration"
     end;
 
     var
-        Text000: Label 'Page %1';
         VIES_DECLARATIONCaptionLbl: Label 'VIES DECLARATION';
         TotalValueItemSaleSuppliesCaptionLbl: Label 'Value of Item Sale';
         TotalValueEU3rdPartyItemSaleCaptionLbl: Label 'Value of EU 3-Party Item Sale';

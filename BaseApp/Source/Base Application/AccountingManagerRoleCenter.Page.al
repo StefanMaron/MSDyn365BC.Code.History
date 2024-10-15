@@ -135,6 +135,7 @@ page 9001 "Accounting Manager Role Center"
             }
             action("Balance Sheet")
             {
+                ApplicationArea = Basic, Suite;
                 Caption = 'Balance Sheet';
                 Image = PrintReport;
                 RunObject = Report "Balance Sheet";
@@ -142,6 +143,7 @@ page 9001 "Accounting Manager Role Center"
             }
             action("Income Statement")
             {
+                ApplicationArea = Basic, Suite;
                 Caption = 'Income Statement';
                 Image = PrintReport;
                 RunObject = Report "Income Statement";
@@ -300,10 +302,14 @@ page 9001 "Accounting Manager Role Center"
             }
             action("Package Tax Calculation")
             {
+                ApplicationArea = CostAccounting;
                 Caption = 'Package Tax Calculation';
                 Image = CalculateSalesTax;
                 RunObject = Report "Package Tax Calculation";
                 ToolTip = 'The report for package tax calculation.';
+                Visible = false;
+                ObsoleteState = Pending;
+                ObsoleteReason = 'The functionality of Packaging Material will be removed and this action should not be used. (Obsolete::Removed in release 01.2021)';
             }
         }
         area(embedding)
@@ -364,6 +370,7 @@ page 9001 "Accounting Manager Role Center"
             }
             action("VIES Declarations")
             {
+                ApplicationArea = Basic, Suite;
                 Caption = 'VIES Declarations';
                 RunObject = Page "VIES Declarations";
                 ToolTip = 'Specifies vies declarations list';
@@ -738,6 +745,7 @@ page 9001 "Accounting Manager Role Center"
                 }
                 action("VAT Periods")
                 {
+                    ApplicationArea = Basic, Suite;
                     Caption = 'VAT Periods';
                     RunObject = Page "VAT Periods";
                     ToolTip = 'Specifies vat periods list';
@@ -811,6 +819,7 @@ page 9001 "Accounting Manager Role Center"
             }
             action("&VIES Declaration")
             {
+                ApplicationArea = Basic, Suite;
                 Caption = '&VIES Declaration';
                 Image = TestReport;
                 RunObject = Page "VIES Declaration";

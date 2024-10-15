@@ -114,6 +114,7 @@ page 9000 "Whse. WMS Role Center"
             }
             action("Phys. Invt. Counting Document")
             {
+                ApplicationArea = Warehouse;
                 Caption = 'Phys. Invt. Counting Document';
                 Image = PhysicalInventory;
                 RunObject = Report "Phys. Invt. Counting Document";

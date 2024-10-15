@@ -575,8 +575,12 @@ table 5965 "Service Contract Header"
                         "Next Invoice Period End" := 0D;
                     end;
                 end else begin
-                    if "Next Invoice Date" <> CalcDate('<CM>', "Next Invoice Date") then
-                        Error(Text028, FieldCaption("Next Invoice Date"));
+                    if "Next Invoice Date" <> CalcDate('<CM>', "Next Invoice Date") then begin
+                        IsHandled := false;
+                        OnValidateNextInvoiceDateOnBeforeCheck(Rec, IsHandled);
+                        if not IsHandled then
+                            Error(Text028, FieldCaption("Next Invoice Date"));
+                    end;
                     TempDate := CalculateEndPeriodDate(false, "Next Invoice Date");
                     if TempDate < "Starting Date" then
                         TempDate := "Starting Date";
@@ -1475,10 +1479,11 @@ table 5965 "Service Contract Header"
         field(11792; "Original User ID"; Code[50])
         {
             Caption = 'Original User ID';
+            DataClassification = EndUserIdentifiableInformation;
             TableRelation = User."User Name";
-            //This property is currently not supported
-            //TestTableRelation = false;
             ValidateTableRelation = false;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'This field is not needed and it should not be used.';
         }
     }
 
@@ -1611,7 +1616,6 @@ table 5965 "Service Contract Header"
         end;
 
         Validate("Starting Date");
-        "Original User ID" := UserId; // NAVCZ
     end;
 
     trigger OnModify()

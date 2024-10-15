@@ -101,17 +101,26 @@
                 }
                 field("VAT Date"; "VAT Date")
                 {
+                    ApplicationArea = Service;
                     Editable = false;
                     Importance = Promoted;
                     ToolTip = 'Specifies the VAT date. This date must be shown on the VAT statement.';
                 }
                 field("Postponed VAT"; "Postponed VAT")
                 {
+                    ApplicationArea = Service;
                     ToolTip = 'Specifies to postpone VAT for the VAT entry.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of Postponing VAT on Sales Cr.Memo will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
                 }
                 field("Postponed VAT Realized"; "Postponed VAT Realized")
                 {
+                    ApplicationArea = Service;
                     ToolTip = 'Specifies when postponed VAT was realized.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of Postponing VAT on Sales Cr.Memo will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
                 }
                 group(Control11)
                 {
@@ -244,6 +253,7 @@
                 }
                 field("Posting Description"; "Posting Description")
                 {
+                    ApplicationArea = Service;
                     Editable = false;
                     ToolTip = 'Specifies a description of the document. The posting description also appers on customer and G/L entries.';
                 }
@@ -261,16 +271,19 @@
                 }
                 field("VAT Bus. Posting Group"; "VAT Bus. Posting Group")
                 {
+                    ApplicationArea = Service;
                     Editable = false;
                     ToolTip = 'Specifies a VAT business posting group code.';
                 }
                 field("Customer Posting Group"; "Customer Posting Group")
                 {
+                    ApplicationArea = Service;
                     Editable = false;
                     ToolTip = 'Specifies the customer?s market type to link business transakcions to.';
                 }
                 field("Reason Code"; "Reason Code")
                 {
+                    ApplicationArea = Service;
                     Editable = false;
                     ToolTip = 'Specifies the reason code on the entry.';
                 }
@@ -436,6 +449,9 @@
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the industry code for the customer record.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of Industry Classification will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
                 }
                 field("Language Code"; "Language Code")
                 {
@@ -453,6 +469,7 @@
                 Caption = 'Payments';
                 field("Bank Account Code"; "Bank Account Code")
                 {
+                    ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the bank account code of the company.';
                 }
@@ -470,36 +487,43 @@
                 }
                 field("Bank Account No."; "Bank Account No.")
                 {
+                    ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the number used by the bank for the bank account.';
                 }
                 field("Transit No."; "Transit No.")
                 {
+                    ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies a bank identification number of your own choice.';
                 }
                 field("SWIFT Code"; "SWIFT Code")
                 {
+                    ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the international bank identifier code (SWIFT) of the bank where you have the account.';
                 }
                 field(IBAN; IBAN)
                 {
+                    ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the bank account''s international bank account number.';
                 }
                 field("Specific Symbol"; "Specific Symbol")
                 {
+                    ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the additional symbol of bank payments.';
                 }
                 field("Variable Symbol"; "Variable Symbol")
                 {
+                    ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the detail information for payment.';
                 }
                 field("Constant Symbol"; "Constant Symbol")
                 {
+                    ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the additional symbol of bank payments.';
                 }
@@ -646,12 +670,16 @@
                 Caption = 'F&unctions';
                 action("Post Or Correct Postponed VAT")
                 {
+                    ApplicationArea = Service;
                     Caption = 'Post Or Correct Postponed VAT';
                     Image = ReverseRegister;
                     Promoted = true;
                     PromotedCategory = Process;
                     PromotedIsBig = true;
                     ToolTip = 'This batch job allows postponed VAT post or correct.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of Postponing VAT on Sales Cr.Memo will be removed and this action should not be used. (Obsolete::Removed in release 01.2021)';
 
                     trigger OnAction()
                     var

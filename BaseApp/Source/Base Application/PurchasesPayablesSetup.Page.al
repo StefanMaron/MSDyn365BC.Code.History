@@ -77,6 +77,9 @@ page 460 "Purchases & Payables Setup"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the default posting description code for the purchase headers.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of posting description will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
                 }
                 field("Copy Comments Blanket to Order"; "Copy Comments Blanket to Order")
                 {
@@ -310,6 +313,7 @@ page 460 "Purchases & Payables Setup"
                 }
                 field("Default Orig. Doc. VAT Date"; "Default Orig. Doc. VAT Date")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the default original document VAT date type for purchase document (posting date, document date, VAT date or blank).';
                 }
             }

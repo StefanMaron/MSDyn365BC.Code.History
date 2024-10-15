@@ -104,6 +104,7 @@ page 99000820 "Prod. Order Capacity Need"
                 }
                 field(AllocTimeInMin; AllocTimeInMin)
                 {
+                    ApplicationArea = Manufacturing;
                     Caption = 'Allocated Time (Min)';
                     DecimalPlaces = 0 : 5;
                     Editable = false;

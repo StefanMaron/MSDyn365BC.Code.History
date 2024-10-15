@@ -19,6 +19,7 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         Assert: Codeunit Assert;
         LibraryCAMTFileMgt: Codeunit "Library - CAMT File Mgt.";
         LibraryRandom: Codeunit "Library - Random";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         Initialized: Boolean;
         OpenBankLedgerEntriesErr: Label 'All bank account ledger entries should be closed after posting the payment reconciliation journal.';
         ClosedBankLedgerEntriesErr: Label 'All bank account ledger entries should be open after posting the payment reconciliation journal.';
@@ -94,7 +95,7 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         OutStream: OutStream;
         BankStmtFormat: Code[20];
     begin
-        Initialize;
+        Initialize();
         TempBlobUTF8.CreateOutStream(OutStream, TEXTENCODING::UTF8);
 
         WriteCAMTHeader(OutStream, '', 'TEST');
@@ -250,7 +251,7 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         PmtReconJnl: TestPage "Payment Reconciliation Journal";
         OutStream: OutStream;
     begin
-        Initialize;
+        Initialize();
         TempBlobUTF8.CreateOutStream(OutStream, TEXTENCODING::UTF8);
 
         WriteCAMTHeader(OutStream, '', 'TEST');
@@ -282,7 +283,7 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         PmtReconJnl: TestPage "Payment Reconciliation Journal";
         OutStream: OutStream;
     begin
-        Initialize;
+        Initialize();
         TempBlobUTF8.CreateOutStream(OutStream, TEXTENCODING::UTF8);
 
         WriteCAMTHeader(OutStream, '', 'TEST');
@@ -405,7 +406,7 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         PmtReconJnl: TestPage "Payment Reconciliation Journal";
         OutStream: OutStream;
     begin
-        Initialize;
+        Initialize();
         TempBlobUTF8.CreateOutStream(OutStream, TEXTENCODING::UTF8);
 
         WriteCAMTHeader(OutStream, '', 'TEST');
@@ -435,7 +436,7 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         PmtReconJnl: TestPage "Payment Reconciliation Journal";
         OutStream: OutStream;
     begin
-        Initialize;
+        Initialize();
         TempBlobUTF8.CreateOutStream(OutStream, TEXTENCODING::UTF8);
 
         WriteCAMTHeader(OutStream, '', 'TEST');
@@ -494,7 +495,7 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         PmtReconJnl: TestPage "Payment Reconciliation Journal";
         OutStream: OutStream;
     begin
-        Initialize;
+        Initialize();
         TempBlobUTF8.CreateOutStream(OutStream, TEXTENCODING::UTF8);
 
         WriteCAMTHeader(OutStream, '', 'TEST');
@@ -553,7 +554,7 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         PmtReconJnl: TestPage "Payment Reconciliation Journal";
         OutStream: OutStream;
     begin
-        Initialize;
+        Initialize();
         TempBlobUTF8.CreateOutStream(OutStream, TEXTENCODING::UTF8);
 
         WriteCAMTHeader(OutStream, '', 'TEST');
@@ -583,7 +584,7 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         PmtReconJnl: TestPage "Payment Reconciliation Journal";
         OutStream: OutStream;
     begin
-        Initialize;
+        Initialize();
         TempBlobUTF8.CreateOutStream(OutStream, TEXTENCODING::UTF8);
 
         WriteCAMTHeader(OutStream, '', 'TEST');
@@ -640,7 +641,7 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         PmtReconJnl: TestPage "Payment Reconciliation Journal";
         OutStream: OutStream;
     begin
-        Initialize;
+        Initialize();
         TempBlobUTF8.CreateOutStream(OutStream, TEXTENCODING::UTF8);
 
         WriteCAMTHeader(OutStream, '', 'TEST');
@@ -670,7 +671,7 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         PmtReconJnl: TestPage "Payment Reconciliation Journal";
         OutStream: OutStream;
     begin
-        Initialize;
+        Initialize();
         TempBlobUTF8.CreateOutStream(OutStream, TEXTENCODING::UTF8);
 
         WriteCAMTHeader(OutStream, '', 'TEST');
@@ -711,7 +712,7 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         PmtReconJnl: TestPage "Payment Reconciliation Journal";
         OutStream: OutStream;
     begin
-        Initialize;
+        Initialize();
         TempBlobUTF8.CreateOutStream(OutStream, TEXTENCODING::UTF8);
 
         WriteCAMTHeader(OutStream, '', 'TEST');
@@ -741,7 +742,7 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         OutStream: OutStream;
         TransferAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         TransferAmount := 100;
         TempBlobUTF8.CreateOutStream(OutStream, TEXTENCODING::UTF8);
 
@@ -775,7 +776,7 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         TransferAmount: Decimal;
         ExtDocNo: Code[35];
     begin
-        Initialize;
+        Initialize();
         TransferAmount := 6 * 100;
         TempBlobUTF8.CreateOutStream(OutStream, TEXTENCODING::UTF8);
         ExtDocNo := LibraryUtility.GenerateGUID;
@@ -814,7 +815,7 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         ExtDocNo2: Code[35];
         ExtDocNo3: Code[35];
     begin
-        Initialize;
+        Initialize();
         TransferAmount := -6 * 100;
         TempBlobUTF8.CreateOutStream(OutStream, TEXTENCODING::UTF8);
         ExtDocNo1 := LibraryUtility.GenerateGUID;
@@ -855,7 +856,7 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         TransactionText: Text[250];
         TransactionAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         TempBlobUTF8.CreateOutStream(OutStream, TEXTENCODING::UTF8);
         LibraryERM.CreateGLAccount(GLAccount);
         TransactionText := 'Transfer' + LibraryUtility.GenerateGUID;
@@ -896,7 +897,7 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         TransactionText: Text[250];
         TransactionAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         TempBlobUTF8.CreateOutStream(OutStream, TEXTENCODING::UTF8);
         LibraryERM.CreateGLAccount(GLAccount);
         TransactionText := 'Transfer' + LibraryUtility.GenerateGUID;
@@ -930,7 +931,7 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         i: Integer;
     begin
         // Setup
-        Initialize;
+        Initialize();
         TempBlobUTF8.CreateOutStream(OutStream, TEXTENCODING::UTF8);
         CreateUnpaidDocs(OutStream, CustLedgEntry);
 
@@ -960,7 +961,7 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         OutStream: OutStream;
     begin
         // Setup
-        Initialize;
+        Initialize();
         TempBlobUTF8.CreateOutStream(OutStream, TEXTENCODING::UTF8);
         CreateUnpaidDocs(OutStream, CustLedgEntry);
 
@@ -1010,7 +1011,7 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         MatchedLinesShow: Boolean;
     begin
         // Setup
-        Initialize;
+        Initialize();
         TempBlobUTF8.CreateOutStream(OutStream, TEXTENCODING::UTF8);
         CreateUnpaidDocs(OutStream, CustLedgEntry);
 
@@ -1059,7 +1060,7 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         MatchConfidence1: Text;
     begin
         // Setup
-        Initialize;
+        Initialize();
         TempBlobUTF8.CreateOutStream(OutStream, TEXTENCODING::UTF8);
         WriteCAMTHeader(OutStream, '', 'TEST');
         OneSaleTwoPmt(CustLedgEntry, OutStream);
@@ -1101,7 +1102,7 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         AppliedAmount: Decimal;
     begin
         // Setup
-        Initialize;
+        Initialize();
         TempBlobUTF8.CreateOutStream(OutStream, TEXTENCODING::UTF8);
         WriteCAMTHeader(OutStream, '', 'TEST');
         OneSaleTwoPmt(CustLedgEntry, OutStream);
@@ -1180,7 +1181,7 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         OutStream: OutStream;
         ExcessiveAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         ExcessiveAmount := 1;
         TempBlobUTF8.CreateOutStream(OutStream, TEXTENCODING::UTF8);
 
@@ -1211,7 +1212,7 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         OutStream: OutStream;
         ExcessiveAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         ExcessiveAmount := 1.23;
         TempBlobUTF8.CreateOutStream(OutStream, TEXTENCODING::UTF8);
 
@@ -1241,7 +1242,7 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         OutStream: OutStream;
         ExcessiveAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         ExcessiveAmount := 1;
         TempBlobUTF8.CreateOutStream(OutStream, TEXTENCODING::UTF8);
 
@@ -1277,7 +1278,7 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         OutStream: OutStream;
         ExcessiveAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         ExcessiveAmount := 1;
         TempBlobUTF8.CreateOutStream(OutStream, TEXTENCODING::UTF8);
 
@@ -1372,7 +1373,7 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         CustomerCard: TestPage "Customer Card";
         OutStream: OutStream;
     begin
-        Initialize;
+        Initialize();
         TempBlobUTF8.CreateOutStream(OutStream, TEXTENCODING::UTF8);
 
         LibrarySales.CreateCustomer(Cust);
@@ -2740,7 +2741,7 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
     begin
         // [FEATURE] [Match]
         // [SCENARIO 198751] Automatically match and post payment reconciliation journal with two customer payments applied to two invoices in vice versa order
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer "C" with two posted sales invoices:
         CustomerNo := LibrarySales.CreateCustomerNo;
@@ -2807,12 +2808,16 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryApplicationArea: Codeunit "Library - Application Area";
     begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"Payment Recon. E2E Tests 1");
+
         LibraryApplicationArea.EnableFoundationSetup;
         LibraryVariableStorage.Clear;
         LibraryLowerPermissions.SetOutsideO365Scope;
         if Initialized then
             exit;
         Initialized := true;
+
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"Payment Recon. E2E Tests 1");
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralLedgerSetup;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
@@ -2820,10 +2825,11 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         LibraryInventory.NoSeriesSetup(InventorySetup);
         SalesReceivablesSetup.Get;
         SalesReceivablesSetup."Credit Warnings" := SalesReceivablesSetup."Credit Warnings"::"No Warning";
-        SalesReceivablesSetup.Modify;
-        UpdateCustPostingGrp;
-        UpdateVendPostingGrp;
-        Commit;
+        SalesReceivablesSetup.Modify();
+        UpdateCustPostingGrp();
+        UpdateVendPostingGrp();
+        Commit();
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"Payment Recon. E2E Tests 1");
     end;
 
     local procedure CreateBankAccReconAndImportStmt(var BankAccRecon: Record "Bank Acc. Reconciliation"; var TempBlobUTF8: Codeunit "Temp Blob"; CurrencyCode: Code[10])
@@ -3810,7 +3816,7 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
 
     local procedure CreateOneSaleOnePmtOutstream(var CustLedgEntry: Record "Cust. Ledger Entry"; var OutStream: OutStream; var TempBlobUTF8: Codeunit "Temp Blob")
     begin
-        Initialize;
+        Initialize();
         TempBlobUTF8.CreateOutStream(OutStream, TEXTENCODING::UTF8);
 
         WriteCAMTHeader(OutStream, '', 'TEST');
@@ -3820,7 +3826,7 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
 
     local procedure CreateTwoSaleTwoPmtOutstream(var CustLedgEntry: Record "Cust. Ledger Entry"; var CustLedgEntry2: Record "Cust. Ledger Entry"; var OutStream: OutStream; var TempBlobUTF8: Codeunit "Temp Blob")
     begin
-        Initialize;
+        Initialize();
         TempBlobUTF8.CreateOutStream(OutStream, TEXTENCODING::UTF8);
 
         WriteCAMTHeader(OutStream, '', 'TEST');
@@ -3832,7 +3838,7 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
     var
         PaymentReconE2ETests2: Codeunit "Payment Recon. E2E Tests 2";
     begin
-        Initialize;
+        Initialize();
         TempBlobUTF8.CreateOutStream(OutStream, TEXTENCODING::UTF8);
 
         WriteCAMTHeader(OutStream, '', 'TEST');
@@ -3845,7 +3851,7 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
     var
         PaymentReconE2ETests2: Codeunit "Payment Recon. E2E Tests 2";
     begin
-        Initialize;
+        Initialize();
         TempBlobUTF8.CreateOutStream(OutStream, TEXTENCODING::UTF8);
 
         WriteCAMTHeader(OutStream, '', 'TEST');
@@ -3858,7 +3864,7 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
     var
         PaymentReconE2ETests2: Codeunit "Payment Recon. E2E Tests 2";
     begin
-        Initialize;
+        Initialize();
         TempBlobUTF8.CreateOutStream(OutStream, TEXTENCODING::UTF8);
 
         WriteCAMTHeader(OutStream, '', 'TEST');

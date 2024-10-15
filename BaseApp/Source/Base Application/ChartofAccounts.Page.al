@@ -32,6 +32,9 @@
                     Style = Strong;
                     StyleExpr = NameEmphasize;
                     ToolTip = 'Specifies full name of the G/L account.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of Fields for Full Description will be removed and this field should not be used. Standard fields for Name are now 100. (Obsolete::Removed in release 01.2021)';
                 }
                 field(Name; Name)
                 {
@@ -141,6 +144,7 @@
                 }
                 field("Net Change (VAT Date)"; "Net Change (VAT Date)")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT date on which the net charge was made for the general ledger entry.';
                     Visible = false;
                 }
@@ -174,6 +178,7 @@
                 }
                 field("Net Change ACY (VAT Date)"; "Net Change ACY (VAT Date)")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the net change VAT date for the general ledger account. This amount is in additional reporting currency.';
                     Visible = false;
                 }
@@ -208,6 +213,7 @@
                 }
                 field("Apply Entries"; "Apply Entries")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies one or more ledger entries that you want to apply this record to so that the related posted documents are closed as paid or refunded.';
                     Visible = false;
                 }

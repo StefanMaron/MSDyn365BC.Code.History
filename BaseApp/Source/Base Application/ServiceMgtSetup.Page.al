@@ -67,11 +67,19 @@ page 5919 "Service Mgt. Setup"
                 }
                 field("Posting Desc. Code"; "Posting Desc. Code")
                 {
+                    ApplicationArea = Service;
                     ToolTip = 'Specifies the default posting description code for the service documents.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of posting description will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
                 }
                 field("Reason Code For Payment Disc."; "Reason Code For Payment Disc.")
                 {
+                    ApplicationArea = Service;
                     ToolTip = 'Specifies the reason code for payment discount.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of Tax corrective documents for VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
                 }
                 field("One Service Item Line/Order"; "One Service Item Line/Order")
                 {
@@ -134,11 +142,16 @@ page 5919 "Service Mgt. Setup"
                 }
                 field("Allow Alter Cust. Post. Groups"; "Allow Alter Cust. Post. Groups")
                 {
+                    ApplicationArea = Service;
                     ToolTip = 'Specifies to allow modification of customer posting groups for service management setup.';
                 }
                 field("Reas.Cd. on Tax Corr.Doc.Mand."; "Reas.Cd. on Tax Corr.Doc.Mand.")
                 {
+                    ApplicationArea = Service;
                     ToolTip = 'Specifies if it''s mandatory to fill in reason code on tax correction documents.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of Tax corrective documents for VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
                 }
                 field("Skip Manual Reservation"; "Skip Manual Reservation")
                 {
@@ -347,11 +360,16 @@ page 5919 "Service Mgt. Setup"
                 Caption = 'VAT';
                 field("Default VAT Date"; "Default VAT Date")
                 {
+                    ApplicationArea = Service;
                     ToolTip = 'Specifies the default VAT date type for sales and receivables setup (posting date, document date, blank).';
                 }
                 field("Credit Memo Confirmation"; "Credit Memo Confirmation")
                 {
+                    ApplicationArea = Service;
                     ToolTip = 'Specifies this option to enable credit memo confirmation.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of Postponing VAT on Sales Cr.Memo will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
                 }
             }
         }

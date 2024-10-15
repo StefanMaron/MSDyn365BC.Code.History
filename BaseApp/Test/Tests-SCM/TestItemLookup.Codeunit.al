@@ -96,7 +96,7 @@ codeunit 134835 "Test Item Lookup"
         CreateItem(ItemB);
         ItemB.Description := ItemA.Description;
         ItemB.Blocked := true;
-        ItemB.Modify;
+        ItemB.Modify();
 
         // [GIVEN] Sales Line with Type = Item and "No." = ''
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
@@ -130,7 +130,7 @@ codeunit 134835 "Test Item Lookup"
         CreateItem(ItemB);
         ItemB.Description := ItemA.Description;
         ItemB."Sales Blocked" := true;
-        ItemB.Modify;
+        ItemB.Modify();
 
         // [GIVEN] Sales Line with Type = Item and "No." = ''
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
@@ -164,7 +164,7 @@ codeunit 134835 "Test Item Lookup"
         CreateItem(ItemB);
         ItemB.Description := ItemA.Description;
         ItemB.Blocked := true;
-        ItemB.Modify;
+        ItemB.Modify();
 
         // [GIVEN] Purchase Line with Type = Item and "No." = ''
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, '');
@@ -198,7 +198,7 @@ codeunit 134835 "Test Item Lookup"
         CreateItem(ItemB);
         ItemB.Description := ItemA.Description;
         ItemB."Purchasing Blocked" := true;
-        ItemB.Modify;
+        ItemB.Modify();
 
         // [GIVEN] Purchase Line with Type = Item and "No." = ''
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, '');
@@ -224,9 +224,9 @@ codeunit 134835 "Test Item Lookup"
         RandomItemDescription: Text[50];
     begin
         Initialize;
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup."Create Item from Description" := true;
-        SalesReceivablesSetup.Modify;
+        SalesReceivablesSetup.Modify();
 
         // Setup
         RandomItemDescription := CopyStr(Format(CreateGuid), 1, 50);
@@ -243,9 +243,9 @@ codeunit 134835 "Test Item Lookup"
         Assert.AreEqual(1, Item.Count, 'Item not created correctly from Description');
 
         // Clean up
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup."Create Item from Description" := false;
-        SalesReceivablesSetup.Modify;
+        SalesReceivablesSetup.Modify();
     end;
 
     [Test]
@@ -837,7 +837,7 @@ codeunit 134835 "Test Item Lookup"
         LibraryWarehouse.CreateLocation(ToLocation);
         LibraryWarehouse.CreateInTransitLocation(InTransitLocation);
         LibraryWarehouse.CreateTransferHeader(TransferHeader, FromLocation.Code, ToLocation.Code, InTransitLocation.Code);
-        TransferLine.Init;
+        TransferLine.Init();
         TransferLine.Validate("Document No.", TransferHeader."No.");
 
         // Exercise
@@ -867,7 +867,7 @@ codeunit 134835 "Test Item Lookup"
         LibraryWarehouse.CreateLocation(ToLocation);
         LibraryWarehouse.CreateInTransitLocation(InTransitLocation);
         LibraryWarehouse.CreateTransferHeader(TransferHeader, FromLocation.Code, ToLocation.Code, InTransitLocation.Code);
-        TransferLine.Init;
+        TransferLine.Init();
         TransferLine.Validate("Document No.", TransferHeader."No.");
 
         // Exercise
@@ -931,7 +931,7 @@ codeunit 134835 "Test Item Lookup"
         // Exercise and Verify Existing Item
         SalesLine.Validate(Description, Item[2].Description);
 
-        SalesLine.TestField("No.", Item[2]."No.");
+        SalesLine.TestField("No.", Item[1]."No.");
     end;
 
     [Test]
@@ -956,7 +956,7 @@ codeunit 134835 "Test Item Lookup"
 
         PurchaseLine.Validate(Description, Item[2].Description);
 
-        PurchaseLine.TestField("No.", Item[2]."No.");
+        PurchaseLine.TestField("No.", Item[1]."No.");
     end;
 
     [Scope('OnPrem')]
@@ -966,7 +966,7 @@ codeunit 134835 "Test Item Lookup"
         LibrarySales: Codeunit "Library - Sales";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Test Item Lookup");
-        Item.DeleteAll;
+        Item.DeleteAll();
         LibraryApplicationArea.EnableFoundationSetup;
         LibrarySales.DisableWarningOnCloseUnpostedDoc;
 

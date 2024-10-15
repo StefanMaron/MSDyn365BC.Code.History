@@ -29,7 +29,6 @@ codeunit 1220 "SEPA CT-Export File"
         FileManagement: Codeunit "File Management";
         OutStr: OutStream;
         UseCommonDialog: Boolean;
-        FilePath: Text;
         FileCreated: Boolean;
         IsHandled: Boolean;
     begin

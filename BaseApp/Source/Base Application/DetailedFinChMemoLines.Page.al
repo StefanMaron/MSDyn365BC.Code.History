@@ -14,16 +14,19 @@ page 11787 "Detailed Fin. Ch. Memo Lines"
                 ShowCaption = false;
                 field("Finance Charge Memo No."; "Finance Charge Memo No.")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of finance charge memo.';
                     Visible = false;
                 }
                 field("Fin. Charge. Memo Line No."; "Fin. Charge. Memo Line No.")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number line of the finance charge memo.';
                     Visible = false;
                 }
                 field("Detailed Customer Entry No."; "Detailed Customer Entry No.")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of detailed customer entry.';
                     Visible = false;
                 }
@@ -49,11 +52,13 @@ page 11787 "Detailed Fin. Ch. Memo Lines"
                 }
                 field("Base Amount"; "Base Amount")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the base amount of the finance charge memo.';
                     Visible = false;
                 }
                 field("Line No."; "Line No.")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the line number.';
                     Visible = false;
                 }

@@ -13,6 +13,7 @@ page 11796 "User Setup Lines List"
                 ShowCaption = false;
                 field("User ID"; "User ID")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the ID of the user associated with the entry.';
                     Visible = false;
                 }

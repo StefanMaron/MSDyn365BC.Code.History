@@ -24,7 +24,7 @@ codeunit 1390 "Document Notifications"
             UpdateAddress.SetExistingAddress(GetCustomerFullAddress(Customer));
             UpdateAddress.SetUpdatedAddress(GetSalesHeaderFullSellToAddress(SalesHeader));
 
-            if UpdateAddress.RunModal in [ACTION::OK, ACTION::LookupOK] then begin
+            if UpdateAddress.RunModal in [Action::OK, Action::LookupOK] then begin
                 Customer.SetAddress(SalesHeader."Sell-to Address", SalesHeader."Sell-to Address 2",
                   SalesHeader."Sell-to Post Code", SalesHeader."Sell-to City", SalesHeader."Sell-to County",
                   SalesHeader."Sell-to Country/Region Code", SalesHeader."Sell-to Contact");
@@ -52,7 +52,7 @@ codeunit 1390 "Document Notifications"
             UpdateAddress.SetName(Customer.Name);
             UpdateAddress.SetUpdatedAddress(GetSalesHeaderFullBillToAddress(SalesHeader));
 
-            if UpdateAddress.RunModal in [ACTION::OK, ACTION::LookupOK] then begin
+            if UpdateAddress.RunModal in [Action::OK, Action::LookupOK] then begin
                 Customer.SetAddress(SalesHeader."Bill-to Address", SalesHeader."Bill-to Address 2",
                   SalesHeader."Bill-to Post Code", SalesHeader."Bill-to City", SalesHeader."Bill-to County",
                   SalesHeader."Bill-to Country/Region Code", SalesHeader."Bill-to Contact");
@@ -165,7 +165,7 @@ codeunit 1390 "Document Notifications"
             UpdateAddress.SetExistingAddress(GetVendorFullAddress(Vendor));
             UpdateAddress.SetUpdatedAddress(GetPurchaseHeaderFullBuyFromAddress(PurchaseHeader));
 
-            if UpdateAddress.RunModal in [ACTION::OK, ACTION::LookupOK] then begin
+            if UpdateAddress.RunModal in [Action::OK, Action::LookupOK] then begin
                 Vendor.SetAddress(PurchaseHeader."Buy-from Address", PurchaseHeader."Buy-from Address 2",
                   PurchaseHeader."Buy-from Post Code", PurchaseHeader."Buy-from City", PurchaseHeader."Buy-from County",
                   PurchaseHeader."Buy-from Country/Region Code", PurchaseHeader."Buy-from Contact");
@@ -193,7 +193,7 @@ codeunit 1390 "Document Notifications"
             UpdateAddress.SetUpdatedAddress(GetPurchaseHeaderFullPayToAddress(PurchaseHeader));
             UpdateAddress.SetExistingAddress(GetVendorFullAddress(Vendor));
 
-            if UpdateAddress.RunModal in [ACTION::OK, ACTION::LookupOK] then begin
+            if UpdateAddress.RunModal in [Action::OK, Action::LookupOK] then begin
                 Vendor.SetAddress(PurchaseHeader."Pay-to Address", PurchaseHeader."Pay-to Address 2",
                   PurchaseHeader."Pay-to Post Code", PurchaseHeader."Pay-to City", PurchaseHeader."Pay-to County",
                   PurchaseHeader."Pay-to Country/Region Code", PurchaseHeader."Pay-to Contact");
@@ -309,6 +309,88 @@ codeunit 1390 "Document Notifications"
         PurchaseHeader: Record "Purchase Header";
     begin
         PurchaseHeader.SetShowExternalDocAlreadyExistNotificationDefaultState(true);
+    end;
+
+    procedure CopyBillToCustomerAddressFieldsFromSalesAdvDocument(ModifyCustomerAddressNotification: Notification)
+    var
+        Customer: Record Customer;
+        SalesAdvanceLetterHeader: Record "Sales Advance Letter Header";
+        UpdateAddress: Page "Update Address";
+    begin
+        // NAVCZ
+        if not ModifyCustomerAddressNotification.HasData(SalesAdvanceLetterHeader.FieldName("Bill-to Customer No.")) then
+            exit;
+
+        SalesAdvanceLetterHeader.Get(ModifyCustomerAddressNotification.GetData(SalesAdvanceLetterHeader.FieldName("No.")));
+        if Customer.Get(ModifyCustomerAddressNotification.GetData(SalesAdvanceLetterHeader.FieldName("Bill-to Customer No."))) then begin
+            UpdateAddress.SetExistingAddress(GetCustomerFullAddress(Customer));
+            UpdateAddress.SetName(Customer.Name);
+            UpdateAddress.SetUpdatedAddress(GetSalesAdvHeaderFullBillToAddress(SalesAdvanceLetterHeader));
+
+            if UpdateAddress.RunModal() in [Action::OK, Action::LookupOK] then begin
+                Customer.SetAddress(SalesAdvanceLetterHeader."Bill-to Address", SalesAdvanceLetterHeader."Bill-to Address 2",
+                    SalesAdvanceLetterHeader."Bill-to Post Code", SalesAdvanceLetterHeader."Bill-to City", SalesAdvanceLetterHeader."Bill-to County",
+                    SalesAdvanceLetterHeader."Bill-to Country/Region Code", SalesAdvanceLetterHeader."Bill-to Contact");
+                Customer.Modify(true);
+            end;
+        end;
+    end;
+
+    local procedure GetSalesAdvHeaderFullBillToAddress(SalesAdvanceLetterHeader: Record "Sales Advance Letter Header"): Text
+    var
+        AddressArray: array[7] of Text;
+    begin
+        // NAVCZ
+        AddressArray[1] := SalesAdvanceLetterHeader."Bill-to Address";
+        AddressArray[2] := SalesAdvanceLetterHeader."Bill-to Address 2";
+        AddressArray[3] := SalesAdvanceLetterHeader."Bill-to Post Code";
+        AddressArray[4] := SalesAdvanceLetterHeader."Bill-to City";
+        AddressArray[5] := SalesAdvanceLetterHeader."Bill-to County";
+        AddressArray[6] := SalesAdvanceLetterHeader."Bill-to Country/Region Code";
+        AddressArray[7] := SalesAdvanceLetterHeader."Bill-to Contact";
+
+        exit(FormatAddress(AddressArray));
+    end;
+
+    procedure CopyPayToVendorAddressFieldsFromPurchAdvDocument(ModifyCustomerAddressNotification: Notification)
+    var
+        Vendor: Record Vendor;
+        PurchAdvanceLetterHeader: Record "Purch. Advance Letter Header";
+        UpdateAddress: Page "Update Address";
+    begin
+        // NAVCZ
+        if not ModifyCustomerAddressNotification.HasData(PurchAdvanceLetterHeader.FieldName("Pay-to Vendor No.")) then
+            exit;
+
+        PurchAdvanceLetterHeader.Get(ModifyCustomerAddressNotification.GetData(PurchAdvanceLetterHeader.FieldName("No.")));
+        if Vendor.Get(ModifyCustomerAddressNotification.GetData(PurchAdvanceLetterHeader.FieldName("Pay-to Vendor No."))) then begin
+            UpdateAddress.SetExistingAddress(GetVendorFullAddress(Vendor));
+            UpdateAddress.SetName(Vendor.Name);
+            UpdateAddress.SetUpdatedAddress(GetPurchAdvHeaderFullPaylToAddress(PurchAdvanceLetterHeader));
+
+            if UpdateAddress.RunModal() in [Action::OK, Action::LookupOK] then begin
+                Vendor.SetAddress(PurchAdvanceLetterHeader."Pay-to Address", PurchAdvanceLetterHeader."Pay-to Address 2",
+                    PurchAdvanceLetterHeader."Pay-to Post Code", PurchAdvanceLetterHeader."Pay-to City", PurchAdvanceLetterHeader."Pay-to County",
+                    PurchAdvanceLetterHeader."Pay-to Country/Region Code", PurchAdvanceLetterHeader."Pay-to Contact");
+                Vendor.Modify(true);
+            end;
+        end;
+    end;
+
+    local procedure GetPurchAdvHeaderFullPaylToAddress(PurchAdvanceLetterHeader: Record "Purch. Advance Letter Header"): Text
+    var
+        AddressArray: array[7] of Text;
+    begin
+        // NAVCZ
+        AddressArray[1] := PurchAdvanceLetterHeader."Pay-to Address";
+        AddressArray[2] := PurchAdvanceLetterHeader."Pay-to Address 2";
+        AddressArray[3] := PurchAdvanceLetterHeader."Pay-to Post Code";
+        AddressArray[4] := PurchAdvanceLetterHeader."Pay-to City";
+        AddressArray[5] := PurchAdvanceLetterHeader."Pay-to County";
+        AddressArray[6] := PurchAdvanceLetterHeader."Pay-to Country/Region Code";
+        AddressArray[7] := PurchAdvanceLetterHeader."Pay-to Contact";
+
+        exit(FormatAddress(AddressArray));
     end;
 
     [IntegrationEvent(false, false)]

@@ -48,7 +48,11 @@
                 }
                 field("Language Code"; "Language Code")
                 {
+                    ApplicationArea = Suite;
                     ToolTip = 'Specifies the language to be used on printouts for this document.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of Customer Template extension will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
                 }
             }
         }

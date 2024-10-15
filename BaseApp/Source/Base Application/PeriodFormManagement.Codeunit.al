@@ -82,9 +82,9 @@ codeunit 359 PeriodFormManagement
                     if Language.GetLanguageCode(GlobalLanguage) = 'CSY' then
                         case Date2DMY(Date, 2) of
                             6:
-                                exit(Format(Date, 0, '©vn <Year4>'));
+                                exit(Format(Date, 0, 'čvn <Year4>'));
                             7:
-                                exit(Format(Date, 0, '©vc <Year4>'));
+                                exit(Format(Date, 0, 'čvc <Year4>'));
                         end;
 
                     exit(Format(Date, 0, Text001));

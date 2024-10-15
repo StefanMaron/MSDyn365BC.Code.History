@@ -196,6 +196,7 @@ table 381 "VAT Registration No. Format"
             Message(StrSubstNo(Text004, TextString));
     end;
 
+    [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)')]
     local procedure CheckRegCountryRegion(var t: Text; VATRegNo: Text[20]; Type: Option; Number: Code[20]) Check: Boolean
     var
         RegistrationCountryRegion: Record "Registration Country/Region";

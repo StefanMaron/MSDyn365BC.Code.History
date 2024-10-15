@@ -522,6 +522,7 @@ codeunit 143020 "Library - Tax"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('The file format DPHDP2 is deprecated. Only the DPHDP3 format will be supported. This function will be removed and should not be used. (Obsolete::Removed in release 01.2021)')]
     procedure SetXMLFormat(var VATStatementTemplate: Record "VAT Statement Template"; XMLFormat: Option)
     begin
         VATStatementTemplate."XML Format" := XMLFormat;

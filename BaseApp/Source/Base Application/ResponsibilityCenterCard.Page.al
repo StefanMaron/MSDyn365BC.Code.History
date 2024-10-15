@@ -97,30 +97,37 @@
                 Caption = 'Payments';
                 field("Bank Account Code"; "Bank Account Code")
                 {
+                    ApplicationArea = Location;
                     ToolTip = 'Specifies the bank account code of the company.';
                 }
                 field("Bank Name"; "Bank Name")
                 {
+                    ApplicationArea = Location;
                     ToolTip = 'Specifies the name of the bank.';
                 }
                 field("Bank Account No."; "Bank Account No.")
                 {
+                    ApplicationArea = Location;
                     ToolTip = 'Specifies the number used by the bank for the bank account.';
                 }
                 field("Bank Branch No."; "Bank Branch No.")
                 {
+                    ApplicationArea = Location;
                     ToolTip = 'Specifies the number of the bank branch.';
                 }
                 field("Transit No."; "Transit No.")
                 {
+                    ApplicationArea = Location;
                     ToolTip = 'Specifies a bank identification number of your own choice.';
                 }
                 field(IBAN; IBAN)
                 {
+                    ApplicationArea = Location;
                     ToolTip = 'Specifies the bank account''s international bank account number.';
                 }
                 field("SWIFT Code"; "SWIFT Code")
                 {
+                    ApplicationArea = Location;
                     ToolTip = 'Specifies the international bank identifier code (SWIFT) of the bank where you have the account.';
                 }
             }

@@ -37,6 +37,7 @@ page 31034 "Purch. Letter Line - Adv.Link."
                 }
                 field(Description; Description)
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies description for purchase advance.';
                     Visible = false;
                 }
@@ -57,11 +58,13 @@ page 31034 "Purch. Letter Line - Adv.Link."
                 }
                 field("Amount Including VAT"; "Amount Including VAT")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether the unit price on the line should be displayed including or excluding VAT.';
                     Visible = false;
                 }
                 field("Document Linked Amount"; "Document Linked Amount")
                 {
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Other Doc. Linked Amount';
                     ToolTip = 'Specifies other doc. linked amount';
                     Visible = false;

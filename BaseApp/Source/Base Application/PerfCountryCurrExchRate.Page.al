@@ -6,6 +6,8 @@ page 11764 "Perf. Country Curr. Exch. Rate"
     PageType = List;
     PopulateAllFields = true;
     SourceTable = "Perf. Country Curr. Exch. Rate";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this page should not be used. (Obsolete::Removed in release 01.2021)';
 
     layout
     {
@@ -16,6 +18,7 @@ page 11764 "Perf. Country Curr. Exch. Rate"
                 ShowCaption = false;
                 field("Relational Currency Code"; "Relational Currency Code")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the currency code for exchange rate conversion.';
                     Visible = false;
                 }

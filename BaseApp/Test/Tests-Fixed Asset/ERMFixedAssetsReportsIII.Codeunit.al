@@ -130,10 +130,10 @@ codeunit 134990 "ERM Fixed Assets Reports - III"
         // Taking Custom 1 value less than Acquisition Cost.
         CreateFAGLJournalLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
-          FixedAsset."No.", GenJournalLine."FA Posting Type"::"Custom 1", AcquisitionCost / 2); // NAVCZ
+          FixedAsset."No.", GenJournalLine."FA Posting Type"::"Custom 1", -AcquisitionCost / 2);
         CreateFAGLJournalLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, FixedAsset."No.",
-          GenJournalLine."FA Posting Type"::"Custom 2", GenJournalLine.Amount / 2);  // Taking Custom 2 value different from Custom 1 value.
+          GenJournalLine."FA Posting Type"::"Custom 2", -GenJournalLine.Amount / 2);  // Taking Custom 2 value different from Custom 1 value. // NAVCZ
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // 2. Exercise: Run Fixed Asset Book Value 02 Report.

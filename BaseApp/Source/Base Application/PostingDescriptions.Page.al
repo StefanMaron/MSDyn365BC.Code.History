@@ -6,6 +6,8 @@ page 11785 "Posting Descriptions"
     PopulateAllFields = true;
     SourceTable = "Posting Description";
     UsageCategory = Administration;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'The functionality of posting description will be removed and this page should not be used. (Obsolete::Removed in release 01.2021)';
 
     layout
     {

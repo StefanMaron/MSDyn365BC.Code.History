@@ -331,7 +331,7 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
         // Post a line in FA G/L journals with FA Posting Type Custom 1.
         // 1. Setup: Create Fixed Asset, FA Depreciation Book with FA Posting Group and Put check marks on Integration Tab.
         Initialize;
-        FANo := CreateFixedAssetWithIntegration(GenJournalLine."FA Posting Type"::"Custom 1", 1, GenJournalLine); // NAVCZ
+        FANo := CreateFixedAssetWithIntegration(GenJournalLine."FA Posting Type"::"Custom 1", -1, GenJournalLine);
 
         // 2. Exercise: Create and post a line in FA G/L Journal.
         LibraryLowerPermissions.SetO365FAEdit;
@@ -355,7 +355,7 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
         // Post a line in FA G/L journals with FA Posting Type Custom 2.
         // 1. Setup: Create Fixed Asset, FA Depreciation Book with FA Posting Group and Put check marks on Integration Tab.
         Initialize;
-        FANo := CreateFixedAssetWithIntegration(GenJournalLine."FA Posting Type"::"Custom 2", -1, GenJournalLine);
+        FANo := CreateFixedAssetWithIntegration(GenJournalLine."FA Posting Type"::"Custom 2", 1, GenJournalLine); // NAVCZ
 
         // 2. Exercise: Create and post a line in FA G/L Journal.
         LibraryLowerPermissions.SetO365FAEdit;
@@ -1355,7 +1355,6 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
         DepreciationBook.Validate("G/L Integration - Disposal", true);
         DepreciationBook.Validate("Disposal Calculation Method", DepreciationBook."Disposal Calculation Method"::Gross); // NAVCZ
         DepreciationBook.Modify(true);
-        UpdateFAPostingTypeSetup(DepreciationBook.Code); // NAVCZ
         exit(DepreciationBook.Code);
     end;
 
@@ -1402,9 +1401,9 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
         CreateGenJournalLine(GenJournalLine, FADepreciationBook, GenJournalBatch, GenJournalLine."FA Posting Type"::Appreciation,
           Amount, GLAccount);
         CreateGenJournalLine(GenJournalLine, FADepreciationBook, GenJournalBatch, GenJournalLine."FA Posting Type"::"Custom 1",
-          Amount / 4, GLAccount); // NAVCZ
-        CreateGenJournalLine(GenJournalLine, FADepreciationBook, GenJournalBatch, GenJournalLine."FA Posting Type"::"Custom 2",
           -Amount / 4, GLAccount);
+        CreateGenJournalLine(GenJournalLine, FADepreciationBook, GenJournalBatch, GenJournalLine."FA Posting Type"::"Custom 2",
+          Amount / 4, GLAccount); // NAVCZ
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
@@ -1548,7 +1547,6 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
         LibraryFixedAsset.CreateDepreciationBook(DepreciationBook);
         LibraryFixedAsset.CreateFAJournalSetup(FAJournalSetup, DepreciationBook.Code, '');
         UpdateFAJournalSetup(FAJournalSetup);
-        UpdateFAPostingTypeSetup(DepreciationBook.Code); // NAVCZ
         exit(FAJournalSetup."Gen. Jnl. Batch Name");
     end;
 
@@ -1894,15 +1892,6 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
     procedure MessageHandler(Message: Text[1024])
     begin
         // Dummy message handler
-    end;
-
-    local procedure UpdateFAPostingTypeSetup(DepreciationBookCode: Code[10])
-    var
-        FAPostingTypeSetup: Record "FA Posting Type Setup";
-    begin
-        // NAVCZ
-        FAPostingTypeSetup.SetRange("Depreciation Book Code", DepreciationBookCode);
-        FAPostingTypeSetup.ModifyAll("Include in Gain/Loss Calc.", true);
     end;
 
     local procedure FindCustomer(var Customer: Record Customer)

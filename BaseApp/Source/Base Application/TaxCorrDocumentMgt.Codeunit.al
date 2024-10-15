@@ -1,5 +1,7 @@
 codeunit 11763 "Tax Corr. Document Mgt."
 {
+    ObsoleteState = Pending;
+    ObsoleteReason = 'The functionality of Tax corrective documents for VAT will be removed and this codeunit should not be used. (Obsolete::Removed in release 01.2021)';
 
     trigger OnRun()
     begin

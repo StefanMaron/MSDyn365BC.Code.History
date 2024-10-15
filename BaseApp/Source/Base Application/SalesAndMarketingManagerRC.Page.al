@@ -458,15 +458,15 @@ page 8907 "Sales & Marketing Manager RC"
                     }
                     action("Sales Advance Letter List")
                     {
-                        ApplicationArea =;
+                        ApplicationArea = Basic, Suite;
                         Caption = 'Sales Advance Letter List';
-                        RunObject = report 31010;
+                        RunObject = report "Sales Advance Letter List";
                     }
                     action("Quantity Shipped Check")
                     {
-                        ApplicationArea =;
+                        ApplicationArea = Basic, Suite;
                         Caption = 'Quantity Shipped Check';
-                        RunObject = report 31075;
+                        RunObject = report "Quantity Shipped Check";
                     }
                 }
             }
@@ -575,7 +575,7 @@ page 8907 "Sales & Marketing Manager RC"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Sales Price Import/Export';
-                    RunObject = report 31072;
+                    RunObject = report "Sales Price Import/Export";
                 }
                 group("Group14")
                 {
@@ -744,7 +744,7 @@ page 8907 "Sales & Marketing Manager RC"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Adv. Payment Selection-Sales';
-                    RunObject = page 31019;
+                    RunObject = page "Adv. Payment Selection - Sales";
                 }
                 action("Standard Sales Codes")
                 {

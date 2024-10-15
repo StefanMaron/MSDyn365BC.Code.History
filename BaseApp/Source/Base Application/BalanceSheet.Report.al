@@ -431,6 +431,7 @@ report 11782 "Balance Sheet"
             begin
                 CurrReport.PageNo := 1;
                 GLSetup.Get;
+
                 if "Analysis View Name" <> '' then
                     AnalysisView.Get("Analysis View Name")
                 else begin

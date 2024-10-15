@@ -3,6 +3,8 @@ page 11784 "Non Deductible VAT Setup"
     Caption = 'Non Deductible VAT Setup';
     PageType = List;
     SourceTable = "Non Deductible VAT Setup";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'The functionality of Non-deductible VAT will be removed and this page should not be used. (Obsolete::Removed in release 01.2021)';
 
     layout
     {

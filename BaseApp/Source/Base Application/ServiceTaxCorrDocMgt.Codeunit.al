@@ -4,6 +4,8 @@ codeunit 11765 "Service Tax Corr. Doc Mgt."
                   TableData "Service Invoice Line" = im,
                   TableData "Service Cr.Memo Header" = im,
                   TableData "Service Cr.Memo Line" = im;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'The functionality of Tax corrective documents for VAT will be removed and this codeunit should not be used. (Obsolete::Removed in release 01.2021)';
 
     trigger OnRun()
     begin

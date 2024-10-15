@@ -52,6 +52,7 @@
                 }
                 field("Whse. Net Change Template"; "Whse. Net Change Template")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the template for item''s whse. net change.';
                     Visible = false;
                 }
@@ -645,6 +646,7 @@
                 }
                 action("&Get Standard Journals")
                 {
+                    ApplicationArea = Basic, Suite;
                     Caption = '&Get Standard Journals';
                     Ellipsis = true;
                     Image = GetStandardJournal;
@@ -667,6 +669,7 @@
                 }
                 action("&Save as Standard Journal")
                 {
+                    ApplicationArea = Basic, Suite;
                     Caption = '&Save as Standard Journal';
                     Ellipsis = true;
                     Image = SaveasStandardJournal;
@@ -754,6 +757,7 @@
         {
             action("&Print")
             {
+                ApplicationArea = Basic, Suite;
                 Caption = '&Print';
                 Ellipsis = true;
                 Image = Print;

@@ -109,6 +109,9 @@ table 31020 "Purch. Advance Letter Header"
 
                 Validate("Currency Code");
                 Validate("Payment Terms Code");
+
+                if (xRec."Pay-to Vendor No." <> '') and (xRec."Pay-to Vendor No." <> "Pay-to Vendor No.") then
+                    RecallModifyAddressNotification(GetModifyPayToVendorAddressNotificationId);
             end;
         }
         field(5; "Pay-to Name"; Text[100])
@@ -121,7 +124,8 @@ table 31020 "Purch. Advance Letter Header"
             var
                 Vendor: Record Vendor;
             begin
-                Validate("Pay-to Vendor No.", Vendor.GetVendorNo("Pay-to Name"));
+                if ShouldLookForVendorByName("Pay-to Vendor No.") then
+                    Validate("Pay-to Vendor No.", Vendor.GetVendorNo("Pay-to Name"));
             end;
         }
         field(6; "Pay-to Name 2"; Text[50])
@@ -131,10 +135,20 @@ table 31020 "Purch. Advance Letter Header"
         field(7; "Pay-to Address"; Text[100])
         {
             Caption = 'Pay-to Address';
+
+            trigger OnValidate()
+            begin
+                ModifyPayToVendorAddress();
+            end;
         }
         field(8; "Pay-to Address 2"; Text[50])
         {
             Caption = 'Pay-to Address 2';
+
+            trigger OnValidate()
+            begin
+                ModifyPayToVendorAddress();
+            end;
         }
         field(9; "Pay-to City"; Text[30])
         {
@@ -142,19 +156,28 @@ table 31020 "Purch. Advance Letter Header"
             TableRelation = IF ("Pay-to Country/Region Code" = CONST('')) "Post Code".City
             ELSE
             IF ("Pay-to Country/Region Code" = FILTER(<> '')) "Post Code".City WHERE("Country/Region Code" = FIELD("Pay-to Country/Region Code"));
-            //This property is currently not supported
-            //TestTableRelation = false;
             ValidateTableRelation = false;
+
+            trigger OnLookup()
+            begin
+                PostCode.LookupPostCode("Pay-to City", "Pay-to Post Code", "Pay-to County", "Pay-to Country/Region Code");
+            end;
 
             trigger OnValidate()
             begin
                 PostCode.ValidateCity(
                   "Pay-to City", "Pay-to Post Code", "Pay-to County", "Pay-to Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
+                ModifyPayToVendorAddress();
             end;
         }
         field(10; "Pay-to Contact"; Text[100])
         {
             Caption = 'Pay-to Contact';
+
+            trigger OnValidate()
+            begin
+                ModifyPayToVendorAddress();
+            end;
         }
         field(11; "Your Reference"; Text[35])
         {
@@ -373,24 +396,39 @@ table 31020 "Purch. Advance Letter Header"
             TableRelation = IF ("Pay-to Country/Region Code" = CONST('')) "Post Code"
             ELSE
             IF ("Pay-to Country/Region Code" = FILTER(<> '')) "Post Code" WHERE("Country/Region Code" = FIELD("Pay-to Country/Region Code"));
-            //This property is currently not supported
-            //TestTableRelation = false;
             ValidateTableRelation = false;
+
+            trigger OnLookup()
+            begin
+                PostCode.LookupPostCode("Pay-to City", "Pay-to Post Code", "Pay-to County", "Pay-to Country/Region Code");
+            end;
 
             trigger OnValidate()
             begin
                 PostCode.ValidatePostCode(
                   "Pay-to City", "Pay-to Post Code", "Pay-to County", "Pay-to Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
+                ModifyPayToVendorAddress();
             end;
         }
         field(86; "Pay-to County"; Text[30])
         {
             Caption = 'Pay-to County';
+            CaptionClass = '5,1,' + "Pay-to Country/Region Code";
+
+            trigger OnValidate()
+            begin
+                ModifyPayToVendorAddress();
+            end;
         }
         field(87; "Pay-to Country/Region Code"; Code[10])
         {
             Caption = 'Pay-to Country/Region Code';
             TableRelation = "Country/Region";
+
+            trigger OnValidate()
+            begin
+                ModifyPayToVendorAddress();
+            end;
         }
         field(99; "Document Date"; Date)
         {
@@ -785,6 +823,8 @@ table 31020 "Purch. Advance Letter Header"
             Caption = 'Perform. Country/Region Code';
             TableRelation = "Registration Country/Region"."Country/Region Code" WHERE("Account Type" = CONST("Company Information"),
                                                                                        "Account No." = FILTER(''));
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
 
             trigger OnValidate()
             var
@@ -828,6 +868,8 @@ table 31020 "Purch. Advance Letter Header"
             DecimalPlaces = 0 : 15;
             Editable = false;
             MinValue = 0;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
         }
         field(31100; "Original Document VAT Date"; Date)
         {
@@ -945,7 +987,9 @@ table 31020 "Purch. Advance Letter Header"
         PaymentTerms: Record "Payment Terms";
         PurchAdvanceLetterLinegre: Record "Purch. Advance Letter Line";
         PostCode: Record "Post Code";
+        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)')]
         RegistrationCountry: Record "Registration Country/Region";
+        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)')]
         PerfCountryCurrExchRate: Record "Perf. Country Curr. Exch. Rate";
         CompanyInfo: Record "Company Information";
         RespCenter: Record "Responsibility Center";
@@ -965,7 +1009,7 @@ table 31020 "Purch. Advance Letter Header"
         Text010Qst: Label 'You may have changed a dimension. Do you want to update the lines?';
         Text011Qst: Label 'You have changed %1. Do you want to update %2?';
         Text012Err: Label 'You cannot change the %1 to %2 because same lines have been amount on Payment Order.';
-        Text013Qst: Label 'Vendor No. %1 has set Bill-to Customer No. %2. To use Bill-to Customer No.?';
+        Text013Qst: Label 'Vendor No. %1 has set Pay-to Vendor No. %2. To use Pay-to Vendor No.?';
         Text014Qst: Label 'Do you want to update the exchange rate?';
         ApprovalProcessReleaseErr: Label 'This document can only be released when the approval process is complete.';
         ApprovalProcessReopenErr: Label 'The approval process must be cancelled or completed to reopen this document.';
@@ -974,6 +1018,9 @@ table 31020 "Purch. Advance Letter Header"
         RespCenterDeleteErr: Label 'You cannot delete this document. Your identification is set up to process from %1 %2 only.', Comment = '%1 = fieldcaption of Responsibility Center; %2 = Responsibility Center';
         LinesModifiedTxt: Label 'You have modified %1.\\', Comment = '%1 = fieldcaption modified field';
         UpdateLinesQst: Label 'Do you want to update the lines?';
+        ModifyVendorAddressNotificationLbl: Label 'Update the address';
+        DontShowAgainActionLbl: Label 'Don''t show again';
+        ModifyVendorAddressNotificationMsg: Label 'The address you entered for %1 is different from the Vendor''s existing address.', Comment = '%1 = Vendor name';
 
     [Scope('OnPrem')]
     procedure AssistEdit(PurchAdvanceLetterHeaderOld: Record "Purch. Advance Letter Header"): Boolean
@@ -1543,6 +1590,7 @@ table 31020 "Purch. Advance Letter Header"
             until PurchAdvanceLetterLinegre.Next = 0;
     end;
 
+    [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)')]
     local procedure UpdatePerformCountryCurrFactor()
     begin
         if "Perform. Country/Region Code" <> '' then begin
@@ -1574,6 +1622,100 @@ table 31020 "Purch. Advance Letter Header"
             SetRange("Responsibility Center", UserSetupMgt.GetPurchasesFilter);
             FilterGroup(0);
         end;
+    end;
+
+    local procedure ShouldLookForVendorByName(VendorNo: Code[20]): Boolean
+    var
+        Vendor: Record Vendor;
+    begin
+        if VendorNo = '' then
+            exit(true);
+
+        if not Vendor.Get(VendorNo) then
+            exit(true);
+
+        exit(not Vendor."Disable Search by Name");
+    end;
+
+    local procedure ModifyPayToVendorAddress()
+    var
+        Vendor: Record Vendor;
+    begin
+        PurchSetup.Get;
+        if PurchSetup."Ignore Updated Addresses" then
+            exit;
+
+        if Vendor.Get("Pay-to Vendor No.") then
+            if HasPayToAddress and HasDifferentPayToAddress(Vendor) then
+                ShowModifyAddressNotification(GetModifyPayToVendorAddressNotificationId,
+                    ModifyVendorAddressNotificationLbl, ModifyVendorAddressNotificationMsg,
+                    'CopyPayToVendorAddressFieldsFromSalesAdvDocument', "Pay-to Vendor No.",
+                    "Pay-to Name", FieldName("Pay-to Vendor No."));
+    end;
+
+    procedure HasPayToAddress(): Boolean
+    begin
+        exit(("Pay-to Address" <> '') or
+            ("Pay-to Address 2" <> '') or
+            ("Pay-to City" <> '') or
+            ("Pay-to Country/Region Code" <> '') or
+            ("Pay-to County" <> '') or
+            ("Pay-to Post Code" <> '') or
+            ("Pay-to Contact" <> ''));
+    end;
+
+    procedure HasDifferentPayToAddress(Vendor: Record Vendor): Boolean
+    begin
+        exit(("Pay-to Address" <> Vendor.Address) or
+            ("Pay-to Address 2" <> Vendor."Address 2") or
+            ("Pay-to City" <> Vendor.City) or
+            ("Pay-to Country/Region Code" <> Vendor."Country/Region Code") or
+            ("Pay-to County" <> Vendor.County) or
+            ("Pay-to Post Code" <> Vendor."Post Code") or
+            ("Pay-to Contact" <> Vendor.Contact));
+    end;
+
+    local procedure ShowModifyAddressNotification(NotificationID: Guid; NotificationLbl: Text; NotificationMsg: Text; NotificationFunctionTok: Text; VendorNumber: Code[20]; VendorName: Text[50]; VendorNumberFieldName: Text)
+    var
+        MyNotifications: Record "My Notifications";
+        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
+        PageMyNotifications: Page "My Notifications";
+        ModifyVendorAddressNotification: Notification;
+    begin
+        if not MyNotifications.Get(UserId, NotificationID) then
+            PageMyNotifications.InitializeNotificationsWithDefaultState;
+
+        if not MyNotifications.IsEnabled(NotificationID) then
+            exit;
+
+        ModifyVendorAddressNotification.Id := NotificationID;
+        ModifyVendorAddressNotification.Message := StrSubstNo(NotificationMsg, VendorName);
+        ModifyVendorAddressNotification.AddAction(NotificationLbl, Codeunit::"Document Notifications", NotificationFunctionTok);
+        ModifyVendorAddressNotification.AddAction(
+            DontShowAgainActionLbl, Codeunit::"Document Notifications", 'HideNotificationForCurrentUser');
+        ModifyVendorAddressNotification.Scope := NotificationScope::LocalScope;
+        ModifyVendorAddressNotification.SetData(FieldName("No."), "No.");
+        ModifyVendorAddressNotification.SetData(VendorNumberFieldName, VendorNumber);
+        NotificationLifecycleMgt.SendNotification(ModifyVendorAddressNotification, RecordId);
+    end;
+
+    procedure RecallModifyAddressNotification(NotificationID: Guid)
+    var
+        MyNotifications: Record "My Notifications";
+        ModifyVendorAddressNotification: Notification;
+    begin
+        if (not MyNotifications.IsEnabled(NotificationID)) then
+            exit;
+
+        ModifyVendorAddressNotification.Id := NotificationID;
+        ModifyVendorAddressNotification.Recall();
+    end;
+
+    procedure GetModifyPayToVendorAddressNotificationId(): Guid
+    var
+        PurchaseHeader: Record "Purchase Header";
+    begin
+        exit(PurchaseHeader.GetModifyPayToVendorAddressNotificationId());
     end;
 
     [IntegrationEvent(TRUE, false)]

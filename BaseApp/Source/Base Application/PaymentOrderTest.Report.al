@@ -165,6 +165,7 @@ report 11710 "Payment Order - Test"
                     Caption = 'General';
                     field(PrintIncludingSkipPayments; PrintIncludingSkipPayments)
                     {
+                        ApplicationArea = Basic, Suite;
                         Caption = 'Print including skip payments';
                         ToolTip = 'Specifies if the document will be print including skip payments';
                     }

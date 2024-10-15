@@ -2,6 +2,8 @@ table 11767 "VAT Identifier"
 {
     Caption = 'VAT Identifier';
     LookupPageID = "VAT Identifiers";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'The enhanced functionality of VAT Identifier will be removed and this table should not be used. (Obsolete::Removed in release 01.2021)';
 
     fields
     {

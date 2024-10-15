@@ -524,6 +524,8 @@ table 115 "Sales Cr.Memo Line"
         {
             Caption = 'Reason Code';
             TableRelation = "Reason Code";
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The functionality of Tax corrective documents for VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
         }
         field(11764; "VAT Difference (LCY)"; Decimal)
         {
@@ -593,7 +595,7 @@ table 115 "Sales Cr.Memo Line"
         SalesDocLineComments.SetRange("No.", "Document No.");
         SalesDocLineComments.SetRange("Document Line No.", "Line No.");
         if not SalesDocLineComments.IsEmpty then
-            SalesDocLineComments.DeleteAll;
+            SalesDocLineComments.DeleteAll();
 
         PostedDeferralHeader.DeleteHeader(DeferralUtilities.GetSalesDeferralDocType, '', '',
           SalesDocLineComments."Document Type"::"Posted Credit Memo", "Document No.", "Line No.");
@@ -628,11 +630,11 @@ table 115 "Sales Cr.Memo Line"
 
     procedure CalcVATAmountLines(SalesCrMemoHeader: Record "Sales Cr.Memo Header"; var TempVATAmountLine: Record "VAT Amount Line" temporary)
     begin
-        TempVATAmountLine.DeleteAll;
+        TempVATAmountLine.DeleteAll();
         SetRange("Document No.", SalesCrMemoHeader."No.");
         if Find('-') then
             repeat
-                TempVATAmountLine.Init;
+                TempVATAmountLine.Init();
                 TempVATAmountLine.CopyFromSalesCrMemoLine(Rec);
                 // NAVCZ
                 TempVATAmountLine."Currency Code" := SalesCrMemoHeader."Currency Code";
@@ -670,7 +672,7 @@ table 115 "Sales Cr.Memo Line"
         if SalesCrMemoHeader."No." = "Document No." then
             exit;
         if not SalesCrMemoHeader.Get("Document No.") then
-            SalesCrMemoHeader.Init;
+            SalesCrMemoHeader.Init();
 
         if SalesCrMemoHeader."Currency Code" = '' then
             Currency.InitRoundingPrecision
@@ -715,8 +717,8 @@ table 115 "Sales Cr.Memo Line"
         ItemLedgEntry: Record "Item Ledger Entry";
         ValueEntry: Record "Value Entry";
     begin
-        TempReturnRcptLine.Reset;
-        TempReturnRcptLine.DeleteAll;
+        TempReturnRcptLine.Reset();
+        TempReturnRcptLine.DeleteAll();
 
         if Type <> Type::Item then
             exit;
@@ -728,9 +730,9 @@ table 115 "Sales Cr.Memo Line"
                 ItemLedgEntry.Get(ValueEntry."Item Ledger Entry No.");
                 if ItemLedgEntry."Document Type" = ItemLedgEntry."Document Type"::"Sales Return Receipt" then
                     if ReturnRcptLine.Get(ItemLedgEntry."Document No.", ItemLedgEntry."Document Line No.") then begin
-                        TempReturnRcptLine.Init;
+                        TempReturnRcptLine.Init();
                         TempReturnRcptLine := ReturnRcptLine;
-                        if TempReturnRcptLine.Insert then;
+                        if TempReturnRcptLine.Insert() then;
                     end;
             until ValueEntry.Next = 0;
     end;
@@ -741,8 +743,8 @@ table 115 "Sales Cr.Memo Line"
         ValueEntry: Record "Value Entry";
     begin
         if SetQuantity then begin
-            TempItemLedgEntry.Reset;
-            TempItemLedgEntry.DeleteAll;
+            TempItemLedgEntry.Reset();
+            TempItemLedgEntry.DeleteAll();
 
             if Type <> Type::Item then
                 exit;
@@ -760,13 +762,13 @@ table 115 "Sales Cr.Memo Line"
                         TempItemLedgEntry."Shipped Qty. Not Returned" := TempItemLedgEntry.Quantity;
                 end;
                 OnGetItemLedgEntriesOnBeforeTempItemLedgEntryInsert(TempItemLedgEntry, ValueEntry, SetQuantity);
-                if TempItemLedgEntry.Insert then;
+                if TempItemLedgEntry.Insert() then;
             until ValueEntry.Next = 0;
     end;
 
     procedure FilterPstdDocLineValueEntries(var ValueEntry: Record "Value Entry")
     begin
-        ValueEntry.Reset;
+        ValueEntry.Reset();
         ValueEntry.SetCurrentKey("Document No.");
         ValueEntry.SetRange("Document No.", "Document No.");
         ValueEntry.SetRange("Document Type", ValueEntry."Document Type"::"Sales Credit Memo");
@@ -877,7 +879,7 @@ table 115 "Sales Cr.Memo Line"
     begin
         Init;
         TransferFields(SalesLine);
-        if ("No." = '') and (Type in [Type::"G/L Account" .. Type::"Charge (Item)"]) then
+        if ("No." = '') and HasTypeToFillMandatoryFields() then
             Type := Type::" ";
         "Posting Date" := SalesCrMemoHeader."Posting Date";
         "Document No." := SalesCrMemoHeader."No.";

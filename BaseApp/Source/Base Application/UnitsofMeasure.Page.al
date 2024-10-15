@@ -26,6 +26,7 @@ page 209 "Units of Measure"
                 }
                 field("Unspecified Intrastat"; "Unspecified Intrastat")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies to use an unspecified unit of measure.';
                     Visible = false;
                 }
@@ -33,9 +34,13 @@ page 209 "Units of Measure"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies indivisible unit';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of Indivisible unit of measure will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
                 }
                 field("Tariff Number UOM Code"; "Tariff Number UOM Code")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of units of measure for revers charge reporting.';
                     Visible = false;
                 }

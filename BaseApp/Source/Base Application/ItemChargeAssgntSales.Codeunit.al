@@ -58,13 +58,12 @@ codeunit 5807 "Item Charge Assgnt. (Sales)"
             ItemChargeAssgntSales.Validate("Qty. to Assign", QtyToAssign);
         end;
         // NAVCZ
-        FromItemChargeAssgntSales."Item Charge No." := ItemChargeAssgntSales."Item Charge No.";
         if IncludeIntrastat or IncludeIntrastatAmount then begin
             ItemCharge.Get(ItemChargeAssgntSales."Item Charge No.");
             if IncludeIntrastatAmount then
-                FromItemChargeAssgntSales."Incl. in Intrastat Amount" := ItemCharge."Incl. in Intrastat Amount";
+                ItemChargeAssgntSales."Incl. in Intrastat Amount" := ItemCharge."Incl. in Intrastat Amount";
             if IncludeIntrastat then
-                FromItemChargeAssgntSales."Incl. in Intrastat Stat. Value" := ItemCharge."Incl. in Intrastat Stat. Value";
+                ItemChargeAssgntSales."Incl. in Intrastat Stat. Value" := ItemCharge."Incl. in Intrastat Stat. Value";
         end;
         // NAVCZ
         OnBeforeInsertItemChargeAssgntWithAssignValues(ItemChargeAssgntSales, FromItemChargeAssgntSales);

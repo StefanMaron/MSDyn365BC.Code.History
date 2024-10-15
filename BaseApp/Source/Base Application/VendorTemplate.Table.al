@@ -3,6 +3,8 @@ table 11794 "Vendor Template"
     Caption = 'Vendor Template';
     DrillDownPageID = "Vendor Template List";
     LookupPageID = "Vendor Template List";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'The functionality of Vendor templates will be removed and this table should not be used. (Obsolete::Removed in release 01.2021)';
 
     fields
     {

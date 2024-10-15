@@ -143,8 +143,15 @@ report 12 "VAT Statement"
             }
 
             trigger OnPreDataItem()
+            var
+                RegistrationCountryRegion: Record "Registration Country/Region";
             begin
                 GLSetup.Get;
+                // NAVCZ
+                if PerfCountryCodeFilter <> '' then
+                    if RegistrationCountryRegion.Get(RegistrationCountryRegion."Account Type"::"Company Information", '', PerfCountryCodeFilter) then
+                        GLSetup."LCY Code" := RegistrationCountryRegion."Currency Code (Local)";
+                // NAVCZ
             end;
         }
     }
@@ -181,11 +188,13 @@ report 12 "VAT Statement"
                         Caption = 'Date Row Filter Period';
                         field(StartDate1; StartDate1)
                         {
+                            ApplicationArea = Basic, Suite;
                             Caption = 'Starting Date';
                             ToolTip = 'Specifies the starting date';
                         }
                         field(EndDateReq1; EndDateReq1)
                         {
+                            ApplicationArea = Basic, Suite;
                             Caption = 'Ending Date';
                             ToolTip = 'Specifies the last date in the period.';
                         }
@@ -225,6 +234,7 @@ report 12 "VAT Statement"
                         Visible = RoundingDirectionCtrlVisible;
                         field(RoundingDirectionCtrl; RoundingDirection)
                         {
+                            ApplicationArea = Basic, Suite;
                             Caption = 'Rounding Direction';
                             OptionCaption = 'Nearest,Down,Up';
                             ToolTip = 'Specifies rounding direction of the vat statement';
@@ -232,9 +242,13 @@ report 12 "VAT Statement"
                     }
                     field(PerfCountryCodeFilter; PerfCountryCodeFilter)
                     {
+                        ApplicationArea = Basic, Suite;
                         Caption = 'Performance Country';
                         TableRelation = "Country/Region";
                         ToolTip = 'Specifies performance country code for VAT entries filtr.';
+                        Visible = false;
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
                     }
                     field(ShowAmtInAddCurrency; UseAmtsInAddCurr)
                     {
@@ -246,6 +260,7 @@ report 12 "VAT Statement"
                     }
                     field(SettlementNoFilter; SettlementNoFilter)
                     {
+                        ApplicationArea = Basic, Suite;
                         Caption = 'Filter VAT Settlement No.';
                         ToolTip = 'Specifies the filter setup of document number which the VAT entries were closed.';
                     }
@@ -304,6 +319,7 @@ report 12 "VAT Statement"
         GLAcc: Record "G/L Account";
         VATEntry: Record "VAT Entry";
         GLSetup: Record "General Ledger Setup";
+        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)')]
         PerfCountryCurrExchRate: Record "Perf. Country Curr. Exch. Rate";
         VATEntry2: Record "VAT Entry";
         VATStmtLine: Record "VAT Statement Line";
@@ -341,6 +357,7 @@ report 12 "VAT Statement"
         EndDate2: Date;
         StartDate2: Date;
         EndDateReq2: Date;
+        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)')]
         PerfCountryCodeFilter: Code[10];
         SettlementNoFilter: Text[50];
         Amount2: Decimal;
@@ -400,7 +417,7 @@ report 12 "VAT Statement"
                                         Amount := ConditionalAdd(Amount, GLAcc."Credit Amount (VAT Date)", GLAcc."Credit Amount ACY (VAT Date)");
                                     end;
                             end;
-                            // NAVCZ
+                        // NAVCZ
                         until GLAcc.Next = 0;
                     CalcTotalAmount(VATStmtLine2, TotalAmount);
                 end;
@@ -581,7 +598,7 @@ report 12 "VAT Statement"
                                 if PerfCountryCodeFilter = '' then
                                     Amount := ConditionalAdd(0, VATEntry."VAT Base (Non Deductible)", 0);
                             end;
-                            // NAVCZ
+                    // NAVCZ
                     end;
                     CalcTotalAmount(VATStmtLine2, TotalAmount);
                 end;
@@ -617,7 +634,7 @@ report 12 "VAT Statement"
                     Amount := EvaluateExpression(true, VATStmtLine2."Row Totaling", VATStmtLine2, true);
                     CalcTotalAmount(VATStmtLine2, TotalAmount);
                 end;
-                // NAVCZ
+        // NAVCZ
         end;
 
         exit(true);
@@ -830,6 +847,7 @@ report 12 "VAT Statement"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)')]
     procedure ExchangeAmount(AmountAdd: Decimal): Decimal
     begin
         // NAVCZ

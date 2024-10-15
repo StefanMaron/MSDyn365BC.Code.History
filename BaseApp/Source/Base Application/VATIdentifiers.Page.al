@@ -5,6 +5,8 @@ page 11767 "VAT Identifiers"
     PageType = List;
     SourceTable = "VAT Identifier";
     UsageCategory = Lists;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'The enhanced functionality of VAT Identifier will be removed and this page should not be used. (Obsolete::Removed in release 01.2021)';
 
     layout
     {

@@ -273,6 +273,7 @@
                 }
                 field("Maintenance Code"; "Maintenance Code")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a maintenance code.';
                     Visible = false;
                 }

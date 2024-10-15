@@ -2863,6 +2863,11 @@ codeunit 137003 "SCM WIP Costing Production-I"
 
         GLEntry.SetRange("Document No.", PurchInvHeaderNo);
         GLEntry.SetRange("G/L Account No.", GeneralPostingSetup."Purch. Account");
+        // NAVCZ
+        GLEntry.SetRange("Gen. Posting Type", GLEntry."Gen. Posting Type"::Purchase);
+        GLEntry.SetRange("Gen. Bus. Posting Group", GeneralPostingSetup."Gen. Bus. Posting Group");
+        GLEntry.SetRange("Gen. Prod. Posting Group", GeneralPostingSetup."Gen. Prod. Posting Group");
+        // NAVCZ
         GLEntry.FindFirst;
 
         // Verify WIP Account amounts and calculated WIP amounts are equal.

@@ -1,4 +1,4 @@
-table 302 "Finance Charge Memo Header"
+﻿table 302 "Finance Charge Memo Header"
 {
     Caption = 'Finance Charge Memo Header';
     DataCaptionFields = "No.", Name;
@@ -468,6 +468,8 @@ table 302 "Finance Charge Memo Header"
         {
             Caption = 'Posting Desc. Code';
             TableRelation = "Posting Description" WHERE(Type = CONST("Finance Charge"));
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The functionality of posting description will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
 
             trigger OnValidate()
             begin
@@ -535,6 +537,7 @@ table 302 "Finance Charge Memo Header"
 
     trigger OnInsert()
     var
+        [Obsolete('The functionality of No. Series Enhancements will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)')]
         NoSeriesLink: Record "No. Series Link";
     begin
         SalesSetup.Get;
@@ -550,11 +553,11 @@ table 302 "Finance Charge Memo Header"
         else
             // NAVCZ
             if ("No. Series" <> '') and
-               (SalesSetup."Fin. Chrg. Memo Nos." = SalesSetup."Issued Fin. Chrg. M. Nos.")
+               (SalesSetup."Fin. Chrg. Memo Nos." = GetIssuingNoSeriesCode())
             then
                 "Issuing No. Series" := "No. Series"
             else
-                NoSeriesMgt.SetDefaultSeries("Issuing No. Series", SalesSetup."Issued Fin. Chrg. M. Nos.");
+                NoSeriesMgt.SetDefaultSeries("Issuing No. Series", GetIssuingNoSeriesCode());
 
         if "Posting Date" = 0D then
             "Posting Date" := WorkDate;
@@ -1045,6 +1048,7 @@ table 302 "Finance Charge Memo Header"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('The functionality of posting description will be removed and this function should not be used. (Removed in release 01.2021)')]
     procedure GetPostingDescription(PostingDescCode: Code[10]; var PostingDescription: Text[100])
     var
         PostingDesc: Record "Posting Description";

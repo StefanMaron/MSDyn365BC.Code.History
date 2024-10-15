@@ -127,10 +127,12 @@ page 5814 "Item Charge Assignment (Sales)"
                 }
                 field("Incl. in Intrastat Amount"; "Incl. in Intrastat Amount")
                 {
+                    ApplicationArea = ItemCharges;
                     ToolTip = 'Specifies to include Intrastat amounts for value entries.';
                 }
                 field("Incl. in Intrastat Stat. Value"; "Incl. in Intrastat Stat. Value")
                 {
+                    ApplicationArea = ItemCharges;
                     ToolTip = 'Specifies to include Intrastat amounts for value entries.';
                 }
             }

@@ -76,6 +76,7 @@
                 }
                 field("External Document No."; "External Document No.")
                 {
+                    ApplicationArea = Suite;
                     ToolTip = 'Specifies the number of vendor''s document.';
                     Visible = false;
                 }
@@ -102,6 +103,7 @@
                 }
                 field("Posting Group"; "Posting Group")
                 {
+                    ApplicationArea = Suite;
                     ToolTip = 'Specifies the posting group that will be used in posting the journal line.The field is used only if the account type is either customer or vendor.';
                     Visible = false;
                 }
@@ -179,6 +181,7 @@
                 }
                 field(Correction; Correction)
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the entry as a corrective entry. You can use the field if you need to post a corrective entry to an account.';
                     Visible = false;
                 }
@@ -214,11 +217,13 @@
                 }
                 field("VAT Amount (LCY)"; "VAT Amount (LCY)")
                 {
+                    ApplicationArea = Suite;
                     ToolTip = 'Specifies the amount of VAT included in the total amount, expressed in LCY.';
                     Visible = false;
                 }
                 field("Bal. VAT Amount (LCY)"; "Bal. VAT Amount (LCY)")
                 {
+                    ApplicationArea = Suite;
                     ToolTip = 'Specifies the amount of Bal. VAT included in the total amount.';
                     Visible = false;
                 }
@@ -242,6 +247,7 @@
                 }
                 field("Due Date"; "Due Date")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the due date on the entry.';
                     Visible = false;
                 }
@@ -312,21 +318,25 @@
                 }
                 field("Bank Account Code"; "Bank Account Code")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a code to idenfity bank account.';
                     Visible = false;
                 }
                 field("Variable Symbol"; "Variable Symbol")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the detail information for payment.';
                     Visible = false;
                 }
                 field("Constant Symbol"; "Constant Symbol")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the additional symbol of bank payments.';
                     Visible = false;
                 }
                 field("Specific Symbol"; "Specific Symbol")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the additional symbol of bank payments.';
                     Visible = false;
                 }
@@ -337,86 +347,103 @@
                 }
                 field("Job No."; "Job No.")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the Job No. It is a required field and must be filled in. When you fill in this field and the Job Task No. field, a job ledger entry will be posted together with the journal line.';
                     Visible = false;
                 }
                 field("Job Task No."; "Job Task No.")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the Job Task No. It is a required field and must be filled in. When you fill in this field and the Job No. field, a job ledger entry will be posted together with the journal line.';
                     Visible = false;
                 }
                 field("Job Line Type"; "Job Line Type")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a Job Planning Line together with the posting of a job ledger entry.';
                     Visible = false;
                 }
                 field("Job Unit Of Measure Code"; "Job Unit Of Measure Code")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the unit of measure code the program uses when it determines the unit price. This code specifies how the quantity is measured, for example, by the box or by the piece.';
                     Visible = false;
                 }
                 field("Job Quantity"; "Job Quantity")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the quantity for the job ledger entry that is derived from posting the journal line. If the Job Quantity is 0, the total amount on the job ledger entry will also be 0.';
                     Visible = false;
                 }
                 field("Job Unit Cost"; "Job Unit Cost")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if you have assigned a job number, a job task number, and a job quantity to the journal line. It Specifies the Total Job Cost divided by Job Quantity for the journal line. The amount is shown in the currency specified for the job.';
                     Visible = false;
                 }
                 field("Job Unit Cost (LCY)"; "Job Unit Cost (LCY)")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if you have assigned a job number, a job task number, and a Job Quantity on the journal line. The field is calculated based on the Job Total Cost (LCY) divided by Job Quantity for the journal line.';
                     Visible = false;
                 }
                 field("Job Total Cost"; "Job Total Cost")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if you have assigned a job number and a job task number to the journal line. It Specifies the Amount excluding VAT divided by Job Quantity for the journal line. The amount is shown in the currency specified for the job.';
                     Visible = false;
                 }
                 field("Job Total Cost (LCY)"; "Job Total Cost (LCY)")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the job total cost if you have assigned a job number and a job task number to the journal line. It Specifies the Amount (LCY) excluding VAT Amount (LCY)for the journal line.';
                     Visible = false;
                 }
                 field("Job Unit Price"; "Job Unit Price")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the unit price for the selected Account Type and Account No. on the journal line. The unit price is in the job currency, derived from the currency code field in the Job Card.';
                     Visible = false;
                 }
                 field("Job Unit Price (LCY)"; "Job Unit Price (LCY)")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the unit price for the selected Account Type and Account No. on the journal line. The unit price is in the local currency.';
                     Visible = false;
                 }
                 field("Job Line Amount"; "Job Line Amount")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the net amount (excluding the Job Line Discount Amount) of the journal line. The amount shown is in the job currency, which is derived from the Currency Code field in the Job Card.';
                     Visible = false;
                 }
                 field("Job Line Amount (LCY)"; "Job Line Amount (LCY)")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the net amount (excluding the Job Line Discount (LCY) Amount) of the journal line, in the local currency that will be used for the job ledger entry.';
                     Visible = false;
                 }
                 field("Job Line Discount Amount"; "Job Line Discount Amount")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount of the discount that will be used for the job ledger entry.';
                     Visible = false;
                 }
                 field("Job Line Discount %"; "Job Line Discount %")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the job line discount percentage that will be used for the job ledger entry.';
                     Visible = false;
                 }
                 field("Job Total Price"; "Job Total Price")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the job total price in the job currency on the journal line.';
                     Visible = false;
                 }
                 field("Job Total Price (LCY)"; "Job Total Price (LCY)")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the total price for the journal line. The total price is in the local currency.';
                     Visible = false;
                 }
@@ -428,15 +455,18 @@
                 }
                 field("Original Document VAT Date"; "Original Document VAT Date")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT date of the original document.';
                     Visible = false;
                 }
                 field("Original Document Partner Type"; "Original Document Partner Type")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the typ of partner (customer or vendor). It''s possible for VAT control report.';
                 }
                 field("Original Document Partner No."; "Original Document Partner No.")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of partner (customer or vendor). It''s possible for VAT control report.';
                 }
                 field("Job Queue Status"; "Job Queue Status")

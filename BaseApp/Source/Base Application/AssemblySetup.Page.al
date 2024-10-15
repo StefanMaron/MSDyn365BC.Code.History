@@ -39,6 +39,7 @@ page 905 "Assembly Setup"
                 }
                 field("Gen. Bus. Posting Group"; "Gen. Bus. Posting Group")
                 {
+                    ApplicationArea = Assembly;
                     ToolTip = 'Specifies the code for the Gen. Bus. Posting Group that applies to the entry.';
                 }
             }

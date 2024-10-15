@@ -37,7 +37,7 @@ xmlport 11762 "VAT Statement 2011"
 
                         trigger OnBeforePassVariable()
                         begin
-                            FormType := GetFormType;
+                            FormType := GetFormType();
                         end;
                     }
                     textattribute(year)
@@ -1034,7 +1034,7 @@ xmlport 11762 "VAT Statement 2011"
                         trigger OnBeforePassVariable()
                         begin
                             GetAmtAndSkipIfEmpty(odp_zocelk, 'odp_zocelk');
-                            ValidateZocelk;
+                            ValidateZocelk();
                         end;
                     }
                     textattribute(dano_no)
@@ -1048,7 +1048,7 @@ xmlport 11762 "VAT Statement 2011"
                         trigger OnBeforePassVariable()
                         begin
                             GetAmtAndSkipIfEmpty(dan_zocelk, 'dan_zocelk');
-                            ValidateZocelk;
+                            ValidateZocelk();
                         end;
                     }
                     textattribute(dano_da)
@@ -1089,7 +1089,7 @@ xmlport 11762 "VAT Statement 2011"
                     begin
                         CurrNo += 1;
                         CommentLineNo := Format(CurrNo);
-                        SectionCode := GetSectionCode;
+                        SectionCode := GetSectionCode();
                     end;
 
                     trigger OnPreXmlItem()
@@ -1175,7 +1175,7 @@ xmlport 11762 "VAT Statement 2011"
         StatReportingSetup.Get;
         CompanyInfo.Get;
 
-        SWVersion := ApplicationSystemConstants.ApplicationVersion;
+        SWVersion := ApplicationSystemConstants.ApplicationVersion();
         SWName := 'Microsoft Dynamics NAV';
         XMLVersion := '01.02';
 
@@ -1189,8 +1189,8 @@ xmlport 11762 "VAT Statement 2011"
         DeclarationType := DeclarationType1;
         if ReasonsObservedOn1 <> 0D then
             ReasonsObservedOn := Format(ReasonsObservedOn1, 0, '<Day,2>.<Month,2>.<Year4>');
-        TodayDate := Format(Today, 0, '<Day,2>.<Month,2>.<Year4>');
-        TaxPayerStatus := GetTaxPayerStatus;
+        TodayDate := Format(Today(), 0, '<Day,2>.<Month,2>.<Year4>');
+        TaxPayerStatus := GetTaxPayerStatus();
 
         MainEcActCode1 :=
           CheckLen(StatReportingSetup."Main Economic Activity I Code",
@@ -1208,7 +1208,7 @@ xmlport 11762 "VAT Statement 2011"
         else
             VATRegNo := CompanyInfo."VAT Registration No.";
 
-        TaxPayerType := GetTaxPayerType;
+        TaxPayerType := GetTaxPayerType();
         NatPersLastName := StatReportingSetup."Natural Person First Name";
         NatPersFirstName :=
           CheckLen(StatReportingSetup."Natural Person Surname", StatReportingSetup.FieldCaption("Natural Person Surname"), 20);
@@ -1253,10 +1253,10 @@ xmlport 11762 "VAT Statement 2011"
     [Scope('OnPrem')]
     procedure ClearVariables()
     begin
-        ClearAll;
+        ClearAll();
     end;
 
-    local procedure CheckLen(FieldValue: Text[50]; FieldCaption: Text[50]; MaxLen: Integer): Text[50]
+    local procedure CheckLen(FieldValue: Text[50]; FieldCaption: Text; MaxLen: Integer): Text[50]
     begin
         if StrLen(FieldValue) > MaxLen then
             Error(MustBeGreaterErr, FieldCaption, MaxLen);
@@ -1280,15 +1280,15 @@ xmlport 11762 "VAT Statement 2011"
 
         if ExistAmount1 and ExistAmount2 then
             if Amount1 < Amount2 then
-                SetDanoDa
+                SetDanoDa()
             else
-                SetDanoNo;
+                SetDanoNo();
 
         if ExistAmount1 and not ExistAmount2 then
-            SetDanoNo;
+            SetDanoNo();
 
         if ExistAmount2 and not ExistAmount1 then
-            SetDanoDa;
+            SetDanoDa();
     end;
 
     local procedure SetDanoDa()
@@ -1382,11 +1382,11 @@ xmlport 11762 "VAT Statement 2011"
     begin
         if TempXMLExportBuffer.Get(XMLTag) then begin
             TempXMLExportBuffer.Amount += Amount;
-            TempXMLExportBuffer.Modify;
+            TempXMLExportBuffer.Modify();
         end else begin
             TempXMLExportBuffer."XML Tag" := XMLTag;
             TempXMLExportBuffer.Amount := Amount;
-            TempXMLExportBuffer.Insert;
+            TempXMLExportBuffer.Insert();
         end;
     end;
 
@@ -1394,7 +1394,7 @@ xmlport 11762 "VAT Statement 2011"
     begin
         if IsServiceTier then
             if Value = '' then
-                currXMLport.Skip;
+                currXMLport.Skip();
     end;
 
     local procedure GetAmtAndSkipIfEmpty(var Value: Text[1024]; XMLTag: Code[20])

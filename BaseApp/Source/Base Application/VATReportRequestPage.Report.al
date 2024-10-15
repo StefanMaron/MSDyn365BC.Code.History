@@ -8,6 +8,12 @@ report 742 "VAT Report Request Page"
         dataitem("VAT Report Header"; "VAT Report Header")
         {
 
+            trigger OnPostDataItem()
+            begin
+                "Created Date-Time" := CurrentDateTime();
+                Modify();
+            end;
+
             trigger OnPreDataItem()
             var
                 VATStatementLine: Record "VAT Statement Line";

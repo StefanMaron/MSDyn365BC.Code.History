@@ -451,6 +451,7 @@ report 31098 "Sales - Shipment CZ"
         ShipmentMethod: Record "Shipment Method";
         DocFooter: Record "Document Footer";
         TrackingSpecBuf: Record "Tracking Specification" temporary;
+        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)')]
         RegCountryRegion: Record "Registration Country/Region";
         Language: Codeunit Language;
         FormatAddr: Codeunit "Format Address";

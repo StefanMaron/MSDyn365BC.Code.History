@@ -10,15 +10,6 @@ report 31068 "VIES Declaration - Test"
         {
             DataItemTableView = SORTING("No.");
             RequestFilterFields = "No.";
-            column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
-            {
-            }
-            column(USERID; UserId)
-            {
-            }
-            column(CurrReport_PAGENO; CurrReport.PageNo)
-            {
-            }
             column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
             {
             }

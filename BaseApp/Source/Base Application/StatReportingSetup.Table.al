@@ -392,16 +392,22 @@ table 31065 "Stat. Reporting Setup"
         {
             Caption = 'Reverse Charge Nos.';
             TableRelation = "No. Series";
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The functionality of Reverse Charge Statement will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
         }
         field(31095; "Reverse Charge Auth. Emp. No."; Code[20])
         {
             Caption = 'Reverse Charge Auth. Emp. No.';
             TableRelation = "Company Officials";
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The functionality of Reverse Charge Statement will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
         }
         field(31096; "Rvrs. Chrg. Filled by Emp. No."; Code[20])
         {
             Caption = 'Reverse Charge Filled by Emp. No.';
             TableRelation = "Company Officials";
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The functionality of Reverse Charge Statement will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
         }
         field(31100; "VAT Control Report Nos."; Code[20])
         {
@@ -420,6 +426,13 @@ table 31065 "Stat. Reporting Setup"
         {
             Caption = 'VAT Control Report E-mail';
             ExtendedDatatype = EMail;
+
+            trigger OnValidate()
+            var
+                MailManagement: Codeunit "Mail Management";
+            begin
+                MailManagement.ValidateEmailAddressField("VAT Control Report E-mail");
+            end;
         }
         field(31104; "VAT Control Report Xml Format"; Option)
         {

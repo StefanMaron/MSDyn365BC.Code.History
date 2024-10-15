@@ -14,21 +14,25 @@ page 11790 "Detailed Issued Reminder Lines"
                 ShowCaption = false;
                 field("Issued Reminder No."; "Issued Reminder No.")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of issued reminder.';
                     Visible = false;
                 }
                 field("Issued Reminder Line No."; "Issued Reminder Line No.")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the line number of issued reminder.';
                     Visible = false;
                 }
                 field("Detailed Customer Entry No."; "Detailed Customer Entry No.")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of detailed customer entry.';
                     Visible = false;
                 }
                 field("Line No."; "Line No.")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the line number.';
                     Visible = false;
                 }
@@ -54,6 +58,7 @@ page 11790 "Detailed Issued Reminder Lines"
                 }
                 field("Base Amount"; "Base Amount")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the base amount of the issued reminder lines.';
                     Visible = false;
                 }

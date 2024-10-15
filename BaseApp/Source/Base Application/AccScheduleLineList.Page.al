@@ -16,6 +16,7 @@ page 31086 "Acc. Schedule Line List"
                 ShowCaption = false;
                 field("Schedule Name"; "Schedule Name")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the account schedule name.';
                     Visible = false;
                 }

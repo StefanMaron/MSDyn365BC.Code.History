@@ -84,7 +84,7 @@ report 31113 "Service Contract CZ"
             column(SalespersonLbl; SalespersonLbl)
             {
             }
-            column(CreatorLbl; CreatorLbl)
+            column(PrintedByLbl; PrintedByLbl)
             {
             }
             column(VATRegistrationNoLbl; VATRegistrationNoLbl)
@@ -283,7 +283,6 @@ report 31113 "Service Contract CZ"
                 }
                 dataitem("User Setup"; "User Setup")
                 {
-                    DataItemLink = "User ID" = FIELD("Original User ID");
                     DataItemLinkReference = "Service Contract Header";
                     DataItemTableView = SORTING("User ID");
                     dataitem(Employee; Employee)
@@ -300,6 +299,11 @@ report 31113 "Service Contract CZ"
                         {
                         }
                     }
+
+                    trigger OnPreDataItem()
+                    begin
+                        "User Setup".SetRange("User ID", UserId());
+                    end;
                 }
 
                 trigger OnPreDataItem()
@@ -414,7 +418,7 @@ report 31113 "Service Contract CZ"
         CustLbl: Label 'Customer';
         ShipToLbl: Label 'Ship-to';
         SalespersonLbl: Label 'Salesperson';
-        CreatorLbl: Label 'Posted by';
+        PrintedByLbl: Label 'Printed by';
         VATRegistrationNoLbl: Label 'VAT Registration No.';
         RegistrationNoLbl: Label 'Registration No.';
 

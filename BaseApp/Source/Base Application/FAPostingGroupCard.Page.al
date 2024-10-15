@@ -174,6 +174,9 @@ page 5612 "FA Posting Group Card"
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies to use standard disposal.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of Disposal Posting was changed and this field should not be used. This field is replaced by a UseStandardDisposal function in "FA Posting Group" table. (Obsolete::Removed in release 01.2021)';
                 }
                 group("Sales Acc. on Disposal")
                 {

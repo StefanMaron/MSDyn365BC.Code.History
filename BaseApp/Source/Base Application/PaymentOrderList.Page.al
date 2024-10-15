@@ -66,6 +66,7 @@ page 11719 "Payment Order List"
                 }
                 field("File Name"; "File Name")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name and address of the payment order file created in the system.';
                     Visible = false;
                 }

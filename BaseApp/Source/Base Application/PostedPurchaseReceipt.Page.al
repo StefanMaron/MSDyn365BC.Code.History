@@ -106,6 +106,7 @@
                 }
                 field("Posting Description"; "Posting Description")
                 {
+                    ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies a description of the purchase receipt. The posting description also appers on vendor and G/L entries.';
                 }
@@ -275,11 +276,13 @@
                 }
                 field("VAT Bus. Posting Group"; "VAT Bus. Posting Group")
                 {
+                    ApplicationArea = Suite;
                     Editable = false;
                     ToolTip = 'Specifies a VAT business posting group code.';
                 }
                 field("Vendor Posting Group"; "Vendor Posting Group")
                 {
+                    ApplicationArea = Suite;
                     Editable = false;
                     ToolTip = 'Specifies the vendor''s market type to link business transactions made for the vendor with the appropriate account in the general ledger.';
                 }
@@ -484,6 +487,7 @@
                 trigger OnAction()
                 begin
                     PurchRcptHeader := Rec;
+                    OnBeforePrintRecords(Rec, PurchRcptHeader);
                     CurrPage.SetSelectionFilter(PurchRcptHeader);
                     PurchRcptHeader.PrintRecords(true);
                 end;
@@ -524,6 +528,11 @@
         IsBuyFromCountyVisible := FormatAddress.UseCounty("Buy-from Country/Region Code");
         IsPayToCountyVisible := FormatAddress.UseCounty("Pay-to Country/Region Code");
         IsShipToCountyVisible := FormatAddress.UseCounty("Ship-to Country/Region Code");
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePrintRecords(PurchRcptHeaderRec: Record "Purch. Rcpt. Header"; var ToPrint: Record "Purch. Rcpt. Header")
+    begin
     end;
 }
 

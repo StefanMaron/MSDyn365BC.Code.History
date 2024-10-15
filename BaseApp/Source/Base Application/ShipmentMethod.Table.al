@@ -73,6 +73,9 @@ table 10 "Shipment Method"
 
     fieldgroups
     {
+        fieldgroup(DropDown; "Code", Description)
+        {
+        }
     }
 
     trigger OnDelete()

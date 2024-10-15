@@ -33,6 +33,7 @@ page 31051 "Credit Subform"
                 }
                 field("Posting Group"; "Posting Group")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the posting group that will be used in posting the journal line.The field is used only if the account type is either customer or vendor.';
                     Visible = false;
                 }
@@ -85,6 +86,7 @@ page 31051 "Credit Subform"
                 }
                 field("Ledg. Entry Original Amount"; "Ledg. Entry Original Amount")
                 {
+                    ApplicationArea = Basic, Suite;
                     BlankZero = true;
                     Editable = false;
                     ToolTip = 'Specifies the original amount of document.';
@@ -121,12 +123,14 @@ page 31051 "Credit Subform"
                 }
                 field("Ledg. Entry Original Amt.(LCY)"; "Ledg. Entry Original Amt.(LCY)")
                 {
+                    ApplicationArea = Basic, Suite;
                     BlankZero = true;
                     ToolTip = 'Specifies the original amount of document. The amount is in the local currency.';
                     Visible = false;
                 }
                 field("Ledg. Entry Rem. Amt. (LCY)"; "Ledg. Entry Rem. Amt. (LCY)")
                 {
+                    ApplicationArea = Basic, Suite;
                     BlankZero = true;
                     Editable = false;
                     ToolTip = 'Specifies the amount which can be counted. The amount is in the local currency.';

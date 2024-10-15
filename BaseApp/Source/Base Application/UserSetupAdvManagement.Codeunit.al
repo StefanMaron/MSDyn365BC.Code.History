@@ -9,6 +9,7 @@ codeunit 11795 "User Setup Adv. Management"
     end;
 
     var
+        Item: Record Item;
         UserSetup: Record "User Setup";
         JournalPermErr: Label 'Access to journal %1 is not allowed in extended user check.', Comment = '%1 = journal template code';
         ReqWkshPermErr: Label 'Access to worksheet %1 is not allowed in extended user check.', Comment = '%1 = journal template code';
@@ -81,7 +82,9 @@ codeunit 11795 "User Setup Adv. Management"
                 TestField("Posting Date", Today);
 
             // Location checks
-            if "Value Entry Type" <> "Value Entry Type"::Revaluation then
+            if "Value Entry Type" <> "Value Entry Type"::Revaluation then begin
+                if not Item.Get("Item No.") then
+                    Item.Init();
                 case "Entry Type" of
                     "Entry Type"::Purchase, "Entry Type"::"Positive Adjmt.", "Entry Type"::Output:
                         if Quantity > 0 then begin
@@ -109,6 +112,7 @@ codeunit 11795 "User Setup Adv. Management"
                                 FieldError("New Location Code");
                         end;
                 end;
+            end;
             if not CheckWhseNetChangeTemplate(ItemJournalLine) then
                 FieldError("Whse. Net Change Template");
         end;
@@ -207,6 +211,9 @@ codeunit 11795 "User Setup Adv. Management"
         if not UserSetup."Check Location Code" then
             exit(true);
 
+        if Item.IsNonInventoriableType() then
+            exit(true);
+
         exit(CheckUserSetupLine(UserSetup."User ID", UserSetupLine.Type::"Location (quantity increase)", LocationCode));
     end;
 
@@ -217,6 +224,9 @@ codeunit 11795 "User Setup Adv. Management"
     begin
         GetUserSetup;
         if not UserSetup."Check Location Code" then
+            exit(true);
+
+        if Item.IsNonInventoriableType() then
             exit(true);
 
         exit(CheckUserSetupLine(UserSetup."User ID", UserSetupLine.Type::"Location (quantity decrease)", LocationCode));
@@ -374,6 +384,9 @@ codeunit 11795 "User Setup Adv. Management"
         if not UserSetup."Check Release Location Code" then
             exit(true);
 
+        if Item.IsNonInventoriableType() then
+            exit(true);
+
         exit(CheckUserSetupLine(UserSetup."User ID", UserSetupLine.Type::"Release Location (quantity increase)", LocationCode));
     end;
 
@@ -384,6 +397,9 @@ codeunit 11795 "User Setup Adv. Management"
     begin
         GetUserSetup;
         if not UserSetup."Check Release Location Code" then
+            exit(true);
+
+        if Item.IsNonInventoriableType() then
             exit(true);
 
         exit(CheckUserSetupLine(UserSetup."User ID", UserSetupLine.Type::"Release Location (quantity decrease)", LocationCode));
@@ -406,6 +422,12 @@ codeunit 11795 "User Setup Adv. Management"
     begin
         GLSetup.Get;
         exit(GLSetup."User Checks Allowed");
+    end;
+
+    procedure SetItem(ItemNo: Code[20])
+    begin
+        if not Item.Get(ItemNo) then
+            Item.Init();
     end;
 
     [EventSubscriber(ObjectType::Table, 7311, 'OnCheckWhseJournalTemplateUserRestrictions', '', false, false)]

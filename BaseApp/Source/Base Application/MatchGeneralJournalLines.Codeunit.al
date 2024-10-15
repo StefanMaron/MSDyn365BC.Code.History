@@ -145,6 +145,7 @@ codeunit 1250 "Match General Journal Lines"
         MaxNearness: Integer;
         Nearness: Integer;
         MatchLineNo: Integer;
+        IsHandled: Boolean;
     begin
         Description := RecordMatchMgt.Trim(Description);
         TextToAccMapping.SetRange("Text-to-Account Mapping Code", ''); // NAVCZ
@@ -160,8 +161,15 @@ codeunit 1250 "Match General Journal Lines"
                 if Description = RecordMatchMgt.Trim(TextToAccMapping."Mapping Text") then
                     exit(true);
 
-                Nearness := RecordMatchMgt.CalculateStringNearness(' ' + RecordMatchMgt.Trim(TextToAccMapping."Mapping Text") + ' ',
-                    ' ' + Description + ' ', StrLen(TextToAccMapping."Mapping Text") + 1, 10);
+                IsHandled := FALSE;
+                OnGetAccountMappingOnBeforeCalculateStringNearness(TextToAccMapping, Description, IsHandled);
+                if IsHandled then
+                    exit(true);
+
+                Nearness :=
+                    RecordMatchMgt.CalculateStringNearness(
+                        ' ' + RecordMatchMgt.Trim(TextToAccMapping."Mapping Text") + ' ',
+                        ' ' + Description + ' ', StrLen(TextToAccMapping."Mapping Text") + 1, 10);
                 if Nearness > MaxNearness then begin
                     MaxNearness := Nearness;
                     MatchLineNo := TextToAccMapping."Line No.";
@@ -243,6 +251,7 @@ codeunit 1250 "Match General Journal Lines"
             Validate("Applies-to Doc. No.", GenJournalLine."Document No.");
             Validate("Bal. Account Type", "Bal. Account Type"::"G/L Account");
             Validate("Bal. Account No.", BalAccountNo);
+            Validate(Description, GenJournalLine.Description);
             Insert(true);
         end;
     end;
@@ -250,8 +259,10 @@ codeunit 1250 "Match General Journal Lines"
     local procedure UpdateGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; DocType: Option; AccountType: Option; AccountNo: Code[20]; AppliesToDocID: Code[50])
     var
         OrigCurrencyCode: Code[10];
+        OrigDescription: Text[100];
     begin
         OrigCurrencyCode := GenJournalLine."Currency Code";
+        OrigDescription := GenJournalLine.Description;
         GenJournalLine.Validate("Document Type", DocType);
         GenJournalLine.Validate("Account Type", AccountType);
         GenJournalLine.Validate("Account No.", AccountNo);
@@ -259,6 +270,7 @@ codeunit 1250 "Match General Journal Lines"
         if OrigCurrencyCode <> GenJournalLine."Currency Code" then
             GenJournalLine.Validate("Currency Code", OrigCurrencyCode);
         GenJournalLine.Validate("Applied Automatically", true);
+        GenJournalLine.Validate(Description, OrigDescription);
         GenJournalLine.Modify(true);
     end;
 
@@ -404,6 +416,11 @@ codeunit 1250 "Match General Journal Lines"
     procedure GetNormalizingFactor(): Integer
     begin
         exit(NormalizingFactor);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetAccountMappingOnBeforeCalculateStringNearness(var TextToAccMapping: Record "Text-to-Account Mapping"; Description: Text; var IsHandled: Boolean);
+    begin
     end;
 }
 

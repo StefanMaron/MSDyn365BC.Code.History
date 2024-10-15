@@ -87,6 +87,7 @@ page 11775 "Apply General Ledger Entries"
                 }
                 field("Document Type"; "Document Type")
                 {
+                    ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the original document type which will be applied.';
                     Visible = false;
@@ -127,6 +128,7 @@ page 11775 "Apply General Ledger Entries"
                 }
                 field("Applying Entry"; "Applying Entry")
                 {
+                    ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies that the general ledger entry is an applying entry.';
                     Visible = false;
@@ -139,30 +141,35 @@ page 11775 "Apply General Ledger Entries"
                 }
                 field(xRemainingAmount; Remaining)
                 {
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Remaining Amount';
                     ToolTip = 'Specifies the remaining amount of general ledger entries';
                     Visible = false;
                 }
                 field("Gen. Bus. Posting Group"; "Gen. Bus. Posting Group")
                 {
+                    ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the code for the Gen. Bus. Posting Group that applies to the entry.';
                     Visible = false;
                 }
                 field("Gen. Prod. Posting Group"; "Gen. Prod. Posting Group")
                 {
+                    ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the code for the Gen. Prod. Posting Group that applies to the entry.';
                     Visible = false;
                 }
                 field("VAT Bus. Posting Group"; "VAT Bus. Posting Group")
                 {
+                    ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies a VAT business posting group code.';
                     Visible = false;
                 }
                 field("VAT Prod. Posting Group"; "VAT Prod. Posting Group")
                 {
+                    ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies a VAT product posting group code for the VAT Statement.';
                     Visible = false;

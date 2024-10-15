@@ -46,6 +46,8 @@ table 204 "Unit of Measure"
         field(31070; "Indivisible Unit"; Boolean)
         {
             Caption = 'Indivisible Unit';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The functionality of Indivisible unit of measure will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
         }
     }
 

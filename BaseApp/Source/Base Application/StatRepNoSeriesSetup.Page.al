@@ -25,6 +25,8 @@ page 31075 "Stat. Rep. No. Series Setup"
                     ApplicationArea = All;
                     ToolTip = 'Specifies number series of reverse charge report.';
                     Visible = ReverseChargeNosVisible;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of Reverse Charge Statement will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
                 }
             }
         }

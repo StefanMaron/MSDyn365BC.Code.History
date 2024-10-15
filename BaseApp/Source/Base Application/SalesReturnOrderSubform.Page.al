@@ -536,8 +536,11 @@
                 }
                 field("Reason Code"; "Reason Code")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the reason code on the entry.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of Tax corrective documents for VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
                 }
                 field("Deferral Code"; "Deferral Code")
                 {
@@ -1191,6 +1194,8 @@
            (xRec."No." <> '')
         then
             CurrPage.SaveRecord;
+
+        OnAfterNoOnAfterValidate(Rec, xRec);
     end;
 
     local procedure LocationCodeOnAfterValidate()
@@ -1221,6 +1226,8 @@
             AutoReserve;
             CurrPage.Update(false);
         end;
+
+        OnAfterQuantityOnAfterValidate(Rec, xRec);
     end;
 
     local procedure ShipmentDateOnAfterValidate()
@@ -1275,11 +1282,8 @@
     procedure DeltaUpdateTotals()
     begin
         DocumentTotals.SalesDeltaUpdateTotals(Rec, xRec, TotalSalesLine, VATAmount, InvoiceDiscountAmount, InvoiceDiscountPct);
-        if "Line Amount" <> xRec."Line Amount" then begin
-            CurrPage.SaveRecord;
+        if "Line Amount" <> xRec."Line Amount" then
             SendLineInvoiceDiscountResetNotification;
-            CurrPage.Update(false);
-        end;
     end;
 
     local procedure ReverseReservedQtySign(): Decimal
@@ -1344,6 +1348,16 @@
                 Clear(Currency);
                 Currency.InitRoundingPrecision;
             end
+    end;
+
+    [IntegrationEvent(TRUE, false)]
+    local procedure OnAfterNoOnAfterValidate(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(TRUE, false)]
+    local procedure OnAfterQuantityOnAfterValidate(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line")
+    begin
     end;
 
     [IntegrationEvent(false, false)]

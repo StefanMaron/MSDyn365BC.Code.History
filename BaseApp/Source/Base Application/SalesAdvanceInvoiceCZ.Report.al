@@ -178,9 +178,13 @@ report 31001 "Sales - Advance Invoice CZ"
             }
             column(PerformCountryRegionCode; RegistrationCountryRegion."Country/Region Code")
             {
+                ObsoleteState = Pending;
+                ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
             }
             column(PerformVATRegistrationNo; RegistrationCountryRegion."VAT Registration No.")
             {
+                ObsoleteState = Pending;
+                ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
             }
             column(CustAddr1; CustAddr[1])
             {
@@ -448,6 +452,7 @@ report 31001 "Sales - Advance Invoice CZ"
         DocFooter: Record "Document Footer";
         VATClause: Record "VAT Clause";
         VATPostingSetup: Record "VAT Posting Setup";
+        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)')]
         RegistrationCountryRegion: Record "Registration Country/Region";
         Language: Codeunit Language;
         FormatAddr: Codeunit "Format Address";

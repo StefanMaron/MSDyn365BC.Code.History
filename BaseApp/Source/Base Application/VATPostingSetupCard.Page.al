@@ -60,6 +60,7 @@ page 473 "VAT Posting Setup Card"
                 }
                 field("Intrastat Service"; "Intrastat Service")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if this combination of VAT business posting group and VAT product posting group is used to the intrastat journal.';
                 }
                 field("Adjust for Payment Discount"; "Adjust for Payment Discount")
@@ -110,6 +111,7 @@ page 473 "VAT Posting Setup Card"
                 }
                 field("Ratio Coefficient"; "Ratio Coefficient")
                 {
+                    ApplicationArea = VAT;
                     ToolTip = 'Specifies ratio coefficient';
                 }
             }
@@ -136,6 +138,9 @@ page 473 "VAT Posting Setup Card"
                 {
                     ApplicationArea = VAT;
                     ToolTip = 'Specifies the sales VAT postponed account for VAT posting setup.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of Postponing VAT on Sales Cr.Memo will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
                 }
                 field("Sales VAT Delay Account"; "Sales VAT Delay Account")
                 {

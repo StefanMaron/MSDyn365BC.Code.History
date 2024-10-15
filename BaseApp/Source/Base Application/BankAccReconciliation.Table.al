@@ -273,6 +273,11 @@ table 273 "Bank Acc. Reconciliation"
                 DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
             end;
         }
+        field(11706; "Created From Iss. Bank Stat."; Boolean)
+        {
+            Caption = 'Created From Iss. Bank Stat.';
+            Editable = false;
+        }
     }
 
     keys
@@ -313,7 +318,12 @@ table 273 "Bank Acc. Reconciliation"
                 end;
         end;
 
-        BankAcc.Modify;
+        // NAVCZ
+        if BankOrIssuedBankStatemntHeaderExists() and (not "Created From Iss. Bank Stat.") then
+            Error(BankOrIssBankStatHeaderExistsErr, TableCaption(), "Bank Account No.");
+        // NAVCZ
+
+        BankAcc.Modify();
     end;
 
     trigger OnRename()
@@ -337,6 +347,7 @@ table 273 "Bank Acc. Reconciliation"
         PostHighConfidentLinesQst: Label 'All imported bank statement lines were applied with high confidence level.\Do you want to post the payment applications?';
         MustHaveValueQst: Label 'The bank account must have a value in %1. Do you want to open the bank account card?';
         NoTransactionsImportedMsg: Label 'No bank transactions were imported.';
+        BankOrIssBankStatHeaderExistsErr: Label 'Cannot create %1 because exist Bank Statement Header or Issued Bank Statement Header for Bank Account No. value: %2.', Comment = '%1=table caption;%2=number of bank account';
 
     procedure CreateDim(Type1: Integer; No1: Code[20])
     var
@@ -728,6 +739,20 @@ table 273 "Bank Acc. Reconciliation"
                 TempBankAccount := FromBankAccount;
                 if TempBankAccount.Insert then;
             until FromBankAccount.Next = 0;
+    end;
+
+    local procedure BankOrIssuedBankStatemntHeaderExists(): Boolean
+    var
+      BankStatementHeader: Record "Bank Statement Header";
+      IssuedBankStatementHeader: Record "Issued Bank Statement Header";
+    begin
+      // NAVCZ
+      BankStatementHeader.SetRange("Bank Account No.","Bank Account No.");
+      if not BankStatementHeader.IsEmpty() then
+        exit(true);
+      IssuedBankStatementHeader.SetRange("Bank Account No.","Bank Account No.");
+      if not IssuedBankStatementHeader.IsEmpty() then
+        exit(true);
     end;
 
     [IntegrationEvent(false, false)]

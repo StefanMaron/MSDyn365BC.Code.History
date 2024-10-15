@@ -3,6 +3,8 @@ table 11768 "VAT Identifier Translate"
     Caption = 'VAT Identifier Translate';
     DataCaptionFields = "VAT Identifier Code";
     LookupPageID = "VAT Identifier Translates";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'The enhanced functionality of VAT Identifier will be removed and this table should not be used. (Obsolete::Removed in release 01.2021)';
 
     fields
     {

@@ -22,6 +22,7 @@
                 }
                 field("Posting Date"; "Posting Date")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the posting date for the entry.';
                     Visible = false;
                 }
@@ -116,6 +117,7 @@
                 }
                 field("Vendor Shipment No."; "Vendor Shipment No.")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of vendor shipment.';
                 }
                 field("Unit Cost"; "Unit Cost")

@@ -255,6 +255,7 @@
                 }
                 field("Advance VAT Base Amount"; "Advance VAT Base Amount")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the advance VAT base amount for the general journal line.';
                     Visible = false;
                 }
@@ -573,7 +574,7 @@
                     group("Number of Lines")
                     {
                         Caption = 'Number of Lines';
-                        field(NumberOfJournalRecords; Count)
+                        field(NumberOfJournalRecords; NumberOfRecords)
                         {
                             ApplicationArea = All;
                             AutoFormatType = 1;
@@ -1584,6 +1585,7 @@
         BalAccName: Text[100];
         Balance: Decimal;
         TotalBalance: Decimal;
+        NumberOfRecords: Integer;
         ShowBalance: Boolean;
         ShowTotalBalance: Boolean;
         HasPmtFileErr: Boolean;
@@ -1647,6 +1649,8 @@
           Rec, xRec, Balance, TotalBalance, ShowBalance, ShowTotalBalance);
         BalanceVisible := ShowBalance;
         TotalBalanceVisible := ShowTotalBalance;
+        if ShowTotalBalance then
+            NumberOfRecords := Count();
     end;
 
     local procedure EnableApplyEntriesAction()

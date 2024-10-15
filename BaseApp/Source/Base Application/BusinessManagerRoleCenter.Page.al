@@ -615,51 +615,62 @@ page 9022 "Business Manager Role Center"
                 Image = Statistics;
                 action(Action1220024)
                 {
+                    ApplicationArea = Basic, Suite;
                     Caption = 'VAT Statements';
                     RunObject = Page "VAT Statement Names";
                     ToolTip = 'Specifies vat statement';
                 }
                 action(Action1220023)
                 {
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Intrastat Journals';
                     RunObject = Page "Intrastat Jnl. Batches";
                     ToolTip = 'Specifies intrastat journals';
                 }
-                action("Posted Sales Invoices")
+                action("Posted Sales Invoices cz")
                 {
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Posted Sales Invoices';
                     RunObject = Page "Posted Sales Invoices";
                     ToolTip = 'Specifies posted sales invoices';
                 }
-                action("Posted Sales Credit Memos")
+                action("Posted Sales Credit Memos cz")
                 {
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Posted Sales Credit Memos';
                     RunObject = Page "Posted Sales Credit Memos";
                     ToolTip = 'Specifies posted sales credit memos';
                 }
                 action("Posted Purchase Invoice")
                 {
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Posted Purchase Invoice';
                     RunObject = Page "Posted Purchase Invoices";
                     ToolTip = 'Specifies posted purchace invoices';
                 }
                 action("Posted Purchase Credit Memos")
                 {
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Posted Purchase Credit Memos';
                     RunObject = Page "Posted Purchase Credit Memos";
                     ToolTip = 'Specifies posted purchace credit memos';
                 }
                 action("VIES Declarations")
                 {
+                    ApplicationArea = Basic, Suite;
                     Caption = 'VIES Declarations';
                     RunObject = Page "VIES Declarations";
                     ToolTip = 'Specifies vies declarations list';
                 }
                 action("Reverse Charges")
                 {
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Reverse Charges';
                     RunObject = Page "Reverse Charges";
                     ToolTip = 'Specifies reverse charges list';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of Reverse Charge Statement will be removed and this action should not be used. (Obsolete::Removed in release 01.2021)';
                 }
                 action(CashReceiptJournals)
                 {
@@ -850,14 +861,14 @@ page 9022 "Business Manager Role Center"
                     RunObject = Page "Finance Charge Memo List";
                     ToolTip = 'Send finance charge memos to customers with delayed payments, typically following a reminder process. Finance charges are calculated automatically and added to the overdue amounts on the customer''s account according to the specified finance charge terms and penalty/interest amounts.';
                 }
-                action(Action50)
+                action("Posted Sales Invoices")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Posted Sales Invoices';
                     RunObject = Page "Posted Sales Invoices";
                     ToolTip = 'Open the list of posted sales invoices.';
                 }
-                action(Action45)
+                action("Posted Sales Credit Memos")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Posted Sales Credit Memos';
@@ -996,6 +1007,7 @@ page 9022 "Business Manager Role Center"
                 Image = Bank;
                 action(Action1220007)
                 {
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Bank Accounts';
                     Image = BankAccount;
                     RunObject = Page "Bank Account List";
@@ -1003,6 +1015,7 @@ page 9022 "Business Manager Role Center"
                 }
                 action("Bank Acc. Reconciliations")
                 {
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Bank Acc. Reconciliations';
                     Image = BankAccountRec;
                     RunObject = Page "Bank Acc. Reconciliation List";
@@ -1010,6 +1023,7 @@ page 9022 "Business Manager Role Center"
                 }
                 action(Action1220014)
                 {
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Bank Acc. Statements';
                     Image = BankAccountStatement;
                     RunObject = Page "Bank Account Statement List";
@@ -1017,6 +1031,7 @@ page 9022 "Business Manager Role Center"
                 }
                 action("General Journals")
                 {
+                    ApplicationArea = Basic, Suite;
                     Caption = 'General Journals';
                     Image = Journal;
                     RunObject = Page "General Journal Batches";
@@ -1026,6 +1041,7 @@ page 9022 "Business Manager Role Center"
                 }
                 action("Payment Journals")
                 {
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Payment Journals';
                     Image = Journals;
                     RunObject = Page "General Journal Batches";
@@ -1035,6 +1051,7 @@ page 9022 "Business Manager Role Center"
                 }
                 action("Cash Receipt Journals")
                 {
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Cash Receipt Journals';
                     Image = Journals;
                     RunObject = Page "General Journal Batches";
@@ -1044,6 +1061,7 @@ page 9022 "Business Manager Role Center"
                 }
                 action(Action1220016)
                 {
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Currencies';
                     Image = Currency;
                     RunObject = Page Currencies;
@@ -1051,48 +1069,56 @@ page 9022 "Business Manager Role Center"
                 }
                 action(Action1220015)
                 {
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Direct Debit Collections';
                     RunObject = Page "Direct Debit Collections";
                     ToolTip = 'Specifies direct debit collections';
                 }
                 action("Payment Orders")
                 {
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Payment Orders';
                     RunObject = Page "Payment Order List";
                     ToolTip = 'Specifies payment oreders';
                 }
                 action("Bank Statements")
                 {
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Bank Statements';
                     RunObject = Page "Bank Statement List";
                     ToolTip = 'Specifies bank statements';
                 }
                 action("Issued Payment Orders")
                 {
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Issued Payment Orders';
                     RunObject = Page "Issued Payment Order List";
                     ToolTip = 'Specifies issued payment orders';
                 }
                 action("Issued Bank Statements")
                 {
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Issued Bank Statements';
                     RunObject = Page "Issued Bank Statement List";
                     ToolTip = 'Specifies issued payment statements';
                 }
                 action("Cash Desks")
                 {
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Cash Desks';
                     RunObject = Page "Cash Desk List";
                     ToolTip = 'Specifies cash desks';
                 }
                 action("Cash Documents")
                 {
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Cash Documents';
                     RunObject = Page "Cash Document List";
                     ToolTip = 'Specifies cash ddocuments';
                 }
                 action("Posted Cash Documents")
                 {
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Posted Cash Documents';
                     RunObject = Page "Posted Cash Document List";
                     ToolTip = 'Specifies posted cash documents';

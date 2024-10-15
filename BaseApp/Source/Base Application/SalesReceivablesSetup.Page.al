@@ -106,21 +106,33 @@ page 459 "Sales & Receivables Setup"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the default posting description code for the sales headers.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of posting description will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
                 }
                 field("Fin. Charge Posting Desc. Code"; "Fin. Charge Posting Desc. Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the finance charge posting description code for sales and receivables setup.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of posting description will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
                 }
                 field("Copy As Tax Corr. Document"; "Copy As Tax Corr. Document")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if document will be copied as tax corr document';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of Tax corrective documents for VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
                 }
                 field("Reason Code For Payment Disc."; "Reason Code For Payment Disc.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the reason code for payment discount.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of Tax corrective documents for VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
                 }
                 field("Multiple Interest Rates"; "Multiple Interest Rates")
                 {
@@ -216,6 +228,9 @@ page 459 "Sales & Receivables Setup"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if it''s mandatory to fill in reason code on tax correction documents.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of Tax corrective documents for VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
                 }
                 field("G/L Entry as Doc. Lines (Acc.)"; "G/L Entry as Doc. Lines (Acc.)")
                 {
@@ -398,6 +413,9 @@ page 459 "Sales & Receivables Setup"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code for the number series that will be used to assign numbers to payment discount tax correction document.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of Tax corrective documents for VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
                 }
                 field("Direct Debit Mandate Nos."; "Direct Debit Mandate Nos.")
                 {
@@ -446,6 +464,9 @@ page 459 "Sales & Receivables Setup"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies this option to enable credit memo confirmation.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of Postponing VAT on Sales Cr.Memo will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
                 }
             }
             group(Archiving)

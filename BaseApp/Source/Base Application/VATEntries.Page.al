@@ -78,16 +78,25 @@ page 315 "VAT Entries"
                 {
                     ApplicationArea = VAT;
                     ToolTip = 'Specifies the document number of the related credit note, Payment discount tax corrective document.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of Tax corrective documents for VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
                 }
                 field("Global Dimension 1 Code"; "Global Dimension 1 Code")
                 {
+                    ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the dimension value code associated with the VAT entries.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of Dimension for VAT Entry will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
                 }
                 field("Global Dimension 2 Code"; "Global Dimension 2 Code")
                 {
+                    ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the dimension value code associated with the VAT entries.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of Dimension for VAT Entry will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
                 }
                 field("Document Type"; "Document Type")
                 {
@@ -101,6 +110,7 @@ page 315 "VAT Entries"
                 }
                 field("Advance Base"; "Advance Base")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the advance base amount for the VAT entry.';
                     Visible = false;
                 }
@@ -116,23 +126,33 @@ page 315 "VAT Entries"
                 }
                 field("Advance Exch. Rate Difference"; "Advance Exch. Rate Difference")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the advance exchange rate difference. This value is the difference between transferred advances and final invoices.';
                     Visible = false;
                 }
                 field("VAT % (Non Deductible)"; "VAT % (Non Deductible)")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies VAT percentage for the VAT entry. This value is non-deductible.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of Non-deductible VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
                 }
                 field("VAT Base (Non Deductible)"; "VAT Base (Non Deductible)")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT base for the VAT entry. This value is non-deductible.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of Non-deductible VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
                 }
                 field("VAT Amount (Non Deductible)"; "VAT Amount (Non Deductible)")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT amount for the purchase VAT entry. This value is non-deductible.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of Non-deductible VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
                 }
                 field("Unrealized Amount"; "Unrealized Amount")
                 {
@@ -233,6 +253,9 @@ page 315 "VAT Entries"
                 {
                     ApplicationArea = VAT;
                     ToolTip = 'Specifies to postpone VAT for the VAT entry.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of Postponing VAT on Sales Cr.Memo will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
                 }
                 field("Internal Ref. No."; "Internal Ref. No.")
                 {
@@ -265,6 +288,7 @@ page 315 "VAT Entries"
                 }
                 field("VAT Settlement No."; "VAT Settlement No.")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the document number which the VAT entries were closed.';
                     Visible = false;
                 }

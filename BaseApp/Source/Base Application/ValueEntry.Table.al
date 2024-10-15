@@ -389,14 +389,14 @@ table 5802 "Value Entry"
         }
         field(11790; "Source No. 2"; Code[20])
         {
-            Caption = 'Source No. 2';
+            Caption = 'Invoice-to Source No.';
             TableRelation = IF ("Source Type" = CONST(Customer)) Customer
             ELSE
             IF ("Source Type" = CONST(Vendor)) Vendor;
         }
         field(11791; "Source No. 3"; Code[20])
         {
-            Caption = 'Source No. 3';
+            Caption = 'Delivery-to Source No.';
             TableRelation = IF ("Source Type" = CONST(Customer)) "Ship-to Address".Code WHERE("Customer No." = FIELD("Source No."))
             ELSE
             IF ("Source Type" = CONST(Vendor)) "Order Address".Code WHERE("Vendor No." = FIELD("Source No."));
@@ -488,6 +488,9 @@ table 5802 "Value Entry"
         key(Key17; "Item Ledger Entry Type", "Order No.", "Valuation Date")
         {
         }
+        key(Key18; "Item No.", "Item Ledger Entry Type", "Order Type", "Order No.", "Order Line No.")
+        {
+        }
     }
 
     fieldgroups
@@ -537,6 +540,7 @@ table 5802 "Value Entry"
         QtyFactor: Decimal;
     begin
         Item.Get(ValueEntry."Item No.");
+        OnSumCostsTillValuationDateOnAfterGetItem(Item, ValueEntry);
         if Item."Costing Method" = Item."Costing Method"::Average then
             ToDate := GetAvgToDate(ValueEntry."Valuation Date")
         else
@@ -767,6 +771,11 @@ table 5802 "Value Entry"
         then
             exit(true);
         exit(false);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSumCostsTillValuationDateOnAfterGetItem(var Item: Record Item; var ValueEntry: Record "Value Entry")
+    begin
     end;
 
     [IntegrationEvent(false, false)]

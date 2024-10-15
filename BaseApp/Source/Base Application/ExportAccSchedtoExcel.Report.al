@@ -159,8 +159,10 @@ report 29 "Export Acc. Sched. to Excel"
                     TempExcelBuffer.UpdateBookExcel(ServerFileName, SheetName, false);
                     TempExcelBuffer.WriteSheet('', CompanyName, UserId);
                     TempExcelBuffer.CloseBook;
-                    if not TestMode then
+                    if not TestMode then begin
+                        FileMgt.DownloadToFile(ServerFileName, ClientFileName);
                         TempExcelBuffer.OpenExcelWithName(ClientFileName);
+                    end;
                 end else begin
                     TempExcelBuffer.CreateBook(ServerFileName, AccSchedName.Name);
                     TempExcelBuffer.WriteSheet(AccSchedName.Description, CompanyName, UserId);
@@ -185,11 +187,13 @@ report 29 "Export Acc. Sched. to Excel"
                     Caption = 'Options';
                     field(SkipEmptyLines; SkipEmptyLines)
                     {
+                        ApplicationArea = Basic, Suite;
                         Caption = 'Skip Empty Lines';
                         ToolTip = 'Specifies when the empty lines are to be skip';
                     }
                     field(ExportAccLineNo; ExportAccLineNo)
                     {
+                        ApplicationArea = Basic, Suite;
                         Caption = 'Export Row No.';
                         ToolTip = 'Specifies if row number has to be printed.';
                     }
@@ -322,7 +326,7 @@ report 29 "Export Acc. Sched. to Excel"
             ServerFileName := FileMgt.UploadFileSilent(FileName);
         if ServerFileName = '' then
             exit(false);
-        ClientFileName := FileMgt.GetFileName(FileName);
+        ClientFileName := FileName;
 
         SheetName := TempExcelBuffer.SelectSheetsName(ServerFileName);
         if SheetName = '' then

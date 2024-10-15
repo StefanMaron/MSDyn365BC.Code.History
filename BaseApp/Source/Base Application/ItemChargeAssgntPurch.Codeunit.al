@@ -60,7 +60,6 @@ codeunit 5805 "Item Charge Assgnt. (Purch.)"
             ItemChargeAssgntPurch.Validate("Qty. to Assign", QtyToAssign);
         end;
         // NAVCZ
-        ItemChargeAssgntPurch."Item Charge No." := ItemChargeAssgntPurch."Item Charge No.";
         if IncludeIntrastat or IncludeIntrastatAmount then begin
             ItemCharge.Get(ItemChargeAssgntPurch."Item Charge No.");
             if IncludeIntrastatAmount then
@@ -343,6 +342,7 @@ codeunit 5805 "Item Charge Assgnt. (Purch.)"
             exit;
 
         ItemChargeAssgntPurch.SetFilter("Applies-to Doc. Type", '<>%1', ItemChargeAssgntPurch."Applies-to Doc. Type"::"Transfer Receipt");
+        OnSuggestAssgntOnAfterItemChargeAssgntPurchSetFilters(ItemChargeAssgntPurch);
 
         Selection := 1;
         SuggestItemChargeMenuTxt :=
@@ -608,7 +608,7 @@ codeunit 5805 "Item Charge Assgnt. (Purch.)"
                                     PurchHeader."Posting Date", CurrencyCode, PurchHeader."Currency Code",
                                     Abs(ItemLedgerEntry2."Cost Amount (Actual)"));
                         end;
-                        // NAVCZ
+                // NAVCZ
                 end;
                 if TempItemChargeAssgntPurch."Applies-to Doc. Line Amount" <> 0 then
                     TempItemChargeAssgntPurch.Insert
@@ -949,6 +949,11 @@ codeunit 5805 "Item Charge Assgnt. (Purch.)"
 
     [IntegrationEvent(false, false)]
     local procedure OnAssignByAmountOnBeforeItemChargeAssignmentPurchModify(var ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSuggestAssgntOnAfterItemChargeAssgntPurchSetFilters(var ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)")
     begin
     end;
 }

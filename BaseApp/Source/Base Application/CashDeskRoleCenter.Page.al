@@ -16,6 +16,7 @@ page 11750 "Cash Desk Role Center"
                 }
                 systempart(Control1220003; MyNotes)
                 {
+                    ApplicationArea = Basic, Suite;
                 }
             }
             group(Control1220002)
@@ -27,6 +28,7 @@ page 11750 "Cash Desk Role Center"
                 }
                 systempart(Control1220000; Outlook)
                 {
+                    ApplicationArea = Basic, Suite;
                 }
             }
         }

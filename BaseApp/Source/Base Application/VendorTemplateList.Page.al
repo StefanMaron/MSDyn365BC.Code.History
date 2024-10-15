@@ -7,6 +7,8 @@ page 11794 "Vendor Template List"
     PageType = List;
     SourceTable = "Vendor Template";
     UsageCategory = Lists;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'The functionality of Vendor templates will be removed and this page should not be used. (Obsolete::Removed in release 01.2021)';
 
     layout
     {

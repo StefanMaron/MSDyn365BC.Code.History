@@ -12,6 +12,7 @@ page 31026 "Purch. Advance Letters History"
         {
             field(CurrentMenuTypeValue; CurrentMenuType)
             {
+                ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies current menu type';
                 Visible = false;
             }

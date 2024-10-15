@@ -1,4 +1,4 @@
-codeunit 414 "Release Sales Document"
+﻿codeunit 414 "Release Sales Document"
 {
     TableNo = "Sales Header";
 
@@ -70,7 +70,8 @@ codeunit 414 "Release Sales Document"
                             SalesLine.TestField("Location Code");
                         // NAVCZ
                         if GLSetup."User Checks Allowed" then
-                            if SalesLine.Type = SalesLine.Type::Item then
+                            if SalesLine.Type = SalesLine.Type::Item then begin
+                                UserCheck.SetItem(SalesLine."No.");
                                 case true of
                                     SalesLine.Quantity > 0:
                                         if not UserCheck.CheckReleasLocQuantityDecrease(SalesLine."Location Code") then
@@ -79,7 +80,8 @@ codeunit 414 "Release Sales Document"
                                         if not UserCheck.CheckReleasLocQuantityIncrease(SalesLine."Location Code") then
                                             SalesLine.FieldError("Location Code");
                                 end;
-                        // NAVCZ
+                            end;
+                    // NAVCZ
                     until SalesLine.Next = 0;
                 SalesLine.SetFilter(Type, '>0');
             end;
@@ -255,8 +257,9 @@ codeunit 414 "Release Sales Document"
         TempVATAmountLine1: Record "VAT Amount Line" temporary;
     begin
         SalesLine.SetSalesHeader(SalesHeader);
-        SalesLine.CalcVATAmountLines(0, SalesHeader, SalesLine, TempVATAmountLine0);
-        SalesLine.CalcVATAmountLines(1, SalesHeader, SalesLine, TempVATAmountLine1);
+        // 0 = General, 1 = Invoicing, 2 = Shipping
+        SalesLine.CalcVATAmountLines(0, SalesHeader, SalesLine, TempVATAmountLine0, false);
+        SalesLine.CalcVATAmountLines(1, SalesHeader, SalesLine, TempVATAmountLine1, false);
         LinesWereModified :=
           SalesLine.UpdateVATOnLines(0, SalesHeader, SalesLine, TempVATAmountLine0) or
           SalesLine.UpdateVATOnLines(1, SalesHeader, SalesLine, TempVATAmountLine1);

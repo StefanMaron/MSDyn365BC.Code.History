@@ -40,6 +40,7 @@ page 11 "Shipment Methods"
                 }
                 field("Include Item Charges (Amount)"; "Include Item Charges (Amount)")
                 {
+                    ApplicationArea = Suite;
                     ToolTip = 'Specifies if intrastat amount of item ledger will be influenced by item charges  ';
                     Visible = false;
                 }

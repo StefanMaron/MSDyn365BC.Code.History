@@ -321,6 +321,9 @@
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the industry code for the vendor record.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of Industry Classification will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
                 }
                 field("Language Code"; "Language Code")
                 {

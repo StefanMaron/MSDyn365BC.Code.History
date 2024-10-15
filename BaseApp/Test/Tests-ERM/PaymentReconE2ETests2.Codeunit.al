@@ -18,6 +18,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         Assert: Codeunit Assert;
         LibraryCAMTFileMgt: Codeunit "Library - CAMT File Mgt.";
         LibraryRandom: Codeunit "Library - Random";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         Initialized: Boolean;
         OpenBankLedgerEntriesErr: Label 'All bank account ledger entries should be closed after posting the payment reconciliation journal.';
         ClosedBankLedgerEntriesErr: Label 'All bank account ledger entries should be open after posting the payment reconciliation journal.';
@@ -138,7 +139,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         TempBlobUTF8: Codeunit "Temp Blob";
         OutStream: OutStream;
     begin
-        Initialize;
+        Initialize();
         TempBlobUTF8.CreateOutStream(OutStream, TEXTENCODING::UTF8);
 
         WriteCAMTHeader(OutStream, '', 'TEST');
@@ -159,7 +160,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         PmtReconJnl: TestPage "Payment Reconciliation Journal";
         OutStream: OutStream;
     begin
-        Initialize;
+        Initialize();
         TempBlobUTF8.CreateOutStream(OutStream, TEXTENCODING::UTF8);
 
         WriteCAMTHeader(OutStream, '', 'TEST');
@@ -265,7 +266,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         PmtReconJnl: TestPage "Payment Reconciliation Journal";
         OutStream: OutStream;
     begin
-        Initialize;
+        Initialize();
         TempBlobUTF8.CreateOutStream(OutStream, TEXTENCODING::UTF8);
 
         WriteCAMTHeader(OutStream, '', 'TEST');
@@ -296,7 +297,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         PmtReconJnl: TestPage "Payment Reconciliation Journal";
         OutStream: OutStream;
     begin
-        Initialize;
+        Initialize();
         TempBlobUTF8.CreateOutStream(OutStream, TEXTENCODING::UTF8);
 
         WriteCAMTHeader(OutStream, '', 'TEST');
@@ -329,7 +330,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         PmtReconJnl: TestPage "Payment Reconciliation Journal";
         OutStream: OutStream;
     begin
-        Initialize;
+        Initialize();
         TempBlobUTF8.CreateOutStream(OutStream, TEXTENCODING::UTF8);
 
         WriteCAMTHeader(OutStream, '', 'TEST');
@@ -358,7 +359,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         TempBlobUTF8: Codeunit "Temp Blob";
         OutStream: OutStream;
     begin
-        Initialize;
+        Initialize();
         TempBlobUTF8.CreateOutStream(OutStream, TEXTENCODING::UTF8);
 
         WriteCAMTHeader(OutStream, '', 'TEST');
@@ -378,7 +379,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         TempBlobUTF8: Codeunit "Temp Blob";
         OutStream: OutStream;
     begin
-        Initialize;
+        Initialize();
         TempBlobUTF8.CreateOutStream(OutStream, TEXTENCODING::UTF8);
 
         WriteCAMTHeader(OutStream, '', 'TEST');
@@ -400,7 +401,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         PmtReconJnl: TestPage "Payment Reconciliation Journal";
         OutStream: OutStream;
     begin
-        Initialize;
+        Initialize();
         TempBlobUTF8.CreateOutStream(OutStream, TEXTENCODING::UTF8);
 
         WriteCAMTHeader(OutStream, '', 'TEST');
@@ -431,7 +432,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         PmtReconJnl: TestPage "Payment Reconciliation Journal";
         OutStream: OutStream;
     begin
-        Initialize;
+        Initialize();
         TempBlobUTF8.CreateOutStream(OutStream, TEXTENCODING::UTF8);
 
         WriteCAMTHeader(OutStream, '', 'TEST');
@@ -463,7 +464,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         PmtReconJnl: TestPage "Payment Reconciliation Journal";
         OutStream: OutStream;
     begin
-        Initialize;
+        Initialize();
         TempBlobUTF8.CreateOutStream(OutStream, TEXTENCODING::UTF8);
 
         WriteCAMTHeader(OutStream, '', 'TEST');
@@ -494,7 +495,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         PmtReconJnl: TestPage "Payment Reconciliation Journal";
         OutStream: OutStream;
     begin
-        Initialize;
+        Initialize();
         TempBlobUTF8.CreateOutStream(OutStream, TEXTENCODING::UTF8);
 
         WriteCAMTHeader(OutStream, '', 'TEST');
@@ -526,7 +527,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         PmtReconJnl: TestPage "Payment Reconciliation Journal";
         OutStream: OutStream;
     begin
-        Initialize;
+        Initialize();
         TempBlobUTF8.CreateOutStream(OutStream, TEXTENCODING::UTF8);
 
         WriteCAMTHeader(OutStream, '', 'TEST');
@@ -567,7 +568,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         PmtReconJnl: TestPage "Payment Reconciliation Journal";
         OutStream: OutStream;
     begin
-        Initialize;
+        Initialize();
         TempBlobUTF8.CreateOutStream(OutStream, TEXTENCODING::UTF8);
 
         WriteCAMTHeader(OutStream, '', 'TEST');
@@ -599,7 +600,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         OutStream: OutStream;
         TransferAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         TransferAmount := -100;
         TempBlobUTF8.CreateOutStream(OutStream, TEXTENCODING::UTF8);
 
@@ -635,7 +636,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         TransactionText: Text[250];
         TransactionAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         TempBlobUTF8.CreateOutStream(OutStream, TEXTENCODING::UTF8);
         LibraryERM.CreateGLAccount(GLAccount);
         TransactionText := 'Transfer' + LibraryUtility.GenerateGUID;
@@ -676,7 +677,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         TransactionText: Text[250];
         TransactionAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         TempBlobUTF8.CreateOutStream(OutStream, TEXTENCODING::UTF8);
         LibraryERM.CreateGLAccount(GLAccount);
         TransactionText := 'Transfer' + LibraryUtility.GenerateGUID;
@@ -708,7 +709,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         PmtReconJnl: TestPage "Payment Reconciliation Journal";
         OutStream: OutStream;
     begin
-        Initialize;
+        Initialize();
         TempBlobUTF8.CreateOutStream(OutStream, TEXTENCODING::UTF8);
 
         LibraryERM.CreateGLAccount(GLAcc);
@@ -745,7 +746,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         PmtReconJnl: TestPage "Payment Reconciliation Journal";
         OutStream: OutStream;
     begin
-        Initialize;
+        Initialize();
         TempBlobUTF8.CreateOutStream(OutStream, TEXTENCODING::UTF8);
 
         LibraryERM.CreateGLAccount(GLAcc);
@@ -786,7 +787,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         i: Integer;
     begin
         // Setup
-        Initialize;
+        Initialize();
         TempBlobUTF8.CreateOutStream(OutStream, TEXTENCODING::UTF8);
         CreateUnpaidDocs(OutStream, VendLedgEntry, RentGLAcc, InterestGLAcc);
 
@@ -863,7 +864,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         AccountType1: Text;
         MatchConfidence1: Text;
     begin
-        Initialize;
+        Initialize();
         TempBlobUTF8.CreateOutStream(OutStream, TEXTENCODING::UTF8);
         WriteCAMTHeader(OutStream, '', 'TEST');
         OnePurchTwoPmt(VendLedgEntry, OutStream);
@@ -904,7 +905,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         AccountType1: Text;
         AppliedAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         TempBlobUTF8.CreateOutStream(OutStream, TEXTENCODING::UTF8);
         WriteCAMTHeader(OutStream, '', 'TEST');
         OnePurchTwoPmt(VendLedgEntry, OutStream);
@@ -982,7 +983,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         OutStream: OutStream;
         ExcessiveAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         ExcessiveAmount := 1;
         TempBlobUTF8.CreateOutStream(OutStream, TEXTENCODING::UTF8);
 
@@ -1015,7 +1016,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         OutStream: OutStream;
         ExcessiveAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         ExcessiveAmount := 1.23;
         TempBlobUTF8.CreateOutStream(OutStream, TEXTENCODING::UTF8);
 
@@ -1045,7 +1046,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         OutStream: OutStream;
         ExcessiveAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         ExcessiveAmount := 1;
         TempBlobUTF8.CreateOutStream(OutStream, TEXTENCODING::UTF8);
 
@@ -1084,7 +1085,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         VendorCard: TestPage "Vendor Card";
         OutStream: OutStream;
     begin
-        Initialize;
+        Initialize();
         TempBlobUTF8.CreateOutStream(OutStream, TEXTENCODING::UTF8);
 
         LibraryPurch.CreateVendor(Vend);
@@ -1418,7 +1419,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
     begin
         // [FEATURE] [Match]
         // [SCENARIO 198751] Automatically match and post payment reconciliation journal with two vendor payments applied to two invoices in vice versa order
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor "V" with two posted purchase invoices:
         VendorNo := LibraryPurch.CreateVendorNo;
@@ -1489,7 +1490,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         // [FEATURE] [VAT]
         // [SCENARIO 212403] VAT Entry is created when post Payment Reconciliation with enabled "Copy VAT Setup to Jnl. Line" in Payment Reconciliation
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Payment Reconciliation with enabled "Copy VAT Setup to Jnl. Line"
         CreateBankAccReconSetCopyVATSetupInJnlLine(BankAccReconciliation, true);
@@ -1518,7 +1519,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         // [FEATURE] [VAT]
         // [SCENARIO 212403] VAT Entry is not created when post Payment Reconciliation with disabled  "Copy VAT Setup to Jnl. Line" in Payment Reconciliation
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Payment Reconciliation with disabled "Copy VAT Setup to Jnl. Line"
         CreateBankAccReconSetCopyVATSetupInJnlLine(BankAccReconciliation, false);
@@ -1548,7 +1549,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         // [FEATURE] [UT]
         // [SCENARIO 212403] General and VAT Posting groups not copies to General Journal Line from G/L Account when "Bank Acc. Recon. Rec. ID" is set in General Journal Line
 
-        Initialize;
+        Initialize();
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, GLAccount."Gen. Posting Type"::Sale);
 
@@ -1578,7 +1579,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         // [FEATURE] [UT]
         // [SCENARIO 212403] General and VAT Posting groups copies to General Journal Line from G/L Account when "Bank Acc. Recon. Rec. ID" is not set in General Journal Line
 
-        Initialize;
+        Initialize();
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, GLAccount."Gen. Posting Type"::Sale);
 
@@ -1602,7 +1603,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         // [FEATURE] [UT]
         // [SCENARIO 212403] "Copy VAT Setup to Jnl. Line" is true by default in General Journal Line
 
-        Initialize;
+        Initialize();
 
         GenJournalLine.Init;
         GenJournalLine.Validate("Line No.", LibraryUtility.GetNewRecNo(GenJournalLine, GenJournalLine.FieldNo("Line No.")));
@@ -1622,7 +1623,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         // [FEATURE] [UT]
         // [SCENARIO 212403] "Copy VAT Setup to Jnl. Line" inherits from General Journal Batch to General Journal Line
 
-        Initialize;
+        Initialize();
 
         LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
@@ -1646,7 +1647,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         // [FEATURE] [UI]
         // [SCENARIO 212403] All fields except "Copy VAT Setup to Jnl. Line" are not editable on "Pmt. Reconciliation Journals" page
 
-        Initialize;
+        Initialize();
 
         PmtReconciliationJournals.OpenEdit;
         Assert.IsFalse(PmtReconciliationJournals."Bank Account No.".Editable, 'Bank Account No.');
@@ -1667,7 +1668,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         // [FEATURE] [UT]
         // [SCENARIO 255555] VAT Setup does not copy to General Journal Line based on "Copy VAT Setup to Jnl. Lines" value of General Journal Batch when record inserts after G/L Account Validation
 
-        Initialize;
+        Initialize();
         LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
         GenJournalBatch.Validate("Copy VAT Setup to Jnl. Lines", false);
@@ -1696,8 +1697,8 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         // [FEATURE] [UT]
         // [SCENARIO 255555] VAT Setup does not copy to General Journal Line based on "Copy VAT Setup to Jnl. Lines" value of record when it inserts after G/L Account Validation
 
-        Initialize;
-        GenJournalLine.Init;
+        Initialize();
+        GenJournalLine.Init();
         GenJournalLine.Validate("Line No.", LibraryUtility.GetNewRecNo(GenJournalLine, GenJournalLine.FieldNo("Line No.")));
         GenJournalLine.Validate("Copy VAT Setup to Jnl. Lines", false);
         GenJournalLine.Validate("Account Type", GenJournalLine."Account Type"::"G/L Account");
@@ -1721,7 +1722,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
     begin
         // [FEATURE] [SEPA CAMT] [CAMT 053] [Bank Account ID]
         // [SCENARIO 273063] Import CAMT 053 when only Bank Account Id is specified in Stmt/Acct/Id/Othr/Id
-        Initialize;
+        Initialize();
 
         // [GIVEN] Bank account with SEPA CAMT 053 setup
         CreateBankAcc(SEPA_CAMT_Txt, BankAccount, '');
@@ -1745,16 +1746,22 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibraryInventory: Codeunit "Library - Inventory";
     begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"Payment Recon. E2E Tests 2");
+
         if Initialized then
             exit;
+
         Initialized := true;
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
+
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"Payment Recon. E2E Tests 2");
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
         LibraryInventory.NoSeriesSetup(InventorySetup);
-        UpdateVendPostingGrp;
-        Commit;
+        UpdateVendPostingGrp();
+        Commit();
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"Payment Recon. E2E Tests 2");
     end;
 
     local procedure CreateBankAcc(BankStmtFormat: Code[20]; var BankAcc: Record "Bank Account"; CurrencyCode: Code[10])
@@ -2769,7 +2776,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
     [Scope('OnPrem')]
     procedure CreateOnePurchOnePmtOutstream(var VendLedgEntry: Record "Vendor Ledger Entry"; var OutStream: OutStream; var TempBlobUTF8: Codeunit "Temp Blob")
     begin
-        Initialize;
+        Initialize();
         TempBlobUTF8.CreateOutStream(OutStream, TEXTENCODING::UTF8);
 
         WriteCAMTHeader(OutStream, '', 'TEST');
@@ -2780,7 +2787,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
     [Scope('OnPrem')]
     procedure CreateTwoPurchTwoPmtOutstream(var VendLedgEntry: Record "Vendor Ledger Entry"; var VendLedgEntry2: Record "Vendor Ledger Entry"; var OutStream: OutStream; var TempBlobUTF8: Codeunit "Temp Blob")
     begin
-        Initialize;
+        Initialize();
         TempBlobUTF8.CreateOutStream(OutStream, TEXTENCODING::UTF8);
 
         WriteCAMTHeader(OutStream, '', 'TEST');

@@ -2,6 +2,8 @@ report 31084 "Suggest Reverse Charge Lines"
 {
     Caption = 'Suggest Reverse Charge Lines';
     ProcessingOnly = true;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'The functionality of Reverse Charge Statement will be removed and this report should not be used. (Obsolete::Removed in release 01.2021)';
 
     dataset
     {

@@ -75,21 +75,25 @@
                 }
                 field("Country/Region of Origin Code"; "Country/Region of Origin Code")
                 {
+                    ApplicationArea = Location;
                     ToolTip = 'Specifies the origin country/region code.';
                     Visible = false;
                 }
                 field("Tariff No."; "Tariff No.")
                 {
+                    ApplicationArea = Location;
                     ToolTip = 'Specifies a code for the item''s tariff number.';
                     Visible = false;
                 }
                 field("Statistic Indication"; "Statistic Indication")
                 {
+                    ApplicationArea = Location;
                     ToolTip = 'Specifies the statistic indication code.';
                     Visible = false;
                 }
                 field("Net Weight"; "Net Weight")
                 {
+                    ApplicationArea = Location;
                     ToolTip = 'Specifies the net weight of the item.';
                     Visible = false;
                 }

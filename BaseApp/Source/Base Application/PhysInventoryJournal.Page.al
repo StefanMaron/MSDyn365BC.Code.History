@@ -52,6 +52,7 @@
                 }
                 field("Whse. Net Change Template"; "Whse. Net Change Template")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the template for item''s whse. net change.';
                     Visible = false;
                 }
@@ -126,6 +127,7 @@
                 }
                 field("G/L Correction"; "G/L Correction")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies to include general ledger corrections on the item journal line.';
                     Visible = false;
                 }

@@ -378,6 +378,7 @@ report 393 "Suggest Vendor Payments"
                         }
                         field(BankPaymentType; GenJnlLine2."Bank Payment Type")
                         {
+                            ApplicationArea = Basic, Suite;
                             Caption = 'Bank Payment Type';
                             ToolTip = 'Specifies selection of the bank payment type (check type) you are using in case you use bank account as the balancing account type.';
 
