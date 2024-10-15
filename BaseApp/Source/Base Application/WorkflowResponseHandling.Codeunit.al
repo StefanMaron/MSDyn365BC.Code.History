@@ -530,6 +530,7 @@ codeunit 1521 "Workflow Response Handling"
         TargetRecRef: RecordRef;
         Handled: Boolean;
     begin
+        OnBeforeReleaseDocument(Variant);
         RecRef.GetTable(Variant);
 
         case RecRef.Number of
@@ -1207,6 +1208,11 @@ codeunit 1521 "Workflow Response Handling"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeAllowRecordUsageDefault(var Variant: Variant; var Handled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeReleaseDocument(var Variant: Variant)
     begin
     end;
 

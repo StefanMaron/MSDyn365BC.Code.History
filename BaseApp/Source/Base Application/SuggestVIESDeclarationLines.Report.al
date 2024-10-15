@@ -191,7 +191,6 @@ report 31067 "Suggest VIES Declaration Lines"
         TempVIESLine.SetRange("Trade Type", VIESLine."Trade Type");
         TempVIESLine.SetRange("Country/Region Code", VIESLine."Country/Region Code");
         TempVIESLine.SetRange("VAT Registration No.", VIESLine."VAT Registration No.");
-        TempVIESLine.SetRange("Registration No.", VIESLine."Registration No.");
         TempVIESLine.SetRange("Trade Role Type", VIESLine."Trade Role Type");
         TempVIESLine.SetRange("EU 3-Party Trade", VIESLine."EU 3-Party Trade");
         TempVIESLine.SetRange("EU 3-Party Intermediate Role", VIESLine."EU 3-Party Intermediate Role");

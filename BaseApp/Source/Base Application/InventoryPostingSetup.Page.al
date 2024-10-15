@@ -73,7 +73,7 @@ page 5826 "Inventory Posting Setup"
                 }
                 field("Capacity Variance Account"; "Capacity Variance Account")
                 {
-                    ApplicationArea = Manufacturing;
+                    ApplicationArea = Suite;
                     ToolTip = 'Specifies the number of the general ledger account to which to post capacity variance transactions for items in this combination.';
                 }
                 field("Subcontracted Variance Account"; "Subcontracted Variance Account")
@@ -83,12 +83,12 @@ page 5826 "Inventory Posting Setup"
                 }
                 field("Cap. Overhead Variance Account"; "Cap. Overhead Variance Account")
                 {
-                    ApplicationArea = Manufacturing;
+                    ApplicationArea = Suite;
                     ToolTip = 'Specifies the general ledger account number to which to post capacity overhead variance transactions for items in this combination.';
                 }
                 field("Mfg. Overhead Variance Account"; "Mfg. Overhead Variance Account")
                 {
-                    ApplicationArea = Manufacturing;
+                    ApplicationArea = Suite;
                     ToolTip = 'Specifies the general ledger account number to which to post manufacturing overhead variance transactions for items in this combination.';
                 }
             }

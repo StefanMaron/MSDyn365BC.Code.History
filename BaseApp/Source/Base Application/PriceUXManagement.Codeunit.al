@@ -135,6 +135,78 @@ codeunit 7018 "Price UX Management"
         end;
     end;
 
+    local procedure LookupJobPriceLists(var PriceListHeader: Record "Price List Header"; var PriceListCode: Code[20]) IsPicked: Boolean;
+    var
+        PurchaseJobPriceLists: Page "Purchase Job Price Lists";
+        SalesJobPriceLists: Page "Sales Job Price Lists";
+    begin
+        PriceListCode := '';
+        case PriceListHeader."Price Type" of
+            "Price Type"::Sale:
+                begin
+                    SalesJobPriceLists.LookupMode(true);
+                    SalesJobPriceLists.SetRecordFilter(PriceListHeader);
+                    if SalesJobPriceLists.RunModal() = Action::LookupOK then
+                        SalesJobPriceLists.GetRecord(PriceListHeader);
+                end;
+            "Price Type"::Purchase:
+                begin
+                    PurchaseJobPriceLists.LookupMode(true);
+                    PurchaseJobPriceLists.SetRecordFilter(PriceListHeader);
+                    if PurchaseJobPriceLists.RunModal() = Action::LookupOK then
+                        PurchaseJobPriceLists.GetRecord(PriceListHeader);
+                end;
+        end;
+        PriceListCode := PriceListHeader.Code;
+        IsPicked := PriceListCode <> '';
+    end;
+
+    local procedure LookupPriceLists(var PriceListHeader: Record "Price List Header"; var PriceListCode: Code[20]) IsPicked: Boolean;
+    var
+        PurchasePriceLists: Page "Purchase Price Lists";
+        SalesPriceLists: Page "Sales Price Lists";
+    begin
+        PriceListCode := '';
+        case PriceListHeader."Price Type" of
+            "Price Type"::Sale:
+                begin
+                    SalesPriceLists.LookupMode(true);
+                    SalesPriceLists.SetRecordFilter(PriceListHeader);
+                    if SalesPriceLists.RunModal() = Action::LookupOK then
+                        SalesPriceLists.GetRecord(PriceListHeader);
+                end;
+            "Price Type"::Purchase:
+                begin
+                    PurchasePriceLists.LookupMode(true);
+                    PurchasePriceLists.SetRecordFilter(PriceListHeader);
+                    if PurchasePriceLists.RunModal() = Action::LookupOK then
+                        PurchasePriceLists.GetRecord(PriceListHeader);
+                end;
+        end;
+        PriceListCode := PriceListHeader.Code;
+        IsPicked := PriceListCode <> '';
+    end;
+
+    procedure LookupPriceLists(SourceGroup: Enum "Price Source Group"; PriceType: Enum "Price Type"; var PriceListCode: Code[20]): Boolean;
+    var
+        PriceListHeader: Record "Price List Header";
+    begin
+        if PriceListCode <> '' then begin
+            PriceListHeader.Get(PriceListCode);
+            PriceListHeader.SetFilter(Code, '<>%1', PriceListCode);
+        end else begin
+            PriceListHeader."Source Group" := SourceGroup;
+            PriceListHeader."Price Type" := PriceType;
+        end;
+        case SourceGroup of
+            SourceGroup::Job:
+                exit(LookupJobPriceLists(PriceListHeader, PriceListCode));
+            SourceGroup::Customer,
+            SourceGroup::Vendor:
+                exit(LookupPriceLists(PriceListHeader, PriceListCode));
+        end;
+    end;
+
     procedure ShowExceptions(CurrPriceCalculationSetup: Record "Price Calculation Setup")
     var
         DtldPriceCalculationSetup: Page "Dtld. Price Calculation Setup";
@@ -228,8 +300,19 @@ codeunit 7018 "Price UX Management"
         PriceListLineReview: Page "Price List Line Review";
     begin
         PriceAssetList.Init();
-        PriceAssetList.Add(PriceAsset."Asset Type", PriceAsset."Asset No.");
+        PriceAssetList.Add(PriceAsset);
         PriceListLineReview.Set(PriceAssetList, PriceType, AmountType);
+        PriceListLineReview.Run();
+    end;
+
+    procedure ShowPriceListLines(PriceSource: Record "Price Source"; PriceAsset: Record "Price Asset"; AmountType: Enum "Price Amount Type")
+    var
+        PriceAssetList: Codeunit "Price Asset List";
+        PriceListLineReview: Page "Price List Line Review";
+    begin
+        PriceAssetList.Init();
+        PriceAssetList.Add(PriceAsset);
+        PriceListLineReview.Set(PriceSource, PriceAssetList, AmountType);
         PriceListLineReview.Run();
     end;
 
@@ -333,31 +416,49 @@ codeunit 7018 "Price UX Management"
 
     procedure SetPriceListLineFilters(var PriceListLine: Record "Price List Line"; PriceAssetList: Codeunit "Price Asset List"; PriceType: Enum "Price Type"; AmountType: Enum "Price Amount Type")
     var
-        AssetFilter: array[2] of Text;
+        PriceSource: Record "Price Source";
+    begin
+        PriceSource."Price Type" := PriceType;
+        SetPriceListLineFilters(PriceListLine, PriceSource, PriceAssetList, AmountType);
+    end;
+
+    procedure SetPriceListLineFilters(var PriceListLine: Record "Price List Line"; PriceSource: Record "Price Source"; PriceAssetList: Codeunit "Price Asset List"; AmountType: Enum "Price Amount Type")
+    var
+        AssetFilter: array[3] of Text;
     begin
         PriceListLine.FilterGroup(2);
-        PriceListLine.SetRange("Price Type", PriceType);
+        PriceListLine.SetRange("Price Type", PriceSource."Price Type");
         if AmountType = AmountType::Any then
             PriceListLine.SetRange("Amount Type")
         else
             PriceListLine.SetFilter("Amount Type", '%1|%2', AmountType, AmountType::Any);
 
+        if PriceSource."Source Type" <> PriceSource."Source Type"::All then begin
+            PriceListLine.SetRange("Source Type", PriceSource."Source Type");
+            PriceListLine.SetRange("Source No.", PriceSource."Source No.");
+        end;
         BuildAssetFilters(PriceAssetList, AssetFilter);
         PriceListLine.SetFilter("Asset Type", AssetFilter[1]);
         PriceListLine.SetFilter("Asset No.", AssetFilter[2]);
+        PriceListLine.SetFilter("Variant Code", AssetFilter[3]);
         PriceListLine.FilterGroup(0);
     end;
 
-    local procedure BuildAssetFilters(PriceAssetList: Codeunit "Price Asset List"; var AssetFilter: array[2] of Text)
+    local procedure BuildAssetFilters(PriceAssetList: Codeunit "Price Asset List"; var AssetFilter: array[3] of Text)
     var
         PriceAsset: Record "Price Asset";
         OrSeparator: Text[1];
+        OrSeparatorVariant: Text[1];
     begin
         if PriceAssetList.First(PriceAsset, 0) then
             repeat
                 AssetFilter[1] += OrSeparator + Format(PriceAsset."Asset Type");
                 AssetFilter[2] += OrSeparator + PriceAsset."Asset No.";
                 OrSeparator := '|';
+                if PriceAsset."Variant Code" <> '' then begin
+                    AssetFilter[3] += AssetFilter[3] + PriceAsset."Variant Code";
+                    OrSeparatorVariant := '|';
+                end;
             until not PriceAssetList.Next(PriceAsset);
     end;
 

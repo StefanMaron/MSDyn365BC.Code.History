@@ -53,18 +53,17 @@ codeunit 1317 "Aged Inventory Chart Mgt."
         PeriodNo: Integer;
     begin
         Item.SetRange(Type, Item.Type::Inventory, Item.Type::Inventory);
-        if Item.Find('-') then
+        if Item.Findset() then
             repeat
-                with ItemLedgerEntry do begin
-                    SetRange(Open, true, true);
-                    SetRange("Item No.", Item."No.", Item."No.");
-                    if Find('-') then
-                        repeat
-                            CalcRemainingQty(ItemLedgerEntry, PeriodStartDate, InvtQty, PeriodNo);
-                            UnitCost := CalcUnitCost(ItemLedgerEntry);
-                            InvtValue[PeriodNo] += UnitCost * Abs(InvtQty[PeriodNo]);
-                        until Next = 0;
-                end;
+                ItemLedgerEntry.SetCurrentKey(ItemLedgerEntry."Item No.", ItemLedgerEntry.Open);
+                ItemLedgerEntry.SetRange(Open, true);
+                ItemLedgerEntry.SetRange("Item No.", Item."No.");
+                if ItemLedgerEntry.Findset() then
+                    repeat
+                        CalcRemainingQty(ItemLedgerEntry, PeriodStartDate, InvtQty, PeriodNo);
+                        UnitCost := CalcUnitCost(ItemLedgerEntry);
+                        InvtValue[PeriodNo] += UnitCost * Abs(InvtQty[PeriodNo]);
+                    until ItemLedgerEntry.Next() = 0;
             until Item.Next = 0;
     end;
 

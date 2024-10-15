@@ -209,9 +209,11 @@ codeunit 2 "Company-Initialize"
         [Obsolete('The functionality of Non-deductible VAT will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
         VATNDTxt: Label 'VATND';
         VATPDTxt: Label 'VATPD';
+        VATSDTxt: Label 'VATSD';
         [Obsolete('The functionality of Non-deductible VAT will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
         NonDeductibleVATTxt: Label 'Non deductible VAT';
         PurchaseVATDelayTxt: Label 'Purchase VAT delay';
+        SalesVATDelayTxt: Label 'Sales VAT delay';
         OPBALANCETxt: Label 'OPBALANCE';
         OpenBalanceSheetTxt: Label 'Open Balance Sheet';
         CLBALANCETxt: Label 'CLBALANCE';
@@ -501,6 +503,7 @@ codeunit 2 "Company-Initialize"
                 InsertSourceCode("Cash Desk", Text26540, Text26541); // NAVCZ
                 InsertSourceCode("VAT Coefficient", VATNDTxt, NonDeductibleVATTxt); // NAVCZ
                 InsertSourceCode("Purchase VAT Delay", VATPDTxt, PurchaseVATDelayTxt); // NAVCZ
+                InsertSourceCode("Sales VAT Delay", VATSDTxt, SalesVATDelayTxt); // NAVCZ
                 InsertSourceCode("Open Balance Sheet", OPBALANCETxt, OpenBalanceSheetTxt); // NAVCZ
                 InsertSourceCode("Close Balance Sheet", CLBALANCETxt, CloseBalanceSheetTxt); // NAVCZ
                 Insert;

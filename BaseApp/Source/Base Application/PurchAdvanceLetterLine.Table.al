@@ -381,7 +381,7 @@ table 31021 "Purch. Advance Letter Line"
         }
         field(31016; "Vendor Posting Group"; Code[20])
         {
-            CalcFormula = Lookup ("Purch. Advance Letter Header"."Vendor Posting Group" WHERE("No." = FIELD("Letter No.")));
+            CalcFormula = Lookup("Purch. Advance Letter Header"."Vendor Posting Group" WHERE("No." = FIELD("Letter No.")));
             Caption = 'Vendor Posting Group';
             Editable = false;
             FieldClass = FlowField;
@@ -396,7 +396,7 @@ table 31021 "Purch. Advance Letter Line"
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
             BlankZero = true;
-            CalcFormula = Sum ("Advance Letter Line Relation".Amount WHERE(Type = CONST(Purchase),
+            CalcFormula = Sum("Advance Letter Line Relation".Amount WHERE(Type = CONST(Purchase),
                                                                            "Letter No." = FIELD("Letter No."),
                                                                            "Letter Line No." = FIELD("Line No."),
                                                                            "Document No." = FIELD("Doc. No. Filter")));
@@ -422,7 +422,7 @@ table 31021 "Purch. Advance Letter Line"
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
             BlankZero = true;
-            CalcFormula = Sum ("Advance Letter Line Relation"."Invoiced Amount" WHERE(Type = CONST(Purchase),
+            CalcFormula = Sum("Advance Letter Line Relation"."Invoiced Amount" WHERE(Type = CONST(Purchase),
                                                                                       "Letter No." = FIELD("Letter No."),
                                                                                       "Letter Line No." = FIELD("Line No."),
                                                                                       "Document No." = FIELD("Doc. No. Filter")));
@@ -447,7 +447,7 @@ table 31021 "Purch. Advance Letter Line"
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
             BlankZero = true;
-            CalcFormula = Sum ("Advance Letter Line Relation"."Deducted Amount" WHERE(Type = CONST(Purchase),
+            CalcFormula = Sum("Advance Letter Line Relation"."Deducted Amount" WHERE(Type = CONST(Purchase),
                                                                                       "Letter No." = FIELD("Letter No."),
                                                                                       "Letter Line No." = FIELD("Line No."),
                                                                                       "Document No." = FIELD("Doc. No. Filter")));
@@ -460,7 +460,7 @@ table 31021 "Purch. Advance Letter Line"
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
             BlankZero = true;
-            CalcFormula = Sum ("Advance Letter Line Relation"."Amount To Deduct" WHERE(Type = CONST(Purchase),
+            CalcFormula = Sum("Advance Letter Line Relation"."Amount To Deduct" WHERE(Type = CONST(Purchase),
                                                                                        "Letter No." = FIELD("Letter No."),
                                                                                        "Letter Line No." = FIELD("Line No."),
                                                                                        "Document No." = FIELD("Doc. No. Filter")));
@@ -499,7 +499,7 @@ table 31021 "Purch. Advance Letter Line"
         }
         field(31031; "Amount on Payment Order (LCY)"; Decimal)
         {
-            CalcFormula = - Sum ("Issued Payment Order Line"."Amount (LCY)" WHERE("Letter Type" = CONST(Purchase),
+            CalcFormula = - Sum("Issued Payment Order Line"."Amount (LCY)" WHERE("Letter Type" = CONST(Purchase),
                                                                                  "Letter No." = FIELD("Letter No."),
                                                                                  "Letter Line No." = FIELD("Line No."),
                                                                                  Status = CONST(" ")));
@@ -1174,8 +1174,8 @@ table 31021 "Purch. Advance Letter Line"
 
         GetLetterHeader;
         "Dimension Set ID" :=
-          DimMgt.GetDefaultDimID(
-            TableID, No, SourceCodeSetup.Sales,
+          DimMgt.GetRecDefaultDimID(
+            Rec, CurrFieldNo, TableID, No, SourceCodeSetup.Sales,
             "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code",
             PurchAdvanceLetterHeadergre."Dimension Set ID", DATABASE::Customer);
         DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");

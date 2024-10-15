@@ -834,6 +834,7 @@
                 }
                 action(GetPrice)
                 {
+                    AccessByPermission = TableData "Sales Price Access" = R;
                     ApplicationArea = Suite;
                     Caption = 'Get &Price';
                     Ellipsis = true;
@@ -848,6 +849,7 @@
                 }
                 action(GetLineDiscount)
                 {
+                    AccessByPermission = TableData "Sales Discount Access" = R;
                     ApplicationArea = Suite;
                     Caption = 'Get Li&ne Discount';
                     Ellipsis = true;

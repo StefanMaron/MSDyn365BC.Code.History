@@ -54,11 +54,13 @@ codeunit 1330 "Instruction Mgt."
         UserPreference.EnableInstruction(InstructionType);
     end;
 
-    procedure IsEnabled(InstructionType: Code[50]): Boolean
+    procedure IsEnabled(InstructionType: Code[50]) Result: Boolean
     var
         UserPreference: Record "User Preference";
     begin
-        exit(not UserPreference.Get(UserId, InstructionType));
+        Result := not UserPreference.Get(UserId, InstructionType);
+
+        OnAfterIsEnabled(InstructionType, Result);
     end;
 
     procedure IsUnpostedEnabledForRecord(RecVariant: Variant) Enabled: Boolean
@@ -271,6 +273,11 @@ codeunit 1330 "Instruction Mgt."
 
     [IntegrationEvent(false, false)]
     procedure OnBeforeIsUnpostedEnabledForRecord(RecVariant: Variant; var Enabled: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterIsEnabled(InstructionType: Code[50]; var Result: Boolean)
     begin
     end;
 }

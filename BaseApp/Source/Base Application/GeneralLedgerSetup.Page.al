@@ -155,6 +155,7 @@ page 118 "General Ledger Setup"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies that if the amount on a sales invoice or a service invoice exceeds the threshold, then the name of the document is changed to include the words "Tax Invoice", as required by the tax authorities.';
+                    Visible = false;
                 }
                 field("VAT Rounding Type"; "VAT Rounding Type")
                 {

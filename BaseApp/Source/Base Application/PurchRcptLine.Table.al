@@ -912,6 +912,7 @@ table 121 "Purch. Rcpt. Line"
                             (1 + PurchOrderLine."VAT %" / 100), Currency."Amount Rounding Precision");
                 PurchLine.Validate("Line Discount Amount", PurchOrderLine."Line Discount Amount");
                 PurchLine."Line Discount %" := PurchOrderLine."Line Discount %";
+                OnInsertInvLineFromRcptLineOnBeforePurchLineUpdatePrePaymentAmounts(PurchLine, PurchOrderLine);
                 PurchLine.UpdatePrePaymentAmounts;
                 if PurchOrderLine.Quantity = 0 then
                     PurchLine.Validate("Inv. Discount Amount", 0)
@@ -937,8 +938,10 @@ table 121 "Purch. Rcpt. Line"
             else
                 PurchLine."Drop Shipment" := true;
 
-            OnBeforeInsertInvLineFromRcptLine(Rec, PurchLine, PurchOrderLine);
-            PurchLine.Insert();
+            IsHandled := false;
+            OnBeforeInsertInvLineFromRcptLine(Rec, PurchLine, PurchOrderLine, IsHandled);
+            if not IsHandled then
+                PurchLine.Insert();
             OnAfterInsertInvLineFromRcptLine(PurchLine, PurchOrderLine, NextLineNo, Rec);
 
             ItemTrackingMgt.CopyHandledItemTrkgToInvLine(PurchOrderLine, PurchLine);
@@ -1211,7 +1214,7 @@ table 121 "Purch. Rcpt. Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeInsertInvLineFromRcptLine(var PurchRcptLine: Record "Purch. Rcpt. Line"; var PurchLine: Record "Purchase Line"; PurchOrderLine: Record "Purchase Line")
+    local procedure OnBeforeInsertInvLineFromRcptLine(var PurchRcptLine: Record "Purch. Rcpt. Line"; var PurchLine: Record "Purchase Line"; PurchOrderLine: Record "Purchase Line"; var IsHandled: Boolean)
     begin
     end;
 
@@ -1242,6 +1245,11 @@ table 121 "Purch. Rcpt. Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertInvLineFromRcptLineOnBeforeValidateQuantity(PurchRcptLine: Record "Purch. Rcpt. Line"; var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertInvLineFromRcptLineOnBeforePurchLineUpdatePrePaymentAmounts(var PurchaseLine: Record "Purchase Line"; PurchOrderLine: Record "Purchase Line")
     begin
     end;
 }

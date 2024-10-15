@@ -1075,8 +1075,8 @@ table 11731 "Cash Document Line"
         "Shortcut Dimension 2 Code" := '';
         GetDocHeader;
         "Dimension Set ID" :=
-          DimMgt.GetDefaultDimID(
-            TableID, No, SourceCodeSetup."Cash Desk",
+          DimMgt.GetRecDefaultDimID(
+            Rec, CurrFieldNo, TableID, No, SourceCodeSetup."Cash Desk",
             "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code",
             CashDocHeader."Dimension Set ID", DATABASE::Customer);
         DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");

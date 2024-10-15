@@ -1,4 +1,4 @@
-table 5050 Contact
+﻿table 5050 Contact
 {
     Caption = 'Contact';
     DataCaptionFields = "No.", Name;
@@ -287,7 +287,6 @@ table 5050 Contact
 
             trigger OnValidate()
             var
-                SegLine: Record "Segment Line";
                 Cont: Record Contact;
             begin
                 if Cont.Get("Company No.") then
@@ -300,9 +299,7 @@ table 5050 Contact
 
                 CheckContactType(Type::Person);
 
-                SegLine.SetRange("Contact No.", "No.");
-                if not SegLine.IsEmpty then
-                    Error(Text012, FieldCaption("Company No."));
+                CheckUnloggedSegments();
 
                 UpdateCompanyNo();
             end;
@@ -1213,7 +1210,13 @@ table 5050 Contact
         Task: Record "To-do";
         Cont: Record Contact;
         CampaignTargetGrMgt: Codeunit "Campaign Target Group Mgt";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeTypeChange(Rec, xRec, InteractLogEntry, Opp, Task, Cont, IsHandled);
+        if IsHandled then
+            exit;
+
         RMSetup.Get();
 
         if Type <> xRec.Type then begin
@@ -1314,15 +1317,26 @@ table 5050 Contact
         end;
     end;
 
+    procedure CreateCustomer()
+    var
+        CustomerTemplMgt: Codeunit "Customer Templ. Mgt.";
+    begin
+        if CustomerTemplMgt.IsEnabled() then
+            CreateCustomer('')
+        else
+            CreateCustomer(ChooseCustomerTemplate());
+    end;
+
     procedure CreateCustomer(CustomerTemplate: Code[10]) CustNo: Code[20]
     var
         Cust: Record Customer;
         CustTemplate: Record "Customer Template";
-        DefaultDim: Record "Default Dimension";
-        DefaultDim2: Record "Default Dimension";
         ContBusRel: Record "Contact Business Relation";
+        CustomerTempl: Record "Customer Templ.";
         OfficeMgt: Codeunit "Office Management";
+        CustomerTemplMgt: Codeunit "Customer Templ. Mgt.";
         IsHandled: Boolean;
+        TemplateSelected: Boolean;
     begin
         IsHandled := false;
         OnBeforeCreateCustomer(Rec, CustNo, IsHandled);
@@ -1333,6 +1347,13 @@ table 5050 Contact
         CheckIfPrivacyBlockedGeneric;
         RMSetup.Get();
         RMSetup.TestField("Bus. Rel. Code for Customers");
+
+        if CustomerTemplMgt.IsEnabled() then begin
+            TemplateSelected := CustomerTemplMgt.SelectCustomerTemplateFromContact(CustomerTempl, Rec);
+            if not TemplateSelected then
+                if CustomerTemplMgt.TemplatesAreNotEmpty() then
+                    exit;
+        end;
 
         if CustomerTemplate <> '' then
             if CustTemplate.Get(CustomerTemplate) then;
@@ -1361,49 +1382,10 @@ table 5050 Contact
         OnCreateCustomerOnBeforeCustomerModify(Cust, Rec);
         Cust.Modify();
 
-        if CustTemplate.Code <> '' then begin
-            if "Territory Code" = '' then
-                Cust."Territory Code" := CustTemplate."Territory Code"
-            else
-                Cust."Territory Code" := "Territory Code";
-            if "Currency Code" = '' then
-                Cust."Currency Code" := CustTemplate."Currency Code"
-            else
-                Cust."Currency Code" := "Currency Code";
-            if "Country/Region Code" = '' then
-                Cust."Country/Region Code" := CustTemplate."Country/Region Code"
-            else
-                Cust."Country/Region Code" := "Country/Region Code";
-            Cust."Customer Posting Group" := CustTemplate."Customer Posting Group";
-            Cust."Customer Price Group" := CustTemplate."Customer Price Group";
-            if CustTemplate."Invoice Disc. Code" <> '' then
-                Cust."Invoice Disc. Code" := CustTemplate."Invoice Disc. Code";
-            Cust."Customer Disc. Group" := CustTemplate."Customer Disc. Group";
-            Cust."Allow Line Disc." := CustTemplate."Allow Line Disc.";
-            Cust."Gen. Bus. Posting Group" := CustTemplate."Gen. Bus. Posting Group";
-            Cust."VAT Bus. Posting Group" := CustTemplate."VAT Bus. Posting Group";
-            Cust."Payment Terms Code" := CustTemplate."Payment Terms Code";
-            Cust."Payment Method Code" := CustTemplate."Payment Method Code";
-            Cust."Prices Including VAT" := CustTemplate."Prices Including VAT";
-            Cust."Shipment Method Code" := CustTemplate."Shipment Method Code";
-            Cust.UpdateReferencedIds;
-            OnCreateCustomerOnTransferFieldsFromTemplate(Cust, CustTemplate);
-            Cust.Modify();
-
-            DefaultDim.SetRange("Table ID", DATABASE::"Customer Template");
-            DefaultDim.SetRange("No.", CustTemplate.Code);
-            if DefaultDim.Find('-') then
-                repeat
-                    Clear(DefaultDim2);
-                    DefaultDim2.Init();
-                    DefaultDim2.Validate("Table ID", DATABASE::Customer);
-                    DefaultDim2."No." := Cust."No.";
-                    DefaultDim2.Validate("Dimension Code", DefaultDim."Dimension Code");
-                    DefaultDim2.Validate("Dimension Value Code", DefaultDim."Dimension Value Code");
-                    DefaultDim2."Value Posting" := DefaultDim."Value Posting";
-                    DefaultDim2.Insert(true);
-                until DefaultDim.Next = 0;
-        end;
+        if TemplateSelected then
+            CustomerTemplMgt.ApplyCustomerTemplate(Cust, CustomerTempl)
+        else
+            UpdateCustomerFromConversionTemplate(Cust, CustTemplate);
 
         OnCreateCustomerOnBeforeUpdateQuotes(Cust, Rec);
 
@@ -1851,6 +1833,21 @@ table 5050 Contact
         OnBeforeCheckCompanyNo(Rec, IsHandled);
         if not IsHandled then
             TestField("Company No.");
+    end;
+
+    local procedure CheckUnloggedSegments()
+    var
+        SegLine: Record "Segment Line";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckUnloggedSegments(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        SegLine.SetRange("Contact No.", "No.");
+        if not SegLine.IsEmpty then
+            Error(Text012, FieldCaption("Company No."));
     end;
 
     procedure CheckContactType(ContactType: Enum "Contact Type")
@@ -2535,18 +2532,8 @@ table 5050 Contact
     end;
 
     procedure SetLastDateTimeFilter(DateFilter: DateTime)
-    var
-        SyncDateTimeUtc: DateTime;
-        CurrentFilterGroup: Integer;
     begin
-        SyncDateTimeUtc := DateFilter;
-        SyncDateTimeUtc := SyncDateTimeUtc - GetTimeZoneOffset();
-        CurrentFilterGroup := FilterGroup;
-        SetFilter("Last Date Modified", '>=%1', DT2Date(SyncDateTimeUtc));
-        FilterGroup(-1);
-        SetFilter("Last Date Modified", '>%1', DT2Date(SyncDateTimeUtc));
-        SetFilter("Last Time Modified", '>%1', DT2Time(SyncDateTimeUtc));
-        FilterGroup(CurrentFilterGroup);
+        SetFilter(systemModifiedAt, '>=%1', DateFilter);
     end;
 
     procedure TouchContact(ContactNo: Code[20])
@@ -2643,6 +2630,7 @@ table 5050 Contact
         ResultRecordRef: RecordRef;
         ApplicableCountryCode: Code[10];
         IsHandled: Boolean;
+        LogNotVerified: Boolean;
     begin
         IsHandled := false;
         OnBeforeVATRegistrationValidation(Rec, IsHandled);
@@ -2652,19 +2640,21 @@ table 5050 Contact
         if not VATRegistrationNoFormat.Test("VAT Registration No.", "Country/Region Code", "No.", DATABASE::Contact) then
             exit;
 
-        VATRegistrationLogMgt.LogContact(Rec);
-
-        if ("Country/Region Code" = '') and (VATRegistrationNoFormat."Country/Region Code" = '') then
-            exit;
-        ApplicableCountryCode := "Country/Region Code";
-        if ApplicableCountryCode = '' then
-            ApplicableCountryCode := VATRegistrationNoFormat."Country/Region Code";
-
-        if VATRegNoSrvConfig.VATRegNoSrvIsEnabled then begin
-            VATRegistrationLogMgt.ValidateVATRegNoWithVIES(
-                ResultRecordRef, Rec, "No.", VATRegistrationLog."Account Type"::Contact.AsInteger(), ApplicableCountryCode);
-            ResultRecordRef.SetTable(Rec);
+        LogNotVerified := true;
+        if ("Country/Region Code" <> '') or (VATRegistrationNoFormat."Country/Region Code" <> '') then begin
+            ApplicableCountryCode := "Country/Region Code";
+            if ApplicableCountryCode = '' then
+                ApplicableCountryCode := VATRegistrationNoFormat."Country/Region Code";
+            if VATRegNoSrvConfig.VATRegNoSrvIsEnabled then begin
+                LogNotVerified := false;
+                VATRegistrationLogMgt.ValidateVATRegNoWithVIES(
+                    ResultRecordRef, Rec, "No.", VATRegistrationLog."Account Type"::Contact.AsInteger(), ApplicableCountryCode);
+                ResultRecordRef.SetTable(Rec);
+            end;
         end;
+
+        if LogNotVerified then
+            VATRegistrationLogMgt.LogContact(Rec);
     end;
 
     [Obsolete('Moved to Core Localization Pack for Czech.', '17.0')]
@@ -2855,11 +2845,20 @@ table 5050 Contact
     var
         Employee: Record Employee;
         ContBusRel: Record "Contact Business Relation";
+        EmployeeTempl: Record "Employee Templ.";
         CustVendBankUpdate: Codeunit "CustVendBank-Update";
         EmployeeTemplMgt: Codeunit "Employee Templ. Mgt.";
+        TemplateSelected: Boolean;
     begin
         CheckContactType(Type::Person);
         CheckIfPrivacyBlockedGeneric();
+
+        if EmployeeTemplMgt.IsEnabled() then begin
+            TemplateSelected := EmployeeTemplMgt.SelectEmployeeTemplateFromContact(EmployeeTempl);
+            if not TemplateSelected then
+                if EmployeeTemplMgt.TemplatesAreNotEmpty() then
+                    exit;
+        end;
 
         Employee.Init();
         Employee.Insert(true);
@@ -2868,7 +2867,8 @@ table 5050 Contact
         CustVendBankUpdate.UpdateEmployee(Rec, ContBusRel);
         Commit();
         Employee.Get(Employee."No.");
-        EmployeeTemplMgt.ApplyContactEmployeeTemplate(Employee);
+        if TemplateSelected then
+            EmployeeTemplMgt.ApplyEmployeeTemplate(Employee, EmployeeTempl);
 
         if not HideValidationDialog then
             Message(RelatedRecordIsCreatedMsg, Employee.TableCaption);
@@ -2888,6 +2888,56 @@ table 5050 Contact
         MarketingSetup.Get();
         MarketingSetup.TestField("Bus. Rel. Code for Employees");
         CreateLink(Page::"Employee Link", MarketingSetup."Bus. Rel. Code for Employees", ContBusRel."Link to Table"::Employee);
+    end;
+
+    local procedure UpdateCustomerFromConversionTemplate(var Cust: Record Customer; CustTemplate: Record "Customer Template")
+    var
+        DefaultDim: Record "Default Dimension";
+        DefaultDim2: Record "Default Dimension";
+    begin
+        if CustTemplate.Code <> '' then begin
+            if "Territory Code" = '' then
+                Cust."Territory Code" := CustTemplate."Territory Code"
+            else
+                Cust."Territory Code" := "Territory Code";
+            if "Currency Code" = '' then
+                Cust."Currency Code" := CustTemplate."Currency Code"
+            else
+                Cust."Currency Code" := "Currency Code";
+            if "Country/Region Code" = '' then
+                Cust."Country/Region Code" := CustTemplate."Country/Region Code"
+            else
+                Cust."Country/Region Code" := "Country/Region Code";
+            Cust."Customer Posting Group" := CustTemplate."Customer Posting Group";
+            Cust."Customer Price Group" := CustTemplate."Customer Price Group";
+            if CustTemplate."Invoice Disc. Code" <> '' then
+                Cust."Invoice Disc. Code" := CustTemplate."Invoice Disc. Code";
+            Cust."Customer Disc. Group" := CustTemplate."Customer Disc. Group";
+            Cust."Allow Line Disc." := CustTemplate."Allow Line Disc.";
+            Cust."Gen. Bus. Posting Group" := CustTemplate."Gen. Bus. Posting Group";
+            Cust."VAT Bus. Posting Group" := CustTemplate."VAT Bus. Posting Group";
+            Cust."Payment Terms Code" := CustTemplate."Payment Terms Code";
+            Cust."Payment Method Code" := CustTemplate."Payment Method Code";
+            Cust."Prices Including VAT" := CustTemplate."Prices Including VAT";
+            Cust."Shipment Method Code" := CustTemplate."Shipment Method Code";
+            Cust.UpdateReferencedIds();
+            OnCreateCustomerOnTransferFieldsFromTemplate(Cust, CustTemplate);
+            Cust.Modify();
+
+            DefaultDim.SetRange("Table ID", DATABASE::"Customer Template");
+            DefaultDim.SetRange("No.", CustTemplate.Code);
+            if DefaultDim.Find('-') then
+                repeat
+                    Clear(DefaultDim2);
+                    DefaultDim2.Init();
+                    DefaultDim2.Validate("Table ID", DATABASE::Customer);
+                    DefaultDim2."No." := Cust."No.";
+                    DefaultDim2.Validate("Dimension Code", DefaultDim."Dimension Code");
+                    DefaultDim2.Validate("Dimension Value Code", DefaultDim."Dimension Value Code");
+                    DefaultDim2."Value Posting" := DefaultDim."Value Posting";
+                    DefaultDim2.Insert(true);
+                until DefaultDim.Next = 0;
+        end;
     end;
 
     [IntegrationEvent(false, false)]
@@ -3045,7 +3095,7 @@ table 5050 Contact
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeBankAccountInsert(var BankAccount: Record "Bank Account");
     begin
     end;
@@ -3077,6 +3127,11 @@ table 5050 Contact
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckContactType(var Contact: Record Contact; ContactType: enum "Contact Type"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckUnloggedSegments(var Contact: Record Contact; var IsHandled: Boolean)
     begin
     end;
 
@@ -3117,6 +3172,11 @@ table 5050 Contact
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforeProcessPersonNameChange(var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeTypeChange(Contact: Record Contact; xContact: Record Contact; var InteractLogEntry: Record "Interaction Log Entry"; var Opp: Record Opportunity; var Task: Record "To-do"; var Cont: Record Contact; var IsHandled: Boolean)
     begin
     end;
 

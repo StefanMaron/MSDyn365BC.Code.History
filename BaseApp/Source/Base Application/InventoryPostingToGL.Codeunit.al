@@ -449,7 +449,14 @@ codeunit 5802 "Inventory Posting To G/L"
     end;
 
     local procedure BufferConsumpPosting(ValueEntry: Record "Value Entry"; CostToPost: Decimal; CostToPostACY: Decimal)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeBufferConsumpPosting(ValueEntry, GlobalInvtPostBuf, CostToPost, CostToPostACY, IsHandled);
+        if IsHandled then
+            exit;
+
         with ValueEntry do
             case "Entry Type" of
                 "Entry Type"::"Direct Cost":
@@ -961,6 +968,8 @@ codeunit 5802 "Inventory Posting To G/L"
                 "Account Type"::"Mfg. Overhead Variance":
                     VarMfgOvhdCostAmt += Amount;
             end;
+
+        OnAfteUpdateReportAmounts(GlobalInvtPostBuf, InvtAmt, InvtAdjmtAmt);
     end;
 
     local procedure ErrorNonValidCombination(ValueEntry: Record "Value Entry")
@@ -1069,6 +1078,7 @@ codeunit 5802 "Inventory Posting To G/L"
                     DimMgt.UpdateGlobalDimFromDimSetID(
                       "Dimension Set ID", GenJnlLine."Shortcut Dimension 1 Code",
                       GenJnlLine."Shortcut Dimension 2 Code");
+                    OnPostInvtPostBufOnAfterUpdateGlobalDimFromDimSetID(GenJnlLine);
                     if not CalledFromTestReport then
                         if not RunOnlyCheck then begin
                             if not CalledFromItemPosting then
@@ -1088,7 +1098,7 @@ codeunit 5802 "Inventory Posting To G/L"
                     CreateGLItemLedgRelation(ValueEntry);
             until Next = 0;
             RunOnlyCheck := RunOnlyCheckSaved;
-            OnPostInvtPostBufferOnAfterPostInvtPostBuf(GlobalInvtPostBuf, ValueEntry, CalledFromItemPosting);
+            OnPostInvtPostBufferOnAfterPostInvtPostBuf(GlobalInvtPostBuf, ValueEntry, CalledFromItemPosting, CalledFromTestReport, RunOnlyCheck, PostPerPostGrp);
 
             DeleteAll();
         end;
@@ -1483,7 +1493,12 @@ codeunit 5802 "Inventory Posting To G/L"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPostInvtPostBufferOnAfterPostInvtPostBuf(var GlobalInvtPostBuf: Record "Invt. Posting Buffer"; var ValueEntry: Record "Value Entry"; CalledFromItemPosting: Boolean);
+    local procedure OnPostInvtPostBufferOnAfterPostInvtPostBuf(var GlobalInvtPostBuf: Record "Invt. Posting Buffer"; var ValueEntry: Record "Value Entry"; CalledFromItemPosting: Boolean; CalledFromTestReport: Boolean; RunOnlyCheck: Boolean; PostPerPostGrp: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostInvtPostBufOnAfterUpdateGlobalDimFromDimSetID(var GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 
@@ -1509,6 +1524,16 @@ codeunit 5802 "Inventory Posting To G/L"
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateValueEntryOnBeforeModify(var ValueEntry: Record "Value Entry"; InvtPostingBuffer: Record "Invt. Posting Buffer")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeBufferConsumpPosting(var ValueEntry: Record "Value Entry"; var GlobalInvtPostBuf: Record "Invt. Posting Buffer" temporary; CostToPost: Decimal; CostToPostACY: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfteUpdateReportAmounts(var GlobalInvtPostBuf: Record "Invt. Posting Buffer" temporary; var InvtAmt: Decimal; var InvtAdjmtAmt: Decimal)
     begin
     end;
 }

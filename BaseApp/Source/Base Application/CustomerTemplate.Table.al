@@ -4,6 +4,9 @@ table 5105 "Customer Template"
     DrillDownPageID = "Customer Template List";
     LookupPageID = "Customer Template List";
     ReplicateData = true;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Deprecate mini and customer templates. Use table "Customer Templ." instead and for extensions.';
+    ObsoleteTag = '18.0';
 
     fields
     {

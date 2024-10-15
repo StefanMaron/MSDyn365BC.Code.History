@@ -775,7 +775,13 @@ page 5600 "Fixed Asset Card"
     local procedure ShowAcquisitionNotification()
     var
         ShowNotification: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeShowAcquisitionNotification(Rec, Acquirable, IsHandled);
+        if IsHandled then
+            exit;
+
         ShowNotification :=
           (not Acquired) and FieldsForAcquitionInGeneralGroupAreCompleted() and AtLeastOneDepreciationLineIsComplete();
         ShowNotification := false; // NAVCZ
@@ -874,6 +880,11 @@ page 5600 "Fixed Asset Card"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterLoadDepreciationBooks(FixedAsset: Record "Fixed Asset"; var Simple: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowAcquisitionNotification(FixedAsset: Record "Fixed Asset"; var Acquirable: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

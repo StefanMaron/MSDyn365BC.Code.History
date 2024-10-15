@@ -120,7 +120,13 @@ table 5876 "Phys. Invt. Order Line"
             trigger OnValidate()
             var
                 Location: Record Location;
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateBinCode(Rec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 TestStatusOpen;
                 TestField("On Recording Lines", false);
 
@@ -621,6 +627,7 @@ table 5876 "Phys. Invt. Order Line"
         PhysInvtRecordLine.SetCurrentKey("Order No.", "Order Line No.");
         PhysInvtRecordLine.SetRange("Order No.", "Document No.");
         PhysInvtRecordLine.SetRange("Order Line No.", "Line No.");
+        OnTestQtyRecordedOnAfterPhysInvtRecordLineSetFilters(Rec, PhysInvtRecordLine);
         if PhysInvtRecordLine.Find('-') then
             repeat
                 PhysInvtRecordLine.TestField("Item No.", "Item No.");
@@ -867,6 +874,7 @@ table 5876 "Phys. Invt. Order Line"
     begin
         if SKU.Get("Location Code", "Item No.", "Variant Code") then
             Validate("Shelf No.", SKU."Shelf No.");
+        OnAfterGetFieldsFromSKU(Rec);
     end;
 
     procedure ShowBinContentItem()
@@ -894,6 +902,11 @@ table 5876 "Phys. Invt. Order Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterGetFieldsFromSKU(var PhysInvtOrderLine: Record "Phys. Invt. Order Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterResetQtyExpected(var PhysInvtOrderLine: Record "Phys. Invt. Order Line")
     begin
     end;
@@ -915,6 +928,11 @@ table 5876 "Phys. Invt. Order Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeShowPhysInvtLedgerEntries(var PhysInventoryLedgerEntry: Record "Phys. Inventory Ledger Entry"; var PhysInvtOrderLine: Record "Phys. Invt. Order Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateBinCode(var PhysInvtOrderLine: Record "Phys. Invt. Order Line"; var IsHandled: Boolean)
     begin
     end;
 
@@ -975,6 +993,11 @@ table 5876 "Phys. Invt. Order Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnCalcQtyAndLastItemLedgExpectedOnAfterCalcWhseEntryQtyExpected(var WhseEntry: Record "Warehouse Entry"; var QtyExpected: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTestQtyRecordedOnAfterPhysInvtRecordLineSetFilters(var PhysInvtOrderLine: Record "Phys. Invt. Order Line"; var PhysInvtRecordLine: Record "Phys. Invt. Record Line")
     begin
     end;
 

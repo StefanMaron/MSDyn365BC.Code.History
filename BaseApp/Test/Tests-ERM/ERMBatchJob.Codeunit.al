@@ -31,6 +31,8 @@ codeunit 134900 "ERM Batch Job"
         LibraryJobQueue: Codeunit "Library - Job Queue";
         isInitialized: Boolean;
         AmountErr: Label 'Amount must be %1.', Comment = '%1=Value';
+        ApprovalPendingErr: Label 'Cannot post %1 document no. %2 of type %3 because it is pending approval.';
+        ApprovalWorkflowErr: Label 'Cannot post %1 document no. %2 of type %3 due to the approval workflow.';
         StatusErr: Label 'Status must be equal to ''Open''  in %1: %2=%3, %4=%5. Current value is ''Released''.', Comment = '%1 = TableCaption, %2 = FIELDCaption,%3 =   FIELDValue,%4 = FieldCaption ,%5 =  FIELDValue';
         SalesHeaderErr: Label 'You cannot delete the order line because it is associated with purchase order';
         ShipToNameErr: Label 'The %1 field on the purchase order %2 must be the same as on sales order %3.', Comment = '%1=Field;%2=Value;%3=Value;';
@@ -1593,7 +1595,7 @@ codeunit 134900 "ERM Batch Job"
         PurchaseLine: Record "Purchase Line";
     begin
         // [FEATURE] [Purchase] [Archive]
-        // [SCENARIO 378218] The archive copy should be created after posting of Purchase Order.
+        // [SCENARIO 378218] One archive copy should be created after posting of Purchase Order.
         Initialize;
 
         // [GIVEN] Set an archiving of Orders as True.
@@ -1607,7 +1609,7 @@ codeunit 134900 "ERM Batch Job"
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // [THEN] The archive copy of Purchase Order is created.
-        VerifyArchiveOfPurchOrder(PurchaseHeader, 2);
+        VerifyArchiveOfPurchOrder(PurchaseHeader, 1); // [BUG 369983]
     end;
 
     [Test]
@@ -1651,7 +1653,7 @@ codeunit 134900 "ERM Batch Job"
         SalesLine: Record "Sales Line";
     begin
         // [FEATURE] [Sales] [Archive]
-        // [SCENARIO 378218] The archive copy should be created after posting of Sales Order.
+        // [SCENARIO 378218] One archive copy should be created after posting of Sales Order.
         Initialize;
 
         // [GIVEN] Set an archiving of Orders as True.
@@ -1665,7 +1667,7 @@ codeunit 134900 "ERM Batch Job"
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         // [THEN] The archive copy of Sales Order is created.
-        VerifyArchiveOfSalesOrder(SalesHeader, 2);
+        VerifyArchiveOfSalesOrder(SalesHeader, 1); // [BUG 369983]
     end;
 
     [Test]
@@ -2397,6 +2399,150 @@ codeunit 134900 "ERM Batch Job"
         VerifyPurchHeaderAddress(PurchaseHeader, SalesHeader);
     end;
 
+    [Test]
+    [HandlerFunctions('BatchPostSalesOrderRequestPageHandler,SentNotificationHandler')]
+    [Scope('OnPrem')]
+    procedure SalesBatchJobPendingApprovalError()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        ErrorMessagesPage: TestPage "Error Messages";
+    begin
+        // [FEATURE] [Batch Post] [Sales]
+        // [SCENARIO 372886] When batch posting order with Status = Pending Approval, error "Can not be posted because it is pending approval" is shown
+        Initialize();
+
+        // [GIVEN] Sales Order with Status = Pending approval
+        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Order);
+        SalesHeader.Validate(Status, SalesHeader.Status::"Pending Approval");
+        SalesHeader.Modify(true);
+
+        // [WHEN] Post Sales Batch on this header
+        ErrorMessagesPage.Trap();
+        RunPostBatchSalesOrder(SalesHeader."No.");
+
+        // [THEN] Notification: 'An error occured during operation: batch processing of Sales Header records.'
+        Assert.ExpectedMessage(StrSubstNo(NotificationMsg, SalesHeader.TableCaption), LibraryVariableStorage.DequeueText); // from SentNotificationHandler
+        LibraryVariableStorage.AssertEmpty();
+
+        // [THEN] On "Details" action - Error Messages page is open, message is: "Can not be posted because it is pending approval"
+        ErrorMessagesPage.Description.AssertEquals(StrSubstNo(ApprovalPendingErr, 'sales', SalesHeader."No.", SalesHeader."Document Type"));
+
+        // Clean-up.
+        Clear(SalesHeader);
+        LibraryNotificationMgt.RecallNotificationsForRecord(SalesHeader);
+    end;
+
+    [Test]
+    [HandlerFunctions('SentNotificationHandler')]
+    [Scope('OnPrem')]
+    procedure PurchaseBatchJobPendingApprovalError()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        ErrorMessagesPage: TestPage "Error Messages";
+    begin
+        // [FEATURE] [Batch Post] [Purchase]
+        // [GIVEN 372886] When batch posting order with Status = Pending Approval, error "Can not be posted because it is pending approval" is shown
+        Initialize();
+
+        // [GIVEN] Purchase Order with Status = Pending approval
+        CreatePurchaseDocument(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
+        PurchaseHeader.Validate(Status, PurchaseHeader.Status::"Pending Approval");
+        PurchaseHeader.Modify(true);
+
+        // [WHEN] Post Purchase Batch on this header
+        ErrorMessagesPage.Trap();
+        RunBatchPostPurchaseOrders(PurchaseHeader."No.", true, true, WorkDate, false, false, false);
+
+        // [THEN] Notification: 'An error occured during operation: batch processing of Purchase Header records.'
+        Assert.ExpectedMessage(StrSubstNo(NotificationMsg, PurchaseHeader.TableCaption), LibraryVariableStorage.DequeueText); // from SentNotificationHandler
+        LibraryVariableStorage.AssertEmpty();
+
+        // [THEN] On "Details" action - Error Messages page is open, message is: "Can not be posted because it is pending approval"
+        ErrorMessagesPage.Description.AssertEquals(StrSubstNo(ApprovalPendingErr, 'purchase', PurchaseHeader."No.", PurchaseHeader."Document Type"));
+
+        // Clean-up
+        Clear(PurchaseHeader);
+        LibraryNotificationMgt.RecallNotificationsForRecord(PurchaseHeader);
+    end;
+
+    [Test]
+    [HandlerFunctions('BatchPostSalesOrderRequestPageHandler,SentNotificationHandler,ConfirmHandlerTrue')]
+    [Scope('OnPrem')]
+    procedure SalesBatchJobApprovalWorkflowError()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        ErrorMessagesPage: TestPage "Error Messages";
+        Workflow: Record Workflow;
+        WorkflowSetup: Codeunit "Workflow Setup";
+    begin
+        // [FEATURE] [Batch Post] [Sales] [Approval] [Workflow]
+        // [SCENARIO 372886] When batch posting order while approval workflow is enabled, error "Can not be posted because of approval workflow restrictions" is shown
+        Initialize();
+
+        // [GIVEN] Approval workflow for Sales Orders is active
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesOrderApprovalWorkflowCode());
+
+        // [GIVEN] Sales Order created
+        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Order);
+
+        // [WHEN] Post Sales Batch on this header
+        ErrorMessagesPage.Trap();
+        RunPostBatchSalesOrder(SalesHeader."No.");
+
+        // [THEN] Notification: 'An error occured during operation: batch processing of Sales Header records.'
+        Assert.ExpectedMessage(StrSubstNo(NotificationMsg, SalesHeader.TableCaption), LibraryVariableStorage.DequeueText); // from SentNotificationHandler
+        LibraryVariableStorage.AssertEmpty();
+
+        // [THEN] On "Details" action - Error Messages page is open, message is: "Can not be posted because of approval workflow restrictions"
+        ErrorMessagesPage.Description.AssertEquals(StrSubstNo(ApprovalWorkflowErr, 'sales', SalesHeader."No.", SalesHeader."Document Type"));
+
+        // Clean-up.
+        Clear(SalesHeader);
+        LibraryNotificationMgt.RecallNotificationsForRecord(SalesHeader);
+        RemoveWorkflow(Workflow);
+    end;
+
+    [Test]
+    [HandlerFunctions('SentNotificationHandler,ConfirmHandlerTrue')]
+    [Scope('OnPrem')]
+    procedure PurchaseBatchJobApprovalWorkflowError()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        ErrorMessagesPage: TestPage "Error Messages";
+        Workflow: Record Workflow;
+        WorkflowSetup: Codeunit "Workflow Setup";
+    begin
+        // [FEATURE] [Batch Post] [Purchase] [Approval] [Workflow]
+        // [GIVEN 372886] When batch posting order while approval workflow is enabled, error "Can not be posted because of approval workflow restrictions" is shown
+        Initialize();
+
+        // [GIVEN] Approval workflow for Sales Orders is active
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseOrderApprovalWorkflowCode());
+
+        // [GIVEN] Purchase Order created
+        CreatePurchaseDocument(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
+
+        // [WHEN] Post Purchase Batch on this header
+        ErrorMessagesPage.Trap();
+        RunBatchPostPurchaseOrders(PurchaseHeader."No.", true, true, WorkDate, false, false, false);
+
+        // [THEN] Notification: 'An error occured during operation: batch processing of Purchase Header records.'
+        Assert.ExpectedMessage(StrSubstNo(NotificationMsg, PurchaseHeader.TableCaption), LibraryVariableStorage.DequeueText); // from SentNotificationHandler
+        LibraryVariableStorage.AssertEmpty();
+
+        // [THEN] On "Details" action - Error Messages page is open, message is: "Can not be posted because of approval workflow restrictions"
+        ErrorMessagesPage.Description.AssertEquals(StrSubstNo(ApprovalWorkflowErr, 'purchase', PurchaseHeader."No.", PurchaseHeader."Document Type"));
+
+        // Clean-up
+        Clear(PurchaseHeader);
+        LibraryNotificationMgt.RecallNotificationsForRecord(PurchaseHeader);
+        RemoveWorkflow(Workflow);
+    end;
+
     local procedure Initialize()
     var
         WarehouseEmployee: Record "Warehouse Employee";
@@ -2411,6 +2557,7 @@ codeunit 134900 "ERM Batch Job"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Batch Job");
 
+        SetGLSetupInvoiceRounding();
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdatePurchasesPayablesSetup;
         LibraryERMCountryData.UpdateSalesReceivablesSetup;
@@ -3762,6 +3909,15 @@ codeunit 134900 "ERM Batch Job"
         Workflow.Validate(Enabled, false);
         Workflow.Modify(true);
         Workflow.Delete(true);
+    end;
+
+    local procedure SetGLSetupInvoiceRounding()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+    begin
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup."Inv. Rounding Precision (LCY)" := GeneralLedgerSetup."Amount Rounding Precision";
+        GeneralLedgerSetup.Modify();
     end;
 
     local procedure VerifyCurrencyOnIssuedReminder(CurrencyCode: Code[10]; AmountRoundingPrecision: Decimal)

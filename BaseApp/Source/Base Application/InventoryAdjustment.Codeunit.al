@@ -1568,6 +1568,7 @@
             OrigItemLedgEntry.Get("Item Ledger Entry No.");
             ItemJnlLine.Adjustment := ("Order Type" = "Order Type"::Assembly) and (OrigItemLedgEntry."Invoiced Quantity" <> 0);
 
+            OnPostOutputOnBeforePostItemJnlLine(ItemJnlLine, OrigValueEntry, InvtAdjmtBuf);
             PostItemJnlLine(ItemJnlLine, OrigValueEntry, InvtAdjmtBuf."Cost Amount (Actual)", InvtAdjmtBuf."Cost Amount (Actual) (ACY)");
 
             OrigItemLedgEntry.Get("Item Ledger Entry No.");
@@ -1771,6 +1772,8 @@
             end;
             // NAVCZ
         end;
+
+        OnAfterInitAdjmtJnlLine(ItemJnlLine, OrigValueEntry);
     end;
 
     local procedure PostItemJnlLine(ItemJnlLine: Record "Item Journal Line"; OrigValueEntry: Record "Value Entry"; NewAdjustedCost: Decimal; NewAdjustedCostACY: Decimal)
@@ -2016,7 +2019,14 @@
     end;
 
     local procedure OpenWindow()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOpenWindow(IsHandled);
+        if IsHandled then
+            exit;
+
         Window.Open(
           Text000 +
           '#1########################\\' +
@@ -2029,6 +2039,8 @@
     end;
 
     local procedure UpDateWindow(NewWindowAdjmtLevel: Integer; NewWindowItem: Code[20]; NewWindowAdjust: Text[20]; NewWindowFWLevel: Integer; NewWindowEntry: Integer; NewWindowOutbndEntry: Integer)
+    var
+        IsHandled: Boolean;
     begin
         WindowAdjmtLevel := NewWindowAdjmtLevel;
         WindowItem := NewWindowItem;
@@ -2036,6 +2048,11 @@
         WindowFWLevel := NewWindowFWLevel;
         WindowEntry := NewWindowEntry;
         WindowOutbndEntry := NewWindowOutbndEntry;
+
+        IsHandled := false;
+        OnBeforeUpdateWindow(IsHandled);
+        if IsHandled then
+            exit;
 
         if IsTimeForUpdate then begin
             if not WindowIsOpen then
@@ -2670,6 +2687,16 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeOpenWindow(var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateWindow(var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateItemUnitCost(var TempAvgCostAdjmtEntryPoint: Record "Avg. Cost Adjmt. Entry Point" temporary; var IsHandled: Boolean)
     begin
     end;
@@ -2731,6 +2758,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateItemUnitCostOnBeforeModifyItemNotStandardCostingMethod(var Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostOutputOnBeforePostItemJnlLine(var ItemJnlLine: Record "Item Journal Line"; OrigValueEntry: Record "Value Entry"; InvtAdjmtBuf: Record "Inventory Adjustment Buffer")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitAdjmtJnlLine(var ItemJnlLine: Record "Item Journal Line"; OrigValueEntry: Record "Value Entry")
     begin
     end;
 }

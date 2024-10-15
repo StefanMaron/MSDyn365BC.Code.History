@@ -643,6 +643,32 @@ codeunit 134092 "ERM Consolidation"
         UnBindSubscription(ERMConsolidation);
     end;
 
+    [Test]
+    procedure ConsolidationPercentDecimals()
+    var
+        BusinessUnit: Record "Business Unit";
+        BusinessUnitCard: TestPage "Business Unit Card";
+        ConsolidationPercent: Decimal;
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 374636] Value with 5 decimals can be set to "Consolidation %" field of Business Unit.
+        Initialize();
+        ConsolidationPercent := LibraryRandom.RandDecInRange(10, 90, 4) + LibraryRandom.RandIntInRange(1, 9) / Power(10, 5);    // last digit is not zero
+
+        // [GIVEN] Business Unit. Opened Business Unit card.
+        LibraryERM.CreateBusinessUnit(BusinessUnit);
+        BusinessUnitCard.OpenEdit();
+        BusinessUnitCard.Filter.SetFilter("Code", BusinessUnit.Code);
+
+        // [WHEN] Set "Consolidation %" = 50.12345, i.e. a value with 5 decimals.
+        BusinessUnitCard."Consolidation %".SetValue(ConsolidationPercent);
+        BusinessUnitCard.Close();
+
+        // [THEN] Value was set for Business Unit record.
+        BusinessUnit.Get(BusinessUnit.Code);
+        Assert.AreEqual(ConsolidationPercent, BusinessUnit."Consolidation %", '');
+    end;
+
     local procedure Initialize()
     var
         LibraryReportValidation: Codeunit "Library - Report Validation";

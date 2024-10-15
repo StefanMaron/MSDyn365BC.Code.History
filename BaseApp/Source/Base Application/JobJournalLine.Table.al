@@ -1,4 +1,4 @@
-table 210 "Job Journal Line"
+﻿table 210 "Job Journal Line"
 {
     Caption = 'Job Journal Line';
 
@@ -899,6 +899,8 @@ table 210 "Job Journal Line"
             TableRelation = IF (Type = CONST(Item)) "Item Variant".Code WHERE("Item No." = FIELD("No."));
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
                 xSetGPPGfromSKU; // NAVCZ
                 if "Variant Code" = '' then begin
@@ -917,8 +919,10 @@ table 210 "Job Journal Line"
                 Description := ItemVariant.Description;
                 "Description 2" := ItemVariant."Description 2";
 
-                OnValidateVariantCodeOnBeforeValidateQuantity(Rec);
-                Validate(Quantity);
+                IsHandled := false;
+                OnValidateVariantCodeOnBeforeValidateQuantity(Rec, xRec, IsHandled);
+                if not IsHandled then
+                    Validate(Quantity);
             end;
         }
         field(5403; "Bin Code"; Code[20])
@@ -1345,7 +1349,13 @@ table 210 "Job Journal Line"
     var
         TableID: array[10] of Integer;
         No: array[10] of Code[20];
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCreateDim(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         TableID[1] := Type1;
         No[1] := No1;
         TableID[2] := Type2;
@@ -1422,7 +1432,7 @@ table 210 "Job Journal Line"
             Item.Get("No.");
     end;
 
-    local procedure GetSKU(): Boolean
+    local procedure GetSKU() Result: Boolean
     begin
         if (SKU."Location Code" = "Location Code") and
            (SKU."Item No." = "No.") and
@@ -1433,7 +1443,8 @@ table 210 "Job Journal Line"
         if SKU.Get("Location Code", "No.", "Variant Code") then
             exit(true);
 
-        exit(false);
+        Result := false;
+        OnAfterGetSKU(Rec, Result);
     end;
 
     procedure IsInbound(): Boolean
@@ -2108,6 +2119,11 @@ table 210 "Job Journal Line"
     begin
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetSKU(JobJournalLine: Record "Job Journal Line"; var Result: Boolean)
+    begin
+    end;
+
     [Obsolete('Replaced by the new implementation (V16) of price calculation.', '17.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterResourceFindCost(var JobJournalLine: Record "Job Journal Line"; var ResourceCost: Record "Resource Cost")
@@ -2221,6 +2237,11 @@ table 210 "Job Journal Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateDim(var JobJournalLine: Record "Job Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeTestUnitOfMeasureCode(var JobJournalLine: Record "Job Journal Line"; WorkType: Record "Work Type"; var IsHandled: Boolean)
     begin
     end;
@@ -2266,7 +2287,7 @@ table 210 "Job Journal Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnValidateVariantCodeOnBeforeValidateQuantity(var JobJournalLine: Record "Job Journal Line")
+    local procedure OnValidateVariantCodeOnBeforeValidateQuantity(var JobJournalLine: Record "Job Journal Line"; xJobJournalLine: Record "Job Journal Line"; var IsHandled: Boolean)
     begin
     end;
 }

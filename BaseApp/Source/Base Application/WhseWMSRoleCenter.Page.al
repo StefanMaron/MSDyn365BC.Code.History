@@ -19,6 +19,10 @@ page 9000 "Whse. WMS Role Center"
             {
                 ApplicationArea = Suite;
             }
+            part("Emails"; "Email Activities")
+            {
+                ApplicationArea = Basic, Suite;
+            }
             part(Control73; "Team Member Activities No Msgs")
             {
                 ApplicationArea = Suite;

@@ -223,6 +223,10 @@ codeunit 11730 CashDeskManagement
         if SalesInvoiceHeader."Cash Document Status" = SalesInvoiceHeader."Cash Document Status"::" " then
             exit;
 
+        SalesInvoiceHeader.CalcFields("Amount Including VAT");
+        if SalesInvoiceHeader."Amount Including VAT" = 0 then
+            exit;
+
         BankAccount.Get(SalesInvoiceHeader."Cash Desk Code");
         BankAccount.TestField("Currency Code", SalesInvoiceHeader."Currency Code");
 
@@ -251,6 +255,10 @@ codeunit 11730 CashDeskManagement
         BankAccount: Record "Bank Account";
     begin
         if SalesCrMemoHeader."Cash Document Status" = SalesCrMemoHeader."Cash Document Status"::" " then
+            exit;
+
+        SalesCrMemoHeader.CalcFields("Amount Including VAT");
+        if SalesCrMemoHeader."Amount Including VAT" = 0 then
             exit;
 
         BankAccount.Get(SalesCrMemoHeader."Cash Desk Code");
@@ -283,6 +291,10 @@ codeunit 11730 CashDeskManagement
         if PurchInvHeader."Cash Document Status" = PurchInvHeader."Cash Document Status"::" " then
             exit;
 
+        PurchInvHeader.CalcFields("Amount Including VAT");
+        if PurchInvHeader."Amount Including VAT" = 0 then
+            exit;
+
         BankAccount.Get(PurchInvHeader."Cash Desk Code");
         BankAccount.TestField("Currency Code", PurchInvHeader."Currency Code");
 
@@ -311,6 +323,10 @@ codeunit 11730 CashDeskManagement
         BankAccount: Record "Bank Account";
     begin
         if PurchCrMemoHdr."Cash Document Status" = PurchCrMemoHdr."Cash Document Status"::" " then
+            exit;
+
+        PurchCrMemoHdr.CalcFields("Amount Including VAT");
+        if PurchCrMemoHdr."Amount Including VAT" = 0 then
             exit;
 
         BankAccount.Get(PurchCrMemoHdr."Cash Desk Code");
@@ -343,6 +359,10 @@ codeunit 11730 CashDeskManagement
         if ServiceInvoiceHeader."Cash Document Status" = ServiceInvoiceHeader."Cash Document Status"::" " then
             exit;
 
+        ServiceInvoiceHeader.CalcFields("Amount Including VAT");
+        if ServiceInvoiceHeader."Amount Including VAT" = 0 then
+            exit;
+
         BankAccount.Get(ServiceInvoiceHeader."Cash Desk Code");
         BankAccount.TestField("Currency Code", ServiceInvoiceHeader."Currency Code");
 
@@ -371,6 +391,10 @@ codeunit 11730 CashDeskManagement
         BankAccount: Record "Bank Account";
     begin
         if ServiceCrMemoHeader."Cash Document Status" = ServiceCrMemoHeader."Cash Document Status"::" " then
+            exit;
+
+        ServiceCrMemoHeader.CalcFields("Amount Including VAT");
+        if ServiceCrMemoHeader."Amount Including VAT" = 0 then
             exit;
 
         BankAccount.Get(ServiceCrMemoHeader."Cash Desk Code");

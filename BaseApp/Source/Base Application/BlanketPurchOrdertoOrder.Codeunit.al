@@ -182,6 +182,7 @@ codeunit 97 "Blanket Purch. Order to Order"
             PurchOrderHeader."No. Printed" := 0;
             PurchOrderHeader.Status := PurchOrderHeader.Status::Open;
             PurchOrderHeader."No." := '';
+            OnCreatePurchHeaderOnBeforePurchOrderHeaderInitRecord(PurchOrderHeader, PurchHeader);
             PurchOrderHeader.InitRecord;
             // NAVCZ
             PurchOrderHeader."No. Series" := '';
@@ -305,6 +306,11 @@ codeunit 97 "Blanket Purch. Order to Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePurchOrderLineValidateQuantity(var PurchOrderLine: Record "Purchase Line"; BlanketOrderPurchLine: Record "Purchase Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreatePurchHeaderOnBeforePurchOrderHeaderInitRecord(var PurchOrderHeader: Record "Purchase Header"; var PurchHeader: Record "Purchase Header")
     begin
     end;
 

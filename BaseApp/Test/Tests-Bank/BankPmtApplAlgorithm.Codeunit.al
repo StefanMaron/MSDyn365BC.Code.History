@@ -1,7 +1,8 @@
 codeunit 134261 "Bank Pmt. Appl. Algorithm"
 {
     Permissions = TableData "Cust. Ledger Entry" = imd,
-                  TableData "Vendor Ledger Entry" = imd;
+                  TableData "Vendor Ledger Entry" = imd,
+                  TableData "Bank Account Ledger Entry" = imd;
     Subtype = Test;
     TestPermissions = NonRestrictive;
 
@@ -27,9 +28,11 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         LibraryApplicationArea: Codeunit "Library - Application Area";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
-        DotNetRandom: DotNet "System.Random";
         isInitialized: Boolean;
         LinesAreAppliedTxt: Label 'are applied';
+        RandomizeCount: Integer;
+        AvailableCharacters: Label 'abcdefghijklmnopqrstuvwxyz0123456789', Locked = true;
+        ShortNameToExcludFromMatching: Label 'aaa', Locked = true;
 
     [Test]
     [HandlerFunctions('MessageHandler')]
@@ -925,7 +928,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
 
         // Setup
         CreateCustomer(Customer);
-        Customer.Name := GenerateRandomTextWithSpecialChars;
+        Customer.Name := GenerateRandomSmallLettersWithSpaces(50);
         Customer.Modify();
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
         CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo, Amount);
@@ -1416,7 +1419,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
 
         // Setup
         CreateCustomer(Customer);
-        TextMapper := CopyStr(GenerateRandomSmallLetters(20), 1, 20);
+        TextMapper := GenerateTextToAccountMapping();
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
         CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo, Amount);
 
@@ -1450,7 +1453,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
 
         // Setup
         CreateCustomer(Customer);
-        TextMapper := CopyStr(GenerateRandomSmallLetters(20), 1, 20);
+        TextMapper := GenerateTextToAccountMapping();
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
         SalesInvoiceNo := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo, Amount);
 
@@ -1509,7 +1512,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
 
         // Setup
         CreateCustomer(Customer);
-        TextMapper := CopyStr(GenerateRandomSmallLetters(20), 1, 20);
+        TextMapper := GenerateTextToAccountMapping();
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
         DocumentNo := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo, Amount);
 
@@ -1544,7 +1547,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
 
         // Setup
         CreateCustomer(Customer);
-        TextMapper := CopyStr(GenerateRandomSmallLetters(20), 1, 20);
+        TextMapper := GenerateTextToAccountMapping();
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
         CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo, Amount);
 
@@ -2156,7 +2159,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
 
         // Setup
         CreateCustomer(Customer);
-        TextMapper := CopyStr(GenerateRandomSmallLetters(20), 1, 20);
+        TextMapper := GenerateTextToAccountMapping();
         LibraryERM.CreateAccountMappingGLAccount(
           TextToAccMapping, GetAccountMappingCode, TextMapper, LibraryERM.CreateGLAccountNo, ''); // NAVCZ
 
@@ -2209,7 +2212,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
 
         // Setup
         CreateCustomer(Customer);
-        TextMapper := CopyStr(GenerateRandomSmallLetters(20), 1, 20);
+        TextMapper := GenerateTextToAccountMapping();
         LibraryERM.CreateAccountMappingGLAccount(
           TextToAccMapping, GetAccountMappingCode, TextMapper, LibraryERM.CreateGLAccountNo, ''); // NAVCZ
 
@@ -3579,7 +3582,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
 
         // Setup
         CreateVendor(Vendor);
-        Vendor.Name := GenerateRandomTextWithSpecialChars;
+        Vendor.Name := GenerateRandomSmallLettersWithSpaces(50);
         Vendor.Modify();
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
         CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo, Amount);
@@ -4070,7 +4073,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
 
         // Setup
         CreateVendor(Vendor);
-        TextMapper := CopyStr(GenerateRandomSmallLetters(20), 1, 20);
+        TextMapper := GenerateTextToAccountMapping();
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
         CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo, Amount);
 
@@ -4101,7 +4104,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
 
         // Setup
         CreateVendor(Vendor);
-        TextMapper := CopyStr(GenerateRandomSmallLetters(20), 1, 20);
+        TextMapper := GenerateTextToAccountMapping();
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
         CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo, Amount);
 
@@ -4157,7 +4160,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
 
         // Setup
         CreateVendor(Vendor);
-        TextMapper := CopyStr(GenerateRandomSmallLetters(20), 1, 20);
+        TextMapper := GenerateTextToAccountMapping();
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
         DocumentNo := CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo, Amount);
 
@@ -4192,7 +4195,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
 
         // Setup
         CreateVendor(Vendor);
-        TextMapper := CopyStr(GenerateRandomSmallLetters(20), 1, 20);
+        TextMapper := GenerateTextToAccountMapping();
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
         CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo, Amount);
 
@@ -4804,7 +4807,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
 
         // Setup
         CreateVendor(Vendor);
-        TextMapper := CopyStr(GenerateRandomSmallLetters(20), 1, 20);
+        TextMapper := GenerateTextToAccountMapping();
         LibraryERM.CreateAccountMappingGLAccount(
           TextToAccMapping, GetAccountMappingCode, TextMapper, LibraryERM.CreateGLAccountNo, ''); // NAVCZ
 
@@ -4857,7 +4860,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
 
         // Setup
         CreateVendor(Vendor);
-        TextMapper := CopyStr(GenerateRandomSmallLetters(20), 1, 20);
+        TextMapper := GenerateTextToAccountMapping();
         LibraryERM.CreateAccountMappingGLAccount(
           TextToAccMapping, GetAccountMappingCode, TextMapper, LibraryERM.CreateGLAccountNo, ''); // NAVCZ
 
@@ -5701,7 +5704,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         BankPmtApplRule: Record "Bank Pmt. Appl. Rule";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Bank Pmt. Appl. Algorithm");
-        CloseExistingEntries;
+        CleanupPreviousTestData;
         ClearGlobals;
         LibraryVariableStorage.Clear;
         BankPmtApplRule.SetRange("Bank Pmt. Appl. Rule Code", GetBankPmtApplRuleCode); // NAVCZ
@@ -5714,7 +5717,6 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Bank Pmt. Appl. Algorithm");
 
         LibraryApplicationArea.EnableFoundationSetup;
-        DotNetRandom := DotNetRandom.Random(1);
         TempBankPmtApplRule.LoadRules(GetBankPmtApplRuleCode); // NAVCZ
         LibraryERMCountryData.UpdateLocalData;
         LibraryERMCountryData.CreateVATData;
@@ -5725,16 +5727,28 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Bank Pmt. Appl. Algorithm");
     end;
 
-    local procedure CloseExistingEntries()
+    local procedure CleanupPreviousTestData()
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
         VendorLedgerEntry: Record "Vendor Ledger Entry";
+        BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
+        Customer: Record "Customer";
+        Vendor: Record "Vendor";
+        TextToAccountMapping: Record "Text-to-Account Mapping";
     begin
         CustLedgerEntry.SetRange(Open, true);
         CustLedgerEntry.ModifyAll(Open, false);
 
         VendorLedgerEntry.SetRange(Open, true);
         VendorLedgerEntry.ModifyAll(Open, false);
+
+        BankAccountLedgerEntry.SetRange(Open, true);
+        BankAccountLedgerEntry.ModifyAll(Open, false);
+
+        Customer.ModifyAll(Name, ShortNameToExcludFromMatching);
+        Vendor.ModifyAll(Name, ShortNameToExcludFromMatching);
+
+        TextToAccountMapping.DeleteAll;
     end;
 
     local procedure ClearGlobals()
@@ -5777,11 +5791,11 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
     begin
         LibrarySales.CreateCustomer(Customer);
         Customer.Validate("VAT Bus. Posting Group", ZeroVATPostingSetup."VAT Bus. Posting Group");
-        Customer.Validate(Name, GenerateRandomSmallLetters(50));
-        Customer.Validate(Address, GenerateRandomSmallLetters(50));
-        Customer.Validate("Address 2", GenerateRandomSmallLetters(50));
+        Customer.Validate(Name, GenerateRandomSmallLettersWithSpaces(50));
+        Customer.Validate(Address, GenerateRandomSmallLettersWithSpaces(50));
+        Customer.Validate("Address 2", GenerateRandomSmallLettersWithSpaces(50));
         Customer.Validate("Country/Region Code", '');
-        Customer.Validate(City, GenerateRandomSmallLetters(30));
+        Customer.Validate(City, GenerateRandomSmallLettersWithSpaces(30));
         Customer.Modify(true);
     end;
 
@@ -5789,11 +5803,11 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
     begin
         LibraryPurchase.CreateVendor(Vendor);
         Vendor.Validate("VAT Bus. Posting Group", ZeroVATPostingSetup."VAT Bus. Posting Group");
-        Vendor.Validate(Name, GenerateRandomSmallLetters(50));
-        Vendor.Validate(Address, GenerateRandomSmallLetters(50));
-        Vendor.Validate("Address 2", GenerateRandomSmallLetters(50));
+        Vendor.Validate(Name, GenerateRandomSmallLettersWithSpaces(50));
+        Vendor.Validate(Address, GenerateRandomSmallLettersWithSpaces(50));
+        Vendor.Validate("Address 2", GenerateRandomSmallLettersWithSpaces(50));
         Vendor.Validate("Country/Region Code", '');
-        Vendor.Validate(City, GenerateRandomSmallLetters(30));
+        Vendor.Validate(City, GenerateRandomSmallLettersWithSpaces(30));
         Vendor.Modify(true);
     end;
 
@@ -6004,15 +6018,42 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
 
     local procedure GenerateExtDocNo(): Code[20]
     begin
-        exit(GenerateRandomSmallLetters(20));
+        exit(LibraryUtility.GenerateGUID() + GenerateRandomSmallLetters(10));
+    end;
+
+    local procedure GenerateTextToAccountMapping(): Code[20]
+    begin
+        exit(GenerateRandomSmallLetters(10) + LibraryUtility.GenerateGUID());
+    end;
+
+    local procedure GenerateRandomSmallLettersWithSpaces(Length: Integer) String: Text
+    var
+        TextWithSpaces: Text;
+        SpacePosition: Integer;
+    begin
+        TextWithSpaces := GenerateRandomSmallLetters(Length);
+        repeat
+            RandomizeCount += 1;
+            Randomize(RandomizeCount);
+            SpacePosition += 5 + Random(15);
+            if SpacePosition < Length - 5 then
+                TextWithSpaces[SpacePosition] := ' ';
+        until SpacePosition > Length;
+
+        exit(TextWithSpaces);
     end;
 
     local procedure GenerateRandomSmallLetters(Length: Integer) String: Text
     var
         i: Integer;
+        AvailableCharactersText: Text;
     begin
-        for i := 1 to Length do
-            String[i] := DotNetRandom.Next(97, 122); // ASCII: a (97) to z (122)
+        AvailableCharactersText := AvailableCharacters;
+        for i := 1 to Length do begin
+            RandomizeCount += 1;
+            Randomize(RandomizeCount);
+            String[i] := AvailableCharactersText[Random(StrLen(AvailableCharactersText))];
+        end;
 
         exit(String);
     end;

@@ -1,4 +1,4 @@
-page 490 "Acc. Schedule Overview"
+﻿page 490 "Acc. Schedule Overview"
 {
     Caption = 'Acc. Schedule Overview';
     DataCaptionExpression = CurrentSchedName + ' - ' + CurrentColumnName;
@@ -837,6 +837,8 @@ page 490 "Acc. Schedule Overview"
         SetRange("G/L Budget Filter");
         UpdateDimFilterControls;
         DateFilter := GetFilter("Date Filter");
+
+        OnBeforeCurrentColumnNameOnAfterValidate(CurrentColumnName);
     end;
 
     var
@@ -1038,7 +1040,14 @@ page 490 "Acc. Schedule Overview"
     end;
 
     local procedure UpdateDimFilterControls()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateDimFilterControls(Rec, AnalysisView, IsHandled);
+        if IsHandled then
+            exit;
+
         Dim1Filter := GetFilter("Dimension 1 Filter");
         Dim2Filter := GetFilter("Dimension 2 Filter");
         Dim3Filter := GetFilter("Dimension 3 Filter");
@@ -1099,6 +1108,8 @@ page 490 "Acc. Schedule Overview"
 
     local procedure CurrentColumnNameOnAfterValidate()
     begin
+        OnBeforeCurrentColumnNameOnAfterValidate(CurrentColumnName);
+
         AccSchedManagement.CopyColumnsToTemp(CurrentColumnName, TempColumnLayout);
         AccSchedManagement.SetColumnName(CurrentColumnName, TempColumnLayout);
         AccSchedManagement.CheckAnalysisView(CurrentSchedName, CurrentColumnName, true);
@@ -1184,6 +1195,16 @@ page 490 "Acc. Schedule Overview"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePrint(var AccScheduleLine: Record "Acc. Schedule Line"; ColumnLayoutName: Code[10]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCurrentColumnNameOnAfterValidate(var CurrentColumnName: Code[10])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateDimFilterControls(var AccScheduleLine: Record "Acc. Schedule Line"; AnalysisView: Record "Analysis View"; var IsHandled: Boolean)
     begin
     end;
 }

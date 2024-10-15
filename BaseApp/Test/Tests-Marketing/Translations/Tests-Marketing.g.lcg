@@ -815,15 +815,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Marketing Opportunity Mgmt - NamedType OppCardSalesDocTypeErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 435833846 - NamedType 1351817449" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[<CD>]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit Marketing Profiling - NamedType DateFormulaCurrentDayTok)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 435833846 - NamedType 3552946879" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Field %1 contains incorrect value]]></Val>
@@ -840,15 +831,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Marketing Profiling - NamedType ContactClassificationErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 435833846 - NamedType 1758292050" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[<CY-1Y+1D>]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit Marketing Profiling - NamedType DateFormulaStartDayTok)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 435833846 - NamedType 729900418" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -912,15 +894,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[%1 = Table Caption %2 = Number of records]D;]A;(LookupHint=Codeunit Marketing Reports - NamedType UnexpectedNumberOfRecordsError)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 497656747 - NamedType 3835608772" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Field: %1 Value:%2 not found in xml]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit Marketing Reports - NamedType FilterNotFoundinXMLErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3433549585 - NamedType 235367706" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -1038,24 +1011,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Marketing Task Management - NamedType OrganizerErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 2322295678 - NamedType 1541360732" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[<2D>]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit Marketing Task Management - NamedType DateFormula2)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 2322295678 - NamedType 903664115" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[<1W - 2D>]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit Marketing Task Management - NamedType DateFormula3)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2322295678 - NamedType 3664641462" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

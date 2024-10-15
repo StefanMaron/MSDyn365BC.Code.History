@@ -506,7 +506,7 @@ page 11751 "Cash Desk Setup Card"
         BankAccount: Record "Bank Account";
         CashDeskMgt: Codeunit CashDeskManagement;
 
-    local procedure GetFilterNo(): Text[1024]
+    local procedure GetFilterNo(): Text
     var
         "Filter": Text;
     begin

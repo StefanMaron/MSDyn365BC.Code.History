@@ -771,7 +771,9 @@ table 11730 "Cash Document Header"
         "Shortcut Dimension 2 Code" := '';
         OldDimSetID := "Dimension Set ID";
         "Dimension Set ID" :=
-          DimMgt.GetDefaultDimID(TableID, No, SourceCodeSetup."Cash Desk", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
+          DimMgt.GetRecDefaultDimID(
+            Rec, CurrFieldNo, TableID, No, SourceCodeSetup."Cash Desk",
+            "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
 
         if (OldDimSetID <> "Dimension Set ID") and CashDocLinesExist then begin
             Modify;

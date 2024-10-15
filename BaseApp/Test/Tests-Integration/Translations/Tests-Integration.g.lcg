@@ -104,15 +104,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Add-in Hyperlink Sales - NamedType PostSalesCrMemoErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 125069268 - NamedType 3343074238" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[apiRoutes]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit API Routes E2E - NamedType ApiRoutesTxt)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 2563049213 - NamedType 2864708005" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[SENDINV]]></Val>
@@ -626,15 +617,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Image Analysis Setup Test - NamedType InvalidApiUriErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2500339208 - NamedType 3620317856" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[[{"key":"%1","endpoint":"%2","limittype":"%3","limitvalue":"%4"}]5D;]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit Image Analysis Setup Test - NamedType MockSecretTxt)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 2953935133 - NamedType 2352626280" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[DEFAULT]]></Val>
@@ -858,33 +840,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Doc. Exch. Service Setup - NamedType InvalidUriErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 911295586 - NamedType 842239440" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[webhookLogs]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit Webhook Logs E2E - NamedType WebhookLogsTxt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 911295586 - NamedType 3586166000" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[APIWEBHOOK]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit Webhook Logs E2E - NamedType ActivityLogContextLbl)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1729883975 - NamedType 1748756752" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[webhookSupportedResources]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit Webhook Supported Res. E2E - NamedType WebhookSupportedResourcesTxt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2277921709 - NamedType 227791618" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

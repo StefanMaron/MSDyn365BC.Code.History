@@ -92,40 +92,34 @@ page 1001 "Job Task Lines Subform"
                 field("Usage (Total Cost)"; "Usage (Total Cost)")
                 {
                     ApplicationArea = Basic, Suite, Jobs;
-                    Caption = 'Actual (Total Cost)';
                     ToolTip = 'Specifies, in local currency, the total cost of the usage of items, resources and general ledger expenses posted on the job task during the time period in the Posting Date Filter field.';
                 }
                 field("Usage (Total Price)"; "Usage (Total Price)")
                 {
                     ApplicationArea = Suite;
-                    Caption = 'Actual (Total Price)';
                     ToolTip = 'Specifies, in the local currency, the total price of the usage of items, resources and general ledger expenses posted on the job task during the time period in the Posting Date Filter field.';
                     Visible = false;
                 }
                 field("Contract (Total Cost)"; "Contract (Total Cost)")
                 {
                     ApplicationArea = Suite;
-                    Caption = 'Billable (Total Cost)';
                     ToolTip = 'Specifies, in local currency, the total billable cost for the job task during the time period in the Planning Date Filter field.';
                     Visible = false;
                 }
                 field("Contract (Total Price)"; "Contract (Total Price)")
                 {
                     ApplicationArea = Basic, Suite, Jobs;
-                    Caption = 'Billable (Total Price)';
                     ToolTip = 'Specifies, in the local currency, the total billable price for the job task during the time period in the Planning Date Filter field.';
                 }
                 field("Contract (Invoiced Cost)"; "Contract (Invoiced Cost)")
                 {
                     ApplicationArea = Suite;
-                    Caption = 'Billable (Invoiced Cost)';
                     ToolTip = 'Specifies, in the local currency, the total billable cost for the job task that has been invoiced during the time period in the Posting Date Filter field.';
                     Visible = false;
                 }
                 field("Contract (Invoiced Price)"; "Contract (Invoiced Price)")
                 {
                     ApplicationArea = Basic, Suite, Jobs;
-                    Caption = 'Billable (Invoiced Price)';
                     ToolTip = 'Specifies, in the local currency, the total billable price for the job task that has been invoiced during the time period in the Posting Date Filter field.';
                 }
                 field("Remaining (Total Cost)"; "Remaining (Total Cost)")

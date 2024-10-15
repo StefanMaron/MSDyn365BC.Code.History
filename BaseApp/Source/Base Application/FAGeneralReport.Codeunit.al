@@ -269,7 +269,6 @@ codeunit 5626 "FA General Report"
         Window.Close;
     end;
 
-    [Scope('OnPrem')]
     procedure SetFATaxDeprGroup(var FA2: Record "Fixed Asset"; DeprBookCode: Code[10])
     var
         FA: Record "Fixed Asset";

@@ -368,6 +368,7 @@
                 if "Bal. Account No." = '' then begin
                     UpdateLineBalance;
                     UpdateSource;
+                    Clear("Balance Account Id");
                     CreateDim(
                       DimMgt.TypeToTableID1("Bal. Account Type".AsInteger()), "Bal. Account No.",
                       DimMgt.TypeToTableID1("Account Type".AsInteger()), "Account No.",
@@ -419,7 +420,7 @@
                   DATABASE::Job, "Job No.",
                   DATABASE::"Salesperson/Purchaser", "Salespers./Purch. Code",
                   DATABASE::Campaign, "Campaign No.");
-
+                UpdateBalanceAccountId();
                 Validate("IC Partner G/L Acc. No.", GetDefaultICPartnerGLAccNo);
                 ValidateApplyRequirements(Rec);
             end;
@@ -768,7 +769,7 @@
                                     CustLedgEntry.SetRange("Document Type", xRec."Applies-to Doc. Type");
                                 CustLedgEntry.SetRange("Customer No.", TempGenJnlLine."Account No.");
                                 CustLedgEntry.SetRange(Open, true);
-                                OnAppliesToDocNoOnValidateOnAfterCustLedgEntrySetFilters(Rec, CustLedgEntry);
+                                OnAppliesToDocNoOnValidateOnAfterCustLedgEntrySetFilters(Rec, CustLedgEntry, TempGenJnlLine);
                                 if CustLedgEntry.FindFirst then begin
                                     if CustLedgEntry."Amount to Apply" <> 0 then begin
                                         CustLedgEntry."Amount to Apply" := 0;
@@ -2649,13 +2650,15 @@
             trigger OnValidate()
             var
                 DeferralUtilities: Codeunit "Deferral Utilities";
+                DeferralPostDate: Date;
             begin
                 if "Deferral Code" <> '' then
                     TestField("Account Type", "Account Type"::"G/L Account");
+                DeferralPostDate := GetDeferralPostDate();
 
                 DeferralUtilities.DeferralCodeOnValidate(
                     "Deferral Code", DeferralDocType::"G/L".AsInteger(), "Journal Template Name", "Journal Batch Name",
-                    0, '', "Line No.", GetDeferralAmount(), "Posting Date", Description, "Currency Code");
+                    0, '', "Line No.", GetDeferralAmount(), DeferralPostDate, Description, "Currency Code");
             end;
         }
         field(1701; "Deferral Line No."; Integer)
@@ -2941,6 +2944,18 @@
             trigger OnValidate()
             begin
                 UpdatePaymentMethodCode;
+            end;
+        }
+        field(8008; "Balance Account Id"; Guid)
+        {
+            Caption = 'Balance Account Id';
+            TableRelation = IF ("Account Type" = CONST("G/L Account")) "G/L Account".SystemId
+            ELSE
+            IF ("Account Type" = CONST("Bank Account")) "Bank Account".SystemId;
+
+            trigger OnValidate()
+            begin
+                UpdateBalanceAccountNo();
             end;
         }
         field(11700; "Bank Account Code"; Code[20])
@@ -3944,10 +3959,16 @@
         end;
     end;
 
-    local procedure SetCurrencyCode(AccType2: Enum "Gen. Journal Account Type"; AccNo2: Code[20]): Boolean
+    local procedure SetCurrencyCode(AccType2: Enum "Gen. Journal Account Type"; AccNo2: Code[20]) Result: Boolean
     var
         BankAcc: Record "Bank Account";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSetCurrencyCode(Rec, AccType2, AccNo2, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         "Currency Code" := '';
         if AccNo2 <> '' then
             if AccType2 = AccType2::"Bank Account" then
@@ -4282,7 +4303,13 @@
     var
         TableID: array[10] of Integer;
         No: array[10] of Code[20];
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCreateDim(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         TableID[1] := Type1;
         No[1] := No1;
         TableID[2] := Type2;
@@ -4640,6 +4667,11 @@
         ApplyVendEntries.LookupMode(true);
         if ApplyVendEntries.RunModal = ACTION::LookupOK then begin
             ApplyVendEntries.GetRecord(VendLedgEntry);
+            IsHandled := false;
+            OnLookUpAppliesToDocVendOnAfterApplyVendEntriesGetRecord(Rec, GenJnlLine, GenJnlApply, PaymentToleranceMgt, VendLedgEntry, IsHandled);
+            if IsHandled then
+                exit;
+
             if AccNo = '' then begin
                 AccNo := VendLedgEntry."Vendor No.";
                 if "Bal. Account Type" = "Bal. Account Type"::Vendor then
@@ -4651,6 +4683,8 @@
             UpdateDocumentTypeAndAppliesTo(VendLedgEntry."Document Type", VendLedgEntry."Document No.");
             OnLookUpAppliesToDocVendOnAfterUpdateDocumentTypeAndAppliesTo(Rec, VendLedgEntry);
         end;
+
+        OnAfterLookUpAppliesToDocVend(Rec, VendLedgEntry);
     end;
 
     procedure LookUpAppliesToDocEmpl(AccNo: Code[20])
@@ -4787,7 +4821,7 @@
                     if CustLedgEntry.FindSet then
                         repeat
                             CheckIfPostingDateIsEarlier(
-                              TempGenJnlLine, CustLedgEntry."Posting Date", CustLedgEntry."Document Type", CustLedgEntry."Document No.");
+                              TempGenJnlLine, CustLedgEntry."Posting Date", CustLedgEntry."Document Type", CustLedgEntry."Document No.", CustLedgEntry);
                         until CustLedgEntry.Next = 0;
                 end else
                     if TempGenJnlLine."Applies-to Doc. No." <> '' then begin
@@ -4800,7 +4834,7 @@
                         OnValidateApplyRequirementsOnAfterCustLedgEntrySetFiltersWithoutAppliesToID(TempGenJnlLine, CustLedgEntry);
                         if CustLedgEntry.FindFirst then
                             CheckIfPostingDateIsEarlier(
-                              TempGenJnlLine, CustLedgEntry."Posting Date", CustLedgEntry."Document Type", CustLedgEntry."Document No.");
+                              TempGenJnlLine, CustLedgEntry."Posting Date", CustLedgEntry."Document Type", CustLedgEntry."Document No.", CustLedgEntry);
                     end;
             TempGenJnlLine."Account Type"::Vendor:
                 if TempGenJnlLine."Applies-to ID" <> '' then begin
@@ -4811,7 +4845,7 @@
                     if VendLedgEntry.FindSet then
                         repeat
                             CheckIfPostingDateIsEarlier(
-                              TempGenJnlLine, VendLedgEntry."Posting Date", VendLedgEntry."Document Type", VendLedgEntry."Document No.");
+                              TempGenJnlLine, VendLedgEntry."Posting Date", VendLedgEntry."Document Type", VendLedgEntry."Document No.", VendLedgEntry);
                         until VendLedgEntry.Next = 0;
                 end else
                     if TempGenJnlLine."Applies-to Doc. No." <> '' then begin
@@ -4823,7 +4857,7 @@
                         VendLedgEntry.SetRange(Open, true);
                         if VendLedgEntry.FindFirst then
                             CheckIfPostingDateIsEarlier(
-                              TempGenJnlLine, VendLedgEntry."Posting Date", VendLedgEntry."Document Type", VendLedgEntry."Document No.");
+                              TempGenJnlLine, VendLedgEntry."Posting Date", VendLedgEntry."Document Type", VendLedgEntry."Document No.", VendLedgEntry);
                     end;
             TempGenJnlLine."Account Type"::Employee:
                 if TempGenJnlLine."Applies-to ID" <> '' then begin
@@ -4834,7 +4868,7 @@
                     if EmplLedgEntry.FindSet then
                         repeat
                             CheckIfPostingDateIsEarlier(
-                              TempGenJnlLine, EmplLedgEntry."Posting Date", EmplLedgEntry."Document Type", EmplLedgEntry."Document No.");
+                              TempGenJnlLine, EmplLedgEntry."Posting Date", EmplLedgEntry."Document Type", EmplLedgEntry."Document No.", EmplLedgEntry);
                         until EmplLedgEntry.Next = 0;
                 end else
                     if TempGenJnlLine."Applies-to Doc. No." <> '' then begin
@@ -4846,7 +4880,7 @@
                         EmplLedgEntry.SetRange(Open, true);
                         if EmplLedgEntry.FindFirst then
                             CheckIfPostingDateIsEarlier(
-                              TempGenJnlLine, EmplLedgEntry."Posting Date", EmplLedgEntry."Document Type", EmplLedgEntry."Document No.");
+                              TempGenJnlLine, EmplLedgEntry."Posting Date", EmplLedgEntry."Document Type", EmplLedgEntry."Document No.", EmplLedgEntry);
                     end;
         end;
 
@@ -5003,6 +5037,18 @@
             if GLAcc.Get(GLAccNo) then
                 exit(GLAcc."Default IC Partner G/L Acc. No")
         end;
+    end;
+
+    local procedure GetDeferralPostDate() DeferralPostDate: Date
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeGetDeferralPostDate(Rec, DeferralPostDate, IsHandled);
+        if IsHandled then
+            exit(DeferralPostDate);
+
+        DeferralPostDate := "Posting Date";
     end;
 
     procedure IsApplied(): Boolean
@@ -5528,6 +5574,7 @@
                 end else
                     if "Applies-to Doc. No." <> '' then
                         if FindFirstCustLedgEntryWithAppliesToDocNo(AccNo, "Applies-to Doc. No.") then begin
+                            OnSetJournalLineFieldsFromApplicationOnAfterFindFirstCustLedgEntryWithAppliesToDocNo(Rec, CustLedgEntry);
                             "Exported to Payment File" := CustLedgEntry."Exported to Payment File";
                             "Applies-to Ext. Doc. No." := CustLedgEntry."External Document No.";
                         end;
@@ -5541,6 +5588,7 @@
                 end else
                     if "Applies-to Doc. No." <> '' then
                         if FindFirstVendLedgEntryWithAppliesToDocNo(AccNo, "Applies-to Doc. No.") then begin
+                            OnSetJournalLineFieldsFromApplicationOnAfterFindFirstVendLedgEntryWithAppliesToDocNo(Rec, VendLedgEntry);
                             "Exported to Payment File" := VendLedgEntry."Exported to Payment File";
                             "Applies-to Ext. Doc. No." := VendLedgEntry."External Document No.";
                         end;
@@ -6877,6 +6925,7 @@
             Description := GLAcc.Name;
             "Currency Code" := '';
         end;
+        OnGetGLBalAccountOnAfterSetDescription(Rec, GLAcc);
         if ("Account No." = '') or
            ("Account Type" in
             ["Account Type"::"G/L Account", "Account Type"::"Bank Account"])
@@ -6905,7 +6954,6 @@
     local procedure GetCustomerAccount()
     var
         Cust: Record Customer;
-        ConfirmManagement: Codeunit "Confirm Management";
     begin
         Cust.Get("Account No.");
         if not Compensation or (Cust.Blocked <> Cust.Blocked::Invoice) then // NAVCZ
@@ -6922,25 +6970,35 @@
         if not SetCurrencyCode("Bal. Account Type", "Bal. Account No.") then
             "Currency Code" := Cust."Currency Code";
         ClearPostingGroups;
-        if (Cust."Bill-to Customer No." <> '') and (Cust."Bill-to Customer No." <> "Account No.") and
-           not HideValidationDialog
-        then
-            if not ConfirmManagement.GetResponseOrDefault(
-                 StrSubstNo(
-                   Text014, Cust.TableCaption, Cust."No.", Cust.FieldCaption("Bill-to Customer No."),
-                   Cust."Bill-to Customer No."), true)
-            then
-                Error('');
+        CheckConfirmDifferentCustomerAndBillToCustomer(Cust, "Account No.");
         Validate("Payment Terms Code");
         CheckPaymentTolerance;
 
         OnAfterAccountNoOnValidateGetCustomerAccount(Rec, Cust, CurrFieldNo);
     end;
 
+    local procedure CheckConfirmDifferentCustomerAndBillToCustomer(Cust: Record Customer; AccountNo: Code[20])
+    var
+        ConfirmManagement: Codeunit "Confirm Management";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckConfirmDifferentCustomerAndBillToCustomer(Rec, Cust, CurrFieldNo, IsHandled);
+        if IsHandled then
+            exit;
+
+        if (Cust."Bill-to Customer No." <> '') and (Cust."Bill-to Customer No." <> AccountNo) and not HideValidationDialog then
+            if not ConfirmManagement.GetResponseOrDefault(
+                 StrSubstNo(
+                   Text014, Cust.TableCaption, Cust."No.", Cust.FieldCaption("Bill-to Customer No."),
+                   Cust."Bill-to Customer No."), true)
+            then
+                Error('');
+    end;
+
     local procedure GetCustomerBalAccount()
     var
         Cust: Record Customer;
-        ConfirmManagement: Codeunit "Confirm Management";
     begin
         Cust.Get("Bal. Account No.");
         Cust.CheckBlockedCustOnJnls(Cust, "Document Type", false);
@@ -6956,22 +7014,26 @@
         Validate("Sell-to/Buy-from No.", "Bal. Account No.");
         if ("Account No." = '') or ("Account Type" = "Account Type"::"G/L Account") then
             "Currency Code" := Cust."Currency Code";
-        if ("Account Type" = "Account Type"::"Bank Account") and ("Currency Code" = '') then
-            "Currency Code" := Cust."Currency Code";
+        CheckSetCurrencyCodeForBankCustLine(Cust);
         ClearBalancePostingGroups;
-        if (Cust."Bill-to Customer No." <> '') and (Cust."Bill-to Customer No." <> "Bal. Account No.") and
-           not HideValidationDialog
-        then
-            if not ConfirmManagement.GetResponseOrDefault(
-                 StrSubstNo(
-                   Text014, Cust.TableCaption, Cust."No.", Cust.FieldCaption("Bill-to Customer No."),
-                   Cust."Bill-to Customer No."), true)
-            then
-                Error('');
+        CheckConfirmDifferentCustomerAndBillToCustomer(Cust, "Bal. Account No.");
         Validate("Payment Terms Code");
         CheckPaymentTolerance;
 
         OnAfterAccountNoOnValidateGetCustomerBalAccount(Rec, Cust, CurrFieldNo);
+    end;
+
+    local procedure CheckSetCurrencyCodeForBankCustLine(Cust: Record Customer)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckSetCurrencyCodeForBankCustLine(Rec, Cust, CurrFieldNo, IsHandled);
+        if IsHandled then
+            exit;
+
+        if ("Account Type" = "Account Type"::"Bank Account") and ("Currency Code" = '') then
+            "Currency Code" := Cust."Currency Code";
     end;
 
     local procedure GetVendorAccount()
@@ -7046,8 +7108,7 @@
         Validate("Sell-to/Buy-from No.", "Bal. Account No.");
         if ("Account No." = '') or ("Account Type" = "Account Type"::"G/L Account") then
             "Currency Code" := Vend."Currency Code";
-        if ("Account Type" = "Account Type"::"Bank Account") and ("Currency Code" = '') then
-            "Currency Code" := Vend."Currency Code";
+        CheckSetCurrencyCodeForBankVendLine(Vend);
         ClearBalancePostingGroups;
         if (Vend."Pay-to Vendor No." <> '') and (Vend."Pay-to Vendor No." <> "Bal. Account No.") and
            not HideValidationDialog
@@ -7062,6 +7123,19 @@
         CheckPaymentTolerance;
 
         OnAfterAccountNoOnValidateGetVendorBalAccount(Rec, Vend, CurrFieldNo);
+    end;
+
+    local procedure CheckSetCurrencyCodeForBankVendLine(Vend: Record Vendor)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckSetCurrencyCodeForBankVendLine(Rec, Vend, CurrFieldNo, IsHandled);
+        if IsHandled then
+            exit;
+
+        if ("Account Type" = "Account Type"::"Bank Account") and ("Currency Code" = '') then
+            "Currency Code" := Vend."Currency Code";
     end;
 
     local procedure GetEmployeeBalAccount()
@@ -7420,12 +7494,12 @@
         end;
     end;
 
-    local procedure CheckIfPostingDateIsEarlier(GenJournalLine: Record "Gen. Journal Line"; ApplyPostingDate: Date; ApplyDocType: Enum "Gen. Journal Document Type"; ApplyDocNo: Code[20])
+    local procedure CheckIfPostingDateIsEarlier(GenJournalLine: Record "Gen. Journal Line"; ApplyPostingDate: Date; ApplyDocType: Enum "Gen. Journal Document Type"; ApplyDocNo: Code[20]; RecordVariant: Variant)
     var
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCheckIfPostingDateIsEarlier(GenJournalLine, ApplyPostingDate, ApplyDocType.AsInteger(), ApplyDocNo, IsHandled);
+        OnBeforeCheckIfPostingDateIsEarlier(GenJournalLine, ApplyPostingDate, ApplyDocType.AsInteger(), ApplyDocNo, IsHandled, RecordVariant);
         if IsHandled then
             exit;
 
@@ -7676,7 +7750,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAppliesToDocNoOnValidateOnAfterCustLedgEntrySetFilters(var GenJournalLine: Record "Gen. Journal Line"; var CustLedgerEntry: Record "Cust. Ledger Entry")
+    local procedure OnAppliesToDocNoOnValidateOnAfterCustLedgEntrySetFilters(var GenJournalLine: Record "Gen. Journal Line"; var CustLedgerEntry: Record "Cust. Ledger Entry"; TempGenJnlLine: Record "Gen. Journal Line" temporary)
     begin
     end;
 
@@ -7801,7 +7875,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckIfPostingDateIsEarlier(GenJournalLine: Record "Gen. Journal Line"; ApplyPostingDate: Date; ApplyDocType: Option " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund; ApplyDocNo: Code[20]; var IsHandled: Boolean)
+    local procedure OnBeforeCheckIfPostingDateIsEarlier(GenJournalLine: Record "Gen. Journal Line"; ApplyPostingDate: Date; ApplyDocType: Option " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund; ApplyDocNo: Code[20]; var IsHandled: Boolean; RecordVariant: Variant)
     begin
     end;
 
@@ -7812,6 +7886,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCopyDimensionsFromJobTaskLine(TempJobJnlLine: Record "Job Journal Line" temporary; var GenJournalLine: Record "Gen. Journal Line"; xGenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetDeferralPostDate(GenJournalLine: Record "Gen. Journal Line"; var DeferralPostDate: Date; var IsHandled: Boolean)
     begin
     end;
 
@@ -7831,17 +7910,17 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeLookUpAppliesToDocCust(GenJournalLine: Record "Gen. Journal Line"; AccNo: Code[20]; var IsHandled: Boolean)
+    local procedure OnBeforeLookUpAppliesToDocCust(var GenJournalLine: Record "Gen. Journal Line"; AccNo: Code[20]; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeLookUpAppliesToDocEmpl(GenJournalLine: Record "Gen. Journal Line"; AccNo: Code[20]; var IsHandled: Boolean)
+    local procedure OnBeforeLookUpAppliesToDocEmpl(var GenJournalLine: Record "Gen. Journal Line"; AccNo: Code[20]; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeLookUpAppliesToDocVend(GenJournalLine: Record "Gen. Journal Line"; AccNo: Code[20]; var IsHandled: Boolean)
+    local procedure OnBeforeLookUpAppliesToDocVend(var GenJournalLine: Record "Gen. Journal Line"; AccNo: Code[20]; var IsHandled: Boolean)
     begin
     end;
 
@@ -7996,7 +8075,17 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnSetJournalLineFieldsFromApplicationOnAfterFindFirstCustLedgEntryWithAppliesToDocNo(var GenJournalLine: Record "Gen. Journal Line"; CustLedgEntry: Record "Cust. Ledger Entry");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnSetJournalLineFieldsFromApplicationOnAfterFindFirstVendLedgEntryWithAppliesToID(var GenJournalLine: Record "Gen. Journal Line"; VendLedgEntry: Record "Vendor Ledger Entry");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetJournalLineFieldsFromApplicationOnAfterFindFirstVendLedgEntryWithAppliesToDocNo(var GenJournalLine: Record "Gen. Journal Line"; VendLedgEntry: Record "Vendor Ledger Entry");
     begin
     end;
 
@@ -8141,6 +8230,51 @@
             exit;
 
         "Account No." := GLAccount."No.";
+    end;
+
+    local procedure UpdateBalanceAccountId()
+    var
+        GLAccount: Record "G/L Account";
+        BankAccount: Record "Bank Account";
+    begin
+        clear("Balance Account Id");
+        Case "Bal. Account Type" of
+            "Bal. Account Type"::"G/L Account":
+                begin
+                    if not GLAccount.Get("Bal. Account No.") then
+                        exit;
+                    "Balance Account Id" := GLAccount.SystemId;
+                end;
+            "Bal. Account Type"::"Bank Account":
+                begin
+                    if not BankAccount.Get("Bal. Account No.") then
+                        exit;
+                    "Balance Account Id" := BankAccount.SystemId
+                end;
+        end;
+    end;
+
+    local procedure UpdateBalanceAccountNo()
+    var
+        GLAccount: Record "G/L Account";
+        BankAccount: Record "Bank Account";
+    begin
+        if IsNullGuid("Balance Account Id") then
+            exit;
+        Case "Bal. Account Type" of
+            "Bal. Account Type"::"G/L Account":
+                begin
+                    if not GLAccount.GetBySystemId("Balance Account Id") then
+                        exit;
+                    Validate("Bal. Account No.", GLAccount."No.");
+                end;
+            "Bal. Account Type"::"Bank Account":
+                begin
+                    if not BankAccount.GetBySystemId("Balance Account Id") then
+                        exit;
+                    validate("Bal. Account No.", BankAccount."No.");
+                end;
+        end;
     end;
 
     procedure UpdateBankAccountID()
@@ -8403,6 +8537,46 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnValidatePostingDateOnAfterValidateCurrencyCode(var GenJournalLine: Record "Gen. Journal Line"; var xGenJournalLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetGLBalAccountOnAfterSetDescription(var GenJournalLine: Record "Gen. Journal Line"; GLAcc: Record "G/L Account")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateDim(var GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckConfirmDifferentCustomerAndBillToCustomer(var GenJorunalLine: Record "Gen. Journal Line"; Customer: Record Customer; CallingFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckSetCurrencyCodeForBankCustLine(var GenJournalLine: Record "Gen. Journal Line"; Customer: Record Customer; CallingFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckSetCurrencyCodeForBankVendLine(var GenJournalLine: Record "Gen. Journal Line"; Vendor: Record Vendor; CallingFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetCurrencyCode(var GenJournalLine: Record "Gen. Journal Line"; AccType2: Enum "Gen. Journal Account Type"; AccNo2: Code[20]; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLookUpAppliesToDocVendOnAfterApplyVendEntriesGetRecord(var GenJournalLine: Record "Gen. Journal Line"; GenJnlLine: Record "Gen. Journal Line"; GenJnlApply: Codeunit "Gen. Jnl.-Apply"; PaymentToleranceMgt: Codeunit "Payment Tolerance Management"; VendLedgEntry: Record "Vendor Ledger Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterLookUpAppliesToDocVend(var GenJournalLine: Record "Gen. Journal Line"; VendLedgEntry: Record "Vendor Ledger Entry")
     begin
     end;
 }

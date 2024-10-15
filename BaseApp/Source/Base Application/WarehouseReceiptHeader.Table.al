@@ -360,7 +360,13 @@ table 7316 "Warehouse Receipt Header"
     var
         WhseRcptLine: Record "Warehouse Receipt Line";
         SequenceNo: Integer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSortWhseDoc(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         WhseRcptLine.SetRange("No.", "No.");
         GetLocation("Location Code");
         case "Sorting Method" of
@@ -581,6 +587,11 @@ table 7316 "Warehouse Receipt Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeErrorIfUserIsNotWhseEmployee(LocationCode: Code[10]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSortWhseDoc(var WarehouseReceiptHeader: Record "Warehouse Receipt Header"; var IsHandled: Boolean)
     begin
     end;
 

@@ -392,7 +392,7 @@ table 31001 "Sales Advance Letter Line"
         }
         field(31016; "Customer Posting Group"; Code[20])
         {
-            CalcFormula = Lookup ("Sales Advance Letter Header"."Customer Posting Group" WHERE("No." = FIELD("Letter No.")));
+            CalcFormula = Lookup("Sales Advance Letter Header"."Customer Posting Group" WHERE("No." = FIELD("Letter No.")));
             Caption = 'Customer Posting Group';
             Editable = false;
             FieldClass = FlowField;
@@ -407,7 +407,7 @@ table 31001 "Sales Advance Letter Line"
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
             BlankZero = true;
-            CalcFormula = Sum ("Advance Letter Line Relation".Amount WHERE(Type = CONST(Sale),
+            CalcFormula = Sum("Advance Letter Line Relation".Amount WHERE(Type = CONST(Sale),
                                                                            "Letter No." = FIELD("Letter No."),
                                                                            "Letter Line No." = FIELD("Line No."),
                                                                            "Document No." = FIELD("Doc. No. Filter")));
@@ -433,7 +433,7 @@ table 31001 "Sales Advance Letter Line"
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
             BlankZero = true;
-            CalcFormula = Sum ("Advance Letter Line Relation"."Invoiced Amount" WHERE(Type = CONST(Sale),
+            CalcFormula = Sum("Advance Letter Line Relation"."Invoiced Amount" WHERE(Type = CONST(Sale),
                                                                                       "Letter No." = FIELD("Letter No."),
                                                                                       "Letter Line No." = FIELD("Line No."),
                                                                                       "Document No." = FIELD("Doc. No. Filter")));
@@ -458,7 +458,7 @@ table 31001 "Sales Advance Letter Line"
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
             BlankZero = true;
-            CalcFormula = Sum ("Advance Letter Line Relation"."Deducted Amount" WHERE(Type = CONST(Sale),
+            CalcFormula = Sum("Advance Letter Line Relation"."Deducted Amount" WHERE(Type = CONST(Sale),
                                                                                       "Letter No." = FIELD("Letter No."),
                                                                                       "Letter Line No." = FIELD("Line No."),
                                                                                       "Document No." = FIELD("Doc. No. Filter")));
@@ -471,7 +471,7 @@ table 31001 "Sales Advance Letter Line"
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
             BlankZero = true;
-            CalcFormula = Sum ("Advance Letter Line Relation"."Amount To Deduct" WHERE(Type = CONST(Sale),
+            CalcFormula = Sum("Advance Letter Line Relation"."Amount To Deduct" WHERE(Type = CONST(Sale),
                                                                                        "Letter No." = FIELD("Letter No."),
                                                                                        "Letter Line No." = FIELD("Line No."),
                                                                                        "Document No." = FIELD("Doc. No. Filter")));
@@ -810,8 +810,8 @@ table 31001 "Sales Advance Letter Line"
 
         GetLetterHeader;
         "Dimension Set ID" :=
-          DimMgt.GetDefaultDimID(
-            TableID, No, SourceCodeSetup.Sales,
+          DimMgt.GetRecDefaultDimID(
+            Rec, CurrFieldNo, TableID, No, SourceCodeSetup.Sales,
             "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code",
             SalesAdvanceLetterHeadergre."Dimension Set ID", DATABASE::Customer);
         DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");

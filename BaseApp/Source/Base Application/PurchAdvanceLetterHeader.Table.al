@@ -1216,7 +1216,9 @@ table 31020 "Purch. Advance Letter Header"
 
         OldDimSetID := "Dimension Set ID";
         "Dimension Set ID" :=
-          DimMgt.GetDefaultDimID(TableID, No, SourceCodeSetup.Purchases, "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
+          DimMgt.GetRecDefaultDimID(
+              Rec, CurrFieldNo, TableID, No, SourceCodeSetup.Purchases,
+              "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
 
         if (OldDimSetID <> "Dimension Set ID") and LetterLinesExist then begin
             Modify;

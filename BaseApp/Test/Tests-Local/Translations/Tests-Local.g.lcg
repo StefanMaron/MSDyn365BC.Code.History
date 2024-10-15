@@ -23,15 +23,6 @@
       <Cmt Name="Dev"><![CDATA[%1=FIELDCAPTION,%2=Amount,%3=TABLECAPTION]D;]A;(LookupHint=Codeunit Balance Sheet Reports - NamedType AmountErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2400178456 - NamedType 2558078138" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[C%1]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit Balance Sheet Reports - NamedType FiscalPostingDateTok)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 1293499007 - NamedType 1920297994" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Bank account no. contains invalid characters "%1".]]></Val>

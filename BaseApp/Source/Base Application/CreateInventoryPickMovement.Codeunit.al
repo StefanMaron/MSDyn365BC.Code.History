@@ -832,6 +832,7 @@ codeunit 7322 "Create Inventory Pick/Movement"
                         QtyAvailToPickBase := CalcQtyAvailToPickIncludingDedicated(0)
                     else
                         QtyAvailToPickBase := CalcQtyAvailToPick(0);
+                    OnInsertPickOrMoveBinWhseActLineOnAfterCalcQtyAvailToPick(QtyAvailToPickBase, FromBinContent);
                     if RemQtyToPickBase < QtyAvailToPickBase then
                         QtyAvailToPickBase := RemQtyToPickBase;
                     if QtyAvailToPickBase > 0 then begin
@@ -843,6 +844,7 @@ codeunit 7322 "Create Inventory Pick/Movement"
 
                         MakeHeader();
 
+                        OnInsertPickOrMoveBinWhseActLineOnBeforeLoopMakeLine(WhseActivHeader, WhseRequest, NewWhseActivLine, FromBinContent, AutoCreation, QtyToPickBase);
                         repeat
                             MakeLine(NewWhseActivLine, "Bin Code", QtyToPickBase, RemQtyToPickBase);
                             QtyAvailToPickBase := QtyAvailToPickBase - QtyToPickBase;
@@ -873,7 +875,7 @@ codeunit 7322 "Create Inventory Pick/Movement"
         until RemQtyToPickBase = 0;
     end;
 
-    local procedure CalcInvtAvailability(WhseActivLine: Record "Warehouse Activity Line"; WhseItemTrackingSetup: Record "Item Tracking Setup"): Decimal
+    local procedure CalcInvtAvailability(WhseActivLine: Record "Warehouse Activity Line"; WhseItemTrackingSetup: Record "Item Tracking Setup") Result: Decimal
     var
         Item2: Record Item;
         TempWhseActivLine2: Record "Warehouse Activity Line" temporary;
@@ -885,7 +887,13 @@ codeunit 7322 "Create Inventory Pick/Movement"
         QtyReservedOnPickShip: Decimal;
         QtyOnDedicatedBins: Decimal;
         QtyBlocked: Decimal;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCalcInvtAvailability(WhseActivLine, Location, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         GetItem(WhseActivLine."Item No.");
         Item2 := Item;
         Item2.SetRange("Location Filter", WhseActivLine."Location Code");
@@ -1145,8 +1153,8 @@ codeunit 7322 "Create Inventory Pick/Movement"
         if WhseItemTrackingFEFO.FindFirstEntrySummaryFEFO(EntrySummary) then begin
             InitTempHandlingSpec;
             RemQtyToPickBase := TotalQtyToPickBase;
-            WhseItemTrackingSetup.CopyTrackingFromEntrySummary(EntrySummary);
             repeat
+                WhseItemTrackingSetup.CopyTrackingFromEntrySummary(EntrySummary);
                 if EntrySummary."Expiration Date" <> 0D then begin
                     QtyTracked := ItemTrackedQuantity(WhseItemTrackingSetup);
                     if not ((EntrySummary."Serial No." <> '') and (QtyTracked > 0)) then begin
@@ -1581,15 +1589,23 @@ codeunit 7322 "Create Inventory Pick/Movement"
         exit(b);
     end;
 
-    local procedure CalcQtyAvailToPickOnBins(WhseActivLine: Record "Warehouse Activity Line"; WhseItemTrackingSetup: Record "Item Tracking Setup"; RemQtyToPickBase: Decimal): Decimal
+    local procedure CalcQtyAvailToPickOnBins(WhseActivLine: Record "Warehouse Activity Line"; WhseItemTrackingSetup: Record "Item Tracking Setup"; RemQtyToPickBase: Decimal) Result: Decimal
     var
         BinContent: Record "Bin Content";
         TotalAvailQtyToPickBase: Decimal;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCalcQtyAvailToPickOnBins(WhseActivLine, WhseItemTrackingSetup."Lot No.", WhseItemTrackingSetup."Serial No.", RemQtyToPickBase, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         TotalAvailQtyToPickBase := 0;
 
         with BinContent do begin
             SetRange("Location Code", WhseActivLine."Location Code");
+            if FromBinCode <> '' then
+                SetRange("Bin Code", FromBinCode);
             SetRange("Item No.", WhseActivLine."Item No.");
             SetRange("Variant Code", WhseActivLine."Variant Code");
             SetTrackingFilterFromWhseItemTrackingSetup(WhseItemTrackingSetup);
@@ -1861,6 +1877,26 @@ codeunit 7322 "Create Inventory Pick/Movement"
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateHandledWhseActivityLineBufferOnBeforeTempInternalMovementLineModify(var TempInternalMovementLine: Record "Internal Movement Line" temporary; WarehouseActivityLine: Record "Warehouse Activity Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertPickOrMoveBinWhseActLineOnBeforeLoopMakeLine(var WhseActivHeader: Record "Warehouse Activity Header"; WhseRequest: Record "Warehouse Request"; var NewWhseActivLine: Record "Warehouse Activity Line"; FromBinContent: Record "Bin Content"; AutoCreation: Boolean; var QtyToPickBase: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertPickOrMoveBinWhseActLineOnAfterCalcQtyAvailToPick(var QtyAvailToPickBase: Decimal; var FromBinContent: Record "Bin Content")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcInvtAvailability(WhseActivLine: Record "Warehouse Activity Line"; Location: Record Location; var Result: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcQtyAvailToPickOnBins(WhseActivLine: Record "Warehouse Activity Line"; LotNo: Code[50]; SerialNo: Code[50]; RemQtyToPickBase: Decimal; var Result: Decimal; var IsHandled: Boolean)
     begin
     end;
 }

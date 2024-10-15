@@ -114,7 +114,7 @@ page 474 "VAT Statement Preview"
                 }
                 field(Selection; Selection)
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Include VAT entries';
                     ToolTip = 'Specifies that VAT entries are included in the VAT Statement Preview window. This only works for lines of type VAT Entry Totaling. It does not work for lines of type Account Totaling.';
 
@@ -130,7 +130,7 @@ page 474 "VAT Statement Preview"
                 }
                 field(PeriodSelection; PeriodSelection)
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Include VAT entries';
                     ToolTip = 'Specifies that VAT entries are included in the VAT Statement Preview window. This only works for lines of type VAT Entry Totaling. It does not work for lines of type Account Totaling.';
 
@@ -144,7 +144,7 @@ page 474 "VAT Statement Preview"
                 }
                 field(UseAmtsInAddCurr; UseAmtsInAddCurr)
                 {
-                    ApplicationArea = Suite;
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Show Amounts in Add. Reporting Currency';
                     MultiLine = true;
                     ToolTip = 'Specifies that the VAT Statement Preview window shows amounts in the additional reporting currency.';
@@ -157,7 +157,7 @@ page 474 "VAT Statement Preview"
             }
             part(VATStatementLineSubForm; "VAT Statement Preview Line")
             {
-                ApplicationArea = VAT;
+                ApplicationArea = Basic, Suite;
                 SubPageLink = "Statement Template Name" = FIELD("Statement Template Name"),
                               "Statement Name" = FIELD(Name);
                 SubPageView = SORTING("Statement Template Name", "Statement Name", "Line No.");
