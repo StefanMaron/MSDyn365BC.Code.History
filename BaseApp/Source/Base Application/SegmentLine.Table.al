@@ -166,7 +166,7 @@
                     Rec."Campaign No." := '';
                 Modify();
 
-                if Rec."Segment No." <> '' then begin
+                if (Rec."Segment No." <> '') and (Rec.Description <> '') then begin
                     SegInteractLanguage.Reset();
                     SegInteractLanguage.SetRange("Segment No.", Rec."Segment No.");
                     SegInteractLanguage.SetRange("Segment Line No.", Rec."Line No.");
@@ -757,6 +757,7 @@
             exit;
 
         Cont.Get("Contact No.");
+        TempSegmentLine."Segment No." := "Segment No.";
         TempSegmentLine."Contact No." := Cont."No.";
         TempSegmentLine."Contact Via" := Cont."Phone No.";
         TempSegmentLine."Contact Company No." := Cont."Company No.";

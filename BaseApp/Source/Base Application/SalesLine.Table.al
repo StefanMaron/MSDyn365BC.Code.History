@@ -5778,7 +5778,6 @@
     local procedure GetFAPostingGroup()
     var
         LocalGLAcc: Record "G/L Account";
-        FASetup: Record "FA Setup";
         FAPostingGr: Record "FA Posting Group";
         FADeprBook: Record "FA Depreciation Book";
         ShouldExit: Boolean;
@@ -5793,7 +5792,6 @@
             exit;
 
         if "Depreciation Book Code" = '' then begin
-            FASetup.Get();
 #if not CLEAN19
             // NAVCZ
             FADeprBook.Reset();
@@ -5802,15 +5800,13 @@
             if not FADeprBook.FindFirst() then begin
                 // NAVCZ
 #endif
-                "Depreciation Book Code" := FASetup."Default Depr. Book";
-                if not FADeprBook.Get("No.", "Depreciation Book Code") then
-                    "Depreciation Book Code" := '';
 #if not CLEAN19
                 // NAVCZ
             end else
                 "Depreciation Book Code" := FADeprBook."Depreciation Book Code";
             // NAVCZ
 #endif
+            "Depreciation Book Code" := GetFADeprBook("No.");
 
             ShouldExit := "Depreciation Book Code" = '';
             OnGetGetFAPostingGroupOnBeforeExit(Rec, ShouldExit);
@@ -9268,6 +9264,35 @@
                 "VAT Difference" := TempSalesLine."VAT Difference";
                 "Amount Including VAT" := TempSalesLine."Amount Including VAT";
             end;
+    end;
+
+    local procedure GetFADeprBook(FANo: Code[20]) DepreciationBookCode: Code[10]
+    var
+        FASetup: Record "FA Setup";
+        FADeprBook: Record "FA Depreciation Book";
+        DefaultFADeprBook: Record "FA Depreciation Book";
+        SetFADeprBook: Record "FA Depreciation Book";
+    begin
+        FASetup.Get();
+
+        DefaultFADeprBook.SetRange("FA No.", FANo);
+        DefaultFADeprBook.SetRange("Default FA Depreciation Book", true);
+
+        SetFADeprBook.SetRange("FA No.", FANo);
+
+        case true of
+            SetFADeprBook.Count = 1:
+                begin
+                    SetFADeprBook.FindFirst();
+                    DepreciationBookCode := SetFADeprBook."Depreciation Book Code";
+                end;
+            DefaultFADeprBook.FindFirst():
+                DepreciationBookCode := DefaultFADeprBook."Depreciation Book Code";
+            FADeprBook.Get("No.", FASetup."Default Depr. Book"):
+                DepreciationBookCode := FASetup."Default Depr. Book"
+            else
+                DepreciationBookCode := '';
+        end;
     end;
 
 #if not CLEAN20

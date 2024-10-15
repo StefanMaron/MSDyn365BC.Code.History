@@ -1496,6 +1496,8 @@ table 11733 "Cash Document Line CZP"
         FAPostingGroup: Record "FA Posting Group";
         FASetup: Record "FA Setup";
         FADepreciationBook: Record "FA Depreciation Book";
+        SetFADeprBook: Record "FA Depreciation Book";
+        FADeprBook: Record "FA Depreciation Book";
     begin
         if ("Account Type" <> "Account Type"::"Fixed Asset") or ("Account No." = '') then
             exit;
@@ -1504,12 +1506,23 @@ table 11733 "Cash Document Line CZP"
             FADepreciationBook.Reset();
             FADepreciationBook.SetRange("FA No.", "Account No.");
             FADepreciationBook.SetRange("Default FA Depreciation Book", true);
-            if not FADepreciationBook.FindFirst() then begin
-                "Depreciation Book Code" := FASetup."Default Depr. Book";
-                if not FADepreciationBook.Get("Account No.", "Depreciation Book Code") then
+
+            SetFADeprBook.SetRange("FA No.", "Account No.");
+
+            case true of
+                SetFADeprBook.Count = 1:
+                    begin
+                        SetFADeprBook.FindFirst();
+                        "Depreciation Book Code" := SetFADeprBook."Depreciation Book Code";
+                    end;
+                FADepreciationBook.FindFirst():
+                    "Depreciation Book Code" := FADepreciationBook."Depreciation Book Code";
+                FADeprBook.Get("Account No.", FASetup."Default Depr. Book"):
+                    "Depreciation Book Code" := FASetup."Default Depr. Book"
+                else
                     "Depreciation Book Code" := '';
-            end else
-                "Depreciation Book Code" := FADepreciationBook."Depreciation Book Code";
+            end;
+
             if "Depreciation Book Code" = '' then
                 exit;
         end;

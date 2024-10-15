@@ -193,6 +193,8 @@ codeunit 31236 "FA Acquisition Handler CZF"
     local procedure AcquisitionAsCustom2OnBeforeGetFAPostingGroup(var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
     var
         FADepreciationBook: Record "FA Depreciation Book";
+        FADeprBook: Record "FA Depreciation Book";
+        SetFADeprBook: Record "FA Depreciation Book";
         FAPostingGroup: Record "FA Posting Group";
         GLAccount: Record "G/L Account";
         ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
@@ -206,12 +208,22 @@ codeunit 31236 "FA Acquisition Handler CZF"
         if PurchaseLine."Depreciation Book Code" = '' then begin
             FADepreciationBook.SetRange("FA No.", PurchaseLine."No.");
             FADepreciationBook.SetRange("Default FA Depreciation Book", true);
-            if not FADepreciationBook.FindFirst() then begin
-                PurchaseLine."Depreciation Book Code" := FASetup."Default Depr. Book";
-                if not FADepreciationBook.Get(PurchaseLine."No.", PurchaseLine."Depreciation Book Code") then
+
+            SetFADeprBook.SetRange("FA No.", PurchaseLine."No.");
+            case true of
+                SetFADeprBook.Count = 1:
+                    begin
+                        SetFADeprBook.FindFirst();
+                        PurchaseLine."Depreciation Book Code" := SetFADeprBook."Depreciation Book Code";
+                    end;
+                FADepreciationBook.FindFirst():
+                    PurchaseLine."Depreciation Book Code" := FADepreciationBook."Depreciation Book Code";
+                FADeprBook.Get(PurchaseLine."No.", FASetup."Default Depr. Book"):
+                    PurchaseLine."Depreciation Book Code" := FASetup."Default Depr. Book"
+                else
                     PurchaseLine."Depreciation Book Code" := '';
-            end else
-                PurchaseLine."Depreciation Book Code" := FADepreciationBook."Depreciation Book Code";
+            end;
+
             if PurchaseLine."Depreciation Book Code" = '' then
                 exit;
         end;
