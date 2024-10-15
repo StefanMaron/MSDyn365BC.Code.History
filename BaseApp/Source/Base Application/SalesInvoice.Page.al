@@ -969,6 +969,16 @@
                     ApplicationArea = BasicMX;
                     ToolTip = 'Specifies the unit of measurement of the weight of the goods and / or merchandise that are moved in this transport.';
                 }
+                field("SAT International Trade Term"; Rec."SAT International Trade Term")
+                {
+                    ApplicationArea = BasicMX;
+                    ToolTip = 'Specifies an international commercial terms code that are used in international sale contracts according to the SAT internatoinal trade terms definition.';
+                }
+                field("Exchange Rate USD"; Rec."Exchange Rate USD")
+                {
+                    ApplicationArea = BasicMX;
+                    ToolTip = 'Specifies the exchange rate for USD currency that is used to report foreing trade electronic invoices to Mexican SAT authorities.';
+                }
             }
         }
         area(factboxes)

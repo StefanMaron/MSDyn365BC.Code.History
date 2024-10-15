@@ -836,7 +836,7 @@
         field(43; "Salesperson Code"; Code[20])
         {
             Caption = 'Salesperson Code';
-            TableRelation = "Salesperson/Purchaser";
+            TableRelation = "Salesperson/Purchaser" where(Blocked = const(false));
 
             trigger OnValidate()
             var
@@ -2272,6 +2272,7 @@
                     UpdateSellToCust("Sell-to Contact No.");
                 UpdateSellToCustTemplateCode();
                 UpdateShipToContact();
+                GetShippingTime(FieldNo("Sell-to Contact No."));
             end;
         }
         field(5053; "Bill-to Contact No."; Code[20])
@@ -2896,6 +2897,16 @@
             Caption = 'SAT Weight Unit Of Measure';
             TableRelation = "SAT Weight Unit of Measure";
         }
+        field(10059; "SAT International Trade Term"; Code[10])
+        {
+            Caption = 'SAT International Trade Term';
+            TableRelation = "SAT International Trade Term";
+        }
+        field(10060; "Exchange Rate USD"; Decimal)
+        {
+            Caption = 'Exchange Rate USD';
+            DecimalPlaces = 0 : 6;
+        }
         field(12600; "Prepmt. Include Tax"; Boolean)
         {
             Caption = 'Prepmt. Include Tax';
@@ -2932,6 +2943,17 @@
         {
             Caption = 'CFDI Export Code';
             TableRelation = "CFDI Export Code";
+
+            trigger OnValidate()
+            var
+                CFDIExportCode: Record "CFDI Export Code";
+            begin
+                "Foreign Trade" := false;
+                if CFDIExportCode.Get("CFDI Export Code") then
+                    "Foreign Trade" := CFDIExportCode."Foreign Trade";
+                GLSetup.Get();
+                "Exchange Rate USD" := 1 / CurrExchRate.ExchangeRate("Posting Date", GLSetup."USD Currency Code");
+            end;
         }
     }
 
@@ -6190,20 +6212,13 @@
     var
         Customer: Record Customer;
     begin
-        if Customer.Get("Bill-to Customer No.") then begin
-            "CFDI Purpose" := Customer."CFDI Purpose";
-            "CFDI Relation" := Customer."CFDI Relation";
-            "CFDI Export Code" := Customer."CFDI Export Code";
-        end else
-            if Customer.Get("Sell-to Customer No.") then begin
-                "CFDI Purpose" := Customer."CFDI Purpose";
-                "CFDI Relation" := Customer."CFDI Relation";
-                "CFDI Export Code" := Customer."CFDI Export Code";
-            end else begin
-                "CFDI Purpose" := '';
-                "CFDI Relation" := '';
-                "CFDI Export Code" := '';
-            end;
+        if not Customer.Get("Bill-to Customer No.") then
+            if not Customer.Get("Sell-to Customer No.") then
+                Customer.Init;
+
+        Validate("CFDI Purpose", Customer."CFDI Purpose");
+        Validate("CFDI Relation", Customer."CFDI Relation");
+        Validate("CFDI Export Code", Customer."CFDI Export Code");
     end;
 
     local procedure CopySellToCustomerAddressFieldsFromCustomer(var SellToCustomer: Record Customer)

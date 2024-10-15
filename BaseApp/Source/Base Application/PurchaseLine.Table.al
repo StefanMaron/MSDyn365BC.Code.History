@@ -1,4 +1,4 @@
-﻿table 39 "Purchase Line"
+table 39 "Purchase Line"
 {
     Caption = 'Purchase Line';
     DrillDownPageID = "Purchase Lines";
@@ -452,12 +452,12 @@
                     Type::Item:
                         ValidateItemDescription();
                     else begin
-                            ReturnValue := FindRecordMgt.FindNoByDescription(Type.AsInteger(), Description, true);
-                            if ReturnValue <> '' then begin
-                                CurrFieldNo := FieldNo("No.");
-                                Validate("No.", CopyStr(ReturnValue, 1, MaxStrLen("No.")));
-                            end;
+                        ReturnValue := FindRecordMgt.FindNoByDescription(Type.AsInteger(), Description, true);
+                        if ReturnValue <> '' then begin
+                            CurrFieldNo := FieldNo("No.");
+                            Validate("No.", CopyStr(ReturnValue, 1, MaxStrLen("No.")));
                         end;
+                    end;
                 end;
 
                 ShouldErrorForFindDescription := ("No." = '') and GuiAllowed() and ApplicationAreaMgmtFacade.IsFoundationEnabled() and ("Document Type" = "Document Type"::Order);
@@ -5609,9 +5609,9 @@
                 '', "No.":
                     Description := xRec.Description;
                 else begin
-                        CurrFieldNo := FieldNo("No.");
-                        Validate("No.", CopyStr(ReturnValue, 1, MaxStrLen(Item."No.")));
-                    end;
+                    CurrFieldNo := FieldNo("No.");
+                    Validate("No.", CopyStr(ReturnValue, 1, MaxStrLen(Item."No.")));
+                end;
             end;
     end;
 
@@ -6320,9 +6320,9 @@
                                                 VATAmountLine.Quantity += "Qty. to Invoice (Base)";
                                             end;
                                         else begin
-                                                QtyToHandle := "Qty. to Invoice";
-                                                VATAmountLine.Quantity += "Qty. to Invoice (Base)";
-                                            end;
+                                            QtyToHandle := "Qty. to Invoice";
+                                            VATAmountLine.Quantity += "Qty. to Invoice (Base)";
+                                        end;
                                     end;
                                     OnCalcVATAmountLinesOnQtyTypeInvoicingOnBeforeCalcAmtToHandle(PurchLine, PurchHeader, QtyToHandle, VATAmountLine);
                                     AmtToHandle := GetLineAmountToHandleInclPrepmt(QtyToHandle);
@@ -8064,6 +8064,10 @@
             exit;
 
         if "Prepayment %" <> 0 then begin
+            if "System-Created Entry" then
+                if Type = Type::"G/L Account" then
+                    if not IsServiceCharge() then
+                        exit;
             if Quantity < 0 then
                 FieldError(Quantity, StrSubstNo(Text043, FieldCaption("Prepayment %")));
             if "Direct Unit Cost" < 0 then
