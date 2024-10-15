@@ -2342,6 +2342,90 @@ codeunit 144000 "Non-Deductible VAT"
         VerifyVATBaseAmountOnSalesLine(SalesLineReverseCharge, 50);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchaseDocumentTotalsOnSequenceOfUpdateLineAmountAndNonDeductibleVATPercent()
+    var
+        TotalPurchaseLine: Record "Purchase Line";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        GLEntry: Record "G/L Entry";
+        VATPercent: Decimal;
+        VATAmount: Decimal;
+        LineAmount: Decimal;
+        VATBaseAmount: Decimal;
+        NonDeductibleVATAmount: Decimal;
+        InvoiceNo: Code[20];
+    begin
+        // [FEATURE] [Purchase] [Document Totals] [VAT] [VAT Base Discount]
+        // [SCENARIO 423110] System considers "VAT Base Discount %" and "Non Deductible VAT %" when calculates document totals and posts the document.
+        Initialize();
+
+        UpdateVATTolerancePercentOnGLSetup(10);
+
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup(), 1);
+        PurchaseLine.Validate("Direct Unit Cost", 1000);
+        PurchaseLine.Modify();
+
+        LineAmount := PurchaseLine."Direct Unit Cost";
+        VATPercent := PurchaseLine."VAT %";
+        VATAmount := Round(PurchaseLine."Direct Unit Cost" * VATPercent / 100);
+
+        SetNonDeductibleVATAndVATBaseDiscountOnPurchaseInvoice(PurchaseHeader, PurchaseLine, LineAmount, VATBaseAmount, VATAmount, NonDeductibleVATAmount);
+
+        PurchaseHeader.Find();
+        InvoiceNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        VerifySumOfGLEntryAmountForGLAccount(GLEntry."Document Type"::Invoice, InvoiceNo, PurchaseLine."No.", LineAmount);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchaseDocumentUpdateDeferralCodeAndNonDeductibleVAT()
+    var
+        TotalPurchaseLine: Record "Purchase Line";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        DeferralTemplate: Record "Deferral Template";
+        GLEntry: Record "G/L Entry";
+        VATPercent: Decimal;
+        VATAmount: Decimal;
+        LineAmount: Decimal;
+        VATBaseAmount: Decimal;
+        NonDeductibleVATAmount: Decimal;
+        InvoiceNo: Code[20];
+    begin
+        // [FEATURE] [Purchase] [Document Totals] [VAT] [Deferral]
+        // [SCENARIO 423110] System considers "VAT Base Discount %" and "Non Deductible VAT %" when calculates document totals and posts the document with Deferral setup.
+        Initialize();
+
+        UpdateVATTolerancePercentOnGLSetup(10);
+
+        LibraryERM.CreateDeferralTemplate(
+          DeferralTemplate, DeferralTemplate."Calc. Method"::"Equal per Period", DeferralTemplate."Start Date"::"Beginning of Next Period",
+          LibraryRandom.RandIntInRange(3, 7));
+
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup(), 1);
+        PurchaseLine.Validate("Direct Unit Cost", 1000);
+        PurchaseLine.Validate("Deferral Code", DeferralTemplate."Deferral Code");
+        PurchaseLine.Modify();
+
+        LineAmount := PurchaseLine."Direct Unit Cost";
+        VATPercent := PurchaseLine."VAT %";
+        VATAmount := Round(PurchaseLine."Direct Unit Cost" * VATPercent / 100);
+
+        SetNonDeductibleVATAndVATBaseDiscountOnPurchaseInvoice(PurchaseHeader, PurchaseLine, LineAmount, VATBaseAmount, VATAmount, NonDeductibleVATAmount);
+
+        PurchaseHeader.Find();
+        InvoiceNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        VerifySumOfGLEntryAmountForGLAccount(GLEntry."Document Type"::Invoice, InvoiceNo, DeferralTemplate."Deferral Account", VATBaseAmount + NonDeductibleVATAmount);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2791,6 +2875,57 @@ codeunit 144000 "Non-Deductible VAT"
             Validate("Incl. Non Deductible VAT", InclNonDeductibleVAT);
             Modify(true);
         end;
+    end;
+
+    local procedure SetNonDeductibleVATAndVATBaseDiscountOnPurchaseInvoice(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; var LineAmount: Decimal; var VATBaseAmount: Decimal; var VATAmount: Decimal; var NonDeductibleVATAmount: Decimal)
+    var
+        PurchaseInvoice: TestPage "Purchase Invoice";
+        VATPercent: Decimal;
+    begin
+        VATPercent := PurchaseLine."VAT %";
+
+        PurchaseInvoice.OpenEdit();
+        PurchaseInvoice.Filter.SetFilter("No.", PurchaseHeader."No.");
+        PurchaseInvoice.PurchLines."Non Deductible VAT %".AssertEquals(0);
+
+        PurchaseInvoice.PurchLines."Total Amount Excl. VAT".AssertEquals(LineAmount);
+        PurchaseInvoice.PurchLines."Total VAT Amount".AssertEquals(VATAmount);
+        PurchaseInvoice.PurchLines."Total Amount Incl. VAT".AssertEquals(LineAmount + VATAmount);
+
+        PurchaseInvoice.PurchLines."Non Deductible VAT %".SetValue(30);
+
+        CalcVATAmounts(PurchaseInvoice, VATPercent, LineAmount, VATBaseAmount, VATAmount, NonDeductibleVATAmount);
+
+        PurchaseInvoice.PurchLines."Total Amount Excl. VAT".AssertEquals(LineAmount);
+        PurchaseInvoice.PurchLines."Total VAT Amount".AssertEquals(VATAmount);
+        PurchaseInvoice.PurchLines."Total Amount Incl. VAT".AssertEquals(LineAmount + VATAmount);
+
+        PurchaseInvoice."VAT Base Discount %".SetValue(10);
+
+        CalcVATAmounts(PurchaseInvoice, VATPercent, LineAmount, VATBaseAmount, VATAmount, NonDeductibleVATAmount);
+
+        PurchaseInvoice.PurchLines."Total Amount Excl. VAT".AssertEquals(LineAmount);
+        PurchaseInvoice.PurchLines."Total VAT Amount".AssertEquals(VATAmount);
+        PurchaseInvoice.PurchLines."Total Amount Incl. VAT".AssertEquals(LineAmount + VATAmount);
+
+        PurchaseInvoice.Close();
+        PurchaseInvoice.OpenEdit();
+        PurchaseInvoice.Filter.SetFilter("No.", PurchaseHeader."No.");
+
+        PurchaseInvoice.PurchLines."Total Amount Excl. VAT".AssertEquals(LineAmount);
+        PurchaseInvoice.PurchLines."Total VAT Amount".AssertEquals(VATAmount);
+        PurchaseInvoice.PurchLines."Total Amount Incl. VAT".AssertEquals(LineAmount + VATAmount);
+        PurchaseInvoice.Close();
+    end;
+
+    local procedure CalcVATAmounts(var PurchaseInvoice: TestPage "Purchase Invoice"; VATPercent: Decimal; var LineAmount: Decimal; var VATBaseAmount: Decimal; var VATAmount: Decimal; var NonDeductibleVATAmount: Decimal)
+    begin
+        LineAmount := PurchaseInvoice.PurchLines."Direct Unit Cost".AsDecimal();
+        VATBaseAmount := Round(LineAmount * (1 - PurchaseInvoice."VAT Base Discount %".AsDecimal() / 100));
+        VATAmount := Round(VATBaseAmount * VATPercent / 100);
+        NonDeductibleVATAmount := Round(VATAmount * PurchaseInvoice.PurchLines."Non Deductible VAT %".AsDecimal() / 100);
+        VATAmount -= NonDeductibleVATAmount;
+        LineAmount += NonDeductibleVATAmount;
     end;
 
     local procedure CalcVATStatementAmount(var Base: Decimal; var Amount: Decimal; VATPostingSetup: Record "VAT Posting Setup"; InclNonDeductibleVAT: Boolean; UseAmtsInAddCurr: Boolean)
@@ -3243,6 +3378,18 @@ codeunit 144000 "Non-Deductible VAT"
 
         GLEntry.TestField(Amount, ExpectedAmount);
         GLEntry.TestField("VAT Amount", ExpectedVAT);
+    end;
+
+    local procedure VerifySumOfGLEntryAmountForGLAccount(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; GLAccountNo: Code[20]; ExpectedAmount: Decimal)
+    var
+        GLEntry: Record "G/L Entry";
+    begin
+        GLEntry.SetRange("Document Type", GLEntry."Document Type"::Invoice);
+        GLEntry.SetRange("Document No.", DocumentNo);
+        GLEntry.SetRange("G/L Account No.", GLAccountNo);
+        GLEntry.SetFilter(Amount, '>0');
+        GLEntry.CalcSums(Amount);
+        GLEntry.TestField(Amount, ExpectedAmount);
     end;
 
     [ModalPageHandler]
