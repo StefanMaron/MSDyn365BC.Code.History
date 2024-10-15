@@ -85,22 +85,27 @@ codeunit 1509 "Notification Entry Dispatcher"
     var
         NotificationEntry: Record "Notification Entry";
         NotificationSetup: Record "Notification Setup";
+        IsHandled: Boolean;
     begin
-        NotificationEntry.SetRange("Recipient User ID", UserSetup."User ID");
-        NotificationEntry.SetRange(Type, NotificationType);
-        if SenderUserID <> '' then
-            NotificationEntry.SetRange("Sender User ID", SenderUserID);
+        IsHandled := false;
+        OnBeforeDispatchForNotificationType(NotificationType, UserSetup, SenderUserID, IsHandled);
+        if not IsHandled then begin
+            NotificationEntry.SetRange("Recipient User ID", UserSetup."User ID");
+            NotificationEntry.SetRange(Type, NotificationType);
+            if SenderUserID <> '' then
+                NotificationEntry.SetRange("Sender User ID", SenderUserID);
 
-        DeleteOutdatedApprovalNotificationEntires(NotificationEntry);
+            DeleteOutdatedApprovalNotificationEntires(NotificationEntry);
 
-        if not NotificationEntry.FindFirst() then
-            exit;
+            if not NotificationEntry.FindFirst() then
+                exit;
 
-        FilterToActiveNotificationEntries(NotificationEntry);
+            FilterToActiveNotificationEntries(NotificationEntry);
 
-        NotificationSetup.GetNotificationTypeSetupForUser(NotificationType, NotificationEntry."Recipient User ID");
+            NotificationSetup.GetNotificationTypeSetupForUser(NotificationType, NotificationEntry."Recipient User ID");
 
-        CreateAndDispatch(NotificationSetup, NotificationEntry, UserSetup);
+            CreateAndDispatch(NotificationSetup, NotificationEntry, UserSetup);
+        end;
 
         OnAfterDispatchForNotificationType(NotificationSetup, NotificationEntry);
     end;
@@ -474,6 +479,11 @@ codeunit 1509 "Notification Entry Dispatcher"
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateMailAndDispatchOnBeforeLogError(var NotificationEntry: Record "Notification Entry"; Email: Text; BodyText: Text; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDispatchForNotificationType(NotificationType: Enum "Notification Entry Type"; UserSetup: Record "User Setup"; SenderUserID: Code[50]; var IsHandled: Boolean)
     begin
     end;
 }

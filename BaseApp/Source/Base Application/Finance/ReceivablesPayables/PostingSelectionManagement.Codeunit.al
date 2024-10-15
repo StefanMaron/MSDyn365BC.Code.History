@@ -41,6 +41,7 @@ codeunit 99 "Posting Selection Management"
         UserSetupManagement: Codeunit "User Setup Management";
         ConfirmManagement: Codeunit "Confirm Management";
         Selection: Integer;
+        IsHandled: Boolean;
     begin
         if DefaultOption > 3 then
             DefaultOption := 3;
@@ -52,8 +53,10 @@ codeunit 99 "Posting Selection Management"
         case SalesHeader."Document Type" of
             SalesHeader."Document Type"::Order:
                 begin
-                    OnConfirmPostSalesDocumentOnBeforeSalesOrderGetSalesInvoicePostingPolicy(SalesHeader);
-                    UserSetupManagement.GetSalesInvoicePostingPolicy(SalesHeader.Ship, SalesHeader.Invoice);
+                    IsHandled := false;
+                    OnConfirmPostSalesDocumentOnBeforeSalesOrderGetSalesInvoicePostingPolicy(SalesHeader, IsHandled);
+                    if not IsHandled then
+                        UserSetupManagement.GetSalesInvoicePostingPolicy(SalesHeader.Ship, SalesHeader.Invoice);
                     case true of
                         not SalesHeader.Ship and not SalesHeader.Invoice:
                             begin
@@ -73,8 +76,10 @@ codeunit 99 "Posting Selection Management"
                 end;
             SalesHeader."Document Type"::"Return Order":
                 begin
-                    OnConfirmPostSalesDocumentOnBeforeSalesOrderReturnGetSalesInvoicePostingPolicy(SalesHeader);
-                    UserSetupManagement.GetSalesInvoicePostingPolicy(SalesHeader.Receive, SalesHeader.Invoice);
+                    IsHandled := false;
+                    OnConfirmPostSalesDocumentOnBeforeSalesOrderReturnGetSalesInvoicePostingPolicy(SalesHeader, IsHandled);
+                    if not IsHandled then
+                        UserSetupManagement.GetSalesInvoicePostingPolicy(SalesHeader.Receive, SalesHeader.Invoice);
                     case true of
                         not SalesHeader.Receive and not SalesHeader.Invoice:
                             begin
@@ -117,6 +122,7 @@ codeunit 99 "Posting Selection Management"
         UserSetupManagement: Codeunit "User Setup Management";
         ConfirmManagement: Codeunit "Confirm Management";
         Selection: Integer;
+        IsHandled: Boolean;
     begin
         if DefaultOption > 3 then
             DefaultOption := 3;
@@ -128,7 +134,10 @@ codeunit 99 "Posting Selection Management"
         case PurchaseHeader."Document Type" of
             PurchaseHeader."Document Type"::Order:
                 begin
-                    UserSetupManagement.GetPurchaseInvoicePostingPolicy(PurchaseHeader.Receive, PurchaseHeader.Invoice);
+                    IsHandled := false;
+                    OnConfirmPostPurchaseDocumentOnBeforePurchaseOrderGetPurchaseInvoicePostingPolicy(PurchaseHeader, IsHandled);
+                    if not IsHandled then
+                        UserSetupManagement.GetPurchaseInvoicePostingPolicy(PurchaseHeader.Receive, PurchaseHeader.Invoice);
                     case true of
                         not PurchaseHeader.Receive and not PurchaseHeader.Invoice:
                             begin
@@ -148,7 +157,10 @@ codeunit 99 "Posting Selection Management"
                 end;
             PurchaseHeader."Document Type"::"Return Order":
                 begin
-                    UserSetupManagement.GetPurchaseInvoicePostingPolicy(PurchaseHeader.Ship, PurchaseHeader.Invoice);
+                    IsHandled := false;
+                    OnConfirmPostPurchaseDocumentOnBeforePurchaseReturnOrderGetPurchaseInvoicePostingPolicy(PurchaseHeader, IsHandled);
+                    if not IsHandled then
+                        UserSetupManagement.GetPurchaseInvoicePostingPolicy(PurchaseHeader.Ship, PurchaseHeader.Invoice);
                     case true of
                         not PurchaseHeader.Ship and not PurchaseHeader.Invoice:
                             begin
@@ -393,12 +405,22 @@ codeunit 99 "Posting Selection Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnConfirmPostSalesDocumentOnBeforeSalesOrderGetSalesInvoicePostingPolicy(var SalesHeader: Record "Sales Header")
+    local procedure OnConfirmPostSalesDocumentOnBeforeSalesOrderGetSalesInvoicePostingPolicy(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnConfirmPostSalesDocumentOnBeforeSalesOrderReturnGetSalesInvoicePostingPolicy(var SalesHeader: Record "Sales Header")
+    local procedure OnConfirmPostSalesDocumentOnBeforeSalesOrderReturnGetSalesInvoicePostingPolicy(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnConfirmPostPurchaseDocumentOnBeforePurchaseOrderGetPurchaseInvoicePostingPolicy(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnConfirmPostPurchaseDocumentOnBeforePurchaseReturnOrderGetPurchaseInvoicePostingPolicy(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
     begin
     end;
 

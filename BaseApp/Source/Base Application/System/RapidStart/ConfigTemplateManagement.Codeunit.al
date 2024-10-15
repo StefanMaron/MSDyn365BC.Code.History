@@ -1,6 +1,8 @@
 namespace System.IO;
 
 using System.Reflection;
+using Microsoft.Finance.Dimension;
+using Microsoft.Finance.GeneralLedger.Setup;
 
 codeunit 8612 "Config. Template Management"
 {
@@ -470,6 +472,9 @@ codeunit 8612 "Config. Template Management"
             exit(false);
 
         RecRef.Open(LookupTableId);
+        if LookupTableId = Database::"Dimension Value" then
+            SetDimensionFilter(ConfigTemplateLine, FieldRef, RecRef);
+
         RecVar := RecRef;
         if PAGE.RunModal(LookupPageId, RecVar) = ACTION::LookupOK then begin
             RecRef.GetTable(RecVar);
@@ -479,6 +484,21 @@ codeunit 8612 "Config. Template Management"
         end;
 
         exit(false);
+    end;
+
+    local procedure SetDimensionFilter(ConfigTemplateLine: Record "Config. Template Line"; var FieldRef: FieldRef; var RecRef: RecordRef)
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+    begin
+        GeneralLedgerSetup.Get();
+        if ConfigTemplateLine."Field Name" = GeneralLedgerSetup.FieldName("Global Dimension 1 Code") then begin
+            FieldRef := RecRef.Field(1);
+            FieldRef.SetFilter(GeneralLedgerSetup."Global Dimension 1 Code");
+        end;
+        if ConfigTemplateLine."Field Name" = GeneralLedgerSetup.FieldName("Global Dimension 2 Code") then begin
+            FieldRef := RecRef.Field(1);
+            FieldRef.SetFilter(GeneralLedgerSetup."Global Dimension 2 Code");
+        end;
     end;
 
     local procedure GetLookupParameters(ConfigTemplateLine: Record "Config. Template Line"; var LookupTableId: Integer; var LookupPageId: Integer; var LookupFieldId: Integer)

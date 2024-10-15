@@ -291,7 +291,7 @@ codeunit 370 "Bank Acc. Reconciliation Post"
             Delete();
         end;
         TelemetryCategories.Add('Category', BankAccountRecCategoryLbl);
-        TelemetryCategories.Add('MatchedWithAI', Format(MatchedWithAI));
+        TelemetryCategories.Add('MatchedWithAI', Format(MatchedWithAI, 0, 9));
         TelemetryCategories.Add('NumberOfLines', Format(LineCount));
         if TryCalculateDurationToPost(DurationUntilPosting, CreationDateTime) then
             Session.LogMessage('0000LHY', Format(DurationUntilPosting), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, TelemetryCategories);

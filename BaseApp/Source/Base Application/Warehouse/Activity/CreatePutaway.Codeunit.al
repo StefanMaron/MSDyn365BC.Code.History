@@ -542,7 +542,7 @@ codeunit 7313 "Create Put-away"
     begin
         if CurrLocation."Bin Mandatory" then begin
             ActionType := ActionType::Place;
-            if not EmptyZoneBin and (CurrLocation."Bin Capacity Policy" <> CurrLocation."Bin Capacity Policy"::"Prohibit More Than Max. Cap.") then
+            if not EmptyZoneBin and (CurrLocation."Bin Capacity Policy" <> CurrLocation."Bin Capacity Policy"::"Never Check Capacity") then
                 CalcAvailCubageAndWeight();
             AssignQtyToPutAwayForBinMandatory();
         end else
