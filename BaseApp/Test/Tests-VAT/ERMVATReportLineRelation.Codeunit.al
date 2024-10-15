@@ -72,7 +72,7 @@ codeunit 134057 "ERM VAT Report Line Relation"
         VATStatement: TestPage "VAT Statement";
     begin
         // [FEATURE] [UI] [UT]
-        // [SCENARIO 295559] PAG 317 "VAT Statement" field "Box No." is visible
+        // [SCENARIO 295559] PAG 317 "VAT Statement" field "Box" is visible
         if VATStatementName.FindFirst then begin
             VATStatementLine."Statement Name" := VATStatementName.Name;
             VATStatementLine."Statement Template Name" := '';
@@ -81,8 +81,8 @@ codeunit 134057 "ERM VAT Report Line Relation"
 
         VATStatement.Trap;
         PAGE.Run(PAGE::"VAT Statement", VATStatementLine);
-        Assert.IsTrue(VATStatement."Box No.".Visible, 'VATStatement."Box No." should be visible');
-        Assert.IsTrue(VATStatement."Box No.".Editable, 'VATStatement."Box No." should be editable');
+        Assert.IsTrue(VATStatement.Box.Visible, 'VATStatement."Box" should be visible');
+        Assert.IsTrue(VATStatement.Box.Editable, 'VATStatement."Box" should be editable');
         VATStatement.Close;
     end;
 

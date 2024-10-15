@@ -159,8 +159,8 @@ codeunit 135527 "Employee Entity E2E Test"
         Assert.AreNotEqual('', EmployeeJSON, EmptyJSONErr);
         LibraryGraphMgt.VerifyIDInJson(EmployeeJSON);
         VerifyPropertyInJSON(EmployeeJSON, 'number', Employee."No.");
-        VerifyPropertyInJSON(EmployeeJSON, 'givenName', Employee."First Name");
-        VerifyPropertyInJSON(EmployeeJSON, 'surname', Employee."Last Name");
+        VerifyPropertyInJSON(EmployeeJSON, 'givenName', Employee.Name);
+        VerifyPropertyInJSON(EmployeeJSON, 'surname', Employee."First Family Name");
     end;
 
     local procedure VerifyPropertyInJSON(JSON: Text; PropertyName: Text; ExpectedValue: Text)
@@ -181,10 +181,10 @@ codeunit 135527 "Employee Entity E2E Test"
         JSONManagement.GetJSONObject(JsonObject);
         if Employee."No." = '' then
             Employee."No." := NoSeriesManagement.GetNextNo(LibraryHumanResource.SetupEmployeeNumberSeries, WorkDate, false);
-        if Employee."First Name" = '' then
-            Employee."First Name" := Employee."No.";
+        if Employee.Name = '' then
+            Employee.Name := Employee."No.";
         JSONManagement.AddJPropertyToJObject(JsonObject, 'number', Employee."No.");
-        JSONManagement.AddJPropertyToJObject(JsonObject, 'givenName', Employee."First Name");
+        JSONManagement.AddJPropertyToJObject(JsonObject, 'givenName', Employee.Name);
         EmployeeJSON := JSONManagement.WriteObjectToString;
     end;
 }

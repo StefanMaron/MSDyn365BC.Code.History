@@ -1433,6 +1433,33 @@ codeunit 134920 "ERM General Journal UT"
 
     [Test]
     [Scope('OnPrem')]
+    procedure DocNoIncWithoutForceDocBalanceInNewGenJournalLine()
+    var
+        GenJnlBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        GenJournalLineNew: Record "Gen. Journal Line";
+        GenJournalTemplate: Record "Gen. Journal Template";
+    begin
+        // [SCENARIO 378200] "Document No." should be equal to previous if "Force Doc. Balance" is set to FALSE in Gen. Journal Template
+
+        Initialize;
+
+        CreateGenJournalLineWithDocNo(GenJournalLine, 'X00013');
+
+        GenJnlBatch.Get(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name");
+        GenJournalTemplate.Get(GenJournalLine."Journal Template Name");
+        GenJournalTemplate.Validate("Force Doc. Balance", false);
+        GenJournalTemplate.Modify(true);
+
+        GenJournalLineNew."Journal Template Name" := GenJournalLine."Journal Template Name";
+        GenJournalLineNew."Journal Batch Name" := GenJournalLine."Journal Batch Name";
+        GenJournalLineNew.SetUpNewLine(GenJournalLine, GenJournalLine."Balance (LCY)", true);
+
+        GenJournalLineNew.TestField("Document No.", 'X00013');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure NoModifyWithJobQueueStatusScheduledOrPosting()
     var
         GenJournalLine: Record "Gen. Journal Line";
@@ -3829,47 +3856,49 @@ codeunit 134920 "ERM General Journal UT"
         GenJournalLine.TestField("Job Queue Status");
     end;
 
-    [Test]
-    [HandlerFunctions('ConfirmHandlerYes,JournalLinesScheduledMessageHandler')]
-    [Scope('OnPrem')]
-    procedure PostAndPrintJournalLinesWithJobQueue()
-    var
-        GenJournalTemplate: Record "Gen. Journal Template";
-        GenJournalBatch: record "Gen. Journal Batch";
-        GenJournalLine: Record "Gen. Journal Line";
-        LibraryJobQueue: Codeunit "Library - Job Queue";
-        JournalsScheduledMsg: Label 'Journal lines have been scheduled for posting.';
-        GeneralJournal: TestPage "General Journal";
-    begin
-        // Verify journal lines are scheduled and correct messages are shown
-        Initialize;
-        LibraryVariableStorageCounter.Clear;
-        LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
-        BindSubscription(LibraryJobQueue);
+    //TODO:  Once dev code is updated to support background posting and printing for ES, add these tests back.
+    // [Test]
+    // [HandlerFunctions('ConfirmHandlerYes,JournalLinesScheduledMessageHandler')]
+    // [Scope('OnPrem')]
+    // procedure PostAndPrintJournalLinesWithJobQueue()
+    // var
+    //     GenJournalTemplate: Record "Gen. Journal Template";
+    //     GenJournalBatch: record "Gen. Journal Batch";
+    //     GenJournalLine: Record "Gen. Journal Line";
+    //     GLAccount: Record "G/L Account";
+    //     LibraryJobQueue: Codeunit "Library - Job Queue";
+    //     JournalsScheduledMsg: Label 'Journal lines have been scheduled for posting.';
+    //     GeneralJournal: TestPage "General Journal";
+    // begin
+    //     // Verify journal lines are scheduled and correct messages are shown
+    //     Initialize;
+    //     LibraryVariableStorageCounter.Clear;
+    //     LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
+    //     BindSubscription(LibraryJobQueue);
 
-        LibraryJournals.SetPostAndPrintWithJobQueue(true);
+    //     LibraryJournals.SetPostAndPrintWithJobQueue(true);
 
-        LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
-        GenJournalTemplate.Validate(Type, GenJournalTemplate.Type::General);
-        GenJournalTemplate.Modify();
-        LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
+    //     LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
+    //     GenJournalTemplate.Validate(Type, GenJournalTemplate.Type::General);
+    //     GenJournalTemplate.Modify();
+    //     LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
 
-        LibraryERM.CreateGeneralJnlLine(
-          GenJournalLine, GenJournalTemplate.Name, GenJournalBatch.Name, GenJournalLine."Document Type"::" ",
-          GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo, 123);
+    //     LibraryERM.CreateGeneralJnlLine(
+    //       GenJournalLine, GenJournalTemplate.Name, GenJournalBatch.Name, GenJournalLine."Document Type"::" ",
+    //       GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo, 123);
 
-        GeneralJournal.Trap;
-        PAGE.Run(PAGE::"General Journal", GenJournalLine);
-        GeneralJournal.PostAndPrint.Invoke();
+    //     GeneralJournal.Trap;
+    //     PAGE.Run(PAGE::"General Journal", GenJournalLine);
+    //     GeneralJournal.PostAndPrint.Invoke();
 
-        // Verify journals scheduled message is shown
-        Assert.ExpectedMessage(JournalsScheduledMsg, LibraryVariableStorageCounter.DequeueText);
+    //     // Verify journals scheduled message is shown
+    //     Assert.ExpectedMessage(JournalsScheduledMsg, LibraryVariableStorageCounter.DequeueText);
 
-        //Verify job queue info on line
-        GenJournalLine.Get(GenJournalTemplate.Name, GenJournalBatch.Name, GenJournalLine."Line No.");
-        GenJournalLine.TestField("Job Queue Entry ID");
-        GenJournalLine.TestField("Job Queue Status");
-    end;
+    //     //Verify job queue info on line
+    //     GenJournalLine.Get(GenJournalTemplate.Name, GenJournalBatch.Name, GenJournalLine."Line No.");
+    //     GenJournalLine.TestField("Job Queue Entry ID");
+    //     GenJournalLine.TestField("Job Queue Status");
+    // end;
 
     [Test]
     [HandlerFunctions('ConfirmHandlerYes,JournalLinesScheduledMessageHandler')]
@@ -4622,10 +4651,150 @@ codeunit 134920 "ERM General Journal UT"
         GeneralJournal.NumberOfJournalRecords.AssertEquals(NumberOfLines);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure ValidateBlankDocumentTypeOnGeneralJournalPage()
+    var
+        GenJournalTemplate: Record "Gen. Journal Template";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        GeneralJournalSimple: TestPage "General Journal";
+        GeneralJournalClassic: TestPage "General Journal";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 346835] Stan can set "Blank" type as document type on General Journal Page
+        Initialize;
+
+        GenJournalTemplate.DeleteAll();
+        GenJournalBatch.DeleteAll();
+        LibraryJournals.CreateGenJournalBatch(GenJournalBatch);
+
+        GenJournalLine.SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
+        GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
+
+        GeneralJournalSimple.OpenEdit();
+        GeneralJournalClassic.Trap();
+        GeneralJournalSimple.ClassicView.Invoke();
+        GeneralJournalClassic."Document Type".SetValue(Format(GenJournalLine."Document Type"::Invoice));
+        GeneralJournalClassic.Close();
+
+        GenJournalLine.FindFirst();
+        GenJournalLine.TestField("Document Type", GenJournalLine."Document Type"::Invoice);
+
+        GeneralJournalSimple.OpenEdit();
+        GeneralJournalClassic.Trap();
+        GeneralJournalSimple.ClassicView.Invoke();
+        GeneralJournalClassic."Document Type".SetValue(Format(GenJournalLine."Document Type"::" "));
+        GeneralJournalClassic.Close();
+
+        GenJournalLine.FindFirst();
+        GenJournalLine.TestField("Document Type", GenJournalLine."Document Type"::" ");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ValidateBlankDocumentTypeOnPurchaselJournalPage()
+    var
+        GenJournalTemplate: Record "Gen. Journal Template";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        PurchaseJournalSimple: TestPage "Purchase Journal";
+        PurchaseJournalClassic: TestPage "Purchase Journal";
+        VendorNo: Code[20];
+    begin
+        // [FEATURE] [Purchase Journal] [UI]
+        // [SCENARIO 346835] Stan can set "Blank" type as document type on Purchase Journal Page
+        Initialize;
+
+        GenJournalTemplate.DeleteAll();
+        GenJournalBatch.DeleteAll();
+        VendorNo := LibraryPurchase.CreateVendorNo();
+
+        PurchaseJournalSimple.OpenEdit();
+        PurchaseJournalClassic.Trap();
+        PurchaseJournalSimple.ClassicView.Invoke();
+        PurchaseJournalClassic."Document Type".SetValue(GenJournalLine."Document Type"::Invoice);
+        PurchaseJournalClassic."Account Type".SetValue(GenJournalLine."Account Type"::Vendor);
+        PurchaseJournalClassic."Account No.".SetValue(VendorNo);
+        PurchaseJournalClassic.Close();
+
+        GenJournalLine.SetRange("Account No.", VendorNo);
+
+        GenJournalLine.FindFirst();
+        GenJournalLine.TestField("Document Type", GenJournalLine."Document Type"::Invoice);
+
+        PurchaseJournalSimple.OpenEdit();
+        PurchaseJournalClassic.Trap();
+        PurchaseJournalSimple.ClassicView.Invoke();
+        PurchaseJournalClassic."Document Type".SetValue(Format(GenJournalLine."Document Type"::" "));
+        PurchaseJournalClassic.DocumentAmount.SETVALUE(LibraryRandom.RandIntInRange(100,200));
+        PurchaseJournalClassic.Close();
+
+        GenJournalLine.FindFirst();
+        GenJournalLine.TestField("Document Type", GenJournalLine."Document Type"::" ");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CannotChangeOnModePurchaseJournalWhenWrongAccountTypeExisted()
+    var
+        GenJournalTemplate: Record "Gen. Journal Template";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        PurchaseJournalSimple: TestPage "Purchase Journal";
+        PurchaseJournalClassic: TestPage "Purchase Journal";
+        VendorNo: Code[20];
+        GLAccountNo: Code[20];
+        ExpectedErrorText: Text;
+    begin
+        // [FEATURE] [Purchase Journal] [UI]
+        // [SCENARIO 346835] Stan can set "Blank" type as document type on Purchase Journal Page
+        Initialize;
+
+        GenJournalTemplate.DeleteAll();
+        GenJournalBatch.DeleteAll();
+
+        VendorNo := LibraryPurchase.CreateVendorNo();
+        GLAccountNo := LibraryERM.CreateGLAccountNo();
+
+        PurchaseJournalSimple.OpenEdit();
+        PurchaseJournalClassic.Trap();
+        PurchaseJournalSimple.ClassicView.Invoke();
+        PurchaseJournalClassic."Document Type".SetValue(GenJournalLine."Document Type"::Invoice);
+        PurchaseJournalClassic."Account Type".SetValue(GenJournalLine."Account Type"::Vendor);
+        PurchaseJournalClassic."Account No.".SetValue(VendorNo);
+        PurchaseJournalClassic.Amount.SetValue(LibraryRandom.RandIntInRange(10, 100));
+        PurchaseJournalClassic.Next();
+        PurchaseJournalClassic."Document Type".SetValue(GenJournalLine."Document Type"::Invoice);
+        PurchaseJournalClassic."Account Type".SetValue(GenJournalLine."Account Type"::"G/L Account");
+        PurchaseJournalClassic."Account No.".SetValue(GLAccountNo);
+        PurchaseJournalClassic.Amount.SetValue(LibraryRandom.RandIntInRange(10, 100));
+        PurchaseJournalClassic.Close();
+        Commit();
+
+        GenJournalLine.SetRange("Account Type", GenJournalLine."Account Type"::"G/L Account");
+        GenJournalLine.SetRange("Account No.", GLAccountNo);
+        GenJournalLine.FindFirst();
+
+        asserterror GenJournalLine.TestField("Account Type", GenJournalLine."Account Type"::Vendor);
+        ExpectedErrorText := GetLastErrorText();
+
+        ClearLastError();
+        PurchaseJournalClassic.OpenEdit();
+        asserterror PurchaseJournalClassic.SimpleView.Invoke();
+
+        Assert.ExpectedError(ExpectedErrorText);
+    end;
+
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore;
         LibraryVariableStorage.Clear;
+
+        // Setting the Purchase and Sales Journal to "Show Fewer Columns" mode by default.
+        GenJnlManagement.SetJournalSimplePageModePreference(true, PAGE::"Purchase Journal");
+        GenJnlManagement.SetJournalSimplePageModePreference(true, PAGE::"Sales Journal");
+
         if IsInitialized then
             exit;
 

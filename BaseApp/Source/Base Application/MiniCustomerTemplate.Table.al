@@ -1,4 +1,4 @@
-table 1300 "Mini Customer Template"
+﻿table 1300 "Mini Customer Template"
 {
     Caption = 'Mini Customer Template';
     ReplicateData = true;
@@ -406,6 +406,7 @@ table 1300 "Mini Customer Template"
         ConfigTemplateMgt: Codeunit "Config. Template Management";
         RecRef: RecordRef;
     begin
+        OnBeforeInsertCustomerFromTemplate(Rec, ConfigTemplateHeader, Customer);
         Customer.SetInsertFromTemplate(true);
         InitCustomerNo(Customer, ConfigTemplateHeader);
         Customer.Insert(true);
@@ -415,6 +416,7 @@ table 1300 "Mini Customer Template"
 
         DimensionsTemplate.InsertDimensionsFromTemplates(ConfigTemplateHeader, Customer."No.", DATABASE::Customer);
         Customer.Find;
+        OnAfterInsertCustomerFromTemplate(Rec, ConfigTemplateHeader, Customer);
     end;
 
     procedure UpdateCustomersFromTemplate(var Customer: Record Customer)
@@ -460,7 +462,17 @@ table 1300 "Mini Customer Template"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertCustomerFromTemplate(var MiniCustomerTemplate: Record "Mini Customer Template"; var ConfigTemplateHeader: Record "Config. Template Header"; var Customer: Record Customer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCreateConfigTemplateFromExistingCustomerOnBeforeInitTempRec(Customer: Record Customer; var TempMiniCustomerTemplate: Record "Mini Customer Template" temporary; var ConfigTemplateHeader: Record "Config. Template Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInsertCustomerFromTemplate(MiniCustomerTemplate: Record "Mini Customer Template"; ConfigTemplateHeader: Record "Config. Template Header"; var Customer: Record Customer)
     begin
     end;
 }

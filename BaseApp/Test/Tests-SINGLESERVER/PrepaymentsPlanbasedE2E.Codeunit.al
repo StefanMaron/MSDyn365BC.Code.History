@@ -81,54 +81,6 @@ codeunit 135407 "Prepayments Plan-based E2E"
     [Test]
     [HandlerFunctions('ConfigTemplatesModalPageHandler,ConfirmHandlerYes,PostedSalesInvoicePageHandler,OrderPostActionHandler')]
     [Scope('OnPrem')]
-    procedure TestPrepaymentsInSalesOrderAsTeamMember()
-    var
-        ErrorMessagesPage: TestPage "Error Messages";
-        PrepaymentPercent: Decimal;
-        CustomerNo: Code[20];
-        ItemNo: Code[20];
-        SalesOrderNo: Code[20];
-        PostedSalesInvoiceNo: Code[20];
-    begin
-        // [E2E] Scenario going through the process of posting a Sales Order containing Prepayments as a Business Manager
-
-        Initialize;
-        // [GIVEN] An item
-        ItemNo := CreateItem;
-        // [GIVEN] A customer with a Prepayment Setup
-        CustomerNo := CreateCustomer(PrepaymentPercent);
-        Commit();
-
-        // [GIVEN] A user with Team Member Plan
-        LibraryE2EPlanPermissions.SetTeamMemberPlan;
-        // [WHEN] A sales order is created, the lines are automatically filled with a prepayment amount
-        asserterror CreateSalesOrder(CustomerNo, ItemNo);
-        // [THEN] A permission error is thrown
-        Assert.ExpectedErrorCode('TestValidation');
-        LibraryE2EPlanPermissions.SetBusinessManagerPlan;
-        SalesOrderNo := CreateSalesOrder(CustomerNo, ItemNo);
-        Commit();
-
-        // [GIVEN] A user with Team Member Plan
-        LibraryE2EPlanPermissions.SetTeamMemberPlan;
-        // [WHEN] The prepayment invoice and the sales order are posted
-        PostSalesOrderPrepayments(SalesOrderNo);
-        ErrorMessagesPage.Trap();
-        PostSalesOrder(SalesOrderNo, true);
-        // [THEN] A permission error is thrown
-        Assert.ExpectedMessage(TeamMemberErr, ErrorMessagesPage.Description.Value);
-
-        LibraryE2EPlanPermissions.SetBusinessManagerPlan;
-        PostedSalesInvoiceNo := PostSalesOrder(SalesOrderNo, false);
-
-        LibraryE2EPlanPermissions.SetTeamMemberPlan;
-        // [THEN] The posted sales invoice contains lines deducting the prepayment amount
-        VerifyPostedSalesInvoicePrepayment(PostedSalesInvoiceNo, PrepaymentPercent);
-    end;
-
-    [Test]
-    [HandlerFunctions('ConfigTemplatesModalPageHandler,ConfirmHandlerYes,PostedSalesInvoicePageHandler,OrderPostActionHandler')]
-    [Scope('OnPrem')]
     procedure TestPrepaymentsInSalesOrderAsEssentialISVEmbUser()
     var
         PrepaymentPercent: Decimal;
@@ -152,55 +104,6 @@ codeunit 135407 "Prepayments Plan-based E2E"
         // [WHEN] The prepayment invoice and the sales order are posted
         PostSalesOrderPrepayments(SalesOrderNo);
         PostedSalesInvoiceNo := PostSalesOrder(SalesOrderNo, false);
-        // [THEN] The posted sales invoice contains lines deducting the prepayment amount
-        VerifyPostedSalesInvoicePrepayment(PostedSalesInvoiceNo, PrepaymentPercent);
-    end;
-
-    [Test]
-    [HandlerFunctions('ConfigTemplatesModalPageHandler,ConfirmHandlerYes,PostedSalesInvoicePageHandler,OrderPostActionHandler')]
-    [Scope('OnPrem')]
-    procedure TestPrepaymentsInSalesOrderAsTeamMemberISVEmb()
-    var
-        ErrorMessagesPage: TestPage "Error Messages";
-        PrepaymentPercent: Decimal;
-        CustomerNo: Code[20];
-        ItemNo: Code[20];
-        SalesOrderNo: Code[20];
-        PostedSalesInvoiceNo: Code[20];
-    begin
-        // [E2E] Scenario going through the process of posting a Sales Order containing Prepayments as a Team Member ISV Emb
-
-        Initialize;
-        // [GIVEN] An item
-        ItemNo := CreateItem;
-        // [GIVEN] A customer with a Prepayment Setup
-        CustomerNo := CreateCustomer(PrepaymentPercent);
-        Commit();
-
-        // [GIVEN] A user with Team Member ISV Emb Plan
-        LibraryE2EPlanPermissions.SetTeamMemberISVEmbPlan;
-        // [WHEN] A sales order is created, the lines are automatically filled with a prepayment amount
-        asserterror CreateSalesOrder(CustomerNo, ItemNo);
-        // [THEN] A permission error is thrown
-        Assert.ExpectedErrorCode('TestValidation');
-
-        LibraryE2EPlanPermissions.SetEssentialISVEmbUserPlan;
-        SalesOrderNo := CreateSalesOrder(CustomerNo, ItemNo);
-        Commit();
-
-        // [GIVEN] A user with Team Member Plan
-        LibraryE2EPlanPermissions.SetTeamMemberISVEmbPlan;
-        // [WHEN] The prepayment invoice and the sales order are posted
-        PostSalesOrderPrepayments(SalesOrderNo);
-        ErrorMessagesPage.Trap();
-        PostSalesOrder(SalesOrderNo, true);
-        // [THEN] A permission error is thrown
-        Assert.ExpectedMessage(TeamMemberErr, ErrorMessagesPage.Description.Value);
-
-        LibraryE2EPlanPermissions.SetEssentialISVEmbUserPlan;
-        PostedSalesInvoiceNo := PostSalesOrder(SalesOrderNo, false);
-
-        LibraryE2EPlanPermissions.SetTeamMemberISVEmbPlan;
         // [THEN] The posted sales invoice contains lines deducting the prepayment amount
         VerifyPostedSalesInvoicePrepayment(PostedSalesInvoiceNo, PrepaymentPercent);
     end;

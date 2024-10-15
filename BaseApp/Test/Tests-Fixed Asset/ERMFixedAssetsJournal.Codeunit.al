@@ -22,6 +22,7 @@ codeunit 134450 "ERM Fixed Assets Journal"
         LibraryRandom: Codeunit "Library - Random";
         LibraryHumanResource: Codeunit "Library - Human Resource";
         LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
+        LibrarySetupStorage: Codeunit "Library - Setup Storage";
         AllowCorrectionError: Label '%1 must have a value in Depreciation Book: Code=%2. It cannot be zero or empty.';
         CopyFixedAssetError: Label '%1 must be equal to %2.';
         FAAllocationError: Label 'Number of FA Allocation must be equal.';
@@ -43,9 +44,7 @@ codeunit 134450 "ERM Fixed Assets Journal"
         FAJnlTemplateDescFAJnl: Label 'Fixed Asset Journal';
         CompletionStatsGenJnlQst: Label 'The depreciation has been calculated.\\%1 fixed asset G/L journal lines were created.\\Do you want to open the Fixed Asset G/L Journal window?', Comment = 'The depreciation has been calculated.\\2 fixed asset G/L  journal lines were created.\\Do you want to open the Fixed Asset G/L Journal window?';
         ExtDocNoTok: Label 'ExtDocNo';
-        LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryNotificationMgt: Codeunit "Library - Notification Mgt.";
-        AcquisitionOptions: Option "G/L Account",Vendor,"Bank Account";
         isInitialized: Boolean;
 
     [Test]
@@ -77,28 +76,10 @@ codeunit 134450 "ERM Fixed Assets Journal"
     [Test]
     [HandlerFunctions('AcquireFANotificationHandler,RecallNotificationHandler')]
     [Scope('OnPrem')]
-    procedure AcquireFixedAssetUsingAcquisitionWizardAutoPostBankAccount()
-    begin
-        // [SCENARIO] Go though the acquisiotion wizard, use Bank Account, post without opening G/L Journal Page
-        AcquireFixedAssetUsingAcquisitionWizardAutoPost(AcquisitionOptions::"Bank Account", LibraryERM.CreateBankAccountNo);
-    end;
-
-    [Test]
-    [HandlerFunctions('AcquireFANotificationHandler,RecallNotificationHandler')]
-    [Scope('OnPrem')]
-    procedure AcquireFixedAssetUsingAcquisitionWizardAutoPostGLAccount()
-    begin
-        // [SCENARIO] Go though the acquisiotion wizard, use G/L Account, post without opening G/L Journal Page
-        AcquireFixedAssetUsingAcquisitionWizardAutoPost(AcquisitionOptions::"G/L Account", LibraryERM.CreateGLAccountNo);
-    end;
-
-    [Test]
-    [HandlerFunctions('AcquireFANotificationHandler,RecallNotificationHandler')]
-    [Scope('OnPrem')]
     procedure AcquireFixedAssetUsingAcquisitionWizardAutoPostVendorAccount()
     begin
         // [SCENARIO] Go though the acquisiotion wizard, use Vendor, post without opening G/L Journal Page
-        AcquireFixedAssetUsingAcquisitionWizardAutoPost(AcquisitionOptions::Vendor, LibraryPurchase.CreateVendorNo);
+        AcquireFixedAssetUsingAcquisitionWizardAutoPost(LibraryPurchase.CreateVendorNo);
     end;
 
     [Test]
@@ -585,6 +566,7 @@ codeunit 134450 "ERM Fixed Assets Journal"
         // 2.Exercise: Post Sales Order.
         LibraryLowerPermissions.SetSalesDocsPost;
         LibraryLowerPermissions.AddO365FAEdit;
+        LibraryLowerPermissions.AddBanking;
         LibrarySales.PostSalesDocument(SalesHeader, false, true);
 
         // 3.Verify: The amount in FA ledger Entry.
@@ -2260,36 +2242,6 @@ codeunit 134450 "ERM Fixed Assets Journal"
     [Test]
     [HandlerFunctions('AcquireFANotificationHandler,RecallNotificationHandler')]
     [Scope('OnPrem')]
-    procedure RunAcquireWizardForBankAccountWhenAcquisitionAllocationExists()
-    var
-        FixedAsset: Record "Fixed Asset";
-    begin
-        // [FEATURE] [FA Allocation]
-        // [SCENARIO 202335] Acquire Fixed Asset with multiple FA Acquisition Allocations using Bank Account as balance Account
-        Initialize;
-
-        // [GIVEN] FA Posting Group "PG" having 3 allocations for Acquisition (20%,20%,60%) with different dimensions
-        // [GIVEN] Fixed Asset "FA" with FA Posting Group "PG".
-        DeleteFAJournalTemplateWithPageID(PAGE::"Fixed Asset Journal");
-        CreateFAJnlTemplateForFAAccWizard;
-        CreateFASetupWithAcquisitionAllocations(FixedAsset);
-        LibraryLowerPermissions.SetO365FASetup;
-        LibraryLowerPermissions.AddO365Setup;
-        LibraryLowerPermissions.AddO365FAEdit;
-        LibraryLowerPermissions.AddJournalsPost;
-
-        // [WHEN] Run Fixed Asset Acquire wizard for Bank Account
-        RunFAAcquire(FixedAsset."No.", AcquisitionOptions::"Bank Account", LibraryERM.CreateBankAccountNo);
-
-        // [THEN] 3 GL Entry with total amount 0.0 created after run Fixed Asset Acquire wizard
-        VerifyGLEntryForFAAcquisitionWizardAutoPost(FixedAsset."No.");
-
-        LibraryNotificationMgt.RecallNotificationsForRecord(FixedAsset);
-    end;
-
-    [Test]
-    [HandlerFunctions('AcquireFANotificationHandler,RecallNotificationHandler')]
-    [Scope('OnPrem')]
     procedure RunAcquireWizardForVendorWhenAcquisitionAllocationExists()
     var
         FixedAsset: Record "Fixed Asset";
@@ -2309,37 +2261,7 @@ codeunit 134450 "ERM Fixed Assets Journal"
         LibraryLowerPermissions.AddJournalsPost;
 
         // [WHEN] Run Fixed Asset Acquire wizard for Vendor
-        RunFAAcquire(FixedAsset."No.", AcquisitionOptions::Vendor, LibraryPurchase.CreateVendorNo);
-
-        // [THEN] 3 GL Entry with total amount 0.0 created after run Fixed Asset Acquire wizard
-        VerifyGLEntryForFAAcquisitionWizardAutoPost(FixedAsset."No.");
-
-        LibraryNotificationMgt.RecallNotificationsForRecord(FixedAsset);
-    end;
-
-    [Test]
-    [HandlerFunctions('AcquireFANotificationHandler,RecallNotificationHandler')]
-    [Scope('OnPrem')]
-    procedure RunAcquireWizardForGLAccountWhenAcquisitionAllocationExists()
-    var
-        FixedAsset: Record "Fixed Asset";
-    begin
-        // [FEATURE] [FA Allocation]
-        // [SCENARIO 202335] Acquire Fixed Asset with multiple FA Acquisition Allocations using G/L Account as balance Account
-        Initialize;
-
-        // [GIVEN] FA Posting Group "PG" having 3 allocations for Acquisition (20%,20%,60%) with different dimensions
-        // [GIVEN] Fixed Asset "FA" with FA Posting Group "PG".
-        DeleteFAJournalTemplateWithPageID(PAGE::"Fixed Asset Journal");
-        CreateFAJnlTemplateForFAAccWizard;
-        CreateFASetupWithAcquisitionAllocations(FixedAsset);
-        LibraryLowerPermissions.SetO365FASetup;
-        LibraryLowerPermissions.AddO365Setup;
-        LibraryLowerPermissions.AddO365FAEdit;
-        LibraryLowerPermissions.AddJournalsPost;
-
-        // [WHEN] Run Fixed Asset Acquire wizard for GL Account with direct posting
-        RunFAAcquire(FixedAsset."No.", AcquisitionOptions::"G/L Account", LibraryERM.CreateGLAccountNoWithDirectPosting);
+        RunFAAcquire(FixedAsset."No.", LibraryPurchase.CreateVendorNo);
 
         // [THEN] 3 GL Entry with total amount 0.0 created after run Fixed Asset Acquire wizard
         VerifyGLEntryForFAAcquisitionWizardAutoPost(FixedAsset."No.");
@@ -3232,7 +3154,7 @@ codeunit 134450 "ERM Fixed Assets Journal"
         CopyDepreciationBook.Run;
     end;
 
-    local procedure RunFAAcquire(FANo: Code[20]; BalAccountType: Option; BalAccountNo: Code[20])
+    local procedure RunFAAcquire(FANo: Code[20]; BalAccountNo: Code[20])
     var
         TempGenJournalLine: Record "Gen. Journal Line" temporary;
         FixedAssetAcquisitionWizard: TestPage "Fixed Asset Acquisition Wizard";
@@ -3245,10 +3167,8 @@ codeunit 134450 "ERM Fixed Assets Journal"
         FixedAssetAcquisitionWizard.AcquisitionCost.SetValue(LibraryRandom.RandDec(1000, 2));
         FixedAssetAcquisitionWizard.AcquisitionDate.SetValue(WorkDate);
         FixedAssetAcquisitionWizard.NextPage.Invoke;
-        FixedAssetAcquisitionWizard.TypeOfAcquisitions.SetValue(BalAccountType);
         FixedAssetAcquisitionWizard.BalancingAccountNo.SetValue(BalAccountNo);
-        if FixedAssetAcquisitionWizard.ExternalDocNo.Visible then
-            FixedAssetAcquisitionWizard.ExternalDocNo.SetValue(LibraryUtility.GenerateGUID);
+        FixedAssetAcquisitionWizard.ExternalDocNo.SetValue(LibraryUtility.GenerateGUID);
         FixedAssetAcquisitionWizard.NextPage.Invoke;
         FixedAssetAcquisitionWizard.PreviousPage.Invoke;
         FixedAssetAcquisitionWizard.NextPage.Invoke;
@@ -3820,7 +3740,7 @@ codeunit 134450 "ERM Fixed Assets Journal"
     end;
 
     [HandlerFunctions('AcquireFANotificationHandler')]
-    local procedure AcquireFixedAssetUsingAcquisitionWizardAutoPost(BalAccountType: Option; BalAccountNo: Code[20])
+    local procedure AcquireFixedAssetUsingAcquisitionWizardAutoPost(BalAccountNo: Code[20])
     var
         FixedAsset: Record "Fixed Asset";
         DefaultDepreciationBookCode: Code[10];
@@ -3832,7 +3752,7 @@ codeunit 134450 "ERM Fixed Assets Journal"
         DefaultDepreciationBookCode := GetDefaultDepreciationBook;
         CreateFAAcquisitionSetupForWizard(FixedAsset);
 
-        RunFAAcquire(FixedAsset."No.", BalAccountType, BalAccountNo);
+        RunFAAcquire(FixedAsset."No.", BalAccountNo);
 
         // Verify: Verify Amount on GLEntry is Correctly Populated.
         VerifyGLEntryForFAAcquisitionWizardAutoPost(FixedAsset."No.");

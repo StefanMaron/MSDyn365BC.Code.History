@@ -88,6 +88,7 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         // EXERCISE
         PostedPurchaseInvoices.OpenView;
         PostedPurchaseInvoices.GotoRecord(PurchInvHeader);
+        LibraryVariableStorage.Enqueue(true); // for the confirm empty Corrected Invoice No.
         LibraryVariableStorage.Enqueue(true); // for the confirm handler
         PurchaseInvoice.Trap;
         PostedPurchaseInvoices.CorrectInvoice.Invoke;
@@ -184,6 +185,7 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         // EXERCISE
         PostedPurchaseInvoices.OpenView;
         PostedPurchaseInvoices.GotoRecord(PurchInvHeader);
+        LibraryVariableStorage.Enqueue(true); // for the confirm empty Corrected Invoice No.
         LibraryVariableStorage.Enqueue(true); // for the cancel confirm handler
         LibraryVariableStorage.Enqueue(true); // for the open credit memo confirm handler
         PostedPurchaseCreditMemo.Trap;
@@ -928,7 +930,6 @@ codeunit 138025 "O365 Correct Purchase Invoice"
     [Scope('OnPrem')]
     procedure TestCorrectInvoiceUsingGLAccount()
     var
-        GLAcc: Record "G/L Account";
         Item: Record Item;
         Vend: Record Vendor;
         PurchHeader: Record "Purchase Header";
@@ -938,26 +939,24 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         PurchHeaderTmp: Record "Purchase Header";
         CorrectPostedPurchInvoice: Codeunit "Correct Posted Purch. Invoice";
     begin
-        Initialize;
+        Initialize();
 
         CreatePurchaseInvForNewItemAndVendor(Item, Vend, 1, 1, PurchHeader, PurchLine);
 
-        LibraryERM.FindGLAccount(GLAcc);
-
-        LibrarySmallBusiness.CreatePurchaseLine(PurchLine, PurchHeader, Item, 1);
-        PurchLine.Validate(Type, PurchLine.Type::"G/L Account");
-        PurchLine.Validate("No.", GLAcc."No.");
-        PurchLine.Validate("Direct Unit Cost", 1);
-        PurchLine.Validate("VAT Prod. Posting Group", Item."VAT Prod. Posting Group");
+        Clear(PurchLine);
+        LibraryPurchase.CreatePurchaseLine(
+            PurchLine, PurchHeader, PurchLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup(), 1);
+        PurchLine.Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(100, 200));
         PurchLine.Modify(true);
 
+        Clear(PurchLine);
         LibrarySmallBusiness.CreatePurchaseLine(PurchLine, PurchHeader, Item, 1);
         PurchLine.Validate(Type, PurchLine.Type::" ");
         PurchLine.Modify(true);
 
         PurchInvHeader.Get(LibrarySmallBusiness.PostPurchaseInvoice(PurchHeader));
 
-        GLEntry.FindLast;
+        GLEntry.FindLast();
 
         // EXERCISE
         CorrectPostedPurchInvoice.CancelPostedInvoiceStartNewInvoice(PurchInvHeader, PurchHeaderTmp);
@@ -968,7 +967,6 @@ codeunit 138025 "O365 Correct Purchase Invoice"
     [Scope('OnPrem')]
     procedure TestCancelInvoiceUsingGLAccount()
     var
-        GLAcc: Record "G/L Account";
         Item: Record Item;
         Vend: Record Vendor;
         PurchHeader: Record "Purchase Header";
@@ -977,26 +975,24 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         GLEntry: Record "G/L Entry";
         CorrectPostedPurchInvoice: Codeunit "Correct Posted Purch. Invoice";
     begin
-        Initialize;
+        Initialize();
 
         CreatePurchaseInvForNewItemAndVendor(Item, Vend, 1, 1, PurchHeader, PurchLine);
 
-        LibraryERM.FindGLAccount(GLAcc);
-
+        Clear(PurchLine);
         LibrarySmallBusiness.CreatePurchaseLine(PurchLine, PurchHeader, Item, 1);
         PurchLine.Validate(Type, PurchLine.Type::" ");
         PurchLine.Modify(true);
 
-        LibrarySmallBusiness.CreatePurchaseLine(PurchLine, PurchHeader, Item, 1);
-        PurchLine.Validate(Type, PurchLine.Type::"G/L Account");
-        PurchLine.Validate("No.", GLAcc."No.");
-        PurchLine.Validate("Direct Unit Cost", 1);
-        PurchLine.Validate("VAT Prod. Posting Group", Item."VAT Prod. Posting Group");
+        Clear(PurchLine);
+        LibraryPurchase.CreatePurchaseLine(
+            PurchLine, PurchHeader, PurchLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup(), 1);
+        PurchLine.Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(100, 200));
         PurchLine.Modify(true);
 
         PurchInvHeader.Get(LibrarySmallBusiness.PostPurchaseInvoice(PurchHeader));
 
-        GLEntry.FindLast;
+        GLEntry.FindLast();
 
         // EXERCISE
         CorrectPostedPurchInvoice.CancelPostedInvoice(PurchInvHeader);
@@ -1397,7 +1393,6 @@ codeunit 138025 "O365 Correct Purchase Invoice"
             LibraryFiscalYear.CreateFiscalYear();
 
         LibraryERMCountryData.CreateVATData();
-        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         SetNoSeries;
         PurchasesPayablesSetup.Get();

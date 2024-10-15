@@ -116,7 +116,7 @@ codeunit 139052 "Office Addin Initiate Tasks"
     end;
 
     [Test]
-    [HandlerFunctions('ActionHandler')]
+    [HandlerFunctions('ConfirmHandlerYes,ActionHandler')]
     [Scope('OnPrem')]
     procedure MailEngineCustomerPageCreditMemoPostAndSendDefault()
     var
@@ -147,7 +147,7 @@ codeunit 139052 "Office Addin Initiate Tasks"
     end;
 
     [Test]
-    [HandlerFunctions('ActionHandler')]
+    [HandlerFunctions('ConfirmHandlerYes,ActionHandler')]
     [Scope('OnPrem')]
     procedure MailEngineCustomerPageCreditMemoPostAndSendEmailPDFOnly()
     var

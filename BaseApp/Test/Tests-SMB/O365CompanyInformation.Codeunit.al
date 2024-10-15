@@ -44,10 +44,11 @@ codeunit 138041 "O365 Company Information"
         with CompanyInformationPage do begin
             OpenEdit;
             "Bank Name".SetValue('Stans Bank');
-            "Bank Branch No.".SetValue('0235');
-            "Bank Account No.".SetValue('3276392693');
-            "SWIFT Code".SetValue('DABASTAN');
-            IBAN.SetValue('GB 80 RBOS 161732 41116737');
+            "CCC Bank No.".SetValue('1111');
+            "CCC Bank Branch No.".SetValue('2222');
+            "CCC Control Digits".SetValue('33');
+            "CCC Bank Account No.".SetValue('1234567890');
+            "CCC No.".SetValue('11112222331234567890');
             BankAccountPostingGroup.SetValue(BankAccPostingGroup.Code);
             OK.Invoke;
         end;
@@ -58,10 +59,11 @@ codeunit 138041 "O365 Company Information"
 
         with BankAccount do begin
             TestField(Name, CompanyInformation."Bank Name");
-            TestField("Bank Account No.", CompanyInformation."Bank Account No.");
-            TestField("Bank Branch No.", CompanyInformation."Bank Branch No.");
-            TestField("SWIFT Code", CompanyInformation."SWIFT Code");
-            TestField(IBAN, CompanyInformation.IBAN);
+            TestField("CCC Bank Account No.", CompanyInformation."CCC Bank Account No.");
+            TestField("CCC Bank Branch No.", CompanyInformation."CCC Bank Branch No.");
+            TestField("CCC Control Digits", CompanyInformation."CCC Control Digits");
+            TestField("CCC Bank No.", CompanyInformation."CCC Bank No.");
+            TestField("CCC No.", CompanyInformation."CCC No.");
             TestField("Bank Acc. Posting Group", BankAccPostingGroup.Code);
         end;
 

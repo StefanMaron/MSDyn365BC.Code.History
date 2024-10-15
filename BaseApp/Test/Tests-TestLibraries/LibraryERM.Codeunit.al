@@ -18,6 +18,7 @@ codeunit 131300 "Library - ERM"
         LibraryERMUnapply: Codeunit "Library - ERM Unapply";
         LibraryRandom: Codeunit "Library - Random";
         NoRecordsInFilterError: Label 'There are no %1 within the filters specified.';
+        LibraryPmtDiscSetup: Codeunit "Library - Pmt Disc Setup";
         LibraryJournals: Codeunit "Library - Journals";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryMarketing: Codeunit "Library - Marketing";
@@ -1417,7 +1418,12 @@ codeunit 131300 "Library - ERM"
         VATClause.Insert(true);
     end;
 
-    procedure GenerateVATRegistrationNo(CountryRegionCode: Code[10]) VATRegNo: Text[20]
+    procedure GenerateVATRegistrationNo(CountryRegionCode: Code[10]): Text[20]
+    begin
+        exit(GenerateVATRegistrationForFormat(CountryRegionCode, 0));
+    end;
+
+    procedure GenerateVATRegistrationForFormat(CountryRegionCode: Code[10]; FormatLineNo: Integer) VATRegNo: Text[20]
     var
         VATRegistrationNoFormat: Record "VAT Registration No. Format";
         FormatType: Text[1];
@@ -1426,6 +1432,9 @@ codeunit 131300 "Library - ERM"
     begin
         // Generate VAT Registration No. as per VAT Registration No. format.
         VATRegistrationNoFormat.SetRange("Country/Region Code", CountryRegionCode);
+        if FormatLineNo > 0 then // if not positive number then return first format
+            VATRegistrationNoFormat.SetRange("Line No.", FormatLineNo);
+
         if VATRegistrationNoFormat.FindFirst then
             for i := 1 to StrLen(VATRegistrationNoFormat.Format) do begin
                 FormatType := CopyStr(VATRegistrationNoFormat.Format, i, 1);
@@ -1918,8 +1927,17 @@ codeunit 131300 "Library - ERM"
     procedure FindPaymentMethod(var PaymentMethod: Record "Payment Method")
     begin
         PaymentMethod.SetRange("Bal. Account No.", '');
+        PaymentMethod.SetRange("Create Bills", false);
+        PaymentMethod.SetRange("Invoices to Cartera", false);
         if not PaymentMethod.FindFirst then
             CreatePaymentMethod(PaymentMethod);
+    end;
+
+    [Scope('OnPrem')]
+    procedure FindPaymentMethodCartea(var PaymentMethod: Record "Payment Method")
+    begin
+        PaymentMethod.SetRange("Create Bills", true);
+        PaymentMethod.FindFirst;
     end;
 
     procedure FindPaymentTerms(var PaymentTerms: Record "Payment Terms")
@@ -1931,8 +1949,12 @@ codeunit 131300 "Library - ERM"
     procedure FindPaymentTermsCode(): Code[10]
     var
         PaymentTerms: Record "Payment Terms";
+        GeneralLedgerSetup: Record "General Ledger Setup";
         DateFormular_0D: DateFormula;
     begin
+        GeneralLedgerSetup.Get();
+        LibraryPmtDiscSetup.SetAdjustForPaymentDisc(GeneralLedgerSetup."Adjust for Payment Disc.");
+
         Evaluate(DateFormular_0D, '<0D>');
 
         if PaymentTerms.FieldActive("Due Date Calculation") then // Field is disabled on IT build
@@ -2099,7 +2121,12 @@ codeunit 131300 "Library - ERM"
     end;
 
     procedure GetDiscountPaymentTerm(var PaymentTerms: Record "Payment Terms")
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
     begin
+        GeneralLedgerSetup.Get();
+        LibraryPmtDiscSetup.SetAdjustForPaymentDisc(GeneralLedgerSetup."Adjust for Payment Disc.");
+
         PaymentTerms.SetFilter("Due Date Calculation", '<>''''');
         PaymentTerms.SetFilter("Discount Date Calculation", '<>''''');
         PaymentTerms.SetFilter("Discount %", '>%1', 0);

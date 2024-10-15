@@ -176,6 +176,7 @@ codeunit 130100 "Library - Payment Export"
 
         VendorBankAccount."Bank Branch No." := Format(LibraryRandom.RandIntInRange(111111, 999999));
         VendorBankAccount."Bank Account No." := Format(LibraryRandom.RandIntInRange(111111111, 999999999));
+        VendorBankAccount."Use For Electronic Payments" := true;
         VendorBankAccount.Modify();
     end;
 

@@ -91,12 +91,14 @@ page 378 "Bank Account Balance Lines"
     end;
 
     var
-        BankAcc: Record "Bank Account";
         BankAccLedgEntry: Record "Bank Account Ledger Entry";
         DateRec: Record Date;
         PeriodFormLinesMgt: Codeunit "Period Form Lines Mgt.";
         PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
         AmountType: Option "Net Change","Balance at Date";
+
+    protected var
+        BankAcc: Record "Bank Account";
 
     procedure Set(var NewBankAcc: Record "Bank Account"; NewPeriodType: Integer; NewAmountType: Option "Net Change","Balance at Date")
     begin

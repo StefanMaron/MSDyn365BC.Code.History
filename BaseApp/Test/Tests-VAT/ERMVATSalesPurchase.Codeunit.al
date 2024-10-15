@@ -10,6 +10,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
 
     var
         LibraryERM: Codeunit "Library - ERM";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryNotificationMgt: Codeunit "Library - Notification Mgt.";
         LibraryPurchase: Codeunit "Library - Purchase";
@@ -1245,7 +1246,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         PostedInvoiceNo: Code[20];
     begin
         // [FEATURE] [Sales] [Discount]
-        // [SCENARIO] Payment Customer Ledger Entry is closed and has full Invoice Amount Including VAT in case of discount and overdue apply
+        // [SCENARIO] Payment Customer Ledger Entry is closed and has discounted Invoice Amount Including VAT in case of discount and overdue apply
         Initialize;
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         CustomerNo := LibrarySales.CreateCustomerWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group");
@@ -1254,7 +1255,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         // [WHEN] Post Sales Invoice
         PostedInvoiceNo := CreateAndPostSalesInvoiceWithPaymentTermCode(VATPostingSetup, CustomerNo);
 
-        // [THEN] Payment Customer Ledger Entry is Closed and has "Amount (LCY)" = "A"
+        // [THEN] Payment Customer Ledger Entry is Closed and has "Amount (LCY)" = "A" - "B"
         VerifyAmountOnCustomerLedgerEntry(PostedInvoiceNo);
     end;
 
@@ -2174,6 +2175,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         PurchaseHeader: Record "Purchase Header";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
+        LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM VAT Sales/Purchase");
         LibrarySetupStorage.Restore;
         LibraryRandom.SetSeed(1);  // Generate Random Seed using Random Number Generator.
         PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyVendorAddressNotificationId);
@@ -2183,6 +2185,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         if IsInitialized then
             exit;
 
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM VAT Sales/Purchase");
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.UpdatePurchasesPayablesSetup;
@@ -2193,6 +2196,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
         LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM VAT Sales/Purchase");
     end;
 
     local procedure SetupForSalesOrderAndVAT(var VATAmountLine: Record "VAT Amount Line")
@@ -2949,16 +2953,19 @@ codeunit 134045 "ERM VAT Sales/Purchase"
     local procedure VerifyAmountOnCustomerLedgerEntry(PostedInvoiceNo: Code[20])
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
-        SalesInvHeader: Record "Sales Invoice Header";
+        ExpectedPmtAmount: Decimal;
     begin
-        SalesInvHeader.Get(PostedInvoiceNo);
-        SalesInvHeader.CalcFields("Amount Including VAT");
         with CustLedgerEntry do begin
             SetRange("Document No.", PostedInvoiceNo);
+            SetRange("Document Type", "Document Type"::Invoice);
+            FindFirst;
+            CalcFields("Amount (LCY)");
+            ExpectedPmtAmount := -("Amount (LCY)" - "Original Pmt. Disc. Possible");
+
             SetRange("Document Type", "Document Type"::Payment);
             FindFirst;
             CalcFields("Amount (LCY)");
-            TestField("Amount (LCY)", -SalesInvHeader."Amount Including VAT");
+            TestField("Amount (LCY)", ExpectedPmtAmount);
             TestField(Open, false);
         end;
     end;

@@ -189,11 +189,13 @@ page 350 "G/L Acc. Balance/Budget Lines"
 
     var
         AccountingPeriod: Record "Accounting Period";
-        GLAcc: Record "G/L Account";
         DateRec: Record Date;
         PeriodFormLinesMgt: Codeunit "Period Form Lines Mgt.";
         GLPeriodLength: Option Day,Week,Month,Quarter,Year,"Accounting Period";
         AmountType: Option "Net Change","Balance at Date";
+
+    protected var
+        GLAcc: Record "G/L Account";
         ClosingEntryFilter: Option Include,Exclude;
 
     procedure Set(var NewGLAcc: Record "G/L Account"; NewGLPeriodLength: Integer; NewAmountType: Option "Net Change",Balance; NewClosingEntryFilter: Option Include,Exclude)
@@ -294,7 +296,7 @@ page 350 "G/L Acc. Balance/Budget Lines"
         else
             "Balance/Budget Pct." := Round(GLAcc."Net Change" / GLAcc."Budgeted Amount" * 100);
 
-        OnAfterCalcFormFields(GLAcc, "Balance/Budget Pct.", Rec);
+        OnAfterCalcFormFields(GLAcc, "Balance/Budget Pct.", Rec, ClosingEntryFilter);
     end;
 
     procedure GetGLAcc(var NewGLAcc: Record "G/L Account")
@@ -303,7 +305,7 @@ page 350 "G/L Acc. Balance/Budget Lines"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCalcFormFields(var GLAccount: Record "G/L Account"; var BudgetPct: Decimal; var GLAccBalanceBudgetBuffer: Record "G/L Acc. Balance/Budget Buffer")
+    local procedure OnAfterCalcFormFields(var GLAccount: Record "G/L Account"; var BudgetPct: Decimal; var GLAccBalanceBudgetBuffer: Record "G/L Acc. Balance/Budget Buffer"; ClosingEntryFilter: Option Include,Exclude)
     begin
     end;
 }

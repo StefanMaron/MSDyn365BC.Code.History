@@ -1142,7 +1142,7 @@ codeunit 131332 "Library - Cash Flow Helper"
 
     procedure UpdateDueDateOnCustomerLedgerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry")
     begin
-        CustLedgerEntry.Validate("Due Date", GetAnyDateAfter(CustLedgerEntry."Due Date"));
+        CustLedgerEntry.Validate("Due Date", GetAnyAllowedDueDate(CustLedgerEntry."Posting Date", CustLedgerEntry."Payment Terms Code"));
         CustLedgerEntry.Modify(true);
     end;
 
@@ -1154,7 +1154,7 @@ codeunit 131332 "Library - Cash Flow Helper"
 
     procedure UpdateDueDateOnVendorLedgerEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry")
     begin
-        VendorLedgerEntry.Validate("Due Date", GetAnyDateAfter(VendorLedgerEntry."Due Date"));
+        VendorLedgerEntry.Validate("Due Date", GetAnyAllowedDueDate(VendorLedgerEntry."Posting Date", VendorLedgerEntry."Payment Terms Code"));
         VendorLedgerEntry.Modify(true);
     end;
 
@@ -1170,6 +1170,16 @@ codeunit 131332 "Library - Cash Flow Helper"
     begin
         Evaluate(DateDelta, '<' + Format(LibraryRandom.RandInt(10)) + 'D>');
         exit(CalcDate(DateDelta, ReferenceDate));
+    end;
+
+    local procedure GetAnyAllowedDueDate(PostingDate: Date; PaymentTermsCode: Code[10]): Date
+    var
+        PaymentTerms: Record "Payment Terms";
+        DateDelta: DateFormula;
+    begin
+        PaymentTerms.Get(PaymentTermsCode);
+        Evaluate(DateDelta, '<' + Format(LibraryRandom.RandIntInRange(0, PaymentTerms."Max. No. of Days till Due Date")) + 'D>');
+        exit(CalcDate(DateDelta, PostingDate));
     end;
 
     [IntegrationEvent(false, false)]

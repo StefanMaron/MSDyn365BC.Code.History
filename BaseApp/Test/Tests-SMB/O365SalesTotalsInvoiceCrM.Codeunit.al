@@ -1123,6 +1123,10 @@ codeunit 138004 "O365 Sales Totals Invoice/Cr.M"
         LibraryVariableStorage.Enqueue(PostMsg);
         LibraryVariableStorage.Enqueue(true);
 
+        // Credit memo without Correction Invoice No.
+        LibraryVariableStorage.Enqueue(ChangeConfirmMsg);
+        LibraryVariableStorage.Enqueue(true);
+
         LibraryVariableStorage.Enqueue(OpenPostedInvMsg);
         LibraryVariableStorage.Enqueue(true);
 
@@ -1159,6 +1163,10 @@ codeunit 138004 "O365 Sales Totals Invoice/Cr.M"
         SalesCreditMemo.OpenEdit;
         SalesCreditMemo.GotoRecord(SalesHeader);
         SalesCreditMemo.OK.Invoke;
+
+        // Credit memo without Correction Invoice No.
+        LibraryVariableStorage.Enqueue(ChangeConfirmMsg);
+        LibraryVariableStorage.Enqueue(true);
 
         CODEUNIT.Run(CODEUNIT::"Sales-Post", SalesHeader);
 

@@ -599,4 +599,13 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM CF Accounts - NamedType ROLLBACK)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1048186011 - NamedType 3670730805" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Not supported in ES.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM CF GL Budget - NamedType NotSupportedError)]]></Cmt>
+    </Cmts>
+  </Item>
 </LCX>

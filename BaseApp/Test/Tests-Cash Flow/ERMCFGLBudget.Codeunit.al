@@ -14,6 +14,7 @@ codeunit 134556 "ERM CF GL Budget"
         LibraryERM: Codeunit "Library - ERM";
         LibraryCashFlow: Codeunit "Library - Cash Flow";
         LibraryDimension: Codeunit "Library - Dimension";
+        NotSupportedError: Label 'Not supported in ES.';
 
     [Test]
     [Scope('OnPrem')]
@@ -22,19 +23,7 @@ codeunit 134556 "ERM CF GL Budget"
         GLAccount: Record "G/L Account";
         CashFlowAccount: Record "Cash Flow Account";
     begin
-        GLBudgetIntegration(GLAccount."Account Type"::"Begin-Total", CashFlowAccount."G/L Integration"::Budget);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure GLBudgetIntegrationEndTotal()
-    var
-        GLAccount: Record "G/L Account";
-        CashFlowAccount: Record "Cash Flow Account";
-    begin
-        // Integration on End-Total accounts should fail the test
-        asserterror GLBudgetIntegration(GLAccount."Account Type"::"End-Total", CashFlowAccount."G/L Integration"::Budget);
-        // Assert.ExpectedError('There is no CashFlowForecast Ledger Entry within the filter.');
+        GLBudgetIntegration(GLAccount."Account Type"::Heading, CashFlowAccount."G/L Integration"::Budget);
     end;
 
     [Test]
@@ -56,7 +45,6 @@ codeunit 134556 "ERM CF GL Budget"
     begin
         // Integration with balance sheet should fail the test
         asserterror GLBudgetIntegration(GLAccount."Account Type"::Posting, CashFlowAccount."G/L Integration"::Balance);
-        // Assert.ExpectedError('There is no CashFlowForecast Ledger Entry within the filter.');
     end;
 
     [Test]
@@ -78,7 +66,6 @@ codeunit 134556 "ERM CF GL Budget"
     begin
         // No integration should fail the test
         asserterror GLBudgetIntegration(GLAccount."Account Type"::Posting, CashFlowAccount."G/L Integration"::" ");
-        // Assert.ExpectedError('There is no CashFlowForecast Ledger Entry within the filter.');
     end;
 
     local procedure GLBudgetIntegration(GLAccountType: Option; Integration: Option)
@@ -99,9 +86,6 @@ codeunit 134556 "ERM CF GL Budget"
         LibraryCashFlow.FindCashFlowAccount(CashFlowAccount);
         FindGLAccount(GLAccount, GLAccountType);
         LinkCFAccount(CashFlowAccount, GLAccount, Integration);
-        // End-Total accounts posts to Begin-Total counterparts
-        if GLAccount."Account Type" = GLAccount."Account Type"::"End-Total" then
-            FindBeginAccount(GLAccount);
 
         LibraryERM.CreateGLBudgetName(GLBudgetName);
         LibraryERM.CreateGLBudgetEntry(GLBudgetEntry, WorkDate, GLAccount."No.", GLBudgetName.Name);
@@ -130,19 +114,7 @@ codeunit 134556 "ERM CF GL Budget"
         GLAccount: Record "G/L Account";
         CashFlowAccount: Record "Cash Flow Account";
     begin
-        // Integration on Begin-Total should fail the test
-        asserterror GLBalanceIntegration(GLAccount."Account Type"::"Begin-Total", CashFlowAccount."G/L Integration"::Balance);
-        // Assert.ExpectedError('There is no CashFlowForecast Ledger Entry within the filter.');
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure GLBalanceIntegrationEndTotal()
-    var
-        GLAccount: Record "G/L Account";
-        CashFlowAccount: Record "Cash Flow Account";
-    begin
-        GLBalanceIntegration(GLAccount."Account Type"::"End-Total", CashFlowAccount."G/L Integration"::Balance);
+        GLBalanceIntegration(GLAccount."Account Type"::Heading, CashFlowAccount."G/L Integration"::Balance);
     end;
 
     [Test]
@@ -154,7 +126,6 @@ codeunit 134556 "ERM CF GL Budget"
     begin
         // Integration with budget should fail the test
         asserterror GLBalanceIntegration(GLAccount."Account Type"::Posting, CashFlowAccount."G/L Integration"::Budget);
-        // Assert.ExpectedError('There is no CashFlowForecast Ledger Entry within the filter.');
     end;
 
     [Test]
@@ -186,7 +157,6 @@ codeunit 134556 "ERM CF GL Budget"
     begin
         // No integration should fail the test
         asserterror GLBalanceIntegration(GLAccount."Account Type"::Posting, CashFlowAccount."G/L Integration"::" ");
-        // Assert.ExpectedError('There is no CashFlowForecast Ledger Entry within the filter.');
     end;
 
     local procedure GLBalanceIntegration(GLAccountType: Option; Integration: Option)
@@ -214,6 +184,22 @@ codeunit 134556 "ERM CF GL Budget"
 
         // Verify
         VerifyCashFlowLedgerEntries(TempCashFlowForecastEntry, CashFlowForecast);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure GLBalanceIntegrationEndTotal()
+    begin
+        asserterror Error(NotSupportedError);
+        Assert.ExpectedError(NotSupportedError);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure GLBudgetIntegrationEndTotal()
+    begin
+        asserterror Error(NotSupportedError);
+        Assert.ExpectedError(NotSupportedError);
     end;
 
     local procedure StoreCashFlowBudgetEntry(var CashFlowForecastEntry: Record "Cash Flow Forecast Entry"; GLBudgetEntry: Record "G/L Budget Entry")
@@ -246,23 +232,17 @@ codeunit 134556 "ERM CF GL Budget"
     end;
 
     local procedure CreateGLAccountWithBalance(var GLAccount: Record "G/L Account"; AccountType: Option)
-    var
-        BeginTotalAccNo: Code[20];
     begin
         case AccountType of
-            GLAccount."Account Type"::"Begin-Total":
-                GLAccount.Get(CreateGLAccWithType(GLAccount."Account Type"::"Begin-Total"));
-            GLAccount."Account Type"::Posting:
-                GLAccount.Get(CreatePostGLAccount);
-            GLAccount."Account Type"::"End-Total":
+            GLAccount."Account Type"::Heading:
                 begin
-                    BeginTotalAccNo := CreateGLAccWithType(GLAccount."Account Type"::"Begin-Total");
-                    CreatePostGLAccount;
-                    GLAccount.Get(CreateGLAccWithType(GLAccount."Account Type"::"End-Total"));
+                    GLAccount.Get(CreateGLAccWithType(GLAccount."Account Type"::Heading));
                     GLAccount.Validate(
-                      Totaling, StrSubstNo('%1..%2', BeginTotalAccNo, GLAccount."No."));
+                      Totaling, StrSubstNo('%1..%2', GLAccount."No.", CreatePostGLAccount));
                     GLAccount.Modify(true);
                 end;
+            GLAccount."Account Type"::Posting:
+                GLAccount.Get(CreatePostGLAccount);
         end;
     end;
 
@@ -303,25 +283,10 @@ codeunit 134556 "ERM CF GL Budget"
         GenJnlTemplate: Record "Gen. Journal Template";
         GenJnlBatch: Record "Gen. Journal Batch";
     begin
-        GenJnlTemplate.SetRange(Type, GenJnlTemplate.Type::General); // required for NL
         LibraryERM.FindGenJournalTemplate(GenJnlTemplate);
         LibraryERM.FindGenJournalBatch(GenJnlBatch, GenJnlTemplate.Name);
         GenJnlLine."Journal Template Name" := GenJnlBatch."Journal Template Name";
         GenJnlLine."Journal Batch Name" := GenJnlBatch.Name;
-    end;
-
-    local procedure FindBeginAccount(var GLAccount: Record "G/L Account")
-    var
-        GLAccount2: Record "G/L Account";
-    begin
-        // Returns the matching Begin-Total account to an End-Total account
-        GLAccount2.Get(GLAccount."No.");
-        with GLAccount2 do
-            repeat
-                Next(-1);
-            until (Indentation = GLAccount.Indentation) and ("Account Type" = "Account Type"::"Begin-Total");
-
-        GLAccount.Get(GLAccount2."No.");
     end;
 
     local procedure ClearCFAccountLinks()

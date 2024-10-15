@@ -62,7 +62,7 @@ codeunit 137052 "SCM RTAM Item Tracking"
         SerialNumberRequiredErr: Label 'You must assign a serial number for item %1.', Comment = '%1 = Item No.';
         WarrantyDateErr: Label 'Warranty Date must have a value in Tracking Specification';
         LotNumberRequiredErr: Label 'You must assign a lot number for item %1', Comment = '%1 = Item No.';
-        QtyToHandleErr: Label 'Qty. to Handle (Base) in Tracking Specification for Item No. %1', Comment = '%1 = Item No.';
+        QtyToHandleErr: Label 'Qty. to Handle (Base) in the item tracking assigned to the document line for item %1', Comment = '%1 = Item No.';
         QuantityHandledErr: Label 'Quantity Handled (Base) must be equal to ''0''  in Tracking Specification';
         SomeOutputMissingMsg: Label 'Some output is still missing';
         ItemLedgerEntrySummaryTypeTxt: Label 'Item Ledger Entry';
@@ -3942,6 +3942,7 @@ codeunit 137052 "SCM RTAM Item Tracking"
         CreateSalesDocument(
           SalesHeader, SalesLine, SalesHeader."Document Type"::"Return Order", ItemNo, LocationCode, Quantity, CustomerNo, true);
         SalesLine.OpenItemTrackingLines;  // Assign Item Tracking on Page Handler.
+        LibrarySales.SetCorrDocNoSales(SalesHeader);
         LibrarySales.PostSalesDocument(SalesHeader, true, false)
     end;
 

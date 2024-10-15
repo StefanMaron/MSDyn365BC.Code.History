@@ -83,10 +83,12 @@ codeunit 132213 "Library - Small Business"
     procedure CreateCustomerTemplate(var ConfigTemplateHeader: Record "Config. Template Header")
     var
         Customer: Record Customer;
+        PaymentMethod: Record "Payment Method";
     begin
         LibraryRapidStart.CreateConfigTemplateHeader(ConfigTemplateHeader);
         ConfigTemplateHeader.Validate("Table ID", DATABASE::Customer);
         ConfigTemplateHeader.Modify(true);
+        LibraryERM.FindPaymentMethod(PaymentMethod);
 
         CreateCustomerTemplateLine(ConfigTemplateHeader, Customer.FieldNo("Phone No."),
           Customer.FieldName("Phone No."), '');
@@ -96,6 +98,10 @@ codeunit 132213 "Library - Small Business"
           Customer.FieldName("Gen. Bus. Posting Group"), FindGenBusPostingGroup);
         CreateCustomerTemplateLine(ConfigTemplateHeader, Customer.FieldNo("Customer Posting Group"),
           Customer.FieldName("Customer Posting Group"), LibrarySales.FindCustomerPostingGroup);
+        CreateCustomerTemplateLine(ConfigTemplateHeader, Customer.FieldNo("Payment Method Code"),
+          Customer.FieldName("Payment Method Code"), PaymentMethod.Code);
+        CreateCustomerTemplateLine(ConfigTemplateHeader, Customer.FieldNo("Payment Terms Code"),
+          Customer.FieldName("Payment Terms Code"), LibraryERM.FindPaymentTermsCode);
     end;
 
     procedure CreateCurrencyExchangeRate(var CurrencyExchangeRate: Record "Currency Exchange Rate"; CurrencyCode: Code[10]; StartingDate: Date)
@@ -304,10 +310,12 @@ codeunit 132213 "Library - Small Business"
     procedure CreateVendorTemplate(var ConfigTemplateHeader: Record "Config. Template Header")
     var
         Vend: Record Vendor;
+        PaymentMethod: Record "Payment Method";
     begin
         LibraryRapidStart.CreateConfigTemplateHeader(ConfigTemplateHeader);
         ConfigTemplateHeader.Validate("Table ID", DATABASE::Vendor);
         ConfigTemplateHeader.Modify(true);
+        LibraryERM.FindPaymentMethod(PaymentMethod);
 
         CreateVendorTemplateLine(ConfigTemplateHeader, Vend.FieldNo("Phone No."),
           Vend.FieldName("Phone No."), '');
@@ -317,6 +325,10 @@ codeunit 132213 "Library - Small Business"
           Vend.FieldName("Gen. Bus. Posting Group"), FindGenBusPostingGroup);
         CreateVendorTemplateLine(ConfigTemplateHeader, Vend.FieldNo("Vendor Posting Group"),
           Vend.FieldName("Vendor Posting Group"), LibraryPurchase.FindVendorPostingGroup);
+        CreateVendorTemplateLine(ConfigTemplateHeader, Vend.FieldNo("Payment Method Code"),
+          Vend.FieldName("Payment Method Code"), PaymentMethod.Code);
+        CreateVendorTemplateLine(ConfigTemplateHeader, Vend.FieldNo("Payment Terms Code"),
+          Vend.FieldName("Payment Terms Code"), LibraryERM.FindPaymentTermsCode);
     end;
 
     procedure CreateVendorTemplateLine(ConfigTemplateHeader: Record "Config. Template Header"; FieldNo: Integer; FieldName: Text[30]; DefaultValue: Text[50])

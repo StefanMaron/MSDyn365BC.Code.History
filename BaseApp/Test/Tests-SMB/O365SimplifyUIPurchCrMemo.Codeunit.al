@@ -332,13 +332,11 @@ codeunit 138026 "O365 Simplify UI Purch.Cr.Memo"
         Initialize;
 
         CreateVend(Vend);
-        Vend."Payment Terms Code" := '';
-        Vend.Modify();
 
         PurchaseCreditMemo.OpenNew;
         PurchaseCreditMemo."Buy-from Vendor Name".SetValue(Vend.Name);
 
-        PurchaseCreditMemo."Payment Terms Code".AssertEquals('');
+        PurchaseCreditMemo."Payment Terms Code".AssertEquals(Vend."Payment Terms Code");
         PurchaseCreditMemo."Due Date".AssertEquals(PurchaseCreditMemo."Document Date".AsDate);
     end;
 

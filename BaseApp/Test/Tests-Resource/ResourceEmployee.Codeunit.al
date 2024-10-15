@@ -152,8 +152,8 @@ codeunit 136400 "Resource Employee"
         LibraryLowerPermissions.SetO365HREdit;
         EmployeeCard.OpenNew;
         EmployeeCard."No.".SetValue(EmployeeNo);
-        EmployeeCard."First Name".SetValue(
-          CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(Employee."First Name")), 1, MaxStrLen(Employee."First Name")));
+        EmployeeCard.Name.SetValue(
+          CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(Employee.Name)), 1, MaxStrLen(Employee.Name)));
         EmployeeCard.ShowMap.DrillDown;
         EmployeeCard.OK.Invoke;
 
@@ -162,10 +162,10 @@ codeunit 136400 "Resource Employee"
         SearchNameCode := Employee.FullName + ' ' + Employee.Initials;
         Employee.TestField("Search Name", SearchNameCode);
 
-        // 2. Exercise: Modify the employee's Last Name
+        // 2. Exercise: Modify the employee's First Family Name
         EmployeeCard.OpenEdit;
         EmployeeCard.GotoKey(EmployeeNo);
-        EmployeeCard."Last Name".SetValue(Employee."First Name");
+        EmployeeCard."First Family Name".SetValue(Employee.Name);
         EmployeeCard.OK.Invoke;
 
         // 3. Verify: Check Search Name has correct value in Employee.
@@ -197,8 +197,8 @@ codeunit 136400 "Resource Employee"
         LibraryLowerPermissions.SetO365HREdit;
         EmployeeCard.OpenNew;
         EmployeeCard."No.".SetValue(EmployeeNo);
-        EmployeeCard."First Name".SetValue(
-          CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(Employee."First Name")), 1, MaxStrLen(Employee."First Name")));
+        EmployeeCard.Name.SetValue(
+          CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(Employee.Name)), 1, MaxStrLen(Employee.Name)));
         EmployeeCard."Search Name".SetValue(SearchNameCode);
         EmployeeCard.OK.Invoke;
 
@@ -206,7 +206,7 @@ codeunit 136400 "Resource Employee"
         Employee.Get(EmployeeNo);
         Employee.TestField("Search Name", SearchNameCode);
 
-        // 2. Exercise: Set Seacrh Name to empty, to reset it.
+        // 2. Exercise: Set Search Name to empty (reset Search Name)
         EmployeeCard.OpenEdit;
         EmployeeCard.GotoKey(EmployeeNo);
         EmployeeCard."Search Name".SetValue('');
@@ -303,7 +303,7 @@ codeunit 136400 "Resource Employee"
         // 1. Setup: Create an Employee and generate No. by jumping on any field
         LibraryLowerPermissions.SetO365HREdit;
         EmployeeCard.OpenNew;
-        EmployeeCard."First Name".Activate;
+        EmployeeCard.Name.Activate;
 
         // 2. Exercise: Genrate New Employee No. by click on AssistEdit Button with No. Series Code.
         EmployeeCard."No.".AssistEdit;

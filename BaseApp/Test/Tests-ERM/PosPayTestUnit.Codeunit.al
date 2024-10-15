@@ -307,9 +307,9 @@ codeunit 134800 "Pos. Pay Test Unit"
         // [SCENARIO 327363] GetPayee function of "Check Ledger Entry" returns employee's full name if "Bal. Account Type" is "Employee" and "Bal. Account No." has been specified
         // [FEATURE] [UT] [Check Ledger Entry] [Employee]
         LibraryHumanResource.CreateEmployee(Employee);
-        Employee."First Name" := 'A';
-        Employee."Middle Name" := 'B';
-        Employee."Last Name" := 'C';
+        Employee.Name := 'A';
+        Employee."First Family Name" := 'B';
+        Employee."Second Family Name" := 'C';
         Employee.Modify();
 
         CheckLedgerEntry."Bal. Account Type" := CheckLedgerEntry."Bal. Account Type"::Employee;

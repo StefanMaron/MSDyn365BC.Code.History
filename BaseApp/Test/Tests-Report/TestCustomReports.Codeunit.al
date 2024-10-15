@@ -2546,7 +2546,7 @@ codeunit 134761 "Test Custom Reports"
         VerifyStdSalesInvoiceReportTotalsLine(Row + 1, InvoiceDiscountTxt, -SalesLine."Inv. Discount Amount");
         VerifyStdSalesInvoiceReportTotalsLine(Row + 2, SubtotalDiscountText, SubtotalDiscountValue);
         VerifyStdSalesInvoiceReportTotalsLine(
-          Row + 3, StrSubstNo('%1% VAT', SalesLine."VAT %"),
+          Row + 3, StrSubstNo('VAT Amount', SalesLine."VAT %"),
           SalesLine."Amount Including VAT" - Round(SalesLine."Amount Including VAT" / (1 + SalesLine."VAT %" / 100)));
     end;
 
@@ -2606,13 +2606,13 @@ codeunit 134761 "Test Custom Reports"
     local procedure VerifyStatementAging(VerifyAmount: Decimal; RowNo: Integer)
     begin
         LibraryReportDataset.AssertElementTagWithValueExists(
-          'AgingBandBufCol' + Format(RowNo) + 'Amt', Format(VerifyAmount, 0, 2));
+          'AgingBandBufColumn' + Format(RowNo) + 'Amt', Format(VerifyAmount, 0, 2));
     end;
 
     local procedure VerifyStatementOverdue(VerifyAmount: Decimal)
     begin
         LibraryReportDataset.AssertElementTagWithValueExists(
-          'RemainAmt_CustLedgEntry2', Format(VerifyAmount, 0, 2));
+          'RemainingAmount_CustLedgEntry2', Format(VerifyAmount, 0, 2));
     end;
 
     [ModalPageHandler]

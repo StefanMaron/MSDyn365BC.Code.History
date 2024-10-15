@@ -13,6 +13,7 @@ codeunit 131001 "Library - Dimension"
         LibraryERM: Codeunit "Library - ERM";
         LibraryDim: Codeunit "Library - Dimension";
         ChangeGlobalDimensions: Codeunit "Change Global Dimensions";
+        TableWithDimSetIDAlreadyVerifiedErr: Label 'Table %1 already verified in VerifyShorcutDimCodesUpdatedOnDimSetIDValidation', Comment = '%1 = table name';
 
     procedure BlockDimension(var Dimension: Record Dimension)
     begin
@@ -371,7 +372,7 @@ codeunit 131001 "Library - Dimension"
 
     procedure GetNextDimensionValue(var DimensionValue: Record "Dimension Value")
     begin
-        DimensionValue.Next;
+        DimensionValue.FindFirst;
     end;
 
     [Scope('OnPrem')]
@@ -416,7 +417,8 @@ codeunit 131001 "Library - Dimension"
 
         TempAllObj."Object Type" := TempAllObj."Object Type"::Table;
         TempAllObj."Object ID" := RecRef.Number;
-        TempAllObj.Insert();
+        if not TempAllObj.Insert() then
+            Error(TableWithDimSetIDAlreadyVerifiedErr, TempAllObj."Object ID");
 
         DimSetIDFieldRef := RecRef.Field(DimSetIDFieldID);
         DimSetIDFieldRef.Validate(DimSetID);

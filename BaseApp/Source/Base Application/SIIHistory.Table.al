@@ -117,6 +117,7 @@ table 10750 "SII History"
         SIIHistory."Upload Type" := UploadType;
         SIIHistory."Is Manual" := IsManual;
         SIIHistory."Retry Accepted" := IsAcceptedWithErrorRetry;
+        OnCreateNewRequestOnBeforeInsertSIIHistory(SIIHistory);
         SIIHistory.Insert();
 
         SIIDocUploadState.Get(DocUploadId);
@@ -260,6 +261,11 @@ table 10750 "SII History"
         Status := Status::Failed;
         "Error Message" := StrSubstNo(MarkAsNotAcceptedErr, UserId, CurrentDateTime);
         Modify;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateNewRequestOnBeforeInsertSIIHistory(var SIIHistory: Record "SII History")
+    begin
     end;
 }
 

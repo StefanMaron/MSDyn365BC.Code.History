@@ -131,7 +131,7 @@ codeunit 134029 "ERM VAT On Gen Journal Line"
 
         // [GIVEN] 1st Journal Line with "Posting Date" = "D2", empty "Account No.", "Bal. Account Type"="Customer", "Bal. Account No." = "C2"
         FindAndClearGenJnlBatch(GenJournalBatch);
-        LibraryLowerPermissions.SetJournalsEdit;
+        LibraryLowerPermissions.SetO365Full;
         CreateCustGenJournalLine(GenJournalLine, GenJournalBatch, PostingDate[2], Customer[2]."No.", Amount[2]);
 
         // [GIVEN] 2nd Journal Line with "Posting Date" = "D1", empty "Account No.", "Bal. Account Type"="Customer", "Bal. Account No." = "C1"
@@ -196,7 +196,7 @@ codeunit 134029 "ERM VAT On Gen Journal Line"
 
         // [GIVEN] 1st Journal Line with "Posting Date" = "D2", empty "Account No.", "Bal. Account Type"="Vendor", "Bal. Account No." = "V2"
         FindAndClearGenJnlBatch(GenJournalBatch);
-        LibraryLowerPermissions.SetJournalsEdit;
+        LibraryLowerPermissions.SetO365Full;
         CreateVendGenJournalLine(GenJournalLine, GenJournalBatch, PostingDate[2], Vendor[2]."No.", -Amount[2]);
 
         // [GIVEN] 2nd Journal Line with "Posting Date" = "D1", empty "Account No.", "Bal. Account Type"="Vendor", "Bal. Account No." = "V1"

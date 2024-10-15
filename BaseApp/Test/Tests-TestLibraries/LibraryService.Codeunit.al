@@ -320,6 +320,12 @@ codeunit 131902 "Library - Service"
             ServiceHeader.Validate("Payment Method Code", PaymentMethod.Code);
         end;
         SetCorrDocNoService(ServiceHeader);
+        ServiceHeader.Validate(
+          "Operation Description",
+          PadStr(ServiceHeader."Operation Description", MaxStrLen(ServiceHeader."Operation Description"), 'A'));
+        ServiceHeader.Validate(
+          "Operation Description 2",
+          PadStr(ServiceHeader."Operation Description 2", MaxStrLen(ServiceHeader."Operation Description 2"), 'B'));
         ServiceHeader.Modify(true);
     end;
 
@@ -726,7 +732,11 @@ codeunit 131902 "Library - Service"
 
     procedure SetCorrDocNoService(var ServiceHeader: Record "Service Header")
     begin
-        if ServiceHeader."Document Type" = ServiceHeader."Document Type"::"Credit Memo" then;
+        if ServiceHeader."Document Type" = ServiceHeader."Document Type"::"Credit Memo" then
+            if ServiceHeader."Corrected Invoice No." = '' then begin
+                ServiceHeader."Corrected Invoice No." := LibraryUtility.GenerateGUID; // Skip validation (localization).
+                ServiceHeader.Modify(true);
+            end;
     end;
 
     procedure SetShipmentOnInvoice(ShipmentOnInvoice: Boolean)

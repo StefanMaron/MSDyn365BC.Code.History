@@ -231,6 +231,7 @@ codeunit 134406 "ERM SEPA Direct Debit Test"
         LibraryXMLRead.Initialize(ServerFileName);
         LibraryXMLRead.VerifyNodeValueInSubtree('PmtTpInf', 'LclInstrm', 'B2B');
         LibraryXMLRead.VerifyNodeValue('ChrgBr', 'SLEV');
+        // ES TFS 379550
         // PmtTpInf/InstrPrty removed due to BUG: 267559
         LibraryXMLRead.VerifyElementAbsenceInSubtree('PmtTpInf', 'InstrPrty');
         LibraryXMLRead.VerifyNodeValueInSubtree('MndtRltdInf', 'MndtId', DirectDebitCollectionEntry."Mandate ID");
@@ -533,7 +534,7 @@ codeunit 134406 "ERM SEPA Direct Debit Test"
         // [SCENARIO 334429] Run "Reset Transfer Date" action of page "Direct Debit Collect. Entries" in case Status of DD Entry is not New.
         Initialize();
 
-        // [GIVEN] Direct Debit Collection Entry with Transfer Date < Today()and Status = Rejected.
+        // [GIVEN] Direct Debit Collection Entry with Transfer Date < TODAY and Status = Rejected.
         TransferDate := CreateTransferDate();
         CreateDDEntryWithTransferDate(DirectDebitCollectionEntry, TransferDate);
         DirectDebitCollectionEntry.Status := DirectDebitCollectionEntry.Status::Rejected;

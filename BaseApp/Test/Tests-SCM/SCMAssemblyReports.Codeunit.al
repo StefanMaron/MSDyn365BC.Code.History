@@ -196,10 +196,10 @@ codeunit 137307 "SCM Assembly Reports"
     local procedure VerifySalesInvoiceLines(Blanks: Text[10])
     begin
         LibraryReportDataset.LoadDataSetFile;
-        LibraryReportDataset.SetRange('No_SalesInvLine', AssemblyItemNo[1]);
+        LibraryReportDataset.SetRange('No_SalesInvoiceLine', AssemblyItemNo[1]);
         LibraryReportDataset.GetNextRow;
-        LibraryReportDataset.AssertCurrentRowValueEquals('Desc_SalesInvLine', UsedVariantCode[1]);
-        LibraryReportDataset.AssertCurrentRowValueEquals('Qty_SalesInvLine', 1);
+        LibraryReportDataset.AssertCurrentRowValueEquals('Description_SalesInvLine', UsedVariantCode[1]);
+        LibraryReportDataset.AssertCurrentRowValueEquals('Quantity_SalesInvoiceLine', 1);
 
         LibraryReportDataset.Reset();
         LibraryReportDataset.SetRange('TempPostedAsmLineNo', Blanks + AssemblyItemNo[5]);

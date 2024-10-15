@@ -212,18 +212,18 @@ codeunit 137208 "SCM Delete Sales Docs"
 
     [ReportHandler]
     [Scope('OnPrem')]
-    procedure SalesInvReportHandler(var StandardSalesInvoice: Report "Standard Sales - Invoice")
+    procedure SalesInvReportHandler(var SalesInvoice: Report "Sales - Invoice")
     begin
-        StandardSalesInvoice.SetTableView(SalesInvoiceHeader);
-        StandardSalesInvoice.SaveAsPdf(FilePath);
+        SalesInvoice.SetTableView(SalesInvoiceHeader);
+        SalesInvoice.SaveAsPdf(FilePath);
     end;
 
     [ReportHandler]
     [Scope('OnPrem')]
-    procedure CrMemoReportHandler(var StandardSalesCreditMemo: Report "Standard Sales - Credit Memo")
+    procedure CrMemoReportHandler(var SalesCreditMemo: Report "Sales - Credit Memo")
     begin
-        StandardSalesCreditMemo.SetTableView(SalesCrMemoHeader);
-        StandardSalesCreditMemo.SaveAsPdf(FilePath);
+        SalesCreditMemo.SetTableView(SalesCrMemoHeader);
+        SalesCreditMemo.SaveAsPdf(FilePath);
     end;
 }
 

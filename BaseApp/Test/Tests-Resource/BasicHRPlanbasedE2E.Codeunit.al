@@ -199,10 +199,12 @@ codeunit 135400 "Basic HR Plan-based E2E"
         EmployeeCard: TestPage "Employee Card";
     begin
         EmployeeCard.OpenNew;
-        EmployeeCard."First Name".SetValue(
-          CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(Employee."First Name")), 1, MaxStrLen(Employee."First Name")));
-        EmployeeCard."Last Name".SetValue(
-          CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(Employee."Last Name")), 1, MaxStrLen(Employee."Last Name")));
+        EmployeeCard."First Family Name".SetValue(
+          CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(Employee."First Family Name")),
+            1, MaxStrLen(Employee."First Family Name")));
+        EmployeeCard."Second Family Name".SetValue(
+          CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(Employee."Second Family Name")),
+            1, MaxStrLen(Employee."Second Family Name")));
         EmployeeCard."E-Mail".SetValue(LibraryUtility.GenerateRandomEmail);
         EmployeeCard."Job Title".SetValue(
           CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(Employee."Job Title")), 1, MaxStrLen(Employee."Job Title")));

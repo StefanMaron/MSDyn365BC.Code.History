@@ -263,6 +263,8 @@ report 595 "Adjust Exchange Rates"
                         if TempCustLedgerEntry.Insert() then;
                     until CustLedgerEntry.Next = 0;
                 CustLedgerEntry.Reset();
+
+                OnCustomerAfterGetRecordOnAfterFindCustLedgerEntriesToAdjust(TempCustLedgerEntry);
             end;
 
             trigger OnPostDataItem()
@@ -373,6 +375,8 @@ report 595 "Adjust Exchange Rates"
                         if TempVendorLedgerEntry.Insert() then;
                     until VendorLedgerEntry.Next = 0;
                 VendorLedgerEntry.Reset();
+
+                OnVendorAfterGetRecordOnAfterFindVendLedgerEntriesToAdjust(TempVendorLedgerEntry);
             end;
 
             trigger OnPostDataItem()
@@ -2179,6 +2183,16 @@ report 595 "Adjust Exchange Rates"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitDtldVendLedgerEntry(var DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCustomerAfterGetRecordOnAfterFindCustLedgerEntriesToAdjust(var TempCustLedgerEntry: Record "Cust. Ledger Entry" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnVendorAfterGetRecordOnAfterFindVendLedgerEntriesToAdjust(var TempVendorLedgerEntry: Record "Vendor Ledger Entry" temporary)
     begin
     end;
 }

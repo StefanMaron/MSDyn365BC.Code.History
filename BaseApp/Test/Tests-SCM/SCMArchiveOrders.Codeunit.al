@@ -158,7 +158,7 @@ codeunit 137207 "SCM Archive Orders"
 
         // Verify: Verify Saved Report Data.
         LibraryReportDataset.LoadDataSetFile;
-        LibraryReportDataset.AssertElementWithValueExists('Purchase_Header_Archive_No_', PurchaseHeader."No.");
+        LibraryReportDataset.AssertElementWithValueExists('ArchiveNo_PurchHeader', PurchaseHeader."No.");
     end;
 
     [Test]
@@ -185,7 +185,7 @@ codeunit 137207 "SCM Archive Orders"
 
         // Verify: Verify Saved Report Data.
         LibraryReportDataset.LoadDataSetFile;
-        LibraryReportDataset.AssertElementWithValueExists('Purchase_Header_Archive_No_', PurchaseHeader."No.");
+        LibraryReportDataset.AssertElementWithValueExists('No_PurchHdrArchive', PurchaseHeader."No.");
     end;
 
     [Test]

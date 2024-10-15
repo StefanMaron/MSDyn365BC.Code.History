@@ -1,4 +1,4 @@
-codeunit 13 "Gen. Jnl.-Post Batch"
+﻿codeunit 13 "Gen. Jnl.-Post Batch"
 {
     Permissions = TableData "Gen. Journal Batch" = imd;
     TableNo = "Gen. Journal Line";
@@ -93,6 +93,7 @@ codeunit 13 "Gen. Jnl.-Post Batch"
         RefPostingState: Option "Checking lines","Checking balance","Updating bal. lines","Posting Lines","Posting revers. lines","Updating lines";
         Text1100001: Label 'must be the same on all lines for the same transaction';
         LastTempTransNo: Integer;
+        GenJnlLineNotFoundErr: Label 'There must be one %1 invoice, credit memo, or finance charge memo with the same %2 as journal line %3.', Comment = '%1 = "Gen. Posting Type", %2 = caption of "Document No.", %3 = "Line No."';
         Text1100101: Label 'You can not create a bill from more than one posted invoice when this contains Unrealized VAT.';
         PreviewMode: Boolean;
         SkippedLineMsg: Label 'One or more lines has not been posted because the amount is zero.';
@@ -151,6 +152,8 @@ codeunit 13 "Gen. Jnl.-Post Batch"
         VATPostingSetup: Record "VAT Posting Setup";
         UpdateAnalysisView: Codeunit "Update Analysis View";
         ICOutboxExport: Codeunit "IC Outbox Export";
+        TypeHelper: Codeunit "Type Helper";
+        RecRef: RecordRef;
         ICLastDocNo: Code[20];
         CurrentICPartner: Code[20];
         LastLineNo: Integer;
@@ -265,6 +268,9 @@ codeunit 13 "Gen. Jnl.-Post Batch"
             end;
 
             // Post reversing lines
+            RecRef.GetTable(TempGenJnlLine4);
+            TypeHelper.SortRecordRef(RecRef, CurrentKey, Ascending);
+            RecRef.SetTable(TempGenJnlLine4);
             PostReversingLines(TempGenJnlLine4);
 
             OnProcessLinesOnAfterPostGenJnlLines(GenJnlLine, GLReg, GLRegNo);
@@ -489,6 +495,7 @@ codeunit 13 "Gen. Jnl.-Post Batch"
                         then begin
                             HandledICInboxTrans.LockTable();
                             HandledICInboxTrans.Status := HandledICInboxTrans.Status::Posted;
+                            OnProcessICLinesOnBeforeHandledICInboxTransModify(HandledICInboxTrans, GenJnlLine);
                             HandledICInboxTrans.Modify();
                         end
                 end
@@ -591,7 +598,13 @@ codeunit 13 "Gen. Jnl.-Post Batch"
     local procedure CheckRecurringLine(var GenJnlLine2: Record "Gen. Journal Line")
     var
         DummyDateFormula: DateFormula;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckRecurringLine(GenJnlLine2, GenJnlTemplate, IsHandled);
+        if IsHandled then
+            exit;
+
         with GenJnlLine2 do
             if "Account No." <> '' then
                 if GenJnlTemplate.Recurring then begin
@@ -875,6 +888,7 @@ codeunit 13 "Gen. Jnl.-Post Batch"
         GenJnlLine4.SetFilter(
           "Account Type", '%1|%2', GenJnlLine4."Account Type"::Customer, GenJnlLine4."Account Type"::Vendor);
         GenJnlLine4.SetRange("Bal. Account No.", '');
+        OnCopyFieldsOnAfterSetGenJnlFilters(GenJnlLine4, GenJnlLine6);
         CheckAndCopyBalancingData(GenJnlLine4, GenJnlLine6, TempGenJnlLine, false);
 
         GenJnlLine4.SetRange("Account Type");
@@ -1021,6 +1035,7 @@ codeunit 13 "Gen. Jnl.-Post Batch"
                     CheckAmount := 0;
                     repeat
                         if (GenJnlLine6."Account No." = '') <> (GenJnlLine6."Bal. Account No." = '') then begin
+                            OnCheckAndCopyBalancingDataOnBeforeCheckGenPostingType(GenJnlLine4, GenJnlLine6, AccountType);
                             CheckGenPostingType(GenJnlLine6, AccountType);
                             if GenJnlLine6."Bill-to/Pay-to No." = '' then begin
                                 TempGenJnlLine := GenJnlLine6;
@@ -1188,8 +1203,11 @@ codeunit 13 "Gen. Jnl.-Post Batch"
                     exit;
             end;
             if not GenJnlLine7.Find('-') or (GenJnlLine7.Next <> 0) then
-                exit('');
-
+                Error(
+                  GenJnlLineNotFoundErr,
+                  GenJnlLine7."Gen. Posting Type",
+                  FieldCaption("Document No."),
+                  "Line No.");
             if GenJnlLine7."Bill-to/Pay-to No." <> '' then
                 exit(GenJnlLine7."Bill-to/Pay-to No.");
 
@@ -1264,8 +1282,12 @@ codeunit 13 "Gen. Jnl.-Post Batch"
         TempGenJnlLine2: Record "Gen. Journal Line" temporary;
         OldVATAmount: Decimal;
         OldVATPct: Decimal;
+        IsHandled: Boolean;
     begin
-        OnBeforeUpdateAndDeleteLines(GenJnlLine, SuppressCommit);
+        IsHandled := false;
+        OnBeforeUpdateAndDeleteLines(GenJnlLine, SuppressCommit, IsHandled);
+        if IsHandled then
+            exit;
 
         ClearDataExchEntries(GenJnlLine);
         if GenJnlTemplate.Recurring then begin
@@ -1586,7 +1608,7 @@ codeunit 13 "Gen. Jnl.-Post Batch"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeUpdateAndDeleteLines(var GenJournalLine: Record "Gen. Journal Line"; CommitIsSuppressed: Boolean)
+    local procedure OnBeforeUpdateAndDeleteLines(var GenJournalLine: Record "Gen. Journal Line"; CommitIsSuppressed: Boolean; var IsHandled: Boolean)
     begin
     end;
 
@@ -1672,6 +1694,26 @@ codeunit 13 "Gen. Jnl.-Post Batch"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterIsNonZeroAmount(GenJournalLine: Record "Gen. Journal Line"; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnProcessICLinesOnBeforeHandledICInboxTransModify(var HandledICInboxTrans: Record "Handled IC Inbox Trans."; GenJournalLine: Record "Gen. Journal Line");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckAndCopyBalancingDataOnBeforeCheckGenPostingType(GenJnlLine4: Record "Gen. Journal Line"; GenJnlLine6: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCopyFieldsOnAfterSetGenJnlFilters(var GenJnlLine4: Record "Gen. Journal Line"; var GenJnlLine6: Record "Gen. Journal Line");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckRecurringLine(GenJnlLine2: Record "Gen. Journal Line"; GenJnlTemplate: Record "Gen. Journal Template"; var IsHandled: Boolean)
     begin
     end;
 }

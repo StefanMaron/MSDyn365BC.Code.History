@@ -704,6 +704,7 @@ codeunit 134391 "ERM Sales Batch Posting"
         LibrarySales.SetPostAndPrintWithJobQueue(true);
         BindSubscription(LibraryJobQueue);
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
+        SetAllowBlankPaymentInfo();
         CreateInvoiceReportSelection();
 
         // [GIVEN] Two sales invoices
@@ -923,6 +924,15 @@ codeunit 134391 "ERM Sales Batch Posting"
         ReportSelections.Usage := ReportSelections.Usage::"S.Invoice";
         ReportSelections."Report ID" := REPORT::"Standard Sales - Invoice";
         If ReportSelections.Insert() Then;
+    end;
+
+    local procedure SetAllowBlankPaymentInfo()
+    var
+        CompInfo: Record "Company Information";
+    begin
+        CompInfo.get();
+        CompInfo."Allow Blank Payment Info." := true;
+        CompInfo.Modify();
     end;
 
     local procedure VerifyPostedSalesInvoice(PreAssignedNo: Code[20]; PostingDate: Date; InvDisc: Boolean)

@@ -448,6 +448,7 @@ codeunit 134660 "Exp. Workflow Gen. Jnl."
 
         LibraryPurchase.CreateVendorBankAccount(VendorBankAcc, Vendor."No.");
         VendorBankAcc.IBAN := LibraryUtility.GenerateGUID;
+        VendorBankAcc."Use For Electronic Payments" := true;
         VendorBankAcc.Modify(true);
 
         LibraryERM.CreatePaymentMethod(PaymentMethod);

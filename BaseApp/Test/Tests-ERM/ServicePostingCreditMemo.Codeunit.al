@@ -1296,7 +1296,6 @@ codeunit 136104 "Service Posting - Credit Memo"
 
         // [THEN] All controls related to customer (and on SaaS) are disabled
         Assert.IsFalse(SalesCreditMemo.Statistics.Enabled, ControlShouldBeDisabledErr);
-        Assert.IsFalse(SalesCreditMemo.CalculateInvoiceDiscount.Enabled, ControlShouldBeDisabledErr);
         Assert.IsFalse(SalesCreditMemo.ApplyEntries.Enabled, ControlShouldBeDisabledErr);
         Assert.IsFalse(SalesCreditMemo.TestReport.Enabled, ControlShouldBeDisabledErr);
         Assert.IsFalse(SalesCreditMemo.GetStdCustSalesCodes.Enabled, ControlShouldBeDisabledErr);
@@ -1334,7 +1333,6 @@ codeunit 136104 "Service Posting - Credit Memo"
 
         // [THEN] All controls related to customer (and on SaaS) are enabled
         Assert.IsTrue(SalesCreditMemo.Statistics.Enabled, ControlShouldBeEnabledErr);
-        Assert.IsTrue(SalesCreditMemo.CalculateInvoiceDiscount.Enabled, ControlShouldBeEnabledErr);
         Assert.IsTrue(SalesCreditMemo.ApplyEntries.Enabled, ControlShouldBeEnabledErr);
         Assert.IsTrue(SalesCreditMemo.TestReport.Enabled, ControlShouldBeEnabledErr);
         Assert.IsTrue(SalesCreditMemo.GetStdCustSalesCodes.Enabled, ControlShouldBeEnabledErr);

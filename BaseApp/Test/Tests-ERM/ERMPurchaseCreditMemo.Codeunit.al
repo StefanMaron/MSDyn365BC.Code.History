@@ -289,6 +289,7 @@ codeunit 134330 "ERM Purchase Credit Memo"
 
         // Setup: Create Line Discount Setup.
         Initialize;
+        LibraryPurchase.SetPostLineDiscount(true);
         SetupLineDiscount(PurchaseLineDiscount);
         CopyFromToPriceListLine.CopyFrom(PurchaseLineDiscount, PriceListLine);
 
@@ -324,6 +325,7 @@ codeunit 134330 "ERM Purchase Credit Memo"
 
         // Setup: Create Invoice Discount Setup.
         Initialize;
+        LibraryPurchase.SetPostInvoiceDiscount(true);
         SetupInvoiceDiscount(VendorInvoiceDisc);
 
         // Exercise: Create Purchase Credit Memo, calculate Invoice Discount and Post the Credit Memo.

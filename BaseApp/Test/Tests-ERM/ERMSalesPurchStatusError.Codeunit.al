@@ -1227,6 +1227,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
     begin
         // Check Sales Document - Test Report when Sales Order is Created and Shipped with Dimensions
         Initialize;
+        LibraryPmtDiscSetup.SetAdjustForPaymentDisc(true);
 
         CreateAndReleaseSalesOrder(SalesHeader, SalesLine, SalesHeader."Document Type"::Order);
         LibrarySales.PostSalesDocument(SalesHeader, true, false); // Ship
@@ -1250,6 +1251,8 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         Initialize;
         SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyBillToCustomerAddressNotificationId);
         SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyCustomerAddressNotificationId);
+        LibraryPmtDiscSetup.SetAdjustForPaymentDisc(true);
+
         CreateSalesOrderWithBlankLine(SalesHeader);
         LibraryWarehouse.CreateLocation(Location);
         // [GIVEN] Customer A with location code X
@@ -1275,6 +1278,8 @@ codeunit 134383 "ERM Sales/Purch Status Error"
 
         // [GIVEN] Purchase Order with blank line
         Initialize;
+        LibraryPmtDiscSetup.SetAdjustForPaymentDisc(true);
+
         CreatePurchOrderWithBlankLine(PurchHeader);
         LibraryWarehouse.CreateLocation(Location);
         // [GIVEN] Vendor A with location code X
@@ -1299,6 +1304,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         // [FEATURE] [Sales] [Return Reason]
         // [SCENARIO 375645] Validating Return Reason Code with Inventory Value Zero in Sales Line should not reset Unit Price
         Initialize;
+        LibraryPmtDiscSetup.SetAdjustForPaymentDisc(true);
 
         // [GIVEN] Sales Line with Unit Price = "Y"
         // [GIVEN] Return Reason Code "X" with Inventory Value Zero = TRUE
@@ -1325,6 +1331,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         // [GIVEN] GLSetup."Allow Posting From" = 01/01/2016
         // [GIVEN] GLSetup."Allow Posting To" = 31/01/2016
         Initialize;
+        LibraryPmtDiscSetup.SetAdjustForPaymentDisc(true);
         UpdateAllowedPostingDateInGLSetup(WorkDate - 10, WorkDate - 1);
 
         // [GIVEN] Purchase order "PO" with "Posting Date" = 21/02/2016, "Receive" = FALSE, "Invoice" = FALSE
@@ -1357,6 +1364,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         // [GIVEN] GLSetup."Allow Posting From" = 01/01/2016
         // [GIVEN] GLSetup."Allow Posting To" = 31/01/2016
         Initialize;
+        LibraryPmtDiscSetup.SetAdjustForPaymentDisc(true);
         UpdateAllowedPostingDateInGLSetup(WorkDate - 10, WorkDate + 10);
 
         // [GIVEN] Purchase order "PO" posted as receipt with "Posting Date" = 21/01/2016, "Receive" = TRUE, "Invoice" = FALSE
@@ -1399,6 +1407,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         // [GIVEN] GLSetup."Allow Posting From" = 01/01/2016
         // [GIVEN] GLSetup."Allow Posting To" = 31/01/2016
         Initialize;
+        LibraryPmtDiscSetup.SetAdjustForPaymentDisc(true);
         UpdateAllowedPostingDateInGLSetup(WorkDate - 10, WorkDate - 1);
 
         // [GIVEN] Sales order "SO" with "Posting Date" = 21/02/2016, "Ship" = FALSE, "Invoice" = FALSE
@@ -1431,6 +1440,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         // [GIVEN] GLSetup."Allow Posting From" = 01/01/2016
         // [GIVEN] GLSetup."Allow Posting To" = 31/01/2016
         Initialize;
+        LibraryPmtDiscSetup.SetAdjustForPaymentDisc(true);
         UpdateAllowedPostingDateInGLSetup(WorkDate - 10, WorkDate + 10);
 
         // [GIVEN] Sals order "SO" posted as shipment with "Posting Date" = 21/01/2016, "Ship" = TRUE, "Invoice" = FALSE

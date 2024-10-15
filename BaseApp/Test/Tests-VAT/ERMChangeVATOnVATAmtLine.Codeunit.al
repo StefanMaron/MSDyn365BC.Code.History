@@ -24,7 +24,7 @@ codeunit 134028 "ERM Change VAT On VAT Amt Line"
         ErrorWithCurrency: Label '%1 for %2 must not exceed %3 = %4.', Comment = '%1=Field Caption;%2=Field Value;%3=Field Caption;%4=Field Value;';
         ErrorWithoutCurrency: Label '%1 must not exceed %2 = %3.', Comment = '%1=Field Caption;%2=Field Caption;%3=Field Value;';
         DefaultVATAmountLineTxt: Label 'VAT Amount';
-        PercentVATAmountTxt: Label '%1% VAT';
+        VATECAmountTxt: Label 'VAT+EC Amount';
 
     [Test]
     [Scope('OnPrem')]
@@ -285,11 +285,11 @@ codeunit 134028 "ERM Change VAT On VAT Amt Line"
         TempVATAmountLine: Record "VAT Amount Line" temporary;
     begin
         // [FEATURES] [UT]
-        // [SCENARIO 281727] VAT Amount Line.VATAmountText() returns "VAT Amount" for 0 VAT Amount Lines
+        // [SCENARIO 281727] VAT Amount Line.VATAmountText() returns "VAT+EC Amount" for 0 VAT Amount Lines
         Initialize;
 
-        // [THEN] For 0 lines VATAmountText returns default text
-        Assert.AreEqual(DefaultVATAmountLineTxt, TempVATAmountLine.VATAmountText, 'VATAmountText returned wrong text');
+        // [THEN] For 0 lines VATAmountText returns VAT+EC text
+        Assert.AreEqual(VATECAmountTxt, TempVATAmountLine.VATAmountText, 'VATAmountText returned wrong text');
     end;
 
     [Test]
@@ -300,7 +300,7 @@ codeunit 134028 "ERM Change VAT On VAT Amt Line"
         VATPercent: Decimal;
     begin
         // [FEATURES] [UT]
-        // [SCENARIO 281727] VAT Amount Line.VATAmountText() returns "VAT X%" for 1 VAT Amount Line with "VAT %" <> 0
+        // [SCENARIO 281727] VAT Amount Line.VATAmountText() returns "VAT Amount" for 1 VAT Amount Line with "VAT %" <> 0
         Initialize;
 
         // [GIVEN] A VAT %
@@ -309,8 +309,8 @@ codeunit 134028 "ERM Change VAT On VAT Amt Line"
         // [GIVEN] One VAT Amount Line is added
         CreateVATAmountLine(TempVATAmountLine, LibraryUtility.GenerateGUID, VATPercent, true);
 
-        // [THEN] For 1 line VATAmountText returns "VAT X%" text
-        Assert.AreEqual(StrSubstNo(PercentVATAmountTxt, VATPercent), TempVATAmountLine.VATAmountText, 'VATAmountText returned wrong text');
+        // [THEN] For 1 line VATAmountText returns "VAT Amount" text
+        Assert.AreEqual(DefaultVATAmountLineTxt, TempVATAmountLine.VATAmountText, 'VATAmountText returned wrong text');
     end;
 
     [Test]
@@ -321,7 +321,7 @@ codeunit 134028 "ERM Change VAT On VAT Amt Line"
         VATPercent: Decimal;
     begin
         // [FEATURES] [UT]
-        // [SCENARIO 281727] VAT Amount Line.VATAmountText() returns "VAT X%" for 2 lines with same "VAT %"
+        // [SCENARIO 281727] VAT Amount Line.VATAmountText() returns "VAT+EC Amount" for 2 lines with same "VAT %"
         Initialize;
 
         // [GIVEN] A VAT %
@@ -331,8 +331,8 @@ codeunit 134028 "ERM Change VAT On VAT Amt Line"
         CreateVATAmountLine(TempVATAmountLine, LibraryUtility.GenerateGUID, VATPercent, true);
         CreateVATAmountLine(TempVATAmountLine, LibraryUtility.GenerateGUID, VATPercent, false);
 
-        // [THEN] For 2 lines with same "VAT %" VATAmountText returns "VAT X%" text
-        Assert.AreEqual(StrSubstNo(PercentVATAmountTxt, VATPercent), TempVATAmountLine.VATAmountText, 'VATAmountText returned wrong text');
+        // [THEN] For 2 lines with same "VAT %" VATAmountText returns "VAT+EC Amount" text
+        Assert.AreEqual(VATECAmountTxt, TempVATAmountLine.VATAmountText, 'VATAmountText returned wrong text');
     end;
 
     [Test]
@@ -343,7 +343,7 @@ codeunit 134028 "ERM Change VAT On VAT Amt Line"
         VATPercent: array[2] of Decimal;
     begin
         // [FEATURES] [UT]
-        // [SCENARIO 281727] VAT Amount Line.VATAmountText() returns "VAT Amount" for 2 lines with different "VAT %"
+        // [SCENARIO 281727] VAT Amount Line.VATAmountText() returns "VAT+EC Amount" for 2 lines with different "VAT %"
         Initialize;
 
         // [GIVEN] 2 different VAT %
@@ -354,8 +354,8 @@ codeunit 134028 "ERM Change VAT On VAT Amt Line"
         CreateVATAmountLine(TempVATAmountLine, LibraryUtility.GenerateGUID, VATPercent[1], true);
         CreateVATAmountLine(TempVATAmountLine, LibraryUtility.GenerateGUID, VATPercent[2], true);
 
-        // [THEN] For 2 lines with different "VAT %" VATAmount returns default text
-        Assert.AreEqual(DefaultVATAmountLineTxt, TempVATAmountLine.VATAmountText, 'VATAmountText returned wrong text');
+        // [THEN] For 2 lines with different "VAT %" VATAmount returns "VAT+EC Amount"
+        Assert.AreEqual(VATECAmountTxt, TempVATAmountLine.VATAmountText, 'VATAmountText returned wrong text');
     end;
 
     [Test]
@@ -365,14 +365,14 @@ codeunit 134028 "ERM Change VAT On VAT Amt Line"
         TempVATAmountLine: Record "VAT Amount Line" temporary;
     begin
         // [FEATURES] [UT]
-        // [SCENARIO 281727] VAT Amount Line.VATAmountText() returns "Amount VAT" for 1 VAT Amount Line with VAT % = 0
+        // [SCENARIO 281727] VAT Amount Line.VATAmountText() returns "VAT+EC Amount" for 1 VAT Amount Line with VAT % = 0
         Initialize;
 
         // [GIVEN] One VAT Amount Line is added with 0 VAT
         CreateVATAmountLine(TempVATAmountLine, LibraryUtility.GenerateGUID, 0, true);
 
-        // [THEN] For 1 line VATAmountText returns "VAT X%" text
-        Assert.AreEqual(DefaultVATAmountLineTxt, TempVATAmountLine.VATAmountText, 'VATAmountText returned wrong text');
+        // [THEN] For 1 line VATAmountText returns "VAT+EC Amount" text
+        Assert.AreEqual(VATECAmountTxt, TempVATAmountLine.VATAmountText, 'VATAmountText returned wrong text');
     end;
 
     local procedure Initialize()

@@ -1111,6 +1111,8 @@ codeunit 137156 "SCM Orders IV"
         // [GIVEN] Sales Invoice with Charge Item with line discount and invoice discount.
         Initialize;
 
+        UpdateDiscountOnSalesReceivableSetup(true);
+
         ExpdTotalDisAmt :=
           CreateSalesInvoiceWithItemChargeWithLnDiscAndInvDisc(
             SalesHeader, GeneralPostingSetup, false); // Prices Including VAT is disabled.
@@ -1122,6 +1124,8 @@ codeunit 137156 "SCM Orders IV"
         VerifyDiscountAmountInValueEntry(PostedDocNo, ExpdTotalDisAmt);
         VerifyDiscountAmountInGLEntry(
           PostedDocNo, GeneralPostingSetup."Sales Line Disc. Account", GeneralPostingSetup."Sales Inv. Disc. Account", ExpdTotalDisAmt);
+
+        UpdateDiscountOnSalesReceivableSetup(false);
     end;
 
     [Test]
@@ -4410,6 +4414,18 @@ codeunit 137156 "SCM Orders IV"
         OldExactCostReversingMandatory := SalesReceivablesSetup."Exact Cost Reversing Mandatory";
         SalesReceivablesSetup.Validate("Exact Cost Reversing Mandatory", NewExactCostReversingMandatory);
         SalesReceivablesSetup.Modify(true);
+    end;
+
+    local procedure UpdateDiscountOnSalesReceivableSetup(IsDiscount: Boolean)
+    var
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+    begin
+        with SalesReceivablesSetup do begin
+            Get;
+            "Post Invoice Discount" := IsDiscount;
+            "Post Line Discount" := IsDiscount;
+            Modify;
+        end;
     end;
 
     local procedure UpdateExpectedReceiptDateOnPurchaseLine(var PurchaseLine: Record "Purchase Line")

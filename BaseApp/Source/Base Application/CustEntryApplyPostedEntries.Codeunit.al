@@ -111,9 +111,13 @@ codeunit 226 "CustEntry-Apply Posted Entries"
         Window: Dialog;
         EntryNoBeforeApplication: Integer;
         EntryNoAfterApplication: Integer;
+        HideProgressWindow: Boolean;
+        SuppressCommit: Boolean;
     begin
+        OnBeforeCustPostApplyCustLedgEntry(HideProgressWindow);
         with CustLedgEntry do begin
-            Window.Open(PostingApplicationMsg);
+            if not HideProgressWindow then
+                Window.Open(PostingApplicationMsg);
 
             SourceCodeSetup.Get();
 
@@ -149,8 +153,12 @@ codeunit 226 "CustEntry-Apply Posted Entries"
             if PreviewMode then
                 GenJnlPostPreview.ThrowError;
 
-            Commit();
-            Window.Close;
+            SuppressCommit := false;
+            OnCustPostApplyCustLedgEntryOnBeforeCommit(CustLedgEntry, SuppressCommit);
+            if not SuppressCommit then
+                Commit();
+            if not HideProgressWindow then
+                Window.Close;
             UpdateAnalysisView.UpdateAll(0, true);
         end;
     end;
@@ -235,6 +243,8 @@ codeunit 226 "CustEntry-Apply Posted Entries"
     var
         UnapplyCustEntries: Page "Unapply Customer Entries";
     begin
+        OnBeforeUnApplyCustomer(DtldCustLedgEntry);
+
         with DtldCustLedgEntry do begin
             TestField("Entry Type", "Entry Type"::Application);
             TestField(Unapplied, false);
@@ -262,10 +272,12 @@ codeunit 226 "CustEntry-Apply Posted Entries"
         GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line";
         GenJnlPostPreview: Codeunit "Gen. Jnl.-Post Preview";
         Window: Dialog;
-        LastTransactionNo: Integer;
         AddCurrChecked: Boolean;
         MaxPostingDate: Date;
+        HideProgressWindow: Boolean;
     begin
+        OnBeforePostUnApplyCustomerCommit(HideProgressWindow);
+
         MaxPostingDate := 0D;
         GLEntry.LockTable();
         DtldCustLedgEntry.LockTable();
@@ -294,17 +306,8 @@ codeunit 226 "CustEntry-Apply Posted Entries"
                 if DtldCustLedgEntry."Initial Document Type" = DtldCustLedgEntry."Initial Document Type"::" " then
                     Error(Text1100003);
                 CheckReversal(DtldCustLedgEntry."Cust. Ledger Entry No.");
-                if DtldCustLedgEntry."Transaction No." <> 0 then begin
-                    if DtldCustLedgEntry."Entry Type" = DtldCustLedgEntry."Entry Type"::Application then begin
-                        LastTransactionNo :=
-                          FindLastApplTransactionEntry(DtldCustLedgEntry."Cust. Ledger Entry No.");
-                        if (LastTransactionNo <> 0) and (LastTransactionNo <> DtldCustLedgEntry."Transaction No.") then
-                            Error(UnapplyAllPostedAfterThisEntryErr, DtldCustLedgEntry."Cust. Ledger Entry No.");
-                    end;
-                    LastTransactionNo := FindLastTransactionNo(DtldCustLedgEntry."Cust. Ledger Entry No.");
-                    if (LastTransactionNo <> 0) and (LastTransactionNo <> DtldCustLedgEntry."Transaction No.") then
-                        Error(LatestEntryMustBeAnApplicationErr, DtldCustLedgEntry."Cust. Ledger Entry No.");
-                end;
+                if DtldCustLedgEntry."Transaction No." <> 0 then
+                    CheckUnappliedEntries(DtldCustLedgEntry);
             until DtldCustLedgEntry.Next = 0;
 
         DateComprReg.CheckMaxDateCompressed(MaxPostingDate, 0);
@@ -321,7 +324,8 @@ codeunit 226 "CustEntry-Apply Posted Entries"
             GenJnlLine."Source Code" := SourceCodeSetup."Unapplied Sales Entry Appln.";
             GenJnlLine."Source Currency Code" := "Currency Code";
             GenJnlLine."System-Created Entry" := true;
-            Window.Open(UnapplyingMsg);
+            if not HideProgressWindow then
+                Window.Open(UnapplyingMsg);
 
             OnBeforePostUnapplyCustLedgEntry(GenJnlLine, CustLedgEntry, DtldCustLedgEntry2, GenJnlPostLine);
             CollectAffectedLedgerEntries(TempCustLedgerEntry, DtldCustLedgEntry2);
@@ -334,7 +338,8 @@ codeunit 226 "CustEntry-Apply Posted Entries"
 
             if CommitChanges then
                 Commit();
-            Window.Close;
+            if not HideProgressWindow then
+                Window.Close;
         end;
     end;
 
@@ -397,6 +402,7 @@ codeunit 226 "CustEntry-Apply Posted Entries"
         CustLedgEntry.SetCurrentKey("Customer No.", Open, Positive);
         CustLedgEntry.SetRange("Customer No.", ApplyingCustLedgEntry."Customer No.");
         CustLedgEntry.SetRange(Open, true);
+        OnApplyApplyCustEntryFormEntryOnAfterCustLedgEntrySetFilters(CustLedgEntry, ApplyingCustLedgEntry);
         if CustLedgEntry.FindFirst then begin
             ApplyCustEntries.SetCustLedgEntry(ApplyingCustLedgEntry);
             ApplyCustEntries.SetRecord(CustLedgEntry);
@@ -529,6 +535,24 @@ codeunit 226 "CustEntry-Apply Posted Entries"
         RunOptionPreviewContext := RunOptionPreview::Unapply;
     end;
 
+    local procedure CheckunappliedEntries(DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry")
+    var
+        LastTransactionNo: Integer;
+        IsHandled: Boolean;
+    begin
+        if DtldCustLedgEntry."Entry Type" = DtldCustLedgEntry."Entry Type"::Application then begin
+            LastTransactionNo := FindLastApplTransactionEntry(DtldCustLedgEntry."Cust. Ledger Entry No.");
+            IsHandled := false;
+            OnCheckunappliedEntriesOnBeforeUnapplyAllEntriesError(DtldCustLedgEntry, LastTransactionNo, IsHandled);
+            if not IsHandled then
+                if (LastTransactionNo <> 0) and (LastTransactionNo <> DtldCustLedgEntry."Transaction No.") then
+                    Error(UnapplyAllPostedAfterThisEntryErr, DtldCustLedgEntry."Cust. Ledger Entry No.");
+        end;
+        LastTransactionNo := FindLastTransactionNo(DtldCustLedgEntry."Cust. Ledger Entry No.");
+        if (LastTransactionNo <> 0) and (LastTransactionNo <> DtldCustLedgEntry."Transaction No.") then
+            Error(LatestEntryMustBeAnApplicationErr, DtldCustLedgEntry."Cust. Ledger Entry No.");
+    end;
+
     [EventSubscriber(ObjectType::Codeunit, 19, 'OnRunPreview', '', false, false)]
     local procedure OnPreviewRun(var Result: Boolean; Subscriber: Variant; RecVar: Variant)
     var
@@ -576,6 +600,36 @@ codeunit 226 "CustEntry-Apply Posted Entries"
 
     [IntegrationEvent(false, false)]
     local procedure OnPostUnApplyCustomerCommitOnAfterSetFilters(var DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; DetailedCustLedgEntry2: Record "Detailed Cust. Ledg. Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCustPostApplyCustLedgEntry(var HideProgressWindow: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnApplyApplyCustEntryFormEntryOnAfterCustLedgEntrySetFilters(var CustLedgerEntry: Record "Cust. Ledger Entry"; var ApplyingCustLedgerEntry: Record "Cust. Ledger Entry" temporary);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePostUnApplyCustomerCommit(var HideProgressWindow: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckunappliedEntriesOnBeforeUnapplyAllEntriesError(DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; LastTransactionNo: Integer; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCustPostApplyCustLedgEntryOnBeforeCommit(var CustLedgerEntry: Record "Cust. Ledger Entry"; var SuppressCommit: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUnApplyCustomer(DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry");
     begin
     end;
 }

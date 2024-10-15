@@ -32,7 +32,9 @@ codeunit 134180 "WF Demo Purch. Order Approvals"
     var
         UserSetup: Record "User Setup";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
     begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"WF Demo Purch. Order Approvals");
         LibraryVariableStorage.Clear;
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
@@ -41,8 +43,10 @@ codeunit 134180 "WF Demo Purch. Order Approvals"
         UserSetup.DeleteAll();
         if IsInitialized then
             exit;
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"WF Demo Purch. Order Approvals");
         IsInitialized := true;
         BindSubscription(LibraryJobQueue);
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"WF Demo Purch. Order Approvals");
     end;
 
     [Test]
@@ -638,6 +642,8 @@ codeunit 134180 "WF Demo Purch. Order Approvals"
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
         WorkflowStepArgument: Record "Workflow Step Argument";
+        DepreciationBook: Record "Depreciation Book";
+        VATPostingSetup: Record "VAT Posting Setup";
         PurchaseOrderList: TestPage "Purchase Order List";
     begin
         // [SCENARIO 379202] Release Purchase Order of Fixed Asset errors when POAP workflow filtering on Fixed Asset
@@ -655,6 +661,19 @@ codeunit 134180 "WF Demo Purch. Order Approvals"
 
         // [GIVEN] Purchase Order on Fixed Asset
         CreatePurchDocumentForFixedAsset(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryRandom.RandIntInRange(5000, 10000));
+
+        // [GIVEN] Purchase lines in the order have a depreciation book code
+        DepreciationBook.FindFirst;
+        VATPostingSetup.FindFirst;
+        PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
+        PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
+        if PurchaseLine.FindSet then
+            repeat
+                PurchaseLine."Depreciation Book Code" := DepreciationBook.Code;
+                PurchaseLine."VAT Bus. Posting Group" := VATPostingSetup."VAT Bus. Posting Group";
+                PurchaseLine."VAT Prod. Posting Group" := VATPostingSetup."VAT Prod. Posting Group";
+                PurchaseLine.Modify();
+            until PurchaseLine.Next = 0;
 
         // [WHEN] Release Purchase Order
         PurchaseOrderList.OpenView;

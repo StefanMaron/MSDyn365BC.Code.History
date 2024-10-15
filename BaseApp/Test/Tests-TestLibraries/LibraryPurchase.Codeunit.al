@@ -129,13 +129,20 @@ codeunit 130512 "Library - Purchase"
         if BuyfromVendorNo = '' then
             BuyfromVendorNo := CreateVendorNo;
         PurchaseHeader.Validate("Buy-from Vendor No.", BuyfromVendorNo);
+        PurchaseHeader.Validate("Vendor Invoice No.",
+          PadStr(LibraryUtility.GenerateGUID, MaxStrLen(PurchaseHeader."Vendor Invoice No.") - 15, '0'));  // "-4" for "Job Consumption Purchase".UpdateVendorInvoiceNoOnPurchaseHeader (codeunit 136302) where "_1" added twice.
         if PurchaseHeader."Document Type" in [PurchaseHeader."Document Type"::"Credit Memo",
                                               PurchaseHeader."Document Type"::"Return Order"]
         then
-            PurchaseHeader.Validate("Vendor Cr. Memo No.", LibraryUtility.GenerateGUID)
-        else
-            PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID);
+            PurchaseHeader.Validate("Vendor Cr. Memo No.",
+              PadStr(LibraryUtility.GenerateGUID, MaxStrLen(PurchaseHeader."Vendor Cr. Memo No."), '0'));
         SetCorrDocNoPurchase(PurchaseHeader);
+        PurchaseHeader.Validate(
+          "Operation Description",
+          PadStr(PurchaseHeader."Operation Description", MaxStrLen(PurchaseHeader."Operation Description"), 'A'));
+        PurchaseHeader.Validate(
+          "Operation Description 2",
+          PadStr(PurchaseHeader."Operation Description 2", MaxStrLen(PurchaseHeader."Operation Description 2"), 'B'));
         PurchaseHeader.Modify(true);
     end;
 
@@ -338,8 +345,6 @@ codeunit 130512 "Library - Purchase"
         LibraryERM.SetSearchGenPostingTypePurch;
         LibraryERM.FindGeneralPostingSetupInvtFull(GeneralPostingSetup);
         LibraryERM.FindVATPostingSetupInvt(VATPostingSetup);
-        LibraryUtility.UpdateSetupNoSeriesCode(
-          DATABASE::"Purchases & Payables Setup", PurchasesPayablesSetup.FieldNo("Vendor Nos."));
 
         Clear(Vendor);
         Vendor.Insert(true);
@@ -380,6 +385,7 @@ codeunit 130512 "Library - Purchase"
         VendorPostingGroup.Validate("Payment Tolerance Credit Acc.", LibraryERM.CreateGLAccountNo);
         VendorPostingGroup.Validate("Debit Curr. Appln. Rndg. Acc.", LibraryERM.CreateGLAccountNo);
         VendorPostingGroup.Validate("Credit Curr. Appln. Rndg. Acc.", LibraryERM.CreateGLAccountNo);
+        VendorPostingGroup.Validate("Bills Account", LibraryERM.CreateGLAccountNo);
         VendorPostingGroup.Insert(true);
     end;
 
@@ -539,6 +545,7 @@ codeunit 130512 "Library - Purchase"
     var
         VendorPostingGroup: Record "Vendor Posting Group";
     begin
+        VendorPostingGroup.SetFilter("Bills Account", '<>%1', '');
         if not VendorPostingGroup.FindFirst then
             CreateVendorPostingGroup(VendorPostingGroup);
         exit(VendorPostingGroup.Code);
@@ -834,10 +841,35 @@ codeunit 130512 "Library - Purchase"
         PurchasesPayablesSetup.Modify(true);
     end;
 
+    procedure SetPostInvoiceDiscount(PostInvoiceDiscount: Boolean)
+    begin
+        PurchasesPayablesSetup.Get();
+        PurchasesPayablesSetup.Validate("Post Invoice Discount", PostInvoiceDiscount);
+        PurchasesPayablesSetup.Modify(true);
+    end;
+
+    procedure SetPostLineDiscount(PostLineDiscount: Boolean)
+    begin
+        PurchasesPayablesSetup.Get();
+        PurchasesPayablesSetup.Validate("Post Line Discount", PostLineDiscount);
+        PurchasesPayablesSetup.Modify(true);
+    end;
+
+    procedure SetPostPaymentDiscount(PostPaymentDiscount: Boolean)
+    begin
+        PurchasesPayablesSetup.Get();
+        PurchasesPayablesSetup.Validate("Post Payment Discount", PostPaymentDiscount);
+        PurchasesPayablesSetup.Modify(true);
+    end;
+
     procedure SetCorrDocNoPurchase(var PurchHeader: Record "Purchase Header")
     begin
         with PurchHeader do
-            if "Document Type" in ["Document Type"::"Credit Memo", "Document Type"::"Return Order"] then;
+            if "Document Type" in ["Document Type"::"Credit Memo", "Document Type"::"Return Order"] then
+                if "Corrected Invoice No." = '' then begin
+                    "Corrected Invoice No." := LibraryUtility.GenerateGUID; // Skip validation (localization).
+                    Modify(true);
+                end;
     end;
 
     procedure SetInvoiceRounding(InvoiceRounding: Boolean)

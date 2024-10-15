@@ -14,9 +14,6 @@ codeunit 101 "Cust. Entry-SetAppl.ID"
     procedure SetApplId(var CustLedgEntry: Record "Cust. Ledger Entry"; ApplyingCustLedgEntry: Record "Cust. Ledger Entry"; AppliesToID: Code[50])
     var
         TempCustLedgEntry: Record "Cust. Ledger Entry" temporary;
-        CustLedgEntryToUpdate: Record "Cust. Ledger Entry";
-        CarteraDoc: Record "Cartera Doc.";
-        CarteraSetup: Record "Cartera Setup";
     begin
         CustLedgEntry.LockTable();
         if CustLedgEntry.FindSet then begin
@@ -39,40 +36,63 @@ codeunit 101 "Cust. Entry-SetAppl.ID"
 
         if TempCustLedgEntry.FindSet then
             repeat
-                CustLedgEntryToUpdate.Copy(TempCustLedgEntry);
-                CustLedgEntryToUpdate.TestField(Open, true);
-                if CustLedgEntryToUpdate."Document Situation" = CustLedgEntryToUpdate."Document Situation"::"Posted BG/PO" then
-                    Error(CannotBeAppliedErr, CustLedgEntryToUpdate.Description);
-                if ApplyingCustLedgEntry."Document Situation" = ApplyingCustLedgEntry."Document Situation"::"Posted BG/PO" then
-                    Error(CannotBeAppliedErr, ApplyingCustLedgEntry.Description);
-
-                if CarteraSetup.ReadPermission then
-                    if ((CustLedgEntryToUpdate."Document Type" = CustLedgEntryToUpdate."Document Type"::Bill) or
-                        (CustLedgEntryToUpdate."Document Type" = CustLedgEntryToUpdate."Document Type"::Invoice))
-                    then
-                        if CarteraDoc.Get(CarteraDoc.Type::Receivable, CustLedgEntryToUpdate."Entry No.") then
-                            if CarteraDoc."Bill Gr./Pmt. Order No." <> '' then
-                                Error(CannotBeAppliedTryAgainErr, CustLedgEntryToUpdate.Description);
-
-                CustLedgEntryToUpdate."Applies-to ID" := CustEntryApplID;
-                if CustLedgEntryToUpdate."Applies-to ID" = '' then begin
-                    CustLedgEntryToUpdate."Accepted Pmt. Disc. Tolerance" := false;
-                    CustLedgEntryToUpdate."Accepted Payment Tolerance" := 0;
-                end;
-                if ((CustLedgEntryToUpdate."Amount to Apply" <> 0) and (CustEntryApplID = '')) or
-                   (CustEntryApplID = '')
-                then
-                    CustLedgEntryToUpdate."Amount to Apply" := 0
-                else
-                    if CustLedgEntryToUpdate."Amount to Apply" = 0 then begin
-                        CustLedgEntryToUpdate.CalcFields("Remaining Amount");
-                        CustLedgEntryToUpdate."Amount to Apply" := CustLedgEntryToUpdate."Remaining Amount"
-                    end;
-
-                if CustLedgEntryToUpdate."Entry No." = ApplyingCustLedgEntry."Entry No." then
-                    CustLedgEntryToUpdate."Applying Entry" := ApplyingCustLedgEntry."Applying Entry";
-                CustLedgEntryToUpdate.Modify();
+                UpdateCustLedgerEntry(TempCustLedgEntry, ApplyingCustLedgEntry, AppliesToID);
             until TempCustLedgEntry.Next = 0;
+    end;
+
+    local procedure UpdateCustLedgerEntry(var TempCustLedgerEntry: Record "Cust. Ledger Entry" temporary; ApplyingCustLedgerEntry: Record "Cust. Ledger Entry"; AppliesToID: Code[50])
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        CarteraDoc: Record "Cartera Doc.";
+        CarteraSetup: Record "Cartera Setup";
+    begin
+        OnBeforeUpdateCustLedgerEntry(TempCustLedgerEntry, ApplyingCustLedgerEntry, AppliesToID);
+
+        CustLedgerEntry.Copy(TempCustLedgerEntry);
+        CustLedgerEntry.TestField(Open, true);
+        if CustLedgerEntry."Document Situation" = CustLedgerEntry."Document Situation"::"Posted BG/PO" then
+            Error(CannotBeAppliedErr, CustLedgerEntry.Description);
+        if ApplyingCustLedgerEntry."Document Situation" = ApplyingCustLedgerEntry."Document Situation"::"Posted BG/PO" then
+            Error(CannotBeAppliedErr, ApplyingCustLedgerEntry.Description);
+
+        if CarteraSetup.ReadPermission then
+            if ((CustLedgerEntry."Document Type" = CustLedgerEntry."Document Type"::Bill) or
+                (CustLedgerEntry."Document Type" = CustLedgerEntry."Document Type"::Invoice))
+            then
+                if CarteraDoc.Get(CarteraDoc.Type::Receivable, CustLedgerEntry."Entry No.") then
+                    if CarteraDoc."Bill Gr./Pmt. Order No." <> '' then
+                        Error(CannotBeAppliedTryAgainErr, CustLedgerEntry.Description);
+
+        CustLedgerEntry."Applies-to ID" := CustEntryApplID;
+        if CustLedgerEntry."Applies-to ID" = '' then begin
+            CustLedgerEntry."Accepted Pmt. Disc. Tolerance" := false;
+            CustLedgerEntry."Accepted Payment Tolerance" := 0;
+        end;
+        if ((CustLedgerEntry."Amount to Apply" <> 0) and (CustEntryApplID = '')) or
+           (CustEntryApplID = '')
+        then
+            CustLedgerEntry."Amount to Apply" := 0
+        else
+            if CustLedgerEntry."Amount to Apply" = 0 then begin
+                CustLedgerEntry.CalcFields("Remaining Amount");
+                CustLedgerEntry."Amount to Apply" := CustLedgerEntry."Remaining Amount"
+            end;
+
+        if CustLedgerEntry."Entry No." = ApplyingCustLedgerEntry."Entry No." then
+            CustLedgerEntry."Applying Entry" := ApplyingCustLedgerEntry."Applying Entry";
+        CustLedgerEntry.Modify();
+
+        OnAfterUpdateCustLedgerEntry(CustLedgerEntry, TempCustLedgerEntry, ApplyingCustLedgerEntry, AppliesToID);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateCustLedgerEntry(var TempCustLedgerEntry: Record "Cust. Ledger Entry" temporary; ApplyingCustLedgerEntry: Record "Cust. Ledger Entry"; AppliesToID: Code[50]);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateCustLedgerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; var TempCustLedgerEntry: Record "Cust. Ledger Entry" temporary; ApplyingCustLedgerEntry: Record "Cust. Ledger Entry"; AppliesToID: Code[50]);
+    begin
     end;
 }
 

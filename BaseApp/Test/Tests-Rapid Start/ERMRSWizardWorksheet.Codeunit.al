@@ -3118,7 +3118,13 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
         GLAccount: Record "G/L Account";
     begin
         CreateAndAssignPackage(ConfigPackage, DATABASE::"G/L Account");
-        GLAccountCode := LibraryUtility.GenerateRandomCode(GLAccount.FieldNo("No."), DATABASE::"G/L Account");
+        repeat
+            GLAccountCode := LibraryUtility.GenerateRandomCode(GLAccount.FieldNo("No."), DATABASE::"G/L Account");
+            // Fix for ES requirement to have all GL."No." according to validation trigger
+            GLAccountCode[1] := '1';
+            GLAccount.SetRange("No.", GLAccountCode);
+        until GLAccount.IsEmpty;
+
         LibraryRapidStart.CreatePackageData(ConfigPackage.Code, DATABASE::"G/L Account", 1, GLAccount.FieldNo("No."), GLAccountCode);
     end;
 

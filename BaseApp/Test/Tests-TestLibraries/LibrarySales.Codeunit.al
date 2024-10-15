@@ -72,8 +72,6 @@ codeunit 130509 "Library - Sales"
         LibraryERM.SetSearchGenPostingTypeSales;
         LibraryERM.FindGeneralPostingSetupInvtFull(GeneralPostingSetup);
         LibraryERM.FindVATPostingSetupInvt(VATPostingSetup);
-        LibraryUtility.UpdateSetupNoSeriesCode(
-          DATABASE::"Sales & Receivables Setup", SalesReceivablesSetup.FieldNo("Customer Nos."));
 
         Clear(Customer);
         Customer.Insert(true);
@@ -151,6 +149,7 @@ codeunit 130509 "Library - Sales"
         CustomerPostingGroup.Validate("Interest Account", LibraryERM.CreateGLAccountWithSalesSetup);
         CustomerPostingGroup.Validate("Additional Fee Account", LibraryERM.CreateGLAccountWithSalesSetup);
         CustomerPostingGroup.Validate("Add. Fee per Line Account", LibraryERM.CreateGLAccountWithSalesSetup);
+        CustomerPostingGroup.Validate("Bills Account", LibraryERM.CreateGLAccountNo);
         CustomerPostingGroup.Insert(true);
     end;
 
@@ -351,6 +350,12 @@ codeunit 130509 "Library - Sales"
           "External Document No.",
           CopyStr(LibraryUtility.GenerateRandomCode(SalesHeader.FieldNo("External Document No."), DATABASE::"Sales Header"), 1, 20));
         SetCorrDocNoSales(SalesHeader);
+        SalesHeader.Validate(
+          "Operation Description",
+          PadStr(SalesHeader."Operation Description", MaxStrLen(SalesHeader."Operation Description"), 'A'));
+        SalesHeader.Validate(
+          "Operation Description 2",
+          PadStr(SalesHeader."Operation Description 2", MaxStrLen(SalesHeader."Operation Description 2"), 'B'));
         SalesHeader.Modify(true);
 
         OnAfterCreateSalesHeader(SalesHeader, DocumentType, SellToCustomerNo);
@@ -705,6 +710,7 @@ codeunit 130509 "Library - Sales"
     var
         CustomerPostingGroup: Record "Customer Posting Group";
     begin
+        CustomerPostingGroup.SetFilter("Bills Account", '<>%1', '');
         if not CustomerPostingGroup.FindFirst then
             CreateCustomerPostingGroup(CustomerPostingGroup);
         exit(CustomerPostingGroup.Code);
@@ -948,7 +954,11 @@ codeunit 130509 "Library - Sales"
     procedure SetCorrDocNoSales(var SalesHeader: Record "Sales Header")
     begin
         with SalesHeader do
-            if "Document Type" in ["Document Type"::"Credit Memo", "Document Type"::"Return Order"] then;
+            if "Document Type" in ["Document Type"::"Credit Memo", "Document Type"::"Return Order"] then
+                if "Corrected Invoice No." = '' then begin
+                    "Corrected Invoice No." := LibraryUtility.GenerateGUID; // Skip validation (localization).
+                    Modify(true);
+                end;
     end;
 
     procedure SetCreditWarnings(CreditWarnings: Option)
@@ -985,6 +995,27 @@ codeunit 130509 "Library - Sales"
     begin
         SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Invoice Rounding", InvoiceRounding);
+        SalesReceivablesSetup.Modify(true);
+    end;
+
+    procedure SetPostInvoiceDiscount(PostInvoiceDiscount: Boolean)
+    begin
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup.Validate("Post Invoice Discount", PostInvoiceDiscount);
+        SalesReceivablesSetup.Modify(true);
+    end;
+
+    procedure SetPostLineDiscount(PostLineDiscount: Boolean)
+    begin
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup.Validate("Post Line Discount", PostLineDiscount);
+        SalesReceivablesSetup.Modify(true);
+    end;
+
+    procedure SetPostPaymentDiscount(PostPaymentDiscount: Boolean)
+    begin
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup.Validate("Post Payment Discount", PostPaymentDiscount);
         SalesReceivablesSetup.Modify(true);
     end;
 

@@ -51,6 +51,7 @@ codeunit 134041 "ERM Pmt. Tolerance VAT Appln."
           LibraryRandom.RandIntInRange(10, 30));
         CustomerPostingGroup.Get(Customer."Customer Posting Group");
 
+        LibrarySales.SetCreditWarningsToNoWarnings;
         // Excercise: Post invoice, Apply and post cash receipt
         CreateAndPostSalesInvoicePaymentTolerance(Customer."No.", GeneralPostingSetup, VATPostingSetup);
         PaymentToleranceAmount := CreateAndPostSalesCashReceipt(GenJournalLine, Customer."No.");
@@ -578,7 +579,7 @@ codeunit 134041 "ERM Pmt. Tolerance VAT Appln."
         CashReceiptJournal.FILTER.SetFilter("Document No.", GenJournalLine."Document No.");
         CashReceiptJournal."Applies-to Doc. No.".Lookup;
         PaymentToleranceAmount := LibraryRandom.RandDec(99, 2);
-        CashReceiptJournal.Amount.SetValue(CashReceiptJournal.Amount.AsDEcimal + PaymentToleranceAmount);
+        CashReceiptJournal."Credit Amount".SetValue(CashReceiptJournal."Credit Amount".AsDEcimal - PaymentToleranceAmount);
         CashReceiptJournal.Post.Invoke;
         CashReceiptJournal.OK.Invoke;
         exit(PaymentToleranceAmount);
@@ -594,7 +595,7 @@ codeunit 134041 "ERM Pmt. Tolerance VAT Appln."
         PaymentJournal.FILTER.SetFilter("Document No.", GenJournalLine."Document No.");
         PaymentJournal.AppliesToDocNo.Lookup;
         PaymentToleranceAmount := -LibraryRandom.RandDec(99, 2);
-        PaymentJournal.Amount.SetValue(PaymentJournal.Amount.AsDEcimal + PaymentToleranceAmount);
+        PaymentJournal."Debit Amount".SetValue(PaymentJournal."Debit Amount".AsDEcimal + PaymentToleranceAmount);
         PaymentJournal.Post.Invoke;
         PaymentJournal.OK.Invoke;
         exit(PaymentToleranceAmount);
@@ -774,10 +775,12 @@ codeunit 134041 "ERM Pmt. Tolerance VAT Appln."
         VATProductPostingGroup: Record "VAT Product Posting Group";
         VATBusinessPostingGroup: Record "VAT Business Posting Group";
         GenProductPostingGroup: Record "Gen. Product Posting Group";
+        PaymentDiscountType: Option "Full Amount","Pmt. Disc. Excl. VAT","Adjust for Payment Disc.","Calc. Pmt. Disc. on Lines";
     begin
         LibraryVariableStorage.Enqueue(PostingAction::"Payment Tolerance Accounts");
 
         LibraryPmtDiscSetup.SetAdjustForPaymentDisc(true);
+        LibraryPmtDiscSetup.SetPmtDiscType(PaymentDiscountType::"Calc. Pmt. Disc. on Lines");
         LibraryPmtDiscSetup.SetPmtTolerance(0);
         RunChangePaymentTolerance(true, LibraryRandom.RandDec(10, 2), LibraryRandom.RandDecInRange(100, 200, 2));
 
@@ -985,7 +988,7 @@ codeunit 134041 "ERM Pmt. Tolerance VAT Appln."
             Validate("VAT Identifier", StrSubstNo(VATIdTok, VATPercent));
             Validate("VAT %", VATPercent);
             Validate("VAT Calculation Type", VATCalculcationType);
-            Validate("Adjust for Payment Discount", true);
+            "Adjust for Payment Discount" := true;
             Validate("Sales VAT Account",
               LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, GLAccount."Gen. Posting Type"::Sale));
             Validate("Purchase VAT Account",

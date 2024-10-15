@@ -549,7 +549,7 @@ table 99000764 "Routing Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCertifiedRoutingVersionExistsOnBeforeCalculate(var RtngVersionCode: Code[20]; RtngHeaderNo: Code[20]; CalculationDate: Date)
+    local procedure OnCertifiedRoutingVersionExistsOnBeforeCalculate(var RtngVersionCode: Code[20]; var RtngHeaderNo: Code[20]; CalculationDate: Date)
     begin
     end;
 }

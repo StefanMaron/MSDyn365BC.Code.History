@@ -741,6 +741,8 @@ codeunit 139173 "CRM Synch. Helper Test"
         // [GIVEN] Payment Method "PM" with "Create Bills" flag, activated in ES version
         // [GIVEN] A posted NAV sales invoice "SI", not paid
         LibraryERM.CreatePaymentMethod(PaymentMethod);
+        PaymentMethod."Create Bills" := true;
+        PaymentMethod.Modify();
         CreateSalesInvoiceWithPaymentMethod(PaymentMethod, SalesInvoiceHeader);
 
         // [WHEN] CRM invoice status is updated

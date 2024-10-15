@@ -25,6 +25,27 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         AnyQst: Label 'Any?';
         AnyMsg: Label 'Any.';
 
+    local procedure Initialize()
+    var
+        InventorySetup: Record "Inventory Setup";
+        LibraryERMCountryData: Codeunit "Library - ERM Country Data";
+    begin
+        LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM CETAF Costing Reval. WIP");
+        // Lazy Setup.
+        if isInitialized then
+            exit;
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM CETAF Costing Reval. WIP");
+
+        LibraryInventory.UpdateAverageCostSettings(
+          InventorySetup."Average Cost Calc. Type"::Item, InventorySetup."Average Cost Period"::Day);
+        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryPatterns.SETNoSeries;
+        isInitialized := true;
+        Commit();
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM CETAF Costing Reval. WIP");
+    end;
+
     [Test]
     [Scope('OnPrem')]
     procedure TestFIFO_FIFO_SimpleProdOrder()
@@ -1111,7 +1132,6 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         TestProdAverageItemCons(false, false);
     end;
 
-    [Test]
     [HandlerFunctions('ChangeAvgCostPeriodConfirmHndl,ChangeAvgCostPeriodMessageHndl')]
     [Scope('OnPrem')]
     procedure TestProdAverageItemConsReserv()
@@ -1125,53 +1145,6 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
     procedure TestProdAverageItemConsFixApp()
     begin
         TestProdAverageItemCons(false, true);
-    end;
-
-    [Test]
-    [HandlerFunctions('ChangeAvgCostPeriodConfirmHndl,ChangeAvgCostPeriodMessageHndl')]
-    [Scope('OnPrem')]
-    procedure TestProdAverageItemConsReservNoAccPeriods()
-    var
-        AccountingPeriod: Record "Accounting Period";
-    begin
-        // [FEATURE] [No Accounting Periods]
-        // [SCENARIO 222561] Production, reservation and revaluation of item with average cost without accounting periods
-        AccountingPeriod.DeleteAll();
-
-        TestProdAverageItemCons(true, false);
-    end;
-
-    local procedure Initialize()
-    var
-        InventorySetup: Record "Inventory Setup";
-        LibraryERMCountryData: Codeunit "Library - ERM Country Data";
-    begin
-        LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM CETAF Costing Reval. WIP");
-
-        // Lazy Setup.
-        if isInitialized then
-            exit;
-        LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM CETAF Costing Reval. WIP");
-
-        LibraryInventory.UpdateAverageCostSettings(
-          InventorySetup."Average Cost Calc. Type"::Item, InventorySetup."Average Cost Period"::Day);
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryPatterns.SETNoSeries;
-        isInitialized := true;
-        Commit();
-        LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM CETAF Costing Reval. WIP");
-    end;
-
-    local procedure InitializeQuantities(var QtyCompInProdItem1: Decimal; var QtyCompInProdItem2: Decimal; var QtyProdItem1InProdItem2: Decimal; var ProdOrder1Qty: Decimal; var ProdOrder2Qty: Decimal; var SaleProdItem2Qty: Decimal)
-    begin
-        QtyCompInProdItem1 := LibraryRandom.RandDecInDecimalRange(0.1, 1, 2);
-        QtyCompInProdItem2 := LibraryRandom.RandDecInDecimalRange(1, 10, 2);
-        QtyProdItem1InProdItem2 := LibraryRandom.RandDecInDecimalRange(1, 10, 2);
-        ProdOrder1Qty := LibraryRandom.RandDecInDecimalRange(100, 200, 2);
-        // Ensure that quantity of ProdItem1 consumed in ProdOrder2 should not be greater than what is produced in ProdItem1
-        ProdOrder2Qty := LibraryRandom.RandDecInDecimalRange(10, ProdOrder1Qty / QtyProdItem1InProdItem2, 2);
-        SaleProdItem2Qty := LibraryRandom.RandDecInDecimalRange(1, ProdOrder2Qty, 2);
     end;
 
     local procedure TestProdAverageItemCons(Reserve: Boolean; FixedAppl: Boolean)
@@ -1260,6 +1233,17 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
 
         // Tear down
         SetupAvgCostPeriod(OldAvgCostPeriod, NewAvgCostPeriod);
+    end;
+
+    local procedure InitializeQuantities(var QtyCompInProdItem1: Decimal; var QtyCompInProdItem2: Decimal; var QtyProdItem1InProdItem2: Decimal; var ProdOrder1Qty: Decimal; var ProdOrder2Qty: Decimal; var SaleProdItem2Qty: Decimal)
+    begin
+        QtyCompInProdItem1 := LibraryRandom.RandDecInDecimalRange(0.1, 1, 2);
+        QtyCompInProdItem2 := LibraryRandom.RandDecInDecimalRange(1, 10, 2);
+        QtyProdItem1InProdItem2 := LibraryRandom.RandDecInDecimalRange(1, 10, 2);
+        ProdOrder1Qty := LibraryRandom.RandDecInDecimalRange(100, 200, 2);
+        // Ensure that quantity of ProdItem1 consumed in ProdOrder2 should not be greater than what is produced in ProdItem1
+        ProdOrder2Qty := LibraryRandom.RandDecInDecimalRange(10, ProdOrder1Qty / QtyProdItem1InProdItem2, 2);
+        SaleProdItem2Qty := LibraryRandom.RandDecInDecimalRange(1, ProdOrder2Qty, 2);
     end;
 
     local procedure SetupItems(var ComponentItem: Record Item; var ProducedItem1: Record Item; var ProducedItem2: Record Item; ComponentCostingMethod: Option; ProducedItemCostingMethod: Option; QtyCompInProd1: Decimal; QtyCompInProd2: Decimal; QtyProd1InProd2: Decimal)

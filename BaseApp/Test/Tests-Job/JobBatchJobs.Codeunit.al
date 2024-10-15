@@ -15,11 +15,11 @@ codeunit 136310 "Job Batch Jobs"
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryJob: Codeunit "Library - Job";
-        CreditMemoError: Label 'Credit Memo must not exist.';
-        ThereIsNothingToChangeError: Label 'There is nothing to change.';
-        TotalAmountError: Label 'Total amount must be equal.';
-        SalesLineMustNotExistError: Label 'Sales Line must not exist.';
-        UnknownError: Label 'Unknown Error';
+        CreditMemoErr: Label 'Credit Memo must not exist.';
+        ThereIsNothingToChangeErr: Label 'There is nothing to change.';
+        TotalAmountErr: Label 'Total amount must be equal.';
+        SalesLineMustNotExistErr: Label 'Sales Line must not exist.';
+        UnknownErr: Label 'Unknown Error';
         SalesInvoiceExistErr: Label '%1 should be empty.';
         LibraryCosting: Codeunit "Library - Costing";
         LibraryERM: Codeunit "Library - ERM";
@@ -40,10 +40,10 @@ codeunit 136310 "Job Batch Jobs"
         IsInitialized: Boolean;
         AppendSalesInvoice: Boolean;
         ReverseOnly: Boolean;
-        IncludeLineType: Option " ",Schedule,Contract,"Schedule+Contract";
+        IncludeLineType: Option " ",Budget,Billable,"Budget+Billable";
         PostingDate: Date;
         NewRelationalExchangeRateAmount: Decimal;
-        SalesLineTransferError: Label 'The lines were not transferred to an invoice.';
+        SalesLineTransferErr: Label 'The lines were not transferred to an invoice.';
         JobNoErr: Label 'The field Job No. of table Job Planning Line Invoice contains a value (%1) that cannot be found in the related table (Job).';
         JobTaskNoErr: Label 'The field Job Task No. of table Job Planning Line Invoice contains a value (%1) that cannot be found in the related table (Job Task).';
         LineNoErr: Label 'The field Job Planning Line No. of table Job Planning Line Invoice contains a value (%1) that cannot be found in the related table (Job Planning Line).';
@@ -75,7 +75,7 @@ codeunit 136310 "Job Batch Jobs"
         asserterror RunChangeJobDates(JobTask."Job Task No.", JobTask."Job No.");  // Handler will be used for this report.
 
         // 3. Verify: Check the expected ERROR.
-        Assert.AreEqual(StrSubstNo(ThereIsNothingToChangeError), GetLastErrorText, UnknownError);
+        Assert.AreEqual(StrSubstNo(ThereIsNothingToChangeErr), GetLastErrorText, UnknownErr);
     end;
 
     [Test]
@@ -86,19 +86,19 @@ codeunit 136310 "Job Batch Jobs"
         JobTask: Record "Job Task";
         JobPlanningLine: Record "Job Planning Line";
     begin
-        // Run Job Date report for false setting of change Currency and Planning date for include Line Type Schedule and handle error message.
+        // Run Job Date report for false setting of change Currency and Planning date for include Line Type Budget and handle error message.
 
         // 1. Setup: Create Job, Job Task and Job Planning Line.
         Initialize;
         CreateJobAndJobTask(JobTask);
         LibraryJob.CreateJobPlanningLine(JobPlanningLine."Line Type"::Budget, JobPlanningLine.Type::Resource, JobTask, JobPlanningLine);
-        AssignGlobalVariable(false, false, IncludeLineType::Schedule);  // Assign global variables.
+        AssignGlobalVariable(false, false, IncludeLineType::Budget);  // Assign global variables.
 
         // 2. Exercise: Run Change Job Dates report.
         asserterror RunChangeJobDates(JobTask."Job Task No.", JobTask."Job No.");  // Handler will be used for this report.
 
         // 3. Verify: Check the expected ERROR.
-        Assert.AreEqual(StrSubstNo(ThereIsNothingToChangeError), GetLastErrorText, UnknownError);
+        Assert.AreEqual(StrSubstNo(ThereIsNothingToChangeErr), GetLastErrorText, UnknownErr);
     end;
 
     [Test]
@@ -109,13 +109,13 @@ codeunit 136310 "Job Batch Jobs"
         JobTask: Record "Job Task";
         JobPlanningLine: Record "Job Planning Line";
     begin
-        // Run Job Date report for true setting of change Currency and Planning date for include Line Type Schedule and validate Job Planning Line.
+        // Run Job Date report for true setting of change Currency and Planning date for include Line Type Budget and validate Job Planning Line.
 
         // 1. Setup: Create Job, Job Task and Job Planning Line.
         Initialize;
         CreateJobAndJobTask(JobTask);
         LibraryJob.CreateJobPlanningLine(JobPlanningLine."Line Type"::Budget, JobPlanningLine.Type::Resource, JobTask, JobPlanningLine);
-        AssignGlobalVariable(true, true, IncludeLineType::Schedule);  // Assign global variables.
+        AssignGlobalVariable(true, true, IncludeLineType::Budget);  // Assign global variables.
 
         // 2. Exercise: Run Change Job Dates report.
         RunChangeJobDates(JobTask."Job Task No.", JobTask."Job No.");  // Handler will be used for this report.
@@ -133,13 +133,13 @@ codeunit 136310 "Job Batch Jobs"
         JobTask: Record "Job Task";
         JobPlanningLine: Record "Job Planning Line";
     begin
-        // Run Job Date report for true setting of change Currency and Planning date for include Line Type Contract and validate Job Planning Line.
+        // Run Job Date report for true setting of change Currency and Planning date for include Line Type Billable and validate Job Planning Line.
 
         // 1. Setup: Create Job, Job Task and Job Planning Line.
         Initialize;
         CreateJobAndJobTask(JobTask);
         LibraryJob.CreateJobPlanningLine(JobPlanningLine."Line Type"::Billable, JobPlanningLine.Type::Resource, JobTask, JobPlanningLine);
-        AssignGlobalVariable(true, true, IncludeLineType::Contract);  // Assign global variables.
+        AssignGlobalVariable(true, true, IncludeLineType::Billable);  // Assign global variables.
 
         // 2. Exercise: Run Change Job Dates report.
         RunChangeJobDates(JobTask."Job Task No.", JobTask."Job No.");  // Handler will be used for this report.
@@ -157,19 +157,19 @@ codeunit 136310 "Job Batch Jobs"
         JobTask: Record "Job Task";
         JobPlanningLine: Record "Job Planning Line";
     begin
-        // Run Job Date report for false setting of change Currency and Planning date for include Line Type Contract and handle error message.
+        // Run Job Date report for false setting of change Currency and Planning date for include Line Type Billable and handle error message.
 
         // 1. Setup: Create Job, Job Task and Job Planning Line.
         Initialize;
         CreateJobAndJobTask(JobTask);
         LibraryJob.CreateJobPlanningLine(JobPlanningLine."Line Type"::Billable, JobPlanningLine.Type::Resource, JobTask, JobPlanningLine);
-        AssignGlobalVariable(false, false, IncludeLineType::Contract);  // Assign global variables.
+        AssignGlobalVariable(false, false, IncludeLineType::Billable);  // Assign global variables.
 
         // 2. Exercise: Run Change Job Dates report.
         asserterror RunChangeJobDates(JobTask."Job Task No.", JobTask."Job No.");  // Handler will be used for this report.
 
         // 3. Verify: Check the expected ERROR.
-        Assert.AreEqual(StrSubstNo(ThereIsNothingToChangeError), GetLastErrorText, UnknownError);
+        Assert.AreEqual(StrSubstNo(ThereIsNothingToChangeErr), GetLastErrorText, UnknownErr);
     end;
 
     [Test]
@@ -180,14 +180,14 @@ codeunit 136310 "Job Batch Jobs"
         JobTask: Record "Job Task";
         JobPlanningLine: Record "Job Planning Line";
     begin
-        // Run Job Date report for true setting of change Currency and Planning date for include Line Type Both Schedule and Contract and validate Job Planning Line.
+        // Run Job Date report for true setting of change Currency and Planning date for include Line Type Both Budget and Billable and validate Job Planning Line.
 
         // 1. Setup: Create Job, Job Task and Job Planning Line.
         Initialize;
         CreateJobAndJobTask(JobTask);
         LibraryJob.CreateJobPlanningLine(
           JobPlanningLine."Line Type"::"Both Budget and Billable", JobPlanningLine.Type::Resource, JobTask, JobPlanningLine);
-        AssignGlobalVariable(true, true, IncludeLineType::"Schedule+Contract");  // Assign global variables.
+        AssignGlobalVariable(true, true, IncludeLineType::"Budget+Billable");  // Assign global variables.
 
         // 2. Exercise: Run Change Job Dates report.
         RunChangeJobDates(JobTask."Job Task No.", JobTask."Job No.");  // Handler will be used for this report.
@@ -206,20 +206,20 @@ codeunit 136310 "Job Batch Jobs"
         JobTask: Record "Job Task";
         JobPlanningLine: Record "Job Planning Line";
     begin
-        // Run Job Date report for false setting of change Currency and Planning date for include Line Type Both Schedule and Contract and handle error message.
+        // Run Job Date report for false setting of change Currency and Planning date for include Line Type Both Budget and Billable and handle error message.
 
         // 1. Setup: Create Job, Job Task and Job Planning Line.
         Initialize;
         CreateJobAndJobTask(JobTask);
         LibraryJob.CreateJobPlanningLine(
           JobPlanningLine."Line Type"::"Both Budget and Billable", JobPlanningLine.Type::Resource, JobTask, JobPlanningLine);
-        AssignGlobalVariable(false, false, IncludeLineType::"Schedule+Contract");  // Assign global variables.
+        AssignGlobalVariable(false, false, IncludeLineType::"Budget+Billable");  // Assign global variables.
 
         // 2. Exercise: Run Change Job Dates report.
         asserterror RunChangeJobDates(JobTask."Job Task No.", JobTask."Job No.");  // Handler will be used for this report.
 
         // 3. Verify: Check the expected ERROR.
-        Assert.AreEqual(StrSubstNo(ThereIsNothingToChangeError), GetLastErrorText, UnknownError);
+        Assert.AreEqual(StrSubstNo(ThereIsNothingToChangeErr), GetLastErrorText, UnknownErr);
     end;
 
     [Test]
@@ -243,7 +243,7 @@ codeunit 136310 "Job Batch Jobs"
         RunJobCalculateWIP(Job);
 
         // 3. Verify: Verify Total WIP Cost Amount.
-        Assert.AreEqual(JobJournalLine."Total Cost", GetTotalWIPCostAmount(Job), TotalAmountError);
+        Assert.AreEqual(JobJournalLine."Total Cost", GetTotalWIPCostAmount(Job), TotalAmountErr);
     end;
 
     [Test]
@@ -268,7 +268,7 @@ codeunit 136310 "Job Batch Jobs"
         RunJobPostWIPToGL(Job);
 
         // 3. Verify: Verify Total WIP Cost G/L Amount.
-        Assert.AreEqual(JobJournalLine."Total Cost", GetTotalWIPCostGLAmount(Job), TotalAmountError);
+        Assert.AreEqual(JobJournalLine."Total Cost", GetTotalWIPCostGLAmount(Job), TotalAmountErr);
     end;
 
     [Test]
@@ -295,7 +295,7 @@ codeunit 136310 "Job Batch Jobs"
         RunJobPostWIPToGL(Job);
 
         // 3. Verify: Verify Total WIP Cost G/L Amount.
-        Assert.AreEqual(0, GetTotalWIPCostGLAmount(Job), TotalAmountError);
+        Assert.AreEqual(0, GetTotalWIPCostGLAmount(Job), TotalAmountErr);
     end;
 
     [Test]
@@ -366,10 +366,10 @@ codeunit 136310 "Job Batch Jobs"
 
         // 3. Verify: Verify Total WIP Sales Amount, Total WIP Cost Amount and Recog. Sales Amount.
         Assert.AreEqual(
-          -JobJournalLine."Total Price" * JobJournalLine."Total Price" / TotalPrice, GetTotalWIPSalesAmount(Job), TotalAmountError);
-        Assert.AreEqual(0, GetTotalWIPCostAmount(Job), TotalAmountError);
+          -JobJournalLine."Total Price" * JobJournalLine."Total Price" / TotalPrice, GetTotalWIPSalesAmount(Job), TotalAmountErr);
+        Assert.AreEqual(0, GetTotalWIPCostAmount(Job), TotalAmountErr);
         Assert.AreEqual(
-          JobJournalLine."Total Price" * JobJournalLine."Total Price" / TotalPrice, GetRecogSalesAmount(Job), TotalAmountError);
+          JobJournalLine."Total Price" * JobJournalLine."Total Price" / TotalPrice, GetRecogSalesAmount(Job), TotalAmountErr);
     end;
 
     [Test]
@@ -391,7 +391,7 @@ codeunit 136310 "Job Batch Jobs"
         RunJobCalculateWIP(Job);
 
         // 3. Verify: Verify Total WIP Cost Amount.
-        Assert.AreEqual(0, GetTotalWIPCostAmount(Job), TotalAmountError);
+        Assert.AreEqual(0, GetTotalWIPCostAmount(Job), TotalAmountErr);
     end;
 
     [Test]
@@ -512,7 +512,7 @@ codeunit 136310 "Job Batch Jobs"
         // 3. Verify: Credit Memo must not exist.
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::"Credit Memo");
         SalesHeader.SetRange("Bill-to Customer No.", FindBillToCustomerNo(JobTask."Job No."));
-        Assert.IsFalse(SalesHeader.FindFirst, CreditMemoError);
+        Assert.IsFalse(SalesHeader.FindFirst, CreditMemoErr);
     end;
 
     [Test]
@@ -573,7 +573,7 @@ codeunit 136310 "Job Batch Jobs"
           FindSalesLine(
             SalesLine, SalesLine."Document Type"::"Credit Memo",
             FindSalesHeader(JobTask."Job No.", SalesHeader."Document Type"::"Credit Memo"), JobPlanningLine2."No."),
-          SalesLineMustNotExistError);
+          SalesLineMustNotExistErr);
     end;
 
     [Test]
@@ -709,8 +709,7 @@ codeunit 136310 "Job Batch Jobs"
 
         // 3. Verify: Verify values on Job Ledger Entry and G/L Entry.
         VerifyJobLedgerEntry(JobJournalLine, DocumentNo, LineAmount);
-        VerifyGLEntry(GeneralPostingSetup."Sales Account", DocumentNo, -LineAmount);
-        VerifyGLEntry(GeneralPostingSetup."Sales Line Disc. Account", DocumentNo, LineAmount - JobJournalLine."Line Amount");
+        VerifyGLEntry(GeneralPostingSetup."Sales Account", DocumentNo, -LineAmount + JobJournalLine."Line Discount Amount");
     end;
 
     [Test]
@@ -753,7 +752,7 @@ codeunit 136310 "Job Batch Jobs"
         CreateJobAndJobTask(JobTask);
 
         // 2. Exercise: Create Job Journal Line and update Line Amount and calculate values.
-        FractionValue := LibraryRandom.RandInt(99) / 100;
+        FractionValue := LibraryUtility.GenerateRandomFraction;
         CreateAndUpdateJobJournalLine(JobJournalLine, JobTask, FractionValue);
         LineAmount := JobJournalLine.Quantity * JobJournalLine."Unit Price" - FractionValue;
         DiscountAmount := Round(JobJournalLine."Line Amount" * JobJournalLine."Line Discount %" / 100);
@@ -787,7 +786,7 @@ codeunit 136310 "Job Batch Jobs"
         asserterror RunJobCreateInvoice(JobPlanningLine);
 
         // 3. Verify: Verify Sales Line is not created.
-        Assert.ExpectedError(SalesLineTransferError);
+        Assert.ExpectedError(SalesLineTransferErr);
     end;
 
     [Test]
@@ -1213,7 +1212,7 @@ codeunit 136310 "Job Batch Jobs"
         exit(JobPlanningLine."No.");
     end;
 
-    local procedure AssignGlobalVariable(ChangeCurrencyDate2: Boolean; ChangePlanningDate2: Boolean; IncludeLineType2: Option " ",Schedule,Contract,"Schedule+Contract")
+    local procedure AssignGlobalVariable(ChangeCurrencyDate2: Boolean; ChangePlanningDate2: Boolean; IncludeLineType2: Option " ",Budget,Billable,"Budget+Billable")
     begin
         ChangeCurrencyDate := ChangeCurrencyDate2;
         ChangePlanningDate := ChangePlanningDate2;
@@ -1382,7 +1381,7 @@ codeunit 136310 "Job Batch Jobs"
 
     local procedure CreateJobJournalLine(var JobJournalLine: Record "Job Journal Line"; JobTask: Record "Job Task"; No: Code[20])
     begin
-        LibraryJob.CreateJobJournalLineForType(2, JobJournalLine.Type::Item, JobTask, JobJournalLine);  // Use 2 for Contract.
+        LibraryJob.CreateJobJournalLineForType(2, JobJournalLine.Type::Item, JobTask, JobJournalLine);  // Use 2 for Billable.
         JobJournalLine.Validate("No.", No);
         JobJournalLine.Validate(Quantity, LibraryRandom.RandInt(10));  // Use Random because value is not important.
         JobJournalLine.Modify(true);
@@ -2133,7 +2132,7 @@ codeunit 136310 "Job Batch Jobs"
     [Scope('OnPrem')]
     procedure JobTransferToPlanningLinesHandler(var JobTransferToPlanningLines: TestRequestPage "Job Transfer To Planning Lines")
     begin
-        JobTransferToPlanningLines.TransferTo.SetValue(2);  // Use 2 for Both Schedule and Contract.
+        JobTransferToPlanningLines.TransferTo.SetValue(2);  // Use 2 for Both Budget and Billable.
         JobTransferToPlanningLines.OK.Invoke;
     end;
 

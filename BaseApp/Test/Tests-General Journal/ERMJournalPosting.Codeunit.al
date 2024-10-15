@@ -92,13 +92,11 @@ codeunit 134420 "ERM Journal Posting"
         CreateGenJournalBatch(GenJournalBatch);
         FindGLAccount(GLAccountOmitDesc, true);
 
-        LibraryLowerPermissions.SetJournalsEdit;
+        LibraryLowerPermissions.SetO365Full;
         CreateGenJrnLine(GenJournalLine, GenJournalBatch, GLAccountOmitDesc);
         Assert.IsTrue(DelChr(GenJournalLine.Description, '=', ' ') = '', 'Description must be blank');
-        LibraryLowerPermissions.SetO365Setup;
 
         FindGLAccount(GLAccountWithDesc, false);
-        LibraryLowerPermissions.SetJournalsEdit;
         CreateGenJrnLine(GenJournalLine, GenJournalBatch, GLAccountWithDesc);
         Assert.IsFalse(DelChr(GenJournalLine.Description, '=', ' ') = '', 'Description must not be blank');
     end;

@@ -643,12 +643,12 @@ codeunit 5601 "FA Insert G/L Account"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnInsertBufferBalAccOnAfterAssignFromFAAllocAcc(FAAllocation: Record "FA Allocation"; FAGLPostBuf: Record "FA G/L Posting Buffer")
+    local procedure OnInsertBufferBalAccOnAfterAssignFromFAAllocAcc(FAAllocation: Record "FA Allocation"; var FAGLPostBuf: Record "FA G/L Posting Buffer")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnInsertBufferBalAccOnAfterAssignFromFAPostingGrAcc(FAAllocation: Record "FA Allocation"; FAGLPostBuf: Record "FA G/L Posting Buffer")
+    local procedure OnInsertBufferBalAccOnAfterAssignFromFAPostingGrAcc(FAAllocation: Record "FA Allocation"; var FAGLPostBuf: Record "FA G/L Posting Buffer")
     begin
     end;
 

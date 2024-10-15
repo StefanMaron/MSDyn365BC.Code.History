@@ -27,10 +27,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         InteractionLogEntryExistErr: Label 'Interaction Log Entry must exist.';
         UndefinedDateErr: Label 'You cannot base a date calculation on an undefined date.';
         BalanceOnCaptionTxt: Label 'Balance on %1', Comment = '%1 = Work date';
-        AgedBy: Label 'Aged by %1';
         DimensionValueTxt: Label '%1 - %2', Comment = '%1 = Dimension Code, %2 = Dimension Value Code';
-        AgingBy: Option "Due Date","Posting Date","Document Date";
-        HeadingType: Option "Date Interval","Number of Days";
         UndoReceiptMsg: Label 'Do you really want to undo the selected Receipt lines?';
         UndoPurchRetOrderMsg: Label 'Do you really want to undo the selected Return Shipment lines?';
         MustBeEqualErr: Label '%1 must be equal to %2.', Comment = '%1 = Expected Amount %2 = Actual Amount.';
@@ -464,10 +461,10 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         VendorLedgerEntry.CalcFields(Amount, "Remaining Amount");
         LibraryReportDataset.LoadDataSetFile;
         with VendorLedgerEntry do begin
-            LibraryReportDataset.AssertElementWithValueExists('VendAmount', Amount);
-            LibraryReportDataset.AssertElementWithValueExists('VendRemainAmount', "Remaining Amount");
-            LibraryReportDataset.AssertElementWithValueExists('VendBalanceLCY', Amount);
-            LibraryReportDataset.AssertElementWithValueExists('EntryNo_VendorLedgerEntry', "Entry No.");
+            LibraryReportDataset.AssertElementWithValueExists('VendCreditAmt', -Amount);
+            LibraryReportDataset.AssertElementWithValueExists('VendRemainAmt', "Remaining Amount");
+            LibraryReportDataset.AssertElementWithValueExists('VendBalLCY', Amount);
+            LibraryReportDataset.AssertElementWithValueExists('EntryNo_VendLedgEntry', "Entry No.");
         end;
     end;
 
@@ -495,10 +492,10 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         VendorLedgerEntry.CalcFields("Amount (LCY)", "Remaining Amt. (LCY)");
         LibraryReportDataset.LoadDataSetFile;
         with VendorLedgerEntry do begin
-            LibraryReportDataset.AssertElementWithValueExists('VendAmount', "Amount (LCY)");
-            LibraryReportDataset.AssertElementWithValueExists('VendRemainAmount', "Remaining Amt. (LCY)");
-            LibraryReportDataset.AssertElementWithValueExists('VendBalanceLCY', "Amount (LCY)");
-            LibraryReportDataset.AssertElementWithValueExists('DocNo_VendLedgerEntry', "Document No.");
+            LibraryReportDataset.AssertElementWithValueExists('VendCreditAmt', -"Amount (LCY)");
+            LibraryReportDataset.AssertElementWithValueExists('VendRemainAmt', "Remaining Amt. (LCY)");
+            LibraryReportDataset.AssertElementWithValueExists('VendBalLCY', "Amount (LCY)");
+            LibraryReportDataset.AssertElementWithValueExists('DocNo_VendLedgEntry', "Document No.");
         end;
     end;
 
@@ -866,156 +863,6 @@ codeunit 134335 "ERM Purch. Doc. Reports"
     end;
 
     [Test]
-    [HandlerFunctions('ReportHandlerAgedAccountPayable')]
-    [Scope('OnPrem')]
-    procedure AgedAccountsPayableDueDate()
-    var
-        GenJournalLine: Record "Gen. Journal Line";
-        Counter: Integer;
-        VendorNo: Code[20];
-        Amount: array[5] of Decimal;
-    begin
-        // Check Aged Accounts Payable Report with Aging By Due Date option.
-
-        // Setup: Create Vendor and Post Multiple General Journal Lines with Custom Posting Dates.
-        Initialize;
-        VendorNo := CreateAndUpdateVendor;
-        for Counter := 1 to 5 do begin
-            CreatePostGeneralJournalLine(GenJournalLine, VendorNo, '', '<-' + Format(Counter - 1) + 'M>');
-            Amount[Counter] := GenJournalLine.Amount;
-        end;
-
-        // Exercise: Save Aged Accounts Payable Report with Aging By Due Date option.
-        SaveAgedAccountsPayable(VendorNo, AgingBy::"Due Date", false, false, HeadingType::"Date Interval");
-
-        // Verify: Verify Report Data for all columns.
-        LibraryReportDataset.LoadDataSetFile;
-
-        LibraryReportDataset.AssertElementWithValueExists('SelectAgeByDuePostngDocDt', StrSubstNo(AgedBy, Format(AgingBy::"Due Date")));
-        LibraryReportDataset.AssertElementWithValueExists('GrandTotalVLE1RemAmtLCY', Amount[1]);
-        LibraryReportDataset.AssertElementWithValueExists('GrandTotalVLE2RemAmtLCY', Amount[2]);
-        LibraryReportDataset.AssertElementWithValueExists('GrandTotalVLE3RemAmtLCY', Amount[3]);
-        LibraryReportDataset.AssertElementWithValueExists('GrandTotalVLE4RemAmtLCY', Amount[4]);
-        LibraryReportDataset.AssertElementWithValueExists('GrandTotalVLE5RemAmtLCY', Amount[5]);
-    end;
-
-    [Test]
-    [HandlerFunctions('ReportHandlerAgedAccountPayable')]
-    [Scope('OnPrem')]
-    procedure AgedAccountsPayablePostingDate()
-    var
-        GenJournalLine: Record "Gen. Journal Line";
-    begin
-        // Check Aged Accounts Payable Report with Aging By Posting Date option.
-
-        // Setup: Create and Post General Journal Lines for Vendor. Save Report with Aging By: Document Date.
-        Initialize;
-        SetupSaveAgedAccountsPayable(GenJournalLine, '', AgingBy::"Posting Date", false, false, HeadingType::"Date Interval");
-
-        // Verify: Verify Report Data.
-        LibraryReportDataset.LoadDataSetFile;
-        with GenJournalLine do begin
-            LibraryReportDataset.AssertElementWithValueExists('AgedVendLedgEnt2RemAmtLCY', Amount);
-            LibraryReportDataset.AssertElementWithValueExists('GrandTotalVLE2RemAmtLCY', Amount);
-        end;
-        LibraryReportDataset.AssertElementWithValueExists('SelectAgeByDuePostngDocDt',
-          StrSubstNo(AgedBy, Format(AgingBy::"Posting Date")));
-    end;
-
-    [Test]
-    [HandlerFunctions('ReportHandlerAgedAccountPayable')]
-    [Scope('OnPrem')]
-    procedure AgedAccountsPayableDocDate()
-    var
-        GenJournalLine: Record "Gen. Journal Line";
-    begin
-        // Check Aged Accounts Payable Report with Aging By Document Date option.
-
-        // Setup: Create and Post General Journal Lines for Vendor. Save Report with Aging By: Document Date.
-        Initialize;
-        SetupSaveAgedAccountsPayable(GenJournalLine, '', AgingBy::"Document Date", false, false, HeadingType::"Date Interval");
-
-        // Verify: Verify Values.
-        LibraryReportDataset.LoadDataSetFile;
-        with GenJournalLine do begin
-            LibraryReportDataset.AssertElementWithValueExists('AgedVendLedgEnt2RemAmtLCY', Amount);
-            LibraryReportDataset.AssertElementWithValueExists('GrandTotalVLE2RemAmtLCY', Amount);
-        end;
-        LibraryReportDataset.AssertElementWithValueExists('SelectAgeByDuePostngDocDt',
-          StrSubstNo(AgedBy, Format(AgingBy::"Document Date")));
-    end;
-
-    [Test]
-    [HandlerFunctions('ReportHandlerAgedAccountPayable')]
-    [Scope('OnPrem')]
-    procedure AgedAccountsPayableAmountLCY()
-    var
-        GenJournalLine: Record "Gen. Journal Line";
-    begin
-        // Check Aged Accounts Payable Report with Print Amounts in LCY option TRUE.
-
-        // Setup: Post Invoice with Currency for Vendor. Save Report with Print Amounts in LCY option TRUE.
-        Initialize;
-        SetupSaveAgedAccountsPayable(
-          GenJournalLine, CreateCurrencyAndExchangeRate, AgingBy::"Due Date", true, false, HeadingType::"Date Interval");
-
-        // Verify: Verify Report Values.
-        LibraryReportDataset.LoadDataSetFile;
-        with GenJournalLine do begin
-            LibraryReportDataset.AssertElementWithValueExists('AgedVendLedgEnt2RemAmtLCY', "Amount (LCY)");
-            LibraryReportDataset.AssertElementWithValueExists('GrandTotalVLE2RemAmtLCY', "Amount (LCY)");
-        end;
-    end;
-
-    [Test]
-    [HandlerFunctions('ReportHandlerAgedAccountPayable')]
-    [Scope('OnPrem')]
-    procedure AgedAccountsPayablePrintDetail()
-    var
-        GenJournalLine: Record "Gen. Journal Line";
-    begin
-        // Check Aged Accounts Payable Report with Print Details option TRUE.
-
-        // Setup: Create Currency and Post General Journal Lines using it. Save Aged Accounts Payable Report with Print Details TRUE.
-        Initialize;
-        SetupSaveAgedAccountsPayable(
-          GenJournalLine, CreateCurrencyAndExchangeRate, AgingBy::"Due Date", false, true, HeadingType::"Date Interval");
-
-        // Verify: Verify Report Values.
-        LibraryReportDataset.LoadDataSetFile;
-        with GenJournalLine do begin
-            LibraryReportDataset.AssertElementWithValueExists('AgedVendLedgEnt2RemAmt', Amount);
-            LibraryReportDataset.AssertElementWithValueExists('GrandTotalVLE2RemAmtLCY', "Amount (LCY)");
-            LibraryReportDataset.AssertElementWithValueExists('TempCurrency2Code', "Currency Code");
-        end;
-    end;
-
-    [Test]
-    [HandlerFunctions('ReportHandlerAgedAccountPayable')]
-    [Scope('OnPrem')]
-    procedure AgedAccountsPayableHeadingType()
-    var
-        GeneralLedgerSetup: Record "General Ledger Setup";
-        GenJournalLine: Record "Gen. Journal Line";
-    begin
-        // Check Aged Accounts Payable Report with Heading Type: Number of Days option.
-
-        // Setup: Create and Post General Journal Lines for Vendor. Save Aged Accounts Payable Report with Heading Type= Number of Days.
-        Initialize;
-        GeneralLedgerSetup.Get();
-        SetupSaveAgedAccountsPayable(GenJournalLine, '', AgingBy::"Due Date", false, false, HeadingType::"Number of Days");
-
-        // Verify: Verify Values.
-        LibraryReportDataset.LoadDataSetFile;
-        with GenJournalLine do begin
-            LibraryReportDataset.AssertElementWithValueExists('VendLedgEntryEndingDtAmt', Amount);
-            LibraryReportDataset.AssertElementWithValueExists('VLEEndingDateRemAmtLCY', Amount);
-            LibraryReportDataset.AssertElementWithValueExists('AgedVendLedgEnt2RemAmtLCY', Amount);
-        end;
-        LibraryReportDataset.AssertElementWithValueExists('CurrCode_TempVenLedgEntryLoop', GeneralLedgerSetup."LCY Code");
-    end;
-
-    [Test]
     [HandlerFunctions('ReportHandlerBlanketPurchaseOrder')]
     [Scope('OnPrem')]
     procedure BlanketPurchaseOrder()
@@ -1353,23 +1200,6 @@ codeunit 134335 "ERM Purch. Doc. Reports"
     end;
 
     [Test]
-    [HandlerFunctions('ReportHandlerVendorDetailTrialBalance')]
-    [Scope('OnPrem')]
-    procedure VendorDetailTrialBalance_EntryNoCaption()
-    begin
-        // [FEATURE] [Vendor] [Detail Trial Balance]
-        // [SCENARIO 379230] REP 304 "Vendor - Detail Trial Balance" prints "Entry No." column caption
-        Initialize;
-
-        // [WHEN] Run REP 304 "Vendor - Detail Trial Balance"
-        SaveVendorDetailTrialBalReport(LibraryPurchase.CreateVendorNo, false, false, WorkDate);
-
-        // [THEN] "Entry No." column caption is shown
-        LibraryReportDataset.LoadParametersFile;
-        LibraryReportDataset.AssertParameterValueExists('EntryNo_VendorLedgerEntryCaption', 'Entry No.');
-    end;
-
-    [Test]
     [Scope('OnPrem')]
     procedure ArchivedPurchaseOrderReportWithPricesInclVATAndTwoLines()
     var
@@ -1391,7 +1221,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         RunArchivedPurchaseOrderReport(PurchaseHeader);
 
         // [THEN] Report correctly prints total VAT Amount and Total VAT Base Amount
-        VerifyArchiveDocExcelTotalVATBaseAmount('AJ', 52, TotalVATAmount, TotalBaseAmount);
+        VerifyArchiveDocExcelTotalVATBaseAmount('V', 37, TotalVATAmount, TotalBaseAmount);
 
         // Tear Down
         VATPostingSetup[1].Delete(true);
@@ -1423,7 +1253,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         // [THEN] Subtotal Amount = 1000, Invoice Discount Amount = -200, Total Excl. VAT = 800, VAT Amount = 200, Total Incl. VAT = 1000
         PurchaseLine.Find;
         VerifyArchiveOrderExcelTotalsWithDiscount(
-          'AJ', 49, PurchaseLine."Line Amount", InvDiscountAmount, PurchaseLine."VAT Base Amount",
+          'V', 32, PurchaseLine."Line Amount", InvDiscountAmount, PurchaseLine."VAT Base Amount",
           PurchaseLine."Amount Including VAT" - PurchaseLine.Amount, PurchaseLine."Amount Including VAT");
     end;
 
@@ -1452,76 +1282,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         // [THEN] Subtotal Amount = 1000, Invoice Discount Amount = -200, Total = 800
         PurchaseLine.Find;
         VerifyArchiveRetOrderExcelTotalsWithDiscount(
-          'AC', 49, PurchaseLine."Line Amount", InvDiscountAmount, PurchaseLine."VAT Base Amount");
-    end;
-
-    [Test]
-    [HandlerFunctions('ReportHandlerVendorDetailTrialBalance')]
-    [Scope('OnPrem')]
-    procedure DetailTrialBalanceExtDocNo()
-    var
-        GenJournalLine: Record "Gen. Journal Line";
-    begin
-        // [FEATURE] [Detail Trial Balance]
-        // [SCENARIO 262729] External Document No. is included in report Vendor - Detail Trial Balance.
-        Initialize;
-
-        // [GIVEN]
-        CreateGeneralJournalLine(
-          GenJournalLine, GenJournalLine."Document Type"::Invoice, LibraryPurchase.CreateVendorNo, -LibraryRandom.RandDec(100, 2));
-        GenJournalLine.Validate("External Document No.", CopyStr(LibraryUtility.GenerateRandomXMLText(35), 1, 35));
-        GenJournalLine.Modify(true);
-        LibraryERM.PostGeneralJnlLine(GenJournalLine);
-
-        // [WHEN] Save Vendor Detail Trial Balance Report.
-        SaveVendorDetailTrialBalReport(GenJournalLine."Account No.", false, false, WorkDate);
-
-        // [THEN] Verify External Document No. on Detail Trial Balance Report.
-        LibraryReportDataset.LoadDataSetFile;
-        LibraryReportDataset.AssertElementWithValueExists('ExtDocNo_VendLedgerEntry', GenJournalLine."External Document No.");
-    end;
-
-    [Test]
-    [HandlerFunctions('VendorDetailTrialBalanceExcelRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure VendorDetailTrialBalanceCorrOfRemainingAmount()
-    var
-        GenJournalLine: Record "Gen. Journal Line";
-        CurrencyCode: Code[10];
-        VendNo: Code[20];
-        i: Integer;
-    begin
-        // [FEATURE] [Vendor - Detail Trial Bal.]
-        // [SCENARIO 280971] "Correction of remaining amount" does not affect totals in Vendor - Detail Trial Bal. report
-
-        Initialize;
-
-        // [GIVEN] Currency with exchange rate 1 to 0.33333
-        CurrencyCode := CreateCurrencyWithFixedExchRates(0.33333);
-
-        // [GIVEN] Post two invoices with currency and amount = 1 (LCY Amount = 0.33)
-        VendNo := LibraryPurchase.CreateVendorNo;
-        for i := 1 to 2 do
-            CreatePostGeneralJournalLineCustomDocTypeAndAmount(
-              GenJournalLine, GenJournalLine."Document Type"::Invoice, VendNo, CurrencyCode, -1);
-
-        // [GIVEN] Post payment with currency and amount = 2 (LCY Amount = 0.67)
-        CreatePostGeneralJournalLineCustomDocTypeAndAmount(GenJournalLine, GenJournalLine."Document Type"::Payment, VendNo, CurrencyCode, 2);
-
-        // [GIVEN] Applied payment to both invoices
-        ApplyPaymentToAllOpenInvoices(GenJournalLine."Document No.", VendNo);
-
-        // [GIVEN] Post invoice with currency and amount = 400 (LCY Amount = 133.33)
-        CreatePostGeneralJournalLineCustomDocTypeAndAmount(
-          GenJournalLine, GenJournalLine."Document Type"::Invoice, VendNo, CurrencyCode, -LibraryRandom.RandDec(100, 2));
-
-        // [WHEN] Generate the Vendor Detail Trial Balance Report.
-        RunDtldVendTrialBalanceReportWithDateFilter(GenJournalLine."Account No.");
-
-        // [THEN] Verify start balance is zero and vendor balance is 133.33
-        LibraryReportValidation.OpenExcelFile;
-        LibraryReportValidation.VerifyCellValue(31, 7, Format(GenJournalLine."Amount (LCY)", 0, 9));
-        LibraryReportValidation.VerifyCellValue(31, 9, Format(GenJournalLine."Amount (LCY)", 0, 9));
+          'T', 28, PurchaseLine."Line Amount", InvDiscountAmount, PurchaseLine."VAT Base Amount");
     end;
 
     [Test]
@@ -1564,70 +1325,6 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         // [THEN] Amount = 100 for Currency "CUR01"
         // [THEN] Amount = 200 for Currency "CUR02"
         VerifyMultipleCurrencyAmountsOnVendorOrderSummaryReport(CurrencyCode, Amount);
-    end;
-
-    [Test]
-    [HandlerFunctions('PurchaseInvoiceRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure PurchaseInvoiceReportWithPuchaseLineWithDimensions()
-    var
-        PurchaseHeader: Record "Purchase Header";
-        PurchaseLine: Record "Purchase Line";
-        PurchInvHeader: Record "Purch. Inv. Header";
-    begin
-        // [FEATURE] [Dimensions]
-        // [SCENARIO 306140] There is no error in calculating Total VAT Amount in report "Purchase - Invoice" when Dimensions are applied to purchase line.
-        Initialize;
-        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
-
-        // [GIVEN] Purchase Invoice with "Prices Including VAT" set to TRUE and a Purchase Line with Direct Unit Cost "110", VAT % "10", Quantity "2"
-        // [GIVEN] Purchase Line has Dimension Set with enough Dimensions to fill more than one line in Report "Purchase - Invoice".
-        CreatePurchaseDocWithDimensions(
-          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Invoice, LibraryRandom.RandInt(100));
-
-        // [GIVEN] Purchase Invoice is posted.
-        PurchInvHeader.Get(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
-
-        // [WHEN] Report "Purchase - Invoice" is run with "Show Internal Information" set to TRUE.
-        PurchInvHeader.SetRecFilter;
-        REPORT.Run(REPORT::"Purchase - Invoice", true, true, PurchInvHeader);
-
-        // [THEN] In resulting file cell with Total VAT Amount is equal to 20.
-        LibraryReportValidation.OpenExcelFile;
-        with PurchaseLine do
-            LibraryReportValidation.VerifyCellValue(86, 31, Format(Round(Quantity * "Direct Unit Cost" * "VAT %" / (100 + "VAT %"))));
-    end;
-
-    [Test]
-    [HandlerFunctions('PurchaseCreditMemoRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure PurchaseCreditMemoReportWithPuchaseLineWithDimensions()
-    var
-        PurchaseHeader: Record "Purchase Header";
-        PurchaseLine: Record "Purchase Line";
-        PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
-    begin
-        // [FEATURE] [Dimensions]
-        // [SCENARIO 306140] There is no error in calculating Total VAT Amount in report "Purchase - Credit Memo" when Dimensions are applied to purchase line.
-        Initialize;
-        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
-
-        // [GIVEN] Purchase Credit Memo with "Prices Including VAT" set to TRUE and a Purchase Line with Direct Unit Cost "110", VAT % "10", Quantity "2"
-        // [GIVEN] Purchase Line has Dimension Set with enough Dimensions to fill more than one line in Report "Purchase - Credit Memo".
-        CreatePurchaseDocWithDimensions(
-          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::"Credit Memo", LibraryRandom.RandInt(100));
-
-        // [GIVEN] Purchase Credit Memo is posted.
-        PurchCrMemoHdr.Get(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
-
-        // [WHEN] Report "Purchase - Credit Memo" is run with "Show Internal Information" set to TRUE.
-        PurchCrMemoHdr.SetRecFilter;
-        REPORT.Run(REPORT::"Purchase - Credit Memo", true, true, PurchCrMemoHdr);
-
-        // [THEN] In resulting file cell with Total VAT Amount is equal to 20.
-        LibraryReportValidation.OpenExcelFile;
-        with PurchaseLine do
-            LibraryReportValidation.VerifyCellValue(42, 29, Format(Round(Quantity * "Direct Unit Cost" * "VAT %" / (100 + "VAT %"))));
     end;
 
     [Test]
@@ -2265,10 +1962,15 @@ codeunit 134335 "ERM Purch. Doc. Reports"
     local procedure CreateVendorWithPmtTerms(): Code[20]
     var
         Vendor: Record Vendor;
+        VendorPostingGroup: Record "Vendor Posting Group";
     begin
         LibraryPurchase.CreateVendor(Vendor);
         Vendor.Validate("Payment Terms Code", CreatePaymentTerms);
         Vendor.Modify(true);
+        VendorPostingGroup.Get(Vendor."Vendor Posting Group");
+        VendorPostingGroup.Validate("Payment Disc. Debit Acc.", LibraryERM.CreateGLAccountNo);
+        VendorPostingGroup.Validate("Payment Disc. Credit Acc.", LibraryERM.CreateGLAccountNo);
+        VendorPostingGroup.Modify();
         exit(Vendor."No.");
     end;
 
@@ -2450,26 +2152,6 @@ codeunit 134335 "ERM Purch. Doc. Reports"
             Unapplied := UnappliedEntry;
             Insert;
         end;
-    end;
-
-    local procedure SaveAgedAccountsPayable(No: Code[20]; AgingBy: Option; PrintAmountLCY: Boolean; PrintDetails: Boolean; HeadingType: Option)
-    var
-        Vendor: Record Vendor;
-        AgedAccountsPayable: Report "Aged Accounts Payable";
-        DatePeriod: DateFormula;
-    begin
-        // Taking Date Period 1M to generate columns with One Month difference and New Page Per Vendor option as FALSE.
-        LibraryVariableStorage.Enqueue(AgingBy);
-        LibraryVariableStorage.Enqueue(PrintAmountLCY);
-        LibraryVariableStorage.Enqueue(PrintDetails);
-        LibraryVariableStorage.Enqueue(HeadingType);
-
-        Clear(AgedAccountsPayable);
-        Vendor.SetRange("No.", No);
-        AgedAccountsPayable.SetTableView(Vendor);
-        Evaluate(DatePeriod, '<1M>');
-        AgedAccountsPayable.InitializeRequest(WorkDate, AgingBy, DatePeriod, PrintAmountLCY, PrintDetails, HeadingType, false);
-        AgedAccountsPayable.Run;
     end;
 
     local procedure SaveAndVerifySummaryAging(GenJournalLine: Record "Gen. Journal Line"; AmountLCY: Boolean)
@@ -2729,6 +2411,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
     begin
         PmtTolerance := LibraryRandom.RandDec(10, 2);  // Using Random value for Payment Tolerance.
         UpdateGeneralLedgerSetup(PmtTolerance);
+        LibraryPurchase.SetPostPaymentDiscount(false);
         CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Order, CurrencyCode, CreateItem, CreateVendorWithPmtTerms);
         FindPurchaseLine(PurchaseLine, PurchaseHeader."Document Type", PurchaseHeader."No.");
 
@@ -2741,15 +2424,6 @@ codeunit 134335 "ERM Purch. Doc. Reports"
 
         // Make Payment for Vendor, Apply it on Invoice and Post it.
         ApplyPaymentFromGenJournalLine(GenJournalLine, PurchaseHeader."Buy-from Vendor No.", Amount - PmtTolerance, DocumentNo);
-    end;
-
-    local procedure SetupSaveAgedAccountsPayable(var GenJournalLine: Record "Gen. Journal Line"; CurrencyCode: Code[10]; AgingBy: Option; PrintAmountLCY: Boolean; PrintDetails: Boolean; HeadingType: Option)
-    begin
-        // Setup:  Post Invoice Entry for Vendor. Take Posting Date One Month earlier than WORKDATE to generate data for Report.
-        CreatePostGeneralJournalLine(GenJournalLine, CreateAndUpdateVendor, CurrencyCode, '<-1M>');
-
-        // Exercise: Save Aged Accounts Payable Report as per the option selected.
-        SaveAgedAccountsPayable(GenJournalLine."Account No.", AgingBy, PrintAmountLCY, PrintDetails, HeadingType);
     end;
 
     local procedure UndoPurchaseReceiptLines(No: Code[20])
@@ -2981,9 +2655,9 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         LibraryReportValidation.VerifyCellValueByRef(ColumnName, RowNo, 1, LibraryReportValidation.FormatDecimalValue(Amount));
         LibraryReportValidation.VerifyCellValueByRef(
           ColumnName, RowNo + 1, 1, LibraryReportValidation.FormatDecimalValue(-InvDicountAmount));
-        LibraryReportValidation.VerifyCellValueByRef(ColumnName, RowNo + 2, 1, LibraryReportValidation.FormatDecimalValue(ExclVATAmount));
-        LibraryReportValidation.VerifyCellValueByRef(ColumnName, RowNo + 3, 1, LibraryReportValidation.FormatDecimalValue(VATAmount));
-        LibraryReportValidation.VerifyCellValueByRef(ColumnName, RowNo + 4, 1, LibraryReportValidation.FormatDecimalValue(InclVATAmount));
+        LibraryReportValidation.VerifyCellValueByRef(ColumnName, RowNo + 4, 1, LibraryReportValidation.FormatDecimalValue(ExclVATAmount));
+        LibraryReportValidation.VerifyCellValueByRef(ColumnName, RowNo + 5, 1, LibraryReportValidation.FormatDecimalValue(VATAmount));
+        LibraryReportValidation.VerifyCellValueByRef(ColumnName, RowNo + 8, 1, LibraryReportValidation.FormatDecimalValue(InclVATAmount));
     end;
 
     local procedure VerifyArchiveRetOrderExcelTotalsWithDiscount(ColumnName: Text; RowNo: Integer; Amount: Decimal; InvDicountAmount: Decimal; ExclVATAmount: Decimal)
@@ -2992,7 +2666,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         LibraryReportValidation.VerifyCellValueByRef(ColumnName, RowNo, 1, LibraryReportValidation.FormatDecimalValue(Amount));
         LibraryReportValidation.VerifyCellValueByRef(
           ColumnName, RowNo + 1, 1, LibraryReportValidation.FormatDecimalValue(-InvDicountAmount));
-        LibraryReportValidation.VerifyCellValueByRef(ColumnName, RowNo + 2, 1, LibraryReportValidation.FormatDecimalValue(ExclVATAmount));
+        LibraryReportValidation.VerifyCellValueByRef(ColumnName, RowNo + 4, 1, LibraryReportValidation.FormatDecimalValue(ExclVATAmount));
     end;
 
     [ConfirmHandler]
@@ -3138,26 +2812,6 @@ codeunit 134335 "ERM Purch. Doc. Reports"
     procedure ReportHandlerVendorPurchaseStatistics(var PurchaseStatistics: TestRequestPage "Purchase Statistics")
     begin
         PurchaseStatistics.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
-    end;
-
-    [RequestPageHandler]
-    [Scope('OnPrem')]
-    procedure ReportHandlerAgedAccountPayable(var AgedAccountsPayable: TestRequestPage "Aged Accounts Payable")
-    var
-        AgingBy: Variant;
-        PrintAmountLCY: Variant;
-        PrintDetails: Variant;
-        HeadingType: Variant;
-    begin
-        LibraryVariableStorage.Dequeue(AgingBy);
-        LibraryVariableStorage.Dequeue(PrintAmountLCY);
-        LibraryVariableStorage.Dequeue(PrintDetails);
-        LibraryVariableStorage.Dequeue(HeadingType);
-        AgedAccountsPayable.AgingBy.SetValue(AgingBy);
-        AgedAccountsPayable.PrintAmountInLCY.SetValue(PrintAmountLCY);
-        AgedAccountsPayable.PrintDetails.SetValue(PrintDetails);
-        AgedAccountsPayable.HeadingType.SetValue(HeadingType);
-        AgedAccountsPayable.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 
     [RequestPageHandler]

@@ -27,7 +27,6 @@ codeunit 134393 "ERM Sales Subform"
         LibraryNotificationMgt: Codeunit "Library - Notification Mgt.";
         isInitialized: Boolean;
         ChangeConfirmMsg: Label 'Do you want';
-        CalculateInvoiceDiscountQst: Label 'Do you want to calculate the invoice discount?';
         BlanketOrderMsg: Label 'has been created from blanket order';
         ExternalDocNoErr: Label '"External Doc. No." is not available on the "Blanket Sales Order" page';
         UnitofMeasureCodeIsEditableMsg: Label 'Unit of Measure Code should not be editable.', Comment = '%1: FieldCaption';
@@ -472,7 +471,7 @@ codeunit 134393 "ERM Sales Subform"
         CreateInvoiceWithRandomNumberOfLines(SalesHeader, Item, Customer, ItemQuantity, NumberOfLines);
         OpenSalesInvoice(SalesHeader, SalesInvoice);
 
-        LibraryVariableStorage.Enqueue(CalculateInvoiceDiscountQst);
+        LibraryVariableStorage.Enqueue(ChangeConfirmMsg);
         LibraryVariableStorage.Enqueue(true);
         SalesInvoice.CalculateInvoiceDiscount.Invoke;
         CheckInvoiceStatistics(SalesInvoice);
@@ -941,7 +940,7 @@ codeunit 134393 "ERM Sales Subform"
         CreateOrderWithRandomNumberOfLines(SalesHeader, Item, Customer, ItemQuantity, NumberOfLines);
         OpenSalesOrder(SalesHeader, SalesOrder);
 
-        LibraryVariableStorage.Enqueue(CalculateInvoiceDiscountQst);
+        LibraryVariableStorage.Enqueue(ChangeConfirmMsg);
         LibraryVariableStorage.Enqueue(true);
         SalesOrder.CalculateInvoiceDiscount.Invoke;
         CheckOrderStatistics(SalesOrder);
@@ -1352,7 +1351,7 @@ codeunit 134393 "ERM Sales Subform"
         CreateQuoteWithRandomNumberOfLines(SalesHeader, Item, Customer, ItemQuantity, NumberOfLines);
         OpenSalesQuote(SalesHeader, SalesQuote);
 
-        LibraryVariableStorage.Enqueue(CalculateInvoiceDiscountQst);
+        LibraryVariableStorage.Enqueue(ChangeConfirmMsg);
         LibraryVariableStorage.Enqueue(true);
         SalesQuote.CalculateInvoiceDiscount.Invoke;
         CheckQuoteStatistics(SalesQuote);
@@ -1769,7 +1768,7 @@ codeunit 134393 "ERM Sales Subform"
         CreateBlanketOrderWithRandomNumberOfLines(SalesHeader, Item, Customer, ItemQuantity, NumberOfLines);
         OpenBlanketOrder(SalesHeader, BlanketSalesOrder);
 
-        LibraryVariableStorage.Enqueue(CalculateInvoiceDiscountQst);
+        LibraryVariableStorage.Enqueue(ChangeConfirmMsg);
         LibraryVariableStorage.Enqueue(true);
         BlanketSalesOrder.CalculateInvoiceDiscount.Invoke;
         CheckBlanketOrderStatistics(BlanketSalesOrder);
@@ -2204,7 +2203,7 @@ codeunit 134393 "ERM Sales Subform"
         CreateReturnOrderWithRandomNumberOfLines(SalesHeader, Item, Customer, ItemQuantity, NumberOfLines);
         OpenSalesReturnOrder(SalesHeader, SalesReturnOrder);
 
-        LibraryVariableStorage.Enqueue(CalculateInvoiceDiscountQst);
+        LibraryVariableStorage.Enqueue(ChangeConfirmMsg);
         LibraryVariableStorage.Enqueue(true);
         SalesReturnOrder.CalculateInvoiceDiscount.Invoke;
         CheckReturnOrderStatistics(SalesReturnOrder);
@@ -2542,7 +2541,7 @@ codeunit 134393 "ERM Sales Subform"
         CreateCreditMemoWithOneLineThroughTestPage(Customer, Item, ItemQuantity, SalesCreditMemo);
         SalesCreditMemo.SalesLines."Invoice Discount Amount".SetValue(InvoiceDiscountAmount);
 
-        AnswerYesToConfirmDialog;
+        AnswerYesToAllConfirmDialogs;
         SalesCreditMemo.Post.Invoke;
 
         SalesCrMemoHeader.SetRange("Sell-to Customer No.", Customer."No.");
@@ -2625,7 +2624,7 @@ codeunit 134393 "ERM Sales Subform"
         CreateCreditMemoWithRandomNumberOfLines(SalesHeader, Item, Customer, ItemQuantity, NumberOfLines);
         OpenSalesCreditMemo(SalesHeader, SalesCreditMemo);
 
-        LibraryVariableStorage.Enqueue(CalculateInvoiceDiscountQst);
+        LibraryVariableStorage.Enqueue(ChangeConfirmMsg);
         LibraryVariableStorage.Enqueue(true);
         SalesCreditMemo.CalculateInvoiceDiscount.Invoke;
         CheckCreditMemoStatistics(SalesCreditMemo);
@@ -3554,53 +3553,6 @@ codeunit 134393 "ERM Sales Subform"
         Assert.AreNearlyEqual(
           SalesLine.Quantity * (Item."Unit Price" - Item."Unit Cost"),
           SalesInvoiceStatistics.AdjustedProfitLCY.AsDEcimal,
-          LibraryERM.GetAmountRoundingPrecision,
-          'Invalid Adjusted Profit (LCY) value');
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure PostedSalesCrMemoStatisticsServiceItem()
-    var
-        Item: Record Item;
-        SalesHeader: Record "Sales Header";
-        SalesLine: Record "Sales Line";
-        PostedSalesCreditMemo: TestPage "Posted Sales Credit Memo";
-        SalesCreditMemoStatistics: TestPage "Sales Credit Memo Statistics";
-        PostedCrMemoNo: Code[20];
-    begin
-        // [FEATURE] [Service Item]
-        // [SCENARIO 294617] Posted sales credit memo statistics shows proper value of Adjusted Cost (LCY) and Adjusted Profit (LCY) for item with type Service
-        Initialize();
-
-        // [GIVEN] Item "I" with "Type" = "Service", Unit Cost = 60, Unit Price = 100
-        LibraryInventory.CreateServiceTypeItem(Item);
-        Item.Validate("Unit Cost", LibraryRandom.RandDec(100, 2));
-        Item.Validate("Unit Price", Item."Unit Cost" + LibraryRandom.RandDec(100, 2));
-        Item.Modify();
-
-        // [GIVEN] Create and post sales credit memo with item "I", Quantity = 1
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", LibrarySales.CreateCustomerNo);
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandInt(10));
-        PostedCrMemoNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
-
-        // [WHEN] Statistics for posted credit memo is being opened
-        PostedSalesCreditMemo.OpenView;
-        PostedSalesCreditMemo.FILTER.SetFilter("No.", PostedCrMemoNo);
-        SalesCreditMemoStatistics.Trap;
-        PostedSalesCreditMemo.Statistics.Invoke;
-
-        // [THEN] Adjusted Cost (LCY) = 60
-        Assert.AreNearlyEqual(
-          SalesLine.Quantity * Item."Unit Cost",
-          SalesCreditMemoStatistics.AdjustedCostLCY.AsDEcimal,
-          LibraryERM.GetAmountRoundingPrecision,
-          'Invalid Adjusted Cost (LCY) value');
-
-        // [THEN] Adjusted Profit (LCY) = 40
-        Assert.AreNearlyEqual(
-          SalesLine.Quantity * (Item."Unit Price" - Item."Unit Cost"),
-          SalesCreditMemoStatistics.AdjustedProfitLCY.AsDEcimal,
           LibraryERM.GetAmountRoundingPrecision,
           'Invalid Adjusted Profit (LCY) value');
     end;

@@ -157,7 +157,10 @@ codeunit 138010 "O365 Sales Invoice Status"
         PaymentJournal."Document No.".SetValue(NoSeriesMgt.GetNextNo(GenJnlBatch."No. Series", SalesInvHeader."Posting Date", false));
         PaymentJournal."Account Type".SetValue(GenJnlLine."Account Type"::Customer);
         PaymentJournal."Account No.".SetValue(SalesInvHeader."Sell-to Customer No.");
-        PaymentJournal.Amount.SetValue(PaymentAmount * -1);
+        if PaymentAmount < 0 then
+            PaymentJournal."Debit Amount".SetValue(-PaymentAmount)
+        else
+            PaymentJournal."Credit Amount".SetValue(PaymentAmount);
         PaymentJournal."Applies-to Doc. Type".SetValue(GenJnlLine."Applies-to Doc. Type"::Invoice);
         PaymentJournal.AppliesToDocNo.SetValue(SalesInvHeader."No.");
         LibraryVariableStorage.Enqueue(ConfirmationMsg); // message for the confirm handler

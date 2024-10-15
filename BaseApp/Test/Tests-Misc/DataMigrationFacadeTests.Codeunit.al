@@ -1521,6 +1521,7 @@ codeunit 135022 "Data Migration Facade Tests"
         GeneralLedgerSetup."LCY Code" := 'MYC';
         GeneralLedgerSetup."Inv. Rounding Precision (LCY)" := 1;
         GeneralLedgerSetup."Adjust for Payment Disc." := true;
+        GeneralLedgerSetup."Payment Discount Type" := GeneralLedgerSetup."Payment Discount Type"::"Calc. Pmt. Disc. on Lines";
         GeneralLedgerSetup.Insert();
     end;
 

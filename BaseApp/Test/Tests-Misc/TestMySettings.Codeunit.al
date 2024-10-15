@@ -25,7 +25,7 @@ codeunit 139006 "Test My Settings"
         MyNotificationFilterTxt: Label '<?xml version="1.0" encoding="utf-8" standalone="yes"?><ReportParameters><DataItems><DataItem name="Table18">VERSION(1) SORTING(Field1) WHERE(Field1=1(%1))</DataItem></DataItems></ReportParameters>';
 
     [Test]
-    [HandlerFunctions('AvailableRoleCentersHandler,StandardSessionSettingsHandler,MessageHandler')]
+    [HandlerFunctions('AvailableRoleCentersHandler,HandleSessionSettings')]
     [Scope('OnPrem')]
     procedure TestChangeRoleCenterFromMySettings()
     var
@@ -39,7 +39,6 @@ codeunit 139006 "Test My Settings"
 
         MySettings.OpenEdit;
         MySettings.UserRoleCenter.AssistEdit;
-        Message(''); // This dummy message is needed in some configurtions as the card function can show a message box under certain conditions, but not in all contries
         LibraryVariableStorage.Dequeue(ProfileVar);
         AllProfile := ProfileVar;
         MySettings.UserRoleCenter.AssertEquals(AllProfile.Caption);
@@ -57,7 +56,7 @@ codeunit 139006 "Test My Settings"
     var
         MySettings: TestPage "My Settings";
     begin
-        // [WHEN] The user changes the Role Center in "My Settings" window, and chooses OK
+        // [WHEN] The user changes the Role Center in "My Settings" window
         Initialize;
 
         MySettings.OpenEdit;
@@ -428,7 +427,7 @@ codeunit 139006 "Test My Settings"
     local procedure PrepareTotalingGLAccount(TotalingValue: Text[250]; var TotalingGLAccount: Record "G/L Account"; var TotalingBalance: Decimal)
     begin
         LibraryERM.CreateGLAccount(TotalingGLAccount);
-        TotalingGLAccount."Account Type" := TotalingGLAccount."Account Type"::"End-Total";
+        TotalingGLAccount."Account Type" := TotalingGLAccount."Account Type"::Heading;
         TotalingGLAccount.Totaling := TotalingValue;
         TotalingGLAccount.Modify();
         TotalingGLAccount.CalcFields(Balance);
@@ -576,15 +575,9 @@ codeunit 139006 "Test My Settings"
 
     [SessionSettingsHandler]
     [Scope('OnPrem')]
-    procedure StandardSessionSettingsHandler(var TestSessionSettings: SessionSettings): Boolean
+    procedure HandleSessionSettings(var TestSessionSettings: SessionSettings): Boolean
     begin
         exit(false);
-    end;
-
-    [MessageHandler]
-    [Scope('OnPrem')]
-    procedure MessageHandler(Text: Text[1024])
-    begin
     end;
 }
 

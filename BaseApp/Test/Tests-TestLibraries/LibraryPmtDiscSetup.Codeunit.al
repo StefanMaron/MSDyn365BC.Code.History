@@ -1,6 +1,6 @@
 codeunit 131303 "Library - Pmt Disc Setup"
 {
-    // Library for Payment Discount Test Cases.
+    // Library to fix Payment Discount releated issues in ES Country Build.
 
 
     trigger OnRun()
@@ -49,7 +49,12 @@ codeunit 131303 "Library - Pmt Disc Setup"
     procedure SetAdjustForPaymentDisc(AdjustForPaymentDisc: Boolean)
     begin
         GeneralLedgerSetup.Get();
+        GeneralLedgerSetup.Validate("Discount Calculation", GeneralLedgerSetup."Discount Calculation"::" ");
         GeneralLedgerSetup.Validate("Adjust for Payment Disc.", AdjustForPaymentDisc);
+        if GeneralLedgerSetup."Adjust for Payment Disc." then
+            GeneralLedgerSetup.Validate("Payment Discount Type", GeneralLedgerSetup."Payment Discount Type"::"Adjust for Payment Disc.")
+        else
+            GeneralLedgerSetup.Validate("Payment Discount Type", GeneralLedgerSetup."Payment Discount Type"::"Pmt. Disc. Excl. VAT");
         GeneralLedgerSetup.Modify(true);
     end;
 
@@ -73,6 +78,13 @@ codeunit 131303 "Library - Pmt Disc Setup"
     begin
         Evaluate(GracePeriod, DateFormulaText);
         SetPmtDiscGracePeriod(GracePeriod);
+    end;
+
+    procedure SetPmtDiscType(PaymentDiscountType: Option)
+    begin
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup.Validate("Payment Discount Type", PaymentDiscountType);
+        GeneralLedgerSetup.Modify(true);
     end;
 
     procedure SetPmtTolerance(PaymentTolerancePct: Decimal)

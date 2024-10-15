@@ -545,9 +545,12 @@ page 113 Budget
                     trigger OnAction()
                     var
                         GLAccount: Record "G/L Account";
+                        Budget: Report "Budget";
                     begin
                         GLAccount.SetRange("Budget Filter", BudgetName);
-                        REPORT.Run(REPORT::Budget, true, false, GLAccount);
+                        Budget.SetParameters(RoundingFactor);
+                        Budget.SetTableView(GLAccount);
+                        Budget.Run();
                     end;
                 }
             }

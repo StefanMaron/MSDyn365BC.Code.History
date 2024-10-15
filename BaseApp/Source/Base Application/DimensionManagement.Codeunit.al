@@ -465,10 +465,10 @@ codeunit 408 DimensionManagement
     local procedure CollectDefaultDimsToCheck(TableID: array[10] of Integer; No: array[10] of Code[20]; var TempDefaultDim: Record "Default Dimension" temporary)
     var
         DefaultDim: Record "Default Dimension";
-        DefaultDimPriority: array[2] of Record "Default Dimension Priority";
         NoFilter: array[2] of Code[20];
         i: Integer;
         j: Integer;
+        Priority: array[2] of Integer;
     begin
         NoFilter[2] := '';
         for i := 1 to ArrayLen(TableID) do
@@ -484,24 +484,34 @@ codeunit 408 DimensionManagement
                             if not TempDefaultDim.FindFirst then begin
                                 TempDefaultDim := DefaultDim;
                                 TempDefaultDim.Insert();
-                            end else
-                                if DefaultDimPriority[1].Get(SourceCode, DefaultDim."Table ID") then
-                                    if DefaultDimPriority[2].Get(SourceCode, TempDefaultDim."Table ID") then begin
-                                        if DefaultDimPriority[1].Priority < DefaultDimPriority[2].Priority then begin
-                                            TempDefaultDim.Delete();
-                                            TempDefaultDim := DefaultDim;
-                                            TempDefaultDim.Insert();
-                                        end
-                                    end else begin
-                                        TempDefaultDim.Delete();
-                                        TempDefaultDim := DefaultDim;
-                                        TempDefaultDim.Insert();
-                                    end;
+                            end else begin
+                                Priority[1] := GetDimensionPriorityForTable(TempDefaultDim."Table ID");
+                                Priority[2] := GetDimensionPriorityForTable(DefaultDim."Table ID");
+                                if not PriorityGreaterThan(Priority[1], Priority[2]) then begin
+                                    if PriorityGreaterThan(Priority[2], Priority[1]) then
+                                        TempDefaultDim.DeleteAll();
+                                    TempDefaultDim := DefaultDim;
+                                    TempDefaultDim.Insert();
+                                end;
+                            end;
                         until DefaultDim.Next = 0;
                 end;
             end;
-
         OnAfterCheckDimValuePosting(TableID, No, TempDefaultDim);
+    end;
+
+    local procedure PriorityGreaterThan(Priority1: Integer; Priority2: Integer): Boolean
+    begin
+        exit((Priority1 > 0) AND ((Priority2 = 0) or (Priority1 < Priority2)));
+    end;
+
+    local procedure GetDimensionPriorityForTable(TableID: Integer): Integer
+    var
+        DefaultDimPriority: Record "Default Dimension Priority";
+    begin
+        if DefaultDimPriority.GET(SourceCode, TableID) then
+            exit(DefaultDimPriority.Priority);
+        exit(0);
     end;
 
     local procedure GetMissedMandatoryDimErr(DefaultDim: Record "Default Dimension"): Text
@@ -694,6 +704,7 @@ codeunit 408 DimensionManagement
                 TempDimSetEntry."Dimension Code" := TempDimBuf."Dimension Code";
                 TempDimSetEntry."Dimension Value Code" := TempDimBuf."Dimension Value Code";
                 TempDimSetEntry."Dimension Value ID" := DimVal."Dimension Value ID";
+                OnGetDefaultDimIDOnBeforeTempDimSetEntryInsert(TempDimSetEntry, TempDimBuf);
                 TempDimSetEntry.Insert();
             until TempDimBuf.Next = 0;
             NewDimSetID := GetDimensionSetID(TempDimSetEntry);
@@ -741,7 +752,7 @@ codeunit 408 DimensionManagement
             end;
     end;
 
-    procedure TypeToTableID1(Type: Option "G/L Account",Customer,Vendor,"Bank Account","Fixed Asset","IC Partner",Employee): Integer
+    procedure TypeToTableID1(Type: Option "G/L Account",Customer,Vendor,"Bank Account","Fixed Asset","IC Partner",Employee) TableId: Integer
     begin
         case Type of
             Type::"G/L Account":
@@ -759,6 +770,8 @@ codeunit 408 DimensionManagement
             Type::"IC Partner":
                 exit(DATABASE::"IC Partner");
         end;
+
+        OnAfterTypeToTableID1(Type, TableId);
     end;
 
     procedure TypeToTableID2(Type: Option Resource,Item,"G/L Account"): Integer
@@ -779,7 +792,7 @@ codeunit 408 DimensionManagement
         end;
     end;
 
-    procedure TypeToTableID3(Type: Option " ","G/L Account",Item,Resource,"Fixed Asset","Charge (Item)"): Integer
+    procedure TypeToTableID3(Type: Option " ","G/L Account",Item,Resource,"Fixed Asset","Charge (Item)") TableId: Integer
     begin
         case Type of
             Type::" ":
@@ -795,9 +808,11 @@ codeunit 408 DimensionManagement
             Type::"Charge (Item)":
                 exit(DATABASE::"Item Charge");
         end;
+
+        OnAfterTypeToTableID3(Type, TableId);
     end;
 
-    procedure TypeToTableID4(Type: Option " ",Item,Resource): Integer
+    procedure TypeToTableID4(Type: Option " ",Item,Resource) TableId: Integer
     begin
         case Type of
             Type::" ":
@@ -807,9 +822,11 @@ codeunit 408 DimensionManagement
             Type::Resource:
                 exit(DATABASE::Resource);
         end;
+
+        OnAfterTypeToTableID4(Type, TableId);
     end;
 
-    procedure TypeToTableID5(Type: Option " ",Item,Resource,Cost,"G/L Account"): Integer
+    procedure TypeToTableID5(Type: Option " ",Item,Resource,Cost,"G/L Account") TableId: Integer
     begin
         case Type of
             Type::" ":
@@ -823,6 +840,8 @@ codeunit 408 DimensionManagement
             Type::"G/L Account":
                 exit(DATABASE::"G/L Account");
         end;
+
+        OnAfterTypeToTableID5(Type, TableId);
     end;
 
     procedure DeleteDefaultDim(TableID: Integer; No: Code[20])
@@ -2450,6 +2469,31 @@ codeunit 408 DimensionManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateJobTaskDimOnBeforConfirm(DefaultDimension: Record "Default Dimension"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetDefaultDimIDOnBeforeTempDimSetEntryInsert(var DimensionSetEntry: Record "Dimension Set Entry"; var DimensionBuffer: Record "Dimension Buffer");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterTypeToTableID1(Type: Integer; var TableId: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterTypeToTableID3(Type: Integer; var TableId: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterTypeToTableID4(Type: Integer; var TableId: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterTypeToTableID5(Type: Integer; var TableId: Integer)
     begin
     end;
 }

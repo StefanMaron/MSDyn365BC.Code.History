@@ -652,7 +652,7 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         // [FEATURE] [UT]
         // [SCENARIO 274759] Employee bank account information should be transferred by PaymentExportData.SetEmployeeAsRecipient
         Employee.Init();
-        Employee."First Name" := LibraryUtility.GenerateGUID;
+        Employee.Name := LibraryUtility.GenerateGUID;
         Employee.Address := LibraryUtility.GenerateGUID;
         Employee.City := LibraryUtility.GenerateGUID;
         Employee.County := LibraryUtility.GenerateGUID;

@@ -404,6 +404,7 @@ codeunit 138016 "O365 Simplify UI Sales Cr.Memo"
         SalesCreditMemo.SalesLines.New;
 
         LibraryVariableStorage.Enqueue(true); // for the posting confirm handler
+        LibraryVariableStorage.Enqueue(true); // for the no correction invoice confirm handler
         LibraryVariableStorage.Enqueue(false); // for open posted sales credit memo confirm handler
         SalesCreditMemo.Post.Invoke;
 
@@ -433,6 +434,7 @@ codeunit 138016 "O365 Simplify UI Sales Cr.Memo"
         SalesCreditMemo.SalesLines.New;
 
         LibraryVariableStorage.Enqueue(true); // for the posting confirm handler
+        LibraryVariableStorage.Enqueue(true); // for the no correction invoice confirm handler
         LibraryVariableStorage.Enqueue(false); // for open posted sales credit memo confirm handler
         SalesCreditMemo.Post.Invoke;
 
@@ -449,13 +451,12 @@ codeunit 138016 "O365 Simplify UI Sales Cr.Memo"
         Initialize;
 
         CreateCustomer(Customer);
-        Customer."Payment Terms Code" := '';
-        Customer.Modify();
 
         SalesCreditMemo.OpenNew;
         SalesCreditMemo."Sell-to Customer Name".SetValue(Customer.Name);
 
-        Assert.AreEqual(SalesCreditMemo."Payment Terms Code".Value, '', 'Payment Terms Code should be empty by default');
+        Assert.AreEqual(SalesCreditMemo."Payment Terms Code".Value,
+          Customer."Payment Terms Code", 'Payment Terms Code should be copied from customer');
         Assert.AreEqual(SalesCreditMemo."Due Date".AsDate, SalesCreditMemo."Document Date".AsDate, 'Due Date incorrectly calculated.');
     end;
 

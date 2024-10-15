@@ -28,7 +28,7 @@ codeunit 56 "Sales - Calc Discount By Type"
             exit;
 
         IsHandled := false;
-        OnBeforeApplyDefaultInvoiceDiscount(SalesHeader, IsHandled);
+        OnBeforeApplyDefaultInvoiceDiscount(SalesHeader, IsHandled, InvoiceDiscountAmount);
         if not IsHandled then
             if SalesHeader."Invoice Discount Calculation" = SalesHeader."Invoice Discount Calculation"::Amount then
                 ApplyInvDiscBasedOnAmt(InvoiceDiscountAmount, SalesHeader)
@@ -227,7 +227,7 @@ codeunit 56 "Sales - Calc Discount By Type"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeApplyDefaultInvoiceDiscount(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    local procedure OnBeforeApplyDefaultInvoiceDiscount(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean; InvoiceDiscountAmount: Decimal)
     begin
     end;
 

@@ -43,8 +43,9 @@ codeunit 134386 "ERM Sales Documents II"
         RecurrentExpiredDateErr: Label 'No sales invoice must be created for expired Valid To Date in Standard Customer Sales Code.';
         IncorrectSalesTypeToCopyPricesErr: Label 'To copy sales prices, The Sales Type Filter field must contain Customer.';
         MultipleCustomersSelectedErr: Label 'More than one customer uses these sales prices. To copy prices, the Sales Code Filter field must contain one customer only.';
-        NotExistingFreightGLAccNoErr: Label 'The field Freight G/L Acc. No. of table Sales & Receivables Setup contains a value (%1) that cannot be found in the related table', Comment = '%1 - G\L Acc No';
+        NotExistingFreightGLAccNoErr: Label 'The field %1 of table Sales & Receivables Setup contains a value (%2) that cannot be found in the related table', Comment = '%1 - caption of "Freight G/L Acc. No.", %2 - G/L Account No.';
         ShipToAdressTestValueTxt: Label 'ShipToAdressTestValue';
+        VATIdentifierErr: Label '%1 = %2 has already been used for %3 = %4 in %5 for %6 = %7 and %8 = %9.';
         EmptyStartingDateRecIsNotFoundErr: Label 'The record with empty starting date field is not found.';
         WorkStartingDateRecIsNotFoundErr: Label 'The record with specified starting date (%1) is not found.';
         EmptyStartingDateIsFoundErr: Label 'The record''s starting date (%1) is not equal to date within filter field (%2).';
@@ -350,7 +351,7 @@ codeunit 134386 "ERM Sales Documents II"
         SalesInvoice.FILTER.SetFilter("No.", SalesHeader."No.");
         SalesInvoice.SalesLines.Type.SetValue(Format(SalesLine.Type::Item));
         SalesInvoice.SalesLines."No.".SetValue(CreateItem);
-        SalesInvoice.SalesLines.Quantity.SetValue(LibraryRandom.RandInt(5));
+        SalesInvoice.SalesLines.Quantity.SetValue(3);
         SalesInvoice.SalesLines."Unit Price".SetValue(UnitPrice);
 
         // Exercise: Set Customer Credit Limit to invoke Credit Limit Warning.
@@ -2048,7 +2049,7 @@ codeunit 134386 "ERM Sales Documents II"
         RunArchivedSalesQuoteReport(SalesHeader);
 
         // [THEN] Report correctly prints total VAT Amount and Total VAT Base Amount
-        VerifyArchiveDocExcelTotalVATBaseAmount('AK', 48, TotalVATAmount, TotalBaseAmount);
+        VerifyArchiveDocExcelTotalVATBaseAmount('X', 55, TotalVATAmount, TotalBaseAmount);
 
         // Tear Down
         VATPostingSetup[1].Delete(true);
@@ -2078,7 +2079,7 @@ codeunit 134386 "ERM Sales Documents II"
         RunArchivedSalesOrderReport(SalesHeader);
 
         // [THEN] Report correctly prints total VAT Amount and Total VAT Base Amount
-        VerifyArchiveDocExcelTotalVATBaseAmount('AL', 46, TotalVATAmount, TotalBaseAmount);
+        VerifyArchiveDocExcelTotalVATBaseAmount('AC', 80, TotalVATAmount, TotalBaseAmount);
 
         // Tear Down
         VATPostingSetup[1].Delete(true);
@@ -2108,7 +2109,7 @@ codeunit 134386 "ERM Sales Documents II"
         RunArchivedSalesQuoteReport(SalesHeader);
 
         // [THEN] Report correctly prints total VAT Amount and Total Amount Incl. VAT
-        VerifyArchiveDocExcelTotalVATBaseAmount('AK', 47, TotalVATAmount, TotalBaseAmount + TotalVATAmount);
+        VerifyArchiveDocExcelTotalAmounts('X', 52, TotalVATAmount, TotalBaseAmount + TotalVATAmount);
 
         // Tear Down
         VATPostingSetup[1].Delete(true);
@@ -2138,7 +2139,7 @@ codeunit 134386 "ERM Sales Documents II"
         RunArchivedSalesOrderReport(SalesHeader);
 
         // [THEN] Report correctly prints total VAT Amount and Total Amount Incl. VAT
-        VerifyArchiveDocExcelTotalVATBaseAmount('AL', 45, TotalVATAmount, TotalVATAmount + TotalBaseAmount);
+        VerifyArchiveDocExcelTotalAmounts('AC', 77, TotalVATAmount, TotalVATAmount + TotalBaseAmount);
 
         // Tear Down
         VATPostingSetup[1].Delete(true);
@@ -2171,7 +2172,7 @@ codeunit 134386 "ERM Sales Documents II"
         // [THEN] Subtotal Amount = 1000, Invoice Discount Amount = -200, Total Excl. VAT = 800, VAT Amount = 200, Total Incl. VAT = 1000
         SalesLine.Find;
         VerifyArchiveDocExcelTotalsWithDiscount(
-          'AK', 45, SalesLine."Line Amount", InvDiscountAmount, SalesLine."VAT Base Amount",
+          'X', 50, SalesLine."Line Amount", InvDiscountAmount, SalesLine."VAT Base Amount",
           SalesLine."Amount Including VAT" - SalesLine.Amount, SalesLine."Amount Including VAT");
     end;
 
@@ -2201,7 +2202,7 @@ codeunit 134386 "ERM Sales Documents II"
         // [THEN] Subtotal Amount = 1000, Invoice Discount Amount = -200, Total Excl. VAT = 800, VAT Amount = 200, Total Incl. VAT = 1000
         SalesLine.Find;
         VerifyArchiveDocExcelTotalsWithDiscount(
-          'AL', 43, SalesLine."Line Amount", InvDiscountAmount, SalesLine."VAT Base Amount",
+          'AC', 75, SalesLine."Line Amount", InvDiscountAmount, SalesLine."VAT Base Amount",
           SalesLine."Amount Including VAT" - SalesLine.Amount, SalesLine."Amount Including VAT");
     end;
 
@@ -2231,7 +2232,7 @@ codeunit 134386 "ERM Sales Documents II"
         // [THEN] Subtotal Amount = 1000, Invoice Discount Amount = -200, Total Excl. VAT = 800, VAT Amount = 200, Total Incl. VAT = 1000
         SalesLine.Find;
         VerifyArchiveRetOrderExcelTotalsWithDiscount(
-          'AT', 50, SalesLine."Line Amount", InvDiscountAmount, SalesLine."VAT Base Amount",
+          'AE', 28, SalesLine."Line Amount", InvDiscountAmount, SalesLine."VAT Base Amount",
           SalesLine."Amount Including VAT" - SalesLine.Amount, SalesLine."Amount Including VAT");
     end;
 
@@ -2578,7 +2579,7 @@ codeunit 134386 "ERM Sales Documents II"
 
         // [GIVEN] G/L Account "GGG" of non-posting type
         LibraryERM.CreateGLAccount(GLAccount);
-        GLAccount."Account Type" := GLAccount."Account Type"::"Begin-Total";
+        GLAccount."Account Type" := GLAccount."Account Type"::Heading;
         GLAccount.Modify();
 
         // [WHEN] Set "GGG" as Freight G/L Acc. in Sales Receivables Setup
@@ -2974,7 +2975,8 @@ codeunit 134386 "ERM Sales Documents II"
         GLAccNo := LibraryUtility.GenerateGUID;
         SalesReceivablesSetup.Get();
         asserterror SalesReceivablesSetup.Validate("Freight G/L Acc. No.", GLAccNo);
-        Assert.ExpectedError(StrSubstNo(NotExistingFreightGLAccNoErr, GLAccNo));
+        Assert.ExpectedError(
+            StrSubstNo(NotExistingFreightGLAccNoErr, SalesReceivablesSetup.FieldCaption("Freight G/L Acc. No."), GLAccNo));
     end;
 
     [Test]
@@ -3570,6 +3572,44 @@ codeunit 134386 "ERM Sales Documents II"
                 VerifyCellValue(RowNo, ColumnNo, DescriptionTxt + Format(i));
             end;
         end;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VATIdentifierCheckOnVATPercentValidation()
+    var
+        VATPostingSetup: array[2] of Record "VAT Posting Setup";
+        VATBusinessPostingGroup: Record "VAT Business Posting Group";
+    begin
+        // [FEATURE] [UT] [VAT Posting Setup]
+        // [SCENARIO 300065] Validating VAT % for VAT Posting Setup with existing pair of VAT Bus. Posting group and VAT Identifier leads to error
+
+        // [GIVEN] VAT Bus. Posting Group "A"
+        LibraryERM.CreateVATBusinessPostingGroup(VATBusinessPostingGroup);
+
+        // [GIVEN] VAT Posting Setup "V1" with VAT Bus. Posting Group "A", VAT Identifier "B" and VAT % "10"
+        CreateVATPostingSetupWithBusPstGrpAndIdentifier(
+          VATPostingSetup[1], VATBusinessPostingGroup.Code,
+          LibraryUtility.GenerateRandomCode20(VATPostingSetup[1].FieldNo("VAT Identifier"), DATABASE::"VAT Posting Setup"));
+        VATPostingSetup[1].Validate("VAT %", LibraryRandom.RandInt(10));
+        VATPostingSetup[1].Modify(true);
+
+        // [GIVEN] VAT Posting Setup "V2" with VAT Bus. Posting Group "A", VAT Identifier "B"
+        CreateVATPostingSetupWithBusPstGrpAndIdentifier(
+          VATPostingSetup[2], VATBusinessPostingGroup.Code, VATPostingSetup[1]."VAT Identifier");
+
+        // [WHEN] "V2"'s VAT % validated with "20"
+        asserterror VATPostingSetup[2].Validate("VAT %", LibraryRandom.RandIntInRange(11, 20));
+
+        // [THEN] Error is thrown
+        Assert.ExpectedErrorCode('Dialog');
+        with VATPostingSetup[1] do
+            Assert.ExpectedError(
+              StrSubstNo(
+                VATIdentifierErr, FieldCaption("VAT Identifier"), "VAT Identifier",
+                FieldCaption("VAT %"), "VAT %", TableCaption,
+                FieldCaption("VAT Bus. Posting Group"), "VAT Bus. Posting Group",
+                FieldCaption("VAT Prod. Posting Group"), "VAT Prod. Posting Group"));
     end;
 
     [Test]
@@ -4557,6 +4597,16 @@ codeunit 134386 "ERM Sales Documents II"
         ContactNew.Insert(true);
     end;
 
+    local procedure CreateVATPostingSetupWithBusPstGrpAndIdentifier(var VATPostingSetup: Record "VAT Posting Setup"; VATBusinessPostingGroupCode: Code[20]; VATIdentifier: Code[20])
+    var
+        VATProductPostingGroup: Record "VAT Product Posting Group";
+    begin
+        LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
+        LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusinessPostingGroupCode, VATProductPostingGroup.Code);
+        VATPostingSetup.Validate("VAT Identifier", VATIdentifier);
+        VATPostingSetup.Modify(true);
+    end;
+
     local procedure MockCustLedgEntryWithDueDate(CustNo: Code[20]; DueDate: Date): Decimal
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
@@ -4826,17 +4876,14 @@ codeunit 134386 "ERM Sales Documents II"
         CustomerLedgerEntries: TestPage "Customer Ledger Entries";
         DueDate: Date;
         PmtDiscountDate: Date;
-        RemainingPmtDiscPossible: Decimal;
     begin
         DueDate := CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate);
         PmtDiscountDate := CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate);
-        RemainingPmtDiscPossible := LibraryRandom.RandDec(10, 2);
         CustomerLedgerEntries.OpenEdit;
         CustomerLedgerEntries.FILTER.SetFilter("Document No.", DocumentNo);
         CustomerLedgerEntries.FILTER.SetFilter("Customer No.", CustomerNo);
         CustomerLedgerEntries."Due Date".SetValue(DueDate);
         CustomerLedgerEntries."Pmt. Discount Date".SetValue(PmtDiscountDate);
-        CustomerLedgerEntries."Remaining Pmt. Disc. Possible".SetValue(RemainingPmtDiscPossible);
         CustomerLedgerEntries.OK.Invoke;
         CustLedgerEntry.SetRange("Document No.", DocumentNo);
         CustLedgerEntry.FindFirst;
@@ -5338,6 +5385,13 @@ codeunit 134386 "ERM Sales Documents II"
         LibraryReportValidation.VerifyCellValueByRef(ColumnName, RowNo + 1, 1, LibraryReportValidation.FormatDecimalValue(TotalBaseAmount));
     end;
 
+    local procedure VerifyArchiveDocExcelTotalAmounts(ColumnName: Text; RowNo: Integer; TotalVATAmount: Decimal; TotalBaseAmount: Decimal)
+    begin
+        LibraryReportValidation.OpenExcelFile;
+        LibraryReportValidation.VerifyCellValueByRef(ColumnName, RowNo, 1, LibraryReportValidation.FormatDecimalValue(TotalVATAmount));
+        LibraryReportValidation.VerifyCellValueByRef(ColumnName, RowNo + 3, 1, LibraryReportValidation.FormatDecimalValue(TotalBaseAmount));
+    end;
+
     local procedure VerifyArchiveDocExcelTotalsWithDiscount(ColumnName: Text; RowNo: Integer; Amount: Decimal; InvDicountAmount: Decimal; ExclVATAmount: Decimal; VATAmount: Decimal; InclVATAmount: Decimal)
     begin
         LibraryReportValidation.OpenExcelFile;
@@ -5346,7 +5400,7 @@ codeunit 134386 "ERM Sales Documents II"
           ColumnName, RowNo + 1, 1, LibraryReportValidation.FormatDecimalValue(-InvDicountAmount));
         LibraryReportValidation.VerifyCellValueByRef(ColumnName, RowNo + 2, 1, LibraryReportValidation.FormatDecimalValue(ExclVATAmount));
         LibraryReportValidation.VerifyCellValueByRef(ColumnName, RowNo + 3, 1, LibraryReportValidation.FormatDecimalValue(VATAmount));
-        LibraryReportValidation.VerifyCellValueByRef(ColumnName, RowNo + 4, 1, LibraryReportValidation.FormatDecimalValue(InclVATAmount));
+        LibraryReportValidation.VerifyCellValueByRef(ColumnName, RowNo + 6, 1, LibraryReportValidation.FormatDecimalValue(InclVATAmount));
     end;
 
     local procedure VerifyArchiveRetOrderExcelTotalsWithDiscount(ColumnName: Text; RowNo: Integer; Amount: Decimal; InvDicountAmount: Decimal; ExclVATAmount: Decimal; VATAmount: Decimal; InclVATAmount: Decimal)
@@ -5355,10 +5409,10 @@ codeunit 134386 "ERM Sales Documents II"
         LibraryReportValidation.VerifyCellValueByRef(ColumnName, RowNo, 1, LibraryReportValidation.FormatDecimalValue(Amount));
         LibraryReportValidation.VerifyCellValueByRef(
           ColumnName, RowNo + 1, 1, LibraryReportValidation.FormatDecimalValue(-InvDicountAmount));
-        LibraryReportValidation.VerifyCellValueByRef(ColumnName, RowNo + 2, 1, LibraryReportValidation.FormatDecimalValue(ExclVATAmount));
-        LibraryReportValidation.VerifyCellValueByRef(ColumnName, RowNo + 3, 1, LibraryReportValidation.FormatDecimalValue(ExclVATAmount));
-        LibraryReportValidation.VerifyCellValueByRef(ColumnName, RowNo + 4, 1, LibraryReportValidation.FormatDecimalValue(VATAmount));
-        LibraryReportValidation.VerifyCellValueByRef(ColumnName, RowNo + 5, 1, LibraryReportValidation.FormatDecimalValue(InclVATAmount));
+        LibraryReportValidation.VerifyCellValueByRef(ColumnName, RowNo + 4, 1, LibraryReportValidation.FormatDecimalValue(ExclVATAmount));
+        LibraryReportValidation.VerifyCellValueByRef(ColumnName, RowNo + 5, 1, LibraryReportValidation.FormatDecimalValue(ExclVATAmount));
+        LibraryReportValidation.VerifyCellValueByRef(ColumnName, RowNo + 6, 1, LibraryReportValidation.FormatDecimalValue(VATAmount));
+        LibraryReportValidation.VerifyCellValueByRef(ColumnName, RowNo + 9, 1, LibraryReportValidation.FormatDecimalValue(InclVATAmount));
     end;
 
     local procedure VerifySalesDocumentExists(CustomerNo: Code[20])
@@ -5438,10 +5492,12 @@ codeunit 134386 "ERM Sales Documents II"
     local procedure GetAmountTotalIncVAT(SalesHeader: Record "Sales Header"): Decimal
     var
         TotalSalesLine: Record "Sales Line";
+        DocumentTotals: Codeunit "Document Totals";
+        TotalAmount: Decimal;
     begin
-        TotalSalesLine.SetRange("Document Type", SalesHeader."Document Type");
-        TotalSalesLine.SetRange("Document No.", SalesHeader."No.");
-        TotalSalesLine.CalcSums("Line Amount", Amount, "Amount Including VAT", "Inv. Discount Amount");
+        TotalSalesLine."Document No." := SalesHeader."No.";
+        TotalSalesLine."Document Type" := SalesHeader."Document Type";
+        DocumentTotals.CalculateSalesTotals(TotalSalesLine, TotalAmount, TotalSalesLine);
         exit(TotalSalesLine."Amount Including VAT");
     end;
 

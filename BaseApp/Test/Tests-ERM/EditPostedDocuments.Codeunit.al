@@ -14,6 +14,7 @@ codeunit 134658 "Edit Posted Documents"
         LibrarySales: Codeunit "Library - Sales";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryERM: Codeunit "Library - ERM";
+        LibraryRandom: Codeunit "Library - Random";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         Assert: Codeunit Assert;
         isInitialized: Boolean;
@@ -156,6 +157,12 @@ codeunit 134658 "Edit Posted Documents"
         Assert.AreNotEqual(PurchInvHeader."Payment Reference", PostedPurchaseInvoice."Payment Reference".Value, '');
         Assert.AreNotEqual(PurchInvHeader."Creditor No.", PostedPurchaseInvoice."Creditor No.".Value, '');
         Assert.AreNotEqual(PurchInvHeader."Ship-to Code", PostedPurchaseInvoice."Ship-to Code".Value, '');
+        Assert.AreNotEqual(Format(PurchInvHeader."Special Scheme Code"), PostedPurchaseInvoice."Special Scheme Code".Value, '');
+        Assert.AreNotEqual(Format(PurchInvHeader."Invoice Type"), PostedPurchaseInvoice."Invoice Type".Value, '');
+        Assert.AreNotEqual(Format(PurchInvHeader."ID Type"), PostedPurchaseInvoice."ID Type".Value, '');
+        Assert.AreNotEqual(PurchInvHeader."Succeeded Company Name", PostedPurchaseInvoice."Succeeded Company Name".Value, '');
+        Assert.AreNotEqual(
+          PurchInvHeader."Succeeded VAT Registration No.", PostedPurchaseInvoice."Succeeded VAT Registration No.".Value, '');
 
         LibraryVariableStorage.AssertEmpty;
     end;
@@ -186,6 +193,12 @@ codeunit 134658 "Edit Posted Documents"
         Assert.AreEqual(PurchInvHeader."Payment Reference", PostedPurchaseInvoice."Payment Reference".Value, '');
         Assert.AreEqual(PurchInvHeader."Creditor No.", PostedPurchaseInvoice."Creditor No.".Value, '');
         Assert.AreEqual(PurchInvHeader."Ship-to Code", PostedPurchaseInvoice."Ship-to Code".Value, '');
+        Assert.AreEqual(Format(PurchInvHeader."Special Scheme Code"), PostedPurchaseInvoice."Special Scheme Code".Value, '');
+        Assert.AreEqual(Format(PurchInvHeader."Invoice Type"), PostedPurchaseInvoice."Invoice Type".Value, '');
+        Assert.AreEqual(Format(PurchInvHeader."ID Type"), PostedPurchaseInvoice."ID Type".Value, '');
+        Assert.AreEqual(PurchInvHeader."Succeeded Company Name", PostedPurchaseInvoice."Succeeded Company Name".Value, '');
+        Assert.AreEqual(
+          PurchInvHeader."Succeeded VAT Registration No.", PostedPurchaseInvoice."Succeeded VAT Registration No.".Value, '');
 
         LibraryVariableStorage.AssertEmpty;
     end;
@@ -289,11 +302,10 @@ codeunit 134658 "Edit Posted Documents"
         PostedReturnReceipt."Update Document".Invoke;
 
         // [THEN] Fields "No.", "Sell-to Customer Name", "Posting Date" are not editable.
-        // [THEN] Fields "Bill-to County", "Bill-to Country/Region Code", "Shipping Agent Code", "Package Tracking No." are editable.
+        // [THEN] Fields "Bill-to Country/Region Code", "Shipping Agent Code", "Package Tracking No." are editable.
         Assert.IsFalse(LibraryVariableStorage.DequeueBoolean, '');
         Assert.IsFalse(LibraryVariableStorage.DequeueBoolean, '');
         Assert.IsFalse(LibraryVariableStorage.DequeueBoolean, '');
-        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean, '');
         Assert.IsTrue(LibraryVariableStorage.DequeueBoolean, '');
         Assert.IsTrue(LibraryVariableStorage.DequeueBoolean, '');
         Assert.IsTrue(LibraryVariableStorage.DequeueBoolean, '');
@@ -323,7 +335,6 @@ codeunit 134658 "Edit Posted Documents"
         // [WHEN] Press Cancel on the page.
 
         // [THEN] Values of these fields in Return Receipt Header were not changed.
-        Assert.AreNotEqual(ReturnRcptHeader."Bill-to County", PostedReturnReceipt."Bill-to County".Value, '');
         Assert.AreNotEqual(
           ReturnRcptHeader."Bill-to Country/Region Code", PostedReturnReceipt."Bill-to Country/Region Code".Value, '');
         Assert.AreNotEqual(ReturnRcptHeader."Shipping Agent Code", PostedReturnReceipt."Shipping Agent Code".Value, '');
@@ -354,10 +365,196 @@ codeunit 134658 "Edit Posted Documents"
         // [WHEN] Press OK on the page.
 
         // [THEN] Values of these fields in Return Receipt Header were changed.
-        Assert.AreEqual(ReturnRcptHeader."Bill-to County", PostedReturnReceipt."Bill-to County".Value, '');
         Assert.AreEqual(ReturnRcptHeader."Bill-to Country/Region Code", PostedReturnReceipt."Bill-to Country/Region Code".Value, '');
         Assert.AreEqual(ReturnRcptHeader."Shipping Agent Code", PostedReturnReceipt."Shipping Agent Code".Value, '');
         Assert.AreEqual(ReturnRcptHeader."Package Tracking No.", PostedReturnReceipt."Package Tracking No.".Value, '');
+
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [HandlerFunctions('PostedSalesInvoiceUpdateCancelModalPageHandeler')]
+    [Scope('OnPrem')]
+    procedure PostedSalesInvoiceUpdateSetValuesCancel()
+    var
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        PostedSalesInvoice: TestPage "Posted Sales Invoice";
+    begin
+        // [FEATURE] [Sales Invoice]
+        // [SCENARIO 308913] New values for editable fields are not set in case Stan presses Cancel on "Posted Sales Invoice - Update" modal page.
+        Initialize();
+        PrepareValuesForEditableFieldsPostedSalesInvoice(SalesInvoiceHeader);
+
+        // [GIVEN] Opened "Posted Sales Invoice - Update" page.
+        // [GIVEN] New values are set for editable fields.
+        EnqueValuesForEditableFieldsPostedSalesInvoice(SalesInvoiceHeader);
+
+        PostedSalesInvoice.OpenView;
+        PostedSalesInvoice.FILTER.SetFilter("No.", SalesInvoiceHeader."No.");
+        PostedSalesInvoice."Update Document".Invoke;
+
+        // [WHEN] Press Cancel on the page.
+
+        // [THEN] Values of these fields in Sales Invoice Header were not changed.
+        Assert.AreNotEqual(Format(SalesInvoiceHeader."Special Scheme Code"), PostedSalesInvoice."Special Scheme Code".Value, '');
+        Assert.AreNotEqual(Format(SalesInvoiceHeader."Invoice Type"), PostedSalesInvoice."Invoice Type".Value, '');
+        Assert.AreNotEqual(Format(SalesInvoiceHeader."ID Type"), PostedSalesInvoice."ID Type".Value, '');
+        Assert.AreNotEqual(SalesInvoiceHeader."Succeeded Company Name", PostedSalesInvoice."Succeeded Company Name".Value, '');
+        Assert.AreNotEqual(
+          SalesInvoiceHeader."Succeeded VAT Registration No.", PostedSalesInvoice."Succeeded VAT Registration No.".Value, '');
+
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [HandlerFunctions('PostedSalesInvoiceUpdateOKModalPageHandeler')]
+    [Scope('OnPrem')]
+    procedure PostedSalesInvoiceUpdateSetValuesOK()
+    var
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        PostedSalesInvoice: TestPage "Posted Sales Invoice";
+    begin
+        // [FEATURE] [Sales Invoice]
+        // [SCENARIO 308913] New values for editable fields are set in case Stan presses OK on "Posted Sales Invoice - Update" modal page.
+        Initialize();
+        PrepareValuesForEditableFieldsPostedSalesInvoice(SalesInvoiceHeader);
+
+        // [GIVEN] Opened "Posted Sales Invoice - Update" page.
+        // [GIVEN] New values are set for editable fields.
+        EnqueValuesForEditableFieldsPostedSalesInvoice(SalesInvoiceHeader);
+        PostedSalesInvoice.OpenView;
+        PostedSalesInvoice.FILTER.SetFilter("No.", SalesInvoiceHeader."No.");
+        PostedSalesInvoice."Update Document".Invoke;
+
+        // [WHEN] Press OK on the page.
+
+        // [THEN] Values of these fields in Sales Invoice Header were changed.
+        Assert.AreEqual(Format(SalesInvoiceHeader."Special Scheme Code"), PostedSalesInvoice."Special Scheme Code".Value, '');
+        Assert.AreEqual(Format(SalesInvoiceHeader."Invoice Type"), PostedSalesInvoice."Invoice Type".Value, '');
+        Assert.AreEqual(Format(SalesInvoiceHeader."ID Type"), PostedSalesInvoice."ID Type".Value, '');
+        Assert.AreEqual(SalesInvoiceHeader."Succeeded Company Name", PostedSalesInvoice."Succeeded Company Name".Value, '');
+        Assert.AreEqual(
+          SalesInvoiceHeader."Succeeded VAT Registration No.", PostedSalesInvoice."Succeeded VAT Registration No.".Value, '');
+
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [HandlerFunctions('PostedSalesCrMemoUpdateCancelModalPageHandeler')]
+    [Scope('OnPrem')]
+    procedure PostedSalesCrMemoUpdateSetValuesCancel()
+    var
+        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+        PostedSalesCreditMemo: TestPage "Posted Sales Credit Memo";
+    begin
+        // [FEATURE] [Sales Credit Memo]
+        // [SCENARIO 308913] New values for editable fields are not set in case Stan presses Cancel on "Posted Sales Cr. Memo - Update" modal page.
+        Initialize();
+        PrepareValuesForEditableFieldsPostedSalesCreditMemo(SalesCrMemoHeader);
+
+        // [GIVEN] Opened "Posted Sales Cr. Memo - Update" page.
+        // [GIVEN] New values are set for editable fields.
+        EnqueValuesForEditableFieldsPostedSalesCreditMemo(SalesCrMemoHeader);
+        PostedSalesCreditMemo.OpenView;
+        PostedSalesCreditMemo.FILTER.SetFilter("No.", SalesCrMemoHeader."No.");
+        PostedSalesCreditMemo."Update Document".Invoke;
+
+        // [WHEN] Press Cancel on the page.
+
+        // [THEN] Values of these fields in Sales Cr.Memo Header were not changed.
+        Assert.AreNotEqual(Format(SalesCrMemoHeader."Special Scheme Code"), PostedSalesCreditMemo."Special Scheme Code".Value, '');
+        Assert.AreNotEqual(Format(SalesCrMemoHeader."Cr. Memo Type"), PostedSalesCreditMemo."Cr. Memo Type".Value, '');
+        Assert.AreNotEqual(Format(SalesCrMemoHeader."Correction Type"), PostedSalesCreditMemo."Correction Type".Value, '');
+
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [HandlerFunctions('PostedSalesCrMemoUpdateOKModalPageHandeler')]
+    [Scope('OnPrem')]
+    procedure PostedSalesCrMemoUpdateSetValuesOK()
+    var
+        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+        PostedSalesCreditMemo: TestPage "Posted Sales Credit Memo";
+    begin
+        // [FEATURE] [Sales Credit Memo]
+        // [SCENARIO 308913] New values for editable fields are set in case Stan presses OK on "Posted Sales Cr. Memo - Update" modal page.
+        Initialize();
+        PrepareValuesForEditableFieldsPostedSalesCreditMemo(SalesCrMemoHeader);
+
+        // [GIVEN] Opened "Posted Sales Cr. Memo - Update" page.
+        // [GIVEN] New values are set for editable fields.
+        EnqueValuesForEditableFieldsPostedSalesCreditMemo(SalesCrMemoHeader);
+        PostedSalesCreditMemo.OpenView;
+        PostedSalesCreditMemo.FILTER.SetFilter("No.", SalesCrMemoHeader."No.");
+        PostedSalesCreditMemo."Update Document".Invoke;
+
+        // [WHEN] Press OK on the page.
+
+        // [THEN] Values of these fields in Sales Cr.Memo Header were changed.
+        Assert.AreEqual(Format(SalesCrMemoHeader."Special Scheme Code"), PostedSalesCreditMemo."Special Scheme Code".Value, '');
+        Assert.AreEqual(Format(SalesCrMemoHeader."Cr. Memo Type"), PostedSalesCreditMemo."Cr. Memo Type".Value, '');
+        Assert.AreEqual(Format(SalesCrMemoHeader."Correction Type"), PostedSalesCreditMemo."Correction Type".Value, '');
+
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [HandlerFunctions('PostedPurchCrMemoUpdateCancelModalPageHandeler')]
+    [Scope('OnPrem')]
+    procedure PostedPurchCrMemoUpdateSetValuesCancel()
+    var
+        PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
+        PostedPurchaseCreditMemo: TestPage "Posted Purchase Credit Memo";
+    begin
+        // [FEATURE] [Purchase Credit Memo]
+        // [SCENARIO 308913] New values for editable fields are not set in case Stan presses Cancel on "Posted Purch. Cr.Memo - Update" modal page.
+        Initialize();
+        PrepareValuesForEditableFieldsPostedPurchaseCreditMemo(PurchCrMemoHdr);
+
+        // [GIVEN] Opened "Posted Purch. Cr.Memo - Update" page.
+        // [GIVEN] New values are set for editable fields.
+        EnqueValuesForEditableFieldsPostedPurchaseCreditMemo(PurchCrMemoHdr);
+        PostedPurchaseCreditMemo.OpenView;
+        PostedPurchaseCreditMemo.FILTER.SetFilter("No.", PurchCrMemoHdr."No.");
+        PostedPurchaseCreditMemo."Update Document".Invoke;
+
+        // [WHEN] Press Cancel on the page.
+
+        // [THEN] Values of these fields in Purch. Cr. Memo Hdr. were not changed.
+        Assert.AreNotEqual(Format(PurchCrMemoHdr."Special Scheme Code"), PostedPurchaseCreditMemo."Special Scheme Code".Value, '');
+        Assert.AreNotEqual(Format(PurchCrMemoHdr."Cr. Memo Type"), PostedPurchaseCreditMemo."Cr. Memo Type".Value, '');
+        Assert.AreNotEqual(Format(PurchCrMemoHdr."Correction Type"), PostedPurchaseCreditMemo."Correction Type".Value, '');
+
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [HandlerFunctions('PostedPurchCrMemoUpdateOKModalPageHandeler')]
+    [Scope('OnPrem')]
+    procedure PostedPurchCrMemoUpdateSetValuesOK()
+    var
+        PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
+        PostedPurchaseCreditMemo: TestPage "Posted Purchase Credit Memo";
+    begin
+        // [FEATURE] [Purchase Credit Memo]
+        // [SCENARIO 308913] New values for editable fields are set in case Stan presses OK on "Posted Purch. Cr.Memo - Update" modal page.
+        Initialize();
+        PrepareValuesForEditableFieldsPostedPurchaseCreditMemo(PurchCrMemoHdr);
+
+        // [GIVEN] Opened "Posted Purch. Cr.Memo - Update" page.
+        // [GIVEN] New values are set for editable fields.
+        EnqueValuesForEditableFieldsPostedPurchaseCreditMemo(PurchCrMemoHdr);
+        PostedPurchaseCreditMemo.OpenView;
+        PostedPurchaseCreditMemo.FILTER.SetFilter("No.", PurchCrMemoHdr."No.");
+        PostedPurchaseCreditMemo."Update Document".Invoke;
+
+        // [WHEN] Press OK on the page.
+
+        // [THEN] Values of these fields in Purch. Cr. Memo Hdr. were changed.
+        Assert.AreEqual(Format(PurchCrMemoHdr."Special Scheme Code"), PostedPurchaseCreditMemo."Special Scheme Code".Value, '');
+        Assert.AreEqual(Format(PurchCrMemoHdr."Cr. Memo Type"), PostedPurchaseCreditMemo."Cr. Memo Type".Value, '');
+        Assert.AreEqual(Format(PurchCrMemoHdr."Correction Type"), PostedPurchaseCreditMemo."Correction Type".Value, '');
 
         LibraryVariableStorage.AssertEmpty;
     end;
@@ -400,6 +597,11 @@ codeunit 134658 "Edit Posted Documents"
         LibraryVariableStorage.Enqueue(PurchInvHeader."Payment Reference");
         LibraryVariableStorage.Enqueue(PurchInvHeader."Creditor No.");
         LibraryVariableStorage.Enqueue(PurchInvHeader."Ship-to Code");
+        LibraryVariableStorage.Enqueue(PurchInvHeader."Special Scheme Code");
+        LibraryVariableStorage.Enqueue(PurchInvHeader."Invoice Type");
+        LibraryVariableStorage.Enqueue(PurchInvHeader."ID Type");
+        LibraryVariableStorage.Enqueue(PurchInvHeader."Succeeded Company Name");
+        LibraryVariableStorage.Enqueue(PurchInvHeader."Succeeded VAT Registration No.");
     end;
 
     local procedure EnqueValuesForEditableFieldsPostedReturnShipment(ReturnShptHeader: Record "Return Shipment Header")
@@ -410,10 +612,32 @@ codeunit 134658 "Edit Posted Documents"
 
     local procedure EnqueValuesForEditableFieldsPostedReturnReceipt(ReturnRcptHeader: Record "Return Receipt Header")
     begin
-        LibraryVariableStorage.Enqueue(ReturnRcptHeader."Bill-to County");
         LibraryVariableStorage.Enqueue(ReturnRcptHeader."Bill-to Country/Region Code");
         LibraryVariableStorage.Enqueue(ReturnRcptHeader."Shipping Agent Code");
         LibraryVariableStorage.Enqueue(ReturnRcptHeader."Package Tracking No.");
+    end;
+
+    local procedure EnqueValuesForEditableFieldsPostedSalesInvoice(SalesInvoiceHeader: Record "Sales Invoice Header")
+    begin
+        LibraryVariableStorage.Enqueue(SalesInvoiceHeader."Special Scheme Code");
+        LibraryVariableStorage.Enqueue(SalesInvoiceHeader."Invoice Type");
+        LibraryVariableStorage.Enqueue(SalesInvoiceHeader."ID Type");
+        LibraryVariableStorage.Enqueue(SalesInvoiceHeader."Succeeded Company Name");
+        LibraryVariableStorage.Enqueue(SalesInvoiceHeader."Succeeded VAT Registration No.");
+    end;
+
+    local procedure EnqueValuesForEditableFieldsPostedSalesCreditMemo(SalesCrMemoHeader: Record "Sales Cr.Memo Header")
+    begin
+        LibraryVariableStorage.Enqueue(SalesCrMemoHeader."Special Scheme Code");
+        LibraryVariableStorage.Enqueue(SalesCrMemoHeader."Cr. Memo Type");
+        LibraryVariableStorage.Enqueue(SalesCrMemoHeader."Correction Type");
+    end;
+
+    local procedure EnqueValuesForEditableFieldsPostedPurchaseCreditMemo(PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.")
+    begin
+        LibraryVariableStorage.Enqueue(PurchCrMemoHdr."Special Scheme Code");
+        LibraryVariableStorage.Enqueue(PurchCrMemoHdr."Cr. Memo Type");
+        LibraryVariableStorage.Enqueue(PurchCrMemoHdr."Correction Type");
     end;
 
     local procedure PrepareValuesForEditableFieldsPostedSalesShipment(var SalesShptHeader: Record "Sales Shipment Header")
@@ -451,6 +675,11 @@ codeunit 134658 "Edit Posted Documents"
         PurchInvHeader."Payment Reference" := PaymentReference;
         PurchInvHeader."Creditor No." := LibraryUtility.GenerateGUID;
         PurchInvHeader."Ship-to Code" := ShipToAddress.Code;
+        PurchInvHeader."Special Scheme Code" := LibraryRandom.RandIntInRange(1, 10);
+        PurchInvHeader."Invoice Type" := LibraryRandom.RandIntInRange(1, 5);
+        PurchInvHeader."ID Type" := LibraryRandom.RandIntInRange(1, 5);
+        PurchInvHeader."Succeeded Company Name" := LibraryUtility.GenerateGUID;
+        PurchInvHeader."Succeeded VAT Registration No." := LibraryUtility.GenerateGUID;
     end;
 
     local procedure PrepareValuesForEditableFieldsPostedReturnShipment(var ReturnShptHeader: Record "Return Shipment Header")
@@ -473,10 +702,32 @@ codeunit 134658 "Edit Posted Documents"
         LibraryInventory.CreateShippingAgent(ShippingAgent);
 
         ReturnRcptHeader.Init();
-        ReturnRcptHeader."Bill-to County" := LibraryUtility.GenerateGUID;
         ReturnRcptHeader."Bill-to Country/Region Code" := CountryRegion.Code;
         ReturnRcptHeader."Shipping Agent Code" := ShippingAgent.Code;
         ReturnRcptHeader."Package Tracking No." := LibraryUtility.GenerateGUID;
+    end;
+
+    local procedure PrepareValuesForEditableFieldsPostedSalesInvoice(var SalesInvoiceHeader: Record "Sales Invoice Header")
+    begin
+        SalesInvoiceHeader."Special Scheme Code" := LibraryRandom.RandIntInRange(1, 10);
+        SalesInvoiceHeader."Invoice Type" := LibraryRandom.RandIntInRange(1, 3);
+        SalesInvoiceHeader."ID Type" := LibraryRandom.RandIntInRange(1, 5);
+        SalesInvoiceHeader."Succeeded Company Name" := LibraryUtility.GenerateGUID;
+        SalesInvoiceHeader."Succeeded VAT Registration No." := LibraryUtility.GenerateGUID;
+    end;
+
+    local procedure PrepareValuesForEditableFieldsPostedSalesCreditMemo(var SalesCrMemoHeader: Record "Sales Cr.Memo Header")
+    begin
+        SalesCrMemoHeader."Special Scheme Code" := LibraryRandom.RandIntInRange(1, 10);
+        SalesCrMemoHeader."Cr. Memo Type" := LibraryRandom.RandIntInRange(1, 5);
+        SalesCrMemoHeader."Correction Type" := LibraryRandom.RandIntInRange(1, 3);
+    end;
+
+    local procedure PrepareValuesForEditableFieldsPostedPurchaseCreditMemo(var PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.")
+    begin
+        PurchCrMemoHdr."Special Scheme Code" := LibraryRandom.RandIntInRange(1, 10);
+        PurchCrMemoHdr."Cr. Memo Type" := LibraryRandom.RandIntInRange(1, 5);
+        PurchCrMemoHdr."Correction Type" := LibraryRandom.RandIntInRange(1, 3);
     end;
 
     [ModalPageHandler]
@@ -519,6 +770,11 @@ codeunit 134658 "Edit Posted Documents"
         PostedPurchInvoiceUpdate."Payment Reference".SetValue(LibraryVariableStorage.DequeueText);
         PostedPurchInvoiceUpdate."Creditor No.".SetValue(LibraryVariableStorage.DequeueText);
         PostedPurchInvoiceUpdate."Ship-to Code".SetValue(LibraryVariableStorage.DequeueText);
+        PostedPurchInvoiceUpdate."Special Scheme Code".SetValue(LibraryVariableStorage.DequeueText);
+        PostedPurchInvoiceUpdate."Invoice Type".SetValue(LibraryVariableStorage.DequeueText);
+        PostedPurchInvoiceUpdate."ID Type".SetValue(LibraryVariableStorage.DequeueText);
+        PostedPurchInvoiceUpdate."Succeeded Company Name".SetValue(LibraryVariableStorage.DequeueText);
+        PostedPurchInvoiceUpdate."Succeeded VAT Registration No.".SetValue(LibraryVariableStorage.DequeueText);
         PostedPurchInvoiceUpdate.OK.Invoke;
     end;
 
@@ -529,6 +785,11 @@ codeunit 134658 "Edit Posted Documents"
         PostedPurchInvoiceUpdate."Payment Reference".SetValue(LibraryVariableStorage.DequeueText);
         PostedPurchInvoiceUpdate."Creditor No.".SetValue(LibraryVariableStorage.DequeueText);
         PostedPurchInvoiceUpdate."Ship-to Code".SetValue(LibraryVariableStorage.DequeueText);
+        PostedPurchInvoiceUpdate."Special Scheme Code".SetValue(LibraryVariableStorage.DequeueText);
+        PostedPurchInvoiceUpdate."Invoice Type".SetValue(LibraryVariableStorage.DequeueText);
+        PostedPurchInvoiceUpdate."ID Type".SetValue(LibraryVariableStorage.DequeueText);
+        PostedPurchInvoiceUpdate."Succeeded Company Name".SetValue(LibraryVariableStorage.DequeueText);
+        PostedPurchInvoiceUpdate."Succeeded VAT Registration No.".SetValue(LibraryVariableStorage.DequeueText);
         PostedPurchInvoiceUpdate.Cancel.Invoke;
     end;
 
@@ -579,7 +840,6 @@ codeunit 134658 "Edit Posted Documents"
     [Scope('OnPrem')]
     procedure PostedReturnReceiptUpdateOKModalPageHandler(var PostedReturnReceiptUpdate: TestPage "Posted Return Receipt - Update")
     begin
-        PostedReturnReceiptUpdate."Bill-to County".SetValue(LibraryVariableStorage.DequeueText);
         PostedReturnReceiptUpdate."Bill-to Country/Region Code".SetValue(LibraryVariableStorage.DequeueText);
         PostedReturnReceiptUpdate."Shipping Agent Code".SetValue(LibraryVariableStorage.DequeueText);
         PostedReturnReceiptUpdate."Package Tracking No.".SetValue(LibraryVariableStorage.DequeueText);
@@ -590,7 +850,6 @@ codeunit 134658 "Edit Posted Documents"
     [Scope('OnPrem')]
     procedure PostedReturnReceiptUpdateCancelModalPageHandler(var PostedReturnReceiptUpdate: TestPage "Posted Return Receipt - Update")
     begin
-        PostedReturnReceiptUpdate."Bill-to County".SetValue(LibraryVariableStorage.DequeueText);
         PostedReturnReceiptUpdate."Bill-to Country/Region Code".SetValue(LibraryVariableStorage.DequeueText);
         PostedReturnReceiptUpdate."Shipping Agent Code".SetValue(LibraryVariableStorage.DequeueText);
         PostedReturnReceiptUpdate."Package Tracking No.".SetValue(LibraryVariableStorage.DequeueText);
@@ -604,11 +863,74 @@ codeunit 134658 "Edit Posted Documents"
         LibraryVariableStorage.Enqueue(PostedReturnReceiptUpdate."No.".Editable);
         LibraryVariableStorage.Enqueue(PostedReturnReceiptUpdate."Sell-to Customer Name".Editable);
         LibraryVariableStorage.Enqueue(PostedReturnReceiptUpdate."Posting Date".Editable);
-        LibraryVariableStorage.Enqueue(PostedReturnReceiptUpdate."Bill-to County".Editable);
         LibraryVariableStorage.Enqueue(PostedReturnReceiptUpdate."Bill-to Country/Region Code".Editable);
         LibraryVariableStorage.Enqueue(PostedReturnReceiptUpdate."Shipping Agent Code".Editable);
         LibraryVariableStorage.Enqueue(PostedReturnReceiptUpdate."Package Tracking No.".Editable);
         PostedReturnReceiptUpdate.Cancel.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure PostedSalesInvoiceUpdateOKModalPageHandeler(var PostedSalesInvoiceUpdate: TestPage "Posted Sales Invoice - Update")
+    begin
+        PostedSalesInvoiceUpdate."Special Scheme Code".SetValue(LibraryVariableStorage.DequeueText);
+        PostedSalesInvoiceUpdate."Invoice Type".SetValue(LibraryVariableStorage.DequeueText);
+        PostedSalesInvoiceUpdate."ID Type".SetValue(LibraryVariableStorage.DequeueText);
+        PostedSalesInvoiceUpdate."Succeeded Company Name".SetValue(LibraryVariableStorage.DequeueText);
+        PostedSalesInvoiceUpdate."Succeeded VAT Registration No.".SetValue(LibraryVariableStorage.DequeueText);
+        PostedSalesInvoiceUpdate.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure PostedSalesInvoiceUpdateCancelModalPageHandeler(var PostedSalesInvoiceUpdate: TestPage "Posted Sales Invoice - Update")
+    begin
+        PostedSalesInvoiceUpdate."Special Scheme Code".SetValue(LibraryVariableStorage.DequeueText);
+        PostedSalesInvoiceUpdate."Invoice Type".SetValue(LibraryVariableStorage.DequeueText);
+        PostedSalesInvoiceUpdate."ID Type".SetValue(LibraryVariableStorage.DequeueText);
+        PostedSalesInvoiceUpdate."Succeeded Company Name".SetValue(LibraryVariableStorage.DequeueText);
+        PostedSalesInvoiceUpdate."Succeeded VAT Registration No.".SetValue(LibraryVariableStorage.DequeueText);
+        PostedSalesInvoiceUpdate.Cancel.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure PostedSalesCrMemoUpdateOKModalPageHandeler(var PostedSalesCrMemoUpdate: TestPage "Posted Sales Cr. Memo - Update")
+    begin
+        PostedSalesCrMemoUpdate."Special Scheme Code".SetValue(LibraryVariableStorage.DequeueText);
+        PostedSalesCrMemoUpdate."Cr. Memo Type".SetValue(LibraryVariableStorage.DequeueText);
+        PostedSalesCrMemoUpdate."Correction Type".SetValue(LibraryVariableStorage.DequeueText);
+        PostedSalesCrMemoUpdate.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure PostedSalesCrMemoUpdateCancelModalPageHandeler(var PostedSalesCrMemoUpdate: TestPage "Posted Sales Cr. Memo - Update")
+    begin
+        PostedSalesCrMemoUpdate."Special Scheme Code".SetValue(LibraryVariableStorage.DequeueText);
+        PostedSalesCrMemoUpdate."Cr. Memo Type".SetValue(LibraryVariableStorage.DequeueText);
+        PostedSalesCrMemoUpdate."Correction Type".SetValue(LibraryVariableStorage.DequeueText);
+        PostedSalesCrMemoUpdate.Cancel.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure PostedPurchCrMemoUpdateOKModalPageHandeler(var PostedPurchCrMemoUpdate: TestPage "Posted Purch. Cr.Memo - Update")
+    begin
+        PostedPurchCrMemoUpdate."Special Scheme Code".SetValue(LibraryVariableStorage.DequeueText);
+        PostedPurchCrMemoUpdate."Cr. Memo Type".SetValue(LibraryVariableStorage.DequeueText);
+        PostedPurchCrMemoUpdate."Correction Type".SetValue(LibraryVariableStorage.DequeueText);
+        PostedPurchCrMemoUpdate.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure PostedPurchCrMemoUpdateCancelModalPageHandeler(var PostedPurchCrMemoUpdate: TestPage "Posted Purch. Cr.Memo - Update")
+    begin
+        PostedPurchCrMemoUpdate."Special Scheme Code".SetValue(LibraryVariableStorage.DequeueText);
+        PostedPurchCrMemoUpdate."Cr. Memo Type".SetValue(LibraryVariableStorage.DequeueText);
+        PostedPurchCrMemoUpdate."Correction Type".SetValue(LibraryVariableStorage.DequeueText);
+        PostedPurchCrMemoUpdate.Cancel.Invoke;
     end;
 }
 

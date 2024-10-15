@@ -745,5 +745,55 @@ codeunit 10756 "SII Management"
         Make347Declaration.SetCollectionInCashMode(true);
         Make347Declaration.RunModal;
     end;
+
+    procedure UpdateSIIInfoInSalesDoc(var SalesHeader: Record "Sales Header")
+    begin
+        SalesHeader."Special Scheme Code" :=
+          GetSalesSpecialSchemeCode(SalesHeader."Bill-to Customer No.", SalesHeader."VAT Country/Region Code");
+    end;
+
+    procedure UpdateSIIInfoInServiceDoc(var ServiceHeader: Record "Service Header")
+    begin
+        ServiceHeader."Special Scheme Code" :=
+          GetSalesSpecialSchemeCode(ServiceHeader."Bill-to Customer No.", ServiceHeader."VAT Country/Region Code");
+    end;
+
+    local procedure GetSalesSpecialSchemeCode(BillToCustomerNo: Code[20]; VATCountryRegionCode: Code[10]): Integer
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+    begin
+        GeneralLedgerSetup.Get();
+        if GeneralLedgerSetup."VAT Cash Regime" then
+            exit(SalesHeader."Special Scheme Code"::"07 Special Cash");
+        if BillToCustomerNo <> '' then
+            if Customer.Get(BillToCustomerNo) then begin
+                if CountryIsLocal(VATCountryRegionCode) or
+                   CustomerIsIntraCommunity(Customer."No.")
+                then
+                    exit(SalesHeader."Special Scheme Code"::"01 General");
+                exit(SalesHeader."Special Scheme Code"::"02 Export");
+            end;
+    end;
+
+    procedure UpdateSIIInfoInPurchDoc(var PurchaseHeader: Record "Purchase Header")
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        Vendor: Record Vendor;
+    begin
+        with PurchaseHeader do begin
+            GeneralLedgerSetup.Get();
+            if GeneralLedgerSetup."VAT Cash Regime" then
+                "Special Scheme Code" := "Special Scheme Code"::"07 Special Cash"
+            else
+                if "Pay-to Vendor No." <> '' then
+                    if Vendor.Get("Pay-to Vendor No.") then
+                        if VendorIsIntraCommunity(Vendor."No.") then
+                            "Special Scheme Code" := "Special Scheme Code"::"09 Intra-Community Acquisition"
+                        else
+                            "Special Scheme Code" := "Special Scheme Code"::"01 General";
+        end;
+    end;
 }
 

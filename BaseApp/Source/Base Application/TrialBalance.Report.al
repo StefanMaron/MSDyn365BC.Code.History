@@ -429,6 +429,7 @@ report 6 "Trial Balance"
 
     trigger OnPreReport()
     begin
+        "G/L Account".SecurityFiltering(SecurityFilter::Filtered);
         PeriodText := "G/L Account".GetFilter("Date Filter");
         GlobalDim1 := "G/L Account".GetFilter("G/L Account"."Global Dimension 1 Filter");
         GlobalDim2 := "G/L Account".GetFilter("G/L Account"."Global Dimension 2 Filter");

@@ -1031,6 +1031,8 @@ codeunit 137163 "SCM Orders VI"
         // [GIVEN] Purchase Invoice with Charge Item with line discount and invoice discount.
         Initialize;
 
+        UpdateDiscountOnPurchasePayableSetup(true);
+
         ExpdTotalDisAmt :=
           CreatePurchInvoiceWithItemChargeWithLnDiscAndInvDisc(
             PurchaseHeader, GeneralPostingSetup, false); // Prices Including VAT is disabled.
@@ -1042,6 +1044,8 @@ codeunit 137163 "SCM Orders VI"
         VerifyDiscountAmountInValueEntry(PostedDocNo, ExpdTotalDisAmt);
         VerifyDiscountAmountInGLEntry(
           PostedDocNo, GeneralPostingSetup."Purch. Line Disc. Account", GeneralPostingSetup."Purch. Inv. Disc. Account", -ExpdTotalDisAmt);
+
+        UpdateDiscountOnPurchasePayableSetup(false);
     end;
 
     [Test]
@@ -1777,6 +1781,60 @@ codeunit 137163 "SCM Orders VI"
         Assert.RecordCount(PurchRcptLine, 4);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure QtyToShipOnSalesOrderNonInventoriableWhenShipmentRequired()
+    var
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        // [FEATURE] [Sales] [Order] [Non-Inventoriable]
+        // [SCENARIO 348918] "Qty. To Ship" is set to "Outstanding Quantity" in Sales Order Lines for Non-Inventoriable Items when Shipment Required On Warehouse Setup
+        Initialize;
+
+        // [GIVEN] Shipment Required on Warehouse Setup
+        LibraryWarehouse.SetRequireShipmentOnWarehouseSetup(true);
+
+        // [GIVEN] Sales Order Line for Non-Inventory item
+        LibraryInventory.CreateNonInventoryTypeItem(Item);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 0);
+
+        // [WHEN] Set Quantity = 10 on Sales Line
+        SalesLine.Validate(Quantity, LibraryRandom.RandDec(10, 2));
+
+        // [THEN] "Qty. to Ship" = 10
+        SalesLine.TestField("Qty. to Ship", SalesLine.Quantity);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure QtyToReceiveOnPurchOrderNonInventoriableWhenReceiveRequired()
+    var
+        Item: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        // [FEATURE] [Purchase] [Order] [Non-Inventoriable]
+        // [SCENARIO 348918] "Qty. To Receive" is set to "Outstanding Quantity" in Purchase Order Lines for Non-Inventoriable Items when Receive Required On Warehouse Setup
+        Initialize;
+
+        // [GIVEN] Receive Required on Warehouse Setup
+        LibraryWarehouse.SetRequireReceiveOnWarehouseSetup(true);
+
+        // [GIVEN] Purchase Order Line for Non-Inventory item
+        LibraryInventory.CreateNonInventoryTypeItem(Item);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", 0);
+
+        // [WHEN] Set Quantity = 10 on Purchase Line
+        PurchaseLine.Validate(Quantity, LibraryRandom.RandDec(10, 2));
+
+        // [THEN] "Qty. to Receive" = 10
+        PurchaseLine.TestField("Qty. to Receive", PurchaseLine.Quantity);
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Orders VI");
@@ -1803,6 +1861,7 @@ codeunit 137163 "SCM Orders VI"
         LibrarySetupStorage.Save(DATABASE::"Inventory Setup");
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
         LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
+        LibrarySetupStorage.Save(DATABASE::"Warehouse Setup");
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Orders VI");
     end;
 
@@ -3027,6 +3086,18 @@ codeunit 137163 "SCM Orders VI"
         PurchaseLine.Validate("Blanket Order No.", BlanketOrderNo);
         PurchaseLine.Validate("Blanket Order Line No.", BlanketOrderLineNo);
         PurchaseLine.Modify(true);
+    end;
+
+    local procedure UpdateDiscountOnPurchasePayableSetup(IsDiscount: Boolean)
+    var
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+    begin
+        with PurchasesPayablesSetup do begin
+            Get;
+            "Post Invoice Discount" := IsDiscount;
+            "Post Line Discount" := IsDiscount;
+            Modify;
+        end;
     end;
 
     local procedure UpdateExpectedCostPostingToGLOnInventorySetup(NewExpectedCostPostingToGL: Boolean) OldExpectedCostPostingToGL: Boolean

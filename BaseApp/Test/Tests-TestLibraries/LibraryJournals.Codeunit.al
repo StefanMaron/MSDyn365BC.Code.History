@@ -10,6 +10,8 @@ codeunit 131306 "Library - Journals"
     var
         LibraryUtility: Codeunit "Library - Utility";
         LibraryERM: Codeunit "Library - ERM";
+        LibrarySales: Codeunit "Library - Sales";
+        LibraryPurchase: Codeunit "Library - Purchase";
 
     procedure CreateGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; JournalTemplateName: Code[10]; JournalBatchName: Code[10]; DocumentType: Option; AccountType: Option; AccountNo: Code[20]; BalAccountType: Option; BalAccountNo: Code[20]; Amount: Decimal)
     var
@@ -42,6 +44,7 @@ codeunit 131306 "Library - Journals"
         GenJournalLine.Validate("Source Code", LibraryERM.FindGeneralJournalSourceCode);  // Unused but required for AU, NZ builds
         GenJournalLine.Validate("Bal. Account Type", BalAccountType);
         GenJournalLine.Validate("Bal. Account No.", BalAccountNo);
+        SetBillToPayToNo(GenJournalLine);  // To prevent Bill-to/ Pay-to No. issue in ES.
         GenJournalLine.Modify(true);
     end;
 
@@ -83,6 +86,7 @@ codeunit 131306 "Library - Journals"
         GenJournalLine.Validate("Source Code", LibraryERM.FindGeneralJournalSourceCode);  // Unused but required for AU, NZ builds
         GenJournalLine.Validate("Bal. Account Type", BalAccountType);
         GenJournalLine.Validate("Bal. Account No.", BalAccountNo);
+        SetBillToPayToNo(GenJournalLine);  // To prevent Bill-to/ Pay-to No. issue in ES.
         GenJournalLine.Modify(true);
     end;
 
@@ -190,6 +194,25 @@ codeunit 131306 "Library - Journals"
         LastGenJnlLine."Posting Date" := WorkDate;
     end;
 
+    local procedure SetBillToPayToNo(var GenJournalLine: Record "Gen. Journal Line")
+    var
+        Customer: Record Customer;
+    begin
+        LibrarySales.CreateCustomer(Customer);
+
+        // Bill-to Pay-to No. need to be filled in Gen. Journal Lines for Accounts other than Customer and Vendor in ES.
+        if GenJournalLine."Bill-to/Pay-to No." = '' then begin
+            if (GenJournalLine."Gen. Posting Type" = GenJournalLine."Gen. Posting Type"::Sale) or (GenJournalLine."Bal. Gen. Posting Type" = GenJournalLine."Bal. Gen. Posting Type"::Sale)
+              or (GenJournalLine."Account Type" = GenJournalLine."Account Type"::Customer) then
+                GenJournalLine.Validate("Bill-to/Pay-to No.", Customer."No.");
+            if (GenJournalLine."Gen. Posting Type" = GenJournalLine."Gen. Posting Type"::Purchase) or (GenJournalLine."Bal. Gen. Posting Type" = GenJournalLine."Bal. Gen. Posting Type"::Purchase)
+              or (GenJournalLine."Account Type" = GenJournalLine."Account Type"::Vendor) then
+                GenJournalLine.Validate("Bill-to/Pay-to No.", LibraryPurchase.CreateVendorNo)
+            else
+                GenJournalLine.Validate("Bill-to/Pay-to No.", Customer."No.");
+        end;
+    end;
+
     procedure SetPostWithJobQueue(PostWithJobQueue: Boolean)
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
@@ -208,4 +231,3 @@ codeunit 131306 "Library - Journals"
         GeneralLedgerSetup.Modify(true);
     end;
 }
-

@@ -815,6 +815,14 @@ table 5994 "Service Cr.Memo Header"
             OptionCaption = ' ,02-VAT Registration No.,03-Passport,04-ID Document,05-Certificate Of Residence,06-Other Probative Document,07-Not On The Census';
             OptionMembers = " ","02-VAT Registration No.","03-Passport","04-ID Document","05-Certificate Of Residence","06-Other Probative Document","07-Not On The Census";
         }
+        field(10723; "Sent to SII"; Boolean)
+        {
+            CalcFormula = Exist ("SII Doc. Upload State" WHERE ("Document Source" = CONST ("Customer Ledger"),
+                                                               "Document Type" = CONST ("Credit Memo"),
+                                                               "Document No." = FIELD ("No.")));
+            Editable = false;
+            FieldClass = FlowField;
+        }
         field(7000000; "Applies-to Bill No."; Code[20])
         {
             Caption = 'Applies-to Bill No.';
