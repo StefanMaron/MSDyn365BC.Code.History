@@ -65,9 +65,9 @@ page 508 "Blanket Sales Order Subform"
 #endif
                 field("Item Reference No."; Rec."Item Reference No.")
                 {
+                    AccessByPermission = tabledata "Item Reference" = R;
                     ApplicationArea = Suite, ItemReferences;
                     ToolTip = 'Specifies the referenced item number.';
-                    Visible = ItemReferenceVisible;
 
                     trigger OnLookup(var Text: Text): Boolean
                     var
@@ -114,6 +114,7 @@ page 508 "Blanket Sales Order Subform"
 
                     trigger OnValidate()
                     begin
+                        ShowShortcutDimCode(ShortcutDimCode);
                         DeltaUpdateTotals();
                     end;
                 }
@@ -968,7 +969,9 @@ page 508 "Blanket Sales Order Subform"
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
     begin
         SetDimensionsVisibility();
+#if not CLEAN19
         SetItemReferenceVisibility();
+#endif
         ExtendedPriceEnabled := PriceCalculationMgt.IsExtendedPriceCalculationEnabled();
     end;
 
@@ -1000,8 +1003,10 @@ page 508 "Blanket Sales Order Subform"
         InvoiceDiscountPct: Decimal;
         IsBlankNumber: Boolean;
         IsCommentLine: Boolean;
+#if not CLEAN19
         [InDataSet]
         ItemReferenceVisible: Boolean;
+#endif        
         VATAmount: Decimal;
 
     procedure ApproveCalcInvDisc()
@@ -1180,12 +1185,12 @@ page 508 "Blanket Sales Order Subform"
         Clear(DimMgt);
     end;
 
+#if not CLEAN19
     local procedure SetItemReferenceVisibility()
-    var
-        ItemReferenceMgt: Codeunit "Item Reference Management";
     begin
-        ItemReferenceVisible := ItemReferenceMgt.IsEnabled();
+        ItemReferenceVisible := true;
     end;
+#endif
 
     local procedure ValidateShortcutDimension(DimIndex: Integer)
     var

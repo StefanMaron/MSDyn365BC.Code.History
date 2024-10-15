@@ -18,7 +18,6 @@ codeunit 144000 "DEB DTI Export Tests"
         ReGenerationError: Label 'Reported must be equal to ''No''  in %1: %2=%3, %4=%5. Current value is ''Yes''.';
         LibraryRandom: Codeunit "Library - Random";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
-        FileManagement: Codeunit "File Management";
         LibraryUtility: Codeunit "Library - Utility";
         IsInitialized: Boolean;
         PostingMessage: Label 'The journal lines were successfully exported.';
@@ -32,21 +31,17 @@ codeunit 144000 "DEB DTI Export Tests"
     procedure TestBasicXMLContent()
     var
         TempIntrastatJnlLine: Record "Intrastat Jnl. Line" temporary;
-        FileName: Text;
     begin
         Initialize;
         SetCompanyInfo;
         CreateBasicIntrastatJnlLine(TempIntrastatJnlLine);
-        FileName := DefaultExportToXML(TempIntrastatJnlLine);
+        DefaultExportToXML(TempIntrastatJnlLine);
 
-        InitReader(FileName);
         VerifyXMLFileHeader;
         VerifyXMLDeclarationHeader;
         // TFS ID 399429: Intrastat xml file has: "MSConsDestCode" = "Entry/Exit Point", "regionCode" = "Area"
         VerifyXMLItemContent(TempIntrastatJnlLine);
         VerifyNoOptionalXMLItemContent;
-
-        FileManagement.DeleteServerFile(FileName);
     end;
 
     [Test]
@@ -113,7 +108,6 @@ codeunit 144000 "DEB DTI Export Tests"
         CompanyInfo: Record "Company Information";
         TempIntrastatJnlLine: Record "Intrastat Jnl. Line" temporary;
         ExpectedDeclarationID: Integer;
-        FileName: Text;
     begin
         Initialize;
         SetCompanyInfo;
@@ -121,14 +115,11 @@ codeunit 144000 "DEB DTI Export Tests"
         ExpectedDeclarationID := CompanyInfo."Last Intrastat Declaration ID";
         CreateBasicIntrastatJnlLine(TempIntrastatJnlLine);
         ExpectedDeclarationID := ExpectedDeclarationID + 1;
-        FileName := DefaultExportToXML(TempIntrastatJnlLine);
+        DefaultExportToXML(TempIntrastatJnlLine);
 
-        InitReader(FileName);
         LibraryXMLRead.VerifyNodeValue('declarationId', Format(ExpectedDeclarationID, 0, '<Integer,6><Filler Character,0>'));
 
         VerifyLastDeclarationId(ExpectedDeclarationID);
-
-        FileManagement.DeleteServerFile(FileName);
     end;
 
     [Test]
@@ -145,16 +136,14 @@ codeunit 144000 "DEB DTI Export Tests"
         TotalAmountRcpt: Decimal;
         TotalAmountShpt: Decimal;
         i: Integer;
-        FileName: Text;
     begin
         Initialize;
         SetCompanyInfo;
         CompanyInfo.Get();
         ExpectedDeclarationID := CompanyInfo."Last Intrastat Declaration ID";
         GenerateSetOfRcptShpt(TempIntrastatJnlLine, TotalAmountRcpt, TotalAmountShpt);
-        FileName := DefaultExportToXML(TempIntrastatJnlLine);
+        DefaultExportToXML(TempIntrastatJnlLine);
 
-        InitReader(FileName);
         LibraryXMLRead.GetNodeListByElementName('Declaration', NodeList);
         Assert.IsTrue(NodeList.Count > 0, 'Declaration element doesnt have child nodes.');
         for i := 0 to NodeList.Count - 1 do begin
@@ -165,8 +154,6 @@ codeunit 144000 "DEB DTI Export Tests"
         end;
 
         VerifyLastDeclarationId(ExpectedDeclarationID);
-
-        FileManagement.DeleteServerFile(FileName);
     end;
 
     [Test]
@@ -186,12 +173,13 @@ codeunit 144000 "DEB DTI Export Tests"
         TempIntrastatJnlLine: Record "Intrastat Jnl. Line" temporary;
         ExportDEBDTI: Codeunit "Export DEB DTI";
         ObligationLevel: Integer;
+        FileOutStream: OutStream;
     begin
         Initialize;
         SetCompanyInfo;
         TempIntrastatJnlLine.DeleteAll();
         ObligationLevel := 1;
-        asserterror ExportDEBDTI.ExportToXML(TempIntrastatJnlLine, ObligationLevel, CreateFile);
+        asserterror ExportDEBDTI.ExportToXML(TempIntrastatJnlLine, ObligationLevel, FileOutStream);
         Assert.ExpectedError('There is nothing to export')
     end;
 
@@ -217,29 +205,32 @@ codeunit 144000 "DEB DTI Export Tests"
     var
         TempIntrastatJnlLine: Record "Intrastat Jnl. Line" temporary;
         ExportDEBDTI: Codeunit "Export DEB DTI";
+        FileTempBlob: Codeunit "Temp Blob";
         [RunOnClient]
         NodeList: DotNet XmlNodeList;
         [RunOnClient]
         FlowCodeNode: DotNet XmlNode;
         ObligationLevel: Integer;
-        FileName: Text;
         ReceiptExists: Boolean;
         ShipmentExists: Boolean;
         TotalAmountForReceipt: Decimal;
         TotalAmountForShipment: Decimal;
         i: Integer;
+        FileOutStream: OutStream;
+        FileInStream: InStream;
+        FileContent: Text;
     begin
         Initialize;
         SetCompanyInfo;
 
         GenerateSetOfRcptShpt(TempIntrastatJnlLine, TotalAmountForReceipt, TotalAmountForShipment);
 
-        FileName := CreateFile;
         ObligationLevel := 1;
-        ExportDEBDTI.ExportToXML(TempIntrastatJnlLine, ObligationLevel, FileName);
-
-        Assert.IsTrue(FileManagement.ServerFileExists(FileName), FileNotExistErr);
-        InitReader(FileName);
+        FileTempBlob.CreateOutStream(FileOutStream);
+        ExportDEBDTI.ExportToXML(TempIntrastatJnlLine, ObligationLevel, FileOutStream);
+        FileTempBlob.CreateInStream(FileInStream, TextEncoding::UTF8);
+        FileInStream.Read(FileContent);
+        LibraryXMLRead.InitializeFromXmlText(FileContent);
 
         LibraryXMLRead.GetNodeListByElementName('Declaration', NodeList);
         Assert.AreEqual(2, NodeList.Count, 'Incorrect count for Declaration');
@@ -257,8 +248,6 @@ codeunit 144000 "DEB DTI Export Tests"
         end;
         Assert.IsTrue(ReceiptExists, 'Information for Receipts not found');
         Assert.IsTrue(ShipmentExists, 'Information for Shipments not found');
-
-        FileManagement.DeleteServerFile(FileName);
     end;
 
     [Test]
@@ -266,7 +255,6 @@ codeunit 144000 "DEB DTI Export Tests"
     procedure TestJnlTransactionTypeBCode()
     var
         TempIntrastatJnlLine: Record "Intrastat Jnl. Line" temporary;
-        FileName: Text;
     begin
         Initialize;
         SetCompanyInfo;
@@ -274,14 +262,11 @@ codeunit 144000 "DEB DTI Export Tests"
         TempIntrastatJnlLine."Transaction Type" := '70';
         TempIntrastatJnlLine.Modify(true);
 
-        FileName := DefaultExportToXML(TempIntrastatJnlLine);
+        DefaultExportToXML(TempIntrastatJnlLine);
 
-        InitReader(FileName);
         LibraryXMLRead.VerifyNodeValue('natureOfTransactionACode', '7');
         asserterror LibraryXMLRead.VerifyNodeValue('natureOfTransactionBCode', '0');
         Assert.ExpectedError('natureOfTransactionBCode');
-
-        FileManagement.DeleteServerFile(FileName);
     end;
 
     [Test]
@@ -329,18 +314,16 @@ codeunit 144000 "DEB DTI Export Tests"
         TempIntrastatJnlLine: Record "Intrastat Jnl. Line" temporary;
         ExportDEBDTI: Codeunit "Export DEB DTI";
         ObligationLevel: Integer;
-        FileName: Text;
+        FileTempBlob: Codeunit "Temp Blob";
+        FileOutStream: OutStream;
     begin
         Initialize;
         SetCompanyInfo;
         CreateBasicIntrastatJnlLine(TempIntrastatJnlLine);
-        FileName := CreateFile;
         ObligationLevel := 2;
-        ExportDEBDTI.ExportToXML(TempIntrastatJnlLine, ObligationLevel, FileName);
-
-        Assert.IsTrue(FileManagement.ServerFileExists(FileName), FileNotExistErr);
-
-        FileManagement.DeleteServerFile(FileName);
+        FileTempBlob.CreateOutStream(FileOutStream);
+        ExportDEBDTI.ExportToXML(TempIntrastatJnlLine, ObligationLevel, FileOutStream);
+        Assert.IsTrue(FileTempBlob.HasValue(), FileNotExistErr);
     end;
 
     [Test]
@@ -351,7 +334,8 @@ codeunit 144000 "DEB DTI Export Tests"
         IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
         ExportDEBDTI: Report "Export DEB DTI";
-        FileName: Text;
+        FileTempBlob: Codeunit "Temp Blob";
+        FileOutStream: OutStream;
     begin
         Initialize;
         SetCompanyInfo;
@@ -362,15 +346,14 @@ codeunit 144000 "DEB DTI Export Tests"
         CreateBasicIntrastatJnlLine(IntrastatJnlLine);
         IntrastatJnlBatch.SetRange("Journal Template Name", IntrastatJnlBatch."Journal Template Name");
         IntrastatJnlBatch.SetRange(Name, IntrastatJnlBatch.Name);
-        FileName := CreateFile;
-        ExportDEBDTI.InitializeRequest(FileName);
+
+        FileTempBlob.CreateOutStream(FileOutStream);
+        ExportDEBDTI.InitializeRequest(FileOutStream);
         ExportDEBDTI.UseRequestPage(false);
         ExportDEBDTI.SetTableView(IntrastatJnlBatch);
         ExportDEBDTI.Run;
 
-        Assert.IsTrue(FileManagement.ServerFileExists(FileName), FileNotExistErr);
-
-        FileManagement.DeleteServerFile(FileName);
+        Assert.IsTrue(FileTempBlob.HasValue(), FileNotExistErr);
     end;
 
     [Test]
@@ -471,21 +454,17 @@ codeunit 144000 "DEB DTI Export Tests"
     procedure TestOptionalXMLContent()
     var
         TempIntrastatJnlLine: Record "Intrastat Jnl. Line" temporary;
-        FileName: Text;
     begin
         Initialize;
         SetCompanyInfo;
         CreateBasicIntrastatJnlLine(TempIntrastatJnlLine);
         SetDefaultOptionalValues(TempIntrastatJnlLine);
-        FileName := DefaultExportToXML(TempIntrastatJnlLine);
+        DefaultExportToXML(TempIntrastatJnlLine);
 
-        InitReader(FileName);
         VerifyXMLFileHeader;
         VerifyXMLDeclarationHeader;
         VerifyXMLItemContent(TempIntrastatJnlLine);
         VerifyOptionalXMLItemContent(TempIntrastatJnlLine);
-
-        FileManagement.DeleteServerFile(FileName);
     end;
 
     [Test]
@@ -493,15 +472,12 @@ codeunit 144000 "DEB DTI Export Tests"
     procedure TestQtyForTariffWithoutSU()
     var
         TempIntrastatJnlLine: Record "Intrastat Jnl. Line" temporary;
-        FileName: Text;
     begin
         Initialize;
         SetCompanyInfo;
-        FileName := SetTariffNoWithSupplemUnit(TempIntrastatJnlLine, false);
+        SetTariffNoWithSupplemUnit(TempIntrastatJnlLine, false);
         asserterror LibraryXMLRead.VerifyNodeValue('quantityInSU', '0');
         Assert.ExpectedError('quantityInSU');
-
-        FileManagement.DeleteServerFile(FileName);
     end;
 
     [Test]
@@ -509,14 +485,11 @@ codeunit 144000 "DEB DTI Export Tests"
     procedure TestQtyForTariffWithSU()
     var
         TempIntrastatJnlLine: Record "Intrastat Jnl. Line" temporary;
-        FileName: Text;
     begin
         Initialize;
         SetCompanyInfo;
-        FileName := SetTariffNoWithSupplemUnit(TempIntrastatJnlLine, true);
+        SetTariffNoWithSupplemUnit(TempIntrastatJnlLine, true);
         LibraryXMLRead.VerifyNodeValue('quantityInSU', Format(Round(TempIntrastatJnlLine.Quantity, 1), 0, 9));
-
-        FileManagement.DeleteServerFile(FileName);
     end;
 
     [Test]
@@ -540,16 +513,14 @@ codeunit 144000 "DEB DTI Export Tests"
     procedure TestReportedFlagIsTrue()
     var
         TempIntrastatJnlLine: Record "Intrastat Jnl. Line" temporary;
-        FileName: Text;
     begin
         Initialize;
         SetCompanyInfo;
 
         CreateBasicIntrastatJnlLine(TempIntrastatJnlLine);
-        FileName := DefaultExportToXML(TempIntrastatJnlLine);
+        DefaultExportToXML(TempIntrastatJnlLine);
 
         VerifyExpectedReportedFlag(TempIntrastatJnlLine, true);
-        FileManagement.DeleteServerFile(FileName);
     end;
 
     [Test]
@@ -558,13 +529,12 @@ codeunit 144000 "DEB DTI Export Tests"
     var
         TempIntrastatJnlLine: Record "Intrastat Jnl. Line" temporary;
         IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
-        FileName: Text;
     begin
         Initialize;
         SetCompanyInfo;
 
         CreateBasicIntrastatJnlLine(TempIntrastatJnlLine);
-        FileName := DefaultExportToXML(TempIntrastatJnlLine);
+        DefaultExportToXML(TempIntrastatJnlLine);
 
         asserterror DefaultExportToXML(TempIntrastatJnlLine);
         Assert.ExpectedError(
@@ -572,8 +542,6 @@ codeunit 144000 "DEB DTI Export Tests"
             ReGenerationError, IntrastatJnlBatch.TableCaption, IntrastatJnlBatch.FieldCaption("Journal Template Name"),
             TempIntrastatJnlLine."Journal Template Name",
             IntrastatJnlBatch.FieldCaption(Name), TempIntrastatJnlLine."Journal Batch Name"));
-
-        FileManagement.DeleteServerFile(FileName);
     end;
 
     [Test]
@@ -618,7 +586,6 @@ codeunit 144000 "DEB DTI Export Tests"
         TempIntrastatJnlLine: Record "Intrastat Jnl. Line" temporary;
         LineCount: Integer;
         ItemNodeCount: Integer;
-        FileName: Text;
     begin
         // [SCENARIO 375212] itemNumber XML tag value is incremented line by line and is expanded to 6 sybmols with zeros
         Initialize;
@@ -627,17 +594,14 @@ codeunit 144000 "DEB DTI Export Tests"
         // [GIVEN] "X" Intrastat Journal lines
         for LineCount := 1 to LibraryRandom.RandIntInRange(2, 5) do
             CreateBasicIntrastatJnlLine(TempIntrastatJnlLine);
-        FileName := DefaultExportToXML(TempIntrastatJnlLine);
+        DefaultExportToXML(TempIntrastatJnlLine);
 
         // [WHEN] Intrastat Journal lines exported to DTI XML file
-        InitReader(FileName);
         LibraryXMLRead.VerifyNodeValue('itemNumber', Format(1, 0, '<Integer,6><Filler Character,0>'));
 
         // [THEN] Exported file contain "X" "Item" nodes with "itemNumber" begin from 000001 and ends with 00000X
         for ItemNodeCount := 1 to LineCount do
             LibraryXMLRead.VerifyNodeValueInSubtree('Item', 'itemNumber', Format(ItemNodeCount, 0, '<Integer,6><Filler Character,0>'));
-
-        FileManagement.DeleteServerFile(FileName);
     end;
 
     local procedure Initialize()
@@ -729,18 +693,20 @@ codeunit 144000 "DEB DTI Export Tests"
         exit(EntryExitPoint.Code);
     end;
 
-    local procedure DefaultExportToXML(var IntrastatJnlLine: Record "Intrastat Jnl. Line") FileName: Text
+    local procedure DefaultExportToXML(var IntrastatJnlLine: Record "Intrastat Jnl. Line")
     var
         ExportDEBDTI: Codeunit "Export DEB DTI";
+        FileTempBlob: Codeunit "Temp Blob";
+        FileOutStream: OutStream;
+        FileInStream: InStream;
+        FileContent: Text;
     begin
-        FileName := CreateFile;
-        ExportDEBDTI.ExportToXML(IntrastatJnlLine, 1, FileName);
-        exit(FileName);
-    end;
+        FileTempBlob.CreateOutStream(FileOutStream);
+        ExportDEBDTI.ExportToXML(IntrastatJnlLine, 1, FileOutStream);
 
-    local procedure CreateFile(): Text
-    begin
-        exit(FileManagement.ServerTempFileName(''));
+        FileTempBlob.CreateInStream(FileInStream, TextEncoding::UTF8);
+        FileInStream.Read(FileContent);
+        LibraryXMLRead.InitializeFromXmlText(FileContent);
     end;
 
     local procedure GenerateSetOfRcptShpt(var IntrastatJnlLine: Record "Intrastat Jnl. Line"; var TotalAmountForReceipt: Decimal; var TotalAmountForShipment: Decimal)
@@ -760,11 +726,6 @@ codeunit 144000 "DEB DTI Export Tests"
         TariffNo.FindFirst;
         TariffNo."Supplementary Units" := SupplementaryUnit;
         TariffNo.Modify();
-    end;
-
-    local procedure InitReader(FileName: Text)
-    begin
-        LibraryXMLRead.Initialize(FileName);
     end;
 
     local procedure InvokeReportAction()
@@ -872,7 +833,7 @@ codeunit 144000 "DEB DTI Export Tests"
         IntrastatJnlLine.Modify();
     end;
 
-    local procedure SetTariffNoWithSupplemUnit(var TempIntrastatJnlLine: Record "Intrastat Jnl. Line" temporary; SupplementaryUnit: Boolean) FileName: Text
+    local procedure SetTariffNoWithSupplemUnit(var TempIntrastatJnlLine: Record "Intrastat Jnl. Line" temporary; SupplementaryUnit: Boolean)
     var
         TariffNo: Record "Tariff Number";
     begin
@@ -881,8 +842,7 @@ codeunit 144000 "DEB DTI Export Tests"
         TempIntrastatJnlLine.Validate("Tariff No.", TariffNo."No.");
         TempIntrastatJnlLine.Modify();
 
-        FileName := DefaultExportToXML(TempIntrastatJnlLine);
-        InitReader(FileName);
+        DefaultExportToXML(TempIntrastatJnlLine);
     end;
 
     local procedure TotalInvoicedAmount(FlowCodeNode: DotNet XmlNode) Total: Decimal

@@ -11,11 +11,13 @@ codeunit 137078 "SCM Navigate"
 
     var
         LibraryRandom: Codeunit "Library - Random";
+        LibraryERM: Codeunit "Library - ERM";
         LibraryInventory: Codeunit "Library - Inventory";
         LibrarySales: Codeunit "Library - Sales";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryService: Codeunit "Library - Service";
+        LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryApplicationArea: Codeunit "Library - Application Area";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
@@ -336,6 +338,64 @@ codeunit 137078 "SCM Navigate"
           Customer.TableCaption, ServiceCrMemoHeader."Customer No.", 8);  // Using 8 as No. of Line on Navigate Page.
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure NavigatePostedTransferShipment()
+    var
+        Item: Record Item;
+        TransferHeader: Record "Transfer Header";
+        TransferShipmentHeader: Record "Transfer Shipment Header";
+        Navigate: TestPage Navigate;
+        DocumentNo: Code[20];
+    begin
+        // Setup: Create Item and Transfer Order. Post Transfer Order with Shipment.
+        Initialize();
+        LibraryInventory.CreateItem(Item);
+        DocumentNo := CreateTransferOrder(TransferHeader, Item, false);
+        LibraryWarehouse.PostTransferOrder(TransferHeader, true, false);
+        TransferShipmentHeader.SetRange("Transfer-from Code", TransferHeader."Transfer-from Code");
+        TransferShipmentHeader.SetRange("Transfer-to Code", TransferHeader."Transfer-to Code");
+        TransferShipmentHeader.SetRange("Posting Date", TransferHeader."Posting Date");
+        TransferShipmentHeader.FindFirst();
+
+        // Exercise: Open Navigate Page from Posted Transfer Shipment.
+        NavigateFromPostedTransferShipment(Navigate, TransferShipmentHeader);
+
+        // Verify: Navigate Page from Posted Transfer Shipment.
+        VerifyNavigatePage(
+          Navigate, TransferShipmentHeader."No.", TransferShipmentHeader."Posting Date", '', '', '', 3);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure NavigatePostedDirectTransfer()
+    var
+        Item: Record Item;
+        TransferHeader: Record "Transfer Header";
+        DirectTransHeader: Record "Direct Trans. Header";
+        Navigate: TestPage Navigate;
+        TransferOrderPostTransfer: Codeunit "TransferOrder-Post Transfer";
+        DocumentNo: Code[20];
+    begin
+        // Setup: Create Item and Transfer Order. Post Direct Transfer.
+        Initialize();
+        LibraryInventory.CreateItem(Item);
+        DocumentNo := CreateTransferOrder(TransferHeader, Item, true);
+        TransferOrderPostTransfer.SetHideValidationDialog(true);
+        TransferOrderPostTransfer.Run(TransferHeader);
+        DirectTransHeader.SetRange("Transfer-from Code", TransferHeader."Transfer-from Code");
+        DirectTransHeader.SetRange("Transfer-to Code", TransferHeader."Transfer-to Code");
+        DirectTransHeader.SetRange("Posting Date", TransferHeader."Posting Date");
+        DirectTransHeader.FindFirst();
+
+        // Exercise: Open Navigate Page from Posted Direct Transfer.
+        NavigateFromPostedDirectTransfer(Navigate, DirectTransHeader);
+
+        // Verify: Navigate Page from Posted Direct Transfer.
+        VerifyNavigatePage(
+          Navigate, DirectTransHeader."No.", DirectTransHeader."Posting Date", '', '', '', 3);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -345,8 +405,9 @@ codeunit 137078 "SCM Navigate"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Navigate");
 
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
+        LibraryERMCountryData.CreateVATData();
         LibraryApplicationArea.EnableEssentialSetup;
         NoSeriesSetup;
         Commit();
@@ -468,6 +529,41 @@ codeunit 137078 "SCM Navigate"
         UpdateServiceItemLineNo(ServiceLine, ServiceItemLine."Line No.");
     end;
 
+    local procedure CreateTransferOrder(var TransferHeader: Record "Transfer Header"; Item: Record Item; Direct: Boolean): Code[20]
+    var
+        TransferLine: Record "Transfer Line";
+        ItemJournalLine: Record "Item Journal Line";
+        InventoryPostingSetup: Record "Inventory Posting Setup";
+        LocationFrom: Record Location;
+        LocationTo: Record Location;
+        LocationInTransit: Record Location;
+    begin
+        LibraryWarehouse.CreateLocation(LocationFrom);
+        LibraryWarehouse.CreateLocation(LocationTo);
+        if not Direct then
+            LibraryWarehouse.CreateInTransitLocation(LocationInTransit);
+        LibraryWarehouse.CreateTransferHeader(TransferHeader, LocationFrom.Code, LocationTo.Code, LocationInTransit.Code);
+        if Direct then begin
+            TransferHeader."Direct Transfer" := true;
+            TransferHeader.Modify();
+        end;
+        LibraryWarehouse.CreateTransferLine(TransferHeader, TransferLine, Item."No.", 1);
+
+        LibraryInventory.CreateInventoryPostingSetup(InventoryPostingSetup, LocationFrom.Code, Item."Inventory Posting Group");
+        InventoryPostingSetup.Validate("Inventory Account", LibraryERM.CreateGLAccountNo());
+        InventoryPostingSetup.Modify();
+
+        LibraryInventory.CreateInventoryPostingSetup(InventoryPostingSetup, LocationTo.Code, Item."Inventory Posting Group");
+        InventoryPostingSetup.Validate("Inventory Account", LibraryERM.CreateGLAccountNo());
+        InventoryPostingSetup.Modify();
+
+        LibraryInventory.CreateItemJnlLine(
+            ItemJournalLine, "Item Ledger Entry Type"::"Positive Adjmt.", WOrkDate(), Item."No.", 1, LocationFrom.Code);
+        LibraryInventory.PostItemJnlLineWithCheck(ItemJournalLine);
+
+        exit(TransferHeader."No.");
+    end;
+
     local procedure FindPostedPurchaseCreditMemoHeader(var PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr."; ReturnOrderNo: Code[20])
     begin
         PurchCrMemoHdr.SetRange("Return Order No.", ReturnOrderNo);
@@ -513,78 +609,92 @@ codeunit 137078 "SCM Navigate"
     local procedure NavigateFromPostedPurchaseCreditMemo(var Navigate: TestPage Navigate; PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.")
     begin
         // Open Navigate Page from Posted Purchase Credit Memo.
-        Navigate.Trap;
-        PurchCrMemoHdr.Navigate;
+        Navigate.Trap();
+        PurchCrMemoHdr.Navigate();
     end;
 
     local procedure NavigateFromPostedPurchaseInvoice(var Navigate: TestPage Navigate; PurchInvHeader: Record "Purch. Inv. Header")
     begin
         // Open Navigate Page from Posted Purchase Invoice.
-        Navigate.Trap;
-        PurchInvHeader.Navigate;
+        Navigate.Trap();
+        PurchInvHeader.Navigate();
     end;
 
     local procedure NavigateFromPostedPurchaseReceipt(var Navigate: TestPage Navigate; PurchRcptHeader: Record "Purch. Rcpt. Header")
     begin
         // Open Navigate Page from Posted Purchase Receipt.
-        Navigate.Trap;
-        PurchRcptHeader.Navigate;
+        Navigate.Trap();
+        PurchRcptHeader.Navigate();
     end;
 
     local procedure NavigateFromPostedReturnReceipt(var Navigate: TestPage Navigate; ReturnReceiptHeader: Record "Return Receipt Header")
     begin
         // Open Navigate Page from Posted Return Receipt.
-        Navigate.Trap;
-        ReturnReceiptHeader.Navigate;
+        Navigate.Trap();
+        ReturnReceiptHeader.Navigate();
     end;
 
     local procedure NavigateFromPostedReturnShipment(var Navigate: TestPage Navigate; ReturnShipmentHeader: Record "Return Shipment Header")
     begin
         // Open Navigate Page from Posted Return Shipment.
-        Navigate.Trap;
-        ReturnShipmentHeader.Navigate;
+        Navigate.Trap();
+        ReturnShipmentHeader.Navigate();
     end;
 
     local procedure NavigateFromPostedSalesCreditMemo(var Navigate: TestPage Navigate; SalesCrMemoHeader: Record "Sales Cr.Memo Header")
     begin
         // Open Navigate Page from Posted Sales Credit Memo.
-        Navigate.Trap;
-        SalesCrMemoHeader.Navigate;
+        Navigate.Trap();
+        SalesCrMemoHeader.Navigate();
     end;
 
     local procedure NavigateFromPostedSalesInvoice(var Navigate: TestPage Navigate; SalesInvoiceHeader: Record "Sales Invoice Header")
     begin
         // Open Navigate Page from Posted Sales Invoice.
-        Navigate.Trap;
-        SalesInvoiceHeader.Navigate;
+        Navigate.Trap();
+        SalesInvoiceHeader.Navigate();
     end;
 
     local procedure NavigateFromPostedSalesShipment(var Navigate: TestPage Navigate; SalesShipmentHeader: Record "Sales Shipment Header")
     begin
         // Open Navigate Page from Posted Sales Shipment.
-        Navigate.Trap;
-        SalesShipmentHeader.Navigate;
+        Navigate.Trap();
+        SalesShipmentHeader.Navigate();
     end;
 
     local procedure NavigateFromPostedServiceCreditMemo(var Navigate: TestPage Navigate; ServiceCrMemoHeader: Record "Service Cr.Memo Header")
     begin
         // Open Navigate Page from Posted Service Credit Memo.
-        Navigate.Trap;
-        ServiceCrMemoHeader.Navigate;
+        Navigate.Trap();
+        ServiceCrMemoHeader.Navigate();
     end;
 
     local procedure NavigateFromPostedServiceInvoice(var Navigate: TestPage Navigate; ServiceInvoiceHeader: Record "Service Invoice Header")
     begin
         // Open Navigate Page from Posted Service Invoice.
-        Navigate.Trap;
-        ServiceInvoiceHeader.Navigate;
+        Navigate.Trap();
+        ServiceInvoiceHeader.Navigate();
     end;
 
     local procedure NavigateFromPostedServiceShipment(var Navigate: TestPage Navigate; ServiceShipmentHeader: Record "Service Shipment Header")
     begin
         // Open Navigate Page from Posted Service Shipment.
-        Navigate.Trap;
-        ServiceShipmentHeader.Navigate;
+        Navigate.Trap();
+        ServiceShipmentHeader.Navigate();
+    end;
+
+    local procedure NavigateFromPostedTransferShipment(var Navigate: TestPage Navigate; TransferShipmentHeader: Record "Transfer Shipment Header")
+    begin
+        // Open Navigate Page from Posted Transfer Shipment.
+        Navigate.Trap();
+        TransferShipmentHeader.Navigate();
+    end;
+
+    local procedure NavigateFromPostedDirectTransfer(var Navigate: TestPage Navigate; DirectTransHeader: Record "Direct Trans. Header")
+    begin
+        // Open Navigate Page from Direct Transfer Header.
+        Navigate.Trap();
+        DirectTransHeader.Navigate();
     end;
 
     local procedure UpdateSalesAndReceivablesSetup(CreditWarnings: Option) OldCreditWarnings: Integer

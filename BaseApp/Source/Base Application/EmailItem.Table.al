@@ -263,34 +263,27 @@ table 9500 "Email Item"
         AttachmentNames.Add(AttachmentName);
     end;
 
+#if not CLEAN20
+    [Obsolete('Automatically added when calling AddSourceDocument', '20.0')]
     procedure AddRelatedSourceDocuments(TableID: Integer; SourceID: Guid)
     var
-        Contact: Record Contact;
-        ContactRelation: Record "Contact Business Relation";
-        IContactRelationLink: Interface "Contact Business Relation Link";
-        EmailRelationType: Enum "Email Relation Type";
-        RelatedTableId: Integer;
-        RelatedSystemId: Guid;
+        ContactBusinessRelation: Record "Contact Business Relation";
+        RelatedRecord: Dictionary of [Integer, List of [Guid]];
+        RelatedRecordTableIds: List of [Integer];
+        RelatedRecordSystemIds: List of [Guid];
+        RelatedRecordTableId: Integer;
+        TableIdCount, SystemIdCount : Integer;
     begin
-        if TableId <> Database::Contact then
-            exit;
-
-        if Contact.GetBySystemId(SourceID) then begin
-
-            if Contact."Contact Business Relation" = Contact."Contact Business Relation"::None then
-                exit;
-
-            ContactRelation.SetRange("Contact No.", Contact."Company No.");
-            ContactRelation.FindSet();
-            repeat
-                if ContactRelation."Link to Table" <> ContactRelation."Link to Table"::" " then begin
-                    IContactRelationLink := ContactRelation."Link to Table";
-                    IContactRelationLink.GetTableAndSystemId(ContactRelation."No.", RelatedTableId, RelatedSystemId);
-                    AddSourceDocument(RelatedTableId, RelatedSystemId, EmailRelationType::"Related Entity");
-                end;
-            until ContactRelation.Next() <= 0;
+        ContactBusinessRelation.GetBusinessRelatedSystemIds(TableID, SourceID, RelatedRecord);
+        RelatedRecordTableIds := RelatedRecord.Keys();
+        for TableIdCount := 1 to RelatedRecordTableIds.Count() do begin
+            RelatedRecordTableId := RelatedRecordTableIds.Get(TableIdCount);
+            RelatedRecordSystemIds := RelatedRecord.Get(RelatedRecordTableId);
+            for SystemIdCount := 1 to RelatedRecordSystemIds.Count() do
+                AddSourceDocument(RelatedRecordTableId, RelatedRecordSystemIds.Get(SystemIdCount), Enum::"Email Relation Type"::"Related Entity");
         end;
     end;
+#endif
 
     procedure AddSourceDocument(TableID: Integer; SourceID: Guid)
     begin

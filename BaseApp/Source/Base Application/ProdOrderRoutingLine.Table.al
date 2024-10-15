@@ -711,10 +711,7 @@ table 5409 "Prod. Order Routing Line"
                   Status, TableCaption, "Operation No.", CapLedgEntry.TableCaption);
         end;
 
-        if SubcontractingPurchOrderExist() then
-            Error(
-              Text000,
-              Status, TableCaption, "Operation No.", PurchLine.TableCaption);
+        CheckIfSubcontractingPurchOrderExist();
 
         DeleteRelations;
 
@@ -1395,6 +1392,21 @@ table 5409 "Prod. Order Routing Line"
         exit(false);
     end;
 
+    local procedure CheckIfSubcontractingPurchOrderExist()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckIfSubcontractingPurchOrderExist(Rec, xRec, IsHandled);
+        if IsHandled then
+            exit;
+
+        if SubcontractingPurchOrderExist() then
+            Error(
+              Text000,
+              Status, TableCaption, "Operation No.", PurchLine.TableCaption);
+    end;
+
     procedure UpdateComponentsBin(FromTrigger: Option Insert,Modify,Delete)
     var
         TempProdOrderRoutingLine: Record "Prod. Order Routing Line" temporary;
@@ -1611,12 +1623,16 @@ table 5409 "Prod. Order Routing Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCalcStartingEndingDates(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; Direction: Option Forward,Backward; var IsHandled: Boolean)
+    local procedure OnBeforeCalcStartingEndingDates(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; var Direction: Option Forward,Backward; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckRoutingNoNotBlank(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; var IsHandled: Boolean)
+    begin
+    end;
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckIfSubcontractingPurchOrderExist(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; xProdOrderRoutingLine: Record "Prod. Order Routing Line"; var IsHandled : Boolean)
     begin
     end;
 

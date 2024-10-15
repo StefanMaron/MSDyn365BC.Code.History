@@ -1,4 +1,4 @@
-page 131 "Posted Sales Shpt. Subform"
+﻿page 131 "Posted Sales Shpt. Subform"
 {
     AutoSplitKey = true;
     Caption = 'Lines';
@@ -44,9 +44,9 @@ page 131 "Posted Sales Shpt. Subform"
 #endif
                 field("Item Reference No."; "Item Reference No.")
                 {
+                    AccessByPermission = tabledata "Item Reference" = R;
                     ApplicationArea = Suite, ItemReferences;
                     ToolTip = 'Specifies the referenced item number.';
-                    Visible = ItemReferenceVisible;
                 }
                 field("Variant Code"; "Variant Code")
                 {
@@ -416,13 +416,10 @@ page 131 "Posted Sales Shpt. Subform"
     trigger OnOpenPage()
     begin
         SetDimensionsVisibility();
-        SetItemReferenceVisibility();
     end;
 
     var
         IsFoundation: Boolean;
-        [InDataSet]
-        ItemReferenceVisible: Boolean;
 
     protected var
         ShortcutDimCode: array[8] of Code[20];
@@ -510,13 +507,6 @@ page 131 "Posted Sales Shpt. Subform"
         ShipmentInvoiced.SetRange("Shipment No.", "Document No.");
         ShipmentInvoiced.SetRange("Shipment Line No.", "Line No.");
         PAGE.RunModal(PAGE::"Invoices bound by Shipment", ShipmentInvoiced);
-    end;
-
-    local procedure SetItemReferenceVisibility()
-    var
-        ItemReferenceMgt: Codeunit "Item Reference Management";
-    begin
-        ItemReferenceVisible := ItemReferenceMgt.IsEnabled();
     end;
 
     [IntegrationEvent(false, false)]

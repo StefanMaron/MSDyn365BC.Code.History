@@ -1,4 +1,4 @@
-codeunit 10860 "Payment Management"
+﻿codeunit 10860 "Payment Management"
 {
     Permissions = TableData "Cust. Ledger Entry" = rm,
                   TableData "Vendor Ledger Entry" = rm;
@@ -95,6 +95,7 @@ codeunit 10860 "Payment Management"
                 Error(Text006);
             PaymentLine.SetRange("Due Date");
         end;
+        OnProcessPaymentStepOnAfterCheckPaymentStep(PaymentStep, PaymentHeader, PaymentLine);
 
         Step.Get(PaymentStep."Payment Class", PaymentStep.Line);
 
@@ -181,7 +182,7 @@ codeunit 10860 "Payment Management"
                     exit(true);
                 end;
             else
-                OnProcessPaymentStepOnCaseElse(Step, PaymentLine, ActionValidated);
+                OnProcessPaymentStepOnCaseElse(Step, PaymentLine, ActionValidated, PaymentHeader);
         end;
     end;
 
@@ -384,6 +385,7 @@ codeunit 10860 "Payment Management"
                     InvPostingBuffer[1]."Created from No." := PaymentLine."Created from No.";
                 end;
                 Description := GetDescriptionForInvPostingBuffer();
+                OnGenerInvPostingBufferOnAfterGetDescriptionForInvPostingBuffer(StepLedger, PaymentHeader, PaymentLine, Description);
                 InvPostingBuffer[1].Description := CopyStr(Description, 1, 50);
                 InvPostingBuffer[1]."Source Type" := PaymentLine."Account Type";
                 InvPostingBuffer[1]."Source No." := PaymentLine."Account No.";
@@ -429,6 +431,7 @@ codeunit 10860 "Payment Management"
                         Customer.Get(PaymentLine."Account No.");
                         PostingGroup := Customer."Customer Posting Group";
                     end;
+                OnSetPostingGroupOnBeforeCheckPostingGroup(PaymentLine, StepLedger, PostingGroup);
                 if not CustomerPostingGroup.Get(PostingGroup) then
                     Error(Text012, PostingGroup);
                 if CustomerPostingGroup."Receivables Account" = '' then
@@ -1145,7 +1148,7 @@ codeunit 10860 "Payment Management"
             "Dimension Set ID" := InvPostingBuffer[1]."Dimension Set ID";
         end;
 
-        OnPostInvPostingBufferOnBeforeGenJnlPostLineRunWithCheck(GenJnlLine, PaymentHeader);
+        OnPostInvPostingBufferOnBeforeGenJnlPostLineRunWithCheck(GenJnlLine, PaymentHeader, PaymentClass);
         GenJnlPostLine.RunWithCheck(GenJnlLine);
         GLEntry.SetRange("Document Type", GenJnlLine."Document Type");
         GLEntry.SetRange("Document No.", GenJnlLine."Document No.");
@@ -1205,12 +1208,27 @@ codeunit 10860 "Payment Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPostInvPostingBufferOnBeforeGenJnlPostLineRunWithCheck(var GenJnlLine: Record "Gen. Journal Line"; PaymentHeader: Record "Payment Header")
+    local procedure OnGenerInvPostingBufferOnAfterGetDescriptionForInvPostingBuffer(var StepLedger: record "Payment Step Ledger"; var PaymentHeader: record "Payment Header"; var PaymentLine: record "Payment Line"; var Description: Text[98])
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnProcessPaymentStepOnCaseElse(var Step: Record "Payment Step"; var PaymentLine: Record "Payment Line"; var ActionValidated: Boolean)
+    local procedure OnPostInvPostingBufferOnBeforeGenJnlPostLineRunWithCheck(var GenJnlLine: Record "Gen. Journal Line"; var PaymentHeader: Record "Payment Header"; var PaymentClass: Record "Payment Class")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnProcessPaymentStepOnCaseElse(var Step: Record "Payment Step"; var PaymentLine: Record "Payment Line"; var ActionValidated: Boolean; var PaymentHeader: Record "Payment Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnProcessPaymentStepOnAfterCheckPaymentStep(var PaymentStep: Record "Payment Step"; Var PaymentHeader: Record "Payment Header"; Var PaymentLine: Record "Payment Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetPostingGroupOnBeforeCheckPostingGroup(var PaymentLine: Record "Payment Line"; var StepLedger: record "Payment Step Ledger"; var PostingGroup: Code[20])
     begin
     end;
 }

@@ -385,9 +385,15 @@
 
             IsHandled := false;
             OnBeforeInsertItemJnlLine(IntrastatJnlLine, "Item Ledger Entry", IsHandled);
+
 #if not CLEAN19 
             "Partner VAT ID" := "Cust. VAT Registration No.";
 #endif
+            if ("Partner VAT ID" = '') and
+                ("Item Ledger Entry"."Document Type" = "Item Ledger Entry"."Document Type"::"Transfer Receipt")
+            then
+                "Partner VAT ID" := GetPartnerID();
+
             if not IsHandled then
                 Insert();
         end;
