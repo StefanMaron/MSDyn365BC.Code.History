@@ -14,7 +14,7 @@ table 7022 "Price Worksheet Line"
         }
         field(3; "Source Type"; Enum "Price Source Type")
         {
-            Caption = 'Applies-to Type';
+            Caption = 'Assign-to Type';
             DataClassification = CustomerContent;
 
             trigger OnValidate()
@@ -33,14 +33,16 @@ table 7022 "Price Worksheet Line"
         }
         field(4; "Source No."; Code[20])
         {
-            Caption = 'Applies-to No.';
+            Caption = 'Assign-to';
             DataClassification = CustomerContent;
 
             trigger OnValidate()
             begin
                 TestHeadersValue(FieldNo("Source No."));
-                CopyRecTo(PriceSource);
-                PriceSource.Validate("Source No.", "Source No.");
+                if not FieldLookedUp then begin
+                    CopyRecTo(PriceSource);
+                    PriceSource.Validate("Source No.", "Source No.");
+                end;
                 CopyFrom(PriceSource);
             end;
 
@@ -48,14 +50,15 @@ table 7022 "Price Worksheet Line"
             begin
                 CopyTo(PriceSource);
                 if PriceSource.LookupNo() then begin
-                    TestHeadersValue(FieldNo("Source No."));
-                    CopyFrom(PriceSource);
+                    FieldLookedUp := true;
+                    Validate("Source No.", PriceSource."Source No.");
+                    FieldLookedUp := false;
                 end;
             end;
         }
         field(5; "Parent Source No."; Code[20])
         {
-            Caption = 'Applies-to Parent No.';
+            Caption = 'Assign-to Parent No.';
             DataClassification = CustomerContent;
 
             trigger OnValidate()
@@ -76,16 +79,13 @@ table 7022 "Price Worksheet Line"
 
                 ParentPriceSource."Source Group" := "Source Group";
                 ParentPriceSource."Source Type" := PriceSource.GetParentSourceType();
-                if ParentPriceSource.LookupNo() then begin
-                    "Parent Source No." := ParentPriceSource."Source No.";
-                    "Source No." := '';
-                    TestHeadersValue(FieldNo("Parent Source No."));
-                end;
+                if ParentPriceSource.LookupNo() then
+                    Validate("Parent Source No.", ParentPriceSource."Source No.");
             end;
         }
         field(6; "Source ID"; Guid)
         {
-            Caption = 'Applies-to ID';
+            Caption = 'Assign-to ID';
             DataClassification = CustomerContent;
 
             trigger OnValidate()
@@ -100,9 +100,13 @@ table 7022 "Price Worksheet Line"
         {
             Caption = 'Product Type';
             DataClassification = CustomerContent;
+            InitValue = Item;
 
             trigger OnValidate()
             begin
+                if "Asset Type" = "Asset Type"::" " then
+                    "Asset Type" := "Asset Type"::Item;
+
                 CopyRecTo(PriceAsset);
                 PriceAsset.Validate("Asset Type", "Asset Type");
                 CopyFrom(PriceAsset);
@@ -123,8 +127,10 @@ table 7022 "Price Worksheet Line"
             trigger OnValidate()
             begin
                 TestStatusDraft();
-                CopyRecTo(PriceAsset);
-                PriceAsset.Validate("Asset No.", "Asset No.");
+                if not FieldLookedUp then begin
+                    CopyRecTo(PriceAsset);
+                    PriceAsset.Validate("Asset No.", "Asset No.");
+                end;
                 CopyFrom(PriceAsset);
             end;
 
@@ -132,8 +138,9 @@ table 7022 "Price Worksheet Line"
             begin
                 CopyTo(PriceAsset);
                 if PriceAsset.LookupNo() then begin
-                    TestStatusDraft();
-                    CopyFrom(PriceAsset);
+                    FieldLookedUp := true;
+                    Validate("Asset No.", PriceAsset."Asset No.");
+                    FieldLookedUp := false;
                 end;
             end;
         }
@@ -144,8 +151,10 @@ table 7022 "Price Worksheet Line"
             trigger OnValidate()
             begin
                 TestStatusDraft();
-                CopyRecTo(PriceAsset);
-                PriceAsset.Validate("Variant Code", "Variant Code");
+                if not FieldLookedUp then begin
+                    CopyRecTo(PriceAsset);
+                    PriceAsset.Validate("Variant Code", "Variant Code");
+                end;
                 CopyFrom(PriceAsset);
             end;
 
@@ -153,8 +162,9 @@ table 7022 "Price Worksheet Line"
             begin
                 CopyTo(PriceAsset);
                 if PriceAsset.LookupVariantCode() then begin
-                    TestStatusDraft();
-                    CopyFrom(PriceAsset);
+                    FieldLookedUp := true;
+                    Validate("Variant Code", PriceAsset."Variant Code");
+                    FieldLookedUp := false;
                 end;
             end;
         }
@@ -222,8 +232,10 @@ table 7022 "Price Worksheet Line"
             trigger OnValidate()
             begin
                 TestStatusDraft();
-                CopyRecTo(PriceAsset);
-                PriceAsset.Validate("Unit of Measure Code", "Unit of Measure Code");
+                if not FieldLookedUp then begin
+                    CopyRecTo(PriceAsset);
+                    PriceAsset.Validate("Unit of Measure Code", "Unit of Measure Code");
+                end;
                 CopyFrom(PriceAsset);
             end;
 
@@ -231,8 +243,9 @@ table 7022 "Price Worksheet Line"
             begin
                 CopyTo(PriceAsset);
                 if PriceAsset.LookupUnitofMeasure() then begin
-                    TestStatusDraft();
-                    "Unit of Measure Code" := PriceAsset."Unit of Measure Code";
+                    FieldLookedUp := true;
+                    Validate("Unit of Measure Code", PriceAsset."Unit of Measure Code");
+                    FieldLookedUp := false;
                 end;
             end;
         }
@@ -281,6 +294,7 @@ table 7022 "Price Worksheet Line"
             begin
                 TestStatusDraft();
                 CheckAmountType(FieldCaption("Unit Price"), "Amount Type"::Discount);
+                Verify();
                 if "Unit Price" <> 0 then
                     "Cost Factor" := 0;
             end;
@@ -296,6 +310,7 @@ table 7022 "Price Worksheet Line"
                 TestStatusDraft();
                 CheckAmountType(FieldCaption("Cost Factor"), "Amount Type"::Discount);
                 TestField("Source Group", "Source Group"::Job);
+                Verify();
                 if "Cost Factor" <> 0 then
                     "Unit Price" := 0;
             end;
@@ -311,7 +326,9 @@ table 7022 "Price Worksheet Line"
 
             trigger OnValidate()
             begin
+                TestStatusDraft();
                 CheckAmountType(FieldCaption("Unit Cost"), "Amount Type"::Discount);
+                Verify();
             end;
         }
         field(20; "Line Discount %"; Decimal)
@@ -326,6 +343,7 @@ table 7022 "Price Worksheet Line"
             begin
                 TestStatusDraft();
                 CheckAmountType(FieldCaption("Line Discount %"), "Amount Type"::Price);
+                Verify();
             end;
         }
         field(21; "Allow Line Disc."; Boolean)
@@ -435,7 +453,9 @@ table 7022 "Price Worksheet Line"
 
             trigger OnValidate()
             begin
+                TestStatusDraft();
                 CheckAmountType(FieldCaption("Direct Unit Cost"), "Amount Type"::Discount);
+                Verify();
             end;
         }
         field(32; "Source Group"; Enum "Price Source Group")
@@ -552,6 +572,7 @@ table 7022 "Price Worksheet Line"
 
     var
         IsNewRecord: Boolean;
+        FieldLookedUp: Boolean;
         FieldNotAllowedForAmountTypeErr: Label 'Field %1 is not allowed in the price list line where %2 is %3.',
             Comment = '%1 - the field caption; %2 - Amount Type field caption; %3 - amount type value: Discount or Price';
         LineSourceTypeErr: Label 'cannot be set to %1 if the header''s source type is %2.', Comment = '%1 and %2 - the source type value.';
@@ -589,9 +610,11 @@ table 7022 "Price Worksheet Line"
         exit(PriceListManagement.IsAllowedEditingActivePrice("Price Type"));
     end;
 
-    procedure IsUOMSupported(): Boolean;
+    procedure IsUOMSupported() Result: Boolean;
     begin
-        exit(IsAssetItem() or IsAssetResource());
+        Result := IsAssetItem() or IsAssetResource();
+
+        OnAfterIsUOMSupported(Rec, Result);
     end;
 
     procedure IsAmountMandatory(AmountType: enum "Price Amount Type"): Boolean;
@@ -673,13 +696,15 @@ table 7022 "Price Worksheet Line"
         "Parent Source No." := PriceSource."Parent Source No.";
         "Source ID" := PriceSource."Source ID";
 
-        "Currency Code" := PriceSource."Currency Code";
-        "Price Includes VAT" := PriceSource."Price Includes VAT";
-        "Allow Invoice Disc." := PriceSource."Allow Invoice Disc.";
-        "Allow Line Disc." := PriceSource."Allow Line Disc.";
-        "VAT Bus. Posting Gr. (Price)" := PriceSource."VAT Bus. Posting Gr. (Price)";
-        "Starting Date" := PriceSource."Starting Date";
-        "Ending Date" := PriceSource."Ending Date";
+        if not GetHeader() or PriceListHeader."Allow Updating Defaults" then begin
+            "Currency Code" := PriceSource."Currency Code";
+            "Price Includes VAT" := PriceSource."Price Includes VAT";
+            "Allow Invoice Disc." := PriceSource."Allow Invoice Disc.";
+            "Allow Line Disc." := PriceSource."Allow Line Disc.";
+            "VAT Bus. Posting Gr. (Price)" := PriceSource."VAT Bus. Posting Gr. (Price)";
+            "Starting Date" := PriceSource."Starting Date";
+            "Ending Date" := PriceSource."Ending Date";
+        end;
         OnAfterCopyFromPriceSource(PriceSource);
     end;
 
@@ -695,10 +720,11 @@ table 7022 "Price Worksheet Line"
         "Work Type Code" := PriceAsset."Work Type Code";
 
         "Allow Invoice Disc." := PriceAsset."Allow Invoice Disc.";
-        if "VAT Bus. Posting Gr. (Price)" = '' then begin
-            "Price Includes VAT" := PriceAsset."Price Includes VAT";
-            "VAT Bus. Posting Gr. (Price)" := PriceAsset."VAT Bus. Posting Gr. (Price)";
-        end;
+        if not GetHeader() or PriceListHeader."Allow Updating Defaults" then
+            if "VAT Bus. Posting Gr. (Price)" = '' then begin
+                "Price Includes VAT" := PriceAsset."Price Includes VAT";
+                "VAT Bus. Posting Gr. (Price)" := PriceAsset."VAT Bus. Posting Gr. (Price)";
+            end;
         OnAfterCopyFromPriceAsset(PriceAsset);
     end;
 
@@ -811,13 +837,13 @@ table 7022 "Price Worksheet Line"
                 TestField("Source Group", PriceListHeader."Source Group");
             FieldNo(Status):
                 TestField(Status, PriceListHeader.Status);
-            FieldNo("Price Includes VAT"):
-                TestField("Price Includes VAT", PriceListHeader."Price Includes VAT");
-            FieldNo("VAT Bus. Posting Gr. (Price)"):
-                TestField("VAT Bus. Posting Gr. (Price)", PriceListHeader."VAT Bus. Posting Gr. (Price)");
         end;
         if not PriceListHeader."Allow Updating Defaults" then
             case FieldId of
+                FieldNo("Price Includes VAT"):
+                    TestField("Price Includes VAT", PriceListHeader."Price Includes VAT");
+                FieldNo("VAT Bus. Posting Gr. (Price)"):
+                    TestField("VAT Bus. Posting Gr. (Price)", PriceListHeader."VAT Bus. Posting Gr. (Price)");
                 FieldNo("Currency Code"):
                     TestField("Currency Code", PriceListHeader."Currency Code");
                 FieldNo("Starting Date"):
@@ -881,10 +907,15 @@ table 7022 "Price Worksheet Line"
 
     procedure Verify(): Boolean;
     begin
-        if "Asset Type" <> "Asset Type"::" " then
-            if "Asset No." = '' then
-                exit(false);
-        exit(VerifySource());
+        VerifySource();
+        TestField("Asset Type");
+        exit(true);
+    end;
+
+    [TryFunction]
+    procedure TryVerify()
+    begin
+        Verify();
     end;
 
     local procedure VerifyParentSource() Result: Boolean;
@@ -903,22 +934,17 @@ table 7022 "Price Worksheet Line"
         PriceSource.VerifyAmountTypeForSourceType(AmountType);
     end;
 
-    local procedure VerifySource(): Boolean;
+    local procedure VerifySource()
     begin
-        if VerifyParentSource() then begin
-            if "Parent Source No." = '' then
-                exit(false);
-        end else
-            if "Parent Source No." <> '' then
-                exit(false);
+        if VerifyParentSource() then
+            TestField("Parent Source No.")
+        else
+            TestField("Parent Source No.", '');
 
-        if IsSourceNoAllowed() then begin
-            if "Source No." = '' then
-                exit(false)
-        end else
-            if "Source No." <> '' then
-                exit(false);
-        exit(true);
+        if IsSourceNoAllowed() then
+            TestField("Source No.")
+        else
+            TestField("Source No.", '');
     end;
 
     [IntegrationEvent(true, false)]
@@ -948,6 +974,11 @@ table 7022 "Price Worksheet Line"
 
     [IntegrationEvent(true, false)]
     local procedure OnAfterInitHeaderDefaults(PriceListHeader: Record "Price List Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    procedure OnAfterIsUOMSupported(PriceWorksheetLine: Record "Price Worksheet Line"; var Result: Boolean)
     begin
     end;
 }

@@ -528,7 +528,7 @@ Codeunit 7009 CopyFromToPriceListLine
                 PriceListLine.Init();
                 PriceListLine."Price List Code" := '';
                 PriceListLine."Price Type" := PriceListLine."Price Type"::Purchase;
-                PriceListLine.Validate("Source Type", PriceListLine."Source Type"::"All Jobs");
+                PriceListLine.Validate("Source Type", PriceListLine."Source Type"::"All Vendors");
                 PriceListLine."Amount Type" := PriceListLine."Amount Type"::Price;
                 case ResourceCost.Type of
                     ResourceCost.Type::All,
@@ -610,7 +610,7 @@ Codeunit 7009 CopyFromToPriceListLine
                     PriceListLine.Init();
                     PriceListLine."Price List Code" := '';
                     PriceListLine."Price Type" := PriceListLine."Price Type"::Purchase;
-                    PriceListLine.Validate("Source Type", PriceListLine."Source Type"::"All Jobs");
+                    PriceListLine.Validate("Source Type", PriceListLine."Source Type"::"All Vendors");
                     PriceListLine."Amount Type" := PriceListLine."Amount Type"::Price;
                     PriceListLine.Validate("Asset Type", PriceListLine."Asset Type"::Resource);
                     PriceListLine.Validate("Asset No.", Resource."No.");
@@ -650,7 +650,7 @@ Codeunit 7009 CopyFromToPriceListLine
             repeat
                 PriceListLine.Init();
                 PriceListLine."Price List Code" := '';
-                PriceListLine.Validate("Source Type", PriceListLine."Source Type"::"All Jobs");
+                PriceListLine.Validate("Source Type", PriceListLine."Source Type"::"All Customers");
                 case ResourcePrice.Type of
                     ResourcePrice.Type::All,
                     ResourcePrice.Type::Resource:

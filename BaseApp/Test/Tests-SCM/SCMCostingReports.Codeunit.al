@@ -187,6 +187,79 @@ codeunit 137306 "SCM Costing Reports"
         VerifyItemAgeCompositionTotals(Item[2]."No.", ItemInvtValue[1] + ItemInvtValue[2], 0);
     end;
 
+    [Test]
+    procedure InventoryGLReconciliationRecognizesInterimRevaluation()
+    var
+        Item: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        ItemJournalTemplate: Record "Item Journal Template";
+        ItemJournalBatch: Record "Item Journal Batch";
+        ItemJournalLine: Record "Item Journal Line";
+        TempInventoryReportHeader: Record "Inventory Report Header" temporary;
+        TempInventoryReportEntry: Record "Inventory Report Entry" temporary;
+        GetInventoryReport: Codeunit "Get Inventory Report";
+        NoSeriesManagement: Codeunit NoSeriesManagement;
+        CalculatePer: Option "Item Ledger Entry",Item;
+        NewDate: Date;
+        Qty: Decimal;
+        UnitCost: Decimal;
+    begin
+        // [FEATURE] [Inventory - G/L Reconciliation] [Revaluation] [Expected Cost]
+        // [SCENARIO 411429] "Inventory G/L Reconciliation" report recognizes interim revaluation of purchase receipt.
+        Initialize();
+        NewDate := CalcDate('<2Y>', WorkDate());
+        Qty := LibraryRandom.RandIntInRange(10, 20);
+        UnitCost := LibraryRandom.RandDecInRange(100, 200, 2);
+
+        // [GIVEN] Enable "Automatic Cost Posting" and "Expected Cost Posting".
+        LibraryInventory.SetAutomaticCostPosting(true);
+        LibraryInventory.SetExpectedCostPosting(true);
+
+        // [GIVEN] Item with "Costing Method" = Standard, unit cost = 10.
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Costing Method", Item."Costing Method"::Standard);
+        Item.Validate("Unit Cost", LibraryRandom.RandDec(10, 2));
+        Item.Modify(true);
+        Item.SetRecFilter();
+
+        // [GIVEN] Purchase order for 10 pcs of the item.
+        // [GIVEN] Post the order as "Receive".
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
+        PurchaseHeader.Validate("Posting Date", NewDate);
+        PurchaseHeader.Modify(true);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", Qty);
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
+
+        // [GIVEN] Open revaluation journal, invoke "Calculate Inventory Value" and set a new Unit Cost = 2000.
+        // [GIVEN] Post the revaluation journal.
+        LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Revaluation);
+        LibraryInventory.SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplate.Type, ItemJournalTemplate.Name);
+        LibraryInventory.ClearItemJournal(ItemJournalTemplate, ItemJournalBatch);
+        ItemJournalLine.Validate("Journal Template Name", ItemJournalBatch."Journal Template Name");
+        ItemJournalLine.Validate("Journal Batch Name", ItemJournalBatch.Name);
+        LibraryCosting.CalculateInventoryValue(
+          ItemJournalLine, Item, NewDate, NoSeriesManagement.GetNextNo(ItemJournalBatch."No. Series", WorkDate(), false),
+          CalculatePer::Item, false, false, true, 0, false);
+        ItemJournalLine.SetRange("Item No.", Item."No.");
+        ItemJournalLine.FindFirst();
+        ItemJournalLine.Validate("Unit Cost (Revalued)", UnitCost);
+        ItemJournalLine.Modify(true);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [WHEN] Calculate "Inventory - G/L Reconciliation" report.
+        TempInventoryReportHeader.SetFilter("Posting Date Filter", Format(NewDate));
+        GetInventoryReport.SetReportHeader(TempInventoryReportHeader);
+        GetInventoryReport.Run(TempInventoryReportEntry);
+
+        // [THEN] "Inventory (Interim)" and "Invt. Accrual (Interim)" include the revaluation of the receipt and are equal to 20000 (10 pcs * 2000 LCY).
+        TempInventoryReportEntry.SetRange(Type, TempInventoryReportEntry.Type::Item);
+        TempInventoryReportEntry.SetRange("No.", Item."No.");
+        TempInventoryReportEntry.CalcSums("Inventory (Interim)", "Invt. Accrual (Interim)");
+        TempInventoryReportEntry.TestField("Inventory (Interim)", Qty * UnitCost);
+        TempInventoryReportEntry.TestField("Invt. Accrual (Interim)", -Qty * UnitCost);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

@@ -1,5 +1,9 @@
+#if not CLEAN20
 codeunit 132465 "Telemetry Background Scheduler"
 {
+    ObsoleteReason = 'OnBeforeTelemetryScheduleTask will be removed.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '20.0';
     EventSubscriberInstance = Manual;
 
     trigger OnRun()
@@ -13,3 +17,4 @@ codeunit 132465 "Telemetry Background Scheduler"
     end;
 }
 
+#endif

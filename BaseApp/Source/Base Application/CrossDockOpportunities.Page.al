@@ -390,6 +390,7 @@ page 5783 "Cross-Dock Opportunities"
             ReceiptLine.Get(NameNo2, LineNo2);
             QtyToHandleBase := ReceiptLine."Qty. to Receive (Base)";
         end;
+        OnCalcValuesOnAfterSetQtyToHandleBase(ItemNo2, VariantCode2, LocationCode2, TemplateName2, NameNo2, LineNo2, UOMCode2, QtyPerUOM2, QtyToHandleBase);
 
         CalcFields("Qty. Cross-Docked (Base)", "Total Qty. Needed (Base)");
         QtyToBeCrossDockedBase := "Qty. Cross-Docked (Base)";
@@ -409,6 +410,11 @@ page 5783 "Cross-Dock Opportunities"
     local procedure QtytoCrossDockOnAfterValidate()
     begin
         CurrPage.Update();
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcValuesOnAfterSetQtyToHandleBase(ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; TemplateName: Code[10]; NameNo: Code[20]; LineNo: Integer; UOMCode: Code[10]; QtyPerUOM: Decimal; var QtyToHandleBase: Decimal)
+    begin
     end;
 }
 

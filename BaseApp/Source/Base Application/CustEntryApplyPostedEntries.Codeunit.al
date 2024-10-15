@@ -249,6 +249,8 @@ codeunit 226 "CustEntry-Apply Posted Entries"
             UnapplyCustEntries.LookupMode(true);
             UnapplyCustEntries.RunModal;
         end;
+
+        OnAfterUnApplyCustomer(DtldCustLedgEntry);
     end;
 
     procedure PostUnApplyCustomer(DtldCustLedgEntry2: Record "Detailed Cust. Ledg. Entry"; DocNo: Code[20]; PostingDate: Date)
@@ -272,8 +274,12 @@ codeunit 226 "CustEntry-Apply Posted Entries"
         AddCurrChecked: Boolean;
         MaxPostingDate: Date;
         HideProgressWindow: Boolean;
+        IsHandled: Boolean;
     begin
-        OnBeforePostUnApplyCustomerCommit(HideProgressWindow);
+        IsHandled := false;
+        OnBeforePostUnApplyCustomerCommit(HideProgressWindow, PreviewMode, DtldCustLedgEntry2, DocNo, PostingDate, CommitChanges, IsHandled);
+        if IsHandled then
+            exit;
 
         MaxPostingDate := 0D;
         GLEntry.LockTable();
@@ -384,6 +390,7 @@ codeunit 226 "CustEntry-Apply Posted Entries"
         if not ApplyingCustLedgEntry.Open then
             Error(CannotApplyClosedEntriesErr);
 
+        OnApplyCustEntryFormEntryOnAfterCheckEntryOpen(ApplyingCustLedgEntry);
         CustEntryApplID := UserId;
         if CustEntryApplID = '' then
             CustEntryApplID := '***';
@@ -627,6 +634,16 @@ codeunit 226 "CustEntry-Apply Posted Entries"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterUnApplyCustomer(DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnApplyCustEntryFormEntryOnAfterCheckEntryOpen(ApplyingCustLedgEntry: Record "Cust. Ledger Entry");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeApply(var CustLedgerEntry: Record "Cust. Ledger Entry"; var DocumentNo: Code[20]; var ApplicationDate: Date)
     begin
     end;
@@ -677,7 +694,7 @@ codeunit 226 "CustEntry-Apply Posted Entries"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePostUnApplyCustomerCommit(var HideProgressWindow: Boolean);
+    local procedure OnBeforePostUnApplyCustomerCommit(var HideProgressWindow: Boolean; PreviewMode: Boolean; DetailedCustLedgEntry2: Record "Detailed Cust. Ledg. Entry"; DocNo: Code[20]; PostingDate: Date; CommitChanges: Boolean; var IsHandled: Boolean);
     begin
     end;
 

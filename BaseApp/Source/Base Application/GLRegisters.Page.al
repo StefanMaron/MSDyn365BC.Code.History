@@ -228,12 +228,12 @@ page 116 "G/L Registers"
 
                     trigger OnAction()
                     var
-                        GLEntry: Record "G/L Entry";
+                        GLRegsiter: Record "G/L Register";
                         DimensionCorrection: Record "Dimension Correction";
                         DimensionCorrectionMgt: Codeunit "Dimension Correction Mgt";
                     begin
-                        GLEntry.SetRange("Entry No.", Rec."From Entry No.", Rec."To Entry No.");
-                        DimensionCorrectionMgt.CreateCorrectionFromSelection(GLEntry, DimensionCorrection);
+                        CurrPage.SetSelectionFilter(GLRegsiter);
+                        DimensionCorrectionMgt.CreateCorrectionFromGLRegister(GLRegsiter, DimensionCorrection);
                         Page.Run(PAGE::"Dimension Correction Draft", DimensionCorrection);
                     end;
                 }

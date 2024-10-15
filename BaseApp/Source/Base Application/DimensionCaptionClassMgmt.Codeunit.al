@@ -13,13 +13,11 @@ codeunit 343 "Dimension CaptionClass Mgmt"
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Caption Class", 'OnResolveCaptionClass', '', true, true)]
     local procedure ResolveCaptionClass(CaptionArea: Text; CaptionExpr: Text; Language: Integer; var Caption: Text; var Resolved: Boolean)
     begin
-        if CaptionArea = '1' then begin
-            Caption := DimCaptionClassTranslate(Language, CaptionExpr);
-            Resolved := true;
-        end;
+        if CaptionArea = '1' then
+            Caption := DimCaptionClassTranslate(Language, CaptionExpr, Resolved);
     end;
 
-    local procedure DimCaptionClassTranslate(Language: Integer; CaptionExpr: Text): Text
+    local procedure DimCaptionClassTranslate(Language: Integer; CaptionExpr: Text; var Resolved: Boolean): Text
     var
         Dim: Record Dimension;
         DimCaptionType: Text[80];
@@ -62,11 +60,13 @@ codeunit 343 "Dimension CaptionClass Mgmt"
         // <DataValue>  := [String]
         // a string added after the dimension name
 
+        Resolved := false;
         if not GetGLSetup then
             exit('');
 
         CommaPosition := StrPos(CaptionExpr, ',');
         if CommaPosition > 0 then begin
+            Resolved := true;
             DimCaptionType := CopyStr(CaptionExpr, 1, CommaPosition - 1);
             DimCaptionRef := CopyStr(CaptionExpr, CommaPosition + 1);
             CommaPosition := StrPos(DimCaptionRef, ',');
@@ -230,6 +230,7 @@ codeunit 343 "Dimension CaptionClass Mgmt"
                     end;
             end;
         end;
+        Resolved := false;
         exit('');
     end;
 

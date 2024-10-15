@@ -1545,7 +1545,7 @@
         }
         field(7602; "Validate EU Vat Reg. No."; Boolean)
         {
-            Caption = 'Validate EU Vat Reg. No.';
+            Caption = 'Validate EU VAT Reg. No.';
         }
         field(8000; Id; Guid)
         {
@@ -1751,6 +1751,9 @@
         {
         }
         key(Key21; "Coupled to CRM")
+        {
+        }
+        key(Key22; "IC Partner Code")
         {
         }
     }
@@ -2191,11 +2194,12 @@
 
     procedure DisplayMap()
     var
-        MapPoint: Record "Online Map Setup";
-        MapMgt: Codeunit "Online Map Management";
+        OnlineMapSetup: Record "Online Map Setup";
+        OnlineMapManagement: Codeunit "Online Map Management";
     begin
-        if MapPoint.FindFirst then
-            MapMgt.MakeSelection(DATABASE::Customer, GetPosition)
+        OnlineMapSetup.SetRange(Enabled, true);
+        if OnlineMapSetup.FindFirst then
+            OnlineMapManagement.MakeSelection(DATABASE::Customer, GetPosition)
         else
             Message(Text014);
     end;

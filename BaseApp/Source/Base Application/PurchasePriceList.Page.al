@@ -40,10 +40,10 @@ page 7018 "Purchase Price List"
                 {
                     ApplicationArea = All;
                     Importance = Promoted;
-                    Caption = 'Applies-to Type';
+                    Caption = 'Assign-to Type';
                     Editable = PriceListIsEditable;
                     Visible = not IsJobGroup;
-                    ToolTip = 'Specifies the source of the price on the price list line. For example, the price can come from the vendor.';
+                    ToolTip = 'Specifies the type of entity to which the price list is assigned. The options are relevant to the entity you are currently viewing.';
 
                     trigger OnValidate()
                     begin
@@ -55,10 +55,10 @@ page 7018 "Purchase Price List"
                 {
                     ApplicationArea = All;
                     Importance = Promoted;
-                    Caption = 'Applies-to Type';
+                    Caption = 'Assign-to Type';
                     Editable = PriceListIsEditable;
                     Visible = IsJobGroup;
-                    ToolTip = 'Specifies the source of the price on the price list line. For example, the price can come from the job or job task.';
+                    ToolTip = 'Specifies the type of entity to which the price list is assigned. The options are relevant to the entity you are currently viewing.';
 
                     trigger OnValidate()
                     begin
@@ -72,7 +72,7 @@ page 7018 "Purchase Price List"
                     Importance = Promoted;
                     Enabled = SourceNoEnabled;
                     Editable = PriceListIsEditable;
-                    ToolTip = 'Specifies the unique identifier of the source of the price on the price list line.';
+                    ToolTip = 'Specifies the entity to which the prices are assigned. The options depend on the selection in the Assign-to Type field. If you choose an entity, the price list will be used only for that entity.';
 
                     trigger OnValidate()
                     begin
@@ -208,6 +208,19 @@ page 7018 "Purchase Price List"
                 ApplicationArea = Basic, Suite;
                 Editable = PriceListIsEditable;
                 SubPageLink = "Price List Code" = FIELD(Code);
+            }
+        }
+        area(factboxes)
+        {
+            systempart(Control1900383207; Links)
+            {
+                ApplicationArea = RecordLinks;
+                Visible = false;
+            }
+            systempart(Control1905767507; Notes)
+            {
+                ApplicationArea = Notes;
+                Visible = false;
             }
         }
     }

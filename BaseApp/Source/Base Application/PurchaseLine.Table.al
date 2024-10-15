@@ -793,17 +793,7 @@
                               Round(Amount * (1 - PurchHeader."VAT Base Discount %" / 100), Currency."Amount Rounding Precision");
                             "Amount Including VAT" :=
                               Round(Amount + "VAT Base Amount" * "VAT %" / 100, Currency."Amount Rounding Precision");
-                            "VAT Base (ACY)" :=
-                              Round(
-                                CurrExchRate.ExchangeAmtLCYToFCY(
-                                  PurchHeader."Posting Date", GLSetup."Additional Reporting Currency",
-                                  Round(CurrExchRate.ExchangeAmtFCYToLCY(
-                                      PurchHeader."Posting Date", "Currency Code", "VAT Base Amount",
-                                      PurchHeader."Currency Factor"), Currency."Amount Rounding Precision"), CurrencyFactor),
-                                AddCurrency."Amount Rounding Precision");
-                            "Amount Including VAT (ACY)" :=
-                              Round("Amount (ACY)" + "VAT Base (ACY)" * "VAT %" / 100,
-                                AddCurrency."Amount Rounding Precision");
+                            UpdateACYAmounts(PurchHeader);
                         end;
                     "VAT Calculation Type"::"Full VAT":
                         if Amount <> 0 then
@@ -1263,7 +1253,14 @@
             TableRelation = "Gen. Product Posting Group";
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateGenProdPostingGroup(Rec, xRec, CurrFieldNo, IsHandled);
+                if IsHandled then
+                    exit;
+
                 TestStatusOpen();
                 if xRec."Gen. Prod. Posting Group" <> "Gen. Prod. Posting Group" then
                     if GenProdPostingGrp.ValidateVatProdPostingGroup(GenProdPostingGrp, "Gen. Prod. Posting Group") then
@@ -1492,7 +1489,7 @@
                     PurchLine2.TestField("No.", "No.");
                     PurchLine2.TestField("Pay-to Vendor No.", "Pay-to Vendor No.");
                     PurchLine2.TestField("Buy-from Vendor No.", "Buy-from Vendor No.");
-                    if "Drop Shipment" then begin
+                    if "Drop Shipment" or "Special Order" then begin
                         PurchLine2.TestField("Variant Code", "Variant Code");
                         PurchLine2.TestField("Location Code", "Location Code");
                         PurchLine2.TestField("Unit of Measure Code", "Unit of Measure Code");
@@ -1533,6 +1530,8 @@
             Caption = 'Line Amount';
 
             trigger OnValidate()
+            var
+                MaxLineAmount: Decimal;
             begin
                 TestField(Type);
                 TestField(Quantity);
@@ -1552,8 +1551,17 @@
                               PurchHeader."Posting Date", "Currency Code", "Line Amount",
                               PurchHeader."Currency Factor"), Currency."Amount Rounding Precision"), CurrencyFactor),
                         AddCurrency."Amount Rounding Precision");
-                Validate(
-                  "Line Discount Amount", Round(Quantity * "Direct Unit Cost", Currency."Amount Rounding Precision") - "Line Amount");
+
+		        MaxLineAmount := Round(Quantity * "Direct Unit Cost", Currency."Amount Rounding Precision");
+                if "Line Amount" < 0 then
+                    if "Line Amount" < MaxLineAmount then
+                        Error(LineAmountInvalidErr);
+
+                if "Line Amount" > 0 then
+                    if "Line Amount" > MaxLineAmount then
+                        Error(LineAmountInvalidErr);
+
+                Validate("Line Discount Amount", MaxLineAmount - "Line Amount");
             end;
         }
         field(104; "VAT Difference"; Decimal)
@@ -2543,7 +2551,14 @@
             DecimalPlaces = 0 : 5;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateQtytoInvoiceBase(Rec, xRec, CurrFieldNo, IsHandled);
+                if IsHandled then
+                    exit;
+
                 TestField("Qty. per Unit of Measure", 1);
                 Validate("Qty. to Invoice", "Qty. to Invoice (Base)");
             end;
@@ -2554,7 +2569,14 @@
             DecimalPlaces = 0 : 5;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateQtytoReceiveBase(Rec, xRec, CurrFieldNo, IsHandled);
+                if IsHandled then
+                    exit;
+
                 TestField("Qty. per Unit of Measure", 1);
                 Validate("Qty. to Receive", "Qty. to Receive (Base)");
             end;
@@ -2941,7 +2963,14 @@
             Caption = 'Lead Time Calculation';
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateLeadTimeCalculation(Rec, xRec, CurrFieldNo, IsHandled);
+                if IsHandled then
+                    exit;
+
                 LeadTimeMgt.CheckLeadTimeIsNotNegative("Lead Time Calculation");
 
                 if "Requested Receipt Date" <> 0D then
@@ -2973,7 +3002,13 @@
             trigger OnValidate()
             var
                 CustomCalendarChange: Array[2] of Record "Customized Calendar Change";
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidatePlannedReceiptDate(Rec, xRec, CurrFieldNo, TrackingBlocked, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if "Promised Receipt Date" <> 0D then begin
                     if "Planned Receipt Date" <> 0D then begin
                         CustomCalendarChange[1].SetSource(CalChange."Source Type"::Location, "Location Code", '', '');
@@ -3004,7 +3039,13 @@
             trigger OnValidate()
             var
                 CustomCalendarChange: Array[2] of Record "Customized Calendar Change";
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateOrderDate(Rec, xRec, CurrFieldNo, TrackingBlocked, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if (CurrFieldNo <> 0) and
                    ("Document Type" = "Document Type"::Order) and
                    ("Order Date" < WorkDate) and
@@ -3115,7 +3156,14 @@
             DecimalPlaces = 0 : 5;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateReturnQtytoShipBase(Rec, xRec, CurrFieldNo, IsHandled);
+                if IsHandled then
+                    exit;
+
                 TestField("Qty. per Unit of Measure", 1);
                 Validate("Return Qty. to Ship", "Return Qty. to Ship (Base)");
             end;
@@ -3565,10 +3613,14 @@
 
         if (Quantity <> 0) and ItemExists("No.") then begin
             PurchLineReserve.DeleteLine(Rec);
+            IsHandled := false;
+            OnDeleteOnBeforeCheckQtyNotInvoiced(Rec, IsHandled);
+            if not IsHandled then begin
             if "Receipt No." = '' then
                 TestField("Qty. Rcd. Not Invoiced", 0);
             if "Return Shipment No." = '' then
                 TestField("Return Qty. Shipped Not Invd.", 0);
+            end;
 
             IsHandled := false;
             OnDeleteOnBeforePurchaseLineDelete(Rec, IsHandled);
@@ -3854,6 +3906,7 @@
         CannotAllowInvDiscountErr: Label 'The value of the %1 field is not valid when the VAT Calculation Type field is set to "Full VAT".', Comment = '%1 is the name of not valid field';
         CannotChangeVATGroupWithPrepmInvErr: Label 'You cannot change the VAT product posting group because prepayment invoices have been posted.\\You need to post the prepayment credit memo to be able to change the VAT product posting group.';
         CannotChangePrepmtAmtDiffVAtPctErr: Label 'You cannot change the prepayment amount because the prepayment invoice has been posted with a different VAT percentage. Please check the settings on the prepayment G/L account.';
+        LineAmountInvalidErr: Label 'You have set the line amount to a value that results in a discount that is not valid. Consider increasing the unit cost instead.';
 
     protected var
         HideValidationDialog: Boolean;
@@ -4399,19 +4452,7 @@
                 Currency.Get(PurchHeader."Currency Code");
                 Currency.TestField("Amount Rounding Precision");
             end;
-            GetGLSetup;
-            Clear(CurrencyFactor);
-            if GLSetup."Additional Reporting Currency" <> '' then begin
-                AddCurrency.Get(GLSetup."Additional Reporting Currency");
-                if (PurchHeader."Vendor Exchange Rate (ACY)" <> 0) and (PurchHeader."Currency Code" = '') then
-                    CurrencyFactor :=
-                      CurrExchRate.ExchangeRateFactorFRS21(
-                        GetDate, GLSetup."Additional Reporting Currency", PurchHeader."Vendor Exchange Rate (ACY)")
-                else
-                    CurrencyFactor :=
-                      CurrExchRate.ExchangeRate(
-                        GetDate, GLSetup."Additional Reporting Currency");
-            end;
+            CurrencyFactor := CalcCurrencyFactorACY;
         end;
 
         OnAfterGetPurchHeader(Rec, PurchHeader, Currency);
@@ -6107,12 +6148,15 @@
                                           Round(
                                             NewAmountACY * (1 - PurchHeader."VAT Base Discount %" / 100),
                                             AddCurrency."Amount Rounding Precision");
-                                        if VATAmountLine."VAT Base" = 0 then
-                                            VATAmount := 0
-                                        else
-                                            VATAmount :=
-                                              TempVATAmountLineRemainder."VAT Amount" +
-                                              VATAmountLine."VAT Amount" * NewAmount / VATAmountLine."VAT Base";
+                                        IsHandled := false;
+                                        OnUpdateVATOnLinesOnBeforeCalcNotFullVATAmount(Rec, PurchHeader, Currency, VATAmountLine, TempVATAmountLineRemainder, NewVATBaseAmount, VATAmount, IsHandled);
+                                        if not IsHandled then
+                                            if VATAmountLine."VAT Base" = 0 then
+                                                VATAmount := 0
+                                            else
+                                                VATAmount :=
+                                                  TempVATAmountLineRemainder."VAT Amount" +
+                                                  VATAmountLine."VAT Amount" * NewAmount / VATAmountLine."VAT Base";
                                         if VATAmountLine."VAT Base (ACY)" = 0 then
                                             VATAmountACY := 0
                                         else
@@ -6301,6 +6345,7 @@
                                                 VATAmountLine.Quantity += "Qty. to Invoice (Base)";
                                             end;
                                     end;
+                                    OnCalcVATAmountLinesOnQtyTypeInvoicingOnBeforeCalcAmtToHandle(PurchLine, PurchHeader, QtyToHandle, VATAmountLine);
                                     AmtToHandle := GetLineAmountToHandleInclPrepmt(QtyToHandle);
                                     OnCalcVATAmountLinesOnBeforeVATAmountLineSumLine(Rec, VATAmountLine, QtyType);
                                     if PurchHeader."Invoice Discount Calculation" <> PurchHeader."Invoice Discount Calculation"::Amount then
@@ -8168,7 +8213,8 @@
     begin
         GetPurchHeader();
         OnUpdateDeferralAmountsOnBeforeSetDeferralPostDate(PurchHeader, Rec, DeferralPostDate);
-        DeferralPostDate := PurchHeader."Posting Date";
+        if DeferralPostDate = 0D then
+            DeferralPostDate := PurchHeader."Posting Date";
         AdjustStartDate := true;
         if "Document Type" = "Document Type"::"Return Order" then begin
             if "Returns Deferral Start Date" = 0D then
@@ -8646,8 +8692,43 @@
 
     local procedure CalcBaseQty(Qty: Decimal; FromFieldName: Text; ToFieldName: Text): Decimal
     begin
+        OnBeforeCalcBaseQty(Rec, Qty, FromFieldName, ToFieldName);
         exit(UOMMgt.CalcBaseQty(
             "No.", "Variant Code", "Unit of Measure Code", Qty, "Qty. per Unit of Measure", "Qty. Rounding Precision (Base)", FieldCaption("Qty. Rounding Precision"), FromFieldName, ToFieldName));
+    end;
+    
+    procedure UpdateACYAmounts(PurchHeaderToCalc: Record "Purchase Header")
+    begin
+        GetGLSetup;
+        PurchHeader := PurchHeaderToCalc;
+        CurrencyFactor := CalcCurrencyFactorACY;
+        "VAT Base (ACY)" :=
+          Round(
+            CurrExchRate.ExchangeAmtLCYToFCY(
+              PurchHeader."Posting Date", GLSetup."Additional Reporting Currency",
+              Round(CurrExchRate.ExchangeAmtFCYToLCY(
+                  PurchHeader."Posting Date", "Currency Code", "VAT Base Amount",
+                  PurchHeader."Currency Factor"), Currency."Amount Rounding Precision"), CurrencyFactor),
+            AddCurrency."Amount Rounding Precision");
+        "Amount Including VAT (ACY)" :=
+          Round("Amount (ACY)" + "VAT Base (ACY)" * "VAT %" / 100,
+            AddCurrency."Amount Rounding Precision");
+    end;   
+
+    local procedure CalcCurrencyFactorACY(): Decimal
+    begin
+        GetGLSetup();
+        Clear(CurrencyFactor);
+        if GLSetup."Additional Reporting Currency" <> '' then begin
+            AddCurrency.Get(GLSetup."Additional Reporting Currency");
+            if (PurchHeader."Vendor Exchange Rate (ACY)" <> 0) and (PurchHeader."Currency Code" = '') then
+                exit(
+                  CurrExchRate.ExchangeRateFactorFRS21(
+                    GetDate, GLSetup."Additional Reporting Currency", PurchHeader."Vendor Exchange Rate (ACY)"));
+            exit(
+              CurrExchRate.ExchangeRate(
+                GetDate, GLSetup."Additional Reporting Currency"));
+        end;
     end;
 
     [IntegrationEvent(false, false)]
@@ -9029,6 +9110,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcBaseQty(var PurchaseLine: Record "Purchase Line"; Qty: Decimal; FromFieldName: Text; ToFieldName: Text);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcPrepaymentToDeduct(var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
     begin
     end;
@@ -9334,6 +9420,26 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateGenProdPostingGroup(var PurchaseLine: Record "Purchase Line"; xPurchaseLine: Record "Purchase Line"; CurrentFieldNo: Integer; var InHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateOrderDate(var PurchaseLine: Record "Purchase Line"; xPurchaseLine: Record "Purchase Line"; CurrentFieldNo: Integer; TrackingBlocked: Boolean; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateLeadTimeCalculation(var PurchaseLine: Record "Purchase Line"; xPurchaseLine: Record "Purchase Line"; CurrentFieldNo: Integer; var InHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidatePlannedReceiptDate(var PurchaseLine: Record "Purchase Line"; xPurchaseLine: Record "Purchase Line"; CurrentFieldNo: Integer; TrackingBlocked: Boolean; var InHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateItemDescription(var PurchaseLine: Record "Purchase Line"; var InHandled: Boolean);
     begin
     end;
@@ -9365,6 +9471,21 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateType(var PurchaseLine: Record "Purchase Line"; xPurchaseLine: Record "Purchase Line"; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateQtytoInvoiceBase(var PurchaseLine: Record "Purchase Line"; xPurchaseLine: Record "Purchase Line"; CurrentFieldNo: Integer; var InHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateQtytoReceiveBase(var PurchaseLine: Record "Purchase Line"; xPurchaseLine: Record "Purchase Line"; CurrentFieldNo: Integer; var InHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateReturnQtytoShipBase(var PurchaseLine: Record "Purchase Line"; xPurchaseLine: Record "Purchase Line"; CurrentFieldNo: Integer; var InHandled: Boolean);
     begin
     end;
 
@@ -9405,6 +9526,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnCalcVATAmountLinesOnBeforeVATAmountLineSumLine(PurchaseLine: Record "Purchase Line"; var VATAmountLine: Record "VAT Amount Line"; QtyType: Option General,Invoicing,Shipping)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcVATAmountLinesOnQtyTypeInvoicingOnBeforeCalcAmtToHandle(var PurchLine: Record "Purchase Line"; var PurchHeader: Record "Purchase Header"; var QtyToHandle: Decimal; var VATAmountLine: record "VAT Amount Line")
     begin
     end;
 
@@ -9543,6 +9669,11 @@
 #endif
 
     [IntegrationEvent(false, false)]
+    local procedure OnUpdateVATOnLinesOnBeforeCalcNotFullVATAmount(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; var Currency: record Currency; var VATAmountLine: Record "VAT Amount Line"; var TempVATAmountLineRemainder: Record "VAT Amount Line"; NewVATBaseAmount: decimal; VATAmount: decimal; IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnValidateJobNoOnBeforeGetJob(var PurchLine: Record "Purchase Line"; var xPurchLine: Record "Purchase Line"; var IsHandled: Boolean)
     begin
     end;
@@ -9628,7 +9759,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnValidateQtyToReceiveOnAfterCalcShouldCheckLocationRequireReceive(var PurchaseLine: Record "Purchase Line"; ShouldCheckLocationRequireReceive: Boolean)
+    local procedure OnValidateQtyToReceiveOnAfterCalcShouldCheckLocationRequireReceive(var PurchaseLine: Record "Purchase Line"; var ShouldCheckLocationRequireReceive: Boolean)
     begin
     end;
 
@@ -9838,6 +9969,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnDeleteOnBeforePurchaseLineDelete(var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDeleteOnBeforeCheckQtyNotInvoiced(var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
     begin
     end;
 

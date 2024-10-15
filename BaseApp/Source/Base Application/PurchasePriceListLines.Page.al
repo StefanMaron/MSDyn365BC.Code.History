@@ -18,9 +18,9 @@ page 7011 "Purchase Price List Lines"
                 field(SourceType; SourceType)
                 {
                     ApplicationArea = All;
-                    Caption = 'Applies-to Type';
+                    Caption = 'Assign-to Type';
                     Visible = not IsJobGroup and AllowUpdatingDefaults;
-                    ToolTip = 'Specifies the source of the price on the price list line. For example, the price can come from the vendor.';
+                    ToolTip = 'Specifies the type of entity to which the price list is assigned. The options are relevant to the entity you are currently viewing.';
 
                     trigger OnValidate()
                     begin
@@ -30,9 +30,9 @@ page 7011 "Purchase Price List Lines"
                 field(JobSourceType; JobSourceType)
                 {
                     ApplicationArea = All;
-                    Caption = 'Applies-to Type';
+                    Caption = 'Assign-to Type';
                     Visible = IsJobGroup and AllowUpdatingDefaults;
-                    ToolTip = 'Specifies the source of the price on the price list line. For example, the price can come from the job or job task.';
+                    ToolTip = 'Specifies the type of entity to which the price list is assigned. The options are relevant to the entity you are currently viewing.';
 
                     trigger OnValidate()
                     begin
@@ -42,11 +42,11 @@ page 7011 "Purchase Price List Lines"
                 field(ParentSourceNo; Rec."Parent Source No.")
                 {
                     ApplicationArea = All;
-                    Caption = 'Applies-to Job No.';
+                    Caption = 'Assign-to Job No.';
                     Importance = Promoted;
                     Editable = IsParentAllowed;
-                    Visible = AllowUpdatingDefaults and IsJobGroup;
-                    ToolTip = 'Specifies the job that is the source of the price on the price list line.';
+                    Visible = AllowUpdatingDefaults and IsParentAllowed;
+                    ToolTip = 'Specifies the job to which the prices are assigned. If you choose an entity, the price list will be used only for that entity.';
                 }
                 field(SourceNo; Rec."Source No.")
                 {
@@ -54,7 +54,7 @@ page 7011 "Purchase Price List Lines"
                     Importance = Promoted;
                     Enabled = SourceNoEnabled;
                     Visible = AllowUpdatingDefaults;
-                    ToolTip = 'Specifies the unique identifier of the source of the price on the price list line.';
+                    ToolTip = 'Specifies the entity to which the prices are assigned. The options depend on the selection in the Assign-to Type field. If you choose an entity, the price list will be used only for that entity.';
                 }
                 field(CurrencyCode; Rec."Currency Code")
                 {
@@ -87,8 +87,7 @@ page 7011 "Purchase Price List Lines"
                 field("Asset No."; Rec."Asset No.")
                 {
                     ApplicationArea = All;
-                    ShowMandatory = true;
-                    ToolTip = 'Specifies the number of the product.';
+                    ToolTip = 'Specifies the identifier of the product. If no product is selected, the price and discount values will apply to all products of the selected product type for which those values are not specified. For example, if you choose Item as the product type but do not specify a specific item, the price will apply to all items for which a price is not specified.';
                     Style = Attention;
                     StyleExpr = LineToVerify;
 
@@ -150,8 +149,7 @@ page 7011 "Purchase Price List Lines"
                     Editable = AmountEditable;
                     Enabled = PriceMandatory;
                     Visible = PriceVisible;
-                    Style = Attention;
-                    StyleExpr = not PriceMandatory or LineToVerify;
+                    StyleExpr = PriceStyle;
                     ToolTip = 'Specifies the direct unit cost of the product.';
                 }
                 field("Unit Cost"; Rec."Unit Cost")
@@ -161,8 +159,7 @@ page 7011 "Purchase Price List Lines"
                     Editable = AmountEditable and ResourceAsset;
                     Enabled = PriceMandatory;
                     Visible = PriceVisible and ResourceAsset;
-                    Style = Attention;
-                    StyleExpr = not PriceMandatory or LineToVerify;
+                    StyleExpr = PriceStyle;
                     ToolTip = 'Specifies the unit cost of the resource.';
                 }
                 field("Allow Line Disc."; Rec."Allow Line Disc.")
@@ -171,8 +168,6 @@ page 7011 "Purchase Price List Lines"
                     Visible = PriceVisible;
                     Enabled = PriceMandatory;
                     Editable = PriceMandatory;
-                    Style = Attention;
-                    StyleExpr = not PriceMandatory or LineToVerify;
                     ToolTip = 'Specifies if a line discount will be calculated when the price is offered.';
                 }
                 field("Line Discount %"; Rec."Line Discount %")
@@ -182,8 +177,7 @@ page 7011 "Purchase Price List Lines"
                     Visible = DiscountVisible;
                     Enabled = DiscountMandatory;
                     Editable = DiscountMandatory;
-                    Style = Attention;
-                    StyleExpr = not DiscountMandatory or LineToVerify;
+                    StyleExpr = DiscountStyle;
                     ToolTip = 'Specifies the line discount percentage for the product.';
                 }
                 field("Allow Invoice Disc."; Rec."Allow Invoice Disc.")
@@ -192,8 +186,6 @@ page 7011 "Purchase Price List Lines"
                     Visible = PriceVisible;
                     Enabled = PriceMandatory;
                     Editable = PriceMandatory;
-                    Style = Attention;
-                    StyleExpr = not PriceMandatory or LineToVerify;
                     ToolTip = 'Specifies if an invoice discount will be calculated when the price is offered.';
                 }
                 field(PriceIncludesVAT; Rec."Price Includes VAT")
@@ -216,14 +208,15 @@ page 7011 "Purchase Price List Lines"
     begin
         UpdateSourceType();
         LineToVerify := Rec.IsLineToVerify();
+        SetMandatoryAmount();
     end;
 
     trigger OnAfterGetCurrRecord()
     begin
-        UpdateSourceType();
         SetEditable();
-        SetMandatoryAmount();
+        UpdateSourceType();
         LineToVerify := Rec.IsLineToVerify();
+        SetMandatoryAmount();
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
@@ -242,28 +235,39 @@ page 7011 "Purchase Price List Lines"
     end;
 
     var
-        AmountEditable: Boolean;
-        UOMEditable: Boolean;
-        ItemAsset: Boolean;
-        ResourceAsset: Boolean;
-        DiscountMandatory: Boolean;
-        DiscountVisible: Boolean;
-        PriceMandatory: Boolean;
-        PriceVisible: Boolean;
-        AmountTypeIsVisible: Boolean;
-        AmountTypeIsEditable: Boolean;
+        DiscountStyle: Text;
+        PriceStyle: Text;
         JobSourceType: Enum "Job Price Source Type";
         SourceType: Enum "Purchase Price Source Type";
-        IsJobGroup: Boolean;
-        IsParentAllowed: Boolean;
         LineToVerify: Boolean;
         SourceNoEnabled: Boolean;
-        AllowUpdatingDefaults: Boolean;
 
     protected var
         PriceListHeader: Record "Price List Header";
         PriceType: Enum "Price Type";
         ViewAmountType: Enum "Price Amount Type";
+        AllowUpdatingDefaults: Boolean;
+        AmountEditable: Boolean;
+        AmountTypeIsEditable: Boolean;
+        AmountTypeIsVisible: Boolean;
+        DiscountMandatory: Boolean;
+        DiscountVisible: Boolean;
+        IsJobGroup: Boolean;
+        IsParentAllowed: Boolean;
+        ItemAsset: Boolean;
+        PriceMandatory: Boolean;
+        PriceVisible: Boolean;
+        ResourceAsset: Boolean;
+        UOMEditable: Boolean;
+
+    local procedure GetStyle(Mandatory: Boolean): Text;
+    begin
+        if LineToVerify and Mandatory then
+            exit('Attention');
+        if Mandatory then
+            exit('Strong');
+        exit('Subordinate');
+    end;
 
     local procedure SetEditable()
     begin
@@ -277,7 +281,9 @@ page 7011 "Purchase Price List Lines"
     local procedure SetMandatoryAmount()
     begin
         DiscountMandatory := Rec.IsAmountMandatory(Rec."Amount Type"::Discount);
+        DiscountStyle := GetStyle(DiscountMandatory);
         PriceMandatory := Rec.IsAmountMandatory(Rec."Amount Type"::Price);
+        PriceStyle := GetStyle(PriceMandatory);
     end;
 
     local procedure UpdateColumnVisibility()
