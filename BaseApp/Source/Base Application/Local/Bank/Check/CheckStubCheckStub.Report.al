@@ -387,6 +387,8 @@ report 10411 "Check (Stub/Check/Stub)"
                         Stub2LineAmount[Stub2LineNo] := LineAmount;
                         Stub2LineDiscount[Stub2LineNo] := LineDiscount;
                         Stub2PostingDesc[Stub2LineNo] := PostingDesc;
+
+                        OnAfterOnAfterGetRecordOfPrintSettledLoop(GenJnlLine2, TotalLineAmount, CurrentLineAmount, TotalLineDiscount, LineDiscount, BalancingType, ApplyMethod);
                     end;
 
                     trigger OnPreDataItem()
@@ -414,6 +416,8 @@ report 10411 "Check (Stub/Check/Stub)"
                         end;
                         BankTransitNo := BankAcc2."Transit No.";
                         BankAccountNo := BankAcc2."Bank Account No.";
+
+                        OnAfterOnPreDataItemOfPrintSettledLoop(GenJnlLine, BalancingType, ApplyMethod);
                     end;
                 }
                 dataitem(PrintCheck; "Integer")
@@ -1005,6 +1009,8 @@ report 10411 "Check (Stub/Check/Stub)"
                             CheckStyleIndex := 0
                         else
                             CheckStyleIndex := 1;
+
+                        OnAfterOnAfterGetRecordOfPrintCheck(GenJnlLine);
                     end;
                 }
 
@@ -1136,6 +1142,8 @@ report 10411 "Check (Stub/Check/Stub)"
                     TotalLineAmount := 0;
                     TotalLineDiscount := 0;
                     AddedRemainingAmount := true;
+
+                    OnAfterOnPreDataItemOfCheckPages(GenJnlLine);
                 end;
             }
 
@@ -1331,6 +1339,8 @@ report 10411 "Check (Stub/Check/Stub)"
                     else
                         CheckDateText := Text010;
                 end;
+
+                OnAfterOnAfterGetRecordOfGenJnlLine(GenJnlLine, RemitAddress, CheckToAddr, BalancingType, ApplyMethod);
             end;
 
             trigger OnPreDataItem()
@@ -1911,6 +1921,31 @@ report 10411 "Check (Stub/Check/Stub)"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterIncStrCheckNo(var UseCheckNo: Code[20]; var GenJnlLine: Record "Gen. Journal Line"; var CheckPages: Record Integer; PageNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterOnPreDataItemOfPrintSettledLoop(var GenJournalLine: Record "Gen. Journal Line"; BalancingType: Enum "Gen. Journal Account Type"; ApplyMethod: Option)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterOnAfterGetRecordOfPrintCheck(var GenJournalLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterOnAfterGetRecordOfPrintSettledLoop(var GenJournalLine2: Record "Gen. Journal Line"; var TotalLineAmount: Decimal; var CurrentLineAmount: Decimal; var TotalLineDiscount: Decimal; var LineDiscount: Decimal; BalancingType: Enum "Gen. Journal Account Type"; ApplyMethod: Option)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterOnPreDataItemOfCheckPages(var GenJournalLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterOnAfterGetRecordOfGenJnlLine(GenJournalLine: Record "Gen. Journal Line"; var RemitAddress: Record "Remit Address"; var CheckToAddr: array[8] of Text[100]; BalancingType: Enum "Gen. Journal Account Type"; ApplyMethod: Option)
     begin
     end;
 }

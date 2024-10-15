@@ -5,6 +5,8 @@ using Microsoft.Foundation.Reporting;
 
 codeunit 5409 "Feature - Report Selection" implements "Feature Data Update"
 {
+    Permissions = TableData "Feature Data Update Status" = rm;
+
     // The Data upgrade codeunit for Platform Based Report Selection
     var
         TempDocumentEntry: Record "Document Entry" temporary;

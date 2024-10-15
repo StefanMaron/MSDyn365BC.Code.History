@@ -8,6 +8,7 @@ using Microsoft.Finance.Deferral;
 using Microsoft.Finance.Dimension;
 using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.EServices.EDocument;
 using Microsoft.Finance.ReceivablesPayables;
 using Microsoft.Finance.SalesTax;
 using Microsoft.Finance.VAT.Calculation;
@@ -3507,6 +3508,11 @@ table 37 "Sales Line"
         field(10003; "Custom Transit Number"; Text[30])
         {
             Caption = 'Custom Transit Number';
+        }
+        field(10004; "SAT Customs Document Type"; Code[10])
+        {
+            Caption = 'SAT Customs Document Type';
+            TableRelation = "SAT Customs Document Type";
         }
     }
 
@@ -9089,15 +9095,23 @@ table 37 "Sales Line"
     end;
 
     procedure GetDateForCalculations() CalculationDate: Date;
+    var
+        FromSalesHeader: Record "Sales Header";
+    begin
+        if Rec."Document No." <> '' then
+            FromSalesHeader := Rec.GetSalesHeader();
+        CalculationDate := GetDateForCalculations(FromSalesHeader);
+    end;
+
+    procedure GetDateForCalculations(FromSalesHeader: Record "Sales Header") CalculationDate: Date;
     begin
         if Rec."Document No." = '' then
             CalculationDate := Rec."Posting Date"
         else begin
-            Rec.GetSalesHeader();
-            if SalesHeader."Document Type" in [SalesHeader."Document Type"::Invoice, SalesHeader."Document Type"::"Credit Memo"] then
-                CalculationDate := SalesHeader."Posting Date"
+            if FromSalesHeader."Document Type" in [FromSalesHeader."Document Type"::Invoice, FromSalesHeader."Document Type"::"Credit Memo"] then
+                CalculationDate := FromSalesHeader."Posting Date"
             else
-                CalculationDate := SalesHeader."Order Date";
+                CalculationDate := FromSalesHeader."Order Date";
         end;
         if CalculationDate = 0D then
             CalculationDate := WorkDate();

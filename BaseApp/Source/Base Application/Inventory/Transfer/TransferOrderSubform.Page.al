@@ -300,6 +300,11 @@ page 5741 "Transfer Order Subform"
                     ApplicationArea = Location, BasicMX;
                     ToolTip = 'Specifies a unique transit number as five groups of digits separated by two spaces. The number identifies the transport, the year of transport, the customs office, and other required information.';
                 }
+                field("SAT Customs Document Type"; Rec."SAT Customs Document Type")
+                {
+                    ApplicationArea = BasicMX;
+                    ToolTip = 'Specifies the type of customs document that is associated with the transfer of goods of foreign origin during their transfer in national territory. This information is required by Carte Porte in Mexico.';
+                }
             }
         }
     }

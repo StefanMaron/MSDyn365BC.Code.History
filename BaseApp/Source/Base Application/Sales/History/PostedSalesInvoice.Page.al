@@ -565,7 +565,7 @@ page 132 "Posted Sales Invoice"
                     field("Exchange Rate USD"; Rec."Exchange Rate USD")
                     {
                         ApplicationArea = BasicMX;
-                        ToolTip = 'Specifies the exchange rate for USD currency that is used to report foreing trade electronic invoices to Mexican SAT authorities.';
+                        ToolTip = 'Specifies the USD to MXN exchange rate that is used to report foreign trade documents to Mexican SAT authorities. This rate must match the rate used by the Mexican National Bank.';
                     }
                     field("CFDI Cancellation Reason Code"; Rec."CFDI Cancellation Reason Code")
                     {
@@ -1492,7 +1492,13 @@ page 132 "Posted Sales Invoice"
     var
         IncomingDocument: Record "Incoming Document";
         CRMCouplingManagement: Codeunit "CRM Coupling Management";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOnAfterGetCurrRecord(Rec, IsHandled, CRMIsCoupledToRecord, CRMIntegrationEnabled);
+        if IsHandled then
+            exit;
+
         if GuiAllowed() then begin
             HasIncomingDocument := IncomingDocument.PostedDocExists(Rec."No.", Rec."Posting Date");
             DocExchStatusStyle := Rec.GetDocExchStatusStyle();
@@ -1585,6 +1591,11 @@ page 132 "Posted Sales Invoice"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateCreditMemoOnAction(var SalesInvoiceHeader: Record "Sales Invoice Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnAfterGetCurrRecord(var SalesInvoiceHeader: Record "Sales Invoice Header"; var IsHandled: Boolean; var CRMIsCoupledToRecord: Boolean; var CRMIntegrationEnabled: Boolean)
     begin
     end;
 }

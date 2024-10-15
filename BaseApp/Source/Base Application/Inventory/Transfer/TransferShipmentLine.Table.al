@@ -7,6 +7,7 @@ using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Warehouse.Structure;
+using Microsoft.EServices.EDocument;
 
 table 5745 "Transfer Shipment Line"
 {
@@ -202,6 +203,11 @@ table 5745 "Transfer Shipment Line"
         {
             Caption = 'Custom Transit Number';
         }
+        field(10004; "SAT Customs Document Type"; Code[10])
+        {
+            Caption = 'SAT Customs Document Type';
+            TableRelation = "SAT Customs Document Type";
+        }
     }
 
     keys
@@ -225,6 +231,11 @@ table 5745 "Transfer Shipment Line"
     procedure ShowDimensions()
     begin
         DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', TableCaption(), "Document No."));
+    end;
+
+    procedure ShowShortcutDimCode(var ShortcutDimCode: array[8] of Code[20])
+    begin
+        DimMgt.GetShortcutDimensions(Rec."Dimension Set ID", ShortcutDimCode);
     end;
 
     procedure ShowItemTrackingLines()

@@ -2300,6 +2300,11 @@ table 27 Item
             Caption = 'SAT Packaging Type';
             TableRelation = "SAT Packaging Type";
         }
+        field(27026; "SAT Material Type"; Code[10])
+        {
+            Caption = 'SAT Material Type';
+            TableRelation = "SAT Material Type";
+        }
         field(99000750; "Routing No."; Code[20])
         {
             Caption = 'Routing No.';

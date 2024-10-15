@@ -103,6 +103,10 @@ codeunit 1752 "Data Class. Eval. Data Country"
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"SAT Weight Unit of Measure");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"SAT International Trade Term");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"SAT Customs Unit");
+        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"SAT Transfer Reason");
+        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"SAT Material Type");
+        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"SAT Customs Regime");
+        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"SAT Customs Document Type");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Credit Manager Cue");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Sales Header Archive");
         OnAfterClassifyCountrySpecificTables();
