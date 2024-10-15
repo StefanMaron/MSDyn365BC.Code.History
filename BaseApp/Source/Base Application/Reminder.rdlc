@@ -2242,67 +2242,6 @@
                                 </TablixColumns>
                                 <TablixRows>
                                   <TablixRow>
-                                    <Height>0.27778in</Height>
-                                    <TablixCells>
-                                      <TablixCell>
-                                        <CellContents>
-                                          <Textbox Name="Textbox19">
-                                            <CanGrow>true</CanGrow>
-                                            <KeepTogether>true</KeepTogether>
-                                            <Paragraphs>
-                                              <Paragraph>
-                                                <TextRuns>
-                                                  <TextRun>
-                                                    <Value />
-                                                    <Style>
-                                                      <FontStyle>Normal</FontStyle>
-                                                      <FontFamily>Segoe UI</FontFamily>
-                                                      <FontSize>8pt</FontSize>
-                                                    </Style>
-                                                  </TextRun>
-                                                </TextRuns>
-                                                <Style />
-                                              </Paragraph>
-                                            </Paragraphs>
-                                            <rd:DefaultName>Textbox19</rd:DefaultName>
-                                            <Style>
-                                              <VerticalAlign>Middle</VerticalAlign>
-                                              <PaddingRight>0.0625in</PaddingRight>
-                                            </Style>
-                                          </Textbox>
-                                          <ColSpan>28</ColSpan>
-                                        </CellContents>
-                                      </TablixCell>
-                                      <TablixCell />
-                                      <TablixCell />
-                                      <TablixCell />
-                                      <TablixCell />
-                                      <TablixCell />
-                                      <TablixCell />
-                                      <TablixCell />
-                                      <TablixCell />
-                                      <TablixCell />
-                                      <TablixCell />
-                                      <TablixCell />
-                                      <TablixCell />
-                                      <TablixCell />
-                                      <TablixCell />
-                                      <TablixCell />
-                                      <TablixCell />
-                                      <TablixCell />
-                                      <TablixCell />
-                                      <TablixCell />
-                                      <TablixCell />
-                                      <TablixCell />
-                                      <TablixCell />
-                                      <TablixCell />
-                                      <TablixCell />
-                                      <TablixCell />
-                                      <TablixCell />
-                                      <TablixCell />
-                                    </TablixCells>
-                                  </TablixRow>
-                                  <TablixRow>
                                     <Height>0.13889in</Height>
                                     <TablixCells>
                                       <TablixCell>
@@ -2399,9 +2338,6 @@
                               <TablixRowHierarchy>
                                 <TablixMembers>
                                   <TablixMember>
-                                    <KeepWithGroup>After</KeepWithGroup>
-                                  </TablixMember>
-                                  <TablixMember>
                                     <Group Name="table4_Details_Group">
                                       <GroupExpressions>
                                         <GroupExpression>=Fields!LineNo_IssuedReminderLine2.Value</GroupExpression>
@@ -2415,9 +2351,9 @@
                                 </TablixMembers>
                               </TablixRowHierarchy>
                               <DataSetName>DataSet_Result</DataSetName>
-                              <Top>1.68268in</Top>
+                              <Top>1.87018in</Top>
                               <Left>0.00004in</Left>
-                              <Height>0.41667in</Height>
+                              <Height>0.13889in</Height>
                               <Width>7.00952in</Width>
                               <ZIndex>1</ZIndex>
                               <Style>

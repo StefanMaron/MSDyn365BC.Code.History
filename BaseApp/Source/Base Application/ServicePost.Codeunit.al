@@ -171,6 +171,7 @@ codeunit 5980 "Service-Post"
             WhseServiceRelease.Release(ServiceHeader);
 
         EInvoiceMgt.InsertServiceInvoiceCFDIRelations(ServiceHeader, ServInvoiceNo);
+        EInvoiceMgt.InsertServiceCreditMemoCFDIRelations(ServiceHeader, ServCrMemoNo);
 
         Commit;
 

@@ -2,16 +2,8 @@ codeunit 27031 "Update SAT Payment Catalogs"
 {
 
     trigger OnRun()
-    var
-        UpgradeTag: Codeunit "Upgrade Tag";
-        UpgradeTagDefCountry: Codeunit "Upgrade Tag Def - Country";
     begin
-        if UpgradeTag.HasUpgradeTag(UpgradeTagDefCountry.GetSATPaymentCatalogsSwapTag) then
-            exit;
-
         SwapSATPaymentCatalogs;
-
-        UpgradeTag.SetUpgradeTag(UpgradeTagDefCountry.GetSATPaymentCatalogsSwapTag);
     end;
 
     local procedure SwapSATPaymentCatalogs()

@@ -1,19 +1,18 @@
 codeunit 142083 "ERM Electronic Funds Transfer"
 {
     EventSubscriberInstance = Manual;
-    SingleInstance = true;
     Subtype = Test;
     TestPermissions = Disabled;
 
     trigger OnRun()
     begin
-        // [FEATURE] [Electronic Payment] [Journal]
+        // [FEATURE] [Electronic Payment] [Journal] [EFT]
     end;
 
     var
+        TempACHRBHeader: Record "ACH RB Header" temporary;
+        TempACHRBDetail: Record "ACH RB Detail" temporary;
         Assert: Codeunit Assert;
-        ERMElectronicFundsTransfer: Codeunit "ERM Electronic Funds Transfer";
-        TestClientTypeSubscriber: Codeunit "Test Client Type Subscriber";
         LibraryERM: Codeunit "Library - ERM";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibraryInventory: Codeunit "Library - Inventory";
@@ -41,24 +40,28 @@ codeunit 142083 "ERM Electronic Funds Transfer"
     procedure ExportPaymentJournalAfterPostPurchaseOrder()
     var
         GenJournalLine: Record "Gen. Journal Line";
+        ERMElectronicFundsTransfer: Codeunit "ERM Electronic Funds Transfer";
+        TestClientTypeSubscriber: Codeunit "Test Client Type Subscriber";
         PaymentJournal: TestPage "Payment Journal";
     begin
         // Verify XML Data after Export Electronic Payment Journal.
-
-        if BindSubscription(TestClientTypeSubscriber) then;
-        if BindSubscription(ERMElectronicFundsTransfer) then;
         // [GIVEN] Create a Electronic Payment Journal
-        Initialize;
+        Initialize();
+
+        TestClientTypeSubscriber.SetClientType(CLIENTTYPE::Web);
+        BindSubscription(TestClientTypeSubscriber);
+        BindSubscription(ERMElectronicFundsTransfer);
+
         CreateExportReportSelection(Layout::RDLC);
         CreateElectronicPaymentJournal(GenJournalLine);
 
         // [WHEN] Export the Payment
-        PaymentJournal.OpenEdit;
+        PaymentJournal.OpenEdit();
         asserterror ExportPaymentJournalDirect(PaymentJournal, GenJournalLine);
-        PaymentJournal.Close;
+        PaymentJournal.Close();
 
         // [THEN]  Verify XML Data.
-        GenJournalLine.Find;
+        GenJournalLine.Find();
 
         LibraryReportDataset.LoadDataSetFile;
 
@@ -66,9 +69,6 @@ codeunit 142083 "ERM Electronic Funds Transfer"
         LibraryReportDataset.AssertElementWithValueExists(MyBalCaptionTxt, GenJournalLine."Bal. Account No.");
         LibraryReportDataset.AssertElementWithValueExists(
           'Gen__Journal_Line___Applies_to_Doc__No__', GenJournalLine."Applies-to Doc. No.");
-
-        if UnbindSubscription(ERMElectronicFundsTransfer) then;
-        if UnbindSubscription(TestClientTypeSubscriber) then;
     end;
 
     [Test]
@@ -77,24 +77,27 @@ codeunit 142083 "ERM Electronic Funds Transfer"
     procedure ExportPaymentJournalAfterPostPurchaseOrderWordLayout()
     var
         GenJournalLine: Record "Gen. Journal Line";
+        ERMElectronicFundsTransfer: Codeunit "ERM Electronic Funds Transfer";
+        TestClientTypeSubscriber: Codeunit "Test Client Type Subscriber";
         PaymentJournal: TestPage "Payment Journal";
     begin
         // [GIVEN] Create a Electronic Payment Journal
-        if BindSubscription(TestClientTypeSubscriber) then;
-        if BindSubscription(ERMElectronicFundsTransfer) then;
-        Initialize;
+        Initialize();
+
+        TestClientTypeSubscriber.SetClientType(CLIENTTYPE::Web);
+        BindSubscription(TestClientTypeSubscriber);
+        BindSubscription(ERMElectronicFundsTransfer);
+
         CreateTestElectronicPaymentJournalWordLayout(GenJournalLine);
 
         // [WHEN] Export the Payment
-        PaymentJournal.OpenEdit;
+        PaymentJournal.OpenEdit();
         ExportPaymentJournal(PaymentJournal, GenJournalLine);
-        PaymentJournal.Close;
+        PaymentJournal.Close();
 
         // [THEN] Make sure Exported to Payment File is set in the Gen Journal Line
-        GenJournalLine.Find;
+        GenJournalLine.Find();
         GenJournalLine.TestField("Exported to Payment File", true);
-        if UnbindSubscription(ERMElectronicFundsTransfer) then;
-        if UnbindSubscription(TestClientTypeSubscriber) then;
     end;
 
     [Test]
@@ -103,28 +106,30 @@ codeunit 142083 "ERM Electronic Funds Transfer"
     procedure ExportPaymentJournalTwice()
     var
         GenJournalLine: Record "Gen. Journal Line";
+        ERMElectronicFundsTransfer: Codeunit "ERM Electronic Funds Transfer";
+        TestClientTypeSubscriber: Codeunit "Test Client Type Subscriber";
         PaymentJournal: TestPage "Payment Journal";
     begin
         // [GIVEN] Create one payment journal.
-        if BindSubscription(TestClientTypeSubscriber) then;
-        if BindSubscription(ERMElectronicFundsTransfer) then;
-        Initialize;
+        Initialize();
+
+        TestClientTypeSubscriber.SetClientType(CLIENTTYPE::Web);
+        BindSubscription(TestClientTypeSubscriber);
+        BindSubscription(ERMElectronicFundsTransfer);
+
         CreateExportReportSelection(Layout::RDLC);
         CreateElectronicPaymentJournal(GenJournalLine);
 
         // [WHEN] Try and export it twice
-        PaymentJournal.OpenEdit;
+        PaymentJournal.OpenEdit();
         ExportPaymentJournal(PaymentJournal, GenJournalLine);
-        PaymentJournal.Close;
-        PaymentJournal.OpenEdit;
+        PaymentJournal.Close();
+        PaymentJournal.OpenEdit();
         ExportPaymentJournal(PaymentJournal, GenJournalLine);
-        PaymentJournal.Close;
+        PaymentJournal.Close();
 
         // [THEN] No message is given they will need to void the trx and reenter
         GenJournalLine.TestField("Exported to Payment File", false);
-
-        if UnbindSubscription(ERMElectronicFundsTransfer) then;
-        if UnbindSubscription(TestClientTypeSubscriber) then;
     end;
 
     [Test]
@@ -133,27 +138,30 @@ codeunit 142083 "ERM Electronic Funds Transfer"
     procedure ExportPaymentJournalTwiceWordLayout()
     var
         GenJournalLine: Record "Gen. Journal Line";
+        ERMElectronicFundsTransfer: Codeunit "ERM Electronic Funds Transfer";
+        TestClientTypeSubscriber: Codeunit "Test Client Type Subscriber";
         PaymentJournal: TestPage "Payment Journal";
     begin
         // [GIVEN] Create one payment journal.
-        if BindSubscription(TestClientTypeSubscriber) then;
-        if BindSubscription(ERMElectronicFundsTransfer) then;
-        Initialize;
+        Initialize();
+
+        TestClientTypeSubscriber.SetClientType(CLIENTTYPE::Web);
+        BindSubscription(TestClientTypeSubscriber);
+        BindSubscription(ERMElectronicFundsTransfer);
+
         CreateTestElectronicPaymentJournalWordLayout(GenJournalLine);
 
         // [WHEN] Try and export it twice
-        PaymentJournal.OpenEdit;
+        PaymentJournal.OpenEdit();
         ExportPaymentJournal(PaymentJournal, GenJournalLine);
-        PaymentJournal.Close;
+        PaymentJournal.Close();
 
-        PaymentJournal.OpenEdit;
+        PaymentJournal.OpenEdit();
         ExportPaymentJournal(PaymentJournal, GenJournalLine);
-        PaymentJournal.Close;
+        PaymentJournal.Close();
 
         // [THEN] No message is given they will need to void the trx and reenter
         GenJournalLine.TestField("Exported to Payment File", false);
-        if UnbindSubscription(ERMElectronicFundsTransfer) then;
-        if UnbindSubscription(TestClientTypeSubscriber) then;
     end;
 
     [Test]
@@ -162,26 +170,29 @@ codeunit 142083 "ERM Electronic Funds Transfer"
     procedure ErrorOnVoidCheckWithExportedEntryStatus()
     var
         GenJournalLine: Record "Gen. Journal Line";
+        ERMElectronicFundsTransfer: Codeunit "ERM Electronic Funds Transfer";
+        TestClientTypeSubscriber: Codeunit "Test Client Type Subscriber";
         PaymentJournal: TestPage "Payment Journal";
     begin
         // [GIVEN] Create a Electronic Payment Journal
-        if BindSubscription(TestClientTypeSubscriber) then;
-        if BindSubscription(ERMElectronicFundsTransfer) then;
-        Initialize;
+        Initialize();
+
+        TestClientTypeSubscriber.SetClientType(CLIENTTYPE::Web);
+        BindSubscription(TestClientTypeSubscriber);
+        BindSubscription(ERMElectronicFundsTransfer);
+
         CreateTestElectronicPaymentJournalWordLayout(GenJournalLine);
 
         // [WHEN] Export the Payment Journal try to void the check
-        PaymentJournal.OpenEdit;
+        PaymentJournal.OpenEdit();
         ExportPaymentJournal(PaymentJournal, GenJournalLine);
-        PaymentJournal.Close;
+        PaymentJournal.Close();
         asserterror VoidCheckCheckLedgerEntries(GenJournalLine."Bal. Account No.");
 
         // [THEN] Verify Void Check error and verify Entry Status is Exported.
-        GenJournalLine.Find;
+        GenJournalLine.Find();
         GenJournalLine.TestField("Exported to Payment File", true);
         Assert.ExpectedError(EntryStatusErr);
-        if UnbindSubscription(ERMElectronicFundsTransfer) then;
-        if UnbindSubscription(TestClientTypeSubscriber) then;
     end;
 
     [Test]
@@ -189,28 +200,30 @@ codeunit 142083 "ERM Electronic Funds Transfer"
     procedure ErrorOnBlankFederalIDNoAfterExportPaymentJournal()
     var
         GenJournalLine: Record "Gen. Journal Line";
+        ERMElectronicFundsTransfer: Codeunit "ERM Electronic Funds Transfer";
+        TestClientTypeSubscriber: Codeunit "Test Client Type Subscriber";
         PaymentJournal: TestPage "Payment Journal";
     begin
         // Verify Error after Export Electronic Payment Journal when Federal ID No is blank on Company Information.
-        if BindSubscription(TestClientTypeSubscriber) then;
-        if BindSubscription(ERMElectronicFundsTransfer) then;
-
         // [GIVEN] Create Electonic Payment Journal and set Federal ID No to blank.
-        Initialize;
+        Initialize();
+
+        TestClientTypeSubscriber.SetClientType(CLIENTTYPE::Web);
+        BindSubscription(TestClientTypeSubscriber);
+        BindSubscription(ERMElectronicFundsTransfer);
+
         CreateExportReportSelection(Layout::Word);
         ModifyFederalIdCompanyInformation('');  // Federal ID No as blank.
         CreateElectronicPaymentJournal(GenJournalLine);
 
         // [WHEN] Try to Export Payment Journal
-        PaymentJournal.OpenEdit;
+        PaymentJournal.OpenEdit();
         asserterror ExportPaymentJournal(PaymentJournal, GenJournalLine);
 
         // [THEN] Verify that it did not get exported and we recieved an error from no Federal ID
-        GenJournalLine.Find;
+        GenJournalLine.Find();
         GenJournalLine.TestField("Exported to Payment File", false);
         Assert.ExpectedError(FederalIDNoErr);
-        if UnbindSubscription(ERMElectronicFundsTransfer) then;
-        if UnbindSubscription(TestClientTypeSubscriber) then;
     end;
 
     [Test]
@@ -219,15 +232,19 @@ codeunit 142083 "ERM Electronic Funds Transfer"
     procedure ExportPaymentJournalWithBalAccountTypeCustomer()
     var
         GenJournalLine: Record "Gen. Journal Line";
+        ERMElectronicFundsTransfer: Codeunit "ERM Electronic Funds Transfer";
+        TestClientTypeSubscriber: Codeunit "Test Client Type Subscriber";
         AccountNo: Code[20];
         CustomerBankAccountCode: Code[20];
     begin
         // Verify XML after creating and exporting Electronic Payment Journal with Bal. Account Type as Customer.
-        if BindSubscription(TestClientTypeSubscriber) then;
-        if BindSubscription(ERMElectronicFundsTransfer) then;
-
         // [GIVEN] Create a Electronic Payment Journal
-        Initialize;
+        Initialize();
+
+        TestClientTypeSubscriber.SetClientType(CLIENTTYPE::Web);
+        BindSubscription(TestClientTypeSubscriber);
+        BindSubscription(ERMElectronicFundsTransfer);
+
         CreateExportReportSelection(Layout::RDLC);
 
         // [WHEN] Export Payment Journal
@@ -236,8 +253,6 @@ codeunit 142083 "ERM Electronic Funds Transfer"
         ExportPaymentJournalAndVerifyXML(
           AccountNo, GenJournalLine."Document Type"::Refund,
           GenJournalLine."Bal. Account Type"::Customer, CustomerBankAccountCode);
-        if UnbindSubscription(ERMElectronicFundsTransfer) then;
-        if UnbindSubscription(TestClientTypeSubscriber) then;
     end;
 
     [Test]
@@ -246,14 +261,19 @@ codeunit 142083 "ERM Electronic Funds Transfer"
     procedure ExportPaymentJournalWithBalAccountTypeCustomerWordLayout()
     var
         GenJournalLine: Record "Gen. Journal Line";
+        ERMElectronicFundsTransfer: Codeunit "ERM Electronic Funds Transfer";
+        TestClientTypeSubscriber: Codeunit "Test Client Type Subscriber";
         Amount: Decimal;
         CustomerNo: Code[20];
         CustomerAccountBankCode: Code[10];
     begin
         // [GIVEN] Create a Electronic Payment Journal
-        if BindSubscription(TestClientTypeSubscriber) then;
-        if BindSubscription(ERMElectronicFundsTransfer) then;
-        Initialize;
+        Initialize();
+
+        TestClientTypeSubscriber.SetClientType(CLIENTTYPE::Web);
+        BindSubscription(TestClientTypeSubscriber);
+        BindSubscription(ERMElectronicFundsTransfer);
+
         CreateExportReportSelection(Layout::Word);
 
         // [WHEN] Export Payment Journal
@@ -263,8 +283,6 @@ codeunit 142083 "ERM Electronic Funds Transfer"
         CreateAndExportPaymentJournal(GenJournalLine."Document Type"::Payment,
           GenJournalLine."Bal. Account Type"::Customer, CustomerNo,
           Amount, CopyStr(LibraryUtility.GenerateGUID, 1, 3), LibraryUtility.GenerateGUID, false, CustomerAccountBankCode);
-        if UnbindSubscription(ERMElectronicFundsTransfer) then;
-        if UnbindSubscription(TestClientTypeSubscriber) then;
     end;
 
     [Test]
@@ -274,11 +292,16 @@ codeunit 142083 "ERM Electronic Funds Transfer"
     var
         GenJournalLine: Record "Gen. Journal Line";
         VendorBankAccount: Record "Vendor Bank Account";
+        ERMElectronicFundsTransfer: Codeunit "ERM Electronic Funds Transfer";
+        TestClientTypeSubscriber: Codeunit "Test Client Type Subscriber";
     begin
-        if BindSubscription(TestClientTypeSubscriber) then;
-        if BindSubscription(ERMElectronicFundsTransfer) then;
         // [GIVEN] Create a Electronic Payment Journal
-        Initialize;
+        Initialize();
+
+        TestClientTypeSubscriber.SetClientType(CLIENTTYPE::Web);
+        BindSubscription(TestClientTypeSubscriber);
+        BindSubscription(ERMElectronicFundsTransfer);
+
         CreateExportReportSelection(Layout::RDLC);
         FindAndUpdateVendorBankAccount(VendorBankAccount);
 
@@ -287,8 +310,6 @@ codeunit 142083 "ERM Electronic Funds Transfer"
         ExportPaymentJournalAndVerifyXML(
           VendorBankAccount."Vendor No.", GenJournalLine."Document Type"::Payment,
           GenJournalLine."Bal. Account Type"::Vendor, VendorBankAccount.Code);
-        if UnbindSubscription(ERMElectronicFundsTransfer) then;
-        if UnbindSubscription(TestClientTypeSubscriber) then;
     end;
 
     [Test]
@@ -298,12 +319,17 @@ codeunit 142083 "ERM Electronic Funds Transfer"
     var
         GenJournalLine: Record "Gen. Journal Line";
         VendorBankAccount: Record "Vendor Bank Account";
+        ERMElectronicFundsTransfer: Codeunit "ERM Electronic Funds Transfer";
+        TestClientTypeSubscriber: Codeunit "Test Client Type Subscriber";
         Amount: Decimal;
     begin
         // [GIVEN] Create a Electronic Payment Journal
-        if BindSubscription(TestClientTypeSubscriber) then;
-        if BindSubscription(ERMElectronicFundsTransfer) then;
-        Initialize;
+        Initialize();
+
+        TestClientTypeSubscriber.SetClientType(CLIENTTYPE::Web);
+        BindSubscription(TestClientTypeSubscriber);
+        BindSubscription(ERMElectronicFundsTransfer);
+
         CreateExportReportSelection(Layout::Word);
         FindAndUpdateVendorBankAccount(VendorBankAccount);
 
@@ -313,8 +339,6 @@ codeunit 142083 "ERM Electronic Funds Transfer"
         CreateAndExportPaymentJournal(
           GenJournalLine."Document Type"::Payment, GenJournalLine."Bal. Account Type"::Vendor, VendorBankAccount."Vendor No.", Amount,
           CopyStr(LibraryUtility.GenerateGUID, 1, 3), LibraryUtility.GenerateGUID, false, VendorBankAccount.Code);
-        if UnbindSubscription(ERMElectronicFundsTransfer) then;
-        if UnbindSubscription(TestClientTypeSubscriber) then;
     end;
 
     [Test]
@@ -324,30 +348,33 @@ codeunit 142083 "ERM Electronic Funds Transfer"
     var
         GenJournalLine: Record "Gen. Journal Line";
         EFTExport: Record "EFT Export";
+        ERMElectronicFundsTransfer: Codeunit "ERM Electronic Funds Transfer";
+        TestClientTypeSubscriber: Codeunit "Test Client Type Subscriber";
         PaymentJournal: TestPage "Payment Journal";
     begin
         // Verify the EFT Export record gets created
-        if BindSubscription(TestClientTypeSubscriber) then;
-        if BindSubscription(ERMElectronicFundsTransfer) then;
         // [GIVEN] Create Electonic Payment Journal
-        Initialize;
+        Initialize();
+
+        TestClientTypeSubscriber.SetClientType(CLIENTTYPE::Web);
+        BindSubscription(TestClientTypeSubscriber);
+        BindSubscription(ERMElectronicFundsTransfer);
+
         CreateTestElectronicPaymentJournalWordLayout(GenJournalLine);
 
         // [WHEN] Export Payment Journal
-        PaymentJournal.OpenEdit;
+        PaymentJournal.OpenEdit();
         ExportPaymentJournal(PaymentJournal, GenJournalLine);
-        PaymentJournal.Close;
-        Commit;
+        PaymentJournal.Close();
+        Commit();
 
         // [THEN] Verify Data is created in the EFT Export Table
         EFTExport.SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
         EFTExport.SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
         EFTExport.SetRange("Line No.", GenJournalLine."Line No.");
-        EFTExport.FindFirst;
+        EFTExport.FindFirst();
         EFTExport.TestField("Check Exported", true);
         EFTExport.TestField("Check Printed", true);
-        if UnbindSubscription(ERMElectronicFundsTransfer) then;
-        if UnbindSubscription(TestClientTypeSubscriber) then;
     end;
 
     [Test]
@@ -357,29 +384,31 @@ codeunit 142083 "ERM Electronic Funds Transfer"
     var
         GenJournalLine: Record "Gen. Journal Line";
         EFTExport: Record "EFT Export";
+        ERMElectronicFundsTransfer: Codeunit "ERM Electronic Funds Transfer";
+        TestClientTypeSubscriber: Codeunit "Test Client Type Subscriber";
         PaymentJournal: TestPage "Payment Journal";
     begin
         // Verify the EFT Export record gets created
-        if BindSubscription(TestClientTypeSubscriber) then;
-        if BindSubscription(ERMElectronicFundsTransfer) then;
-
         // [GIVEN] Create 2 Electonic Payment Journals
-        Initialize;
+        Initialize();
+
+        TestClientTypeSubscriber.SetClientType(CLIENTTYPE::Web);
+        BindSubscription(TestClientTypeSubscriber);
+        BindSubscription(ERMElectronicFundsTransfer);
+
         CreateExportReportSelection(Layout::Word);
         CreateElectronicMultiplePaymentJournals(GenJournalLine);
 
         // [WHEN] Export Payment Journals
-        PaymentJournal.OpenEdit;
+        PaymentJournal.OpenEdit();
         ExportPaymentJournal(PaymentJournal, GenJournalLine);
-        PaymentJournal.Close;
+        PaymentJournal.Close();
 
         // [THEN] Verify 2 records are in the EFT Export Table
         EFTExport.SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
         EFTExport.SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
 
         Assert.AreEqual(EFTExport.Count, 2, NoOfRecordsErr);
-        if UnbindSubscription(ERMElectronicFundsTransfer) then;
-        if UnbindSubscription(TestClientTypeSubscriber) then;
     end;
 
     [Test]
@@ -388,23 +417,28 @@ codeunit 142083 "ERM Electronic Funds Transfer"
     procedure ExportTwoPaymentJournalOpenUpGenerateEFT()
     var
         GenJournalLine: Record "Gen. Journal Line";
+        ERMElectronicFundsTransfer: Codeunit "ERM Electronic Funds Transfer";
+        TestClientTypeSubscriber: Codeunit "Test Client Type Subscriber";
         PaymentJournal: TestPage "Payment Journal";
         GenerateEFTFiles: TestPage "Generate EFT Files";
         "Count": Integer;
     begin
         // [GIVEN] Create 2 Electonic Payment Journals
-        if BindSubscription(TestClientTypeSubscriber) then;
-        if BindSubscription(ERMElectronicFundsTransfer) then;
-        Initialize;
+        Initialize();
+
+        TestClientTypeSubscriber.SetClientType(CLIENTTYPE::Web);
+        BindSubscription(TestClientTypeSubscriber);
+        BindSubscription(ERMElectronicFundsTransfer);
+
         CreateExportReportSelection(Layout::Word);
         CreateElectronicMultiplePaymentJournals(GenJournalLine);
 
         // [WHEN] Export Payment Journals and open up the Generate EFT page
-        PaymentJournal.OpenEdit;
+        PaymentJournal.OpenEdit();
         ExportPaymentJournal(PaymentJournal, GenJournalLine);
         GenerateEFTFiles.Trap;
         PaymentJournal.GenerateEFT.Invoke;
-        PaymentJournal.Close;
+        PaymentJournal.Close();
 
         // [THEN] Iterate through each line in the repeater to make sure there is 2 records
         if GenerateEFTFiles.GenerateEFTFileLines.First then
@@ -413,8 +447,6 @@ codeunit 142083 "ERM Electronic Funds Transfer"
             until not GenerateEFTFiles.GenerateEFTFileLines.Next;
 
         Assert.AreEqual(Count, 2, NoOfRecordsErr);
-        if UnbindSubscription(ERMElectronicFundsTransfer) then;
-        if UnbindSubscription(TestClientTypeSubscriber) then;
     end;
 
     [Test]
@@ -425,6 +457,8 @@ codeunit 142083 "ERM Electronic Funds Transfer"
         GenJournalLine: Record "Gen. Journal Line";
         BankAccount: Record "Bank Account";
         CheckLedgerEntry: Record "Check Ledger Entry";
+        ERMElectronicFundsTransfer: Codeunit "ERM Electronic Funds Transfer";
+        TestClientTypeSubscriber: Codeunit "Test Client Type Subscriber";
         PaymentJournal: TestPage "Payment Journal";
         GenerateEFTFiles: TestPage "Generate EFT Files";
         "Count": Integer;
@@ -434,13 +468,16 @@ codeunit 142083 "ERM Electronic Funds Transfer"
         // 286778: Entry Status is "Posted"
 
         // [GIVEN] Create and Export Electronic Payment Journal.
-        if BindSubscription(TestClientTypeSubscriber) then;
-        if BindSubscription(ERMElectronicFundsTransfer) then;
-        Initialize;
+        Initialize();
+
+        TestClientTypeSubscriber.SetClientType(CLIENTTYPE::Web);
+        BindSubscription(TestClientTypeSubscriber);
+        BindSubscription(ERMElectronicFundsTransfer);
+
         CreateExportReportSelection(Layout::RDLC);
         CreateElectronicPaymentJournal(GenJournalLine);
 
-        PaymentJournal.OpenEdit;
+        PaymentJournal.OpenEdit();
         ExportPaymentJournal(PaymentJournal, GenJournalLine);
 
         // [WHEN] Post the General Journal Line and open up the Generate EFT Files Page
@@ -448,7 +485,7 @@ codeunit 142083 "ERM Electronic Funds Transfer"
 
         GenerateEFTFiles.Trap;
         PaymentJournal.GenerateEFT.Invoke;
-        PaymentJournal.Close;
+        PaymentJournal.Close();
 
         // [THEN] Iterate through each line in the repeater to make sure there is 1 record
         if GenerateEFTFiles.GenerateEFTFileLines.First then
@@ -462,8 +499,6 @@ codeunit 142083 "ERM Electronic Funds Transfer"
         BankAccount.Get(GenJournalLine."Bal. Account No.");
         VerifyCheckLedgEntryCount(
           GenJournalLine."Posting Date", BankAccount."Last Remittance Advice No.", CheckLedgerEntry."Entry Status"::Posted, 1);
-        if UnbindSubscription(ERMElectronicFundsTransfer) then;
-        if UnbindSubscription(TestClientTypeSubscriber) then;
     end;
 
     [Test]
@@ -473,16 +508,21 @@ codeunit 142083 "ERM Electronic Funds Transfer"
     var
         GenJournalLine: Record "Gen. Journal Line";
         GenJournalLine2: Record "Gen. Journal Line";
+        ERMElectronicFundsTransfer: Codeunit "ERM Electronic Funds Transfer";
+        TestClientTypeSubscriber: Codeunit "Test Client Type Subscriber";
         PaymentJournal: TestPage "Payment Journal";
     begin
         // [GIVEN] Create Payment Journal.
-        if BindSubscription(TestClientTypeSubscriber) then;
-        if BindSubscription(ERMElectronicFundsTransfer) then;
-        Initialize;
+        Initialize();
+
+        TestClientTypeSubscriber.SetClientType(CLIENTTYPE::Web);
+        BindSubscription(TestClientTypeSubscriber);
+        BindSubscription(ERMElectronicFundsTransfer);
+
         CreateTestElectronicPaymentJournalWordLayout(GenJournalLine);
 
         // [WHEN] Export Electronic payment
-        PaymentJournal.OpenEdit;
+        PaymentJournal.OpenEdit();
         ExportPaymentJournal(PaymentJournal, GenJournalLine);
 
         GenJournalLine.TestField("Check Transmitted", false);
@@ -490,17 +530,14 @@ codeunit 142083 "ERM Electronic Funds Transfer"
         GenJournalLine2.SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
         GenJournalLine2.SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
         GenJournalLine2.SetRange("Line No.", GenJournalLine."Line No.");
-        GenJournalLine2.FindFirst;
+        GenJournalLine2.FindFirst();
 
         // [WHEN] Post the payment journal line
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
-        // COMMIT;
 
         // [THEN] Verify GL ENTRY is created
         VerifyGLEntry(
           GenJournalLine2."Document Type", GenJournalLine2."Document No.", GenJournalLine2."Bal. Account No.", Abs(GenJournalLine2.Amount));
-        if UnbindSubscription(ERMElectronicFundsTransfer) then;
-        if UnbindSubscription(TestClientTypeSubscriber) then;
     end;
 
     [Test]
@@ -510,16 +547,19 @@ codeunit 142083 "ERM Electronic Funds Transfer"
     var
         GenJournalLine: Record "Gen. Journal Line";
         EFTExport: Record "EFT Export";
+        ERMElectronicFundsTransfer: Codeunit "ERM Electronic Funds Transfer";
+        TestClientTypeSubscriber: Codeunit "Test Client Type Subscriber";
         PaymentJournal: TestPage "Payment Journal";
         GenerateEFTFiles: TestPage "Generate EFT Files";
         "Count": Integer;
     begin
         // Verify the EFT Export record gets created
-        if BindSubscription(TestClientTypeSubscriber) then;
-        if BindSubscription(ERMElectronicFundsTransfer) then;
-
         // [GIVEN] Create Electonic Payment Journal
-        Initialize;
+        Initialize();
+
+        TestClientTypeSubscriber.SetClientType(CLIENTTYPE::Web);
+        BindSubscription(TestClientTypeSubscriber);
+        BindSubscription(ERMElectronicFundsTransfer);
 
         // [WHEN] Export Payment Journal
         PrepareEFTExportScenario(GenJournalLine, PaymentJournal);
@@ -527,7 +567,7 @@ codeunit 142083 "ERM Electronic Funds Transfer"
         // [THEN] Verify Data is created in the EFT Export Table
         GenerateEFTFiles.Trap;
         PaymentJournal.GenerateEFT.Invoke;
-        PaymentJournal.Close;
+        PaymentJournal.Close();
 
         // [THEN] Verify Data is deleted
         if GenerateEFTFiles.GenerateEFTFileLines.First then
@@ -540,11 +580,9 @@ codeunit 142083 "ERM Electronic Funds Transfer"
         GenerateEFTFiles.Delete.Invoke;
 
         EFTExport.SetRange("Bank Account No.", GenJournalLine."Bal. Account No.");
-        Count := EFTExport.Count;
+        Count := EFTExport.Count();
 
         Assert.RecordIsEmpty(EFTExport);
-        if UnbindSubscription(ERMElectronicFundsTransfer) then;
-        if UnbindSubscription(TestClientTypeSubscriber) then;
     end;
 
     [Test]
@@ -552,25 +590,27 @@ codeunit 142083 "ERM Electronic Funds Transfer"
     procedure ExportPaymentJournalVerifyVendorErrorNoUseForElectronicPaymentsEFTExport()
     var
         GenJournalLine: Record "Gen. Journal Line";
+        ERMElectronicFundsTransfer: Codeunit "ERM Electronic Funds Transfer";
+        TestClientTypeSubscriber: Codeunit "Test Client Type Subscriber";
         PaymentJournal: TestPage "Payment Journal";
     begin
         // Verify the EFT Export record gets created
-        if BindSubscription(TestClientTypeSubscriber) then;
-        if BindSubscription(ERMElectronicFundsTransfer) then;
-
         // [GIVEN] Create Electonic Payment Journal
-        Initialize;
+        Initialize();
+
+        TestClientTypeSubscriber.SetClientType(CLIENTTYPE::Web);
+        BindSubscription(TestClientTypeSubscriber);
+        BindSubscription(ERMElectronicFundsTransfer);
+
         CreateExportReportSelection(Layout::Word);
         CreateElectronicPaymentJournalNoUseForElecPayment(GenJournalLine);
 
         // [WHEN] Export Payment Journal
-        PaymentJournal.OpenEdit;
+        PaymentJournal.OpenEdit();
         asserterror ExportPaymentJournal(PaymentJournal, GenJournalLine);
 
         // [THEN] Verify that we get an message error because Vendor Bank account doesn't have Use For Electronic Payments set.
         Assert.ExpectedError(HasErrorsErr);
-        if UnbindSubscription(ERMElectronicFundsTransfer) then;
-        if UnbindSubscription(TestClientTypeSubscriber) then;
     end;
 
     [Test]
@@ -578,15 +618,20 @@ codeunit 142083 "ERM Electronic Funds Transfer"
     procedure ExportPaymentJournalVerifyCustomerErrorNoUseForElectronicPaymentsEFTExport()
     var
         GenJournalLine: Record "Gen. Journal Line";
+        ERMElectronicFundsTransfer: Codeunit "ERM Electronic Funds Transfer";
+        TestClientTypeSubscriber: Codeunit "Test Client Type Subscriber";
         PaymentJournal: TestPage "Payment Journal";
         Amount: Decimal;
         AccountNo: Code[20];
         CustomerBankAccountCode: Code[20];
     begin
         // [GIVEN] Create a Electronic Payment Journal
-        if BindSubscription(TestClientTypeSubscriber) then;
-        if BindSubscription(ERMElectronicFundsTransfer) then;
-        Initialize;
+        Initialize();
+
+        TestClientTypeSubscriber.SetClientType(CLIENTTYPE::Web);
+        BindSubscription(TestClientTypeSubscriber);
+        BindSubscription(ERMElectronicFundsTransfer);
+
         CreateExportReportSelection(Layout::Word);
 
         // [WHEN] Export Payment Journal
@@ -603,16 +648,14 @@ codeunit 142083 "ERM Electronic Funds Transfer"
         GenJournalLine.Validate("Transaction Code", CopyStr(LibraryUtility.GenerateGUID, 1, 3));
         GenJournalLine.Validate("Company Entry Description", LibraryUtility.GenerateGUID);
         GenJournalLine.Modify(true);
-        Commit;
+        Commit();
         LibraryVariableStorage.Enqueue(GenJournalLine."Account No.");  // Enqueue for ExportElectronicPaymentsRequestPageHandler.
-        PaymentJournal.OpenEdit;
+        PaymentJournal.OpenEdit();
 
         asserterror ExportPaymentJournal(PaymentJournal, GenJournalLine);
 
         // [THEN] Verify that we get an message error because Customer Bank account doesn't have Use For Electronic Payments set.
         Assert.ExpectedError(HasErrorsErr);
-        if UnbindSubscription(ERMElectronicFundsTransfer) then;
-        if UnbindSubscription(TestClientTypeSubscriber) then;
     end;
 
     [Test]
@@ -625,6 +668,8 @@ codeunit 142083 "ERM Electronic Funds Transfer"
         TempEFTExportWorkset: Record "EFT Export Workset" temporary;
         BankAccount: Record "Bank Account";
         CheckLedgerEntry: Record "Check Ledger Entry";
+        ERMElectronicFundsTransfer: Codeunit "ERM Electronic Funds Transfer";
+        TestClientTypeSubscriber: Codeunit "Test Client Type Subscriber";
         GenerateEFT: Codeunit "Generate EFT";
         EFTValues: Codeunit "EFT Values";
         FileManagement: Codeunit "File Management";
@@ -634,9 +679,11 @@ codeunit 142083 "ERM Electronic Funds Transfer"
     begin
         // [SCENARIO 263518] Stan can export Generated EFT File via windows client
         // [SCENARIO 292459,297292] No extra check ledger entries are created
-        if BindSubscription(TestClientTypeSubscriber) then;
-        if BindSubscription(ERMElectronicFundsTransfer) then;
-        Initialize;
+        Initialize();
+
+        TestClientTypeSubscriber.SetClientType(CLIENTTYPE::Web);
+        BindSubscription(TestClientTypeSubscriber);
+        BindSubscription(ERMElectronicFundsTransfer);
 
         // [GIVEN] EFT export worksheet ready for export
         PrepareEFTExportScenario(GenJournalLine, PaymentJournal);
@@ -644,7 +691,7 @@ codeunit 142083 "ERM Electronic Funds Transfer"
         EFTExport.Description := CopyStr(EFTExport.Description, 1, MaxStrLen(TempEFTExportWorkset.Description));
         TempEFTExportWorkset.TransferFields(EFTExport);
         TempEFTExportWorkset.Include := true;
-        TempEFTExportWorkset.Insert;
+        TempEFTExportWorkset.Insert();
 
         // [WHEN] Stan call Generate EFT and selects folder "C:\EFT Generation" on a local machine
         PathToExport := FileManagement.ServerCreateTempSubDirectory;
@@ -658,9 +705,6 @@ codeunit 142083 "ERM Electronic Funds Transfer"
         // [THEN] No extra check ledger entries have been created
         BankAccount.Get(GenJournalLine."Bal. Account No.");
         VerifyCheckLedgEntryCount(0D, BankAccount."Last Remittance Advice No.", CheckLedgerEntry."Entry Status"::Exported, 0);
-
-        if UnbindSubscription(ERMElectronicFundsTransfer) then;
-        if UnbindSubscription(TestClientTypeSubscriber) then;
     end;
 
     [Test]
@@ -668,12 +712,16 @@ codeunit 142083 "ERM Electronic Funds Transfer"
     procedure ErrorOnDifferentCurrenciesAfterExportPaymentJournal()
     var
         GenJournalLine: Record "Gen. Journal Line";
+        ERMElectronicFundsTransfer: Codeunit "ERM Electronic Funds Transfer";
+        TestClientTypeSubscriber: Codeunit "Test Client Type Subscriber";
         PaymentJournal: TestPage "Payment Journal";
     begin
         // [SCENARIO 262728] Verify Error after Export Electronic Payment Journal when Journal Line Currency Code <> Bank Account Currency Code.
-        if BindSubscription(TestClientTypeSubscriber) then;
-        if BindSubscription(ERMElectronicFundsTransfer) then;
-        Initialize;
+        Initialize();
+
+        TestClientTypeSubscriber.SetClientType(CLIENTTYPE::Web);
+        BindSubscription(TestClientTypeSubscriber);
+        BindSubscription(ERMElectronicFundsTransfer);
 
         // [GIVEN] Create Electonic Payment Journal and Bank Account with empty Currency Code.
         CreateTestElectronicPaymentJournalWordLayout(GenJournalLine);
@@ -683,18 +731,16 @@ codeunit 142083 "ERM Electronic Funds Transfer"
         GenJournalLine.Modify(true);
 
         // [WHEN] Try to Export Payment Journal.
-        PaymentJournal.OpenEdit;
+        PaymentJournal.OpenEdit();
         asserterror ExportPaymentJournal(PaymentJournal, GenJournalLine);
 
         // [THEN] Payment Journal was not exported and a message of Errors existence occurs.
         Assert.ExpectedError(HasErrorsErr);
-        GenJournalLine.Find;
+        GenJournalLine.Find();
         GenJournalLine.TestField("Exported to Payment File", false);
 
         // [THEN] Payment Journal Export Error contains a Currency Error.
         VerifyPaymentFileError(GenJournalLine, NoExportDiffCurrencyErr);
-        if UnbindSubscription(ERMElectronicFundsTransfer) then;
-        if UnbindSubscription(TestClientTypeSubscriber) then;
     end;
 
     [Test]
@@ -706,6 +752,8 @@ codeunit 142083 "ERM Electronic Funds Transfer"
         EFTExportWorkset: Record "EFT Export Workset";
         EFTExport: Record "EFT Export";
         TempNameValueBuffer: Record "Name/Value Buffer" temporary;
+        ERMElectronicFundsTransfer: Codeunit "ERM Electronic Funds Transfer";
+        TestClientTypeSubscriber: Codeunit "Test Client Type Subscriber";
         ExpLauncherEFT: Codeunit "Exp. Launcher EFT";
         EFTValues: Codeunit "EFT Values";
         DataCompression: Codeunit "Data Compression";
@@ -715,18 +763,21 @@ codeunit 142083 "ERM Electronic Funds Transfer"
         "Count": Integer;
     begin
         // [GIVEN] Create 1 Electonic Payment Journal
-        if BindSubscription(TestClientTypeSubscriber) then;
-        if BindSubscription(ERMElectronicFundsTransfer) then;
-        Initialize;
+        Initialize();
+
+        TestClientTypeSubscriber.SetClientType(CLIENTTYPE::Web);
+        BindSubscription(TestClientTypeSubscriber);
+        BindSubscription(ERMElectronicFundsTransfer);
+
         CreateExportReportSelection(Layout::Word);
         CreateElectronicPaymentJournal(GenJournalLine);
 
         // [WHEN] Export Payment Journals and open up the Generate EFT page
-        PaymentJournal.OpenEdit;
+        PaymentJournal.OpenEdit();
         ExportPaymentJournal(PaymentJournal, GenJournalLine);
         GenerateEFTFiles.Trap;
         PaymentJournal.GenerateEFT.Invoke;
-        PaymentJournal.Close;
+        PaymentJournal.Close();
 
         // [THEN] Iterate through each line in the repeater to make sure there is 1 record
         if GenerateEFTFiles.GenerateEFTFileLines.First then
@@ -736,23 +787,21 @@ codeunit 142083 "ERM Electronic Funds Transfer"
 
         Assert.AreEqual(1, Count, NoOfRecordsErr);
 
-        EFTExportWorkset.DeleteAll;
+        EFTExportWorkset.DeleteAll();
         EFTExport.SetRange("Bank Account No.", GenJournalLine."Bal. Account No.");
-        EFTExport.FindFirst;
+        EFTExport.FindFirst();
         EFTExport.Description := CopyStr(EFTExport.Description, 1, MaxStrLen(EFTExportWorkset.Description));
         EFTExportWorkset.TransferFields(EFTExport);
         EFTExportWorkset.Include := true;
         EFTExportWorkset.UserSettleDate := WorkDate;
         EFTExportWorkset.ProcessOrder := 1;
-        EFTExportWorkset.Insert;
+        EFTExportWorkset.Insert();
 
         EFTValues.SetNoOfRec := 0;
         ExpLauncherEFT.SetTestMode;
         // [THEN] Start EFT Process and verify the file will have 10 lines.
         ExpLauncherEFT.EFTPaymentProcess(EFTExportWorkset, TempNameValueBuffer, DataCompression, ZipFileName, EFTValues);
         Assert.AreEqual(10, EFTValues.GetNoOfRec, 'Wrong number of Records');
-        if UnbindSubscription(ERMElectronicFundsTransfer) then;
-        if UnbindSubscription(TestClientTypeSubscriber) then;
     end;
 
     [Test]
@@ -765,14 +814,19 @@ codeunit 142083 "ERM Electronic Funds Transfer"
         BankAccount: Record "Bank Account";
         EFTExport: Record "EFT Export";
         TempEFTExportWorkset: Record "EFT Export Workset" temporary;
+        ERMElectronicFundsTransfer: Codeunit "ERM Electronic Funds Transfer";
+        TestClientTypeSubscriber: Codeunit "Test Client Type Subscriber";
         GenerateEFT: Codeunit "Generate EFT";
         EFTValues: Codeunit "EFT Values";
     begin
         // [FEATURE] [Generate EFT File]
         // [SCENARIO 310585] When an error occurs during processing of exported lines in CA format, none of the lines must be marked as transmitted.
-        if BindSubscription(TestClientTypeSubscriber) then;
-        if BindSubscription(ERMElectronicFundsTransfer) then;
-        Initialize;
+        Initialize();
+
+        TestClientTypeSubscriber.SetClientType(CLIENTTYPE::Web);
+        BindSubscription(TestClientTypeSubscriber);
+        BindSubscription(ERMElectronicFundsTransfer);
+
         CreateExportReportSelection(Layout::RDLC);
 
         // [GIVEN] Create two vendors - "CA" and "UNDEF", the first one has Country Code = "CA", the country code on another vendor is blank.
@@ -795,7 +849,7 @@ codeunit 142083 "ERM Electronic Funds Transfer"
         CreateAndExportVendorPayments(TempEFTExportWorkset, VendorBankAccount, BankAccount."No.");
 
         // [WHEN] Generate EFT file.
-        Commit;
+        Commit();
         GenerateEFT.SetSavePath(TemporaryPath);
         TestClientTypeSubscriber.SetClientType(CLIENTTYPE::Windows);
         asserterror GenerateEFT.ProcessAndGenerateEFTFile(BankAccount."No.", WorkDate, TempEFTExportWorkset, EFTValues);
@@ -809,17 +863,158 @@ codeunit 142083 "ERM Electronic Funds Transfer"
         EFTExport.SetRange(Transmitted, false);
         Assert.RecordCount(EFTExport, ArrayLen(Vendor));
 
-        LibraryVariableStorage.AssertEmpty;
-        if UnbindSubscription(ERMElectronicFundsTransfer) then;
-        if UnbindSubscription(TestClientTypeSubscriber) then;
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('ExportElectronicPaymentsRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure GeneratingEFTFileInCAFormatCustomDateFormat()
+    var
+        Vendor: Record Vendor;
+        VendorBankAccount: Record "Vendor Bank Account";
+        BankAccount: Record "Bank Account";
+        EFTExport: Record "EFT Export";
+        TempEFTExportWorkset: Record "EFT Export Workset" temporary;
+        DataExchDef: Record "Data Exch. Def";
+        BankExportImportSetup: Record "Bank Export/Import Setup";
+        TempACHRBHeader: Record "ACH RB Header" temporary;
+        TempACHRBDetail: Record "ACH RB Detail" temporary;
+        ERMElectronicFundsTransfer: Codeunit "ERM Electronic Funds Transfer";
+        TestClientTypeSubscriber: Codeunit "Test Client Type Subscriber";
+        GenerateEFT: Codeunit "Generate EFT";
+        EFTValues: Codeunit "EFT Values";
+        FileManagement: Codeunit "File Management";
+        DateFormat: Text[100];
+        DateFormatLength: Integer;
+        ExpectedDateInt: Integer;
+        EFTFilePath: Text;
+    begin
+        // [FEATURE] [Generate EFT File] [Date Format] [Data Exchange Definition]
+        // [SCENARIO 338287] Stan can export payment with export type "CA" to EFT file with custom "Date Format" specified in "Data Exchange Definition"
+        Initialize();
+
+        TestClientTypeSubscriber.SetClientType(CLIENTTYPE::Web);
+        BindSubscription(TestClientTypeSubscriber);
+        BindSubscription(ERMElectronicFundsTransfer);
+
+        CreateExportReportSelection(Layout::RDLC);
+
+        // [GIVEN] Vendor and Bank Accoutn with Country Code = "CA" and setup for EFT export "CA"
+        CreateVendorWithVendorBankAccount(Vendor, VendorBankAccount, 'CA');
+        DuplicateDataExchangeDefinition(DataExchDef, BankExportImportSetup, 'CA EFT DEFAULT');
+        DateFormat := '<Day,2><Month,2><Year,2>';
+        DateFormatLength := 6;
+
+        // [GIVEN] "Data Format" = <Day,2><Month,2><Year,2> for "File Created Date" in header and "Payment Date" in detail lines
+        UpdateDateFormatsOnCAEFTDataExchDef(DataExchDef, DateFormat, DateFormatLength);
+
+        // [GIVEN] Bank Account set up for "CA" EFT export format.
+        CreateBankAccount(BankAccount, VendorBankAccount."Transit No.", BankAccount."Export Format"::CA);
+        BankAccount.Validate("Payment Export Format", BankExportImportSetup.Code);
+        BankAccount.Validate("EFT Export Code", BankExportImportSetup.Code);
+        BankAccount.Validate("Client No.", LibraryUtility.GenerateGUID);
+        BankAccount.Validate("Client Name", LibraryUtility.GenerateGUID);
+        BankAccount.Modify(true);
+
+        // [GIVEN] Post an invoice for each vendor.
+        // [GIVEN] Generate payment journal line for each invoice, populate an appropriate Vendor Bank Account.
+        // [GIVEN] Export the payment journal.
+        // [GIVEN] Mark the exported lines as "Include" so they can be processed to EFT file.
+        // [GIVEN] TODAY = 23/03/2019, WORKDATE = 20/03/2019
+        CreateAndExportVendorPayment(TempEFTExportWorkset, VendorBankAccount, BankAccount."No.");
+
+        // [WHEN] Generate EFT file.
+        Commit();
+        EFTFilePath := FileManagement.GetDirectoryName(FileManagement.ServerTempFileName(''));
+        GenerateEFT.SetSavePath(EFTFilePath);
+        GenerateEFT.ProcessAndGenerateEFTFile(BankAccount."No.", WorkDate, TempEFTExportWorkset, EFTValues);
+
+        // [THEN] Exported lines are marked as Transmitted
+        EFTExport.SetRange("Journal Template Name", TempEFTExportWorkset."Journal Template Name");
+        EFTExport.SetRange("Journal Batch Name", TempEFTExportWorkset."Journal Batch Name");
+        EFTExport.SetRange(Transmitted, true);
+        Assert.RecordCount(EFTExport, 1);
+
+        // [THEN] ACHRBHeader."File Created Date" = 230319
+        ERMElectronicFundsTransfer.GetTempACHRBHeader(TempACHRBHeader);
+        ERMElectronicFundsTransfer.GetTempACHRBDetail(TempACHRBDetail);
+        Evaluate(ExpectedDateInt, Format(Today, DateFormatLength, DateFormat));
+        TempACHRBHeader.FindLast();
+        TempACHRBHeader.TestField("File Creation Date", ExpectedDateInt);
+
+        // [THEN] ACHRBDetail."Payment Date" = 200319
+        Evaluate(ExpectedDateInt, Format(WorkDate, DateFormatLength, DateFormat));
+        TempACHRBDetail.FindFirst();
+        TempACHRBDetail.TestField("Payment Date", ExpectedDateInt);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('ExportElectronicPaymentsRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure ExportPaymentJournalGenerateEFT_ACH_EntrySequenceNo()
+    var
+        Vendor: Record Vendor;
+        VendorBankAccount: array[2] of Record "Vendor Bank Account";
+        BankAccount: Record "Bank Account";
+        EFTExport: Record "EFT Export";
+        TempEFTExportWorkset: Record "EFT Export Workset" temporary;
+        DataExchDef: Record "Data Exch. Def";
+        BankExportImportSetup: Record "Bank Export/Import Setup";
+        ERMElectronicFundsTransfer: Codeunit "ERM Electronic Funds Transfer";
+        TestClientTypeSubscriber: Codeunit "Test Client Type Subscriber";
+        GenerateEFT: Codeunit "Generate EFT";
+        EFTValues: Codeunit "EFT Values";
+        FileManagement: Codeunit "File Management";
+        EFTFilePath: Text;
+    begin
+        // [FEATURE] [Generate EFT File] [ACH] [Data Exchange Definition]
+        // [SCENARIO 336577] Cassie can export payment journal as EFT with "Entry Detail Sequence No" field in Data Exchange Definition mapping.
+        Initialize();
+
+        TestClientTypeSubscriber.SetClientType(CLIENTTYPE::Web);
+        BindSubscription(TestClientTypeSubscriber);
+        BindSubscription(ERMElectronicFundsTransfer);
+
+        CreateExportReportSelection(Layout::RDLC);
+
+        CreateVendorWithVendorBankAccount(Vendor, VendorBankAccount[1], 'US');
+        CreateVendorWithVendorBankAccount(Vendor, VendorBankAccount[2], 'US');
+
+        DuplicateDataExchangeDefinition(DataExchDef, BankExportImportSetup, 'US EFT DEFAULT');
+        InsertEntryDetailSequenceNo(DataExchDef);
+
+        CreateBankAccount(BankAccount, VendorBankAccount[1]."Transit No.", BankAccount."Export Format"::US);
+        BankAccount.Validate("Payment Export Format", BankExportImportSetup.Code);
+        BankAccount.Validate("EFT Export Code", BankExportImportSetup.Code);
+        BankAccount.Validate("Client No.", LibraryUtility.GenerateGUID);
+        BankAccount.Validate("Client Name", LibraryUtility.GenerateGUID);
+        BankAccount.Modify(true);
+
+        CreateAndExportVendorPayments(TempEFTExportWorkset, VendorBankAccount, BankAccount."No.");
+
+        // [WHEN] Generate EFT file.
+        Commit();
+        EFTFilePath := FileManagement.GetDirectoryName(FileManagement.ServerTempFileName(''));
+        GenerateEFT.SetSavePath(EFTFilePath);
+        GenerateEFT.ProcessAndGenerateEFTFile(BankAccount."No.", WorkDate, TempEFTExportWorkset, EFTValues);
+
+        // [THEN] All exported lines are marked as Transmitted
+        EFTExport.SetRange("Journal Template Name", TempEFTExportWorkset."Journal Template Name");
+        EFTExport.SetRange("Journal Batch Name", TempEFTExportWorkset."Journal Batch Name");
+        EFTExport.SetRange(Transmitted, true);
+        Assert.RecordCount(EFTExport, 2);
+
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     local procedure Initialize()
     begin
-        LibraryERMCountryData.CreateVATData;
-        LibraryVariableStorage.Clear;
+        LibraryERMCountryData.CreateVATData();
+        LibraryVariableStorage.Clear();
         ModifyFederalIdCompanyInformation(LibraryUtility.GenerateGUID);
-        TestClientTypeSubscriber.SetClientType(CLIENTTYPE::Web);
     end;
 
     local procedure CreateAndExportPaymentJournal(DocumentType: Option; BalAccountType: Option; AccountNo: Code[20]; Amount: Decimal; TransactionCode: Code[3]; CompanyEntryDescription: Code[10]; ReportDirectRun: Boolean; CustomerBankAccountCode: Code[20])
@@ -834,11 +1029,11 @@ codeunit 142083 "ERM Electronic Funds Transfer"
         GenJournalLine.Validate("Transaction Code", TransactionCode);
         GenJournalLine.Validate("Company Entry Description", CompanyEntryDescription);
         GenJournalLine.Modify(true);
-        Commit;
+        Commit();
         LibraryVariableStorage.Enqueue(GenJournalLine."Account No.");  // Enqueue for ExportElectronicPaymentsRequestPageHandler.
         LibraryVariableStorage.Enqueue(GenJournalLine."Journal Template Name");
         LibraryVariableStorage.Enqueue(GenJournalLine."Journal Batch Name");
-        PaymentJournal.OpenEdit;
+        PaymentJournal.OpenEdit();
         if ReportDirectRun then
             asserterror ExportPaymentJournalDirect(PaymentJournal, GenJournalLine)
         else
@@ -866,8 +1061,8 @@ codeunit 142083 "ERM Electronic Funds Transfer"
     begin
         // Need to create Customer Bank Account. Insertion is specific to test and required only once.
         LibrarySales.CreateCustomer(Customer);
-        CustomerBankAccount2.FindFirst;
-        CustomerBankAccount.Init;
+        CustomerBankAccount2.FindFirst();
+        CustomerBankAccount.Init();
         CustomerBankAccount.Validate("Customer No.", Customer."No.");
         CustomerBankAccount.Validate(
           Code,
@@ -913,8 +1108,8 @@ codeunit 142083 "ERM Electronic Funds Transfer"
         CreateBankAccWithBankStatementSetup(BankAccount, 'US EFT DEFAULT');
         CreatePaymentJournalAfterPostPurchaseOrder(GenJournalLine, VendorBankAccount."Vendor No.", BankAccount."No.");
         GenJournalLine.Validate("Recipient Bank Account", VendorBankAccount.Code);
-        GenJournalLine.Modify;
-        Commit;
+        GenJournalLine.Modify();
+        Commit();
     end;
 
     local procedure CreateTestElectronicPaymentJournalWordLayout(var GenJournalLine: Record "Gen. Journal Line")
@@ -933,7 +1128,7 @@ codeunit 142083 "ERM Electronic Funds Transfer"
         CreateBankAccount(BankAccount, VendorBankAccount."Transit No.", BankAccount."Export Format"::US);
         CreateBankAccWithBankStatementSetup(BankAccount, 'US EFT DEFAULT');
         CreatePaymentJournalAfterPostPurchaseOrder(GenJournalLine, VendorBankAccount."Vendor No.", BankAccount."No.");
-        Commit;
+        Commit();
     end;
 
     local procedure CreateElectronicMultiplePaymentJournals(var GenJournalLine: Record "Gen. Journal Line")
@@ -946,7 +1141,7 @@ codeunit 142083 "ERM Electronic Funds Transfer"
         CreateBankAccWithBankStatementSetup(BankAccount, 'US EFT DEFAULT');
         CreateMultiplePaymentJournalsAfterPostPurchaseOrder(GenJournalLine, VendorBankAccount."Vendor No.",
           BankAccount."No.", VendorBankAccount.Code);
-        Commit;
+        Commit();
     end;
 
     local procedure CreateGeneralJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch"; BankAccountNo: Code[20])
@@ -959,7 +1154,7 @@ codeunit 142083 "ERM Electronic Funds Transfer"
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
         GenJournalBatch."Bal. Account Type" := GenJournalBatch."Bal. Account Type"::"Bank Account";
         GenJournalBatch."Bal. Account No." := BankAccountNo;
-        GenJournalBatch.Modify;
+        GenJournalBatch.Modify();
     end;
 
     local procedure CreatePaymentJournal(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Option; AccountType: Option; AccountNo: Code[20]; AppliesToDocType: Option; AppliesToDocNo: Code[20]; BalAccountType: Option; BalAccountNo: Code[20]; Amount: Decimal; CustomerBankAccountCode: Code[20])
@@ -1044,13 +1239,13 @@ codeunit 142083 "ERM Electronic Funds Transfer"
           GenJournalLine."Applies-to Doc. Type"::Invoice, DocumentNo, GenJournalLine."Bal. Account Type"::"Bank Account", BankAccountNo,
           PurchaseHeader.Amount);
         GenJournalLine.Validate("Recipient Bank Account", BankAccountCode);
-        GenJournalLine.Modify;
+        GenJournalLine.Modify();
         CreatePaymentGLLine(
           GenJournalLine, GenJournalBatch, GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Vendor, VendorNo,
           GenJournalLine."Applies-to Doc. Type"::Invoice, DocumentNo, GenJournalLine."Bal. Account Type"::"Bank Account", BankAccountNo,
           PurchaseHeader.Amount);
         GenJournalLine.Validate("Recipient Bank Account", BankAccountCode);
-        GenJournalLine.Modify;
+        GenJournalLine.Modify();
         LibraryVariableStorage.Enqueue(BankAccountNo);  // Enqueue for ExportElectronicPaymentsRequestPageHandler.
     end;
 
@@ -1083,9 +1278,9 @@ codeunit 142083 "ERM Electronic Funds Transfer"
         LibraryVariableStorage.Enqueue(BankAccountNo);
         LibraryVariableStorage.Enqueue(GenJournalLine."Journal Template Name");
         LibraryVariableStorage.Enqueue(GenJournalLine."Journal Batch Name");
-        PaymentJournal.OpenEdit;
+        PaymentJournal.OpenEdit();
         ExportPaymentJournal(PaymentJournal, GenJournalLine);
-        PaymentJournal.Close;
+        PaymentJournal.Close();
 
         EFTExport.SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
         EFTExport.SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
@@ -1095,8 +1290,49 @@ codeunit 142083 "ERM Electronic Funds Transfer"
             EFTExport.Description := CopyStr(EFTExport.Description, 1, MaxStrLen(TempEFTExportWorkset.Description));
             TempEFTExportWorkset.TransferFields(EFTExport);
             TempEFTExportWorkset.Include := true;
-            TempEFTExportWorkset.Insert;
+            TempEFTExportWorkset.Insert();
         until EFTExport.Next = 0;
+    end;
+
+    local procedure CreateAndExportVendorPayment(var TempEFTExportWorkset: Record "EFT Export Workset" temporary; VendorBankAccount: Record "Vendor Bank Account"; BankAccountNo: Code[20])
+    var
+        PurchaseHeader: Record "Purchase Header";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        EFTExport: Record "EFT Export";
+        PaymentJournal: TestPage "Payment Journal";
+        InvoiceNo: Code[20];
+    begin
+        CreateGeneralJournalBatch(GenJournalBatch, BankAccountNo);
+
+        CreatePurchaseOrder(PurchaseHeader, VendorBankAccount."Vendor No.");
+        PurchaseHeader.CalcFields(Amount);
+        InvoiceNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        CreatePaymentGLLine(
+          GenJournalLine, GenJournalBatch, GenJournalLine."Document Type"::Payment,
+          GenJournalLine."Account Type"::Vendor, VendorBankAccount."Vendor No.",
+          GenJournalLine."Applies-to Doc. Type"::Invoice, InvoiceNo,
+          GenJournalLine."Bal. Account Type"::"Bank Account", BankAccountNo,
+          PurchaseHeader.Amount);
+        GenJournalLine.Validate("Recipient Bank Account", VendorBankAccount.Code);
+        GenJournalLine.Modify(true);
+
+        LibraryVariableStorage.Enqueue(BankAccountNo);
+        LibraryVariableStorage.Enqueue(GenJournalLine."Journal Template Name");
+        LibraryVariableStorage.Enqueue(GenJournalLine."Journal Batch Name");
+        PaymentJournal.OpenEdit();
+        ExportPaymentJournal(PaymentJournal, GenJournalLine);
+        PaymentJournal.Close();
+
+        EFTExport.SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
+        EFTExport.SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
+        Assert.RecordCount(EFTExport, 1);
+        EFTExport.FindFirst();
+
+        TempEFTExportWorkset.TransferFields(EFTExport);
+        TempEFTExportWorkset.Include := true;
+        TempEFTExportWorkset.Insert;
     end;
 
     local procedure CreatePurchaseOrder(var PurchaseHeader: Record "Purchase Header"; VendorNo: Code[20])
@@ -1109,7 +1345,7 @@ codeunit 142083 "ERM Electronic Funds Transfer"
         LibraryERM.CreateVATPostingSetupWithAccounts(
           VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", LibraryRandom.RandIntInRange(10, 25));
         VATPostingSetup."VAT Bus. Posting Group" := PurchaseHeader."VAT Bus. Posting Group";
-        VATPostingSetup.Insert;
+        VATPostingSetup.Insert();
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItem(Item),
           LibraryRandom.RandInt(10));  // Using RANDOM value for Quantity.
@@ -1121,13 +1357,13 @@ codeunit 142083 "ERM Electronic Funds Transfer"
     var
         BankExportImportSetup: Record "Bank Export/Import Setup";
     begin
-        BankExportImportSetup.Init;
+        BankExportImportSetup.Init();
         BankExportImportSetup.Code :=
           LibraryUtility.GenerateRandomCode(BankExportImportSetup.FieldNo(Code), DATABASE::"Bank Export/Import Setup");
         BankExportImportSetup.Direction := BankExportImportSetup.Direction::"Export-EFT";
         if DataExchDefCode <> '' then
             BankExportImportSetup."Data Exch. Def. Code" := DataExchDefCode;
-        BankExportImportSetup.Insert;
+        BankExportImportSetup.Insert();
 
         BankAccount."Payment Export Format" := BankExportImportSetup.Code;
         BankAccount.Modify(true);
@@ -1146,6 +1382,72 @@ codeunit 142083 "ERM Electronic Funds Transfer"
         VendorBankAccount.Modify(true);
     end;
 
+    local procedure DuplicateDataExchangeDefinition(var DataExchDef: Record "Data Exch. Def"; var BankExportImportSetupTarget: Record "Bank Export/Import Setup"; DataExchDefCodeSource: Code[20])
+    var
+        DataExchLineDefSource: Record "Data Exch. Line Def";
+        DataExchLineDefTarget: Record "Data Exch. Line Def";
+        DataExchColumnDefSource: Record "Data Exch. Column Def";
+        DataExchColumnDefTarget: Record "Data Exch. Column Def";
+        BankExportImportSetupSource: Record "Bank Export/Import Setup";
+        DataExchMappingSource: Record "Data Exch. Mapping";
+        DataExchMappingTarget: Record "Data Exch. Mapping";
+        DataExchFieldMappingSource: Record "Data Exch. Field Mapping";
+        DataExchFieldMappingTarget: Record "Data Exch. Field Mapping";
+    begin
+        DataExchDef.Get(DataExchDefCodeSource);
+        DataExchDef.Code := LibraryUtility.GenerateGUID;
+        DataExchDef.Name := LibraryUtility.GenerateGUID;
+        DataExchDef.Insert;
+
+        DataExchLineDefSource.SetRange("Data Exch. Def Code", DataExchDefCodeSource);
+        DataExchLineDefSource.FindSet;
+        repeat
+            DataExchLineDefTarget := DataExchLineDefSource;
+            DataExchLineDefTarget."Data Exch. Def Code" := DataExchDef.Code;
+            DataExchLineDefTarget.Code := LibraryUtility.GenerateGUID;
+            DataExchLineDefTarget.Insert;
+
+            DataExchColumnDefSource.SetRange("Data Exch. Def Code", DataExchDefCodeSource);
+            DataExchColumnDefSource.SetRange("Data Exch. Line Def Code", DataExchLineDefSource.Code);
+            DataExchColumnDefSource.FindSet;
+            repeat
+                DataExchColumnDefTarget := DataExchColumnDefSource;
+                DataExchColumnDefTarget."Data Exch. Def Code" := DataExchDef.Code;
+                DataExchColumnDefTarget."Data Exch. Line Def Code" := DataExchLineDefTarget.Code;
+                DataExchColumnDefTarget.Insert;
+            until DataExchColumnDefSource.Next = 0;
+
+            DataExchMappingSource.SetRange("Data Exch. Def Code", DataExchDefCodeSource);
+            DataExchMappingSource.SetRange("Data Exch. Line Def Code", DataExchLineDefSource.Code);
+            DataExchMappingSource.FindSet;
+            repeat
+                DataExchMappingTarget := DataExchMappingSource;
+                DataExchMappingTarget."Data Exch. Def Code" := DataExchDef.Code;
+                DataExchMappingTarget."Data Exch. Line Def Code" := DataExchLineDefTarget.Code;
+                DataExchMappingTarget.Insert;
+
+                DataExchFieldMappingSource.SetRange("Data Exch. Def Code", DataExchDefCodeSource);
+                DataExchFieldMappingSource.SetRange("Data Exch. Line Def Code", DataExchLineDefSource.Code);
+                DataExchFieldMappingSource.SetRange("Table ID", DataExchMappingSource."Table ID");
+                DataExchFieldMappingSource.FindSet;
+                repeat
+                    DataExchFieldMappingTarget := DataExchFieldMappingSource;
+                    DataExchFieldMappingTarget."Data Exch. Def Code" := DataExchDef.Code;
+                    DataExchFieldMappingTarget."Data Exch. Line Def Code" := DataExchLineDefTarget.Code;
+                    DataExchFieldMappingTarget.Insert;
+                until DataExchFieldMappingSource.Next = 0;
+            until DataExchMappingSource.Next = 0;
+        until DataExchLineDefSource.Next = 0;
+
+        BankExportImportSetupSource.SetRange("Data Exch. Def. Code", DataExchDefCodeSource);
+        BankExportImportSetupSource.FindFirst();
+
+        BankExportImportSetupTarget := BankExportImportSetupSource;
+        BankExportImportSetupTarget.Validate("Data Exch. Def. Code", DataExchDef.Code);
+        BankExportImportSetupTarget.Code := LibraryUtility.GenerateGUID;
+        BankExportImportSetupTarget.Insert;
+    end;
+
     local procedure PrepareEFTExportScenario(var GenJournalLine: Record "Gen. Journal Line"; var PaymentJournal: TestPage "Payment Journal")
     var
         EFTExport: Record "EFT Export";
@@ -1153,9 +1455,9 @@ codeunit 142083 "ERM Electronic Funds Transfer"
         CreateExportReportSelection(Layout::Word);
         CreateElectronicPaymentJournal(GenJournalLine);
 
-        PaymentJournal.OpenEdit;
+        PaymentJournal.OpenEdit();
         ExportPaymentJournal(PaymentJournal, GenJournalLine);
-        Commit;
+        Commit();
 
         FindEFTExport(EFTExport, GenJournalLine);
         EFTExport.TestField("Check Exported", true);
@@ -1164,7 +1466,7 @@ codeunit 142083 "ERM Electronic Funds Transfer"
 
     local procedure ExportPaymentJournal(var PaymentJournal: TestPage "Payment Journal"; var GenJournalLine: Record "Gen. Journal Line")
     begin
-        Commit;  // Commit required.
+        Commit();  // Commit required.
         PaymentJournal.CurrentJnlBatchName.SetValue(GenJournalLine."Journal Batch Name");
         PaymentJournal.ExportPaymentsToFile.Invoke;  // Invokes action Export.
     end;
@@ -1179,7 +1481,7 @@ codeunit 142083 "ERM Electronic Funds Transfer"
         GenJnlLineRecRef: RecordRef;
         TempDirectory: Text;
     begin
-        Commit;  // Commit required.
+        Commit();  // Commit required.
 
         // Functions expect this to be opened and set up
         PaymentJournal.CurrentJnlBatchName.SetValue(GenJournalLine."Journal Batch Name");
@@ -1208,7 +1510,7 @@ codeunit 142083 "ERM Electronic Funds Transfer"
         Vendor: Record Vendor;
     begin
         VendorBankAccount.SetFilter("Vendor No.", '<>''''');
-        VendorBankAccount.FindFirst;
+        VendorBankAccount.FindFirst();
         VendorBankAccount.Validate("Transit No.", TransitNoTxt);
         VendorBankAccount.Validate("Use for Electronic Payments", true);
         VendorBankAccount.Modify(true);
@@ -1223,13 +1525,45 @@ codeunit 142083 "ERM Electronic Funds Transfer"
         EFTExport.SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
         EFTExport.SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
         EFTExport.SetRange("Line No.", GenJournalLine."Line No.");
-        EFTExport.FindFirst;
+        EFTExport.FindFirst();
+    end;
+
+    [Scope('OnPrem')]
+    procedure GetTempACHRBHeader(var TempACHRBHeaderResult: Record "ACH RB Header" temporary)
+    begin
+        Clear(TempACHRBHeaderResult);
+        TempACHRBHeaderResult.DeleteAll;
+
+        TempACHRBHeaderResult.Copy(TempACHRBHeader, true);
+    end;
+
+    [Scope('OnPrem')]
+    procedure GetTempACHRBDetail(var TempACHRBDetailResult: Record "ACH RB Detail" temporary)
+    begin
+        Clear(TempACHRBDetailResult);
+        TempACHRBDetailResult.DeleteAll;
+
+        TempACHRBDetailResult.Copy(TempACHRBDetail, true);
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, 10095, 'OnBeforeACHRBHeaderModify', '', false, false)]
+    local procedure StoreTempACHRBHeaderOnBeforeACHRBHeaderModify(var ACHRBHeader: Record "ACH RB Header"; BankAccount: Record "Bank Account")
+    begin
+        TempACHRBHeader := ACHRBHeader;
+        if TempACHRBHeader.Insert() then;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, 10095, 'OnBeforeACHRBDetailModify', '', false, false)]
+    local procedure StoreTempACHRBDetailOnBeforeACHRBDetailModify(var ACHRBDetail: Record "ACH RB Detail"; var TempEFTExportWorkset: Record "EFT Export Workset" temporary; BankAccNo: Code[20]; SettleDate: Date)
+    begin
+        TempACHRBDetail := ACHRBDetail;
+        if TempACHRBDetail.Insert() then;
     end;
 
     local procedure ModifyUseForElectronicPaymentsVendorBankAccount(var VendorBankAccount: Record "Vendor Bank Account"; CheckBoxValue: Boolean)
     begin
         VendorBankAccount.SetFilter("Vendor No.", '<>''''');
-        VendorBankAccount.FindFirst;
+        VendorBankAccount.FindFirst();
         VendorBankAccount.Validate("Use for Electronic Payments", CheckBoxValue);
         VendorBankAccount.Modify(true);
     end;
@@ -1238,7 +1572,7 @@ codeunit 142083 "ERM Electronic Funds Transfer"
     var
         CompanyInformation: Record "Company Information";
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         CompanyInformation.Validate("Federal ID No.", FederalIDNo);
         CompanyInformation.Modify(true);
     end;
@@ -1247,7 +1581,7 @@ codeunit 142083 "ERM Electronic Funds Transfer"
     var
         CheckLedgerEntries: TestPage "Check Ledger Entries";
     begin
-        CheckLedgerEntries.OpenEdit;
+        CheckLedgerEntries.OpenEdit();
         CheckLedgerEntries.FILTER.SetFilter("Bank Account No.", BankAccountNo);
         CheckLedgerEntries."Void Check".Invoke;  // Invokes action VoidCheck.
     end;
@@ -1298,8 +1632,8 @@ codeunit 142083 "ERM Electronic Funds Transfer"
         ReportSelections: Record "Report Selections";
     begin
         // Insert or modify to get the expected remittance report selection
-        ReportSelections.DeleteAll;
-        ReportSelections.Init;
+        ReportSelections.DeleteAll();
+        ReportSelections.Init();
         ReportSelections.Usage := ReportSelections.Usage::"V.Remittance";
         case Layout of
             Layout::RDLC:
@@ -1308,8 +1642,67 @@ codeunit 142083 "ERM Electronic Funds Transfer"
                 ReportSelections."Report ID" := REPORT::"ExportElecPayments - Word";
         end;
         ReportSelections.Sequence := '1';
-        ReportSelections.Insert;
-        Commit;
+        ReportSelections.Insert();
+        Commit();
+    end;
+
+    local procedure UpdateDateFormatsOnCAEFTDataExchDef(DataExchDef: Record "Data Exch. Def"; DateFormat: Text[100]; DateFormatLength: Integer)
+    var
+        DataExchLineDef: Record "Data Exch. Line Def";
+        DataExchColumnDef: Record "Data Exch. Column Def";
+        ACHRBHeader: Record "ACH RB Header";
+        ACHRBDetail: Record "ACH RB Detail";
+    begin
+        DataExchLineDef.SetRange("Data Exch. Def Code", DataExchDef.Code);
+        DataExchLineDef.SetRange("Line Type", DataExchLineDef."Line Type"::Header);
+        DataExchLineDef.FindFirst();
+
+        DataExchColumnDef.SetRange("Data Exch. Def Code", DataExchDef.Code);
+        DataExchColumnDef.SetRange("Data Exch. Line Def Code", DataExchLineDef.Code);
+        DataExchColumnDef.SetRange(Name, ACHRBHeader.FieldName("File Creation Date"));
+        DataExchColumnDef.FindFirst();
+        DataExchColumnDef."Data Format" := DateFormat;
+        DataExchColumnDef.Length := DateFormatLength;
+        DataExchColumnDef.Modify(true);
+
+        DataExchLineDef.SetRange("Data Exch. Def Code", DataExchDef.Code);
+        DataExchLineDef.SetRange("Line Type", DataExchLineDef."Line Type"::Detail);
+        DataExchLineDef.FindFirst();
+
+        DataExchColumnDef.SetRange("Data Exch. Line Def Code", DataExchLineDef.Code);
+        DataExchColumnDef.SetRange(Name, ACHRBDetail.FieldName("Payment Date"));
+        DataExchColumnDef.FindFirst();
+        DataExchColumnDef."Data Format" := DateFormat;
+        DataExchColumnDef.Length := DateFormatLength;
+        DataExchColumnDef.Modify(true);
+    end;
+
+    local procedure InsertEntryDetailSequenceNo(DataExchDef: Record "Data Exch. Def")
+    var
+        DataExchLineDef: Record "Data Exch. Line Def";
+        DataExchColumnDef: Record "Data Exch. Column Def";
+        DataExchFieldMapping: Record "Data Exch. Field Mapping";
+        ACHUSHeader: Record "ACH US Header";
+        ACHUSDetail: Record "ACH US Detail";
+    begin
+        DataExchLineDef.SetRange("Data Exch. Def Code", DataExchDef.Code);
+        DataExchLineDef.SetRange("Line Type", DataExchLineDef."Line Type"::Detail);
+        DataExchLineDef.FindFirst();
+
+        DataExchColumnDef.SetRange("Data Exch. Def Code", DataExchDef.Code);
+        DataExchColumnDef.SetRange("Data Exch. Line Def Code", DataExchLineDef.Code);
+        DataExchColumnDef.FindLast();
+        DataExchColumnDef."Column No." += 1;
+        DataExchColumnDef.Name := 'Entry Detail Sequence';
+        DataExchColumnDef.Insert(true);
+
+        DataExchFieldMapping.Init();
+        DataExchFieldMapping."Data Exch. Def Code" := DataExchDef.Code;
+        DataExchFieldMapping."Data Exch. Line Def Code" := DataExchLineDef.Code;
+        DataExchFieldMapping."Column No." := DataExchColumnDef."Column No.";
+        DataExchFieldMapping.Validate("Table ID", Database::"ACH US Detail");
+        DataExchFieldMapping.Validate("Field ID", ACHUSDetail.FieldNo("Entry Detail Sequence No"));
+        DataExchFieldMapping.Insert(true);
     end;
 
     local procedure VerifyPaymentFileError(GenJournalLine: Record "Gen. Journal Line"; PaymentFileErrorTxt: Text)
@@ -1351,7 +1744,7 @@ codeunit 142083 "ERM Electronic Funds Transfer"
         GLEntry.SetRange("Document Type", DocumentType);
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("Bal. Account No.", BalAccountNo);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
     end;
 
     [ConfirmHandler]

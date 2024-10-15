@@ -87,6 +87,7 @@ codeunit 1303 "Correct Posted Sales Invoice"
     var
         SalesHeader: Record "Sales Header";
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+        IsHandled: Boolean;
     begin
         TestCorrectInvoiceIsAllowed(SalesInvoiceHeader, CancellingOnly);
         if not CODEUNIT.Run(CODEUNIT::"Correct Posted Sales Invoice", SalesInvoiceHeader) then begin
@@ -97,8 +98,12 @@ codeunit 1303 "Correct Posted Sales Invoice"
             end else begin
                 SalesHeader.SetRange("Applies-to Doc. No.", SalesInvoiceHeader."No.");
                 if SalesHeader.FindFirst then begin
-                    if Confirm(StrSubstNo(PostingCreditMemoFailedOpenCMQst, GetLastErrorText)) then
-                        PAGE.Run(PAGE::"Sales Credit Memo", SalesHeader);
+                    if Confirm(StrSubstNo(PostingCreditMemoFailedOpenCMQst, GetLastErrorText)) then begin
+                        IsHandled := false;
+                        OnCreateCreditMemoOnBeforePageRun(SalesHeader, IsHandled);
+                        if not IsHandled then
+                            PAGE.Run(PAGE::"Sales Credit Memo", SalesHeader);
+                    end;
                 end else
                     Error(CreatingCreditMemoFailedNothingCreatedErr, GetLastErrorText);
             end;
@@ -489,23 +494,24 @@ codeunit 1303 "Correct Posted Sales Invoice"
     begin
         SalesReceivablesSetup.GetRecordOnce;
 
-        if SalesInvoiceLine.Type <> SalesInvoiceLine.Type::"G/L Account" then
-            with GenPostingSetup do begin
-                Get(SalesInvoiceLine."Gen. Bus. Posting Group", SalesInvoiceLine."Gen. Prod. Posting Group");
+        with GenPostingSetup do begin
+            Get(SalesInvoiceLine."Gen. Bus. Posting Group", SalesInvoiceLine."Gen. Prod. Posting Group");
+            if SalesInvoiceLine.Type <> SalesInvoiceLine.Type::"G/L Account" then begin
                 TestField("Sales Account");
                 TestGLAccount("Sales Account", SalesInvoiceLine);
                 TestField("Sales Credit Memo Account");
                 TestGLAccount("Sales Credit Memo Account", SalesInvoiceLine);
-                if SalesReceivablesSetup."Discount Posting" <> SalesReceivablesSetup."Discount Posting"::"No Discounts" then begin
-                    TestField("Sales Line Disc. Account");
-                    TestGLAccount("Sales Line Disc. Account", SalesInvoiceLine);
-                end;
-                if SalesInvoiceLine.Type = SalesInvoiceLine.Type::Item then begin
+            end;
+            if SalesReceivablesSetup."Discount Posting" <> SalesReceivablesSetup."Discount Posting"::"No Discounts" then begin
+                TestField("Sales Line Disc. Account");
+                TestGLAccount("Sales Line Disc. Account", SalesInvoiceLine);
+            end;
+            if SalesInvoiceLine.Type = SalesInvoiceLine.Type::Item then begin
                 Item.Get(SalesInvoiceLine."No.");
                 if Item.IsInventoriableType then
                     TestGLAccount(GetCOGSAccount, SalesInvoiceLine);
-                end;
             end;
+        end;
     end;
 
     local procedure TestCustomerPostingGroup(SalesInvoiceLine: Record "Sales Invoice Line"; CustomerPostingGr: Code[20])
@@ -789,9 +795,19 @@ codeunit 1303 "Correct Posted Sales Invoice"
     begin
     end;
 
-	[Obsolete]
+    [Obsolete]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSelesHeaderInsert(var SalesHeader: Record "Sales Header"; var SalesInvoiceHeader: Record "Sales Invoice Header"; CancellingOnly: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateSalesOrderLineInvoicedQuantity(var SalesLine: Record "Sales Line"; CancelledQuantity: Decimal; CancelledQtyBase: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateCreditMemoOnBeforePageRun(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
     end;
 }

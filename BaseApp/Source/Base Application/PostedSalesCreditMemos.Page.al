@@ -338,6 +338,18 @@
                         ExportEDocument;
                     end;
                 }
+                action(CFDIRelationDocuments)
+                {
+                    ApplicationArea = BasicMX;
+                    Caption = 'CFDI Relation Documents';
+                    Image = Allocations;
+                    RunObject = Page "CFDI Relation Documents";
+                    RunPageLink = "Document Table ID" = CONST(114),
+                                  "Document No." = FIELD("No."),
+                                  "Customer No." = FIELD("Bill-to Customer No.");
+                    RunPageMode = View;
+                    ToolTip = 'View or add CFDI relation documents for the record.';
+                }
                 action("&Cancel")
                 {
                     ApplicationArea = BasicMX;

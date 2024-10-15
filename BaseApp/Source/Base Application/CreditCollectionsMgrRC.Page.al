@@ -44,7 +44,7 @@ page 36603 "Credit & Collections Mgr. RC"
             {
                 Caption = 'Aged Accounts Receivable';
                 Image = "Report";
-                RunObject = Report "Aged Accounts Receivable";
+                RunObject = Report "Aged Accounts Receivable NA";
                 ToolTip = 'View, print, or save an overview of when customer payments are due or overdue, divided into four periods.';
             }
             action("Customer Account Detail")

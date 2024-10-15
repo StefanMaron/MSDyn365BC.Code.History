@@ -394,7 +394,7 @@
                     Promoted = false;
                     //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                     //PromotedCategory = "Report";
-                    RunObject = Report "Aged Accounts Receivable";
+                    RunObject = Report "Aged Accounts Receivable NA";
                     ToolTip = 'View an overview of when customer payments are due or overdue, divided into four periods. You must specify the date you want aging calculated from and the length of the period that each column will contain data for.';
                 }
                 action("Customer - Payment Receipt")
@@ -430,8 +430,11 @@
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        if (not DocNoVisible) and ("No." = '') then
+        if (not DocNoVisible) and ("No." = '') then begin
             SetCustomerFromFilter;
+            if "Customer No." <> '' then
+                SetReminderNo();
+        end;
     end;
 
     trigger OnOpenPage()

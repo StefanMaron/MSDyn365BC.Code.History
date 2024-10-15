@@ -705,8 +705,9 @@ codeunit 398 "Sales Tax Calculate"
                             TaxJurisdiction.Get("Tax Jurisdiction Code");
                             "Is Report-to Jurisdiction" := ("Tax Jurisdiction Code" = TaxJurisdiction."Report-to Jurisdiction");
                         end;
-                        SalesTaxAmountLineCalc.SetTaxBaseAmount(
-                          TempSalesTaxLine, SalesLine."Line Amount" - SalesLine."Inv. Discount Amount", ExchangeFactor, false);
+                        if SalesLine."Tax Liable" then
+                            SalesTaxAmountLineCalc.SetTaxBaseAmount(
+                              TempSalesTaxLine, SalesLine."Line Amount" - SalesLine."Inv. Discount Amount", ExchangeFactor, false);
                         "Line Amount" := SalesLine."Line Amount" / ExchangeFactor;
                         "Tax Liable" := SalesLine."Tax Liable";
                         Quantity := SalesLine."Quantity (Base)";
@@ -716,10 +717,11 @@ codeunit 398 "Sales Tax Calculate"
                         Insert;
                     end else begin
                         "Line Amount" := "Line Amount" + (SalesLine."Line Amount" / ExchangeFactor);
-                        if SalesLine."Tax Liable" then
+                        if SalesLine."Tax Liable" then begin
                             "Tax Liable" := SalesLine."Tax Liable";
-                        SalesTaxAmountLineCalc.SetTaxBaseAmount(
-                          TempSalesTaxLine, SalesLine."Line Amount" - SalesLine."Inv. Discount Amount", ExchangeFactor, true);
+                            SalesTaxAmountLineCalc.SetTaxBaseAmount(
+                              TempSalesTaxLine, SalesLine."Line Amount" - SalesLine."Inv. Discount Amount", ExchangeFactor, true);
+                        end;
                         "Tax Amount" := 0;
                         Quantity := Quantity + SalesLine."Quantity (Base)";
                         "Invoice Discount Amount" := "Invoice Discount Amount" + SalesLine."Inv. Discount Amount";
@@ -857,8 +859,9 @@ codeunit 398 "Sales Tax Calculate"
                             TaxJurisdiction.Get("Tax Jurisdiction Code");
                             "Is Report-to Jurisdiction" := ("Tax Jurisdiction Code" = TaxJurisdiction."Report-to Jurisdiction");
                         end;
-                        SalesTaxAmountLineCalc.SetTaxBaseAmount(
-                          TempSalesTaxLine, PurchLine."Line Amount" - PurchLine."Inv. Discount Amount", ExchangeFactor, false);
+                        if PurchLine."Tax Liable" then
+                            SalesTaxAmountLineCalc.SetTaxBaseAmount(
+                              TempSalesTaxLine, PurchLine."Line Amount" - PurchLine."Inv. Discount Amount", ExchangeFactor, false);
                         "Line Amount" := PurchLine."Line Amount" / ExchangeFactor;
                         "Tax Liable" := PurchLine."Tax Liable";
                         "Use Tax" := PurchLine."Use Tax";
@@ -879,10 +882,11 @@ codeunit 398 "Sales Tax Calculate"
                         Insert;
                     end else begin
                         "Line Amount" := "Line Amount" + (PurchLine."Line Amount" / ExchangeFactor);
-                        if PurchLine."Tax Liable" then
+                        if PurchLine."Tax Liable" then begin
                             "Tax Liable" := PurchLine."Tax Liable";
-                        SalesTaxAmountLineCalc.SetTaxBaseAmount(
-                          TempSalesTaxLine, PurchLine."Line Amount" - PurchLine."Inv. Discount Amount", ExchangeFactor, true);
+                            SalesTaxAmountLineCalc.SetTaxBaseAmount(
+                              TempSalesTaxLine, PurchLine."Line Amount" - PurchLine."Inv. Discount Amount", ExchangeFactor, true);
+                        end;
                         "Tax Amount" := 0;
                         Quantity := Quantity + PurchLine."Quantity (Base)";
                         "Invoice Discount Amount" := "Invoice Discount Amount" + PurchLine."Inv. Discount Amount";
@@ -1012,8 +1016,9 @@ codeunit 398 "Sales Tax Calculate"
                             TaxJurisdiction.Get("Tax Jurisdiction Code");
                             "Is Report-to Jurisdiction" := ("Tax Jurisdiction Code" = TaxJurisdiction."Report-to Jurisdiction");
                         end;
-                        SalesTaxAmountLineCalc.SetTaxBaseAmount(
-                          TempSalesTaxLine, ServiceLine."Line Amount" - ServiceLine."Inv. Discount Amount", ExchangeFactor, false);
+                        if ServiceLine."Tax Liable" then
+                            SalesTaxAmountLineCalc.SetTaxBaseAmount(
+                              TempSalesTaxLine, ServiceLine."Line Amount" - ServiceLine."Inv. Discount Amount", ExchangeFactor, false);
                         "Line Amount" := ServiceLine."Line Amount" / ExchangeFactor;
                         "Tax Liable" := ServiceLine."Tax Liable";
                         Quantity := ServiceLine."Quantity (Base)";
@@ -1022,10 +1027,11 @@ codeunit 398 "Sales Tax Calculate"
                         Insert;
                     end else begin
                         "Line Amount" := "Line Amount" + (ServiceLine."Line Amount" / ExchangeFactor);
-                        if ServiceLine."Tax Liable" then
+                        if ServiceLine."Tax Liable" then begin
                             "Tax Liable" := ServiceLine."Tax Liable";
-                        SalesTaxAmountLineCalc.SetTaxBaseAmount(
-                          TempSalesTaxLine, ServiceLine."Line Amount" - ServiceLine."Inv. Discount Amount", ExchangeFactor, true);
+                            SalesTaxAmountLineCalc.SetTaxBaseAmount(
+                              TempSalesTaxLine, ServiceLine."Line Amount" - ServiceLine."Inv. Discount Amount", ExchangeFactor, true);
+                        end;
                         "Tax Amount" := 0;
                         Quantity := Quantity + ServiceLine."Quantity (Base)";
                         "Invoice Discount Amount" := "Invoice Discount Amount" + ServiceLine."Inv. Discount Amount";

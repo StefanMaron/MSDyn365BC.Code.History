@@ -110,11 +110,13 @@ page 466 "Tax Jurisdictions"
                 }
                 field("Print Order"; "Print Order")
                 {
+                    ApplicationArea = SalesTax;
                     ToolTip = 'Specifies the order that taxes of this tax jurisdiction will appear on printed documents. For example, if Canadian GST is to print first, you can indicate that here. Jurisdictions with the same Print Order will be combined when printing on Documents.';
                     Visible = false;
                 }
                 field("Print Description"; "Print Description")
                 {
+                    ApplicationArea = SalesTax;
                     ToolTip = 'Specifies a text description that will print on documents in place of the jurisdiction description. If a %1 is included in the description, then the tax percentage will be substituted just before printing.';
                     Visible = false;
                 }

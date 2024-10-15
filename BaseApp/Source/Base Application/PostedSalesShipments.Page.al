@@ -328,6 +328,8 @@
                 var
                     SalesShptHeader: Record "Sales Shipment Header";
                 begin
+                    SalesShptHeader := Rec;
+                    OnBeforePrintRecords(Rec, SalesShptHeader);
                     CurrPage.SetSelectionFilter(SalesShptHeader);
                     SalesShptHeader.PrintRecords(true);
                 end;
@@ -425,5 +427,10 @@
 
     var
         IsOfficeAddin: Boolean;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePrintRecords(SalesShptHeaderRec: Record "Sales Shipment Header"; var SalesShptHeaderToPrint: Record "Sales Shipment Header")
+    begin
+    end;
 }
 

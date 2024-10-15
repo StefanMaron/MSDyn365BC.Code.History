@@ -1,7 +1,8 @@
 page 7392 "Posted Invt. Pick"
 {
     Caption = 'Posted Invt. Pick';
-    Editable = false;
+    InsertAllowed = false;
+    ModifyAllowed = false;
     PageType = Document;
     RefreshOnActivate = true;
     SaveValues = true;

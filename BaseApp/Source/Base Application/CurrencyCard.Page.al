@@ -251,7 +251,7 @@ page 495 "Currency Card"
                 Image = "Report";
                 Promoted = true;
                 PromotedCategory = "Report";
-                RunObject = Report "Aged Accounts Receivable";
+                RunObject = Report "Aged Accounts Receivable NA";
                 ToolTip = 'View an overview of when customer payments are due or overdue, divided into four periods. You must specify the date you want aging calculated from and the length of the period that each column will contain data for.';
             }
             action("Aged Accounts Payable")
@@ -261,7 +261,7 @@ page 495 "Currency Card"
                 Image = "Report";
                 Promoted = true;
                 PromotedCategory = "Report";
-                RunObject = Report "Aged Accounts Payable";
+                RunObject = Report "Aged Accounts Payable NA";
                 ToolTip = 'View an overview of when your payables to vendors are due or overdue (divided into four periods). You must specify the date you want aging calculated from and the length of the period that each column will contain data for.';
             }
             action("Trial Balance")

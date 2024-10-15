@@ -1,4 +1,4 @@
-codeunit 414 "Release Sales Document"
+﻿codeunit 414 "Release Sales Document"
 {
     TableNo = "Sales Header";
 

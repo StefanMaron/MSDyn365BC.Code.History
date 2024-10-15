@@ -1213,7 +1213,7 @@ page 8901 "Finance Manager Role Center"
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Aged Accounts Receivable';
-                        RunObject = Report "Aged Accounts Receivable";
+                        RunObject = Report "Aged Accounts Receivable NA";
                     }
                     action("Customer - Trial Balance")
                     {
@@ -1494,7 +1494,7 @@ page 8901 "Finance Manager Role Center"
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Aged Accounts Payable';
-                        RunObject = Report "Aged Accounts Payable";
+                        RunObject = Report "Aged Accounts Payable NA";
                     }
                     action("Purchase Statistics")
                     {
@@ -1540,7 +1540,7 @@ page 8901 "Finance Manager Role Center"
                     action("Vendor - Summary Aging1")
                     {
                         Caption = 'Aged Accounts Payable';
-                        RunObject = Report "Aged Accounts Payable";
+                        RunObject = Report "Aged Accounts Payable NA";
                     }
                     action("Vendor - Top 10 List")
                     {

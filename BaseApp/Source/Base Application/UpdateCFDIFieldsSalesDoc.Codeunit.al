@@ -6,17 +6,9 @@ codeunit 27032 "Update CFDI Fields Sales Doc"
                   TableData "Service Cr.Memo Header" = rm;
 
     trigger OnRun()
-    var
-        UpgradeTag: Codeunit "Upgrade Tag";
-        UpgradeTagDefCountry: Codeunit "Upgrade Tag Def - Country";
     begin
-        if UpgradeTag.HasUpgradeTag(UpgradeTagDefCountry.GetCFDIPurposeRelationFieldsDocUpdateTag) then
-            exit;
-
         UpdateSalesDocuments;
         UpdateServiceDocuments;
-
-        UpgradeTag.SetUpgradeTag(UpgradeTagDefCountry.GetCFDIPurposeRelationFieldsDocUpdateTag);
     end;
 
     local procedure UpdateSalesDocuments()

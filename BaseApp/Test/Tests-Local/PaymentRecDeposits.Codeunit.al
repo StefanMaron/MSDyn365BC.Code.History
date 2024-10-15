@@ -368,6 +368,8 @@ codeunit 142059 "Payment Rec Deposits"
         CreateDeposits(DepositHeader, BankAcc);
         CreateTwoDepositLines(OutStream, TempBlobUTF8, DepositHeader);
         ImportBankStmtAndUpdateBankAccReconTable(BankAccRecon, TempBlobUTF8);
+        UpdateBankAccReconStatementDate(BankAccRecon, DepositHeader."Posting Date");
+        Commit();
 
         // [WHEN] Payment Reconciliation Journal is opened and report is invoked
         LibraryVariableStorage.Enqueue(BankAccRecon."Bank Account No.");
@@ -407,6 +409,7 @@ codeunit 142059 "Payment Rec Deposits"
         CreateOneSaleOnePmtTwoDepositLines(CustLedgEntry, OutStream, TempBlobUTF8, DepositHeader);
         CustAmount := CustLedgEntry."Remaining Amount" - CustLedgEntry."Remaining Pmt. Disc. Possible";
         ImportBankStmtAndUpdateBankAccReconTable(BankAccRecon, TempBlobUTF8);
+        UpdateBankAccReconStatementDate(BankAccRecon, DepositHeader."Posting Date");
 
         // [GIVEN] Post the payment
         PostPayment(CustLedgEntry, BankAccRecon."Bank Account No.");
@@ -446,6 +449,7 @@ codeunit 142059 "Payment Rec Deposits"
         CreateDeposits(DepositHeader, BankAcc);
         CreateTwoDepositLines(OutStream, TempBlobUTF8, DepositHeader);
         ImportBankStmtAndUpdateBankAccReconTable(BankAccRecon, TempBlobUTF8);
+        UpdateBankAccReconStatementDate(BankAccRecon, DepositHeader."Posting Date");
 
         // [WHEN] Payment Reconciliation Journal is opened, deposits are automatically applied, report is run
         LibraryVariableStorage.Enqueue(BankAccRecon."Bank Account No.");
@@ -490,6 +494,7 @@ codeunit 142059 "Payment Rec Deposits"
         PostPayment(CustLedgEntry, BankAccRecon."Bank Account No.");
         GetBankAccLedgEntryAmounts(AmountArray, BankAccRecon."Bank Account No.");
         ImportBankStmt(BankAccRecon, TempBlobUTF8);
+        UpdateBankAccReconStatementDate(BankAccRecon, DepositHeader."Posting Date");
 
         // [WHEN] Payment Reconciliation Journal is opened and Apply two lines manually
         OpenPmtReconJnl(BankAccRecon, PmtReconJnl);
@@ -964,6 +969,12 @@ codeunit 142059 "Payment Rec Deposits"
         ImportBankStmt(BankAccRecon, TempBlobUTF8);
         BankAccRecon.Get(BankAccRecon."Statement Type", BankAccRecon."Bank Account No.", BankAccRecon."Statement No.");
         Commit;
+    end;
+
+    local procedure UpdateBankAccReconStatementDate(var BankAccRecon: Record "Bank Acc. Reconciliation"; PostingDate: Date)
+    begin
+        BankAccRecon.Validate("Statement Date", PostingDate);
+        BankAccRecon.Modify(true);
     end;
 }
 

@@ -137,6 +137,8 @@ codeunit 10094 "Export EFT (ACH)"
     procedure ExportOffSettingDebit(DataExchEntryNo: Integer): Code[30]
     var
         ACHUSDetail: Record "ACH US Detail";
+        StringConversionManagement: Codeunit StringConversionManagement;
+        Justification: Option Right,Left;
     begin
         EFTValues.SetTraceNo(EFTValues.GetTraceNo + 1);
 
@@ -150,7 +152,9 @@ codeunit 10094 "Export EFT (ACH)"
         ACHUSDetail."Payee Name" := CompanyInformation.Name;
         ACHUSDetail."Addenda Record Indicator" := 0;
         ACHUSDetail."Trace Number" := GenerateTraceNoCode(EFTValues.GetTraceNo, BankAccount."Transit No.");
-        ACHUSDetail.Modify;
+        ACHUSDetail."Entry Detail Sequence No" :=
+            StringConversionManagement.GetPaddedString(Format(EFTValues.GetTraceNo), 7, '0', Justification::Right);
+        ACHUSDetail.Modify();
 
         EFTValues.SetEntryAddendaCount(EFTValues.GetEntryAddendaCount + 1);
         IncrementHashTotal(BatchHashTotal, MakeHash(CopyStr(BankAccount."Transit No.", 1, 8)));
@@ -168,12 +172,14 @@ codeunit 10094 "Export EFT (ACH)"
         Customer: Record Customer;
         CustomerBankAccount: Record "Customer Bank Account";
         ACHUSDetail: Record "ACH US Detail";
+        StringConversionManagement: Codeunit StringConversionManagement;
         AcctType: Text[1];
         AcctNo: Code[20];
         AcctName: Text[16];
         BankAcctNo: Text[30];
         TransitNo: Text[20];
         DemandCredit: Boolean;
+        Justification: Option Right,Left;
     begin
         // NOTE:  If PaymentAmount is Positive, then we are Receiving money.
         // If PaymentAmount is Negative, then we are Sending money.
@@ -259,7 +265,9 @@ codeunit 10094 "Export EFT (ACH)"
         ACHUSDetail."Payee Name" := AcctName;
         ACHUSDetail."Discretionary Data" := AcctType;
         ACHUSDetail."Trace Number" := GenerateTraceNoCode(EFTValues.GetTraceNo, BankAccount."Transit No.");
-        ACHUSDetail.Modify;
+        ACHUSDetail."Entry Detail Sequence No" :=
+            StringConversionManagement.GetPaddedString(Format(EFTValues.GetTraceNo), 7, '0', Justification::Right);
+        ACHUSDetail.Modify();
 
         TempEFTExportWorkset.TraceNumber := GenerateTraceNoCode(EFTValues.GetTraceNo, BankAccount."Transit No.");
 

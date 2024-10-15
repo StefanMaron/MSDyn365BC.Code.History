@@ -36,14 +36,14 @@ codeunit 139301 "Assisted Company Setup Tests"
     begin
         // [FEATURE] [Demo Company]
         // [SCENARIO] IsDemoCompany() should return CompanyInformation."Demo Company"
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         CompanyInformation."Demo Company" := false;
-        CompanyInformation.Modify;
+        CompanyInformation.Modify();
         Assert.IsFalse(CompanyInformationMgt.IsDemoCompany, 'IsDemoCompany should be FALSE');
 
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         CompanyInformation."Demo Company" := true;
-        CompanyInformation.Modify;
+        CompanyInformation.Modify();
         Assert.IsTrue(CompanyInformationMgt.IsDemoCompany, 'IsDemoCompany should be TRUE');
     end;
 
@@ -87,32 +87,31 @@ codeunit 139301 "Assisted Company Setup Tests"
         SMTPMailSetup: Record "SMTP Mail Setup";
         AssistedSetup: Codeunit "Assisted Setup";
         AssistedSetupTestLibrary: Codeunit "Assisted Setup Test Library";
-        BaseAppID: Codeunit "BaseApp ID";
     begin
         // [GIVEN] A newly setup company where SMTP hasen't been setup
         Initialize;
-        Assert.IsFalse(AssistedSetup.IsComplete(BaseAppID.Get(), PAGE::"Email Setup Wizard"), 'Precondition failed. Email is set up.');
+        Assert.IsFalse(AssistedSetup.IsComplete(PAGE::"Email Setup Wizard"), 'Precondition failed. Email is set up.');
 
         // [WHEN] SMTP is set up
         if not SMTPMailSetup.Get then begin
-            SMTPMailSetup.Init;
-            SMTPMailSetup.Insert;
+            SMTPMailSetup.Init();
+            SMTPMailSetup.Insert();
         end;
         SMTPMailSetup."SMTP Server" := 'smtp.mail.com';
         SMTPMailSetup."User ID" := 'test user';
-        SMTPMailSetup.Modify;
+        SMTPMailSetup.Modify();
 
         // [WHEN] The assisted setup status is updated
         AssistedSetupTestLibrary.CallOnRegister();
 
         // [THEN] The assisted setup status is set to completed
-        Assert.IsTrue(AssistedSetup.IsComplete(BaseAppID.Get(), PAGE::"Email Setup Wizard"), 'The Email status was not updated correctly.');
+        Assert.IsTrue(AssistedSetup.IsComplete(PAGE::"Email Setup Wizard"), 'The Email status was not updated correctly.');
 
         // [WHEN] The assisted setup status is updated again
         AssistedSetupTestLibrary.CallOnRegister();
 
         // [THEN] The assisted setup status remains unchanged
-        Assert.IsTrue(AssistedSetup.IsComplete(BaseAppID.Get(), PAGE::"Email Setup Wizard"), 'The Email status changed.');
+        Assert.IsTrue(AssistedSetup.IsComplete(PAGE::"Email Setup Wizard"), 'The Email status changed.');
     end;
 
     [Test]
@@ -123,28 +122,27 @@ codeunit 139301 "Assisted Company Setup Tests"
         ApprovalUserSetup: Record "User Setup";
         AssistedSetup: Codeunit "Assisted Setup";
         AssistedSetupTestLibrary: Codeunit "Assisted Setup Test Library";
-        BaseAppID: Codeunit "BaseApp ID";
     begin
         // [GIVEN] A newly setup company where SMTP hasen't been setup
         Initialize;
-        Assert.IsFalse(AssistedSetup.IsComplete(BaseAppID.Get(), PAGE::"Approval Workflow Setup Wizard"), 'Precondition failed. Approval Workflow is set up.');
+        Assert.IsFalse(AssistedSetup.IsComplete(PAGE::"Approval Workflow Setup Wizard"), 'Precondition failed. Approval Workflow is set up.');
 
         // [WHEN] Approval User Setup is set up
-        ApprovalUserSetup.Init;
+        ApprovalUserSetup.Init();
         ApprovalUserSetup."Approver ID" := 'MOCKUSER';
-        ApprovalUserSetup.Insert;
+        ApprovalUserSetup.Insert();
 
         // [WHEN] The assisted setup status is updated
         AssistedSetupTestLibrary.CallOnRegister();
 
         // [THEN] The assisted setup status is set to completed
-        Assert.IsTrue(AssistedSetup.IsComplete(BaseAppID.Get(), PAGE::"Approval Workflow Setup Wizard"), 'The Approval Workflow status was not updated correctly.');
+        Assert.IsTrue(AssistedSetup.IsComplete(PAGE::"Approval Workflow Setup Wizard"), 'The Approval Workflow status was not updated correctly.');
 
         // [WHEN] The assisted setup status is updated again
         AssistedSetupTestLibrary.CallOnRegister();
 
         // [THEN] The assisted setup status remains unchanged
-        Assert.IsTrue(AssistedSetup.IsComplete(BaseAppID.Get(), PAGE::"Approval Workflow Setup Wizard"), 'The Approval Workflow status changed.');
+        Assert.IsTrue(AssistedSetup.IsComplete(PAGE::"Approval Workflow Setup Wizard"), 'The Approval Workflow status changed.');
     end;
 
     [Test]
@@ -178,14 +176,14 @@ codeunit 139301 "Assisted Company Setup Tests"
         NewCompanyName: Text;
     begin
         // [GIVEN] No Configuration package file exists
-        ConfigurationPackageFile.DeleteAll;
+        ConfigurationPackageFile.DeleteAll();
 
         // [GIVEN] A newly setup NAV company
         NewCompanyName := LibraryUtility.GenerateGUID;
 
-        Company.Init;
+        Company.Init();
         Company.Name := NewCompanyName;
-        Company.Insert;
+        Company.Insert();
 
         // [WHEN] The user tries to enable the wizard
         Companies.OpenEdit;
@@ -209,8 +207,8 @@ codeunit 139301 "Assisted Company Setup Tests"
         FileName: Text;
     begin
         // [GIVEN] A Configuration Package File record
-        ConfigurationPackageFile.Init;
-        ConfigurationPackageFile.Insert;
+        ConfigurationPackageFile.Init();
+        ConfigurationPackageFile.Insert();
 
         // [WHEN] GetConfigurationPackageFile is called
         FileName := AssistedCompanySetup.GetConfigurationPackageFile(ConfigurationPackageFile);
@@ -230,13 +228,13 @@ codeunit 139301 "Assisted Company Setup Tests"
         AssistedSetupGroup: Enum "Assisted Setup Group";
     begin
         // [GIVEN] A feature setup record
-        AssistedSetup.Add(BaseAppID.Get(), -1, 'Test', AssistedSetupGroup::Uncategorized);
+        AssistedSetup.Add(BaseAppID.Get(), Page::"Assisted Company Setup Wizard", 'Test', AssistedSetupGroup::Uncategorized);
 
         // [WHEN] The system tries to update the status on a existing feature
-        AssistedSetup.Complete(BaseAppID.Get(), -1);
+        AssistedSetup.Complete(Page::"Assisted Company Setup Wizard");
 
         // [THEN] The status of the feature is actually updated
-        Assert.IsTrue(AssistedSetup.IsComplete(BaseAppID.Get(), -1), 'Feature Status not updated correctly');
+        Assert.IsTrue(AssistedSetup.IsComplete(Page::"Assisted Company Setup Wizard"), 'Feature Status not updated correctly');
     end;
 
     [Test]
@@ -246,7 +244,6 @@ codeunit 139301 "Assisted Company Setup Tests"
     procedure TestWizardVerifyStatusNotCompletedWhenNotFinished()
     var
         AssistedSetup: Codeunit "Assisted Setup";
-        BaseAppID: Codeunit "BaseApp ID";
         AssistedCompanySetupWizard: TestPage "Assisted Company Setup Wizard";
     begin
         // [GIVEN] A newly setup company
@@ -257,7 +254,7 @@ codeunit 139301 "Assisted Company Setup Tests"
         AssistedCompanySetupWizard.Close;
 
         // [THEN] Status of assisted setup remains Not Completed
-        Assert.IsFalse(AssistedSetup.IsComplete(BaseAppID.Get(), PAGE::"Assisted Company Setup Wizard"), 'Set Up Company status should not be completed.');
+        Assert.IsFalse(AssistedSetup.IsComplete(PAGE::"Assisted Company Setup Wizard"), 'Set Up Company status should not be completed.');
     end;
 
     [Test]
@@ -267,7 +264,6 @@ codeunit 139301 "Assisted Company Setup Tests"
     procedure TestWizardVerifyStatusNotCompletedWhenExitRightAway()
     var
         AssistedSetup: Codeunit "Assisted Setup";
-        BaseAppID: Codeunit "BaseApp ID";
         AssistedCompanySetupWizard: TestPage "Assisted Company Setup Wizard";
     begin
         // [GIVEN] A newly setup
@@ -279,7 +275,7 @@ codeunit 139301 "Assisted Company Setup Tests"
         AssistedCompanySetupWizard.Close;
 
         // [THEN] Status of assisted setup remains Not Completed
-        Assert.IsFalse(AssistedSetup.IsComplete(BaseAppID.Get(), PAGE::"Assisted Company Setup Wizard"), 'Set Up Company status should not be completed.');
+        Assert.IsFalse(AssistedSetup.IsComplete(PAGE::"Assisted Company Setup Wizard"), 'Set Up Company status should not be completed.');
     end;
 
     [Test]
@@ -289,13 +285,12 @@ codeunit 139301 "Assisted Company Setup Tests"
     var
         BankAccount: Record "Bank Account";
         AssistedSetup: Codeunit "Assisted Setup";
-        BaseAppID: Codeunit "BaseApp ID";
         BankStatementProviderMock: Codeunit "Bank Statement Provider Mock";
         AssistedCompanySetupWizard: TestPage "Assisted Company Setup Wizard";
     begin
         // [GIVEN] A newly setup company
-        BankAccount.Reset;
-        BankAccount.DeleteAll;
+        BankAccount.Reset();
+        BankAccount.DeleteAll();
         InitializeForWizard;
 
         // [WHEN] The Assisted Company Setup wizard is completed
@@ -308,12 +303,12 @@ codeunit 139301 "Assisted Company Setup Tests"
         AssistedCompanySetupWizard.ActionFinish.Invoke;
 
         // [THEN] Status of the setup step is set to Completed
-        Assert.IsTrue(AssistedSetup.IsComplete(BaseAppID.Get(), PAGE::"Assisted Company Setup Wizard"), 'Set Up Company status should be completed.');
+        Assert.IsTrue(AssistedSetup.IsComplete(PAGE::"Assisted Company Setup Wizard"), 'Set Up Company status should be completed.');
         Assert.AreEqual(1, BankAccount.Count, 'Expected that one account is created');
 
         // Thear down
         SetDemoCompany(true);
-        BankAccount.DeleteAll;
+        BankAccount.DeleteAll();
     end;
 
     [Test]
@@ -322,7 +317,6 @@ codeunit 139301 "Assisted Company Setup Tests"
     procedure TestWizardVerifyStatusCompletedWhenFinished()
     var
         AssistedSetup: Codeunit "Assisted Setup";
-        BaseAppID: Codeunit "BaseApp ID";
         AssistedCompanySetupWizard: TestPage "Assisted Company Setup Wizard";
     begin
         // [GIVEN] A newly setup company
@@ -333,7 +327,7 @@ codeunit 139301 "Assisted Company Setup Tests"
         AssistedCompanySetupWizard.ActionFinish.Invoke;
 
         // [THEN] Status of the setup step is set to Completed
-        Assert.IsTrue(AssistedSetup.IsComplete(BaseAppID.Get(), PAGE::"Assisted Company Setup Wizard"), 'Set Up Company status should be completed.');
+        Assert.IsTrue(AssistedSetup.IsComplete(PAGE::"Assisted Company Setup Wizard"), 'Set Up Company status should be completed.');
     end;
 
     [Test]
@@ -380,7 +374,6 @@ codeunit 139301 "Assisted Company Setup Tests"
     procedure TestWizardVerifyWizardNotExitedWhenConfirmIsNo()
     var
         AssistedSetup: Codeunit "Assisted Setup";
-        BaseAppID: Codeunit "BaseApp ID";
         AssistedCompanySetupWizard: TestPage "Assisted Company Setup Wizard";
     begin
         // [GIVEN] A newly setup company
@@ -392,7 +385,7 @@ codeunit 139301 "Assisted Company Setup Tests"
         AssistedCompanySetupWizard.Close;
 
         // [THEN] Status of assisted setup remains Not Completed
-        Assert.IsFalse(AssistedSetup.IsComplete(BaseAppID.Get(), PAGE::"Assisted Company Setup Wizard"), 'Set Up Company status should not be completed.');
+        Assert.IsFalse(AssistedSetup.IsComplete(PAGE::"Assisted Company Setup Wizard"), 'Set Up Company status should not be completed.');
     end;
 
     [Test]
@@ -408,7 +401,7 @@ codeunit 139301 "Assisted Company Setup Tests"
         InitializeForWizard;
 
         // [GIVEN] No pre-existing inventory setup
-        InventorySetup.DeleteAll;
+        InventorySetup.DeleteAll();
 
         // [WHEN] Opening Assisted Company Setup wizard and navigating to costing methods page
         OpenWizardAndGoToCostAccountingPage(AssistedCompanySetupWizard);
@@ -514,16 +507,16 @@ codeunit 139301 "Assisted Company Setup Tests"
         AccountingPeriodeStartDate: Date;
     begin
         // [GIVEN] A Configuration Setup and an accounting period start date
-        CompanyInformation.Get;
-        TempConfigSetup.Init;
+        CompanyInformation.Get();
+        TempConfigSetup.Init();
         TempConfigSetup.TransferFields(CompanyInformation);
-        TempConfigSetup.Insert;
+        TempConfigSetup.Insert();
         AccountingPeriodeStartDate := CalcDate('<-CY>', Today);
 
         // [GIVEN] A newly set up company (mocked)
-        CompanyInformation.DeleteAll;
-        AccountingPeriod.DeleteAll;
-        BankAccount.DeleteAll;
+        CompanyInformation.DeleteAll();
+        AccountingPeriod.DeleteAll();
+        BankAccount.DeleteAll();
         Assert.RecordIsEmpty(CompanyInformation);
         Assert.RecordIsEmpty(AccountingPeriod);
         Assert.RecordIsEmpty(BankAccount);
@@ -561,16 +554,16 @@ codeunit 139301 "Assisted Company Setup Tests"
     begin
         // [SCENARIO] ApplyUserInput() should not override Bank Account's "Bank Acc. Posting Group" if it was already defined
         // [GIVEN] A Configuration Setup and an accounting period start date
-        CompanyInformation.Get;
-        TempConfigSetup.Init;
+        CompanyInformation.Get();
+        TempConfigSetup.Init();
         TempConfigSetup.TransferFields(CompanyInformation);
-        TempConfigSetup.Insert;
+        TempConfigSetup.Insert();
         AccountingPeriodeStartDate := CalcDate('<-CY>', Today);
 
         // [GIVEN] A newly set up company (mocked)
-        CompanyInformation.DeleteAll;
-        AccountingPeriod.DeleteAll;
-        BankAccount.DeleteAll;
+        CompanyInformation.DeleteAll();
+        AccountingPeriod.DeleteAll();
+        BankAccount.DeleteAll();
         Assert.RecordIsEmpty(CompanyInformation);
         Assert.RecordIsEmpty(AccountingPeriod);
         Assert.RecordIsEmpty(BankAccount);
@@ -579,7 +572,7 @@ codeunit 139301 "Assisted Company Setup Tests"
         OriginalPostingGroup := 'CHECKING';
         BankAccount."No." := CompanyInformationMgt.GetCompanyBankAccount;
         BankAccount."Bank Acc. Posting Group" := OriginalPostingGroup;
-        BankAccount.Insert;
+        BankAccount.Insert();
 
         // [WHEN] The ApplyUserInput function is called
         AssistedCompanySetup.ApplyUserInput(TempConfigSetup, BankAccount, AccountingPeriodeStartDate, false);
@@ -741,7 +734,6 @@ codeunit 139301 "Assisted Company Setup Tests"
         AssistedSetupTestLibrary: Codeunit "Assisted Setup Test Library";
         AssistedSetupPag: TestPage "Assisted Setup";
         AssistedSetup: Codeunit "Assisted Setup";
-        BaseAppID: Codeunit "BaseApp ID";
     begin
         InitializeEventSubscription;
 
@@ -752,7 +744,7 @@ codeunit 139301 "Assisted Company Setup Tests"
         // [THEN] Assisted Setup has records
         Assert.AreEqual(FirstTestPageNameTxt, AssistedSetupPag.Name.Value, 'Wrong page name');
         AssistedSetupPag."Start Setup".Invoke;
-        Assert.IsTrue(AssistedSetup.IsComplete(BaseAppID.Get(), PAGE::"Item List"), 'Incorrect wizard status');
+        Assert.IsTrue(AssistedSetup.IsComplete(PAGE::"Item List"), 'Incorrect wizard status');
         AssistedSetupPag.Close;
     end;
 
@@ -896,7 +888,7 @@ codeunit 139301 "Assisted Company Setup Tests"
         InitializeForWizard;
 
         // [GIVEN] New company with empty Accounting Period table
-        AccountingPeriod.DeleteAll;
+        AccountingPeriod.DeleteAll();
 
         // [WHEN] Call CreateAccountingPeriod with <blank> StartDate in codeunit Assisted Company Setup
         AssistedCompanySetup.CreateAccountingPeriod(0D);
@@ -918,7 +910,7 @@ codeunit 139301 "Assisted Company Setup Tests"
         InitializeForWizard;
 
         // [GIVEN] New company with empty Accounting Period table
-        AccountingPeriod.DeleteAll;
+        AccountingPeriod.DeleteAll();
 
         // [WHEN] Call CreateAccountingPeriod with StartDate = 1/23/2020 in codeunit Assisted Company Setup
         AssistedCompanySetup.CreateAccountingPeriod(LibraryRandom.RandDateFrom(WorkDate, 100));
@@ -1008,7 +1000,7 @@ codeunit 139301 "Assisted Company Setup Tests"
         // [GIVEN] Company "FROM" setup status empty
         CompanyFromName := GetRandomCompanyName;
         if AssistedCompanySetupStatus.Get(CompanyFromName) then
-            AssistedCompanySetupStatus.Delete;
+            AssistedCompanySetupStatus.Delete();
 
         // [WHEN] Function CopySaaSCompanySetupStatus for company "TO" is being run
         CompanyToName := GetRandomCompanyName;
@@ -1187,10 +1179,10 @@ codeunit 139301 "Assisted Company Setup Tests"
         AssistedSetupTestLibrary: Codeunit "Assisted Setup Test Library";
     begin
         // Delete G/L Entries to mock a new company which isn't in use already
-        GLEntry.DeleteAll;
+        GLEntry.DeleteAll();
 
         // Make sure we do not have any Configuration Package Files in the system, since that would trigger import
-        ConfigurationPackageFile.DeleteAll;
+        ConfigurationPackageFile.DeleteAll();
 
         AssistedCompanySetupStatus.SetEnabled(CompanyName, true, true);
         Initialize;
@@ -1207,11 +1199,10 @@ codeunit 139301 "Assisted Company Setup Tests"
     local procedure CheckWizardVisibility(PageId: Integer; WizardVisibility: Boolean)
     var
         AssistedSetupTestLibrary: Codeunit "Assisted Setup Test Library";
-        BaseAppID: Codeunit "BaseApp ID";
     begin
         AssistedSetupTestLibrary.DeleteAll();
         AssistedSetupTestLibrary.CallOnRegister();
-        Assert.AreEqual(WizardVisibility, AssistedSetupTestLibrary.Exists(BaseAppID.Get(), PageId), 'Wizard existence mismatch');
+        Assert.AreEqual(WizardVisibility, AssistedSetupTestLibrary.Exists(PageId), 'Wizard existence mismatch');
     end;
 
     local procedure GetRandomCompanyName(): Text[30]
@@ -1223,9 +1214,9 @@ codeunit 139301 "Assisted Company Setup Tests"
     var
         AssistedCompanySetupStatus: Record "Assisted Company Setup Status";
     begin
-        AssistedCompanySetupStatus.Init;
+        AssistedCompanySetupStatus.Init();
         AssistedCompanySetupStatus."Company Name" := CompanyName;
-        AssistedCompanySetupStatus.Insert;
+        AssistedCompanySetupStatus.Insert();
     end;
 
     [ConfirmHandler]
@@ -1253,9 +1244,9 @@ codeunit 139301 "Assisted Company Setup Tests"
     var
         CompanyInformation: Record "Company Information";
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         CompanyInformation."Demo Company" := IsDemoCompany;
-        CompanyInformation.Modify;
+        CompanyInformation.Modify();
     end;
 
     [ModalPageHandler]
@@ -1269,7 +1260,7 @@ codeunit 139301 "Assisted Company Setup Tests"
     var
         InventorySetup: Record "Inventory Setup";
     begin
-        InventorySetup.Get;
+        InventorySetup.Get();
         AssistedCompanySetupWizard."Costing Method".AssertEquals(InventorySetup."Default Costing Method");
         InventorySetup.TestField("Default Costing Method", CostingMethod);
         InventorySetup.TestField("Automatic Cost Adjustment", InventorySetup."Automatic Cost Adjustment"::Always);

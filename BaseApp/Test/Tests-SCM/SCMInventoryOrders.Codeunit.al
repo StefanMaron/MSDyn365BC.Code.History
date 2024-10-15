@@ -1088,6 +1088,7 @@ codeunit 137400 "SCM Inventory - Orders"
 
         // Setup: Update Sales & Receivables Setup and Create a Sales Return Order.
         Initialize;
+        LibrarySales.SetPostWithJobQueue(true);
         BindSubscription(LibraryJobQueue);
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
         UpdateSalesReceivableSetup(false, true);
@@ -1097,7 +1098,7 @@ codeunit 137400 "SCM Inventory - Orders"
         // Exercise: Run Batch Post Sales Return Order report.
         RunBatchPostSalesReturnOrders(SalesLine."Document No.");
         LibraryJobQueue.FindAndRunJobQueueEntryByRecordId(SalesHeader.RecordId);
-        
+
         // Verify: Verify Posted Return Receipt.
         VerifyPostedReturnReceipt(SalesLine);
     end;

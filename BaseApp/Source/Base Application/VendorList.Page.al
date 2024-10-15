@@ -892,7 +892,7 @@
                     ApplicationArea = Basic, Suite;
                     Caption = 'Aged Accounts Payable';
                     Image = "Report";
-                    RunObject = Report "Aged Accounts Payable";
+                    RunObject = Report "Aged Accounts Payable NA";
                     ToolTip = 'View a list of aged remaining balances for each vendor.';
                 }
                 action("Vendor Account Detail")

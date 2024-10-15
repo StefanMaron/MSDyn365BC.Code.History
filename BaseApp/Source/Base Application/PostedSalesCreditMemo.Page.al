@@ -109,6 +109,12 @@
                     Importance = Promoted;
                     ToolTip = 'Specifies the date on which the credit memo was posted.';
                 }
+                field("Your Reference"; "Your Reference")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies the customer''s reference. The contents will be printed on sales documents.';
+                }
                 field("Document Date"; "Document Date")
                 {
                     ApplicationArea = Basic, Suite;
@@ -665,6 +671,20 @@
                     begin
                         ExportEDocument;
                     end;
+                }
+                action(CFDIRelationDocuments)
+                {
+                    ApplicationArea = BasicMX;
+                    Caption = 'CFDI Relation Documents';
+                    Image = Allocations;
+                    Promoted = true;
+                    PromotedCategory = Category9;
+                    RunObject = Page "CFDI Relation Documents";
+                    RunPageLink = "Document Table ID" = CONST(114),
+                                  "Document No." = FIELD("No."),
+                                  "Customer No." = FIELD("Bill-to Customer No.");
+                    RunPageMode = View;
+                    ToolTip = 'View or add CFDI relation documents for the record.';
                 }
                 action("&Cancel")
                 {

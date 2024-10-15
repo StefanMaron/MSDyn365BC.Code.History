@@ -485,7 +485,7 @@ page 10039 "Purchase Order Stats."
 
                     trigger OnValidate()
                     begin
-                        UpdatePrepmtAmount;
+                        UpdatePrepmtAmount();
                     end;
                 }
                 field(PrepmtVATAmount; PrepmtVATAmount)

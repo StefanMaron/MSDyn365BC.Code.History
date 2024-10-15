@@ -888,6 +888,257 @@ codeunit 142092 "ERM Sales/Purchase Tax III"
         PurchaseLine.TestField("Amount Including VAT", PurchaseLine.Amount);
     end;
 
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    [Scope('OnPrem')]
+    procedure TaxLiablePerSalesLine()
+    var
+        Customer: Record Customer;
+        ShipToAddressNoTax: Record "Ship-to Address";
+        ShipToAddressTaxLiable: Record "Ship-to Address";
+        TaxJurisdiction: Record "Tax Jurisdiction";
+        TaxDetail: Record "Tax Detail";
+        VATPostingSetup: Record "VAT Posting Setup";
+        SalesHeader: Record "Sales Header";
+        SalesHeaderInvoice: Record "Sales Header";
+        SalesShipmentHeader: Record "Sales Shipment Header";
+        VATEntry: Record "VAT Entry";
+        ItemNo: Code[20];
+        TaxAreaCode: Code[20];
+        TaxGroupCode: Code[20];
+        SalesInvoiceNo: Code[20];
+        TaxPercent: Decimal;
+        SalesOrderAmount: array[2] of Decimal;
+    begin
+        // [FEATURE] [Sales] [Invoice] [Combine Shipments]
+        // [SCENARIO 334744] Only sales lines up to Tax Liable are included in tax calculation.
+        Initialize();
+        TaxPercent := LibraryRandom.RandInt(10);
+
+        // [GIVEN] Tax area code "TA", Tax group code = "TG", Tax = 3%.
+        TaxAreaCode := LibraryERMTax.CreateTaxArea_CA();
+        TaxJurisdiction.Get(LibraryERMTax.CreateTaxJurisdictionWithSelfReportTo_CA());
+        TaxGroupCode := LibraryERMTax.CreateTaxGroupCode();
+        LibraryERMTax.CreateTaxAreaLine(TaxAreaCode, TaxJurisdiction.Code);
+        LibraryERMTax.CreateTaxDetail(TaxDetail, TaxJurisdiction.Code, TaxGroupCode, TaxPercent);
+
+        // [GIVEN] A customer with tax area code "TA" and set up for combine shipments.
+        Customer.Get(CreateCustomerWithTaxArea(TaxAreaCode));
+        Customer.Validate("Combine Shipments", true);
+        Customer.Modify(true);
+
+        // [GIVEN] Ship-to address "ADDR1" with "Tax Liable" = FALSE.
+        // [GIVEN] Ship-to address "ADDR2" with "Tax Liable" = TRUE.
+        LibrarySales.CreateShipToAddress(ShipToAddressNoTax, Customer."No.");
+        LibrarySales.CreateShipToAddress(ShipToAddressTaxLiable, Customer."No.");
+        ShipToAddressTaxLiable.Validate("Tax Liable", true);
+        ShipToAddressTaxLiable.Modify(true);
+
+        // [GIVEN] A new item.
+        VATPostingSetup.SetRange("VAT Bus. Posting Group", Customer."VAT Bus. Posting Group");
+        LibraryERM.FindVATPostingSetupInvt(VATPostingSetup);
+        ItemNo := LibraryInventory.CreateItemNoWithVATProdPostingGroup(VATPostingSetup."VAT Prod. Posting Group");
+
+        // [GIVEN] Create two sales orders with tax area "TA" and tax group code "TG".
+        // [GIVEN] The difference is that the first order has ship-to address "ADDR1" (no tax), and the second one - "ADDR2" (with tax).
+        // [GIVEN] Amount incl. VAT of the first order = 100 LCY.
+        CreateAndShipSalesOrderWithShipToAddr(SalesHeader, Customer."No.", ShipToAddressNoTax.Code, ItemNo, TaxGroupCode);
+        SalesOrderAmount[1] := SalesHeader."Amount Including VAT";
+
+        // [GIVEN] Amount incl. VAT of the second order = 110 LCY (100 line amount + 10 tax).
+        // [GIVEN] Post both orders as ship.
+        CreateAndShipSalesOrderWithShipToAddr(SalesHeader, Customer."No.", ShipToAddressTaxLiable.Code, ItemNo, TaxGroupCode);
+        SalesOrderAmount[2] := SalesHeader."Amount Including VAT";
+
+        // [GIVEN] Run "Combine shipments" to create a single invoice from both shipments.
+        SalesHeader.SetRange("Sell-to Customer No.", Customer."No.");
+        SalesShipmentHeader.SetRange("Sell-to Customer No.", Customer."No.");
+        LibrarySales.CombineShipments(SalesHeader, SalesShipmentHeader, WorkDate, WorkDate, false, false, false, false);
+
+        // [WHEN] Post the sales invoice.
+        SalesHeaderInvoice.SetRange("Document Type", SalesHeaderInvoice."Document Type"::Invoice);
+        SalesHeaderInvoice.SetRange("Sell-to Customer No.", Customer."No.");
+        SalesHeaderInvoice.FindFirst();
+        SalesInvoiceNo := LibrarySales.PostSalesDocument(SalesHeaderInvoice, true, true);
+
+        // [THEN] Invoiced amount = 210 LCY (100 + 110).
+        Customer.CalcFields("Net Change");
+        Customer.TestField("Net Change", SalesOrderAmount[1] + SalesOrderAmount[2]);
+
+        // [THEN] VAT entry is created for the taxed amount only.
+        // [THEN] "VAT Entry".Base = 100.
+        // [THEN] "VAT Entry".Amount = 10.
+        VATEntry.SetRange("Document No.", SalesInvoiceNo);
+        Assert.RecordCount(VATEntry, 1);
+        VATEntry.FindFirst();
+        Assert.AreNearlyEqual(-SalesOrderAmount[2] / (1 + TaxPercent / 100), VATEntry.Base, LibraryERM.GetAmountRoundingPrecision(), '');
+        Assert.AreEqual(-SalesOrderAmount[2] - VATEntry.Base, VATEntry.Amount, '');
+
+        // [THEN] 10 LCY is posted on tax account to the general ledger.
+        VerifyGLEntry(SalesInvoiceNo, TaxJurisdiction."Tax Account (Sales)", VATEntry.Amount);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TaxLiablePerPurchaseLine()
+    var
+        Vendor: Record Vendor;
+        TaxJurisdiction: Record "Tax Jurisdiction";
+        TaxDetail: Record "Tax Detail";
+        VATPostingSetup: Record "VAT Posting Setup";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseHeaderInvoice: Record "Purchase Header";
+        PurchRcptLine: Record "Purch. Rcpt. Line";
+        VATEntry: Record "VAT Entry";
+        PurchGetReceipt: Codeunit "Purch.-Get Receipt";
+        ItemNo: Code[20];
+        TaxAreaCode: Code[20];
+        TaxGroupCode: Code[20];
+        PurchInvoiceNo: Code[20];
+        TaxPercent: Decimal;
+        PurchOrderAmount: array[2] of Decimal;
+    begin
+        // [FEATURE] [Purchase] [Invoice] [Get Receipt Lines]
+        // [SCENARIO 334744] Only purchase lines up to Tax Liable are included in tax calculation.
+        Initialize();
+        TaxPercent := LibraryRandom.RandInt(10);
+
+        // [GIVEN] Tax area code "TA", Tax group code = "TG", Tax = 3%.
+        TaxAreaCode := LibraryERMTax.CreateTaxArea_CA();
+        TaxJurisdiction.Get(LibraryERMTax.CreateTaxJurisdictionWithSelfReportTo_CA());
+        TaxGroupCode := LibraryERMTax.CreateTaxGroupCode();
+        LibraryERMTax.CreateTaxAreaLine(TaxAreaCode, TaxJurisdiction.Code);
+        LibraryERMTax.CreateTaxDetail(TaxDetail, TaxJurisdiction.Code, TaxGroupCode, TaxPercent);
+
+        // [GIVEN] A vendor with tax area code "TA".
+        Vendor.Get(CreateVendorWithTaxArea(TaxAreaCode));
+
+        // [GIVEN] A new item.
+        VATPostingSetup.SetRange("VAT Bus. Posting Group", Vendor."VAT Bus. Posting Group");
+        LibraryERM.FindVATPostingSetupInvt(VATPostingSetup);
+        ItemNo := LibraryInventory.CreateItemNoWithVATProdPostingGroup(VATPostingSetup."VAT Prod. Posting Group");
+
+        // [GIVEN] Create two purchase orders with tax area "TA" and tax group code "TG".
+        // [GIVEN] The first order is tax liable, the second one is not.
+        // [GIVEN] Amount incl. VAT of the first order = 110 LCY (100 line amount + 10 tax).
+        CreateAndReceivePurchOrder(PurchaseHeader, Vendor."No.", true, ItemNo, TaxAreaCode, TaxGroupCode);
+        PurchOrderAmount[1] := PurchaseHeader."Amount Including VAT";
+
+        // [GIVEN] Amount incl. VAT of the second order = 100 LCY (100 line amount, no tax).
+        // [GIVEN] Post both orders as receive.
+        CreateAndReceivePurchOrder(PurchaseHeader, Vendor."No.", false, ItemNo, TaxAreaCode, TaxGroupCode);
+        PurchOrderAmount[2] := PurchaseHeader."Amount Including VAT";
+
+        // [GIVEN] Create purchase invoice and populate lines using "Get Receipt Lines".
+        PurchRcptLine.SetRange("Buy-from Vendor No.", Vendor."No.");
+        LibraryPurchase.CreatePurchHeader(PurchaseHeaderInvoice, PurchaseHeaderInvoice."Document Type"::Invoice, Vendor."No.");
+        PurchaseHeaderInvoice.Validate("Tax Area Code", TaxAreaCode);
+        PurchaseHeaderInvoice.Modify(true);
+        PurchGetReceipt.SetPurchHeader(PurchaseHeaderInvoice);
+        PurchGetReceipt.CreateInvLines(PurchRcptLine);
+
+        // [WHEN] Post the purchase invoice.
+        PurchInvoiceNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeaderInvoice, true, true);
+
+        // [THEN] Invoiced amount = 210 LCY (110 + 100).
+        Vendor.CalcFields("Net Change");
+        Vendor.TestField("Net Change", PurchOrderAmount[1] + PurchOrderAmount[2]);
+
+        // [THEN] VAT entry is created for the taxed amount only.
+        // [THEN] "VAT Entry".Base = 100.
+        // [THEN] "VAT Entry".Amount = 10.
+        VATEntry.SetRange("Document No.", PurchInvoiceNo);
+        Assert.RecordCount(VATEntry, 1);
+        VATEntry.FindFirst();
+        Assert.AreNearlyEqual(PurchOrderAmount[1] / (1 + TaxPercent / 100), VATEntry.Base, LibraryERM.GetAmountRoundingPrecision(), '');
+        Assert.AreEqual(PurchOrderAmount[1] - VATEntry.Base, VATEntry.Amount, '');
+
+        // [THEN] 10 LCY is posted on tax account to the general ledger.
+        VerifyGLEntry(PurchInvoiceNo, TaxJurisdiction."Tax Account (Purchases)", VATEntry.Amount);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TaxLiablePerServiceLine()
+    var
+        Customer: Record Customer;
+        TaxJurisdiction: Record "Tax Jurisdiction";
+        TaxDetail: Record "Tax Detail";
+        VATPostingSetup: Record "VAT Posting Setup";
+        ServiceHeader: Record "Service Header";
+        ServiceHeaderInvoice: Record "Service Header";
+        ServiceLine: Record "Service Line";
+        ServiceShipmentLine: Record "Service Shipment Line";
+        ServiceInvoiceHeader: Record "Service Invoice Header";
+        VATEntry: Record "VAT Entry";
+        ServiceGetShipment: Codeunit "Service-Get Shipment";
+        ItemNo: Code[20];
+        TaxAreaCode: Code[20];
+        TaxGroupCode: Code[20];
+        TaxPercent: Decimal;
+        ServiceOrderAmount: array[2] of Decimal;
+    begin
+        // [FEATURE] [Service] [Invoice] [Get Service Shipment Lines]
+        // [SCENARIO 334744] Only service lines up to Tax Liable are included in tax calculation.
+        Initialize();
+        TaxPercent := LibraryRandom.RandInt(10);
+
+        // [GIVEN] Tax area code "TA", Tax group code = "TG", Tax = 3%.
+        TaxAreaCode := LibraryERMTax.CreateTaxArea_CA();
+        TaxJurisdiction.Get(LibraryERMTax.CreateTaxJurisdictionWithSelfReportTo_CA());
+        TaxGroupCode := LibraryERMTax.CreateTaxGroupCode();
+        LibraryERMTax.CreateTaxAreaLine(TaxAreaCode, TaxJurisdiction.Code);
+        LibraryERMTax.CreateTaxDetail(TaxDetail, TaxJurisdiction.Code, TaxGroupCode, TaxPercent);
+
+        // [GIVEN] A customer with tax area code "TA".
+        Customer.Get(CreateCustomerWithTaxArea(TaxAreaCode));
+
+        // [GIVEN] A new item.
+        VATPostingSetup.SetRange("VAT Bus. Posting Group", Customer."VAT Bus. Posting Group");
+        LibraryERM.FindVATPostingSetupInvt(VATPostingSetup);
+        ItemNo := LibraryInventory.CreateItemNoWithVATProdPostingGroup(VATPostingSetup."VAT Prod. Posting Group");
+
+        // [GIVEN] Create two service orders with tax area "TA" and tax group code "TG".
+        // [GIVEN] The first order is tax liable, the second one is not.
+        // [GIVEN] Amount incl. VAT of the first order = 110 LCY (100 line amount + 10 tax).
+        CreateAndShipServiceOrder(ServiceHeader, Customer."No.", true, ItemNo, TaxAreaCode, TaxGroupCode);
+        FindServiceLine(ServiceLine, ServiceHeader);
+        ServiceOrderAmount[1] := Round(ServiceLine."Line Amount" * (1 + TaxPercent / 100), LibraryERM.GetAmountRoundingPrecision());
+
+        // [GIVEN] Amount incl. VAT of the second order = 100 LCY (100 line amount, no tax).
+        // [GIVEN] Post both orders as ship.
+        CreateAndShipServiceOrder(ServiceHeader, Customer."No.", false, ItemNo, TaxAreaCode, TaxGroupCode);
+        FindServiceLine(ServiceLine, ServiceHeader);
+        ServiceOrderAmount[2] := ServiceLine."Line Amount";
+
+        // [GIVEN] Create service invoice and populate lines using "Get Service Shipment Lines".
+        ServiceShipmentLine.SetRange("Customer No.", Customer."No.");
+        LibraryService.CreateServiceHeader(ServiceHeaderInvoice, ServiceHeaderInvoice."Document Type"::Invoice, Customer."No.");
+        ServiceHeaderInvoice.Validate("Tax Area Code", TaxAreaCode);
+        ServiceHeaderInvoice.Modify(true);
+        ServiceGetShipment.SetServiceHeader(ServiceHeaderInvoice);
+        ServiceGetShipment.CreateInvLines(ServiceShipmentLine);
+
+        // [WHEN] Post the service invoice.
+        LibraryService.PostServiceOrder(ServiceHeaderInvoice, false, false, false);
+
+        // [THEN] Invoiced amount = 210 LCY (110 + 100).
+        Customer.CalcFields("Net Change");
+        Customer.TestField("Net Change", ServiceOrderAmount[1] + ServiceOrderAmount[2]);
+
+        // [THEN] VAT entry is created for the taxed amount only.
+        // [THEN] "VAT Entry".Base = 100.
+        // [THEN] "VAT Entry".Amount = 10.
+        FindServiceInvoiceHeader(ServiceInvoiceHeader, ServiceHeaderInvoice);
+        VATEntry.SetRange("Document No.", ServiceInvoiceHeader."No.");
+        Assert.RecordCount(VATEntry, 1);
+        VATEntry.FindFirst();
+        Assert.AreNearlyEqual(-ServiceOrderAmount[1] / (1 + TaxPercent / 100), VATEntry.Base, LibraryERM.GetAmountRoundingPrecision(), '');
+        Assert.AreEqual(-ServiceOrderAmount[1] - VATEntry.Base, VATEntry.Amount, '');
+
+        // [THEN] 10 LCY is posted on tax account to the general ledger.
+        VerifyGLEntry(ServiceInvoiceHeader."No.", TaxJurisdiction."Tax Account (Sales)", VATEntry.Amount);
+    end;
     local procedure Initialize()
     var
         TaxSetup: Record "Tax Setup";
@@ -1244,8 +1495,10 @@ codeunit 142092 "ERM Sales/Purchase Tax III"
     begin
         PrepareUnitPrices_TFS280515(UnitPrices);
         CreateServiceHeader(ServiceHeader, ServiceItemLine, TaxAreaCode);
-        CreateServiceLine(ServiceHeader, ServiceItemLine, TaxGroupCode, 1, UnitPrices[1]);
-        CreateServiceLine(ServiceHeader, ServiceItemLine, TaxGroupCode, 1, UnitPrices[2]);
+        CreateServiceLine(
+          ServiceHeader, ServiceItemLine, LibraryInventory.CreateItemNoWithVATProdPostingGroup(''), TaxGroupCode, 1, UnitPrices[1]);
+        CreateServiceLine(
+          ServiceHeader, ServiceItemLine, LibraryInventory.CreateItemNoWithVATProdPostingGroup(''), TaxGroupCode, 1, UnitPrices[2]);
     end;
 
     local procedure CreateSalesHeader(var SalesHeader: Record "Sales Header"; CustomerNo: Code[20]; TaxAreaCode: Code[20]; PrepaymentPct: Decimal; PrepmtIncludeTax: Boolean)
@@ -1383,6 +1636,17 @@ codeunit 142092 "ERM Sales/Purchase Tax III"
         end;
     end;
 
+    local procedure CreateAndReceivePurchOrder(var PurchaseHeader: Record "Purchase Header"; VendorNo: Code[20]; TaxLiable: Boolean; ItemNo: Code[20]; TaxAreaCode: Code[20]; TaxGroupCode: Code[20])
+    begin
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, VendorNo);
+        PurchaseHeader.Validate("Tax Area Code", TaxAreaCode);
+        PurchaseHeader.Validate("Tax Liable", TaxLiable);
+        PurchaseHeader.Modify(true);
+        CreatePurchaseLineItem(PurchaseHeader, ItemNo, TaxGroupCode, LibraryRandom.RandDecInRange(100, 200, 2));
+        PurchaseHeader.CalcFields("Amount Including VAT");
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
+    end;
+
     local procedure CreateSalesHeaderWithTaxAreaForCustomer(var SalesHeader: Record "Sales Header"; DocumentType: Option; CurrencyCode: Code[10]; TaxAreaCode: Code[20]; CustomerNo: Code[20])
     begin
         with SalesHeader do begin
@@ -1393,6 +1657,16 @@ codeunit 142092 "ERM Sales/Purchase Tax III"
             Validate("Tax Area Code", TaxAreaCode);
             Modify(true);
         end;
+    end;
+
+    local procedure CreateAndShipSalesOrderWithShipToAddr(var SalesHeader: Record "Sales Header"; CustomerNo: Code[20]; ShipToCode: Code[10]; ItemNo: Code[20]; TaxGroupCode: Code[20])
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CustomerNo);
+        SalesHeader.Validate("Ship-to Code", ShipToCode);
+        SalesHeader.Modify(true);
+        CreateSalesLineItem(SalesHeader, ItemNo, TaxGroupCode, LibraryRandom.RandDecInRange(100, 200, 2));
+        SalesHeader.CalcFields("Amount Including VAT");
+        LibrarySales.PostSalesDocument(SalesHeader, true, false);
     end;
 
     local procedure CreatePurchaseLineItem(PurchaseHeader: Record "Purchase Header"; ItemNo: Code[20]; TaxGroupCode: Code[20]; DirectUnitCost: Decimal)
@@ -1556,16 +1830,35 @@ codeunit 142092 "ERM Sales/Purchase Tax III"
         ServiceItemLine.Modify(true);
     end;
 
-    local procedure CreateServiceLine(ServiceHeader: Record "Service Header"; ServiceItemLine: Record "Service Item Line"; TaxGroupCode: Code[20]; Quantity: Decimal; UnitPrice: Decimal)
+    local procedure CreateServiceLine(ServiceHeader: Record "Service Header"; ServiceItemLine: Record "Service Item Line"; ItemNo: Code[20]; TaxGroupCode: Code[20]; Quantity: Decimal; UnitPrice: Decimal)
     var
         ServiceLine: Record "Service Line";
     begin
         LibraryService.CreateServiceLineWithQuantity(
-          ServiceLine, ServiceHeader, ServiceLine.Type::Item, LibraryInventory.CreateItemNoWithVATProdPostingGroup(''), Quantity);
+          ServiceLine, ServiceHeader, ServiceLine.Type::Item, ItemNo, Quantity);
         ServiceLine.Validate("Tax Group Code", TaxGroupCode);
         ServiceLine.Validate("Service Item Line No.", ServiceItemLine."Line No.");
         ServiceLine.Validate("Unit Price", UnitPrice);
         ServiceLine.Modify(true);
+    end;
+
+    local procedure CreateAndShipServiceOrder(var ServiceHeader: Record "Service Header"; CustomerNo: Code[20]; TaxLiable: Boolean; ItemNo: Code[20]; TaxAreaCode: Code[20]; TaxGroupCode: Code[20])
+    var
+        ServiceItemLine: Record "Service Item Line";
+    begin
+        Clear(ServiceHeader);
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, CustomerNo);
+        ServiceHeader.Validate("Tax Liable", TaxLiable);
+        ServiceHeader.Validate("Tax Area Code", TaxAreaCode);
+        ServiceHeader.Modify(true);
+
+        LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, '');
+        ServiceItemLine.Validate("Item No.", LibraryInventory.CreateItemNo());
+        ServiceItemLine.Modify(true);
+
+        CreateServiceLine(ServiceHeader, ServiceItemLine, ItemNo, TaxGroupCode, 1, LibraryRandom.RandDecInRange(100, 200, 2));
+
+        LibraryService.PostServiceOrder(ServiceHeader, true, false, false);
     end;
 
     local procedure FindPurchaseLine(var PurchaseLine: Record "Purchase Line"; DocumentType: Option; DocumentNo: Code[20]; LineType: Option)
@@ -1586,6 +1879,13 @@ codeunit 142092 "ERM Sales/Purchase Tax III"
             SetRange(Type, LineType);
             FindFirst;
         end;
+    end;
+
+    local procedure FindServiceLine(var ServiceLine: Record "Service Line"; ServiceHeader: Record "Service Header")
+    begin
+        ServiceLine.SetRange("Document Type", ServiceHeader."Document Type");
+        ServiceLine.SetRange("Document No.", ServiceHeader."No.");
+        ServiceLine.FindFirst();
     end;
 
     local procedure FindServiceInvoiceHeader(var ServiceInvoiceHeader: Record "Service Invoice Header"; ServiceHeader: Record "Service Header")

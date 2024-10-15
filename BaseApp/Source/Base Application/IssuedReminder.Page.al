@@ -260,6 +260,8 @@
 
                 trigger OnAction()
                 begin
+                    IssuedReminderHeader := Rec;
+                    OnBeforePrintRecords(Rec, IssuedReminderHeader);
                     CurrPage.SetSelectionFilter(IssuedReminderHeader);
                     IssuedReminderHeader.PrintRecords(true, false, false);
                 end;
@@ -318,5 +320,10 @@
         IssuedReminderHeader: Record "Issued Reminder Header";
         CurrExchRate: Record "Currency Exchange Rate";
         ChangeExchangeRate: Page "Change Exchange Rate";
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePrintRecords(IssuedReminderHeaderRec: Record "Issued Reminder Header"; var IssuedReminderHeaderToPrint: Record "Issued Reminder Header")
+    begin
+    end;
 }
 

@@ -1346,6 +1346,7 @@
                 }
                 action("Import Electronic Invoice")
                 {
+                    ApplicationArea = BasicMX;
                     Caption = 'Import Electronic Invoice';
                     Image = Import;
                     ToolTip = 'Import an electronic invoice that is returned from PAC with a digital stamp.';

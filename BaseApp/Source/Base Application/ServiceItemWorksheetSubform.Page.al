@@ -622,7 +622,7 @@
 
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean
     begin
-        "Line No." := GetNextLineNo(xRec, BelowxRec);
+        "Line No." := GetLineNo();
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)

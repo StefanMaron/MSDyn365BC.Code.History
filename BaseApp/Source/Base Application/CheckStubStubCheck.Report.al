@@ -1082,8 +1082,11 @@ report 10401 "Check (Stub/Stub/Check)"
                         end;
                     end;
 
+                    if not TestPrint then begin
                     BankAcc2."Last Check No." := UseCheckNo;
                     BankAcc2.Modify;
+                    end;
+
                     if CommitEachCheck then begin
                         Commit;
                         Clear(CheckManagement);

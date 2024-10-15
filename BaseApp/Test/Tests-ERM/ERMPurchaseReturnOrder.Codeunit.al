@@ -455,9 +455,44 @@ codeunit 134329 "ERM Purchase Return Order"
     end;
 
     [Test]
-    [HandlerFunctions('BatchPostPurchReturnOrderHandler,MessageHandler')]
+    [HandlerFunctions('BatchPostPurchReturnOrderHandler,MessageHandler,SendNotificationHandler')]
     [Scope('OnPrem')]
     procedure BatchPostWithWorkDate()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        RecID: RecordID;
+    begin
+        // [SCENARIO] Batch Post Purch. Ret. Orders Report with WorkDate as Posting Date and all the fields checked based on Purchase Return Order without Vendor Cr. Memo No.
+
+        // [GIVEN] Create Purchase Return Document without Vendor Credit Memo No..
+        Initialize;
+        LibraryPurchase.SetPostWithJobQueue(false);
+        RecID := PurchaseHeader.RecordId;
+        CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::"Return Order", CreateItem, CreateVendor);
+        UpdatePurchaseHeader(PurchaseHeader, '');
+
+        // [WHEN] Run Batch Post Purch. Ret. Orders Report with Work Date as Posting Date and all field.
+        ShipReq := true;
+        InvReq := true;
+        PostingDateReq := WorkDate;
+        ReplacePostingDate := true;
+        ReplaceDocumentDate := true;
+        CalcInvDiscount := true;
+
+        RunBatchPostPurchaseReturnOrders(PurchaseHeader);
+
+        // [THEN] Notification: 'An error or warning occured during operation Batch processing of Purchase Header records.'
+        Assert.ExpectedMessage(BatchPostingErrrorNotificationMsg, LibraryVariableStorage.DequeueText);
+        LibraryNotificationMgt.RecallNotificationsForRecordID(RecID);
+        LibraryVariableStorage.AssertEmpty;
+        // [THEN] Purchase Return Order is not posted
+        PurchaseHeader.Get(PurchaseHeader."Document Type"::"Return Order", PurchaseHeader."No.");
+    end;
+
+    [Test]
+    [HandlerFunctions('BatchPostPurchReturnOrderHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure BatchPostWithWorkDateBackground()
     var
         PurchaseHeader: Record "Purchase Header";
         ErrorMessage: Record "Error Message";
@@ -465,10 +500,11 @@ codeunit 134329 "ERM Purchase Return Order"
         LibraryJobQueue: Codeunit "Library - Job Queue";
         RecID: RecordID;
     begin
-        // [SCENARIO] Batch Post Purch. Ret. Orders Report with WorkDate as Posting Date and all the fields checked based on Purchase Return Order without Vendor Cr. Memo No.
+        // [SCENARIO] Batch Post (Background) Purch. Ret. Orders Report with WorkDate as Posting Date and all the fields checked based on Purchase Return Order without Vendor Cr. Memo No.
 
         // [GIVEN] Create Purchase Return Document without Vendor Credit Memo No..
         Initialize;
+        LibraryPurchase.SetPostWithJobQueue(true);
         BindSubscription(LibraryJobQueue);
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
         RecID := PurchaseHeader.RecordId;
@@ -533,12 +569,45 @@ codeunit 134329 "ERM Purchase Return Order"
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
         VendorInvoiceDisc: Record "Vendor Invoice Disc.";
-        LibraryJobQueue: Codeunit "Library - Job Queue";
     begin
         // Check Batch Post Purch. Ret. Orders Report with Ship, Invoice and  Calc. Inv. Discount as true based on Purchase Return Order.
 
         // Setup: Create Purchase Return Document.
         Initialize;
+        LibraryPurchase.SetPostWithJobQueue(false);
+        CreateInvoiceDiscount(VendorInvoiceDisc);
+        CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::"Return Order", CreateItem, VendorInvoiceDisc.Code);
+        FindPurchaseLine(PurchaseLine, PurchaseHeader);
+
+        // Exercise: Run Batch Post Purch. Ret. Orders Report with with Ship, Invoice and  Calc. Inv. Discount as true.
+        ShipReq := true;
+        InvReq := true;
+        PostingDateReq := 0D;
+        ReplacePostingDate := false;
+        ReplaceDocumentDate := false;
+        CalcInvDiscount := true;
+        RunBatchPostPurchaseReturnOrders(PurchaseHeader);
+
+        // Verify: Check Purchase Return Order after Run Batch Post Purch. Ret. Orders Report.
+        VerifyInvoiceDiscountAmount(
+          PurchaseHeader."No.", (PurchaseLine.Quantity * PurchaseLine."Direct Unit Cost") * VendorInvoiceDisc."Discount %" / 100);
+    end;
+
+    [Test]
+    [HandlerFunctions('BatchPostPurchReturnOrderHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure BatchPostWithCalcInvDiscountBackground()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        VendorInvoiceDisc: Record "Vendor Invoice Disc.";
+        LibraryJobQueue: Codeunit "Library - Job Queue";
+    begin
+        // Check Batch Post (Background) Purch. Ret. Orders Report with Ship, Invoice and  Calc. Inv. Discount as true based on Purchase Return Order.
+
+        // Setup: Create Purchase Return Document.
+        Initialize;
+        LibraryPurchase.SetPostWithJobQueue(true);
         BindSubscription(LibraryJobQueue);
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
         CreateInvoiceDiscount(VendorInvoiceDisc);
@@ -567,12 +636,42 @@ codeunit 134329 "ERM Purchase Return Order"
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
-        LibraryJobQueue: Codeunit "Library - Job Queue";
     begin
         // Check Batch Post Purch. Ret. Orders Report with Work Date as Posting Date and all field checked based on Purchase Return Order with Vendor Cr. Memo No.
 
         // Setup: Create Purchase Return Document with Vendor Credit Memo No.
         Initialize;
+        LibraryPurchase.SetPostWithJobQueue(false);
+        CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::"Return Order", CreateItem, CreateVendor);
+        FindPurchaseLine(PurchaseLine, PurchaseHeader);
+
+        // Exercise: Run Batch Post Purch. Ret. Orders Report with all Fields.
+        ShipReq := true;
+        InvReq := true;
+        PostingDateReq := WorkDate;
+        ReplacePostingDate := true;
+        ReplaceDocumentDate := true;
+        CalcInvDiscount := true;
+        RunBatchPostPurchaseReturnOrders(PurchaseHeader);
+
+        // Verify: Check Return Shipment Line.
+        VerifyReturnShipmentLine(PurchaseLine, FindReturnShipmentHeaderNo(PurchaseHeader."No."));
+    end;
+
+    [Test]
+    [HandlerFunctions('BatchPostPurchReturnOrderHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure BatchPostWithReturnShipmentLineBackground()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        LibraryJobQueue: Codeunit "Library - Job Queue";
+    begin
+        // Check Batch Post (Background) Purch. Ret. Orders Report with Work Date as Posting Date and all field checked based on Purchase Return Order with Vendor Cr. Memo No.
+
+        // Setup: Create Purchase Return Document with Vendor Credit Memo No.
+        Initialize;
+        LibraryPurchase.SetPostWithJobQueue(true);
         BindSubscription(LibraryJobQueue);
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
         CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::"Return Order", CreateItem, CreateVendor);

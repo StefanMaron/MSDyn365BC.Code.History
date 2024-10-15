@@ -745,6 +745,341 @@ codeunit 134500 "ERM Cash Manager"
         Assert.ExpectedError(ExportedToPaymentFileMustBeNoMsg);
     end;
 
+    [Test]
+    [HandlerFunctions('TestPrintCheckRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure TestPrintCheckDoesNotIncrementLastCheckNo()
+    var
+        BankAccount: Record "Bank Account";
+        GenJournalLine: Record "Gen. Journal Line";
+        LastCheckNo: Code[20];
+    begin
+        // [FEATURE] [Report] [Check] [UT]
+        // [SCENARIO 338023] Check report with TestPrint do not increment bank account "Last Check No."
+        Initialize;
+
+        // [GIVEN] Bank Account with Last Check No = 10
+        LastCheckNo := CreateBankAccountLastCheckNo(BankAccount);
+
+        // [GIVEN] Gen. Journal Line with Bank Account for print Check
+        PrepareGenJnlLineForCheckPrinting(GenJournalLine, BankAccount."No.");
+
+        // [WHEN] Run report "Check" with TestPrint option enabled
+        LibraryVariableStorage.Enqueue(BankAccount."No.");
+        LibraryVariableStorage.Enqueue(BankAccount."Last Check No.");
+        LibraryVariableStorage.Enqueue(true);
+        Commit;
+        REPORT.Run(REPORT::Check, true, false, GenJournalLine);
+
+        // [THEN] Bank Account "Last Check No." was not changed
+        BankAccount.Find;
+        BankAccount.TestField("Last Check No.", LastCheckNo);
+
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [HandlerFunctions('TestPrintCheckStubStubCheckRequstPageHandler')]
+    [Scope('OnPrem')]
+    procedure TestPrintCheckDoesNotIncrementLastCheckNo_Rep10401()
+    var
+        BankAccount: Record "Bank Account";
+        GenJournalLine: Record "Gen. Journal Line";
+        LastCheckNo: Code[20];
+    begin
+        // [FEATURE] [Report] [Check] [UT]
+        // [SCENARIO 338023] "Check (Stub/Stub/Check)" report with TestPrint do not increment bank account "Last Check No."
+        Initialize;
+
+        // [GIVEN] Bank Account with Last Check No = 10
+        LastCheckNo := CreateBankAccountLastCheckNo(BankAccount);
+
+        // [GIVEN] Gen. Journal Line with Bank Account for print Check
+        PrepareGenJnlLineForCheckPrinting(GenJournalLine, BankAccount."No.");
+
+        // [WHEN] Run report "Check (Stub/Stub/Check)" with TestPrint option enabled
+        LibraryVariableStorage.Enqueue(BankAccount."No.");
+        LibraryVariableStorage.Enqueue(BankAccount."Last Check No.");
+        LibraryVariableStorage.Enqueue(true);
+        Commit;
+        REPORT.Run(REPORT::"Check (Stub/Stub/Check)", true, false, GenJournalLine);
+
+        // [THEN] Bank Account "Last Check No." was not changed
+        BankAccount.Find;
+        BankAccount.TestField("Last Check No.", LastCheckNo);
+
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [HandlerFunctions('TestPrintCheckStubCheckStubRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure TestPrintCheckDoesNotIncrementLastCheckNo_Rep10411()
+    var
+        BankAccount: Record "Bank Account";
+        GenJournalLine: Record "Gen. Journal Line";
+        LastCheckNo: Code[20];
+    begin
+        // [FEATURE] [Report] [Check] [UT]
+        // [SCENARIO 338023] "Check (Stub/Check/Stub)" report with TestPrint do not increment bank account "Last Check No."
+        Initialize;
+
+        // [GIVEN] Bank Account with Last Check No = 10
+        LastCheckNo := CreateBankAccountLastCheckNo(BankAccount);
+
+        // [GIVEN] Gen. Journal Line with Bank Account for print Check
+        PrepareGenJnlLineForCheckPrinting(GenJournalLine, BankAccount."No.");
+
+        // [WHEN] Run report "Check (Stub/Check/Stub)" with TestPrint option enabled
+        LibraryVariableStorage.Enqueue(BankAccount."No.");
+        LibraryVariableStorage.Enqueue(BankAccount."Last Check No.");
+        LibraryVariableStorage.Enqueue(true);
+        Commit;
+        REPORT.Run(REPORT::"Check (Stub/Check/Stub)", true, false, GenJournalLine);
+
+        // [THEN] Bank Account "Last Check No." was not changed
+        BankAccount.Find;
+        BankAccount.TestField("Last Check No.", LastCheckNo);
+
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [HandlerFunctions('TestPrintCheckCheckStubStubRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure TestPrintCheckDoesNotIncrementLastCheckNo_Rep10412()
+    var
+        BankAccount: Record "Bank Account";
+        GenJournalLine: Record "Gen. Journal Line";
+        LastCheckNo: Code[20];
+    begin
+        // [FEATURE] [Report] [Check] [UT]
+        // [SCENARIO 338023] "Check (Check/Stub/Stub)" report with TestPrint do not increment bank account "Last Check No."
+        Initialize;
+
+        // [GIVEN] Bank Account with Last Check No = 10
+        LastCheckNo := CreateBankAccountLastCheckNo(BankAccount);
+
+        // [GIVEN] Gen. Journal Line with Bank Account for print Check
+        PrepareGenJnlLineForCheckPrinting(GenJournalLine, BankAccount."No.");
+
+        // [WHEN] Run report "Check (Check/Stub/Stub)" with TestPrint option enabled
+        LibraryVariableStorage.Enqueue(BankAccount."No.");
+        LibraryVariableStorage.Enqueue(BankAccount."Last Check No.");
+        LibraryVariableStorage.Enqueue(true);
+        Commit;
+        REPORT.Run(REPORT::"Check (Check/Stub/Stub)", true, false, GenJournalLine);
+
+        // [THEN] Bank Account "Last Check No." was not changed
+        BankAccount.Find;
+        BankAccount.TestField("Last Check No.", LastCheckNo);
+
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [HandlerFunctions('TestPrintThreeChecksPerPageRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure TestPrintCheckDoesNotIncrementLastCheckNo_Rep10413()
+    var
+        BankAccount: Record "Bank Account";
+        GenJournalLine: Record "Gen. Journal Line";
+        LastCheckNo: Code[20];
+    begin
+        // [FEATURE] [Report] [Check] [UT]
+        // [SCENARIO 338023] "Three Checks per Page" report with TestPrint do not increment bank account "Last Check No."
+        Initialize;
+
+        // [GIVEN] Bank Account with Last Check No = 10
+        LastCheckNo := CreateBankAccountLastCheckNo(BankAccount);
+
+        // [GIVEN] Gen. Journal Line with Bank Account for print Check
+        PrepareGenJnlLineForCheckPrinting(GenJournalLine, BankAccount."No.");
+
+        // [WHEN] Run report "Three Checks per Page" with TestPrint option enabled
+        LibraryVariableStorage.Enqueue(BankAccount."No.");
+        LibraryVariableStorage.Enqueue(BankAccount."Last Check No.");
+        LibraryVariableStorage.Enqueue(true);
+        Commit;
+        REPORT.Run(REPORT::"Three Checks per Page", true, false, GenJournalLine);
+
+        // [THEN] Bank Account "Last Check No." was not changed
+        BankAccount.Find;
+        BankAccount.TestField("Last Check No.", LastCheckNo);
+
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [HandlerFunctions('TestPrintCheckRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure LastCheckNoIncrementedWhenCheckPrintedWithTestPrintDisabled()
+    var
+        BankAccount: Record "Bank Account";
+        GenJournalLine: Record "Gen. Journal Line";
+        LastCheckNo: Code[20];
+    begin
+        // [FEATURE] [Report] [Check] [UT]
+        // [SCENARIO 338023] "Check" report without TestPrint option increment bank account "Last Check No."
+        Initialize;
+
+        // [GIVEN] Bank Account with Last Check No = 10
+        LastCheckNo := CreateBankAccountLastCheckNo(BankAccount);
+
+        // [GIVEN] Gen. Journal Line with Bank Account for print Check
+        PrepareGenJnlLineForCheckPrinting(GenJournalLine, BankAccount."No.");
+
+        // [WHEN] Run report "Check" with TestPrint option disabled
+        LibraryVariableStorage.Enqueue(BankAccount."No.");
+        LibraryVariableStorage.Enqueue(BankAccount."Last Check No.");
+        LibraryVariableStorage.Enqueue(false);
+        Commit;
+        REPORT.Run(REPORT::Check, true, false, GenJournalLine);
+
+        // [THEN] Bank Account "Last Check No." was updated to the next value
+        BankAccount.Find;
+        Assert.AreNotEqual(BankAccount."Last Check No.", LastCheckNo, 'Last Check No. must be updated');
+        BankAccount.TestField("Last Check No.", IncStr(LastCheckNo));
+
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [HandlerFunctions('TestPrintCheckStubStubCheckRequstPageHandler')]
+    [Scope('OnPrem')]
+    procedure LastCheckNoIncrementedWhenCheckPrintedWithTestPrintDisabled_Rep10401()
+    var
+        BankAccount: Record "Bank Account";
+        GenJournalLine: Record "Gen. Journal Line";
+        LastCheckNo: Code[20];
+    begin
+        // [FEATURE] [Report] [Check] [UT]
+        // [SCENARIO 338023] "Check (Stub/Stub/Check)" report without TestPrint option increment bank account "Last Check No."
+        Initialize;
+
+        // [GIVEN] Bank Account with Last Check No = 10
+        LastCheckNo := CreateBankAccountLastCheckNo(BankAccount);
+
+        // [GIVEN] Gen. Journal Line with Bank Account for print Check
+        PrepareGenJnlLineForCheckPrinting(GenJournalLine, BankAccount."No.");
+
+        // [WHEN] Run report "Check (Stub/Stub/Check)" with TestPrint option disabled
+        LibraryVariableStorage.Enqueue(BankAccount."No.");
+        LibraryVariableStorage.Enqueue(BankAccount."Last Check No.");
+        LibraryVariableStorage.Enqueue(false);
+        Commit;
+        REPORT.Run(REPORT::"Check (Stub/Stub/Check)", true, false, GenJournalLine);
+
+        // [THEN] Bank Account "Last Check No." was updated to the next value
+        BankAccount.Find;
+        Assert.AreNotEqual(BankAccount."Last Check No.", LastCheckNo, 'Last Check No. must be updated');
+        BankAccount.TestField("Last Check No.", IncStr(LastCheckNo));
+
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [HandlerFunctions('TestPrintCheckStubCheckStubRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure LastCheckNoIncrementedWhenCheckPrintedWithTestPrintDisabled_Rep10411()
+    var
+        BankAccount: Record "Bank Account";
+        GenJournalLine: Record "Gen. Journal Line";
+        LastCheckNo: Code[20];
+    begin
+        // [FEATURE] [Report] [Check] [UT]
+        // [SCENARIO 338023] "Check (Stub/Check/Stub)" report without TestPrint option increment bank account "Last Check No."
+        Initialize;
+
+        // [GIVEN] Bank Account with Last Check No = 10
+        LastCheckNo := CreateBankAccountLastCheckNo(BankAccount);
+
+        // [GIVEN] Gen. Journal Line with Bank Account for print Check
+        PrepareGenJnlLineForCheckPrinting(GenJournalLine, BankAccount."No.");
+
+        // [WHEN] Run report "Check (Stub/Check/Stub)" with TestPrint option disabled
+        LibraryVariableStorage.Enqueue(BankAccount."No.");
+        LibraryVariableStorage.Enqueue(BankAccount."Last Check No.");
+        LibraryVariableStorage.Enqueue(false);
+        Commit;
+        REPORT.Run(REPORT::"Check (Stub/Check/Stub)", true, false, GenJournalLine);
+
+        // [THEN] Bank Account "Last Check No." was updated to the next value
+        BankAccount.Find;
+        Assert.AreNotEqual(BankAccount."Last Check No.", LastCheckNo, 'Last Check No. must be updated');
+        BankAccount.TestField("Last Check No.", IncStr(LastCheckNo));
+
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [HandlerFunctions('TestPrintCheckCheckStubStubRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure LastCheckNoIncrementedWhenCheckPrintedWithTestPrintDisabled_Rep10412()
+    var
+        BankAccount: Record "Bank Account";
+        GenJournalLine: Record "Gen. Journal Line";
+        LastCheckNo: Code[20];
+    begin
+        // [FEATURE] [Report] [Check] [UT]
+        // [SCENARIO 338023] "Check (Check/Stub/Stub)" report without TestPrint option increment bank account "Last Check No."
+        Initialize;
+
+        // [GIVEN] Bank Account with Last Check No = 10
+        LastCheckNo := CreateBankAccountLastCheckNo(BankAccount);
+
+        // [GIVEN] Gen. Journal Line with Bank Account for print Check
+        PrepareGenJnlLineForCheckPrinting(GenJournalLine, BankAccount."No.");
+
+        // [WHEN] Run report "Check (Check/Stub/Stub)" with TestPrint option disabled
+        LibraryVariableStorage.Enqueue(BankAccount."No.");
+        LibraryVariableStorage.Enqueue(BankAccount."Last Check No.");
+        LibraryVariableStorage.Enqueue(false);
+        Commit;
+        REPORT.Run(REPORT::"Check (Check/Stub/Stub)", true, false, GenJournalLine);
+
+        // [THEN] Bank Account "Last Check No." was updated to the next value
+        BankAccount.Find;
+        Assert.AreNotEqual(BankAccount."Last Check No.", LastCheckNo, 'Last Check No. must be updated');
+        BankAccount.TestField("Last Check No.", IncStr(LastCheckNo));
+
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [HandlerFunctions('TestPrintThreeChecksPerPageRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure LastCheckNoIncrementedWhenCheckPrintedWithTestPrintDisabled_Rep10413()
+    var
+        BankAccount: Record "Bank Account";
+        GenJournalLine: Record "Gen. Journal Line";
+        LastCheckNo: Code[20];
+    begin
+        // [FEATURE] [Report] [Check] [UT]
+        // [SCENARIO 338023] "Three Checks per Page" report without TestPrint option increment bank account "Last Check No."
+        Initialize;
+
+        // [GIVEN] Bank Account with Last Check No = 10
+        LastCheckNo := CreateBankAccountLastCheckNo(BankAccount);
+
+        // [GIVEN] Gen. Journal Line with Bank Account for print Check
+        PrepareGenJnlLineForCheckPrinting(GenJournalLine, BankAccount."No.");
+
+        // [WHEN] Run report "Three Checks per Page" with TestPrint option disabled
+        LibraryVariableStorage.Enqueue(BankAccount."No.");
+        LibraryVariableStorage.Enqueue(BankAccount."Last Check No.");
+        LibraryVariableStorage.Enqueue(false);
+        Commit;
+        REPORT.Run(REPORT::"Three Checks per Page", true, false, GenJournalLine);
+
+        // [THEN] Bank Account "Last Check No." was updated to the next value
+        BankAccount.Find;
+        Assert.AreNotEqual(BankAccount."Last Check No.", LastCheckNo, 'Last Check No. must be updated');
+        BankAccount.TestField("Last Check No.", IncStr(LastCheckNo));
+
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -853,7 +1188,7 @@ codeunit 134500 "ERM Cash Manager"
         GenJournalLine.Modify(true);
     end;
 
-    local procedure CreateBankAccountLastCheckNo(var BankAccount: Record "Bank Account")
+    local procedure CreateBankAccountLastCheckNo(var BankAccount: Record "Bank Account"): Code[20]
     begin
         LibraryERM.CreateBankAccount(BankAccount);
         BankAccount.Validate(
@@ -863,6 +1198,7 @@ codeunit 134500 "ERM Cash Manager"
             1,
             LibraryUtility.GetFieldLength(DATABASE::"Bank Account", BankAccount.FieldNo("Last Check No."))));
         BankAccount.Modify(true);
+        exit(BankAccount."Last Check No.");
     end;
 
     local procedure CreateBankAccountStatementNo(var BankAccount: Record "Bank Account")
@@ -1075,6 +1411,15 @@ codeunit 134500 "ERM Cash Manager"
         BankAccount.Modify(true);
     end;
 
+    local procedure PrepareGenJnlLineForCheckPrinting(var GenJournalLine: Record "Gen. Journal Line"; BankAccountNo: Code[20])
+    begin
+        CreateGenJnlLineWithBankPaymentType(
+          GenJournalLine, BankAccountNo, LibraryPurchase.CreateVendorNo,
+          GenJournalLine."Bank Payment Type"::"Computer Check");
+        GenJournalLine.SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
+        GenJournalLine.SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
+    end;
+
     local procedure SuggestLines(BankAccReconciliation: Record "Bank Acc. Reconciliation"; BankAccount: Record "Bank Account")
     var
         SuggestBankAccReconLines: Report "Suggest Bank Acc. Recon. Lines";
@@ -1243,6 +1588,91 @@ codeunit 134500 "ERM Cash Manager"
         CheckRequestPage.OneCheckPerVendorPerDocumentNo.SetValue(true);
         CheckRequestPage.ReprintChecks.SetValue(true);
         CheckRequestPage.SaveAsPdf(Format(CreateGuid));
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure TestPrintCheckRequestPageHandler(var CheckRequestPage: TestRequestPage Check)
+    var
+        LastCheckNo: Variant;
+        BankAccountNo: Variant;
+        TestPrint: Boolean;
+    begin
+        LibraryVariableStorage.Dequeue(BankAccountNo);
+        LibraryVariableStorage.Dequeue(LastCheckNo);
+        TestPrint := LibraryVariableStorage.DequeueBoolean;
+        CheckRequestPage.BankAccount.SetValue(Format(BankAccountNo));
+        CheckRequestPage.LastCheckNo.SetValue(Format(LastCheckNo));
+        CheckRequestPage.TestPrinting.SetValue(TestPrint);
+        CheckRequestPage.SaveAsPdf(Format(CreateGuid));
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure TestPrintCheckStubStubCheckRequstPageHandler(var CheckStubStubCheck: TestRequestPage "Check (Stub/Stub/Check)")
+    var
+        UseCheckNo: Variant;
+        BankAccountNo: Variant;
+        TestPrint: Boolean;
+    begin
+        LibraryVariableStorage.Dequeue(BankAccountNo);
+        LibraryVariableStorage.Dequeue(UseCheckNo);
+        TestPrint := LibraryVariableStorage.DequeueBoolean;
+        CheckStubStubCheck.BankAccount.SetValue(Format(BankAccountNo));
+        CheckStubStubCheck.UseCheckNo.SetValue(Format(UseCheckNo));
+        CheckStubStubCheck.TestPrint.SetValue(TestPrint);
+        CheckStubStubCheck.SaveAsPdf(Format(CreateGuid));
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure TestPrintCheckStubCheckStubRequestPageHandler(var CheckStubCheckStub: TestRequestPage "Check (Stub/Check/Stub)")
+    var
+        UseCheckNo: Variant;
+        BankAccountNo: Variant;
+        TestPrint: Boolean;
+    begin
+        LibraryVariableStorage.Dequeue(BankAccountNo);
+        LibraryVariableStorage.Dequeue(UseCheckNo);
+        TestPrint := LibraryVariableStorage.DequeueBoolean;
+        CheckStubCheckStub.BankAccount.SetValue(Format(BankAccountNo));
+        CheckStubCheckStub.UseCheckNo.SetValue(Format(UseCheckNo));
+        CheckStubCheckStub.TestPrint.SetValue(TestPrint);
+        CheckStubCheckStub.SaveAsPdf(Format(CreateGuid));
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure TestPrintCheckCheckStubStubRequestPageHandler(var CheckCheckStubStub: TestRequestPage "Check (Check/Stub/Stub)")
+    var
+        UseCheckNo: Variant;
+        BankAccountNo: Variant;
+        TestPrint: Boolean;
+    begin
+        LibraryVariableStorage.Dequeue(BankAccountNo);
+        LibraryVariableStorage.Dequeue(UseCheckNo);
+        TestPrint := LibraryVariableStorage.DequeueBoolean;
+        CheckCheckStubStub.BankAccount.SetValue(Format(BankAccountNo));
+        CheckCheckStubStub.UseCheckNo.SetValue(Format(UseCheckNo));
+        CheckCheckStubStub.TestPrint.SetValue(TestPrint);
+        CheckCheckStubStub.SaveAsPdf(Format(CreateGuid));
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure TestPrintThreeChecksPerPageRequestPageHandler(var ThreeChecksPerPage: TestRequestPage "Three Checks per Page")
+    var
+        LastCheckNo: Variant;
+        BankAccountNo: Variant;
+        TestPrint: Boolean;
+    begin
+        LibraryVariableStorage.Dequeue(BankAccountNo);
+        LibraryVariableStorage.Dequeue(LastCheckNo);
+        TestPrint := LibraryVariableStorage.DequeueBoolean;
+        ThreeChecksPerPage.BankAccount.SetValue(Format(BankAccountNo));
+        ThreeChecksPerPage.LastCheckNo.SetValue(Format(LastCheckNo));
+        ThreeChecksPerPage.TestPrinting.SetValue(TestPrint);
+        ThreeChecksPerPage.SaveAsPdf(Format(CreateGuid));
     end;
 
     local procedure CreateGenJnlLinesWithDifferentCurrencies(var GenJournalLine: Record "Gen. Journal Line"; BankAccountNo: Code[20]; AccountType: Option; AccountNo: Code[20]; CurrencyCode: Code[10]; var BatchName: Code[10]; var TemplateName: Code[10]) Amount: Decimal

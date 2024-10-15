@@ -228,7 +228,7 @@ codeunit 10145 "E-Invoice Mgt."
                 begin
                     DocumentHeaderRecordRef.SetTable(SalesCrMemoHeader);
                     CreateAbstractDocument(SalesCrMemoHeader, TempDocumentHeader, TempDocumentLine, false);
-                    GetRelationDocumentsSalesCreditMemo(TempCFDIRelationDocument, SalesCrMemoHeader);
+                    GetRelationDocumentsSalesCreditMemo(TempCFDIRelationDocument, SalesCrMemoHeader, TempDocumentHeader);
                     CheckSalesDocument(
                       SalesCrMemoHeader, TempDocumentHeader, TempDocumentLine, TempCFDIRelationDocument, SalesCrMemoHeader."Source Code");
                     DateTimeFirstReqSent := GetDateTimeOfFirstReqSalesCr(SalesCrMemoHeader);
@@ -252,7 +252,7 @@ codeunit 10145 "E-Invoice Mgt."
                 begin
                     DocumentHeaderRecordRef.SetTable(ServiceCrMemoHeader);
                     CreateAbstractDocument(ServiceCrMemoHeader, TempDocumentHeader, TempDocumentLine, false);
-                    GetRelationDocumentsServiceCreditMemo(TempCFDIRelationDocument, ServiceCrMemoHeader);
+                    GetRelationDocumentsServiceCreditMemo(TempCFDIRelationDocument, ServiceCrMemoHeader, TempDocumentHeader);
                     CheckSalesDocument(
                       ServiceCrMemoHeader, TempDocumentHeader, TempDocumentLine, TempCFDIRelationDocument, ServiceCrMemoHeader."Source Code");
                     DateTimeFirstReqSent := GetDateTimeOfFirstReqServCr(ServiceCrMemoHeader);
@@ -1556,8 +1556,8 @@ codeunit 10145 "E-Invoice Mgt."
                     AddAttribute(XMLDoc, XMLCurrNode, 'Descuento', FormatAmount(TempDocumentLine."Line Discount Amount"));
                     TotalDiscount := TotalDiscount + TempDocumentLine."Line Discount Amount";
 
-                    if TempDocumentLine."VAT %" <> 0 then begin
-                        LineTaxes := true;
+                    if not IsNonTaxableVATLine(TempDocumentLine) then begin
+                        LineTaxes := LineTaxes or not IsVATExemptLine(TempDocumentLine);
                         // Impuestos per line
                         AddElementCFDI(XMLCurrNode, 'Impuestos', '', DocNameSpace, XMLNewChild);
                         XMLCurrNode := XMLNewChild;
@@ -1583,7 +1583,7 @@ codeunit 10145 "E-Invoice Mgt."
                         AddAttribute(XMLDoc, XMLCurrNode, 'Base', FormatAmount(TempDocumentLine.Amount));
 
                         AddAttribute(XMLDoc, XMLCurrNode, 'Impuesto', TaxCode); // Used to be IVA
-                        if TempDocumentLine."VAT %" <> 0 then begin // When Sales Tax code is % then Tasa, else Exento
+                        if not IsVATExemptLine(TempDocumentLine) then begin // When Sales Tax code is % then Tasa, else Exento
                             AddAttribute(XMLDoc, XMLCurrNode, 'TipoFactor', 'Tasa');
                             AddAttribute(XMLDoc, XMLCurrNode, 'TasaOCuota', PadStr(FormatAmount(TempDocumentLine."VAT %" / 100), 8, '0'));
                             AddAttribute(XMLDoc, XMLCurrNode, 'Importe',
@@ -1630,14 +1630,11 @@ codeunit 10145 "E-Invoice Mgt."
                     XMLCurrNode := XMLNewChild;
 
                     AddAttribute(XMLDoc, XMLCurrNode, 'Impuesto', TaxCode); // Used to be IVA
-                    if TempDocumentLine."VAT %" <> 0 then begin // When Sales Tax code is % then Tasa, else Exento
-                        if not IsCredit then begin // Retencion does not use the following two nodes
-                            AddAttribute(XMLDoc, XMLCurrNode, 'TipoFactor', 'Tasa');
-                            AddAttribute(XMLDoc, XMLCurrNode, 'TasaOCuota', PadStr(FormatAmount(TempDocumentLine."VAT %" / 100), 8, '0'));
-                        end;
-                        AddAttribute(XMLDoc, XMLCurrNode, 'Importe', FormatAmount(TotalTaxes));
-                    end else
-                        AddAttribute(XMLDoc, XMLCurrNode, 'TipoFactor', 'Exento');
+                    if not IsCredit then begin // Retencion does not use the following two nodes
+                        AddAttribute(XMLDoc, XMLCurrNode, 'TipoFactor', 'Tasa');
+                        AddAttribute(XMLDoc, XMLCurrNode, 'TasaOCuota', PadStr(FormatAmount(TempDocumentLine."VAT %" / 100), 8, '0'));
+                    end;
+                    AddAttribute(XMLDoc, XMLCurrNode, 'Importe', FormatAmount(TotalTaxes));
                     XMLCurrNode := XMLCurrNode.ParentNode;
                     XMLCurrNode := XMLCurrNode.ParentNode;
                     if IsCredit then
@@ -1742,8 +1739,8 @@ codeunit 10145 "E-Invoice Mgt."
                     AddAttribute(XMLDoc, XMLCurrNode, 'Descuento', FormatAmount(TempDocumentLine."Line Discount Amount"));
                     TotalDiscount := TotalDiscount + TempDocumentLine."Line Discount Amount";
 
-                    if TempDocumentLine."VAT %" <> 0 then begin
-                        LineTaxes := true;
+                    if not IsNonTaxableVATLine(TempDocumentLine) then begin
+                        LineTaxes := LineTaxes or IsVATExemptLine(TempDocumentLine);
                         // Impuestos per line
                         AddElementCFDI(XMLCurrNode, 'Impuestos', '', DocNameSpace, XMLNewChild);
                         XMLCurrNode := XMLNewChild;
@@ -1760,7 +1757,7 @@ codeunit 10145 "E-Invoice Mgt."
                         AddAttribute(XMLDoc, XMLCurrNode, 'Base', FormatAmount(TempDocumentLine.Amount));
 
                         AddAttribute(XMLDoc, XMLCurrNode, 'Impuesto', TaxCode); // Used to be IVA
-                        if TempDocumentLine."VAT %" <> 0 then begin // When Sales Tax code is % then Tasa, else Exento
+                        if not IsVATExemptLine(TempDocumentLine) then begin // When Sales Tax code is % then Tasa, else Exento
                             AddAttribute(XMLDoc, XMLCurrNode, 'TipoFactor', 'Tasa');
                             AddAttribute(XMLDoc, XMLCurrNode, 'TasaOCuota', PadStr(FormatAmount(TempDocumentLine."VAT %" / 100), 8, '0'));
                             AddAttribute(XMLDoc, XMLCurrNode, 'Importe',
@@ -1799,12 +1796,9 @@ codeunit 10145 "E-Invoice Mgt."
                     XMLCurrNode := XMLNewChild;
 
                     AddAttribute(XMLDoc, XMLCurrNode, 'Impuesto', TaxCode); // Used to be IVA
-                    if TempDocumentLine."VAT %" <> 0 then begin // When Sales Tax code is % then Tasa, else Exento
-                        AddAttribute(XMLDoc, XMLCurrNode, 'TipoFactor', 'Tasa');
-                        AddAttribute(XMLDoc, XMLCurrNode, 'TasaOCuota', PadStr(FormatAmount(TempDocumentLine."VAT %" / 100), 8, '0'));
-                        AddAttribute(XMLDoc, XMLCurrNode, 'Importe', FormatAmount(TotalTaxes));
-                    end else
-                        AddAttribute(XMLDoc, XMLCurrNode, 'TipoFactor', 'Exento');
+                    AddAttribute(XMLDoc, XMLCurrNode, 'TipoFactor', 'Tasa');
+                    AddAttribute(XMLDoc, XMLCurrNode, 'TasaOCuota', PadStr(FormatAmount(TempDocumentLine."VAT %" / 100), 8, '0'));
+                    AddAttribute(XMLDoc, XMLCurrNode, 'Importe', FormatAmount(TotalTaxes));
                     XMLCurrNode := XMLCurrNode.ParentNode;
                     XMLCurrNode := XMLCurrNode.ParentNode;
                     AddAttribute(XMLDoc, XMLCurrNode, 'TotalImpuestosTrasladados', FormatAmount(RetainAmt)); // TotalImpuestosTrasladados
@@ -2114,9 +2108,10 @@ codeunit 10145 "E-Invoice Mgt."
                     WriteOutStr(OutStream, FormatDecimal(TempDocumentLine.Quantity * TempDocumentLine."Unit Price/Direct Unit Cost", 2) + '|'); // Importe
                     WriteOutStr(OutStream, FormatAmount(TempDocumentLine."Line Discount Amount") + '|'); // Descuento
 
-                    if TempDocumentLine."VAT %" <> 0 then begin
-                        LineTaxes := true;
+                    if not IsNonTaxableVATLine(TempDocumentLine) then begin
+                        LineTaxes := LineTaxes or not IsVATExemptLine(TempDocumentLine);
                         WriteOutStr(OutStream, FormatAmount(TempDocumentLine.Amount) + '|'); // Base
+                        TaxCode := '002';
                         if IsCredit then begin
                             if TempDocumentLine."VAT %" <> 0 then
                                 TaxCode := TaxCodeFromTaxRate(TempDocumentLine."VAT %" / 100, TaxType::Retencion);
@@ -2126,7 +2121,7 @@ codeunit 10145 "E-Invoice Mgt."
                         end;
 
                         WriteOutStr(OutStream, TaxCode + '|'); // Impuesto
-                        if TempDocumentLine."VAT %" <> 0 then begin// When Sales Tax code is % then Tasa, else Exento
+                        if not IsVATExemptLine(TempDocumentLine) then begin // When Sales Tax code is % then Tasa, else Exento
                             WriteOutStr(OutStream, 'Tasa' + '|'); // TipoFactor
                             WriteOutStr(OutStream, PadStr(FormatAmount(TempDocumentLine."VAT %" / 100), 8, '0') + '|'); // TasaOCuota
                             WriteOutStr(OutStream,
@@ -2149,14 +2144,11 @@ codeunit 10145 "E-Invoice Mgt."
                             TaxCode := TaxCodeFromTaxRate(TempDocumentLine."VAT %" / 100, TaxType::Translado);
 
                     WriteOutStr(OutStream, TaxCode + '|'); // Impuesto
-                    if TempDocumentLine."VAT %" <> 0 then begin// When Sales Tax code is % then Tasa, else Exento
-                        if not IsCredit then begin // Retencion does not use the following 2 nodes...
-                            WriteOutStr(OutStream, 'Tasa' + '|'); // TipoFactor
-                            WriteOutStr(OutStream, PadStr(FormatAmount(TempDocumentLine."VAT %" / 100), 8, '0') + '|'); // TasaOCuota
-                        end;
-                        WriteOutStr(OutStream, FormatAmount(TotalTaxes) + '|'); // Importe
-                    end else
-                        WriteOutStr(OutStream, 'Exento' + '|'); // TipoFactor
+                    if not IsCredit then begin // Retencion does not use the following 2 nodes...
+                        WriteOutStr(OutStream, 'Tasa' + '|'); // TipoFactor
+                        WriteOutStr(OutStream, PadStr(FormatAmount(TempDocumentLine."VAT %" / 100), 8, '0') + '|'); // TasaOCuota
+                    end;
+                    WriteOutStr(OutStream, FormatAmount(TotalTaxes) + '|'); // Importe
                 end;
                 WriteOutStr(OutStream, FormatAmount(RetainAmt) + '||'); // TotalImpuestosTrasladados or TotalImpuestosRetenidos
             end else
@@ -2246,14 +2238,15 @@ codeunit 10145 "E-Invoice Mgt."
                     WriteOutStr(OutStream, FormatAmount(TempDocumentLine."Line Discount Amount") + '|'); // Descuento
                     TotalDiscount := TotalDiscount + TempDocumentLine."Line Discount Amount";
 
-                    if TempDocumentLine."VAT %" <> 0 then begin
-                        LineTaxes := true;
+                    if not IsNonTaxableVATLine(TempDocumentLine) then begin
+                        LineTaxes := LineTaxes or not IsVATExemptLine(TempDocumentLine);
                         WriteOutStr(OutStream, FormatAmount(TempDocumentLine.Amount) + '|'); // Base
+                        TaxCode := '002';
                         if TempDocumentLine."VAT %" <> 0 then
                             TaxCode := TaxCodeFromTaxRate(TempDocumentLine."VAT %" / 100, TaxType::Translado);
 
                         WriteOutStr(OutStream, TaxCode + '|'); // Impuesto
-                        if TempDocumentLine."VAT %" <> 0 then begin// When Sales Tax code is % then Tasa, else Exento
+                        if not IsVATExemptLine(TempDocumentLine) then begin// When Sales Tax code is % then Tasa, else Exento
                             WriteOutStr(OutStream, 'Tasa' + '|'); // TipoFactor
                             WriteOutStr(OutStream, PadStr(FormatAmount(TempDocumentLine."VAT %" / 100), 8, '0') + '|'); // TasaOCuota
                             WriteOutStr(OutStream, FormatAmount(TempDocumentLine."Amount Including VAT" - TempDocumentLine.Amount) + '|'); // Importe
@@ -2272,12 +2265,9 @@ codeunit 10145 "E-Invoice Mgt."
                         TaxCode := TaxCodeFromTaxRate(TempDocumentLine."VAT %" / 100, TaxType::Translado);
 
                     WriteOutStr(OutStream, TaxCode + '|'); // Impuesto
-                    if TempDocumentLine."VAT %" <> 0 then begin// When Sales Tax code is % then Tasa, else Exento
-                        WriteOutStr(OutStream, 'Tasa' + '|'); // TipoFactor
-                        WriteOutStr(OutStream, PadStr(FormatAmount(TempDocumentLine."VAT %" / 100), 8, '0') + '|'); // TasaOCuota
-                        WriteOutStr(OutStream, FormatAmount(TotalTaxes) + '|'); // Importe
-                    end else
-                        WriteOutStr(OutStream, 'Exento' + '|'); // TipoFactor
+                    WriteOutStr(OutStream, 'Tasa' + '|'); // TipoFactor
+                    WriteOutStr(OutStream, PadStr(FormatAmount(TempDocumentLine."VAT %" / 100), 8, '0') + '|'); // TasaOCuota
+                    WriteOutStr(OutStream, FormatAmount(TotalTaxes) + '|'); // Importe
                 end;
                 WriteOutStr(OutStream, FormatAmount(RetainAmt) + '||'); // TotalImpuestosTrasladados
             end else
@@ -2819,6 +2809,26 @@ codeunit 10145 "E-Invoice Mgt."
             exit('07'); // Hardcoded for Advance Settle
         // 01 = Credit memo, 06 = Invoice
         exit(CFDIRelation);
+    end;
+
+    local procedure IsNonTaxableVATLine(DocumentLine: Record "Document Line"): Boolean
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+    begin
+        if not VATPostingSetup.Get(DocumentLine."VAT Bus. Posting Group", DocumentLine."VAT Prod. Posting Group") then
+            exit(false);
+
+        exit(VATPostingSetup."CFDI Non-Taxable");
+    end;
+
+    local procedure IsVATExemptLine(DocumentLine: Record "Document Line"): Boolean
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+    begin
+        if not VATPostingSetup.Get(DocumentLine."VAT Bus. Posting Group", DocumentLine."VAT Prod. Posting Group") then
+            exit(false);
+
+        exit(VATPostingSetup."CFDI VAT Exemption");
     end;
 
     local procedure CalcSalesInvLineTotal(var SubTotal: Decimal; var RetainAmt: Decimal; DocumentNo: Code[20]; AdvanceSettle: Boolean)
@@ -4127,34 +4137,46 @@ codeunit 10145 "E-Invoice Mgt."
             until CFDIRelationDocumentFrom.Next = 0;
     end;
 
-    local procedure GetRelationDocumentsSalesCreditMemo(var CFDIRelationDocument: Record "CFDI Relation Document"; SalesCrMemoHeader: Record "Sales Cr.Memo Header")
+    local procedure GetRelationDocumentsSalesCreditMemo(var CFDIRelationDocument: Record "CFDI Relation Document"; SalesCrMemoHeader: Record "Sales Cr.Memo Header"; DocumentHeader: Record "Document Header")
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
     begin
-        if (SalesCrMemoHeader."Applies-to Doc. Type" <> SalesCrMemoHeader."Applies-to Doc. Type"::Invoice) and
-           not SalesInvoiceHeader.Get(SalesCrMemoHeader."Applies-to Doc. No.")
-        then
-            exit;
+        GetRelationDocumentsInvoice(CFDIRelationDocument, DocumentHeader, DATABASE::"Sales Cr.Memo Header");
 
-        CFDIRelationDocument.Init;
-        CFDIRelationDocument."Document No." := SalesCrMemoHeader."No.";
-        CFDIRelationDocument."Fiscal Invoice Number PAC" := SalesInvoiceHeader."Fiscal Invoice Number PAC";
-        CFDIRelationDocument.Insert;
+        if (SalesCrMemoHeader."Applies-to Doc. Type" = SalesCrMemoHeader."Applies-to Doc. Type"::Invoice) and
+           SalesInvoiceHeader.Get(SalesCrMemoHeader."Applies-to Doc. No.")
+        then
+            InsertAppliedRelationDocument(
+              CFDIRelationDocument, SalesCrMemoHeader."No.", SalesInvoiceHeader."No.", SalesInvoiceHeader."Fiscal Invoice Number PAC");
     end;
 
-    local procedure GetRelationDocumentsServiceCreditMemo(var CFDIRelationDocument: Record "CFDI Relation Document"; ServiceCrMemoHeader: Record "Service Cr.Memo Header")
+    local procedure GetRelationDocumentsServiceCreditMemo(var CFDIRelationDocument: Record "CFDI Relation Document"; ServiceCrMemoHeader: Record "Service Cr.Memo Header"; DocumentHeader: Record "Document Header")
     var
         ServiceInvoiceHeader: Record "Service Invoice Header";
     begin
-        if (ServiceCrMemoHeader."Applies-to Doc. Type" <> ServiceCrMemoHeader."Applies-to Doc. Type"::Invoice) and
-           not ServiceInvoiceHeader.Get(ServiceCrMemoHeader."Applies-to Doc. No.")
-        then
-            exit;
+        GetRelationDocumentsInvoice(CFDIRelationDocument, DocumentHeader, DATABASE::"Service Cr.Memo Header");
 
-        CFDIRelationDocument.Init;
-        CFDIRelationDocument."Document No." := ServiceCrMemoHeader."No.";
-        CFDIRelationDocument."Fiscal Invoice Number PAC" := ServiceInvoiceHeader."Fiscal Invoice Number PAC";
-        CFDIRelationDocument.Insert;
+        if (ServiceCrMemoHeader."Applies-to Doc. Type" = ServiceCrMemoHeader."Applies-to Doc. Type"::Invoice) and
+           ServiceInvoiceHeader.Get(ServiceCrMemoHeader."Applies-to Doc. No.")
+        then
+            InsertAppliedRelationDocument(
+              CFDIRelationDocument, ServiceCrMemoHeader."No.", ServiceInvoiceHeader."No.", ServiceInvoiceHeader."Fiscal Invoice Number PAC");
+    end;
+
+    local procedure InsertAppliedRelationDocument(var CFDIRelationDocument: Record "CFDI Relation Document"; DocumentNo: Code[20]; RelatedDocumentNo: Code[20]; FiscalInvoiceNumberPAC: Text[50])
+    begin
+        with CFDIRelationDocument do begin
+            SetRange("Fiscal Invoice Number PAC", FiscalInvoiceNumberPAC);
+            if not FindFirst then begin
+                Init;
+                "Document No." := DocumentNo;
+                "Related Doc. Type" := "Related Doc. Type"::Invoice;
+                "Related Doc. No." := RelatedDocumentNo;
+                "Fiscal Invoice Number PAC" := FiscalInvoiceNumberPAC;
+                Insert;
+            end;
+            SetRange("Fiscal Invoice Number PAC");
+        end;
     end;
 
     local procedure AddElementPago(var XMLNode: DotNet XmlNode; NodeName: Text;
@@ -4356,25 +4378,20 @@ codeunit 10145 "E-Invoice Mgt."
 
     [Scope('OnPrem')]
     procedure InsertSalesInvoiceCFDIRelations(SalesHeader: Record "Sales Header"; DocumentNo: Code[20])
-    var
-        CFDIRelationDocumentFrom: Record "CFDI Relation Document";
-        CFDIRelationDocument: Record "CFDI Relation Document";
     begin
-        if DocumentNo = '' then
-            exit;
+        InsertSalesCFDIRelations(SalesHeader, DocumentNo, DATABASE::"Sales Invoice Header");
+    end;
 
-        CFDIRelationDocumentFrom.SetRange("Document Table ID", DATABASE::"Sales Header");
-        CFDIRelationDocumentFrom.SetRange("Document Type", SalesHeader."Document Type");
-        CFDIRelationDocumentFrom.SetRange("Document No.", SalesHeader."No.");
-        if not CFDIRelationDocumentFrom.FindSet then
-            exit;
-        repeat
-            CFDIRelationDocument := CFDIRelationDocumentFrom;
-            CFDIRelationDocument."Document Table ID" := DATABASE::"Sales Invoice Header";
-            CFDIRelationDocument."Document Type" := 0;
-            CFDIRelationDocument."Document No." := DocumentNo;
-            CFDIRelationDocument.Insert;
-        until CFDIRelationDocumentFrom.Next = 0;
+    [Scope('OnPrem')]
+    procedure InsertSalesCreditMemoCFDIRelations(SalesHeader: Record "Sales Header"; DocumentNo: Code[20])
+    begin
+        InsertSalesCFDIRelations(SalesHeader, DocumentNo, DATABASE::"Sales Cr.Memo Header");
+    end;
+
+    local procedure InsertSalesCFDIRelations(SalesHeader: Record "Sales Header"; DocumentNo: Code[20]; TableID: Integer)
+    begin
+        CopyInsertCFDIRelations(
+          DATABASE::"Sales Header", SalesHeader."Document Type", SalesHeader."No.", TableID, DocumentNo, false);
     end;
 
     [Scope('OnPrem')]
@@ -4391,28 +4408,47 @@ codeunit 10145 "E-Invoice Mgt."
 
     [Scope('OnPrem')]
     procedure InsertServiceInvoiceCFDIRelations(ServiceHeader: Record "Service Header"; DocumentNo: Code[20])
+    begin
+        InsertServiceCFDIRelations(ServiceHeader, DocumentNo, DATABASE::"Service Invoice Header");
+    end;
+
+    [Scope('OnPrem')]
+    procedure InsertServiceCreditMemoCFDIRelations(ServiceHeader: Record "Service Header"; DocumentNo: Code[20])
+    begin
+        InsertServiceCFDIRelations(ServiceHeader, DocumentNo, DATABASE::"Service Cr.Memo Header");
+    end;
+
+    [Scope('OnPrem')]
+    procedure InsertServiceCFDIRelations(ServiceHeader: Record "Service Header"; DocumentNo: Code[20]; TableID: Integer)
+    begin
+        CopyInsertCFDIRelations(
+          DATABASE::"Service Header", ServiceHeader."Document Type", ServiceHeader."No.", TableID, DocumentNo, true);
+    end;
+
+    local procedure CopyInsertCFDIRelations(FromTableID: Integer; FromDocumentType: Integer; FromDocumentNo: Code[20]; ToTableID: Integer; ToDocumentNo: Code[20]; DeleteRelations: Boolean)
     var
         CFDIRelationDocumentFrom: Record "CFDI Relation Document";
         CFDIRelationDocument: Record "CFDI Relation Document";
     begin
-        if DocumentNo = '' then
+        if ToDocumentNo = '' then
             exit;
 
-        CFDIRelationDocumentFrom.SetRange("Document Table ID", DATABASE::"Service Header");
-        CFDIRelationDocumentFrom.SetRange("Document Type", ServiceHeader."Document Type");
-        CFDIRelationDocumentFrom.SetRange("Document No.", ServiceHeader."No.");
-        CFDIRelationDocumentFrom.SetRange("Customer No.", ServiceHeader."Customer No.");
+        CFDIRelationDocumentFrom.SetRange("Document Table ID", FromTableID);
+        CFDIRelationDocumentFrom.SetRange("Document Type", FromDocumentType);
+        CFDIRelationDocumentFrom.SetRange("Document No.", FromDocumentNo);
         if not CFDIRelationDocumentFrom.FindSet then
             exit;
 
         repeat
             CFDIRelationDocument := CFDIRelationDocumentFrom;
-            CFDIRelationDocument."Document Table ID" := DATABASE::"Service Invoice Header";
+            CFDIRelationDocument."Document Table ID" := ToTableID;
             CFDIRelationDocument."Document Type" := 0;
-            CFDIRelationDocument."Document No." := DocumentNo;
+            CFDIRelationDocument."Document No." := ToDocumentNo;
             CFDIRelationDocument.Insert;
         until CFDIRelationDocumentFrom.Next = 0;
-        CFDIRelationDocumentFrom.DeleteAll;
+
+        if DeleteRelations then
+            CFDIRelationDocumentFrom.DeleteAll;
     end;
 
     local procedure CheckSalesDocument(DocumentVariant: Variant; TempDocumentHeader: Record "Document Header" temporary; var TempDocumentLine: Record "Document Line" temporary; var TempCFDIRelationDocument: Record "CFDI Relation Document" temporary; SourceCode: Code[10])

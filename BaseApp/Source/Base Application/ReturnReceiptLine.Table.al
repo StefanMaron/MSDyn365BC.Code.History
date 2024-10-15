@@ -490,7 +490,7 @@ table 6661 "Return Receipt Line"
         SalesDocLineComments.SetRange("No.", "Document No.");
         SalesDocLineComments.SetRange("Document Line No.", "Line No.");
         if not SalesDocLineComments.IsEmpty then
-            SalesDocLineComments.DeleteAll;
+            SalesDocLineComments.DeleteAll();
     end;
 
     var
@@ -551,7 +551,7 @@ table 6661 "Return Receipt Line"
 
         if SalesLine."Return Receipt No." <> "Document No." then begin
             OnInsertInvLineFromRetRcptLineOnBeforeInitSalesLine(Rec, SalesLine);
-            SalesLine.Init;
+            SalesLine.Init();
             SalesLine."Line No." := NextLineNo;
             SalesLine."Document Type" := TempSalesLine."Document Type";
             SalesLine."Document No." := TempSalesLine."Document No.";
@@ -561,13 +561,13 @@ table 6661 "Return Receipt Line"
             IsHandled := false;
             OnBeforeInsertInvLineFromRetRcptLineBeforeInsertTextLine(Rec, SalesLine, NextLineNo, IsHandled);
             if not IsHandled then begin
-                SalesLine.Insert;
+                SalesLine.Insert();
                 NextLineNo := NextLineNo + 10000;
             end;
         end;
 
         TransferOldExtLines.ClearLineNumbers;
-        SalesSetup.Get;
+        SalesSetup.Get();
         repeat
             ExtTextLine := (TransferOldExtLines.GetNewLineNumber("Attached to Line No.") <> 0);
 
@@ -575,7 +575,7 @@ table 6661 "Return Receipt Line"
                  SalesOrderLine."Document Type"::"Return Order", "Return Order No.", "Return Order Line No.")
             then begin
                 if ExtTextLine then begin
-                    SalesOrderLine.Init;
+                    SalesOrderLine.Init();
                     SalesOrderLine."Line No." := "Return Order Line No.";
                     SalesOrderLine.Description := Description;
                     SalesOrderLine."Description 2" := "Description 2";
@@ -655,7 +655,7 @@ table 6661 "Return Receipt Line"
             IsHandled := false;
             OnBeforeInsertInvLineFromRetRcptLine(SalesLine, SalesOrderLine, Rec, IsHandled);
             if not IsHandled then
-                SalesLine.Insert;
+                SalesLine.Insert();
             OnAftertInsertInvLineFromRetRcptLine(SalesLine, SalesOrderLine, Rec);
 
             ItemTrackingMgt.CopyHandledItemTrkgToInvLine(SalesOrderLine, SalesLine);
@@ -668,18 +668,18 @@ table 6661 "Return Receipt Line"
 
         if SalesOrderHeader.Get(SalesOrderHeader."Document Type"::Order, "Return Order No.") then begin
             SalesOrderHeader."Get Shipment Used" := true;
-            SalesOrderHeader.Modify;
+            SalesOrderHeader.Modify();
         end;
     end;
 
-    local procedure GetSalesCrMemoLines(var TempSalesCrMemoLine: Record "Sales Cr.Memo Line" temporary)
+    procedure GetSalesCrMemoLines(var TempSalesCrMemoLine: Record "Sales Cr.Memo Line" temporary)
     var
         SalesCrMemoLine: Record "Sales Cr.Memo Line";
         ItemLedgEntry: Record "Item Ledger Entry";
         ValueEntry: Record "Value Entry";
     begin
-        TempSalesCrMemoLine.Reset;
-        TempSalesCrMemoLine.DeleteAll;
+        TempSalesCrMemoLine.Reset();
+        TempSalesCrMemoLine.DeleteAll();
 
         if Type <> Type::Item then
             exit;
@@ -696,9 +696,9 @@ table 6661 "Return Receipt Line"
                     repeat
                         if ValueEntry."Document Type" = ValueEntry."Document Type"::"Sales Credit Memo" then
                             if SalesCrMemoLine.Get(ValueEntry."Document No.", ValueEntry."Document Line No.") then begin
-                                TempSalesCrMemoLine.Init;
+                                TempSalesCrMemoLine.Init();
                                 TempSalesCrMemoLine := SalesCrMemoLine;
-                                if TempSalesCrMemoLine.Insert then;
+                                if TempSalesCrMemoLine.Insert() then;
                             end;
                     until ValueEntry.Next = 0;
             until ItemLedgEntry.Next = 0;
@@ -707,7 +707,7 @@ table 6661 "Return Receipt Line"
 
     procedure FilterPstdDocLnItemLedgEntries(var ItemLedgEntry: Record "Item Ledger Entry")
     begin
-        ItemLedgEntry.Reset;
+        ItemLedgEntry.Reset();
         ItemLedgEntry.SetCurrentKey("Document No.");
         ItemLedgEntry.SetRange("Document No.", "Document No.");
         ItemLedgEntry.SetRange("Document Type", ItemLedgEntry."Document Type"::"Sales Return Receipt");
@@ -747,7 +747,7 @@ table 6661 "Return Receipt Line"
     begin
         Init;
         TransferFields(SalesLine);
-        if ("No." = '') and (Type in [Type::"G/L Account" .. Type::"Charge (Item)"]) then
+        if ("No." = '') and HasTypeToFillMandatoryFields() then
             Type := Type::" ";
         "Posting Date" := ReturnRcptHeader."Posting Date";
         "Document No." := ReturnRcptHeader."No.";
@@ -768,6 +768,11 @@ table 6661 "Return Receipt Line"
         end;
 
         OnAfterInitFromSalesLine(ReturnRcptHeader, SalesLine, Rec);
+    end;
+
+    procedure HasTypeToFillMandatoryFields(): Boolean
+    begin
+        exit(Type <> Type::" ");
     end;
 
     [IntegrationEvent(false, false)]

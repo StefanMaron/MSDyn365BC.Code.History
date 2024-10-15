@@ -158,6 +158,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit MS - Yodlee Bank Service Tests - NamedType DetailsOKTxt)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3810257405 - NamedType 3359832067" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[/detailsDuplicateAccountId]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit MS - Yodlee Bank Service Tests - NamedType DetailsDuplicateAccountIdTxt)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3810257405 - NamedType 189749868" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[/detailsMFA]]></Val>

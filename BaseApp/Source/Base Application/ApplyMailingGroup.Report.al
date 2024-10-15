@@ -39,6 +39,7 @@ report 5184 "Apply Mailing Group"
                         Clear("Contact Mailing Group");
                         "Contact Mailing Group"."Contact No." := "Segment Line"."Contact No.";
                         "Contact Mailing Group"."Mailing Group Code" := Code;
+                        OnBeforeContactMailingGroupInsert("Contact Mailing Group", "Segment Header", "Segment Line");
                         if "Contact Mailing Group".Insert then;
                     end;
                 }
@@ -94,5 +95,10 @@ report 5184 "Apply Mailing Group"
         Text001: Label '%1 %2 is now applied to Segment %3.';
         DeleteOld: Boolean;
         MailingGroupCode: Code[10];
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeContactMailingGroupInsert(var ContactMailingGroup: Record "Contact Mailing Group"; SegmentHeader: Record "Segment Header"; SegmentLine: Record "Segment Line")
+    begin
+    end;
 }
 

@@ -305,6 +305,18 @@ page 5971 "Posted Service Credit Memos"
                         ProgressWindow.Close;
                     end;
                 }
+                action(CFDIRelationDocuments)
+                {
+                    ApplicationArea = BasicMX;
+                    Caption = 'CFDI Relation Documents';
+                    Image = Allocations;
+                    RunObject = Page "CFDI Relation Documents";
+                    RunPageLink = "Document Table ID" = CONST(5994),
+                                  "Document No." = FIELD("No."),
+                                  "Customer No." = FIELD("Bill-to Customer No.");
+                    RunPageMode = View;
+                    ToolTip = 'View or add CFDI relation documents for the record.';
+                }
             }
             action(SendCustom)
             {

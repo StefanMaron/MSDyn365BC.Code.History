@@ -152,6 +152,12 @@ report 1304 "Standard Sales - Quote"
             column(CustomerPostalBarCode; FormatAddr.PostalBarCode(1))
             {
             }
+            column(ExternalDocumentNo; "External Document No.")
+            {
+            }
+            column(ExternalDocumentNoLbl; FieldCaption("External Document No."))
+            {
+            }
             column(YourReference; "Your Reference")
             {
             }

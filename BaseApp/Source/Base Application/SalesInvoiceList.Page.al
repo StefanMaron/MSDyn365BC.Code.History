@@ -635,7 +635,7 @@
                         ApplicationArea = Basic, Suite;
                         Caption = 'Aged Accounts Receivable';
                         Image = "Report";
-                        RunObject = Report "Aged Accounts Receivable";
+                        RunObject = Report "Aged Accounts Receivable NA";
                         ToolTip = 'View an overview of when customer payments are due or overdue, divided into four periods. You must specify the date you want aging calculated from and the length of the period that each column will contain data for.';
                     }
                     action("Customer - Payment Receipt")

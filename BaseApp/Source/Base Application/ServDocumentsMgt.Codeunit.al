@@ -985,7 +985,7 @@ codeunit 5988 "Serv-Documents Mgt."
         if SalesTaxCalculationOverridden then
             OnFinalize(ServHeader, ServInvHeader, ServInvLine, ServCrMemoHeader, ServCrMemoLine, Invoice);
 
-        OnAfterFinalize(PassedServHeader);
+        OnAfterFinalize(PassedServHeader, CloseCondition);
     end;
 
     local procedure FinalizeHeader(var PassedServHeader: Record "Service Header")
@@ -2239,7 +2239,7 @@ codeunit 5988 "Serv-Documents Mgt."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterFinalize(var ServiceHeader: Record "Service Header")
+    local procedure OnAfterFinalize(var ServiceHeader: Record "Service Header"; var CloseCondition: Boolean)
     begin
     end;
 

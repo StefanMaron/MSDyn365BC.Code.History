@@ -188,7 +188,7 @@ page 9004 "Bookkeeper Role Center"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Aged Accounts Receivable';
                 Image = "Report";
-                RunObject = Report "Aged Accounts Receivable";
+                RunObject = Report "Aged Accounts Receivable NA";
                 ToolTip = 'View overdue customer payments.';
             }
             action("Aged Accou&nts Payable")
@@ -196,7 +196,7 @@ page 9004 "Bookkeeper Role Center"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Aged Accou&nts Payable';
                 Image = "Report";
-                RunObject = Report "Aged Accounts Payable";
+                RunObject = Report "Aged Accounts Payable NA";
                 ToolTip = 'View an overview of when your payables to vendors are due or overdue (divided into four periods). You must specify the date you want aging calculated from and the length of the period that each column will contain data for.';
             }
             action("Projected Cash Receipts")

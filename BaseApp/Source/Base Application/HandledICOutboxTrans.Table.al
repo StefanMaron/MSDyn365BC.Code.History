@@ -100,7 +100,10 @@ table 416 "Handled IC Outbox Trans."
             "Source Type"::"Purchase Document":
                 if ICOutboxPurchHdr.Get("Transaction No.", "IC Partner Code", "Transaction Source") then
                     ICOutboxPurchHdr.Delete(true);
+            else
+                OnDeleteOnSourceTypeCase(Rec);
         end;
+
         DeleteComments("Transaction No.", "IC Partner Code");
     end;
 
@@ -152,6 +155,11 @@ table 416 "Handled IC Outbox Trans."
         ICCommentLine.SetRange("Transaction No.", TransactionNo);
         ICCommentLine.SetRange("IC Partner Code", ICPartnerCode);
         ICCommentLine.DeleteAll;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDeleteOnSourceTypeCase(var HandledICOutboxTrans: Record "Handled IC Outbox Trans.")
+    begin
     end;
 }
 

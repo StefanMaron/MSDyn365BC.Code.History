@@ -129,6 +129,8 @@ table 1513 "Notification Schedule"
 
     var
         NotifyNowDescriptionTxt: Label 'Instant Notification Job';
+        NotifyNowLbl: Label 'NOTIFYNOW', Locked = true;
+        NotifyLaterLbl: Label 'NOTIFYLTR', Locked = true;
 
     procedure NewRecord(NewUserID: Code[50]; NewNotificationType: Option)
     begin
@@ -310,12 +312,12 @@ table 1513 "Notification Schedule"
         JobQueueEntry: Record "Job Queue Entry";
         JobQueueCategory: Record "Job Queue Category";
     begin
-        if JobQueueEntry.ReuseExistingJobFromCatagory(JobQueueCategory.NotifyNowCode, OneMinuteFromNow) then
+        if JobQueueEntry.ReuseExistingJobFromCatagory(NotifyNowLbl, OneMinuteFromNow()) then
             exit;
 
-        JobQueueCategory.InsertRec(JobQueueCategory.NotifyNowCode, NotifyNowDescriptionTxt);
+        JobQueueCategory.InsertRec(NotifyNowLbl, NotifyNowDescriptionTxt);
         JobQueueEntry.ScheduleJobQueueEntryForLater(
-          CODEUNIT::"Notification Entry Dispatcher", OneMinuteFromNow, JobQueueCategory.NotifyNowCode, '');
+          CODEUNIT::"Notification Entry Dispatcher", OneMinuteFromNow, NotifyNowLbl, '');
     end;
 
     local procedure ScheduleForLater()
@@ -331,7 +333,7 @@ table 1513 "Notification Schedule"
         NotificationEntry.SetRange("Recipient User ID", "User ID");
         NotificationEntry.SetRange(Type, "Notification Type");
         JobQueueEntry.ScheduleJobQueueEntryForLater(
-          CODEUNIT::"Notification Entry Dispatcher", ExcetutionDateTime, '', NotificationEntry.GetView);
+          CODEUNIT::"Notification Entry Dispatcher", ExcetutionDateTime, NotifyLaterLbl, NotificationEntry.GetView);
         "Last Scheduled Job" := JobQueueEntry.ID;
         Modify
     end;

@@ -79,6 +79,14 @@ table 10003 "Document Line"
         {
             Caption = 'Amount Including VAT';
         }
+        field(89; "VAT Bus. Posting Group"; Code[20])
+        {
+            Caption = 'VAT Bus. Posting Group';
+        }
+        field(90; "VAT Prod. Posting Group"; Code[20])
+        {
+            Caption = 'VAT Prod. Posting Group';
+        }
         field(5407; "Unit of Measure Code"; Code[10])
         {
             Caption = 'Unit of Measure Code';

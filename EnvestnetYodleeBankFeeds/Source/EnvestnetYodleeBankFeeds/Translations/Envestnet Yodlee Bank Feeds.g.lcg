@@ -110,7 +110,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table MS - Yodlee Bank Service Setup - Field Cobrand Session Token - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Table MS - Yodlee Bank Service Setup - Field Cobrand Session Token - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 1268761635 - Field 807152436 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -119,7 +119,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table MS - Yodlee Bank Service Setup - Field Cob. Token Last Date Updated - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Table MS - Yodlee Bank Service Setup - Field Cob. Token Last Date Updated - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 1268761635 - Field 1447929701 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -128,7 +128,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table MS - Yodlee Bank Service Setup - Field Consumer Session Token - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Table MS - Yodlee Bank Service Setup - Field Consumer Session Token - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 1268761635 - Field 1473726113 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -137,7 +137,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table MS - Yodlee Bank Service Setup - Field Cons. Token Last Date Updated - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Table MS - Yodlee Bank Service Setup - Field Cons. Token Last Date Updated - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 1268761635 - Field 3147377785 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -1931,9 +1931,18 @@
       <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit MS - Yodlee Service Mgt. - NamedType UnauthorizedResponseCodeTok)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 758984636 - NamedType 366795098" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Unable to insert information about account that is linked on Yodlee. ProviderAccount id - %1, AccountId - %2.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit MS - Yodlee Service Mgt. - NamedType UnableToInsertUnlinkedBankAccToBufferErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 839769576 - NamedType 1033613857" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[/root/root/searchResult/transactions/account/itemAccountId]]></Val>
+      <Val><![CDATA[/root/root/transaction/accountId]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -1942,7 +1951,7 @@
   </Item>
   <Item ItemId=";Codeunit 839769576 - NamedType 2162809841" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[/root/root/searchResult/transactions/account/accountBalance/amount]]></Val>
+      <Val><![CDATA[/root/root/transaction/runningBalance/amount]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -1978,7 +1987,7 @@
   </Item>
   <Item ItemId=";Codeunit 839769576 - NamedType 3588725952" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[/root/root/searchResult/transactions/account/accountBalance/currencyCode]]></Val>
+      <Val><![CDATA[/root/root/transaction/runningBalance/currency]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -1987,7 +1996,7 @@
   </Item>
   <Item ItemId=";Codeunit 839769576 - NamedType 686796650" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[/root/root/searchResult/transactions/amount/currencyCode]]></Val>
+      <Val><![CDATA[/root/root/transaction/amount/currency]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>

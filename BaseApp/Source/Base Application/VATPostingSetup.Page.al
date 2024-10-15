@@ -121,6 +121,16 @@ page 472 "VAT Posting Setup"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT category in connection with electronic document sending. For example, when you send sales documents through the PEPPOL service, the value in this field is used to populate the TaxApplied element in the Supplier group. The number is based on the UNCL5305 standard.';
                 }
+                field("CFDI VAT Exemption"; "CFDI VAT Exemption")
+                {
+                    ApplicationArea = BasicMX;
+                    ToolTip = 'Specifies if this combination of VAT business posting group and VAT product posting group will be reported as VAT Exemption in the CFDI reports.';
+                }
+                field("CFDI Non-Taxable"; "CFDI Non-Taxable")
+                {
+                    ApplicationArea = BasicMX;
+                    ToolTip = 'Specifies if this combination of VAT business posting group and VAT product posting group will not be reported in the CFDI reports.';
+                }
             }
         }
         area(factboxes)

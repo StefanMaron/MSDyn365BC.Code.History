@@ -378,11 +378,22 @@ codeunit 134 "Import Attachment - Inc. Doc."
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Replaced with the version accepting a stream.')]
     procedure ProcessAndUploadPicture(PictureFilePath: Text; var IncomingDocumentAttachmentOriginal: Record "Incoming Document Attachment")
     var
-        IncomingDocumentAttachment: Record "Incoming Document Attachment";
         File: File;
         InStr: InStream;
+    begin
+        File.Open(PictureFilePath);
+        File.CreateInStream(InStr);
+        ProcessAndUploadPicture(InStr, IncomingDocumentAttachmentOriginal);
+        File.Close;
+        if Erase(PictureFilePath) then;
+    end;
+
+    procedure ProcessAndUploadPicture(PictureStream: InStream; var IncomingDocumentAttachmentOriginal: Record "Incoming Document Attachment")
+    var
+        IncomingDocumentAttachment: Record "Incoming Document Attachment";
         OutStr: OutStream;
     begin
         IncomingDocumentAttachment.Init;
@@ -393,16 +404,11 @@ codeunit 134 "Import Attachment - Inc. Doc."
           CopyStr(StrSubstNo(PhotoLbl, IncomingDocumentAttachment."Line No." div 10000), 1, MaxStrLen(IncomingDocumentAttachment.Name));
         IncomingDocumentAttachment.Validate("File Extension", 'jpg');
 
-        File.Open(PictureFilePath);
-        File.CreateInStream(InStr);
         IncomingDocumentAttachment.Content.CreateOutStream(OutStr);
-        CopyStream(OutStr, InStr);
+        CopyStream(OutStr, PictureStream);
 
         IncomingDocumentAttachment.Insert(true);
         Commit;
-
-        File.Close;
-        if Erase(PictureFilePath) then;
     end;
 
     [Scope('OnPrem')]

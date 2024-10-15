@@ -212,6 +212,18 @@
                         PAGE.Run(0, TempServDocLog);
                     end;
                 }
+                action(CFDIRelationDocuments)
+                {
+                    ApplicationArea = BasicMX;
+                    Caption = 'CFDI Relation Documents';
+                    Image = Allocations;
+                    RunObject = Page "CFDI Relation Documents";
+                    RunPageLink = "Document Table ID" = CONST(5900),
+                                  "Document Type" = FIELD("Document Type"),
+                                  "Document No." = FIELD("No."),
+                                  "Customer No." = FIELD("Bill-to Customer No.");
+                    ToolTip = 'View or add CFDI relation documents for the record.';
+                }
             }
         }
         area(processing)

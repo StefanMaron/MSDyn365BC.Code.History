@@ -76,6 +76,7 @@ codeunit 234 "Gen. Jnl.-B.Post+Print"
                     end else begin
                         Clear(GenJnlPostBatch);
                         if GenJnlPostBatch.Run(GenJnlLine) then begin
+                            OnAfterPostJournalBatch(GenJnlBatch);
                             Mark(false);
                             RecRefToPrint.GetTable(GenJnlLine);
                             BatchPostingPrintMgt.PrintJournal(RecRefToPrint);
@@ -103,6 +104,11 @@ codeunit 234 "Gen. Jnl.-B.Post+Print"
                 Name := '';
             end;
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterPostJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch");
+    begin
     end;
 
     [IntegrationEvent(false, false)]

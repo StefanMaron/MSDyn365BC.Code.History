@@ -168,6 +168,14 @@ table 325 "VAT Posting Setup"
         {
             Caption = 'Description';
         }
+        field(10001; "CFDI VAT Exemption"; Boolean)
+        {
+            Caption = 'CFDI VAT Exemption';
+        }
+        field(10002; "CFDI Non-Taxable"; Boolean)
+        {
+            Caption = 'CFDI Non-Taxable';
+        }
         field(27010; "DIOT-WHT %"; Decimal)
         {
             Caption = 'DIOT WHT Percent';

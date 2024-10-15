@@ -336,6 +336,18 @@
                         WorkflowsEntriesBuffer.RunWorkflowEntriesPage(RecordId, DATABASE::"Sales Header", "Document Type", "No.");
                     end;
                 }
+                action(CFDIRelationDocuments)
+                {
+                    ApplicationArea = BasicMX;
+                    Caption = 'CFDI Relation Documents';
+                    Image = Allocations;
+                    RunObject = Page "CFDI Relation Documents";
+                    RunPageLink = "Document Table ID" = CONST(36),
+                                  "Document Type" = FIELD("Document Type"),
+                                  "Document No." = FIELD("No."),
+                                  "Customer No." = FIELD("Bill-to Customer No.");
+                    ToolTip = 'View or add CFDI relation documents for the record.';
+                }
             }
         }
         area(processing)
@@ -638,7 +650,7 @@
                         ApplicationArea = Basic, Suite;
                         Caption = 'Aged Accounts Receivable';
                         Image = "Report";
-                        RunObject = Report "Aged Accounts Receivable";
+                        RunObject = Report "Aged Accounts Receivable NA";
                         ToolTip = 'View an overview of when customer payments are due or overdue, divided into four periods. You must specify the date you want aging calculated from and the length of the period that each column will contain data for.';
                     }
                     action("Customer - Payment Receipt")

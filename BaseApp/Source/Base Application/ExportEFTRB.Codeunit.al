@@ -43,10 +43,10 @@ codeunit 10095 "Export EFT (RB)"
     var
         ACHRBHeader: Record "ACH RB Header";
         GLSetup: Record "General Ledger Setup";
+        DataExchColumnDef: Record "Data Exch. Column Def";
         ExportEFTACH: Codeunit "Export EFT (ACH)";
         i: Integer;
         FedID: Text[30];
-        DateFormat: Text[100];
         DateInteger: Integer;
     begin
         ExportEFTACH.BuildIDModifier(DummyModifierValues);
@@ -120,17 +120,11 @@ codeunit 10095 "Export EFT (RB)"
             ACHRBHeader."File Creation Date" := JulianDate(FileDate);
 
             // if can find the column definition, get the value of the Data Format and assign it to DateFormat variable
-            DateFormat := GetDateFormatString(DataExchEntryNo, ACHRBHeader.FieldName("File Creation Date"));
-            if DateFormat <> '' then
-                if (StrPos(DateFormat, '<Year,2>') > 0) and (StrPos(DateFormat, '<Day,3>') > 0) then // Special case, want the julian date with only 2-digit year
-                    ACHRBHeader."File Creation Date" := (ACHRBHeader."File Creation Date" mod 100000)
-                else begin
-                    if (StrPos(DateFormat, '<Year4') > 0) then
-                        Evaluate(DateInteger, Format(FileDate, 8, DateFormat))
-                    else
-                        Evaluate(DateInteger, Format(FileDate, 7, DateFormat));
-                    ACHRBHeader."File Creation Date" := DateInteger;
-                end;
+            FindDataExchColumnDef(DataExchColumnDef, DataExchEntryNo, ACHRBHeader.FieldName("File Creation Date"));
+            if DataExchColumnDef."Data Format" <> '' then begin
+                Evaluate(DateInteger, Format(FileDate, DataExchColumnDef.Length, DataExchColumnDef."Data Format"));
+                ACHRBHeader."File Creation Date" := DateInteger;
+            end;
 
             ACHRBHeader."Currency Type" := CurrencyType;
             ACHRBHeader."Input Type" := '1';
@@ -313,8 +307,8 @@ codeunit 10095 "Export EFT (RB)"
     local procedure WriteRecord(var TempEFTExportWorkset: Record "EFT Export Workset" temporary; PaymentAmount: Decimal; SettleDate: Date; DataExchEntryNo: Integer; DataExchLineDefCode: Code[20]; IsParent: Boolean; var EFTValues: Codeunit "EFT Values")
     var
         ACHRBDetail: Record "ACH RB Detail";
+        DataExchColumnDef: Record "Data Exch. Column Def";
         DateInteger: Integer;
-        DateFormat: Text[100];
     begin
         with TempEFTExportWorkset do begin
             if IsParent then
@@ -343,17 +337,11 @@ codeunit 10095 "Export EFT (RB)"
             ACHRBDetail."Payment Date" := JulianDate(SettleDate);
 
             // if can find the column definition, get the value of the Data Format and assign it to DateFormat variable
-            DateFormat := GetDateFormatString(DataExchEntryNo, ACHRBDetail.FieldName("Payment Date"));
-            if DateFormat <> '' then
-                if (StrPos(DateFormat, '<Year,2>') > 0) and (StrPos(DateFormat, '<Day,3>') > 0) then // Special case, want the julian date with only 2-digit year
-                    ACHRBDetail."Payment Date" := (ACHRBDetail."Payment Date" mod 100000)
-                else begin
-                    if (StrPos(DateFormat, '<Year4') > 0) then
-                        Evaluate(DateInteger, Format(SettleDate, 8, DateFormat))
-                    else
-                        Evaluate(DateInteger, Format(SettleDate, 7, DateFormat));
-                    ACHRBDetail."Payment Date" := DateInteger;
-                end;
+            FindDataExchColumnDef(DataExchColumnDef, DataExchEntryNo, ACHRBDetail.FieldName("Payment Date"));
+            if DataExchColumnDef."Data Format" <> '' then begin
+                Evaluate(DateInteger, Format(SettleDate, DataExchColumnDef.Length, DataExchColumnDef."Data Format"));
+                ACHRBDetail."Payment Date" := DateInteger;
+            end;
 
             ACHRBDetail."Language Code" := Format(AcctLanguage);
             ACHRBDetail."Client Name" := BankAccount."Client Name";
@@ -409,17 +397,26 @@ codeunit 10095 "Export EFT (RB)"
     [Scope('OnPrem')]
     procedure GetDateFormatString(DataExchEntryNo: Integer; FieldName: Text[250]): Text[100]
     var
-        DataExch: Record "Data Exch.";
         DataExchColumnDef: Record "Data Exch. Column Def";
     begin
-        if DataExch.Get(DataExchEntryNo) then begin
-            DataExchColumnDef."Data Exch. Def Code" := DataExch."Data Exch. Def Code";
-            DataExchColumnDef."Data Exch. Line Def Code" := DataExch."Data Exch. Line Def Code";
-            DataExchColumnDef.SetRange(Name, FieldName);
-            if DataExchColumnDef.FindFirst then
-                exit(DataExchColumnDef."Data Format");
-        end;
-        exit('');
+        FindDataExchColumnDef(DataExchColumnDef, DataExchEntryNo, FieldName);
+        exit(DataExchColumnDef."Data Format");
+    end;
+
+    [Scope('OnPrem')]
+    procedure FindDataExchColumnDef(var DataExchColumnDef: Record "Data Exch. Column Def"; DataExchEntryNo: Integer; FieldName: Text[250])
+    var
+        DataExch: Record "Data Exch.";
+    begin
+        Clear(DataExchColumnDef);
+
+        if not DataExch.Get(DataExchEntryNo) then
+            exit;
+
+        DataExchColumnDef.SetRange("Data Exch. Def Code", DataExch."Data Exch. Def Code");
+        DataExchColumnDef.SetRange("Data Exch. Line Def Code", DataExch."Data Exch. Line Def Code");
+        DataExchColumnDef.SetRange(Name, FieldName);
+        if DataExchColumnDef.FindFirst then;
     end;
 
     [IntegrationEvent(false, false)]

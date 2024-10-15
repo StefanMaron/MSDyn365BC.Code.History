@@ -53,10 +53,7 @@ codeunit 104020 "Upg Secrets to Isol. Storage"
                 GraphMailSetup."Refresh Code".CREATEINSTREAM(InStr);
                 InStr.READTEXT(RefreshCodeValue);
 
-                IF NOT ENCRYPTIONENABLED THEN
-                    ISOLATEDSTORAGE.SET('RefreshTokenKey', RefreshCodeValue, DATASCOPE::Company)
-                ELSE
-                    ISOLATEDSTORAGE.SETENCRYPTED('RefreshTokenKey', RefreshCodeValue, DATASCOPE::Company);
+                ISOLATEDSTORAGE.SET('RefreshTokenKey', RefreshCodeValue, DATASCOPE::Company)
             END;
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetGraphMailRefreshCodeToIsolatedStorageTag());

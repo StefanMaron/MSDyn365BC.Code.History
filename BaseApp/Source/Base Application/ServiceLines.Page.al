@@ -1120,7 +1120,7 @@
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean
     begin
         if not AddExtendedText then
-            "Line No." := GetNextLineNo(xRec, BelowxRec);
+            "Line No." := GetLineNo();
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)

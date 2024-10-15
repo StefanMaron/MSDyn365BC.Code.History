@@ -19,6 +19,7 @@ codeunit 134098 "ERM Invoice Disc. Distribution"
         InvoiceDiscountGeneralTabErr: Label 'Wrong invoice discount on statistic general tab.';
         InvoiceDiscountInvoicingTabErr: Label 'Wrong invoice discount on statistic invoicing tab.';
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         IsInitialized: Boolean;
 
     [Test]
@@ -34,7 +35,7 @@ codeunit 134098 "ERM Invoice Disc. Distribution"
     begin
         // [FEATURE] [Sales] [Subtotals] [UI]
         // [SCENARIO 218622] Cassie can change invoice discount on partial invoicing sales order page.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales order with 3 lines
         // [GIVEN] Line[1]: Quantity = 10, "Qty. to Invoice" = 0, "Unit Price" = 1000, "Line Amount" = 10000
@@ -589,22 +590,24 @@ codeunit 134098 "ERM Invoice Disc. Distribution"
     var
         CompanyInformation: Record "Company Information";
     begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"ERM Invoice Disc. Distribution");
         if IsInitialized then
             exit;
 
         IsInitialized := true;
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
-        LibraryERMCountryData.UpdateFAPostingType;
-
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"ERM Invoice Disc. Distribution");
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
+        LibraryERMCountryData.UpdateFAPostingType();
         if CompanyInformation.IsCanada then begin
             CompanyInformation."Tax Area Code" := '';
             CompanyInformation.Modify;
         end;
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"ERM Invoice Disc. Distribution");
     end;
 
     local procedure CreatePartialInvoicingSalesDocumentWithLines(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Option; ItemQauntity: Decimal; UnitPrice: Decimal; Lines: Integer)

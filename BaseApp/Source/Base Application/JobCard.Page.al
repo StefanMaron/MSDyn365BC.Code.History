@@ -450,7 +450,7 @@
             systempart(Control1900383207; Links)
             {
                 ApplicationArea = RecordLinks;
-                Visible = false;
+                Visible = true;
             }
             systempart(Control1905767507; Notes)
             {

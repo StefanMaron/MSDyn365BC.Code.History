@@ -76,6 +76,7 @@ report 297 "Batch Post Sales Invoices"
                     field(PrintDoc; PrintDoc)
                     {
                         ApplicationArea = Basic, Suite;
+                        Visible = PrintDocVisible;
                         Caption = 'Print';
                         ToolTip = 'Specifies if you want to print the invoice after posting. In the Report Output Type field on the Sales and Receivables page, you define if the report will be printed or output as a PDF.';
 
@@ -107,6 +108,7 @@ report 297 "Batch Post Sales Invoices"
             ReplacePostingDate := false;
             ReplaceDocumentDate := false;
             PrintDoc := false;
+            PrintDocVisible := SalesReceivablesSetup."Post & Print with Job Queue";
         end;
     }
 
@@ -121,5 +123,7 @@ report 297 "Batch Post Sales Invoices"
         ReplaceDocumentDate: Boolean;
         CalcInvDisc: Boolean;
         PrintDoc: Boolean;
+        [InDataSet]
+        PrintDocVisible: Boolean;
 }
 

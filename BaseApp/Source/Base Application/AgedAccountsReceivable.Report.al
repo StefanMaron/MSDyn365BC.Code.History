@@ -2,10 +2,8 @@ report 120 "Aged Accounts Receivable"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './AgedAccountsReceivable.rdlc';
-    ApplicationArea = Basic, Suite;
     Caption = 'Aged Accounts Receivable';
     PreviewMode = PrintLayout;
-    UsageCategory = ReportsAndAnalysis;
 
     dataset
     {

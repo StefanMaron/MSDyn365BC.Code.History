@@ -344,8 +344,8 @@ page 10101 "Sales Tax Journal"
         GenJnlManagement: Codeunit GenJnlManagement;
         ReportPrint: Codeunit "Test Report-Print";
         CurrentJnlBatchName: Code[10];
-        AccName: Text[50];
-        BalAccName: Text[50];
+        AccName: Text[100];
+        BalAccName: Text[100];
         Balance: Decimal;
         TotalBalance: Decimal;
         ShowBalance: Boolean;

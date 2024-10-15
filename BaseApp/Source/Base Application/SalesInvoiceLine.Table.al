@@ -588,7 +588,7 @@ table 113 "Sales Invoice Line"
         SalesDocLineComments.SetRange("No.", "Document No.");
         SalesDocLineComments.SetRange("Document Line No.", "Line No.");
         if not SalesDocLineComments.IsEmpty then
-            SalesDocLineComments.DeleteAll;
+            SalesDocLineComments.DeleteAll();
 
         PostedDeferralHeader.DeleteHeader(DeferralUtilities.GetSalesDeferralDocType, '', '',
           SalesDocLineComments."Document Type"::"Posted Invoice", "Document No.", "Line No.");
@@ -623,11 +623,11 @@ table 113 "Sales Invoice Line"
 
     procedure CalcVATAmountLines(SalesInvHeader: Record "Sales Invoice Header"; var TempVATAmountLine: Record "VAT Amount Line" temporary)
     begin
-        TempVATAmountLine.DeleteAll;
+        TempVATAmountLine.DeleteAll();
         SetRange("Document No.", SalesInvHeader."No.");
         if Find('-') then
             repeat
-                TempVATAmountLine.Init;
+                TempVATAmountLine.Init();
                 TempVATAmountLine.CopyFromSalesInvLine(Rec);
                 TempVATAmountLine.InsertLine;
             until Next = 0;
@@ -656,7 +656,7 @@ table 113 "Sales Invoice Line"
         if SalesInvoiceHeader."No." = "Document No." then
             exit;
         if not SalesInvoiceHeader.Get("Document No.") then
-            SalesInvoiceHeader.Init;
+            SalesInvoiceHeader.Init();
 
         if SalesInvoiceHeader."Currency Code" = '' then
             Currency.InitRoundingPrecision
@@ -701,8 +701,8 @@ table 113 "Sales Invoice Line"
         ItemLedgEntry: Record "Item Ledger Entry";
         ValueEntry: Record "Value Entry";
     begin
-        TempSalesShptLine.Reset;
-        TempSalesShptLine.DeleteAll;
+        TempSalesShptLine.Reset();
+        TempSalesShptLine.DeleteAll();
 
         if Type <> Type::Item then
             exit;
@@ -713,9 +713,9 @@ table 113 "Sales Invoice Line"
                 ItemLedgEntry.Get(ValueEntry."Item Ledger Entry No.");
                 if ItemLedgEntry."Document Type" = ItemLedgEntry."Document Type"::"Sales Shipment" then
                     if SalesShptLine.Get(ItemLedgEntry."Document No.", ItemLedgEntry."Document Line No.") then begin
-                        TempSalesShptLine.Init;
+                        TempSalesShptLine.Init();
                         TempSalesShptLine := SalesShptLine;
-                        if TempSalesShptLine.Insert then;
+                        if TempSalesShptLine.Insert() then;
                     end;
             until ValueEntry.Next = 0;
     end;
@@ -768,8 +768,8 @@ table 113 "Sales Invoice Line"
         ValueEntry: Record "Value Entry";
     begin
         if SetQuantity then begin
-            TempItemLedgEntry.Reset;
-            TempItemLedgEntry.DeleteAll;
+            TempItemLedgEntry.Reset();
+            TempItemLedgEntry.DeleteAll();
 
             if Type <> Type::Item then
                 exit;
@@ -787,13 +787,13 @@ table 113 "Sales Invoice Line"
                         TempItemLedgEntry."Shipped Qty. Not Returned" := TempItemLedgEntry.Quantity;
                 end;
                 OnGetItemLedgEntriesOnBeforeTempItemLedgEntryInsert(TempItemLedgEntry, ValueEntry, SetQuantity);
-                if TempItemLedgEntry.Insert then;
+                if TempItemLedgEntry.Insert() then;
             until ValueEntry.Next = 0;
     end;
 
     procedure FilterPstdDocLineValueEntries(var ValueEntry: Record "Value Entry")
     begin
-        ValueEntry.Reset;
+        ValueEntry.Reset();
         ValueEntry.SetCurrentKey("Document No.");
         ValueEntry.SetRange("Document No.", "Document No.");
         ValueEntry.SetRange("Document Type", ValueEntry."Document Type"::"Sales Invoice");
@@ -826,7 +826,7 @@ table 113 "Sales Invoice Line"
     begin
         Init;
         TransferFields(SalesLine);
-        if ("No." = '') and (Type in [Type::"G/L Account" .. Type::"Charge (Item)"]) then
+        if ("No." = '') and HasTypeToFillMandatoryFields() then
             Type := Type::" ";
         "Posting Date" := SalesInvHeader."Posting Date";
         "Document No." := SalesInvHeader."No.";
