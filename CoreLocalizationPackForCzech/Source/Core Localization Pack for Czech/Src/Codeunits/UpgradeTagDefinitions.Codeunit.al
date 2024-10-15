@@ -22,6 +22,7 @@ codeunit 31016 "Upgrade Tag Definitions CZL"
         PerCompanyUpgradeTags.Add(GetDataVersion189PerCompanyUpgradeTag());
         PerCompanyUpgradeTags.Add(GetDataVersion200PerCompanyUpgradeTag());
         PerCompanyUpgradeTags.Add(GetUseW1RegistrationNumberUpgradeTag());
+        PerCompanyUpgradeTags.Add(GetStatutoryReportingSetupCityUpgradeTag());
     end;
 
     procedure GetDataVersion174PerDatabaseUpgradeTag(): Code[250]
@@ -83,5 +84,10 @@ codeunit 31016 "Upgrade Tag Definitions CZL"
     procedure GetUseW1RegistrationNumberUpgradeTag(): Code[250]
     begin
         exit('CZL-471081-UseW1RegistrationNumberUpgrade-20230217');
+    end;
+
+    procedure GetStatutoryReportingSetupCityUpgradeTag(): Code[250]
+    begin
+        exit('CZL-491441-StatutoryReportingSetupCityUpgradeTag-20231114');
     end;
 }

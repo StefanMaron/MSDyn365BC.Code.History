@@ -1691,7 +1691,13 @@ table 130 "Incoming Document"
     var
         RecRef: RecordRef;
         NavRecordVariant: Variant;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeRemoveReferencedRecords(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if Posted then
             UndoPostedDocFields()
         else begin
@@ -2114,8 +2120,13 @@ table 130 "Incoming Document"
         exit(GetMainAttachment(IncomingDocumentAttachment));
     end;
 
-    procedure CanReplaceMainAttachment(): Boolean
+    procedure CanReplaceMainAttachment() CanReplaceMainAttachment: Boolean
+    var
+        IsHandled: Boolean;
     begin
+        OnBeforeCanReplaceMainAttachment(CanReplaceMainAttachment, Rec, IsHandled);
+        if IsHandled then
+            exit(CanReplaceMainAttachment);
         if not HasAttachment() then
             exit(true);
         exit(not WasSentToOCR());
@@ -2258,6 +2269,16 @@ table 130 "Incoming Document"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterClearRelatedRecords(IncomingRelatedDocumentType: Enum "Incoming Related Document Type"; EntryNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCanReplaceMainAttachment(var CanReplaceMainAttachment: Boolean; IncomingDocument: Record "Incoming Document"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRemoveReferencedRecords(var IncomingDocument: Record "Incoming Document"; var IsHandled: Boolean)
     begin
     end;
 }

@@ -209,6 +209,7 @@ codeunit 31017 "Upgrade Application CZL"
         UpgradeFinanceChargeMemoHeader();
         UpgradeIssuedFinanceChargeMemoHeader();
         UpgradeUseW1RegistrationNumber();
+        UpgradeStatutoryReportingSetupCity();
     end;
 
     local procedure UpgradeGeneralLedgerSetup();
@@ -2329,6 +2330,25 @@ codeunit 31017 "Upgrade Application CZL"
         InstallApplicationsMgtCZL.InsertTableDataPermissions(AppInfo.Id(), Database::"Acc. Schedule Result History", Database::"Acc. Schedule Result Hist. CZL");
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitionsCZL.GetDataVersion183PerDatabaseUpgradeTag());
+    end;
+
+    local procedure UpgradeStatutoryReportingSetupCity()
+    var
+        CompanyInformation: Record "Company Information";
+        StatutoryReportingSetupCZL: Record "Statutory Reporting Setup CZL";
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitionsCZL.GetStatutoryReportingSetupCityUpgradeTag()) then
+            exit;
+
+        if not CompanyInformation.Get() then
+            exit;
+        if not StatutoryReportingSetupCZL.Get() then
+            exit;
+
+        StatutoryReportingSetupCZL.City := CompanyInformation.City;
+        StatutoryReportingSetupCZL.Modify();
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitionsCZL.GetStatutoryReportingSetupCityUpgradeTag());
     end;
 
     local procedure SetDatabaseUpgradeTags();
