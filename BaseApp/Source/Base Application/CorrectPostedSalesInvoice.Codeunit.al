@@ -1,4 +1,4 @@
-codeunit 1303 "Correct Posted Sales Invoice"
+﻿codeunit 1303 "Correct Posted Sales Invoice"
 {
     Permissions = TableData "Sales Invoice Header" = rm,
                   TableData "Sales Cr.Memo Header" = rm;
@@ -452,7 +452,13 @@ codeunit 1303 "Correct Posted Sales Invoice"
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
         NoSeriesManagement: Codeunit NoSeriesManagement;
         PostingDate: Date;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeTestIfAnyFreeNumberSeries(SalesInvoiceHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         PostingDate := WorkDate;
         SalesReceivablesSetup.Get();
 
@@ -912,6 +918,11 @@ codeunit 1303 "Correct Posted Sales Invoice"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeTestSalesInvoiceHeaderAmount(var SalesInvoiceHeader: Record "Sales Invoice Header"; Cancelling: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTestIfAnyFreeNumberSeries(var SalesInvoiceHeader: Record "Sales Invoice Header"; var IsHandled: Boolean)
     begin
     end;
 

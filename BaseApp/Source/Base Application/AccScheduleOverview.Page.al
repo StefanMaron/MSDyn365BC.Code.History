@@ -908,8 +908,15 @@ page 490 "Acc. Schedule Overview"
         CurrPage.Update();
     end;
 
-    local procedure FormGetCaptionClass(DimNo: Integer): Text[250]
+    local procedure FormGetCaptionClass(DimNo: Integer) Result: Text[250]
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetCaptionClass(AnalysisView, DimNo, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         case DimNo of
             1:
                 begin
@@ -1171,6 +1178,11 @@ page 490 "Acc. Schedule Overview"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCurrentColumnNameOnAfterValidate(var CurrentColumnName: Code[10])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetCaptionClass(AnalysisView: Record "Analysis View"; DimNo: Integer; var Result: Text[250]; var IsHandled: Boolean)
     begin
     end;
 

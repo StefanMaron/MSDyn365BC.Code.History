@@ -47,6 +47,7 @@ codeunit 10145 "E-Invoice Mgt."
         SATNotValidErr: Label 'The SAT certificate is not valid.';
         NoRelationDocumentsExistErr: Label 'No relation documents specified for the replacement of previous CFDIs.';
         GLSetupRead: Boolean;
+        SkipLineDiscountRounging: Boolean;
         FileFilterTxt: Label 'XML Files(*.xml)|*.xml|All Files(*.*)|*.*', Locked = true;
         ExtensionFilterTxt: Label 'xml', Locked = true;
         EmptySATCatalogErr: Label 'Catalog %1 is empty.', Comment = '%1 - table name.';
@@ -95,6 +96,7 @@ codeunit 10145 "E-Invoice Mgt."
                 begin
                     EDocActionValidation(EDocAction::"Request Stamp", ElectronicDocumentStatus);
                     RequestStamp(RecRef, Prepayment, false);
+                    RequestStampOnRoundingError(RecRef, Prepayment, false);
                 end;
             2:// Send
                 begin
@@ -105,6 +107,7 @@ codeunit 10145 "E-Invoice Mgt."
                 begin
                     EDocActionValidation(EDocAction::"Request Stamp", ElectronicDocumentStatus);
                     RequestStamp(RecRef, Prepayment, false);
+                    RequestStampOnRoundingError(RecRef, Prepayment, false);
                     Commit();
                     ElectronicDocumentStatus := RecRef.Field(10030).Value;
                     EDocActionValidation(EDocAction::Send, ElectronicDocumentStatus);
@@ -1648,7 +1651,7 @@ codeunit 10145 "E-Invoice Mgt."
                       XMLDoc, XMLCurrNode, 'Importe', FormatDecimal(TempDocumentLine.Quantity * TempDocumentLine."Unit Price/Direct Unit Cost", 6));
 
                     // might not need the following nodes, took out of original string....
-                    AddAttribute(XMLDoc, XMLCurrNode, 'Descuento', FormatAmount(TempDocumentLine."Line Discount Amount"));
+                    AddAttribute(XMLDoc, XMLCurrNode, 'Descuento', FormatDecimal(TempDocumentLine."Line Discount Amount", 6));
 
                     if not IsNonTaxableVATLine(TempDocumentLine) then
                         // Impuestos per line
@@ -1745,7 +1748,7 @@ codeunit 10145 "E-Invoice Mgt."
                       XMLDoc, XMLCurrNode, 'Importe', FormatDecimal(TempDocumentLine.Quantity * TempDocumentLine."Unit Price/Direct Unit Cost", 6));
 
                     // might not need the following nodes, took out of original string....
-                    AddAttribute(XMLDoc, XMLCurrNode, 'Descuento', FormatAmount(TempDocumentLine."Line Discount Amount"));
+                    AddAttribute(XMLDoc, XMLCurrNode, 'Descuento', FormatDecimal(TempDocumentLine."Line Discount Amount", 6));
                     TotalDiscount := TotalDiscount + TempDocumentLine."Line Discount Amount";
 
                     if not IsNonTaxableVATLine(TempDocumentLine) then
@@ -2111,7 +2114,7 @@ codeunit 10145 "E-Invoice Mgt."
                     WriteOutStr(OutStream, EncodeString(TempDocumentLine.Description) + '|'); // Descripcion
                     WriteOutStr(OutStream, FormatDecimal(TempDocumentLine."Unit Price/Direct Unit Cost", 6) + '|'); // ValorUnitario
                     WriteOutStr(OutStream, FormatDecimal(TempDocumentLine.Quantity * TempDocumentLine."Unit Price/Direct Unit Cost", 6) + '|'); // Importe
-                    WriteOutStr(OutStream, FormatAmount(TempDocumentLine."Line Discount Amount") + '|'); // Descuento
+                    WriteOutStr(OutStream, FormatDecimal(TempDocumentLine."Line Discount Amount", 6) + '|'); // Descuento
 
                     if not IsNonTaxableVATLine(TempDocumentLine) then
                         AddStrImpuestoPerLine(TempDocumentLine, TempDocumentLineRetention, OutStream);
@@ -2206,7 +2209,7 @@ codeunit 10145 "E-Invoice Mgt."
                     WriteOutStr(OutStream, EncodeString(TempDocumentLine.Description) + '|'); // Descripcion
                     WriteOutStr(OutStream, FormatDecimal(TempDocumentLine."Unit Price/Direct Unit Cost", 6) + '|'); // ValorUnitario
                     WriteOutStr(OutStream, FormatDecimal(TempDocumentLine.Quantity * TempDocumentLine."Unit Price/Direct Unit Cost", 6) + '|'); // Importe
-                    WriteOutStr(OutStream, FormatAmount(TempDocumentLine."Line Discount Amount") + '|'); // Descuento
+                    WriteOutStr(OutStream, FormatDecimal(TempDocumentLine."Line Discount Amount", 6) + '|'); // Descuento
                     TotalDiscount := TotalDiscount + TempDocumentLine."Line Discount Amount";
 
                     if not IsNonTaxableVATLine(TempDocumentLine) then
@@ -3087,7 +3090,7 @@ codeunit 10145 "E-Invoice Mgt."
                             CalcDocumentTotalAmounts(TempDocumentLine, SubTotal, TotalTax, TotalRetention);
                             CalcDocumentLineAmounts(
                               TempDocumentLine, SalesInvoiceLine."Inv. Discount Amount",
-                              SalesInvoiceHeader."Currency Code", SalesInvoiceHeader."Prices Including VAT");
+                              SalesInvoiceHeader."Currency Code", SalesInvoiceHeader."Prices Including VAT", SalesInvoiceLine."Line Discount %");
                             if SalesInvoiceLine.Type = SalesInvoiceLine.Type::"Fixed Asset" then
                                 TempDocumentLine."Unit of Measure Code" := SATUtilities.GetSATUnitOfMeasureFixedAsset();
                             TempDocumentLine.Insert();
@@ -3116,7 +3119,7 @@ codeunit 10145 "E-Invoice Mgt."
                             CalcDocumentTotalAmounts(TempDocumentLine, SubTotal, TotalTax, TotalRetention);
                             CalcDocumentLineAmounts(
                               TempDocumentLine, SalesCrMemoLine."Inv. Discount Amount",
-                              SalesCrMemoHeader."Currency Code", SalesCrMemoHeader."Prices Including VAT");
+                              SalesCrMemoHeader."Currency Code", SalesCrMemoHeader."Prices Including VAT", SalesCrMemoLine."Line Discount %");
                             if SalesCrMemoLine.Type = SalesCrMemoLine.Type::"Fixed Asset" then
                                 TempDocumentLine."Unit of Measure Code" := SATUtilities.GetSATUnitOfMeasureFixedAsset();
                             TempDocumentLine.Insert();
@@ -3148,7 +3151,7 @@ codeunit 10145 "E-Invoice Mgt."
                             CalcDocumentTotalAmounts(TempDocumentLine, SubTotal, TotalTax, TotalRetention);
                             CalcDocumentLineAmounts(
                               TempDocumentLine, ServiceInvoiceLine."Inv. Discount Amount",
-                              ServiceInvoiceHeader."Currency Code", ServiceInvoiceHeader."Prices Including VAT");
+                              ServiceInvoiceHeader."Currency Code", ServiceInvoiceHeader."Prices Including VAT", ServiceInvoiceLine."Line Discount %");
                             TempDocumentLine.Insert();
                             InsertTempVATAmountLine(TempVATAmountLine, TempDocumentLine);
                             InsertTempDocRetentionLine(TempDocumentLineRetention, TempDocumentLine);
@@ -3178,7 +3181,7 @@ codeunit 10145 "E-Invoice Mgt."
                             CalcDocumentTotalAmounts(TempDocumentLine, SubTotal, TotalTax, TotalRetention);
                             CalcDocumentLineAmounts(
                               TempDocumentLine, ServiceCrMemoLine."Inv. Discount Amount",
-                              ServiceCrMemoHeader."Currency Code", ServiceCrMemoHeader."Prices Including VAT");
+                              ServiceCrMemoHeader."Currency Code", ServiceCrMemoHeader."Prices Including VAT", ServiceCrMemoLine."Line Discount %");
                             TempDocumentLine.Insert();
                             InsertTempVATAmountLine(TempVATAmountLine, TempDocumentLine);
                             InsertTempDocRetentionLine(TempDocumentLineRetention, TempDocumentLine);
@@ -3198,7 +3201,7 @@ codeunit 10145 "E-Invoice Mgt."
         end;
     end;
 
-    local procedure CalcDocumentLineAmounts(var DocumentLine: Record "Document Line"; InvDiscountAmount: Decimal; CurrencyCode: Code[10]; PricesInclVAT: Boolean)
+    local procedure CalcDocumentLineAmounts(var DocumentLine: Record "Document Line"; InvDiscountAmount: Decimal; CurrencyCode: Code[10]; PricesInclVAT: Boolean; LineDiscountPct: Decimal)
     var
         Currency: Record Currency;
         VATFactor: Decimal;
@@ -3207,19 +3210,23 @@ codeunit 10145 "E-Invoice Mgt."
             exit;
 
         VATFactor := 1 + DocumentLine."VAT %" / 100;
+        IF LineDiscountPct <> 0 THEN
+            DocumentLine."Line Discount Amount" :=
+                DocumentLine."Unit Price/Direct Unit Cost" * DocumentLine.Quantity * LineDiscountPct / 100;
         DocumentLine."Amount Including VAT" := DocumentLine.Amount * VATFactor;
         DocumentLine."Line Discount Amount" += InvDiscountAmount;
 
-        if not PricesInclVAT then
-            exit;
+        if PricesInclVAT then begin
+            if not Currency.Get(CurrencyCode) then
+                Currency.Init;
+            Currency.InitRoundingPrecision;
 
-        if not Currency.Get(CurrencyCode) then
-            Currency.Init;
-        Currency.InitRoundingPrecision;
+            DocumentLine."Unit Price/Direct Unit Cost" := DocumentLine."Unit Price/Direct Unit Cost" / VATFactor;
+            DocumentLine."Line Discount Amount" := DocumentLine."Line Discount Amount" / VATFactor;
+        end;
 
-        DocumentLine."Unit Price/Direct Unit Cost" := DocumentLine."Unit Price/Direct Unit Cost" / VATFactor;
-        DocumentLine."Line Discount Amount" :=
-          Round(DocumentLine."Line Discount Amount" / VATFactor, Currency."Amount Rounding Precision");
+        IF not SkipLineDiscountRounging THEN
+            DocumentLine."Line Discount Amount" := Round(DocumentLine."Line Discount Amount", Currency."Amount Rounding Precision");
     end;
 
     local procedure CalcDocumentTotalAmounts(TempDocumentLine: Record "Document Line" temporary; var SubTotal: Decimal; var TotalTax: Decimal; var TotalRetention: Decimal)
@@ -4805,6 +4812,21 @@ codeunit 10145 "E-Invoice Mgt."
           StrSubstNo(NumeroPedimentoFormatTxt,
             CopyStr(NumeroPedimento, 1, 2), CopyStr(NumeroPedimento, 3, 2), CopyStr(NumeroPedimento, 5, 4), CopyStr(NumeroPedimento, 9, 7));
         exit(NumeroPedimento);
+    end;
+
+    local procedure RequestStampOnRoundingError(var DocumentHeaderRecordRef: RecordRef; Prepayment: Boolean; Reverse: Boolean)
+    var
+        ErrorCode: Code[10];
+    begin
+        ErrorCode := DocumentHeaderRecordRef.Field(10035).value;
+        // CFDI33107 – El TipoDeComprobante es I,E o N, el importe registrado en el campo no es igual a la suma de los importes de los conceptos registrados.
+        // CFDI33109 – El valor registrado en el campo Descuento no es menor o igual que el campo Subtotal.
+        // CFDI33110 – El TipoDeComprobante NO es I,E o N, y un concepto incluye el campo descuento.
+        if not (ErrorCode IN ['CFDI33107', 'CFDI33109', 'CFDI33110']) then
+            exit;
+
+        SkipLineDiscountRounging := true;
+        RequestStamp(DocumentHeaderRecordRef, Prepayment, Reverse);
     end;
 
     [IntegrationEvent(false, false)]

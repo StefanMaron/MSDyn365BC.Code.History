@@ -2,6 +2,7 @@ codeunit 134919 "ERM Batch Job II"
 {
     Subtype = Test;
     TestPermissions = Disabled;
+    EventSubscriberInstance = Manual;
 
     trigger OnRun()
     begin
@@ -18,6 +19,7 @@ codeunit 134919 "ERM Batch Job II"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryInventory: Codeunit "Library - Inventory";
+        TargetJobStatus: Enum "Job Status";
         GLAccountNo: Code[20];
         Amount: Decimal;
         BudgetNameErrorMessage: Label 'You must specify a budget name to copy from.';
@@ -25,7 +27,7 @@ codeunit 134919 "ERM Batch Job II"
         CopyToErrorMessage: Label 'You must specify a budget name to copy to.';
         BudgetName: Code[10];
         BudgetError: Label 'G/L Budget: %1 must not exist.', Comment = '%1=G/L Budget Name';
-        JobsCopyMsg: Label 'The job no. %1 was successfully copied to the new job no. %2 with the status Planning.';
+        JobsCopyMsg: Label 'The job no. %1 was successfully copied to the new job no. %2 with the status %3.', Comment = '%1 - The "No." of source job; %2 - The "No." of target job, %3 - job status.';
         TestFieldCodeErr: Label 'TestField';
 
     [Test]
@@ -314,7 +316,7 @@ codeunit 134919 "ERM Batch Job II"
         JobList.CopyJob.Invoke();
 
         // [THEN] The Message is correct
-        Assert.AreEqual(STRSUBSTNO(JobsCopyMsg, Job."No.", TargetJobNo), LibraryVariableStorage.DequeueText, '');
+        Assert.AreEqual(STRSUBSTNO(JobsCopyMsg, Job."No.", TargetJobNo, "Job Status"::Planning), LibraryVariableStorage.DequeueText, '');
         LibraryVariableStorage.AssertEmpty();
     end;
 
@@ -356,6 +358,47 @@ codeunit 134919 "ERM Batch Job II"
 
         // [THEN] A validation error is thrown.
         Assert.ExpectedErrorCode(TestFieldCodeErr);
+    end;
+
+    [Test]
+    [HandlerFunctions('CopyJobModalPageHandler,CheckMessageHandler')]
+    [Scope('OnPrem')]
+    procedure CheckStatusAfterJobsCopy()
+    var
+        Job: Record Job;
+        ERMBatchJobII: Codeunit "ERM Batch Job II";
+        JobList: TestPage "Job List";
+        TargetJobNo: Code[20];
+        TargetJobDescription: Text;
+    begin
+        // [SCENARIO 413072] The message contains target job status after job copied
+        Initialize();
+
+        // [GIVEN] Created Job 
+        LibraryJob.CreateJob(Job);
+
+        // [GIVEN] Page Job List opened
+        JobList.OpenEdit();
+        JobList.Filter.SetFilter("No.", Job."No.");
+        JobList.First();
+
+        // [GIVEN] Create and Save for handler "Target Job No." and "Target Job Description"
+        TargetJobNo := CopyStr(LibraryRandom.RandText(20), 1, MaxStrLen(TargetJobNo));
+        TargetJobDescription := LibraryRandom.RandText(20);
+        LibraryVariableStorage.Enqueue(TargetJobNo);
+        LibraryVariableStorage.Enqueue(TargetJobDescription);
+
+        // [GIVEN] Set new target job status = "Completed"
+        BindSubscription(ERMBatchJobII);
+        ERMBatchJobII.SetTargetJobStatus("Job Status"::Completed);
+
+        // [WHEN] Invoke Copy Jobs
+        JobList.CopyJob.Invoke();
+
+        // [THEN] The Message is correct
+        Assert.AreEqual(STRSUBSTNO(JobsCopyMsg, Job."No.", TargetJobNo, "Job Status"::Completed), LibraryVariableStorage.DequeueText, '');
+        LibraryVariableStorage.AssertEmpty();
+        UnbindSubscription(ERMBatchJobII);
     end;
 
     local procedure Initialize()
@@ -432,6 +475,11 @@ codeunit 134919 "ERM Batch Job II"
             Type::Down:
                 exit('<');
         end;
+    end;
+
+    procedure SetTargetJobStatus(NewStatus: Enum "Job Status")
+    begin
+        TargetJobStatus := NewStatus;
     end;
 
     local procedure OpenGLBudgetPage()
@@ -536,6 +584,12 @@ codeunit 134919 "ERM Batch Job II"
     procedure CheckMessageHandler(Message: Text[1024])
     begin
         LibraryVariableStorage.Enqueue(Message);
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Copy Job", 'OnAfterCopyJob', '', false, false)]
+    local procedure OnAfterCopyJob(var TargetJob: Record Job; SourceJob: Record Job)
+    begin
+        TargetJob.Status := TargetJobStatus;
     end;
 }
 

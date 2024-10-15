@@ -330,6 +330,8 @@ table 272 "Check Ledger Entry"
         SetRange(Open, true);
     end;
 
+#if NOT CLEAN20
+    [Obsolete('Please use the ResetStatementFields(BankAccountNo, StatementNo, StatementType) instead, as we can have payment and bank reconciliations with the same bank account no and statement no and we might be resetting too many ledger entries with this function', '20.0')]
     procedure ResetStatementFields(BankAccountNo: Code[20]; StatementNo: Code[20])
     begin
         Reset();
@@ -342,6 +344,30 @@ table 272 "Check Ledger Entry"
                 "Statement Status" := "Statement Status"::Open;
                 Open := true;
                 Modify();
+            until Next() = 0;
+    end;
+#endif
+
+    procedure ResetStatementFields(BankAccountNo: Code[20]; StatementNo: Code[20]; StatementType: Option)
+    var
+        BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
+    begin
+        Reset();
+        SetRange("Bank Account No.", BankAccountNo);
+        SetRange("Statement No.", StatementNo);
+        if FindSet() then
+            repeat
+                // we can have payment and bank reconciliations with the same bank account no and statement no, 
+                // so unless we also filter by statement type we might be resetting too many ledger entries
+                if BankAccReconciliationLine.Get(StatementType,
+                    BankAccountNo, StatementNo, "Statement Line No.")
+                then begin
+                    "Statement Line No." := 0;
+                    "Statement No." := '';
+                    "Statement Status" := "Statement Status"::Open;
+                    Open := true;
+                    Modify();
+                end;
             until Next() = 0;
     end;
 

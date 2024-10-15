@@ -1,4 +1,4 @@
-codeunit 99000855 "Planning-Get Parameters"
+﻿codeunit 99000855 "Planning-Get Parameters"
 {
 
     trigger OnRun()
@@ -30,6 +30,7 @@ codeunit 99000855 "Planning-Get Parameters"
                     "Variant Code" := VariantCode;
                     "Location Code" := LocationCode;
                     CopyFromItem(Item);
+                    OnAtSKUOnAfterCopyFromItem(GlobalSKU, Item, ItemNo, VariantCode, LocationCode);
                     if LotForLot then begin
                         "Reorder Point" := 0;
                         "Maximum Inventory" := 0;
@@ -303,6 +304,11 @@ codeunit 99000855 "Planning-Get Parameters"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterAtSKU(var SKU: Record "Stockkeeping Unit"; var GlobalSKU: Record "Stockkeeping Unit");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAtSKUOnAfterCopyFromItem(var GlobalSKU: Record "Stockkeeping Unit"; var Item: Record Item; ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10])
     begin
     end;
 

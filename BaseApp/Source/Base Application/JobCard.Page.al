@@ -1179,7 +1179,7 @@ page 88 "Job Card"
 
     trigger OnAfterGetRecord()
     begin
-        if Contact.Get("Bill-to Contact No.") then;
+        Contact.GetOrClear("Bill-to Contact No.");
     end;
 
     var
