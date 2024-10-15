@@ -19,6 +19,7 @@ codeunit 7309 "Whse. Jnl.-Register+Print"
         WarehouseReg: Record "Warehouse Register";
         WhseJnlRegisterBatch: Codeunit "Whse. Jnl.-Register Batch";
         TempJnlBatchName: Code[10];
+        IsHandled: Boolean;
 
     local procedure "Code"()
     begin
@@ -27,6 +28,11 @@ codeunit 7309 "Whse. Jnl.-Register+Print"
             WhseJnlTemplate.TestField("Registering Report ID");
 
             if not Confirm(Text001, false) then
+                exit;
+
+            IsHandled := false;
+            OnAfterConfirm(WhseJnlLine, IsHandled);
+            if IsHandled then
                 exit;
 
             TempJnlBatchName := "Journal Batch Name";
@@ -60,6 +66,11 @@ codeunit 7309 "Whse. Jnl.-Register+Print"
                 "Line No." := 10000;
             end;
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterConfirm(var WarehouseJournalLine: Record "Warehouse Journal Line"; var IsHandled: Boolean);
+    begin
     end;
 
     [IntegrationEvent(false, false)]

@@ -19,7 +19,14 @@ codeunit 951 "Time Sheet Approval Management"
         Text010: Label 'Reject for correction';
 
     procedure Submit(var TimeSheetLine: Record "Time Sheet Line")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSubmit(TimeSheetLine, IsHandled);
+        if isHandled then
+            exit;
+
         with TimeSheetLine do begin
             if Status = Status::Submitted then
                 exit;
@@ -94,7 +101,14 @@ codeunit 951 "Time Sheet Approval Management"
     end;
 
     procedure Approve(var TimeSheetLine: Record "Time Sheet Line")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeApprove(TimeSheetLine, IsHandled);
+        if IsHandled then
+            exit;
+
         with TimeSheetLine do begin
             if Status = Status::Approved then
                 exit;
@@ -178,7 +192,15 @@ codeunit 951 "Time Sheet Approval Management"
     end;
 
     procedure GetTimeSheetDialogText(ActionType: Option Submit,Reopen; LinesQty: Integer): Text[100]
+    var
+        IsHandled: Boolean;
+        ReturnText: Text[100];
     begin
+        IsHandled := false;
+        OnBeforeGetTimeSheetDialogText(ActionType, LinesQty, ReturnText, IsHandled);
+        if IsHandled then
+            exit(ReturnText);
+
         case ActionType of
             ActionType::Submit:
                 exit(StrSubstNo(Text004, LinesQty));
@@ -188,7 +210,15 @@ codeunit 951 "Time Sheet Approval Management"
     end;
 
     procedure GetManagerTimeSheetDialogText(ActionType: Option Approve,Reopen,Reject; LinesQty: Integer): Text[100]
+    var
+        IsHandled: Boolean;
+        ReturnText: Text[100];
     begin
+        IsHandled := false;
+        OnBeforeGetManagerTimeSheetDialogText(ActionType, LinesQty, ReturnText, IsHandled);
+        if IsHandled then
+            exit(ReturnText);
+
         case ActionType of
             ActionType::Approve,
           ActionType::Reject:
@@ -259,6 +289,27 @@ codeunit 951 "Time Sheet Approval Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterApprove(var TimeSheetLine: Record "Time Sheet Line")
+    begin
+    end;
+
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeApprove(var TimeSheetLine: Record "Time Sheet Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSubmit(var TimeSheetLine: Record "Time Sheet Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetTimeSheetDialogText(ActionType: Option; LinesQty: Decimal; var ReturnText: text[100]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetManagerTimeSheetDialogText(ActionType: Option; LinesQty: Decimal; var ReturnText: text[100]; var IsHandled: Boolean)
     begin
     end;
 }

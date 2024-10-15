@@ -338,6 +338,7 @@ codeunit 7301 "Whse. Jnl.-Register Line"
                     BinContent.Default := true;
                 BinContent.Fixed := BinContent.Default;
             end;
+            OnBeforeBinContentInsert(BinContent, WhseEntry);
             BinContent.Insert;
         end;
     end;
@@ -470,6 +471,11 @@ codeunit 7301 "Whse. Jnl.-Register Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterInsertWhseEntry(var WarehouseEntry: Record "Warehouse Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeBinContentInsert(var BinContent: Record "Bin Content"; WarehouseEntry: Record "Warehouse Entry");
     begin
     end;
 

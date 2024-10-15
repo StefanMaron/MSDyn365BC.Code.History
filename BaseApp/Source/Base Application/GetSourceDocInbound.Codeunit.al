@@ -9,6 +9,8 @@ codeunit 5751 "Get Source Doc. Inbound"
         GetSourceDocuments: Report "Get Source Documents";
 
     local procedure CreateWhseReceiptHeaderFromWhseRequest(var WarehouseRequest: Record "Warehouse Request"): Boolean
+    var
+        WhseReceiptHeader: Record "Warehouse Receipt Header";
     begin
         if WarehouseRequest.IsEmpty then
             exit(false);
@@ -19,6 +21,9 @@ codeunit 5751 "Get Source Doc. Inbound"
         GetSourceDocuments.SetHideDialog(true);
         GetSourceDocuments.RunModal;
 
+        OnBeforeGetSourceDocumentsRun(GetSourceDocuments, WarehouseRequest);
+        GetSourceDocuments.GetLastReceiptHeader(WhseReceiptHeader);
+        OnAfterCreateWhseReceiptHeaderFromWhseRequest(WhseReceiptHeader);
         exit(true);
     end;
 
@@ -233,6 +238,11 @@ codeunit 5751 "Get Source Doc. Inbound"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateWhseReceiptHeaderFromWhseRequest(var WhseReceiptHeader: Record "Warehouse Receipt Header");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterFindWarehouseRequestForPurchaseOrder(var WarehouseRequest: Record "Warehouse Request"; PurchaseHeader: Record "Purchase Header")
     begin
     end;
@@ -274,6 +284,11 @@ codeunit 5751 "Get Source Doc. Inbound"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetSingleInboundDoc(var WarehouseReceiptHeader: Record "Warehouse Receipt Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetSourceDocumentsRun(var GetSourceDocuments: Report "Get Source Documents"; WarehouseRequest: Record "Warehouse Request")
     begin
     end;
 }

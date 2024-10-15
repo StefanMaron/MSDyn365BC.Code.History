@@ -6,6 +6,8 @@ report 206 "Sales - Invoice"
     EnableHyperlinks = true;
     Permissions = TableData "Sales Shipment Buffer" = rimd;
     PreviewMode = PrintLayout;
+    ObsoleteReason = 'Replaced with report 1306 Standard Sales - Invoice';
+    ObsoleteState = Pending;
 
     dataset
     {
