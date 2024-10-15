@@ -210,6 +210,7 @@ table 5857 "Direct Trans. Line"
         "Transfer-from Code" := TransferLine."Transfer-from Code";
         "Transfer-to Code" := TransferLine."Transfer-to Code";
         "Transfer-from Bin Code" := TransferLine."Transfer-from Bin Code";
+        "Transfer-to Bin Code" := TransferLine."Transfer-to Bin Code";
         "Item Category Code" := TransferLine."Item Category Code";
 
         OnAfterCopyFromTransferLine(Rec, TransferLine);

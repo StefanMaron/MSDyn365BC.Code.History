@@ -895,16 +895,19 @@
                     "Document No." := NextDocNo;
                     RunIncrementDocumentNo(false);
                 end else
-                    if (TempVendorPaymentBuffer."Vendor No." = TempOldVendorPaymentBuffer."Vendor No.") and
-                       (TempVendorPaymentBuffer."Currency Code" = TempOldVendorPaymentBuffer."Currency Code")
-                    then
-                        "Document No." := TempOldVendorPaymentBuffer."Document No."
-                    else begin
-                        "Document No." := NextDocNo;
-                        RunIncrementDocumentNo(false);
-                        TempOldVendorPaymentBuffer := TempVendorPaymentBuffer;
-                        TempOldVendorPaymentBuffer."Document No." := "Document No.";
-                    end;
+                    if (GenJnlLine2."Bal. Account No." = '') and not DocNoPerLine then
+                        "Document No." := NextDocNo
+                    else
+                        if (TempVendorPaymentBuffer."Vendor No." = TempOldVendorPaymentBuffer."Vendor No.") and
+                            (TempVendorPaymentBuffer."Currency Code" = TempOldVendorPaymentBuffer."Currency Code")
+                        then
+                            "Document No." := TempOldVendorPaymentBuffer."Document No."
+                        else begin
+                            "Document No." := NextDocNo;
+                            RunIncrementDocumentNo(false);
+                            TempOldVendorPaymentBuffer := TempVendorPaymentBuffer;
+                            TempOldVendorPaymentBuffer."Document No." := "Document No.";
+                        end;
             "Account Type" := "Account Type"::Vendor;
             SetHideValidation(true);
             ShowPostingDateWarning := ShowPostingDateWarning or

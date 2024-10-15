@@ -941,6 +941,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Dimension Sales - NamedType UpdateLineDimQst)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2453870435 - NamedType 2566446990" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[This will change the dimension specified on the document. Do you want to keep the existing dimensions?]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Dimension Shortcuts - NamedType KeepExistingDimensionsMsg)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2453870435 - NamedType 3876813540" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Recurring Method must not be BD Balance by Dimension in Gen. Journal Line]]></Val>
@@ -957,6 +966,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Dimension Shortcuts - NamedType TempBatchNameTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2453870435 - NamedType 3902616745" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You may have changed a dimension.\\Do you want to update the lines?]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Dimension Shortcuts - NamedType UpdateDimensionOnLineMsg)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3227769053 - NamedType 3332340355" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
