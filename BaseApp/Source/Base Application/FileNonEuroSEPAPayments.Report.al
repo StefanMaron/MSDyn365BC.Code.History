@@ -190,6 +190,9 @@ report 2000006 "File Non Euro SEPA Payments"
         FinishGroupHeader;
         XMLDomDoc.Save(SaveToFileName);
 
+        if SaveToFileName = '' then
+            SaveToFileName := NonEuroSEPAPaymentsTxt;
+
         Download(SaveToFileName, '', '', AllFilesDescriptionTxt, FileName);
 
         Clear(XMLDomDoc);
@@ -254,6 +257,7 @@ report 2000006 "File Non Euro SEPA Payments"
         PmtInfNode: DotNet XmlNode;
         ConsolidatedPmtMessage: Text[140];
         Text002: Label 'Journal %1 is not a general journal.';
+        NonEuroSEPAPaymentsTxt: Label 'NonEuroSEPAPayments.txt';
         SaveToFileName: Text[250];
         MessageId: Text[35];
         PaymentInformationCounter: Integer;

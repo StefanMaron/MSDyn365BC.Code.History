@@ -730,12 +730,17 @@ codeunit 1720 "Deferral Utilities"
     end;
 
     local procedure ValidateDeferralTemplate(DeferralTemplate: Record "Deferral Template")
+    var
+        IsHandled: Boolean;
     begin
-        with DeferralTemplate do begin
-            TestField("Deferral Account");
-            TestField("Deferral %");
-            TestField("No. of Periods");
-        end;
+        IsHandled := false;
+        OnBeforeValidateDeferralTemplate(DeferralTemplate, IsHandled);
+        if IsHandled then
+            exit;
+
+        DeferralTemplate.TestField("Deferral Account");
+        DeferralTemplate.TestField("Deferral %");
+        DeferralTemplate.TestField("No. of Periods");
     end;
 
     procedure RoundDeferralAmount(var DeferralHeader: Record "Deferral Header"; CurrencyCode: Code[10]; CurrencyFactor: Decimal; PostingDate: Date; var AmtToDefer: Decimal; var AmtToDeferLCY: Decimal)
@@ -1074,6 +1079,11 @@ codeunit 1720 "Deferral Utilities"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateDeferralLineDescription(var DeferralLine: Record "Deferral Line"; DeferralHeader: Record "Deferral Header"; DeferralTemplate: Record "Deferral Template"; PostDate: Date; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateDeferralTemplate(DeferralTemplate: Record "Deferral Template"; var IsHandled: Boolean)
     begin
     end;
 }

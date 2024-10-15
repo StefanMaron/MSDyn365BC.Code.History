@@ -40,9 +40,9 @@ codeunit 1393 "Cancel Issued Reminder"
         GLSetup.Get();
         if GLSetup."Journal Templ. Name Mandatory" then begin
             if GenJnlBatch."Journal Template Name" = '' then
-                Error(MissingFieldNameErr, TempGenJnlLine."Journal Template Name");
+                Error(MissingFieldNameErr, TempGenJnlLine.FieldCaption("Journal Template Name"));
             if GenJnlBatch.Name = '' then
-                Error(MissingFieldNameErr, TempGenJnlLine."Journal Batch Name");
+                Error(MissingFieldNameErr, TempGenJnlLine.FieldCaption("Journal Batch Name"));
         end;
 
         if not CheckAppliedReminderCustLedgerEntry(IssuedReminderHeader) then
@@ -136,6 +136,7 @@ codeunit 1393 "Cancel Issued Reminder"
     begin
         IssuedReminderLine.SetRange("Reminder No.", IssuedReminderHeader."No.");
         IssuedReminderLine.SetRange(Type, IssuedReminderLine.Type::"Customer Ledger Entry");
+        IssuedReminderLine.SetFilter("No. of Reminders", '<>%1', 0);
         if IssuedReminderLine.FindSet() then
             repeat
                 IssuedReminderLine2.SetRange("Document Type", IssuedReminderLine."Document Type");

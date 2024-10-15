@@ -400,6 +400,9 @@ report 2000002 "File International Payments"
             FullFileName := FileName;
         end;
 
+        if FullFileName = '' then
+            FullFileName := InternationalPaymentsFileNameTxt;
+
         for RecordCounter := 1 to ArrayLen(DataRecord) do
             DataRecord[RecordCounter] := (CopyStr('111111100110', RecordCounter, 1) = '1');
         RecordCounter := 0;
@@ -410,6 +413,7 @@ report 2000002 "File International Payments"
         Text006: Label 'You must enter a file name.';
         Text010: Label 'Journal %1 is not a general journal.';
         Text016: Label 'The combination of invoices and credit memos for %1 %2 has caused an attempt to write a negative amount to the payment file. The format of the file does not allow this.', Comment = 'Parameter 1 - account type (,Customer,Vendor), 2 - account number.';
+        InternationalPaymentsFileNameTxt: Label 'InternationalPayments.txt';
         CompanyInfo: Record "Company Information";
         EBSetup: Record "Electronic Banking Setup";
         Cust: Record Customer;

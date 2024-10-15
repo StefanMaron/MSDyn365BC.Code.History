@@ -867,23 +867,24 @@ codeunit 5845 "Get Inventory Report"
         Selection: Integer;
     begin
         Selection := StrMenu(Text007, 2);
-        with ValueEntry do begin
-            CopyFiltersFronInventoryReportLine(ValueEntry, InvtReportEntry);
-            SetRange("Entry Type", "Entry Type"::"Indirect Cost");
-            SetRange("Variance Type");
-            case Selection of
-                1:
-                    SetFilter("Item Ledger Entry Type", '%1|%2|%3',
-                      "Item Ledger Entry Type"::Purchase,
-                      "Item Ledger Entry Type"::Output,
-                      "Item Ledger Entry Type"::"Assembly Output");
-                2:
-                    begin
-                        SetRange("Item Ledger Entry Type", "Item Ledger Entry Type"::" ");
-                        SetRange("Order Type", "Order Type"::Assembly);
-                    end;
-            end;
+
+        CopyFiltersFronInventoryReportLine(ValueEntry, InvtReportEntry);
+        ValueEntry.SetRange("Entry Type", ValueEntry."Entry Type"::"Indirect Cost");
+        ValueEntry.SetRange("Variance Type");
+        case Selection of
+            1:
+                ValueEntry.SetFilter("Item Ledger Entry Type", '%1|%2|%3',
+                    "Item Ledger Entry Type"::Purchase,
+                    "Item Ledger Entry Type"::Output,
+                    "Item Ledger Entry Type"::"Assembly Output");
+            2:
+                begin
+                    ValueEntry.SetRange("Item Ledger Entry Type", "Item Ledger Entry Type"::" ");
+                    ValueEntry.SetRange("Order Type", "Inventory Order Type"::Assembly);
+                end;
         end;
+
+        OnAfterSetFiltersOverheadAppliedActual(ValueEntry);
     end;
 
     procedure DrillDownPurchaseVariance(var InvtReportEntry: Record "Inventory Report Entry")
@@ -1004,28 +1005,28 @@ codeunit 5845 "Get Inventory Report"
         if Selection = 0 then
             exit;
 
-        with ValueEntry do begin
-            CopyFiltersFronInventoryReportLine(ValueEntry, InvtReportEntry);
-            SetRange("Order Type", "Order Type"::Production);
+        CopyFiltersFronInventoryReportLine(ValueEntry, InvtReportEntry);
+        ValueEntry.SetRange("Order Type", "Inventory Order Type"::Production);
 
-            case Selection of
-                1:
-                    begin
-                        SetRange("Entry Type", "Entry Type"::"Direct Cost");
-                        SetRange("Item Ledger Entry Type", "Item Ledger Entry Type"::Consumption);
-                    end;
-                2:
-                    begin
-                        SetFilter("Entry Type", '%1|%2', "Entry Type"::"Direct Cost", "Entry Type"::"Indirect Cost");
-                        SetRange("Item Ledger Entry Type", "Item Ledger Entry Type"::" ");
-                    end;
-                3:
-                    begin
-                        SetFilter("Entry Type", '%1|%2', "Entry Type"::"Direct Cost", "Entry Type"::Revaluation);
-                        SetRange("Item Ledger Entry Type", "Item Ledger Entry Type"::Output);
-                    end;
-            end;
+        case Selection of
+            1:
+                begin
+                    ValueEntry.SetRange("Entry Type", ValueEntry."Entry Type"::"Direct Cost");
+                    ValueEntry.SetRange("Item Ledger Entry Type", "Item Ledger Entry Type"::Consumption);
+                end;
+            2:
+                begin
+                    ValueEntry.SetFilter("Entry Type", '%1|%2', ValueEntry."Entry Type"::"Direct Cost", ValueEntry."Entry Type"::"Indirect Cost");
+                    ValueEntry.SetRange("Item Ledger Entry Type", "Item Ledger Entry Type"::" ");
+                end;
+            3:
+                begin
+                    ValueEntry.SetFilter("Entry Type", '%1|%2', ValueEntry."Entry Type"::"Direct Cost", ValueEntry."Entry Type"::Revaluation);
+                    ValueEntry.SetRange("Item Ledger Entry Type", "Item Ledger Entry Type"::Output);
+                end;
         end;
+
+        OnAfterSetFiltersWIPInventory(ValueEntry, Selection);
     end;
 
     procedure DrillDownMaterialVariance(var InvtReportEntry: Record "Inventory Report Entry")
@@ -1189,7 +1190,14 @@ codeunit 5845 "Get Inventory Report"
     end;
 
     procedure DrillDownInvtToWIP(var InvtReportEntry: Record "Inventory Report Entry")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeDrillDownInvtToWIP(InvtReportEntry, IsHandled);
+        if IsHandled then
+            exit;
+
         DrillDownInventoryReportEntryAmount(
           InvtReportEntry, InvtReportEntry.FieldNo("Inventory To WIP"), ValueEntry.FieldNo("Cost Amount (Actual)"));
     end;
@@ -1382,32 +1390,34 @@ codeunit 5845 "Get Inventory Report"
     end;
 
     local procedure CheckIfNoDifference(var InventoryReportLine: Record "Inventory Report Entry"): Boolean
+    var
+        NoDifference: Boolean;
     begin
-        with InventoryReportLine do begin
-            if (Inventory = 0) and
-               ("WIP Inventory" = 0) and
-               ("Direct Cost Applied Actual" = 0) and
-               ("Overhead Applied Actual" = 0) and
-               ("Purchase Variance" = 0) and
-               ("Inventory Adjmt." = 0) and
-               ("Invt. Accrual (Interim)" = 0) and
-               (COGS = 0) and
-               ("COGS (Interim)" = 0) and
-               ("Material Variance" = 0) and
-               ("Capacity Variance" = 0) and
-               ("Subcontracted Variance" = 0) and
-               ("Capacity Overhead Variance" = 0) and
-               ("Mfg. Overhead Variance" = 0) and
-               ("Direct Cost Applied WIP" = 0) and
-               ("Overhead Applied WIP" = 0) and
-               ("Inventory To WIP" = 0) and
-               ("WIP To Interim" = 0) and
-               ("Direct Cost Applied" = 0) and
-               ("Overhead Applied" = 0)
-            then
-                exit(true);
-            exit(false);
-        end;
+        NoDifference :=
+            (InventoryReportLine.Inventory = 0) and
+            (InventoryReportLine."WIP Inventory" = 0) and
+            (InventoryReportLine."Direct Cost Applied Actual" = 0) and
+            (InventoryReportLine."Overhead Applied Actual" = 0) and
+            (InventoryReportLine."Purchase Variance" = 0) and
+            (InventoryReportLine."Inventory Adjmt." = 0) and
+            (InventoryReportLine."Invt. Accrual (Interim)" = 0) and
+            (InventoryReportLine.COGS = 0) and
+            (InventoryReportLine."COGS (Interim)" = 0) and
+            (InventoryReportLine."Material Variance" = 0) and
+            (InventoryReportLine."Capacity Variance" = 0) and
+            (InventoryReportLine."Subcontracted Variance" = 0) and
+            (InventoryReportLine."Capacity Overhead Variance" = 0) and
+            (InventoryReportLine."Mfg. Overhead Variance" = 0) and
+            (InventoryReportLine."Direct Cost Applied WIP" = 0) and
+            (InventoryReportLine."Overhead Applied WIP" = 0) and
+            (InventoryReportLine."Inventory To WIP" = 0) and
+            (InventoryReportLine."WIP To Interim" = 0) and
+            (InventoryReportLine."Direct Cost Applied" = 0) and
+            (InventoryReportLine."Overhead Applied" = 0);
+
+        OnBeforeCheckIfNoDifference(InventoryReportLine, NoDifference);
+
+        exit(NoDifference);
     end;
 
     local procedure CheckCostIsPostedToGL(var InventoryReportLine: Record "Inventory Report Entry"): Boolean
@@ -1480,65 +1490,68 @@ codeunit 5845 "Get Inventory Report"
         AccountingPeriod: Record "Accounting Period";
         GLEntry: Record "G/L Entry";
         MinDate: Date;
-        found: Boolean;
+        Found: Boolean;
+        ShouldExit: Boolean;
     begin
-        with InventoryReportLine do begin
-            if not (("Direct Cost Applied Actual" = 0) and
-                    ("Overhead Applied Actual" = 0) and
-                    ("Purchase Variance" = 0) and
-                    ("Inventory Adjmt." = 0) and
-                    (COGS = 0) and
-                    ("Material Variance" = 0) and
-                    ("Capacity Variance" = 0) and
-                    ("Subcontracted Variance" = 0) and
-                    ("Capacity Overhead Variance" = 0) and
-                    ("Mfg. Overhead Variance" = 0) and
-                    ("Direct Cost Applied WIP" = 0) and
-                    ("Overhead Applied WIP" = 0) and
-                    ("Inventory To WIP" = 0) and
-                    ("Direct Cost Applied" = 0) and
-                    ("Overhead Applied" = 0))
-            then begin
-                if AccountingPeriod.IsEmpty() then
-                    exit(false);
-
-                AccountingPeriod.SetFilter("Starting Date", InvtReportHeader.GetFilter("Posting Date Filter"));
-                if InvtReportHeader.GetFilter("Posting Date Filter") <> '' then
-                    MinDate := InvtReportHeader.GetRangeMin("Posting Date Filter")
-                else
-                    MinDate := 0D;
-
-                found :=
-                  AccountingPeriod.Find('-') and AccountingPeriod.Closed and
-                  (AccountingPeriod."Starting Date" <= MinDate);
-                if AccountingPeriod."Starting Date" > MinDate then begin
-                    AccountingPeriod.SetRange("Starting Date");
-                    if not found then
-                        found :=
-                          AccountingPeriod.Next(-1) <> 0;
-                    if not found then
-                        found := AccountingPeriod.Closed;
-                end;
-                if found then
-                    repeat
-                        repeat
-                        until (AccountingPeriod.Next() = 0) or AccountingPeriod."New Fiscal Year";
-                        if AccountingPeriod."New Fiscal Year" then
-                            AccountingPeriod."Starting Date" := ClosingDate(CalcDate('<-1D>', AccountingPeriod."Starting Date"))
-                        else
-                            AccountingPeriod."Starting Date" := ClosingDate(AccountingPeriod."Starting Date");
-                        AccountingPeriod.SetFilter("Starting Date", InvtReportHeader.GetFilter("Posting Date Filter"));
-                        GLEntry.SetRange("Posting Date", AccountingPeriod."Starting Date");
-                        if not GLEntry.IsEmpty() then begin
-                            "Closing Period Overlap Warning" := true;
-                            Modify;
-                            exit(true);
-                        end;
-                        AccountingPeriod.SetRange(Closed, true);
-                    until AccountingPeriod.Next() = 0;
-            end;
+        if ((InventoryReportLine."Direct Cost Applied Actual" = 0) and
+            (InventoryReportLine."Overhead Applied Actual" = 0) and
+            (InventoryReportLine."Purchase Variance" = 0) and
+            (InventoryReportLine."Inventory Adjmt." = 0) and
+            (InventoryReportLine.COGS = 0) and
+            (InventoryReportLine."Material Variance" = 0) and
+            (InventoryReportLine."Capacity Variance" = 0) and
+            (InventoryReportLine."Subcontracted Variance" = 0) and
+            (InventoryReportLine."Capacity Overhead Variance" = 0) and
+            (InventoryReportLine."Mfg. Overhead Variance" = 0) and
+            (InventoryReportLine."Direct Cost Applied WIP" = 0) and
+            (InventoryReportLine."Overhead Applied WIP" = 0) and
+            (InventoryReportLine."Inventory To WIP" = 0) and
+            (InventoryReportLine."Direct Cost Applied" = 0) and
+            (InventoryReportLine."Overhead Applied" = 0))
+        then
             exit(false);
+
+        ShouldExit := AccountingPeriod.IsEmpty();
+        OnCheckGLClosingOverlapsOnAfterEmptyAccountingPeriodBeforeExit(InventoryReportLine, ShouldExit);
+        if ShouldExit then
+            exit(false);
+
+        AccountingPeriod.SetFilter("Starting Date", InvtReportHeader.GetFilter("Posting Date Filter"));
+        if InvtReportHeader.GetFilter("Posting Date Filter") <> '' then
+            MinDate := InvtReportHeader.GetRangeMin("Posting Date Filter")
+        else
+            MinDate := 0D;
+
+        Found :=
+            AccountingPeriod.Find('-') and AccountingPeriod.Closed and
+            (AccountingPeriod."Starting Date" <= MinDate);
+        if AccountingPeriod."Starting Date" > MinDate then begin
+            AccountingPeriod.SetRange("Starting Date");
+            if not Found then
+                Found :=
+                    AccountingPeriod.Next(-1) <> 0;
+            if not Found then
+                Found := AccountingPeriod.Closed;
         end;
+        if Found then
+            repeat
+                repeat
+                until (AccountingPeriod.Next() = 0) or AccountingPeriod."New Fiscal Year";
+                if AccountingPeriod."New Fiscal Year" then
+                    AccountingPeriod."Starting Date" := ClosingDate(CalcDate('<-1D>', AccountingPeriod."Starting Date"))
+                else
+                    AccountingPeriod."Starting Date" := ClosingDate(AccountingPeriod."Starting Date");
+                AccountingPeriod.SetFilter("Starting Date", InvtReportHeader.GetFilter("Posting Date Filter"));
+                GLEntry.SetRange("Posting Date", AccountingPeriod."Starting Date");
+                if not GLEntry.IsEmpty() then begin
+                    InventoryReportLine."Closing Period Overlap Warning" := true;
+                    InventoryReportLine.Modify();
+                    exit(true);
+                end;
+                AccountingPeriod.SetRange(Closed, true);
+            until AccountingPeriod.Next() = 0;
+
+        exit(false);
     end;
 
     local procedure CheckDeletedGLAcc(var InventoryReportLine: Record "Inventory Report Entry"): Boolean
@@ -1599,7 +1612,14 @@ codeunit 5845 "Get Inventory Report"
     end;
 
     local procedure CheckDirectPostings(var InventoryReportLine: Record "Inventory Report Entry"): Boolean
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckDirectPostings(InventoryReportLine, IsHandled);
+        if IsHandled then
+            exit(isHandled);
+
         with InventoryReportLine do begin
             if Inventory +
                "Inventory (Interim)" +
@@ -1677,6 +1697,36 @@ codeunit 5845 "Get Inventory Report"
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertGLInvtReportEntryBeforeCalcGLAccount(var InvtReportHeader: Record "Inventory Report Header"; var InventoryReportLine: Record "Inventory Report Entry"; var GLAcc: Record "G/L Account"; var IsHandled: Boolean; var CostAmount: Decimal; WindowPostingType: Text[80])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetFiltersOverheadAppliedActual(var ValueEntry: Record "Value Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetFiltersWIPInventory(var ValueEntry: Record "Value Entry"; Selection: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDrillDownInvtToWIP(var InvtReportEntry: Record "Inventory Report Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckIfNoDifference(var InventoryReportLine: Record "Inventory Report Entry"; var NoDifference: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckGLClosingOverlapsOnAfterEmptyAccountingPeriodBeforeExit(var InventoryReportLine: Record "Inventory Report Entry"; var ShouldExit: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckDirectPostings(var InventoryReportLine: Record "Inventory Report Entry"; var IsHandled: Boolean)
     begin
     end;
 }

@@ -1224,6 +1224,7 @@
 
                     OnBeforeApplyCompanyChangeToPerson(Cont, Rec, ContactBeforeModify, ContChanged, OldCont);
                     if ContChanged then begin
+                        Cont.SetHideValidationDialog(HideValidationDialog);
                         Cont.DoModify(OldCont);
                         Cont.Modify();
                     end;
@@ -1488,7 +1489,10 @@
         Cust.SetInsertFromContact(true);
         if CustomerTemplateCode <> '' then begin
             CustTemplate.Get(CustomerTemplateCode);
-            CustomerTemplMgt.InitCustomerNo(Cust, CustTemplate);
+            IsHandled := false;
+            OnCreateCustomerFromTemplateOnBeforeInitCustomerNo(Cust, Rec, CustTemplate, IsHandled);
+            if not IsHandled then // New line
+                CustomerTemplMgt.InitCustomerNo(Cust, CustTemplate);
         end;
         Cust."Contact Type" := Type;
         OnCreateCustomerFromTemplateOnBeforeCustomerInsert(Cust, CustomerTemplateCode, Rec);
@@ -1619,7 +1623,10 @@
         Vend.SetInsertFromContact(true);
         if VendorTemplateCode <> '' then begin
             VendorTempl.Get(VendorTemplateCode);
-            VendorTemplMgt.InitVendorNo(Vend, VendorTempl);
+            IsHandled := false;
+            OnCreateVendorFromTemplateOnBeforeInitVendorNo(Vend, Rec, VendorTempl, IsHandled);
+            if not IsHandled then
+                VendorTemplMgt.InitVendorNo(Vend, VendorTempl);
         end;
         OnBeforeVendorInsert(Vend, Rec, VendorTemplateCode);
         Vend.Insert(true);
@@ -2274,16 +2281,17 @@
               Text019,
               TableCaption, "No.", ContBusRel.TableCaption(), ContBusRel."Link to Table", ContBusRel."No.");
 
-        OnChooseNewCustomerTemplateOnBeforeSelectWithConfirm(Rec, CustTemplate);
+        IsHandled := false;
+        OnChooseNewCustomerTemplateOnBeforeSelectWithConfirm(Rec, CustTemplate, IsHandled);
+        if not IsHandled then
+            if not HideValidationDialog then
+                if Confirm(CreateCustomerFromContactQst, true) then begin
+                    CustTemplate.SetRange("Contact Type", Type);
+                    if CustomerTemplMgt.SelectCustomerTemplate(CustTemplate) then
+                        exit(CustTemplate.Code);
 
-        if not HideValidationDialog then
-            if Confirm(CreateCustomerFromContactQst, true) then begin
-                CustTemplate.SetRange("Contact Type", Type);
-                if CustomerTemplMgt.SelectCustomerTemplate(CustTemplate) then
-                    exit(CustTemplate.Code);
-
-                Error(Text022);
-            end;
+                    Error(Text022);
+                end;
     end;
 
     local procedure UpdateCompanyNo()
@@ -2782,11 +2790,24 @@
 
         case Type of
             Type::Company:
-                "Company Name" := Name;
+                ProcessCompanyNameChange();
             Type::Person:
                 ProcessPersonNameChange(Cust, Vend);
         end;
+
         OnAfterProcessNameChange(Rec, Cust, Vend);
+    end;
+
+    local procedure ProcessCompanyNameChange()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeProcessCompanyNameChange(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        "Company Name" := Name;
     end;
 
     local procedure ProcessPersonNameChange(var Customer: Record Customer; var Vendor: Record Vendor)
@@ -2806,7 +2827,10 @@
         if ContBusRel.FindFirst() then
             if Customer.Get(ContBusRel."No.") then
                 if (("No." <> '') and (Customer."Primary Contact No." = "No.")) then begin
-                    Customer.Contact := Name;
+                    IsHandled := false;
+                    OnProcessPersonNameChangeOnBeforeAssignCustomerContact(Customer, Rec, IsHandled);
+                    if not IsHandled then
+                        Customer.Contact := Name;
                     Customer.Modify();
                 end;
 
@@ -2814,7 +2838,10 @@
         if ContBusRel.FindFirst() then
             if Vendor.Get(ContBusRel."No.") then
                 if (("No." <> '') and (Vendor."Primary Contact No." = "No.")) then begin
-                    Vendor.Contact := Name;
+                    IsHandled := false;
+                    OnProcessPersonNameChangeOnBeforeAssignVendorContact(Vendor, Rec, IsHandled);
+                    if not IsHandled then
+                        Vendor.Contact := Name;
                     Vendor.Modify();
                 end;
     end;
@@ -3487,7 +3514,7 @@
 #endif
 
     [IntegrationEvent(false, false)]
-    local procedure OnChooseNewCustomerTemplateOnBeforeSelectWithConfirm(var Contact: Record Contact; var CustomerTempl: Record "Customer Templ.")
+    local procedure OnChooseNewCustomerTemplateOnBeforeSelectWithConfirm(var Contact: Record Contact; var CustomerTempl: Record "Customer Templ."; var IsHandled: Boolean)
     begin
     end;
 
@@ -3804,7 +3831,7 @@
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnBeforeTypeChange(Contact: Record Contact; xContact: Record Contact; var InteractLogEntry: Record "Interaction Log Entry"; var Opp: Record Opportunity; var Task: Record "To-do"; var Cont: Record Contact; var IsHandled: Boolean)
+    local procedure OnBeforeTypeChange(var Contact: Record Contact; xContact: Record Contact; var InteractLogEntry: Record "Interaction Log Entry"; var Opp: Record Opportunity; var Task: Record "To-do"; var Cont: Record Contact; var IsHandled: Boolean)
     begin
     end;
 
@@ -3962,6 +3989,31 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateVendorLink(var Contact: Record Contact; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateCustomerFromTemplateOnBeforeInitCustomerNo(var Customer: Record Customer; var Contact: Record Contact; CustomerTempl: Record "Customer Templ."; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateVendorFromTemplateOnBeforeInitVendorNo(var Vendor: Record Vendor; var Contact: Record Contact; VendorTempl: Record "Vendor Templ."; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeProcessCompanyNameChange(var Contact: Record Contact; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnProcessPersonNameChangeOnBeforeAssignCustomerContact(var Customer: Record Customer; var Contact: Record Contact; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnProcessPersonNameChangeOnBeforeAssignVendorContact(var Vendor: Record Vendor; var Contact: Record Contact; var IsHandled: Boolean)
     begin
     end;
 }

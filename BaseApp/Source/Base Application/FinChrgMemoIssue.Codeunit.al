@@ -140,7 +140,7 @@
                     SetDimensions(GenJnlLine2, FinChrgMemoHeader);
                     OnBeforeGenJnlPostLineRunWithCheck(GenJnlLine2, FinChrgMemoHeader);
                     GenJnlPostLine.RunWithCheck(GenJnlLine2);
-                    OnRunOnAfterGenJnlPostLineRunWithCheck(GenJnlLine);
+                    OnRunOnAfterGenJnlPostLineRunWithCheck(GenJnlLine, GenJnlPostLine);
                 until GenJnlLine.Next() = 0;
 
             GenJnlLine.DeleteAll();
@@ -590,7 +590,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnRunOnAfterGenJnlPostLineRunWithCheck(var GenJournalLine: Record "Gen. Journal Line")
+    local procedure OnRunOnAfterGenJnlPostLineRunWithCheck(var GenJournalLine: Record "Gen. Journal Line"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
     begin
     end;
 }

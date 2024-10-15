@@ -418,6 +418,7 @@ report 7398 "Date Compress Whse. Entries"
         QtyonBin: Decimal;
     begin
         ItemTrackingMgt.GetWhseItemTrkgSetup(WhseEntry2."Item No.", WhseItemTrackingSetup);
+        OnUpdateITWhseEntriesOnAfterGetWhseItemTrkgSetup(WhseEntry2, WhseItemTrackingSetup);
 
         LocalWhseEntry.Copy(WhseEntry2);
         with LocalWhseEntry do begin
@@ -619,6 +620,11 @@ report 7398 "Date Compress Whse. Entries"
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateITWhseEntriesOnBeforeLocalWhseEntry2Modify(var WarehouseEntry: Record "Warehouse Entry"; RetainSerialNo: Boolean; SNRequired: Boolean; RetainLotNo: Boolean; LNRequired: Boolean; RetainPackageNo: Boolean; PNRequired: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateITWhseEntriesOnAfterGetWhseItemTrkgSetup(var WarehouseEntry: Record "Warehouse Entry"; var WhseItemTrackingSetup: Record "Item Tracking Setup")
     begin
     end;
 }

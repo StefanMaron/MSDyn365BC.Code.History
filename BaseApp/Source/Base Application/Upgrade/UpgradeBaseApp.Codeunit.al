@@ -46,8 +46,6 @@ codeunit 104000 "Upgrade - BaseApp"
         if not HybridDeployment.VerifyCanStartUpgrade(CompanyName()) then
             exit;
 
-        HybridDeployment.SanitizeCompanyBeforeUpgrade();
-
         ClearTemporaryTables();
 
         UpdateDefaultDimensionsReferencedIds();
@@ -2681,7 +2679,9 @@ codeunit 104000 "Upgrade - BaseApp"
         if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetGenJournalTemplateNamesSetupUpgradeTag()) then
             exit;
 
-        GeneralLedgerSetup.Get();
+        if not GeneralLedgerSetup.Get() then
+            exit;
+            
         GeneralLedgerSetup."Bank Acc. Recon. Template Name" := GeneralLedgerSetup."Payment Recon. Template Name";
         GeneralLedgerSetup."Apply Jnl. Template Name" := GeneralLedgerSetup."Jnl. Templ. Name for Applying";
         GeneralLedgerSetup."Apply Jnl. Batch Name" := GeneralLedgerSetup."Jnl. Batch Name for Applying";

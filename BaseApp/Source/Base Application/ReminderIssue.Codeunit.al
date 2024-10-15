@@ -102,7 +102,7 @@ codeunit 393 "Reminder-Issue"
                     SetGenJnlLine2Dim();
                     OnBeforeGenJnlPostLineRun(GenJnlLine2, GenJnlLine, ReminderHeader, ReminderLine);
                     GenJnlPostLine.Run(GenJnlLine2);
-                    OnRunOnAfterGenJnlPostLineRun(GenJnlLine2, GenJnlLine, ReminderHeader, ReminderLine);
+                    OnRunOnAfterGenJnlPostLineRun(GenJnlLine2, GenJnlLine, ReminderHeader, ReminderLine, GenJnlPostLine);
                 until GenJnlLine.Next() = 0;
 
             GenJnlLine.DeleteAll();
@@ -662,7 +662,7 @@ codeunit 393 "Reminder-Issue"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnRunOnAfterGenJnlPostLineRun(var GenJnlLine2: Record "Gen. Journal Line"; var GenJnlLine: Record "Gen. Journal Line"; var ReminderHeader: Record "Reminder Header"; var ReminderLine: Record "Reminder Line")
+    local procedure OnRunOnAfterGenJnlPostLineRun(var GenJnlLine2: Record "Gen. Journal Line"; var GenJnlLine: Record "Gen. Journal Line"; var ReminderHeader: Record "Reminder Header"; var ReminderLine: Record "Reminder Line"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
     begin
     end;
 

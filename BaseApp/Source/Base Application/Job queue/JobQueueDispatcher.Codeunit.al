@@ -140,13 +140,12 @@ codeunit 448 "Job Queue Dispatcher"
 
     local procedure Reschedule(var JobQueueEntry: Record "Job Queue Entry")
     begin
-        with JobQueueEntry do begin
-            RefreshLocked();
-            Randomize();
-            Clear("System Task ID"); // to avoid canceling this task, which has already been executed
-            "Earliest Start Date/Time" := CurrentDateTime + 2000 + Random(5000);
-            CODEUNIT.Run(CODEUNIT::"Job Queue - Enqueue", JobQueueEntry);
-        end;
+        JobQueueEntry.RefreshLocked();
+        Randomize();
+        Clear(JobQueueEntry."System Task ID"); // to avoid canceling this task, which has already been executed
+        JobQueueEntry."Earliest Start Date/Time" := CurrentDateTime + 2000 + Random(5000);
+        OnRescheduleOnBeforeJobQueueEnqueue(JobQueueEntry);
+        CODEUNIT.Run(CODEUNIT::"Job Queue - Enqueue", JobQueueEntry);
     end;
 
     procedure CalcNextRunTimeForRecurringJob(var JobQueueEntry: Record "Job Queue Entry"; StartingDateTime: DateTime): DateTime
@@ -384,6 +383,11 @@ codeunit 448 "Job Queue Dispatcher"
 
     [IntegrationEvent(false, false)]
     local procedure OnCalcInitialRunTimeOnAfterCalcEarliestPossibleRunTime(var JobQueueEntry: Record "Job Queue Entry"; var EarliestPossibleRunTime: DateTime; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRescheduleOnBeforeJobQueueEnqueue(var JobQueueEntry: Record "Job Queue Entry")
     begin
     end;
 }

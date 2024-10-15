@@ -125,6 +125,8 @@
                     Commit();
             end;
 
+            OnCodeOnBeforeWindowOpen(PurchHeader, DocumentType);
+
             Window.Open(
               '#1#################################\\' +
               Text002 +
@@ -986,7 +988,9 @@
     procedure FillInvLineBuffer(PurchHeader: Record "Purchase Header"; PurchLine: Record "Purchase Line"; var PrepmtInvLineBuf: Record "Prepayment Inv. Line Buffer")
     begin
         with PrepmtInvLineBuf do begin
-            Init;
+            Init();
+            OnFillInvLineBufferOnAfterInit(PrepmtInvLineBuf, PurchHeader, PurchLine);
+
             "G/L Account No." := GetPrepmtAccNo(PurchLine."Gen. Bus. Posting Group", PurchLine."Gen. Prod. Posting Group");
 
             if not PurchHeader."Compress Prepayment" then begin
@@ -1831,12 +1835,12 @@
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeInvoice(var PurchaseHeader: Record "Purchase Header"; var Handled: Boolean)
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeCreditMemo(var PurchaseHeader: Record "Purchase Header"; var Handled: Boolean)
     begin
     end;
@@ -1958,6 +1962,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateVATOnLinesOnBeforePurchLineModify(PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; var TempVATAmountLineRemainder: Record "VAT Amount Line"; NewAmount: Decimal; NewAmountIncludingVAT: Decimal; NewVATBaseAmount: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCodeOnBeforeWindowOpen(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option Invoice,"Credit Memo")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFillInvLineBufferOnAfterInit(var PrepaymentInvLineBuffer: Record "Prepayment Inv. Line Buffer"; PurchaseHeader: Record "Purchase Header"; PurchaseLine: Record "Purchase Line")
     begin
     end;
 }

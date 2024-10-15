@@ -140,6 +140,7 @@ page 5919 "Service Mgt. Setup"
                     ApplicationArea = Advanced;
                     Importance = Additional;
                     ToolTip = 'Specifies if multiple posting groups can be used for the same customer in sales documents.';
+                    Visible = false;
                 }
 #if not CLEAN20
                 field("Invoice Posting Setup"; Rec."Invoice Posting Setup")

@@ -306,7 +306,7 @@ codeunit 2000001 CheckPaymJnlLine
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckSEPAAllowed(var RequiredSEPAAllowed: Boolean; PmtJnlLineNo: Integer; CountryRegionCode: Code[10]; IsHandled: Boolean)
+    local procedure OnBeforeCheckSEPAAllowed(var RequiredSEPAAllowed: Boolean; PmtJnlLineNo: Integer; CountryRegionCode: Code[10]; var IsHandled: Boolean)
     begin
     end;
 

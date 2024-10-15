@@ -204,6 +204,9 @@ report 2000005 "File SEPA Payments"
             else
                 FullFileName := FileName;
 
+            if FullFileName = '' then
+                FullFileName := SEPAPaymentsFileNameTxt;
+
             Download(ServerFileName, '', '', AllFilesDescriptionTxt, FullFileName);
         end;
         Clear(XMLDomDoc);
@@ -254,6 +257,7 @@ report 2000005 "File SEPA Payments"
         PmtInfNode: DotNet XmlNode;
         ConsolidatedPmtMessage: Text[140];
         Text002: Label 'Journal %1 is not a general journal.';
+        SEPAPaymentsFileNameTxt: Label 'SEPAPayments.txt';
         ServerFileName: Text;
         MessageId: Text[35];
         FullFileName: Text;
