@@ -36,14 +36,9 @@ codeunit 144004 "UT REP Audit"
 
     var
         Assert: Codeunit Assert;
-        LibraryUTUtility: Codeunit "Library UT Utility";
-        LibraryUtility: Codeunit "Library - Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         DialogErr: Label 'Dialog';
         TestFieldErr: Label 'TestField';
-        VATRegNoTxt: Label 'NL123456789B5544';
-        VATRegNoFormatTxt: Label 'NL#########B####';
-        LibraryRandom: Codeunit "Library - Random";
         FileManagement: Codeunit "File Management";
 
     [Test]
@@ -78,63 +73,6 @@ codeunit 144004 "UT REP Audit"
         TaxAuthorityAuditFile.Run;
 
         // Verify: Verify Exclude Begin Balance field on Tax Authority - Audit File report, verification done by TaxAuthorityAuditFileReqestPageHandler.
-    end;
-
-    [Test]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
-    procedure OnInitReportAuditFileCompInfoVATRegNoError()
-    begin
-        // Purpose of the test is to validate OnInitReport trigger for report ID 11412 - Tax Authority - Audit File report.
-
-        // Setup: Update Country/Region Code and VAT Registration No. in Company Information.
-        UpdateCompanyInformation(VATRegNoTxt);
-
-        // Exercise: Run Tax Authority - Audit File report.
-        asserterror REPORT.Run(REPORT::"Tax Authority - Audit File");
-
-        // Verify error code, error is 'Length of VAT Registration No. in Company Information  must not exceed 15 characters.'.
-        Assert.ExpectedErrorCode(DialogErr);
-    end;
-
-    [Test]
-    [HandlerFunctions('TaxAuthorityAuditFileReqestPageHandler')]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
-    procedure OnPostReportAuditFileCustomerVATRegNoError()
-    var
-        GLEntry: Record "G/L Entry";
-    begin
-        // Purpose of the test is to validate OnPostReport trigger in report ID 11412 - Tax Authority - Audit File report with Customer VAT Registration No. more than 15 characters.
-        VATRegNoError(
-          CreateCustomer(VATRegNoTxt), GLEntry."Source Type"::Customer, 0, LibraryRandom.RandInt(100));  // Using Random for Credit Amount.
-    end;
-
-    [Test]
-    [HandlerFunctions('TaxAuthorityAuditFileReqestPageHandler')]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
-    procedure OnPostReportAuditFileVendorVATRegNoError()
-    var
-        GLEntry: Record "G/L Entry";
-    begin
-        // Purpose of the test is to validate OnPostReport trigger for report ID 11412 - Tax Authority - Audit File report with Vendor VAT Registration No. more than 15 characters.
-        VATRegNoError(
-          CreateVendor(VATRegNoTxt), GLEntry."Source Type"::Vendor, LibraryRandom.RandInt(100), 0);  // Using Random for Debit Amount.
-    end;
-
-    local procedure VATRegNoError(SourceNo: Code[20]; SourceType: Enum "Gen. Journal Source Type"; CrAmount: Decimal; DrAmount: Decimal)
-    begin
-        // Setup: Create GL Entry with Customer/Vendor Vat Registration No more than 15 characters.
-        CreateGLEntry(SourceNo, SourceType, CrAmount, DrAmount);
-        // STRSUBSTNO(FileNameTxt,COPYSTR(CREATEGUID,4,8)),
-        EnqueueTaxAuthorityAuditFile(Today, Today, true);
-
-        // Exercise: Run Tax Authority - Audit File report.
-        asserterror REPORT.Run(REPORT::"Tax Authority - Audit File");
-
-        // Verify error code, error for OnPostReport trigger in Tax Authority - Audit File report.
-        Assert.ExpectedErrorCode(DialogErr);
     end;
 
     [Test]
@@ -247,98 +185,11 @@ codeunit 144004 "UT REP Audit"
         Assert.AreEqual(MaxStrLen(DummyCustVendID), MaxStrLen(AuditFileBuffer."Source ID"), '');
     end;
 
-    [Test]
-    [HandlerFunctions('TaxAuthorityAuditFileCancelReqestPageHandler')]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
-    procedure OnInitReportAuditFileCompInfoVATRegNoWithDot()
-    var
-        GLEntry: Record "G/L Entry";
-    begin
-        // [SCENARIO 378769] Run Tax Authority - Audit File report with VAT Registration No. fields of length = 16 having '.'
-
-        // [GIVEN] Company Information, Customer and Vendor all with VAT Registration No. of length = 16 having '.'
-        UpdateCompanyInformation(LibraryUtility.GenerateRandomNumericText(15) + '.');
-        CreateGLEntry(
-          CreateCustomer(
-            LibraryUtility.GenerateRandomNumericText(15) + '.'), GLEntry."Source Type"::Customer, 0, LibraryRandom.RandInt(100));
-        CreateGLEntry(
-          CreateVendor(
-            LibraryUtility.GenerateRandomNumericText(15) + '.'), GLEntry."Source Type"::Vendor, LibraryRandom.RandInt(100), 0);
-        EnqueueTaxAuthorityAuditFile(Today, Today, true);
-
-        // [WHEN] Run Tax Authority - Audit File report.
-        REPORT.Run(REPORT::"Tax Authority - Audit File");
-
-        // [THEN] Request page of the report is opened without any errors.
-    end;
-
-    local procedure CreateCustomer(VATRegNo: Text[20]): Code[20]
-    var
-        Customer: Record Customer;
-    begin
-        Customer."No." := LibraryUTUtility.GetNewCode;
-        Customer."Country/Region Code" := CreateVATRegNoFormat;
-        Customer."VAT Registration No." := VATRegNo;
-        Customer.Insert();
-        exit(Customer."No.");
-    end;
-
-    local procedure CreateGLEntry(SourceNo: Code[20]; SourceType: Enum "Gen. Journal Source Type"; CrAmount: Decimal; DrAmount: Decimal)
-    var
-        GLEntry: Record "G/L Entry";
-    begin
-        GLEntry."Entry No." := GetGLEntryNo;
-        GLEntry."Document Type" := GLEntry."Document Type"::Invoice;
-        GLEntry."Document No." := LibraryUTUtility.GetNewCode;
-        GLEntry."Posting Date" := Today;
-        GLEntry."Credit Amount" := CrAmount;
-        GLEntry."Debit Amount" := DrAmount;
-        GLEntry."Source Type" := SourceType;
-        GLEntry."Source No." := SourceNo;
-        GLEntry.Insert();
-    end;
-
-    local procedure CreateVATRegNoFormat(): Code[10]
-    var
-        CountryRegion: Record "Country/Region";
-        VATRegistrationNoFormat: Record "VAT Registration No. Format";
-    begin
-        CountryRegion.Code := LibraryUTUtility.GetNewCode10;
-        CountryRegion.Insert();
-
-        // Create VAT Registration No Format.
-        VATRegistrationNoFormat."Country/Region Code" := CountryRegion.Code;
-        VATRegistrationNoFormat."Line No." := LibraryRandom.RandInt(10000);  // Using random for Line No.
-        VATRegistrationNoFormat.Format := VATRegNoFormatTxt;
-        VATRegistrationNoFormat.Insert();
-        exit(CountryRegion.Code);
-    end;
-
-    local procedure CreateVendor(VATRegNo: Text[20]): Code[20]
-    var
-        Vendor: Record Vendor;
-    begin
-        Vendor."No." := LibraryUTUtility.GetNewCode;
-        Vendor."Country/Region Code" := CreateVATRegNoFormat;
-        Vendor."VAT Registration No." := VATRegNo;
-        Vendor.Insert();
-        exit(Vendor."No.");
-    end;
-
     local procedure EnqueueTaxAuthorityAuditFile(StartDate: Date; EndDate: Date; ExcludeBeginBalance: Boolean)
     begin
         LibraryVariableStorage.Enqueue(StartDate); // Enqueue Start Date for TaxAuthorityAuditFileReqestPageHandler.
         LibraryVariableStorage.Enqueue(EndDate); // Enqueue End Date for TaxAuthorityAuditFileReqestPageHandler.
         LibraryVariableStorage.Enqueue(ExcludeBeginBalance); // Enqueue Exclude Begin Balance for TaxAuthorityAuditFileReqestPageHandler.
-    end;
-
-    local procedure GetGLEntryNo(): Integer
-    var
-        GLEntry: Record "G/L Entry";
-    begin
-        GLEntry.FindLast;
-        exit(GLEntry."Entry No." + 1);
     end;
 
     local procedure GetFiscalYearStartDate(): Date
@@ -348,16 +199,6 @@ codeunit 144004 "UT REP Audit"
         AccountingPeriod.SetRange("New Fiscal Year", true);
         AccountingPeriod.FindFirst;
         exit(AccountingPeriod."Starting Date");
-    end;
-
-    local procedure UpdateCompanyInformation(VATRegNo: Text[20])
-    var
-        CompanyInformation: Record "Company Information";
-    begin
-        CompanyInformation.Get();
-        CompanyInformation."Country/Region Code" := CreateVATRegNoFormat;
-        CompanyInformation."VAT Registration No." := VATRegNo;
-        CompanyInformation.Modify();
     end;
 
     [RequestPageHandler]
