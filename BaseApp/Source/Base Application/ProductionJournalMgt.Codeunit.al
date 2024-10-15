@@ -30,6 +30,8 @@ codeunit 5510 "Production Journal Mgt"
         LeaveForm: Boolean;
         IsHandled: Boolean;
     begin
+        OnBeforeHandling(ProdOrder);
+
         MfgSetup.Get();
 
         SetTemplateAndBatchName;
@@ -562,6 +564,11 @@ codeunit 5510 "Production Journal Mgt"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeDeleteAllItemJnlLine(var ItemJournalLine: Record "Item Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeHandling(ProdOrder: Record "Production Order")
     begin
     end;
 

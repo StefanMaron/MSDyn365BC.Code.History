@@ -11,10 +11,13 @@ report 32000000 "Import Ref. Payment"
 
             trigger OnPostDataItem()
             var
+#if not CLEAN17
                 FileMgt: Codeunit "File Management";
+#endif
                 BackupFileName: Text;
             begin
                 BankFile.Close;
+#if not CLEAN17
                 if FileMgt.IsLocalFileSystemAccessible then begin
                     BackUp := '.000';
                     BackupFileName := FileMgt.ClientTempFileName('');
@@ -24,6 +27,7 @@ report 32000000 "Import Ref. Payment"
 
                     FileMgt.DownloadToFile(FileName, BackupFileName + BackUp);
                 end;
+#endif
                 MatchPayments.MatchLines(TemplateName, BatchName);
             end;
 

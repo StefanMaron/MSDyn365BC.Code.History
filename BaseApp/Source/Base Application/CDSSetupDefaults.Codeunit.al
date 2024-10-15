@@ -8,6 +8,8 @@ codeunit 7204 "CDS Setup Defaults"
     var
         CRMProductName: Codeunit "CRM Product Name";
         JobQueueCategoryLbl: Label 'BCI INTEG', Locked = true;
+        CustomerTableMappingNameTxt: Label 'CUSTOMER', Locked = true;
+        VendorTableMappingNameTxt: Label 'VENDOR', Locked = true;
         JobQueueEntryNameTok: Label ' %1 - %2 synchronization job.', Comment = '%1 = The Integration Table Name to synchronized (ex. CUSTOMER), %2 = CRM product name';
         UncoupleJobQueueEntryNameTok: Label ' %1 uncouple job.', Comment = '%1 = Integration mapping description, for example, CUSTOMER <-> CRM Account';
         IntegrationTablePrefixTok: Label 'Dynamics CRM', Comment = 'Product name', Locked = true;
@@ -16,6 +18,7 @@ codeunit 7204 "CDS Setup Defaults"
         CRMAccountConfigTemplateDescTxt: Label 'New accounts were created in Sales.', Comment = 'Max. length 50.';
         CustomerConfigTemplateCodeTok: Label 'BCICUST', Comment = 'Customer template code for new customers created from Dataverse data. Max length 10.', Locked = true;
         VendorConfigTemplateCodeTok: Label 'BCIVEND', Comment = 'Vendor template code for new vendors created from Dataverse data. Max length 10.', Locked = true;
+        PersonTok: Label 'Person', Comment = 'Non-localized option name for Contact Type Person.', Locked = true;
         CustomerConfigTemplateDescTxt: Label 'New Customer records created during synch.', Comment = 'Max. length 50.';
         VendorConfigTemplateDescTxt: Label 'New Vendor records created during synch.', Comment = 'Max. length 50.';
 
@@ -36,8 +39,8 @@ codeunit 7204 "CDS Setup Defaults"
         IsTeamOwnershipModel := CDSIntegrationMgt.IsTeamOwnershipModelSelected();
 
         ResetSalesPeopleSystemUserMapping('SALESPEOPLE', IsTeamOwnershipModel, true);
-        ResetCustomerAccountMapping('CUSTOMER', IsTeamOwnershipModel, true);
-        ResetVendorAccountMapping('VENDOR', IsTeamOwnershipModel, true);
+        ResetCustomerAccountMapping(CustomerTableMappingNameTxt, IsTeamOwnershipModel, true);
+        ResetVendorAccountMapping(VendorTableMappingNameTxt, IsTeamOwnershipModel, true);
         ResetContactContactMapping('CONTACT', IsTeamOwnershipModel, true);
         ResetCurrencyTransactionCurrencyMapping('CURRENCY', true);
         ResetPaymentTermsMapping('PAYMENT TERMS');
@@ -675,7 +678,7 @@ codeunit 7204 "CDS Setup Defaults"
           IntegrationTableMappingName,
           Contact.FieldNo(Type), 0,
           IntegrationFieldMapping.Direction::FromIntegrationTable,
-          Format(Contact.Type::Person), true, false);
+          PersonTok, true, false);
 
         // CRMContact.ParentCustomerIdType::account
         InsertIntegrationFieldMapping(
@@ -1225,6 +1228,18 @@ codeunit 7204 "CDS Setup Defaults"
         CRMSystemuserList.Run();
     end;
 
+    [Scope('Cloud')]
+    procedure GetCustomerTableMappingName(): Text
+    begin
+        exit(CustomerTableMappingNameTxt);
+    end;
+
+    [Scope('Cloud')]
+    procedure GetVendorTableMappingName(): Text
+    begin
+        exit(VendorTableMappingNameTxt);
+    end;
+
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"CDS Integration Mgt.", 'OnEnableIntegration', '', false, false)]
     local procedure HandleOnEnableIntegration()
     var
@@ -1237,11 +1252,11 @@ codeunit 7204 "CDS Setup Defaults"
             CDSConnectionSetup."Ownership Model"::Person:
                 if IntegrationTableMapping.Get('SALESPEOPLE') then begin
                     RecreateJobQueueEntryFromIntTableMapping(IntegrationTableMapping, 30, true, 1440);
-                    if IntegrationTableMapping.Get('VENDOR') then begin
+                    if IntegrationTableMapping.Get(VendorTableMappingNameTxt) then begin
                         IntegrationTableMapping."Dependency Filter" := 'SALESPEOPLE|CURRENCY';
                         IntegrationTableMapping.Modify();
                     end;
-                    if IntegrationTableMapping.Get('CUSTOMER') then begin
+                    if IntegrationTableMapping.Get(CustomerTableMappingNameTxt) then begin
                         IntegrationTableMapping."Dependency Filter" := 'SALESPEOPLE|CURRENCY';
                         IntegrationTableMapping.Modify();
                     end;
@@ -1253,11 +1268,11 @@ codeunit 7204 "CDS Setup Defaults"
                     JobQueueEntry.SetRange("Record ID to Process", IntegrationTableMapping.RecordId());
                     JobQueueEntry.DeleteTasks();
                     IntegrationTableMapping.Delete(true);
-                    if IntegrationTableMapping.Get('VENDOR') then begin
+                    if IntegrationTableMapping.Get(VendorTableMappingNameTxt) then begin
                         IntegrationTableMapping."Dependency Filter" := 'CURRENCY';
                         IntegrationTableMapping.Modify();
                     end;
-                    if IntegrationTableMapping.Get('CUSTOMER') then begin
+                    if IntegrationTableMapping.Get(CustomerTableMappingNameTxt) then begin
                         IntegrationTableMapping."Dependency Filter" := 'CURRENCY';
                         IntegrationTableMapping.Modify();
                     end;

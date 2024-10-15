@@ -92,7 +92,11 @@ report 13403 "Export SEPA Payment File"
     begin
         OnBeforeFileDownload(XMLFileNameServer, CancelDownload);
         if not CancelDownload then begin
+#if not CLEAN17
             FileMgt.DownloadToFile(XMLFileNameServer, FileName);
+#else
+            FileMgt.DownloadHandler(XMLFileNameServer, '', '', '', FileName);
+#endif
             Message(Text13400, FileName);
         end;
     end;

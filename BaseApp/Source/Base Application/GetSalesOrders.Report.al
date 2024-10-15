@@ -155,8 +155,7 @@ report 698 "Get Sales Orders"
                 Validate("Replenishment System", "Replenishment System"::Purchase);
 
             OnInsertReqWkshLineOnBeforeValidateUoM(ReqLine, SalesLine, SpecOrder);
-            if SpecOrder <> 1 then
-                Validate("Unit of Measure Code", SalesLine."Unit of Measure Code");
+            Validate("Unit of Measure Code", SalesLine."Unit of Measure Code");
             ValidateRequisitionLineQuantity(ReqLine, SalesLine);
             "Sales Order No." := SalesLine."Document No.";
             "Sales Order Line No." := SalesLine."Line No.";

@@ -183,7 +183,6 @@ report 29 "Export Acc. Sched. to Excel"
         AccSchedManagement: Codeunit AccSchedManagement;
         MatrixMgt: Codeunit "Matrix Management";
         FileMgt: Codeunit "File Management";
-        ClientTypeMgt: Codeunit "Client Type Management";
         UseAmtsInAddCurr: Boolean;
         ColumnValue: Decimal;
         ServerFileName: Text;
@@ -270,17 +269,11 @@ report 29 "Export Acc. Sched. to Excel"
     end;
 
     local procedure UploadClientFile(var ClientFileName: Text; var ServerFileName: Text): Boolean
-    var
-        FileName: Text;
     begin
-        FileName := FileMgt.OpenFileDialog(Text002, ExcelFileExtensionTok, '');
-        if ClientTypeMgt.GetCurrentClientType in [CLIENTTYPE::Web, CLIENTTYPE::Tablet, CLIENTTYPE::Phone, CLIENTTYPE::Desktop] then
-            ServerFileName := FileName
-        else
-            ServerFileName := FileMgt.UploadFileSilent(FileName);
+        ServerFileName := FileMgt.UploadFile(Text002, ExcelFileExtensionTok);
+        ClientFileName := ServerFileName;
         if ServerFileName = '' then
             exit(false);
-        ClientFileName := FileMgt.GetFileName(FileName);
 
         SheetName := TempExcelBuffer.SelectSheetsName(ServerFileName);
         if SheetName = '' then

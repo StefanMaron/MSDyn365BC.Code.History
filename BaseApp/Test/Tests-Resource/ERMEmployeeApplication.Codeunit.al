@@ -22,6 +22,7 @@ codeunit 134115 "ERM Employee Application"
         AmountErr: Label '%1 must be %2 in %3.';
         ApplyAmountErr: Label '%1 must be %2.';
         WrongEmployeeNoErr: Label 'Employee was not found.';
+        EarlierPostingDateErr: Label 'You cannot apply and post an entry to an entry with an earlier posting date.';
 
     [Test]
     [HandlerFunctions('ApplyEmployeePageHandler')]
@@ -432,6 +433,55 @@ codeunit 134115 "ERM Employee Application"
         EmployeeLedgerEntry.TestField("Applies-to ID", '');
     end;
 
+    [Test]
+    [HandlerFunctions('MultipleSelectionApplyEmployeeEntriesModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure CheckPostingDateForMultipleEmplLedgEntriesWhenSetAppliesToIDOnApplyEmployeeEntries()
+    var
+        Employee: Record Employee;
+        GenJournalLine: Record "Gen. Journal Line";
+        InvoiceAmount: Decimal;
+        PaymentAmount: Decimal;
+    begin
+        // [FEATURE] [Application]
+        // [SCENARIO 383611] When "Set Applies-to ID" on "Apply Employee Entries" page is used for multiple lines, Posting date of each line is checked.
+        Initialize();
+
+        // [GIVEN] Two Employee Ledger Entries with Posting Date = "01.01.21" / "21.01.21".
+        CreateEmployee(Employee);
+        InvoiceAmount := -LibraryRandom.RandIntInRange(10, 20);
+        PaymentAmount := -InvoiceAmount * 3;
+        LibraryJournals.CreateGenJournalLineWithBatch(
+            GenJournalLine, GenJournalLine."Document Type"::" ", GenJournalLine."Account Type"::Employee, Employee."No.", InvoiceAmount);
+        GenJournalLine.Validate("Posting Date", LibraryRandom.RandDate(-10));
+        GenJournalLine.Modify(true);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+        LibraryJournals.CreateGenJournalLineWithBatch(
+            GenJournalLine, GenJournalLine."Document Type"::" ", GenJournalLine."Account Type"::Employee, Employee."No.", InvoiceAmount);
+        GenJournalLine.Validate("Posting Date", LibraryRandom.RandDate(10));
+        GenJournalLine.Modify(true);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [GIVEN] General Journal Line with Posting Date = "11.01.21".
+        LibraryJournals.CreateGenJournalLineWithBatch(
+            GenJournalLine, GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Employee, Employee."No.", PaymentAmount);
+        GenJournalLine.Validate("Applies-to Doc. Type", GenJournalLine."Applies-to Doc. Type"::" ");
+        GenJournalLine.Modify(true);
+
+        // [GIVEN] "Apply Employee Entries" page is opened by Codeunit "Gen. Jnl.-Apply" run for General Journal Line.
+        LibraryVariableStorage.Enqueue(GenJournalLine."Account No.");
+        asserterror CODEUNIT.Run(CODEUNIT::"Gen. Jnl.-Apply", GenJournalLine);
+
+        // [WHEN] Multiple lines are selected on "Apply Employee Entries" page and action "Set Applies-to ID" is used.
+        // Done in MultipleSelectionApplyEmployeeEntriesModalPageHandler
+
+        // [THEN] Error "You cannot apply and post an entry to an entry with an earlier posting date." is thrown.
+        Assert.ExpectedErrorCode('Dialog');
+        Assert.ExpectedError(EarlierPostingDateErr);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         EmployeePostingGroup: Record "Employee Posting Group";
@@ -651,6 +701,16 @@ codeunit 134115 "ERM Employee Application"
         AmountToApply := LibraryRandom.RandDecInRange(1, 50, 2);
         ApplyEmployeeEntries."Amount to Apply".SetValue := AmountToApply;
         ApplyEmployeeEntries."Amount to Apply".AssertEquals(AmountToApply);
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure MultipleSelectionApplyEmployeeEntriesModalPageHandler(var ApplyEmployeeEntries: Page "Apply Employee Entries"; var Response: Action)
+    var
+        EmployeeLedgerEntry: Record "Employee Ledger Entry";
+    begin
+        EmployeeLedgerEntry.SetRange("Employee No.", LibraryVariableStorage.DequeueText());
+        ApplyEmployeeEntries.CheckEmplApplId(EmployeeLedgerEntry);
     end;
 
     local procedure CreateEmployeePostingGroup(ExpenseAccNo: Code[20]): Code[20]

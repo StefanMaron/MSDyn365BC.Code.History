@@ -125,7 +125,13 @@ codeunit 700 "Page Management"
     procedure GetConditionalCardPageID(RecRef: RecordRef): Integer
     var
         CardPageID: Integer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetConditionalCardPageID(RecRef, CardPageID, IsHandled);
+        if IsHandled then
+            exit(CardPageID);
+
         case RecRef.Number of
             DATABASE::"Gen. Journal Template":
                 exit(PAGE::"General Journal Templates");
@@ -461,6 +467,11 @@ codeunit 700 "Page Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetConditionalListPageID(RecRef: RecordRef; var PageID: Integer; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetConditionalCardPageID(RecRef: RecordRef; var CardPageID: Integer; var IsHandled: Boolean);
     begin
     end;
 

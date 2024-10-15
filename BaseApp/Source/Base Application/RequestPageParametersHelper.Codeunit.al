@@ -86,6 +86,12 @@ codeunit 1530 "Request Page Parameters Helper"
         FoundXmlNode: DotNet XmlNode;
     begin
         foreach FoundXmlNode in FoundXmlNodeList do
+            if DoesRecRefExactlyCorrespondToXMLNode(RecRef, FoundXmlNode.Attributes.ItemOf('name').Value) then begin
+                RecRef.SetView(FoundXmlNode.InnerText);
+                exit(true);
+            end;
+
+        foreach FoundXmlNode in FoundXmlNodeList do
             if DoesRecRefCorrespondToXMLNode(RecRef, FoundXmlNode.Attributes.ItemOf('name').Value) then begin
                 RecRef.SetView(FoundXmlNode.InnerText);
                 exit(true);
@@ -94,9 +100,8 @@ codeunit 1530 "Request Page Parameters Helper"
         exit(false);
     end;
 
-    local procedure DoesRecRefCorrespondToXMLNode(RecRef: RecordRef; XmlTableName: Text): Boolean
+    local procedure DoesRecRefExactlyCorrespondToXMLNode(RecRef: RecordRef; XmlTableName: Text): Boolean
     var
-        AllObjWithCaption: Record AllObjWithCaption;
         TableName: Text;
         TableCaption: Text;
         TableNumber: Text;
@@ -111,18 +116,17 @@ codeunit 1530 "Request Page Parameters Helper"
             TableCaption, TableName, TableNumber:
                 exit(true);
         end;
+    end;
 
-        // check if there is a table with a name equal to XmlTableName
-        AllObjWithCaption.SetRange("Object Type", AllObjWithCaption."Object Type"::Table);
-        AllObjWithCaption.SetRange("Object Name", XmlTableName);
-        if not AllObjWithCaption.IsEmpty() then
-            exit(false);
-
-        // check if there is a table with a caption equal to XmlTableName
-        AllObjWithCaption.SetRange("Object Name");
-        AllObjWithCaption.SetRange("Object Caption", XmlTableName);
-        if not AllObjWithCaption.IsEmpty() then
-            exit(false);
+    local procedure DoesRecRefCorrespondToXMLNode(RecRef: RecordRef; XmlTableName: Text): Boolean
+    var
+        TableName: Text;
+        TableCaption: Text;
+        XmlTableNameUpperCase: Text;
+    begin
+        XmlTableNameUpperCase := UpperCase(XmlTableName);
+        TableCaption := UpperCase(GetTableCaption(RecRef.Number()));
+        TableName := UpperCase(GetTableName(RecRef.Number()));
 
         // if there is no table named XmlTableName, check if it's a substing of the provided RecRef table
         // e. g. data items named "Header" for the "Sales Header" table

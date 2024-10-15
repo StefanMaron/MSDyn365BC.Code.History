@@ -744,8 +744,15 @@
             end;
     end;
 
-    local procedure IsUpdateCompletelyInvoiced(ItemLedgEntry: Record "Item Ledger Entry"; CompletelyInvoiced: Boolean): Boolean
+    local procedure IsUpdateCompletelyInvoiced(ItemLedgEntry: Record "Item Ledger Entry"; CompletelyInvoiced: Boolean) Result: Boolean
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeIsUpdateCompletelyInvoiced(ItemLedgEntry, CompletelyInvoiced, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         with ItemLedgEntry do
             exit(
               ("Entry Type" in ["Entry Type"::Transfer, "Entry Type"::Consumption]) and
@@ -1202,6 +1209,7 @@
                 if OutbndItemLedgEntry."Entry Type" = OutbndItemLedgEntry."Entry Type"::Consumption then
                     OutbndItemLedgEntry.SetAppliedEntryToAdjust(false);
 
+                OnAdjustOutbndAvgEntryOnBeforeForwardAvgCostToInbndEntries(OutbndItemLedgEntry);
                 ForwardAvgCostToInbndEntries(OutbndItemLedgEntry."Entry No.");
             end;
         end;
@@ -1236,9 +1244,14 @@
                 CostElementBuf.UpdateCostElementBuffer(AvgCostBuf);
 
             if CostElementBuf."Remaining Quantity" > 0 then begin
-                CostElementBuf.RoundActualCost(
+                RoundCost(
+                  CostElementBuf."Actual Cost", AvgCostBuf."Rounding Residual", CostElementBuf."Actual Cost",
                   OutbndValueEntry."Valued Quantity" / CostElementBuf."Remaining Quantity",
-                  GLSetup."Amount Rounding Precision", Currency."Amount Rounding Precision");
+                  GLSetup."Amount Rounding Precision");
+                RoundCost(
+                  CostElementBuf."Actual Cost (ACY)", AvgCostBuf."Rounding Residual (ACY)", CostElementBuf."Actual Cost (ACY)",
+                  OutbndValueEntry."Valued Quantity" / CostElementBuf."Remaining Quantity",
+                  Currency."Amount Rounding Precision");
 
                 AvgCostBuf.DeductOutbndValueEntryFromBuf(OutbndValueEntry, CostElementBuf, IsAvgCostCalcTypeItem);
             end;
@@ -1414,7 +1427,13 @@
         ItemLedgEntry: Record "Item Ledger Entry";
         ConsumpItemLedgEntry: Record "Item Ledger Entry";
         AvgCostAdjmtPoint: Record "Avg. Cost Adjmt. Entry Point";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateConsumpAvgEntry(ValueEntry, IsHandled);
+        if IsHandled then
+            exit;
+
         // Determine if average costed consumption is completely invoiced
         with ValueEntry do begin
             if "Item Ledger Entry Type" <> "Item Ledger Entry Type"::Consumption then
@@ -1750,7 +1769,7 @@
             ItemJnlLine."Return Reason Code" := "Return Reason Code";
         end;
 
-        OnAfterInitAdjmtJnlLine(ItemJnlLine, OrigValueEntry);
+        OnAfterInitAdjmtJnlLine(ItemJnlLine, OrigValueEntry, EntryType, VarianceType, InvoicedQty);
     end;
 
     local procedure PostItemJnlLine(ItemJnlLine: Record "Item Journal Line"; OrigValueEntry: Record "Value Entry"; NewAdjustedCost: Decimal; NewAdjustedCostACY: Decimal)
@@ -2332,12 +2351,13 @@
         AvgCostExceptionBuf.Reset();
         RevaluationPoint.Reset();
         TempValueEntryCalcdOutbndCostBuf.Reset();
-        AvgCostBuf.Init();
+        AvgCostBuf.Initialize(true);
     end;
 
     local procedure DeleteAvgBuffers(var OutbndValueEntry: Record "Value Entry"; var ExcludedValueEntry: Record "Value Entry")
     begin
         ResetAvgBuffers(OutbndValueEntry, ExcludedValueEntry);
+        AvgCostBuf.Initialize(false);
         OutbndValueEntry.DeleteAll();
         ExcludedValueEntry.DeleteAll();
         AvgCostExceptionBuf.DeleteAll();
@@ -2607,6 +2627,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAdjustOutbndAvgEntryOnBeforeForwardAvgCostToInbndEntries(var OutbndItemLedgEntry: Record "Item Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterGetValuationPeriod(var CalendarPeriod: Record Date; Item: record Item)
     begin
     end;
@@ -2637,6 +2662,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeIsUpdateCompletelyInvoiced(ItemLedgEntry: Record "Item Ledger Entry"; CompletelyInvoiced: Boolean; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeMakeMultiLevelAdjmt(var Item: Record Item; IsOnlineAdjmt: Boolean; PostToGL: Boolean; var IsHandled: Boolean)
     begin
     end;
@@ -2653,6 +2683,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateItemUnitCost(var TempAvgCostAdjmtEntryPoint: Record "Avg. Cost Adjmt. Entry Point" temporary; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateConsumpAvgEntry(ValueEntry: Record "Value Entry"; var IsHandled: Boolean)
     begin
     end;
 
@@ -2727,7 +2762,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterInitAdjmtJnlLine(var ItemJnlLine: Record "Item Journal Line"; OrigValueEntry: Record "Value Entry")
+    local procedure OnAfterInitAdjmtJnlLine(var ItemJnlLine: Record "Item Journal Line"; OrigValueEntry: Record "Value Entry"; EntryType: Enum "Cost Entry Type"; VarianceType: Enum "Cost Variance Type"; InvoicedQty: Decimal)
     begin
     end;
 

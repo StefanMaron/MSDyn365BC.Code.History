@@ -23,7 +23,7 @@ codeunit 132903 UserCardTest
         ValidationError: Text;
         isInitialized: Boolean;
         PasswordsError001Err: Label 'The passwords that you entered do not match.';
-        PasswordsError003Err: Label 'The password that you entered does not meet the minimum requirements. It must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, and one number. It must not have a sequence of 3 or more ascending, descending or repeating characters.';
+        PasswordsError003Err: Label 'The password that you entered does not meet the minimum requirements. It must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number and one special character. It must not have a sequence of 3 or more ascending, descending or repeating characters.';
         LastError: Text;
         ErrorStringCom002Err: Label 'The validation errors are not as expected. Expected: %1 Actual: %2 AND %3.', Comment = '%1 = Expected validation error, %2 = Actual validation error, %3 = Actual validation error.';
         LastValidation: Text;
