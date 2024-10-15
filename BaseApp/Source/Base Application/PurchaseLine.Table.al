@@ -5465,16 +5465,16 @@
         LastPurchLine: Record "Purchase Line";
         TransferExtendedText: Codeunit "Transfer Extended Text";
     begin
-                PurchLine.Init();
-                PurchLine."Line No." += 10000;
-                PurchLine.Validate(Type, Type::Item);
+        PurchLine.Init();
+        PurchLine."Line No." += 10000;
+        PurchLine.Validate(Type, Type::Item);
         PurchLine.Validate("No.", ItemNo);
-                PurchLine.Insert(true);
-                if TransferExtendedText.PurchCheckIfAnyExtText(PurchLine, false) then begin
-                    TransferExtendedText.InsertPurchExtTextRetLast(PurchLine, LastPurchLine);
-                    PurchLine."Line No." := LastPurchLine."Line No."
-                end;
-                OnAfterAddItem(PurchLine, LastPurchLine);
+        PurchLine.Insert(true);
+        if TransferExtendedText.PurchCheckIfAnyExtText(PurchLine, false) then begin
+            TransferExtendedText.InsertPurchExtTextRetLast(PurchLine, LastPurchLine);
+            PurchLine."Line No." := LastPurchLine."Line No."
+        end;
+        OnAfterAddItem(PurchLine, LastPurchLine);
     end;
 
     local procedure InitNewLine(var NewPurchLine: Record "Purchase Line")
@@ -8606,7 +8606,7 @@
             if "Prepmt. Amt. Inv." + Currency."Amount Rounding Precision" < "Prepmt Amt Deducted" then
                 FieldError("Prepmt. Amt. Inv.", StrSubstNo(Text044, "Prepmt Amt Deducted"));
         end else
-            if "Prepmt. Line Amount" < "Prepmt. Amt. Inv." then begin
+            if ("Prepmt. Line Amount" < "Prepmt. Amt. Inv.") and (PurchHeader.Status <> PurchHeader.Status::Released) then begin
                 if IsServiceCharge() then
                     Error(CannotChangePrepaidServiceChargeErr);
                 if "Inv. Discount Amount" <> 0 then

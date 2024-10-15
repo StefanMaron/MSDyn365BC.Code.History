@@ -4,7 +4,7 @@ report 595 "Adjust Exchange Rates"
     DefaultLayout = RDLC;
     RDLCLayout = './AdjustExchangeRates.rdlc';
     ApplicationArea = Basic, Suite;
-    Caption = 'Adjust Exchange Rates (Obsolete)';
+    Caption = 'Adjust Exchange Rates';
     Permissions = TableData "Cust. Ledger Entry" = rimd,
                   TableData "Vendor Ledger Entry" = rimd,
                   TableData "Exch. Rate Adjmt. Reg." = rimd,
@@ -12,9 +12,6 @@ report 595 "Adjust Exchange Rates"
                   TableData "Detailed Cust. Ledg. Entry" = rimd,
                   TableData "Detailed Vendor Ledg. Entry" = rimd;
     UsageCategory = Tasks;
-    ObsoleteState = Pending;
-    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-    ObsoleteTag = '18.0';
 
     dataset
     {

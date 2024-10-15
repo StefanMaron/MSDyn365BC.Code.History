@@ -1113,6 +1113,7 @@
         PurchaseHeader: Record "Purchase Header";
         SalesHeader: Record "Sales Header";
         IncomingDocument: Record "Incoming Document";
+        Vendor: Record Vendor;
         PaymentOrderHeader: Record "Payment Order Header";
         CashDocHeader: Record "Cash Document Header";
         CreditHeader: Record "Credit Header";
@@ -1186,6 +1187,11 @@
                 begin
                     RecRef.SetTable(IncomingDocument);
                     ApprovalEntryArgument."Document No." := Format(IncomingDocument."Entry No.");
+                end;
+            DATABASE::Vendor:
+                begin
+                    RecRef.SetTable(Vendor);
+                    ApprovalEntryArgument."Salespers./Purch. Code" := Vendor."Purchaser Code";
                 end;
             // NAVCZ
             DATABASE::"Payment Order Header":

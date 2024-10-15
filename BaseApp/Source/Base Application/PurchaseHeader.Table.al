@@ -83,9 +83,12 @@
 
                 // NAVCZ
                 "Order Address Code" := Vend."Default Order Address Code";
-                Validate("Transaction Type", Vend."Transaction Type");
-                Validate("Transaction Specification", Vend."Transaction Specification");
-                Validate("Transport Method", Vend."Transport Method");
+                if (Vend."Transaction Type" <> '') and (Vend."Transaction Type" <> "Transaction Type") then
+                    Validate("Transaction Type", Vend."Transaction Type");
+                if Vend."Transaction Specification" <> "Transaction Specification" then
+                    Validate("Transaction Specification", Vend."Transaction Specification");
+                if Vend."Transport Method" <> "Transport Method" then
+                    Validate("Transport Method", Vend."Transport Method");
                 // NAVCZ
 
                 OnValidateBuyFromVendorNoOnValidateBuyFromVendorNoOnBeforeValidatePayToVendor(Rec);
@@ -2133,8 +2136,8 @@
                         if ContBusinessRelation."Contact No." <> Cont."Company No." then
                             Error(Text038, Cont."No.", Cont.Name, "Buy-from Vendor No.");
                 end;
-
-                UpdateBuyFromVend("Buy-from Contact No.");
+                if ("Buy-from Contact No." <> xRec."Buy-from Contact No.") then
+                    UpdateBuyFromVend("Buy-from Contact No.");
             end;
         }
         field(5053; "Pay-to Contact No."; Code[20])
@@ -2982,8 +2985,6 @@
     end;
 
     trigger OnInsert()
-    var
-        StandardCodesMgt: Codeunit "Standard Codes Mgt.";
     begin
         InitInsert();
 
@@ -2995,7 +2996,7 @@
             SetDefaultPurchaser();
 
         if "Buy-from Vendor No." <> '' then
-            StandardCodesMgt.CheckCreatePurchRecurringLines(Rec);
+            StandardCodesMgtGlobal.CheckCreatePurchRecurringLines(Rec);
     end;
 
     trigger OnRename()
@@ -3066,6 +3067,7 @@
         UserSetupMgt: Codeunit "User Setup Management";
         LeadTimeMgt: Codeunit "Lead-Time Management";
         PostingSetupMgt: Codeunit PostingSetupManagement;
+        StandardCodesMgtGlobal: Codeunit "Standard Codes Mgt.";
         ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
         CurrencyDate: Date;
         Confirmed: Boolean;
@@ -3286,6 +3288,11 @@
             PurchSetup."Default Orig. Doc. VAT Date"::"Document Date":
                 "Original Document VAT Date" := "Document Date";
         end;
+    end;
+
+    procedure SetStandardCodesMgt(var StandardCodesMgtNew: Codeunit "Standard Codes Mgt.")
+    begin
+        StandardCodesMgtGlobal := StandardCodesMgtNew;
     end;
 
     procedure AssistEdit(OldPurchHeader: Record "Purchase Header"): Boolean

@@ -1,4 +1,4 @@
-table 1205 "Credit Transfer Register"
+﻿table 1205 "Credit Transfer Register"
 {
     Caption = 'Credit Transfer Register';
     DataCaptionFields = Identifier, "Created Date-Time";
@@ -69,6 +69,14 @@ table 1205 "Credit Transfer Register"
     fieldgroups
     {
     }
+
+    trigger OnDelete()
+    var
+        CreditTransferEntry: Record "Credit Transfer Entry";
+    begin
+        CreditTransferEntry.SetRange("Credit Transfer Register No.", "No.");
+        CreditTransferEntry.DeleteAll();
+    end;
 
     var
         PaymentsFileNotFoundErr: Label 'The original payment file was not found.\Export a new file from the Payment Journal window.';

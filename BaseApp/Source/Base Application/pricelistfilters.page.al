@@ -62,6 +62,29 @@ page 7013 "Price List Filters"
                         ApplicationArea = All;
                         Importance = Promoted;
                         Enabled = SourceNoEnabled;
+                        ShowMandatory = SourceNoEnabled;
+                        Visible = UseCustomLookup;
+                        ToolTip = 'Specifies the entity to which the prices are assigned. The options depend on the selection in the Assign-to Type field. If you choose an entity, the price list will be used only for that entity.';
+                    }
+                    group(AssignToParentNoGroup)
+                    {
+                        ShowCaption = false;
+                        Visible = IsJobGroup and ParentSourceNoEnabled and not UseCustomLookup;
+                        field(AssignToParentNo; Rec."Assign-to Parent No.")
+                        {
+                            ApplicationArea = All;
+                            ShowMandatory = true;
+                            Importance = Promoted;
+                            ToolTip = 'Specifies the entity to which the prices are assigned. The options depend on the selection in the Assign-to Type field. If you choose an entity, the price list will be used only for that entity.';
+                        }
+                    }
+                    field(AssignToNo; Rec."Assign-to No.")
+                    {
+                        ApplicationArea = All;
+                        Importance = Promoted;
+                        Enabled = SourceNoEnabled;
+                        ShowMandatory = SourceNoEnabled;
+                        Visible = not UseCustomLookup;
                         ToolTip = 'Specifies the entity to which the prices are assigned. The options depend on the selection in the Assign-to Type field. If you choose an entity, the price list will be used only for that entity.';
                     }
                 }
@@ -130,7 +153,10 @@ page 7013 "Price List Filters"
     }
 
     trigger OnOpenPage()
+    var
+        PriceListLine: Record "Price List Line";
     begin
+        UseCustomLookup := PriceListLine.UseCustomizedLookup();
         Rec.Validate("Source Type");
         SourceNoEnabled := Rec.IsSourceNoAllowed();
         UpdateSourceType();
@@ -155,11 +181,20 @@ page 7013 "Price List Filters"
         JobSourceType: Enum "Job Price Source Type";
         CustomerSourceType: Enum "Sales Price Source Type";
         VendorSourceType: Enum "Purchase Price Source Type";
+        [InDataSet]
         IsCustomerGroup: Boolean;
+        [InDataSet]
         IsVendorGroup: Boolean;
+        [InDataSet]
         IsJobGroup: Boolean;
+        [InDataSet]
         SourceNoEnabled: Boolean;
+        [InDataSet]
+        ParentSourceNoEnabled: Boolean;
+        [InDataSet]
         EditablePage: Boolean;
+        [InDataSet]
+        UseCustomLookup: Boolean;
 
     procedure Set(PriceListHeader: Record "Price List Header")
     begin
@@ -169,9 +204,14 @@ page 7013 "Price List Filters"
     end;
 
     local procedure ValidateSourceType(SourceType: Integer)
+    var
+        PriceSource: Record "Price Source";
     begin
         Rec.Validate("Source Type", SourceType);
         SourceNoEnabled := Rec.IsSourceNoAllowed();
+        Rec.CopyTo(PriceSource);
+        ParentSourceNoEnabled := PriceSource.IsParentSourceAllowed();
         CurrPage.SaveRecord();
+        CurrPage.Update();
     end;
 }

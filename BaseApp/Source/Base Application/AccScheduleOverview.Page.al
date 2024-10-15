@@ -781,7 +781,7 @@ page 490 "Acc. Schedule Overview"
     begin
         Clear(ColumnValues);
 
-        if (Totaling = '') or (not TempColumnLayout.FindSet) then
+        if (Totaling = '') or (not TempColumnLayout.FindSet) or ("Schedule Name" <> CurrentSchedName) then
             exit;
 
         repeat
@@ -1114,9 +1114,14 @@ page 490 "Acc. Schedule Overview"
                (CurrentColumnName <> AccSchedName."Default Column Layout")
             then begin
                 CurrentColumnName := AccSchedName."Default Column Layout";
-                CurrentColumnNameOnAfterValidate;
-            end else
+                CurrentColumnNameOnAfterValidate();
+            end else begin
                 AccSchedManagement.CheckAnalysisView(CurrentSchedName, CurrentColumnName, true);
+                if (AccSchedName."Default Column Layout" = '') and (CurrentSchedName <> NewCurrentSchedName) then begin
+                    CurrentColumnName := Text000;
+                    CurrentColumnNameOnAfterValidate();
+                end;
+            end;
         end else
             AccSchedManagement.CheckAnalysisView(CurrentSchedName, CurrentColumnName, true);
 

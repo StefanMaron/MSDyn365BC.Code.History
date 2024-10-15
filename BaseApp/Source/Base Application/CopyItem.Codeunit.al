@@ -392,7 +392,7 @@ codeunit 730 "Copy Item"
         if PriceListLine.FindSet() then
             repeat
                 NewPriceListLine := PriceListLine;
-                NewPriceListLine."Asset No." := ToItemNo;
+                NewPriceListLine.SetAssetNo(ToItemNo);
                 NewPriceListLine.SetNextLineNo();
                 NewPriceListLine.Insert();
             until PriceListLine.Next() = 0;
