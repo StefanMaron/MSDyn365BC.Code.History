@@ -15,6 +15,7 @@ codeunit 139452 "O365 Vendor Permission Test"
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryPurchase: Codeunit "Library - Purchase";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         IsInitialized: Boolean;
 
     [Test]
@@ -174,6 +175,7 @@ codeunit 139452 "O365 Vendor Permission Test"
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
         MarketingSetup: Record "Marketing Setup";
     begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"O365 Vendor Permission Test");
         LibraryUtility.GetGlobalNoSeriesCode();
         LibrarySetupStorage.Restore();
 

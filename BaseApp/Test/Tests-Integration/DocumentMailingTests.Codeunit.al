@@ -27,10 +27,11 @@ codeunit 135060 "Document Mailing Tests"
         TempEmailItem: Record "Email Item" temporary;
         TempBlob: Codeunit "Temp Blob";
         DocumentMailing: Codeunit "Document-Mailing";
-        FileManagement: Codeunit "File Management";
         DocumentMailingTests: Codeunit "Document Mailing Tests";
         InStream: InStream;
         VariableVariant: Variant;
+        Content: Text;
+        Name: Text;
     begin
         // [SCENARIO] A File can be attached to an email using a Stream
         BindSubscription(DocumentMailingTests);
@@ -48,21 +49,20 @@ codeunit 135060 "Document Mailing Tests"
         DocumentMailingTests.GetLibraryVariableStorage(LibraryVariableStorage);
         LibraryVariableStorage.Dequeue(VariableVariant);
         TempEmailItem := VariableVariant;
-        VerifyEmailContents('Some content', TempEmailItem."Attachment File Path");
+        Content := LibraryVariableStorage.DequeueText();
+        Name := LibraryVariableStorage.DequeueText();
+        Assert.AreEqual('Some content', Content, 'Content was expected to be Some content');
+        Assert.AreEqual('new file.pdf', Name, 'Attachment Name was expected to be new file.pdf');
 
         // [THEN] The email items fields have been filled correctly
-        Assert.AreEqual('new file.pdf', TempEmailItem."Attachment Name", 'Attachment Name was expected to be new file.pdf');
-        Assert.AreEqual('a nice body', TempEmailItem.GetBodyText, 'Body was expected to be a nice body');
+        Assert.AreEqual('a nice body', TempEmailItem.GetBodyText(), 'Body was expected to be a nice body');
         Assert.AreEqual('a nice subject', TempEmailItem.Subject, 'Subject was expected to be a nice subject');
         Assert.AreEqual('someone@somewhere.com', TempEmailItem."Send to", 'Send to was expected to be someone@somewhere.com');
 
         // [THEN] The right values are set
-        VerifyValues;
+        VerifyValues();
 
-        // Clean up
-        FileManagement.DeleteServerFile(TempEmailItem."Attachment File Path");
-
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -74,10 +74,11 @@ codeunit 135060 "Document Mailing Tests"
         TempEmailItem: Record "Email Item" temporary;
         TempBlob: Codeunit "Temp Blob";
         DocumentMailing: Codeunit "Document-Mailing";
-        FileManagement: Codeunit "File Management";
         DocumentMailingTests: Codeunit "Document Mailing Tests";
         InStream: InStream;
         VariableVariant: Variant;
+        Content: Text;
+        Name: Text;
     begin
         // [SCENARIO] A HTML File can be attached to an email using a Stream
         BindSubscription(DocumentMailingTests);
@@ -94,19 +95,17 @@ codeunit 135060 "Document Mailing Tests"
         DocumentMailingTests.GetLibraryVariableStorage(LibraryVariableStorage);
         LibraryVariableStorage.Dequeue(VariableVariant);
         TempEmailItem := VariableVariant;
-        VerifyEmailContents('Some content', TempEmailItem."Body File Path");
+        Content := LibraryVariableStorage.DequeueText();
+        Name := LibraryVariableStorage.DequeueText();
 
         // [THEN] The email items fields have been filled correctly
         Assert.AreEqual('someone@somewhere.com', TempEmailItem."Send to", 'Send to was expected to be someone@somewhere.com');
         Assert.AreEqual('a nice subject', TempEmailItem.Subject, 'Subject was expected to be a nice subject');
 
         // [THEN] The right values are set
-        VerifyValues;
+        VerifyValues();
 
-        // Clean up
-        FileManagement.DeleteServerFile(TempEmailItem."Body File Path");
-
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -148,7 +147,7 @@ codeunit 135060 "Document Mailing Tests"
         IndexSalesInvoice: Integer;
     begin
         // [SCENARIO 340331] Job Queue sending posted sales invoices by email must log errors happened in SMTP mail codeunit
-        Initialize;
+        Initialize();
         SetupDefaultEmailSendingProfile(DocumentSendingProfile);
         JobQueueEntry.SetRange("Job Queue Category Code", MailingJobCategoryCodeTok);
         JobQueueEntry.DeleteAll();
@@ -191,7 +190,7 @@ codeunit 135060 "Document Mailing Tests"
         repeat
             CODEUNIT.Run(Codeunit::"Job Queue Dispatcher", JobQueueEntry);
             Assert.IsFalse(IsNullGuid(JobQueueEntry."Error Message Register Id"), 'Email error must be registered');
-        until JobQueueEntry.Next = 0;
+        until JobQueueEntry.Next() = 0;
 
         LibraryVariableStorage.AssertEmpty();
     end;
@@ -217,8 +216,24 @@ codeunit 135060 "Document Mailing Tests"
 
     [EventSubscriber(ObjectType::Codeunit, 260, 'OnBeforeSendEmail', '', false, false)]
     local procedure OnBeforeSendEmail(var TempEmailItem: Record "Email Item" temporary; IsFromPostedDoc: Boolean; PostedDocNo: Code[20]; HideDialog: Boolean; ReportUsage: Integer)
+    var
+        Attachments: Codeunit "Temp Blob List";
+        Attachment: Codeunit "Temp Blob";
+        AttachemntNames: List of [Text];
+        InStream: InStream;
+        AttachmentContent: Text;
+        AttachmentName: Text;
     begin
         LibraryVariableStorage.Enqueue(TempEmailItem);
+        TempEmailItem.GetAttachments(Attachments, AttachemntNames);
+        if Attachments.Count() > 0 then begin
+            AttachmentName := AttachemntNames.Get(1);
+            Attachments.Get(1, Attachment);
+            Attachment.CreateInStream(InStream);
+            InStream.Read(AttachmentContent);
+        end;
+        LibraryVariableStorage.Enqueue(AttachmentContent);
+        LibraryVariableStorage.Enqueue(AttachmentName);
         LibraryVariableStorage.Enqueue(IsFromPostedDoc);
         LibraryVariableStorage.Enqueue(PostedDocNo);
         LibraryVariableStorage.Enqueue(HideDialog);
@@ -240,7 +255,7 @@ codeunit 135060 "Document Mailing Tests"
         SMTPMailSetup.DeleteAll();
 
         SMTPMailSetup.Init();
-        SMTPMailSetup."SMTP Server" := LibraryUtility.GenerateGUID;
+        SMTPMailSetup."SMTP Server" := LibraryUtility.GenerateGUID();
         SMTPMailSetup."SMTP Server Port" := 25;
         SMTPMailSetup.Insert();
     end;
@@ -258,18 +273,6 @@ codeunit 135060 "Document Mailing Tests"
             "Electronic Document" := "Electronic Document"::No;
             Insert();
         end;
-    end;
-
-    local procedure VerifyEmailContents(Content: Text; FilePath: Text)
-    var
-        TempFile: File;
-        Instream: InStream;
-    begin
-        TempFile.Open(FilePath);
-        TempFile.CreateInStream(Instream);
-        Instream.ReadText(Content);
-        Assert.AreEqual('Some content', Content, 'Content was expected to be Some content');
-        TempFile.Close();
     end;
 
     local procedure VerifyValues()

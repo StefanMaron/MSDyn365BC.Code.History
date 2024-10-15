@@ -1122,6 +1122,8 @@ codeunit 99000774 "Calculate Routing Line"
         ProdOrderRoutingLine."Expected Capacity Ovhd. Cost" := 0;
         ProdOrderRoutingLine."Expected Capacity Need" := 0;
 
+        OnCalculateRoutingLineOnBeforeProdOrderCapNeedReset(ProdOrderRoutingLine, ProdOrderRoutingLine2);
+
         ProdOrderCapNeed.Reset();
         ProdOrderCapNeed.SetRange(Status, ProdOrderRoutingLine.Status);
         ProdOrderCapNeed.SetRange("Prod. Order No.", ProdOrderRoutingLine."Prod. Order No.");
@@ -2038,6 +2040,11 @@ codeunit 99000774 "Calculate Routing Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnCalculateRoutingLineOnBeforeCalcExpectedOperOutput(var ProdOrderLine: Record "Prod. Order Line"; var ExpectedOperOutput: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculateRoutingLineOnBeforeProdOrderCapNeedReset(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; ProdOrderRoutingLine2: Record "Prod. Order Routing Line")
     begin
     end;
 

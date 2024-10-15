@@ -21,14 +21,13 @@ table 9 "Country/Region"
 
             trigger OnValidate()
             var
-                DotNet_Regex: Codeunit DotNet_Regex;
+                Regex: Codeunit Regex;
             begin
                 if "ISO Code" = '' then
                     exit;
                 if StrLen("ISO Code") < MaxStrLen("ISO Code") then
                     Error(ISOCodeLengthErr, StrLen("ISO Code"), MaxStrLen("ISO Code"), "ISO Code");
-                DotNet_Regex.Regex('^[a-zA-Z]*$');
-                if not DotNet_Regex.IsMatch("ISO Code") then
+                if not Regex.IsMatch("ISO Code", '^[a-zA-Z]*$') then
                     FieldError("ISO Code", ASCIILetterErr);
             end;
         }

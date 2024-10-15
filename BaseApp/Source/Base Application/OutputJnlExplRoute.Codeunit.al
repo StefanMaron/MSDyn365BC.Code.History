@@ -1,4 +1,4 @@
-codeunit 5406 "Output Jnl.-Expl. Route"
+﻿codeunit 5406 "Output Jnl.-Expl. Route"
 {
     Permissions = TableData "Item Journal Line" = imd,
                   TableData "Prod. Order Line" = r,
@@ -99,11 +99,13 @@ codeunit 5406 "Output Jnl.-Expl. Route"
                               ProdOrderLine."Unit of Measure Code",
                               BaseQtyToPost / ProdOrderLine."Qty. per Unit of Measure",
                               IsLastOperation);
+                            OnRunOnAfterInsertOutputJnlLineWithRtngLine(ItemJnlLine, ProdOrderLine, ProdOrderRtngLine, NextLineNo);
                             if IsLastOperation then
                                 ItemTrackingMgt.CopyItemTracking(ProdOrderLine.RowID1, LastItemJnlLine.RowID1, false);
                         end;
                     end;
-                until ProdOrderRtngLine.Next = 0;
+                    OnRunOnProdRtngLineLoopEnd(ProdOrderRtngLine, ProdOrderLine, ItemJnlLine, NextLineNo, LineSpacing, LastItemJnlLine);
+                until ProdOrderRtngLine.Next() = 0;
             end else
                 if ProdOrderLine."Remaining Quantity" > 0 then begin
                     OnBeforeInsertOutputJnlLineWithoutRtngLine(Rec, ProdOrderLine);
@@ -121,7 +123,7 @@ codeunit 5406 "Output Jnl.-Expl. Route"
                     OnAfterInsertOutputJnlLineWithoutRtngLine(ItemJnlLine, ProdOrderLine, ProdOrderRtngLine, NextLineNo);
                     ItemTrackingMgt.CopyItemTracking(ProdOrderLine.RowID1, LastItemJnlLine.RowID1, false);
                 end;
-        until ProdOrderLine.Next = 0;
+        until ProdOrderLine.Next() = 0;
 
         ItemJnlLineReserve.DeleteLine(Rec);
 
@@ -204,6 +206,16 @@ codeunit 5406 "Output Jnl.-Expl. Route"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeOutputItemJnlLineInsert(var ItemJournalLine: Record "Item Journal Line"; LastOperation: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnAfterInsertOutputJnlLineWithRtngLine(var ItemJournalLine: Record "Item Journal Line"; var ProdOrderLine: Record "Prod. Order Line"; var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; var NextLineNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnProdRtngLineLoopEnd(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; var ProdOrderLine: Record "Prod. Order Line"; var ItemJnlLine: Record "Item Journal Line"; var NextLineNo: Integer; LineSpacing: Integer; var LastItemJnlLine: Record "Item Journal Line")
     begin
     end;
 }

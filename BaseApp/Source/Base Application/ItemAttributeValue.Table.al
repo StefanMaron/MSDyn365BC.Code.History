@@ -265,6 +265,7 @@ table 7501 "Item Attribute Value"
 
     procedure SetValueFilter(var ItemAttribute: Record "Item Attribute"; FilterText: Text)
     var
+        SelectionFilterManagement: Codeunit "SelectionFilterManagement";
         IndexOfOrCondition: Integer;
     begin
         SetRange("Numeric Value");
@@ -288,7 +289,7 @@ table 7501 "Item Attribute Value"
                 end
             end;
 
-        SetFilter(Value, FilterText);
+        SetFilter(Value, SelectionFilterManagement.AddQuotes(FilterText));
     end;
 
     local procedure IsNumeric(var ItemAttribute: Record "Item Attribute"): Boolean

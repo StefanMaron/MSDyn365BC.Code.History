@@ -392,6 +392,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Table BCPT Line - NamedType ParameterNotSupportedErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Table 1790936437 - NamedType 1537695194" ItemType=";Table - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Codeunit with SubType "Test" cannot be executed in background.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Table BCPT Line - NamedType RunInBackgroundNotSupportedErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1790936437 - NamedType 3137703201" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Scenario %1 was not started.]]></Val>
@@ -644,6 +653,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT CommandLine Card - Control No. of Instances - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Page 2352947468 - Control 2759637069 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Specifies the number of BCPT Suite Lines present in the BCPT Suite]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT CommandLine Card - Control No. of Tests - Property ToolTip)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Page 2352947468 - Action 2869752321 - Property 1295455071" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Starts the next available test.]]></Val>
@@ -651,6 +669,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT CommandLine Card - Action StartNext - Property ToolTip)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 2352947468 - Action 794668995 - Property 1295455071" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Starts the next available test in PRT mode.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT CommandLine Card - Action StartNextPRT - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 2352947468 - NamedType 1971001358" ItemType=";Page - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

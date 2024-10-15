@@ -1,4 +1,4 @@
-codeunit 426 "Payment Tolerance Management"
+﻿codeunit 426 "Payment Tolerance Management"
 {
     Permissions = TableData Currency = r,
                   TableData "Cust. Ledger Entry" = rim,
@@ -852,12 +852,18 @@ codeunit 426 "Payment Tolerance Management"
         exit(false);
     end;
 
-    local procedure CallPmtDiscTolWarning(PostingDate: Date; No: Code[20]; DocNo: Code[20]; CurrencyCode: Code[10]; Amount: Decimal; AppliedAmount: Decimal; PmtDiscAmount: Decimal; var RemainingAmountTest: Boolean; AccountType: Option Customer,Vendor): Boolean
+    local procedure CallPmtDiscTolWarning(PostingDate: Date; No: Code[20]; DocNo: Code[20]; CurrencyCode: Code[10]; Amount: Decimal; AppliedAmount: Decimal; PmtDiscAmount: Decimal; var RemainingAmountTest: Boolean; AccountType: Option Customer,Vendor) Result: Boolean
     var
         GenJnlPostPreview: Codeunit "Gen. Jnl.-Post Preview";
         PmtDiscTolWarning: Page "Payment Disc Tolerance Warning";
         ActionType: Integer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCallPmtDiscTolWarning(PostingDate, No, DocNo, CurrencyCode, Amount, AppliedAmount, PmtDiscAmount, RemainingAmountTest, AccountType, ActionType, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if PmtDiscAmount = 0 then begin
             RemainingAmountTest := false;
             exit(true);
@@ -2172,6 +2178,11 @@ codeunit 426 "Payment Tolerance Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcRemainingPmtDisc(var NewCVLedgEntryBuf: Record "CV Ledger Entry Buffer"; var OldCVLedgEntryBuf: Record "CV Ledger Entry Buffer"; var OldCVLedgEntryBuf2: Record "CV Ledger Entry Buffer"; GLSetup: Record "General Ledger Setup"; var Handled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCallPmtDiscTolWarning(PostingDate: Date; No: Code[20]; DocNo: Code[20]; CurrencyCode: Code[10]; Amount: Decimal; AppliedAmount: Decimal; PmtDiscAmount: Decimal; var RemainingAmountTest: Boolean; AccountType: Option Customer,Vendor; var ActionType: Integer; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 

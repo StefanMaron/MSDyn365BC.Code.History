@@ -35,6 +35,8 @@ codeunit 137621 "SCM Costing Bugs II"
         InsufficientQtyErr: Label 'You have insufficient quantity of Item %1', Comment = '%1 - Item No.';
         STRMENUWasNotCalledTxt: Label 'STRMENU was not called';
         ValueIsNotPopulatedTxt: Label 'Value is not populated';
+        ListOf3SuggestAssignmentStrMenuTxt: Label 'Equally,By Weight,By Volume';
+        ListOf4SuggestAssignmentStrMenuTxt: Label 'Equally,By Amount,By Weight,By Volume';
 
     [Test]
     [HandlerFunctions('ViewAppliedEntriesHandler,ViewUnappliedEntriesModalHandler,ConfirmYesHandler')]
@@ -1272,12 +1274,12 @@ codeunit 137621 "SCM Costing Bugs II"
     end;
 
     [Test]
+    [HandlerFunctions('StrMenuHandler')]
     [Scope('OnPrem')]
     procedure CheckSuggestAssgntDialogueForDifferentReceipts()
     var
         PurchaseLine: Record "Purchase Line";
         ItemChargeAssgntPurch: Codeunit "Item Charge Assgnt. (Purch.)";
-        StrMenuCalled: Boolean;
     begin
         // [FEATURE] [Item Charge] [Suggest Assignment]
         // [SCENARIO 380487] If "Item Charge Assignment (Purch)" have different "Applies-to Doc. Type" then Suggest Item Charge Assignment function provides Dialog with Options Equally,Amount.
@@ -1286,14 +1288,12 @@ codeunit 137621 "SCM Costing Bugs II"
         // [GIVEN] "Item Charge Assignment (Purch)" for "Sales Shipment Line" and "Transfer Receipt Line"
         CreateItemChargeAssgntPurchForSalesShptLineAndTransferReceiptLine(PurchaseLine);
 
-        LibraryVariableStorage.Enqueue(StrMenuCalled); // Enque FALSE for handler
-
         // [WHEN] Suggest Assignment
         ItemChargeAssgntPurch.SuggestAssgnt(PurchaseLine, PurchaseLine.Quantity, PurchaseLine."Line Amount");
 
-        // [THEN] STRMENU occurs
-        StrMenuCalled := LibraryVariableStorage.DequeueBoolean; // STRMENU called flag
-        Assert.IsFalse(StrMenuCalled, STRMENUWasNotCalledTxt);
+        // [THEN] STRMENU shows with 3 choices: "Equally", "By Weight", "By Volume"
+        Assert.AreEqual(ListOf3SuggestAssignmentStrMenuTxt, LibraryVariableStorage.DequeueText, '');
+        LibraryVariableStorage.AssertEmpty;
     end;
 
     [Test]
@@ -1717,6 +1717,79 @@ codeunit 137621 "SCM Costing Bugs II"
         FindItemLedgerEntry(ItemLedgerEntry, Item."No.", ItemLedgerEntry."Entry Type"::Transfer, Location[1].Code, false);
         ItemLedgerEntry.CalcFields("Cost Amount (Actual)");
         ItemLedgerEntry.TestField("Cost Amount (Actual)", -(79 * 20.0 + 1 * 18.0));
+    end;
+
+    [Test]
+    [HandlerFunctions('StrMenuHandler')]
+    [Scope('OnPrem')]
+    procedure CheckSuggestAssgntStrMenuForReceipts()
+    var
+        PurchaseLine: Record "Purchase Line";
+        ItemChargeAssgntPurch: Codeunit "Item Charge Assgnt. (Purch.)";
+    begin
+        // [FEATURE] [Item Charge] [Suggest Assignment]
+        // [SCENARIO 380487] If all "Item Charge Assignment (Purch)" have "Applies-to Doc. Type" Sales Shipment then Suggest Item Charge Assignment function provides Dialog with Options Equally,Amount.
+        Initialize();
+
+        // [GIVEN] "Item Charge Assignment (Purch)" for "Sales Shipment Line"
+        CreateItemChargeAssgntPurchForSalesShptLine(PurchaseLine);
+        InsertItemChargeAssgntPurchForSalesShptLine(PurchaseLine);
+
+        // [WHEN] Suggest Assignment
+        ItemChargeAssgntPurch.SuggestAssgnt(PurchaseLine, PurchaseLine.Quantity, PurchaseLine."Line Amount");
+
+        // [THEN] STRMENU occurs
+        // [THEN] STRMENU shows with 4 choices: "Equally", "By Amount", "By Weight", "By Volume"
+        Assert.AreEqual(ListOf4SuggestAssignmentStrMenuTxt, LibraryVariableStorage.DequeueText, '');
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CostApplicationFalseOnValuedByAverageCostOutboundEntryAppliedToTransferReceipt()
+    var
+        Item: Record Item;
+        LocationFrom: Record Location;
+        LocationTo: Record Location;
+        LocationInTransit: Record Location;
+        ItemJournalLine: Record "Item Journal Line";
+        TransferHeader: Record "Transfer Header";
+        TransferLine: Record "Transfer Line";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        ItemApplicationEntry: Record "Item Application Entry";
+        Qty: Decimal;
+    begin
+        // [FEATURE] [Average Costing Method] [Item Application Entry] [Cost Application] [Transfer]
+        // [SCENARIO 378792] "Cost Application" is false for outbound entry valued by average cost applied to transfer receipt for item with costing method = "Average"
+        Initialize();
+
+        // [GIVEN] Item with costing method = "Average".
+        CreateItem(Item, Item."Costing Method"::Average, 0, Item."Replenishment System"::Purchase, 1);
+        LibraryWarehouse.CreateTransferLocations(LocationFrom, LocationTo, LocationInTransit);
+        Qty := LibraryRandom.RandIntInRange(10, 20);
+
+        // [GIVEN] Post sales for "X" pcs on location "To".
+        // [GIVEN] This results in negative inventory on "To" and Value Entry with "Valued by Average Cost" = TRUE.
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", LocationTo.Code, '', Qty);
+        ItemJournalLine.Validate("Entry Type", ItemJournalLine."Entry Type"::Sale);
+        ItemJournalLine.Modify(true);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [GIVEN] Post positive inventory adjustment for "X" pcs on location "From".
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", LocationFrom.Code, '', Qty);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [WHEN] Transfer the inventory from "From" to "To" in order to fulfill the sales.
+        LibraryInventory.CreateTransferHeader(TransferHeader, LocationFrom.Code, LocationTo.Code, LocationInTransit.Code);
+        LibraryInventory.CreateTransferLine(TransferHeader, TransferLine, Item."No.", Qty);
+        LibraryInventory.PostTransferHeader(TransferHeader, true, true);
+
+        // [THEN] "Cost Application" is FALSE on item application entry for item entry type of "Sale".
+        FindItemLedgerEntry(ItemLedgerEntry, Item."No.", ItemLedgerEntry."Entry Type"::Sale, LocationTo.Code, false);
+        ItemApplicationEntry.SetRange("Outbound Item Entry No.", ItemLedgerEntry."Entry No.");
+        ItemApplicationEntry.SetRange("Item Ledger Entry No.", ItemLedgerEntry."Entry No.");
+        ItemApplicationEntry.FindFirst();
+        ItemApplicationEntry.TestField("Cost Application", false);
     end;
 
     local procedure Initialize()
@@ -2497,6 +2570,14 @@ codeunit 137621 "SCM Costing Bugs II"
     procedure ConfirmYesHandler(Question: Text; var Reply: Boolean)
     begin
         Reply := true;
+    end;
+
+    [StrMenuHandler]
+    [Scope('OnPrem')]
+    procedure StrMenuHandler(Option: Text[1024]; var Choice: Integer; Instruction: Text[1024])
+    begin
+        LibraryVariableStorage.Enqueue(Option);
+        Choice := 1;
     end;
 }
 

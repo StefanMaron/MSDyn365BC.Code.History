@@ -811,7 +811,7 @@ codeunit 6710 ODataUtility
                 ValueStringParam := ValueStringParam.Concat(ValueStringParam, ValueStringPortion);
                 ValueStringPortion := FilterSegmentsParam.GetValue(IndexParm);
                 IndexParm += 1;
-            until ValueStringPortion.LastIndexOf(SingleTick) > 0;
+            until ValueStringPortion.LastIndexOf(SingleTick) >= 0; // ValueStringPortion is a dotnet string which returns -1 if nothing is found
         end;
 
         // Now that the string has been put back together if needed, remove leading and trailing SingleTick

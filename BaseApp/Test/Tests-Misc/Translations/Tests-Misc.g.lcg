@@ -6440,24 +6440,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Table Relation Test - NamedType InvalidTableRelationErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 3612693136 - NamedType 2901118885" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Field %1 should be true]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test ApplicationArea Setup - NamedType FieldShouldBeTrueMsg)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3612693136 - NamedType 3634506460" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Field %1 should be false]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test ApplicationArea Setup - NamedType FieldShouldBeFalseMsg)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 1876108779 - NamedType 564528070" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Wrong IsToReportInbox value.]]></Val>

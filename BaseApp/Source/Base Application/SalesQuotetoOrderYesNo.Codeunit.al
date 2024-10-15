@@ -12,9 +12,8 @@ codeunit 83 "Sales-Quote to Order (Yes/No)"
             exit;
 
         TestField("Document Type", "Document Type"::Quote);
-        if GuiAllowed then
-            if not Confirm(ConfirmConvertToOrderQst, false) then
-                exit;
+        if not ConfirmConvertToOrder(Rec) then
+            exit;
 
         if CheckCustomerCreated(true) then
             Get("Document Type"::Quote, "No.")
@@ -53,6 +52,22 @@ codeunit 83 "Sales-Quote to Order (Yes/No)"
         exit(IsHandled);
     end;
 
+    local procedure ConfirmConvertToOrder(SalesHeader: Record "Sales Header") Result: Boolean
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeConfirmConvertToOrder(SalesHeader, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
+        if GuiAllowed then
+            if not Confirm(ConfirmConvertToOrderQst, false) then
+                exit(false);
+
+        exit(true);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterSalesQuoteToOrderRun(var SalesHeader2: Record "Sales Header")
     begin
@@ -60,6 +75,11 @@ codeunit 83 "Sales-Quote to Order (Yes/No)"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeRun(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeConfirmConvertToOrder(SalesHeader: Record "Sales Header"; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 }
