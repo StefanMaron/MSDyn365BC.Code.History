@@ -93,11 +93,11 @@ pageextension 5314 "Audit Export Doc. Card SIE" extends "Audit File Export Doc. 
     local procedure IsSIEFormat(): Boolean
     var
         AuditFileExportSetup: Record "Audit File Export Setup";
-        AuditFileExportFormat: enum "Audit File Export Format";
+        AuditFileExportFormat: Enum "Audit File Export Format";
         IsSIEFormatSelected: Boolean;
     begin
         AuditFileExportFormat := Rec."Audit File Export Format";
-        if AuditFileExportFormat = 0 then begin     // if not initialized yet
+        if AuditFileExportFormat = Enum::"Audit File Export Format"::None then begin
             AuditFileExportSetup.Get();
             AuditFileExportFormat := AuditFileExportSetup."Audit File Export Format";
         end;

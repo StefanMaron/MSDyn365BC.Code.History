@@ -1475,7 +1475,7 @@
         if SuppressTotals then
             exit;
 
-        OnBeforeDeltaUpdateTotals(Rec, xRec);
+        OnBeforeDeltaUpdateTotals(Rec, xRec, SuppressTotals);
 
         DocumentTotals.SalesDeltaUpdateTotals(Rec, xRec, TotalSalesLine, VATAmount, InvoiceDiscountAmount, InvoiceDiscountPct);
         if Rec."Line Amount" <> xRec."Line Amount" then
@@ -1620,7 +1620,7 @@
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnBeforeDeltaUpdateTotals(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line")
+    local procedure OnBeforeDeltaUpdateTotals(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line"; SuppressTotals: Boolean)
     begin
     end;
 }

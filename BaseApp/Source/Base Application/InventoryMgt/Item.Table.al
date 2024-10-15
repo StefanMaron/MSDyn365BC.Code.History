@@ -2608,7 +2608,7 @@ table 27 Item
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeOnInsert(Rec, IsHandled);
+        OnBeforeOnInsert(Rec, IsHandled, xRec);
         if not IsHandled then begin
             if "No." = '' then begin
                 GetInvtSetup();
@@ -2631,10 +2631,16 @@ table 27 Item
     end;
 
     trigger OnModify()
+    var
+        IsHandled: Boolean;
     begin
         UpdateReferencedIds();
         SetLastDateTimeModified();
-        PlanningAssignment.ItemChange(Rec, xRec);
+
+        IsHandled := false;
+        OnModifyOnBeforePlanningAssignmentItemChange(Rec, xRec, PlanningAssignment, IsHandled);
+        if not IsHandled then
+            PlanningAssignment.ItemChange(Rec, xRec);
 
         UpdateItemUnitGroup();
     end;
@@ -2870,7 +2876,8 @@ table 27 Item
         InventorySetup.TestField("Item Nos.");
         if NoSeriesMgt.SelectSeries(InventorySetup."Item Nos.", xRec."No. Series", "No. Series") then begin
             NoSeriesMgt.SetSeries("No.");
-            Validate("No.");
+            if xRec."No." = '' then
+                "Costing Method" := InventorySetup."Default Costing Method";
             exit(true);
         end;
     end;
@@ -4121,7 +4128,7 @@ table 27 Item
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeOnInsert(var Item: Record Item; var IsHandled: Boolean)
+    local procedure OnBeforeOnInsert(var Item: Record Item; var IsHandled: Boolean; xRecItem: Record Item)
     begin
     end;
 
@@ -4362,6 +4369,11 @@ table 27 Item
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateProductionBOMNoOnAfterProcessStatusCertified(ProductionBOMHeader: Record "Production BOM Header"; var Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnModifyOnBeforePlanningAssignmentItemChange(var Item: Record Item; xItem: Record Item; PlanningAssignment: Record "Planning Assignment"; var IsHandled: Boolean)
     begin
     end;
 }

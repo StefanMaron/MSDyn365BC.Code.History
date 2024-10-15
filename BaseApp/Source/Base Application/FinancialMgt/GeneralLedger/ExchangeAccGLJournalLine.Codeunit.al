@@ -56,12 +56,14 @@ codeunit 366 "Exchange Acc. G/L Journal Line"
             "Source Curr. VAT Base Amount" := "VAT Base Amount";
             "Source Curr. VAT Amount" := "VAT Amount";
         end;
+        NonDeductibleVAT.ExchangeAccGLJournalLine(Rec, GenJnlLine2);
 
         OnAfterOnRun(Rec, GenJnlLine2);
     end;
 
     var
         GenJnlLine2: Record "Gen. Journal Line";
+        NonDeductibleVAT: Codeunit "Non-Deductible VAT";
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterOnRun(var GenJournalLine: Record "Gen. Journal Line"; GenJournalLine2: Record "Gen. Journal Line")

@@ -279,7 +279,7 @@ page 5314 "SIE Setup Wizard"
 
         AuditFileExportSetup.InitSetup(AuditFileExportFormat::SIE);
         AuditFileExportFormatSetup.InitSetup(AuditFileExportFormat::SIE, SIEManagement.GetAuditFileName(), false);
-        AuditMappingHelper.GetDefaultGLAccountMappingHeader(Rec);
+        AuditMappingHelper.GetDefaultGLAccountMappingHeader(Rec, Enum::"Audit File Export Format"::SIE);
         Rec.SetRecFilter();
         Step := Step::Start;
         EnableControls();

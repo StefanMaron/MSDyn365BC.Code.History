@@ -41,13 +41,20 @@ codeunit 5316 "SIE Management"
             end;
         end;
     end;
+
+    procedure SIEFormatSetupExists(): Boolean
+    var
+        AuditFileExportFormatSetup: Record "Audit File Export Format Setup";
+    begin
+        exit(AuditFileExportFormatSetup.Get("Audit File Export Format"::SIE));
+    end;
+
 #if not CLEAN22
     procedure IsFeatureEnabled() IsEnabled: Boolean
     var
-        AuditFileExportFormatSetup: Record "Audit File Export Format Setup";
         FeatureMgtFacade: Codeunit "Feature Management Facade";
     begin
-        IsEnabled := FeatureMgtFacade.IsEnabled(GetSIEAuditFileExportFeatureKeyId()) and AuditFileExportFormatSetup.Get("Audit File Export Format"::SIE);
+        IsEnabled := FeatureMgtFacade.IsEnabled(GetSIEAuditFileExportFeatureKeyId());
         OnAfterCheckFeatureEnabled(IsEnabled);
     end;
 
@@ -63,16 +70,22 @@ codeunit 5316 "SIE Management"
 
     local procedure UpgradeDimensionSIE()
     var
+        Company: Record Company;
         SIEDimensionOld: Record "SIE Dimension";
         DimensionSIENew: Record "Dimension SIE";
     begin
-        DimensionSIENew.DeleteAll();
-
-        if SIEDimensionOld.FindSet() then
+        if Company.FindSet() then
             repeat
-                DimensionSIENew.TransferFields(SIEDimensionOld);
-                DimensionSIENew.Insert();
-            until SIEDimensionOld.Next() = 0;
+                SIEDimensionOld.ChangeCompany(Company.Name);
+                DimensionSIENew.ChangeCompany(Company.Name);
+
+                DimensionSIENew.DeleteAll();
+                if SIEDimensionOld.FindSet() then
+                    repeat
+                        DimensionSIENew.TransferFields(SIEDimensionOld);
+                        DimensionSIENew.Insert();
+                    until SIEDimensionOld.Next() = 0;
+            until Company.Next() = 0;
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Feature Management Facade", 'OnAfterFeatureEnableConfirmed', '', true, true)]

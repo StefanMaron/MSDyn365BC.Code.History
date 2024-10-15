@@ -914,7 +914,7 @@ codeunit 333 "Req. Wksh.-Make Order"
             ReqLine2.SetRange("Currency Code", PurchOrderHeader."Currency Code");
             ReqLine2.SetRange("Purchasing Code", PrevPurchCode);
             IsHandled := false;
-            OnFinalizeOrderHeaderOnAfterSetFiltersForNonRecurringReqLine(ReqLine2, PurchOrderHeader, IsHandled);
+            OnFinalizeOrderHeaderOnAfterSetFiltersForNonRecurringReqLine(ReqLine2, PurchOrderHeader, IsHandled, TempFailedReqLine);
             if not IsHandled then
                 if ReqLine2.FindSet() then begin
                     ReqLine2.BlockDynamicTracking(true);
@@ -1637,7 +1637,7 @@ codeunit 333 "Req. Wksh.-Make Order"
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnFinalizeOrderHeaderOnAfterSetFiltersForNonRecurringReqLine(var RequisitionLine: Record "Requisition Line"; PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    local procedure OnFinalizeOrderHeaderOnAfterSetFiltersForNonRecurringReqLine(var RequisitionLine: Record "Requisition Line"; PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean; var TempFailedRequisitionLine: Record "Requisition Line" temporary)
     begin
     end;
 

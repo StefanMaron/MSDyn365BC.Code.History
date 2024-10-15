@@ -919,7 +919,7 @@ page 233 "Apply Vendor Entries"
             ApplnCurrencyCode := TempApplyingVendLedgEntry."Currency Code";
             "Remit-to Code" := TempApplyingVendLedgEntry."Remit-to Code";
         end;
-        OnSetApplyingVendLedgEntryOnBeforeCalcTypeDirectCalcApplnAmount(ApplyingAmount, TempApplyingVendLedgEntry);
+        OnSetApplyingVendLedgEntryOnBeforeCalcTypeDirectCalcApplnAmount(ApplyingAmount, TempApplyingVendLedgEntry, Rec);
     end;
 
     procedure SetVendApplId(CurrentRec: Boolean)
@@ -1011,6 +1011,7 @@ page 233 "Apply Vendor Entries"
                         if TempApplyingVendLedgEntry."Entry No." <> 0 then begin
                             VendLedgEntry.CalcFields("Remaining Amount");
                             AppliedVendLedgEntry.SetFilter("Entry No.", '<>%1', VendLedgEntry."Entry No.");
+                            OnCalcApplnAmountOnAfterAppliedVendLedgEntrySetFilter(AppliedVendLedgEntry, VendLedgEntry, Rec);
                         end;
 
                         HandleChosenEntries(
@@ -1604,7 +1605,7 @@ page 233 "Apply Vendor Entries"
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnSetApplyingVendLedgEntryOnBeforeCalcTypeDirectCalcApplnAmount(var ApplyingAmount: Decimal; var ApplyingVendorLedgerEntry: Record "Vendor Ledger Entry")
+    local procedure OnSetApplyingVendLedgEntryOnBeforeCalcTypeDirectCalcApplnAmount(var ApplyingAmount: Decimal; var ApplyingVendorLedgerEntry: Record "Vendor Ledger Entry"; var VendorLedgerEntry: Record "Vendor Ledger Entry")
     begin
     end;
 
@@ -1635,6 +1636,11 @@ page 233 "Apply Vendor Entries"
 
     [IntegrationEvent(false, false)]
     local procedure OnQueryClosePageOnAfterEarlierPostingDateTest(ApplyingVendorLedgerEntry: Record "Vendor Ledger Entry"; VendorLedgerEntry: Record "Vendor Ledger Entry"; CalcType: Enum "Vendor Apply Calculation Type"; var OK: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcApplnAmountOnAfterAppliedVendLedgEntrySetFilter(var AppliedVendorLedgerEntry: Record "Vendor Ledger Entry"; VendorLedgerEntry: Record "Vendor Ledger Entry"; var RecVendorLedgerEntry: Record "Vendor Ledger Entry")
     begin
     end;
 }

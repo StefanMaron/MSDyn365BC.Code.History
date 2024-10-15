@@ -501,6 +501,8 @@ report 1309 "Standard Sales - Return Rcpt."
                 if not IsReportInPreviewMode() then
                     CODEUNIT.Run(CODEUNIT::"Return Receipt - Printed", Header);
 
+                OnHeaderOnAfterGetRecordOnAfterUpdateNoPrinted(IsReportInPreviewMode(), Header);
+
                 FormatAddressFields(Header);
                 FormatDocumentFields(Header);
                 if SellToContact.Get("Sell-to Contact No.") then;
@@ -769,6 +771,11 @@ report 1309 "Standard Sales - Return Rcpt."
 
     [IntegrationEvent(TRUE, FALSE)]
     local procedure OnAfterGetSalesHeader(ReturnReceiptHeader: Record "Return Receipt Header")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnHeaderOnAfterGetRecordOnAfterUpdateNoPrinted(ReportInPreviewMode: Boolean; var ReturnReceiptHeader: Record "Return Receipt Header")
     begin
     end;
 }
