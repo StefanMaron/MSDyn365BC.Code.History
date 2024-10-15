@@ -12,27 +12,27 @@ report 32000000 "Import Ref. Payment"
             trigger OnPostDataItem()
             var
                 FileMgt: Codeunit "File Management";
-                BackupFileName: Text;
+                ServerTempFileName: Text;
+                DownloadToFileName: Text;
             begin
-                BankFile.Close;
-                if FileMgt.IsLocalFileSystemAccessible then begin
-                    BackUp := '.000';
-                    BackupFileName := FileMgt.ClientTempFileName('');
+                BackUp := '.000';
+                DownloadToFileName := FileMgt.GetFileName(FileName) + BackUp;
 
-                    while FileMgt.ClientFileExists(BackupFileName + BackUp) do
-                        BackUp := IncStr(BackUp);
+                ServerTempFileName := FileMgt.ServerTempFileName('');
+                FileMgt.BLOBExportToServerFile(TempBlob, ServerTempFileName);
+                FileMgt.DownloadHandler(ServerTempFileName, '', '', '', DownloadToFileName);
 
-                    FileMgt.DownloadToFile(FileName, BackupFileName + BackUp);
-                end;
                 MatchPayments.MatchLines(TemplateName, BatchName);
             end;
 
             trigger OnPreDataItem()
             var
                 FileMgt: Codeunit "File Management";
+                FileInStream: InStream;
                 Year: Integer;
                 Month: Integer;
                 Day: Integer;
+                Line: Text;
             begin
                 if FindSet then
                     repeat
@@ -42,31 +42,28 @@ report 32000000 "Import Ref. Payment"
                 MatchPayments.GetRefPmtImportTemp(RefPmtImportTemp);
                 if BankAccCode = '' then
                     Error(Text1090000);
-                BankFile.TextMode(true);
                 FileSetup.SetFilter("No.", BankAccCode);
                 if not FileSetup.FindFirst then
                     Error(Text1090002, BankAccCode);
 
                 if FileName = '' then begin
-                    FileName := FileMgt.ServerTempFileName('');
-                    if not Upload(OpenRefFileTxt, '', '', '', FileName) then
-                        CurrReport.Quit;
+                    FileName := FileMgt.UploadFile(OpenRefFileTxt, '');
+                    if FileName = '' then
+                        CurrReport.Quit();
                 end;
-                BankFile.Open(FileName);
 
                 if RefPmtImport.FindLast then begin
                     LineNo := RefPmtImport."No." + 1;
                     BatchNo := RefPmtImport."Batch No." + 1;
                 end;
 
-                Counter := 0;
-                LineCounter := Round(BankFile.Len, 1);
-                LineCounter := Round(BankFile.Len / 92, 1);
-                if LineCounter < 1 then
+                FileMgt.BLOBImportFromServerFile(TempBlob, FileName);
+                if not TempBlob.HasValue() then
                     exit;
+                TempBlob.CreateInStream(FileInStream);
 
-                repeat
-                    BankFile.Read(Line);
+                while not FileInStream.EOS() do begin
+                    FileInStream.ReadText(Line);
                     LineCode := CopyStr(Line, 1, 1);
 
                     if LineCode = '0' then begin
@@ -154,8 +151,7 @@ report 32000000 "Import Ref. Payment"
                                 LineNo := LineNo + 1;
                                 BatchNo := BatchNo + 1;
                             end;
-                    Counter := Counter + 1;
-                until Counter >= LineCounter;
+                end;
             end;
         }
     }
@@ -195,9 +191,9 @@ report 32000000 "Import Ref. Payment"
         FileSetup: Record "Reference File Setup";
         RefPmtImport: Record "Ref. Payment - Imported";
         RefPmtImportTemp: Record "Ref. Payment - Imported" temporary;
+        TempBlob: Codeunit "Temp Blob";
         BankAccFormat: Codeunit "Bank Nos Check";
         MatchPayments: Codeunit "Ref. Payment Management";
-        BankFile: File;
         LineAmount: Integer;
         LineAmountAll: Integer;
         LineAmountFaild: Integer;
@@ -207,9 +203,6 @@ report 32000000 "Import Ref. Payment"
         LinePostingDate: Date;
         LinePaymentDate: Date;
         LineReference: Text[20];
-        Line: Text[90];
-        Counter: Integer;
-        LineCounter: Integer;
         RefCounter: Integer;
         RefStartPos: Integer;
         BankAccCode: Code[20];
