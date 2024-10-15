@@ -19,6 +19,9 @@
       "path": "./hybridbasedeployment/test/HybridBaseDeploymentTest"
     },
     {
+      "path": "./vatgroupmanagement/test/VATGroupManagementTest"
+    },
+    {
       "path": "./apiv1/test/APIV1Test"
     },
     {
