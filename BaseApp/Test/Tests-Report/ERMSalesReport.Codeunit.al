@@ -3118,6 +3118,35 @@ codeunit 134976 "ERM Sales Report"
         LibraryReportDataset.AssertElementTagWithValueExists('CrossReferenceNo_Line_Lbl', SalesLine.FieldCaption("Cross-Reference No."));
     end;
 
+    [Test]
+    [HandlerFunctions('CustomerDetailedAgingRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure CustomerDetailedAgingHasProperCaption()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        Customer: Record Customer;
+    begin
+        // [FEATURE] [Customer] [Customer Detailed Aging]
+        // [SCENARIO 349053] Report "Customer Detailed Aging" shows proper caption text for Customer when running with a filter.
+        Initialize();
+
+        // [GIVEN] Customer was created
+        LibrarySales.CreateCustomer(Customer);
+
+        // [GIVEN] An invoice was posted for the Customer
+        CreatePostGeneralJournalLine(
+          GenJournalLine, GenJournalLine."Document Type"::Invoice, Customer."No.", '', LibraryRandom.RandDec(100, 2), WorkDate);
+
+        // [WHEN] The Customer Detailed Aging report is ran with a filter
+        RunCustomerDetailedAging(GenJournalLine);
+        // UI handled by CustomerDetailedAgingRequestPageHandler
+
+        // [THEN] Resulting dataset has Customer table caption in it
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueExists('Customer_TABLECAPTION_CustFilter',
+          StrSubstNo('%1: %2: %3', Customer.TableCaption, Customer.FieldCaption("No."), Customer."No."));
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Sales Report");
