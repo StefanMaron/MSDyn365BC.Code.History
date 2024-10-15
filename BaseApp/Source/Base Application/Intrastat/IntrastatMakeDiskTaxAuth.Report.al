@@ -238,7 +238,7 @@ report 593 "Intrastat - Make Disk Tax Auth"
             JournalType := 'A';
         IntrastatFileWriter.WriteLine(
             'T' + ',' +
-            DelChr(CompanyInfo."VAT Registration No.", '=', DelChr(CompanyInfo."VAT Registration No.", '=', '0123456789')) + ',' +
+            IntraJnlManagement.GetCompanyVATRegNo + ',' +
             ',' +
             CopyStr(CompanyInfo.Name, 1, 30) + ',' +
             NilReturnCode + ',' +
