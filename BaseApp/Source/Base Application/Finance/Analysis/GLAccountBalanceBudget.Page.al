@@ -297,14 +297,16 @@ page 154 "G/L Account Balance/Budget"
     var
         GLAcc: Record "G/L Account";
         GLSetup: Record "General Ledger Setup";
-        PeriodType: Enum "Analysis Period Type";
-        AmountType: Enum "Analysis Amount Type";
-        ClosingEntryFilter: Option Include,Exclude;
         GlobalDim1FilterEnable: Boolean;
         GlobalDim2FilterEnable: Boolean;
         DateFilter: Text;
         GlobalDim1Filter: Text;
         GlobalDim2Filter: Text;
+
+    protected var
+        PeriodType: Enum "Analysis Period Type";
+        AmountType: Enum "Analysis Amount Type";
+        ClosingEntryFilter: Option Include,Exclude;
 
     local procedure UpdateSubForm()
     begin

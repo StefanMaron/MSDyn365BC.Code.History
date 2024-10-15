@@ -4,7 +4,7 @@
   "publisher": "Microsoft",
   "brief": "The Digital Vouchers extension makes it easy to generate digital version for every general ledger register.",
   "description": "In some countries authorities require to make sure that for every single general ledger register ther is a digital vouchers assigned.",
-  "version": "24.3.21374.21517",
+  "version": "24.4.22295.22576",
   "privacyStatement": "https://go.microsoft.com/fwlink/?LinkId=724009",
   "EULA": "https://go.microsoft.com/fwlink/?linkid=2009120",
   "help": "https://learn.microsoft.com/en-us/dynamics365/business-central/across-how-setup-digital-vouchers",
@@ -18,6 +18,11 @@
     {
       "id": "928f7b70-0dbd-431a-beb5-f45c4adbd361",
       "name": "Enforced Digital Vouchers Test Library",
+      "publisher": "Microsoft"
+    },
+    {
+      "id": "bb837764-d7cc-4b7b-898a-3ea5a1fab62f",
+      "name": "Enforced Digital Vouchers (DK)",
       "publisher": "Microsoft"
     }
   ],
@@ -35,6 +40,6 @@
     "allowDownloadingSource": true,
     "includeSourceInSymbolFile": true
   },
-  "application": "24.3.0.0",
+  "application": "24.4.0.0",
   "target": "Cloud"
 }

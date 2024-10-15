@@ -198,6 +198,7 @@ codeunit 5139 "Job Archive Management"
             Job.Init();
             Job."No." := JobArchive."No.";
             Job.TransferFields(JobArchive);
+            OnRestoreJobOnBeforeInsertJob(JobArchive, Job);
             Job.Insert(true);
             RecordLinkManagement.CopyLinks(JobArchive, Job);
             Job.Modify(true);
@@ -246,6 +247,7 @@ codeunit 5139 "Job Archive Management"
 
         JobTask.Init();
         JobTask.TransferFields(JobTaskArchive);
+        OnRestoreSingleJobTaskOnBeforeInsertJobTask(JobTaskArchive, JobTask);
         JobTask.Insert(true);
         RecordLinkManagement.CopyLinks(JobTaskArchive, JobTask);
         JobTask.Modify(true);
@@ -264,6 +266,7 @@ codeunit 5139 "Job Archive Management"
             repeat
                 JobPlanningLine.Init();
                 JobPlanningLine.TransferFields(JobPlanningLineArchive);
+                OnRestoreJobPlanningLinesOnBeforeInsertJobPlanningLine(JobPlanningLineArchive, JobPlanningLine);
                 JobPlanningLine.Insert(true);
                 RecordLinkManagement.CopyLinks(JobPlanningLineArchive, JobPlanningLine);
                 JobPlanningLine.Modify(true);
@@ -362,6 +365,21 @@ codeunit 5139 "Job Archive Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCheckJobRestorePermissions(JobArchive: Record "Job Archive"; var Job: Record Job)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRestoreSingleJobTaskOnBeforeInsertJobTask(var JobTaskArchive: Record "Job Task Archive"; var JobTask: Record "Job Task")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRestoreJobPlanningLinesOnBeforeInsertJobPlanningLine(var JobPlanningLineArchive: Record "Job Planning Line Archive"; var JobPlanningLine: Record "Job Planning Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRestoreJobOnBeforeInsertJob(JobArchive: Record "Job Archive"; var Job: Record Job)
     begin
     end;
 }

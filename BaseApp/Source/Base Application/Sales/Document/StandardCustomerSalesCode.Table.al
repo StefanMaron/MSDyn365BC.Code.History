@@ -229,6 +229,7 @@ table 172 "Standard Customer Sales Code"
                     SalesLine.SetSalesHeader(SalesHeader);
                     SalesLine."Line No." := 0;
                     SalesLine.Validate(Type, StdSalesLine.Type);
+                    OnApplyStdCodesToSalesLinesOnAfterValidateType(SalesLine, StdSalesLine);
                     if StdSalesLine.Type = StdSalesLine.Type::" " then begin
                         SalesLine.Validate("No.", StdSalesLine."No.");
                         SalesLine.Description := StdSalesLine.Description;
@@ -450,6 +451,11 @@ table 172 "Standard Customer Sales Code"
 
     [IntegrationEvent(false, false)]
     local procedure OnApplyStdCodesToSalesLinesOnBeforeRoundUnitPrice(var SalesLine: Record "Sales Line"; StandardSalesLine: Record "Standard Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnApplyStdCodesToSalesLinesOnAfterValidateType(var SalesLine: Record "Sales Line"; var StandardSalesLine: Record "Standard Sales Line")
     begin
     end;
 }

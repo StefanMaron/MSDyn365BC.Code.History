@@ -112,10 +112,17 @@ codeunit 7044 "Price Asset - Resource Group" implements "Price Asset"
         PriceAsset."Unit of Measure Code" := '';
         PriceAsset."Variant Code" := '';
         PriceAsset."Work Type Code" := '';
+
+        OnAfterFillAdditionalFields(PriceAsset, ResourceGroup);
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterPutRelatedAssetsToList(PriceAsset: Record "Price Asset"; var PriceAssetList: Codeunit "Price Asset List")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterFillAdditionalFields(var PriceAsset: Record "Price Asset"; ResourceGroup: Record "Resource Group")
     begin
     end;
 }

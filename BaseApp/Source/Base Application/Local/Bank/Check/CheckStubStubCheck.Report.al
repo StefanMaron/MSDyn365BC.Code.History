@@ -931,7 +931,7 @@ report 10401 "Check (Stub/Stub/Check)"
                             end else begin
                                 Clear(CheckAmountText);
                                 Clear(DescriptionLine);
-                                DescriptionLine[1] := Text021;
+                                DescriptionLine[1] := CopyStr(Text021, 1, MaxStrLen(descriptionline[1]));
                                 DescriptionLine[2] := DescriptionLine[1];
                                 VoidText := Text022;
                             end;

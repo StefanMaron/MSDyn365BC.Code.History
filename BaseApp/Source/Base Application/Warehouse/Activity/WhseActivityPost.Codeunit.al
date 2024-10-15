@@ -816,6 +816,7 @@ codeunit 7324 "Whse.-Activity-Post"
                             PostSourceDoc();
                     end;
 
+        OnPostWhseActivityLineOnBeforeCreatePostedActivHeader(WhseActivHeader);
         CreatePostedActivHeader(WhseActivHeader, PostedInvtPutAwayHeader, PostedInvtPickHeader);
 
         repeat
@@ -1904,6 +1905,11 @@ codeunit 7324 "Whse.-Activity-Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckProdOrderLine(var ProdOrderLine: Record "Prod. Order Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnPostWhseActivityLineOnBeforeCreatePostedActivHeader(var WarehouseActivityHeader: Record "Warehouse Activity Header")
     begin
     end;
 }

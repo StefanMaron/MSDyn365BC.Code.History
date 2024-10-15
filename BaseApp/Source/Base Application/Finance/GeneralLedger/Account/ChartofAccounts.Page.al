@@ -16,6 +16,7 @@ using Microsoft.Foundation.ExtendedText;
 using Microsoft.Purchases.Reports;
 #if not CLEAN24
 using System.Environment.Configuration;
+using System.Environment;
 #endif
 
 page 16 "Chart of Accounts"
@@ -833,13 +834,18 @@ page 16 "Chart of Accounts"
         GLSetup: Record "General Ledger Setup";
 #if not CLEAN24
         FeatureKeyManagement: Codeunit "Feature Key Management";
+        ClientTypeManagement: Codeunit "Client Type Management";
 #endif
     begin
         GLSetup.Get();
         AmountVisible := not (GLSetup."Show Amounts" = GLSetup."Show Amounts"::"Debit/Credit Only");
         DebitCreditVisible := not (GLSetup."Show Amounts" = GLSetup."Show Amounts"::"Amount Only");
 #if not CLEAN24
-        SourceCurrencyVisible := FeatureKeyManagement.IsGLCurrencyRevaluationEnabled();
+        if ClientTypeManagement.GetCurrentClientType() in [CLIENTTYPE::SOAP, CLIENTTYPE::OData, CLIENTTYPE::ODataV4, ClientType::Api]
+        then
+            SourceCurrencyVisible := false
+        else
+            SourceCurrencyVisible := FeatureKeyManagement.IsGLCurrencyRevaluationEnabled();
 #endif
     end;
 }

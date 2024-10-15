@@ -909,7 +909,7 @@ report 10412 "Check (Check/Stub/Stub)"
                             end else begin
                                 Clear(CheckAmountText);
                                 Clear(DescriptionLine);
-                                DescriptionLine[1] := Text021Txt;
+                                DescriptionLine[1] := CopyStr(Text021Txt, 1, MaxStrLen(descriptionline[1]));
                                 DescriptionLine[2] := DescriptionLine[1];
                                 VoidText := Text022Txt;
                             end;

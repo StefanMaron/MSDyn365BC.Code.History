@@ -34,6 +34,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         MultipleDocumentsFoundForIdErr: Label 'Multiple documents have been found for the specified criteria.';
         SalesAccountIsMissingTxt: Label 'Sales Account is missing in General Posting Setup.';
         CogsAccountIsMissingTxt: Label 'COGS Account is missing in General Posting Setup.';
+        DueDateMustBeUpdatedTxt: Label 'Due Date must be udpadated';
         SalesVatAccountIsMissingTxt: Label 'Sales VAT Account is missing in VAT Posting Setup.';
 
     local procedure Initialize()
@@ -121,6 +122,62 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
 
         // Verify
         VerifyAggregateTableIsUpdatedForInvoice(SalesInvoice."No.".Value());
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifyUpdateonPostedInvoice()
+    var
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesInvoiceEntityAggregate: Record "Sales Invoice Entity Aggregate";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        TempFieldBuffer: Record "Field Buffer" temporary;
+        SalesInvoiceAggregator: Codeunit "Sales Invoice Aggregator";
+        NewDueDate: Date;
+    begin
+        // [SCENARIO 539272] Suport update of Posted Sales Invoice
+        Initialize();
+        // [GIVEN] a Posted Sales Invocie ]
+        CreatePostedInvoiceNoDiscount(SalesInvoiceHeader);
+
+        // [WHEN] update "Due Date" on the document 
+        TempFieldBuffer.DeleteAll();
+        SalesInvoiceEntityAggregate.get(SalesInvoiceHeader."No.", true);
+        NewDueDate := CalcDate('<+1D>', Today());
+        SalesInvoiceEntityAggregate."Due Date" := NewDueDate;
+        RegisterFieldSet(TempFieldBuffer, SalesInvoiceEntityAggregate.FieldNo("Due Date"));
+        SalesInvoiceAggregator.PropagateOnModify(SalesInvoiceEntityAggregate, TempFieldBuffer);
+
+        // [THEN] Due Date must be updated on the Posted Sales Invocie and the related Customer Ledger Entry
+        CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Invoice);
+        CustLedgerEntry.SetRange("Document No.", SalesInvoiceHeader."No.");
+        CustLedgerEntry.FindLast();
+        Assert.AreEqual(NewDueDate, CustLedgerEntry."Due Date", DueDateMustBeUpdatedTxt);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifyUpdateonPostedInvoiceForANonWitheListedField()
+    var
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesInvoiceEntityAggregate: Record "Sales Invoice Entity Aggregate";
+        TempFieldBuffer: Record "Field Buffer" temporary;
+        SalesInvoiceAggregator: Codeunit "Sales Invoice Aggregator";
+        NewBillToAddress: Text[100];
+    begin
+        // [SCENARIO 539272] Suport update of Posted Sales Invoice
+        Initialize();
+        // [GIVEN] a Posted Sales Invocie ]
+        CreatePostedInvoiceNoDiscount(SalesInvoiceHeader);
+
+        // [WHEN] update "Due Date" on the document 
+        TempFieldBuffer.DeleteAll();
+        SalesInvoiceEntityAggregate.get(SalesInvoiceHeader."No.", true);
+        NewBillToAddress := LibraryUtility.GenerateRandomText(MaxStrLen(NewBillToAddress));
+        SalesInvoiceEntityAggregate."Bill-to Address" := NewBillToAddress;
+        RegisterFieldSet(TempFieldBuffer, SalesInvoiceEntityAggregate.FieldNo("Bill-to Address"));
+        // [THEN] Update of Invoice should fail
+        asserterror SalesInvoiceAggregator.PropagateOnModify(SalesInvoiceEntityAggregate, TempFieldBuffer);
     end;
 
     [Test]
