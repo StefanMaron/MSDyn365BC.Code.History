@@ -1623,8 +1623,8 @@ codeunit 134984 "ERM Sales Report III"
 
         // [THEN] Payment line has been printed with Description = "X", Amount = "A"
         LibraryReportValidation.OpenFile;
-        LibraryReportValidation.VerifyCellValueByRef('K', 63, 1, ExternalDocNo);
-        LibraryReportValidation.VerifyCellValueByRef('O', 63, 1, LibraryReportValidation.FormatDecimalValue(Amount));
+        LibraryReportValidation.VerifyCellValueByRef('K', 65, 1, ExternalDocNo);
+        LibraryReportValidation.VerifyCellValueByRef('O', 65, 1, LibraryReportValidation.FormatDecimalValue(Amount));
     end;
 
     [Test]

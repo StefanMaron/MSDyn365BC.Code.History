@@ -1,6 +1,7 @@
 page 4000 "Hybrid Cloud Setup Wizard"
 {
     Caption = 'Data Migration Setup';
+    AdditionalSearchTerms = 'migration,data migration,cloud migration,intelligent,cloud,sync,replication';
     DeleteAllowed = false;
     InsertAllowed = false;
     LinksAllowed = false;
@@ -520,8 +521,9 @@ page 4000 "Hybrid Cloud Setup Wizard"
                     NavApp.GetCurrentModuleInfo(Info);
                     AssistedSetup.Complete(Info.Id(), PAGE::"Hybrid Cloud Setup Wizard");
                     Validate("Replication User", UserId());
-                    CurrPage.Close();
+                    CheckAndCleanupTableMapping();
 
+                    CurrPage.Close();
                     HybridCloudManagement.CreateCompanies();
                 end;
             }
@@ -566,6 +568,17 @@ page 4000 "Hybrid Cloud Setup Wizard"
             if (AssistedSetup.ExistsAndIsNotComplete(PAGE::"Hybrid Cloud Setup Wizard")) and IsSaas then
                 if not Confirm(HybridNotSetupQst, false) then
                     error('');
+    end;
+
+    local procedure CheckAndCleanupTableMapping()
+    var
+        MigrationTableMapping: Record "Migration Table Mapping";
+        IntelligentCloudManagement: Page "Intelligent Cloud Management";
+        CanMapTables: Boolean;
+    begin
+        IntelligentCloudManagement.CanMapCustomTables(CanMapTables);
+        if not CanMapTables then
+            MigrationTableMapping.DeleteAll();
     end;
 
     protected var

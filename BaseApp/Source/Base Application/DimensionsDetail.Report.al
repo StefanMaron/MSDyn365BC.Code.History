@@ -621,7 +621,7 @@ report 28 "Dimensions - Detail"
         FindFirstGLEntry: array[5] of Boolean;
         DimCode: array[4] of Text[30];
         DimValCode: array[4] of Code[20];
-        DimValName: array[4] of Text[50];
+        DimValName: array[4] of Text[100];
         LevelFilter: array[4] of Text[250];
         AddRepCurrency: Text[50];
         LCYCODE: Text[50];

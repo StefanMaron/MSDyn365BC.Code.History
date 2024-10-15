@@ -15,6 +15,7 @@ codeunit 134449 "County Visibility Test"
         LibraryERM: Codeunit "Library - ERM";
         LibrarySales: Codeunit "Library - Sales";
         LibraryPurchase: Codeunit "Library - Purchase";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         IsInitialized: Boolean;
         CountyVisibleTxt: Label 'County field %1 should be visible';
         CountyNotVisibleTxt: Label 'County field %1 should not be visible';
@@ -26,14 +27,14 @@ codeunit 134449 "County Visibility Test"
     var
         CustomerCard: TestPage "Customer Card";
     begin
-        Initialize;
+        Initialize();
 
-        CustomerCard.OpenNew;
+        CustomerCard.OpenNew();
         CustomerCard."Country/Region Code".Value := CountryWithoutCounty.Code;
         Assert.IsFalse(CustomerCard.County.Visible, StrSubstNo(CountyNotVisibleTxt, 'County'));
         CustomerCard."Country/Region Code".Value := CountryWithCounty.Code;
         Assert.IsTrue(CustomerCard.County.Visible, StrSubstNo(CountyVisibleTxt, 'County'));
-        CustomerCard.Close;
+        CustomerCard.Close();
     end;
 
     [Test]
@@ -43,14 +44,14 @@ codeunit 134449 "County Visibility Test"
     var
         VendorCard: TestPage "Vendor Card";
     begin
-        Initialize;
+        Initialize();
 
-        VendorCard.OpenNew;
+        VendorCard.OpenNew();
         VendorCard."Country/Region Code".Value := CountryWithoutCounty.Code;
         Assert.IsFalse(VendorCard.County.Visible, StrSubstNo(CountyNotVisibleTxt, 'County'));
         VendorCard."Country/Region Code".Value := CountryWithCounty.Code;
         Assert.IsTrue(VendorCard.County.Visible, StrSubstNo(CountyVisibleTxt, 'County'));
-        VendorCard.Close;
+        VendorCard.Close();
     end;
 
     [Test]
@@ -59,14 +60,14 @@ codeunit 134449 "County Visibility Test"
     var
         ResourceCard: TestPage "Resource Card";
     begin
-        Initialize;
+        Initialize();
 
-        ResourceCard.OpenNew;
+        ResourceCard.OpenNew();
         ResourceCard."Country/Region Code".Value := CountryWithoutCounty.Code;
         Assert.IsFalse(ResourceCard.County.Visible, StrSubstNo(CountyNotVisibleTxt, 'County'));
         ResourceCard."Country/Region Code".Value := CountryWithCounty.Code;
         Assert.IsTrue(ResourceCard.County.Visible, StrSubstNo(CountyVisibleTxt, 'County'));
-        ResourceCard.Close;
+        ResourceCard.Close();
     end;
 
     [Test]
@@ -75,14 +76,14 @@ codeunit 134449 "County Visibility Test"
     var
         JobCard: TestPage "Job Card";
     begin
-        Initialize;
+        Initialize();
 
-        JobCard.OpenNew;
+        JobCard.OpenNew();
         JobCard."Bill-to Country/Region Code".Value := CountryWithoutCounty.Code;
         Assert.IsFalse(JobCard."Bill-to County".Visible, StrSubstNo(CountyNotVisibleTxt, 'County'));
         JobCard."Bill-to Country/Region Code".Value := CountryWithCounty.Code;
         Assert.IsTrue(JobCard."Bill-to County".Visible, StrSubstNo(CountyVisibleTxt, 'County'));
-        JobCard.Close;
+        JobCard.Close();
     end;
 
     [Test]
@@ -91,14 +92,14 @@ codeunit 134449 "County Visibility Test"
     var
         EmployeeCard: TestPage "Employee Card";
     begin
-        Initialize;
+        Initialize();
 
-        EmployeeCard.OpenNew;
+        EmployeeCard.OpenNew();
         EmployeeCard."Country/Region Code".Value := CountryWithoutCounty.Code;
         Assert.IsFalse(EmployeeCard.County.Visible, StrSubstNo(CountyNotVisibleTxt, 'County'));
         EmployeeCard."Country/Region Code".Value := CountryWithCounty.Code;
         Assert.IsTrue(EmployeeCard.County.Visible, StrSubstNo(CountyVisibleTxt, 'County'));
-        EmployeeCard.Close;
+        EmployeeCard.Close();
     end;
 
     [Test]
@@ -109,11 +110,11 @@ codeunit 134449 "County Visibility Test"
         SalesLine: Record "Sales Line";
         SalesOrder: TestPage "Sales Order";
     begin
-        Initialize;
+        Initialize();
 
         LibrarySales.CreateSalesDocumentWithItem(SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', '', 1, '', 0D);
 
-        SalesOrder.OpenNew;
+        SalesOrder.OpenNew();
         SalesOrder."Sell-to Country/Region Code".Value := CountryWithoutCounty.Code;
         Assert.IsFalse(SalesOrder."Sell-to County".Visible, StrSubstNo(CountyNotVisibleTxt, 'Sell-to County'));
         SalesOrder."Sell-to Country/Region Code".Value := CountryWithCounty.Code;
@@ -130,7 +131,7 @@ codeunit 134449 "County Visibility Test"
         Assert.IsFalse(SalesOrder."Ship-to County".Visible, StrSubstNo(CountyNotVisibleTxt, 'Ship-to County'));
         SalesOrder."Ship-to Country/Region Code".Value := CountryWithCounty.Code;
         Assert.IsTrue(SalesOrder."Ship-to County".Visible, StrSubstNo(CountyVisibleTxt, 'Ship-to County'));
-        SalesOrder.Close;
+        SalesOrder.Close();
     end;
 
     [Test]
@@ -141,11 +142,11 @@ codeunit 134449 "County Visibility Test"
         SalesLine: Record "Sales Line";
         SalesQuote: TestPage "Sales Quote";
     begin
-        Initialize;
+        Initialize();
 
         LibrarySales.CreateSalesDocumentWithItem(SalesHeader, SalesLine, SalesHeader."Document Type"::Quote, '', '', 1, '', 0D);
 
-        SalesQuote.OpenNew;
+        SalesQuote.OpenNew();
         SalesQuote."Sell-to Country/Region Code".Value := CountryWithoutCounty.Code;
         Assert.IsFalse(SalesQuote."Sell-to County".Visible, StrSubstNo(CountyNotVisibleTxt, 'Sell-to County'));
         SalesQuote."Sell-to Country/Region Code".Value := CountryWithCounty.Code;
@@ -162,7 +163,7 @@ codeunit 134449 "County Visibility Test"
         Assert.IsFalse(SalesQuote."Ship-to County".Visible, StrSubstNo(CountyNotVisibleTxt, 'Ship-to County'));
         SalesQuote."Ship-to Country/Region Code".Value := CountryWithCounty.Code;
         Assert.IsTrue(SalesQuote."Ship-to County".Visible, StrSubstNo(CountyVisibleTxt, 'Ship-to County'));
-        SalesQuote.Close;
+        SalesQuote.Close();
     end;
 
     [Test]
@@ -173,11 +174,11 @@ codeunit 134449 "County Visibility Test"
         SalesLine: Record "Sales Line";
         SalesInvoice: TestPage "Sales Invoice";
     begin
-        Initialize;
+        Initialize();
 
         LibrarySales.CreateSalesDocumentWithItem(SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice, '', '', 1, '', 0D);
 
-        SalesInvoice.OpenNew;
+        SalesInvoice.OpenNew();
         SalesInvoice."Sell-to Country/Region Code".Value := CountryWithoutCounty.Code;
         Assert.IsFalse(SalesInvoice."Sell-to County".Visible, StrSubstNo(CountyNotVisibleTxt, 'Sell-to County'));
         SalesInvoice."Sell-to Country/Region Code".Value := CountryWithCounty.Code;
@@ -194,7 +195,7 @@ codeunit 134449 "County Visibility Test"
         Assert.IsFalse(SalesInvoice."Ship-to County".Visible, StrSubstNo(CountyNotVisibleTxt, 'Ship-to County'));
         SalesInvoice."Ship-to Country/Region Code".Value := CountryWithCounty.Code;
         Assert.IsTrue(SalesInvoice."Ship-to County".Visible, StrSubstNo(CountyVisibleTxt, 'Ship-to County'));
-        SalesInvoice.Close;
+        SalesInvoice.Close();
     end;
 
     [Test]
@@ -205,11 +206,11 @@ codeunit 134449 "County Visibility Test"
         SalesLine: Record "Sales Line";
         SalesCreditMemo: TestPage "Sales Credit Memo";
     begin
-        Initialize;
+        Initialize();
 
         LibrarySales.CreateSalesDocumentWithItem(SalesHeader, SalesLine, SalesHeader."Document Type"::"Credit Memo", '', '', 1, '', 0D);
 
-        SalesCreditMemo.OpenNew;
+        SalesCreditMemo.OpenNew();
         SalesCreditMemo."Sell-to Country/Region Code".Value := CountryWithoutCounty.Code;
         Assert.IsFalse(SalesCreditMemo."Sell-to County".Visible, StrSubstNo(CountyNotVisibleTxt, 'Sell-to County'));
         SalesCreditMemo."Sell-to Country/Region Code".Value := CountryWithCounty.Code;
@@ -219,7 +220,7 @@ codeunit 134449 "County Visibility Test"
         Assert.IsFalse(SalesCreditMemo."Bill-to County".Visible, StrSubstNo(CountyNotVisibleTxt, 'Bill-to County'));
         SalesCreditMemo."Bill-to Country/Region Code".Value := CountryWithCounty.Code;
         Assert.IsTrue(SalesCreditMemo."Bill-to County".Visible, StrSubstNo(CountyVisibleTxt, 'Bill-to County'));
-        SalesCreditMemo.Close;
+        SalesCreditMemo.Close();
     end;
 
     [Test]
@@ -230,11 +231,11 @@ codeunit 134449 "County Visibility Test"
         SalesLine: Record "Sales Line";
         SalesReturnOrder: TestPage "Sales Return Order";
     begin
-        Initialize;
+        Initialize();
 
         LibrarySales.CreateSalesDocumentWithItem(SalesHeader, SalesLine, SalesHeader."Document Type"::"Return Order", '', '', 1, '', 0D);
 
-        SalesReturnOrder.OpenNew;
+        SalesReturnOrder.OpenNew();
         SalesReturnOrder."Sell-to Country/Region Code".Value := CountryWithoutCounty.Code;
         Assert.IsFalse(SalesReturnOrder."Sell-to County".Visible, StrSubstNo(CountyNotVisibleTxt, 'Sell-to County'));
         SalesReturnOrder."Sell-to Country/Region Code".Value := CountryWithCounty.Code;
@@ -249,7 +250,7 @@ codeunit 134449 "County Visibility Test"
         Assert.IsFalse(SalesReturnOrder."Ship-to County".Visible, StrSubstNo(CountyNotVisibleTxt, 'Ship-to County'));
         SalesReturnOrder."Ship-to Country/Region Code".Value := CountryWithCounty.Code;
         Assert.IsTrue(SalesReturnOrder."Ship-to County".Visible, StrSubstNo(CountyVisibleTxt, 'Ship-to County'));
-        SalesReturnOrder.Close;
+        SalesReturnOrder.Close();
     end;
 
     [Test]
@@ -261,7 +262,7 @@ codeunit 134449 "County Visibility Test"
         SalesShipmentHeader: Record "Sales Shipment Header";
         PostedSalesShipment: TestPage "Posted Sales Shipment";
     begin
-        Initialize;
+        Initialize();
 
         LibrarySales.CreateSalesDocumentWithItem(SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', '', 1, '', 0D);
         SalesHeader."Sell-to Country/Region Code" := CountryWithoutCounty.Code;
@@ -269,12 +270,12 @@ codeunit 134449 "County Visibility Test"
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         SalesShipmentHeader.SetRange("Sell-to Customer No.", SalesHeader."Sell-to Customer No.");
-        SalesShipmentHeader.FindFirst;
+        SalesShipmentHeader.FindFirst();
 
-        PostedSalesShipment.OpenView;
+        PostedSalesShipment.OpenView();
         PostedSalesShipment.GotoRecord(SalesShipmentHeader);
         Assert.IsFalse(PostedSalesShipment."Sell-to County".Visible, StrSubstNo(CountyNotVisibleTxt, 'Sell-to County'));
-        PostedSalesShipment.Close;
+        PostedSalesShipment.Close();
     end;
 
     [Test]
@@ -286,7 +287,7 @@ codeunit 134449 "County Visibility Test"
         SalesShipmentHeader: Record "Sales Shipment Header";
         PostedSalesShipment: TestPage "Posted Sales Shipment";
     begin
-        Initialize;
+        Initialize();
 
         LibrarySales.CreateSalesDocumentWithItem(SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', '', 1, '', 0D);
         SalesHeader."Bill-to Country/Region Code" := CountryWithoutCounty.Code;
@@ -294,12 +295,12 @@ codeunit 134449 "County Visibility Test"
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         SalesShipmentHeader.SetRange("Bill-to Customer No.", SalesHeader."Bill-to Customer No.");
-        SalesShipmentHeader.FindFirst;
+        SalesShipmentHeader.FindFirst();
 
-        PostedSalesShipment.OpenView;
+        PostedSalesShipment.OpenView();
         PostedSalesShipment.GotoRecord(SalesShipmentHeader);
         Assert.IsFalse(PostedSalesShipment."Bill-to County".Visible, StrSubstNo(CountyNotVisibleTxt, 'Bill-to County'));
-        PostedSalesShipment.Close;
+        PostedSalesShipment.Close();
     end;
 
     [Test]
@@ -311,7 +312,7 @@ codeunit 134449 "County Visibility Test"
         SalesShipmentHeader: Record "Sales Shipment Header";
         PostedSalesShipment: TestPage "Posted Sales Shipment";
     begin
-        Initialize;
+        Initialize();
 
         LibrarySales.CreateSalesDocumentWithItem(SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', '', 1, '', 0D);
         SalesHeader."Sell-to Country/Region Code" := CountryWithCounty.Code;
@@ -319,12 +320,12 @@ codeunit 134449 "County Visibility Test"
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         SalesShipmentHeader.SetRange("Sell-to Customer No.", SalesHeader."Sell-to Customer No.");
-        SalesShipmentHeader.FindFirst;
+        SalesShipmentHeader.FindFirst();
 
-        PostedSalesShipment.OpenView;
+        PostedSalesShipment.OpenView();
         PostedSalesShipment.GotoRecord(SalesShipmentHeader);
         Assert.IsFalse(PostedSalesShipment."Sell-to County".Visible, StrSubstNo(CountyVisibleTxt, 'Sell-to County'));
-        PostedSalesShipment.Close;
+        PostedSalesShipment.Close();
     end;
 
     [Test]
@@ -336,7 +337,7 @@ codeunit 134449 "County Visibility Test"
         SalesShipmentHeader: Record "Sales Shipment Header";
         PostedSalesShipment: TestPage "Posted Sales Shipment";
     begin
-        Initialize;
+        Initialize();
 
         LibrarySales.CreateSalesDocumentWithItem(SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', '', 1, '', 0D);
         SalesHeader."Bill-to Country/Region Code" := CountryWithCounty.Code;
@@ -344,12 +345,12 @@ codeunit 134449 "County Visibility Test"
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         SalesShipmentHeader.SetRange("Bill-to Customer No.", SalesHeader."Bill-to Customer No.");
-        SalesShipmentHeader.FindFirst;
+        SalesShipmentHeader.FindFirst();
 
-        PostedSalesShipment.OpenView;
+        PostedSalesShipment.OpenView();
         PostedSalesShipment.GotoRecord(SalesShipmentHeader);
         Assert.IsFalse(PostedSalesShipment."Bill-to County".Visible, StrSubstNo(CountyVisibleTxt, 'Bill-to County'));
-        PostedSalesShipment.Close;
+        PostedSalesShipment.Close();
     end;
 
     [Test]
@@ -361,7 +362,7 @@ codeunit 134449 "County Visibility Test"
         SalesInvoiceHeader: Record "Sales Invoice Header";
         PostedSalesInvoice: TestPage "Posted Sales Invoice";
     begin
-        Initialize;
+        Initialize();
 
         LibrarySales.CreateSalesDocumentWithItem(SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', '', 1, '', 0D);
         SalesHeader."Sell-to Country/Region Code" := CountryWithoutCounty.Code;
@@ -369,12 +370,12 @@ codeunit 134449 "County Visibility Test"
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         SalesInvoiceHeader.SetRange("Sell-to Customer No.", SalesHeader."Sell-to Customer No.");
-        SalesInvoiceHeader.FindFirst;
+        SalesInvoiceHeader.FindFirst();
 
-        PostedSalesInvoice.OpenView;
+        PostedSalesInvoice.OpenView();
         PostedSalesInvoice.GotoRecord(SalesInvoiceHeader);
         Assert.IsFalse(PostedSalesInvoice."Sell-to County".Visible, StrSubstNo(CountyNotVisibleTxt, 'Sell-to County'));
-        PostedSalesInvoice.Close;
+        PostedSalesInvoice.Close();
     end;
 
     [Test]
@@ -386,7 +387,7 @@ codeunit 134449 "County Visibility Test"
         SalesInvoiceHeader: Record "Sales Invoice Header";
         PostedSalesInvoice: TestPage "Posted Sales Invoice";
     begin
-        Initialize;
+        Initialize();
 
         LibrarySales.CreateSalesDocumentWithItem(SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', '', 1, '', 0D);
         SalesHeader."Bill-to Country/Region Code" := CountryWithoutCounty.Code;
@@ -394,12 +395,12 @@ codeunit 134449 "County Visibility Test"
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         SalesInvoiceHeader.SetRange("Bill-to Customer No.", SalesHeader."Bill-to Customer No.");
-        SalesInvoiceHeader.FindFirst;
+        SalesInvoiceHeader.FindFirst();
 
-        PostedSalesInvoice.OpenView;
+        PostedSalesInvoice.OpenView();
         PostedSalesInvoice.GotoRecord(SalesInvoiceHeader);
         Assert.IsFalse(PostedSalesInvoice."Bill-to County".Visible, StrSubstNo(CountyNotVisibleTxt, 'Bill-to County'));
-        PostedSalesInvoice.Close;
+        PostedSalesInvoice.Close();
     end;
 
     [Test]
@@ -411,7 +412,7 @@ codeunit 134449 "County Visibility Test"
         SalesInvoiceHeader: Record "Sales Invoice Header";
         PostedSalesInvoice: TestPage "Posted Sales Invoice";
     begin
-        Initialize;
+        Initialize();
 
         LibrarySales.CreateSalesDocumentWithItem(SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', '', 1, '', 0D);
         SalesHeader."Sell-to Country/Region Code" := CountryWithCounty.Code;
@@ -419,12 +420,12 @@ codeunit 134449 "County Visibility Test"
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         SalesInvoiceHeader.SetRange("Sell-to Customer No.", SalesHeader."Sell-to Customer No.");
-        SalesInvoiceHeader.FindFirst;
+        SalesInvoiceHeader.FindFirst();
 
-        PostedSalesInvoice.OpenView;
+        PostedSalesInvoice.OpenView();
         PostedSalesInvoice.GotoRecord(SalesInvoiceHeader);
         Assert.IsFalse(PostedSalesInvoice."Sell-to County".Visible, StrSubstNo(CountyVisibleTxt, 'Sell-to County'));
-        PostedSalesInvoice.Close;
+        PostedSalesInvoice.Close();
     end;
 
     [Test]
@@ -436,7 +437,7 @@ codeunit 134449 "County Visibility Test"
         SalesInvoiceHeader: Record "Sales Invoice Header";
         PostedSalesInvoice: TestPage "Posted Sales Invoice";
     begin
-        Initialize;
+        Initialize();
 
         LibrarySales.CreateSalesDocumentWithItem(SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', '', 1, '', 0D);
         SalesHeader."Bill-to Country/Region Code" := CountryWithCounty.Code;
@@ -444,12 +445,12 @@ codeunit 134449 "County Visibility Test"
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         SalesInvoiceHeader.SetRange("Bill-to Customer No.", SalesHeader."Bill-to Customer No.");
-        SalesInvoiceHeader.FindFirst;
+        SalesInvoiceHeader.FindFirst();
 
-        PostedSalesInvoice.OpenView;
+        PostedSalesInvoice.OpenView();
         PostedSalesInvoice.GotoRecord(SalesInvoiceHeader);
         Assert.IsFalse(PostedSalesInvoice."Bill-to County".Visible, StrSubstNo(CountyVisibleTxt, 'Bill-to County'));
-        PostedSalesInvoice.Close;
+        PostedSalesInvoice.Close();
     end;
 
     [Test]
@@ -461,7 +462,7 @@ codeunit 134449 "County Visibility Test"
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
         PostedSalesCreditMemo: TestPage "Posted Sales Credit Memo";
     begin
-        Initialize;
+        Initialize();
 
         LibrarySales.CreateSalesDocumentWithItem(SalesHeader, SalesLine, SalesHeader."Document Type"::"Credit Memo", '', '', 1, '', 0D);
         SalesHeader."Sell-to Country/Region Code" := CountryWithoutCounty.Code;
@@ -469,12 +470,12 @@ codeunit 134449 "County Visibility Test"
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         SalesCrMemoHeader.SetRange("Sell-to Customer No.", SalesHeader."Sell-to Customer No.");
-        SalesCrMemoHeader.FindFirst;
+        SalesCrMemoHeader.FindFirst();
 
-        PostedSalesCreditMemo.OpenView;
+        PostedSalesCreditMemo.OpenView();
         PostedSalesCreditMemo.GotoRecord(SalesCrMemoHeader);
         Assert.IsFalse(PostedSalesCreditMemo."Sell-to County".Visible, StrSubstNo(CountyNotVisibleTxt, 'Sell-to County'));
-        PostedSalesCreditMemo.Close;
+        PostedSalesCreditMemo.Close();
     end;
 
     [Test]
@@ -486,7 +487,7 @@ codeunit 134449 "County Visibility Test"
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
         PostedSalesCreditMemo: TestPage "Posted Sales Credit Memo";
     begin
-        Initialize;
+        Initialize();
 
         LibrarySales.CreateSalesDocumentWithItem(SalesHeader, SalesLine, SalesHeader."Document Type"::"Credit Memo", '', '', 1, '', 0D);
         SalesHeader."Bill-to Country/Region Code" := CountryWithoutCounty.Code;
@@ -494,12 +495,12 @@ codeunit 134449 "County Visibility Test"
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         SalesCrMemoHeader.SetRange("Bill-to Customer No.", SalesHeader."Bill-to Customer No.");
-        SalesCrMemoHeader.FindFirst;
+        SalesCrMemoHeader.FindFirst();
 
-        PostedSalesCreditMemo.OpenView;
+        PostedSalesCreditMemo.OpenView();
         PostedSalesCreditMemo.GotoRecord(SalesCrMemoHeader);
         Assert.IsFalse(PostedSalesCreditMemo."Bill-to County".Visible, StrSubstNo(CountyNotVisibleTxt, 'Bill-to County'));
-        PostedSalesCreditMemo.Close;
+        PostedSalesCreditMemo.Close();
     end;
 
     [Test]
@@ -511,7 +512,7 @@ codeunit 134449 "County Visibility Test"
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
         PostedSalesCreditMemo: TestPage "Posted Sales Credit Memo";
     begin
-        Initialize;
+        Initialize();
 
         LibrarySales.CreateSalesDocumentWithItem(SalesHeader, SalesLine, SalesHeader."Document Type"::"Credit Memo", '', '', 1, '', 0D);
         SalesHeader."Sell-to Country/Region Code" := CountryWithCounty.Code;
@@ -519,12 +520,12 @@ codeunit 134449 "County Visibility Test"
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         SalesCrMemoHeader.SetRange("Sell-to Customer No.", SalesHeader."Sell-to Customer No.");
-        SalesCrMemoHeader.FindFirst;
+        SalesCrMemoHeader.FindFirst();
 
-        PostedSalesCreditMemo.OpenView;
+        PostedSalesCreditMemo.OpenView();
         PostedSalesCreditMemo.GotoRecord(SalesCrMemoHeader);
         Assert.IsFalse(PostedSalesCreditMemo."Sell-to County".Visible, StrSubstNo(CountyVisibleTxt, 'Sell-to County'));
-        PostedSalesCreditMemo.Close;
+        PostedSalesCreditMemo.Close();
     end;
 
     [Test]
@@ -536,7 +537,7 @@ codeunit 134449 "County Visibility Test"
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
         PostedSalesCreditMemo: TestPage "Posted Sales Credit Memo";
     begin
-        Initialize;
+        Initialize();
 
         LibrarySales.CreateSalesDocumentWithItem(SalesHeader, SalesLine, SalesHeader."Document Type"::"Credit Memo", '', '', 1, '', 0D);
         SalesHeader."Bill-to Country/Region Code" := CountryWithCounty.Code;
@@ -544,12 +545,12 @@ codeunit 134449 "County Visibility Test"
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         SalesCrMemoHeader.SetRange("Bill-to Customer No.", SalesHeader."Bill-to Customer No.");
-        SalesCrMemoHeader.FindFirst;
+        SalesCrMemoHeader.FindFirst();
 
-        PostedSalesCreditMemo.OpenView;
+        PostedSalesCreditMemo.OpenView();
         PostedSalesCreditMemo.GotoRecord(SalesCrMemoHeader);
         Assert.IsFalse(PostedSalesCreditMemo."Bill-to County".Visible, StrSubstNo(CountyVisibleTxt, 'Bill-to County'));
-        PostedSalesCreditMemo.Close;
+        PostedSalesCreditMemo.Close();
     end;
 
     [Test]
@@ -561,7 +562,7 @@ codeunit 134449 "County Visibility Test"
         ReturnReceiptHeader: Record "Return Receipt Header";
         PostedReturnReceipt: TestPage "Posted Return Receipt";
     begin
-        Initialize;
+        Initialize();
 
         LibrarySales.CreateSalesDocumentWithItem(SalesHeader, SalesLine, SalesHeader."Document Type"::"Return Order", '', '', 1, '', 0D);
         SalesHeader."Sell-to Country/Region Code" := CountryWithoutCounty.Code;
@@ -569,12 +570,12 @@ codeunit 134449 "County Visibility Test"
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         ReturnReceiptHeader.SetRange("Sell-to Customer No.", SalesHeader."Sell-to Customer No.");
-        ReturnReceiptHeader.FindFirst;
+        ReturnReceiptHeader.FindFirst();
 
-        PostedReturnReceipt.OpenView;
+        PostedReturnReceipt.OpenView();
         PostedReturnReceipt.GotoRecord(ReturnReceiptHeader);
         Assert.IsFalse(PostedReturnReceipt."Sell-to County".Visible, StrSubstNo(CountyNotVisibleTxt, 'Sell-to County'));
-        PostedReturnReceipt.Close;
+        PostedReturnReceipt.Close();
     end;
 
     [Test]
@@ -586,7 +587,7 @@ codeunit 134449 "County Visibility Test"
         ReturnReceiptHeader: Record "Return Receipt Header";
         PostedReturnReceipt: TestPage "Posted Return Receipt";
     begin
-        Initialize;
+        Initialize();
 
         LibrarySales.CreateSalesDocumentWithItem(SalesHeader, SalesLine, SalesHeader."Document Type"::"Return Order", '', '', 1, '', 0D);
         SalesHeader."Bill-to Country/Region Code" := CountryWithoutCounty.Code;
@@ -594,12 +595,12 @@ codeunit 134449 "County Visibility Test"
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         ReturnReceiptHeader.SetRange("Bill-to Customer No.", SalesHeader."Bill-to Customer No.");
-        ReturnReceiptHeader.FindFirst;
+        ReturnReceiptHeader.FindFirst();
 
-        PostedReturnReceipt.OpenView;
+        PostedReturnReceipt.OpenView();
         PostedReturnReceipt.GotoRecord(ReturnReceiptHeader);
         Assert.IsFalse(PostedReturnReceipt."Bill-to County".Visible, StrSubstNo(CountyNotVisibleTxt, 'Bill-to County'));
-        PostedReturnReceipt.Close;
+        PostedReturnReceipt.Close();
     end;
 
     [Test]
@@ -611,7 +612,7 @@ codeunit 134449 "County Visibility Test"
         ReturnReceiptHeader: Record "Return Receipt Header";
         PostedReturnReceipt: TestPage "Posted Return Receipt";
     begin
-        Initialize;
+        Initialize();
 
         LibrarySales.CreateSalesDocumentWithItem(SalesHeader, SalesLine, SalesHeader."Document Type"::"Return Order", '', '', 1, '', 0D);
         SalesHeader."Sell-to Country/Region Code" := CountryWithCounty.Code;
@@ -619,12 +620,12 @@ codeunit 134449 "County Visibility Test"
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         ReturnReceiptHeader.SetRange("Sell-to Customer No.", SalesHeader."Sell-to Customer No.");
-        ReturnReceiptHeader.FindFirst;
+        ReturnReceiptHeader.FindFirst();
 
-        PostedReturnReceipt.OpenView;
+        PostedReturnReceipt.OpenView();
         PostedReturnReceipt.GotoRecord(ReturnReceiptHeader);
         Assert.IsFalse(PostedReturnReceipt."Sell-to County".Visible, StrSubstNo(CountyVisibleTxt, 'Sell-to County'));
-        PostedReturnReceipt.Close;
+        PostedReturnReceipt.Close();
     end;
 
     [Test]
@@ -636,7 +637,7 @@ codeunit 134449 "County Visibility Test"
         ReturnReceiptHeader: Record "Return Receipt Header";
         PostedReturnReceipt: TestPage "Posted Return Receipt";
     begin
-        Initialize;
+        Initialize();
 
         LibrarySales.CreateSalesDocumentWithItem(SalesHeader, SalesLine, SalesHeader."Document Type"::"Return Order", '', '', 1, '', 0D);
         SalesHeader."Bill-to Country/Region Code" := CountryWithCounty.Code;
@@ -644,12 +645,12 @@ codeunit 134449 "County Visibility Test"
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         ReturnReceiptHeader.SetRange("Bill-to Customer No.", SalesHeader."Bill-to Customer No.");
-        ReturnReceiptHeader.FindFirst;
+        ReturnReceiptHeader.FindFirst();
 
-        PostedReturnReceipt.OpenView;
+        PostedReturnReceipt.OpenView();
         PostedReturnReceipt.GotoRecord(ReturnReceiptHeader);
         Assert.IsFalse(PostedReturnReceipt."Bill-to County".Visible, StrSubstNo(CountyVisibleTxt, 'Bill-to County'));
-        PostedReturnReceipt.Close;
+        PostedReturnReceipt.Close();
     end;
 
     [Test]
@@ -660,12 +661,12 @@ codeunit 134449 "County Visibility Test"
         PurchaseLine: Record "Purchase Line";
         PurchaseOrder: TestPage "Purchase Order";
     begin
-        Initialize;
+        Initialize();
 
         LibraryPurchase.CreatePurchaseDocumentWithItem(
           PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '', '', 1, '', 0D);
 
-        PurchaseOrder.OpenNew;
+        PurchaseOrder.OpenNew();
         PurchaseOrder."Buy-from Country/Region Code".Value := CountryWithoutCounty.Code;
         Assert.IsFalse(PurchaseOrder."Buy-from County".Visible, StrSubstNo(CountyNotVisibleTxt, 'Buy-from County'));
         PurchaseOrder."Buy-from Country/Region Code".Value := CountryWithCounty.Code;
@@ -681,7 +682,7 @@ codeunit 134449 "County Visibility Test"
         Assert.IsFalse(PurchaseOrder."Ship-to County".Visible, StrSubstNo(CountyNotVisibleTxt, 'Ship-to County'));
         PurchaseOrder."Ship-to Country/Region Code".Value := CountryWithCounty.Code;
         Assert.IsTrue(PurchaseOrder."Ship-to County".Visible, StrSubstNo(CountyVisibleTxt, 'Ship-to County'));
-        PurchaseOrder.Close;
+        PurchaseOrder.Close();
     end;
 
     [Test]
@@ -692,12 +693,12 @@ codeunit 134449 "County Visibility Test"
         PurchaseLine: Record "Purchase Line";
         PurchaseQuote: TestPage "Purchase Quote";
     begin
-        Initialize;
+        Initialize();
 
         LibraryPurchase.CreatePurchaseDocumentWithItem(
           PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Quote, '', '', 1, '', 0D);
 
-        PurchaseQuote.OpenNew;
+        PurchaseQuote.OpenNew();
         PurchaseQuote."Buy-from Country/Region Code".Value := CountryWithoutCounty.Code;
         Assert.IsFalse(PurchaseQuote."Buy-from County".Visible, StrSubstNo(CountyNotVisibleTxt, 'Buy-from County'));
         PurchaseQuote."Buy-from Country/Region Code".Value := CountryWithCounty.Code;
@@ -713,7 +714,7 @@ codeunit 134449 "County Visibility Test"
         Assert.IsFalse(PurchaseQuote."Ship-to County".Visible, StrSubstNo(CountyNotVisibleTxt, 'Ship-to County'));
         PurchaseQuote."Ship-to Country/Region Code".Value := CountryWithCounty.Code;
         Assert.IsTrue(PurchaseQuote."Ship-to County".Visible, StrSubstNo(CountyVisibleTxt, 'Ship-to County'));
-        PurchaseQuote.Close;
+        PurchaseQuote.Close();
     end;
 
     [Test]
@@ -724,12 +725,12 @@ codeunit 134449 "County Visibility Test"
         PurchaseLine: Record "Purchase Line";
         PurchaseInvoice: TestPage "Purchase Invoice";
     begin
-        Initialize;
+        Initialize();
 
         LibraryPurchase.CreatePurchaseDocumentWithItem(
           PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Invoice, '', '', 1, '', 0D);
 
-        PurchaseInvoice.OpenNew;
+        PurchaseInvoice.OpenNew();
         PurchaseInvoice."Buy-from Country/Region Code".Value := CountryWithoutCounty.Code;
         Assert.IsFalse(PurchaseInvoice."Buy-from County".Visible, StrSubstNo(CountyNotVisibleTxt, 'Buy-from County'));
         PurchaseInvoice."Buy-from Country/Region Code".Value := CountryWithCounty.Code;
@@ -740,7 +741,7 @@ codeunit 134449 "County Visibility Test"
         Assert.IsFalse(PurchaseInvoice."Pay-to County".Visible, StrSubstNo(CountyNotVisibleTxt, 'Pay-to County'));
         PurchaseInvoice."Pay-to Country/Region Code".Value := CountryWithCounty.Code;
         Assert.IsTrue(PurchaseInvoice."Pay-to County".Visible, StrSubstNo(CountyVisibleTxt, 'Pay-to County'));
-        PurchaseInvoice.Close;
+        PurchaseInvoice.Close();
     end;
 
     [Test]
@@ -751,12 +752,12 @@ codeunit 134449 "County Visibility Test"
         PurchaseLine: Record "Purchase Line";
         PurchaseCreditMemo: TestPage "Purchase Credit Memo";
     begin
-        Initialize;
+        Initialize();
 
         LibraryPurchase.CreatePurchaseDocumentWithItem(
           PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::"Credit Memo", '', '', 1, '', 0D);
 
-        PurchaseCreditMemo.OpenNew;
+        PurchaseCreditMemo.OpenNew();
         PurchaseCreditMemo."Buy-from Country/Region Code".Value := CountryWithoutCounty.Code;
         Assert.IsFalse(PurchaseCreditMemo."Buy-from County".Visible, StrSubstNo(CountyNotVisibleTxt, 'Buy-from County'));
         PurchaseCreditMemo."Buy-from Country/Region Code".Value := CountryWithCounty.Code;
@@ -766,7 +767,7 @@ codeunit 134449 "County Visibility Test"
         Assert.IsFalse(PurchaseCreditMemo."Pay-to County".Visible, StrSubstNo(CountyNotVisibleTxt, 'Pay-to County'));
         PurchaseCreditMemo."Pay-to Country/Region Code".Value := CountryWithCounty.Code;
         Assert.IsTrue(PurchaseCreditMemo."Pay-to County".Visible, StrSubstNo(CountyVisibleTxt, 'Pay-to County'));
-        PurchaseCreditMemo.Close;
+        PurchaseCreditMemo.Close();
     end;
 
     [Test]
@@ -777,12 +778,12 @@ codeunit 134449 "County Visibility Test"
         PurchaseLine: Record "Purchase Line";
         PurchaseReturnOrder: TestPage "Purchase Return Order";
     begin
-        Initialize;
+        Initialize();
 
         LibraryPurchase.CreatePurchaseDocumentWithItem(
           PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::"Return Order", '', '', 1, '', 0D);
 
-        PurchaseReturnOrder.OpenNew;
+        PurchaseReturnOrder.OpenNew();
         PurchaseReturnOrder."Buy-from Country/Region Code".Value := CountryWithoutCounty.Code;
         Assert.IsFalse(PurchaseReturnOrder."Buy-from County".Visible, StrSubstNo(CountyNotVisibleTxt, 'Buy-from County'));
         PurchaseReturnOrder."Buy-from Country/Region Code".Value := CountryWithCounty.Code;
@@ -797,7 +798,7 @@ codeunit 134449 "County Visibility Test"
         Assert.IsFalse(PurchaseReturnOrder."Ship-to County".Visible, StrSubstNo(CountyNotVisibleTxt, 'Ship-to County'));
         PurchaseReturnOrder."Ship-to Country/Region Code".Value := CountryWithCounty.Code;
         Assert.IsTrue(PurchaseReturnOrder."Ship-to County".Visible, StrSubstNo(CountyVisibleTxt, 'Ship-to County'));
-        PurchaseReturnOrder.Close;
+        PurchaseReturnOrder.Close();
     end;
 
     [Test]
@@ -809,7 +810,7 @@ codeunit 134449 "County Visibility Test"
         PurchRcptHeader: Record "Purch. Rcpt. Header";
         PostedPurchaseReceipt: TestPage "Posted Purchase Receipt";
     begin
-        Initialize;
+        Initialize();
 
         LibraryPurchase.CreatePurchaseDocumentWithItem(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '', '', 1, '', 0D);
         PurchaseHeader."Buy-from Country/Region Code" := CountryWithoutCounty.Code;
@@ -817,12 +818,12 @@ codeunit 134449 "County Visibility Test"
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         PurchRcptHeader.SetRange("Buy-from Vendor No.", PurchaseHeader."Buy-from Vendor No.");
-        PurchRcptHeader.FindFirst;
+        PurchRcptHeader.FindFirst();
 
-        PostedPurchaseReceipt.OpenView;
+        PostedPurchaseReceipt.OpenView();
         PostedPurchaseReceipt.GotoRecord(PurchRcptHeader);
         Assert.IsFalse(PostedPurchaseReceipt."Buy-from County".Visible, StrSubstNo(CountyNotVisibleTxt, 'Buy-from County'));
-        PostedPurchaseReceipt.Close;
+        PostedPurchaseReceipt.Close();
     end;
 
     [Test]
@@ -834,7 +835,7 @@ codeunit 134449 "County Visibility Test"
         PurchRcptHeader: Record "Purch. Rcpt. Header";
         PostedPurchaseReceipt: TestPage "Posted Purchase Receipt";
     begin
-        Initialize;
+        Initialize();
 
         LibraryPurchase.CreatePurchaseDocumentWithItem(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '', '', 1, '', 0D);
         PurchaseHeader."Buy-from Country/Region Code" := CountryWithoutCounty.Code;
@@ -842,12 +843,12 @@ codeunit 134449 "County Visibility Test"
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         PurchRcptHeader.SetRange("Buy-from Vendor No.", PurchaseHeader."Buy-from Vendor No.");
-        PurchRcptHeader.FindFirst;
+        PurchRcptHeader.FindFirst();
 
-        PostedPurchaseReceipt.OpenView;
+        PostedPurchaseReceipt.OpenView();
         PostedPurchaseReceipt.GotoRecord(PurchRcptHeader);
         Assert.IsFalse(PostedPurchaseReceipt."Buy-from County".Visible, StrSubstNo(CountyNotVisibleTxt, 'Buy-from County'));
-        PostedPurchaseReceipt.Close;
+        PostedPurchaseReceipt.Close();
     end;
 
     [Test]
@@ -859,7 +860,7 @@ codeunit 134449 "County Visibility Test"
         PurchRcptHeader: Record "Purch. Rcpt. Header";
         PostedPurchaseReceipt: TestPage "Posted Purchase Receipt";
     begin
-        Initialize;
+        Initialize();
 
         LibraryPurchase.CreatePurchaseDocumentWithItem(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '', '', 1, '', 0D);
         PurchaseHeader."Buy-from Country/Region Code" := CountryWithCounty.Code;
@@ -867,12 +868,12 @@ codeunit 134449 "County Visibility Test"
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         PurchRcptHeader.SetRange("Buy-from Vendor No.", PurchaseHeader."Buy-from Vendor No.");
-        PurchRcptHeader.FindFirst;
+        PurchRcptHeader.FindFirst();
 
-        PostedPurchaseReceipt.OpenView;
+        PostedPurchaseReceipt.OpenView();
         PostedPurchaseReceipt.GotoRecord(PurchRcptHeader);
         Assert.IsFalse(PostedPurchaseReceipt."Buy-from County".Visible, StrSubstNo(CountyVisibleTxt, 'Buy-from County'));
-        PostedPurchaseReceipt.Close;
+        PostedPurchaseReceipt.Close();
     end;
 
     [Test]
@@ -884,7 +885,7 @@ codeunit 134449 "County Visibility Test"
         PurchRcptHeader: Record "Purch. Rcpt. Header";
         PostedPurchaseReceipt: TestPage "Posted Purchase Receipt";
     begin
-        Initialize;
+        Initialize();
 
         LibraryPurchase.CreatePurchaseDocumentWithItem(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '', '', 1, '', 0D);
         PurchaseHeader."Pay-to Country/Region Code" := CountryWithCounty.Code;
@@ -892,12 +893,12 @@ codeunit 134449 "County Visibility Test"
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         PurchRcptHeader.SetRange("Pay-to Vendor No.", PurchaseHeader."Pay-to Vendor No.");
-        PurchRcptHeader.FindFirst;
+        PurchRcptHeader.FindFirst();
 
-        PostedPurchaseReceipt.OpenView;
+        PostedPurchaseReceipt.OpenView();
         PostedPurchaseReceipt.GotoRecord(PurchRcptHeader);
         Assert.IsFalse(PostedPurchaseReceipt."Pay-to County".Visible, StrSubstNo(CountyVisibleTxt, 'Pay-to County'));
-        PostedPurchaseReceipt.Close;
+        PostedPurchaseReceipt.Close();
     end;
 
     [Test]
@@ -909,7 +910,7 @@ codeunit 134449 "County Visibility Test"
         PurchInvHeader: Record "Purch. Inv. Header";
         PostedPurchaseInvoice: TestPage "Posted Purchase Invoice";
     begin
-        Initialize;
+        Initialize();
 
         LibraryPurchase.CreatePurchaseDocumentWithItem(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '', '', 1, '', 0D);
         PurchaseHeader."Buy-from Country/Region Code" := CountryWithoutCounty.Code;
@@ -917,12 +918,12 @@ codeunit 134449 "County Visibility Test"
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         PurchInvHeader.SetRange("Buy-from Vendor No.", PurchaseHeader."Buy-from Vendor No.");
-        PurchInvHeader.FindFirst;
+        PurchInvHeader.FindFirst();
 
-        PostedPurchaseInvoice.OpenView;
+        PostedPurchaseInvoice.OpenView();
         PostedPurchaseInvoice.GotoRecord(PurchInvHeader);
         Assert.IsFalse(PostedPurchaseInvoice."Buy-from County".Visible, StrSubstNo(CountyNotVisibleTxt, 'Buy-from County'));
-        PostedPurchaseInvoice.Close;
+        PostedPurchaseInvoice.Close();
     end;
 
     [Test]
@@ -934,7 +935,7 @@ codeunit 134449 "County Visibility Test"
         PurchInvHeader: Record "Purch. Inv. Header";
         PostedPurchaseInvoice: TestPage "Posted Purchase Invoice";
     begin
-        Initialize;
+        Initialize();
 
         LibraryPurchase.CreatePurchaseDocumentWithItem(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '', '', 1, '', 0D);
         PurchaseHeader."Pay-to Country/Region Code" := CountryWithoutCounty.Code;
@@ -942,12 +943,12 @@ codeunit 134449 "County Visibility Test"
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         PurchInvHeader.SetRange("Pay-to Vendor No.", PurchaseHeader."Pay-to Vendor No.");
-        PurchInvHeader.FindFirst;
+        PurchInvHeader.FindFirst();
 
-        PostedPurchaseInvoice.OpenView;
+        PostedPurchaseInvoice.OpenView();
         PostedPurchaseInvoice.GotoRecord(PurchInvHeader);
         Assert.IsFalse(PostedPurchaseInvoice."Pay-to County".Visible, StrSubstNo(CountyNotVisibleTxt, 'Pay-to County'));
-        PostedPurchaseInvoice.Close;
+        PostedPurchaseInvoice.Close();
     end;
 
     [Test]
@@ -959,7 +960,7 @@ codeunit 134449 "County Visibility Test"
         PurchInvHeader: Record "Purch. Inv. Header";
         PostedPurchaseInvoice: TestPage "Posted Purchase Invoice";
     begin
-        Initialize;
+        Initialize();
 
         LibraryPurchase.CreatePurchaseDocumentWithItem(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '', '', 1, '', 0D);
         PurchaseHeader."Buy-from Country/Region Code" := CountryWithCounty.Code;
@@ -967,12 +968,12 @@ codeunit 134449 "County Visibility Test"
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         PurchInvHeader.SetRange("Buy-from Vendor No.", PurchaseHeader."Buy-from Vendor No.");
-        PurchInvHeader.FindFirst;
+        PurchInvHeader.FindFirst();
 
-        PostedPurchaseInvoice.OpenView;
+        PostedPurchaseInvoice.OpenView();
         PostedPurchaseInvoice.GotoRecord(PurchInvHeader);
         Assert.IsFalse(PostedPurchaseInvoice."Buy-from County".Visible, StrSubstNo(CountyVisibleTxt, 'Buy-from County'));
-        PostedPurchaseInvoice.Close;
+        PostedPurchaseInvoice.Close();
     end;
 
     [Test]
@@ -984,7 +985,7 @@ codeunit 134449 "County Visibility Test"
         PurchInvHeader: Record "Purch. Inv. Header";
         PostedPurchaseInvoice: TestPage "Posted Purchase Invoice";
     begin
-        Initialize;
+        Initialize();
 
         LibraryPurchase.CreatePurchaseDocumentWithItem(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '', '', 1, '', 0D);
         PurchaseHeader."Pay-to Country/Region Code" := CountryWithCounty.Code;
@@ -992,12 +993,12 @@ codeunit 134449 "County Visibility Test"
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         PurchInvHeader.SetRange("Pay-to Vendor No.", PurchaseHeader."Pay-to Vendor No.");
-        PurchInvHeader.FindFirst;
+        PurchInvHeader.FindFirst();
 
-        PostedPurchaseInvoice.OpenView;
+        PostedPurchaseInvoice.OpenView();
         PostedPurchaseInvoice.GotoRecord(PurchInvHeader);
         Assert.IsFalse(PostedPurchaseInvoice."Pay-to County".Visible, StrSubstNo(CountyVisibleTxt, 'Pay-to County'));
-        PostedPurchaseInvoice.Close;
+        PostedPurchaseInvoice.Close();
     end;
 
     [Test]
@@ -1009,7 +1010,7 @@ codeunit 134449 "County Visibility Test"
         PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
         PostedPurchaseCreditMemo: TestPage "Posted Purchase Credit Memo";
     begin
-        Initialize;
+        Initialize();
 
         LibraryPurchase.CreatePurchaseDocumentWithItem(
           PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::"Credit Memo", '', '', 1, '', 0D);
@@ -1018,12 +1019,12 @@ codeunit 134449 "County Visibility Test"
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         PurchCrMemoHdr.SetRange("Buy-from Vendor No.", PurchaseHeader."Buy-from Vendor No.");
-        PurchCrMemoHdr.FindFirst;
+        PurchCrMemoHdr.FindFirst();
 
-        PostedPurchaseCreditMemo.OpenView;
+        PostedPurchaseCreditMemo.OpenView();
         PostedPurchaseCreditMemo.GotoRecord(PurchCrMemoHdr);
         Assert.IsFalse(PostedPurchaseCreditMemo."Buy-from County".Visible, StrSubstNo(CountyNotVisibleTxt, 'Buy-from County'));
-        PostedPurchaseCreditMemo.Close;
+        PostedPurchaseCreditMemo.Close();
     end;
 
     [Test]
@@ -1035,7 +1036,7 @@ codeunit 134449 "County Visibility Test"
         PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
         PostedPurchaseCreditMemo: TestPage "Posted Purchase Credit Memo";
     begin
-        Initialize;
+        Initialize();
 
         LibraryPurchase.CreatePurchaseDocumentWithItem(
           PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::"Credit Memo", '', '', 1, '', 0D);
@@ -1044,12 +1045,12 @@ codeunit 134449 "County Visibility Test"
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         PurchCrMemoHdr.SetRange("Pay-to Vendor No.", PurchaseHeader."Pay-to Vendor No.");
-        PurchCrMemoHdr.FindFirst;
+        PurchCrMemoHdr.FindFirst();
 
-        PostedPurchaseCreditMemo.OpenView;
+        PostedPurchaseCreditMemo.OpenView();
         PostedPurchaseCreditMemo.GotoRecord(PurchCrMemoHdr);
         Assert.IsFalse(PostedPurchaseCreditMemo."Pay-to County".Visible, StrSubstNo(CountyNotVisibleTxt, 'Pay-to County'));
-        PostedPurchaseCreditMemo.Close;
+        PostedPurchaseCreditMemo.Close();
     end;
 
     [Test]
@@ -1061,7 +1062,7 @@ codeunit 134449 "County Visibility Test"
         PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
         PostedPurchaseCreditMemo: TestPage "Posted Purchase Credit Memo";
     begin
-        Initialize;
+        Initialize();
 
         LibraryPurchase.CreatePurchaseDocumentWithItem(
           PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::"Credit Memo", '', '', 1, '', 0D);
@@ -1070,12 +1071,12 @@ codeunit 134449 "County Visibility Test"
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         PurchCrMemoHdr.SetRange("Buy-from Vendor No.", PurchaseHeader."Buy-from Vendor No.");
-        PurchCrMemoHdr.FindFirst;
+        PurchCrMemoHdr.FindFirst();
 
-        PostedPurchaseCreditMemo.OpenView;
+        PostedPurchaseCreditMemo.OpenView();
         PostedPurchaseCreditMemo.GotoRecord(PurchCrMemoHdr);
         Assert.IsFalse(PostedPurchaseCreditMemo."Buy-from County".Visible, StrSubstNo(CountyVisibleTxt, 'Buy-from County'));
-        PostedPurchaseCreditMemo.Close;
+        PostedPurchaseCreditMemo.Close();
     end;
 
     [Test]
@@ -1087,7 +1088,7 @@ codeunit 134449 "County Visibility Test"
         PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
         PostedPurchaseCreditMemo: TestPage "Posted Purchase Credit Memo";
     begin
-        Initialize;
+        Initialize();
 
         LibraryPurchase.CreatePurchaseDocumentWithItem(
           PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::"Credit Memo", '', '', 1, '', 0D);
@@ -1096,12 +1097,12 @@ codeunit 134449 "County Visibility Test"
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         PurchCrMemoHdr.SetRange("Pay-to Vendor No.", PurchaseHeader."Pay-to Vendor No.");
-        PurchCrMemoHdr.FindFirst;
+        PurchCrMemoHdr.FindFirst();
 
-        PostedPurchaseCreditMemo.OpenView;
+        PostedPurchaseCreditMemo.OpenView();
         PostedPurchaseCreditMemo.GotoRecord(PurchCrMemoHdr);
         Assert.IsFalse(PostedPurchaseCreditMemo."Pay-to County".Visible, StrSubstNo(CountyVisibleTxt, 'Pay-to County'));
-        PostedPurchaseCreditMemo.Close;
+        PostedPurchaseCreditMemo.Close();
     end;
 
     [Test]
@@ -1113,7 +1114,7 @@ codeunit 134449 "County Visibility Test"
         ReturnShipmentHeader: Record "Return Shipment Header";
         PostedReturnShipment: TestPage "Posted Return Shipment";
     begin
-        Initialize;
+        Initialize();
 
         LibraryPurchase.CreatePurchaseDocumentWithItem(
           PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::"Return Order", '', '', 1, '', 0D);
@@ -1122,12 +1123,12 @@ codeunit 134449 "County Visibility Test"
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         ReturnShipmentHeader.SetRange("Buy-from Vendor No.", PurchaseHeader."Buy-from Vendor No.");
-        ReturnShipmentHeader.FindFirst;
+        ReturnShipmentHeader.FindFirst();
 
-        PostedReturnShipment.OpenView;
+        PostedReturnShipment.OpenView();
         PostedReturnShipment.GotoRecord(ReturnShipmentHeader);
         Assert.IsFalse(PostedReturnShipment."Buy-from County".Visible, StrSubstNo(CountyNotVisibleTxt, 'Buy-from County'));
-        PostedReturnShipment.Close;
+        PostedReturnShipment.Close();
     end;
 
     [Test]
@@ -1139,7 +1140,7 @@ codeunit 134449 "County Visibility Test"
         ReturnShipmentHeader: Record "Return Shipment Header";
         PostedReturnShipment: TestPage "Posted Return Shipment";
     begin
-        Initialize;
+        Initialize();
 
         LibraryPurchase.CreatePurchaseDocumentWithItem(
           PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::"Return Order", '', '', 1, '', 0D);
@@ -1148,12 +1149,12 @@ codeunit 134449 "County Visibility Test"
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         ReturnShipmentHeader.SetRange("Pay-to Vendor No.", PurchaseHeader."Pay-to Vendor No.");
-        ReturnShipmentHeader.FindFirst;
+        ReturnShipmentHeader.FindFirst();
 
-        PostedReturnShipment.OpenView;
+        PostedReturnShipment.OpenView();
         PostedReturnShipment.GotoRecord(ReturnShipmentHeader);
         Assert.IsFalse(PostedReturnShipment."Pay-to County".Visible, StrSubstNo(CountyNotVisibleTxt, 'Pay-to County'));
-        PostedReturnShipment.Close;
+        PostedReturnShipment.Close();
     end;
 
     [Test]
@@ -1165,7 +1166,7 @@ codeunit 134449 "County Visibility Test"
         ReturnShipmentHeader: Record "Return Shipment Header";
         PostedReturnShipment: TestPage "Posted Return Shipment";
     begin
-        Initialize;
+        Initialize();
 
         LibraryPurchase.CreatePurchaseDocumentWithItem(
           PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::"Return Order", '', '', 1, '', 0D);
@@ -1174,12 +1175,12 @@ codeunit 134449 "County Visibility Test"
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         ReturnShipmentHeader.SetRange("Buy-from Vendor No.", PurchaseHeader."Buy-from Vendor No.");
-        ReturnShipmentHeader.FindFirst;
+        ReturnShipmentHeader.FindFirst();
 
-        PostedReturnShipment.OpenView;
+        PostedReturnShipment.OpenView();
         PostedReturnShipment.GotoRecord(ReturnShipmentHeader);
         Assert.IsFalse(PostedReturnShipment."Buy-from County".Visible, StrSubstNo(CountyVisibleTxt, 'Buy-from County'));
-        PostedReturnShipment.Close;
+        PostedReturnShipment.Close();
     end;
 
     [Test]
@@ -1191,7 +1192,7 @@ codeunit 134449 "County Visibility Test"
         ReturnShipmentHeader: Record "Return Shipment Header";
         PostedReturnShipment: TestPage "Posted Return Shipment";
     begin
-        Initialize;
+        Initialize();
 
         LibraryPurchase.CreatePurchaseDocumentWithItem(
           PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::"Return Order", '', '', 1, '', 0D);
@@ -1200,12 +1201,12 @@ codeunit 134449 "County Visibility Test"
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         ReturnShipmentHeader.SetRange("Pay-to Vendor No.", PurchaseHeader."Pay-to Vendor No.");
-        ReturnShipmentHeader.FindFirst;
+        ReturnShipmentHeader.FindFirst();
 
-        PostedReturnShipment.OpenView;
+        PostedReturnShipment.OpenView();
         PostedReturnShipment.GotoRecord(ReturnShipmentHeader);
         Assert.IsFalse(PostedReturnShipment."Pay-to County".Visible, StrSubstNo(CountyVisibleTxt, 'Pay-to County'));
-        PostedReturnShipment.Close;
+        PostedReturnShipment.Close();
     end;
 
     [Test]
@@ -1214,9 +1215,9 @@ codeunit 134449 "County Visibility Test"
     var
         ServiceOrder: TestPage "Service Order";
     begin
-        Initialize;
+        Initialize();
 
-        ServiceOrder.OpenNew;
+        ServiceOrder.OpenNew();
         ServiceOrder."Country/Region Code".Value := CountryWithoutCounty.Code;
         Assert.IsFalse(ServiceOrder.County.Visible, StrSubstNo(CountyNotVisibleTxt, 'Sell-to County'));
         ServiceOrder."Country/Region Code".Value := CountryWithCounty.Code;
@@ -1231,7 +1232,7 @@ codeunit 134449 "County Visibility Test"
         Assert.IsFalse(ServiceOrder."Ship-to County".Visible, StrSubstNo(CountyNotVisibleTxt, 'Ship-to County'));
         ServiceOrder."Ship-to Country/Region Code".Value := CountryWithCounty.Code;
         Assert.IsTrue(ServiceOrder."Ship-to County".Visible, StrSubstNo(CountyVisibleTxt, 'Ship-to County'));
-        ServiceOrder.Close;
+        ServiceOrder.Close();
     end;
 
     [Test]
@@ -1240,9 +1241,9 @@ codeunit 134449 "County Visibility Test"
     var
         ServiceInvoice: TestPage "Service Invoice";
     begin
-        Initialize;
+        Initialize();
 
-        ServiceInvoice.OpenNew;
+        ServiceInvoice.OpenNew();
         ServiceInvoice."Country/Region Code".Value := CountryWithoutCounty.Code;
         Assert.IsFalse(ServiceInvoice.County.Visible, StrSubstNo(CountyNotVisibleTxt, 'Sell-to County'));
         ServiceInvoice."Country/Region Code".Value := CountryWithCounty.Code;
@@ -1257,7 +1258,7 @@ codeunit 134449 "County Visibility Test"
         Assert.IsFalse(ServiceInvoice."Ship-to County".Visible, StrSubstNo(CountyNotVisibleTxt, 'Ship-to County'));
         ServiceInvoice."Ship-to Country/Region Code".Value := CountryWithCounty.Code;
         Assert.IsTrue(ServiceInvoice."Ship-to County".Visible, StrSubstNo(CountyVisibleTxt, 'Ship-to County'));
-        ServiceInvoice.Close;
+        ServiceInvoice.Close();
     end;
 
     [Test]
@@ -1266,9 +1267,9 @@ codeunit 134449 "County Visibility Test"
     var
         ServiceCreditMemo: TestPage "Service Credit Memo";
     begin
-        Initialize;
+        Initialize();
 
-        ServiceCreditMemo.OpenNew;
+        ServiceCreditMemo.OpenNew();
         ServiceCreditMemo."Country/Region Code".Value := CountryWithoutCounty.Code;
         Assert.IsFalse(ServiceCreditMemo.County.Visible, StrSubstNo(CountyNotVisibleTxt, 'Sell-to County'));
         ServiceCreditMemo."Country/Region Code".Value := CountryWithCounty.Code;
@@ -1283,7 +1284,7 @@ codeunit 134449 "County Visibility Test"
         Assert.IsFalse(ServiceCreditMemo."Ship-to County".Visible, StrSubstNo(CountyNotVisibleTxt, 'Ship-to County'));
         ServiceCreditMemo."Ship-to Country/Region Code".Value := CountryWithCounty.Code;
         Assert.IsTrue(ServiceCreditMemo."Ship-to County".Visible, StrSubstNo(CountyVisibleTxt, 'Ship-to County'));
-        ServiceCreditMemo.Close;
+        ServiceCreditMemo.Close();
     end;
 
     [Test]
@@ -1292,9 +1293,9 @@ codeunit 134449 "County Visibility Test"
     var
         ServiceQuote: TestPage "Service Quote";
     begin
-        Initialize;
+        Initialize();
 
-        ServiceQuote.OpenNew;
+        ServiceQuote.OpenNew();
         ServiceQuote."Country/Region Code".Value := CountryWithoutCounty.Code;
         Assert.IsFalse(ServiceQuote.County.Visible, StrSubstNo(CountyNotVisibleTxt, 'Sell-to County'));
         ServiceQuote."Country/Region Code".Value := CountryWithCounty.Code;
@@ -1309,7 +1310,7 @@ codeunit 134449 "County Visibility Test"
         Assert.IsFalse(ServiceQuote."Ship-to County".Visible, StrSubstNo(CountyNotVisibleTxt, 'Ship-to County'));
         ServiceQuote."Ship-to Country/Region Code".Value := CountryWithCounty.Code;
         Assert.IsTrue(ServiceQuote."Ship-to County".Visible, StrSubstNo(CountyVisibleTxt, 'Ship-to County'));
-        ServiceQuote.Close;
+        ServiceQuote.Close();
     end;
 
     [Test]
@@ -1318,7 +1319,7 @@ codeunit 134449 "County Visibility Test"
     var
         FormatAddress: Codeunit "Format Address";
     begin
-        Initialize;
+        Initialize();
 
         Assert.IsFalse(FormatAddress.UseCounty(CountryWithoutCounty.Code), 'County is not used');
         Assert.IsTrue(FormatAddress.UseCounty(CountryWithCounty.Code), 'County is used');
@@ -1326,8 +1327,12 @@ codeunit 134449 "County Visibility Test"
 
     local procedure Initialize()
     begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"County Visibility Test");
+
         if IsInitialized then
             exit;
+
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"County Visibility Test");
 
         LibraryERM.CreateCountryRegion(CountryWithoutCounty);
         CountryWithoutCounty."Address Format" := CountryWithCounty."Address Format"::"City+Post Code";
@@ -1337,21 +1342,23 @@ codeunit 134449 "County Visibility Test"
         CountryWithCounty."Address Format" := CountryWithCounty."Address Format"::"City+County+Post Code";
         CountryWithCounty.Modify;
 
-        LibrarySales.SetPostedNoSeriesInSetup;
-        LibrarySales.SetReturnOrderNoSeriesInSetup;
-        LibraryPurchase.SetPostedNoSeriesInSetup;
-        LibraryPurchase.SetReturnOrderNoSeriesInSetup;
+        LibrarySales.SetPostedNoSeriesInSetup();
+        LibrarySales.SetReturnOrderNoSeriesInSetup();
+        LibraryPurchase.SetPostedNoSeriesInSetup();
+        LibraryPurchase.SetReturnOrderNoSeriesInSetup();
 
         IsInitialized := true;
-        Commit;
+        Commit();
+
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"County Visibility Test");
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure TemplatePageHandler(var ConfigTemplates: TestPage "Config Templates")
     begin
-        ConfigTemplates.First;
-        ConfigTemplates.OK.Invoke;
+        ConfigTemplates.First();
+        ConfigTemplates.OK.Invoke();
     end;
 }
 

@@ -1922,7 +1922,7 @@ codeunit 134922 "ERM Budget"
         DimensionValue: array[6] of Record "Dimension Value";
         GLBudgetName: Record "G/L Budget Name";
         GLBudgetEntry: Record "G/L Budget Entry";
-        GLAccountNo: Code[20];
+        GLAccount: Record "G/L Account";
         FileName: Text;
         EntryAmount: Integer;
     begin
@@ -1936,9 +1936,12 @@ codeunit 134922 "ERM Budget"
         CreateGLBudgetWithDimensionsArray(GLBudgetName, DimensionValue);
 
         // [GIVEN] Budget having Budget Entry with Amount "100" and Dimension Values "DV"
-        GLAccountNo := LibraryERM.CreateGLAccountNo;
+        // TFS ID 340477: GLAccount.Name of maximum length doesn't cause string overflow
+        LibraryERM.CreateGLAccount(GLAccount);
+        GLAccount.Validate(Name, CopyStr(LibraryUtility.GenerateRandomXMLText(MaxStrLen(GLAccount.Name)), 1));
+        GLAccount.Modify(true);
         EntryAmount := LibraryRandom.RandInt(10);
-        CreateGLBudgetEntryWithDimensionsAndAmount(GLBudgetEntry, GLBudgetName, GLAccountNo, DimensionValue, EntryAmount);
+        CreateGLBudgetEntryWithDimensionsAndAmount(GLBudgetEntry, GLBudgetName, GLAccount."No.", DimensionValue, EntryAmount);
 
         // [GIVEN] Budget exported to Excel File
         LibraryReportValidation.SetFileName(GLBudgetName.Name);
@@ -1954,7 +1957,7 @@ codeunit 134922 "ERM Budget"
         RunImportBudgetFromExcel(GLBudgetName.Name, 0, FileName, false);
 
         // [THEN] Budget Entry Amount is equal to "100" and has Dimension Values equal to "DV"
-        VerifyGLBudgetAmountAndDimensions(GLBudgetName, WorkDate, GLAccountNo, EntryAmount, DimensionValue);
+        VerifyGLBudgetAmountAndDimensions(GLBudgetName, WorkDate, GLAccount."No.", EntryAmount, DimensionValue);
     end;
 
     [Test]

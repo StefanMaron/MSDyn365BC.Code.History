@@ -12,6 +12,7 @@ codeunit 138933 "O365 Contact Lookup"
         LibrarySales: Codeunit "Library - Sales";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         Assert: Codeunit Assert;
         CustomerNotFoundErr: Label 'Customer not found.';
         EventSubscriberInvoicingApp: Codeunit "EventSubscriber Invoicing App";
@@ -28,7 +29,7 @@ codeunit 138933 "O365 Contact Lookup"
         O365SalesQuote: TestPage "O365 Sales Quote";
     begin
         // [SCENARIO 217158] Sell-to Customer Name lookup on Estimate page opens contacts list, once contact picked related customer number goes to document
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer with name CUST has related contact CONT
         LibrarySales.CreateCustomer(Customer);
@@ -56,7 +57,7 @@ codeunit 138933 "O365 Contact Lookup"
         O365SalesInvoice: TestPage "O365 Sales Invoice";
     begin
         // [SCENARIO 217158] Sell-to Customer Name lookup on Draft Invoice page opens contacts list, once contact picked related customer number goes to document
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer with name CUST has related contact CONT
         LibrarySales.CreateCustomer(Customer);
@@ -84,7 +85,7 @@ codeunit 138933 "O365 Contact Lookup"
         O365SalesQuote: TestPage "O365 Sales Quote";
     begin
         // [SCENARIO 217158] Choosing contact without related customer while lookup leads to creating new customer
-        Initialize;
+        Initialize();
 
         // [GIVEN] Contact CONT with Name = XXX, Email = YY@YY.com, Phone No. = ZZZ
         CreateContact(Contact);
@@ -116,7 +117,7 @@ codeunit 138933 "O365 Contact Lookup"
         NewCustomerNo: Code[20];
     begin
         // [SCENARIO 217158] Choosing new contact while lookup for estimate with existing Sell-to Customer No. updates Sell-to Customer No. with new customer number
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer CUST1
         LibrarySales.CreateCustomer(Customer);
@@ -144,13 +145,15 @@ codeunit 138933 "O365 Contact Lookup"
     var
         O365C2GraphEventSettings: Record "O365 C2Graph Event Settings";
     begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"O365 Contact Lookup");
+
         LibraryVariableStorage.Clear;
         EventSubscriberInvoicingApp.Clear;
         ApplicationArea('#Invoicing');
         if Initialized then
             exit;
 
-        Initialized := true;
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"O365 Contact Lookup");
 
         if not O365C2GraphEventSettings.Get then
             O365C2GraphEventSettings.Insert(true);
@@ -159,6 +162,10 @@ codeunit 138933 "O365 Contact Lookup"
         O365C2GraphEventSettings.Modify;
         EventSubscriberInvoicingApp.SetAppId('INV');
         BindSubscription(EventSubscriberInvoicingApp);
+
+        Initialized := true;
+
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"O365 Contact Lookup");
     end;
 
     local procedure CreateQuote(var SalesHeader: Record "Sales Header"; CustomerNo: Code[20])

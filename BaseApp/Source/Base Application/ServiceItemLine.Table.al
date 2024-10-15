@@ -1639,6 +1639,8 @@ table 5901 "Service Item Line"
             RepairStatus.Initial := true;
             "Repair Status Code" := RepairStatus.ReturnStatusCode(RepairStatus);
         end;
+
+        OnAfterSetUpNewLine(Rec);
     end;
 
     procedure SetServHeader(var NewServHeader: Record "Service Header")
@@ -2428,6 +2430,11 @@ table 5901 "Service Item Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterSetUpNewLine(var ServiceItemLine: Record "Service Item Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterValidateShortcutDimCode(var ServiceItemLine: Record "Service Item Line"; xServiceItemLine: Record "Service Item Line"; FieldNumber: Integer; var ShortcutDimCode: Code[20])
     begin
     end;
@@ -2438,7 +2445,7 @@ table 5901 "Service Item Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckServItemCustomer(ServiceHeader: Record "Service Header"; ServiceItem: Record "Service Item"; IsHandled: Boolean)
+    local procedure OnBeforeCheckServItemCustomer(ServiceHeader: Record "Service Header"; ServiceItem: Record "Service Item"; var IsHandled: Boolean)
     begin
     end;
 

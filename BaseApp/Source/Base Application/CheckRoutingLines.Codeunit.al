@@ -55,7 +55,7 @@ codeunit 99000752 "Check Routing Lines"
                 RtngLine2.SetRange("Version Code", VersionCode);
                 if RtngLine2.Find('>') then begin
                     RtngLine."Next Operation No." := RtngLine2."Operation No.";
-                    RtngLine.Modify;
+                    RtngLine.Modify();
                 end;
             until RtngLine.Next = 0;
     end;
@@ -83,7 +83,7 @@ codeunit 99000752 "Check Routing Lines"
                             RtngLine2."Previous Operation No." :=
                               RtngLine2."Previous Operation No." +
                               RtngLine."Operation No.";
-                            RtngLine2.Modify;
+                            RtngLine2.Modify();
                         until RtngLine2.Next = 0;
                 end;
             until RtngLine.Next = 0;
@@ -102,33 +102,41 @@ codeunit 99000752 "Check Routing Lines"
     local procedure SetRtngLineSequenceBack(RoutingType: Option Serial,Parallel; RoutingNo: Code[20]; VersionCode: Code[20]; Maxsequences: Integer)
     var
         RoutingLine: Record "Routing Line";
+        RtngLine: Record "Routing Line";
+        TempNameValueBuffer: Record "Name/Value Buffer" temporary;
         SequenceNo: Integer;
-        LinesFound: Boolean;
+        QueueCount: Integer;
+        i: Integer;
     begin
         SequenceNo := 1;
         if RoutingType = RoutingType::Parallel then begin
-            SetTerminalOperationSequenceNo(RoutingNo, VersionCode);
-            RoutingLine.SetRange("Routing No.", RoutingNo);
-            RoutingLine.SetRange("Version Code", VersionCode);
-            repeat
-                RoutingLine.SetRange("Sequence No. (Backward)", SequenceNo);
-                LinesFound := RoutingLine.FindSet;
-                if LinesFound then begin
-                    CheckCircularReference(SequenceNo, Maxsequences, RoutingNo);
-                    SequenceNo += 1;
-                    repeat
-                        if RoutingLine."Previous Operation No." <> '' then
-                            SetSequenceNoOnPreviousOperations(RoutingNo, VersionCode, RoutingLine."Previous Operation No.", SequenceNo);
-                    until (RoutingLine.Next = 0) or (RoutingLine."Previous Operation No." = '');
+            NameValueBufferEnqueue(TempNameValueBuffer, GetTerminalOperationNo(RoutingNo, VersionCode));
+
+            while not TempNameValueBuffer.IsEmpty() do begin
+                CheckCircularReference(SequenceNo, MaxSequences, RoutingNo);
+                QueueCount := TempNameValueBuffer.Count();
+                for i := 1 to QueueCount do begin
+                    SetSequenceNoBackwardOnOperation(RoutingLine, RoutingNo, VersionCode, NameValueBufferDequeue(TempNameValueBuffer), SequenceNo);
+
+                    if RoutingLine."Previous Operation No." <> '' then begin
+                        RtngLine.SetRange("Routing No.", RoutingNo);
+                        RtngLine.SetRange("Version Code", VersionCode);
+                        RtngLine.SetFilter("Operation No.", RoutingLine."Previous Operation No.");
+                        if RtngLine.FindSet() then
+                            repeat
+                                NameValueBufferEnqueue(TempNameValueBuffer, RtngLine."Operation No.");
+                            until RtngLine.Next() = 0;
+                    end;
                 end;
-            until not LinesFound or (RoutingLine."Previous Operation No." = '');
+                SequenceNo += 1;
+            end;
         end else begin
             RoutingLine.SetRange("Routing No.", RoutingNo);
             RoutingLine.SetRange("Version Code", VersionCode);
             if RoutingLine.Find('+') then
                 repeat
                     RoutingLine."Sequence No. (Backward)" := SequenceNo;
-                    RoutingLine.Modify;
+                    RoutingLine.Modify();
                     SequenceNo += 1;
                 until RoutingLine.Next(-1) = 0;
         end;
@@ -137,39 +145,47 @@ codeunit 99000752 "Check Routing Lines"
     procedure SetRtngLineSequenceForward(RoutingType: Option Serial,Parallel; RoutingNo: Code[20]; VersionCode: Code[20]; MaxSequences: Integer)
     var
         RoutingLine: Record "Routing Line";
+        RtngLine: Record "Routing Line";
+        TempNameValueBuffer: Record "Name/Value Buffer" temporary;
         SequenceNo: Integer;
-        LinesFound: Boolean;
+        QueueCount: Integer;
+        i: Integer;
     begin
         SequenceNo := 1;
         if RoutingType = RoutingType::Parallel then begin
-            SetStartingOperationSequenceNo(RoutingNo, VersionCode);
-            RoutingLine.SetRange("Routing No.", RoutingNo);
-            RoutingLine.SetRange("Version Code", VersionCode);
-            repeat
-                RoutingLine.SetRange("Sequence No. (Forward)", SequenceNo);
-                LinesFound := RoutingLine.FindSet;
-                if LinesFound then begin
-                    CheckCircularReference(SequenceNo, MaxSequences, RoutingNo);
-                    SequenceNo += 1;
-                    repeat
-                        if RoutingLine."Next Operation No." <> '' then
-                            SetSequenceNoOnNextOperations(RoutingNo, VersionCode, RoutingLine."Next Operation No.", SequenceNo);
-                    until (RoutingLine.Next = 0) or (RoutingLine."Next Operation No." = '');
+            NameValueBufferEnqueue(TempNameValueBuffer, GetStartingOperationNo(RoutingNo, VersionCode));
+
+            while not TempNameValueBuffer.IsEmpty() do begin
+                CheckCircularReference(SequenceNo, MaxSequences, RoutingNo);
+                QueueCount := TempNameValueBuffer.Count();
+                for i := 1 to QueueCount do begin
+                    SetSequenceNoForwardOnOperation(RoutingLine, RoutingNo, VersionCode, NameValueBufferDequeue(TempNameValueBuffer), SequenceNo);
+
+                    if RoutingLine."Next Operation No." <> '' then begin
+                        RtngLine.SetRange("Routing No.", RoutingNo);
+                        RtngLine.SetRange("Version Code", VersionCode);
+                        RtngLine.SetFilter("Operation No.", RoutingLine."Next Operation No.");
+                        if RtngLine.FindSet() then
+                            repeat
+                                NameValueBufferEnqueue(TempNameValueBuffer, RtngLine."Operation No.");
+                            until RtngLine.Next() = 0;
+                    end;
                 end;
-            until not LinesFound or (RoutingLine."Next Operation No." = '');
+                SequenceNo += 1;
+            end;
         end else begin
             RoutingLine.SetRange("Routing No.", RoutingNo);
             RoutingLine.SetRange("Version Code", VersionCode);
             if RoutingLine.Find('-') then
                 repeat
                     RoutingLine."Sequence No. (Forward)" := SequenceNo;
-                    RoutingLine.Modify;
+                    RoutingLine.Modify();
                     SequenceNo += 1;
                 until RoutingLine.Next = 0;
         end;
     end;
 
-    local procedure SetStartingOperationSequenceNo(RoutingNo: Code[20]; VersionCode: Code[20])
+    local procedure GetStartingOperationNo(RoutingNo: Code[20]; VersionCode: Code[20]): Code[10]
     var
         RoutingLine: Record "Routing Line";
     begin
@@ -177,11 +193,10 @@ codeunit 99000752 "Check Routing Lines"
         RoutingLine.SetRange("Version Code", VersionCode);
         RoutingLine.SetFilter("Previous Operation No.", '%1', '');
         RoutingLine.FindFirst;
-        RoutingLine."Sequence No. (Forward)" := 1;
-        RoutingLine.Modify;
+        exit(RoutingLine."Operation No.");
     end;
 
-    local procedure SetTerminalOperationSequenceNo(RoutingNo: Code[20]; VersionCode: Code[20])
+    local procedure GetTerminalOperationNo(RoutingNo: Code[20]; VersionCode: Code[20]): Code[10]
     var
         RoutingLine: Record "Routing Line";
     begin
@@ -189,28 +204,33 @@ codeunit 99000752 "Check Routing Lines"
         RoutingLine.SetRange("Version Code", VersionCode);
         RoutingLine.SetFilter("Next Operation No.", '%1', '');
         RoutingLine.FindFirst;
-        RoutingLine."Sequence No. (Backward)" := 1;
-        RoutingLine.Modify;
+        exit(RoutingLine."Operation No.");
     end;
 
-    local procedure SetSequenceNoOnNextOperations(RoutingNo: Code[20]; VersionCode: Code[20]; NextOperationFilter: Text; SequenceNo: Integer)
-    var
-        RoutingLine: Record "Routing Line";
+    local procedure SetSequenceNoForwardOnOperation(var RoutingLine: Record "Routing Line"; RoutingNo: Code[20]; VersionCode: Code[20]; OperationNo: Text; SequenceNo: Integer)
     begin
-        RoutingLine.SetRange("Routing No.", RoutingNo);
-        RoutingLine.SetRange("Version Code", VersionCode);
-        RoutingLine.SetFilter("Operation No.", NextOperationFilter);
-        RoutingLine.ModifyAll("Sequence No. (Forward)", SequenceNo);
+        RoutingLine.Get(RoutingNo, VersionCode, OperationNo);
+        RoutingLine."Sequence No. (Forward)" := SequenceNo;
+        RoutingLine.Modify();
     end;
 
-    local procedure SetSequenceNoOnPreviousOperations(RoutingNo: Code[20]; VersionCode: Code[20]; PreviousOperationFilter: Text; SequenceNo: Integer)
-    var
-        RoutingLine: Record "Routing Line";
+    local procedure SetSequenceNoBackwardOnOperation(var RoutingLine: Record "Routing Line"; RoutingNo: Code[20]; VersionCode: Code[20]; OperationNo: Text; SequenceNo: Integer)
     begin
-        RoutingLine.SetRange("Routing No.", RoutingNo);
-        RoutingLine.SetRange("Version Code", VersionCode);
-        RoutingLine.SetFilter("Operation No.", PreviousOperationFilter);
-        RoutingLine.ModifyAll("Sequence No. (Backward)", SequenceNo);
+        RoutingLine.Get(RoutingNo, VersionCode, OperationNo);
+        RoutingLine."Sequence No. (Backward)" := SequenceNo;
+        RoutingLine.Modify();
+    end;
+
+    local procedure NameValueBufferEnqueue(var TempNameValueBuffer: Record "Name/Value Buffer" temporary; Value: Text[250])
+    begin
+        TempNameValueBuffer.AddNewEntry('', Value);
+    end;
+
+    local procedure NameValueBufferDequeue(var TempNameValueBuffer: Record "Name/Value Buffer" temporary) Value: Text[250]
+    begin
+        TempNameValueBuffer.FindFirst();
+        Value := TempNameValueBuffer.Value;
+        TempNameValueBuffer.Delete();
     end;
 
     local procedure CalcSequenceBack(RtngHeader: Record "Routing Header"; VersionCode: Code[20])
@@ -225,10 +245,10 @@ codeunit 99000752 "Check Routing Lines"
                 RtngLine."Sequence No. (Backward)" := 0;
                 RtngLine."Fixed Scrap Qty. (Accum.)" := 0;
                 RtngLine."Scrap Factor % (Accumulated)" := 0;
-                RtngLine.Modify;
+                RtngLine.Modify();
             until RtngLine.Next = 0;
 
-        MaxSeq := RtngLine.Count;
+        MaxSeq := RtngLine.Count();
 
         SetRtngLineSequenceBack(RtngHeader.Type, RtngHeader."No.", VersionCode, MaxSeq);
     end;
@@ -242,7 +262,7 @@ codeunit 99000752 "Check Routing Lines"
         RtngLine.SetRange("Version Code", VersionCode);
         RtngLine.ModifyAll("Sequence No. (Forward)", 0);
 
-        MaxSeq := RtngLine.Count;
+        MaxSeq := RtngLine.Count();
 
         SetRtngLineSequenceForward(RtngHeader.Type, RtngHeader."No.", VersionCode, MaxSeq);
     end;
@@ -319,7 +339,7 @@ codeunit 99000752 "Check Routing Lines"
                 OnCalculateOnAfterCalcScrapQtyAndFactor(RtngLine, CalcScrapQty, CalcScrapFactor);
                 RtngLine."Fixed Scrap Qty. (Accum.)" := CalcScrapQty;
                 RtngLine."Scrap Factor % (Accumulated)" := CalcScrapFactor;
-                RtngLine.Modify;
+                RtngLine.Modify();
             until RtngLine.Next = 0;
 
         RtngLine.ModifyAll(Recalculate, false);
@@ -343,7 +363,7 @@ codeunit 99000752 "Check Routing Lines"
 
         RtngLine.SetFilter("Next Operation No.", '%1', '');
 
-        NoOfProcesses := RtngLine.Count;
+        NoOfProcesses := RtngLine.Count();
         if NoOfProcesses <> 1 then begin
             repeat
                 InsertInErrList(RtngLine);
@@ -357,7 +377,7 @@ codeunit 99000752 "Check Routing Lines"
 
         RtngLine.SetFilter("Previous Operation No.", '%1', '');
         RtngLine.SetRange("Next Operation No.");
-        NoOfProcesses := RtngLine.Count;
+        NoOfProcesses := RtngLine.Count();
         if NoOfProcesses <> 1 then begin
             repeat
                 InsertInErrList(RtngLine);

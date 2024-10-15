@@ -550,6 +550,7 @@ table 21 "Cust. Ledger Entry"
             Caption = 'Credit Memo Document';
             ObsoleteReason = 'This is an unused rogue field from legacy functionality that was removed.';
             ObsoleteState = Pending;
+            ObsoleteTag = '15.0';
         }
     }
 

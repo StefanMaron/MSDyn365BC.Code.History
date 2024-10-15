@@ -7,6 +7,7 @@ table 2003 "Cortana Intelligence Usage"
     Permissions = TableData "Cortana Intelligence Usage" = rimd;
     ObsoleteState = Removed;
     ObsoleteReason = 'Renamed to Azure AI Usage';
+    ObsoleteTag = '15.0';
 
     fields
     {

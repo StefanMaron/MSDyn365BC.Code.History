@@ -3072,19 +3072,20 @@ codeunit 134394 "ERM Purchase Subform"
         PurchaseQuote.PurchLines.Type.SetValue(PurchaseLine.Type::Item);
 
         // [THEN] Fields Quantity, Location Code, Unit Price, Line Discount % and Line Amount are non editable
-        Assert.IsFalse(
+        // TFS ID: 339141 Fields remain editable to keep Quick Entry feature functionable
+        Assert.IsTrue(
           PurchaseQuote.PurchLines.Quantity.Editable,
           StrSubstNo(NotEditableErr, PurchaseLine.FieldName(Quantity)));
-        Assert.IsFalse(
+        Assert.IsTrue(
           PurchaseQuote.PurchLines."Location Code".Editable,
           StrSubstNo(NotEditableErr, PurchaseLine.FieldName("Location Code")));
-        Assert.IsFalse(
+        Assert.IsTrue(
           PurchaseQuote.PurchLines."Direct Unit Cost".Editable,
           StrSubstNo(NotEditableErr, PurchaseLine.FieldName("Direct Unit Cost")));
-        Assert.IsFalse(
+        Assert.IsTrue(
           PurchaseQuote.PurchLines."Line Discount %".Editable,
           StrSubstNo(NotEditableErr, PurchaseLine.FieldName("Line Discount %")));
-        Assert.IsFalse(
+        Assert.IsTrue(
           PurchaseQuote.PurchLines."Line Amount".Editable,
           StrSubstNo(NotEditableErr, PurchaseLine.FieldName("Line Amount")));
     end;
@@ -3147,19 +3148,20 @@ codeunit 134394 "ERM Purchase Subform"
         PurchaseInvoice.PurchLines.Type.SetValue(PurchaseLine.Type::Item);
 
         // [THEN] Fields Quantity, Location Code, Unit Price, Line Discount % and Line Amount are non editable
-        Assert.IsFalse(
+        // TFS ID: 339141 Fields remain editable to keep Quick Entry feature functionable
+        Assert.IsTrue(
           PurchaseInvoice.PurchLines.Quantity.Editable,
           StrSubstNo(NotEditableErr, PurchaseLine.FieldName(Quantity)));
-        Assert.IsFalse(
+        Assert.IsTrue(
           PurchaseInvoice.PurchLines."Location Code".Editable,
           StrSubstNo(NotEditableErr, PurchaseLine.FieldName("Location Code")));
-        Assert.IsFalse(
+        Assert.IsTrue(
           PurchaseInvoice.PurchLines."Direct Unit Cost".Editable,
           StrSubstNo(NotEditableErr, PurchaseLine.FieldName("Direct Unit Cost")));
-        Assert.IsFalse(
+        Assert.IsTrue(
           PurchaseInvoice.PurchLines."Line Discount %".Editable,
           StrSubstNo(NotEditableErr, PurchaseLine.FieldName("Line Discount %")));
-        Assert.IsFalse(
+        Assert.IsTrue(
           PurchaseInvoice.PurchLines."Line Amount".Editable,
           StrSubstNo(NotEditableErr, PurchaseLine.FieldName("Line Amount")));
     end;
@@ -3222,16 +3224,17 @@ codeunit 134394 "ERM Purchase Subform"
         PurchaseOrder.PurchLines.Type.SetValue(PurchaseLine.Type::Item);
 
         // [THEN] Fields Quantity, Location Code, Unit Price and Line Amount are non editable
-        Assert.IsFalse(
+        // TFS ID: 339141 Fields remain editable to keep Quick Entry feature functionable
+        Assert.IsTrue(
           PurchaseOrder.PurchLines.Quantity.Editable,
           StrSubstNo(NotEditableErr, PurchaseLine.FieldName(Quantity)));
-        Assert.IsFalse(
+        Assert.IsTrue(
           PurchaseOrder.PurchLines."Location Code".Editable,
           StrSubstNo(NotEditableErr, PurchaseLine.FieldName("Location Code")));
-        Assert.IsFalse(
+        Assert.IsTrue(
           PurchaseOrder.PurchLines."Direct Unit Cost".Editable,
           StrSubstNo(NotEditableErr, PurchaseLine.FieldName("Direct Unit Cost")));
-        Assert.IsFalse(
+        Assert.IsTrue(
           PurchaseOrder.PurchLines."Line Amount".Editable,
           StrSubstNo(NotEditableErr, PurchaseLine.FieldName("Line Amount")));
     end;
@@ -3291,19 +3294,20 @@ codeunit 134394 "ERM Purchase Subform"
         PurchaseCreditMemo.PurchLines.Type.SetValue(PurchaseLine.Type::Item);
 
         // [THEN] Fields Quantity, Location Code, Unit Price, Line Discount % and Line Amount are non editable
-        Assert.IsFalse(
+        // TFS ID: 339141 Fields remain editable to keep Quick Entry feature functionable
+        Assert.IsTrue(
           PurchaseCreditMemo.PurchLines.Quantity.Editable,
           StrSubstNo(NotEditableErr, PurchaseLine.FieldName(Quantity)));
-        Assert.IsFalse(
+        Assert.IsTrue(
           PurchaseCreditMemo.PurchLines."Location Code".Editable,
           StrSubstNo(NotEditableErr, PurchaseLine.FieldName("Location Code")));
-        Assert.IsFalse(
+        Assert.IsTrue(
           PurchaseCreditMemo.PurchLines."Direct Unit Cost".Editable,
           StrSubstNo(NotEditableErr, PurchaseLine.FieldName("Direct Unit Cost")));
-        Assert.IsFalse(
+        Assert.IsTrue(
           PurchaseCreditMemo.PurchLines."Line Discount %".Editable,
           StrSubstNo(NotEditableErr, PurchaseLine.FieldName("Line Discount %")));
-        Assert.IsFalse(
+        Assert.IsTrue(
           PurchaseCreditMemo.PurchLines."Line Amount".Editable,
           StrSubstNo(NotEditableErr, PurchaseLine.FieldName("Line Amount")));
     end;
@@ -3366,19 +3370,20 @@ codeunit 134394 "ERM Purchase Subform"
         PurchaseReturnOrder.PurchLines.Type.SetValue(PurchaseLine.Type::Item);
 
         // [THEN] Fields Quantity, Location Code, Unit Price, Line Discount % and Line Amount are non editable
-        Assert.IsFalse(
+        // TFS ID: 339141 Fields remain editable to keep Quick Entry feature functionable
+        Assert.IsTrue(
           PurchaseReturnOrder.PurchLines.Quantity.Editable,
           StrSubstNo(NotEditableErr, PurchaseLine.FieldName(Quantity)));
-        Assert.IsFalse(
+        Assert.IsTrue(
           PurchaseReturnOrder.PurchLines."Location Code".Editable,
           StrSubstNo(NotEditableErr, PurchaseLine.FieldName("Location Code")));
-        Assert.IsFalse(
+        Assert.IsTrue(
           PurchaseReturnOrder.PurchLines."Direct Unit Cost".Editable,
           StrSubstNo(NotEditableErr, PurchaseLine.FieldName("Direct Unit Cost")));
-        Assert.IsFalse(
+        Assert.IsTrue(
           PurchaseReturnOrder.PurchLines."Line Discount %".Editable,
           StrSubstNo(NotEditableErr, PurchaseLine.FieldName("Line Discount %")));
-        Assert.IsFalse(
+        Assert.IsTrue(
           PurchaseReturnOrder.PurchLines."Line Amount".Editable,
           StrSubstNo(NotEditableErr, PurchaseLine.FieldName("Line Amount")));
     end;

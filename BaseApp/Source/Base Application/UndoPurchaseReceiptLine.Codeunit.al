@@ -263,7 +263,14 @@ codeunit 5813 "Undo Purchase Receipt Line"
             if "Item Rcpt. Entry No." <> 0 then begin
                 if "Job No." <> '' then
                     UndoPostingMgt.TransferSourceValues(ItemJnlLine, "Item Rcpt. Entry No.");
+
+                IsHandled := false;
+                OnPostItemJnlLineOnBeforeUndoPosting(ItemJnlLine, PurchRcptHeader, PurchRcptLine, SourceCodeSetup, IsHandled);
+                if IsHandled then
+                    exit(ItemJnlLine."Item Shpt. Entry No.");
+
                 UndoPostingMgt.PostItemJnlLine(ItemJnlLine);
+
                 if "Job No." <> '' then begin
                     Item.Get("No.");
                     if Item.Type = Item.Type::Inventory then begin
@@ -438,6 +445,11 @@ codeunit 5813 "Undo Purchase Receipt Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnPostItemJournalInboundItemEntryPostingWithJob(var ItemJournalLine: Record "Item Journal Line"; ItemApplicationEntry: Record "Item Application Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostItemJnlLineOnBeforeUndoPosting(var ItemJournalLine: Record "Item Journal Line"; var PurchRcptHeader: Record "Purch. Rcpt. Header"; var PurchRcptLine: Record "Purch. Rcpt. Line"; SourceCodeSetup: Record "Source Code Setup"; var IsHandled: Boolean)
     begin
     end;
 }
