@@ -35,6 +35,8 @@ codeunit 9018 "Azure AD Plan Impl."
         MixedPlansAdminErr: Label 'Before you can update user information, go to your Microsoft 365 admin center and make sure that all users are assigned to the same Business Central license, either Basic, Essential, or Premium. For example, we found that users %1 and %2 are assigned to different licenses, but there may be other mismatches.', Comment = '%1 = %2 = Authentication email.';
         MixedPlansMsg: Label 'One or more users are not assigned to the same Business Central license. For example, we found that users %1 and %2 are assigned to different licenses, but there may be other mismatches. In your Microsoft 365 admin center, make sure that all users are assigned to the same Business Central license, either Basic, Essential, or Premium.  Afterward, update Business Central by opening the Users page and using the ''Update Users from Office 365'' action.', Comment = '%1 = %2 = Authentication email.';
         UserPlanAssignedMsg: Label 'User with authentication object ID %1 is assigned plan %2', Locked = true;
+        GettingUpdatesTxt: Label 'Fetching graph updates for user with authentication object ID: %1', Locked = true;
+        SkippingUpdatesTxt: Label 'User is not part of security group. Skipping updates for user with authentication object ID: %1', Locked = true;
         PlanNotEnabledMsg: Label 'Plan is assigned to user but it is not enabled. Plan ID: %1', Locked = true;
         NotBCPlanAssignedMsg: Label 'Plan is assigned to user but it is not recognized as a BC plan. Plan ID: %1', Locked = true;
         DeviceUserWithBcPlanMsg: Label 'User with authentication object ID %1 is a member of the Device group, but also has Business Central plans assigned. The Device plan will not be assigned to this user.', Locked = true;
@@ -475,14 +477,18 @@ codeunit 9018 "Azure AD Plan Impl."
         DevicesPlanId: Guid;
         DevicesPlanName: Text;
     begin
+        Session.LogMessage('0000NMI', StrSubstNo(GettingUpdatesTxt, Format(GraphUserInfo.ObjectId())), Verbosity::Normal, DataClassification::EndUserPseudonymousIdentifiers, TelemetryScope::ExtensionPublisher, 'Category', UserSetupCategoryTxt);
+
         TempPlan.Reset();
         TempPlan.DeleteAll();
 
         // Do not consider plans of non-admin users who are not members of the environment security group
         if AzureADGraph.IsEnvironmentSecurityGroupDefined() then
             if (not AzureADGraph.IsMemberOfGroupWithId(AzureADGraph.GetEnvironmentSecurityGroupId(), GraphUserInfo)) then
-                if not IsInternalAdmin(GraphUserInfo) then
+                if not IsInternalAdmin(GraphUserInfo) then begin
+                    Session.LogMessage('0000NMJ', StrSubstNo(SkippingUpdatesTxt, Format(GraphUserInfo.ObjectId())), Verbosity::Normal, DataClassification::EndUserPseudonymousIdentifiers, TelemetryScope::ExtensionPublisher, 'Category', UserSetupCategoryTxt);
                     exit;
+                end;
 
         // Loop through assigned Microsoft Entra Plans
         if not IsNull(GraphUserInfo.AssignedPlans()) then

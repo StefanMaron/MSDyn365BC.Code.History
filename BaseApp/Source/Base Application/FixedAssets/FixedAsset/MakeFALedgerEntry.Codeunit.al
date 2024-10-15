@@ -167,6 +167,7 @@ codeunit 5604 "Make FA Ledger Entry"
             "FA Posting Group" := FADocLine."FA Posting Group";
             "Global Dimension 1 Code" := FADocLine."Shortcut Dimension 1 Code";
             "Global Dimension 2 Code" := FADocLine."Shortcut Dimension 2 Code";
+            "Dimension Set ID" := FADocLine."Dimension Set ID";
             "Reason Code" := FADocLine."Reason Code";
             "Source Code" := FADocLine."Source Code";
             "FA Posting Type" := "FA Posting Type"::Transfer;

@@ -1040,6 +1040,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM RU SE Fixes - NamedType CorrectDateNotFoundErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 872598470 - NamedType 3805432381" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[FA Ledger Entry should consists of Dimension Set ID.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM RU SE Fixes - NamedType FALedgerEntryDimErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 872598470 - NamedType 1122483127" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[General Journal Line Archive must be exist.]]></Val>
