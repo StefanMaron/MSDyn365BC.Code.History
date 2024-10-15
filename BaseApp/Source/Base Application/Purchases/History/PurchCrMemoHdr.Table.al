@@ -347,7 +347,7 @@ table 124 "Purch. Cr. Memo Hdr."
         }
         field(86; "Pay-to County"; Text[30])
         {
-            CaptionClass = '5,1,' + "Pay-to Country/Region Code";
+            CaptionClass = '5,6,' + "Pay-to Country/Region Code";
             Caption = 'Pay-to County';
         }
         field(87; "Pay-to Country/Region Code"; Code[10])
@@ -363,7 +363,7 @@ table 124 "Purch. Cr. Memo Hdr."
         }
         field(89; "Buy-from County"; Text[30])
         {
-            CaptionClass = '5,1,' + "Buy-from Country/Region Code";
+            CaptionClass = '5,5,' + "Buy-from Country/Region Code";
             Caption = 'Buy-from County';
         }
         field(90; "Buy-from Country/Region Code"; Code[10])
@@ -379,7 +379,7 @@ table 124 "Purch. Cr. Memo Hdr."
         }
         field(92; "Ship-to County"; Text[30])
         {
-            CaptionClass = '5,1,' + "Ship-to Country/Region Code";
+            CaptionClass = '5,4,' + "Ship-to Country/Region Code";
             Caption = 'Ship-to County';
         }
         field(93; "Ship-to Country/Region Code"; Code[10])

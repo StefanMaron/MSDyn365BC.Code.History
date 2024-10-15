@@ -550,7 +550,6 @@ codeunit 139165 "Integration Table Synch. Test"
         IntegrationTableMapping: Record "Integration Table Mapping";
         IntegrationSynchJob: Record "Integration Synch. Job";
         IntegrationTableSynch: Codeunit "Integration Table Synch.";
-        JobID: Guid;
     begin
         // [FEATURE] [Integration Synch. Job]
         // [SCENARIO] Synchronize() should create a failed sync job if the source record is deleted
@@ -992,7 +991,6 @@ codeunit 139165 "Integration Table Synch. Test"
     var
         CRMAccount: Record "CRM Account";
         Customer: Record Customer;
-        CRMIntegrationRecord: Record "CRM Integration Record";
         IntegrationSynchJob: Record "Integration Synch. Job";
         IntegrationTableMapping: Record "Integration Table Mapping";
         IntegrationTableSynch: Codeunit "Integration Table Synch.";
@@ -2404,7 +2402,6 @@ codeunit 139165 "Integration Table Synch. Test"
         IntegrationSynchJob: Record "Integration Synch. Job";
         IntegrationSynchJobErrors: Record "Integration Synch. Job Errors";
         IntegrationTableMapping: Record "Integration Table Mapping";
-        IntegrationFieldMapping: Record "Integration Field Mapping";
         IntegrationTableSynch: Codeunit "Integration Table Synch.";
         CustomerFaxNo: Text;
         AccountFaxNo: Text;

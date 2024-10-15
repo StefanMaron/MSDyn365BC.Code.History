@@ -169,7 +169,7 @@ table 8627 "Config. Setup"
         }
         field(33; "Ship-to County"; Text[30])
         {
-            CaptionClass = '5,1,' + "Ship-to Country/Region Code";
+            CaptionClass = '5,4,' + "Ship-to Country/Region Code";
             Caption = 'Ship-to County';
         }
         field(34; "E-Mail"; Text[80])

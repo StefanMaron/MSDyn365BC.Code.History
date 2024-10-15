@@ -235,13 +235,17 @@ codeunit 5805 "Item Charge Assgnt. (Purch.)"
         ItemChargeAssgntPurch2.SetRange(
           "Applies-to Doc. Type", ItemChargeAssgntPurch2."Applies-to Doc. Type"::"Sales Shipment");
         repeat
-            ItemChargeAssgntPurch2.SetRange("Applies-to Doc. No.", FromSalesShptLine."Document No.");
-            ItemChargeAssgntPurch2.SetRange("Applies-to Doc. Line No.", FromSalesShptLine."Line No.");
-            if not ItemChargeAssgntPurch2.FindFirst() then
-                InsertItemChargeAssignment(
-                    ItemChargeAssgntPurch, ItemChargeAssgntPurch2."Applies-to Doc. Type"::"Sales Shipment",
-                    FromSalesShptLine."Document No.", FromSalesShptLine."Line No.",
-                    FromSalesShptLine."No.", FromSalesShptLine.Description, NextLine);
+            IsHandled := false;
+            OnCreateSalesShptChargeAssgntOnBeforeInsertItemChargeAssignment(FromSalesShptLine, ItemChargeAssgntPurch, NextLine, IsHandled);
+            if not IsHandled then begin
+                ItemChargeAssgntPurch2.SetRange("Applies-to Doc. No.", FromSalesShptLine."Document No.");
+                ItemChargeAssgntPurch2.SetRange("Applies-to Doc. Line No.", FromSalesShptLine."Line No.");
+                if not ItemChargeAssgntPurch2.FindFirst() then
+                    InsertItemChargeAssignment(
+                        ItemChargeAssgntPurch, ItemChargeAssgntPurch2."Applies-to Doc. Type"::"Sales Shipment",
+                        FromSalesShptLine."Document No.", FromSalesShptLine."Line No.",
+                        FromSalesShptLine."No.", FromSalesShptLine.Description, NextLine);
+            end;
         until FromSalesShptLine.Next() = 0;
     end;
 
@@ -1033,6 +1037,11 @@ codeunit 5805 "Item Charge Assgnt. (Purch.)"
 
     [IntegrationEvent(false, false)]
     local procedure OnAssignByAmountOnAfterAssignAppliesToDocLineAmount(ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)"; var TempItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)" temporary; PurchHeader: Record "Purchase Header"; TotalQtyToAssign: Decimal; TotalAmtToAssign: Decimal);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateSalesShptChargeAssgntOnBeforeInsertItemChargeAssignment(var FromSalesShipmentLine: Record "Sales Shipment Line"; ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)"; NextLine: Integer; var IsHandled: Boolean)
     begin
     end;
 }

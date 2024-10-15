@@ -61,7 +61,8 @@ page 6323 "Power BI Element Card"
                             exit;
 
                         PowerBIDisplayedElement.ReportPage := CopyStr(newPage, 1, MaxStrLen(PowerBIDisplayedElement.ReportPage));
-                        PowerBIDisplayedElement.Modify(true);
+                        if not PowerBIDisplayedElement.Modify(true) then
+                            Session.LogMessage('0000LK8', FailedToUpdatePageTelemetryMsg, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', PowerBiServiceMgt.GetPowerBiTelemetryCategory());
                     end;
                 }
             }
@@ -125,6 +126,7 @@ page 6323 "Power BI Element Card"
         ErrorMessageText: Text;
         UnsupportedElementTypeErr: Label 'Displaying Power BI elements of type %1 is currently not supported.', Comment = '%1 = an element type, such as Report or Workspace';
         UnauthorizedErr: Label 'You do not have a Power BI account. If you have just activated a license, it might take several minutes for the changes to be effective in Power BI.';
+        FailedToUpdatePageTelemetryMsg: Label 'Failed to update the page for the Power BI report.', Locked = true;
         EmbedCorrelationTelemetryTxt: Label 'Embed element started with type: %1, and correlation: %2', Locked = true;
         EmbedErrorOccurredTelemetryTxt: Label 'Embed error occurred with category: %1', Locked = true;
 

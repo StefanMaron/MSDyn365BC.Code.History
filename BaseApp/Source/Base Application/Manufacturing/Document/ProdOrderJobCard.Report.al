@@ -12,6 +12,7 @@ report 99000762 "Prod. Order - Job Card"
     ApplicationArea = Manufacturing;
     Caption = 'Prod. Order - Job Card';
     UsageCategory = ReportsAndAnalysis;
+    WordMergeDataItem = "Production Order";
 
     dataset
     {

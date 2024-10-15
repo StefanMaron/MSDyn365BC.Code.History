@@ -179,10 +179,26 @@ page 9200 "Personalized Pages"
     begin
         Rec.Reset();
 
+        PrivacyFilterUserPersonalizations();
         if not IsNullGuid(FilterUserID) then
             Rec.SetRange("User SID", FilterUserID)
         else
             Rec.SetFilter("User SID", GenerateUserSidFilter());
+    end;
+
+    /// <summary>
+    /// Ensure that users can only see their own personalizations, unless they have the permission to manage users on the tenant.
+    /// </summary>
+    local procedure PrivacyFilterUserPersonalizations()
+    var
+        UserPermissions: Codeunit "User Permissions";
+    begin
+        if UserPermissions.CanManageUsersOnTenant(UserSecurityId()) then
+            exit; // No need for additional user filters
+
+        Rec.FilterGroup(2);
+        Rec.SetRange("User SID", UserSecurityId());
+        Rec.FilterGroup(0);
     end;
 
     trigger OnAfterGetCurrRecord()

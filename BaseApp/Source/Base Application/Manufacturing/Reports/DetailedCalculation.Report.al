@@ -403,18 +403,13 @@ report 99000756 "Detailed Calculation"
 
     var
         MfgSetup: Record "Manufacturing Setup";
-        CompItem: Record Item;
         ProdBOMHeader: Record "Production BOM Header";
-        ProdBOMLine: array[99] of Record "Production BOM Line";
         UOMMgt: Codeunit "Unit of Measure Management";
         CostCalcMgt: Codeunit "Cost Calculation Management";
         VersionMgt: Codeunit VersionManagement;
         RtngVersionCode: Code[20];
         ItemFilter: Text;
-        PBOMNoList: array[99] of Code[20];
-        PBOMVersionCode: array[99] of Code[20];
         CompItemQtyBase: Decimal;
-        Quantity: array[99] of Decimal;
         CalculateDate: Date;
         CostTotal: Decimal;
         ProdUnitCost: Decimal;
@@ -445,5 +440,12 @@ report 99000756 "Detailed Calculation"
         ProdTotalCostCaptLbl: Label 'Cost of Production';
         CostTotalCaptLbl: Label 'Cost of Components';
         SingleLevelMfgOvhdCaptionLbl: Label 'Single-Level Mfg. Overhead Cost';
+
+    protected var
+        CompItem: Record Item;
+        ProdBOMLine: array[99] of Record "Production BOM Line";
+        PBOMNoList: array[99] of Code[20];
+        PBOMVersionCode: array[99] of Code[20];
+        Quantity: array[99] of Decimal;
 }
 

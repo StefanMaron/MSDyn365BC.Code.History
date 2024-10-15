@@ -4,6 +4,7 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Foundation.UOM;
 
+using Microsoft.Integration.Dataverse;
 using Microsoft.Inventory.Item;
 using Microsoft.Projects.Resources.Resource;
 
@@ -82,6 +83,12 @@ table 5400 "Unit Group"
             ObsoleteState = Removed;
             ObsoleteTag = '24.0';
 #endif
+        }
+        field(721; "Coupled to Dataverse"; Boolean)
+        {
+            Caption = 'Coupled to Dynamics 365 Sales';
+            FieldClass = FlowField;
+            CalcFormula = exist("CRM Integration Record" where("Integration ID" = field(SystemId), "Table ID" = const(Database::"Unit Group")));
         }
     }
 

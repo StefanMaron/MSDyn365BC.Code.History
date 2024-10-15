@@ -46,10 +46,16 @@ codeunit 1620 "PEPPOL Validation"
         GLSetup: Record "General Ledger Setup";
         ResponsibilityCenter: Record "Responsibility Center";
         Customer: Record Customer;
+        IsHandled: Boolean;
     begin
         with SalesHeader do begin
             CompanyInfo.Get();
             GLSetup.Get();
+
+            IsHandled := false;
+            OnBeforeCheckSalesDocument(SalesHeader, CompanyInfo, IsHandled);
+            if IsHandled then
+                exit;
 
             CheckCurrencyCode("Currency Code");
 
@@ -70,8 +76,11 @@ codeunit 1620 "PEPPOL Validation"
             CompanyInfo.TestField("Country/Region Code");
             CheckCountryRegionCode(CompanyInfo."Country/Region Code");
 
-            if CompanyInfo.GLN + CompanyInfo."VAT Registration No." = '' then
-                Error(MissingCompInfGLNOrVATRegNoErr, CompanyInfo.TableCaption());
+            IsHandled := false;
+            OnCheckSalesDocumentOnBeforeCheckCompanyVATRegNo(SalesHeader, CompanyInfo, IsHandled);
+            if not IsHandled then
+                if CompanyInfo.GLN + CompanyInfo."VAT Registration No." = '' then
+                    Error(MissingCompInfGLNOrVATRegNoErr, CompanyInfo.TableCaption());
             TestField("Bill-to Name");
             TestField("Bill-to Address");
             TestField("Bill-to City");
@@ -79,11 +88,14 @@ codeunit 1620 "PEPPOL Validation"
             TestField("Bill-to Country/Region Code");
             CheckCountryRegionCode("Bill-to Country/Region Code");
 
-            if ("Document Type" in ["Document Type"::Invoice, "Document Type"::Order, "Document Type"::"Credit Memo"]) and
-               Customer.Get("Bill-to Customer No.")
-            then
-                if (Customer.GLN + Customer."VAT Registration No.") = '' then
-                    Error(MissingCustGLNOrVATRegNoErr, Customer."No.");
+            IsHandled := false;
+            OnCheckSalesDocumentOnBeforeCheckCustomerVATRegNo(SalesHeader, Customer, IsHandled);
+            if not IsHandled then
+                if ("Document Type" in ["Document Type"::Invoice, "Document Type"::Order, "Document Type"::"Credit Memo"]) and
+                   Customer.Get("Bill-to Customer No.")
+                then
+                    if (Customer.GLN + Customer."VAT Registration No.") = '' then
+                        Error(MissingCustGLNOrVATRegNoErr, Customer."No.");
 
             if "Document Type" = "Document Type"::"Credit Memo" then
                 if "Applies-to Doc. Type" = "Applies-to Doc. Type"::Invoice then
@@ -127,6 +139,11 @@ codeunit 1620 "PEPPOL Validation"
         unitCodeListID: Text;
         IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckSalesDocumentLine(SalesLine, IsHandled);
+        if IsHandled then
+            exit;
+
         PEPPOLMgt.GetLineUnitCodeInfo(SalesLine, unitCode, unitCodeListID);
         with SalesLine do begin
             if (Type <> Type::" ") and ("No." <> '') and (unitCode = '') then
@@ -135,7 +152,7 @@ codeunit 1620 "PEPPOL Validation"
             IsHandled := false;
             OnCheckSalesDocumentLineOnBeforeCheckEmptyDescription(SalesLine, IsHandled);
             if not IsHandled then
-                if Description = '' then
+                if CheckSalesLineTypeAndDescription(SalesLine) then
                     Error(MissingDescriptionErr);
 
             if (Type <> Type::" ") and ("No." <> '') then begin // Not a description line
@@ -199,6 +216,7 @@ codeunit 1620 "PEPPOL Validation"
         if ServiceLine.FindSet() then
             repeat
                 PEPPOLManagement.TransferLineToSalesLine(ServiceLine, SalesLine);
+                OnCheckServiceHeaderOnBeforeCheckSalesDocumentLine(SalesLine, ServiceLine);
                 CheckSalesDocumentLine(SalesLine);
             until ServiceLine.Next() = 0;
     end;
@@ -218,6 +236,7 @@ codeunit 1620 "PEPPOL Validation"
             repeat
                 PEPPOLManagement.TransferLineToSalesLine(ServiceInvoiceLine, SalesLine);
                 SalesLine."Document Type" := SalesLine."Document Type"::Invoice;
+                OnCheckServiceInvoiceOnBeforeCheckSalesDocumentLine(SalesLine, ServiceInvoiceLine);
                 CheckSalesDocumentLine(SalesLine);
             until ServiceInvoiceLine.Next() = 0;
     end;
@@ -237,6 +256,7 @@ codeunit 1620 "PEPPOL Validation"
             repeat
                 PEPPOLManagement.TransferLineToSalesLine(ServiceCrMemoLine, SalesLine);
                 SalesLine."Document Type" := SalesLine."Document Type"::"Credit Memo";
+                OnCheckServiceCreditMemoOnBeforeCheckSalesDocumentLine(SalesLine, ServiceCrMemoLine);
                 CheckSalesDocumentLine(SalesLine);
             until ServiceCrMemoLine.Next() = 0;
     end;
@@ -301,6 +321,12 @@ codeunit 1620 "PEPPOL Validation"
         CheckCountryRegionCode(SalesHeader."Ship-to Country/Region Code");
     end;
 
+    procedure CheckSalesLineTypeAndDescription(SalesLine: Record "Sales Line"): Boolean
+    begin
+        if (SalesLine.Type <> SalesLine.Type::" ") and (SalesLine.Description = '') then
+            exit(true);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterCheckSalesDocument(SalesHeader: Record "Sales Header"; CompanyInfo: Record "Company Information")
     begin
@@ -318,6 +344,41 @@ codeunit 1620 "PEPPOL Validation"
 
     [IntegrationEvent(false, false)]
     local procedure OnCheckSalesDocumentLineOnBeforeCheckEmptyDescription(SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckSalesDocument(var SalesHeader: Record "Sales Header"; var CompanyInformation: Record "Company Information"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckSalesDocumentLine(var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckServiceHeaderOnBeforeCheckSalesDocumentLine(var SalesLine: Record "Sales Line"; ServiceLine: Record "Service Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckServiceInvoiceOnBeforeCheckSalesDocumentLine(var SalesLine: Record "Sales Line"; ServiceInvoiceLine: Record "Service Invoice Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckServiceCreditMemoOnBeforeCheckSalesDocumentLine(var SalesLine: Record "Sales Line"; ServiceCrMemoLine: Record "Service Cr.Memo Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckSalesDocumentOnBeforeCheckCompanyVATRegNo(SalesHeader: Record "Sales Header"; CompanyInformation: Record "Company Information"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckSalesDocumentOnBeforeCheckCustomerVATRegNo(SalesHeader: Record "Sales Header"; Customer: Record Customer; var IsHandled: Boolean)
     begin
     end;
 }

@@ -231,6 +231,7 @@ codeunit 5606 "FA Check Consistency"
             SetRange("FA No.", FANo);
             SetRange("FA Posting Category", "FA Posting Category"::" ");
             SetRange("FA Posting Type", FALedgEntry2."FA Posting Type");
+            OnSetFAPostingDateOnAfterSetFALedgerEntryFilters(FANo, DeprBookCode, FALedgEntry, FALedgEntry2);
             if Find('+') then
                 MaxDate := "FA Posting Date"
             else
@@ -548,6 +549,11 @@ codeunit 5606 "FA Check Consistency"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeRun(var FALedgerEntry: Record "FA Ledger Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetFAPostingDateOnAfterSetFALedgerEntryFilters(FANo: Code[20]; DepreciationBookCode: Code[10]; var FALedgerEntry: Record "FA Ledger Entry"; var FALedgerEntry2: Record "FA Ledger Entry");
     begin
     end;
 }

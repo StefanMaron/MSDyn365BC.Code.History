@@ -144,7 +144,7 @@ codeunit 5336 "Integration Record Synch."
         if DestinationFieldRef.Type = FieldType::Code then
             exit(Format(DestinationFieldRef.Value) <> UpperCase(DelChr(Format(SourceFieldRef.Value), '<>')));
 
-        if DestinationFieldRef.Type = FieldType::Blob then
+        if (SourceFieldRef.Type = FieldType::Blob) or (DestinationFieldRef.Type = FieldType::Blob) then
             exit(GetTextValue(DestinationFieldRef) <> GetTextValue(SourceFieldRef));
 
         if DestinationFieldRef.Length <> SourceFieldRef.Length then begin
@@ -479,7 +479,7 @@ codeunit 5336 "Integration Record Synch."
         // OnTransferFieldData is an event for handling an exceptional mapping that is not implemented by integration records
         OnTransferFieldData(SourceFieldRef, DestinationFieldRef, NewValue, IsValueFound, NeedsConversion);
         if not IsValueFound then
-            if DestinationFieldRef.Type = FieldType::Blob then
+            if SourceFieldRef.Type = FieldType::Blob then
                 NewValue := GetTextValue(SourceFieldRef)
             else
                 NewValue := SourceFieldRef.Value

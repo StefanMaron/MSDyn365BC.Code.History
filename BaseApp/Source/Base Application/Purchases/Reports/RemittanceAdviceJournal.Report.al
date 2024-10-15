@@ -14,6 +14,7 @@ report 399 "Remittance Advice - Journal"
     DefaultLayout = RDLC;
     RDLCLayout = './Purchases/Reports/RemittanceAdviceJournal.rdlc';
     Caption = 'Remittance Advice - Journal';
+    WordMergeDataItem = VendLoop;
 
     dataset
     {
@@ -144,6 +145,7 @@ report 399 "Remittance Advice - Journal"
             column(DocDateCaption; DocumentDateCaptionLbl)
             {
             }
+            column(PostingDateCaption; PostingDateCaptionLbl) { }
             column(DocNoCaption; YourDocumentNoCaptionLbl)
             {
             }
@@ -256,6 +258,7 @@ report 399 "Remittance Advice - Journal"
                     column(AppliedVendLedgEntryTempDocDate; Format(TempAppliedVendLedgEntry."Document Date"))
                     {
                     }
+                    column(AppliedVendLedgEntryTempPostingDate; Format(TempAppliedVendLedgEntry."Posting Date")) { }
                     column(AppliedVendLedgEntryTempCurrCode; TempAppliedVendLedgEntry."Currency Code")
                     {
                     }
@@ -484,6 +487,7 @@ report 399 "Remittance Advice - Journal"
         AccNoCaptionLbl: Label 'Account No.';
         OriginalAmtCaptionLbl: Label 'Original Amount';
         DocumentDateCaptionLbl: Label 'Document Date';
+        PostingDateCaptionLbl: Label 'Posting Date';
         YourDocumentNoCaptionLbl: Label 'Your Document No.';
         DocTypeCaptionLbl: Label 'Doc. Type';
         OurDocumentNoCaptionLbl: Label 'Our Document No.';

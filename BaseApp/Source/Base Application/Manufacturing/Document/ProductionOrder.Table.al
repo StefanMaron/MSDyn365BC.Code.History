@@ -748,7 +748,7 @@ table 5405 "Production Order"
         Text006: Label 'A Finished Production Order cannot be modified.';
         Text007: Label '%1 %2 %3 cannot be created, because a %4 %2 %3 already exists.';
         ItemTrackingMgt: Codeunit "Item Tracking Management";
-        Text008: Label 'Nothing to handle.';
+        Text008: Label 'Nothing to handle. The production components are completely picked or not eligible for picking.';
         UpdateEndDate: Boolean;
         Text010: Label 'You may have changed a dimension.\\Do you want to update the lines?';
         Text011: Label 'You cannot change Finished Production Order dimensions.';

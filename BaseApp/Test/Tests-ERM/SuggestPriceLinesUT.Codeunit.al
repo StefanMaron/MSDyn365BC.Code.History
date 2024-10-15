@@ -27,6 +27,8 @@ codeunit 134168 "Suggest Price Lines UT"
         SameFromListCodeErr: Label '%1 must not be the same as %2.', Comment = '%1 and %2 - captions of the fields From Price List Code and To Price List Code';
         CannotFindDocErr: Label 'Cannot find document in the list.';
         SourceGroupUpdateMsg: Label 'There are price list line records with not defined Source Group field. You are not allowed to copy the lines from the existing price lists.';
+        PriceLineExistErr: Label 'Price List Line Exists';
+        UnitOfMeasureErr: Label 'Unit Of Measure Code must have same value';
         LibraryNotificationMgt: Codeunit "Library - Notification Mgt.";
 
     [Test]
@@ -2600,6 +2602,47 @@ codeunit 134168 "Suggest Price Lines UT"
         Assert.IsTrue(PurchasePriceList.CopyLines.Enabled(), 'Action should be enabled');
     end;
 
+    [Test]
+    [HandlerFunctions('SuggestPriceLineHandler')]
+    procedure UnitOfMeasureLookupFieldNotBlankWhenSuggestLinesUsedInSalesPrice()
+    var
+        PriceListheader: Record "Price List Header";
+        PriceListLine: Record "Price List Line";
+        Item: Record Item;
+        SuggestPriceLinesUT: Codeunit "Suggest Price Lines UT";
+        SalesPriceList: TestPage "Sales Price List";
+    begin
+        // [SCENARIO 484651] Verify that the Unit of Measure Code Lookup Field is not blank when the UOM field has a value in the sales price.
+        Initialize(true);
+        BindSubscription(SuggestPriceLinesUT);
+
+        // [GIVEN] Create a Item.
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create a Price Header.
+        LibraryPriceCalculation.CreatePriceHeader(
+            PriceListHeader, "Price Type"::Sale,
+            "Price Source Type"::"All Customers",
+            '');
+
+        // [GIVEN] Open Sales Price List Page & Perform "Suggest Line action. 
+        SalesPriceList.OpenEdit();
+        SalesPriceList.Filter.SetFilter(Code, PriceListHeader.Code);
+        Item.SetRange("No.", Item."No.");
+        SuggestPriceLinesUT.Enqueue(Item.GetView(false));// to set "Asset Filter" in OnAfterSetFilterByFilterPageBuilder
+        SalesPriceList.SuggestLines.Invoke();
+
+        // [VERIFY] Verify that Price List Line created.
+        PriceListLine.SetRange("Price List Code", PriceListHeader.Code);
+        Assert.IsTrue(PriceListLine.FindFirst(), PriceLineExistErr);
+
+        // [VERIFY] Verify that the Unit of Measure Code has the same value as the Item Sales Unit of Measure..
+        Assert.AreEqual(PriceListLine."Unit of Measure Code", Item."Sales Unit of Measure", UnitOfMeasureErr);
+
+        // [VERIFY] Verify that the Price List Line "Unit Of Measure Lookup" field is not blank.
+        Assert.AreEqual(PriceListLine."Unit of Measure Code Lookup", PriceListLine."Unit of Measure Code", UnitOfMeasureErr);
+    end;
+
     local procedure Initialize(Enable: Boolean)
     var
         PriceListHeader: Record "Price List Header";
@@ -3077,6 +3120,15 @@ codeunit 134168 "Suggest Price Lines UT"
         PriceListFilters.StartingDate.SetValue(LibraryVariableStorage.DequeueDate());
         PriceListFilters.EndingDate.SetValue(LibraryVariableStorage.DequeueDate());
         PriceListFilters.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure SuggestPriceLineHandler(var SuggestPriceLines: TestPage "Suggest Price Lines")
+    begin
+        SuggestPriceLines."Product Type".SetValue('Item');
+        SuggestPriceLines."Product Filter".AssistEdit();
+        SuggestPriceLines.OK().Invoke()
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Price Line Filters", 'OnAfterSetFilterByFilterPageBuilder', '', false, false)]

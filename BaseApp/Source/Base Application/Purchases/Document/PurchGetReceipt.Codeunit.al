@@ -47,65 +47,68 @@ codeunit 74 "Purch.-Get Receipt"
     begin
         IsHandled := false;
         OnBeforeCreateInvLines(PurchRcptLine2, TransferLine, IsHandled);
-        if IsHandled then
-            exit;
+        if not IsHandled then
+            with PurchRcptLine2 do begin
+                SetFilter("Qty. Rcd. Not Invoiced", '<>0');
+                OnCreateInvLinesOnBeforeFind(PurchRcptLine2, PurchHeader);
+                if Find('-') then begin
+                    PurchLine.LockTable();
+                    PurchLine.SetRange("Document Type", PurchHeader."Document Type");
+                    PurchLine.SetRange("Document No.", PurchHeader."No.");
+                    PurchLine."Document Type" := PurchHeader."Document Type";
+                    PurchLine."Document No." := PurchHeader."No.";
 
-        with PurchRcptLine2 do begin
-            SetFilter("Qty. Rcd. Not Invoiced", '<>0');
-            OnCreateInvLinesOnBeforeFind(PurchRcptLine2, PurchHeader);
-            if Find('-') then begin
-                PurchLine.LockTable();
-                PurchLine.SetRange("Document Type", PurchHeader."Document Type");
-                PurchLine.SetRange("Document No.", PurchHeader."No.");
-                PurchLine."Document Type" := PurchHeader."Document Type";
-                PurchLine."Document No." := PurchHeader."No.";
+                    OnBeforeInsertLines(PurchHeader, PurchLine);
 
-                OnBeforeInsertLines(PurchHeader, PurchLine);
+                    repeat
+                        IsHandled := false;
+                        OnCreateInvLinesOnBeforeInsertLineIteration(PurchRcptLine2, PurchRcptHeader, PurchHeader, PurchLine, TransferLine, IsHandled);
+                        if not IsHandled then
+                            if PurchRcptHeader."No." <> "Document No." then begin
+                                PurchRcptHeader.Get("Document No.");
+                                TransferLine := true;
+                                if PurchRcptHeader."Currency Code" <> PurchHeader."Currency Code" then begin
+                                    Message(
+                                      Text000,
+                                      PurchHeader.FieldCaption("Currency Code"),
+                                      PurchHeader.TableCaption(), PurchHeader."No.",
+                                      PurchRcptHeader.TableCaption(), PurchRcptHeader."No.");
+                                    TransferLine := false;
+                                end;
+                                ShowDifferentPayToVendMsg := PurchRcptHeader."Pay-to Vendor No." <> PurchHeader."Pay-to Vendor No.";
+                                OnCreateInvLinesOnAfterCalcShowNotSameVendorsMessage(PurchHeader, PurchRcptHeader, TransferLine, ShowDifferentPayToVendMsg);
+                                if ShowDifferentPayToVendMsg then begin
+                                    Message(
+                                      Text000,
+                                      PurchHeader.FieldCaption("Pay-to Vendor No."),
+                                      PurchHeader.TableCaption(), PurchHeader."No.",
+                                      PurchRcptHeader.TableCaption(), PurchRcptHeader."No.");
+                                    TransferLine := false;
+                                end;
+                                OnBeforeTransferLineToPurchaseDoc(PurchRcptHeader, PurchRcptLine2, PurchHeader, TransferLine);
+                            end;
+                        InsertInvoiceLineFromReceiptLine(PurchRcptLine2, TransferLine, PrepmtAmtToDeductRounding);
+                        if PurchRcptLine2."Order No." <> '' then
+                            if not OrderNoList.Contains(PurchRcptLine2."Order No.") then
+                                OrderNoList.Add(PurchRcptLine2."Order No.");
+                    until Next() = 0;
 
-                repeat
-                    if PurchRcptHeader."No." <> "Document No." then begin
-                        PurchRcptHeader.Get("Document No.");
-                        TransferLine := true;
-                        if PurchRcptHeader."Currency Code" <> PurchHeader."Currency Code" then begin
-                            Message(
-                              Text000,
-                              PurchHeader.FieldCaption("Currency Code"),
-                              PurchHeader.TableCaption(), PurchHeader."No.",
-                              PurchRcptHeader.TableCaption(), PurchRcptHeader."No.");
-                            TransferLine := false;
-                        end;
-                        ShowDifferentPayToVendMsg := PurchRcptHeader."Pay-to Vendor No." <> PurchHeader."Pay-to Vendor No.";
-                        OnCreateInvLinesOnAfterCalcShowNotSameVendorsMessage(PurchHeader, PurchRcptHeader, TransferLine, ShowDifferentPayToVendMsg);
-                        if ShowDifferentPayToVendMsg then begin
-                            Message(
-                              Text000,
-                              PurchHeader.FieldCaption("Pay-to Vendor No."),
-                              PurchHeader.TableCaption(), PurchHeader."No.",
-                              PurchRcptHeader.TableCaption(), PurchRcptHeader."No.");
-                            TransferLine := false;
-                        end;
-                        OnBeforeTransferLineToPurchaseDoc(PurchRcptHeader, PurchRcptLine2, PurchHeader, TransferLine);
-                    end;
-                    InsertInvoiceLineFromReceiptLine(PurchRcptLine2, TransferLine, PrepmtAmtToDeductRounding);
-                    if PurchRcptLine2."Order No." <> '' then
-                        if not OrderNoList.Contains(PurchRcptLine2."Order No.") then
-                            OrderNoList.Add(PurchRcptLine2."Order No.");
-                until Next() = 0;
+                    UpdateItemChargeLines();
 
-                UpdateItemChargeLines();
+                    if PurchLine.Find() then;
 
-                if PurchLine.Find() then;
+                    OnAfterInsertLines(PurchHeader);
 
-                OnAfterInsertLines(PurchHeader);
+                    CalcInvoiceDiscount(PurchLine);
+                    OnAfterCalcInvoiceDiscount(PurchHeader);
 
-                CalcInvoiceDiscount(PurchLine);
-                OnAfterCalcInvoiceDiscount(PurchHeader);
-
-                if TransferLine then
-                    AdjustPrepmtAmtToDeductRounding(PurchLine, PrepmtAmtToDeductRounding);
-                CopyDocumentAttachments(OrderNoList, PurchHeader);
+                    if TransferLine then
+                        AdjustPrepmtAmtToDeductRounding(PurchLine, PrepmtAmtToDeductRounding);
+                    CopyDocumentAttachments(OrderNoList, PurchHeader);
+                end;
             end;
-        end;
+
+        OnAfterCreateInvLines(PurchHeader, PurchLine);
     end;
 
     local procedure CheckHeader(PurchaseLine: Record "Purchase Line")
@@ -546,6 +549,16 @@ codeunit 74 "Purch.-Get Receipt"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCopyDocumentAttachments(var OrderNoList: List of [Code[20]]; var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateInvLines(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateInvLinesOnBeforeInsertLineIteration(var PurchRcptLine2: Record "Purch. Rcpt. Line"; var PurchRcptHeader: Record "Purch. Rcpt. Header"; var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; var TransferLine: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

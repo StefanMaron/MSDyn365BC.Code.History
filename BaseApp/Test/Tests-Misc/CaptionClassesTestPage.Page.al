@@ -46,9 +46,13 @@ page 138695 "Caption Classes Test Page"
             {
                 CaptionClass = '1,6,,DIM'; // supported filter DIM with translation
             }
+            field(ResolvedShortcutDimName; TextValue)
+            {
+                CaptionClass = '1,7,3'; // supported Shortcut Dim 3
+            }
             field(UnresolvedDim; TextValue)
             {
-                CaptionClass = '1,7'; // '1,7' is not supported
+                CaptionClass = '1,8'; // '1,8' is not supported
             }
             field(ResolvedCurrency; TextValue)
             {
@@ -84,7 +88,7 @@ page 138695 "Caption Classes Test Page"
             }
             field(UnresolvedCounty; TextValue)
             {
-                CaptionClass = '5,2,XX'; // '5,2,' is not supported
+                CaptionClass = '5,122,XX'; // '5,122,' is not supported
             }
             field(MissingCommaCounty; TextValue)
             {

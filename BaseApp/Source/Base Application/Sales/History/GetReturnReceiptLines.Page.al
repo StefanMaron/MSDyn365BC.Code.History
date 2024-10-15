@@ -264,6 +264,8 @@ page 6638 "Get Return Receipt Lines"
     var
         ReturnRcptLine: Record "Return Receipt Line";
     begin
+        OnBeforeIsFirstDocLine(Rec, TempReturnRcptLine);
+
         TempReturnRcptLine.Reset();
         TempReturnRcptLine.CopyFilters(Rec);
         TempReturnRcptLine.SetRange("Document No.", Rec."Document No.");
@@ -290,6 +292,11 @@ page 6638 "Get Return Receipt Lines"
     begin
         if not IsFirstDocLine() then
             DocumentNoHideValue := true;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeIsFirstDocLine(var ReturnReceiptLine: Record "Return Receipt Line"; var TempReturnReceiptLine: Record "Return Receipt Line" temporary);
+    begin
     end;
 }
 

@@ -707,6 +707,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Dimension Purchase - NamedType LocationChangesMsg)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1731419971 - NamedType 3439789507" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Select a Dimension Value Code for the Dimension Code %1 for G/L Account %2.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 - Dimension Code, %2 - G/L Account No.]D;]A;(LookupHint=Codeunit ERM Dimension Purchase - NamedType MissingDimensionErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1731419971 - NamedType 2571132409" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Dimensions are equal.]]></Val>
