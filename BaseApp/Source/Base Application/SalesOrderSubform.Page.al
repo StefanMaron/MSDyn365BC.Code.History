@@ -85,6 +85,7 @@
                         CrossReferenceNoLookUp();
                         NoOnAfterValidate();
                         UpdateEditableOnRow();
+                        DeltaUpdateTotals();
                         OnCrossReferenceNoOnLookup(Rec);
                     end;
 
@@ -111,6 +112,7 @@
                         ItemReferenceMgt.SalesReferenceNoLookup(Rec, SalesHeader);
                         NoOnAfterValidate();
                         UpdateEditableOnRow();
+                        DeltaUpdateTotals();
                         OnReferenceNoOnAfterLookup(Rec);
                     end;
 

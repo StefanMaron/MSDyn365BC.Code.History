@@ -814,7 +814,7 @@ report 10040 "Aged Accounts Receivable NA"
                 exit('101,1,' + AmountsAreInLbl);
 
             GetCurrencyRecord(Currency, CurrencyCode);
-            exit('101,4,' + StrSubstNo(AmountsAreInLbl, Currency.Description));
+            exit(StrSubstNo(AmountsAreInLbl, Currency.Description));
         end;
         exit('');
     end;
