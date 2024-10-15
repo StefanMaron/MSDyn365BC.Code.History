@@ -127,7 +127,7 @@ codeunit 5632 "FA Jnl.-Post Line"
                 FALedgEntry."VAT Amount" := VATAmount;
                 FALedgEntry."Transaction No." := NextTransactionNo;
                 FALedgEntry."G/L Entry No." := NextGLEntryNo;
-                OnBeforePostFixedAssetFromGenJnlLine(GenJnlLine, FALedgEntry, FAAmount, VATAmount);
+                OnBeforePostFixedAssetFromGenJnlLine(GenJnlLine, FALedgEntry, FAAmount, VATAmount, GLRegisterNo);
                 PostFixedAsset();
             end;
             
@@ -652,7 +652,7 @@ codeunit 5632 "FA Jnl.-Post Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePostFixedAssetFromGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; var FALedgerEntry: Record "FA Ledger Entry"; FAAmount: Decimal; VATAmount: Decimal)
+    local procedure OnBeforePostFixedAssetFromGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; var FALedgerEntry: Record "FA Ledger Entry"; FAAmount: Decimal; VATAmount: Decimal; GLRegisterNo: Integer)
     begin
     end;
 

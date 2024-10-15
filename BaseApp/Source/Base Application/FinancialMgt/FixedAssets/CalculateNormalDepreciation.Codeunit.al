@@ -152,7 +152,7 @@
                 DeprAmount := Sign * CalculateDeprAmount();
 
                 IsHandled := false;
-                OnAfterCalcFinalDeprAmount(FANo, FADeprBook, DeprBook, Sign, BookValue, DeprAmount, IsHandled, NumberOfDays);
+                OnAfterCalcFinalDeprAmount(FANo, FADeprBook, DeprBook, Sign, BookValue, DeprAmount, IsHandled, NumberOfDays2);
                 if not IsHandled then
                     if Sign * DeprAmount > 0 then
                         DeprAmount := 0;

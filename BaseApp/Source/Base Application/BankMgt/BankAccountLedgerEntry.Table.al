@@ -429,6 +429,8 @@ table 271 "Bank Account Ledger Entry"
             "Debit Amount (LCY)" := 0;
             "Credit Amount (LCY)" := -"Amount (LCY)";
         end;
+
+        OnAfterUpdateDebitCredit(Rec, Correction);
     end;
 
     procedure GetAppliedStatementNo(): Code[20]
@@ -507,6 +509,11 @@ table 271 "Bank Account Ledger Entry"
 
     [IntegrationEvent(false, false)]
     procedure OnAfterCopyFromGenJnlLine(var BankAccountLedgerEntry: Record "Bank Account Ledger Entry"; GenJournalLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateDebitCredit(var BankAccountLedgerEntry: Record "Bank Account Ledger Entry"; Correction: Boolean)
     begin
     end;
 }

@@ -118,8 +118,9 @@ codeunit 5361 "Int. Rec. Couple Invoke"
         IntegrationTableUid: Variant;
         DestinationTableID: Integer;
     begin
-        if CRMIntegrationManagement.IsIntegrationRecordChild(IntegrationTableMapping."Table ID") then
-            exit(false);
+        if IntegrationTableMapping.Type = IntegrationTableMapping.Type::Dataverse then
+            if CRMIntegrationManagement.IsIntegrationRecordChild(IntegrationTableMapping."Table ID") then
+                exit(false);
 
         IntegrationTableUidFieldRef := IntegrationRecordRef.Field(IntegrationTableMapping."Integration Table UID Fld. No.");
         IntegrationTableUid := IntegrationTableUidFieldRef.Value();

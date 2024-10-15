@@ -1285,6 +1285,7 @@ page 9233 "G/L Balance by Dim. Matrix"
                         Amount := Round(100 * CalcActualAmount() / Amount);
                 end;
         end;
+        OnCalcAmountOnAfterAssignAmount(AnalysisByDimParameters, GLAcc, Amount);
         TempDimensionCodeAmountBuffer."Line Code" := Code;
         TempDimensionCodeAmountBuffer."Column Code" := ColumnCode;
         TempDimensionCodeAmountBuffer.Amount := Amount;
@@ -1585,4 +1586,10 @@ page 9233 "G/L Balance by Dim. Matrix"
     local procedure OnSetDimFiltersOnCaseElse(DimOption: Option "G/L Account",Period,"Business Unit","Dimension 1","Dimension 2",Fund,"Dimension 3","Dimension 4","Dimension 5","Dimension 6","Dimension 7","Dimension 8"; var TheGLAcc: Record "G/L Account"; var DimCodeBuf: Record "Dimension Code Buffer")
     begin
     end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnCalcAmountOnAfterAssignAmount(var AnalysisByDimParameters: Record "Analysis by Dim. Parameters"; var GLAccount: record "G/L Account"; var Result: Decimal)
+    begin
+    end;
+
 }

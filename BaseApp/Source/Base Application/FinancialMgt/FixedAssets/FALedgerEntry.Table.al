@@ -500,10 +500,16 @@ table 5601 "FA Ledger Entry"
     end;
 
     procedure MoveToGenJnl(var GenJnlLine: Record "Gen. Journal Line")
+    var
+        IsHandled: Boolean;
     begin
         NextLineNo := GenJnlLine."Line No.";
         GenJnlLine."Line No." := 0;
         GenJnlLine.Init();
+        IsHandled := false;
+        OnMoveToGenJnlLineOnAfterInit(GenJnlLine, Rec, IsHandled);
+        if IsHandled then
+            exit;
         FAJnlSetup.SetGenJnlTrailCodes(GenJnlLine);
         GenJnlLine."FA Posting Type" := "Gen. Journal Line FA Posting Type".FromInteger(ConvertPostingType() + 1);
         GenJnlLine."Posting Date" := "Posting Date";
@@ -532,10 +538,16 @@ table 5601 "FA Ledger Entry"
     end;
 
     procedure MoveToFAJnl(var FAJnlLine: Record "FA Journal Line")
+    var
+        IsHandled: Boolean;
     begin
         NextLineNo := FAJnlLine."Line No.";
         FAJnlLine."Line No." := 0;
         FAJnlLine.Init();
+        IsHandled := false;
+        OnMoveToFAJnlLineOnAfterInit(FAJnlLine, Rec, IsHandled);
+        if IsHandled then
+            exit;
         FAJnlSetup.SetFAJnlTrailCodes(FAJnlLine);
         FAJnlLine."FA Posting Type" := "FA Journal Line FA Posting Type".FromInteger(ConvertPostingType());
         FAJnlLine."Posting Date" := "Posting Date";
@@ -622,6 +634,16 @@ table 5601 "FA Ledger Entry"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterIsAcquisitionCost(var FALedgerEntry: Record "FA Ledger Entry"; var AcquisitionCost: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnMoveToGenJnlLineOnAfterInit(var GenJournalLine: Record "Gen. Journal Line"; var FALedgerEntry: Record "FA Ledger Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnMoveToFAJnlLineOnAfterInit(var FAJournalLine: Record "FA Journal Line"; Rec: Record "FA Ledger Entry"; var IsHandled: Boolean)
     begin
     end;
 }

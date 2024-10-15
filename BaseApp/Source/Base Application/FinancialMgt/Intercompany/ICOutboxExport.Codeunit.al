@@ -406,7 +406,7 @@ codeunit 431 "IC Outbox Export"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeExportOutboxTransaction(ICOutboxTransaction: Record "IC Outbox Transaction"; OutStr: OutStream; var IsHandled: Boolean)
+    local procedure OnBeforeExportOutboxTransaction(var ICOutboxTransaction: Record "IC Outbox Transaction"; OutStr: OutStream; var IsHandled: Boolean)
     begin
     end;
 

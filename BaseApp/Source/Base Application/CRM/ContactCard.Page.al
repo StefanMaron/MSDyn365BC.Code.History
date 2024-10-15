@@ -1473,6 +1473,8 @@ page 5050 "Contact Card"
     var
         OfficeManagement: Codeunit "Office Management";
     begin
+        OnBeforeOnOpenPage(Rec);
+
         IsOfficeAddin := OfficeManagement.IsAvailable();
         CRMIntegrationEnabled := CRMIntegrationManagement.IsCRMIntegrationEnabled();
         CDSIntegrationEnabled := CRMIntegrationManagement.IsCDSIntegrationEnabled();
@@ -1595,6 +1597,11 @@ page 5050 "Contact Card"
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforeOnNewRecord(var Contact: Record Contact; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeOnOpenPage(var Contact: Record Contact)
     begin
     end;
 }

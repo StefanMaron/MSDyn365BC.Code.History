@@ -235,8 +235,11 @@ codeunit 5341 "CRM Int. Table. Subscriber"
         PriceListLine: Record "Price List Line";
         SalesLine: Record "Sales Line";
         CRMProduct: Record "CRM Product";
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        CRMTransactionCurrency: Record "CRM Transactioncurrency";
         OptionValue: Integer;
         TableValue: Text;
+        TransactionCurrencyId: Guid;
     begin
         if IsValueFound then
             exit;
@@ -259,6 +262,38 @@ codeunit 5341 "CRM Int. Table. Subscriber"
                     IsValueFound := true;
                     NeedsConversion := false;
                     exit;
+                end;
+
+        if (SourceFieldRef.Name() = SalesLine.FieldName(SalesLine."Currency Code")) and (DestinationFieldRef.Name() = CRMTransactionCurrency.FieldName(TransactionCurrencyId)) then
+            if Format(SourceFieldRef.Value()) = '' then
+                if CDSConnectionSetup.Get() then
+                    if CDSConnectionSetup.BaseCurrencyCode <> '' then begin
+                        GeneralLedgerSetup.Get();
+                        if GeneralLedgerSetup."LCY Code" <> CDSConnectionSetup.BaseCurrencyCode then begin
+                            CRMTransactionCurrency.SetRange(ISOCurrencyCode, CopyStr(GeneralLedgerSetup."LCY Code", 1, MaxStrLen(CRMTransactionCurrency.ISOCurrencyCode)));
+                            if CRMTransactionCurrency.FindFirst() then begin
+                                NewValue := CRMTransactionCurrency.TransactionCurrencyId;
+                                IsValueFound := true;
+                                NeedsConversion := false;
+                                exit;
+                            end;
+                        end;
+                    end;
+
+        if (SourceFieldRef.Name() = CRMTransactionCurrency.FieldName(TransactionCurrencyId)) and (DestinationFieldRef.Name() = SalesLine.FieldName(SalesLine."Currency Code")) then
+            if CDSConnectionSetup.Get() then
+                if CDSConnectionSetup.BaseCurrencyCode <> '' then begin
+                    GeneralLedgerSetup.Get();
+                    if GeneralLedgerSetup."LCY Code" <> CDSConnectionSetup.BaseCurrencyCode then begin
+                        Evaluate(TransactionCurrencyId, Format(SourceFieldRef.Value()));
+                        if CRMTransactionCurrency.Get(TransactionCurrencyId) then
+                            if Format(CRMTransactionCurrency.ISOCurrencyCode) = Format(GeneralLedgerSetup."LCY Code") then begin
+                                NewValue := '';
+                                IsValueFound := true;
+                                NeedsConversion := false;
+                                exit;
+                            end;
+                    end;
                 end;
 
         if (DestinationFieldRef.Record().Number() = Database::"CRM Salesorderdetail") and (SourceFieldRef.Number() = SalesLine.FieldNo("No.")) then
@@ -781,9 +816,6 @@ codeunit 5341 "CRM Int. Table. Subscriber"
             exit;
 
         SourceRecordRef.SetTable(SalesHeader);
-        SalesHeader.CalcFields("Coupled to Dataverse");
-        if not SalesHeader."Coupled to Dataverse" then
-            exit;
 
         if not CRMIntegrationRecord.FindByRecordID(SalesHeader.RecordId) then
             exit;
@@ -815,16 +847,10 @@ codeunit 5341 "CRM Int. Table. Subscriber"
     local procedure IgnoreReadOnlyInvoiceOnQueryPostFilterIgnoreRecord(SourceRecordRef: RecordRef; var IgnoreRecord: Boolean)
     var
         CRMInvoice: Record "CRM Invoice";
-        SalesInvoiceHeader: Record "Sales Invoice Header";
         CRMIntegrationRecord: Record "CRM Integration Record";
         CRMInvoiceID: Guid;
     begin
         if IgnoreRecord then
-            exit;
-
-        SourceRecordRef.SetTable(SalesInvoiceHeader);
-        SalesInvoiceHeader.CalcFields("Coupled to Dataverse");
-        if not SalesInvoiceHeader."Coupled to Dataverse" then
             exit;
 
         if not CRMIntegrationRecord.FindIDFromRecordRef(SourceRecordRef, CRMInvoiceID) then
@@ -842,6 +868,10 @@ codeunit 5341 "CRM Int. Table. Subscriber"
     begin
         if DestinationFound then
             exit;
+
+        if not CRMIntegrationManagement.IsCRMIntegrationEnabled() then
+            if not CRMIntegrationManagement.IsCDSIntegrationEnabled() then
+                exit;
 
         case GetSourceDestCode(SourceRecordRef, DestinationRecordRef) of
             'Unit of Measure-CRM Uomschedule':
@@ -926,15 +956,12 @@ codeunit 5341 "CRM Int. Table. Subscriber"
         CRMConnectionSetup: Record "CRM Connection Setup";
         CRMIntegrationRecord: Record "CRM Integration Record";
     begin
-        SalesHeader.CalcFields("Coupled to Dataverse");
-        if SalesHeader."Coupled to Dataverse" then
-            if CRMConnectionSetup.IsBidirectionalSalesOrderIntEnabled() then begin
-                CRMIntegrationRecord.SetRange("Table ID", Database::"Sales Header");
-                CRMIntegrationRecord.SetRange("Integration ID", SalesHeader.SystemId);
-                if CRMIntegrationRecord.FindFirst() then begin
-                    CRMIntegrationRecord."Archived Sales Order" := true;
-                    CRMIntegrationRecord.Modify();
-                end;
+        CRMIntegrationRecord.SetRange("Table ID", Database::"Sales Header");
+        CRMIntegrationRecord.SetRange("Integration ID", SalesHeader.SystemId);
+        if CRMConnectionSetup.IsBidirectionalSalesOrderIntEnabled() then
+            if CRMIntegrationRecord.FindFirst() then begin
+                CRMIntegrationRecord."Archived Sales Order" := true;
+                CRMIntegrationRecord.Modify();
             end;
     end;
 

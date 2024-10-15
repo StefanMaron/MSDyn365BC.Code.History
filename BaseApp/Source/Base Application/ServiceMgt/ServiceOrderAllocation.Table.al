@@ -447,6 +447,7 @@ table 5950 "Service Order Allocation"
             CalcFields("Repair Status");
             RepairStatus.Get("Repair Status");
             if Status = Status::Active then begin
+                OnCreateReallocationEntryOnBeforeResetRepairStatus(Rec);
                 if RepairStatus.Initial then begin
                     RepairStatus2.Reset();
                     RepairStatus2.SetRange(Referred, true);
@@ -587,6 +588,11 @@ table 5950 "Service Order Allocation"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateStartEndTime(var ServiceOrderAllocation: Record "Service Order Allocation"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateReallocationEntryOnBeforeResetRepairStatus(var ServiceOrderAllocation: Record "Service Order Allocation")
     begin
     end;
 }

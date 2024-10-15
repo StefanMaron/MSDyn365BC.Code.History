@@ -369,7 +369,13 @@ table 50 "Accounting Period"
         Week: Integer;
         Month: Integer;
         MonthText: Text[30];
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeMakeRecurringTexts(PostingDate, DocumentNo, Description, IsHandled);
+        if IsHandled then
+            exit;
+
         Day := Date2DMY(PostingDate, 1);
         Week := Date2DWY(PostingDate, 2);
         Month := Date2DMY(PostingDate, 2);
@@ -393,6 +399,11 @@ table 50 "Accounting Period"
 
     [IntegrationEvent(false, false)]
     local procedure OnCheckOpenFiscalYearsOnBeforeError(var AccountingPeriod: Record "Accounting Period"; var IsHandled: Boolean)
+    begin
+    end;
+    
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeMakeRecurringTexts(PostingDate: Date; var DocumentNo: Code[20]; var Description: Text[100]; var IsHandled: Boolean)
     begin
     end;
 }

@@ -22,14 +22,14 @@ codeunit 139160 "CRM Setup Test"
         WebClientUrlResetMsg: Label 'The %1 Web Client URL has been reset to the default value.';
         CurrentuserIsNotMappedToCRMUserMsg: Label 'the authentication email must match the primary email of a %1 user.', Comment = '%1 = Current User ID';
         ConnectionSuccessMsg: Label 'The connection test was successful';
-        LCYMustMatchBaseCurrencyErr: Label 'LCY Code %1 does not match ISO Currency Code %2 of the CRM base currency.', Comment = '%1,%2 - ISO currency codes';
+        LCYMustMatchBaseCurrencyErr: Label '%1 does not match any ISO Currency Code in the Dataverse currency table.', Comment = '%1 - ISO currency code';
         CRMSetupTest: Codeunit "CRM Setup Test";
         JobQueueEntryStatusReadyErr: Label 'Job Queue Entry status should be Ready.';
         JobQueueEntryStatusOnHoldErr: Label 'Job Queue Entry status should be On Hold.';
         CRMSOIntegrationDisabledMsg: Label 'Sales Order Integration with %1 is disabled.';
         CRMProductName: Codeunit "CRM Product Name";
         SetupSuccessfulMsg: Label 'The default setup for %1 synchronization has completed successfully.';
-        NotMatchCurrencyCodeErr: Label 'does not match ISO Currency Code';
+        NotMatchCurrencyCodeErr: Label 'To continue, make sure that the local currency code in General Ledger Setup complies with the ISO standard and create a currency in Dataverse currency table that uses it as ISO Currency Code.';
         CRMIntegrationEnabledStateErr: Label 'CRMIntegrationEnabledState is wrong';
         ConnectionDisabledMsg: Label 'Connection to Dynamics 365 is broken and that it has been disabled due to an error: %1';
         PasswordConnectionStringFormatTxt: Label 'Url=%1; UserName=%2; Password=%3; ProxyVersion=%4; %5;', Locked = true;
@@ -479,9 +479,9 @@ codeunit 139160 "CRM Setup Test"
         // [WHEN] Enable connection on CRM Connection Setup
         asserterror CRMConnectionSetup.Validate("Is Enabled", true);
 
-        // [THEN] Error message: "LCY Code GBP does not match ISO Currency Code USD of the CRM base currency."
+        // [THEN] Error message: "LCY Code GBP does not match any ISO Currency Code in the Dataverse currency table."
         Assert.ExpectedError(
-          StrSubstNo(LCYMustMatchBaseCurrencyErr, GLSetup."LCY Code", CRMTransactioncurrency.ISOCurrencyCode));
+          StrSubstNo(LCYMustMatchBaseCurrencyErr, GLSetup."LCY Code"));
     end;
 
     [Test]

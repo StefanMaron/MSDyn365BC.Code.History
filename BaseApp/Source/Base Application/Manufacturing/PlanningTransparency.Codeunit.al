@@ -93,11 +93,11 @@ codeunit 99000856 "Planning Transparency"
             SurplusType::DampenerQty:
                 Priority := 7;
             else begin
-                    IsHandled := false;
-                    OnLogSurplusOnCaseSurplusTypeElse(SupplyLineNo, DemandLineNo, SourceType, SourceID, Qty, SurplusType, Priority, IsHandled);
-                    if not IsHandled then
-                        SurplusType := SurplusType::Undefined;
-                end;
+                IsHandled := false;
+                OnLogSurplusOnCaseSurplusTypeElse(SupplyLineNo, DemandLineNo, SourceType, SourceID, Qty, SurplusType, Priority, IsHandled);
+                if not IsHandled then
+                    SurplusType := SurplusType::Undefined;
+            end;
         end;
 
         if SurplusType <> SurplusType::Undefined then begin
@@ -154,6 +154,7 @@ codeunit 99000856 "Planning Transparency"
         QtyRound: Decimal;
         DampenerQty: Decimal;
         OrderSizeParticipated: Boolean;
+        IsHandled: Boolean;
     begin
         TempInvProfileTrack.SetRange("Line No.", SupplyInvProfile."Line No.");
 
@@ -264,8 +265,10 @@ codeunit 99000856 "Planning Transparency"
                             QtyRemaining -= PlanningElement."Untracked Quantity";
                             PlanningElement."Track Quantity To" := QtyRemaining;
                             TransferWarningSourceText(TempInvProfileTrack, PlanningElement);
-                            OnPublishSurplusOnBeforePlanningElementInsert(PlanningElement);
-                            PlanningElement.Insert();
+                            IsHandled := false;
+                            OnPublishSurplusOnBeforePlanningElementInsert(PlanningElement, IsHandled);
+                            if not IsHandled then
+                                PlanningElement.Insert();
                         end;
                         SetRange(Priority);
                         SetRange("Demand Line No.");
@@ -283,7 +286,10 @@ codeunit 99000856 "Planning Transparency"
                     QtyTracked += PlanningElement."Untracked Quantity";
                     QtyRemaining -= PlanningElement."Untracked Quantity";
                     PlanningElement."Track Quantity To" := QtyRemaining;
-                    PlanningElement.Insert();
+                    IsHandled := false;
+                    OnPublishSurplusOnBeforeExceptionPlanningElementInsert(PlanningElement, IsHandled);
+                    if not IsHandled then
+                        PlanningElement.Insert();
                 end;
             end;
         TempInvProfileTrack.SetRange("Line No.");
@@ -495,7 +501,12 @@ codeunit 99000856 "Planning Transparency"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPublishSurplusOnBeforePlanningElementInsert(var UntrackedPlanningElement: Record "Untracked Planning Element")
+    local procedure OnPublishSurplusOnBeforePlanningElementInsert(var UntrackedPlanningElement: Record "Untracked Planning Element"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPublishSurplusOnBeforeExceptionPlanningElementInsert(var UntrackedPlanningElement: Record "Untracked Planning Element"; var IsHandled: Boolean)
     begin
     end;
 }

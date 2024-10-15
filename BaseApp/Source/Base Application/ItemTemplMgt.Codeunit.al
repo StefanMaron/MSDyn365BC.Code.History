@@ -102,7 +102,7 @@ codeunit 1336 "Item Templ. Mgt."
             end;
         end;
 
-        OnApplyTemplateOnBeforeValidateFields(ItemRecRef, ItemTemplRecRef);
+        OnApplyTemplateOnBeforeValidateFields(ItemRecRef, ItemTemplRecRef, FieldExclusionList, FieldValidationList);
 
         for i := 1 to FieldValidationList.Count do begin
             ItemTemplFldRef := ItemTemplRecRef.Field(FieldValidationList.Get(i));
@@ -627,7 +627,7 @@ codeunit 1336 "Item Templ. Mgt."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnApplyTemplateOnBeforeValidateFields(var ItemRecRef: RecordRef; var ItemTemplRecRef: RecordRef)
+    local procedure OnApplyTemplateOnBeforeValidateFields(var ItemRecRef: RecordRef; var ItemTemplRecRef: RecordRef; FieldExclusionList: List of [Integer]; var FieldValidationList: List of [Integer])
     begin
     end;
 

@@ -136,7 +136,7 @@ codeunit 7201 "CDS Integration Impl."
         BusinessUnitCoupledTxt: Label 'Busness unit is correctly coupled.', Locked = true;
         SolutionVersionReceivedTxt: Label 'Solution version has been received.', Locked = true;
         CannotGetSolutionVersionTxt: Label 'Cannot get solution version.', Locked = true;
-        CurrencyMismatchTxt: Label 'LCY Code does not match ISO Currency Code of the Dataverse base currency.', Locked = true;
+        CurrencyMismatchTxt: Label 'Your local currency code does not match any ISO Currency Code in the Dataverse currency table.', Locked = true;
         UserHasNoRolesTxt: Label 'User has no roles.', Locked = true;
         SystemAdminRoleTxt: Label 'The user is assigned to the system administrator role.', Locked = true;
         NoSystemAdminRoleTxt: Label 'The admin user is not assigned to the System Administrator role.', Locked = true;
@@ -157,6 +157,7 @@ codeunit 7201 "CDS Integration Impl."
         CannotFindOrganizationErr: Label 'Cannot find organization in Dataverse.';
         BaseCurrencyNotFoundErr: Label 'Cannot find base currency in Dataverse.';
         GLSetupNotFoundErr: Label 'Cannot find GL setup.';
+        LCYCodeNotFoundErr: Label 'To enable the connection to Dataverse, you must specify the LCY Code in General Ledger Setup.';
         CompanyNotFoundErr: Label 'There is no company with external ID %1 in Dataverse.', Comment = '%1 = company external ID';
         TeamNotFoundErr: Label 'There is no team with ID %1 in Dataverse.', Comment = '%1 = team ID';
         UserNotFoundErr: Label 'There is no user with ID %1 in Dataverse.', Comment = '%1 = system user ID';
@@ -217,7 +218,7 @@ codeunit 7201 "CDS Integration Impl."
         ConnectionStringPwdPlaceHolderMissingErr: Label 'The connection string must include the password placeholder {PASSWORD}.';
         UserNameMustIncludeDomainErr: Label 'The user name must include the domain when the authentication type is set to Active Directory.';
         UserNameMustBeEmailErr: Label 'The user name must be a valid email address when the authentication type is set to Office 365.';
-        LCYMustMatchBaseCurrencyErr: Label 'LCY Code %1 does not match ISO Currency Code %2 of the Dataverse base currency.', Comment = '%1,%2 - ISO currency codes';
+        LCYMustMatchBaseCurrencyErr: Label 'Your local currency code %1 does not match any ISO Currency Code in the Dataverse currency table. To continue, make sure that the local currency code in General Ledger Setup complies with the ISO standard and create a currency in Dataverse currency table that uses it as ISO Currency Code.', Comment = '%1 - ISO currency code';
         UserSetupTxt: Label 'User Dataverse Setup';
         CannotResolveUserFromConnectionSetupErr: Label 'The user that is specified in the Dataverse Connection Setup does not exist.';
         MissingUsernameTok: Label '{USER}', Locked = true;
@@ -1520,9 +1521,12 @@ codeunit 7201 "CDS Integration Impl."
         InitialCRMTeam: Record "CRM Team";
         UpdatingCRMTeam: Record "CRM Team";
         UpdatedCRMTeam: Record "CRM Team";
+        NewCRMTransactioncurrency: Record "CRM Transactioncurrency";
         CRMTransactioncurrency: Record "CRM Transactioncurrency";
         CRMOrganization: Record "CRM Organization";
         CRMRole: Record "CRM Role";
+        Currency: Record Currency;
+        CurrExchRate: Record "Currency Exchange Rate";
         CrmHelper: DotNet CrmHelper;
         TempConnectionName: Text;
         CompanyId: Text[36];
@@ -1534,6 +1538,9 @@ codeunit 7201 "CDS Integration Impl."
         UpdateOwningTeam: Boolean;
         OwningTeamUpdated: Boolean;
         DefaultBusinessUnitFound: Boolean;
+        IsCurrencyCheckHandled: Boolean;
+        CRMBaseCurrencyCode: Text[5];
+        CRMBaseCurrencyFoundLocally: Boolean;
     begin
         Session.LogMessage('0000AS2', SynchronizeCompanyTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
 
@@ -1622,11 +1629,37 @@ codeunit 7201 "CDS Integration Impl."
                 Session.LogMessage('0000ASJ', CurrencyNotFoundTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
                 Error(BaseCurrencyNotFoundErr);
             end;
+            CRMBaseCurrencyCode := CRMTransactioncurrency.ISOCurrencyCode;
             if not GeneralLedgerSetup.Get() then begin
                 Session.LogMessage('0000ASK', GLSetupNotFoundTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
                 Error(GLSetupNotFoundErr);
             end;
-            CheckGLSetupLCYCode(GeneralLedgerSetup, CRMTransactioncurrency);
+            IsCurrencyCheckHandled := false;
+            OnBeforeCheckGLSetupLCYCode(GeneralLedgerSetup, CRMTransactioncurrency, IsCurrencyCheckHandled);
+            if not IsCurrencyCheckHandled then begin
+                CRMTransactionCurrency.Reset();
+                if (GeneralLedgerSetup."LCY Code" = '') then
+                    Error(LCYCodeNotFoundErr);
+                CRMTransactioncurrency.SetRange(ISOCurrencyCode, CopyStr(GeneralLedgerSetup."LCY Code", 1, MaxStrLen(TempAdminCDSConnectionSetup.BaseCurrencyCode)));
+                if CRMTransactioncurrency.IsEmpty() then begin
+                    if Currency.Get(CRMBaseCurrencyCode) then
+                        if CurrExchRate.ExchangeRateAdjmt(Today(), Currency.Code) <> 0 then
+                            CRMBaseCurrencyFoundLocally := true;
+                    if not CRMBaseCurrencyFoundLocally then begin
+                        Session.LogMessage('0000K8O', CurrencyMismatchTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
+                        Error(LCYMustMatchBaseCurrencyErr, GeneralLedgerSetup."LCY Code");
+                    end;
+                    NewCRMTransactionCurrency.ISOCurrencyCode := CopyStr(GeneralLedgerSetup."LCY Code", 1, MaxStrLen(CRMTransactionCurrency.ISOCurrencyCode));
+                    NewCRMTransactioncurrency.CurrencyName := CopyStr(GeneralLedgerSetup."Local Currency Description", 1, MaxStrLen(CRMTransactionCurrency.CurrencyName));
+                    NewCRMTransactioncurrency.CurrencySymbol := CopyStr(GeneralLedgerSetup."Local Currency Symbol", 1, MaxStrLen(CRMTransactionCurrency.CurrencySymbol));
+                    NewCRMTransactioncurrency.ExchangeRate := CurrExchRate.ExchangeRateAdjmt(Today(), Currency.Code);
+                    Evaluate(NewCRMTransactioncurrency.CurrencyPrecision, CopyStr(Currency."Amount Decimal Places", StrPos(Currency."Amount Decimal Places", ':') + 1));
+                    if not NewCRMTransactionCurrency.Insert() then begin
+                        Session.LogMessage('0000K8P', CurrencyMismatchTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
+                        Error(LCYMustMatchBaseCurrencyErr, GeneralLedgerSetup."LCY Code");
+                    end;
+                end
+            end;
             CDSCompany.ExternalId := CompanyId;
             CDSCompany.Name := CompanyName;
             CDSCompany.DefaultOwningTeam := DefaultCRMTeam.TeamId;
@@ -1716,21 +1749,6 @@ codeunit 7201 "CDS Integration Impl."
         UnregisterTableConnection(TABLECONNECTIONTYPE::CRM, TempConnectionName);
 
         Session.LogMessage('0000AT4', CompanySynchronizedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
-    end;
-
-    local procedure CheckGLSetupLCYCode(GeneralLedgerSetup: Record "General Ledger Setup"; CRMTransactioncurrency: Record "CRM Transactioncurrency")
-    var
-        IsHandled: Boolean;
-    begin
-        IsHandled := false;
-        OnBeforeCheckGLSetupLCYCode(GeneralLedgerSetup, CRMTransactioncurrency, IsHandled);
-        if IsHandled then
-            exit;
-
-        if DelChr(CRMTransactioncurrency.ISOCurrencyCode) <> DelChr(GeneralLedgerSetup."LCY Code") then begin
-            Session.LogMessage('0000ASL', CurrencyMismatchTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
-            Error(LCYMustMatchBaseCurrencyErr, GeneralLedgerSetup."LCY Code", CRMTransactioncurrency.ISOCurrencyCode);
-        end;
     end;
 
     local procedure EnrichWithDotNetException(ErrorMessage: Text): Text
@@ -4565,6 +4583,7 @@ codeunit 7201 "CDS Integration Impl."
         CDSConnectionSetup.Validate(BaseCurrencyId, SourceCDSConnectionSetup.BaseCurrencyId);
         CDSConnectionSetup.Validate(BaseCurrencyPrecision, SourceCDSConnectionSetup.BaseCurrencyPrecision);
         CDSConnectionSetup.Validate(BaseCurrencySymbol, SourceCDSConnectionSetup.BaseCurrencySymbol);
+        CDSConnectionSetup.Validate(BaseCurrencyCode, SourceCDSConnectionSetup.BaseCurrencyCode);
         if SourceCDSConnectionSetup."Ownership Model" in [CDSConnectionSetup."Ownership Model"::Person, CDSConnectionSetup."Ownership Model"::Team] then
             CDSConnectionSetup.Validate("Ownership Model", SourceCDSConnectionSetup."Ownership Model")
         else

@@ -25,7 +25,6 @@ codeunit 134188 "WF Demo General Journal Line"
         IsInitialized: Boolean;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure CanSendApprovalRequestFor2IndependantLinePendingApproval()
     var
@@ -74,7 +73,6 @@ codeunit 134188 "WF Demo General Journal Line"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure DirectApproverApprovesRequest()
     var
@@ -129,7 +127,6 @@ codeunit 134188 "WF Demo General Journal Line"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure DirectApproverRejectsRequest()
     var
@@ -410,7 +407,6 @@ codeunit 134188 "WF Demo General Journal Line"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure DirectApproverApprovesRequestWithComment()
     var
@@ -465,7 +461,6 @@ codeunit 134188 "WF Demo General Journal Line"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure DirectApproverApprovesCashReceiptRequestWithComment()
     var
@@ -521,7 +516,6 @@ codeunit 134188 "WF Demo General Journal Line"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure DirectApproverApprovesPaymentRequestWithComment()
     var
@@ -577,7 +571,6 @@ codeunit 134188 "WF Demo General Journal Line"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure DirectApproverApprovesFilteredRequest()
     var
@@ -632,7 +625,6 @@ codeunit 134188 "WF Demo General Journal Line"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure DirectApproverRejectsFilteredRequest()
     var
