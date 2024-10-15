@@ -1877,6 +1877,11 @@
         DocumentTotals.GetTotalSalesHeaderAndCurrency(Rec, TotalSalesHeader, Currency);
     end;
 
+    procedure ClearTotalSalesHeader();
+    begin
+        Clear(TotalSalesHeader);
+    end;
+
     procedure CalculateTotals()
     var
         IsHandled: Boolean;
@@ -1930,7 +1935,9 @@
         UnitofMeasureCodeIsChangeable := not IsCommentLine;
 
         CurrPageIsEditable := CurrPage.Editable;
-        InvDiscAmountEditable := CurrPageIsEditable and not SalesSetup."Calc. Inv. Discount";
+        InvDiscAmountEditable := 
+            CurrPageIsEditable and not SalesSetup."Calc. Inv. Discount" and
+            (TotalSalesHeader.Status = TotalSalesHeader.Status::Open);
 
         OnAfterUpdateEditableOnRow(Rec, IsCommentLine, IsBlankNumber);
     end;

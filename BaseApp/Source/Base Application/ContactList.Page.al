@@ -275,6 +275,7 @@ page 5052 "Contact List"
                     Caption = 'Sent Emails';
                     Image = ShowList;
                     ToolTip = 'View a list of emails that you have sent to this contact.';
+                    Visible = EmailImprovementFeatureEnabled;
 
                     trigger OnAction()
                     var
@@ -955,12 +956,10 @@ page 5052 "Contact List"
 
                 trigger OnAction()
                 var
-                    Email: Codeunit Email;
-                    EmailMessage: Codeunit "Email Message";
+                    EmailMgt: Codeunit "Mail Management";
                 begin
-                    EmailMessage.Create(Rec."E-Mail", '', '', true);
-                    Email.AddRelation(EmailMessage, Database::Contact, Rec.SystemId, Enum::"Email Relation Type"::"Primary Source");
-                    Email.OpenInEditorModally(EmailMessage);
+                    EmailMgt.AddSource(Database::Contact, Rec.SystemId);
+                    EmailMgt.Run();
                 end;
             }
             action(SyncWithExchange)
@@ -1052,7 +1051,9 @@ page 5052 "Contact List"
     trigger OnOpenPage()
     var
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
+        EmailFeature: Codeunit "Email Feature";
     begin
+        EmailImprovementFeatureEnabled := EmailFeature.IsEnabled();
         CRMIntegrationEnabled := CRMIntegrationManagement.IsCRMIntegrationEnabled;
         CDSIntegrationEnabled := CRMIntegrationManagement.IsCDSIntegrationEnabled;
         ExtendedPriceEnabled := PriceCalculationMgt.IsExtendedPriceCalculationEnabled();
@@ -1083,6 +1084,7 @@ page 5052 "Contact List"
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
         [InDataSet]
         StyleIsStrong: Boolean;
+        EmailImprovementFeatureEnabled: Boolean;
         CompanyGroupEnabled: Boolean;
         PersonGroupEnabled: Boolean;
         ExtendedPriceEnabled: Boolean;

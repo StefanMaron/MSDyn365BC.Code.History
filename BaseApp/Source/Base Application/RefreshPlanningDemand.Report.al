@@ -46,7 +46,7 @@ report 99001021 "Refresh Planning Demand"
                     Caption = 'Options';
                     field(Direction; Direction)
                     {
-                        ApplicationArea = Planning;
+                        ApplicationArea = Manufacturing;
                         Caption = 'Scheduling Direction';
                         OptionCaption = 'Forward,Backward';
                         ToolTip = 'Specifies the scheduling method - forward or backward.';
@@ -56,7 +56,7 @@ report 99001021 "Refresh Planning Demand"
                         Caption = 'Calculate';
                         field(CalcRoutings; CalcRoutings)
                         {
-                            ApplicationArea = Planning;
+                            ApplicationArea = Manufacturing;
                             Caption = 'Routings';
                             ToolTip = 'Specifies if you want the program to refresh the routing.';
                         }

@@ -1222,6 +1222,11 @@ page 6641 "Purchase Return Order Subform"
         DocumentTotals.GetTotalPurchaseHeaderAndCurrency(Rec, TotalPurchaseHeader, Currency);
     end;
 
+    procedure ClearTotalPurchaseHeader();
+    begin
+        Clear(TotalPurchaseHeader);
+    end;
+
     procedure CalculateTotals()
     begin
         DocumentTotals.PurchaseCheckIfDocumentChanged(Rec, xRec);
@@ -1249,7 +1254,9 @@ page 6641 "Purchase Return Order Subform"
         UnitofMeasureCodeIsChangeable := not IsCommentLine;
 
         CurrPageIsEditable := CurrPage.Editable;
-        InvDiscAmountEditable := CurrPageIsEditable and not PurchasesPayablesSetup."Calc. Inv. Discount";
+        InvDiscAmountEditable := 
+            CurrPageIsEditable and not PurchasesPayablesSetup."Calc. Inv. Discount" and
+            (TotalPurchaseHeader.Status = TotalPurchaseHeader.Status::Open);
 
         OnAfterUpdateEditableOnRow(Rec, IsCommentLine, IsBlankNumber, UnitofMeasureCodeIsChangeable);
     end;

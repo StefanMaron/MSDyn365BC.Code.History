@@ -108,6 +108,8 @@ codeunit 5529 "Purch. Inv. Aggregator"
     var
         PurchaseLine: Record "Purchase Line";
     begin
+        if Rec.IsTemporary() then
+            exit;
 
         if CheckUpdatesDisabled(Rec.SystemId) then
             exit;

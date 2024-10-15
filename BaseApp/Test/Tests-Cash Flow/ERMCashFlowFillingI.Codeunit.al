@@ -1832,6 +1832,40 @@ codeunit 134551 "ERM Cash Flow Filling I"
 
     [Test]
     [Scope('OnPrem')]
+    procedure TestApplicationAreasForJobsWithPaymentTerms()
+    var
+        CashFlowForecast: Record "Cash Flow Forecast";
+        Job: Record Job;
+        JobPlanningLine: Record "Job Planning Line";
+        CFWorksheetLine: Record "Cash Flow Worksheet Line";
+        PaymentTerms: Record "Payment Terms";
+        ConsiderSource: array[16] of Boolean;
+        OldDate: Date;
+        NewDate: Date;
+        DueDateCalculation: DateFormula;
+    begin
+        // [FEATURE] [Jobs]
+        // [SCENARIO 402915] Jobs with Payment Terms are included in the CF with recalculated Cash Flow Date
+        // [GIVEN] Job for Customer with Payment Terms of '5D' having lines with "Document Date" = 01/02/21, 05/02/21
+        SetupCashFlowForJobsWithPaymentTerms(CashFlowForecast, Job, JobPlanningLine, PaymentTerms, OldDate, NewDate);
+        PaymentTerms.GetDueDateCalculation(DueDateCalculation);
+
+        // [WHEN] Run 'Suggest Worksheet Lines' report for the job
+        LibraryApplicationArea.EnableJobsSetup;
+        ConsiderSource["Cash Flow Source Type"::Job.AsInteger()] := true;
+        FillJournalWithoutGroupBy(ConsiderSource, CashFlowForecast."No.");
+
+        // [THEN] Cash Flow Worksheet lines created with correct amounts and "Cash Flow Date" = 06/02/21, 11/02/21 respectively
+        CFHelper.VerifyCFDataOnSnglJnlLineWithDates(
+          CFWorksheetLine, Job."No.", "Cash Flow Source Type"::Job, CashFlowForecast."No.", OldDate,
+          CFHelper.GetTotalJobsAmount(Job, OldDate), CalcDate(DueDateCalculation, OldDate));
+        CFHelper.VerifyCFDataOnSnglJnlLineWithDates(
+          CFWorksheetLine, Job."No.", "Cash Flow Source Type"::Job, CashFlowForecast."No.", NewDate,
+          CFHelper.GetTotalJobsAmount(Job, NewDate), CalcDate(DueDateCalculation, NewDate));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure TestApplicationAreasForPurchaseOrders()
     var
         CashFlowForecast: Record "Cash Flow Forecast";
@@ -2477,13 +2511,36 @@ codeunit 134551 "ERM Cash Flow Filling I"
         Assert.IsFalse(StrPos(Message, ManualPmtRevExpNeedsUpdateMsg) = 0, UnexpectedMessageErr);
     end;
 
-    [Normal]
+    local procedure SetupCashFlowForJobsWithPaymentTerms(var CashFlowForecast: Record "Cash Flow Forecast"; var Job: Record Job; var JobPlanningLine: Record "Job Planning Line"; var PaymentTerms: Record "Payment Terms"; var OldDate: Date; var NewDate: Date)
+    var
+        Customer: Record Customer;
+    begin
+        // Setup - create the entities
+        Initialize;
+        CFHelper.CreateCashFlowForecastDefault(CashFlowForecast);
+        CFHelper.CreateDefaultJob(Job);
+
+        LibrarySales.CreateCustomer(Customer);
+        LibraryERM.CreatePaymentTermsDiscount(PaymentTerms, false);
+        Customer.Validate("Payment Terms Code", PaymentTerms.Code);
+        Customer.Modify(true);
+        CFHelper.CreateDefaultJobForCustomer(Job, Customer."No.");
+
+        SetupJobPlanningLines(Job, JobPlanningLine, OldDate, NewDate);
+    end;
+
     local procedure SetupCashFlowForJobs(var CashFlowForecast: Record "Cash Flow Forecast"; var Job: Record Job; var JobPlanningLine: Record "Job Planning Line"; var OldDate: Date; var NewDate: Date)
     begin
         // Setup - create the entities
         Initialize;
         CFHelper.CreateCashFlowForecastDefault(CashFlowForecast);
         CFHelper.CreateDefaultJob(Job);
+
+        SetupJobPlanningLines(Job, JobPlanningLine, OldDate, NewDate);
+    end;
+
+    local procedure SetupJobPlanningLines(Job: Record Job; var JobPlanningLine: Record "Job Planning Line"; var OldDate: Date; var NewDate: Date)
+    begin
         JobPlanningLine.SetRange("Job No.", Job."No.");
         JobPlanningLine.FindFirst;
         OldDate := JobPlanningLine."Planning Date";

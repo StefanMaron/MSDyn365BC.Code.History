@@ -1,4 +1,4 @@
-table 232 "Gen. Journal Batch"
+﻿table 232 "Gen. Journal Batch"
 {
     Caption = 'Gen. Journal Batch';
     DataCaptionFields = Name, Description;
@@ -285,6 +285,8 @@ table 232 "Gen. Journal Batch"
         "Copy VAT Setup to Jnl. Lines" := GenJnlTemplate."Copy VAT Setup to Jnl. Lines";
         "Allow VAT Difference" := GenJnlTemplate."Allow VAT Difference";
         "Copy to Posted Jnl. Lines" := GenJnlTemplate."Copy to Posted Jnl. Lines";
+
+        OnAfterSetupNewBatch(Rec);
     end;
 
     local procedure CheckGLAcc(AccNo: Code[20])
@@ -394,6 +396,11 @@ table 232 "Gen. Journal Batch"
             exit;
 
         BalAccountId := GLAccount.SystemId;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetupNewBatch(var GenJnlBatch: Record "Gen. Journal Batch")
+    begin
     end;
 
     [IntegrationEvent(false, false)]
