@@ -7806,33 +7806,33 @@ codeunit 6620 "Copy Document Mgt."
     local procedure SetReceivedFromCountryCode(FromDocType: Enum "Sales Document Type From"; var ToSalesHeader: Record "Sales Header")
     begin
         if not ToSalesHeader.IsCreditDocType() then
-            ToSalesHeader."Rcvd-from Country/Region Code" := '';
+            ToSalesHeader."Rcvd.-from Count./Region Code" := '';
         if not (FromDocType in [FromDocType::"Credit Memo", FromDocType::"Return Order"]) then
-            ToSalesHeader."Rcvd-from Country/Region Code" := '';
+            ToSalesHeader."Rcvd.-from Count./Region Code" := '';
     end;
 
     local procedure SetReceivedFromCountryCode(FromSalesHeaderArchive: Record "Sales Header Archive"; var ToSalesHeader: Record "Sales Header")
     begin
         if not ToSalesHeader.IsCreditDocType() then
-            ToSalesHeader."Rcvd-from Country/Region Code" := '';
+            ToSalesHeader."Rcvd.-from Count./Region Code" := '';
         if not (FromSalesHeaderArchive."Document Type" in [FromSalesHeaderArchive."Document Type"::"Return Order"]) then
-            ToSalesHeader."Rcvd-from Country/Region Code" := '';
+            ToSalesHeader."Rcvd.-from Count./Region Code" := '';
     end;
 
     local procedure SetReceivedFromCountryCode(FromSalesShipmentHeader: Record "Sales Shipment Header"; var ToSalesHeader: Record "Sales Header")
     begin
         if not ToSalesHeader.IsCreditDocType() then
-            ToSalesHeader."Rcvd-from Country/Region Code" := ''
+            ToSalesHeader."Rcvd.-from Count./Region Code" := ''
         else
-            ToSalesHeader."Rcvd-from Country/Region Code" := FromSalesShipmentHeader."Ship-to Country/Region Code";
+            ToSalesHeader."Rcvd.-from Count./Region Code" := FromSalesShipmentHeader."Ship-to Country/Region Code";
     end;
 
     local procedure SetReceivedFromCountryCode(SalesInvoiceHeader: Record "Sales Invoice Header"; var ToSalesHeader: Record "Sales Header")
     begin
         if not ToSalesHeader.IsCreditDocType() then
-            ToSalesHeader."Rcvd-from Country/Region Code" := ''
+            ToSalesHeader."Rcvd.-from Count./Region Code" := ''
         else
-            ToSalesHeader."Rcvd-from Country/Region Code" := SalesInvoiceHeader."Ship-to Country/Region Code";
+            ToSalesHeader."Rcvd.-from Count./Region Code" := SalesInvoiceHeader."Ship-to Country/Region Code";
     end;
 
     local procedure UpdateShipToAddress(var ToSalesHeader: Record "Sales Header")
@@ -7845,7 +7845,7 @@ codeunit 6620 "Copy Document Mgt."
     local procedure SetReceivedFromCountryCode(var ToSalesHeader: Record "Sales Header")
     begin
         if not ToSalesHeader.IsCreditDocType() then
-            ToSalesHeader."Rcvd-from Country/Region Code" := '';
+            ToSalesHeader."Rcvd.-from Count./Region Code" := '';
     end;
 
     [IntegrationEvent(false, false)]

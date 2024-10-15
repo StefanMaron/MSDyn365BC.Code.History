@@ -1210,7 +1210,14 @@ page 490 "Acc. Schedule Overview"
         if TempFinancialReport.DateFilter = '' then
             AccSchedManagement.FindPeriod(Rec, '', TempFinancialReport.PeriodType)
         else
-            Rec.SetFilter("Date Filter", TempFinancialReport.DateFilter);
+            if not TrySetFilter(TempFinancialReport.DateFilter) then
+                AccSchedManagement.FindPeriod(Rec, '', TempFinancialReport.PeriodType);
+    end;
+
+    [TryFunction]
+    local procedure TrySetFilter(DateFilter: Text)
+    begin
+        Rec.SetFilter("Date Filter", DateFilter);
     end;
 
     local procedure LoadFinancialReportFilters(FinancialReportCode: Code[10]; var FinancialReportToLoadTemp: Record "Financial Report" temporary): Boolean

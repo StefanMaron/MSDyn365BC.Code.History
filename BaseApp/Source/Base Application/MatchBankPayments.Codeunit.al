@@ -40,6 +40,7 @@ codeunit 1255 "Match Bank Payments"
         TextMapperRulesOverridenTxt: Label '%1 text mapper rules could be applied. They were overridden because a record with the %2 match confidence was found.';
         MultipleEntriesWithSilarConfidenceFoundTxt: Label 'There are %1 ledger entries that this statement line could be applied to with the same confidence.';
         MultipleStatementLinesWithSameConfidenceFoundTxt: Label 'There are %1 alternative statement lines that could be applied to the same ledger entry with the same confidence.';
+        AutomatchEventNameTelemetryTxt: Label 'Automatch', Locked = true;
         TempOneToManyTempBankStatementMatchingBuffer: Record "Bank Statement Matching Buffer" temporary;
         TempBankStmtMultipleMatchLine: Record "Bank Stmt Multiple Match Line" temporary;
         TempCustomerLedgerEntryMatchingBuffer: Record "Ledger Entry Matching Buffer" temporary;
@@ -70,7 +71,7 @@ codeunit 1255 "Match Bank Payments"
         MustChooseAccountErr: Label 'You must choose an account to transfer the difference to.';
         LineSplitTxt: Label 'The value in the Transaction Amount field has been reduced by %1. A new line with %1 in the Transaction Amount field has been created.', Comment = '%1 - Difference';
         MatchingStmtLinesToRelatedPartyMsg: Label 'The matching of statement lines to related party is in progress.\\Please wait while the operation is being completed.\\#1####### @2@@@@@@@@@@@@@', Comment = '%1 = number of lines, %2 = progress bar';
-        BankAccountRecCategoryLbl: Label 'AL Bank Account Rec', Locked = true;
+        BankAccountRecCategoryLbl: Label 'AL Payment Reconciliation', Locked = true;
         BankAccountRecTotalAndMatchedLinesLbl: Label 'Total Bank Statement Lines: %1, of those applied: %2, and text-matched: %3', Locked = true;
         MatchRelatedParty: Boolean;
         UseExtSetup: Boolean;
@@ -150,7 +151,7 @@ codeunit 1255 "Match Bank Payments"
             BankPmtApplRule.SetRange(Score, BankAccReconciliaitonLine."Match Quality");
             MatchingRuleFound := BankPmtApplRule.FindFirst();
             if Not MatchingRuleFound and IsAutoMatch then
-                Session.LogMessage('0000BN6', StrSubstNo('Unexpected - could not find the payment application rule, score %1', BankAccReconciliaitonLine."Match Quality"), Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', '');
+                Session.LogMessage('0000BN6', StrSubstNo('Unexpected - could not find the payment application rule, score %1', BankAccReconciliaitonLine."Match Quality"), Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', BankAccountRecCategoryLbl);
 
             IsAutoMatch := MatchingRuleFound;
             BankPmtApplRule.SetRange(Score);
@@ -363,8 +364,10 @@ codeunit 1255 "Match Bank Payments"
     local procedure ApplyLedgerEntriesToStatementLines(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line")
     var
         BankAccReconciliation: Record "Bank Acc. Reconciliation";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
         Window: Dialog;
     begin
+        FeatureTelemetry.LogUptake('0000KMM', BankAccReconciliation.GetPaymentRecJournalTelemetryFeatureName(), Enum::"Feature Uptake Status"::Used);
         Window.Open(CreatingAppliedEntriesMsg);
         BankAccReconciliation.Get(
           BankAccReconciliationLine."Statement Type", BankAccReconciliationLine."Bank Account No.",
@@ -388,6 +391,7 @@ codeunit 1255 "Match Bank Payments"
             exit; // NAVCZ
 
         ShowMatchSummary(BankAccReconciliation);
+        FeatureTelemetry.LogUsage('0000KMN', BankAccReconciliation.GetPaymentRecJournalTelemetryFeatureName(), AutomatchEventNameTelemetryTxt);
     end;
 
     local procedure MapLedgerEntriesToStatementLines(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; ApplyEntries: Boolean)

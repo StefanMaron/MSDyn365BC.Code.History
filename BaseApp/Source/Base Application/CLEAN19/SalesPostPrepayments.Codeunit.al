@@ -1,4 +1,4 @@
-﻿#if CLEAN19
+#if CLEAN19
 codeunit 442 "Sales-Post Prepayments"
 {
     Permissions = TableData "Sales Line" = imd,
@@ -567,7 +567,8 @@ codeunit 442 "Sales-Post Prepayments"
             if SalesLine.Find('-') then
                 repeat
                     if PrepmtAmount(SalesLine, DocumentType) <> 0 then begin
-                        CheckSalesLineIsNegative(SalesHeader, SalesLine);
+                        if not CheckSystemCreatedInvoiceRoundEntry(SalesLine, SalesHeader."Customer Posting Group") then
+                            CheckSalesLineIsNegative(SalesHeader, SalesLine);
 
                         FillInvLineBuffer(SalesHeader, SalesLine, PrepmtInvLineBuf2);
                         if UpdateLines then
@@ -1730,6 +1731,15 @@ codeunit 442 "Sales-Post Prepayments"
             SalesLine.FieldError(Quantity, StrSubstNo(Text018, SalesHeader.FieldCaption("Prepayment %")));
         if SalesLine."Unit Price" < 0 then
             SalesLine.FieldError("Unit Price", StrSubstNo(Text018, SalesHeader.FieldCaption("Prepayment %")));
+    end;
+
+    local procedure CheckSystemCreatedInvoiceRoundEntry(SalesLine: Record "Sales Line"; CustomerPostingGroup: Code[20]): Boolean
+    begin
+        if (SalesLine.Type = SalesLine.Type::"G/L Account") and
+           (SalesLine."No." = GetInvRoundingAccNo(CustomerPostingGroup)) and
+           (SalesLine."System-Created Entry")
+        then
+            exit(true);
     end;
 
     [IntegrationEvent(false, false)]

@@ -1393,7 +1393,10 @@ page 1290 "Payment Reconciliation Journal"
     var
         BankPmtApplRule: Record "Bank Pmt. Appl. Rule";
         ServerSetting: Codeunit "Server Setting";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
     begin
+        FeatureTelemetry.LogUptake('0000KM9', Rec.GetPaymentRecJournalTelemetryFeatureName(), Enum::"Feature Uptake Status"::Discovered);
+        FeatureTelemetry.LogUptake('0000KMA', Rec.GetPaymentRecJournalTelemetryFeatureName(), Enum::"Feature Uptake Status"::"Set up");
         IsSaaSExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled();
         PageClosedByPosting := false;
 
