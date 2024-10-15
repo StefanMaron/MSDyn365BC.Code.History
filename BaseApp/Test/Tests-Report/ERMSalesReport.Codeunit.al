@@ -3352,7 +3352,7 @@ codeunit 134976 "ERM Sales Report"
         LibraryReportDataset.AssertElementWithValueExists('JobNo', SalesInvoiceLine."Job No.");
         LibraryReportDataset.AssertElementWithValueExists('JobTaskNo', SalesInvoiceLine."Job Task No.");
     end;
-    
+
     [Test]
     [HandlerFunctions('SalesInvoiceRequestPageHandler')]
     [Scope('OnPrem')]
@@ -3406,6 +3406,86 @@ codeunit 134976 "ERM Sales Report"
         LibraryReportDataset.GetLastRow();
         FindVATEntry(VATEntry, DocumentNo, WorkDate, VATProdPostingGroup);
         VerifyVATSpecificationLCYForSalesInvoice(VATEntry, VATPercent);
+    end;
+
+    [Test]
+    [HandlerFunctions('CustSummaryAgingSimpRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure CustomerSummaryAgingSimp()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        Customer: Record Customer;
+        Customer2: Record Customer;
+    begin
+        // [FEATURE] [Customer - Summary Aging Simp.]
+        // [SCENARIO 393623] Customer - Summary Aging Simp. must show only corresponding Customers when user set custom filters
+        Initialize();
+
+        // [GIVEN] Customer "C1" with customer ledger entries
+        // [GIVEN] "CLE1" with "Amount" = 1000 and "Due Date" = 01/01/21
+        // [GIVEN] "CLE2" with "Amount" = 1000 and "Due Date" = 01/31/21
+        LibrarySales.CreateCustomer(Customer);
+        CreatePostGeneralJournalLine(GenJournalLine, GenJournalLine."Document Type"::Invoice, Customer."No.", '', 1000, WorkDate());
+        CreatePostGeneralJournalLine(
+          GenJournalLine, GenJournalLine."Document Type"::Invoice, Customer."No.", '', 1000, CalcDate('<10D>', WorkDate()));
+
+        // [GIVEN] Customer "C2" with customer ledger entry
+        // [GIVEN] "CLE3" with "Amount" = 3000 and "Due Date" = 01/01/21
+        LibrarySales.CreateCustomer(Customer2);
+        CreatePostGeneralJournalLine(GenJournalLine, GenJournalLine."Document Type"::Invoice, Customer2."No.", '', 3000, WorkDate());
+
+        LibraryVariableStorage.Enqueue(CalcDate('<5D>', WorkDate()));
+        LibraryVariableStorage.Enqueue('>1500');
+
+        // [WHEN] Run "Customer - Summary Aging Simp."
+        // [WHEN] Start date = "01/15/21" and filter for Customer "Balance Due" > 1500
+        Report.Run(Report::"Customer - Summary Aging Simp.");
+
+        // [THEN] Report contains only Customer "C2"
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueNotExist('Customer__No__', Customer."No.");
+        LibraryReportDataset.AssertElementWithValueExists('Customer__No__', Customer2."No.");
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('CustSummaryAgingRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure CustSummaryAging()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        Customer: Record Customer;
+        Customer2: Record Customer;
+    begin
+        // [FEATURE] [Customer - Summary Aging]
+        // [SCENARIO 393623] Customer - Summary Aging must show only corresponding Customers when user set custom filters
+        Initialize();
+
+        // [GIVEN] Customer "C1" with customer ledger entries
+        // [GIVEN] "CLE1" with "Amount" = 1000 and "Due Date" = 01/01/21
+        // [GIVEN] "CLE2" with "Amount" = 1000 and "Due Date" = 01/31/21
+        LibrarySales.CreateCustomer(Customer);
+        CreatePostGeneralJournalLine(GenJournalLine, GenJournalLine."Document Type"::Invoice, Customer."No.", '', 1000, WorkDate());
+        CreatePostGeneralJournalLine(
+          GenJournalLine, GenJournalLine."Document Type"::Invoice, Customer."No.", '', 1000, CalcDate('<10D>', WorkDate()));
+
+        // [GIVEN] Customer "C2" with customer ledger entry
+        // [GIVEN] "CLE3" with "Amount" = 3000 and "Due Date" = 01/01/21
+        LibrarySales.CreateCustomer(Customer2);
+        CreatePostGeneralJournalLine(GenJournalLine, GenJournalLine."Document Type"::Invoice, Customer2."No.", '', 3000, WorkDate());
+
+        LibraryVariableStorage.Enqueue(CalcDate('<5D>', WorkDate()));
+        LibraryVariableStorage.Enqueue('>1500');
+
+        // [WHEN] Run "Customer - Summary Aging Simp."
+        // [WHEN] Start date = "01/15/21" and filter for Customer "Balance Due" > 1500
+        Report.Run(Report::"Customer - Summary Aging");
+
+        // [THEN] Report contains only Customer "C2"
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueNotExist('Customer_No_', Customer."No.");
+        LibraryReportDataset.AssertElementWithValueExists('Customer_No_', Customer2."No.");
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     local procedure Initialize()
@@ -4299,6 +4379,17 @@ codeunit 134976 "ERM Sales Report"
         CustomerSummaryAging.RunModal;
     end;
 
+    local procedure RunCustomerSummaryAgingReport(Customer: Record Customer; ShowAmountInLCY: Boolean)
+    var
+        //Customer: Record Customer;
+        CustomerSummaryAging: Report "Customer - Summary Aging";
+    begin
+        CustomerSummaryAging.SetTableView(Customer);
+        CustomerSummaryAging.InitializeRequest(WorkDate, StrSubstNo('<%1M>', LibraryRandom.RandInt(5)), ShowAmountInLCY);
+        Commit();
+        CustomerSummaryAging.RunModal;
+    end;
+
     local procedure RunAndVerifyCustSummaryAging(CustomerNo: Code[20]; ShowAmountLCY: Boolean; BalanceLCY: Decimal)
     begin
         // Exercise: Generate the Customer Summary Aging Report.
@@ -4811,6 +4902,21 @@ codeunit 134976 "ERM Sales Report"
 
     [RequestPageHandler]
     [Scope('OnPrem')]
+    procedure CustSummaryAgingSimpRequestPageHandler(var CustomerSummaryAgingSimp: TestRequestPage "Customer - Summary Aging Simp.")
+    var
+        StartDate: Variant;
+        BalanceDue: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(StartDate);
+        LibraryVariableStorage.Dequeue(BalanceDue);
+        CustomerSummaryAgingSimp.StartingDate.SetValue(StartDate);
+        CustomerSummaryAgingSimp.Customer.SetFilter("Balance Due", BalanceDue);
+        CustomerSummaryAgingSimp.Customer.SetFilter("No.", '');
+        CustomerSummaryAgingSimp.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
     procedure CustomerTopTenListRequestPageHandler(var CustomerTop10List: TestRequestPage "Customer - Top 10 List")
     var
         CustomerNo: Variant;
@@ -4954,6 +5060,21 @@ codeunit 134976 "ERM Sales Report"
     [Scope('OnPrem')]
     procedure CustomerSummaryAgingRequestPageHandler(var CustomerSummaryAging: TestRequestPage "Customer - Summary Aging")
     begin
+        CustomerSummaryAging.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure CustSummaryAgingRequestPageHandler(var CustomerSummaryAging: TestRequestPage "Customer - Summary Aging")
+    var
+        StartDate: Variant;
+        BalanceDue: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(StartDate);
+        LibraryVariableStorage.Dequeue(BalanceDue);
+        CustomerSummaryAging.StartingDate.SetValue(StartDate);
+        CustomerSummaryAging.Customer.SetFilter("Balance Due", BalanceDue);
+        CustomerSummaryAging.Customer.SetFilter("No.", '');
         CustomerSummaryAging.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 
