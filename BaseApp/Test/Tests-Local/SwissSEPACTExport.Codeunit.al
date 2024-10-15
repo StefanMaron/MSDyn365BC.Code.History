@@ -3599,6 +3599,8 @@ codeunit 144352 "Swiss SEPA CT Export"
     begin
         LibraryXMLRead.VerifyXMLDeclaration('1.0', 'UTF-8', 'no');
         LibraryXMLRead.VerifyAttributeValue('Document', 'xmlns', 'http://www.six-interbank-clearing.com/de/pain.001.001.03.ch.02.xsd');
+        LibraryXMLRead.VerifyAttributeValue('Document', 'xmlns:xsi', 'http://www.w3.org/2001/XMLSchema-instance');
+        LibraryXMLRead.VerifyAttributeValue('Document', 'xsi:schemaLocation', 'http://www.six-interbank-clearing.com/de/pain.001.001.03.ch.02.xsd  pain.001.001.03.ch.02.xsd');
     end;
 
     local procedure VerifyXMLFileGroupHeader(GenJournalLine: Record "Gen. Journal Line"; MessageID: Text)
@@ -3761,12 +3763,12 @@ codeunit 144352 "Swiss SEPA CT Export"
                     LibraryXMLRead.VerifyElementAbsenceInSubtree('CdtrAgt', 'ClrSysMmbId');
                 end;
             else begin
-                    LibraryXMLRead.VerifyNodeValueInSubtree('CdtrAgt', 'BIC', SWIFTCode);
-                    LibraryXMLRead.VerifyNodeAbsenceInSubtree('CdtrAgt', 'Id');
-                    LibraryXMLRead.VerifyElementAbsenceInSubtree('CdtrAgt', 'ClrSysMmbId');
-                    LibraryXMLRead.VerifyNodeValueInSubtree('CdtrAcct', 'IBAN', IBAN);
-                    LibraryXMLRead.VerifyNodeAbsenceInSubtree('CdtrAcct', 'Othr');
-                end;
+                LibraryXMLRead.VerifyNodeValueInSubtree('CdtrAgt', 'BIC', SWIFTCode);
+                LibraryXMLRead.VerifyNodeAbsenceInSubtree('CdtrAgt', 'Id');
+                LibraryXMLRead.VerifyElementAbsenceInSubtree('CdtrAgt', 'ClrSysMmbId');
+                LibraryXMLRead.VerifyNodeValueInSubtree('CdtrAcct', 'IBAN', IBAN);
+                LibraryXMLRead.VerifyNodeAbsenceInSubtree('CdtrAcct', 'Othr');
+            end;
         end;
     end;
 

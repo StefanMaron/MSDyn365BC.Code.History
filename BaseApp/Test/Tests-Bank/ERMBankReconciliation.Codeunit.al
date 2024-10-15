@@ -3100,6 +3100,125 @@ codeunit 134141 "ERM Bank Reconciliation"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    procedure ImportDuplicatedTransactionsWhenNotAllowed()
+    var
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
+        BankAccReconLine: Record "Bank Acc. Reconciliation Line";
+        TempBankAccReconLine: Record "Bank Acc. Reconciliation Line" temporary;
+        ProcessBankAccRecLines: Codeunit "Process Bank Acc. Rec Lines";
+        TransactionIDList: List of [Text[50]];
+        NumberOfLinesImported: Integer;
+    begin
+        // [SCENARIO 458159] Import transactions with the same Transaction ID when "Allow Duplicated Transactions" not set.
+        Initialize();
+
+        // [GIVEN] Bank Account Reconciliation with Allow Duplicated Transactions = false (default).
+        LibraryERM.CreateBankAccReconciliation(
+            BankAccReconciliation, CreateBankAccount(), BankAccReconciliation."Statement Type"::"Bank Reconciliation");
+
+        // [GIVEN] Three transactions to import. Two of them has the same Transaction ID.
+        TransactionIDList.Add('Transaction A');
+        TransactionIDList.Add('Transaction B');
+        TransactionIDList.Add('Transaction A');
+        MockTransactionsToImport(TempBankAccReconLine, BankAccReconciliation, TransactionIDList);
+
+        // [WHEN] Import transactions.
+        ProcessBankAccRecLines.InsertNonReconciledOrImportedLines(
+            TempBankAccReconLine, ProcessBankAccRecLines.GetLastStatementLineNo(BankAccReconciliation), NumberOfLinesImported);
+
+        // [THEN] Two transactions were imported.
+        Assert.AreEqual(2, NumberOfLinesImported, '');
+        BankAccReconLine.FilterBankRecLines(BankAccReconciliation);
+        Assert.RecordCount(BankAccReconLine, 2);
+    end;
+
+    [Test]
+    procedure ImportDuplicatedTransactionsWhenAllowed()
+    var
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
+        BankAccReconLine: Record "Bank Acc. Reconciliation Line";
+        TempBankAccReconLine: Record "Bank Acc. Reconciliation Line" temporary;
+        ProcessBankAccRecLines: Codeunit "Process Bank Acc. Rec Lines";
+        TransactionIDList: List of [Text[50]];
+        NumberOfLinesImported: Integer;
+    begin
+        // [SCENARIO 458159] Import transactions with the same Transaction ID when "Allow Duplicated Transactions" set.
+        Initialize();
+
+        // [GIVEN] Bank Account Reconciliation with Allow Duplicated Transactions = true.
+        LibraryERM.CreateBankAccReconciliation(
+            BankAccReconciliation, CreateBankAccount(), BankAccReconciliation."Statement Type"::"Bank Reconciliation");
+        BankAccReconciliation.Validate("Allow Duplicated Transactions", true);
+        BankAccReconciliation.Modify(true);
+
+        // [GIVEN] Three transactions to import. Two of them has the same Transaction ID.
+        TransactionIDList.Add('Transaction A');
+        TransactionIDList.Add('Transaction B');
+        TransactionIDList.Add('Transaction A');
+        MockTransactionsToImport(TempBankAccReconLine, BankAccReconciliation, TransactionIDList);
+
+        // [WHEN] Import transactions.
+        ProcessBankAccRecLines.InsertNonReconciledOrImportedLines(
+            TempBankAccReconLine, ProcessBankAccRecLines.GetLastStatementLineNo(BankAccReconciliation), NumberOfLinesImported);
+
+        // [THEN] Three transactions were imported.
+        Assert.AreEqual(3, NumberOfLinesImported, '');
+        BankAccReconLine.FilterBankRecLines(BankAccReconciliation);
+        Assert.RecordCount(BankAccReconLine, 3);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerNo')]
+    procedure ImportDuplicatedTransactionsWhenAllowedAndPosted()
+    var
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
+        BankAccReconLine: Record "Bank Acc. Reconciliation Line";
+        TempBankAccReconLine: Record "Bank Acc. Reconciliation Line" temporary;
+        ProcessBankAccRecLines: Codeunit "Process Bank Acc. Rec Lines";
+        TransactionIDList: List of [Text[50]];
+        NumberOfLinesImported: Integer;
+    begin
+        // [SCENARIO 458159] Import transactions when "Allow Duplicated Transactions" set and posted transactions with the same Transaction ID exist.
+        Initialize();
+
+        // [GIVEN] Bank Account Reconciliation with Allow Duplicated Transactions = true.
+        LibraryERM.CreateBankAccReconciliation(
+            BankAccReconciliation, CreateBankAccount(), BankAccReconciliation."Statement Type"::"Bank Reconciliation");
+        BankAccReconciliation.Validate("Allow Duplicated Transactions", true);
+        BankAccReconciliation.Modify(true);
+
+        TransactionIDList.Add('Transaction A');
+        TransactionIDList.Add('Transaction B');
+        TransactionIDList.Add('Transaction A');
+
+        // [GIVEN] Posted transaction with Transaction ID "A".
+        MockPostedNotReconciledTransaction(BankAccReconciliation, TransactionIDList.Get(1));
+
+        // [GIVEN] Three transactions to import. Two of them has the same Transaction ID "A" and one has "B".
+        MockTransactionsToImport(TempBankAccReconLine, BankAccReconciliation, TransactionIDList);
+
+        // [GIVEN] Bank Acc. Reconciliation Line with Transaction ID "A".
+        CreateBankAccReconLine(BankAccReconLine, BankAccReconciliation);
+        BankAccReconLine."Transaction ID" := TransactionIDList.Get(1);
+        BankAccReconLine.Modify();
+
+        // [WHEN] Import transactions. Reply No when asked if transaction should be imported when posted transaction already exists.
+        ProcessBankAccRecLines.InsertNonReconciledOrImportedLines(
+            TempBankAccReconLine, ProcessBankAccRecLines.GetLastStatementLineNo(BankAccReconciliation), NumberOfLinesImported);
+
+        // [THEN] One transaction with Transaction ID "B" was imported. Two transactions "A" and "B" are in Bank Acc. Reconciliation.
+        Assert.AreEqual(1, NumberOfLinesImported, '');
+        BankAccReconLine.FilterBankRecLines(BankAccReconciliation);
+        Assert.RecordCount(BankAccReconLine, 2);
+
+        BankAccReconLine.SetFilter("Transaction ID", TransactionIDList.Get(1));
+        Assert.RecordCount(BankAccReconLine, 1);
+
+        BankAccReconLine.SetFilter("Transaction ID", TransactionIDList.Get(2));
+        Assert.RecordCount(BankAccReconLine, 1);
+    end;
+
     local procedure Initialize()
     var
         BankPmtApplSettings: Record "Bank Pmt. Appl. Settings";
@@ -3663,6 +3782,35 @@ codeunit 134141 "ERM Bank Reconciliation"
         BankAccountStatement.Validate("Balance Last Statement", BalanceLastStatement);
         BankAccountStatement.Validate("Statement Ending Balance", StatementEndingBalance);
         BankAccountStatement.Insert(true);
+    end;
+
+    local procedure MockTransactionsToImport(var TempBankAccReconLine: Record "Bank Acc. Reconciliation Line" temporary; BankAccReconciliation: Record "Bank Acc. Reconciliation"; TransactionIDList: List of [Text[50]])
+    var
+        BankAccReconLine: Record "Bank Acc. Reconciliation Line";
+        TransactionID: Text[50];
+    begin
+        foreach TransactionID in TransactionIDList do begin
+            CreateBankAccReconLine(BankAccReconLine, BankAccReconciliation);
+            BankAccReconLine.Validate("Transaction ID", TransactionID);
+            BankAccReconLine.Modify(true);
+
+            TempBankAccReconLine := BankAccReconLine;
+            TempBankAccReconLine.Insert();
+        end;
+        BankAccReconLine.FilterBankRecLines(BankAccReconciliation);
+        BankAccReconLine.DeleteAll();
+    end;
+
+    local procedure MockPostedNotReconciledTransaction(BankAccReconciliation: Record "Bank Acc. Reconciliation"; TransactionID: Text[50])
+    var
+        BankAccReconLine: Record "Bank Acc. Reconciliation Line";
+        PostedPaymentReconLine: Record "Posted Payment Recon. Line";
+    begin
+        CreateBankAccReconLine(BankAccReconLine, BankAccReconciliation);
+        PostedPaymentReconLine.TransferFields(BankAccReconLine);
+        PostedPaymentReconLine."Transaction ID" := TransactionID;
+        PostedPaymentReconLine.Reconciled := false;
+        PostedPaymentReconLine.Insert();
     end;
 
     local procedure CreateDimSet(DimSetID: Integer): Integer

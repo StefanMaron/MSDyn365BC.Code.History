@@ -13,7 +13,7 @@ page 381 "Apply Bank Acc. Ledger Entries"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field(LineApplied; LineApplied)
+                field(LineApplied; StatementNoLineApplied <> '')
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Applied';
@@ -183,7 +183,8 @@ page 381 "Apply Bank Acc. Ledger Entries"
                         CheckLedgerEntry.SetRange("Entry Status", CheckLedgerEntry."Entry Status"::Posted);
                         CheckLedgerEntry.SetFilter("Statement Status", '<>%1', CheckLedgerEntry."Statement Status"::Closed);
                         CheckLedgerEntry.FilterGroup(0);
-                        Page.Run(Page::"Check Ledger Entries", CheckLedgerEntry);
+                        if not CheckLedgerEntry.IsEmpty() then
+                            Page.Run(Page::"Check Ledger Entries", CheckLedgerEntry);
                     end;
                 }
                 field(BalanceToReconcile; BalanceToReconcile)
@@ -203,16 +204,17 @@ page 381 "Apply Bank Acc. Ledger Entries"
 
     trigger OnAfterGetCurrRecord()
     begin
-        LineApplied := IsApplied();
+        StatementNoLineApplied := Rec.GetAppliedStatementNo();
         SetUserInteractions();
         CalcBalance();
-    end;
+        ApplyControledFilters();
+   end;
 
     trigger OnAfterGetRecord()
     begin
-        LineApplied := IsApplied();
+        StatementNoLineApplied := Rec.GetAppliedStatementNo();
         SetUserInteractions();
-    end;
+   end;
 
     trigger OnInit()
     begin
@@ -232,15 +234,16 @@ page 381 "Apply Bank Acc. Ledger Entries"
 
     var
         BankAccount: Record "Bank Account";
-        OpenedBankAccReconBankAccountNo: Code[20];
-        OpenedBankAccReconStatementNo: Code[20];
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
         StyleTxt: Text;
-        LineApplied: Boolean;
+        StatementNoLineApplied: Code[20];
         Balance: Decimal;
         CheckBalance: Decimal;
         BalanceToReconcile: Decimal;
         AmountVisible: Boolean;
         DebitCreditVisible: Boolean;
+        ShowingReversed: Boolean;
+        ShowingNonMatched: Boolean;
 
     procedure GetSelectedRecords(var TempBankAccLedgerEntry: Record "Bank Account Ledger Entry" temporary)
     var
@@ -262,11 +265,91 @@ page 381 "Apply Bank Acc. Ledger Entries"
     procedure SetUserInteractions()
     begin
         StyleTxt := '';
-        if LineApplied then
-            if (OpenedBankAccReconBankAccountNo = Rec."Bank Account No.") and (OpenedBankAccReconStatementNo = Rec."Statement No.") then
-                StyleTxt := 'Favorable'
-            else
-                StyleTxt := 'AttentionAccent';
+        if StatementNoLineApplied = '' then
+            exit;
+        if StatementNoLineApplied = BankAccReconciliation."Statement No." then
+            StyleTxt := 'Favorable'
+        else
+            StyleTxt := 'AttentionAccent';
+   end;
+
+    procedure ShowAll()
+    begin
+        Rec.Reset();
+        ShowingNonMatched := false;
+        if BankAccReconciliation.Get(BankAccReconciliation."Statement Type", BankAccReconciliation."Bank Account No.", BankAccReconciliation."Statement No.") then;
+        ApplyDateFilter(BankAccReconciliation.MatchCandidateFilterDate());
+        ApplyControledFilters();
+        CurrPage.Update(false);
+    end;
+
+    procedure ShowNonMatched()
+    begin
+        ShowingNonMatched := true;
+        ApplyControledFilters();
+        CurrPage.Update(false);
+    end;
+
+    procedure ShowReversed()
+    begin
+        ShowingReversed := true;
+        ApplyControledFilters();
+        CurrPage.Update(false);
+    end;
+
+    procedure HideReversed()
+    begin
+        ShowingReversed := false;
+        ApplyControledFilters();
+        CurrPage.Update(false);
+    end;
+
+    procedure SetBankRecDateFilter(StatementDate: Date)
+    begin
+        ApplyDateFilter(StatementDate);
+        CurrPage.Update(false);
+    end;
+
+    local procedure ApplyDateFilter(StatementDate: Date)
+    begin
+        if StatementDate = 0D then
+            Rec.SetRange("Posting Date")
+        else
+            Rec.SetRange("Posting Date", 0D, StatementDate);
+    end;
+
+    local procedure ApplyControledFilters()
+#if not CLEAN22
+    var
+        BankAccReconciliationPage: Page "Bank Acc. Reconciliation";
+#endif
+    begin
+        ApplyPartFilters();
+        if ShowingNonMatched then begin
+            Rec.SetRange("Statement Status", Rec."Statement Status"::Open);
+            Rec.SetRange("Statement No.", '');
+            Rec.SetRange("Statement Line No.", 0);
+        end
+        else begin
+            Rec.SetRange("Statement No.");
+            Rec.SetRange("Statement Line No.");
+        end;
+
+        if not ShowingReversed then
+            Rec.SetRange(Reversed, false)
+        else
+            Rec.SetRange(Reversed);
+        OnAfterApplyControledFilters(Rec);
+#if not CLEAN22
+        BankAccReconciliationPage.UpdateBankAccountLedgerEntrySubpageOnAfterSetFilters(Rec);
+#endif
+   end;
+
+    local procedure ApplyPartFilters()
+    begin
+        Rec.SetRange("Bank Account No.", BankAccReconciliation."Bank Account No.");
+        Rec.SetRange(Open, true);
+        Rec.SetFilter("Statement Status", '%1|%2|%3', Rec."Statement Status"::Open, Rec."Statement Status"::"Bank Acc. Entry Applied", Rec."Statement Status"::"Check Entry Applied");
     end;
 
     local procedure CalcBalance()
@@ -280,7 +363,7 @@ page 381 "Apply Bank Acc. Ledger Entries"
     end;
 
 #if not CLEAN22
-    [Obsolete('Filters on Bank Ledger Entries on the Bank Rec. page are controlled by UpdateBankAccountLedgerEntrySubpage, these filters were ignored', '22.0')]
+    [Obsolete('Use ShowAll, ShowNonMatched instead', '22.0')]
     procedure ToggleMatchedFilter(SetFilterOn: Boolean)
     begin
         if SetFilterOn then begin
@@ -311,10 +394,16 @@ page 381 "Apply Bank Acc. Ledger Entries"
         DebitCreditVisible := not (GLSetup."Show Amounts" = GLSetup."Show Amounts"::"Amount Only");
     end;
 
-    procedure AssignBankAccReconciliation(BankAccReconciliacion: Record "Bank Acc. Reconciliation")
+    procedure AssignBankAccReconciliation(var NewBankAccReconciliation: Record "Bank Acc. Reconciliation")
     begin
-        OpenedBankAccReconBankAccountNo := BankAccReconciliacion."Bank Account No.";
-        OpenedBankAccReconStatementNo := BankAccReconciliacion."Statement No.";
+        BankAccReconciliation := NewBankAccReconciliation;
+        ApplyControledFilters();
+        CurrPage.Update(false);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterApplyControledFilters(var BankAccountLedgerEntry: Record "Bank Account Ledger Entry")
+    begin
     end;
 }
 

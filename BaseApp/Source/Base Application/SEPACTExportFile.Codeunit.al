@@ -40,7 +40,7 @@
             CHMgt.ReplaceXMLNamespaceCaption(
               TempBlob,
               'urn:iso:std:iso:20022:tech:xsd:pain.001.001.03',
-              'http://www.six-interbank-clearing.com/de/pain.001.001.03.ch.02.xsd');
+              'http://www.six-interbank-clearing.com/de/pain.001.001.03.ch.02.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.six-interbank-clearing.com/de/pain.001.001.03.ch.02.xsd  pain.001.001.03.ch.02.xsd');
 
         CreditTransferRegister.FindLast();
         UseCommonDialog := not ExportToServerFile;

@@ -1,6 +1,8 @@
 ﻿codeunit 11 "Gen. Jnl.-Check Line"
 {
-    Permissions = TableData "General Posting Setup" = rimd;
+    Permissions = tabledata "General Posting Setup" = rimd,
+                  tabledata "Cost Accounting Setup" = R,
+                  tabledata "Payment Terms" = R;
     TableNo = "Gen. Journal Line";
 
     trigger OnRun()
@@ -266,6 +268,14 @@
           not UserSetupManagement.IsPostingDateValidWithGenJnlTemplateWithSetup(PostingDate, TemplateName, SetupRecordID);
         OnAfterDateNoAllowed(PostingDate, DateIsNotAllowed);
         exit(DateIsNotAllowed);
+    end;
+
+    internal procedure CheckVATDateAllowed(VATDate: Date)
+    var
+        VATReportingDateMgt: Codeunit "VAT Reporting Date Mgt";
+    begin
+        if not VATReportingDateMgt.IsValidDate(VATDate) then
+            Error('')
     end;
 
     procedure SetGenJnlBatch(NewGenJnlBatch: Record "Gen. Journal Batch")

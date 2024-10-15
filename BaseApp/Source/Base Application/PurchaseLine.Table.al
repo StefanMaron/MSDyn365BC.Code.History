@@ -3758,7 +3758,9 @@
             "Line Discount Amount" := 0;
             "Inv. Discount Amount" := 0;
             "Inv. Disc. Amount to Invoice" := 0;
+            OnDeleteOnBeforeUpdateAmounts(Rec);
             UpdateAmounts();
+            OnDeleteOnAfterUpdateAmounts(Rec);
         end;
 
         if "Deferral Code" <> '' then
@@ -10161,6 +10163,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateNoOnBeforeCheckReceiptNo(var PurchaseLine: Record "Purchase Line"; xPurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDeleteOnAfterUpdateAmounts(var PurchaseLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDeleteOnBeforeUpdateAmounts(var PurchaseLine: Record "Purchase Line")
     begin
     end;
 }

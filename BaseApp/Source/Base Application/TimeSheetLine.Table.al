@@ -377,6 +377,7 @@ table 951 "Time Sheet Line"
             "Approver ID" := GetJobApproverID()
         else
             SetApproverIDFromResource(Resource);
+        OnAfterUpdateApproverID(Rec);
     end;
 
     local procedure SetApproverIDFromResource(Resource: Record Resource)
@@ -490,6 +491,11 @@ table 951 "Time Sheet Line"
             exit;
 
         "Job Id" := Job.SystemId;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateApproverID(var TimeSheetLine: Record "Time Sheet Line")
+    begin
     end;
 
     [IntegrationEvent(true, false)]

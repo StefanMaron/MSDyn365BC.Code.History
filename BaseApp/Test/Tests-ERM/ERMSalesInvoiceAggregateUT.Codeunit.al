@@ -44,8 +44,8 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Sales Invoice Aggregate UT");
         LibraryVariableStorage.Clear();
         LibrarySetupStorage.Restore();
-        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyBillToCustomerAddressNotificationId);
-        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyCustomerAddressNotificationId);
+        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyBillToCustomerAddressNotificationId());
+        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyCustomerAddressNotificationId());
         LibraryApplicationArea.EnableFoundationSetup();
 
         if IsInitialized then
@@ -63,7 +63,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         LibrarySales.SetStockoutWarning(false);
 
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
-        DisableWarningOnClosingInvoice;
+        DisableWarningOnClosingInvoice();
 
         Commit();
 
@@ -88,7 +88,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         CreateInvoiceWithOneLineThroughTestPageNoDiscount(SalesInvoice);
 
         // Verify
-        VerifyAggregateTableIsUpdatedForInvoice(SalesInvoice."No.".Value);
+        VerifyAggregateTableIsUpdatedForInvoice(SalesInvoice."No.".Value());
     end;
 
     [Test]
@@ -104,7 +104,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         CreateInvoiceWithOneLineThroughTestPageDiscountTypePCT(SalesInvoice);
 
         // Verify
-        VerifyAggregateTableIsUpdatedForInvoice(SalesInvoice."No.".Value);
+        VerifyAggregateTableIsUpdatedForInvoice(SalesInvoice."No.".Value());
     end;
 
     [Test]
@@ -120,7 +120,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         CreateInvoiceWithOneLineThroughTestPageDiscountTypeAMT(SalesInvoice);
 
         // Verify
-        VerifyAggregateTableIsUpdatedForInvoice(SalesInvoice."No.".Value);
+        VerifyAggregateTableIsUpdatedForInvoice(SalesInvoice."No.".Value());
     end;
 
     [Test]
@@ -135,24 +135,24 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         // Setup
         Initialize();
         CreateInvoiceWithOneLineThroughTestPageDiscountTypePCT(SalesInvoice);
-        InvoiceDiscountAmount := LibraryRandom.RandDecInDecimalRange(1, SalesInvoice.SalesLines."Total Amount Excl. VAT".AsDEcimal / 2, 1);
+        InvoiceDiscountAmount := LibraryRandom.RandDecInDecimalRange(1, SalesInvoice.SalesLines."Total Amount Excl. VAT".AsDecimal() / 2, 1);
         SalesInvoice.SalesLines."Invoice Discount Amount".SetValue(InvoiceDiscountAmount);
 
         SalesLine.SetRange("Document Type", SalesLine."Document Type"::Invoice);
-        SalesLine.SetRange("Document No.", SalesInvoice."No.".Value);
+        SalesLine.SetRange("Document No.", SalesInvoice."No.".Value());
         SalesLine.FindFirst();
         SalesLine."Recalculate Invoice Disc." := true;
         SalesLine.Modify();
-        SalesHeader.Get(SalesHeader."Document Type"::Invoice, SalesInvoice."No.".Value);
+        SalesHeader.Get(SalesHeader."Document Type"::Invoice, SalesInvoice."No.".Value());
         SalesInvoice.Close();
 
         // Execute
-        SalesInvoice.OpenEdit;
+        SalesInvoice.OpenEdit();
         SalesInvoice.GotoRecord(SalesHeader);
 
         // Verify
         SalesInvoice.SalesLines."Invoice Discount Amount".AssertEquals(InvoiceDiscountAmount);
-        VerifyAggregateTableIsUpdatedForInvoice(SalesInvoice."No.".Value);
+        VerifyAggregateTableIsUpdatedForInvoice(SalesInvoice."No.".Value());
     end;
 
     [Test]
@@ -166,14 +166,14 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         Initialize();
 
         CreateInvoiceWithOneLineThroughTestPageDiscountTypeAMT(SalesInvoice);
-        InvoiceDiscountAmount := SalesInvoice.SalesLines."Invoice Discount Amount".AsDEcimal;
+        InvoiceDiscountAmount := SalesInvoice.SalesLines."Invoice Discount Amount".AsDecimal();
 
         // Execute
-        CreateLineThroughTestPage(SalesInvoice, SalesInvoice.SalesLines."No.".Value);
+        CreateLineThroughTestPage(SalesInvoice, SalesInvoice.SalesLines."No.".Value());
 
         // Verify
         SalesInvoice.SalesLines."Invoice Discount Amount".AssertEquals(InvoiceDiscountAmount);
-        VerifyAggregateTableIsUpdatedForInvoice(SalesInvoice."No.".Value);
+        VerifyAggregateTableIsUpdatedForInvoice(SalesInvoice."No.".Value());
     end;
 
     [Test]
@@ -188,12 +188,12 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         CreateInvoiceWithOneLineThroughTestPageNoDiscount(SalesInvoice);
 
         // Execute
-        SalesInvoice.SalesLines.Quantity.SetValue(SalesInvoice.SalesLines.Quantity.AsDEcimal * 2);
+        SalesInvoice.SalesLines.Quantity.SetValue(SalesInvoice.SalesLines.Quantity.AsDecimal() * 2);
         SalesInvoice.SalesLines.Next();
         SalesInvoice.SalesLines.Previous();
 
         // Verify
-        VerifyAggregateTableIsUpdatedForInvoice(SalesInvoice."No.".Value);
+        VerifyAggregateTableIsUpdatedForInvoice(SalesInvoice."No.".Value());
     end;
 
     [Test]
@@ -208,12 +208,12 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         CreateInvoiceWithOneLineThroughTestPageDiscountTypePCT(SalesInvoice);
 
         // Execute
-        SalesInvoice.SalesLines."Line Amount".SetValue(Round(SalesInvoice.SalesLines."Line Amount".AsDEcimal / 2, 1));
+        SalesInvoice.SalesLines."Line Amount".SetValue(Round(SalesInvoice.SalesLines."Line Amount".AsDecimal() / 2, 1));
         SalesInvoice.SalesLines.Next();
         SalesInvoice.SalesLines.Previous();
 
         // Verify
-        VerifyAggregateTableIsUpdatedForInvoice(SalesInvoice."No.".Value);
+        VerifyAggregateTableIsUpdatedForInvoice(SalesInvoice."No.".Value());
     end;
 
     [Test]
@@ -229,15 +229,15 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         CreateInvoiceWithOneLineThroughTestPageDiscountTypePCT(SalesInvoice);
 
         // Execute
-        SalesInvoice.SalesLines."Unit Price".SetValue(SalesInvoice.SalesLines."Unit Price".AsDEcimal * 2);
+        SalesInvoice.SalesLines."Unit Price".SetValue(SalesInvoice.SalesLines."Unit Price".AsDecimal() * 2);
         SalesInvoice.SalesLines.Next();
         SalesInvoice.SalesLines.Previous();
 
         // Verify
-        VerifyAggregateTableIsUpdatedForInvoice(SalesInvoice."No.".Value);
+        VerifyAggregateTableIsUpdatedForInvoice(SalesInvoice."No.".Value());
 
         SalesLine.SetRange("Document Type", SalesLine."Document Type"::Invoice);
-        SalesLine.SetRange("Document No.", SalesInvoice."No.".Value);
+        SalesLine.SetRange("Document No.", SalesInvoice."No.".Value());
         SalesLine.FindFirst();
         LibraryNotificationMgt.RecallNotificationsForRecord(SalesLine);
     end;
@@ -255,16 +255,16 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         CreateInvoiceWithOneLineThroughTestPageDiscountTypeAMT(SalesInvoice);
 
         // Execute
-        SalesInvoice.SalesLines."Unit Price".SetValue(SalesInvoice.SalesLines."Unit Price".AsDEcimal * 2);
+        SalesInvoice.SalesLines."Unit Price".SetValue(SalesInvoice.SalesLines."Unit Price".AsDecimal() * 2);
         SalesInvoice.SalesLines.Next();
-        SalesInvoice.SalesLines.First;
+        SalesInvoice.SalesLines.First();
 
         // Verify
         SalesInvoice.SalesLines."Invoice Discount Amount".AssertEquals(0);
-        VerifyAggregateTableIsUpdatedForInvoice(SalesInvoice."No.".Value);
+        VerifyAggregateTableIsUpdatedForInvoice(SalesInvoice."No.".Value());
 
         SalesLine.SetRange("Document Type", SalesLine."Document Type"::Invoice);
-        SalesLine.SetRange("Document No.", SalesInvoice."No.".Value);
+        SalesLine.SetRange("Document No.", SalesInvoice."No.".Value());
         SalesLine.FindFirst();
         LibraryNotificationMgt.RecallNotificationsForRecord(SalesLine);
     end;
@@ -421,7 +421,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
 
         OpenSalesInvoice(SalesHeader, SalesInvoice);
 
-        AnswerYesToAllConfirmDialogs;
+        AnswerYesToAllConfirmDialogs();
 
         // Execute
         SalesInvoice."Sell-to Customer No.".SetValue(NewCustomer."No.");
@@ -454,7 +454,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         SalesInvoice.SalesLines."Invoice Discount Amount".SetValue(InvoiceDiscountAmount);
 
         // Execute
-        AnswerYesToAllConfirmDialogs;
+        AnswerYesToAllConfirmDialogs();
         SalesInvoice."Sell-to Customer Name".SetValue(NewCustomer."No.");
 
         // Verify
@@ -481,7 +481,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         CreateInvoiceWithRandomNumberOfLines(SalesHeader, Item, Customer);
         OpenSalesInvoice(SalesHeader, SalesInvoice);
 
-        AnswerYesToAllConfirmDialogs;
+        AnswerYesToAllConfirmDialogs();
 
         // Execute
         SalesInvoice."Sell-to Customer Name".SetValue(NewCustomer."No.");
@@ -512,7 +512,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         CreateInvoiceWithRandomNumberOfLines(SalesHeader, Item, Customer);
         OpenSalesInvoice(SalesHeader, SalesInvoice);
 
-        AnswerYesToAllConfirmDialogs;
+        AnswerYesToAllConfirmDialogs();
 
         // Execute
         SalesInvoice."Bill-to Name".SetValue(NewCustomer.Name);
@@ -544,7 +544,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         OpenSalesInvoice(SalesHeader, SalesInvoice);
         SalesInvoice.SalesLines."Invoice Discount Amount".SetValue(InvoiceDiscountAmount);
 
-        AnswerYesToAllConfirmDialogs;
+        AnswerYesToAllConfirmDialogs();
 
         // Execute
         SalesInvoice."Bill-to Name".SetValue(NewCustomer.Name);
@@ -590,7 +590,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         Assert.IsFalse(SalesInvoiceEntityAggregate.Get(SalesHeader."No.", false), 'Draft Aggregated Invoice still exists');
 
         Assert.AreEqual(SalesHeader.SystemId, SalesInvoiceHeader."Draft Invoice SystemId", 'Posted Invoice ID is incorrect');
-        Assert.IsFalse(SalesHeader.Find, 'Draft Invoice still exists');
+        Assert.IsFalse(SalesHeader.Get(SalesHeader."Document Type", SalesHeader."No."), 'Draft Invoice still exists');
         SalesInvoiceEntityAggregate.Get(SalesInvoiceHeader."No.", true);
         Assert.IsFalse(IsNullGuid(SalesInvoiceEntityAggregate.Id), 'Id cannot be null');
         Assert.AreEqual(SalesInvoiceHeader."Draft Invoice SystemId", SalesInvoiceEntityAggregate.Id, 'Aggregate Invoice ID is incorrect');
@@ -626,7 +626,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
 
         SalesInvoiceHeader.Find();
         Assert.AreEqual(SalesHeader.SystemId, SalesInvoiceHeader."Draft Invoice SystemId", 'Posted Invoice ID is incorrect');
-        Assert.IsFalse(SalesHeader.Find, 'Draft Invoice still exists');
+        Assert.IsFalse(SalesHeader.Find(), 'Draft Invoice still exists');
         SalesInvoiceEntityAggregate.Get(SalesInvoiceHeader."No.", true);
         Assert.IsFalse(IsNullGuid(SalesInvoiceEntityAggregate.SystemId), 'Id cannot be null');
     end;
@@ -717,7 +717,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         Initialize();
         GetFieldsThatMustMatchWithSalesHeader(TempCommonField);
         GetInvoiceAggregateSpecificFields(TempInvoiceAggregateSpecificField);
-        SetFieldFilters(AggregateField, DATABASE::"Sales Invoice Entity Aggregate");
+        SetFieldFilters(AggregateField);
 
         // Execute and verify
         Assert.AreEqual(
@@ -781,20 +781,20 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         Initialize();
 
         CreateSalesHeader(SalesHeader, ExpectedGUID, SalesHeader."Document Type"::Quote);
-        SalesQuote.OpenEdit;
+        SalesQuote.OpenEdit();
         SalesQuote.GotoRecord(SalesHeader);
         LibraryVariableStorage.Enqueue('invoice');
         LibraryVariableStorage.Enqueue(true);
 
         LibraryVariableStorage.Enqueue('converted');
         LibraryVariableStorage.Enqueue(true);
-        SalesInvoice.Trap;
+        SalesInvoice.Trap();
 
         // Execute
-        SalesQuote.MakeInvoice.Invoke;
+        SalesQuote.MakeInvoice.Invoke();
 
         // Verify
-        SalesHeader.Get(SalesHeader."Document Type"::Invoice, SalesInvoice."No.");
+        SalesHeader.Get(SalesHeader."Document Type"::Invoice, SalesInvoice."No.".Value());
 
         Assert.IsTrue(SalesInvoiceEntityAggregate.Get(SalesHeader."No.", false), 'Sales Invoice Aggregate was not created');
 
@@ -1852,12 +1852,12 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
 
         if GeneralLedgerSetup.UseVat() then begin
             DataTypeManagement.FindFieldByName(SourceRecordRef, SourceFieldRef, SalesLine.FieldName("VAT Prod. Posting Group"));
-            if VATProductPostingGroup.Get(SourceFieldRef.Value) then
+            if VATProductPostingGroup.Get(Format(SourceFieldRef.Value())) then
                 TaxId := VATProductPostingGroup.SystemId;
             DataTypeManagement.FindFieldByName(SourceRecordRef, SourceFieldRef, SalesLine.FieldName("VAT Identifier"))
         end else begin
             DataTypeManagement.FindFieldByName(SourceRecordRef, SourceFieldRef, SalesLine.FieldName("Tax Group Code"));
-            if TaxGroup.Get(SourceFieldRef.Value) then
+            if TaxGroup.Get(Format(SourceFieldRef.Value())) then
                 TaxId := TaxGroup.SystemId
         end;
 
@@ -1868,7 +1868,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
             exit;
 
         DataTypeManagement.FindFieldByName(SourceRecordRef, SourceFieldRef, SalesLine.FieldName("No."));
-        Item.Get(SourceFieldRef.Value);
+        Item.Get(Format(SourceFieldRef.Value()));
         Assert.AreEqual(TempSalesInvoiceLineAggregate."Item Id", Item.SystemId, 'Item ID was not set');
         Assert.IsFalse(IsNullGuid(Item.SystemId), 'Item ID was not set');
         Assert.AreNearlyEqual(
@@ -2196,7 +2196,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         TempFieldBuffer.Insert();
     end;
 
-    local procedure SetFieldFilters(var Field: Record Field; TableNo: Integer)
+    local procedure SetFieldFilters(var Field: Record Field)
     begin
         Field.SetRange(TableNo, DATABASE::"Sales Invoice Entity Aggregate");
         Field.SetFilter(ObsoleteState, '<>%1', Field.ObsoleteState::Removed);

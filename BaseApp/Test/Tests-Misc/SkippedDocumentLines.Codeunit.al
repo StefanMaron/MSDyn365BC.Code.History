@@ -100,7 +100,7 @@ codeunit 134346 "Skipped Document Lines"
         Assert.IsTrue(CopyDocumentMgt.IsEntityBlocked(Database::"Sales Line", false, LineType::Item, Item."No."), 'line should be skipped');
         Assert.IsTrue(ErrorMessageMgt.GetErrors(TempErrorMessage), 'not found errors');
         TempErrorMessage.TestField("Field Number", Item.FieldNo("Sales Blocked"));
-        Assert.ExpectedMessage(StrSubstNo(IsSalesBlockedItemErr, Item."No."), TempErrorMessage.Description);
+        Assert.ExpectedMessage(StrSubstNo(IsSalesBlockedItemErr, Item."No."), TempErrorMessage."Message");
         TempErrorMessage.TestField("Support Url");
     end;
 
@@ -149,7 +149,7 @@ codeunit 134346 "Skipped Document Lines"
         Assert.IsTrue(CopyDocumentMgt.IsEntityBlocked(Database::"Purchase Line", false, LineType::Item, Item."No."), 'line should be skipped');
         Assert.IsTrue(ErrorMessageMgt.GetErrors(TempErrorMessage), 'not found errors');
         TempErrorMessage.TestField("Field Number", Item.FieldNo("Purchasing Blocked"));
-        Assert.ExpectedMessage(StrSubstNo(IsPurchBlockedItemErr, Item."No."), TempErrorMessage.Description);
+        Assert.ExpectedMessage(StrSubstNo(IsPurchBlockedItemErr, Item."No."), TempErrorMessage."Message");
         TempErrorMessage.TestField("Support Url");
     end;
 
@@ -516,7 +516,7 @@ codeunit 134346 "Skipped Document Lines"
         ErrorMessageRegister.CalcFields(Errors, Warnings);
         ErrorMessageRegister.TestField(Errors, 0);
         ErrorMessageRegister.TestField(Warnings, 1);
-        Assert.AreEqual(StrSubstNo(SalesErrorContextMsg, FromSalesHeader."No."), ErrorMessageRegister.Description, 'Register.Description');
+        Assert.AreEqual(StrSubstNo(SalesErrorContextMsg, FromSalesHeader."No."), ErrorMessageRegister."Message", 'Register.Description');
 
         LibraryNotificationMgt.RecallNotificationsForRecord(ToSalesHeader);
         LibraryVariableStorage.AssertEmpty;
@@ -628,7 +628,7 @@ codeunit 134346 "Skipped Document Lines"
         ErrorMessageRegister.TestField(Errors, 0);
         ErrorMessageRegister.TestField(Warnings, 1);
         Assert.AreEqual(
-          StrSubstNo(PurchErrorContextMsg, FromPurchaseHeader."No."), ErrorMessageRegister.Description, 'Register.Description');
+          StrSubstNo(PurchErrorContextMsg, FromPurchaseHeader."No."), ErrorMessageRegister."Message", 'Register.Description');
 
         LibraryNotificationMgt.RecallNotificationsForRecord(ToPurchaseHeader);
         LibraryVariableStorage.AssertEmpty;

@@ -1286,6 +1286,7 @@
     local procedure UpdateAndDeleteLines(var GenJnlLine: Record "Gen. Journal Line")
     var
         TempGenJnlLine2: Record "Gen. Journal Line" temporary;
+        RecordLinkManagement: Codeunit "Record Link Management";
         OldVATAmount: Decimal;
         OldVATPct: Decimal;
         IsHandled: Boolean;
@@ -1332,6 +1333,7 @@
             GenJnlLine3.Copy(GenJnlLine);
             GenJnlLine3.SetCurrentKey("Journal Template Name", "Journal Batch Name", "Line No.");
             OnUpdateAndDeleteLinesOnBeforeDeleteNonRecurringLines(GenJnlLine3);
+            RecordLinkManagement.RemoveLinks(GenJnlLine3);
             GenJnlLine3.DeleteAll();
             GenJnlLine3.Reset();
             GenJnlLine3.SetRange("Journal Template Name", GenJnlLine."Journal Template Name");
@@ -1492,7 +1494,14 @@
         ErrorMessageManagement: Codeunit "Error Message Management";
         ErrorContextElement: Codeunit "Error Context Element";
         IsModified: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckLine(GenJnlLine, PostingAfterWorkingDateConfirmed, IsHandled);
+        if IsHandled then
+            exit;
+
+        GenJnlCheckLine.CheckVATDateAllowed(GenJnlLine."VAT Reporting Date");
         GenJournalLineToUpdate.Copy(GenJnlLine);
         CheckRecurringLine(GenJournalLineToUpdate);
         IsModified := UpdateRecurringAmt(GenJournalLineToUpdate);
@@ -2135,6 +2144,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateAndDeleteLinesOnBeforeUpdatePostingDate(var GenJnlLine2: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckLine(var GenJournalLine: Record "Gen. Journal Line"; var PostingAfterWorkingDateConfirmed: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

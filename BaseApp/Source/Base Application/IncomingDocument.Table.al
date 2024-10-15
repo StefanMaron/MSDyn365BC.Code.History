@@ -1360,7 +1360,7 @@
         if Erase(FilePath) then;
     end;
 
-    local procedure SetProcessFailed(ErrorMsg: Text[250])
+    local procedure SetProcessFailed(ErrorMsg: Text[2048])
     var
         ErrorMessage: Record "Error Message";
         ReleaseIncomingDocument: Codeunit "Release Incoming Document";
@@ -1368,7 +1368,7 @@
         ReleaseIncomingDocument.Fail(Rec);
 
         if ErrorMsg = '' then begin
-            ErrorMsg := CopyStr(GetLastErrorText, 1, MaxStrLen(ErrorMessage.Description));
+            ErrorMsg := CopyStr(GetLastErrorText, 1, MaxStrLen(ErrorMessage."Message"));
             ClearLastError();
         end;
 
