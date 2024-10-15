@@ -1060,12 +1060,18 @@ report 418 "Arch. Sales Return Order"
         TotalAmount: Decimal;
         TotalInvoiceDiscountAmount: Decimal;
 
+#pragma warning disable AA0074
         Text004: Label 'Sales Return Order Archived %1', Comment = '%1 = Document No.';
+#pragma warning disable AA0470
         Text005: Label 'Page %1';
+#pragma warning restore AA0470
         Text007: Label 'VAT Amount Specification in ';
         Text008: Label 'Local Currency';
+#pragma warning disable AA0470
         Text009: Label 'Exchange rate: %1/%2';
         Text010: Label 'Version %1 of %2 ';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         CompanyInfo__Phone_No__CaptionLbl: Label 'Phone No.';
         CompanyInfo__Fax_No__CaptionLbl: Label 'Fax No.';
         CompanyInfo__VAT_Registration_No__CaptionLbl: Label 'VAT Reg. No.';

@@ -2,6 +2,7 @@ namespace Microsoft.Purchases.Document;
 
 using Microsoft.Inventory.Availability;
 using Microsoft.Inventory.Location;
+using Microsoft.Inventory.Planning;
 using Microsoft.Inventory.Requisition;
 using Microsoft.Purchases.Vendor;
 
@@ -38,10 +39,10 @@ page 1328 "Purch. Order From Sales Order"
                 field("Demand Quantity"; Rec."Demand Quantity")
                 {
                     ApplicationArea = Suite;
-                    Caption = 'Sales Order Quantity';
+                    CaptionClass = GetCaption();
                     Style = Subordinate;
                     StyleExpr = Rec.Quantity = 0;
-                    ToolTip = 'Specifies the sales order quantity relating to the purchase order line item.';
+                    ToolTip = 'Specifies the quantity needed relating to the purchase order line item.';
                 }
                 field(Vendor; VendorName)
                 {
@@ -85,6 +86,12 @@ page 1328 "Purch. Order From Sales Order"
                     Caption = 'Quantity to Purchase';
                     Style = Strong;
                     ToolTip = 'Specifies the quantity to be purchased.';
+                }
+                field(Reserve; Rec.Reserve)
+                {
+                    ApplicationArea = Reservation;
+                    Visible = false;
+                    ToolTip = 'Specifies whether the item on the planning line has a setting of Always in the Reserve field on its item card.';
                 }
             }
         }
@@ -142,7 +149,7 @@ page 1328 "Purch. Order From Sales Order"
 
                     trigger OnAction()
                     begin
-                        ItemAvailFormsMgt.ShowItemAvailFromReqLine(Rec, ItemAvailFormsMgt.ByEvent())
+                        ReqLineAvailabilityMgt.ShowItemAvailabilityFromReqLine(Rec, "Item Availability Type"::"Event")
                     end;
                 }
                 action(Period)
@@ -155,7 +162,7 @@ page 1328 "Purch. Order From Sales Order"
 
                     trigger OnAction()
                     begin
-                        ItemAvailFormsMgt.ShowItemAvailFromReqLine(Rec, ItemAvailFormsMgt.ByPeriod())
+                        ReqLineAvailabilityMgt.ShowItemAvailabilityFromReqLine(Rec, "Item Availability Type"::Period)
                     end;
                 }
                 action(Variant)
@@ -168,7 +175,7 @@ page 1328 "Purch. Order From Sales Order"
 
                     trigger OnAction()
                     begin
-                        ItemAvailFormsMgt.ShowItemAvailFromReqLine(Rec, ItemAvailFormsMgt.ByVariant())
+                        ReqLineAvailabilityMgt.ShowItemAvailabilityFromReqLine(Rec, "Item Availability Type"::Variant)
                     end;
                 }
                 action(Location)
@@ -182,7 +189,7 @@ page 1328 "Purch. Order From Sales Order"
 
                     trigger OnAction()
                     begin
-                        ItemAvailFormsMgt.ShowItemAvailFromReqLine(Rec, ItemAvailFormsMgt.ByLocation())
+                        ReqLineAvailabilityMgt.ShowItemAvailabilityFromReqLine(Rec, "Item Availability Type"::Location)
                     end;
                 }
                 action(Lot)
@@ -206,7 +213,7 @@ page 1328 "Purch. Order From Sales Order"
 
                     trigger OnAction()
                     begin
-                        ItemAvailFormsMgt.ShowItemAvailFromReqLine(Rec, ItemAvailFormsMgt.ByBOM())
+                        ReqLineAvailabilityMgt.ShowItemAvailabilityFromReqLine(Rec, "Item Availability Type"::BOM)
                     end;
                 }
             }
@@ -273,16 +280,35 @@ page 1328 "Purch. Order From Sales Order"
     end;
 
     var
-        ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
-        OrderNo: Code[20];
+        ReqLineAvailabilityMgt: Codeunit "Req. Line Availability Mgt.";
         EntireOrderIsAvailableTxt: Label 'All items on the sales order are available.';
+        EntireJobIsAvailableTxt: Label 'All items for the project are available.';
         ShowAllDocsIsEnable: Boolean;
         VendorName: Text[100];
+        DemandType: Enum "Unplanned Demand Type";
+        DemandLineNoFilter: Text;
         CannotCreatePurchaseOrderWithoutVendorErr: Label 'You cannot create purchase orders without specifying a vendor for all lines.';
+        JobQuantityLbl: Label 'Project Quantity';
+        SalesOrderQuantityLbl: Label 'Sales Order Quantity';
+
+    protected var
+        OrderNo: Code[20];
 
     procedure SetSalesOrderNo(SalesOrderNo: Code[20])
     begin
         OrderNo := SalesOrderNo;
+        DemandType := DemandType::Sales;
+    end;
+
+    procedure SetJobNo(JobNo: Code[20])
+    begin
+        OrderNo := JobNo;
+        DemandType := DemandType::Job;
+    end;
+
+    procedure SetJobTaskFilter(JobContractEntryNoFilter: Text)
+    begin
+        DemandLineNoFilter := JobContractEntryNoFilter;
     end;
 
     local procedure PlanForOrder()
@@ -290,8 +316,15 @@ page 1328 "Purch. Order From Sales Order"
         OrderPlanningMgt: Codeunit "Order Planning Mgt.";
         AllItemsAreAvailableNotification: Notification;
     begin
-        OrderPlanningMgt.PlanSpecificSalesOrder(Rec, OrderNo);
-
+        case DemandType of
+            DemandType::Sales:
+                OrderPlanningMgt.PlanSpecificSalesOrder(Rec, OrderNo);
+            DemandType::Job:
+                begin
+                    OrderPlanningMgt.PlanSpecificJob(Rec, OrderNo);
+                    OrderPlanningMgt.SetTaskFilterOnReqLine(Rec, DemandLineNoFilter);
+                end;
+        end;
         Rec.SetRange(Level, 1);
 
         Rec.SetRange("Replenishment System", Rec."Replenishment System"::Purchase);
@@ -300,7 +333,10 @@ page 1328 "Purch. Order From Sales Order"
             Rec.SetFilter("Demand Order No.", OrderNo);
 
         if Rec.IsEmpty() then begin
-            AllItemsAreAvailableNotification.Message := EntireOrderIsAvailableTxt;
+            if DemandType = DemandType::Job then
+                AllItemsAreAvailableNotification.Message := EntireJobIsAvailableTxt
+            else
+                AllItemsAreAvailableNotification.Message := EntireOrderIsAvailableTxt;
             AllItemsAreAvailableNotification.Scope := NOTIFICATIONSCOPE::LocalScope;
             AllItemsAreAvailableNotification.Send();
         end;
@@ -330,6 +366,16 @@ page 1328 "Purch. Order From Sales Order"
         Rec.SetRange(Quantity);
         if RecordsWithoutSupplyFromVendor then
             Error(CannotCreatePurchaseOrderWithoutVendorErr);
+    end;
+
+    local procedure GetCaption(): Text
+    begin
+        case DemandType of
+            DemandType::Sales:
+                exit(SalesOrderQuantityLbl);
+            DemandType::Job:
+                exit(JobQuantityLbl);
+        end;
     end;
 }
 

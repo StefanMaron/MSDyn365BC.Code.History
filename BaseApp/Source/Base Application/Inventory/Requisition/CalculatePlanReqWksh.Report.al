@@ -233,12 +233,16 @@ report 699 "Calculate Plan - Req. Wksh."
         ReqWkshFilter: Code[50];
         Counter: Integer;
 
+#pragma warning disable AA0074
         Text002: Label 'Enter a starting date.';
         Text003: Label 'Enter an ending date.';
         Text004: Label 'The ending date must not be before the order date.';
         Text005: Label 'You must not use a variant filter when calculating MPS from a forecast.';
         Text006: Label 'Calculating the plan...\\';
+#pragma warning disable AA0470
         Text007: Label 'Item No.  #1##################';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     protected var
         MfgSetup: Record "Manufacturing Setup";

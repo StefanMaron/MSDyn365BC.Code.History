@@ -66,6 +66,7 @@ codeunit 139195 "CDS Integration Mgt Test"
     procedure IsIntegrationEnabledWhenDisabled()
     var
         CDSConnectionSetup: Record "CDS Connection Setup";
+        DummyPassword: Text;
     begin
         // [FEATURE] [CDS Integration Management]
         // [SCENARIO] IsntegrationEnabled() returns if CDS Integration is enabled
@@ -74,7 +75,8 @@ codeunit 139195 "CDS Integration Mgt Test"
         // [GIVEN] Disabled CDS Connection
         InitializeSetup(false);
         CDSConnectionSetup.Get();
-        CDSConnectionSetup.SetPassword('test');
+        DummyPassword := 'test';
+        CDSConnectionSetup.SetPassword(DummyPassword);
         CDSConnectionSetup.Modify();
         // [WHEN] Asking if CDS Integration Is Enabled
         // [THEN] Response is false
@@ -150,6 +152,7 @@ codeunit 139195 "CDS Integration Mgt Test"
     procedure TestConnectionWhenDisabled()
     var
         CDSConnectionSetup: Record "CDS Connection Setup";
+        DummyPassword: Text;
     begin
         // [FEATURE] [CDS Integration Management]
         // [SCENARIO] Test Connection
@@ -158,7 +161,8 @@ codeunit 139195 "CDS Integration Mgt Test"
         // [GIVEN] Disabled CDS Connection
         InitializeSetup(false);
         CDSConnectionSetup.Get();
-        CDSConnectionSetup.SetPassword('test');
+        DummyPassword := 'test';
+        CDSConnectionSetup.SetPassword(DummyPassword);
         CDSConnectionSetup.Modify();
         // [WHEN] Test Connection
         // [THEN] Response is true
@@ -1337,15 +1341,13 @@ codeunit 139195 "CDS Integration Mgt Test"
     var
         IntegrationTableMapping: Record "Integration Table Mapping";
     begin
-        with IntegrationTableMapping do begin
-            SetRange("Table ID", TableID);
-            FindFirst();
-            Assert.AreEqual(IntegrationDirection, Direction, FieldName(Direction));
-            Assert.AreEqual(IntegrationTableID, "Integration Table ID", FieldName("Integration Table ID"));
-            Assert.AreEqual(TableFilter, GetTableFilter(), FieldName("Table Filter"));
-            Assert.AreEqual(IntegrationTableFilter, GetIntegrationTableFilter(), FieldName("Integration Table Filter"));
-            Assert.AreEqual(SynchOnlyCoupledRecords, "Synch. Only Coupled Records", FieldName("Synch. Only Coupled Records"));
-        end;
+        IntegrationTableMapping.SetRange("Table ID", TableID);
+        IntegrationTableMapping.FindFirst();
+        Assert.AreEqual(IntegrationDirection, IntegrationTableMapping.Direction, IntegrationTableMapping.FieldName(Direction));
+        Assert.AreEqual(IntegrationTableID, IntegrationTableMapping."Integration Table ID", IntegrationTableMapping.FieldName("Integration Table ID"));
+        Assert.AreEqual(TableFilter, IntegrationTableMapping.GetTableFilter(), IntegrationTableMapping.FieldName("Table Filter"));
+        Assert.AreEqual(IntegrationTableFilter, IntegrationTableMapping.GetIntegrationTableFilter(), IntegrationTableMapping.FieldName("Integration Table Filter"));
+        Assert.AreEqual(SynchOnlyCoupledRecords, IntegrationTableMapping."Synch. Only Coupled Records", IntegrationTableMapping.FieldName("Synch. Only Coupled Records"));
     end;
 
     local procedure VerifyJobQueueEntriesInactivityTimeoutPeriod(NoOfMinutesBetweenRuns: Integer; ExpectedInactivityTimeoutPeriod: Integer; JobDescription: Text[250])
@@ -1368,12 +1370,14 @@ codeunit 139195 "CDS Integration Mgt Test"
     local procedure InitializeSetup(HostName: Text; IsEnabled: Boolean)
     var
         CDSConnectionSetup: Record "CDS Connection Setup";
+        DummyPassword: Text;
     begin
         CDSConnectionSetup.DeleteAll();
         CDSConnectionSetup.Init();
         CDSConnectionSetup."Server Address" := CopyStr(HostName, 1, MaxStrLen(CDSConnectionSetup."Server Address"));
+        DummyPassword := 'T3sting!';
         if IsEnabled then
-            CDSConnectionSetup.SetPassword('T3sting!');
+            CDSConnectionSetup.SetPassword(DummyPassword);
         CDSConnectionSetup."Is Enabled" := IsEnabled;
         CDSConnectionSetup."Ownership Model" := CDSConnectionSetup."Ownership Model"::Team;
         CDSConnectionSetup."Authentication Type" := CDSConnectionSetup."Authentication Type"::Office365;

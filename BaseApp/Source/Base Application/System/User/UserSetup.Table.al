@@ -363,9 +363,13 @@ table 91 "User Setup"
         SalesPersonPurchaser: Record "Salesperson/Purchaser";
         UserSetupManagement: Codeunit "User Setup Management";
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label 'The %1 Salesperson/Purchaser code is already assigned to another User ID %2.';
         Text003: Label 'You cannot have both a %1 and %2. ';
+#pragma warning restore AA0470
         Text005: Label 'You cannot have approval limits less than zero.';
+#pragma warning restore AA0074
         PrivacyBlockedGenericErr: Label 'Privacy Blocked must not be true for Salesperson / Purchaser %1.', Comment = '%1 = salesperson / purchaser code.';
         PhoneNoCannotContainLettersErr: Label 'must not contain letters';
 

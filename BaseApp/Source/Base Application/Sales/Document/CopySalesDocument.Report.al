@@ -202,9 +202,13 @@ report 292 "Copy Sales Document"
     end;
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'The price information may not be reversed correctly, if you copy a %1. If possible copy a %2 instead or use %3 functionality.';
+#pragma warning restore AA0470
         Text001: Label 'Undo Shipment';
         Text002: Label 'Undo Return Receipt';
+#pragma warning restore AA0074
         DocNoNotSerErr: Label 'Select a document number to continue, or choose Cancel to close the page.';
 
     protected var

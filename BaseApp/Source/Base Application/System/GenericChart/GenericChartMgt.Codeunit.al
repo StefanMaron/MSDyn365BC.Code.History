@@ -14,11 +14,19 @@ codeunit 9180 "Generic Chart Mgt"
     end;
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label 'You must select the %1.';
+#pragma warning restore AA0470
         Text002: Label '(No filters selected)';
+#pragma warning disable AA0470
         Text003: Label 'You cannot select more than %1 measures when using the Customize Chart option.';
+#pragma warning restore AA0470
         Text004: Label 'You cannot select Count for this chart because the source query does not support this aggregation method.';
+#pragma warning disable AA0470
         Text005: Label 'The aggregation type %1 can only be selected for columns of type Decimal.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         DescriptionTok: Label 'DESCR.', Comment = 'DESCR.';
         XAxisTitleTok: Label 'X-TITLE', Comment = 'X-AXIS';
         YAxisTitleTok: Label 'Y-TITLE', Comment = 'Y-AXIS';

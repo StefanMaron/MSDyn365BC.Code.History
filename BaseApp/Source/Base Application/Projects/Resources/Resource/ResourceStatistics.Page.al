@@ -538,7 +538,9 @@ page 223 "Resource Statistics"
         j: Integer;
         Chargeable: Boolean;
         CurrentDate: Date;
+#pragma warning disable AA0074
         Text000: Label 'Placeholder';
+#pragma warning restore AA0074
 
     protected var
         ResDateFilter: array[4] of Text[30];

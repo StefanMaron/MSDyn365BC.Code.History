@@ -1083,8 +1083,12 @@ page 490 "Acc. Schedule Overview"
         ColumnOffset: Integer;
         // Constants
         Text000Tok: Label 'DEFAULT', MaxLength = 10;
+#pragma warning disable AA0470
         Text005Tok: Label '1,6,,Dimension %1 Filter';
+#pragma warning restore AA0470
+#pragma warning disable AA0074
         EditModeMessage: Label 'All changes made to this page are persistent and visible to all users immediately';
+#pragma warning restore AA0074
         // Other page state
         Dim1FilterEnable: Boolean;
         Dim2FilterEnable: Boolean;

@@ -821,13 +821,11 @@ codeunit 144052 "UT REP Purchase & Sales"
 
     local procedure CreateReportSelections(var ReportSelections: Record "Report Selections"; ReportUsage: Enum "Report Selection Usage"; SequenceCode: Code[10]; ReportID: Integer)
     begin
-        with ReportSelections do begin
-            Init();
-            Validate(Usage, ReportUsage);
-            Validate(Sequence, SequenceCode);
-            Validate("Report ID", ReportID);
-            Insert(true);
-        end;
+        ReportSelections.Init();
+        ReportSelections.Validate(Usage, ReportUsage);
+        ReportSelections.Validate(Sequence, SequenceCode);
+        ReportSelections.Validate("Report ID", ReportID);
+        ReportSelections.Insert(true);
     end;
 
     local procedure RunCreateRemindersReport(CustomerNo: Code[20]; UseHeaderLevel: Boolean)

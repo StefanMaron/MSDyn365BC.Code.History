@@ -103,8 +103,7 @@ page 7213 "CRM BC Virtual Table Config."
     local procedure InitAsAdmin()
     var
         TempCDSConnectionSetup: Record "CDS Connection Setup" temporary;
-        [NonDebuggable]
-        AccessToken: Text;
+        AccessToken: SecretText;
     begin
         CDSIntegrationImpl.GetAccessToken(CDSConnectionSetup."Server Address", true, AccessToken);
         CDSIntegrationImpl.GetTempConnectionSetup(TempCDSConnectionSetup, CDSConnectionSetup, AccessToken);

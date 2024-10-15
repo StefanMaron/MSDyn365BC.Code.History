@@ -103,10 +103,12 @@ report 5854 "Roll Up Standard Cost"
         CalculationDate: Date;
         ToStdCostWkshName: Code[10];
         RolledUp: Boolean;
+#pragma warning disable AA0074
         Text000: Label 'The standard costs have been rolled up successfully.';
         Text001: Label 'There is nothing to roll up.';
         Text002: Label 'You must enter a calculation date.';
         Text003: Label 'You must specify a worksheet name to roll up to.';
+#pragma warning restore AA0074
         NoMessage: Boolean;
 
     local procedure UpdateStdCostWksh()

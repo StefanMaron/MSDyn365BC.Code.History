@@ -1,4 +1,4 @@
-namespace Microsoft.CashFlow.Setup;
+﻿namespace Microsoft.CashFlow.Setup;
 
 using System.AI;
 using System.Privacy;
@@ -45,11 +45,6 @@ page 846 "Cash Flow Setup"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the sales order account number that is used in cash flow forecasts.';
-                }
-                field("Service CF Account No."; Rec."Service CF Account No.")
-                {
-                    ApplicationArea = Service;
-                    ToolTip = 'Specifies the service account number that is used in cash flow forecasts.';
                 }
                 field("Purch. Order CF Account No."; Rec."Purch. Order CF Account No.")
                 {
@@ -171,9 +166,12 @@ page 846 "Cash Flow Setup"
                     trigger OnValidate();
                     var
                         CustomerConsentMgt: Codeunit "Customer Consent Mgt.";
+                        CashFlowForecastConsentProvidedLbl: Label 'Cash Flow Forecast feature, Azure AI - consent provided.', Locked = true;
                     begin
                         if not xRec."Azure AI Enabled" and Rec."Azure AI Enabled" then
                             Rec."Azure AI Enabled" := CustomerConsentMgt.ConsentToMicrosoftServiceWithAI();
+                        if Rec."Azure AI Enabled" then
+                            Session.LogAuditMessage(CashFlowForecastConsentProvidedLbl, SecurityOperationResult::Success, AuditCategory::ApplicationManagement, 4, 0);
                     end;
                 }
                 field("Total Proc. Time"; Format(AzureAIUsage.GetTotalProcessingTime(AzureAIService::"Machine Learning")))

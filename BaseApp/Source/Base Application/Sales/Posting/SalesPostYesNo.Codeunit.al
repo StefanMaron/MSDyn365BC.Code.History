@@ -136,7 +136,12 @@ codeunit 81 "Sales-Post (Yes/No)"
     var
         SalesHeader: Record "Sales Header";
         SalesPost: Codeunit "Sales-Post";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeRunPreview(Result, RecVar, IsHandled);
+        if IsHandled then
+            exit;
         SalesHeader.Copy(RecVar);
         SalesHeader.Receive := SalesHeader."Document Type" = SalesHeader."Document Type"::"Return Order";
         SalesHeader.Ship := SalesHeader."Document Type" in [SalesHeader."Document Type"::Order, SalesHeader."Document Type"::Invoice, SalesHeader."Document Type"::"Credit Memo"];
@@ -175,6 +180,11 @@ codeunit 81 "Sales-Post (Yes/No)"
 
     [IntegrationEvent(false, false)]
     local procedure OnConfirmPostOnBeforeSetSelection(var SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRunPreview(var Result: Boolean; RecVar: Variant; var IsHandled: Boolean)
     begin
     end;
 }

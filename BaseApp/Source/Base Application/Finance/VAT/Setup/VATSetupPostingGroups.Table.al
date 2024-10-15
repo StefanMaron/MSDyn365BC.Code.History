@@ -6,7 +6,6 @@ namespace Microsoft.Finance.VAT.Setup;
 
 using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.Inventory.Item;
-using Microsoft.Service.Document;
 
 table 1877 "VAT Setup Posting Groups"
 {
@@ -160,11 +159,11 @@ table 1877 "VAT Setup Posting Groups"
     procedure CheckExistingItemAndServiceWithVAT(VATProdPostingGroupCode: Code[20]; IsService: Boolean): Boolean
     var
         Item: Record Item;
-        ServiceLine: Record "Service Line";
+        Result: Boolean;
     begin
         if IsService then begin
-            ServiceLine.SetRange("VAT Prod. Posting Group", VATProdPostingGroupCode);
-            exit(not ServiceLine.IsEmpty);
+            OnBeforeCheckExistingItemAndServiceWithVAT(VATProdPostingGroupCode, Result);
+            exit(Result);
         end;
         Item.SetRange("VAT Prod. Posting Group", VATProdPostingGroupCode);
         exit(not Item.IsEmpty);
@@ -252,6 +251,11 @@ table 1877 "VAT Setup Posting Groups"
 
     [IntegrationEvent(false, false)]
     local procedure OnInitWithStandardValues(var Handled: Boolean; VATSetupPostingGroups: Record "VAT Setup Posting Groups")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckExistingItemAndServiceWithVAT(VATProdPostingGroupCode: Code[20]; var Result: Boolean)
     begin
     end;
 }

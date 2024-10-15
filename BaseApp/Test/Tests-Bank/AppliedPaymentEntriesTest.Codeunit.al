@@ -651,14 +651,12 @@ codeunit 134264 "Applied Payment Entries Test"
 
     local procedure CreateBankAccRec(var BankAccRecon: Record "Bank Acc. Reconciliation"; BankAccNo: Code[20]; StatementNo: Code[20])
     begin
-        with BankAccRecon do begin
-            Init();
-            "Bank Account No." := BankAccNo;
-            "Statement No." := StatementNo;
-            "Statement Date" := WorkDate();
-            "Statement Type" := "Statement Type"::"Payment Application";
-            Insert();
-        end;
+        BankAccRecon.Init();
+        BankAccRecon."Bank Account No." := BankAccNo;
+        BankAccRecon."Statement No." := StatementNo;
+        BankAccRecon."Statement Date" := WorkDate();
+        BankAccRecon."Statement Type" := BankAccRecon."Statement Type"::"Payment Application";
+        BankAccRecon.Insert();
     end;
 
     local procedure CreateBankAccRecLine(var BankAccRecon: Record "Bank Acc. Reconciliation"; TransactionDate: Date; TransactionText: Text[140]; Amount: Decimal): Integer
@@ -673,22 +671,20 @@ codeunit 134264 "Applied Payment Entries Test"
 
     local procedure FillInCommonBankAccRecLineFields(var BankAccReconLine: Record "Bank Acc. Reconciliation Line"; BankAccRecon: Record "Bank Acc. Reconciliation"; TransactionDate: Date; Amount: Decimal)
     begin
-        with BankAccReconLine do begin
-            SetRange("Statement Type", BankAccRecon."Statement Type");
-            SetRange("Bank Account No.", BankAccRecon."Bank Account No.");
-            SetRange("Statement No.", BankAccRecon."Statement No.");
-            if FindLast() then
-                Reset();
+        BankAccReconLine.SetRange("Statement Type", BankAccRecon."Statement Type");
+        BankAccReconLine.SetRange("Bank Account No.", BankAccRecon."Bank Account No.");
+        BankAccReconLine.SetRange("Statement No.", BankAccRecon."Statement No.");
+        if BankAccReconLine.FindLast() then
+            BankAccReconLine.Reset();
 
-            Init();
-            "Bank Account No." := BankAccRecon."Bank Account No.";
-            "Statement Type" := BankAccRecon."Statement Type";
-            "Statement No." := BankAccRecon."Statement No.";
-            "Statement Line No." += 10000;
-            "Transaction Date" := TransactionDate;
-            "Statement Amount" := Amount;
-            Difference := Amount;
-        end;
+        BankAccReconLine.Init();
+        BankAccReconLine."Bank Account No." := BankAccRecon."Bank Account No.";
+        BankAccReconLine."Statement Type" := BankAccRecon."Statement Type";
+        BankAccReconLine."Statement No." := BankAccRecon."Statement No.";
+        BankAccReconLine."Statement Line No." += 10000;
+        BankAccReconLine."Transaction Date" := TransactionDate;
+        BankAccReconLine."Statement Amount" := Amount;
+        BankAccReconLine.Difference := Amount;
     end;
 
     local procedure CreateInputData(var PostingDate: Date; var BankAccNo: Code[20]; var StatementNo: Code[20]; var Amount: Decimal)
@@ -729,19 +725,17 @@ codeunit 134264 "Applied Payment Entries Test"
     var
         LastEntryNo: Integer;
     begin
-        with CustLedgEntry do begin
-            FindLast();
-            LastEntryNo := "Entry No.";
-            InsertDetailedCustLedgerEntry(LastEntryNo + 1, Amt);
-            Init();
-            "Entry No." := LastEntryNo + 1;
-            "Posting Date" := WorkDate();
-            "Customer No." := CustNo;
-            "Document No." := CopyStr(CreateGuid(), 1, 20);
-            Open := true;
-            Insert();
-            CalcFields("Remaining Amount");
-        end;
+        CustLedgEntry.FindLast();
+        LastEntryNo := CustLedgEntry."Entry No.";
+        InsertDetailedCustLedgerEntry(LastEntryNo + 1, Amt);
+        CustLedgEntry.Init();
+        CustLedgEntry."Entry No." := LastEntryNo + 1;
+        CustLedgEntry."Posting Date" := WorkDate();
+        CustLedgEntry."Customer No." := CustNo;
+        CustLedgEntry."Document No." := CopyStr(CreateGuid(), 1, 20);
+        CustLedgEntry.Open := true;
+        CustLedgEntry.Insert();
+        CustLedgEntry.CalcFields("Remaining Amount");
     end;
 
     local procedure InsertDetailedCustLedgerEntry(CustLedgerEntryNo: Integer; Amt: Decimal)
@@ -749,54 +743,46 @@ codeunit 134264 "Applied Payment Entries Test"
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
         LastEntryNo: Integer;
     begin
-        with DetailedCustLedgEntry do begin
-            FindLast();
-            LastEntryNo := "Entry No.";
-            Init();
-            "Entry No." := LastEntryNo + 1;
-            "Cust. Ledger Entry No." := CustLedgerEntryNo;
-            Amount := Amt;
-            "Amount (LCY)" := Amt;
-            Insert();
-        end;
+        DetailedCustLedgEntry.FindLast();
+        LastEntryNo := DetailedCustLedgEntry."Entry No.";
+        DetailedCustLedgEntry.Init();
+        DetailedCustLedgEntry."Entry No." := LastEntryNo + 1;
+        DetailedCustLedgEntry."Cust. Ledger Entry No." := CustLedgerEntryNo;
+        DetailedCustLedgEntry.Amount := Amt;
+        DetailedCustLedgEntry."Amount (LCY)" := Amt;
+        DetailedCustLedgEntry.Insert();
     end;
 
     local procedure CreateCustomer(var Cust: Record Customer)
     begin
-        with Cust do begin
-            Init();
-            "No." := LibraryUtility.GenerateRandomCode(FieldNo("No."), DATABASE::Customer);
-            Name := CopyStr(CreateGuid(), 1, 50);
-            "Payment Terms Code" := CreatePaymentTerms();
-            "Payment Method Code" := CreatePaymentMethod();
-            City := LibraryUtility.GenerateGUID();
-            Address := LibraryUtility.GenerateGUID();
-            Insert(true);
-        end;
+        Cust.Init();
+        Cust."No." := LibraryUtility.GenerateRandomCode(Cust.FieldNo("No."), DATABASE::Customer);
+        Cust.Name := CopyStr(CreateGuid(), 1, 50);
+        Cust."Payment Terms Code" := CreatePaymentTerms();
+        Cust."Payment Method Code" := CreatePaymentMethod();
+        Cust.City := LibraryUtility.GenerateGUID();
+        Cust.Address := LibraryUtility.GenerateGUID();
+        Cust.Insert(true);
     end;
 
     local procedure CreatePaymentTerms(): Code[10]
     var
         PaymentTerms: Record "Payment Terms";
     begin
-        with PaymentTerms do begin
-            Init();
-            Code := LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::"Payment Terms");
-            Insert();
-            exit(Code);
-        end;
+        PaymentTerms.Init();
+        PaymentTerms.Code := LibraryUtility.GenerateRandomCode(PaymentTerms.FieldNo(Code), DATABASE::"Payment Terms");
+        PaymentTerms.Insert();
+        exit(PaymentTerms.Code);
     end;
 
     local procedure CreatePaymentMethod(): Code[10]
     var
         PaymentMethod: Record "Payment Method";
     begin
-        with PaymentMethod do begin
-            Init();
-            Code := LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::"Payment Method");
-            Insert();
-            exit(Code);
-        end;
+        PaymentMethod.Init();
+        PaymentMethod.Code := LibraryUtility.GenerateRandomCode(PaymentMethod.FieldNo(Code), DATABASE::"Payment Method");
+        PaymentMethod.Insert();
+        exit(PaymentMethod.Code);
     end;
 
     [Normal]
@@ -826,18 +812,16 @@ codeunit 134264 "Applied Payment Entries Test"
     var
         AppliedPmtEntry: Record "Applied Payment Entry";
     begin
-        with AppliedPmtEntry do begin
-            SetRange("Statement No.", BankAccRecon."Statement No.");
-            SetRange("Statement Line No.", ExpectedMatchedLineNo);
-            SetRange("Statement Type", "Statement Type"::"Payment Application");
-            SetRange("Bank Account No.", BankAccRecon."Bank Account No.");
-            SetRange("Account Type", ExpectedMatchedAccType);
-            SetRange("Account No.", ExpectedMatchedAccNo);
-            SetRange("Applies-to Entry No.", ExpectedMatchedEntryNo);
-            if ExpectedAppliedAmount <> 0 then
-                SetRange("Applied Amount", ExpectedAppliedAmount);
-            Assert.AreEqual(ExpectedCount, Count, 'Unexpected applied payment entry count.');
-        end;
+        AppliedPmtEntry.SetRange("Statement No.", BankAccRecon."Statement No.");
+        AppliedPmtEntry.SetRange("Statement Line No.", ExpectedMatchedLineNo);
+        AppliedPmtEntry.SetRange("Statement Type", AppliedPmtEntry."Statement Type"::"Payment Application");
+        AppliedPmtEntry.SetRange("Bank Account No.", BankAccRecon."Bank Account No.");
+        AppliedPmtEntry.SetRange("Account Type", ExpectedMatchedAccType);
+        AppliedPmtEntry.SetRange("Account No.", ExpectedMatchedAccNo);
+        AppliedPmtEntry.SetRange("Applies-to Entry No.", ExpectedMatchedEntryNo);
+        if ExpectedAppliedAmount <> 0 then
+            AppliedPmtEntry.SetRange("Applied Amount", ExpectedAppliedAmount);
+        Assert.AreEqual(ExpectedCount, AppliedPmtEntry.Count, 'Unexpected applied payment entry count.');
     end;
 
     local procedure VerifyAppliedPaymentEntry(BankAccRecon: Record "Bank Acc. Reconciliation"; BankAccReconLineNo: Integer; ExpectedMatchedEntryNo: Integer; ExpectedMatchedAccType: Enum "Gen. Journal Account Type"; ExpectedMatchedAccNo: Code[50]; ExpectedAppliedAmount: Decimal)

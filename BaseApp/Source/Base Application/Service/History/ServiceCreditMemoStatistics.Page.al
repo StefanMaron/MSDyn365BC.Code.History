@@ -199,7 +199,7 @@ page 6034 "Service Credit Memo Statistics"
 
     trigger OnAfterGetRecord()
     var
-        CostCalcMgt: Codeunit "Cost Calculation Management";
+        ServCostCalculationMgt: Codeunit "Serv. Cost Calculation Mgt.";
         IsHandled: Boolean;
     begin
         ClearAll();
@@ -238,7 +238,7 @@ page 6034 "Service Credit Memo Statistics"
                         VATpercentage := ServCrMemoLine."VAT %"
                     else
                         VATpercentage := -1;
-                TotalAdjCostLCY := TotalAdjCostLCY + CostCalcMgt.CalcServCrMemoLineCostLCY(ServCrMemoLine);
+                TotalAdjCostLCY := TotalAdjCostLCY + ServCostCalculationMgt.CalcServCrMemoLineCostLCY(ServCrMemoLine);
                 OnAfterGetRecordOnAfterAddLineTotals(
                     Rec, ServCrMemoLine, CustAmount, AmountInclVAT, InvDiscAmount, CostLCY, TotalAdjCostLCY,
                     LineQty, TotalNetWeight, TotalGrossWeight, TotalVolume, TotalParcels);
@@ -314,8 +314,12 @@ page 6034 "Service Credit Memo Statistics"
         VATpercentage: Decimal;
         VATAmountText: Text[30];
 
+#pragma warning disable AA0074
         Text000: Label 'VAT Amount';
+#pragma warning disable AA0470
         Text001: Label '%1% VAT';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetRecordOnAfterCalculateAdjProfitLCY(ServiceCrMemoHeader: Record "Service Cr.Memo Header"; var AdjProfitLCY: Decimal)

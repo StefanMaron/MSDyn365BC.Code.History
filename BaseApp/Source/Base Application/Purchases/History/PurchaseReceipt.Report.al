@@ -116,6 +116,9 @@ report 408 "Purchase - Receipt"
                     column(CompanyInfoBankName; CompanyInfo."Bank Name")
                     {
                     }
+                    column(CompanyPicture; DummyCompanyInfo.Picture)
+                    {
+                    }
                     column(CompanyInfoHomePage; CompanyInfo."Home Page")
                     {
                     }
@@ -340,6 +343,10 @@ report 408 "Purchase - Receipt"
                                 CurrReport.Skip();
 
                             DimSetEntry2.SetRange("Dimension Set ID", "Dimension Set ID");
+
+                            if FirstLineHasBeenOutput then
+                                Clear(DummyCompanyInfo.Picture);
+                            FirstLineHasBeenOutput := true;
                         end;
 
                         trigger OnPreDataItem()
@@ -350,6 +357,9 @@ report 408 "Purchase - Receipt"
                             if not MoreLines then
                                 CurrReport.Break();
                             SetRange("Line No.", 0, "Line No.");
+
+                            FirstLineHasBeenOutput := false;
+                            DummyCompanyInfo.Picture := CompanyInfo.Picture;
                         end;
                     }
                     dataitem(Total; "Integer")
@@ -403,6 +413,7 @@ report 408 "Purchase - Receipt"
 
                 trigger OnAfterGetRecord()
                 begin
+                    FirstLineHasBeenOutput := false;
                     if Number > 1 then begin
                         CopyText := FormatDocument.GetCOPYText();
                         OutputNo += 1;
@@ -427,6 +438,7 @@ report 408 "Purchase - Receipt"
 
             trigger OnAfterGetRecord()
             begin
+                FirstLineHasBeenOutput := false;
                 CurrReport.Language := LanguageMgt.GetLanguageIdOrDefault("Language Code");
                 CurrReport.FormatRegion := LanguageMgt.GetFormatRegionOrDefault("Format Region");
                 FormatAddr.SetLanguageCode("Language Code");
@@ -437,6 +449,11 @@ report 408 "Purchase - Receipt"
                 if PayToContact.Get("Pay-to Contact No.") then;
 
                 DimSetEntry1.SetRange("Dimension Set ID", "Dimension Set ID");
+            end;
+
+            trigger OnPreDataItem()
+            begin
+                FirstLineHasBeenOutput := false;
             end;
 
             trigger OnPostDataItem()
@@ -508,6 +525,7 @@ report 408 "Purchase - Receipt"
 
     trigger OnInitReport()
     begin
+        CompanyInfo.SetAutoCalcFields(Picture);
         CompanyInfo.Get();
 
         OnAfterInitReport();
@@ -532,7 +550,10 @@ report 408 "Purchase - Receipt"
     end;
 
     var
+#pragma warning disable AA0074
         Text002: Label 'Purchase - Receipt %1', Comment = '%1 = Document No.';
+#pragma warning restore AA0074
+        DummyCompanyInfo: Record "Company Information";
         SalesPurchPerson: Record "Salesperson/Purchaser";
         DimSetEntry1: Record "Dimension Set Entry";
         DimSetEntry2: Record "Dimension Set Entry";
@@ -544,7 +565,6 @@ report 408 "Purchase - Receipt"
         FormatDocument: Codeunit "Format Document";
         SegManagement: Codeunit SegManagement;
         VendAddr: array[8] of Text[100];
-        ShipToAddr: array[8] of Text[100];
         CompanyAddr: array[8] of Text[100];
         PurchaserText: Text[50];
         ReferenceText: Text[80];
@@ -583,6 +603,8 @@ report 408 "Purchase - Receipt"
 
     protected var
         CompanyInfo: Record "Company Information";
+        FirstLineHasBeenOutput: Boolean;
+        ShipToAddr: array[8] of Text[100];
 
     procedure InitializeRequest(NewNoOfCopies: Integer; NewShowInternalInfo: Boolean; NewLogInteraction: Boolean; NewShowCorrectionLines: Boolean)
     begin

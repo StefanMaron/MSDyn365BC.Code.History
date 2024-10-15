@@ -22,7 +22,6 @@ using Microsoft.Finance.Dimension;
 using Microsoft.Pricing.Calculation;
 using Microsoft.Pricing.PriceList;
 using Microsoft.Foundation.ExtendedText;
-using Microsoft.Service.Contract;
 using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Inventory.Item;
@@ -34,7 +33,6 @@ using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Item.Catalog;
 using Microsoft.Inventory.Item.Substitution;
 using Microsoft.Inventory.Tracking;
-using Microsoft.Service.Loaner;
 using Microsoft.Inventory.Counting.Journal;
 using Microsoft.Inventory.Planning;
 using Microsoft.Warehouse.History;
@@ -50,18 +48,11 @@ using Microsoft.Warehouse.Activity;
 using Microsoft.Warehouse.Activity.History;
 using Microsoft.Inventory.Requisition;
 using Microsoft.Projects.Resources.Resource;
-using Microsoft.Service.Resources;
 using Microsoft.Sales.History;
 using Microsoft.Manufacturing.Routing;
 using Microsoft.Sales.Pricing;
-using Microsoft.Service.Pricing;
-using Microsoft.Service.History;
-using Microsoft.Service.Item;
-using Microsoft.Service.Document;
-using Microsoft.Service.Ledger;
 using Microsoft.Warehouse.Setup;
 using Microsoft.Inventory.Transfer;
-using Microsoft.Service.Maintenance;
 using Microsoft.Warehouse.Ledger;
 using Microsoft.Warehouse.Journal;
 using Microsoft.Warehouse.Document;
@@ -91,7 +82,6 @@ permissionset 8562 "Inventory - Edit"
                   tabledata "Duplicate Price Line" = RIMD,
                   tabledata "Extended Text Header" = RIMD,
                   tabledata "Extended Text Line" = RIMD,
-                  tabledata "Filed Contract Line" = r,
                   tabledata "G/L Account" = R,
                   tabledata "Gen. Business Posting Group" = R,
                   tabledata "Gen. Product Posting Group" = R,
@@ -122,7 +112,6 @@ permissionset 8562 "Inventory - Edit"
                   tabledata "Job Ledger Entry" = r,
                   tabledata "Job Planning Line - Calendar" = r,
                   tabledata "Job Planning Line" = r,
-                  tabledata Loaner = r,
                   tabledata Location = R,
                   tabledata "Lot No. Information" = RIMD,
                   tabledata "Marketing Text Attributes" = RIMD,
@@ -151,7 +140,7 @@ permissionset 8562 "Inventory - Edit"
                   tabledata "Purch. Rcpt. Line" = r,
                   tabledata "Purchase Discount Access" = RIMD,
                   tabledata "Purchase Line" = Rm,
-#if not CLEAN23
+#if not CLEAN25
                   tabledata "Purchase Line Discount" = RIMD,
                   tabledata "Purchase Price" = RIMD,
 #endif
@@ -161,7 +150,6 @@ permissionset 8562 "Inventory - Edit"
                   tabledata "Requisition Line" = Rm,
                   tabledata "Reservation Entry" = Rimd,
                   tabledata Resource = R,
-                  tabledata "Resource Skill" = RIMD,
                   tabledata "Return Receipt Line" = r,
                   tabledata "Return Shipment Line" = r,
                   tabledata "Routing Header" = R,
@@ -169,21 +157,13 @@ permissionset 8562 "Inventory - Edit"
                   tabledata "Sales Discount Access" = RimD,
                   tabledata "Sales Invoice Line" = r,
                   tabledata "Sales Line" = Rm,
-#if not CLEAN23
+#if not CLEAN25
                   tabledata "Sales Line Discount" = RimD,
                   tabledata "Sales Price" = RIMD,
 #endif
                   tabledata "Sales Price Access" = RIMD,
                   tabledata "Sales Shipment Line" = r,
                   tabledata "Serial No. Information" = RIMD,
-                  tabledata "Serv. Price Adjustment Detail" = r,
-                  tabledata "Service Contract Line" = R,
-                  tabledata "Service Invoice Line" = R,
-                  tabledata "Service Item" = R,
-                  tabledata "Service Item Component" = R,
-                  tabledata "Service Item Group" = R,
-                  tabledata "Service Item Line" = r,
-                  tabledata "Service Ledger Entry" = r,
                   tabledata "Special Equipment" = R,
                   tabledata "Standard Item Journal Line" = RM,
                   tabledata "Standard Purchase Line" = rm,
@@ -196,7 +176,6 @@ permissionset 8562 "Inventory - Edit"
                   tabledata "Transfer Line" = R,
                   tabledata "Transfer Receipt Line" = r,
                   tabledata "Transfer Shipment Line" = r,
-                  tabledata "Troubleshooting Setup" = Rd,
                   tabledata "Unit of Measure" = R,
                   tabledata "Unit of Measure Translation" = RIMD,
                   tabledata "Value Entry" = Rm,
@@ -223,7 +202,6 @@ permissionset 8562 "Inventory - Edit"
                   tabledata "Warehouse Reason Code" = r,
                   tabledata "Warehouse Request" = r,
                   tabledata "Warehouse Shipment Line" = r,
-                  tabledata "Warranty Ledger Entry" = r,
                   tabledata "Whse. Cross-Dock Opportunity" = r,
                   tabledata "Whse. Worksheet Line" = r;
 }

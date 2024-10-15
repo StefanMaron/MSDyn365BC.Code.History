@@ -598,8 +598,12 @@ report 6646 "Sales - Return Receipt"
         TypeInt: Integer;
         LogInteractionEnable: Boolean;
 
+#pragma warning disable AA0074
         Text002: Label 'Sales - Return Receipt %1', Comment = '%1 = Document No.';
+#pragma warning disable AA0470
         Text003: Label 'Page %1';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         CompanyInfoPhoneNoCaptionLbl: Label 'Phone No.';
         CompanyInfoVATRegNoCptnLbl: Label 'VAT Reg. No.';
         CompanyInfoGiroNoCaptionLbl: Label 'Giro No.';

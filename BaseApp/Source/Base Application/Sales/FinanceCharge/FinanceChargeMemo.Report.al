@@ -791,12 +791,18 @@ report 118 "Finance Charge Memo"
         TotalVatAmount: Decimal;
         ShowMIRLines: Boolean;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'Total %1';
         Text001: Label 'Total %1 Incl. VAT';
         Text002: Label 'Page %1';
+#pragma warning restore AA0470
         Text007: Label 'VAT Amount Specification in ';
         Text008: Label 'Local Currency';
+#pragma warning disable AA0470
         Text009: Label 'Exchange rate: %1/%2';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         PostingDateCaptionLbl: Label 'Posting Date';
         FinChrgMemoNoCaptionLbl: Label 'Finance Charge Memo No.';
         BankAccNoCaptionLbl: Label 'Account No.';
@@ -811,7 +817,9 @@ report 118 "Finance Charge Memo"
         VATPercentCaptionLbl: Label 'VAT %';
         VATAmtSpecCaptionLbl: Label 'VAT Amount Specification';
         VATPercentCaption1Lbl: Label 'VAT %';
+#pragma warning disable AA0074
         VATClausesCap: Label 'VAT Clause';
+#pragma warning restore AA0074
         VATIdentifierLbl: Label 'VAT Identifier';
         DueDateCaptionLbl: Label 'Due Date';
         VATAmtCaptionLbl: Label 'VAT Amount';

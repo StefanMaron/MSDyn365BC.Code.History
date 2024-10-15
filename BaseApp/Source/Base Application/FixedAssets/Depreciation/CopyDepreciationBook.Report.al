@@ -242,8 +242,12 @@ report 5687 "Copy Depreciation Book"
         GenJnlNextLineNo: Integer;
         Text10500: Label '%1 must be Straight-Line if %2 is %3 in %4: %5.';
 
+#pragma warning disable AA0074
         Text000: Label 'The Starting Date is later than the Ending Date.';
+#pragma warning disable AA0470
         Text001: Label 'Copying fixed asset    #1##########';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     local procedure InsertGenJnlLine(var FALedgEntry: Record "FA Ledger Entry")
     var

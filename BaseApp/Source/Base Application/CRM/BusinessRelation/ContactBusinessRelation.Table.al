@@ -145,8 +145,12 @@ table 5054 "Contact Business Relation"
     var
         Cont: Record Contact;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label '%1 %2 already has a %3 with %4 %5.';
         Text001: Label '%1 %2 is used when a %3 is linked with a %4.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         FailedCBRTxt: Label 'Failed to find contact business relation for contact number %1.', Comment = '%1 = Contact number', Locked = true;
         TelemetryCategoryTxt: Label 'ContactBusinessRelation', Locked = true;
 

@@ -34,15 +34,15 @@ codeunit 144503 "Test Third Party Migrators"
         PAGE.Run(PAGE::"Data Migration Wizard");
         LibraryVariableStorage.Enqueue(GetSageCodeunitNumber());
 
-        with DataMigrationWizard do begin
-            ActionNext.Invoke(); // Choose Data Source page
-            Description.Lookup(); // Lookup to different data migrations tools
-            Description.SetValue(SageDataMigratorDescriptionTxt);
-
-            // [THEN] Instruction that Sage extension must be installed is shown
-            ActionNext.Invoke(); // Instructions & Settings
-                                 // [THEN] Extension Management page is displayed
-        end;
+        DataMigrationWizard.ActionNext.Invoke();
+        // Choose Data Source page
+        DataMigrationWizard.Description.Lookup();
+        // Lookup to different data migrations tools
+        DataMigrationWizard.Description.SetValue(SageDataMigratorDescriptionTxt);
+        // [THEN] Instruction that Sage extension must be installed is shown
+        DataMigrationWizard.ActionNext.Invoke();
+        // Instructions & Settings
+        // [THEN] Extension Management page is displayed
     end;
 
     local procedure Initialize()

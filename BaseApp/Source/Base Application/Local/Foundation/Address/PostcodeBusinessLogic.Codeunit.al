@@ -53,10 +53,9 @@ codeunit 10500 "Postcode Business Logic"
             SavePostcode := true; // Default to true
 
         while RepeatProcess do begin
-            if ShowInputPage then begin
+            if ShowInputPage then
                 if not ShowPostcodeInputFields(TempEnteredAutocompleteAddress.Postcode, TempEnteredAutocompleteAddress.Address) then
                     exit(false);
-            end;
 
             // TRIM
             TempEnteredAutocompleteAddress.Postcode := DelChr(TempEnteredAutocompleteAddress.Postcode, '<>', ' ');

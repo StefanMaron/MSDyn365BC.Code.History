@@ -11,7 +11,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Library Assert - NamedType ErrorHasNotBeenThrownErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestLibraries.Utilities)(LookupHint=Codeunit Library Assert - NamedType ErrorHasNotBeenThrownErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 442225071 - NamedType 525961915" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -20,7 +20,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Library Assert - NamedType NoFilterTok)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestLibraries.Utilities)(LookupHint=Codeunit Library Assert - NamedType NoFilterTok)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 442225071 - NamedType 670840788" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -29,7 +29,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Library Assert - NamedType PrimRecordNotFoundTok)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestLibraries.Utilities)(LookupHint=Codeunit Library Assert - NamedType PrimRecordNotFoundTok)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 442225071 - NamedType 74906461" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -38,7 +38,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Library Assert - NamedType RecordAlreadyExistsTok)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestLibraries.Utilities)(LookupHint=Codeunit Library Assert - NamedType RecordAlreadyExistsTok)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 442225071 - NamedType 1218333354" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -47,7 +47,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Library Assert - NamedType RecordNotFoundTok)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestLibraries.Utilities)(LookupHint=Codeunit Library Assert - NamedType RecordNotFoundTok)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 442225071 - NamedType 4149171024" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -56,7 +56,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Library Assert - NamedType RecordNothingInsideFilterTok)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestLibraries.Utilities)(LookupHint=Codeunit Library Assert - NamedType RecordNothingInsideFilterTok)]]></Cmt>
     </Cmts>
   </Item>
 </LCX>

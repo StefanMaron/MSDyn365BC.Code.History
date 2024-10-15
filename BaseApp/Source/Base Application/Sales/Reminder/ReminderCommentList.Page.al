@@ -47,8 +47,10 @@ page 443 "Reminder Comment List"
     }
 
     var
+#pragma warning disable AA0074
         Text000: Label 'untitled', Comment = 'it is a caption for empty page';
         Text001: Label 'Reminder';
+#pragma warning restore AA0074
 
     procedure Caption(ReminderCommentLine: Record "Reminder Comment Line"): Text
     begin

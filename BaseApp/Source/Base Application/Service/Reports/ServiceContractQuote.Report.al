@@ -25,7 +25,7 @@ report 5972 "Service Contract Quote"
     {
         dataitem("Service Contract Header"; "Service Contract Header")
         {
-            CalcFields = "Bill-to Name";
+            CalcFields = "Bill-to Name", "Ship-to Phone No.";
             DataItemTableView = sorting("Contract Type", "Contract No.") where("Contract Type" = filter(Quote));
             PrintOnlyIfDetail = true;
             RequestFilterFields = "Contract No.", "Customer No.";
@@ -297,6 +297,9 @@ report 5972 "Service Contract Quote"
                     column(ShiptoAddressCaption; ShiptoAddressCaptionLbl)
                     {
                     }
+                    column(ShipToPhoneNo; "Service Contract Header"."Ship-to Phone No.")
+                    {
+                    }
 
                     trigger OnPreDataItem()
                     begin
@@ -362,16 +365,18 @@ report 5972 "Service Contract Quote"
             }
 
             trigger OnAfterGetRecord()
+            var
+                ServiceFormatAddress: Codeunit "Service Format Address";
             begin
                 CurrReport.Language := LanguageMgt.GetLanguageIdOrDefault("Language Code");
                 CurrReport.FormatRegion := LanguageMgt.GetFormatRegionOrDefault("Format Region");
                 FormatAddr.SetLanguageCode("Language Code");
 
                 FormatAddr.GetCompanyAddr("Responsibility Center", RespCenter, CompanyInfo, CompanyAddr);
-                FormatAddr.ServContractSellto(CustAddr, "Service Contract Header");
+                ServiceFormatAddress.ServContractSellto(CustAddr, "Service Contract Header");
                 ShowShippingAddr := "Ship-to Code" <> '';
                 if ShowShippingAddr then
-                    FormatAddr.ServContractShipto(ShipToAddr, "Service Contract Header");
+                    ServiceFormatAddress.ServContractShipto(ShipToAddr, "Service Contract Header");
             end;
         }
     }
@@ -465,8 +470,12 @@ report 5972 "Service Contract Quote"
         NoOfCopies: Integer;
         NoOfLoops: Integer;
         CopyText: Text[30];
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label 'Service Contract Quote %1';
         Text002: Label 'Page %1';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         LogInteraction: Boolean;
         OutputNo: Integer;
         LogInteractionEnable: Boolean;

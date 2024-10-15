@@ -25,7 +25,6 @@ codeunit 134103 "ERM Prepayment IV"
         PrepaymentCMErr: Label 'Posted Prepayment Credit Memo must exist.';
         UnbalancedAccountErr: Label 'Balance is wrong for G/L Account: %1 filterd on document no.: %2.';
         RoundingACYAmountErr: Label 'Wrong ACY amount on rounding entry.';
-        PrepmtVATCalcTypeErr: Label 'VAT Calculation Type must be equal to ''%1''  in VAT Posting Setup';
 
     [Test]
     [Scope('OnPrem')]
@@ -1294,6 +1293,7 @@ codeunit 134103 "ERM Prepayment IV"
         PrepmtGLAccount: Record "G/L Account";
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
+        VATPostingSetup: Record "VAT Posting Setup";
     begin
         // [FEATURE] [Full VAT] [Purchase]
         // [SCENARIO 361548] Purch. Prepayment Account should have "Full VAT" setup to set "Prepayment %" for "Full VAT" Purchase line
@@ -1309,7 +1309,7 @@ codeunit 134103 "ERM Prepayment IV"
         // [WHEN] Set "Prepayment %" > 0 on the Purchase Line
         asserterror PurchaseLine.Validate("Prepayment %", 1);
         // [THEN] Error: "VAT Calculation Type" must be "Full VAT" on VAT Posting Setup for prepayment
-        Assert.ExpectedError(StrSubstNo(PrepmtVATCalcTypeErr, PurchaseLine."VAT Calculation Type"));
+        Assert.ExpectedTestFieldError(VATPostingSetup.FieldCaption("VAT Calculation Type"), Format(VATPostingSetup."VAT Calculation Type"::"Full VAT"));
     end;
 
     [Test]
@@ -1320,6 +1320,7 @@ codeunit 134103 "ERM Prepayment IV"
         PrepmtGLAccount: Record "G/L Account";
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
+        VATPostingSetup: Record "VAT Posting Setup";
     begin
         // [FEATURE] [Full VAT] [Purchase]
         // [SCENARIO 361548] Purch. Prepayment Account should have "Normal VAT" setup to set "Prepayment %" for "Normal VAT" Purchase line
@@ -1335,7 +1336,7 @@ codeunit 134103 "ERM Prepayment IV"
         // [WHEN] Set "Prepayment %" > 0 on the Purchase Line
         asserterror PurchaseLine.Validate("Prepayment %", 1);
         // [THEN] Error: "VAT Calculation Type" must be "Normal VAT" on VAT Posting Setup for prepayment
-        Assert.ExpectedError(StrSubstNo(PrepmtVATCalcTypeErr, PurchaseLine."VAT Calculation Type"));
+        Assert.ExpectedTestFieldError(VATPostingSetup.FieldCaption("VAT Calculation Type"), Format(VATPostingSetup."VAT Calculation Type"::"Normal VAT"));
     end;
 
     [Test]
@@ -1504,6 +1505,7 @@ codeunit 134103 "ERM Prepayment IV"
         PrepmtGLAccount: Record "G/L Account";
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
+        VATPostingSetup: Record "VAT Posting Setup";
     begin
         // [FEATURE] [Full VAT] [Sales]
         // [SCENARIO 361548] Sales Prepayment Account should have "Full VAT" setup to set "Prepayment %" for "Full VAT" Sales line
@@ -1519,7 +1521,7 @@ codeunit 134103 "ERM Prepayment IV"
         // [WHEN] Set "Prepayment %" > 0 on the Sales Line
         asserterror SalesLine.Validate("Prepayment %", 1);
         // [THEN] Error: "VAT Calculation Type" must be "Full VAT" on VAT Posting Setup for prepayment
-        Assert.ExpectedError(StrSubstNo(PrepmtVATCalcTypeErr, SalesLine."VAT Calculation Type"));
+        Assert.ExpectedTestFieldError(VATPostingSetup.FieldCaption("VAT Calculation Type"), Format(VATPostingSetup."VAT Calculation Type"::"Full VAT"));
     end;
 
     [Test]
@@ -1530,6 +1532,7 @@ codeunit 134103 "ERM Prepayment IV"
         PrepmtGLAccount: Record "G/L Account";
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
+        VATPostingSetup: Record "VAT Posting Setup";
     begin
         // [FEATURE] [Full VAT] [Sales]
         // [SCENARIO 361548] Sales Prepayment Account should have "Normal VAT" setup to set "Prepayment %" for "Normal VAT" Sales line
@@ -1545,7 +1548,7 @@ codeunit 134103 "ERM Prepayment IV"
         // [WHEN] Set "Prepayment %" > 0 on the Sales Line
         asserterror SalesLine.Validate("Prepayment %", 1);
         // [THEN] Error: "VAT Calculation Type" must be "Normal VAT" on VAT Posting Setup for prepayment
-        Assert.ExpectedError(StrSubstNo(PrepmtVATCalcTypeErr, SalesLine."VAT Calculation Type"));
+        Assert.ExpectedTestFieldError(VATPostingSetup.FieldCaption("VAT Calculation Type"), Format(VATPostingSetup."VAT Calculation Type"::"Normal VAT"));
     end;
 
     [Test]
@@ -3522,15 +3525,13 @@ codeunit 134103 "ERM Prepayment IV"
         Customer: Record Customer;
     begin
         LibrarySales.CreateCustomer(Customer);
-        with Customer do begin
-            Validate("Gen. Bus. Posting Group", GenBusPostingGroup);
-            Validate("VAT Bus. Posting Group", VATBusPostingGroup);
-            Validate("Currency Code", CurrencyCode);
-            Validate("Prepayment %", 100);
-            CreateVATPostingSetupForCustRndgAcc("Customer Posting Group", VATBusPostingGroup);
-            Modify(true);
-            exit("No.");
-        end;
+        Customer.Validate("Gen. Bus. Posting Group", GenBusPostingGroup);
+        Customer.Validate("VAT Bus. Posting Group", VATBusPostingGroup);
+        Customer.Validate("Currency Code", CurrencyCode);
+        Customer.Validate("Prepayment %", 100);
+        CreateVATPostingSetupForCustRndgAcc(Customer."Customer Posting Group", VATBusPostingGroup);
+        Customer.Modify(true);
+        exit(Customer."No.");
     end;
 
     local procedure CreateCustomerWithPostingGroupsAndCurrency(LineGLAccount: Record "G/L Account"; CurrencyCode: Code[10]; PrepmtPct: Decimal): Code[20]
@@ -3551,12 +3552,10 @@ codeunit 134103 "ERM Prepayment IV"
     var
         Customer: Record Customer;
     begin
-        with Customer do begin
-            Get(LibrarySales.CreateCustomerWithBusPostingGroups(GLAccount."Gen. Bus. Posting Group", GLAccount."VAT Bus. Posting Group"));
-            Validate("Prepayment %", 100);
-            Modify(true);
-            exit("No.")
-        end;
+        Customer.Get(LibrarySales.CreateCustomerWithBusPostingGroups(GLAccount."Gen. Bus. Posting Group", GLAccount."VAT Bus. Posting Group"));
+        Customer.Validate("Prepayment %", 100);
+        Customer.Modify(true);
+        exit(Customer."No.")
     end;
 
     local procedure CreateVendorWithCurrencyAndPrepaymentPct(CurrencyCode: Code[10]): Code[20]
@@ -3575,15 +3574,13 @@ codeunit 134103 "ERM Prepayment IV"
         Vendor: Record Vendor;
     begin
         LibraryPurchase.CreateVendor(Vendor);
-        with Vendor do begin
-            Validate("Gen. Bus. Posting Group", GenBusPostingGroup);
-            Validate("VAT Bus. Posting Group", VATBusPostingGroup);
-            Validate("Currency Code", CurrencyCode);
-            Validate("Prepayment %", 100);
-            CreateVATPostingSetupForVendRndgAcc("Vendor Posting Group", VATBusPostingGroup);
-            Modify(true);
-            exit("No.");
-        end;
+        Vendor.Validate("Gen. Bus. Posting Group", GenBusPostingGroup);
+        Vendor.Validate("VAT Bus. Posting Group", VATBusPostingGroup);
+        Vendor.Validate("Currency Code", CurrencyCode);
+        Vendor.Validate("Prepayment %", 100);
+        CreateVATPostingSetupForVendRndgAcc(Vendor."Vendor Posting Group", VATBusPostingGroup);
+        Vendor.Modify(true);
+        exit(Vendor."No.");
     end;
 
     local procedure CreateVendorWithPostingGroupsAndCurrency(LineGLAccount: Record "G/L Account"; CurrencyCode: Code[10]; PrepmtPct: Decimal): Code[20]
@@ -3604,12 +3601,10 @@ codeunit 134103 "ERM Prepayment IV"
     var
         Vendor: Record Vendor;
     begin
-        with Vendor do begin
-            Get(LibraryPurchase.CreateVendorWithBusPostingGroups(GLAccount."Gen. Bus. Posting Group", GLAccount."VAT Bus. Posting Group"));
-            Validate("Prepayment %", 100);
-            Modify(true);
-            exit("No.")
-        end;
+        Vendor.Get(LibraryPurchase.CreateVendorWithBusPostingGroups(GLAccount."Gen. Bus. Posting Group", GLAccount."VAT Bus. Posting Group"));
+        Vendor.Validate("Prepayment %", 100);
+        Vendor.Modify(true);
+        exit(Vendor."No.")
     end;
 
     local procedure CreatePurchaseOrderWithCurrency(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; CurrencyCode: Code[10]; VendorNo: Code[20]): Decimal
@@ -3669,11 +3664,9 @@ codeunit 134103 "ERM Prepayment IV"
         PurchaseLine: Record "Purchase Line";
     begin
         CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", LineGLAccountNo, Qty, UnitPriceInclVAT);
-        with PurchaseLine do begin
-            Validate("Qty. to Receive", QtyToReceive);
-            Validate("Line Discount %", DiscountPct);
-            Modify(true);
-        end;
+        PurchaseLine.Validate("Qty. to Receive", QtyToReceive);
+        PurchaseLine.Validate("Line Discount %", DiscountPct);
+        PurchaseLine.Modify(true);
     end;
 
     local procedure CreatePurchaseLineWithCustomDiscountAndPrepmtAmount(PurchaseHeader: Record "Purchase Header"; LineGLAccountNo: Code[20]; Qty: Decimal; UnitPriceInclVAT: Decimal; DiscountPct: Decimal; PrepmtLineAmount: Decimal)
@@ -3681,25 +3674,21 @@ codeunit 134103 "ERM Prepayment IV"
         PurchaseLine: Record "Purchase Line";
     begin
         CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", LineGLAccountNo, Qty, UnitPriceInclVAT);
-        with PurchaseLine do begin
-            Validate("Line Discount %", DiscountPct);
-            Validate("Prepmt. Line Amount", PrepmtLineAmount);
-            Modify(true);
-        end;
+        PurchaseLine.Validate("Line Discount %", DiscountPct);
+        PurchaseLine.Validate("Prepmt. Line Amount", PrepmtLineAmount);
+        PurchaseLine.Modify(true);
     end;
 
     local procedure UpdateAdditionalReportingCurrency(): Code[10]
     var
         Currency: Record Currency;
     begin
-        with Currency do begin
-            Get(CreateCurrency());
-            LibraryERM.CreateRandomExchangeRate(Code);
-            Validate("Appln. Rounding Precision", LibraryRandom.RandDec(0, 2));
-            Validate("Invoice Rounding Precision", LibraryRandom.RandDec(0, 2));
-            Modify(true);
-            exit(Code);
-        end;
+        Currency.Get(CreateCurrency());
+        LibraryERM.CreateRandomExchangeRate(Currency.Code);
+        Currency.Validate("Appln. Rounding Precision", LibraryRandom.RandDec(0, 2));
+        Currency.Validate("Invoice Rounding Precision", LibraryRandom.RandDec(0, 2));
+        Currency.Modify(true);
+        exit(Currency.Code);
         LibraryERM.SetAddReportingCurrency(Currency.Code);
     end;
 
@@ -3751,11 +3740,9 @@ codeunit 134103 "ERM Prepayment IV"
         SalesLine: Record "Sales Line";
     begin
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::"G/L Account", GLAccountNo, 1);
-        with SalesLine do begin
-            Validate("Unit Price", UnitPriceInclVAT);
-            Validate("Qty. to Ship", QtyToShip);
-            Modify(true);
-        end;
+        SalesLine.Validate("Unit Price", UnitPriceInclVAT);
+        SalesLine.Validate("Qty. to Ship", QtyToShip);
+        SalesLine.Modify(true);
     end;
 
     local procedure CreateSalesLineWithCustomDiscountAmount(SalesHeader: Record "Sales Header"; LineGLAccountNo: Code[20]; Qty: Decimal; QtyToShip: Decimal; UnitPriceInclVAT: Decimal; DiscountPct: Decimal)
@@ -3763,12 +3750,10 @@ codeunit 134103 "ERM Prepayment IV"
         SalesLine: Record "Sales Line";
     begin
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LineGLAccountNo, Qty);
-        with SalesLine do begin
-            Validate("Qty. to Ship", QtyToShip);
-            Validate("Unit Price", UnitPriceInclVAT);
-            Validate("Line Discount %", DiscountPct);
-            Modify(true);
-        end;
+        SalesLine.Validate("Qty. to Ship", QtyToShip);
+        SalesLine.Validate("Unit Price", UnitPriceInclVAT);
+        SalesLine.Validate("Line Discount %", DiscountPct);
+        SalesLine.Modify(true);
     end;
 
     local procedure CreateSalesLineWithCustomDiscountAndPrepmtAmount(SalesHeader: Record "Sales Header"; LineGLAccountNo: Code[20]; Qty: Decimal; UnitPriceInclVAT: Decimal; DiscountPct: Decimal; PrepmtLineAmount: Decimal)
@@ -3776,12 +3761,10 @@ codeunit 134103 "ERM Prepayment IV"
         SalesLine: Record "Sales Line";
     begin
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LineGLAccountNo, Qty);
-        with SalesLine do begin
-            Validate("Unit Price", UnitPriceInclVAT);
-            Validate("Line Discount %", DiscountPct);
-            Validate("Prepmt. Line Amount", PrepmtLineAmount);
-            Modify(true);
-        end;
+        SalesLine.Validate("Unit Price", UnitPriceInclVAT);
+        SalesLine.Validate("Line Discount %", DiscountPct);
+        SalesLine.Validate("Prepmt. Line Amount", PrepmtLineAmount);
+        SalesLine.Modify(true);
     end;
 
     local procedure CreateAndPostPurchasePrepaymentInvoiceWithCurrency(var GLAccount: Record "G/L Account"; var PurchaseHeader: Record "Purchase Header"; CurrencyCode: Code[10]) PrepaymentAmount: Decimal
@@ -4083,20 +4066,16 @@ codeunit 134103 "ERM Prepayment IV"
 
     local procedure FindSalesLine(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20])
     begin
-        with SalesLine do begin
-            SetRange("Document Type", DocumentType);
-            SetRange("Document No.", DocumentNo);
-            FindFirst();
-        end;
+        SalesLine.SetRange("Document Type", DocumentType);
+        SalesLine.SetRange("Document No.", DocumentNo);
+        SalesLine.FindFirst();
     end;
 
     local procedure FindPurchaseLine(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; DocumentNo: Code[20])
     begin
-        with PurchaseLine do begin
-            SetRange("Document Type", DocumentType);
-            SetRange("Document No.", DocumentNo);
-            FindFirst();
-        end;
+        PurchaseLine.SetRange("Document Type", DocumentType);
+        PurchaseLine.SetRange("Document No.", DocumentNo);
+        PurchaseLine.FindFirst();
     end;
 
     local procedure GetPostedDocumentNo(NoSeriesCode: Code[20]): Code[20]
@@ -4296,39 +4275,33 @@ codeunit 134103 "ERM Prepayment IV"
     var
         VATPostingSetup: Record "VAT Posting Setup";
     begin
-        with VATPostingSetup do begin
-            Get(LineGLAccount."VAT Bus. Posting Group", LineGLAccount."VAT Prod. Posting Group");
-            Validate("VAT %", Pct);
-            Modify(true);
-        end;
+        VATPostingSetup.Get(LineGLAccount."VAT Bus. Posting Group", LineGLAccount."VAT Prod. Posting Group");
+        VATPostingSetup.Validate("VAT %", Pct);
+        VATPostingSetup.Modify(true);
     end;
 
     local procedure SimulatePurchaseRounding(DocNo: Code[20]; PrepaymentAmountInLCY: Decimal)
     var
         PurchaseLine: Record "Purchase Line";
     begin
-        with PurchaseLine do begin
-            SetRange("Document Type", "Document Type"::Order);
-            SetRange("Document No.", DocNo);
-            FindFirst();
-            if PrepaymentAmountInLCY = "Prepmt. Amount Inv. (LCY)" then
-                "Prepmt. Amount Inv. (LCY)" -= 0.01;
-            Modify();
-        end;
+        PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::Order);
+        PurchaseLine.SetRange("Document No.", DocNo);
+        PurchaseLine.FindFirst();
+        if PrepaymentAmountInLCY = PurchaseLine."Prepmt. Amount Inv. (LCY)" then
+            PurchaseLine."Prepmt. Amount Inv. (LCY)" -= 0.01;
+        PurchaseLine.Modify();
     end;
 
     local procedure SimulateSalesRounding(DocNo: Code[20]; PrepaymentAmountInLCY: Decimal)
     var
         SalesLine: Record "Sales Line";
     begin
-        with SalesLine do begin
-            SetRange("Document Type", "Document Type"::Order);
-            SetRange("Document No.", DocNo);
-            FindFirst();
-            if PrepaymentAmountInLCY = "Prepmt. Amount Inv. (LCY)" then
-                "Prepmt. Amount Inv. (LCY)" -= 0.01;
-            Modify();
-        end;
+        SalesLine.SetRange("Document Type", SalesLine."Document Type"::Order);
+        SalesLine.SetRange("Document No.", DocNo);
+        SalesLine.FindFirst();
+        if PrepaymentAmountInLCY = SalesLine."Prepmt. Amount Inv. (LCY)" then
+            SalesLine."Prepmt. Amount Inv. (LCY)" -= 0.01;
+        SalesLine.Modify();
     end;
 
     local procedure UpdatePurchasePrepmtAccount(PurchPrepaymentsAccount: Code[20]; GenBusPostingGroup: Code[20]; GenProdPostingGroup: Code[20]) OldPurchPrepaymentsAccount: Code[20]
@@ -4386,12 +4359,10 @@ codeunit 134103 "ERM Prepayment IV"
     var
         GLEntry: Record "G/L Entry";
     begin
-        with GLEntry do begin
-            SetRange("Document Type", "Document Type"::Invoice);
-            SetRange("Document No.", DocNo);
-            SetRange("G/L Account No.", GLAccNo);
-            Assert.RecordIsEmpty(GLEntry);
-        end;
+        GLEntry.SetRange("Document Type", GLEntry."Document Type"::Invoice);
+        GLEntry.SetRange("Document No.", DocNo);
+        GLEntry.SetRange("G/L Account No.", GLAccNo);
+        Assert.RecordIsEmpty(GLEntry);
     end;
 
     local procedure VerifyGLEntryInFCY(DocumentNo: Code[20]; Amount: Decimal; GLAccountNo: Code[20]; CurrencyCode: Code[10]; CurrencyExchangeDate: Date)
@@ -4423,14 +4394,12 @@ codeunit 134103 "ERM Prepayment IV"
     var
         GLEntry: Record "G/L Entry";
     begin
-        with GLEntry do begin
-            SetRange("G/L Account No.", GLAccountNo);
-            if DocumentNoFilter <> '' then
-                SetFilter("Document No.", DocumentNoFilter);
-            SetFilter(Amount, '<>0');
-            CalcSums(Amount);
-            Assert.AreEqual(ExpectedBalance, Amount, StrSubstNo(UnbalancedAccountErr, GLAccountNo, DocumentNoFilter));
-        end;
+        GLEntry.SetRange("G/L Account No.", GLAccountNo);
+        if DocumentNoFilter <> '' then
+            GLEntry.SetFilter("Document No.", DocumentNoFilter);
+        GLEntry.SetFilter(Amount, '<>0');
+        GLEntry.CalcSums(Amount);
+        Assert.AreEqual(ExpectedBalance, GLEntry.Amount, StrSubstNo(UnbalancedAccountErr, GLAccountNo, DocumentNoFilter));
     end;
 
     local procedure VerifyPurchaseLineForPrepaymentPct(PurchaseHeader: Record "Purchase Header")
@@ -4512,10 +4481,8 @@ codeunit 134103 "ERM Prepayment IV"
         SalesLine: Record "Sales Line";
     begin
         FindSalesLine(SalesLine, DocumentType, DocumentNo);
-        with SalesLine do begin
-            Assert.AreEqual(ExpectedPrepmtAmt, "Prepayment Amount", FieldCaption("Prepayment Amount"));
-            Assert.AreEqual(ExpectedPrepmtAmtInclVAT, "Prepmt. Amt. Incl. VAT", FieldCaption("Prepmt. Amt. Incl. VAT"));
-        end;
+        Assert.AreEqual(ExpectedPrepmtAmt, SalesLine."Prepayment Amount", SalesLine.FieldCaption("Prepayment Amount"));
+        Assert.AreEqual(ExpectedPrepmtAmtInclVAT, SalesLine."Prepmt. Amt. Incl. VAT", SalesLine.FieldCaption("Prepmt. Amt. Incl. VAT"));
     end;
 
     local procedure VerifyPurchLinePrepmtAmt(DocumentType: Enum "Purchase Document Type"; DocumentNo: Code[20]; ExpectedPrepmtAmt: Decimal; ExpectedPrepmtAmtInclVAT: Decimal)
@@ -4523,58 +4490,48 @@ codeunit 134103 "ERM Prepayment IV"
         PurchaseLine: Record "Purchase Line";
     begin
         FindPurchaseLine(PurchaseLine, DocumentType, DocumentNo);
-        with PurchaseLine do begin
-            Assert.AreEqual(ExpectedPrepmtAmt, "Prepayment Amount", FieldCaption("Prepayment Amount"));
-            Assert.AreEqual(ExpectedPrepmtAmtInclVAT, "Prepmt. Amt. Incl. VAT", FieldCaption("Prepmt. Amt. Incl. VAT"));
-        end;
+        Assert.AreEqual(ExpectedPrepmtAmt, PurchaseLine."Prepayment Amount", PurchaseLine.FieldCaption("Prepayment Amount"));
+        Assert.AreEqual(ExpectedPrepmtAmtInclVAT, PurchaseLine."Prepmt. Amt. Incl. VAT", PurchaseLine.FieldCaption("Prepmt. Amt. Incl. VAT"));
     end;
 
     local procedure VerifySalesPrepmtInvAmounts(PrepmtInvNo: Code[20]; ExpectedAmount: Decimal; ExpectedAmountInclVAT: Decimal)
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
     begin
-        with SalesInvoiceHeader do begin
-            Get(PrepmtInvNo);
-            CalcFields(Amount, "Amount Including VAT");
-            Assert.AreEqual(ExpectedAmount, Amount, FieldCaption(Amount));
-            Assert.AreEqual(ExpectedAmountInclVAT, "Amount Including VAT", FieldCaption("Amount Including VAT"));
-        end;
+        SalesInvoiceHeader.Get(PrepmtInvNo);
+        SalesInvoiceHeader.CalcFields(Amount, "Amount Including VAT");
+        Assert.AreEqual(ExpectedAmount, SalesInvoiceHeader.Amount, SalesInvoiceHeader.FieldCaption(Amount));
+        Assert.AreEqual(ExpectedAmountInclVAT, SalesInvoiceHeader."Amount Including VAT", SalesInvoiceHeader.FieldCaption("Amount Including VAT"));
     end;
 
     local procedure VerifyPurchPrepmtInvAmounts(PrepmtInvNo: Code[20]; ExpectedAmount: Decimal; ExpectedAmountInclVAT: Decimal)
     var
         PurchInvHeader: Record "Purch. Inv. Header";
     begin
-        with PurchInvHeader do begin
-            Get(PrepmtInvNo);
-            CalcFields(Amount, "Amount Including VAT");
-            Assert.AreEqual(ExpectedAmount, Amount, FieldCaption(Amount));
-            Assert.AreEqual(ExpectedAmountInclVAT, "Amount Including VAT", FieldCaption("Amount Including VAT"));
-        end;
+        PurchInvHeader.Get(PrepmtInvNo);
+        PurchInvHeader.CalcFields(Amount, "Amount Including VAT");
+        Assert.AreEqual(ExpectedAmount, PurchInvHeader.Amount, PurchInvHeader.FieldCaption(Amount));
+        Assert.AreEqual(ExpectedAmountInclVAT, PurchInvHeader."Amount Including VAT", PurchInvHeader.FieldCaption("Amount Including VAT"));
     end;
 
     local procedure VerifySalesPrepmtCrMemoAmounts(PrepmtCrMemoNo: Code[20]; ExpectedAmount: Decimal; ExpectedAmountInclVAT: Decimal)
     var
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
     begin
-        with SalesCrMemoHeader do begin
-            Get(PrepmtCrMemoNo);
-            CalcFields(Amount, "Amount Including VAT");
-            Assert.AreEqual(ExpectedAmount, Amount, FieldCaption(Amount));
-            Assert.AreEqual(ExpectedAmountInclVAT, "Amount Including VAT", FieldCaption("Amount Including VAT"));
-        end;
+        SalesCrMemoHeader.Get(PrepmtCrMemoNo);
+        SalesCrMemoHeader.CalcFields(Amount, "Amount Including VAT");
+        Assert.AreEqual(ExpectedAmount, SalesCrMemoHeader.Amount, SalesCrMemoHeader.FieldCaption(Amount));
+        Assert.AreEqual(ExpectedAmountInclVAT, SalesCrMemoHeader."Amount Including VAT", SalesCrMemoHeader.FieldCaption("Amount Including VAT"));
     end;
 
     local procedure VerifyPurchPrepmtCrMemoAmounts(PrepmtCrMemoNo: Code[20]; ExpectedAmount: Decimal; ExpectedAmountInclVAT: Decimal)
     var
         PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
     begin
-        with PurchCrMemoHdr do begin
-            Get(PrepmtCrMemoNo);
-            CalcFields(Amount, "Amount Including VAT");
-            Assert.AreEqual(ExpectedAmount, Amount, FieldCaption(Amount));
-            Assert.AreEqual(ExpectedAmountInclVAT, "Amount Including VAT", FieldCaption("Amount Including VAT"));
-        end;
+        PurchCrMemoHdr.Get(PrepmtCrMemoNo);
+        PurchCrMemoHdr.CalcFields(Amount, "Amount Including VAT");
+        Assert.AreEqual(ExpectedAmount, PurchCrMemoHdr.Amount, PurchCrMemoHdr.FieldCaption(Amount));
+        Assert.AreEqual(ExpectedAmountInclVAT, PurchCrMemoHdr."Amount Including VAT", PurchCrMemoHdr.FieldCaption("Amount Including VAT"));
     end;
 
     local procedure CreatePurchaseOrderWithResourceLineAndPrepayment(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; var GLAccountNo: Code[20])

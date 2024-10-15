@@ -18,9 +18,11 @@ codeunit 9200 "Matrix Management"
         GeneralLedgerSetup: Record "General Ledger Setup";
         GLSetupRead: Boolean;
 
+#pragma warning disable AA0074
         Text001: Label 'The previous column set could not be found.';
         Text002: Label 'The period could not be found.';
         Text003: Label 'There are no Calendar entries within the filter.';
+#pragma warning restore AA0074
         RoundingFormatTxt: Label '<Precision,%1><Standard Format,0>', Locked = true;
 
     procedure SetPeriodColumnSet(DateFilter: Text; PeriodType: Enum "Analysis Period Type"; Direction: Option Backward,Forward; var FirstColumn: Date; var LastColumn: Date; NoOfColumns: Integer)

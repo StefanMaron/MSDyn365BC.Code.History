@@ -102,13 +102,19 @@ report 5067 "Questionnaire - Test"
     }
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'You must specify the Class. Field when %1 is set.';
         Text002: Label '%1 must be specified when %2 is set.';
         Text003: Label '%1 must be specified when %2 = %3.';
+#pragma warning restore AA0470
         Text004: Label 'No Answer created.';
+#pragma warning disable AA0470
         Text005: Label '%1 and/or %2 must be specified.';
         Text006: Label '%1 cannot be %2 when %3 is %4.';
+#pragma warning restore AA0470
         Text007: Label 'No Question created.';
+#pragma warning restore AA0074
         ProfileQuestnLine: Record "Profile Questionnaire Line";
         ProfileQuestnLine2: Record "Profile Questionnaire Line";
         ErrorCounter: Integer;

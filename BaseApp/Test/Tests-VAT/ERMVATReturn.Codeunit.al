@@ -495,7 +495,6 @@ codeunit 134096 "ERM VAT Return"
         LibraryApplicationArea.DisableApplicationAreaSetup();
     end;
 
-
     [Test]
     [Scope('OnPrem')]
     procedure VATNoteFieldIsVisibleInVATReturnSubformPageWhenReportVATNoteOptionEnabled()
@@ -517,6 +516,73 @@ codeunit 134096 "ERM VAT Return"
         Assert.IsTrue(VATReportPage.VATReportLines.Note.Visible(), 'VAT Note field is not visible');
 
         VATReportPage.Close();
+    end;
+
+    [Test]
+    [HandlerFunctions('VATReportRequestPageHandler,CountriesRegionsModalPageHandler')]
+    procedure CountryRegionFilterOnVATRepReqPageAllowsLookupFromCountryRegionListPage()
+    var
+        VATReportHeader: Record "VAT Report Header";
+        VATReportRequestPage: Report "VAT Report Request Page";
+    begin
+        // [SCENARIO 525644] Country/Region filter on VAT report request page allows to lookup from Country/Region List page
+
+        Initialize();
+        CreateVATReturn(VATReportHeader, DATE2DMY(WorkDate(), 3));
+        Commit();
+        VATReportHeader.SetRecFilter();
+        LibraryLowerPermissions.SetO365BusFull();
+        // [GIVEN] VAT Report Request Page is opened
+        VATReportRequestPage.SetTableView(VATReportHeader);
+        // [WHEN] Click "Lookup" on the "Country/Region Filter" field 
+        // Done in the VATReportRequestPageHandler
+        VATReportRequestPage.Run();
+        // [THEN] Country/Region List page is opened
+        // Done in the CountriesRegionsPageHandler
+    end;
+
+    [Test]
+    [HandlerFunctions('SuggestLinesCountryRegionFilterRPH')]
+    procedure SuggestLinesInVATReturnWithCountryRegionFilter()
+    var
+        VATReportHeader: Record "VAT Report Header";
+        VATPostingSetup: Record "VAT Posting Setup";
+        VATEntry: Record "VAT Entry";
+        CountryRegion: array[2] of Record "Country/Region";
+        CountryRegionFilter: Text[250];
+        i: Integer;
+    begin
+        // [SCENARIO 525644] Stan can suggest lines for VAT return based on the country/region filter
+
+        Initialize();
+        LibraryLowerPermissions.SetOutsideO365Scope();
+        // [GIVEN] VAT Return for the period
+        CreateVATReturn(VATReportHeader, DATE2DMY(WorkDate(), 3) + 1);
+        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        SetupFourVATStatementLines(VATPostingSetup);
+        // [GIVEN] VAT entry "X" with country/region ES
+        // [GIVEN] VAT entry "Y" with country/region DE
+        for i := 1 to ArrayLen(CountryRegion) do begin
+            LibraryERM.CreateCountryRegion(CountryRegion[i]);
+            MockVATEntry(VATEntry, VATPostingSetup, VATReportHeader."Start Date");
+            VATEntry."Country/Region Code" := CountryRegion[i].Code;
+            VATEntry.Modify();
+        end;
+        CountryRegionFilter := '<>' + CountryRegion[1].Code;
+        LibraryLowerPermissions.SetO365BusFull();
+        // [WHEN] Suggest lines with "Country/Region Filter" = "<>ES"
+        SuggestLines(
+          VATReportHeader, Selection::Open, PeriodSelection::"Within Period", VATReportHeader."Period Year", false, CountryRegionFilter);
+        // [THEN] "Country/Region Filter" has the value that was set in the VAT report request page
+        VATReportHeader.Find();
+        VATReportHeader.TestField("Country/Region Filter", CountryRegionFilter);
+        // [THEN] VAT Return lines have been suggested for the correspondent VAT Entry with country/region DE
+        VerifyVATStatementReportLine(VATReportHeader, '1', VATEntry.Amount);
+        VerifyVATStatementReportLine(VATReportHeader, '2', VATEntry.Base);
+        VerifyVATStatementReportLine(VATReportHeader, '3', VATEntry."Remaining Unrealized Amount");
+        VerifyVATStatementReportLine(VATReportHeader, '4', VATEntry."Remaining Unrealized Base");
+
+        LibraryLowerPermissions.SetOutsideO365Scope();
     end;
 
     local procedure Initialize()
@@ -558,23 +624,21 @@ codeunit 134096 "ERM VAT Return"
         i: Integer;
     begin
         GetVATStatementNameW1(VATStatementName);
-        with VATStatementLine do begin
-            SetRange("Statement Template Name", VATStatementName."Statement Template Name");
-            SetRange("Statement Name", VATStatementName.Name);
-            ModifyAll("Box No.", '');
-            FindLast();
+        VATStatementLine.SetRange("Statement Template Name", VATStatementName."Statement Template Name");
+        VATStatementLine.SetRange("Statement Name", VATStatementName.Name);
+        VATStatementLine.ModifyAll("Box No.", '');
+        VATStatementLine.FindLast();
 
-            "VAT Bus. Posting Group" := VATPostingSetup."VAT Bus. Posting Group";
-            "VAT Prod. Posting Group" := VATPostingSetup."VAT Prod. Posting Group";
+        VATStatementLine."VAT Bus. Posting Group" := VATPostingSetup."VAT Bus. Posting Group";
+        VATStatementLine."VAT Prod. Posting Group" := VATPostingSetup."VAT Prod. Posting Group";
 
-            InsertVATStatementLine(VATStatementLine, '1', "Amount Type"::Amount);
-            InsertVATStatementLine(VATStatementLine, '2', "Amount Type"::Base);
-            InsertVATStatementLine(VATStatementLine, '3', "Amount Type"::"Unrealized Amount");
-            InsertVATStatementLine(VATStatementLine, '4', "Amount Type"::"Unrealized Base");
+        InsertVATStatementLine(VATStatementLine, '1', VATStatementLine."Amount Type"::Amount);
+        InsertVATStatementLine(VATStatementLine, '2', VATStatementLine."Amount Type"::Base);
+        InsertVATStatementLine(VATStatementLine, '3', VATStatementLine."Amount Type"::"Unrealized Amount");
+        InsertVATStatementLine(VATStatementLine, '4', VATStatementLine."Amount Type"::"Unrealized Base");
 
-            for i := 5 to 9 do
-                InsertVATStatementLine(VATStatementLine, Format(i), "Amount Type"::Amount);
-        end;
+        for i := 5 to 9 do
+            InsertVATStatementLine(VATStatementLine, Format(i), VATStatementLine."Amount Type"::Amount);
     end;
 
     local procedure SetupSingleVATStatementLineForVATPostingSetup(var VATStatementLine: Record "VAT Statement Line"; VATPostingSetup: Record "VAT Posting Setup")
@@ -596,37 +660,33 @@ codeunit 134096 "ERM VAT Return"
 
     local procedure InsertVATStatementLine(var VATStatementLine: Record "VAT Statement Line"; BoxNo: Text[30]; AmountType: Enum "VAT Statement Line Amount Type")
     begin
-        with VATStatementLine do begin
-            "Line No." += 10000;
-            "Box No." := BoxNo;
-            "Gen. Posting Type" := "Gen. Posting Type"::Sale;
-            Type := Type::"VAT Entry Totaling";
-            "Amount Type" := AmountType;
-            "Print with" := "Print with"::Sign;
-            Insert();
-        end;
+        VATStatementLine."Line No." += 10000;
+        VATStatementLine."Box No." := BoxNo;
+        VATStatementLine."Gen. Posting Type" := VATStatementLine."Gen. Posting Type"::Sale;
+        VATStatementLine.Type := VATStatementLine.Type::"VAT Entry Totaling";
+        VATStatementLine."Amount Type" := AmountType;
+        VATStatementLine."Print with" := VATStatementLine."Print with"::Sign;
+        VATStatementLine.Insert();
     end;
 
     local procedure MockVATEntry(var VATEntry: Record "VAT Entry"; VATPostingSetup: Record "VAT Posting Setup"; PostingDate: Date)
     begin
-        with VATEntry do begin
-            "Entry No." := LibraryUtility.GetNewRecNo(VATEntry, FIELDNO("Entry No."));
-            Type := Type::Sale;
-            "Posting Date" := PostingDate;
-            "VAT Reporting Date" := PostingDate;
-            Closed := FALSE;
-            "VAT Bus. Posting Group" := VATPostingSetup."VAT Bus. Posting Group";
-            "VAT Prod. Posting Group" := VATPostingSetup."VAT Prod. Posting Group";
-            Amount := LibraryRandom.RandDec(1000, 2);
-            Base := LibraryRandom.RandDec(1000, 2);
-            "Remaining Unrealized Amount" := LibraryRandom.RandDec(1000, 2);
-            "Remaining Unrealized Base" := LibraryRandom.RandDec(1000, 2);
-            "Additional-Currency Amount" := LibraryRandom.RandDec(1000, 2);
-            "Additional-Currency Base" := LibraryRandom.RandDec(1000, 2);
-            "Add.-Curr. Rem. Unreal. Amount" := LibraryRandom.RandDec(1000, 2);
-            "Add.-Curr. Rem. Unreal. Base" := LibraryRandom.RandDec(1000, 2);
-            Insert();
-        end;
+        VATEntry."Entry No." := LibraryUtility.GetNewRecNo(VATEntry, VATEntry.FIELDNO("Entry No."));
+        VATEntry.Type := VATEntry.Type::Sale;
+        VATEntry."Posting Date" := PostingDate;
+        VATEntry."VAT Reporting Date" := PostingDate;
+        VATEntry.Closed := false;
+        VATEntry."VAT Bus. Posting Group" := VATPostingSetup."VAT Bus. Posting Group";
+        VATEntry."VAT Prod. Posting Group" := VATPostingSetup."VAT Prod. Posting Group";
+        VATEntry.Amount := LibraryRandom.RandDec(1000, 2);
+        VATEntry.Base := LibraryRandom.RandDec(1000, 2);
+        VATEntry."Remaining Unrealized Amount" := LibraryRandom.RandDec(1000, 2);
+        VATEntry."Remaining Unrealized Base" := LibraryRandom.RandDec(1000, 2);
+        VATEntry."Additional-Currency Amount" := LibraryRandom.RandDec(1000, 2);
+        VATEntry."Additional-Currency Base" := LibraryRandom.RandDec(1000, 2);
+        VATEntry."Add.-Curr. Rem. Unreal. Amount" := LibraryRandom.RandDec(1000, 2);
+        VATEntry."Add.-Curr. Rem. Unreal. Base" := LibraryRandom.RandDec(1000, 2);
+        VATEntry.Insert();
     end;
 
     local procedure SuggestLines(VATReportHeader: Record "VAT Report Header"; Selection: Enum "VAT Statement Report Selection"; PeriodSelection: Enum "VAT Statement Report Period Selection"; PeriodYear: Integer; AmountInACY: Boolean);
@@ -654,6 +714,19 @@ codeunit 134096 "ERM VAT Return"
         VATReportMediator.GetLines(VATReportHeader);
     end;
 
+    local procedure SuggestLines(VATReportHeader: Record "VAT Report Header"; Selection: Enum "VAT Statement Report Selection"; PeriodSelection: Enum "VAT Statement Report Period Selection"; PeriodYear: Integer; AmountInACY: Boolean; CountryRegionFilter: Text[250]);
+    var
+        VATReportMediator: Codeunit "VAT Report Mediator";
+    begin
+        Commit();
+        LibraryVariableStorage.Enqueue(Selection);
+        LibraryVariableStorage.Enqueue(PeriodSelection);
+        LibraryVariableStorage.Enqueue(PeriodYear);
+        LibraryVariableStorage.Enqueue(AmountInACY);
+        LibraryVariableStorage.Enqueue(CountryRegionFilter);
+        VATReportMediator.GetLines(VATReportHeader);
+    end;
+
     local procedure GetVATStatementNameW1(var VATStatementName: Record "VAT Statement Name");
     begin
         VATStatementName.GET('VAT', 'DEFAULT');
@@ -661,7 +734,7 @@ codeunit 134096 "ERM VAT Return"
 
     local procedure SetupVATReportsConfiguration(SubmissionCodeunitID: Integer)
     begin
-        InitVATReportsConfiguration(0, Codeunit::"Test VAT Content", Codeunit::"Test VAT Validate", SubmissionCodeunitID, Codeunit::"Test VAT Response");
+        InitVATReportsConfiguration(Codeunit::"VAT Report Suggest Lines", Codeunit::"Test VAT Content", Codeunit::"Test VAT Validate", SubmissionCodeunitID, Codeunit::"Test VAT Response");
     end;
 
     local procedure SetupVATRepConfSuggestLines()
@@ -718,14 +791,12 @@ codeunit 134096 "ERM VAT Return"
     var
         VATStatementReportLine: Record "VAT Statement Report Line";
     begin
-        with VATStatementReportLine do begin
-            SetRange("VAT Report No.", VATReportHeader."No.");
-            SetRange("VAT Report Config. Code", VATReportHeader."VAT Report Config. Code");
-            SetRange("Box No.", BoxNo);
-            FindFirst();
-            TestField(Base, ExpectedBase);
-            TestField(Amount, ExpectedAmount);
-        end;
+        VATStatementReportLine.SetRange("VAT Report No.", VATReportHeader."No.");
+        VATStatementReportLine.SetRange("VAT Report Config. Code", VATReportHeader."VAT Report Config. Code");
+        VATStatementReportLine.SetRange("Box No.", BoxNo);
+        VATStatementReportLine.FindFirst();
+        VATStatementReportLine.TestField(Base, ExpectedBase);
+        VATStatementReportLine.TestField(Amount, ExpectedAmount);
     end;
 
     [RequestPageHandler]
@@ -768,11 +839,44 @@ codeunit 134096 "ERM VAT Return"
         VATReportRequestPage.OK().Invoke();
     end;
 
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure SuggestLinesCountryRegionFilterRPH(var VATReportRequestPage: TestRequestPage "VAT Report Request Page")
+    var
+        VATStatementName: Record "VAT Statement Name";
+    begin
+        GetVATStatementNameW1(VATStatementName);
+        VATReportRequestPage.VATStatementTemplate.SETVALUE(VATStatementName."Statement Template Name");
+        VATReportRequestPage.VATStatementName.SETVALUE(VATStatementName.Name);
+
+        Selection := "VAT Statement Report Selection".FromInteger(LibraryVariableStorage.DequeueInteger());
+        VATReportRequestPage.Selection.SETVALUE(Format(Selection));
+
+        PeriodSelection := "VAT Statement Report Period Selection".FromInteger(LibraryVariableStorage.DequeueInteger());
+        VATReportRequestPage.PeriodSelection.SETVALUE(Format(PeriodSelection));
+
+        VATReportRequestPage."Period Year".SETVALUE(LibraryVariableStorage.DequeueInteger());
+        VATReportRequestPage."Amounts in ACY".SETVALUE(LibraryVariableStorage.DequeueBoolean());
+        VATReportRequestPage."Country/Region Filter".SETVALUE(LibraryVariableStorage.DequeueText());
+        VATReportRequestPage.OK().Invoke();
+    end;
+
     [MessageHandler]
     [Scope('OnPrem')]
     procedure MessageHandler(Message: Text[1024])
     begin
         Assert.ExpectedMessage(LibraryVariableStorage.DequeueText(), Message);
+    end;
+
+    [RequestPageHandler]
+    procedure VATReportRequestPageHandler(var VATReportRequestPage: TestRequestPage "VAT Report Request Page")
+    begin
+        VATReportRequestPage."Country/Region Filter".Lookup();
+    end;
+
+    [ModalPageHandler]
+    procedure CountriesRegionsModalPageHandler(var CountryRegionListPage: TestPage "Countries/Regions")
+    begin
     end;
 
     [EventSubscriber(ObjectType::Table, database::"Job Queue Entry", 'OnBeforeScheduleTask', '', true, true)]

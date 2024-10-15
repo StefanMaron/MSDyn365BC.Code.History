@@ -16,8 +16,17 @@ codeunit 5616 "Depreciation Calculation"
     end;
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label '%1 %2 = %3 in %4 %5 = %6';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         DeprBookCodeErr: Label ' in depreciation book code %1', Comment = '%1=value for code, e.g. COMAPNY';
+
+    procedure DeprDays(StartingDate: Date; EndingDate: Date; Year365Days: Boolean): Integer
+    begin
+        exit(DeprDays(StartingDate, EndingDate, Year365Days, false));
+    end;
 
     procedure DeprDays(StartingDate: Date; EndingDate: Date; Year365Days: Boolean; UseAccountingPeriod: Boolean) NumbefOfDeprDays: Integer
     var
@@ -49,21 +58,15 @@ codeunit 5616 "Depreciation Calculation"
         if UseAccountingPeriod then
             exit(EndingDate - StartingDate + 1);
 
-        StartingDay := Date2DMY(StartingDate, 1);
-        EndingDay := Date2DMY(EndingDate, 1);
-        StartingMonth := Date2DMY(StartingDate, 2);
-        EndingMonth := Date2DMY(EndingDate, 2);
-        StartingYear := Date2DMY(StartingDate, 3);
-        EndingYear := Date2DMY(EndingDate, 3);
-        if Date2DMY(StartingDate, 1) = 31 then
-            StartingDay := 30;
-        if Date2DMY(EndingDate + 1, 1) = 1 then
-            EndingDay := 30;
-
         NumbefOfDeprDays := 1 + EndingDay - StartingDay + 30 * (EndingMonth - StartingMonth) +
           360 * (EndingYear - StartingYear);
 
         OnAfterDeprDays(StartingDate, EndingDate, NumbefOfDeprDays, Year365Days);
+    end;
+
+    procedure ToMorrow(ThisDate: Date; Year365Days: Boolean): Date
+    begin
+        exit(ToMorrow(ThisDate, Year365Days, false));
     end;
 
     procedure ToMorrow(ThisDate: Date; Year365Days: Boolean; UseAccountingPeriod: Boolean): Date
@@ -74,6 +77,11 @@ codeunit 5616 "Depreciation Calculation"
         if (not UseAccountingPeriod) and (Date2DMY(ThisDate, 1) = 31) then
             ThisDate := ThisDate + 1;
         exit(ThisDate);
+    end;
+
+    procedure Yesterday(ThisDate: Date; Year365Days: Boolean): Date
+    begin
+        exit(Yesterday(ThisDate, Year365Days, false));
     end;
 
     procedure Yesterday(ThisDate: Date; Year365Days: Boolean; UseAccountingPeriod: Boolean): Date

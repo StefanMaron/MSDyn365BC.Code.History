@@ -137,9 +137,6 @@ codeunit 134760 "Test Gen. Jnl. Post Preview"
           GenJournalLine."Account Type"::"G/L Account",
           GLAccount."No.", Amount);
 
-#if not CLEAN22
-        GenJournalLine."IC Partner G/L Acc. No." := ICGLAccount."No.";
-#endif
         GenJournalLine."IC Account Type" := "IC Journal Account Type"::"G/L Account";
         GenJournalLine."IC Account No." := ICGLAccount."No.";
         GenJournalLine.Description := 'TEST';
@@ -751,15 +748,13 @@ codeunit 134760 "Test Gen. Jnl. Post Preview"
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
         LibraryERM.ClearGenJournalLines(GenJournalBatch);
 
-        with GenJournalLine do begin
-            LibraryERM.CreateGeneralJnlLine(
-              GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
-              "Document Type"::Payment, AccountType, AccountNo, 0);
-            Validate("Bal. Account Type", "Bal. Account Type"::"G/L Account");
-            Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo());
-            Validate("Applies-to Doc. Type", "Applies-to Doc. Type"::Invoice);
-            Modify(true);
-        end;
+        LibraryERM.CreateGeneralJnlLine(
+            GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
+            GenJournalLine."Document Type"::Payment, AccountType, AccountNo, 0);
+        GenJournalLine.Validate("Bal. Account Type", GenJournalLine."Bal. Account Type"::"G/L Account");
+        GenJournalLine.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo());
+        GenJournalLine.Validate("Applies-to Doc. Type", GenJournalLine."Applies-to Doc. Type"::Invoice);
+        GenJournalLine.Modify(true);
 
         Commit();
     end;

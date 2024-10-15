@@ -421,7 +421,11 @@ page 5814 "Item Charge Assignment (Sales)"
     var
         SalesLine: Record "Sales Line";
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'The sign of %1 must be the same as the sign of %2 of the item charge.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     protected var
         SalesLine2: Record "Sales Line";

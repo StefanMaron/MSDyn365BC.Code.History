@@ -15,7 +15,6 @@ using Microsoft.Purchases.Document;
 using Microsoft.Purchases.Payables;
 using Microsoft.Sales.Document;
 using Microsoft.Sales.Receivables;
-using Microsoft.Service.Document;
 
 table 846 "Cash Flow Worksheet Line"
 {
@@ -164,8 +163,6 @@ table 846 "Cash Flow Worksheet Line"
             if ("Source Type" = const("Sales Orders")) "Sales Header"."No." where("Document Type" = const(Order))
             else
             if ("Source Type" = const("Purchase Orders")) "Purchase Header"."No." where("Document Type" = const(Order))
-            else
-            if ("Source Type" = const("Service Orders")) "Service Header"."No." where("Document Type" = const(Order))
             else
             if ("Source Type" = const("Cash Flow Manual Expense")) "Cash Flow Manual Expense"
             else
@@ -338,9 +335,7 @@ table 846 "Cash Flow Worksheet Line"
 
         PaymentTermsToApply := "Payment Terms Code";
         ApplyCFPaymentTerm := CashFlowForecast."Consider CF Payment Terms" and PaymentTerms.Get(PaymentTermsToApply);
-        if "Source Type" in ["Source Type"::"Sales Orders", "Source Type"::"Purchase Orders", "Source Type"::"Service Orders",
-                             "Source Type"::Job]
-        then
+        if "Source Type" in ["Source Type"::"Sales Orders", "Source Type"::"Purchase Orders", "Source Type"::Job] then
             ApplyCFPaymentTerm := true;
 
         IsHandled := false;

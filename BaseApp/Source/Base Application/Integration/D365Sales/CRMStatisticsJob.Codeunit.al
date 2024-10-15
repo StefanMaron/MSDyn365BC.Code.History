@@ -10,7 +10,6 @@ using Microsoft.Sales.Customer;
 using Microsoft.Sales.Document;
 using Microsoft.Sales.History;
 using Microsoft.Sales.Receivables;
-using Microsoft.Service.Document;
 using System.Threading;
 
 codeunit 5350 "CRM Statistics Job"
@@ -182,7 +181,6 @@ codeunit 5350 "CRM Statistics Job"
     local procedure AddCustomersWithLinesActivity(StartDateTime: DateTime; var CustomerNumbers: List of [Code[20]]);
     var
         SalesLine: Record "Sales Line";
-        ServiceLine: Record "Service Line";
     begin
         if StartDateTime = 0DT then
             exit;
@@ -194,12 +192,7 @@ codeunit 5350 "CRM Statistics Job"
                     CustomerNumbers.Add(SalesLine."Sell-to Customer No.");
             until SalesLine.Next() = 0;
 
-        ServiceLine.SetFilter(SystemModifiedAt, '>' + Format(StartDateTime));
-        if ServiceLine.FindSet() then
-            repeat
-                if not CustomerNumbers.Contains(ServiceLine."Customer No.") then
-                    CustomerNumbers.Add(ServiceLine."Customer No.");
-            until ServiceLine.Next() = 0;
+        OnAfterAddCustomersWithLinesActivity(StartDateTime, CustomerNumbers);
     end;
 
     local procedure UpdateInvoices(JobLogEntryNo: Integer)
@@ -256,18 +249,13 @@ codeunit 5350 "CRM Statistics Job"
     begin
         FindCRMAccountStatistics(CRMAccountStatistics, CRMAccount);
         xCRMAccountStatistics := CRMAccountStatistics;
-        Customer.CalcFields("Balance (LCY)", "Outstanding Orders (LCY)", "Shipped Not Invoiced (LCY)",
-          "Outstanding Invoices (LCY)", "Outstanding Serv. Orders (LCY)", "Serv Shipped Not Invoiced(LCY)",
-          "Outstanding Serv.Invoices(LCY)");
+        Customer.CalcFields("Balance (LCY)", "Outstanding Orders (LCY)", "Shipped Not Invoiced (LCY)", "Outstanding Invoices (LCY)");
         CRMAccountStatistics.Name := Customer.Name;
         CRMAccountStatistics."Customer No" := Customer."No.";
         CRMAccountStatistics."Balance (LCY)" := Customer."Balance (LCY)";
         CRMAccountStatistics."Outstanding Orders (LCY)" := Customer."Outstanding Orders (LCY)";
         CRMAccountStatistics."Shipped Not Invoiced (LCY)" := Customer."Shipped Not Invoiced (LCY)";
         CRMAccountStatistics."Outstanding Invoices (LCY)" := Customer."Outstanding Invoices (LCY)";
-        CRMAccountStatistics."Outstanding Serv Orders (LCY)" := Customer."Outstanding Serv. Orders (LCY)";
-        CRMAccountStatistics."Serv Shipped Not Invd (LCY)" := Customer."Serv Shipped Not Invoiced(LCY)";
-        CRMAccountStatistics."Outstd Serv Invoices (LCY)" := Customer."Outstanding Serv.Invoices(LCY)";
         CRMAccountStatistics."Total (LCY)" := Customer.GetTotalAmountLCY();
         CRMAccountStatistics."Credit Limit (LCY)" := Customer."Credit Limit (LCY)";
         CRMAccountStatistics."Overdue Amounts (LCY)" := Customer.CalcOverdueBalance();
@@ -275,6 +263,7 @@ codeunit 5350 "CRM Statistics Job"
         CRMAccountStatistics."Total Sales (LCY)" := Customer.GetSalesLCY();
         CRMAccountStatistics."Invd Prepayment Amount (LCY)" := Customer.GetInvoicedPrepmtAmountLCY();
         CRMAccountStatistics.TransactionCurrencyId := CRMSynchHelper.FindNAVLocalCurrencyInCRM(LcyCRMTransactioncurrency);
+        OnCreateOrUpdateCRMAccountStatisticsOnBeforeModify(CRMAccountStatistics, Customer);
         if xCRMAccountStatistics."Customer No" = '' then begin
             CRMAccountStatistics.Modify();
             exit(SynchActionType::Insert);
@@ -470,6 +459,16 @@ codeunit 5350 "CRM Statistics Job"
         CRMAccountStatistics.SetRange("Customer No", CustomerNo);
         if CRMAccountStatistics.FindFirst() then
             CRMAccountStatistics.Delete();
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterAddCustomersWithLinesActivity(StartDateTime: DateTime; var CustomerNumbers: List of [Code[20]])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateOrUpdateCRMAccountStatisticsOnBeforeModify(var CRMAccountStatistics: Record "CRM Account Statistics"; var Customer: Record Customer)
+    begin
     end;
 }
 

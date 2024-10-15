@@ -60,7 +60,7 @@ table 10551 "BACS Register"
         }
         field(21; Reconciled; Boolean)
         {
-            CalcFormula = - Exist("BACS Ledger Entry" where("Register No." = field("No."),
+            CalcFormula = - exist("BACS Ledger Entry" where("Register No." = field("No."),
                                                             "Statement Status" = filter(<> Closed)));
             Caption = 'Reconciled';
             Editable = false;

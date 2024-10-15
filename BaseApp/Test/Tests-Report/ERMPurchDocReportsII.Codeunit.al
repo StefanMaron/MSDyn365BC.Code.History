@@ -18,7 +18,6 @@
         LibraryRandom: Codeunit "Library - Random";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         isInitialized: Boolean;
-        WarningText: Label 'The documents are not listed according to Posting Date because they were not entered in that order.';
 
     [Test]
     [HandlerFunctions('VendorLabelReportRequestPageHandler')]
@@ -94,144 +93,6 @@
         VerifyLabels(Vendor, 1, NumberOfColumns);
         VerifyLabels(Vendor2, 2, NumberOfColumns);
         VerifyLabels(Vendor3, 3, NumberOfColumns);
-    end;
-
-    [Test]
-    [HandlerFunctions('PurchaseInvoiceNosReportRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure PurchaseInvoiceNos()
-    var
-        PurchaseHeader: Record "Purchase Header";
-        DocumentNo: Code[20];
-    begin
-        // Check Purchase Invoice Nos. Report.
-
-        // Setup.
-        Initialize();
-        DocumentNo := CreateAndPostPurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Invoice);
-
-        // Exercise.
-        SavePurchaseInvoiceNosReport(DocumentNo, DocumentNo);
-
-        // Verify.
-        VerifyPurchaseInvoiceNosReport(DocumentNo);
-    end;
-
-    [Test]
-    [HandlerFunctions('MessageHandler,PurchaseInvoiceNosReportRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure PurchaseInvoiceNosWarning()
-    var
-        PurchaseHeader: Record "Purchase Header";
-        DocumentNo: Code[20];
-        DocumentNo2: Code[20];
-    begin
-        // Check Warning on Purchase Invoice Nos. Report.
-
-        // Setup: Create and Post two Purchase Invoices on different Posting Dates. Take second Posting Date lesser than first
-        // Invoice Posting Date to generate warning on Report. Take random difference between Dates.
-        Initialize();
-        DocumentNo := CreateAndPostPurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Invoice);
-        DocumentNo2 := UpdateAndPostPurchaseDocument(PurchaseHeader."Document Type"::Invoice);
-
-        // Exercise.
-        SavePurchaseInvoiceNosReport(DocumentNo, DocumentNo2);
-
-        // Verify: Check Warnings on Report.
-        LibraryReportDataset.LoadDataSetFile();
-        LibraryReportDataset.AssertElementWithValueExists('ErrorText_Number__Control15', Format(WarningText));
-    end;
-
-    [Test]
-    [HandlerFunctions('PurchaseCrMemoNosReportRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure PurchaseCrMemoNos()
-    var
-        PurchaseHeader: Record "Purchase Header";
-        DocumentNo: Code[20];
-    begin
-        // Check Purchase Credit Memo Nos. Report.
-
-        // Setup.
-        Initialize();
-        DocumentNo := CreateAndPostPurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo");
-
-        // Exercise.
-        SavePurchCreditMemoNosReport(DocumentNo, DocumentNo);
-
-        // Verify.
-        VerifyPurchCreditMemoNosReport(DocumentNo);
-    end;
-
-    [Test]
-    [HandlerFunctions('MessageHandler,PurchaseCrMemoNosReportRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure PurchaseCrMemoNosWarning()
-    var
-        PurchaseHeader: Record "Purchase Header";
-        DocumentNo: Code[20];
-        DocumentNo2: Code[20];
-    begin
-        // Check Warning on Purchase Credit Memo Nos. Report.
-
-        // Setup: Create and Post two Purchase Credit Memo on different Posting Dates. Take second Posting Date lesser than first
-        // Credit Memo Posting Date to generate warning on Report. Take random difference between Dates.
-        Initialize();
-        DocumentNo := CreateAndPostPurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo");
-        DocumentNo2 := UpdateAndPostPurchaseDocument(PurchaseHeader."Document Type"::"Credit Memo");
-
-        // Exercise.
-        SavePurchCreditMemoNosReport(DocumentNo, DocumentNo2);
-
-        // Verify: Verify Warning Message on Report.
-        LibraryReportDataset.LoadDataSetFile();
-        LibraryReportDataset.AssertElementWithValueExists('ErrorText_Number__Control15', Format(WarningText));
-    end;
-
-    [Test]
-    [HandlerFunctions('VendorDocumentNosReportRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure VendorDocumentNos()
-    var
-        PurchaseHeader: Record "Purchase Header";
-        DocumentNo: Code[20];
-    begin
-        // Check Vendor Document Nos. Report.
-
-        // Setup.
-        Initialize();
-        DocumentNo := CreateAndPostPurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Order);
-
-        // Exercise.
-        SaveVendorDocumentsNosReport(DocumentNo, DocumentNo);
-
-        // Verify.
-        VerifyVendorDocumentsNosReport(DocumentNo);
-    end;
-
-    [Test]
-    [HandlerFunctions('MessageHandler,VendorDocumentNosReportRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure VendorDocumentNosWarning()
-    var
-        PurchaseHeader: Record "Purchase Header";
-        DocumentNo: Code[20];
-        DocumentNo2: Code[20];
-    begin
-        // Check Warning Message on Vendor Document Nos. Report.
-
-        // Setup: Create and Post two Purchase Invoice on different Posting Dates. Take second Posting Date lesser than first
-        // Invoice Posting Date to generate warning on Report. Take random difference between Dates.
-        Initialize();
-        DocumentNo := CreateAndPostPurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Invoice);
-        DocumentNo2 := UpdateAndPostPurchaseDocument(PurchaseHeader."Document Type"::Invoice);
-
-        // Exercise:
-        SaveVendorDocumentsNosReport(DocumentNo, DocumentNo2);
-
-        // Verify: Verify Warning Message on Report.
-        LibraryReportDataset.LoadDataSetFile();
-        LibraryReportDataset.AssertElementWithValueExists('ErrorText_Number__Control15', Format(WarningText));
     end;
 
     local procedure Initialize()
@@ -312,39 +173,6 @@
         Vendor.Validate("Country/Region Code", CountryRegion.Code);
         Vendor.Validate("Post Code", PostCode.Code);
         Vendor.Modify(true);
-    end;
-
-    local procedure SavePurchaseInvoiceNosReport(No: Code[20]; No2: Code[20])
-    var
-        PurchInvHeader: Record "Purch. Inv. Header";
-        PurchaseInvoiceNos: Report "Purchase Invoice Nos.";
-    begin
-        PurchInvHeader.SetFilter("No.", '%1|%2', No, No2);
-        Clear(PurchaseInvoiceNos);
-        PurchaseInvoiceNos.SetTableView(PurchInvHeader);
-        PurchaseInvoiceNos.Run();
-    end;
-
-    local procedure SavePurchCreditMemoNosReport(No: Code[20]; No2: Code[20])
-    var
-        PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
-        PurchaseCreditMemoNos: Report "Purchase Credit Memo Nos.";
-    begin
-        PurchCrMemoHdr.SetFilter("No.", '%1|%2', No, No2);
-        Clear(PurchaseCreditMemoNos);
-        PurchaseCreditMemoNos.SetTableView(PurchCrMemoHdr);
-        PurchaseCreditMemoNos.Run();
-    end;
-
-    local procedure SaveVendorDocumentsNosReport(DocumentNo: Code[20]; DocumentNo2: Code[20])
-    var
-        VendorLedgerEntry: Record "Vendor Ledger Entry";
-        VendorDocumentNos: Report "Vendor Document Nos.";
-    begin
-        VendorLedgerEntry.SetFilter("Document No.", '%1|%2', DocumentNo, DocumentNo2);
-        Clear(VendorDocumentNos);
-        VendorDocumentNos.SetTableView(VendorLedgerEntry);
-        VendorDocumentNos.Run();
     end;
 
     local procedure UpdateAndPostPurchaseDocument(DocumentType: Enum "Purchase Document Type") DocumentNo: Code[20]
@@ -435,27 +263,6 @@
     procedure VendorLabelReportRequestPageHandler(var VendorLabels: TestRequestPage "Vendor - Labels")
     begin
         VendorLabels.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
-    end;
-
-    [RequestPageHandler]
-    [Scope('OnPrem')]
-    procedure PurchaseInvoiceNosReportRequestPageHandler(var PurchaseInvoiceNos: TestRequestPage "Purchase Invoice Nos.")
-    begin
-        PurchaseInvoiceNos.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
-    end;
-
-    [RequestPageHandler]
-    [Scope('OnPrem')]
-    procedure PurchaseCrMemoNosReportRequestPageHandler(var PurchaseCrMemoNos: TestRequestPage "Purchase Credit Memo Nos.")
-    begin
-        PurchaseCrMemoNos.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
-    end;
-
-    [RequestPageHandler]
-    [Scope('OnPrem')]
-    procedure VendorDocumentNosReportRequestPageHandler(var VendorDocumentNos: TestRequestPage "Vendor Document Nos.")
-    begin
-        VendorDocumentNos.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 

@@ -1,12 +1,9 @@
-namespace Microsoft.Sales.Customer;
+﻿namespace Microsoft.Sales.Customer;
 
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Sales.Document;
 using Microsoft.Sales.Setup;
-using Microsoft.Service.Contract;
-using Microsoft.Service.Document;
-using Microsoft.Service.Setup;
 
 page 343 "Check Credit Limit"
 {
@@ -100,14 +97,25 @@ page 343 "Check Credit Limit"
     end;
 
     var
+#if not CLEAN25
+        ServCheckCreditLimit: Page "Serv. Check Credit Limit";
+#endif
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label '%1 Do you still want to record the amount?';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     protected var
         CurrExchRate: Record "Currency Exchange Rate";
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
-        ServHeader: Record "Service Header";
-        ServLine: Record "Service Line";
+#if not CLEAN25
+        [Obsolete('Moved to page ServCheckCreditLimit', '25.0')]
+        ServHeader: Record Microsoft.Service.Document."Service Header";
+        [Obsolete('Moved to page ServCheckCreditLimit', '25.0')]
+        ServLine: Record Microsoft.Service.Document."Service Line";
+#endif
         Cust2: Record Customer;
         SalesSetup: Record "Sales & Receivables Setup";
         CustNo: Code[20];
@@ -283,134 +291,63 @@ page 343 "Check Credit Limit"
         exit(Result);
     end;
 
+#if not CLEAN25
+    [Obsolete('Moved to page ServCheckCreditLimit', '25.0')]
     [Scope('OnPrem')]
-    procedure ServiceHeaderShowWarning(ServHeader: Record "Service Header") Result: Boolean
-    var
-        ServSetup: Record "Service Mgt. Setup";
-        OldServHeader: Record "Service Header";
-        AssignDeltaAmount: Boolean;
-        IsHandled: Boolean;
+    procedure ServiceHeaderShowWarning(ServiceHeader: Record Microsoft.Service.Document."Service Header") Result: Boolean
     begin
-        IsHandled := false;
-        OnBeforeServiceHeaderShowWarning(ServHeader, Result, IsHandled, Rec, DeltaAmount);
-        if IsHandled then
-            exit;
-
-        ServSetup.Get();
-        SalesSetup.Get();
-        if SalesSetup."Credit Warnings" =
-           SalesSetup."Credit Warnings"::"No Warning"
-        then
-            exit(false);
-
-        NewOrderAmountLCY := 0;
-        ServLine.Reset();
-        ServLine.SetRange("Document Type", ServHeader."Document Type");
-        ServLine.SetRange("Document No.", ServHeader."No.");
-        if ServLine.FindSet() then
-            repeat
-                if ServHeader."Currency Code" = '' then
-                    NewOrderAmountLCY := NewOrderAmountLCY + ServLine."Amount Including VAT"
-                else
-                    NewOrderAmountLCY := NewOrderAmountLCY +
-                      Round(
-                        CurrExchRate.ExchangeAmtFCYToLCY(
-                          WorkDate(), ServHeader."Currency Code",
-                          ServLine."Amount Including VAT", ServHeader."Currency Factor"));
-            until ServLine.Next() = 0;
-
-        if ServHeader."Document Type" <> ServHeader."Document Type"::Order then
-            NewOrderAmountLCY := NewOrderAmountLCY + ServLineAmount(ServHeader."Document Type", ServHeader."No.", ServLine);
-        OldServHeader := ServHeader;
-        if OldServHeader.Find() then
-            AssignDeltaAmount := OldServHeader."Bill-to Customer No." <> ServHeader."Bill-to Customer No."
-        else
-            AssignDeltaAmount := true;
-        if AssignDeltaAmount then
-            DeltaAmount := NewOrderAmountLCY;
-        exit(ShowWarning(ServHeader."Bill-to Customer No.", NewOrderAmountLCY, 0, true));
+        ServHeader := ServiceHeader;
+        exit(ServCheckCreditLimit.ServiceHeaderShowWarning(ServHeader));
     end;
+#endif
 
+#if not CLEAN25
+    [Obsolete('Moved to page ServCheckCreditLimit', '25.0')]
     [Scope('OnPrem')]
-    procedure ServiceHeaderShowWarningAndGetCause(ServHeader: Record "Service Header"; var NotificationContextGuidOut: Guid): Boolean
-    var
-        Result: Boolean;
+    procedure ServiceHeaderShowWarningAndGetCause(ServiceHeader: Record Microsoft.Service.Document."Service Header"; var NotificationContextGuidOut: Guid): Boolean
     begin
-        Result := ServiceHeaderShowWarning(ServHeader);
-        NotificationContextGuidOut := NotificationId;
-        exit(Result);
+        ServHeader := ServiceHeader;
+        exit(ServCheckCreditLimit.ServiceHeaderShowWarningAndGetCause(ServiceHeader, NotificationContextGuidOut));
     end;
+#endif
 
+#if not CLEAN25
+    [Obsolete('Moved to page ServCheckCreditLimit', '25.0')]
     [Scope('OnPrem')]
-    procedure ServiceLineShowWarning(ServLine: Record "Service Line") Result: Boolean
-    var
-        IsHandled: Boolean;
+    procedure ServiceLineShowWarning(ServiceLine: Record Microsoft.Service.Document."Service Line") Result: Boolean
     begin
-        IsHandled := false;
-        OnBeforeServiceLineShowWarning(ServLine, Result, IsHandled, Rec, DeltaAmount);
-        if IsHandled then
-            exit(Result);
-
-        SalesSetup.Get();
-        if SalesSetup."Credit Warnings" =
-           SalesSetup."Credit Warnings"::"No Warning"
-        then
-            exit(false);
-        if (ServHeader."Document Type" <> ServLine."Document Type") or
-           (ServHeader."No." <> ServLine."Document No.")
-        then
-            ServHeader.Get(ServLine."Document Type", ServLine."Document No.");
-        NewOrderAmountLCY := ServLine."Outstanding Amount (LCY)" + ServLine."Shipped Not Invoiced (LCY)";
-
-        if ServLine.Find() then
-            OldOrderAmountLCY := ServLine."Outstanding Amount (LCY)" + ServLine."Shipped Not Invoiced (LCY)"
-        else
-            OldOrderAmountLCY := 0;
-
-        DeltaAmount := NewOrderAmountLCY - OldOrderAmountLCY;
-        NewOrderAmountLCY :=
-          DeltaAmount + ServLineAmount(ServLine."Document Type", ServLine."Document No.", ServLine);
-
-        exit(ShowWarning(ServHeader."Bill-to Customer No.", NewOrderAmountLCY, OldOrderAmountLCY, false))
+        ServLine := ServiceLine;
+        exit(ServCheckCreditLimit.ServiceLineShowWarning(ServiceLine));
     end;
+#endif
 
+#if not CLEAN25
+    [Obsolete('Moved to page ServCheckCreditLimit', '25.0')]
     [Scope('OnPrem')]
-    procedure ServiceLineShowWarningAndGetCause(ServLine: Record "Service Line"; var NotificationContextGuidOut: Guid): Boolean
-    var
-        Result: Boolean;
+    procedure ServiceLineShowWarningAndGetCause(ServiceLine: Record Microsoft.Service.Document."Service Line"; var NotificationContextGuidOut: Guid): Boolean
     begin
-        Result := ServiceLineShowWarning(ServLine);
-        NotificationContextGuidOut := NotificationId;
-        exit(Result);
+        ServLine := ServiceLine;
+        exit(ServCheckCreditLimit.ServiceLineShowWarningAndGetCause(ServiceLine, NotificationContextGuidOut));
     end;
+#endif
 
+#if not CLEAN25
+    [Obsolete('Moved to page ServCheckCreditLimit', '25.0')]
     [Scope('OnPrem')]
-    procedure ServiceContractHeaderShowWarning(ServiceContractHeader: Record "Service Contract Header") Result: Boolean
-    var
-        IsHandled: Boolean;
+    procedure ServiceContractHeaderShowWarning(ServiceContractHeader: Record Microsoft.Service.Contract."Service Contract Header") Result: Boolean
     begin
-        IsHandled := false;
-        OnBeforeServiceContractHeaderShowWarning(ServiceContractHeader, Rec, Result, IsHandled);
-        if IsHandled then
-            exit(Result);
-
-        SalesSetup.Get();
-        if SalesSetup."Credit Warnings" =
-           SalesSetup."Credit Warnings"::"No Warning"
-        then
-            exit(false);
-        exit(ShowWarning(ServiceContractHeader."Bill-to Customer No.", 0, 0, true));
+        exit(ServCheckCreditLimit.ServiceContractHeaderShowWarning(ServiceContractHeader));
     end;
+#endif
 
+#if not CLEAN25
+    [Obsolete('Moved to page ServCheckCreditLimit', '25.0')]
     [Scope('OnPrem')]
-    procedure ServiceContractHeaderShowWarningAndGetCause(ServiceContractHeader: Record "Service Contract Header"; var NotificationContextGuidOut: Guid): Boolean
-    var
-        Result: Boolean;
+    procedure ServiceContractHeaderShowWarningAndGetCause(ServiceContractHeader: Record Microsoft.Service.Contract."Service Contract Header"; var NotificationContextGuidOut: Guid): Boolean
     begin
-        Result := ServiceContractHeaderShowWarning(ServiceContractHeader);
-        NotificationContextGuidOut := NotificationId;
-        exit(Result);
+        exit(ServCheckCreditLimit.ServiceContractHeaderShowWarningAndGetCause(ServiceContractHeader, NotificationContextGuidOut));
     end;
+#endif
 
     local procedure SalesLineAmount(DocType: Enum "Sales Document Type"; DocNo: Code[20]) Result: Decimal
     var
@@ -426,15 +363,6 @@ page 343 "Check Credit Limit"
         SalesLine.SetRange("Document No.", DocNo);
         SalesLine.CalcSums("Outstanding Amount (LCY)", "Shipped Not Invoiced (LCY)");
         exit(SalesLine."Outstanding Amount (LCY)" + SalesLine."Shipped Not Invoiced (LCY)");
-    end;
-
-    local procedure ServLineAmount(DocType: Enum "Service Document Type"; DocNo: Code[20]; var ServLine2: Record "Service Line"): Decimal
-    begin
-        ServLine2.Reset();
-        ServLine2.SetRange("Document Type", DocType);
-        ServLine2.SetRange("Document No.", DocNo);
-        ServLine2.CalcSums("Outstanding Amount (LCY)", "Shipped Not Invoiced (LCY)");
-        exit(ServLine2."Outstanding Amount (LCY)" + ServLine2."Shipped Not Invoiced (LCY)");
     end;
 
     procedure ShowWarning(NewCustNo: Code[20]; NewOrderAmountLCY2: Decimal; OldOrderAmountLCY2: Decimal; CheckOverDueBalance: Boolean) Result: Boolean
@@ -520,19 +448,20 @@ page 343 "Check Credit Limit"
         if not IsHandled then begin
             if Rec.GetFilter("Date Filter") = '' then
                 Rec.SetFilter("Date Filter", '..%1', WorkDate());
-            Rec.CalcFields("Balance (LCY)", "Shipped Not Invoiced (LCY)", "Serv Shipped Not Invoiced(LCY)");
+            Rec.CalcFields("Balance (LCY)", "Shipped Not Invoiced (LCY)");
             CalcReturnAmounts(OutstandingRetOrdersLCY, RcdNotInvdRetOrdersLCY);
 
             OrderAmountTotalLCY := CalcTotalOutstandingAmt() - OutstandingRetOrdersLCY + DeltaAmount;
-            ShippedRetRcdNotIndLCY := Rec."Shipped Not Invoiced (LCY)" + Rec."Serv Shipped Not Invoiced(LCY)" - RcdNotInvdRetOrdersLCY;
+            ShippedRetRcdNotIndLCY := Rec."Shipped Not Invoiced (LCY)" - RcdNotInvdRetOrdersLCY;
             if Rec."No." = CustNo then
                 OrderAmountThisOrderLCY := NewOrderAmountLCY
             else
                 OrderAmountThisOrderLCY := 0;
 
             CustCreditAmountLCY :=
-              Rec."Balance (LCY)" + Rec."Shipped Not Invoiced (LCY)" + Rec."Serv Shipped Not Invoiced(LCY)" - RcdNotInvdRetOrdersLCY +
+              Rec."Balance (LCY)" + Rec."Shipped Not Invoiced (LCY)" - RcdNotInvdRetOrdersLCY +
               OrderAmountTotalLCY - Rec.GetInvoicedPrepmtAmountLCY();
+            OnCalcCreditLimitLCYOnAfterCalcAmounts(Rec, ShippedRetRcdNotIndLCY, CustCreditAmountLCY);
         end;
 
         OnAfterCalcCreditLimitLCYProcedure(Rec, CustCreditAmountLCY, ExtensionAmountsDic);
@@ -562,7 +491,6 @@ page 343 "Check Credit Limit"
     var
         SalesLine: Record "Sales Line";
         SalesOutstandingAmountFromShipment: Decimal;
-        ServOutstandingAmountFromShipment: Decimal;
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -570,14 +498,12 @@ page 343 "Check Credit Limit"
         if IsHandled then
             exit(Result);
 
-        Rec.CalcFields(
-          "Outstanding Invoices (LCY)", "Outstanding Orders (LCY)", "Outstanding Serv.Invoices(LCY)", "Outstanding Serv. Orders (LCY)");
+        Rec.CalcFields("Outstanding Invoices (LCY)", "Outstanding Orders (LCY)");
         SalesOutstandingAmountFromShipment := SalesLine.OutstandingInvoiceAmountFromShipment(Rec."No.");
-        ServOutstandingAmountFromShipment := ServLine.OutstandingInvoiceAmountFromShipment(Rec."No.");
 
-        exit(
-          Rec."Outstanding Orders (LCY)" + Rec."Outstanding Invoices (LCY)" + Rec."Outstanding Serv. Orders (LCY)" +
-          Rec."Outstanding Serv.Invoices(LCY)" - SalesOutstandingAmountFromShipment - ServOutstandingAmountFromShipment);
+        Result := Rec."Outstanding Orders (LCY)" + Rec."Outstanding Invoices (LCY)" - SalesOutstandingAmountFromShipment;
+
+        OnAfterCalcTotalOutstandingAmt(Rec, Result);
     end;
 
     procedure SetHideMessageVisible(HideMsgVisible: Boolean)
@@ -666,20 +592,44 @@ page 343 "Check Credit Limit"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeServiceLineShowWarning(var ServLine: Record "Service Line"; var Result: Boolean; var IsHandled: Boolean; var Customer: Record Customer; var DeltaAmount: Decimal)
+#if not CLEAN25
+    internal procedure RunOnBeforeServiceLineShowWarning(var ServLine: Record Microsoft.Service.Document."Service Line"; var Result: Boolean; var IsHandled: Boolean; var Customer: Record Customer; var DeltaAmount: Decimal)
     begin
+        OnBeforeServiceLineShowWarning(ServLine, Result, IsHandled, Customer, DeltaAmount);
     end;
 
+    [Obsolete('Moved to page ServCheckCreditLimit', '25.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeServiceHeaderShowWarning(var ServiceHeader: Record "Service Header"; var Result: Boolean; var IsHandled: Boolean; var Customer: Record Customer; var DeltaAmount: Decimal)
+    local procedure OnBeforeServiceLineShowWarning(var ServLine: Record Microsoft.Service.Document."Service Line"; var Result: Boolean; var IsHandled: Boolean; var Customer: Record Customer; var DeltaAmount: Decimal)
     begin
+    end;
+#endif
+
+#if not CLEAN25
+    internal procedure RunOnBeforeServiceHeaderShowWarning(var ServiceHeader: Record Microsoft.Service.Document."Service Header"; var Result: Boolean; var IsHandled: Boolean; var Customer: Record Customer; var DeltaAmount: Decimal)
+    begin
+        OnBeforeServiceHeaderShowWarning(ServiceHeader, Result, IsHandled, Customer, DeltaAmount);
     end;
 
+    [Obsolete('Moved to page ServCheckCreditLimit', '25.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeServiceContractHeaderShowWarning(ServiceContractHeader: Record "Service Contract Header"; var Customer: Record Customer; var Result: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeServiceHeaderShowWarning(var ServiceHeader: Record Microsoft.Service.Document."Service Header"; var Result: Boolean; var IsHandled: Boolean; var Customer: Record Customer; var DeltaAmount: Decimal)
     begin
     end;
+#endif
+
+#if not CLEAN25
+    internal procedure RunOnBeforeServiceContractHeaderShowWarning(ServiceContractHeader: Record Microsoft.Service.Contract."Service Contract Header"; var Customer: Record Customer; var Result: Boolean; var IsHandled: Boolean)
+    begin
+        OnBeforeServiceContractHeaderShowWarning(ServiceContractHeader, Customer, Result, IsHandled);
+    end;
+
+    [Obsolete('Moved to page ServCheckCreditLimit', '25.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeServiceContractHeaderShowWarning(ServiceContractHeader: Record Microsoft.Service.Contract."Service Contract Header"; var Customer: Record Customer; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeShowWarning(var Customer: Record Customer; var NewOrderAmountLCY: Decimal; OldOrderAmountLCY: Decimal; OrderAmountTotalLCY: Decimal; ShippedRetRcdNotIndLCY: Decimal; CustCreditAmountLCY: Decimal; DeltaAmount: Decimal; CheckOverDueBalance: Boolean; var Heading: Text[250]; var Result: Boolean; var IsHandled: Boolean; var NotificationId: Guid; var NewCustNo: Code[20]; NewOrderAmountLCY2: Decimal; OldOrderAmountLCY2: Decimal; OrderAmountThisOrderLCY: Decimal);
@@ -711,6 +661,11 @@ page 343 "Check Credit Limit"
     begin
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcTotalOutstandingAmt(var Customer: Record Customer; var Result: Decimal)
+    begin
+    end;
+
     [IntegrationEvent(true, false)]
     local procedure OnAfterCalcCreditLimitLCYProcedure(var Customer: Record Customer; var CustCreditAmountLCY: Decimal; var ExtensionAmountsDic: Dictionary of [Guid, Decimal])
     begin
@@ -718,6 +673,11 @@ page 343 "Check Credit Limit"
 
     [IntegrationEvent(false, false)]
     local procedure OnSalesHeaderShowWarningOnAfterAssingNewOrderAmountLCY(var SalesHeader: Record "Sales Header"; var NewOrderAmountLCY: Decimal);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcCreditLimitLCYOnAfterCalcAmounts(var Customer: Record Customer; var ShippedRetRcdNotIndLCY: Decimal; var CustCreditAmountLCY: Decimal)
     begin
     end;
 }

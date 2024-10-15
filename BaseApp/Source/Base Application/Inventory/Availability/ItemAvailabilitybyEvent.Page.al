@@ -433,7 +433,7 @@ page 5530 "Item Availability by Event"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromItem(Item, ItemAvailFormsMgt.ByBOM());
+                            ItemAvailFormsMgt.ShowItemAvailabilityFromItem(Item, "Item Availability Type"::BOM);
                         end;
                     }
                 }
@@ -484,7 +484,6 @@ page 5530 "Item Availability by Event"
 
     var
         Item: Record Item;
-        TempInvtPageData: Record "Inventory Page Data" temporary;
         CalcInventoryPageData: Codeunit "Calc. Inventory Page Data";
         ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
         ForecastName: Code[10];
@@ -496,6 +495,7 @@ page 5530 "Item Availability by Event"
         EnableShowDocumentAction: Boolean;
 
     protected var
+        TempInvtPageData: Record "Inventory Page Data" temporary;
         ItemNo: Code[20];
         LocationFilter: Text;
         VariantFilter: Text;

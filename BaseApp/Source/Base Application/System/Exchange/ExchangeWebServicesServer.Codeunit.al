@@ -1,4 +1,4 @@
-﻿namespace System.Integration;
+namespace System.Integration;
 
 using Microsoft.CRM.Outlook;
 using System;
@@ -108,10 +108,22 @@ codeunit 5321 "Exchange Web Services Server"
         Service := ServiceFactory.CreateServiceWrapperWithCertificate(ApplicationID, Thumbprint, AuthenticationEndpoint, ResourceUri);
         Service.ExchangeServiceUrl := ExchangeEndpoint;
     end;
+#if not CLEAN25
 
     [Scope('OnPrem')]
     [NonDebuggable]
+    [Obsolete('Replaced by InitializeWithOAuthToken(Token: SecretText; ExchangeEndpoint: Text)','25.0')]
     procedure InitializeWithOAuthToken(Token: Text; ExchangeEndpoint: Text)
+    var
+        TokenAsSecretText: SecretText;
+    begin
+        TokenAsSecretText := Token;
+        InitializeWithOAuthToken(TokenAsSecretText, ExchangeEndpoint);
+    end;
+#endif
+
+    [Scope('OnPrem')]
+    procedure InitializeWithOAuthToken(Token: SecretText; ExchangeEndpoint: Text)
     var
         AzureADMgt: Codeunit "Azure AD Mgt.";
     begin

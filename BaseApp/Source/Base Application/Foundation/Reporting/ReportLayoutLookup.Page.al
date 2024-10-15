@@ -71,7 +71,9 @@ page 9651 "Report Layout Lookup"
         ReportID: Integer;
         AddWord: Boolean;
         AddRDLC: Boolean;
+#pragma warning disable AA0470
         ReportNotFoundErr: Label 'Report %1 does not exist.';
+#pragma warning restore AA0470
         ShowReportID: Boolean;
 
     procedure SetReportID(NewReportID: Integer)

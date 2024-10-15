@@ -220,9 +220,11 @@ xmlport 1 "Consolidation Import/Export"
     }
 
     var
+#pragma warning disable AA0074
         CurrentProduct: Label 'Microsoft Dynamics NAV';
         CurrentProductVersion: Label '4.00';
         CurrentFormatVersion: Label '1.00';
+#pragma warning restore AA0074
         NextGLEntryNo: Integer;
 
     procedure SetGlobals(NewCompanyName: Text[30]; NewCurrencyLCY: Code[10]; NewCurrencyACY: Code[10]; NewCurrencyPCY: Code[10]; NewCheckSum: Decimal; NewStartingDate: Date; NewEndingDate: Date)

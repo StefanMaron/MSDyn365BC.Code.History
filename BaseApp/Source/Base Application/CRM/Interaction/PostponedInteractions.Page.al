@@ -383,7 +383,9 @@ page 5082 "Postponed Interactions"
 
     var
         InteractionLogEntry: Record "Interaction Log Entry";
+#pragma warning disable AA0074
         Text001: Label 'Delete selected lines?';
+#pragma warning restore AA0074
 
     local procedure SetCaption()
     var

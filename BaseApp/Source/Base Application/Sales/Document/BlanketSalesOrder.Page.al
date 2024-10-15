@@ -117,6 +117,14 @@ page 507 "Blanket Sales Order"
                         QuickEntry = false;
                         ToolTip = 'Specifies the city of the customer''s address.';
                     }
+                    field("Sell-to Country/Region Code"; Rec."Sell-to Country/Region Code")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Country/Region Code';
+                        Importance = Additional;
+                        QuickEntry = false;
+                        ToolTip = 'Specifies the country or region of the address.';
+                    }
                     field("Sell-to Contact No."; Rec."Sell-to Contact No.")
                     {
                         ApplicationArea = Suite;
@@ -510,6 +518,12 @@ page 507 "Blanket Sales Order"
                                 ToolTip = 'Specifies the country/region of the shipping address.';
                             }
                         }
+                        field("Ship-to Phone No."; Rec."Ship-to Phone No.")
+                        {
+                            ApplicationArea = Suite;
+                            Caption = 'Phone No.';
+                            ToolTip = 'Specifies the telephone number of the company''s shipping address.';
+                        }
                         field("Ship-to Contact"; Rec."Ship-to Contact")
                         {
                             ApplicationArea = Suite;
@@ -635,6 +649,16 @@ page 507 "Blanket Sales Order"
                             QuickEntry = false;
                             ToolTip = 'Specifies the city of the billing address.';
                         }
+                        field("Bill-to Country/Region Code"; Rec."Bill-to Country/Region Code")
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Caption = 'Country/Region Code';
+                            Editable = (BillToOptions = BillToOptions::"Custom Address") or (Rec."Bill-to Customer No." <> Rec."Sell-to Customer No.");
+                            Enabled = (BillToOptions = BillToOptions::"Custom Address") or (Rec."Bill-to Customer No." <> Rec."Sell-to Customer No.");
+                            Importance = Additional;
+                            QuickEntry = false;
+                            ToolTip = 'Specifies the country or region of the address.';
+                        }
                         field("Bill-to Contact No."; Rec."Bill-to Contact No.")
                         {
                             ApplicationArea = Suite;
@@ -714,13 +738,28 @@ page 507 "Blanket Sales Order"
         }
         area(factboxes)
         {
+#if not CLEAN25
             part("Attached Documents"; "Document Attachment Factbox")
             {
+                ObsoleteTag = '25.0';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'The "Document Attachment FactBox" has been replaced by "Doc. Attachment List Factbox", which supports multiple files upload.';
                 ApplicationArea = All;
                 Caption = 'Attachments';
                 SubPageLink = "Table ID" = const(Database::"Sales Header"),
                               "No." = field("No."),
                               "Document Type" = field("Document Type");
+            }
+#endif
+            part("Attached Documents List"; "Doc. Attachment List Factbox")
+            {
+                ApplicationArea = All;
+                Caption = 'Documents';
+                UpdatePropagation = Both;
+                SubPageLink = "Table ID" = const(Database::"Sales Header"),
+                              "No." = field("No."),
+                              "Document Type" = field("Document Type");
+
             }
             part(Control13; "Pending Approval FactBox")
             {
@@ -1003,6 +1042,7 @@ page 507 "Blanket Sales Order"
                 {
                     ApplicationArea = Suite;
                     Caption = 'Re&lease';
+                    Enabled = Rec.Status <> Rec.Status::Released;
                     Image = ReleaseDoc;
                     ShortCutKey = 'Ctrl+F9';
                     ToolTip = 'Release the document to the next stage of processing. You must reopen the document before you can make changes to it.';

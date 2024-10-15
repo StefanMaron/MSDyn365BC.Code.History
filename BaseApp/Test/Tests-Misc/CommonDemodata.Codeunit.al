@@ -16,6 +16,13 @@
 
     [Test]
     [Scope('OnPrem')]
+    procedure ConfigTemplateCodeShouldStartWithTablePrefix()
+    begin
+        // Not implemented for GB
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure InteractionTemplateSetup()
     var
         InteractionTemplateSetup: Record "Interaction Template Setup";

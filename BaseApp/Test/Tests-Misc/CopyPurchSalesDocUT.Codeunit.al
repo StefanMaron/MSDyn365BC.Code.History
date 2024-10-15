@@ -194,22 +194,18 @@ codeunit 134338 "Copy Purch/Sales Doc UT"
 
     local procedure CreateNewSalesHeader(CustomerNo: Code[20]; var SalesHeader: Record "Sales Header")
     begin
-        with SalesHeader do begin
-            Init();
-            Insert(true);
-            Validate("Sell-to Customer No.", CustomerNo);
-            Modify(true);
-        end;
+        SalesHeader.Init();
+        SalesHeader.Insert(true);
+        SalesHeader.Validate("Sell-to Customer No.", CustomerNo);
+        SalesHeader.Modify(true);
     end;
 
     local procedure CreateNewPurchaseHeader(VendorNo: Code[20]; var PurchaseHeader: Record "Purchase Header")
     begin
-        with PurchaseHeader do begin
-            Init();
-            Insert(true);
-            Validate("Buy-from Vendor No.", VendorNo);
-            Modify(true);
-        end;
+        PurchaseHeader.Init();
+        PurchaseHeader.Insert(true);
+        PurchaseHeader.Validate("Buy-from Vendor No.", VendorNo);
+        PurchaseHeader.Modify(true);
     end;
 
     local procedure InsertBufferEntry(FromDocumentType: Option; FromDocumentNo: Code[20]; ToRecordID: RecordID; EventName: Text[250])

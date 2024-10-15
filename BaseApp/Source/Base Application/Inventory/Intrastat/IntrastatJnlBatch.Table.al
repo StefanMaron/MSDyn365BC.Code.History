@@ -10,14 +10,8 @@ table 262 "Intrastat Jnl. Batch"
 {
     Caption = 'Intrastat Jnl. Batch';
     DataCaptionFields = Name, Description;
-#if not CLEAN22
-    LookupPageID = "Intrastat Jnl. Batches";
-    ObsoleteState = Pending;
-    ObsoleteTag = '22.0';
-#else
     ObsoleteState = Removed;
     ObsoleteTag = '25.0';
-#endif
     ObsoleteReason = 'Intrastat related functionalities are moved to Intrastat extensions.';
     DataClassification = CustomerContent;
 
@@ -27,9 +21,6 @@ table 262 "Intrastat Jnl. Batch"
         {
             Caption = 'Journal Template Name';
             NotBlank = true;
-#if not CLEAN22
-            TableRelation = "Intrastat Jnl. Template";
-#endif
         }
         field(2; Name; Code[10])
         {
@@ -53,62 +44,24 @@ table 262 "Intrastat Jnl. Batch"
         field(14; "Statistics Period"; Code[10])
         {
             Caption = 'Statistics Period';
-
-#if not CLEAN22
-            trigger OnValidate()
-            begin
-                TestField(Reported, false);
-                if StrLen("Statistics Period") <> 4 then
-                    Error(StatPeriodFormatErr);
-                Evaluate(Month, CopyStr("Statistics Period", 1, 2));
-                if (Month < 1) or (Month > 12) then
-                    Error(Text001);
-            end;
-#endif
         }
         field(15; "Amounts in Add. Currency"; Boolean)
         {
             AccessByPermission = TableData Currency = R;
             Caption = 'Amounts in Add. Currency';
-
-#if not CLEAN22
-            trigger OnValidate()
-            begin
-                TestField(Reported, false);
-            end;
-#endif
         }
         field(16; "Currency Identifier"; Code[10])
         {
             AccessByPermission = TableData Currency = R;
             Caption = 'Currency Identifier';
-
-#if not CLEAN22
-            trigger OnValidate()
-            begin
-                TestField(Reported, false);
-            end;
-#endif
         }
         field(10500; "Arrivals Reported"; Boolean)
         {
             Caption = 'Arrivals Reported';
-#if not CLEAN22
-            trigger OnValidate()
-            begin
-                UpdateReported();
-            end;
-#endif
         }
         field(10501; "Dispatches Reported"; Boolean)
         {
             Caption = 'Dispatches Reported';
-#if not CLEAN22
-            trigger OnValidate()
-            begin
-                UpdateReported();
-            end;
-#endif
         }
     }
 
@@ -123,56 +76,5 @@ table 262 "Intrastat Jnl. Batch"
     fieldgroups
     {
     }
-
-#if not CLEAN22
-    trigger OnDelete()
-    begin
-        IntrastatJnlLine.SetRange("Journal Template Name", "Journal Template Name");
-        IntrastatJnlLine.SetRange("Journal Batch Name", Name);
-        IntrastatJnlLine.DeleteAll();
-    end;
-
-    trigger OnInsert()
-    begin
-        LockTable();
-        IntraJnlTemplate.Get("Journal Template Name");
-    end;
-
-    trigger OnRename()
-    begin
-        IntrastatJnlLine.SetRange("Journal Template Name", xRec."Journal Template Name");
-        IntrastatJnlLine.SetRange("Journal Batch Name", xRec.Name);
-        while IntrastatJnlLine.FindFirst() do
-            IntrastatJnlLine.Rename("Journal Template Name", Name, IntrastatJnlLine."Line No.");
-    end;
-
-    var
-        IntraJnlTemplate: Record "Intrastat Jnl. Template";
-        IntrastatJnlLine: Record "Intrastat Jnl. Line";
-        Month: Integer;
-
-        StatPeriodFormatErr: Label 'You must specify the statistics period in the format MMYY, such as 0122 for January, 2022.';
-        Text001: Label 'Please check the month number.';
-
-    procedure GetStatisticsStartDate(): Date
-    var
-        Century: Integer;
-        Year: Integer;
-        Month: Integer;
-    begin
-        TestField("Statistics Period");
-        Century := Date2DMY(WorkDate(), 3) div 100;
-        Evaluate(Year, CopyStr("Statistics Period", 3, 2));
-        Year := Year + Century * 100;
-        Evaluate(Month, CopyStr("Statistics Period", 1, 2));
-        exit(DMY2Date(1, Month, Year));
-    end;
-
-    [Scope('OnPrem')]
-    procedure UpdateReported()
-    begin
-        Reported := "Arrivals Reported" and "Dispatches Reported";
-    end;
-#endif
 }
 

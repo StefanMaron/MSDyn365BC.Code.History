@@ -396,7 +396,11 @@ report 321 "Vendor - Balance to Date"
         DtldVendLedgDocumentNo: Code[35];
         DocNoCaption: Text;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'Balance on %1';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         VendorBalancetoDateCptnLbl: Label 'Vendor - Balance to Date';
         PageNoCaptionLbl: Label 'Page';
         AllamountsareinLCYCaptionLbl: Label 'All amounts are in LCY.';

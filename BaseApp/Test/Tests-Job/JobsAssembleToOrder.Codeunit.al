@@ -27,6 +27,7 @@ codeunit 136322 "Jobs - Assemble-to Order"
         AssembleOrderExistErr: Label 'One or more assembly orders exists for the project %1.\\You must delete the assembly order before you can change the job status.', Comment = 'Project No.';
         RemainingQtyGreaterThanErr: Label 'Remaining Quantity (Base) cannot be more than %1 in Assembly Header Document Type=''%2'',No.=''%3''', Comment = 'Remaining Quantity, Document Type, No.';
         BillableLineTypeErr: Label 'Line Type must not be Billable in Project Planning Line Project No.=''%1'',Project Task No.=''%2'',Line No.=''%3''.';
+        ZeroJobContractLineMsg: Label 'Job Contract Entry No. is empty.';
 
     [Test]
     procedure AssemblyOrderIsCreated()
@@ -649,6 +650,7 @@ codeunit 136322 "Jobs - Assemble-to Order"
         JobPlanningLine.TestField("Planning Date", PlanningDate);
         JobPlanningLine.TestField("Planned Delivery Date", PlannedDeliveryDate);
         JobPlanningLine.TestField("Document No.", DocumentNo);
+        Assert.IsFalse(JobPlanningLine."Job Contract Entry No." = 0, ZeroJobContractLineMsg);
     end;
 
     [Test]
@@ -795,6 +797,39 @@ codeunit 136322 "Jobs - Assemble-to Order"
         // [THEN] Verify results
         SetFiltersToPostedATOLink(JobTask, JobPlanningLine, PostedATOLink);
         Assert.RecordIsNotEmpty(PostedATOLink);
+    end;
+
+    [Test]
+    procedure AllowCreatingBillablePlanningLinesForAssemblyItemOnExplodeBOM()
+    var
+        ParentItem, CompItem1, CompItem2 : Record Item;
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        JobPlanningLine: Record "Job Planning Line";
+    begin
+        // [SCENARIO 545976] Allow creating billable planning lines for assembly item on explode BOM
+        Initialize();
+
+        // [GIVEN] Create an assembly item with 2 components.
+        CreateAssemblyItemWithBOM(ParentItem, CompItem1, CompItem2);
+
+        // [GIVEN] Create Job and Job Task
+        CreateJobAndJobTask(Job, JobTask);
+
+        // [GIVEN] Create Billable Job Planning Line
+        CreateJobPlanningLineWithData(JobPlanningLine, JobTask, "Job Planning Line Line Type"::Billable, JobPlanningLine.Type::Item, ParentItem."No.", '', '', LibraryRandom.RandInt(10));
+
+        // [GIVEN] Set Document Date on Job Planning Line
+        JobPlanningLine.Validate("Document No.", LibraryRandom.RandText(20));
+        JobPlanningLine.Modify(true);
+
+        // [WHEN] Explode BOM
+        Codeunit.Run(Codeunit::"Job-Explode BOM", JobPlanningLine);
+
+        // [THEN] Verify results
+        SetFilterOnExplodedJobPlanningLine(JobPlanningLine);
+        JobPlanningLine.FindFirst();
+        Assert.AreEqual(JobPlanningLine."Line Type", JobPlanningLine."Line Type"::Billable, 'Line Type is not Billable');
     end;
 
     local procedure Initialize()

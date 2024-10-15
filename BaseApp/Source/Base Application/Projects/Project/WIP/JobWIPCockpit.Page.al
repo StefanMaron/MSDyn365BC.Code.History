@@ -8,7 +8,7 @@ page 1027 "Job WIP Cockpit"
 {
     AdditionalSearchTerms = 'Job WIP Cockpit';
     ApplicationArea = Jobs;
-    Caption = 'Project WIP';
+    Caption = 'Project WIP Cockpit';
     DeleteAllowed = false;
     Editable = false;
     InsertAllowed = false;
@@ -455,10 +455,14 @@ page 1027 "Job WIP Cockpit"
     }
 
     var
+#pragma warning disable AA0074
         Text001: Label 'Are you sure that you want to delete the WIP entries for all selected projects?';
         Text002: Label 'WIP Entries were deleted successfully.';
         Text003: Label 'Are you sure that you want to recalculate the WIP entries for all selected projects?';
         Text004: Label 'WIP Entries were recalculated successfully.';
+#pragma warning disable AA0470
         Text005: Label 'The recalculation for the following projects failed because no WIP entries were found: %1.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 }
 

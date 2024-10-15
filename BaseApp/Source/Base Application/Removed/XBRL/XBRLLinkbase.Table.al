@@ -71,6 +71,10 @@ table 400 "XBRL Linkbase"
     }
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label 'You cannot change %1 when you have imported a linkbase.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 }
 

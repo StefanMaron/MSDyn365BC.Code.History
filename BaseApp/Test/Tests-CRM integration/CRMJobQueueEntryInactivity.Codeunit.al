@@ -226,6 +226,7 @@ codeunit 139189 "CRM Job Queue Entry Inactivity"
         CRMSetupDefaults: Codeunit "CRM Setup Defaults";
         CDSSetupDefaults: Codeunit "CDS Setup Defaults";
         LibraryPermissions: Codeunit "Library - Permissions";
+        ClientSecret: Text;
     begin
         LibraryCRMIntegration.ResetEnvironment();
         LibraryCRMIntegration.ConfigureCRM();
@@ -236,7 +237,8 @@ codeunit 139189 "CRM Job Queue Entry Inactivity"
         CRMOrganization.FindFirst();
         CRMConnectionSetup.BaseCurrencyId := CRMOrganization.BaseCurrencyId;
         CDSConnectionSetup.Validate("Client Id", 'ClientId');
-        CDSConnectionSetup.SetClientSecret('ClientSecret');
+        ClientSecret := 'ClientSecret';
+        CDSConnectionSetup.SetClientSecret(ClientSecret);
         CDSConnectionSetup.Validate("Redirect URL", 'RedirectURL');
         CDSConnectionSetup.Modify();
         CRMConnectionSetup."Unit Group Mapping Enabled" := false;

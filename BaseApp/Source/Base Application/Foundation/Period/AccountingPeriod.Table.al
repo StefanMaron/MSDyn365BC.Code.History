@@ -60,13 +60,11 @@ table 50 "Accounting Period"
             Caption = 'Average Cost Calc. Type';
             Editable = false;
         }
-        field(5805; "Average Cost Period"; Option)
+        field(5805; "Average Cost Period"; Enum "Average Cost Period Type")
         {
             AccessByPermission = TableData Item = R;
             Caption = 'Average Cost Period';
             Editable = false;
-            OptionCaption = ' ,Day,Week,Month,Quarter,Year,Accounting Period';
-            OptionMembers = " ",Day,Week,Month,Quarter,Year,"Accounting Period";
         }
     }
 
@@ -115,7 +113,9 @@ table 50 "Accounting Period"
         AccountingPeriod2: Record "Accounting Period";
         InvtSetup: Record "Inventory Setup";
 
+#pragma warning disable AA0074
         Text000: Label '<Month Text,10>', Locked = true;
+#pragma warning restore AA0074
         MonthTxt: Label '<Month Text>', Locked = true;
 
     procedure UpdateAvgItems()

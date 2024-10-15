@@ -357,10 +357,14 @@ report 18 "Consolidated Trial Balance (4)"
         PageGroupNo: Integer;
         NextPageGroupNo: Integer;
 
+#pragma warning disable AA0074
         Text000: Label 'Enter the starting date for the consolidation period.';
         Text001: Label 'Enter the ending date for the consolidation period.';
+#pragma warning disable AA0470
         Text002: Label 'A maximum of %1 consolidating companies can be included in this report.';
         Text003: Label 'Period: %1';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         Consolidated_Trial_Balance__4_CaptionLbl: Label 'Consolidated Trial Balance (4)';
         CurrReport_PAGENOCaptionLbl: Label 'Page';
         Amounts_are_in_whole_1000sCaptionLbl: Label 'Amounts are in whole 1000s.';

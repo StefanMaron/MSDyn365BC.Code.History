@@ -70,9 +70,7 @@ codeunit 137151 "SCM Warehouse - Shipping"
         UnexpectedErr: Label 'UnexpectedErr.';
         UndoShipmentConfirmMsg: Label 'Do you really want to undo the selected Shipment lines?';
         UndoPickedShipmentConfirmMsg: Label 'The items have been picked';
-        WarehouseClassCodeErr: Label 'Warehouse Class Code must be equal to ''%1''', Comment = 'Warehouse Class Code ';
         ItemInventoryInErr: Label 'Item %1 is not in inventory', Comment = 'Item No. is not in inventory';
-        RemainingQuantityErr: Label 'Remaining Quantity must be equal to ''%1''  in Item Ledger Entry', Comment = 'Remaining Quantity must be equal to Quantity  in Item Ledger Entry';
         CompleteShipmentErr: Label 'This document cannot be shipped completely. Change the value in the Shipping Advice field to Partial.';
         QuantityErr: Label 'The value of Quantity field  is not correct.';
         RequsitionLineShouldCreatedErr: Label 'Requisition Line cannot be found.';
@@ -2015,7 +2013,7 @@ codeunit 137151 "SCM Warehouse - Shipping"
         asserterror UpdateZoneAndBinCodeOnWarehouseReceiptLine(Bin, PurchaseHeader."No.");
 
         // Verify: Error message.
-        Assert.ExpectedError(StrSubstNo(WarehouseClassCodeErr, WarehouseClass.Code));
+        Assert.ExpectedTestFieldError(Item.FieldCaption("Warehouse Class Code"), WarehouseClass.Code);
     end;
 
     [Test]
@@ -2095,7 +2093,7 @@ codeunit 137151 "SCM Warehouse - Shipping"
         asserterror UpdateBinOnWarehouseShipmentLine(Bin, SalesHeader."No.");
 
         // Verify: Error message.
-        Assert.ExpectedError(StrSubstNo(WarehouseClassCodeErr, WarehouseClass.Code));
+        Assert.ExpectedTestFieldError(Item.FieldCaption("Warehouse Class Code"), WarehouseClass.Code);
     end;
 
     [Test]
@@ -2357,6 +2355,7 @@ codeunit 137151 "SCM Warehouse - Shipping"
         Item: Record Item;
         TransferHeader: Record "Transfer Header";
         PurchRcptLine: Record "Purch. Rcpt. Line";
+        ItemLedgEntry: Record "Item Ledger Entry";
         Quantity: Decimal;
         PostedReceiptNo: Code[20];
         PostedShipmentNo: Code[20];
@@ -2378,7 +2377,7 @@ codeunit 137151 "SCM Warehouse - Shipping"
         asserterror LibraryPurchase.UndoPurchaseReceiptLine(PurchRcptLine);
 
         // Verify: Verifying remaining quanitity error.
-        Assert.ExpectedError(StrSubstNo(RemainingQuantityErr, PurchRcptLine.Quantity));
+        Assert.ExpectedTestFieldError(ItemLedgEntry.FieldCaption("Remaining Quantity"), Format(PurchRcptLine.Quantity));
     end;
 
     [Test]
@@ -2461,14 +2460,12 @@ codeunit 137151 "SCM Warehouse - Shipping"
     begin
         LibraryWarehouse.FindBin(ShipmentBin, Location.Code, '', 4);
         LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
-        with Location do begin
-            Validate("Require Shipment", true);
-            Validate("Shipment Bin Code", ShipmentBin.Code);
-            Modify(true);
-            LibraryWarehouse.FindBin(Bin[1], Code, '', 1);
-            LibraryWarehouse.FindBin(Bin[2], Code, '', 2);
-            LibraryWarehouse.CreateBin(Bin[3], Code, LibraryUtility.GenerateGUID(), '', '');
-        end;
+        Location.Validate("Require Shipment", true);
+        Location.Validate("Shipment Bin Code", ShipmentBin.Code);
+        Location.Modify(true);
+        LibraryWarehouse.FindBin(Bin[1], Location.Code, '', 1);
+        LibraryWarehouse.FindBin(Bin[2], Location.Code, '', 2);
+        LibraryWarehouse.CreateBin(Bin[3], Location.Code, LibraryUtility.GenerateGUID(), '', '');
     end;
 
     [Test]
@@ -2629,13 +2626,10 @@ codeunit 137151 "SCM Warehouse - Shipping"
 
         // [WHEN] Post "WS"
         LibraryWarehouse.PostWhseShipment(WarehouseShipmentHeader, false);
-
         // [THEN] Posted Transfer Shipment is created with Posting Date = "Y"
-        with TransferShipmentHeader do begin
-            SetRange("Transfer Order No.", TransferHeader."No.");
-            FindFirst();
-            TestField("Posting Date", WarehouseShipmentHeader."Posting Date");
-        end;
+        TransferShipmentHeader.SetRange("Transfer Order No.", TransferHeader."No.");
+        TransferShipmentHeader.FindFirst();
+        TransferShipmentHeader.TestField("Posting Date", WarehouseShipmentHeader."Posting Date");
 
         // Tear Down
         SetRequirePickOnLocation(LocationBlue, true);
@@ -2664,13 +2658,10 @@ codeunit 137151 "SCM Warehouse - Shipping"
 
         // [WHEN] Post "WS"
         LibraryWarehouse.PostWhseShipment(WarehouseShipmentHeader, false);
-
         // [THEN] Posted Sales Shipment is created with Posting Date = "Y"
-        with SalesShipmentHeader do begin
-            SetRange("Order No.", SalesHeader."No.");
-            FindFirst();
-            TestField("Posting Date", WarehouseShipmentHeader."Posting Date");
-        end;
+        SalesShipmentHeader.SetRange("Order No.", SalesHeader."No.");
+        SalesShipmentHeader.FindFirst();
+        SalesShipmentHeader.TestField("Posting Date", WarehouseShipmentHeader."Posting Date");
 
         // Tear Down
         SetRequirePickOnLocation(LocationBlue, true);
@@ -2699,13 +2690,10 @@ codeunit 137151 "SCM Warehouse - Shipping"
 
         // [WHEN] Post "WS"
         LibraryWarehouse.PostWhseShipment(WarehouseShipmentHeader, false);
-
         // [THEN] Posted Return Shipment is created with Posting Date = "Y"
-        with ReturnShipmentHeader do begin
-            SetRange("Return Order No.", PurchaseHeader."No.");
-            FindFirst();
-            TestField("Posting Date", WarehouseShipmentHeader."Posting Date");
-        end;
+        ReturnShipmentHeader.SetRange("Return Order No.", PurchaseHeader."No.");
+        ReturnShipmentHeader.FindFirst();
+        ReturnShipmentHeader.TestField("Posting Date", WarehouseShipmentHeader."Posting Date");
 
         // Tear Down
         SetRequirePickOnLocation(LocationBlue, true);
@@ -2732,13 +2720,10 @@ codeunit 137151 "SCM Warehouse - Shipping"
 
         // [WHEN] Post "WR"
         LibraryWarehouse.PostWhseReceipt(WarehouseReceiptHeader);
-
         // [THEN] Posted Purchase Receipt is created with Posting Date = "Y"
-        with PurchRcptHeader do begin
-            SetRange("Order No.", PurchaseHeader."No.");
-            FindFirst();
-            TestField("Posting Date", WarehouseReceiptHeader."Posting Date");
-        end;
+        PurchRcptHeader.SetRange("Order No.", PurchaseHeader."No.");
+        PurchRcptHeader.FindFirst();
+        PurchRcptHeader.TestField("Posting Date", WarehouseReceiptHeader."Posting Date");
     end;
 
     [Test]
@@ -2762,13 +2747,10 @@ codeunit 137151 "SCM Warehouse - Shipping"
 
         // [WHEN] Post "WR"
         LibraryWarehouse.PostWhseReceipt(WarehouseReceiptHeader);
-
         // [THEN] Posted Return Receipt is created with Posting Date = "Y"
-        with ReturnReceiptHeader do begin
-            SetRange("Return Order No.", SalesHeader."No.");
-            FindFirst();
-            TestField("Posting Date", WarehouseReceiptHeader."Posting Date");
-        end;
+        ReturnReceiptHeader.SetRange("Return Order No.", SalesHeader."No.");
+        ReturnReceiptHeader.FindFirst();
+        ReturnReceiptHeader.TestField("Posting Date", WarehouseReceiptHeader."Posting Date");
     end;
 
     [Test]
@@ -2792,13 +2774,10 @@ codeunit 137151 "SCM Warehouse - Shipping"
 
         // [WHEN] Post "WR"
         LibraryWarehouse.PostWhseReceipt(WarehouseReceiptHeader);
-
         // [THEN] Posted Transfer Receipt is created with Posting Date = "Y"
-        with TransferReceiptHeader do begin
-            SetRange("Transfer Order No.", TransferHeader."No.");
-            FindFirst();
-            TestField("Posting Date", WarehouseReceiptHeader."Posting Date");
-        end;
+        TransferReceiptHeader.SetRange("Transfer Order No.", TransferHeader."No.");
+        TransferReceiptHeader.FindFirst();
+        TransferReceiptHeader.TestField("Posting Date", WarehouseReceiptHeader."Posting Date");
     end;
 
     [Test]
@@ -2828,20 +2807,18 @@ codeunit 137151 "SCM Warehouse - Shipping"
 
         // [GIVEN] Create Sales Order, release, create Warehouse Shipment, create Pick, then pick partially, register and delete pick.
         CreatePickFromSalesOrder(SalesHeader, LocationWhite2.Code, Item."No.", Qty / 2, false);
-        with WarehouseActivityLine do begin
-            FindWarehouseActivityLine(
-              WarehouseActivityLine, "Source Document"::"Sales Order", SalesHeader."No.", "Activity Type"::Pick);
+        FindWarehouseActivityLine(
+          WarehouseActivityLine, WarehouseActivityLine."Source Document"::"Sales Order", SalesHeader."No.", WarehouseActivityLine."Activity Type"::Pick);
 
-            if FindSet() then
-                repeat
-                    Validate("Qty. to Handle", Qty / 4);
-                    Modify();
-                until Next() = 0;
+        if WarehouseActivityLine.FindSet() then
+            repeat
+                WarehouseActivityLine.Validate("Qty. to Handle", Qty / 4);
+                WarehouseActivityLine.Modify();
+            until WarehouseActivityLine.Next() = 0;
 
-            WarehouseActivityHeader.Get("Activity Type", "No.");
-            LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
-            DeletePick("Source Document"::"Sales Order", SalesHeader."No.");
-        end;
+        WarehouseActivityHeader.Get(WarehouseActivityLine."Activity Type", WarehouseActivityLine."No.");
+        LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
+        DeletePick(WarehouseActivityLine."Source Document"::"Sales Order", SalesHeader."No.");
 
         // [GIVEN] Post Warehouse Shipment as Ship.
         PostWarehouseShipment(WarehouseShipmentLine."Source Document"::"Sales Order", SalesHeader."No.");
@@ -2851,13 +2828,10 @@ codeunit 137151 "SCM Warehouse - Shipping"
         LibraryVariableStorage.Enqueue(UndoPickedShipmentConfirmMsg);  // Enqueue for ConfirmHandler.
         SalesShipmentLine.SetRange("Order No.", SalesHeader."No.");
         LibrarySales.UndoSalesShipmentLine(SalesShipmentLine);
-
         // [THEN] For Warehouse Shipment Line: "Qty. Shipped" and "Qty. Shipped (Base)" equals to 0.
-        with WarehouseShipmentLine do begin
-            FindWarehouseShipmentLine(WarehouseShipmentLine, "Source Document"::"Sales Order", SalesHeader."No.");
-            TestField("Qty. Shipped", 0);
-            TestField("Qty. Shipped (Base)", 0);
-        end;
+        FindWarehouseShipmentLine(WarehouseShipmentLine, WarehouseShipmentLine."Source Document"::"Sales Order", SalesHeader."No.");
+        WarehouseShipmentLine.TestField("Qty. Shipped", 0);
+        WarehouseShipmentLine.TestField("Qty. Shipped (Base)", 0);
     end;
 
     [Test]
@@ -3061,13 +3035,10 @@ codeunit 137151 "SCM Warehouse - Shipping"
 
         // [WHEN] Ship the remaining ("X" - "Y") quantity.
         PostWarehouseShipment(WarehouseShipmentLine."Source Document"::"Sales Order", SalesHeaderOrder."No.");
-
         // [THEN] The sales order is completely shipped.
-        with SalesHeaderOrder do begin
-            Find();
-            CalcFields("Completely Shipped");
-            TestField("Completely Shipped", true);
-        end;
+        SalesHeaderOrder.Find();
+        SalesHeaderOrder.CalcFields("Completely Shipped");
+        SalesHeaderOrder.TestField("Completely Shipped", true);
     end;
 
     [Test]
@@ -4392,12 +4363,10 @@ codeunit 137151 "SCM Warehouse - Shipping"
     local procedure CreateAndUpdateTransferOrder(var TransferHeader: Record "Transfer Header"; var TransferLine: Record "Transfer Line"; ShipmentMethodCode: Code[10]; ShippingAgentCode: Code[10]; ShippingAgentServiceCode: Code[10]; ItemNo: Code[20]; Quantity: Decimal)
     begin
         LibraryWarehouse.CreateTransferHeader(TransferHeader, LocationWithRequirePick.Code, LocationBlue.Code, LocationInTransit.Code);
-        with TransferHeader do begin
-            Validate("Shipping Agent Code", ShippingAgentCode);
-            Validate("Shipping Agent Service Code", ShippingAgentServiceCode);
-            Validate("Shipment Method Code", ShipmentMethodCode);
-            Modify(true);
-        end;
+        TransferHeader.Validate("Shipping Agent Code", ShippingAgentCode);
+        TransferHeader.Validate("Shipping Agent Service Code", ShippingAgentServiceCode);
+        TransferHeader.Validate("Shipment Method Code", ShipmentMethodCode);
+        TransferHeader.Modify(true);
         LibraryWarehouse.CreateTransferLine(TransferHeader, TransferLine, ItemNo, Quantity);
         LibraryWarehouse.ReleaseTransferOrder(TransferHeader);
     end;
@@ -4926,11 +4895,10 @@ codeunit 137151 "SCM Warehouse - Shipping"
         LibraryWarehouse.CreateWhseReceiptFromPO(PurchaseHeader);
         FindWarehouseReceiptLine(
           WarehouseReceiptLine, WarehouseReceiptLine."Source Document"::"Purchase Order", PurchaseHeader."No.");
-        with WarehouseReceiptHeader do begin
-            Get(WarehouseReceiptLine."No.");
-            Validate("Posting Date", PurchaseHeader."Posting Date" - LibraryRandom.RandInt(10)); // Date less then in Purchase Order
-            Modify(true);
-        end;
+        WarehouseReceiptHeader.Get(WarehouseReceiptLine."No.");
+        WarehouseReceiptHeader.Validate("Posting Date", PurchaseHeader."Posting Date" - LibraryRandom.RandInt(10));
+        // Date less then in Purchase Order
+        WarehouseReceiptHeader.Modify(true);
     end;
 
     local procedure CreateWarehouseReceiptHeaderWithLocation(var WarehouseReceiptHeader: Record "Warehouse Receipt Header"; LocationCode: Code[10])
@@ -4947,11 +4915,10 @@ codeunit 137151 "SCM Warehouse - Shipping"
         LibraryWarehouse.CreateWhseReceiptFromSalesReturnOrder(SalesHeader);
         FindWarehouseReceiptLine(
           WarehouseReceiptLine, WarehouseReceiptLine."Source Document"::"Sales Return Order", SalesHeader."No.");
-        with WarehouseReceiptHeader do begin
-            Get(WarehouseReceiptLine."No.");
-            Validate("Posting Date", SalesHeader."Posting Date" - LibraryRandom.RandInt(10)); // Date less then in Sales Order
-            Modify(true);
-        end;
+        WarehouseReceiptHeader.Get(WarehouseReceiptLine."No.");
+        WarehouseReceiptHeader.Validate("Posting Date", SalesHeader."Posting Date" - LibraryRandom.RandInt(10));
+        // Date less then in Sales Order
+        WarehouseReceiptHeader.Modify(true);
     end;
 
     local procedure CreateWarehouseReceiptFromTransferOrderWithPostingDate(var WarehouseReceiptHeader: Record "Warehouse Receipt Header"; TransferHeader: Record "Transfer Header")
@@ -4961,11 +4928,10 @@ codeunit 137151 "SCM Warehouse - Shipping"
         LibraryWarehouse.CreateWhseReceiptFromTO(TransferHeader);
         FindWarehouseReceiptLine(
           WarehouseReceiptLine, WarehouseReceiptLine."Source Document"::"Inbound Transfer", TransferHeader."No.");
-        with WarehouseReceiptHeader do begin
-            Get(WarehouseReceiptLine."No.");
-            Validate("Posting Date", TransferHeader."Posting Date" - LibraryRandom.RandInt(10)); // Date less then in Transfer Order
-            Modify(true);
-        end;
+        WarehouseReceiptHeader.Get(WarehouseReceiptLine."No.");
+        WarehouseReceiptHeader.Validate("Posting Date", TransferHeader."Posting Date" - LibraryRandom.RandInt(10));
+        // Date less then in Transfer Order
+        WarehouseReceiptHeader.Modify(true);
     end;
 
     local procedure CreateWarehouseShipmentHeaderWithLocation(var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; LocationCode: Code[10])
@@ -4982,11 +4948,10 @@ codeunit 137151 "SCM Warehouse - Shipping"
         LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
         FindWarehouseShipmentLine(
           WarehouseShipmentLine, WarehouseShipmentLine."Source Document"::"Sales Order", SalesHeader."No.");
-        with WarehouseShipmentHeader do begin
-            Get(WarehouseShipmentLine."No.");
-            Validate("Posting Date", SalesHeader."Posting Date" - LibraryRandom.RandInt(10)); // Date less then in Sales Order
-            Modify(true);
-        end;
+        WarehouseShipmentHeader.Get(WarehouseShipmentLine."No.");
+        WarehouseShipmentHeader.Validate("Posting Date", SalesHeader."Posting Date" - LibraryRandom.RandInt(10));
+        // Date less then in Sales Order
+        WarehouseShipmentHeader.Modify(true);
     end;
 
     local procedure CreateWarehouseShipmentFromPurchReturnOrderWithPostingDate(var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; PurchaseHeader: Record "Purchase Header")
@@ -4996,11 +4961,10 @@ codeunit 137151 "SCM Warehouse - Shipping"
         LibraryWarehouse.CreateWhseShipmentFromPurchaseReturnOrder(PurchaseHeader);
         FindWarehouseShipmentLine(
           WarehouseShipmentLine, WarehouseShipmentLine."Source Document"::"Purchase Return Order", PurchaseHeader."No.");
-        with WarehouseShipmentHeader do begin
-            Get(WarehouseShipmentLine."No.");
-            Validate("Posting Date", PurchaseHeader."Posting Date" - LibraryRandom.RandInt(10)); // Date less then in Return Order
-            Modify(true);
-        end;
+        WarehouseShipmentHeader.Get(WarehouseShipmentLine."No.");
+        WarehouseShipmentHeader.Validate("Posting Date", PurchaseHeader."Posting Date" - LibraryRandom.RandInt(10));
+        // Date less then in Return Order
+        WarehouseShipmentHeader.Modify(true);
     end;
 
     local procedure CreateWarehouseShipmentFromTransferOrderWithPostingDate(var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; TransferHeader: Record "Transfer Header")
@@ -5010,11 +4974,10 @@ codeunit 137151 "SCM Warehouse - Shipping"
         LibraryWarehouse.CreateWhseShipmentFromTO(TransferHeader);
         FindWarehouseShipmentLine(
           WarehouseShipmentLine, WarehouseShipmentLine."Source Document"::"Outbound Transfer", TransferHeader."No.");
-        with WarehouseShipmentHeader do begin
-            Get(WarehouseShipmentLine."No.");
-            Validate("Posting Date", TransferHeader."Posting Date" - LibraryRandom.RandInt(10)); // Date less then in Transfer Order
-            Modify(true);
-        end;
+        WarehouseShipmentHeader.Get(WarehouseShipmentLine."No.");
+        WarehouseShipmentHeader.Validate("Posting Date", TransferHeader."Posting Date" - LibraryRandom.RandInt(10));
+        // Date less then in Transfer Order
+        WarehouseShipmentHeader.Modify(true);
     end;
 
     local procedure CreateWarehouseShipmentFromTransferOrderWithLotNo(var TransferHeader: Record "Transfer Header"; FromLocation: Code[10]; ToLocation: Code[10]; ItemNo: Code[20]; Quantity: Decimal)
@@ -5154,12 +5117,10 @@ codeunit 137151 "SCM Warehouse - Shipping"
 
     local procedure FindItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; ItemNo: Code[20]; IsPositive: Boolean)
     begin
-        with ItemLedgerEntry do begin
-            Reset();
-            SetRange("Item No.", ItemNo);
-            SetRange(Positive, IsPositive);
-            FindFirst();
-        end;
+        ItemLedgerEntry.Reset();
+        ItemLedgerEntry.SetRange("Item No.", ItemNo);
+        ItemLedgerEntry.SetRange(Positive, IsPositive);
+        ItemLedgerEntry.FindFirst();
     end;
 
     local procedure FindProductionOrder(var ProductionOrder: Record "Production Order"; Status: Enum "Production Order Status"; SourceNo: Code[20])
@@ -5172,11 +5133,9 @@ codeunit 137151 "SCM Warehouse - Shipping"
 
     local procedure FindSalesLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header")
     begin
-        with SalesLine do begin
-            SetRange("Document Type", SalesHeader."Document Type");
-            SetRange("Document No.", SalesHeader."No.");
-            FindFirst();
-        end;
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.FindFirst();
     end;
 
     local procedure FindTransferLine(var TransferLine: Record "Transfer Line"; DocumentNo: Code[20]; ItemNo: Code[20])
@@ -5451,24 +5410,20 @@ codeunit 137151 "SCM Warehouse - Shipping"
     var
         WhseActivityLine: Record "Warehouse Activity Line";
     begin
-        with WhseActivityLine do begin
-            SetRange("Action Type", "Action Type"::Take);
-            SplitWhseActivityLine(WhseActivityLine, SourceDocNo, PickLineQty);
-            SetRange("Action Type", "Action Type"::Place);
-            SplitWhseActivityLine(WhseActivityLine, SourceDocNo, PickLineQty);
-        end;
+        WhseActivityLine.SetRange("Action Type", WhseActivityLine."Action Type"::Take);
+        SplitWhseActivityLine(WhseActivityLine, SourceDocNo, PickLineQty);
+        WhseActivityLine.SetRange("Action Type", WhseActivityLine."Action Type"::Place);
+        SplitWhseActivityLine(WhseActivityLine, SourceDocNo, PickLineQty);
     end;
 
     local procedure SplitWhseActivityLine(var WhseActivityLine: Record "Warehouse Activity Line"; SourceDocNo: Code[20]; PickLineQty: array[2] of Decimal)
     begin
-        with WhseActivityLine do begin
-            FindWarehouseActivityLine(WhseActivityLine, "Source Document"::"Sales Order", SourceDocNo, "Activity Type"::Pick);
-            Validate("Qty. to Handle", PickLineQty[1]);
-            Modify();
-            SplitLine(WhseActivityLine);
+        FindWarehouseActivityLine(WhseActivityLine, WhseActivityLine."Source Document"::"Sales Order", SourceDocNo, WhseActivityLine."Activity Type"::Pick);
+        WhseActivityLine.Validate("Qty. to Handle", PickLineQty[1]);
+        WhseActivityLine.Modify();
+        WhseActivityLine.SplitLine(WhseActivityLine);
 
-            UpdatePickLineZoneCodeAndBinCode(SourceDocNo, "Action Type", "Zone Code", "Bin Code", PickLineQty[2]);
-        end;
+        UpdatePickLineZoneCodeAndBinCode(SourceDocNo, WhseActivityLine."Action Type", WhseActivityLine."Zone Code", WhseActivityLine."Bin Code", PickLineQty[2]);
     end;
 
     local procedure SetLotNoAndQuantityInItemTrackingLine(ItemTrackingLines: TestPage "Item Tracking Lines"; QtyInTrackingSpecification: Decimal)
@@ -5622,17 +5577,15 @@ codeunit 137151 "SCM Warehouse - Shipping"
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
-        with WarehouseActivityLine do begin
-            SetRange("Source Document", SourceDocument);
-            SetRange("Source No.", SourceNo);
-            SetRange("Activity Type", ActivityType);
-            SetRange("Lot No.", LotNo);
-            FindSet(true);
-            repeat
-                Validate("Qty. to Handle", QuantityToHandle);
-                Modify(true);
-            until Next() = 0;
-        end;
+        WarehouseActivityLine.SetRange("Source Document", SourceDocument);
+        WarehouseActivityLine.SetRange("Source No.", SourceNo);
+        WarehouseActivityLine.SetRange("Activity Type", ActivityType);
+        WarehouseActivityLine.SetRange("Lot No.", LotNo);
+        WarehouseActivityLine.FindSet(true);
+        repeat
+            WarehouseActivityLine.Validate("Qty. to Handle", QuantityToHandle);
+            WarehouseActivityLine.Modify(true);
+        until WarehouseActivityLine.Next() = 0;
     end;
 
     local procedure RunGetBinContentOnWhseInternalPutAway(var WhseInternalPutAwayHeader: Record "Whse. Internal Put-away Header"; ItemNo: Code[20])
@@ -5811,16 +5764,14 @@ codeunit 137151 "SCM Warehouse - Shipping"
     var
         WhseActivityLine: Record "Warehouse Activity Line";
     begin
-        with WhseActivityLine do begin
-            SetRange(Quantity, Qty);
-            SetRange("Action Type", ActionType);
-            FindWarehouseActivityLine(WhseActivityLine, "Source Document"::"Sales Order", SourceDocNo, "Activity Type"::Pick);
-            Validate("Qty. to Handle", 0);
-            Validate("Zone Code", ZoneCode);
-            Validate("Bin Code", BinCode);
-            Validate("Qty. to Handle", Qty);
-            Modify();
-        end;
+        WhseActivityLine.SetRange(Quantity, Qty);
+        WhseActivityLine.SetRange("Action Type", ActionType);
+        FindWarehouseActivityLine(WhseActivityLine, WhseActivityLine."Source Document"::"Sales Order", SourceDocNo, WhseActivityLine."Activity Type"::Pick);
+        WhseActivityLine.Validate("Qty. to Handle", 0);
+        WhseActivityLine.Validate("Zone Code", ZoneCode);
+        WhseActivityLine.Validate("Bin Code", BinCode);
+        WhseActivityLine.Validate("Qty. to Handle", Qty);
+        WhseActivityLine.Modify();
     end;
 
     local procedure UpdatePickLineQtyToHandleAndLotNo(var WarehouseActivityLine: Record "Warehouse Activity Line"; QtyToHandle: Decimal; LotNo: Code[50])
@@ -5867,22 +5818,18 @@ codeunit 137151 "SCM Warehouse - Shipping"
     var
         WhseActivityLine: Record "Warehouse Activity Line";
     begin
-        with WhseActivityLine do begin
-            SetRange(Quantity, PickLineQty);
-            FindWarehouseActivityLine(WhseActivityLine, "Source Document"::"Sales Order", SourceDocNo, "Activity Type"::Pick);
-            ModifyAll("Lot No.", NewLotNo);
-        end;
+        WhseActivityLine.SetRange(Quantity, PickLineQty);
+        FindWarehouseActivityLine(WhseActivityLine, WhseActivityLine."Source Document"::"Sales Order", SourceDocNo, WhseActivityLine."Activity Type"::Pick);
+        WhseActivityLine.ModifyAll("Lot No.", NewLotNo);
     end;
 
     local procedure UpdateShipmentPostingPolicyOnWarehouseSetup()
     var
         WarehouseSetup: Record "Warehouse Setup";
     begin
-        with WarehouseSetup do begin
-            Get();
-            Validate("Shipment Posting Policy", "Shipment Posting Policy"::"Stop and show the first posting error");
-            Modify(true);
-        end;
+        WarehouseSetup.Get();
+        WarehouseSetup.Validate("Shipment Posting Policy", WarehouseSetup."Shipment Posting Policy"::"Stop and show the first posting error");
+        WarehouseSetup.Modify(true);
     end;
 
     local procedure UpdateValueEntryUserID(ItemNo: Code[20])
@@ -6117,11 +6064,9 @@ codeunit 137151 "SCM Warehouse - Shipping"
 
     local procedure VerifyShippingValuesInWarehouseActiityLine(WarehouseActivityLine: Record "Warehouse Activity Line"; TransferHeader: Record "Transfer Header"; TransferLine: Record "Transfer Line")
     begin
-        with WarehouseActivityLine do begin
-            TestField("Shipment Method Code", TransferHeader."Shipment Method Code");
-            TestField("Shipping Agent Code", TransferLine."Shipping Agent Code");
-            TestField("Shipping Agent Service Code", TransferLine."Shipping Agent Service Code");
-        end;
+        WarehouseActivityLine.TestField("Shipment Method Code", TransferHeader."Shipment Method Code");
+        WarehouseActivityLine.TestField("Shipping Agent Code", TransferLine."Shipping Agent Code");
+        WarehouseActivityLine.TestField("Shipping Agent Service Code", TransferLine."Shipping Agent Service Code");
     end;
 
     local procedure VerifyTransferOrderLine(DocumentNo: Code[20]; ItemNo: Code[20]; QtyToShip: Decimal; QuantityShipped: Decimal)
@@ -6244,43 +6189,37 @@ codeunit 137151 "SCM Warehouse - Shipping"
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
-        with WarehouseActivityLine do begin
-            FindWarehouseActivityLine(
-              WarehouseActivityLine, "Source Document"::"Sales Order", SourceNo,
-              "Activity Type"::Pick);
-            SetRange("Action Type", "Action Type"::Take);
-            FindFirst();
-            TestField("Bin Code", ExpectedBinCode);
-            TestField(Quantity, ExpectedQty);
-        end;
+        FindWarehouseActivityLine(
+          WarehouseActivityLine, WarehouseActivityLine."Source Document"::"Sales Order", SourceNo,
+          WarehouseActivityLine."Activity Type"::Pick);
+        WarehouseActivityLine.SetRange("Action Type", WarehouseActivityLine."Action Type"::Take);
+        WarehouseActivityLine.FindFirst();
+        WarehouseActivityLine.TestField("Bin Code", ExpectedBinCode);
+        WarehouseActivityLine.TestField(Quantity, ExpectedQty);
     end;
 
     local procedure VerifyRequsitionLine(ItemNo: Code[20]; ExpectedQty: Decimal)
     var
         RequisitionLine: Record "Requisition Line";
     begin
-        with RequisitionLine do begin
-            SetRange(Type, Type::Item);
-            SetRange("No.", ItemNo);
-            Assert.IsFalse(IsEmpty, RequsitionLineShouldCreatedErr);
-            FindFirst();
-            Assert.AreEqual(ExpectedQty, Quantity, QuantityErr);
-        end;
+        RequisitionLine.SetRange(Type, RequisitionLine.Type::Item);
+        RequisitionLine.SetRange("No.", ItemNo);
+        Assert.IsFalse(RequisitionLine.IsEmpty, RequsitionLineShouldCreatedErr);
+        RequisitionLine.FindFirst();
+        Assert.AreEqual(ExpectedQty, RequisitionLine.Quantity, QuantityErr);
     end;
 
     local procedure VerifyReservEntryLineExist(LocationCode: Code[20]; ItemNo: Code[20]; LotNo: Code[50]; LotQty: Decimal)
     var
         ReservationEntry: Record "Reservation Entry";
     begin
-        with ReservationEntry do begin
-            SetRange("Location Code", LocationCode);
-            SetRange("Item No.", ItemNo);
-            SetRange("Lot No.", LotNo);
-            SetRange(Positive, true);
-            SetRange("Reservation Status", "Reservation Status"::Reservation);
-            SetRange(Quantity, LotQty);
-            Assert.IsFalse(IsEmpty, ReservEntryNotExistErr);
-        end;
+        ReservationEntry.SetRange("Location Code", LocationCode);
+        ReservationEntry.SetRange("Item No.", ItemNo);
+        ReservationEntry.SetRange("Lot No.", LotNo);
+        ReservationEntry.SetRange(Positive, true);
+        ReservationEntry.SetRange("Reservation Status", ReservationEntry."Reservation Status"::Reservation);
+        ReservationEntry.SetRange(Quantity, LotQty);
+        Assert.IsFalse(ReservationEntry.IsEmpty, ReservEntryNotExistErr);
     end;
 
     local procedure VerifyReservationEntryLine(SalesHeaderNo: Code[20]; LotNo: Code[50]; ExpectedReservedQuantityForLotNo: Decimal; ExpectedSurplusQuantityForLotNo: Decimal)
@@ -6289,17 +6228,15 @@ codeunit 137151 "SCM Warehouse - Shipping"
         ReservedQty: Decimal;
         SurplusQty: Decimal;
     begin
-        with ReservationEntry do begin
-            SetRange("Reservation Status", "Reservation Status"::Reservation);
-            SetRange("Source ID", SalesHeaderNo);
-            SetRange("Lot No.", LotNo);
-            CalcSums("Qty. to Handle (Base)");
-            ReservedQty := "Qty. to Handle (Base)";
+        ReservationEntry.SetRange("Reservation Status", ReservationEntry."Reservation Status"::Reservation);
+        ReservationEntry.SetRange("Source ID", SalesHeaderNo);
+        ReservationEntry.SetRange("Lot No.", LotNo);
+        ReservationEntry.CalcSums("Qty. to Handle (Base)");
+        ReservedQty := ReservationEntry."Qty. to Handle (Base)";
 
-            SetRange("Reservation Status", "Reservation Status"::Surplus);
-            CalcSums("Qty. to Handle (Base)");
-            SurplusQty := "Qty. to Handle (Base)";
-        end;
+        ReservationEntry.SetRange("Reservation Status", ReservationEntry."Reservation Status"::Surplus);
+        ReservationEntry.CalcSums("Qty. to Handle (Base)");
+        SurplusQty := ReservationEntry."Qty. to Handle (Base)";
         Assert.AreEqual(ExpectedReservedQuantityForLotNo, ReservedQty, QuantityMustBeEqualErr);
         Assert.AreEqual(ExpectedSurplusQuantityForLotNo, SurplusQty, QuantityMustBeEqualErr);
     end;

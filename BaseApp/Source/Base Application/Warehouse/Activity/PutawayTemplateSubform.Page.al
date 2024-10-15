@@ -28,7 +28,7 @@ page 7313 "Put-away Template Subform"
                 field("Find Floating Bin"; Rec."Find Floating Bin")
                 {
                     ApplicationArea = Warehouse;
-                    ToolTip = 'Specifies that you can put items in any bin that has space. To use floating bins, make sure that the item isn''t included on a line on the Bin Contents page where the Fixed checkbox is selected.';
+                    ToolTip = 'Specifies that you must put items in a bin that is not specifically tied to any particular item. A bin is considered floating when there are no lines in the Bin Contents page where the Fixed, Default, or Dedicated checkbox is selected.';
                 }
                 field("Find Same Item"; Rec."Find Same Item")
                 {

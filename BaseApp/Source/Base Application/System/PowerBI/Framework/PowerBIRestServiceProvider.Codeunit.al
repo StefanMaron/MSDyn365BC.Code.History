@@ -10,7 +10,7 @@ codeunit 6321 "Power BI Rest Service Provider" implements "Power BI Service Prov
         PowerBiRestServiceWrapper: DotNet PowerBiRestServiceWrapper;
         NotInitializedErr: Label 'The Power BI Service has not been initialized.';
 
-    procedure Initialize(AzureAccessToken: Text; PowerBIUrl: Text)
+    procedure Initialize(AzureAccessToken: SecretText; PowerBIUrl: Text)
     begin
         PowerBiRestServiceWrapper := PowerBiRestServiceWrapper.PowerBiRestServiceWrapper(AzureAccessToken, PowerBIUrl);
     end;
@@ -49,8 +49,7 @@ codeunit 6321 "Power BI Rest Service Provider" implements "Power BI Service Prov
         OperationResult := PowerBiRestServiceWrapper.GetDatasource(DatasetId, DataSourceId, GatewayId);
     end;
 
-    [NonDebuggable]
-    procedure UpdateDatasourceCredentials(DataSourceId: Guid; GatewayId: Guid; BusinessCentralAccessToken: Text; var OperationResult: DotNet OperationResult)
+    procedure UpdateDatasourceCredentials(DataSourceId: Guid; GatewayId: Guid; BusinessCentralAccessToken: SecretText; var OperationResult: DotNet OperationResult)
     begin
         EnsureServiceWrapper();
         OperationResult := PowerBiRestServiceWrapper.UpdateDatasourceCredentials(DataSourceId, GatewayId, BusinessCentralAccessToken);

@@ -8,8 +8,13 @@ table 10534 "MTD-Payment"
 {
     Caption = 'VAT Payment';
     ObsoleteReason = 'Moved to extension';
+#if CLEAN25
+    ObsoleteState = Removed;
+    ObsoleteTag = '28.0';
+#else
     ObsoleteState = Pending;
     ObsoleteTag = '15.0';
+#endif
     DataClassification = CustomerContent;
 
     fields

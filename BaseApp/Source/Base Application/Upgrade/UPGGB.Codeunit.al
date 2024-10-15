@@ -1,4 +1,4 @@
-codeunit 104150 "UPG GB"
+﻿codeunit 104150 "UPG GB"
 {
     Subtype = Upgrade;
 
@@ -25,7 +25,7 @@ codeunit 104150 "UPG GB"
         UpgradeTag: Codeunit "Upgrade Tag";
         UpgradeTagDefCountry: Codeunit "Upgrade Tag Def - Country";
     begin
-        IF UpgradeTag.HasUpgradeTag(UpgradeTagDefCountry.GetUpdateIntrastatSetupTag()) then
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefCountry.GetUpdateIntrastatSetupTag()) then
             exit;
 
         if not IntrastatSetup.Get() then

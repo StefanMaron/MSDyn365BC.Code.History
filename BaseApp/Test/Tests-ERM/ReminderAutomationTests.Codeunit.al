@@ -22,7 +22,7 @@ codeunit 134979 "Reminder Automation Tests"
 
         if not SalesReceivablesSetup.Get() then
             SalesReceivablesSetup.Insert();
-            
+
         SalesReceivablesSetup."Posting Date Check on Posting" := false;
         SalesReceivablesSetup.Modify();
         Commit();

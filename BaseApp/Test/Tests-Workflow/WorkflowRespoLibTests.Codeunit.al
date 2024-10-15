@@ -23,8 +23,6 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         LibraryRandom: Codeunit "Library - Random";
         LibrarySales: Codeunit "Library - Sales";
         LibraryUtility: Codeunit "Library - Utility";
-        PurchaseDocDoesNotExistErr: Label 'The Purchase Header does not exist. Identification fields and values: Document Type=''%1'',No.=''%2''', Comment = 'The Purchase Header does not exist. Identification fields and values: Document Type=''Invoice'',No.=''0001''';
-        SalesDocDoesNotExistErr: Label 'The Sales Header does not exist. Identification fields and values: Document Type=''%1'',No.=''%2''', Comment = 'The Sales Header does not exist. Identification fields and values: Document Type=''Invoice'',No.=''0001''';
         CannotReleaseErr: Label 'This document can only be released when the approval process is complete.';
         LibraryWorkflow: Codeunit "Library - Workflow";
         WorkflowMgt: Codeunit "Workflow Management";
@@ -255,7 +253,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         PurchInvNo := PurchaseHeader."No.";
         asserterror PurchaseHeader.Find();
 
-        Assert.ExpectedError(StrSubstNo(PurchaseDocDoesNotExistErr, PurchaseHeader."Document Type"::Invoice, PurchInvNo));
+        Assert.ExpectedErrorCannotFind(Database::"Purchase Header");
 
         PurchInvHeader.Init();
         PurchInvHeader.SetRange("Buy-from Vendor No.", VendorNo);
@@ -306,7 +304,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         SalesInvNo := SalesHeader."No.";
         asserterror SalesHeader.Find();
 
-        Assert.ExpectedError(StrSubstNo(SalesDocDoesNotExistErr, SalesHeader."Document Type"::Invoice, SalesInvNo));
+        Assert.ExpectedErrorCannotFind(Database::"Sales Header");
 
         SalesInvoiceHeader.Init();
         SalesInvoiceHeader.SetRange("Sell-to Customer No.", CustomerNo);
@@ -1903,7 +1901,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         LibraryWorkflow.CreateWorkflowStepArgument(WorkflowStepArgument, WorkflowStepArgument.Type::Response,
           '', '', '', WorkflowStepArgument."Approver Type"::Approver, true);
         WorkflowStepArgument.Validate("Response Function Name", WorkflowResponseHandling.CreateNotificationEntryCode());
-        WorkflowStepArgument.Validate("Notify Sender", True);
+        WorkflowStepArgument.Validate("Notify Sender", true);
         WorkflowStepArgument.Modify(true);
 
         // [WHEN] GetDescription is called on the CreateNotificationEntry response.

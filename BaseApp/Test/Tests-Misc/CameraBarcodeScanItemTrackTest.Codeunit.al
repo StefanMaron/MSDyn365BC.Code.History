@@ -30,8 +30,9 @@ codeunit 137214 CameraBarcodeScanItemTrackTest
     local procedure CreateItemTrackingLines(var ItemJournalLine: Record "Item Journal Line"; var ItemTrackingLines: Page "Item Tracking Lines")
     var
         TrackingSpecification: Record "Tracking Specification";
+        ItemJnlLineReserve: Codeunit "Item Jnl. Line-Reserve";
     begin
-        TrackingSpecification.InitFromItemJnlLine(ItemJournalLine);
+        ItemJnlLineReserve.InitFromItemJnlLine(TrackingSpecification, ItemJournalLine);
         ItemTrackingLines.SetSourceSpec(TrackingSpecification, ItemJournalLine."Posting Date");
         ItemTrackingLines.SetInbound(ItemJournalLine.IsInbound());
         ItemTrackingLines.RunModal();
@@ -941,6 +942,7 @@ codeunit 137214 CameraBarcodeScanItemTrackTest
         TrackingSpecification: Record "Tracking Specification";
         PurchaseLine: Record "Purchase Line";
         PurchaseHeader: Record "Purchase Header";
+        PurchLineReserve: Codeunit "Purch. Line-Reserve";
         ItemTrackingLines: Page "Item Tracking Lines";
     begin
         // [SCENARIO] [Barcode Scanner]
@@ -954,7 +956,7 @@ codeunit 137214 CameraBarcodeScanItemTrackTest
         // [GIVEN] Init Purchase Line
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, "Purchase Document Type"::Invoice, Item."No.", 1);
         // [GIVEN] Init Item tracking Lines
-        TrackingSpecification.InitFromPurchLine(PurchaseLine);
+        PurchLineReserve.InitFromPurchLine(TrackingSpecification, PurchaseLine);
         ItemTrackingLines.SetSourceSpec(TrackingSpecification, ItemJournalLine."Posting Date");
         ItemTrackingLines.SetInbound(ItemJournalLine.IsInbound());
         ItemTrackingLines.RunModal();
@@ -972,6 +974,7 @@ codeunit 137214 CameraBarcodeScanItemTrackTest
         TrackingSpecification: Record "Tracking Specification";
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
+        SalesLineReserve: Codeunit "Sales Line-Reserve";
         ItemTrackingLines: Page "Item Tracking Lines";
     begin
         // [SCENARIO] [Barcode Scanner]
@@ -985,7 +988,7 @@ codeunit 137214 CameraBarcodeScanItemTrackTest
         // [GIVEN] Create SalesLine
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
         // [GIVEN] Init ItemTrackingLines
-        TrackingSpecification.InitFromSalesLine(SalesLine);
+        SalesLineReserve.InitFromSalesLine(TrackingSpecification, SalesLine);
         ItemTrackingLines.SetSourceSpec(TrackingSpecification, ItemJournalLine."Posting Date");
         ItemTrackingLines.SetInbound(ItemJournalLine.IsInbound());
         ItemTrackingLines.RunModal();
@@ -1000,6 +1003,7 @@ codeunit 137214 CameraBarcodeScanItemTrackTest
         Item: Record Item;
         TrackingSpecification: Record "Tracking Specification";
         ItemJournalLine: Record "Item Journal Line";
+        ItemJnlLineReserve: Codeunit "Item Jnl. Line-Reserve";
         ItemTrackingLines: Page "Item Tracking Lines";
     begin
         // [SCENARIO][DELIVERABLE 481052][Barcode Scanner] 
@@ -1013,7 +1017,7 @@ codeunit 137214 CameraBarcodeScanItemTrackTest
         LibraryInventory.CreateItemJnlLine(ItemJournalLine, ItemJournalLine."Entry Type"::"Positive Adjmt.", WorkDate(), Item."No.", 10, '');
 
         // [GIVEN] Init ItemTrackingLines
-        TrackingSpecification.InitFromItemJnlLine(ItemJournalLine);
+        ItemJnlLineReserve.InitFromItemJnlLine(TrackingSpecification, ItemJournalLine);
         ItemTrackingLines.SetSourceSpec(TrackingSpecification, ItemJournalLine."Posting Date");
         ItemTrackingLines.SetInbound(ItemJournalLine.IsInbound());
 

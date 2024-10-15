@@ -330,12 +330,12 @@ codeunit 137311 "SCM Kitting - Printout Reports"
                 end;
             end;
 
-            if ShowDimensions and (ExpDimensionLine[1] <> '') then begin
+            if ShowDimensions and (ExpDimensionLine[1] <> '') then
                 for i := 1 to 3 do
                     if ExpDimensionLine[i] <> '' then
                         Assert.IsTrue(StrPos(DelChr(ActDimensionLine, '=', '; '), DelChr(ExpDimensionLine[i], '=', '; ')) > 0, 'Wrong dim.')
-            end else
-                Assert.AreEqual('', DelChr(ActDimensionLine, '=', '; '), 'Dimension should not be printed.');
+                    else
+                        Assert.AreEqual('', DelChr(ActDimensionLine, '=', '; '), 'Dimension should not be printed.');
 
         until PostedAssemblyLine.Next() = 0;
     end;
@@ -906,35 +906,33 @@ codeunit 137311 "SCM Kitting - Printout Reports"
             LibraryReportDataset.AssertCurrentRowValueEquals('QtyToAsm', SalesLine."Qty. to Assemble to Order");
 
             AsmExists := false;
-            with AssembleToOrderLink do begin
-                Reset();
-                SetCurrentKey(Type, "Document Type", "Document No.", "Document Line No.");
-                SetRange(Type, Type::Sale);
-                SetRange("Document Type", SalesLine."Document Type");
-                SetRange("Document No.", SalesLine."Document No.");
-                SetRange("Document Line No.", SalesLine."Line No.");
-                AsmExists := FindFirst() and AssemblyHeader.Get("Assembly Document Type", "Assembly Document No.");
-                if AsmExists then begin
-                    // verify the lines
-                    AssemblyLine.SetRange("Document No.", AssemblyHeader."No.");
-                    AssemblyLine.SetRange(Type, AssemblyLine.Type::Item);
-                    AssemblyLine.FindSet();
+            AssembleToOrderLink.Reset();
+            AssembleToOrderLink.SetCurrentKey(Type, "Document Type", "Document No.", "Document Line No.");
+            AssembleToOrderLink.SetRange(Type, AssembleToOrderLink.Type::Sale);
+            AssembleToOrderLink.SetRange("Document Type", SalesLine."Document Type");
+            AssembleToOrderLink.SetRange("Document No.", SalesLine."Document No.");
+            AssembleToOrderLink.SetRange("Document Line No.", SalesLine."Line No.");
+            AsmExists := AssembleToOrderLink.FindFirst() and AssemblyHeader.Get(AssembleToOrderLink."Assembly Document Type", AssembleToOrderLink."Assembly Document No.");
+            if AsmExists then begin
+                // verify the lines
+                AssemblyLine.SetRange("Document No.", AssemblyHeader."No.");
+                AssemblyLine.SetRange(Type, AssemblyLine.Type::Item);
+                AssemblyLine.FindSet();
 
-                    repeat
-                        LibraryReportDataset.SetRange('No_AssemblyLine', AssemblyLine."No.");
-                        LibraryReportDataset.GetNextRow();
+                repeat
+                    LibraryReportDataset.SetRange('No_AssemblyLine', AssemblyLine."No.");
+                    LibraryReportDataset.GetNextRow();
 
-                        LibraryReportDataset.AssertCurrentRowValueEquals('Description_AssemblyLine', AssemblyLine.Description);
-                        LibraryReportDataset.AssertCurrentRowValueEquals('QuantityPer_AssemblyLine', AssemblyLine."Quantity per");
-                        LibraryReportDataset.AssertCurrentRowValueEquals('Quantity_AssemblyLine', AssemblyLine.Quantity);
-                        UnitOfMeasure.Get(AssemblyLine."Unit of Measure Code");
-                        LibraryReportDataset.AssertCurrentRowValueEquals('UnitOfMeasure_AssemblyLine', UnitOfMeasure.Description);
-                        LibraryReportDataset.AssertCurrentRowValueEquals('LocationCode_AssemblyLine', AssemblyLine."Location Code");
-                        LibraryReportDataset.AssertCurrentRowValueEquals('BinCode_AssemblyLine', AssemblyLine."Bin Code");
-                        LibraryReportDataset.AssertCurrentRowValueEquals('VariantCode_AssemblyLine', AssemblyLine."Variant Code");
-                        LibraryReportDataset.AssertCurrentRowValueEquals('QuantityToConsume_AssemblyLine', AssemblyLine."Quantity to Consume");
-                    until AssemblyLine.Next() = 0;
-                end;
+                    LibraryReportDataset.AssertCurrentRowValueEquals('Description_AssemblyLine', AssemblyLine.Description);
+                    LibraryReportDataset.AssertCurrentRowValueEquals('QuantityPer_AssemblyLine', AssemblyLine."Quantity per");
+                    LibraryReportDataset.AssertCurrentRowValueEquals('Quantity_AssemblyLine', AssemblyLine.Quantity);
+                    UnitOfMeasure.Get(AssemblyLine."Unit of Measure Code");
+                    LibraryReportDataset.AssertCurrentRowValueEquals('UnitOfMeasure_AssemblyLine', UnitOfMeasure.Description);
+                    LibraryReportDataset.AssertCurrentRowValueEquals('LocationCode_AssemblyLine', AssemblyLine."Location Code");
+                    LibraryReportDataset.AssertCurrentRowValueEquals('BinCode_AssemblyLine', AssemblyLine."Bin Code");
+                    LibraryReportDataset.AssertCurrentRowValueEquals('VariantCode_AssemblyLine', AssemblyLine."Variant Code");
+                    LibraryReportDataset.AssertCurrentRowValueEquals('QuantityToConsume_AssemblyLine', AssemblyLine."Quantity to Consume");
+                until AssemblyLine.Next() = 0;
             end;
 
         until SalesLine.Next() = 0;

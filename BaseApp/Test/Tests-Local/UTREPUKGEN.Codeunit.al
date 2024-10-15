@@ -282,7 +282,7 @@ codeunit 144028 "UT REP UKGEN"
 
         // [GIVEN] G/L Setup with "Local Address Format" = "Post Code+City", "Company Information"."Post Code" = 'X'
         PostCode := LibraryUTUtility.GetNewCode();
-        UpdateCompanyInfoPostCode(PostCode);
+        UpdateCompanyInfoAddress(PostCode);
         UpdateGLSetupAddressFormat(GeneralLedgerSetup."Local Address Format"::"Post Code+City");
 
         // [GIVEN] Sales Order
@@ -343,7 +343,7 @@ codeunit 144028 "UT REP UKGEN"
 
         // [GIVEN] G/L Setup with "Local Address Format" = "Post Code+City", "Company Information"."Post Code" = 'X'
         PostCode := LibraryUTUtility.GetNewCode();
-        UpdateCompanyInfoPostCode(PostCode);
+        UpdateCompanyInfoAddress(PostCode);
         UpdateGLSetupAddressFormat(GeneralLedgerSetup."Local Address Format"::"Post Code+City");
 
         // [GIVEN] Blanket Sales Order
@@ -499,26 +499,22 @@ codeunit 144028 "UT REP UKGEN"
     var
         SalesLine: Record "Sales Line";
     begin
-        with SalesLine do begin
-            "Document Type" := DocumentType;
-            "Document No." := DocumentNo;
-            Type := Type::Item;
-            "No." := LibraryUTUtility.GetNewCode();
-            Insert();
-        end;
+        SalesLine."Document Type" := DocumentType;
+        SalesLine."Document No." := DocumentNo;
+        SalesLine.Type := SalesLine.Type::Item;
+        SalesLine."No." := LibraryUTUtility.GetNewCode();
+        SalesLine.Insert();
     end;
 
     local procedure MockCountryRegionWithFormatAddress(): Code[10]
     var
         CountryRegion: Record "Country/Region";
     begin
-        with CountryRegion do begin
-            Init();
-            Code := LibraryUTUtility.GetNewCode10();
-            "Address Format" := "Address Format"::"Post Code+City";
-            Insert();
-            exit(Code);
-        end;
+        CountryRegion.Init();
+        CountryRegion.Code := LibraryUTUtility.GetNewCode10();
+        CountryRegion."Address Format" := CountryRegion."Address Format"::"Post Code+City";
+        CountryRegion.Insert();
+        exit(CountryRegion.Code);
     end;
 
     local procedure OrderGBWithArchive(ArchiveQuotesAndOrders: Boolean)
@@ -569,44 +565,37 @@ codeunit 144028 "UT REP UKGEN"
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
-        with PurchasesPayablesSetup do begin
-            Get();
-            "Archive Orders" := ArchiveOrders;
-            Modify();
-        end;
+        PurchasesPayablesSetup.Get();
+        PurchasesPayablesSetup."Archive Orders" := ArchiveOrders;
+        PurchasesPayablesSetup.Modify();
     end;
 
     local procedure UpdateSalesReceivableSetup(ArchiveOrders: Boolean)
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        with SalesReceivablesSetup do begin
-            Get();
-            "Archive Orders" := ArchiveOrders;
-            Modify();
-        end;
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup."Archive Orders" := ArchiveOrders;
+        SalesReceivablesSetup.Modify();
     end;
 
     local procedure UpdateGLSetupAddressFormat(AddressFormat: Option)
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        with GeneralLedgerSetup do begin
-            Get();
-            "Local Address Format" := AddressFormat;
-            Modify();
-        end;
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup."Local Address Format" := AddressFormat;
+        GeneralLedgerSetup.Modify();
     end;
 
-    local procedure UpdateCompanyInfoPostCode(PostCode: Code[20])
+    local procedure UpdateCompanyInfoAddress(PostCode: Code[20])
     var
         CompanyInformation: Record "Company Information";
     begin
-        with CompanyInformation do begin
-            Get();
-            "Post Code" := PostCode;
-            Modify();
-        end;
+        CompanyInformation.Get();
+        CompanyInformation."Post Code" := PostCode;
+        CompanyInformation."Country/Region Code" := '';
+        CompanyInformation.Modify();
     end;
 
     local procedure VerifyElementValue(ElementName: Text; ExpectedValue: Variant)

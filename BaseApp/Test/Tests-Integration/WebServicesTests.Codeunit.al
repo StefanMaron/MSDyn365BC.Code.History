@@ -350,227 +350,219 @@ codeunit 139002 "Web Services Tests"
 
         Initialized := true;
 
-        with WebService do begin
-            DeleteAll();
+        WebService.DeleteAll();
+        // Add a Page for both OData and SOAP.
+        WebService.Init();
+        WebService."Object Type" := WebService."Object Type"::Page;
+        WebService."Service Name" := PageServiceTxt;
+        WebService."Object ID" := PAGE::"Customer List";
+        WebService.Published := true;
+        WebService.Insert();
+        // Add a Codeunit for SOAP.
+        WebService.Init();
+        WebService."Object Type" := WebService."Object Type"::Codeunit;
+        WebService."Service Name" := CodeunitServiceTxt;
+        WebService."Object ID" := CODEUNIT::"CustVendBank-Update";
+        WebService.Published := true;
+        WebService.Insert();
+        // Add a Query for OData.
+        WebService.Init();
+        WebService."Object Type" := WebService."Object Type"::Query;
+        WebService."Service Name" := QueryServiceTxt;
+        WebService."Object ID" := QUERY::"My Customers";
+        WebService.Published := true;
+        WebService.Insert();
+        // Add an unpublished Page.
+        WebService.Init();
+        WebService."Object Type" := WebService."Object Type"::Page;
+        WebService."Service Name" := UnpublishedPageTxt;
+        WebService."Object ID" := PAGE::"Customer Ledger Entries";
+        WebService.Published := false;
+        WebService.Insert();
 
-            // Add a Page for both OData and SOAP.
-            Init();
-            "Object Type" := "Object Type"::Page;
-            "Service Name" := PageServiceTxt;
-            "Object ID" := PAGE::"Customer List";
-            Published := true;
-            Insert();
+        WebService.Init();
+        WebService."Object Type" := WebService."Object Type"::Page;
+        WebService."Object ID" := PAGE::"Company Information";
+        WebService."Service Name" := PageATxt;
+        WebService.Published := true;
+        WebService.Insert();
 
-            // Add a Codeunit for SOAP.
-            Init();
-            "Object Type" := "Object Type"::Codeunit;
-            "Service Name" := CodeunitServiceTxt;
-            "Object ID" := CODEUNIT::"CustVendBank-Update";
-            Published := true;
-            Insert();
+        WebService.Init();
+        WebService."Object Type" := WebService."Object Type"::Page;
+        WebService."Object ID" := PAGE::"Payment Terms";
+        WebService."Service Name" := PageBTxt;
+        WebService.Published := true;
+        WebService.Insert();
 
-            // Add a Query for OData.
-            Init();
-            "Object Type" := "Object Type"::Query;
-            "Service Name" := QueryServiceTxt;
-            "Object ID" := QUERY::"My Customers";
-            Published := true;
-            Insert();
+        WebService.Init();
+        WebService."Object Type" := WebService."Object Type"::Page;
+        WebService."Object ID" := PAGE::Currencies;
+        WebService."Service Name" := PageCTxt;
+        WebService.Published := false;
+        WebService.Insert();
 
-            // Add an unpublished Page.
-            Init();
-            "Object Type" := "Object Type"::Page;
-            "Service Name" := UnpublishedPageTxt;
-            "Object ID" := PAGE::"Customer Ledger Entries";
-            Published := false;
-            Insert();
+        WebService.Init();
+        WebService."Object Type" := WebService."Object Type"::Page;
+        WebService."Object ID" := PAGE::"Finance Charge Terms";
+        WebService."Service Name" := PageDTxt;
+        WebService.Published := true;
+        WebService.Insert();
 
-            Init();
-            "Object Type" := "Object Type"::Page;
-            "Object ID" := PAGE::"Company Information";
-            "Service Name" := PageATxt;
-            Published := true;
-            Insert();
+        WebService.Init();
+        WebService."Object Type" := WebService."Object Type"::Page;
+        WebService."Object ID" := PAGE::"Customer Price Groups";
+        WebService."Service Name" := PageETxt;
+        WebService.Published := true;
+        WebService.Insert();
 
-            Init();
-            "Object Type" := "Object Type"::Page;
-            "Object ID" := PAGE::"Payment Terms";
-            "Service Name" := PageBTxt;
-            Published := true;
-            Insert();
+        WebService.Init();
+        WebService."Object Type" := WebService."Object Type"::Page;
+        WebService."Object ID" := PAGE::Languages;
+        WebService."Service Name" := PageFTxt;
+        WebService.Published := true;
+        WebService.Insert();
 
-            Init();
-            "Object Type" := "Object Type"::Page;
-            "Object ID" := PAGE::Currencies;
-            "Service Name" := PageCTxt;
-            Published := false;
-            Insert();
+        WebService.Init();
+        WebService."Object Type" := WebService."Object Type"::Page;
+        WebService."Object ID" := PAGE::"Chart of Accounts";
+        WebService."Service Name" := PageGTxt;
+        WebService.Published := false;
+        WebService.Insert();
 
-            Init();
-            "Object Type" := "Object Type"::Page;
-            "Object ID" := PAGE::"Finance Charge Terms";
-            "Service Name" := PageDTxt;
-            Published := true;
-            Insert();
+        WebService.Init();
+        WebService."Object Type" := WebService."Object Type"::Page;
+        WebService."Object ID" := PAGE::"Vendor Card";
+        WebService."Service Name" := PageHTxt;
+        WebService.Published := false;
+        WebService.Insert();
 
-            Init();
-            "Object Type" := "Object Type"::Page;
-            "Object ID" := PAGE::"Customer Price Groups";
-            "Service Name" := PageETxt;
-            Published := true;
-            Insert();
+        WebService.Init();
+        WebService."Object Type" := WebService."Object Type"::Page;
+        WebService."Object ID" := PAGE::"Vendor Card";
+        WebService."Service Name" := PageITxt;
+        WebService.Published := true;
+        WebService.Insert();
 
-            Init();
-            "Object Type" := "Object Type"::Page;
-            "Object ID" := PAGE::Languages;
-            "Service Name" := PageFTxt;
-            Published := true;
-            Insert();
+        WebService.Init();
+        WebService."Object Type" := WebService."Object Type"::Page;
+        WebService."Object ID" := PAGE::"Resource Groups";
+        WebService."Service Name" := PageKTxt;
+        WebService.Published := true;
+        WebService.Insert();
 
-            Init();
-            "Object Type" := "Object Type"::Page;
-            "Object ID" := PAGE::"Chart of Accounts";
-            "Service Name" := PageGTxt;
-            Published := false;
-            Insert();
+        WebService.Init();
+        WebService."Object Type" := WebService."Object Type"::Page;
+        WebService."Object ID" := PAGE::"Job Card";
+        WebService."Service Name" := PageNTxt;
+        WebService.Published := true;
+        WebService.Insert();
 
-            Init();
-            "Object Type" := "Object Type"::Page;
-            "Object ID" := PAGE::"Vendor Card";
-            "Service Name" := PageHTxt;
-            Published := false;
-            Insert();
+        WebService.Init();
+        WebService."Object Type" := WebService."Object Type"::Page;
+        WebService."Object ID" := PAGE::"Job List";
+        WebService."Service Name" := PagePTxt;
+        WebService.Published := true;
+        WebService.Insert();
 
-            Init();
-            "Object Type" := "Object Type"::Page;
-            "Object ID" := PAGE::"Vendor Card";
-            "Service Name" := PageITxt;
-            Published := true;
-            Insert();
+        TenantWebService.DeleteAll();
 
-            Init();
-            "Object Type" := "Object Type"::Page;
-            "Object ID" := PAGE::"Resource Groups";
-            "Service Name" := PageKTxt;
-            Published := true;
-            Insert();
+        TenantWebService.Init();
+        TenantWebService."Object Type" := TenantWebService."Object Type"::Page;
+        TenantWebService."Object ID" := PAGE::"Payment Terms";
+        TenantWebService."Service Name" := PageBTxt;
+        TenantWebService.Published := true;
+        TenantWebService.Insert();
 
-            Init();
-            "Object Type" := "Object Type"::Page;
-            "Object ID" := PAGE::"Job Card";
-            "Service Name" := PageNTxt;
-            Published := true;
-            Insert();
+        TenantWebService.Init();
+        TenantWebService."Object Type" := TenantWebService."Object Type"::Page;
+        TenantWebService."Object ID" := PAGE::Currencies;
+        TenantWebService."Service Name" := PageCTxt;
+        TenantWebService.Published := true;
+        TenantWebService.Insert();
 
-            Init();
-            "Object Type" := "Object Type"::Page;
-            "Object ID" := PAGE::"Job List";
-            "Service Name" := PagePTxt;
-            Published := true;
-            Insert();
-        end;
+        TenantWebService.Init();
+        TenantWebService."Object Type" := TenantWebService."Object Type"::Page;
+        TenantWebService."Object ID" := PAGE::"Finance Charge Terms";
+        TenantWebService."Service Name" := PageDTxt;
+        TenantWebService.Published := false;
+        TenantWebService.Insert();
 
-        with TenantWebService do begin
-            DeleteAll();
+        TenantWebService.Init();
+        TenantWebService."Object Type" := TenantWebService."Object Type"::Page;
+        TenantWebService."Object ID" := PAGE::"Standard Text Codes";
+        TenantWebService."Service Name" := PageETxt;
+        TenantWebService.Published := false;
+        TenantWebService.Insert();
 
-            Init();
-            "Object Type" := "Object Type"::Page;
-            "Object ID" := PAGE::"Payment Terms";
-            "Service Name" := PageBTxt;
-            Published := true;
-            Insert();
+        TenantWebService.Init();
+        TenantWebService."Object Type" := TenantWebService."Object Type"::Page;
+        TenantWebService."Object ID" := PAGE::"Countries/Regions";
+        TenantWebService."Service Name" := PageFTxt;
+        TenantWebService.Published := true;
+        TenantWebService.Insert();
 
-            Init();
-            "Object Type" := "Object Type"::Page;
-            "Object ID" := PAGE::Currencies;
-            "Service Name" := PageCTxt;
-            Published := true;
-            Insert();
+        TenantWebService.Init();
+        TenantWebService."Object Type" := TenantWebService."Object Type"::Page;
+        TenantWebService."Object ID" := PAGE::"Chart of Accounts";
+        TenantWebService."Service Name" := PageGTxt;
+        TenantWebService.Published := true;
+        TenantWebService.Insert();
 
-            Init();
-            "Object Type" := "Object Type"::Page;
-            "Object ID" := PAGE::"Finance Charge Terms";
-            "Service Name" := PageDTxt;
-            Published := false;
-            Insert();
+        TenantWebService.Init();
+        TenantWebService."Object Type" := TenantWebService."Object Type"::Page;
+        TenantWebService."Object ID" := PAGE::"Vendor Card";
+        TenantWebService."Service Name" := PageHTxt;
+        TenantWebService.Published := true;
+        TenantWebService.Insert();
 
-            Init();
-            "Object Type" := "Object Type"::Page;
-            "Object ID" := PAGE::"Standard Text Codes";
-            "Service Name" := PageETxt;
-            Published := false;
-            Insert();
+        TenantWebService.Init();
+        TenantWebService."Object Type" := TenantWebService."Object Type"::Page;
+        TenantWebService."Object ID" := PAGE::"Vendor Card";
+        TenantWebService."Service Name" := PageITxt;
+        TenantWebService.Published := true;
+        TenantWebService.Insert();
 
-            Init();
-            "Object Type" := "Object Type"::Page;
-            "Object ID" := PAGE::"Countries/Regions";
-            "Service Name" := PageFTxt;
-            Published := true;
-            Insert();
+        TenantWebService.Init();
+        TenantWebService."Object Type" := TenantWebService."Object Type"::Page;
+        TenantWebService."Object ID" := PAGE::"Vendor Card";
+        TenantWebService."Service Name" := PageJTxt;
+        TenantWebService.Published := true;
+        TenantWebService.Insert();
 
-            Init();
-            "Object Type" := "Object Type"::Page;
-            "Object ID" := PAGE::"Chart of Accounts";
-            "Service Name" := PageGTxt;
-            Published := true;
-            Insert();
+        TenantWebService.Init();
+        TenantWebService."Object Type" := TenantWebService."Object Type"::Page;
+        TenantWebService."Object ID" := PAGE::"Resource Groups";
+        TenantWebService."Service Name" := PageKTxt;
+        TenantWebService.Published := false;
+        TenantWebService.Insert();
 
-            Init();
-            "Object Type" := "Object Type"::Page;
-            "Object ID" := PAGE::"Vendor Card";
-            "Service Name" := PageHTxt;
-            Published := true;
-            Insert();
+        TenantWebService.Init();
+        TenantWebService."Object Type" := TenantWebService."Object Type"::Page;
+        TenantWebService."Object ID" := PAGE::"Printer Selections";
+        TenantWebService."Service Name" := PageLTxt;
+        TenantWebService.Published := true;
+        TenantWebService.Insert();
 
-            Init();
-            "Object Type" := "Object Type"::Page;
-            "Object ID" := PAGE::"Vendor Card";
-            "Service Name" := PageITxt;
-            Published := true;
-            Insert();
+        TenantWebService.Init();
+        TenantWebService."Object Type" := TenantWebService."Object Type"::Page;
+        TenantWebService."Object ID" := PAGE::"Rounding Methods";
+        TenantWebService."Service Name" := PageMTxt;
+        TenantWebService.Published := false;
+        TenantWebService.Insert();
 
-            Init();
-            "Object Type" := "Object Type"::Page;
-            "Object ID" := PAGE::"Vendor Card";
-            "Service Name" := PageJTxt;
-            Published := true;
-            Insert();
+        TenantWebService.Init();
+        TenantWebService."Object Type" := TenantWebService."Object Type"::Page;
+        TenantWebService."Object ID" := PAGE::"Job Card";
+        TenantWebService."Service Name" := PageOTxt;
+        TenantWebService.Published := true;
+        TenantWebService.Insert();
 
-            Init();
-            "Object Type" := "Object Type"::Page;
-            "Object ID" := PAGE::"Resource Groups";
-            "Service Name" := PageKTxt;
-            Published := false;
-            Insert();
-
-            Init();
-            "Object Type" := "Object Type"::Page;
-            "Object ID" := PAGE::"Printer Selections";
-            "Service Name" := PageLTxt;
-            Published := true;
-            Insert();
-
-            Init();
-            "Object Type" := "Object Type"::Page;
-            "Object ID" := PAGE::"Rounding Methods";
-            "Service Name" := PageMTxt;
-            Published := false;
-            Insert();
-
-            Init();
-            "Object Type" := "Object Type"::Page;
-            "Object ID" := PAGE::"Job Card";
-            "Service Name" := PageOTxt;
-            Published := true;
-            Insert();
-
-            Init();
-            "Object Type" := "Object Type"::Page;
-            "Object ID" := PAGE::"Job List";
-            "Service Name" := PageQTxt;
-            Published := false;
-            Insert();
-        end;
+        TenantWebService.Init();
+        TenantWebService."Object Type" := TenantWebService."Object Type"::Page;
+        TenantWebService."Object ID" := PAGE::"Job List";
+        TenantWebService."Service Name" := PageQTxt;
+        TenantWebService.Published := false;
+        TenantWebService.Insert();
     end;
 
     local procedure VerifyUrlHasServiceName(Url: Text; ServiceName: Text[240])

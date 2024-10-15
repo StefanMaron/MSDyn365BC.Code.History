@@ -51,12 +51,10 @@ table 10560 "Accounting Period GB"
             Caption = 'Average Cost Calc. Type';
             Editable = false;
         }
-        field(5805; "Average Cost Period"; Option)
+        field(5805; "Average Cost Period"; Enum "Average Cost Period Type")
         {
             Caption = 'Average Cost Period';
             Editable = false;
-            OptionCaption = ' ,Day,Week,Month,Quarter,Year,Accounting Period';
-            OptionMembers = " ",Day,Week,Month,Quarter,Year,"Accounting Period";
         }
         field(10500; Closed; Boolean)
         {

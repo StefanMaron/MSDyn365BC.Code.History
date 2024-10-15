@@ -87,7 +87,9 @@ table 1660 "Payroll Setup"
 
     var
         Fetched: Boolean;
+#pragma warning disable AA0470
         TemplateTypeErr: Label 'Only General Journal Templates of type %1, %2, %3, %4, or %5 are allowed.', Comment = '%1..5 lists Type=General,Purchases,Payments,Sales,Cash Receipts';
+#pragma warning restore AA0470
 
     procedure Fetch()
     begin

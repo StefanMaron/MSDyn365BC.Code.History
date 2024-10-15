@@ -368,6 +368,9 @@ page 672 "Job Queue Entries"
                 actionref(Restart_Promoted; Restart)
                 {
                 }
+                actionref(LogEntries_Promoted; LogEntries)
+                {
+                }
                 actionref(RunInForeground_Promoted; RunInForeground)
                 {
                 }

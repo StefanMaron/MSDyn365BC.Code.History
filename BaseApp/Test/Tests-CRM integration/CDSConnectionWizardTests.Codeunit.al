@@ -309,13 +309,12 @@ codeunit 139194 "CDS Connection Wizard Tests"
         CDSConnectionSetupWizard.Trap();
         PAGE.Run(PAGE::"CDS Connection Setup Wizard");
 
-        with CDSConnectionSetupWizard do begin
-            ServerAddress.SetValue('https://test.dynamics.com');
-            ActionNext.Invoke(); // Credentials page
-            Email.SetValue('test@test.com');
-            Password.SetValue('test1234');
-            Assert.IsFalse(ActionNext.Enabled(), 'Next should not be enabled at the end of the wizard');
-        end;
+        CDSConnectionSetupWizard.ServerAddress.SetValue('https://test.dynamics.com');
+        CDSConnectionSetupWizard.ActionNext.Invoke();
+        // Credentials page
+        CDSConnectionSetupWizard.Email.SetValue('test@test.com');
+        CDSConnectionSetupWizard.Password.SetValue('test1234');
+        Assert.IsFalse(CDSConnectionSetupWizard.ActionNext.Enabled(), 'Next should not be enabled at the end of the wizard');
     end;
 
     [ConfirmHandler]

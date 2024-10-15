@@ -1,4 +1,4 @@
-namespace Microsoft.Finance.VAT.Reporting;
+﻿namespace Microsoft.Finance.VAT.Reporting;
 
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Foundation.Company;
@@ -67,7 +67,7 @@ codeunit 141 "EC Sales List Populate XML"
     begin
         ECSLVATReportLine.SetRange("Report No.", VATReportHeader."No.");
         ECSLVATReportLine.SetRange("XML Part Id", PartId);
-        if ECSLVATReportLine.FindSet() then begin
+        if ECSLVATReportLine.FindSet() then
             repeat
                 XMLDOMManagement.AddElement(EuropeanSalesListBodyNode, 'EuropeanSale', '', '', SaleElement);
                 XMLDOMManagement.AddElementWithPrefix(SaleElement, 'SubmittersReference', Format(ECSLVATReportLine."Line No."),
@@ -83,7 +83,6 @@ codeunit 141 "EC Sales List Populate XML"
                 XMLDOMManagement.AddElementWithPrefix(SaleElement, 'TransactionIndicator', Format(IndicatorVar),
                   'VATCore', ECSLVATCoreNameSpaceTok, DummyElement);
             until ECSLVATReportLine.Next() = 0;
-        end
     end;
 
     local procedure GenerateEuropeanSalesDeclarationRequest(var EuropeanSalesListXML: DotNet XmlNode; VATReportHeader: Record "VAT Report Header"; PartId: Guid)

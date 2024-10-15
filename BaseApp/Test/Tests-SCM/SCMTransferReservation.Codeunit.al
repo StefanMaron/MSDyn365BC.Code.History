@@ -33,6 +33,7 @@ codeunit 137269 "SCM Transfer Reservation"
         DummyQst: Label 'Dummy Dialog Question?';
         ConfirmDialogOccursErr: Label 'Confirm Dialog occurs.';
         ExpectedDateConfclictErr: Label 'The change leads to a date conflict with existing reservations';
+        UnexpectedErr: Label 'Unexpected Error occured.';
         ReservEntryQtyIncorrectErr: Label 'Reservation Entry Quantity is different than expected.';
 
     [Test]
@@ -982,14 +983,11 @@ codeunit 137269 "SCM Transfer Reservation"
 
         // [WHEN] Create inventory pick for 100 pcs, define the lot no. = "L" on the pick line and post it in order to ship the transfer.
         CreateAndPostInventoryPickFromOutboundTransfer(WarehouseActivityLine, TransferHeader."No.", TransferLine.Quantity, LotNo);
-
         // [THEN] The item tracking is pushed to the inbound transfer.
-        with ReservationEntry do begin
-            SetSourceFilter(DATABASE::"Transfer Line", 1, TransferLine."Document No.", -1, true);
-            SetRange("Lot No.", LotNo);
-            CalcSums(Quantity);
-            TestField(Quantity, TransferLine.Quantity);
-        end;
+        ReservationEntry.SetSourceFilter(DATABASE::"Transfer Line", 1, TransferLine."Document No.", -1, true);
+        ReservationEntry.SetRange("Lot No.", LotNo);
+        ReservationEntry.CalcSums(Quantity);
+        ReservationEntry.TestField(Quantity, TransferLine.Quantity);
 
         // [WHEN] Continue the test - post the transfer receipt on "Blue".
         TransferHeader.Find();
@@ -997,19 +995,16 @@ codeunit 137269 "SCM Transfer Reservation"
 
         // [THEN] The item tracking for the inbound transfer is deleted.
         Assert.RecordIsEmpty(ReservationEntry);
-
         // [THEN] The sales order is now reserved from the inventory.
-        with ReservationEntry do begin
-            Reset();
-            SetSourceFilter(DATABASE::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.", true);
-            FindFirst();
-            TestField(Quantity, -SalesLine.Quantity);
-            Reset();
-            SetRange("Entry No.", "Entry No.");
-            SetRange(Positive, true);
-            FindFirst();
-            TestField("Source Type", DATABASE::"Item Ledger Entry");
-        end;
+        ReservationEntry.Reset();
+        ReservationEntry.SetSourceFilter(DATABASE::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.", true);
+        ReservationEntry.FindFirst();
+        ReservationEntry.TestField(Quantity, -SalesLine.Quantity);
+        ReservationEntry.Reset();
+        ReservationEntry.SetRange("Entry No.", ReservationEntry."Entry No.");
+        ReservationEntry.SetRange(Positive, true);
+        ReservationEntry.FindFirst();
+        ReservationEntry.TestField("Source Type", DATABASE::"Item Ledger Entry");
     end;
 
     [Test]
@@ -1061,27 +1056,21 @@ codeunit 137269 "SCM Transfer Reservation"
         // [WHEN] Create inventory put-away for 90 pcs, define the lot no. = "L" and post it in order to receive the transfer.
         CreateAndPostInventoryPutawayFromInboundTransfer(
           WarehouseActivityLine, TransferHeader."No.", LocationSilver.Code, TransferLine.Quantity - LibraryRandom.RandInt(10), LotNo);
-
         // [THEN] Item tracking for not yet posted 10 pcs is left for the inbound transfer.
-        with ReservationEntry do begin
-            SetSourceFilter(DATABASE::"Transfer Line", 1, TransferLine."Document No.", -1, true);
-            SetRange("Lot No.", LotNo);
-            CalcSums(Quantity);
-            TestField(Quantity, WarehouseActivityLine.Quantity - WarehouseActivityLine."Qty. to Handle");
-        end;
-
+        ReservationEntry.SetSourceFilter(DATABASE::"Transfer Line", 1, TransferLine."Document No.", -1, true);
+        ReservationEntry.SetRange("Lot No.", LotNo);
+        ReservationEntry.CalcSums(Quantity);
+        ReservationEntry.TestField(Quantity, WarehouseActivityLine.Quantity - WarehouseActivityLine."Qty. to Handle");
         // [THEN] The sales order is now reserved from the inventory.
-        with ReservationEntry do begin
-            Reset();
-            SetSourceFilter(DATABASE::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.", true);
-            FindFirst();
-            TestField(Quantity, -SalesLine.Quantity);
-            Reset();
-            SetRange("Entry No.", "Entry No.");
-            SetRange(Positive, true);
-            FindFirst();
-            TestField("Source Type", DATABASE::"Item Ledger Entry");
-        end;
+        ReservationEntry.Reset();
+        ReservationEntry.SetSourceFilter(DATABASE::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.", true);
+        ReservationEntry.FindFirst();
+        ReservationEntry.TestField(Quantity, -SalesLine.Quantity);
+        ReservationEntry.Reset();
+        ReservationEntry.SetRange("Entry No.", ReservationEntry."Entry No.");
+        ReservationEntry.SetRange(Positive, true);
+        ReservationEntry.FindFirst();
+        ReservationEntry.TestField("Source Type", DATABASE::"Item Ledger Entry");
     end;
 
     [Test]
@@ -1125,27 +1114,21 @@ codeunit 137269 "SCM Transfer Reservation"
         // [WHEN] Create inventory pick for 90 pcs, define the lot no. = "L" on the pick line and post it in order to ship the transfer.
         CreateAndPostInventoryPickFromOutboundTransfer(
           WarehouseActivityLine, TransferHeader."No.", Qty - LibraryRandom.RandInt(10), LotNo);
-
         // [THEN] Item tracking for 90 pcs is assigned to the inbound transfer.
-        with ReservationEntry do begin
-            SetSourceFilter(DATABASE::"Transfer Line", 1, TransferLine."Document No.", -1, true);
-            SetRange("Lot No.", LotNo);
-            CalcSums(Quantity);
-            TestField(Quantity, WarehouseActivityLine."Qty. to Handle");
-        end;
-
+        ReservationEntry.SetSourceFilter(DATABASE::"Transfer Line", 1, TransferLine."Document No.", -1, true);
+        ReservationEntry.SetRange("Lot No.", LotNo);
+        ReservationEntry.CalcSums(Quantity);
+        ReservationEntry.TestField(Quantity, WarehouseActivityLine."Qty. to Handle");
         // [THEN] Not shipped 10 pcs are still reserved from the inventory.
-        with ReservationEntry do begin
-            Reset();
-            SetSourceFilter(DATABASE::"Transfer Line", 0, TransferLine."Document No.", -1, true);
-            FindFirst();
-            TestField(Quantity, -(WarehouseActivityLine.Quantity - WarehouseActivityLine."Qty. to Handle"));
-            Reset();
-            SetRange("Entry No.", "Entry No.");
-            SetRange(Positive, true);
-            FindFirst();
-            TestField("Source Type", DATABASE::"Item Ledger Entry");
-        end;
+        ReservationEntry.Reset();
+        ReservationEntry.SetSourceFilter(DATABASE::"Transfer Line", 0, TransferLine."Document No.", -1, true);
+        ReservationEntry.FindFirst();
+        ReservationEntry.TestField(Quantity, -(WarehouseActivityLine.Quantity - WarehouseActivityLine."Qty. to Handle"));
+        ReservationEntry.Reset();
+        ReservationEntry.SetRange("Entry No.", ReservationEntry."Entry No.");
+        ReservationEntry.SetRange(Positive, true);
+        ReservationEntry.FindFirst();
+        ReservationEntry.TestField("Source Type", DATABASE::"Item Ledger Entry");
     end;
 
     [Test]
@@ -1196,38 +1179,29 @@ codeunit 137269 "SCM Transfer Reservation"
         // [WHEN] Create inventory pick for 90 pcs post it in order to ship the transfer.
         CreateAndPostInventoryPickFromOutboundTransfer(
           WarehouseActivityLine, TransferHeader."No.", TransferLine.Quantity - LibraryRandom.RandInt(10), LotNo);
-
         // [THEN] Item tracking for 10 pcs is assigned to the outbound side of the transfer.
-        with ReservationEntry do begin
-            SetSourceFilter(DATABASE::"Transfer Line", 0, TransferLine."Document No.", -1, true);
-            SetRange("Lot No.", LotNo);
-            CalcSums(Quantity);
-            TestField(Quantity, -(WarehouseActivityLine.Quantity - WarehouseActivityLine."Qty. to Handle"));
-        end;
-
+        ReservationEntry.SetSourceFilter(DATABASE::"Transfer Line", 0, TransferLine."Document No.", -1, true);
+        ReservationEntry.SetRange("Lot No.", LotNo);
+        ReservationEntry.CalcSums(Quantity);
+        ReservationEntry.TestField(Quantity, -(WarehouseActivityLine.Quantity - WarehouseActivityLine."Qty. to Handle"));
         // [THEN] Item tracking for 80 pcs is assigned to the inbound side (total 100 pcs tracked minus 20 pcs in the reservation for the sales).
-        with ReservationEntry do begin
-            SetSourceFilter(DATABASE::"Transfer Line", 1, TransferLine."Document No.", -1, true);
-            SetRange("Lot No.", LotNo);
-            SetRange("Reservation Status", "Reservation Status"::Surplus);
-            CalcSums(Quantity);
-            TestField(Quantity, TransferLine.Quantity - SalesLine.Quantity);
-        end;
-
+        ReservationEntry.SetSourceFilter(DATABASE::"Transfer Line", 1, TransferLine."Document No.", -1, true);
+        ReservationEntry.SetRange("Lot No.", LotNo);
+        ReservationEntry.SetRange("Reservation Status", ReservationEntry."Reservation Status"::Surplus);
+        ReservationEntry.CalcSums(Quantity);
+        ReservationEntry.TestField(Quantity, TransferLine.Quantity - SalesLine.Quantity);
         // [THEN] The sales order is now reserved from the lot-tracked inbound transfer.
-        with ReservationEntry do begin
-            Reset();
-            SetSourceFilter(DATABASE::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.", true);
-            SetRange("Reservation Status", "Reservation Status"::Reservation);
-            FindFirst();
-            TestField(Quantity, -SalesLine.Quantity);
-            Reset();
-            SetRange("Entry No.", "Entry No.");
-            SetRange(Positive, true);
-            FindFirst();
-            TestField("Source Type", DATABASE::"Transfer Line");
-            TestField("Lot No.", LotNo);
-        end;
+        ReservationEntry.Reset();
+        ReservationEntry.SetSourceFilter(DATABASE::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.", true);
+        ReservationEntry.SetRange("Reservation Status", ReservationEntry."Reservation Status"::Reservation);
+        ReservationEntry.FindFirst();
+        ReservationEntry.TestField(Quantity, -SalesLine.Quantity);
+        ReservationEntry.Reset();
+        ReservationEntry.SetRange("Entry No.", ReservationEntry."Entry No.");
+        ReservationEntry.SetRange(Positive, true);
+        ReservationEntry.FindFirst();
+        ReservationEntry.TestField("Source Type", DATABASE::"Transfer Line");
+        ReservationEntry.TestField("Lot No.", LotNo);
     end;
 
     [Test]
@@ -1273,23 +1247,20 @@ codeunit 137269 "SCM Transfer Reservation"
         LibraryVariableStorage.Enqueue(LotNo);
         LibraryVariableStorage.Enqueue(TrackedQty);
         TransferLine.OpenItemTrackingLines("Transfer Direction"::Outbound);
-
         // [GIVEN] Create inventory pick, define lot no. = "L" and "Qty. to Handle" = 161 pcs.
-        with WarehouseActivityLine do begin
-            LibraryWarehouse.CreateInvtPutPickMovement(
-              WarehouseRequest."Source Document"::"Outbound Transfer", TransferHeader."No.", false, true, false);
-            FindWarehouseActivityLine(WarehouseActivityLine, "Activity Type"::"Invt. Pick", TransferHeader."No.");
-            Validate("Qty. to Handle", TrackedQty);
-            Validate("Lot No.", LotNo);
-            Modify(true);
+        LibraryWarehouse.CreateInvtPutPickMovement(
+          WarehouseRequest."Source Document"::"Outbound Transfer", TransferHeader."No.", false, true, false);
+        FindWarehouseActivityLine(WarehouseActivityLine, WarehouseActivityLine."Activity Type"::"Invt. Pick", TransferHeader."No.");
+        WarehouseActivityLine.Validate("Qty. to Handle", TrackedQty);
+        WarehouseActivityLine.Validate("Lot No.", LotNo);
+        WarehouseActivityLine.Modify(true);
 
-            Next();
-            Validate("Qty. to Handle", 1);
-            Validate("Lot No.", LotNo);
-            Modify(true);
+        WarehouseActivityLine.Next();
+        WarehouseActivityLine.Validate("Qty. to Handle", 1);
+        WarehouseActivityLine.Validate("Lot No.", LotNo);
+        WarehouseActivityLine.Modify(true);
 
-            WarehouseActivityHeader.Get("Activity Type", "No.");
-        end;
+        WarehouseActivityHeader.Get(WarehouseActivityLine."Activity Type", WarehouseActivityLine."No.");
 
         // [WHEN] Post the inventory pick in order to ship the transfer.
         LibraryWarehouse.PostInventoryActivity(WarehouseActivityHeader, false);
@@ -1361,6 +1332,7 @@ codeunit 137269 "SCM Transfer Reservation"
         TempTrackingSpecification: Record "Tracking Specification" temporary;
         SourceTrackingSpecification: Record "Tracking Specification";
         ReservationEntry: Record "Reservation Entry";
+        PurchLineReserve: Codeunit "Purch. Line-Reserve";
         ItemTrackingLines: Page "Item Tracking Lines";
         LotNo: Code[50];
         LotQty: Decimal;
@@ -1385,16 +1357,14 @@ codeunit 137269 "SCM Transfer Reservation"
 
         LotNo := LibraryUtility.GenerateGUID();
         LotQty := LibraryRandom.RandIntInRange(10, 20);
-        with TempTrackingSpecification do begin
-            Init();
-            "Entry No." += 1;
-            Validate("Lot No.", LotNo);
-            Validate("Quantity (Base)", LotQty);
-            Insert();
-        end;
+        TempTrackingSpecification.Init();
+        TempTrackingSpecification."Entry No." += 1;
+        TempTrackingSpecification.Validate("Lot No.", LotNo);
+        TempTrackingSpecification.Validate("Quantity (Base)", LotQty);
+        TempTrackingSpecification.Insert();
 
         // [WHEN] Invoke RegisterItemTrackingLines function in page 6510 to register a new item tracking line. Lot No. = "L", Quantity = 20.
-        SourceTrackingSpecification.InitFromPurchLine(PurchaseLine);
+        PurchLineReserve.InitFromPurchLine(SourceTrackingSpecification, PurchaseLine);
         ItemTrackingLines.RegisterItemTrackingLines(SourceTrackingSpecification, WorkDate(), TempTrackingSpecification);
 
         // [THEN] The item tracking on purchase line is pushed to the inbound transfer (via outbound transfer).
@@ -1807,6 +1777,75 @@ codeunit 137269 "SCM Transfer Reservation"
     end;
 
     [Test]
+    procedure CorrectTransferOutboundReservedOnWhsePickAndShipmentWithAdditionalReservation()
+    var
+        Item: Record Item;
+        LocationWhite: Record Location;
+        LocationBlue: Record Location;
+        LocationTransit: Record Location;
+        WarehouseEmployee: Record "Warehouse Employee";
+        TransferHeader: Record "Transfer Header";
+        TransferLine: Record "Transfer Line";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        QtyToHandle: Decimal;
+    begin
+        // [FEATURE] [Warehouse Pick]
+        // [SCENARIO 384946] Transfer Line has correct "Reserved Qty. Outbound" and "Reserved Qty. Outbnd. (Base)" when doing Reservation From Inventory
+        Initialize();
+
+        // [GIVEN] Item without Item Tracking
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Directed put-away and pick location "W", simple location "B", transit location "T".
+        LibraryWarehouse.CreateFullWMSLocation(LocationWhite, 2);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, LocationWhite.Code, true);
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(LocationBlue);
+        LibraryWarehouse.CreateInTransitLocation(LocationTransit);
+
+        // [GIVEN] 20 PCS of item is in inventory on location "W".
+        LibraryWarehouse.UpdateInventoryOnLocationWithDirectedPutAwayAndPick(
+          Item."No.", LocationWhite.Code, LibraryRandom.RandIntInRange(20, 40), false);
+
+        // [GIVEN] Released Transfer Order from "W" to "B" through "T" for 10 pcs of the item, autoreserved.
+        LibraryInventory.CreateTransferHeader(TransferHeader, LocationWhite.Code, LocationBlue.Code, LocationTransit.Code);
+        LibraryInventory.CreateTransferLine(TransferHeader, TransferLine, Item."No.", LibraryRandom.RandIntInRange(6, 10));
+        AutoReserveTransferLine(TransferLine, TransferLine."Shipment Date", "Transfer Direction"::Outbound);
+        LibraryInventory.ReleaseTransferOrder(TransferHeader);
+
+        // [GIVEN] Warehouse shipment from "W" is created for the transfer order.
+        // [GIVEN] Warehouse pick is created from the warehouse shipment.
+        LibraryWarehouse.CreateWhseShipmentFromTO(TransferHeader);
+        WarehouseShipmentHeader.Get(
+          LibraryWarehouse.FindWhseShipmentNoBySourceDoc(DATABASE::"Transfer Line", 0, TransferHeader."No."));
+        LibraryWarehouse.CreatePick(WarehouseShipmentHeader);
+        FindSetWarehouseActivityLine(WarehouseActivityLine, WarehouseActivityLine."Activity Type"::Pick, TransferHeader."No.");
+        WarehouseActivityHeader.Get(WarehouseActivityHeader.Type::Pick, WarehouseActivityLine."No.");
+
+        // [GIVEN] "Qty. to Handle" deleted on the warehouse pick lines
+        WarehouseActivityLine.DeleteQtyToHandle(WarehouseActivityLine);
+
+        // [GIVEN] Warehouse pick registered with "Qty to Handle" = 3 PCS on the warehouse pick lines
+        QtyToHandle := LibraryRandom.RandInt(5);
+        UpdateQtyToHandleOnWarehouseActivityLines(WarehouseActivityLine, QtyToHandle);
+        LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
+
+        // [GIVEN] Post Warehouse Shipment for the Transfer Order
+        LibraryWarehouse.PostWhseShipment(WarehouseShipmentHeader, false);
+
+        // [GIVEN] Add additional "Qty. to Ship" on Transfer Line and clear last error
+        UpdateQtyToShipAndBaseOnTransferLine(TransferLine, 3, 3);
+        ClearLastError();
+
+        // [WHEN] Reserve from Inventory with Transfer Line having "Reserved Qty. Outbound" = 3 PCS and "Qty. to Ship" = 3 PCS
+        TransferLine.ReserveFromInventory(TransferLine);
+
+        // [THEN] No unexpected errors should happen durring Reservation from Inventory
+        Assert.AreEqual('', GetLastErrorText, UnexpectedErr);
+    end;
+
+    [Test]
     [HandlerFunctions('ItemTrackingLinesLotPageHandler')]
     procedure VerifyPostingShipmentIsNotAllowedOnTransferOrderWithItemTrackingLinesAndPartialShipQty()
     var
@@ -2193,8 +2232,7 @@ codeunit 137269 "SCM Transfer Reservation"
         FullAutoReservation: Boolean;
     begin
         ReservationManagement.SetReservSource(TransferLine, Direction);
-        with TransferLine do
-            ReservationManagement.AutoReserve(FullAutoReservation, Description, AvailabilityDate, Quantity, "Quantity (Base)");
+        ReservationManagement.AutoReserve(FullAutoReservation, TransferLine.Description, AvailabilityDate, TransferLine.Quantity, TransferLine."Quantity (Base)");
     end;
 
     local procedure AutoReserveSalesLine(var SalesLine: Record "Sales Line"; AvailabilityDate: Date)
@@ -2203,8 +2241,7 @@ codeunit 137269 "SCM Transfer Reservation"
         FullAutoReservation: Boolean;
     begin
         ReservationManagement.SetReservSource(SalesLine);
-        with SalesLine do
-            ReservationManagement.AutoReserve(FullAutoReservation, Description, AvailabilityDate, Quantity, "Quantity (Base)");
+        ReservationManagement.AutoReserve(FullAutoReservation, SalesLine.Description, AvailabilityDate, SalesLine.Quantity, SalesLine."Quantity (Base)");
     end;
 
     local procedure AutoReservePurchaseLine(var PurchaseLine: Record "Purchase Line"; AvailabilityDate: Date)
@@ -2213,8 +2250,7 @@ codeunit 137269 "SCM Transfer Reservation"
         FullAutoReservation: Boolean;
     begin
         ReservationManagement.SetReservSource(PurchaseLine);
-        with PurchaseLine do
-            ReservationManagement.AutoReserve(FullAutoReservation, Description, AvailabilityDate, Quantity, "Quantity (Base)");
+        ReservationManagement.AutoReserve(FullAutoReservation, PurchaseLine.Description, AvailabilityDate, PurchaseLine.Quantity, PurchaseLine."Quantity (Base)");
     end;
 
     local procedure AutoReserveTransferLineInbound(var TransferLine: Record "Transfer Line"; AvailabilityDate: Date)
@@ -2575,6 +2611,14 @@ codeunit 137269 "SCM Transfer Reservation"
             WarehouseActivityLine.Validate("Qty. to Handle", QtyToHandle);
             WarehouseActivityLine.Modify(true);
         until WarehouseActivityLine.Next() = 0;
+    end;
+
+    local procedure UpdateQtyToShipAndBaseOnTransferLine(var TransferLine: Record "Transfer Line"; Qty: Decimal; QtyBase: Decimal)
+    begin
+        TransferLine.Find();
+        TransferLine."Qty. to Ship" := Qty;
+        TransferLine."Qty. to Ship (Base)" := QtyBase;
+        TransferLine.Modify();
     end;
 
     local procedure VerifyTrackingSpecification(var TempTrackingSpecification: Record "Tracking Specification" temporary; SourceType: Integer; SourceSubtype: Integer; SourceID: Code[20]; SourceBatchName: Code[20]; SourceProdOrderLine: Integer; SourceRefNo: Integer; SignFactor: Integer)

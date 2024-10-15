@@ -26,7 +26,6 @@ codeunit 144062 "ERM Payment Terms Reporting"
         LibraryReportDataset: Codeunit "Library - Report Dataset";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
-        DocumentTypeMustBeInvErr: Label 'Document Type must be equal to ''Invoice''';
         IncorrectAvgNumToMakePmtErr: Label 'Incorrect average number of days to make payment', Locked = true;
         IncorrectPctOfPmtsPaidInDaysErr: Label 'Incorrect percent of payments paid in days', Locked = true;
 
@@ -216,8 +215,7 @@ codeunit 144062 "ERM Payment Terms Reporting"
         LibraryJournals.CreateGenJournalLineWithBatch(
           GenJournalLine, GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Vendor, '', 0);
         asserterror GenJournalLine.Validate("Invoice Receipt Date", WorkDate());
-        Assert.ExpectedErrorCode('TestField');
-        Assert.ExpectedError(DocumentTypeMustBeInvErr);
+        Assert.ExpectedTestFieldError(GenJournalLine.FieldCaption("Document Type"), Format(GenJournalLine."Document Type"::Invoice));
     end;
 
     [Test]
@@ -1173,19 +1171,17 @@ codeunit 144062 "ERM Payment Terms Reporting"
 
     local procedure MockVendLedEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; ExcludeFromPmtPracticesReport: Boolean; DocType: Enum "Gen. Journal Document Type"; PostingDate: Date; DocumentDate: Date; InvoiceReceiptDate: Date; DueDate: Date; IsOpen: Boolean): Integer
     begin
-        with VendorLedgerEntry do begin
-            Init();
-            "Entry No." := LibraryUtility.GetNewRecNo(VendorLedgerEntry, FieldNo("Entry No."));
-            "Document Type" := DocType;
-            "Posting Date" := PostingDate;
-            "Document Date" := DocumentDate;
-            "Vendor No." := MockVendor(ExcludeFromPmtPracticesReport);
-            "Invoice Receipt Date" := InvoiceReceiptDate;
-            "Due Date" := DueDate;
-            Open := IsOpen;
-            Insert();
-            exit("Entry No.");
-        end;
+        VendorLedgerEntry.Init();
+        VendorLedgerEntry."Entry No." := LibraryUtility.GetNewRecNo(VendorLedgerEntry, VendorLedgerEntry.FieldNo("Entry No."));
+        VendorLedgerEntry."Document Type" := DocType;
+        VendorLedgerEntry."Posting Date" := PostingDate;
+        VendorLedgerEntry."Document Date" := DocumentDate;
+        VendorLedgerEntry."Vendor No." := MockVendor(ExcludeFromPmtPracticesReport);
+        VendorLedgerEntry."Invoice Receipt Date" := InvoiceReceiptDate;
+        VendorLedgerEntry."Due Date" := DueDate;
+        VendorLedgerEntry.Open := IsOpen;
+        VendorLedgerEntry.Insert();
+        exit(VendorLedgerEntry."Entry No.");
     end;
 
     local procedure MockVendLedEntryNo(ExcludeFromPmtPracticesReport: Boolean; DocType: Enum "Gen. Journal Document Type"; PostingDate: Date; DocumentDate: Date; InvoiceReceiptDate: Date; DueDate: Date; IsOpen: Boolean): Integer
@@ -1201,16 +1197,14 @@ codeunit 144062 "ERM Payment Terms Reporting"
     var
         DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
     begin
-        with DetailedVendorLedgEntry do begin
-            Init();
-            "Entry Type" := "Entry Type"::Application;
-            "Entry No." := LibraryUtility.GetNewRecNo(DetailedVendorLedgEntry, FieldNo("Entry No."));
-            "Document Type" := DocType;
-            "Vendor Ledger Entry No." := VendLedgEntryNo;
-            "Applied Vend. Ledger Entry No." := AppliedVendLedgEntryNo;
-            Insert();
-            exit("Entry No.");
-        end;
+        DetailedVendorLedgEntry.Init();
+        DetailedVendorLedgEntry."Entry Type" := DetailedVendorLedgEntry."Entry Type"::Application;
+        DetailedVendorLedgEntry."Entry No." := LibraryUtility.GetNewRecNo(DetailedVendorLedgEntry, DetailedVendorLedgEntry.FieldNo("Entry No."));
+        DetailedVendorLedgEntry."Document Type" := DocType;
+        DetailedVendorLedgEntry."Vendor Ledger Entry No." := VendLedgEntryNo;
+        DetailedVendorLedgEntry."Applied Vend. Ledger Entry No." := AppliedVendLedgEntryNo;
+        DetailedVendorLedgEntry.Insert();
+        exit(DetailedVendorLedgEntry."Entry No.");
     end;
 
     local procedure MockThreePmtPeriodSetup()

@@ -1114,17 +1114,14 @@ codeunit 137350 "SCM Inventory Reports - III"
         // [GIVEN] Posted Purchase Order with "Receive & Invoice" option.
         ItemNo := CreateItem();
         CreateAndPostPurchaseOrder(ItemNo, LibraryRandom.RandInt(10), LibraryRandom.RandDec(10, 2));
-
         // [GIVEN] Value Entry for posted Purchase is found. ValueEntry."Gen. Bus. Posting Group" = "X".
         // [GIVEN] Set "Cost Posted to G/L" = "Cost Amount (Actual)" in Value Entry so it will be skipped during posting to G/L.
-        with ValueEntry do begin
-            SetRange("Item No.", ItemNo);
-            FindFirst();
-            GenBusPostingGroupCode := "Gen. Bus. Posting Group";
-            "Cost Posted to G/L" := "Cost Amount (Actual)";
-            "Cost Posted to G/L (ACY)" := "Cost Amount (Actual) (ACY)";
-            Modify();
-        end;
+        ValueEntry.SetRange("Item No.", ItemNo);
+        ValueEntry.FindFirst();
+        GenBusPostingGroupCode := ValueEntry."Gen. Bus. Posting Group";
+        ValueEntry."Cost Posted to G/L" := ValueEntry."Cost Amount (Actual)";
+        ValueEntry."Cost Posted to G/L (ACY)" := ValueEntry."Cost Amount (Actual) (ACY)";
+        ValueEntry.Modify();
 
         // [WHEN] Run "Post Inventory Cost to G/L" batch job on Item.
         PostValueEntryToGL.SetRange("Item No.", ItemNo);
@@ -1411,23 +1408,19 @@ codeunit 137350 "SCM Inventory Reports - III"
     begin
         // [FEATURE] [UT] [Item Substitution] [Item]
         // [SCENARIO]  Field "Description" in "Item Substitution" record with "Substitute Type" = "Item" is reset to an empty string when setting empty "Substitute No."
-        with ItemSubstitution do begin
-            // [GIVEN] "Item Subsitution" "IS" with "Substitution Type" = "Item"
-            CreateItemSubstitution(ItemSubstitution, Type::Item, LibraryInventory.CreateItemNo());
-            TestField(Description, '');
-
-            // [GIVEN] Item "I" with Description = "D"
-            LibraryInventory.CreateItem(Item);
-            // [GIVEN] "IS"."Substitution No." = "I"
-            Validate("Substitute No.", Item."No.");
-            // [GIVEN] "IS".Description = "D"
-            TestField(Description, Item.Description);
-
-            // [WHEN] When reset "IS"."Substitution No." = ''
-            Validate("Substitute No.", '');
-            // [THEN] "IS".Description = ''
-            TestField(Description, '');
-        end;
+        // [GIVEN] "Item Subsitution" "IS" with "Substitution Type" = "Item"
+        CreateItemSubstitution(ItemSubstitution, ItemSubstitution.Type::Item, LibraryInventory.CreateItemNo());
+        ItemSubstitution.TestField(Description, '');
+        // [GIVEN] Item "I" with Description = "D"
+        LibraryInventory.CreateItem(Item);
+        // [GIVEN] "IS"."Substitution No." = "I"
+        ItemSubstitution.Validate("Substitute No.", Item."No.");
+        // [GIVEN] "IS".Description = "D"
+        ItemSubstitution.TestField(Description, Item.Description);
+        // [WHEN] When reset "IS"."Substitution No." = ''
+        ItemSubstitution.Validate("Substitute No.", '');
+        // [THEN] "IS".Description = ''
+        ItemSubstitution.TestField(Description, '');
     end;
 
     [Test]
@@ -1675,13 +1668,11 @@ codeunit 137350 "SCM Inventory Reports - III"
 
     local procedure CreateItemSubstitution(var ItemSubstitution: Record "Item Substitution"; ItemSubstitutionType: Enum "Item Substitution Type"; ItemNo: Code[20])
     begin
-        with ItemSubstitution do begin
-            Init();
-            Validate(Type, ItemSubstitutionType);
-            Validate("No.", ItemNo);
-            Validate("Substitute No.", '');
-            Insert(true);
-        end;
+        ItemSubstitution.Init();
+        ItemSubstitution.Validate(Type, ItemSubstitutionType);
+        ItemSubstitution.Validate("No.", ItemNo);
+        ItemSubstitution.Validate("Substitute No.", '');
+        ItemSubstitution.Insert(true);
     end;
 
     local procedure CalculateItemLedgerEntryAmount(ItemNo: Code[20]) TotalAmount: Decimal
@@ -2037,26 +2028,22 @@ codeunit 137350 "SCM Inventory Reports - III"
     var
         PostValueEntryToGL: Record "Post Value Entry to G/L";
     begin
-        with ValueEntry do begin
-            Init();
-            "Entry No." := LibraryUtility.GetNewRecNo(ValueEntry, FieldNo("Entry No."));
-            "Item Ledger Entry Type" := "Item Ledger Entry Type"::" ";
-            "Item Ledger Entry No." := 0;
-            "Capacity Ledger Entry No." := LibraryRandom.RandInt(100);
-            "Posting Date" := WorkDate();
-            "Entry Type" := "Entry Type"::"Direct Cost";
-            "Valued Quantity" := LibraryRandom.RandInt(10);
-            "Cost per Unit" := LibraryRandom.RandDec(10, 2);
-            "Cost Amount (Actual)" := "Valued Quantity" * "Cost per Unit";
-            Insert();
-        end;
+        ValueEntry.Init();
+        ValueEntry."Entry No." := LibraryUtility.GetNewRecNo(ValueEntry, ValueEntry.FieldNo("Entry No."));
+        ValueEntry."Item Ledger Entry Type" := ValueEntry."Item Ledger Entry Type"::" ";
+        ValueEntry."Item Ledger Entry No." := 0;
+        ValueEntry."Capacity Ledger Entry No." := LibraryRandom.RandInt(100);
+        ValueEntry."Posting Date" := WorkDate();
+        ValueEntry."Entry Type" := ValueEntry."Entry Type"::"Direct Cost";
+        ValueEntry."Valued Quantity" := LibraryRandom.RandInt(10);
+        ValueEntry."Cost per Unit" := LibraryRandom.RandDec(10, 2);
+        ValueEntry."Cost Amount (Actual)" := ValueEntry."Valued Quantity" * ValueEntry."Cost per Unit";
+        ValueEntry.Insert();
 
-        with PostValueEntryToGL do begin
-            Init();
-            "Value Entry No." := ValueEntry."Entry No.";
-            "Posting Date" := WorkDate();
-            Insert();
-        end;
+        PostValueEntryToGL.Init();
+        PostValueEntryToGL."Value Entry No." := ValueEntry."Entry No.";
+        PostValueEntryToGL."Posting Date" := WorkDate();
+        PostValueEntryToGL.Insert();
     end;
 
     local procedure FindItemLedgerEntry(ItemNo: Code[20]; DocumentNo: Code[20]; EntryType: Enum "Item Ledger Document Type"): Integer
@@ -2234,12 +2221,10 @@ codeunit 137350 "SCM Inventory Reports - III"
         ProdOrderLine: Record "Prod. Order Line";
         ProductionJournalMgt: Codeunit "Production Journal Mgt";
     begin
-        with ProdOrderLine do begin
-            SetRange(Status, ProductionOrder.Status::Released);
-            SetRange("Prod. Order No.", ProductionOrder."No.");
-            FindFirst();
-            ProductionJournalMgt.Handling(ProductionOrder, "Line No.");
-        end;
+        ProdOrderLine.SetRange(Status, ProductionOrder.Status::Released);
+        ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderLine.FindFirst();
+        ProductionJournalMgt.Handling(ProductionOrder, ProdOrderLine."Line No.");
     end;
 
     local procedure RegisterWarehouseActivity(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceNo: Code[20])
@@ -2985,13 +2970,11 @@ codeunit 137350 "SCM Inventory Reports - III"
         ItemNo: Variant;
     begin
         LibraryVariableStorage.Dequeue(ItemNo);
-        with ItemJournalLine do begin
-            SetRange("Item No.", ItemNo);
-            SetRange("Entry Type", "Entry Type"::Output);
-            FindFirst();
-            OpenItemTrackingLines(false);
-            CODEUNIT.Run(CODEUNIT::"Item Jnl.-Post Batch", ItemJournalLine);
-        end;
+        ItemJournalLine.SetRange("Item No.", ItemNo);
+        ItemJournalLine.SetRange("Entry Type", ItemJournalLine."Entry Type"::Output);
+        ItemJournalLine.FindFirst();
+        ItemJournalLine.OpenItemTrackingLines(false);
+        CODEUNIT.Run(CODEUNIT::"Item Jnl.-Post Batch", ItemJournalLine);
     end;
 
     [RequestPageHandler]

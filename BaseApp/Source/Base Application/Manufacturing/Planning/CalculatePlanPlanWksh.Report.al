@@ -222,6 +222,24 @@ report 99001017 "Calculate Plan - Plan. Wksh."
         Counter: Integer;
         CounterOK: Integer;
         NoOfRecords: Integer;
+#pragma warning disable AA0074
+        Text005: Label 'Calculating the plan...\\';
+        Text006: Label 'Progress';
+#pragma warning disable AA0470
+        Text007: Label 'Not all items were planned. A total of %1 items were not planned.';
+#pragma warning restore AA0470
+        Text008: Label 'There is nothing to plan.';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+        Text009: Label 'The last time this batch was run, errors were encountered.\Do you want the batch to continue from where it left off?';
+#pragma warning disable AA0470
+        Text011: Label 'An unidentified error occurred while planning %1 %2. Recalculate the plan with the option "Stop and Show Error".';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+
+    protected var
+        CurrTemplateName: Code[10];
+        CurrWorksheetName: Code[10];
         NetChange: Boolean;
         MPS: Boolean;
         MRP: Boolean;
@@ -230,15 +248,7 @@ report 99001017 "Calculate Plan - Plan. Wksh."
         FromDate: Date;
         ToDate: Date;
         ExcludeForecastBefore: Date;
-        Text005: Label 'Calculating the plan...\\';
-        Text006: Label 'Progress';
-        Text007: Label 'Not all items were planned. A total of %1 items were not planned.';
-        Text008: Label 'There is nothing to plan.';
-        CurrTemplateName: Code[10];
-        CurrWorksheetName: Code[10];
         UseForecast: Code[10];
-        Text009: Label 'The last time this batch was run, errors were encountered.\Do you want the batch to continue from where it left off?';
-        Text011: Label 'An unidentified error occurred while planning %1 %2. Recalculate the plan with the option "Stop and Show Error".';
         RespectPlanningParm: Boolean;
 
     procedure SetTemplAndWorksheet(TemplateName: Code[10]; WorksheetName: Code[10]; Regenerative: Boolean)

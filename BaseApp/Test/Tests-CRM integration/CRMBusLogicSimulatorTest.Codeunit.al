@@ -28,11 +28,9 @@ codeunit 139184 "CRM Bus. Logic Simulator Test"
         LibraryCRMIntegration.ResetEnvironment();
         LibraryCRMIntegration.ConfigureCRM();
 
-        with CRMProductpricelevel do begin
-            Init();
-            asserterror Insert();
-            Assert.ExpectedError('Price List must have a value in CRM Productpricelevel');
-        end;
+        CRMProductpricelevel.Init();
+        asserterror CRMProductpricelevel.Insert();
+        Assert.ExpectedTestFieldError(CRMProductpricelevel.FieldCaption(PriceLevelId), '');
     end;
 
     [Test]
@@ -45,12 +43,10 @@ codeunit 139184 "CRM Bus. Logic Simulator Test"
         LibraryCRMIntegration.ResetEnvironment();
         LibraryCRMIntegration.ConfigureCRM();
 
-        with CRMProductpricelevel do begin
-            Init();
-            PriceLevelId := CreateGuid();
-            asserterror Insert();
-            Assert.ExpectedError(ProductIdMissingErr);
-        end;
+        CRMProductpricelevel.Init();
+        CRMProductpricelevel.PriceLevelId := CreateGuid();
+        asserterror CRMProductpricelevel.Insert();
+        Assert.ExpectedError(ProductIdMissingErr);
     end;
 
     [Test]
@@ -63,21 +59,18 @@ codeunit 139184 "CRM Bus. Logic Simulator Test"
         LibraryCRMIntegration.ResetEnvironment();
         LibraryCRMIntegration.ConfigureCRM();
 
-        with CRMProductpricelevel do begin
-            Init();
-            ProductPriceLevelId := CreateGuid();
-            PriceLevelId := CreateGuid();
-            ProductId := CreateGuid();
-            UoMId := CreateGuid();
-            Amount := 1.0;
-            Insert();
-
-            // another line with the same pair of ProductId + UoMId
-            ProductPriceLevelId := CreateGuid();
-            Amount += 1;
-            asserterror Insert();
-            Assert.ExpectedError(PriceListLineAlreadyExistsErr);
-        end;
+        CRMProductpricelevel.Init();
+        CRMProductpricelevel.ProductPriceLevelId := CreateGuid();
+        CRMProductpricelevel.PriceLevelId := CreateGuid();
+        CRMProductpricelevel.ProductId := CreateGuid();
+        CRMProductpricelevel.UoMId := CreateGuid();
+        CRMProductpricelevel.Amount := 1.0;
+        CRMProductpricelevel.Insert();
+        // another line with the same pair of ProductId + UoMId
+        CRMProductpricelevel.ProductPriceLevelId := CreateGuid();
+        CRMProductpricelevel.Amount += 1;
+        asserterror CRMProductpricelevel.Insert();
+        Assert.ExpectedError(PriceListLineAlreadyExistsErr);
     end;
 
     [Test]
@@ -90,14 +83,13 @@ codeunit 139184 "CRM Bus. Logic Simulator Test"
         LibraryCRMIntegration.ResetEnvironment();
         LibraryCRMIntegration.ConfigureCRM();
 
-        with CRMInvoicedetail do begin
-            Init();
-            BaseAmount := 1.0;
-            ExtendedAmount := 2.0;
-            Insert(); // handled by ValidateSalesInvoiceLineOnInsert
-            TestField(BaseAmount, 0);
-            TestField(ExtendedAmount, 0);
-        end;
+        CRMInvoicedetail.Init();
+        CRMInvoicedetail.BaseAmount := 1.0;
+        CRMInvoicedetail.ExtendedAmount := 2.0;
+        CRMInvoicedetail.Insert();
+        // handled by ValidateSalesInvoiceLineOnInsert
+        CRMInvoicedetail.TestField(BaseAmount, 0);
+        CRMInvoicedetail.TestField(ExtendedAmount, 0);
     end;
 
     [Test]
@@ -110,12 +102,11 @@ codeunit 139184 "CRM Bus. Logic Simulator Test"
         LibraryCRMIntegration.ResetEnvironment();
         LibraryCRMIntegration.ConfigureCRM();
 
-        with CRMTransactioncurrency do begin
-            TransactionCurrencyId := CreateGuid();
-            ISOCurrencyCode := '12345';
-            asserterror Insert(); // handled by ValidateCurrencyOnInsert
-            Assert.ExpectedError('Exchange Rate must have a value in Dataverse Transactioncurrency');
-        end;
+        CRMTransactioncurrency.TransactionCurrencyId := CreateGuid();
+        CRMTransactioncurrency.ISOCurrencyCode := '12345';
+        asserterror CRMTransactioncurrency.Insert();
+        // handled by ValidateCurrencyOnInsert
+        Assert.ExpectedTestFieldError(CRMTransactioncurrency.FieldCaption(ExchangeRate), '');
     end;
 
     [Test]
@@ -128,17 +119,15 @@ codeunit 139184 "CRM Bus. Logic Simulator Test"
         LibraryCRMIntegration.ResetEnvironment();
         LibraryCRMIntegration.ConfigureCRM();
 
-        with CRMSalesorder do begin
-            SalesOrderId := CreateGuid();
-            StateCode := StateCode::Submitted;
-            LastBackofficeSubmit := 0D;
-            Insert();
+        CRMSalesorder.SalesOrderId := CreateGuid();
+        CRMSalesorder.StateCode := CRMSalesorder.StateCode::Submitted;
+        CRMSalesorder.LastBackofficeSubmit := 0D;
+        CRMSalesorder.Insert();
 
-            LastBackofficeSubmit := Today;
-            asserterror Modify(true);
+        CRMSalesorder.LastBackofficeSubmit := Today;
+        asserterror CRMSalesorder.Modify(true);
 
-            Assert.ExpectedError(SalesOrderIsNotEditableErr);
-        end;
+        Assert.ExpectedError(SalesOrderIsNotEditableErr);
     end;
 
     [Test]
@@ -160,65 +149,55 @@ codeunit 139184 "CRM Bus. Logic Simulator Test"
         CRMSalesorderdetail[1].SalesOrderDetailId := CreateGuid();
         CRMSalesorderdetail[1].SalesOrderId := CRMSalesorder.SalesOrderId;
         CRMSalesorderdetail[1].Insert();
-
         // [GIVEN] the line contains volume and manual discounts
-        with CRMSalesorderdetail[1] do begin
-            Quantity := 10;
-            ManualDiscountAmount := 400;
-            VolumeDiscountAmount := 280;
-            PricePerUnit := 4000;
-            Tax := 5000;
-            // [WHEN] Modify the order line
-            Modify(); // recalc in onModify
-
-            // [THEN] the line is recalculated: BaseAmount, ExtendedAmount
-            TestField(BaseAmount, (PricePerUnit - VolumeDiscountAmount) * Quantity);
-            TestField(ExtendedAmount, BaseAmount - ManualDiscountAmount + Tax);
-        end;
+        CRMSalesorderdetail[1].Quantity := 10;
+        CRMSalesorderdetail[1].ManualDiscountAmount := 400;
+        CRMSalesorderdetail[1].VolumeDiscountAmount := 280;
+        CRMSalesorderdetail[1].PricePerUnit := 4000;
+        CRMSalesorderdetail[1].Tax := 5000;
+        // [WHEN] Modify the order line
+        CRMSalesorderdetail[1].Modify();
+        // recalc in onModify
+        // [THEN] the line is recalculated: BaseAmount, ExtendedAmount
+        CRMSalesorderdetail[1].TestField(BaseAmount, (CRMSalesorderdetail[1].PricePerUnit - CRMSalesorderdetail[1].VolumeDiscountAmount) * CRMSalesorderdetail[1].Quantity);
+        CRMSalesorderdetail[1].TestField(ExtendedAmount, CRMSalesorderdetail[1].BaseAmount - CRMSalesorderdetail[1].ManualDiscountAmount + CRMSalesorderdetail[1].Tax);
         // [GIVEN] added the second line
         CRMSalesorderdetail[2] := CRMSalesorderdetail[1];
         CRMSalesorderdetail[2].SalesOrderDetailId := CreateGuid();
         CRMSalesorderdetail[2].Insert();
-
         // [WHEN] Quantity, ManualDiscountAmount, and Tax are changed in the 2nd line
-        with CRMSalesorderdetail[2] do begin
-            Quantity := 5;
-            ManualDiscountAmount := 250;
-            Tax := 3000;
-            Modify(); // recalc in onModify
-
-            // [THEN] the 2nd line is recalculated: BaseAmount, ExtendedAmount
-            TestField(BaseAmount, (PricePerUnit - VolumeDiscountAmount) * Quantity);
-            TestField(ExtendedAmount, BaseAmount - ManualDiscountAmount + Tax);
-        end;
-
+        CRMSalesorderdetail[2].Quantity := 5;
+        CRMSalesorderdetail[2].ManualDiscountAmount := 250;
+        CRMSalesorderdetail[2].Tax := 3000;
+        CRMSalesorderdetail[2].Modify();
+        // recalc in onModify
+        // [THEN] the 2nd line is recalculated: BaseAmount, ExtendedAmount
+        CRMSalesorderdetail[2].TestField(BaseAmount, (CRMSalesorderdetail[2].PricePerUnit - CRMSalesorderdetail[2].VolumeDiscountAmount) * CRMSalesorderdetail[2].Quantity);
+        CRMSalesorderdetail[2].TestField(ExtendedAmount, CRMSalesorderdetail[2].BaseAmount - CRMSalesorderdetail[2].ManualDiscountAmount + CRMSalesorderdetail[2].Tax);
         // [THEN] the header is recalculated: TotalLineItemDiscountAmount, TotalLineItemAmount, TotalTax
-        with CRMSalesorder do begin
-            Find();
-            TestField(
-              TotalLineItemDiscountAmount,
-              CRMSalesorderdetail[1].ManualDiscountAmount + CRMSalesorderdetail[2].ManualDiscountAmount);
-            TestField(
-              TotalLineItemAmount,
-              CRMSalesorderdetail[1].BaseAmount + CRMSalesorderdetail[2].BaseAmount - TotalLineItemDiscountAmount);
-            TestField(TotalTax, CRMSalesorderdetail[1].Tax + CRMSalesorderdetail[2].Tax);
-            // [THEN] TotalAmount = TotalLineItemAmount + Total Tax, as no discounts and freight on the header
-            TestField(TotalAmountLessFreight, TotalLineItemAmount);
-            TestField(TotalDiscountAmount, TotalLineItemDiscountAmount);
-            TestField(TotalAmount, TotalLineItemAmount + TotalTax);
-
-            // [WHEN] add discounts and freight to the header
-            DiscountAmount := 3500;
-            FreightAmount := 1020;
-            DiscountPercentage := 9;
-            Modify(); // recalc in onModify
-
-            // [THEN] TotalAmount includes discounts and freight
-            DiscountPctAmount := Round(TotalLineItemAmount * DiscountPercentage / 100);
-            TestField(TotalAmountLessFreight, TotalLineItemAmount - DiscountPctAmount - DiscountAmount);
-            TestField(TotalDiscountAmount, TotalLineItemDiscountAmount + DiscountPctAmount + DiscountAmount);
-            TestField(TotalAmount, TotalAmountLessFreight + FreightAmount + TotalTax);
-        end;
+        CRMSalesorder.Find();
+        CRMSalesorder.TestField(
+          TotalLineItemDiscountAmount,
+          CRMSalesorderdetail[1].ManualDiscountAmount + CRMSalesorderdetail[2].ManualDiscountAmount);
+        CRMSalesorder.TestField(
+          TotalLineItemAmount,
+          CRMSalesorderdetail[1].BaseAmount + CRMSalesorderdetail[2].BaseAmount - CRMSalesorder.TotalLineItemDiscountAmount);
+        CRMSalesorder.TestField(TotalTax, CRMSalesorderdetail[1].Tax + CRMSalesorderdetail[2].Tax);
+        // [THEN] TotalAmount = TotalLineItemAmount + Total Tax, as no discounts and freight on the header
+        CRMSalesorder.TestField(TotalAmountLessFreight, CRMSalesorder.TotalLineItemAmount);
+        CRMSalesorder.TestField(TotalDiscountAmount, CRMSalesorder.TotalLineItemDiscountAmount);
+        CRMSalesorder.TestField(TotalAmount, CRMSalesorder.TotalLineItemAmount + CRMSalesorder.TotalTax);
+        // [WHEN] add discounts and freight to the header
+        CRMSalesorder.DiscountAmount := 3500;
+        CRMSalesorder.FreightAmount := 1020;
+        CRMSalesorder.DiscountPercentage := 9;
+        CRMSalesorder.Modify();
+        // recalc in onModify
+        // [THEN] TotalAmount includes discounts and freight
+        DiscountPctAmount := Round(CRMSalesorder.TotalLineItemAmount * CRMSalesorder.DiscountPercentage / 100);
+        CRMSalesorder.TestField(TotalAmountLessFreight, CRMSalesorder.TotalLineItemAmount - DiscountPctAmount - CRMSalesorder.DiscountAmount);
+        CRMSalesorder.TestField(TotalDiscountAmount, CRMSalesorder.TotalLineItemDiscountAmount + DiscountPctAmount + CRMSalesorder.DiscountAmount);
+        CRMSalesorder.TestField(TotalAmount, CRMSalesorder.TotalAmountLessFreight + CRMSalesorder.FreightAmount + CRMSalesorder.TotalTax);
     end;
 
     [Test]

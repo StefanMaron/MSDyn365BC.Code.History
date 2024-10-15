@@ -3112,6 +3112,9 @@ End Function
         <Field Name="ShipToAddr6">
           <DataField>ShipToAddr6</DataField>
         </Field>
+        <Field Name="CompanyPicture">
+          <DataField>CompanyPicture</DataField>
+        </Field>
         <Field Name="CompanyInfoVATRegNo">
           <DataField>CompanyInfoVATRegNo</DataField>
         </Field>

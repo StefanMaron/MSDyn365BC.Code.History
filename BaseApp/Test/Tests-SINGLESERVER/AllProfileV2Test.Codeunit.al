@@ -779,6 +779,7 @@ codeunit 138698 "AllProfile V2 Test"
     [Scope('OnPrem')]
     procedure TestCannotselectANonRoleCenterPageAsRoleCenter()
     var
+        AllObjWithCaption: Record AllObjWithCaption;
         ProfileCard: TestPage "Profile Card";
     begin
         // [GIVEN] A user
@@ -789,7 +790,7 @@ codeunit 138698 "AllProfile V2 Test"
         ProfileCard.DescriptionField.Value := 'Test Description';
 
         asserterror ProfileCard.RoleCenterIdField.Value := Format(Page::"Customer Card");
-        Assert.AreEqual(ProfileCard.RoleCenterIdField.GetValidationError(1), 'Object Subtype must be equal to ''RoleCenter''  in AllObjWithCaption: Object Type=Page, Object ID=21. Current value is ''Card''.', 'Unexpected error.');
+        Assert.ExpectedTestFieldError(AllObjWithCaption.FieldCaption("Object Subtype"), 'RoleCenter');
         ProfileCard.RoleCenterIdField.Value := Format(Page::"Business Manager Role Center");
 
         Cleanup();
@@ -1057,15 +1058,13 @@ codeunit 138698 "AllProfile V2 Test"
     var
         UserPersonalization: Record "User Personalization";
     begin
-        with UserPersonalization do begin
-            SetRange("User SID", UserSecurityId());
-            if not FindFirst() then begin
-                Reset();
-                Init();
-                "User SID" := UserSecurityId();
-                "User ID" := UserId;
-                Insert();
-            end;
+        UserPersonalization.SetRange("User SID", UserSecurityId());
+        if not UserPersonalization.FindFirst() then begin
+            UserPersonalization.Reset();
+            UserPersonalization.Init();
+            UserPersonalization."User SID" := UserSecurityId();
+            UserPersonalization."User ID" := UserId;
+            UserPersonalization.Insert();
         end;
     end;
 
@@ -1179,15 +1178,13 @@ codeunit 138698 "AllProfile V2 Test"
         foreach TextFromFirstList in FirstListOfStrings do begin
             if SecondListOfStrings.Count() = 0 then
                 Assert.Fail(StrSubstNo('There are strings in the first list, but the second one is empty. Element %1 of %2: %3',
-                    FirstListOfStrings.IndexOf(TextFromFirstList), FirstListOfStrings.Count(), TextFromFirstList)
-                );
+                    FirstListOfStrings.IndexOf(TextFromFirstList), FirstListOfStrings.Count(), TextFromFirstList));
 
-            foreach TextFromSecondList in SecondListOfStrings do begin
+            foreach TextFromSecondList in SecondListOfStrings do
                 if TextFromFirstList.Contains(TextFromSecondList) or TextFromSecondList.Contains(TextFromFirstList) then begin
                     SecondListOfStrings.Remove(TextFromSecondList);
                     break;
                 end;
-            end;
         end;
 
         if SecondListOfStrings.Count() > 0 then

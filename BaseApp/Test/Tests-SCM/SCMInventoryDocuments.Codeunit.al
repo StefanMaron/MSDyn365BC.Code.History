@@ -28,7 +28,7 @@ codeunit 137140 "SCM Inventory Documents"
         isInitialized: Boolean;
         ItemTrackingAction: Option AssignSerialNo,SelectEntries;
         RoundingTo0Err: Label 'Rounding of the field';
-        RoundingErr: Label 'is of lesser precision than expected';
+        RoundingErr: Label 'is of lower precision than expected';
         ItemNoErr: Label 'Item No. are not equal';
         UnitOfMeasureCodeErr: Label 'Unit of Measure Code are not equal';
         UnitCostErr: Label 'Unit Cost are not equal';
@@ -203,6 +203,87 @@ codeunit 137140 "SCM Inventory Documents"
         InvtShipmentLine.FindFirst();
         VerifyDimensionCode(DimensionValue."Dimension Code", DimensionValue.Code, InvtShipmentLine."Dimension Set ID");
         VerifyDimensionCode(DimensionValueItem."Dimension Code", DimensionValueItem.Code, InvtShipmentLine."Dimension Set ID");
+    end;
+
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PostedItemShipmentWithCopyCommentAutomatic()
+    var
+        InvtDocumentHeader: Record "Invt. Document Header";
+        InvtDocumentLine: Record "Invt. Document Line";
+        Location: Record Location;
+        Item: Record Item;
+        InventoryCommentLine: Record "Inventory Comment Line";
+        InvtShipmentHeader: Record "Invt. Shipment Header";
+    begin
+        // [SCENARIO] Create and post invt. shipment with comments and links.
+        Initialize();
+        SetCopyInvtDocComments();
+
+        // [GIVEN] Create an Location and Item
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create Invt. Document
+        CreateInvtDocumentWithLine(
+          InvtDocumentHeader, InvtDocumentLine, Item, InvtDocumentHeader."Document Type"::Shipment, Location.Code, '');
+        InvtDocumentHeader."Posting No." := LibraryUtility.GenerateGUID();
+        InvtDocumentHeader.Modify();
+
+        // [GIVEN] Add some comments and links
+        CreateInvtComments(InvtDocumentHeader, 2);
+        InvtDocumentHeader.AddLink(LibraryRandom.RandText(100), LibraryRandom.RandText(200));
+
+        // [WHEN] Post Document
+        LibraryInventory.PostInvtDocument(InvtDocumentHeader);
+
+        // [THEN] Links and comments are copied to posted Invt. Shipment Header
+        InvtShipmentHeader.Get(InvtDocumentHeader."Posting No.");
+        Assert.IsTrue(InvtShipmentHeader.HasLinks(), 'The Record Links must be copied.');
+        InventoryCommentLine.SetRange("Document Type", InventoryCommentLine."Document Type"::"Posted Inventory Shipment");
+        InventoryCommentLine.SetRange("No.", InvtShipmentHeader."No.");
+        Assert.RecordCount(InventoryCommentLine, 2);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PostedItemReceiptWithCopyCommentAutomatic()
+    var
+        InvtDocumentHeader: Record "Invt. Document Header";
+        InvtDocumentLine: Record "Invt. Document Line";
+        Location: Record Location;
+        Item: Record Item;
+        InventoryCommentLine: Record "Inventory Comment Line";
+        ItemReceiptHeader: Record "Invt. Receipt Header";
+    begin
+        // [SCENARIO] Create and post invt receipt with comments and links.
+        Initialize();
+        SetCopyInvtDocComments();
+
+        // [GIVEN] Create an Location and Item
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create Invt. Document
+        CreateInvtDocumentWithLine(
+          InvtDocumentHeader, InvtDocumentLine, Item, InvtDocumentHeader."Document Type"::Receipt, Location.Code, '');
+        InvtDocumentHeader."Posting No." := LibraryUtility.GenerateGUID();
+        InvtDocumentHeader.Modify();
+
+        // [GIVEN] Add some comments and links
+        CreateInvtComments(InvtDocumentHeader, 3);
+        InvtDocumentHeader.AddLink(LibraryRandom.RandText(100), LibraryRandom.RandText(200));
+
+        // [WHEN] Post Document
+        LibraryInventory.PostInvtDocument(InvtDocumentHeader);
+
+        // [THEN] Links and comments are copied to posted Invt. Receipt Header
+        ItemReceiptHeader.Get(InvtDocumentHeader."Posting No.");
+        Assert.IsTrue(ItemReceiptHeader.HasLinks(), 'The Record Links must be copied.');
+        InventoryCommentLine.SetRange("Document Type", InventoryCommentLine."Document Type"::"Posted Inventory Receipt");
+        InventoryCommentLine.SetRange("No.", ItemReceiptHeader."No.");
+        Assert.RecordCount(InventoryCommentLine, 3);
     end;
 
     [Test]
@@ -1868,6 +1949,15 @@ codeunit 137140 "SCM Inventory Documents"
         InventorySetup.Modify();
     end;
 
+    local procedure SetCopyInvtDocComments()
+    var
+        InventorySetup: Record "Inventory Setup";
+    begin
+        InventorySetup.Get();
+        InventorySetup."Copy Comments to Invt. Doc." := true;
+        InventorySetup.Modify();
+    end;
+
     local procedure PostItemJournalLine(EntryType: Enum "Item Ledger Entry Type"; ItemNo: Code[20]; Quantity: Decimal; UnitCost: Decimal)
     var
         ItemJournalLine: Record "Item Journal Line";
@@ -1925,13 +2015,11 @@ codeunit 137140 "SCM Inventory Documents"
     var
         WarehouseEntry: Record "Warehouse Entry";
     begin
-        with WarehouseEntry do begin
-            SetRange("Location Code", LocationCode);
-            SetRange("Item No.", ItemNo);
-            SetRange("Entry Type", EntryType);
-            FindFirst();
-            TestField(Quantity, ExpectedQty);
-        end;
+        WarehouseEntry.SetRange("Location Code", LocationCode);
+        WarehouseEntry.SetRange("Item No.", ItemNo);
+        WarehouseEntry.SetRange("Entry Type", EntryType);
+        WarehouseEntry.FindFirst();
+        WarehouseEntry.TestField(Quantity, ExpectedQty);
     end;
 
     local procedure OpenSourceCodeSetupPage(SourceCode: Record "Source Code")
@@ -2005,6 +2093,39 @@ codeunit 137140 "SCM Inventory Documents"
         InvtReceiptLine.SetRange("Receipt No.", InvtDocumentHeader."No.");
         InvtReceiptLine.FindFirst();
         Assert.AreEqual(DimensionValueCode, InvtReceiptLine."Shortcut Dimension 1 Code", DimensionValueErr);
+    end;
+
+    local procedure CreateInvtComments(InvtDocumentHeader: Record "Invt. Document Header"; NoOfCommentsToCreate: Integer)
+    var
+        InventoryCommentLine: Record "Inventory Comment Line";
+        NextLineNo: Integer;
+    begin
+        case InvtDocumentHeader."Document Type" of
+            InvtDocumentHeader."Document Type"::Shipment:
+                InventoryCommentLine.SetRange("Document Type", InventoryCommentLine."Document Type"::"Inventory Shipment");
+            InvtDocumentHeader."Document Type"::Receipt:
+                InventoryCommentLine.SetRange("Document Type", InventoryCommentLine."Document Type"::"Inventory Receipt");
+        end;
+        InventoryCommentLine.SetRange("No.", InvtDocumentHeader."No.");
+        if InventoryCommentLine.FindLast() then
+            NextLineNo := InventoryCommentLine."Line No.";
+
+        while NoOfCommentsToCreate > 0 do begin
+            NextLineNo += 10000;
+            InventoryCommentLine.Init();
+            case InvtDocumentHeader."Document Type" of
+                InvtDocumentHeader."Document Type"::Shipment:
+                    InventoryCommentLine."Document Type" := InventoryCommentLine."Document Type"::"Inventory Shipment";
+                InvtDocumentHeader."Document Type"::Receipt:
+                    InventoryCommentLine."Document Type" := InventoryCommentLine."Document Type"::"Inventory Receipt";
+            end;
+            InventoryCommentLine."No." := InvtDocumentHeader."No.";
+            InventoryCommentLine."Line No." := NextLineNo;
+            InventoryCommentLine.Date := WorkDate();
+            InventoryCommentLine.Comment := LibraryRandom.RandText(MaxStrLen(InventoryCommentLine.Comment));
+            InventoryCommentLine.Insert(true);
+            NoOfCommentsToCreate -= 1;
+        end;
     end;
 
     [ModalPageHandler]

@@ -48,10 +48,14 @@ codeunit 73 "Purch.-Explode BOM"
     end;
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'The BOM cannot be exploded on the purchase lines because it is associated with sales order %1.';
         Text001: Label 'Item %1 is not a BOM.';
+#pragma warning restore AA0470
         Text003: Label 'There is not enough space to explode the BOM.';
         Text005: Label '&Copy dimensions from BOM,&Retrieve dimensions from components';
+#pragma warning restore AA0074
         ToPurchLine: Record "Purchase Line";
         FromBOMComp: Record "BOM Component";
         PurchHeader: Record "Purchase Header";

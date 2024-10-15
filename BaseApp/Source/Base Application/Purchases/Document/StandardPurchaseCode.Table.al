@@ -96,8 +96,12 @@ table 173 "Standard Purchase Code"
     var
         StdPurchLine: Record "Standard Purchase Line";
         StdVendorPurchCode: Record "Standard Vendor Purchase Code";
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label 'If you change the %1, the %2 will be rounded according to the new %3.';
+#pragma warning restore AA0470
         Text002: Label 'The update has been interrupted to respect the warning.';
+#pragma warning restore AA0074
         StdPurchCodeDeletionQst: Label 'If you delete the code %1, the related records in the %2 table will also be deleted. Do you want to continue?', Comment = '%1=Standard Purchase Code, %3=Table Caption';
 }
 

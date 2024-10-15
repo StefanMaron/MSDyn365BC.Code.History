@@ -499,6 +499,11 @@ table 6660 "Return Receipt Header"
             Caption = 'Received-from Country/Region Code';
             TableRelation = "Country/Region";
         }
+        field(210; "Ship-to Phone No."; Text[30])
+        {
+            Caption = 'Ship-to Phone No.';
+            ExtendedDatatype = PhoneNo;
+        }
         field(480; "Dimension Set ID"; Integer)
         {
             Caption = 'Dimension Set ID';
@@ -625,7 +630,9 @@ table 6660 "Return Receipt Header"
         DimMgt: Codeunit DimensionManagement;
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
         UserSetupMgt: Codeunit "User Setup Management";
+#pragma warning disable AA0074
         Text001: Label 'Posted Document Dimensions';
+#pragma warning restore AA0074
 
     procedure GetCustomerVATRegistrationNumber(): Text
     begin

@@ -40,7 +40,7 @@ table 362 "ECSL VAT Report Line"
         }
         field(10500; "Line Status"; Option)
         {
-            CalcFormula = Lookup ("GovTalk Message Parts".Status where("Report No." = field("Report No."),
+            CalcFormula = lookup("GovTalk Message Parts".Status where("Report No." = field("Report No."),
                                                                        "Part Id" = field("XML Part Id"),
                                                                        "VAT Report Config. Code" = const("EC Sales List")));
             Caption = 'Line Status';

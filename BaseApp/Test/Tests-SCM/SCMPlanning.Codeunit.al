@@ -30,8 +30,6 @@ codeunit 137020 "SCM Planning"
         PlanningEndDate: DateFormula;
         StringsMustBeIdenticalErr: Label 'Strings must be identical.';
         RoutingType: Option Serial,Parallel;
-        ReorderQtyMustHaveValueInItemErr: Label 'Reorder Quantity must have a value in Item: No.=%1. It cannot be zero or empty.';
-        TestFieldCodeErr: Label 'TestField';
 
     local procedure GlobalSetup()
     begin
@@ -329,7 +327,7 @@ codeunit 137020 "SCM Planning"
         ManufacturingSetup();
     end;
 
-    local procedure AssertPlanningLine(Item: Record Item; ActionMsg: Enum "Action Message Type"; OrigDueDate: Date; DueDate: Date; OrigQty: Decimal; Quantity: Decimal; RefOrderType: Option; NoOfLines: Integer)
+    local procedure AssertPlanningLine(Item: Record Item; ActionMsg: Enum "Action Message Type"; OrigDueDate: Date; DueDate: Date; OrigQty: Decimal; Quantity: Decimal; RefOrderType: Enum "Requisition Ref. Order Type"; NoOfLines: Integer)
     var
         RequisitionLine: Record "Requisition Line";
     begin
@@ -4817,8 +4815,7 @@ codeunit 137020 "SCM Planning"
         asserterror CalcRegenPlanWithStopAndShowFirstError(Item, CalcDate('<-CY>', WorkDate()), CalcDate('<CY>', WorkDate()));
 
         // [THEN] Error 'Reorder Quantity must have a value in Item: No.=1000. It cannot be zero or empty.'
-        Assert.ExpectedError(StrSubstNo(ReorderQtyMustHaveValueInItemErr, Item."No."));
-        Assert.ExpectedErrorCode(TestFieldCodeErr);
+        Assert.ExpectedTestFieldError(Item.FieldCaption("Reorder Quantity"), '');
     end;
 
     [Test]

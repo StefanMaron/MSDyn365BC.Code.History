@@ -474,9 +474,9 @@ report 10579 "Blanket Purchase Order GB"
 
             trigger OnAfterGetRecord()
             begin
-                CurrReport.Language := Language.GetLanguageIdOrDefault("Language Code");
-                CurrReport.FormatRegion := Language.GetFormatRegionOrDefault("Format Region");
-
+                CurrReport.Language := GlobalLanguage.GetLanguageIdOrDefault("Language Code");
+                CurrReport.FormatRegion := GlobalLanguage.GetFormatRegionOrDefault("Format Region");
+ 
                 CompanyInfo.Get();
 
                 if RespCenter.Get("Responsibility Center") then begin
@@ -594,7 +594,7 @@ report 10579 "Blanket Purchase Order GB"
         DimSetEntry1: Record "Dimension Set Entry";
         DimSetEntry2: Record "Dimension Set Entry";
         RespCenter: Record "Responsibility Center";
-        Language: Codeunit Language;
+        GlobalLanguage: Codeunit Language;
         PurchPost: Codeunit "Purch.-Post";
         FormatAddr: Codeunit "Format Address";
         SegManagement: Codeunit SegManagement;

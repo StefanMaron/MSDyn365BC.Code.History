@@ -213,23 +213,6 @@ codeunit 144038 "ERM Sales Purch Documents"
         GLBudgetWithColumnValues();
     end;
 
-    [Test]
-    [Scope('OnPrem')]
-    procedure RemAdviceActionIsNotVisibleInVendorLedgerEntries()
-    var
-        VendorLedgerEntries: TestPage "Vendor Ledger Entries";
-    begin
-        // [SCENARIO 379444] Open page "Vendor Ledger Entries" and check visibility of the action "&Rem. Advice"
-        Initialize();
-
-        // [WHEN] Opened page 29 "Vendor Ledger Entries"
-        VendorLedgerEntries.OpenEdit();
-
-        // [THEN] Action "&Rem. Advice" is not visible
-        Assert.IsFalse(VendorLedgerEntries."&Rem. Advice".Visible(), '');
-        VendorLedgerEntries.Close();
-    end;
-
     local procedure GLBudgetWithColumnValues()
     var
         GLBudgetName: Record "G/L Budget Name";
@@ -445,12 +428,10 @@ codeunit 144038 "ERM Sales Purch Documents"
     var
         BusinessUnit: Record "Business Unit";
     begin
-        with BusinessUnit do begin
-            Init();
-            Validate(Code, LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::"Business Unit"));
-            Validate(Name, LibraryUtility.GenerateRandomCode(FieldNo(Name), DATABASE::"Business Unit"));
-            Insert();
-        end;
+        BusinessUnit.Init();
+        BusinessUnit.Validate(Code, LibraryUtility.GenerateRandomCode(BusinessUnit.FieldNo(Code), DATABASE::"Business Unit"));
+        BusinessUnit.Validate(Name, LibraryUtility.GenerateRandomCode(BusinessUnit.FieldNo(Name), DATABASE::"Business Unit"));
+        BusinessUnit.Insert();
     end;
 
     local procedure CreateCustomer(VATBusPostingGroup: Code[20]): Code[20]

@@ -305,6 +305,11 @@ table 5496 "Purchase Order Entity Buffer"
             Caption = 'Document Date';
             DataClassification = CustomerContent;
         }
+        field(210; "Ship-to Phone No."; Text[30])
+        {
+            Caption = 'Ship-to Phone No.';
+            ExtendedDatatype = PhoneNo;
+        }
         field(1304; "Vendor Ledger Entry No."; Integer)
         {
             Caption = 'Vendor Ledger Entry No.';

@@ -21,9 +21,8 @@ table 6751 "Reminder Action Group"
         field(2; Description; Text[100])
         {
         }
-        field(3; Schedule; Option)
+        field(3; Schedule; Enum "Reminder Action Schedule")
         {
-            OptionMembers = Manual,"Weekly","Monthly","Custom schedule";
         }
         field(4; "Start DateTime"; DateTime)
         {

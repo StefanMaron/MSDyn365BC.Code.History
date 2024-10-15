@@ -20,8 +20,12 @@ codeunit 1103 "CA Jnl.-Post Batch"
         CostReg: Record "Cost Register";
         CostRegNo: Integer;
         SuppressCommit: Boolean;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label 'Journal Batch Name    #1##########\\Checking lines        #2######\Posting lines         #3###### @4@@@@@@@@@@@@@';
         Text002: Label 'The lines in Cost Journal are out of balance by %1. Verify that %2 and %3 are correct for each line.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     local procedure "Code"()
     var

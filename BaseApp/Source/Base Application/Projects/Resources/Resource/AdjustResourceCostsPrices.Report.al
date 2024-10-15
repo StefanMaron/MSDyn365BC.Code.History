@@ -131,7 +131,11 @@ report 1195 "Adjust Resource Costs/Prices"
         AdjFactor: Decimal;
         Selection: Option "Direct Unit Cost","Indirect Cost %","Unit Cost","Profit %","Unit Price";
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'Processing resources  #1##########';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     procedure InitializeRequest(SelectionFrom: Option; AdjFactorFrom: Decimal; RoundingMethodCode: Code[10])
     begin

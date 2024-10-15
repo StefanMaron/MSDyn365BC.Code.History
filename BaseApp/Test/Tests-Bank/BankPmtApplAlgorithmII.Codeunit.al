@@ -663,15 +663,13 @@ codeunit 134259 "Bank Pmt. Appl. Algorithm II"
         DirectDebitCollection."To Bank Account No." := BankAccountNo;
         DirectDebitCollection.Insert();
 
-        with DirectDebitCollectionEntry do begin
-            Init();
-            "Direct Debit Collection No." := DirectDebitCollection."No.";
-            "Entry No." := LibraryUtility.GetNewRecNo(DirectDebitCollectionEntry, FieldNo("Entry No."));
-            "Applies-to Entry No." := CustLedgerEntryNo;
-            "Transaction ID" := DirectDebitCollection.Identifier + '/' + Format("Entry No.");
-            Status := DDCollectionEntryStatus;
-            Insert();
-        end;
+        DirectDebitCollectionEntry.Init();
+        DirectDebitCollectionEntry."Direct Debit Collection No." := DirectDebitCollection."No.";
+        DirectDebitCollectionEntry."Entry No." := LibraryUtility.GetNewRecNo(DirectDebitCollectionEntry, DirectDebitCollectionEntry.FieldNo("Entry No."));
+        DirectDebitCollectionEntry."Applies-to Entry No." := CustLedgerEntryNo;
+        DirectDebitCollectionEntry."Transaction ID" := DirectDebitCollection.Identifier + '/' + Format(DirectDebitCollectionEntry."Entry No.");
+        DirectDebitCollectionEntry.Status := DDCollectionEntryStatus;
+        DirectDebitCollectionEntry.Insert();
     end;
 
     local procedure InsertDefaultMatchingRules()

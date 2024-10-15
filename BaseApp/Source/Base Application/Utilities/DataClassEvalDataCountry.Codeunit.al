@@ -49,7 +49,9 @@ codeunit 1752 "Data Class. Eval. Data Country"
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Employee Posting Group");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Cause of Absence");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Sales Header Archive");
+#if not CLEAN25
         ClassifyMakingTaxDigital();
+#endif
         OnAfterClassifyCountrySpecificTables();
     end;
 
@@ -251,6 +253,7 @@ codeunit 1752 "Data Class. Eval. Data Country"
         DataClassificationMgt.SetTableFieldsToNormal(DATABASE::"VAT Return Period");
     end;
 
+#if not CLEAN25  
     local procedure ClassifyMakingTaxDigital()
     var
         DataClassificationEvalData: Codeunit "Data Classification Eval. Data";
@@ -262,6 +265,7 @@ codeunit 1752 "Data Class. Eval. Data Country"
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"MTD-Session Fraud Prev. Hdr");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"MTD-Default Fraud Prev. Hdr");
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterClassifyCountrySpecificTables()

@@ -540,7 +540,9 @@ page 9267 "Contr. G/Loss (Contr.) Matrix"
         MATRIX_CaptionSet: array[32] of Text[80];
         StartFilter: Text[1024];
         CurrentNoOfMatrixColumn: Integer;
+#pragma warning disable AA0074
         Text000: Label '<Sign><Integer Thousand><Decimals,3>', Locked = true;
+#pragma warning restore AA0074
         Field1Visible: Boolean;
         Field2Visible: Boolean;
         Field3Visible: Boolean;

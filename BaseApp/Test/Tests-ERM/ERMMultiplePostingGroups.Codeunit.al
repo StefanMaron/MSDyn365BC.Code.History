@@ -17,8 +17,10 @@ codeunit 134195 "ERM Multiple Posting Groups"
         LibraryRandom: Codeunit "Library - Random";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        LibraryJournals: Codeunit "Library - Journals";
         Assert: Codeunit Assert;
         isInitialized: Boolean;
+        PostingGroupNonEditableErr: Label 'Posting Group is not editable in General Journal page';
 
     [Test]
     [Scope('OnPrem')]
@@ -838,6 +840,62 @@ codeunit 134195 "ERM Multiple Posting Groups"
         ServiceInvoiceHeader.FindFirst();
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure CheckGeneralJournalPostingGroupIsEditableIfAllowedForCustomer()
+    var
+        Customer: Record Customer;
+        GenJournalLine: Record "Gen. Journal Line";
+        GenJournalPage: TestPage "General Journal";
+    begin
+        // [SCENARIO 542829] Allow Multiple Posting Groups not usable in General Journal because Posting Group field cannot be made Editable for Customer
+        Initialize();
+
+        // [GIVEN] Enable Allow Multiple Posting Group on Sales & Receivables Setup
+        SetSalesAllowMultiplePostingGroups(true);
+
+        // [GIVEN] Create new customer with Allow Multiple Posting Groups
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("Allow Multiple Posting Groups", true);
+        Customer.Modify();
+
+        // [WHEN] Create General Journal line
+        CreateGeneralJournalLine(GenJournalLine, GenJournalLine."Account Type"::Customer, Customer."No.");
+
+        // [THEN] Open General Journal page and verify field "Posting Group" is editable
+        GenJournalPage.OpenEdit();
+        GenJournalPage.GoToRecord(GenJournalLine);
+        Assert.IsTrue(GenJournalPage."Posting Group".Editable(), PostingGroupNonEditableErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CheckGeneralJournalPostingGroupIsEditableIfAllowedForVendor()
+    var
+        Vendor: Record Vendor;
+        GenJournalLine: Record "Gen. Journal Line";
+        GenJournalPage: TestPage "General Journal";
+    begin
+        // [SCENARIO 542829] Allow Multiple Posting Groups not usable in General Journal because Posting Group field cannot be made Editable for Vendor
+        Initialize();
+
+        // [GIVEN] Enable Allow Multiple Posting Group on Purchases & Payables Setup
+        SetPurchAllowMultiplePostingGroups(true);
+
+        // [GIVEN] Create new vendor with Allow Multiple Posting Groups
+        LibraryPurchase.CreateVendor(Vendor);
+        Vendor.Validate("Allow Multiple Posting Groups", true);
+        Vendor.Modify();
+
+        // [WHEN] Create General Journal line
+        CreateGeneralJournalLine(GenJournalLine, GenJournalLine."Account Type"::Vendor, Vendor."No.");
+
+        // [THEN] Open General Journal page and verify field "Posting Group" is editable
+        GenJournalPage.OpenEdit();
+        GenJournalPage.GoToRecord(GenJournalLine);
+        Assert.IsTrue(GenJournalPage."Posting Group".Editable(), PostingGroupNonEditableErr);
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"ERM Multiple Posting Groups");
@@ -1020,6 +1078,20 @@ codeunit 134195 "ERM Multiple Posting Groups"
                 end;
         end;
     end;
+
+    local procedure CreateGeneralJournalLine(
+        var GenJournalLine: Record "Gen. Journal Line";
+        AccountType: Enum "Gen. Journal Account Type";
+        AccountNo: Code[20])
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalTemplate: Record "Gen. Journal Template";
+    begin
+        GenJournalTemplate.DeleteAll();
+        GenJournalBatch.DeleteAll();
+        LibraryJournals.CreateGenJournalBatch(GenJournalBatch);
+        LibraryERM.CreateGeneralJnlLine(
+            GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
+            GenJournalLine."Document Type"::" ", AccountType, AccountNo, LibraryRandom.RandDec(100, 2));
+    end;
 }
-
-

@@ -776,7 +776,9 @@ page 9233 "G/L Balance by Dim. Matrix"
         Emphasize: Boolean;
         FindNext: Boolean;
 
+#pragma warning disable AA0074
         Text001: Label 'Period';
+#pragma warning restore AA0074
 
     protected var
         AnalysisByDimParameters: Record "Analysis by Dim. Parameters";
@@ -1471,12 +1473,11 @@ page 9233 "G/L Balance by Dim. Matrix"
 
         MATRIX_PrimKeyFirstCol := DimCodeBuffer.GetPosition();
 
-        if Found then begin
+        if Found then
             repeat
                 MATRIX_CurrSetLength := MATRIX_CurrSetLength + 1;
                 MATRIX_ColumnCaptions[MATRIX_CurrSetLength] := DimCodeBuffer.Code;
             until (MATRIX_CurrSetLength = MATRIX_NoOfMatrixColumns) or (NextRec(AnalysisByDimParameters."Column Dim Option", DimCodeBuffer, 1) <> 1);
-        end;
     end;
 
     local procedure FormatStr(): Text

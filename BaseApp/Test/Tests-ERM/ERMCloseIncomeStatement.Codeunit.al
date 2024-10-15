@@ -30,7 +30,6 @@ codeunit 134228 "ERM Close Income Statement"
         ConfirmCloseAccPeriodQst: Label 'This function closes the fiscal year from %1 to %2. Once the fiscal year is closed it cannot be opened again, and the periods in the fiscal year cannot be changed.\\Do you want to close the fiscal year?';
         ConfirmDeleteGLAccountQst: Label 'Note that accounting regulations may require that you save accounting data for a certain number of years. Are you sure you want to delete the G/L account?';
         CannotDeleteGLAccGLEntryFoundAfterDateErr: Label 'You cannot delete G/L account %1 because it has ledger entries posted after %2.';
-        CannotDeleteGLAccountBadSetupErr: Label 'Check G/L Acc. Deletion After must have a value in General Ledger Setup: Primary Key=. It cannot be zero or empty.';
         UnexpectedConfirmErr: Label 'Unexpected confirm handler: %1';
 
     [Test]
@@ -308,6 +307,7 @@ codeunit 134228 "ERM Close Income Statement"
     var
         GLAccount: Record "G/L Account";
         GLEntry: Record "G/L Entry";
+        GLSetup: Record "General Ledger Setup";
     begin
         // [SCENARIO 258044] Stan can confirm to delete G/L Account having posted G/L entries in closed accounting period with posting date later GLSetup."Allow G/L Acc. Deletion Before"
 
@@ -317,8 +317,7 @@ codeunit 134228 "ERM Close Income Statement"
         IntitializeGLAccountWithClosedEntriesClosedAccountingPeriod(GLAccount);
 
         asserterror GLAccount.Delete(true);
-
-        Assert.ExpectedError(CannotDeleteGLAccountBadSetupErr);
+        Assert.ExpectedTestFieldError(GLSetup.FieldCaption("Allow G/L Acc. Deletion Before"), '');
 
         GLEntry.SetRange("G/L Account No.", GLAccount."No.");
         Assert.RecordIsNotEmpty(GLEntry);
@@ -651,13 +650,11 @@ codeunit 134228 "ERM Close Income Statement"
     begin
         LibraryDimension.CreateDimensionValue(DimensionValue, DimensionCode);
 
-        with DimSetEntry do begin
-            Init();
-            "Dimension Code" := DimensionCode;
-            "Dimension Value Code" := DimensionValue.Code;
-            "Dimension Value ID" := DimensionValue."Dimension Value ID";
-            Insert();
-        end;
+        DimSetEntry.Init();
+        DimSetEntry."Dimension Code" := DimensionCode;
+        DimSetEntry."Dimension Value Code" := DimensionValue.Code;
+        DimSetEntry."Dimension Value ID" := DimensionValue."Dimension Value ID";
+        DimSetEntry.Insert();
     end;
 
     local procedure CreateGeneralJournalLines(var GenJournalLine: Record "Gen. Journal Line"; PostingDate: Date)
@@ -831,18 +828,16 @@ codeunit 134228 "ERM Close Income Statement"
     var
         SelectedDimension: Record "Selected Dimension";
     begin
-        with SelectedDimension do begin
-            DeleteAll();
+        SelectedDimension.DeleteAll();
 
-            DimSetEntry.FindSet();
-            repeat
-                "User ID" := UserId;
-                "Object Type" := 3;
-                "Object ID" := REPORT::"Close Income Statement";
-                "Dimension Code" := DimSetEntry."Dimension Code";
-                Insert();
-            until DimSetEntry.Next() = 0;
-        end;
+        DimSetEntry.FindSet();
+        repeat
+            SelectedDimension."User ID" := UserId;
+            SelectedDimension."Object Type" := 3;
+            SelectedDimension."Object ID" := REPORT::"Close Income Statement";
+            SelectedDimension."Dimension Code" := DimSetEntry."Dimension Code";
+            SelectedDimension.Insert();
+        until DimSetEntry.Next() = 0;
     end;
 
     local procedure UpdateCurOnGeneralLedgerSetup(CurrencyCode: Code[10]) OldAdditionalReportingCurrency: Code[10]

@@ -23,7 +23,7 @@ report 10529 "Reverse Charge Sales List"
     {
         dataitem("Country/Region"; "Country/Region")
         {
-            DataItemTableView = sorting("EU Country/Region Code") ORDER(Ascending) where("EU Country/Region Code" = filter(<> ''));
+            DataItemTableView = sorting("EU Country/Region Code") order(ascending) where("EU Country/Region Code" = filter(<> ''));
             column(CompanyAddr_1_; CompanyAddr[1])
             {
             }

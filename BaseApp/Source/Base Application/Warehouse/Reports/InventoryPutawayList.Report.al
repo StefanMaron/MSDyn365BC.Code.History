@@ -182,7 +182,11 @@ report 7322 "Inventory Put-away List"
         GroupTotal: Boolean;
         TotalsCausedBy: Integer;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'Purchase Order Line: %1';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         InventoryPutawayListCptnLbl: Label 'Inventory Put-away List';
         CurrReportPageNoCaptionLbl: Label 'Page';
         VendorNameCaptionLbl: Label 'Vendor';

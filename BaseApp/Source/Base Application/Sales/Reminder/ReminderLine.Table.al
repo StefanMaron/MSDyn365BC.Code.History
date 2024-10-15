@@ -1,4 +1,4 @@
-namespace Microsoft.Sales.Reminder;
+﻿namespace Microsoft.Sales.Reminder;
 
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.GeneralLedger.Account;
@@ -467,23 +467,16 @@ table 296 "Reminder Line"
                         ReminderHeader."Posting Date"));
 
                     Description := '';
-                    if (Amount <> 0) then
+                    if (Amount <> 0) then begin
                         if ReminderCommunication.NewReminderCommunicationEnabled() then
                             Description := ReminderCommunication.FindDescriptionForLineFee(ReminderLevel, CustLedgEntry, Rec, GLAcc)
-                        else begin
+                        else
                             if (ReminderLevel."Add. Fee per Line Description" <> '') then
-                                Description := StrSubstNo(ReminderLevel."Add. Fee per Line Description",
-                                    "Reminder No.",
-                                    "No. of Reminders",
-                                    "Document Date",
-                                    "Posting Date",
-                                    "No.",
-                                    Amount,
-                                    "Applies-to Document Type",
-                                    "Applies-to Document No.",
-                                    ReminderLevel."No.");
-                        end
-                    else
+                                Description :=
+                                    StrSubstNo(
+                                        ReminderLevel."Add. Fee per Line Description", "Reminder No.", "No. of Reminders", "Document Date",
+                                        "Posting Date", "No.", Amount, "Applies-to Document Type", "Applies-to Document No.", ReminderLevel."No.");
+                    end else
                         if GLAcc.Get("No.") then
                             Description := GLAcc.Name;
                 end;

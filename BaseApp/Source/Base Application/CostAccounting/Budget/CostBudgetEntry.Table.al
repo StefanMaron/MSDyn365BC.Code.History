@@ -155,12 +155,16 @@ table 1109 "Cost Budget Entry"
     var
         CostAccMgt: Codeunit "Cost Account Mgt";
         CurrRegNo: Integer;
+#pragma warning disable AA0074
         Text000: Label 'This function must be started with a budget name.';
+#pragma warning disable AA0470
         Text001: Label 'The entries in budget %1 will be compressed. Entries with identical cost type, cost center, cost object, and date will be combined.\\The first entry of each group remains unchanged. The amounts from all subsequent entries will be added to the first entry.\\Additional information such as text and allocation on other entries will be deleted.\\Are you sure that you want to continue?';
         Text002: Label 'Compress budget entries\Entry       #1#######\Processed   #2#######\Compressed  #3#######';
         Text003: Label '%1 entries in budget %2 processed. %3 entries compressed.';
+#pragma warning restore AA0470
         Text004: Label 'A cost center or cost object is missing. Define a corresponding filter in the Budget window.';
         Text005: Label 'You cannot define both cost center and cost object.';
+#pragma warning restore AA0074
 
     procedure GetLastEntryNo(): Integer;
     var

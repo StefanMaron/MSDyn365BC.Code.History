@@ -8,8 +8,14 @@ table 10535 "MTD-Return Details"
 {
     Caption = 'Submitted VAT Return';
     ObsoleteReason = 'Moved to extension';
+#if CLEAN25
+    ObsoleteState = Removed;
+    ObsoleteTag = '28.0';
+#else
     ObsoleteState = Pending;
     ObsoleteTag = '15.0';
+#endif
+
     DataClassification = CustomerContent;
 
     fields

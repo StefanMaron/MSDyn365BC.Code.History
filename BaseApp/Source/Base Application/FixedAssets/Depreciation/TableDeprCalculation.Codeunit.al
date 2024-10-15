@@ -25,12 +25,16 @@ codeunit 5618 "Table Depr. Calculation"
         Percentage: Decimal;
         Year365Days: Boolean;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         NoLinesDefinedErr: Label 'There are no lines defined for Depreciation Table Code %1.', Comment = '%1 = Depreciation Table Code';
         DifferentDatesErr: Label 'First User-Defined Depr. Date %1 and Accounting Period Starting Date %2 must not be different.', Comment = '%1 = Date; %2 = Date';
         UnbrokenSeqErr: Label 'must be an unbroken sequence';
         PeriodMustBeSpecifiedErr: Label 'Period must be specified in Accounting Period.';
         NumberOfDaysErr: Label 'The number of days in an accounting period must not be less than 5.';
         CannotBeErr: Label 'cannot be %1 when %2 is %3 in Depreciation Book %4', Comment = '%1 = Period Length, %2 = Field Caption, %3 = Field Value (Boolean, %4 = Depreciation Book Code';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     procedure GetTablePercent(DeprBookCode: Code[10]; DeprTableCode: Code[10]; FirstUserDefinedDeprDate: Date; StartingDate: Date; EndingDate: Date): Decimal
     var

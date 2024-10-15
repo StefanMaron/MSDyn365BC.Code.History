@@ -11,6 +11,8 @@ page 5610 "Depreciation Book Card"
     PageType = Card;
     RefreshOnActivate = true;
     SourceTable = "Depreciation Book";
+    AboutTitle = 'About Depreciation Book Card';
+    AboutText = 'With the **Depreciation Book Card** you manage information about the Depreciation Book. Specify the Integration between the G/L accounts with applicable transactions. Option to duplicate the entries made in another depreciation book to this depreciation book, option to enable the details for reporting with additional currency exchange rates.';
 
     layout
     {
@@ -19,6 +21,8 @@ page 5610 "Depreciation Book Card"
             group(General)
             {
                 Caption = 'General';
+                AboutTitle = 'Manage the Depreciation Book''s general details';
+                AboutText = 'Here you can specify the default values used in creating fixed asset transactions for a given depreciation book. The card will have the applicable options to allow certain features/changes or corrections.';
                 field("Code"; Rec.Code)
                 {
                     ApplicationArea = FixedAssets;
@@ -108,6 +112,8 @@ page 5610 "Depreciation Book Card"
             group(Integration)
             {
                 Caption = 'Integration';
+                AboutTitle = 'Manage the Depreciation Book''s integration details.';
+                AboutText = 'On enabling the applicable options against which the G/L Integration is to be used, the amounts get posted to the G/L Account when you post the transactions with the Fixed Assets.';
                 group("G/L Integration")
                 {
                     Caption = 'G/L Integration';
@@ -164,6 +170,8 @@ page 5610 "Depreciation Book Card"
             group(Duplication)
             {
                 Caption = 'Duplication';
+                AboutTitle = 'Manage the Depreciation Book''s duplication details';
+                AboutText = 'Enable the applicable options to indicate that entries made in another depreciation book should be duplicated to this depreciation book as well.';
                 field("Part of Duplication List"; Rec."Part of Duplication List")
                 {
                     ApplicationArea = FixedAssets;

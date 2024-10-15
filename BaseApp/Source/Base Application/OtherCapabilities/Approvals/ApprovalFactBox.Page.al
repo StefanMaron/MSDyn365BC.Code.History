@@ -71,7 +71,9 @@ page 9092 "Approval FactBox"
 
     var
         DocumentHeading: Text[250];
+#pragma warning disable AA0074
         Text000: Label 'Document';
+#pragma warning restore AA0074
 
     local procedure GetDocumentHeading(ApprovalEntry: Record "Approval Entry"): Text[50]
     var

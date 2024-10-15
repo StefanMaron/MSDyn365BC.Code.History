@@ -42,6 +42,10 @@ page 9024 "Security Admin Role Center"
             {
                 ApplicationArea = Suite;
             }
+            part("Job Queue Tasks Activities"; "Job Queue Tasks Activities")
+            {
+                ApplicationArea = Suite;
+            }
             part("Emails"; "Email Activities")
             {
                 ApplicationArea = Basic, Suite;
@@ -58,31 +62,10 @@ page 9024 "Security Admin Role Center"
             {
                 ApplicationArea = Suite;
             }
-#if not CLEAN22
-            part(Control12; "Users in User Groups Chart")
-            {
-                ApplicationArea = Basic, Suite;
-                Visible = false; // cannot control the visibility with the feature switch
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Replaced by the Security Group Members Chart part.';
-                ObsoleteTag = '22.0';
-            }
-#endif
             part("Security Group Members Chart"; "Security Group Members Chart")
             {
                 ApplicationArea = Basic, Suite;
             }
-#if not CLEAN22
-            part(Control4; "User Groups FactBox")
-            {
-                ApplicationArea = Basic, Suite;
-                Editable = false;
-                Visible = false; // cannot control the visibility with the feature switch
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Removed, use the Security Groups page directly.';
-                ObsoleteTag = '22.0';
-            }
-#endif
             part(LicenseConfigurationPart; "Plan Configurations Part")
             {
                 ApplicationArea = All;
@@ -114,19 +97,6 @@ page 9024 "Security Admin Role Center"
     {
         area(embedding)
         {
-#if not CLEAN22
-            action("User Groups")
-            {
-                ApplicationArea = Basic, Suite;
-                Caption = 'User Groups';
-                RunObject = Page "User Groups";
-                ToolTip = 'Define user groups so that you can assign permission sets to multiple users easily. You can use a function to copy all permission sets from an existing user group to your new user group.';
-                Visible = false; // cannot control the visibility with the feature switch
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Replaced by the Security Groups action.';
-                ObsoleteTag = '22.0';
-            }
-#endif
             action("Security Groups")
             {
                 ApplicationArea = Basic, Suite;
@@ -177,19 +147,6 @@ page 9024 "Security Admin Role Center"
                     RunObject = Page Users;
                     ToolTip = 'View or edit users that will be configured in the database.';
                 }
-#if not CLEAN22
-                action(Action31)
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'User Groups';
-                    RunObject = Page "User Groups";
-                    ToolTip = 'Set up or modify user groups as a fast way of giving users access to the functionality that is relevant to their work.';
-                    Visible = false; // cannot control the visibility with the feature switch
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by the Security Groups Section action.';
-                    ObsoleteTag = '22.0';
-                }
-#endif
                 action("Security Groups Section")
                 {
                     ApplicationArea = Basic, Suite;

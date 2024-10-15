@@ -29,14 +29,14 @@ codeunit 137080 "SCM Planning And Manufacturing"
         LibraryRandom: Codeunit "Library - Random";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         isInitialized: Boolean;
-        NoActionMessagesExistError: Label 'No action messages exist.';
-        ChangeWillNotAffect: Label 'The change will not affect existing entries';
-        IllegalActionMessageRelation: Label 'Illegal Action Message relation.';
-        YouWantToContinueConfirm: Label 'Are you sure that you want to continue?';
-        PostJournalLinesConfirm: Label 'Do you want to post the journal lines?';
-        JournalLinesSuccessfullyPosted: Label 'The journal lines were successfully posted.';
-        ReservationEntryMustBeEmpty: Label 'Reservation Entry must be empty.';
-        ConfirmDeleteItemTracking: Label 'Item tracking is defined for item';
+        NoActionMessagesExistErr: Label 'No action messages exist.';
+        ChangeWillNotAffectMsg: Label 'The change will not affect existing entries';
+        IllegalActionMessageRelationErr: Label 'Illegal Action Message relation.';
+        YouWantToContinueConfirmQst: Label 'Are you sure that you want to continue?';
+        PostJournalLinesConfirmQst: Label 'Do you want to post the journal lines?';
+        JournalLinesSuccessfullyPostedMsg: Label 'The journal lines were successfully posted.';
+        ReservationEntryMustBeEmptyErr: Label 'Reservation Entry must be empty.';
+        ConfirmDeleteItemTrackingQst: Label 'Item tracking is defined for item';
         DueDateErr: Label 'Requisition Line Due Date for proposed Production Order can''t be later than demand Sales Order.';
         StatusMustBeCertifiedErr: Label 'Routing Header No. %1 is not certified.', Comment = '%1 - Routing No.';
         ProdBOMMustBeCertifiedErr: Label 'Status must be equal to ''Certified''';
@@ -278,7 +278,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
         asserterror LibraryPlanning.GetActionMessages(Item);
 
         // Verify.
-        Assert.ExpectedError(NoActionMessagesExistError);
+        Assert.ExpectedError(NoActionMessagesExistErr);
     end;
 
     [Test]
@@ -334,7 +334,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
             asserterror LibraryPlanning.GetActionMessages(Item);
 
             // Verify.
-            Assert.ExpectedError(IllegalActionMessageRelation);
+            Assert.ExpectedError(IllegalActionMessageRelationErr);
         end;
 
         if AfterIllegalActionMessage then begin
@@ -564,7 +564,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
         ItemJournalLine: Record "Item Journal Line";
         ProductionOrder: Record "Production Order";
         LotNo: Code[50];
-        LotNo2: Code[20];
+        LotNo2: Code[50];
     begin
         // Create Lot Item with Production BOM. Create and refresh Released Production Order. Add Lot Item Tracking to Output Journal Line after Explode Routing.
         CreateLotItemWithProductionBOM(Item);
@@ -623,7 +623,9 @@ codeunit 137080 "SCM Planning And Manufacturing"
         CreateAndRefreshReleasedProductionOrder(ProductionOrder, Item."No.");
 
         // Verify.
+#pragma warning disable AA0181  // Find() can be used without a loop
         ProductionOrder.Find();
+#pragma warning restore
         VerifyProdOrderCapacityNeedWithStartingTime(
           RoutingLine, ProductionOrder."No.", ProdOrderCapacityNeed."Send-Ahead Type"::Input, ProdOrderCapacityNeed."Time Type"::"Run Time",
           ProductionOrder."Starting Time", RoutingLine."Run Time" * ProductionOrder.Quantity);  // Value required for Allocated Time.
@@ -1682,7 +1684,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
         ProdOrderComponent.FindSet();
         repeat
             ProdOrderComponent.CalcFields("Reserved Quantity");
-            ProdOrderComponent.TestField("Reserved Quantity", ProdOrderComponent.Quantity);
+            ProdOrderComponent.TestField("Reserved Quantity", ProdOrderComponent."Expected Quantity");
         until ProdOrderComponent.Next() = 0;
     end;
 
@@ -1749,7 +1751,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
         WorkCenter: Record "Work Center";
         RoutingHeader: Record "Routing Header";
         Item: Record Item;
-        OldPlanningRoutingLine: Record "Planning Routing Line" temporary;
+        TempOldPlanningRoutingLine: Record "Planning Routing Line" temporary;
         PlanningRoutingLine: Record "Planning Routing Line";
     begin
         // [FEATURE] [Planning] [Planning Routing Line]
@@ -1772,8 +1774,8 @@ codeunit 137080 "SCM Planning And Manufacturing"
 
         PlanningRoutingLine.FindSet();
         repeat
-            OldPlanningRoutingLine.Copy(PlanningRoutingLine);
-            OldPlanningRoutingLine.Insert();
+            TempOldPlanningRoutingLine.Copy(PlanningRoutingLine);
+            TempOldPlanningRoutingLine.Insert();
         until PlanningRoutingLine.Next() = 0;
 
         // [WHEN] Changing the lot size from 1 to 10 for line 2.
@@ -1781,40 +1783,40 @@ codeunit 137080 "SCM Planning And Manufacturing"
         PlanningRoutingLine.Next();
         PlanningRoutingLine.Validate("Lot Size", 10);
 
-        OldPlanningRoutingLine.SetRange("Work Center No.", WorkCenter."No.");
-        OldPlanningRoutingLine.FindSet();
+        TempOldPlanningRoutingLine.SetRange("Work Center No.", WorkCenter."No.");
+        TempOldPlanningRoutingLine.FindSet();
         PlanningRoutingLine.FindSet();
 
         // [THEN] First line is untouched.
-        PlanningRoutingLine.TestField("Starting Date-Time", OldPlanningRoutingLine."Starting Date-Time");
-        PlanningRoutingLine.TestField("Ending Date-Time", OldPlanningRoutingLine."Ending Date-Time");
+        PlanningRoutingLine.TestField("Starting Date-Time", TempOldPlanningRoutingLine."Starting Date-Time");
+        PlanningRoutingLine.TestField("Ending Date-Time", TempOldPlanningRoutingLine."Ending Date-Time");
 
         PlanningRoutingLine.Next();
-        OldPlanningRoutingLine.Next();
+        TempOldPlanningRoutingLine.Next();
 
         // [THEN] Second line is ending earlier.
-        PlanningRoutingLine.TestField("Starting Date-Time", OldPlanningRoutingLine."Starting Date-Time");
-        Assert.IsTrue(PlanningRoutingLine."Ending Date-Time" < OldPlanningRoutingLine."Ending Date-Time",
+        PlanningRoutingLine.TestField("Starting Date-Time", TempOldPlanningRoutingLine."Starting Date-Time");
+        Assert.IsTrue(PlanningRoutingLine."Ending Date-Time" < TempOldPlanningRoutingLine."Ending Date-Time",
             'Expected new ending date-time to be earlier than original.');
 
-        OldPlanningRoutingLine.Next();
+        TempOldPlanningRoutingLine.Next();
         PlanningRoutingLine.Next();
 
         // [THEN] The rest should have the same time span but start earlier.
         repeat
             Assert.AreEqual(
                 PlanningRoutingLine."Ending Date-Time" - PlanningRoutingLine."Starting Date-Time",
-                OldPlanningRoutingLine."Ending Date-Time" - OldPlanningRoutingLine."Starting Date-Time",
+                TempOldPlanningRoutingLine."Ending Date-Time" - TempOldPlanningRoutingLine."Starting Date-Time",
                 'Expected line to have similar length.'
             );
 
-            Assert.IsTrue(PlanningRoutingLine."Starting Date-Time" < OldPlanningRoutingLine."Starting Date-Time",
+            Assert.IsTrue(PlanningRoutingLine."Starting Date-Time" < TempOldPlanningRoutingLine."Starting Date-Time",
                 'Expected new starting date-time to be earlier than original.');
 
-            Assert.IsTrue(PlanningRoutingLine."Ending Date-Time" < OldPlanningRoutingLine."Ending Date-Time",
+            Assert.IsTrue(PlanningRoutingLine."Ending Date-Time" < TempOldPlanningRoutingLine."Ending Date-Time",
                 'Expected new ending date-time to be earlier than original.');
 
-        until (OldPlanningRoutingLine.Next() = 0) and (PlanningRoutingLine.Next() = 0);
+        until (TempOldPlanningRoutingLine.Next() = 0) and (PlanningRoutingLine.Next() = 0);
     end;
 
     [Test]
@@ -2202,7 +2204,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
         UpdateCurrentProductionForecastAndComponentsAtLocationOnManufacturingSetup(ProductionForecastName.Name, '');
 
         // [WHEN] Calculate regenerative plan for the item.
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate('<-CY>', WorkDate()), CalcDate('<CY', WorkDate()));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate('<-CY>', WorkDate()), CalcDate('<CY>', WorkDate()));
 
         // [THEN] Demand forecast is properly planned - two supplies suggested for Variant 1 and one for Variant 2.
         VerifyRequisitionLineCountAndQty(Item."No.", ItemVariant[1].Code, 2, 4 * Qty);
@@ -2253,7 +2255,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
         UpdateCurrentProductionForecastAndComponentsAtLocationOnManufacturingSetup(ProductionForecastName.Name, '');
 
         // [WHEN] Calculate regenerative plan for the item.
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate('<-CY>', WorkDate()), CalcDate('<CY', WorkDate()));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate('<-CY>', WorkDate()), CalcDate('<CY>', WorkDate()));
 
         // [THEN] Demand forecast is properly planned - two supplies suggested for Variant 1 and one for Variant 2 for each location.
         VerifyRequisitionLineCountAndQty(Item."No.", ItemVariant[1].Code, 4, 4 * Qty);
@@ -2311,7 +2313,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
         CreateAndReleaseSalesOrder(ParentItem."No.", LocationSilver.Code);
 
         // [WHEN] Calculate regenerative plan for the item.
-        LibraryPlanning.CalcRegenPlanForPlanWksh(ParentItem, CalcDate('<-CY>', WorkDate()), CalcDate('<CY', WorkDate()));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(ParentItem, CalcDate('<-CY>', WorkDate()), CalcDate('<CY>', WorkDate()));
 
         // [THEN] Verify Bin Code On Planning Component
         VerifyBinCodeOnPlanningComponent(ComponentItems[1], Bins[2].Code);
@@ -2845,7 +2847,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
 
     local procedure CreateItem(var Item: Record Item; ReplenishmentSystem: Enum "Replenishment System"; ManufacturingPolicy: Enum "Manufacturing Policy")
     begin
-        LibraryVariableStorage.Enqueue(ChangeWillNotAffect);  // Enqueue for MessageHandler.
+        LibraryVariableStorage.Enqueue(ChangeWillNotAffectMsg);  // Enqueue for MessageHandler.
         LibraryInventory.CreateItem(Item);
         Item.Validate("Replenishment System", ReplenishmentSystem);
         Item.Validate("Manufacturing Policy", ManufacturingPolicy);
@@ -3207,7 +3209,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
         ItemJournalLine.Modify(true);
 
         if HasItemTracking then
-            LibraryVariableStorage.Enqueue(ConfirmDeleteItemTracking); // Explode BOM - confirm delete if Item Tracking
+            LibraryVariableStorage.Enqueue(ConfirmDeleteItemTrackingQst); // Explode BOM - confirm delete if Item Tracking
         LibraryInventory.OutputJnlExplRoute(ItemJournalLine);
         if HasItemTracking then
             LibraryVariableStorage.Dequeue(Variant);
@@ -3301,8 +3303,8 @@ codeunit 137080 "SCM Planning And Manufacturing"
         CreateAndRefreshReleasedProductionOrder(ProductionOrder, ItemNo);
         LotNo := LibraryUtility.GenerateGUID();
         LibraryVariableStorage.Enqueue(LotNo);  // Enqueue for ItemTrackingLinesPageHandler.
-        LibraryVariableStorage.Enqueue(PostJournalLinesConfirm);  // Enqueue for ConfirmHandler.
-        LibraryVariableStorage.Enqueue(JournalLinesSuccessfullyPosted);  // Enqueue for MessageHandler.
+        LibraryVariableStorage.Enqueue(PostJournalLinesConfirmQst);  // Enqueue for ConfirmHandler.
+        LibraryVariableStorage.Enqueue(JournalLinesSuccessfullyPostedMsg);  // Enqueue for MessageHandler.
         ProdOrderLine.SetRange(Status, ProdOrderLine.Status::Released);
         ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
         ProdOrderLine.FindFirst();
@@ -3331,7 +3333,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
     var
         ProdOrderRoutingLine: Record "Prod. Order Routing Line";
     begin
-        LibraryVariableStorage.Enqueue(YouWantToContinueConfirm);  // Enqueue for ConfirmHandler.
+        LibraryVariableStorage.Enqueue(YouWantToContinueConfirmQst);  // Enqueue for ConfirmHandler.
         FindProdOrderRoutingLine(ProdOrderRoutingLine, ProductionOrderNo, OperationNo);
         ProdOrderRoutingLine.Validate("Routing Status", ProdOrderRoutingLine."Routing Status"::Finished);
         ProdOrderRoutingLine.Modify(true);
@@ -3421,7 +3423,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
         ReservationEntry: Record "Reservation Entry";
     begin
         FilterReservationEntry(ReservationEntry, ItemNo, LotNo);
-        Assert.IsTrue(ReservationEntry.IsEmpty, ReservationEntryMustBeEmpty);
+        Assert.IsTrue(ReservationEntry.IsEmpty, ReservationEntryMustBeEmptyErr);
     end;
 
     local procedure VerifyItemLedgerEntry(ProductionOrder: Record "Production Order"; LotNo: Code[50])
@@ -3478,7 +3480,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
         ProdOrderCapacityNeed.TestField("Allocated Time", AllocatedTime);
     end;
 
-    local procedure VerifyRequisitionLine(SalesLine: Record "Sales Line"; ActionMessage: Enum "Action Message Type"; AcceptActionMessage: Boolean; RefOrderType: Option)
+    local procedure VerifyRequisitionLine(SalesLine: Record "Sales Line"; ActionMessage: Enum "Action Message Type"; AcceptActionMessage: Boolean; RefOrderType: Enum "Requisition Ref. Order Type")
     var
         RequisitionLine: Record "Requisition Line";
     begin
@@ -3549,7 +3551,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
         ProdOrderRoutingLine.TestField("From-Production Bin Code", '');
     end;
 
-    local procedure VerifyBinCodeOnPlanningComponent(Item: Record Item; BinCode: Code[10])
+    local procedure VerifyBinCodeOnPlanningComponent(Item: Record Item; BinCode: Code[20])
     var
         PlanningComponent: Record "Planning Component";
     begin
@@ -3700,7 +3702,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
         LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
     end;
 
-    local procedure AddLocationOnManufacturingSetup(LocationCode: Code[20])
+    local procedure AddLocationOnManufacturingSetup(LocationCode: Code[10])
     var
         ManufacturingSetup: Record "Manufacturing Setup";
     begin
@@ -3715,6 +3717,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
         StartingTime: Time;
         Difference: Integer;
     begin
+        StartingTime := 0T;
         Difference := 300000;
         ProdOrderRoutingLine.SetRange("Prod. Order No.", ProdOrderNo);
         ProdOrderRoutingLine.FindSet();

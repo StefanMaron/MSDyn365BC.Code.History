@@ -297,6 +297,9 @@ report 1302 "Standard Sales - Pro Forma Inv"
                         if Location.RequireShipment("Location Code") and ("Quantity Shipped" = 0) then
                             "Qty. to Invoice" := Quantity;
 
+                    if FormatDocument.HideDocumentLine(HideLinesWithZeroQuantity, Line, FieldNo("Qty. to Invoice")) then
+                        CurrReport.Skip();
+
                     if Quantity = 0 then begin
                         LinePrice := "Unit Price";
                         LineAmount := 0;
@@ -404,6 +407,19 @@ report 1302 "Standard Sales - Pro Forma Inv"
 
         layout
         {
+            area(content)
+            {
+                group(Options)
+                {
+                    Caption = 'Options';
+                    field(HideLinesWithZeroQuantityControl; HideLinesWithZeroQuantity)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        ToolTip = 'Specifies if the lines with zero quantity are printed.';
+                        Caption = 'Hide lines with zero quantity';
+                    }
+                }
+            }
         }
 
         actions
@@ -456,6 +472,7 @@ report 1302 "Standard Sales - Pro Forma Inv"
         DummyCurrency: Record Currency;
         AutoFormat: Codeunit "Auto Format";
         LanguageMgt: Codeunit Language;
+        FormatDocument: Codeunit "Format Document";
         CountryOfManufactuctureLbl: Label 'Country';
         TotalWeightLbl: Label 'Total Weight';
         SalespersonPurchaserName: Text;
@@ -502,6 +519,7 @@ report 1302 "Standard Sales - Pro Forma Inv"
         LineAmount: Decimal;
         VATAmount: Decimal;
         ShowWorkDescription: Boolean;
+        HideLinesWithZeroQuantity: Boolean;
 
     local procedure FormatDocumentFields(SalesHeader: Record "Sales Header")
     var
@@ -510,7 +528,6 @@ report 1302 "Standard Sales - Pro Forma Inv"
         ShipmentMethod: Record "Shipment Method";
         ResponsibilityCenter: Record "Responsibility Center";
         Customer: Record Customer;
-        FormatDocument: Codeunit "Format Document";
         FormatAddress: Codeunit "Format Address";
         TotalAmounExclVATLbl: Text[50];
     begin

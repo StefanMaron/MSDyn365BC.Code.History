@@ -354,8 +354,12 @@ table 5611 "Depreciation Book"
         FAJnlSetup: Record "FA Journal Setup";
         Text10500: Label 'You cannot set %1 to %2 because some Fixed Assets associated with this book\exists where Depreciation Method is other than Straight-Line.';
 
+#pragma warning disable AA0074
         Text000: Label 'The book cannot be deleted because it is in use.';
+#pragma warning disable AA0470
         Text001: Label 'The book cannot be deleted because %1 %2 = %3.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     protected var
         FAPostingTypeSetup: Record "FA Posting Type Setup";

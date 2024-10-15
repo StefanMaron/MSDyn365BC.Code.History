@@ -321,7 +321,9 @@ report 1006 "Job - Planning Lines"
         JobFilter: Text;
         JTFilter: Text;
         CurrencyField: Option "Local Currency","Foreign Currency";
+#pragma warning disable AA0074
         Text000: Label 'Budget,Billable,Bud.+Bill.';
+#pragma warning restore AA0074
         FooterTotalCost1: Decimal;
         FooterTotalCost2: Decimal;
         FooterLineDiscountAmount1: Decimal;

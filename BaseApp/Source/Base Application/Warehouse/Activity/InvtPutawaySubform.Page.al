@@ -3,6 +3,7 @@ namespace Microsoft.Warehouse.Activity;
 using Microsoft.Inventory.Availability;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Tracking;
+using Microsoft.Warehouse.Availability;
 using Microsoft.Warehouse.Journal;
 using Microsoft.Warehouse.Structure;
 
@@ -316,7 +317,7 @@ page 7376 "Invt. Put-away Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailability(ItemAvailFormsMgt.ByEvent());
+                            ItemAvailability("Item Availability Type"::"Event");
                         end;
                     }
                     action(Period)
@@ -328,7 +329,7 @@ page 7376 "Invt. Put-away Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailability(ItemAvailFormsMgt.ByPeriod());
+                            ItemAvailability("Item Availability Type"::Period);
                         end;
                     }
                     action(Variant)
@@ -340,7 +341,7 @@ page 7376 "Invt. Put-away Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailability(ItemAvailFormsMgt.ByVariant());
+                            ItemAvailability("Item Availability Type"::Variant);
                         end;
                     }
                     action(Location)
@@ -353,7 +354,7 @@ page 7376 "Invt. Put-away Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailability(ItemAvailFormsMgt.ByLocation());
+                            ItemAvailability("Item Availability Type"::Location);
                         end;
                     }
                     action(Lot)
@@ -402,7 +403,7 @@ page 7376 "Invt. Put-away Subform"
     end;
 
     var
-        ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
+        WarehouseAvailabilityMgt: Codeunit "Warehouse Availability Mgt.";
         WMSMgt: Codeunit "WMS Management";
         ExpirationDateEditable: Boolean;
 
@@ -428,9 +429,9 @@ page 7376 "Invt. Put-away Subform"
             BinContent.ShowBinContents(Rec."Location Code", Rec."Item No.", Rec."Variant Code", Rec."Bin Code");
     end;
 
-    local procedure ItemAvailability(AvailabilityType: Option Date,Variant,Location,Bin,"Event",BOM)
+    local procedure ItemAvailability(AvailabilityType: Enum "Item Availability Type")
     begin
-        ItemAvailFormsMgt.ShowItemAvailFromWhseActivLine(Rec, AvailabilityType);
+        WarehouseAvailabilityMgt.ShowItemAvailabilityFromWhseActivLine(Rec, AvailabilityType);
     end;
 
     local procedure CallSplitLine()

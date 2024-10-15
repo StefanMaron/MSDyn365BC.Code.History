@@ -270,14 +270,6 @@ page 381 "Apply Bank Acc. Ledger Entries"
             until BankAccountLedgerEntry.Next() = 0;
     end;
 
-#if not CLEAN22
-    [Obsolete('Unused procedure, extend this page instead and use the filters or use the event OnAfterAppliedControledFilters', '22.0')]
-    procedure CopyCurrentFilters(var BankAccountLedgerEntry: Record "Bank Account Ledger Entry")
-    begin
-        BankAccountLedgerEntry.CopyFilters(Rec);
-    end;
-#endif
-
     procedure SetUserInteractions()
     begin
         StyleTxt := '';
@@ -335,10 +327,6 @@ page 381 "Apply Bank Acc. Ledger Entries"
     end;
 
     local procedure ApplyControledFilters()
-#if not CLEAN22
-    var
-        BankAccReconciliationPage: Page "Bank Acc. Reconciliation";
-#endif
     begin
         ApplyPartFilters();
         if ShowingNonMatched then begin
@@ -356,9 +344,6 @@ page 381 "Apply Bank Acc. Ledger Entries"
         else
             Rec.SetRange(Reversed);
         OnAfterApplyControledFilters(Rec);
-#if not CLEAN22
-        BankAccReconciliationPage.UpdateBankAccountLedgerEntrySubpageOnAfterSetFilters(Rec);
-#endif
     end;
 
     local procedure ApplyPartFilters()
@@ -377,20 +362,6 @@ page 381 "Apply Bank Acc. Ledger Entries"
             BalanceToReconcile := CalcBalanceToReconcile();
         end;
     end;
-
-#if not CLEAN22
-    [Obsolete('Use ShowAll, ShowNonMatched instead', '22.0')]
-    procedure ToggleMatchedFilter(SetFilterOn: Boolean)
-    begin
-        if SetFilterOn then begin
-            Rec.SetRange("Statement Status", Rec."Statement Status"::Open);
-            Rec.SetRange("Statement No.", '');
-            Rec.SetRange("Statement Line No.", 0);
-        end else
-            Rec.Reset();
-        CurrPage.Update();
-    end;
-#endif
 
     local procedure CalcBalanceToReconcile(): Decimal
     var

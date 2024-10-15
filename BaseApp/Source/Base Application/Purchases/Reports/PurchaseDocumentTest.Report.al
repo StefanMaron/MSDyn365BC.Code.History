@@ -1775,18 +1775,26 @@ report 402 "Purchase Document - Test"
     end;
 
     var
+#pragma warning disable AA0074
         Text000: Label 'Receive and Invoice';
         Text001: Label 'Receive';
         Text002: Label 'Invoice';
+#pragma warning disable AA0470
         Text003: Label 'Order Posting: %1';
         Text004: Label 'Total %1';
         Text005: Label 'Total %1 Incl. VAT';
         Text006: Label '%1 must be specified.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         MustBeForErr: Label '%1 must be %2 for %3 %4.', Comment = '%1 = field caption, %2 = value, %3 = table caption, %4 = No.)';
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text008: Label '%1 %2 does not exist.';
         Text009: Label '%1 must not be a closing date.';
         Text010: Label '%1 is not within your allowed range of posting dates.';
+#pragma warning restore AA0470
         Text013: Label 'A drop shipment from a purchase order cannot be received and invoiced at the same time.';
+#pragma warning disable AA0470
         Text014: Label 'Invoice sales order %1 before invoicing this purchase order.';
         Text015: Label '%1 must be entered.';
         Text016: Label '%1 must be entered on the sales order header.';
@@ -1798,8 +1806,10 @@ report 402 "Purchase Document - Test"
         Text022: Label 'The %1 on the receipt is not the same as the %1 on the purchase header.';
         Text023: Label '%1 must have the same sign as the receipt.';
         Text025: Label '%1 must have the same sign as the return shipment.';
+#pragma warning restore AA0470
         Text028: Label 'Ship and Invoice';
         Text029: Label 'Ship';
+#pragma warning disable AA0470
         Text030: Label 'Return Order Posting: %1';
         Text031: Label 'Total %1 Excl. VAT';
         Text032: Label 'Enter "Yes" in %1 and/or %2 and/or %3.';
@@ -1808,6 +1818,8 @@ report 402 "Purchase Document - Test"
         Text036: Label 'The %1 on the return shipment is not the same as the %1 on the purchase header.';
         Text037: Label 'The quantity you are attempting to invoice is greater than the quantity in receipt %1.';
         Text038: Label 'The quantity you are attempting to invoice is greater than the quantity in return shipment %1.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         PurchSetup: Record "Purchases & Payables Setup";
         GLSetup: Record "General Ledger Setup";
         Vend: Record Vendor;
@@ -1861,18 +1873,28 @@ report 402 "Purchase Document - Test"
         ShowDim: Boolean;
         Continue: Boolean;
         ShowItemChargeAssgnt: Boolean;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text040: Label '%1 must be zero.';
         Text041: Label '%1 must not be %2 for %3 %4.';
         Text042: Label '%1 must be completely preinvoiced before you can ship or invoice the line.';
+#pragma warning restore AA0470
         Text050: Label 'VAT Amount Specification in ';
         Text051: Label 'Local Currency';
+#pragma warning disable AA0470
         Text052: Label 'Exchange rate: %1/%2';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         VALVATBaseLCY: Decimal;
         VALVATAmountLCY: Decimal;
         VALSpecLCYHeader: Text[80];
         VALExchRate: Text[50];
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text053: Label '%1 can at most be %2.';
         Text054: Label '%1 must be at least %2.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         PricesInclVATtxt: Text[30];
         AllowInvDisctxt: Text[30];
         SumLineAmount: Decimal;
@@ -2008,7 +2030,7 @@ report 402 "Purchase Document - Test"
                             if "Purchase Line"."Reverse Charge Item" and
                                ("Purchase Header"."VAT Bus. Posting Group" = PurchSetup."Domestic Vendors") and
                                ("Purchase Header"."VAT Registration No." <> '')
-                            then begin
+                            then
                                 if PurchSetup."Reverse Charge VAT Posting Gr." = "Purchase Line"."VAT Bus. Posting Group" then begin
                                     TempPurchLine2 := "Purchase Line";
                                     TempPurchLine2.SuspendStatusCheck(true);
@@ -2022,7 +2044,6 @@ report 402 "Purchase Document - Test"
                                     TotalReverseCharge := TotalReverseCharge + ReverseCharge;
                                 end else
                                     AddError(StrSubstNo(Text10500, Round(0)));
-                            end;
                         end else
                             AddError(StrSubstNo(Text008, Item.TableCaption(), PurchaseLine."No."));
                 end;

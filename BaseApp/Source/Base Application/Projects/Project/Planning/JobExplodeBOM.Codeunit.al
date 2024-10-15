@@ -107,6 +107,7 @@ codeunit 1019 "Job-Explode BOM"
             ToJobPlanningLine.Init();
             NextLineNo := NextLineNo + LineSpacing;
             ToJobPlanningLine."Line No." := NextLineNo;
+            ToJobPlanningLine.Validate("Line Type", JobPlanningLine."Line Type");
             AssignBOMCompType();
 
             if ToJobPlanningLine.Type <> ToJobPlanningLine.Type::Text then begin
@@ -115,15 +116,17 @@ codeunit 1019 "Job-Explode BOM"
             end;
             AddDescriptionFromTranslationIfExist();
             ToJobPlanningLine."BOM Item No." := BOMItemNo;
-            ToJobPlanningLine.Insert();
+            ToJobPlanningLine.Insert(true);
 
-            ToJobPlanningLine.Validate("Qty. to Assemble");
+            if not (ToJobPlanningLine."Line Type" = ToJobPlanningLine."Line Type"::Billable) then
+                ToJobPlanningLine.Validate("Qty. to Assemble");
 
             if (ToJobPlanningLine.Type = ToJobPlanningLine.Type::Item) and (ToJobPlanningLine.Reserve = ToJobPlanningLine.Reserve::Always) then
                 ToJobPlanningLine.AutoReserve();
 
-            if PreviousJobPlanningLine."Document No." <> '' then
-                AddExtText();
+            if PreviousJobPlanningLine."Job No." <> '' then
+                if TransferExtendedText.JobCheckIfAnyExtText(PreviousJobPlanningLine, false) then
+                    TransferExtendedText.InsertJobExtText(PreviousJobPlanningLine);
 
             PreviousJobPlanningLine := ToJobPlanningLine;
         until FromBOMComp.Next() = 0;

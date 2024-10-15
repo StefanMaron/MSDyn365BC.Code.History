@@ -18,6 +18,7 @@ using Microsoft.Finance.VAT.Calculation;
 using Microsoft.Finance.VAT.Setup;
 using Microsoft.Finance.VAT.Clause;
 using Microsoft.Finance.VAT.RateChange;
+using Microsoft.Finance.VAT.Registration;
 using System.Privacy;
 using System.Apps;
 using System.Environment.Configuration;
@@ -55,7 +56,6 @@ using Microsoft.Foundation.Company;
 using System.IO;
 using Microsoft.CRM.Duplicates;
 using Microsoft.CRM.Profiling;
-using Microsoft.Service.Contract;
 using Microsoft.Integration.Dataverse;
 using Microsoft.Integration.D365Sales;
 using Microsoft.Finance.Currency;
@@ -112,7 +112,7 @@ using Microsoft.Purchases.Setup;
 using Microsoft.Warehouse.Activity.History;
 using Microsoft.Inventory.Requisition;
 using Microsoft.Projects.Resources.Journal;
-#if not CLEAN23
+#if not CLEAN25
 using Microsoft.Projects.Resources.Pricing;
 #endif
 using Microsoft.Projects.Resources.Resource;
@@ -122,7 +122,6 @@ using Microsoft.Sales.Setup;
 using Microsoft.Sales.Document;
 using Microsoft.Sales.Archive;
 using Microsoft.Sales.Pricing;
-using Microsoft.Service.Document;
 using Microsoft.Warehouse.Setup;
 using Microsoft.Finance.SalesTax;
 using Microsoft.CRM.Team;
@@ -132,7 +131,6 @@ using Microsoft.Warehouse.Comment;
 using Microsoft.Warehouse.Ledger;
 using Microsoft.Warehouse.Request;
 using Microsoft.Warehouse.Document;
-using Microsoft.Service.Ledger;
 using Microsoft.Warehouse.Worksheet;
 using Microsoft.Manufacturing.WorkCenter;
 using Microsoft.Foundation.Period;
@@ -140,6 +138,10 @@ using Microsoft.Inventory.Intrastat;
 using Microsoft.Foundation.Calendar;
 using Microsoft.Utilities;
 using Microsoft;
+
+using Microsoft.Service.Contract;
+using Microsoft.Service.Document;
+using Microsoft.Service.Ledger;
 
 permissionset 191 "D365 SETUP"
 {
@@ -266,10 +268,6 @@ permissionset 191 "D365 SETUP"
                   tabledata "Contact Profile Answer" = D,
                   tabledata "Contact Value" = D,
                   tabledata "Contact Web Source" = D,
-                  tabledata "Contract Gain/Loss Entry" = D,
-#if not CLEAN22
-                  tabledata "Coupling Field Buffer" = RIMD,
-#endif
                   tabledata "Coupling Record Buffer" = RIMD,
                   tabledata "Credit Trans Re-export History" = D,
                   tabledata "Credit Transfer Entry" = D,
@@ -327,7 +325,6 @@ permissionset 191 "D365 SETUP"
 #endif
                   tabledata "Exp. Invt. Order Tracking" = RIMD,
                   tabledata "FA Setup" = Rimd,
-                  tabledata "Filed Contract Line" = RD,
                   tabledata "Fin. Charge Comment Line" = D,
                   tabledata "Finance Charge Interest Rate" = RIMD,
                   tabledata "Finance Charge Memo Header" = D,
@@ -355,6 +352,7 @@ permissionset 191 "D365 SETUP"
                   tabledata "Incoming Document" = RIMD,
                   tabledata "Incoming Document Approver" = RIMD,
                   tabledata "Incoming Documents Setup" = RIMD,
+                  tabledata "Int. Table Config Template" = RIMD,
                   tabledata "Integration Field Mapping" = RIMD,
                   tabledata "Integration Synch. Job" = RIMD,
                   tabledata "Integration Synch. Job Errors" = RIMD,
@@ -362,9 +360,6 @@ permissionset 191 "D365 SETUP"
                   tabledata "Inter. Log Entry Comment Line" = D,
                   tabledata "Interaction Log Entry" = D,
                   tabledata "Intermediate Data Import" = RimD,
-#if not CLEAN22
-                  tabledata "Intrastat Setup" = RIMD,
-#endif
                   tabledata "Inventory Adjmt. Entry (Order)" = d,
                   tabledata "Inventory Comment Line" = D,
                   tabledata "Inventory Page Data" = D,
@@ -493,6 +488,7 @@ permissionset 191 "D365 SETUP"
                   tabledata "Registered Whse. Activity Hdr." = d,
                   tabledata "Registered Whse. Activity Line" = d,
                   tabledata "Reminder Attachment Text" = RIMD,
+                  tabledata "Reminder Attachment Text Line" = RIMD,
                   tabledata "Reminder Comment Line" = D,
                   tabledata "Reminder Email Text" = RIMD,
                   tabledata "Reminder Header" = D,
@@ -514,7 +510,7 @@ permissionset 191 "D365 SETUP"
                   tabledata "Requisition Wksh. Name" = RIMD,
                   tabledata "Res. Journal Line" = D,
                   tabledata "Reservation Entry" = RimD,
-#if not CLEAN23
+#if not CLEAN25
                   tabledata "Resource Cost" = D,
                   tabledata "Resource Price" = D,
 #endif
@@ -538,12 +534,12 @@ permissionset 191 "D365 SETUP"
                   tabledata "Sales Invoice Line" = Rd,
                   tabledata "Sales Line" = RmD,
                   tabledata "Sales Line Archive" = RmD,
-#if not CLEAN23
+#if not CLEAN25
                   tabledata "Sales Line Discount" = IM,
 #endif
                   tabledata "Sales Planning Line" = d,
                   tabledata "Sales Prepayment %" = RIMD,
-#if not CLEAN23
+#if not CLEAN25
                   tabledata "Sales Price Worksheet" = RIMD,
 #endif
                   tabledata "Sales Shipment Header" = RD,
@@ -560,7 +556,6 @@ permissionset 191 "D365 SETUP"
                   tabledata "Segment Wizard Filter" = D,
                   tabledata "Sent Notification Entry" = RimD,
                   tabledata "Serial No. Information" = RIMD,
-                  tabledata "Service Line" = Rm,
                   tabledata "Shipment Method" = RIMD,
                   tabledata "Shipping Agent" = RIMD,
                   tabledata "Shipping Agent Services" = IMD,
@@ -568,6 +563,7 @@ permissionset 191 "D365 SETUP"
                   tabledata "Source Code Setup" = RIMD,
                   tabledata "Special Equipment" = IMD,
                   tabledata "Standard General Journal Line" = RIMD,
+                  tabledata "Table Config Template" = RIMD,
                   tabledata "Tariff Number" = RIMD,
                   tabledata "Tax Area" = RIMD,
                   tabledata "Tax Area Line" = RIMD,
@@ -590,10 +586,6 @@ permissionset 191 "D365 SETUP"
                   tabledata "Transaction Type" = RIMD,
                   tabledata "Transport Method" = RIMD,
                   tabledata "Untracked Planning Element" = D,
-#if not CLEAN22
-                  tabledata "User Group Member" = Rimd,
-                  tabledata "User Group Plan" = d,
-#endif
                   tabledata "User Security Status" = D,
                   tabledata "User Setup" = RIMD,
                   tabledata "User Task Group" = RIMD,
@@ -627,6 +619,7 @@ permissionset 191 "D365 SETUP"
                   tabledata "VAT Statement Name" = RIMD,
                   tabledata "VAT Statement Template" = RIMD,
                   tabledata "VAT Setup" = RIMD,
+                  tabledata "Alt. Cust. VAT Reg." = RIMD,
                   tabledata "VAT Posting Parameters" = RIMD,
                   tabledata "Vendor Invoice Disc." = R,
                   tabledata "Vendor Ledger Entry" = RMd,
@@ -640,7 +633,6 @@ permissionset 191 "D365 SETUP"
                   tabledata "Warehouse Setup" = RID,
                   tabledata "Warehouse Shipment Line" = D,
                   tabledata "Warehouse Source Filter" = D,
-                  tabledata "Warranty Ledger Entry" = d,
                   tabledata "Web Source" = D,
                   tabledata "Whse. Item Entry Relation" = RIMD,
                   tabledata "Whse. Pick Request" = D,
@@ -660,5 +652,11 @@ permissionset 191 "D365 SETUP"
                   tabledata "Workflow Table Relation Value" = RimD,
                   tabledata "Workflow User Group" = RIMD,
                   tabledata "Workflow User Group Member" = RIMD,
-                  tabledata "Report Settings Override" = Rimd;
+                  tabledata "Report Settings Override" = Rimd,
+
+                  // Service
+                  tabledata "Contract Gain/Loss Entry" = D,
+                  tabledata "Filed Contract Line" = RD,
+                  tabledata "Service Line" = Rm,
+                  tabledata "Warranty Ledger Entry" = d;
 }

@@ -146,18 +146,16 @@ codeunit 134774 "G/L Report UT"
     var
         VATPostingSetup: Record "VAT Posting Setup";
     begin
-        with VATPostingSetup do begin
-            SetRange("VAT %", 0);
-            SetRange("VAT Bus. Posting Group", VATBusPostingGroup);
-            SetRange("VAT Calculation Type", "VAT Calculation Type"::"Normal VAT");
-            FindFirst();
-            if "Sales VAT Account" = '' then
-                Validate("Sales VAT Account", LibraryERM.CreateGLAccountNo());
-            if "Purchase VAT Account" = '' then
-                Validate("Purchase VAT Account", LibraryERM.CreateGLAccountNo());
-            Modify(true);
-            exit("VAT Prod. Posting Group");
-        end;
+        VATPostingSetup.SetRange("VAT %", 0);
+        VATPostingSetup.SetRange("VAT Bus. Posting Group", VATBusPostingGroup);
+        VATPostingSetup.SetRange("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        VATPostingSetup.FindFirst();
+        if VATPostingSetup."Sales VAT Account" = '' then
+            VATPostingSetup.Validate("Sales VAT Account", LibraryERM.CreateGLAccountNo());
+        if VATPostingSetup."Purchase VAT Account" = '' then
+            VATPostingSetup.Validate("Purchase VAT Account", LibraryERM.CreateGLAccountNo());
+        VATPostingSetup.Modify(true);
+        exit(VATPostingSetup."VAT Prod. Posting Group");
     end;
 }
 

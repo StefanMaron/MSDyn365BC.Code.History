@@ -11,7 +11,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table BCPT Header - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Table BCPT Header - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 2568936622 - NamedType 94476654" ItemType=";Table - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -20,7 +20,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table BCPT Header - NamedType BaseVersionMustBeLessThanVersionErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Table BCPT Header - NamedType BaseVersionMustBeLessThanVersionErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 2568936622 - Field 955727082 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -29,7 +29,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table BCPT Header - Field 1 Day Corresponds to (minutes) - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Table BCPT Header - Field 1 Day Corresponds to (minutes) - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 2568936622 - Field 3058980257 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -38,7 +38,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table BCPT Header - Field Base Version - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Table BCPT Header - Field Base Version - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 2568936622 - Field 3004954119 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -47,7 +47,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table BCPT Header - Field Code - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Table BCPT Header - Field Code - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 2568936622 - Field 3455317060 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -56,7 +56,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table BCPT Header - Field CurrentRunType - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Table BCPT Header - Field CurrentRunType - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 2568936622 - Field 618780422 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -65,7 +65,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table BCPT Header - Field Default Max. User Delay (ms) - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Table BCPT Header - Field Default Max. User Delay (ms) - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 2568936622 - Field 621701784 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -74,7 +74,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table BCPT Header - Field Default Min. User Delay (ms) - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Table BCPT Header - Field Default Min. User Delay (ms) - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 2568936622 - Field 3461834954 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -83,7 +83,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table BCPT Header - Field Description - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Table BCPT Header - Field Description - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 2568936622 - Field 1123264622 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -92,7 +92,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table BCPT Header - Field Duration (minutes) - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Table BCPT Header - Field Duration (minutes) - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 2568936622 - Field 2202730952 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -101,7 +101,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table BCPT Header - Field No. of tests running - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Table BCPT Header - Field No. of tests running - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 2568936622 - Field 623112344 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -110,7 +110,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table BCPT Header - Field RunID - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Table BCPT Header - Field RunID - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 2568936622 - Field 4244803688 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -119,7 +119,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table BCPT Header - Field Started at - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Table BCPT Header - Field Started at - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 2568936622 - Field 513339096 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -128,7 +128,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table BCPT Header - Field Status - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Table BCPT Header - Field Status - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 2568936622 - Field 2801749846 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -137,7 +137,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table BCPT Header - Field Tag - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Table BCPT Header - Field Tag - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 2568936622 - Field 2888734426 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -146,7 +146,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table BCPT Header - Field Test Company Name - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Table BCPT Header - Field Test Company Name - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 2568936622 - Field 937415643 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -155,7 +155,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table BCPT Header - Field Total No. of Sessions - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Table BCPT Header - Field Total No. of Sessions - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 2568936622 - Field 237762718 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -164,7 +164,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table BCPT Header - Field Version - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Table BCPT Header - Field Version - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 2568936622 - Field 3596832005 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -173,7 +173,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table BCPT Header - Field Work date starts at - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Table BCPT Header - Field Work date starts at - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 1790936437 - Property 2879900210" ItemType=";Table - Table" PsrId="63" InstFlg="true" Leaf="true">
@@ -182,7 +182,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table BCPT Line - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Table BCPT Line - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 1790936437 - NamedType 2843255911" ItemType=";Table - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -191,7 +191,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 = codeunit name]D;]A;(LookupHint=Table BCPT Line - NamedType NotSupportedCodeunitErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 = codeunit name]D;]A;(Namespace=System.Tooling)(LookupHint=Table BCPT Line - NamedType NotSupportedCodeunitErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 1790936437 - NamedType 4260794601" ItemType=";Table - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -200,7 +200,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table BCPT Line - NamedType ParameterNotSupportedErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Table BCPT Line - NamedType ParameterNotSupportedErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 1790936437 - NamedType 1537695194" ItemType=";Table - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -209,7 +209,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table BCPT Line - NamedType RunInBackgroundNotSupportedErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Table BCPT Line - NamedType RunInBackgroundNotSupportedErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 1790936437 - Field 1785038057 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -218,7 +218,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table BCPT Line - Field Base Version Filter - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Table BCPT Line - Field Base Version Filter - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 1790936437 - Field 2935858756 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -227,7 +227,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table BCPT Line - Field BCPT Code - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Table BCPT Line - Field BCPT Code - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 1790936437 - Field 893385458 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -236,7 +236,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table BCPT Line - Field Codeunit ID - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Table BCPT Line - Field Codeunit ID - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 1790936437 - Field 2967582120 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -245,7 +245,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table BCPT Line - Field Codeunit Name - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Table BCPT Line - Field Codeunit Name - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 1790936437 - Field 3997336476 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -254,7 +254,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table BCPT Line - Field Company Name - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Table BCPT Line - Field Company Name - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 1790936437 - Field 2871633142 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -263,7 +263,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table BCPT Line - Field Delay (sec. btwn. iter.) - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Table BCPT Line - Field Delay (sec. btwn. iter.) - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 1790936437 - Field 3071998007 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -272,7 +272,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table BCPT Line - Field Delay Type - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Table BCPT Line - Field Delay Type - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 1790936437 - Field 3461834954 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -281,7 +281,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table BCPT Line - Field Description - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Table BCPT Line - Field Description - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 1790936437 - Field 2200046723 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -290,7 +290,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table BCPT Line - Field Indentation - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Table BCPT Line - Field Indentation - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 1790936437 - Field 3320823955 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -299,7 +299,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table BCPT Line - Field Line No. - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Table BCPT Line - Field Line No. - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 1790936437 - Field 1175987275 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -308,7 +308,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table BCPT Line - Field Max. User Delay (ms) - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Table BCPT Line - Field Max. User Delay (ms) - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 1790936437 - Field 3955538721 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -317,7 +317,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table BCPT Line - Field Min. User Delay (ms) - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Table BCPT Line - Field Min. User Delay (ms) - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 1790936437 - Field 1859207990 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -326,7 +326,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table BCPT Line - Field No. of Iterations - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Table BCPT Line - Field No. of Iterations - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 1790936437 - Field 2271034502 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -335,7 +335,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table BCPT Line - Field No. of Iterations - Base - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Table BCPT Line - Field No. of Iterations - Base - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 1790936437 - Field 4217730960 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -344,7 +344,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table BCPT Line - Field No. of Running Sessions - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Table BCPT Line - Field No. of Running Sessions - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 1790936437 - Field 2578081965 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -353,7 +353,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table BCPT Line - Field No. of Sessions - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Table BCPT Line - Field No. of Sessions - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 1790936437 - Field 1032313618 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -362,7 +362,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table BCPT Line - Field No. of SQL Statements - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Table BCPT Line - Field No. of SQL Statements - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 1790936437 - Field 1810092738 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -371,7 +371,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table BCPT Line - Field No. of SQL Statements - Base - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Table BCPT Line - Field No. of SQL Statements - Base - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 1790936437 - Field 684242166 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -380,7 +380,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table BCPT Line - Field Parameters - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Table BCPT Line - Field Parameters - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 1790936437 - Field 3544200519 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -389,7 +389,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table BCPT Line - Field Run in Foreground - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Table BCPT Line - Field Run in Foreground - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 1790936437 - Field 4154341761 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -398,7 +398,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table BCPT Line - Field Sequence - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Table BCPT Line - Field Sequence - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 1790936437 - Field 4154341761 - Property 62802879" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -407,7 +407,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table BCPT Line - Field Sequence - Property OptionCaption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Table BCPT Line - Field Sequence - Property OptionCaption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 1790936437 - Field 513339096 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -416,7 +416,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table BCPT Line - Field Status - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Table BCPT Line - Field Status - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 1790936437 - Field 433940389 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -425,7 +425,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table BCPT Line - Field Total Duration (ms) - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Table BCPT Line - Field Total Duration (ms) - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 1790936437 - Field 634611205 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -434,7 +434,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table BCPT Line - Field Total Duration - Base (ms) - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Table BCPT Line - Field Total Duration - Base (ms) - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 1790936437 - Field 348910206 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -443,7 +443,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table BCPT Line - Field Version Filter - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Table BCPT Line - Field Version Filter - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 1941709903 - Property 2879900210" ItemType=";Table - Table" PsrId="63" InstFlg="true" Leaf="true">
@@ -452,7 +452,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table BCPT Log Entry - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Table BCPT Log Entry - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 1941709903 - Field 2935858756 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -461,7 +461,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table BCPT Log Entry - Field BCPT Code - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Table BCPT Log Entry - Field BCPT Code - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 1941709903 - Field 1372122040 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -470,7 +470,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table BCPT Log Entry - Field BCPT Line No. - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Table BCPT Log Entry - Field BCPT Line No. - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 1941709903 - Field 893385458 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -479,7 +479,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table BCPT Log Entry - Field Codeunit ID - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Table BCPT Log Entry - Field Codeunit ID - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 1941709903 - Field 2967582120 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -488,7 +488,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table BCPT Log Entry - Field Codeunit Name - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Table BCPT Log Entry - Field Codeunit Name - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 1941709903 - Field 495089811 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -497,7 +497,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table BCPT Log Entry - Field Duration (ms) - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Table BCPT Log Entry - Field Duration (ms) - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 1941709903 - Field 4240670190 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -506,7 +506,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table BCPT Log Entry - Field End Time - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Table BCPT Log Entry - Field End Time - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 1941709903 - Field 883711285 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -515,7 +515,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table BCPT Log Entry - Field Entry No. - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Table BCPT Log Entry - Field Entry No. - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 1941709903 - Field 3446276168 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -524,7 +524,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table BCPT Log Entry - Field Error Call Stack - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Table BCPT Log Entry - Field Error Call Stack - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 1941709903 - Field 1945699244 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -533,7 +533,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table BCPT Log Entry - Field Log was Modified - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Table BCPT Log Entry - Field Log was Modified - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 1941709903 - Field 3080618677 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -542,7 +542,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table BCPT Log Entry - Field Message - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Table BCPT Log Entry - Field Message - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 1941709903 - Field 1032313618 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -551,7 +551,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table BCPT Log Entry - Field No. of SQL Statements - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Table BCPT Log Entry - Field No. of SQL Statements - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 1941709903 - Field 3108107879 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -560,7 +560,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table BCPT Log Entry - Field Operation - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Table BCPT Log Entry - Field Operation - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 1941709903 - Field 2611067050 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -569,7 +569,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table BCPT Log Entry - Field Orig. Message - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Table BCPT Log Entry - Field Orig. Message - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 1941709903 - Field 1474787492 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -578,7 +578,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table BCPT Log Entry - Field Orig. Operation - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Table BCPT Log Entry - Field Orig. Operation - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 1941709903 - Field 2381135307 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -587,7 +587,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table BCPT Log Entry - Field Orig. Status - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Table BCPT Log Entry - Field Orig. Status - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 1941709903 - Field 2381135307 - Property 62802879" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -596,7 +596,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table BCPT Log Entry - Field Orig. Status - Property OptionCaption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Table BCPT Log Entry - Field Orig. Status - Property OptionCaption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 1941709903 - Field 623112344 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -605,7 +605,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table BCPT Log Entry - Field RunID - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Table BCPT Log Entry - Field RunID - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 1941709903 - Field 3628052947 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -614,7 +614,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table BCPT Log Entry - Field Session No. - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Table BCPT Log Entry - Field Session No. - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 1941709903 - Field 2169532623 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -623,7 +623,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table BCPT Log Entry - Field Start Time - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Table BCPT Log Entry - Field Start Time - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 1941709903 - Field 513339096 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -632,7 +632,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table BCPT Log Entry - Field Status - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Table BCPT Log Entry - Field Status - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 1941709903 - Field 513339096 - Property 62802879" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -641,7 +641,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table BCPT Log Entry - Field Status - Property OptionCaption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Table BCPT Log Entry - Field Status - Property OptionCaption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 1941709903 - Field 2801749846 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -650,7 +650,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table BCPT Log Entry - Field Tag - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Table BCPT Log Entry - Field Tag - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 1941709903 - Field 2888734426 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -659,7 +659,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table BCPT Log Entry - Field Test Company Name - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Table BCPT Log Entry - Field Test Company Name - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 1941709903 - Field 237762718 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -668,7 +668,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table BCPT Log Entry - Field Version - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Table BCPT Log Entry - Field Version - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 1512769886 - Property 2879900210" ItemType=";Table - Table" PsrId="63" InstFlg="true" Leaf="true">
@@ -677,7 +677,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table BCPT Parameter Line - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Table BCPT Parameter Line - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 1512769886 - NamedType 867925466" ItemType=";Table - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -686,7 +686,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table BCPT Parameter Line - NamedType CommasNotAllowedErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Table BCPT Parameter Line - NamedType CommasNotAllowedErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 1512769886 - Field 3960474666 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -695,7 +695,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table BCPT Parameter Line - Field Parameter Name - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Table BCPT Parameter Line - Field Parameter Name - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 1512769886 - Field 760691038 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -704,7 +704,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table BCPT Parameter Line - Field Parameter Value - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Table BCPT Parameter Line - Field Parameter Value - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2568936622 - Method 1461570459 - NamedType 4106450447" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -713,7 +713,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit BCPT Header - Method ResetStatus - NamedType ConfirmResetStatusQst)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Codeunit BCPT Header - Method ResetStatus - NamedType ConfirmResetStatusQst)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2564545456 - NamedType 3415193895" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -722,7 +722,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit BCPT Install - NamedType CannotInstallErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Codeunit BCPT Install - NamedType CannotInstallErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1790936437 - NamedType 4148398688" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -731,7 +731,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 = Max number of sessions allowed %2 = codeunit name]D;]A;(LookupHint=Codeunit BCPT Line - NamedType MaxNoOfSessionsErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 = Max number of sessions allowed %2 = codeunit name]D;]A;(Namespace=System.Tooling)(LookupHint=Codeunit BCPT Line - NamedType MaxNoOfSessionsErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1790936437 - NamedType 3137703201" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -740,7 +740,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 = codeunit name]D;]A;(LookupHint=Codeunit BCPT Line - NamedType ScenarioNotStartedErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 = codeunit name]D;]A;(Namespace=System.Tooling)(LookupHint=Codeunit BCPT Line - NamedType ScenarioNotStartedErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3321763182 - NamedType 3632684256" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -749,7 +749,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit BCPT Role Wrapper - NamedType ScenarioLbl)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Codeunit BCPT Role Wrapper - NamedType ScenarioLbl)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2497292044 - NamedType 4114217984" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -758,7 +758,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit BCPT Start Tests - NamedType CannotRunMultipleSuitesInParallelErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Codeunit BCPT Start Tests - NamedType CannotRunMultipleSuitesInParallelErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2497292044 - NamedType 335618750" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -767,7 +767,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit BCPT Start Tests - NamedType NothingToRunErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Codeunit BCPT Start Tests - NamedType NothingToRunErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1784523263 - NamedType 1563256021" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -776,7 +776,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 - field caption, %2 - field value]D;]A;(LookupHint=Codeunit BCPT Test Suite - NamedType TestSuiteAlreadyExistsErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 - field caption, %2 - field value]D;]A;(Namespace=System.Tooling)(LookupHint=Codeunit BCPT Test Suite - NamedType TestSuiteAlreadyExistsErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1784523263 - NamedType 808379172" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -785,7 +785,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 - field caption, %2 - field value, %3 - field caption, %4 - field value]D;]A;(LookupHint=Codeunit BCPT Test Suite - NamedType TestSuiteLineNotFoundErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 - field caption, %2 - field value, %3 - field caption, %4 - field value]D;]A;(Namespace=System.Tooling)(LookupHint=Codeunit BCPT Test Suite - NamedType TestSuiteLineNotFoundErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1784523263 - NamedType 670790746" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -794,7 +794,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 - field caption, %2 - field value]D;]A;(LookupHint=Codeunit BCPT Test Suite - NamedType TestSuiteNotFoundErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 - field caption, %2 - field value]D;]A;(Namespace=System.Tooling)(LookupHint=Codeunit BCPT Test Suite - NamedType TestSuiteNotFoundErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 2352947468 - Property 2879900210" ItemType=";Page - Page" PsrId="63" InstFlg="true" Leaf="true">
@@ -803,7 +803,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT CommandLine Card - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT CommandLine Card - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 2352947468 - NamedType 1971001358" ItemType=";Page - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -812,7 +812,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 = BCPT Suite id.]D;]A;(LookupHint=Page BCPT CommandLine Card - NamedType CannotFindBCPTSuiteErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 = BCPT Suite id.]D;]A;(Namespace=System.Tooling)(LookupHint=Page BCPT CommandLine Card - NamedType CannotFindBCPTSuiteErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 2352947468 - Control 1123264622 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -821,7 +821,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT CommandLine Card - Control Duration (minutes) - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT CommandLine Card - Control Duration (minutes) - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 2352947468 - Control 648997048 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -830,7 +830,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT CommandLine Card - Control No. of Instances - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT CommandLine Card - Control No. of Instances - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 2352947468 - Control 2759637069 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -839,7 +839,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT CommandLine Card - Control No. of Tests - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT CommandLine Card - Control No. of Tests - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 2352947468 - Control 2462874023 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -848,7 +848,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT CommandLine Card - Control Select Code - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT CommandLine Card - Control Select Code - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 2352947468 - Action 2869752321 - Property 1295455071" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
@@ -857,7 +857,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT CommandLine Card - Action StartNext - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT CommandLine Card - Action StartNext - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 2352947468 - Action 794668995 - Property 1295455071" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
@@ -866,7 +866,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT CommandLine Card - Action StartNextPRT - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT CommandLine Card - Action StartNextPRT - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 3590058252 - Property 2879900210" ItemType=";Page - Page" PsrId="63" InstFlg="true" Leaf="true">
@@ -875,7 +875,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Lines - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Lines - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 3590058252 - Control 3862275434 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -884,7 +884,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Lines - Control AvgDuration - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Lines - Control AvgDuration - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 3590058252 - Control 3862275434 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -893,7 +893,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Lines - Control AvgDuration - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Lines - Control AvgDuration - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 3590058252 - Control 2886385741 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -902,7 +902,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Lines - Control AvgDurationBase - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Lines - Control AvgDurationBase - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 3590058252 - Control 2886385741 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -911,7 +911,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Lines - Control AvgDurationBase - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Lines - Control AvgDurationBase - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 3590058252 - Control 839849947 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -920,7 +920,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Lines - Control AvgDurationDeltaPct - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Lines - Control AvgDurationDeltaPct - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 3590058252 - Control 839849947 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -929,7 +929,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Lines - Control AvgDurationDeltaPct - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Lines - Control AvgDurationDeltaPct - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 3590058252 - Control 3749748605 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -938,7 +938,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Lines - Control AvgSQLStmts - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Lines - Control AvgSQLStmts - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 3590058252 - Control 3749748605 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -947,7 +947,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Lines - Control AvgSQLStmts - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Lines - Control AvgSQLStmts - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 3590058252 - Control 3836406778 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -956,7 +956,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Lines - Control AvgSQLStmtsBase - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Lines - Control AvgSQLStmtsBase - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 3590058252 - Control 3836406778 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -965,7 +965,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Lines - Control AvgSQLStmtsBase - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Lines - Control AvgSQLStmtsBase - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 3590058252 - Control 3756286370 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -974,7 +974,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Lines - Control CodeunitID - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Lines - Control CodeunitID - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 3590058252 - Control 389609624 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -983,7 +983,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Lines - Control CodeunitName - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Lines - Control CodeunitName - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 3590058252 - Control 3461834954 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -992,7 +992,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Lines - Control Description - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Lines - Control Description - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 3590058252 - Control 1637095154 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1001,7 +1001,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Lines - Control Duration - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Lines - Control Duration - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 3590058252 - Control 3078320533 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1010,7 +1010,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Lines - Control DurationBase - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Lines - Control DurationBase - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 3590058252 - Control 3078320533 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1019,7 +1019,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Lines - Control DurationBase - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Lines - Control DurationBase - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 3590058252 - Control 1521746932 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1028,7 +1028,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Lines - Control FreqType - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Lines - Control FreqType - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 3590058252 - Control 3964856256 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1037,7 +1037,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Lines - Control Frequency - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Lines - Control Frequency - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 3590058252 - Control 1165969121 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1046,7 +1046,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Lines - Control LineNo - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Lines - Control LineNo - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 3590058252 - Control 902755079 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1055,7 +1055,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Lines - Control LoadTestCode - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Lines - Control LoadTestCode - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 3590058252 - Control 19461763 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1064,7 +1064,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Lines - Control MaxDelay - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Lines - Control MaxDelay - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 3590058252 - Control 3003847801 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1073,7 +1073,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Lines - Control MinDelay - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Lines - Control MinDelay - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 3590058252 - Control 3907567534 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1082,7 +1082,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Lines - Control NoOfInstances - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Lines - Control NoOfInstances - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 3590058252 - Control 3682952784 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1091,7 +1091,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Lines - Control NoOfIterations - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Lines - Control NoOfIterations - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 3590058252 - Control 3185735731 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1100,7 +1100,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Lines - Control NoOfIterationsBase - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Lines - Control NoOfIterationsBase - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 3590058252 - Control 3185735731 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1109,7 +1109,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Lines - Control NoOfIterationsBase - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Lines - Control NoOfIterationsBase - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 3590058252 - Control 1263431317 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1118,7 +1118,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Lines - Control NoOfSQLStmts - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Lines - Control NoOfSQLStmts - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 3590058252 - Control 1536187506 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1127,7 +1127,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Lines - Control NoOfSQLStmtsBase - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Lines - Control NoOfSQLStmtsBase - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 3590058252 - Control 1536187506 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1136,7 +1136,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Lines - Control NoOfSQLStmtsBase - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Lines - Control NoOfSQLStmtsBase - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 3590058252 - Control 684242166 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1145,7 +1145,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Lines - Control Parameters - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Lines - Control Parameters - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 3590058252 - Control 3494362431 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1154,7 +1154,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Lines - Control RunInForeground - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Lines - Control RunInForeground - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 3590058252 - Control 3608555040 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1163,7 +1163,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Lines - Control SQLStmtsDeltaPct - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Lines - Control SQLStmtsDeltaPct - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 3590058252 - Control 3608555040 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1172,7 +1172,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Lines - Control SQLStmtsDeltaPct - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Lines - Control SQLStmtsDeltaPct - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 3590058252 - Control 513339096 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1181,7 +1181,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Lines - Control Status - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Lines - Control Status - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 3590058252 - Action 1442081040 - Property 1295455071" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
@@ -1190,7 +1190,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Lines - Action Indent - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Lines - Action Indent - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 3590058252 - Action 1442081040 - Property 2879900210" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
@@ -1199,7 +1199,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Lines - Action Indent - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Lines - Action Indent - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 3590058252 - Action 4137051400 - Property 1295455071" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
@@ -1208,7 +1208,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Lines - Action New - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Lines - Action New - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 3590058252 - Action 4137051400 - Property 2879900210" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
@@ -1217,7 +1217,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Lines - Action New - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Lines - Action New - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 3590058252 - Action 1648175015 - Property 1295455071" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
@@ -1226,7 +1226,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Lines - Action Outdent - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Lines - Action Outdent - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 3590058252 - Action 1648175015 - Property 2879900210" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
@@ -1235,7 +1235,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Lines - Action Outdent - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Lines - Action Outdent - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 3590058252 - Action 620325036 - Property 1295455071" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
@@ -1244,7 +1244,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Lines - Action Start - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Lines - Action Start - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 3590058252 - Action 620325036 - Property 2879900210" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
@@ -1253,7 +1253,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Lines - Action Start - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Lines - Action Start - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1184719117 - Property 2879900210" ItemType=";Page - Page" PsrId="63" InstFlg="true" Leaf="true">
@@ -1262,7 +1262,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Log Entries - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Log Entries - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1184719117 - NamedType 1547059332" ItemType=";Page - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -1271,7 +1271,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Log Entries - NamedType DoYouWantToDeleteQst)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Log Entries - NamedType DoYouWantToDeleteQst)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1184719117 - Control 1372122040 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1280,7 +1280,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Log Entries - Control BCPT Line No. - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Log Entries - Control BCPT Line No. - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1184719117 - Control 3004954119 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1289,7 +1289,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Log Entries - Control Code - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Log Entries - Control Code - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1184719117 - Control 3756286370 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1298,7 +1298,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Log Entries - Control CodeunitID - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Log Entries - Control CodeunitID - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1184719117 - Control 389609624 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1307,7 +1307,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Log Entries - Control CodeunitName - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Log Entries - Control CodeunitName - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1184719117 - Control 1238503960 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1316,7 +1316,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Log Entries - Control DurationMin - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Log Entries - Control DurationMin - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1184719117 - Control 1238503960 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1325,7 +1325,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Log Entries - Control DurationMin - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Log Entries - Control DurationMin - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1184719117 - Control 3837516702 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1334,7 +1334,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Log Entries - Control EndTime - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Log Entries - Control EndTime - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1184719117 - Control 3837516702 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1343,7 +1343,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Log Entries - Control EndTime - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Log Entries - Control EndTime - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1184719117 - Control 883711285 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1352,7 +1352,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Log Entries - Control Entry No. - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Log Entries - Control Entry No. - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1184719117 - Control 3446276168 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1361,7 +1361,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Log Entries - Control Error Call Stack - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Log Entries - Control Error Call Stack - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1184719117 - Control 3446276168 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1370,7 +1370,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Log Entries - Control Error Call Stack - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Log Entries - Control Error Call Stack - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1184719117 - Control 1945699244 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1379,7 +1379,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Log Entries - Control Log was Modified - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Log Entries - Control Log was Modified - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1184719117 - Control 1945699244 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1388,7 +1388,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Log Entries - Control Log was Modified - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Log Entries - Control Log was Modified - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1184719117 - Control 3080618677 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1397,7 +1397,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Log Entries - Control Message - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Log Entries - Control Message - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1184719117 - Control 3080618677 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1406,7 +1406,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Log Entries - Control Message - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Log Entries - Control Message - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1184719117 - Control 1263431317 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1415,7 +1415,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Log Entries - Control NoOfSQLStmts - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Log Entries - Control NoOfSQLStmts - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1184719117 - Control 1263431317 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1424,7 +1424,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Log Entries - Control NoOfSQLStmts - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Log Entries - Control NoOfSQLStmts - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1184719117 - Control 3108107879 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1433,7 +1433,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Log Entries - Control Operation - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Log Entries - Control Operation - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1184719117 - Control 2611067050 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1442,7 +1442,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Log Entries - Control Orig. Message - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Log Entries - Control Orig. Message - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1184719117 - Control 2611067050 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1451,7 +1451,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Log Entries - Control Orig. Message - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Log Entries - Control Orig. Message - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1184719117 - Control 1474787492 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1460,7 +1460,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Log Entries - Control Orig. Operation - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Log Entries - Control Orig. Operation - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1184719117 - Control 2381135307 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1469,7 +1469,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Log Entries - Control Orig. Status - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Log Entries - Control Orig. Status - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1184719117 - Control 2381135307 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1478,7 +1478,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Log Entries - Control Orig. Status - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Log Entries - Control Orig. Status - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1184719117 - Control 623112344 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1487,7 +1487,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Log Entries - Control RunID - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Log Entries - Control RunID - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1184719117 - Control 1224773205 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1496,7 +1496,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Log Entries - Control SessionId - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Log Entries - Control SessionId - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1184719117 - Control 530928583 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1505,7 +1505,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Log Entries - Control StartTime - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Log Entries - Control StartTime - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1184719117 - Control 530928583 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1514,7 +1514,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Log Entries - Control StartTime - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Log Entries - Control StartTime - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1184719117 - Control 513339096 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1523,7 +1523,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Log Entries - Control Status - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Log Entries - Control Status - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1184719117 - Control 513339096 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1532,7 +1532,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Log Entries - Control Status - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Log Entries - Control Status - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1184719117 - Control 2801749846 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1541,7 +1541,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Log Entries - Control Tag - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Log Entries - Control Tag - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1184719117 - Control 237762718 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1550,7 +1550,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Log Entries - Control Version - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Log Entries - Control Version - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1184719117 - Control 237762718 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1559,7 +1559,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Log Entries - Control Version - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Log Entries - Control Version - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1184719117 - Action 3780442291 - Property 1295455071" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
@@ -1568,7 +1568,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Log Entries - Action ClearShowErrors - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Log Entries - Action ClearShowErrors - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1184719117 - Action 3780442291 - Property 2879900210" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
@@ -1577,7 +1577,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Log Entries - Action ClearShowErrors - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Log Entries - Action ClearShowErrors - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1184719117 - Action 4074596293 - Property 1295455071" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
@@ -1586,7 +1586,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Log Entries - Action ClearShowSimultaneous - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Log Entries - Action ClearShowSimultaneous - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1184719117 - Action 4074596293 - Property 2879900210" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
@@ -1595,7 +1595,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Log Entries - Action ClearShowSimultaneous - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Log Entries - Action ClearShowSimultaneous - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1184719117 - Action 389138476 - Property 1295455071" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
@@ -1604,7 +1604,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Log Entries - Action DeleteAll - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Log Entries - Action DeleteAll - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1184719117 - Action 389138476 - Property 2879900210" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
@@ -1613,7 +1613,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Log Entries - Action DeleteAll - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Log Entries - Action DeleteAll - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1184719117 - Action 3993650900 - Property 1295455071" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
@@ -1622,7 +1622,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Log Entries - Action ShowErrors - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Log Entries - Action ShowErrors - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1184719117 - Action 3993650900 - Property 2879900210" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
@@ -1631,7 +1631,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Log Entries - Action ShowErrors - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Log Entries - Action ShowErrors - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1184719117 - Action 3434203638 - Property 1295455071" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
@@ -1640,7 +1640,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Log Entries - Action ShowSimultaneous - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Log Entries - Action ShowSimultaneous - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1184719117 - Action 3434203638 - Property 2879900210" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
@@ -1649,7 +1649,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Log Entries - Action ShowSimultaneous - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Log Entries - Action ShowSimultaneous - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 3016543735 - Property 2879900210" ItemType=";Page - Page" PsrId="63" InstFlg="true" Leaf="true">
@@ -1658,7 +1658,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Log Entry API - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Log Entry API - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 3016543735 - Property 3446740159" ItemType=";Page - Page" PsrId="63" InstFlg="true" Leaf="true">
@@ -1667,7 +1667,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Log Entry API - Property EntityCaption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Log Entry API - Property EntityCaption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 3016543735 - Property 631549417" ItemType=";Page - Page" PsrId="63" InstFlg="true" Leaf="true">
@@ -1676,7 +1676,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Log Entry API - Property EntitySetCaption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Log Entry API - Property EntitySetCaption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 3016543735 - Control 3993731044 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1685,7 +1685,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Log Entry API - Control bcptCode - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Log Entry API - Control bcptCode - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 3016543735 - Control 3345260546 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1694,7 +1694,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Log Entry API - Control codeunitID - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Log Entry API - Control codeunitID - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 3016543735 - Control 4088109112 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1703,7 +1703,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Log Entry API - Control codeunitName - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Log Entry API - Control codeunitName - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 3016543735 - Control 3937971704 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1712,7 +1712,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Log Entry API - Control durationMin - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Log Entry API - Control durationMin - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 3016543735 - Control 523229054 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1721,7 +1721,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Log Entry API - Control endTime - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Log Entry API - Control endTime - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 3016543735 - Control 2190624577 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1730,7 +1730,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Log Entry API - Control entryNumber - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Log Entry API - Control entryNumber - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 3016543735 - Control 2686962215 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1739,7 +1739,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Log Entry API - Control id - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Log Entry API - Control id - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 3016543735 - Control 928535615 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1748,7 +1748,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Log Entry API - Control lineNumber - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Log Entry API - Control lineNumber - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 3016543735 - Control 1123684309 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1757,7 +1757,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Log Entry API - Control message - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Log Entry API - Control message - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 3016543735 - Control 3024429683 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1766,7 +1766,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Log Entry API - Control numberOfSQLStmts - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Log Entry API - Control numberOfSQLStmts - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 3016543735 - Control 879649671 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1775,7 +1775,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Log Entry API - Control operation - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Log Entry API - Control operation - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 3016543735 - Control 1891695285 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1784,7 +1784,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Log Entry API - Control sessionId - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Log Entry API - Control sessionId - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 3016543735 - Control 43755559 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1793,7 +1793,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Log Entry API - Control startTime - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Log Entry API - Control startTime - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 3016543735 - Control 998393528 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1802,7 +1802,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Log Entry API - Control status - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Log Entry API - Control status - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 3016543735 - Control 3549181302 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1811,7 +1811,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Log Entry API - Control tag - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Log Entry API - Control tag - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 3016543735 - Control 942171326 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1820,7 +1820,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Log Entry API - Control version - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Log Entry API - Control version - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1221634945 - Property 2879900210" ItemType=";Page - Page" PsrId="63" InstFlg="true" Leaf="true">
@@ -1829,7 +1829,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Lookup Codeunits - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Lookup Codeunits - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1221634945 - NamedType 4013669850" ItemType=";Page - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -1838,7 +1838,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Lookup Codeunits - NamedType OpenLbl)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Lookup Codeunits - NamedType OpenLbl)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1221634945 - Control 3641927271 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1847,7 +1847,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Lookup Codeunits - Control ID - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Lookup Codeunits - Control ID - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1221634945 - Control 2961552353 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1856,7 +1856,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Lookup Codeunits - Control Name - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Lookup Codeunits - Control Name - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1221634945 - Action 580853590 - Property 1295455071" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
@@ -1865,7 +1865,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Lookup Codeunits - Action ShowAll - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Lookup Codeunits - Action ShowAll - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1221634945 - Action 580853590 - Property 2879900210" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
@@ -1874,7 +1874,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Lookup Codeunits - Action ShowAll - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Lookup Codeunits - Action ShowAll - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1015629049 - Property 2879900210" ItemType=";Page - Page" PsrId="63" InstFlg="true" Leaf="true">
@@ -1883,7 +1883,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Parameters - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Parameters - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1015629049 - Control 2961552353 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1892,7 +1892,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Parameters - Control Name - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Parameters - Control Name - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1015629049 - Control 1131619133 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1901,7 +1901,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Parameters - Control Value - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Parameters - Control Value - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 2442119490 - Property 2879900210" ItemType=";Page - Page" PsrId="63" InstFlg="true" Leaf="true">
@@ -1910,7 +1910,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Setup Card - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Setup Card - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 2442119490 - Control 2432292737 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1919,7 +1919,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Setup Card - Control BaseVersion - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Setup Card - Control BaseVersion - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 2442119490 - Control 3004954119 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1928,7 +1928,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Setup Card - Control Code - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Setup Card - Control Code - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 2442119490 - Control 3461834954 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1937,7 +1937,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Setup Card - Control Description - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Setup Card - Control Description - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 2442119490 - Control 1238503960 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1946,7 +1946,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Setup Card - Control DurationMin - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Setup Card - Control DurationMin - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 2442119490 - Control 19461763 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1955,7 +1955,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Setup Card - Control MaxDelay - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Setup Card - Control MaxDelay - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 2442119490 - Control 3003847801 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1964,7 +1964,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Setup Card - Control MinDelay - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Setup Card - Control MinDelay - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 2442119490 - Control 628271641 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1973,7 +1973,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Setup Card - Control OneDayCorrespondsTo - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Setup Card - Control OneDayCorrespondsTo - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 2442119490 - Control 816905803 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1982,7 +1982,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Setup Card - Control Started - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Setup Card - Control Started - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 2442119490 - Control 513339096 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1991,7 +1991,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Setup Card - Control Status - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Setup Card - Control Status - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 2442119490 - Control 2801749846 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -2000,7 +2000,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Setup Card - Control Tag - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Setup Card - Control Tag - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 2442119490 - Control 2344277841 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -2009,7 +2009,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Setup Card - Control TotalNoOfSessions - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Setup Card - Control TotalNoOfSessions - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 2442119490 - Control 237762718 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -2018,7 +2018,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Setup Card - Control Version - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Setup Card - Control Version - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 2442119490 - Control 3292945370 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -2027,7 +2027,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Setup Card - Control WorkdateStarts - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Setup Card - Control WorkdateStarts - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 2442119490 - Action 2316947810 - Property 1295455071" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
@@ -2036,7 +2036,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Setup Card - Action LogEntries - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Setup Card - Action LogEntries - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 2442119490 - Action 2316947810 - Property 2879900210" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
@@ -2045,7 +2045,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Setup Card - Action LogEntries - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Setup Card - Action LogEntries - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 2442119490 - Action 2144283875 - Property 1295455071" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
@@ -2054,7 +2054,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Setup Card - Action RefreshStatus - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Setup Card - Action RefreshStatus - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 2442119490 - Action 2144283875 - Property 2879900210" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
@@ -2063,7 +2063,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Setup Card - Action RefreshStatus - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Setup Card - Action RefreshStatus - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 2442119490 - Action 1461570459 - Property 1295455071" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
@@ -2072,7 +2072,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Setup Card - Action ResetStatus - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Setup Card - Action ResetStatus - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 2442119490 - Action 1461570459 - Property 2879900210" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
@@ -2081,7 +2081,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Setup Card - Action ResetStatus - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Setup Card - Action ResetStatus - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 2442119490 - Action 620325036 - Property 1295455071" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
@@ -2090,7 +2090,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Setup Card - Action Start - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Setup Card - Action Start - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 2442119490 - Action 620325036 - Property 2879900210" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
@@ -2099,7 +2099,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Setup Card - Action Start - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Setup Card - Action Start - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 2442119490 - Action 1651508914 - Property 1295455071" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
@@ -2108,7 +2108,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Setup Card - Action StartPRT - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Setup Card - Action StartPRT - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 2442119490 - Action 1651508914 - Property 2879900210" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
@@ -2117,7 +2117,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Setup Card - Action StartPRT - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Setup Card - Action StartPRT - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 2442119490 - Action 915332364 - Property 1295455071" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
@@ -2126,7 +2126,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Setup Card - Action Stop - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Setup Card - Action Stop - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 2442119490 - Action 915332364 - Property 2879900210" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
@@ -2135,7 +2135,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Setup Card - Action Stop - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Setup Card - Action Stop - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 2442119490 - Action 915332364 - Method 1377591017 - NamedType 64394730" ItemType=";Page - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -2144,7 +2144,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Setup Card - Action Stop - Method OnAction - NamedType SomethingWentWrongErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Setup Card - Action Stop - Method OnAction - NamedType SomethingWentWrongErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 494180900 - Property 2019332006" ItemType=";Page - Page" PsrId="63" InstFlg="true" Leaf="true">
@@ -2153,7 +2153,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Setup List - Property PromotedActionCategories)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Setup List - Property PromotedActionCategories)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 494180900 - Property 2879900210" ItemType=";Page - Page" PsrId="63" InstFlg="true" Leaf="true">
@@ -2162,7 +2162,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Setup List - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Setup List - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 494180900 - Property 3863440606" ItemType=";Page - Page" PsrId="63" InstFlg="true" Leaf="true">
@@ -2171,7 +2171,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Setup List - Property AdditionalSearchTerms)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Setup List - Property AdditionalSearchTerms)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 494180900 - Control 3004954119 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -2180,7 +2180,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Setup List - Control Code - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Setup List - Control Code - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 494180900 - Control 3004954119 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -2189,7 +2189,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Setup List - Control Code - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Setup List - Control Code - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 494180900 - Control 3461834954 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -2198,7 +2198,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Setup List - Control Description - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Setup List - Control Description - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 494180900 - Control 3461834954 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -2207,7 +2207,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Setup List - Control Description - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Setup List - Control Description - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 494180900 - Control 1238503960 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -2216,7 +2216,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Setup List - Control DurationMin - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Setup List - Control DurationMin - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 494180900 - Control 1238503960 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -2225,7 +2225,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Setup List - Control DurationMin - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Setup List - Control DurationMin - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 494180900 - Control 816905803 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -2234,7 +2234,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Setup List - Control Started - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Setup List - Control Started - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 494180900 - Control 816905803 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -2243,7 +2243,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Setup List - Control Started - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Setup List - Control Started - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 494180900 - Control 513339096 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -2252,7 +2252,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Setup List - Control Status - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Setup List - Control Status - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 494180900 - Control 513339096 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -2261,7 +2261,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Setup List - Control Status - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Setup List - Control Status - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 494180900 - Action 1425006930 - Property 2879900210" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
@@ -2270,7 +2270,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Setup List - Action Import/Export - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Setup List - Action Import/Export - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 494180900 - Action 3732426211 - Property 1295455071" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
@@ -2279,7 +2279,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Setup List - Action ExportBCPT - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Setup List - Action ExportBCPT - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 494180900 - Action 3732426211 - Property 2879900210" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
@@ -2288,7 +2288,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Setup List - Action ExportBCPT - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Setup List - Action ExportBCPT - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 494180900 - Action 1817704100 - Property 1295455071" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
@@ -2297,7 +2297,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Setup List - Action ImportBCPT - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Setup List - Action ImportBCPT - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 494180900 - Action 1817704100 - Property 2879900210" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
@@ -2306,7 +2306,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Setup List - Action ImportBCPT - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Setup List - Action ImportBCPT - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 2204287477 - Property 2879900210" ItemType=";Page - Page" PsrId="63" InstFlg="true" Leaf="true">
@@ -2315,7 +2315,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Suite API - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Suite API - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 2204287477 - Property 3446740159" ItemType=";Page - Page" PsrId="63" InstFlg="true" Leaf="true">
@@ -2324,7 +2324,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Suite API - Property EntityCaption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Suite API - Property EntityCaption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 2204287477 - Property 631549417" ItemType=";Page - Page" PsrId="63" InstFlg="true" Leaf="true">
@@ -2333,7 +2333,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Suite API - Property EntitySetCaption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Suite API - Property EntitySetCaption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 2204287477 - Control 707985127 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -2342,7 +2342,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Suite API - Control code - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Suite API - Control code - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 2204287477 - Control 1121667338 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -2351,7 +2351,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Suite API - Control defaultMaximumUserDelayInMilliSeconds - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Suite API - Control defaultMaximumUserDelayInMilliSeconds - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 2204287477 - Control 1827335236 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -2360,7 +2360,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Suite API - Control defaultMinimumUserDelayInMilliSeconds - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Suite API - Control defaultMinimumUserDelayInMilliSeconds - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 2204287477 - Control 4232699882 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -2369,7 +2369,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Suite API - Control description - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Suite API - Control description - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 2204287477 - Control 1365561592 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -2378,7 +2378,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Suite API - Control durationInMinutes - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Suite API - Control durationInMinutes - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 2204287477 - Control 2686962215 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -2387,7 +2387,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Suite API - Control id - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Suite API - Control id - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 2204287477 - Control 1334593399 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -2396,7 +2396,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Suite API - Control oneDayCorrespondsToInMinutes - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Suite API - Control oneDayCorrespondsToInMinutes - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 2204287477 - Control 3549181302 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -2405,7 +2405,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Suite API - Control tag - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Suite API - Control tag - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 2204287477 - Control 2187549890 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -2414,7 +2414,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Suite API - Control testSuitesLines - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Suite API - Control testSuitesLines - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 2204287477 - Control 3306031757 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -2423,7 +2423,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Suite API - Control workDateStartsAt - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Suite API - Control workDateStartsAt - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1063709703 - Property 2879900210" ItemType=";Page - Page" PsrId="63" InstFlg="true" Leaf="true">
@@ -2432,7 +2432,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Suite Line API - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Suite Line API - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1063709703 - Property 3446740159" ItemType=";Page - Page" PsrId="63" InstFlg="true" Leaf="true">
@@ -2441,7 +2441,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Suite Line API - Property EntityCaption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Suite Line API - Property EntityCaption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1063709703 - Property 631549417" ItemType=";Page - Page" PsrId="63" InstFlg="true" Leaf="true">
@@ -2450,7 +2450,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Suite Line API - Property EntitySetCaption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Suite Line API - Property EntitySetCaption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1063709703 - Control 3993731044 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -2459,7 +2459,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Suite Line API - Control bcptCode - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Suite Line API - Control bcptCode - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1063709703 - Control 3345260546 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -2468,7 +2468,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Suite Line API - Control codeunitID - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Suite Line API - Control codeunitID - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1063709703 - Control 493336149 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -2477,7 +2477,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Suite Line API - Control delayBetweenIterations - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Suite Line API - Control delayBetweenIterations - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1063709703 - Control 2339569655 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -2486,7 +2486,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Suite Line API - Control delayType - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Suite Line API - Control delayType - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1063709703 - Control 4232699882 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -2495,7 +2495,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Suite Line API - Control description - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Suite Line API - Control description - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1063709703 - Control 2686962215 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -2504,7 +2504,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Suite Line API - Control id - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Suite Line API - Control id - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1063709703 - Control 678299416 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -2513,7 +2513,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Suite Line API - Control maximumUserDelay - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Suite Line API - Control maximumUserDelay - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1063709703 - Control 3869373958 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -2522,7 +2522,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Suite Line API - Control minimumUserDelay - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Suite Line API - Control minimumUserDelay - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1063709703 - Control 478341798 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -2531,7 +2531,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Suite Line API - Control noOfRunningSessions - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Suite Line API - Control noOfRunningSessions - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1063709703 - Control 638811017 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -2540,7 +2540,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Suite Line API - Control numberOfSessions - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Suite Line API - Control numberOfSessions - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1063709703 - Control 1234965974 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -2549,7 +2549,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Suite Line API - Control parameters - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Suite Line API - Control parameters - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1063709703 - Control 2749893727 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -2558,7 +2558,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Suite Line API - Control runInForeground - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Page BCPT Suite Line API - Control runInForeground - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";XmlPort 2178318357 - Property 2879900210" ItemType=";XmlPort - XmlPort" PsrId="63" InstFlg="true" Leaf="true">
@@ -2567,7 +2567,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=XmlPort BCPT Import/Export - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=XmlPort BCPT Import/Export - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";XmlPort 1184719117 - Property 2879900210" ItemType=";XmlPort - XmlPort" PsrId="63" InstFlg="true" Leaf="true">
@@ -2576,7 +2576,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=XmlPort BCPT Log Entries - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=XmlPort BCPT Log Entries - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";PermissionSet 1309067820 - Property 2879900210" ItemType=";PermissionSet - PermissionSet" PsrId="63" InstFlg="true" Leaf="true">
@@ -2585,7 +2585,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=PermissionSet BC Perf. Toolkit - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=PermissionSet BC Perf. Toolkit - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
 </LCX>

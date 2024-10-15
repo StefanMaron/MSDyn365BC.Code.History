@@ -205,46 +205,6 @@ page 123 "VAT Entries Preview"
         }
     }
 
-    actions
-    {
-        area(processing)
-        {
-            action(EditVATEntry)
-            {
-                ApplicationArea = Basic, Suite;
-                Caption = 'Edit VAT Entry';
-                Image = Edit;
-                ToolTip = 'Edit information on the selected VAT entry.';
-                Visible = false;
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Use VATEntries page directly to edit, not from VAT Entries Preview.';
-                ObsoleteTag = '16.0';
-
-                trigger OnAction()
-                var
-                    VATEntry: Record "VAT Entry";
-                begin
-                    VATEntry.SetRange("Entry No.", Rec."Entry No.");
-                    PAGE.Run(0, VATEntry);
-                end;
-            }
-        }
-        area(Promoted)
-        {
-            group(Category_New)
-            {
-                Caption = 'New';
-
-                actionref(EditVATEntry_Promoted; EditVATEntry)
-                {
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Use VATEntries page directly to edit, not from VAT Entries Preview.';
-                    ObsoleteTag = '16.0';
-                }
-            }
-        }
-    }
-
     procedure Set(var TempVATEntry: Record "VAT Entry" temporary)
     begin
         if TempVATEntry.FindSet() then

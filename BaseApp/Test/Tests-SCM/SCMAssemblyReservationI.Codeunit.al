@@ -700,18 +700,16 @@ codeunit 137916 "SCM Assembly Reservation I"
     var
         ReservationEntry: Record "Reservation Entry";
     begin
-        with ReservationEntry do begin
-            SetRange("Source Type", DATABASE::"Sales Line");
-            SetRange("Item No.", ItemNo);
-            SetRange("Reservation Status", "Reservation Status"::Reservation);
-            SetRange("Serial No.", SerialNo);
-            SetRange("Lot No.", LotNo);
-            FindFirst();
-            TestField(Quantity, Qty);
+        ReservationEntry.SetRange("Source Type", DATABASE::"Sales Line");
+        ReservationEntry.SetRange("Item No.", ItemNo);
+        ReservationEntry.SetRange("Reservation Status", ReservationEntry."Reservation Status"::Reservation);
+        ReservationEntry.SetRange("Serial No.", SerialNo);
+        ReservationEntry.SetRange("Lot No.", LotNo);
+        ReservationEntry.FindFirst();
+        ReservationEntry.TestField(Quantity, Qty);
 
-            Get("Entry No.", true);
-            TestField("Source Type", DATABASE::"Assembly Header");
-        end;
+        ReservationEntry.Get(ReservationEntry."Entry No.", true);
+        ReservationEntry.TestField("Source Type", DATABASE::"Assembly Header");
     end;
 
     [ModalPageHandler]

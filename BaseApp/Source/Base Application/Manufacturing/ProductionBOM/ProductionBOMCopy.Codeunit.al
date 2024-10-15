@@ -9,9 +9,13 @@ codeunit 99000768 "Production BOM-Copy"
     end;
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'The %1 cannot be copied to itself.';
         Text001: Label '%1 on %2 %3 must not be %4';
         Text002: Label '%1 on %2 %3 %4 must not be %5';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     procedure CopyBOM(BOMHeaderNo: Code[20]; FromVersionCode: Code[20]; CurrentBOMHeader: Record "Production BOM Header"; ToVersionCode: Code[20])
     var

@@ -47,9 +47,6 @@ using Microsoft.Finance.VAT.Setup;
 using Microsoft.Bank.BankAccount;
 using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Finance.VAT.Clause;
-#if not CLEAN22
-using Microsoft.Inventory.Intrastat;
-#endif
 
 codeunit 1876 "Business Setup Subscribers"
 {
@@ -207,12 +204,6 @@ codeunit 1876 "Business Setup Subscribers"
         VATStatementTemplatesShortTitleTxt: Label 'VAT statement templates';
         VATStatementTemplatesDescriptionTxt: Label 'Set up the reports that you use to settle VAT and report to the customs and tax authorities.';
         VATStatementTemplatesKeywordsTxt: Label 'VAT, Statement, Templates';
-#if not CLEAN22
-        IntrastatTemplatesTitleTxt: Label 'Intrastat templates';
-        IntrastatTemplatesShortTitleTxt: Label 'Intrastat templates';
-        IntrastatTemplatesDescriptionTxt: Label 'Define how you want to set up and keep track of journals to report Intrastat.';
-        IntrastatTemplatesKeywordsTxt: Label 'Intrastat';
-#endif
         BusinessRelationsTitleTxt: Label 'Business relation types';
         BusinessRelationsShortTitleTxt: Label 'Business relation types';
         BusinessRelationsDescriptionTxt: Label 'Set up the types of business relations specifications that you can list with your contact companies. For example, customer, vendor, lawyer, and so on.';
@@ -390,20 +381,9 @@ codeunit 1876 "Business Setup Subscribers"
               Page::"Cost Accounting Setup", ManualSetupCategory::Finance, CostAccountingSetupKeywordsTxt);
         end;
 
-#if not CLEAN22
-#pragma warning disable AL0432
-        if ApplicationAreaMgmtFacade.IsAllDisabled() then begin
-            Sender.InsertManualSetup(ResponsibilityCentersTitleTxt, ResponsibilityCentersShortTitleTxt, ResponsibilityCentersDescriptionTxt, 10, ObjectType::Page,
-              Page::"Responsibility Center List", ManualSetupCategory::Finance, ResponsibilityCentersKeywordsTxt);
-            Sender.InsertManualSetup(IntrastatTemplatesTitleTxt, IntrastatTemplatesShortTitleTxt, IntrastatTemplatesDescriptionTxt, 7, ObjectType::Page,
-              Page::"Intrastat Journal Templates", ManualSetupCategory::Finance, IntrastatTemplatesKeywordsTxt);
-        end;
-#pragma warning restore
-#else
         if ApplicationAreaMgmtFacade.IsAllDisabled() then
             Sender.InsertManualSetup(ResponsibilityCentersTitleTxt, ResponsibilityCentersShortTitleTxt, ResponsibilityCentersDescriptionTxt, 10, ObjectType::Page,
               Page::"Responsibility Center List", ManualSetupCategory::Finance, ResponsibilityCentersKeywordsTxt);
-#endif
 
         // System
         if ApplicationAreaMgmtFacade.IsAllDisabled() then

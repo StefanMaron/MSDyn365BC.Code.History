@@ -19,9 +19,6 @@ codeunit 139460 "User Access in SaaS Tests"
         WsNeverExpiresToenter: Boolean;
         WsExpirationDateToEnter: DateTime;
         WsInvokeCancelToEnter: Boolean;
-#if not CLEAN22
-        UserGroupO365FullAccessTxt: Label 'D365 FULL ACCESS';
-#endif
         NewUsersCannotLoginQst: Label 'You have not specified a user group that will be assigned automatically to new users. If users are not assigned a user group, they cannot sign in. \\Do you want to continue?';
         CannotEditForOtherUsersErr: Label 'You can only change your own web service access keys.';
 
@@ -144,51 +141,6 @@ codeunit 139460 "User Access in SaaS Tests"
         // [THEN] The user cannot be added
         Assert.ExpectedError('Page New - User Card has to close');
     end;
-
-#if not CLEAN22
-    [Test]
-    [HandlerFunctions('NewUsersCannotLoginConfirmHandler')]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
-    procedure DefaultUserGroupForNewUsersNotSetSaaS()
-    var
-        UserGroup: Record "User Group";
-    begin
-        // [SCENARIO] When removing the last default user group to be assigned to new users, Victor receives a warning that new users cannot login
-        Initialize();
-        // [GIVEN] User groups defined, and one is set as default
-        EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(false);
-        UserGroup.ModifyAll("Assign to All New Users", false, true);
-        CreateGetDefaultUserGroup(UserGroup);
-        // [GIVEN] SaaS
-        EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
-        // [WHEN] Victor tries to de-select all user groups from the defaults to be assigned to new users
-        UserGroup.Validate("Assign to All New Users", false);
-        // [THEN] A warning appears stating that new users will not be able to login, because they will not be assigned any user group/permissions
-        // The warning is handled in NewUsersCannotLoginConfirmHandler
-    end;
-
-    [Test]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
-    procedure DefaultUserGroupForNewUsersNotSetPaaSOnPrem()
-    var
-        UserGroup: Record "User Group";
-    begin
-        // [SCENARIO] In PaaS and on-prem, when removing the last default user group to be assigned to new users, Victor does not receive a warning
-        Initialize();
-        // [GIVEN] User groups defined, and one is set as default
-        EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(false);
-        UserGroup.ModifyAll("Assign to All New Users", false, true);
-        CreateGetDefaultUserGroup(UserGroup);
-        // [GIVEN] PaaS or on-prem
-        // Already set above
-        // [WHEN] Victor tries to de-select all user groups from the defaults to be assigned to new users
-        UserGroup.Validate("Assign to All New Users", false);
-        // [THEN] The SaaS warning (stating that new users will not be able to login) does not appear
-        // There is no confirmation handler assigned to this test. If the test succeeds, that is because no confirmation question was showed in ui
-    end;
-#endif
 
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
@@ -351,19 +303,6 @@ codeunit 139460 "User Access in SaaS Tests"
         UserCardPage."Windows User Name".Value := UserName;
         UserCardPage.OK().Invoke();
     end;
-
-#if not CLEAN22
-    local procedure CreateGetDefaultUserGroup(var UserGroup: Record "User Group")
-    begin
-        if UserGroup.Get(UserGroupO365FullAccessTxt) then
-            exit;
-        UserGroup.Init();
-        UserGroup.Code := UserGroupO365FullAccessTxt;
-        UserGroup.Name := UserGroup.Code;
-        UserGroup."Assign to All New Users" := true;
-        UserGroup.Insert();
-    end;
-#endif
 
     [ModalPageHandler]
     [Scope('OnPrem')]

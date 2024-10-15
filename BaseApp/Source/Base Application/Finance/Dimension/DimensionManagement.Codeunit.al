@@ -27,11 +27,6 @@ using Microsoft.Sales.Document;
 using Microsoft.Sales.FinanceCharge;
 using Microsoft.Sales.Receivables;
 using Microsoft.Sales.Reminder;
-using Microsoft.Service.Contract;
-using Microsoft.Service.Document;
-using Microsoft.Service.Item;
-using Microsoft.Service.Pricing;
-using Microsoft.Service.Setup;
 using Microsoft.Utilities;
 using System.Environment.Configuration;
 using System.Reflection;
@@ -50,27 +45,41 @@ codeunit 408 DimensionManagement
     end;
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'Dimensions %1 and %2 can''t be used concurrently.';
         Text001: Label 'Dimension combinations %1 - %2 and %3 - %4 can''t be used concurrently.';
         Text002: Label 'This Shortcut Dimension is not defined in the %1.';
         Text003: Label '%1 is not an available %2 for that dimension.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         DefaultDimensionsValueCodeEmptyTxt: Label 'The %1 dimension is the default dimension, and it must have a value. You can set the value on the %2 page.', Comment = '%1 = the value of Dimension Code; %2 = page caption of Default Dimensions';
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text005: Label 'Select a %1 for the %2 %3 for %4 %5.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         SameCodeWrongDimOrNoCode01Err: Label 'The %1 must be %2 for %3 %4. Currently it''s %5.', Comment = '%1 = "Dimension value code" caption, %2 = expected "Dimension value code" value, %3 = "Dimension code" caption, %4 = "Dimension Code" value, %5 = current "Dimension value code" value';
         SameCodeWrongDimOrNoCode02Err: Label 'The %1 must be %2 for %3 %4 for %5 %6. Currently it''s %7.', Comment = '%1 = "Dimension value code" caption, %2 = expected "Dimension value code" value, %3 = "Dimension code" caption, %4 = "Dimension Code" value, %5 = Table caption (Vendor), %6 = Table value (XYZ), %7 = current "Dimension value code" value';
         BlankValueLbl: Label 'blank', Comment = 'This can be used with SameCodeWrongDimOrNoCode02Err. Example: The Dimension Value Code must be blank for Dimension code SALESCAMPAIGN for Vendor 10000. Currently it''s SUMMER.';
         SameCodeMissingDim01Err: Label 'The %1 %2 with %3 %4 is required.', Comment = '%1 = "Dimension code" caption, %2= "Dimension Code" value, %3 = "Dimension value code" caption, %4 = "Dimension value code" value';
         SameCodeMissingDim02Err: Label 'The %1 %2 with %3 %4 is required for %5 %6.', Comment = '%1 = "Dimension code" caption, %2= "Dimension Code" value, %3 = "Dimension value code" caption, %4 = "Dimension value code" value, %5 = Table caption (Vendor), %6 = Table value (XYZ)';
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text008: Label '%1 %2 must be blank.';
         Text009: Label '%1 %2 must be blank for %3 %4.';
         Text012: Label 'A %1 used in %2 has not been used in %3.';
         Text013: Label '%1 for %2 %3 is not the same in %4 and %5.';
         Text014: Label '%1 %2 is blocked.';
         Text015: Label '%1 %2 can''t be found.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         DimValueBlockedErr: Label '%1 %2 - %3 is blocked.', Comment = '%1 = Dimension Value table caption, %2 = Dim Code, %3 = Dim Value';
         DimValueMustNotBeErr: Label 'Dimension Value Type for %1 %2 - %3 must not be %4.', Comment = '%1 = Dimension Value table caption, %2 = Dim Code, %3 = Dim Value, %4 = Dimension Value Type value';
         DimValueMissingErr: Label '%1 %2 - %3 is missing.', Comment = '%1 = Dimension Value table caption, %2 = Dim Code, %3 = Dim Value';
+#pragma warning disable AA0074
         Text019: Label 'You have changed a dimension.\\Do you want to update the lines?';
+#pragma warning restore AA0074
         DimValueNotAllowedForAccountErr: Label 'Dimension value %1, %2 is not allowed for %3, %4.', Comment = '%1 = Dim Code, %2 = Dim Value, %3 - table caption, %4 - account number.';
         DimValueNotAllowedForAccountTypeErr: Label 'Dimension value %1 %2 is not allowed for account type %3.', Comment = '%1 = Dim Code, %2 = Dim Value, %3 - table caption.';
         ToManyParametersErr: Label 'This filter selection exceeds the number of parameters that can be passed to SQL. Please reduce the number by adding additional filters.';
@@ -124,13 +133,9 @@ codeunit 408 DimensionManagement
                 SourceCode := SourceCodeSetup.Assembly;
             Database::"Transfer Line":
                 SourceCode := SourceCodeSetup.Transfer;
-            Database::"Service Header",
-            Database::"Service Item Line",
-            Database::"Service Line",
-            Database::"Service Contract Header",
-            Database::"Standard Service Line":
-                SourceCode := SourceCodeSetup."Service Management";
         end;
+
+        OnAfterSetSourceCode(SourceCodeSetup, TableID, SourceCode);
     end;
 
     procedure SetSourceCode(TableID: Integer; RecordVar: Variant)
@@ -994,23 +999,15 @@ codeunit 408 DimensionManagement
         OnAfterTypeToTableID4(Type, TableId);
     end;
 
+#if not CLEAN25
+    [Obsolete('Replaced by procedure ServiceLineTypeToTableID() in codeunit Serv. Dimension Management', '25.0')]
     procedure TypeToTableID5(Type: Option " ",Item,Resource,Cost,"G/L Account") TableId: Integer
+    var
+        ServDimensionManagement: Codeunit Microsoft.Service.Document."Serv. Dimension Management";
     begin
-        case Type of
-            Type::" ":
-                exit(0);
-            Type::Item:
-                exit(Database::Item);
-            Type::Resource:
-                exit(Database::Resource);
-            Type::Cost:
-                exit(Database::"Service Cost");
-            Type::"G/L Account":
-                exit(Database::"G/L Account");
-        end;
-
-        OnAfterTypeToTableID5(Type, TableId);
+        exit(ServDimensionManagement.ServiceLineTypeTotableId(Microsoft.Service.Document."Service Line Type".FromInteger(Type)));
     end;
+#endif
 
     procedure DeleteDefaultDim(TableID: Integer; No: Code[20])
     var
@@ -1304,10 +1301,6 @@ codeunit 408 DimensionManagement
     local procedure DefaultDimObjectNoWithoutGlobalDimsList(var TempAllObjWithCaption: Record AllObjWithCaption temporary)
     begin
         DefaultDimInsertTempObject(TempAllObjWithCaption, Database::"IC Partner");
-        DefaultDimInsertTempObject(TempAllObjWithCaption, Database::"Service Order Type");
-        DefaultDimInsertTempObject(TempAllObjWithCaption, Database::"Service Item Group");
-        DefaultDimInsertTempObject(TempAllObjWithCaption, Database::"Service Item");
-        DefaultDimInsertTempObject(TempAllObjWithCaption, Database::"Service Contract Template");
         DefaultDimInsertTempObject(TempAllObjWithCaption, Database::Location);
 
         OnAfterDefaultDimObjectNoWithoutGlobalDimsList(TempAllObjWithCaption);
@@ -3400,6 +3393,11 @@ codeunit 408 DimensionManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnCheckDimValueOnBeforeCheckDimValBlocked(DimCode: Code[20]; DimValCode: Code[20]; var Result: Boolean; var IsHandled: Boolean; var DimensionValue: Record "Dimension Value")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetSourceCode(var SourceCodeSetup: Record "Source Code Setup"; TableID: Integer; var SourceCode: Code[10]);
     begin
     end;
 

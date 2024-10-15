@@ -254,10 +254,14 @@ codeunit 395 "FinChrgMemo-Issue"
         TableID: array[10] of Integer;
         No: array[10] of Code[20];
 
+#pragma warning disable AA0074
         Text000: Label 'There is nothing to issue.';
         Text001: Label 'must be positive or 0';
+#pragma warning disable AA0470
         Text002: Label 'The combination of dimensions used in %1 %2 is blocked. %3';
         Text003: Label 'A dimension in %1 %2 has caused an error. %3';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         MissingJournalFieldErr: Label 'Please enter a %1 when posting Additional Fees or Interest.', Comment = '%1 - field caption';
 
     procedure Set(var NewFinChrgMemoHeader: Record "Finance Charge Memo Header"; NewReplacePostingDate: Boolean; NewPostingDate: Date)

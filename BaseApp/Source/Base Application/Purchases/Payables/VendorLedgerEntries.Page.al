@@ -9,7 +9,6 @@ using Microsoft.Finance.GeneralLedger.Reversal;
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Foundation.Navigate;
 using Microsoft.Purchases.Remittance;
-using Microsoft.Purchases.Reports;
 using Microsoft.Purchases.Setup;
 using System.Diagnostics;
 using System.Security.User;
@@ -562,25 +561,6 @@ page 29 "Vendor Ledger Entries"
                         VendEntryApplyPostedEntries.UnApplyVendLedgEntry(Rec."Entry No.");
                     end;
                 }
-                action("&Rem. Advice")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = '&Rem. Advice';
-                    Image = Attachments;
-                    ToolTip = 'View which documents have been included in the payment.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'This action does nog get report from the Report Selection. Correct action is "Send Remittance Advice"';
-                    ObsoleteTag = '18.0';
-
-                    trigger OnAction()
-                    begin
-                        CurrPage.SetSelectionFilter(VendLedgEntry);
-                        VendLedgEntry.CopyFilters(Rec);
-                        VendLedgEntry.SetRange("Document Type", VendLedgEntry."Document Type"::Payment);
-                        REPORT.Run(REPORT::"Remittance Advice - Entries", true, false, VendLedgEntry);
-                    end;
-                }
                 action(ReverseTransaction)
                 {
                     ApplicationArea = Basic, Suite;
@@ -833,7 +813,6 @@ page 29 "Vendor Ledger Entries"
     end;
 
     var
-        VendLedgEntry: Record "Vendor Ledger Entry";
         CalcRunningVendBalance: Codeunit "Calc. Running Vend. Balance";
         Navigate: Page Navigate;
         DimensionSetIDFilter: Page "Dimension Set ID Filter";

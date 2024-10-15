@@ -37,7 +37,7 @@ codeunit 137011 "SCM Revaluation-II"
         ErrMsgCostAmount: Label 'The amounts must be equal.';
         RevaluationPerEntryNotAllowedErr: Label 'This item has already been revalued with the Calculate Inventory Value function, so you cannot use the Applies-to Entry field as that may change the valuation.';
         AutomaticCostAdjustment: Option Never,Day,Week,Month,Quarter,Year,Always;
-        AverageCostPeriod: Option " ",Day,Week,Month,Quarter,Year,"Accounting Period";
+        AverageCostPeriod: Enum "Average Cost Period Type";
 
     [Test]
     [Scope('OnPrem')]
@@ -1190,15 +1190,13 @@ codeunit 137011 "SCM Revaluation-II"
     begin
         LibraryInventory.CreateItem(ParentItem);
 
-        with ParentItem do begin
-            CreateProductionBOM(ProductionBOMHeader, ChildItemNo, "Base Unit of Measure", QtyPer);
-            Validate("Costing Method", "Costing Method"::Standard);
-            Validate("Production BOM No.", ProductionBOMHeader."No.");
-            Validate("Replenishment System", "Replenishment System"::"Prod. Order");
-            Modify(true);
+        CreateProductionBOM(ProductionBOMHeader, ChildItemNo, ParentItem."Base Unit of Measure", QtyPer);
+        ParentItem.Validate("Costing Method", ParentItem."Costing Method"::Standard);
+        ParentItem.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        ParentItem.Validate("Replenishment System", ParentItem."Replenishment System"::"Prod. Order");
+        ParentItem.Modify(true);
 
-            CalculateStandardCost.CalcItem("No.", false);
-        end;
+        CalculateStandardCost.CalcItem(ParentItem."No.", false);
     end;
 
     local procedure CreateItemWithUnitCost(var Item: Record Item; CostingMethod: Enum "Costing Method"; UnitCost: Decimal)
@@ -1518,12 +1516,10 @@ codeunit 137011 "SCM Revaluation-II"
 
     local procedure FindProdOrderOutputEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; ProdOrderNo: Code[20]; ItemNo: Code[20])
     begin
-        with ItemLedgerEntry do begin
-            SetRange("Item No.", ItemNo);
-            SetRange("Entry Type", "Entry Type"::Output);
-            SetRange("Order No.", ProdOrderNo);
-            FindFirst();
-        end;
+        ItemLedgerEntry.SetRange("Item No.", ItemNo);
+        ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Output);
+        ItemLedgerEntry.SetRange("Order No.", ProdOrderNo);
+        ItemLedgerEntry.FindFirst();
     end;
 
     local procedure GetLatestPostingDate(): Date
@@ -1592,15 +1588,13 @@ codeunit 137011 "SCM Revaluation-II"
     begin
         PostOutputJournalOnDate(ProdOrderNo, ItemNo, Quantity, PostingDate);
 
-        with ItemLedgerEntry do begin
-            SetRange("Order Type", "Order Type"::Production);
-            SetRange("Order No.", ProdOrderNo);
-            SetRange("Item No.", ItemNo);
-            SetRange("Entry Type", "Entry Type"::Output);
-            FindLast();
+        ItemLedgerEntry.SetRange("Order Type", ItemLedgerEntry."Order Type"::Production);
+        ItemLedgerEntry.SetRange("Order No.", ProdOrderNo);
+        ItemLedgerEntry.SetRange("Item No.", ItemNo);
+        ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Output);
+        ItemLedgerEntry.FindLast();
 
-            exit("Entry No.");
-        end;
+        exit(ItemLedgerEntry."Entry No.");
     end;
 
     local procedure PostProdOrderConsumption(ProdOrderNo: Code[20])
@@ -1719,29 +1713,25 @@ codeunit 137011 "SCM Revaluation-II"
 
     local procedure UpdatePostingDateAndVendorInvoiceNoOnPurchaseHeader(var PurchaseHeader: Record "Purchase Header")
     begin
-        with PurchaseHeader do begin
-            Find();
-            LibraryPurchase.ReopenPurchaseDocument(PurchaseHeader);
-            Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
-            Validate("Posting Date", LibraryRandom.RandDateFrom(GetLatestPostingDate(), 10));
-            Modify(true);
-        end;
+        PurchaseHeader.Find();
+        LibraryPurchase.ReopenPurchaseDocument(PurchaseHeader);
+        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
+        PurchaseHeader.Validate("Posting Date", LibraryRandom.RandDateFrom(GetLatestPostingDate(), 10));
+        PurchaseHeader.Modify(true);
     end;
 
     local procedure UpdateDirectUnitCostOnPurchaseLine(PurchaseHeader: Record "Purchase Header"; NewUnitCost: Decimal)
     var
         PurchaseLine: Record "Purchase Line";
     begin
-        with PurchaseLine do begin
-            SetRange("Document Type", PurchaseHeader."Document Type");
-            SetRange("Document No.", PurchaseHeader."No.");
-            FindFirst();
-            Validate("Direct Unit Cost", NewUnitCost);
-            Modify(true);
-        end;
+        PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
+        PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
+        PurchaseLine.FindFirst();
+        PurchaseLine.Validate("Direct Unit Cost", NewUnitCost);
+        PurchaseLine.Modify(true);
     end;
 
-    local procedure UpdateInventorySetup(AutomaticCostPosting: Boolean; ExpectedCostPosting: Boolean; AutomaticCostAdjmt: Option; AvgCostCalcType: Enum "Average Cost Calculation Type"; AvgCostPeriod: Option)
+    local procedure UpdateInventorySetup(AutomaticCostPosting: Boolean; ExpectedCostPosting: Boolean; AutomaticCostAdjmt: Option; AvgCostCalcType: Enum "Average Cost Calculation Type"; AvgCostPeriod: Enum "Average Cost Period Type")
     begin
         LibraryInventory.SetAutomaticCostPosting(AutomaticCostPosting);
         LibraryInventory.SetExpectedCostPosting(ExpectedCostPosting);
@@ -1758,27 +1748,23 @@ codeunit 137011 "SCM Revaluation-II"
     var
         ValueEntry: Record "Value Entry";
     begin
-        with ValueEntry do begin
-            SetRange("Order Type", "Order Type"::Production);
-            SetRange("Order No.", ProdOrderNo);
-            SetRange("Item Ledger Entry Type", "Item Ledger Entry Type"::Output);
-            FindSet();
-            repeat
-                TestField("Cost Posted to G/L", "Cost Amount (Actual)");
-            until Next() = 0;
-        end;
+        ValueEntry.SetRange("Order Type", ValueEntry."Order Type"::Production);
+        ValueEntry.SetRange("Order No.", ProdOrderNo);
+        ValueEntry.SetRange("Item Ledger Entry Type", ValueEntry."Item Ledger Entry Type"::Output);
+        ValueEntry.FindSet();
+        repeat
+            ValueEntry.TestField("Cost Posted to G/L", ValueEntry."Cost Amount (Actual)");
+        until ValueEntry.Next() = 0;
     end;
 
     local procedure VerifyDirectCostAmount(ItemNo: Code[20]; ExpectedAmount: Decimal)
     var
         ValueEntry: Record "Value Entry";
     begin
-        with ValueEntry do begin
-            SetRange("Item No.", ItemNo);
-            SetRange("Entry Type", "Entry Type"::"Direct Cost");
-            CalcSums("Cost Amount (Actual)");
-            TestField("Cost Amount (Actual)", ExpectedAmount);
-        end;
+        ValueEntry.SetRange("Item No.", ItemNo);
+        ValueEntry.SetRange("Entry Type", ValueEntry."Entry Type"::"Direct Cost");
+        ValueEntry.CalcSums("Cost Amount (Actual)");
+        ValueEntry.TestField("Cost Amount (Actual)", ExpectedAmount);
     end;
 
     local procedure VerifyRevaluedInventory(Item: Record Item)
@@ -1793,12 +1779,10 @@ codeunit 137011 "SCM Revaluation-II"
 
     local procedure VerifyRevaluationJournalLine(var ItemJournalLine: Record "Item Journal Line"; Qty: Decimal; UnitCost: Decimal)
     begin
-        with ItemJournalLine do begin
-            FindFirst();
-            TestField(Quantity, Qty);
-            TestField("Unit Cost (Calculated)", UnitCost);
-            TestField("Inventory Value (Calculated)", Qty * UnitCost);
-        end;
+        ItemJournalLine.FindFirst();
+        ItemJournalLine.TestField(Quantity, Qty);
+        ItemJournalLine.TestField("Unit Cost (Calculated)", UnitCost);
+        ItemJournalLine.TestField("Inventory Value (Calculated)", Qty * UnitCost);
     end;
 
     local procedure VerifyItemCost(ProductionItemNo: Code[20]; NewUnitCost: Decimal)

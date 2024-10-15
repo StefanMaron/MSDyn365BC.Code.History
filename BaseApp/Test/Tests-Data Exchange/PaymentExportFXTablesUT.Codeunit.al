@@ -310,15 +310,13 @@ codeunit 132572 "Payment Export FX Tables UT"
 
     local procedure CreateDataExchFieldMapping(var DataExchFieldMapping: Record "Data Exch. Field Mapping"; DataExchDefCode: Code[20]; DataExchLineDefCode: Code[20])
     begin
-        with DataExchFieldMapping do begin
-            "Data Exch. Def Code" := DataExchDefCode;
-            "Data Exch. Line Def Code" := DataExchLineDefCode;
-            "Table ID" := DATABASE::"Gen. Journal Line";
-            "Column No." := 1;
-            "Field ID" := 1;
-            Optional := false;
-            Insert(true);
-        end;
+        DataExchFieldMapping."Data Exch. Def Code" := DataExchDefCode;
+        DataExchFieldMapping."Data Exch. Line Def Code" := DataExchLineDefCode;
+        DataExchFieldMapping."Table ID" := DATABASE::"Gen. Journal Line";
+        DataExchFieldMapping."Column No." := 1;
+        DataExchFieldMapping."Field ID" := 1;
+        DataExchFieldMapping.Optional := false;
+        DataExchFieldMapping.Insert(true);
     end;
 
     [Test]

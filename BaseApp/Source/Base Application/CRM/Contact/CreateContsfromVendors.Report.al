@@ -102,8 +102,12 @@ report 5194 "Create Conts. from Vendors"
         Window: Dialog;
         DuplicateContactExist: Boolean;
 
+#pragma warning disable AA0074
         Text000: Label 'Processing vendors...\\';
+#pragma warning disable AA0470
         Text001: Label 'Vendor No.      #1##########';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         TooManyRecordsQst: Label 'This process will take several minutes because it involves %1 vendors. It is recommended that you schedule the process to run as a background task.\\Do you want to start the process immediately anyway?', Comment = '%1 = number of records';
 
     local procedure InsertNewContactIfNeeded(var Vendor: Record Vendor)

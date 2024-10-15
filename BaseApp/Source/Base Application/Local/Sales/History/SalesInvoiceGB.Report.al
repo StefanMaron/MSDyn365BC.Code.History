@@ -745,8 +745,8 @@ report 10572 "Sales - Invoice GB"
 
             trigger OnAfterGetRecord()
             begin
-                CurrReport.Language := Language.GetLanguageIdOrDefault("Language Code");
-                CurrReport.FormatRegion := Language.GetFormatRegionOrDefault("Format Region");
+                CurrReport.Language := GlobalLanguage.GetLanguageIdOrDefault("Language Code");
+                CurrReport.FormatRegion := GlobalLanguage.GetFormatRegionOrDefault("Format Region");
 
                 if not CompanyBankAccount.Get("Sales Invoice Header"."Company Bank Account Code") then
                     CompanyBankAccount.CopyBankFieldsFromCompanyInfo(CompanyInfo);
@@ -823,7 +823,7 @@ report 10572 "Sales - Invoice GB"
                     WorkDate(), "Currency Code", "Amount Including VAT", "Currency Factor");
 
                 if LogInteraction then
-                    if not CurrReport.Preview then begin
+                    if not CurrReport.Preview then
                         if "Bill-to Contact No." <> '' then
                             SegManagement.LogDocument(
                               4, "No.", 0, 0, DATABASE::Contact, "Bill-to Contact No.", "Salesperson Code",
@@ -832,7 +832,6 @@ report 10572 "Sales - Invoice GB"
                             SegManagement.LogDocument(
                               4, "No.", 0, 0, DATABASE::Customer, "Bill-to Customer No.", "Salesperson Code",
                               "Campaign No.", "Posting Description", '');
-                    end;
             end;
         }
     }
@@ -955,7 +954,7 @@ report 10572 "Sales - Invoice GB"
         CurrExchRate: Record "Currency Exchange Rate";
         CompanyInfo3: Record "Company Information";
         SalesShipmentBuffer: Record "Sales Shipment Buffer" temporary;
-        Language: Codeunit Language;
+        GlobalLanguage: Codeunit Language;
         FormatAddr: Codeunit "Format Address";
         SegManagement: Codeunit SegManagement;
         CustAddr: array[8] of Text;

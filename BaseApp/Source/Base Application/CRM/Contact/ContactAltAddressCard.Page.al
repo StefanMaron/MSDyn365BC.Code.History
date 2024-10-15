@@ -188,7 +188,9 @@ page 5056 "Contact Alt. Address Card"
     end;
 
     var
+#pragma warning disable AA0074
         Text000: Label 'untitled';
+#pragma warning restore AA0074
         IsAddressLookupTextEnabled: Boolean;
         LookupAddressLbl: Label 'Lookup address from postcode';
 

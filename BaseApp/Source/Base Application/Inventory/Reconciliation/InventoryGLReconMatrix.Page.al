@@ -512,14 +512,19 @@ page 9297 "Inventory - G/L Recon Matrix"
         LineDimCode: Text[20];
         ColumnDimCode: Text[20];
         DateFilter: Text;
+#pragma warning disable AA0074
         Text000: Label '<Sign><Integer Thousand><Decimals,3>', Locked = true;
+#pragma warning restore AA0074
         ItemFilter: Text;
         LocationFilter: Text;
         CellAmount: Decimal;
         GLSetupRead: Boolean;
+#pragma warning disable AA0074
         Text004: Label 'Income Statement';
         Text005: Label 'Balance Sheet';
+#pragma warning restore AA0074
         ShowWarning: Boolean;
+#pragma warning disable AA0074
         Text006: Label 'Expected Cost Setup';
         Text007: Label 'Post Cost to G/L';
         Text008: Label 'Compression';
@@ -530,14 +535,19 @@ page 9297 "Inventory - G/L Recon Matrix"
         Text013: Label 'Similar Accounts';
         Text014: Label 'Deleted Accounts';
         Text016: Label 'The program is not set up to use expected cost posting. Therefore, inventory interim G/L accounts are empty and this causes a difference between inventory and G/L totals.';
+#pragma warning restore AA0074
         CostAmountsNotPostedTxt: Label 'Some of the cost amounts in the inventory ledger have not yet been posted to the G/L. You must run the Post Cost to G/L batch job to reconcile the ledgers.';
         EntriesCompressedTxt: Label 'Some inventory or G/L entries have been date compressed.';
         ReassigningAccountsTxt: Label 'You have possibly restructured your chart of accounts by re-assigning inventory related accounts in the General or Inventory Posting Setup.';
         PostedDirectlyTxt: Label 'Some inventory costs have been posted directly to a G/L account, bypassing the inventory subledger.';
+#pragma warning disable AA0074
         Text021: Label 'There is a discrepancy between the posting date of the value entry and the associated G/L entry within the reporting period.';
+#pragma warning restore AA0074
         PostedInClosedFiscalYearTxt: Label 'Some of the cost amounts are posted in a closed fiscal year. Therefore, the inventory related totals are different from their related G/L accounts in the income statement.';
+#pragma warning disable AA0074
         Text023: Label 'You have possibly defined one G/L account for different inventory transactions.';
         Text024: Label 'You have possibly restructured your chart of accounts by deleting one or more inventory related G/L accounts.';
+#pragma warning restore AA0074
         MATRIX_CurrentNoOfMatrixColumn: Integer;
         MATRIX_CellData: array[32] of Text[250];
         MATRIX_CaptionSet: array[32] of Text[80];

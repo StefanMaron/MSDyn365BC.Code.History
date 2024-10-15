@@ -402,9 +402,8 @@ codeunit 136314 "Job Quote Report Tests"
     local procedure VerifyJobQuoteReportHeading(Job: Record Job)
     begin
         LibraryReportValidation.OpenFile();
-        with Job do
-            Assert.IsTrue(
-              LibraryReportValidation.CheckIfValueExists(StrSubstNo('%1: %2: %3', TableCaption(), FieldCaption("No."), "No.")),
+        Assert.IsTrue(
+              LibraryReportValidation.CheckIfValueExists(StrSubstNo('%1: %2: %3', Job.TableCaption(), Job.FieldCaption("No."), Job."No.")),
               ValueNotFoundErr);
     end;
 

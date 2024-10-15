@@ -575,13 +575,10 @@ codeunit 137603 "SCM CETAF Costing Revaluation"
 
         // [GIVEN] Post Receipt.
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
-
         // [GIVEN] Post Invoice of Posting Date = WorkDate() + 2 days.
-        with PurchaseHeader do begin
-            Validate("Posting Date", WorkDate() + 2);
-            Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
-            Modify(true);
-        end;
+        PurchaseHeader.Validate("Posting Date", WorkDate() + 2);
+        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
+        PurchaseHeader.Modify(true);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
 
         // [WHEN] Run Calc. Inventory Value on WorkDate() + 1 day.
@@ -1335,21 +1332,17 @@ codeunit 137603 "SCM CETAF Costing Revaluation"
 
     local procedure FindFirstItemJnlLine(var ItemJnlLine: Record "Item Journal Line"; ItemJnlBatch: Record "Item Journal Batch")
     begin
-        with ItemJnlLine do begin
-            SetRange("Journal Template Name", ItemJnlBatch."Journal Template Name");
-            SetRange("Journal Batch Name", ItemJnlBatch.Name);
-            FindFirst();
-        end;
+        ItemJnlLine.SetRange("Journal Template Name", ItemJnlBatch."Journal Template Name");
+        ItemJnlLine.SetRange("Journal Batch Name", ItemJnlBatch.Name);
+        ItemJnlLine.FindFirst();
     end;
 
     local procedure FindItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; EntryType: Enum "Item Ledger Document Type"; ItemNo: Code[20]; LocationCode: Code[10])
     begin
-        with ItemLedgerEntry do begin
-            SetRange("Entry Type", EntryType);
-            SetRange("Item No.", ItemNo);
-            SetRange("Location Code", LocationCode);
-            FindLast();
-        end;
+        ItemLedgerEntry.SetRange("Entry Type", EntryType);
+        ItemLedgerEntry.SetRange("Item No.", ItemNo);
+        ItemLedgerEntry.SetRange("Location Code", LocationCode);
+        ItemLedgerEntry.FindLast();
     end;
 
     local procedure PostPositiveAdjmtOnNewLocation(var TotalQty: Decimal; var TotalAmount: Decimal; Item: Record Item)

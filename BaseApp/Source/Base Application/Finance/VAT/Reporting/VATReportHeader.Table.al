@@ -234,13 +234,8 @@ table 740 "VAT Report Header"
         {
             Caption = 'Date Type';
             ObsoleteReason = 'Selected VAT Date type no longer supported';
-#if not CLEAN22
-            ObsoleteState = Pending;
-            ObsoleteTag = '22.0';
-#else
             ObsoleteState = Removed;
             ObsoleteTag = '25.0';
-#endif
         }
         field(30; "Additional Information"; Code[50])
         {
@@ -250,6 +245,11 @@ table 740 "VAT Report Header"
         {
             Editable = false;
             Caption = 'Created Date-Time';
+        }
+        field(32; "Country/Region Filter"; Text[250])
+        {
+            Editable = false;
+            Caption = 'Country/Region Filter';
         }
         field(100; "Amounts in Add. Rep. Currency"; Boolean)
         {
@@ -349,14 +349,20 @@ table 740 "VAT Report Header"
         VATReportSetup: Record "VAT Report Setup";
         NoSeries: Codeunit "No. Series";
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label 'The value of %1 field in the %2 window does not allow this option.';
         Text002: Label 'Editing is not allowed because the report is marked as %1.';
+#pragma warning restore AA0470
         Text003: Label 'The end date cannot be earlier than the start date.';
         Text004: Label 'You cannot rename the report because it has been assigned a report number.';
         Text005: Label 'You cannot specify the same report as the reference report.';
+#pragma warning disable AA0470
         Text006: Label 'You cannot specify an original report for a report of type %1.';
         Text007: Label 'This is not allowed because of the setup in the %1 window.';
         Text008: Label 'You must specify an original report for a report of type %1.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     procedure GetNoSeriesCode() Result: Code[20]
     var

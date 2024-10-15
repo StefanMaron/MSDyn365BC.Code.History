@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Projects.Project.Ledger;
+namespace Microsoft.Projects.Project.Ledger;
 
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.Dimension;
@@ -472,14 +472,6 @@ table 169 "Job Ledger Entry"
         {
             Caption = 'Quantity (Base)';
         }
-        field(5900; "Service Order No."; Code[20])
-        {
-            Caption = 'Service Order No.';
-        }
-        field(5901; "Posted Service Shipment No."; Code[20])
-        {
-            Caption = 'Posted Service Shipment No.';
-        }
         field(6515; "Package No."; Code[50])
         {
             Caption = 'Package No.';
@@ -489,9 +481,9 @@ table 169 "Job Ledger Entry"
         {
             Caption = 'Shipment Method Code';
             ObsoleteReason = 'Merge to W1';
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
             TableRelation = "Shipment Method";
-            ObsoleteTag = '15.0';
+            ObsoleteTag = '25.0';
         }
     }
 
@@ -512,9 +504,6 @@ table 169 "Job Ledger Entry"
         {
         }
         key(Key5; "Entry Type", Type, "No.", "Posting Date")
-        {
-        }
-        key(Key6; "Service Order No.", "Posting Date")
         {
         }
         key(Key7; "Job No.", "Entry Type", Type, "No.")

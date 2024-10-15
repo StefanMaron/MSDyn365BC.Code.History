@@ -84,8 +84,10 @@ codeunit 5601 "FA Insert G/L Account"
         BookValueEntry: Boolean;
         NetDisp: Boolean;
 
+#pragma warning disable AA0074
         Text000: Label 'must not be more than 100';
         Text001: Label 'There is not enough space to insert the balance accounts.';
+#pragma warning restore AA0074
         TemporaryRecordExpectedErr: Label 'Use a temporary record as a parameter for GetBalAccBuffer.';
 
     procedure InsertMaintenanceAccNo(var MaintenanceLedgEntry: Record "Maintenance Ledger Entry")

@@ -16,7 +16,7 @@ using Microsoft.eServices.OnlineMap;
 using Microsoft.Finance.Payroll;
 using Microsoft.Inventory.Reconciliation;
 using Microsoft.Projects.Project.Journal;
-#if not CLEAN23
+#if not CLEAN25
 using Microsoft.Projects.Project.Pricing;
 #endif
 using Microsoft.Projects.Project.Ledger;
@@ -172,7 +172,7 @@ using Microsoft.Pricing.Worksheet;
 using Microsoft.Projects.Resources.Analysis;
 using Microsoft.Projects.Resources.Journal;
 using Microsoft.Projects.Resources.Ledger;
-#if not CLEAN23
+#if not CLEAN25
 using Microsoft.Projects.Resources.Pricing;
 #endif
 using Microsoft.Projects.Resources.Resource;
@@ -200,20 +200,6 @@ using Microsoft.Sales.Receivables;
 using Microsoft.Sales.Reminder;
 using Microsoft.Sales.RoleCenters;
 using Microsoft.Sales.Setup;
-using Microsoft.Service.Comment;
-using Microsoft.Service.Contract;
-using Microsoft.Service.Document;
-using Microsoft.Service.Email;
-using Microsoft.Service.History;
-using Microsoft.Service.Item;
-using Microsoft.Service.Ledger;
-using Microsoft.Service.Loaner;
-using Microsoft.Service.Maintenance;
-using Microsoft.Service.Posting;
-using Microsoft.Service.Pricing;
-using Microsoft.Service.Resources;
-using Microsoft.Service.RoleCenters;
-using Microsoft.Service.Setup;
 using Microsoft.Warehouse.Activity.History;
 using Microsoft.Warehouse.Activity;
 using Microsoft.Warehouse.ADCS;
@@ -268,6 +254,22 @@ using Microsoft.HumanResources.Absence;
 using Microsoft.API;
 using Microsoft;
 
+using Microsoft.Service.Archive;
+using Microsoft.Service.Comment;
+using Microsoft.Service.Contract;
+using Microsoft.Service.Document;
+using Microsoft.Service.Email;
+using Microsoft.Service.History;
+using Microsoft.Service.Item;
+using Microsoft.Service.Ledger;
+using Microsoft.Service.Loaner;
+using Microsoft.Service.Maintenance;
+using Microsoft.Service.Posting;
+using Microsoft.Service.Pricing;
+using Microsoft.Service.Resources;
+using Microsoft.Service.RoleCenters;
+using Microsoft.Service.Setup;
+
 permissionset 6121 "INTELLIGENT CLOUD"
 {
     Access = Public;
@@ -282,23 +284,12 @@ permissionset 6121 "INTELLIGENT CLOUD"
                   tabledata "Add-in" = imd,
                   tabledata "Aggregate Permission Set" = R,
                   tabledata "All Profile" = IMD,
+                  tabledata "All Profile Extension" = IMD,
+                  tabledata "All Profile Page Metadata" = IMD,
                   tabledata AllObjWithCaption = R,
                   tabledata Chart = m,
                   tabledata "Code Coverage" = R,
                   tabledata "Data Sensitivity" = RM,
-                  tabledata "Designed Query" = R,
-                  tabledata "Designed Query Caption" = R,
-                  tabledata "Designed Query Category" = R,
-                  tabledata "Designed Query Column" = R,
-                  tabledata "Designed Query Column Filter" = R,
-                  tabledata "Designed Query Data Item" = R,
-                  tabledata "Designed Query Filter" = R,
-                  tabledata "Designed Query Group" = R,
-                  tabledata "Designed Query Join" = R,
-                  tabledata "Designed Query Management" = R,
-                  tabledata "Designed Query Obj" = R,
-                  tabledata "Designed Query Order By" = R,
-                  tabledata "Designed Query Permission" = R,
                   tabledata "Dispute Status" = R,
                   tabledata Device = Rm,
                   tabledata "Document Service" = m,
@@ -332,9 +323,7 @@ permissionset 6121 "INTELLIGENT CLOUD"
                   tabledata "SID - Account ID" = R,
                   tabledata "Table Information" = R,
                   tabledata "Table Synch. Setup" = R,
-#pragma warning disable AL0432
                   tabledata "Tenant Profile" = IMD,
-#pragma warning restore AL0432
                   tabledata "Tenant Profile Extension" = IMD,
                   tabledata "Tenant Profile Page Metadata" = IMD,
                   tabledata "Tenant Profile Setting" = IMD,
@@ -513,9 +502,6 @@ permissionset 6121 "INTELLIGENT CLOUD"
                   tabledata "CDS Connection Setup" = R,
                   tabledata "CDS Coupled Business Unit" = R,
                   tabledata "CDS Environment" = R,
-#if not CLEAN22
-                  tabledata "CDS Failed Option Mapping" = R,
-#endif
                   tabledata "CDS Solution" = R,
                   tabledata "CDS Teammembership" = R,
                   tabledata "CDS Teamroles" = R,
@@ -574,11 +560,6 @@ permissionset 6121 "INTELLIGENT CLOUD"
                   tabledata "Contact Profile Answer" = R,
                   tabledata "Contact Value" = R,
                   tabledata "Contact Web Source" = R,
-                  tabledata "Contract Change Log" = R,
-                  tabledata "Contract Gain/Loss Entry" = R,
-                  tabledata "Contract Group" = R,
-                  tabledata "Contract Trend Buffer" = R,
-                  tabledata "Contract/Service Discount" = R,
                   tabledata "Consolidation Process" = R,
                   tabledata "Consolidation Setup" = R,
                   tabledata "Copy Gen. Journal Parameters" = R,
@@ -603,9 +584,6 @@ permissionset 6121 "INTELLIGENT CLOUD"
                   tabledata "Cost Type" = R,
                   tabledata "Country/Region" = R,
                   tabledata "Country/Region Translation" = R,
-#if not CLEAN22
-                  tabledata "Coupling Field Buffer" = R,
-#endif
                   tabledata "Coupling Record Buffer" = R,
                   tabledata "Credit Trans Re-export History" = R,
                   tabledata "Credit Transfer Entry" = R,
@@ -849,15 +827,8 @@ permissionset 6121 "INTELLIGENT CLOUD"
                   tabledata "FA Subclass" = R,
                   tabledata Family = R,
                   tabledata "Family Line" = R,
-                  tabledata "Fault Area" = R,
-                  tabledata "Fault Area/Symptom Code" = R,
-                  tabledata "Fault Code" = R,
-                  tabledata "Fault Reason Code" = R,
-                  tabledata "Fault/Resol. Cod. Relationship" = R,
                   tabledata "Field Buffer" = R,
                   tabledata "Field Monitoring Setup" = R,
-                  tabledata "Filed Contract Line" = R,
-                  tabledata "Filed Service Contract Header" = R,
                   tabledata "Filter Item Attributes Buffer" = R,
                   tabledata "Fin. Charge Comment Line" = R,
                   tabledata "Finance Charge Interest Rate" = R,
@@ -954,6 +925,7 @@ permissionset 6121 "INTELLIGENT CLOUD"
                   tabledata "Insurance Journal Template" = R,
                   tabledata "Insurance Register" = R,
                   tabledata "Insurance Type" = R,
+                  tabledata "Int. Table Config Template" = R,
                   tabledata "Integration Field Mapping" = R,
                   tabledata "Integration Synch. Job" = R,
                   tabledata "Integration Synch. Job Errors" = R,
@@ -968,13 +940,6 @@ permissionset 6121 "INTELLIGENT CLOUD"
                   tabledata "Intermediate Data Import" = R,
                   tabledata "Internal Movement Header" = R,
                   tabledata "Internal Movement Line" = R,
-#if not CLEAN22
-                  tabledata "Advanced Intrastat Checklist" = R,
-                  tabledata "Intrastat Jnl. Batch" = R,
-                  tabledata "Intrastat Jnl. Line" = R,
-                  tabledata "Intrastat Jnl. Template" = R,
-                  tabledata "Intrastat Setup" = R,
-#endif
                   tabledata "Invalidated Dim Correction" = R,
                   tabledata "Inventory Adjmt. Entry (Order)" = R,
                   tabledata "Inventory Adjustment Buffer" = R,
@@ -1062,7 +1027,7 @@ permissionset 6121 "INTELLIGENT CLOUD"
                   tabledata "Job Cue" = RIMD,
                   tabledata "Job Difference Buffer" = R,
                   tabledata "Job Entry No." = R,
-#if not CLEAN23
+#if not CLEAN25
                   tabledata "Job G/L Account Price" = R,
                   tabledata "Job Item Price" = R,
 #endif
@@ -1080,8 +1045,9 @@ permissionset 6121 "INTELLIGENT CLOUD"
                   tabledata "Job Queue Entry" = R,
                   tabledata "Job Queue Entry Buffer" = R,
                   tabledata "Job Queue Log Entry" = R,
+                  tabledata "Job Queue Role Center Cue" = R,
                   tabledata "Job Register" = R,
-#if not CLEAN23
+#if not CLEAN25
                   tabledata "Job Resource Price" = R,
 #endif
                   tabledata "Job Responsibility" = R,
@@ -1102,8 +1068,6 @@ permissionset 6121 "INTELLIGENT CLOUD"
                   tabledata "Line Fee Note on Report Hist." = R,
                   tabledata "Line Number Buffer" = R,
                   tabledata "Load Buffer" = R,
-                  tabledata Loaner = R,
-                  tabledata "Loaner Entry" = R,
                   tabledata Location = R,
                   tabledata "Logged Segment" = R,
                   tabledata "Lot Bin Buffer" = R,
@@ -1189,9 +1153,6 @@ permissionset 6121 "INTELLIGENT CLOUD"
                   tabledata "Payable Employee Ledger Entry" = R,
                   tabledata "Payable Vendor Ledger Entry" = R,
                   tabledata "Payment Application Proposal" = R,
-#if not CLEAN22
-                  tabledata "Payment Buffer" = R,
-#endif
                   tabledata "Vendor Payment Buffer" = R,
                   tabledata "Payment Export Data" = R,
                   tabledata "Payment Export Remittance Text" = R,
@@ -1261,9 +1222,6 @@ permissionset 6121 "INTELLIGENT CLOUD"
                   tabledata "Posted Whse. Receipt Line" = R,
                   tabledata "Posted Whse. Shipment Header" = R,
                   tabledata "Posted Whse. Shipment Line" = R,
-#if not CLEAN22
-                  tabledata "Power BI Service Status Setup" = R,
-#endif
 #if not CLEAN23
                   tabledata "Power BI User Configuration" = RIMD,
                   tabledata "Power BI Report Configuration" = RIMD,
@@ -1326,7 +1284,7 @@ permissionset 6121 "INTELLIGENT CLOUD"
                   tabledata "Purch. Inv. Header" = R,
                   tabledata "Purch. Inv. Line" = R,
                   tabledata "Purch. Inv. Line Aggregate" = R,
-#if not CLEAN23
+#if not CLEAN25
                   tabledata "Purch. Price Line Disc. Buff." = R,
 #endif
                   tabledata "Purch. Rcpt. Header" = R,
@@ -1337,12 +1295,12 @@ permissionset 6121 "INTELLIGENT CLOUD"
                   tabledata "Purchase Header Archive" = R,
                   tabledata "Purchase Line" = R,
                   tabledata "Purchase Line Archive" = R,
-#if not CLEAN23
+#if not CLEAN25
                   tabledata "Purchase Line Discount" = R,
 #endif
                   tabledata "Purchase Order Entity Buffer" = R,
                   tabledata "Purchase Prepayment %" = R,
-#if not CLEAN23
+#if not CLEAN25
                   tabledata "Purchase Price" = R,
 #endif
                   tabledata "Purchase Price Access" = R,
@@ -1374,6 +1332,7 @@ permissionset 6121 "INTELLIGENT CLOUD"
                   tabledata "Relationship Mgmt. Cue" = RIMD,
                   tabledata Relative = R,
                   tabledata "Reminder Attachment Text" = R,
+                  tabledata "Reminder Attachment Text Line" = R,
                   tabledata "Reminder Comment Line" = R,
                   tabledata "Reminder Email Text" = R,
                   tabledata "Reminder Header" = R,
@@ -1392,7 +1351,6 @@ permissionset 6121 "INTELLIGENT CLOUD"
                   tabledata "Reminder Action Log" = R,
                   tabledata "Reminder/Fin. Charge Entry" = R,
                   tabledata "Remit Address" = R,
-                  tabledata "Repair Status" = R,
                   tabledata "Report Inbox" = R,
                   tabledata "Report Layout Selection" = R,
                   tabledata "Report Layout Update Log" = R,
@@ -1412,20 +1370,16 @@ permissionset 6121 "INTELLIGENT CLOUD"
                   tabledata "Res. Ledger Entry" = R,
                   tabledata "Reservation Entry" = R,
                   tabledata "Reservation Entry Buffer" = R,
-                  tabledata "Resolution Code" = R,
                   tabledata Resource = R,
-#if not CLEAN23
+#if not CLEAN25
                   tabledata "Resource Cost" = R,
 #endif
                   tabledata "Resource Group" = R,
-                  tabledata "Resource Location" = R,
-#if not CLEAN23
+#if not CLEAN25
                   tabledata "Resource Price" = R,
                   tabledata "Resource Price Change" = R,
 #endif
                   tabledata "Resource Register" = R,
-                  tabledata "Resource Service Zone" = R,
-                  tabledata "Resource Skill" = R,
                   tabledata "Resource Unit of Measure" = R,
                   tabledata "Resources Setup" = R,
                   tabledata "Responsibility Center" = R,
@@ -1470,17 +1424,17 @@ permissionset 6121 "INTELLIGENT CLOUD"
                   tabledata "Sales Invoice Line Aggregate" = R,
                   tabledata "Sales Line" = R,
                   tabledata "Sales Line Archive" = R,
-#if not CLEAN23
+#if not CLEAN25
                   tabledata "Sales Line Discount" = R,
 #endif
                   tabledata "Sales Order Entity Buffer" = R,
                   tabledata "Sales Planning Line" = R,
                   tabledata "Sales Prepayment %" = R,
-#if not CLEAN23
+#if not CLEAN25
                   tabledata "Sales Price" = R,
 #endif
                   tabledata "Sales Price Access" = R,
-#if not CLEAN23
+#if not CLEAN25
                   tabledata "Sales Price and Line Disc Buff" = R,
                   tabledata "Sales Price Worksheet" = R,
 #endif
@@ -1507,48 +1461,7 @@ permissionset 6121 "INTELLIGENT CLOUD"
                   tabledata "Sent Notification Entry" = R,
                   tabledata "SEPA Direct Debit Mandate" = R,
                   tabledata "Serial No. Information" = R,
-                  tabledata "Serv. Price Adjustment Detail" = R,
-                  tabledata "Serv. Price Group Setup" = R,
-                  tabledata "Service Comment Line" = R,
                   tabledata "Service Connection" = R,
-                  tabledata "Service Contract Account Group" = R,
-                  tabledata "Service Contract Header" = R,
-                  tabledata "Service Contract Line" = R,
-                  tabledata "Service Contract Template" = R,
-                  tabledata "Service Cost" = R,
-                  tabledata "Service Cr.Memo Header" = R,
-                  tabledata "Service Cr.Memo Line" = R,
-                  tabledata "Service Cue" = RIMD,
-                  tabledata "Service Document Log" = R,
-                  tabledata "Service Document Register" = R,
-                  tabledata "Service Email Queue" = R,
-                  tabledata "Service Header" = R,
-                  tabledata "Service Hour" = R,
-                  tabledata "Service Invoice Header" = R,
-                  tabledata "Service Invoice Line" = R,
-                  tabledata "Service Item" = R,
-                  tabledata "Service Item Component" = R,
-                  tabledata "Service Item Group" = R,
-                  tabledata "Service Item Line" = R,
-                  tabledata "Service Item Log" = R,
-                  tabledata "Service Item Trend Buffer" = R,
-                  tabledata "Service Ledger Entry" = R,
-                  tabledata "Service Line" = R,
-                  tabledata "Service Line Price Adjmt." = R,
-                  tabledata "Service Mgt. Setup" = R,
-                  tabledata "Service Order Allocation" = R,
-                  tabledata "Service Order Posting Buffer" = R,
-                  tabledata "Service Order Type" = R,
-                  tabledata "Service Price Adjustment Group" = R,
-                  tabledata "Service Price Group" = R,
-                  tabledata "Service Register" = R,
-                  tabledata "Service Shelf" = R,
-                  tabledata "Service Shipment Buffer" = R,
-                  tabledata "Service Shipment Header" = R,
-                  tabledata "Service Shipment Item Line" = R,
-                  tabledata "Service Shipment Line" = R,
-                  tabledata "Service Status Priority Setup" = R,
-                  tabledata "Service Zone" = R,
                   tabledata "Ship-to Address" = R,
                   tabledata "Shipment Method" = R,
                   tabledata "Shipment Method Translation" = R,
@@ -1557,7 +1470,6 @@ permissionset 6121 "INTELLIGENT CLOUD"
                   tabledata "Shop Calendar" = R,
                   tabledata "Shop Calendar Holiday" = R,
                   tabledata "Shop Calendar Working Days" = R,
-                  tabledata "Skill Code" = R,
                   tabledata "Sorting Table" = R,
                   tabledata "Source Code" = R,
                   tabledata "Source Code Setup" = R,
@@ -1574,9 +1486,6 @@ permissionset 6121 "INTELLIGENT CLOUD"
                   tabledata "Standard Purchase Line" = R,
                   tabledata "Standard Sales Code" = R,
                   tabledata "Standard Sales Line" = R,
-                  tabledata "Standard Service Code" = R,
-                  tabledata "Standard Service Item Gr. Code" = R,
-                  tabledata "Standard Service Line" = R,
                   tabledata "Standard Task" = R,
                   tabledata "Standard Task Description" = R,
                   tabledata "Standard Task Personnel" = R,
@@ -1590,7 +1499,7 @@ permissionset 6121 "INTELLIGENT CLOUD"
                   tabledata "Substitution Condition" = R,
                   tabledata "Support Contact Information" = R,
                   tabledata "SWIFT Code" = R,
-                  tabledata "Symptom Code" = R,
+                  tabledata "Table Config Template" = R,
                   tabledata "Table Filter" = R,
                   tabledata "Tariff Number" = R,
                   tabledata "Tax Area" = R,
@@ -1649,22 +1558,12 @@ permissionset 6121 "INTELLIGENT CLOUD"
                   tabledata "Trial Balance Cache Info" = R,
                   tabledata "Trial Balance Entity Buffer" = R,
                   tabledata "Trial Balance Setup" = R,
-                  tabledata "Troubleshooting Header" = R,
-                  tabledata "Troubleshooting Line" = R,
-                  tabledata "Troubleshooting Setup" = R,
                   tabledata Union = R,
                   tabledata "Unit of Measure" = R,
                   tabledata "Unit of Measure Translation" = R,
                   tabledata "Unlinked Attachment" = R,
                   tabledata "Unplanned Demand" = R,
                   tabledata "Untracked Planning Element" = R,
-#if not CLEAN22
-                  tabledata "User Group" = R,
-                  tabledata "User Group Access Control" = R,
-                  tabledata "User Group Member" = R,
-                  tabledata "User Group Permission Set" = R,
-                  tabledata "User Group Plan" = R,
-#endif
                   tabledata "User Preference" = R,
                   tabledata "User Security Status" = RIMD,
                   tabledata "User Setup" = R,
@@ -1687,6 +1586,7 @@ permissionset 6121 "INTELLIGENT CLOUD"
                   tabledata "VAT Posting Setup" = R,
                   tabledata "VAT Product Posting Group" = R,
                   tabledata "VAT Setup" = R,
+                  tabledata "Alt. Cust. VAT Reg." = R,
                   tabledata "VAT Posting Parameters" = R,
                   tabledata "VAT Rate Change Conversion" = R,
                   tabledata "VAT Rate Change Log Entry" = R,
@@ -1738,7 +1638,6 @@ permissionset 6121 "INTELLIGENT CLOUD"
                   tabledata "Warehouse Source Filter" = R,
                   tabledata "Warehouse WMS Cue" = RIMD,
                   tabledata "Warehouse Worker WMS Cue" = RIMD,
-                  tabledata "Warranty Ledger Entry" = R,
                   tabledata "Web Source" = R,
                   tabledata "WF Event/Response Combination" = R,
                   tabledata "Where Used Base Calendar" = R,
@@ -1759,7 +1658,6 @@ permissionset 6121 "INTELLIGENT CLOUD"
                   tabledata "Work Center Group" = R,
                   tabledata "Work Shift" = R,
                   tabledata "Work Type" = R,
-                  tabledata "Work-Hour Template" = R,
                   tabledata "Workflow - Record Change" = R,
                   tabledata "Workflow - Table Relation" = R,
                   tabledata Workflow = R,
@@ -1788,5 +1686,85 @@ permissionset 6121 "INTELLIGENT CLOUD"
                   tabledata "XML Schema" = R,
                   tabledata "XML Schema Element" = R,
                   tabledata "XML Schema Restriction" = R,
-                  tabledata Zone = R;
+                  tabledata Zone = R,
+
+                  // Service
+                  tabledata "Contract Change Log" = R,
+                  tabledata "Contract Gain/Loss Entry" = R,
+                  tabledata "Contract Group" = R,
+                  tabledata "Contract Trend Buffer" = R,
+                  tabledata "Contract/Service Discount" = R,
+                  tabledata "Fault Area" = R,
+                  tabledata "Fault Area/Symptom Code" = R,
+                  tabledata "Fault Code" = R,
+                  tabledata "Fault Reason Code" = R,
+                  tabledata "Fault/Resol. Cod. Relationship" = R,
+                  tabledata "Filed Service Contract Header" = R,
+                  tabledata "Filed Contract Line" = R,
+                  tabledata "Filed Serv. Contract Cmt. Line" = R,
+                  tabledata "Filed Contract Service Hour" = R,
+                  tabledata "Filed Contract/Serv. Discount" = R,
+                  tabledata Loaner = R,
+                  tabledata "Loaner Entry" = R,
+                  tabledata "Repair Status" = R,
+                  tabledata "Resolution Code" = R,
+                  tabledata "Resource Location" = R,
+                  tabledata "Resource Service Zone" = R,
+                  tabledata "Resource Skill" = R,
+                  tabledata "Serv. Price Adjustment Detail" = R,
+                  tabledata "Serv. Price Group Setup" = R,
+                  tabledata "Service Comment Line" = R,
+                  tabledata "Service Comment Line Archive" = R,
+                  tabledata "Service Contract Account Group" = R,
+                  tabledata "Service Contract Header" = R,
+                  tabledata "Service Contract Line" = R,
+                  tabledata "Service Contract Template" = R,
+                  tabledata "Service Cost" = R,
+                  tabledata "Service Cr.Memo Header" = R,
+                  tabledata "Service Cr.Memo Line" = R,
+                  tabledata "Service Cue" = RIMD,
+                  tabledata "Service Document Log" = R,
+                  tabledata "Service Document Register" = R,
+                  tabledata "Service Email Queue" = R,
+                  tabledata "Service Header" = R,
+                  tabledata "Service Header Archive" = R,
+                  tabledata "Service Hour" = R,
+                  tabledata "Service Invoice Header" = R,
+                  tabledata "Service Invoice Line" = R,
+                  tabledata "Service Item" = R,
+                  tabledata "Service Item Component" = R,
+                  tabledata "Service Item Group" = R,
+                  tabledata "Service Item Line" = R,
+                  tabledata "Service Item Line Archive" = R,
+                  tabledata "Service Item Log" = R,
+                  tabledata "Service Item Trend Buffer" = R,
+                  tabledata "Service Ledger Entry" = R,
+                  tabledata "Service Line" = R,
+                  tabledata "Service Line Archive" = R,
+                  tabledata "Service Line Price Adjmt." = R,
+                  tabledata "Service Mgt. Setup" = R,
+                  tabledata "Service Order Allocation" = R,
+                  tabledata "Service Order Allocat. Archive" = R,
+                  tabledata "Service Order Posting Buffer" = R,
+                  tabledata "Service Order Type" = R,
+                  tabledata "Service Price Adjustment Group" = R,
+                  tabledata "Service Price Group" = R,
+                  tabledata "Service Register" = R,
+                  tabledata "Service Shelf" = R,
+                  tabledata "Service Shipment Buffer" = R,
+                  tabledata "Service Shipment Header" = R,
+                  tabledata "Service Shipment Item Line" = R,
+                  tabledata "Service Shipment Line" = R,
+                  tabledata "Service Status Priority Setup" = R,
+                  tabledata "Service Zone" = R,
+                  tabledata "Skill Code" = R,
+                  tabledata "Standard Service Code" = R,
+                  tabledata "Standard Service Item Gr. Code" = R,
+                  tabledata "Standard Service Line" = R,
+                  tabledata "Symptom Code" = R,
+                  tabledata "Troubleshooting Header" = R,
+                  tabledata "Troubleshooting Line" = R,
+                  tabledata "Troubleshooting Setup" = R,
+                  tabledata "Warranty Ledger Entry" = R,
+                  tabledata "Work-Hour Template" = R;
 }

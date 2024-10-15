@@ -668,6 +668,67 @@ codeunit 134992 "ERM Financial Reports IV"
 
     end;
 
+    [Test]
+    [HandlerFunctions('RHCalcAndPostVATSettlementSetCountryFilter')]
+    procedure CalcAndPostVATSettlementCountryRegionFilter()
+    var
+        Customer: array[2] of Record Customer;
+        GenJournalLine: Record "Gen. Journal Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        VATEntry: Record "VAT Entry";
+        GLEntry: Record "G/L Entry";
+        MyNotifications: Record "My Notifications";
+        InstructionMgt: Codeunit "Instruction Mgt.";
+        Amount: Decimal;
+        PostingDate: Date;
+        i: Integer;
+    begin
+        // [SCENARIO 525644] Stan can calculated and post VAT settlement based on the country/region filter
+
+        Initialize();
+        MyNotifications.Disable(InstructionMgt.GetPostingAfterWorkingDateNotificationId());
+        GLEntry.SetCurrentKey("Posting Date", "G/L Account No.", "Dimension Set ID");
+        GLEntry.FindLast();
+        PostingDate := GLEntry."Posting Date" + 1;
+        // [GIVEN] Two customers, one from Spain and other from Germany
+        // [GIVEN] Post two sales invoices for each customer. First invoice with amount = 100, second invoice with amount = 200
+        for i := 1 to 2 do begin
+            LibrarySales.CreateCustomerWithCountryCodeAndVATRegNo(Customer[i]);
+            // Setup: Create and Post General Journal Line with different Account Types, Find VAT Entries Amount.
+            CreateAndPostGeneralJournalLine(
+                VATPostingSetup, PostingDate, GenJournalLine."Account Type"::Customer, Customer[i]."No.",
+                GenJournalLine."Gen. Posting Type"::Sale, 1, true);
+        end;
+        VATEntry.SetRange("Posting Date", PostingDate);
+        VATEntry.SetRange("Country/Region Code", Customer[2]."Country/Region Code");
+        Amount := -CalculateVATEntryAmount(VATEntry, VATPostingSetup, GenJournalLine."Gen. Posting Type"::Sale, false);
+
+        LibraryVariableStorage.Enqueue(Customer[2]."Country/Region Code"); // set country/region filter for RHCalcAndPostVATSettlementSetCountryFilter
+        Clear(LibraryReportDataset);
+
+        // [WHEN] Run Calculate and Post VAT Settlement report with country/region filter = "DE"
+        SaveCalcAndPostVATSettlementReport(VATPostingSetup, PostingDate, PostingDate, PostingDate, Format(LibraryRandom.RandInt(100)), true);
+
+        // [THEN] Amount in the report is 200
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueExists('GenJnlLineVATAmount', Amount);
+
+        // [THEN] VAT Entry for the first invoice is not closed
+        // [THEN] Closing entry created with type 'Settlement'
+        VATEntry.Reset();
+        VATEntry.SetRange("Bill-to/Pay-to No.", Customer[1]."No.");
+        VATEntry.FindFirst();
+        VATEntry.TestField("Closed by Entry No.", 0);
+        // [THEN] VAT Entry for the second invoice is closed
+        // [THEN] Closing entry created with type 'Settlement'
+        // [THEN] The settlement amount is 200
+        VATEntry.SetRange("Bill-to/Pay-to No.", Customer[2]."No.");
+        VATEntry.FindFirst();
+        VATEntry.Get(VATEntry."Closed by Entry No.");
+        VATEntry.TestField(Type, VATEntry.Type::Settlement);
+        VATEntry.TestField(Amount, Amount);
+    end;
+
     local procedure Initialize()
     var
         ObjectOptions: Record "Object Options";
@@ -697,13 +758,11 @@ codeunit 134992 "ERM Financial Reports IV"
     var
         VATEntry: Record "VAT Entry";
     begin
-        with VATEntry do begin
-            SetRange("VAT Calculation Type", "VAT Calculation Type"::"Normal VAT");
-            SetRange(Type, EntryType);
-            SetRange(Closed, Closed);
-            FindFirst();
-            VATPostingSetup.Get("VAT Bus. Posting Group", "VAT Prod. Posting Group");
-        end;
+        VATEntry.SetRange("VAT Calculation Type", VATEntry."VAT Calculation Type"::"Normal VAT");
+        VATEntry.SetRange(Type, EntryType);
+        VATEntry.SetRange(Closed, VATEntry.Closed);
+        VATEntry.FindFirst();
+        VATPostingSetup.Get(VATEntry."VAT Bus. Posting Group", VATEntry."VAT Prod. Posting Group");
     end;
 
     local procedure CalcAndPostVATSettlementWithPostingOption(AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20];
@@ -906,11 +965,9 @@ codeunit 134992 "ERM Financial Reports IV"
         Customer: Record Customer;
     begin
         LibrarySales.CreateCustomer(Customer);
-        with Customer do begin
-            Validate("VAT Bus. Posting Group", VATBusPostingGroupCode);
-            Modify(true);
-            exit("No.");
-        end;
+        Customer.Validate("VAT Bus. Posting Group", VATBusPostingGroupCode);
+        Customer.Modify(true);
+        exit(Customer."No.");
     end;
 
     local procedure CreateVendor(VATBusPostingGroupCode: Code[20]): Code[20]
@@ -918,11 +975,9 @@ codeunit 134992 "ERM Financial Reports IV"
         Vendor: Record Vendor;
     begin
         LibraryPurchase.CreateVendor(Vendor);
-        with Vendor do begin
-            Validate("VAT Bus. Posting Group", VATBusPostingGroupCode);
-            Modify(true);
-            exit("No.");
-        end;
+        Vendor.Validate("VAT Bus. Posting Group", VATBusPostingGroupCode);
+        Vendor.Modify(true);
+        exit(Vendor."No.");
     end;
 
     local procedure FindVATEntry(var VATEntry: Record "VAT Entry"; BilltoPaytoNo: Code[20])
@@ -946,6 +1001,11 @@ codeunit 134992 "ERM Financial Reports IV"
     end;
 
     local procedure SaveCalcAndPostVATSettlementReport(VATPostingSetup: Record "VAT Posting Setup"; DocumentNo: Code[20]; Post: Boolean)
+    begin
+        SaveCalcAndPostVATSettlementReport(VATPostingSetup, WorkDate(), WorkDate(), WorkDate(), DocumentNo, Post);
+    end;
+
+    local procedure SaveCalcAndPostVATSettlementReport(VATPostingSetup: Record "VAT Posting Setup"; NewStartDate: Date; NewEndDate: Date; NewPostingDate: Date; DocumentNo: Code[20]; Post: Boolean)
     var
         GLAccount: Record "G/L Account";
         CalcAndPostVATSettlement: Report "Calc. and Post VAT Settlement";
@@ -955,7 +1015,7 @@ codeunit 134992 "ERM Financial Reports IV"
         VATPostingSetup.SetRange("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
         VATPostingSetup.SetRange("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
         CalcAndPostVATSettlement.SetTableView(VATPostingSetup);
-        CalcAndPostVATSettlement.InitializeRequest(WorkDate(), WorkDate(), WorkDate(), DocumentNo, GLAccount."No.", false, Post);
+        CalcAndPostVATSettlement.InitializeRequest(NewStartDate, NewEndDate, NewPostingDate, DocumentNo, GLAccount."No.", false, Post);
         Commit();
         CalcAndPostVATSettlement.Run();
     end;
@@ -1158,6 +1218,15 @@ codeunit 134992 "ERM Financial Reports IV"
     procedure RHCalcAndPostVATSettlement(var CalcAndPostVATSettlement: TestRequestPage "Calc. and Post VAT Settlement")
     begin
         if CalcAndPostVATSettlement.Editable then;
+        CalcAndPostVATSettlement.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName())
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure RHCalcAndPostVATSettlementSetCountryFilter(var CalcAndPostVATSettlement: TestRequestPage "Calc. and Post VAT Settlement")
+    begin
+        if CalcAndPostVATSettlement.Editable then;
+        CalcAndPostVATSettlement."Country/Region Filter".SetValue(LibraryVariableStorage.DequeueText());
         CalcAndPostVATSettlement.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName())
     end;
 

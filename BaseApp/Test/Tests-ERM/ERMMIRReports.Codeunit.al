@@ -295,14 +295,12 @@ codeunit 134928 "ERM MIR Reports"
     var
         FinanceChargeMemoLine: Record "Finance Charge Memo Line";
     begin
-        with FinanceChargeMemoLine do begin
-            LibraryERM.CreateFinanceChargeMemoLine(
-              FinanceChargeMemoLine, FinChargeMemoNo, Type::"Customer Ledger Entry");
-            Validate("Detailed Interest Rates Entry", MIREntry);
-            Validate(Amount, LibraryRandom.RandDecInRange(1000, 5000, 2));
-            Modify(true);
-            exit(Amount);
-        end;
+        LibraryERM.CreateFinanceChargeMemoLine(
+          FinanceChargeMemoLine, FinChargeMemoNo, FinanceChargeMemoLine.Type::"Customer Ledger Entry");
+        FinanceChargeMemoLine.Validate("Detailed Interest Rates Entry", MIREntry);
+        FinanceChargeMemoLine.Validate(Amount, LibraryRandom.RandDecInRange(1000, 5000, 2));
+        FinanceChargeMemoLine.Modify(true);
+        exit(FinanceChargeMemoLine.Amount);
     end;
 
     local procedure CreateIssuedFinanceChargeMemo(var IssuedFinChargeMemoNo: Code[20]; CountOfLines: Integer; var AmountLine: array[5] of Decimal; var AmountMIRLine: array[5] of Decimal) TotalAmountOfLines: Decimal
@@ -329,15 +327,13 @@ codeunit 134928 "ERM MIR Reports"
 
     local procedure CreateIssuedFinChargeMemoHeader(var IssuedFinChargeMemoHeader: Record "Issued Fin. Charge Memo Header"; Customer: Record Customer; VATBusPostingGroupCode: Code[20]): Code[20]
     begin
-        with IssuedFinChargeMemoHeader do begin
-            Init();
-            Validate("No.", LibraryUtility.GenerateRandomCode(FieldNo("No."), DATABASE::"Issued Fin. Charge Memo Header"));
-            Validate("Customer No.", Customer."No.");
-            Validate("Customer Posting Group", Customer."Customer Posting Group");
-            Validate("VAT Bus. Posting Group", VATBusPostingGroupCode);
-            Insert(true);
-            exit("No.");
-        end;
+        IssuedFinChargeMemoHeader.Init();
+        IssuedFinChargeMemoHeader.Validate("No.", LibraryUtility.GenerateRandomCode(IssuedFinChargeMemoHeader.FieldNo("No."), DATABASE::"Issued Fin. Charge Memo Header"));
+        IssuedFinChargeMemoHeader.Validate("Customer No.", Customer."No.");
+        IssuedFinChargeMemoHeader.Validate("Customer Posting Group", Customer."Customer Posting Group");
+        IssuedFinChargeMemoHeader.Validate("VAT Bus. Posting Group", VATBusPostingGroupCode);
+        IssuedFinChargeMemoHeader.Insert(true);
+        exit(IssuedFinChargeMemoHeader."No.");
     end;
 
     local procedure CreateIssuedFinChargeMemoLine(IssuedFinChargeMemoNo: Code[20]; VATProdPostingGroupCode: Code[20]; MIREntry: Boolean): Decimal
@@ -345,20 +341,18 @@ codeunit 134928 "ERM MIR Reports"
         IssuedFinChargeMemoLine: Record "Issued Fin. Charge Memo Line";
         RecRef: RecordRef;
     begin
-        with IssuedFinChargeMemoLine do begin
-            Init();
-            Validate("Finance Charge Memo No.", IssuedFinChargeMemoNo);
-            RecRef.GetTable(IssuedFinChargeMemoLine);
-            Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, FieldNo("Line No.")));
-            Insert(true);
+        IssuedFinChargeMemoLine.Init();
+        IssuedFinChargeMemoLine.Validate("Finance Charge Memo No.", IssuedFinChargeMemoNo);
+        RecRef.GetTable(IssuedFinChargeMemoLine);
+        IssuedFinChargeMemoLine.Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, IssuedFinChargeMemoLine.FieldNo("Line No.")));
+        IssuedFinChargeMemoLine.Insert(true);
 
-            Validate(Type, Type::"G/L Account");
-            Validate("Detailed Interest Rates Entry", MIREntry);
-            Validate("VAT Prod. Posting Group", VATProdPostingGroupCode);
-            Validate(Amount, LibraryRandom.RandDecInRange(1000, 5000, 2));
-            Modify(true);
-            exit(Amount);
-        end;
+        IssuedFinChargeMemoLine.Validate(Type, IssuedFinChargeMemoLine.Type::"G/L Account");
+        IssuedFinChargeMemoLine.Validate("Detailed Interest Rates Entry", MIREntry);
+        IssuedFinChargeMemoLine.Validate("VAT Prod. Posting Group", VATProdPostingGroupCode);
+        IssuedFinChargeMemoLine.Validate(Amount, LibraryRandom.RandDecInRange(1000, 5000, 2));
+        IssuedFinChargeMemoLine.Modify(true);
+        exit(IssuedFinChargeMemoLine.Amount);
     end;
 
     local procedure CreateReminder(var ReminderNo: Code[20]; CountOfLines: Integer; var AmountLine: array[5] of Decimal; var AmountMIRLine: array[5] of Decimal) TotalAmountOfLines: Decimal
@@ -387,14 +381,12 @@ codeunit 134928 "ERM MIR Reports"
     var
         ReminderLine: Record "Reminder Line";
     begin
-        with ReminderLine do begin
-            LibraryERM.CreateReminderLine(
-              ReminderLine, ReminderNo, Type::"Customer Ledger Entry");
-            Validate("Detailed Interest Rates Entry", MIREntry);
-            Validate("Remaining Amount", LibraryRandom.RandDecInRange(1000, 5000, 2));
-            Modify(true);
-            exit("Remaining Amount");
-        end;
+        LibraryERM.CreateReminderLine(
+          ReminderLine, ReminderNo, ReminderLine.Type::"Customer Ledger Entry");
+        ReminderLine.Validate("Detailed Interest Rates Entry", MIREntry);
+        ReminderLine.Validate("Remaining Amount", LibraryRandom.RandDecInRange(1000, 5000, 2));
+        ReminderLine.Modify(true);
+        exit(ReminderLine."Remaining Amount");
     end;
 
     local procedure CreateIssuedReminder(var ReminderNo: Code[20]; CountOfLines: Integer; var AmountLine: array[5] of Decimal; var AmountMIRLine: array[5] of Decimal) TotalAmountOfLines: Decimal
@@ -420,17 +412,15 @@ codeunit 134928 "ERM MIR Reports"
     var
         VATPostingSetup: Record "VAT Posting Setup";
     begin
-        with IssuedReminderHeader do begin
-            Init();
-            Validate("No.", LibraryUtility.GenerateRandomCode(FieldNo("No."), DATABASE::"Issued Reminder Header"));
-            Validate("Customer No.", Customer."No.");
-            Validate("Customer Posting Group", Customer."Customer Posting Group");
+        IssuedReminderHeader.Init();
+        IssuedReminderHeader.Validate("No.", LibraryUtility.GenerateRandomCode(IssuedReminderHeader.FieldNo("No."), DATABASE::"Issued Reminder Header"));
+        IssuedReminderHeader.Validate("Customer No.", Customer."No.");
+        IssuedReminderHeader.Validate("Customer Posting Group", Customer."Customer Posting Group");
 
-            LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
-            Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
-            Insert(true);
-            exit("No.");
-        end;
+        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        IssuedReminderHeader.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        IssuedReminderHeader.Insert(true);
+        exit(IssuedReminderHeader."No.");
     end;
 
     local procedure CreateIssuedReminderLine(ReminderNo: Code[20]; MIREntry: Boolean): Decimal
@@ -438,19 +428,17 @@ codeunit 134928 "ERM MIR Reports"
         IssuedReminderLine: Record "Issued Reminder Line";
         RecRef: RecordRef;
     begin
-        with IssuedReminderLine do begin
-            Init();
-            Validate("Reminder No.", ReminderNo);
-            RecRef.GetTable(IssuedReminderLine);
-            Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, FieldNo("Line No.")));
-            Insert(true);
-            Validate(Type, Type::"Customer Ledger Entry");
-            Validate("Detailed Interest Rates Entry", MIREntry);
-            Validate("Remaining Amount", LibraryRandom.RandDecInRange(1000, 5000, 2));
-            Validate("No. of Reminders", 1);
-            Modify(true);
-            exit("Remaining Amount");
-        end;
+        IssuedReminderLine.Init();
+        IssuedReminderLine.Validate("Reminder No.", ReminderNo);
+        RecRef.GetTable(IssuedReminderLine);
+        IssuedReminderLine.Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, IssuedReminderLine.FieldNo("Line No.")));
+        IssuedReminderLine.Insert(true);
+        IssuedReminderLine.Validate(Type, IssuedReminderLine.Type::"Customer Ledger Entry");
+        IssuedReminderLine.Validate("Detailed Interest Rates Entry", MIREntry);
+        IssuedReminderLine.Validate("Remaining Amount", LibraryRandom.RandDecInRange(1000, 5000, 2));
+        IssuedReminderLine.Validate("No. of Reminders", 1);
+        IssuedReminderLine.Modify(true);
+        exit(IssuedReminderLine."Remaining Amount");
     end;
 
     local procedure ExportFinChargeMemoAndVerify(ShowMIRDetail: Boolean)
@@ -508,16 +496,14 @@ codeunit 134928 "ERM MIR Reports"
     begin
         LibraryReportDataset.LoadDataSetFile();
 
-        with IssuedFinChargeMemoLine do begin
-            SetRange("Finance Charge Memo No.", IssuedFinChargeMemoNo);
-            FindSet();
-            repeat
-                if ShowMIRDetail or not "Detailed Interest Rates Entry" then
-                    LibraryReportDataset.AssertElementWithValueExists('LineNo_IssuFinChrgMemoLine', "Line No.")
-                else
-                    LibraryReportDataset.AssertElementWithValueNotExist('LineNo_IssuFinChrgMemoLine', "Line No.")
-            until Next() = 0;
-        end;
+        IssuedFinChargeMemoLine.SetRange("Finance Charge Memo No.", IssuedFinChargeMemoNo);
+        IssuedFinChargeMemoLine.FindSet();
+        repeat
+            if ShowMIRDetail or not IssuedFinChargeMemoLine."Detailed Interest Rates Entry" then
+                LibraryReportDataset.AssertElementWithValueExists('LineNo_IssuFinChrgMemoLine', IssuedFinChargeMemoLine."Line No.")
+            else
+                LibraryReportDataset.AssertElementWithValueNotExist('LineNo_IssuFinChrgMemoLine', IssuedFinChargeMemoLine."Line No.")
+        until IssuedFinChargeMemoLine.Next() = 0;
     end;
 
     local procedure VerifyAmountsWithMIREntry(TotalAmount: Decimal; AmountLine: array[5] of Decimal; AmountMIRLine: array[5] of Decimal)

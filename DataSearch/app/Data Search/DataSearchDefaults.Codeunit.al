@@ -82,6 +82,12 @@ codeunit 2681 "Data Search Defaults"
         BaseLbl: Label '(default)';
         AllProfileDescriptionFilterTxt: Label 'Navigation menu only.';
 
+    // OnRun mainly provided for test, but can also be used for default init
+    trigger OnRun()
+    begin
+        InitSetupForAllProfiles();
+    end;
+
     internal procedure InitSetupForAllProfiles()
     var
         TempAllProfile: Record "All Profile" temporary;
@@ -339,8 +345,11 @@ codeunit 2681 "Data Search Defaults"
     var
         DataSearchSetupTable: Record "Data Search Setup (Table)";
     begin
-        if DataSearchSetupTable.Get(TableNo, RoleCenterID) then
+        DataSearchSetupTable.SetRange("Table No.", TableNo);
+        DataSearchSetupTable.SetRange("Role Center ID", RoleCenterID);
+        if not DataSearchSetupTable.IsEmpty then
             exit;
+        DataSearchSetupTable.Reset();
         DataSearchSetupTable.Init();
         DataSearchSetupTable."Table No." := TableNo;
         DataSearchSetupTable."Role Center ID" := RoleCenterID;
@@ -355,10 +364,28 @@ codeunit 2681 "Data Search Defaults"
     var
         FieldList: List of [Integer];
     begin
-        AddTextFields(TableNo, FieldList);
-        AddIndexedFields(TableNo, FieldList);
-        AddOtherFields(TableNo, FieldList);
+        if not AddFullTextIndexedFields(TableNo, FieldList) then begin
+            AddTextFields(TableNo, FieldList);
+            AddIndexedFields(TableNo, FieldList);
+            AddOtherFields(TableNo, FieldList);
+        end;
         InsertFields(TableNo, FieldList);
+    end;
+
+    internal procedure AddFullTextIndexedFields(TableNo: Integer; var FieldList: List of [Integer]): Boolean
+    var
+        Field: Record Field;
+    begin
+        Field.SetRange(TableNo, TableNo);
+        Field.SetRange(Class, Field.Class::Normal);
+        Field.SetRange(OptimizeForTextSearch, true);
+        if not Field.FindSet() then
+            exit(false);
+        repeat
+            if not FieldList.Contains(Field."No.") then
+                FieldList.Add(Field."No.");
+        until Field.Next() = 0;
+        exit(true);
     end;
 
     internal procedure AddTextFields(TableNo: Integer; var FieldList: List of [Integer])

@@ -70,6 +70,8 @@ table 5216 "Confidential Information"
     var
         Confidential: Record Confidential;
 
+#pragma warning disable AA0074
         Text000: Label 'You can not delete confidential information if there are comments associated with it.';
+#pragma warning restore AA0074
 }
 

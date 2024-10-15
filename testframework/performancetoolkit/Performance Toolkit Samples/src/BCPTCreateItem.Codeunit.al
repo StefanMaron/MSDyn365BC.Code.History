@@ -19,6 +19,7 @@ codeunit 149127 "BCPT Create Item"
     var
         InventorySetup: Record "Inventory Setup";
         NoSeriesLine: Record "No. Series Line";
+        RecordModified: Boolean;
     begin
         InventorySetup.Get();
         InventorySetup.TestField("Item Nos.");
@@ -29,9 +30,12 @@ codeunit 149127 "BCPT Create Item"
                 NoSeriesLine."Ending No." := '';
                 NoSeriesLine.Validate(Implementation, NoSeriesLine.Implementation::Sequence);
                 NoSeriesLine.Modify(true);
+                RecordModified := true;
             end;
         until NoSeriesLine.Next() = 0;
-        Commit(); //Commit to avoid deadlocks
+
+        if RecordModified then
+            Commit(); //Commit to avoid deadlocks
     end;
 
     procedure CreateItem()

@@ -72,16 +72,14 @@ codeunit 138400 "RS Pack Content - Evaluation"
         // [SCENARIO] There are 7 Sales Invoices, 4 Orders, and 2 Quotes
         Initialize();
 
-        with SalesHeader do begin
-            SetRange("Document Type", "Document Type"::Invoice);
-            Assert.RecordCount(SalesHeader, 7);
+        SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Invoice);
+        Assert.RecordCount(SalesHeader, 7);
 
-            SetRange("Document Type", "Document Type"::Order);
-            Assert.RecordCount(SalesHeader, 4);
+        SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Order);
+        Assert.RecordCount(SalesHeader, 4);
 
-            SetRange("Document Type", "Document Type"::Quote);
-            Assert.RecordCount(SalesHeader, 2);
-        end;
+        SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Quote);
+        Assert.RecordCount(SalesHeader, 2);
     end;
 
     [Test]
@@ -94,17 +92,15 @@ codeunit 138400 "RS Pack Content - Evaluation"
         // [SCENARIO] There are 2 Sales Invoices and 4 Sales Orders with Shipping Agent Code
         Initialize();
 
-        with SalesHeader do begin
-            Reset();
-            SetRange("Document Type", "Document Type"::Invoice);
-            SetFilter("Shipping Agent Code", '<>%1', '');
-            Assert.RecordCount(SalesHeader, 2);
+        SalesHeader.Reset();
+        SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Invoice);
+        SalesHeader.SetFilter("Shipping Agent Code", '<>%1', '');
+        Assert.RecordCount(SalesHeader, 2);
 
-            Reset();
-            SetRange("Document Type", "Document Type"::Order);
-            SetFilter("Shipping Agent Code", '<>%1', '');
-            Assert.RecordCount(SalesHeader, 4);
-        end;
+        SalesHeader.Reset();
+        SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Order);
+        SalesHeader.SetFilter("Shipping Agent Code", '<>%1', '');
+        Assert.RecordCount(SalesHeader, 4);
     end;
 
     [Test]
@@ -193,16 +189,14 @@ codeunit 138400 "RS Pack Content - Evaluation"
         // [SCENARIO] There are 3 Purchase Invoices and 4 purchase orders but no documents of other types
         Initialize();
 
-        with PurchHeader do begin
-            SetRange("Document Type", "Document Type"::Invoice);
-            Assert.RecordCount(PurchHeader, 3);
+        PurchHeader.SetRange("Document Type", PurchHeader."Document Type"::Invoice);
+        Assert.RecordCount(PurchHeader, 3);
 
-            SetRange("Document Type", "Document Type"::Order);
-            Assert.RecordCount(PurchHeader, 5);
+        PurchHeader.SetRange("Document Type", PurchHeader."Document Type"::Order);
+        Assert.RecordCount(PurchHeader, 5);
 
-            SetFilter("Document Type", '<>%1&<>%2', "Document Type"::Order, "Document Type"::Invoice);
-            Assert.RecordCount(PurchHeader, 0);
-        end;
+        PurchHeader.SetFilter("Document Type", '<>%1&<>%2', PurchHeader."Document Type"::Order, PurchHeader."Document Type"::Invoice);
+        Assert.RecordCount(PurchHeader, 0);
     end;
 
     [Test]
@@ -269,20 +263,16 @@ codeunit 138400 "RS Pack Content - Evaluation"
         // [FEATURE] [Purchase]
         // [SCENARIO] Existing Purchase Invoices can be posted without errors
         Initialize();
-
-        with PurchHeader do begin
-            // [WHEN] Post all Invoices
-            Reset();
-            SetRange("Document Type", "Document Type"::Invoice);
-            FindSet();
-            repeat
-                PostedInvoiceNo := LibraryPurchase.PostPurchaseDocument(PurchHeader, true, true);
-
-                // [THEN] Vendor Ledger Entries are created
-                VendLedgEntry.FindLast();
-                VendLedgEntry.TestField("Document No.", PostedInvoiceNo);
-            until Next() = 0;
-        end;
+        // [WHEN] Post all Invoices
+        PurchHeader.Reset();
+        PurchHeader.SetRange("Document Type", PurchHeader."Document Type"::Invoice);
+        PurchHeader.FindSet();
+        repeat
+            PostedInvoiceNo := LibraryPurchase.PostPurchaseDocument(PurchHeader, true, true);
+            // [THEN] Vendor Ledger Entries are created
+            VendLedgEntry.FindLast();
+            VendLedgEntry.TestField("Document No.", PostedInvoiceNo);
+        until PurchHeader.Next() = 0;
     end;
 
     [Test]
@@ -296,20 +286,16 @@ codeunit 138400 "RS Pack Content - Evaluation"
         // [FEATURE] [Purchase]
         // [SCENARIO] Existing Purchase Orders can be posted without errors
         Initialize();
-
-        with PurchHeader do begin
-            // [WHEN] Post all Orders
-            Reset();
-            SetRange("Document Type", "Document Type"::Order);
-            FindSet();
-            repeat
-                PostedOrderNo := LibraryPurchase.PostPurchaseDocument(PurchHeader, true, true);
-
-                // [THEN] Vendor Ledger Entries are created
-                VendLedgEntry.FindLast();
-                VendLedgEntry.TestField("Document No.", PostedOrderNo);
-            until Next() = 0;
-        end;
+        // [WHEN] Post all Orders
+        PurchHeader.Reset();
+        PurchHeader.SetRange("Document Type", PurchHeader."Document Type"::Order);
+        PurchHeader.FindSet();
+        repeat
+            PostedOrderNo := LibraryPurchase.PostPurchaseDocument(PurchHeader, true, true);
+            // [THEN] Vendor Ledger Entries are created
+            VendLedgEntry.FindLast();
+            VendLedgEntry.TestField("Document No.", PostedOrderNo);
+        until PurchHeader.Next() = 0;
     end;
 
     [Test]
@@ -387,19 +373,16 @@ codeunit 138400 "RS Pack Content - Evaluation"
         VATPostingSetup: Record "VAT Posting Setup";
     begin
         // [SCENARIO] There are 14 VAT posting setup entries: 3 - "Reverse Charge VAT", none - "Full VAT" and 'Sales Tax'
-        with VATPostingSetup do begin
-            // Assert.RecordCount(VATPostingSetup,14); TO DO - Fix it
+        // Assert.RecordCount(VATPostingSetup,14); TO DO - Fix it
+        VATPostingSetup.SetRange("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT");
+        Assert.RecordCount(VATPostingSetup, 3);
 
-            SetRange("VAT Calculation Type", "VAT Calculation Type"::"Reverse Charge VAT");
-            Assert.RecordCount(VATPostingSetup, 3);
+        VATPostingSetup.SetRange("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"Full VAT", VATPostingSetup."VAT Calculation Type"::"Sales Tax");
+        Assert.RecordCount(VATPostingSetup, 2);
 
-            SetRange("VAT Calculation Type", "VAT Calculation Type"::"Full VAT", "VAT Calculation Type"::"Sales Tax");
-            Assert.RecordCount(VATPostingSetup, 2);
-
-            Reset();
-            SetRange("EU Service", true);
-            Assert.RecordCount(VATPostingSetup, 2);
-        end;
+        VATPostingSetup.Reset();
+        VATPostingSetup.SetRange("EU Service", true);
+        Assert.RecordCount(VATPostingSetup, 2);
     end;
 
     local procedure VerifyContactCompany(var CompanyNo: Code[20]; LinkToTable: Enum "Contact Business Relation Link To Table"; No: Code[20])
@@ -738,31 +721,29 @@ codeunit 138400 "RS Pack Content - Evaluation"
         // [SCENARIO 259575] Purchase Setup has all needed number series fields filled in to be able create and post purchase documents
         Initialize();
 
-        with PurchSetup do begin
-            Get();
-            TestField("Vendor Nos.");
-            ValidateNoSeriesExists("Vendor Nos.");
-            TestField("Quote Nos.");
-            ValidateNoSeriesExists("Quote Nos.");
-            TestField("Order Nos.");
-            ValidateNoSeriesExists("Order Nos.");
-            TestField("Invoice Nos.");
-            ValidateNoSeriesExists("Invoice Nos.");
-            TestField("Posted Invoice Nos.");
-            ValidateNoSeriesExists("Posted Invoice Nos.");
-            TestField("Credit Memo Nos.");
-            ValidateNoSeriesExists("Credit Memo Nos.");
-            TestField("Posted Credit Memo Nos.");
-            ValidateNoSeriesExists("Posted Credit Memo Nos.");
-            TestField("Posted Receipt Nos.");
-            ValidateNoSeriesExists("Posted Receipt Nos.");
-            TestField("Blanket Order Nos.");
-            ValidateNoSeriesExists("Blanket Order Nos.");
-            TestField("Return Order Nos.");
-            ValidateNoSeriesExists("Return Order Nos.");
-            TestField("Posted Return Shpt. Nos.");
-            ValidateNoSeriesExists("Posted Return Shpt. Nos.");
-        end;
+        PurchSetup.Get();
+        PurchSetup.TestField("Vendor Nos.");
+        ValidateNoSeriesExists(PurchSetup."Vendor Nos.");
+        PurchSetup.TestField("Quote Nos.");
+        ValidateNoSeriesExists(PurchSetup."Quote Nos.");
+        PurchSetup.TestField("Order Nos.");
+        ValidateNoSeriesExists(PurchSetup."Order Nos.");
+        PurchSetup.TestField("Invoice Nos.");
+        ValidateNoSeriesExists(PurchSetup."Invoice Nos.");
+        PurchSetup.TestField("Posted Invoice Nos.");
+        ValidateNoSeriesExists(PurchSetup."Posted Invoice Nos.");
+        PurchSetup.TestField("Credit Memo Nos.");
+        ValidateNoSeriesExists(PurchSetup."Credit Memo Nos.");
+        PurchSetup.TestField("Posted Credit Memo Nos.");
+        ValidateNoSeriesExists(PurchSetup."Posted Credit Memo Nos.");
+        PurchSetup.TestField("Posted Receipt Nos.");
+        ValidateNoSeriesExists(PurchSetup."Posted Receipt Nos.");
+        PurchSetup.TestField("Blanket Order Nos.");
+        ValidateNoSeriesExists(PurchSetup."Blanket Order Nos.");
+        PurchSetup.TestField("Return Order Nos.");
+        ValidateNoSeriesExists(PurchSetup."Return Order Nos.");
+        PurchSetup.TestField("Posted Return Shpt. Nos.");
+        ValidateNoSeriesExists(PurchSetup."Posted Return Shpt. Nos.");
     end;
 
     [Test]

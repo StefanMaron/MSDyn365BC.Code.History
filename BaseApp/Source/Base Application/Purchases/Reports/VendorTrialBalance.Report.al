@@ -197,10 +197,16 @@ report 329 "Vendor - Trial Balance"
         NetChangeCaptionLbl: Label 'Net Change';
         TotalinLCYCaptionLbl: Label 'Total in LCY';
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'It was not possible to find a %1 in %2.';
         Text003: Label 'Period: %1';
+#pragma warning restore AA0470
         Text004: Label 'Total for';
+#pragma warning disable AA0470
         Text005: Label 'Group Totals: %1';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     local procedure CalcAmounts(DateFrom: Date; DateTo: Date; var BeginBalance: Decimal; var DebitAmt: Decimal; var CreditAmt: Decimal; var TotalBalance: Decimal)
     var
