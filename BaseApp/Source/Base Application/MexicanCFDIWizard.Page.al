@@ -374,13 +374,14 @@ page 27010 "Mexican CFDI Wizard"
             Step := Step + 1;
 
         if (Step = Step::Company) and (not Backwards) then  // Came from Map step, need to run the mapping
-            MapSATInformation;
+            MapSATInformation();
         if (Step = Step::PaymentMethods) and (not Backwards) then // Came from Company Info setting, save the values
-            SetCompanyInformation;
-        if (Step = Step::Map) and (not Backwards) then // Came from Populate setting, save the values
-            SATUtilities.PopulateSATInformation;
-
-        EnableControls;
+            SetCompanyInformation();
+        if (Step = Step::Map) and (not Backwards) then begin// Came from Populate setting, save the values
+            SATUtilities.PopulateSATInformation();
+            SATUtilities.PopulatePACWebServiceData();
+        end;
+        EnableControls();
     end;
 
     local procedure ShowStartStep()

@@ -144,6 +144,11 @@ table 5404 "Item Unit of Measure"
         CheckNoEntriesWithUoM();
     end;
 
+    trigger OnInsert()
+    begin
+        TestField(Code);
+    end;
+
     trigger OnRename()
     begin
         TestItemUOM;

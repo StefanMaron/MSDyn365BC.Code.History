@@ -29,6 +29,7 @@
         NoRelationDocumentsExistErr: Label 'No relation documents specified for the replacement of previous CFDIs.';
         IfEmptyErr: Label '''%1'' in ''%2'' must not be blank.', Comment = '%1=caption of a field, %2=key of record';
         MustHaveValueErr: Label '%1 must have a value';
+        PACWebServiceTxt: Label 'PAC', Locked = true;
 
     [Test]
     [Scope('OnPrem')]
@@ -2346,6 +2347,54 @@
         asserterror CompanyInformationPage."RFC Number".SetValue(RFCNumber);
         Assert.ExpectedErrorCode('TestValidation');
         Assert.ExpectedError(StrSubstNo('%1 is not a valid RFC No.', RFCNumber));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PACWebServiceDetailsPopulateForBlankPACCodeInGLSetup()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        PACWebServiceDetail: Record "PAC Web Service Detail";
+        SATUtilities: Codeunit "SAT Utilities";
+    begin
+        // [FEATURE] [PAC Web Service]
+        // [SCENARIO 462312] Run SATUtilities.PopulatePACWebServiceData when PAC Code is blank in G/L Setup
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup."PAC Code" := '';
+        GeneralLedgerSetup.Modify();
+
+        SATUtilities.PopulatePACWebServiceData();
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup.TestField("PAC Code", PACWebServiceTxt);
+        PACWebServiceDetail.SetRange("PAC Code", PACWebServiceTxt);
+        PACWebServiceDetail.SetRange(Environment, PACWebServiceDetail.Environment::Production);
+        Assert.RecordCount(PACWebServiceDetail, 3);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PACWebServiceDetailsPopulateForExistingPACCodeInGLSetup()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        PACWebService: Record "PAC Web Service";
+        PACWebServiceDetail: Record "PAC Web Service Detail";
+        SATUtilities: Codeunit "SAT Utilities";
+    begin
+        // [FEATURE] [PAC Web Service]
+        // [SCENARIO 462312] Run SATUtilities.PopulatePACWebServiceData when PAC Code exists with one detail line
+        GeneralLedgerSetup.Get();
+        PACWebServiceDetail.Deleteall();
+        CreatePACSetup(PACWebService);
+        GeneralLedgerSetup."PAC Code" := PACWebService.Code;
+        GeneralLedgerSetup.Modify();
+        CreatePACDetails(PACWebService.Code, PACWebServiceDetail.Environment::Production);
+
+        SATUtilities.PopulatePACWebServiceData();
+        PACWebServiceDetail.SetRange("PAC Code", PACWebService.Code);
+        PACWebServiceDetail.SetRange(Environment, PACWebServiceDetail.Environment::Production);
+        Assert.RecordCount(PACWebServiceDetail, 3);
+        PACWebServiceDetail.SetRange("PAC Code", PACWebServiceTxt);
+        Assert.RecordIsEmpty(PACWebServiceDetail);
     end;
 
     local procedure Initialize()
