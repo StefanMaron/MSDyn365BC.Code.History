@@ -1,3 +1,5 @@
+namespace Microsoft.Finance.SalesTax;
+
 page 464 "Tax Area"
 {
     Caption = 'Tax Area';
@@ -11,7 +13,7 @@ page 464 "Tax Area"
             group(General)
             {
                 Caption = 'General';
-                field("Code"; Code)
+                field("Code"; Rec.Code)
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the code you want to assign to this tax area. You can enter up to 20 characters, both numbers and letters. It is a good idea to enter a code that is easy to remember.';
@@ -25,7 +27,7 @@ page 464 "Tax Area"
             part(Control7; "Tax Area Line")
             {
                 ApplicationArea = Basic, Suite;
-                SubPageLink = "Tax Area" = FIELD(Code);
+                SubPageLink = "Tax Area" = field(Code);
                 Visible = ShowTaxDetails;
             }
         }
@@ -51,8 +53,8 @@ page 464 "Tax Area"
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean
     begin
         if not ShowTaxDetails then
-            if Code <> '' then begin
-                CreateTaxArea(Code, '', '');
+            if Rec.Code <> '' then begin
+                Rec.CreateTaxArea(Rec.Code, '', '');
                 exit(false);
             end;
         exit(true);
@@ -68,7 +70,7 @@ page 464 "Tax Area"
         TaxAreaLine: Record "Tax Area Line";
     begin
         if ShowTaxDetails and (CloseAction in [ACTION::OK, ACTION::LookupOK]) then begin
-            TaxAreaLine.SetRange("Tax Area", Code);
+            TaxAreaLine.SetRange("Tax Area", Rec.Code);
             if not TaxAreaLine.FindFirst() then
                 if not Confirm(TaxAreaNotSetupQst, false) then
                     Error('');

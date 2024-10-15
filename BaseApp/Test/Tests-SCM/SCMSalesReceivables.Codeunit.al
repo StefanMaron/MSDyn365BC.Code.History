@@ -775,41 +775,54 @@ codeunit 137062 "SCM Sales & Receivables"
     [Test]
     [Scope('OnPrem')]
     procedure ItemReferenceOnPurchase()
+    var
+        Item: Record Item;
+        ItemReference: Record "Item Reference";
+        PurchaseHeader: Record "Purchase Header";
+        DocumentNo: Code[20];
     begin
-        // Setup.
         Initialize(true);
-        SalesPurchaseItemReferenceNo(false);  // Discontinue- False.
+
+        // [GIVEN] An Item with Item Reference exist
+        LibraryInventory.CreateItem(Item);
+        LibraryItemReference.CreateItemReference(
+          ItemReference, Item."No.", ItemReference."Reference Type"::"Bar Code", '');
+
+        // [GIVEN] Purchase Order with the item with the reference exist
+        CreatePurchaseOrderWithItemRefNo(ItemReference, PurchaseHeader);
+
+        // [WHEN] Post Purchase Order with Receive only.
+        DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
+
+        // [THEN] Item Ledger Entry has item reference
+        VerifyItemRefNoInItemLedgerEntry(Enum::"Item Ledger Document Type"::"Purchase Receipt", DocumentNo, ItemReference."Reference No.");
     end;
 
     [Test]
     [Scope('OnPrem')]
-    procedure ItemReferenceErrorOnSales()
-    begin
-        // Setup.
-        Initialize(true);
-        SalesPurchaseItemReferenceNo(true);  // Discontinue- True.
-    end;
-
-    local procedure SalesPurchaseItemReferenceNo(DiscontinueRefNo: Boolean)
+    procedure ItemReferenceOnSales()
     var
         Item: Record Item;
         ItemReference: Record "Item Reference";
         SalesLine: Record "Sales Line";
         SalesHeader: Record "Sales Header";
-        PurchaseHeader: Record "Purchase Header";
         DocumentNo: Code[20];
     begin
-        // Create an Item with Item Reference.Create and Post a Purchase Order as Receive with Item Ref. No.
+        Initialize(true);
+
+        // [GIVEN] An Item with Item Reference exist
         LibraryInventory.CreateItem(Item);
         LibraryItemReference.CreateItemReference(
           ItemReference, Item."No.", ItemReference."Reference Type"::"Bar Code", '');
-        CreatePurchaseOrderWithItemRefNo(ItemReference, PurchaseHeader);
 
-        // Exercise: Post Purchase Order with Receive only.
-        DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
+        // [GIVEN] Sales Order with the item with the reference exist
+        CreateSalesOrderWithItemRefNo(ItemReference, SalesHeader);
 
-        // Verify: Check posted entry for Item Reference No.
-        VerifyItemRefNoInItemLedgerEntry(DocumentNo, ItemReference."Reference No.");
+        // [WHEN] Post Sales Order with Ship only.
+        DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, false);
+
+        // [THEN] Item Ledger Entry has item reference
+        VerifyItemRefNoInItemLedgerEntry(Enum::"Item Ledger Document Type"::"Sales Shipment", DocumentNo, ItemReference."Reference No.");
     end;
 
     [Test]
@@ -1596,7 +1609,6 @@ codeunit 137062 "SCM Sales & Receivables"
     var
         PurchaseLine: Record "Purchase Line";
     begin
-        // Create and Post Purchase Order
         CreatePurchaseDocument(
           PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '',
           ItemReference."Item No.", LibraryRandom.RandDec(10, 2));
@@ -1604,6 +1616,18 @@ codeunit 137062 "SCM Sales & Receivables"
         PurchaseLine.Validate("Unit Cost (LCY)", LibraryRandom.RandDec(10, 2));
         PurchaseLine.Modify(true);
     end;
+
+    local procedure CreateSalesOrderWithItemRefNo(ItemReference: Record "Item Reference"; var SalesHeader: Record "Sales Header")
+    var
+        SalesLine: Record "Sales Line";
+    begin
+        CreateSalesDocument(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '',
+          ItemReference."Item No.", LibraryRandom.RandDec(10, 2));
+        SalesLine.Validate("Item Reference No.", ItemReference."Reference No.");
+        SalesLine.Modify(true);
+    end;
+
 
     local procedure UpdateItemRefNoSalesLine(SalesLine: Record "Sales Line"; ReferenceNo: Code[20])
     begin
@@ -1825,12 +1849,12 @@ codeunit 137062 "SCM Sales & Receivables"
         ValueEntry.TestField("Sales Amount (Actual)", SalesInvoiceLine.Amount);
     end;
 
-    local procedure VerifyItemRefNoInItemLedgerEntry(DocumentNo: Code[20]; ReferenceNo: Code[20])
+    local procedure VerifyItemRefNoInItemLedgerEntry(ItemLedgerEntryDocumentType: Enum "Item Ledger Document Type"; DocumentNo: Code[20]; ReferenceNo: Code[20])
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
         // Verify Item Reference No. in Item Ledger Entry for Posted Receipt.
-        ItemLedgerEntry.SetRange("Document Type", ItemLedgerEntry."Document Type"::"Purchase Receipt");
+        ItemLedgerEntry.SetRange("Document Type", ItemLedgerEntryDocumentType);
         ItemLedgerEntry.SetRange("Document No.", DocumentNo);
         ItemLedgerEntry.FindFirst();
         ItemLedgerEntry.TestField("Item Reference No.", ReferenceNo);

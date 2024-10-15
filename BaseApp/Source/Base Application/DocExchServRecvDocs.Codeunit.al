@@ -1,3 +1,5 @@
+namespace Microsoft.EServices.EDocument;
+
 codeunit 1421 "Doc. Exch. Serv. - Recv. Docs."
 {
 

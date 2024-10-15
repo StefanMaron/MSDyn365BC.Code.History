@@ -1,3 +1,8 @@
+namespace Microsoft.Warehouse.Setup;
+
+using Microsoft.Inventory.Item;
+using Microsoft.Inventory.Tracking;
+
 page 9109 "Item Warehouse FactBox"
 {
     Caption = 'Item Details - Warehouse';
@@ -48,7 +53,7 @@ page 9109 "Item Warehouse FactBox"
                 var
                     ItemTrackCode: Record "Item Tracking Code";
                 begin
-                    ItemTrackCode.SetFilter(Code, "Item Tracking Code");
+                    ItemTrackCode.SetFilter(Code, Rec."Item Tracking Code");
 
                     PAGE.Run(PAGE::"Item Tracking Code Card", ItemTrackCode);
                 end;
@@ -96,7 +101,7 @@ page 9109 "Item Warehouse FactBox"
     var
         ItemBaseUOM: Record "Item Unit of Measure";
     begin
-        if ItemBaseUOM.Get("No.", "Base Unit of Measure") then
+        if ItemBaseUOM.Get(Rec."No.", Rec."Base Unit of Measure") then
             exit(ItemBaseUOM.Weight);
 
         exit(0);

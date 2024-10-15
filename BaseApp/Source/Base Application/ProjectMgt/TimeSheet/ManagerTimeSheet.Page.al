@@ -1,4 +1,12 @@
-﻿page 952 "Manager Time Sheet"
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Projects.TimeSheet;
+
+using System.Utilities;
+
+page 952 "Manager Time Sheet"
 {
     AutoSplitKey = true;
     Caption = 'Manager Time Sheet';
@@ -99,7 +107,7 @@
 
                     trigger OnAssistEdit()
                     begin
-                        ShowLineDetails(true);
+                        Rec.ShowLineDetails(true);
                         CurrPage.Update();
                     end;
                 }
@@ -110,7 +118,7 @@
                     ToolTip = 'Specifies a list of standard absence codes, from which you may select one.';
                     Visible = false;
                 }
-                field(Chargeable; Chargeable)
+                field(Chargeable; Rec.Chargeable)
                 {
                     ApplicationArea = Jobs;
                     Editable = ChargeableAllowEdit;
@@ -137,7 +145,7 @@
                     ToolTip = 'Specifies the assembly order number that is associated with the time sheet line.';
                     Visible = false;
                 }
-                field(Posted; Posted)
+                field(Posted; Rec.Posted)
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies whether a time sheet line has been posted completely.';
@@ -236,8 +244,8 @@
             {
                 ApplicationArea = Jobs;
                 Caption = 'Activity Details';
-                SubPageLink = "Time Sheet No." = FIELD("Time Sheet No."),
-                              "Line No." = FIELD("Line No.");
+                SubPageLink = "Time Sheet No." = field("Time Sheet No."),
+                              "Line No." = field("Line No.");
             }
         }
     }
@@ -289,7 +297,7 @@
 
                     trigger OnAction()
                     begin
-                        TimeSheetMgt.ShowPostingEntries("Time Sheet No.", "Line No.");
+                        TimeSheetMgt.ShowPostingEntries(Rec."Time Sheet No.", Rec."Line No.");
                     end;
                 }
                 action("Activity &Details")
@@ -302,7 +310,7 @@
 
                     trigger OnAction()
                     begin
-                        ShowLineDetails(true);
+                        Rec.ShowLineDetails(true);
                     end;
                 }
             }
@@ -316,8 +324,8 @@
                     Caption = '&Time Sheet Comments';
                     Image = ViewComments;
                     RunObject = Page "Time Sheet Comment Sheet";
-                    RunPageLink = "No." = FIELD("Time Sheet No."),
-                                  "Time Sheet Line No." = CONST(0);
+                    RunPageLink = "No." = field("Time Sheet No."),
+                                  "Time Sheet Line No." = const(0);
                     ToolTip = 'View comments about the time sheet.';
                 }
                 action(LineComments)
@@ -326,8 +334,8 @@
                     Caption = '&Line Comments';
                     Image = ViewComments;
                     RunObject = Page "Time Sheet Comment Sheet";
-                    RunPageLink = "No." = FIELD("Time Sheet No."),
-                                  "Time Sheet Line No." = FIELD("Line No.");
+                    RunPageLink = "No." = field("Time Sheet No."),
+                                  "Time Sheet Line No." = field("Line No.");
                     ToolTip = 'View or create comments.';
                 }
             }
@@ -444,8 +452,8 @@
 
     trigger OnOpenPage()
     begin
-        if "Time Sheet No." <> '' then
-            CurrTimeSheetNo := "Time Sheet No."
+        if Rec."Time Sheet No." <> '' then
+            CurrTimeSheetNo := Rec."Time Sheet No."
         else
             CurrTimeSheetNo := TimeSheetHeader.FindLastTimeSheetNo(TimeSheetHeader.FieldNo("Approver User ID"));
 
@@ -498,9 +506,9 @@
         i := 0;
         while i < NoOfColumns do begin
             i := i + 1;
-            if ("Line No." <> 0) and TimeSheetDetail.Get(
-                 "Time Sheet No.",
-                 "Line No.",
+            if (Rec."Line No." <> 0) and TimeSheetDetail.Get(
+                 Rec."Time Sheet No.",
+                 Rec."Line No.",
                  ColumnRecords[i]."Period Start")
             then
                 CellData[i] := TimeSheetDetail.Quantity
@@ -508,8 +516,8 @@
                 CellData[i] := 0;
         end;
         UpdateFactBoxes();
-        WorkTypeCodeAllowEdit := GetAllowEdit(FieldNo("Work Type Code"), true);
-        ChargeableAllowEdit := GetAllowEdit(FieldNo(Chargeable), true);
+        WorkTypeCodeAllowEdit := Rec.GetAllowEdit(Rec.FieldNo("Work Type Code"), true);
+        ChargeableAllowEdit := Rec.GetAllowEdit(Rec.FieldNo(Chargeable), true);
     end;
 
     local procedure FindTimeSheet(Which: Option)
@@ -523,7 +531,7 @@
     begin
         CurrPage.ActualSchedSummaryFactBox.PAGE.UpdateData(TimeSheetHeader);
         CurrPage.TimeSheetStatusFactBox.PAGE.UpdateData(TimeSheetHeader);
-        if "Line No." = 0 then
+        if Rec."Line No." = 0 then
             CurrPage.ActivityDetailsFactBox.PAGE.SetEmptyLine();
     end;
 

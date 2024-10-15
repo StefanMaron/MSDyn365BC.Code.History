@@ -1,3 +1,12 @@
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Integration.PowerBI;
+
+using Microsoft.Projects.Project.Analysis;
+using Microsoft.Projects.Project.Job;
+
 codeunit 6308 "PBI Job Chart Calc."
 {
 

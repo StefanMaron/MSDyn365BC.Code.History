@@ -881,9 +881,6 @@ codeunit 131102 "Library - Application Area"
         ApplicationAreaSetup.TestField(Dimensions, Value);
         ApplicationAreaSetup.TestField("Order Promising", Value);
         ApplicationAreaSetup.TestField(Reservation, Value);
-#if not CLEAN20
-        ApplicationAreaSetup.TestField(XBRL, Value);
-#endif
         ApplicationAreaSetup.TestField(ADCS, Value);
         ApplicationAreaSetup.TestField(Planning, Value);
         ApplicationAreaSetup.TestField(Comments, Value);

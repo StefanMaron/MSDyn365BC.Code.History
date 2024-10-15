@@ -1,10 +1,12 @@
+namespace Microsoft.Finance.Dimension;
+
 page 545 "Dim. Values per Account"
 {
     Caption = 'Dimension Values per Account';
     DataCaptionFields = "Dimension Code";
     PageType = List;
     SourceTable = "Default Dimension";
-    SourceTableView = WHERE("Value Posting" = CONST("Code Mandatory"));
+    SourceTableView = where("Value Posting" = const("Code Mandatory"));
     InsertAllowed = false;
 
     layout
@@ -13,7 +15,7 @@ page 545 "Dim. Values per Account"
         {
             repeater(GroupName)
             {
-                field(TableID; "Table ID")
+                field(TableID; Rec."Table ID")
                 {
                     ApplicationArea = Dimensions;
                     Editable = false;
@@ -25,13 +27,13 @@ page 545 "Dim. Values per Account"
                     DrillDown = false;
                     ToolTip = 'Specifies the table name for the account type you wish to define a default dimension for.';
                 }
-                field(AccountNo; "No.")
+                field(AccountNo; Rec."No.")
                 {
                     ApplicationArea = Dimensions;
                     Editable = false;
                     ToolTip = 'Specifies the account number you wish to define a default dimension for.';
                 }
-                field(AllowedValues; "Allowed Values Filter")
+                field(AllowedValues; Rec."Allowed Values Filter")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the dimension values that can be used for the selected account.';

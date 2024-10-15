@@ -793,11 +793,20 @@ codeunit 141007 "ERM GST APAC"
     end;
 
     local procedure Initialize()
+    var
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
         LibrarySetupStorage.Restore();
 
         if IsInitialized then
             exit;
+        PurchasesPayablesSetup.Get();
+        PurchasesPayablesSetup.Validate("Link Doc. Date To Posting Date", true);
+        PurchasesPayablesSetup.Modify();
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup.Validate("Link Doc. Date To Posting Date", true);
+        SalesReceivablesSetup.Modify();
 
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         IsInitialized := true;

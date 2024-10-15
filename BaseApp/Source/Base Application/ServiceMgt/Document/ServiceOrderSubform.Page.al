@@ -1,3 +1,14 @@
+namespace Microsoft.Service.Document;
+
+using Microsoft.Finance.Dimension;
+using Microsoft.Inventory.Item;
+using Microsoft.Service.Item;
+using Microsoft.Service.Loaner;
+using Microsoft.Service.Maintenance;
+using Microsoft.Service.Pricing;
+using Microsoft.Service.Resources;
+using Microsoft.Service.Setup;
+
 page 5902 "Service Order Subform"
 {
     AutoSplitKey = true;
@@ -6,7 +17,7 @@ page 5902 "Service Order Subform"
     LinksAllowed = false;
     PageType = ListPart;
     SourceTable = "Service Item Line";
-    SourceTableView = WHERE("Document Type" = CONST(Order));
+    SourceTableView = where("Document Type" = const(Order));
 
     layout
     {
@@ -21,7 +32,7 @@ page 5902 "Service Order Subform"
                     ToolTip = 'Specifies the number of the line.';
                     Visible = false;
                 }
-                field(ServiceItemNo; "Service Item No.")
+                field(ServiceItemNo; Rec."Service Item No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the service item number registered in the Service Item table.';
@@ -31,7 +42,7 @@ page 5902 "Service Order Subform"
                         ServOrderMgt: Codeunit ServOrderManagement;
                     begin
                         ServOrderMgt.LookupServItemNo(Rec);
-                        if xRec.Get("Document Type", "Document No.", "Line No.") then;
+                        if xRec.Get(Rec."Document Type", Rec."Document No.", Rec."Line No.") then;
                     end;
                 }
                 field("Item No."; Rec."Item No.")
@@ -64,7 +75,7 @@ page 5902 "Service Order Subform"
 
                     trigger OnAssistEdit()
                     begin
-                        AssistEditSerialNo();
+                        Rec.AssistEditSerialNo();
                     end;
                 }
                 field(Description; Rec.Description)
@@ -89,7 +100,7 @@ page 5902 "Service Order Subform"
                     ToolTip = 'Specifies the number of the service shelf this item is stored on.';
                     Visible = false;
                 }
-                field(Warranty; Warranty)
+                field(Warranty; Rec.Warranty)
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies that warranty on either parts or labor exists for this item.';
@@ -182,7 +193,7 @@ page 5902 "Service Order Subform"
                     ToolTip = 'Specifies the resolution code for this item.';
                     Visible = ResolutionCodeVisible;
                 }
-                field(Priority; Priority)
+                field(Priority; Rec.Priority)
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the service priority for this item.';
@@ -328,7 +339,7 @@ page 5902 "Service Order Subform"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions();
+                        Rec.ShowDimensions();
                     end;
                 }
                 group("Co&mments")
@@ -344,7 +355,7 @@ page 5902 "Service Order Subform"
 
                         trigger OnAction()
                         begin
-                            ShowComments(1);
+                            Rec.ShowComments(1);
                         end;
                     }
                     action(Resolutions)
@@ -356,7 +367,7 @@ page 5902 "Service Order Subform"
 
                         trigger OnAction()
                         begin
-                            ShowComments(2);
+                            Rec.ShowComments(2);
                         end;
                     }
                     action(Internal)
@@ -368,7 +379,7 @@ page 5902 "Service Order Subform"
 
                         trigger OnAction()
                         begin
-                            ShowComments(4);
+                            Rec.ShowComments(4);
                         end;
                     }
                     action(Accessories)
@@ -380,7 +391,7 @@ page 5902 "Service Order Subform"
 
                         trigger OnAction()
                         begin
-                            ShowComments(3);
+                            Rec.ShowComments(3);
                         end;
                     }
                     action("Lent Loaners")
@@ -391,7 +402,7 @@ page 5902 "Service Order Subform"
 
                         trigger OnAction()
                         begin
-                            ShowComments(5);
+                            Rec.ShowComments(5);
                         end;
                     }
                 }
@@ -484,19 +495,19 @@ page 5902 "Service Order Subform"
 
     trigger OnAfterGetCurrRecord()
     begin
-        if "Serial No." = '' then
-            "No. of Previous Services" := 0;
+        if Rec."Serial No." = '' then
+            Rec."No. of Previous Services" := 0;
     end;
 
     trigger OnAfterGetRecord()
     begin
-        if "Serial No." = '' then
-            "No. of Previous Services" := 0;
+        if Rec."Serial No." = '' then
+            Rec."No. of Previous Services" := 0;
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        SetUpNewLine();
+        Rec.SetUpNewLine();
     end;
 
     trigger OnOpenPage()
@@ -537,13 +548,9 @@ page 5902 "Service Order Subform"
     var
         ServMgtSetup: Record "Service Mgt. Setup";
         ServLoanerMgt: Codeunit ServLoanerManagement;
-        [InDataSet]
         FaultAreaCodeVisible: Boolean;
-        [InDataSet]
         SymptomCodeVisible: Boolean;
-        [InDataSet]
         FaultCodeVisible: Boolean;
-        [InDataSet]
         ResolutionCodeVisible: Boolean;
         Text000: Label 'You cannot open the window because %1 is %2 in the %3 table.';
 
@@ -552,14 +559,14 @@ page 5902 "Service Order Subform"
         ServInvLine: Record "Service Line";
         ServInvLines: Page "Service Lines";
     begin
-        TestField("Document No.");
-        TestField("Line No.");
+        Rec.TestField("Document No.");
+        Rec.TestField("Line No.");
         Clear(ServInvLine);
-        ServInvLine.SetRange("Document Type", "Document Type");
-        ServInvLine.SetRange("Document No.", "Document No.");
+        ServInvLine.SetRange("Document Type", Rec."Document Type");
+        ServInvLine.SetRange("Document No.", Rec."Document No.");
         ServInvLine.FilterGroup(2);
         Clear(ServInvLines);
-        ServInvLines.Initialize("Line No.");
+        ServInvLines.Initialize(Rec."Line No.");
         ServInvLines.SetTableView(ServInvLine);
         ServInvLines.RunModal();
         ServInvLine.FilterGroup(0);
@@ -569,14 +576,14 @@ page 5902 "Service Order Subform"
     var
         ServItemLine: Record "Service Item Line";
     begin
-        TestField("Document No.");
-        TestField("Line No.");
+        Rec.TestField("Document No.");
+        Rec.TestField("Line No.");
 
         Clear(ServItemLine);
-        ServItemLine.SetRange("Document Type", "Document Type");
-        ServItemLine.SetRange("Document No.", "Document No.");
+        ServItemLine.SetRange("Document Type", Rec."Document Type");
+        ServItemLine.SetRange("Document No.", Rec."Document No.");
         ServItemLine.FilterGroup(2);
-        ServItemLine.SetRange("Line No.", "Line No.");
+        ServItemLine.SetRange("Line No.", Rec."Line No.");
         PAGE.RunModal(PAGE::"Service Item Worksheet", ServItemLine);
         ServItemLine.FilterGroup(0);
     end;
@@ -586,16 +593,16 @@ page 5902 "Service Order Subform"
         ServOrderAlloc: Record "Service Order Allocation";
         ResAlloc: Page "Resource Allocations";
     begin
-        TestField("Document No.");
-        TestField("Line No.");
+        Rec.TestField("Document No.");
+        Rec.TestField("Line No.");
         ServOrderAlloc.Reset();
         ServOrderAlloc.SetCurrentKey("Document Type", "Document No.", "Service Item Line No.");
         ServOrderAlloc.FilterGroup(2);
         ServOrderAlloc.SetFilter(Status, '<>%1', ServOrderAlloc.Status::Canceled);
-        ServOrderAlloc.SetRange("Document Type", "Document Type");
-        ServOrderAlloc.SetRange("Document No.", "Document No.");
+        ServOrderAlloc.SetRange("Document Type", Rec."Document Type");
+        ServOrderAlloc.SetRange("Document No.", Rec."Document No.");
         ServOrderAlloc.FilterGroup(0);
-        ServOrderAlloc.SetRange("Service Item Line No.", "Line No.");
+        ServOrderAlloc.SetRange("Service Item Line No.", Rec."Line No.");
         if ServOrderAlloc.FindFirst() then;
         ServOrderAlloc.SetRange("Service Item Line No.");
         Clear(ResAlloc);
@@ -614,9 +621,9 @@ page 5902 "Service Order Subform"
     var
         ServItemLog: Record "Service Item Log";
     begin
-        TestField("Service Item No.");
+        Rec.TestField("Service Item No.");
         Clear(ServItemLog);
-        ServItemLog.SetRange("Service Item No.", "Service Item No.");
+        ServItemLog.SetRange("Service Item No.", Rec."Service Item No.");
         PAGE.RunModal(PAGE::"Service Item Log", ServItemLog);
     end;
 
@@ -641,8 +648,8 @@ page 5902 "Service Order Subform"
                   ServSetup."Fault Reporting Level", ServSetup.TableCaption());
         end;
         Clear(FaultResolutionRelation);
-        FaultResolutionRelation.SetDocument(DATABASE::"Service Item Line", "Document Type".AsInteger(), "Document No.", "Line No.");
-        FaultResolutionRelation.SetFilters("Symptom Code", "Fault Code", "Fault Area Code", "Service Item Group Code");
+        FaultResolutionRelation.SetDocument(DATABASE::"Service Item Line", Rec."Document Type".AsInteger(), Rec."Document No.", Rec."Line No.");
+        FaultResolutionRelation.SetFilters(Rec."Symptom Code", Rec."Fault Code", Rec."Fault Area Code", Rec."Service Item Group Code");
         FaultResolutionRelation.RunModal();
         CurrPage.Update(false);
     end;
@@ -659,9 +666,9 @@ page 5902 "Service Order Subform"
         Item: Record Item;
         ServItemMgt: Codeunit ServItemManagement;
     begin
-        if Item.Get("Item No.") then
-            if (Item."Replenishment System" <> Item."Replenishment System"::"Prod. Order") and Warranty then
-                TestField("Vendor No.");
+        if Item.Get(Rec."Item No.") then
+            if (Item."Replenishment System" <> Item."Replenishment System"::"Prod. Order") and Rec.Warranty then
+                Rec.TestField("Vendor No.");
         ServItemMgt.CreateServItemOnServItemLine(Rec);
     end;
 

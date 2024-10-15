@@ -1,3 +1,5 @@
+namespace Microsoft.Finance.Currency;
+
 table 264 "Currency Amount"
 {
     Caption = 'Currency Amount';
@@ -15,7 +17,7 @@ table 264 "Currency Amount"
         }
         field(3; Amount; Decimal)
         {
-            AutoFormatExpression = "Currency Code";
+            AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             Caption = 'Amount';
         }

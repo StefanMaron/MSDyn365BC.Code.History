@@ -1,3 +1,5 @@
+namespace Microsoft.Manufacturing.Routing;
+
 table 99000775 "Routing Comment Line"
 {
     Caption = 'Routing Comment Line';
@@ -16,8 +18,8 @@ table 99000775 "Routing Comment Line"
         {
             Caption = 'Operation No.';
             NotBlank = true;
-            TableRelation = "Routing Line"."Operation No." WHERE("Routing No." = FIELD("Routing No."),
-                                                                  "Version Code" = FIELD("Version Code"));
+            TableRelation = "Routing Line"."Operation No." where("Routing No." = field("Routing No."),
+                                                                  "Version Code" = field("Version Code"));
         }
         field(3; "Line No."; Integer)
         {
@@ -26,7 +28,7 @@ table 99000775 "Routing Comment Line"
         field(4; "Version Code"; Code[20])
         {
             Caption = 'Version Code';
-            TableRelation = "Routing Version"."Version Code" WHERE("Routing No." = FIELD("Routing No."));
+            TableRelation = "Routing Version"."Version Code" where("Routing No." = field("Routing No."));
         }
         field(10; Date; Date)
         {

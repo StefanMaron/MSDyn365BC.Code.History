@@ -1,3 +1,12 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace System.Apps;
+
+using System.Environment;
+using System.Utilities;
+
 page 1834 "Teams Individual Deployment"
 {
     Caption = 'Get the Business Central App for Teams';

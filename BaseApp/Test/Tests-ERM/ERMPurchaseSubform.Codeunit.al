@@ -4354,7 +4354,7 @@ codeunit 134394 "ERM Purchase Subform"
         // [GIVEN] Purchase Order
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
 
-        // [GIVEN] Purchase Line
+        // [GIVEN] Purchase Line       
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::"Fixed Asset", '', LibraryRandom.RandInt(10));
 
         // [WHEN] Pay-To Vendor Updated

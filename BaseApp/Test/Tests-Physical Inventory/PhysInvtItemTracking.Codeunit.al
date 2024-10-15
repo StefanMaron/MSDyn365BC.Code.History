@@ -24,7 +24,7 @@ codeunit 137460 "Phys. Invt. Item Tracking"
         RoundingTo0Err: Label 'Rounding of the field';
         RoundingErr: Label 'is of lesser precision than expected';
         LinesCreatedMsg: Label '%1 new lines have been created.', Comment = '%1 = counter';
-        BlockedItemMsg: Label 'There is at least one blocked item that was skipped.';
+        BlockedItemMsg: Label 'There is at least one blocked item or item variant that was skipped.';//'There is at least one blocked item that was skipped.';
 
     [Test]
     [HandlerFunctions('ItemTrackingPageHandler,CalcPhysOrderLinesRequestPageHandler,CalculateQuantityExpectedStrMenuHandler,ConfirmHandlerTRUE,PostedItemTrackingLinesPageHandler,PostExpPhInTrackListPageHandler,MessageHandler')]
@@ -412,7 +412,7 @@ codeunit 137460 "Phys. Invt. Item Tracking"
         LibraryInventory.CreatePhysInvtOrderHeader(PhysInvtOrderHeader);
 
         // [WHEN] Run report Calc. Phys. Invt. Order Lines for the Item with Calc. Qty. Expected enabled
-        CalcPhysInvtOrderLinesWithCalcQtyExpected(PhysInvtOrderHeader, ItemNo, true);
+        CalcPhysInvtOrderLines(PhysInvtOrderHeader, ItemNo, '', true, true, false);
 
         // [THEN] Phys. Invt. Order Line is created with 10 PCS and Bin "B1"
         PhysInvtOrderLine.SetRange("Document No.", PhysInvtOrderHeader."No.");
@@ -730,7 +730,7 @@ codeunit 137460 "Phys. Invt. Item Tracking"
 
         // [GIVEN] Create physical inventory order, calculate lines.
         LibraryInventory.CreatePhysInvtOrderHeader(PhysInvtOrderHeader);
-        CalcPhysInvtOrderLinesWithCalcQtyExpected(PhysInvtOrderHeader, Item."No.", true);
+        CalcPhysInvtOrderLines(PhysInvtOrderHeader, Item."No.", '', true, true, false);
 
         // [GIVEN] Create phys. inventory recording for 15 pcs, select lot no. "L".
         // [GIVEN] Finish the recording.
@@ -782,7 +782,7 @@ codeunit 137460 "Phys. Invt. Item Tracking"
 
         // [GIVEN] Create physical inventory order, calculate lines.
         LibraryInventory.CreatePhysInvtOrderHeader(PhysInvtOrderHeader);
-        CalcPhysInvtOrderLinesWithCalcQtyExpected(PhysInvtOrderHeader, Item."No.", true);
+        CalcPhysInvtOrderLines(PhysInvtOrderHeader, Item."No.", '', true, true, false);
 
         // [GIVEN] Create phys. inventory recording for 15 pcs, select lot no. "L".
         // [GIVEN] Add additional Phys. Inventory recording with Serial No. and quantity 1.
@@ -817,6 +817,242 @@ codeunit 137460 "Phys. Invt. Item Tracking"
         // [THEN] The physical inventory order is successfully posted.
         PstdPhysInvtOrderHeader.SetRange("Pre-Assigned No.", PhysInvtOrderHeader."No.");
         Assert.RecordCount(PstdPhysInvtOrderHeader, 1);
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    procedure CalcPhysInvtOrderLinesForItemWithoutTransactionsWithItemWithoutTransactionsLocationMandatory()
+    var
+        Item: Record Item;
+        PhysInvtOrderHeader: Record "Phys. Invt. Order Header";
+        PhysInvtOrderLine: Record "Phys. Invt. Order Line";
+    begin
+        Initialize();
+
+        // [GIVEN] Location is mandatory
+        SetLocationMandatory(true);
+
+        // [GIVEN] Item exists
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Physical Inventory Order
+        LibraryInventory.CreatePhysInvtOrderHeader(PhysInvtOrderHeader);
+
+        // [WHEN] Run report Calc. Physical Inventory Order Lines for the Item with Include Items With No Transactions enabled
+        CalcPhysInvtOrderLines(PhysInvtOrderHeader, Item."No.", '', true, true, true);
+
+        // [THEN] Physical Inventory Order Line is created for every location without mandatory bin
+        PhysInvtOrderLine.SetRange("Document No.", PhysInvtOrderHeader."No.");
+        Assert.RecordCount(PhysInvtOrderLine, GetNoOfLocationsWithoutBinMandatory());
+
+        // [THEN] Physical Inventory Order Lines are created with 0 PCS 
+        PhysInvtOrderLine.FindSet();
+        repeat
+            PhysInvtOrderLine.TestField("Qty. Expected (Base)", 0);
+        until PhysInvtOrderLine.Next() = 0;
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    procedure CalcPhysInvtOrderLinesForItemWithoutTransactionsWithItemWithoutTransactionsLocationNotMandatory()
+    var
+        Item: Record Item;
+        PhysInvtOrderHeader: Record "Phys. Invt. Order Header";
+        PhysInvtOrderLine: Record "Phys. Invt. Order Line";
+    begin
+        Initialize();
+
+        // [GIVEN] Location is not mandatory
+        SetLocationMandatory(false);
+
+        // [GIVEN] Item exists
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Physical Inventory Order
+        LibraryInventory.CreatePhysInvtOrderHeader(PhysInvtOrderHeader);
+
+        // [WHEN] Run report Calc. Physical Inventory Order Lines for the Item with Include Items With No Transactions enabled
+        CalcPhysInvtOrderLines(PhysInvtOrderHeader, Item."No.", '', true, true, true);
+
+        // [THEN] Physical Inventory Order Line is created for every location without mandatory bin + for empty location
+        PhysInvtOrderLine.SetRange("Document No.", PhysInvtOrderHeader."No.");
+        Assert.RecordCount(PhysInvtOrderLine, (GetNoOfLocationsWithoutBinMandatory() + 1));
+
+        // [THEN] Physical Inventory Order Lines are created with 0 PCS 
+        PhysInvtOrderLine.FindSet();
+        repeat
+            PhysInvtOrderLine.TestField("Qty. Expected (Base)", 0);
+        until PhysInvtOrderLine.Next() = 0;
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    procedure CalcPhysInvtOrderLinesForItemVariantsWithoutTransactionsWithItemVariantsWithoutTransactionsLocationMandatory()
+    var
+        Item: Record Item;
+        ItemVariant: Record "Item Variant";
+        PhysInvtOrderHeader: Record "Phys. Invt. Order Header";
+        PhysInvtOrderLine: Record "Phys. Invt. Order Line";
+    begin
+        Initialize();
+
+        // [GIVEN] Location is mandatory
+        SetLocationMandatory(true);
+
+        // [GIVEN] Item exists with variant not mandatory
+        LibraryInventory.CreateItem(Item);
+        SetVariantMandatory(Item, false);
+
+        // [GIVEN] Two different item variants exist
+        LibraryInventory.CreateItemVariant(ItemVariant, Item."No.");
+        Clear(ItemVariant);
+        LibraryInventory.CreateItemVariant(ItemVariant, Item."No.");
+
+        // [GIVEN] Physical Inventory Order
+        LibraryInventory.CreatePhysInvtOrderHeader(PhysInvtOrderHeader);
+
+        // [WHEN] Run report Calc. Physical Inventory Order Lines for the Item with Include Item Variants With No Transactions enabled
+        CalcPhysInvtOrderLines(PhysInvtOrderHeader, Item."No.", '', true, true, true);
+
+        // [THEN] Physical Inventory Order Lines are created for all combinations of locations and variants and for item without variant code
+        PhysInvtOrderLine.SetRange("Document No.", PhysInvtOrderHeader."No.");
+        Assert.RecordCount(PhysInvtOrderLine, 3 * GetNoOfLocationsWithoutBinMandatory());
+
+        // [THEN] Physical Inventory Order Lines are created with 0 PCS 
+        PhysInvtOrderLine.FindSet();
+        repeat
+            PhysInvtOrderLine.TestField("Qty. Expected (Base)", 0);
+        until PhysInvtOrderLine.Next() = 0;
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    procedure CalcPhysInvtOrderLinesForItemVariantsWithoutTransactionsWithItemVariantsWithoutTransactionsLocationNotMandatory()
+    var
+        Item: Record Item;
+        ItemVariant: Record "Item Variant";
+        PhysInvtOrderHeader: Record "Phys. Invt. Order Header";
+        PhysInvtOrderLine: Record "Phys. Invt. Order Line";
+    begin
+        Initialize();
+
+        // [GIVEN] Location is mandatory
+        SetLocationMandatory(false);
+
+        // [GIVEN] Item exists with variant not mandatory
+        LibraryInventory.CreateItem(Item);
+        SetVariantMandatory(Item, false);
+
+        // [GIVEN] Two different item variants exist
+        LibraryInventory.CreateItemVariant(ItemVariant, Item."No.");
+        Clear(ItemVariant);
+        LibraryInventory.CreateItemVariant(ItemVariant, Item."No.");
+
+        // [GIVEN] Physical Inventory Order
+        LibraryInventory.CreatePhysInvtOrderHeader(PhysInvtOrderHeader);
+
+        // [WHEN] Run report Calc. Physical Inventory Order Lines for the Item with Include Item Variants With No Transactions enabled
+        CalcPhysInvtOrderLines(PhysInvtOrderHeader, Item."No.", '', true, true, true);
+
+        // [THEN] Physical Inventory Order Lines are created for all combinations of locations and variants and for item without variant code + for empty location
+        PhysInvtOrderLine.SetRange("Document No.", PhysInvtOrderHeader."No.");
+        Assert.RecordCount(PhysInvtOrderLine, 3 * (GetNoOfLocationsWithoutBinMandatory() + 1));
+
+        // [THEN] Physical Inventory Order Lines are created with 0 PCS 
+        PhysInvtOrderLine.FindSet();
+        repeat
+            PhysInvtOrderLine.TestField("Qty. Expected (Base)", 0);
+        until PhysInvtOrderLine.Next() = 0;
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemTrackingPageHandler,MessageHandler')]
+    procedure CalcPhysInvtOrderLinesForItemWithoutTransactionsWithItemWithTransactions()
+    var
+        Item: Record Item;
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        PhysInvtOrderHeader: Record "Phys. Invt. Order Header";
+        PhysInvtOrderLine: Record "Phys. Invt. Order Line";
+    begin
+        Initialize();
+
+        // [GIVEN] Location is not mandatory
+        SetLocationMandatory(false);
+
+        // [GIVEN] Item without mandatory variants with transactions exists
+        CreateItemWithItemTrackingCode(Item, CreateItemTrackingCode(true, false));
+        SetVariantMandatory(Item, false);
+        LibraryVariableStorage.Enqueue(false);
+        CreateAndPostItemJournalLine('', Item."No.", false);
+        FindItemLedgerEntry(ItemLedgerEntry, Item."No.");
+
+        // [GIVEN] Physical Inventory Order
+        LibraryInventory.CreatePhysInvtOrderHeader(PhysInvtOrderHeader);
+
+        // [WHEN] Run report Calc. Physical Inventory Order Lines for the Item with Include Items With No Transactions enabled
+        CalcPhysInvtOrderLines(PhysInvtOrderHeader, Item."No.", '=''''', true, true, true);
+
+        // [THEN] Physical Inventory Order Line is created with the qty. equal to created Item Ledger Entry
+        PhysInvtOrderLine.SetRange("Document No.", PhysInvtOrderHeader."No.");
+        Assert.RecordCount(PhysInvtOrderLine, 1);
+        PhysInvtOrderLine.FindFirst();
+        PhysInvtOrderLine.TestField("Qty. Expected (Base)", ItemLedgerEntry.Quantity);
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    procedure CalcPhysInvtOrderLinesNotForItemWithoutTransactionsWithoutItemWithTransactionsLocationMandatory()
+    var
+        Item: Record Item;
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        PhysInvtOrderHeader: Record "Phys. Invt. Order Header";
+        PhysInvtOrderLine: Record "Phys. Invt. Order Line";
+    begin
+        Initialize();
+
+        // [GIVEN] Location is mandatory
+        SetLocationMandatory(true);
+
+        // [GIVEN] Item exists
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Physical Inventory Order
+        LibraryInventory.CreatePhysInvtOrderHeader(PhysInvtOrderHeader);
+
+        // [WHEN] Run report Calc. Physical Inventory Order Lines for the Item with Include Items With No Transactions enabled
+        CalcPhysInvtOrderLines(PhysInvtOrderHeader, Item."No.", '', true, true, false);
+
+        // [THEN] Physical Inventory Order Line is not created
+        PhysInvtOrderLine.SetRange("Document No.", PhysInvtOrderHeader."No.");
+        Assert.RecordIsEmpty(PhysInvtOrderLine);
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    procedure CalcPhysInvtOrderLinesNotForItemWithoutTransactionsWithoutItemWithTransactionsLocationNotMandatory()
+    var
+        Item: Record Item;
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        PhysInvtOrderHeader: Record "Phys. Invt. Order Header";
+        PhysInvtOrderLine: Record "Phys. Invt. Order Line";
+    begin
+        Initialize();
+
+        // [GIVEN] Location is not mandatory
+        SetLocationMandatory(false);
+
+        // [GIVEN] Item exists
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Physical Inventory Order
+        LibraryInventory.CreatePhysInvtOrderHeader(PhysInvtOrderHeader);
+
+        // [WHEN] Run report Calc. Physical Inventory Order Lines for the Item with Include Items With No Transactions enabled
+        CalcPhysInvtOrderLines(PhysInvtOrderHeader, Item."No.", '', true, true, false);
+
+        // [THEN] Physical Inventory Order Line is not created
+        PhysInvtOrderLine.SetRange("Document No.", PhysInvtOrderHeader."No.");
+        Assert.RecordIsEmpty(PhysInvtOrderLine);
     end;
 
     local procedure Initialize()
@@ -1009,16 +1245,18 @@ codeunit 137460 "Phys. Invt. Item Tracking"
         CreatePhysInventoryOrderWithRecording(PhysInvtOrderHeader, Location.Code, Item."No.");
     end;
 
-    local procedure CalcPhysInvtOrderLinesWithCalcQtyExpected(PhysInvtOrderHeader: Record "Phys. Invt. Order Header"; ItemNo: Code[20]; CalcQtyExpected: Boolean)
+    local procedure CalcPhysInvtOrderLines(PhysInvtOrderHeader: Record "Phys. Invt. Order Header"; ItemNo: Code[20]; LocationFilter: Text; CalcQtyExpected: Boolean; ZeroQty: Boolean; IncludeItemWithNoTransaction: Boolean)
     var
         Item: Record Item;
         CalcPhysInvtOrderLines: Report "Calc. Phys. Invt. Order Lines";
     begin
         Item.Get(ItemNo);
         Item.SetRecFilter();
+        if LocationFilter <> '' then
+            Item.SetFilter("Location Filter", LocationFilter);
         Clear(CalcPhysInvtOrderLines);
         CalcPhysInvtOrderLines.SetPhysInvtOrderHeader(PhysInvtOrderHeader);
-        CalcPhysInvtOrderLines.InitializeRequest(true, CalcQtyExpected);
+        CalcPhysInvtOrderLines.InitializeRequest(ZeroQty, CalcQtyExpected, IncludeItemWithNoTransaction);
         CalcPhysInvtOrderLines.UseRequestPage(false);
         CalcPhysInvtOrderLines.SetTableView(Item);
         CalcPhysInvtOrderLines.Run();
@@ -1078,11 +1316,16 @@ codeunit 137460 "Phys. Invt. Item Tracking"
         CopyOfPhysInvtRecordLine.Insert();
     end;
 
+    local procedure FindItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; ItemNo: Code[20])
+    begin
+        ItemLedgerEntry.SetRange("Item No.", ItemNo);
+        ItemLedgerEntry.FindFirst();
+    end;
+
     local procedure FindItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; EntryType: Enum "Item Ledger Entry Type"; ItemNo: Code[20])
     begin
         ItemLedgerEntry.SetRange("Entry Type", EntryType);
-        ItemLedgerEntry.SetRange("Item No.", ItemNo);
-        ItemLedgerEntry.FindFirst();
+        FindItemLedgerEntry(ItemLedgerEntry, ItemNo);
     end;
 
     local procedure FindPhysInventoryOrderLine(var PhysInvtOrderLine: Record "Phys. Invt. Order Line"; DocumentNo: Code[20])
@@ -1448,5 +1691,34 @@ codeunit 137460 "Phys. Invt. Item Tracking"
         CreatePhysInventoryOrderHeader(PhysInvtOrderHeader, Location.Code);
         CalculatePhysInventoryLine(PhysInvtOrderHeader, Location.Code, Item."No.");
         CreatePhysInventoryRecordingWithTracking(PhysInvtRecordLine, PhysInvtOrderHeader, PhysInvtOrderLine, Item."No.", 0);
+    end;
+
+    local procedure GetNoOfLocationsWithoutBinMandatory() NoOfLocations: Integer
+    var
+        Location: Record Location;
+    begin
+        if Location.FindSet() then
+            repeat
+                if not Location.BinMandatory(Location.Code) then
+                    NoOfLocations += 1;
+            until Location.Next() = 0;
+    end;
+
+    local procedure SetLocationMandatory(NewLocationMandatory: Boolean)
+    var
+        InventorySetup: Record "Inventory Setup";
+    begin
+        InventorySetup.Get();
+        InventorySetup.Validate("Location Mandatory", NewLocationMandatory);
+        InventorySetup.Modify();
+    end;
+
+    local procedure SetVariantMandatory(var Item: Record Item; NewVariantMandatory: Boolean)
+    begin
+        if NewVariantMandatory then
+            Item.Validate("Variant Mandatory if Exists", Item."Variant Mandatory if Exists"::Yes)
+        else
+            Item.Validate("Variant Mandatory if Exists", Item."Variant Mandatory if Exists"::No);
+        Item.Modify();
     end;
 }

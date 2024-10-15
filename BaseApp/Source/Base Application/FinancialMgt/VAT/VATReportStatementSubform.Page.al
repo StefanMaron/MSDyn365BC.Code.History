@@ -1,3 +1,13 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Finance.VAT.Reporting;
+
+using Microsoft.Finance.Consolidation;
+using Microsoft.Finance.GeneralLedger.Ledger;
+using Microsoft.Finance.VAT.Ledger;
+
 page 742 "VAT Report Statement Subform"
 {
     Caption = 'BAS Report Statement Lines';
@@ -30,13 +40,13 @@ page 742 "VAT Report Statement Subform"
                     Editable = false;
                     ToolTip = 'Specifies the number on the box that the VAT statement applies to.';
                 }
-                field(Note; Note)
+                field(Note; Rec.Note)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the free text to report for the certain line.';
                     Visible = ShowVATNote;
                 }
-                field(Base; Base)
+                field(Base; Rec.Base)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount that the VAT amount in the amount is calculated from.';
@@ -60,10 +70,10 @@ page 742 "VAT Report Statement Subform"
                         VATStatementLine: Record "VAT Statement Line";
                         VATReportHeader: Record "VAT Report Header";
                     begin
-                        VATReportHeader.Get("VAT Report Config. Code", "VAT Report No.");
+                        VATReportHeader.Get(Rec."VAT Report Config. Code", Rec."VAT Report No.");
                         VATStatementLine.SetRange("Statement Template Name", VATReportHeader."Statement Template Name");
                         VATStatementLine.SetRange("Statement Name", VATReportHeader."Statement Name");
-                        VATStatementLine.SetRange("Box No.", "Box No.");
+                        VATStatementLine.SetRange("Box No.", Rec."Box No.");
                         VATStatementLine.FindFirst();
                         VATStatementLine.TestField(Type, VATStatementLine.Type::Description);
                     end;
@@ -91,8 +101,8 @@ page 742 "VAT Report Statement Subform"
 
     procedure SelectFirst()
     begin
-        if Count > 0 then
-            FindFirst();
+        if Rec.Count > 0 then
+            Rec.FindFirst();
     end;
 
     local procedure BASEntryDrillDown()
@@ -104,11 +114,11 @@ page 742 "VAT Report Statement Subform"
         VATReportHeader: Record "VAT Report Header";
         GLEntry: Record "G/L Entry";
     begin
-        VATReportHeader.Get("VAT Report Config. Code", "VAT Report No.");
+        VATReportHeader.Get(Rec."VAT Report Config. Code", Rec."VAT Report No.");
         VATStatementLine1.SetRange("Statement Template Name", VATReportHeader."Statement Template Name");
         VATStatementLine1.SetRange("Statement Name", VATReportHeader."Statement Name");
-        VATStatementLine1.SetRange("Box No.", "Box No.");
-        VATStatementLine1.SetRange("Row No.", "Row No.");
+        VATStatementLine1.SetRange("Box No.", Rec."Box No.");
+        VATStatementLine1.SetRange("Row No.", Rec."Row No.");
         VATStatementLine1.FindFirst();
         case VATStatementLine1.Type of
             VATStatementLine1.Type::"Row Totaling":

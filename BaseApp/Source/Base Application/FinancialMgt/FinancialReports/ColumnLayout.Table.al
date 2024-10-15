@@ -1,3 +1,13 @@
+namespace Microsoft.Finance.FinancialReports;
+
+using Microsoft.CostAccounting.Setup;
+using Microsoft.Finance.Analysis;
+using Microsoft.Finance.Consolidation;
+using Microsoft.Finance.Dimension;
+using Microsoft.Finance.GeneralLedger.Budget;
+using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Foundation.Enums;
+
 table 334 "Column Layout"
 {
     Caption = 'Column Layout';

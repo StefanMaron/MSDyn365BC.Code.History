@@ -93,10 +93,10 @@ table 2115 "O365 Coupon Claim"
         }
         field(14; "Is applied"; Boolean)
         {
-            CalcFormula = Exist("O365 Coupon Claim Doc. Link" WHERE("Claim ID" = FIELD("Claim ID"),
-                                                                     "Document Type" = FIELD("Document Type Filter"),
-                                                                     "Document No." = FIELD("Document No. Filter"),
-                                                                     "Graph Contact ID" = FIELD("Graph Contact ID")));
+            CalcFormula = exist("O365 Coupon Claim Doc. Link" where("Claim ID" = field("Claim ID"),
+                                                                     "Document Type" = field("Document Type Filter"),
+                                                                     "Document No." = field("Document No. Filter"),
+                                                                     "Graph Contact ID" = field("Graph Contact ID")));
             Caption = 'Is applied';
             FieldClass = FlowField;
         }

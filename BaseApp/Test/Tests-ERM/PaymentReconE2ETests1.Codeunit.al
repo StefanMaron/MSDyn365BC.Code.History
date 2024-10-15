@@ -3327,14 +3327,14 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.SetRange(ElementName, ElementText);
         if not LibraryReportDataset.GetNextRow then
-            Error(StrSubstNo(RowNotFoundErr, ElementName, ElementText));
+            Error(RowNotFoundErr, ElementName, ElementText);
         LibraryReportDataset.AssertCurrentRowValueEquals(ElementNameError, ExpectedWarningMessage1);
         if not LibraryReportDataset.GetNextRow then
-            Error(StrSubstNo(RowNotFoundErr, ElementName, ElementText));
+            Error(RowNotFoundErr, ElementName, ElementText);
         LibraryReportDataset.AssertCurrentRowValueEquals(ElementNameError, ExpectedWarningMessage2);
         if ExpectedWarningMessage3 <> '' then begin
             if not LibraryReportDataset.GetNextRow then
-                Error(StrSubstNo(RowNotFoundErr, ElementName, ElementText));
+                Error(RowNotFoundErr, ElementName, ElementText);
             LibraryReportDataset.AssertCurrentRowValueEquals(ElementNameError, ExpectedWarningMessage3);
         end;
     end;

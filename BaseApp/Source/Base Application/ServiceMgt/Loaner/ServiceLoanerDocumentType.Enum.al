@@ -1,3 +1,5 @@
+namespace Microsoft.Service.Loaner;
+
 enum 5915 "Service Loaner Document Type"
 {
     Extensible = true;

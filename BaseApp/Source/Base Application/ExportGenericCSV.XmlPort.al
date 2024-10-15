@@ -1,3 +1,5 @@
+namespace System.IO;
+
 xmlport 1230 "Export Generic CSV"
 {
     Caption = 'Export Generic CSV';

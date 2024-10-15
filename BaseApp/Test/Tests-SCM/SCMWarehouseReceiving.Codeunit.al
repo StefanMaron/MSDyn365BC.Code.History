@@ -54,7 +54,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
         InvPickMessage: Label 'Number of Invt. Pick activities created';
         NothingToCreateMessage: Label 'There is nothing to create.';
         InventoryPickActivitiesCreatedMessage: Label 'Number of Invt. Pick activities created: 2 out of a total of 3.';
-        NotEnoughBinCapacityError: Label 'There is not enough bin capacity for items.';
+        PutawayNotCreatedError: Label 'Put-away not created for one or more items based on the template and capacity.';
         UnexpectedError: Label 'Unexpected Error.';
         WhseActivityDelete: Label 'All related Warehouse Activity Lines are deleted';
         PutAwayActivityCreatedMessage: Label 'Put-away activity no.';
@@ -298,7 +298,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
         asserterror PutAwayWorksheet.CreatePutAway.Invoke;
 
         // Verify: Error Message.
-        Assert.AreEqual(StrSubstNo(NotEnoughBinCapacityError), GetLastErrorText, UnexpectedError);
+        Assert.AreEqual(StrSubstNo(PutawayNotCreatedError), GetLastErrorText, UnexpectedError);
     end;
 
     [Test]
@@ -4048,7 +4048,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
         Bin: Record Bin;
         PutAwayTemplateHeader: Record "Put-away Template Header";
     begin
-        LibraryWarehouse.CreateLocationWMS(LocationWhite2, true, true, true, true, true);
+        LibraryWarehouse.CreateLocationWMS(LocationWhite2, true, false, true, true, true);
         LocationWhite2.Validate("Directed Put-away and Pick", true);
         LocationWhite2.Modify(true);
         LibraryWarehouse.CreateZone(

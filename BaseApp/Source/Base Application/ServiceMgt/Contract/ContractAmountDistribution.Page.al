@@ -1,3 +1,5 @@
+namespace Microsoft.Service.Contract;
+
 page 6079 "Contract Amount Distribution"
 {
     Caption = 'Contract Amount Distribution';

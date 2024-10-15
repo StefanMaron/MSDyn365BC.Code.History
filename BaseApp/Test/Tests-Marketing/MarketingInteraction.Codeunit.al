@@ -509,7 +509,6 @@ codeunit 136208 "Marketing Interaction"
     var
         DummyAttachment: Record Attachment;
         InteractionTmplLanguage: Record "Interaction Tmpl. Language";
-        CustomReportLayout: Record "Custom Report Layout";
         InteractTmplLanguages: TestPage "Interact. Tmpl. Languages";
     begin
         // [FEATURE] [UT] [UI] [Interaction Template] [Email Merge]
@@ -519,8 +518,7 @@ codeunit 136208 "Marketing Interaction"
 
         InteractTmplLanguages.OpenView;
         InteractTmplLanguages.GotoRecord(InteractionTmplLanguage);
-        CustomReportLayout.Get(LibraryMarketing.FindEmailMergeCustomLayoutNo);
-        InteractTmplLanguages.CustLayoutDescription.SetValue(CustomReportLayout.Description);
+        InteractTmplLanguages.ReportLayoutName.SetValue(LibraryMarketing.FindEmailMergeCustomLayoutName());
         InteractTmplLanguages.Close();
 
         InteractionTmplLanguage.Find();
@@ -535,7 +533,6 @@ codeunit 136208 "Marketing Interaction"
     var
         DummyAttachment: Record Attachment;
         InteractionTmplLanguage: Record "Interaction Tmpl. Language";
-        CustomReportLayout: Record "Custom Report Layout";
         InteractTmplLanguages: TestPage "Interact. Tmpl. Languages";
         AttachmentNo: array[2] of Integer;
     begin
@@ -547,13 +544,11 @@ codeunit 136208 "Marketing Interaction"
         InteractTmplLanguages.OpenView;
         InteractTmplLanguages.GotoRecord(InteractionTmplLanguage);
 
-        CustomReportLayout.Get(LibraryMarketing.FindEmailMergeCustomLayoutNo);
-        InteractTmplLanguages.CustLayoutDescription.SetValue(CustomReportLayout.Description);
+        InteractTmplLanguages.ReportLayoutName.SetValue(LibraryMarketing.FindEmailMergeCustomLayoutName());
         InteractionTmplLanguage.Find();
         AttachmentNo[1] := InteractionTmplLanguage."Attachment No.";
 
-        CustomReportLayout.Get(LibraryMarketing.FindEmailMergeCustomLayoutNo);
-        InteractTmplLanguages.CustLayoutDescription.SetValue(CustomReportLayout.Description);
+        InteractTmplLanguages.ReportLayoutName.SetValue(LibraryMarketing.FindEmailMergeCustomLayoutName());
         InteractionTmplLanguage.Find();
         AttachmentNo[2] := InteractionTmplLanguage."Attachment No.";
 
@@ -572,7 +567,6 @@ codeunit 136208 "Marketing Interaction"
     var
         DummyAttachment: Record Attachment;
         InteractionTmplLanguage: Record "Interaction Tmpl. Language";
-        CustomReportLayout: Record "Custom Report Layout";
         InteractTmplLanguages: TestPage "Interact. Tmpl. Languages";
         "Count": Integer;
     begin
@@ -584,9 +578,8 @@ codeunit 136208 "Marketing Interaction"
 
         InteractTmplLanguages.OpenView;
         InteractTmplLanguages.GotoRecord(InteractionTmplLanguage);
-        CustomReportLayout.Get(LibraryMarketing.FindEmailMergeCustomLayoutNo);
-        InteractTmplLanguages.CustLayoutDescription.SetValue(CustomReportLayout.Description);
-        InteractTmplLanguages.CustLayoutDescription.SetValue('');
+        InteractTmplLanguages.ReportLayoutName.SetValue(LibraryMarketing.FindEmailMergeCustomLayoutName());
+        InteractTmplLanguages.ReportLayoutName.SetValue('');
         InteractTmplLanguages.Close();
 
         InteractionTmplLanguage.Find();
@@ -2926,19 +2919,19 @@ codeunit 136208 "Marketing Interaction"
     begin
         LanguageCode := CreateInteractionTmplLanguage(
             InteractionTmplLanguage, InteractionTemplateCode, FindLanguageCode(LanguageFilter),
-            LibraryMarketing.FindEmailMergeCustomLayoutNo);
+            LibraryMarketing.FindEmailMergeCustomLayoutName());
         InteractionTmplLanguage.CreateAttachment();
         exit(LanguageCode);
     end;
 
-    local procedure CreateInteractionTmplLanguage(var InteractionTmplLanguage: Record "Interaction Tmpl. Language"; InteractionTemplateCode: Code[10]; LanguageCode: Code[10]; CustomLayoutCode: Code[20]): Code[10]
+    local procedure CreateInteractionTmplLanguage(var InteractionTmplLanguage: Record "Interaction Tmpl. Language"; InteractionTemplateCode: Code[10]; LanguageCode: Code[10]; ReportLayoutName: Text[250]): Code[10]
     begin
         with InteractionTmplLanguage do begin
             Init();
             Validate("Interaction Template Code", InteractionTemplateCode);
             Validate("Language Code", LanguageCode);
-            Validate("Custom Layout Code", CustomLayoutCode);
-            Insert(true);
+            Validate("Report Layout Name", ReportLayoutName);
+            Insert();
             exit("Language Code");
         end;
     end;

@@ -27,7 +27,7 @@ page 2309 "BC O365 Hist. Sell-to FactBox"
             cuegroup(Control2)
             {
                 ShowCaption = false;
-                field(NoofInvoicesTile; "No. of Invoices")
+                field(NoofInvoicesTile; Rec."No. of Invoices")
                 {
                     ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Draft Invoices';
@@ -38,11 +38,11 @@ page 2309 "BC O365 Hist. Sell-to FactBox"
                         O365SalesDocument: Record "O365 Sales Document";
                     begin
                         O365SalesDocument.SetRange(Posted, false);
-                        O365SalesDocument.SetRange("Sell-to Customer No.", "No.");
+                        O365SalesDocument.SetRange("Sell-to Customer No.", Rec."No.");
                         PAGE.Run(PAGE::"BC O365 Invoice List", O365SalesDocument);
                     end;
                 }
-                field(NoofQuotesTile; "No. of Quotes")
+                field(NoofQuotesTile; Rec."No. of Quotes")
                 {
                     ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Estimates';
@@ -53,11 +53,11 @@ page 2309 "BC O365 Hist. Sell-to FactBox"
                         O365SalesDocument: Record "O365 Sales Document";
                     begin
                         O365SalesDocument.SetRange(Posted, false);
-                        O365SalesDocument.SetRange("Sell-to Customer No.", "No.");
+                        O365SalesDocument.SetRange("Sell-to Customer No.", Rec."No.");
                         PAGE.Run(PAGE::"BC O365 Estimate List", O365SalesDocument);
                     end;
                 }
-                field(NoofPstdInvoicesTile; "No. of Pstd. Invoices")
+                field(NoofPstdInvoicesTile; Rec."No. of Pstd. Invoices")
                 {
                     ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Sent Invoices';
@@ -68,7 +68,7 @@ page 2309 "BC O365 Hist. Sell-to FactBox"
                         O365SalesDocument: Record "O365 Sales Document";
                     begin
                         O365SalesDocument.SetRange(Posted, true);
-                        O365SalesDocument.SetRange("Sell-to Customer No.", "No.");
+                        O365SalesDocument.SetRange("Sell-to Customer No.", Rec."No.");
                         PAGE.Run(PAGE::"BC O365 Invoice List", O365SalesDocument);
                     end;
                 }

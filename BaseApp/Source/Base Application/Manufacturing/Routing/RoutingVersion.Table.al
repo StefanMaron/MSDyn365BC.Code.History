@@ -1,3 +1,7 @@
+namespace Microsoft.Manufacturing.Routing;
+
+using Microsoft.Foundation.NoSeries;
+
 table 99000786 "Routing Version"
 {
     Caption = 'Routing Version';

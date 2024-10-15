@@ -53,18 +53,18 @@ table 2103 "O365 Sales Document"
         }
         field(166; "Last Email Sent Time"; DateTime)
         {
-            CalcFormula = Max("O365 Document Sent History"."Created Date-Time" WHERE("Document Type" = FIELD("Document Type"),
-                                                                                      "Document No." = FIELD("No."),
-                                                                                      Posted = FIELD(Posted)));
+            CalcFormula = max("O365 Document Sent History"."Created Date-Time" where("Document Type" = field("Document Type"),
+                                                                                      "Document No." = field("No."),
+                                                                                      Posted = field(Posted)));
             Caption = 'Last Email Sent Time';
             FieldClass = FlowField;
         }
         field(167; "Last Email Sent Status"; Option)
         {
-            CalcFormula = Lookup("O365 Document Sent History"."Job Last Status" WHERE("Document Type" = FIELD("Document Type"),
-                                                                                       "Document No." = FIELD("No."),
-                                                                                       Posted = FIELD(Posted),
-                                                                                       "Created Date-Time" = FIELD("Last Email Sent Time")));
+            CalcFormula = Lookup("O365 Document Sent History"."Job Last Status" where("Document Type" = field("Document Type"),
+                                                                                       "Document No." = field("No."),
+                                                                                       Posted = field(Posted),
+                                                                                       "Created Date-Time" = field("Last Email Sent Time")));
             Caption = 'Last Email Sent Status';
             FieldClass = FlowField;
             OptionCaption = 'Not Sent,In Process,Finished,Error';
@@ -72,19 +72,19 @@ table 2103 "O365 Sales Document"
         }
         field(168; "Sent as Email"; Boolean)
         {
-            CalcFormula = Exist("O365 Document Sent History" WHERE("Document Type" = FIELD("Document Type"),
-                                                                    "Document No." = FIELD("No."),
-                                                                    Posted = FIELD(Posted),
-                                                                    "Job Last Status" = CONST(Finished)));
+            CalcFormula = exist("O365 Document Sent History" where("Document Type" = field("Document Type"),
+                                                                    "Document No." = field("No."),
+                                                                    Posted = field(Posted),
+                                                                    "Job Last Status" = const(Finished)));
             Caption = 'Sent as Email';
             FieldClass = FlowField;
         }
         field(169; "Last Email Notif Cleared"; Boolean)
         {
-            CalcFormula = Lookup("O365 Document Sent History".NotificationCleared WHERE("Document Type" = FIELD("Document Type"),
-                                                                                         "Document No." = FIELD("No."),
-                                                                                         Posted = FIELD(Posted),
-                                                                                         "Created Date-Time" = FIELD("Last Email Sent Time")));
+            CalcFormula = Lookup("O365 Document Sent History".NotificationCleared where("Document Type" = field("Document Type"),
+                                                                                         "Document No." = field("No."),
+                                                                                         Posted = field(Posted),
+                                                                                         "Created Date-Time" = field("Last Email Sent Time")));
             Caption = 'Last Email Notif Cleared';
             FieldClass = FlowField;
         }
@@ -100,8 +100,8 @@ table 2103 "O365 Sales Document"
         }
         field(2101; Canceled; Boolean)
         {
-            CalcFormula = Exist("Cancelled Document" WHERE("Source ID" = CONST(112),
-                                                            "Cancelled Doc. No." = FIELD("No.")));
+            CalcFormula = exist("Cancelled Document" where("Source ID" = const(112),
+                                                            "Cancelled Doc. No." = field("No.")));
             Caption = 'Canceled';
             FieldClass = FlowField;
         }
@@ -141,7 +141,7 @@ table 2103 "O365 Sales Document"
         field(2109; "Payment Method"; Code[10])
         {
             Caption = 'Payment Method';
-            TableRelation = "Payment Method" WHERE("Use for Invoicing" = CONST(true));
+            TableRelation = "Payment Method" where("Use for Invoicing" = const(true));
         }
         field(2110; "Display No."; Text[20])
         {
@@ -149,29 +149,29 @@ table 2103 "O365 Sales Document"
         }
         field(2111; "Quote Valid Until Date"; Date)
         {
-            CalcFormula = Lookup("Sales Header"."Quote Valid Until Date" WHERE("Document Type" = FIELD("Document Type"),
-                                                                                "No." = FIELD("No.")));
+            CalcFormula = Lookup("Sales Header"."Quote Valid Until Date" where("Document Type" = field("Document Type"),
+                                                                                "No." = field("No.")));
             Caption = 'Quote Valid Until Date';
             FieldClass = FlowField;
         }
         field(2112; "Quote Accepted"; Boolean)
         {
-            CalcFormula = Lookup("Sales Header"."Quote Accepted" WHERE("Document Type" = FIELD("Document Type"),
-                                                                        "No." = FIELD("No.")));
+            CalcFormula = Lookup("Sales Header"."Quote Accepted" where("Document Type" = field("Document Type"),
+                                                                        "No." = field("No.")));
             Caption = 'Quote Accepted';
             FieldClass = FlowField;
         }
         field(2113; "Quote Sent to Customer"; DateTime)
         {
-            CalcFormula = Lookup("Sales Header"."Quote Sent to Customer" WHERE("Document Type" = FIELD("Document Type"),
-                                                                                "No." = FIELD("No.")));
+            CalcFormula = Lookup("Sales Header"."Quote Sent to Customer" where("Document Type" = field("Document Type"),
+                                                                                "No." = field("No.")));
             Caption = 'Quote Sent to Customer';
             FieldClass = FlowField;
         }
         field(2114; "Quote Accepted Date"; Date)
         {
-            CalcFormula = Lookup("Sales Header"."Quote Accepted Date" WHERE("Document Type" = FIELD("Document Type"),
-                                                                             "No." = FIELD("No.")));
+            CalcFormula = Lookup("Sales Header"."Quote Accepted Date" where("Document Type" = field("Document Type"),
+                                                                             "No." = field("No.")));
             Caption = 'Quote Accepted Date';
             FieldClass = FlowField;
         }

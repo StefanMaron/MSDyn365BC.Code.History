@@ -1,3 +1,9 @@
+namespace Microsoft.Finance.Deferral;
+
+using Microsoft.Finance.Currency;
+using Microsoft.Finance.GeneralLedger.Journal;
+using Microsoft.Foundation.Period;
+
 table 1701 "Deferral Header"
 {
     Caption = 'Deferral Header';
@@ -36,7 +42,7 @@ table 1701 "Deferral Header"
         }
         field(8; "Amount to Defer"; Decimal)
         {
-            AutoFormatExpression = "Currency Code";
+            AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             Caption = 'Amount to Defer';
 
@@ -121,12 +127,12 @@ table 1701 "Deferral Header"
         }
         field(20; "Schedule Line Total"; Decimal)
         {
-            CalcFormula = Sum("Deferral Line".Amount WHERE("Deferral Doc. Type" = FIELD("Deferral Doc. Type"),
-                                                            "Gen. Jnl. Template Name" = FIELD("Gen. Jnl. Template Name"),
-                                                            "Gen. Jnl. Batch Name" = FIELD("Gen. Jnl. Batch Name"),
-                                                            "Document Type" = FIELD("Document Type"),
-                                                            "Document No." = FIELD("Document No."),
-                                                            "Line No." = FIELD("Line No.")));
+            CalcFormula = sum("Deferral Line".Amount where("Deferral Doc. Type" = field("Deferral Doc. Type"),
+                                                            "Gen. Jnl. Template Name" = field("Gen. Jnl. Template Name"),
+                                                            "Gen. Jnl. Batch Name" = field("Gen. Jnl. Batch Name"),
+                                                            "Document Type" = field("Document Type"),
+                                                            "Document No." = field("Document No."),
+                                                            "Line No." = field("Line No.")));
             Caption = 'Schedule Line Total';
             FieldClass = FlowField;
         }

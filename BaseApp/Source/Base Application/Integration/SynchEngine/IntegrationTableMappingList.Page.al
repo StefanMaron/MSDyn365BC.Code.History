@@ -1,3 +1,16 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Integration.SyncEngine;
+
+using Microsoft.Integration.D365Sales;
+using Microsoft.Integration.Dataverse;
+using Microsoft.Sales.Document;
+using System.Reflection;
+using System.Threading;
+using System.Globalization;
+
 page 5335 "Integration Table Mapping List"
 {
     ApplicationArea = Suite;
@@ -5,7 +18,7 @@ page 5335 "Integration Table Mapping List"
     InsertAllowed = false;
     PageType = List;
     SourceTable = "Integration Table Mapping";
-    SourceTableView = WHERE("Delete After Synchronization" = CONST(false));
+    SourceTableView = where("Delete After Synchronization" = const(false));
     UsageCategory = Lists;
 
     layout
@@ -37,17 +50,17 @@ page 5335 "Integration Table Mapping List"
                     var
                         FilterPageBuilder: FilterPageBuilder;
                     begin
-                        FilterPageBuilder.AddTable(TableCaptionValue, "Table ID");
+                        FilterPageBuilder.AddTable(TableCaptionValue, Rec."Table ID");
                         if TableFilter <> '' then
                             FilterPageBuilder.SetView(TableCaptionValue, TableFilter);
                         if FilterPageBuilder.RunModal() then begin
                             TableFilter := FilterPageBuilder.GetView(TableCaptionValue, false);
                             CheckBidirectionalSalesOrderTableFilter(TableFilter);
-                            SetTableFilter(TableFilter);
+                            Rec.SetTableFilter(TableFilter);
                         end;
                     end;
                 }
-                field(Direction; Direction)
+                field(Direction; Rec.Direction)
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the synchronization direction.';
@@ -70,16 +83,16 @@ page 5335 "Integration Table Mapping List"
                         FilterPageBuilder: FilterPageBuilder;
                     begin
                         Codeunit.Run(Codeunit::"CRM Integration Management");
-                        FilterPageBuilder.AddTable(IntegrationTableCaptionValue, "Integration Table ID");
+                        FilterPageBuilder.AddTable(IntegrationTableCaptionValue, Rec."Integration Table ID");
                         if IntegrationTableFilter <> '' then
                             FilterPageBuilder.SetView(IntegrationTableCaptionValue, IntegrationTableFilter);
                         Commit();
                         if FilterPageBuilder.RunModal() then begin
                             IntegrationTableFilter := FilterPageBuilder.GetView(IntegrationTableCaptionValue, false);
-                            Session.LogMessage('0000EG5', StrSubstNo(UserEditedIntegrationTableFilterTxt, Name), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
+                            Session.LogMessage('0000EG5', StrSubstNo(UserEditedIntegrationTableFilterTxt, Rec.Name), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
                             CheckBidirectionalSalesOrderIntegrationTableFilter(IntegrationTableFilter);
-                            SuggestToIncludeEntitiesWithNullCompany(IntegrationTableFilter);
-                            SetIntegrationTableFilter(IntegrationTableFilter);
+                            Rec.SuggestToIncludeEntitiesWithNullCompany(IntegrationTableFilter);
+                            Rec.SetIntegrationTableFilter(IntegrationTableFilter);
                         end;
                     end;
                 }
@@ -87,6 +100,17 @@ page 5335 "Integration Table Mapping List"
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies if the synchronization engine will process only currently coupled records or couple the newly created records as well.';
+                }
+                field("Multi Company Synch. Enabled"; Rec."Multi Company Synch. Enabled")
+                {
+                    ApplicationArea = Suite;
+                    ToolTip = 'Specifies if the multi-company synchronization is enabled for this mapping.';
+
+                    trigger OnValidate()
+                    begin
+                        CurrPage.Update();
+                    end;
+
                 }
                 field(IntegrationFieldCaption; IntegrationFieldCaptionValue)
                 {
@@ -100,9 +124,9 @@ page 5335 "Integration Table Mapping List"
                         CRMOptionMapping: Record "CRM Option Mapping";
                         "Field": Record "Field";
                     begin
-                        if "Int. Table UID Field Type" = Field.Type::Option then begin
+                        if Rec."Int. Table UID Field Type" = Field.Type::Option then begin
                             CRMOptionMapping.FilterGroup(2);
-                            CRMOptionMapping.SetRange("Table ID", "Table ID");
+                            CRMOptionMapping.SetRange("Table ID", Rec."Table ID");
                             CRMOptionMapping.FilterGroup(0);
                             PAGE.RunModal(PAGE::"CRM Option Mapping", CRMOptionMapping);
                         end;
@@ -171,7 +195,7 @@ page 5335 "Integration Table Mapping List"
                 Enabled = HasRecords;
                 Image = Relationship;
                 RunObject = Page "Integration Field Mapping List";
-                RunPageLink = "Integration Table Mapping Name" = FIELD(Name);
+                RunPageLink = "Integration Table Mapping Name" = field(Name);
                 RunPageMode = View;
                 ToolTip = 'View fields in integration tables that are mapped to fields in Business Central.';
             }
@@ -224,14 +248,14 @@ page 5335 "Integration Table Mapping List"
                     IntegrationTableMapping: Record "Integration Table Mapping";
                 begin
                     CurrPage.SetSelectionFilter(IntegrationTableMapping);
-                    ShowSynchronizationLog(IntegrationTableMapping);
+                    Rec.ShowSynchronizationLog(IntegrationTableMapping);
                 end;
             }
             action(SynchronizeNow)
             {
                 ApplicationArea = Suite;
                 Caption = 'Synchronize Modified Records';
-                Enabled = HasRecords AND ("Parent Name" = '');
+                Enabled = HasRecords AND (Rec."Parent Name" = '');
                 Image = Refresh;
                 ToolTip = 'Synchronize records that have been modified since the last time they were synchronized.';
 
@@ -240,13 +264,13 @@ page 5335 "Integration Table Mapping List"
                     Field: Record Field;
                     IntegrationSynchJobList: Page "Integration Synch. Job List";
                 begin
-                    if IsEmpty() then
+                    if Rec.IsEmpty() then
                         exit;
 
-                    if "Int. Table UID Field Type" = Field.Type::Option then
-                        SynchronizeOptionNow(false, false)
+                    if Rec."Int. Table UID Field Type" = Field.Type::Option then
+                        Rec.SynchronizeOptionNow(false, false)
                     else
-                        SynchronizeNow(false);
+                        Rec.SynchronizeNow(false);
                     Message(SynchronizeModifiedScheduledMsg, IntegrationSynchJobList.Caption);
                 end;
             }
@@ -254,7 +278,7 @@ page 5335 "Integration Table Mapping List"
             {
                 ApplicationArea = Suite;
                 Caption = 'Run Full Synchronization';
-                Enabled = HasRecords AND ("Parent Name" = '');
+                Enabled = HasRecords AND (Rec."Parent Name" = '');
                 Image = RefreshLines;
                 ToolTip = 'Start a job for full synchronization between records in Business Central and the integration system for each of the selected integration table mappings.';
 
@@ -263,16 +287,16 @@ page 5335 "Integration Table Mapping List"
                     Field: Record Field;
                     IntegrationSynchJobList: Page "Integration Synch. Job List";
                 begin
-                    if IsEmpty() then
+                    if Rec.IsEmpty() then
                         exit;
 
                     if not Confirm(StartFullSynchronizationQst) then
                         exit;
 
-                    if "Int. Table UID Field Type" = Field.Type::Option then
-                        SynchronizeOptionNow(true, false)
+                    if Rec."Int. Table UID Field Type" = Field.Type::Option then
+                        Rec.SynchronizeOptionNow(true, false)
                     else
-                        SynchronizeNow(true);
+                        Rec.SynchronizeNow(true);
                     Message(FullSynchronizationScheduledMsg, IntegrationSynchJobList.Caption);
                 end;
             }
@@ -280,7 +304,7 @@ page 5335 "Integration Table Mapping List"
             {
                 ApplicationArea = Suite;
                 Caption = 'Run Unconditional Full Synchronization';
-                Enabled = HasRecords AND ("Parent Name" = '') AND (Direction <> Direction::Bidirectional);
+                Enabled = HasRecords AND (Rec."Parent Name" = '') AND (Rec.Direction <> Rec.Direction::Bidirectional);
                 Image = RefreshLines;
                 ToolTip = 'Start the full synchronization job for all records of this type in Business Central and the integration system. This includes records that have already been synchronized.';
 
@@ -289,16 +313,16 @@ page 5335 "Integration Table Mapping List"
                     Field: Record Field;
                     IntegrationSynchJobList: Page "Integration Synch. Job List";
                 begin
-                    if IsEmpty() then
+                    if Rec.IsEmpty() then
                         exit;
 
                     if not Confirm(StartUnconditionalFullSynchronizationQst) then
                         exit;
 
-                    if "Int. Table UID Field Type" = Field.Type::Option then
-                        SynchronizeOptionNow(true, true)
+                    if Rec."Int. Table UID Field Type" = Field.Type::Option then
+                        Rec.SynchronizeOptionNow(true, true)
                     else
-                        SynchronizeNow(true, true);
+                        Rec.SynchronizeNow(true, true);
                     Message(FullSynchronizationScheduledMsg, IntegrationSynchJobList.Caption);
                 end;
             }
@@ -316,7 +340,7 @@ page 5335 "Integration Table Mapping List"
                     IntegrationTableMapping: Record "Integration Table Mapping";
                 begin
                     CurrPage.SetSelectionFilter(IntegrationTableMapping);
-                    ShowUncouplingLog(IntegrationTableMapping);
+                    Rec.ShowUncouplingLog(IntegrationTableMapping);
                 end;
             }
             action("View Integration Coupling Job Log")
@@ -333,14 +357,14 @@ page 5335 "Integration Table Mapping List"
                     IntegrationTableMapping: Record "Integration Table Mapping";
                 begin
                     CurrPage.SetSelectionFilter(IntegrationTableMapping);
-                    ShowCouplingLog(IntegrationTableMapping);
+                    Rec.ShowCouplingLog(IntegrationTableMapping);
                 end;
             }
             action(RemoveCoupling)
             {
                 ApplicationArea = Suite;
                 Caption = 'Delete Couplings';
-                Enabled = HasRecords AND ("Parent Name" = '');
+                Enabled = HasRecords AND (Rec."Parent Name" = '');
                 Visible = CRMIntegrationEnabled or CDSIntegrationEnabled;
                 Image = UnLinkAccount;
                 ToolTip = 'Delete couplings between the selected Business Central record types records in the integration system.';
@@ -398,7 +422,7 @@ page 5335 "Integration Table Mapping List"
             {
                 ApplicationArea = Suite;
                 Caption = 'Match-Based Coupling';
-                Enabled = HasRecords AND ("Parent Name" = '') and (((Rec.Name = 'SALESORDER-ORDER') and (not BidirectionalSalesOrderIntegrationEnabled)) or (Rec.Name <> 'SALESORDER-ORDER'));
+                Enabled = HasRecords AND (Rec."Parent Name" = '') and (((Rec.Name = 'SALESORDER-ORDER') and (not BidirectionalSalesOrderIntegrationEnabled)) or (Rec.Name <> 'SALESORDER-ORDER'));
                 Visible = CRMIntegrationEnabled or CDSIntegrationEnabled;
                 Image = LinkAccount;
                 ToolTip = 'Make couplings between the selected Business Central table and the integration table based on matching criteria.';
@@ -486,15 +510,15 @@ page 5335 "Integration Table Mapping List"
 
     trigger OnAfterGetRecord()
     begin
-        IntegrationTableCaptionValue := ObjectTranslation.TranslateObject(ObjectTranslation."Object Type"::Table, "Integration Table ID");
-        TableCaptionValue := ObjectTranslation.TranslateObject(ObjectTranslation."Object Type"::Table, "Table ID");
+        IntegrationTableCaptionValue := ObjectTranslation.TranslateObject(ObjectTranslation."Object Type"::Table, Rec."Integration Table ID");
+        TableCaptionValue := ObjectTranslation.TranslateObject(ObjectTranslation."Object Type"::Table, Rec."Table ID");
         IntegrationFieldCaptionValue := GetFieldCaption();
         IntegrationFieldTypeValue := GetFieldType();
 
-        TableFilter := GetTableFilter();
-        IntegrationTableFilter := GetIntegrationTableFilter();
+        TableFilter := Rec.GetTableFilter();
+        IntegrationTableFilter := Rec.GetIntegrationTableFilter();
 
-        HasRecords := not IsEmpty();
+        HasRecords := not Rec.IsEmpty();
     end;
 
     trigger OnInit()
@@ -541,7 +565,7 @@ page 5335 "Integration Table Mapping List"
     var
         "Field": Record "Field";
     begin
-        if TypeHelper.GetField("Integration Table ID", "Integration Table UID Fld. No.", Field) then
+        if TypeHelper.GetField(Rec."Integration Table ID", Rec."Integration Table UID Fld. No.", Field) then
             exit(Field."Field Caption");
     end;
 
@@ -549,7 +573,7 @@ page 5335 "Integration Table Mapping List"
     var
         "Field": Record "Field";
     begin
-        Field.Type := "Int. Table UID Field Type";
+        Field.Type := Rec."Int. Table UID Field Type";
         exit(Format(Field.Type))
     end;
 

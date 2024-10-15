@@ -1,3 +1,7 @@
+namespace Microsoft.Finance.Deferral;
+
+using Microsoft.Finance.GeneralLedger.Account;
+
 table 1705 "Posted Deferral Line"
 {
     Caption = 'Posted Deferral Line';
@@ -44,7 +48,7 @@ table 1705 "Posted Deferral Line"
         }
         field(9; Amount; Decimal)
         {
-            AutoFormatExpression = "Currency Code";
+            AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             Caption = 'Amount';
         }
@@ -61,8 +65,8 @@ table 1705 "Posted Deferral Line"
         {
             Caption = 'Deferral Account';
             NotBlank = true;
-            TableRelation = "G/L Account" WHERE("Account Type" = CONST(Posting),
-                                                 Blocked = CONST(false));
+            TableRelation = "G/L Account" where("Account Type" = const(Posting),
+                                                 Blocked = const(false));
         }
     }
 

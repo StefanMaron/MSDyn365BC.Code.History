@@ -1,3 +1,18 @@
+namespace Microsoft.Warehouse.Request;
+
+using Microsoft.Assembly.Document;
+using Microsoft.Foundation.Shipping;
+using Microsoft.Inventory.Item;
+using Microsoft.Inventory.Location;
+using Microsoft.Inventory.Transfer;
+using Microsoft.Manufacturing.Document;
+using Microsoft.Manufacturing.Family;
+using Microsoft.Purchases.Document;
+using Microsoft.Purchases.Vendor;
+using Microsoft.Sales.Customer;
+using Microsoft.Sales.Document;
+using Microsoft.Warehouse.Activity;
+
 table 5765 "Warehouse Request"
 {
     Caption = 'Warehouse Request';
@@ -21,25 +36,25 @@ table 5765 "Warehouse Request"
         {
             Caption = 'Source No.';
             Editable = false;
-            TableRelation = IF ("Source Document" = CONST("Sales Order")) "Sales Header"."No." WHERE("Document Type" = CONST(Order),
-                                                                                                    "No." = FIELD("Source No."))
-            ELSE
-            IF ("Source Document" = CONST("Sales Return Order")) "Sales Header"."No." WHERE("Document Type" = CONST("Return Order"),
-                                                                                                                                                                                        "No." = FIELD("Source No."))
-            ELSE
-            IF ("Source Document" = CONST("Purchase Order")) "Purchase Header"."No." WHERE("Document Type" = CONST(Order),
-                                                                                                                                                                                                                                                                           "No." = FIELD("Source No."))
-            ELSE
-            IF ("Source Document" = CONST("Purchase Return Order")) "Purchase Header"."No." WHERE("Document Type" = CONST("Return Order"),
-                                                                                                                                                                                                                                                                                                                                                                     "No." = FIELD("Source No."))
-            ELSE
-            IF ("Source Type" = CONST(5741)) "Transfer Header"."No." WHERE("No." = FIELD("Source No."))
-            ELSE
-            IF ("Source Type" = FILTER(5406 | 5407)) "Production Order"."No." WHERE(Status = CONST(Released),
-                                                                                                                                                                                                                                                                                                                                                                                                                                               "No." = FIELD("Source No."))
-            ELSE
-            IF ("Source Type" = FILTER(901)) "Assembly Header"."No." WHERE("Document Type" = CONST(Order),
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  "No." = FIELD("Source No."));
+            TableRelation = if ("Source Document" = const("Sales Order")) "Sales Header"."No." where("Document Type" = const(Order),
+                                                                                                    "No." = field("Source No."))
+            else
+            if ("Source Document" = const("Sales Return Order")) "Sales Header"."No." where("Document Type" = const("Return Order"),
+                                                                                                                                                                                        "No." = field("Source No."))
+            else
+            if ("Source Document" = const("Purchase Order")) "Purchase Header"."No." where("Document Type" = const(Order),
+                                                                                                                                                                                                                                                                           "No." = field("Source No."))
+            else
+            if ("Source Document" = const("Purchase Return Order")) "Purchase Header"."No." where("Document Type" = const("Return Order"),
+                                                                                                                                                                                                                                                                                                                                                                     "No." = field("Source No."))
+            else
+            if ("Source Type" = const(5741)) "Transfer Header"."No." where("No." = field("Source No."))
+            else
+            if ("Source Type" = filter(5406 | 5407)) "Production Order"."No." where(Status = const(Released),
+                                                                                                                                                                                                                                                                                                                                                                                                                                               "No." = field("Source No."))
+            else
+            if ("Source Type" = filter(901)) "Assembly Header"."No." where("Document Type" = const(Order),
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  "No." = field("Source No."));
         }
         field(4; "Source Document"; Enum "Warehouse Request Source Document")
         {
@@ -91,17 +106,17 @@ table 5765 "Warehouse Request"
         field(12; "Destination No."; Code[20])
         {
             Caption = 'Destination No.';
-            TableRelation = IF ("Destination Type" = CONST(Vendor)) Vendor
-            ELSE
-            IF ("Destination Type" = CONST(Customer)) Customer
-            ELSE
-            IF ("Destination Type" = CONST(Location)) Location
-            ELSE
-            IF ("Destination Type" = CONST(Item)) Item
-            ELSE
-            IF ("Destination Type" = CONST(Family)) Family
-            ELSE
-            IF ("Destination Type" = CONST("Sales Order")) "Sales Header"."No." WHERE("Document Type" = CONST(Order));
+            TableRelation = if ("Destination Type" = const(Vendor)) Vendor
+            else
+            if ("Destination Type" = const(Customer)) Customer
+            else
+            if ("Destination Type" = const(Location)) Location
+            else
+            if ("Destination Type" = const(Item)) Item
+            else
+            if ("Destination Type" = const(Family)) Family
+            else
+            if ("Destination Type" = const("Sales Order")) "Sales Header"."No." where("Document Type" = const(Order));
         }
         field(13; "External Document No."; Code[35])
         {
@@ -122,10 +137,10 @@ table 5765 "Warehouse Request"
         }
         field(20; "Put-away / Pick No."; Code[20])
         {
-            CalcFormula = Lookup("Warehouse Activity Line"."No." WHERE("Source Type" = FIELD("Source Type"),
-                                                                        "Source Subtype" = FIELD("Source Subtype"),
-                                                                        "Source No." = FIELD("Source No."),
-                                                                        "Location Code" = FIELD("Location Code")));
+            CalcFormula = Lookup("Warehouse Activity Line"."No." where("Source Type" = field("Source Type"),
+                                                                        "Source Subtype" = field("Source Subtype"),
+                                                                        "Source No." = field("Source No."),
+                                                                        "Location Code" = field("Location Code")));
             Caption = 'Put-away / Pick No.';
             Editable = false;
             FieldClass = FlowField;
@@ -197,52 +212,11 @@ table 5765 "Warehouse Request"
     end;
 
     procedure ShowSourceDocumentCard()
-    var
-        PurchHeader: Record "Purchase Header";
-        SalesHeader: Record "Sales Header";
-        TransHeader: Record "Transfer Header";
-        ProdOrder: Record "Production Order";
-        ServiceHeader: Record "Service Header";
     begin
-        case "Source Document" of
-            "Source Document"::"Purchase Order":
-                begin
-                    PurchHeader.Get("Source Subtype", "Source No.");
-                    PAGE.Run(PAGE::"Purchase Order", PurchHeader);
-                end;
-            "Source Document"::"Purchase Return Order":
-                begin
-                    PurchHeader.Get("Source Subtype", "Source No.");
-                    PAGE.Run(PAGE::"Purchase Return Order", PurchHeader);
-                end;
-            "Source Document"::"Sales Order":
-                begin
-                    SalesHeader.Get("Source Subtype", "Source No.");
-                    PAGE.Run(PAGE::"Sales Order", SalesHeader);
-                end;
-            "Source Document"::"Sales Return Order":
-                begin
-                    SalesHeader.Get("Source Subtype", "Source No.");
-                    PAGE.Run(PAGE::"Sales Return Order", SalesHeader);
-                end;
-            "Source Document"::"Inbound Transfer", "Source Document"::"Outbound Transfer":
-                begin
-                    TransHeader.Get("Source No.");
-                    PAGE.Run(PAGE::"Transfer Order", TransHeader);
-                end;
-            "Source Document"::"Prod. Consumption", "Source Document"::"Prod. Output":
-                begin
-                    ProdOrder.Get("Source Subtype", "Source No.");
-                    PAGE.Run(PAGE::"Released Production Order", ProdOrder);
-                end;
-            "Source Document"::"Service Order":
-                begin
-                    ServiceHeader.Get("Source Subtype", "Source No.");
-                    PAGE.Run(PAGE::"Service Order", ServiceHeader);
-                end;
-            else
-                OnShowSourceDocumentCardCaseElse(Rec);
-        end;
+        OnShowSourceDocumentCard(Rec);
+#if not CLEAN23
+        OnShowSourceDocumentCardCaseElse(Rec);
+#endif
     end;
 
     [IntegrationEvent(false, false)]
@@ -256,8 +230,16 @@ table 5765 "Warehouse Request"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnShowSourceDocumentCard(var WarehouseRequest: Record "Warehouse Request")
+    begin
+    end;
+
+#if not CLEAN23
+    [IntegrationEvent(false, false)]
+    [Obsolete('Replaced by event OnOnShowSourceDocumentCard()', '23.0')]
     local procedure OnShowSourceDocumentCardCaseElse(var WhseRequest: Record "Warehouse Request")
     begin
     end;
+#endif
 }
 

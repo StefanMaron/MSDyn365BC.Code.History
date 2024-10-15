@@ -1,3 +1,5 @@
+namespace Microsoft.Finance.Currency;
+
 table 330 "Currency Exchange Rate"
 {
     Caption = 'Currency Exchange Rate';

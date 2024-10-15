@@ -1,3 +1,11 @@
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Projects.TimeSheet;
+
+using System.Security.User;
+
 page 951 "Time Sheet List"
 {
     ApplicationArea = Jobs;
@@ -7,7 +15,7 @@ page 951 "Time Sheet List"
     PageType = List;
     CardPageID = "Time Sheet Card";
     SourceTable = "Time Sheet Header";
-    SourceTableView = SORTING("Resource No.", "Starting Date") order(descending);
+    SourceTableView = sorting("Resource No.", "Starting Date") order(descending);
     UsageCategory = Tasks;
     Editable = false;
     RefreshOnActivate = true;
@@ -98,7 +106,7 @@ page 951 "Time Sheet List"
                     Visible = TimeSheetV2Enabled;
 #endif
                 }
-                field(Comment; Comment)
+                field(Comment; Rec.Comment)
                 {
                     ApplicationArea = Comments;
                     ToolTip = 'Specifies that a comment about this document has been entered.';
@@ -161,8 +169,8 @@ page 951 "Time Sheet List"
                     Caption = 'Co&mments';
                     Image = ViewComments;
                     RunObject = Page "Time Sheet Comment Sheet";
-                    RunPageLink = "No." = FIELD("No."),
-                                  "Time Sheet Line No." = CONST(0);
+                    RunPageLink = "No." = field("No."),
+                                  "Time Sheet Line No." = const(0);
                     ToolTip = 'View or add comments for the record.';
                 }
             }
@@ -209,7 +217,7 @@ page 951 "Time Sheet List"
 #endif
         TimeSheetAdminActionsVisible := UserSetup."Time Sheet Admin.";
 
-        TimeSheetMgt.FilterTimeSheets(Rec, FieldNo("Owner User ID"));
+        TimeSheetMgt.FilterTimeSheets(Rec, Rec.FieldNo("Owner User ID"));
         OnAfterOnOpenPage(Rec);
     end;
 
@@ -227,7 +235,7 @@ page 951 "Time Sheet List"
         TimeSheetLine: Record "Time Sheet Line";
     begin
         if not TimeSheetV2Enabled then begin
-            TimeSheetMgt.SetTimeSheetNo("No.", TimeSheetLine);
+            TimeSheetMgt.SetTimeSheetNo(Rec."No.", TimeSheetLine);
             Page.Run(Page::"Time Sheet", TimeSheetLine);
             exit;
         end;

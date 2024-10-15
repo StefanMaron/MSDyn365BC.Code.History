@@ -1,3 +1,12 @@
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Projects.TimeSheet;
+
+using Microsoft.Projects.Resources.Setup;
+using System.Utilities;
+
 page 954 "Manager Time Sheet by Job"
 {
     ApplicationArea = Jobs;
@@ -7,7 +16,7 @@ page 954 "Manager Time Sheet by Job"
     InsertAllowed = false;
     PageType = Worksheet;
     SourceTable = "Time Sheet Line";
-    SourceTableView = WHERE(Type = CONST(Job));
+    SourceTableView = where(Type = const(Job));
     UsageCategory = Tasks;
 
     layout
@@ -57,7 +66,7 @@ page 954 "Manager Time Sheet by Job"
 
                     trigger OnAssistEdit()
                     begin
-                        ShowLineDetails(true);
+                        Rec.ShowLineDetails(true);
                         CurrPage.Update();
                     end;
                 }
@@ -70,10 +79,10 @@ page 954 "Manager Time Sheet by Job"
 
                     trigger OnValidate()
                     begin
-                        TestField(Status, Status::Submitted);
+                        Rec.TestField(Status, Rec.Status::Submitted);
                     end;
                 }
-                field(Chargeable; Chargeable)
+                field(Chargeable; Rec.Chargeable)
                 {
                     ApplicationArea = Jobs;
                     Editable = ChargeableAllowEdit;
@@ -82,7 +91,7 @@ page 954 "Manager Time Sheet by Job"
 
                     trigger OnValidate()
                     begin
-                        TestField(Status, Status::Submitted);
+                        Rec.TestField(Status, Rec.Status::Submitted);
                     end;
                 }
                 field(Field1; CellData[1])
@@ -203,8 +212,8 @@ page 954 "Manager Time Sheet by Job"
                     Caption = 'Co&mments';
                     Image = ViewComments;
                     RunObject = Page "Time Sheet Comment Sheet";
-                    RunPageLink = "No." = FIELD("Time Sheet No."),
-                                  "Time Sheet Line No." = FIELD("Line No.");
+                    RunPageLink = "No." = field("Time Sheet No."),
+                                  "Time Sheet Line No." = field("Line No.");
                     ToolTip = 'View or add comments for the record.';
                 }
                 action("Posting E&ntries")
@@ -217,7 +226,7 @@ page 954 "Manager Time Sheet by Job"
 
                     trigger OnAction()
                     begin
-                        TimeSheetMgt.ShowPostingEntries("Time Sheet No.", "Line No.");
+                        TimeSheetMgt.ShowPostingEntries(Rec."Time Sheet No.", Rec."Line No.");
                     end;
                 }
                 action("Activity &Details")
@@ -230,7 +239,7 @@ page 954 "Manager Time Sheet by Job"
 
                     trigger OnAction()
                     begin
-                        ShowLineDetails(true);
+                        Rec.ShowLineDetails(true);
                     end;
                 }
             }
@@ -384,17 +393,17 @@ page 954 "Manager Time Sheet by Job"
         i := 0;
         while i < NoOfColumns do begin
             i := i + 1;
-            if ("Line No." <> 0) and TimeSheetDetail.Get(
-                 "Time Sheet No.",
-                 "Line No.",
+            if (Rec."Line No." <> 0) and TimeSheetDetail.Get(
+                 Rec."Time Sheet No.",
+                 Rec."Line No.",
                  ColumnRecords[i]."Period Start")
             then
                 CellData[i] := TimeSheetDetail.Quantity
             else
                 CellData[i] := 0;
         end;
-        WorkTypeCodeAllowEdit := GetAllowEdit(FieldNo("Work Type Code"), true);
-        ChargeableAllowEdit := GetAllowEdit(FieldNo(Chargeable), true);
+        WorkTypeCodeAllowEdit := Rec.GetAllowEdit(Rec.FieldNo("Work Type Code"), true);
+        ChargeableAllowEdit := Rec.GetAllowEdit(Rec.FieldNo(Chargeable), true);
     end;
 
     procedure SetInitialStartingDateBase(StartingDateBase: Date)
@@ -408,10 +417,10 @@ page 954 "Manager Time Sheet by Job"
             InitialStartingDateBase := Workdate();
         CalcStartingDate(Which, InitialStartingDateBase, StartingDate);
         EndingDate := CalcDate('<1W>', StartingDate) - 1;
-        FilterGroup(2);
-        SetRange("Time Sheet Starting Date", StartingDate, EndingDate);
-        SetRange("Approver ID", UserId);
-        FilterGroup(0);
+        Rec.FilterGroup(2);
+        Rec.SetRange("Time Sheet Starting Date", StartingDate, EndingDate);
+        Rec.SetRange("Approver ID", UserId);
+        Rec.FilterGroup(0);
         SetColumns();
         CurrPage.Update(false);
     end;

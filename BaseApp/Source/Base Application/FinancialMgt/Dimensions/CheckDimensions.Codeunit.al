@@ -1,3 +1,17 @@
+﻿namespace Microsoft.Finance.Dimension;
+
+using Microsoft.CRM.Campaign;
+using Microsoft.CRM.Team;
+using Microsoft.Inventory.Location;
+using Microsoft.Manufacturing.WorkCenter;
+using Microsoft.Projects.Project.Job;
+using Microsoft.Purchases.Document;
+using Microsoft.Purchases.Vendor;
+using Microsoft.Sales.Customer;
+using Microsoft.Sales.Document;
+using Microsoft.Utilities;
+using System.Utilities;
+
 codeunit 481 "Check Dimensions"
 {
 
@@ -32,134 +46,122 @@ codeunit 481 "Check Dimensions"
         CheckPurchDimLines(PurchHeader, TempPurchLineLocal);
     end;
 
-    local procedure CheckPurchDimCombHeader(PurchHeader: Record "Purchase Header")
+    local procedure CheckPurchDimCombHeader(PurchaseHeader: Record "Purchase Header")
     var
         ErrorContextElement: Codeunit "Error Context Element";
         ContextErrorMessage: Text[250];
     begin
-        with PurchHeader do begin
-            ContextErrorMessage := StrSubstNo(DimensionIsBlockedErr, "Document Type", "No.");
-            ErrorMessageMgt.PushContext(ErrorContextElement, RecordId, 0, ContextErrorMessage);
-            if not DimMgt.CheckDimIDComb("Dimension Set ID") then
-                ErrorMessageMgt.ThrowError(ContextErrorMessage, DimMgt.GetDimErr());
-            ErrorMessageMgt.PopContext(ErrorContextElement);
-        end;
+        ContextErrorMessage := StrSubstNo(DimensionIsBlockedErr, PurchaseHeader."Document Type", PurchaseHeader."No.");
+        ErrorMessageMgt.PushContext(ErrorContextElement, PurchaseHeader.RecordId, 0, ContextErrorMessage);
+        if not DimMgt.CheckDimIDComb(PurchaseHeader."Dimension Set ID") then
+            ErrorMessageMgt.ThrowError(ContextErrorMessage, DimMgt.GetDimErr());
+        ErrorMessageMgt.PopContext(ErrorContextElement);
     end;
 
-    local procedure CheckPurchDimCombLine(PurchLine: Record "Purchase Line")
+    local procedure CheckPurchDimCombLine(PurchaseLine: Record "Purchase Line")
     var
         ErrorContextElement: Codeunit "Error Context Element";
         ContextErrorMessage: Text[250];
     begin
-        with PurchLine do begin
-            ContextErrorMessage := StrSubstNo(LineDimensionBlockedErr, "Document Type", "Document No.", "Line No.");
-            ErrorMessageMgt.PushContext(ErrorContextElement, RecordId, 0, ContextErrorMessage);
-            if not DimMgt.CheckDimIDComb("Dimension Set ID") then
-                ErrorMessageMgt.ThrowError(ContextErrorMessage, DimMgt.GetDimErr());
-            ErrorMessageMgt.PopContext(ErrorContextElement);
-        end;
+        ContextErrorMessage := StrSubstNo(LineDimensionBlockedErr, PurchaseLine."Document Type", PurchaseLine."Document No.", PurchaseLine."Line No.");
+        ErrorMessageMgt.PushContext(ErrorContextElement, PurchaseLine.RecordId, 0, ContextErrorMessage);
+        if not DimMgt.CheckDimIDComb(PurchaseLine."Dimension Set ID") then
+            ErrorMessageMgt.ThrowError(ContextErrorMessage, DimMgt.GetDimErr());
+        ErrorMessageMgt.PopContext(ErrorContextElement);
     end;
 
-    local procedure CheckPurchDimLines(PurchHeader: Record "Purchase Header"; var TempPurchLine: Record "Purchase Line" temporary)
+    local procedure CheckPurchDimLines(PurchaseHeader: Record "Purchase Header"; var TempPurchaseLine: Record "Purchase Line" temporary)
     begin
-        with TempPurchLine do begin
-            Reset();
-            SetFilter(Type, '<>%1', Type::" ");
-            if FindSet() then
-                repeat
-                    if (PurchHeader.Receive and ("Qty. to Receive" <> 0)) or
-                       (PurchHeader.Invoice and ("Qty. to Invoice" <> 0)) or
-                       (PurchHeader.Ship and ("Return Qty. to Ship" <> 0))
-                    then begin
-                        CheckPurchDimCombLine(TempPurchLine);
-                        CheckPurchDimValuePostingLine(TempPurchLine);
-                        OnCheckPurchDimLinesOnAfterCheckPurchDimValuePostingLine(TempPurchLine);
-                    end
-                until Next() = 0;
-        end;
+        TempPurchaseLine.Reset();
+        TempPurchaseLine.SetFilter(Type, '<>%1', TempPurchaseLine.Type::" ");
+        if TempPurchaseLine.FindSet() then
+            repeat
+                if (PurchaseHeader.Receive and (TempPurchaseLine."Qty. to Receive" <> 0)) or
+                    (PurchaseHeader.Invoice and (TempPurchaseLine."Qty. to Invoice" <> 0)) or
+                    (PurchaseHeader.Ship and (TempPurchaseLine."Return Qty. to Ship" <> 0))
+                then begin
+                    CheckPurchDimCombLine(TempPurchaseLine);
+                    CheckPurchDimValuePostingLine(TempPurchaseLine);
+                    OnCheckPurchDimLinesOnAfterCheckPurchDimValuePostingLine(TempPurchaseLine);
+                end
+            until TempPurchaseLine.Next() = 0;
     end;
 
-    local procedure CheckPurchDimValuePostingHeader(PurchHeader: Record "Purchase Header")
+    local procedure CheckPurchDimValuePostingHeader(PurchaseHeader: Record "Purchase Header")
     var
         ErrorContextElement: Codeunit "Error Context Element";
         ContextErrorMessage: Text[250];
         TableIDArr: array[10] of Integer;
         NumberArr: array[10] of Code[20];
     begin
-        with PurchHeader do begin
-            TableIDArr[1] := DATABASE::Vendor;
-            NumberArr[1] := "Pay-to Vendor No.";
-            TableIDArr[2] := DATABASE::"Salesperson/Purchaser";
-            NumberArr[2] := "Purchaser Code";
-            TableIDArr[3] := DATABASE::Campaign;
-            NumberArr[3] := "Campaign No.";
-            TableIDArr[4] := DATABASE::"Responsibility Center";
-            NumberArr[4] := "Responsibility Center";
-            TableIDArr[5] := Database::Location;
-            NumberArr[5] := "Location Code";
-            OnCheckDimValuePostingOnAfterCreateDimTableIDs(PurchHeader, TableIDArr, NumberArr);
+        TableIDArr[1] := Database::Vendor;
+        NumberArr[1] := PurchaseHeader."Pay-to Vendor No.";
+        TableIDArr[2] := Database::"Salesperson/Purchaser";
+        NumberArr[2] := PurchaseHeader."Purchaser Code";
+        TableIDArr[3] := Database::Campaign;
+        NumberArr[3] := PurchaseHeader."Campaign No.";
+        TableIDArr[4] := Database::"Responsibility Center";
+        NumberArr[4] := PurchaseHeader."Responsibility Center";
+        TableIDArr[5] := Database::Location;
+        NumberArr[5] := PurchaseHeader."Location Code";
+        OnCheckDimValuePostingOnAfterCreateDimTableIDs(PurchaseHeader, TableIDArr, NumberArr);
 
-            DimMgt.SetSourceCode(DATABASE::"Purchase Header", PurchHeader);
-            ContextErrorMessage := StrSubstNo(InvalidDimensionsErr, "Document Type", "No.");
-            ErrorMessageMgt.PushContext(ErrorContextElement, RecordId, 0, ContextErrorMessage);
-            if not DimMgt.CheckDimValuePosting(TableIDArr, NumberArr, "Dimension Set ID") then
-                ErrorMessageMgt.ThrowError(ContextErrorMessage, DimMgt.GetDimErr());
-            ErrorMessageMgt.PopContext(ErrorContextElement);
-        end;
+        DimMgt.SetSourceCode(Database::"Purchase Header", PurchaseHeader);
+        ContextErrorMessage := StrSubstNo(InvalidDimensionsErr, PurchaseHeader."Document Type", PurchaseHeader."No.");
+        ErrorMessageMgt.PushContext(ErrorContextElement, PurchaseHeader.RecordId, 0, ContextErrorMessage);
+        if not DimMgt.CheckDimValuePosting(TableIDArr, NumberArr, PurchaseHeader."Dimension Set ID") then
+            ErrorMessageMgt.ThrowError(ContextErrorMessage, DimMgt.GetDimErr());
+        ErrorMessageMgt.PopContext(ErrorContextElement);
     end;
 
-    local procedure CheckPurchDimValuePostingLine(PurchLine: Record "Purchase Line")
+    local procedure CheckPurchDimValuePostingLine(PurchaseLine: Record "Purchase Line")
     var
         ErrorContextElement: Codeunit "Error Context Element";
         ContextErrorMessage: Text[250];
         TableIDArr: array[10] of Integer;
         NumberArr: array[10] of Code[20];
     begin
-        with PurchLine do begin
-            TableIDArr[1] := DimMgt.PurchLineTypeToTableID(Type);
-            NumberArr[1] := "No.";
-            TableIDArr[2] := DATABASE::Job;
-            NumberArr[2] := "Job No.";
-            TableIDArr[3] := DATABASE::"Work Center";
-            NumberArr[3] := "Work Center No.";
-            TableIDArr[4] := Database::Location;
-            NumberArr[4] := "Location Code";
-            OnCheckDimValuePostingOnAfterCreateDimTableIDs(PurchLine, TableIDArr, NumberArr);
+        TableIDArr[1] := DimMgt.PurchLineTypeToTableID(PurchaseLine.Type);
+        NumberArr[1] := PurchaseLine."No.";
+        TableIDArr[2] := Database::Job;
+        NumberArr[2] := PurchaseLine."Job No.";
+        TableIDArr[3] := Database::"Work Center";
+        NumberArr[3] := PurchaseLine."Work Center No.";
+        TableIDArr[4] := Database::Location;
+        NumberArr[4] := PurchaseLine."Location Code";
+        OnCheckDimValuePostingOnAfterCreateDimTableIDs(PurchaseLine, TableIDArr, NumberArr);
 
-            DimMgt.SetSourceCode(DATABASE::"Purchase Line", PurchLine);
-            ContextErrorMessage := StrSubstNo(LineInvalidDimensionsErr, "Document Type", "Document No.", "Line No.");
-            ErrorMessageMgt.PushContext(ErrorContextElement, RecordId, 0, ContextErrorMessage);
-            if not DimMgt.CheckDimValuePosting(TableIDArr, NumberArr, "Dimension Set ID") then
-                ErrorMessageMgt.ThrowError(ContextErrorMessage, DimMgt.GetDimErr());
-            ErrorMessageMgt.PopContext(ErrorContextElement);
-        end;
+        DimMgt.SetSourceCode(Database::"Purchase Line", PurchaseLine);
+        ContextErrorMessage := StrSubstNo(LineInvalidDimensionsErr, PurchaseLine."Document Type", PurchaseLine."Document No.", PurchaseLine."Line No.");
+        ErrorMessageMgt.PushContext(ErrorContextElement, PurchaseLine.RecordId, 0, ContextErrorMessage);
+        if not DimMgt.CheckDimValuePosting(TableIDArr, NumberArr, PurchaseLine."Dimension Set ID") then
+            ErrorMessageMgt.ThrowError(ContextErrorMessage, DimMgt.GetDimErr());
+        ErrorMessageMgt.PopContext(ErrorContextElement);
     end;
 
-    procedure CheckPurchPrepmtDim(PurchHeader: Record "Purchase Header")
+    procedure CheckPurchPrepmtDim(PurchaseHeader: Record "Purchase Header")
     begin
         DimMgt.SetCollectErrorsMode();
-        CheckPurchDimCombHeader(PurchHeader);
-        CheckPurchDimValuePostingHeader(PurchHeader);
+        CheckPurchDimCombHeader(PurchaseHeader);
+        CheckPurchDimValuePostingHeader(PurchaseHeader);
 
-        CheckPurchPrepmtDimLines(PurchHeader);
+        CheckPurchPrepmtDimLines(PurchaseHeader);
     end;
 
-    local procedure CheckPurchPrepmtDimLines(PurchHeader: Record "Purchase Header")
+    local procedure CheckPurchPrepmtDimLines(PurchaseHeader: Record "Purchase Header")
     var
-        PurchLine: Record "Purchase Line";
+        PurchaseLine: Record "Purchase Line";
     begin
-        with PurchLine do begin
-            Reset();
-            SetRange("Document Type", PurchHeader."Document Type");
-            SetRange("Document No.", PurchHeader."No.");
-            SetFilter(Type, '<>%1', Type::" ");
-            SetFilter("Prepayment %", '<>0');
-            if FindSet() then
-                repeat
-                    CheckPurchDimCombLine(PurchLine);
-                    CheckPurchDimValuePostingLine(PurchLine);
-                until Next() = 0;
-        end;
+        PurchaseLine.Reset();
+        PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
+        PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
+        PurchaseLine.SetFilter(Type, '<>%1', PurchaseLine.Type::" ");
+        PurchaseLine.SetFilter("Prepayment %", '<>0');
+        if PurchaseLine.FindSet() then
+            repeat
+                CheckPurchDimCombLine(PurchaseLine);
+                CheckPurchDimValuePostingLine(PurchaseLine);
+            until PurchaseLine.Next() = 0;
     end;
 
     procedure CheckSalesDim(SalesHeader: Record "Sales Header"; var TempSalesLine: Record "Sales Line" temporary)
@@ -185,13 +187,11 @@ codeunit 481 "Check Dimensions"
         ErrorContextElement: Codeunit "Error Context Element";
         ContextErrorMessage: Text[250];
     begin
-        with SalesHeader do begin
-            ContextErrorMessage := StrSubstNo(DimensionIsBlockedErr, "Document Type", "No.");
-            ErrorMessageMgt.PushContext(ErrorContextElement, RecordId, 0, ContextErrorMessage);
-            if not DimMgt.CheckDimIDComb("Dimension Set ID") then
-                ErrorMessageMgt.ThrowError(ContextErrorMessage, DimMgt.GetDimErr());
-            ErrorMessageMgt.PopContext(ErrorContextElement);
-        end;
+        ContextErrorMessage := StrSubstNo(DimensionIsBlockedErr, SalesHeader."Document Type", SalesHeader."No.");
+        ErrorMessageMgt.PushContext(ErrorContextElement, SalesHeader.RecordId, 0, ContextErrorMessage);
+        if not DimMgt.CheckDimIDComb(SalesHeader."Dimension Set ID") then
+            ErrorMessageMgt.ThrowError(ContextErrorMessage, DimMgt.GetDimErr());
+        ErrorMessageMgt.PopContext(ErrorContextElement);
     end;
 
     local procedure CheckSalesDimCombLine(SalesLine: Record "Sales Line")
@@ -199,34 +199,30 @@ codeunit 481 "Check Dimensions"
         ErrorContextElement: Codeunit "Error Context Element";
         ContextErrorMessage: Text[250];
     begin
-        with SalesLine do begin
-            ContextErrorMessage := StrSubstNo(LineDimensionBlockedErr, "Document Type", "Document No.", "Line No.");
-            ErrorMessageMgt.PushContext(ErrorContextElement, RecordId, 0, ContextErrorMessage);
-            if not DimMgt.CheckDimIDComb("Dimension Set ID") then
-                ErrorMessageMgt.ThrowError(ContextErrorMessage, DimMgt.GetDimErr());
-            ErrorMessageMgt.PopContext(ErrorContextElement);
-        end;
+        ContextErrorMessage := StrSubstNo(LineDimensionBlockedErr, SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.");
+        ErrorMessageMgt.PushContext(ErrorContextElement, SalesLine.RecordId, 0, ContextErrorMessage);
+        if not DimMgt.CheckDimIDComb(SalesLine."Dimension Set ID") then
+            ErrorMessageMgt.ThrowError(ContextErrorMessage, DimMgt.GetDimErr());
+        ErrorMessageMgt.PopContext(ErrorContextElement);
     end;
 
     local procedure CheckSalesDimLines(SalesHeader: Record "Sales Header"; var TempSalesLine: Record "Sales Line" temporary)
     var
         ShouldCheckDimensions: Boolean;
     begin
-        with TempSalesLine do begin
-            Reset();
-            SetFilter(Type, '<>%1', Type::" ");
-            if FindSet() then
-                repeat
-                    ShouldCheckDimensions := (SalesHeader.Invoice and ("Qty. to Invoice" <> 0)) or
-                                             (SalesHeader.Ship and ("Qty. to Ship" <> 0)) or
-                                             (SalesHeader.Receive and ("Return Qty. to Receive" <> 0));
-                    OnCheckSalesDimLinesOnAfterCalcShouldCheckDimensions(SalesHeader, TempSalesLine, ShouldCheckDimensions);
-                    if ShouldCheckDimensions then begin
-                        CheckSalesDimCombLine(TempSalesLine);
-                        CheckSalesDimValuePostingLine(TempSalesLine);
-                    end
-                until Next() = 0;
-        end;
+        TempSalesLine.Reset();
+        TempSalesLine.SetFilter(Type, '<>%1', TempSalesLine.Type::" ");
+        if TempSalesLine.FindSet() then
+            repeat
+                ShouldCheckDimensions := (SalesHeader.Invoice and (TempSalesLine."Qty. to Invoice" <> 0)) or
+                                            (SalesHeader.Ship and (TempSalesLine."Qty. to Ship" <> 0)) or
+                                            (SalesHeader.Receive and (TempSalesLine."Return Qty. to Receive" <> 0));
+                OnCheckSalesDimLinesOnAfterCalcShouldCheckDimensions(SalesHeader, TempSalesLine, ShouldCheckDimensions);
+                if ShouldCheckDimensions then begin
+                    CheckSalesDimCombLine(TempSalesLine);
+                    CheckSalesDimValuePostingLine(TempSalesLine);
+                end
+            until TempSalesLine.Next() = 0;
     end;
 
     local procedure CheckSalesDimValuePostingHeader(SalesHeader: Record "Sales Header")
@@ -236,26 +232,24 @@ codeunit 481 "Check Dimensions"
         TableIDArr: array[10] of Integer;
         NumberArr: array[10] of Code[20];
     begin
-        with SalesHeader do begin
-            TableIDArr[1] := DATABASE::Customer;
-            NumberArr[1] := "Bill-to Customer No.";
-            TableIDArr[2] := DATABASE::"Salesperson/Purchaser";
-            NumberArr[2] := "Salesperson Code";
-            TableIDArr[3] := DATABASE::Campaign;
-            NumberArr[3] := "Campaign No.";
-            TableIDArr[4] := DATABASE::"Responsibility Center";
-            NumberArr[4] := "Responsibility Center";
-            TableIDArr[5] := Database::Location;
-            NumberArr[5] := "Location Code";
-            OnCheckDimValuePostingOnAfterCreateDimTableIDs(SalesHeader, TableIDArr, NumberArr);
+        TableIDArr[1] := Database::Customer;
+        NumberArr[1] := SalesHeader."Bill-to Customer No.";
+        TableIDArr[2] := Database::"Salesperson/Purchaser";
+        NumberArr[2] := SalesHeader."Salesperson Code";
+        TableIDArr[3] := Database::Campaign;
+        NumberArr[3] := SalesHeader."Campaign No.";
+        TableIDArr[4] := Database::"Responsibility Center";
+        NumberArr[4] := SalesHeader."Responsibility Center";
+        TableIDArr[5] := Database::Location;
+        NumberArr[5] := SalesHeader."Location Code";
+        OnCheckDimValuePostingOnAfterCreateDimTableIDs(SalesHeader, TableIDArr, NumberArr);
 
-            DimMgt.SetSourceCode(DATABASE::"Sales Header", SalesHeader);
-            ContextErrorMessage := StrSubstNo(InvalidDimensionsErr, "Document Type", "No.");
-            ErrorMessageMgt.PushContext(ErrorContextElement, RecordId, 0, ContextErrorMessage);
-            if not DimMgt.CheckDimValuePosting(TableIDArr, NumberArr, "Dimension Set ID") then
-                ErrorMessageMgt.ThrowError(ContextErrorMessage, DimMgt.GetDimErr());
-            ErrorMessageMgt.PopContext(ErrorContextElement);
-        end;
+        DimMgt.SetSourceCode(Database::"Sales Header", SalesHeader);
+        ContextErrorMessage := StrSubstNo(InvalidDimensionsErr, SalesHeader."Document Type", SalesHeader."No.");
+        ErrorMessageMgt.PushContext(ErrorContextElement, SalesHeader.RecordId, 0, ContextErrorMessage);
+        if not DimMgt.CheckDimValuePosting(TableIDArr, NumberArr, SalesHeader."Dimension Set ID") then
+            ErrorMessageMgt.ThrowError(ContextErrorMessage, DimMgt.GetDimErr());
+        ErrorMessageMgt.PopContext(ErrorContextElement);
     end;
 
     local procedure CheckSalesDimValuePostingLine(SalesLine: Record "Sales Line")
@@ -265,22 +259,20 @@ codeunit 481 "Check Dimensions"
         TableIDArr: array[10] of Integer;
         NumberArr: array[10] of Code[20];
     begin
-        with SalesLine do begin
-            TableIDArr[1] := DimMgt.SalesLineTypeToTableID(Type);
-            NumberArr[1] := "No.";
-            TableIDArr[2] := DATABASE::Job;
-            NumberArr[2] := "Job No.";
-            TableIDArr[3] := Database::Location;
-            NumberArr[3] := "Location Code";
-            DimMgt.SetSourceCode(DATABASE::"Sales Line", SalesLine);
-            OnCheckDimValuePostingOnAfterCreateDimTableIDs(SalesLine, TableIDArr, NumberArr);
+        TableIDArr[1] := DimMgt.SalesLineTypeToTableID(SalesLine.Type);
+        NumberArr[1] := SalesLine."No.";
+        TableIDArr[2] := Database::Job;
+        NumberArr[2] := SalesLine."Job No.";
+        TableIDArr[3] := Database::Location;
+        NumberArr[3] := SalesLine."Location Code";
+        DimMgt.SetSourceCode(Database::"Sales Line", SalesLine);
+        OnCheckDimValuePostingOnAfterCreateDimTableIDs(SalesLine, TableIDArr, NumberArr);
 
-            ContextErrorMessage := StrSubstNo(LineInvalidDimensionsErr, "Document Type", "Document No.", "Line No.");
-            ErrorMessageMgt.PushContext(ErrorContextElement, RecordId, 0, ContextErrorMessage);
-            if not DimMgt.CheckDimValuePosting(TableIDArr, NumberArr, "Dimension Set ID") then
-                ErrorMessageMgt.ThrowError(ContextErrorMessage, DimMgt.GetDimErr());
-            ErrorMessageMgt.PopContext(ErrorContextElement);
-        end;
+        ContextErrorMessage := StrSubstNo(LineInvalidDimensionsErr, SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.");
+        ErrorMessageMgt.PushContext(ErrorContextElement, SalesLine.RecordId, 0, ContextErrorMessage);
+        if not DimMgt.CheckDimValuePosting(TableIDArr, NumberArr, SalesLine."Dimension Set ID") then
+            ErrorMessageMgt.ThrowError(ContextErrorMessage, DimMgt.GetDimErr());
+        ErrorMessageMgt.PopContext(ErrorContextElement);
     end;
 
     procedure CheckSalesPrepmtDim(SalesHeader: Record "Sales Header")
@@ -296,18 +288,16 @@ codeunit 481 "Check Dimensions"
     var
         SalesLine: Record "Sales Line";
     begin
-        with SalesLine do begin
-            Reset();
-            SetRange("Document Type", SalesHeader."Document Type");
-            SetRange("Document No.", SalesHeader."No.");
-            SetFilter(Type, '<>%1', Type::" ");
-            SetFilter("Prepayment %", '<>0');
-            if FindSet() then
-                repeat
-                    CheckSalesDimCombLine(SalesLine);
-                    CheckSalesDimValuePostingLine(SalesLine);
-                until Next() = 0;
-        end;
+        SalesLine.Reset();
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.SetFilter(Type, '<>%1', SalesLine.Type::" ");
+        SalesLine.SetFilter("Prepayment %", '<>0');
+        if SalesLine.FindSet() then
+            repeat
+                CheckSalesDimCombLine(SalesLine);
+                CheckSalesDimValuePostingLine(SalesLine);
+            until SalesLine.Next() = 0;
     end;
 
     local procedure ShowDimensionsSetup(RecID: RecordID): Boolean
@@ -322,14 +312,14 @@ codeunit 481 "Check Dimensions"
         RecRef: RecordRef;
     begin
         case RecID.TableNo of
-            DATABASE::Dimension:
+            Database::Dimension:
                 begin
                     RecRef := RecID.GetRecord();
                     if RecRef.Find() then
                         RecRef.SetTable(Dimension);
                     PAGE.Run(PAGE::Dimensions, Dimension);
                 end;
-            DATABASE::"Dimension Combination":
+            Database::"Dimension Combination":
                 begin
                     RecRef := RecID.GetRecord();
                     if RecRef.Find() then
@@ -337,14 +327,14 @@ codeunit 481 "Check Dimensions"
                     DimensionCombinations.SetSelectedRecord(DimensionCombination);
                     DimensionCombinations.Run();
                 end;
-            DATABASE::"Dimension Value":
+            Database::"Dimension Value":
                 begin
                     RecRef := RecID.GetRecord();
                     if RecRef.Find() then
                         RecRef.SetTable(DimensionValue);
                     PAGE.Run(PAGE::"Dimension Values", DimensionValue);
                 end;
-            DATABASE::"Dimension Value Combination":
+            Database::"Dimension Value Combination":
                 begin
                     RecRef := RecID.GetRecord();
                     if RecRef.Find() then
@@ -352,7 +342,7 @@ codeunit 481 "Check Dimensions"
                     MyDimValueCombinations.SetSelectedDimValueComb(DimensionValueCombination);
                     MyDimValueCombinations.Run();
                 end;
-            DATABASE::"Default Dimension":
+            Database::"Default Dimension":
                 begin
                     RecRef := RecID.GetRecord();
                     if RecRef.Find() then begin
@@ -383,14 +373,14 @@ codeunit 481 "Check Dimensions"
             exit(Result);
 
         case RecID.TableNo of
-            DATABASE::"Sales Header":
+            Database::"Sales Header":
                 begin
                     RecRef := RecID.GetRecord();
                     if RecRef.Find() then
                         RecRef.SetTable(SalesHeader);
                     SalesHeader.ShowDocDim();
                 end;
-            DATABASE::"Sales Line":
+            Database::"Sales Line":
                 begin
                     RecRef := RecID.GetRecord();
                     if RecRef.Find() then
@@ -398,14 +388,14 @@ codeunit 481 "Check Dimensions"
                     if SalesLine.ShowDimensions() then
                         SalesLine.Modify();
                 end;
-            DATABASE::"Purchase Header":
+            Database::"Purchase Header":
                 begin
                     RecRef := RecID.GetRecord();
                     if RecRef.Find() then
                         RecRef.SetTable(PurchaseHeader);
                     PurchaseHeader.ShowDocDim();
                 end;
-            DATABASE::"Purchase Line":
+            Database::"Purchase Line":
                 begin
                     RecRef := RecID.GetRecord();
                     if RecRef.Find() then
@@ -423,7 +413,7 @@ codeunit 481 "Check Dimensions"
     local procedure OnErrorMessageDrillDown(ErrorMessage: Record "Error Message"; SourceFieldNo: Integer; var IsHandled: Boolean)
     begin
         if not IsHandled then
-            if ErrorMessage."Table Number" in [DATABASE::Dimension .. DATABASE::"Default Dimension"] then
+            if ErrorMessage."Table Number" in [Database::Dimension .. Database::"Default Dimension"] then
                 case SourceFieldNo of
                     ErrorMessage.FieldNo("Context Record ID"):
                         IsHandled := ShowContextDimensions(ErrorMessage."Context Record ID");
@@ -460,7 +450,7 @@ codeunit 481 "Check Dimensions"
     var
         PageManagement: Codeunit "Page Management";
     begin
-        if ErrorMessage."Table Number" in [DATABASE::Dimension .. DATABASE::"Default Dimension"] then begin
+        if ErrorMessage."Table Number" in [Database::Dimension .. Database::"Default Dimension"] then begin
             PageManagement.PageRun(ErrorMessage."Context Record ID");
             IsHandled := true;
         end;

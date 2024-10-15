@@ -1,3 +1,5 @@
+namespace Microsoft.Warehouse.ADCS;
+
 page 7701 "Miniform Subform"
 {
     AutoSplitKey = true;
@@ -13,7 +15,7 @@ page 7701 "Miniform Subform"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Area"; Area)
+                field("Area"; Rec.Area)
                 {
                     ApplicationArea = ADCS;
                     ToolTip = 'Specifies the area of the customer or vendor, for the purpose of reporting to INTRASTAT.';
@@ -38,7 +40,7 @@ page 7701 "Miniform Subform"
                     ApplicationArea = ADCS;
                     ToolTip = 'Specifies the maximum length of the field value. ';
                 }
-                field(Text; Text)
+                field(Text; Rec.Text)
                 {
                     ApplicationArea = ADCS;
                     ToolTip = 'Specifies text if the field type is Text.';

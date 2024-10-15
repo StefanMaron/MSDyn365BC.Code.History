@@ -1,3 +1,9 @@
+namespace System.Security.AccessControl;
+
+using Microsoft.Purchases.Payables;
+using Microsoft.HumanResources.Payables;
+using Microsoft.Finance.GeneralLedger.Ledger;
+
 permissionset 3560 "Payables Registers - Read"
 {
     Access = Public;

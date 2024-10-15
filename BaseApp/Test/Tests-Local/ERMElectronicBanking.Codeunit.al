@@ -1956,6 +1956,7 @@ codeunit 141021 "ERM Electronic - Banking"
     local procedure Initialize()
     var
         GenJournalLine: Record "Gen. Journal Line";
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
         LibraryVariableStorage.Clear();
         LibrarySetupStorage.Restore();
@@ -1964,6 +1965,9 @@ codeunit 141021 "ERM Electronic - Banking"
 
         if IsInitialized then
             exit;
+        PurchasesPayablesSetup.Get();
+        PurchasesPayablesSetup.Validate("Link Doc. Date To Posting Date", true);
+        PurchasesPayablesSetup.Modify();
         IsInitialized := true;
         BindSubscription(ERMElectronicBanking);
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");

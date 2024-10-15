@@ -1,3 +1,5 @@
+namespace Microsoft.Finance.Dimension;
+
 page 9253 "Dim. Value Combinations Matrix"
 {
     Caption = 'Dimension Value Combinations Matrix';
@@ -14,7 +16,7 @@ page 9253 "Dim. Value Combinations Matrix"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Code"; Code)
+                field("Code"; Rec.Code)
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for the dimension value.';
@@ -434,11 +436,11 @@ page 9253 "Dim. Value Combinations Matrix"
     trigger OnOpenPage()
     begin
         SetColumnVisibility();
-        FilterGroup(2);
-        SetRange("Dimension Code", Row);
-        FilterGroup(0);
+        Rec.FilterGroup(2);
+        Rec.SetRange("Dimension Code", Row);
+        Rec.FilterGroup(0);
         if SelectedDimValueCode <> '' then
-            SetRange(Code, SelectedDimValueCode);
+            Rec.SetRange(Code, SelectedDimValueCode);
     end;
 
     var
@@ -451,69 +453,37 @@ page 9253 "Dim. Value Combinations Matrix"
         Text000: Label 'Open,Blocked';
         Row: Code[20];
         SelectedDimValueCode: Code[20];
-        [InDataSet]
         Field1Visible: Boolean;
-        [InDataSet]
         Field2Visible: Boolean;
-        [InDataSet]
         Field3Visible: Boolean;
-        [InDataSet]
         Field4Visible: Boolean;
-        [InDataSet]
         Field5Visible: Boolean;
-        [InDataSet]
         Field6Visible: Boolean;
-        [InDataSet]
         Field7Visible: Boolean;
-        [InDataSet]
         Field8Visible: Boolean;
-        [InDataSet]
         Field9Visible: Boolean;
-        [InDataSet]
         Field10Visible: Boolean;
-        [InDataSet]
         Field11Visible: Boolean;
-        [InDataSet]
         Field12Visible: Boolean;
-        [InDataSet]
         Field13Visible: Boolean;
-        [InDataSet]
         Field14Visible: Boolean;
-        [InDataSet]
         Field15Visible: Boolean;
-        [InDataSet]
         Field16Visible: Boolean;
-        [InDataSet]
         Field17Visible: Boolean;
-        [InDataSet]
         Field18Visible: Boolean;
-        [InDataSet]
         Field19Visible: Boolean;
-        [InDataSet]
         Field20Visible: Boolean;
-        [InDataSet]
         Field21Visible: Boolean;
-        [InDataSet]
         Field22Visible: Boolean;
-        [InDataSet]
         Field23Visible: Boolean;
-        [InDataSet]
         Field24Visible: Boolean;
-        [InDataSet]
         Field25Visible: Boolean;
-        [InDataSet]
         Field26Visible: Boolean;
-        [InDataSet]
         Field27Visible: Boolean;
-        [InDataSet]
         Field28Visible: Boolean;
-        [InDataSet]
         Field29Visible: Boolean;
-        [InDataSet]
         Field30Visible: Boolean;
-        [InDataSet]
         Field31Visible: Boolean;
-        [InDataSet]
         Field32Visible: Boolean;
 
     procedure SetSelectedDimValue(DimValueCode: Code[20])
@@ -547,14 +517,14 @@ page 9253 "Dim. Value Combinations Matrix"
         Dim2Code: Code[20];
         Dim2ValueCode: Code[20];
     begin
-        if "Dimension Code" > MatrixRecords[ColumnID]."Dimension Code" then begin
+        if Rec."Dimension Code" > MatrixRecords[ColumnID]."Dimension Code" then begin
             Dim1Code := MatrixRecords[ColumnID]."Dimension Code";
             Dim1ValueCode := MatrixRecords[ColumnID].Code;
-            Dim2Code := "Dimension Code";
-            Dim2ValueCode := Code;
+            Dim2Code := Rec."Dimension Code";
+            Dim2ValueCode := Rec.Code;
         end else begin
-            Dim1Code := "Dimension Code";
-            Dim1ValueCode := Code;
+            Dim1Code := Rec."Dimension Code";
+            Dim1ValueCode := Rec.Code;
             Dim2Code := MatrixRecords[ColumnID]."Dimension Code";
             Dim2ValueCode := MatrixRecords[ColumnID].Code;
         end;
@@ -588,14 +558,14 @@ page 9253 "Dim. Value Combinations Matrix"
         Dim2Code: Code[20];
         Dim2ValueCode: Code[20];
     begin
-        if "Dimension Code" > MatrixRecords[ColumnID]."Dimension Code" then begin
+        if Rec."Dimension Code" > MatrixRecords[ColumnID]."Dimension Code" then begin
             Dim1Code := MatrixRecords[ColumnID]."Dimension Code";
             Dim1ValueCode := MatrixRecords[ColumnID].Code;
-            Dim2Code := "Dimension Code";
-            Dim2ValueCode := Code;
+            Dim2Code := Rec."Dimension Code";
+            Dim2ValueCode := Rec.Code;
         end else begin
-            Dim1Code := "Dimension Code";
-            Dim1ValueCode := Code;
+            Dim1Code := Rec."Dimension Code";
+            Dim1ValueCode := Rec.Code;
             Dim2Code := MatrixRecords[ColumnID]."Dimension Code";
             Dim2ValueCode := MatrixRecords[ColumnID].Code;
         end;

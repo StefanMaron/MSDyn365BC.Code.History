@@ -171,7 +171,7 @@ codeunit 134988 "ERM Purchase Reports III"
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.SetRange('Vendor_Ledger_Entry__Due_Date_', Format(GenJournalLine."Posting Date"));
         if not LibraryReportDataset.GetNextRow then
-            Error(StrSubstNo(RowNotFoundErr, 'Vendor_Ledger_Entry__Due_Date_', Format(GenJournalLine."Posting Date")));
+            Error(RowNotFoundErr, 'Vendor_Ledger_Entry__Due_Date_', Format(GenJournalLine."Posting Date"));
         LibraryReportDataset.AssertCurrentRowValueEquals('Vendor_Ledger_Entry__Posting_Date_', Format(GenJournalLine."Posting Date"));
         LibraryReportDataset.AssertCurrentRowValueEquals('Vendor_Ledger_Entry__Document_No__', GenJournalLine."Document No.");
         LibraryReportDataset.AssertCurrentRowValueEquals('Vendor_Ledger_Entry_Description', GenJournalLine.Description);
@@ -295,7 +295,7 @@ codeunit 134988 "ERM Purchase Reports III"
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.SetRange('No_Vendor', VendorNo);
         if not LibraryReportDataset.GetNextRow then
-            Error(StrSubstNo(RowNotFoundErr, 'No_Vendor', VendorNo));
+            Error(RowNotFoundErr, 'No_Vendor', VendorNo);
         LibraryReportDataset.AssertCurrentRowValueEquals('AgedVendLedgEnt2RemAmtLCY', -Vendor.Balance);
     end;
 
@@ -474,12 +474,12 @@ codeunit 134988 "ERM Purchase Reports III"
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.SetRange('Vendor__No__', VendorNo2);
         if not LibraryReportDataset.GetNextRow then
-            Error(StrSubstNo(RowNotFoundErr, 'Vendor__No__', VendorNo2));
+            Error(RowNotFoundErr, 'Vendor__No__', VendorNo2);
         LibraryReportDataset.AssertCurrentRowValueEquals('VendBalanceDueLCY_1_', -RemainingAmountVendor2);
         LibraryReportDataset.Reset();
         LibraryReportDataset.SetRange('Vendor__No__', VendorNo3);
         if not LibraryReportDataset.GetNextRow then
-            Error(StrSubstNo(RowNotFoundErr, 'Vendor__No__', VendorNo3));
+            Error(RowNotFoundErr, 'Vendor__No__', VendorNo3);
         LibraryReportDataset.AssertCurrentRowValueEquals('VendBalanceDueLCY_2_', -RemainingAmountVendor3);
         LibraryReportDataset.Reset();
         Assert.AreNearlyEqual(
@@ -1777,7 +1777,7 @@ codeunit 134988 "ERM Purchase Reports III"
         // Verify: Verify Assignable Quantity on Purchase Document Test Report.
         LibraryReportDataset.LoadDataSetFile;
         if not LibraryReportDataset.GetNextRow then
-            Error(StrSubstNo(RowNotFoundErr, 'Purchase_Line___No__', ItemChargeNo));
+            Error(RowNotFoundErr, 'Purchase_Line___No__', ItemChargeNo);
         Assert.AreEqual(TotalAssignedQuantityForChargeItem, LibraryReportDataset.Sum('PurchLine2_Quantity'), AssignedQuantityErr);
     end;
 
@@ -2787,7 +2787,7 @@ codeunit 134988 "ERM Purchase Reports III"
         Vendor.CalcFields("Balance (LCY)");
         LibraryReportDataset.SetRange('Vendor__No__', Vendor."No.");
         if not LibraryReportDataset.GetNextRow then
-            Error(StrSubstNo(RowNotFoundErr, 'Vendor__No__', Vendor."No."));
+            Error(RowNotFoundErr, 'Vendor__No__', Vendor."No.");
         LibraryReportDataset.AssertCurrentRowValueEquals('VendBalanceDueLCY_2_', -1 * Vendor."Balance (LCY)");  // As Balance (LCY) shows Reverse sign of Vendor Ledger Entries, So we have applied reverse sign on TotalLCY.
     end;
 

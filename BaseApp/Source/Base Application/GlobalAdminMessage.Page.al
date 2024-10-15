@@ -1,7 +1,13 @@
+namespace System.Environment;
+
+using System.Azure.Identity;
+using System.Utilities;
+
 /// <summary>
-/// The page displays a warning message to users with the Global Administrator role but without a Business Central license.
+/// The page displays a warning message to users with the Global Administrator or Dynamics 365 Administrator role but without a Business Central license.
 /// </summary>
 /// <remarks>This page is not supposed to be referenced in extensions.</remarks>
+
 page 1459 "Global Admin Message"
 {
     PageType = NavigatePage;
@@ -30,20 +36,20 @@ page 1459 "Global Admin Message"
             label(Title)
             {
                 ApplicationArea = All;
-                Caption = 'You have signed in as Global Administrator';
+                CaptionClass = TitleTxt;
                 Style = Strong;
             }
 
             label(FirstLine)
             {
                 ApplicationArea = All;
-                Caption = 'As a Global Administrator without a license for Business Central you can only manage user information and export data.';
+                Caption = 'Without a license for Business Central you can only manage user information and export data.';
             }
 
             label(SecondLine)
             {
                 ApplicationArea = All;
-                Caption = 'The Global Administrator role does not provide access to business capabilities, such as creating documents or installing extensions. To use other Business Central capabilities, you must be assigned to a license that will give you the permissions you need.';
+                Caption = 'This role does not provide access to business capabilities, such as creating documents or installing extensions. To use other Business Central capabilities, you must be assigned to a license that will give you the permissions you need.';
             }
 
             field(LearnMore; LearnMoreTxt)
@@ -58,7 +64,7 @@ page 1459 "Global Admin Message"
                 begin
                     HyperLink('https://go.microsoft.com/fwlink/?linkid=2121503');
 
-                    Session.LogMessage('0000C0V', 'User opened Global Admin documentation.', Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', 'Global Admin Notification');
+                    Session.LogMessage('0000C0V', 'User opened internal admin documentation.', Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', InternalAdminNotificationCategoryTok);
                 end;
             }
 
@@ -110,7 +116,15 @@ page 1459 "Global Admin Message"
         // Load icon
         if MediaRepository.GetForCurrentClientType('AssistedSetupInfo-NoText.png') then
             if MediaResources.Get(MediaRepository."Media Resources Ref") then
-            IconVisible := true;
+                IconVisible := true;
+    end;
+
+    internal procedure SetIsGlobalAdmin(IsUserGlobalAdmin: Boolean)
+    begin
+        if IsUserGlobalAdmin then
+            TitleTxt := StrSubstNo(TitleLbl, GlobalAdminLbl)
+        else
+            TitleTxt := StrSubstNo(TitleLbl, D365AdminLbl)
     end;
 
     var
@@ -118,5 +132,10 @@ page 1459 "Global Admin Message"
         MediaResources: Record "Media Resources";
         LearnMoreTxt: Label 'Learn more';
         LinkToUpdateUsersWizardTxt: Label 'Update user information from Microsoft 365';
+        InternalAdminNotificationCategoryTok: Label 'Internal Admin Notification', Locked = true;
+        TitleLbl: Label '3,You have signed in as %1 but you are not assigned to a product license.', Comment = '%1 - The assigned role, either the GlobalAdminLbl or D365AdminLbl';
+        GlobalAdminLbl: Label 'Global Administrator', Comment = 'Refers to the Global Administrator role of Microsoft Entra ID';
+        D365AdminLbl: Label 'Dynamics 365 Administrator', Comment = 'Refers to the Dynamics 365 Administrator role of Microsoft Entra ID';
+        TitleTxt: Text;
         IconVisible: Boolean;
 }

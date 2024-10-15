@@ -1,3 +1,7 @@
+namespace Microsoft.Finance.FinancialReports;
+
+using System.Visualization;
+
 table 763 "Acc. Sched. Chart Setup Line"
 {
     Caption = 'Acc. Sched. Chart Setup Line';
@@ -9,13 +13,13 @@ table 763 "Acc. Sched. Chart Setup Line"
             Caption = 'User ID';
             DataClassification = EndUserIdentifiableInformation;
             Editable = false;
-            TableRelation = "Account Schedules Chart Setup"."User ID" WHERE(Name = FIELD(Name));
+            TableRelation = "Account Schedules Chart Setup"."User ID" where(Name = field(Name));
         }
         field(2; Name; Text[30])
         {
             Caption = 'Name';
             Editable = false;
-            TableRelation = "Account Schedules Chart Setup".Name WHERE("User ID" = FIELD("User ID"));
+            TableRelation = "Account Schedules Chart Setup".Name where("User ID" = field("User ID"));
         }
         field(3; "Account Schedule Name"; Code[10])
         {
@@ -27,7 +31,7 @@ table 763 "Acc. Sched. Chart Setup Line"
         {
             Caption = 'Account Schedule Line No.';
             Editable = false;
-            TableRelation = "Acc. Schedule Line"."Line No." WHERE("Schedule Name" = FIELD("Account Schedule Name"));
+            TableRelation = "Acc. Schedule Line"."Line No." where("Schedule Name" = field("Account Schedule Name"));
         }
         field(5; "Column Layout Name"; Code[10])
         {
@@ -39,7 +43,7 @@ table 763 "Acc. Sched. Chart Setup Line"
         {
             Caption = 'Column Layout Line No.';
             Editable = false;
-            TableRelation = "Column Layout"."Line No." WHERE("Column Layout Name" = FIELD("Column Layout Name"));
+            TableRelation = "Column Layout"."Line No." where("Column Layout Name" = field("Column Layout Name"));
         }
         field(10; "Original Measure Name"; Text[111])
         {

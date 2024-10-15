@@ -1,3 +1,5 @@
+namespace System.Integration;
+
 page 6712 "Tenant Web Services Lookup"
 {
     Caption = 'Tenant Web Services Lookup';

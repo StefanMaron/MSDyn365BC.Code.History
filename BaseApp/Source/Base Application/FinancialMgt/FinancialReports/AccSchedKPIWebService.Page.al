@@ -1,3 +1,5 @@
+namespace Microsoft.Finance.FinancialReports;
+
 page 197 "Acc. Sched. KPI Web Service"
 {
     AdditionalSearchTerms = 'financial report,business intelligence,bi,odata,account schedule kpi web service,financial reporting';
@@ -21,7 +23,7 @@ page 197 "Acc. Sched. KPI Web Service"
                     ToolTip = 'Specifies the number of the financial report KPI web service.';
                     Visible = false;
                 }
-                field(Date; Date)
+                field(Date; Rec.Date)
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Date';
@@ -131,14 +133,14 @@ page 197 "Acc. Sched. KPI Web Service"
                 AccScheduleLine.SetRange("Row No.", AccSchedKPIBuffer."KPI Code");
                 if AccScheduleLine.FindFirst() then;
                 if AccScheduleLine.Show = "Acc. Schedule Line Show"::Yes then begin
-                    Init();
-                    "No." += 1;
-                    TransferFields(AccSchedKPIBuffer, false);
-                    Insert();
+                    Rec.Init();
+                    Rec."No." += 1;
+                    Rec.TransferFields(AccSchedKPIBuffer, false);
+                    Rec.Insert();
                 end;
             until AccSchedKPIBuffer.Next() = 0;
-        Reset();
-        FindFirst();
+        Rec.Reset();
+        Rec.FindFirst();
     end;
 }
 

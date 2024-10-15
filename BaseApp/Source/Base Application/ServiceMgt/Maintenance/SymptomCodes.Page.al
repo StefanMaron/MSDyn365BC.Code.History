@@ -1,3 +1,5 @@
+namespace Microsoft.Service.Maintenance;
+
 page 5926 "Symptom Codes"
 {
     ApplicationArea = Service;
@@ -13,7 +15,7 @@ page 5926 "Symptom Codes"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Code"; Code)
+                field("Code"; Rec.Code)
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies a code for the symptom.';

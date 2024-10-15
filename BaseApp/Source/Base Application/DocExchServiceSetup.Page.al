@@ -1,3 +1,10 @@
+namespace Microsoft.EServices.EDocument;
+
+using Microsoft.Utilities;
+using System.Environment;
+using System.Security.Encryption;
+using System.Telemetry;
+
 page 1275 "Doc. Exch. Service Setup"
 {
     AdditionalSearchTerms = 'electronic document,e-invoice,incoming document,ocr,ecommerce';
@@ -35,20 +42,20 @@ page 1275 "Doc. Exch. Service Setup"
 
                     trigger OnValidate()
                     begin
-                        SetURLsToDefault(Sandbox);
+                        Rec.SetURLsToDefault(Sandbox);
                         AppUrl := DocExchServiceMgt.GetAppUrl(Rec);
                         CurrPage.SaveRecord();
                         DocExchServiceMgt.SendActivateAppNotification();
                     end;
                 }
-                field(Enabled; Enabled)
+                field(Enabled; Rec.Enabled)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the service is enabled. When you enable the service, at least two job queue entries are created to process the traffic of electronic documents in and out of Microsoft Dynamics 365.';
 
                     trigger OnValidate()
                     begin
-                        if IsEnabledChanged() then begin
+                        if Rec.IsEnabledChanged() then begin
                             CurrPage.Update(true);
                             UpdateBasedOnEnable();
                         end;
@@ -83,7 +90,7 @@ page 1275 "Doc. Exch. Service Setup"
                         if not Confirm(RenewExpiredTokenQst) then
                             exit;
                         DocExchServiceMgt.RenewToken(false);
-                        Get();
+                        Rec.Get();
                         CurrPage.Update(false);
                     end;
                 }
@@ -199,10 +206,10 @@ page 1275 "Doc. Exch. Service Setup"
                             ClientSecret := SavedClientSecret;
                             exit;
                         end;
-                        if not IsTemporary() then
+                        if not Rec.IsTemporary() then
                             if ClientSecret <> '' then
                                 CheckEncryption();
-                        SetClientSecret(ClientSecret);
+                        Rec.SetClientSecret(ClientSecret);
                         SavedClientSecret := ClientSecret;
                     end;
                 }
@@ -230,7 +237,7 @@ page 1275 "Doc. Exch. Service Setup"
 
                 trigger OnAction()
                 begin
-                    SetURLsToDefault(Sandbox);
+                    Rec.SetURLsToDefault(Sandbox);
                     AppUrl := DocExchServiceMgt.GetAppUrl(Rec);
                 end;
             }
@@ -246,7 +253,7 @@ page 1275 "Doc. Exch. Service Setup"
                     if not Confirm(RenewTokenQst) then
                         exit;
                     DocExchServiceMgt.RenewToken(true);
-                    Get();
+                    Rec.Get();
                     CurrPage.Update(false);
                 end;
             }
@@ -259,8 +266,8 @@ page 1275 "Doc. Exch. Service Setup"
 
                 trigger OnAction()
                 begin
-                    CheckConnection();
-                    Get();
+                    Rec.CheckConnection();
+                    Rec.Get();
                     CurrPage.Update(false);
                 end;
             }
@@ -268,13 +275,13 @@ page 1275 "Doc. Exch. Service Setup"
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'Job Queue Entry';
-                Enabled = Enabled;
+                Enabled = Rec.Enabled;
                 Image = JobListSetup;
                 ToolTip = 'View or edit the jobs that automatically process the incoming and outgoing electronic documents.';
 
                 trigger OnAction()
                 begin
-                    ShowJobQueueEntry();
+                    Rec.ShowJobQueueEntry();
                 end;
             }
         }
@@ -346,7 +353,7 @@ page 1275 "Doc. Exch. Service Setup"
 
     trigger OnAfterGetRecord()
     begin
-        EditableByNotEnabled := not Enabled;
+        EditableByNotEnabled := not Rec.Enabled;
     end;
 
     trigger OnOpenPage()
@@ -354,30 +361,30 @@ page 1275 "Doc. Exch. Service Setup"
         FeatureTelemetry: Codeunit "Feature Telemetry";
         ClientId: Text;
     begin
-        Reset();
+        Rec.Reset();
         FeatureTelemetry.LogUptake('0000IM8', DocExchServiceMgt.GetFeatureTelemetryName(), Enum::"Feature Uptake Status"::Discovered);
-        if not Get() then begin
-            Init();
-            SetURLsToDefault(false);
-            Insert(true);
+        if not Rec.Get() then begin
+            Rec.Init();
+            Rec.SetURLsToDefault(false);
+            Rec.Insert(true);
         end;
         Sandbox := DocExchServiceMgt.IsSandbox(Rec);
         AppUrl := DocExchServiceMgt.GetAppUrl(Rec);
-        ClientSecret := GetClientSecret();
+        ClientSecret := Rec.GetClientSecret();
         SavedClientSecret := ClientSecret;
-        if ("Redirect URL" = '') or (SoftwareAsAservice and ("Redirect URL" <> DocExchServiceMgt.GetDefaultRedirectUrl())) then begin
-            SetDefaultRedirectUrl();
-            Modify();
+        if (Rec."Redirect URL" = '') or (SoftwareAsAservice and (Rec."Redirect URL" <> DocExchServiceMgt.GetDefaultRedirectUrl())) then begin
+            Rec.SetDefaultRedirectUrl();
+            Rec.Modify();
         end;
         UpdateBasedOnEnable();
 
-        if Enabled and "Token Expired" then begin
+        if Rec.Enabled and Rec."Token Expired" then begin
             DocExchServiceMgt.SendRenewTokenNotification();
             exit;
         end;
 
         ClientId := DocExchServiceMgt.GetClientId(Sandbox);
-        if (ClientId <> '') and ("Token Issued At" = 0DT) then
+        if (ClientId <> '') and (Rec."Token Issued At" = 0DT) then
             DocExchServiceMgt.SendActivateAppNotification();
     end;
 
@@ -394,7 +401,7 @@ page 1275 "Doc. Exch. Service Setup"
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
     begin
-        if not Enabled then
+        if not Rec.Enabled then
             if not Confirm(StrSubstNo(EnableServiceQst, CurrPage.Caption), true) then
                 exit(false);
     end;
@@ -422,13 +429,13 @@ page 1275 "Doc. Exch. Service Setup"
 
     local procedure UpdateBasedOnEnable()
     begin
-        StatusVisible := Enabled;
-        EditableByNotEnabled := not Enabled;
+        StatusVisible := Rec.Enabled;
+        EditableByNotEnabled := not Rec.Enabled;
     end;
 
     local procedure SetStyleExpr()
     begin
-        TokenStatus := not "Token Expired";
+        TokenStatus := not Rec."Token Expired";
         TokenStyleExpr := GetStyleExpr(TokenStatus);
     end;
 

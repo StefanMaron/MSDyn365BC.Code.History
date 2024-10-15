@@ -47,17 +47,6 @@ page 2399 "BC O365 My Settings"
                     UpdatePropagation = Both;
                     Visible = GraphMailVisible;
                 }
-#if not CLEAN20
-                part(SmtpMailPage; "Email Scenarios FactBox") // Original part has been removed, Email Scenarios Factbox as dummy and part is not visible
-                {
-                    ApplicationArea = Invoicing, Basic, Suite;
-                    UpdatePropagation = Both;
-                    Visible = false;
-                    ObsoleteReason = 'Part has been removed.';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '20.0';
-                }
-#endif
             }
             group("Email settings")
             {

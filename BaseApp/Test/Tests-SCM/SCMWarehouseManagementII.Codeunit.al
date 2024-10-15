@@ -66,6 +66,7 @@ codeunit 137154 "SCM Warehouse Management II"
         ReceiptLinesNotCreatedErr: Label 'There are no Warehouse Receipt Lines created.';
         LocationValidationError: Label 'Directed Put-away and Pick must be equal to ''No''';
         ItemTrackingMode: Option " ","Assign Lot No.","Assign Multiple Lot No.","Assign Serial No.","Assign Lot And Serial","Select Entries","Blank Quantity Base","Assign Lot No. & Expiration Date";
+        DescriptionMustBeSame: Label 'Description must be same.';
 
     [Test]
     [HandlerFunctions('ReservationPageHandler')]
@@ -3124,6 +3125,38 @@ codeunit 137154 "SCM Warehouse Management II"
         Assert.AreEqual(LocationWhite."Bin Mandatory", WhsePick.WhseActivityLines."Bin Code".Visible(), 'Bin Code should by default be visible on Warehouse Pick only when Bin Mandatory is true');
         Assert.AreEqual(LocationWhite."Bin Mandatory", WhsePick.WhseActivityLines."Action Type".Visible(), 'Action Type should by default be visible on Warehouse Pick only when Bin Mandatory is true');
         WhsePick.Close();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifyDescriptionAndDescription2OnWarehouseMovementWithItemVariant()
+    var
+        Item: Record Item;
+        ItemVariant: Record "Item Variant";
+        Bin: Record Bin;
+        Bin2: Record Bin;
+        WhseWorksheetLine: Record "Whse. Worksheet Line";
+    begin
+        // [SCENARIO 479959] Description/Description 2 are not updated when user selects variant code: Movement Worksheet
+        Initialize();
+
+        // [GIVEN] Create Item with Item Variant. 
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateItemVariant(ItemVariant, Item."No.");
+        ItemVariant."Description 2" := LibraryUtility.GenerateRandomText(20);
+        ItemVariant.Modify(true);
+
+        // [THEN] Update Inventory for Item with Variant and Create Movement Worksheet Line
+        FindBin(Bin, LocationWhite.Code);
+        LibraryWarehouse.CreateBin(Bin2, Bin."Location Code", LibraryUtility.GenerateGUID(), Bin."Zone Code", Bin."Bin Type Code");
+        UpdateInventoryUsingWarehouseJournal(
+            Bin, Item, ItemVariant.Code, Item."Base Unit of Measure", LibraryRandom.RandDec(100, 2) + LibraryRandom.RandDec(100, 2));
+        LibraryWarehouse.CreateMovementWorksheetLine(
+            WhseWorksheetLine, Bin, Bin2, Item."No.", ItemVariant.Code, LibraryRandom.RandDec(100, 2));
+
+        // [VERIFY] Verify: Description/Description 2 of "Whse. Worksheet Line" should be equal to "Item Variant" Description/Description 2
+        Assert.AreEqual(ItemVariant.Description, WhseWorksheetLine.Description, DescriptionMustBeSame);
+        Assert.AreEqual(ItemVariant."Description 2", WhseWorksheetLine."Description 2", DescriptionMustBeSame);
     end;
 
     local procedure Initialize()

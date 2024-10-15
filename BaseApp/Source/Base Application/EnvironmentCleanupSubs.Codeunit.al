@@ -1,3 +1,23 @@
+namespace System.Environment;
+
+using Microsoft.CRM.Outlook;
+#if not CLEAN22
+using Microsoft.CRM.Setup;
+#endif
+using Microsoft.EServices.EDocument;
+using Microsoft.Finance.Currency;
+using Microsoft.Finance.VAT.Registration;
+using Microsoft.Integration.Dataverse;
+using Microsoft.Integration.D365Sales;
+#if not CLEAN21
+using Microsoft.Integration.Graph;
+#endif
+using Microsoft.Utilities;
+using System.DataAdministration;
+using System.Threading;
+using System.Automation;
+using System.Feedback;
+
 codeunit 8912 "Environment Cleanup Subs"
 {
     Access = Internal;

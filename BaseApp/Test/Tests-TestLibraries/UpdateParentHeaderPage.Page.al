@@ -6,10 +6,10 @@ page 139141 "Update Parent Header Page"
     {
         area(content)
         {
-            field(Id; Id)
+            field(ID; Rec.ID)
             {
             }
-            field(Description; Description)
+            field(Description; Rec.Description)
             {
             }
             field(LinesAmount; LinesAmount)
@@ -22,11 +22,11 @@ page 139141 "Update Parent Header Page"
             }
             part(Lines; "Update Parent Line Page")
             {
-                SubPageLink = "Header Id" = FIELD(Id);
+                SubPageLink = "Header Id" = field(Id);
             }
             part(LinesUpdateParent; "Update Parent Line Page")
             {
-                SubPageLink = "Header Id" = FIELD(Id);
+                SubPageLink = "Header Id" = field(Id);
                 UpdatePropagation = Both;
             }
         }
@@ -34,7 +34,7 @@ page 139141 "Update Parent Header Page"
         {
             part(FactLines; "Update Parent Fact Box")
             {
-                SubPageLink = "Header Id" = FIELD(Id);
+                SubPageLink = "Header Id" = field(Id);
                 UpdatePropagation = Both;
             }
         }

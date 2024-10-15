@@ -1,3 +1,5 @@
+namespace Microsoft.Finance.FinancialReports;
+
 #pragma warning disable AS0109
 table 342 "Acc. Sched. Cell Value"
 #pragma warning restore AS0109

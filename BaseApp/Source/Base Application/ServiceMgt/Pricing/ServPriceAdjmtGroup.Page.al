@@ -1,3 +1,5 @@
+namespace Microsoft.Service.Pricing;
+
 page 6082 "Serv. Price Adjmt. Group"
 {
     ApplicationArea = Service;
@@ -13,7 +15,7 @@ page 6082 "Serv. Price Adjmt. Group"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Code"; Code)
+                field("Code"; Rec.Code)
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies a code for the service price adjustment group.';
@@ -50,7 +52,7 @@ page 6082 "Serv. Price Adjmt. Group"
                 Caption = '&Details';
                 Image = View;
                 RunObject = Page "Serv. Price Adjmt. Detail";
-                RunPageLink = "Serv. Price Adjmt. Gr. Code" = FIELD(Code);
+                RunPageLink = "Serv. Price Adjmt. Gr. Code" = field(Code);
                 ToolTip = 'View details about the price.';
             }
         }

@@ -1,3 +1,7 @@
+namespace Microsoft.Service.Maintenance;
+
+using Microsoft.Service.Item;
+
 table 5920 "Fault/Resol. Cod. Relationship"
 {
     Caption = 'Fault/Resol. Cod. Relationship';
@@ -7,8 +11,8 @@ table 5920 "Fault/Resol. Cod. Relationship"
         field(1; "Fault Code"; Code[10])
         {
             Caption = 'Fault Code';
-            TableRelation = "Fault Code".Code WHERE("Fault Area Code" = FIELD("Fault Area Code"),
-                                                     "Symptom Code" = FIELD("Symptom Code"));
+            TableRelation = "Fault Code".Code where("Fault Area Code" = field("Fault Area Code"),
+                                                     "Symptom Code" = field("Symptom Code"));
         }
         field(2; "Symptom Code"; Code[10])
         {

@@ -22,7 +22,7 @@ page 130013 Snapshots
                     ApplicationArea = All;
                     Editable = false;
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = All;
 
@@ -135,7 +135,6 @@ page 130013 Snapshots
 
     var
         SnapshotMgt: Codeunit "Snapshot Management";
-        [InDataSet]
         SnapshotEnabled: Boolean;
 
     [Scope('OnPrem')]

@@ -1,3 +1,17 @@
+namespace System.Security.AccessControl;
+
+using Microsoft.CRM.Interaction;
+using Microsoft.CRM.BusinessRelation;
+using Microsoft.CRM.Contact;
+using Microsoft.CRM.Profiling;
+using Microsoft.Foundation.Address;
+using Microsoft.CRM.Setup;
+using Microsoft.Purchases.Archive;
+using Microsoft.CRM.Comment;
+using Microsoft.Sales.Archive;
+using Microsoft.CRM.Task;
+using Microsoft.CRM.Team;
+
 permissionset 4462 "Contact - View"
 {
     Access = Public;
