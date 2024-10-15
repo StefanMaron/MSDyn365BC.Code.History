@@ -1,0 +1,274 @@
+codeunit 744 "VAT Report Validate"
+{
+    TableNo = "VAT Report Header";
+
+    trigger OnRun()
+    begin
+        ClearErrorLog;
+
+        ValidateVATReportHeader(Rec);
+        ValidateVATReportLines(Rec);
+
+        ShowErrorLog;
+    end;
+
+    var
+        TempVATReportErrorLog: Record "VAT Report Error Log" temporary;
+        VATReportLine: Record "VAT Report Line";
+        ErrorID: Integer;
+        EmptyFieldErr: Label 'The %1 field in the %2 window must not be empty.';
+        SpecifyFieldErr: Label 'You must specify the %1 field for the %2 %3.', Comment = 'You must specify the Fiscal Code No. for Vendor 10000.';
+        SpecifyEitherFieldErr: Label 'You must specify the %1 or %2 field for %3 %4.', Comment = 'You must specify the Fiscal Code or VAT Registration No. for Vendor 10000.';
+        FillAllFieldsOrNoneErr: Label 'The %1 and %2 fields must both be empty or both be filled in.';
+        LineNumberErr: Label 'The error is related to line no. %1.';
+        PleaseFillFieldErr: Label 'You must specify the %1 field for the country/region code %2.';
+        NumberToLongErr: Label 'The field %2 in the %3 windows must not exceed %1 characters';
+        EmptyFieldOriginalReportErr: Label 'The field %1 must be filled out the original report %2. Original Report No.=%3';
+
+    local procedure ClearErrorLog()
+    begin
+        TempVATReportErrorLog.Reset;
+        TempVATReportErrorLog.DeleteAll;
+    end;
+
+    local procedure InsertErrorLog(ErrorMessage: Text[250])
+    begin
+        if TempVATReportErrorLog.FindLast then
+            ErrorID := TempVATReportErrorLog."Entry No." + 1
+        else
+            ErrorID := 1;
+
+        TempVATReportErrorLog.Init;
+        TempVATReportErrorLog."Entry No." := ErrorID;
+        TempVATReportErrorLog."Error Message" := ErrorMessage;
+        TempVATReportErrorLog.Insert;
+    end;
+
+    local procedure ShowErrorLog()
+    begin
+        if not TempVATReportErrorLog.IsEmpty then begin
+            PAGE.Run(PAGE::"VAT Report Error Log", TempVATReportErrorLog);
+            Error('');
+        end;
+    end;
+
+    local procedure ValidateVATReportHeader(VATReportHeader: Record "VAT Report Header")
+    var
+        CompanyInformation: Record "Company Information";
+        VATReportSetup: Record "VAT Report Setup";
+        OrgVATReportHeader: Record "VAT Report Header";
+    begin
+        if VATReportHeader."VAT Report Config. Code" = VATReportHeader."VAT Report Config. Code"::" " then
+            InsertErrorLog(StrSubstNo(EmptyFieldErr, VATReportHeader.FieldCaption("VAT Report Config. Code"), VATReportHeader.TableCaption));
+
+        if VATReportHeader."VAT Report Type" <> VATReportHeader."VAT Report Type"::Standard then
+            if VATReportHeader."Original Report No." = '' then
+                InsertErrorLog(StrSubstNo(EmptyFieldErr, VATReportHeader.FieldCaption("Original Report No."), VATReportHeader.TableCaption))
+            else begin
+                OrgVATReportHeader.Get(VATReportHeader."Original Report No.");
+                if OrgVATReportHeader."Tax Auth. Receipt No." = '' then
+                    InsertErrorLog(
+                      StrSubstNo(
+                        EmptyFieldOriginalReportErr, VATReportHeader.FieldCaption("Tax Auth. Receipt No."), VATReportHeader.TableCaption,
+                        VATReportHeader."Original Report No."));
+                if OrgVATReportHeader."Tax Auth. Doc. No." = '' then
+                    InsertErrorLog(
+                      StrSubstNo(
+                        EmptyFieldOriginalReportErr, VATReportHeader.FieldCaption("Tax Auth. Doc. No."), VATReportHeader.TableCaption,
+                        VATReportHeader."Original Report No."));
+            end;
+    end;
+
+    local procedure ValidateVATReportLines(VATReportHeader: Record "VAT Report Header")
+    var
+        VATEntry: Record "VAT Entry";
+    begin
+        VATReportLine.SetRange("VAT Report No.", VATReportHeader."No.");
+        VATReportLine.SetRange("Incl. in Report", true);
+        if VATReportLine.FindSet then
+            repeat
+                VATEntry.Get(VATReportLine."VAT Entry No.");
+                case VATReportLine.Type of
+                    VATReportLine.Type::Purchase:
+                        CheckVendor(VATReportLine, VATEntry);
+                    VATReportLine.Type::Sale:
+                        CheckCust(VATReportLine, VATEntry);
+                end;
+            until VATReportLine.Next = 0
+    end;
+
+    [Scope('OnPrem')]
+    procedure CheckVendor(var VATReportLine: Record "VAT Report Line"; var VATEntry: Record "VAT Entry")
+    var
+        Vendor: Record Vendor;
+    begin
+        if Vendor.Get(VATReportLine."Bill-to/Pay-to No.") then begin
+            if (VATEntry.Resident = VATEntry.Resident::"Non-Resident") and (not VATEntry."Individual Person") then begin
+                if Vendor.Name = '' then
+                    InsertErrorLog(
+                      StrSubstNo('%1 %2',
+                        StrSubstNo(
+                          SpecifyFieldErr,
+                          Vendor.FieldCaption(Name),
+                          Vendor.TableCaption,
+                          Vendor."No."),
+                        StrSubstNo(LineNumberErr, VATReportLine."Line No.")));
+
+                if Vendor.City = '' then
+                    InsertErrorLog(
+                      StrSubstNo('%1 %2',
+                        StrSubstNo(
+                          SpecifyFieldErr,
+                          Vendor.FieldCaption(City),
+                          Vendor.TableCaption,
+                          Vendor."No."),
+                        StrSubstNo(LineNumberErr, VATReportLine."Line No.")));
+
+                if Vendor.Address = '' then
+                    InsertErrorLog(
+                      StrSubstNo('%1 %2',
+                        StrSubstNo(
+                          SpecifyFieldErr,
+                          Vendor.FieldCaption(Address),
+                          Vendor.TableCaption,
+                          Vendor."No."),
+                        StrSubstNo(LineNumberErr, VATReportLine."Line No.")));
+            end;
+
+            if VATEntry.Resident = VATEntry.Resident::"Non-Resident" then begin
+                if Vendor."Country/Region Code" = '' then
+                    InsertErrorLog(
+                      StrSubstNo('%1 %2',
+                        StrSubstNo(
+                          SpecifyFieldErr,
+                          Vendor.FieldCaption("Country/Region Code"),
+                          Vendor.TableCaption,
+                          Vendor."No."),
+                        StrSubstNo(LineNumberErr, VATReportLine."Line No.")))
+                else
+                    CheckForeignCountryCode(Vendor."Country/Region Code");
+            end;
+
+            if (VATEntry.Resident = VATEntry.Resident::Resident) and (VATReportLine."VAT Group Identifier" = 'NR') then begin
+                if (Vendor."VAT Registration No." = '') and (VATEntry."VAT Registration No." = '') then
+                    InsertErrorLog(
+                      StrSubstNo('%1 %2',
+                        StrSubstNo(
+                          SpecifyFieldErr,
+                          Vendor.FieldCaption("VAT Registration No."),
+                          Vendor.TableCaption,
+                          Vendor."No."),
+                        StrSubstNo(LineNumberErr, VATReportLine."Line No.")))
+                else
+                    if VATReportLine."VAT Group Identifier" = '' then
+                        VATReportLine."VAT Group Identifier" := Vendor."VAT Registration No.";
+            end;
+            VATReportLine.Modify(false);
+        end;
+    end;
+
+    [Scope('OnPrem')]
+    procedure CheckCust(var VATReportLine: Record "VAT Report Line"; var VATEntry: Record "VAT Entry")
+    var
+        Cust: Record Customer;
+    begin
+        if Cust.Get(VATReportLine."Bill-to/Pay-to No.") then begin
+            if (VATEntry.Resident = VATEntry.Resident::"Non-Resident") and (not VATEntry."Individual Person") then begin
+                if Cust.Name = '' then
+                    InsertErrorLog(
+                      StrSubstNo('%1 %2',
+                        StrSubstNo(
+                          SpecifyFieldErr,
+                          Cust.FieldCaption(Name),
+                          Cust.TableCaption,
+                          Cust."No."),
+                        StrSubstNo(LineNumberErr, VATReportLine."Line No.")));
+
+                if Cust.City = '' then
+                    InsertErrorLog(
+                      StrSubstNo('%1 %2',
+                        StrSubstNo(
+                          SpecifyFieldErr,
+                          Cust.FieldCaption(City),
+                          Cust.TableCaption,
+                          Cust."No."),
+                        StrSubstNo(LineNumberErr, VATReportLine."Line No.")));
+
+                if Cust.Address = '' then
+                    InsertErrorLog(
+                      StrSubstNo('%1 %2',
+                        StrSubstNo(
+                          SpecifyFieldErr,
+                          Cust.FieldCaption(Address),
+                          Cust.TableCaption,
+                          Cust."No."),
+                        StrSubstNo(LineNumberErr, VATReportLine."Line No.")));
+            end;
+
+            if VATEntry.Resident = VATEntry.Resident::"Non-Resident" then begin
+                if Cust."Country/Region Code" = '' then
+                    InsertErrorLog(
+                      StrSubstNo('%1 %2',
+                        StrSubstNo(
+                          SpecifyFieldErr,
+                          Cust.FieldCaption("Country/Region Code"),
+                          Cust.TableCaption,
+                          Cust."No."),
+                        StrSubstNo(LineNumberErr, VATReportLine."Line No.")))
+                else
+                    CheckForeignCountryCode(Cust."Country/Region Code");
+            end;
+
+            if (VATEntry.Resident = VATEntry.Resident::Resident) and (VATReportLine."VAT Group Identifier" = 'NE') then begin
+                if (Cust."Fiscal Code" = '') and (VATEntry."Fiscal Code" = '') and
+                  (Cust."VAT Registration No." = '') and (VATEntry."VAT Registration No." = '') then
+                    InsertErrorLog(
+                      StrSubstNo('%1 %2',
+                        StrSubstNo(
+                          SpecifyEitherFieldErr,
+                          Cust.FieldCaption("Fiscal Code"),
+                          Cust.FieldCaption("VAT Registration No."),
+                          Cust.TableCaption,
+                          Cust."No."),
+                        StrSubstNo(LineNumberErr, VATReportLine."Line No.")))
+                else
+                    if VATReportLine."VAT Group Identifier" = '' then
+                        if Cust."VAT Registration No." <> '' then
+                            VATReportLine."VAT Group Identifier" := Cust."VAT Registration No."
+                        else
+                            VATReportLine."VAT Group Identifier" := Cust."Fiscal Code";
+
+            end;
+            VATReportLine.Modify(false);
+        end;
+    end;
+
+    [Scope('OnPrem')]
+    procedure CheckForeignCountryCode(CountryRegionCode: Code[10])
+    var
+        CountryRegion: Record "Country/Region";
+    begin
+        CountryRegion.Get(CountryRegionCode);
+        if CountryRegion."Foreign Country/Region Code" = '' then
+            InsertErrorLog(
+              StrSubstNo('%1 %2',
+                StrSubstNo(
+                  PleaseFillFieldErr,
+                  CountryRegion.FieldCaption("Foreign Country/Region Code"),
+                  CountryRegionCode),
+                StrSubstNo(LineNumberErr, VATReportLine."Line No.")));
+    end;
+
+    local procedure CleanPhoneNumber(PhoneNumber: Text): Text
+    var
+        CleanedNumber: Text;
+        Index: Integer;
+    begin
+        CleanedNumber := '';
+        for Index := 1 to StrLen(PhoneNumber) do
+            if PhoneNumber[Index] in ['0' .. '9'] then
+                CleanedNumber += Format(PhoneNumber[Index]);
+        exit(CleanedNumber);
+    end;
+}
+

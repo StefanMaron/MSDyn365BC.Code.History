@@ -1,0 +1,68 @@
+codeunit 221 "Resource-Find Price"
+{
+    TableNo = "Resource Price";
+
+    trigger OnRun()
+    begin
+        ResPrice.Copy(Rec);
+        with ResPrice do
+            if FindResPrice then
+                ResPrice := ResPrice2
+            else begin
+                Init;
+                Code := Res."No.";
+                "Currency Code" := '';
+                "Unit Price" := Res."Unit Price";
+            end;
+        Rec := ResPrice;
+    end;
+
+    var
+        ResPrice: Record "Resource Price";
+        ResPrice2: Record "Resource Price";
+        Res: Record Resource;
+
+    local procedure FindResPrice(): Boolean
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeFindResPrice(ResPrice, IsHandled);
+        if IsHandled then
+            exit;
+
+        with ResPrice do begin
+            if ResPrice2.Get(Type::Resource, Code, "Work Type Code", "Currency Code") then
+                exit(true);
+
+            if ResPrice2.Get(Type::Resource, Code, "Work Type Code", '') then
+                exit(true);
+
+            Res.Get(Code);
+            if ResPrice2.Get(Type::"Group(Resource)", Res."Resource Group No.", "Work Type Code", "Currency Code") then
+                exit(true);
+
+            if ResPrice2.Get(Type::"Group(Resource)", Res."Resource Group No.", "Work Type Code", '') then
+                exit(true);
+
+            if ResPrice2.Get(Type::All, '', "Work Type Code", "Currency Code") then
+                exit(true);
+
+            if ResPrice2.Get(Type::All, '', "Work Type Code", '') then
+                exit(true);
+        end;
+
+        OnAfterFindResPrice(ResPrice, Res);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterFindResPrice(var ResourcePrice: Record "Resource Price"; Resource: Record Resource)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFindResPrice(var ResourcePrice: Record "Resource Price"; var IsHandled: Boolean)
+    begin
+    end;
+}
+

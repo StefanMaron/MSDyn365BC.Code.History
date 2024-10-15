@@ -1,0 +1,637 @@
+page 5827 "Item Statistics"
+{
+    Caption = 'Item Statistics';
+    DataCaptionExpression = ItemName;
+    DeleteAllowed = false;
+    InsertAllowed = false;
+    LinksAllowed = false;
+    ModifyAllowed = false;
+    PageType = Card;
+    SaveValues = true;
+    SourceTable = "Dimension Code Buffer";
+
+    layout
+    {
+        area(content)
+        {
+            group(General)
+            {
+                Caption = 'General';
+                field(ShowAsLines; ItemBuffer."Line Option")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Show as Lines';
+                    OptionCaption = 'Profit Calculation,Cost Specification,Purch. Item Charge Spec.,Sales Item Charge Spec.,Period<Undefined>';
+                    ToolTip = 'Specifies which values you want to show as lines in the window. This allows you to see the same matrix window from various perspectives, especially when you use both the Show as Lines field and the Show as Columns field.';
+
+                    trigger OnValidate()
+                    begin
+                        ItemBufferLineOptionOnAfterVal;
+                    end;
+                }
+                field(ColumnDimCode; ColumnDimCode)
+                {
+                    ApplicationArea = Suite;
+                    Caption = 'Show as Columns';
+                    ToolTip = 'Specifies which values you want to show as columns in the window. This allows you to see the same matrix window from various perspectives, especially when you use both the Show as Lines field and the Show as Columns field.';
+
+                    trigger OnLookup(var Text: Text): Boolean
+                    var
+                        NewCode: Text[30];
+                        MATRIX_SetWanted: Option Initial,Previous,Same,Next;
+                    begin
+                        NewCode := GetDimSelection(ColumnDimCode);
+                        if NewCode = ColumnDimCode then begin
+                            MATRIX_GenerateColumnCaptions(MATRIX_SetWanted::Same);
+
+                            exit(false);
+                        end;
+                        Text := NewCode;
+                        ColumnDimCode := NewCode;
+                        ValidateColumnDimCode;
+                        MATRIX_GenerateColumnCaptions(MATRIX_SetWanted::Initial);
+                        CurrPage.Update;
+                        exit(true);
+                    end;
+
+                    trigger OnValidate()
+                    begin
+                        ValidateColumnDimCode;
+                        ColumnDimCodeOnAfterValidate;
+                    end;
+                }
+                field(DateFilter; DateFilter)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Date Filter';
+                    ToolTip = 'Specifies the dates that will be used to filter the amounts in the window.';
+
+                    trigger OnValidate()
+                    begin
+                        ItemBuffer.SetFilter("Date Filter", DateFilter);
+                        DateFilter := ItemBuffer.GetFilter("Date Filter");
+                        InternalDateFilter := DateFilter;
+                        DateFilterOnAfterValidate;
+                    end;
+                }
+                field(ItemFilter; ItemFilter)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Item Filter';
+                    ToolTip = 'Specifies a filter to specify the items that will be shown in the window.';
+
+                    trigger OnLookup(var Text: Text): Boolean
+                    var
+                        Item: Record Item;
+                        ItemList: Page "Item List";
+                    begin
+                        ItemList.SetTableView(Item);
+                        ItemList.LookupMode := true;
+                        if ItemList.RunModal = ACTION::LookupOK then begin
+                            ItemList.GetRecord(Item);
+                            Text := Item."No.";
+                            exit(true);
+                        end;
+                        exit(false);
+                    end;
+
+                    trigger OnValidate()
+                    begin
+                        ItemFilterOnAfterValidate;
+                    end;
+                }
+                field(LocationFilter; LocationFilter)
+                {
+                    ApplicationArea = Location;
+                    Caption = 'Location Filter';
+                    ToolTip = 'Specifies the locations that statistics are shown for.';
+
+                    trigger OnLookup(var Text: Text): Boolean
+                    var
+                        Location: Record Location;
+                        Locations: Page "Location List";
+                    begin
+                        Locations.SetTableView(Location);
+                        Locations.LookupMode := true;
+                        if Locations.RunModal = ACTION::LookupOK then begin
+                            Locations.GetRecord(Location);
+                            Text := Location.Code;
+                            exit(true);
+                        end;
+                        exit(false);
+                    end;
+                }
+                field(VariantFilter; VariantFilter)
+                {
+                    ApplicationArea = Planning;
+                    Caption = 'Variant Filter';
+                    ToolTip = 'Specifies a filter to specify the variants that will be shown in the window.';
+
+                    trigger OnLookup(var Text: Text): Boolean
+                    var
+                        ItemVariant: Record "Item Variant";
+                        ItemVariants: Page "Item Variants";
+                    begin
+                        ItemVariant.SetRange("Item No.", Item."No.");
+                        ItemVariants.SetTableView(ItemVariant);
+                        ItemVariants.LookupMode := true;
+                        if ItemVariants.RunModal = ACTION::LookupOK then begin
+                            ItemVariants.GetRecord(ItemVariant);
+                            Text := ItemVariant.Code;
+                            exit(true);
+                        end;
+                        exit(false);
+                    end;
+                }
+            }
+            group(Options)
+            {
+                Caption = 'Options';
+                field(RoundingFactor; RoundingFactor)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Rounding Factor';
+                    OptionCaption = 'None,1,1000,1000000';
+                    ToolTip = 'Specifies the factor that is used to round the amounts.';
+                }
+                field(PerUnit; PerUnit)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Calculate per Unit';
+                    ToolTip = 'Specifies that item statistics will be calculated per unit.';
+                }
+                field(IncludeExpected; IncludeExpected)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Include Expected';
+                    ToolTip = 'Specifies whether to include costs that have not yet been invoiced in the item statistics. When goods have been received but not yet invoiced, the costs of those receipts are expected costs.';
+                }
+            }
+            group("Matrix Options")
+            {
+                Caption = 'Matrix Options';
+                field(ViewBy; PeriodType)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'View by';
+                    OptionCaption = 'Day,Week,Month,Quarter,Year,Accounting Period';
+                    ToolTip = 'Specifies by which period amounts are displayed.';
+
+                    trigger OnValidate()
+                    begin
+                        FindPeriod('');
+                        PeriodTypeOnAfterValidate;
+                    end;
+                }
+                field(AmountType; AmountType)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'View as';
+                    OptionCaption = 'Net Change,Balance at Date';
+                    ToolTip = 'Specifies how amounts are displayed. Net Change: The net change in the balance for the selected period. Balance at Date: The balance as of the last day in the selected period.';
+
+                    trigger OnValidate()
+                    var
+                        MATRIX_Step: Option First,Previous,Next;
+                    begin
+                        MATRIX_GenerateColumnCaptions(MATRIX_Step::First);
+                    end;
+                }
+                field(MATRIX_CaptionRange; MATRIX_CaptionRange)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Column Set';
+                    Editable = false;
+                    ToolTip = 'Specifies the range of values that are displayed in the matrix window, for example, the total period. To change the contents of the field, choose Next Set or Previous Set.';
+                }
+            }
+        }
+    }
+
+    actions
+    {
+        area(processing)
+        {
+            action(ShowMatrix)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = '&Show Matrix';
+                Image = ShowMatrix;
+                Promoted = true;
+                PromotedCategory = Process;
+                PromotedOnly = true;
+                ToolTip = 'View the data overview according to the selected filters and options.';
+
+                trigger OnAction()
+                var
+                    MatrixForm: Page "Item Statistics Matrix";
+                begin
+                    Clear(MatrixForm);
+                    MatrixForm.Load(MATRIX_CaptionSet, MATRIX_MatrixRecords, MATRIX_CurrentNoOfColumns,
+                      RoundingFactor, PerUnit, IncludeExpected, ItemBuffer, Item, PeriodType, AmountType,
+                      ColumnDimCode, DateFilter, ItemFilter, LocationFilter, VariantFilter);
+                    MatrixForm.SetTableView(Rec);
+                    MatrixForm.RunModal;
+                end;
+            }
+            action("Previous Set")
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Previous Set';
+                Image = PreviousSet;
+                Promoted = true;
+                PromotedCategory = Process;
+                PromotedIsBig = true;
+                PromotedOnly = true;
+                ToolTip = 'Go to the previous set of data.';
+
+                trigger OnAction()
+                var
+                    MATRIX_SetWanted: Option Initial,Previous,Same,Next;
+                begin
+                    MATRIX_GenerateColumnCaptions(MATRIX_SetWanted::Previous);
+                end;
+            }
+            action("Next Set")
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Next Set';
+                Image = NextSet;
+                Promoted = true;
+                PromotedCategory = Process;
+                PromotedOnly = true;
+                ToolTip = 'Go to the next set of data.';
+
+                trigger OnAction()
+                var
+                    MATRIX_SetWanted: Option Initial,Previous,Same,Next;
+                begin
+                    MATRIX_GenerateColumnCaptions(MATRIX_SetWanted::Next);
+                end;
+            }
+        }
+    }
+
+    trigger OnFindRecord(Which: Text): Boolean
+    begin
+        with ItemBuffer do begin
+            if "Line Option" = "Line Option"::"Profit Calculation" then
+                IntegerLine.SetRange(Number, 1, 5)
+            else
+                if "Line Option" = "Line Option"::"Cost Specification" then
+                    IntegerLine.SetRange(Number, 1, 9);
+
+            exit(FindRec("Line Option", Rec, Which));
+        end;
+    end;
+
+    trigger OnOpenPage()
+    var
+        MATRIX_SetWanted: Option Initial,Previous,Same,Next;
+    begin
+        GLSetup.Get;
+
+        with Item do begin
+            if "No." <> '' then
+                ItemFilter := "No.";
+            if GetFilter("Date Filter") <> '' then
+                DateFilter := GetFilter("Date Filter");
+            if GetFilter("Variant Filter") <> '' then
+                VariantFilter := GetFilter("Variant Filter");
+            if GetFilter("Location Filter") <> '' then
+                LocationFilter := GetFilter("Location Filter");
+        end;
+
+        if ColumnDimCode = '' then
+            ColumnDimCode := Text002;
+
+        ItemBuffer."Column Option" := DimCodeToOption(ColumnDimCode);
+        PeriodInitialized := DateFilter <> '';
+        FindPeriod('');
+        ItemName := StrSubstNo('%1  %2', Item."No.", Item.Description);
+        MATRIX_GenerateColumnCaptions(MATRIX_SetWanted::Initial);
+    end;
+
+    var
+        GLSetup: Record "General Ledger Setup";
+        Item: Record Item;
+        ItemBuffer: Record "Item Statistics Buffer";
+        IntegerLine: Record "Integer";
+        MATRIX_MatrixRecords: array[32] of Record "Dimension Code Buffer";
+        MATRIX_CaptionSet: array[32] of Text[80];
+        MATRIX_CaptionRange: Text;
+        MATRIX_PrimKeyFirstCaptionInCu: Text;
+        ColumnDimCode: Text[30];
+        ItemName: Text[250];
+        PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
+        RoundingFactor: Option "None","1","1000","1000000";
+        AmountType: Option "Net Change","Balance at Date";
+        DateFilter: Text;
+        InternalDateFilter: Text;
+        ItemFilter: Text;
+        VariantFilter: Text;
+        LocationFilter: Text;
+        PeriodInitialized: Boolean;
+        PerUnit: Boolean;
+        IncludeExpected: Boolean;
+        Text002: Label 'Period';
+        Text003: Label '%1 is not a valid column definition.';
+        MATRIX_CurrentNoOfColumns: Integer;
+
+    local procedure MATRIX_GenerateColumnCaptions(MATRIX_SetWanted: Option Initial,Previous,Same,Next)
+    var
+        MATRIX_PeriodRecords: array[32] of Record Date;
+        Location: Record Location;
+        MatrixMgt: Codeunit "Matrix Management";
+        RecRef: RecordRef;
+        i: Integer;
+    begin
+        Clear(MATRIX_CaptionSet);
+        Clear(MATRIX_MatrixRecords);
+
+        case ColumnDimCode of
+            Text002:
+                begin
+                    MatrixMgt.GeneratePeriodMatrixData(MATRIX_SetWanted, ArrayLen(MATRIX_CaptionSet), false,
+                      PeriodType, DateFilter, MATRIX_PrimKeyFirstCaptionInCu,
+                      MATRIX_CaptionSet, MATRIX_CaptionRange, MATRIX_CurrentNoOfColumns, MATRIX_PeriodRecords);
+                    for i := 1 to ArrayLen(MATRIX_CaptionSet) do begin
+                        MATRIX_MatrixRecords[i]."Period Start" := MATRIX_PeriodRecords[i]."Period Start";
+                        MATRIX_MatrixRecords[i]."Period End" := MATRIX_PeriodRecords[i]."Period End";
+                    end;
+                end;
+            Location.TableCaption:
+                begin
+                    Clear(MATRIX_CaptionSet);
+                    RecRef.GetTable(Location);
+                    RecRef.SetTable(Location);
+                    MatrixMgt.GenerateMatrixData(RecRef, MATRIX_SetWanted, ArrayLen(MATRIX_CaptionSet), 1,
+                      MATRIX_PrimKeyFirstCaptionInCu, MATRIX_CaptionSet, MATRIX_CaptionRange, MATRIX_CurrentNoOfColumns);
+                    for i := 1 to MATRIX_CurrentNoOfColumns do
+                        MATRIX_MatrixRecords[i].Code := MATRIX_CaptionSet[i];
+                end;
+        end;
+    end;
+
+    local procedure DimCodeToOption(DimCode: Text[30]): Integer
+    var
+        Location: Record Location;
+    begin
+        case DimCode of
+            '':
+                exit(-1);
+            Text002:
+                exit(4);
+            Location.TableCaption:
+                exit(5);
+            else
+                exit(-1);
+        end;
+    end;
+
+    local procedure FindRec(DimOption: Option "Profit Calculation","Cost Specification","Purch. Item Charge Spec.","Sales Item Charge Spec.",Period,Location; var DimCodeBuf: Record "Dimension Code Buffer"; Which: Text[250]): Boolean
+    var
+        ItemCharge: Record "Item Charge";
+        Location: Record Location;
+        Period: Record Date;
+        PeriodFormMgt: Codeunit PeriodFormManagement;
+        Found: Boolean;
+    begin
+        case DimOption of
+            DimOption::"Profit Calculation",
+            DimOption::"Cost Specification":
+                begin
+                    if Evaluate(IntegerLine.Number, DimCodeBuf.Code) then;
+                    Found := IntegerLine.Find(Which);
+                    if Found then
+                        CopyDimValueToBuf(IntegerLine, DimCodeBuf);
+                end;
+            DimOption::"Purch. Item Charge Spec.",
+            DimOption::"Sales Item Charge Spec.":
+                begin
+                    ItemCharge."No." := DimCodeBuf.Code;
+                    Found := ItemCharge.Find(Which);
+                    if Found then
+                        CopyAddChargesToBuf(ItemCharge, DimCodeBuf);
+                end;
+            DimOption::Period:
+                begin
+                    if not PeriodInitialized then
+                        DateFilter := '';
+                    PeriodInitialized := true;
+                    Period."Period Start" := DimCodeBuf."Period Start";
+                    if DateFilter <> '' then
+                        Period.SetFilter("Period Start", DateFilter)
+                    else
+                        if not PeriodInitialized and (InternalDateFilter <> '') then
+                            Period.SetFilter("Period Start", InternalDateFilter);
+                    Found := PeriodFormMgt.FindDate(Which, Period, PeriodType);
+                    if Found then
+                        CopyPeriodToBuf(Period, DimCodeBuf);
+                end;
+            DimOption::Location:
+                begin
+                    Location.Code := DimCodeBuf.Code;
+                    if LocationFilter <> '' then
+                        Location.SetFilter(Code, LocationFilter);
+                    Found := Location.Find(Which);
+                    if Found then
+                        CopyLocationToBuf(Location, DimCodeBuf);
+                end;
+        end;
+        exit(Found);
+    end;
+
+    local procedure CopyDimValueToBuf(var TheDimValue: Record "Integer"; var TheDimCodeBuf: Record "Dimension Code Buffer")
+    begin
+        with ItemBuffer do
+            case "Line Option" of
+                "Line Option"::"Profit Calculation":
+                    case TheDimValue.Number of
+                        1:
+                            InsertRow('1', FieldCaption("Sales (LCY)"), 0, false, TheDimCodeBuf);
+                        2:
+                            InsertRow('2', FieldCaption("COGS (LCY)"), 0, false, TheDimCodeBuf);
+                        3:
+                            InsertRow('3', FieldCaption("Non-Invtbl. Costs (LCY)"), 0, false, TheDimCodeBuf);
+                        4:
+                            InsertRow('4', FieldCaption("Profit (LCY)"), 0, false, TheDimCodeBuf);
+                        5:
+                            InsertRow('5', FieldCaption("Profit %"), 0, false, TheDimCodeBuf);
+                    end;
+                "Line Option"::"Cost Specification":
+                    case TheDimValue.Number of
+                        1:
+                            InsertRow('1', FieldCaption("Inventoriable Costs"), 0, true, TheDimCodeBuf);
+                        2:
+                            InsertRow('2', FieldCaption("Direct Cost (LCY)"), 1, false, TheDimCodeBuf);
+                        3:
+                            InsertRow('3', FieldCaption("Revaluation (LCY)"), 1, false, TheDimCodeBuf);
+                        4:
+                            InsertRow('4', FieldCaption("Rounding (LCY)"), 1, false, TheDimCodeBuf);
+                        5:
+                            InsertRow('5', FieldCaption("Indirect Cost (LCY)"), 1, false, TheDimCodeBuf);
+                        6:
+                            InsertRow('6', FieldCaption("Variance (LCY)"), 1, false, TheDimCodeBuf);
+                        7:
+                            InsertRow('7', FieldCaption("Inventoriable Costs, Total"), 0, true, TheDimCodeBuf);
+                        8:
+                            InsertRow('8', FieldCaption("COGS (LCY)"), 0, true, TheDimCodeBuf);
+                        9:
+                            InsertRow('9', FieldCaption("Inventory (LCY)"), 0, true, TheDimCodeBuf);
+                    end;
+            end
+    end;
+
+    local procedure CopyAddChargesToBuf(var TheItemCharge: Record "Item Charge"; var TheDimCodeBuf: Record "Dimension Code Buffer")
+    begin
+        with TheDimCodeBuf do begin
+            Init;
+            Code := TheItemCharge."No.";
+            Name := CopyStr(
+                StrSubstNo('%1 %2', TheItemCharge."No.", TheItemCharge.Description), 1, 50);
+        end;
+    end;
+
+    local procedure CopyLocationToBuf(var TheLocation: Record Location; var TheDimCodeBuf: Record "Dimension Code Buffer")
+    begin
+        with TheDimCodeBuf do begin
+            Init;
+            Code := TheLocation.Code;
+            Name := TheLocation.Name;
+        end;
+    end;
+
+    local procedure CopyPeriodToBuf(var ThePeriod: Record Date; var TheDimCodeBuf: Record "Dimension Code Buffer")
+    begin
+        with TheDimCodeBuf do begin
+            Init;
+            Code := Format(ThePeriod."Period Start");
+            "Period Start" := ThePeriod."Period Start";
+            "Period End" := ThePeriod."Period End";
+            Name := ThePeriod."Period Name";
+        end;
+    end;
+
+    local procedure InsertRow(Code1: Code[10]; Name1: Text[80]; Indentation1: Integer; Bold1: Boolean; var TheDimCodeBuf: Record "Dimension Code Buffer")
+    begin
+        with TheDimCodeBuf do begin
+            Init;
+            Code := Code1;
+            Name := CopyStr(Name1, 1, MaxStrLen(Name));
+            Indentation := Indentation1;
+            "Show in Bold" := Bold1;
+        end;
+    end;
+
+    local procedure FindPeriod(SearchText: Code[10])
+    var
+        Calendar: Record Date;
+        PeriodFormMgt: Codeunit PeriodFormManagement;
+    begin
+        if DateFilter <> '' then begin
+            Calendar.SetFilter("Period Start", DateFilter);
+            if not PeriodFormMgt.FindDate('+', Calendar, PeriodType) then
+                PeriodFormMgt.FindDate('+', Calendar, PeriodType::Day);
+            Calendar.SetRange("Period Start");
+        end;
+
+        PeriodFormMgt.FindDate(SearchText, Calendar, PeriodType);
+
+        with ItemBuffer do
+            if AmountType = AmountType::"Net Change" then begin
+                SetRange("Date Filter", Calendar."Period Start", Calendar."Period End");
+                if GetRangeMin("Date Filter") = GetRangeMax("Date Filter") then
+                    SetRange("Date Filter", GetRangeMin("Date Filter"));
+            end else
+                SetRange("Date Filter", 0D, Calendar."Period End");
+
+        InternalDateFilter := ItemBuffer.GetFilter("Date Filter");
+    end;
+
+    local procedure GetDimSelection(OldDimSelCode: Text[30]): Text[30]
+    var
+        Location: Record Location;
+        DimSelection: Page "Dimension Selection";
+    begin
+        DimSelection.InsertDimSelBuf(false, Location.TableCaption, Location.TableCaption);
+        DimSelection.InsertDimSelBuf(false, Text002, Text002);
+
+        DimSelection.LookupMode := true;
+        if DimSelection.RunModal = ACTION::LookupOK then
+            exit(DimSelection.GetDimSelCode);
+
+        exit(OldDimSelCode);
+    end;
+
+    local procedure ValidateColumnDimCode()
+    var
+        Location: Record Location;
+    begin
+        if (UpperCase(ColumnDimCode) <> UpperCase(Location.TableCaption)) and
+           (UpperCase(ColumnDimCode) <> UpperCase(Text002)) and
+           (ColumnDimCode <> '')
+        then begin
+            Message(Text003, ColumnDimCode);
+            ColumnDimCode := '';
+        end;
+
+        with ItemBuffer do begin
+            "Column Option" := DimCodeToOption(ColumnDimCode);
+            InternalDateFilter := GetFilter("Date Filter");
+            if ("Line Option" <> "Line Option"::Period)
+               and ("Column Option" <> "Column Option"::Period)
+            then begin
+                DateFilter := InternalDateFilter;
+                if StrPos(DateFilter, '&') > 1 then
+                    DateFilter := CopyStr(DateFilter, 1, StrPos(DateFilter, '&') - 1);
+            end else
+                PeriodInitialized := false;
+        end;
+    end;
+
+    procedure SetItem(var NewItem: Record Item)
+    begin
+        Item.Get(NewItem."No.");
+        Item.CopyFilters(NewItem);
+    end;
+
+    local procedure ItemBufferLineOptionOnAfterVal()
+    begin
+        CurrPage.Update;
+    end;
+
+    local procedure DateFilterOnAfterValidate()
+    var
+        MATRIX_SetWanted: Option Initial,Previous,Same,Next;
+    begin
+        MATRIX_GenerateColumnCaptions(MATRIX_SetWanted::Initial);
+        CurrPage.Update;
+    end;
+
+    local procedure ColumnDimCodeOnAfterValidate()
+    begin
+        CurrPage.Update;
+    end;
+
+    local procedure ItemFilterOnAfterValidate()
+    begin
+        Item."No." := ItemFilter;
+        Item.Description := '';
+
+        if StrLen(ItemFilter) <= 30 then
+            if Item.Get(ItemFilter) then
+                ItemName := StrSubstNo('%1  %2', Item."No.", Item.Description);
+        ItemName := StrSubstNo('%1  %2', Item."No.", Item.Description);
+    end;
+
+    local procedure PeriodTypeOnAfterValidate()
+    var
+        MATRIX_Step: Option First,Previous,Next;
+    begin
+        // IF ColumnDimOption = ColumnDimOption::Period THEN
+        if ItemBuffer."Column Option" = ItemBuffer."Column Option"::Period then
+            MATRIX_GenerateColumnCaptions(MATRIX_Step::First);
+    end;
+}
+
