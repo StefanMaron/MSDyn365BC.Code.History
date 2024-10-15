@@ -77,9 +77,11 @@ report 14951 "Bill of Lading"
 
         FillSheets(SalesHeader, ReportSource);
 
-        if TestMode then
-            ExcelMgt.CloseBook
-        else
+        if TestMode then begin
+            if FileNameSilent <> '' then
+                ExcelMgt.SaveWrkBook(FileNameSilent);
+            ExcelMgt.CloseBook();
+        end else
             ExcelMgt.DownloadBook(ExcelTemplate.GetTemplateFileName(SalesReceivablesSetup."Bill of Lading Template Code"));
     end;
 
@@ -89,6 +91,7 @@ report 14951 "Bill of Lading"
         VehicleDescription: Text[1024];
         VehicleDescriptionRegNo: Text[1024];
         TestMode: Boolean;
+        FileNameSilent: Text;
 
     [Scope('OnPrem')]
     procedure FillSheets(SalesHeader: Record "Sales Header"; ReportSource: Option UnpostedSales,SalesInvoice,SalesShipment)
@@ -99,22 +102,26 @@ report 14951 "Bill of Lading"
         Volume: Decimal;
     begin
         ExcelMgt.OpenSheet('стр.1');
-        ExcelMgt.FillCell('BI9', Format(SalesHeader."Order Date"));
-        ExcelMgt.FillCell('CM9', SalesHeader."No.");
-        ExcelMgt.FillCell('B14', GetVendorInfo(SalesHeader));
-        ExcelMgt.FillCell('BD14', GetCustomerInfo(SalesHeader));
-        ExcelMgt.FillCell('B17', ItemDescription);
+        ExcelMgt.FillCell('BU9', Format(SalesHeader."Order Date"));
+        ExcelMgt.FillCell('CQ9', SalesHeader."No.");
+        ExcelMgt.FillCell('B15', GetVendorInfo(SalesHeader));
+        ExcelMgt.FillCell('B20', GetCustomerInfo(SalesHeader));
+        ExcelMgt.FillCell('B25', ItemDescription);
         GetLinesInfo(SalesHeader, Quantity, Weight, Volume, ReportSource);
-        ExcelMgt.FillCell('B19', Format(Quantity));
-        ExcelMgt.FillCell('B21', LocRepMgt.FormatReportValue(Weight, 2) + ',  ,' + LocRepMgt.FormatReportValue(Volume, 2));
-        ExcelMgt.FillCell('B35', LocRepMgt.FormatReportValue(GetAmountLCY(SalesHeader, ReportSource), 2));
-        ExcelMgt.FillCell('B39', GetLocationInfo(SalesHeader));
+        ExcelMgt.FillCell('BF25', Format(Quantity));
+        ExcelMgt.FillCell('B27', LocRepMgt.FormatReportValue(Weight, 2) + ',  ,' + LocRepMgt.FormatReportValue(Volume, 2));
+        ExcelMgt.FillCell('BF29', LocRepMgt.FormatReportValue(GetAmountLCY(SalesHeader, ReportSource), 2));
+
+        ExcelMgt.FillCell('B44', GetShippingAgentName(SalesHeader));
+        ExcelMgt.FillCell('B47', VehicleDescription);
+        ExcelMgt.FillCell('BF47', VehicleDescriptionRegNo);
+        ExcelMgt.FillCell('B60', GetLocationInfo(SalesHeader));
+        ExcelMgt.WriteAllToCurrentSheet();
 
         ExcelMgt.OpenSheet('стр.2');
-        ExcelMgt.FillCell('B5', GetShippingAgentName(SalesHeader));
-        ExcelMgt.FillCell('B12', VehicleDescription);
-        ExcelMgt.FillCell('BP12', VehicleDescriptionRegNo);
-        ExcelMgt.FillCell('B38', GetPayerInfo(SalesHeader));
+        ExcelMgt.FillCell('B21', GetPayerInfo(SalesHeader));
+        ExcelMgt.FillCell('B9', LocRepMgt.FormatReportValue(Weight, 2));
+        ExcelMgt.WriteAllToCurrentSheet();
     end;
 
     [Scope('OnPrem')]
@@ -123,7 +130,7 @@ report 14951 "Bill of Lading"
         LocRepMgt: Codeunit "Local Report Management";
     begin
         if SalesHeader."Consignor No." = '' then
-            exit(LocRepMgt.GetCompanyName + '. ' + LocRepMgt.GetLegalAddress + LocRepMgt.GetCompanyPhoneFax);
+            exit(LocRepMgt.GetCompanyName() + '. ' + LocRepMgt.GetLegalAddress() + LocRepMgt.GetCompanyPhoneFax());
 
         exit(LocRepMgt.GetConsignerInfo(SalesHeader."Consignor No.", SalesHeader."Responsibility Center"));
     end;
@@ -360,6 +367,12 @@ report 14951 "Bill of Lading"
     procedure SetTestMode(NewTestMode: Boolean)
     begin
         TestMode := NewTestMode;
+    end;
+
+    [Scope('OnPrem')]
+    procedure SetFileNameSilent(NewFileName: Text)
+    begin
+        FileNameSilent := NewFileName;
     end;
 }
 

@@ -843,7 +843,7 @@ table 121 "Purch. Rcpt. Line"
             OnBeforeInsertInvLineFromRcptLineBeforeInsertTextLine(Rec, PurchLine, NextLineNo, IsHandled);
             if not IsHandled then begin
                 PurchLine.Insert();
-                OnAfterDescriptionPurchaseLineInsert(PurchLine, Rec, NextLineNo);
+                OnAfterDescriptionPurchaseLineInsert(PurchLine, Rec, NextLineNo, TempPurchLine);
                 NextLineNo := NextLineNo + 10000;
             end;
         end;
@@ -896,7 +896,7 @@ table 121 "Purch. Rcpt. Line"
 
             if not ExtTextLine then begin
                 IsHandled := false;
-                OnInsertInvLineFromRcptLineOnBeforeValidateQuantity(Rec, PurchLine, IsHandled);
+                OnInsertInvLineFromRcptLineOnBeforeValidateQuantity(Rec, PurchLine, IsHandled, PurchInvHeader);
                 if not IsHandled then
                     PurchLine.Validate(Quantity, Quantity - "Quantity Invoiced");
                 CalcBaseQuantities(PurchLine, "Quantity (Base)" / Quantity);
@@ -1268,7 +1268,7 @@ table 121 "Purch. Rcpt. Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterDescriptionPurchaseLineInsert(var PurchLine: Record "Purchase Line"; PurchRcptLine: Record "Purch. Rcpt. Line"; var NextLineNo: Integer)
+    local procedure OnAfterDescriptionPurchaseLineInsert(var PurchLine: Record "Purchase Line"; PurchRcptLine: Record "Purch. Rcpt. Line"; var NextLineNo: Integer; var TempPurchaseLine: Record "Purchase Line" temporary)
     begin
     end;
 
@@ -1313,7 +1313,7 @@ table 121 "Purch. Rcpt. Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnInsertInvLineFromRcptLineOnBeforeValidateQuantity(PurchRcptLine: Record "Purch. Rcpt. Line"; var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
+    local procedure OnInsertInvLineFromRcptLineOnBeforeValidateQuantity(PurchRcptLine: Record "Purch. Rcpt. Line"; var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean; var PurchInvHeader: Record "Purchase Header")
     begin
     end;
 

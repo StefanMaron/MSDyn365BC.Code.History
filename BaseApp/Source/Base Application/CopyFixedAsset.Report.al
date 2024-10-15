@@ -106,6 +106,7 @@ report 5685 "Copy Fixed Asset"
             FA2."FA Location Code" := '';
             FA2."Responsible Employee" := '';
             FA2."Location Code" := '';
+            OnOnPreReportOnBeforeFA2Insert(FA2, FA);
             if UseFANoSeries then
                 FA2.Insert(true)
             else begin
@@ -172,6 +173,11 @@ report 5685 "Copy Fixed Asset"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterFixedAssetCopied(var FixedAsset2: Record "Fixed Asset"; var FixedAsset: Record "Fixed Asset")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnOnPreReportOnBeforeFA2Insert(var FixedAsset2: Record "Fixed Asset"; var FixedAsset: Record "Fixed Asset")
     begin
     end;
 }

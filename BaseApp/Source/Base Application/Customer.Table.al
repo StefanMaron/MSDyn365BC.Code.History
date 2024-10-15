@@ -2099,7 +2099,7 @@
         Text011: Label 'Reconciling IC transactions may be difficult if you change IC Partner Code because this %1 has ledger entries in a fiscal year that has not yet been closed.\ Do you still want to change the IC Partner Code?';
         Text012: Label 'You cannot change the contents of the %1 field because this %2 has one or more open ledger entries.';
         ServiceDocumentExistErr: Label 'You cannot delete customer %1 because there is at least one outstanding Service %2 for this customer.', Comment = '%1 - customer no., %2 - service document type.';
-        Text014: Label 'Before you can use Online Map, you must fill in the Online Map Setup window.\See Setting Up Online Map in Help.';
+        OnLineMapMustBeFilledMsg: Label 'To get a map with route directions, you must configure service in the Online Map Setup page.';
         Text015: Label 'You cannot delete %1 %2 because there is at least one %3 associated to this customer.';
         AllowPaymentToleranceQst: Label 'Do you want to allow payment tolerance for entries that are currently open?';
         RemovePaymentRoleranceQst: Label 'Do you want to remove payment tolerance from entries that are currently open?';
@@ -2332,7 +2332,7 @@
         if OnlineMapSetup.FindFirst() then
             OnlineMapManagement.MakeSelection(DATABASE::Customer, GetPosition)
         else
-            Message(Text014);
+            Message(OnLineMapMustBeFilledMsg);
     end;
 
     procedure GetPriceCalculationMethod() Method: Enum "Price Calculation Method";
@@ -2657,7 +2657,13 @@
     procedure CheckPrepaymentDocNo(var GenJnlLine: Record "Gen. Journal Line"; Post: Boolean)
     var
         SalesHeader: Record "Sales Header";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckPrepaymentDocNo(GenJnlLine, Post, IsHandled);
+        if IsHandled then
+            exit;
+
         with GenJnlLine do begin
             TestField("External Document No.");
             TestField("Prepayment Document No.");
@@ -3643,6 +3649,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateNewCustomer(CustomerName: Text[100]; ShowCustomerCard: Boolean; var NewCustomerCode: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckPrepaymentDocNo(var GenJournalLine: Record "Gen. Journal Line"; Post: Boolean; var IsHandled: Boolean)
     begin
     end;
 

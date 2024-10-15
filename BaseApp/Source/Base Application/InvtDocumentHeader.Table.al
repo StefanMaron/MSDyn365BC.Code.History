@@ -404,6 +404,8 @@
             Modify();
             UpdateAllLineDim("Dimension Set ID", OldDimSetID);
         end;
+
+        OnAfterCreateDim(Rec, DefaultDimSource);
     end;
 
     procedure ValidateShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])
@@ -454,7 +456,7 @@
         OldDimSetID := "Dimension Set ID";
         "Dimension Set ID" :=
           DimMgt.EditDimensionSet(
-            "Dimension Set ID", StrSubstNo(DocumentTxt, "Document Type", "No."),
+            Rec, "Dimension Set ID", StrSubstNo(DocumentTxt, "Document Type", "No."),
             "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
         if OldDimSetID <> "Dimension Set ID" then begin
             Modify();
@@ -504,6 +506,11 @@
         DimMgt.AddDimSource(DefaultDimSource, Database::Location, Rec."Location Code");
 
         OnAfterInitDefaultDimensionSources(Rec, DefaultDimSource);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateDim(var InvtDocumentHeader: Record "Invt. Document Header"; DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    begin
     end;
 
     [IntegrationEvent(false, false)]

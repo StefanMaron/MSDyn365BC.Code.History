@@ -259,7 +259,7 @@ codeunit 134253 "Match Bank Rec. Scenarios"
     end;
 
     [Test]
-    [HandlerFunctions('PostAndReconcilePageHandler')]
+    [HandlerFunctions('PostAndReconcilePageHandler,PostAndReconcilePageStatementDateHandler')]
     [Scope('OnPrem')]
     procedure GLEntryPaymentDocTypeAfterPostPmtReconJnlWithGLAccAndPositiveAmount()
     begin
@@ -271,7 +271,7 @@ codeunit 134253 "Match Bank Rec. Scenarios"
     end;
 
     [Test]
-    [HandlerFunctions('PostAndReconcilePageHandler')]
+    [HandlerFunctions('PostAndReconcilePageHandler,PostAndReconcilePageStatementDateHandler')]
     [Scope('OnPrem')]
     procedure GLEntryPaymentDocTypeAfterPostPmtReconJnlWithGLAccAndNegativeAmount()
     begin
@@ -1126,6 +1126,13 @@ codeunit 134253 "Match Bank Rec. Scenarios"
     procedure PostAndReconcilePageHandler(var PostPmtsAndRecBankAcc: TestPage "Post Pmts and Rec. Bank Acc.")
     begin
         PostPmtsAndRecBankAcc.OK.Invoke();
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure PostAndReconcilePageStatementDateHandler(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := true;
     end;
 
     [RequestPageHandler]

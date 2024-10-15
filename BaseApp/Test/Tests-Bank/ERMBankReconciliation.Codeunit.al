@@ -441,6 +441,8 @@ codeunit 134141 "ERM Bank Reconciliation"
         BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
         Customer: Record Customer;
     begin
+        Initialize();
+
         SetupBankAccReconciliation(BankAccReconciliation, BankAccReconciliationLine);
         Customer.FindFirst();
         with BankAccReconciliationLine do begin
@@ -543,7 +545,7 @@ codeunit 134141 "ERM Bank Reconciliation"
 
 
     [Test]
-    [HandlerFunctions('PostAndReconcilePageHandler')]
+    [HandlerFunctions('PostAndReconcilePageHandler,PostAndReconcilePageStatementDateHandler')]
     [Scope('OnPrem')]
     procedure VerifyDimSetIDOfCustLedgerEntryAfterPostingBankAccReconLine()
     var
@@ -581,7 +583,7 @@ codeunit 134141 "ERM Bank Reconciliation"
     end;
 
     [Test]
-    [HandlerFunctions('PostAndReconcilePageHandler')]
+    [HandlerFunctions('PostAndReconcilePageHandler,PostAndReconcilePageStatementDateHandler')]
     [Scope('OnPrem')]
     procedure VerifyDimSetIDOfVendLedgerEntryAfterPostingBankAccReconLine()
     var
@@ -619,7 +621,7 @@ codeunit 134141 "ERM Bank Reconciliation"
     end;
 
     [Test]
-    [HandlerFunctions('PostAndReconcilePageHandler')]
+    [HandlerFunctions('PostAndReconcilePageHandler,PostAndReconcilePageStatementDateHandler')]
     [Scope('OnPrem')]
     procedure VerifyVATEntryAfterPostingBankAccReconLineForGLAccount()
     var
@@ -720,6 +722,8 @@ codeunit 134141 "ERM Bank Reconciliation"
         BankAccReconciliation: TestPage "Bank Acc. Reconciliation";
     begin
         // [FEATURE] [UI]
+        Initialize();
+
         // [GIVEN] Open new Bank Account Reconciliation page 
         // [WHEN] On Open New
         // [THEN] A notification should be send to import bank data
@@ -734,6 +738,8 @@ codeunit 134141 "ERM Bank Reconciliation"
     begin
         // [FEATURE] [UT] [UI]
         // [SCENARIO 381659] "Statement No." should not be editable in Bank Account Reconciliation
+        Initialize();
+
         BankAccReconciliation.OpenEdit;
         Assert.IsFalse(
           BankAccReconciliation.StatementNo.Editable, StrSubstNo(StatementNoEditableErr, BankAccReconciliation.StatementNo.Caption));
@@ -747,6 +753,7 @@ codeunit 134141 "ERM Bank Reconciliation"
         BankAccount: array[2] of Record "Bank Account";
     begin
         // [SCENARIO 381659] "Last Statement No." should be updated in Bank Account only on Bank Account Reconciliation insertion
+        Initialize();
 
         // [GIVEN] Bank Account Reconciliation "BA"
         BankAccReconciliation.Init();
@@ -785,6 +792,7 @@ codeunit 134141 "ERM Bank Reconciliation"
         BankAccount: array[2] of Record "Bank Account";
     begin
         // [SCENARIO 381659] "Last Payment Statement No." should be updated in Bank Account only on Bank Account Reconciliation insertion
+        Initialize();
 
         // [GIVEN] Bank Account Reconciliation "BA"
         BankAccReconciliation.Init();
@@ -816,7 +824,7 @@ codeunit 134141 "ERM Bank Reconciliation"
     end;
 
     [Test]
-    [HandlerFunctions('PostAndReconcilePageHandler')]
+    [HandlerFunctions('PostAndReconcilePageHandler,PostAndReconcilePageStatementDateHandler')]
     [Scope('OnPrem')]
     procedure GlobalDimensionInheritsFromDimensionSetIDOfBankAccReconLineOnPosting()
     var
@@ -1022,6 +1030,7 @@ codeunit 134141 "ERM Bank Reconciliation"
     begin
         // [FEATURE] [Currency]
         // [SCENARIO 211312] G/L Entry with LCY creates when post Bank Acc. Reconciliation Line with FCY Bank Account
+        Initialize();
 
         // [GIVEN] Currency "X" with "Exchange Rate" = 1:5
         ExchRateAmount := LibraryRandom.RandIntInRange(5, 10);
@@ -1134,7 +1143,7 @@ codeunit 134141 "ERM Bank Reconciliation"
     end;
 
     [Test]
-    [HandlerFunctions('PostAndReconcilePageHandler')]
+    [HandlerFunctions('PostAndReconcilePageHandler,PostAndReconcilePageStatementDateHandler')]
     [Scope('OnPrem')]
     procedure PostBankAccRecon_Description_OnlyInLine()
     var
@@ -1159,7 +1168,7 @@ codeunit 134141 "ERM Bank Reconciliation"
     end;
 
     [Test]
-    [HandlerFunctions('PostAndReconcilePageHandler')]
+    [HandlerFunctions('PostAndReconcilePageHandler,PostAndReconcilePageStatementDateHandler')]
     [Scope('OnPrem')]
     procedure PostBankAccRecon_Description_OnlyInAppliesEntry()
     var
@@ -1184,7 +1193,7 @@ codeunit 134141 "ERM Bank Reconciliation"
     end;
 
     [Test]
-    [HandlerFunctions('PostAndReconcilePageHandler')]
+    [HandlerFunctions('PostAndReconcilePageHandler,PostAndReconcilePageStatementDateHandler')]
     [Scope('OnPrem')]
     procedure PostBankAccRecon_Description_Both()
     var
@@ -1234,7 +1243,7 @@ codeunit 134141 "ERM Bank Reconciliation"
     end;
 
     [Test]
-    [HandlerFunctions('PostAndReconcilePageHandler')]
+    [HandlerFunctions('PostAndReconcilePageHandler,PostAndReconcilePageStatementDateHandler')]
     [Scope('OnPrem')]
     procedure PostBankAccReconLastStatementFields()
     var
@@ -1471,7 +1480,7 @@ codeunit 134141 "ERM Bank Reconciliation"
     end;
 
     [Test]
-    [HandlerFunctions('PostAndReconcilePageHandler')]
+    [HandlerFunctions('PostAndReconcilePageHandler,PostAndReconcilePageStatementDateHandler')]
     [Scope('OnPrem')]
     procedure BankAccReconciliationCanBePostedWhenStatementWithStatementNoAlreadyExists()
     var
@@ -1505,7 +1514,7 @@ codeunit 134141 "ERM Bank Reconciliation"
     end;
 
     [Test]
-    [HandlerFunctions('PostAndReconcilePageHandler')]
+    [HandlerFunctions('PostAndReconcilePageHandler,PostAndReconcilePageStatementDateHandler')]
     [Scope('OnPrem')]
     procedure BankAccReconciliationStatementNoTransfersToStatementWhenPostedAndNoStatementWithThisNoExists()
     var
@@ -2195,7 +2204,7 @@ codeunit 134141 "ERM Bank Reconciliation"
 
     [Test]
     [Scope('OnPrem')]
-    [HandlerFunctions('PostedPaymentReconciliationReportRequestPageHandler,PostAndReconcilePageHandler')]
+    [HandlerFunctions('PostedPaymentReconciliationReportRequestPageHandler,PostAndReconcilePageHandler,PostAndReconcilePageStatementDateHandler')]
     procedure PrintPostedPaymentReconciliation()
     var
         BankAccReconciliation: Record "Bank Acc. Reconciliation";
@@ -2223,7 +2232,7 @@ codeunit 134141 "ERM Bank Reconciliation"
 
     [Test]
     [Scope('OnPrem')]
-    [HandlerFunctions('PostedPaymentReconciliationReportRequestPageHandler,PostAndReconcilePageHandler')]
+    [HandlerFunctions('PostedPaymentReconciliationReportRequestPageHandler,PostAndReconcilePageHandler,PostAndReconcilePageStatementDateHandler')]
     procedure PrintPostedPaymentReconciliationFromCard()
     var
         BankAccReconciliation: Record "Bank Acc. Reconciliation";
@@ -3624,6 +3633,13 @@ codeunit 134141 "ERM Bank Reconciliation"
     procedure PostAndReconcilePageHandler(var PostPmtsAndRecBankAcc: TestPage "Post Pmts and Rec. Bank Acc.")
     begin
         PostPmtsAndRecBankAcc.OK.Invoke();
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure PostAndReconcilePageStatementDateHandler(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := true;
     end;
 
     [ModalPageHandler]

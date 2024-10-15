@@ -12,8 +12,6 @@ report 5194 "Create Conts. from Vendors"
             RequestFilterFields = "No.", "Search Name", "Vendor Posting Group", "Currency Code";
 
             trigger OnAfterGetRecord()
-            var
-                VendContUpdate: Codeunit "VendCont-Update";
             begin
                 Window.Update(1);
 
@@ -45,10 +43,7 @@ report 5194 "Create Conts. from Vendors"
                     Insert;
                 end;
 
-                if Contact = '' then
-                    "Primary Contact No." := Cont."No."
-                else
-                    VendContUpdate.InsertNewContactPerson(Vendor, false);
+                InsertNewContactIfNeeded(Vendor);
                 Modify(true);
             end;
 
@@ -107,8 +102,29 @@ report 5194 "Create Conts. from Vendors"
         Window: Dialog;
         DuplicateContactExist: Boolean;
 
+    local procedure InsertNewContactIfNeeded(var Vendor: Record Vendor)
+    var
+        VendContUpdate: Codeunit "VendCont-Update";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeInsertNewContactIfNeeded(ContBusRel, Vendor, IsHandled);
+        if IsHandled then
+            exit;
+
+        if Vendor.Contact = '' then
+            Vendor."Primary Contact No." := Cont."No."
+        else
+            VendContUpdate.InsertNewContactPerson(Vendor, false);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeContactInsert(Vendor: Record Vendor; var Contact: Record Contact)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertNewContactIfNeeded(ContactBusinessRelation: Record "Contact Business Relation"; var Vendor: Record Vendor; var IsHandled: Boolean)
     begin
     end;
 

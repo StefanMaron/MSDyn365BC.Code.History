@@ -200,10 +200,7 @@ table 349 "Dimension Value"
         TestField(Code);
         "Global Dimension No." := GetGlobalDimensionNo;
 
-        if CostAccSetup.Get then begin
-            CostAccMgt.UpdateCostCenterFromDim(Rec, Rec, 0);
-            CostAccMgt.UpdateCostObjectFromDim(Rec, Rec, 0);
-        end;
+        UpdateCostAccFromDim(Rec, Rec, 0);
 
         DimMgt.AddDefaultDimensionAllowedDimensionValue(Rec);
         SetLastModifiedDateTime;
@@ -213,10 +210,8 @@ table 349 "Dimension Value"
     begin
         if "Dimension Code" <> xRec."Dimension Code" then
             "Global Dimension No." := GetGlobalDimensionNo;
-        if CostAccSetup.Get then begin
-            CostAccMgt.UpdateCostCenterFromDim(Rec, xRec, 1);
-            CostAccMgt.UpdateCostObjectFromDim(Rec, xRec, 1);
-        end;
+
+        UpdateCostAccFromDim(Rec, xRec, 1);
 
         SetLastModifiedDateTime;
     end;
@@ -228,10 +223,7 @@ table 349 "Dimension Value"
         RenameItemBudgEntryDim;
         RenameItemAnalysisViewEntryDim;
 
-        if CostAccSetup.Get then begin
-            CostAccMgt.UpdateCostCenterFromDim(Rec, xRec, 3);
-            CostAccMgt.UpdateCostObjectFromDim(Rec, xRec, 3);
-        end;
+        UpdateCostAccFromDim(Rec, xRec, 3);
 
         SetLastModifiedDateTime;
     end;
@@ -258,6 +250,21 @@ table 349 "Dimension Value"
         DimSetEntry.SetCurrentKey("Dimension Value ID");
         DimSetEntry.SetRange("Dimension Value ID", "Dimension Value ID");
         exit(not DimSetEntry.IsEmpty);
+    end;
+
+    local procedure UpdateCostAccFromDim(var DimensionValue: Record "Dimension Value"; var xDimensionValue: Record "Dimension Value"; CallingTrigger: Option OnInsert,OnModify,,OnRename)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeUpdateCostAccFromDim(DimensionValue, xDimensionValue, CallingTrigger, IsHandled);
+        if IsHandled then
+            exit;
+
+        if CostAccSetup.Get then begin
+            CostAccMgt.UpdateCostCenterFromDim(DimensionValue, xDimensionValue, CallingTrigger);
+            CostAccMgt.UpdateCostObjectFromDim(DimensionValue, xDimensionValue, CallingTrigger);
+        end;
     end;
 
     local procedure GetCheckDimErr(): Text[250]
@@ -638,6 +645,11 @@ table 349 "Dimension Value"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckIfDimValueUsedFromOnDelete(DimensionValue: Record "Dimension Value"; xDimensionValue: Record "Dimension Value"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateCostAccFromDim(var DimensionValue: Record "Dimension Value"; var xDimensionValue: Record "Dimension Value"; CallingTrigger: Option OnInsert,OnModify,,OnRename; var IsHandled: Boolean)
     begin
     end;
 }

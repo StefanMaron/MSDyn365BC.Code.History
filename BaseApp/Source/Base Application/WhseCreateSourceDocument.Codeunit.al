@@ -5,14 +5,20 @@ codeunit 5750 "Whse.-Create Source Document"
     begin
     end;
 
-    procedure FromSalesLine2ShptLine(WhseShptHeader: Record "Warehouse Shipment Header"; SalesLine: Record "Sales Line"): Boolean
+    procedure FromSalesLine2ShptLine(WhseShptHeader: Record "Warehouse Shipment Header"; SalesLine: Record "Sales Line") Result: Boolean
     var
         AsmHeader: Record "Assembly Header";
         TotalOutstandingWhseShptQty: Decimal;
         TotalOutstandingWhseShptQtyBase: Decimal;
         ATOWhseShptLineQty: Decimal;
         ATOWhseShptLineQtyBase: Decimal;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeFromSalesLine2ShptLine(SalesLine, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         SalesLine.CalcFields("Whse. Outstanding Qty.", "ATO Whse. Outstanding Qty.",
           "Whse. Outstanding Qty. (Base)", "ATO Whse. Outstd. Qty. (Base)");
         TotalOutstandingWhseShptQty := Abs(SalesLine."Outstanding Quantity") - SalesLine."Whse. Outstanding Qty.";
@@ -430,18 +436,18 @@ codeunit 5750 "Whse.-Create Source Document"
     begin
         IsHandled := false;
         OnBeforeUpdateReceiptLine(WhseReceiptLine, WhseReceiptHeader, IsHandled);
-        if IsHandled then
-            exit;
-
-        with WhseReceiptLine do begin
-            if WhseReceiptHeader."Zone Code" <> '' then
-                Validate("Zone Code", WhseReceiptHeader."Zone Code");
-            if WhseReceiptHeader."Bin Code" <> '' then
-                Validate("Bin Code", WhseReceiptHeader."Bin Code");
-            if WhseReceiptHeader."Cross-Dock Zone Code" <> '' then
-                Validate("Cross-Dock Zone Code", WhseReceiptHeader."Cross-Dock Zone Code");
-            if WhseReceiptHeader."Cross-Dock Bin Code" <> '' then
-                Validate("Cross-Dock Bin Code", WhseReceiptHeader."Cross-Dock Bin Code");
+        if not IsHandled then begin
+            with WhseReceiptLine do begin
+                if WhseReceiptHeader."Zone Code" <> '' then
+                    Validate("Zone Code", WhseReceiptHeader."Zone Code");
+                if WhseReceiptHeader."Bin Code" <> '' then
+                    Validate("Bin Code", WhseReceiptHeader."Bin Code");
+                if WhseReceiptHeader."Cross-Dock Zone Code" <> '' then
+                    Validate("Cross-Dock Zone Code", WhseReceiptHeader."Cross-Dock Zone Code");
+                if WhseReceiptHeader."Cross-Dock Bin Code" <> '' then
+                    Validate("Cross-Dock Bin Code", WhseReceiptHeader."Cross-Dock Bin Code");
+            end;
+            OnAfterUpdateReceiptLine(WhseReceiptLine, WhseReceiptHeader);
         end;
     end;
 
@@ -700,6 +706,11 @@ codeunit 5750 "Whse.-Create Source Document"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeFromSalesLine2ShptLine(var SalesLine: Record "Sales Line"; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforePurchLine2ReceiptLine(WhseReceiptHeader: Record "Warehouse Receipt Header"; var PurchLine: Record "Purchase Line"; var IsHandled: Boolean)
     begin
     end;
@@ -796,6 +807,11 @@ codeunit 5750 "Whse.-Create Source Document"
 
     [IntegrationEvent(false, false)]
     local procedure OnFromSalesLine2ShptLineOnBeforeCreateShipmentLine(WarehouseShipmentHeader: Record "Warehouse Shipment Header"; SalesLine: Record "Sales Line"; var TotalOutstandingWhseShptQty: Decimal; var TotalOutstandingWhseShptQtyBase: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateReceiptLine(var WarehouseReceiptLine: Record "Warehouse Receipt Line"; WarehouseReceiptHeader: Record "Warehouse Receipt Header");
     begin
     end;
 }

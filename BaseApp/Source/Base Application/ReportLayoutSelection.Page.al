@@ -287,6 +287,7 @@ page 9652 "Report Layout Selection"
     local procedure UpdateTempRec()
     var
         TenantReportLayoutSelection: Record "Tenant Report Layout Selection";
+        ReportMetadata: Record "Report Metadata";
     begin
         // Update the temporary record's field with the values from the actual record
 
@@ -304,7 +305,10 @@ page 9652 "Report Layout Selection"
                 if TenantReportLayoutSelection.Get(Rec."Report ID", SelectedCompany) then
                     Rec."Report Layout Description" := TenantReportLayoutSelection."Layout Name"
                 else
-                    Rec."Report Layout Description" := DefaultLbl;
+                    if ReportMetadata.Get(Rec."Report ID") then
+                        Rec."Report Layout Description" := ReportMetadata.DefaultLayoutName
+                    else
+                        Rec."Report Layout Description" := DefaultLbl;
         end;
 
         CustomLayoutDescription := Rec."Report Layout Description";

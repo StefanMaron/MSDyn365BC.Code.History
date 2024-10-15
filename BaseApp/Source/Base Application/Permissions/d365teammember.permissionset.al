@@ -944,7 +944,7 @@ permissionset 7931 "D365 TEAM MEMBER"
 #if not CLEAN20
                   tabledata "Plan Permission Set" = Rm,
 #endif
-                  tabledata "Planning Assignment" = Ri,
+                  tabledata "Planning Assignment" = Rim,
                   tabledata "Planning Buffer" = RM,
                   tabledata "Planning Component" = Rm,
                   tabledata "Planning Error Log" = RM,

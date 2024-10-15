@@ -28,6 +28,7 @@ codeunit 136350 "UT T Job"
         LibraryDimension: Codeunit "Library - Dimension";
         LibraryRandom: Codeunit "Library - Random";
         LibraryMarketing: Codeunit "Library - Marketing";
+        LibraryVariableStorage: Codeunit "Library - Variable Storage";
         IsInitialized: Boolean;
         IncorrectSourceIDErr: Label 'Incorrect Source ID.';
         JobTaskDimDoesNotExistErr: Label 'Job Task Dimension does not exist.';
@@ -874,6 +875,7 @@ codeunit 136350 "UT T Job"
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmHandler')]
     procedure KeepBillToInSyncWithSellTo()
     var
         Job: Record Job;
@@ -905,6 +907,8 @@ codeunit 136350 "UT T Job"
         Job.TestField("Bill-to Name", Job."Sell-to Customer Name");
         Job.TestField("Bill-to Name 2", Job."Sell-to Customer Name 2");
         Job.TestField("Bill-to Customer No.", Job."Sell-to Customer No.");
+        Job.TestField("Payment Method Code", Customer."Payment Method Code");
+        Job.TestField("Payment Terms Code", Customer."Payment Terms Code");
 
         // [WHEN] Clearing the sell-to customer.
         Job.Validate("Sell-to Customer No.", '');
@@ -930,6 +934,191 @@ codeunit 136350 "UT T Job"
         Job.TestField("Bill-to Name", '');
         Job.TestField("Bill-to Name 2", '');
         Job.TestField("Bill-to Customer No.", '');
+        Job.TestField("Payment Method Code", '');
+        Job.TestField("Payment Terms Code", '');
+    end;
+
+    [Test]
+    [HandlerFunctions('ShipToAddressListModalHandler')]
+    procedure UpdateShippingAddressForAlternateShippingOption()
+    var
+        Job: Record Job;
+        Customer: Record Customer;
+        Contact: Record Contact;
+        ShipToAddress: Record "Ship-to Address";
+        JobCardPage: TestPage "Job Card";
+        ShipToOptions: Option "Default (Sell-to Address)","Alternate Shipping Address","Custom Address";
+    begin
+        // [SCENARIO] The ship-to fields should be updated to alternate address.
+        Initialize();
+
+        // [GIVEN] A customer with address and ship-to address and a job with customer assigned.
+        LibraryMarketing.CreateContactWithCustomer(Contact, Customer);
+        LibrarySales.CreateCustomerAddress(Customer);
+        AddShipToAddressToCustomer(ShipToAddress, Customer);
+        Customer.Validate("Primary Contact No.", Contact."No.");
+        Customer.Modify(true);
+        LibraryJob.CreateJob(Job, Customer."No.");
+        JobCardPage.OpenEdit();
+        JobCardPage.GoToRecord(Job);
+
+        // [WHEN] Setting the Ship-To to "Default (Sell-To address)".
+        JobCardPage.ShippingOptions.SetValue(ShipToOptions::"Default (Sell-to Address)");
+
+        //[THEN] Ship-To Code is empty
+        Job.TestField("Ship-to Code", '');
+
+        // [THEN] Ship-to fields are synced with Sell-To.
+        Job.TestField("Ship-to Name", Job."Sell-to Customer Name");
+        Job.TestField("Ship-to Name 2", Job."Sell-to Customer Name 2");
+        Job.TestField("Ship-to Address", Job."Sell-to Address");
+        Job.TestField("Ship-to Address 2", Job."Sell-to Address 2");
+        Job.TestField("Ship-to City", Job."Sell-to City");
+        Job.TestField("Ship-to County", Job."Sell-to County");
+        Job.TestField("Ship-to Post Code", Job."Sell-to Post Code");
+        Job.TestField("Ship-to Country/Region Code", Job."Sell-to Country/Region Code");
+        Job.TestField("Ship-to Contact", Job."Sell-to Contact");
+
+        // [WHEN] Setting the Ship-To to Alternate address.
+        LibraryVariableStorage.Enqueue(Customer."No.");
+        LibraryVariableStorage.Enqueue(ShipToAddress.Code);
+        JobCardPage.ShippingOptions.SetValue(ShipToOptions::"Alternate Shipping Address"); //Needs ShipToAddressListModalHandler;
+
+        //[THEN] Ship-To Code is updated
+        Job.Get(Job."No.");
+        Job.TestField("Ship-to Code", ShipToAddress.Code);
+
+        // [THEN] Ship-To fields is updated with alternative shipping address.
+        Job.TestField("Ship-to Name", ShipToAddress.Name);
+        Job.TestField("Ship-to Name 2", ShipToAddress."Name 2");
+        Job.TestField("Ship-to Address", ShipToAddress.Address);
+        Job.TestField("Ship-to Address 2", ShipToAddress."Address 2");
+        Job.TestField("Ship-to City", ShipToAddress.City);
+        Job.TestField("Ship-to County", ShipToAddress.County);
+        Job.TestField("Ship-to Post Code", ShipToAddress."Post Code");
+        Job.TestField("Ship-to Country/Region Code", ShipToAddress."Country/Region Code");
+        Job.TestField("Ship-to Contact", ShipToAddress."Contact");
+    end;
+
+    [Test]
+    [HandlerFunctions('ShipToAddressListModalHandler')]
+    procedure UpdateShippingAddressForCustomShippingOption()
+    var
+        Job: Record Job;
+        Customer: Record Customer;
+        Contact: Record Contact;
+        ShipToAddress: Record "Ship-to Address";
+        JobCardPage: TestPage "Job Card";
+        ShipToOptions: Option "Default (Sell-to Address)","Alternate Shipping Address","Custom Address";
+    begin
+        // [SCENARIO] The ship-to fields should be updated to custom address.
+        Initialize();
+
+        // [GIVEN] A customer with address and ship-to address and a job with customer assigned.
+        LibraryMarketing.CreateContactWithCustomer(Contact, Customer);
+        LibrarySales.CreateCustomerAddress(Customer);
+        AddShipToAddressToCustomer(ShipToAddress, Customer);
+        Customer.Validate("Primary Contact No.", Contact."No.");
+        Customer.Modify(true);
+        LibraryJob.CreateJob(Job, Customer."No.");
+        JobCardPage.OpenEdit();
+        JobCardPage.GoToRecord(Job);
+
+        // [WHEN] Setting the Ship-To to Alternate address.
+        LibraryVariableStorage.Enqueue(Customer."No.");
+        LibraryVariableStorage.Enqueue(ShipToAddress.Code);
+        JobCardPage.ShippingOptions.SetValue(ShipToOptions::"Alternate Shipping Address"); //Needs ShipToAddressListModalHandler;
+
+        //[THEN] Ship-To Code is updated
+        Job.Get(Job."No.");
+        Job.TestField("Ship-to Code", ShipToAddress.Code);
+
+        // [THEN] Ship-To fields is updated with alternative shipping address.
+        Job.TestField("Ship-to Name", ShipToAddress.Name);
+        Job.TestField("Ship-to Name 2", ShipToAddress."Name 2");
+        Job.TestField("Ship-to Address", ShipToAddress.Address);
+        Job.TestField("Ship-to Address 2", ShipToAddress."Address 2");
+        Job.TestField("Ship-to City", ShipToAddress.City);
+        Job.TestField("Ship-to County", ShipToAddress.County);
+        Job.TestField("Ship-to Post Code", ShipToAddress."Post Code");
+        Job.TestField("Ship-to Country/Region Code", ShipToAddress."Country/Region Code");
+        Job.TestField("Ship-to Contact", ShipToAddress."Contact");
+
+        // [WHEN] Setting the Ship-To to Custom address.
+        JobCardPage.ShippingOptions.SetValue(ShipToOptions::"Custom Address");
+        JobCardPage.OK().Invoke(); //To prevent delayed insert
+
+        //[THEN] Ship-To Code is set to empty
+        Job.Get(Job."No.");
+        Job.TestField("Ship-to Code", '');
+
+        // [THEN] Ship-To fields are not updated.
+        Job.TestField("Ship-to Name", ShipToAddress.Name);
+        Job.TestField("Ship-to Name 2", ShipToAddress."Name 2");
+        Job.TestField("Ship-to Address", ShipToAddress.Address);
+        Job.TestField("Ship-to Address 2", ShipToAddress."Address 2");
+        Job.TestField("Ship-to City", ShipToAddress.City);
+        Job.TestField("Ship-to County", ShipToAddress.County);
+        Job.TestField("Ship-to Post Code", ShipToAddress."Post Code");
+        Job.TestField("Ship-to Country/Region Code", ShipToAddress."Country/Region Code");
+        Job.TestField("Ship-to Contact", ShipToAddress."Contact");
+
+        // [WHEN] Setting the Ship-To to Default address.
+        JobCardPage.OpenEdit();
+        JobCardPage.GoToRecord(Job);
+        JobCardPage.ShippingOptions.SetValue(ShipToOptions::"Default (Sell-to Address)");
+        JobCardPage.OK().Invoke(); //To prevent delayed insert
+
+        //[THEN] Ship-To Code is empty
+        Job.Get(Job."No.");
+        Job.TestField("Ship-to Code", '');
+
+        // [THEN] Ship-to fields are synced with Sell-To.
+        Job.TestField("Ship-to Name", Job."Sell-to Customer Name");
+        Job.TestField("Ship-to Name 2", Job."Sell-to Customer Name 2");
+        Job.TestField("Ship-to Address", Job."Sell-to Address");
+        Job.TestField("Ship-to Address 2", Job."Sell-to Address 2");
+        Job.TestField("Ship-to City", Job."Sell-to City");
+        Job.TestField("Ship-to County", Job."Sell-to County");
+        Job.TestField("Ship-to Post Code", Job."Sell-to Post Code");
+        Job.TestField("Ship-to Country/Region Code", Job."Sell-to Country/Region Code");
+        Job.TestField("Ship-to Contact", Job."Sell-to Contact");
+
+        // [WHEN] Setting the Ship-To to Custom address.
+        JobCardPage.OpenEdit();
+        JobCardPage.GoToRecord(Job);
+        JobCardPage.ShippingOptions.SetValue(ShipToOptions::"Custom Address");
+        JobCardPage.OK().Invoke(); //To prevent delayed insert
+
+        //[THEN] Ship-To Code is set to empty
+        Job.Get(Job."No.");
+        Job.TestField("Ship-to Code", '');
+
+        // [THEN] Ship-To fields are not updated.
+        Job.TestField("Ship-to Name", Job."Sell-to Customer Name");
+        Job.TestField("Ship-to Name 2", Job."Sell-to Customer Name 2");
+        Job.TestField("Ship-to Address", Job."Sell-to Address");
+        Job.TestField("Ship-to Address 2", Job."Sell-to Address 2");
+        Job.TestField("Ship-to City", Job."Sell-to City");
+        Job.TestField("Ship-to County", Job."Sell-to County");
+        Job.TestField("Ship-to Post Code", Job."Sell-to Post Code");
+        Job.TestField("Ship-to Country/Region Code", Job."Sell-to Country/Region Code");
+        Job.TestField("Ship-to Contact", Job."Sell-to Contact");
+    end;
+
+    local procedure AddShipToAddressToCustomer(var ShipToAddress: Record "Ship-to Address"; var Customer: Record Customer)
+    var
+        PostCode: Record "Post Code";
+    begin
+        LibrarySales.CreateShipToAddress(ShipToAddress, Customer."No.");
+        ShipToAddress.Validate(Address, CopyStr(LibraryUtility.GenerateGUID, 1, MaxStrLen(ShipToAddress.Address)));
+        ShipToAddress.Validate("Address 2", CopyStr(LibraryUtility.GenerateGUID, 1, MaxStrLen(ShipToAddress."Address 2")));
+        LibraryERM.CreatePostCode(PostCode);
+        ShipToAddress.Validate("Country/Region Code", PostCode."Country/Region Code");
+        ShipToAddress.Validate(City, PostCode.City);
+        ShipToAddress.Validate(County, PostCode.County);
+        ShipToAddress.Validate("Post Code", PostCode.Code);
+        ShipToAddress.Modify(true);
     end;
 
     [Test]
@@ -965,9 +1154,12 @@ codeunit 136350 "UT T Job"
         Job.TestField("Sell-to Customer Name", Job."Bill-to Name");
         Job.TestField("Sell-to Customer Name 2", Job."Bill-to Name 2");
         Job.TestField("Sell-to Customer No.", Job."Bill-to Customer No.");
+        Job.TestField("Payment Method Code", Customer."Payment Method Code");
+        Job.TestField("Payment Terms Code", Customer."Payment Terms Code");
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmHandler')]
     procedure BreakBillToSellToSyncWhenChangingBillTo()
     var
         Job: Record Job;
@@ -976,6 +1168,8 @@ codeunit 136350 "UT T Job"
         SellToContact: Record Contact;
         BillToContact: Record Contact;
         ContactBusinessRelation: Record "Contact Business Relation";
+        PaymentTerms: Record "Payment Terms";
+        PaymentMethod: Record "Payment Method";
     begin
         // [SCENARIO] We should stop syncing bill-to with sell-to if we change bill-to customer.
         Initialize();
@@ -989,6 +1183,12 @@ codeunit 136350 "UT T Job"
         LibraryMarketing.CreateContactWithCustomer(BillToContact, BillToCustomer);
         LibrarySales.CreateCustomerAddress(BillToCustomer);
         BillToCustomer.Validate("Primary Contact No.", BillToContact."No.");
+
+        // [GIVEN] Bill-To customer with different payment terms and method.
+        LibraryERM.CreatePaymentTerms(PaymentTerms);
+        LibraryERM.CreatePaymentMethod(PaymentMethod);
+        BillToCustomer."Payment Terms Code" := PaymentTerms.Code;
+        BillToCustomer."Payment Method Code" := PaymentMethod.Code;
         BillToCustomer.Modify(true);
 
         Job.Init();
@@ -1006,6 +1206,8 @@ codeunit 136350 "UT T Job"
         Job.TestField("Bill-to Name", Job."Sell-to Customer Name");
         Job.TestField("Bill-to Name 2", Job."Sell-to Customer Name 2");
         Job.TestField("Bill-to Customer No.", Job."Sell-to Customer No.");
+        Job.TestField("Payment Method Code", SellToCustomer."Payment Method Code");
+        Job.TestField("Payment Terms Code", SellToCustomer."Payment Terms Code");
 
         // [WHEN] Changing the bill-to customer.
         Job.Validate("Bill-to Customer No.", BillToCustomer."No.");
@@ -1028,6 +1230,9 @@ codeunit 136350 "UT T Job"
         Job.TestField("Bill-to County", BillToCustomer.County);
         Job.TestField("Bill-to Name", BillToCustomer.Name);
         Job.TestField("Bill-to Name 2", BillToCustomer."Name 2");
+
+        Job.TestField("Payment Method Code", BillToCustomer."Payment Method Code");
+        Job.TestField("Payment Terms Code", BillToCustomer."Payment Terms Code");
     end;
 
     local procedure Initialize()
@@ -1326,6 +1531,16 @@ codeunit 136350 "UT T Job"
     procedure ConfirmFalseHandler(Question: Text[1024]; var Reply: Boolean)
     begin
         Reply := false;
+    end;
+
+    [ModalPageHandler]
+    procedure ShipToAddressListModalHandler(var ShipToAddressList: TestPage "Ship-to Address List")
+    var
+        ShipToAddress: Record "Ship-to Address";
+    begin
+        ShipToAddress.Get(LibraryVariableStorage.DequeueText(), LibraryVariableStorage.DequeueText());
+        ShipToAddressList.GoToRecord(ShipToAddress);
+        ShipToAddressList.OK.Invoke();
     end;
 }
 

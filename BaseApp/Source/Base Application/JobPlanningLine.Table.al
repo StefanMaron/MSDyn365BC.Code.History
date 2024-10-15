@@ -99,12 +99,7 @@ table 1003 "Job Planning Line"
                     "Cost Factor" := 0;
                     if Type = Type::Item then begin
                         "Bin Code" := '';
-                        if ("No." <> '') and ("Location Code" <> '') then begin
-                            GetLocation("Location Code");
-                            GetItem();
-                            if IsDefaultBin() and Item.IsInventoriableType() then
-                                WMSManagement.GetDefaultBin("No.", "Variant Code", "Location Code", "Bin Code");
-                        end;
+                        SetDefaultBin();
                         WhseValidateSourceLine.JobPlanningLineVerifyChange(Rec, xRec, FieldNo("No."));
                     end;
                     if "No." = '' then
@@ -352,11 +347,7 @@ table 1003 "Job Planning Line"
                     CheckItemAvailable(FieldNo("Location Code"));
                     UpdateReservation(FieldNo("Location Code"));
                     Validate(Quantity);
-                    if ("Location Code" <> '') and ("No." <> '') then begin
-                        GetItem();
-                        if IsDefaultBin() and Item.IsInventoriableType() then
-                            WMSManagement.GetDefaultBin("No.", "Variant Code", "Location Code", "Bin Code");
-                    end;
+                    SetDefaultBin();
                     WhseValidateSourceLine.JobPlanningLineVerifyChange(Rec, xRec, FieldNo("Location Code"));
 
 #if not CLEAN20
@@ -1037,20 +1028,20 @@ table 1003 "Job Planning Line"
                 if "Bin Code" <> '' then begin
                     TestField("Location Code");
                     GetLocation("Location Code");
+                    TestField(Type, Type::Item);
+                    GetItem();
+                    Item.TestField(Type, Item.Type::Inventory);
+                    CheckItemAvailable(FieldNo("Bin Code"));
+                    WMSManagement.FindBin("Location Code", "Bin Code", '');
+                    BinCodeCaption := CopyStr(FieldCaption("Bin Code"), 1, 30);
+                    WhseIntegrationMgt.CheckBinTypeCode(DATABASE::"Job Planning Line",
+                      BinCodeCaption,
+                      "Location Code",
+                      "Bin Code", 0);
+                    CheckBin();
                 end;
-                TestField(Type, Type::Item);
-                GetItem();
-                Item.TestField(Type, Item.Type::Inventory);
-                CheckItemAvailable(FieldNo("Bin Code"));
-                WMSManagement.FindBin("Location Code", "Bin Code", '');
-                BinCodeCaption := CopyStr(FieldCaption("Bin Code"), 1, 30);
-                WhseIntegrationMgt.CheckBinTypeCode(DATABASE::"Job Planning Line",
-                  BinCodeCaption,
-                  "Location Code",
-                  "Bin Code", 0);
-                CheckBin();
-                UpdateReservation(FieldNo("Bin Code"));
 
+                UpdateReservation(FieldNo("Bin Code"));
                 WhseValidateSourceLine.JobPlanningLineVerifyChange(Rec, xRec, FieldNo("Bin Code"));
             end;
 
@@ -1394,7 +1385,6 @@ table 1003 "Job Planning Line"
         JobPlanningLineReserve: Codeunit "Job Planning Line-Reserve";
         UOMMgt: Codeunit "Unit of Measure Management";
         ItemCheckAvail: Codeunit "Item-Check Avail.";
-        WMSManagement: Codeunit "WMS Management";
 #if not CLEAN20
         FeatureManagement: Codeunit "Feature Management Facade";
         PicksForJobsFeatureIdLbl: Label 'PicksForJobs', Locked = true;
@@ -1863,7 +1853,7 @@ table 1003 "Job Planning Line"
         GetJob;
         if (Type = Type::Item) and Item.Get("No.") then
             if Item."Costing Method" = Item."Costing Method"::Standard then
-                if RetrieveCostPrice then begin
+                if RetrieveCostPrice(CurrFieldNo) then begin
                     if GetSKU then
                         "Unit Cost (LCY)" := Round(SKU."Unit Cost" * "Qty. per Unit of Measure", UnitAmountRoundingPrecision)
                     else
@@ -1872,7 +1862,7 @@ table 1003 "Job Planning Line"
                 end else
                     RecalculateAmounts(Job."Exch. Calculation (Cost)", xRec."Unit Cost", "Unit Cost", "Unit Cost (LCY)")
             else
-                if RetrieveCostPrice then begin
+                if RetrieveCostPrice(CurrFieldNo) then begin
                     if GetSKU then
                         RetrievedCost := SKU."Unit Cost" * "Qty. per Unit of Measure"
                     else
@@ -1892,16 +1882,34 @@ table 1003 "Job Planning Line"
         OnAfterResourceFindCost(Rec, ResourceCost);
     end;
 #endif
-    local procedure RetrieveCostPrice(): Boolean
+    local procedure RetrieveCostPrice(CalledByFieldNo: Integer): Boolean
     var
         ShouldRetrieveCostPrice: Boolean;
         IsHandled: Boolean;
     begin
         IsHandled := false;
         ShouldRetrieveCostPrice := false;
-        OnBeforeRetrieveCostPrice(Rec, xRec, ShouldRetrieveCostPrice, IsHandled);
+        OnBeforeRetrieveCostPrice(Rec, xRec, ShouldRetrieveCostPrice, IsHandled, CalledByFieldNo);
         if IsHandled then
             exit(ShouldRetrieveCostPrice);
+
+        if CalledByFieldNo <> 0 then
+            case Type of
+                Type::Item:
+                    if not (CalledByFieldNo in
+                            [FieldNo("No."), FieldNo(Quantity), FieldNo("Location Code"),
+                            FieldNo("Variant Code"), FieldNo("Unit of Measure Code")])
+                    then
+                        exit(false);
+                Type::Resource:
+                    if not (CalledByFieldNo in
+                         [FieldNo("No."), FieldNo(Quantity), FieldNo("Work Type Code"), FieldNo("Unit of Measure Code")])
+                    then
+                        exit(false);
+                Type::"G/L Account":
+                    if not (CalledByFieldNo in [FieldNo("No."), FieldNo(Quantity)]) then
+                        exit(false);
+            end;
 
         case Type of
             Type::Item:
@@ -1954,7 +1962,7 @@ table 1003 "Job Planning Line"
         PriceType: Enum "Price Type";
         IsHandled: Boolean;
     begin
-        if RetrieveCostPrice and ("No." <> '') then begin
+        if RetrieveCostPrice(CalledByFieldNo) and ("No." <> '') then begin
             IsHandled := false;
             OnBeforeFindPriceAndDiscount(CalledByFieldNo, IsHandled, Rec, xRec);
             if IsHandled then
@@ -2121,15 +2129,7 @@ table 1003 "Job Planning Line"
                     PostingDate, "Posted Line Amount", CurrencyFactor, AmountRoundingPrecision);
 
             // Update Remaining Quantity
-            if (PostedQty >= 0) = ("Remaining Qty." >= 0) then
-                if Abs(PostedQty) <= Abs("Remaining Qty.") then
-                    Validate("Remaining Qty.", "Remaining Qty." - PostedQty)
-                else begin
-                    Validate(Quantity, Quantity + PostedQty - "Remaining Qty.");
-                    Validate("Remaining Qty.", 0);
-                end
-            else
-                Validate("Remaining Qty.", "Remaining Qty." - PostedQty);
+            UpdateRemainingQuantityFromUse(PostedQty);
 
             // Update Remaining Costs and Amounts
             UpdateRemainingCostsAndAmounts(PostingDate, CurrencyFactor);
@@ -2141,6 +2141,26 @@ table 1003 "Job Planning Line"
 
         OnUseOnBeforeModify(Rec);
         Modify(true);
+    end;
+
+    local procedure UpdateRemainingQuantityFromUse(PostedQty: Decimal)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeUpdateRemainingQuantityFromUse(Rec, xRec, PostedQty, IsHandled);
+        if IsHandled then
+            exit;
+
+        if (PostedQty >= 0) = ("Remaining Qty." >= 0) then
+            if Abs(PostedQty) <= Abs("Remaining Qty.") then
+                Validate("Remaining Qty.", "Remaining Qty." - PostedQty)
+            else begin
+                Validate(Quantity, Quantity + PostedQty - "Remaining Qty.");
+                Validate("Remaining Qty.", 0);
+            end
+        else
+            Validate("Remaining Qty.", "Remaining Qty." - PostedQty);
     end;
 
     local procedure UpdateRemainingCostsAndAmounts(PostingDate: Date; CurrencyFactor: Decimal)
@@ -2291,7 +2311,13 @@ table 1003 "Job Planning Line"
     procedure UpdateReservation(CalledByFieldNo: Integer)
     var
         ReservationCheckDateConfl: Codeunit "Reservation-Check Date Confl.";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateReservation(Rec, xRec, CalledByFieldNo, IsHandled);
+        if IsHandled then
+            exit;
+
         if (CurrFieldNo <> CalledByFieldNo) and (CurrFieldNo <> 0) then
             exit;
 
@@ -2586,14 +2612,18 @@ table 1003 "Job Planning Line"
         exit(Item.IsNonInventoriableType);
     end;
 
-    procedure ConvertToJobLineType(): Enum "Job Line Type"
+    procedure ConvertToJobLineType() JobLineType: Enum "Job Line Type"
     begin
-        exit("Job Line Type".FromInteger("Line Type".AsInteger() + 1));
+        JobLineType := "Job Line Type".FromInteger("Line Type".AsInteger() + 1);
+
+        OnAfterConvertToJobLineType(Rec, JobLineType);
     end;
 
-    procedure ConvertFromJobLineType(JobLineType: Enum "Job Line Type"): Enum "Job Planning Line Line Type"
+    procedure ConvertFromJobLineType(JobLineType: Enum "Job Line Type") JobPlanningLineLineType: Enum "Job Planning Line Line Type"
     begin
-        exit("Job Planning Line Line Type".FromInteger(JobLineType.AsInteger() - 1));
+        JobPlanningLineLineType := "Job Planning Line Line Type".FromInteger(JobLineType.AsInteger() - 1);
+
+        OnAfterConvertFromJobLineType(Rec, JobLineType, JobPlanningLineLineType);
     end;
 
     procedure CopyTrackingFromJobJnlLine(JobJnlLine: Record "Job Journal Line")
@@ -2612,9 +2642,27 @@ table 1003 "Job Planning Line"
         OnAfterCopyTrackingFromJobLedgEntry(Rec, JobLedgEntry);
     end;
 
-    local procedure IsDefaultBin() Result: Boolean
+    local procedure SetDefaultBin()
     begin
-        Result := Location."Bin Mandatory" and not Location."Directed Put-away and Pick";
+        if (Rec."No." <> '') then begin
+            GetItem();
+            if Item.IsInventoriableType() then
+                Validate("Bin Code", FindBin());
+        end;
+    end;
+
+    local procedure FindBin() NewBinCode: Code[20]
+    var
+        WMSManagement: Codeunit "WMS Management";
+    begin
+        if (Rec."No." <> '') and (Rec."Location Code" <> '') then begin
+            GetLocation(Rec."Location Code");
+            if Location."To-Job Bin Code" <> '' then
+                NewBinCode := Location."To-Job Bin Code"
+            else
+                if Location."Bin Mandatory" and not Location."Directed Put-away and Pick" then
+                    WMSManagement.GetDefaultBin(Rec."No.", Rec."Variant Code", Rec."Location Code", NewBinCode);
+        end;
     end;
 
     local procedure CalcBaseQty(Qty: Decimal; FromFieldName: Text; ToFieldName: Text): Decimal
@@ -2696,6 +2744,16 @@ table 1003 "Job Planning Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyTrackingFromJobJnlLine(var JobPlanningLine: Record "Job Planning Line"; JobJnlLine: Record "Job Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterConvertToJobLineType(var JobPlanningLine: Record "Job Planning Line"; var JobLineType: Enum "Job Line Type")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterConvertFromJobLineType(var JobPlanningLine: Record "Job Planning Line"; var JobLineType: Enum "Job Line Type"; var JobPlanningLineLineType: Enum "Job Planning Line Line Type")
     begin
     end;
 
@@ -2843,12 +2901,17 @@ table 1003 "Job Planning Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeRetrieveCostPrice(var JobPlanningLine: Record "Job Planning Line"; xJobPlanningLine: Record "Job Planning Line"; var ShouldRetrieveCostPrice: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeRetrieveCostPrice(var JobPlanningLine: Record "Job Planning Line"; xJobPlanningLine: Record "Job Planning Line"; var ShouldRetrieveCostPrice: Boolean; var IsHandled: Boolean; CalledByFieldNo: Integer)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateRemainingQuantity(var JobPlanningLine: Record "Job Planning Line"; xJobPlanningLine: Record "Job Planning Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateRemainingQuantityFromUse(var JobPlanningLine: Record "Job Planning Line"; xJobPlanningLine: Record "Job Planning Line"; PostedQty: Decimal; var IsHandled: Boolean)
     begin
     end;
 
@@ -2859,6 +2922,11 @@ table 1003 "Job Planning Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateUnitCost(JobPlanningLine: Record "Job Planning Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateReservation(var JobPlanningLine: Record "Job Planning Line"; var xJobPlanningLine: Record "Job Planning Line"; CalledByFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 

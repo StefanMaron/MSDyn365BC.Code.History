@@ -957,6 +957,8 @@
                   "Shortcut Dimension 2 Code");
             end;
         end;
+
+        OnAfterUpdateDimensions(GenJnlLine, SummarizePerVend);
     end;
 
     local procedure SetBankAccCurrencyFilter(BalAccType: Enum "Gen. Journal Account Type"; BalAccNo: Code[20]; var TmpPayableVendLedgEntry: Record "Payable Vendor Ledger Entry")
@@ -1333,6 +1335,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterPostDataItem(var GenJournalBatch: Record "Gen. Journal Batch"; GenJournalLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateDimensions(var GenJournalLine: Record "Gen. Journal Line"; SummarizePerVend: Boolean)
     begin
     end;
 

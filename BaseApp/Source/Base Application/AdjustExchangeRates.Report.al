@@ -1699,6 +1699,8 @@ report 595 "Adjust Exchange Rates"
                 GenJnlLine."Shortcut Dimension 1 Code", GenJnlLine."Shortcut Dimension 2 Code",
                 GenJnlLine."Dimension Set ID", 0);
         DimMgt.GetDimensionSet(DimSetEntry, DimSetID);
+
+        OnAfterGetJnlLineDefDim(GenJnlLine, DimSetEntry);
     end;
 
     local procedure CopyDimSetEntryToDimBuf(var DimSetEntry: Record "Dimension Set Entry"; var DimBuf: Record "Dimension Buffer")
@@ -2758,6 +2760,11 @@ report 595 "Adjust Exchange Rates"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterGetJnlLineDefDim(var GenJnlLine: Record "Gen. Journal Line"; var DimSetEntry: Record "Dimension Set Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterInitDtldCustLedgerEntry(var DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry")
     begin
     end;
@@ -2824,7 +2831,7 @@ report 595 "Adjust Exchange Rates"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforePostGenJnlLine(var GenJnlLine: Record "Gen. Journal Line"; var DimSetEntry: Record "Dimension Set Entry"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line"; var Result: Integer; var IsHandled: Boolean)
     begin
     end;

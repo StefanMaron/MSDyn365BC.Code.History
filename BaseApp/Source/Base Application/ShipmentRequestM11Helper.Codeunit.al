@@ -90,6 +90,7 @@ codeunit 14942 "Shipment Request M-11 Helper"
         if not ExcelReportBuilderMgr.TryAddSectionWithPlaceForFooter('BODY', 'REPORTFOOTER') then begin
             ExcelReportBuilderMgr.AddPagebreak;
             ExcelReportBuilderMgr.AddSection('PAGEHEADER');
+            ExcelReportBuilderMgr.AddSection('BODY');
         end;
 
         ExcelReportBuilderMgr.AddDataToSection('FromLedgerAccount', BodyArr[1]);

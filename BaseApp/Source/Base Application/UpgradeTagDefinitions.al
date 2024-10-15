@@ -113,6 +113,8 @@ codeunit 9998 "Upgrade Tag Definitions"
         PerCompanyUpgradeTags.Add(GetConfigFieldMapUpgradeTag());
         PerCompanyUpgradeTags.Add(GetICSetupUpgradeTag());
         PerCompanyUpgradeTags.Add(GetItemCrossReferenceInPEPPOLUpgradeTag());
+        PerCompanyUpgradeTags.Add(GetUseCustomLookupUpgradeTag());
+        PerCompanyUpgradeTags.Add(SanitizeCloudMigratedDataUpgradeTag());
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Upgrade Tag", 'OnGetPerDatabaseUpgradeTags', '', false, false)]
@@ -917,6 +919,16 @@ codeunit 9998 "Upgrade Tag Definitions"
     internal procedure GetItemCrossReferenceInPEPPOLUpgradeTag(): Code[250]
     begin
         exit('MS-422103-GetItemCrossReferenceInPEPPOLUpgradeTag-20220114');
+    end;
+
+    internal procedure GetUseCustomLookupUpgradeTag(): Code[250]
+    begin
+        exit('MS-426799-GetUseCustomLookupUpgradeTag-20220406');
+    end;
+
+    internal procedure SanitizeCloudMigratedDataUpgradeTag(): Code[250]
+    begin
+        exit('MS-433866-GetSanitizeCloudMigrationOnce-20220426');
     end;
 }
 

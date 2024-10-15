@@ -1008,7 +1008,14 @@ table 5612 "FA Depreciation Book"
         DeprBook: Record "Depreciation Book";
 
     local procedure AdjustLinearMethod(var Amount1: Decimal; var Amount2: Decimal)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeAdjustLinearMethod(Rec, Amount1, Amount2, IsHandled);
+        if IsHandled then
+            exit;
+
         Amount1 := 0;
         Amount2 := 0;
         if "No. of Depreciation Years" = 0 then begin
@@ -1325,6 +1332,11 @@ table 5612 "FA Depreciation Book"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeOnDelete(var FADeprecBook: Record "FA Depreciation Book"; xFADeprecBook: Record "FA Depreciation Book"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeAdjustLinearMethod(var FADepreciationBook: Record "FA Depreciation Book"; var Amount1: Decimal; var Amount2: Decimal; var IsHandled: Boolean)
     begin
     end;
 

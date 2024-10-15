@@ -459,7 +459,7 @@
                         Quantity <> 0:
                             begin
                                 IsHandled := false;
-                                OnCheckConsistencyOnBeforeCheckQuantity(GenJnlLine, IsHandled);
+                                OnCheckConsistencyOnBeforeCheckQuantity(GenJnlLine, IsHandled, FAJnlLine);
                                 if not IsHandled then
                                     if ("FA Posting Type" <> "FA Posting Type"::Maintenance) and
                                        (not FA."Undepreciable FA") and
@@ -526,7 +526,7 @@
                         Quantity <> 0:
                             begin
                                 IsHandled := false;
-                                OnCheckConsistencyOnBeforeCheckQuantity(GenJnlLine, IsHandled);
+                                OnCheckConsistencyOnBeforeCheckQuantity(GenJnlLine, IsHandled, FAJnlLine);
                                 if not IsHandled then
                                     if ("FA Posting Type" <> "FA Posting Type"::Maintenance) and
                                        (not FA."Undepreciable FA") and
@@ -727,7 +727,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCheckConsistencyOnBeforeCheckQuantity(var GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
+    local procedure OnCheckConsistencyOnBeforeCheckQuantity(var GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean; var FAJournalLine: Record "FA Journal Line")
     begin
     end;
 }

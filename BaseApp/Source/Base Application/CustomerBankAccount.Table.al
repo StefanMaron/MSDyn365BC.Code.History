@@ -169,7 +169,13 @@ table 287 "Customer Bank Account"
             trigger OnValidate()
             var
                 CompanyInfo: Record "Company Information";
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateIBAN(Rec, xRec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 CompanyInfo.CheckIBAN(IBAN);
             end;
         }
@@ -326,6 +332,11 @@ table 287 "Customer Bank Account"
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateBankAccount(var CustomerBankAccount: Record "Customer Bank Account"; FieldToValidate: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateIBAN(var CustomerBankAccount: Record "Customer Bank Account"; var xCustomerBankAccount: Record "Customer Bank Account"; var IsHandled: Boolean)
     begin
     end;
 

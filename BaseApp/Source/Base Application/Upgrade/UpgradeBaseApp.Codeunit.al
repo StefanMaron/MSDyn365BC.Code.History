@@ -43,6 +43,8 @@ codeunit 104000 "Upgrade - BaseApp"
         if not HybridDeployment.VerifyCanStartUpgrade(CompanyName()) then
             exit;
 
+        HybridDeployment.SanitizeCompanyBeforeUpgrade();
+
         ClearTemporaryTables();
 
         UpdateDefaultDimensionsReferencedIds();
@@ -79,6 +81,7 @@ codeunit 104000 "Upgrade - BaseApp"
         UpgradeRemoveSmartListGuidedExperience();
         UpgradeCRMIntegrationRecord();
 
+        UseCustomLookupInPrices();
         UpdateWorkflowTableRelations();
         UpgradeWordTemplateTables();
         UpdatePriceSourceGroupInPriceListLines();
@@ -518,9 +521,9 @@ codeunit 104000 "Upgrade - BaseApp"
         UpgradeSalesCrMemoEntityBuffer;
         UpgradeSalesOrderShipmentMethod;
         UpgradeSalesCrMemoShipmentMethod;
+
         UpgradeSalesShipmentLineDocumentId();
         UpdateItemVariants();
-
         UpgradeDefaultDimensions();
         UpgradeDimensionValues();
         UpgradeGLAccountAPIType();
@@ -539,33 +542,14 @@ codeunit 104000 "Upgrade - BaseApp"
 
     procedure UpgradeItemPostingGroups()
     var
-        Item: Record "Item";
-        GenProdPostingGroup: Record "Gen. Product Posting Group";
-        InventoryPostingGroup: Record "Inventory Posting Group";
+        APIDataUpgrade: Codeunit "API Data Upgrade";
         UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
         UpgradeTag: Codeunit "Upgrade Tag";
-        ItemModified: Boolean;
     begin
         if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetItemPostingGroupsUpgradeTag()) then
             exit;
 
-        Item.SetLoadFields("Gen. Prod. Posting Group", "Inventory Posting Group");
-        if Item.FindSet() then
-            repeat
-                ItemModified := false;
-                if Item."Gen. Prod. Posting Group" <> '' then
-                    if GenProdPostingGroup.Get(Item."Gen. Prod. Posting Group") then begin
-                        Item."Gen. Prod. Posting Group Id" := GenProdPostingGroup.SystemId;
-                        ItemModified := true;
-                    end;
-                if Item."Inventory Posting Group" <> '' then
-                    if InventoryPostingGroup.Get(Item."Inventory Posting Group") then begin
-                        Item."Inventory Posting Group Id" := InventoryPostingGroup.SystemId;
-                        ItemModified := true;
-                    end;
-                if ItemModified then
-                    Item.Modify(false);
-            until Item.Next() = 0;
+        APIDataUpgrade.UpgradeItemPostingGroups(true);
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetItemPostingGroupsUpgradeTag());
     end;
@@ -586,24 +570,14 @@ codeunit 104000 "Upgrade - BaseApp"
 
     local procedure UpgradeSalesShipmentLineDocumentId()
     var
-        SalesShipmentHeader: Record "Sales Shipment Header";
-        SalesShipmentLine: Record "Sales Shipment Line";
         UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
         UpgradeTag: Codeunit "Upgrade Tag";
-        EnvironmentInformation: codeunit "Environment Information";
+        APIDataUpgrade: Codeunit "API Data Upgrade";
     begin
         if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetNewSalesShipmentLineUpgradeTag()) then
             exit;
 
-        if EnvironmentInformation.IsSaaS() then
-            if SalesShipmentLine.Count() > GetSafeRecordCountForSaaSUpgrade() then
-                exit;
-
-        if SalesShipmentHeader.FindSet() then
-            repeat
-                SalesShipmentLine.SetRange("Document No.", SalesShipmentHeader."No.");
-                SalesShipmentLine.ModifyAll("Document Id", SalesShipmentHeader.SystemId);
-            until SalesShipmentHeader.Next() = 0;
+        APIDataUpgrade.UpgradeSalesShipmentLineDocumentId(true);
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetNewSalesShipmentLineUpgradeTag());
     end;
@@ -1329,106 +1303,56 @@ codeunit 104000 "Upgrade - BaseApp"
 
     local procedure UpdateItemVariants()
     var
-        Item: Record Item;
-        ItemVariant: Record "Item Variant";
-        ItemVariant2: Record "Item Variant";
         UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
         UpgradeTag: Codeunit "Upgrade Tag";
+        APIDataUpgrade: Codeunit "API Data Upgrade";
     begin
         if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetItemVariantItemIdUpgradeTag()) then
             exit;
 
-        if ItemVariant.FindSet() then
-            repeat
-                if Item.Get(ItemVariant."Item No.") then
-                    if ItemVariant."Item Id" <> Item.SystemId then begin
-                        ItemVariant2 := ItemVariant;
-                        ItemVariant2."Item Id" := Item.SystemId;
-                        ItemVariant2.Modify();
-                    end;
-            until ItemVariant.Next() = 0;
+        APIDataUpgrade.UpdateItemVariants();
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetItemVariantItemIdUpgradeTag());
     end;
 
     local procedure UpgradeDefaultDimensions()
     var
-        DefaultDimension: Record "Default Dimension";
         UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
         UpgradeTag: Codeunit "Upgrade Tag";
+        APIDataUpgrade: Codeunit "API Data Upgrade";
     begin
         if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetDefaultDimensionParentTypeUpgradeTag()) then
             exit;
 
-        DefaultDimension.SetRange("Table ID", Database::Item);
-        DefaultDimension.ModifyAll("Parent Type", DefaultDimension."Parent Type"::Item);
-
-        DefaultDimension.Reset();
-        DefaultDimension.SetRange("Table ID", Database::Customer);
-        DefaultDimension.ModifyAll("Parent Type", DefaultDimension."Parent Type"::Customer);
-
-        DefaultDimension.Reset();
-        DefaultDimension.SetRange("Table ID", Database::Vendor);
-        DefaultDimension.ModifyAll("Parent Type", DefaultDimension."Parent Type"::Vendor);
-
-        DefaultDimension.Reset();
-        DefaultDimension.SetRange("Table ID", Database::Employee);
-        DefaultDimension.ModifyAll("Parent Type", DefaultDimension."Parent Type"::Employee);
+        APIDataUpgrade.UpgradeDefaultDimensions();
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetDefaultDimensionParentTypeUpgradeTag());
     end;
 
     local procedure UpgradeDimensionValues()
     var
-        Dimension: Record "Dimension";
-        DimensionValue: Record "Dimension Value";
-        DimensionValue2: Record "Dimension Value";
         UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
         UpgradeTag: Codeunit "Upgrade Tag";
+        APIDataUpgrade: Codeunit "API Data Upgrade";
     begin
         if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetDimensionValueDimensionIdUpgradeTag()) then
             exit;
 
-        if DimensionValue.FindSet() then
-            repeat
-                if Dimension.Get(DimensionValue."Dimension Code") then
-                    if DimensionValue."Dimension Id" <> Dimension.SystemId then begin
-                        DimensionValue2 := DimensionValue;
-                        DimensionValue2."Dimension Id" := Dimension.SystemId;
-                        DimensionValue2.Modify();
-                    end;
-            until DimensionValue.Next() = 0;
+        APIDataUpgrade.UpgradeDimensionValues();
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetDimensionValueDimensionIdUpgradeTag());
     end;
 
     local procedure UpgradeGLAccountAPIType()
     var
-        GLAccount: Record "G/L Account";
         UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
         UpgradeTag: Codeunit "Upgrade Tag";
+        APIDataUpgrade: Codeunit "API Data Upgrade";
     begin
         if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetGLAccountAPITypeUpgradeTag()) then
             exit;
 
-        GLAccount.SetRange("Account Type", GLAccount."Account Type"::Posting);
-        GLAccount.ModifyAll("API Account Type", GLAccount."API Account Type"::Posting);
-
-        GLAccount.Reset();
-        GLAccount.SetRange("Account Type", GLAccount."Account Type"::Heading);
-        GLAccount.ModifyAll("API Account Type", GLAccount."API Account Type"::Heading);
-
-        GLAccount.Reset();
-        GLAccount.SetRange("Account Type", GLAccount."Account Type"::Total);
-        GLAccount.ModifyAll("API Account Type", GLAccount."API Account Type"::Total);
-
-        GLAccount.Reset();
-        GLAccount.SetRange("Account Type", GLAccount."Account Type"::"Begin-Total");
-        GLAccount.ModifyAll("API Account Type", GLAccount."API Account Type"::"Begin-Total");
-
-        GLAccount.Reset();
-        GLAccount.SetRange("Account Type", GLAccount."Account Type"::"End-Total");
-        GLAccount.ModifyAll("API Account Type", GLAccount."API Account Type"::"End-Total");
+        APIDataUpgrade.UpgradeGLAccountAPIType();
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetGLAccountAPITypeUpgradeTag());
     end;
@@ -2102,24 +2026,14 @@ codeunit 104000 "Upgrade - BaseApp"
 
     local procedure UpgradePurchRcptLineDocumentId()
     var
-        PurchRcptHeader: Record "Purch. Rcpt. Header";
-        PurchRcptLine: Record "Purch. Rcpt. Line";
         UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
         UpgradeTag: Codeunit "Upgrade Tag";
-        EnvironmentInformation: codeunit "Environment Information";
+        APIDataUpgrade: Codeunit "API Data Upgrade";
     begin
         if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetNewPurchRcptLineUpgradeTag()) then
             exit;
 
-        if EnvironmentInformation.IsSaaS() then
-            if PurchRcptLine.Count() > GetSafeRecordCountForSaaSUpgrade() then
-                exit;
-
-        if PurchRcptHeader.FindSet() then
-            repeat
-                PurchRcptLine.SetRange("Document No.", PurchRcptHeader."No.");
-                PurchRcptLine.ModifyAll("Document Id", PurchRcptHeader.SystemId);
-            until PurchRcptHeader.Next() = 0;
+        APIDataUpgrade.UpgradePurchRcptLineDocumentId(true);
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetNewPurchRcptLineUpgradeTag());
     end;
@@ -2523,50 +2437,99 @@ codeunit 104000 "Upgrade - BaseApp"
     procedure UpgradeSalesCreditMemoReasonCode()
     var
         APIDataUpgrade: Codeunit "API Data Upgrade";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+        UpgradeTag: Codeunit "Upgrade Tag";
     begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetSalesCreditMemoReasonCodeUpgradeTag()) then
+            exit;
+
         APIDataUpgrade.UpgradeSalesCreditMemoReasonCode(true);
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetSalesCreditMemoReasonCodeUpgradeTag());
     end;
 
     local procedure UpgradeSalesOrderShortcutDimension()
     var
         APIDataUpgrade: Codeunit "API Data Upgrade";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+        UpgradeTag: Codeunit "Upgrade Tag";
     begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetSalesOrderShortcutDimensionsUpgradeTag()) then
+            exit;
+
         APIDataUpgrade.UpgradeSalesOrderShortcutDimension(true);
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetSalesOrderShortcutDimensionsUpgradeTag());
     end;
 
     local procedure UpgradeSalesQuoteShortcutDimension()
     var
         APIDataUpgrade: Codeunit "API Data Upgrade";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+        UpgradeTag: Codeunit "Upgrade Tag";
     begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetSalesQuoteShortcutDimensionsUpgradeTag()) then
+            exit;
+
         APIDataUpgrade.UpgradeSalesQuoteShortcutDimension(true);
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetSalesQuoteShortcutDimensionsUpgradeTag());
     end;
 
     local procedure UpgradeSalesInvoiceShortcutDimension()
     var
         APIDataUpgrade: Codeunit "API Data Upgrade";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+        UpgradeTag: Codeunit "Upgrade Tag";
     begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetSalesInvoiceShortcutDimensionsUpgradeTag()) then
+            exit;
+
         APIDataUpgrade.UpgradeSalesInvoiceShortcutDimension(true);
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetSalesInvoiceShortcutDimensionsUpgradeTag());
     end;
 
     local procedure UpgradeSalesCrMemoShortcutDimension()
     var
         APIDataUpgrade: Codeunit "API Data Upgrade";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+        UpgradeTag: Codeunit "Upgrade Tag";
     begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetSalesCrMemoShortcutDimensionsUpgradeTag()) then
+            exit;
+
         APIDataUpgrade.UpgradeSalesCrMemoShortcutDimension(true);
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetSalesCrMemoShortcutDimensionsUpgradeTag());
     end;
 
     local procedure UpgradePurchaseOrderShortcutDimension()
     var
         APIDataUpgrade: Codeunit "API Data Upgrade";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+        UpgradeTag: Codeunit "Upgrade Tag";
     begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetPurchaseOrderShortcutDimensionsUpgradeTag()) then
+            exit;
+
         APIDataUpgrade.UpgradePurchaseOrderShortcutDimension(true);
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetPurchaseOrderShortcutDimensionsUpgradeTag());
     end;
 
     local procedure UpgradePurchInvoiceShortcutDimension()
     var
         APIDataUpgrade: Codeunit "API Data Upgrade";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+        UpgradeTag: Codeunit "Upgrade Tag";
     begin
-        APIDataUpgrade.UpgradePurchInvoiceShortcutDimension(true)
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetPurchInvoiceShortcutDimensionsUpgradeTag()) then
+            exit;
+
+        APIDataUpgrade.UpgradePurchInvoiceShortcutDimension(true);
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetPurchInvoiceShortcutDimensionsUpgradeTag());
     end;
 
     local procedure UpgradePowerBIOptin()
@@ -2812,6 +2775,25 @@ codeunit 104000 "Upgrade - BaseApp"
         ICSetup.Modify();
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetICSetupUpgradeTag());
+    end;
+
+    local procedure UseCustomLookupInPrices()
+    var
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
+        UpgradeTag: Codeunit "Upgrade Tag";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetUseCustomLookupUpgradeTag()) then
+            exit;
+
+        if SalesReceivablesSetup.Get() and not SalesReceivablesSetup."Use Customized Lookup" then
+            if PriceCalculationMgt.FindActiveSubscriptions() <> '' then begin
+                SalesReceivablesSetup.Validate("Use Customized Lookup", true);
+                SalesReceivablesSetup.Modify();
+            end;
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetUseCustomLookupUpgradeTag());
     end;
 }
 

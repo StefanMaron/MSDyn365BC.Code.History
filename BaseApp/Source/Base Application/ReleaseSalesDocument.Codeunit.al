@@ -62,24 +62,7 @@
             if IsHandled then
                 exit;
 
-            SalesLine.SetRange("Document Type", "Document Type");
-            SalesLine.SetRange("Document No.", "No.");
-            SalesLine.SetFilter(Type, '>0');
-            SalesLine.SetFilter(Quantity, '<>0');
-            OnBeforeSalesLineFind(SalesLine, SalesHeader);
-            if not SalesLine.Find('-') then
-                Error(Text001, "Document Type", "No.");
-            InvtSetup.Get();
-            if InvtSetup."Location Mandatory" then begin
-                SalesLine.SetRange(Type, SalesLine.Type::Item);
-                if SalesLine.FindSet() then
-                    repeat
-                        if SalesLine.IsInventoriableItem then
-                            SalesLine.TestField("Location Code");
-                        OnCodeOnAfterSalesLineCheck(SalesLine);
-                    until SalesLine.Next() = 0;
-                SalesLine.SetFilter(Type, '>0');
-            end;
+            CheckSalesLines(SalesLine);
 
             OnCodeOnAfterCheck(SalesHeader, SalesLine, LinesWereModified);
 
@@ -133,6 +116,37 @@
                     WhseSalesRelease.Release(SalesHeader);
 
             OnAfterReleaseSalesDoc(SalesHeader, PreviewMode, LinesWereModified);
+        end;
+    end;
+
+    local procedure CheckSalesLines(var SalesLine: Record "Sales Line")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckSalesLines(SalesHeader, SalesLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        with SalesHeader do begin
+            SalesLine.SetRange("Document Type", "Document Type");
+            SalesLine.SetRange("Document No.", "No.");
+            SalesLine.SetFilter(Type, '>0');
+            SalesLine.SetFilter(Quantity, '<>0');
+            OnBeforeSalesLineFind(SalesLine, SalesHeader);
+            if not SalesLine.Find('-') then
+                Error(Text001, "Document Type", "No.");
+            InvtSetup.Get();
+            if InvtSetup."Location Mandatory" then begin
+                SalesLine.SetRange(Type, SalesLine.Type::Item);
+                if SalesLine.FindSet() then
+                    repeat
+                        if SalesLine.IsInventoriableItem then
+                            SalesLine.TestField("Location Code");
+                        OnCodeOnAfterSalesLineCheck(SalesLine);
+                    until SalesLine.Next() = 0;
+                SalesLine.SetFilter(Type, '>0');
+            end;
         end;
     end;
 
@@ -380,6 +394,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckSalesHeaderPendingApproval(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckSalesLines(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
     begin
     end;
 

@@ -44,7 +44,7 @@ codeunit 312 "Cust-Check Cr. Limit"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeSalesHeaderCheck(SalesHeader, IsHandled);
+        OnBeforeSalesHeaderCheck(SalesHeader, IsHandled, CreditLimitExceeded);
         if IsHandled then
             exit;
 
@@ -261,7 +261,7 @@ codeunit 312 "Cust-Check Cr. Limit"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeSalesHeaderCheck(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean);
+    local procedure OnBeforeSalesHeaderCheck(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean; var CreditLimitExceeded: Boolean);
     begin
     end;
 

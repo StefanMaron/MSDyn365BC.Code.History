@@ -782,6 +782,7 @@ table 77 "Report Selections"
     procedure EnqueueMailingJob(RecordIdToProcess: RecordID; ParameterString: Text; Description: Text)
     var
         JobQueueEntry: Record "Job Queue Entry";
+        IsHandled: Boolean;
     begin
         JobQueueEntry.Init();
         JobQueueEntry."Object Type to Run" := JobQueueEntry."Object Type to Run"::Codeunit;
@@ -791,7 +792,10 @@ table 77 "Report Selections"
         JobQueueEntry."Record ID to Process" := RecordIdToProcess;
         JobQueueEntry."Parameter String" := CopyStr(ParameterString, 1, MaxStrLen(JobQueueEntry."Parameter String"));
         JobQueueEntry.Description := CopyStr(Description, 1, MaxStrLen(JobQueueEntry.Description));
-        CODEUNIT.Run(CODEUNIT::"Job Queue - Enqueue", JobQueueEntry);
+        IsHandled := false;
+        OnEnqueueMailingJobOnBeforeRunJobQueueEnqueue(RecordIdToProcess, ParameterString, Description, JobQueueEntry, IsHandled);
+        if not IsHandled then
+            CODEUNIT.Run(CODEUNIT::"Job Queue - Enqueue", JobQueueEntry);
     end;
 
     procedure GetMailingJobCategory(): Code[10]
@@ -2008,6 +2012,11 @@ table 77 "Report Selections"
     begin
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnEnqueueMailingJobOnBeforeRunJobQueueEnqueue(RecordIdToProcess: RecordID; ParameterString: Text; Description: Text; var JobQueueEntry: Record "Job Queue Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
     [IntegrationEvent(TRUE, false)]
     local procedure OnFindReportSelections(var FilterReportSelections: Record "Report Selections"; var IsHandled: Boolean; var ReturnReportSelections: Record "Report Selections"; AccountNo: Code[20]; TableNo: Integer)
     begin
@@ -2069,7 +2078,7 @@ table 77 "Report Selections"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeSendEmailDirectly(var ReportSelections: Record "Report Selections"; ReportUsage: Enum "Report Selection Usage"; RecordVariant: Variant; DocNo: Code[20]; DocName: Text[150]; FoundBody: Boolean; FoundAttachment: Boolean; ServerEmailBodyFilePath: Text[250]; var DefaultEmailAddress: Text[250]; ShowDialog: Boolean; var TempAttachReportSelections: Record "Report Selections" temporary; var CustomReportSelection: Record "Custom Report Selection"; var AllEmailsWereSuccessful: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeSendEmailDirectly(var ReportSelections: Record "Report Selections"; ReportUsage: Enum "Report Selection Usage"; RecordVariant: Variant; var DocNo: Code[20]; var DocName: Text[150]; FoundBody: Boolean; FoundAttachment: Boolean; ServerEmailBodyFilePath: Text[250]; var DefaultEmailAddress: Text[250]; ShowDialog: Boolean; var TempAttachReportSelections: Record "Report Selections" temporary; var CustomReportSelection: Record "Custom Report Selection"; var AllEmailsWereSuccessful: Boolean; var IsHandled: Boolean)
     begin
     end;
 

@@ -98,8 +98,10 @@ codeunit 418 "User Management"
         Text001Qst: Label 'You are renaming an existing user. This will also update all related records. Are you sure that you want to rename the user?';
         Text002Err: Label 'The account %1 already exists.', Comment = '%1 username';
         Text003Err: Label 'You do not have permissions for this action on the table %1.', Comment = '%1 table name';
-        BasicAuthDepricationDescriptionTok: Label 'Web Service Access Key';
+        BasicAuthDescriptionNameTok: Label 'Web Service Access Key';
+        BasicAuthUsedNameTok: Label 'Web Service Access Key Warning';
         BasicAuthDepricationTok: Label 'Web Service Access Key is no longer supported in Business Central online. Integrations using this technology will stop working. Please use OAuth instead.';
+        BasicAuthUsedTok: Label 'One or more users have still enabled a Web Service Access Key. This is deprecated in Business Central online and integrations using this technology will stop working soon. Please use OAuth instead';
         DontShowAgainTok: Label 'Don''t show me again';
         ShowMoreLinkTok: Label 'Show more';
         CurrentUserQst: Label 'You are signed in with the %1 account. Changing the account will refresh your session. Do you want to continue?', Comment = 'USERID';
@@ -324,13 +326,29 @@ codeunit 418 "User Management"
     end;
 
     [Scope('OnPrem')]
+    procedure BasicAuthUsedNotificationId(): Guid
+    begin
+        exit('b21a58f5-23fe-4954-bd74-6f0202c2c019');
+    end;
+
+    [Scope('OnPrem')]
     procedure BasicAuthDepricationNotificationDefault(Enabled: Boolean)
     var
         MyNotifications: Record "My Notifications";
         EnvironmentInfo: Codeunit "Environment Information";
     begin
         MyNotifications.InsertDefault(
-          BasicAuthDepricationNotificationId(), BasicAuthDepricationDescriptionTok, BasicAuthDepricationTok, EnvironmentInfo.IsSaaS());
+                 BasicAuthDepricationNotificationId(), BasicAuthDescriptionNameTok, BasicAuthDepricationTok, EnvironmentInfo.IsSaaS());
+    end;
+
+    [Scope('OnPrem')]
+    procedure BasicAuthUsedNotificationDefault(Enabled: Boolean)
+    var
+        MyNotifications: Record "My Notifications";
+        EnvironmentInfo: Codeunit "Environment Information";
+    begin
+        MyNotifications.InsertDefault(
+          BasicAuthDepricationNotificationId(), BasicAuthUsedNameTok, BasicAuthUsedTok, EnvironmentInfo.IsSaaS());
     end;
 
     [Scope('OnPrem')]
@@ -343,6 +361,18 @@ codeunit 418 "User Management"
         BasicAuthDepricationNotification.AddAction(ShowMoreLinkTok, CODEUNIT::"User Management", 'BasicAuthDepricationNotificationShowMore');
         BasicAuthDepricationNotification.Scope(NotificationScope::LocalScope);
         BasicAuthDepricationNotification.Send();
+    end;
+
+    [Scope('OnPrem')]
+    procedure BasicAuthUsedNotificationShow(BasicAuthUsedNotification: Notification)
+    begin
+        BasicAuthUsedNotification.Id := BasicAuthUsedNotificationId();
+        BasicAuthUsedNotification.Recall();
+        BasicAuthUsedNotification.Message(BasicAuthUsedTok);
+        BasicAuthUsedNotification.AddAction(DontShowAgainTok, CODEUNIT::"User Management", 'DisableNotifications');
+        BasicAuthUsedNotification.AddAction(ShowMoreLinkTok, CODEUNIT::"User Management", 'BasicAuthDepricationNotificationShowMore');
+        BasicAuthUsedNotification.Scope(NotificationScope::LocalScope);
+        BasicAuthUsedNotification.Send();
     end;
 
     [Scope('OnPrem')]
