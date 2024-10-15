@@ -147,6 +147,12 @@ page 460 "Purchases & Payables Setup"
                     Importance = Additional;
                     ToolTip = 'Specifies that the description on document lines of type G/L Account will be carried to the resulting general ledger entries.';
                 }
+                field("Copy Inv. No. To Pmt. Ref."; "Copy Inv. No. To Pmt. Ref.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies if the value of the Vendor Invoice No. field must be copied to the Payment Reference field during posting unless the Payment Reference field is not blank.';
+                    Importance = Additional;
+                }
                 field("Default Cancel Reason Code"; "Default Cancel Reason Code")
                 {
                     ApplicationArea = Basic, Suite;

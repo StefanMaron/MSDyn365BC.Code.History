@@ -21,6 +21,8 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
         LibraryItemTracking: Codeunit "Library - Item Tracking";
         LibraryManufacturing: Codeunit "Library - Manufacturing";
         LibraryRandom: Codeunit "Library - Random";
+        LibraryUtility: Codeunit "Library - Utility";
+        LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryPatterns: Codeunit "Library - Patterns";
         LibrarySales: Codeunit "Library - Sales";
@@ -56,6 +58,7 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Whse.-Asm. To Order");
+        LibraryVariableStorage.Clear();
         if Initialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Whse.-Asm. To Order");
@@ -2113,6 +2116,97 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
         VerifyWhseActivityLine(SalesHeader."No.", Item."No.", Quantity);
     end;
 
+    [Test]
+    [HandlerFunctions('WhseItemTrackingLineModalPageHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure PickingAsmToOrderComponentsWhenPickWorksheetPopulatedFromShipment()
+    var
+        Bin: Record Bin;
+        ItemTrackingCode: Record "Item Tracking Code";
+        TrackedCompItem: Record Item;
+        CompItem: Record Item;
+        ATOItem: Record Item;
+        BOMComponent: Record "BOM Component";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        WhsePickRequest: Record "Whse. Pick Request";
+        AssemblyLine: Record "Assembly Line";
+        ReservationEntry: Record "Reservation Entry";
+        WhseWorksheetLine: Record "Whse. Worksheet Line";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        SerialNo: Code[20];
+    begin
+        // [FEATURE] [Item Tracking] [Pick Worksheet]
+        // [SCENARIO 356658] Creating pick from pick worksheet that is populated from warehouse shipment of an assemble-to-order sales line.
+        Initialize();
+        SerialNo := LibraryUtility.GenerateGUID();
+
+        // [GIVEN] Location with directed put-away and pick.
+        CreateDirectedPutAwayPickLocation(Bin);
+
+        // [GIVEN] Serial no.-tracked item "IS" and non-tracked item "IN".
+        MockItemTrackingCode(ItemTrackingCode, true, false);
+        LibraryInventory.CreateTrackedItem(TrackedCompItem, '', '', ItemTrackingCode.Code);
+        LibraryInventory.CreateItem(CompItem);
+
+        // [GIVEN] Post 1 pc of each item to inventory, assign serial no. "S1" to item "IS".
+        LibraryVariableStorage.Enqueue(SerialNo);
+        LibraryWarehouse.UpdateInventoryInBinUsingWhseJournal(Bin, TrackedCompItem."No.", 1, true);
+        LibraryWarehouse.UpdateInventoryInBinUsingWhseJournal(Bin, CompItem."No.", 1, false);
+
+        // [GIVEN] Assemble-to-order item "A" with two components "IS" and "IN".
+        CreateATOItem(ATOItem);
+        LibraryManufacturing.CreateBOMComponent(
+          BOMComponent, ATOItem."No.", BOMComponent.Type::Item, CompItem."No.", 1, CompItem."Base Unit of Measure");
+        LibraryManufacturing.CreateBOMComponent(
+          BOMComponent, ATOItem."No.", BOMComponent.Type::Item, TrackedCompItem."No.", 1, TrackedCompItem."Base Unit of Measure");
+
+        // [GIVEN] Sales order for 1 pc for item "A". "Qty. to Assemble to Order" = 1.
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', ATOItem."No.", 1, Bin."Location Code", WorkDate);
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+
+        // [GIVEN] Find the linked assembly order and select serial no. "S1" on the assembly component "IS".
+        AssemblyLine.SetRange("No.", TrackedCompItem."No.");
+        AssemblyLine.FindFirst();
+        LibraryItemTracking.CreateAssemblyLineItemTracking(ReservationEntry, AssemblyLine, SerialNo, '', 1);
+
+        // [GIVEN] Create and release warehouse shipment for the sales order.
+        LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
+        WarehouseShipmentHeader.Get(
+          LibraryWarehouse.FindWhseShipmentNoBySourceDoc(DATABASE::"Sales Line", SalesHeader."Document Type", SalesHeader."No."));
+        LibraryWarehouse.ReleaseWarehouseShipment(WarehouseShipmentHeader);
+
+        // [GIVEN] Open pick worksheet and get the warehouse shipment.
+        FindWhsePickRequestForShipment(WhsePickRequest, WarehouseShipmentHeader."No.");
+        LibraryWarehouse.GetWhseDocsPickWorksheet(WhseWorksheetLine, WhsePickRequest, '');
+
+        // [WHEN] Create pick from the pick worksheet.
+        CreatePickWkshLine(WhseWorksheetLine);
+
+        // [THEN] The pick worksheet is cleared out.
+        WhseWorksheetLine.SetRange(Name, WhseWorksheetLine.Name);
+        Assert.RecordIsEmpty(WhseWorksheetLine);
+
+        // [THEN] A newly created whse. pick includes both "IS" and "IN" components.
+        // [THEN] Serial no. on "IS" component = "S1".
+        FindWhseActivityLine(WarehouseActivityLine, AssemblyLine."Document No.", WarehouseActivityLine."Activity Type"::Pick);
+        WarehouseActivityLine.SetRange("Item No.", TrackedCompItem."No.");
+        WarehouseActivityLine.FindFirst();
+        WarehouseActivityLine.TestField("Serial No.", SerialNo);
+        WarehouseActivityLine.SetRange("Item No.", CompItem."No.");
+        WarehouseActivityLine.FindFirst();
+
+        // [THEN] The pick can be registered.
+        WarehouseActivityHeader.Get(WarehouseActivityLine."Activity Type", WarehouseActivityLine."No.");
+        LibraryWarehouse.AutoFillQtyHandleWhseActivity(WarehouseActivityHeader);
+        LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure CreateAsmItemWithAsmBOMAndAddInventory(var Item: Record Item; var Location: Record Location)
     var
         ChildItem: Record Item;
@@ -2122,6 +2216,14 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
         MockLocation(Location, true, true);
         MockBin(Bin, Location.Code);
         AddItemToInventory(ChildItem, Location, Bin, LibraryRandom.RandDec(10, 2) + 100, '', ''); // Large inventory.
+    end;
+
+    local procedure CreateATOItem(var Item: Record Item)
+    begin
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Replenishment System", Item."Replenishment System"::Assembly);
+        Item.Validate("Assembly Policy", Item."Assembly Policy"::"Assemble-to-Order");
+        Item.Modify(true);
     end;
 
     local procedure CreateAndReleaseSalesOrder(var SalesHeader: Record "Sales Header"; Item: Record Item; Location: Record Location; Quantity: Decimal)
@@ -2168,6 +2270,18 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
         CreateWarehouseEmployee(WarehouseEmployee, Location.Code);
     end;
 
+    local procedure CreateDirectedPutAwayPickLocation(var Bin: Record Bin)
+    var
+        Location: Record Location;
+        WarehouseEmployee: Record "Warehouse Employee";
+        Zone: Record Zone;
+    begin
+        LibraryWarehouse.CreateFullWMSLocation(Location, 2);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, true);
+        LibraryWarehouse.FindZone(Zone, Location.Code, LibraryWarehouse.SelectBinType(false, false, true, true), false);
+        LibraryWarehouse.FindBin(Bin, Location.Code, Zone.Code, 1);
+    end;
+
     local procedure CreateWarehouseEmployee(var WarehouseEmployee: Record "Warehouse Employee"; LocationCode: Code[10])
     begin
         Clear(WarehouseEmployee);
@@ -2179,6 +2293,14 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
         WarehouseEmployee.Validate("User ID", UserId);
         WarehouseEmployee.Validate("Location Code", LocationCode);
         WarehouseEmployee.Insert(true);
+    end;
+
+    local procedure FindWhsePickRequestForShipment(var WhsePickRequest: Record "Whse. Pick Request"; WhseShipmentNo: Code[20])
+    begin
+        WhsePickRequest.SetRange(Status, WhsePickRequest.Status::Released);
+        WhsePickRequest.SetRange("Document Type", WhsePickRequest."Document Type"::Shipment);
+        WhsePickRequest.SetRange("Document No.", WhseShipmentNo);
+        WhsePickRequest.FindFirst();
     end;
 
     local procedure FindWhseActivityLine(var WhseActivityLine: Record "Warehouse Activity Line"; SourceNo: Code[20]; ActivityType: Option)
@@ -2458,6 +2580,15 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
         CreatePick.RunModal;
         if CreatePick.GetResultMessage then
             WhseWorksheetLine.AutofillQtyToHandle(WhseWorksheetLine);
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure WhseItemTrackingLineModalPageHandler(var WhseItemTrackingLines: TestPage "Whse. Item Tracking Lines")
+    begin
+        WhseItemTrackingLines."Serial No.".SetValue(LibraryVariableStorage.DequeueText());
+        WhseItemTrackingLines.Quantity.SetValue(1);
+        WhseItemTrackingLines.OK.Invoke();
     end;
 
     [MessageHandler]
