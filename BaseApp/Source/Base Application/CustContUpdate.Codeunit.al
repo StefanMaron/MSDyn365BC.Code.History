@@ -69,7 +69,13 @@ codeunit 5056 "CustCont-Update"
         ContBusRel: Record "Contact Business Relation";
         Cont: Record Contact;
         NoSeriesMgt: Codeunit NoSeriesManagement;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeInsertNewContact(Cust, LocalCall, IsHandled);
+        if IsHandled then
+            exit;
+
         if not LocalCall then begin
             RMSetup.Get;
             RMSetup.TestField("Bus. Rel. Code for Customers");
@@ -129,6 +135,7 @@ codeunit 5056 "CustCont-Update"
                     "Company No." := ContComp."No.";
                     Validate(Name, Cust.Contact);
                     InheritCompanyToPersonData(ContComp);
+                    OnInsertNewContactPersonOnBeforeContactModify(Cont, Cust);
                     Modify(true);
                     Cust."Primary Contact No." := "No.";
                 end
@@ -174,6 +181,16 @@ codeunit 5056 "CustCont-Update"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeContactInsert(var Contact: Record Contact; Customer: Record Customer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertNewContact(var Customer: Record Customer; LocalCall: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertNewContactPersonOnBeforeContactModify(var Contact: Record Contact; Customer: Record Customer)
     begin
     end;
 }

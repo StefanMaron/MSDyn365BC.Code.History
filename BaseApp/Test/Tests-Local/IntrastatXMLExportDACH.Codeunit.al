@@ -23,6 +23,7 @@ codeunit 142086 "Intrastat XML Export DACH"
         IsInitialized: Boolean;
         FormatTypeGlb: Option ASCII,XML;
         ExportTypeGlb: Option Receipt,Shipment;
+        FileDoesntExistErr: Label 'Specified file ''%1'' doesn''t exist.';
 
     [Test]
     [Scope('OnPrem')]
@@ -39,8 +40,6 @@ codeunit 142086 "Intrastat XML Export DACH"
             VerifyCompInfMandatoryField(CompanyInformation, FieldNo("Registration No."));
             VerifyCompInfMandatoryField(CompanyInformation, FieldNo(Area));
             VerifyCompInfMandatoryField(CompanyInformation, FieldNo("Agency No."));
-            VerifyCompInfMandatoryField(CompanyInformation, FieldNo("Sales Authorized No."));
-            VerifyCompInfMandatoryField(CompanyInformation, FieldNo("Purch. Authorized No."));
             VerifyCompInfMandatoryField(CompanyInformation, FieldNo("Company No."));
             VerifyCompInfMandatoryField(CompanyInformation, FieldNo(Address));
             VerifyCompInfMandatoryField(CompanyInformation, FieldNo("Post Code"));
@@ -802,6 +801,189 @@ codeunit 142086 "Intrastat XML Export DACH"
         LibraryVariableStorage.AssertEmpty;
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure DownloadFileForASCIIWithFilledAuthorizedNo()
+    var
+        CompanyInformation: Record "Company Information";
+        IntrastatExportMgtDACH: Codeunit "Intrastat - Export Mgt. DACH";
+        FormatType: Option ASCII,XML;
+        ServerFileReceiptsPath: Text;
+        ServerFileShipmentsPath: Text;
+        DestinationFilePath: Text;
+    begin
+        // [SCENARIO 327393] Codeunit 11002 "Intrastat - Export Mgt. DACH".DownloadFile() copies ASCII file when Sales Authorized No and Purch. Authorized No fileds are filled in Company Information.
+        Initialize;
+
+        // [GIVEN] Company Information with <not blank> "Sales Authorized No." and "Purch. Authorized No.".
+        CompanyInformation.Get;
+        CompanyInformation.Validate("Sales Authorized No.", LibraryUtility.GenerateRandomAlphabeticText(8, 0));
+        CompanyInformation.Validate("Purch. Authorized No.", LibraryUtility.GenerateRandomAlphabeticText(8, 0));
+        CompanyInformation.Modify(true);
+
+        // [GIVEN] Two files and path for destination file.
+        CreateServerFiles(ServerFileReceiptsPath, ServerFileShipmentsPath, DestinationFilePath);
+
+        // [WHEN] Invoke DownloadFile() with format type is ASCII.
+        IntrastatExportMgtDACH.DownloadFile(DestinationFilePath, ServerFileReceiptsPath, ServerFileShipmentsPath, FormatType::ASCII, '');
+
+        // [THEN] Files are archived and copied to the destination file.
+        Assert.IsTrue(File.Exists(DestinationFilePath), StrSubstNo(FileDoesntExistErr, DestinationFilePath));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure DownloadFileForASCIIWithBlankSalesAuthorizedNo()
+    var
+        CompanyInformation: Record "Company Information";
+        IntrastatExportMgtDACH: Codeunit "Intrastat - Export Mgt. DACH";
+        FormatType: Option ASCII,XML;
+        ServerFileReceiptsPath: Text;
+        ServerFileShipmentsPath: Text;
+        DestinationFilePath: Text;
+    begin
+        // [SCENARIO 327393] Codeunit 11002 "Intrastat - Export Mgt. DACH".DownloadFile() prints error when format type is ASCII and Sales Authorized No is not filled in Company Information.
+        Initialize;
+
+        // [GIVEN] Company Information with <blank> "Sales Authorized No.".
+        CompanyInformation.Get;
+        CompanyInformation.Validate("Sales Authorized No.", '');
+        CompanyInformation.Modify(true);
+
+        // [GIVEN] Two files and path for destination file.
+        CreateServerFiles(ServerFileReceiptsPath, ServerFileShipmentsPath, DestinationFilePath);
+
+        // [WHEN] Invoke DownloadFile() with format type is ASCII.
+        asserterror IntrastatExportMgtDACH.DownloadFile(
+            DestinationFilePath, ServerFileReceiptsPath, ServerFileShipmentsPath, FormatType::ASCII, '');
+
+        // [THEN] Testfield is failed with error "Sales Authorized No. must have a value in Company Information: Primary Key=. It cannot be zero or empty.".
+        Assert.ExpectedErrorCode('TestField');
+        Assert.ExpectedError(CompanyInformation.FieldName("Sales Authorized No."));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure DownloadFileForASCIIWithBlankPurchaseAuthorizedNo()
+    var
+        CompanyInformation: Record "Company Information";
+        IntrastatExportMgtDACH: Codeunit "Intrastat - Export Mgt. DACH";
+        FormatType: Option ASCII,XML;
+        ServerFileReceiptsPath: Text;
+        ServerFileShipmentsPath: Text;
+        DestinationFilePath: Text;
+    begin
+        // [SCENARIO 327393] Codeunit 11002 "Intrastat - Export Mgt. DACH".DownloadFile() prints error when format type is ASCII and Purchase Authorized No is not filled in Company Information.
+        Initialize;
+
+        // [GIVEN] Company Information with <not blank> "Sales Authorized No." and <blank> "Purch. Authorized No".
+        CompanyInformation.Get;
+        CompanyInformation.Validate("Sales Authorized No.", LibraryUtility.GenerateRandomAlphabeticText(8, 0));
+        CompanyInformation.Validate("Purch. Authorized No.", '');
+        CompanyInformation.Modify(true);
+
+        // [GIVEN] Two files and path for destination file.
+        CreateServerFiles(ServerFileReceiptsPath, ServerFileShipmentsPath, DestinationFilePath);
+
+        // [WHEN] Invoke DownloadFile() with format type is ASCII.
+        asserterror IntrastatExportMgtDACH.DownloadFile(
+            DestinationFilePath, ServerFileReceiptsPath, ServerFileShipmentsPath, FormatType::ASCII, '');
+
+        // [THEN] Testfield is failed with error "Purch. Authorized No. must have a value in Company Information: Primary Key=. It cannot be zero or empty.".
+        Assert.ExpectedErrorCode('TestField');
+        Assert.ExpectedError(CompanyInformation.FieldName("Purch. Authorized No."));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure DownloadFileForXMLWithBlankSalesAuthorizedNo()
+    var
+        CompanyInformation: Record "Company Information";
+        IntrastatExportMgtDACH: Codeunit "Intrastat - Export Mgt. DACH";
+        FormatType: Option ASCII,XML;
+        ServerFileReceiptsPath: Text;
+        ServerFileShipmentsPath: Text;
+        DestinationFilePath: Text;
+    begin
+        // [SCENARIO 327393] Codeunit 11002 "Intrastat - Export Mgt. DACH".DownloadFile() copies XML file when Sales Authorized No is not filled in Company Information.
+        Initialize;
+
+        // [GIVEN] Company Information with <blank> "Sales Authorized No.".
+        CompanyInformation.Get;
+        CompanyInformation.Validate("Sales Authorized No.", '');
+        CompanyInformation.Validate("Purch. Authorized No.");
+        CompanyInformation.Modify(true);
+
+        // [GIVEN] Source file and path for destination file.
+        CreateServerFiles(ServerFileReceiptsPath, ServerFileShipmentsPath, DestinationFilePath);
+
+        // [WHEN] Invoke DownloadFile() with format type is XML.
+        IntrastatExportMgtDACH.DownloadFile(DestinationFilePath, '', ServerFileShipmentsPath, FormatType::XML, '');
+
+        // [THEN] Source file is archived and copied to the destination file.
+        Assert.IsTrue(File.Exists(DestinationFilePath), StrSubstNo(FileDoesntExistErr, DestinationFilePath));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure DownloadFileForXMLWithBlankPurchaseAuthorizedNo()
+    var
+        CompanyInformation: Record "Company Information";
+        IntrastatExportMgtDACH: Codeunit "Intrastat - Export Mgt. DACH";
+        FormatType: Option ASCII,XML;
+        ServerFileReceiptsPath: Text;
+        ServerFileShipmentsPath: Text;
+        DestinationFilePath: Text;
+    begin
+        // [SCENARIO 327393] Codeunit 11002 "Intrastat - Export Mgt. DACH".DownloadFile() copies XML file when Purchase Authorized No is not filled in Company Information.
+        Initialize;
+
+        // [GIVEN] Company Information with <not blank> "Sales Authorized No." and <blank> "Purch. Authorized No.".
+        CompanyInformation.Get;
+        CompanyInformation.Validate("Sales Authorized No.", LibraryUtility.GenerateRandomAlphabeticText(8, 0));
+        CompanyInformation.Validate("Purch. Authorized No.", '');
+        CompanyInformation.Modify(true);
+
+        // [GIVEN] Source file and path for destination file.
+        CreateServerFiles(ServerFileReceiptsPath, ServerFileShipmentsPath, DestinationFilePath);
+
+        // [WHEN] Invoke DownloadFile() with format type is XML.
+        IntrastatExportMgtDACH.DownloadFile(DestinationFilePath, '', ServerFileShipmentsPath, FormatType::XML, '');
+
+        // [THEN] Source file is archived and copied to the destination file.
+        Assert.IsTrue(File.Exists(DestinationFilePath), StrSubstNo(FileDoesntExistErr, DestinationFilePath));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure DownloadFileForXMLWithBlankAuthorizedNo()
+    var
+        CompanyInformation: Record "Company Information";
+        IntrastatExportMgtDACH: Codeunit "Intrastat - Export Mgt. DACH";
+        FormatType: Option ASCII,XML;
+        ServerFileReceiptsPath: Text;
+        ServerFileShipmentsPath: Text;
+        DestinationFilePath: Text;
+    begin
+        // [SCENARIO 327393] Codeunit 11002 "Intrastat - Export Mgt. DACH".DownloadFile() copies XML file when Sales Authorized No and Purchase Authorized No are not filled in Company Information.
+        Initialize;
+
+        // [GIVEN] Company Information with <blank> "Sales Authorized No." and "Purch. Authorized No.".
+        CompanyInformation.Get;
+        CompanyInformation.Validate("Sales Authorized No.", '');
+        CompanyInformation.Validate("Purch. Authorized No.", '');
+        CompanyInformation.Modify(true);
+
+        // [GIVEN] Source file and path for destination file.
+        CreateServerFiles(ServerFileReceiptsPath, ServerFileShipmentsPath, DestinationFilePath);
+
+        // [WHEN] Invoke DownloadFile() with format type is XML.
+        IntrastatExportMgtDACH.DownloadFile(DestinationFilePath, '', ServerFileShipmentsPath, FormatType::XML, '');
+
+        // [THEN] Source file is archived and copied to the destination file.
+        Assert.IsTrue(File.Exists(DestinationFilePath), StrSubstNo(FileDoesntExistErr, DestinationFilePath));
+    end;
+
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore;
@@ -1276,6 +1458,23 @@ codeunit 142086 "Intrastat XML Export DACH"
           RootPath + 'NatureOfTransaction/natureOfTransactionACode', Format(TransactionCode[1]), NodeIndex);
         LibraryXPathXMLReader.VerifyNodeValueByXPathWithIndex(
           RootPath + 'NatureOfTransaction/natureOfTransactionBCode', Format(TransactionCode[2]), NodeIndex);
+    end;
+
+    local procedure CreateServerFiles(var ServerFileReceiptsPath: Text; var ServerFileShipmentsPath: Text; var DestinationFilePath: Text)
+    var
+        FileManagement: Codeunit "File Management";
+        ServerFileReceipts: File;
+        ServerFileShipments: File;
+    begin
+        ServerFileReceiptsPath := FileManagement.ServerTempFileName('');
+        ServerFileReceipts.Create(ServerFileReceiptsPath);
+        ServerFileReceipts.Close;
+
+        ServerFileShipmentsPath := FileManagement.ServerTempFileName('');
+        ServerFileShipments.Create(ServerFileShipmentsPath);
+        ServerFileShipments.Close;
+
+        DestinationFilePath := FileManagement.ServerTempFileName('');
     end;
 
     [RequestPageHandler]

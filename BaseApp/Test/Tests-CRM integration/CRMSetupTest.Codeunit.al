@@ -693,6 +693,7 @@ codeunit 139160 "CRM Setup Test"
     procedure CannotOpenPageIfAppAreaBasic()
     var
         ApplicationAreaSetup: Record "Application Area Setup";
+        ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
     begin
         // [FEATURE] [UI]
         // [GIVEN] Application Area is set to Basic for the current user
@@ -703,6 +704,8 @@ codeunit 139160 "CRM Setup Test"
         ApplicationAreaSetup."User ID" := UserId;
         ApplicationAreaSetup.Basic := true;
         ApplicationAreaSetup.Insert;
+        ApplicationAreaMgmtFacade.SetupApplicationArea();
+
         // [WHEN] Open CRM Connection Setup page
         LibraryVariableStorage.Enqueue(OnlyBasicAppAreaMsg);
         asserterror PAGE.Run(PAGE::"CRM Connection Setup");

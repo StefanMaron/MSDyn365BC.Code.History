@@ -6,6 +6,12 @@ codeunit 104100 "Upg Local Functionality"
     begin
     end;
 
+    trigger OnUpgradePerCompany()
+    begin
+        UpdatePhysInventoryOrders();
+        CleanupPhysOrders();
+    end;
+
     local procedure UpdatePhysInventoryOrders()
     var
         SourceCodeSetup: Record "Source Code Setup";
@@ -154,6 +160,46 @@ codeunit 104100 "Upg Local Functionality"
             UNTIL UPGPhysInvtDiffListBuffer.NEXT = 0;
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefCountry.GetPhysInvntOrdersUpgradeTag);
+    end;
+
+    local procedure CleanupPhysOrders()
+    var
+        UPGPhysInventoryOrderHeader: Record "Phys. Inventory Order Header";
+        UPGPhysInventoryOrderLine: Record "Phys. Inventory Order Line";
+        UPGPhysInvtRecordingHeader: Record "Phys. Invt. Recording Header";
+        UPGPhysInvtRecordingLine: Record "Phys. Invt. Recording Line";
+        UPGPostPhysInvtOrderHeader: Record "Post. Phys. Invt. Order Header";
+        UPGPostedPhysInvtOrderLine: Record "Posted Phys. Invt. Order Line";
+        UPGPostedPhysInvtRecHeader: Record "Posted Phys. Invt. Rec. Header";
+        UPGPostedPhysInvtRecLine: Record "Posted Phys. Invt. Rec. Line";
+        UPGPhysInventoryCommentLine: Record "Phys. Inventory Comment Line";
+        UPGPostedPhysInvtTrackLine: Record "Posted Phys. Invt. Track. Line";
+        UPGPhysInvtTrackingBuffer: Record "Phys. Invt. Tracking Buffer";
+        UPGExpectPhysInvTrackLine: Record "Expect. Phys. Inv. Track. Line";
+        UPGPostExpPhInTrackLine: Record "Post. Exp. Ph. In. Track. Line";
+        UPGPhysInvtDiffListBuffer: Record "Phys. Invt. Diff. List Buffer";
+        UpgradeTag: Codeunit "Upgrade Tag";
+        UpgradeTagDefCountry: Codeunit "Upgrade Tag Def - Country";
+    begin
+        IF UpgradeTag.HasUpgradeTag(UpgradeTagDefCountry.GetCleanupPhysOrders) THEN
+            EXIT;
+
+        UPGPhysInventoryOrderHeader.DeleteAll();
+        UPGPhysInventoryOrderLine.DeleteAll();
+        UPGPhysInvtRecordingHeader.DeleteAll();
+        UPGPhysInvtRecordingLine.DeleteAll();
+        UPGPostPhysInvtOrderHeader.DeleteAll();
+        UPGPostedPhysInvtOrderLine.DeleteAll();
+        UPGPostedPhysInvtRecHeader.DeleteAll();
+        UPGPostedPhysInvtRecLine.DeleteAll();
+        UPGPhysInventoryCommentLine.DeleteAll();
+        UPGPostedPhysInvtTrackLine.DeleteAll();
+        UPGPhysInvtTrackingBuffer.DeleteAll();
+        UPGExpectPhysInvTrackLine.DeleteAll();
+        UPGPostExpPhInTrackLine.DeleteAll();
+        UPGPhysInvtDiffListBuffer.DeleteAll();
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefCountry.GetCleanupPhysOrders);
     end;
 
     procedure SetReportSelectionForGLVATReconciliation()

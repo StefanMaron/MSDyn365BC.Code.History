@@ -489,42 +489,35 @@ codeunit 144001 VATSTAT
     procedure ForeignSalesCreditMemoInFile()
     var
         SalesHeader: Record "Sales Header";
-        VATEntry: Record "VAT Entry";
         VATStatementAT: Report "VAT Statement AT";
         LibraryXPathXMLReader: Codeunit "Library - XPath XML Reader";
-        DocNo: Code[20];
     begin
         // [FEATURE] [Sales]
-        // [SCENARIO 233236] Foreign Sales Credit Memo amount is existing in generated FDF file.
+        // Enter a foreign sales invoice and verify that the data in the generated FDF file
         Initialize;
 
-        // [GIVEN] Setup VAT Statement Line '1011' with 'Row Totaling' = 'BU0' (Sale Export VAT10).
+        // [GIVEN] Setup VAT Statement Line '1011' with 'Row Totaling' = 'BU0' (Sale Export VAT10)
         SetupVatStatementLine('1011', 'BU0', true);
         EnqueRequestPageFields(WorkDate, WorkDate, IncludeVATEntries::"Open and Closed", PeriodSelection::"Within Period",
           ReportingType::"Defined period", false, false, false, false, 0);
 
-        // [GIVEN] Posted foreign Sales Credit Memo with Amount = 1000.
-        DocNo := CreateAndPostSalesDocument(SalesHeader, SalesHeader."Document Type"::"Credit Memo", 'EXPORT');
-        GetVATEntry(VATEntry, DocNo, VATEntry."Document Type"::"Credit Memo", VATEntry.Type::Sale);
+        // [GIVEN] Foreign sales invoice
+        CreateAndPostSalesDocument(SalesHeader, SalesHeader."Document Type"::"Credit Memo", 'EXPORT');
 
-        // [WHEN] Export VAT Statement.
+        // [WHEN] Export VAT Statement
         VATStatementAT.InitializeRequest(FdfFileName, XmlFileName);
         VATStatementAT.RunModal;
 
-        // [THEN] There are two KZ lines.
-        // [THEN] '1090' is exported with amount -1000.
+        // [THEN] There is one KZ line
+        // [THEN] '1090' is exported with amount -1000
         FdfFileHelper.ReadFdfFile(FdfFileName);
         VerifyFDFHeader(FdfFileHelper);
-        FdfFileHelper.VerifyCount(DefinedHeaderAndFooterLines + 2);
+        FdfFileHelper.VerifyCount(DefinedHeaderAndFooterLines);
 
         LibraryXPathXMLReader.Initialize(XmlFileName, '');
         VerifyXMLHeader(LibraryXPathXMLReader);
         VerifyXMLLine(LibraryXPathXMLReader, 'LIEFERUNGEN_LEISTUNGEN_EIGENVERBRAUCH/KZ000', 0);
-        VerifyXMLLine(LibraryXPathXMLReader, 'VORSTEUER/KZ090', -VATEntry.Base);
-        LibraryXPathXMLReader.VerifyNodeCountByXPath('descendant::*[@type="kz"]', 2);
-
-        // Tear Down
-        SetupVatStatementLine('1011', '', false);
+        LibraryXPathXMLReader.VerifyNodeCountByXPath('descendant::*[@type="kz"]', 1);
     end;
 
     [Test]

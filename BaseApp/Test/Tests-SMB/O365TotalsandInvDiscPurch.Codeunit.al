@@ -17,6 +17,7 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
         LibrarySales: Codeunit "Library - Sales";
+        LibraryPurchase: Codeunit "Library - Purchase";
         LibraryApplicationArea: Codeunit "Library - Application Area";
         LibraryNotificationMgt: Codeunit "Library - Notification Mgt.";
         Assert: Codeunit Assert;
@@ -172,8 +173,8 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
         InvokeCalcInvoiceDiscountOnInvoice(PurchaseInvoice);
         CheckInvoiceDiscountTypePercentage(0, TotalAmount, PurchaseInvoice, false, '');
 
-        PurchaseLine.SetRange("Document Type",PurchaseLine."Document Type"::Invoice);
-        PurchaseLine.SetRange("Document No.",PurchaseInvoice."No.".Value);
+        PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::Invoice);
+        PurchaseLine.SetRange("Document No.", PurchaseInvoice."No.".Value);
         PurchaseLine.FindFirst;
         LibraryNotificationMgt.RecallNotificationsForRecord(PurchaseLine);
 
@@ -224,8 +225,8 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
         Assert.AreNotEqual(InvoiceDiscountAmount, PurchaseInvoice.PurchLines.InvoiceDiscountAmount.AsDEcimal,
           'Discounts should not be equal after lines update');
 
-        PurchaseLine.SetRange("Document Type",PurchaseLine."Document Type"::Invoice);
-        PurchaseLine.SetRange("Document No.",PurchaseInvoice."No.".Value);
+        PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::Invoice);
+        PurchaseLine.SetRange("Document No.", PurchaseInvoice."No.".Value);
         PurchaseLine.FindFirst;
         LibraryNotificationMgt.RecallNotificationsForRecord(PurchaseLine);
     end;
@@ -664,7 +665,6 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
         Vendor: Record Vendor;
         PurchaseLine: Record "Purchase Line";
         ItemUOM: Record "Item Unit of Measure";
-        ApplicationAreaSetup: Record "Application Area Setup";
         LibraryApplicationArea: Codeunit "Library - Application Area";
         PurchaseCreditMemo: TestPage "Purchase Credit Memo";
         ItemQuantity: Decimal;
@@ -676,7 +676,7 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
         ClearTable(DATABASE::"Warehouse Entry");
 
         LibraryApplicationArea.DisableApplicationAreaSetup;
-        LibraryApplicationArea.CreateFoundationSetupForCurrentCompany(ApplicationAreaSetup);
+        LibraryApplicationArea.EnableFoundationSetupForCurrentCompany();
 
         SetupDataForDiscountTypePct(Item, ItemQuantity, Vendor, DiscPct);
 
@@ -714,8 +714,8 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
         InvokeCalcInvoiceDiscountOnCreditMemo(PurchaseCreditMemo);
         CheckCreditMemoDiscountTypePercentage(0, TotalAmount, PurchaseCreditMemo, false, '');
 
-        PurchaseLine.SetRange("Document Type",PurchaseLine."Document Type"::"Credit Memo");
-        PurchaseLine.SetRange("Document No.",PurchaseCreditMemo."No.".Value);
+        PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::"Credit Memo");
+        PurchaseLine.SetRange("Document No.", PurchaseCreditMemo."No.".Value);
         PurchaseLine.FindFirst;
         LibraryNotificationMgt.RecallNotificationsForRecord(PurchaseLine);
     end;
@@ -728,7 +728,6 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
         Item: Record Item;
         Item2: Record Item;
         PurchaseLine: Record "Purchase Line";
-        ApplicationAreaSetup: Record "Application Area Setup";
         LibraryApplicationArea: Codeunit "Library - Application Area";
         PurchaseCreditMemo: TestPage "Purchase Credit Memo";
         ItemQuantity: Decimal;
@@ -737,7 +736,7 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
     begin
         Initialize;
         LibraryApplicationArea.DisableApplicationAreaSetup;
-        LibraryApplicationArea.CreateFoundationSetupForCurrentCompany(ApplicationAreaSetup);
+        LibraryApplicationArea.EnableFoundationSetupForCurrentCompany();
 
         SetupDataForDiscountTypeAmt(Item, ItemQuantity, Vendor, InvoiceDiscountAmount);
 
@@ -778,8 +777,8 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
         PurchaseCreditMemo.PurchLines."Invoice Discount Amount".SetValue(InvoiceDiscountAmount);
         CheckCreditMemoDiscountTypeAmount(InvoiceDiscountAmount, TotalAmount, PurchaseCreditMemo, true, '');
 
-        PurchaseLine.SetRange("Document Type",PurchaseLine."Document Type"::"Credit Memo");
-        PurchaseLine.SetRange("Document No.",PurchaseCreditMemo."No.".Value);
+        PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::"Credit Memo");
+        PurchaseLine.SetRange("Document No.", PurchaseCreditMemo."No.".Value);
         PurchaseLine.FindFirst;
         LibraryNotificationMgt.RecallNotificationsForRecord(PurchaseLine);
 
@@ -1131,6 +1130,227 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
         PurchaseInvoice.Close;
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes')]
+    [Scope('OnPrem')]
+    procedure InvoicePayToNameValidationSavesPaytoICPartnerChange()
+    var
+        Vendor: Record Vendor;
+        Item: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseInvoice: TestPage "Purchase Invoice";
+        ItemUnitCost: Decimal;
+        Lines: Integer;
+    begin
+        // [FEATURE] [Intercompany]
+        // [SCENARIO 323527] "Pay-to IC Partner Code" is changed on Purchase Invoice "Pay-to Name" validation in case of O365 Non-Amount Type Discount Recalculation
+        Initialize;
+
+        // [GIVEN] Purchase Invoice "PI01" with Purchase Lines created for Vendor "V01" and no discount
+        ItemUnitCost := LibraryRandom.RandDecInRange(1, 100, 2);
+        CreateItem(Item, ItemUnitCost);
+        CreateVendor(Vendor);
+        CreateInvoiceWithRandomNumberOfLines(PurchaseHeader, Item, Vendor, 1, Lines);
+        OpenPurchaseInvoice(PurchaseHeader, PurchaseInvoice);
+
+        // [GIVEN] Vendor "V02" with "IC Partner Code" = "ICP01"
+        CreateVendor(Vendor);
+        Vendor."IC Partner Code" := LibraryUtility.GenerateGUID;
+        Vendor.Modify(true);
+
+        // [WHEN] Set "Pay-to Name" to "V02" on Purchase Invoice Page for "PI01"
+        PurchaseInvoice."Pay-to Name".SetValue(Vendor."No.");
+
+        // [THEN] "Pay-to IC Partner Code" is changed to "ICP01" on "PI01"
+        PurchaseHeader.Find;
+        PurchaseHeader.TestField("Pay-to IC Partner Code", Vendor."IC Partner Code");
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes')]
+    [Scope('OnPrem')]
+    procedure CrMemoPayToNameValidationSavesPaytoICPartnerChange()
+    var
+        Vendor: Record Vendor;
+        Item: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseCreditMemo: TestPage "Purchase Credit Memo";
+        ItemUnitCost: Decimal;
+        Lines: Integer;
+    begin
+        // [FEATURE] [Intercompany]
+        // [SCENARIO 323527] "Pay-to IC Partner Code" is changed on Purchase Credit Memo "Pay-to Name" validation in case of O365 Non-Amount Type Discount Recalculation
+        Initialize;
+
+        // [GIVEN] Purchase Credit Memo "PC01" with Purchase Lines created for Vendor "V01" and no discount
+        ItemUnitCost := LibraryRandom.RandDecInRange(1, 100, 2);
+        CreateItem(Item, ItemUnitCost);
+        CreateVendor(Vendor);
+        CreateCreditMemoWithRandomNumberOfLines(PurchaseHeader, Item, Vendor, 1, Lines);
+        OpenPurchaseCreditMemo(PurchaseHeader, PurchaseCreditMemo);
+
+        // [GIVEN] Vendor "V02" with "IC Partner Code" = "ICP01"
+        CreateVendor(Vendor);
+        Vendor."IC Partner Code" := LibraryUtility.GenerateGUID;
+        Vendor.Modify(true);
+
+        // [WHEN] Set "Pay-to Name" to "V02" on Purchase Credit Memo Page for "PC01"
+        PurchaseCreditMemo."Pay-to Name".SetValue(Vendor."No.");
+
+        // [THEN] "Pay-to IC Partner Code" is changed to "ICP01" on "PC01"
+        PurchaseHeader.Find;
+        PurchaseHeader.TestField("Pay-to IC Partner Code", Vendor."IC Partner Code");
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes')]
+    [Scope('OnPrem')]
+    procedure OrderPayToNameValidationSavesPaytoICPartnerChange()
+    var
+        Vendor: Record Vendor;
+        Item: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseOrder: TestPage "Purchase Order";
+        ItemUnitCost: Decimal;
+    begin
+        // [FEATURE] [Intercompany]
+        // [SCENARIO 323527] "Pay-to IC Partner Code" is changed on Purchase Order "Pay-to Name" validation in case of O365 Non-Amount Type Discount Recalculation
+        Initialize;
+
+        // [GIVEN] Purchase Order "PC01" with Purchase Lines created for Vendor "V01" and no discount
+        ItemUnitCost := LibraryRandom.RandDecInRange(1, 100, 2);
+        CreateItem(Item, ItemUnitCost);
+        CreateVendor(Vendor);
+        CreatePurchHeaderWithDocTypeAndNumberOfLines(
+          PurchaseHeader, Item, Vendor, 1, 1, PurchaseHeader."Document Type"::Order);
+        PurchaseOrder.OpenEdit;
+        PurchaseOrder.FILTER.SetFilter("No.", PurchaseHeader."No.");
+
+        // [GIVEN] Vendor "V02" with "IC Partner Code" = "ICP01"
+        CreateVendor(Vendor);
+        Vendor."IC Partner Code" := LibraryUtility.GenerateGUID;
+        Vendor.Modify(true);
+
+        // [WHEN] Set "Pay-to Name" to "V02" on Purchase Order Page for "PC01"
+        PurchaseOrder."Pay-to Name".SetValue(Vendor."No.");
+
+        // [THEN] "Pay-to IC Partner Code" is changed to "ICP01" on "PC01"
+        PurchaseHeader.Find;
+        PurchaseHeader.TestField("Pay-to IC Partner Code", Vendor."IC Partner Code");
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes')]
+    [Scope('OnPrem')]
+    procedure QuotePayToNameValidationSavesPaytoICPartnerChange()
+    var
+        Vendor: Record Vendor;
+        Item: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseQuote: TestPage "Purchase Quote";
+        ItemUnitCost: Decimal;
+    begin
+        // [FEATURE] [Intercompany]
+        // [SCENARIO 323527] "Pay-to IC Partner Code" is changed on Purchase Quote "Pay-to Name" validation in case of O365 Non-Amount Type Discount Recalculation
+        Initialize;
+
+        // [GIVEN] Purchase Quote "PC01" with Purchase Lines created for Vendor "V01" and no discount
+        ItemUnitCost := LibraryRandom.RandDecInRange(1, 100, 2);
+        CreateItem(Item, ItemUnitCost);
+        CreateVendor(Vendor);
+        CreatePurchHeaderWithDocTypeAndNumberOfLines(
+          PurchaseHeader, Item, Vendor, 1, 1, PurchaseHeader."Document Type"::Quote);
+        PurchaseQuote.OpenEdit;
+        PurchaseQuote.FILTER.SetFilter("No.", PurchaseHeader."No.");
+
+        // [GIVEN] Vendor "V02" with "IC Partner Code" = "ICP01"
+        CreateVendor(Vendor);
+        Vendor."IC Partner Code" := LibraryUtility.GenerateGUID;
+        Vendor.Modify(true);
+
+        // [WHEN] Set "Pay-to Name" to "V02" on Purchase Quote Page for "PC01"
+        PurchaseQuote."Pay-to Name".SetValue(Vendor."No.");
+
+        // [THEN] "Pay-to IC Partner Code" is changed to "ICP01" on "PC01"
+        PurchaseHeader.Find;
+        PurchaseHeader.TestField("Pay-to IC Partner Code", Vendor."IC Partner Code");
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes')]
+    [Scope('OnPrem')]
+    procedure BlanketOrderPayToNameValidationSavesPaytoICPartnerChange()
+    var
+        Vendor: Record Vendor;
+        Item: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        BlanketPurchaseOrder: TestPage "Blanket Purchase Order";
+        ItemUnitCost: Decimal;
+    begin
+        // [FEATURE] [Intercompany]
+        // [SCENARIO 323527] "Pay-to IC Partner Code" is changed on Blanket Purchase Order "Pay-to Name" validation in case of O365 Non-Amount Type Discount Recalculation
+        Initialize;
+
+        // [GIVEN] Blanket Purchase Order "PC01" with Purchase Lines created for Vendor "V01" and no discount
+        ItemUnitCost := LibraryRandom.RandDecInRange(1, 100, 2);
+        CreateItem(Item, ItemUnitCost);
+        CreateVendor(Vendor);
+        CreatePurchHeaderWithDocTypeAndNumberOfLines(
+          PurchaseHeader, Item, Vendor, 1, 1, PurchaseHeader."Document Type"::"Blanket Order");
+        BlanketPurchaseOrder.OpenEdit;
+        BlanketPurchaseOrder.FILTER.SetFilter("No.", PurchaseHeader."No.");
+
+        // [GIVEN] Vendor "V02" with "IC Partner Code" = "ICP01"
+        CreateVendor(Vendor);
+        Vendor."IC Partner Code" := LibraryUtility.GenerateGUID;
+        Vendor.Modify(true);
+
+        // [WHEN] Set "Pay-to Name" to "V02" on Blanket Purchase Order Page for "PC01"
+        BlanketPurchaseOrder."Pay-to Name".SetValue(Vendor."No.");
+
+        // [THEN] "Pay-to IC Partner Code" is changed to "ICP01" on "PC01"
+        PurchaseHeader.Find;
+        PurchaseHeader.TestField("Pay-to IC Partner Code", Vendor."IC Partner Code");
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes')]
+    [Scope('OnPrem')]
+    procedure ReturnOrderPayToNameValidationSavesPaytoICPartnerChange()
+    var
+        Vendor: Record Vendor;
+        Item: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseReturnOrder: TestPage "Purchase Return Order";
+        ItemUnitCost: Decimal;
+    begin
+        // [FEATURE] [Intercompany]
+        // [SCENARIO 323527] "Pay-to IC Partner Code" is changed on Purchase Return Order "Pay-to Name" validation in case of O365 Non-Amount Type Discount Recalculation
+        Initialize;
+        LibraryApplicationArea.EnableReturnOrderSetup;
+
+        // [GIVEN] Purchase Return Order "PC01" with Purchase Lines created for Vendor "V01" and no discount
+        ItemUnitCost := LibraryRandom.RandDecInRange(1, 100, 2);
+        CreateItem(Item, ItemUnitCost);
+        CreateVendor(Vendor);
+        CreatePurchHeaderWithDocTypeAndNumberOfLines(
+          PurchaseHeader, Item, Vendor, 1, 1, PurchaseHeader."Document Type"::"Return Order");
+        PurchaseReturnOrder.OpenEdit;
+        PurchaseReturnOrder.FILTER.SetFilter("No.", PurchaseHeader."No.");
+
+        // [GIVEN] Vendor "V02" with "IC Partner Code" = "ICP01"
+        CreateVendor(Vendor);
+        Vendor."IC Partner Code" := LibraryUtility.GenerateGUID;
+        Vendor.Modify(true);
+
+        // [WHEN] Set "Pay-to Name" to "V02" on Purchase Return Order Page for "PC01"
+        PurchaseReturnOrder."Pay-to Name".SetValue(Vendor."No.");
+
+        // [THEN] "Pay-to IC Partner Code" is changed to "ICP01" on "PC01"
+        PurchaseHeader.Find;
+        PurchaseHeader.TestField("Pay-to IC Partner Code", Vendor."IC Partner Code");
+    end;
+
     local procedure CreateVendorWithDiscount(var Vendor: Record Vendor; DiscPct: Decimal; MinimumAmount: Decimal)
     begin
         CreateVendor(Vendor);
@@ -1138,7 +1358,6 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
         LibrarySmallBusiness.SetInvoiceDiscountToVendor(Vendor, DiscPct, MinimumAmount, '');
     end;
 
-    [Normal]
     local procedure CreateVendor(var Vendor: Record Vendor)
     begin
         LibrarySmallBusiness.CreateVendor(Vendor);
@@ -1385,6 +1604,17 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
         NumberOfLines := LibraryRandom.RandIntInRange(1, 10);
 
         LibrarySmallBusiness.CreatePurchaseCrMemoHeader(PurchaseHeader, Vendor);
+
+        for I := 1 to NumberOfLines do
+            LibrarySmallBusiness.CreatePurchaseLine(PurchaseLine, PurchaseHeader, Item, ItemQuantity);
+    end;
+
+    local procedure CreatePurchHeaderWithDocTypeAndNumberOfLines(var PurchaseHeader: Record "Purchase Header"; var Item: Record Item; var Vendor: Record Vendor; ItemQuantity: Decimal; NumberOfLines: Integer; DocumentType: Option)
+    var
+        PurchaseLine: Record "Purchase Line";
+        I: Integer;
+    begin
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, Vendor."No.");
 
         for I := 1 to NumberOfLines do
             LibrarySmallBusiness.CreatePurchaseLine(PurchaseLine, PurchaseHeader, Item, ItemQuantity);

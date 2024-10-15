@@ -465,7 +465,9 @@ codeunit 1004 "Job Transfer Line"
             if UpdateBaseQtyForPurchLine(Item, PurchLine) then begin
                 JobJnlLine.Validate("Unit of Measure Code", Item."Base Unit of Measure");
                 JobJnlLine.Validate(
-                  Quantity, UOMMgt.CalcBaseQty("Qty. to Invoice", "Qty. per Unit of Measure"));
+                  Quantity,
+                  UOMMgt.CalcBaseQty(
+                    "No.", "Variant Code", "Unit of Measure Code", "Qty. to Invoice", "Qty. per Unit of Measure"));
             end else begin
                 JobJnlLine.Validate("Unit of Measure Code", "Unit of Measure Code");
                 JobJnlLine."Qty. per Unit of Measure" := "Qty. per Unit of Measure";

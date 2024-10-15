@@ -851,6 +851,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Intrastat Exchange - NamedType MoreInstancesThanExpectedErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1841379275 - NamedType 2145701297" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Specified file '%1' doesn't exist.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Intrastat XML Export DACH - NamedType FileDoesntExistErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3382378424 - NamedType 3744254637" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Reported must be equal to 'No'  in Intrastat Jnl. Batch]]></Val>
@@ -1085,6 +1094,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit UT REP Intrastat DE - NamedType HeaderText)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1251544991 - NamedType 855504303" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Intrastat_Jnl__Line__Total_Weight_Rounded_]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit UT REP Intrastat DE - NamedType IntrastatJnlLineTotalWeightRoundedTxt)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1251544991 - NamedType 4011351523" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[SumTotalWeight]]></Val>
@@ -1092,6 +1110,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit UT REP Intrastat DE - NamedType SumTotalWeight)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1251544991 - NamedType 2522595518" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[SumTotalWeightRounded]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit UT REP Intrastat DE - NamedType SumTotalWeightRoundedTxt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1251544991 - NamedType 1473162410" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

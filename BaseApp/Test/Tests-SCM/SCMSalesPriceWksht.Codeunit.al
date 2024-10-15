@@ -21,6 +21,7 @@ codeunit 137201 "SCM Sales Price Wksht"
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryRandom: Codeunit "Library - Random";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        Assert: Codeunit Assert;
         isInitialized: Boolean;
 
     [Test]
@@ -343,6 +344,36 @@ codeunit 137201 "SCM Sales Price Wksht"
 
         // [THEN] "Current Unit Price" on sales price worksheet line = "X".
         VerifySalesPriceWorksheet(Item."No.", ItemUnitPrice);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SuggestSalesPriceMultipleSource()
+    var
+        Item: Record Item;
+        SalesPrice: Record "Sales Price";
+        CustomerPriceGroup: Record "Customer Price Group";
+        SalesPriceWorksheet: Record "Sales Price Worksheet";
+        I: Integer;
+    begin
+        // [SCENARIO 328524] Suggest Sales Price Worksheet from multiple source Sales Prices to the same Sales Price Worksheet line raises error
+        Initialize;
+
+        // [GIVEN] Created Item "ITEM"
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Created Customer Price Groups "RETAIL","WHOLESALE" with Sales Prices for "ITEM"
+        for I := 1 to 2 do begin
+            LibrarySales.CreateCustomerPriceGroup(CustomerPriceGroup);
+            CreateSalesPrice(Item, SalesPrice."Sales Type"::"Customer Price Group", CustomerPriceGroup.Code, LibraryRandom.RandDec(100, 2), 0);
+        end;
+
+        // [WHEN] Suggest Sales Price Worksheet where "Item No." = "ITEM" with Copy to Sales Price Worksheet for Customer Price Group "WHOLESALE"
+        asserterror LibraryCosting.SuggestSalesPriceWorksheet(
+            Item, CustomerPriceGroup.Code, SalesPriceWorksheet."Sales Type"::"Customer Price Group", 0, 1.2);
+
+        // [THEN] Error is shown "There are multiple source lines for the record"
+        Assert.ExpectedError('There are multiple source lines for the record');
     end;
 
     local procedure Initialize()

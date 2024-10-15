@@ -1041,6 +1041,8 @@ table 5050 Contact
         PrivacyBlockedGenericErr: Label 'You cannot use contact %1 because they are marked as blocked due to privacy.', Comment = '%1=contact no.';
         ParentalConsentReceivedErr: Label 'Privacy Blocked cannot be cleared until Parental Consent Received is set to true for minor contact %1.', Comment = '%1=contact no.';
         ProfileForMinorErr: Label 'You cannot use profiles for contacts marked as Minor.';
+        MultipleCustomerTemplatesConfirmQst: Label 'Quotes with customer templates different from %1 were assigned to customer %2. Do you want to review the quotes now?', Comment = '%1=Customer Template Code,%2=Customer No.';
+        DifferentCustomerTemplateMsg: Label 'Sales quote %1 with original customer template %2 was assigned to the customer created from template %3.', Comment = '%1=Document No.,%2=Original Customer Template Code,%3=Customer Template Code';
 
     procedure DoModify(xRec: Record Contact)
     var
@@ -1368,7 +1370,7 @@ table 5050 Contact
 
         OnCreateCustomerOnBeforeUpdateQuotes(Cust, Rec);
 
-        UpdateQuotes(Cust);
+        UpdateQuotes(Cust, CustomerTemplate);
         CampaignMgt.ConverttoCustomer(Rec, Cust);
         if OfficeMgt.IsAvailable then
             PAGE.Run(PAGE::"Customer Card", Cust)
@@ -1472,7 +1474,7 @@ table 5050 Contact
         ContBusRel.SetRange("Contact No.", "Company No.");
         if ContBusRel.FindFirst then
             if Cust.Get(ContBusRel."No.") then
-                UpdateQuotes(Cust);
+                UpdateQuotes(Cust, '');
     end;
 
     procedure CreateVendorLink()
@@ -1753,12 +1755,14 @@ table 5050 Contact
         end;
     end;
 
-    local procedure UpdateQuotes(Customer: Record Customer)
+    local procedure UpdateQuotes(Customer: Record Customer; CustomerTemplate: Code[10])
     var
         SalesHeader: Record "Sales Header";
         SalesHeader2: Record "Sales Header";
         Cont: Record Contact;
         SalesLine: Record "Sales Line";
+        TempErrorMessage: Record "Error Message" temporary;
+        ConfirmManagement: Codeunit "Confirm Management";
     begin
         if "Company No." <> '' then
             Cont.SetRange("Company No.", "Company No.")
@@ -1776,6 +1780,7 @@ table 5050 Contact
                         SalesHeader2.Get(SalesHeader."Document Type", SalesHeader."No.");
                         SalesHeader2."Sell-to Customer No." := Customer."No.";
                         SalesHeader2."Sell-to Customer Name" := Customer.Name;
+                        CheckCustomerTemplate(SalesHeader2, TempErrorMessage, CustomerTemplate);
                         SalesHeader2."Sell-to Customer Template Code" := '';
                         if SalesHeader2."Sell-to Contact No." = SalesHeader2."Bill-to Contact No." then begin
                             SalesHeader2."Bill-to Customer No." := Customer."No.";
@@ -1810,6 +1815,28 @@ table 5050 Contact
                     until SalesHeader.Next = 0;
                 OnAfterUpdateQuotesForContact(Cont, Customer);
             until Cont.Next = 0;
+
+        if not TempErrorMessage.IsEmpty then
+            if ConfirmManagement.GetResponse(
+                 StrSubstNo(MultipleCustomerTemplatesConfirmQst, CustomerTemplate, Customer."No."), true)
+            then
+                TempErrorMessage.ShowErrorMessages(false);
+    end;
+
+    local procedure CheckCustomerTemplate(SalesHeader: Record "Sales Header"; var TempErrorMessage: Record "Error Message" temporary; CustomerTemplateCode: Code[10])
+    begin
+        if (CustomerTemplateCode = '') or (SalesHeader."Sell-to Customer Template Code" = '') then
+            exit;
+        if SalesHeader."Sell-to Customer Template Code" <> CustomerTemplateCode then
+            TempErrorMessage.LogMessage(
+              SalesHeader,
+              SalesHeader.FieldNo("Sell-to Customer Template Code"),
+              TempErrorMessage."Message Type"::Warning,
+              StrSubstNo(
+                DifferentCustomerTemplateMsg,
+                SalesHeader."No.",
+                SalesHeader."Sell-to Customer Template Code",
+                CustomerTemplateCode));
     end;
 
     procedure GetSalutation(SalutationType: Option Formal,Informal; LanguageCode: Code[10]): Text[260]
@@ -1898,7 +1925,7 @@ table 5050 Contact
                 NamePart[5] := "Company Name";
         end;
 
-        OnAfterGetSalutation(SalutationType, LanguageCode, NamePart);
+        OnAfterGetSalutation(SalutationType, LanguageCode, NamePart, Rec);
 
         for i := 1 to 5 do
             if NamePart[i] = '' then begin
@@ -2287,7 +2314,7 @@ table 5050 Contact
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterGetSalutation(var SalutationType: Option Formal,Informal; var LanguageCode: Code[10]; var NamePart: array[5] of Text[100])
+    local procedure OnAfterGetSalutation(var SalutationType: Option Formal,Informal; var LanguageCode: Code[10]; var NamePart: array[5] of Text[100]; var Contact: Record Contact)
     begin
     end;
 
@@ -2494,7 +2521,7 @@ table 5050 Contact
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCalculatedName(var Contact: Record Contact; NewName92: Text[92])
+    local procedure OnAfterCalculatedName(var Contact: Record Contact; var NewName92: Text[92])
     begin
     end;
 

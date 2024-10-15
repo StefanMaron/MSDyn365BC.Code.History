@@ -2,8 +2,10 @@ page 5479 "Customer Payments Entity"
 {
     Caption = 'customerPayments', Locked = true;
     DelayedInsert = true;
-    ODataKeyFields = Id;
-    PageType = ListPart;
+    ODataKeyFields = SystemId;
+    PageType = API;
+    EntityName = 'customerPayment';
+    EntitySetName = 'customerPayments';
     SourceTable = "Gen. Journal Line";
 
     layout
@@ -13,7 +15,7 @@ page 5479 "Customer Payments Entity"
             repeater("<Control2>")
             {
                 Caption = '<Control2>';
-                field(id; Id)
+                field(id; SystemId)
                 {
                     ApplicationArea = All;
                     Caption = 'Id', Locked = true;
@@ -266,8 +268,7 @@ page 5479 "Customer Payments Entity"
     begin
         ProcessAppliesToInvoiceNumberAndId;
 
-        GenJournalLine.SetRange(Id, Id);
-        GenJournalLine.FindFirst;
+        GenJournalLine.GetBySystemId(SystemId);
 
         if "Line No." = GenJournalLine."Line No." then
             Modify(true)
@@ -358,7 +359,7 @@ page 5479 "Customer Payments Entity"
     local procedure CheckFilters()
     begin
         if (GetFilter("Journal Batch Id") = '') and
-           (GetFilter(Id) = '')
+           (GetFilter(SystemId) = '')
         then
             Error(FiltersNotSpecifiedErr);
     end;
