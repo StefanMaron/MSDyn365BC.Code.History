@@ -608,6 +608,7 @@
 
     procedure TrackingAvailable(TempTrackingSpecification: Record "Tracking Specification" temporary; LookupMode: Enum "Item Tracking Type"): Boolean
     var
+        ItemTrackingSetup: Record "Item Tracking Setup";
         IsHandled: Boolean;
         Result: Boolean;
     begin
@@ -632,9 +633,12 @@
         if not (PartialGlobalDataSetExists or FullGlobalDataSetExists) then
             RetrieveLookupData(TempTrackingSpecification, true);
 
+        ItemTrackingSetup.CopyTrackingFromItemTrackingCodeSpecificTracking(CurrItemTrackingCode);
+        ItemTrackingSetup.CopyTrackingFromTrackingSpec(TempTrackingSpecification);
+
         TempGlobalEntrySummary.Reset();
         TempGlobalEntrySummary.SetCurrentKey("Lot No.", "Serial No.", "CD No.");
-        TempGlobalEntrySummary.SetTrackingFilterFromSpec(TempTrackingSpecification);
+        TempGlobalEntrySummary.SetTrackingFilterFromItemTrackingSetupIfRequired(ItemTrackingSetup);
         TempGlobalEntrySummary.CalcSums("Total Available Quantity");
         if CheckJobInPurchLine(TempTrackingSpecification) then
             exit(TempGlobalEntrySummary.FindFirst);

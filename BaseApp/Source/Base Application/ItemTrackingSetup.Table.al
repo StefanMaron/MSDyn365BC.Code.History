@@ -126,6 +126,14 @@
         OnAfterCopyTrackingFromItemTrackingSetup(Rec, FromItemTrackingSetup);
     end;
 
+    procedure CopyTrackingFromItemTrackingCodeSpecificTracking(ItemTrackingCode: Record "Item Tracking Code")
+    begin
+        "Serial No. Required" := ItemTrackingCode."SN Specific Tracking";
+        "Lot No. Required" := ItemTrackingCode."Lot Specific Tracking";
+
+        OnAfterCopyTrackingFromItemTrackingCodeSpecificTracking(Rec, ItemTrackingCode);
+    end;
+
     procedure CopyTrackingFromReservEntry(ReservEntry: Record "Reservation Entry");
     begin
         "Serial No." := ReservEntry."Serial No.";
@@ -238,6 +246,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyTrackingFromItemTrackingSetup(var ItemTrackingSetup: Record "Item Tracking Setup"; FromItemTrackingSetup: Record "Item Tracking Setup")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyTrackingFromItemTrackingCodeSpecificTracking(var ItemTrackingSetup: Record "Item Tracking Setup"; ItemTrackingCode: Record "Item Tracking Code")
     begin
     end;
 
