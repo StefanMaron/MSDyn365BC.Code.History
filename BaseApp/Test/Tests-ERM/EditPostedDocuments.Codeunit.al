@@ -104,6 +104,33 @@ codeunit 134658 "Edit Posted Documents"
     end;
 
     [Test]
+    [HandlerFunctions('PostedSalesShipmentUpdatePackageTrackingNo_MPH')]
+    [Scope('OnPrem')]
+    procedure PostedSalesShipmentUpdatePackageTrackingNo()
+    var
+        SalesShptHeader: Record "Sales Shipment Header";
+        PostedSalesShipment: TestPage "Posted Sales Shipment";
+    begin
+        // [FEATURE] [Sales Shipment]
+        // [SCENARIO 358316] "Package Tracking No." updated when only its value is changed
+        Initialize();
+        PrepareValuesForEditableFieldsPostedSalesShipment(SalesShptHeader);
+
+        // [GIVEN] Opened "Posted Sales Shipment - Update" page.
+        // [GIVEN] Set "Package Tracking No." = "XXX"
+        LibraryVariableStorage.Enqueue(SalesShptHeader."Package Tracking No.");
+        PostedSalesShipment.OpenView();
+        PostedSalesShipment."Update Document".Invoke();
+
+        // [WHEN] Press OK on the page.
+
+        // [THEN] Values of "Package Tracking No." in Sales Invoice Header was changed to "XXX" 
+        Assert.AreEqual(SalesShptHeader."Package Tracking No.", PostedSalesShipment."Package Tracking No.".Value, '');
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
     [HandlerFunctions('PostedPurchInvoiceUpdateGetEditablelModalPageHandler')]
     [Scope('OnPrem')]
     procedure PostedPurchInvoiceUpdateEditableFields()
@@ -487,6 +514,14 @@ codeunit 134658 "Edit Posted Documents"
         PostedSalesShipmentUpdate."Shipping Agent Service Code".SetValue(LibraryVariableStorage.DequeueText);
         PostedSalesShipmentUpdate."Package Tracking No.".SetValue(LibraryVariableStorage.DequeueText);
         PostedSalesShipmentUpdate.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure PostedSalesShipmentUpdatePackageTrackingNo_MPH(var PostedSalesShipmentUpdate: TestPage "Posted Sales Shipment - Update")
+    begin
+        PostedSalesShipmentUpdate."Package Tracking No.".SetValue(LibraryVariableStorage.DequeueText);
+        PostedSalesShipmentUpdate.OK.Invoke();
     end;
 
     [ModalPageHandler]

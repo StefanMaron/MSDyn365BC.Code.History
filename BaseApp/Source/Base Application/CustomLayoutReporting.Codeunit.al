@@ -68,6 +68,8 @@ codeunit 8800 "Custom Layout Reporting"
         PredefinedRequestParameters: Text;
         ErrorForDataOccuredErr: Label 'The error, %1, occurred when running report %2 for %3.', Comment = '%1 - Error text, %2 - Report ID, %3 - Record ID.';
         EscapeTok: Label '''%1''', Locked = true;
+        ForTok: Label ' for %1', Comment = '%1: customer name, Sample: Statement for Stan as of 21/02/2020';
+        AsOfTok: Label ' as of %1', Comment = '%1: date, Sample: Statement for Stan as of 21/02/2020';
 
     procedure GetLayoutIteratorKeyFilter(var FilterRecordRef: RecordRef; var FilterRecordKeyFieldRef: FieldRef; CustomReportLayoutCode: Code[20])
     var
@@ -177,12 +179,12 @@ codeunit 8800 "Custom Layout Reporting"
                             ProcessReportPerObject;
                         end;
                     OutputType::PDF,
-                  OutputType::Word,
-                  OutputType::Excel,
-                  OutputType::XML:
+                    OutputType::Word,
+                    OutputType::Excel,
+                    OutputType::XML:
                         ProcessReportPerObject;
                     OutputType::Preview,
-                  OutputType::Print:
+                    OutputType::Print:
                         ProcessReportPerLayout;
                 end;
                 LogAndClearLastError(ReportSelections."Report Caption", ReportDataRecordRef.RecordId);
@@ -540,22 +542,12 @@ codeunit 8800 "Custom Layout Reporting"
     end;
 
     local procedure PreviewReport(var DataRecRef: RecordRef; ReportID: Integer; CustomReportLayoutCode: Code[20])
-    var
-        File: File;
-        FileStream: OutStream;
-        FileName: Text;
-        TempFilePath: Text;
-        ReportSaved: Boolean;
     begin
-        if IsWebClient or IsWordLayout(ReportID, CustomReportLayoutCode) then begin
-            TempFilePath := FileManagement.ServerTempFileName('.docx');
-            FileName := GenerateFileNameForReportLayout(ReportID, '.docx', '');
-            File.Create(TempFilePath);
-            File.CreateOutStream(FileStream);
-            ReportSaved := BoundCallReportSaveAs(ReportID, GetRequestParametersText(ReportID), REPORTFORMAT::Word, FileStream, DataRecRef);
-            File.Close;
-            if FileManagement.ServerFileExists(TempFilePath) and ReportSaved and not RemoveEmptyFile(TempFilePath) then
-                AddFileToClientZip(TempFilePath, FileName);
+        if IsWebClient then begin
+            if IsWordLayout(ReportID, CustomReportLayoutCode) then
+                SaveAsReport(DataRecRef, ReportID, REPORTFORMAT::Word)
+            else
+                SaveAsReport(DataRecRef, ReportID, REPORTFORMAT::PDF)
         end else
             if not SupressOutput then begin
                 REPORT.Execute(ReportID, GetRequestParametersText(ReportID), DataRecRef);
@@ -595,12 +587,7 @@ codeunit 8800 "Custom Layout Reporting"
         // In the web client, the path isn't used since we zip up the files and send them to the client
         if not IsWebClient then
             BasePath := Path;
-        case ReportingType of
-            ReportingType::Object:
-                FileName := GenerateFileNameForReport(ReportID, Extension, BasePath, true);
-            ReportingType::Layout:
-                FileName := GenerateFileNameForReportLayout(ReportID, Extension, BasePath);
-        end;
+        FileName := GenerateFileNameForReport(ReportID, Extension, BasePath, DataRecRef);
 
         TempFilePath := FileManagement.ServerTempFileName(Extension);
         File.Create(TempFilePath);
@@ -618,28 +605,19 @@ codeunit 8800 "Custom Layout Reporting"
             end;
     end;
 
-    local procedure GenerateFileNameForReport(ReportID: Integer; Extension: Text; FilePath: Text; IncludeLayoutName: Boolean): Text[250]
+    local procedure GenerateFileNameForReport(ReportID: Integer; Extension: Text; FilePath: Text; DataRecRef: RecordRef): Text[250]
     var
         NameFieldRef: FieldRef;
         ObjectName: Text;
-        Caption: Text;
     begin
         // If we're iterating through Customer or Vendor, get the appropriate name
-        if GetNameFieldRef(IteratorRecordRef, NameFieldRef) then
-            ObjectName := StrSubstNo('%1', NameFieldRef.Value);
-
-        if IncludeLayoutName then begin
-            Caption := GetTempLayoutReportCaption(ReportID);
-            ObjectName := StrSubstNo('%1_%2', CopyStr(ObjectName, 1, 50), Caption);
-        end;
+        if not ReportDataAndIteratorDiffer then begin
+            if GetNameFieldRef(DataRecRef, NameFieldRef) then
+                ObjectName := StrSubstNo('%1', NameFieldRef.Value);
+        end else
+            ObjectName := StrSubstNo('%1', IteratorJoinFieldRef.Value);
 
         exit(GenerateFileName(ObjectName, ReportID, Extension, FilePath));
-    end;
-
-    local procedure GenerateFileNameForReportLayout(ReportID: Integer; Extension: Text; FilePath: Text): Text[250]
-    begin
-        // Get report caption if we're not on a custom layout, otherwise get the custom layout caption
-        exit(GenerateFileName(GetTempLayoutReportCaption(ReportID), ReportID, Extension, FilePath));
     end;
 
     local procedure GenerateFileName(ObjectName: Text; ReportID: Integer; Extension: Text; FilePath: Text): Text
@@ -662,18 +640,32 @@ codeunit 8800 "Custom Layout Reporting"
 
         // Construct with the end date, if it exists. Format the object name to adhere to filename size limits
         if OutputFileBaseName = '' then
-            OutputFileBaseName := 'Report';
+            OutputFileBaseName := GetTempLayoutReportCaption(ReportID);
         if EndDate <> '' then
-            FileName := OutputFileBaseName + ' for ' + ObjectName + ' as of ' + EndDate + Extension
+            FileName := OutputFileBaseName + GetFileNameForPart(ObjectName) + GetFileNameAsOfPart(EndDate) + Extension
         else
-            FileName := OutputFileBaseName + ' for ' + ObjectName + Extension;
+            FileName := OutputFileBaseName + GetFileNameForPart(ObjectName) + Extension;
 
         FileName := FileManagement.StripNotsupportChrInFileName(FileName);
 
         if FilePath <> '' then
             FileName := FileManagement.CombinePath(FilePath, FileName);
 
+        Clear(OutputFileBaseName);
+
         exit(FileName);
+    end;
+
+    local procedure GetFileNameForPart(ObjectName: Text): Text
+    begin
+        if ObjectName <> '' then
+            exit(StrSubstNo(ForTok, ObjectName));
+        exit('');
+    end;
+
+    local procedure GetFileNameAsOfPart(EndDate: Text): Text
+    begin
+        exit(StrSubstNo(AsOfTok, EndDate));
     end;
 
     local procedure GetOptionValueFromRequestPage(ReportParameters: Text; OptionName: Text): Text
@@ -692,19 +684,11 @@ codeunit 8800 "Custom Layout Reporting"
 
     local procedure GetTempLayoutReportCaption(ReportID: Integer): Text
     var
-        CustomReportLayout: Record "Custom Report Layout";
         AllObjWithCaption: Record AllObjWithCaption;
         ReportCaption: Text;
-        CurrentCustomLayoutCode: Code[20];
     begin
-        CurrentCustomLayoutCode := ReportLayoutSelection.GetTempLayoutSelected;
-        if CurrentCustomLayoutCode = '' then begin
-            AllObjWithCaption.Get(AllObjWithCaption."Object Type"::Report, ReportID);
-            ReportCaption := AllObjWithCaption."Object Caption";
-        end else begin
-            CustomReportLayout.Get(CurrentCustomLayoutCode);
-            ReportCaption := CustomReportLayout.Description;
-        end;
+        AllObjWithCaption.Get(AllObjWithCaption."Object Type"::Report, ReportID);
+        ReportCaption := AllObjWithCaption."Object Caption";
         exit(ReportCaption);
     end;
 
@@ -1132,13 +1116,13 @@ codeunit 8800 "Custom Layout Reporting"
     end;
 
     [TryFunction]
-    local procedure TryCreateFileStream(var File: File; ReportID: Integer; var TempFilePath: Text[250]; var FileName: Text[250]; var FileStream: OutStream; Extension: Text)
+    local procedure TryCreateFileStream(var File: File; ReportID: Integer; var TempFilePath: Text[250]; var FileName: Text[250]; var FileStream: OutStream; Extension: Text; DataRecRef: RecordRef)
     var
         FileManagement: Codeunit "File Management";
     begin
         TempFilePath := CopyStr(FileManagement.ServerTempFileName(Extension), 1, 250);
 
-        FileName := GenerateFileNameForReport(ReportID, Extension, '', false);
+        FileName := GenerateFileNameForReport(ReportID, Extension, '', DataRecRef);
 
         File.Create(TempFilePath);
         File.CreateOutStream(FileStream);
@@ -1173,7 +1157,7 @@ codeunit 8800 "Custom Layout Reporting"
         case ReportFormatType of
             REPORTFORMAT::Pdf:
                 begin
-                    TryCreateFileStream(File, ReportID, TempFilePath, FileName, FileStream, 'pdf');
+                    TryCreateFileStream(File, ReportID, TempFilePath, FileName, FileStream, 'pdf', DataRecRef);
                     TempEmailNameValueBuffer.SetRange(Name, FileName);
                     if not TempEmailNameValueBuffer.FindFirst then
                         if BoundCallReportSaveAs(ReportID, GetRequestParametersText(ReportID), REPORTFORMAT::Pdf, FileStream, DataRecRef) then begin
@@ -1186,7 +1170,7 @@ codeunit 8800 "Custom Layout Reporting"
                 end;
             REPORTFORMAT::Html:
                 begin
-                    TryCreateFileStream(File, ReportID, TempFilePath, FileName, FileStream, 'html');
+                    TryCreateFileStream(File, ReportID, TempFilePath, FileName, FileStream, 'html', DataRecRef);
                     TempEmailNameValueBuffer.SetRange(Name, FileName);
                     if not TempEmailNameValueBuffer.FindFirst then
                         if BoundCallReportSaveAs(ReportID, GetRequestParametersText(ReportID), REPORTFORMAT::Html, FileStream, DataRecRef) then begin

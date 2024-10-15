@@ -1388,6 +1388,56 @@ codeunit 137088 "SCM Order Planning - III"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('PurchOrderFromSalesOrderModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure OrderOfLineIsKeptOnPurchaseOrderFromSalesOrder()
+    var
+        Item: array[2] of Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesOrder: TestPage "Sales Order";
+        PurchaseOrder: TestPage "Purchase Order";
+        VendorNo: Code[20];
+        Qty: Decimal;
+        i: Integer;
+    begin
+        // [FEATURE] [Sales] [Purchase] [Order]
+        // [SCENARIO 353546] Line order is the same in sales order and purchase order created from it with "Purchase Order from Sales Order" functionality.
+        Initialize();
+        Qty := LibraryRandom.RandInt(10);
+
+        VendorNo := LibraryPurchase.CreateVendorNo();
+
+        // [GIVEN] Two items with vendor - "I1" and "I2".
+        for i := 1 to ArrayLen(Item) do begin
+            LibraryInventory.CreateItem(Item[i]);
+            Item[i].Validate("Vendor No.", VendorNo);
+            Item[i].Modify(true);
+        end;
+
+        // [GIVEN] Sales order with two lines. The first line is for item "I1" on location "BLUE", the second one is for item "I2" on blank location.
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', Item[1]."No.", Qty, LocationBlue.Code, WorkDate);
+        CreateSalesLine(SalesHeader, Item[2]."No.", '', WorkDate, Qty, Qty);
+
+        // [WHEN] Create purchase order from the sales order.
+        PurchaseOrder.Trap();
+        SalesOrder.OpenEdit();
+        SalesOrder.FILTER.SetFilter("No.", SalesHeader."No.");
+        LibraryVariableStorage.Enqueue(true);
+        SalesOrder.CreatePurchaseOrder.Invoke();
+
+        // [THEN] The line order in the purchase order ("I1", "I2") matches the sales order.
+        PurchaseOrder.PurchLines.First();
+        PurchaseOrder.PurchLines."No.".AssertEquals(Item[1]."No.");
+        PurchaseOrder.PurchLines.Next();
+        PurchaseOrder.PurchLines."No.".AssertEquals(Item[2]."No.");
+        PurchaseOrder.Close();
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
