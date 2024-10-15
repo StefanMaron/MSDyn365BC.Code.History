@@ -1274,6 +1274,98 @@ codeunit 144025 "Test Enterprise No and Branch"
         VerifySalesDocumentTestReportHasNoErrors();
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesShipmentHeaderGetCustomerVATRegistrationNumber_EnterpriseNo()
+    var
+        SalesShipmentHeader: Record "Sales Shipment Header";
+    begin
+        // [FEATURE] [UT] [VAT Registration No.]
+        // [SCENARIO 430032] Function GetCustomerVATRegistrationNumber of table SalesShipmentHeader returns Enterprise No. for local customer
+        Initialize();
+
+        // [GIVEN] Mock SalesShipmentHeader with empty country code and Entrprise No.  ="123"
+        SalesShipmentHeader.Init();
+        SalesShipmentHeader.TestField("Bill-to Country/Region Code", '');
+        SalesShipmentHeader."Enterprise No." := LibraryUtility.GenerateRandomNumericText(MaxStrLen(SalesShipmentHeader."Enterprise No."));
+
+        // [WHEN] Run function SalesShipmentHeader.GetCustomerVATRegistrationNumber
+        // [THEN] It returns "123"
+        Assert.AreEqual(SalesShipmentHeader."Enterprise No.", SalesShipmentHeader.GetCustomerVATRegistrationNumber, 'Invalid Enterprise No.');
+        // [WHEN] Run function SalesShipmentHeader.GetCustomerVATRegistrationNumberLbl
+        // [THEN] It returns "Enterprise No."
+        Assert.AreEqual(SalesShipmentHeader.FieldCaption("Enterprise No."), SalesShipmentHeader.GetCustomerVATRegistrationNumberLbl(), 'Invalid Enterprise No. label');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesShipmentHeaderGetCustomerVATRegistrationNumber_VATRegNo()
+    var
+        SalesShipmentHeader: Record "Sales Shipment Header";
+    begin
+        // [FEATURE] [UT] [VAT Registration No.]
+        // [SCENARIO 430032] Function GetCustomerVATRegistrationNumber of table SalesShipmentHeader returns VAT Registration No. for foreign customer
+        Initialize();
+
+        // [GIVEN] Mock SalesShipmentHeader with foreign country code and VAT Registration No.  ="123"
+        SalesShipmentHeader.Init();
+        SalesShipmentHeader."Bill-to Country/Region Code" := GetCountryEU();
+        SalesShipmentHeader."VAT Registration No." := LibraryUtility.GenerateRandomNumericText(MaxStrLen(SalesShipmentHeader."VAT Registration No."));
+
+        // [WHEN] Run function SalesShipmentHeader.GetCustomerVATRegistrationNumber
+        // [THEN] It returns "123"
+        Assert.AreEqual(SalesShipmentHeader."VAT Registration No.", SalesShipmentHeader.GetCustomerVATRegistrationNumber, 'Invalid VAT Registration No.');
+        // [WHEN] Run function SalesShipmentHeader.GetCustomerVATRegistrationNumberLbl
+        // [THEN] It returns "VAT Registration No."
+        Assert.AreEqual(SalesShipmentHeader.FieldCaption("VAT Registration No."), SalesShipmentHeader.GetCustomerVATRegistrationNumberLbl(), 'Invalid VAT Registration No. label');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ReturnRcptHeaderGetCustomerVATRegistrationNumber_EnterpriseNo()
+    var
+        ReturnRcptHeader: Record "Return Receipt Header";
+    begin
+        // [FEATURE] [UT] [VAT Registration No.]
+        // [SCENARIO 430032] Function GetCustomerVATRegistrationNumber of table ReturnRcptHeader returns Enterprise No. for local customer
+        Initialize();
+
+        // [GIVEN] Mock ReturnRcptHeader with empty country code and Entrprise No.  ="123"
+        ReturnRcptHeader.Init();
+        ReturnRcptHeader.TestField("Bill-to Country/Region Code", '');
+        ReturnRcptHeader."Enterprise No." := LibraryUtility.GenerateRandomNumericText(MaxStrLen(ReturnRcptHeader."Enterprise No."));
+
+        // [WHEN] Run function ReturnRcptHeader.GetCustomerVATRegistrationNumber
+        // [THEN] It returns "123"
+        Assert.AreEqual(ReturnRcptHeader."Enterprise No.", ReturnRcptHeader.GetCustomerVATRegistrationNumber, 'Invalid Enterprise No.');
+        // [WHEN] Run function ReturnRcptHeader.GetCustomerVATRegistrationNumberLbl
+        // [THEN] It returns "Enterprise No."
+        Assert.AreEqual(ReturnRcptHeader.FieldCaption("Enterprise No."), ReturnRcptHeader.GetCustomerVATRegistrationNumberLbl(), 'Invalid Enterprise No. label');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ReturnRcptHeaderGetCustomerVATRegistrationNumber_VATRegNo()
+    var
+        ReturnRcptHeader: Record "Return Receipt Header";
+    begin
+        // [FEATURE] [UT] [VAT Registration No.]
+        // [SCENARIO 430032] Function GetCustomerVATRegistrationNumber of table ReturnRcptHeader returns VAT Registration No. for foreign customer
+        Initialize();
+
+        // [GIVEN] Mock ReturnRcptHeader with foreign country code and VAT Registration No.  ="123"
+        ReturnRcptHeader.Init();
+        ReturnRcptHeader."Bill-to Country/Region Code" := GetCountryEU();
+        ReturnRcptHeader."VAT Registration No." := LibraryUtility.GenerateRandomNumericText(MaxStrLen(ReturnRcptHeader."VAT Registration No."));
+
+        // [WHEN] Run function ReturnRcptHeader.GetCustomerVATRegistrationNumber
+        // [THEN] It returns "123"
+        Assert.AreEqual(ReturnRcptHeader."VAT Registration No.", ReturnRcptHeader.GetCustomerVATRegistrationNumber, 'Invalid VAT Registration No.');
+        // [WHEN] Run function ReturnRcptHeader.GetCustomerVATRegistrationNumberLbl
+        // [THEN] It returns "VAT Registration No."
+        Assert.AreEqual(ReturnRcptHeader.FieldCaption("VAT Registration No."), ReturnRcptHeader.GetCustomerVATRegistrationNumberLbl(), 'Invalid VAT Registration No. label');
+    end;
+
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore;

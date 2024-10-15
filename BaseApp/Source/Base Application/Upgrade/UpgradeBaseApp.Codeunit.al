@@ -61,6 +61,7 @@
         UpgradeDimensionSetEntry();
         UpgradeUserTaskDescriptionToUTF8();
 
+        UseCustomLookupInPrices();
         UpdateWorkflowTableRelations();
         UpgradeWordTemplateTables();
         UpgradeCustomerVATLiable();
@@ -2288,6 +2289,25 @@
 
         if Changed then
             exit(SalesCrMemoEntityBuffer.Modify());
+    end;
+
+    local procedure UseCustomLookupInPrices()
+    var
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
+        UpgradeTag: Codeunit "Upgrade Tag";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetUseCustomLookupUpgradeTag()) then
+            exit;
+
+        if SalesReceivablesSetup.Get() and not SalesReceivablesSetup."Use Customized Lookup" then
+            if PriceCalculationMgt.FindActiveSubscriptions() <> '' then begin
+                SalesReceivablesSetup.Validate("Use Customized Lookup", true);
+                SalesReceivablesSetup.Modify();
+            end;
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetUseCustomLookupUpgradeTag());
     end;
 }
 

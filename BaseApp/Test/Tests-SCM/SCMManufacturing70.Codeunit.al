@@ -1428,7 +1428,11 @@ codeunit 137063 "SCM Manufacturing 7.0"
         AvailabilityManagement.CalcAvailableToPromise(TempOrderPromisingLine);
 
         // Verify: Verify Earliest Shipment Dates on Order Promising Lines.
-        VerifyOrderPromisingLines(TempOrderPromisingLine);
+        // "Earliest Shipment Date" = "Original Shipment Date" on the order promising line for the reserved sales line.
+        TempOrderPromisingLine.FindSet();
+        VerifyEarliestShipmentDate(0D, TempOrderPromisingLine);
+        TempOrderPromisingLine.Next();
+        VerifyEarliestShipmentDate(CalcDate(LeadDatesFormula, WorkDate()), TempOrderPromisingLine);
     end;
 
     [Normal]
@@ -4622,14 +4626,6 @@ codeunit 137063 "SCM Manufacturing 7.0"
         PurchaseLine.FindLast;
         PurchaseLine.TestField("No.", No);
         PurchaseLine.TestField(Quantity, Quantity);
-    end;
-
-    local procedure VerifyOrderPromisingLines(var TempOrderPromisingLine: Record "Order Promising Line" temporary)
-    begin
-        TempOrderPromisingLine.FindSet();
-        VerifyEarliestShipmentDate(0D, TempOrderPromisingLine);
-        TempOrderPromisingLine.Next;
-        VerifyEarliestShipmentDate(0D, TempOrderPromisingLine);
     end;
 
     local procedure VerifyEarliestShipmentDate(ExpectedDate: Date; TempOrderPromisingLine: Record "Order Promising Line" temporary)

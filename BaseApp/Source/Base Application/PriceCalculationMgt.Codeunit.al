@@ -6,6 +6,8 @@ codeunit 7001 "Price Calculation Mgt."
     end;
 
     var
+        ManualLbl: Label 'Manual', Locked = true;
+        TwoPlacesTxt: Label '%1-%2;', Locked = true;
         ExtendedPriceFeatureIdTok: Label 'SalesPrices', Locked = true;
         NotImplementedMethodErr: Label 'Method %1 does not have active implementations for %2 price type.', Comment = '%1 - method name, %2 - price type name';
 #if not CLEAN19
@@ -55,6 +57,33 @@ codeunit 7001 "Price Calculation Mgt."
         PriceCalculationSetup.SetRange(Enabled, true);
         if PriceCalculationSetup.IsEmpty() then
             Error(NotImplementedMethodErr, Method, PriceType);
+    end;
+
+    procedure FindActiveSubscriptions() Found: Text
+    var
+        EventSubscription: Record "Event Subscription";
+    begin
+        EventSubscription.SetFilter(
+            "Publisher Object ID", '%1..%2|%3..%4',
+            Codeunit::"Sales Line - Price", Codeunit::"Price List Line - Price",
+            Codeunit::"Price Asset - Item", Codeunit::"Price Asset - G/L Account");
+        EventSubscription.SetRange(Active, true);
+        if EventSubscription.IsEmpty() then
+            exit('');
+        if EventSubscription.FindSet() then
+            repeat
+                Found +=
+                    StrSubstNo(
+                        TwoPlacesTxt,
+                        EventSubscription."Publisher Object ID",
+                        EventSubscription."Subscriber Function");
+                if EventSubscription."Subscriber Instance" = ManualLbl then
+                    Found +=
+                        StrSubstNo(
+                            TwoPlacesTxt,
+                            EventSubscription."Subscriber Instance",
+                            EventSubscription."Active Manual Instances");
+            until EventSubscription.Next() = 0;
     end;
 
     procedure FindSetup(LineWithPrice: Interface "Line With Price"; var PriceCalculationSetup: Record "Price Calculation Setup"): Boolean;

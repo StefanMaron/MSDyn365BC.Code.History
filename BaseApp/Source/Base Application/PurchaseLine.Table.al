@@ -6019,6 +6019,7 @@
 
     procedure CalcVATAmountLines(QtyType: Option General,Invoicing,Shipping; var PurchHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line"; var VATAmountLine: Record "VAT Amount Line")
     var
+        VATPostingSetupLocal: Record "VAT Posting Setup";
         TotalVATAmount: Decimal;
         QtyToHandle: Decimal;
         AmtToHandle: Decimal;
@@ -6050,11 +6051,16 @@
                             VATAmountLine.InsertNewLine(
                               "VAT Identifier", "VAT Calculation Type", "Tax Group Code", "Use Tax", "VAT %", "Line Amount" >= 0, false);
 
+                        if VATPostingSetupLocal.Get("VAT Bus. Posting Group", "VAT Prod. Posting Group") then;
                         case QtyType of
                             QtyType::General:
                                 begin
                                     VATAmountLine.Quantity += "Quantity (Base)";
-                                    VATAmountLine."VAT Base (Lowered)" += "VAT Base Amount";
+                                    if VATPostingSetupLocal."VAT Calculation Type" = VATPostingSetupLocal."VAT Calculation Type"::"Reverse Charge VAT" then
+                                        VATAmountLine."VAT Base (Lowered)" +=
+                                            Round("VAT Base Amount" * (100 - PurchHeader."VAT Base Discount %") / 100, Currency."Amount Rounding Precision")
+                                    else
+                                        VATAmountLine."VAT Base (Lowered)" += "VAT Base Amount";
                                     OnCalcVATAmountLinesOnBeforeVATAmountLineSumLine(Rec, VATAmountLine, QtyType);
                                     VATAmountLine.SumLine(
                                       "Line Amount", "Inv. Discount Amount", "VAT Difference", "Allow Invoice Disc.", "Prepayment Line");
@@ -6086,7 +6092,11 @@
                                     end;
                                     OnCalcVATAmountLinesOnQtyTypeInvoicingOnBeforeCalcAmtToHandle(PurchLine, PurchHeader, QtyToHandle, VATAmountLine);
                                     AmtToHandle := GetLineAmountToHandleInclPrepmt(QtyToHandle);
-                                    VATAmountLine."VAT Base (Lowered)" += "VAT Base Amount";
+                                    if VATPostingSetupLocal."VAT Calculation Type" = VATPostingSetupLocal."VAT Calculation Type"::"Reverse Charge VAT" then
+                                        VATAmountLine."VAT Base (Lowered)" +=
+                                            Round("VAT Base Amount" * (100 - PurchHeader."VAT Base Discount %") / 100, Currency."Amount Rounding Precision")
+                                    else
+                                        VATAmountLine."VAT Base (Lowered)" += "VAT Base Amount";
                                     OnCalcVATAmountLinesOnBeforeVATAmountLineSumLine(Rec, VATAmountLine, QtyType);
                                     if PurchHeader."Invoice Discount Calculation" <> PurchHeader."Invoice Discount Calculation"::Amount then
                                         VATAmountLine.SumLine(
@@ -7777,7 +7787,7 @@
                 FieldError("Direct Unit Cost", StrSubstNo(Text043, FieldCaption("Prepayment %")));
         end;
         if PurchHeader."Document Type" <> PurchHeader."Document Type"::Invoice then begin
-            if "Prepmt. Line Amount" < "Prepmt. Amt. Inv." then begin
+            if ("Prepmt. Line Amount" < "Prepmt. Amt. Inv.") and (PurchHeader.Status <> PurchHeader.Status::Released) then begin
                 if IsServiceCharge() then
                     Error(CannotChangePrepaidServiceChargeErr);
                 if "Inv. Discount Amount" <> 0 then

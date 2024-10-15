@@ -2523,6 +2523,80 @@ codeunit 144000 "Non-Deductible VAT"
         VerifyJobLedgerEntry(JobTask, VATBase);
     end;
 
+    [Test]
+    [HandlerFunctions('PurchaseStatisticsVATBaseCheckModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure CheckVATAmountOnPurchInvoiceWithSingleLineReverseVAT()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLineReverseCharge: Record "Purchase Line";
+        VATPostingSetupReverseChargeVAT: Record "VAT Posting Setup";
+        PurchaseInvoice: TestPage "Purchase Invoice";
+    begin
+        // [FEATURE] [Reverse Charge VAT] [Purchase Invoice] [VAT Base Discount]
+        // [SCENARIO 432547] If there is discount according to Payment Terms, it should be used while calculating Reverse Charge VAT
+        Initialize();
+
+        // [GIVEN] Purchase Invoice Header for new Vendor with 2% VAT Base Discount
+        CreatePurchHeaderWithVATBaseDisc(PurchaseHeader, PurchaseHeader."Document Type"::Invoice);
+
+        // [GIVEN] Purchase Invoice Line for G/L Account with 19% Reverse Charge VAT and "Direct unit Cost" = 1000
+        CreatePurchaseLineWithVATType(
+          PurchaseLineReverseCharge, PurchaseHeader,
+          PurchaseLineReverseCharge."VAT Calculation Type"::"Reverse Charge VAT");
+
+        VATPostingSetupReverseChargeVAT.Get(
+          PurchaseLineReverseCharge."VAT Bus. Posting Group", PurchaseLineReverseCharge."VAT Prod. Posting Group");
+
+        // [WHEN] When open invoice's statistics
+        PurchaseHeader.TestField("VAT Base Discount %");
+        LibraryVariableStorage.Enqueue(GetLoweredVATBase(PurchaseLineReverseCharge."Direct Unit Cost", PurchaseHeader."VAT Base Discount %"));
+        PurchaseInvoice.OpenView();
+        PurchaseInvoice.Filter.SetFilter("No.", PurchaseHeader."No.");
+        PurchaseInvoice.Statistics.Invoke();
+
+        // [THEN] "VAT Base (Lowered)" = 980 on VAT amount lines.
+        // verified in handler
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('PurchaseStatisticsVATBaseCheckModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure CheckVATAmountOnPurchInvoiceWithSingleLineNormalVAT()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLineReverseCharge: Record "Purchase Line";
+        VATPostingSetupReverseChargeVAT: Record "VAT Posting Setup";
+        PurchaseInvoice: TestPage "Purchase Invoice";
+    begin
+        // [FEATURE] [Normal VAT] [Purchase Invoice] [VAT Base Discount]
+        // [SCENARIO 432547] "VAT Base (Lowered)" must reflect "VAT Base Discount %" calculating Normal VAT
+        Initialize();
+
+        // [GIVEN] Purchase Invoice Header for new Vendor with 2% VAT Base Discount
+        CreatePurchHeaderWithVATBaseDisc(PurchaseHeader, PurchaseHeader."Document Type"::Invoice);
+
+        // [GIVEN] Purchase Invoice Line for G/L Account with 19% Normal VAT and "Direct unit Cost" = 1000
+        CreatePurchaseLineWithVATType(
+          PurchaseLineReverseCharge, PurchaseHeader,
+          PurchaseLineReverseCharge."VAT Calculation Type"::"Normal VAT");
+
+        VATPostingSetupReverseChargeVAT.Get(
+          PurchaseLineReverseCharge."VAT Bus. Posting Group", PurchaseLineReverseCharge."VAT Prod. Posting Group");
+
+        // [WHEN] When open invoice's statistics
+        PurchaseHeader.TestField("VAT Base Discount %");
+        LibraryVariableStorage.Enqueue(GetLoweredVATBase(PurchaseLineReverseCharge."Direct Unit Cost", PurchaseHeader."VAT Base Discount %"));
+        PurchaseInvoice.OpenView();
+        PurchaseInvoice.Filter.SetFilter("No.", PurchaseHeader."No.");
+        PurchaseInvoice.Statistics.Invoke();
+
+        // [THEN] "VAT Base (Lowered)" = 980 on VAT amount lines.
+        // verified in handler
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2536,8 +2610,8 @@ codeunit 144000 "Non-Deductible VAT"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Non-Deductible VAT");
 
         LibraryERMCountryData.SetZeroVATSetupForPurchInvRoundingAccounts;
-        LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
-        LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
+        LibrarySetupStorage.SaveGeneralLedgerSetup();
+        LibrarySetupStorage.SavePurchasesSetup();
 
         isInitialized := true;
         Commit();
@@ -2792,10 +2866,10 @@ codeunit 144000 "Non-Deductible VAT"
         PurchInvHeader: Record "Purch. Inv. Header";
         PostedPurchaseInvoice: TestPage "Posted Purchase Invoice";
     begin
-        PostedPurchaseInvoice.OpenView;
+        PostedPurchaseInvoice.OpenView();
         PurchInvHeader.Get(DocumentNo);
         PostedPurchaseInvoice.GotoRecord(PurchInvHeader);
-        PostedPurchaseInvoice.Statistics.Invoke;
+        PostedPurchaseInvoice.Statistics.Invoke();
     end;
 
     local procedure OpenPurchCrMemoStatistics(DocumentNo: Code[20])
@@ -2803,10 +2877,10 @@ codeunit 144000 "Non-Deductible VAT"
         PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
         PostedPurchaseCrMemo: TestPage "Posted Purchase Credit Memo";
     begin
-        PostedPurchaseCrMemo.OpenView;
+        PostedPurchaseCrMemo.OpenView();
         PurchCrMemoHdr.Get(DocumentNo);
         PostedPurchaseCrMemo.GotoRecord(PurchCrMemoHdr);
-        PostedPurchaseCrMemo.Statistics.Invoke;
+        PostedPurchaseCrMemo.Statistics.Invoke();
     end;
 
     local procedure CreatePurchHeaderWithVATBaseDisc(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type")
@@ -3617,6 +3691,14 @@ codeunit 144000 "Non-Deductible VAT"
             VerifyPurchStatisticSubform(
               PurchaseStatistics, AmountWithoutVAT2, VATAmount[2], NonDeductibleVATAmount[2]);
         end;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure PurchaseStatisticsVATBaseCheckModalPageHandler(var PurchaseStatistics: TestPage "Purchase Statistics")
+    begin
+        Assert.AreEqual(
+            LibraryVariableStorage.DequeueDecimal(), PurchaseStatistics.SubForm."VAT Base (Lowered)".AsDecimal(), '');
     end;
 
     [PageHandler]

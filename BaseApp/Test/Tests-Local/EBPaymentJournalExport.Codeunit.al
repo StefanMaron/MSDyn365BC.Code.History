@@ -77,6 +77,7 @@ codeunit 144008 "EB - Payment Journal Export"
         i: Integer;
         Swift: Code[20];
         VendorSwift: Code[20];
+        TotalAmount: Decimal;
     begin
         Initialize;
 
@@ -90,7 +91,7 @@ codeunit 144008 "EB - Payment Journal Export"
         VendorNo := CreateVendor(CountryCode, ExportProtocol, VendorSwift, VendorIbanTxt);
         PaymentCount := LibraryRandom.RandIntInRange(2, 5);
         for i := 1 to PaymentCount do
-            CreateAndPostPurchInv(VendorNo, true);
+            TotalAmount += CreateAndPostPurchInv(VendorNo, true);
 
         // [WHEN] Suggest and Export Payments with mod97 Payment Message
         Swift := GenerateBankAccSwiftCode;
@@ -99,7 +100,7 @@ codeunit 144008 "EB - Payment Journal Export"
         PostPaymentLines(VendorNo);
 
         // Verification
-        VerifyXMLPaymentNodes(FileName, GetProtocolLastNoUsed(ExportProtocol), PaymentCount);
+        VerifyXMLPaymentNodes(FileName, GetProtocolLastNoUsed(ExportProtocol), PaymentCount, TotalAmount);
         VerifyXMLBicNodes(FileName, Swift, VendorSwift);
         VerifyXMLIbanNodes(FileName, BankIbanTxt, VendorIbanTxt);
         VerifyXmlPaymentLinesPosted(VendorNo);
@@ -363,6 +364,7 @@ codeunit 144008 "EB - Payment Journal Export"
         i: Integer;
         Swift: Code[20];
         VendorSwift: Code[20];
+        TotalAmount: Decimal;
     begin
         Initialize;
 
@@ -381,7 +383,7 @@ codeunit 144008 "EB - Payment Journal Export"
         VendorNo := CreateVendor(CountryRegion.Code, ExportProtocol, VendorSwift, VendorIbanTxt);
         PaymentCount := LibraryRandom.RandIntInRange(2, 5);
         for i := 1 to PaymentCount do
-            CreateAndPostPurchInv(VendorNo, true);
+            TotalAmount += CreateAndPostPurchInv(VendorNo, true);
 
         // [WHEN] Suggest and Export Payments with mod97 Payment Message
         Swift := GenerateBankAccSwiftCode;
@@ -389,7 +391,7 @@ codeunit 144008 "EB - Payment Journal Export"
           FileName, CountryCode, VendorNo, ExportProtocol, Swift, BankIbanTxt, '', true, false, InterbankClearingCodeOptionRef::" ");
 
         // Verification
-        VerifyXMLPaymentNodes(FileName, GetProtocolLastNoUsed(ExportProtocol), PaymentCount);
+        VerifyXMLPaymentNodes(FileName, GetProtocolLastNoUsed(ExportProtocol), PaymentCount, TotalAmount);
         VerifyXMLBicNodes(FileName, Swift, VendorSwift);
         VerifyXMLIbanNodes(FileName, BankIbanTxt, VendorIbanTxt);
         VerifyXMLCountryNodes(FileName);
@@ -1220,6 +1222,7 @@ codeunit 144008 "EB - Payment Journal Export"
         i: Integer;
         Swift: Code[20];
         VendorSwift: Code[20];
+        TotalAmount: Decimal;
     begin
         Initialize;
 
@@ -1233,7 +1236,7 @@ codeunit 144008 "EB - Payment Journal Export"
         VendorNo := CreateVendor(CountryCode, ExportProtocol, VendorSwift, VendorIbanTxt);
         PaymentCount := LibraryRandom.RandIntInRange(2, 5);
         for i := 1 to PaymentCount do
-            CreateAndPostPurchInv(VendorNo, false);
+            TotalAmount += CreateAndPostPurchInv(VendorNo, false);
 
         // [WHEN] Suggest and Export Payments with mod97 Payment Message
         Swift := GenerateBankAccSwiftCode;
@@ -1242,7 +1245,7 @@ codeunit 144008 "EB - Payment Journal Export"
           true, false, InterbankClearingCodeOptionRef::" ");
 
         // Verify structure for exported payments
-        VerifyXMLPaymentNodes(FileName, GetProtocolLastNoUsed(ExportProtocol), PaymentCount);
+        VerifyXMLPaymentNodes(FileName, GetProtocolLastNoUsed(ExportProtocol), PaymentCount, TotalAmount);
 
         FileMgt.DeleteServerFile(FileName);
         LibraryVariableStorage.AssertEmpty;
@@ -2776,7 +2779,7 @@ codeunit 144008 "EB - Payment Journal Export"
         end;
     end;
 
-    local procedure VerifyXMLPaymentNodes(FileName: Text; MessageId: Code[20]; PaymentCount: Integer)
+    local procedure VerifyXMLPaymentNodes(FileName: Text; MessageId: Code[20]; PaymentCount: Integer; TotalAmount: Decimal)
     var
         [RunOnClient]
         XmlNodeList: DotNet XmlNodeList;
@@ -2797,6 +2800,7 @@ codeunit 144008 "EB - Payment Journal Export"
 
         XmlNode := XmlNodeList.Item(0);
         Assert.AreEqual('GrpHdr', XmlNode.Name, IncorrectNodeNameErr);
+        LibraryXMLRead.VerifyNodeValueInSubtree('GrpHdr', 'CtrlSum', Format(TotalAmount, 0, 9));
 
         for i := 1 to PaymentCount do begin
             XmlNode := XmlNodeList.Item(i);
