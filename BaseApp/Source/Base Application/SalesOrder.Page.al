@@ -998,7 +998,7 @@
                 }
                 field("Compress Prepayment"; "Compress Prepayment")
                 {
-                    ApplicationArea = Dimensions;
+                    ApplicationArea = Prepayments;
                     ToolTip = 'Specifies that prepayments on the sales order are combined if they have the same general ledger account for prepayments or the same dimensions.';
                 }
                 field("Prepmt. Payment Terms Code"; "Prepmt. Payment Terms Code")

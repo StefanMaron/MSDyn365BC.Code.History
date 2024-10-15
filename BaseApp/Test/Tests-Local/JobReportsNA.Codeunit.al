@@ -636,6 +636,65 @@ codeunit 142065 "Job Reports NA"
         LibraryReportDataset.AssertElementWithValueExists('QtyInvoiced_ServShptLine', ServiceLine.Quantity);
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmationHandler')]
+    [Scope('OnPrem')]
+    procedure PurchaseOrderReceiptWhenPurchaseLineWithJobPlanningLineItemWithoutJobPlanningLineNo()
+    var
+        PurchHeader: Record "Purchase Header";
+        PurchLine: Record "Purchase Line";
+        JobPlanningLine: Record "Job Planning Line";
+    begin
+        // [SCENARIO 454686] Purchase lines are not being tracked properly for Job Usage link, to the proper Job Line Type on the Job
+        Initialize();
+
+        // [GIVEN] Job with Planning Line - "Usage Link" and Item "X"
+        CreateJobWithPlanningUsageLinkAndSpecificItem(JobPlanningLine, CreateItem());
+
+        // [GIVEN] Purchase Order with Item "X", wiht Job Planning line and without "Job Planning Line No." on Purchase Line
+        CreatePurchaseDocument(PurchLine, PurchHeader."Document Type"::Order, JobPlanningLine."No.");
+        PurchLine.Validate("Job No.", JobPlanningLine."Job No.");
+        PurchLine.Validate("Job Task No.", JobPlanningLine."Job Task No.");
+        PurchLine.Validate("Job Line Type", JobPlanningLine."Line Type"::Budget);
+        PurchLine.Modify(true);
+
+        // [WHEN] Post Purchase Receipt
+        PurchHeader.Get(PurchLine."Document Type", PurchLine."Document No.");
+        asserterror LibraryPurchase.PostPurchaseDocument(PurchHeader, true, false);
+
+        // [THEN] Posting Purchase Receipt is interrupted with Expected Empty Error
+        Assert.ExpectedError('');
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmationHandler')]
+    [Scope('OnPrem')]
+    procedure PurchaseOrderReceiptWhenPurchaseLineWithoutJobPlanningLineItemWithoutJobLineType()
+    var
+        PurchHeader: Record "Purchase Header";
+        PurchLine: Record "Purchase Line";
+        JobPlanningLine: Record "Job Planning Line";
+    begin
+        // [SCENARIO 454686] Purchase lines are not being tracked properly for Job Usage link, to the proper Job Line Type on the Job
+        Initialize();
+
+        // [GIVEN] Job with Planning Line - "Usage Link" and Item "X"
+        CreateJobWithPlanningUsageLinkAndSpecificItem(JobPlanningLine, CreateItem());
+
+        // [GIVEN] Purchase Order with Item "X", Job ("Job Planning Line No." is not defined to make strict link to Job)
+        CreatePurchaseDocument(PurchLine, PurchHeader."Document Type"::Order, JobPlanningLine."No.");
+        PurchLine.Validate("Job No.", JobPlanningLine."Job No.");
+        PurchLine.Validate("Job Task No.", JobPlanningLine."Job Task No.");
+        PurchLine.Modify(true);
+
+        // [WHEN] Post Purchase Order
+        PurchHeader.Get(PurchLine."Document Type", PurchLine."Document No.");
+        asserterror LibraryPurchase.PostPurchaseDocument(PurchHeader, true, false);
+
+        // [THEN] Posting Purchase Receipt is interrupted with Expected Empty Error
+        Assert.ExpectedError('');
+    end;
+
     local procedure Initialize()
     begin
         if isInitialized then
@@ -1290,6 +1349,48 @@ codeunit 142065 "Job Reports NA"
         Assert.AreNearlyEqual(TotalPrice, ResLedgerEntry."Total Price", LibraryERM.GetAmountRoundingPrecision, AmountError);
     end;
 
+    local procedure CreateJobWithPlanningUsageLinkAndSpecificItem(var JobPlanningLine: Record "Job Planning Line"; ItemNo: Code[20])
+    var
+        JobTask: Record "Job Task";
+    begin
+        CreateJobWithJobTask(JobTask);
+
+        LibraryJob.CreateJobPlanningLine(JobPlanningLine."Line Type"::Budget, JobPlanningLine.Type::Item, JobTask, JobPlanningLine);
+        JobPlanningLine.Validate("No.", ItemNo);
+        JobPlanningLine.Validate(Quantity, LibraryRandom.RandInt(100));
+        JobPlanningLine.Validate("Usage Link", true);
+        JobPlanningLine.Modify(true);
+    end;
+
+    local procedure CreateCustomer(CurrencyCode: Code[10]): Code[20]
+    var
+        Customer: Record Customer;
+    begin
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("Currency Code", CurrencyCode);
+        Customer.Modify(true);
+        exit(Customer."No.");
+    end;
+
+    local procedure CreatePurchaseDocument(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; No: Code[20])
+    var
+        PurchaseHeader: Record "Purchase Header";
+    begin
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, '');
+        // Create Purchase Line with Random Quantity and Direct Unit Cost.
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, No, LibraryRandom.RandInt(10));
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));
+        PurchaseLine.Modify(true);
+    end;
+
+    local procedure CreateJobWithJobTask(var JobTask: Record "Job Task")
+    var
+        Job: Record Job;
+    begin
+        LibraryJob.CreateJob(Job, CreateCustomer(''));  // Blank value for Currency Code.
+        LibraryJob.CreateJobTask(Job, JobTask);
+    end;
+
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure PurchaseInvoiceReqPageHandler(var PurchaseInvoice: TestRequestPage "Purchase Invoice NA")
@@ -1462,6 +1563,13 @@ codeunit 142065 "Job Reports NA"
     procedure ConfirmHandlerMultipleResponses(Question: Text[1024]; var Reply: Boolean)
     begin
         Reply := LibraryVariableStorage.DequeueBoolean;
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmationHandler(Question: Text; var Reply: Boolean)
+    begin
+        Reply := false;
     end;
 }
 

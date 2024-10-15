@@ -28,6 +28,8 @@ codeunit 137262 "SCM Invt Item Tracking III"
         LibraryPatterns: Codeunit "Library - Patterns";
         TrackingOption: Option AssignSerialLot,AssignLotNo,SelectEntries,SetLotNo,SetQuantity,SetLotNoAndQty,SetSerialNoAndQty,SelectAndApplyToItemEntry,SetEntriesToInvoice,InvokeOK;
         isInitialized: Boolean;
+        TrackingOptionWithTwoLots: Option AssignLotNoWithQtyToHandle,ChangeQtyToInvoice,OrderDocument,ReturnOrderDocument;
+        LotNoWithTwoLots: array[2] of Code[20];
         ItemTrackingExistErr: Label 'You must delete the existing item tracking before modifying';
         ItemTrackingQuantityError: Label 'Item tracking defined for item %1 in the %2 accounts for more than the quantity you have entered.';
         DescriptionError: Label 'Description must match.';
@@ -40,6 +42,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
         ClearApplEntryErr: Label 'Incorrect Appl. Item Entry clearing.';
         WrongInvoicedQtyErr: Label 'Quantity Invoiced is incorrect in %1.', Comment = '%1=Purch. Rcpt. Line table caption';
         WrongNoOfComponentEntriesErr: Label 'Wrong number of assembly component entries is shown in Item Tracing.';
+        WrongQtyForItemErr: Label '%1 in the item tracking assigned to the document line for item %2 is currently %3. It must be %4.\\Check the assignment for serial number %5, lot number %6.', Comment = '%1 - Qty. to Handle or Qty. to Invoice, %2 - Item No., %3 - actual value, %4 - expected value, %5 - Serial No., %6 - Lot No.';
 
     [Test]
     [HandlerFunctions('MessageHandler')]
@@ -3106,6 +3109,217 @@ codeunit 137262 "SCM Invt Item Tracking III"
         Assert.ExpectedError('is of lesser precision than expected');
     end;
 
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesPageHandlerWithSpecificTwoLots,PostedPurchaseDocumentLinesPageHandler')]
+    [Scope('OnPrem')]
+    procedure S458041_ItemTrackingIsSetToInvoicedQuantities_PurchaseReturnOrder_GetPostedDocumentLinesToReverse()
+    var
+        Location: Record Location;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        ReservationEntry: Record "Reservation Entry";
+        ItemNo: Code[20];
+        LocationCode: Code[10];
+        VendorNo: Code[20];
+        PostedPurchaseInvoiceNo: Code[20];
+    begin
+        // [FEATURE] [Purchase Order] [Item Tracking] [Partial Receipt] [Partial Invoice] [Purchase Return Order] [Get Posted Document Lines to Reverse]
+        // [SCENARIO 458041] Item Tracking lines in Purchase Return Order are set as to invoiced quantities when using function 'Get Posted Document Lines to Reverse'.
+        // [SCENARIO 458041] Purchase Order with Item Tracking is created and partially received. Then part of recevied quantitiy is invoiced.
+        // [SCENARIO 458041] Then Purchase Return Order is created and action 'Get Posted Document Lines to Reverse' is used.
+        Initialize();
+
+        // [GIVEN] Create Item "I" with Lot Tracking
+        ItemNo := CreateTrackedItem('', '', CreateItemTrackingCode(false, true));
+
+        // [GIVEN] Create Location "L"
+        LocationCode := LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+
+        // [GIVEN] Create Vendor "V"
+        VendorNo := LibraryPurchase.CreateVendorNo();
+
+        // [GIVEN] Create Purchase Order for Vendor "V", Location "L", Item "I" with "Quantity" 10
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, VendorNo);
+        CreatePurchaseLine(PurchaseLine, PurchaseHeader, ItemNo, LocationCode, 10);
+
+        // [GIVEN] Define two lots with "Quantity (Base)" 6/4 and "Qty. to Handle (Base)" 5/3
+        LibraryVariableStorage.Enqueue(TrackingOptionWithTwoLots::AssignLotNoWithQtyToHandle); // Enqueue value for ItemTrackingLinesPageHandlerWithSpecificTwoLots.
+        PurchaseLine.OpenItemTrackingLines();
+
+        // [GIVEN] Set "Qty. to Receive" to 8
+        PurchaseLine.GetBySystemId(PurchaseLine.SystemId);
+        PurchaseLine.Validate("Qty. to Receive", 8);
+        PurchaseLine.Modify();
+
+        // [GIVEN] Receive Purchase Order
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
+
+        // [GIVEN] Update two lots with "Qty. to Invoice (Base)" 4/2
+        LibraryVariableStorage.Enqueue(TrackingOptionWithTwoLots::ChangeQtyToInvoice); // Enqueue value for ItemTrackingLinesPageHandlerWithSpecificTwoLots.
+        PurchaseLine.OpenItemTrackingLines();
+
+        // [GIVEN] Set "Qty. to Invoice" to 6
+        PurchaseLine.GetBySystemId(PurchaseLine.SystemId);
+        PurchaseLine.Validate("Qty. to Invoice", 6);
+        PurchaseLine.Modify();
+
+        // [GIVEN] Invoice Purchase Order
+        PostedPurchaseInvoiceNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
+
+        // [GIVEN] Create Purchase Return Order for Vendor "V"
+        Clear(PurchaseHeader);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Return Order", VendorNo);
+
+        // [WHEN] Run "Get Posted Document Lines to Reverse" for PostedPurchaseInvoiceNo
+        LibraryVariableStorage.Enqueue(PostedPurchaseInvoiceNo); // Enqueue value for PostedPurchaseDocumentLinesPageHandler.
+        GetPostedDocToReverseOnPurchReturnOrder(PurchaseHeader."No.");
+
+        // [THEN] Verify that Item Tracking values copied for Purchase Return Order have two lots and "Quantity (Base)" values 4/2
+        Clear(PurchaseLine);
+        PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
+        PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
+        PurchaseLine.SetRange(Type, PurchaseLine.Type::Item);
+        PurchaseLine.FindFirst();
+        PurchaseLine.TestField(Quantity, 6);
+
+        ReservationEntry.SetRange("Source Type", Database::"Purchase Line");
+        ReservationEntry.SetRange("Source Subtype", 5);
+        ReservationEntry.SetRange("Source ID", PurchaseHeader."No.");
+        ReservationEntry.SetRange("Source Ref. No.", PurchaseLine."Line No.");
+        Assert.RecordCount(ReservationEntry, 2);
+
+        ReservationEntry.SetFilter("Lot No.", LotNoWithTwoLots[1]);
+        ReservationEntry.FindFirst();
+        ReservationEntry.TestField("Quantity (Base)", -4);
+
+        ReservationEntry.SetFilter("Lot No.", LotNoWithTwoLots[2]);
+        ReservationEntry.FindFirst();
+        ReservationEntry.TestField("Quantity (Base)", -2);
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesPageHandlerWithSpecificTwoLots')]
+    [Scope('OnPrem')]
+    procedure S458801_PreventPartialPurchaseQtyReturn_OverhandledItemTracking_PurchaseReturnOrder()
+    var
+        Location: Record Location;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        TrackingSpecification: Record "Tracking Specification";
+        ItemNo: Code[20];
+        LocationCode: Code[10];
+        VendorNo: Code[20];
+    begin
+        // [FEATURE] [Purchase Order] [Item Tracking] [Purchase Receipt] [Purchase Return Order] [Partial Return]
+        // [SCENARIO 458801] Prevent posting Purchase Return Order if "Qty. to Handle" in Item Tracking is over Qty. to be returned.
+        Initialize();
+
+        // [GIVEN] Create Item "I" with Lot Tracking
+        ItemNo := CreateTrackedItem('', '', CreateItemTrackingCode(false, true));
+
+        // [GIVEN] Create Location "L"
+        LocationCode := LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+
+        // [GIVEN] Create Vendor "V"
+        VendorNo := LibraryPurchase.CreateVendorNo();
+
+        // [GIVEN] Create Purchase Order for Vendor "V", Location "L", Item "I" with "Quantity" 20
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, VendorNo);
+        CreatePurchaseLine(PurchaseLine, PurchaseHeader, ItemNo, LocationCode, 20);
+
+        // [GIVEN] Define two lots with "Quantity (Base)" 10/10
+        LibraryVariableStorage.Enqueue(TrackingOptionWithTwoLots::OrderDocument); // Enqueue value for ItemTrackingLinesPageHandlerWithSpecificTwoLots.
+        PurchaseLine.OpenItemTrackingLines();
+
+        // [GIVEN] Receive Purchase Order
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
+
+        // [GIVEN] Create Purchase Return Order for Vendor "V", Location "L", Item "I" with "Quantity" 10
+        Clear(PurchaseHeader);
+        Clear(PurchaseLine);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Return Order", VendorNo);
+        CreatePurchaseLine(PurchaseLine, PurchaseHeader, ItemNo, LocationCode, 10);
+
+        // [GIVEN] Set two lots with "Quantity (Base)" 6/4
+        LibraryVariableStorage.Enqueue(TrackingOptionWithTwoLots::ReturnOrderDocument); // Enqueue value for ItemTrackingLinesPageHandlerWithSpecificTwoLots.
+        PurchaseLine.OpenItemTrackingLines();
+
+        // [GIVEN] Set "Return Qty. to Ship" to 2
+        PurchaseLine.GetBySystemId(PurchaseLine.SystemId);
+        PurchaseLine.Validate("Return Qty. to Ship", 2);
+        PurchaseLine.Modify();
+
+        // [WHEN] Ship Purchase Return Order
+        asserterror LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
+
+        // [THEN] Verify that Error is thrown
+        Assert.ExpectedError(StrSubstNo(WrongQtyForItemErr,
+          TrackingSpecification.FieldCaption("Qty. to Handle (Base)"), PurchaseLine."No.", 10, 2, '', LotNoWithTwoLots[2]));
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesPageHandlerWithSpecificTwoLots')]
+    [Scope('OnPrem')]
+    procedure S458801_PreventPartialSalesQtyReturn_OverhandledItemTracking_SalesReturnOrder()
+    var
+        Location: Record Location;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        TrackingSpecification: Record "Tracking Specification";
+        ItemNo: Code[20];
+        LocationCode: Code[10];
+        CustomerNo: Code[20];
+    begin
+        // [FEATURE] [Sales Order] [Item Tracking] [Sales Shipment] [Sales Return Order] [Partial Return]
+        // [SCENARIO 458801] Prevent posting Sales Return Order if "Qty. to Handle" in Item Tracking is over Qty. to be returned.
+        Initialize();
+
+        // [GIVEN] Create Item "I" with Lot Tracking
+        ItemNo := CreateTrackedItem('', '', CreateItemTrackingCode(false, true));
+
+        // [GIVEN] Create Location "L"
+        LocationCode := LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+
+        // [GIVEN] Put Item "I" on Inventory with "Quantity" 20 in two lots with "Quantity (Base)" 10/10
+        PostPositiveAdjustmentWithLotNo(ItemNo, LocationCode, '', 20);
+
+        // [GIVEN] Create Customer "C"
+        CustomerNo := LibrarySales.CreateCustomerNo();
+
+        // [GIVEN] Create Sales Order for Customer "C", Location "L", Item "I" with "Quantity" 20
+        LibrarySales.CreateSalesOrderWithLocation(SalesHeader, CustomerNo, LocationCode);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, 20);
+
+        // [GIVEN] Define two lots with "Quantity (Base)" 10/10
+        LibraryVariableStorage.Enqueue(TrackingOptionWithTwoLots::OrderDocument); // Enqueue value for ItemTrackingLinesPageHandlerWithSpecificTwoLots.
+        SalesLine.OpenItemTrackingLines();
+
+        // [GIVEN] Ship Sales Order
+        LibrarySales.PostSalesDocument(SalesHeader, true, false);
+
+        // [GIVEN] Create Sales Return Order for Customer "C", Location "L", Item "I" with "Quantity" 10
+        Clear(SalesHeader);
+        Clear(SalesLine);
+        LibrarySales.CreateSalesReturnOrderWithLocation(SalesHeader, CustomerNo, LocationCode);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, 10);
+
+        // [GIVEN] Set two lots with "Quantity (Base)" 6/4
+        LibraryVariableStorage.Enqueue(TrackingOptionWithTwoLots::ReturnOrderDocument); // Enqueue value for ItemTrackingLinesPageHandlerWithSpecificTwoLots.
+        SalesLine.OpenItemTrackingLines();
+
+        // [GIVEN] Set "Return Qty. to Receive" to 2
+        SalesLine.GetBySystemId(SalesLine.SystemId);
+        SalesLine.Validate("Return Qty. to Receive", 2);
+        SalesLine.Modify();
+
+        // [WHEN] Receive Sales Return Order
+        asserterror LibrarySales.PostSalesDocument(SalesHeader, true, false);
+
+        // [THEN] Verify that Error is thrown
+        Assert.ExpectedError(StrSubstNo(WrongQtyForItemErr,
+          TrackingSpecification.FieldCaption("Qty. to Handle (Base)"), SalesLine."No.", 10, 2, '', LotNoWithTwoLots[2]));
+    end;
+
     local procedure Initialize()
     var
         AllProfile: Record "All Profile";
@@ -3115,6 +3329,8 @@ codeunit 137262 "SCM Invt Item Tracking III"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Invt Item Tracking III");
         LibraryVariableStorage.Clear();
+        Clear(LotNoWithTwoLots);
+
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Invt Item Tracking III");
@@ -4893,6 +5109,16 @@ codeunit 137262 "SCM Invt Item Tracking III"
         end;
     end;
 
+    local procedure PostPositiveAdjustmentWithLotNo(ItemNo: Code[20]; LocationCode: Code[10]; BinCode: Code[20]; PositiveAdjustmentQuantity: Decimal)
+    var
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, ItemNo, LocationCode, BinCode, PositiveAdjustmentQuantity);
+        LibraryVariableStorage.Enqueue(TrackingOptionWithTwoLots::OrderDocument); // Enqueue value for ItemTrackingLinesPageHandlerWithSpecificTwoLots.
+        ItemJournalLine.OpenItemTrackingLines(false);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+    end;
+
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ConfirmHandlerTrue(Question: Text[1024]; var Reply: Boolean)
@@ -4928,6 +5154,71 @@ codeunit 137262 "SCM Invt Item Tracking III"
                 SelectTrackingEntriesToInvoice;
         end;
         ItemTrackingLines.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ItemTrackingLinesPageHandlerWithSpecificTwoLots(var ItemTrackingLines: TestPage "Item Tracking Lines")
+    var
+        TrackingOptionWithTwoLotsValue: Option;
+    begin
+        TrackingOptionWithTwoLotsValue := LibraryVariableStorage.DequeueInteger;
+        case TrackingOptionWithTwoLotsValue of
+            TrackingOptionWithTwoLots::AssignLotNoWithQtyToHandle:
+                begin
+                    if LotNoWithTwoLots[1] = '' then
+                        LotNoWithTwoLots[1] := LibraryUtility.GenerateGUID();
+                    if LotNoWithTwoLots[2] = '' then
+                        LotNoWithTwoLots[2] := LibraryUtility.GenerateGUID();
+
+                    ItemTrackingLines."Lot No.".SetValue(LotNoWithTwoLots[1]);
+                    ItemTrackingLines."Quantity (Base)".SetValue(6);
+                    ItemTrackingLines."Qty. to Handle (Base)".SetValue(5);
+                    ItemTrackingLines.Next();
+                    ItemTrackingLines."Lot No.".SetValue(LotNoWithTwoLots[2]);
+                    ItemTrackingLines."Quantity (Base)".SetValue(4);
+                    ItemTrackingLines."Qty. to Handle (Base)".SetValue(3);
+                end;
+            TrackingOptionWithTwoLots::ChangeQtyToInvoice:
+                begin
+                    ItemTrackingLines.First();
+                    case ItemTrackingLines."Lot No.".Value() of
+                        LotNoWithTwoLots[1]:
+                            ItemTrackingLines."Qty. to Invoice (Base)".SetValue(4);
+                        LotNoWithTwoLots[2]:
+                            ItemTrackingLines."Qty. to Invoice (Base)".SetValue(2);
+                    end;
+                    ItemTrackingLines.Next();
+                    case ItemTrackingLines."Lot No.".Value() of
+                        LotNoWithTwoLots[1]:
+                            ItemTrackingLines."Qty. to Invoice (Base)".SetValue(4);
+                        LotNoWithTwoLots[2]:
+                            ItemTrackingLines."Qty. to Invoice (Base)".SetValue(2);
+                    end;
+                end;
+            TrackingOptionWithTwoLots::OrderDocument:
+                begin
+                    if LotNoWithTwoLots[1] = '' then
+                        LotNoWithTwoLots[1] := LibraryUtility.GenerateGUID();
+                    if LotNoWithTwoLots[2] = '' then
+                        LotNoWithTwoLots[2] := LibraryUtility.GenerateGUID();
+
+                    ItemTrackingLines."Lot No.".SetValue(LotNoWithTwoLots[1]);
+                    ItemTrackingLines."Quantity (Base)".SetValue(10);
+                    ItemTrackingLines.New();
+                    ItemTrackingLines."Lot No.".SetValue(LotNoWithTwoLots[2]);
+                    ItemTrackingLines."Quantity (Base)".SetValue(10);
+                end;
+            TrackingOptionWithTwoLots::ReturnOrderDocument:
+                begin
+                    ItemTrackingLines."Lot No.".SetValue(LotNoWithTwoLots[1]);
+                    ItemTrackingLines."Quantity (Base)".SetValue(6);
+                    ItemTrackingLines.New();
+                    ItemTrackingLines."Lot No.".SetValue(LotNoWithTwoLots[2]);
+                    ItemTrackingLines."Quantity (Base)".SetValue(4);
+                end;
+        end;
+        ItemTrackingLines.OK.Invoke();
     end;
 
     [ModalPageHandler]
