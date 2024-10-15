@@ -7,7 +7,6 @@
         <DataProvider>SQL</DataProvider>
         <ConnectString />
       </ConnectionProperties>
-      <rd:SecurityType>None</rd:SecurityType>
       <rd:DataSourceID>d56a4d20-e547-49b8-bb8d-f3c0b8b8dab8</rd:DataSourceID>
     </DataSource>
   </DataSources>
@@ -828,7 +827,7 @@
                                     </TablixCells>
                                   </TablixRow>
                                   <TablixRow>
-                                    <Height>0.13889in</Height>
+                                    <Height>0.35278cm</Height>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
@@ -1077,7 +1076,7 @@
                                     </TablixCells>
                                   </TablixRow>
                                   <TablixRow>
-                                    <Height>0.13889in</Height>
+                                    <Height>0.35278cm</Height>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
@@ -3688,7 +3687,7 @@
                                 </Filter>
                               </Filters>
                               <Left>0.01537cm</Left>
-                              <Height>4.58607cm</Height>
+                              <Height>4.58608cm</Height>
                               <Width>17.95724cm</Width>
                               <Style>
                                 <FontFamily>Segoe UI</FontFamily>
@@ -6889,7 +6888,7 @@
                               <Top>4.67079cm</Top>
                               <Left>0.01537cm</Left>
                               <Height>2.78694cm</Height>
-                              <Width>17.94208cm</Width>
+                              <Width>17.94201cm</Width>
                               <ZIndex>1</ZIndex>
                               <Visibility>
                                 <Hidden>=iif(Sum(Fields!VALVATAmount.Value)&lt;&gt;0,FALSE,TRUE)</Hidden>
@@ -9296,8 +9295,8 @@
                               <DataSetName>DataSet_Result</DataSetName>
                               <Top>7.49097cm</Top>
                               <Left>0.01537cm</Left>
-                              <Height>3.17497cm</Height>
-                              <Width>17.94203cm</Width>
+                              <Height>3.17498cm</Height>
+                              <Width>17.94205cm</Width>
                               <ZIndex>2</ZIndex>
                               <Visibility>
                                 <Hidden>=iif(Sum(Fields!VALVATBaseLCY.Value)&lt;&gt;0,FALSE,TRUE)</Hidden>
@@ -9507,7 +9506,7 @@
                               <Top>4.29399cm</Top>
                               <Left>0.01537cm</Left>
                               <Height>0.35278cm</Height>
-                              <Width>17.9419cm</Width>
+                              <Width>17.94177cm</Width>
                               <ZIndex>3</ZIndex>
                               <Style>
                                 <FontFamily>Segoe UI</FontFamily>
@@ -9593,7 +9592,9 @@ Cstr(Fields!HomePageCaption.Value) + Chr(177) +
 Cstr(Fields!EMailCaption.Value) + Chr(177) +
 Cstr(Fields!EnterpriseClassification.Value) + Chr(177) + 
 Cstr(Fields!CompanyInfoHomePage.Value) + Chr(177) + 
-Cstr(Fields!CompanyInfoEMail.Value)
+Cstr(Fields!CompanyInfoEMail.Value) + Chr(177) + 
+Cstr(Fields!KundeIDCaption.Value) + Chr(177) + 
+Cstr(Fields!KundeID.Value)
 , 1)</Hidden>
                                             </Visibility>
                                             <Style>
@@ -9651,7 +9652,7 @@ Cstr(Fields!CompanyInfoEMail.Value)
                               <Top>0.02116cm</Top>
                               <Left>0.11274cm</Left>
                               <Height>0.25603cm</Height>
-                              <Width>3.31572cm</Width>
+                              <Width>3.31571cm</Width>
                               <ZIndex>4</ZIndex>
                               <Visibility>
                                 <Hidden>true</Hidden>
@@ -10414,7 +10415,7 @@ Cstr(Fields!CompanyInfoEMail.Value)
                               </Filters>
                               <Top>10.82233cm</Top>
                               <Height>2.11666cm</Height>
-                              <Width>17.94187cm</Width>
+                              <Width>17.94189cm</Width>
                               <ZIndex>6</ZIndex>
                               <Visibility>
                                 <Hidden>=(Fields!VATClausesCaption.Value = "")</Hidden>
@@ -11927,12 +11928,75 @@ Cstr(Fields!CompanyInfoEMail.Value)
               <Left>11.06249cm</Left>
               <Height>11pt</Height>
               <Width>6.84413cm</Width>
-              <ZIndex>48</ZIndex>
+              <ZIndex>47</ZIndex>
               <Style>
                 <Border />
                 <FontFamily>Segoe UI</FontFamily>
                 <FontSize>8pt</FontSize>
                 <VerticalAlign>Middle</VerticalAlign>
+              </Style>
+            </Textbox>
+            <Textbox Name="KundeID">
+              <CanGrow>true</CanGrow>
+              <KeepTogether>true</KeepTogether>
+              <Paragraphs>
+                <Paragraph>
+                  <TextRuns>
+                    <TextRun>
+                      <Value>=Code.GetData(47,1)</Value>
+                      <Style>
+                        <FontFamily>Segoe UI</FontFamily>
+                        <FontSize>8pt</FontSize>
+                        <Format>g</Format>
+                      </Style>
+                    </TextRun>
+                  </TextRuns>
+                  <Style>
+                    <FontFamily>Segoe UI</FontFamily>
+                    <FontSize>8pt</FontSize>
+                    <TextAlign>Left</TextAlign>
+                  </Style>
+                </Paragraph>
+              </Paragraphs>
+              <Top>247.79997pt</Top>
+              <Left>2.85622cm</Left>
+              <Height>11pt</Height>
+              <Width>8.1556cm</Width>
+              <ZIndex>48</ZIndex>
+              <Style>
+                <Border>
+                  <Style>None</Style>
+                </Border>
+                <FontFamily>Segoe UI</FontFamily>
+                <FontSize>8pt</FontSize>
+                <VerticalAlign>Middle</VerticalAlign>
+              </Style>
+            </Textbox>
+            <Textbox Name="KundeIDLbl">
+              <CanGrow>true</CanGrow>
+              <KeepTogether>true</KeepTogether>
+              <Paragraphs>
+                <Paragraph>
+                  <TextRuns>
+                    <TextRun>
+                      <Value>=Code.GetData(46,1)</Value>
+                      <Style>
+                        <FontFamily>Segoe UI</FontFamily>
+                        <FontSize>8pt</FontSize>
+                      </Style>
+                    </TextRun>
+                  </TextRuns>
+                  <Style />
+                </Paragraph>
+              </Paragraphs>
+              <Top>248.69998pt</Top>
+              <Height>11pt</Height>
+              <Width>2.67983cm</Width>
+              <ZIndex>49</ZIndex>
+              <Style>
+                <Border>
+                  <Style>None</Style>
+                </Border>
               </Style>
             </Textbox>
           </ReportItems>
@@ -12238,6 +12302,12 @@ End Function
         </Field>
         <Field Name="EnterpriseClassification">
           <DataField>EnterpriseClassification</DataField>
+        </Field>
+        <Field Name="KundeIDCaption">
+          <DataField>KundeIDCaption</DataField>
+        </Field>
+        <Field Name="KundeID">
+          <DataField>KundeID</DataField>
         </Field>
         <Field Name="DimText">
           <DataField>DimText</DataField>

@@ -1069,6 +1069,45 @@ codeunit 144003 "Trade Settlement 2017 - Excel"
         VerifyBoxVATAmount(19, 0); // Tax to pay
     end;
 
+    [Test]
+    [HandlerFunctions('TradeSettlementRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure TradeSettlementPrintsVATEntriesWithBlankVATBusPostingGroup()
+    var
+        VATProductPostingGroup: Record "VAT Product Posting Group";
+        VATPostingSetup: Record "VAT Posting Setup";
+        VATEntry: Record "VAT Entry";
+    begin
+        // [SCENARIO 331869] Trade settlement report prints VAT entries with blank VAT Bus. Posting Group.
+
+        // [GIVEN] VAT Posting Setup with blank "VAT Bus. Posting Group".
+        LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
+        LibraryERM.CreateVATPostingSetup(VATPostingSetup, '', VATProductPostingGroup.Code);
+
+        // [GIVEN] VAT Entry with this VAT Posting Setup. Amount = "X".
+        with VATEntry do begin
+            Init;
+            "Entry No." := LibraryUtility.GetNewRecNo(VATEntry, FieldNo("Entry No."));
+            "VAT Bus. Posting Group" := VATPostingSetup."VAT Bus. Posting Group";
+            "VAT Prod. Posting Group" := VATPostingSetup."VAT Prod. Posting Group";
+            Type := Type::Sale;
+            "Posting Date" := WorkDate;
+            Amount := LibraryRandom.RandDecInRange(100, 200, 2);
+            Insert;
+        end;
+
+        // [WHEN] Run Trade Settlement 2017 report.
+        Commit;
+        VATEntry.SetRecFilter;
+        RunTradeSettlement2017Report(VATEntry);
+
+        // [THEN] The report shows the VAT Entry with blank "VAT Bus. Posting Group", VAT Amount = "X".
+        LibraryReportValidation.OpenExcelFile;
+        LibraryReportValidation.VerifyCellValueOnWorksheet(
+          LibraryReportValidation.FindRowNoFromColumnNoAndValue(1, 'Total Sale'), 12,
+          LibraryReportValidation.FormatDecimalValue(VATEntry.Amount), '1');
+    end;
+
     local procedure CreateCustomer(var VATPostingSetup: Record "VAT Posting Setup"; VATSettlementRate: Option; ReportBoxNo: Option): Code[20]
     begin
         CreateVATPostingSetup(

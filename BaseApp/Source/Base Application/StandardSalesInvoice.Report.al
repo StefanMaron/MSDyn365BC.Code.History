@@ -409,6 +409,12 @@ report 1306 "Standard Sales - Invoice"
             column(PaymentInstructions_Txt; PaymentInstructionsTxt)
             {
             }
+            column(KundeIDCaption; KundeTxt)
+            {
+            }
+            column(KundeID; KundeID)
+            {
+            }
             dataitem(Line; "Sales Invoice Line")
             {
                 DataItemLink = "Document No." = FIELD("No.");
@@ -1049,6 +1055,8 @@ report 1306 "Standard Sales - Invoice"
                 PaymentServiceSetup: Record "Payment Service Setup";
                 EnvInfoProxy: Codeunit "Env. Info Proxy";
                 O365SalesInvoiceMgmt: Codeunit "O365 Sales Invoice Mgmt";
+                DocumentTools: Codeunit DocumentTools;
+
             begin
                 if EnvInfoProxy.IsInvoicing then begin
                     "Language Code" := Language.GetUserLanguageCode;
@@ -1107,6 +1115,8 @@ report 1306 "Standard Sales - Invoice"
                 TotalAmountVAT := 0;
                 TotalAmountInclVAT := 0;
                 TotalPaymentDiscOnVAT := 0;
+
+                DocumentTools.GetKundeID(KundeTxt, KundeID, 1, "No.", "Bill-to Customer No.");
             end;
 
             trigger OnPreDataItem()
@@ -1138,7 +1148,7 @@ report 1306 "Standard Sales - Invoice"
                     {
                         ApplicationArea = Assembly;
                         Caption = 'Show Assembly Components';
-                        ToolTip = 'Specifies if you want the report to include information about components that were used in linked assembly orders that supplied the item(s) being sold.';
+                        ToolTip = 'Specifies if you want the report to include information about components that were used in linked assembly orders that supplied the item(s) being sold. (Only possible for RDLC report layout.)';
                     }
                     field(DisplayShipmentInformation; DisplayShipmentInformation)
                     {
@@ -1334,6 +1344,8 @@ report 1306 "Standard Sales - Invoice"
         QtyLbl: Label 'Qty', Comment = 'Short form of Quantity';
         PriceLbl: Label 'Price';
         PricePerLbl: Label 'Price per';
+        KundeTxt: Text;
+        KundeID: Text[25];
 
     local procedure InitLogInteraction()
     begin

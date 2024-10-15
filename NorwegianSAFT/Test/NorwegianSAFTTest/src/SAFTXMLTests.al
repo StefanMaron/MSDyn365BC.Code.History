@@ -12,6 +12,7 @@ codeunit 148103 "SAF-T XML Tests"
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryRandom: Codeunit "Library - Random";
+        LibraryUtility: Codeunit "Library - Utility";
         SAFTTestHelper: Codeunit "SAF-T Test Helper";
         Assert: Codeunit Assert;
         SAFTMappingType: Enum "SAF-T Mapping Type";
@@ -197,6 +198,8 @@ codeunit 148103 "SAF-T XML Tests"
         j: Integer;
     begin
         // [SCENARIO 309923] The structure of the XML file with General Ledger Entries is correct
+        // [SCENARIO 331600] "NumberOfEntries" contains the number of transactions
+        // [SCENARIO 334997] "ReferenceNumber" xml node exports after "TaxInformation" section
 
         Initialize();
         SetupSAFT(SAFTMappingRange, SAFTMappingType::"Four Digit Standard Account", LibraryRandom.RandInt(5));
@@ -234,6 +237,110 @@ codeunit 148103 "SAF-T XML Tests"
         VerifyGLEntriesGroupedBySAFTSourceCode(
             TempXMLBuffer, TempSAFTSourceCode, EntriesInTransactionNumber, SAFTExportLine."Starting Date", SAFTExportLine."Ending Date",
             SAFTAnalysisType, DimValueCode);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmYesHandler')]
+    procedure CustomerIDExportsOncePerLine()
+    var
+        SAFTMappingRange: Record "SAF-T Mapping Range";
+        SAFTExportHeader: Record "SAF-T Export Header";
+        SAFTExportLine: Record "SAF-T Export Line";
+        TempXMLBuffer: Record "XML Buffer" temporary;
+        GLAccount: Record "G/L Account";
+        Customer: Record Customer;
+        GLEntry: Record "G/L Entry";
+        DocNo: Code[20];
+    begin
+        // [SCENARIO 331600] "CustomerID" xml node exports only once per document
+
+        Initialize();
+
+        SetupSAFT(SAFTMappingRange, SAFTMappingType::"Four Digit Standard Account", LibraryRandom.RandInt(5));
+        MatchGLAccountsFourDigit(SAFTMappingRange.Code);
+        SAFTTestHelper.CreateSAFTExportHeader(SAFTExportHeader, SAFTMappingRange.Code);
+
+        DocNo := LibraryUtility.GenerateGUID();
+        GLAccount.SetRange("Income/Balance", GLAccount."Income/Balance"::"Balance Sheet");
+        GLAccount.FindFirst();
+        Customer.FindFirst();
+        SAFTTestHelper.IncludesNoSourceCodeToTheFirstSAFTSourceCode();
+
+        // [GIVEN] Two G/L Entries with the same document/transaction, one  with "Gen. Posting Type" = Sales, one with blank value
+        SAFTTestHelper.MockGLEntry(
+            SAFTExportHeader."Ending Date", DocNo, GLAccount."No.",
+            1, 0, GLEntry."Gen. Posting Type"::Sale, '',
+            '', GLEntry."Source Type"::Customer, Customer."No.", '', LibraryRandom.RandDec(100, 2), 0);
+        SAFTTestHelper.MockGLEntry(
+            SAFTExportHeader."Ending Date", DocNo, GLAccount."No.",
+            1, 0, 0, '',
+            '', GLEntry."Source Type"::Customer, Customer."No.", '', LibraryRandom.RandDec(100, 2), 0);
+
+        // [WHEN] Export G/L Entries to the XML file
+        LibraryVariableStorage.Enqueue(GenerateSAFTFileImmediatelyQst);
+        SAFTTestHelper.RunSAFTExport(SAFTExportHeader);
+        SAFTExportLine.SetRange("Master Data", false);
+        FindSAFTExportLine(SAFTExportLine, SAFTExportHeader.ID);
+        LoadXMLBufferFromSAFTExportLine(TempXMLBuffer, SAFTExportLine);
+
+        // [THEN] CustomerID xml node exists just once in the XML file
+        Assert.IsTrue(
+            TempXMLBuffer.FindNodesByXPath(TempXMLBuffer,
+                '/nl:AuditFile/nl:GeneralLedgerEntries/nl:Journal/nl:Transaction/nl:Line/nl:CustomerID'),
+                'No G/L entries with CustomerID exported.');
+        Assert.RecordCount(TempXMLBuffer, 1);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmYesHandler')]
+    procedure SupplierIDExportsOncePerLine()
+    var
+        SAFTMappingRange: Record "SAF-T Mapping Range";
+        SAFTExportHeader: Record "SAF-T Export Header";
+        SAFTExportLine: Record "SAF-T Export Line";
+        TempXMLBuffer: Record "XML Buffer" temporary;
+        GLAccount: Record "G/L Account";
+        Vendor: Record Customer;
+        GLEntry: Record "G/L Entry";
+        DocNo: Code[20];
+    begin
+        // [SCENARIO 331600] "SupplierID" xml node exports only once per document
+
+        Initialize();
+
+        SetupSAFT(SAFTMappingRange, SAFTMappingType::"Four Digit Standard Account", LibraryRandom.RandInt(5));
+        MatchGLAccountsFourDigit(SAFTMappingRange.Code);
+        SAFTTestHelper.CreateSAFTExportHeader(SAFTExportHeader, SAFTMappingRange.Code);
+
+        DocNo := LibraryUtility.GenerateGUID();
+        GLAccount.SetRange("Income/Balance", GLAccount."Income/Balance"::"Balance Sheet");
+        GLAccount.FindFirst();
+        Vendor.FindFirst();
+        SAFTTestHelper.IncludesNoSourceCodeToTheFirstSAFTSourceCode();
+
+        // [GIVEN] Two G/L Entries with the same document/transaction, one  with "Gen. Posting Type" = Sales, one with blank value
+        SAFTTestHelper.MockGLEntry(
+            SAFTExportHeader."Ending Date", DocNo, GLAccount."No.",
+            1, 0, GLEntry."Gen. Posting Type"::Sale, '',
+            '', GLEntry."Source Type"::Vendor, Vendor."No.", '', LibraryRandom.RandDec(100, 2), 0);
+        SAFTTestHelper.MockGLEntry(
+            SAFTExportHeader."Ending Date", DocNo, GLAccount."No.",
+            1, 0, 0, '',
+            '', GLEntry."Source Type"::Vendor, Vendor."No.", '', LibraryRandom.RandDec(100, 2), 0);
+
+        // [WHEN] Export G/L Entries to the XML file
+        LibraryVariableStorage.Enqueue(GenerateSAFTFileImmediatelyQst);
+        SAFTTestHelper.RunSAFTExport(SAFTExportHeader);
+        SAFTExportLine.SetRange("Master Data", false);
+        FindSAFTExportLine(SAFTExportLine, SAFTExportHeader.ID);
+        LoadXMLBufferFromSAFTExportLine(TempXMLBuffer, SAFTExportLine);
+
+        // [THEN] SupplierID xml node exists just once in the XML file
+        Assert.IsTrue(
+            TempXMLBuffer.FindNodesByXPath(TempXMLBuffer,
+                '/nl:AuditFile/nl:GeneralLedgerEntries/nl:Journal/nl:Transaction/nl:Line/nl:SupplierID'),
+                'No G/L entries with CustomerID exported.');
+        Assert.RecordCount(TempXMLBuffer, 1);
     end;
 
     local procedure Initialize()
@@ -285,10 +392,31 @@ codeunit 148103 "SAF-T XML Tests"
         exit(CalcDate('<CY+1D>', GLEntry."Posting Date"));
     end;
 
+    local procedure CalcNumberOfTransactions(var GLEntry: Record "G/L Entry") NumberOfTransactions: Integer
+    begin
+        GLEntry.SetCurrentKey("Transaction No.");
+        GLEntry.FindSet();
+        repeat
+            GLEntry.SetRange("Transaction No.", GLEntry."Transaction No.");
+            GLEntry.FindLast();
+            NumberOfTransactions += 1;
+            GLEntry.SetRange("Transaction No.");
+        until GLEntry.Next() = 0;
+    end;
+
     local procedure FindSAFTExportLine(var SAFTExportLine: Record "SAF-T Export Line"; ExportID: Integer)
     begin
         SAFTExportLine.SetRange(ID, ExportID);
         SAFTExportLine.FindSet();
+    end;
+
+    local procedure FindGLEntryWithGenPostingType(var GLEntry: Record "G/L Entry"; DocType: Integer; PostingDate: Date; DocNo: Code[20])
+    begin
+        GLEntry.SetRange("Document Type", DocType);
+        GLEntry.SetRange("Posting Date", PostingDate);
+        GLEntry.SetRange("Document No.", DocNo);
+        GLEntry.SetFilter("Gen. Posting Type", '<>%1', 0);
+        GLEntry.FindFirst();
     end;
 
     local procedure LoadXMLBufferFromSAFTExportLine(var TempXMLBuffer: Record "XML Buffer" temporary; SAFTExportLine: Record "SAF-T Export Line")
@@ -630,10 +758,10 @@ codeunit 148103 "SAF-T XML Tests"
         SourceCode: Record "Source Code";
     begin
         GLEntry.SetRange("Posting Date", StartingDate, EndingDate);
-        GLEntry.CalcSums("Debit Amount", "Credit Amount");
         TempXMLBuffer.Reset();
         Assert.IsTrue(TempXMLBuffer.FindNodesByXPath(TempXMLBuffer, '/nl:AuditFile/nl:GeneralLedgerEntries'), 'No G/L entries exported.');
-        SAFTTestHelper.AssertElementValue(TempXMLBuffer, 'nl:NumberOfEntries', Format(GLEntry.Count()));
+        SAFTTestHelper.AssertElementValue(TempXMLBuffer, 'nl:NumberOfEntries', format(CalcNumberOfTransactions(GLEntry)));
+        GLEntry.CalcSums("Debit Amount", "Credit Amount");
         SAFTTestHelper.AssertElementValue(TempXMLBuffer, 'nl:TotalDebit', SAFTTestHelper.FormatAmount(GLEntry."Debit Amount"));
         SAFTTestHelper.AssertElementValue(TempXMLBuffer, 'nl:TotalCredit', SAFTTestHelper.FormatAmount(GLEntry."Credit Amount"));
         TempSAFTSourceCode.FindSet();
@@ -698,8 +826,8 @@ codeunit 148103 "SAF-T XML Tests"
         SAFTTestHelper.AssertElementValue(TempXMLBuffer, 'nl:Description', GLEntry.Description);
         SAFTExportMgt.GetAmountInfoFromGLEntry(AmountXMLNode, Amount, GLEntry);
         VerifyAmountInfo(TempXMLBuffer, AmountXMLNode, Amount);
-        SAFTTestHelper.AssertElementValue(TempXMLBuffer, 'nl:ReferenceNumber', GLEntry."External Document No.");
         VerifySalesVATEntry(TempXMLBuffer, GLEntry);
+        SAFTTestHelper.AssertElementValue(TempXMLBuffer, 'nl:ReferenceNumber', GLEntry."External Document No.");
     end;
 
     local procedure VerifySalesVATEntry(var TempXMLBuffer: Record "XML Buffer" temporary; GLEntry: Record "G/L Entry")

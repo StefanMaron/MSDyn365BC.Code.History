@@ -4512,7 +4512,9 @@ Cstr(Fields!PaymentTermsDescCaption.Value) + Chr(177) +
 Cstr(Fields!ShptMethodDescCaption.Value) + Chr(177) + 
 Cstr(Fields!EMailCaption.Value) + Chr(177) + 
 Cstr(Fields!HomePageCaption.Value) + Chr(177) +
-Cstr(Fields!EnterpriseRegister.Value)
+Cstr(Fields!EnterpriseRegister.Value)  + Chr(177) + 
+Cstr(Fields!KundeIDCaption.Value) + Chr(177) + 
+Cstr(Fields!KundeID.Value)
 , 1)</Hidden>
                                             </Visibility>
                                             <Style>
@@ -6930,7 +6932,7 @@ Cstr(Fields!EnterpriseRegister.Value)
         <Height>22.39783cm</Height>
         <Style />
       </Body>
-      <Width>18cm</Width>
+      <Width>18.1632cm</Width>
       <Page>
         <PageHeader>
           <Height>10.7254cm</Height>
@@ -8468,9 +8470,63 @@ Cstr(Fields!EnterpriseRegister.Value)
               <Left>15.00045cm</Left>
               <Height>11pt</Height>
               <Width>3.16275cm</Width>
-              <ZIndex>51</ZIndex>
+              <ZIndex>50</ZIndex>
               <Style>
                 <Border />
+                <VerticalAlign>Top</VerticalAlign>
+              </Style>
+            </Textbox>
+            <Textbox Name="SalesInvPricesInclVAT2">
+              <KeepTogether>true</KeepTogether>
+              <Paragraphs>
+                <Paragraph>
+                  <TextRuns>
+                    <TextRun>
+                      <Value>=Code.GetData(57,1)</Value>
+                      <Style>
+                        <FontFamily>Segoe UI</FontFamily>
+                        <FontSize>8pt</FontSize>
+                      </Style>
+                    </TextRun>
+                  </TextRuns>
+                  <Style>
+                    <TextAlign>Left</TextAlign>
+                  </Style>
+                </Paragraph>
+              </Paragraphs>
+              <Top>10.15091cm</Top>
+              <Left>3.22141cm</Left>
+              <Height>11pt</Height>
+              <Width>8.78033cm</Width>
+              <ZIndex>51</ZIndex>
+              <Style>
+                <VerticalAlign>Top</VerticalAlign>
+              </Style>
+            </Textbox>
+            <Textbox Name="SalesInvPricesInclVATCaption2">
+              <KeepTogether>true</KeepTogether>
+              <Paragraphs>
+                <Paragraph>
+                  <TextRuns>
+                    <TextRun>
+                      <Value>=Code.GetData(56,1)</Value>
+                      <Style>
+                        <FontFamily>Segoe UI</FontFamily>
+                        <FontSize>8pt</FontSize>
+                      </Style>
+                    </TextRun>
+                  </TextRuns>
+                  <Style>
+                    <TextAlign>Left</TextAlign>
+                  </Style>
+                </Paragraph>
+              </Paragraphs>
+              <Top>10.13679cm</Top>
+              <Left>0.00653cm</Left>
+              <Height>11pt</Height>
+              <Width>1.25036in</Width>
+              <ZIndex>52</ZIndex>
+              <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
             </Textbox>
@@ -8788,6 +8844,12 @@ End Function</Code>
         </Field>
         <Field Name="PricesInclVAT_SalesInvHdrCaption">
           <DataField>PricesInclVAT_SalesInvHdrCaption</DataField>
+        </Field>
+        <Field Name="KundeIDCaption">
+          <DataField>KundeIDCaption</DataField>
+        </Field>
+        <Field Name="KundeID">
+          <DataField>KundeID</DataField>
         </Field>
         <Field Name="DimText">
           <DataField>DimText</DataField>

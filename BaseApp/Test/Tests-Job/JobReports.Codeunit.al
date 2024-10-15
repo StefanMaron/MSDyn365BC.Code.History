@@ -20,7 +20,9 @@ codeunit 136906 "Job Reports"
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryService: Codeunit "Library - Service";
         LibraryReportDataset: Codeunit "Library - Report Dataset";
+        LibraryReportValidation: Codeunit "Library - Report Validation";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibraryUtility: Codeunit "Library - Utility";
         IsInitialized: Boolean;
         GLAccountCap: Label 'GLAcc__No__', Locked = true;
         WIPAmountCap: Label 'JobBuffer__Amount_1_', Locked = true;
@@ -48,7 +50,7 @@ codeunit 136906 "Job Reports"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerMultipleResponses,MessageHandler,JobWIPToGLReportHandler')]
+    [HandlerFunctions('ConfirmHandlerMultipleResponses,MessageHandler,JobWIPToGLRequestPageHandler')]
     [Scope('OnPrem')]
     procedure JobWIPToGLBeforeJobPostWIPToGL()
     var
@@ -76,7 +78,7 @@ codeunit 136906 "Job Reports"
     end;
 
     [Test]
-    [HandlerFunctions('JobPostWIPToGLHandler,ConfirmHandlerMultipleResponses,MessageHandler,JobWIPToGLReportHandler')]
+    [HandlerFunctions('JobPostWIPToGLHandler,ConfirmHandlerMultipleResponses,MessageHandler,JobWIPToGLRequestPageHandler')]
     [Scope('OnPrem')]
     procedure JobWIPToGLAfterJobPostWIPToGL()
     var
@@ -98,6 +100,33 @@ codeunit 136906 "Job Reports"
 
         // 3. Verify: Verify WIP Amount On Job WIP To G/L report.
         VerifyWIPAmountOnJobWIPToGL(Job."Job Posting Group", -TotalCost);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('JobWIPToGLToExcelRequestPageHandler')]
+    procedure JobWIPToGLSaveToExcel()
+    var
+        Job: Record Job;
+        JobWipGLEntry: Record "Job WIP G/L Entry";
+    begin
+        // [SCENARIO 332702] Run report "Job WIP To G/L" with saving results to Excel file.
+        Initialize;
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
+
+        // [GIVEN] Job and Job WIP G/L Entry.
+        LibraryJob.CreateJob(Job);
+        MockJobWipGLEntry(Job."No.");
+        Commit();
+
+        // [WHEN] Run report "Job WIP To G/L", save report output to Excel file.
+        Job.SetRecFilter();
+        Report.Run(Report::"Job WIP To G/L", true, false, Job);
+
+        // [THEN] Report output is saved to Excel file.
+        LibraryReportValidation.OpenExcelFile();
+        LibraryReportValidation.VerifyCellValue(1, 7, '1'); // page number
+        Assert.AreNotEqual(0, LibraryReportValidation.FindColumnNoFromColumnCaption('Job WIP To G/L'), '');
     end;
 
     local procedure CreateAndPostJobJournalLine(var JobJournalLine: Record "Job Journal Line"; JobTask: Record "Job Task"; JobPlanningLine: Record "Job Planning Line")
@@ -158,6 +187,20 @@ codeunit 136906 "Job Reports"
         LibraryJob.CreateJob(Job);
         Job.Validate("WIP Method", WIPMethod);
         Job.Modify(true);
+    end;
+
+    local procedure MockJobWipGLEntry(JobNo: Code[20])
+    var
+        JobWipGLEntry: Record "Job WIP G/L Entry";
+    begin
+        JobWipGLEntry.Init();
+        JobWIPGLEntry."Job No." := JobNo;
+        JobWIPGLEntry.Reversed := false;
+        JobWIPGLEntry."Job Complete" := false;
+        JobWipGLEntry."Posting Date" := WorkDate();
+        JobWipGLEntry."G/L Account No." := LibraryERM.CreateGLAccountNo();
+        JobWipGLEntry."WIP Entry Amount" := LibraryRandom.RandDecInRange(100, 200, 2);
+        JobWipGLEntry.Insert();
     end;
 
     local procedure RunJobCalculateWIP(Job: Record Job)
@@ -236,9 +279,16 @@ codeunit 136906 "Job Reports"
 
     [RequestPageHandler]
     [Scope('OnPrem')]
-    procedure JobWIPToGLReportHandler(var JobWIPtoGLRequestPage: TestRequestPage "Job WIP To G/L")
+    procedure JobWIPToGLRequestPageHandler(var JobWIPtoGLRequestPage: TestRequestPage "Job WIP To G/L")
     begin
         JobWIPtoGLRequestPage.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure JobWIPToGLToExcelRequestPageHandler(var JobWIPtoGLRequestPage: TestRequestPage "Job WIP To G/L")
+    begin
+        JobWIPtoGLRequestPage.SaveAsExcel(LibraryReportValidation.GetFileName());
     end;
 
     [ConfirmHandler]

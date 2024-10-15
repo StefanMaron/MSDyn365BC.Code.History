@@ -158,10 +158,9 @@ page 1190 "Create Payment"
                             TempPaymentBuffer."Payment Method Code" := Vendor."Payment Method Code";
                     end else
                         TempPaymentBuffer."Payment Method Code" := VendorLedgerEntry."Payment Method Code";
-                    TempPaymentBuffer."Creditor No." := VendorLedgerEntry."Creditor No.";
-                    TempPaymentBuffer."Payment Reference" := VendorLedgerEntry."Payment Reference";
-                    TempPaymentBuffer."Exported to Payment File" := VendorLedgerEntry."Exported to Payment File";
-                    TempPaymentBuffer."Applies-to Ext. Doc. No." := VendorLedgerEntry."External Document No.";
+
+                    TempPaymentBuffer.CopyFieldsFromVendorLedgerEntry(VendorLedgerEntry);
+
                     OnUpdateTempBufferFromVendorLedgerEntry(TempPaymentBuffer, VendorLedgerEntry);
                     TempPaymentBuffer."Dimension Entry No." := 0;
                     TempPaymentBuffer."Global Dimension 1 Code" := '';
@@ -249,10 +248,8 @@ page 1190 "Create Payment"
                     "Applies-to Doc. No." := TempPaymentBuffer."Vendor Ledg. Entry Doc. No.";
                     Validate("Payment Method Code", TempPaymentBuffer."Payment Method Code");
 
-                    "Creditor No." := TempPaymentBuffer."Creditor No.";
-                    "Payment Reference" := TempPaymentBuffer."Payment Reference";
-                    "Exported to Payment File" := TempPaymentBuffer."Exported to Payment File";
-                    "Applies-to Ext. Doc. No." := TempPaymentBuffer."Applies-to Ext. Doc. No.";
+                    TempPaymentBuffer.CopyFieldsToGenJournalLine(GenJnlLine);
+
                     OnBeforeUpdateGnlJnlLineDimensionsFromTempBuffer(GenJnlLine, TempPaymentBuffer);
                     UpdateDimensions(GenJnlLine, TempPaymentBuffer);
                     Insert;

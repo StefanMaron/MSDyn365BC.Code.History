@@ -471,6 +471,18 @@
                 fixed(Control1903561801)
                 {
                     ShowCaption = false;
+                    group("Number of Lines")
+                    {
+                        Caption = 'Number of Lines';
+                        field(NumberOfJournalRecords; Count)
+                        {
+                            ApplicationArea = All;
+                            AutoFormatType = 1;
+                            ShowCaption = false;
+                            Editable = false;
+                            ToolTip = 'Specifies the number of lines in the current journal batch.';
+                        }
+                    }
                     group("Account Name")
                     {
                         Caption = 'Account Name';
@@ -587,7 +599,13 @@
                         OCRSetup: Record "OCR Setup";
                         ReadBBSRep: Report "OCR Payment - BBS";
                         ReadDataDlgRep: Report "OCR Payment - Data Dialog";
+                        IsHandled: Boolean;
                     begin
+                        IsHandled := false;
+                        OnBeforeImportPayments(Rec, IsHandled);
+                        if IsHandled then
+                            exit;
+
                         OCRSetup.Get;
                         case OCRSetup.Format of
                             OCRSetup.Format::"Data Dialog":
@@ -1339,6 +1357,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidateShortcutDimCode(var GenJournalLine: Record "Gen. Journal Line"; var ShortcutDimCode: array[8] of Code[20]; DimIndex: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeImportPayments(var GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
     begin
     end;
 }

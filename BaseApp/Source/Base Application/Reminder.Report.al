@@ -187,6 +187,12 @@ report 117 Reminder
                 column(EnterpriseClassification; CompanyInfo.GetEnterpriseClassification)
                 {
                 }
+                column(KundeIDCaption; KundeTxt)
+                {
+                }
+                column(KundeID; KundeID)
+                {
+                }
                 dataitem(DimensionLoop; "Integer")
                 {
                     DataItemLinkReference = "Issued Reminder Header";
@@ -627,6 +633,7 @@ report 117 Reminder
                 GLAcc: Record "G/L Account";
                 CustPostingGroup: Record "Customer Posting Group";
                 VATPostingSetup: Record "VAT Posting Setup";
+                DocumentTools: Codeunit DocumentTools;
             begin
                 CurrReport.Language := Language.GetLanguageIdOrDefault("Language Code");
 
@@ -685,6 +692,8 @@ report 117 Reminder
                 NNC_VATAmount := 0;
                 NNC_TotalInclVAT := 0;
                 TotalRemAmt := 0;
+
+                DocumentTools.GetKundeID(KundeTxt, KundeID, 3, "No.", "Customer No.");
             end;
 
             trigger OnPreDataItem()
@@ -882,6 +891,8 @@ report 117 Reminder
         RemainingAmt: Text;
         TotalRemAmt: Decimal;
         ShowMIRLines: Boolean;
+        KundeTxt: Text;
+        KundeID: Text[25];
 
     local procedure IsReportInPreviewMode(): Boolean
     var

@@ -197,7 +197,7 @@ page 435 "Reminder Lines"
         TypeIsGLAccount: Boolean;
         TypeIsCustomerLedgerEntry: Boolean;
 
-    local procedure InsertExtendedText(Unconditionally: Boolean)
+    procedure InsertExtendedText(Unconditionally: Boolean)
     begin
         OnBeforeInsertExtendedText(Rec);
 

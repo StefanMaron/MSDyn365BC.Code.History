@@ -526,7 +526,7 @@
         CODEUNIT.Run(CODEUNIT::"Service-Get Shipment", Rec);
     end;
 
-    local procedure InsertExtendedText(Unconditionally: Boolean)
+    procedure InsertExtendedText(Unconditionally: Boolean)
     begin
         OnBeforeInsertExtendedText(Rec);
         if TransferExtendedText.ServCheckIfAnyExtText(Rec, Unconditionally) then begin

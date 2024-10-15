@@ -37,6 +37,12 @@ table 10602 "VAT Code"
             OptionCaption = ' ,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19';
             OptionMembers = " ","1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19";
         }
+        field(10620; "SAFT Compensation"; Boolean)
+        {
+            Caption = 'Compensation';
+            ObsoleteReason = 'Moved to extension';
+            ObsoleteState = Removed;
+        }
     }
 
     keys

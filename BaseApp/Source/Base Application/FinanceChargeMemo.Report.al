@@ -175,6 +175,12 @@ report 118 "Finance Charge Memo"
                 column(EnterpriseClassification; CompanyInfo.GetEnterpriseClassification)
                 {
                 }
+                column(KundeIDCaption; KundeTxt)
+                {
+                }
+                column(KundeID; KundeID)
+                {
+                }
                 dataitem(DimensionLoop; "Integer")
                 {
                     DataItemLinkReference = "Issued Fin. Charge Memo Header";
@@ -525,6 +531,8 @@ report 118 "Finance Charge Memo"
             }
 
             trigger OnAfterGetRecord()
+            var
+                DocumentTools: Codeunit DocumentTools;
             begin
                 CurrReport.Language := Language.GetLanguageIdOrDefault("Language Code");
                 DimSetEntry.SetRange("Dimension Set ID", "Dimension Set ID");
@@ -548,6 +556,8 @@ report 118 "Finance Charge Memo"
                 end;
                 if not IsReportInPreviewMode then
                     IncrNoPrinted;
+
+                DocumentTools.GetKundeID(KundeTxt, KundeID, 2, "No.", "Customer No.");
             end;
 
             trigger OnPreDataItem()
@@ -725,6 +735,8 @@ report 118 "Finance Charge Memo"
         TotalAmount: Decimal;
         TotalVatAmount: Decimal;
         ShowMIRLines: Boolean;
+        KundeTxt: Text;
+        KundeID: Text[25];
 
     local procedure IsReportInPreviewMode(): Boolean
     var

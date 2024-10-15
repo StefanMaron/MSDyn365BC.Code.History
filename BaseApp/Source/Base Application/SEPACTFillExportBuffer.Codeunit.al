@@ -356,6 +356,8 @@ codeunit 1221 "SEPA CT-Fill Export Buffer"
     var
         DocumentTools: Codeunit DocumentTools;
     begin
+        OnBeforeUpdateGenJnlFields(PaymentExportData, GenJournalLine);
+
         if not DocumentTools.IsNorgeSEPACT(GenJournalLine) then
             exit;
 
@@ -364,6 +366,18 @@ codeunit 1221 "SEPA CT-Fill Export Buffer"
         PaymentExportData."General Journal Line No." := GenJournalLine."Line No.";
         if Abs(GenJournalLine."Amount (LCY)") > RegRepThreshAmt then
             PaymentExportData."Reg.Rep. Thresh.Amt Exceeded" := true;
+
+        OnAfterUpdateGenJnlFields(PaymentExportData, GenJournalLine)
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateGenJnlFields(var PaymentExportData: Record "Payment Export Data"; GenJournalLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateGenJnlFields(var PaymentExportData: Record "Payment Export Data"; GenJournalLine: Record "Gen. Journal Line")
+    begin
     end;
 
     [IntegrationEvent(false, false)]

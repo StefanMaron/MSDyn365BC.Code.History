@@ -92,10 +92,12 @@ codeunit 10670 "SAF-T Installation"
     var
         SAFTMappingSource: Record "SAF-T Mapping Source";
     begin
-        SAFTMappingSource.Init();
+        SAFTMappingSource.SetRange("Source Type", SAFTMappingSourceType);
+        SAFTMappingSource.SetRange("Source No.", SourceNo);
+        if SAFTMappingSource.FindFirst() then
+            exit;
         SAFTMappingSource."Source Type" := SAFTMappingSourceType;
         SAFTMappingSource."Source No." := SourceNo;
-        if not SAFTMappingSource.Find() then
-            SAFTMappingSource.Insert();
+        SAFTMappingSource.Insert();
     end;
 }

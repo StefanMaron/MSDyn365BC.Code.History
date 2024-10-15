@@ -11,7 +11,8 @@ codeunit 10601 DocumentTools
         KIDDocumentNo: Text[24];
         KIDCustomerNo: Text[24];
         KIDDocType: Text[1];
-        KIDSetupErr: Label 'If KID is used on the Finance Charge Memo/Reminder then KID setup has to be %1 or %2.';
+        KIDSetupErr: Label 'If KID is used on the finance charge memo or reminder, then the KID setup has to be %1 or %2.', Comment = '%1 - type1, %2 - type2';
+        KundeIDTxt: Label 'KID', Comment = 'Customer ID';
 
     procedure SetupGiro(PrintGiro: Boolean; DocumentType: Integer; DocumentNo: Code[20]; CustomerNo: Code[20]; GiroAmount: Decimal; GiroCurrencyCode: Code[10]; var GiroAmountKr: Text[20]; var GiroAmountkre: Text[2]; var CheckDigit: Text[1]; var GiroKID: Text[25]; var KIDError: Boolean)
     var
@@ -155,6 +156,16 @@ codeunit 10601 DocumentTools
         if KIDError or (GiroKID = '') then
             exit(EInvoiceExportHeader."No.");
         exit(GiroKID);
+    end;
+
+    procedure GetKundeID(var KundeTxt: Text; var KundeID: Text[25]; DocumentType: Integer; DocumentNo: Code[20]; CustomerNo: Code[20]);
+    var
+        KIDError: Boolean;
+    begin
+        KundeTxt := KundeIDTxt;
+        GenerateGiroKID(DocumentType, DocumentNo, CustomerNo, KundeID, KIDError);
+        if KundeID = '' then
+            KundeTxt := '';
     end;
 
     [EventSubscriber(ObjectType::Table, 81, 'OnAfterDeleteEvent', '', false, false)]

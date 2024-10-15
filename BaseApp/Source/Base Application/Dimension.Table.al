@@ -83,6 +83,19 @@ table 348 Dimension
         {
             Caption = 'Last Modified Date Time';
         }
+        field(10620; "SAFT Analysis Type"; Code[9])
+        {
+            Caption = 'SAF-T Analysis Type';
+            ObsoleteReason = 'Moved to extension';
+            ObsoleteState = Removed;
+        }
+        field(10621; "Export to SAFT"; Boolean)
+        {
+            Caption = 'Export to SAF-T';
+            InitValue = true;
+            ObsoleteReason = 'Moved to extension';
+            ObsoleteState = Removed;
+        }
     }
 
     keys

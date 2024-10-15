@@ -229,7 +229,8 @@ codeunit 10671 "SAF-T XML Import"
                 if MediaResources.Blob.HasValue() then begin
                     TempMediaResource.Init();
                     TempMediaResource := MediaResources;
-                    TempMediaResource.Insert();
+                    if not TempMediaResource.Find() then
+                        TempMediaResource.Insert();
                     MappingSourceFileLoaded := true;
                 end;
             end;
@@ -248,7 +249,8 @@ codeunit 10671 "SAF-T XML Import"
         MediaResources.CalcFields(Blob);
         TempMediaResource.Init();
         TempMediaResource := MediaResources;
-        TempMediaResource.Insert();
+        if not TempMediaResource.Find() then
+            TempMediaResource.Insert();
     end;
 
     local procedure FillXMLBufferFromMediaResource(var TempXMLBuffer: Record "XML Buffer" temporary; var TempMediaResources: Record "Media Resources" temporary)

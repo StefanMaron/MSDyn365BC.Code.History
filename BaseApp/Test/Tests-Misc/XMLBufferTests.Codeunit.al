@@ -720,6 +720,32 @@ codeunit 139200 "XML Buffer Tests"
         XMLBuffer.TestField("Entry No.", 0);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure CreateSaveAndVerifyXMLDocumentWithMultipleNamespaces()
+    var
+        TempXMLBuffer: Record "XML Buffer" temporary;
+    begin
+        // [SCENARIO 332187] Create and save XML file with child nodes of different namespaces using XML Buffer table
+        // [GIVEN] A temporary XML Buffer with a root element with definitions of 2 namespaces
+        TempXMLBuffer.CreateRootElement('Message');
+        TempXMLBuffer.AddNamespace('s1', 'http://someschema/');
+        TempXMLBuffer.AddNamespace('s2', 'http://someotherschema/');
+
+        // [GIVEN] Child nodes of that namespaces
+        TempXMLBuffer.AddElement('s1:FirstName', LibraryUtility.GenerateRandomAlphabeticText(5, 1));
+        TempXMLBuffer.AddElement('s1:LastName', LibraryUtility.GenerateRandomAlphabeticText(5, 1));
+        TempXMLBuffer.AddGroupElement('s1:Address');
+        TempXMLBuffer.AddElement('s2:Street', LibraryUtility.GenerateRandomAlphabeticText(5, 1));
+        TempXMLBuffer.AddElement('s2:HouseNumber', LibraryUtility.GenerateRandomNumericText(3));
+        TempXMLBuffer.AddElement('s2:PostalCode', LibraryUtility.GenerateRandomAlphabeticText(6, 0));
+        TempXMLBuffer.GetParent;
+
+        // [WHEN] Saving and then loading the XML Buffer
+        // [THEN] The two XML Buffer lists are identical
+        SaveLoadAndVerifyXmlBuffer(TempXMLBuffer);
+    end;
+
     local procedure CreateAndVerifyRootNode(var TempXMLBuffer: Record "XML Buffer" temporary; NumNamespaces: Integer; DefaultNamespace: Boolean)
     var
         TempChildrenXMLBuffer: Record "XML Buffer" temporary;

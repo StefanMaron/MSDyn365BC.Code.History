@@ -119,6 +119,11 @@ report 99001015 "Calculate Subcontracts"
     var
         IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeInsertReqWkshLine("Prod. Order Routing Line", "Work Center", ReqLine, IsHandled);
+        if IsHandled then
+            exit;
+
         ProdOrderLine.CalcFields("Total Exp. Oper. Output (Qty.)");
 
         with ReqLine do begin
@@ -233,6 +238,11 @@ report 99001015 "Calculate Subcontracts"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterTransferProdOrderRoutingLine(var RequisitionLine: Record "Requisition Line"; ProdOrderRoutingLine: Record "Prod. Order Routing Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertReqWkshLine(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; var WorkCenter: Record "Work Center"; var ReqLine: Record "Requisition Line"; var IsHandled: Boolean);
     begin
     end;
 

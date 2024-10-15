@@ -189,41 +189,13 @@ page 398 "Sales Credit Memo Statistics"
     }
 
     trigger OnAfterGetRecord()
-    var
-        CostCalcMgt: Codeunit "Cost Calculation Management";
     begin
         ClearAll;
 
-        if "Currency Code" = '' then
-            Currency.InitRoundingPrecision
-        else
-            Currency.Get("Currency Code");
+        Currency.Initialize("Currency Code");
 
-        SalesCrMemoLine.SetRange("Document No.", "No.");
-        if SalesCrMemoLine.Find('-') then
-            repeat
-                CustAmount := CustAmount + SalesCrMemoLine.Amount;
-                AmountInclVAT := AmountInclVAT + SalesCrMemoLine."Amount Including VAT";
-                if "Prices Including VAT" then
-                    InvDiscAmount := InvDiscAmount + SalesCrMemoLine."Inv. Discount Amount" / (1 + SalesCrMemoLine."VAT %" / 100)
-                else
-                    InvDiscAmount := InvDiscAmount + SalesCrMemoLine."Inv. Discount Amount";
-                CostLCY := CostLCY + (SalesCrMemoLine.Quantity * SalesCrMemoLine."Unit Cost (LCY)");
-                LineQty := LineQty + SalesCrMemoLine.Quantity;
-                TotalNetWeight := TotalNetWeight + (SalesCrMemoLine.Quantity * SalesCrMemoLine."Net Weight");
-                TotalGrossWeight := TotalGrossWeight + (SalesCrMemoLine.Quantity * SalesCrMemoLine."Gross Weight");
-                TotalVolume := TotalVolume + (SalesCrMemoLine.Quantity * SalesCrMemoLine."Unit Volume");
-                if SalesCrMemoLine."Units per Parcel" > 0 then
-                    TotalParcels := TotalParcels + Round(SalesCrMemoLine.Quantity / SalesCrMemoLine."Units per Parcel", 1, '>');
-                if SalesCrMemoLine."VAT %" <> VATpercentage then
-                    if VATpercentage = 0 then
-                        VATpercentage := SalesCrMemoLine."VAT %"
-                    else
-                        VATpercentage := -1;
-                TotalAdjCostLCY :=
-                  TotalAdjCostLCY + CostCalcMgt.CalcSalesCrMemoLineCostLCY(SalesCrMemoLine) +
-                  CostCalcMgt.CalcSalesCrMemoLineNonInvtblCostAmt(SalesCrMemoLine);
-            until SalesCrMemoLine.Next = 0;
+        CalculateTotals();
+
         VATAmount := AmountInclVAT - CustAmount;
         InvDiscAmount := Round(InvDiscAmount, Currency."Amount Rounding Precision");
 
@@ -296,5 +268,57 @@ page 398 "Sales Credit Memo Statistics"
         CreditLimitLCYExpendedPct: Decimal;
         VATpercentage: Decimal;
         VATAmountText: Text[30];
+
+    local procedure CalculateTotals()
+    var
+        CostCalcMgt: Codeunit "Cost Calculation Management";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCalculateTotals(
+            Rec, CustAmount, AmountInclVAT, InvDiscAmount, CostLCY, TotalAdjCostLCY,
+            LineQty, TotalNetWeight, TotalGrossWeight, TotalVolume, TotalParcels, IsHandled);
+        if IsHandled then
+            exit;
+
+        SalesCrMemoLine.SetRange("Document No.", "No.");
+        if SalesCrMemoLine.Find('-') then
+            repeat
+                CustAmount += SalesCrMemoLine.Amount;
+                AmountInclVAT += SalesCrMemoLine."Amount Including VAT";
+                if "Prices Including VAT" then
+                    InvDiscAmount += SalesCrMemoLine."Inv. Discount Amount" / (1 + SalesCrMemoLine."VAT %" / 100)
+                else
+                    InvDiscAmount += SalesCrMemoLine."Inv. Discount Amount";
+                CostLCY += SalesCrMemoLine.Quantity * SalesCrMemoLine."Unit Cost (LCY)";
+                LineQty += SalesCrMemoLine.Quantity;
+                TotalNetWeight += SalesCrMemoLine.Quantity * SalesCrMemoLine."Net Weight";
+                TotalGrossWeight += SalesCrMemoLine.Quantity * SalesCrMemoLine."Gross Weight";
+                TotalVolume += SalesCrMemoLine.Quantity * SalesCrMemoLine."Unit Volume";
+                if SalesCrMemoLine."Units per Parcel" > 0 then
+                    TotalParcels += Round(SalesCrMemoLine.Quantity / SalesCrMemoLine."Units per Parcel", 1, '>');
+                if SalesCrMemoLine."VAT %" <> VATpercentage then
+                    if VATpercentage = 0 then
+                        VATpercentage := SalesCrMemoLine."VAT %"
+                    else
+                        VATpercentage := -1;
+                TotalAdjCostLCY +=
+                  CostCalcMgt.CalcSalesCrMemoLineCostLCY(SalesCrMemoLine) + CostCalcMgt.CalcSalesCrMemoLineNonInvtblCostAmt(SalesCrMemoLine);
+
+                OnCalculateTotalsOnAfterAddLineTotals(
+                    SalesCrMemoLine, CustAmount, AmountInclVAT, InvDiscAmount, CostLCY, TotalAdjCostLCY,
+                    LineQty, TotalNetWeight, TotalGrossWeight, TotalVolume, TotalParcels)
+            until SalesCrMemoLine.Next = 0;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalculateTotals(SalesCrMemoHeader: Record "Sales Cr.Memo Header"; var CustAmount: Decimal; var AmountInclVAT: Decimal; var InvDiscAmount: Decimal; var CostLCY: Decimal; var TotalAdjCostLCY: Decimal; var LineQty: Decimal; var TotalNetWeight: Decimal; var TotalGrossWeight: Decimal; var TotalVolume: Decimal; var TotalParcels: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculateTotalsOnAfterAddLineTotals(var SalesCrMemoLine: Record "Sales Cr.Memo Line"; var CustAmount: Decimal; var AmountInclVAT: Decimal; var InvDiscAmount: Decimal; var CostLCY: Decimal; var TotalAdjCostLCY: Decimal; var LineQty: Decimal; var TotalNetWeight: Decimal; var TotalGrossWeight: Decimal; var TotalVolume: Decimal; var TotalParcels: Decimal)
+    begin
+    end;
 }
 

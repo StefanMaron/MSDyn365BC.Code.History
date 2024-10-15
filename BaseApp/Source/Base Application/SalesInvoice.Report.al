@@ -8,6 +8,8 @@ report 206 "Sales - Invoice"
     Permissions = TableData "Sales Shipment Buffer" = rimd;
     PreviewMode = PrintLayout;
     UsageCategory = ReportsAndAnalysis;
+    ObsoleteReason = 'Replaced with report 1306 Standard Sales - Invoice';
+    ObsoleteState = Pending;
 
     dataset
     {
@@ -224,6 +226,12 @@ report 206 "Sales - Invoice"
                     {
                     }
                     column(PricesInclVAT_SalesInvHdrCaption; "Sales Invoice Header".FieldCaption("Prices Including VAT"))
+                    {
+                    }
+                    column(KundeIDCaption; KundeTxt)
+                    {
+                    }
+                    column(KundeID; KundeID)
                     {
                     }
                     dataitem(DimensionLoop1; "Integer")
@@ -877,6 +885,7 @@ report 206 "Sales - Invoice"
 
             trigger OnAfterGetRecord()
             var
+                DocumentTools: Codeunit DocumentTools;
                 Handled: Boolean;
             begin
                 CurrReport.Language := Language.GetLanguageIdOrDefault("Language Code");
@@ -890,6 +899,7 @@ report 206 "Sales - Invoice"
                 DimSetEntry1.SetRange("Dimension Set ID", "Dimension Set ID");
 
                 GetLineFeeNoteOnReportHist("No.");
+                DocumentTools.GetKundeID(KundeTxt, KundeID, 1, "No.", "Bill-to Customer No.");
 
                 OnAfterGetRecordSalesInvoiceHeader("Sales Invoice Header");
                 OnGetReferenceText("Sales Invoice Header", ReferenceText, Handled);
@@ -1108,6 +1118,8 @@ report 206 "Sales - Invoice"
         LineNoWithTotal: Integer;
         VATBaseRemainderAfterRoundingLCY: Decimal;
         AmtInclVATRemainderAfterRoundingLCY: Decimal;
+        KundeTxt: Text;
+        KundeID: Text[25];
 
     procedure InitLogInteraction()
     begin

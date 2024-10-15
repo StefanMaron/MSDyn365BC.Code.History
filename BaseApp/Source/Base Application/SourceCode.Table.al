@@ -14,6 +14,12 @@ table 230 "Source Code"
         {
             Caption = 'Description';
         }
+        field(10620; "SAFT Source Code"; Code[9])
+        {
+            Caption = 'SAF-T Source Code';
+            ObsoleteReason = 'Moved to extension';
+            ObsoleteState = Removed;
+        }
     }
 
     keys

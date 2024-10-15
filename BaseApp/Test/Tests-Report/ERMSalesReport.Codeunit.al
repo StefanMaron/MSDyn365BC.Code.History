@@ -1539,7 +1539,7 @@ codeunit 134976 "ERM Sales Report"
         // [THEN] Amount Excluding VAT = 1000
         // [THEN] VAT Amount = 200
         // [THEN] Amount Including VAT = 1200
-        VerifySalesInvoiceTotalsWithDiscount(SalesLine, 'AC', 86);
+        VerifySalesInvoiceTotalsWithDiscount(SalesLine, 'AF', 87);
     end;
 
     [Test]
@@ -1576,7 +1576,7 @@ codeunit 134976 "ERM Sales Report"
         // [THEN] Amount Excluding VAT = 1000
         // [THEN] VAT Amount = 200
         // [THEN] Amount Including VAT = 1200
-        VerifySalesInvoiceTotalsWithDiscount(SalesLine, 'AC', 87);
+        VerifySalesInvoiceTotalsWithDiscount(SalesLine, 'AF', 88);
     end;
 
     [Test]
@@ -1615,7 +1615,7 @@ codeunit 134976 "ERM Sales Report"
         // [THEN] Amount Excluding VAT = 1000
         // [THEN] VAT Amount = 200
         // [THEN] Amount Including VAT = 1200
-        VerifySalesInvoiceTotalsWithDiscount(SalesLine, 'AC', 86);
+        VerifySalesInvoiceTotalsWithDiscount(SalesLine, 'AF', 87);
     end;
 
     [Test]
@@ -1655,7 +1655,7 @@ codeunit 134976 "ERM Sales Report"
         // [THEN] Amount Excluding VAT = 1000
         // [THEN] VAT Amount = 200
         // [THEN] Amount Including VAT = 1200
-        VerifySalesInvoiceTotalsWithDiscount(SalesLine, 'AC', 87);
+        VerifySalesInvoiceTotalsWithDiscount(SalesLine, 'AF', 88);
     end;
 
     [Test]
@@ -2899,6 +2899,78 @@ codeunit 134976 "ERM Sales Report"
         LibraryReportDataset.AssertElementWithValueExists('SalesOrderAmount', SalesLine.Quantity * SalesLine."Unit Price");
     end;
 
+    [Test]
+    [HandlerFunctions('StandardSalesOrderConfExcelRequestPageHandler,SimpleMessageHandler')]
+    [Scope('OnPrem')]
+    procedure StdSalesOrderConfAssemblyComponentsRDLC()
+    var
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        ItemComponentCode: array[3] of Code[20];
+    begin
+        // [FEATURE] [Order] [Confirmation] [Excel] [Layout]
+        // [SCENARIO 323241] Report "Standard Sales - Order Conf." show assembly components when printed with RDLC layout
+        Initialize;
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+
+        // [GIVEN] Report "Standard Sales - Order Conf." RDLC layout selected
+        SetRDLCReportLayout(REPORT::"Standard Sales - Order Conf.");
+
+        // [GIVEN] Parent "Item" with setup for assembly to order policy with 3 components
+        CreateItemWithAssemblyComponents(Item, ItemComponentCode);
+
+        // [GIVEN] Sales Order with "Item" in the line
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandInt(10));
+
+        // [WHEN] Run "Standard Sales - Order Conf." report with "Show Assembly Components" checkbox enabled
+        LibraryVariableStorage.Enqueue(true);
+        RunStandardSalesOrderConfirmationReport(SalesHeader."No.");
+
+        // [THEN] Assembly Components are printed
+        VerifyExcelWithItemAssemblyComponents(ItemComponentCode);
+
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [HandlerFunctions('StandardSalesInvoiceExcelRequestPageHandler,SimpleMessageHandler')]
+    [Scope('OnPrem')]
+    procedure StdSalesInvoiceAssemblyComponentsRDLC()
+    var
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        ItemComponentCode: array[3] of Code[20];
+        PostedDocumentNo: Code[20];
+    begin
+        // [FEATURE] [Posted] [Invoice] [Excel] [Layout]
+        // [SCENARIO 323241] Report "Standard Sales - Invoice" show assembly components when printed with RDLC layout
+        Initialize;
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+
+        // [GIVEN] Report "Standard Sales - Invoice" RDLC layout selected
+        SetRDLCReportLayout(REPORT::"Standard Sales - Invoice");
+
+        // [GIVEN] Parent "Item" with setup for assembly to order policy with 3 components
+        CreateItemWithAssemblyComponents(Item, ItemComponentCode);
+
+        // [GIVEN] Sales Order with "Item" in the line
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandInt(10));
+        PostedDocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [WHEN] Run "Standard Sales - Order Conf." report with "Show Assembly Components" checkbox enabled
+        LibraryVariableStorage.Enqueue(true);
+        RunStandardSalesInvoiceReport(PostedDocumentNo);
+
+        // [THEN] Assembly Components are printed
+        VerifyExcelWithItemAssemblyComponents(ItemComponentCode);
+
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Sales Report");
@@ -3014,7 +3086,7 @@ codeunit 134976 "ERM Sales Report"
         SelectItemJournalBatch(ItemJournalBatch, ItemJournalTemplate.Type::Item);
         LibraryInventory.CreateItemJournalLine(
           ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name, EntryType, ItemNo,
-          LibraryRandom.RandDec(100, 2)); // Use random Quantity.
+          LibraryRandom.RandDecInRange(50, 100, 2)); // Use random Quantity.
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
     end;
 
@@ -3395,6 +3467,21 @@ codeunit 134976 "ERM Sales Report"
         Item.Validate("VAT Prod. Posting Group", VATProdPostingGroupCode);
         Item.Modify(true);
         exit(Item."No.");
+    end;
+
+    local procedure CreateItemWithAssemblyComponents(var Item: Record Item; var ItemComponentCode: array[3] of Code[20])
+    var
+        ItemJournalLine: Record "Item Journal Line";
+        Index: Integer;
+    begin
+        LibraryAssembly.CreateItem(Item, Item."Costing Method"::FIFO, Item."Replenishment System"::Assembly, '', '');
+        Item.Validate("Assembly Policy", Item."Assembly Policy"::"Assemble-to-Order");
+        Item.Validate(Description, LibraryUtility.GenerateGUID);
+        Item.Modify(true);
+        for Index := 1 to ArrayLen(ItemComponentCode) do begin
+            ItemComponentCode[Index] := CreateAssemblyComponent(Item."No.");
+            CreateAndPostItemJournalLine(ItemJournalLine, ItemJournalLine."Entry Type"::"Positive Adjmt.", ItemComponentCode[Index]);
+        end;
     end;
 
     local procedure CreateGlobalDimValues(var GlobalDim1Value: Code[20]; var GlobalDim2Value: Code[20])
@@ -4139,10 +4226,10 @@ codeunit 134976 "ERM Sales Report"
     local procedure VerifyAmountsSalesInvoiceReport(ExpectedAmount: Decimal; ExpectedAmountInclVAT: Decimal)
     begin
         LibraryReportValidation.OpenExcelFile;
-        LibraryReportValidation.VerifyCellValue(88, 29, LibraryReportValidation.FormatDecimalValue(ExpectedAmount)); // Total Amount
+        LibraryReportValidation.VerifyCellValue(89, 32, LibraryReportValidation.FormatDecimalValue(ExpectedAmount)); // Total Amount
         LibraryReportValidation.VerifyCellValue(
-          89, 29, LibraryReportValidation.FormatDecimalValue(ExpectedAmountInclVAT - ExpectedAmount)); // Total VAT
-        LibraryReportValidation.VerifyCellValue(91, 29, LibraryReportValidation.FormatDecimalValue(ExpectedAmountInclVAT)); // Total Amount Incl. VAT
+          90, 32, LibraryReportValidation.FormatDecimalValue(ExpectedAmountInclVAT - ExpectedAmount)); // Total VAT
+        LibraryReportValidation.VerifyCellValue(92, 32, LibraryReportValidation.FormatDecimalValue(ExpectedAmountInclVAT)); // Total Amount Incl. VAT
     end;
 
     local procedure VerifyCustomerOrderSummarySalesAmount(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
@@ -4202,6 +4289,12 @@ codeunit 134976 "ERM Sales Report"
     begin
         LibraryVariableStorage.Dequeue(ActualMessage);
         Assert.AreEqual(Message, Format(ActualMessage), UnexpectedMessageMsg);
+    end;
+
+    [MessageHandler]
+    [Scope('OnPrem')]
+    procedure SimpleMessageHandler(Message: Text[1024])
+    begin
     end;
 
     [RequestPageHandler]
@@ -4492,6 +4585,17 @@ codeunit 134976 "ERM Sales Report"
 
     [RequestPageHandler]
     [Scope('OnPrem')]
+    procedure StandardSalesOrderConfExcelRequestPageHandler(var StandardSalesOrderConf: TestRequestPage "Standard Sales - Order Conf.")
+    var
+        ShowAssemblyComponents: Boolean;
+    begin
+        ShowAssemblyComponents := LibraryVariableStorage.DequeueBoolean;
+        StandardSalesOrderConf.DisplayAsmInformation.SetValue(ShowAssemblyComponents);
+        StandardSalesOrderConf.SaveAsExcel(LibraryReportValidation.GetFileName);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
     procedure OrderConfirmationRequestPageHandler(var OrderConfirmation: TestRequestPage "Order Confirmation")
     begin
         OrderConfirmation.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
@@ -4555,6 +4659,20 @@ codeunit 134976 "ERM Sales Report"
         LibraryReportDataset.AssertElementTagWithValueExists('Description2_VATClauseLine', VATClause[2]."Description 2");
     end;
 
+    local procedure VerifyExcelWithItemAssemblyComponents(ItemComponentCode: array[3] of Code[20])
+    var
+        RowNo: Integer;
+        ColNo: Integer;
+        Index: Integer;
+    begin
+        LibraryReportValidation.OpenExcelFile;
+        for Index := 1 to ArrayLen(ItemComponentCode) do begin
+            LibraryReportValidation.FindRowNoColumnNoByValueOnWorksheet(ItemComponentCode[Index], 1, RowNo, ColNo);
+            Assert.IsTrue(RowNo > 0, 'Expected to find a row with assembly component');
+            Assert.IsTrue(ColNo > 0, 'Expected to find a column with assembly component');
+        end;
+    end;
+
     local procedure GetSalesQuoteReportVATAmounts(var VATAmount: Decimal; var VATBaseAmount: Decimal)
     var
         ElementValue: Variant;
@@ -4575,6 +4693,17 @@ codeunit 134976 "ERM Sales Report"
     procedure StandardSalesInvoiceRequestPageHandler(var StandardSalesInvoice: TestRequestPage "Standard Sales - Invoice")
     begin
         StandardSalesInvoice.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure StandardSalesInvoiceExcelRequestPageHandler(var StandardSalesInvoice: TestRequestPage "Standard Sales - Invoice")
+    var
+        ShowAssemblyComponents: Boolean;
+    begin
+        ShowAssemblyComponents := LibraryVariableStorage.DequeueBoolean;
+        StandardSalesInvoice.DisplayAsmInformation.SetValue(ShowAssemblyComponents);
+        StandardSalesInvoice.SaveAsExcel(LibraryReportValidation.GetFileName);
     end;
 
     [RequestPageHandler]

@@ -578,6 +578,17 @@ table 5108 "Sales Line Archive"
                 ShowDimensions;
             end;
         }
+        field(1001; "Job Task No."; Code[20])
+        {
+            Caption = 'Job Task No.';
+            Editable = false;
+            TableRelation = "Job Task"."Job Task No." WHERE("Job No." = FIELD("Job No."));
+        }
+        field(1002; "Job Contract Entry No."; Integer)
+        {
+            AccessByPermission = TableData Job = R;
+            Caption = 'Job Contract Entry No.';
+        }
         field(1700; "Deferral Code"; Code[10])
         {
             Caption = 'Deferral Code';

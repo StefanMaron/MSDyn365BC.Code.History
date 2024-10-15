@@ -75,6 +75,7 @@ codeunit 5981 "Service-Post (Yes/No)"
     var
         DummyServLine: Record "Service Line" temporary;
     begin
+        OnBeforePostDocument(ServiceHeaderSource, DummyServLine);
         PostDocumentWithLines(ServiceHeaderSource, DummyServLine);
     end;
 
@@ -82,6 +83,7 @@ codeunit 5981 "Service-Post (Yes/No)"
     var
         ServiceHeader: Record "Service Header";
     begin
+        OnBeforePostDocumentWithLines(ServiceHeaderSource, PassedServLine);
         ServiceHeader.Copy(ServiceHeaderSource);
         Code(PassedServLine, ServiceHeader);
         ServiceHeaderSource := ServiceHeader;
@@ -135,6 +137,16 @@ codeunit 5981 "Service-Post (Yes/No)"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeConfirmServPost(var ServiceHeader: Record "Service Header"; var HideDialog: Boolean; var Ship: Boolean; var Consume: Boolean; var Invoice: Boolean; var IsHandled: Boolean; PreviewMode: Boolean; var ServiceLine: Record "Service Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePostDocument(var ServiceHeader: Record "Service Header"; var ServiceLine: Record "Service Line");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePostDocumentWithLines(var ServiceHeader: Record "Service Header"; var ServiceLine: Record "Service Line");
     begin
     end;
 }

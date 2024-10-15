@@ -6,6 +6,8 @@ report 207 "Sales - Credit Memo"
     Caption = 'Sales - Credit Memo';
     Permissions = TableData "Sales Shipment Buffer" = rimd;
     UsageCategory = ReportsAndAnalysis;
+    ObsoleteReason = 'Replaced with report 1307 Standard Sales - Credit Memo';
+    ObsoleteState = Pending;
 
     dataset
     {

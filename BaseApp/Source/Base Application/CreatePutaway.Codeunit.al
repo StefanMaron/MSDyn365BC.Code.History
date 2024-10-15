@@ -374,6 +374,8 @@ codeunit 7313 "Create Put-away"
                 end;
             end;
         end;
+
+        OnAfterAssignPlaceBinZone(WhseActivLine);
     end;
 
     local procedure InsertWhseActivHeader(LocationCode: Code[10])
@@ -385,7 +387,7 @@ codeunit 7313 "Create Put-away"
         WhseActivHeader.Validate("Assigned User ID", AssignedID);
         WhseActivHeader."Sorting Method" := SortActivity;
         WhseActivHeader."Breakbulk Filter" := BreakbulkFilter;
-        OnBeforeWhseActivHeaderInsert(WhseActivHeader);
+        OnBeforeWhseActivHeaderInsert(WhseActivHeader, PostedWhseRcptLine);
         WhseActivHeader.Insert(true);
         Commit;
         OnAfterWhseActivHeaderInsert(WhseActivHeader);
@@ -904,6 +906,11 @@ codeunit 7313 "Create Put-away"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterAssignPlaceBinZone(var WarehouseActivityLine: Record "Warehouse Activity Line");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterGetItemAndSKU(Location: Record Location; var Item: Record Item; var StockkeepingUnit: Record "Stockkeeping Unit")
     begin
     end;
@@ -964,7 +971,7 @@ codeunit 7313 "Create Put-away"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeWhseActivHeaderInsert(var WarehouseActivityHeader: Record "Warehouse Activity Header")
+    local procedure OnBeforeWhseActivHeaderInsert(var WarehouseActivityHeader: Record "Warehouse Activity Header"; PostedWhseReceiptLine: Record "Posted Whse. Receipt Line")
     begin
     end;
 

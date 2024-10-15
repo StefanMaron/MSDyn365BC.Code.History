@@ -58,7 +58,7 @@ page 2823 "Native - Email Preview"
                 field(bodyText; BodyText)
                 {
                     ApplicationArea = All;
-                    Caption = 'bodyText', Comment = '{LOCKED}';
+                    Caption = 'bodyText', Locked = true;
                     ToolTip = 'Specifies the body text that will be set in the email body.';
 
                     trigger OnValidate()

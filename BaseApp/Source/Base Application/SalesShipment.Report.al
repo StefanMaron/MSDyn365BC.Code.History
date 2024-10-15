@@ -753,7 +753,7 @@ report 208 "Sales - Shipment"
         NoCaptionLbl: Label 'No.';
         PageCaptionCap: Label 'Page %1 of %2';
         OrderNoText: Text;
-        OrderNoTextCaptionLbl: Label 'OrderNoText';
+        OrderNoTextCaptionLbl: Label 'OrderNoText';		
 
     procedure InitLogInteraction()
     begin

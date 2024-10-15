@@ -215,7 +215,8 @@ codeunit 5345 "Integration Rec. Synch. Invoke"
 
             if ConfigTemplateHeader.Get(ConfigTemplateCode) then begin
                 ConfigTemplateManagement.UpdateRecord(ConfigTemplateHeader, DestinationRecordRef);
-
+                if DestinationRecordRef.Number <> IntegrationTableMapping."Integration Table ID" then
+                    InsertDimensionsFromTemplate(ConfigTemplateHeader, DestinationRecordRef);
                 OnAfterApplyRecordTemplate(IntegrationTableMapping, SourceRecordRef, DestinationRecordRef);
             end else begin
                 SynchAction := SynchActionType::Fail;
@@ -224,6 +225,24 @@ codeunit 5345 "Integration Rec. Synch. Invoke"
                   StrSubstNo(ConfigurationTemplateNotFoundErr, ConfigTemplateHeader.TableCaption, ConfigTemplateCode), JobId);
             end;
         end;
+    end;
+
+    local procedure InsertDimensionsFromTemplate(ConfigTemplateHeader: Record "Config. Template Header"; var DestinationRecordRef: RecordRef)
+    var
+        DimensionsTemplate: Record "Dimensions Template";
+        PrimaryKeyRef: KeyRef;
+        PrimaryKeyFieldRef: FieldRef;
+    begin
+        PrimaryKeyRef := DestinationRecordRef.KeyIndex(1);
+        if PrimaryKeyRef.FieldCount <> 1 then
+            exit;
+
+        PrimaryKeyFieldRef := PrimaryKeyRef.FieldIndex(1);
+        if PrimaryKeyFieldRef.Type <> FieldType::Code then
+            exit;
+
+        DimensionsTemplate.InsertDimensionsFromTemplates(ConfigTemplateHeader, CopyStr(Format(PrimaryKeyFieldRef.Value), 1, 20), DestinationRecordRef.Number);
+        DestinationRecordRef.Get(DestinationRecordRef.RecordId());
     end;
 
     local procedure ChangedDestinationConflictsWithSource(IntegrationTableMapping: Record "Integration Table Mapping"; DestinationRecordRef: RecordRef) ConflictText: Text

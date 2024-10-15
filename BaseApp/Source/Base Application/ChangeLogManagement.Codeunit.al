@@ -60,7 +60,15 @@ codeunit 423 "Change Log Management"
     end;
 
     local procedure IsLogActive(TableNumber: Integer; FieldNumber: Integer; TypeOfChange: Option Insertion,Modification,Deletion): Boolean
+    var
+        IsActive: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeIsLogActive(TableNumber, FieldNumber, TypeOfChange, IsActive, IsHandled);
+        IF IsHandled THEN
+            exit(IsActive);
+
         if IsAlwaysLoggedTable(TableNumber) then
             exit(true);
 
@@ -448,6 +456,11 @@ codeunit 423 "Change Log Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterIsAlwaysLoggedTable(TableID: Integer; var AlwaysLogTable: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeIsLogActive(TableNumber: Integer; FieldNumber: Integer; TypeOfChange: Option Insertion,Modification,Deletion; var IsActive: Boolean; var IsHandled: Boolean);
     begin
     end;
 }

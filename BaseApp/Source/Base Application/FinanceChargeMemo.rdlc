@@ -7,7 +7,6 @@
         <DataProvider>SQL</DataProvider>
         <ConnectString />
       </ConnectionProperties>
-      <rd:SecurityType>None</rd:SecurityType>
       <rd:DataSourceID>1e058684-db13-4d5d-a454-1cdd8a1862c2</rd:DataSourceID>
     </DataSource>
   </DataSources>
@@ -107,7 +106,9 @@ Cstr(Fields!HomePageCaption.Value) + Chr(177) +
 Cstr(Fields!CompanyInfoHomePage.Value) + Chr(177) + 
 Cstr(Fields!EMailCaption.Value) + Chr(177) + 
 Cstr(Fields!CompanyInfoEMail.Value) + Chr(177) +
-Cstr(Fields!EnterpriseClassification.Value)
+Cstr(Fields!EnterpriseClassification.Value) + Chr(177) +
+Cstr(Fields!KundeIDCaption.Value) + Chr(177) + 
+Cstr(Fields!KundeID.Value)
 , 1)</Hidden>
                                             </Visibility>
                                             <Style>
@@ -294,7 +295,7 @@ Cstr(Fields!EnterpriseClassification.Value)
                               </Filters>
                               <Top>13.21221cm</Top>
                               <Height>0.4064cm</Height>
-                              <Width>18.55742cm</Width>
+                              <Width>18.55741cm</Width>
                               <ZIndex>2</ZIndex>
                               <Visibility>
                                 <Hidden>=IIF(Fields!Number_DimLoop.Value &gt; 0,False,True)</Hidden>
@@ -1008,7 +1009,7 @@ Cstr(Fields!EnterpriseClassification.Value)
                                     </TablixCells>
                                   </TablixRow>
                                   <TablixRow>
-                                    <Height>0.13889in</Height>
+                                    <Height>0.35278cm</Height>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
@@ -1206,7 +1207,7 @@ Cstr(Fields!EnterpriseClassification.Value)
                                     </TablixCells>
                                   </TablixRow>
                                   <TablixRow>
-                                    <Height>0.13889in</Height>
+                                    <Height>0.35278cm</Height>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
@@ -3381,8 +3382,8 @@ Cstr(Fields!EnterpriseClassification.Value)
                                 </Filter>
                               </Filters>
                               <Left>0.00002cm</Left>
-                              <Height>3.88051cm</Height>
-                              <Width>18.55742cm</Width>
+                              <Height>4.2333cm</Height>
+                              <Width>18.55743cm</Width>
                               <ZIndex>3</ZIndex>
                               <Visibility>
                                 <Hidden>=IIF(Fields!DocDateCaption1.Value = "",True,False)</Hidden>
@@ -4643,8 +4644,8 @@ Cstr(Fields!EnterpriseClassification.Value)
                                 </Filter>
                               </Filters>
                               <Top>5.77128cm</Top>
-                              <Height>2.11663cm</Height>
-                              <Width>18.55744cm</Width>
+                              <Height>2.11664cm</Height>
+                              <Width>18.55745cm</Width>
                               <ZIndex>5</ZIndex>
                               <Visibility>
                                 <Hidden>=IIF((Fields!VATPercentCaption.Value = "") or (Sum(Fields!ValvataAmt.Value, "DataSet_Result") = 0),True,False)</Hidden>
@@ -5671,7 +5672,7 @@ Cstr(Fields!EnterpriseClassification.Value)
                                 </Filter>
                               </Filters>
                               <Top>10.23172cm</Top>
-                              <Height>2.82219cm</Height>
+                              <Height>2.8222cm</Height>
                               <Width>18.55742cm</Width>
                               <ZIndex>6</ZIndex>
                               <Visibility>
@@ -6274,7 +6275,7 @@ Cstr(Fields!EnterpriseClassification.Value)
                               </Filters>
                               <Top>7.97348cm</Top>
                               <Height>2.11666cm</Height>
-                              <Width>18.55742cm</Width>
+                              <Width>18.55741cm</Width>
                               <ZIndex>7</ZIndex>
                               <Visibility>
                                 <Hidden>=(Fields!VATClausesCaption.Value = "")</Hidden>
@@ -6336,7 +6337,7 @@ Cstr(Fields!EnterpriseClassification.Value)
           <FontSize>8pt</FontSize>
         </Style>
       </Body>
-      <Width>18.61711cm</Width>
+      <Width>18.6259cm</Width>
       <Page>
         <PageHeader>
           <Height>9.79345cm</Height>
@@ -7771,6 +7772,67 @@ Cstr(Fields!EnterpriseClassification.Value)
                 <VerticalAlign>Middle</VerticalAlign>
               </Style>
             </Textbox>
+            <Textbox Name="IssuedFinChgMemoHdrCustNoCaption2">
+              <KeepTogether>true</KeepTogether>
+              <Paragraphs>
+                <Paragraph>
+                  <TextRuns>
+                    <TextRun>
+                      <Value>=Code.GetData(46,1)</Value>
+                      <Style>
+                        <FontFamily>Segoe UI</FontFamily>
+                        <FontSize>8pt</FontSize>
+                      </Style>
+                    </TextRun>
+                  </TextRuns>
+                  <Style>
+                    <FontFamily>Segoe UI</FontFamily>
+                    <FontSize>8pt</FontSize>
+                  </Style>
+                </Paragraph>
+              </Paragraphs>
+              <Top>9.15673cm</Top>
+              <Left>0.00001cm</Left>
+              <Height>11pt</Height>
+              <Width>4.16049cm</Width>
+              <ZIndex>48</ZIndex>
+              <Style>
+                <FontFamily>Segoe UI</FontFamily>
+                <FontSize>8pt</FontSize>
+                <VerticalAlign>Middle</VerticalAlign>
+              </Style>
+            </Textbox>
+            <Textbox Name="IssuedFinChgMemoHdrCustNo2">
+              <KeepTogether>true</KeepTogether>
+              <Paragraphs>
+                <Paragraph>
+                  <TextRuns>
+                    <TextRun>
+                      <Value>=Code.GetData(47,1)</Value>
+                      <Style>
+                        <FontFamily>Segoe UI</FontFamily>
+                        <FontSize>8pt</FontSize>
+                      </Style>
+                    </TextRun>
+                  </TextRuns>
+                  <Style>
+                    <FontFamily>Segoe UI</FontFamily>
+                    <FontSize>8pt</FontSize>
+                    <TextAlign>Left</TextAlign>
+                  </Style>
+                </Paragraph>
+              </Paragraphs>
+              <Top>9.15673cm</Top>
+              <Left>4.18696cm</Left>
+              <Height>11pt</Height>
+              <Width>6.97625cm</Width>
+              <ZIndex>49</ZIndex>
+              <Style>
+                <FontFamily>Segoe UI</FontFamily>
+                <FontSize>8pt</FontSize>
+                <VerticalAlign>Middle</VerticalAlign>
+              </Style>
+            </Textbox>
           </ReportItems>
           <Style>
             <FontFamily>Segoe UI</FontFamily>
@@ -8051,6 +8113,12 @@ End Function
         </Field>
         <Field Name="EnterpriseClassification">
           <DataField>EnterpriseClassification</DataField>
+        </Field>
+        <Field Name="KundeIDCaption">
+          <DataField>KundeIDCaption</DataField>
+        </Field>
+        <Field Name="KundeID">
+          <DataField>KundeID</DataField>
         </Field>
         <Field Name="DimText">
           <DataField>DimText</DataField>

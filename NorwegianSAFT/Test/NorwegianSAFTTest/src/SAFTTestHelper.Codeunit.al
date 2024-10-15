@@ -70,6 +70,15 @@ codeunit 148099 "SAF-T Test Helper"
         Codeunit.Run(Codeunit::"SAF-T Export Mgt.", SAFTExportHeader);
     end;
 
+    procedure IncludesNoSourceCodeToTheFirstSAFTSourceCode()
+    var
+        SAFTSourceCode: Record "SAF-T Source Code";
+    begin
+        SAFTSourceCode.FindFirst();
+        SAFTSourceCode.Validate("Includes No Source Code", true);
+        SAFTSourceCode.Modify(true);
+    end;
+
     procedure PostRandomAmountForNumberOfMasterDataRecords(PostingDate: Date; NumberOfMasterDataRecords: Integer)
     var
         GLAccount: Record "G/L Account";
@@ -115,6 +124,16 @@ codeunit 148099 "SAF-T Test Helper"
     end;
 
     procedure MockGLEntry(PostingDate: Date; DocNo: Code[20]; GLAccNo: Code[20]; TransactionNo: Integer; DimSetID: Integer; VATBusPostingGroupCode: Code[20]; VATProdPostingGroupCode: Code[20]; SourceType: Integer; SourceNo: Code[20]; SourceCode: Code[10]; DebitAmount: Decimal; CreditAmount: Decimal)
+    begin
+        MockGLEntryLocal(PostingDate, DocNo, GLAccNo, TransactionNo, DimSetID, 0, VATBusPostingGroupCode, VATProdPostingGroupCode, SourceType, SourceNo, SourceCode, DebitAmount, CreditAmount);
+    end;
+
+    procedure MockGLEntry(PostingDate: Date; DocNo: Code[20]; GLAccNo: Code[20]; TransactionNo: Integer; DimSetID: Integer; GenPostingType: Integer; VATBusPostingGroupCode: Code[20]; VATProdPostingGroupCode: Code[20]; SourceType: Integer; SourceNo: Code[20]; SourceCode: Code[10]; DebitAmount: Decimal; CreditAmount: Decimal)
+    begin
+        MockGLEntryLocal(PostingDate, DocNo, GLAccNo, TransactionNo, DimSetID, GenPostingType, VATBusPostingGroupCode, VATProdPostingGroupCode, SourceType, SourceNo, SourceCode, DebitAmount, CreditAmount);
+    end;
+
+    local procedure MockGLEntryLocal(PostingDate: Date; DocNo: Code[20]; GLAccNo: Code[20]; TransactionNo: Integer; DimSetID: Integer; GenPostingType: Integer; VATBusPostingGroupCode: Code[20]; VATProdPostingGroupCode: Code[20]; SourceType: Integer; SourceNo: Code[20]; SourceCode: Code[10]; DebitAmount: Decimal; CreditAmount: Decimal)
     var
         GLEntry: Record "G/L Entry";
     begin
@@ -132,12 +151,13 @@ codeunit 148099 "SAF-T Test Helper"
         GLEntry."Source Type" := SourceType;
         GLEntry."Source No." := SourceNo;
         GLEntry."Source Code" := SourceCode;
+        GLEntry."Gen. Posting Type" := GenPostingType;
         GLEntry."VAT Bus. Posting Group" := VATBusPostingGroupCode;
         GLEntry."VAT Prod. Posting Group" := VATProdPostingGroupCode;
         GLEntry."Debit Amount" := DebitAmount;
         GLEntry."Credit Amount" := CreditAmount;
         GLEntry.Amount := DebitAmount + CreditAmount;
-        GLEntry.Insert()
+        GLEntry.Insert();
     end;
 
     procedure MockVATEntry(var VATEntry: Record "VAT Entry"; PostingDate: Date; Type: Integer; TransactionNo: Integer)

@@ -192,12 +192,12 @@ codeunit 144183 "MIR Fin. Charge Memo"
         LibraryReportValidation.OpenExcelFile;
         for i := 1 to ArrayLen(AmountLine) do begin
             LibraryReportValidation.VerifyCellValueOnWorksheet(
-              61 + 2 * i, 13, LibraryReportValidation.FormatDecimalValue(AmountLine[i]), '1');
+              63 + 2 * i, 13, LibraryReportValidation.FormatDecimalValue(AmountLine[i]), '1');
             LibraryReportValidation.VerifyCellValueOnWorksheet(
-              62 + 2 * i, 13, LibraryReportValidation.FormatDecimalValue(AmountMIRLine[i]), '1');
+              64 + 2 * i, 13, LibraryReportValidation.FormatDecimalValue(AmountMIRLine[i]), '1');
         end;
 
-        LibraryReportValidation.VerifyCellValueOnWorksheet(75, 13, LibraryReportValidation.FormatDecimalValue(TotalAmount), '1');
+        LibraryReportValidation.VerifyCellValueOnWorksheet(77, 13, LibraryReportValidation.FormatDecimalValue(TotalAmount), '1');
     end;
 
     local procedure VerifyAmountsWithoutMIREntry(TotalAmount: Decimal; AmountLine: array[5] of Decimal; AmountMIRLine: array[5] of Decimal)
@@ -206,11 +206,11 @@ codeunit 144183 "MIR Fin. Charge Memo"
     begin
         LibraryReportValidation.OpenExcelFile;
         for i := 1 to ArrayLen(AmountLine) do begin
-            LibraryReportValidation.VerifyCellValueOnWorksheet(62 + i, 13, LibraryReportValidation.FormatDecimalValue(AmountLine[i]), '1');
+            LibraryReportValidation.VerifyCellValueOnWorksheet(64 + i, 13, LibraryReportValidation.FormatDecimalValue(AmountLine[i]), '1');
             Assert.IsFalse(LibraryReportValidation.CheckIfDecimalValueExists(AmountMIRLine[i]), WrongRowErr);
         end;
 
-        LibraryReportValidation.VerifyCellValueOnWorksheet(70, 13, LibraryReportValidation.FormatDecimalValue(TotalAmount), '1');
+        LibraryReportValidation.VerifyCellValueOnWorksheet(72, 13, LibraryReportValidation.FormatDecimalValue(TotalAmount), '1');
     end;
 
     [RequestPageHandler]

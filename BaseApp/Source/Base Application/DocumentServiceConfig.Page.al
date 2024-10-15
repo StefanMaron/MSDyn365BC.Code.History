@@ -5,7 +5,7 @@ page 9551 "Document Service Config"
     DelayedInsert = true;
     InsertAllowed = false;
     PageType = Card;
-    Permissions = TableData 2000000114 = rim;
+    Permissions = TableData 2000000114 = rimd;
     SourceTable = "Document Service";
     UsageCategory = Administration;
 

@@ -21,12 +21,13 @@ codeunit 2003 "ML Prediction Management"
         FeatureRepeatedErr: Label 'You can add a field as a feature only one time.';
         TrainingPercent: Decimal;
         ApiUri: Text[250];
+        [NonDebuggable]
         ApiKey: Text[200];
         ApiTimeout: Integer;
         TrainingPercentageErr: Label 'The training percentage must be a decimal number between 0 and 1.';
         SomethingWentWrongErr: Label 'Oops, something went wrong when connecting to the Azure Machine Learning endpoint. Please contact your system administrator. %1.', Comment = '%1 = detailed error';
         DetailedErrorErr: Label 'Details: ';
-        ErrorResponseTxt: Label 'Error code: ', Comment = '{LOCKED}';
+        ErrorResponseTxt: Label 'Error code: ', Locked = true;
         AzureMachineLearningLimitReachedErr: Label 'The Microsoft Azure Machine Learning limit has been reached. Please contact your system administrator.';
         DownloadModelPlotLbl: Label 'Download model visualization in pdf format.';
         MachineLearningSecretNameTxt: Label 'machinelearning', Locked = true;
@@ -39,6 +40,7 @@ codeunit 2003 "ML Prediction Management"
         TrainingPercent := 0.8;
     end;
 
+    [NonDebuggable]
     procedure Initialize(Uri: Text[250]; "Key": Text[200]; TimeOutSeconds: Integer)
     begin
         ApiUri := Uri;
@@ -48,6 +50,7 @@ codeunit 2003 "ML Prediction Management"
         DefaultInitialize;
     end;
 
+    [NonDebuggable]
     procedure InitializeWithKeyVaultCredentials(TimeOutSeconds: Integer)
     var
         AzureAIUsage: Record "Azure AI Usage";
@@ -147,10 +150,9 @@ codeunit 2003 "ML Prediction Management"
         OnBeforeTrain(Model, Quality, CallAzureEndPoint);
         if not CallAzureEndPoint then
             exit;
-        
-        if not AzureMLConnector.Initialize(ApiKey, ApiUri, ApiTimeout) then
-            Error(NotInitializedErr, GetLastDetailedError);
-        
+
+        InitializeAzureMLConnector();
+
         TestFeatureLabelInitialized;
         AzureMLConnector.AddParameter('method', 'train');
         AzureMLConnector.AddParameter('train_percent', Format(TrainingPercent, 0, 9));
@@ -173,8 +175,7 @@ codeunit 2003 "ML Prediction Management"
         if not CallAzureEndPoint then
             exit;
 
-        if not AzureMLConnector.Initialize(ApiKey, ApiUri, ApiTimeout) then
-            Error(NotInitializedErr, GetLastDetailedError);
+        InitializeAzureMLConnector();
 
         TestFeatureLabelInitialized;
         AzureMLConnector.AddParameter('method', 'predict');
@@ -196,9 +197,8 @@ codeunit 2003 "ML Prediction Management"
         if not CallAzureEndPoint then
             exit;
 
-        if not AzureMLConnector.Initialize(ApiKey, ApiUri, ApiTimeout) then
-            Error(NotInitializedErr, GetLastDetailedError);
-            
+        InitializeAzureMLConnector();
+
         TestFeatureLabelInitialized;
         AzureMLConnector.AddParameter('method', 'evaluate');
         AzureMLConnector.AddParameter('model', Model);
@@ -215,9 +215,8 @@ codeunit 2003 "ML Prediction Management"
     var
         Result: Text;
     begin
-        if not AzureMLConnector.Initialize(ApiKey, ApiUri, ApiTimeout) then
-            Error(NotInitializedErr, GetLastDetailedError);
-            
+        InitializeAzureMLConnector();
+
         AzureMLConnector.AddParameter('method', 'plotmodel');
         AzureMLConnector.AddParameter('model', Model);
         if Features <> '' then
@@ -237,9 +236,9 @@ codeunit 2003 "ML Prediction Management"
     procedure DownloadPlot(PdfDataBase64: Text; ModelName: Text)
     var
         Base64Convert: Codeunit "Base64 Convert";
-		TempBlob: Codeunit "Temp Blob";
+        TempBlob: Codeunit "Temp Blob";
         OutStream: OutStream;
-		InStr: InStream;
+        InStr: InStream;
     begin
         TempBlob.CreateOutStream(OutStream);
         Base64Convert.FromBase64(PdfDataBase64, OutStream);
@@ -315,6 +314,13 @@ codeunit 2003 "ML Prediction Management"
         // 20 is the minimum number of data points for which the decision
         // tree algorithm we are using will create a model with multiple nodes
         exit(TrainingPercent * RecRef.Count >= 20);
+    end;
+
+    [NonDebuggable]
+    local procedure InitializeAzureMLConnector()
+    begin
+        if not AzureMLConnector.Initialize(ApiKey, ApiUri, ApiTimeout) then
+            Error(NotInitializedErr, GetLastDetailedError);
     end;
 
     local procedure CreateLabelDictionary(var LabelDict: DotNet GenericDictionary2)
@@ -493,6 +499,7 @@ codeunit 2003 "ML Prediction Management"
         exit(ArrayLen(FeatureNumbers));
     end;
 
+    [NonDebuggable]
     [TryFunction]
     [Scope('OnPrem')]
     procedure GetMachineLearningCredentials(var ApiUri: Text[250]; var ApiKey: Text[200]; var LimitType: Option; var Limit: Decimal)

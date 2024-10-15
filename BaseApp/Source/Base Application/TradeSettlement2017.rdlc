@@ -3281,7 +3281,7 @@
             <DataSetName>DataSet_Result</DataSetName>
             <Filters>
               <Filter>
-                <FilterExpression>=Fields!VATBusPostGroup_VATEntry.Value</FilterExpression>
+                <FilterExpression>=Fields!VATProdPostGroup_VATEntry.Value</FilterExpression>
                 <Operator>GreaterThan</Operator>
                 <FilterValues>
                   <FilterValue>""</FilterValue>

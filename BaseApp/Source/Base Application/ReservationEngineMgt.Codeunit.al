@@ -974,6 +974,7 @@ codeunit 99000831 "Reservation Engine Mgt."
 
         if not Found then begin
             TempSortRec2.SetRange("Reservation Status", TempSortRec1."Reservation Status");
+            OnNextRecordOnAfterFilterTempSortRec2(TempSortRec2, TempSortRec1);
             if not TempSortRec2.IsEmpty then begin // Records carrying item tracking
                 TempSortRec2.FindFirst;
                 TempSortRec1 := TempSortRec2;
@@ -1338,6 +1339,11 @@ codeunit 99000831 "Reservation Engine Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnCancelReservationOnBeforeDoCancel(ReservationEntry3: Record "Reservation Entry"; ReservationEntry: Record "Reservation Entry"; var DoCancel: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnNextRecordOnAfterFilterTempSortRec2(var TempSortReservEntry2: Record "Reservation Entry"; TempSortReservEntry1: Record "Reservation Entry")
     begin
     end;
 }

@@ -563,6 +563,18 @@
                 fixed(Control1903561801)
                 {
                     ShowCaption = false;
+                    group("Number of Lines")
+                    {
+                        Caption = 'Number of Lines';
+                        field(NumberOfJournalRecords; Count)
+                        {
+                            ApplicationArea = All;
+                            AutoFormatType = 1;
+                            ShowCaption = false;
+                            Editable = false;
+                            ToolTip = 'Specifies the number of lines in the current journal batch.';
+                        }
+                    }
                     group("Account Name")
                     {
                         Caption = 'Account Name';
@@ -829,9 +841,13 @@
                     trigger OnAction()
                     var
                         ImportPaymentOrder: Report "Rem. payment order - import";
+                        IsHandled: Boolean;
                     begin
-                        // Import payments.
-                        // Start report (batch) with current journal lines. Imports payments into journal.
+                        IsHandled := false;
+                        OnBeforeImportReturnData(Rec, IsHandled);
+                        if IsHandled then
+                            EXIT;
+
                         ImportPaymentOrder.SetJournal(Rec);
                         ImportPaymentOrder.RunModal;
                         Clear(ImportPaymentOrder);
@@ -1773,6 +1789,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidateShortcutDimCode(var GenJournalLine: Record "Gen. Journal Line"; var ShortcutDimCode: array[8] of Code[20]; DimIndex: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeImportReturnData(var GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
     begin
     end;
 }
