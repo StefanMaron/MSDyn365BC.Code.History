@@ -393,9 +393,9 @@
         {
             Caption = 'Capacity No. Filter';
             FieldClass = FlowFilter;
-            TableRelation = IF ("Capacity Type Filter" = CONST("Work Center")) "Machine Center"
+            TableRelation = IF ("Capacity Type Filter" = CONST("Machine Center")) "Machine Center"
             ELSE
-            IF ("Capacity Type Filter" = CONST("Machine Center")) "Work Center";
+            IF ("Capacity Type Filter" = CONST("Work Center")) "Work Center";
         }
         field(50; "Date Filter"; Date)
         {

@@ -520,7 +520,7 @@
   </Item>
   <Item ItemId=";Codeunit 2878479753 - Method 1335524357 - NamedType 3915869411" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[VAT Calculation Type must be equal to 'Reverse Charge VAT']]></Val>
+      <Val><![CDATA[Relation Exch. Rate Amount for the Currency Code and for the VAT Currency Code must be the same if Normal VAT is used.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>

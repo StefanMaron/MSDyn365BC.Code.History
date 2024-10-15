@@ -239,6 +239,7 @@ page 381 "Apply Bank Acc. Ledger Entries"
 
     var
         BankAccount: Record "Bank Account";
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
         StyleTxt: Text;
         LineApplied: Boolean;
         Balance: Decimal;
@@ -246,6 +247,8 @@ page 381 "Apply Bank Acc. Ledger Entries"
         BalanceToReconcile: Decimal;
         AmountVisible: Boolean;
         DebitCreditVisible: Boolean;
+        ShowingReversed: Boolean;
+        ShowingNonMatched: Boolean;
 
     procedure GetSelectedRecords(var TempBankAccLedgerEntry: Record "Bank Account Ledger Entry" temporary)
     var
@@ -264,6 +267,84 @@ page 381 "Apply Bank Acc. Ledger Entries"
         StyleTxt := '';
         if LineApplied then
             StyleTxt := 'Favorable';
+    end;
+
+    procedure ShowAll()
+    begin
+        Rec.Reset();
+        ShowingNonMatched := false;
+        if BankAccReconciliation.Get(BankAccReconciliation."Statement Type", BankAccReconciliation."Bank Account No.", BankAccReconciliation."Statement No.") then;
+        ApplyDateFilter(BankAccReconciliation.MatchCandidateFilterDate());
+        ApplyControledFilters();
+        CurrPage.Update(false);
+    end;
+
+    procedure ShowNonMatched()
+    begin
+        ShowingNonMatched := true;
+        ApplyControledFilters();
+        CurrPage.Update(false);
+    end;
+
+    procedure ShowReversed()
+    begin
+        ShowingReversed := true;
+        ApplyControledFilters();
+        CurrPage.Update(false);
+    end;
+
+    procedure HideReversed()
+    begin
+        ShowingReversed := false;
+        ApplyControledFilters();
+        CurrPage.Update(false);
+    end;
+
+    local procedure ApplyControledFilters()
+    begin
+        ApplyPartFilters();
+        if ShowingNonMatched then begin
+            Rec.SetRange("Statement Status", Rec."Statement Status"::Open);
+            Rec.SetRange("Statement No.", '');
+            Rec.SetRange("Statement Line No.", 0);
+        end
+        else begin
+            Rec.SetRange("Statement No.");
+            Rec.SetRange("Statement Line No.");
+        end;
+
+        if not ShowingReversed then
+            Rec.SetRange(Reversed, false)
+        else
+            Rec.SetRange(Reversed);
+    end;
+
+    procedure SetBankRecDateFilter(StatementDate: Date)
+    begin
+        ApplyDateFilter(StatementDate);
+        CurrPage.Update(false);
+    end;
+
+    local procedure ApplyPartFilters()
+    begin
+        Rec.SetRange("Bank Account No.", BankAccReconciliation."Bank Account No.");
+        Rec.SetRange(Open, true);
+        Rec.SetFilter("Statement Status", '%1|%2|%3', Rec."Statement Status"::Open, Rec."Statement Status"::"Bank Acc. Entry Applied", Rec."Statement Status"::"Check Entry Applied");
+    end;
+
+    local procedure ApplyDateFilter(StatementDate: Date)
+    begin
+        if StatementDate = 0D then
+            Rec.SetRange("Posting Date")
+        else
+            Rec.SetRange("Posting Date", 0D, StatementDate);
+    end;
+
+    procedure AssignBankAccReconciliation(var NewBankAccReconciliation: Record "Bank Acc. Reconciliation")
+    begin
+        BankAccReconciliation := NewBankAccReconciliation;
+        ApplyControledFilters();
+        CurrPage.Update(false);
     end;
 
     local procedure CalcBalance()
