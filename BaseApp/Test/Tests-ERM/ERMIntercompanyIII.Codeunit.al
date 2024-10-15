@@ -4,6 +4,7 @@ codeunit 134154 "ERM Intercompany III"
                   TableData "Vendor Ledger Entry" = rimd;
     Subtype = Test;
     TestPermissions = Disabled;
+    EventSubscriberInstance = Manual;
 
     trigger OnRun()
     begin
@@ -32,6 +33,7 @@ codeunit 134154 "ERM Intercompany III"
         IsInitialized: Boolean;
         SendAgainQst: Label '%1 %2 has already been sent to intercompany partner %3. Resending it will create a duplicate %1 for them. Do you want to send it again?';
         AcceptAgainQst: Label '%1 %2 has already been received from intercompany partner %3. Accepting it again will create a duplicate %1. Do you want to accept the %1?';
+        InsufficientQtyErr: Label 'You have insufficient quantity of Item';
 
     [Test]
     [HandlerFunctions('ConfirmHandlerYes,ICSetupPageHandler')]
@@ -1863,6 +1865,66 @@ codeunit 134154 "ERM Intercompany III"
         LibraryApplicationArea.DisableApplicationAreaSetup();
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesPostAutoSendTransactionSkipSendOnError()
+    var
+        HandledICOutboxTrans: Record "Handled IC Outbox Trans.";
+        ICOutboxTransaction: Record "IC Outbox Transaction";
+        CompanyInformation: Record "Company Information";
+        SalesHeader: Record "Sales Header";
+        ICPartner: Record "IC Partner";
+        Customer: Record Customer;
+        InventorySetup: Record "Inventory Setup";
+        ICInboxOutboxMgt: Codeunit ICInboxOutboxMgt;
+        ERMIntercompanyIII: Codeunit "ERM Intercompany III";
+        ICPartnerCode: Code[20];
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO 407832] Auto. Send Transaction should not send IC doc ignoring error
+        Initialize();
+
+        // [GIVEN] An IC Partner Code
+        ICPartnerCode := CreateICPartnerWithInbox();
+
+        // [GIVEN] Auto Send Transactions was enabled
+        CompanyInformation.Get();
+        CompanyInformation."Auto. Send Transactions" := true;
+        CompanyInformation."IC Partner Code" := ICPartnerCode;
+        CompanyInformation.Modify();
+        ICOutboxTransaction.DeleteAll();
+
+        // [GIVEN] Inventory Setup with Prevent Negative Inventory = true
+        InventorySetup.Get();
+        InventorySetup.Validate("Prevent Negative Inventory", true);
+        InventorySetup.Modify();
+
+        // [GIVEN] IC Partner with Vendor No.
+        ICPartner.Get(ICPartnerCode);
+        ICPartner.Validate("Vendor No.", LibraryPurchase.CreateVendorNo());
+        ICPartner.Modify(true);
+
+        // [GIVEN] Created Sales Order
+        LibrarySales.CreateSalesOrder(SalesHeader);
+        SalesHeader.Validate("Sell-to IC Partner Code", ICPartnerCode);
+        SalesHeader.Validate("Send IC Document", true);
+        SalesHeader.Modify(true);
+
+        // [GIVEN] Set IC Partner Code for created Customer
+        Customer.Get(SalesHeader."Sell-to Customer No.");
+        Customer.Validate("IC Partner Code", ICPartnerCode);
+        Customer.Modify(true);
+
+        // [WHEN] Post Sales Order with Ship = true, Post = false.
+        BindSubscription(ERMIntercompanyIII);
+        asserterror LibrarySales.PostSalesDocument(SalesHeader, true, false);
+
+        // [THEN] Error message appears about insufficient quantity
+        // event OnBeforeSendICDocument should not be called
+        Assert.ExpectedError(InsufficientQtyErr);
+        UnbindSubscription(ERMIntercompanyIII);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1884,6 +1946,7 @@ codeunit 134154 "ERM Intercompany III"
 
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibrarySetupStorage.Save(DATABASE::"Company Information");
+        LibrarySetupStorage.Save(Database::"Inventory Setup");
 
         LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"ERM Intercompany III");
     end;
@@ -2605,6 +2668,12 @@ codeunit 134154 "ERM Intercompany III"
     procedure ICSetupPageHandler(var ICSetup: TestPage "IC Setup")
     begin
         ICSetup.Cancel.Invoke;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", 'OnBeforeSendICDocument', '', false, false)]
+    local procedure OnBeforeSendICDocument(var SalesHeader: Record "Sales Header"; var ModifyHeader: Boolean; var IsHandled: Boolean)
+    begin
+        Error('OnBeforeSendICDocument should not be called');
     end;
 }
 
