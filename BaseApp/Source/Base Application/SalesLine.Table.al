@@ -501,22 +501,22 @@
                                     "No.":
                                         Description := xRec.Description;
                                     else begin
-                                            CurrFieldNo := FieldNo("No.");
-                                            Validate("No.", CopyStr(ReturnValue, 1, MaxStrLen(Item."No.")));
-                                        end;
+                                        CurrFieldNo := FieldNo("No.");
+                                        Validate("No.", CopyStr(ReturnValue, 1, MaxStrLen(Item."No.")));
+                                    end;
                                 end;
                         end;
                     else begin
-                            IsHandled := false;
-                            OnBeforeFindNoByDescription(Rec, xRec, CurrFieldNo, IsHandled);
-                            if not IsHandled then begin
-                                ReturnValue := FindRecordMgt.FindNoByDescription(Type.AsInteger(), Description, true);
-                                if ReturnValue <> '' then begin
-                                    CurrFieldNo := FieldNo("No.");
-                                    Validate("No.", CopyStr(ReturnValue, 1, MaxStrLen("No.")));
-                                end;
+                        IsHandled := false;
+                        OnBeforeFindNoByDescription(Rec, xRec, CurrFieldNo, IsHandled);
+                        if not IsHandled then begin
+                            ReturnValue := FindRecordMgt.FindNoByDescription(Type.AsInteger(), Description, true);
+                            if ReturnValue <> '' then begin
+                                CurrFieldNo := FieldNo("No.");
+                                Validate("No.", CopyStr(ReturnValue, 1, MaxStrLen("No.")));
                             end;
                         end;
+                    end;
                 end;
 
                 IsHandled := false;
@@ -4435,6 +4435,10 @@
         if IsHandled then
             exit;
 
+        if (Rec."Outstanding Quantity" = 0) and (Rec."Qty. Shipped Not Invoiced" = 0) then
+            if SalesHeader."Document Type" <> SalesHeader."Document Type"::Invoice then
+                exit;
+
         if SalesHeader."Document Type" <> SalesHeader."Document Type"::Invoice then begin
             "Prepayment VAT Difference" := 0;
             if not PrePaymentLineAmountEntered then begin
@@ -4460,6 +4464,10 @@
             exit;
 
         if "Prepayment %" <> 0 then begin
+            if "System-Created Entry" then
+                if Type = Type::"G/L Account" then
+                    if not IsServiceChargeLine() then
+                        exit;
             if Quantity < 0 then
                 FieldError(Quantity, StrSubstNo(Text047, FieldCaption("Prepayment %")));
             if "Unit Price" < 0 then
@@ -5178,7 +5186,7 @@
         "Dimension Set ID" :=
           DimMgt.GetRecDefaultDimID(
             Rec, CurrFieldNo, DefaultDimSource, SourceCodeSetup.Sales,
-            "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", SalesHeader."Dimension Set ID", DATABASE::Customer);
+            "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", SalesHeader."Dimension Set ID", 0);
 
         OnCreateDimOnBeforeUpdateGlobalDimFromDimSetID(Rec);
         DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
@@ -5946,9 +5954,9 @@
                                                     VATAmountLine.Quantity += "Qty. to Invoice (Base)";
                                                 end;
                                             else begin
-                                                    QtyToHandle := "Qty. to Invoice";
-                                                    VATAmountLine.Quantity += "Qty. to Invoice (Base)";
-                                                end;
+                                                QtyToHandle := "Qty. to Invoice";
+                                                VATAmountLine.Quantity += "Qty. to Invoice (Base)";
+                                            end;
                                         end;
 
                                     OnCalcVATAmountLinesOnBeforeAssignAmtToHandle(SalesHeader, SalesLine, VATAmountLine, IncludePrepayments, QtyType, QtyToHandle, AmtToHandle);
@@ -6904,14 +6912,14 @@
         SetFilter("Shipment Date", AvailabilityFilter);
         if DocumentType = "Document Type"::"Return Order" then
             if Positive then
-                SetFilter("Quantity (Base)", '>0')
-            else
-                SetFilter("Quantity (Base)", '<0')
+            SetFilter("Quantity (Base)", '>0')
         else
-            if Positive then
-                SetFilter("Quantity (Base)", '<0')
-            else
-                SetFilter("Quantity (Base)", '>0');
+            SetFilter("Quantity (Base)", '<0')
+        else
+        if Positive then
+            SetFilter("Quantity (Base)", '<0')
+        else
+            SetFilter("Quantity (Base)", '>0');
         SetRange("Job No.", ' ');
 
         OnAfterFilterLinesForReservation(Rec, ReservationEntry, DocumentType, AvailabilityFilter, Positive);

@@ -667,12 +667,20 @@
         if IsHandled then
             exit;
 
-        if ItemJnlLine."Job No." <> '' then begin
-            Clear(ItemJnlPostLine);
+        if ItemJnlLine."Job No." = '' then
+            exit;
+
+        Clear(ItemJnlPostLine);
+        if TempApplyToItemLedgEntry.Positive then begin
             FindItemReceiptApplication(ItemApplicationEntry, TempApplyToItemLedgEntry."Entry No.");
             ItemJnlPostLine.UndoValuePostingWithJob(TempApplyToItemLedgEntry."Entry No.", ItemApplicationEntry."Outbound Item Entry No.");
             FindItemShipmentApplication(ItemApplicationEntry, ItemJnlLine."Item Shpt. Entry No.");
             ItemJnlPostLine.UndoValuePostingWithJob(ItemApplicationEntry."Inbound Item Entry No.", ItemJnlLine."Item Shpt. Entry No.");
+        end else begin
+            FindItemShipmentApplication(ItemApplicationEntry, TempApplyToItemLedgEntry."Entry No.");
+            ItemJnlPostLine.UndoValuePostingWithJob(ItemApplicationEntry."Inbound Item Entry No.", TempApplyToItemLedgEntry."Entry No.");
+            FindItemReceiptApplication(ItemApplicationEntry, ItemJnlLine."Item Shpt. Entry No.");
+            ItemJnlPostLine.UndoValuePostingWithJob(ItemJnlLine."Item Shpt. Entry No.", ItemApplicationEntry."Outbound Item Entry No.");
         end;
     end;
 

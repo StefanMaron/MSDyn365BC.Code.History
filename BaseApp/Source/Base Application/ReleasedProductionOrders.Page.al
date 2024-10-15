@@ -351,8 +351,16 @@ page 9326 "Released Production Orders"
                 Image = "Report";
                 Promoted = true;
                 PromotedCategory = "Report";
-                RunObject = Report "Prod. Order Comp. and Routing";
                 ToolTip = 'View information about components and operations in production orders. For released production orders, the report shows the remaining quantity if parts of the quantity have been posted as output.';
+
+                trigger OnAction()
+                var
+                    ProductionOrder: Record "Production Order";
+                begin
+                    ProductionOrder := Rec;
+                    ProductionOrder.SetRecFilter();
+                    Report.RunModal(Report::"Prod. Order Comp. and Routing", true, false, ProductionOrder);
+                end;
             }
             action(ProdOrderJobCard)
             {
